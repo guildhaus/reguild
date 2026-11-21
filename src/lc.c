@@ -10147,6 +10147,7 @@ void ai_AmountInfoWindow(); int amt_GetOfficeCandidatesFull(); int amt_GetOffice
 int ai_AmountLimit();
 int amt_CanUseMayorPower2(); void d2_SetObjEnabled();
 
+int ai_PickNothing(AICHAR *c, int n);  /* the unlinked pick callback below (sv_ReturnZero in the exe) */
 /* 0x5a0220, the applicants of the office kind office "locations\rathaus\amtsbewerbung2" for the character me
    (from ai_OfficeApplicationWindow): while the office is open (amt_GetFirstOffice) the up to 4 characters that
    applied for it (AICHAR.appliedOffice) are its amount rows (ai_AmountRowStatus / ai_AmountRow, two to a line);
@@ -10241,7 +10242,7 @@ int ai_OfficeApplicantsWindow(AICHAR *me, unsigned int office)
                 ai_CampaignStep(0x2f, 0, 0, office);
             } else if (d2_PointerObj == column) {
                 k = amt_KindColumn(office);
-                ai_SpecialAmountListWindow(k, 0, 0, 0, (int)sv_ReturnZero);
+                ai_SpecialAmountListWindow(k, 0, 0, 0, ai_PickNothing);
             } else if (d2_PointerObj == info) {
                 ai_AmountInfoWindow(office, 0);
             }
@@ -13372,6 +13373,12 @@ void ai_TrainingRoomListener(AIBLD *bld, AIOBJ *room)
             (ai_ClickedObject == ziel || ai_ClickedObject == nacht || ai_ClickedObject == regeneration))
             ai_TrainingWindow(bld);
     } while (sv_RunFrame(ai_TrainingRoomListener, 0x67fff) != 0);
+}
+/* unlinked: the special-amount list's pick callback of the office applicants' column, which picks nothing (returns
+   0); LINK folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040, where the original's reference in ai_OfficeApplicantsWindow points */
+int ai_PickNothing(AICHAR *c, int n)
+{
+    return 0;
 }
 
 /* dcp unit split: the declarations that moved to lcmap (copies: drop what lc does not use) */

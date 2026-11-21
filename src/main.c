@@ -487,7 +487,7 @@ int main_Init(void)
 {
     char dir[260];
 
-    err_Init((int)main_Exit, d3io_NoopCallback, main_Window, 0x10);
+    err_Init(main_Exit, d3io_NoopCallback, main_Window, 0x10);
     mem_Init(48000);
     tr_startup(0x80);
     sprintf(dir, "%sgamedata\\Screenshots", (char *)(unsigned)&main_GfxPath);
@@ -3158,7 +3158,7 @@ void main_EndRound(void)
     q = cm_SendExSysMessage(0, &sysmsg);
     while (cm_GetSlotState(q) == 0)
         sv_PumpNet();
-    tb_SetFunctionOff((int)sv_UpdateClock, 1);
+    tb_SetFunctionOff(sv_UpdateClock, 1);
     if ((ai_GameFlags & 0x80) == 0) {
         if (he_FindEvent(1, 0, 0x66) == 0) {
             AIMSG msg;
@@ -4747,7 +4747,7 @@ void main_GameLoop(int ctl)
             ai_GameFrame();
             if (ai_GameOver == 0) {
                 /* the rest of the day in half hours to 23:00, then the report */
-                tb_SetFunctionOff((unsigned)&sv_UpdateClock, 1);
+                tb_SetFunctionOff(sv_UpdateClock, 1);
                 if ((ai_GameFlags & 8) == 0) {
                     ck = ai_Time;
                     while (ck.hour < 0x17) {
@@ -4766,7 +4766,7 @@ void main_GameLoop(int ctl)
         if (ai_GameOver == 0) {
             if (net_Conn.s == -1) {
                 /* alone: the night to 23:00, then the next day 6:00 */
-                tb_SetFunctionOff((unsigned)&sv_UpdateClock, 1);
+                tb_SetFunctionOff(sv_UpdateClock, 1);
                 night = ai_Time;
                 while (night.hour < 0x17) {
                     gm_AddTime(&night, 0, 0x1e, 0);
@@ -4777,7 +4777,7 @@ void main_GameLoop(int ctl)
                 gm_AddTime(&night, 0x18, 0, 0);
                 gm_SetTime(&night, 6, 0, 0);
                 cm_SendTime(&night);
-                tb_SetFunctionOff((unsigned)&sv_UpdateClock, 0);
+                tb_SetFunctionOff(sv_UpdateClock, 0);
             }
             if ((cm_NetFlags & 8) != 0 || net_Conn.s == -1) {
                 /* the office elections: a party (kind 1) of every player (the host the kind 6 one) */

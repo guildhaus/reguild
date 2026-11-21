@@ -1401,7 +1401,7 @@ int ls_LoadScene(VFSFILE *f)
     d3if_SelectScene(1, 0);
     d3if_ClearScene(0);
     d3if_SelectScene(0, 0);
-    d3_LoadScene(0, f, (void *)(unsigned)&main_LoadProgressCallback);
+    d3_LoadScene(0, f, main_LoadProgressCallback);
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
     if (((D3FLMAP *)d3_Terrain)->size == 0x80 || ((D3FLMAP *)d3_Terrain)->size != 0x40)
