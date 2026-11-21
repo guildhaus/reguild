@@ -2715,7 +2715,7 @@ int sv_CreateScrollForm(void);                                                  
 void sv_ScrollFormAnimate(void);                                                         /* 0x52fad0, defined elsewhere */
 void sv_DestroyScrollForm(void);                                                         /* 0x52fa90, defined elsewhere */
 int io_PrintText(char *fmt, ...);                                               /* 0x515960, defined elsewhere */
-int sv_RunFrame(int cb, unsigned mask);                                      /* 0x5309a0, defined elsewhere */
+int sv_RunFrame(void (*cb)(), unsigned mask);                                      /* 0x5309a0, defined elsewhere */
 extern int sv_PopRequest;                /* 0x6f22a0 */
 
 /* 0x4b3350, the history dialog: shows the events of last year (0x4b3280) one after the other */
@@ -2847,7 +2847,7 @@ void hst_LastYearCmdDialog(int cmd)
                 io_PrintText("$C$Z$[%s$]", name);
             }
         }
-    } while (sv_RunFrame((void (*)(void))hst_LastYearCmdDialog, 0x66087));
+    } while (sv_RunFrame(hst_LastYearCmdDialog, 0x66087));
     sv_DestroyScrollForm();
 }
 

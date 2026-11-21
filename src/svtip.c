@@ -374,7 +374,7 @@ int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
 struct G5CH; struct G9REC; struct VFSFILE;
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
 int sv_CheckGoodAmount(char *o, int n, unsigned char t);
@@ -1189,7 +1189,7 @@ void ai_CharInfoWindow(char *ch)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_CharInfoWindow, 0x677c7));
+    } while (sv_RunFrame(ai_CharInfoWindow, 0x677c7));
     sv_ResetScreenClip();
     d2_CloseView(view);
 }
@@ -1421,7 +1421,7 @@ void ai_BookmarkWindow(void)
         else
             d2_SetObjEnabled(buttons[0], 1);
         ai_SelectBookmark();
-    } while (sv_RunFrame((int)ai_BookmarkWindow, 0x657c7));
+    } while (sv_RunFrame(ai_BookmarkWindow, 0x657c7));
     d2_RadioClear(group);
     d2_CloseView(view);
 }

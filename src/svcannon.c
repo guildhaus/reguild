@@ -377,7 +377,7 @@ int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
 struct G5CH; struct G9REC; struct VFSFILE;
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
 int sv_CheckGoodAmount(char *o, int n, unsigned char t);
@@ -633,7 +633,7 @@ void ai_CannonScene(char *rec)
     ai_ShotTable[2].id = -1;
     ai_ShotTable[1].id = -1;
     ai_ShotTable[0].id = -1;
-    while (sv_RunFrame((int)ai_CannonScene, 0x2656c7) != 0) {
+    while (sv_RunFrame(ai_CannonScene, 0x2656c7) != 0) {
         sv_SetPanelEnabled(0);
         sc.now = d3_Time;
         dt = (float)(sc.now - sc.last) * 0.013513514f;
@@ -1180,7 +1180,7 @@ void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int
     start = d3_Time;
     if (sel == sc->selected || sel > sc->maxSel)
         return;
-    while (sv_RunFrame((int)ai_CannonSwitchAnim, mask) != 0) {
+    while (sv_RunFrame(ai_CannonSwitchAnim, mask) != 0) {
         ai_CannonPanel(rec, sc, run);
         if ((float)(d3_Time - start) > ai_CannonSwitchMs) {
             sv_PopRequest = 1;
@@ -1215,7 +1215,7 @@ void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int
     d3if_Show(sc->obj8c[sel], 1);
     sc->selected = sel;
     start = d3_Time;
-    while (sv_RunFrame((int)ai_CannonSwitchAnim, mask) != 0) {
+    while (sv_RunFrame(ai_CannonSwitchAnim, mask) != 0) {
         ai_CannonPanel(rec, sc, run);
         if ((float)(d3_Time - start) > ai_CannonSwitchMs) {
             sv_PopRequest = 1;

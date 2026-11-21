@@ -3982,7 +3982,7 @@ void ai_SetupTutorialPlayer(void)
     memcpy(init_PlayerProfile.talents, t.skills, 5);
 }
 
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 
 /* 0x57bce0, the tutorial's chapter chooser: opens the form "tutorial\CHOOSE_tutorial" centred, writes its title
    (text 0x3f1a) into control 1 and into control 2 five checkboxes for the chapters (texts 0x3f1b ..), each
@@ -4017,7 +4017,7 @@ int ai_TutorialWindow(void)
     start = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f20));
     back = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f21));
     d2_SetForm(id, 2);
-    while (sv_RunFrame((int)ai_TutorialWindow, 0x86) != 0) {
+    while (sv_RunFrame(ai_TutorialWindow, 0x86) != 0) {
         for (i = 0, n = 0; i < 5; i++) {
             if (d2_Objs[ids[i]].checked != 0) {
                 d2_SetObjEnabled(start, 1);
@@ -4192,7 +4192,7 @@ void ai_AlchemistCandidates(unsigned char *obj)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_AlchemistCandidates, 0x677c7));
+    } while (sv_RunFrame(ai_AlchemistCandidates, 0x677c7));
     d2_RadioClear(group);
     d2_CloseView(form);
     sv_CameraFollow();
@@ -4313,7 +4313,7 @@ void ai_AlchemistResearchWindow(unsigned char *obj)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_AlchemistResearchWindow, 0x677c7));
+        } while (sv_RunFrame(ai_AlchemistResearchWindow, 0x677c7));
         d2_CloseView(form);
         return;
     }
@@ -4413,7 +4413,7 @@ void ai_AlchemistResearchWindow(unsigned char *obj)
                 ai_AlchemistSendResearchStart(obj, rec);
             }
         }
-    } while (sv_RunFrame((int)ai_AlchemistResearchWindow, 0x677c7));
+    } while (sv_RunFrame(ai_AlchemistResearchWindow, 0x677c7));
     d2_RadioClear(group);
     d2_CloseView(form);
     sv_CameraFollow();
@@ -4539,7 +4539,7 @@ void ai_AlchemistWindow(unsigned char *obj)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_AlchemistResearchWindow, 0x677c7));
+        } while (sv_RunFrame(ai_AlchemistResearchWindow, 0x677c7));
         d2_CloseView(w.form);
         return;
     }
@@ -4613,7 +4613,7 @@ void ai_AlchemistWindow(unsigned char *obj)
             owner = (AICHAR *)ahm_OwnerChar(obj);
             if (owner == 0) {
                 sv_PopRequest = 1;
-                sv_RunFrame((int)ai_AlchemistWindow, 0x20007);
+                sv_RunFrame(ai_AlchemistWindow, 0x20007);
                 d2_CloseView(w.form);
                 return;
             }
@@ -4685,7 +4685,7 @@ void ai_AlchemistWindow(unsigned char *obj)
                 d2_SetViewEnabled(w.form, 1);
             }
         }
-    } while (sv_RunFrame((int)ai_AlchemistWindow, 0x677c7));
+    } while (sv_RunFrame(ai_AlchemistWindow, 0x677c7));
     d2_CloseView(w.form);
     sv_CameraFollow();
 }
@@ -4748,7 +4748,7 @@ int ai_AlchemistTrainShareWindow(unsigned char *obj, AHMREC *rec, int idx)
                 sv_PopRequest = 1;
             }
         }
-        if (sv_RunFrame((int)ai_AlchemistTrainShareWindow, 0x677c7) == 0) {
+        if (sv_RunFrame(ai_AlchemistTrainShareWindow, 0x677c7) == 0) {
             d2_CloseView(win);
             return 1;
         }
@@ -4801,7 +4801,7 @@ int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
         owner = ahm_OwnerChar(obj);
         if (!owner) {
             sv_PopRequest = 1;
-            sv_RunFrame((int)ai_AlchemistFundWindow, 0x20007);
+            sv_RunFrame(ai_AlchemistFundWindow, 0x20007);
             d2_CloseView(win);
             return 0;
         }
@@ -4820,7 +4820,7 @@ int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_AlchemistFundWindow, 0x677c7));
+    } while (sv_RunFrame(ai_AlchemistFundWindow, 0x677c7));
     d2_CloseView(win);
     return done;
 }
@@ -4858,7 +4858,7 @@ int ai_AlchemistRescheduleWindow(unsigned char *obj, AHMREC *rec)
         owner = ahm_OwnerChar(obj);
         if (!owner) {
             sv_PopRequest = 1;
-            sv_RunFrame((int)ai_AlchemistRescheduleWindow, 0x20007);
+            sv_RunFrame(ai_AlchemistRescheduleWindow, 0x20007);
             d2_CloseView(win);
             return 0;
         }
@@ -4874,7 +4874,7 @@ int ai_AlchemistRescheduleWindow(unsigned char *obj, AHMREC *rec)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_AlchemistRescheduleWindow, 0x677c7));
+    } while (sv_RunFrame(ai_AlchemistRescheduleWindow, 0x677c7));
     d2_CloseView(win);
     return done;
 }

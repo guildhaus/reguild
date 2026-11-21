@@ -3206,7 +3206,7 @@ void cm_RunDeath(G28REC *m)
         else
             txt_Format(buf, 0x1ab3, a->id);
         cm_MessageBox(buf, 0);
-        sv_PopTo((unsigned)&main_GameLoop);
+        sv_PopTo(main_GameLoop);
     } else {
         gm_ForfeitEstate((struct ORDCHAR *)a, estate, 1);
         cm_MessageBox(estate, 0x10);
@@ -3287,7 +3287,7 @@ void cm_RunBankruptcy(G28REC *m)
     if ((ai_GameFlags & 8) != 0) {
         a->health = 0;
         ai_GameOver = 1;
-        sv_PopTo((unsigned)&main_GameLoop);
+        sv_PopTo(main_GameLoop);
         return;
     }
     gm_ForfeitEstate((struct ORDCHAR *)a, estate, 0);

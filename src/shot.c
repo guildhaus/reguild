@@ -114,7 +114,7 @@ void cm_SendMoneyDelta(int character, int delta); /* 0x4c5f60, cm.c: message 0x5
                                                character's money (+0x194), clamped 0 .. 0x32 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2); /* 0x53dda0, he.c */
 void d2_SetObjValue(int obj, ...); int d2_GetObjValue(int obj); int d2_CreateWinText(short x, short y, char *text, int win); void d2_SetObjText(int obj, char *text);
-char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(int cb, unsigned mask);
+char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(void (*cb)(), unsigned mask);
 int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj); void d2_MenuNavigate(int g); void d2_RaiseViewWindows(int view); void d2_RadioClear(int g);
 #pragma pack(push, 1)
 typedef struct SAVEREQUEST {                /* 0x210, a save file entry (ai_ListFiles) or an empty slot's request */

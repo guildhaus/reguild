@@ -110,7 +110,7 @@ int lobby_Screen(void)
         io_PrintText(0x87);
         d2_ClickedId = -1;
         while (dm_L.rup == 0 && kb_Last != 1) {
-            if (sv_RunFrame((int)lobby_Screen, 0x24087) != 0)
+            if (sv_RunFrame(lobby_Screen, 0x24087) != 0)
                 continue;
             d2_CloseView(win);
             return 0;
@@ -166,7 +166,7 @@ int lobby_Screen(void)
         io_PrintText(0x87);
         d2_ClickedId = -1;
         while (dm_L.rup == 0 && kb_Last != 1) {
-            if (sv_RunFrame((int)lobby_Screen, 0x24087) != 0)
+            if (sv_RunFrame(lobby_Screen, 0x24087) != 0)
                 continue;
             d2_CloseView(win);
             return 0;
@@ -290,7 +290,7 @@ int lobby_Screen(void)
                 lobby_State[1] = 0;
             }
         }
-    } while (sv_RunFrame((int)lobby_Screen, 0x24087) != 0);
+    } while (sv_RunFrame(lobby_Screen, 0x24087) != 0);
     d2_CloseView(lobby_Form);
     init_PlayerProfile.status = 0x12;
     init_PlayerProfile.job = lobby_Me->job;
@@ -707,7 +707,7 @@ int lobby_ChoosePlayer(unsigned mask, int b)
                 ret = 1;
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)main_ChoosePlayer, mask) != 0);
+    } while (sv_RunFrame(main_ChoosePlayer, mask) != 0);
     d2_RadioClear(sexGroup);
     d2_RadioClear(faithGroup);
     d2_RadioClear(coatGroup);
@@ -764,7 +764,7 @@ int lobby_ChooseProfession(int param)
         d2_RadioAdd(obj, id);
     }
     d2_ClickedId = -1;
-    if (sv_RunFrame((int)lobby_ChooseProfession, param)) {
+    if (sv_RunFrame(lobby_ChooseProfession, param)) {
         do {
             d2_MenuNavigate(obj);
             if (d2_ClickedId != -1) {
@@ -777,7 +777,7 @@ int lobby_ChooseProfession(int param)
                     }
                 }
             }
-        } while (sv_RunFrame((int)lobby_ChooseProfession, param));
+        } while (sv_RunFrame(lobby_ChooseProfession, param));
     }
     d2_RadioClear(obj);
     d2_CloseView(win);

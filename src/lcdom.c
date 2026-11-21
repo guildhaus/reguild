@@ -1676,7 +1676,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     n = i;
     ai_ShowBldCarts(book, bld);
     d2_SetPointerSprite(0, 0);
-    while (sv_RunFrame((int)ai_PersonnelBook, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_PersonnelBook, 0x677c7) != 0) {
         if (dm_L.rup != 0 && ai_RunAllowsWindow() == 1)
             sv_PopRequest = 1;
         ai_UpdateBldCarts(book, bld);
@@ -2152,7 +2152,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     }
     n = i;
     d2_SetPointerSprite(0, 0);
-    while (sv_RunFrame((int)ai_MercenaryBook, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_MercenaryBook, 0x677c7) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         sv_UpdateBook(book);
@@ -2561,7 +2561,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     d2_Objs[i].w = 0x64;
     ai_ShowBldCarts(book, bld);
     d2_SetPointerSprite(0, 0);
-    while (sv_RunFrame((int)ai_HelperBook, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_HelperBook, 0x677c7) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         sv_UpdateBook(book);
@@ -2874,7 +2874,7 @@ void ai_BuyCartWindow(AIBLD *bld)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BuyCartWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BuyCartWindow, 0x677c7) != 0);
     d2_CloseView(win);
     d2_RadioClear(list);
 }
@@ -4302,7 +4302,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             ai_TransportGoodsTotal(b, factor, mode);
         else
             sv_PendingMoney = 0;
-    } while (sv_RunFrame((int)ai_TransportWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_TransportWindow, 0x657c7) != 0);
     ai_CloseChildWindow();
     d2_ClearPointerItems();
     d2_CloseView(win);
@@ -4372,7 +4372,7 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
         map.name[0] = ch_EmptyName[0];
     ai_OpenTownMap(&map);
     ai_BuildTownMap(&map);
-    while (sv_RunFrame((int)ai_MapPick, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_MapPick, 0x677c7) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         ai_MapScrollEnabled = d2_FocusedInput == 0;
@@ -4501,7 +4501,7 @@ int ai_NewStorageSlotWindow(AIOBJ *obj, AIBLD *bld, int level, int level2)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_NewStorageSlotWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_NewStorageSlotWindow, 0x677c7) != 0);
     d2_CloseView(win);
     return r;
 }
@@ -4748,7 +4748,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
         }
         if (dm_L.rup != 0 && ai_RunAllowsWindow() == 1)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_StorageWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_StorageWindow, 0x657c7) != 0);
     sv_CameraFollow();
     d2_CloseView(win);
     ai_CampaignStep(0x1d, bld, 1, 0);
@@ -4880,7 +4880,7 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_TalentWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_TalentWindow, 0x677c7) != 0);
     sv_CameraFollow();
     d2_CloseView(form);
 }
@@ -4984,7 +4984,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
     row.entry = 2;
     row.record = 0x18;
     ai_ShowWindowRow(&row);
-    while (sv_RunFrame((int)ai_SabotageCallback, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_SabotageCallback, 0x677c7) != 0) {
         if (dm_L.rup != 0 || d2_ClickedId == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0 && ok != -1 && d2_PointerObj == ok) {
@@ -5064,7 +5064,7 @@ int ai_EspionageAmountCB(AICHARREC *ch)
     d2_SetList(slider, 3, txt_Ptrs[0x42bb], txt_Ptrs[0x42bc], txt_Ptrs[0x42bd]);
     d2_SetForm(win, 3);
     sv_ButtonRow(d2_LastWindow, 0, buttons, 2, txt_Ptrs[0x42b9], txt_Ptrs[0x42ba]);
-    while (sv_RunFrame((int)ai_EspionageAmountCB, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_EspionageAmountCB, 0x677c7) != 0) {
         if (dm_L.rup != 0 || ch->id == 0xffff) {
             sv_PopRequest = 1;
             continue;
@@ -5175,7 +5175,7 @@ int ai_BeatingCallback(AICHARREC *ch)
     row.entry = 3;
     row.record = 0x15;
     ai_ShowWindowRow(&row);
-    while (sv_RunFrame((int)ai_BeatingCallback, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_BeatingCallback, 0x677c7) != 0) {
         if (dm_L.rup != 0 || d2_ClickedId == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0 && ok != -1 && d2_PointerObj == ok) {
@@ -5253,7 +5253,7 @@ void ai_EvidenceDetailsWindow(AICHARREC *me, AICHARREC *culprit)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_EvidenceDetailsWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_EvidenceDetailsWindow, 0x657c7) != 0);
     d2_CloseView(win);
 }
 int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t);  /* 0x4f3dd0, gv.h's prototype (gv.h is not included yet: Open: head) */
@@ -5331,7 +5331,7 @@ void ai_EvidenceBookWindow(AIBLD *bld)
             if (sel > -1)
                 ai_EvidenceDetailsWindow((AICHARREC *)&ai_Chars[ai_PlayerId], rows[sel].rec);
         }
-    } while (sv_RunFrame((int)ai_EvidenceBookWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_EvidenceBookWindow, 0x657c7) != 0);
     d2_CloseView(win);
     sv_CameraFollow();
 }
@@ -5450,7 +5450,7 @@ int ai_BribeAmountCB(AICHARREC *ch)
         } else if (d2_PointerObj == cancel) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_BribeAmountCB, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BribeAmountCB, 0x677c7) != 0);
     d2_CloseView(win);
     return given;
 }
@@ -5567,7 +5567,7 @@ int ai_DrohbriefAmountCB(AICHARREC *ch)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_DrohbriefAmountCB, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_DrohbriefAmountCB, 0x677c7) != 0);
     d2_CloseView(win);
     return sent;
 }
@@ -5663,7 +5663,7 @@ void ai_DenounceWindow(AIBLD *bld)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_DenounceWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_DenounceWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_CameraFollow();
 }
@@ -5742,7 +5742,7 @@ int ai_PamphletAmountCB(AICHARREC *ch)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_PamphletAmountCB, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_PamphletAmountCB, 0x677c7) != 0);
     d2_CloseView(win);
     return sent;
 }
@@ -5860,7 +5860,7 @@ void ai_NoticeBoardWindow(void)
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_NoticeBoardWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_NoticeBoardWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_CameraFollow();
 }
@@ -5903,7 +5903,7 @@ void ai_BardWindow(void)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
         d2_CloseView(win);
         sv_CameraFollow();
         return;
@@ -5918,7 +5918,7 @@ void ai_BardWindow(void)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
         d2_CloseView(win);
         sv_CameraFollow();
         return;
@@ -5929,7 +5929,7 @@ void ai_BardWindow(void)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
         d2_CloseView(win);
         sv_CameraFollow();
         return;
@@ -5950,7 +5950,7 @@ void ai_BardWindow(void)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
     if (bought == 0) {
         d2_CloseView(win);
         sv_CameraFollow();
@@ -5977,7 +5977,7 @@ void ai_BardWindow(void)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
     d2_SetForm(win2, 3);
     io_PrintText("$C");
     d2_SetForm(win2, 1);
@@ -5995,7 +5995,7 @@ void ai_BardWindow(void)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BardWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BardWindow, 0x677c7) != 0);
     d2_CloseView(win2);
     sv_CameraFollow();
 }
@@ -6091,7 +6091,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     }
                 }
             }
-        } while (sv_RunFrame((int)ai_FeastWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_FeastWindow, 0x677c7) != 0);
         if (done == 0)
             goto close;
         if (hasStage != 0) {
@@ -6120,7 +6120,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                         }
                     }
                 }
-            } while (sv_RunFrame((int)ai_FeastWindow, 0x677c7) != 0);
+            } while (sv_RunFrame(ai_FeastWindow, 0x677c7) != 0);
         } else {
             noMusik = (unsigned char)musik;
             cm_BeginFieldBlock((char *)table, table->objId);
@@ -6251,7 +6251,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     }
                 }
             }
-        } while (sv_RunFrame((int)ai_FeastWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_FeastWindow, 0x677c7) != 0);
         if (done == 0)
             goto close;
         d2_CloseView(win);
@@ -6291,7 +6291,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_FeastWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_FeastWindow, 0x677c7) != 0);
 close:
     d2_CloseView(win);
     sv_CameraFollow();
@@ -6342,7 +6342,7 @@ void ai_SellBuildingWindow(AIBLD *bld)
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_SellBuildingWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_SellBuildingWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b6b20, the renovation window "Panel\Gebaeude_Renovieren" (ai_BuildingWindow, ai_ManagedBuildingWindow): a
@@ -6452,7 +6452,7 @@ void ai_RenovationWindow(AIBLD *bld)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_RenovationWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_RenovationWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b6eb0, the window of a building that is up for sale (ai_BuildingWindow): the sale window
@@ -6494,7 +6494,7 @@ void ai_WithdrawSaleWindow(AIBLD *bld)
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_WithdrawSaleWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_WithdrawSaleWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b6fe0, the room upgrade window of a building (ai_BuildingWindow, ai_ManagedBuildingWindow):
@@ -6645,7 +6645,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
         }
         d2_SetForm(win, 3);
         io_PrintText(0x17cf, bld, type->extensions - running - built, 0x17d4);
-    } while (sv_RunFrame((int)ai_RoomUpgradeWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_RoomUpgradeWindow, 0x657c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b7690, the upgrade of a building to the next type of its line (ai_BuildingWindow, ai_ManagedBuildingWindow):
@@ -6836,7 +6836,7 @@ void ai_BuyBuildingOfferWindow(AIBLD *bld)
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_BuyBuildingOfferWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BuyBuildingOfferWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b7dd0, the effects window of a building's techniques "techtree\auswirkungen" (ai_TechTreeWindow,
@@ -6943,7 +6943,7 @@ void ai_TechEffectsWindow(AIBLD *bld)
                 d2_SetObjValue(sliders[i], 0, max, hi, lo);
             }
         }
-    } while (sv_RunFrame((int)ai_TechEffectsWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_TechEffectsWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b82a0, the fire fighting window of a burning building "Panel\Gebaeude_Brand_loeschen" (ai_BuildingWindow):
@@ -7015,7 +7015,7 @@ void ai_FireFightingWindow(AIBLD *bld)
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_FireFightingWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_FireFightingWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5b84f0, the options window of a building "Panel\gebaeude_optionen_pergament" (sv_UpdatePanel: the panel's
@@ -7331,7 +7331,7 @@ void ai_BuildingWindow(AIBLD *bld)
             d2_SetViewEnabled(win, 1);
             redraw = 1;
         }
-    } while (sv_RunFrame((int)ai_BuildingWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_BuildingWindow, 0x657c7) != 0);
     if (nameInput != -1) {
         strcpy(name, (char *)d2_GetObjValue(nameInput));
         cm_BeginFieldBlock((char *)bld, bld->id);
@@ -7440,7 +7440,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
             d2_SetViewEnabled(win, 1);
             redraw = 1;
         }
-    } while (sv_RunFrame((int)ai_ManagedBuildingWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ManagedBuildingWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ResearchClass = 0;
 }
@@ -7743,7 +7743,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
             }
             last = sel;
         }
-    } while (sv_RunFrame((int)ob_HandleBepflanzung, 0x677cf) != 0);
+    } while (sv_RunFrame(ob_HandleBepflanzung, 0x677cf) != 0);
     if (model != 0)
         d3if_Delete(model);
     d2_RadioClear(radio);
@@ -7831,7 +7831,7 @@ void ai_GelageWindow(AIBLD *bld)
     slider = d2_GetWinObj(win, 2, text);
     ok = d2_GetWinObj(win, 2, text + 1);
     d2_SetObjValue(slider, 100, min(1000, gm_ConvertMoney(gm_GetGoodsValue((char *)&ai_Chars[ai_PlayerId]), ai_OwnPlayer)), 100);
-    while (sv_RunFrame((int)ai_GelageWindow, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_GelageWindow, 0x677c7) != 0) {
         if (d2_ClickedId == 0) {
             if (ok != -1 && d2_PointerObj == ok) {
                 cost = gm_PlayerFactor(d2_GetObjValue(slider), ai_OwnPlayer);
@@ -8170,7 +8170,7 @@ int ai_UseGoodWindow(G8INVOBJ *o)
                     sv_PopRequest = 1;
                 }
             }
-        } while (sv_RunFrame((int)ai_UseGoodWindow, 0x677c7) != 0);
+        } while (sv_RunFrame(ai_UseGoodWindow, 0x677c7) != 0);
         d2_CloseView(win);
         if (!used)
             return 0;
@@ -8208,7 +8208,7 @@ void ai_InventoryPanel(void)
     d2_SetForm(win, 0);
     d2_SetPointerSprite(0, 0);
     ai_OpenInventoryWindow(d2_LastWindow, 0, 0, ai_PlayerId, 0x1f3b);
-    while (sv_RunFrame((int)ai_InventoryPanel, 0x657c7) != 0) {
+    while (sv_RunFrame(ai_InventoryPanel, 0x657c7) != 0) {
         ai_UpdateInventoryWindow();
         if (d2_ClickedId != -1 || d2_CountPointerItems() != 0) {
             for (i = 0; i < 6; i++) {
@@ -8573,7 +8573,7 @@ rows:
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_EquipWindow, mask) != 0);
+    } while (sv_RunFrame(ai_EquipWindow, mask) != 0);
     d2_CloseView(win);
     sv_CameraFollow();
 }
@@ -8814,7 +8814,7 @@ select:
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_TrainingWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_TrainingWindow, 0x677c7) != 0);
     sv_ClosePlayerBar();
     d2_CloseView(win);
     sv_CameraFollow();
@@ -8909,7 +8909,7 @@ void ai_ChooseCoatOfArms(void)
                 cm_SendExSysMessage(0xd, msg);
             }
         }
-    } while (sv_RunFrame((int)ai_ChooseCoatOfArms, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ChooseCoatOfArms, 0x677c7) != 0);
     d2_RadioClear(group);
     d2_CloseView(win);
 }
@@ -9068,7 +9068,7 @@ void ai_BuildingDetailWindow(AIBLD *bld)
         io_PrintText(0xb0, balance[0x14]);
     else if (balance[0x14] < 0)
         io_PrintText(0xb1, balance[0x14] + balance[0x12]);
-    while (sv_RunFrame((int)ai_BuildingDetailWindow, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_BuildingDetailWindow, 0x677c7) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
     }
@@ -9243,7 +9243,7 @@ void ai_PlayerStatsPanel(void)
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_PlayerStatsPanel, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_PlayerStatsPanel, 0x657c7) != 0);
     ai_StatsPage = d2_Radios[radio].sel;
     d2_RadioClear(radio);
     d2_CloseView(win);

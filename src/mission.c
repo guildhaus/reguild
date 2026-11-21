@@ -198,7 +198,7 @@ void d2_CloseView(int view);                                                    
 int d2_SetForm(int view, int n);                                                 /* 0x475f70 */
 extern int d2_ClickedId;                /* 0xf8a668 */
 int io_PrintText(char *fmt, ...);                                                /* 0x515960, defined elsewhere */
-int sv_RunFrame(int cb, unsigned mask);                                      /* 0x5309a0, defined elsewhere */
+int sv_RunFrame(void (*cb)(), unsigned mask);                                      /* 0x5309a0, defined elsewhere */
 int snd_PlayVoice(int id, int bank, char *text, int var);                             /* 0x4c2760, plays a speech sample */
 int sb_IsPlaying(struct SBSAMPLE *s);                                                       /* 0x426f20 */
 void sb_Stop(struct SBSAMPLE *s, int fade);                                                 /* 0x427290 */
@@ -225,7 +225,7 @@ int ai_MissionOfferDialog(int type, int id)
     io_PrintText((char *)0x7e);
     sprintf(name, "_AUFTRAEGE_VERGABE_HS_%.2d", t->offerSpeech);
     snd = snd_PlayVoice(-7, 0, name, -1);
-    while (sv_RunFrame((void (*)(void))ai_MissionOfferDialog, id)) {
+    while (sv_RunFrame(ai_MissionOfferDialog, id)) {
         if (dm_L.rup != 0 || d2_ClickedId == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0) {
@@ -284,7 +284,7 @@ int ai_ChooseMissionType(int kind)
         d2_Objs[o].user = t;
         d2_RadioAdd(g, o);
     }
-    while (sv_RunFrame((void (*)(void))ai_ChooseMissionType, 0x1c6)) {
+    while (sv_RunFrame(ai_ChooseMissionType, 0x1c6)) {
         d2_MenuNavigate(g);
         if (dm_L.rup != 0 || kb_Last == 1 || d2_ClickedId == 1)
             sv_PopRequest = 1;
@@ -345,7 +345,7 @@ int ai_ChooseMission(void)
     g = d2_CreateRadioGroup(6, o0, o1, o2, o3, o4, o5);
     d2_RadioSelect(g, 0);
     d2_RadioAdd(g, d2_GetWinObj(view, 0, io_PrintText((char *)0x7e)));
-    while (sv_RunFrame((void (*)(void))ai_ChooseMission, sv_FrameMask)) {
+    while (sv_RunFrame(ai_ChooseMission, sv_FrameMask)) {
         d2_MenuNavigate(g);
         if (dm_L.rup != 0 || kb_Last == 1 || d2_ClickedId == 1) {
             r = 0xff;
@@ -425,7 +425,7 @@ int ai_ChooseMissionFrom(int n)
         sel = 0;
     }
     d2_RadioSelect(g, sel);
-    while (sv_RunFrame((void (*)(void))ai_ChooseMission, sv_FrameMask)) {
+    while (sv_RunFrame(ai_ChooseMission, sv_FrameMask)) {
         d2_MenuNavigate(g);
         if (d2_ClickedId == 0) {
             if (d2_PointerObj == o6) {
@@ -1018,7 +1018,7 @@ void ai_MissionInfoDialog(int type, int id)
     io_PrintText((char *)0x7d);
     sprintf(name, "_AUFTRAEGE_VERGABE_HS_%.2d", t->offerSpeech);
     snd = snd_PlayVoice(-7, 0, name, -1);
-    while (sv_RunFrame((void (*)(void))ai_MissionInfoDialog, id)) {
+    while (sv_RunFrame(ai_MissionInfoDialog, id)) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0)
@@ -1119,7 +1119,7 @@ void ai_MissionEndDialog(int id)
     d2_SetForm(view, 2);
     io_PrintText((char *)0x7d);
     id |= 0x80;
-    while (sv_RunFrame((void (*)(void))ai_MissionEndDialog, id)) {
+    while (sv_RunFrame(ai_MissionEndDialog, id)) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         else if (d2_ClickedId == 0)
@@ -1129,7 +1129,7 @@ void ai_MissionEndDialog(int id)
 }
 
 extern int ai_GameOver;
-void sv_PopTo(int v);                                             /* 0x52fb50, defined elsewhere */
+void sv_PopTo(void (*v)());                                             /* 0x52fb50, defined elsewhere */
 void main_GameLoop(int ctl);                                                         /* 0x53bb20, defined elsewhere */
 
 /* 0x4b5950, sets ai_GameOver and runs 0x53bb20 through 0x52fb50 */
@@ -1208,7 +1208,7 @@ void ai_MissionCompleteDialog(int id)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((void (*)(void))ai_MissionCompleteDialog, id | 0x80));
+    } while (sv_RunFrame(ai_MissionCompleteDialog, id | 0x80));
     d2_CloseView(view);
     if (again)
         ai_MissionInfoDialog(nm->type, id);
@@ -1280,7 +1280,7 @@ void ai_MissionNextDialog(int id)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((void (*)(void))ai_MissionNextDialog, flags));
+    } while (sv_RunFrame(ai_MissionNextDialog, flags));
     d2_CloseView(view);
     if (again) {
         nm = ai_NewRandomMission(c->netId, next, 1);
@@ -1333,7 +1333,7 @@ void ai_MissionResultDialog(int id)
                 r = (ai_MissionMode != 5) + 1;
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((void (*)(void))ai_MissionResultDialog, id | 0x80));
+    } while (sv_RunFrame(ai_MissionResultDialog, id | 0x80));
     d2_CloseView(view);
     if (r == 1)
         ai_MissionInfoDialog(ai_Missions[0].type, id);
@@ -1362,7 +1362,7 @@ void ai_MissionPartnerDialog(int id)
             r = (ai_GameOver != 0) + 1;
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((void (*)(void))ai_MissionPartnerDialog, id | 0x80));
+    } while (sv_RunFrame(ai_MissionPartnerDialog, id | 0x80));
     d2_CloseView(view);
     if (r == 2)
         ai_QuitGame(id);

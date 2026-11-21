@@ -374,7 +374,7 @@ int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
 struct G5CH; struct G9REC; struct VFSFILE;
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
 int sv_CheckGoodAmount(char *o, int n, unsigned char t);
@@ -1315,7 +1315,7 @@ int ai_GraveMoveConfirm(AIBLD *rec, int from, unsigned char entry, int to)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GraveMoveConfirm, 0x677c7));
+    } while (sv_RunFrame(ai_GraveMoveConfirm, 0x677c7));
     d2_CloseView(win);
     return r;
 }
@@ -1413,7 +1413,7 @@ void ai_GraveDetailButtons(char *rec, int *w)
                 d2_SetViewEnabled(w[0], 1);
             }
         }
-    } while (sv_RunFrame((int)ai_GraveDetailButtons, 0x677c7));
+    } while (sv_RunFrame(ai_GraveDetailButtons, 0x677c7));
 }
 /* 0x584520, confirms renting a grave: rec = the graveyard building, size = the grave size. The lease costs
    gv_LeasePrice of the player's character (full care) unless the player owns the graveyard. The form
@@ -1475,7 +1475,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GraveRentConfirm, 0x677c7));
+    } while (sv_RunFrame(ai_GraveRentConfirm, 0x677c7));
     d2_CloseView(win);
     return r;
 }
@@ -1607,7 +1607,7 @@ int ai_GraveCare(AIBLD *rec, GVPICK *pick)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GraveCare, 0x677c7));
+    } while (sv_RunFrame(ai_GraveCare, 0x677c7));
     d2_CloseView(win);
     sv_ClosePlayerBar();
     sv_ClearSelection();
@@ -1683,7 +1683,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GraveRaiseHelper, 0x677c7));
+    } while (sv_RunFrame(ai_GraveRaiseHelper, 0x677c7));
     d2_CloseView(win);
     return r;
 }
@@ -1780,7 +1780,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     d2_SetPointerSprite(0, 0);
     ai_UpdateProdGoodsList(rec, res);
     ai_LayoutProdGoodsList(win, 1, 0, rec);
-    while (sv_RunFrame((int)ai_GypsyHelperWindow, 0x677c7)) {
+    while (sv_RunFrame(ai_GypsyHelperWindow, 0x677c7)) {
         ai_UpdateProdGoodsList(rec, res);
         ai_LayoutProdGoodsList(win, 1, 0, rec);
         memset(counts, 0, sizeof(counts));

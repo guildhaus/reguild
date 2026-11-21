@@ -3522,7 +3522,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         d2_GetWinObj(win, 2, line);
         line++;
         d2_GetWinObj(win, 2, line);
-        while (sv_RunFrame((int)cm_FightStartDialog, 0x7d6c6)) {
+        while (sv_RunFrame(cm_FightStartDialog, 0x7d6c6)) {
             if (dm_L.rup != 0) {
                 sv_PopRequest = 1;
                 cm_FightSettled = 1;
@@ -3593,7 +3593,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         b4 = d2_GetWinObj(win, 2, k + 3);
         if (line == 0)
             d2_EnableObject(b4, 0);
-        while (sv_RunFrame((int)cm_FightStartDialog, 0x7d6c6)) {
+        while (sv_RunFrame(cm_FightStartDialog, 0x7d6c6)) {
             if (dm_L.rup != 0) {
                 sv_PopRequest = 1;
                 res = 0;
@@ -3760,7 +3760,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         }
     } else
         io_PrintText(0x118f, cm_FightAttacker->id, cm_FightDefender->id);
-    while (sv_RunFrame((int)cm_FightEndDialog, 0x7d6c6)) {
+    while (sv_RunFrame(cm_FightEndDialog, 0x7d6c6)) {
         if (dm_L.rup != 0 || d2_ClickedId == 0)
             sv_PopRequest = 1;
     }
@@ -3791,7 +3791,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     io_PrintText("$7A");
     io_PrintText(0x1193, cm_FightDefender->id, role + 0x1125);
     cm_FightPortraits(a->defenders, 0, 0x12c);
-    while (sv_RunFrame((int)cm_FightEndDialog, 0x7d6c6)) {
+    while (sv_RunFrame(cm_FightEndDialog, 0x7d6c6)) {
         if (dm_L.rup != 0 || d2_ClickedId == 0)
             sv_PopRequest = 1;
     }
@@ -4023,7 +4023,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             }
         }
     }
-    while (wait && sv_RunFrame((int)cm_FightEndDialog, 0x7d6c6)) {
+    while (wait && sv_RunFrame(cm_FightEndDialog, 0x7d6c6)) {
         if (dm_L.rup != 0 || d2_ClickedId == 0)
             sv_PopRequest = 1;
     }

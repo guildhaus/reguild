@@ -155,7 +155,7 @@ void sv_BookBack(SVBOOK *bk);                                           /* 0x52f
 int sv_CreateScrollForm(void);                                                 /* 0x52fa10 */
 void sv_DestroyScrollForm(void);                                                /* 0x52fa90 */
 void sv_ScrollFormAnimate(void);                                                /* 0x52fad0 */
-void sv_PopTo(int v);                                                   /* 0x52fb50 */
+void sv_PopTo(void (*v)());                                                   /* 0x52fb50 */
 int sv_PumpMessages(void);                                              /* 0x52fb80 */
 void sv_NetworkSyncWait(unsigned fl);                                   /* 0x52fc10 */
 void sv_BroadcastText(unsigned fl, char *t);                            /* 0x52fcf0 */
@@ -167,7 +167,7 @@ void sv_UpdateWeather(void);                                                /* 0
 void sv_WeatherFrame(void);                                                /* 0x530670 */
 void sv_AdvanceGame(void);                                                /* 0x5307f0 */
 void sv_SetScreenCenter(unsigned fl);                                   /* 0x530900 */
-int sv_RunFrame(int cb, unsigned mask);                                 /* 0x5309a0 */
+int sv_RunFrame(void (*cb)(), unsigned mask);                                 /* 0x5309a0 */
 void sv_UpdateClock(void);                                              /* 0x5315c0 */
 
 extern const int sv_PhaseMinutes[24];                          /* 0x5eeab8 */

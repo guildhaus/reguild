@@ -1207,7 +1207,7 @@ int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
 void ai_TutorialClearHost(void);
-void sv_PopTo(int v);
+void sv_PopTo(void (*v)());
 void he_FreeEventNow();
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 int gm_LevelPayout(int v, int kind);

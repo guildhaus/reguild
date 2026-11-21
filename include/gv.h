@@ -541,7 +541,7 @@ void d2_CentreViewWindows(int view);                     /* 0x475600 */
 int d2_SetForm(int view, int n);                       /* 0x475f70 */
 void d2_CloseView(int view);                     /* 0x4758f0 */
 void d2_SetPointerSprite(int a, int pic);            /* 0x476f80, d2.h / gfx.h */
-int sv_RunFrame(int cb, unsigned mask);                     /* 0x5309a0 */
+int sv_RunFrame(void (*cb)(), unsigned mask);                     /* 0x5309a0 */
 extern int sv_PopRequest;                /* 0x6f22a0 */
 extern int d2_ClickedId;                /* 0xf8a668 */
 int ord_DispatchOrder(int id, char *c, int *m);  /* 0x4f81c0 */

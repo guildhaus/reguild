@@ -10620,7 +10620,7 @@ int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
 void ai_TutorialClearHost(void);
-void sv_PopTo(int v);
+void sv_PopTo(void (*v)());
 
 /* 0x552b90, the alloc handler of the tutorial intro event 0x87: makes the record the tutorial's host (0x578120);
    when the tutorial is not running the record is freed, else it starts in stage 0 */
@@ -10654,7 +10654,7 @@ void he_RunTutorialIntro(AIJOB *ev)
         ai_TutorialClearHost();
         he_FreeEvent((int *)ev);
         ai_GameOver = 1;
-        sv_PopTo((int)main_GameLoop);
+        sv_PopTo(main_GameLoop);
         break;
     }
 }
@@ -11786,7 +11786,7 @@ void he_TransportFromHome(int ev)
                     txt_Format(text, 0x1c44, to);
             }
             if ((ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7)
-                && (sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow
+                && (sv_Frames[sv_FrameDepth].cb != ai_TransportWindow
                     || (ai_PlayerBuilding != to
                         && (gm_IsType10(to) == 0 || sv_PanelShown == 0
                             || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))
@@ -11848,12 +11848,12 @@ void he_TransportToHome(int ev)
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         if (to->type == 0x47) {
             txt_Format(text, 0x1c3b, 1, 0x1c39, ai_PlayerSlots[to->playerSlot].name);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, "_NACHRICHTEN_HS_59");
         } else if (from->type == 0x47) {
             txt_Format(text, 0x1c3d, 1, 0x1c39, ai_PlayerSlots[from->playerSlot].name, to->owner, to);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, "_NACHRICHTEN_HS_60");
         } else {
@@ -11876,7 +11876,7 @@ void he_TransportToHome(int ev)
                 else
                     txt_Format(text, 0x1c44, to);
             }
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 if (quick[0] != 0)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, icon, to->id, -1, 0, quick);
@@ -11997,7 +11997,7 @@ void he_TransportStadtStadt(int ev)
                 txt_Format(text, 0x1c43);
             else
                 txt_Format(text, 0x1c44, to);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow
                  || (ai_PlayerBuilding != to
                      && (gm_IsType10(to) == 0 || sv_PanelShown == 0
                          || (ai_PlayerBuilding != to
@@ -12074,12 +12074,12 @@ void he_TransportHomeHome(int ev)
         cm_SendSetField(tr->objId, 0x13, 1, 0, 0x40);
         if (to->type == 0x47) {
             txt_Format(text, 0x1c3b, 1, 0x1c39, ai_PlayerSlots[to->playerSlot].name);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, "_NACHRICHTEN_HS_59");
         } else if (from->type == 0x47) {
             txt_Format(text, 0x1c3d, 1, 0x1c39, ai_PlayerSlots[from->playerSlot].name, to->owner, to);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, "_NACHRICHTEN_HS_60");
         } else {
@@ -12098,7 +12098,7 @@ void he_TransportHomeHome(int ev)
                 txt_Format(text, 0x1c43);
             else
                 txt_Format(text, 0x1c44, to);
-            if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow || ai_FallbackBuilding != to)
+            if ((sv_Frames[sv_FrameDepth].cb != ai_TransportWindow || ai_FallbackBuilding != to)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 if (quick[0] != 0)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, quick);

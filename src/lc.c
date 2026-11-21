@@ -1175,7 +1175,7 @@ int ai_ProductionWindow(AIBLD *bld)
         }
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
-    } while (sv_RunFrame((int)ai_ProductionWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ProductionWindow, 0x677c7) != 0);
     d2_SetForm(win, 2);
     bld->prodScroll = (char)((d2_Wins[d2_LastWindow].scrollY + d2_Wins[d2_LastWindow].scrollRemY) / d2_Wins[d2_LastWindow].visible);
     d2_CloseView(win);
@@ -2889,7 +2889,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
                     result = 0;
                 }
             }
-        } while (sv_RunFrame((int)lc_GebaeudeAusrichten, 0x657c7) != 0);
+        } while (sv_RunFrame(lc_GebaeudeAusrichten, 0x657c7) != 0);
         if (result == 0) {
             d3if_Delete(model);
             out[0] = ch_EmptyName[0];
@@ -3083,7 +3083,7 @@ void ai_ConstructionWindow(void)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_ConstructionWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_ConstructionWindow, 0x657c7) != 0);
     if (view != -1)
         d2_CloseView(view);
     sv_ResearchClass = 0;
@@ -3216,7 +3216,7 @@ void ai_TradeContactChecks(void)
 void ai_CampaignKey1(void)
 {
     if (kb_Last == '1' && d3_Camera != 0 &&
-        sv_Frames[sv_FrameDepth].cb == (int)ai_GameFrame) {
+        sv_Frames[sv_FrameDepth].cb == ai_GameFrame) {
         D3VECTOR v;
 
         ai_CampaignStep(0x16, 0, 0, 0);
@@ -3287,7 +3287,7 @@ void ai_GameFrame(void)
     snd_StartMarketAmbience();
     mode = 0;
     tb_SetFunctionOff(sv_UpdateClock, 0);
-    while (sv_RunFrame((int)ai_GameFrame, 0x67fff) != 0) {
+    while (sv_RunFrame(ai_GameFrame, 0x67fff) != 0) {
         sv_FrameBase = sv_FrameDepth;
         if (((AICHARREC *)ai_Chars)[ai_PlayerId].heldRounds > 0)
             lc_PlayerInJail();
@@ -3492,7 +3492,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     d2_SetForm(win, 4);
     button = d2_GetWinObj(win, 4, io_PrintText(0x17e2));
     sv_SetResearchClass(bld);
-    if (sv_RunFrame((int)ai_TechTreeWindow, 0x657c7) != 0) {
+    if (sv_RunFrame(ai_TechTreeWindow, 0x657c7) != 0) {
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
@@ -3596,7 +3596,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
             }
         redraw:
             gm_UpdateTechTree(bld, rec);
-        } while (sv_RunFrame((int)ai_TechTreeWindow, 0x657c7) != 0);
+        } while (sv_RunFrame(ai_TechTreeWindow, 0x657c7) != 0);
     }
     gm_CloseTechTree();
     sv_ResearchClass = 0;
@@ -3874,7 +3874,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
         ai_UpdateResourceColumns(win, 2, ncols, (int)res);
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
-    } while (sv_RunFrame((int)ai_ProductionWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ProductionWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
     return 0;
@@ -4038,7 +4038,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
         ai_UpdateProdColumns(win, 2, ncols, store, 1);
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
-    } while (sv_RunFrame((int)ai_ExtractResourceWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ExtractResourceWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
     return 0;
@@ -4239,7 +4239,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
         ai_UpdateProdColumns(win, 2, ncols, store, 2);
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
-    } while (sv_RunFrame((int)ai_ProductionGoodsWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_ProductionGoodsWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
     return 0;
@@ -4547,7 +4547,7 @@ int ai_BreakInCallback(char *place)
             sv_PopRequest = 1;
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BreakInCallback, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BreakInCallback, 0x677c7) != 0);
     d2_CloseView(win);
     return (int)ev;
 }
@@ -4646,7 +4646,7 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
             }
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_PickpocketWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_PickpocketWindow, 0x677c7) != 0);
     d2_CloseView(win);
     return result;
 }
@@ -4744,7 +4744,7 @@ int ai_BribeCallback(char *place, AIBLD *target)
             sv_ClearSelection();
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BribeCallback, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BribeCallback, 0x677c7) != 0);
     d2_CloseView(win);
     return 0;
 }
@@ -4865,7 +4865,7 @@ void ai_BriberyWindow(char *place, AIBLD *target)
             sv_PopRequest = 1;
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BriberyWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BriberyWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x594b10, opens the spying map pick (150 B): when the character of the building is free (sv_CheckCharacterFlag
@@ -4955,7 +4955,7 @@ void ai_RaidWindow(char *place, AIBLD *target)
             sv_PopRequest = 1;
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_RaidWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_RaidWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClearSelection();
 }
@@ -5305,7 +5305,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
     d2_SetPointerSprite(0, 0);
     ai_UpdateProdGoodsList(bld, store);
     ai_LayoutProdGoodsList(win, 1, 0, bld);
-    while (sv_RunFrame((int)ai_TradeSearchWindow, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_TradeSearchWindow, 0x677c7) != 0) {
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, bld);
         for (i = 0; i < 3; i++)
@@ -5433,7 +5433,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
     d2_SetPointerSprite(0, 0);
     ai_UpdateProdGoodsList(bld, store);
     ai_LayoutProdGoodsList(win, 1, 0, bld);
-    while (sv_RunFrame((int)ai_AquariumSearchWindow, 0x677c7) != 0) {
+    while (sv_RunFrame(ai_AquariumSearchWindow, 0x677c7) != 0) {
         ai_UpdateProdGoodsList(bld, store);
         ai_LayoutProdGoodsList(win, 1, 0, bld);
         for (i = 0; i < 3; i++)
@@ -5713,7 +5713,7 @@ void ai_RobberContact(AIBLD *bld, AIOBJ *room)
     char pickText[0x80];
 
     sv_ReleaseNamePlates();
-    while (sv_RunFrame((int)ai_RobberContact, 0x67fff) != 0) {
+    while (sv_RunFrame(ai_RobberContact, 0x67fff) != 0) {
         sabotage = sv_RegisterNamePlate("contact_SABOTAGE", txt_Ptrs[0x16fe], 0x17);
         beating = sv_RegisterNamePlate("contact_VERPRUEGELN", txt_Ptrs[0x1706], 0xd);
         nightFog = sv_RegisterNamePlate("contact_BEI_NACHT_UND_NEBEL", txt_Ptrs[0x1fe8], 0xc);
@@ -6732,7 +6732,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
                 d2_SetViewEnabled(win, 1);
             }
         }
-    } while (sv_RunFrame((int)ai_TavernDiceWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_TavernDiceWindow, 0x677c7) != 0);
     if (leave != 0 || ((AICHARREC *)ai_Chars)[ai_PlayerId].health == 0)
         goto close;
 
@@ -6755,7 +6755,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
             ai_DuelStart(pc, &duel, k);
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_TavernDiceWindow, 0x777c7) != 0);
+    } while (sv_RunFrame(ai_TavernDiceWindow, 0x777c7) != 0);
     if (((AICHARREC *)ai_Chars)[ai_PlayerId].health == 0)
         goto close;
     d2_SetForm(win, 2);
@@ -6771,7 +6771,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
     do {
         if (d2_ClickedId == 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_TavernDiceWindow, 0x777c7) != 0);
+    } while (sv_RunFrame(ai_TavernDiceWindow, 0x777c7) != 0);
     if (((AICHARREC *)ai_Chars)[ai_PlayerId].health == 0)
         goto close;
     d2_CloseView(win);
@@ -6891,7 +6891,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
                         }
                     }
                 }
-            } while (sv_RunFrame((int)ai_TavernDiceWindow, 0x777c7) != 0);
+            } while (sv_RunFrame(ai_TavernDiceWindow, 0x777c7) != 0);
         }
         if (((AICHARREC *)ai_Chars)[ai_PlayerId].health == 0)
             goto close;
@@ -6901,7 +6901,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_TavernDiceWindow, 0x777c7) != 0);
+        } while (sv_RunFrame(ai_TavernDiceWindow, 0x777c7) != 0);
     }
 close:
     d2_CloseView(win);
@@ -6970,7 +6970,7 @@ void ai_StammtischWindow(AIBLD *bld, AIOBJ *table)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_StammtischWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_StammtischWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); struct AIBLD *gm_BuildQuery(int n, ...);
@@ -7101,7 +7101,7 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
             if (text[0] != 0)
                 sv_MessageBox(text, 0);
         }
-    } while (sv_RunFrame((int)ai_StammtischWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_StammtischWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
 
@@ -7238,7 +7238,7 @@ void ai_DarkCornerMenu(AIBLD *bld, AIOBJ *room, AIOBJ *corner)
         } else if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_DarkCornerMenu, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_DarkCornerMenu, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5996b0, the dark-corner buying screen of another player's tavern, "locations\Wirtshaus\DUNKLEECKE": the
@@ -7352,7 +7352,7 @@ void ai_DarkCornerBuy(AIBLD *bld, AIOBJ *corner)
         } else if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_DarkCornerMenu, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_DarkCornerMenu, 0x677c7) != 0);
     d2_CloseView(win);
 }
 /* 0x599aa0, opens the dark corner of a table (79 B): the table's record (0x4ffe90 (room->list, 1, 0, 300));
@@ -7400,7 +7400,7 @@ void ai_TavernContact(AIBLD *bld, AIOBJ *room)
     AIMSG msg;
 
     sv_ReleaseNamePlates();
-    while (sv_RunFrame((int)ai_TavernContact, 0x67fff) != 0) {
+    while (sv_RunFrame(ai_TavernContact, 0x67fff) != 0) {
         ai_MarketContact(bld);
         dice = sv_RegisterNamePlate("contact_WUERFELSPIEL", ai_ContactTextDiceGame, 0x16);
         table = sv_RegisterNamePlate("contact_STAMMTISCH", ai_ContactTextStammtisch, 0x16);

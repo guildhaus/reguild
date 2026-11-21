@@ -3073,7 +3073,7 @@ int ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*p
             refresh = d3_Time + 0xd8;
         }
 next:;
-    } while (sv_RunFrame((int)ai_SpecialAmountWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_SpecialAmountWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return (int)chosen;
 }
@@ -3167,7 +3167,7 @@ int ai_AmountMenu(AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(AICHARR
             if (r != 0 && pick == 0 && (cfg->option14 & 4) == 0)
                 sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)ai_AmountMenu, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_AmountMenu, 0x657c7) != 0);
     d2_CloseView(win);
     return r;
 }
@@ -3437,7 +3437,7 @@ void ai_AmountKindMenu(void (*pick)(int kind), char *caption, int withKind8)
                 d2_SetViewEnabled(win, 1);
             }
         }
-    } while (sv_RunFrame((int)ai_AmountKindMenu, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_AmountKindMenu, 0x657c7) != 0);
     d2_CloseView(win);
 }
 /* 0x5c1df0, the agenda entry of the Rathaus name plate: opens the seven-button amount kind menu
@@ -3568,7 +3568,7 @@ void ai_AgendaOfficeList(int kind)
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_OpenAgendaMenu, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_OpenAgendaMenu, 0x657c7) != 0);
     d2_CloseView(win);
 }
 
@@ -3675,7 +3675,7 @@ void ai_OpenLawBook(int book)
         sv_UpdateBook(bk);
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_OpenLawBook, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_OpenLawBook, 0x677c7) != 0);
     sv_CloseBook(bk);
     sv_CameraFollow();
 }
@@ -4570,7 +4570,7 @@ AICHARREC *ai_PickBuildingChar(AIBLD *bld, AMOUNTCFG *cfg, char *caption, void (
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_PickBuildingChar, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_PickBuildingChar, 0x677c7) != 0);
     if (radio != -1)
         d2_RadioClear(radio);
     d2_CloseView(win);
@@ -5375,7 +5375,7 @@ int ai_GiftWindow(AICHARREC *giver, AICHARREC *chr)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GiftWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_GiftWindow, 0x677c7) != 0);
     d2_CloseView(win);
     return given;
 }
@@ -5620,7 +5620,7 @@ int ai_CourtshipListWindow(G8CHARREC *ch, LCORDMSG *m)
                 }
             }
         }
-    } while (sv_RunFrame((int)ai_CourtshipListWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_CourtshipListWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return result;
 }
@@ -5763,7 +5763,7 @@ int ai_CourtshipWindow(AICHARREC *ch, LCORDMSG *m)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_CourtshipWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_CourtshipWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return 2;
 }
@@ -6139,7 +6139,7 @@ void ai_CityStatsPanel(void)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_CityStatsPanel, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_CityStatsPanel, 0x657c7) != 0);
     d2_CloseView(win);
     ai_CampaignStep(0xc, 0, 1, 0);
 }
@@ -6208,7 +6208,7 @@ void ai_PlayerComparePanel(void)
     do {
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_PlayerComparePanel, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_PlayerComparePanel, 0x657c7) != 0);
     d2_CloseView(win);
     ai_CampaignStep(10, 0, 1, 0);
 }
@@ -6376,7 +6376,7 @@ void ai_PrivilegesPanel(void)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_PrivilegesPanel, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_PrivilegesPanel, 0x657c7) != 0);
     d2_CloseView(win);
     ai_CampaignStep(8, 0, 1, 0);
 }
@@ -6454,7 +6454,7 @@ int ai_MedicusHandler(AICHARREC *ch, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_MedicusHandler, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_MedicusHandler, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -6544,7 +6544,7 @@ int ai_DivorceDialog(AICHARREC *ch, LCORDMSG *m)
             sv_PopRequest = 1;
             done = 2;
         }
-    } while (sv_RunFrame((int)ai_DivorceDialog, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_DivorceDialog, 0x657c7) != 0);
     d2_CloseView(win);
     return done;
 }
@@ -6624,7 +6624,7 @@ int ai_BlackmailWindow(AICHARREC *me, AICHARREC *victim)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BlackmailWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_BlackmailWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -6737,7 +6737,7 @@ int ai_BlackmailBuildingListener(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BlackmailBuildingListener, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_BlackmailBuildingListener, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -6813,7 +6813,7 @@ int ai_BlackmailContactWindow(AICHARREC *ch)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BlackmailContactWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_BlackmailContactWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -6925,7 +6925,7 @@ int ai_IntimidateWindow(AICHARREC *ch)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_IntimidateWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_IntimidateWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -7109,7 +7109,7 @@ int ai_LawPrivilegeWindow(AICHARREC *me, LCORDMSG *m)
                     sv_PopRequest = 1;
                 }
             }
-        } while (sv_RunFrame((int)ai_LawPrivilegeWindow, 0x657c7) != 0);
+        } while (sv_RunFrame(ai_LawPrivilegeWindow, 0x657c7) != 0);
         d2_CloseView(win);
     }
     return ret;
@@ -7274,7 +7274,7 @@ int ai_MisappropriationWindow(AICHARREC *me, LCORDMSG *m)
             }
             if (dm_L.rup)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_MisappropriationWindow, 0x657c7) != 0);
+        } while (sv_RunFrame(ai_MisappropriationWindow, 0x657c7) != 0);
         d2_CloseView(win);
     }
     return ret;
@@ -7330,7 +7330,7 @@ int ai_BewitchWindow(AICHARREC *ch)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_BewitchWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_BewitchWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return done;
 }
@@ -7462,7 +7462,7 @@ int ai_CounterEspionage(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_CounterEspionage, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_CounterEspionage, 0x657c7) != 0);
     d2_CloseView(win);
     return 2;
 }
@@ -7578,7 +7578,7 @@ int ai_SeatSwapWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_CounterEspionage, 0x657c7) != 0);   /* the original passes the counter-espionage window here */
+    } while (sv_RunFrame(ai_CounterEspionage, 0x657c7) != 0);   /* the original passes the counter-espionage window here */
     d2_CloseView(win);
     return 1;
 }
@@ -7694,7 +7694,7 @@ int ai_HatredWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_HatredWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_HatredWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return done;
 }
@@ -7782,7 +7782,7 @@ int ai_HearingWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_HearingWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_HearingWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -7917,7 +7917,7 @@ int ai_ExpelWorkerWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_ExpelWorkerWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_ExpelWorkerWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -8016,7 +8016,7 @@ int ai_PeaceWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_PeaceWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_PeaceWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return done;
 }
@@ -8112,7 +8112,7 @@ int ai_ConvertWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_ConvertWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_ConvertWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return done;
 }
@@ -8169,7 +8169,7 @@ int ai_PenanceWindow(AICHARREC *me, LCORDMSG *m)
             }
             if (dm_L.rup)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)ai_PenanceWindow, 0x657c7) != 0);
+        } while (sv_RunFrame(ai_PenanceWindow, 0x657c7) != 0);
         d2_CloseView(win);
         return done;
     }
@@ -8504,7 +8504,7 @@ int ai_ChangeProfessionWindow(AICHARREC *me, LCORDMSG *m)
             name++;
         }
         d2_ClickedId = -1;
-        while (sv_RunFrame((int)ai_ChangeProfessionWindow, 0x657c7) != 0) {
+        while (sv_RunFrame(ai_ChangeProfessionWindow, 0x657c7) != 0) {
             if (dm_L.rup)
                 sv_PopRequest = 1;
             if (dm_L.lclick && d2_PointerObj != -1) {
@@ -8702,7 +8702,7 @@ int ai_AccuseWindow(AICHARREC *me, AICHARREC *culprit)
             ai_OpenTrial(me, culprit, n, 0);
             sv_PopRequest = 3;
         }
-    } while (sv_RunFrame((int)ai_AccuseWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_AccuseWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return 0;
 }
@@ -8789,7 +8789,7 @@ int ai_AccusationWindow(AICHARREC *me, LCORDMSG *m)
             if (sel > -1)
                 ret = ai_AccuseWindow(me, rows[sel].rec);
         }
-    } while (sv_RunFrame((int)ai_AccusationWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_AccusationWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -8877,7 +8877,7 @@ int ai_FaithAccusationWindow(AICHARREC *me, LCORDMSG *m)
             if (sel > -1)
                 ret = ai_AccuseWindow(me, rows[sel].rec);
         }
-    } while (sv_RunFrame((int)ai_AccusationWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_AccusationWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -8984,7 +8984,7 @@ int ai_InterrogationWindow(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_InterrogationWindow, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_InterrogationWindow, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -9127,7 +9127,7 @@ int ai_DismissalHandler(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_DismissalHandler, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_DismissalHandler, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -9219,7 +9219,7 @@ int ai_InterrogationWindow1(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_InterrogationWindow1, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_InterrogationWindow1, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -9285,7 +9285,7 @@ int ai_InterrogationWindow2(AICHARREC *me, LCORDMSG *m)
         }
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_InterrogationWindow2, 0x657c7) != 0);
+    } while (sv_RunFrame(ai_InterrogationWindow2, 0x657c7) != 0);
     d2_CloseView(win);
     return ret;
 }
@@ -9326,7 +9326,7 @@ int ai_ChooseProfessionWindow(AICHARREC *parent, AICHARREC *child)
         d2_Objs[pic].capfont = 0x56;
     }
     ret = 0;
-    while (sv_RunFrame((int)ai_ChooseProfessionWindow, sv_FrameMask) != 0) {
+    while (sv_RunFrame(ai_ChooseProfessionWindow, sv_FrameMask) != 0) {
         if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         } else if (dm_L.lclick != 0) {
@@ -9393,7 +9393,7 @@ int ai_UniversityWindow(AICHARREC *parent, AICHARREC *child)
     d2_SetPointerSprite(0, 0);
     d2_ClickedId = -1;
     ret = 0;
-    while (sv_RunFrame((int)ai_UniversityWindow, sv_FrameMask) != 0) {
+    while (sv_RunFrame(ai_UniversityWindow, sv_FrameMask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {

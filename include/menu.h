@@ -336,7 +336,7 @@ void d2_MenuNavigate(int g);                /* 0x46c6c0, d2.h: keyboard / pointe
 void sv_SetScreenCenter(unsigned fl);       /* 0x530900, sv.c: sets the screen centre from the pump flags */
 void sv_FitForm(int f);                     /* 0x52ea30, sv.c: fits the form to its background picture */
 void sv_ResetScreenClip(void);              /* 0x520f20, sv.c: resets the screen clip and the scene state */
-void sv_PopTo(int v);                       /* 0x52fb50, sv.c: pops the screen stack to the record whose
+void sv_PopTo(void (*v)());                       /* 0x52fb50, sv.c: pops the screen stack to the record whose
                                        first word is v (sets sv_PopRequest to its distance) */
 int cm_SendPlayerId(void);                  /* 0x4c3f90, cm.c: sends message 0x13 with the local player's
                                        id, returns the message slot handle (-1: none) */

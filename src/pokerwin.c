@@ -109,7 +109,7 @@ void cm_SendMoneyDelta(int character, int delta); /* 0x4c5f60, cm.c: message 0x5
                                                character's money (+0x194), clamped 0 .. 0x32 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2); /* 0x53dda0, he.c */
 void d2_SetObjValue(int obj, ...); int d2_GetObjValue(int obj); int d2_CreateWinText(short x, short y, char *text, int win); void d2_SetObjText(int obj, char *text);
-char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(int cb, unsigned mask);
+char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(void (*cb)(), unsigned mask);
 int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj); void d2_MenuNavigate(int g); void d2_RaiseViewWindows(int view); void d2_RadioClear(int g);
 #pragma pack(push, 1)
 typedef struct SAVEREQUEST {                /* 0x210, a save file entry (ai_ListFiles) or an empty slot's request */
@@ -737,7 +737,7 @@ int ai_PokerGame(void)
                 }
                 break;
             }
-        } while (sv_RunFrame((int)ai_PokerGame, 0x777c7) != 0);
+        } while (sv_RunFrame(ai_PokerGame, 0x777c7) != 0);
         ai_ClosePokerWindow();
         return 1;
     } else {
@@ -747,7 +747,7 @@ int ai_PokerGame(void)
         d2_CentreViewWindows(ai_PokerUi.window);
         txt_Format(text, 0x4239, 0x4238);
         io_PrintText(text);
-        while (sv_RunFrame((int)ai_PokerGame, 0x777c7) != 0) {
+        while (sv_RunFrame(ai_PokerGame, 0x777c7) != 0) {
             if (dm_L.rup != 0 || kb_Down[1] != 0)
                 sv_PopRequest = 1;
         }
@@ -949,6 +949,6 @@ void ai_PokerWindow2(void)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1 && d2_PointerObj == ids[0])
             sv_PopRequest = 1;
-    } while (sv_RunFrame((int)ai_PokerWindow2, 0x777c7) != 0);
+    } while (sv_RunFrame(ai_PokerWindow2, 0x777c7) != 0);
     d2_CloseView(form);
 }

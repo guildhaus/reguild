@@ -654,7 +654,7 @@ int main_OpenScreen(int m)
 #define ANIM_CACHE_BYTES 0x400000   /* 4 MB: d3anim_CacheMax is set again here */
 
 int sv_PumpMessages();
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 
 /* 0x532160, main_OpenEngine: loads the text definitions ("<GamePath>die_gilde_add_on_text.def": txt_LoadIncludes, or txt_OpenText when main_TextReopen is set), shows the loading screen form
    "Misc\Loading_main" (window 1 above the bottom edge, window 0 at the top of the screen) while the history lists, the net states, the data tables, the effect slots, the icon names and the item
@@ -836,7 +836,7 @@ void main_StartCityGame(char *name, int net)
     d3_LoadScene("scenes/*ChooseCity_Europa.ed3", 0, 0);
 }
 
-int sv_RunFrame(int cb, unsigned mask);
+int sv_RunFrame(void (*cb)(), unsigned mask);
 
 /* 0x5327e0, the player count dialog (the form "Menu\CHOOSE_PLAYERCOUNT"): a count slider (at least 2, started from ai_NumPlayers), the heading text 0x1ab5 and the "%s$A%s" texts 0x7d / 0x7e; runs the
    frame loop 0x5309a0 until a button is pressed (button 0 = ok: stores the slider value in ai_NumPlayers and returns 1, right mouse button / button 1 = cancel); returns 1 for ok, 0 for cancel */
@@ -855,7 +855,7 @@ int main_PlayerCountDialog(void)
     io_PrintText(0x1ab5);
     d2_SetForm(form, 2);
     io_PrintText("%s$A%s", 0x7d, 0x7e);
-    run = sv_RunFrame((int)main_PlayerCountDialog, 0x24087);
+    run = sv_RunFrame(main_PlayerCountDialog, 0x24087);
     while (run != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
@@ -867,7 +867,7 @@ int main_PlayerCountDialog(void)
             ok = 1;
             sv_PopRequest = 1;
         }
-        run = sv_RunFrame((int)main_PlayerCountDialog, 0x24087);
+        run = sv_RunFrame(main_PlayerCountDialog, 0x24087);
     }
     if (form != -1)
         d2_CloseView(form);
@@ -976,7 +976,7 @@ int main_EnterHostAddress(void)
     d2_SetObjValue(ed, buf);
     d2_SetForm(f, 1);
     ok = d2_GetWinObj(f, 1, io_PrintText(0x1cb0));
-    run = sv_RunFrame((int)main_EnterHostAddress, 0x24087);
+    run = sv_RunFrame(main_EnterHostAddress, 0x24087);
     while (run != 0) {
         if (dm_L.rup != 0 || kb_Last == 1)
             sv_PopRequest = 1;
@@ -993,7 +993,7 @@ int main_EnterHostAddress(void)
             WritePrivateProfileStringA("Network", "Host", buf, ai_OptionsFile);
             sv_PopRequest = 1;
         }
-        run = sv_RunFrame((int)main_EnterHostAddress, 0x24087);
+        run = sv_RunFrame(main_EnterHostAddress, 0x24087);
     }
     d2_CloseView(f);
     return r;
@@ -1055,7 +1055,7 @@ int main_SearchNetworkGame(int saved)
     d2_SetForm(f, 3);
     sv_ButtonRow(d2_LastWindow, 0, btn, 3, txt_Ptrs[0x1cbd], txt_Ptrs[0x1cbe], txt_Ptrs[0x1cbf]);
     d2_SetObjEnabled(btn[0], 0);
-    if (sv_RunFrame((int)main_SearchNetworkGame, 0x24087) != 0) {
+    if (sv_RunFrame(main_SearchNetworkGame, 0x24087) != 0) {
         do {
             if ((unsigned)d3_Time > ts + 0x5dc || redraw) {
                 ok = 1;
@@ -1166,7 +1166,7 @@ int main_SearchNetworkGame(int saved)
                 d2_SetObjEnabled(btn[0], 1);
             else
                 d2_SetObjEnabled(btn[0], 0);
-        } while (sv_RunFrame((int)main_SearchNetworkGame, 0x24087) != 0);
+        } while (sv_RunFrame(main_SearchNetworkGame, 0x24087) != 0);
         if (list != -1)
             d2_RadioClear(list);
     }
@@ -1190,7 +1190,7 @@ int main_ChooseNetworkGame(void)
     b1 = d2_GetWinObj(f, 0, io_PrintText(0x1ca9));
     b2 = d2_GetWinObj(f, 0, io_PrintText(0x1caa));
     g = d2_CreateRadioGroup(2, b1, b2);
-    if (sv_RunFrame((int)main_ChooseNetworkGame, 0x24087) != 0) {
+    if (sv_RunFrame(main_ChooseNetworkGame, 0x24087) != 0) {
         do {
             d2_MenuNavigate(g);
             if (dm_L.rup != 0 || kb_Last == 1) {
@@ -1214,7 +1214,7 @@ int main_ChooseNetworkGame(void)
                     d2_SetViewEnabled(f, 1);
                 }
             }
-        } while (sv_RunFrame((int)main_ChooseNetworkGame, 0x24087) != 0);
+        } while (sv_RunFrame(main_ChooseNetworkGame, 0x24087) != 0);
     }
     d2_RadioClear(g);
     d2_CloseView(f);
@@ -1240,7 +1240,7 @@ int main_NetworkMenu(void)
     b3 = d2_GetWinObj(f, 0, io_PrintText(0x1ca8));
     g = d2_CreateRadioGroup(3, b1, b2, b3);
     ai_MissionMode = (char)0xfe;
-    if (sv_RunFrame((int)main_NetworkMenu, 0x24087) != 0) {
+    if (sv_RunFrame(main_NetworkMenu, 0x24087) != 0) {
         do {
             d2_MenuNavigate(g);
             if (dm_L.rup != 0 || kb_Last == 1) {
@@ -1274,7 +1274,7 @@ int main_NetworkMenu(void)
                     d2_SetViewEnabled(f, 1);
                 }
             }
-        } while (sv_RunFrame((int)main_NetworkMenu, 0x24087) != 0);
+        } while (sv_RunFrame(main_NetworkMenu, 0x24087) != 0);
     }
     d2_RadioClear(g);
     d2_CloseView(f);
@@ -1293,11 +1293,11 @@ void main_MoneyDialog(void)
     dlg = d2_CreateWindow(0x20, 0x60, 0x26c, 400, 0x15);
     ed = d2_GetWinObj(-1, dlg, io_PrintText("$3ABetrag:%m"));
     d2_SetObjValue(ed, 0, 10000, 0);
-    run = sv_RunFrame((int)main_MoneyDialog, 0x24087);
+    run = sv_RunFrame(main_MoneyDialog, 0x24087);
     while (run != 0) {
         if (kb_Last == 1)
             sv_PopRequest = 1;
-        run = sv_RunFrame((int)main_MoneyDialog, 0x24087);
+        run = sv_RunFrame(main_MoneyDialog, 0x24087);
     }
     d2_RemoveWindow(dlg);
 }
@@ -1502,7 +1502,7 @@ void main_Menue(void)
             main_QuitProgram = 1;
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)main_Menue, 0x24087) != 0);
+    } while (sv_RunFrame(main_Menue, 0x24087) != 0);
     d2_RadioClear(grp);
     d2_CloseView(f);
     d2_ClearScreen();
@@ -1707,7 +1707,7 @@ int main_ChooseTalents(void)
     sv_FitForm(d2_LastWindow);
     d2_SetForm(f, 2);
     io_PrintText(0x1ae2);
-    if (sv_RunFrame((int)main_ChooseTalents, 0x12d6) != 0) {
+    if (sv_RunFrame(main_ChooseTalents, 0x12d6) != 0) {
         do {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
@@ -1796,7 +1796,7 @@ int main_ChooseTalents(void)
                     }
                 }
             }
-        } while (sv_RunFrame((int)main_ChooseTalents, 0x12d6) != 0);
+        } while (sv_RunFrame(main_ChooseTalents, 0x12d6) != 0);
     }
     d2_CloseView(f);
     return r;
@@ -1854,7 +1854,7 @@ int main_ChooseModel(int job)
             nwomen++;
         } while (*s != 0);
     }
-    if (sv_RunFrame((int)main_ChooseModel, 0x12d6) != 0) {
+    if (sv_RunFrame(main_ChooseModel, 0x12d6) != 0) {
         do {
             if (dm_L.rup != 0) {
                 sv_PopRequest = 1;
@@ -1901,7 +1901,7 @@ int main_ChooseModel(int job)
                 ch_AddAction(obj, 0x38, 1);
                 shown = idx;
             }
-        } while (sv_RunFrame((int)main_ChooseModel, 0x12d6) != 0);
+        } while (sv_RunFrame(main_ChooseModel, 0x12d6) != 0);
         if (obj != 0)
             ch_Delete(obj);
     }
@@ -1958,7 +1958,7 @@ int main_ChooseFamily(int unused)
         main_MessageBox = -1;
     }
     d2_CutsceneActive = 0;
-    run = sv_RunFrame((int)main_ChooseFamily, 0x12d6);
+    run = sv_RunFrame(main_ChooseFamily, 0x12d6);
     if (run != 0) {
         do {
             if (redraw) {
@@ -2049,7 +2049,7 @@ lskip:
                 if (ret == 0)
                     d2_SetViewEnabled(f, 1);
             }
-            run = sv_RunFrame((int)main_ChooseFamily, 0x12d6);
+            run = sv_RunFrame(main_ChooseFamily, 0x12d6);
         } while (run != 0);
         if (ret == 1) {
             fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
@@ -2260,7 +2260,7 @@ int main_ChoosePlayer(int mask, int flag)
                 ret = 1;
             sv_PopRequest = 1;
         }
-    } while (sv_RunFrame((int)main_ChoosePlayer, mask) != 0);
+    } while (sv_RunFrame(main_ChoosePlayer, mask) != 0);
     d2_RadioClear(gsel);
     d2_RadioClear(fsel);
     d2_RadioClear(list);
@@ -2319,7 +2319,7 @@ int main_ChooseHistory(void)
     else if (ai_OptionHistorie == 2)
         d2_RadioSelect(grp, 1);
     {
-        while (sv_RunFrame((int)main_ChooseHistory, 0xc6) != 0) {
+        while (sv_RunFrame(main_ChooseHistory, 0xc6) != 0) {
             d2_MenuNavigate(grp);
             if (dm_L.rup != 0 || kb_Last == 1)
                 sv_PopRequest = 1;
@@ -2419,7 +2419,7 @@ int main_CharacterIntro(int unused)
     b1 = d2_GetWinObj(f, 0, t);
     b2 = d2_GetWinObj(f, 0, t + 1);
     g = d2_CreateRadioGroup(2, b1, b2);
-    if (sv_RunFrame((int)main_CharacterIntro, 0xc6) != 0) {
+    if (sv_RunFrame(main_CharacterIntro, 0xc6) != 0) {
         do {
             d2_MenuNavigate(g);
             if (dm_L.rup != 0 || kb_Last == 1) {
@@ -2431,7 +2431,7 @@ int main_CharacterIntro(int unused)
                 sv_PopRequest = 1;
             } else if (d2_ClickedId == 1)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)main_CharacterIntro, 0xc6) != 0);
+        } while (sv_RunFrame(main_CharacterIntro, 0xc6) != 0);
     }
     d2_RadioClear(g);
     d2_CloseView(f);
@@ -2456,7 +2456,7 @@ int main_ChooseDifficulty(void)
     b4 = d2_GetWinObj(f, 0, t + 4);
     g = d2_CreateRadioGroup(6, b0, b1, b2, b3, b4, d2_GetWinObj(f, 0, t + 5));
     d2_RadioSelect(g, ai_Difficulty);
-    if (sv_RunFrame((int)main_ChooseDifficulty, 0xc6) != 0) {
+    if (sv_RunFrame(main_ChooseDifficulty, 0xc6) != 0) {
         do {
             d2_MenuNavigate(g);
             if (dm_L.rup != 0 || kb_Last == 1) {
@@ -2478,7 +2478,7 @@ int main_ChooseDifficulty(void)
                 sv_PopRequest = 1;
             } else if (d2_ClickedId == 1)
                 sv_PopRequest = 1;
-        } while (sv_RunFrame((int)main_ChooseDifficulty, 0xc6) != 0);
+        } while (sv_RunFrame(main_ChooseDifficulty, 0xc6) != 0);
     }
     ai_GamePanel.byte[2] = (unsigned char)ai_Difficulty;
     d2_RadioClear(g);
@@ -2513,7 +2513,7 @@ void main_ChooseOpponents(int n)
     }
     d2_SetForm(f, 2);
     ok = d2_GetWinObj(f, 2, io_PrintText(0x7d));
-    while (sv_RunFrame((int)main_ChooseOpponents, 0xc6) != 0) {
+    while (sv_RunFrame(main_ChooseOpponents, 0xc6) != 0) {
         if (dm_L.rup != 0 || kb_Last == 1 || (d2_ClickedId == 0 && d2_PointerObj == ok))
             sv_PopRequest = 1;
     }
@@ -2617,7 +2617,7 @@ int main_ChooseCity(int unused, int host)
     sv_ButtonRow(d2_LastWindow, 0, out, 2, txt_Ptrs[0x42cc], txt_Ptrs[0x42cd]);
     ok = out[0];
     opp = out[1];
-    if (sv_RunFrame((int)main_ChooseCity, 0x10d6) != 0) {
+    if (sv_RunFrame(main_ChooseCity, 0x10d6) != 0) {
         do {
             ai_ClickedObject = 0;
             h = d3if_Pick((float)dm_L.x, (float)dm_L.y, 0x60, 1);
@@ -2693,7 +2693,7 @@ int main_ChooseCity(int unused, int host)
                     d2_SetViewEnabled(f1, 1);
                 }
             }
-        } while (sv_RunFrame((int)main_ChooseCity, 0x10d6) != 0);
+        } while (sv_RunFrame(main_ChooseCity, 0x10d6) != 0);
     }
     if (f2 != -1)
         d2_CloseView(f2);
@@ -3240,11 +3240,11 @@ void main_EndRound(void)
             k++;
         }
         io_PrintText(0x1efa, ai_Chars[ai_PlayerId].money);
-        r = sv_RunFrame((int)main_EndRound, 0x24087);
+        r = sv_RunFrame(main_EndRound, 0x24087);
         while (r != 0) {
             if (d2_ClickedId == 0 || kb_Last == 0x1c)
                 sv_PopRequest = 1;
-            r = sv_RunFrame((int)main_EndRound, 0x24087);
+            r = sv_RunFrame(main_EndRound, 0x24087);
         }
         fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
         while ((fade->flags & 4) == 0)
@@ -3694,12 +3694,12 @@ void main_RoundReport(void)
         d2_CreateScrollButtons(-1, -1, d2_LastWindow, t, 0x767);
         d2_Wins[t].visible = 0x18;
         sb_PlaySample(0, "RollenKurz_s_01", 1, 0x3f, 0x7f, 0, 0);
-        t = sv_RunFrame((int)main_RoundReport, 0x24087);
+        t = sv_RunFrame(main_RoundReport, 0x24087);
         while (t != 0) {
             sv_ScrollFormAnimate();
             if (d2_ClickedId == 0 || kb_Last == 0x1c)
                 sv_PopRequest = 1;
-            t = sv_RunFrame((int)main_RoundReport, 0x24087);
+            t = sv_RunFrame(main_RoundReport, 0x24087);
         }
         sv_DestroyScrollForm();
     }
@@ -4195,7 +4195,7 @@ void main_BeginPlayerRound(void)
             txt_Format(buf, 0x79);
             if (sv_MessageBox((int)buf, 1) == 0) {
                 ai_GameOver = 1;
-                sv_PopTo((int)main_GameLoop);
+                sv_PopTo(main_GameLoop);
                 return;
             }
             d2_DrawAll();
@@ -4305,11 +4305,11 @@ void main_BeginPlayerRound(void)
             d2_SetForm(w, 1);
             io_PrintText(0x1ba0, ai_PlayerId, ai_PlayerId);
             snd_QueueVoice(-7, 0, "FanfarePositivHeldenhaftLang", -1, 0);
-            i = sv_RunFrame((int)main_BeginPlayerRound, 0x66087);
+            i = sv_RunFrame(main_BeginPlayerRound, 0x66087);
             while (i != 0) {
                 if (d2_ClickedId == 0)
                     sv_PopRequest = 1;
-                i = sv_RunFrame((int)main_BeginPlayerRound, 0x66087);
+                i = sv_RunFrame(main_BeginPlayerRound, 0x66087);
             }
             d2_CloseView(w);
             main_PlayOutro();
@@ -4661,7 +4661,7 @@ void main_GameLoop(int ctl)
         cm_SendLongMessage((char *)&m.msg);
     }
     /* the rounds */
-    while (ai_GameOver == 0 && (iv = sv_RunFrame((int)main_GameLoop, 0x20007)) != 0 && main_Round < 800) {
+    while (ai_GameOver == 0 && (iv = sv_RunFrame(main_GameLoop, 0x20007)) != 0 && main_Round < 800) {
         ai_CurrentPlayer = 0;
         if ((ai_GameFlags & 0x42) == 0) {
             ai_PlayerId = 0;

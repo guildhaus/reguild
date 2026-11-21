@@ -162,7 +162,7 @@ void cm_SendMoneyDelta(int character, int delta); /* 0x4c5f60, cm.c: message 0x5
                                                character's money (+0x194), clamped 0 .. 0x32 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2); /* 0x53dda0, he.c */
 void d2_SetObjValue(int obj, ...); int d2_GetObjValue(int obj); int d2_CreateWinText(short x, short y, char *text, int win); void d2_SetObjText(int obj, char *text);
-char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(int cb, unsigned mask);
+char *itoa(int, char *, int); void d2_SetObjFont(int obj, int font); int sv_RunFrame(void (*cb)(), unsigned mask);
 
 /* 0x5d34b0, the file selector window "menu\fileselector": lists the files of dir with the extension ext
    (ai_ListFiles, up to 32) under the caption, with their count. With bit 0 of flags a click on a file writes
@@ -218,7 +218,7 @@ int ai_FilePickWindow(unsigned mask, int flags, char *caption, char *dir, char *
     itoa(n, num, 10);
     d2_SetObjText(count, num);
     d2_SetObjFont(count, 0x54);
-    while (sv_RunFrame((int)ai_FilePickWindow, mask) != 0) {
+    while (sv_RunFrame(ai_FilePickWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (dm_L.lclick != 0) {
@@ -293,7 +293,7 @@ int ai_MessageBox(int text, int flags)
         if (d2_Objs[id].type != 0x40)
             d2_RadioAdd(list, id);
     }
-    while (sv_RunFrame((int)ai_MessageBox, mask) != 0) {
+    while (sv_RunFrame(ai_MessageBox, mask) != 0) {
         d2_MenuNavigate(list);
         if ((flags & 0x40) != 0)
             d2_RaiseViewWindows(win);
@@ -659,7 +659,7 @@ int ai_LoadGameWindow(void)
     sv_CreateScrollButtons(0x214, 0x168, d2_LastWindow, d2_GetViewWin(win, 1), 0x82, &down, &up, &bar);
     ai_FillSaveSlots(win, 1, slots, list, "gamedata/saves", 0); /* @original: the original call pushes
         a sixth argument 0 that 0x5d3ab0 never reads */
-    while (sv_RunFrame((int)ai_LoadGameWindow, mask) != 0) {
+    while (sv_RunFrame(ai_LoadGameWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (dm_L.lclick != 0) {
@@ -716,7 +716,7 @@ int ai_JoinGameWindow(void)
     d2_SetForm(0, 0);
     sv_CreateScrollButtons(0x214, 0x168, d2_LastWindow, d2_GetViewWin(win, 1), 0x82, &down, &up, &bar);
     ai_FillSaveSlots(win, 1, slots, list, "gamedata/network", 1);
-    while (sv_RunFrame((int)ai_JoinGameWindow, mask) != 0) {
+    while (sv_RunFrame(ai_JoinGameWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (dm_L.lclick != 0) {
@@ -761,7 +761,7 @@ int ai_EditText(int x, int y, char *text)
     d2_Inputs[*input].w = 0x80;
     d2_Inputs[*input].maxw = 0x110;
     d2_SetObjMax(id, 0x1f);
-    while (sv_RunFrame((int)ai_EditText, sv_FrameMask) != 0) {
+    while (sv_RunFrame(ai_EditText, sv_FrameMask) != 0) {
         if (kb_Last == 0x1c) {
             strcpy(text, (char *)d2_GetObjValue(id));
             sv_PopRequest = 1;
@@ -1631,7 +1631,7 @@ void ai_OptionsMenu(void)
                 if (ai_LoadGameWindow() != 0) {
                     ai_LeaveGame = 1;
                     ai_GameOver = 1;
-                    sv_PopTo((int)main_GameLoop);
+                    sv_PopTo(main_GameLoop);
                 } else {
                     d2_SetViewEnabled(wnd, 1);
                 }
@@ -1655,7 +1655,7 @@ void ai_OptionsMenu(void)
                         } while (1);
                     }
                     ai_GameOver = 1;
-                    sv_PopTo((int)main_GameLoop);
+                    sv_PopTo(main_GameLoop);
                 } else {
                     d2_SetViewEnabled(wnd, 1);
                 }
@@ -1738,7 +1738,7 @@ int ai_SaveOptionWindow(int image)
     d2_SetObjEnabled(slots[0].obj, 0);
     d2_SetObjEnabled(slots[1].obj, 0);
     obj = d2_GetViewWin(win, 1);
-    while (sv_RunFrame((int)ai_SaveOptionWindow, mask) != 0) {
+    while (sv_RunFrame(ai_SaveOptionWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (dm_L.lclick != 0 && d2_Wins[obj].scrollRemY == 0) {
@@ -1812,7 +1812,7 @@ int ai_SaveNameWindow(int image)
     ai_FillSaveSlots(win, 1, slots, list, "gamedata/network", 1);
     d2_SetObjEnabled(slots[0].obj, 0);
     obj = d2_GetViewWin(win, 1);
-    while (sv_RunFrame((int)ai_SaveNameWindow, mask) != 0) {
+    while (sv_RunFrame(ai_SaveNameWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (dm_L.lclick != 0 && d2_Wins[obj].scrollRemY == 0) {
@@ -1940,7 +1940,7 @@ void ai_OptionsGfxScreen(void)
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x1ca2], txt_Ptrs[0x1ca3]);
     okId = ids[0];
     cancelId = ids[1];
-    while (sv_RunFrame((int)ai_OptionsGfxScreen, mask) != 0) {
+    while (sv_RunFrame(ai_OptionsGfxScreen, mask) != 0) {
         if (dm_L.rup != 0 || kb_Last == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
@@ -2030,7 +2030,7 @@ void ai_OptionsSfxScreen(void)
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x1ca2], txt_Ptrs[0x1ca3]);
     okId = ids[0];
     cancelId = ids[1];
-    while (sv_RunFrame((int)ai_OptionsSfxScreen, mask) != 0) {
+    while (sv_RunFrame(ai_OptionsSfxScreen, mask) != 0) {
         if (dm_L.rup != 0 || kb_Last == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
@@ -2151,7 +2151,7 @@ void ai_OptionsGameScreen(void)
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x1ca2], txt_Ptrs[0x1ca3]);
     okId = ids[0];
     cancelId = ids[1];
-    while (sv_RunFrame((int)ai_OptionsGameScreen, mask) != 0) {
+    while (sv_RunFrame(ai_OptionsGameScreen, mask) != 0) {
         if (dm_L.rup != 0 || kb_Last == 1)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
@@ -2760,7 +2760,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
             }
             refresh = 1;
         }
-    } while (sv_RunFrame((int)ai_BloodRevengeWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_BloodRevengeWindow, 0x677c7) != 0);
     d2_CloseView(form);
     sv_CameraFollow();
 }
@@ -2864,7 +2864,7 @@ void ai_CurseWindow(AIBLD *building)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_CurseWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_CurseWindow, 0x677c7) != 0);
     d2_CloseView(form);
     sv_CameraFollow();
 }
@@ -2971,7 +2971,7 @@ void ai_CurseTargetWindow(AIBLD *building)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_CurseTargetWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_CurseTargetWindow, 0x677c7) != 0);
     d2_CloseView(form);
     sv_CameraFollow();
 }
@@ -3047,7 +3047,7 @@ void ai_HomageWindow(AIBLD *building)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_HomageWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_HomageWindow, 0x677c7) != 0);
     d2_CloseView(form);
     sv_CameraFollow();
 }
@@ -3109,7 +3109,7 @@ void ai_GypsyBeggingWindow(AIBLD *building)
                 sv_PopRequest = 1;
             }
         }
-    } while (sv_RunFrame((int)ai_GypsyBeggingWindow, 0x677c7) != 0);
+    } while (sv_RunFrame(ai_GypsyBeggingWindow, 0x677c7) != 0);
     d2_CloseView(form);
     sv_ClosePlayerBar();
     sv_ClearSelection();

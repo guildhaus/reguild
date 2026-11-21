@@ -4621,7 +4621,7 @@ void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c7
 struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask);   /* 0x448630 */
 
 
-int sv_RunFrame(int cb, unsigned mask);                     /* 0x5309a0 */
+int sv_RunFrame(void (*cb)(), unsigned mask);                     /* 0x5309a0 */
 
 /* 0x52b500, runs the location scripts of the characters in ai_SceneChars that stand in the building a (their scene
    character's group is a's id, alive, in the default scene): a character gets the script of its activity
@@ -5652,7 +5652,7 @@ void sv_HandleRightClick(unsigned fl)
     D3EVENT *ev;
 
     bld = 0;
-    if (dm_L.rup != 0 && (sv_Frames[sv_FrameDepth].cb != (int)ai_GameFrame || ai_SelectedCount != 0 || sv_SelectedItem != 0 || sv_SelectedChar != 0 || sv_SelectedObject != 0))
+    if (dm_L.rup != 0 && (sv_Frames[sv_FrameDepth].cb != ai_GameFrame || ai_SelectedCount != 0 || sv_SelectedItem != 0 || sv_SelectedChar != 0 || sv_SelectedObject != 0))
         sb_PlaySample(snd_SystemBank, "MausclickRechts_s_01", 1, 0x3f, 0x7f, 0, 0);
     if (he_ActiveSlot != 0) {
         if (dm_L.rup == 0 && kb_Last != 0x1c)
@@ -5686,7 +5686,7 @@ void sv_HandleRightClick(unsigned fl)
         goto done;
     ai_HandleMapKey();
     anm_Update();
-    if (dm_L.rup != 0 && sv_SelectedObject != 0 && sv_Frames[sv_FrameDepth].cb == (int)ai_GameFrame)
+    if (dm_L.rup != 0 && sv_SelectedObject != 0 && sv_Frames[sv_FrameDepth].cb == ai_GameFrame)
         sv_ResetSelection();
     else {
         if (ai_PlayerBuilding != 0) {
@@ -6654,7 +6654,7 @@ void sv_ScrollFormAnimate(void)
 }
 /* 0x52fb50, requests popping the frame stack down to the frame whose callback is cb: sets sv_PopRequest to its distance from the top sv_FrameDepth (nothing when cb is not on the stack) */
 
-void sv_PopTo(int cb)
+void sv_PopTo(void (*cb)())
 {
     int i;
 
@@ -6808,7 +6808,7 @@ void sv_ChatConsole(void)
     d2_SetForm(f, 2);
     ed = d2_GetWinObj(f, 2, io_PrintText(0x1cc3, ch_EmptyName));
     d2_SetObjMax(ed, 0x60);
-    while (sv_RunFrame((int)sv_ChatConsole, 0x657c7) != 0) {
+    while (sv_RunFrame(sv_ChatConsole, 0x657c7) != 0) {
         d2_SetForm(f, 1);
         io_PrintText("$C");
         io_PrintText(cm_ChatLog);
@@ -6840,7 +6840,7 @@ void sv_ChatConsole(void)
 
 void sv_UpdateQuickChat(void)
 {
-    if (sv_Frames[sv_FrameDepth].cb != (int)sv_ChatConsole && sv_ChatTime > d3_Time - 0x23a && sv_ChatTime != 0xffffffff) {
+    if (sv_Frames[sv_FrameDepth].cb != sv_ChatConsole && sv_ChatTime > d3_Time - 0x23a && sv_ChatTime != 0xffffffff) {
         if (sv_QuickChatForm == -1) {
             sv_QuickChatForm = d2_OpenForm(0, 0, "misc\\quickchat");
             d2_PlaceMainWindow(sv_QuickChatForm, 3);
@@ -7014,7 +7014,7 @@ void sv_AdvanceGame(void)
         f = d2_OpenForm(0, 0, "misc\\advancegame");
         d2_CentreViewWindows(f);
         io_PrintText(0x82);
-        while (sv_RunFrame((int)sv_AdvanceGame, mask) != 0) {
+        while (sv_RunFrame(sv_AdvanceGame, mask) != 0) {
             if (kb_Last != 0 || dm_L.lup != 0 || dm_L.rup != 0)
                 sv_PopRequest = 1;
         }
@@ -7056,7 +7056,7 @@ void sv_UpdateClock(void);
    mask of the parts to run (param_2: 1 input, 4 resize, 0x10 objects, 0x20 speech, 0x40 world, 0x100 left click, 0x1000 names, 0x2000 main buttons, 0x4000 weather, 0x10000 paused, 0x100000 modal, ..); returns 1
    while the caller's screen is the top screen, 0 when it must end. The Esc key (mask 0x2000) opens the options menu with the music / sfx volumes lowered to a third
    and restores them after it. */
-int sv_RunFrame(int cb, unsigned mask)
+int sv_RunFrame(void (*cb)(), unsigned mask)
 {
     int r, i;
     AIBLD *c;
@@ -7273,7 +7273,7 @@ l2:
                     sv_AdvanceGame();
                 else {
                     main_DayEnding = 1;
-                    sv_PopTo((int)main_GameLoop);
+                    sv_PopTo(main_GameLoop);
                 }
             }
             if (ai_GameState != 0) {
@@ -7318,7 +7318,7 @@ l3f5:
                 tb_SetFunctionOff(sv_UpdateClock, 1);
                 sv_FrameMask |= 0x100000;
                 sv_MessageBoxYesNo((int)txt_Ptrs[0x81], 0xc4);
-                sv_PopTo((int)main_GameLoop);
+                sv_PopTo(main_GameLoop);
             }
             goto l444;
         }
@@ -7331,7 +7331,7 @@ l444:
         if (main_DayEnding == 0)
             goto l473;
     }
-    if (sv_PopRequest == 0 && sv_Frames[sv_FrameDepth].cb == (int)ai_GameFrame)
+    if (sv_PopRequest == 0 && sv_Frames[sv_FrameDepth].cb == ai_GameFrame)
         sv_PopRequest = 1;
 l473:
     if ((mask & 0x10000) == 0 && sv_InMissionComplete == 0 && ai_MissionPartner != -1 && ai_GameState != 0) {
