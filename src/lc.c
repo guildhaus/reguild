@@ -2187,31 +2187,18 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
     return ai_BauplatzCount;
 }
 
-#pragma pack(push, 1)
-typedef struct AIOBJVIEW {         /* the object fields the vg_ / build-site callbacks read (d3.h D3OBJECT, same layout) */
-    char pad0[0x1f0];
-    struct AIOBJVIEW *next;        /* 0x1f0, the sibling list */
-    struct AIOBJVIEW *prev;        /* 0x1f4 */
-    struct AIOBJVIEW *parent;      /* 0x1f8, the parent object (the owner of a building site) */
-    struct AIOBJVIEW *child;       /* 0x1fc, the first child (the "bk_" site markers live here) */
-    char pad200[0x20];
-    int kind;                      /* 0x220, 1 = per-vertex lit */
-} AIOBJVIEW;
-#pragma pack(pop)
-
 /* 0x58f920, the "vg_" predicate of ai_ShowVgObjects (86 B, a d3_ForEachObject callback): objects whose name contains
    "vg_" and whose parent is no per-vertex-lit object (parent == 0 or its kind != 1) are appended to the ctx list
    (count at +0x80); returns whether the list still has room (0x20 entries) */
-char ai_VgFilter(int obj, AIVGLIST *ctx)
+char ai_VgFilter(D3OBJECT *obj, void *ctx)
 {
-    AIOBJVIEW *o;
+    AIVGLIST *list = ctx;
 
-    o = (AIOBJVIEW *)obj;
-    if (strstr((char *)obj, "vg_") != 0 && (o->parent == 0 || o->parent->kind != 1)) {
-        ctx->objs[ctx->count] = obj;
-        ctx->count = ctx->count + 1;
+    if (strstr(obj->name, "vg_") != 0 && (obj->parent == 0 || obj->parent->kind != 1)) {
+        list->objs[list->count] = obj;
+        list->count = list->count + 1;
     }
-    return ctx->count < 0x20;
+    return list->count < 0x20;
 }
 
 char d3if_ShowTree(struct D3OBJECT *obj, char show);
@@ -2225,20 +2212,19 @@ char d3if_ShowTree(struct D3OBJECT *obj, char show);                /* 0x447300 
    that detail is not 2) are hidden */
 void ai_ShowVgObjects(D3OBJECT *start, int showAll)
 {
-    int list[0x21];
+    AIVGLIST list;
     int i;
-    int v;
+    D3OBJECT *v;
 
-    memset(list, 0, 0x84);
-    d3_ForEachObject(d3_DefaultScene, start, 0x2c0,
-                     (char (*)(struct D3OBJECT *, void *))ai_VgFilter, (AIVGLIST *)list);
-    for (i = 0; i < list[0x20]; i++) {
-        v = list[i];
+    memset(&list, 0, sizeof(list));
+    d3_ForEachObject(d3_DefaultScene, start, 0x2c0, ai_VgFilter, &list);
+    for (i = 0; i < list.count; i++) {
+        v = list.objs[i];
         if (showAll == 0 ||
             (i >= ai_GfxDetail && ai_GfxDetail != 2))
-            d3if_ShowTree((struct D3OBJECT *)v, 0);
+            d3if_ShowTree(v, 0);
         else
-            d3if_ShowTree((struct D3OBJECT *)v, 1);
+            d3if_ShowTree(v, 1);
     }
 }
 /* 0x58fa20, whether a building site may be built on, shown for its object (310 B): a site is blocked (0) when a
@@ -2248,24 +2234,22 @@ void ai_ShowVgObjects(D3OBJECT *start, int showAll)
 
 void ai_CheckBuildable(D3OBJECT *obj)
 {
-    AIOBJVIEW *view;
-    AIOBJVIEW *owner;
-    AIOBJVIEW *site;
+    D3OBJECT *view;
+    D3OBJECT *owner;
+    D3OBJECT *site;
     AIBLD *bld;
     float here[4];
     float there[4];
     int buildable;
 
     buildable = 1;
-    owner = ((AIOBJVIEW *)obj)->parent;
+    owner = obj->parent;
     if (owner != 0) {
-        d3_PointToWorld((struct D3OBJECT *)owner, &((D3OBJECT *)owner)->pos,
-                        (struct D3VECTOR *)here);
+        d3_PointToWorld(owner, &owner->pos, (struct D3VECTOR *)here);
         for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
-            site = (AIOBJVIEW *)bld->object;
+            site = bld->object;
             if (site != 0) {
-                d3_PointToWorld((struct D3OBJECT *)site, &((D3OBJECT *)site)->pos,
-                                (struct D3VECTOR *)there);
+                d3_PointToWorld(site, &site->pos, (struct D3VECTOR *)there);
                 if (d3_VecEqual((struct D3VECTOR *)there, (struct D3VECTOR *)here, 100.0f) != 0) {
                     buildable = 0;
                     break;
@@ -2273,15 +2257,13 @@ void ai_CheckBuildable(D3OBJECT *obj)
             }
         }
     }
-    for (view = ((AIOBJVIEW *)obj)->child; view != 0; view = view->next) {
-        if (strncmp((char *)view, "bk_", 3) == 0 || strncmp((char *)view, "!bk_", 4) == 0) {
-            d3_PointToWorld((struct D3OBJECT *)view, &((D3OBJECT *)view)->pos,
-                            (struct D3VECTOR *)here);
+    for (view = obj->child; view != 0; view = view->next) {
+        if (strncmp(view->name, "bk_", 3) == 0 || strncmp(view->name, "!bk_", 4) == 0) {
+            d3_PointToWorld(view, &view->pos, (struct D3VECTOR *)here);
             for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
-                site = (AIOBJVIEW *)bld->object;
+                site = bld->object;
                 if (site != 0) {
-                    d3_PointToWorld((struct D3OBJECT *)site, &((D3OBJECT *)site)->pos,
-                                    (struct D3VECTOR *)there);
+                    d3_PointToWorld(site, &site->pos, (struct D3VECTOR *)there);
                     if (d3_VecEqual((struct D3VECTOR *)there, (struct D3VECTOR *)here, 100.0f) != 0) {
                         buildable = 0;
                         goto done;
@@ -2313,19 +2295,20 @@ void ai_CheckBuildSites(void)
    ctx->object; the part of the name from the "bk_" prefix on is copied to ctx->name; returns 0 (stops the
    traversal), 1 when the object does not match */
 
-char ai_FindBauplatz(int obj, AIBUILDSITE *ctx)
+char ai_FindBauplatz(D3OBJECT *obj, void *ctx)
 {
+    AIBUILDSITE *site = ctx;
     float pos[4];
     char *s;
 
-    if (strnicmp((char *)obj, "bk_", 3) != 0 && strnicmp((char *)(obj + 1), "bk_", 3) != 0)
+    if (strnicmp(obj->name, "bk_", 3) != 0 && strnicmp(obj->name + 1, "bk_", 3) != 0)
         return 1;
-    d3_PointToWorld((struct D3OBJECT *)obj, &((D3OBJECT *)obj)->pos, (struct D3VECTOR *)pos);
-    if (d3_VecEqual((struct D3VECTOR *)ctx->pos, (struct D3VECTOR *)pos, 100.0f) != 0) {
-        ctx->object = obj;
-        s = strstr((char *)obj, "bk_");
+    d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)pos);
+    if (d3_VecEqual((struct D3VECTOR *)site->pos, (struct D3VECTOR *)pos, 100.0f) != 0) {
+        site->object = obj;
+        s = strstr(obj->name, "bk_");
         if (s != 0)
-            strcpy(ctx->name, s);
+            strcpy(site->name, s);
         return 0;
     }
     return 1;
@@ -2358,8 +2341,7 @@ int lc_GetGebaeudeBauplatz(AIBUILDSITE *out, AIBLD *b)
     sprintf(text, "lc_GetGebaeudeBauplatz(): FindPos->Pos:%f  %f  %f",
             (double)out->pos[0], (double)out->pos[1], (double)out->pos[2]);
     out->object = 0;
-    d3_ForEachObject(d3_DefaultScene, 0, 0x180,
-                     (char (*)(struct D3OBJECT *, void *))ai_FindBauplatz, out);
+    d3_ForEachObject(d3_DefaultScene, 0, 0x180, ai_FindBauplatz, out);
     if (out->object == 0) {
         d3if_SelectScene(scene, 1);
         return 0;

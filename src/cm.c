@@ -5615,14 +5615,14 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
                     sprintf(name, "cm_ExCreateGeb(): bauplatze name:%s", tmp);
                     if (lc_GetGebaeudeBauplatz(&site, b) != 0) {
                         memset(&list, 0, sizeof(list));
-                        d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)site.object, 0x2c0,
-                                         (D3OBJECTCB)ai_VgFilter, &list);
+                        d3_ForEachObject(d3_DefaultScene, site.object, 0x2c0,
+                                         ai_VgFilter, &list);
                         for (i = 0; i < list.count; i++) {
                             if (d3_QuadTree != 0)
-                                d3q_RemoveObject((D3OBJECT *)list.objs[i], (D3QNODE *)d3_QuadTree);
-                            sprintf(text, "cm_ExCreateGeb(): killing objectptr: %s", (char *)list.objs[i]);
-                            sprintf(text, "cm_ExCreateGeb(): killing objectname: %s", (char *)list.objs[i]);
-                            d3if_Delete((D3OBJECT *)list.objs[i]);
+                                d3q_RemoveObject(list.objs[i], (D3QNODE *)d3_QuadTree);
+                            sprintf(text, "cm_ExCreateGeb(): killing objectptr: %s", list.objs[i]->name);
+                            sprintf(text, "cm_ExCreateGeb(): killing objectname: %s", list.objs[i]->name);
+                            d3if_Delete(list.objs[i]);
                         }
                     } else
                         err_Message("cm_ExCreateGeb(): could not lc_GetGebaeudeBauplatz()...");

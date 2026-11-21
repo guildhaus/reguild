@@ -678,17 +678,6 @@ struct AIBLD *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) *
 struct AIBLD *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
-#pragma pack(push, 1)
-typedef struct AIOBJVIEW {         /* the object fields the vg_ / build-site callbacks read (d3.h D3OBJECT, same layout) */
-    char pad0[0x1f0];
-    struct AIOBJVIEW *next;        /* 0x1f0, the sibling list */
-    struct AIOBJVIEW *prev;        /* 0x1f4 */
-    struct AIOBJVIEW *parent;      /* 0x1f8, the parent object (the owner of a building site) */
-    struct AIOBJVIEW *child;       /* 0x1fc, the first child (the "bk_" site markers live here) */
-    char pad200[0x20];
-    int kind;                      /* 0x220, 1 = per-vertex lit */
-} AIOBJVIEW;
-#pragma pack(pop)
 char d3if_ShowTree(struct D3OBJECT *obj, char show);
 char d3_ForEachObject(struct D3SCENE *scene, struct D3OBJECT *obj, unsigned int mask, char (*cb)(struct D3OBJECT *, void *), void *ctx);  /* 0x438d40 (d3.h) */
 char d3if_ShowTree(struct D3OBJECT *obj, char show);                /* 0x447300 (d3_interface.c) */

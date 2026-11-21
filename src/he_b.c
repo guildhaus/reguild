@@ -2830,10 +2830,10 @@ void he_RunConstruction(AIJOB *e)
             return;
         }
         memset(&list, 0, sizeof(list));
-        d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)site.object, 0x2c0, (D3OBJECTCB)ai_VgFilter, &list);
+        d3_ForEachObject(d3_DefaultScene, site.object, 0x2c0, ai_VgFilter, &list);
         c->placing = 0;
         for (i = 0; i < list.count; i++) {
-            o = (D3OBJECT *)list.objs[i];
+            o = list.objs[i];
             door = d3_FindObject((int)nearest->object, 0x100, 0, "dummy_TUER");
             if (o != 0 && o->type != 1 && door != 0) {
                 sc = evt_Load("SpecialEvents\\Hausbau.esc");
@@ -2865,11 +2865,11 @@ void he_RunConstruction(AIJOB *e)
             return;
         }
         memset(&list, 0, sizeof(list));
-        d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)site.object, 0x2c0, (D3OBJECTCB)ai_VgFilter, &list);
+        d3_ForEachObject(d3_DefaultScene, site.object, 0x2c0, ai_VgFilter, &list);
         for (i = 0; i < list.count; i++) {
             if (d3_QuadTree != 0)
-                d3q_RemoveObject((D3OBJECT *)list.objs[i], (D3QNODE *)d3_QuadTree);
-            d3if_Delete((D3OBJECT *)list.objs[i]);
+                d3q_RemoveObject(list.objs[i], (D3QNODE *)d3_QuadTree);
+            d3if_Delete(list.objs[i]);
         }
         e->clock60 = ai_Time;
         e->end = ai_Time;

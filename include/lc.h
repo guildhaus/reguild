@@ -40,7 +40,7 @@ int ai_BuildingName(int id, char *out); /* 0x58f640, the building name of a kind
 
 /* the "vg_" object list ai_VgFilter collects (ai_ShowVgObjects, cm's building creation) */
 typedef struct AIVGLIST {
-    int objs[0x20];                /* 0x00 */
+    struct D3OBJECT *objs[0x20];   /* 0x00 */
     int count;                     /* 0x80 */
 } AIVGLIST;
 /* the construction-site record lc_GetGebaeudeBauplatz fills (0x54 bytes: cm's building creation clears 0x15 dwords) */
@@ -50,9 +50,9 @@ typedef struct AIBUILDSITE {
         int nameHead;              /* 0x00, cleared before the name is written */
     };
     float pos[4];                  /* 0x40, the owner's world position (d3_PointToWorld) */
-    int object;                    /* 0x50, the "bk_" site object ai_FindBauplatz found */
+    struct D3OBJECT *object;       /* 0x50, the "bk_" site object ai_FindBauplatz found */
 } AIBUILDSITE;
-char ai_VgFilter(int obj, AIVGLIST *ctx);                       /* 0x58f920, d3_ForEachObject callback: collects "vg_" objects */
+char ai_VgFilter(struct D3OBJECT *obj, void *ctx);                       /* 0x58f920, d3_ForEachObject callback: collects "vg_" objects */
 int lc_GetGebaeudeBauplatz(AIBUILDSITE *out, struct AIBLD *b);  /* 0x58fc40, the construction site of a building */
 void ai_CheckBuildSites(void);          /* 0x58fb60 */
 /* 0x61168c: the "%1G" format of the map's city names (ai_FormatCityName). */
