@@ -765,7 +765,7 @@ void gm_SyncMarket(unsigned p)
                 o = gm_Query(o->list, 1, 4, 0x11);
                 if (o != 0 && (int)o->lvl1c < cnt) {
                     cnt -= o->lvl1c;
-                    cm_BeginFieldBlock((char *)o, o->objId);
+                    cm_BeginFieldBlock(o, o->objId);
                     cm_AddFieldValues(1, 1, (char *)&o->lvl1c - cm_FieldObject, &cnt);
                     cm_SendFieldDeltas();
                 }
@@ -3970,11 +3970,11 @@ int gm_DropRank(AICHAR *c)
         v = 0xb;
     else
         v = (unsigned char)c->title - 1;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldValue(1, 1, 0x165, &v);
     cm_SendFieldValues();
     v = 0;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldValue(4, 1, 0x174, &v);
     cm_SendFieldValues();
     return -1;
@@ -4489,7 +4489,7 @@ int gm_CatchDisease(AICHAR *c, int *kind, float *health)
     else if (disease == 9)
         old ^= ((v << 25) ^ old) & (0xf << 25);
     sent = old;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     h = gm_AddHealth(c->id, -cost);
@@ -4517,7 +4517,7 @@ float gm_CatchPlague(AICHAR *c)
     if (v == 0)
         return 0.0f;
     nw = ((v ^ w) & 0xf) ^ w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &nw);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     return gm_AddHealth(c->id, -(int)(v * rec.cost));
@@ -4582,7 +4582,7 @@ int gm_CatchMinorDisease(AICHAR *c)
     else if (disease == 5)
         w ^= ((v << 14) ^ w) & (7 << 14);
     sent = w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     gm_AddHealth(c->id, -cost);
@@ -4648,7 +4648,7 @@ int gm_CatchUpperDisease(AICHAR *c)
     else if (disease == 8)
         w ^= ((v << 23) ^ w) & (3 << 23);
     sent = w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     gm_AddHealth(c->id, -cost);
@@ -4729,7 +4729,7 @@ int gm_CureDisease(AICHAR *c)
         disease = 9;
     }
     sent = w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     return disease;
@@ -4785,7 +4785,7 @@ int gm_CureMinorDisease(AICHAR *c)
         disease = 5;
     }
     sent = w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     return disease;
@@ -4842,7 +4842,7 @@ int gm_CureUpperDisease(AICHAR *c)
         disease = 3;
     }
     sent = w;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(4, 1, 0x2c, &sent);  /* 0x2c: v02c */
     cm_SendFieldDeltas();
     return disease;
@@ -5378,7 +5378,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
         kind = dead->kind == 5 ? 5 : 4;
         cm_SendMoveGoods(heir->netId, -1, ai_OwnPlayer, k);
         k = gm_GetWorth(dead->id);
-        cm_BeginFieldBlock((char *)heir, heir->netId);
+        cm_BeginFieldBlock(heir, heir->netId);
         cm_AddFieldValues(4, 1, (char *)&heir->v1a8 - cm_FieldObject, &k);
         if (taken && (heir->kind == 3 || heir->kind == 8 || heir->kind == 9))
             cm_AddFieldDelta(1, 1, (char *)&heir->kind - cm_FieldObject, &kind);
@@ -5551,7 +5551,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
         none = -1;
         v024 = 0;
         w028 = 0;
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldDelta(1, 1, (char *)&c->health - cm_FieldObject, &health);
         cm_AddFieldDelta(2, 1, (char *)&c->age - cm_FieldObject, &age);
         cm_AddFieldDelta(4, 1, (char *)&c->money - cm_FieldObject, &v194);
@@ -5564,7 +5564,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
         cm_AddFieldDelta(1, 1, (char *)&c->heldRounds - cm_FieldObject, &b1b1);
         cm_SendSetField(c->netId, 0x1c8, 4, ORD_F1C8_ANEW, 0);
         cm_SendFieldDeltas();
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         for (i = 0; i < 8; i++)
             cm_AddFieldDelta(4, 1, (char *)&c->relatives[i] - cm_FieldObject, &none);
         cm_AddFieldDelta(4, 1, (char *)&c->v024 - cm_FieldObject, &v024);
@@ -5577,7 +5577,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
         cm_SendFloatDelta(c->netId, 0x1c, 1000.0f - c->f01c);
         cm_SendFloatDelta(c->netId, 0x18, 1000.0f - c->f018);
         cm_SendFloatDelta(c->netId, 0x20, 12.0f - c->f020);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         for (i = 0; i < 5; i++) {
             skill = 0;
             cm_AddFieldValue(1, 1, (char *)&c->skills[i] - cm_FieldObject, &skill);
@@ -8326,7 +8326,7 @@ void gm_ChangeBuildingState(AIBLD *bld, int d)
         v = -k;
     if (d + k > 100)
         v = 100 - k;
-    cm_BeginFieldBlock((char *)bld, bld->id);
+    cm_BeginFieldBlock(bld, bld->id);
     cm_AddFieldValues(1, 1, 0x5c, &v);
     cm_SendFieldDeltas();
     if (bld->type != 0 && v + bld->level <= 0 && (bt = GM_BTYPE(bld->type))->kind != 0xf && bt->kind != 0x1c

@@ -1196,7 +1196,7 @@ void ai_UpdateResourceColumns(int win, int part, int ncols, int unused)
 }
 
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
-int gm_ClockSeason(); int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(char *o, int id);
+int gm_ClockSeason(); int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(void *o, int id);
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldValues(void); void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld); void d2_MoveObj(short x, short y, int obj);
 void d2_SetPointerItem(int id, int amount); void d2_ClearPointerItems(void);
 
@@ -1505,7 +1505,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
-            cm_BeginFieldBlock((char *)item, item->objId);
+            cm_BeginFieldBlock(item, item->objId);
             cm_AddFieldValue(4, 1, (unsigned short)((char *)&item->reserve - cm_FieldObject), &value);
             cm_SendFieldValues();
             item->reserve = value;
@@ -1517,7 +1517,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
-            cm_BeginFieldBlock((char *)item, item->objId);
+            cm_BeginFieldBlock(item, item->objId);
             cm_AddFieldValue(4, 1, (unsigned short)((char *)&item->reserve - cm_FieldObject), &value);
             cm_SendFieldValues();
             item->reserve = value;
@@ -1955,7 +1955,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
-            cm_BeginFieldBlock((char *)item, item->objId);
+            cm_BeginFieldBlock(item, item->objId);
             cm_AddFieldValue(4, 1, (char *)&item->reserve - cm_FieldObject, &value);
             cm_SendFieldValues();
             item->reserve = value;
@@ -7884,7 +7884,7 @@ int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, un
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
 void d2_EndInputEdit(void); void d2_EnableObject(); void d2_ScrollWindowBy(); void d2_MoveObj(short x, short y, int obj);
 int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont(); void d2_CopyCaption(char *caption);
-void d2_SetObjPic(); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void); void cm_BeginFieldBlock(char *o, int id);
+void d2_SetObjPic(); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void); void cm_BeginFieldBlock(void *o, int id);
 char *itoa(int, char *, int); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); int gm_GetGoodsValue(); int gm_ConvertMoney(int a, unsigned char k);
 
@@ -8174,7 +8174,7 @@ void ai_CreditReleaseWindow(AIBLD *bank)
             else
                 cm_SendMoveGoods(ai_Chars[bank->owner].netId, bank->id, ai_OwnPlayer, stock - value);
             value = d2_GetObjValue(interestCtl);
-            cm_BeginFieldBlock((char *)bank, bank->id);
+            cm_BeginFieldBlock(bank, bank->id);
             cm_AddFieldDelta(4, 1, 0x65, &value);
             cm_SendFieldDeltas();
             sv_PopRequest = 1;
@@ -8806,7 +8806,7 @@ void ai_ExchangeFeesWindow(AIBLD *bank)
         if (d2_ClickedId == 0) {
             int fee = d2_GetObjValue(feeCtl);
             int exchange = d2_GetObjValue(exchangeCtl);
-            cm_BeginFieldBlock((char *)bank, bank->id);
+            cm_BeginFieldBlock(bank, bank->id);
             cm_AddFieldDelta(4, 1, 0x69, &fee);
             cm_AddFieldDelta(4, 1, 0x6d, &exchange);
             cm_SendFieldDeltas();
@@ -10992,7 +10992,7 @@ void ai_DonationWindow(AIBLD *bld)
 int gv_CountOwnedGraves(); int gv_CulpritGuilt(int c); int gm_GetWorth(unsigned short id); float gm_Liking();
 int ai_InventoryHas(void *ch, int id); void d2_SetPointerSprite(int a, int pic); 
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj();
-void cm_BeginFieldBlock(char *o, int id); int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
+void cm_BeginFieldBlock(void *o, int id); int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
 int gv_RetireCrimesOf(int p, int n); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); void ai_ShowIndulgenceNews(); int cm_GetSlotState();
 void txt_Format(char *out, intptr_t id0, ...);
 void d2_CloseView(int view); int _ftol();
@@ -11059,7 +11059,7 @@ void ai_IndulgenceWindow(AIBLD *bld, AIOBJ *room)
         } else if (d2_ClickedId != -1 && d2_PointerObj == buyBtn &&
                    sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
             me = &ai_Chars[ai_PlayerId];
-            cm_BeginFieldBlock((char *)me, me->netId);
+            cm_BeginFieldBlock(me, me->netId);
             cm_AddFieldValues(4, 1, 0x1ac, &price);
             cm_SendFieldDeltas();
             gv_RetireCrimesOf(me->netId, graves);
@@ -11137,13 +11137,13 @@ void ai_BaptismWindow(AIBLD *bld, AIOBJ *room)
                     if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
                         faith = 1 - me->faith;
                         cm_SendMoveGoodsUnchecked(-1, me->netId, 0, price);
-                        cm_BeginFieldBlock((char *)me, me->netId);
+                        cm_BeginFieldBlock(me, me->netId);
                         cm_AddFieldDelta(1, 1, 0xc, &faith);
                         cm_SendFieldDeltas();
                         for (i = 3; i <= 7; i++) {
                             if (ai_Chars[ai_PlayerId].relatives[i] != -1 &&
                                 (rel = gm_FindChar(ai_Chars[ai_PlayerId].relatives[i])) != 0) {
-                                cm_BeginFieldBlock((char *)rel, rel->netId);
+                                cm_BeginFieldBlock(rel, rel->netId);
                                 cm_AddFieldDelta(1, 1, 0xc, &faith);
                                 cm_SendFieldDeltas();
                             }
@@ -11195,7 +11195,7 @@ void ai_BaptismWindow(AIBLD *bld, AIOBJ *room)
                 if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
                     faith = owner->faith;
                     cm_SendMoveGoodsUnchecked(owner->netId, me->netId, 0, price);
-                    cm_BeginFieldBlock((char *)me, me->netId);
+                    cm_BeginFieldBlock(me, me->netId);
                     cm_AddFieldDelta(1, 1, 0xc, &faith);
                     cm_SendFieldDeltas();
                     if (owner->kind == 6 || owner->kind == 7) {
@@ -11546,7 +11546,7 @@ void ai_SermonWindow(AIBLD *bld)
                 if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 1) != 0) {
                     flag = 1;
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -1);
-                    cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                    cm_BeginFieldBlock(sermon, sermon->objId);
                     cm_AddFieldDelta(1, 1, 0x22, &flag);
                     slot = cm_SendFieldDeltas();
                     changed = 1;
@@ -11565,13 +11565,13 @@ void ai_SermonWindow(AIBLD *bld)
                 if (priest != 0 && priest->netId != -1 && sermon != 0) {
                     text1 = util_Random(8);
                     text2 = util_Random(8);
-                    cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                    cm_BeginFieldBlock(sermon, sermon->objId);
                     cm_AddFieldDelta(4, 1, 0x1e, &priest->netId);
                     cm_SendFieldDeltas();
-                    cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                    cm_BeginFieldBlock(sermon, sermon->objId);
                     cm_AddFieldDelta(1, 1, 0x1c, &text1);
                     cm_SendFieldDeltas();
-                    cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                    cm_BeginFieldBlock(sermon, sermon->objId);
                     cm_AddFieldDelta(1, 1, 0x1d, &text2);
                     slot = cm_SendFieldDeltas();
                     state = 2;
@@ -11583,13 +11583,13 @@ void ai_SermonWindow(AIBLD *bld)
                 none = -1;
                 noPriest = -1;
                 text1 = -1;
-                cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                cm_BeginFieldBlock(sermon, sermon->objId);
                 cm_AddFieldDelta(4, 1, 0x1e, &noPriest);
                 cm_SendFieldDeltas();
-                cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                cm_BeginFieldBlock(sermon, sermon->objId);
                 cm_AddFieldDelta(1, 1, 0x1c, &none);
                 cm_SendFieldDeltas();
-                cm_BeginFieldBlock((char *)sermon, sermon->objId);
+                cm_BeginFieldBlock(sermon, sermon->objId);
                 cm_AddFieldDelta(1, 1, 0x1d, &text1);
                 slot = cm_SendFieldDeltas();
                 changed = 1;
@@ -12757,7 +12757,7 @@ void ai_RansomWindow(AIBLD *bld)
             sv_PopRequest = 1;
         } else if (d2_PointerObj == release) {
             none = -1;
-            cm_BeginFieldBlock((char *)bld, bld->id);
+            cm_BeginFieldBlock(bld, bld->id);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&bld->victimId - cm_FieldObject), &none);
             cm_SendFieldDeltas();
             cm_SendMessage5b(victim->netId, -victim->heldRounds, 0);
@@ -12805,7 +12805,7 @@ void ai_HostageEscape(AIBLD *bld)
         if (util_RandomF() < chance) {
             int none = -1;  /* the field's new value: no victim */
 
-            cm_BeginFieldBlock((char *)bld, bld->id);
+            cm_BeginFieldBlock(bld, bld->id);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&bld->victimId - cm_FieldObject), &none);
             cm_SendFieldDeltas();
             cm_SendMessage5b(ch->netId, -ch->heldRounds, 0);

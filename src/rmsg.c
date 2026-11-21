@@ -918,7 +918,7 @@ int ai_MsgCartFillDropType22(G14MSG *m)
     gm_FindById(&w, 0, 0, j->id2);
     gm_FindById(&u, 0, 0, j->id3);
     v = (unsigned char)(o->fill * ((util_Random(0x23) + 0x3c) * 0.01f));
-    cm_BeginFieldBlock((char *)o, o->objId);
+    cm_BeginFieldBlock(o, o->objId);
     cm_AddFieldDelta(1, 1, 0x12, &v);
     cm_SendFieldDeltas();
     if (w->type == 0x47)

@@ -2068,7 +2068,7 @@ void ai_AlchemistLabContact(AIBLD *rec, AIOBJ *room)
     }
 }
 
-void cm_BeginFieldBlock(char *o, int id); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
+void cm_BeginFieldBlock(void *o, int id); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
 
 /* 0x5823b0, the window that unlocks a room of the building rec (rec unused): the form "Locations\Domizil\kabinett"
    with the texts 0x407d / 0x4171 (the room's unlockPrice) and the two buttons from the text 0x407e on (pay /
@@ -2106,7 +2106,7 @@ void ai_UnlockRoomWindow(AIBLD *rec, AIOBJ *room)
                 if (sv_CheckMoney(&ai_Chars[ai_PlayerId], price) == 1) {
                     zero = 0;
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -price);
-                    cm_BeginFieldBlock((char *)room, room->objId);
+                    cm_BeginFieldBlock(room, room->objId);
                     cm_AddFieldDelta(4, 1, 0x1c, &zero);
                     cm_AddFieldDelta(4, 1, 0x20, &zero);
                     k = cm_SendFieldDeltas();  /* cm.c defines it void; the original's callers use eax: the slot of the block */

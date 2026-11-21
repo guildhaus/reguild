@@ -3765,7 +3765,7 @@ void main_UpdateFigure(int i)
         c = &ai_Chars[i];
         one = 1;
         if (ai_Chars[i].bld != 0 || ai_Chars[i].kind == 5 || ai_Chars[i].kind == 1 || ai_Chars[i].kind == 2 || ai_Chars[i].kind == 4) {
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValues(4, 1, 0x174, &one);
             cm_SendFieldDeltas();
         }
@@ -3795,7 +3795,7 @@ void main_UpdateFigure(int i)
         int one = 1;
 
         c = &ai_Chars[i];
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldValues(4, 1, 0x174, &one);
         cm_SendFieldDeltas();
     }
@@ -3821,7 +3821,7 @@ void main_UpdateFigures(void)
             }
             if (ch->heldRounds > 0) {
                 on = 0xff;
-                cm_BeginFieldBlock((char *)ch, ch->netId);
+                cm_BeginFieldBlock(ch, ch->netId);
                 cm_AddFieldValues(1, 1, (int)((char *)&ch->heldRounds - cm_FieldObject), &on);
                 cm_SendFieldDeltas();
             }
@@ -3879,7 +3879,7 @@ void main_SettleRound(unsigned short pl)
                                 char age = o->reportKnow - (char)gm_BuildingRank(t) * 2;
 
                                 age = age < 0 ? 0 : age;
-                                cm_BeginFieldBlock((char *)o, o->objId);
+                                cm_BeginFieldBlock(o, o->objId);
                                 cm_AddFieldDelta(1, 1, (char *)&o->reportKnow - cm_FieldObject, &age);
                                 cm_SendFieldDeltas();
                             } else
@@ -3891,7 +3891,7 @@ void main_SettleRound(unsigned short pl)
                     int zero = 0;
                     int i;
 
-                    cm_BeginFieldBlock((char *)c, c->id);
+                    cm_BeginFieldBlock(c, c->id);
                     for (i = 0; i < 3; i++)
                         cm_AddFieldValue(4, 1, (char *)&c->plants + i * 12 - cm_FieldObject, &zero);
                     cm_SendFieldValues();
@@ -3912,7 +3912,7 @@ void main_SettleRound(unsigned short pl)
 
                             ws = m->workSet;
                             ws.flags |= 1;
-                            cm_BeginFieldBlock((char *)m, m->netId);
+                            cm_BeginFieldBlock(m, m->netId);
                             cm_AddFieldDelta(4, 1, (char *)&m->flags1b4 - cm_FieldObject, &ws);
                             cm_SendFieldDeltas();
                         }
@@ -4056,7 +4056,7 @@ void main_SettleRound(unsigned short pl)
                                 cnt++;
                                 cm_SendRelations(ai_Chars[pl].netId, q->netId, rel, 0);
                             }
-                            cm_BeginFieldBlock((char *)q, q->netId);
+                            cm_BeginFieldBlock(q, q->netId);
                             cm_AddFieldDelta(4, 1, 0x19c, &wage);
                             cm_SendFieldDeltas();
                             cnt++;
@@ -4093,7 +4093,7 @@ void main_SettleRound(unsigned short pl)
                                 if (q->title == 2 || q->title == 1 || q->title == 0x13 || q->title == 0x14 || q->title == 0x10 || q->title == 0xf) {
                                     char lower;
 
-                                    cm_BeginFieldBlock((char *)q, q->netId);
+                                    cm_BeginFieldBlock(q, q->netId);
                                     lower = (char)(q->sk82 * 0.9 + 0.5);
                                     if (q->sk82 > 42.0f)
                                         cm_AddFieldDelta(1, 1, (char *)&q->sk82 - cm_FieldObject, &lower);
@@ -4116,7 +4116,7 @@ void main_SettleRound(unsigned short pl)
                         AICHAR *q = &ai_Chars[w];
 
                         cm_SendMoveGoodsUnchecked(ai_Chars[w].netId, ai_Chars[pl].netId, ai_OwnPlayer, wage2);
-                        cm_BeginFieldBlock((char *)q, q->netId);
+                        cm_BeginFieldBlock(q, q->netId);
                         cm_AddFieldDelta(4, 1, 0x19c, &wage2);
                         cm_SendFieldDeltas();
                         cnt += 2;

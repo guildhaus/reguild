@@ -331,7 +331,7 @@ int ai_MeisterTradeFernEinkauf2(AICHAR *ch, AIOBJ *obj);                 /* 0x48
 /* callees outside this unit */
 struct G15TREE * veg_FindType(int type);                                         /* 0x4bc5a0 */
 struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);                /* 0x4bc670, the plant record with the id (rd.c) */
-void cm_BeginFieldBlock(char *o, int id);                             /* 0x4c3ba0, starts a message about o */
+void cm_BeginFieldBlock(void *o, int id);                             /* 0x4c3ba0, starts a message about o */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v);                /* 0x4c3c00, adds a field */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                  /* 0x4c3d00 */
 void cm_BeginGroup(const char *s);                                        /* 0x4c4540 */

@@ -3053,7 +3053,7 @@ void cm_RunBirth(G28REC *m)
         int kind;
 
         kind = 8;
-        cm_BeginFieldBlock((char *)b, b->netId);
+        cm_BeginFieldBlock(b, b->netId);
         cm_AddFieldDelta(1, 1, 2, &kind);
         cm_SendFieldDeltas();
     }
@@ -3100,7 +3100,7 @@ void cm_RunBirth(G28REC *m)
             d2_FocusInput(box);
         }
     } while (sv_RunFrame(0, cm_DialogFrameFlags) != 0 && cm_TutorialActive == 0);
-    cm_BeginFieldBlock((char *)b, b->netId);
+    cm_BeginFieldBlock(b, b->netId);
     cm_AddFieldDelta(1, 0x10, 0x30, name);
     cm_SendFieldDeltas();
     d2_CloseView(view);
@@ -3197,7 +3197,7 @@ void cm_RunDeath(G28REC *m)
 
             zero = 0;
             life = 100.0f;
-            cm_BeginFieldBlock((char *)a, a->netId);
+            cm_BeginFieldBlock(a, a->netId);
             cm_AddFieldDelta(4, 1, 0x1c, &life);
             cm_AddFieldDelta(4, 1, 0x24, &zero);
             cm_SendFieldDeltas();
@@ -3211,7 +3211,7 @@ void cm_RunDeath(G28REC *m)
         life = 100.0f;
         txt_Format(buf, 0x40fc, 0x40f5, a->id);
         cm_MessageBox((intptr_t)buf, 0x10);
-        cm_BeginFieldBlock((char *)a, a->netId);
+        cm_BeginFieldBlock(a, a->netId);
         cm_AddFieldDelta(4, 1, 0x1c, &life);
         cm_AddFieldDelta(4, 1, 0x24, &zero);
         cm_SendFieldDeltas();
@@ -3534,7 +3534,7 @@ void cm_RunAuction(G28REC *m)
                     break;
                 }
             }
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldDelta(4, 1, 0x69, &price);
             cm_AddFieldDelta(4, 1, 0x6d, &year);
             cm_SendFieldDeltas();
@@ -4969,7 +4969,7 @@ char ai_RunPendingParties(int pl)
         cm_ClearParty(p->id);
         p = (G28REC *)cm_FirstPendingParty();
     }
-    cm_BeginFieldBlock((char *)&ai_Chars[pl], ai_Chars[pl].netId);
+    cm_BeginFieldBlock(&ai_Chars[pl], ai_Chars[pl].netId);
     cm_AddFieldValue(4, 1, (unsigned short)((int)&ai_Chars[pl].partyId - (int)cm_FieldObject), &save);
     cm_SendFieldValues();
     return ret;

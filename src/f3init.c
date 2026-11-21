@@ -787,7 +787,7 @@ void init_StartNewGame(int unused)
     do {
         if (c->id != 0xffff && c->kind < 5) {
             money = gm_PlayerFactor(util_Random(0x122) + 10, ai_OwnPlayer);
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValues(4, 1, INIT_FIELD_MONEY, &money);
             cm_SendFieldDeltas();
         }
@@ -808,11 +808,11 @@ void init_StartNewGame(int unused)
     ai_JudgeProtestant = (struct AICHAR *)cm_GetSlotValue(w2);
     cm_BeginSendGroup();
     m = 0;
-    cm_BeginFieldBlock((char *)ai_JudgeCatholic, ai_JudgeCatholic->netId);
+    cm_BeginFieldBlock(ai_JudgeCatholic, ai_JudgeCatholic->netId);
     cm_AddFieldDelta(1, 1, ((char *)ai_JudgeCatholic - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
     cm_SendFieldDeltas();
     m = 1;
-    cm_BeginFieldBlock((char *)ai_JudgeProtestant, ai_JudgeProtestant->netId);
+    cm_BeginFieldBlock(ai_JudgeProtestant, ai_JudgeProtestant->netId);
     cm_AddFieldDelta(1, 1, ((char *)ai_JudgeProtestant - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
     cm_SendFieldDeltas();
     cm_EndSendGroup();
@@ -911,7 +911,7 @@ void init_CreateOpponents(int n, int m, int *list)
     for (i = 0; i < n; i++) {
         pc = (AICHAR *)cm_GetSlotValue(ids[i]);
         if (ai_Opponents[i] != 2) {
-            cm_BeginFieldBlock((char *)pc, pc->netId);
+            cm_BeginFieldBlock(pc, pc->netId);
             for (j = 0; j < 5; j++) {
                 unsigned char b;
                 v = pc->skills[j] + delta[ai_Opponents[i]];
@@ -1092,7 +1092,7 @@ int init_CreateStartCharacters(int unused)
         msg3 = gm_PlayerFactor(w - (int)(util_RandomF() * w * -0.5f), ai_OwnPlayer);
         ch = f0[k];
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, msg3);
-        cm_BeginFieldBlock((char *)ch, ch->netId);
+        cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldDelta(1, 1, 0xd, &msg0);
         if (ch->kind == 3) {
             cm_AddFieldDelta(1, 1, 0x84, &msg5);
@@ -1144,10 +1144,10 @@ int init_CreateStartCharacters(int unused)
         }
         if (u != 0 && v != 0) {
             n = v->age - 0x12;
-            cm_BeginFieldBlock((char *)u, u->netId);
+            cm_BeginFieldBlock(u, u->netId);
             cm_AddFieldDelta(4, 1, 0x5c, &v->netId);
             cm_SendFieldDeltas();
-            cm_BeginFieldBlock((char *)v, v->netId);
+            cm_BeginFieldBlock(v, v->netId);
             cm_AddFieldDelta(4, 1, 0x5c, &u->netId);
             cm_SendFieldDeltas();
             if (n > 5) {
@@ -1158,7 +1158,7 @@ int init_CreateStartCharacters(int unused)
                     sv_PumpNet();
                 ch = (AICHAR *)cm_GetSlotValue(j);
                 cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
-                cm_BeginFieldBlock((char *)ch, ch->netId);
+                cm_BeginFieldBlock(ch, ch->netId);
                 cm_AddFieldDelta(1, 1, 0xd, &msg4);
                 cm_SendFieldDeltas();
             }
@@ -1177,7 +1177,7 @@ int init_CreateStartCharacters(int unused)
             sv_PumpNet();
         ch = (AICHAR *)cm_GetSlotValue(h);
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
-        cm_BeginFieldBlock((char *)ch, ch->netId);
+        cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldDelta(1, 1, 0xd, &msg0);
         cm_AddFieldDelta(1, 1, 0x167, &msg1);
         cm_SendFieldDeltas();
@@ -1187,7 +1187,7 @@ int init_CreateStartCharacters(int unused)
             sv_PumpNet();
         ch = (AICHAR *)cm_GetSlotValue(h);
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
-        cm_BeginFieldBlock((char *)ch, ch->netId);
+        cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldDelta(1, 1, 0xd, &msg0);
         cm_AddFieldDelta(1, 1, 0x167, &msg1);
         cm_SendFieldDeltas();
@@ -1320,7 +1320,7 @@ void init_StockMarketStalls(void)
                 if (ai_PlayerSlots[owner].import[i] != 0)
                     n++;
             }
-            cm_BeginFieldBlock((char *)st, st->objId);
+            cm_BeginFieldBlock(st, st->objId);
             cm_AddFieldDelta(1, 1, (char *)st - cm_FieldObject + 0x1c, &n);
             n = 4;
             cm_AddFieldDelta(4, 1, (char *)st - cm_FieldObject + 0xe, &n);
@@ -1339,7 +1339,7 @@ void init_StockMarketStalls(void)
                 if (ai_PlayerSlots[owner].export[i] != 0)
                     n++;
             }
-            cm_BeginFieldBlock((char *)st, st->objId);
+            cm_BeginFieldBlock(st, st->objId);
             cm_AddFieldDelta(1, 1, (char *)st - cm_FieldObject + 0x1c, &n);
             n = 4;
             cm_AddFieldDelta(4, 1, (char *)st - cm_FieldObject + 0xe, &n);
@@ -1661,7 +1661,7 @@ void init_OpenTown(void)
             int v;
 
             v = gm_EquipmentValue(b, 100);
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldDelta(4, 1, 0x65, &v);
             v = v * 2;
             cm_AddFieldDelta(4, 1, 0x69, &v);
@@ -2614,7 +2614,7 @@ void init_GiveFirstPlayerBuildings(void)
               ((k = ai_BTypes[b->type].kind) == 0x13 || k == 4)) || (k == 0x10 || (k == 5 || k == 9))) &&
             ai_BTypes[b->type].kind != 0xb) {
             int v = 64000;
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x39, &v);
             cm_SendFieldDeltas();
             cm_SendOwnership(b->id, c->netId, c->netId);

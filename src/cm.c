@@ -722,7 +722,7 @@ int cm_SendGroupState(void)
 }
 /* 0x4c3ba0, starts a field block about object o (id) */
 
-void cm_BeginFieldBlock(char *o, int id)
+void cm_BeginFieldBlock(void *o, int id)
 {
     AIBLD *a;
     AIOBJ *b;

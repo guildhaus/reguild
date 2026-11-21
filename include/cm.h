@@ -181,7 +181,7 @@ int cm_GetSlotValue(int h);                                                     
 void cm_BeginSendGroup(void);                                                         /* 0x4c3b30 */
 void cm_EndSendGroup(void);                                                         /* 0x4c3b40 */
 int cm_SendGroupState(void);                                                          /* 0x4c3b50 */
-void cm_BeginFieldBlock(char *o, int id);                                              /* 0x4c3ba0 */
+void cm_BeginFieldBlock(void *o, int id);                                              /* 0x4c3ba0 */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); /* 0x4c3c00 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v); /* 0x4c3d00 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v); /* 0x4c3d90 */

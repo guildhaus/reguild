@@ -659,7 +659,7 @@ int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_Creat
 void d2_RemoveObj(); int gm_MinutesBetween(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
-int gm_ClockSeason(); int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(char *o, int id);
+int gm_ClockSeason(); int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(void *o, int id);
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldValues(void); void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld); void d2_MoveObj(short x, short y, int obj);
 void d2_SetPointerItem(int id, int amount); void d2_ClearPointerItems(void);
 int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int flags, int win);  /* 0x46a960 (d2.h) */
@@ -835,7 +835,7 @@ int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, un
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
 void d2_EndInputEdit(void); void d2_EnableObject(); void d2_ScrollWindowBy(); void d2_MoveObj(short x, short y, int obj);
 int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont(); void d2_CopyCaption(char *caption);
-void d2_SetObjPic(); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void); void cm_BeginFieldBlock(char *o, int id);
+void d2_SetObjPic(); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void); void cm_BeginFieldBlock(void *o, int id);
 char *itoa(int, char *, int); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); int gm_GetGoodsValue(); int gm_ConvertMoney(int a, unsigned char k);
 typedef struct CREDITLISTROW {      /* a row of the credit list window (ai_CreditListWindow) */
@@ -897,7 +897,7 @@ void d2_CloseView(int view); int _ftol();
 int gv_CountOwnedGraves(); int gv_CulpritGuilt(int c); int gm_GetWorth(unsigned short id); float gm_Liking();
 int ai_InventoryHas(void *ch, int id); void d2_SetPointerSprite(int a, int pic); 
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj();
-void cm_BeginFieldBlock(char *o, int id); int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
+void cm_BeginFieldBlock(void *o, int id); int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
 int gv_RetireCrimesOf(int p, int n); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); void ai_ShowIndulgenceNews(); int cm_GetSlotState();
 void txt_Format(char *out, intptr_t id0, ...);
 void d2_CloseView(int view); int _ftol();
@@ -1550,7 +1550,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
 
             if (wageSlider != -1 && (wage = d2_GetObjValue(wageSlider)) != bld->wageRate &&
                 (slot == -1 || cm_GetSlotState(slot) != 0)) {
-                cm_BeginFieldBlock((char *)bld, bld->id);
+                cm_BeginFieldBlock(bld, bld->id);
                 cm_AddFieldDelta(4, 1, 0x3d, &wage);
                 slot = cm_SendFieldDeltas();
             }
@@ -1825,7 +1825,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     }
     if (radio != -1)
         d2_RadioClear(radio);
-    cm_BeginFieldBlock((char *)bld, bld->id);
+    cm_BeginFieldBlock(bld, bld->id);
     if (workList != -1) {
         v = d2_GetObjValue(workList);
         cm_AddFieldDelta(4, 1, 0x41, &v);
@@ -3526,7 +3526,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 if (d2_ClickedId != -1 && d2_PointerObj == rows[i].escortPic) {
                     if ((c->flags20 & 1) == 0) {
                         esc = c->escort = (c->escort + 1) % 3;
-                        cm_BeginFieldBlock((char *)c, c->objId);
+                        cm_BeginFieldBlock(c, c->objId);
                         cm_AddFieldValue(1, 1, 0x28, &esc);
                         cm_SendFieldValues();
                     } else {
@@ -5940,7 +5940,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
             if (d2_ClickedId != -1) {
                 for (i = 0; i < 6; i++) {
                     if (d2_PointerObj == ctl[i]) {
-                        cm_BeginFieldBlock((char *)table, table->objId);
+                        cm_BeginFieldBlock(table, table->objId);
                         cm_AddFieldDelta(1, 1, 0x2c, &i);
                         cm_SendFieldDeltas();
                         sv_PopRequest = 1;
@@ -5969,7 +5969,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                 if (d2_ClickedId != -1) {
                     for (i = 0; i < 6; i++) {
                         if (d2_PointerObj == ctl[i]) {
-                            cm_BeginFieldBlock((char *)table, table->objId);
+                            cm_BeginFieldBlock(table, table->objId);
                             cm_AddFieldDelta(1, 1, 0x2d, &i);
                             cm_SendFieldDeltas();
                             sv_PopRequest = 1;
@@ -5982,7 +5982,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
             } while (sv_RunFrame(ai_FeastWindow, 0x677c7) != 0);
         } else {
             noMusik = (unsigned char)musik;
-            cm_BeginFieldBlock((char *)table, table->objId);
+            cm_BeginFieldBlock(table, table->objId);
             cm_AddFieldDelta(1, 1, 0x2d, &noMusik);
             cm_SendFieldDeltas();
         }
@@ -6075,7 +6075,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     for (k = 0; k < 4; k++) {
                         ch = guests[k];
                         if (ch != 0) {
-                            cm_BeginFieldBlock((char *)table, table->objId);
+                            cm_BeginFieldBlock(table, table->objId);
                             cm_AddFieldDelta(4, 1, 0x1c + n * 4, &ch->netId);
                             cm_SendFieldDeltas();
                             msg.type = 0x36;
@@ -6092,7 +6092,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                         }
                     }
                     for (k = n; k < 4; k++) {
-                        cm_BeginFieldBlock((char *)table, table->objId);
+                        cm_BeginFieldBlock(table, table->objId);
                         cm_AddFieldDelta(4, 1, 0x1c + k * 4, &none);
                         cm_SendFieldDeltas();
                     }
@@ -7176,7 +7176,7 @@ void ai_BuildingWindow(AIBLD *bld)
             if (sv_MessageBox((intptr_t)buyOutText, 1) != 0) {
                 cm_SendMoveGoods(ai_CharInts[bld->owner][0], -1, ai_OwnPlayer, amount);
                 cm_SendOwnership(bld->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
-                cm_BeginFieldBlock((char *)bld, bld->id);
+                cm_BeginFieldBlock(bld, bld->id);
                 cm_AddFieldValue(4, 1, (unsigned short)((char *)&bld->buyOutBase - cm_FieldObject), &amount);
                 cm_SendFieldDeltas();
                 sv_PopRequest = 1;
@@ -7193,7 +7193,7 @@ void ai_BuildingWindow(AIBLD *bld)
     } while (sv_RunFrame(ai_BuildingWindow, 0x657c7) != 0);
     if (nameInput != -1) {
         strcpy(name, (char *)d2_GetObjValue(nameInput));
-        cm_BeginFieldBlock((char *)bld, bld->id);
+        cm_BeginFieldBlock(bld, bld->id);
         cm_AddFieldValue(1, 0x20, 5, name);
         cm_SendFieldValues();
     }
@@ -8748,7 +8748,7 @@ void ai_ChooseCoatOfArms(void)
             ch = &ai_Chars[ai_PlayerId];
             value = d2_Radios[group].sel + 0x59a;
             taken = 0;
-            cm_BeginFieldBlock((char *)ch, ch->netId);
+            cm_BeginFieldBlock(ch, ch->netId);
             cm_AddFieldValue(4, 1, (unsigned short)((char *)&ch->ref54 - cm_FieldObject), &value);
             slot = cm_SendFieldValues();
             while (cm_GetSlotState(slot) == 0)
@@ -9089,12 +9089,12 @@ void ai_PlayerStatsPanel(void)
             for (i = 0; i < 0x80; i++) {
                 if (ai_MasterRows[i].input != -1 && ai_MasterRows[i].budget != d2_GetObjValue(ai_MasterRows[i].input)) {
                     value = gm_PlayerFactor(d2_GetObjValue(ai_MasterRows[i].input), ai_OwnPlayer);
-                    cm_BeginFieldBlock((char *)ai_MasterRows[i].bld, ai_MasterRows[i].bld->id);
+                    cm_BeginFieldBlock(ai_MasterRows[i].bld, ai_MasterRows[i].bld->id);
                     cm_AddFieldDelta(4, 1, (unsigned short)((char *)&ai_MasterRows[i].bld->budget - cm_FieldObject), &value);
                     cm_SendFieldDeltas();
                     master = gm_FindCharacterByMaster(ai_MasterRows[i].bld);
                     value -= ai_MasterRows[i].bld->budget;
-                    cm_BeginFieldBlock((char *)master, master->netId);
+                    cm_BeginFieldBlock(master, master->netId);
                     cm_AddFieldValues(4, 1, (char *)&master->budget - cm_FieldObject, &value);
                     cm_SendFieldDeltas();
                     ai_MasterRows[i].budget = d2_GetObjValue(ai_MasterRows[i].input);

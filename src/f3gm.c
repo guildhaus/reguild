@@ -617,7 +617,7 @@ void gm_UpdateWorthMood(void)
         sum = 0;
         cnt = 0;
         a = gm_GetWorth(c->id);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         for (k = 0; k < 3; k++) {
             v = c->worth[k + 1];
             sum += v;
@@ -825,7 +825,7 @@ void gm_ShiftLoyalty(void)
                 flip = c->faith == 0;
                 cm_SendFloatDelta(c->netId, 0x1d0, util_RandomF() * 0.5f + 0.25f);
                 gm_NetMsgCount++;
-                cm_BeginFieldBlock((char *)c, c->netId);
+                cm_BeginFieldBlock(c, c->netId);
                 cm_AddFieldDelta(1, 1, 0xc, &flip);
                 cm_SendFieldDeltas();
                 gm_NetMsgCount++;
@@ -1376,7 +1376,7 @@ float gm_DailyCharacterStep(AICHAR *id)
     if (c->kind == 0x14) {
         if (gv_DecayRaisedDead(c) == 1) {
             b = 0;
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValue(1, 1, (char *)&c->health - cm_FieldObject, &b);
             cm_SendFieldValues();
             GM_SENDDEATH(m, c);
@@ -1457,13 +1457,13 @@ float gm_DailyCharacterStep(AICHAR *id)
     }
     if (c->flags1cc & 2) {
         t = c->f01c - (util_Random(0x10) + 0x11);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldDelta(4, 1, 0x1c, &t);
         cm_SendFieldDeltas();
         gm_NetMsgCount++;
         if (t <= 0.0f) {
             b = 0;
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValue(1, 1, (char *)&c->health - cm_FieldObject, &b);
             cm_SendFieldValues();
             gm_NetMsgCount++;
@@ -1493,7 +1493,7 @@ float gm_DailyCharacterStep(AICHAR *id)
         }
         t = lo / c->f01c;
         t += c->f01c - lo;
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldDelta(4, 1, 0x1c, &t);
         cm_SendFieldDeltas();
         gm_NetMsgCount++;
@@ -1506,7 +1506,7 @@ float gm_DailyCharacterStep(AICHAR *id)
 
 
             t = 100.0f;
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldDelta(4, 1, 0x1c, &t);
             cm_AddFieldDelta(4, 1, 0x24, &zero);
             cm_SendFieldDeltas();
@@ -1515,7 +1515,7 @@ float gm_DailyCharacterStep(AICHAR *id)
             gm_NetMsgCount++;
             return t;
         }
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldValue(1, 1, (char *)&c->health - cm_FieldObject, &b);
         cm_SendFieldValues();
         gm_NetMsgCount++;
@@ -1540,7 +1540,7 @@ float gm_DailyCharacterStep(AICHAR *id)
     else
         d = 0.0;
     age = c->age + 1;
-    cm_BeginFieldBlock((char *)c, c->netId);
+    cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(2, 1, 10, &age);
     cm_SendFieldDeltas();
     gm_NetMsgCount++;
@@ -1678,7 +1678,7 @@ void gm_DailyCharacters(void)
         }
         if (ai_Chars[i].kind == 0x12) {     /* c->kind, read through the record */
             v = 8;
-            cm_BeginFieldBlock((char *)&ai_Chars[i], c->netId);
+            cm_BeginFieldBlock(&ai_Chars[i], c->netId);
             cm_AddFieldDelta(1, 1, 2, &v);
             cm_SendFieldDeltas();
             gm_NetMsgCount++;
@@ -1730,13 +1730,13 @@ float gm_AddHealth(unsigned short id, int d)
         f = f > 0.0 ? f : 0.0;
         if (f <= 0.0) {
             b = 0;
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValue(1, 1, (char *)&c->health - cm_FieldObject, &b);
             cm_SendFieldValues();
             GM_SENDDEATH(m, c);
             return 0.0f;
         }
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldValues(4, 1, 0x24, &d);
         cm_SendFieldDeltas();
         return f;
@@ -1746,7 +1746,7 @@ float gm_AddHealth(unsigned short id, int d)
     f += a;
     if (f <= 0.0) {
         b = 0;
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldValue(1, 1, (char *)&c->health - cm_FieldObject, &b);
         cm_SendFieldValues();
         GM_SENDDEATH(m, c);
@@ -1863,7 +1863,7 @@ void gm_PartnerStep(AICHAR *c)
             party.used = 2;
             party.members[1] = child->netId;
             party.time = clk;
-            cm_BeginFieldBlock((char *)child, party.members[1]);
+            cm_BeginFieldBlock(child, party.members[1]);
             cm_AddFieldDelta(1, 1, 2, &arg);
             cm_SendFieldDeltas();
             cm_SendNewParty(&party);
@@ -1987,7 +1987,7 @@ void gm_PopulationStep(void)
             b = gm_FindChar(c->relatives[2]);
             if ((a == 0 || a->kind == 0xf) && (b == 0 || b->kind == 0xf)) {
                 int kind = 3, level = 2;
-                cm_BeginFieldBlock((char *)c, c->netId);
+                cm_BeginFieldBlock(c, c->netId);
                 cm_AddFieldValue(1, 1, (char *)&c->kind - cm_FieldObject, &kind);
                 if (c->level < 2)
                     cm_AddFieldValue(1, 1, (char *)&c->level - cm_FieldObject, &level);
@@ -2023,7 +2023,7 @@ void gm_PopulationStep(void)
                 int office = util_Random(0xc) + 10;
                 nc = (AICHAR *)(cm_GetSlotValue(h));
                 cm_SendMoveGoodsUnchecked(nc->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x400) * 0x40);
-                cm_BeginFieldBlock((char *)nc, nc->netId);
+                cm_BeginFieldBlock(nc, nc->netId);
                 cm_AddFieldValue(1, 1, (char *)&nc->prevOffice - cm_FieldObject, &office);
                 cm_SendFieldValues();
             }

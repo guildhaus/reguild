@@ -104,7 +104,7 @@ extern G7GRP gm_BuildingItemGroups[];            /* 0x61a348 */
 #define AMT_CHARS_END (&ai_CharInts[0x300][0])  /* 0x7d5f84, the word past the last character record */
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d);  /* 0x4c4830 */
 extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
-void cm_BeginFieldBlock(char *o, int id);     /* 0x4c3ba0 */
+void cm_BeginFieldBlock(void *o, int id);     /* 0x4c3ba0 */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v);  /* 0x4c3c00 */
 int cm_SendFieldDeltas(void);                /* 0x4c49a0 */
 int cm_SendRelations(int a, int b, int c, int d);                     /* 0x4c4b00 */

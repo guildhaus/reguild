@@ -3024,7 +3024,7 @@ void he_RunConstruction(AIJOB *e)
                     AITIME now;
 
                     now = ai_Time;
-                    cm_BeginFieldBlock((char *)bld, bld->id);
+                    cm_BeginFieldBlock(bld, bld->id);
                     cm_AddFieldDelta(1, 0xe, 0x69, &now);
                     cm_SendFieldDeltas();
                 }
@@ -3656,7 +3656,7 @@ void he_LabIncident(AICHAR *c, AIJOB *ev, AIBLD *b, int state)
                     int one = 1;
                     int step = util_Random(4) + 3;
 
-                    cm_BeginFieldBlock((char *)task[k], task[k]->objId);
+                    cm_BeginFieldBlock(task[k], task[k]->objId);
                     cm_AddFieldDelta(4, 1, 0x1c, &one);
                     cm_AddFieldDelta(4, 1, 0x20, &step);
                     cm_SendFieldDeltas();
@@ -3673,7 +3673,7 @@ void he_LabIncident(AICHAR *c, AIJOB *ev, AIBLD *b, int state)
                 drop = -6 - util_Random(3);
             else
                 drop = -8 - util_Random(3);
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldValues(1, 1, 0x5c, &drop);
             cm_SendFieldDeltas();
             ai_DomizilMessage04(&ai_Chars[b->owner], c, b);
@@ -5336,7 +5336,7 @@ void he_RunGraveTraining(AIJOB *e)
         gain = (unsigned char)(gain / (*skill * (1.0f / 252) + 1.0));
         if ((float)(gain + *skill) > 252.0f)
             gain = (unsigned char)(252.0f - *skill);
-        cm_BeginFieldBlock((char *)ch, ch->netId);
+        cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldValues(1, 1, (char *)ch->skills + (t->skill - (int)cm_FieldObject), &gain);
         cm_SendFieldDeltas();
         e->end = ai_Time;
@@ -5485,7 +5485,7 @@ int he_CatchMeetingDisease(AICHAR *ch, float chance, int kind, float *health)
         else if (a == 9)
             bits ^= ((sev << 0x19) ^ bits) & 0x1e000000;
         delta = bits;
-        cm_BeginFieldBlock((char *)ch, ch->netId);
+        cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldDelta(4, 1, 0x2c, &delta);
         cm_SendFieldDeltas();
         res = gm_AddHealth(ch->id, -cost);

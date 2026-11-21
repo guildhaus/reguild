@@ -1296,7 +1296,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         break;
     case 7:
         b = (c->level > 2) + 1;
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldDelta(1, 1, 0xd, &b);
         cm_SendFieldDeltas();
         break;
@@ -1405,7 +1405,7 @@ void gv_CheckRankUp(unsigned i)
             m.rankUp.ch = c->netId;
             cm_SendLongMessage(&m);
         } else {
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldDelta(1, 1, 0xd, &nb);
             cm_SendFieldDeltas();
         }

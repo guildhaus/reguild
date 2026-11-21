@@ -2513,7 +2513,7 @@ void he_TopUpCharMoney(void)
             two = 2; \
             c = (AICHAR *)cm_GetSlotValue(slot); \
             cm_SendMoveGoods(c->netId, -1, ai_OwnPlayer, amt); \
-            cm_BeginFieldBlock((char *)c, c->netId); \
+            cm_BeginFieldBlock(c, c->netId); \
             cm_AddFieldDelta(1, 1, 0xd, &two); \
             extra; \
             cm_SendFieldDeltas(); \
@@ -3028,7 +3028,7 @@ void he_InnReport(void)
                     he_MessageBoxQuickjump(ai_Chars[b->owner].netId, -1, buf2, 0, 0x5fc, b->id, -1, 0, ch_EmptyName);
                 }
             }
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x6d, &b->inn.takings);
             cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x65, &none);
             cm_AddFieldDelta(2, 1, (char *)b - cm_FieldObject + 0x6b, &noneW);
@@ -3662,7 +3662,7 @@ void he_RunTavern(AIJOB *e)
                 out[2] = (int)helper;
                 ai_ShowTavernHelperNews(&ai_Chars[bld->owner], helper, (int)bld);
             }
-            cm_BeginFieldBlock((char *)t, t->objId);
+            cm_BeginFieldBlock(t, t->objId);
             cm_AddFieldDelta(1, 1, 0x22, &no);
             cm_AddFieldDelta(1, 1, 0x1c, &none);
             cm_AddFieldDelta(1, 1, 0x1d, &none);
@@ -3674,7 +3674,7 @@ void he_RunTavern(AIJOB *e)
                     he_ShowNews(ai_Chars[bld->owner].netId, -1, buf, 0, 0x5ff, ch_EmptyName);
                 }
                 cm_SendMoveGoods(ai_Chars[bld->owner].netId, -1, ai_OwnPlayer, out[1]);
-                cm_BeginFieldBlock((char *)bld, bld->id);
+                cm_BeginFieldBlock(bld, bld->id);
                 cm_AddFieldDelta(4, 1, 0x69, &out[1]);
                 cm_SendFieldDeltas();
             }
@@ -4211,7 +4211,7 @@ void he_RunFeastExam(AIJOB *e)
             if (e->examAt == 0) {
                 for (i = 0; i < 4; i++)
                     if (table->festGuests[i] == cand->netId) {
-                        cm_BeginFieldBlock((char *)table, table->objId);
+                        cm_BeginFieldBlock(table, table->objId);
                         cm_AddFieldDelta(4, 1, 0x1c + i * 4, &none);    /* table->festGuests[i] = -1 */
                         cm_SendFieldDeltas();
                         break;
@@ -4252,7 +4252,7 @@ void he_RunFeastExam(AIJOB *e)
             if (e->examAt == 0) {
                 for (i = 0; i < 4; i++)
                     if (table->festGuests[i] == cand->netId) {
-                        cm_BeginFieldBlock((char *)table, table->objId);
+                        cm_BeginFieldBlock(table, table->objId);
                         cm_AddFieldDelta(4, 1, 0x1c + i * 4, &none);    /* table->festGuests[i] = -1 */
                         cm_SendFieldDeltas();
                         break;
@@ -4423,14 +4423,14 @@ void he_AllocCourtship(AIJOB *e)
     if (a->relatives[0] != -1) {
         int none = -1;
 
-        cm_BeginFieldBlock((char *)a, a->netId);
+        cm_BeginFieldBlock(a, a->netId);
         cm_AddFieldDelta(4, 1, 0x5c, &none);    /* a->relatives[0] = -1 */
         cm_SendFieldDeltas();
     }
     if (b->relatives[0] != -1) {
         int none = -1;
 
-        cm_BeginFieldBlock((char *)b, b->netId);
+        cm_BeginFieldBlock(b, b->netId);
         cm_AddFieldDelta(4, 1, 0x5c, &none);    /* b->relatives[0] = -1 */
         cm_SendFieldDeltas();
     }
@@ -4603,11 +4603,11 @@ void he_RunCourtship(AIJOB *e)
             return;
         case 1:
             cm_BeginGroup("werbung");
-            cm_BeginFieldBlock((char *)b, b->netId);
+            cm_BeginFieldBlock(b, b->netId);
             cm_AddFieldDelta(4, 1, 0x5c, &a->netId);    /* b->relatives[0] = a->netId */
             cm_AddFieldDelta(2, 1, 0x50, &a->w050);     /* b->w050 = a->w050 */
             cm_SendFieldDeltas();
-            cm_BeginFieldBlock((char *)a, a->netId);
+            cm_BeginFieldBlock(a, a->netId);
             cm_AddFieldDelta(4, 1, 0x5c, &b->netId);    /* a->relatives[0] = b->netId */
             cm_SendFieldDeltas();
             cm_SendSetField(b->netId, 0x1c8, 4, 0x40000, 0);
@@ -6383,7 +6383,7 @@ void he_RunTrialEvent(AIJOB *e)
     case 1:
         c = &ai_Chars[e->chr];
         gm_JobSlots(gm_TitleGroup(t->job), &skillA, &skillB);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         raise = (unsigned char)(util_Random(0x10) + 0x10);
         cm_AddFieldValues(1, 1, skillA + 0x80, &raise);  /* 0x80: AICHAR.skills */
         raise = (unsigned char)(util_Random(0x10) + 0x10);
@@ -7866,7 +7866,7 @@ void he_RunTitleCeremony(AIJOB *e)
         d2_SetForm(e->slot->win, 1);
         if (c == own) {
             if (t->sent == 0) {
-                cm_BeginFieldBlock((char *)c, c->netId);
+                cm_BeginFieldBlock(c, c->netId);
                 cm_AddFieldDelta(1, 1, 0xd, &t->title);
                 cm_SendFieldDeltas();
                 t->sent = 1;
@@ -8017,7 +8017,7 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
 
 /* he_RunInnSim's guest count: the inn's field +0x69 counts `guests` more */
 #define HE_INN_GUEST(r) {                                                                       \
-    cm_BeginFieldBlock((char *)(r).inn, (r).inn->id);                                           \
+    cm_BeginFieldBlock((r).inn, (r).inn->id);                                           \
     cm_AddFieldValues(2, 1, (char *)(r).inn - cm_FieldObject + 0x69, &guests);                  \
     cm_SendFieldDeltas();                                                                       \
 }
@@ -8028,7 +8028,7 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
     cm_SendExSellObject(-1, (r).drink->ownerId, good, 1, ai_OwnPlayer, 0);                     \
     cm_SendMoveGoodsUnchecked(-1, ai_Chars[i].netId, ai_OwnPlayer, (int)((float)price * 0.65f)); \
     cm_SendMoveGoodsUnchecked(ai_Chars[(r).inn->owner].netId, -1, ai_OwnPlayer, price);        \
-    cm_BeginFieldBlock((char *)(r).inn, (r).inn->id);                                           \
+    cm_BeginFieldBlock((r).inn, (r).inn->id);                                           \
     cm_AddFieldValues(4, 1, (char *)(r).inn - cm_FieldObject + 0x65, &price);                   \
     cm_AddFieldValues(2, 1, (char *)(r).inn - cm_FieldObject + 0x6b, &guests);                  \
     cm_SendFieldDeltas();                                                                       \
@@ -8431,7 +8431,7 @@ void he_RunPopulation(AIJOB *e)
         if (found != 0)
             cm_SendBoss(c->netId, b->id);
         cm_SendMoveGoodsUnchecked(c->netId, -1, ai_OwnPlayer, (util_Random(0x32) + 0x33) << 5);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldDelta(1, 1, 2, &zero);
         cm_AddFieldDelta(1, 1, 0xc, &id);
         cm_SendFieldDeltas();
@@ -8779,7 +8779,7 @@ void he_StartDarkCorner(AIJOB *e)
         int year;
 
         year = ai_Time.year;
-        cm_BeginFieldBlock((char *)jt, jt->objId);
+        cm_BeginFieldBlock(jt, jt->objId);
         cm_AddFieldDelta(4, 1, (char *)jt - cm_FieldObject + 0x28, &year);  /* HEJOBTABLE.year */
         cm_SendFieldDeltas();
     }
@@ -8950,7 +8950,7 @@ void he_RunDarkCorner(AIJOB *e)
                 cm_SendProofExecuted(loot[k], ai_Chars[bld->owner].netId);
             jt = gm_Query(bld->objList, 2, 6, 0, 0x12c);
             if (jt != 0) {
-                cm_BeginFieldBlock((char *)jt, jt->objId);
+                cm_BeginFieldBlock(jt, jt->objId);
                 for (k = 0; k < 3; k++)
                     cm_AddFieldDelta(4, 1, k * 4 + 0x1c - (int)cm_FieldObject + (int)jt, &loot[k]);  /* HEJOBTABLE.proofs[k] */
                 cm_SendFieldDeltas();
@@ -8998,7 +8998,7 @@ void he_RunDarkCorner(AIJOB *e)
                 cm_SendProofExecuted(loot[k], ai_Chars[bld->owner].netId);
             jt = gm_Query(bld->objList, 2, 6, 0, 0x12c);
             if (jt != 0) {
-                cm_BeginFieldBlock((char *)jt, jt->objId);
+                cm_BeginFieldBlock(jt, jt->objId);
                 for (k = 0; k < 3; k++)
                     cm_AddFieldDelta(4, 1, k * 4 + 0x1c - (int)cm_FieldObject + (int)jt, &loot[k]);  /* HEJOBTABLE.proofs[k] */
                 cm_SendFieldDeltas();
@@ -10319,7 +10319,7 @@ void he_RunConversion(AIJOB *e)
             break;
         if (ai_Chars[ring].id != 0xffff && ai_Chars[ring].kind <= 4 && ai_Chars[ring].faith == cv->from) {
             c = &ai_Chars[ring];
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldDelta(1, 1, 0xc, &to);
             cm_SendFieldDeltas();
             cnt++;
@@ -12248,7 +12248,7 @@ void he_RunCartRepair(AIJOB *e)
         }
         cm_SendSetField(o->objId, 0x13, 1, 0, 0x20);
         v = (char)r->target;
-        cm_BeginFieldBlock((char *)o, o->objId);
+        cm_BeginFieldBlock(o, o->objId);
         cm_AddFieldDelta(1, 1, 0x12, &v);
         cm_SendFieldDeltas();
         he_FreeEvent(e);
@@ -12514,14 +12514,14 @@ void he_RunSlotOrder(AIJOB *e)
         if (s->add1c > 0) {
             s->add1c--;
             if (o->lvl1c < lim0) {
-                cm_BeginFieldBlock((char *)o, o->objId);
+                cm_BeginFieldBlock(o, o->objId);
                 cm_AddFieldValues(1, 1, (char *)&o->lvl1c - cm_FieldObject, &one);
                 cm_SendFieldDeltas();
             }
         } else if (s->add1d > 0) {
             s->add1d--;
             if (o->lvl1d < lim1) {
-                cm_BeginFieldBlock((char *)o, o->objId);
+                cm_BeginFieldBlock(o, o->objId);
                 cm_AddFieldValues(1, 1, (char *)&o->lvl1d - cm_FieldObject, &one);
                 cm_SendFieldDeltas();
             }
@@ -12589,7 +12589,7 @@ void he_RunStoreExtension(AIJOB *e)
         one = 1;
         gm_FindById(0, &o, 0, x->obj);
         if (o != 0) {
-            cm_BeginFieldBlock((char *)o, o->objId);
+            cm_BeginFieldBlock(o, o->objId);
             cm_AddFieldValues(4, 1, (char *)&o->count - cm_FieldObject, &one);
             cm_SendFieldDeltas();
             if (--x->rounds <= 0) {
@@ -13002,7 +13002,7 @@ void he_RunStudy(AIJOB *e)
             gain = (unsigned char)(gain / (*skill / 252.0f + 1.0));
             if (gain + *skill > 252.0f)
                 gain = (unsigned char)(252.0f - *skill);
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValues(1, 1, (char *)&c->skills[s->skill] - cm_FieldObject, &gain);
             cm_SendFieldDeltas();
             e->end = ai_Time;
@@ -15068,7 +15068,7 @@ void he_RunDismissal(AIJOB *ev)
         }
         drop = 0;
         if (c->bld != 0) {
-            cm_BeginFieldBlock((char *)c, c->netId);
+            cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValue(4, 1, (char *)&c->bld - cm_FieldObject, &drop);
             cm_SendFieldValues();
             if (gm_Opinion(c->bld->owner, c->id) > -30)
@@ -15266,7 +15266,7 @@ void he_RunWorkerQuits(AIJOB *ev)
         }
         cm_SendCharClear(c->netId, 0, 0);
         cm_SendCharHalt(c->netId);
-        cm_BeginFieldBlock((char *)c, c->netId);
+        cm_BeginFieldBlock(c, c->netId);
         cm_AddFieldValue(4, 1, (char *)&c->bld - cm_FieldObject, &v);
         cm_SendFieldValues();
         if (gm_CharacterHome(c, &homeBld, &homeObj) != 0) {
@@ -16385,7 +16385,7 @@ void he_RunRansom(AIJOB *ev)
                 he_ShowNews(victim->netId, victim->netId, text, 0, 0x5fb, 0);
                 if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                     cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
-                cm_BeginFieldBlock((char *)b, b->id);
+                cm_BeginFieldBlock(b, b->id);
                 cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x65, &none);
                 cm_SendFieldDeltas();
             }
@@ -16500,7 +16500,7 @@ void he_RunRansomDemand(AIJOB *ev)
             txt_Format(text, 0x19d4, victim->id, x->ransom, victim->id);
             he_ShowNews(master->netId, master->netId, text, 0, 0x5fa, 0);
             if (b != 0) {
-                cm_BeginFieldBlock((char *)b, b->id);
+                cm_BeginFieldBlock(b, b->id);
                 cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x65, &none);
                 cm_SendFieldDeltas();
             }
@@ -16510,7 +16510,7 @@ void he_RunRansomDemand(AIJOB *ev)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
             if (b != 0) {
                 fin = (HEFINVIEW *)gm_PlayerRecord(master);
-                cm_BeginFieldBlock((char *)b, b->id);
+                cm_BeginFieldBlock(b, b->id);
                 cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
                 cm_SendFieldDeltas();
                 if (fin != 0)
@@ -16541,14 +16541,14 @@ void he_RunRansomDemand(AIJOB *ev)
             }
             txt_Format(text, 0x19d4, victim->id, x->ransom, victim->id);
             he_ShowNews(master->netId, ev->from, text, 0, 0x5fa, 0);
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x65, &none);
             cm_SendFieldDeltas();
             cm_SendMessage5b(victim->netId, -victim->heldRounds, 0);
             cm_SendMoveGoodsUnchecked(master->netId, victim->netId, ai_OwnPlayer, x->ransom);
             if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
-            cm_BeginFieldBlock((char *)b, b->id);
+            cm_BeginFieldBlock(b, b->id);
             cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
             cm_SendFieldDeltas();
             fin = (HEFINVIEW *)gm_PlayerRecord(master);
@@ -16737,7 +16737,7 @@ void he_RunBurglary(AIJOB *ev)
                 }
                 gb = gm_BuildQuery(1, 1, x->guardBld);
                 if (gb != 0) {
-                    cm_BeginFieldBlock((char *)gb, gb->id);
+                    cm_BeginFieldBlock(gb, gb->id);
                     cm_AddFieldValues(4, 1, 0x65, &reward);  /* 0x65: AIBLD.earnings */
                     cm_SendFieldDeltas();
                 }
@@ -16822,7 +16822,7 @@ void he_RunBurglary(AIJOB *ev)
             txt_Format(line, (intptr_t)"$Z%T$A", money);
             strcat(loot, line);
             cm_SendMoveGoodsUnchecked(master->netId, owner->netId, ai_OwnPlayer, money);
-            cm_BeginFieldBlock((char *)g, g->id);
+            cm_BeginFieldBlock(g, g->id);
             cm_AddFieldValues(4, 1, 0x69, &money);  /* 0x69: AIBLD.daySum */
             cm_SendFieldDeltas();
             if (stall != 0) {
@@ -18391,7 +18391,7 @@ void he_RunKillPlayer(AIJOB *ev)
         }
         gm_InheritEstate(p, h);
         if ((p->kind == 6 || p->kind == 7 || p->kind == 5) && p->level > h->level) {
-            cm_BeginFieldBlock((char *)h, h->netId);
+            cm_BeginFieldBlock(h, h->netId);
             cm_AddFieldDelta(1, 1, 0xd, &p->level);
             cm_SendFieldDeltas();
         }
@@ -18700,7 +18700,7 @@ void he_RunRobbery(AIJOB *ev)
             }
             gb = gm_BuildQuery(1, 1, x->guardBld);
             if (gb != 0) {
-                cm_BeginFieldBlock((char *)gb, gb->id);
+                cm_BeginFieldBlock(gb, gb->id);
                 cm_AddFieldValues(4, 1, 0x65, &reward);  /* 0x65: AIBLD.earnings */
                 cm_SendFieldDeltas();
             }
@@ -18760,7 +18760,7 @@ void he_RunRobbery(AIJOB *ev)
             txt_Format(line, (intptr_t)"$Z%T$A", money);
             strcat(loot, line);
             cm_SendMoveGoods(master->netId, owner->netId, ai_OwnPlayer, money);
-            cm_BeginFieldBlock((char *)g, g->id);
+            cm_BeginFieldBlock(g, g->id);
             cm_AddFieldValues(4, 1, 0x69, &money);  /* 0x69: AIBLD.daySum */
             cm_SendFieldDeltas();
             if (stall != 0) {
@@ -19176,7 +19176,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
         n = c->routeIdx + 1;
         if (n >= count)
             n = 0;
-        cm_BeginFieldBlock((char *)c, c->objId);
+        cm_BeginFieldBlock(c, c->objId);
         cm_AddFieldValue(4, 1, (char *)&c->routeIdx - cm_FieldObject, &n);
         ev->exSlot = cm_SendFieldValues();
         return;
