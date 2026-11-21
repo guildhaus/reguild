@@ -664,7 +664,7 @@ struct AICHAR *cm_AddFighter(int id, char *dummy);  /* 0x4d0920 */
 int gm_CreateCharModel();  /* 0x4fbb80 */
 
 void cm_CollectSceneChars();  /* 0x4d0a30 */
-char cm_CreateDummyFlag(char *o);  /* 0x4d0a80 */
+char cm_CreateDummyFlag(struct D3OBJECT *obj, void *ctx);  /* 0x4d0a80 */
 extern int cm_FlagObjectCount;  /* 0x6f0d58 */
 extern struct D3OBJECT *cm_FlagObjects[32];  /* 0x935980, the conquest flag objects of the fight scene */
 
@@ -726,12 +726,12 @@ float cm_ThreatAt(struct AICHAR *c, int a, int b, float limit);  /* 0x4d2010, th
 int cm_MostThreatenedCellNear(struct AICHAR *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d22d0 */
 char cm_CollectEscapeObject(char *o, int *list);  /* 0x4d2450 */
 char *cm_NearestEscapeObject(struct AICHAR *c);  /* 0x4d2490 */
-char cm_CollectWareObject(char *o, struct AICHAR *c);  /* 0x4d2550 */
+char cm_CollectWareObject(struct D3OBJECT *o, void *ctx);  /* 0x4d2550 */
 char *cm_NearestWareObject(struct AICHAR *c);  /* 0x4d25a0 */
-char cm_CollectConquerPoint(char *o);  /* 0x4d2650 */
+char cm_CollectConquerPoint(struct D3OBJECT *o, void *ctx);  /* 0x4d2650 */
 struct D3OBJECT *cm_NearestConquerPoint(struct AICHAR *c);  /* 0x4d2680 */
 extern int cm_PointCount;  /* 0x6f0d60 */
-extern char *cm_PointList[];  /* 0x930380 */
+extern struct D3OBJECT *cm_PointList[];  /* 0x930380 */
 
 void cm_InitOrderChances();  /* 0x4d27a0 */
 extern float cm_OrderChances[0xb4];  /* 0x9300a0 */

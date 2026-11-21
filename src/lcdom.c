@@ -4972,7 +4972,7 @@ int ai_EspionageAmountCB(AICHAR *ch)
    tells it with the text 0x1709, a right click or the button 1 close it. Returns 1 once the beating was ordered,
    else 0 */
 
-int ai_BeatingCallback(AICHAR *ch)
+int ai_BeatingCallback(AICHAR *ch, int n)
 {
     int ordered;
     int ok;
@@ -5194,7 +5194,7 @@ void ai_EvidenceBookWindow(AIBLD *bld)
     d2_CloseView(win);
     sv_CameraFollow();
 }
-int ai_BribeAmountCB(AICHAR *ch);
+int ai_BribeAmountCB(AICHAR *ch, int n);
 
 /* 0x5b4820, the bribe window "misc\perga_rolle" (ai_OpenRobberBribe's amount menu callback, with the picked
    character ch): the text 0x174d (ch, the player's currency) with a money slider (up to 0.078 % of the two
@@ -5234,7 +5234,7 @@ int ai_BribeAmountCB(AICHAR *ch);
    argument tree for the player's call as deep as ch->id's that still loads ai_PlayerId (a macro / helper
    of the original?), or the sum's operands as a CSE'd index (c2dag of the sum). */
 
-int ai_BribeAmountCB(AICHAR *ch)
+int ai_BribeAmountCB(AICHAR *ch, int n)
 {
     int given;
     int win;

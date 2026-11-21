@@ -154,7 +154,7 @@ int cm_FightOwner = -1;  /* 0x60cb5c */
 int cm_FightView = -1;  /* 0x60cb60 */
 int cm_FightTimeBar = -1;  /* 0x60cb64 */
 int cm_FightButton = -1;  /* 0x60cb68 */
-char * cm_PointList[32];  /* 0x930380 */
+struct D3OBJECT *cm_PointList[32];  /* 0x930380 */
 CMPORTRAIT cm_Portraits[6];  /* 0x930400 */
 G18POP cm_DamagePops[16];  /* 0x9304c0 */
 AICHAR cm_Fighters[32];  /* 0x930600, the fight copies of the characters in the fight */
@@ -1765,14 +1765,13 @@ void cm_CollectSceneChars()
    (named "sp_ESCAPE", the animation "anim_FLUCHTFLAGGE.baf"), "dummy_CONQUER" one "ub_CONQUER" (named
    "sp_CONQUER_<n>"), both kind 4 with mask 1 and kept in cm_FlagObjects[cm_FlagObjectCount++]; returns 1. */
 
-char cm_CreateDummyFlag(char *o)
+char cm_CreateDummyFlag(D3OBJECT *obj, void *ctx)
 {
-    D3OBJECT *obj = (D3OBJECT *)o;
     D3OBJECT *r;
     float pos[4];
     float rot[3];
 
-    if (strstr(o, "dummy_sp_ESCAPE") != 0) {
+    if (strstr(obj->name, "dummy_sp_ESCAPE") != 0) {
         rot[0] = 0;
         rot[1] = 0;
         rot[2] = 0;
@@ -1788,7 +1787,7 @@ char cm_CreateDummyFlag(char *o)
         cm_FlagObjectCount++;
         return 1;
     }
-    if (strstr(o, "dummy_CONQUER") != 0) {
+    if (strstr(obj->name, "dummy_CONQUER") != 0) {
         rot[0] = 0;
         rot[1] = 0;
         rot[2] = 0;
@@ -2494,11 +2493,12 @@ char *cm_NearestEscapeObject(AICHAR *c)
 /* 0x4d2550, a callback: collects the objects "WARE_" whose owner (+0x200, a record with the side in +0xa) is not the side
    of the character c into cm_PointList[cm_PointCount++] */
 
-char cm_CollectWareObject(char *o, AICHAR *c)
+char cm_CollectWareObject(D3OBJECT *o, void *ctx)
 {
+    AICHAR *c = ctx;
     AICHAR *side = c->bld;    /* in a fight bld is the side's leader (cm_AddFighter) */
 
-    if (strncmp(o, "WARE_", 5) == 0 && ((AIOBJ *)((D3OBJECT *)o)->owner)->fightSide != side->id)
+    if (strncmp(o->name, "WARE_", 5) == 0 && ((AIOBJ *)o->owner)->fightSide != side->id)
         cm_PointList[cm_PointCount++] = o;
     return 1;
 }
@@ -2519,7 +2519,7 @@ char *cm_NearestWareObject(AICHAR *c)
     d3_PointToWorld(m, &m->pos, (D3VECTOR *)&v);
     n = cm_PointCount;
     for (i = 0; i < n; i++) {
-        o = (D3OBJECT *)cm_PointList[i];
+        o = cm_PointList[i];
         dx = v.x - o->pos.x;
         dy = v.y - o->pos.y;
         dz = v.z - o->pos.z;
@@ -2533,9 +2533,9 @@ char *cm_NearestWareObject(AICHAR *c)
 }
 /* 0x4d2650, a callback: collects the objects "sp_CONQUER*" into cm_PointList[cm_PointCount++] */
 
-char cm_CollectConquerPoint(char *o)
+char cm_CollectConquerPoint(D3OBJECT *o, void *ctx)
 {
-    if (strncmp(o, "sp_CONQUER", 10) == 0)
+    if (strncmp(o->name, "sp_CONQUER", 10) == 0)
         cm_PointList[cm_PointCount++] = o;
     return 1;
 }
@@ -2560,7 +2560,7 @@ D3OBJECT *cm_NearestConquerPoint(AICHAR *c)
     body = c->scene->obj;
     d3_PointToWorld(body, &body->pos, (D3VECTOR *)&v);
     for (i = 0; i < cm_PointCount; i++) {
-        o = (D3OBJECT *)cm_PointList[i];
+        o = cm_PointList[i];
         dx = v.x - o->pos.x;
         dy = v.y - o->pos.y;
         dz = v.z - o->pos.z;

@@ -1023,7 +1023,7 @@ int gv_HeldCrimesOf(int culprit, int *out, unsigned short t);  /* 0x4f3fe0, gv.h
 void gv_SortCrimesByLaw(int n, CRIME *r);  /* 0x4f4390, gv.h's prototype (gv.h is not included yet: Open: head) */
 int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t);  /* 0x4f3dd0, gv.h's prototype (gv.h is not included yet: Open: head) */
 void ai_RightAlignedText(char *text, int x, int y, int w, int font);
-int ai_BribeAmountCB(AICHAR *ch);
+int ai_BribeAmountCB(AICHAR *ch, int n);
 int gv_HeldCrimeCount(int culprit, unsigned short t);  /* 0x4f4130, gv.h's prototype (gv.h is not included yet: Open: head) */
 G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n); /* 0x4ac1a0 */
@@ -1055,7 +1055,7 @@ void ai_SetSettingFactor(struct AIBLD *bld, float factor);
 void ai_ShowTributeClaimNews(struct AICHAR *collectorRec, struct AICHAR *payerRec);
 void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_EvidenceBookWindow(AIBLD *bld);
-int ai_BribeAmountCB(AICHAR *ch);
+int ai_BribeAmountCB(AICHAR *ch, int n);
 void ai_DenounceWindow(AIBLD *bld);
 void ai_PamphletWindow(struct AIBLD *bld);
 void ai_NoticeBoardWindow(void);
@@ -6607,7 +6607,7 @@ int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
    random texts 0x1d6d + 0..8 / 0x1d76 + 0..8, flags 2, sent now), waited for, the player pays 2 and gets the text
    0x1d6a; sv_PopRequest 3, returns 1. Button 1: sv_PopRequest 2; the right button 1 */
 
-int ai_BlackmailContactWindow(AICHAR *ch)
+int ai_BlackmailContactWindow(AICHAR *ch, int n)
 {
     char text[0x100];
     AIMSG msg;
@@ -6741,7 +6741,7 @@ int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
    arg[1] ch, flags 2, sent now), then the text 0x1d63 with the clock 0x18 hours ahead and ch's id; sv_PopRequest 4,
    returns 1. Button 1: sv_PopRequest 2; the right button 1 */
 
-int ai_IntimidateWindow(AICHAR *ch)
+int ai_IntimidateWindow(AICHAR *ch, int n)
 {
     char text[0x100];
     AIMSG msg;
@@ -7144,7 +7144,7 @@ int ai_MisappropriationWindow(AICHAR *me, LCORDMSG *m)
    player (cm_SendMoneyDelta), sends the relation change to ch (cm_SendRelations), tells it (0x1db5, ch twice)
    and closes with 1; the second button or a right click close it. Returns 1 once ch was bewitched, else 0 */
 
-int ai_BewitchWindow(AICHAR *ch)
+int ai_BewitchWindow(AICHAR *ch, int n)
 {
     char text[0x100];
     int win;

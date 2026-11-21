@@ -12525,7 +12525,7 @@ int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float
    the place, arg[2] the player's building, the selected characters as ids), pays 3, accuses the player (gv_Accuse
    0x1a) and closes; with nobody selected the text 0x19e3. The second button and a right click close it. Returns 1
    once the kidnapping was ordered */
-int ai_KidnapWindow(AICHAR *victim)
+int ai_KidnapWindow(AICHAR *victim, int unused)
 {
     int done;
     int picked;
@@ -13392,7 +13392,7 @@ int d2_WinOpenPic(short x, short y, int pic, int win); int io_CharacterName(int 
 int gm_Opinion(int a, int b);
 
 /* dcp unit split: the functions of lcdom the rest of lc uses */
-int ai_BribeAmountCB(AICHAR *ch);
+int ai_BribeAmountCB(AICHAR *ch, int n);
 /* dcp unit split: the declarations that moved to lcdom (copies: drop what lc does not use) */
 #pragma pack(push, 1)
 typedef struct G9DOMIZILROW {           /* a row of the Domizil personnel book: 0x5aa0d0 creates its controls,
@@ -13462,7 +13462,7 @@ int gv_HeldCrimesOf(int culprit, int *out, unsigned short t);  /* 0x4f3fe0, gv.h
 void gv_SortCrimesByLaw(int n, CRIME *r);  /* 0x4f4390, gv.h's prototype (gv.h is not included yet: Open: head) */
 int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t);  /* 0x4f3dd0, gv.h's prototype (gv.h is not included yet: Open: head) */
 void ai_RightAlignedText(char *text, int x, int y, int w, int font);
-int ai_BribeAmountCB(AICHAR *ch);
+int ai_BribeAmountCB(AICHAR *ch, int n);
 int gv_HeldCrimeCount(int culprit, unsigned short t);  /* 0x4f4130, gv.h's prototype (gv.h is not included yet: Open: head) */
 G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n); /* 0x4ac1a0 */

@@ -42,7 +42,7 @@ int init_SetupNewGame(int n);                                           /* 0x511
 char init_CollectTorchObject(struct D3OBJECT *o, void *ctx);           /* 0x5115b0 */
 void init_StripTorches(struct D3OBJECT *s);                                              /* 0x511600 */
 void init_RebuildQuadTree(void);                                               /* 0x5116b0 */
-char init_TownBuildingHook(struct D3OBJECT *o);                                    /* 0x511700 */
+char init_TownBuildingHook(struct D3OBJECT *o, void *ctx);                                    /* 0x511700 */
 void init_PrepareTownScene(void);                                               /* 0x511790 */
 int init_FlagTreeObject(struct D3OBJECT *o);                                              /* 0x511810 */
 void init_RecreateQuadTree(void);                                               /* 0x511840 */

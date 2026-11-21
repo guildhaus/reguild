@@ -148,7 +148,7 @@ extern int cm_FightOwner;
 extern int cm_FightView;
 extern int cm_FightTimeBar;
 extern int cm_FightButton;
-extern char * cm_PointList[32];
+extern struct D3OBJECT *cm_PointList[32];
 extern CMPORTRAIT cm_Portraits[6];
 extern G18POP cm_DamagePops[16];
 extern AICHAR cm_Fighters[32];

@@ -6918,7 +6918,7 @@ extern char cm_SceneState[1152];
 extern int cm_SceneChars[16];
 extern int cm_SavedNoGroup;
 extern float cm_OrderChances[0xb4];
-extern char * cm_PointList[32];
+extern struct D3OBJECT *cm_PointList[32];
 extern CMPORTRAIT cm_Portraits[6];
 extern G18POP cm_DamagePops[16];
 extern AICHAR cm_Fighters[32];

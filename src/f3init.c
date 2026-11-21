@@ -2378,7 +2378,7 @@ void init_RebuildQuadTree(void)
    for the building type 0x1f), objects with "_TOR_" in the name are left alone; returns 1. The return type is char (the original sets only al). The prototype pointer is 0 for a non-building, and that test leads to the "_TOR_" arm, which the original lays out inline */
 
 
-char init_TownBuildingHook(D3OBJECT *o)
+char init_TownBuildingHook(D3OBJECT *o, void *ctx)
 {
     char *p;
 
