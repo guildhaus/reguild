@@ -167,7 +167,7 @@ float gm_Mix(int a, int b, int c);                   /* 0x504e20, f3gm.c: the mi
 int sv_MessageBoxGreen(int a, int b, unsigned flags); /* 0x521410, sv.c: the green message box with the title text a and the text b */
 struct AIBLD;
 struct AICHAR;
-int gm_BathObjectCount(char *b);             /* 0x50cf60, f3gm.c: 1 + the kitchen / bath objects of the building (as poker.h) */
+int gm_BathObjectCount(struct AIBLD *b);             /* 0x50cf60, f3gm.c: 1 + the kitchen / bath objects of the building (as poker.h) */
 void gm_SendMoneyDelta(int a, int b);                /* 0x50cc50, f3gm.c: forwards to cm_SendMoneyDelta */
 int amt_GetKindLevel(int k);                         /* 0x4e7c40, amt.c: the level of the office kind k */
 extern struct SBBANK *snd_SystemBank;        /* 0x6f2400, main.c: the handle of the system sample bank (system.sbf) */
@@ -229,8 +229,8 @@ struct AITIME;
 struct AITIME;
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);   /* 0x4fe140, f3gm.c: adds hours / minutes / seconds to the clock */
 int gm_MinutesBetween(struct AITIME *a, struct AITIME *b);          /* 0x4fe280, f3gm.c: the minutes from clock a to clock b */
-char *ai_FindCurseEvent(char *a);                              /* 0x5741d0, he.c: the pending curse event of the building (as poker.h) */
-int gm_CurseObjectCount(char *b);                            /* 0x50cfd0, f3gm.c: 2 + the objects 0x274 / 0x27e / 0x28e / 0x291 of the building (as poker.h) */
+char *ai_FindCurseEvent(struct AIBLD *a);                              /* 0x5741d0, he.c: the pending curse event of the building (as poker.h) */
+int gm_CurseObjectCount(struct AIBLD *b);                            /* 0x50cfd0, f3gm.c: 2 + the objects 0x274 / 0x27e / 0x28e / 0x291 of the building (as poker.h) */
 int gm_CurseTargetCount(struct AIBLD *b);                                   /* 0x50d0b0, f3gm.c: counts from the objects 0x284 / 0x289 of the building */
 extern const int ai_CardBack;  /* 0x5ed1bc, poker.c: the picture offset of the card back (another unit's constant: the original loads it from memory) */
 extern const unsigned __int64 gypsyFilter;  /* 0x5eed68, lcmap.c: the filter of the gypsy windows (flags, kind of ai_PickActionBuilding), read from memory as two dwords */

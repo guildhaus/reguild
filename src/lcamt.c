@@ -661,7 +661,7 @@ int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
-void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
+void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
 int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
@@ -862,7 +862,7 @@ void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpen
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
-char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
+char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
@@ -1074,7 +1074,7 @@ int gm_EquipmentValue(); void d2_RadioSelect(int g, int sel);
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg, int unused);
 
 /* dcp unit split: the definitions of lc the functions of lcamt use */
-void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld);
+void ai_LayoutProdGoodsList(int view, int part, int pointer, struct AIBLD *bld);
 void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld);
 void lc_PlayerInJail(void);
 int ai_SearchResourceWindow(AIBLD *bld);
@@ -1082,9 +1082,9 @@ int ai_ExtractResourceWindow(AIBLD *bld);
 void ai_Top5Window(void);
 G8SLOT *ai_FindSettingSlots(int bldId);
 void *ai_ProdSetting(AIBLD *bld);
-void ai_SetSettingWeight(int bld, int good, unsigned char weight);
+void ai_SetSettingWeight(struct AIBLD *bld, int good, unsigned char weight);
 void ai_RefreshProdSetting(AIBLD *b);
-void ai_SetSettingFactor(int bld, float factor);
+void ai_SetSettingFactor(struct AIBLD *bld, float factor);
 void ai_ShowTributeClaimNews(int collectorRec, int payerRec);
 void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_EvidenceBookWindow(AIBLD *bld);
@@ -3874,13 +3874,13 @@ void ai_MasterLetterSettings(AIBLD *bld, AICHAR *ch)
                         break;
                 if (i < 7 && sliders[i] != -1) {
                     d2_ClickedId = -1;
-                    ai_SetSettingWeight((int)bld, slots[i].good, d2_GetObjValue(sliders[i]));
+                    ai_SetSettingWeight(bld, slots[i].good, d2_GetObjValue(sliders[i]));
                     for (i = 0; i < 7; i++)
                         if (sliders[i] != -1)
                             d2_SetObjValue(sliders[i], 0, 100, slots[i].weight);
                 }
             } else if (ai_MasterLetterPage == 0 && factorCtrl != -1 && d2_PointerObj == factorCtrl) {
-                ai_SetSettingFactor((int)bld, d2_GetObjValue(factorCtrl) * 0.01f);
+                ai_SetSettingFactor(bld, d2_GetObjValue(factorCtrl) * 0.01f);
             }
         }
         if (dm_L.lclick != 0 && d2_PointerObj != -1) {
@@ -3904,7 +3904,7 @@ void ai_MasterLetterSettings(AIBLD *bld, AICHAR *ch)
                         if (d2_PointerObj == sliders[i])
                             break;
                     if (i < 7) {
-                        ai_SetSettingWeight((int)bld, slots[i].good, d2_GetObjValue(sliders[i]));
+                        ai_SetSettingWeight(bld, slots[i].good, d2_GetObjValue(sliders[i]));
                         for (i = 0; i < 7; i++)
                             if (sliders[i] != -1)
                                 d2_SetObjValue(sliders[i], 0, 100, slots[i].weight);

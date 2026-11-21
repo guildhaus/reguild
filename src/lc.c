@@ -842,7 +842,7 @@ int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
-void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
+void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
 
 
 /* 0x58bd60, the production window "Handel\Handel_PRODUKTION" of the building bld (2335 B): returns 0 at once when
@@ -1066,7 +1066,7 @@ int ai_ProductionWindow(AIBLD *bld)
             d2_Wins[d2_LastWindow].scrollY = d2_Wins[d2_LastWindow].visible * bld->prodScroll;
         }
         ai_UpdateProdGoodsList(bld, store);
-        ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
+        ai_LayoutProdGoodsList(win, 1, 0, bld);
     } while (sv_RunFrame(ai_ProductionWindow, 0x677c7) != 0);
     d2_SetForm(win, 2);
     bld->prodScroll = (char)((d2_Wins[d2_LastWindow].scrollY + d2_Wins[d2_LastWindow].scrollRemY) / d2_Wins[d2_LastWindow].visible);
@@ -1530,7 +1530,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
    in the window (rows with fewer than 2 slots are hidden; the second grid's rows 0xb6 lower), places the slots of
    ai_ProdGoods / ai_ProdGoods2 row by row (0x44 apart) and shows each (ai_ShowProdSlot). With pointer set it puts
    the checked goods on the mouse pointer (d2_SetPointerItem) */
-void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld)
+void ai_LayoutProdGoodsList(int view, int part, int pointer, AIBLD *bld)
 {
     D2WIN *win;
     int width;
@@ -1587,7 +1587,7 @@ void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld)
         }
         ai_ProdGoods[k].x = ai_ProdRows[row].x + n * 0x44 - 0x44;
         ai_ProdGoods[k].y = ai_ProdRows[row].y;
-        ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 2, (AIBLD *)bld);
+        ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 2, bld);
     }
     d2_SetForm(view, part);
     for (i = 0; i < 2; i++) {
@@ -1612,7 +1612,7 @@ void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld)
         }
         ai_ProdGoods2[k].x = ai_ProdRows2[row].x + n * 0x44 - 0x44;
         ai_ProdGoods2[k].y = ai_ProdRows2[row].y;
-        ai_ShowProdSlot(view, part, &ai_ProdGoods2[k], pointer, 2, (AIBLD *)bld);
+        ai_ShowProdSlot(view, part, &ai_ProdGoods2[k], pointer, 2, bld);
     }
     if (pointer) {
         d2_ClearPointerItems();
@@ -1680,7 +1680,7 @@ int ai_UpdateMarketGoodsList(AIOBJ *stall, AIOBJ *market)
    title's height apart; rows with fewer than 2 slots are hidden), places the slots of ai_ProdGoods row by row
    (0x44 apart) and shows each (ai_ShowProdSlot, kind 3). With pointer set it puts the checked goods of both grids
    on the mouse pointer (d2_SetPointerItem) */
-void ai_LayoutMarketGoodsList(int view, int part, int pointer, int bld)
+void ai_LayoutMarketGoodsList(int view, int part, int pointer, AIBLD *bld)
 {
     D2WIN *win;
     int width;
@@ -1724,7 +1724,7 @@ void ai_LayoutMarketGoodsList(int view, int part, int pointer, int bld)
         }
         ai_ProdGoods[k].x = ai_ProdRows[row].x + n * 0x44 - 0x44;
         ai_ProdGoods[k].y = ai_ProdRows[row].y;
-        ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 3, (AIBLD *)bld);
+        ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 3, bld);
     }
     if (pointer) {
         d2_ClearPointerItems();
@@ -3765,7 +3765,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
         d2_SetObjText(bar, count);
         ai_UpdateResourceColumns(win, 2, ncols, (int)res);
         ai_UpdateProdGoodsList(bld, store);
-        ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
+        ai_LayoutProdGoodsList(win, 1, 0, bld);
     } while (sv_RunFrame(ai_ProductionWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
@@ -3929,7 +3929,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
         d2_SetObjText(bar, count);
         ai_UpdateProdColumns(win, 2, ncols, store, 1);
         ai_UpdateProdGoodsList(bld, store);
-        ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
+        ai_LayoutProdGoodsList(win, 1, 0, bld);
     } while (sv_RunFrame(ai_ExtractResourceWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
@@ -4130,7 +4130,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
         d2_SetObjText(bar, count);
         ai_UpdateProdColumns(win, 2, ncols, store, 2);
         ai_UpdateProdGoodsList(bld, store);
-        ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
+        ai_LayoutProdGoodsList(win, 1, 0, bld);
     } while (sv_RunFrame(ai_ProductionGoodsWindow, 0x677c7) != 0);
     d2_CloseView(win);
     sv_ClosePlayerBar();
@@ -7816,7 +7816,7 @@ void ai_NewCreditWindow(AIBLD *bank)
     int handle;
 
     memset(rows, 0, sizeof(rows));
-    gm_GetCreditOffers((int)bank, &ai_Chars[ai_PlayerId], 3, (int *)offers);
+    gm_GetCreditOffers(bank, &ai_Chars[ai_PlayerId], 3, (int *)offers);
     n = 0;
     for (i = 0; i < 3; i++) {
         if (offers[i].amount > 0) {
@@ -8864,7 +8864,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
-char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
+char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
@@ -9380,7 +9380,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 d3if_SelectScene(init_ObjectUniverse[room->type], 0);
                 d3_InflateScene(3);
                 d3_ForEachObject2(d3_DefaultScene, 0, 0xe0, d3s_ResetShadows);
-                init_SetCharacterAnimations((unsigned char *)b);
+                init_SetCharacterAnimations(b);
                 init_ShowBuildingScene(ai_PlayerBuilding, ai_PlayerBuilding->mainRoom);
                 init_FinishBuildingScene(ai_PlayerBuilding, sv_PanelShown);
                 d3_SetObjectPos(d3_Camera, &d3_Camera->savedPos);
@@ -11930,7 +11930,7 @@ int ai_BurglaryWindow(int ctx, AIBLD *bld)
     if (bld == 0)
         return 0;
     owner = &ai_Chars[bld->owner];
-    if (he_NoProtectionEvent((int)bld) == 0) {
+    if (he_NoProtectionEvent(bld) == 0) {
         txt_Format(buf, 0x1a92, bld->owner, bld);
         sv_MessageBox(buf, 0);
         return 0;

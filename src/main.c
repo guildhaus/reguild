@@ -1551,7 +1551,7 @@ void main_GiveStartBuildings(int p)
         b->owner = (unsigned short)p;
         i = 3;
         do {
-            cm_SendMessage3d((int)b, 0, 10, 0);
+            cm_SendMessage3d(b, 0, 10, 0);
             i--;
         } while (i != 0);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -3907,7 +3907,7 @@ void main_SettleRound(unsigned short pl)
 
                         if (m == 0) {
                             cnt++;
-                            cm_SendMessage3d((char *)c, 1, 0, ai_BTypes[c->type].jobBytes);
+                            cm_SendMessage3d(c, 1, 0, ai_BTypes[c->type].jobBytes);
                         } else if ((m->flags1b4 & 1) == 0) {
                             AIWORKSET ws;
 

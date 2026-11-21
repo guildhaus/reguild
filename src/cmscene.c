@@ -3661,7 +3661,7 @@ void cm_RunSale(G28REC *m)
     cm_PlaySpecialTrack(0);
     gm_FindById(&o, 0, 0, m->thing);
     if (o != 0)
-        cm_ShowObjectScene((char *)o, 0x17);
+        cm_ShowObjectScene((AIBLD *)o, 0x17);
     else {
         f = 1;
         cm_LoadEventScene("ob_SALON.ed3");
@@ -3688,14 +3688,14 @@ void cm_RunSale(G28REC *m)
    scene selected - of the object (init_ObjectUniverse, loaded first when it is not loaded or still dirty) or, for a
    home, of the building kind (init_BuildingUniverse) - and shown (init_ShowBuildingScene); the scene flags are
    inflated without the stop bit 2. Nothing in the replay mode (cm_SkipEvents) */
-void cm_ShowObjectScene(char *o, int id)
+void cm_ShowObjectScene(AIBLD *o, int id)
 {
     AIBLD *b;
     int k;
 
     if (cm_SkipEvents != 0)
         return;
-    b = (AIBLD *)o;
+    b = o;
     if ((ai_PlayerBuilding == b && b->mainRoom == id) || (ai_FallbackBuilding == b && b->mainRoom == id)) {
         if (((G28REC *)cm_CurrentFight)->flags & 0x20) {
             d2_ClearSurface(d2_ScreenSurf);
@@ -3711,7 +3711,7 @@ void cm_ShowObjectScene(char *o, int id)
         return;
     }
     if (gm_Query(b->objList, 1, 0, id) != 0) {
-        if (gm_IsHomeType((AIBLD *)o) == 0) {
+        if (gm_IsHomeType(o) == 0) {
             if (init_ObjectUniverse[id] != (char)0xfe) {
                 if (init_ObjectUniverse[id] == (char)0xff || init_SceneDirty[init_ObjectUniverse[id] * 0x3e0] != 0)
                     init_LoadObjectScene(id);

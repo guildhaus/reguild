@@ -5703,7 +5703,7 @@ void he_AllocGeselle(int ev)
     if (b == 0)
         he_FreeEvent((int *)ev);
     t = &ai_BTypes[b->type];
-    g->slot = cm_SendMessage3d((char *)b, 0, t->title, 0);
+    g->slot = cm_SendMessage3d(b, 0, t->title, 0);
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 6, 0);
 }
@@ -9140,9 +9140,9 @@ void he_StartEffectEvent(int ev)
 /* 0x54fc00, the smoke emitter of the effect event: creates the effect 0x177 ("Rauch", the colour 0x64ffa0, a
    30 / 2 / 7.5 / 0.4 / 1 emitter) on the scene record (AIBLD.object) of the building o and returns its handle */
 
-int he_CreateSmokeEffect(int o)
+int he_CreateSmokeEffect(AIBLD *o)
 {
-    AIBLD *bld = (AIBLD *)o;
+    AIBLD *bld = o;
     unsigned char col[4];
     int *color = (int *)col;
     float v[4];
@@ -9159,9 +9159,9 @@ int he_CreateSmokeEffect(int o)
    size): creates the effect 0x178 ("punkte_nm_2", a 50 / 1 / 2 / 0.5 / 0.5 emitter) on the scene record
    (AIBLD.object) of the building o and returns its handle */
 
-int he_CreatePointsEffect(int o)
+int he_CreatePointsEffect(AIBLD *o)
 {
-    AIBLD *bld = (AIBLD *)o;
+    AIBLD *bld = o;
     unsigned char col[4];
     int *color = (int *)col;
     float v[4];
@@ -9195,9 +9195,9 @@ void he_RunEffectEvent(int ev)
         scene = d3_CurrentScene;
         d3if_SelectScene(0, 1);
         if (e->effectGood == 0x177)
-            e->effectObj = he_CreateSmokeEffect((int)bld);
+            e->effectObj = he_CreateSmokeEffect(bld);
         else if (e->effectGood == 0x178)
-            e->effectObj = he_CreatePointsEffect((int)bld);
+            e->effectObj = he_CreatePointsEffect(bld);
         d3if_SelectScene(scene, 1);
         e->stage = e->effectObj != 0 ? 1 : -1;
         return;
@@ -10010,7 +10010,7 @@ void he_StepWalk(HEWALKSLOT *s)
     if (b != 0) {
         weather = (d3t_Rain != 0 ? 2 : 0) + (d3t_Snow != 0);
         budget = weather + util_Random(6) + 2;
-        if (sv_IsAtDoor((char *)c, (char *)b) == 0)
+        if (sv_IsAtDoor((char *)c, b) == 0)
             return;
         model = c->model;
         if (model != 0 && model->bldId != -1 && model->scriptGroup != -1) {
@@ -11102,9 +11102,9 @@ int he_DetectAttack(int p)
 /* 0x553cc0, 1 unless the building `p` has a protection money event 0x62 that was paid (HEPROTECTION.victim is its
    id and answer 1): only an unprotected building is attacked or robbed; a null building gives 1 */
 
-int he_NoProtectionEvent(int p)
+int he_NoProtectionEvent(AIBLD *p)
 {
-    AIBLD *b = (AIBLD *)p;
+    AIBLD *b = p;
     AIJOB *e;
     HEPROTECTION *pr;
 
@@ -11341,7 +11341,7 @@ void he_RunCustomers(int ev)
         }
         for (i = 0; i < 12; i++) {
             if (c->count[i] > 0) {
-                c->slot = cm_SendMessage3d((char *)b, 0, c->kind, 0);
+                c->slot = cm_SendMessage3d(b, 0, c->kind, 0);
                 break;
             }
         }
@@ -11469,7 +11469,7 @@ void he_RunHire(int ev)
         }
         for (i = 0; i < 1; i++) {
             if (h->count[i] > 0) {
-                h->slot = cm_SendMessage3d((char *)b, 1, 0, bt->jobs[h->job]);
+                h->slot = cm_SendMessage3d(b, 1, 0, bt->jobs[h->job]);
                 break;
             }
         }
@@ -11844,7 +11844,7 @@ void he_TransportToHome(int ev)
         if (gm_IsType10(from) == 0)
             t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
-    } else if (sv_IsCartAtDoor((char *)tr, (unsigned char *)to) != 0) {
+    } else if (sv_IsCartAtDoor((char *)tr, to) != 0) {
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         if (to->type == 0x47) {
             txt_Format(text, 0x1c3b, 1, 0x1c39, ai_PlayerSlots[to->playerSlot].name);
@@ -12063,7 +12063,7 @@ void he_TransportHomeHome(int ev)
         cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 1, "Trans");
         t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
-    } else if (sv_IsCartAtDoor((char *)tr, (unsigned char *)to) != 0) {
+    } else if (sv_IsCartAtDoor((char *)tr, to) != 0) {
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         cm_RequestChrMoveToUniverse(tr->objId, to->id, -1, "dummy_TRANSPORTER_ENTRY");
         u = init_BuildingSceneUniverse(to);
@@ -16981,7 +16981,7 @@ void he_RunBurglary(AIJOB *ev)
             ok = util_RandomF() < (know = (float)(know - sk * 0.35));
         } else
             ok = 0;
-        if (he_NoProtectionEvent((int)b) == 0)
+        if (he_NoProtectionEvent(b) == 0)
             ok = 0;
         gv_Accuse(0x17, 1, ai_CharInts[g->owner][0], owner->netId, b->id);
         if (ok) {
@@ -18303,7 +18303,7 @@ void he_AllocNewWorker(AIJOB *ev)
                 break;
             }
         }
-        w->slot = cm_SendMessage3d((char *)b, 1, t->title2, job);
+        w->slot = cm_SendMessage3d(b, 1, t->title2, job);
     } else {
         title = gm_TitleNumber(util_Random(12) + 1, 1);
         w->slot = cm_SendCreateCharacter(2, -1, -1, util_Random(5) + 0x16, -1, title, 0, 2);
@@ -18926,7 +18926,7 @@ void he_RunRobbery(AIJOB *ev)
         } else {
             ok = 0;
         }
-        if (he_NoProtectionEvent((int)b) != 0 && ok) {
+        if (he_NoProtectionEvent(b) != 0 && ok) {
             char loot[0x400];
             int vals[2];
             int money;
@@ -19633,7 +19633,7 @@ void ai_DomizilMessageResearchKind(int param_1, int param_2, int param_3, int pa
 void ai_DomizilMessageResearch(int param_1, int param_2, int param_3, int param_4);
 void ai_DomizilMessageTask(int param_1, int param_2, int param_3, unsigned short *param_4);
 void ai_DomizilMessage04(int param_1, int param_2, int param_3);
-void ai_DomizilMessageAge(int param_1, int param_2, int param_3);
+void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
 void ai_DomizilMessagePlace(int param_1, int param_2, int param_3, int param_4);
 void he_AllocSecretRoom();
 void he_RunSecretRoom();

@@ -2173,11 +2173,11 @@ AIBLD *gm_FindHome(int unused, AIBLD *o)
 /* 0x4fda10, makes the building b the home (bld2) of the character c when b still has room for one more
    inhabitant (the kind's capacity, ord_GetKindRecord): b gains an inhabitant, the old home loses one */
 
-void gm_MoveIntoHome(AICHAR *c, char *b)
+void gm_MoveIntoHome(AICHAR *c, AIBLD *b)
 {
     unsigned short cap[4];
     AICHAR *ch = c;
-    AIBLD *bld = (AIBLD *)b;
+    AIBLD *bld = b;
     AIBLD *old;
 
     ord_GetKindRecord(bld->type, (int *)cap);
@@ -2480,7 +2480,7 @@ struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0
 int gm_BuildingClass();                     /* 0x501d80 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
-unsigned short * gm_AllocRaum(unsigned char *b, unsigned n);
+unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
 int gm_BuildingJob(int t);                   /* 0x5048e0 */
 int gm_ListBuildingsOfType();                     /* 0x5020a0 */
 extern int gm_AllowAll;

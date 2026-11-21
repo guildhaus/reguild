@@ -2203,7 +2203,7 @@ int gm_BuildingClass();                     /* 0x501d80 */
 /* ai_BuildingNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
-unsigned short * gm_AllocRaum(unsigned char *b, unsigned n);
+unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
 
 /* 0x501580, creates a building of the kind k for the owner own (a character slot, 0xffff none) in the next free instance (gm_FindFreeBuilding): a new id (ai_NextObjectId), the owner and master words, the start values (budget 0x7d00, wage rate 100, level 100, price factor 1.0, no smoke effect), a player's production setting (ai_ProdSetting), a name picked at random from the up to 12 names of its kind that no building has yet (the kind's own name when none is free; "Building name too long: %s" is the unused error text), the objects of its prototype (the rooms of the kinds 2 / 6 by gm_AllocRaum, the others while no room came before), its main room and the per-kind extras: the creation time and the owner's netId for the kinds 4 .. 7, -1 for 0xb .. 0xd, 10 / 3 / 5 for 0xe .. 0x10, the object 0x1b5 for 0x14 .. 0x16, the "f3_gm:PlantMap" of 0x1e, the price factor 0.8 of 0x1e .. 0x20, the graveyard of 0x48 .. 0x4a, the "AHM_INFO" block of 0x4b .. 0x4d; then the capacities and the kind's stock (gm_SetCapacities, gm_StockBuildingObjects). Returns the building, 0 when there are no tables or no free instance
    @deep 145 -> 103 ins (bytes 1147 -> 552): bt = (GMBTYPE *)base + k computed BEFORE b->type = k (the
@@ -2314,7 +2314,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
             if (u & 0x8000) {
                 if (g->type == 2 || g->type == 6) {
                     any = 1;
-                    gm_AllocRaum((unsigned char *)b, id);
+                    gm_AllocRaum(b, id);
                 } else if (any == 0)
                     gm_CreateObject(b->id, id, 1);
             }
@@ -2556,9 +2556,9 @@ AIBLD *gm_NearestBuilding(AIBLD *b, unsigned kind)
 }
 /* 0x501f60, the building of the kind kind nearest to the building b (by the scene positions of their objects) among those without an owner, as gm_NearestBuilding (0x501e40) but owner 0xffff only: of the query (1, 6), not a home (gm_IsHomeType), not of type 10 (gm_IsType10), with a scene object, not b itself. Returns it, 0 when there is none */
 
-unsigned char *gm_NearestFreeBuilding(unsigned char *p, unsigned kind)
+unsigned char *gm_NearestFreeBuilding(AIBLD *p, unsigned kind)
 {
-    AIBLD *b = (AIBLD *)p;
+    AIBLD *b = p;
     float best, d, dx, dy, dz;
     AIBLD *r, *q;
     struct D3OBJECT *o;
@@ -3053,7 +3053,7 @@ void gm_SellBuilding(int id, int buyer, int price, int job, int boss)
     cm_EndGroup("buy_building");
 }
 /* 0x5031b0, "gm_AllocRaum": creates the room object n of the building b with its sub-objects: the object list of the building kind (the words at +0x23, 0x40 of them) after n, up to the next room (goods kind 2 / 6) or the 0 end, the words with the top bit set; the room's first object 0x2a gets the count 2, the building as owner and the capacities +0x23d / +0x23e of the kind (at least 2; the kind's +0x23f alone when only it is set), its object 0x116 (kind 6) the same with the room as owner and at least 6; a market stall (0x92 .. 0x97, 0x2db) also makes its store room ob_LAGERFLAECHE_ALLGEMEIN (capacity 0xc, count 3) and an object 0xff holding up to 0x10 goods of the template gm_DefaultStock that the own player's stock records give to this stall kind. Returns the room, 0 without tables or room for 0x40 more objects */
-unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
+unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
 {
     AIOBJ *o, *g;
     unsigned short *bi;
@@ -3066,8 +3066,8 @@ unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
 
     if (ai_Goods == 0 || ai_BTypes == 0 || f3gm_ObjectCount + 0x40 >= 0x5008)
         return 0;
-    o = (AIOBJ *)gm_CreateObject(((AIBLD *)b)->id, n, 1);
-    bp = (unsigned char *)ai_BTypes + *b * 0x24d;
+    o = (AIOBJ *)gm_CreateObject(b->id, n, 1);
+    bp = (unsigned char *)ai_BTypes + b->type * 0x24d;
     i = 0;
     for (q = ((GMBTYPE *)bp)->objs; (*q & 0x7fff) != n; q++)
         i++;
@@ -3085,7 +3085,7 @@ unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
     }
     g = gm_Query((void *)o->list, 1, 0, 0x2a);
     if (g != 0) {
-        g->ownerId = ((AIBLD *)b)->id;
+        g->ownerId = b->id;
         g->count = 2;
         if (bp[0x23d] == 0 && bp[0x23e] == 0 && bp[0x23f] != 0)
             g->cap[0] = bp[0x23f];
@@ -3129,11 +3129,11 @@ unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
 /* 0x503480, removes the object instance with the id from the list of the building b (0x4ffff0): 0 when it was there, -3 otherwise */
 
 
-int gm_RemoveObjectFromBuilding(int b, int id)
+int gm_RemoveObjectFromBuilding(AIBLD *b, int id)
 {
     int r;
 
-    r = gm_RemoveObject(&((AIBLD *)b)->objList, id);
+    r = gm_RemoveObject(&b->objList, id);
     return (r != -2) ? 0 : -3;
 }
 /* 0x5034b0, frees the object o: its job is posted again and the new slot kept when the job's option 2 is set
@@ -3204,7 +3204,7 @@ unsigned gm_PermissionBits(unsigned p, AIBLD *bld, AIOBJ *o, AICHAR *c)
         btype = (unsigned char *)ai_BTypes + bld->type * 0x24d;
         job = gm_TitleJob(p, gm_BuildingJob(*btype));
         if (*btype == 0x1d)
-            return ai_PermissionBits1d(&ai_Chars[p], (char *)bld, (char *)obj);
+            return ai_PermissionBits1d(&ai_Chars[p], bld, (char *)obj);
         switch (*btype) {
         case 0x21:
             if (bld->masterId == p)
@@ -6517,7 +6517,7 @@ int gm_BuildingRankGate(AIBLD *b, AIBLD *c)
    7 % for a kind of class 2, else 3 %, not below 0), out[1] the price of the goods its stall object (prototype 0x2a)
    holds, each goods counted at 30 % of its amount (at least 1) times gm_ItemPrice of 100 pieces. Returns 0 */
 
-int gm_BuildingValues(unsigned char *b, int *out)
+int gm_BuildingValues(AIBLD *b, int *out)
 {
     AIBLD *bld;
     unsigned char *kind;
@@ -6525,7 +6525,7 @@ int gm_BuildingValues(unsigned char *b, int *out)
     float f, tot;
     int n;
 
-    bld = (AIBLD *)b;
+    bld = b;
     f = 0.0f;
     kind = (unsigned char *)ai_BTypes + bld->type * 0x24d;
     if (bld->owner != 0xffff) {
@@ -6727,14 +6727,14 @@ int gm_BuildingGoodsList(AIBLD *bld, unsigned *out, int kind)
    market rules), with another goods filter: kind != 0 lists only the goods of type 0x17, kind 0 all others, and a
    market gets no exception (f3snd.c uses it for the building classes 0x1e .. 0x20) */
 
-int gm_BuildingGoodsList17(char *b, unsigned *out, int kind)
+int gm_BuildingGoodsList17(AIBLD *b, unsigned *out, int kind)
 {
     AIBLD *bld;
     AIOBJ *stall, *o;
     GMGOOD *g;
     int i, cap;
 
-    bld = (AIBLD *)b;
+    bld = b;
     for (i = 0; i < 0x2e; i++)
         out[i] = 0;
     if (gm_Query((void *)bld->objList, 1, 0, 0xfd) == 0)
@@ -6813,9 +6813,9 @@ int gm_EquipmentValue(AIBLD *b, int level)
 }
 /* 0x509c80, the worth of the building b's owner: the value of the owning character's goods (gm_GetGoodsValue) when it is a person (kind below 10), plus with flag the prices (gm_GoodsPrice for the own player) of the goods in the building's stall (its first object 0x2a) */
 
-int gm_OwnerWorth(char *b, int flag)
+int gm_OwnerWorth(AIBLD *b, int flag)
 {
-    AIBLD *bld = (AIBLD *)b;
+    AIBLD *bld = b;
     unsigned short id;
     int v;
     AIOBJ *stall, *o;
@@ -6979,13 +6979,13 @@ int gm_CharMoney(int c)
 }
 /* 0x509f80, the value of the goods in the building b's stall (its first object 0x2a): the sum of their prices (gm_ItemPrice of the prototype and fill) */
 
-int gm_StallValue(char *b)
+int gm_StallValue(AIBLD *b)
 {
     int v;
     AIOBJ *stall, *o;
 
     v = 0;
-    stall = gm_Query((void *)((AIBLD *)b)->objList, 2, 6, 0, 0x2a);
+    stall = gm_Query((void *)(b)->objList, 2, 6, 0, 0x2a);
     if (stall) {
         o = gm_Query((void *)stall->list, 1, 5);
         while (o) {
@@ -7116,9 +7116,9 @@ int gm_BuildingEvents(unsigned owner, int b, int c, int *out)
    cm_DoubleOne object (8 forms, = control). (tiebreak: not measured (dcp headers sample
    gm_GetCreditOffers)) */
 
-int gm_GetCreditOffers(int b, AICHAR *p, unsigned cnt, int *out)
+int gm_GetCreditOffers(AIBLD *b, AICHAR *p, unsigned cnt, int *out)
 {
-    AIBLD *bank = (AIBLD *)b;
+    AIBLD *bank = b;
     AICHAR *ch = p;
     ORDCREDIT *offers = (ORDCREDIT *)out;
     int budget, worth, maxAmount, i, all, amount, term, interest;
@@ -7210,7 +7210,7 @@ int gm_GetWorth(unsigned short id)
     v = gm_GetGoodsValue(c);
     for (bl = gm_BuildQuery(1, 3, id); bl != 0; bl = gm_BuildNext()) {
         v += gm_EquipmentValue(bl, bl->level);
-        v += gm_StallValue((char *)bl);
+        v += gm_StallValue(bl);
     }
     return v;
 }
@@ -8456,12 +8456,12 @@ float gm_StaffFactor(AIBLD *b, int n, int *ids)
 /* 0x50cf60, the number of the kitchen / bath objects (0x27a, 0x27b, 0x292) the building b has: 1 plus one
    per prototype found in its object list */
 
-int gm_BathObjectCount(char *b)
+int gm_BathObjectCount(AIBLD *b)
 {
     int n;
     AIBLD *bld;
 
-    bld = (AIBLD *)b;
+    bld = b;
     n = 1;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x27a) != 0)
         n = 2;
@@ -8474,12 +8474,12 @@ int gm_BathObjectCount(char *b)
 /* 0x50cfd0, the number of the curse objects (0x274, 0x27e, 0x28e, 0x291) the building b has: 2 plus one per
    prototype found in its object list (the count gm_BathObjectCount keeps for the kitchen / bath) */
 
-int gm_CurseObjectCount(char *b)
+int gm_CurseObjectCount(AIBLD *b)
 {
     int n;
     AIBLD *bld;
 
-    bld = (AIBLD *)b;
+    bld = b;
     n = 2;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x274) != 0)
         n = 3;
@@ -8494,12 +8494,12 @@ int gm_CurseObjectCount(char *b)
 /* 0x50d060, the trial building's kind (the trial of the event 0xa0, 0x5741f0): 1, plus one for each of the
    trial objects it holds (the 0x285 gives 2, the 0x288 one more, so 3 with both) */
 
-int gm_TrialBuildingKind(char *b)
+int gm_TrialBuildingKind(AIBLD *b)
 {
     AIBLD *bld;
     int n;
 
-    bld = (AIBLD *)b;
+    bld = b;
     n = 1;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x285) != 0)
         n = 2;

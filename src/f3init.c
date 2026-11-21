@@ -284,9 +284,9 @@ void ai_ObjectAngle(void *out, int plot);                 /* 0x58fd90, lc.c: the
 int cm_SendOwnership(int a, int b, int c);               /* 0x4c54a0, cm.c: message 0x38, the building a changes its person from b to c */
 void cm_SendBoss(int a, int b);                            /* 0x4c5540, cm.c: message 0x39, the building a gets the character b as its boss */
 int cm_RequestCreateGeb(int owner, int kind, D3VECTOR4 *pos, int *rot);  /* 0x4c5ae0, cm.c: message 0x4c, a building of kind k at pos */
-unsigned char *gm_NearestFreeBuilding(unsigned char *b, unsigned kind); /* 0x501f60, f3gm.c */
+unsigned char *gm_NearestFreeBuilding(struct AIBLD *b, unsigned kind); /* 0x501f60, f3gm.c */
 void main_SetLoadProgress(int unused, int pct);          /* 0x537af0, main.c: the loading progress bar */
-int cm_SendMessage3d(char *p, unsigned char b, int c, int d);                     /* 0x4c55d0 */
+int cm_SendMessage3d(struct AIBLD *p, unsigned char b, int c, int d);                     /* 0x4c55d0 */
 int gv_SendGrave(struct AIBLD *o);                     /* 0x4f15e0 */
 int cm_GetSlotState();                     /* 0x4c3ae0 */
 void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s);                     /* 0x4c51b0 */
@@ -1616,11 +1616,11 @@ void init_OpenBuilding(AIBLD *b)
                 h = gv_SendGrave(b);
             } else {
                 if (ai_Chars[b->owner].kind != 6 && ai_Chars[b->owner].kind != 7)
-                    cm_SendMessage3d((char *)b, 0, p[0x230], 0);
-                h = cm_SendMessage3d((char *)b, 0, p[0x230], 0);
+                    cm_SendMessage3d(b, 0, p[0x230], 0);
+                h = cm_SendMessage3d(b, 0, p[0x230], 0);
             }
         } else {
-            h = cm_SendMessage3d((char *)b, 0, p[0x230], 0);
+            h = cm_SendMessage3d(b, 0, p[0x230], 0);
         }
         r = cm_GetSlotState(h);
         while (r == 0) {
@@ -1760,18 +1760,18 @@ void init_OpenTown(void)
             q = 0;
         if (((INIT_CHAR *)c)->kind != 5 && ((INIT_CHAR *)c)->kind != 4) {
             if (q != 0) {
-                r = gm_NearestFreeBuilding(q, 4);
+                r = gm_NearestFreeBuilding((AIBLD *)q, 4);
                 if (r == 0)
-                    r = gm_NearestFreeBuilding(q, 5);
+                    r = gm_NearestFreeBuilding((AIBLD *)q, 5);
             } else {
                 r = gm_BuildQuery(2, 0, 4, 4, 0xffff);
                 if (r == 0)
                     r = gm_BuildQuery(2, 0, 5, 4, 0xffff);
             }
         } else if (q != 0) {
-            r = gm_NearestFreeBuilding(q, 5);
+            r = gm_NearestFreeBuilding((AIBLD *)q, 5);
             if (r == 0)
-                r = gm_NearestFreeBuilding(q, 4);
+                r = gm_NearestFreeBuilding((AIBLD *)q, 4);
         } else {
             r = gm_BuildQuery(2, 0, 5, 4, 0xffff);
             if (r == 0)
@@ -1798,9 +1798,9 @@ void init_OpenTown(void)
             cm_SendFieldDeltas();
             cl = INIT_BTYPE(b);
             cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)ai_PlayerChar)->netId, ((INIT_CHAR *)ai_PlayerChar)->netId);
-            cm_SendMessage3d(b, 1, INIT_BTYPE(b)[0x230], cl[0x223]);
-            cm_SendMessage3d(b, 0, INIT_BTYPE(b)[0x22f], 0);
-            cm_SendMessage3d(b, 0, INIT_BTYPE(b)[0x22f], 0);
+            cm_SendMessage3d((AIBLD *)b, 1, INIT_BTYPE(b)[0x230], cl[0x223]);
+            cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
+            cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
             cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
             cnt[i]++;
         }
@@ -1808,13 +1808,13 @@ void init_OpenTown(void)
     main_SetLoadProgress(0, 0x5f);
     b = (char *)gm_BuildQuery(2, 4, 0xffff, 5, 0x10);
     if (b != 0) {
-        h = cm_SendMessage3d(b, 2, INIT_BTYPE(b)[0x230], 0x2d);
+        h = cm_SendMessage3d((AIBLD *)b, 2, INIT_BTYPE(b)[0x230], 0x2d);
         while (cm_GetSlotState(h) == 0)
             sv_PumpNet();
         h = cm_GetSlotValue(h);
         cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)h)->netId, ((INIT_CHAR *)h)->netId);
-        cm_SendMessage3d(b, 0, INIT_BTYPE(b)[0x22f], 0);
-        cm_SendMessage3d(b, 0, INIT_BTYPE(b)[0x230], 0);
+        cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
+        cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x230], 0);
         cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
         cnt[0x10]++;
     }
@@ -1835,7 +1835,7 @@ void init_OpenTown(void)
                             break;
                         }
                     }
-                    h = cm_SendMessage3d(b, 2, INIT_BTYPE(b)[0x230], w);
+                    h = cm_SendMessage3d((AIBLD *)b, 2, INIT_BTYPE(b)[0x230], w);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     h = cm_GetSlotValue(h);
@@ -1847,10 +1847,10 @@ void init_OpenTown(void)
                     }
                     if (*cl != 9 && *cl != 5) {
                         if (*cl == 4 || *cl == 0x10 || *cl == 0x13) {
-                            cm_SendMessage3d(b, 0, cl[0x22f], 0);
-                            cm_SendMessage3d(b, 0, cl[0x230], 0);
+                            cm_SendMessage3d((AIBLD *)b, 0, cl[0x22f], 0);
+                            cm_SendMessage3d((AIBLD *)b, 0, cl[0x230], 0);
                         } else {
-                            cm_SendMessage3d(b, 0, cl[0x22f], 0);
+                            cm_SendMessage3d((AIBLD *)b, 0, cl[0x22f], 0);
                         }
                     }
                     cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
@@ -1873,9 +1873,9 @@ void init_OpenTown(void)
                 continue;
             q = gm_BuildQuery(1, 4, ((INIT_CHAR *)c)->id);
             if (q != 0 && gm_IsHomeType((AIBLD *)q) == 0) {
-                r = gm_NearestFreeBuilding(q, 5);
+                r = gm_NearestFreeBuilding((AIBLD *)q, 5);
                 if (r == 0)
-                    r = gm_NearestFreeBuilding(q, 4);
+                    r = gm_NearestFreeBuilding((AIBLD *)q, 4);
             } else {
                 r = gm_BuildQuery(2, 0, 5, 4, 0xffff);
                 if (r == 0)
@@ -1904,13 +1904,13 @@ void init_OpenTown(void)
             if (init_AiTown != 0) {
                 if (*cl != 9 && *cl != 5) {
                     if (*cl == 4 || *cl == 0x10 || *cl == 0x13) {
-                        cm_SendMessage3d(b, 0, cl[0x22f], 0);
-                        cm_SendMessage3d(b, 0, cl[0x230], 0);
+                        cm_SendMessage3d((AIBLD *)b, 0, cl[0x22f], 0);
+                        cm_SendMessage3d((AIBLD *)b, 0, cl[0x230], 0);
                     } else {
-                        cm_SendMessage3d(b, 0, cl[0x22f], 0);
+                        cm_SendMessage3d((AIBLD *)b, 0, cl[0x22f], 0);
                     }
                 }
-                cm_SendMessage3d(b, 1, INIT_BTYPE(b)[0x230], INIT_BTYPE(b)[0x223]);
+                cm_SendMessage3d((AIBLD *)b, 1, INIT_BTYPE(b)[0x230], INIT_BTYPE(b)[0x223]);
                 cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
                 init_Betrieb((AIBLD *)b);
             }
@@ -2752,7 +2752,7 @@ void init_GiveFirstPlayerBuildings(void)
             cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x39, &v);
             cm_SendFieldDeltas();
             cm_SendOwnership(b->id, c->netId, c->netId);
-            cm_SendMessage3d((char *)b, 1, 0, ai_BTypes[b->type].jobs[0]);
+            cm_SendMessage3d(b, 1, 0, ai_BTypes[b->type].jobs[0]);
             cm_SendExSellObject(b->id, -1, 0x135, 1, ai_OwnPlayer, 0);
         }
         b += 1;
@@ -3341,7 +3341,7 @@ char init_BuildingTextureSetHook(D3OBJECT *o, void *ctx)
    0x61ae08 whose kind is b's class (init_ClassAnims) */
 
 
-void init_SetCharacterAnimations(unsigned char *b)
+void init_SetCharacterAnimations(AIBLD *b)
 {
     int idx;
     unsigned char *cls;
@@ -3349,16 +3349,16 @@ void init_SetCharacterAnimations(unsigned char *b)
     int ch;
     INIT_ANIMSET *r;
 
-    cls = (unsigned char *)&ai_BTypes[*b];
+    cls = (unsigned char *)&ai_BTypes[b->type];
     for (idx = 0; init_ClassAnims[idx].kind != 0; idx++)
         if (init_ClassAnims[idx].kind == *cls)
             break;
     r = init_ClassAnims + idx;
-    sv_CollectGroupCharacters((char *)b);
+    sv_CollectGroupCharacters(b);
     c = (INIT_CHAR *)ai_Chars;
     do {
         ch = (int)c->model;
-        if (ch != 0 && (c->bld == (AIBLD *)b || ((INIT_CHAR *)ch)->group == ((AIBLD *)b)->id)) {
+        if (ch != 0 && (c->bld == b || ((INIT_CHAR *)ch)->group == b->id)) {
             ch_PreloadAnims((struct CHARACTER *)ch, 0x10, r->names[0], r->names[1], r->names[2], r->names[3],
                             r->names[4], r->names[5], r->names[6], r->names[7], r->names[8], r->names[9],
                             r->names[10], r->names[11], r->names[12], r->names[13], r->names[14], r->names[15]);
@@ -3432,7 +3432,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         if (b->type == 0x1e && slot == 0xfd)
             veg_ShowPlants(b->plants);
         ai_SceneBuilding = b;
-        sv_CollectGroupCharacters((char *)b);
+        sv_CollectGroupCharacters(b);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SyncSceneObjects);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_GateObjectHook);
         gm_ShowBuildingObjects(b);

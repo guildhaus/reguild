@@ -654,7 +654,7 @@ int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
-void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
+void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
 int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
@@ -850,7 +850,7 @@ void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpen
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
-char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
+char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
@@ -978,9 +978,9 @@ int d2_WinOpenPic(short x, short y, int pic, int win); int io_CharacterName(int 
 int gm_Opinion(int a, int b);
 
 /* dcp unit split: the definitions of lc the functions of lcdom use */
-void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld);
+void ai_LayoutProdGoodsList(int view, int part, int pointer, struct AIBLD *bld);
 int ai_UpdateMarketGoodsList(AIOBJ *stall, AIOBJ *market);
-void ai_LayoutMarketGoodsList(int view, int part, int pointer, int bld);
+void ai_LayoutMarketGoodsList(int view, int part, int pointer, struct AIBLD *bld);
 void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld);
 int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store);
 void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, struct AIOBJ *obj);
@@ -4636,7 +4636,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
             ai_LayoutStoreGoods(win, 1, 1, bld, store);
         } else {
             ai_UpdateProdGoodsList(bld, store);
-            ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
+            ai_LayoutProdGoodsList(win, 1, 0, bld);
         }
         if (dm_L.rup != 0 && ai_RunAllowsWindow() == 1)
             sv_PopRequest = 1;
@@ -4852,7 +4852,7 @@ int ai_SabotageCallback(AICHAR *ch, AIBLD *target)
         sv_MessageBox(text, 0);
         return 0;
     }
-    if (he_NoProtectionEvent((int)target) == 0) {
+    if (he_NoProtectionEvent(target) == 0) {
         txt_Format(buf.text, 0x1705, target);
         sv_MessageBox(buf.text, 0);
         return 0;
@@ -8366,7 +8366,7 @@ void ai_EquipWindow(AIBLD *bld)
             ai_LayoutStoreGoods(win, 1, 1, bld, store);
         } else if (g->type == 5) {
             listShown = ai_UpdateProdGoodsList(bld, store);
-            ai_LayoutProdGoodsList(win, 1, 1, (int)bld);
+            ai_LayoutProdGoodsList(win, 1, 1, bld);
         }
         if (d2_ClickedId != -1 && listShown != 0) {
             /* a click on a row's frame: the picked goods go to its character */

@@ -151,8 +151,8 @@ extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
 int gm_ListAmount(short *l, char *o);                                              /* 0x50aaf0 */
 int gm_ListStock(short *l, int item);                                             /* 0x50ab50 */
 int gm_RemoveObject(int *list, unsigned item);                                          /* 0x4ffff0 */
-int gm_RemoveObjectFromBuilding(int b, int id);                                            /* 0x503480 */
-unsigned short * gm_AllocRaum(unsigned char *b, unsigned n);                                           /* 0x5031b0 */
+int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);                                            /* 0x503480 */
+unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                                           /* 0x5031b0 */
 /* 0x500190 */
 void txt_Format(char *buf, int id, ...);                                       /* 0x5176d0 */
 struct SBSAMPLE *sb_PlaySample(struct SBBANK *bank, char *name, int loops, int pan, int volume, int fade, int delay); /* 0x426fa0, sblib.c */
@@ -250,7 +250,7 @@ void cm_SendUpgradeDone(int a);                                                 
 void cm_SendBuildingDestroyed(int a);                                                        /* 0x4c5510 */
 void cm_SendBoss(int a, int b);                                                 /* 0x4c5540 */
 int cm_SendHandOverCrimes(int a, int b, int c, int d);                                   /* 0x4c5580 */
-int cm_SendMessage3d(char *p, unsigned char b, int c, int d);                        /* 0x4c55d0 */
+int cm_SendMessage3d(struct AIBLD *p, unsigned char b, int c, int d);                        /* 0x4c55d0 */
 void cm_SendCharModel(int a, const char *s);                                         /* 0x4c5690 */
 void cm_SendGoodsRecord(void *p, unsigned char k);                                     /* 0x4c56d0 */
 void cm_SendGoodsDelta(struct GMSTOCK *p, unsigned char k);                                     /* 0x4c5710 */
@@ -425,7 +425,7 @@ extern char ai_DataPath[];  /* 0x75dca0 */
 
 void ai_ResetJob(struct AICHAR *c);  /* 0x47e940 */
 int gv_HandOverCrimes();  /* 0x4f3910 */
-void gm_MoveIntoHome(struct AICHAR *c, char *b);  /* 0x4fda10 */
+void gm_MoveIntoHome(struct AICHAR *c, struct AIBLD *b);  /* 0x4fda10 */
 struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
@@ -1024,7 +1024,7 @@ int gm_ConvertMoney(int a, unsigned char k);  /* 0x5085b0 */
 int gm_PlayerFactor(int a, unsigned char k);  /* 0x5085f0 */
 int d2_GetObjValue();  /* 0x475980 */
 void d2_SetObjValue(int obj, ...);  /* 0x475cb0 */
-void cm_ShowObjectScene(char *o, int id);  /* 0x4e2910 */
+void cm_ShowObjectScene(struct AIBLD *o, int id);  /* 0x4e2910 */
 
 int d2_ClearSurface(struct D2SURF *surf);  /* 0x4796c0 */
 void d2_BlitPart(int sx, int sy, int w, int h, struct D2SURF *src, int x, int y, struct D2SURF *dst);  /* 0x479480 */

@@ -1299,11 +1299,11 @@ int ai_ExecHandleGrave(AICHAR *p, AGARG *s1, AGARG *s2)
     gm_FindById((int)&s1, 0, 0, a->bldId);
     if (s1 != 0) {
         if (a->kind == 4) {
-            gv_OrderReserveGrave(p, s1, a->entry, 10, a->price);
+            gv_OrderReserveGrave(p, (AIBLD *)s1, a->entry, 10, a->price);
             return 0x3e;
         }
         if (a->kind == 5) {
-            gv_OrderMoveGrave((int *)p, a->entry, (char *)s1, s2->entry, s2->kind, a->price);
+            gv_OrderMoveGrave((int *)p, a->entry, (AIBLD *)s1, s2->entry, s2->kind, a->price);
             return 0x3e;
         }
     }

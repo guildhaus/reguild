@@ -455,7 +455,7 @@ struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);                 /* 0x447190, d3_interface.h */
 char d3if_Show(struct D3OBJECT *obj, char show);        /* 0x4471b0, d3_interface.h */
 void he_ShowObjectInfos(); void ai_CannonAxes(CANNONSCENE *sc); void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, char *rec);
+void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void sv_SetStatusText(char *s); void sv_RedrawScreen();
 void d3if_Prerender(char map); 
 double _CIfmod();
@@ -468,10 +468,10 @@ typedef struct CANNONROT {  /* ai_CannonCamera's rotation / position vector: thr
 } CANNONROT;
 void d3_DirToWorld();
 int gm_FindById();
-float gv_SalvoCharge(); void gv_BuildingCannon(char *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
+float gv_SalvoCharge(); void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
 void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
-void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
+void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
@@ -491,7 +491,7 @@ int ai_CannonFireCheck(CANNONSCENE *sc);
 void ai_CannonShotResults(CANNONSCENE *sc);
 float ai_CannonPitchRatio(CANNONSCENE *sc);
 void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask);
-void ai_CannonExplosion(CANNONSCENE *sc, char *rec);
+void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void ai_ShotTableReset(void);
 extern const int ai_GravePics[4];
 extern const int ai_GravePicsAlt[4];
@@ -1299,7 +1299,7 @@ int ai_GraveMoveConfirm(AIBLD *rec, int from, unsigned char entry, int to)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
                 if (cost == 0 || sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
-                    h = gv_OrderMoveGrave((int *)&ai_Chars[ai_PlayerId], to, (char *)rec, from, entry, cost);
+                    h = gv_OrderMoveGrave((int *)&ai_Chars[ai_PlayerId], to, rec, from, entry, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;
@@ -1328,7 +1328,7 @@ int ai_GraveMoveConfirm(AIBLD *rec, int from, unsigned char entry, int to)
    sv_PopRequest, the window enabled again; a clicked button != the selection -> the selection, the buttons and the
    confirm redone; the close of the window, the result */
 
-int ai_GraveMoveWindow(char *rec, int a, unsigned char b)
+int ai_GraveMoveWindow(AIBLD *rec, int a, unsigned char b)
 {
     int win;
     int btn;
@@ -1346,11 +1346,11 @@ int ai_GraveMoveWindow(char *rec, int a, unsigned char b)
     sv_FitForm(d2_LastWindow);
     d2_SetForm(win, 1);
     io_PrintText(0x4113, 0x4112);
-    ai_GraveSizeButtonsAt((AIBLD *)rec, win, 2, btns, &sel);
+    ai_GraveSizeButtonsAt(rec, win, 2, btns, &sel);
     d2_SetForm(win, 3);
     i = io_PrintText("%ia[%s]", 0x4119);
     btn = d2_GetWinObj(win, 3, i);
-    d2_SetObjEnabled(btn, ai_GraveSizeEnable((AIBLD *)rec, a, b, btns, &sel));
+    d2_SetObjEnabled(btn, ai_GraveSizeEnable(rec, a, b, btns, &sel));
     d2_ClickedId = -1;
     for (;;) {
         if (dm_L.rup != 0) {
@@ -1358,7 +1358,7 @@ int ai_GraveMoveWindow(char *rec, int a, unsigned char b)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btn) {
                 d2_SetViewEnabled(win, 0);
-                if (ai_GraveMoveConfirm((AIBLD *)rec, a, b, sel) == 1) {
+                if (ai_GraveMoveConfirm(rec, a, b, sel) == 1) {
                     r = 1;
                     sv_PopRequest = 1;
                 }
@@ -1367,8 +1367,8 @@ int ai_GraveMoveWindow(char *rec, int a, unsigned char b)
                 for (i = 0; i < 4; i++) {
                     if (d2_PointerObj == btns[i] && i != sel) {
                         sel = i;
-                        ai_GraveSizeButtonsAt((AIBLD *)rec, win, 2, btns, &sel);
-                        d2_SetObjEnabled(btn, ai_GraveSizeEnable((AIBLD *)rec, a, b, btns, &sel));
+                        ai_GraveSizeButtonsAt(rec, win, 2, btns, &sel);
+                        d2_SetObjEnabled(btn, ai_GraveSizeEnable(rec, a, b, btns, &sel));
                         break;
                     }
                 }
@@ -1385,7 +1385,7 @@ int ai_GraveMoveWindow(char *rec, int a, unsigned char b)
    (ai_GraveFreeConfirm on the grave) and 0x4119 (ai_GraveMoveWindow, the move to another size; disabled when the entry is
    already of size 3), each run with the window disabled and closing it when it answers 1; a right click
    closes it */
-void ai_GraveDetailButtons(char *rec, int *w)
+void ai_GraveDetailButtons(AIBLD *rec, int *w)
 {
     int btns[2];
     int first;
@@ -1403,7 +1403,7 @@ void ai_GraveDetailButtons(char *rec, int *w)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == first) {
                 d2_SetViewEnabled(w[0], 0);
-                if (ai_GraveFreeConfirm((AIBLD *)rec, w[8], w[9]) == 1)
+                if (ai_GraveFreeConfirm(rec, w[8], w[9]) == 1)
                     sv_PopRequest = 1;
                 d2_SetViewEnabled(w[0], 1);
             } else if (d2_PointerObj == move) {
@@ -1459,7 +1459,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
                 if (cost == 0 || sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
-                    h = gv_OrderReserveGrave((int *)&ai_Chars[ai_PlayerId], (char *)rec, size, 10, cost);
+                    h = gv_OrderReserveGrave((int *)&ai_Chars[ai_PlayerId], rec, size, 10, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;
@@ -1487,7 +1487,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
    == 1 -> sv_PopRequest, the window enabled again; a clicked button != the selection -> the selection and the
    buttons redone; the close of the window */
 
-void ai_RentGraveSelect(char *rec)
+void ai_RentGraveSelect(AIBLD *rec)
 {
     int win;
     int btn;
@@ -1503,7 +1503,7 @@ void ai_RentGraveSelect(char *rec)
     sv_FitForm(d2_LastWindow);
     d2_SetForm(win, 1);
     io_PrintText(0x410a, 0x4108);
-    ai_GraveSizeButtonsAt((AIBLD *)rec, win, 2, btns, &sel);
+    ai_GraveSizeButtonsAt(rec, win, 2, btns, &sel);
     d2_SetForm(win, 3);
     i = io_PrintText("%ia[%s]", 0x4117);
     btn = d2_GetWinObj(win, 3, i);
@@ -1514,14 +1514,14 @@ void ai_RentGraveSelect(char *rec)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btn) {
                 d2_SetViewEnabled(win, 0);
-                if (ai_GraveRentConfirm((AIBLD *)rec, sel) == 1)
+                if (ai_GraveRentConfirm(rec, sel) == 1)
                     sv_PopRequest = 1;
                 d2_SetViewEnabled(win, 1);
             } else {
                 for (i = 0; i < 4; i++) {
                     if (d2_PointerObj == btns[i] && i != sel) {
                         sel = i;
-                        ai_GraveSizeButtonsAt((AIBLD *)rec, win, 2, btns, &sel);
+                        ai_GraveSizeButtonsAt(rec, win, 2, btns, &sel);
                         break;
                     }
                 }
@@ -1689,7 +1689,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
 }
 
 int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
-void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4);
+void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);
 
 /* 0x584d70, the helpers window of a building (the form "HANDEL\HANDEL_SUCHEN"): rec = the building. Its type
    offers two helper kinds (0x225 / 0x226, of the type kind 0x1f 0x293 / 0x294) and a third (0x227 / 0x295) from
@@ -2172,7 +2172,7 @@ void ai_SeanceGhost(AIBLD *rec, GVSEANCE *ev)
     script = ai_SeanceRitual((char *)rec, ev);
     accuser = gv_FindAccused(&ai_Chars[ai_PlayerId], 4, ids, &cnt);
     mode = accuser == 0;
-    f = gv_SeanceChance((char *)rec);
+    f = gv_SeanceChance(rec);
     if (util_RandomF() + f - 0.1f < 1.0f)
         mode = 2;
     win = d2_OpenForm(0, 0, "Locations\\Friedhof\\Friedhof");
@@ -2228,7 +2228,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
     mode = 0;
     voice = snd_VoiceVariant(ev->grave.id, ev->grave.sex);
     script = ai_SeanceRitual((char *)rec, ev);
-    f = gv_SeanceChance((char *)rec);
+    f = gv_SeanceChance(rec);
     if (util_RandomF() + f - 0.4f < 1.0f) {
         mode = 2;
     } else {
@@ -2320,7 +2320,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
         item = gifts[i].item;
         mode = 0;
     }
-    f = gv_SeanceChance((char *)rec);
+    f = gv_SeanceChance(rec);
     if (util_RandomF() + f - 0.2f < 1.0f)
         mode = 2;
     win = d2_OpenForm(0, 0, "Locations\\Friedhof\\Friedhof");
@@ -2788,11 +2788,11 @@ void ai_GraveRentContact(AIBLD *rec)
         txt_Format(line, 0x4107, ai_GraveNames[e->size]);
         if (ai_GraveDetailOpen((int *)&w, line) == 0)
             return;
-        ai_GraveDetailButtons((char *)rec, (int *)&w);
+        ai_GraveDetailButtons(rec, (int *)&w);
         d2_CloseView(w.win);
         sv_CameraFollow();
     } else if (gv_FindReservedEntry((char *)&ai_Chars[ai_PlayerId], &bld, (int *)&e) == 0) {
-        ai_RentGraveSelect((char *)rec);
+        ai_RentGraveSelect(rec);
         sv_CameraFollow();
     } else {
         sv_MessageBox(txt_Ptrs[0x42f8], 0);
@@ -3105,21 +3105,21 @@ int gm_BuildingJob();
    prototypes 0x211 / 0x205 clears bit 0. When the building's owner is the character: 0x4461 set and, when one of
    the six job bytes at bldg + 0x223 is v (a 0 byte ends the scan), 0x2200; x of the prototype 0x21b -> 0x5000.
    gm_AllowAll set: -1 */
-int ai_PermissionBits1d(AICHAR *ch, char *b, char *x)
+int ai_PermissionBits1d(AICHAR *ch, AIBLD *b, char *x)
 {
     AIBTYPE *bldg;
     int v;
     int f;
     int i;
 
-    bldg = &ai_BTypes[((AIBLD *)b)->type];
+    bldg = &ai_BTypes[b->type];
     v = gm_TitleJob(ch->id, gm_BuildingJob((unsigned char)bldg->kind));
     f = 0x81;
-    if (((AIBLD *)b)->masterId == ch->id)
+    if (b->masterId == ch->id)
         f = 0x10bd;
     if (x != 0 && (((AIOBJ *)x)->type == 0x211 || ((AIOBJ *)x)->type == 0x205))
         f &= ~1;
-    if (((AIBLD *)b)->owner == ch->id) {
+    if (b->owner == ch->id) {
         f |= 0x4461;
         for (i = 0; i < 6; i++) {
             if ((&bldg->jobBytes)[i] == 0)

@@ -720,13 +720,13 @@ int gv_BuryCharacter(int *p)
    building o for the living character c (c[1]: its AICHAR.netId; the entry is left to the handler, 0xff) for `years` years at
    the price `price`; returns the sender's result, -1 when c or o is 0 */
 
-int gv_OrderReserveGrave(int *c, char *o, int size, short years, int price)
+int gv_OrderReserveGrave(int *c, AIBLD *o, int size, short years, int price)
 {
     GVORDER m;
 
     if (c != 0 && o != 0) {
         m.chr = c[1];
-        m.bld = ((AIBLD *)o)->id;
+        m.bld = o->id;
         m.size = size;
         m.type = 1;
         m.entry = 0xff;
@@ -905,7 +905,7 @@ int gv_SetGraveHolder(GVORDER *m)
 /* 0x4f0a90, sends graveyard order type 4 (GVORDER, cm_SendGraveOrder): opens the grave sizes up to `size` of the graveyard
    building o for the character c (c[1]: its AICHAR.netId, -1 when c is 0); returns the sender's result, -1 when o is 0 */
 
-int gv_OrderOpenSize(int *c, char *o, int size)
+int gv_OrderOpenSize(int *c, AIBLD *o, int size)
 {
     GVORDER m;
     int chr;
@@ -914,7 +914,7 @@ int gv_OrderOpenSize(int *c, char *o, int size)
         return -1;
     chr = c == 0 ? -1 : c[1];
     m.chr = chr;
-    m.bld = ((AIBLD *)o)->id;
+    m.bld = o->id;
     m.type = 4;
     m.size = size;
     m.entry = 0;
@@ -1051,12 +1051,12 @@ int gv_AddNewDead(unsigned char *p)
 /* 0x4f0e80, sends a grave move (GVMOVE, message 0x61, cm_SendGraveMove): the character c (c[1]: its AICHAR.netId) moves the
    entry `entry` of the size `from` of the graveyard building o to a free entry of the size `to` for the price `price`; returns the message's slot handle (cm_GetSlotState), -1 when it was not sent */
 
-int gv_OrderMoveGrave(int *c, int to, char *o, int from, int entry, int price)
+int gv_OrderMoveGrave(int *c, int to, AIBLD *o, int from, int entry, int price)
 {
     GVMOVE m;
 
     m.chr = c[1];
-    m.bld = ((AIBLD *)o)->id;
+    m.bld = o->id;
     m.from = from;
     m.entry = (unsigned char)entry;
     m.to = to;
@@ -1774,9 +1774,9 @@ int gv_FindReservedEntry(void *a, unsigned char **o, int *e)
 }
 /* 0x4f2660, a rate of the object o: 30 (item 0x20f) + 10 (0x21f) + 15 (0x222) + 25 (0x223), times 0.0125 * 0.5 + 0.5 */
 
-float gv_SeanceChance(char *o)
+float gv_SeanceChance(AIBLD *o)
 {
-    AIBLD *bld = (AIBLD *)o;
+    AIBLD *bld = o;
     float x;
 
     x = 0.0f;

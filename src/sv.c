@@ -1716,25 +1716,25 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
    the building's object, else the object itself) is within 750.0 of the model's body and the model is idle (no
    queued action); or when the model's group is the building's id */
 
-int sv_IsAtDoor(char *g, char *o)
+int sv_IsAtDoor(char *g, AIBLD *o)
 {
     SVMODEL *dst;
     D3OBJECT *door;
     float pos[4];
 
     dst = ((SVCHARREC *)g)->model;
-    if (((AIBLD *)o)->object != 0) {
+    if (o->object != 0) {
         if (dst == 0)
             return 0;
-        door = d3_FindObject((int)((AIBLD *)o)->object, 0x100, 0, "dummy_TUER");
+        door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
         if (door != 0)
             d3_PointToWorld(door, &door->pos, (D3VECTOR *)pos);
         else
-            d3_PointToWorld((D3OBJECT *)((AIBLD *)o)->object, &((D3OBJECT *)((AIBLD *)o)->object)->pos, (D3VECTOR *)pos);
+            d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, (D3VECTOR *)pos);
         if (d3_VecEqual(&dst->obj->pos, (D3VECTOR *)pos, 750.0f) != 0 && dst->actions == 0)
             return 1;
     }
-    if (dst != 0 && dst->group == ((AIBLD *)o)->id)
+    if (dst != 0 && dst->group == o->id)
         return 1;
     return 0;
 }
@@ -1742,7 +1742,7 @@ int sv_IsAtDoor(char *g, char *o)
    first scene: within 650.0 of the building o's door (1950.0 for a building type of kind 10, 3250.0 from the
    building's object when it has no "dummy_TUER"); or when the character's group is the building's id */
 
-int sv_IsCartAtDoor(char *g, unsigned char *o)
+int sv_IsCartAtDoor(char *g, AIBLD *o)
 {
     float r;
     SVMODEL *dst;
@@ -1750,25 +1750,25 @@ int sv_IsCartAtDoor(char *g, unsigned char *o)
     float pos[4];
 
     r = 650.0f;
-    if (ai_BTypes[*o].kind == 10)
+    if (ai_BTypes[o->type].kind == 10)
         r = 1950.0f;
     dst = (SVMODEL *)((AIOBJ *)g)->sceneObj;
-    if (((AIBLD *)o)->object != 0) {
+    if (o->object != 0) {
         if (dst == 0)
             return 0;
         if (dst->scene == &d3_Scenes[0]) {
-            door = d3_FindObject((int)((AIBLD *)o)->object, 0x100, 0, "dummy_TUER");
+            door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
             if (door != 0)
                 d3_PointToWorld(door, &door->pos, (D3VECTOR *)pos);
             else {
-                d3_PointToWorld((D3OBJECT *)((AIBLD *)o)->object, &((D3OBJECT *)((AIBLD *)o)->object)->pos, (D3VECTOR *)pos);
+                d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, (D3VECTOR *)pos);
                 r = 3250.0f;
             }
             if (d3_VecEqual(&dst->obj->pos, (D3VECTOR *)pos, r) != 0)
                 return 1;
         }
     }
-    if (dst != 0 && dst->group == ((AIBLD *)o)->id)
+    if (dst != 0 && dst->group == o->id)
         return 1;
     return 0;
 }
@@ -4520,7 +4520,7 @@ void sv_HandleObjects(void)
 /* 0x52b2a0, collects into ai_SceneChars the characters whose scene character (AICHAR.model, its +0x2c) belongs to the
    building b (b == 0: the ones in no building, -1), at most 31; past the eighth one of a building the scene character
    is hidden */
-void sv_CollectGroupCharacters(char *b)
+void sv_CollectGroupCharacters(AIBLD *b)
 {
     int n, i;
     AICHAR *c;
@@ -4532,7 +4532,7 @@ void sv_CollectGroupCharacters(char *b)
             if (n >= 31)
                 return;
             c = &ai_Chars[i];
-            if (c->model != 0 && c->model->bldId == ((AIBLD *)b)->id) {
+            if (c->model != 0 && c->model->bldId == b->id) {
                 ai_SceneChars[n++] = c;
                 if (n > 8)
                     ch_SetVisible((CHARACTER *)c->model, 0);
@@ -7149,7 +7149,7 @@ l64:
         c = ai_FallbackBuilding;
     u5 = mask & 0x8000;
     if (u5 == 0 && ai_GameState != 0)
-        sv_CollectGroupCharacters((char *)c);
+        sv_CollectGroupCharacters(c);
     if (c == 0 || (mask & 0x10000) != 0) {
         ch_CurrentGroup = -1;
     } else {

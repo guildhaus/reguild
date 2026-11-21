@@ -3061,7 +3061,7 @@ void he_RunConstruction(int ev)
                 if (home == 0 || home->type <= bld->type)
                     ai_Chars[bld->owner].bld2 = bld;
             }
-            gm_MoveIntoHome(&ai_Chars[bld->owner], (char *)bld);
+            gm_MoveIntoHome(&ai_Chars[bld->owner], bld);
             d3if_SelectScene(scene, 1);
             e->text = 0;
             he_FreeEvent((int *)ev);
@@ -3605,7 +3605,7 @@ void he_RunAlchemistDay(int ev)
 
 void ai_DomizilMessageTask(int param_1, int param_2, int param_3, unsigned short *param_4);
 void ai_DomizilMessage04(int param_1, int param_2, int param_3);
-void ai_DomizilMessageAge(int param_1, int param_2, int param_3);
+void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
 void ai_DomizilMessagePlace(int param_1, int param_2, int param_3, int param_4);
 
 /* 0x56e070, the laboratory incident of the alchemist's daily event 0x98 (he_RunAlchemistDay, only for a building
@@ -3693,7 +3693,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
             break;
         case 3:
             he_SetLifeByAge(c, util_Random(3) + 1);
-            ai_DomizilMessageAge((int)&ai_Chars[b->owner], (int)c, (int)b);
+            ai_DomizilMessageAge((int)&ai_Chars[b->owner], (int)c, b);
             break;
         case 4:
             k = util_Random(6);
@@ -6617,9 +6617,9 @@ void he_AllocTrialScene(int ev)
 
 /* 0x5741d0, the curse event 0xa0 the building `a` sent (he_FindEvent (2, 0, 0xa0, 3, a->id): its from id), 0 when none */
 
-char *ai_FindCurseEvent(char *a)
+char *ai_FindCurseEvent(AIBLD *a)
 {
-    return he_FindEvent(2, 0, 0xa0, 3, ((AIBLD *)a)->id);
+    return he_FindEvent(2, 0, 0xa0, 3, a->id);
 }
 /* 0x5741f0, the trial payment of the event 0xa0 (state 1 of he_RunTrialScene): the building from (gm_FindById) and the
    character netId (gm_FindChar) must exist. By the building's trial kind (gm_TrialBuildingKind) and the trial's level

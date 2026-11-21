@@ -659,7 +659,7 @@ int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
-void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
+void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
 int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
@@ -855,7 +855,7 @@ void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpen
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
-char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
+char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
@@ -975,7 +975,7 @@ float gm_GetSkill(struct AICHAR *c, int skill); int cm_SendChrGotoBuilding();
 int gm_CreateCharModel(); void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s); int ch_Delete();
 
 /* dcp unit split: the definitions of lc the functions of lcmap use */
-void ai_LayoutProdGoodsList(int view, int part, int pointer, int bld);
+void ai_LayoutProdGoodsList(int view, int part, int pointer, struct AIBLD *bld);
 void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld);
 void lc_PlayerInJail(void);
 int ai_SearchResourceWindow(AIBLD *bld);
@@ -1776,7 +1776,7 @@ int ai_FreeProdSetting(int bldId)
    a time over the other used unlocked slots, round the seven from the setting's rotation index (each weight kept
    within 0 .. the free total), where the rotation then stays */
 
-void ai_SetSettingWeight(int bld, int good, unsigned char weight)
+void ai_SetSettingWeight(AIBLD *bld, int good, unsigned char weight)
 {
     G8SETTING *rec;
     int total;
@@ -1786,7 +1786,7 @@ void ai_SetSettingWeight(int bld, int good, unsigned char weight)
     int rest;
     int i;
 
-    rec = (G8SETTING *)ai_FindSetting(((AIBLD *)bld)->id);
+    rec = (G8SETTING *)ai_FindSetting(bld->id);
     total = 100;
     if (good == 0)
         return;
@@ -1836,7 +1836,7 @@ void ai_RefreshProdSetting(AIBLD *b)
    (ai_FindSetting), the random of 0x5a8340 * 100.0f (0x5ebb40) against the running sum of the slot weights, the
    good of the first slot over it; 0 when the building has no setting */
 
-int ai_DrawSettingGood(int bld)
+int ai_DrawSettingGood(AIBLD *bld)
 {
     G8SETTING *rec;
     G8SLOT *p;
@@ -1846,7 +1846,7 @@ int ai_DrawSettingGood(int bld)
     int sum;
     int pick;
 
-    b = (AIBLD *)bld;
+    b = bld;
     rec = (G8SETTING *)ai_FindSetting(b->id);
     if (rec == 0)
         return 0;
@@ -1870,12 +1870,12 @@ int ai_DrawSettingGood(int bld)
 /* 0x5a88e0, the factor of a building's production setting (31 B): the +0x38 of the slot table ai_FindSettingSlots
    returns (= the record's +0x44), else the shared 1.0f (ai_FloatOne, 0x5eb780) */
 
-float ai_SettingFactor(int bld)
+float ai_SettingFactor(AIBLD *bld)
 {
     G8SETTAIL *t;
     AIBLD *b;
 
-    b = (AIBLD *)bld;
+    b = bld;
     t = (G8SETTAIL *)ai_FindSettingSlots(b->id);
     if (t != 0)
         return t->factor;
@@ -1884,12 +1884,12 @@ float ai_SettingFactor(int bld)
 /* 0x5a8900, the factor of a building's production setting set (28 B): the +0x44 of the record ai_FindSetting
    returns, when the building has a setting */
 
-void ai_SetSettingFactor(int bld, float factor)
+void ai_SetSettingFactor(AIBLD *bld, float factor)
 {
     G8SETTING *rec;
     AIBLD *b;
 
-    b = (AIBLD *)bld;
+    b = bld;
     rec = (G8SETTING *)ai_FindSetting(b->id);
     if (rec != 0)
         rec->factor = factor;
@@ -2598,7 +2598,7 @@ void ai_DomizilMessage04(G8CHARREC *to, G8CHARREC *c, AIBLD *bld)
    with its building's id (+1) and the sound "_NACHRICHTEN_DOMIZIL_04"; he_LabIncident sends it for the pick that
    sets the character's life by age (he_SetLifeByAge) */
 
-void ai_DomizilMessageAge(int toRec, int cRec, int bldRec)
+void ai_DomizilMessageAge(int toRec, int cRec, AIBLD *bldRec)
 {
     G8CHARREC *to;
     G8CHARREC *c;
@@ -2608,7 +2608,7 @@ void ai_DomizilMessageAge(int toRec, int cRec, int bldRec)
     if (to->kind != 6 && to->kind != 7)
         return;
     c = (G8CHARREC *)cRec;
-    bld = (AIBLD *)bldRec;
+    bld = bldRec;
     txt_Format(ai_NewsText, 0x407b, c->name, c->family);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,
                  "_NACHRICHTEN_DOMIZIL_04");
@@ -2645,13 +2645,13 @@ void ai_DomizilMessagePlace(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, int placeId
    the sound "_NACHRICHTEN_DOMIZIL_12"; no kind 6 / 7 test like the other Domizil messages (gv_EffectNotifyOwner
    sends it only for a kind 6 character, level 0 / 1 / 2 by the effect's mode and value) */
 
-void ai_DomizilMessage12(char *chRec, char *bldRec, int level)
+void ai_DomizilMessage12(char *chRec, AIBLD *bldRec, int level)
 {
     G8CHARREC *ch;
     AIBLD *bld;
 
     ch = (G8CHARREC *)chRec;
-    bld = (AIBLD *)bldRec;
+    bld = bldRec;
     txt_Format(ai_NewsText, 0x4070, bld, level + 0x4071);
     he_MessageBoxQuickjump(ch->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,
                  "_NACHRICHTEN_DOMIZIL_12");

@@ -694,7 +694,7 @@ int ai_ExecuteMasterBuilder(AICHAR *p, AIARG *s1, AIARG *s2);                   
 int ai_EvalDarkCorner(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x49ec10 */
 int ai_DecideDarkCorner(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49ed10 */
 extern const int ai_RandomStrides[16];                                                   /* 0x5ed140, random steps */
-int gm_GetCreditOffers(int b, struct AICHAR *p, unsigned cnt, int *out);                       /* 0x50a250 */
+int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt, int *out);                       /* 0x50a250 */
 int ai_DecideTakeCredit(int a, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);                  /* 0x49eec0 */
 int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49f370 */
 int ai_EvalChangeProfession(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x49f4f0 */

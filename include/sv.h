@@ -62,8 +62,8 @@ void sv_RemoveGroupMember(int c, char *g);                              /* 0x524
 int sv_UsedGroupSlots(char *g);                                         /* 0x5241b0 */
 void sv_CountGroupMembers(char *g);                                     /* 0x5241d0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);       /* 0x524260 */
-int sv_IsAtDoor(char *g, char *o);                                     /* 0x524770 */
-int sv_IsCartAtDoor(char *g, unsigned char *o);                            /* 0x524810 */
+int sv_IsAtDoor(char *g, struct AIBLD *o);                                     /* 0x524770 */
+int sv_IsCartAtDoor(char *g, struct AIBLD *o);                            /* 0x524810 */
 int sv_CharStateIcons(char *c, int *out);                                    /* 0x524900 */
 void sv_UpdateMemberList(struct AIBLD *g);                                    /* 0x524990 */
 void sv_OpenPlayerBar(struct AIBLD *a, char k);                                   /* 0x525220 */
@@ -107,7 +107,7 @@ void sv_HoverPick(void);                                                /* 0x52a
 void sv_ResetSelection(void);                                                /* 0x52adb0 */
 void sv_ClearSelection(void);                                           /* 0x52ae40 */
 void sv_HandleObjects(void);                                                /* 0x52ae70 */
-void sv_CollectGroupCharacters(char *b);                                /* 0x52b2a0 */
+void sv_CollectGroupCharacters(struct AIBLD *b);                                /* 0x52b2a0 */
 int sv_RegisterActivity(int kind, char *name, int dayOnly, int icon, int valueOff);            /* 0x52b350 */
 int sv_ActivityName(struct AICHAR *c, struct AIBLD *b, char *out);                 /* 0x52b3c0 */
 int sv_StartPoseScript(struct AICHAR *a, int b);                                       /* 0x52b490 */

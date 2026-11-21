@@ -1828,7 +1828,7 @@ int cm_SendHandOverCrimes(int a, int b, int c, int d)
 /* 0x4c55d0, message 0x3d: hires a character of kind b for the building p (the applicant for title c / job d,
    gm_FindApplicant, else a new one) with a home (gm_FindHome) */
 
-int cm_SendMessage3d(char *p, unsigned char b, int c, int d)
+int cm_SendMessage3d(AIBLD *p, unsigned char b, int c, int d)
 {
     G17MSG m;
     AICHAR *q;
@@ -1837,14 +1837,14 @@ int cm_SendMessage3d(char *p, unsigned char b, int c, int d)
     m.type = 0x3d;
     if (p == 0)
         return -1;
-    q = gm_FindApplicant((struct AIBLD *)p, c, d);
-    m.hire.bldId = ((AIBLD *)p)->id;
+    q = gm_FindApplicant(p, c, d);
+    m.hire.bldId = p->id;
     if (q != 0) {
         m.hire.charId = q->netId;
-        r = q->bld2 == 0 ? (AIBLD *)gm_FindHome(q->id, (struct AIBLD *)p) : 0;
+        r = q->bld2 == 0 ? gm_FindHome(q->id, p) : 0;
     } else {
         m.hire.charId = -1;
-        r = (AIBLD *)gm_FindHome(0xffff, (struct AIBLD *)p);
+        r = gm_FindHome(0xffff, p);
     }
     if (r != 0)
         m.hire.homeId = r->id;
@@ -3082,7 +3082,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             if (ai_Goods[m->sell.item].type != 2 && ai_Goods[m->sell.item].type != 6)
                 gm_RemoveObject(p, m->sell.item);
             else if (x1 != 0)
-                gm_RemoveObjectFromBuilding((int)x1, m->sell.item);
+                gm_RemoveObjectFromBuilding(x1, m->sell.item);
             else
                 return 1;
         }
@@ -3101,7 +3101,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             o2->count += m->sell.count;
         } else if (ai_Goods[m->sell.item].type == 2 || ai_Goods[m->sell.item].type == 6) {
             if (x2 != 0)
-                o2 = (AIOBJ *)gm_AllocRaum((unsigned char *)x2, m->sell.item);
+                o2 = (AIOBJ *)gm_AllocRaum(x2, m->sell.item);
             if (o2 == 0)
                 return 1;
         } else {
@@ -5194,7 +5194,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     }
     c->bld = b;
     if (home != 0)
-        gm_MoveIntoHome(c, (char *)home);
+        gm_MoveIntoHome(c, home);
     c->jobDays = 0;
     c->flags1c8 &= ~0x2000;
     ai_ResetJob(c);

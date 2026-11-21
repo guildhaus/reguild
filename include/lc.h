@@ -327,7 +327,7 @@ void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec
 void ai_TellGraveNeglect(unsigned short *plRec, int bld);  /* 0x5a9690 */
 void ai_NotifySale(struct AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
 void ai_TellGravesPaid(int plRec, int bld, int paid, int sum);  /* 0x5a9780 */
-void ai_DomizilMessage12(char *ch, char *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
+void ai_DomizilMessage12(char *ch, struct AIBLD *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
 struct AICHAR; struct LCORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
 int ai_DivorceDialog(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8ef0, the divorce order's ask (ord.c 0x4f5800); m is not read */
 int ai_WorkerDismissalWindow(void *ch, int *m);  /* 0x5ce7f0 */
@@ -384,8 +384,8 @@ void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target);  /* 0x58feb
 void ai_ShowPurchaseNews(unsigned short *param_1, char *param_2, int param_3, int param_4);  /* 0x5a8c50 */
 void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec);  /* 0x5a9170 */
 void lc_UpdateGoodsReserves(void);  /* 0x5ba750 */
-int ai_DrawSettingGood(int param_1);  /* 0x5a8870 */
-float ai_SettingFactor(int param_1);  /* 0x5a88e0 */
+int ai_DrawSettingGood(struct AIBLD *param_1);  /* 0x5a8870 */
+float ai_SettingFactor(struct AIBLD *param_1);  /* 0x5a88e0 */
 void ai_ShowPartingNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a8ee0 */
 void ai_ShowFeudNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a8f90 */
 void ai_ShowPartnerNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a9050 */

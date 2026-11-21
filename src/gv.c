@@ -186,7 +186,7 @@ int gv_EffectNotifyOwner(GVEFFARG *a)
                         m = 1;
                 }
                 if (ch->kind == 6)
-                    ai_DomizilMessage12((char *)ch, (char *)b, m);
+                    ai_DomizilMessage12((char *)ch, b, m);
             }
         }
     }
@@ -1058,9 +1058,9 @@ int gv_CannonCost(AICHAR *o, int a, int b, int d, int *n, int *price)
    0x265, else 1 with 0x263, else 0 (the salvo has *balls + 1 balls, am.c 0x4a67a0); *kind = 4 with 0x264, 3 with 0x262, 2 with
    0x25e, 1 with 0x25a, else 0 (the cannon kind of gv_CannonKind / gv_CannonCost) */
 
-void gv_BuildingCannon(char *o, unsigned *balls, unsigned *kind)
+void gv_BuildingCannon(AIBLD *o, unsigned *balls, unsigned *kind)
 {
-    AIBLD *bld = (AIBLD *)o;
+    AIBLD *bld = o;
 
     *kind = 0;
     *balls = 0;
@@ -1086,9 +1086,9 @@ void gv_BuildingCannon(char *o, unsigned *balls, unsigned *kind)
    *speedSpread = 0.2 (0.017 / 0.17 with item 0x25c in its object list), minus 0.003 / 0.03 with item 0x25f and
    minus 0.004 / 0.04 with item 0x260 */
 
-void gv_CannonScatter(char *o, float *spread, float *speedSpread)
+void gv_CannonScatter(AIBLD *o, float *spread, float *speedSpread)
 {
-    AIBLD *bld = (AIBLD *)o;
+    AIBLD *bld = o;
     float x, y;
 
     x = 0.02f;
@@ -1110,12 +1110,12 @@ void gv_CannonScatter(char *o, float *spread, float *speedSpread)
 }
 /* 0x4ef330, a factor of the object o: 1.0 (1.05 with item 0x259), plus 0.05 with item 0x25b and plus 0.05 with item 0x261 */
 
-float gv_CannonItemFactor(char *o)
+float gv_CannonItemFactor(AIBLD *o)
 {
     AIBLD *bld;
     float x;
 
-    bld = (AIBLD *)o;
+    bld = o;
     x = 1.0f;
     if (gm_Query(bld->objList, 2, 6, 0, 0x259) != 0)
         x = 1.05f;

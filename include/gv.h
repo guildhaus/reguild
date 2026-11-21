@@ -211,9 +211,9 @@ float gv_SalvoCharge(int a, int b, int c);  /* 0x4eef50 */
 void gv_CannonKind(int n, int *out);    /* 0x4ef000 */
 void cm_SendMoneyDelta(int a, int b);                     /* 0x4c5f60 */
 extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
-void gv_BuildingCannon(char *o, unsigned *balls, unsigned *kind);  /* 0x4ef170 */
-void gv_CannonScatter(char *o, float *spread, float *speedSpread);  /* 0x4ef260 */
-float gv_CannonItemFactor(char *o);           /* 0x4ef330 */
+void gv_BuildingCannon(struct AIBLD *o, unsigned *balls, unsigned *kind);  /* 0x4ef170 */
+void gv_CannonScatter(struct AIBLD *o, float *spread, float *speedSpread);  /* 0x4ef260 */
+float gv_CannonItemFactor(struct AIBLD *o);           /* 0x4ef330 */
 int gv_GraveCount(struct AIBLD *o);    /* 0x4ef3c0 */
 int gv_GravesInUse(struct AIBLD *o);    /* 0x4ef440 */
 int gv_EntryCount(struct AIBLD *o);    /* 0x4ef470 */
@@ -248,13 +248,13 @@ GVYARD *gv_GrowGraveyard(struct AIBLD *o);  /* 0x4eff50 */
 void gv_FreeGraveyard(int *g);             /* 0x4f0180 */
 int gv_OrderBury(int *g, struct AIBLD *o, int v, int b);  /* 0x4f01d0 */
 int gv_BuryCharacter(int *p);              /* 0x4f0240 */
-int gv_OrderReserveGrave(int *c, char *o, int size, short years, int price);  /* 0x4f0430 */
+int gv_OrderReserveGrave(int *c, struct AIBLD *o, int size, short years, int price);  /* 0x4f0430 */
 int gv_ReserveGrave(GVORDER *m);          /* 0x4f0490 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);  /* 0x4f0700 */
 int gv_ExtendGrave(GVORDER *m);           /* 0x4f0770 */
 int gv_OrderSetGraveHolder(int *c, struct AIBLD *o, int size, int entry);  /* 0x4f0900 */
 int gv_SetGraveHolder(GVORDER *m);         /* 0x4f0970 */
-int gv_OrderOpenSize(int *c, char *o, int size);  /* 0x4f0a90 */
+int gv_OrderOpenSize(int *c, struct AIBLD *o, int size);  /* 0x4f0a90 */
 int gm_AddNegative();                     /* 0x500ae0 */
 int gm_AddObjekt(int id, int proto, int n);                     /* 0x500970 */
 int gv_OpenSize(GVORDER *m);           /* 0x4f0af0 */
@@ -262,7 +262,7 @@ int gv_OrderAdjustEntry(struct AIBLD *o, int v, int b, int x);  /* 0x4f0c20 */
 int gv_AdjustEntry(GVORDER *m);          /* 0x4f0c80 */
 int gv_OrderNewDead(struct AIBLD *o, int x);      /* 0x4f0d70 */
 int gv_AddNewDead(unsigned char *p);    /* 0x4f0dd0 */
-int gv_OrderMoveGrave(int *c, int to, char *o, int from, int entry, int price);  /* 0x4f0e80 */
+int gv_OrderMoveGrave(int *c, int to, struct AIBLD *o, int from, int entry, int price);  /* 0x4f0e80 */
 int gv_MoveGrave(GVMOVE *m);           /* 0x4f0ed0 */
 int gv_OrderRaiseDead(struct AIBLD *o, int size, int entry, int grave, int kind);  /* 0x4f1170 */
 int gv_SendGrave(struct AIBLD *o);    /* 0x4f15e0 */
@@ -282,7 +282,7 @@ GVENTRY *gv_FindWornEntry(struct AIBLD *bld, unsigned char m);  /* 0x4f22a0 */
 
 int gv_FindHeldEntry(void *a, unsigned char **o, int *e);  /* 0x4f2540 */
 int gv_FindReservedEntry(void *a, unsigned char **o, int *e);  /* 0x4f25d0 */
-float gv_SeanceChance(char *o);           /* 0x4f2660 */
+float gv_SeanceChance(struct AIBLD *o);           /* 0x4f2660 */
 int gv_GetTableRecord(int i, int *out);     /* 0x4f2720 */
 int gv_FindTableRecord(char *c, unsigned b, int *out);  /* 0x4f2870 */
 extern AIDEC gv_Decisions[];           /* 0x611258, 0x1d AIDEC records of 0x24 bytes (the AI decision table) */

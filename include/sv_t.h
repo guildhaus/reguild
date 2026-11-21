@@ -208,7 +208,7 @@ int ai_AlchemistRescheduleWindow(unsigned char *obj, struct AHMREC *rec);  /* 0x
 
 /* declared in other units' headers before (moved to the owner) */
 struct AICHAR;
-int ai_PermissionBits1d(struct AICHAR *ch, char *b, char *x);  /* 0x587b70, the permission bits of the character ch in the building b of the type class 0x1d (gm_PermissionBits) */
+int ai_PermissionBits1d(struct AICHAR *ch, struct AIBLD *b, char *x);  /* 0x587b70, the permission bits of the character ch in the building b of the type class 0x1d (gm_PermissionBits) */
 void ai_EndCharExtra(struct AICHAR *ch, int f);  /* 0x587c40 */
 void ai_SetupTutorialPlayer(void);  /* 0x57bc30, sets up the tutorial player's profile */
 int ai_TutorialWindow(void);  /* 0x57bce0, the tutorial chooser window: 1 starts the tutorial, 0 is the back */

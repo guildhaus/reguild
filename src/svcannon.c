@@ -476,7 +476,7 @@ struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);                 /* 0x447190, d3_interface.h */
 char d3if_Show(struct D3OBJECT *obj, char show);        /* 0x4471b0, d3_interface.h */
 void he_ShowObjectInfos(); void ai_CannonAxes(CANNONSCENE *sc); void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, char *rec);
+void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void sv_SetStatusText(char *s); void sv_RedrawScreen();
 void d3if_Prerender(char map); 
 
@@ -654,7 +654,7 @@ void ai_CannonScene(char *rec)
                         ai_CannonSwitchAnim(rec, &sc, run, 2, 0x2656c7);
                 }
                 if (run->flags == 0 && ai_CannonFireCheck(&sc) != 0) {
-                    ai_CannonExplosion(&sc, rec);
+                    ai_CannonExplosion(&sc, (AIBLD *)rec);
                     ai_ShotTable[2].id = -1;
                     ai_ShotTable[1].id = -1;
                     ai_ShotTable[0].id = -1;
@@ -1074,7 +1074,7 @@ void ai_CannonShotResults(CANNONSCENE *sc)
     }
 }
 
-float gv_SalvoCharge(); void gv_BuildingCannon(char *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
+float gv_SalvoCharge(); void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
 void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 
@@ -1102,7 +1102,7 @@ void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
     a = d2_GetObjValue(sc->kindSlider);
     b = d2_GetObjValue(sc->speedSlider);
     c = gv_SalvoCharge(a, b, 1);
-    gv_BuildingCannon(rec, (unsigned *)&sc->maxSel, (unsigned *)&sc->kind);
+    gv_BuildingCannon((AIBLD *)rec, (unsigned *)&sc->maxSel, (unsigned *)&sc->kind);
     n = sc->kind;
     if (n < a)
         a = n;
@@ -1249,7 +1249,7 @@ void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int
     sc->now = d3_Time;
 }
 
-void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
+void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 
 /* 0x580160, fires the cannon: sc = the scene, rec = the building record. The two sliders give the cannon kind a
@@ -1270,7 +1270,7 @@ int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side
    (500 / 488), size first, 8 spellings of the charge expression (one code), any D3VECTOR4 subset (64; all
    six best for the frame) (tiebreak: not measured (dcp headers sample ai_CannonExplosion)) prior: x87
    stack allocation and the a * 12 ball index (the original computes it after gv_CannonItemFactor) are left */
-void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
+void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec)
 {
     SHOTREC shotA;
     SHOTREC shotB;
@@ -1326,7 +1326,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         p1.z = t.z + sc->pos.z;
         ai_InitShot(&shotA, &p1, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotA, 0, 0, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotA, 0, 0, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 0;
         y1 = 0;
         z1 = 50;
@@ -1356,7 +1356,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         ai_InitShot(&shotA, &p2, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotB, &shotA, 0, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotB, &shotA, 0, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 5;
         y1 = 0;
         z1 = 40;
@@ -1406,7 +1406,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         ai_ScatterShot(&shotC, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotC, &shotA, &shotB, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotC, &shotA, &shotB, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 5;
         y1 = -3;
         z1 = 40;
