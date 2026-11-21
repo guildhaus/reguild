@@ -2854,7 +2854,7 @@ void he_RunConstruction(int ev)
         best = 1e35f;
         for (i = 0; i < 0x100; i++) {
             if (&ai_Blds[i] != bld && ai_Blds[i].type != 0 && ai_Blds[i].object != 0) {
-                house = (D3OBJECT *)ai_Blds[i].object;
+                house = ai_Blds[i].object;
                 d3_PointToWorld(house, &house->pos, &v);
                 v.x -= site.pos[0];
                 v.y -= site.pos[1];
@@ -2941,7 +2941,7 @@ void he_RunConstruction(int ev)
             best = 1e35f;
             for (i = 0; i < 0x100; i++) {
                 if (&ai_Blds[i] != bld && ai_Blds[i].type != 0 && ai_Blds[i].object != 0) {
-                    house = (D3OBJECT *)ai_Blds[i].object;
+                    house = ai_Blds[i].object;
                     d3_PointToWorld(house, &house->pos, &v);
                     v.x -= at.x;
                     v.y -= at.y;
@@ -6727,7 +6727,7 @@ void he_RunTrialScene(int ev)
             txt_Format(text, 0x4205, bld);
             he_MessageBoxQuickjump(ch->netId, ch->netId, text, 0, 0x5fc, bld->id, grp->objId, ch_EmptyName, ch_EmptyName);
             sc = d3_CurrentScene;
-            sc2 = init_ObjectSceneUniverse((struct AIOBJ *)grp);
+            sc2 = init_ObjectSceneUniverse(grp);
             d3if_SelectScene(sc2, 1);
             o = evt_Load("locations/zirkuszelt/theaterauffuehrung.esc");
             if (o != 0) {

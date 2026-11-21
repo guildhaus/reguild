@@ -4867,7 +4867,7 @@ void ai_MeisterCollectTrans(AICHAR *ch)
         sprintf(buf, "ai_MeisterCollectTrans(): Check um %li:%li Uhr", ai_Time.hour, ai_Time.min);
         n = 0;
         n136 = 0;
-        t = (AIOBJ *)ai_Objects;
+        t = ai_Objects;
         i = 0x5008;
         do {
             if (t->type && ai_Goods[t->type].type == 0x1d && t->bldId == ch->bld->id) {

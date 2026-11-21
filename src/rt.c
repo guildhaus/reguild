@@ -465,7 +465,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
             for (i = 0; i < 0x30; i++)
                 objs[i] = -1;
             n = 0;
-            s = (AIOBJ *)d2_Objs[tabs[d2_Radios[g].sel]].user;
+            s = d2_Objs[tabs[d2_Radios[g].sel]].user;
             if (s != 0)
                 s = gm_Query((void *)s->list, 1, 0, 0xff);
             else

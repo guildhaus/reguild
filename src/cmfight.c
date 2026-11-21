@@ -2217,7 +2217,7 @@ void cm_PlaceFighters(int *ids, char *side)
             rot.x = 0;
             rot.y = 0;
             rot.z = 0;
-            d3_DirToWorld((struct D3OBJECT *)o, &d3_ZAxis, &dir);
+            d3_DirToWorld(o, &d3_ZAxis, &dir);
             rot.y = d3_VecAngle((D3VECTOR *)&d3_ZAxis, &dir);
             d3_SetObjectRot(c->scene->obj, &rot);
         }
