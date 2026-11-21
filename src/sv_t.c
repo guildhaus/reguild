@@ -5028,7 +5028,7 @@ typedef struct GVPICK {
 int gv_OrderSetGraveHolder(); int gv_SizeOpen();
 int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(struct AIBLD *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
-int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
+int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);
 int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay); int ai_MapPick();
 typedef struct GVSEANCE {
@@ -5048,7 +5048,7 @@ void gm_SendMoneyDelta(int a, int b);
 void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
 void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
 struct AICHAR *ai_AmountMenu(); int sv_CheckMoney();
-float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
+float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); struct AIJOB *he_FindEvent(int n, ...);
 int gm_BuildingJob(); 
 int gm_BuildingKindCost(struct AICHAR *c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
 float gm_GoodsPrice(unsigned id, unsigned char p);

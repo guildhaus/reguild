@@ -1680,7 +1680,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
     return r;
 }
 
-int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
+int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);
 
 /* 0x584d70, the helpers window of a building (the form "HANDEL\HANDEL_SUCHEN"): rec = the building. Its type
@@ -1735,7 +1735,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     if (sv_CheckCharacterFlag(rec) != 0)
         return;
     memset(counts, 0, sizeof(counts));
-    for (job = (AIJOB *)he_FindEvent(2, 0, 0x8c, 3, rec->id); job != 0; job = (AIJOB *)he_NextEvent()) {
+    for (job = he_FindEvent(2, 0, 0x8c, 3, rec->id); job != 0; job = he_NextEvent()) {
         for (i = 0; i < 3; i++) {
             if (job->u.w.lo == kinds[i]) {
                 for (j = 0; j < 4; j++)
@@ -1776,7 +1776,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
         ai_UpdateProdGoodsList(rec, res);
         ai_LayoutProdGoodsList(win, 1, 0, rec);
         memset(counts, 0, sizeof(counts));
-        for (job = (AIJOB *)he_FindEvent(2, 0, 0x8c, 3, rec->id); job != 0; job = (AIJOB *)he_NextEvent()) {
+        for (job = he_FindEvent(2, 0, 0x8c, 3, rec->id); job != 0; job = he_NextEvent()) {
             for (i = 0; i < 3; i++) {
                 if (job->u.w.lo == kinds[i]) {
                     for (j = 0; j < 4; j++)
@@ -2966,7 +2966,7 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel)
     return 0;
 }
 
-float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
+float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); struct AIJOB *he_FindEvent(int n, ...);
 
 /* 0x587810, the graveyard's worker upgrade window for the graveyard rec (the contact of ai_GraveyardFogContact): nothing
    while sv_CheckCharacterFlag (rec) holds. Outside the season 2 of the game clock (gm_ClockSeason) and without

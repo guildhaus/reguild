@@ -229,7 +229,7 @@ struct AITIME;
 struct AITIME;
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);   /* 0x4fe140, f3gm.c: adds hours / minutes / seconds to the clock */
 int gm_MinutesBetween(struct AITIME *a, struct AITIME *b);          /* 0x4fe280, f3gm.c: the minutes from clock a to clock b */
-char *ai_FindCurseEvent(struct AIBLD *a);                              /* 0x5741d0, he.c: the pending curse event of the building (as poker.h) */
+struct AIJOB *ai_FindCurseEvent(struct AIBLD *a);                              /* 0x5741d0, he.c: the pending curse event of the building (as poker.h) */
 int gm_CurseObjectCount(struct AIBLD *b);                            /* 0x50cfd0, f3gm.c: 2 + the objects 0x274 / 0x27e / 0x28e / 0x291 of the building (as poker.h) */
 int gm_CurseTargetCount(struct AIBLD *b);                                   /* 0x50d0b0, f3gm.c: counts from the objects 0x284 / 0x289 of the building */
 extern const int ai_CardBack;  /* 0x5ed1bc, poker.c: the picture offset of the card back (another unit's constant: the original loads it from memory) */

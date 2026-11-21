@@ -4049,7 +4049,7 @@ int ai_DecideUseDynastyObject(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         } else {
             if (p->relatives[0] != -1)
                 return 0;
-            for (j = (AIJOB *)he_FindEvent(1, 0, 0x41); j != 0; j = (AIJOB *)he_NextEvent()) {
+            for (j = he_FindEvent(1, 0, 0x41); j != 0; j = he_NextEvent()) {
                 if (j->partner1 == (int)p->netId)
                     break;
             }

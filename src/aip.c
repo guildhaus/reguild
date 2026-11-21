@@ -364,7 +364,7 @@ int ai_DecideSuitor(int a, AICHAR *p, int c, int d, AIARG *m)
     unsigned int fl;
 
     if (ai_Time.year % 4 == p->netId % 4 && gm_FindChar(p->relatives[0]) == 0) {
-        for (r = (AIJOB *)he_FindEvent(1, 0, 0x41); r != 0; r = (AIJOB *)he_NextEvent()) {
+        for (r = he_FindEvent(1, 0, 0x41); r != 0; r = he_NextEvent()) {
             if (r->partner2 == p->netId)
                 return 0;
             if (r->partner1 == p->netId)

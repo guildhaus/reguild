@@ -532,7 +532,7 @@ typedef struct GVPICK {
 int gv_OrderSetGraveHolder(); int gv_SizeOpen();
 int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(struct AIBLD *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
-int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
+int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);
 int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay); int ai_MapPick();
 typedef struct GVSEANCE {
@@ -552,7 +552,7 @@ void gm_SendMoneyDelta(int a, int b);
 void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
 void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
 struct AICHAR *ai_AmountMenu(); int sv_CheckMoney();
-float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
+float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); struct AIJOB *he_FindEvent(int n, ...);
 int gm_BuildingJob(); 
 
 /* dcp unit split: the definitions of svgrave the functions of svtip use */
@@ -1069,7 +1069,7 @@ int ai_OpenCharTooltip(AICHAR *ch)
         if (p != 0 && p->health > 0) {
             io_PrintText(0x30, p->id);
         } else {
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+            for (ev = he_FindEvent(1, 0, 0x41); ev != 0; ev = he_NextEvent()) {
                 if (ev->partner1 == c->netId)
                     break;
             }
@@ -1151,7 +1151,7 @@ void ai_CharInfoWindow(AICHAR *ch)
     if (p != 0 && p->health > 0) {
         io_PrintText(0x30, p->id);
     } else {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x41); ev != 0; ev = he_NextEvent()) {
             if (ev->partner1 == c->netId)
                 break;
         }

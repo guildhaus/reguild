@@ -1753,7 +1753,7 @@ void he_FreeEvent(AIJOB *r)
    (he_Cursor = ++p), the filters copied into locals before the loop (182 bytes), both. Next: what makes
    the cursor rank below the filters or keeps eax from it (a call / return use in its range? the
    err_Message branch?). */
-char *he_NextEvent(void)
+AIJOB *he_NextEvent(void)
 {
     char ok = 0;
     AIJOB *last = 0;
@@ -1806,12 +1806,12 @@ char *he_NextEvent(void)
         }
         he_Cursor++;
     }
-    return (char *)he_Cursor;
+    return he_Cursor;
 }
 /* 0x53e400, starts a search of the event records: n pairs (key, value) set the filter, key 0 the kind (he_FindKind),
    1 the event id (he_FindId), 2 the character index (he_FindChr), 3 the sending building (he_FindFrom), the others
    unset; puts he_Cursor on the first used record (0 when there is none) and returns he_NextEvent's first match */
-char *he_FindEvent(int n, ...)
+AIJOB *he_FindEvent(int n, ...)
 {
     va_list ap;
     int i;
@@ -2130,11 +2130,11 @@ reset:
 
 void he_RecheckPersonEvents(unsigned short *pl)
 {
-    int iv = (int)he_FindEvent(1, 2, *pl);
+    AIJOB *iv = he_FindEvent(1, 2, *pl);
 
     while (iv != 0) {
-        he_RecheckEventPerson((unsigned char *)iv);
-        iv = (int)he_NextEvent();
+        he_RecheckEventPerson(iv);
+        iv = he_NextEvent();
     }
 }
 /* 0x53ed70, the per-frame run of the event records: updates the gfx infos, then calls the run handler (0x758600) of every record (not 0x18 flagged) that is due */
@@ -2322,7 +2322,7 @@ void he_PostEvent2b(void)
 
     memset(&m, 0, sizeof(m));
     for (b = gm_BuildQuery(1, 5, 7); b != 0; b = gm_BuildNext()) {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x2b); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x2b); ev != 0; ev = he_NextEvent()) {
             if (ev->from == b->id) {
                 found = 1;
                 break;
@@ -3073,11 +3073,11 @@ void he_PostEvent3a(void)
 void he_PostEvent3b(void)
 {
     AIMSG m;
-    char *ev;
+    AIJOB *ev;
 
     ev = he_FindEvent(1, 0, 0x3b);
     if (ev != 0)
-        he_FreeEvent((int *)ev);
+        he_FreeEvent(ev);
     m.type = 0x3b;
     m.fromId = -1;
     m.flags = 1;
@@ -3091,11 +3091,11 @@ void he_PostEvent3b(void)
 void he_PostEvent73(void)
 {
     AIMSG m;
-    int r;
+    AIJOB *r;
 
-    r = (int)he_FindEvent(1, 0, 0x73);
+    r = he_FindEvent(1, 0, 0x73);
     if (r != 0)
-        he_FreeEvent((int *)r);
+        he_FreeEvent(r);
     m.type = 0x73;
     m.to = ai_PlayerChar->netId;
     m.fromId = -1;
@@ -3108,11 +3108,11 @@ void he_PostEvent73(void)
 void he_PostEventA6(void)
 {
     AIMSG m;
-    char *ev;
+    AIJOB *ev;
 
     ev = he_FindEvent(1, 0, 0xa6);
     if (ev != 0)
-        he_FreeEvent((int *)ev);
+        he_FreeEvent(ev);
     m.type = 0xa6;
     m.fromId = -1;
     m.flags = 1;
@@ -3708,7 +3708,7 @@ void he_AllocOffer(AIJOB *ev)
     AIJOB *o2;
     HEOFFER *f2;
     AICHAR *q, *p;
-    int r;
+    AIJOB *r;
     unsigned char fl;
     char buf[0x100];
 
@@ -3721,9 +3721,9 @@ void he_AllocOffer(AIJOB *ev)
     e->end = ai_Time;
     fl = e->opts;
     if ((fl & 2) != 0) {
-        r = (int)he_FindEvent(1, 0, 0x2c);
+        r = he_FindEvent(1, 0, 0x2c);
         while (r != 0) {
-            o2 = (AIJOB *)r;
+            o2 = r;
             f2 = (HEOFFER *)r;
             if (o2->id != e->id && f2->kind == o->kind) {
                 if (o2->partner1 == e->partner1) {
@@ -3740,7 +3740,7 @@ void he_AllocOffer(AIJOB *ev)
                     o->clock.min = 0;
                 }
             }
-            r = (int)he_NextEvent();
+            r = he_NextEvent();
         }
         o->offer = cm_SendHandOverCrimes(e->partner1, e->partner2, e->id, 1);
         e->exSlot = cm_SendExSetHE(0, ev);
@@ -4163,7 +4163,7 @@ void he_RunFeastExam(AIJOB *ev)
             return;
         }
     } else if (e->examAt == 1) {
-        feast = (AIJOB *)he_FindEvent(2, 1, e->examFeast, 0, 0x37);
+        feast = he_FindEvent(2, 1, e->examFeast, 0, 0x37);
         if (feast == 0) {
             if (e->slot != 0)
                 he_ReleaseSlot(ev);
@@ -4457,7 +4457,7 @@ void he_AllocCourtship(AIJOB *ev)
         cm_AddFieldDelta(4, 1, 0x5c, &none);    /* b->relatives[0] = -1 */
         cm_SendFieldDeltas();
     }
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x41); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x41); r != 0; r = he_NextEvent()) {
         if (r->partner2 == a->netId) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
@@ -5449,7 +5449,7 @@ void he_RunDuelChallenge(AIJOB *ev)
     AICHAR *q = 0, *p = 0;
     int row[14];                        /* a special-amount row, cm.c's CMAMOUNTROW: [0] the character, [1] its control */
 
-    duel = (AIJOB *)he_FindEvent(1, 1, ((HEDUEL *)e)->duelId);
+    duel = he_FindEvent(1, 1, ((HEDUEL *)e)->duelId);
     if (duel != 0) {
         q = gm_FindChar(duel->partner2);
         p = gm_FindChar(duel->partner1);
@@ -6384,12 +6384,12 @@ void he_RunOffspring(AIJOB *ev)
 void he_StartTrialEvent(AIJOB *ev)
 {
     AIJOB *e = ev;
-    AIJOB *found = (AIJOB *)he_FindEvent(2, 0, 0x5e, 2, e->chr);
+    AIJOB *found = he_FindEvent(2, 0, 0x5e, 2, e->chr);
 
     if (found != 0) {
         do {
             if (found == e) {
-                found = (AIJOB *)he_NextEvent();
+                found = he_NextEvent();
             } else {
                 e->end = ai_Time;
                 e->exSlot = cm_SendExSetHE(-1, ev);
@@ -6472,12 +6472,12 @@ void he_RunTrialEvent(AIJOB *ev)
 void he_StartNextTrialStep(AIJOB *ev)
 {
     AIJOB *e = ev;
-    AIJOB *found = (AIJOB *)he_FindEvent(2, 0, 0x5f, 2, e->chr);
+    AIJOB *found = he_FindEvent(2, 0, 0x5f, 2, e->chr);
 
     if (found != 0) {
         do {
             if (found == e) {
-                found = (AIJOB *)he_NextEvent();
+                found = he_NextEvent();
             } else {
                 e->end = ai_Time;
                 e->exSlot = cm_SendExSetHE(-1, ev);
@@ -6562,14 +6562,14 @@ void he_StartTraining(AIJOB *ev)
         he_FreeEvent(ev);
         return;
     }
-    found = (AIJOB *)he_FindEvent(2, 2, e->chr, 0, 0x60);
+    found = he_FindEvent(2, 2, e->chr, 0, 0x60);
     if (found != 0) {
         do {
             if (found != e) {
                 he_FreeEvent(ev);
                 return;
             }
-            found = (AIJOB *)he_NextEvent();
+            found = he_NextEvent();
         } while (found != 0);
     }
     t->range = (unsigned char)((int)(ai_Chars[e->chr].skills[t->skill] * (1.0f / 42.0f) + 1.0f) + 2) * 2;
@@ -6704,14 +6704,14 @@ void he_StartPlague(AIJOB *ev)
 
     if ((e->opts & 4) != 0)
         return;
-    found = (AIJOB *)he_FindEvent(1, 0, 0x59);
+    found = he_FindEvent(1, 0, 0x59);
     while (found != 0) {
         if (found != e) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
         }
-        found = (AIJOB *)he_NextEvent();
+        found = he_NextEvent();
     }
     e->stage = 5;
     e->end = e->start;
@@ -7138,7 +7138,7 @@ void he_RunProtectionAsk(AIJOB *ev)
     AIBLD *b = 0, *home;
     AITIME now;
 
-    p = (AIJOB *)he_FindEvent(1, 1, e->u.id);
+    p = he_FindEvent(1, 1, e->u.id);
     q = (HEPROTECTION *)p;
     if (p != 0)
         b = gm_BuildQuery(1, 1, q->victim);
@@ -7570,13 +7570,13 @@ void he_RunGathering(AIJOB *ev)
             e->exSlot = cm_SendExSetHE(5, ev);
             return;
         }
-        q = (AIJOB *)he_FindEvent(1, 0, 0x48);
+        q = he_FindEvent(1, 0, 0x48);
         p = q;
         if (q != 0) {
             do {
                 if (strcmp(g->place, ((HEGATHERING *)q)->place) == 0 && e->chr != q->chr)
                     break;
-                q = (AIJOB *)he_NextEvent();
+                q = he_NextEvent();
                 p = q;
             } while (q != 0);
         }
@@ -8860,7 +8860,7 @@ void he_StartDarkCorner(AIJOB *ev)
     e->end = ai_Time;
     e->start = ai_Time;
     gm_AddTime(&e->end, 0, 1, 0);
-    for (o = (AIJOB *)he_FindEvent(1, 0, 0x74); o != 0; o = (AIJOB *)he_NextEvent()) {
+    for (o = he_FindEvent(1, 0, 0x74); o != 0; o = he_NextEvent()) {
         if (o->id != e->id && ((HEDARKCORNER *)o)->victim == d->victim) {
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
@@ -10963,7 +10963,7 @@ void he_EndPersonEvents(AICHAR *p)
 
     if (c == 0 || c->id == 0xffff)
         return;
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x41); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x41); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) == 0)
             continue;
         if (e->partner1 == c->netId) {
@@ -10974,7 +10974,7 @@ void he_EndPersonEvents(AICHAR *p)
             he_EndEventNow(e);
         }
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x6f); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x6f); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) == 0)
             continue;
         a = e->partner1;
@@ -10987,7 +10987,7 @@ void he_EndPersonEvents(AICHAR *p)
         gm_FindChar(b);
         he_EndEventNow(e);
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x45); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x45); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) == 0)
             continue;
         a = e->partner1;
@@ -11000,7 +11000,7 @@ void he_EndPersonEvents(AICHAR *p)
             he_EndEventNow(e);
         }
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x2c); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x2c); e != 0; e = he_NextEvent()) {
         HEOFFER *o = (HEOFFER *)e;
 
         if ((e->opts & 3) == 0)
@@ -11013,17 +11013,17 @@ void he_EndPersonEvents(AICHAR *p)
             he_EndEventNow(e);
         }
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x47); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x47); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) == 0)
             continue;
         if (e->partner1 == c->netId || e->partner2 == c->netId)
             he_EndEventNow(e);
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x5e); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x5e); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) != 0 && ((HETRIAL *)e)->teacher == c->netId)
             he_EndEventNow(e);
     }
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x5f); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x5f); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) != 0 && ((HETRIALSTEP *)e)->teacher == c->netId)
             he_EndEventNow(e);
     }
@@ -11052,7 +11052,7 @@ int he_DetectAttack(int p)
     seen = 0;
     if (d->bld == 0 || d->bld->object == 0)
         return 0;
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x43); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x43); e != 0; e = he_NextEvent()) {
         if (best != 0)
             break;
         w = (HEWATCH *)e;
@@ -11109,7 +11109,7 @@ int he_NoProtectionEvent(AIBLD *p)
 
     if (b == 0)
         return 1;
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x62); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x62); e != 0; e = he_NextEvent()) {
         pr = (HEPROTECTION *)e;
         if (pr->victim == b->id && pr->answer == 1)
             return 0;
@@ -11125,7 +11125,7 @@ int he_NoEvent2ePair(AICHAR *a, AICHAR *b)
     AICHAR *cb = b;
     AIJOB *e;
 
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x2e); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x2e); e != 0; e = he_NextEvent()) {
         if (cb->netId == e->partner1 && e->partner2 == ca->netId)
             return 0;
     }
@@ -11140,7 +11140,7 @@ int he_NoEvent4bPair(AICHAR *a, AICHAR *b)
     AICHAR *cb = b;
     AIJOB *e;
 
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x4b); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x4b); e != 0; e = he_NextEvent()) {
         if (cb->netId == e->partner2 && ca->netId == e->partner1)
             return 0;
     }
@@ -11155,11 +11155,11 @@ int he_NoEvent35Pair(unsigned short *a, AICHAR *b, int *count)
     AIJOB *e;
     int n = 0;
 
-    e = (AIJOB *)he_FindEvent(2, 2, *a, 0, 0x35);
+    e = he_FindEvent(2, 2, *a, 0, 0x35);
     while (e != 0) {
         if (c->netId == e->idbc)
             return 0;
-        e = (AIJOB *)he_NextEvent();
+        e = he_NextEvent();
         n++;
     }
     if (count != 0)
@@ -13571,7 +13571,7 @@ void he_AllocSpying(AIJOB *ev)
     s->at = -1;
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 1, 0);
-    for (o = (AIJOB *)he_FindEvent(1, 0, 0x18); o != 0; o = (AIJOB *)he_NextEvent()) {
+    for (o = he_FindEvent(1, 0, 0x18); o != 0; o = he_NextEvent()) {
         if (e->chr == o->chr && o->id != e->id && ((HESPYING *)o)->victim == s->victim) {
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
@@ -14857,7 +14857,7 @@ void he_AllocMasterExamPass(AIJOB *ev)
     AIJOB *exam;
 
     gm_FindChar(e->ownerCh);
-    exam = (AIJOB *)he_FindEvent(2, 2, e->chr, 0, 0x25);
+    exam = he_FindEvent(2, 2, e->chr, 0, 0x25);
     if (exam != 0)
         exam->stage = -1;
     e->end = ai_Time;
@@ -15270,7 +15270,7 @@ void he_AllocEvent32(AIJOB *ev)
     AIJOB *e;
     AICHAR *p;
 
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x32); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x32); e != 0; e = he_NextEvent()) {
         if (e != j && j->ownerCh == e->ownerCh) {
             he_FreeEvent(ev);
             return;
@@ -16768,7 +16768,7 @@ void he_AllocBurglary(AIJOB *ev)
     HEBURGLARY *x = (HEBURGLARY *)ev;
     AIJOB *o;
 
-    for (o = (AIJOB *)he_FindEvent(1, 0, 0x3f); o != 0; o = (AIJOB *)he_NextEvent()) {
+    for (o = he_FindEvent(1, 0, 0x3f); o != 0; o = he_NextEvent()) {
         if (o != ev && ((HEBURGLARY *)o)->target == x->target) {
             ev->stage = -1;
             break;
@@ -17379,9 +17379,9 @@ void he_RunAmbush(AIJOB *ev)
                 }
             }
             he_CharacterBehavior(ev, (float *)&pos);
-            busy = (AIJOB *)he_FindEvent(1, 0, 0x51);
-            t = (AIJOB *)he_FindEvent(1, 0, 0xf);
-            for (; all != 0 && o != 0 && t != 0 && n < 3; t = (AIJOB *)he_NextEvent()) {
+            busy = he_FindEvent(1, 0, 0x51);
+            t = he_FindEvent(1, 0, 0xf);
+            for (; all != 0 && o != 0 && t != 0 && n < 3; t = he_NextEvent()) {
                 unsigned goods[0x2e];
                 CHARACTER *task;
 
@@ -17853,7 +17853,7 @@ void he_RunFire(AIJOB *ev)
         ev->stage++;
         return;
     case 3:
-        for (e = (AIJOB *)he_FindEvent(1, 0, 0x4f); e != 0; e = (AIJOB *)he_NextEvent()) {
+        for (e = he_FindEvent(1, 0, 0x4f); e != 0; e = he_NextEvent()) {
             if (((HEBURN *)e)->fire == ev->id) {
                 ev->end = ai_Time;
                 gm_AddTime(&ev->end, 0, 10, 0);
@@ -18453,7 +18453,7 @@ void he_AllocKillPlayer(AIJOB *ev)
         he_FreeEvent(ev);
         return;
     }
-    for (o = (AIJOB *)he_FindEvent(1, 0, 0x72); o != 0; o = (AIJOB *)he_NextEvent()) {
+    for (o = he_FindEvent(1, 0, 0x72); o != 0; o = he_NextEvent()) {
         if (o != ev && ((HEKILL *)o)->chr == x->chr) {
             he_FreeEvent(ev);
             return;

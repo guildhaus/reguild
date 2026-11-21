@@ -1328,7 +1328,7 @@ void he_EndKind23Events(AICHAR *rec)
     AICHAR *c = rec;
     AIJOB *e;
 
-    for (e = (AIJOB *)he_FindEvent(1, 0, 0x23); e != 0; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(1, 0, 0x23); e != 0; e = he_NextEvent()) {
         if ((e->opts & 3) != 0 && ((HELOAN *)e)->partner == c->netId)
             he_EndEventNow(e);
     }
@@ -1744,7 +1744,7 @@ wait:
                 }
             }
             if (p->lacking != 0) {
-                box = (AIJOB *)he_FindEvent(2, 0, 0x11, 3, ev->id);
+                box = he_FindEvent(2, 0, 0x11, 3, ev->id);
                 if (box != 0)
                     he_FreeEvent(box);
                 p->lacking = 0;
@@ -2050,7 +2050,7 @@ void he_AllocTrade(AIJOB *ev)
     AIMSG msg;
     AIJOB *e2;
 
-    for (e2 = (AIJOB *)he_FindEvent(2, 0, 0xb, 3, ev->from); e2 != 0; e2 = (AIJOB *)he_NextEvent()) {
+    for (e2 = he_FindEvent(2, 0, 0xb, 3, ev->from); e2 != 0; e2 = he_NextEvent()) {
         if (((HETRADE *)e2)->cart == p->cart && e2->id != ev->id) {
             he_FreeEvent(ev);
             return;
@@ -2150,7 +2150,7 @@ void he_RunTrade(AIJOB *ev)
         goto done;
     if (bld == 0)
         goto done;
-    for (e = (AIJOB *)he_FindEvent(2, 0, 0xf, 2, ev->chr); ; e = (AIJOB *)he_NextEvent()) {
+    for (e = he_FindEvent(2, 0, 0xf, 2, ev->chr); ; e = he_NextEvent()) {
         if (e == 0)
             break;
         if (((HETRANSPORT *)e)->cart == t->cart)
@@ -2396,10 +2396,11 @@ void he_AllocGebaeudeBauen(AIJOB *ev)
     HEBUILD *b = (HEBUILD *)ev;
     char buf[0x80];
     char tab[0x400];
-    int e2, n, i, scene;
+    AIJOB *e2;
+    int n, i, scene;
 
-    for (e2 = (int)he_FindEvent(1, 0, 0xd); e2 != 0; e2 = he_NextEvent()) {
-        if (e2 != ev && ((AIJOB *)e2)->stage < 5)
+    for (e2 = he_FindEvent(1, 0, 0xd); e2 != 0; e2 = he_NextEvent()) {
+        if (e2 != ev && e2->stage < 5)
             goto done;
     }
     e->end = e->start;
@@ -3740,7 +3741,7 @@ void he_AllocSecretRoom(AIJOB *e)
 
     if (e->opts & 4)
         return;
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x99); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x99); r != 0; r = he_NextEvent()) {
         if (r != e && r->chr == e->chr)
             goto taken;
     }
@@ -3980,7 +3981,7 @@ void he_RunSecretRoom(AIJOB *ev)
             e->exSlot = cm_SendExSetHE(4, ev);
             return;
         }
-        caught = he_SecretRoomCatchSpy(agent, ev, (AIJOB *)he_FindEvent(2, 0, 0x18, 1, s->spyEvent));
+        caught = he_SecretRoomCatchSpy(agent, ev, he_FindEvent(2, 0, 0x18, 1, s->spyEvent));
         if (caught == 0) {
             gm_AddTime(&e->end, 0, 6, 0);
             e->end = ai_Time;
@@ -4058,7 +4059,7 @@ int he_EventOnBuilding(int owner)
 {
     AIJOB *r;
 
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x99); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x99); r != 0; r = he_NextEvent()) {
         if (((HESECRETROOM *)r)->home == owner)
             return 1;
     }
@@ -4136,7 +4137,7 @@ int he_NoEvent9aFor(int bldId, AICHAR *c)
 {
     AIJOB *r;
 
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x9a); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x9a); r != 0; r = he_NextEvent()) {
         if (r->bldId == bldId && r->id2 == c->netId)
             return 0;
     }
@@ -4149,7 +4150,7 @@ int he_NoEvent9bFor(AICHAR *a)
 {
     AIJOB *r;
 
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x9b); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x9b); r != 0; r = he_NextEvent()) {
         if (r->partner1 == (int)a->netId)
             return 0;
     }
@@ -4230,7 +4231,7 @@ AIJOB *he_FindNearestSpying(AICHAR *per, AICHAR *agent, int skip)
     here.y = (body->pos.y);
     here.z = (body->pos.z);
     he_FindEvent(1, 0, 0x18);
-    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
         if (ev->stage == -1 || ev->stage == -2 || skip == ev->id)
             continue;
         if (((HESPYING *)ev)->victim != per->netId)
@@ -4410,7 +4411,7 @@ void he_AllocHaunting(AIJOB *ev)
 
     if (e->opts & 4)
         return;
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x88); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x88); r != 0; r = he_NextEvent()) {
         if (r != e && r->chr == e->chr && ((HEHAUNTING *)r)->victim == h->victim)
             break;
     }
@@ -4545,7 +4546,7 @@ void he_AllocDecay(AIJOB *ev)
     if (e->opts & 4)
         return;
     per = gm_FindChar(d->victim);
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x89); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x89); r != 0; r = he_NextEvent()) {
         if (r != e && r->chr == e->chr && ((HEDECAY *)r)->victim == d->victim)
             break;
     }
@@ -4959,7 +4960,7 @@ int he_NoEvent88Pair(AICHAR *a, AICHAR *b)
 {
     AIJOB *r;
 
-    for (r = (AIJOB *)he_FindEvent(1, 0, 0x88); r != 0; r = (AIJOB *)he_NextEvent()) {
+    for (r = he_FindEvent(1, 0, 0x88); r != 0; r = he_NextEvent()) {
         if ((unsigned int)b->netId == r->chr && ((HEHAUNTING *)r)->victim == a->netId)
             return 0;
     }
@@ -5414,14 +5415,14 @@ void he_AllocMeeting(AIJOB *ev)
     AIJOB *e = ev;
     HEMEETING *m = (HEMEETING *)ev;
     AIMSG msg;
-    char *r;
+    AIJOB *r;
 
     e->stage = 0;
     if (e->opts & 4)
         return;
     e->end = ai_Time;
     for (r = he_FindEvent(2, 0, 0x90, 3, e->from); r != 0; r = he_NextEvent()) {
-        if ((int)r != ev) {
+        if (r != ev) {
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
         }
@@ -5679,7 +5680,7 @@ void he_RunMeetingScene(AIJOB *ev)
     D3VECTOR4 p;                        /* the engine's padded vector (the original's frame is 0x10) */
     int scene;
 
-    other = (AIJOB *)he_FindEvent(1, 1, m->partner);
+    other = he_FindEvent(1, 1, m->partner);
     bld = gm_BuildQuery(1, 1, e->from);
     if (bld != 0 && bld->object != 0 && other != 0 &&
         other->stage != -2 && other->stage != -1) {
@@ -6057,7 +6058,7 @@ done:
 int he_HasGraveWork(AIBLD *bld, int size, int index)
 {
     HEGRAVECARE *g;
-    char *ev;
+    AIJOB *ev;
 
     ev = he_FindEvent(2, 3, bld->id, 0, 0x8d);
     while (ev != 0) {
@@ -6616,7 +6617,7 @@ void he_AllocTrialScene(AIJOB *ev)
 
 /* 0x5741d0, the curse event 0xa0 the building `a` sent (he_FindEvent (2, 0, 0xa0, 3, a->id): its from id), 0 when none */
 
-char *ai_FindCurseEvent(AIBLD *a)
+AIJOB *ai_FindCurseEvent(AIBLD *a)
 {
     return he_FindEvent(2, 0, 0xa0, 3, a->id);
 }

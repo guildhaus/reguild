@@ -72,8 +72,8 @@ void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, 
 
 unsigned char * he_CreateEvent(unsigned char *m);
 void he_FreeEvent(struct AIJOB *r);
-char *he_NextEvent(void);
-char *he_FindEvent(int n, ...);
+struct AIJOB *he_NextEvent(void);
+struct AIJOB *he_FindEvent(int n, ...);
 int he_NoEvent9aFor(int bldId, struct AICHAR *c);   /* 0x56f360, 1 when no running type 0x9a event has both the building bldId and the netId of the character c */
 int he_NoEvent9bFor(struct AICHAR *a);   /* 0x56f3b0, 1 when no running domicile event 0x9b has the netId of the character a as its partner1 */
 void he_LabIncident(struct AICHAR *c, struct AIJOB *ev, struct AIBLD *b, int state);  /* 0x56e070 */
@@ -193,7 +193,7 @@ int he_EventOnBuilding(int owner);  /* 0x56f170 */
 int he_NoEvent88Pair(struct AICHAR *a, struct AICHAR *b);  /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character and a's netId as its victim */
 int he_IsMessageKindFiltered(int id);  /* 0x575640 */
 int he_RandomTransporter(struct D3OBJECT *obj);  /* 0x555210 */
-char *ai_FindCurseEvent(struct AIBLD *a);  /* 0x5741d0 */
+struct AIJOB *ai_FindCurseEvent(struct AIBLD *a);  /* 0x5741d0 */
 int he_HasGraveWork(struct AIBLD *bld, int size, int index);  /* 0x573200, 1 when a work event 0x8d of bld is pending on the grave (size, index) */
 int he_NoEvent35Pair(unsigned short *a, struct AICHAR *b, int *count);  /* 0x553db0 */
 

@@ -319,7 +319,7 @@ float gm_Liking();                   /* 0x50c550 */
 void gv_SendCrimes(void);               /* 0x4f3700 */
 int gv_RetireCrime(int id, int m);       /* 0x4f37e0 */
 void gv_SortCrimesByLaw(int n, CRIME *r);     /* 0x4f4390 */
-char * he_FindEvent(int n, ...);         /* 0x53e400, as he.h */
+struct AIJOB *he_FindEvent(int n, ...);         /* 0x53e400, as he.h */
 int cm_GetSlotState();                     /* 0x4c3ae0 */
 void sv_PumpNet();                    /* 0x52fe00 */
 extern unsigned short ai_PlayerId;     /* 0x6f25b8 */
@@ -354,7 +354,7 @@ void gv_PassSentence(struct AICHAR *c, int a, struct AICHAR *judge, struct AICHA
 void gv_SentenceText(unsigned short *c, int a, char *out);  /* 0x4f48f0 */
 
 unsigned ord_ApplyForOffice(struct AICHAR *c, int *m);  /* 0x4f4e20 */
-char * he_NextEvent(void);                   /* 0x53e300 */
+struct AIJOB *he_NextEvent(void);                   /* 0x53e300 */
 
 int ord_LevelOrder(struct AICHAR *c, int *m);     /* 0x4f4f20 */
 int ord_ChangeProfessionOrder(struct AICHAR *c, int *m);     /* 0x4f4ff0 */

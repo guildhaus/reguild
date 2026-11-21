@@ -838,7 +838,7 @@ float gm_GoodsPrice(unsigned id, unsigned char p);   /* 0x5089c0, the price (ai.
 void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its first call (line 1119) */
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
-int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
+int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
@@ -966,7 +966,7 @@ int ai_ProductionWindow(AIBLD *bld)
                     sv_MessageBox(txt_Ptrs[0xc0], ok);
                     continue;
                 }
-                for (job = (AIJOB *)he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+                for (job = he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = he_NextEvent())
                     if (job->u.w.lo == ai_ProdColumns[c].good)
                         break;
                 if (job == 0 && ai_ScriptQuery(0x20, bld, 0, ai_ProdColumns[c].good) == 1) {
@@ -1077,7 +1077,7 @@ int ai_ProductionWindow(AIBLD *bld)
 }
 
 int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
-void d2_RemoveObj(int obj); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
+void d2_RemoveObj(int obj); int gm_MinutesBetween(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 
 /* 0x58c680, shows the ncols goods columns (ai_ProdColumns) of the resource window in the form win / its part form:
@@ -1151,9 +1151,9 @@ void ai_UpdateResourceColumns(int win, int part, int ncols, int unused)
         }
         d2_Objs[ai_ProdColumns[c].pic].icon = worst + 0x750;
         if (c == 0) {
-            job = (AIJOB *)he_FindEvent(2, 0, 9, 3, bld->id);
+            job = he_FindEvent(2, 0, 9, 3, bld->id);
         } else {
-            for (job = (AIJOB *)he_FindEvent(2, 0, 8, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+            for (job = he_FindEvent(2, 0, 8, 3, bld->id); job != 0; job = he_NextEvent())
                 if (job->u.w.lo == ai_ProdColumns[c].good)
                     break;
         }
@@ -1298,11 +1298,11 @@ void ai_UpdateProdColumns(int win, int part, int ncols, int store, int mode)
             }
         }
         d2_Objs[ai_ProdColumns[c].pic].icon = worst + 0x750;
-        for (job = (AIJOB *)he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+        for (job = he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = he_NextEvent())
             if (job->u.w.lo == ai_ProdColumns[c].good)
                 break;
         if (job == 0)
-            for (job = (AIJOB *)he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+            for (job = he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = he_NextEvent())
                 if (job->u.w.lo == ai_ProdColumns[c].good)
                     break;
         if (job == 0 || (job->words14[0] == 0 && job->words14[1] == 0)) {
@@ -1807,11 +1807,11 @@ void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned c
             d2_Objs[slot->buyPriceText].font = 0x54;
             d2_Objs[slot->buyPriceText].rightAligned = 1;
         }
-        for (job = (AIJOB *)he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+        for (job = he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = he_NextEvent())
             if (job->u.w.lo == slot->good)
                 break;
         if (job == 0)
-            for (job = (AIJOB *)he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+            for (job = he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = he_NextEvent())
                 if (job->u.w.lo == slot->good)
                     break;
         if (job == 0 || (job->words14[0] == 0 && job->words14[1] == 0)) {
@@ -3288,11 +3288,11 @@ void lc_PlayerInJail(void)
     AIBLD *it;
     AIOBJ *r;
 
-    b = (AIJOB *)he_FindEvent(1, 0, 0x3d);
+    b = he_FindEvent(1, 0, 0x3d);
     while (b != 0) {
         if (((LCFIREEVENT *)b)->bld == ai_CharInts[ai_PlayerId][0])
             break;
-        b = (AIJOB *)he_NextEvent();
+        b = he_NextEvent();
     }
     if (b != 0) {
         it = gm_BuildQuery(1, 5, 4);
@@ -3655,7 +3655,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                 }
                 if (c == 0) {
                     snd_PlayFavourComment();
-                    job = (AIJOB *)he_FindEvent(2, 0, 9, 3, bld->id);
+                    job = he_FindEvent(2, 0, 9, 3, bld->id);
                     if (job == 0) {
                         memset(&msg, 0, sizeof(msg));
                         msg.type = 9;
@@ -3675,7 +3675,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                     }
                 } else {
                     snd_PlayFavourComment();
-                    for (job = (AIJOB *)he_FindEvent(2, 0, 8, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+                    for (job = he_FindEvent(2, 0, 8, 3, bld->id); job != 0; job = he_NextEvent())
                         if (job->u.w.lo == ai_ProdColumns[c].good)
                             break;
                     if (job == 0) {
@@ -3848,7 +3848,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
                     continue;
                 }
                 snd_PlayFavourComment();
-                for (job = (AIJOB *)he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+                for (job = he_FindEvent(2, 0, 3, 3, bld->id); job != 0; job = he_NextEvent())
                     if (job->u.w.lo == ai_ProdColumns[c].good)
                         break;
                 if (job == 0) {
@@ -4016,7 +4016,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                                 ai_Chars[sv_MemberRows[i].chr].selected = 1;
                         }
                     } else {
-                        for (job = (AIJOB *)he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+                        for (job = he_FindEvent(2, 0, 4, 3, bld->id); job != 0; job = he_NextEvent())
                             if (job->u.w.lo == ai_ProdColumnSlots[c].good)
                                 break;
                         if (job == 0) {
@@ -4495,8 +4495,8 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
             continue;
         if (d2_PointerObj == send) {
             bld = ai_FallbackBuilding;
-            for (ev = (AIJOB *)he_FindEvent(3, 0, 0x49, 2, bld->owner, 3, bld->id); ev != 0;
-                 ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(3, 0, 0x49, 2, bld->owner, 3, bld->id); ev != 0;
+                 ev = he_NextEvent())
                 if (ev->bldId == target->id)
                     break;
             if (ev == 0) {
@@ -4583,7 +4583,7 @@ int ai_BribeCallback(char *place, AIBLD *target)
 
     if (target == 0)
         return 0;
-    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x62); ev != 0; ev = (AIJOB *)he_NextEvent())
+    for (ev = he_FindEvent(1, 0, 0x62); ev != 0; ev = he_NextEvent())
         if (ev->id2 == target->id)
             break;
     if (ev != 0) {
@@ -4710,7 +4710,7 @@ void ai_BriberyWindow(char *place, AIBLD *target)
         for (o = gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
             if (o->reportBld != target->id)
                 reports[n++] = o;
-    for (ev = (AIJOB *)he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = he_NextEvent()) {
         for (i = 0; i < n; i++)
             if (ev->bldId == reports[i]->reportBld)
                 break;
@@ -5876,7 +5876,7 @@ void ai_MistressWindow(AIBLD *bld)
         n = 0;
         memset(charIds, 0xff, sizeof(charIds));
         memset(evIds, 0xff, sizeof(evIds));
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = he_NextEvent()) {
             if (ev->partner1 == ai_CharInts[ai_PlayerId][0]) {
                 evIds[n] = ev->id;
                 if (ev->stage == 0)
@@ -5937,7 +5937,7 @@ void ai_MistressWindow(AIBLD *bld)
                     if (d2_PointerObj == ctl[i]) {
                         AICHAR *ch = gm_FindChar(charIds[i]);
 
-                        ev = (AIJOB *)he_FindEvent(1, 1, evIds[i]);
+                        ev = he_FindEvent(1, 1, evIds[i]);
                         d2_SetViewEnabled(win, 0);
                         ai_MistressAffairWindow(&ai_Chars[ai_PlayerId], ch, ev);
                         d2_SetViewEnabled(win, 1);
@@ -5998,7 +5998,7 @@ void ai_MasterExamWindow(AIBLD *bld)
     sv_FitForm(d2_LastWindow);
     sv_ResetScreenClip();
     served = gm_TitlePeriodServed(ai_PlayerId, (int *)&left);
-    exam = (AIJOB *)he_FindEvent(2, 2, ai_PlayerId, 0, 0x26);
+    exam = he_FindEvent(2, 2, ai_PlayerId, 0, 0x26);
     if (exam == 0 && served >= 1.0 && next <= 6) {
         title = ch->sex != 0 ? 0x18f : 0x130;   /* the job titles' texts: 0x130.., female 0x18f.. */
 
@@ -7005,7 +7005,7 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
 void ai_OpenStammtisch(AIBLD *bld, AIOBJ *room)
 {
     AIOBJ *rec;
-    int b;
+    AIJOB *b;
 
     rec = gm_Query(room->list, 1, 0, 0x12d);
     if (rec != 0) {
@@ -7103,7 +7103,7 @@ void ai_DarkCornerMenu(AIBLD *bld, AIOBJ *room, AIOBJ *corner)
             changed = 0;
             found = 0;
             ctl = -1;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x74); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+            for (ev = he_FindEvent(1, 0, 0x74); ev != 0; ev = he_NextEvent()) {
                 if (ev->id2 == bld->id) {
                     found = 1;
                     break;
@@ -8861,7 +8861,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
     return sent;
 }
 
-int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
+int gm_SumListAmounts(void *list, unsigned char p); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
@@ -8952,7 +8952,7 @@ void ai_MoneyExchangeWindow(AIBLD *bank)
         if (playerRows[i].icon != -1)
             d2_SetObjEnabled(playerRows[i].icon, 0);
     while (sv_RunFrame(ai_MoneyExchangeWindow, 0x677c7) != 0) {
-        for (payment = (AIJOB *)he_FindEvent(1, 0, 0x27); payment != 0; payment = (AIJOB *)he_NextEvent())
+        for (payment = he_FindEvent(1, 0, 0x27); payment != 0; payment = he_NextEvent())
             if (payment->bldId == bank->id)
                 break;
         d2_SetForm(win, 2);
@@ -9934,7 +9934,7 @@ void ai_BuyBuildingWindow(void)
             for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                 if ((b->flags5a & 2) == 0)
                     continue;
-                for (sale = (AIJOB *)he_FindEvent(1, 0, 0x1b); sale != 0; sale = (AIJOB *)he_NextEvent())
+                for (sale = he_FindEvent(1, 0, 0x1b); sale != 0; sale = he_NextEvent())
                     if (sale->bldId == b->id)
                         break;
                 if (sale == 0)
@@ -11434,7 +11434,7 @@ void ai_SermonWindow(AIBLD *bld)
             cm_ExecCommands();
         }
     }
-    ev = (AIJOB *)he_FindEvent(2, 0, 0x2b, 3, bld->id);
+    ev = he_FindEvent(2, 0, 0x2b, 3, bld->id);
     if (ev == 0) {
         msg.time = ai_Time;
         msg.type = 0x2b;
@@ -11977,7 +11977,7 @@ void ai_BurglaryStart(AIBLD *building)
     sv_ClearSelection();
 }
 
-char * he_NextEvent(void);
+struct AIJOB *he_NextEvent(void);
 
 /* 0x5a41d0, the thieves' guild spying window "locations\diebesgilde\diebesgilde_spionage" (the map pick's callback:
    ai_MapPick calls it with its context, not read here, and the picked building target; nothing for none or an
@@ -12028,7 +12028,7 @@ int ai_GuildSpyWindow(int ctx, AIBLD *target)
         for (o = gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
             if (o->reportBld != target->id)
                 reports[n++] = o;
-    for (ev = (AIJOB *)he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = he_NextEvent()) {
         for (i = 0; i < n; i++)
             if (ev->bldId == reports[i]->reportBld)
                 break;
@@ -12252,9 +12252,9 @@ int ai_AttackWindow(int ctx, AIBLD *target)
         if (d2_ClickedId == -1)
             continue;
         if (d2_PointerObj == ok) {
-            for (ev = (AIJOB *)he_FindEvent(3, 0, 0x49, 2, ai_PlayerBuilding->owner,
+            for (ev = he_FindEvent(3, 0, 0x49, 2, ai_PlayerBuilding->owner,
                                             3, ai_PlayerBuilding->id);
-                 ev != 0; ev = (AIJOB *)he_NextEvent())
+                 ev != 0; ev = he_NextEvent())
                 if (ev->bldId == target->id)
                     break;
             if (ev == 0) {
@@ -12637,13 +12637,13 @@ void ai_KidnapStart(AIBLD *bld)
 
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
-    for (rec = (AIJOB *)he_FindEvent(1, 0, 0x3c); rec != 0; rec = (AIJOB *)he_NextEvent()) {
+    for (rec = he_FindEvent(1, 0, 0x3c); rec != 0; rec = he_NextEvent()) {
         if (((LCKIDNAPEVENT *)rec)->guild == bld->id) {
             sv_MessageBox(ai_TextKidnapMessage, 0);
             return;
         }
     }
-    for (rec = (AIJOB *)he_FindEvent(1, 0, 0x3d); rec != 0; rec = (AIJOB *)he_NextEvent()) {
+    for (rec = he_FindEvent(1, 0, 0x3d); rec != 0; rec = he_NextEvent()) {
         if (((LCRANSOMEVENT *)rec)->guild == bld->id) {
             ch = gm_FindChar(((LCRANSOMEVENT *)rec)->victim);
             if (ch != 0 && ch->heldRounds > 0) {
@@ -12703,7 +12703,7 @@ void ai_RansomWindow(AIBLD *bld)
         sv_MessageBox(txt_Ptrs[0x19c8], 0);
         return;
     }
-    for (demand = (AIJOB *)he_FindEvent(1, 0, 0x3e); demand != 0; demand = (AIJOB *)he_NextEvent())
+    for (demand = he_FindEvent(1, 0, 0x3e); demand != 0; demand = he_NextEvent())
         if (((LCRANSOMEVENT *)demand)->victim == victim->netId) {
             txt_Format(text, 0x19c9, victim->id);
             sv_MessageBox(text, 0);

@@ -977,7 +977,7 @@ int cm_CheckTrial(G28REC *p)
     else if (c0->heldRounds != 0) {
         held = c0;
         code = 7;
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+        for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
             if (ev->ownerCh == c0->netId) {
                 code = 6;
                 break;
@@ -990,7 +990,7 @@ int cm_CheckTrial(G28REC *p)
         else if (c0->heldRounds != 0) {
             held = c0;
             code = 7;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
                 if (ev->ownerCh == c0->netId) {
                     code = 6;
                     break;
@@ -1004,7 +1004,7 @@ int cm_CheckTrial(G28REC *p)
         else if (c2->heldRounds != 0) {
             held = c2;
             code = 7;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
                 if (ev->ownerCh == c2->netId) {
                     code = 6;
                     break;
@@ -1018,7 +1018,7 @@ int cm_CheckTrial(G28REC *p)
         else if (c3->heldRounds != 0) {
             held = c3;
             code = 7;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
                 if (ev->ownerCh == c3->netId) {
                     code = 6;
                     break;
@@ -1032,7 +1032,7 @@ int cm_CheckTrial(G28REC *p)
         else if (c4->heldRounds != 0) {
             held = c4;
             code = 7;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
                 if (ev->ownerCh == c4->netId) {
                     code = 6;
                     break;
@@ -1046,7 +1046,7 @@ int cm_CheckTrial(G28REC *p)
         else if (c5->heldRounds != 0) {
             held = c5;
             code = 7;
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (AIJOB *)he_NextEvent())
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
                 if (ev->ownerCh == c5->netId) {
                     code = 6;
                     break;

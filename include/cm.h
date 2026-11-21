@@ -132,7 +132,7 @@ extern signed char ai_RelationMemory[0x300][0x300];  /* 0x889f80 */
 extern int ai_NextEventId;                /* 0x6f2618 */
 int he_IsMessageKindFiltered(int id);                                                        /* 0x575640 */
 unsigned char * he_CreateEvent(unsigned char *m);                                                   /* 0x53e040, AIMSG * */
-char * he_FindEvent(int n, ...);                                                  /* 0x53e400, ai.h: AIJOB * */
+struct AIJOB *he_FindEvent(int n, ...);                                                  /* 0x53e400, ai.h: AIJOB * */
 extern int ai_NextObjectId;                /* 0x61a654 */
 unsigned char * gm_CreateBuilding(unsigned char kind, unsigned short owner);                    /* 0x501580 */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8); /* 0x507690 */
@@ -351,7 +351,7 @@ void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py);  /* 0x4f8
 char ord_RandomCellPoint();  /* 0x4f86a0 */
 void ord_AdvanceRatingBase(void);  /* 0x4f9c00, ord.c */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
-char * he_NextEvent(void);  /* 0x53e300 */
+struct AIJOB *he_NextEvent(void);  /* 0x53e300 */
 void he_RunEvents();  /* 0x53ed70 */
 void ai_NotifyPlayerOfChar(struct AICHAR *cRec, struct AICHAR *pRec);  /* 0x5a9170 */
 void lc_UpdateGoodsReserves(void);  /* 0x5ba750 */

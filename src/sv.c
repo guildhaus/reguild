@@ -3737,7 +3737,7 @@ void sv_RefreshPanel(void)
         d2_SetObjValue(sv_PanelHealthBar, 0, 100, level);
         fl = sv_SelectedObject->flags5aw;
         if ((fl & 4) != 0) {
-            j = (AIJOB *)he_FindEvent(2, 0, 0x1c, 3, sv_SelectedObject->id);
+            j = he_FindEvent(2, 0, 0x1c, 3, sv_SelectedObject->id);
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end8f);
@@ -3747,7 +3747,7 @@ void sv_RefreshPanel(void)
                 sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
             }
         } else if ((fl & 1) != 0) {
-            j = (AIJOB *)he_FindEvent(2, 0, 0xd, 3, sv_SelectedObject->id);
+            j = he_FindEvent(2, 0, 0xd, 3, sv_SelectedObject->id);
             prog = 0.05f;
             if (j != 0) {
                 if (j->stage >= 4)
@@ -3760,7 +3760,7 @@ void sv_RefreshPanel(void)
             }
             ((D2OBJ *)d2_Objs)[sv_PanelBldPic].fillFraction = prog;
         } else if ((fl & 0x40) != 0) {
-            j = (AIJOB *)he_FindEvent(2, 0, 0x1e, 3, sv_SelectedObject->id);
+            j = he_FindEvent(2, 0, 0x1e, 3, sv_SelectedObject->id);
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end);
@@ -3770,7 +3770,7 @@ void sv_RefreshPanel(void)
                 sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
             }
         } else if ((fl & 0x80) != 0) {
-            j = (AIJOB *)he_FindEvent(2, 0, 0x1f, 3, sv_SelectedObject->id);
+            j = he_FindEvent(2, 0, 0x1f, 3, sv_SelectedObject->id);
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end);

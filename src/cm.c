@@ -3704,7 +3704,7 @@ int cm_ExSetHE(G17MSG *m, G17STAT *s)
         s->kind = 4;
         s->value = 0;
     }
-    ev = (AIJOB *)he_FindEvent(1, 1, m->setHE.id);
+    ev = he_FindEvent(1, 1, m->setHE.id);
     if (ev == 0) {
         sprintf(buf, "cm_ExSetHE(): He not found. id:%i name:%s", m->setHE.id, m->setHE.name);
         return 1;
@@ -3993,7 +3993,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
             pos.y = b->object->pos.y;
             pos.z = b->object->pos.z;
         }
-        for (j = (AIJOB *)he_FindEvent(1, 0, 0x18); j != 0; j = (AIJOB *)he_NextEvent()) {
+        for (j = he_FindEvent(1, 0, 0x18); j != 0; j = he_NextEvent()) {
             if (j->id4 == ai_Crimes[slot].culprit) {
                 if (gv_AddEvidence(rec->id, ai_Chars[j->chr].netId) == 0)
                     break;

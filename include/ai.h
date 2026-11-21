@@ -364,7 +364,7 @@ float gm_GoodsPrice(unsigned id, unsigned char p);                           /* 
 int gm_EquipmentValue(struct AIBLD *b, int level);                                     /* 0x509b10 */
 int gm_ListAmount(short *l, char *o);                                      /* 0x50aaf0 */
 float gm_Liking(unsigned a, unsigned b, int c);                                 /* 0x50c550 */
-char * he_NextEvent(void);                                             /* 0x53e300, next of he_FindEvent */
-char * he_FindEvent(int n, ...);                                         /* 0x53e400, n (key, value) pairs */
+struct AIJOB *he_NextEvent(void);                                             /* 0x53e300, next of he_FindEvent */
+struct AIJOB *he_FindEvent(int n, ...);                                         /* 0x53e400, n (key, value) pairs */
 
 #endif

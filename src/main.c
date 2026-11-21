@@ -3752,7 +3752,7 @@ void main_UpdateFigure(int i)
 {
     AICHAR *c;
     int left;
-    char *ev;
+    AIJOB *ev;
     float f;
     AITIME when;                    /* gm_TitlePeriodServed's completion date (not used here) */
     AIMSG msg;

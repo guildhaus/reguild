@@ -657,13 +657,13 @@ float gm_GoodsPrice(unsigned id, unsigned char p);   /* 0x5089c0, the price (ai.
 void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its first call (line 1119) */
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
-int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
+int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
 int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
-void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
+void d2_RemoveObj(); int gm_MinutesBetween(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
 int gm_ClockSeason(); int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(char *o, int id);
@@ -859,7 +859,7 @@ int gm_SumSlotAmounts(void *list, unsigned char i); int gm_GetGoodsValue(); int 
 void d2_SetObjEnabled(); void d2_EnableViewObjects(); void d2_EnableObject();
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow(); void d2_RemoveObj();
 void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont();
-int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
+int gm_SumListAmounts(void *list, unsigned char p); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
@@ -927,7 +927,7 @@ int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(pop)
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
-char * he_NextEvent(void);
+struct AIJOB *he_NextEvent(void);
 struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
@@ -1516,7 +1516,7 @@ int ai_AmountRowStatus(LCAMOUNTROW *row)
     row->icons[0] = row->rec->faith ? 0x6c9 : 0x6ca;
     row->icons[1] = 0;
     if (ai_Chars[ai_PlayerId].sex != row->rec->sex && (row->rec->flags1c8 & LC_LOVER_FLAG) != 0) {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x6f); ev != 0; ev = he_NextEvent()) {
             if (ev->partner1 == ai_Chars[ai_PlayerId].netId && row->rec->netId == ev->partner2) {
                 row->icons[1] = 0x6cc;
                 break;
@@ -1527,7 +1527,7 @@ int ai_AmountRowStatus(LCAMOUNTROW *row)
     if (gv_HeldCrimeCount(row->rec->netId, ai_PlayerId) > 0) {
         row->icons[2] = 0x6cd;
     } else {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
             if (ev->chr == ai_PlayerId && row->rec->netId == ev->id4) {
                 row->icons[2] = 0x6ce;
                 break;
@@ -1535,7 +1535,7 @@ int ai_AmountRowStatus(LCAMOUNTROW *row)
         }
     }
     row->icons[3] = 0;
-    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x45); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(1, 0, 0x45); ev != 0; ev = he_NextEvent()) {
         if (ev->partner1 == ai_Chars[ai_PlayerId].netId && row->rec->netId == ev->partner2) {
             row->icons[3] = 0x6cb;
             break;
@@ -1767,7 +1767,7 @@ struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *
                 rows[i].icons[0] = rows[i].rec->faith ? 0x6c9 : 0x6ca;
                 rows[i].icons[1] = 0;
                 if (ai_Chars[ai_PlayerId].sex != rows[i].rec->sex && (rows[i].rec->flags1c8 & LC_LOVER_FLAG) != 0) {
-                    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                    for (ev = he_FindEvent(1, 0, 0x6f); ev != 0; ev = he_NextEvent()) {
                         if (ev->partner1 == ai_Chars[ai_PlayerId].netId && rows[i].rec->netId == ev->partner2) {
                             rows[i].icons[1] = 0x6cc;
                             break;
@@ -1778,7 +1778,7 @@ struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *
                 if (gv_HeldCrimeCount(rows[i].rec->netId, ai_PlayerId) > 0) {
                     rows[i].icons[2] = 0x6cd;
                 } else {
-                    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                    for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
                         if (ev->chr == ai_PlayerId && rows[i].rec->netId == ev->id4) {
                             rows[i].icons[2] = 0x6ce;
                             break;
@@ -1786,7 +1786,7 @@ struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *
                     }
                 }
                 rows[i].icons[3] = 0;
-                for (ev = (AIJOB *)he_FindEvent(1, 0, 0x45); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                for (ev = he_FindEvent(1, 0, 0x45); ev != 0; ev = he_NextEvent()) {
                     if (ev->partner1 == ai_Chars[ai_PlayerId].netId && rows[i].rec->netId == ev->partner2) {
                         rows[i].icons[3] = 0x6cb;
                         break;
@@ -1901,7 +1901,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
             if (found || (c->w050 == me->w050 && c->generation == me->generation))
                 cnt++;
         }
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x41); ev != 0; ev = he_NextEvent()) {
             if (ev->partner1 == me->netId) {
                 cnt++;
                 break;
@@ -1948,7 +1948,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
         }
     }
     if (n < max) {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x41); ev != 0; ev = he_NextEvent()) {
             if (ev->partner1 == me->netId) {
                 c = gm_FindChar(ev->partner2);
                 if (c != 0 && c->netId != me->relatives[0]) {
@@ -2117,7 +2117,7 @@ unsigned int ai_FillLoversTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
     AIJOB *ev;
 
     n = 0;
-    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = he_NextEvent()) {
         if (ev->partner1 == me->netId) {
             c = gm_FindChar(ev->partner2);
             if (c != 0)
@@ -2279,7 +2279,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     count = 0;
     if (max == 0) {
         if ((me->flags1c8 & 0x400) != 0) {
-            for (ev = (AIJOB *)he_FindEvent(1, 0, 0x47); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+            for (ev = he_FindEvent(1, 0, 0x47); ev != 0; ev = he_NextEvent()) {
                 if (ev->partner1 == me->netId) {
                     if (gm_FindChar(ev->partner2) != 0)
                         count = 1;
@@ -2292,7 +2292,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
                 }
             }
         }
-        for (ev = (AIJOB *)he_FindEvent(2, 2, me->id, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(2, 2, me->id, 0, 0x18); ev != 0; ev = he_NextEvent()) {
             if (gm_FindChar(ev->id4) != 0)
                 count++;
         }
@@ -2301,7 +2301,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     n = 0;
     c = 0;
     if ((me->flags1c8 & 0x400) != 0) {
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x47); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x47); ev != 0; ev = he_NextEvent()) {
             if (ev->partner1 == me->netId) {
                 c = gm_FindChar(ev->partner2);
                 break;
@@ -2317,7 +2317,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
         rows[0].x2c = 0;
         n = 1;
     }
-    for (ev = (AIJOB *)he_FindEvent(2, 2, me->id, 0, 0x18); ev != 0 && n < max; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(2, 2, me->id, 0, 0x18); ev != 0 && n < max; ev = he_NextEvent()) {
         c = gm_FindChar(ev->id4);
         if (c != 0) {
             rows[n].rec = c;
@@ -3101,7 +3101,7 @@ void ai_AmountListWindow(int kind)
                 rows[i].icons[0] = rows[i].rec->faith ? 0x6c9 : 0x6ca;
                 rows[i].icons[1] = 0;
                 if (ai_Chars[ai_PlayerId].sex != rows[i].rec->sex && (rows[i].rec->flags1c8 & LC_LOVER_FLAG) != 0) {
-                    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                    for (ev = he_FindEvent(1, 0, 0x6f); ev != 0; ev = he_NextEvent()) {
                         if (ev->partner1 == ai_Chars[ai_PlayerId].netId && rows[i].rec->netId == ev->partner2) {
                             rows[i].icons[1] = 0x6cc;
                             break;
@@ -3112,7 +3112,7 @@ void ai_AmountListWindow(int kind)
                 if (gv_HeldCrimeCount(rows[i].rec->netId, ai_PlayerId) > 0) {
                     rows[i].icons[2] = 0x6cd;
                 } else {
-                    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                    for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
                         if (ev->chr == ai_PlayerId && rows[i].rec->netId == ev->id4) {
                             rows[i].icons[2] = 0x6ce;
                             break;
@@ -3120,7 +3120,7 @@ void ai_AmountListWindow(int kind)
                     }
                 }
                 rows[i].icons[3] = 0;
-                for (ev = (AIJOB *)he_FindEvent(1, 0, 0x45); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                for (ev = he_FindEvent(1, 0, 0x45); ev != 0; ev = he_NextEvent()) {
                     if (ev->partner1 == ai_Chars[ai_PlayerId].netId && rows[i].rec->netId == ev->partner2) {
                         rows[i].icons[3] = 0x6cb;
                         break;
@@ -3703,7 +3703,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == hireButton) {
-                for (job = (AIJOB *)he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent())
+                for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent())
                     if (job->hireTitle == 0)
                         break;
                 if (job == 0) {
@@ -3973,7 +3973,7 @@ void ai_MasterLetterWindow(AIBLD *bld)
             }
         }
     }
-    for (job = (AIJOB *)he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = (AIJOB *)he_NextEvent()) {
+    for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent()) {
         if (job->hireTitle == 0) {
             mode = 0x50;
             break;
@@ -4896,7 +4896,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
     char text2[512];
     AICHAR *rel;
     AICHAR *betrothed;
-    char *ev;
+    AIJOB *ev;
     int officeBase;
     int any;
     int row;
@@ -4967,9 +4967,9 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
         io_PrintText("$5<$R%s$0<$3>$L%s$A$0>", 0x1f59, text);
     } else {
         ev = he_FindEvent(1, 0, 0x41);
-        while (ev != 0 && ((AIJOB *)ev)->partner1 != chr->netId)
+        while (ev != 0 && ev->partner1 != chr->netId)
             ev = he_NextEvent();
-        if (ev != 0 && (betrothed = gm_FindChar(((AIJOB *)ev)->partner2)) != 0) {
+        if (ev != 0 && (betrothed = gm_FindChar(ev->partner2)) != 0) {
             txt_Format(text, 0x1f5e, betrothed->id);
             io_PrintText("$5<$R%s$0<$3>$L%s$A$0>", 0x1f59, text);
         } else if (rel != 0) {
@@ -5517,7 +5517,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
     state = 1;
     level = 0;
     partner = -1;
-    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+    for (ev = he_FindEvent(1, 0, 0x41); ev != 0; ev = he_NextEvent()) {
         if (ev->partner1 == ch->netId) {
             state = 2;
             partner = ev->partner2;
@@ -6125,7 +6125,7 @@ void ai_PrivilegesPanel(void)
             next = d3_Time + 500;
             old = partner;
             if ((ai_Chars[ai_PlayerId].flags1c8 & 0x100) != 0 || partner != 0) {
-                for (job = (AIJOB *)he_FindEvent(1, 0, 0x45); job != 0; job = (AIJOB *)he_NextEvent()) {
+                for (job = he_FindEvent(1, 0, 0x45); job != 0; job = he_NextEvent()) {
                     if (job->partner1 == ai_Chars[ai_PlayerId].netId)
                         break;
                 }
@@ -7264,7 +7264,7 @@ int ai_CounterEspionage(AICHAR *me, LCORDMSG *m)
         msg.flags = 2;
         msg.time = ai_Time;
         cm_SendMoneyDelta(me->netId, -4);
-        for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
             if (ev->id4 == me->netId) {
                 ret |= 0x10;
                 ev->end = ai_Time;
@@ -7298,7 +7298,7 @@ int ai_CounterEspionage(AICHAR *me, LCORDMSG *m)
                     msg.flags = 2;
                     msg.time = ai_Time;
                     cm_SendMoneyDelta(me->netId, -4);
-                    for (ev = (AIJOB *)he_FindEvent(1, 0, 0x18); ev != 0; ev = (AIJOB *)he_NextEvent()) {
+                    for (ev = he_FindEvent(1, 0, 0x18); ev != 0; ev = he_NextEvent()) {
                         if (ev->id4 == me->netId) {
                             caught |= 1;
                             ev->end = ai_Time;
@@ -10296,14 +10296,14 @@ int ai_UseGoodTributeClaim(AICHAR *ch)
 {
     AIJOB *ev;
 
-    ev = (AIJOB *)he_FindEvent(1, 0, 0x35);
+    ev = he_FindEvent(1, 0, 0x35);
     while (ev != 0) {
         if ((int)ch->netId == ev->idbc) {
             ai_ShowTributeClaimNews(ch, &ai_Chars[ev->chr]);
             ev->end = ai_Time;
             cm_SendExSetHE(-1, ev);
         }
-        ev = (AIJOB *)he_NextEvent();
+        ev = he_NextEvent();
     }
     return 1;
 }

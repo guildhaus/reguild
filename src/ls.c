@@ -2425,7 +2425,7 @@ int ls_FixupAfterLoad(void)
             if ((int)c->job == -1)
                 c->job = 0;
             else
-                c->job = (AIJOB *)he_FindEvent(1, 1, (int)c->job);
+                c->job = he_FindEvent(1, 1, (int)c->job);
             c->scene = 0;
         }
     }

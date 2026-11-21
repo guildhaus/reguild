@@ -232,7 +232,7 @@ int ord_MedicusOrder(AICHAR *c, int *m)
 
 int ord_AccusationOrder(AICHAR *c, int *m)
 {
-    char *o;
+    AIJOB *o;
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
