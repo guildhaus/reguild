@@ -93,7 +93,7 @@ extern char ai_DataPath[];             /* 0x75dca0 */
 #include "ai_types.h"                /* AITIME */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void err_Message(char *text);                     /* 0x4222b0 */
-int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
+struct AIMSG; int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 struct AIJOB *he_FindEvent(int n, ...);                     /* 0x53e400 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
 void cm_SendMoneyDelta(int a, int b);                     /* 0x4c5f60 */

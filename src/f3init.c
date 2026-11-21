@@ -1808,7 +1808,7 @@ void init_OpenTown(void)
             m2.arg[0] = b->id;
             m2.arg[1] = gm_EquipmentValue(b, b->level);
             cm_SendOwnership(b->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
-            cm_SendLongMessage((char *)&m2);
+            cm_SendLongMessage(&m2);
         }
         b = gm_BuildNext();
     }
@@ -1832,7 +1832,7 @@ void init_OpenTown(void)
         m2.reserved14 = 0;
         m2.time = *clock;
         m2.flags = 1;
-        cm_SendLongMessage((char *)&m2);
+        cm_SendLongMessage(&m2);
     }
     he_PostEvent6d();
     he_PostEvent6b();

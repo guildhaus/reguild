@@ -1250,7 +1250,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.fromId = -1;
         m.arg[0] = 3;
         m.arg[1] = 1;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         break;
     case 1:
         m.type = 0x5b;
@@ -1261,7 +1261,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.fromId = -1;
         m.arg[0] = (int)(worth * 0.03f);
         m.arg[1] = 1;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         break;
     case 2:
         m.type = 0x5c;
@@ -1272,7 +1272,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.fromId = -1;
         m.arg[0] = 3;
         m.arg[1] = 3;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         break;
     case 3:
         m.type = 0x5b;
@@ -1283,7 +1283,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.fromId = -1;
         m.arg[0] = (int)(worth * 0.03f);
         m.arg[1] = 4;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         break;
     case 4:
         cm_SendMessage5b(c->netId, 1, 0);
@@ -1403,7 +1403,7 @@ void gv_CheckRankUp(unsigned i)
             m.time.min = 0;
             m.rankUp.rank = nb;
             m.rankUp.ch = c->netId;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         } else {
             cm_BeginFieldBlock((char *)c, c->netId);
             cm_AddFieldDelta(1, 1, 0xd, &nb);
@@ -1428,7 +1428,7 @@ void gv_CheckRankUp(unsigned i)
                     gm_AddTime((struct AITIME *)&m.time, util_Random(4), util_Random(8) * 7, 0);
                 m.rankUp.rank = nb;
                 m.rankUp.ch = c->netId;
-                cm_SendLongMessage((char *)&m);
+                cm_SendLongMessage(&m);
                 n++;
             }
         }

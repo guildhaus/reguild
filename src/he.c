@@ -2284,7 +2284,7 @@ int he_SumApEventCosts(int key)
         m.flags = 2; \
         m.to = ai_CharInts[ai_PlayerId][0]; \
         m.time = ai_Time; \
-        cm_SendLongMessage((char *)&m); \
+        cm_SendLongMessage(&m); \
     }
 
 /* 0x53efe0, posts the event 0x6d (once) */
@@ -2328,7 +2328,7 @@ void he_PostEvent2b(void)
             m.to = ai_PlayerChar->netId;
             m.fromId = b->id;
             m.tavern.mode = 0;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         }
     }
 }
@@ -2344,7 +2344,7 @@ void he_PostPlayerEvents86a2(void)
         m.fromId = -1;
         m.flags = 2;
         m.time = ai_Time;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
     }
     if (he_FindEvent(1, 0, 0xa2) == 0) {
         memset(&m, 0, sizeof(m));
@@ -2353,7 +2353,7 @@ void he_PostPlayerEvents86a2(void)
         m.fromId = -1;
         m.flags = 2;
         m.time = ai_Time;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
     }
 }
 /* 0x53f370, posts the event 0x98 for every building of kind 0x1e (workshop) that has none (he_FindEvent key 3, the
@@ -2373,7 +2373,7 @@ void he_PostWorkshopEvents98(void)
             m.fromId = b->id;
             m.flags = 2;
             m.time = ai_Time;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         }
     }
 }
@@ -2997,7 +2997,7 @@ void he_PostEvent67(void)
                 m.arg[1] = (int)((util_RandomF() + 1.0f) * amt);
             }
             m.flags = 2;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         }
     }
 }
@@ -3059,7 +3059,7 @@ void he_PostEvent3a(void)
     m.fromId = -1;
     m.flags = 1;
     m.to = ai_Chars[ai_PlayerId].netId;
-    cm_SendLongMessage((char *)&m);
+    cm_SendLongMessage(&m);
 }
 /* 0x541060, posts the message 0x3b (now, from -1, flag 1) to the player's character, after freeing a running event 0x3b */
 
@@ -3076,7 +3076,7 @@ void he_PostEvent3b(void)
     m.flags = 1;
     m.to = ai_Chars[ai_PlayerId].netId;
     m.time = ai_Time;
-    cm_SendLongMessage((char *)&m);
+    cm_SendLongMessage(&m);
 }
 /* 0x5410f0, posts the event 0x73 to the player character (its netId), from -1, flag 1, at the current ai_Time;
    replaces a running event 0x73 first */
@@ -3094,7 +3094,7 @@ void he_PostEvent73(void)
     m.fromId = -1;
     m.flags = 1;
     m.time = ai_Time;
-    cm_SendLongMessage((char *)&m);
+    cm_SendLongMessage(&m);
 }
 /* 0x541170, posts the message 0xa6 (now, from -1, flag 1) to the player's character, after freeing a running event 0xa6 */
 
@@ -3111,7 +3111,7 @@ void he_PostEventA6(void)
     m.flags = 1;
     m.to = ai_Chars[ai_PlayerId].netId;
     m.time = ai_Time;
-    cm_SendLongMessage((char *)&m);
+    cm_SendLongMessage(&m);
 }
 /* 0x541200, sets the end clock (AIJOB.end) of the event record to ai_Time and posts it again when its opts bit 2
    (post when due) is set */
@@ -3207,7 +3207,7 @@ void he_CharAccident(AIJOB *ev, AICHAR *c, AICHAR *boss, AIBLD *bld, float value
         m.time = ai_Time;
         m.flags = 2;
         m.arg[0] = c->netId;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         if (boss->kind != 6 && boss->kind != 7)
             return;
         if (quiet != 0)
@@ -3276,7 +3276,7 @@ void he_CharIllness(AIJOB *ev, AICHAR *c, AICHAR *boss, AIBLD *bld, int disease,
         m.time = ai_Time;
         m.flags = 2;
         m.arg[0] = c->netId;
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage(&m);
         return;
     }
     half = gm_CharacterBaseHealth(c) * 0.5f;
@@ -4011,7 +4011,7 @@ void he_AllocFeast(AIJOB *e)
                         msg.flags = 9;
                     else
                         msg.flags = 1;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                 }
             }
         }
@@ -5524,7 +5524,7 @@ void he_AllocInsult(AIJOB *e)
         msg.flags = 9;
         msg.arg[0] = e->id;
         gm_AddTime2(&msg.time, b->id, 6, 0, 0);     /* the second argument unused */
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 6;
@@ -5984,7 +5984,7 @@ void he_RunMasterExamPay(AIJOB *e)
                 m.flags = 0x11;
                 ((HEFEEMSG *)&m)->what = 4;
                 ((HEFEEMSG *)&m)->amount = fee;
-                cm_SendLongMessage((char *)&m);
+                cm_SendLongMessage(&m);
                 he_ReleaseSlot(e);
                 he_FreeEvent(e);
                 return;
@@ -6558,7 +6558,7 @@ void he_RunTraining(AIJOB *e)
                 msg.flags = 9;
                 ((HESKILLMSG *)&msg)->skill = t->skill;
                 ((HESKILLMSG *)&msg)->level = level;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             } else {
                 sprintf(sound, "tal_0%i", skill);
                 txt_Format(text, (intptr_t)"%s%s", 0x16f2, t->skill + 0x16f3);
@@ -6605,7 +6605,7 @@ void he_BeginPlague(AIJOB *e)
             for (i = 0; i < 768; i++) {
                 if (ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7) {
                     msg.to = ai_Chars[i].netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                 }
             }
             p->carriers[0] = cm_SendSpawnCharacter(0xe, b->id, -1, 0x12, 0, 0, "PEST");
@@ -7243,7 +7243,7 @@ void he_RunProtection(AIJOB *e)
             msg.flags = 9;
             msg.arg[0] = e->id;
             msg.time = ai_Time;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             e->end = ai_Time;
             gm_AddTime(&e->end, 3, 0, 0);
             e->stage = 3;
@@ -10236,7 +10236,7 @@ void he_RunExamOffer(AIJOB *e)
         m.q.examId = e->id;
         m.q.due = ai_Time;
         gm_AddTime(&m.q.due, 2, 0, 0);
-        cm_SendLongMessage((char *)&m);
+        cm_SendLongMessage((struct AIMSG *)&m);
         e->stage = 1;
         e->end = ai_Time;
         gm_AddTime(&e->end, 8, 0, 0);
@@ -11118,7 +11118,7 @@ void he_RunSale(AIJOB *e)
             msg.fromId = b->id;
             msg.arg[0] = b->id;
             msg.flags = 2;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
         }
         if (ai_Chars[b->owner].kind == 6) {
             char text[0x400];
@@ -13336,7 +13336,7 @@ void he_RunSabotage(AIJOB *e)
                     msg.time = ai_Time;
                     msg.arg[0] = b->id;
                     msg.arg[1] = util_Random(0x10) - bt->cap247 * 3 + 0x14;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                 } else {
                     o = d3_FindObject((int)b->object, 0x100, 0, dummies[util_Random(3)]);
                     if (o != 0)
@@ -13956,7 +13956,7 @@ void he_RunTheft(AIJOB *e)
                     msg.time = ai_Time;
                     msg.arg[2] = t->bld;
                     msg.arg[4] = t->loot;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     e->exSlot = cm_SendExSetHE(-1, e);
                     cm_SendSetField(b->id, 0x5a, 2, 0, 2);
                 }
@@ -14595,7 +14595,7 @@ void he_RunEvent24(AIJOB *e)
                 msg.flags = 9;
                 msg.time = ai_Time;
                 msg.arg[0] = e->ownerCh;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
             cm_SendSetJob(c->netId, c->jobId - 1);
             he_FreeEvent(e);
@@ -15031,7 +15031,7 @@ void he_RunHarvest(AIJOB *e)
             m.arg[3] = i;
             m.arg[1] = e->harvestWorker;
             m.flags = 1;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         }
         sv_MoveToGroup(b, 0, c->id, 0);
         he_FreeEvent(e);
@@ -16283,7 +16283,7 @@ void he_RunKidnap(AIJOB *ev)
                 m.flags = 0x12;
                 m.arg[0] = victim->netId;
                 m.arg[1] = b->id;
-                cm_SendLongMessage((char *)&m);
+                cm_SendLongMessage(&m);
             }
         } else {
             if (master->kind == 6 || master->kind == 7) {
@@ -16420,7 +16420,7 @@ void he_RunRansom(AIJOB *ev)
             m.arg[0] = m.to;
             m.arg[2] = (int)ransom;
             m.arg[1] = ai_CharInts[ev->chr][0];
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
         }
         return;
     case -2:
@@ -17665,7 +17665,7 @@ void he_RunFire(AIJOB *ev)
                     m.arg[1] = 0x19;
                     m.extraFlag = 1;
                     m.srcEvent = ev->id;
-                    cm_SendLongMessage((char *)&m);
+                    cm_SendLongMessage(&m);
                 }
             }
             ev->end = ai_Time;
@@ -18862,7 +18862,7 @@ void he_RunTitleDue(AIJOB *ev)
             m.flags = 9;
             m.arg[2] = 2;
             m.arg[0] = m.to = ai_Chars[ev->chr].netId;
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
             ai_Chars[ev->chr].flags1c8 |= 0x80000000;
             ev->end = ai_Time;
             gm_AddTime(&ev->end, 4, 0, 0);

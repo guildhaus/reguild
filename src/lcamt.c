@@ -658,7 +658,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
-int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
@@ -717,7 +717,7 @@ extern char ai_DataPath[];  /* 0x75dca0, the data path (am.h) */
 int ai_RunAllows();
 int d2_SetForm(int view, int n); int d2_GetViewWin(); int io_PrintText(intptr_t fmt, ...);
 int d2_WinOpenPic(short x, short y, int pic, int win); void d2_SetObjFont(); void d2_SetObjText();  /* d2_CreateWinText: d2.h's prototype; ai_ShowProdSlot's 16-bit calls go through d2_CreateWinTextS */
-void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(char *msg);
+void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(struct AIMSG *msg);
 void txt_Format(char *out, intptr_t id0, ...);
 int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
@@ -730,7 +730,7 @@ int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
 void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendLongMessage(char *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_MasterLetterWindow();
 void ai_GameFrame(void);
@@ -919,7 +919,7 @@ void gm_DonationTop5(unsigned *ids, int *sc); int ai_DrawAmountRow();
 int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
-int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
+int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState();
 struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
@@ -3719,7 +3719,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode)
                     else
                         msg.hireMasterRoom = sv_PanelShown->objId;
                     msg.hireTitle = 0;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     txt_Format(text, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);
                     d2_ClearInput();
                     sv_MessageBox((intptr_t)text, 0);
@@ -5383,7 +5383,7 @@ int ai_CourtshipConfirm(AICHAR *ch)
                 msg.arg[1] = ch->netId;
                 msg.fromId = ai_CharInts[ai_PlayerId][0];
                 msg.arg[0] = ai_CharInts[ai_PlayerId][0];
-                slot = cm_SendLongMessage((char *)&msg);
+                slot = cm_SendLongMessage(&msg);
                 while (cm_GetSlotState(slot) == 0)
                     sv_PumpNet();
                 v = 1;
@@ -5543,7 +5543,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
             msg.time = ai_Time;
             msg.arg[0] = ch->netId;
             msg.arg[1] = p->netId;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             return 0x10;
         }
         return 0x20;
@@ -6455,7 +6455,7 @@ int ai_BlackmailWindow(AICHAR *me, AICHAR *victim)
                     msg.time = ai_Time;
                     msg.arg[0] = me->netId;
                     msg.arg[1] = victim->netId;
-                    h = cm_SendLongMessage((char *)&msg);
+                    h = cm_SendLongMessage(&msg);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     job = (AIJOB *)cm_GetSlotValue(h);
@@ -6533,7 +6533,7 @@ int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
             msg.time = ai_Time;
             msg.arg[0] = me->netId;
             msg.arg[1] = victim->netId;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             return 0x10;
         }
         cm_SendRelations(me->netId, victim->netId, -26, 1);
@@ -6656,7 +6656,7 @@ int ai_BlackmailContactWindow(AICHAR *ch, int n)
                     msg.letter.text1 = text1;
                     msg.letter.text2 = text2;
                     msg.letter.victim = ch->netId;
-                    h = cm_SendLongMessage((char *)&msg);
+                    h = cm_SendLongMessage(&msg);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     cm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -2);
@@ -6718,7 +6718,7 @@ int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
         msg.letter.text1 = text1;
         msg.letter.text2 = text2;
         msg.letter.victim = victim->netId;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         cm_SendMoneyDelta(me->netId, -2);
         return 0x10;
     } else {
@@ -6769,7 +6769,7 @@ int ai_IntimidateWindow(AICHAR *ch, int n)
                     msg.time = ai_Time;
                     msg.arg[0] = ai_Chars[ai_PlayerId].netId;
                     msg.arg[1] = ch->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     due = ai_Time;
                     gm_AddTime(&due, 0x18, 0, 0);
                     txt_Format(text, 0x1d63, &due, ch->id);
@@ -6823,7 +6823,7 @@ int ai_IntimidateContact(AICHAR *me, LCORDMSG *m)
         msg.time = ai_Time;
         msg.arg[1] = victim->netId;
         msg.arg[0] = me->netId;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         return 0x10;
     } else {
         AMOUNTCFG cfg;
@@ -7271,7 +7271,7 @@ int ai_CounterEspionage(AICHAR *me, LCORDMSG *m)
                 ev->stopped18 = ai_Time;
                 cm_SendExSetHE(ev->stage, ev);
                 msg.espionage.target = ai_Chars[ev->chr].netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
         }
         return ret;
@@ -7304,7 +7304,7 @@ int ai_CounterEspionage(AICHAR *me, LCORDMSG *m)
                             ev->end = ai_Time;
                             cm_SendExSetHE(0, ev);
                             msg.espionage.target = ai_Chars[ev->chr].netId;
-                            cm_SendLongMessage((char *)&msg);
+                            cm_SendLongMessage(&msg);
                             txt_Format(p, 0x1db9, ev->chr);
                             p = text + strlen(text);
                         }
@@ -8488,7 +8488,7 @@ int ai_OpenTrial(AICHAR *me, AICHAR *target, int n, int byFaith)
                                  (unsigned short *)&picked) == 0)
         return 0x40;
     msg.arg[4] = ai_Chars[(unsigned short)picked].netId;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     return 0x10;
 }
 /* 0x5cdb90, the accusation window "privillegien\Beweise_Details" (the accusation order's ask, ai_AccusationWindow /
@@ -9007,7 +9007,7 @@ int ai_SendInterrogationRefusal(AICHAR *ch, AICHAR *target, int variant)
     msg.arg[0] = ch->netId;
     msg.arg[1] = target->netId;
     msg.arg[2] = variant;
-    return cm_SendLongMessage((char *)&msg);
+    return cm_SendLongMessage(&msg);
 }
 /* 0x5cede0, the interrogation order's ask, variant 1 (ord_InterrogationOrder2, the callers push (c, m)): me has an
    office holder questioned for 4, once (AICHAR.flags1c8 0x100): the message 0x45 of variant 1
@@ -9438,7 +9438,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             msg.flags = 10;
             msg.effect.target = *id;
             msg.effect.good = 0x177;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
@@ -9464,7 +9464,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             msg.flags = 10;
             msg.effect.target = *id;
             msg.effect.good = 0x177;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
@@ -9524,7 +9524,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
                 id = &bld->id;
                 msg.effect.target = *id;
                 msg.effect.good = 0x178;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 D3_ZERO(&msg, sizeof(msg));
             }
             {
@@ -9538,7 +9538,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
                 msg.time = ai_Time;
                 msg.flags = 1;
                 msg.effect.target = *id;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
             cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
@@ -9569,7 +9569,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
             id = &bld->id;
             msg.effect.target = *id;
             msg.effect.good = 0x178;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             D3_ZERO(&msg, sizeof(msg));
         }
         {
@@ -9583,7 +9583,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
             msg.time = ai_Time;
             msg.flags = 1;
             msg.effect.target = *id;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
         }
         cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
         cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
@@ -9633,7 +9633,7 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
             msg.skillBonus.skill2 = 2;
             msg.skillBonus.bonus2 = -1.0f / 6.0f;
             msg.skillBonus.hours = 24;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xff8);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
@@ -9653,7 +9653,7 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
             msg.skillBonus.skill2 = 2;
             msg.skillBonus.bonus2 = -1.0f / 6.0f;
             msg.skillBonus.hours = 24;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xff8);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
@@ -9696,7 +9696,7 @@ int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use)
             msg.skillBonus.skill2 = 4;
             msg.skillBonus.bonus2 = -1.0f / 3.0f;
             msg.skillBonus.hours = 24;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xff6);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
@@ -10772,7 +10772,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
             msg.skillBonus.bonus1 = -0.35f;
             msg.skillBonus.skill2 = 5;
             msg.skillBonus.hours = 48;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xffb);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
@@ -10795,7 +10795,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
             msg.skillBonus.bonus1 = -0.35f;
             msg.skillBonus.skill2 = 5;
             msg.skillBonus.hours = 48;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xffb);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
@@ -10994,7 +10994,7 @@ int ai_UseEventGood(AICHAR *ch)
     msg.fromId = -1;
     msg.time = ai_Time;
     msg.flags = 1;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     return 1;
 }
 /* 0x5d2f90, the use callback of the Domizil good 0x298 (the twin of the heating good 0x2b2, the +0x14
@@ -11068,7 +11068,7 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
         msg.fromId = -1;
         msg.time = ai_Time;
         msg.flags = 1;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if (ch->kind == 6) {
         found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
@@ -11108,7 +11108,7 @@ int ai_UseGoodSkillBonus(AICHAR *ch)
     m.skill.skill2 = 4;
     m.skill.bonus2 = 1.0f / 6.0f;
     m.skill.hours = 0x18;
-    cm_SendLongMessage((char *)&m.msg);
+    cm_SendLongMessage(&m.msg);
     m.msg.type = 0x82;
     m.msg.to = ch->netId;
     m.msg.fromId = -1;
@@ -11118,7 +11118,7 @@ int ai_UseGoodSkillBonus(AICHAR *ch)
     m.skill.skill2 = 2;
     m.skill.bonus2 = -1.0f / 6.0f;
     m.skill.hours = 0x18;
-    cm_SendLongMessage((char *)&m.msg);
+    cm_SendLongMessage(&m.msg);
     return 1;
 }
 #define LC_F1CC_DISTRUST 0x400000  /* AICHAR flags1cc: the distrust bit (poker.c AIPER_F1CC_DISTRUST: -0.2 trust) */

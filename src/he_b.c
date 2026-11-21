@@ -2073,7 +2073,7 @@ void he_AllocTrade(AIJOB *ev)
         if (ev->flags != 0)
             gm_AddTime(&ev->end, 1, 0x1e, 0);
         else
-            p->msgSlot = cm_SendLongMessage((char *)&msg);
+            p->msgSlot = cm_SendLongMessage(&msg);
     } else
         he_FreeEvent(ev);
     ev->modes = 0;
@@ -2296,7 +2296,7 @@ void he_RunTrade(AIJOB *ev)
         gm_AddTime(&ev->end, 0, 5, 0);
         return;
     }
-    t->msgSlot = cm_SendLongMessage((char *)&m);
+    t->msgSlot = cm_SendLongMessage(&m);
     gm_AddTime(&ev->end, 0, 10, 0);
     return;
 moving:
@@ -4186,7 +4186,7 @@ int he_SecretRoomDomizil(int bldId, AICHAR *victim)
                 msg.arg[0] = victim->netId;     /* the event's partner1 */
                 msg.arg[1] = owner->netId;      /* its partner2 */
                 msg.flags = 2;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 return 1;
             }
         }
@@ -4790,7 +4790,7 @@ void he_RunPlunder(AIJOB *e)
                     msg.arg[1] = p->agent;
                     msg.arg[2] = ai_Chars[idx].netId;
                     msg.arg[3] = price;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                 } else {
                     deal[0] = e->netId;
                     deal[1] = p->agent;
@@ -5393,7 +5393,7 @@ void he_AllocMeeting(AIJOB *e)
     msg.arg[0] = e->id;
     msg.arg[1] = -1;
     msg.arg[2] = m->radius;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     m->rounds = 0;
     if (m->kind > 2)
         m->kind = 2;
@@ -5869,7 +5869,7 @@ void he_RunGraveyardWorkers(AIJOB *e)
                                     msg.time = ai_Time;
                                     msg.flags = 1;
                                     msg.arg[0] = ch->netId;
-                                    cm_SendLongMessage((char *)&msg);
+                                    cm_SendLongMessage(&msg);
                                 }
                             }
                         }
@@ -6314,7 +6314,7 @@ void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per)
     msg.time = ai_Time;
     msg.flags = 1;
     msg.arg[0] = ch->netId;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     if (per == pl) {
         fmt = 0x41dd;
         strcpy(voice, "_NACHRICHTEN_ZIGEUNER_02");
@@ -6388,7 +6388,7 @@ void he_GypsyCurse(AICHAR *pl, AICHAR *per)
     msg.flags = 1;
     msg.arg[0] = pl == per ? -1 : pl->netId;
     msg.arg[1] = per->netId;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     if (per == pl) {
         fmt = 0x41dd;
         strcpy(voice, "_NACHRICHTEN_ZIGEUNER_02");
@@ -6419,7 +6419,7 @@ void he_GypsySlowdown(AICHAR *pl, AICHAR *per)
     msg.fromId = -1;
     msg.time = ai_Time;
     msg.flags = 1;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     if (per == pl) {
         fmt = 0x41dd;
         strcpy(voice, "_NACHRICHTEN_ZIGEUNER_02");

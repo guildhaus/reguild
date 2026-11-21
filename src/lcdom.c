@@ -651,7 +651,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
-int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
@@ -710,7 +710,7 @@ extern char ai_DataPath[];  /* 0x75dca0, the data path (am.h) */
 int ai_RunAllows();
 int d2_SetForm(int view, int n); int d2_GetViewWin(); int io_PrintText(intptr_t fmt, ...);
 int d2_WinOpenPic(short x, short y, int pic, int win); void d2_SetObjFont(); void d2_SetObjText();  /* d2_CreateWinText: d2.h's prototype; ai_ShowProdSlot's 16-bit calls go through d2_CreateWinTextS */
-void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(char *msg);
+void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(struct AIMSG *msg);
 void txt_Format(char *out, intptr_t id0, ...);
 int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
@@ -723,7 +723,7 @@ int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
 void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendLongMessage(char *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_MasterLetterWindow();
 void ai_GameFrame(void);
@@ -907,7 +907,7 @@ void gm_DonationTop5(unsigned *ids, int *sc); int ai_DrawAmountRow();
 int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
-int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
+int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState();
 struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
@@ -1630,7 +1630,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                                     else
                                         msg.hireMasterRoom = sv_PanelShown->objId;
                                     msg.hireTitle = 0;
-                                    cm_SendLongMessage((char *)&msg);
+                                    cm_SendLongMessage(&msg);
                                     txt_Format(text1, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);
                                     sv_MessageBox((intptr_t)text1, 0);
                                 }
@@ -1657,7 +1657,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                             msg.fromId = bld->id;
                             msg.time = ai_Time;
                             msg.arg[0] = masterRow.ch->netId;
-                            cm_SendLongMessage((char *)&msg);
+                            cm_SendLongMessage(&msg);
                             for (k = 0; k < 3; k++) {
                                 d2_SetForm(book->views[k], 2);
                                 io_PrintText((intptr_t)"$C");
@@ -1764,7 +1764,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     msg.hireRoom = sv_PanelShown->objId;
                 msg.hireFlag = 1;
                 msg.hireTitle = bt->title2;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
             sel = -1;
             for (k = 0; k < 3; k++) {
@@ -1785,7 +1785,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.arg[0] = rows[sel].ch->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sel = -1;
             }
         } else if (d2_PointerObj == promoteButton && sel != -1) {
@@ -1812,7 +1812,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     msg.to = ai_CharInts[ai_PlayerId][0];
                     msg.time = ai_Time;
                     msg.arg[0] = c->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     for (k = 0; k < 3; k++) {
                         d2_SetForm(book->views[k], 2);
                         io_PrintText((intptr_t)"$C");
@@ -2179,7 +2179,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                     msg.hireRoom = sv_PanelShown->objId;
                 msg.hireFlag = 0;
                 msg.hireTitle = 0x13;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
             sel = -1;
             for (k = 0; k < 3; k++) {
@@ -2199,7 +2199,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.arg[0] = rows[sel].ch->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sel = -1;
             }
         } else if (d2_PointerObj == promoteButton && sel != -1) {
@@ -2215,7 +2215,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.arg[0] = c->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sel = -1;
             }
         }
@@ -2494,7 +2494,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                         else
                             msg.hireMasterRoom = sv_PanelShown->objId;
                         msg.hireTitle = 0;
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         txt_Format(text1, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);
                         sv_MessageBox((intptr_t)text1, 0);
                     }
@@ -2514,7 +2514,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
             msg.fromId = bld->id;
             msg.time = ai_Time;
             msg.arg[0] = masterRow.ch->netId;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             for (k = 0; k < 3; k++) {
                 d2_SetForm(book->views[k], 2);
                 io_PrintText((intptr_t)"$C");
@@ -2809,7 +2809,7 @@ int ai_SendTransportOrder(unsigned int who, AIOBJ *cart, AIBLD *from, AIBLD *to)
         msg.ch = to->id;
         msg.dst[5] = cart->escort;
         lc_Settings.escort = (char)msg.dst[5];
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         if (cart->escort != 0) {
             gm_StallGoodsList((char *)cart, (unsigned *)&goods);
             fee = gm_LevelPayout(goods.pada8[2], cart->escort);
@@ -4110,7 +4110,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         msg.dst[0] = 4;
                         msg.u.s.cost = 1;
                         msg.n = 100 - c->fill;
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                     }
                 }
             }
@@ -4489,7 +4489,7 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                                 msg1.ch = 0;
                                 msg1.time = ai_Time;
                                 msg1.car = store->objId;
-                                cm_SendLongMessage((char *)&msg1);
+                                cm_SendLongMessage(&msg1);
                             }
                         }
                     }
@@ -4516,7 +4516,7 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                                 msg2.ch = 1;
                                 msg2.time = ai_Time;
                                 msg2.car = store->objId;
-                                cm_SendLongMessage((char *)&msg2);
+                                cm_SendLongMessage(&msg2);
                             }
                         }
                     }
@@ -4547,7 +4547,7 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                                 msg3.n = 1;
                                 msg3.time = ai_Time;
                                 msg3.car = store->objId;
-                                cm_SendLongMessage((char *)&msg3);
+                                cm_SendLongMessage(&msg3);
                             }
                         }
                     }
@@ -4732,7 +4732,7 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
                 msg.training.talent = (unsigned char)talent;
                 msg.to = ai_Chars[ai_PlayerId].netId;
                 msg.fromId = ai_Chars[ai_PlayerId].netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 ai_CampaignStep(0x2c, 0, 0, talent);
                 sv_PopRequest = 1;
             }
@@ -4854,7 +4854,7 @@ int ai_SabotageCallback(AICHAR *ch, AIBLD *target)
             buf.msg.sabotage.price = price;
             buf.msg.sabotage.bld = target->id;
             cm_BeginGroup("sabotage");
-            cm_SendLongMessage((char *)&buf.msg);
+            cm_SendLongMessage(&buf.msg);
             cm_EndGroup("sabotage");
             txt_Format(note, 0x1701, target->masterId, target->type * 14 + 0x48e);
             sv_MessageBox((intptr_t)note, 0);
@@ -4948,7 +4948,7 @@ int ai_EspionageAmountCB(AICHAR *ch)
             msg.espionage.price = price;
             cm_BeginGroup("spionage");
             msg.espionage.length = d2_GetObjValue(slider);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_EndGroup("spionage");
             txt_Format(text, 0x42bf, ch->id);
             sv_MessageBox((intptr_t)text, 0x100);
@@ -5046,7 +5046,7 @@ int ai_BeatingCallback(AICHAR *ch, int n)
             buf.msg.ch = ch->netId;
             buf.msg.arg[0] = ord_RandomObjectId(ch);
             cm_BeginGroup("beatup");
-            cm_SendLongMessage((char *)&buf.msg);
+            cm_SendLongMessage(&buf.msg);
             cm_EndGroup("beatup");
             txt_Format(text, 0x1709, ch->id);
             sv_MessageBox((intptr_t)text, 0);
@@ -5414,7 +5414,7 @@ int ai_DrohbriefAmountCB(AICHAR *ch)
                     msg.flags = 2;
                     msg.arg[1] = me->netId;
                     msg.arg[0] = ch->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     txt_Format(note, 0x175b, ch->id);
                 } else {
                     txt_Format(note, 0x175c, ch->id, ch->id);
@@ -5513,7 +5513,7 @@ void ai_DenounceWindow(AIBLD *bld)
                 msg.arg[1] = ai_CharInts[ai_PlayerId][0];
                 msg.arg[2] = judge->netId;
                 msg.arg[0] = culprit->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 cm_SendMoneyDelta(ai_CharInts[ai_PlayerId][0], -3);
                 txt_Format(note, 0x1762, judge->id);
                 sv_MessageBox((intptr_t)note, 0);
@@ -5594,7 +5594,7 @@ int ai_PamphletAmountCB(AICHAR *ch)
                 msg.pamphlet.when = ai_Time;
                 msg.pamphlet.variant = (unsigned char)util_Random(0x1d);
                 msg.pamphlet.about = ch->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sent = 1;
                 sv_PopRequest = 1;
             } else if (d2_ClickedId == 1) {
@@ -6070,7 +6070,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     msg.flags = 2;
                     msg.to = ai_CharInts[ai_PlayerId][0];
                     msg.fromId = bld->id;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     n = 0;
                     for (k = 0; k < 4; k++) {
                         ch = guests[k];
@@ -6087,7 +6087,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                                 msg.flags = 9;
                             else
                                 msg.flags = 1;
-                            cm_SendLongMessage((char *)&msg);
+                            cm_SendLongMessage(&msg);
                             n++;
                         }
                     }
@@ -6195,7 +6195,7 @@ void ai_SellBuildingWindow(AIBLD *bld)
             msg.to = ai_CharInts[ai_PlayerId][0];
             msg.arg[0] = bld->id;
             msg.arg[1] = gm_PlayerFactor(d2_GetObjValue(slider), ai_OwnPlayer);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             sv_MessageBox((intptr_t)txt_Ptrs[0x17c6], 0);
             sv_PopRequest = 1;
         } else if (d2_ClickedId == 1) {
@@ -6291,7 +6291,7 @@ void ai_RenovationWindow(AIBLD *bld)
                     msg.arg[1] = points;
                     cm_BeginGroup("renovieren");
                     cm_SendMoveGoods(-1, treasury->objId, ai_OwnPlayer, cost);
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     cm_EndGroup("renovieren");
                     sv_PopRequest = 1;
                 } else {
@@ -6303,7 +6303,7 @@ void ai_RenovationWindow(AIBLD *bld)
                     msg.arg[1] = points;
                     cm_BeginGroup("renovieren");
                     cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, cost);
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     cm_EndGroup("renovieren");
                     sv_PopRequest = 1;
                 }
@@ -6473,7 +6473,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
                         msg.roomUpgrade.good = (unsigned short)rows[i].good;
                         cm_BeginGroup("room_upgrade");
                         cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, price);
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         cm_EndGroup("room_upgrade");
                     }
                     break;
@@ -6588,7 +6588,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
         msg.arg[0] = bld->id;
         cm_BeginGroup("building_upgrade");
         cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, price);
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         cm_EndGroup("building_upgrade");
         txt_Format(done, 0x17da, bld->type * 0xe + 0x49c);
         sv_MessageBox((intptr_t)done, 4);
@@ -6615,7 +6615,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
             msg.arg[0] = bld->id;
             cm_BeginGroup("building_upgrade");
             cm_SendMoveGoods(-1, treasury->objId, ai_OwnPlayer, price);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_EndGroup("building_upgrade");
         }
     } else {
@@ -6634,7 +6634,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
             msg.arg[0] = bld->id;
             cm_BeginGroup("building_upgrade");
             cm_SendMoveGoods(-1, treasury->objId, ai_OwnPlayer, price);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_EndGroup("building_upgrade");
         }
     }
@@ -6688,7 +6688,7 @@ void ai_BuyBuildingOfferWindow(AIBLD *bld)
                 msg.arg[0] = bld->id;
                 msg.arg[1] = gm_PlayerFactor(d2_GetObjValue(slider), ai_OwnPlayer);
                 msg.arg[2] = ai_CharInts[ai_PlayerId][0];
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 cm_SendSetField(bld->id, 0x5a, 2, 0x200, 0);
             }
             sv_PopRequest = 1;
@@ -7136,7 +7136,7 @@ void ai_BuildingWindow(AIBLD *bld)
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.arg[0] = bld->id;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sv_PopRequest = 1;
             }
             d2_SetViewEnabled(win, 1);
@@ -7643,7 +7643,7 @@ void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants)
                     msg.arg[3] = plant->id;
                     msg.arg[0] = bld->id;
                     msg.arg[1] = ai_Chars[i].netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     snd_PlayFavourComment();
                 }
             }
@@ -7703,7 +7703,7 @@ void ai_GelageWindow(AIBLD *bld)
                 msg.time = ai_Time;
                 cm_BeginGroup("party");
                 cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, cost);
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 cm_EndGroup("party");
                 sv_PopRequest = 1;
             }
@@ -8609,7 +8609,7 @@ void ai_TrainingWindow(AIBLD *bld)
                         else
                             msg.arg[6] = -1;
                         sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         count++;
                     }
                 } else {
@@ -8635,7 +8635,7 @@ void ai_TrainingWindow(AIBLD *bld)
                         msg.arg[1] = ai_Chars[i].netId;
                         msg.thiefClass = (row != 0) + 2;
                         sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         count++;
                     }
                 }

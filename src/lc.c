@@ -839,7 +839,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
-int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
@@ -985,7 +985,7 @@ int ai_ProductionWindow(AIBLD *bld)
                     msg.arg[1] = -1;
                     msg.arg[4] = bld->id;
                     msg.arg[5] = store->objId;
-                    slot = cm_SendLongMessage((char *)&msg);
+                    slot = cm_SendLongMessage(&msg);
                     while (slot != -1 && cm_GetSlotState(slot) == 0)
                         sv_RunFrame(0, 0x20007);
                     job = (AIJOB *)cm_GetSlotValue(slot);
@@ -2806,7 +2806,7 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
 int ai_RunAllows();
 int d2_SetForm(int view, int n); int d2_GetViewWin(); int io_PrintText(intptr_t fmt, ...);
 int d2_WinOpenPic(short x, short y, int pic, int win); void d2_SetObjFont(); void d2_SetObjText();
-void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(char *msg);
+void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(struct AIMSG *msg);
 void txt_Format(char *out, intptr_t id0, ...);
 int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(int kind); int gm_MayTakeJob(int k, int c);
 
@@ -2966,7 +2966,7 @@ void ai_ConstructionWindow(void)
                     d3_PointToWorld(site, &site->pos, (D3VECTOR *)msg.buildPos);
                     ai_ObjectAngle(msg.buildRot, site);
                     strncpy(msg.buildPath, model, 0x3f);
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 } else {
                     d2_SetViewEnabled(view, 1);
@@ -2992,7 +2992,7 @@ int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(int view, int idx, int k); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
 void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendLongMessage(char *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(int h); void cm_SendMoneyDelta(int a, int b);
+int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(int h); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_MasterLetterWindow();
 
@@ -3458,7 +3458,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                                 if (treasury != 0)
                                     cm_SendMoveGoodsUnchecked(-1, treasury->objId, ai_OwnPlayer, cost);
                             }
-                            slot = cm_SendLongMessage((char *)&msg);
+                            slot = cm_SendLongMessage(&msg);
                             cm_EndGroup("upgrade");
                         } else {
                             /* paid in money */
@@ -3472,7 +3472,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             }
                             cm_BeginGroup("upgrade");
                             cm_SendMoneyDelta(me->netId, -cost);
-                            slot = cm_SendLongMessage((char *)&msg);
+                            slot = cm_SendLongMessage(&msg);
                             cm_EndGroup("upgrade");
                         }
                         while (slot != -1 && cm_GetSlotState(slot) == 0)
@@ -3668,7 +3668,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                         msg.arg[0] = bld->id;
                         msg.arg[1] = room->objId;
                         msg.arg[2] = res->objId;
-                        slot = cm_SendLongMessage((char *)&msg);
+                        slot = cm_SendLongMessage(&msg);
                         while (cm_GetSlotState(slot) == 0)
                             sv_RunFrame(0, 0x20007);
                         job = (AIJOB *)cm_GetSlotValue(slot);
@@ -3690,7 +3690,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                         msg.itemId = (unsigned short)ai_ProdColumns[c].good;
                         msg.arg[1] = bld->id;
                         msg.arg[2] = res->objId;
-                        slot = cm_SendLongMessage((char *)&msg);
+                        slot = cm_SendLongMessage(&msg);
                         while (cm_GetSlotState(slot) == 0)
                             sv_RunFrame(0, 0x20007);
                         job = (AIJOB *)cm_GetSlotValue(slot);
@@ -3864,7 +3864,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
                     msg.arg[3] = bld->id;
                     msg.arg[5] = store->objId;
                     msg.arg[4] = res->objId;
-                    slot = cm_SendLongMessage((char *)&msg);
+                    slot = cm_SendLongMessage(&msg);
                     while (cm_GetSlotState(slot) == 0)
                         sv_RunFrame(0, 0x20007);
                     job = (AIJOB *)cm_GetSlotValue(slot);
@@ -4036,7 +4036,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                             msg.arg[1] = -1;
                             msg.arg[4] = bld->id;
                             msg.arg[5] = store->objId;
-                            slot = cm_SendLongMessage((char *)&msg);
+                            slot = cm_SendLongMessage(&msg);
                             while (cm_GetSlotState(slot) == 0)
                                 sv_RunFrame(0, 0x20007);
                             job = (AIJOB *)cm_GetSlotValue(slot);
@@ -4432,7 +4432,7 @@ int ai_BreakInCallback(char *place)
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)  /* a signed compare (jl) */
                     if (*ch != 0 && (*ch)->selected != 0)
                         *dst++ = (*ch)->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             }
             sv_ClearSelection();
             ev = (LCAMBUSHEVENT *)1;  /* the result: the ambush was ordered */
@@ -4518,7 +4518,7 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
                     continue;
                 }
                 result = 1;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
                 n = 0;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)
@@ -4631,7 +4631,7 @@ int ai_BribeCallback(char *place, AIBLD *target)
                     msg.arg[0] = ai_SceneChars[i]->netId;
                     break;
                 }
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             sv_PopRequest = 1;
             sv_ClearSelection();
         } else if (d2_PointerObj == cancel)
@@ -4749,7 +4749,7 @@ void ai_BriberyWindow(char *place, AIBLD *target)
                 if (ai_Chars[i].selected != 0)
                     msg.ids[n++] = ai_CharInts[i][0];
             if (n != 0) {
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
                 sv_ClearSelection();
             } else
@@ -4839,7 +4839,7 @@ void ai_RaidWindow(char *place, AIBLD *target)
                 if (ai_Chars[i].selected != 0)
                     msg.ids[n++] = ai_CharInts[i][0];
             if (n != 0) {
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 gm_SendMoneyDelta(ai_CharInts[ai_PlayerId][0], -1);
                 snd_PlayFavourComment();
             } else
@@ -5245,7 +5245,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
                 if (picked != 0) {
                     snd_PlayFavourComment();
                     sv_ClearSelection();
-                    slot = cm_SendLongMessage((char *)&msg);
+                    slot = cm_SendLongMessage(&msg);
                     while (cm_GetSlotState(slot) == 0)
                         sv_RunFrame(0, 0x20007);
                     cm_GetSlotValue(slot);
@@ -5373,7 +5373,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
                 if (picked != 0) {
                     snd_PlayFavourComment();
                     sv_ClearSelection();
-                    slot = cm_SendLongMessage((char *)&msg);
+                    slot = cm_SendLongMessage(&msg);
                     while (cm_GetSlotState(slot) == 0)
                         sv_RunFrame(0, 0x20007);
                     cm_GetSlotValue(slot);
@@ -5929,7 +5929,7 @@ void ai_MistressWindow(AIBLD *bld)
                         msg.fromId = bld->id;
                         msg.arg[1] = pick->netId;
                         msg.arg[0] = ai_CharInts[ai_PlayerId][0];
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                     }
                 }
             } else {
@@ -6052,7 +6052,7 @@ void ai_MasterExamWindow(AIBLD *bld)
                     msg.arg[0] = ch->netId;
                     msg.time = ai_Time;
                     gm_AddTime(&msg.time, 2, 0, 0);
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 }
             } else if (d2_ClickedId == 1) {
@@ -7125,7 +7125,7 @@ void ai_DarkCornerMenu(AIBLD *bld, AIOBJ *room, AIOBJ *corner)
             msg.time = ai_Time;
             msg.arg[1] = bld->id;
             msg.arg[2] = room->objId;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             sv_PopRequest = 1;
         } else if (dm_L.rup != 0) {
             sv_PopRequest = 1;
@@ -7315,7 +7315,7 @@ void ai_TavernContact(AIBLD *bld, AIOBJ *room)
                 msg.time = ai_Time;
                 msg.arg[1] = bld->id;
                 msg.arg[2] = room->objId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             } else if (kb_Last == 0x17) {
                 ai_DarkCornerTable(bld, room);
             }
@@ -7859,7 +7859,7 @@ void ai_NewCreditWindow(AIBLD *bank)
                     msg.arg[5] = rows[i].offer.interest;
                     cm_SendMoveGoodsUnchecked(ai_Chars[ai_PlayerId].netId, bank->id, ai_OwnPlayer,
                                               rows[i].offer.amount);
-                    handle = cm_SendLongMessage((char *)&msg);
+                    handle = cm_SendLongMessage(&msg);
                     while (cm_GetSlotState(handle) == 0)
                         sv_RunFrame(0, 0x677c7);
                     d2_EnableViewObjects(win, 0);
@@ -8850,7 +8850,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
             msg.payment.bld = bank->id;
             msg.payment.player = player;
             msg.payment.amount = value - fee;
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             sent = 1;
             sv_PopRequest = 1;
         } else if (d2_ClickedId == 1) {
@@ -10108,7 +10108,7 @@ void ai_CitizenRightWindow(AIBLD *b)
                 due = msg.time;
                 msg.rankUp.rank = 2;
                 msg.rankUp.ch = me->netId;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 for (k = 0; k < 768; k++) {
                     if (i >= ai_NumPlayers)
                         break;
@@ -10122,7 +10122,7 @@ void ai_CitizenRightWindow(AIBLD *b)
                         msg.time = due;
                         msg.rankUp.rank = 2;
                         msg.rankUp.ch = me->netId;
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         i++;
                     }
                 }
@@ -11371,7 +11371,7 @@ void ai_ConfessionListener(AIBLD *building, AIOBJ *room)
 }
 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
-int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
+int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotState();
 struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 
 /* 0x5a2e60, the sermon window "Locations\Kirche\Predigt" of the player's own church bld: its sermon object (gm_Query
@@ -11443,7 +11443,7 @@ void ai_SermonWindow(AIBLD *bld)
         msg.to = ai_PlayerChar->netId;
         msg.fromId = bld->id;
         msg.tavern.mode = 0;
-        slot = cm_SendLongMessage((char *)&msg);
+        slot = cm_SendLongMessage(&msg);
         while (slot != -1 && cm_GetSlotState(slot) == 0)
                 sv_RunFrame(0, 0x677c7);
         ev = (AIJOB *)cm_GetSlotValue(slot);
@@ -11835,7 +11835,7 @@ void ai_DungeonBribeWindow(AIBLD *bld)
             msg.arg[2] = gm_PlayerFactor(d2_GetObjValue(slider), ai_OwnPlayer);
             cm_BeginGroup("kerkermeister_bestechen");
             cm_SendMoveGoods(jailer->netId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, msg.arg[2]);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             cm_EndGroup("kerkermeister_bestechen");
             sv_PopRequest = 1;
         }
@@ -11932,7 +11932,7 @@ int ai_BurglaryWindow(int ctx, AIBLD *bld)
                         msg.ids[n++] = ai_Chars[i].netId;
                 }
                 if (n != 0) {
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     snd_PlayFavourComment();
                 } else {
                     sv_MessageBox((intptr_t)txt_Ptrs[0x19e3], 0);
@@ -12068,7 +12068,7 @@ int ai_GuildSpyWindow(int ctx, AIBLD *target)
                 if (ai_Chars[i].selected != 0)
                     msg.ids[n++] = ai_CharInts[i][0];
             if (n != 0) {
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 done = 1;
                 snd_PlayFavourComment();
             } else
@@ -12277,7 +12277,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
                     sv_MessageBox((intptr_t)txt_Ptrs[0x1a49], 0);
                 else {
                     done = 1;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     snd_PlayFavourComment();
                     sv_PopRequest = 2;
                 }
@@ -12362,7 +12362,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
                 msg.time = ai_Time;
                 msg.arg[10] = msg.to;  /* 0x80: the gang's leader (the event's HEGANG.leader, 0x54 further on) */
                 msg.flags = 1;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
                 sv_ClearSelection();
                 sv_PopRequest = 1;
@@ -12589,7 +12589,7 @@ int ai_KidnapWindow(AICHAR *victim, int unused)
                         sv_MessageBox((intptr_t)txt_Ptrs[0x19e3], 0);
                         d2_ClickedId = -1;
                     } else {
-                        cm_SendLongMessage((char *)&msg);
+                        cm_SendLongMessage(&msg);
                         cm_SendMoneyDelta(ai_CharInts[ai_PlayerId][0], -3);
                         gv_Accuse(0x1a, 1, ai_CharInts[ai_PlayerId][0], victim->netId, -1);
                         snd_PlayFavourComment();
@@ -12751,7 +12751,7 @@ void ai_RansomWindow(AIBLD *bld)
             msg.flags = 9;
             msg.arg[2] = ransom;
             msg.arg[1] = ai_CharInts[ai_PlayerId][0];
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
             txt_Format(demandText, 0x19c5, ransom, victim->id);
             sv_MessageBox((intptr_t)demandText, 0);
             sv_PopRequest = 1;
@@ -12937,7 +12937,7 @@ int ai_CityWatchWindow(int ctx, AIBLD *target)
                 msg.arg[1] = ai_PlayerBuilding->id;
                 for (i = n; i < 4; i++)
                     msg.arg[6 + i] = -1;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
             }
             sv_ClearSelection();
@@ -13031,7 +13031,7 @@ int ai_CityWatchCrewWindow(int ctx, AIBLD *target)
                 msg.to = ai_CharInts[ai_PlayerId][0];
                 msg.arg[0] = target->id;
                 msg.arg[1] = ai_PlayerBuilding->id;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
                 done = 1;
                 for (i = 0; i < 0x300; i++)
@@ -13134,7 +13134,7 @@ int ai_WatchPlanWindow(int ctx, char *place)
                     msg.ids[n++] = ch->netId;
             }
             if (n != 0) {
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
             }
             sv_PopRequest = 2;

@@ -4845,7 +4845,7 @@ void sv_SendSelectedToBuilding(void)
     if (job != 0)
         cm_SendExSetHE(job->stage, job);
     if (msg.type != 0)
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
 }
 /* 0x52bec0, the selection's mouse handling (every frame): a held left button ends a rubber band (sv_EndBand) or,
    with the right button up, starts one in the player's own building (sv_StartBand). With characters selected a

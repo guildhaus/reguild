@@ -1633,7 +1633,7 @@ void gv_GraveyardTurn(AIBLD *bld)
                 m.lease.entry = (unsigned char)gv_EntryIndex((char *)bld->yard, (int *)e);
                 m.lease.price = price;
                 m.lease.years = 10;
-                h = cm_SendLongMessage((char *)&m);
+                h = cm_SendLongMessage(&m);
             } else if ((int)(gm_CharCurrency(c, ai_OwnPlayer) * 0.44f) > price) {
                 h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), 10, price);
                 rounds++;

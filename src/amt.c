@@ -2133,7 +2133,7 @@ void amt_CalcZuenfte(unsigned int kind)
             m.buildRot[1] = rot.y;
             m.buildRot[2] = rot.z;
             strcpy(m.buildPath, name);
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage(&m);
             return;
         }
         err_Message("amt_calc_zuenfte(): could not find a free place...");

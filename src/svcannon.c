@@ -1641,7 +1641,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     mask.HighPart = 0;
                     ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                     msg.arg[0] = pick;
-                    id = cm_SendLongMessage((char *)&msg);
+                    id = cm_SendLongMessage(&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
                         sv_RunFrame(0, 0x20007);
                     snd_PlayVoice(-7, 0, "KOMMENTARE", 0);
@@ -1766,7 +1766,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
                         ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
-                    id = cm_SendLongMessage((char *)&msg);
+                    id = cm_SendLongMessage(&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
                         sv_RunFrame(0, 0x20007);
                     snd_PlayVoice(-7, 0, "KOMMENTARE", 0);
@@ -1877,7 +1877,7 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
                         ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
-                    id = cm_SendLongMessage((char *)&msg);
+                    id = cm_SendLongMessage(&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
                         sv_RunFrame(0, 0x20007);
                     snd_PlayVoice(-7, 0, "KOMMENTARE", 0);
@@ -1986,7 +1986,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
                         ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
-                    id = cm_SendLongMessage((char *)&msg);
+                    id = cm_SendLongMessage(&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
                         sv_RunFrame(0, 0x20007);
                     snd_PlayVoice(-7, 0, "KOMMENTARE", -1);

@@ -4438,7 +4438,7 @@ int ai_AlchemistSendRecipeResearch(AIBLD *obj, AHMREC *rec, int slot)
     msg.arg[1] = rec->slots[slot].id;
     msg.arg[0] = rec->id;
     msg.arg[4] = util_Random(0x5a0) + 1000;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     return 1;
 }
 /* 0x57ced0, starts the alchemist object obj's own research (record rec) with the message 0x95 (cm_SendLongMessage;
@@ -4460,7 +4460,7 @@ int ai_AlchemistSendResearchStart(AIBLD *obj, AHMREC *rec)
     msg.time = ai_Time;
     msg.arg[0] = rec->id;
     msg.arg[3] = rec->id;
-    cm_SendLongMessage((char *)&msg);
+    cm_SendLongMessage(&msg);
     return 1;
 }
 
@@ -4741,7 +4741,7 @@ int ai_AlchemistTrainShareWindow(AIBLD *obj, AHMREC *rec, int idx)
                 msg.arg[0] = rec->id;
                 msg.arg[4] = util_Random(0x5a0) + 1000;
                 msg.arg[1] = idx;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sv_PopRequest = 1;
             } else if (d2_PointerObj == t2) {
                 sv_PopRequest = 1;

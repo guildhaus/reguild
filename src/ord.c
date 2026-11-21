@@ -2320,7 +2320,7 @@ void ord_UpdateMessageEvent(void)
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4), util_Random(2) * 0x1e, 0);
             else
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4) + 7, util_Random(2) * 0x1e, 0);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage((struct AIMSG *)&msg);
         } else if (r.phase == 2) {
             msg.kind = 0x4e;
             msg.netId = ai_PlayerChar->netId;
@@ -2334,7 +2334,7 @@ void ord_UpdateMessageEvent(void)
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4) + 7, util_Random(2) * 0x1e, 0);
             else
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4), util_Random(2) * 0x1e, 0);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage((struct AIMSG *)&msg);
         } else if (r.phase == 3) {
             msg.kind = 0x50;
             msg.netId = ai_PlayerChar->netId;
@@ -2347,7 +2347,7 @@ void ord_UpdateMessageEvent(void)
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4) + 7, util_Random(2) * 0x1e, 0);
             else
                 gm_AddTime((struct AITIME *)&msg.time, util_Random(4), util_Random(2) * 0x1e, 0);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage((struct AIMSG *)&msg);
         }
         r.stage = r.phase;
     }

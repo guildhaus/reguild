@@ -752,7 +752,7 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
                 msg.arg[0] = hit->id;
                 msg.arg[1] = (int)h.recs[i].value;
                 msg.extraFlag = 1;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
             } else if (h.recs[i].mode == 2) {
                 dmg = (char)(int)-h.recs[i].value;
                 cm_BeginFieldBlock((char *)hit, hit->id);

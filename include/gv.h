@@ -138,7 +138,7 @@ struct D3PARTSYS *d3t_CreateExplosion(void *parent, struct D3VECTOR *pos, int co
 struct SBSAMPLE; struct SBBANK;
 struct SBSAMPLE * sb_GetSample(struct SBBANK *bank, char *name);   /* 0x426030 */
 int gm_FindById();                     /* 0x4fea50 */
-int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
+struct AIMSG; int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 void cm_BeginFieldBlock(char *o, int id);                     /* 0x4c3ba0 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
 int cm_SendFieldDeltas(void);                     /* 0x4c49a0 */
@@ -335,7 +335,7 @@ extern const int gv_RankWorth[10];           /* 0x5ee0f8, the worth each rank ne
 extern unsigned char ai_NumPlayers;     /* 0x62489c, the number of players (as ai.h / cm.h / mission.c) */
 int gm_GetWorth(unsigned short id);    /* 0x50a640 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
-int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
+struct AIMSG; int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 void cm_BeginFieldBlock(char *o, int id);                     /* 0x4c3ba0 */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3c00 */
 int cm_SendFieldDeltas(void);                     /* 0x4c49a0 */

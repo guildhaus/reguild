@@ -1587,7 +1587,7 @@ int ai_GraveCare(AIBLD *rec, GVPICK *pick)
                     msg.graveWork.size = pick->size;
                     msg.graveWork.index = pick->index;
                     msg.ids[0] = c->netId;
-                    h = cm_SendLongMessage((char *)&msg);
+                    h = cm_SendLongMessage(&msg);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     r = 1;
@@ -1832,7 +1832,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
                 for (j = k; j < 4; j += 2)
                     msg.ids[j] = -1;
                 if (k != 0) {
-                    h = cm_SendLongMessage((char *)&msg);
+                    h = cm_SendLongMessage(&msg);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;
@@ -1936,7 +1936,7 @@ void ai_GraveFogWindow(AIBLD *rec)
                     msg.arg[1] = d2_GetObjValue(factor1);
                     msg.arg[2] = d2_GetObjValue(factor2);
                     msg.arg[0] = target->id;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == btnLeave) {
@@ -2234,7 +2234,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
         msg.time = ai_Time;
         msg.flags = 1;
         msg.arg[0] = amount;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         he_SetLifeByAge(&ai_Chars[ai_PlayerId], 3);
     }
     win = d2_OpenForm(0, 0, "Locations\\Friedhof\\Friedhof");
@@ -2623,7 +2623,7 @@ void ai_GraveHauntContact(AIBLD *rec)
                         ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
-                    id = cm_SendLongMessage((char *)&msg);
+                    id = cm_SendLongMessage(&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;
@@ -2731,7 +2731,7 @@ void ai_GraveAgeContact(AIBLD *rec)
                             ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                             msg.arg[0] = pick;
                         }
-                        id = cm_SendLongMessage((char *)&msg);
+                        id = cm_SendLongMessage(&msg);
                         while (id != -1 && cm_GetSlotState(id) == 0)
                             sv_RunFrame(0, 0x20007);
                         sv_FrameMask = 0x677c7;
@@ -2865,7 +2865,7 @@ void ai_GraveInsuranceContact(AIBLD *rec)
                     msg.time = ai_Time;
                     msg.arg[0] = f->netId;
                     msg.ids[0] = f->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == btnLeave) {
@@ -2961,7 +2961,7 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel)
             msg.arg[2] = -1;
         msg.arg[0] = ch->netId;
         msg.arg[1] = sel;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
         return 1;
     }
     return 0;

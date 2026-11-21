@@ -1324,7 +1324,7 @@ void cm_SendKillCharacter(int a, int b);                     /* 0x4c4e00 */
 int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
-int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
+int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 void txt_Format(char *out, intptr_t id0, ...);  /* 0x5176d0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
@@ -1339,7 +1339,7 @@ void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
     (m).flags = 2;                                                     \
     (m).time = ai_Time;                                               \
     (m).arg0 = (m).to;                                                 \
-    cm_SendLongMessage((char *)&(m))
+    cm_SendLongMessage((struct AIMSG *)&(m))
 
 /* 0x4fbe90, the daily step of the character c; returns its new life value (-1 for no step). A free slot and a
    character of kind 0xf take no step (the latter is killed when gm_MayRemoveChar lets it go); a raised dead

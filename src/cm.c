@@ -1414,27 +1414,27 @@ int cm_SendRelations(int a, int b, int c, int d)
 }
 /* 0x4c4b70, message 0x1c: msg (0xf8 bytes, AIMSG) as a long message; zeros at 0x38..0x57 become -1 */
 
-int cm_SendLongMessage(char *msg)
+int cm_SendLongMessage(AIMSG *msg)
 {
     G17MSG m;
     int i;
 
     m.type = 0x1c;
     for (i = 0; i < 8; i++)
-        if (((AIMSG *)msg)->ids[i] == 0)
-            ((AIMSG *)msg)->ids[i] = -1;
+        if (msg->ids[i] == 0)
+            msg->ids[i] = -1;
     cm_SetLongMsg(0xf8, msg);
     cm_QueueSend(&m);
 }
 /* 0x4c4bc0, message 0x1c with len extra bytes after msg (0xf8 bytes) */
 
-int cm_SendLongMessageText(char *msg, unsigned int len, void *extra)
+int cm_SendLongMessageText(AIMSG *msg, unsigned int len, void *extra)
 {
     G17MSG m;
     char *buf;
 
     m.type = 0x1c;
-    if (gm_FindChar(((AIMSG *)msg)->to) == 0)
+    if (gm_FindChar(msg->to) == 0)
         return -1;
     buf = mem_Alloc(len + 0xf8, "tmp");
     memcpy(buf, msg, 0xf8);

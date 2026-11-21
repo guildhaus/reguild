@@ -3164,44 +3164,44 @@ void main_EndRound(void)
             AIMSG msg;
 
             MAIN_NOTE(msg, 0x66);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
         }
         if (he_FindEvent(1, 0, 0x70) == 0) {
             AIMSG msg;
 
             MAIN_NOTE(msg, 0x70);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
         }
         if (he_FindEvent(1, 0, 0x68) == 0) {
             AIMSG msg;
 
             MAIN_NOTE(msg, 0x68);
-            cm_SendLongMessage((char *)&msg);
+            cm_SendLongMessage(&msg);
         }
     }
     if (cm_TutorialActive != 0 && he_FindEvent(1, 0, 0x85) == 0) {
         AIMSG msg;
 
         MAIN_NOTE(msg, 0x85);
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if (he_FindEvent(1, 0, 0x7c) == 0) {
         AIMSG msg;
 
         MAIN_NOTE(msg, 0x7c);
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if (he_FindEvent(1, 0, 0x93) == 0) {
         AIMSG msg;
 
         MAIN_NOTE(msg, 0x93);
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if (he_FindEvent(1, 0, 0x84) == 0 && ai_GamePanel.byte[3] != 0) {
         AIMSG msg;
 
         MAIN_NOTE(msg, 0x84);
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if (sv_PanelForm != -1)
         d2_SetViewEnabled(sv_PanelForm, 0);
@@ -3281,7 +3281,7 @@ void main_EndRound(void)
         msg.reserved14 = 0;
         msg.time = ai_Time;
         msg.flags = 1;
-        cm_SendLongMessage((char *)&msg);
+        cm_SendLongMessage(&msg);
     }
     if ((ai_GameFlags & 8) != 0) {
         b = gm_BuildQuery(1, 0, 0x44);
@@ -3332,7 +3332,7 @@ void main_EndRound(void)
                             msg.arg[0] = b->id;
                             cm_BeginGroup("renovieren");
                             cm_SendMoveGoods(-1, ai_Chars[k].netId, ai_OwnPlayer, (int)cost);
-                            cm_SendLongMessage((char *)&msg);
+                            cm_SendLongMessage(&msg);
                             cm_EndGroup("renovieren");
                             fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[k]);
                             if (fin != 0)
@@ -3786,7 +3786,7 @@ void main_UpdateFigure(int i)
                 msg.flags = 0x11;
                 msg.arg[2] = 1;
                 msg.arg[0] = msg.to;
-                cm_SendLongMessage((char *)&msg);
+                cm_SendLongMessage(&msg);
                 sprintf(txt, "MeisterPrü" "fung started: player_id:%i beruf:%i grad:%i", c->netId, c->jobId, left + 1);
                 gm_SendMoneyDelta(c->netId, -4);
             }
@@ -3931,7 +3931,7 @@ void main_SettleRound(unsigned short pl)
                     msg1.flags = 2;
                     msg1.arg[0] = c->id;
                     msg1.arg[1] = gm_EquipmentValue(c, c->level);
-                    cm_SendLongMessage((char *)&msg1);
+                    cm_SendLongMessage(&msg1);
                     }
                 }
                 if (ai_Chars[pl].kind == 0xd || ai_Chars[pl].kind == 0 || ai_Chars[pl].netId == -1) {
@@ -3948,7 +3948,7 @@ void main_SettleRound(unsigned short pl)
                         msg2.flags = 2;
                         msg2.arg[0] = c->id;
                         msg2.arg[1] = gm_EquipmentValue(c, c->level);
-                        cm_SendLongMessage((char *)&msg2);
+                        cm_SendLongMessage(&msg2);
                         cnt++;
                         for (i = 0; i < 0x300; i++) {
                             if (ai_Chars[i].bld == c) {
@@ -3959,7 +3959,7 @@ void main_SettleRound(unsigned short pl)
                                 msg2.flags = 1;
                                 msg2.time = ai_Time;
                                 msg2.arg[0] = ai_Chars[i].netId;
-                                cm_SendLongMessage((char *)&msg2);
+                                cm_SendLongMessage(&msg2);
                                 cnt++;
                             }
                         }
@@ -4074,7 +4074,7 @@ void main_SettleRound(unsigned short pl)
                                         msg4.flags = 1;
                                         msg4.arg[0] = q->netId;
                                         gm_AddTime((struct AITIME *)&msg4.time, util_Random(6) + 4, 0, 0);
-                                        cm_SendLongMessage((char *)&msg4);
+                                        cm_SendLongMessage(&msg4);
                                     } else {
                                         AIMSG msg1;     /* 0x1b to the master; 0x34 */
 
@@ -4086,7 +4086,7 @@ void main_SettleRound(unsigned short pl)
                                         msg1.flags = 1;
                                         msg1.arg[0] = q->netId;
                                         gm_AddTime((struct AITIME *)&msg1.time, util_Random(6) + 4, 0, 0);
-                                        cm_SendLongMessage((char *)&msg1);
+                                        cm_SendLongMessage(&msg1);
                                     }
                                     cnt++;
                                 }
@@ -4649,7 +4649,7 @@ void main_GameLoop(int ctl)
         m.msg.fromId = -1;
         m.msg.flags = 9;
         m.msg.to = ai_Chars[ai_PlayerId].netId;
-        cm_SendLongMessage((char *)&m.msg);
+        cm_SendLongMessage(&m.msg);
     }
     /* the rounds */
     while (ai_GameOver == 0 && (iv = sv_RunFrame(main_GameLoop, 0x20007)) != 0 && main_Round < 800) {

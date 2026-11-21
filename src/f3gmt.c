@@ -154,7 +154,7 @@ void cm_SendKillCharacter(int a, int b);                     /* 0x4c4e00 */
 int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
-int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
+int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 void txt_Format(char *out, intptr_t id0, ...);  /* 0x5176d0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
@@ -5353,7 +5353,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
             m.flags = 2;
             m.arg0 = s->id;
             m.arg1 = gm_EquipmentValue(s, s->level);
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage((struct AIMSG *)&m);
             for (i = 0; i < 0x300; i++) {
                 c = &ai_Chars[i];
                 if (c->bld == s && c->netId != dead->netId) {
@@ -5364,7 +5364,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
                     m.flags = 1;
                     m.time = ai_Time;
                     m.arg0 = c->netId;
-                    cm_SendLongMessage((char *)&m);
+                    cm_SendLongMessage((struct AIMSG *)&m);
                 }
             }
             }
@@ -5510,7 +5510,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
             m.flags = 2;
             m.arg0 = h->id;
             m.arg1 = gm_EquipmentValue(h, h->level);
-            cm_SendLongMessage((char *)&m);
+            cm_SendLongMessage((struct AIMSG *)&m);
             for (i = 0; i < 0x300; i++) {
                 t = &ai_Chars[i];
                 if (t->bld == h && t->netId != c->netId) {
@@ -5521,7 +5521,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
                     m.flags = 1;
                     m.time = ai_Time;
                     m.arg0 = t->netId;
-                    cm_SendLongMessage((char *)&m);
+                    cm_SendLongMessage((struct AIMSG *)&m);
                 }
             }
         }

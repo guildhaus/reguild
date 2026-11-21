@@ -2844,7 +2844,7 @@ void ai_CurseWindow(AIBLD *building)
                     msg.to = ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     msg.arg[1] = target->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage((struct AIMSG *)&msg);
                     txt_Format(text, 0x41da, 0x41c1);
                     sprintf(name, "_WAHRSAGERIN_FLUCH_0%d", v);
                     snd_PlayVoice(-7, 0, name, -1);
@@ -2955,7 +2955,7 @@ void ai_CurseTargetWindow(AIBLD *building)
                     msg.fromId = building->id;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     msg.arg[0] = value;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage((struct AIMSG *)&msg);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == ids[1]) {
@@ -3091,7 +3091,7 @@ void ai_GypsyBeggingWindow(AIBLD *building)
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     for (i = 0; i < count; i++)
                         msg.ids[i] = ((AICHARVIEW *)&ai_Chars[chosen[i]])->netId;
-                    cm_SendLongMessage((char *)&msg);
+                    cm_SendLongMessage((struct AIMSG *)&msg);
                     sv_PopRequest = 1;
                 } else {
                     sv_MessageBox((intptr_t)txt_Ptrs[0x41ea], 0);
