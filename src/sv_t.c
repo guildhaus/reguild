@@ -1739,24 +1739,6 @@ int ai_TutorialIntroAnswered(void)
     if (!ai_Tutorial->host->slot)
         return -4;
     if (he_ActiveSlot->ev && he_ActiveSlot->ev->kind == (char)0x87) {
-#ifdef REA_START
-        /* REA_START=tutorial (`uv run play|dbg --start tutorial`): accept the tutorial's intro message (the 0x87
-           event, whose "Weiter" text object 0x577740 stores in S+0x20) without a mouse click, so a run without GUI
-           automation gets past it. Answer straight away like the keyboard arm does - forging a click in
-           d2_ClickedId / d2_PointerObj would leak the phantom click into the rest of the frame. Without the flag
-           the message waits for the real click / Return. */
-        {
-            char *rea = getenv("REA_START");
-            if (rea != 0 && strcmp(rea, "tutorial") == 0) {
-                if (ai_Tutorial->voice) {
-                    if (sb_IsPlaying(ai_Tutorial->voice))
-                        sb_Stop(ai_Tutorial->voice, 0);
-                    ai_Tutorial->voice = 0;
-                }
-                return 1;
-            }
-        }
-#endif
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == ai_Tutorial->continueObj) {
                 if (ai_Tutorial->voice) {
@@ -4035,19 +4017,6 @@ int ai_TutorialWindow(void)
     back = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f21));
     d2_SetForm(id, 2);
     while (sv_RunFrame((int)ai_TutorialWindow, 0x86) != 0) {
-#ifdef REA_START
-        /* REA_START=tutorial (`uv run play|dbg --start tutorial`): the chapter menu is the screen between the
-           main-menu entry and the loading screen. Accept its default selection (0x62918c starts all 1) the way
-           the "Tutorial starten" click does, so a run without GUI automation still reaches the tutorial;
-           without the flag the menu waits for a real click. The frame above has drawn and registered it. */
-        {
-            char *rea = getenv("REA_START");
-            if (rea != 0 && strcmp(rea, "tutorial") == 0) {
-                sv_PopRequest = 1;
-                result = 1;
-            }
-        }
-#endif
         for (i = 0, n = 0; i < 5; i++) {
             if (d2_Objs[ids[i]].checked != 0) {
                 d2_SetObjEnabled(start, 1);

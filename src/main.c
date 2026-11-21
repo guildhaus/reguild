@@ -1330,11 +1330,6 @@ void main_Menue(void)
     int bnew, bload, btut, bnet, bopt3, bcred, bquit, bopt1, bopt2, bini, bnetsave, bcheck;
     char ini[260], path[260], ini2[260], path2[260];
     char city[0x60], city2[0x60];
-#ifdef REA_START
-    int rea_entry;
-    int rea_delay;                         /* frames to let the menu run before the entry is taken */
-    char *rea_want;
-#endif
 
     bopt1 = -1;
     bopt2 = -1;
@@ -1410,52 +1405,8 @@ void main_Menue(void)
     d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 10);
     kb_Last = 0;
     msx_SetFadeTime(2000);
-#ifdef REA_START
-    /* REA_START=1 (tools/build.py, `uv run play|dbg --start NAME`): take one main-menu entry without a mouse
-       click, so a start-up path is reachable without the GUI automation (build/dbg_tutorial.ps1). The entry
-       then runs the same code a click runs (the loop below); the names are the buttons' own. A click cannot
-       happen before the menu has run once: on the zero-th pass the menu callback is not registered yet, so
-       the pop request the entry sets (sv_PopRequest) would not be consumed and would leak into the game
-       loop, which then exits after its first frame. Wait one pass, as a real click does. */
-    rea_entry = -1;
-    rea_delay = 1;
-    rea_want = getenv("REA_START");
-    if (rea_want != 0 && *rea_want != 0) {
-        if (strcmp(rea_want, "new") == 0)
-            rea_entry = bnew;
-        else if (strcmp(rea_want, "load") == 0)
-            rea_entry = bload;
-        else if (strcmp(rea_want, "tutorial") == 0)
-            rea_entry = btut;
-        else if (strcmp(rea_want, "network") == 0)
-            rea_entry = bnet;
-        else if (strcmp(rea_want, "gameoptions") == 0)
-            rea_entry = bopt3;
-        else if (strcmp(rea_want, "gfxoptions") == 0)
-            rea_entry = bopt1;
-        else if (strcmp(rea_want, "sfxoptions") == 0)
-            rea_entry = bopt2;
-        else if (strcmp(rea_want, "credits") == 0)
-            rea_entry = bcred;
-        else if (strcmp(rea_want, "quit") == 0)
-            rea_entry = bquit;
-        else if (strcmp(rea_want, "ini") == 0)
-            rea_entry = bini;
-        else if (strcmp(rea_want, "netsave") == 0)
-            rea_entry = bnetsave;
-        else if (strcmp(rea_want, "checktext") == 0)
-            rea_entry = bcheck;
-    }
-#endif
     do {
         d2_MenuNavigate(grp);
-#ifdef REA_START
-        if (rea_entry != -1 && rea_delay-- <= 0) {
-            d2_PointerObj = rea_entry;     /* what a click on that button leaves behind */
-            dm_L.lclick = 1;
-            rea_entry = -1;                /* one shot: the options screens return to this loop */
-        }
-#endif
         if (again != 0) {
             d2_ShowPicture(0x797);
             again = 0;
@@ -3290,17 +3241,6 @@ void main_EndRound(void)
         io_PrintText(0x1efa, ai_Chars[ai_PlayerId].money);
         r = sv_RunFrame((int)main_EndRound, 0x24087);
         while (r != 0) {
-#ifdef REA_START
-            /* REA_START=tutorial (`uv run play|dbg --start tutorial`): the first screen the started tutorial
-               stops at is this round-change page with its "Weiter" button. The hook advances it the way a
-               click does (sv_PopRequest, the only thing the button's handler leaves behind), so a run without
-               GUI automation gets past the page. The frame above has drawn and registered it once. */
-            {
-                char *rea = getenv("REA_START");
-                if (rea != 0 && strcmp(rea, "tutorial") == 0)
-                    sv_PopRequest = 1;
-            }
-#endif
             if (d2_ClickedId == 0 || kb_Last == 0x1c)
                 sv_PopRequest = 1;
             r = sv_RunFrame((int)main_EndRound, 0x24087);
