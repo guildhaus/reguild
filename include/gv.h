@@ -462,7 +462,7 @@ int gv_RoomForRaised(unsigned char *o, int *n);  /* 0x4f1d50 */
 float gv_PreserveRate(char *o);           /* 0x4f16f0 */
 int cm_SendFloatDelta(int id, int field, float delta);  /* 0x4c4ac0 */
 int gv_WriteGraveyard(void *f, unsigned char *o);  /* 0x4f17f0 */
-char * gm_Query(void *list, int n, ...);                   /* 0x4ffe90 */
+struct AIOBJ *gm_Query(void *list, int n, ...);                   /* 0x4ffe90 */
 unsigned gv_RaiseDead(GVRAISE *m);     /* 0x4f1200 */
 int gv_ReadGraveyard(void *f, unsigned char *o);  /* 0x4f1aa0, reads the graveyard record of o from the file f (allocated by 0x4efc10) */
 float util_RandomF(void);               /* 0x42ec20 */

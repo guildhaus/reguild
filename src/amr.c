@@ -4146,7 +4146,7 @@ int ai_ExecuteUseDynastyObject(G5CH *p, AIARG *s1, AIARG *s2)
     AIOBJ *o;
     float *g;
 
-    o = (AIOBJ *)gm_Query((void *)p->inventory, 1, 1, s1->ref);
+    o = gm_Query((void *)p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
     g = (float *)ai_FindUsableGood(o->id);
@@ -5654,7 +5654,7 @@ int ai_DecideMasterBuilder(int a, G5CH *p, int f, AIARG *o1, AIARG *o2)
     b = gm_FirstBuilding(1);
     if (b == 0)
         return 0;
-    o = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x115);
+    o = gm_Query(b->objList, 2, 6, 0, 0x115);
     money = gm_SumListAmounts(o->list, ai_OwnPlayer);
     if (money < (util_Random(3000) + 1000) * 32)
         return 0;
@@ -6773,7 +6773,7 @@ int ai_DecideUpgradeGuild(int a, G5CH *p, int f, AIARG *o1, AIARG *o2)
         bl = gm_BuildQuery(1, 5, 0x1a);
     if (bl == 0)
         return 0;
-    o = (AIOBJ *)gm_Query(bl->objList, 2, 6, 0, 0x142);
+    o = gm_Query(bl->objList, 2, 6, 0, 0x142);
     money = gm_SumListAmounts((void *)o->list, ai_OwnPlayer);
     lvl = bl->level;
     if (lvl < util_Random(0x10) + 0x32 && !(bl->flags5a & 4)) {

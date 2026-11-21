@@ -221,7 +221,7 @@ char *cm_CharWeaponAny(char *c)
     AIOBJ *q;
     char *r;
 
-    for (q = (AIOBJ *)gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+    for (q = gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
         r = ai_FindWeaponRecord(q->id);
         if (r != 0)
             return r;
@@ -235,7 +235,7 @@ char *cm_CharWeapon(char *c)
     AIOBJ *q;
     AIWEAPON *r;
 
-    for (q = (AIOBJ *)gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+    for (q = gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
         r = (AIWEAPON *)ai_FindWeaponRecord(q->id);
         if (r != 0) {
             if ((r->kind == 1 || r->kind == 2) && q->usesLeft <= 0)
@@ -252,7 +252,7 @@ char *cm_CharWeaponItem(char *c)
     AIOBJ *q;
     AIWEAPON *r;
 
-    for (q = (AIOBJ *)gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+    for (q = gm_Query(((AICHAR *)c)->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
         r = (AIWEAPON *)ai_FindWeaponRecord(q->id);
         if (r != 0) {
             if ((r->kind == 1 || r->kind == 2) && q->usesLeft <= 0)
@@ -270,7 +270,7 @@ void cm_DiscardWeapons(char *c)
     AIOBJ *q;
     int id;
 
-    for (q = (AIOBJ *)gm_Query(ch->inventory, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+    for (q = gm_Query(ch->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
         id = q->id;
         if (ai_FindWeaponRecord(id) != 0)
             cm_SendExSellObject(-1, ch->netId, id, q->count, ai_OwnPlayer, 0);
@@ -2060,15 +2060,15 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
         o = d3_FindObject(0, 0x100, 0, name);
         if (o != 0) {
             if (*cart != -1) {
-                obj = (AIOBJ *)gm_Query(0, 2, 7, 1, *cart);
+                obj = gm_Query(0, 2, 7, 1, *cart);
                 if (obj == 0) {
                     gm_FindObjectInst(*cart);
                     *cart = -1;
                     continue;
                 }
-                load = (AIOBJ *)gm_Query((void *)obj->list, 1, 0, 0x1dd);
+                load = gm_Query((void *)obj->list, 1, 0, 0x1dd);
                 n = 0;
-                for (w = (AIOBJ *)gm_Query((void *)load->list, 1, 5); n < 3 && w != 0; w = (AIOBJ *)gm_QueryNext())
+                for (w = gm_Query((void *)load->list, 1, 5); n < 3 && w != 0; w = gm_QueryNext())
                     goods[n++] = w;
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
                 if (obj->type == 0x134)
@@ -3281,15 +3281,15 @@ int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
     AIOBJ *oa, *ob, *q;
     int cnt, v;
 
-    oa = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x116);
-    ob = (AIOBJ *)gm_Query(a->objList, 2, 6, 0, 0x2a);
+    oa = gm_Query(b->objList, 2, 6, 0, 0x116);
+    ob = gm_Query(a->objList, 2, 6, 0, 0x2a);
     v = gm_GetGoodsValue((char *)t);
     v = v < 0 ? 0 : v;
     v = v < 0x9c400 ? v : 0x9c400;
     v = (int)(((double)(unsigned int)cm_Random(0x32) * 0.001 + 0.07) * v);
     cm_SendMoveGoods(d->netId, t->netId, ai_OwnPlayer, v);
     if (ob != 0 && oa != 0) {
-        for (q = (AIOBJ *)gm_Query(ob->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+        for (q = gm_Query(ob->list, 1, 5); q != 0; q = gm_QueryNext()) {
             cnt = (int)(((double)(unsigned int)(cm_Random(0x14) + 0x50) * 0.01) * (double)q->count);
             if (cnt < 1)
                 cnt = 1;
@@ -3316,12 +3316,12 @@ int cm_LootCarts(CMFIGHTREC *a, AIBLD *b, AICHAR *d, int unused, float f)
     if (cm_FightAttacker == 0 || cm_FightDefender == 0)
         return 0;
     {
-        ob = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x116);
+        ob = gm_Query(b->objList, 2, 6, 0, 0x116);
         for (i = 0; i < 3; i++) {
             if (a->carts[i] != -1) {
-                p = (AIOBJ *)gm_Query(0, 2, 7, 1, a->carts[i]);
-                p = (AIOBJ *)gm_Query(p->list, 1, 0, 0x1dd);
-                for (q = (AIOBJ *)gm_Query(p->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+                p = gm_Query(0, 2, 7, 1, a->carts[i]);
+                p = gm_Query(p->list, 1, 0, 0x1dd);
+                for (q = gm_Query(p->list, 1, 5); q != 0; q = gm_QueryNext()) {
                     gm_ObjectBuildingOwner((unsigned short *)q);
                     x = (float)q->count * f;
                     if (1.0f > x)
@@ -3374,9 +3374,9 @@ int cm_LootList(int x, int y, int mode)
     for (i = 0; i < 3; i++) {
         if (cm_FightRecord->carts[i] == -1)
             continue;
-        q = (AIOBJ *)gm_Query(0, 2, 7, 1, cm_FightRecord->carts[i]);
-        q = (AIOBJ *)gm_Query(q->list, 1, 0, 0x1dd);
-        for (q = (AIOBJ *)gm_Query(q->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+        q = gm_Query(0, 2, 7, 1, cm_FightRecord->carts[i]);
+        q = gm_Query(q->list, 1, 0, 0x1dd);
+        for (q = gm_Query(q->list, 1, 5); q != 0; q = gm_QueryNext()) {
             if (mode != 0 && !(mode == 1 && q->fightSide == ai_PlayerId) &&
                 !(mode == 2 && q->fightSide != ai_PlayerId))
                 continue;
@@ -3546,7 +3546,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
             if (a->carts[i] != -1)
                 st++;
         }
-        job = ((AIOBJ *)gm_Query(0, 2, 7, 1, a->carts[0]))->job24;     /* the job the first cart runs */
+        job = (gm_Query(0, 2, 7, 1, a->carts[0]))->job24;     /* the job the first cart runs */
         d2_SetForm(win, 1);
         io_PrintText("$C");
         if (job != 0) {
@@ -3695,9 +3695,9 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     sv_SetStatusText(&ch_EmptyName);
     if (a->attackerBldId != -1) {
         b = gm_BuildQuery(1, 1, a->attackerBldId);
-        obj = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x116);
+        obj = gm_Query(b->objList, 2, 6, 0, 0x116);
         if (obj == 0)
-            obj = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x2a);
+            obj = gm_Query(b->objList, 2, 6, 0, 0x2a);
     }
     if (cm_FightOwner == ai_Chars[ai_PlayerId].netId) {
         for (i = 0; i < 16; i++) {
@@ -3754,7 +3754,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     } else if (side == cm_FightAttacker) {
         io_PrintText(0x118c, cm_FightDefender->id, cm_FightAttacker->id);
         if (a->flags & 1) {
-            p = (AIOBJ *)gm_Query(0, 2, 7, 1, a->carts[0]);
+            p = gm_Query(0, 2, 7, 1, a->carts[0]);
             if (p->job24 != 0 && gm_FindBuildingById(p->job24->cartBld) != 0)
                 io_PrintText(0x118d);
         }
@@ -3819,9 +3819,9 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             id = a->carts[i];
             if (id == -1)
                 continue;
-            p = (AIOBJ *)gm_Query(0, 2, 7, 1, id);
-            p = (AIOBJ *)gm_Query(p->list, 1, 0, 0x1dd);
-            for (q = (AIOBJ *)gm_Query(p->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+            p = gm_Query(0, 2, 7, 1, id);
+            p = gm_Query(p->list, 1, 0, 0x1dd);
+            for (q = gm_Query(p->list, 1, 5); q != 0; q = gm_QueryNext()) {
                 if (side == cm_FightAttacker)
                     q->fightSide = cm_FightAttacker->id;
                 if (q->fightSide == cm_FightAttacker->id) {
@@ -3866,16 +3866,16 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a5, cm_FightAttacker->id, ca);
             cm_MessageBox(tc, 0);
-            ob = (AIOBJ *)gm_Query(ca->objList, 2, 6, 0, 0x2a);
+            ob = gm_Query(ca->objList, 2, 6, 0, 0x2a);
             if (ob == 0)
-                ob = (AIOBJ *)gm_Query(ca->objList, 2, 6, 0, 0x116);
+                ob = gm_Query(ca->objList, 2, 6, 0, 0x116);
             v = gm_GetGoodsValue((char *)cm_FightDefender);
             v = v < 0x9c400 ? v : 0x9c400;
             v = (int)((float)((double)cm_Random(0x32) * 0.001 + 0.07) * (v < 0 ? 0 : v));
             txt_Format(tc, "$Z%T$A", v);
             cm_SendMoveGoods(cm_FightAttacker->netId, cm_FightDefender->netId, ai_OwnPlayer, v);
             if (ob != 0 && obj != 0) {
-                for (q = (AIOBJ *)gm_Query(ob->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+                for (q = gm_Query(ob->list, 1, 5); q != 0; q = gm_QueryNext()) {
                     cnt = (int)(((double)(cm_Random(0x14) + 0x50) * 0.01) * q->count);
                     if (cnt < 1)
                         cnt = 1;
@@ -3975,16 +3975,16 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a5, cm_FightAttacker->id, ca);
             cm_MessageBox(tc, 0);
-            p = (AIOBJ *)gm_Query(ca->objList, 2, 6, 0, 0x2a);
+            p = gm_Query(ca->objList, 2, 6, 0, 0x2a);
             if (p == 0)
-                p = (AIOBJ *)gm_Query(ca->objList, 2, 6, 0, 0x116);
+                p = gm_Query(ca->objList, 2, 6, 0, 0x116);
             v = gm_GetGoodsValue((char *)cm_FightDefender);
             v = v < 0x9c400 ? v : 0x9c400;
             v = (int)((float)((double)cm_Random(0x32) * 0.001 + 0.07) * (v < 0 ? 0 : v));
             txt_Format(tc, "$Z%T$A", v);
             cm_SendMoveGoods(cm_FightAttacker->netId, cm_FightDefender->netId, ai_OwnPlayer, v);
             if (p != 0 && obj != 0) {
-                for (q = (AIOBJ *)gm_Query(p->list, 1, 5); q != 0; q = (AIOBJ *)gm_QueryNext()) {
+                for (q = gm_Query(p->list, 1, 5); q != 0; q = gm_QueryNext()) {
                     n = (int)(((double)(cm_Random(0x14) + 0x50) * 0.01) * q->count);
                     if (n < 1)
                         n = 1;
@@ -4181,7 +4181,7 @@ void cm_RunFight(CMFIGHTREC *a)
             e1 = 0;
             bld = gm_BuildQuery(1, 1, cm_FightRecord->attackerBldId);
             if (bld != 0)
-                e1 = gm_Query(bld->objList, 2, 6, 0, 0x116);
+                e1 = (char *)gm_Query(bld->objList, 2, 6, 0, 0x116);
             if (cm_FightLootValue > 0) {
                 if (e1 == 0)
                     txt_Format(buf, 0x1144, cm_FightLootValue);

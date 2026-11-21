@@ -854,7 +854,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
         ai_Relations[c->id][j] = (signed char)util_Random(0x40) - 0x20;
         ai_RelationMemory[c->id][j] = 0;
     }
-    g = (AIOBJ *)gm_Query((void *)o->objList, 1, 0, 0x24b);
+    g = gm_Query((void *)o->objList, 1, 0, 0x24b);
     gm_PlaceOnStage(c->netId, o->id, g != 0 ? g->objId : -1, 0, 0);
     gm_ChooseHeadIcon(&c->id);
     if (o->ahm == 0)
@@ -867,7 +867,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     o->ahm->share[2] = m->proto.plr.attr[2];
     o->ahm->share[3] = m->proto.plr.attr[3];
     o->ahm->slots[0].id = m->proto.plr.id;
-    place = (AIOBJ *)gm_Query((void *)o->objList, 2, 6, 0, 0xff);
+    place = gm_Query((void *)o->objList, 2, 6, 0, 0xff);
     if (place != 0) {
         while (place->items != 0)
             gm_RemoveObject(&place->list, *place->items);
@@ -984,7 +984,7 @@ int ahm_RemovePlace(int *p, char *rec, unsigned char *o)
     i = 0;
     do {
         if (q->id == p[2]) {
-            sp = gm_Query(obj->objs, 2, 6, 0, 0xff);
+            sp = (char *)gm_Query(obj->objs, 2, 6, 0, 0xff);
             if (sp != 0)
                 gm_RemoveObject(sp + 0x14, p[2]);
             r->slots[i].id = 0;
@@ -1080,7 +1080,7 @@ int ahm_DeleteAlchemist(int unused, int *rec, unsigned char *o)
 
     c = (AICHAR *)gm_FindChar(rec[0]);
     if (c != 0) {
-        sp = gm_Query(((AHMOBJ *)o)->objs, 2, 6, 0, 0xff);
+        sp = (char *)gm_Query(((AHMOBJ *)o)->objs, 2, 6, 0, 0xff);
         c->bld2 = 0;
         c->bld = 0;
         q = rec + 3;

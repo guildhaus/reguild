@@ -1291,7 +1291,7 @@ void ai_SetBookmark(int idx)
             if (sv_PanelShown != 0)
                 o = sv_PanelShown;
             else
-                o = (AIOBJ *)gm_Query((void *)a->objList, 2, 6, 0, 0xfd);
+                o = gm_Query((void *)a->objList, 2, 6, 0, 0xfd);
         } else {
             a = sv_SelectedObject;
             if (a == 0)

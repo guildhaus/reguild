@@ -1380,7 +1380,7 @@ void gv_CheckRankUp(unsigned i)
         bld = gm_BuildQuery(rank, 5, 0xf);
         if (bld == 0)
             return;
-        item = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 0, 0x110);
+        item = gm_Query((void *)bld->objList, 2, 6, 0, 0x110);
         if (item == 0)
             return;
         cm_SendSetField(c->netId, 0x1c8, 4, 0x4000, 0);

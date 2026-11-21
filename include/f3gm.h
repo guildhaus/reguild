@@ -147,7 +147,7 @@ struct ORDCHAR; struct GMDATE; void gm_BirthDate(struct ORDCHAR *c, struct GMDAT
 struct ORDCHAR; struct GMDATE; int gm_DeathDate(struct ORDCHAR *c, struct GMDATE *out);  /* 0x5060d0, the day of death of the character c; 0 for a living one */
 struct GMRANK; void gm_RankPlayers(int *count, struct GMRANK *out);  /* 0x506180, the ranking of the up to 8 players into out, *count of them */
 float gm_JobCost(char *c, int k, int a, int b);  /* 0x50cd40 */
-unsigned short *gm_QueryNext(void);  /* 0x4ffcc0 */
+struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 int gm_OwnerWorth(char *b, int flag);  /* 0x509c80 */
 short *gm_PlayerRecord(char *c);  /* 0x506430 */
 int gm_Opinion(int a, int b);  /* 0x50c520 */
@@ -187,7 +187,7 @@ extern int ai_NextObjectId;  /* 0x61a654 */
 int gm_AddObjekt(int id, int proto, int n);  /* 0x500970 */
 void gm_ChooseHeadIcon(unsigned short *c);  /* 0x4fb890 */
 int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
-char *gm_Query(void *list, int n, ...);  /* 0x4ffe90 */
+struct AIOBJ *gm_Query(void *list, int n, ...);  /* 0x4ffe90 */
 void gm_RefreshGoodsLists(unsigned p);  /* 0x4ff190 */
 JOBTALENTS gm_GetJobTalents(int job);  /* 0x503ee0, the record of the job (0x5f and above: the first) */
 struct AITIME; void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);  /* 0x4fe140 */

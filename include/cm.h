@@ -115,7 +115,7 @@ int gm_CompareTime(AITIME *a, AITIME *b);                                       
 struct AIBLD *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
 int gm_IsHomeType(struct AIBLD *bld);                                                     /* 0x502520 */
 void *gm_GetGebaeudeHauptraum(unsigned char *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
-char * gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
+struct AIOBJ *gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
 struct ORDCHAR; struct ORDBLD; struct ORDCHAR *gm_FindApplicant(struct ORDBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct ORDBLD; struct ORDBLD *gm_FindHome(int unused, struct ORDBLD *o);                                   /* 0x4fd820 */
 char * gm_FindGoods(int p, unsigned id);                                            /* 0x4ffc40, ai.h: int * */
@@ -428,7 +428,7 @@ int gv_HandOverCrimes();  /* 0x4f3910 */
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
 char *gm_HomeObject(unsigned char *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, char *p6);  /* 0x4fddb0 */
-unsigned short * gm_QueryNext(void);  /* 0x4ffcc0 */
+struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 int gm_BuildingMainObject(unsigned char *b);  /* 0x501b50 */
 void gm_FreeObject(int o);  /* 0x5034b0 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */

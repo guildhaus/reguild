@@ -757,11 +757,11 @@ struct D3VECTOR; int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float e
 float gm_GoodsPrice(unsigned id, unsigned char p);   /* 0x5089c0, the price (ai.h / cm.h / rt.h: float) */
 void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its first call (line 1119) */
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
-int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); char * gm_Query(void *list, int n, ...);
+int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
-int gm_ListAmount(); char * gm_Query(void *list, int n, ...);
+int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
 int gm_BuildingGoodsList(char *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
@@ -850,7 +850,7 @@ int ai_ExtractResourceWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
 void ai_HandlePickedPlant(AIBLD *bld, int plants);
 int he_NoProtectionEvent();
-unsigned short * gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
+struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
@@ -997,7 +997,7 @@ typedef struct AMTPICK {           /* the row record the special-amount list han
     unsigned short pad02;
     int charId;                    /* 0x04, the office owner's character id (amt_ExecuteMayorPowerMessage's m[1]) */
 } AMTPICK;
-char * gm_Query(void *list, int n, ...); int gm_GetWorth(unsigned short id); int gm_GetGoodsValue(); int ai_AmountLimit();
+struct AIOBJ *gm_Query(void *list, int n, ...); int gm_GetWorth(unsigned short id); int gm_GetGoodsValue(); int ai_AmountLimit();
 void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 int io_PrintText(char *fmt, ...); int d2_GetWinObj(); int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d); int cm_SendRelations(int a, int b, int c, int d); void txt_Format(char *out, int id0, ...);
@@ -3071,7 +3071,7 @@ int ai_TransportFromLager(int lagerId, AIOBJ *cart, AIBLD *bld, int priced, char
     if (bld != 0)
         bt = &ai_BTypes[bld->type];
     if (source == 0) {
-        lager = gm_Query(0, 2, 7, 1, lagerId);
+        lager = (char *)gm_Query(0, 2, 7, 1, lagerId);
         if (lager == 0) {
             err_Message("ob_TransportFromLager(): Could not find lager by id...");
             return 0;
@@ -3394,25 +3394,25 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     if (sv_PanelShown != 0) {
         mode1 = mode & 1;
         if (mode1) {
-            marketObj = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0xff, 6);
-            if ((stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 4, 5, 6)) == 0
-                && (stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 1, 4, 0x11)) == 0
-                && (stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x2a, 6)) == 0)
-                stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x116, 6);
+            marketObj = gm_Query((void *)sv_PanelShown->list, 2, 0, 0xff, 6);
+            if ((stall = gm_Query((void *)sv_PanelShown->list, 2, 4, 5, 6)) == 0
+                && (stall = gm_Query((void *)sv_PanelShown->list, 1, 4, 0x11)) == 0
+                && (stall = gm_Query((void *)b->objList, 2, 0, 0x2a, 6)) == 0)
+                stall = gm_Query((void *)b->objList, 2, 0, 0x116, 6);
         } else if (mode == 2) {
-            stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1db, 6);
+            stall = gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1db, 6);
         } else if (mode == 4) {
-            stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1dc, 6);
+            stall = gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1dc, 6);
         }
     } else {
         mode1 = mode & 1;
         if (mode1) {
-            if ((stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x2a, 6)) == 0)
-                stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x116, 6);
+            if ((stall = gm_Query((void *)b->objList, 2, 0, 0x2a, 6)) == 0)
+                stall = gm_Query((void *)b->objList, 2, 0, 0x116, 6);
         } else if (mode == 2) {
-            stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x1db, 6);
+            stall = gm_Query((void *)b->objList, 2, 0, 0x1db, 6);
         } else if (mode == 4) {
-            stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x1dc, 6);
+            stall = gm_Query((void *)b->objList, 2, 0, 0x1dc, 6);
         }
     }
     if (stall != 0)
@@ -3543,7 +3543,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
         if (mode8 && d2_ClickedId != -1) {
             for (i = 0; i < 7; i++) {
                 if (d2_PointerObj == panelBtns[i]) {
-                    picked = (AIOBJ *)gm_Query(0, 2, 7, 0, panelIds[i]);
+                    picked = gm_Query(0, 2, 7, 0, panelIds[i]);
                     sv_PopRequest = 1;
                 }
             }
@@ -3598,7 +3598,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
         }
 
         /* the player's carts at the building get a row each */
-        cart = (AIOBJ *)gm_Query((void *)src->objList, 2, 4, 0x1d, 3, ai_PlayerId);
+        cart = gm_Query((void *)src->objList, 2, 4, 0x1d, 3, ai_PlayerId);
         for (k = 0; k < 16; k++) {
             if (cart == 0)
                 break;
@@ -3639,7 +3639,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                     }
                 }
             }
-            cart = (AIOBJ *)gm_QueryNext();
+            cart = gm_QueryNext();
         }
 
         /* the running transport orders 0xf of the player mark their carts */
@@ -3944,7 +3944,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 if (found != 0) {
                     for (k = 0; k < 6; k++) {
                         s = &ai_InvSlots[k];
-                        sobj = (AIOBJ *)gm_Query((void *)found->list, 1, 0, 0x1dd);
+                        sobj = gm_Query((void *)found->list, 1, 0, 0x1dd);
                         if (s->obj == 0)
                             continue;
                         item = s->obj->id;
@@ -3983,7 +3983,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                             txt_Format(text4, 0xee, b);
                             sv_SetStatusText(text4);
                         } else {
-                            sobj = (AIOBJ *)gm_Query((void *)c->list, 1, 0, 0x1dd);
+                            sobj = gm_Query((void *)c->list, 1, 0, 0x1dd);
                             d2_EndInputEdit();
                             if (util_RandomF() < 0.25f)
                                 ai_TransportFromLager(sobj->objId, stall, b, canTrade, 0, factor, owner, mode);
@@ -4005,7 +4005,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                     c = rows[i].cart;
                     if (c == 0 || (c->flags20 & 1))
                         continue;
-                    sobj = (AIOBJ *)gm_Query((void *)c->list, 1, 0, 0x1dd);
+                    sobj = gm_Query((void *)c->list, 1, 0, 0x1dd);
                     for (j = 0; j < 3; j++) {
                         ctl = rows[i].goodsCtl[j];
                         if (ctl == -1)
@@ -4073,7 +4073,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 c = rows[i].cart;
                 if (c == 0 || (c->flags20 & 1))
                     continue;
-                sobj = (AIOBJ *)gm_Query((void *)c->list, 1, 0, 0x1dd);
+                sobj = gm_Query((void *)c->list, 1, 0, 0x1dd);
                 for (j = 0; j < 3; j++) {
                     ctl = rows[i].goodsCtl[j];
                     if (ctl == -1)
@@ -4146,7 +4146,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         c = rows[i].cart;
                         if (c == 0)
                             continue;
-                        sobj = (AIOBJ *)gm_Query((void *)c->list, 1, 0, 0x1dd);
+                        sobj = gm_Query((void *)c->list, 1, 0, 0x1dd);
                         for (j = 0; j < 3; j++) {
                             ctl = rows[i].goodsCtl[j];
                             if (ctl == -1)
@@ -4552,15 +4552,15 @@ void ai_StorageWindow(AIBLD *bld, int list)
         return;
     bt = &ai_BTypes[bld->type];
     if (list == 0) {
-        room = (AIOBJ *)gm_Query((void *)bld->objList, 1, 4, 2);
+        room = gm_Query((void *)bld->objList, 1, 4, 2);
         if (room != 0)
             list = room->list;
         else
             list = bld->objList;
     }
-    if ((store = (AIOBJ *)gm_Query((void *)list, 2, 0, 0x2a, 6)) == 0
-        && (store = (AIOBJ *)gm_Query((void *)list, 2, 0, 0x116, 6)) == 0
-        && (store = (AIOBJ *)gm_Query((void *)bld->objList, 2, 0, 0x2a, 6)) == 0)
+    if ((store = gm_Query((void *)list, 2, 0, 0x2a, 6)) == 0
+        && (store = gm_Query((void *)list, 2, 0, 0x116, 6)) == 0
+        && (store = gm_Query((void *)bld->objList, 2, 0, 0x2a, 6)) == 0)
         return;
     ai_CampaignStep(0x1d, bld, 0, 0);
     win = d2_OpenForm(0, 0, "Handel\\Handel_Lageroptionen");
@@ -6567,7 +6567,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
             }
         }
     }
-    for (obj = (unsigned short *)gm_Query((void *)bld->objList, 1, 5); obj != 0; obj = gm_QueryNext()) {
+    for (obj = (unsigned short *)gm_Query((void *)bld->objList, 1, 5); obj != 0; obj = (unsigned short *)gm_QueryNext()) {
         g = &ai_Goods[*obj];
         if ((g->type == 2 || g->type == 6) && *obj != 0xfd)
             built++;
@@ -6754,7 +6754,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
        the if / else: lea ecx, 49 ins) */
     if (cls == 3) {
         first = (AIBLD *)gm_FirstBuilding(1);
-        treasury = (AIOBJ *)gm_Query((void *)first->objList, 2, 6, 0, 0x115);
+        treasury = gm_Query((void *)first->objList, 2, 6, 0, 0x115);
         if (sv_MessageBox(text, 0x11) == 0)
             return;
         if (sv_CheckStock((short *)treasury, treasury->list, price, ai_OwnPlayer) != 0) {
@@ -7501,14 +7501,14 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
             cls = gm_BuildingClass(*bld);
             if (cls != 1 && cls != 2 && cls != 8)
                 continue;
-            store = (AIOBJ *)gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
+            store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
             if (store == 0) {
-                store = (AIOBJ *)gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x116);
+                store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x116);
                 if (store == 0)
                     continue;
             }
             for (item = (unsigned short *)gm_Query((void *)store->list, 1, 5); item != 0;
-                 item = gm_QueryNext()) {
+                 item = (unsigned short *)gm_QueryNext()) {
                 if (remaining <= 0)
                     break;
                 g = ai_Goods + *item;
@@ -7541,11 +7541,11 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
             cls = gm_BuildingClass(*bld);
             if (cls != 1 && cls != 2 && cls != 8)
                 continue;
-            store = (AIOBJ *)gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
+            store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
             if (store == 0)
                 continue;
             for (item = (unsigned short *)gm_Query((void *)store->list, 1, 5); item != 0;
-                 item = gm_QueryNext()) {
+                 item = (unsigned short *)gm_QueryNext()) {
                 if (remaining <= 0)
                     break;
                 g = ai_Goods + *item;
@@ -7642,11 +7642,11 @@ void ob_HandleBepflanzung(AIBLD *bld)
         if (strstr(((G15MAP *)d3_Terrain)->ground[i], "PFLANZBAR"))
             ground = i;
     }
-    room = gm_Query((void *)bld->objList, 1, 0, 0xff);
+    room = (char *)gm_Query((void *)bld->objList, 1, 0, 0xff);
     if (room == 0)
         return;
     for (item = (unsigned short *)gm_Query((void *)((AIOBJ *)room)->list, 1, 4, 0x17); item != 0;
-         item = gm_QueryNext())
+         item = (unsigned short *)gm_QueryNext())
         types[count++] = *item;
     view = d2_OpenForm(d2_ScreenW - 0x5f, 0x10a, "Misc\\PlantBar");
     if (view == -1)
@@ -8343,8 +8343,8 @@ int ai_UpdateEquipRows(int view, int form)
         sv_ValueBar(0x50, 0x16, ai_EquipRowTab[r].ch->skills[3], 0x4f1);
         io_PrintText(0x16ad);
         sv_ValueBar(0x50, 0x25, ai_EquipRowTab[r].ch->skills[2], 0x4f1);
-        for (item = (AIOBJ *)gm_Query((void *)ai_EquipRowTab[r].ch->inventory, 1, 5); item != 0;
-             item = (AIOBJ *)gm_QueryNext()) {
+        for (item = gm_Query((void *)ai_EquipRowTab[r].ch->inventory, 1, 5); item != 0;
+             item = gm_QueryNext()) {
             if (ai_Goods[item->id].type == 9)
                 continue;
             found = 0;
@@ -8461,9 +8461,9 @@ void ai_EquipWindow(AIBLD *bld)
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
     mask = (sv_FrameMask & 0x10000) ? 0x7d6c6 : 0x677c7;
-    store = (AIOBJ *)gm_Query((void *)bld->objList, 2, 0, 0x2a, 6);
+    store = gm_Query((void *)bld->objList, 2, 0, 0x2a, 6);
     if (store == 0) {
-        store = (AIOBJ *)gm_Query((void *)bld->objList, 2, 0, 0x116, 6);
+        store = gm_Query((void *)bld->objList, 2, 0, 0x116, 6);
         if (store == 0) {
             sv_MessageBox(txt_Ptrs[0x19de], 0);
             return;

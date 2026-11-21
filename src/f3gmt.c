@@ -1151,7 +1151,7 @@ int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
    null check before the res / m init (worse). What remains: (1) the original's mismatch block 'xor cl,cl;
    jmp 0x4ffddb' sits out of line at 0x4ff... */
 
-unsigned short *gm_QueryNext(void)
+struct AIOBJ *gm_QueryNext(void)
 {
     ORDOBJ *res;
     char m;
@@ -1215,7 +1215,7 @@ unsigned short *gm_QueryNext(void)
             }
         }
     }
-    return (unsigned short *)res;
+    return (AIOBJ *)res;
 }
 /* 0x4ffe90, starts an object query over the list (or, with the flag 7, over the whole instance table) and returns the first match (gm_QueryNext): n criteria follow as (kind, value) pairs: kind 0 = prototype, 1 = owner id, 3 = the owner's character number (gm_ObjectOwnerNo), 4 = the prototype kind (each with a value), 5 = stop at the first match, 6 = descend into the children, 7 = scan the whole table (without value). Not set criteria match everything; 0 without the goods table or a list, and for 6 together with 7. Used as gm_Query (list, 2, 6, 0, 0x115) .. all over the exe
    @deep deep s24: the criteria loop as for (i = 0; i < n; i++) 6 ins, while (n--) / while (n-- > 0) 38-40,
@@ -1232,7 +1232,7 @@ unsigned short *gm_QueryNext(void)
    tails cross-jump, branch 1), a goto to one shared call, a kind local, switch on an int & 0xff (worse),
    flip.py want mov eax ai_Objects (7 hits, all meaning changes, 58-88 ins). (tiebreak: not measured (dcp
    headers sample gm_Query)) */
-char *gm_Query(void *list, int n, ...)
+struct AIOBJ *gm_Query(void *list, int n, ...)
 {
     va_list ap;
     char scan, kids;
@@ -1286,12 +1286,12 @@ char *gm_Query(void *list, int n, ...)
             if (kids != 0)
                 return 0;
             gm_QueryCursor = (ORDOBJ *)ai_Objects;
-            return (char *)gm_QueryNext();
+            return gm_QueryNext();
         }
     }
     if (list != 0) {
         gm_QueryCursor = (ORDOBJ *)list;
-        return (char *)gm_QueryNext();
+        return gm_QueryNext();
     }
     return 0;
 }
@@ -2429,9 +2429,9 @@ int gm_BuildingMainObject(unsigned char *p)
     bt = GM_BTYPE(b->type);
     if (cls != 1 && cls != 7 && cls != 8) {
         if (cls == 4)
-            o = gm_Query((void *)b->objList, 1, 0, 0xf7);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xf7);
         else if (gm_IsHomeType((AIBLD *)b) != 0)
-            o = gm_Query((void *)b->objList, 1, 0, 0xfd);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xfd);
         else {
             for (i = 0; i < 0x40; i++) {
                 if (bt->objs[i] != 0xffff) {
@@ -2444,13 +2444,13 @@ int gm_BuildingMainObject(unsigned char *p)
         }
     } else {
         if (bt->kind == 0x1d)
-            o = gm_Query((void *)b->objList, 1, 0, 0x205);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x205);
         else if (bt->kind == 0x16)
-            o = gm_Query((void *)b->objList, 1, 0, 0x12e);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x12e);
         else if (bt->kind == 4)
-            o = gm_Query((void *)b->objList, 1, 0, 0x54);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x54);
         else if (bt->kind == 0x1f)
-            o = gm_Query((void *)b->objList, 1, 0, 0xfd);
+            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xfd);
         if (o == 0) {
             for (i = 0; i < 0x40; i++) {
                 if (bt->objs[i] != 0xffff) {
@@ -2480,7 +2480,7 @@ void *gm_GetGebaeudeHauptraum(unsigned char *p)
         return gm_Query((void *)b->objList, 1, 0, 0x54);
     o = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 2);
     while (o != 0 && *o == 0xfd)
-        o = gm_QueryNext();
+        o = (unsigned short *)gm_QueryNext();
     return o;
 }
 /* 0x501d80, the class of a building kind (the type byte of the kind record): 3 for 1 / 3 / 6 / 0xf, 6 for 2 / 0x1e, 8 for 4 / 5 / 9, 4 for 7, 1 for 8 / 0xe / 0x12 / 0x14 .. 0x16 / 0x1d / 0x1f / 0x20, 2 for 0xb .. 0xd, 7 for 0x13, 5 for 0x17 .. 0x1a, 9 for 0x21, else 0 */
@@ -4054,10 +4054,10 @@ char *gm_ClassTreasury(ORDBLD *b)
         else
             h = 0;
         if (h != 0)
-            r = gm_Query((void *)h->objList, 2, 6, 0, 0x142);
+            r = (char *)gm_Query((void *)h->objList, 2, 6, 0, 0x142);
     } else if (cls == 3) {
         h = (ORDBLD *)gm_FirstBuilding(1);
-        r = gm_Query((void *)h->objList, 2, 6, 0, 0x115);
+        r = (char *)gm_Query((void *)h->objList, 2, 6, 0, 0x115);
     }
     return r;
 }
@@ -4068,8 +4068,8 @@ char *gm_PlayerSeat(int p)
     ORDBLD *b = (ORDBLD *)gm_FirstBuilding(p);
 
     if (p == 1)
-        return gm_Query((void *)b->objList, 2, 6, 0, 0x115);
-    return gm_Query((void *)b->objList, 2, 6, 0, 0x142);
+        return (char *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+    return (char *)gm_Query((void *)b->objList, 2, 6, 0, 0x142);
 }
 /* 0x504ad0, the job group (0 .. 0x10) of a title number n (six numbers per group: 1 .. 6 -> 0xb, 7 .. 12 -> 9, 13 .. 18 -> 7, 19 .. 24 -> 6, 25 .. 30 -> 8, 31 .. 33 -> 0x10, 34 .. 39 -> 5, 40 .. 45 -> 0xc, 46 .. 51 -> 1, 52 .. 57 -> 10, 58 .. 63 -> 2, 64 .. 69 -> 3, 70 .. 75 -> 4, 76 .. 81 -> 0xd, 83 .. 88 -> 0xe, 89 .. 94 -> 0xf), 0 for others */
 
@@ -7365,7 +7365,7 @@ int gm_ListAmountById(char *l, int id)
 {
     char *o;
 
-    o = gm_Query((void *)((ORDOBJ *)l)->list, 1, 0, id);
+    o = (char *)gm_Query((void *)((ORDOBJ *)l)->list, 1, 0, id);
     if (o == 0)
         return 0;
     return gm_ListAmount((short *)l, o);

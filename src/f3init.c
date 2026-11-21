@@ -330,7 +330,7 @@ int cm_GetSlotState();                     /* 0x4c3ae0 */
 void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s);                     /* 0x4c51b0 */
 void d2_DrawAll(void);                      /* 0x46e150, d2.c */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */
-unsigned short * gm_QueryNext(void);                   /* 0x4ffcc0 */
+struct AIOBJ *gm_QueryNext(void);                   /* 0x4ffcc0 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_ListStock(short *l, int id);               /* 0x50ab50, f3gm.c */
 /* init_StatusFormat: view of txt_Ptrs (build/mk_txt_views.py) */
@@ -3546,7 +3546,7 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
 
     p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     if (o == 0)
-        o = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0xfd);
+        o = gm_Query(b->objList, 2, 6, 0, 0xfd);
     d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF");
     if (d == 0)
         d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_METALL");

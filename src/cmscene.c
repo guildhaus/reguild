@@ -3519,7 +3519,7 @@ void cm_RunAuction(G28REC *m)
             cm_SendFieldDeltas();
             cm_SendOwnership(b->id, ai_PlayerChar->netId, w->netId);
             first = (AIBLD *)gm_FirstBuilding(1);
-            q = (AIOBJ *)gm_Query((void *)first->objList, 2, 6, 0, 0x115);
+            q = gm_Query((void *)first->objList, 2, 6, 0, 0x115);
             if (w == holder)
                 cm_SendMoveGoodsUnchecked(q->objId, w->netId, 0, (int)(req.bids[best] * 0.9f));
             else if (holder != 0) {
@@ -4756,7 +4756,7 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
                 if (o != 0)
                     note.head.arg[2] = o->objId;
             } else {
-                o = (AIOBJ *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
+                o = gm_Query((void *)bld->objList, 1, 0, 0xfd);
                 if (o != 0)
                     note.head.arg[2] = o->objId;
             }

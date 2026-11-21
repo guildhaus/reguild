@@ -967,7 +967,7 @@ int ai_MsgJobTime(G14MSG *m)
     j = js[r];
     o = os[r];
     s = (int)gm_ItemPrice(o->id, o->fill);
-    for (e = (AIOBJ *)gm_Query(o->list, 2, 5, 6); e != 0; e = (AIOBJ *)gm_QueryNext())
+    for (e = gm_Query(o->list, 2, 5, 6); e != 0; e = gm_QueryNext())
         s = (int)(gm_ItemPrice(e->id, o->fill) * e->count + s);
     j->end = ai_Time;
     cm_SendMoveObject(-1, -1, o->objId);

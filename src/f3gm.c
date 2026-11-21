@@ -2236,13 +2236,13 @@ char *gm_HomeObject(unsigned char *b)
 
     type = (char *)ai_BTypes + bld->type * 0x24d;
     if (*type == 1)
-        o = gm_Query((void *)bld->objList, 1, o, 0x12);
+        o = (char *)gm_Query((void *)bld->objList, 1, o, 0x12);
     else if (*type == 2)
-        o = gm_Query((void *)bld->objList, 1, 0, 0x13);
+        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0x13);
     else if (*type == 0x1d)
-        o = gm_Query((void *)bld->objList, 1, 0, 0xfd);
+        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
     else if (*type == 0x16)
-        o = gm_Query((void *)bld->objList, 1, 0, 0x120);
+        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0x120);
     return o;
 }
 /* 0x4fdcb0, the home of the character c: its own building bld2 with the object of gm_HomeObject (out3 = its id, -1 without) and out2 = the building id; without one the next building of ai_Blds (round-robin from gm_HomeSearchStart) of kind 3 / 0x16 / 0x0f. Returns the building, 0 when none */

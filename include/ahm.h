@@ -127,7 +127,7 @@ AHMSTEP *ahm_WalkStep(int i);          /* 0x4ec2d0 */
 void ahm_ClearStep(AHMSTEP *p);         /* 0x4ec2f0 */
 extern void *main_Instance;              /* 0x75e140, the module handle */
 extern struct VFSDIR *vfs_Root;         /* 0x6333fc, the VFS directory tree (vfs.h) */
-char * gm_Query(void *list, int n, ...);                   /* 0x4ffe90 */
+struct AIOBJ *gm_Query(void *list, int n, ...);                   /* 0x4ffe90 */
 int gm_RemoveObject(int *list, unsigned item);                     /* 0x4ffff0 */
 int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);                     /* 0x4fbd10 */
 void gm_ChooseHeadIcon(unsigned short *c);                     /* 0x4fb890 */

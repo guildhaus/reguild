@@ -1536,7 +1536,7 @@ void ai_HookChapter3Intro(int arg)
     r = gm_BuildQuery(1, 5, 0x12);
     if (!r)
         return;
-    q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x74);
+    q = gm_Query((void *)r->objList, 1, 0, 0x74);
     if (!q)
         return;
     sv_SelectPanelObject(r, q->objId, ch_EmptyName);
@@ -1561,7 +1561,7 @@ void ai_HookChapter5Intro(int arg)
     r = gm_BuildQuery(2, 5, 2, 4, ai_PlayerId);
     if (!r)
         return;
-    q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x13);
+    q = gm_Query((void *)r->objList, 1, 0, 0x13);
     if (!q)
         return;
     sv_SelectPanelObject(r, q->objId, ch_EmptyName);

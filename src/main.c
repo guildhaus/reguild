@@ -1537,7 +1537,7 @@ void main_GiveStartBuildings(int p)
     if (b != 0) {
         strcpy(b->name, "Home-Sweet-Home");
         gm_AssignBuilding((unsigned char *)b, p, p);
-        l = gm_Query((void *)b->objList, 1, 0, 0x13);
+        l = (char *)gm_Query((void *)b->objList, 1, 0, 0x13);
         if (l != 0)
             gm_ShowSlotObjects((int)b, (int)l, p);
         cm_SendExSellObject(b->id, -1, 0x15, 1, ai_OwnPlayer, 0);
@@ -1554,7 +1554,7 @@ void main_GiveStartBuildings(int p)
             cm_SendMessage3d((int)b, 0, 10, 0);
             i--;
         } while (i != 0);
-        o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
             cm_SendExSellObject(o->objId, -1, 0x1d0, 0x19, ai_OwnPlayer, 0);
@@ -1566,7 +1566,7 @@ void main_GiveStartBuildings(int p)
     b = gm_BuildQuery(1, 0, 0x2a);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
-        o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
             cm_SendExSellObject(o->objId, -1, 0x1d0, 0x14, ai_OwnPlayer, 0);
@@ -1595,7 +1595,7 @@ void main_GiveStartBuildings(int p)
     b = gm_BuildQuery(1, 0, 0x32);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
-        o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
             cm_SendExSellObject(o->objId, -1, 0x1cb, 10, ai_OwnPlayer, 0);
@@ -1619,7 +1619,7 @@ void main_GiveStartBuildings(int p)
     b = gm_BuildQuery(1, 0, 0x34);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
-        o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
             cm_SendExSellObject(o->objId, -1, 0x1cb, 10, ai_OwnPlayer, 0);
@@ -3286,7 +3286,7 @@ void main_EndRound(void)
     }
     if ((ai_GameFlags & 8) != 0) {
         b = gm_BuildQuery(1, 0, 0x44);
-        obj = (AIOBJ *)gm_Query((void *)b->objList, 1, 4, 0x1d);
+        obj = gm_Query((void *)b->objList, 1, 4, 0x1d);
         while (obj != 0) {
             scene = (CHARACTER *)obj->sceneObj;
             b = gm_BuildQuery(1, 1, obj->bldId);
@@ -3294,7 +3294,7 @@ void main_EndRound(void)
                 ch_SetVisible(scene, 1);
             else
                 ch_SetVisible(scene, 0);
-            obj = (AIOBJ *)gm_QueryNext();
+            obj = gm_QueryNext();
         }
     }
     k = 0;
@@ -3876,7 +3876,7 @@ void main_SettleRound(unsigned short pl)
                 }
                 kind = bt->kind;
                 if (kind == 4 || kind == 0x10 || kind == 0x13) {
-                    o = (AIOBJ *)gm_Query((void *)c->objList, 1, 0, 0xca);
+                    o = gm_Query((void *)c->objList, 1, 0, 0xca);
                     while (o != 0) {
                         cnt++;
                         if (o->reportKnow <= 5)
@@ -3894,7 +3894,7 @@ void main_SettleRound(unsigned short pl)
                             } else
                                 cm_SendDeleteObject(o->objId);
                         }
-                        o = (AIOBJ *)gm_QueryNext();
+                        o = gm_QueryNext();
                     }
                 } else if (kind == 5) {
                     int zero = 0;
@@ -4146,11 +4146,11 @@ void main_SettleRound(unsigned short pl)
         if (gm_BuildingBalance(p, pl, sum) != 0) {
             int v;
 
-            if (sum[0xc] != 0 && (o = (AIOBJ *)gm_Query((void *)p->objList, 2, 6, 0, 0xe8)) != 0 && (v = gm_SumListAmounts((void *)o->list, ai_OwnPlayer)) > 0) {
+            if (sum[0xc] != 0 && (o = gm_Query((void *)p->objList, 2, 6, 0, 0xe8)) != 0 && (v = gm_SumListAmounts((void *)o->list, ai_OwnPlayer)) > 0) {
                 cnt++;
                 cm_SendMoveGoods(ai_Chars[p->owner].netId, o->objId, ai_OwnPlayer, v);
             }
-            if (sum[0xf] != 0 && (o = (AIOBJ *)gm_Query((void *)p->objList, 1, 0, 0xf0)) != 0 && (v = gm_SumListAmounts((void *)o->list, ai_OwnPlayer)) > 0) {
+            if (sum[0xf] != 0 && (o = gm_Query((void *)p->objList, 1, 0, 0xf0)) != 0 && (v = gm_SumListAmounts((void *)o->list, ai_OwnPlayer)) > 0) {
                 cnt++;
                 cm_SendMoveGoods(ai_Chars[p->owner].netId, o->objId, ai_OwnPlayer, v);
             }

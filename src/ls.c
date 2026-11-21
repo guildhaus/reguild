@@ -1842,7 +1842,7 @@ int ls_ReadSceneRecords(int f)
         part = 0;
         bld = gm_BuildQuery(1, 1, ch->group);
         if (bld != 0) {
-            part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, ch->scriptGroup);
+            part = gm_Query((void *)bld->objList, 2, 6, 1, ch->scriptGroup);
             if (part != 0 && part->id != 0xfd)
                 uni = init_ObjectSceneUniverse((struct AIOBJ *)part);
             else
@@ -1969,7 +1969,7 @@ int ls_ReadSceneRecords(int f)
             if (a->type == '3') {
                 bld = gm_BuildQuery(1, 1, a->args[1]);
                 if (bld != 0) {
-                    part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, a->args[2]);
+                    part = gm_Query((void *)bld->objList, 2, 6, 1, a->args[2]);
                     if (part != 0 && part->id != 0xfd)
                         a->u.scene.universe = a->args[0] = init_ObjectSceneUniverse((struct AIOBJ *)part);
                     else
