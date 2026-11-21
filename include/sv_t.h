@@ -21,6 +21,13 @@ typedef struct TUTSTEP {                /* 0x10 bytes, a step of a run record's 
     char *voice;                        /* 0x0c, the voice played with it, 0 = none */
 } TUTSTEP;
 
+typedef struct TUTEVENT {               /* 0x10 bytes, an event of ai_CampaignStep / ai_ScriptQuery as the run's hooks get it */
+    int event;                          /* 0x00, the event index (TUTRUN.goal / text2Goal compare it) */
+    void *obj;                          /* 0x04, the building / room / character / book of the event, 0 = none */
+    int stage;                          /* 0x08, 0 when it starts (a window opens), 1 when it ends (closes) */
+    int arg;                            /* 0x0c, a word of the event (a panel type, a good, an office ..) */
+} TUTEVENT;
+
 typedef struct TUTMARK {                /* 0x2c bytes, a path of the position marker (TUTRUN.marks, ai_TutorialMarkerUpdate) */
     float from[2];                      /* 0x00, the start point x, y: the marker is placed there */
     float ctrl1[2];                     /* 0x08, the first Bezier control point */
@@ -46,8 +53,8 @@ typedef struct TUTRUN {                 /* 0x74 bytes, a run (chapter) record of
     unsigned int text1Time;             /* 0x2c, ms the first text window waits before it shows */
     unsigned int tail2Time;             /* 0x30, the length of the state 0xb */
     void (*hook)(int end);              /* 0x34, called with 0 when the run starts, 1 when it ends */
-    int (*stepHook)(int *args);         /* 0x38, ai_CampaignStep hands its four arguments to it; set: the start takes a campaign step */
-    int (*query)(int *args);            /* 0x3c, ai_ScriptQuery's callback */
+    int (*stepHook)(TUTEVENT *ev);      /* 0x38, ai_CampaignStep hands its four arguments to it; set: the start takes a campaign step */
+    int (*query)(TUTEVENT *ev);         /* 0x3c, ai_ScriptQuery's callback */
     int goal;                           /* 0x40, the event index a that completes the run's goal (ai_CampaignStep); 3: timed */
     unsigned int tailTime;              /* 0x44, the length of the state 0xa and of a timed goal */
     int goalState;                      /* 0x48, the state a completed goal switches to */
@@ -89,7 +96,7 @@ typedef struct TUTSTATE {               /* the tutorial state record (0x6fa060, 
     int stepKind;                       /* 0x44, the kind 0 .. 3 of the open step form, 4 = none */
     int stepForm;                       /* 0x48, ai_TutorialStepForm's form */
     int stepControl;                    /* 0x4c, its control, -1 = none */
-    int stepArg;                        /* 0x50, ai_CampaignStep's argument b of the step that ended the chain */
+    void *stepArg;                      /* 0x50, ai_CampaignStep's argument b of the step that ended the chain */
     int markerStep;                     /* 0x54, the marker's path (TUTRUN.marks) */
     int markerPhase;                    /* 0x58, 1 hidden, 2 waiting at the start, 3 moving, 4 resting at the end */
     unsigned int markerAt;              /* 0x5c, d3_Time when the marker's phase started */
@@ -125,46 +132,46 @@ int ai_TutorialTick(void);                 /* 0x575860, the tutorial's tick: run
 void ai_TutorialMarkerUpdate(int mode);  /* 0x57b8a0, moves the tutorial's position marker */
 void unk_ClearEndGameGate(void);                /* 0x576020, clears the gate 0x6f2660 */
 void unk_SetEndGameGate(void);                /* 0x576030, sets the gate 0x6f2660 */
-void ai_CampaignStep(int a, int b, int c, int d);  /* 0x576040, one step of the campaign state machine */
-int ai_ScriptQuery(int a, int b, int c, int d);   /* 0x576340, calls the run record's callback +0x3c */
+void ai_CampaignStep(int a, void *b, int c, int d);  /* 0x576040, one step of the campaign state machine */
+int ai_ScriptQuery(int a, void *b, int c, int d);   /* 0x576340, calls the run record's callback +0x3c */
 int ai_RunAllows(int mask);             /* 0x5763c0, run mask +0x68 */
 int ai_RunAllowsContact(int mask);             /* 0x576410, run mask +0x6c */
 int ai_RunAllowsWindow(void);                 /* 0x576460, 1 while the tutorial lets a building window open */
-int ai_TutorialQueryDefault(int *p);               /* 0x576490, step callback predicate */
-int ai_QueryDefault(int *p);               /* 0x5764b0, step callback predicate */
-int ai_QueryBuilding0f(int *p);               /* 0x576500, step callback predicate */
-int ai_QueryChapter2Step3(int *p);               /* 0x576590, step callback predicate */
-int ai_QueryChapter2Step4(int *p);               /* 0x5765e0, step callback predicate */
-int ai_QueryChapter2Step5(int *p);               /* 0x576600, step callback predicate */
-int ai_QueryChapter2Step6(int *p);               /* 0x576640, step callback predicate */
-int ai_QueryChapter2Step7(int *p);               /* 0x576680, step callback predicate */
-int ai_StepChapter1Step5(int *p);               /* 0x5766d0, transition callback */
-int ai_StepChapter1Step10(int *p);               /* 0x5767d0, transition callback */
-int ai_StepChapter2Step1(int *p);               /* 0x576830, transition callback */
+int ai_TutorialQueryDefault(TUTEVENT *p);               /* 0x576490, step callback predicate */
+int ai_QueryDefault(TUTEVENT *p);               /* 0x5764b0, step callback predicate */
+int ai_QueryBuilding0f(TUTEVENT *p);               /* 0x576500, step callback predicate */
+int ai_QueryChapter2Step3(TUTEVENT *p);               /* 0x576590, step callback predicate */
+int ai_QueryChapter2Step4(TUTEVENT *p);               /* 0x5765e0, step callback predicate */
+int ai_QueryChapter2Step5(TUTEVENT *p);               /* 0x576600, step callback predicate */
+int ai_QueryChapter2Step6(TUTEVENT *p);               /* 0x576640, step callback predicate */
+int ai_QueryChapter2Step7(TUTEVENT *p);               /* 0x576680, step callback predicate */
+int ai_StepChapter1Step5(TUTEVENT *p);               /* 0x5766d0, transition callback */
+int ai_StepChapter1Step10(TUTEVENT *p);               /* 0x5767d0, transition callback */
+int ai_StepChapter2Step1(TUTEVENT *p);               /* 0x576830, transition callback */
 void ai_HookChapter2Step2(int arg);             /* 0x5768a0, writes a record word */
-int ai_StepChapter2Step2(int *p);               /* 0x5768d0, transition callback */
-int ai_StepChapter2Step3(int *p);               /* 0x576920, transition callback */
-int ai_StepChapter2Step4(int *p);               /* 0x576970, transition callback */
-int ai_StepChapter2Step5(int *p);               /* 0x5769c0, transition callback */
+int ai_StepChapter2Step2(TUTEVENT *p);               /* 0x5768d0, transition callback */
+int ai_StepChapter2Step3(TUTEVENT *p);               /* 0x576920, transition callback */
+int ai_StepChapter2Step4(TUTEVENT *p);               /* 0x576970, transition callback */
+int ai_StepChapter2Step5(TUTEVENT *p);               /* 0x5769c0, transition callback */
 void ai_HookChapter2Step5(int arg);             /* 0x576a80, record lookup + 0x521960 */
-int ai_StepChapter2Step6(int *p);               /* 0x576ab0, transition callback */
-int ai_StepChapter2Step7(int *p);               /* 0x576b50, transition callback */
-int ai_StepChapter4Step2(int *p);               /* 0x576ba0, transition callback */
-int ai_QueryChapter4Step2(int *p);               /* 0x576cd0, step callback predicate */
-int ai_StepChapter4Step4(int *p);               /* 0x576d40, transition callback */
-int ai_QueryChapter4Step4(int *p);               /* 0x576e70, step callback predicate */
-int ai_StepChapter4Step5(int *p);               /* 0x576ee0, transition callback */
-int ai_QueryChapter4Step5(int *p);               /* 0x577020, step callback predicate */
+int ai_StepChapter2Step6(TUTEVENT *p);               /* 0x576ab0, transition callback */
+int ai_StepChapter2Step7(TUTEVENT *p);               /* 0x576b50, transition callback */
+int ai_StepChapter4Step2(TUTEVENT *p);               /* 0x576ba0, transition callback */
+int ai_QueryChapter4Step2(TUTEVENT *p);               /* 0x576cd0, step callback predicate */
+int ai_StepChapter4Step4(TUTEVENT *p);               /* 0x576d40, transition callback */
+int ai_QueryChapter4Step4(TUTEVENT *p);               /* 0x576e70, step callback predicate */
+int ai_StepChapter4Step5(TUTEVENT *p);               /* 0x576ee0, transition callback */
+int ai_QueryChapter4Step5(TUTEVENT *p);               /* 0x577020, step callback predicate */
 void ai_HookChapter4Step(int arg);             /* 0x5770a0, posts the message 0x2bc0 */
 void ai_HookChapter3Step2(int arg);             /* 0x577110, posts to the player's character record */
-int ai_QueryChapter3Step6(int *p);               /* 0x5771b0, transition callback */
+int ai_QueryChapter3Step6(TUTEVENT *p);               /* 0x5771b0, transition callback */
 void ai_HookChapter5Step2(int arg);             /* 0x577230, posts messages */
-int ai_QueryChapter5Step2(int *p);               /* 0x577290, step predicate */
+int ai_QueryChapter5Step2(TUTEVENT *p);               /* 0x577290, step predicate */
 int ai_MarkerChapter5Step2(int mode);                /* 0x5772d0, the record fight kind */
 int ai_MarkerChapter3Step6(int mode);                /* 0x577320, the flag S+0x38 */
-int ai_QueryChapter3Step8(int *p);               /* 0x577330, transition callback */
+int ai_QueryChapter3Step8(TUTEVENT *p);               /* 0x577330, transition callback */
 int ai_MarkerChapter3Step8(int mode);                /* 0x5773f0, fight kind + flag */
-int ai_QueryChapter3Step10(int *p);               /* 0x577450, step predicate */
+int ai_QueryChapter3Step10(TUTEVENT *p);               /* 0x577450, step predicate */
 int ai_StepShownChapter3Step4(void);                 /* 0x577490, releases the pending id S+0x50 */
 void ai_HookChapter3Intro(int arg);             /* 0x5774d0, posts a record message */
 void ai_HookChapter5Intro(int arg);             /* 0x577540, posts a record message */

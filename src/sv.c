@@ -1126,7 +1126,7 @@ void sv_UpdateGroundplan(unsigned flags)
                             }
                         }
                         if (dm_L.lclick != 0 && obj != 0 && obj->id != sv_PanelShown->type
-                            && ai_ScriptQuery(0x19, (int)ai_PlayerBuilding, 0, obj->id) == 1
+                            && ai_ScriptQuery(0x19, ai_PlayerBuilding, 0, obj->id) == 1
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
                             if (gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, obj, 0) & 0x4000)
                                 ai_SwitchRoom(-1, obj->id);
@@ -1152,7 +1152,7 @@ void sv_UpdateGroundplan(unsigned flags)
                             }
                         }
                         if (dm_L.lclick != 0 && obj != 0
-                            && (sv_PanelShown == 0 || (obj->id != sv_PanelShown->type && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
+                            && (sv_PanelShown == 0 || (obj->id != sv_PanelShown->type && ai_ScriptQuery(0x19, ai_FallbackBuilding, 0, obj->id) == 1))
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
                             if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, obj, 0) & 0x4000)
                                 sv_SelectPanelObject(ai_FallbackBuilding, obj->objId, ch_EmptyName);
@@ -3580,7 +3580,7 @@ void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);               
 int d2_RemoveWindowObjects();                     /* 0x472d20 */
 int gm_ListAmount();                     /* 0x50aaf0 */
 int ai_RunAllows();                     /* 0x5763c0 */
-void ai_CampaignStep(int a, int b, int c, int d);                     /* 0x576040 */
+void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 int sv_ReturnZero(void);
 void sv_OpenDefaultPanel(void);
@@ -4057,9 +4057,9 @@ void sv_UpdatePanel(void)
                 bt = &ai_BTypes[sel->type];
                 if ((cls == 1 || cls == 2 || cls == 4 || cls == 7 || cls == 8 || bt->kind == 0x10 || bt->kind == 0x1e) && ai_RunAllows(0x400) == 1) {
                     ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, sel, 0, 0);
-                    ai_CampaignStep(0x12, (int)sel, 0, 0);
+                    ai_CampaignStep(0x12, sel, 0, 0);
                     ai_TransportWindow((int)sel, 1);
-                    ai_CampaignStep(0x12, (int)sel, 1, 0);
+                    ai_CampaignStep(0x12, sel, 1, 0);
                     sv_SelectedObject = sel;
                     sv_ResetScreenClip();
                 }
@@ -4556,7 +4556,7 @@ int sv_StartPoseScript(AICHAR *a, int b)
 
 void d2_SetObjEnabled();                     /* 0x475e40 */
 int ai_RunAllows();                     /* 0x5763c0 */
-void ai_CampaignStep(int a, int b, int c, int d);                     /* 0x576040 */
+void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 int gm_BuildingClass(int kind);                /* 0x501d80, f3gm.c, the class of a building kind */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 void d2_FreeAnim(int n);                     /* 0x47ce30 */
@@ -5656,8 +5656,8 @@ void sv_HandleRightClick(unsigned fl)
             sv_ResetSelection();
             di_ClearEvents(0x10);
         }
-        if ((ai_PlayerBuilding != 0 && ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, sv_PanelShown->type) == 0)
-            || (ai_FallbackBuilding != 0 && ai_ScriptQuery(0x1c, (int)ai_FallbackBuilding, 0, 0) == 0))
+        if ((ai_PlayerBuilding != 0 && ai_ScriptQuery(0x1a, ai_PlayerBuilding, 0, sv_PanelShown->type) == 0)
+            || (ai_FallbackBuilding != 0 && ai_ScriptQuery(0x1c, ai_FallbackBuilding, 0, 0) == 0))
             di_ClearAxes();
         if (ai_SelectedCount != 0 || sv_OtherSelected != 0 || dm_L.rup == 0)
             goto done;
@@ -5715,10 +5715,10 @@ void sv_HandleRightClick(unsigned fl)
             if (sv_PanelShown != 0) {
                 rb = 0;
                 if (ai_PlayerBuilding != 0) {
-                    if (ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, sv_PanelShown->type) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
+                    if (ai_ScriptQuery(0x1a, ai_PlayerBuilding, 0, sv_PanelShown->type) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
                         rb = ai_PlayerBuilding;
                 } else if (ai_FallbackBuilding != 0) {
-                    if (ai_ScriptQuery(0x1c, (int)ai_FallbackBuilding, 0, 0) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
+                    if (ai_ScriptQuery(0x1c, ai_FallbackBuilding, 0, 0) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
                         rb = ai_FallbackBuilding;
                 }
                 if (rb != 0 && sv_PanelShown->type == 0xf2)
@@ -6812,7 +6812,7 @@ void d3t_DrawSnow();                     /* 0x415380 */
 struct D3OBJECT *d3t_CreateSunRays();                     /* 0x417190 */
 void d3t_FadeOutSunRays();                     /* 0x417150 */
 int ai_RunAllows();                     /* 0x5763c0 */
-void ai_CampaignStep(int a, int b, int c, int d);                     /* 0x576040 */
+void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 extern int sv_SunRaysHour;  /* 0x623ecc */
 
 

@@ -839,7 +839,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
-int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
+int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
@@ -2987,7 +2987,7 @@ unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
-struct AIBLD; int ai_ScriptQuery();
+struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(int view, int idx, int k); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
@@ -3366,7 +3366,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     if (bld == ai_PlayerBuilding) {
         if (ai_RunAllows(0x200) == 0)
             return;
-        ai_CampaignStep(0x11, (int)bld, 0, room);
+        ai_CampaignStep(0x11, bld, 0, room);
     }
     me = &ai_Chars[ai_PlayerId];
     rec = gm_Query((void *)b->objList, 1, 0, room);
@@ -3401,7 +3401,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                 if (k < gm_TreeNodeCount) {
                     memset(&msg, 0, sizeof(msg));
                     i = id - 0xdf;
-                    if (ai_ScriptQuery(0x2b, (int)bld, 0, i) == 0)
+                    if (ai_ScriptQuery(0x2b, bld, 0, i) == 0)
                         continue;
                     good = &ai_Goods[i];
                     if (rec != 0)
@@ -3446,7 +3446,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             }
                             if (ok == 0 || sv_MessageBox(text, 1) == 0)
                                 goto redraw;
-                            ai_CampaignStep(0x2b, (int)bld, 0, i);
+                            ai_CampaignStep(0x2b, bld, 0, i);
                             cm_BeginGroup("upgrade");
                             if (b->owner != ai_PlayerChar->id) {
                                 cm_SendMoveGoods(-1, ai_CharInts[b->owner][0], ai_OwnPlayer, cost);
@@ -3493,7 +3493,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     gm_CloseTechTree();
     sv_ResearchClass = 0;
     if (bld == ai_PlayerBuilding)
-        ai_CampaignStep(0x11, (int)bld, 1, room);
+        ai_CampaignStep(0x11, bld, 1, room);
 }
 /* 0x592230, the upgrade listener (89 B): the pump 0x5309a0 (this, 0x67fff) until 0; when the pending contact
    0x6f22e4 is "UPGRADE" the tech tree 0x591bf0 (building, 0x2c) opens */
@@ -4192,7 +4192,7 @@ void ai_KontorContact(AIBLD *bld)
     gelage = 0;
     stroh = 0;
     ziel = 0;
-    ai_CampaignStep(0x1b, (int)bld, 0, 0);
+    ai_CampaignStep(0x1b, bld, 0, 0);
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_KontorContact, 0x67fff);
     while (r != 0) {
@@ -4221,7 +4221,7 @@ void ai_KontorContact(AIBLD *bld)
         }
         r = sv_RunFrame(ai_KontorContact, 0x67fff);
     }
-    ai_CampaignStep(0x1c, (int)bld, 0, 0);
+    ai_CampaignStep(0x1c, bld, 0, 0);
 }
 void ob_HandleBepflanzung(AIBLD *bld);
 void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
@@ -7643,14 +7643,14 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
         d2_SetViewEnabled(sv_PanelForm, 0);
     sv_PanelShown = gm_Query((void *)ai_MarketBuilding->objList, 1, 0, kind);
     if (sv_PanelShown != 0) {
-        ai_CampaignStep(0x17, (int)sv_PanelShown, 0, kind);
+        ai_CampaignStep(0x17, sv_PanelShown, 0, kind);
         while (sv_PanelShown != 0) {
             ai_PermsDirty = 1;
             ai_TransportWindow((int)bld, 9);
         }
     }
-    ai_CampaignStep(0x18, (int)sv_PanelShown, 0, kind);
-    ai_CampaignStep(0x17, (int)sv_PanelShown, 1, kind);
+    ai_CampaignStep(0x18, sv_PanelShown, 0, kind);
+    ai_CampaignStep(0x17, sv_PanelShown, 1, kind);
     sv_PanelShown = 0;
     if (sv_PanelForm != -1)
         d2_SetViewEnabled(sv_PanelForm, 1);
@@ -9406,7 +9406,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 sv_BorderViewX = 0;
                 sv_BorderViewY = 0;
             }
-            ai_CampaignStep(0x19, (int)room, 0, 0);
+            ai_CampaignStep(0x19, room, 0, 0);
             switch (room->type) {
             case 0x13:
                 ai_StudyContact(ai_PlayerBuilding, room);
@@ -9539,7 +9539,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 ai_CannonContact(ai_PlayerBuilding, room);
                 break;
             }
-            ai_CampaignStep(0x1a, (int)room, 0, 0);
+            ai_CampaignStep(0x1a, room, 0, 0);
             sv_LastRoom = room;
             if (lastEvent != -1) {
                 ev = evt_FindById(lastEvent);

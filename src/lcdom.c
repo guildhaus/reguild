@@ -651,7 +651,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int d2_GetViewWin(); void d2_SetPointerSprite(int a, int pic); struct AIOBJ *gm_Query(void *list, int n, ...);
 int gm_FreeCapacity(); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
-int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
+int cm_SendLongMessage(char *msg); int cm_GetSlotState(); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int); void d2_SetObjText();
@@ -718,7 +718,7 @@ unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
-struct AIBLD; int ai_ScriptQuery();
+struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
@@ -1453,7 +1453,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         book = sv_OpenBook(model, "Buch", 4, "Buch\\Personalbuch_1_Diebesgilde", "Buch\\Personalbuch_2",
                            "Buch\\Personalbuch_3", "Buch\\Personalbuch_4");
     sv_UpdateBook(book);
-    ai_CampaignStep(0x21, (int)book, 0, 0);
+    ai_CampaignStep(0x21, book, 0, 0);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
     master = gm_FindCharacterByMaster(bld);
@@ -4294,7 +4294,7 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
             break;
         }
     }
-    ai_CampaignStep(0xd, picked, 1, 0);
+    ai_CampaignStep(0xd, (void *)picked, 1, 0);
     ai_CloseMapWindow((int *)&map);
     return picked;
 }

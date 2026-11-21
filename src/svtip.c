@@ -1099,7 +1099,7 @@ int ai_OpenCharTooltip(AICHAR *ch)
         d2_CreateWinText(0, i * 15, line, d2_LastWindow);
         sv_DrawBalanceBar(0x64, i * 15 + 2, ch, i, 0x4df);
     }
-    ai_CampaignStep(7, (int)ch, 0, 0);
+    ai_CampaignStep(7, ch, 0, 0);
     return view;
 }
 /* 0x5890c0, the modal info window of the character ch (kinds below 0xa only): the form

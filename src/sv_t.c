@@ -635,31 +635,31 @@ void unk_SetEndGameGate(void)
     ai_TutorialRunning = 1;
 }
 /* 0x576040, one event of the tutorial run (a the event index, b / c its kind / result, d only for the hook): the
-   run's stepHook gets all four as an int[4] when it has one; else, for a run of mode 2, the event that meets the
+   run's stepHook gets all four as a TUTEVENT when it has one; else, for a run of mode 2, the event that meets the
    run's goal (or the second text window's text2Goal) moves the states 4 / 9 / 0xa on (phase 1: next 5 or back to 4;
    phase 3: 4 -> 9, 9 -> 0xa or back to 4, 0xa -> 0xb); for the other modes the goal event in the states 4 / 0xa
    switches to goalState (c == 0) or 0xb, and a timed goal (3) to goalState once tailTime has passed. Counts the
    handled events in campaignSteps */
 
-void ai_CampaignStep(int a, int b, int c, int d)
+void ai_CampaignStep(int a, void *b, int c, int d)
 {
-    int p[4];
-    int (*hook)(int *);
+    TUTEVENT p;
+    int (*hook)(TUTEVENT *);
 
     if (!ai_TutorialOn)
         return;
     if (!ai_Tutorial->run)
         return;
-    p[0] = a;
-    p[1] = b;
-    p[2] = c;
-    p[3] = d;
+    p.event = a;
+    p.obj = b;
+    p.stage = c;
+    p.arg = d;
     if (ai_Tutorial->run->mode != 2) {
         if (ai_Tutorial->next != 4 && ai_Tutorial->next != 0xa)
             return;
         hook = ai_Tutorial->run->stepHook;
         if (hook) {
-            hook(p);
+            hook(&p);
             ai_Tutorial->campaignSteps++;
             return;
         }
@@ -687,7 +687,7 @@ void ai_CampaignStep(int a, int b, int c, int d)
         return;
     hook = ai_Tutorial->run->stepHook;
     if (hook) {
-        hook(p);
+        hook(&p);
         return;
     }
     if (ai_Tutorial->phase == 1) {
@@ -744,13 +744,13 @@ void ai_CampaignStep(int a, int b, int c, int d)
     }
     ai_Tutorial->campaignSteps++;
 }
-/* 0x576340, asks the current run record's query callback: hands it the four arguments as an int[4] and returns
+/* 0x576340, asks the current run record's query callback: hands it the four arguments as a TUTEVENT and returns
    its answer; 1 (no objection) while the tutorial is off, no run is current or the run has no callback, 0 while
    tb_Paused is set */
 
-int ai_ScriptQuery(int a, int b, int c, int d)
+int ai_ScriptQuery(int a, void *b, int c, int d)
 {
-    int args[4];
+    TUTEVENT args;
 
     if (!ai_TutorialOn)
         return 1;
@@ -760,11 +760,11 @@ int ai_ScriptQuery(int a, int b, int c, int d)
         return 0;
     if (!ai_Tutorial->run->query)
         return 1;
-    args[0] = a;
-    args[1] = b;
-    args[2] = c;
-    args[3] = d;
-    return ai_Tutorial->run->query(args);
+    args.event = a;
+    args.obj = b;
+    args.stage = c;
+    args.arg = d;
+    return ai_Tutorial->run->query(&args);
 }
 /* 0x5763c0, 1 when the current run record's allow mask (TUTRUN.allowMask) has a bit of `mask`, else 0; 1 while
    the tutorial is off (ai_TutorialOn) and when the state record holds no run, 0 in the phase 2 or the state 5 and
@@ -808,12 +808,12 @@ int ai_RunAllowsWindow(void)
         return 0;
     return 1;
 }
-/* 0x576490, a callback predicate on the first of the four step arguments (a pointer to the int[4]): 0 for the
+/* 0x576490, a callback predicate on the first of the four step arguments (TUTEVENT.event): 0 for the
    kinds 0x19 / 0x1b / 0x29, else 1 (Ghidra missed this start; it ends the 80 byte record of 0x576460 at 0x5764ae) */
 
-int ai_TutorialQueryDefault(int *p)
+int ai_TutorialQueryDefault(TUTEVENT *p)
 {
-    if (*p == 0x19 || *p == 0x1b || *p == 0x29)
+    if (p->event == 0x19 || p->event == 0x1b || p->event == 0x29)
         return 0;
     return 1;
 }
@@ -821,13 +821,13 @@ int ai_TutorialQueryDefault(int *p)
    building of the type kind 0x12 while the panel shows the room 0x74, else 1 (allow); the other callbacks fall
    back to it */
 
-int ai_QueryDefault(int *args)
+int ai_QueryDefault(TUTEVENT *args)
 {
     AIBLD *bld;
 
-    if (args[0] != 0x1a || !args[1])
+    if (args->event != 0x1a || !args->obj)
         return 1;
-    bld = (AIBLD *)args[1];
+    bld = args->obj;
     if (ai_BTypes[bld->type].kind == 0x12 && sv_PanelShown->type == 0x74)
         return 0;
     return 1;
@@ -836,57 +836,57 @@ int ai_QueryDefault(int *args)
    allowed only with the argument 0x10e, the event 0x1a on it is refused while the panel shows the room 0x10e;
    the event 0x1b is refused, everything else allowed */
 
-int ai_QueryBuilding0f(int *args)
+int ai_QueryBuilding0f(TUTEVENT *args)
 {
-    if (args[0] == 0x19 && args[1]) {
-        if (ai_BTypes[((AIBLD *)args[1])->type].kind == 0xf && args[3] == 0x10e)
+    if (args->event == 0x19 && args->obj) {
+        if (ai_BTypes[((AIBLD *)args->obj)->type].kind == 0xf && args->arg == 0x10e)
             return 1;
         return 0;
     }
-    if (args[0] == 0x1a && args[1]) {
-        if (ai_BTypes[((AIBLD *)args[1])->type].kind == 0xf && sv_PanelShown->type == 0x10e)
+    if (args->event == 0x1a && args->obj) {
+        if (ai_BTypes[((AIBLD *)args->obj)->type].kind == 0xf && sv_PanelShown->type == 0x10e)
             return 0;
         return 1;
     }
-    return args[0] != 0x1b;
+    return args->event != 0x1b;
 }
 /* 0x576590, the query callback of the run record FTInitChapter2Step3: allows only the event 0x19 on a building
    of the type kind 0xf with the argument 0x110, refuses everything else */
 
-int ai_QueryChapter2Step3(int *args)
+int ai_QueryChapter2Step3(TUTEVENT *args)
 {
-    if (args[0] == 0x19 && args[1]
-            && ai_BTypes[((AIBLD *)args[1])->type].kind == 0xf && args[3] == 0x110)
+    if (args->event == 0x19 && args->obj
+            && ai_BTypes[((AIBLD *)args->obj)->type].kind == 0xf && args->arg == 0x110)
         return 1;
     return 0;
 }
 /* 0x5765e0, 1 for the kind 0x1a with a record */
 
-int ai_QueryChapter2Step4(int *p)
+int ai_QueryChapter2Step4(TUTEVENT *p)
 {
-    if (p[0] == 0x1a && p[1])
+    if (p->event == 0x1a && p->obj)
         return 1;
     return 0;
 }
 /* 0x576600, the query callback of the run record FTInitChapter2Step5: refuses the event 0x19 on a building of
    another type kind than 0xf, allows everything else */
 
-int ai_QueryChapter2Step5(int *args)
+int ai_QueryChapter2Step5(TUTEVENT *args)
 {
-    if (args[0] == 0x19 && args[1]
-            && ai_BTypes[((AIBLD *)args[1])->type].kind != 0xf)
+    if (args->event == 0x19 && args->obj
+            && ai_BTypes[((AIBLD *)args->obj)->type].kind != 0xf)
         return 0;
     return 1;
 }
 /* 0x576640, the query callback of the run record FTInitChapter2Step6: refuses the event 0x19 on a building of
    another type kind than 0xf or 2, allows everything else */
 
-int ai_QueryChapter2Step6(int *args)
+int ai_QueryChapter2Step6(TUTEVENT *args)
 {
     AIBTYPE *type;
 
-    if (args[0] == 0x19 && args[1]) {
-        type = &ai_BTypes[((AIBLD *)args[1])->type];
+    if (args->event == 0x19 && args->obj) {
+        type = &ai_BTypes[((AIBLD *)args->obj)->type];
         if (type->kind != 0xf && type->kind != 2)
             return 0;
     }
@@ -895,12 +895,12 @@ int ai_QueryChapter2Step6(int *args)
 /* 0x576680, the query callback of the run record FTInitChapter2Step7: refuses the event 0x19 on a building of
    another type kind than 0xf, 2 or 0x12, allows everything else */
 
-int ai_QueryChapter2Step7(int *args)
+int ai_QueryChapter2Step7(TUTEVENT *args)
 {
     AIBTYPE *type;
 
-    if (args[0] == 0x19 && args[1]) {
-        type = &ai_BTypes[((AIBLD *)args[1])->type];
+    if (args->event == 0x19 && args->obj) {
+        type = &ai_BTypes[((AIBLD *)args->obj)->type];
         if (type->kind != 0xf && type->kind != 2 && type->kind != 0x12)
             return 0;
     }
@@ -910,16 +910,16 @@ int ai_QueryChapter2Step7(int *args)
    the state 4 to 9, with 1 the state 9 back to 4 and 0xa to 0xb; the event 7 on a record whose byte +2 is 5
    switches the state 9 to 0xa; each switch restarts the step clock and answers 1, anything else answers 3 */
 
-int ai_StepChapter1Step5(int *args)
+int ai_StepChapter1Step5(TUTEVENT *args)
 {
-    if (args[0] == 0xa) {
-        if (args[2] == 0 && ai_Tutorial->next == 4) {
+    if (args->event == 0xa) {
+        if (args->stage == 0 && ai_Tutorial->next == 4) {
             ai_Tutorial->state = 9;
             ai_Tutorial->next = 9;
             ai_Tutorial->stepAt = d3_Time;
             return 1;
         }
-        if (args[2] == 1) {
+        if (args->stage == 1) {
             if (ai_Tutorial->next == 9) {
                 ai_Tutorial->state = 4;
                 ai_Tutorial->next = 4;
@@ -933,7 +933,7 @@ int ai_StepChapter1Step5(int *args)
                 return 1;
             }
         }
-    } else if (args[0] == 7 && args[1] && ai_Tutorial->next == 9 && ((unsigned char *)args[1])[2] == 5) {
+    } else if (args->event == 7 && args->obj && ai_Tutorial->next == 9 && ((AICHAR *)args->obj)->kind == 5) {
         ai_Tutorial->state = 0xa;
         ai_Tutorial->next = 0xa;
         ai_Tutorial->stepAt = d3_Time;
@@ -943,12 +943,12 @@ int ai_StepChapter1Step5(int *args)
 }
 /* 0x5767d0, the kind 0xd with a building whose table byte is 0xa moves the pending state to 0xb (1), else 3 */
 
-int ai_StepChapter1Step10(int *p)
+int ai_StepChapter1Step10(TUTEVENT *p)
 {
     AIBTYPE *type;
 
-    if (p[0] == 0xd && p[1]) {
-        type = &ai_BTypes[((AIBLD *)p[1])->type];
+    if (p->event == 0xd && p->obj) {
+        type = &ai_BTypes[((AIBLD *)p->obj)->type];
         if (type->kind == 0xa) {
             ai_Tutorial->state = 0xb;
             ai_Tutorial->next = 0xb;
@@ -961,15 +961,15 @@ int ai_StepChapter1Step10(int *p)
 /* 0x576830, the kinds 0x17 / 0x18 set the pending state 0xa / 0xb (1), else 3. Ends at 0x57689f; 0x5768a0 is a
    new start without nop padding */
 
-int ai_StepChapter2Step1(int *p)
+int ai_StepChapter2Step1(TUTEVENT *p)
 {
-    if (p[0] == 0x17) {
+    if (p->event == 0x17) {
         ai_Tutorial->state = 0xa;
         ai_Tutorial->next = 0xa;
         ai_Tutorial->stepAt = d3_Time;
         return 1;
     }
-    if (p[0] == 0x18) {
+    if (p->event == 0x18) {
         ai_Tutorial->state = 0xb;
         ai_Tutorial->next = 0xb;
         ai_Tutorial->stepAt = d3_Time;
@@ -992,10 +992,10 @@ void ai_HookChapter2Step2(int arg)
 }
 /* 0x5768d0, the kind 0x19 with a record whose word is 0x10e moves the pending state to 0xb (1), else 3 */
 
-int ai_StepChapter2Step2(int *p)
+int ai_StepChapter2Step2(TUTEVENT *p)
 {
-    if (p[0] == 0x19 && p[1]) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x19 && p->obj) {
+        unsigned short *room = p->obj;
 
         if (*room == 0x10e) {
             ai_Tutorial->state = 0xb;
@@ -1008,10 +1008,10 @@ int ai_StepChapter2Step2(int *p)
 }
 /* 0x576920, the same as 0x5768d0 for the kind 0x19 and the record word 0x110 */
 
-int ai_StepChapter2Step3(int *p)
+int ai_StepChapter2Step3(TUTEVENT *p)
 {
-    if (p[0] == 0x19 && p[1]) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x19 && p->obj) {
+        unsigned short *room = p->obj;
 
         if (*room == 0x110) {
             ai_Tutorial->state = 0xb;
@@ -1024,10 +1024,10 @@ int ai_StepChapter2Step3(int *p)
 }
 /* 0x576970, the same for the kind 0x1a and the record word 0x110 */
 
-int ai_StepChapter2Step4(int *p)
+int ai_StepChapter2Step4(TUTEVENT *p)
 {
-    if (p[0] == 0x1a && p[1]) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x1a && p->obj) {
+        unsigned short *room = p->obj;
 
         if (*room == 0x110) {
             ai_Tutorial->state = 0xb;
@@ -1042,16 +1042,16 @@ int ai_StepChapter2Step4(int *p)
    state is 4 (state 0xa), the kind 0x1c in any state (state 0xb); else 3. Ends 0x576a7f; 0x576a80 is a new start
    without nop padding */
 
-int ai_StepChapter2Step5(int *p)
+int ai_StepChapter2Step5(TUTEVENT *p)
 {
     AIBLD *b;
 
-    if (p[0] == 0x1b) {
-        if (!p[1])
+    if (p->event == 0x1b) {
+        if (!p->obj)
             goto next;
         if (ai_Tutorial->next != 4)
             goto next;
-        b = (AIBLD *)p[1];
+        b = p->obj;
         if (ai_BTypes[b->type].kind != 0xd)
             goto fail;
         ai_Tutorial->state = 0xa;
@@ -1060,10 +1060,10 @@ int ai_StepChapter2Step5(int *p)
         return 1;
     }
 next:
-    if (p[0] == 0x1c) {
-        if (!p[1])
+    if (p->event == 0x1c) {
+        if (!p->obj)
             goto fail;
-        b = (AIBLD *)p[1];
+        b = p->obj;
         if (ai_BTypes[b->type].kind != 0xd)
             goto fail;
         ai_Tutorial->state = 0xb;
@@ -1090,10 +1090,10 @@ void ai_HookChapter2Step5(int arg)
 /* 0x576ab0, the kinds 0x19 / 0x1a with a record whose word is 0x13: the kind 0x19 only in the pending state 4
    (state 0xa), the kind 0x1a in any state (state 0xb); else 3 */
 
-int ai_StepChapter2Step6(int *p)
+int ai_StepChapter2Step6(TUTEVENT *p)
 {
-    if (p[0] == 0x19 && p[1] && ai_Tutorial->next == 4) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x19 && p->obj && ai_Tutorial->next == 4) {
+        unsigned short *room = p->obj;
 
         if (*room != 0x13)
             return 3;
@@ -1102,8 +1102,8 @@ int ai_StepChapter2Step6(int *p)
         ai_Tutorial->stepAt = d3_Time;
         return 1;
     }
-    if (p[0] == 0x1a && p[1]) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x1a && p->obj) {
+        unsigned short *room = p->obj;
 
         if (*room == 0x13) {
             ai_Tutorial->state = 0xb;
@@ -1116,10 +1116,10 @@ int ai_StepChapter2Step6(int *p)
 }
 /* 0x576b50, the kind 0x19 with a record whose word is 0x74 moves the pending state to 0xb (1), else 3 */
 
-int ai_StepChapter2Step7(int *p)
+int ai_StepChapter2Step7(TUTEVENT *p)
 {
-    if (p[0] == 0x19 && p[1]) {
-        unsigned short *room = (unsigned short *)(unsigned)p[1];
+    if (p->event == 0x19 && p->obj) {
+        unsigned short *room = p->obj;
 
         if (*room == 0x74) {
             ai_Tutorial->state = 0xb;
@@ -1131,23 +1131,23 @@ int ai_StepChapter2Step7(int *p)
     return 3;
 }
 /* 0x576ba0, a transition callback on the kinds 0x2b / 0x10 for a building (table 0x7e3f30, byte 0x12) whose word
-   +0x27 is the player's 0x6f25b8: the kind 0x2b with the step word p[3] 0xc / 0x1df and the flag +0x38 clear sets
-   the flag and the state 0xa, and answers 3; the kind 0x10 sets the pending state 9 (p[2] 0), 0xb / 4 (p[2] 1 by
+   +0x27 is the player's 0x6f25b8: the kind 0x2b with the step word p->arg 0xc / 0x1df and the flag +0x38 clear sets
+   the flag and the state 0xa, and answers 3; the kind 0x10 sets the pending state 9 (p->stage 0), 0xb / 4 (p->stage 1 by
    the flag +0x38), applies it and answers 1 */
 
-int ai_StepChapter4Step2(int *p)
+int ai_StepChapter4Step2(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind != 0x12)
             return 3;
-        if (((AIBLD *)p[1])->owner != ai_PlayerId)
+        if (((AIBLD *)p->obj)->owner != ai_PlayerId)
             return 3;
         if (ai_Tutorial->goalDone)
             return 3;
-        if (p[3] != 0xc && p[3] != 0x1df)
+        if (p->arg != 0xc && p->arg != 0x1df)
             return 3;
         ai_Tutorial->goalDone = 1;
         ai_Tutorial->next = 0xa;
@@ -1155,16 +1155,16 @@ int ai_StepChapter4Step2(int *p)
         ai_Tutorial->stepAt = d3_Time;
         return 3;
     }
-    if (p[0] != 0x10 || !p[1])
+    if (p->event != 0x10 || !p->obj)
         return 3;
-    kind = ((AIBLD *)p[1])->type;
+    kind = ((AIBLD *)p->obj)->type;
     if (ai_BTypes[kind].kind != 0x12)
         return 3;
-    if (((AIBLD *)p[1])->owner != ai_PlayerId)
+    if (((AIBLD *)p->obj)->owner != ai_PlayerId)
         return 3;
-    if (p[2] == 0 && !ai_Tutorial->goalDone)
+    if (p->stage == 0 && !ai_Tutorial->goalDone)
         ai_Tutorial->next = 9;
-    if (p[2] == 1) {
+    if (p->stage == 1) {
         if (ai_Tutorial->goalDone == 1)
             ai_Tutorial->next = 0xb;
         else
@@ -1177,39 +1177,39 @@ int ai_StepChapter4Step2(int *p)
 /* 0x576cd0, a predicate: 1 for the kinds 0x1a / 0x19 / 0x1c, and for the kind 0x2b on the player's building (byte
    0x12, word +0x27 = 0x6f25b8) with the step word 0xc / 0x1df; else 0 */
 
-int ai_QueryChapter4Step2(int *p)
+int ai_QueryChapter4Step2(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind == 0x12
-                && ((AIBLD *)p[1])->owner == ai_PlayerId
-                && (p[3] == 0xc || p[3] == 0x1df))
+                && ((AIBLD *)p->obj)->owner == ai_PlayerId
+                && (p->arg == 0xc || p->arg == 0x1df))
             return 1;
     }
-    if (p[0] == 0x1a || p[0] == 0x19 || p[0] == 0x1c)
+    if (p->event == 0x1a || p->event == 0x19 || p->event == 0x1c)
         return 1;
     return 0;
 }
 /* 0x576d40, the twin of ai_StepChapter4Step2 (0x576ba0) for the kinds 0x2b / 0x11: on a building of the type kind
-   0x12 that the player owns, the kind 0x2b with the step word p[3] 0x78 / 0x79 / 0x7a and the goal not met yet
-   meets the goal and switches to the state 0xa (answers 3); the kind 0x11 sets the pending state 9 (p[2] 0, goal
-   open), 0xb / 4 (p[2] 1, by the goal), applies it and answers 1 */
+   0x12 that the player owns, the kind 0x2b with the step word p->arg 0x78 / 0x79 / 0x7a and the goal not met yet
+   meets the goal and switches to the state 0xa (answers 3); the kind 0x11 sets the pending state 9 (p->stage 0, goal
+   open), 0xb / 4 (p->stage 1, by the goal), applies it and answers 1 */
 
-int ai_StepChapter4Step4(int *p)
+int ai_StepChapter4Step4(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind != 0x12)
             return 3;
-        if (((AIBLD *)p[1])->owner != ai_PlayerId)
+        if (((AIBLD *)p->obj)->owner != ai_PlayerId)
             return 3;
         if (ai_Tutorial->goalDone)
             return 3;
-        if (p[3] != 0x79 && p[3] != 0x7a && p[3] != 0x78)
+        if (p->arg != 0x79 && p->arg != 0x7a && p->arg != 0x78)
             return 3;
         ai_Tutorial->goalDone = 1;
         ai_Tutorial->next = 0xa;
@@ -1217,16 +1217,16 @@ int ai_StepChapter4Step4(int *p)
         ai_Tutorial->stepAt = d3_Time;
         return 3;
     }
-    if (p[0] != 0x11 || !p[1])
+    if (p->event != 0x11 || !p->obj)
         return 3;
-    kind = ((AIBLD *)p[1])->type;
+    kind = ((AIBLD *)p->obj)->type;
     if (ai_BTypes[kind].kind != 0x12)
         return 3;
-    if (((AIBLD *)p[1])->owner != ai_PlayerId)
+    if (((AIBLD *)p->obj)->owner != ai_PlayerId)
         return 3;
-    if (p[2] == 0 && !ai_Tutorial->goalDone)
+    if (p->stage == 0 && !ai_Tutorial->goalDone)
         ai_Tutorial->next = 9;
-    if (p[2] == 1) {
+    if (p->stage == 1) {
         if (ai_Tutorial->goalDone == 1)
             ai_Tutorial->next = 0xb;
         else
@@ -1239,15 +1239,15 @@ int ai_StepChapter4Step4(int *p)
 /* 0x576e70, the predicate twin of 0x576cd0: 1 for the player's building (byte 0x12, word +0x27 = 0x6f25b8) with
    the step word 0x78 / 0x79 / 0x7a; else the answer of 0x5764b0 */
 
-int ai_QueryChapter4Step4(int *p)
+int ai_QueryChapter4Step4(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind == 0x12
-                && ((AIBLD *)p[1])->owner == ai_PlayerId
-                && (p[3] == 0x79 || p[3] == 0x7a || p[3] == 0x78))
+                && ((AIBLD *)p->obj)->owner == ai_PlayerId
+                && (p->arg == 0x79 || p->arg == 0x7a || p->arg == 0x78))
             return 1;
     }
     return ai_QueryDefault(p);
@@ -1256,19 +1256,19 @@ int ai_QueryChapter4Step4(int *p)
    0x5 / 0x2 / 0xd / 0x8 and the flag +0x38 clear sets the flag and the state 0xa (3); the kind 0x10 sets the
    pending state 9 / 0xb / 4, applies it and answers 1 */
 
-int ai_StepChapter4Step5(int *p)
+int ai_StepChapter4Step5(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind != 2)
             return 3;
-        if (((AIBLD *)p[1])->owner != ai_PlayerId)
+        if (((AIBLD *)p->obj)->owner != ai_PlayerId)
             return 3;
         if (ai_Tutorial->goalDone)
             return 3;
-        if (p[3] != 5 && p[3] != 2 && p[3] != 0xd && p[3] != 8)
+        if (p->arg != 5 && p->arg != 2 && p->arg != 0xd && p->arg != 8)
             return 3;
         ai_Tutorial->goalDone = 1;
         ai_Tutorial->next = 0xa;
@@ -1276,16 +1276,16 @@ int ai_StepChapter4Step5(int *p)
         ai_Tutorial->stepAt = d3_Time;
         return 3;
     }
-    if (p[0] != 0x10 || !p[1])
+    if (p->event != 0x10 || !p->obj)
         return 3;
-    kind = ((AIBLD *)p[1])->type;
+    kind = ((AIBLD *)p->obj)->type;
     if (ai_BTypes[kind].kind != 2)
         return 3;
-    if (((AIBLD *)p[1])->owner != ai_PlayerId)
+    if (((AIBLD *)p->obj)->owner != ai_PlayerId)
         return 3;
-    if (p[2] == 0 && !ai_Tutorial->goalDone)
+    if (p->stage == 0 && !ai_Tutorial->goalDone)
         ai_Tutorial->next = 9;
-    if (p[2] == 1) {
+    if (p->stage == 1) {
         if (ai_Tutorial->goalDone == 1)
             ai_Tutorial->next = 0xb;
         else
@@ -1298,18 +1298,18 @@ int ai_StepChapter4Step5(int *p)
 /* 0x577020, the predicate twin of 0x576ee0: 1 for a building of the table byte 0x2 with the step word
    0x5 / 0x2 / 0xd / 0x8 and for the kinds 0x1a / 0x19 / 0x1c; else 0 */
 
-int ai_QueryChapter4Step5(int *p)
+int ai_QueryChapter4Step5(TUTEVENT *p)
 {
     int kind;
 
-    if (p[0] == 0x2b && p[1]) {
-        kind = ((AIBLD *)p[1])->type;
+    if (p->event == 0x2b && p->obj) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind == 2
-                && ((AIBLD *)p[1])->owner == ai_PlayerId
-                && (p[3] == 5 || p[3] == 2 || p[3] == 0xd || p[3] == 8))
+                && ((AIBLD *)p->obj)->owner == ai_PlayerId
+                && (p->arg == 5 || p->arg == 2 || p->arg == 0xd || p->arg == 8))
             return 1;
     }
-    if (p[0] == 0x1a || p[0] == 0x19 || p[0] == 0x1c)
+    if (p->event == 0x1a || p->event == 0x19 || p->event == 0x1c)
         return 1;
     return 0;
 }
@@ -1325,13 +1325,13 @@ void ai_HookChapter4Step(int arg)
     cm_SendMoveGoodsUnchecked(id, -1, 0, 0x2bc0);
 }
 /* 0x5770e0, a transition callback (0x30 B; a start the ret+nop scan missed: it follows 0x5770a0's nop fill and
-   runs to 0x57710f): for the event kind 0x20 with the step p[3] 0x155 it answers 1 while the state record's +0x3c
+   runs to 0x57710f): for the event kind 0x20 with the step p->arg 0x155 it answers 1 while the state record's +0x3c
    is 3, else 0; every other event goes on to 0x5764b0 */
 
-int ai_QueryChapter3Step2(int *p)
+int ai_QueryChapter3Step2(TUTEVENT *p)
 {
-    if (p[0] == 0x20) {
-        if (p[3] == 0x155 && ai_Tutorial->phase == 3)
+    if (p->event == 0x20) {
+        if (p->arg == 0x155 && ai_Tutorial->phase == 3)
             return 1;
         return 0;
     }
@@ -1366,16 +1366,16 @@ void ai_HookChapter3Step2(int end)
    0x155, and to 2 by the kind 0x24 on a building with the table byte 0xa (1); else 0, and the answer of 0x5764b0
    when the flag is below the needed value or no record is given */
 
-int ai_QueryChapter3Step6(int *p)
+int ai_QueryChapter3Step6(TUTEVENT *p)
 {
     int kind;
 
-    if (ai_Tutorial->goalDone >= 0 && p[0] == 0x25 && p[3] == 0x155) {
+    if (ai_Tutorial->goalDone >= 0 && p->event == 0x25 && p->arg == 0x155) {
         ai_Tutorial->goalDone = 1;
         return 1;
     }
-    if (ai_Tutorial->goalDone >= 1 && p[1] && p[0] == 0x24) {
-        kind = ((AIBLD *)p[1])->type;
+    if (ai_Tutorial->goalDone >= 1 && p->obj && p->event == 0x24) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind == 0xa) {
             ai_Tutorial->goalDone = 2;
             return 1;
@@ -1403,10 +1403,10 @@ void ai_HookChapter5Step2(int arg)
    allows only the event 0x29 on the market object 0x155 (and sets goalDone back to 1), refusing everything else;
    before that it allows everything */
 
-int ai_QueryChapter5Step2(int *args)
+int ai_QueryChapter5Step2(TUTEVENT *args)
 {
     if (ai_Tutorial->goalDone > 0) {
-        if (args[0] == 0x29 && args[3] == 0x155) {
+        if (args->event == 0x29 && args->arg == 0x155) {
             ai_Tutorial->goalDone = 1;
             return 1;
         }
@@ -1443,27 +1443,27 @@ int ai_MarkerChapter3Step6(int mode)
    ai_PlayerId), each when the flag already reaches the previous level (1) and the step fits; the kinds 0x1a /
    0x1c answer 1, everything else 0 */
 
-int ai_QueryChapter3Step8(int *p)
+int ai_QueryChapter3Step8(TUTEVENT *p)
 {
     int kind;
 
-    if (ai_Tutorial->goalDone >= 0 && p[0] == 0x28 && p[3] == 0x155) {
+    if (ai_Tutorial->goalDone >= 0 && p->event == 0x28 && p->arg == 0x155) {
         ai_Tutorial->goalDone = 1;
         return 1;
     }
-    if (ai_Tutorial->goalDone >= 1 && p[0] == 0x27 && p[3] == 0x1d0) {
+    if (ai_Tutorial->goalDone >= 1 && p->event == 0x27 && p->arg == 0x1d0) {
         ai_Tutorial->goalDone = 2;
         return 1;
     }
-    if (ai_Tutorial->goalDone >= 2 && p[1] && p[0] == 0x24) {
-        kind = ((AIBLD *)p[1])->type;
+    if (ai_Tutorial->goalDone >= 2 && p->obj && p->event == 0x24) {
+        kind = ((AIBLD *)p->obj)->type;
         if (ai_BTypes[kind].kind == 0x12
-                && ((AIBLD *)p[1])->owner == ai_PlayerId) {
+                && ((AIBLD *)p->obj)->owner == ai_PlayerId) {
             ai_Tutorial->goalDone = 3;
             return 1;
         }
     }
-    if (p[0] == 0x1a || p[0] == 0x1c)
+    if (p->event == 0x1a || p->event == 0x1c)
         return 1;
     return 0;
 }
@@ -1496,13 +1496,13 @@ int ai_MarkerChapter3Step8(int mode)
 /* 0x577450, a step predicate: 1 for the kind 0x26 with the step word 0x1d0 while the goalDone flag is not negative
    (which sets the flag to 1), and for the kinds 0x1a / 0x1c; else 0 */
 
-int ai_QueryChapter3Step10(int *p)
+int ai_QueryChapter3Step10(TUTEVENT *p)
 {
-    if (ai_Tutorial->goalDone >= 0 && p[0] == 0x26 && p[3] == 0x1d0) {
+    if (ai_Tutorial->goalDone >= 0 && p->event == 0x26 && p->arg == 0x1d0) {
         ai_Tutorial->goalDone = 1;
         return 1;
     }
-    if (p[0] == 0x1a || p[0] == 0x1c)
+    if (p->event == 0x1a || p->event == 0x1c)
         return 1;
     return 0;
 }
