@@ -6174,7 +6174,8 @@ the bytes no portable form gives.
   the 5-byte strings of `char hst_ListModes[2][5]`, the second at an odd address: no C type puts an int at +5;
   the inline `*(int *)hst_ListModes[k]` compiles the same but is dcp's Q4 raw access, which wants the view).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
-  (handler and query types, he_Jobs) added no (c) case.
+  (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
+  G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case.
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6358,6 +6359,32 @@ the bytes no portable form gives.
   defines `ctl1` (0x04A0) and the `cmb*` / `lst*` / `stc*` / `scr*` .. control ids (VC98's DLGS.H has no ctl1).
   Do not name locals after them; lc.c / rt.c's ctl1 / ctl2 locals are exchangeCtl / feeCtl and loadCtls /
   unloadCtls (renaming locals left every grade unchanged).
+- **A unit's partial copy of a record the unit can see (sixth data pass: gv.h ORDBLD / ORDOBJ, f3init.c INIT_BLD /
+  INIT_OBJ, the lc units' G8BLD / G8OBJ, amt.h AMTBLDVIEW, rd.h G15BLD)**: rename the view to the record in its
+  users and drop the typedef; the compiler's "not a member" errors list the view-only field names. Map each
+  placeholder to the record's name by what the code does at that site (gm_CreateBuilding's class switch: v65 is
+  ownerNetId / playerSlot / hostage / interest by class, v1c[] is recs + cornerYear / seats / usesLeft / lab by
+  prototype); a field only the view named goes into the record as a union member at the level that keeps every
+  offset (AIBLD.created AITIME in the 0x30-byte kindData union, not in the 12-byte 0x65 union; AIOBJ.kindData as a
+  one-byte member for gm_CreateObject's 0x1f-byte clear: a 0x1f-byte array would grow the 0x15-byte union);
+  where the view had the truer type the record takes it (AIBLD.object `struct D3OBJECT *`, plants `struct G15PLANT
+  *`, credits ORDCREDIT[3], AIOBJ.sceneObj `struct CHARACTER *`). Never rename a field by a unit-wide pattern:
+  f3init.c's `->proto` was also its SCENEOBJ view's field (three functions changed code until only the AIOBJ
+  lines, the compiler's errors, were renamed). Before retyping a pointer field, find its byte-offset spellings
+  (`b->object + 0x4c` is `&b->object->pos` once the field is D3OBJECT *; the same expression silently scales).
+- **Removing casts of a value that now has the record type**: strip them mechanically (scratchpad p6/strip2.py:
+  only a plain operand, never before `+ - [`), compile the unit with cl as the build does and restore every line
+  that has a new warning or error (p6/revert.py; line-preserving edits, deletions as marker lines removed at
+  the end). The restored casts are on values still owed (a char * local, an int handle, another view).
+- **A callee's alias local of its parameter (`AIBLD *b = (AIBLD *)p;`)**: with the parameter typed, the alias
+  usually goes with the same code (about 30 functions), but not always: gv_ListEntry's `GVYARD *g = (GVYARD *)r`
+  copy is the original's (reading the parameter is 20 bytes shorter, byte -> draft), gm_UpdateTechTree keeps its
+  `bl = bld` / `ob = item` copies. Keep the copy as `T *g = r;` where the snapshot says so. Splitting a
+  multi-name declaration to retype one name keeps the names in their order (`AIBLD *b; int f;`).
+- **A frame callback that is only a key (sv_RunFrame / sv_PopTo, SVFRAME.cb: compared and stored, never called)**:
+  an old-style function pointer `void (*cb)()`; VC6 passes void- and int-returning functions of any parameter
+  list to it silently (it warns a void function against `int (*)()`), so the 213 call casts went and 462
+  warnings with them; a handler returning a pointer still warns.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
