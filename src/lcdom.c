@@ -1091,7 +1091,7 @@ typedef struct G9DOMIZILROW {           /* a row of the Domizil personnel book: 
 #pragma pack(pop)
 
 /* 0x5aa0d0, the Domizil personnel book row at x / y (232 B, ai_PersonnelBook): its picture 0x5db, the two texts
-   (txt_NoCharacter at y - 0x11, ch_EmptyName at y + 0x44) at x - 0x36, and the record: the picture at +0xc, the
+   (TXT_NO_CHARACTER at y - 0x11, ch_EmptyName at y + 0x44) at x - 0x36, and the record: the picture at +0xc, the
    texts at +0x14 / +0x18 (their width 0xa0, centred), the ids -1 at +0x10 / +0x1c and the six pairs at +0x28 /
    +0x40, the title 0, the view d2_CurrentView at +0x58 */
 
@@ -1103,7 +1103,7 @@ void ai_CreatePersonnelRow(int x, int y, G9DOMIZILROW *row)
     id = d2_WinOpenPic(x, y, 0x5db, d2_LastWindow);
     row->pic = id;
     d2_Objs[id].interactive = 1;
-    id = d2_CreateWinText(x - 0x36, y - 0x11, txt_NoCharacter, d2_LastWindow);
+    id = d2_CreateWinText(x - 0x36, y - 0x11, txt_Ptrs[TXT_NO_CHARACTER], d2_LastWindow);
     row->text = id;
     d2_Objs[id].w = 0xa0;
     d2_Objs[row->text].centred = 1;
@@ -1238,7 +1238,7 @@ void ai_FillVacantPersonnelRow(AIBLD *bld, G9DOMIZILROW *row, int kind, int slot
         return;
     }
     ai_DomizilFreeRow(row);
-    strcpy(text, txt_NoCharacter);
+    strcpy(text, txt_Ptrs[TXT_NO_CHARACTER]);
     row->state = 0;
     d2_SetObjText(row->text, text);
     d2_Objs[row->text].w = 0xa0;
@@ -1458,7 +1458,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     io_CharacterName(bld->masterId, 1, 2, masterName);
     master = gm_FindCharacterByMaster(bld);
     if (master == 0)
-        strcpy(masterText, txt_NoCharacter);
+        strcpy(masterText, txt_Ptrs[TXT_NO_CHARACTER]);
     else
         io_CharacterName(master->id, 1, 1, masterText);
     d2_SetForm(book->views[0], 3);
@@ -1939,7 +1939,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     io_CharacterName(bld->masterId, 1, 2, masterName);
     master = gm_FindCharacterByMaster(bld);
     if (master == 0)
-        strcpy(masterText, txt_NoCharacter);
+        strcpy(masterText, txt_Ptrs[TXT_NO_CHARACTER]);
     else
         io_CharacterName(master->id, 1, 1, masterText);
     d2_SetForm(book->views[0], 3);
@@ -1993,7 +1993,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
             radio = d2_CreateRadioGroup(1, pic);
         else
             d2_RadioAdd(radio, pic);
-        t = d2_CreateWinText(px - 0x36, y - 0x11, txt_NoCharacter, d2_LastWindow);
+        t = d2_CreateWinText(px - 0x36, y - 0x11, txt_Ptrs[TXT_NO_CHARACTER], d2_LastWindow);
         rows[i].text = t;
         d2_Objs[pic].interactive = 1;
         d2_Objs[t].w = 0xa0;
@@ -2117,7 +2117,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                         rows[i].ctrl28[k] = -1;
                     }
                 }
-                strcpy(emptyText, txt_NoCharacter);
+                strcpy(emptyText, txt_Ptrs[TXT_NO_CHARACTER]);
                 rows[i].state = 0;
                 d2_SetObjText(rows[i].text, emptyText);
                 d2_Objs[rows[i].text].w = 0xa0;
@@ -2342,7 +2342,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     io_CharacterName(bld->masterId, 1, 2, masterName);
     master = gm_FindCharacterByMaster(bld);
     if (master == 0)
-        strcpy(masterText, txt_NoCharacter);
+        strcpy(masterText, txt_Ptrs[TXT_NO_CHARACTER]);
     else
         io_CharacterName(master->id, 1, 1, masterText);
     d2_SetForm(book->views[0], 3);
@@ -2396,7 +2396,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
             radio = d2_CreateRadioGroup(1, pic);
         else
             d2_RadioAdd(radio, pic);
-        t = d2_CreateWinText(px - 0x36, y - 0x11, txt_NoCharacter, d2_LastWindow);
+        t = d2_CreateWinText(px - 0x36, y - 0x11, txt_Ptrs[TXT_NO_CHARACTER], d2_LastWindow);
         rows[i].text = t;
         d2_Objs[pic].interactive = 1;
         d2_Objs[t].w = 0xa0;
@@ -2602,7 +2602,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                         rows[i].ctrl28[k] = -1;
                     }
                 }
-                strcpy(emptyText, txt_NoCharacter);
+                strcpy(emptyText, txt_Ptrs[TXT_NO_CHARACTER]);
                 rows[i].state = 0;
                 d2_SetObjText(rows[i].text, emptyText);
                 d2_Objs[rows[i].text].w = 0xa0;
@@ -3227,7 +3227,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     if (mode8) {
         panelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_marktstand");
         for (i = 0; i < 7; i++) {
-            panelBtns[i] = sv_AddPanelButton(0, i * 0x18 + 0xc, txt_InfoPanelButtons[i]);
+            panelBtns[i] = sv_AddPanelButton(0, i * 0x18 + 0xc, (intptr_t)txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
             if (sv_PanelShown->type == panelIds[i]) {
                 d2_Objs[panelBtns[i]].checked = 1;
                 d2_Objs[panelBtns[i]].highlighted = 1;
@@ -3469,7 +3469,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         d2_Objs[rows[freeRow].escortPic].caption[0] = ch_EmptyName[0];
                         d2_Objs[rows[freeRow].label].interactive = 1;
                         d2_Objs[rows[freeRow].label].style = 0x43;
-                        strcpy(d2_Objs[rows[freeRow].label].caption, txt_PanelBtnCart);
+                        strcpy(d2_Objs[rows[freeRow].label].caption, txt_Ptrs[TXT_PANEL_BTN_CART]);
                         d2_SetObjFont(rows[freeRow].label, 0x54);
                         rows[freeRow].slider = d2_WinOpenSlider(0x4b, (d2_Pics[0x5e2].h + 0x16) * freeRow + 0x59, 0x50, 0,
                                                                 0x64, 0x65, 0x2a, d2_LastWindow);
@@ -3587,8 +3587,8 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         d2_Objs[ctl].captionX = -1;
                         d2_Objs[ctl].captionY = 0;
                         d2_Objs[ctl].centred = 1;
-                        sprintf(d2_Objs[ctl].caption, "%s~ %li %s", txt_ObjectNames[goods.item[k]][0], goods.amount[k] - v,
-                                txt_AmountUnit);
+                        sprintf(d2_Objs[ctl].caption, "%s~ %li %s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * goods.item[k]], goods.amount[k] - v,
+                                txt_Ptrs[TXT_AMOUNT_UNIT]);
                         break;
                     }
                 }
@@ -6441,7 +6441,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
         d2_Objs[rows[i].pic].icon = 0x520;
         d2_Objs[rows[i].pic].iconx = -2;
         d2_Objs[rows[i].pic].icony = -2;
-        txt_Format(text, 0x17d3, txt_ObjectNames[rows[i].good][0], price);
+        txt_Format(text, 0x17d3, txt_Ptrs[TXT_OBJECT_NAMES + 2 * rows[i].good], price);
         rows[i].text = d2_CreateWinText(0x60, i * 0x3c + 10, text, d2_LastWindow);
     }
     d2_SetPointerSprite(0, 0);
@@ -7655,7 +7655,7 @@ void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants)
     if (plant->state > 1) {
         char text[0xf8];
 
-        sprintf(text, txt_Ptrs[0x8f], txt_ObjectNames[plant->type][0]);
+        sprintf(text, txt_Ptrs[0x8f], txt_Ptrs[TXT_OBJECT_NAMES + 2 * plant->type]);
         d2_CopyCaption(text);
     } else {
         d2_CopyCaption(txt_Ptrs[0x8e]);
@@ -7772,7 +7772,7 @@ int ai_UpdateInventoryWindow(void)
         }
         value = d2_GetObjValue(ai_InvSlots[i].ctl);
         d2_SetObjValue(ai_InvSlots[i].ctl, 0, ai_InvSlots[i].obj->count, value);
-        sprintf(d2_Objs[ai_InvSlots[i].ctl].caption, "%s~ %li %s", txt_ObjectNames[ai_InvSlots[i].obj->id][0],
+        sprintf(d2_Objs[ai_InvSlots[i].ctl].caption, "%s~ %li %s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * ai_InvSlots[i].obj->id],
                 ai_InvSlots[i].obj->count, txt_Ptrs[0x3fe9]);
         use = (G9DOMIZIL *)ai_FindUsableGood(ai_InvSlots[i].obj->id);
         if (use != 0) {
@@ -7807,7 +7807,7 @@ int ai_UpdateInventoryWindow(void)
                 d2_Objs[ai_InvSlots[k].ctl].style = 0x23;
                 d2_Objs[ai_InvSlots[k].ctl].captionX = -1;
                 d2_Objs[ai_InvSlots[k].ctl].captionY = 0;
-                sprintf(d2_Objs[ai_InvSlots[k].ctl].caption, "%s~ %li St\xfc" "ck", txt_ObjectNames[ai_InvSlots[k].obj->id][0],
+                sprintf(d2_Objs[ai_InvSlots[k].ctl].caption, "%s~ %li St\xfc" "ck", txt_Ptrs[TXT_OBJECT_NAMES + 2 * ai_InvSlots[k].obj->id],
                         ai_InvSlots[k].obj->count);
                 use = (G9DOMIZIL *)ai_FindUsableGood(ai_InvSlots[k].obj->id);
                 if (use != 0) {

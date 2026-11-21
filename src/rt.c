@@ -317,7 +317,7 @@ int rt_ChooseGoodsDialog(AIBLD *b, int x, int def)
                 d2_Objs[o].icon = 0x525;
                 d2_Objs[o].captionX = 4;
                 d2_Objs[o].captionY = 0xf;
-                sprintf(d2_Objs[o].caption, "%s", (char *)txt_ObjectNames[gm_KindObjs[n]][0]);
+                sprintf(d2_Objs[o].caption, "%s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * gm_KindObjs[n]]);
                 n++;
             }
         }
@@ -405,7 +405,7 @@ int rt_ChooseRouteGood(int x, RTPOINT *p)
     di_ClearButtons();
     return ret;
 }
-/* 0x4be3b0, the dialog "misc\routing_choose_good_enhanced" for building b with seven tabs (txt_InfoPanelButtons;
+/* 0x4be3b0, the dialog "misc\routing_choose_good_enhanced" for building b with seven tabs (TXT_INFO_PANEL_BUTTONS;
    each keeps the building's store of stock kind 0x95, 0x92, 0x93, 0x94, 0x97, 0x96, 0x2db in its object's user
    field; title "$Z%2N3$A%1G" with the owner): the goods the store of the tab picked holds (the building's own
    object 0xff when it has none), four to a row, then "none" (picture 0x527). Runs until a pick, a right click or
@@ -449,7 +449,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
     d2_SetForm(w, 3);
     g = d2_CreateRadioGroup(0);
     for (i = 0, y = 4; y < 0xd6; i++, y += 0x1e) {
-        o = sv_AddPanelButton(0, y, txt_InfoPanelButtons[i]);
+        o = sv_AddPanelButton(0, y, (intptr_t)txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
         tabs[i] = o;
         d2_Objs[o].user = gm_Query(b->objList, 2, 6, 0, kinds[i]);
         d2_RadioAdd(g, o);
@@ -536,7 +536,7 @@ int rt_OpenSlotControls(AIOBJ *cart, int a, int good, int k, int x, int y, int w
     d2_Objs[o].style = 0x22;
     d2_Objs[o].captionX = 4;
     d2_Objs[o].captionY = 0xf;
-    sprintf(d2_Objs[o].caption, "%s", (char *)txt_ObjectNames[good][0]);
+    sprintf(d2_Objs[o].caption, "%s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * good]);
     return o;
 }
 /* 0x4be8e0, removes the three controls of out (0x4be790) */
@@ -611,7 +611,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     d2_SetForm(w, 1);
     io_PrintText((intptr_t)"$Z%2N3$A%1G", bld->owner, bld);
     d2_SetForm(w, 3);
-    sv_ButtonRow(d2_LastWindow, 0, btns, 2, txt_RouteOk, txt_RouteDeletePoint);
+    sv_ButtonRow(d2_LastWindow, 0, btns, 2, txt_Ptrs[TXT_ROUTE_OK], txt_Ptrs[TXT_ROUTE_DELETE_POINT]);
     ok = btns[0];
     del = btns[1];
     n = cnt[cart->id - 0x134];
@@ -626,11 +626,11 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
         rt_InitControls(unloadCtls[i]);
     }
     d2_WinOpenPic(0x6e, 0x1a, cart->id + 0x4ae, v2);
-    o = d2_CreateWinText(0x6e, 2, txt_RouteLoadHead, v2);
+    o = d2_CreateWinText(0x6e, 2, txt_Ptrs[TXT_ROUTE_LOAD_HEAD], v2);
     d2_Objs[o].centred = 1;
     d2_Objs[o].w = 0xcd;
     d2_WinOpenPic(0x6e, 0x88, cart->id + 0x4ae, v2);
-    o = d2_CreateWinText(0x6e, 0x70, txt_RouteUnloadHead, v2);
+    o = d2_CreateWinText(0x6e, 0x70, txt_Ptrs[TXT_ROUTE_UNLOAD_HEAD], v2);
     d2_Objs[o].centred = 1;
     d2_Objs[o].w = 0xcd;
     if (n > 0) {
@@ -746,8 +746,8 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     d2_EnableViewObjects(*win, 1);
 }
 /* 0x4bf080, the dialog "misc\routing_settings" for cart c (title text 0x42e2): a 5-step slider for c->patrolLevel
-   (txt_PatrolLevel0..4), the button txt_RouteNew that starts a new route at c's building (its mark on the town map
-   window win), the button txt_PatrolToggle[c->patrolOn] that toggles c->patrolOn (text 0x42ec + patrolOn shows the
+   (TXT_PATROL_LEVEL_0..4), the button TXT_ROUTE_NEW that starts a new route at c's building (its mark on the town map
+   window win), the button TXT_PATROL_TOGGLE + c->patrolOn that toggles c->patrolOn (text 0x42ec + patrolOn shows the
    state); changes go out as field updates */
 
 void rt_CartSettingsDialog(AIOBJ *c, char *win)
@@ -767,20 +767,20 @@ void rt_CartSettingsDialog(AIOBJ *c, char *win)
     d2_SetForm(w, 4);
     io_PrintText(c->patrolOn + 0x42ec);
     d2_SetForm(w, 3);
-    sv_ButtonRow(d2_LastWindow, 0, btns, 3, txt_RouteOk, txt_RouteNew, txt_PatrolToggle[c->patrolOn]);
+    sv_ButtonRow(d2_LastWindow, 0, btns, 3, txt_Ptrs[TXT_ROUTE_OK], txt_Ptrs[TXT_ROUTE_NEW], txt_Ptrs[TXT_PATROL_TOGGLE + c->patrolOn]);
     ok = btns[0];
     renew = btns[1];
     toggle = btns[2];
-    d2_SetCaption(toggle, txt_PatrolToggle[c->patrolOn]);
+    d2_SetCaption(toggle, txt_Ptrs[TXT_PATROL_TOGGLE + c->patrolOn]);
     d2_SetObjValue(sl, 0, 4, c->patrolLevel);
     d2_SetSliderFlags(sl, 0x82);
-    d2_SetList(sl, 5, txt_PatrolLevel0, txt_PatrolLevel1, txt_PatrolLevel2, txt_PatrolLevel3, txt_PatrolLevel4);
+    d2_SetList(sl, 5, txt_Ptrs[TXT_PATROL_LEVEL_0], txt_Ptrs[TXT_PATROL_LEVEL_1], txt_Ptrs[TXT_PATROL_LEVEL_2], txt_Ptrs[TXT_PATROL_LEVEL_3], txt_Ptrs[TXT_PATROL_LEVEL_4]);
     while (sv_RunFrame(rt_CartSettingsDialog, 0x657c7)) {
         if (dm_L.rup != 0 || d2_ClickedId != -1 && d2_PointerObj == ok)
             sv_PopRequest = 1;
         d2_SetForm(w, 4);
         io_PrintText(c->patrolOn + 0x42ec);
-        d2_SetCaption(toggle, txt_PatrolToggle[c->patrolOn]);
+        d2_SetCaption(toggle, txt_Ptrs[TXT_PATROL_TOGGLE + c->patrolOn]);
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == renew) {
                 int i;
@@ -902,9 +902,9 @@ void rt_HighlightRoute(RTPOINT *p, LCMAPWIN *m)
     }
 }
 /* 0x4bf5b0, the route editor for cart c on the town map window (ai_OpenTownMap / ai_UpdateTownMap /
-   ai_CloseMapWindow; title txt_PanelBtnCart): a copy of c's route (one point at c's building if it has none, and
-   c->patrolOn set), a mark per point, the tab buttons txt_RouteEditPoint (rt_EditPointDialog on the selected
-   point), txt_RouteAddPoint (adds the building picked on the map) and txt_RouteSettings (rt_CartSettingsDialog); at
+   ai_CloseMapWindow; title TXT_PANEL_BTN_CART): a copy of c's route (one point at c's building if it has none, and
+   c->patrolOn set), a mark per point, the tab buttons TXT_ROUTE_EDIT_POINT (rt_EditPointDialog on the selected
+   point), TXT_ROUTE_ADD_POINT (adds the building picked on the map) and TXT_ROUTE_SETTINGS (rt_CartSettingsDialog); at
    the end the route goes to c (cm_SendSetRoute), or with fewer than two points c's route is cleared and
    c->patrolOn reset. rt_MapSurface is saved before and restored after */
 
@@ -931,7 +931,7 @@ void rt_EditCartRoute(AIOBJ *c)
     m.req[2] = 0xb07d7fb0;
     m.flags = 0x10;
     m.req[0x13] = 0x723;
-    strcpy(m.name, txt_PanelBtnCart);
+    strcpy(m.name, txt_Ptrs[TXT_PANEL_BTN_CART]);
     ai_OpenTownMap(&m);
     ai_BuildTownMap(&m);
     rt_MapSaved = d2_CopySurface(rt_MapSurface);
@@ -956,7 +956,7 @@ void rt_EditCartRoute(AIOBJ *c)
             rt_PutRouteMark(&m, (int)c, rt_EditRoute, q);
     }
     d2_SetForm(m.view, 2);
-    sv_TabButtonRow(d2_LastWindow, 5, btns, 3, txt_RouteEditPoint, txt_RouteAddPoint, txt_RouteSettings);
+    sv_TabButtonRow(d2_LastWindow, 5, btns, 3, txt_Ptrs[TXT_ROUTE_EDIT_POINT], txt_Ptrs[TXT_ROUTE_ADD_POINT], txt_Ptrs[TXT_ROUTE_SETTINGS]);
     edit = btns[0];
     add = btns[1];
     settings = btns[2];

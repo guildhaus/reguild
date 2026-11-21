@@ -2093,13 +2093,13 @@ exe	0x004bdae0	rt_BuildMarkGroup	rt	5fd28aa267234e0b	no	byte	control=byte p1=byt
 exe	0x004bdb30	rt_Unk4bdb30	rt	7565aa69b5523bda	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004bdc90	rt_MarkValue	rt	1edc8713817db1f2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004bdca0	rt_ReadMarkValues	rt	322d759f4513978c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004bdcd0	rt_ChooseGoodsDialog	rt	d179b2042bfcff32	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	d6dd5a5f38d67af1
+exe	0x004bdcd0	rt_ChooseGoodsDialog	rt	4bf4c1cbfa5dbf36	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	417a46bc6b87ec3f
 exe	0x004be180	rt_ChooseRouteGood	rt	de1632767b8b1a05	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	1ade362317e7bf09
 exe	0x004be3b0	rt_ChooseTabGood	rt	ebc2e91f70e75ed8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	94267ed1578e38d5
 exe	0x004be790	rt_Unk4be790	rt	c8bd5cb0a485e1fd	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004be8e0	rt_RemoveControls	rt	8ea0d8e150852615	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004be930	rt_InitControls	rt	555f76e1152b87b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004be940	rt_EditPointDialog	rt	b463ce3be555de6c	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=190	d6dd5a5f38d67af1
+exe	0x004be940	rt_EditPointDialog	rt	ec1822173adf0b4c	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=2 compiled=190	417a46bc6b87ec3f
 exe	0x004bf080	rt_CartSettingsDialog	rt	24a704aa4cb8c6c2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e60787fccaf24ae2
 exe	0x004bf360	rt_SetMarkPic	rt	a82a9d6be6e6b746	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	6bc939f147bce261	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4177,7 +4177,7 @@ exe	0x00594e50	ai_CriminalContact	lc	6507108db6e7385f	no	shape	sweep control=sha
 exe	0x005950e0	ai_FarTradeContact	lc	2826dc29eca02f9f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00595170	ai_SmithyContact	lc	7b89b53e9278130f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	363b43c45b83d63b
 exe	0x00595330	ai_CarpenterContact	lc	11f0c47ab092a56a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	363b43c45b83d63b
-exe	0x00595480	ai_TradeSearchWindow	lc	198f3320d2628449	yes	byte	sweep control=shape best=byte by 31 unused typedefs at the unit's start; codegens=2 compiled=96 (stopped at the goal)	ad2fb8c8b9d29f25
+exe	0x00595480	ai_TradeSearchWindow	lc	661809084321754d	yes	byte	sweep control=shape best=byte by 8 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	811848dec6a60fb3
 exe	0x00595a00	ai_AquariumSearchWindow	lc	ca1172d0ec5a6b60	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8fdeb4f1601c0522
 exe	0x00595ed0	ai_PerfumeryContact	lc	54f42bb8ba9a40c4	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	363b43c45b83d63b
 exe	0x00596060	ai_IdleContact	lc	744a0d1f84529fda	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4376,7 +4376,7 @@ exe	0x005aa520	ai_FillVacantPersonnelRow	lc	56d051be4ba9a4ba	no	byte	control=byt
 exe	0x005aa700	ai_ShowBldCarts	lc	3370230506a06a20	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005aa9a0	ai_UpdateBldCarts	lc	ca66c69e4fb9d5c7	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005aab80	ai_PersonnelBook	lc	856e8569f8217eb9	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x005ac110	ai_MercenaryBook	lcdom	1ef2457749b6c380	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	9ae189334225bc65
+exe	0x005ac110	ai_MercenaryBook	lcdom	24b0efcf8486ca3c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0a92e7a9fb63f89
 exe	0x005ad000	ai_AskHelperBonus	lcdom	e62d838de9b3af95	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	eb245f6a5444f9cc
 exe	0x005ad150	ai_HelperBook	lc	a681d7ba348c4a09	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005ae240	ai_BuyCartWindow	lcdom	385cb7de9499cc06	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	c3097bbae009c1dc

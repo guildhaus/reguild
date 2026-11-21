@@ -1847,7 +1847,7 @@ void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned c
         d2_Objs[slot->check].style = 0x22;
         d2_Objs[slot->check].captionX = 4;
         d2_Objs[slot->check].captionY = 0;
-        sprintf(d2_Objs[slot->check].caption, "%s~ %li %s", txt_ObjectNames[slot->good][0], slot->amount, txt_Ptrs[0x3fe8]);
+        sprintf(d2_Objs[slot->check].caption, "%s~ %li %s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * slot->good], slot->amount, txt_Ptrs[0x3fe8]);
         if (slot->check >= 0)
             d2_MoveObj(win->x + slot->x + 0xf, win->y + slot->y + 6, slot->check);
         if (slot->label >= 0)
@@ -2051,15 +2051,15 @@ void ai_MarketContact(AIBLD *b)
     plate = 0;
     if (ai_PlayerId != b->owner) {
         if (d3_FindObject(0, 0x60, 0, "contact_EINKAUF"))
-            plate = sv_RegisterNamePlate("contact_EINKAUF", ai_TextEinkauf, 0x10);
+            plate = sv_RegisterNamePlate("contact_EINKAUF", txt_Ptrs[TXT_EINKAUF], 0x10);
         else if (d3_FindObject(0, 0x60, 0, "contact_EINKAUF_METALL"))
-            plate = sv_RegisterNamePlate("contact_EINKAUF_METALL", ai_TextEinkaufMetall, 0x10);
+            plate = sv_RegisterNamePlate("contact_EINKAUF_METALL", txt_Ptrs[TXT_EINKAUF_METALL], 0x10);
         else if (d3_FindObject(0, 0x60, 0, "contact_EINKAUF_SKRIPTE"))
-            plate = sv_RegisterNamePlate("contact_EINKAUF_SKRIPTE", ai_TextEinkaufSkripte, 0x10);
+            plate = sv_RegisterNamePlate("contact_EINKAUF_SKRIPTE", txt_Ptrs[TXT_EINKAUF_SKRIPTE], 0x10);
         else if (d3_FindObject(0, 0x60, 0, "contact_EINKAUF_HOLZ"))
-            plate = sv_RegisterNamePlate("contact_EINKAUF_HOLZ", ai_TextEinkaufHolz, 0x10);
+            plate = sv_RegisterNamePlate("contact_EINKAUF_HOLZ", txt_Ptrs[TXT_EINKAUF_HOLZ], 0x10);
         else if (d3_FindObject(0, 0x60, 0, "contact_EINKAUF_STEIN"))
-            plate = sv_RegisterNamePlate("contact_EINKAUF_STEIN", ai_TextEinkaufStein, 0x10);
+            plate = sv_RegisterNamePlate("contact_EINKAUF_STEIN", txt_Ptrs[TXT_EINKAUF_STEIN], 0x10);
     }
     if (ai_PlayerId != b->owner && ai_ClickedObject != 0 && ai_ClickedObject == plate)
         ai_OpenTransport(b);
@@ -3332,7 +3332,7 @@ extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h
 /* 0x591bf0, the tech tree window of the building bld (1593 B): for the player's building it is run by
    ai_RunAllows (0x200) between the campaign steps 0x11 (bld, 0 / 1, room); the research object of the room
    (gm_Query (objList, 1, 0, room), else (1, 4, 2)) opens "techtree\TechTree" (gm_TechTreeWindow; a failure shows
-   the text d2_Strings[0x1e]) with its effects button (text 0x17e2: ai_TechEffectsWindow). A click on a tree node
+   the text txt_Ptrs[0x1e]) with its effects button (text 0x17e2: ai_TechEffectsWindow). A click on a tree node
    (ids 0xdf .. 0x3bb, a node of gm_TreeNodes) researches the goods id - 0xdf when the script query 0x2b allows it:
    not yet held (the room's list, or the building's rooms (2, 6, 0)) it costs either AIGOOD.b40 of the character's
    money (text 0x1b / 0x74, cm_SendMoneyDelta) or the price gm_ItemPrice * (difficulty / 4 + 0.5) from the master's
@@ -3377,7 +3377,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     }
     win = gm_TechTreeWindow("techtree\\TechTree", bld, rec);
     if (win < 0) {
-        sv_MessageBox((intptr_t)d2_Strings[0x1e], 0);
+        sv_MessageBox((intptr_t)txt_Ptrs[0x1e], 0);
         return;
     }
     d2_CentreViewWindows(win);
@@ -3510,8 +3510,8 @@ void ai_UpgradeContact(AIBLD *building)
     }
 }
 /* 0x592290, the book contact of the building bld (143 B): releases the name plates, then per frame of the pump
-   sv_RunFrame registers the two book objects (ob_MEISTERBRIEF with ai_ContactTextMasterLetter, ob_PERSONALBUCH
-   with ai_ContactTextPersonnelBook) and opens ai_MasterLetterWindow / ai_PersonnelBook when one is the clicked
+   sv_RunFrame registers the two book objects (ob_MEISTERBRIEF with TXT_CONTACT_MASTER_LETTER, ob_PERSONALBUCH
+   with TXT_CONTACT_PERSONNEL_BOOK) and opens ai_MasterLetterWindow / ai_PersonnelBook when one is the clicked
    object (ai_ClickedObject) */
 
 void ai_BookContact(AIBLD *bld)
@@ -3523,8 +3523,8 @@ void ai_BookContact(AIBLD *bld)
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_BookContact, 0x67fff);
     while (r != 0) {
-        a = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0xc);
-        b = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+        a = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0xc);
+        b = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == a)
                 ai_MasterLetterWindow(bld);
@@ -3536,7 +3536,7 @@ void ai_BookContact(AIBLD *bld)
 }
 /* 0x592320, the mercenary-book contact of the building bld (160 B): releases the name plates, then per frame of
    the pump sv_RunFrame, while ai_BuildingPerms has 0x200, registers the two plates ob_SOELDNERBUCH (the hover
-   text ai_ContactTextMercenaryBook) and ub_STAENDER_WAFFEN (ai_ContactTextEquip) and opens ai_MercenaryBook /
+   text TXT_CONTACT_MERCENARY_BOOK) and ub_STAENDER_WAFFEN (TXT_CONTACT_EQUIP) and opens ai_MercenaryBook /
    ai_EquipWindow when one is the clicked object (ai_ClickedObject) */
 
 void ai_MercenaryBookContact(AIBLD *bld)
@@ -3551,8 +3551,8 @@ void ai_MercenaryBookContact(AIBLD *bld)
     r = sv_RunFrame(ai_MercenaryBookContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            a = sv_RegisterNamePlate("ob_SOELDNERBUCH", ai_ContactTextMercenaryBook, 0xc);
-            b = sv_RegisterNamePlate("ub_STAENDER_WAFFEN", ai_ContactTextEquip, 0xd);
+            a = sv_RegisterNamePlate("ob_SOELDNERBUCH", txt_Ptrs[TXT_CONTACT_MERCENARY_BOOK], 0xc);
+            b = sv_RegisterNamePlate("ub_STAENDER_WAFFEN", txt_Ptrs[TXT_CONTACT_EQUIP], 0xd);
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == a)
@@ -4142,7 +4142,7 @@ int ai_ExtractResourceWindow(AIBLD *bld);
 
 /* 0x5938c0, the mining contact of the building bld (152 B): releases the name plates, then per frame of the
    pump sv_RunFrame, while ai_BuildingPerms has 0x200, registers the two plates contact_SUCHEN_ERZ (the hover
-   text ai_ContactTextSearchOre) and contact_ABBAUEN (ai_ContactTextExtract) and opens ai_SearchResourceWindow /
+   text TXT_CONTACT_SEARCH_ORE) and contact_ABBAUEN (TXT_CONTACT_EXTRACT) and opens ai_SearchResourceWindow /
    ai_ExtractResourceWindow when one is the clicked object (ai_ClickedObject) */
 void ai_MiningContact(AIBLD *bld)
 {
@@ -4156,8 +4156,8 @@ void ai_MiningContact(AIBLD *bld)
     r = sv_RunFrame(ai_MiningContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            a = sv_RegisterNamePlate("contact_SUCHEN_ERZ", ai_ContactTextSearchOre, 0x16);
-            b = sv_RegisterNamePlate("contact_ABBAUEN", ai_ContactTextExtract, 10);
+            a = sv_RegisterNamePlate("contact_SUCHEN_ERZ", txt_Ptrs[TXT_CONTACT_SEARCH_ORE], 0x16);
+            b = sv_RegisterNamePlate("contact_ABBAUEN", txt_Ptrs[TXT_CONTACT_EXTRACT], 10);
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == a)
@@ -4197,14 +4197,14 @@ void ai_KontorContact(AIBLD *bld)
     r = sv_RunFrame(ai_KontorContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            metall = sv_RegisterNamePlate("contact_PRODUKTION_METALL", ai_ContactTextProduction, 0x13);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            gelage = sv_RegisterNamePlate("contact_GELAGE", ai_ContactTextGelage, 0x16);
+            metall = sv_RegisterNamePlate("contact_PRODUKTION_METALL", txt_Ptrs[TXT_CONTACT_PRODUCTION], 0x13);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            gelage = sv_RegisterNamePlate("contact_GELAGE", txt_Ptrs[TXT_CONTACT_GELAGE], 0x16);
             if (gm_Query(bld->objList, 2, 6, 0, 0x35) != 0)
-                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", ai_ContactTextTraining, 0x17);
+                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", txt_Ptrs[TXT_CONTACT_TRAINING], 0x17);
             if (gm_Query(bld->objList, 2, 6, 0, 0x34) != 0)
-                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0x17);
+                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0x17);
         }
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
@@ -4255,12 +4255,12 @@ void ai_WoodKontorContact(AIBLD *bld)
     r = sv_RunFrame(ai_WoodKontorContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            holz = sv_RegisterNamePlate("contact_PRODUKTION_HOLZ", ai_ContactTextProductionWood, 0x13);
-            gelage = sv_RegisterNamePlate("contact_GELAGE", ai_ContactTextGelage, 0x16);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0xc);
-            stroh = sv_RegisterNamePlate("ob_STROHPUPPE", ai_ContactTextTraining, 0xc);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            holz = sv_RegisterNamePlate("contact_PRODUKTION_HOLZ", txt_Ptrs[TXT_CONTACT_PRODUCTION_WOOD], 0x13);
+            gelage = sv_RegisterNamePlate("contact_GELAGE", txt_Ptrs[TXT_CONTACT_GELAGE], 0x16);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0xc);
+            stroh = sv_RegisterNamePlate("ob_STROHPUPPE", txt_Ptrs[TXT_CONTACT_TRAINING], 0xc);
         }
         ai_TradeContactChecks();
         ai_HandlePickedPlant(bld, plants);
@@ -4315,16 +4315,16 @@ void ai_StoneKontorContact(AIBLD *bld)
     r = sv_RunFrame(ai_StoneKontorContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            abbau = sv_RegisterNamePlate("contact_ABBAU", ai_ContactTextExtract, 10);
-            stein = sv_RegisterNamePlate("contact_SUCHEN_STEIN", ai_ContactTextSearchStone, 0x16);
-            produktion = sv_RegisterNamePlate("contact_PRODUKTION", ai_ContactTextProduction, 0x13);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            gelage = sv_RegisterNamePlate("contact_GELAGE", ai_ContactTextGelage, 0x16);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            abbau = sv_RegisterNamePlate("contact_ABBAU", txt_Ptrs[TXT_CONTACT_EXTRACT], 10);
+            stein = sv_RegisterNamePlate("contact_SUCHEN_STEIN", txt_Ptrs[TXT_CONTACT_SEARCH_STONE], 0x16);
+            produktion = sv_RegisterNamePlate("contact_PRODUKTION", txt_Ptrs[TXT_CONTACT_PRODUCTION], 0x13);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            gelage = sv_RegisterNamePlate("contact_GELAGE", txt_Ptrs[TXT_CONTACT_GELAGE], 0x16);
             if (gm_Query(bld->objList, 2, 6, 0, 0x35) != 0)
-                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", ai_ContactTextTraining, 0x17);
+                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", txt_Ptrs[TXT_CONTACT_TRAINING], 0x17);
             if (gm_Query(bld->objList, 2, 6, 0, 0x34) != 0)
-                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0x17);
+                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0x17);
         }
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
@@ -4363,9 +4363,9 @@ void ai_InformationContact(AIBLD *building)
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_InformationContact, 0x67fff);
     while (r != 0) {
-        inf = sv_RegisterNamePlate("contact_INFORMATION", ai_ContactTextInformation, 0xc);
-        meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0xc);
-        personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+        inf = sv_RegisterNamePlate("contact_INFORMATION", txt_Ptrs[TXT_CONTACT_INFORMATION], 0xc);
+        meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0xc);
+        personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow(building);
@@ -4452,7 +4452,7 @@ void ai_BreakInWindow(AIBLD *building)
 {
     if (sv_CheckCharacterFlag(building) == 0) {
         sv_OpenPlayerBar(building, 0);
-        ai_MapPick(4, 0, ai_BreakInPickText, (int)ai_BreakInCallback, 0);
+        ai_MapPick(4, 0, txt_Ptrs[TXT_BREAK_IN_PICK], (int)ai_BreakInCallback, 0);
         sv_ClosePlayerBar();
         sv_ClearSelection();
     }
@@ -4559,7 +4559,7 @@ void ai_OpenPickpocket(AIBLD *building)
     cfg[4] = 7;
     cfg[2] = 0x93810;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, cfg, ai_MapPickPrompt, (int)ai_PickpocketWindow, 0);
+    ai_MapPick(1, cfg, txt_Ptrs[TXT_MAP_PICK_PROMPT], (int)ai_PickpocketWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -4658,7 +4658,7 @@ void ai_OpenBribe(AIBLD *building)
         cfg[2] = 0xa07c43a0;
         cfg[3] = 1;
         sv_OpenPlayerBar(building, 0);
-        ai_MapPick(1, cfg, ai_BribePickText, (int)ai_BribeCallback, 0);
+        ai_MapPick(1, cfg, txt_Ptrs[TXT_BRIBE_PICK], (int)ai_BribeCallback, 0);
         sv_ClosePlayerBar();
         sv_ClearSelection();
     }
@@ -4920,22 +4920,22 @@ void ai_CriminalContact(AIBLD *bld)
     r = sv_RunFrame(ai_CriminalContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", ai_ContactTextEquip, 0xd);
-            lauer = sv_RegisterNamePlate("contact_AUF_LAUER_LEGEN", ai_ContactTextAmbush, 0x15);
-            angriff = sv_RegisterNamePlate("contact_ANGRIFF", ai_ContactTextAttack, 0x17);
+            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", txt_Ptrs[TXT_CONTACT_EQUIP], 0xd);
+            lauer = sv_RegisterNamePlate("contact_AUF_LAUER_LEGEN", txt_Ptrs[TXT_CONTACT_AMBUSH], 0x15);
+            angriff = sv_RegisterNamePlate("contact_ANGRIFF", txt_Ptrs[TXT_CONTACT_ATTACK], 0x17);
             if (gm_Query(bld->objList, 2, 6, 0, 0x35) != 0)
-                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", ai_ContactTextTraining, 0x17);
+                stroh = sv_RegisterNamePlate("ob_STROHPUPPE", txt_Ptrs[TXT_CONTACT_TRAINING], 0x17);
             if (gm_Query(bld->objList, 2, 6, 0, 0x34) != 0)
-                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0x17);
-            schutzgeld = sv_RegisterNamePlate("contact_SCHUTZGELD_ERPRESSEN", ai_ContactTextExtort, 0x17);
-            spionieren = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", ai_ContactTextSpy, 0x17);
-            raub = sv_RegisterNamePlate("contact_RAUBUEBERFALL", ai_ContactTextRaid, 0x17);
-            regen = sv_RegisterNamePlate("contact_REGENERATION", ai_ContactTextRegeneration, 0x17);
+                ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0x17);
+            schutzgeld = sv_RegisterNamePlate("contact_SCHUTZGELD_ERPRESSEN", txt_Ptrs[TXT_CONTACT_EXTORT], 0x17);
+            spionieren = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", txt_Ptrs[TXT_CONTACT_SPY], 0x17);
+            raub = sv_RegisterNamePlate("contact_RAUBUEBERFALL", txt_Ptrs[TXT_CONTACT_RAID], 0x17);
+            regen = sv_RegisterNamePlate("contact_REGENERATION", txt_Ptrs[TXT_CONTACT_REGENERATION], 0x17);
         }
         if (ai_BuildingPerms & 0x400) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            gelage = sv_RegisterNamePlate("contact_GELAGE", ai_ContactTextGelage, 0xe);
-            transport = sv_RegisterNamePlate("TRANSPORT", ai_ContactTextTransport, 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            gelage = sv_RegisterNamePlate("contact_GELAGE", txt_Ptrs[TXT_CONTACT_GELAGE], 0xe);
+            transport = sv_RegisterNamePlate("TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
         }
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
@@ -4966,7 +4966,7 @@ void ai_CriminalContact(AIBLD *bld)
 }
 /* 0x5950e0, the contact listener of the long-distance trade building (kind 0x47): it releases the name plates and
    pumps the frame (sv_RunFrame, this, mask 0x67fff) while its screen stays on top; every frame it registers the
-   FERNEINKAUF plate (text ai_ContactTextFarBuy) and the VERKAUF plate (ai_ContactTextSell), runs the trade checks
+   FERNEINKAUF plate (text TXT_CONTACT_FAR_BUY) and the VERKAUF plate (TXT_CONTACT_SELL), runs the trade checks
    and opens the transport window of the building in buy (mode 4) / sell (mode 2) mode when that plate was clicked */
 
 void ai_FarTradeContact(AIBLD *building)
@@ -4978,8 +4978,8 @@ void ai_FarTradeContact(AIBLD *building)
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_FarTradeContact, 0x67fff);
     while (r != 0) {
-        buy = sv_RegisterNamePlate("FERNEINKAUF", ai_ContactTextFarBuy, 0x10);
-        sell = sv_RegisterNamePlate("VERKAUF", ai_ContactTextSell, 0x10);
+        buy = sv_RegisterNamePlate("FERNEINKAUF", txt_Ptrs[TXT_CONTACT_FAR_BUY], 0x10);
+        sell = sv_RegisterNamePlate("VERKAUF", txt_Ptrs[TXT_CONTACT_SELL], 0x10);
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == buy)
@@ -4995,7 +4995,7 @@ int ai_RunAllowsContact();
 
 /* 0x595170, the smithy contact listener: it releases the name plates, pumps the frame (sv_RunFrame, this, mask
    0x67fff) while the screen stays on top and, every frame, registers the contact plates ai_BuildingPerms allows:
-   with 0x200 the production plate PRODUKTION_SCHMIEDEN (text ai_ContactTextProductionSmithy, when
+   with 0x200 the production plate PRODUKTION_SCHMIEDEN (text TXT_CONTACT_PRODUCTION_SMITHY, when
    ai_RunAllowsContact(0x20)) and ob_MEISTERBRIEF (0x80); with 0x400 LAGER (0x10), TRANSPORT (0x100) and
    PERSONALBUCH (0x40). A clicked plate opens its window (the store window ai_StorageWindow on the building's object
    list, ai_ProductionWindow, ai_OpenTransport, ai_PersonnelBook, ai_MasterLetterWindow) and ai_MarketContact runs
@@ -5019,25 +5019,25 @@ void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
             if (ai_RunAllowsContact(0x20) == 1)
-                schmieden = sv_RegisterNamePlate("contact_PRODUKTION_SCHMIEDEN", ai_ContactTextProductionSmithy, 0x13);
+                schmieden = sv_RegisterNamePlate("contact_PRODUKTION_SCHMIEDEN", txt_Ptrs[TXT_CONTACT_PRODUCTION_SMITHY], 0x13);
             else
                 schmieden = 0;
             if (ai_RunAllowsContact(0x80) == 1)
-                meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
+                meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
             else
                 meister = 0;
         }
         if (ai_BuildingPerms & 0x400) {
             if (ai_RunAllowsContact(0x10) == 1)
-                lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
+                lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
             else
                 lager = 0;
             if (ai_RunAllowsContact(0x100) == 1)
-                transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+                transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
             else
                 transport = 0;
             if (ai_RunAllowsContact(0x40) == 1)
-                personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+                personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
             else
                 personal = 0;
         }
@@ -5060,7 +5060,7 @@ void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
 }
 /* 0x595330, the carpenter contact listener: it releases the name plates, pumps the frame (sv_RunFrame, this, mask
    0x67fff) while the screen stays on top and, every frame, registers the contact plates ai_BuildingPerms allows:
-   with 0x200 the production plate PRODUKTION_TISCHLER (text ai_ContactTextProductionCarpenter); with 0x400 LAGER,
+   with 0x200 the production plate PRODUKTION_TISCHLER (text TXT_CONTACT_PRODUCTION_CARPENTER); with 0x400 LAGER,
    TRANSPORT, ob_MEISTERBRIEF and ob_PERSONALBUCH. ai_MarketContact runs every frame; a clicked plate opens its
    window (ai_ProductionWindow, ai_OpenTransport, ai_PersonnelBook, the store window ai_StorageWindow on the
    building's object list, ai_MasterLetterWindow) */
@@ -5083,12 +5083,12 @@ void ai_CarpenterContact(AIBLD *bld, AIOBJ *room)
     r = sv_RunFrame(ai_CarpenterContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200)
-            tischler = sv_RegisterNamePlate("contact_PRODUKTION_TISCHLER", ai_ContactTextProductionCarpenter, 0x13);
+            tischler = sv_RegisterNamePlate("contact_PRODUKTION_TISCHLER", txt_Ptrs[TXT_CONTACT_PRODUCTION_CARPENTER], 0x13);
         if (ai_BuildingPerms & 0x400) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0xc);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0xc);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
         }
         ai_MarketContact(bld);
         if (ai_ClickedObject != 0) {
@@ -5190,7 +5190,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
         d2_Objs[id].captionX = 100;
         d2_Objs[id].captionY = 0x10;
         d2_Objs[id].font = 0x54;
-        d2_SetCaption(id, txt_ObjectNames[good][0]);
+        d2_SetCaption(id, txt_Ptrs[TXT_OBJECT_NAMES + 2 * good]);
         buttons[i] = id;
         d2_SetObjEnabled(id, 1);
     }
@@ -5318,7 +5318,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
         d2_Objs[id].captionX = 100;
         d2_Objs[id].captionY = 0x10;
         d2_Objs[id].font = 0x54;
-        d2_SetCaption(id, txt_ObjectNames[good][0]);
+        d2_SetCaption(id, txt_Ptrs[TXT_OBJECT_NAMES + 2 * good]);
         buttons[i] = id;
         d2_SetObjEnabled(id, 1);
     }
@@ -5414,14 +5414,14 @@ void ai_PerfumeryContact(AIBLD *building, AIOBJ *room)
     r = sv_RunFrame(ai_PerfumeryContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            sammeln = sv_RegisterNamePlate("contact_SAMMELN", ai_ContactTextRawMaterialSearch, 0x16);
-            parfum = sv_RegisterNamePlate("contact_PRODUKTION_PARFUMERIE", ai_ContactTextProductionPerfumery, 0x13);
+            sammeln = sv_RegisterNamePlate("contact_SAMMELN", txt_Ptrs[TXT_CONTACT_RAW_MATERIAL_SEARCH], 0x16);
+            parfum = sv_RegisterNamePlate("contact_PRODUKTION_PARFUMERIE", txt_Ptrs[TXT_CONTACT_PRODUCTION_PERFUMERY], 0x13);
         }
         if (ai_BuildingPerms & 0x400) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
         }
         ai_MarketContact(building);
         if (ai_ClickedObject != 0) {
@@ -5465,9 +5465,9 @@ void ai_AquariumContact(AIBLD *building, AIOBJ *room)
     r = sv_RunFrame(ai_AquariumContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            sv_RegisterNamePlate("ob_FLIEGENGLAS", ai_ContactTextFlyGlass, 0x16);
-            sv_RegisterNamePlate("ob_TERRARIUM", ai_ContactTextTerrarium, 0x16);
-            teich = sv_RegisterNamePlate("ob_TEICH", ai_ContactTextPond, 0x16);
+            sv_RegisterNamePlate("ob_FLIEGENGLAS", txt_Ptrs[TXT_CONTACT_FLY_GLASS], 0x16);
+            sv_RegisterNamePlate("ob_TERRARIUM", txt_Ptrs[TXT_CONTACT_TERRARIUM], 0x16);
+            teich = sv_RegisterNamePlate("ob_TEICH", txt_Ptrs[TXT_CONTACT_POND], 0x16);
             if (ai_ClickedObject == teich)
                 ai_AquariumSearchWindow(building, room);
         }
@@ -5477,7 +5477,7 @@ void ai_AquariumContact(AIBLD *building, AIOBJ *room)
 /* 0x596120, the contact listener of the mixing workshop (room kind 0xcf, the profession itself unidentified): it
    releases the name plates, pumps the frame (sv_RunFrame, this, mask 0x67fff) while the screen stays on top and,
    every frame, registers the contact plates ai_BuildingPerms allows: with 0x200 SAMMELN (which opens the trade
-   search window for the room) and PRODUKTION_MISCHEN (text ai_ContactTextProductionMixing); with 0x400
+   search window for the room) and PRODUKTION_MISCHEN (text TXT_CONTACT_PRODUCTION_MIXING); with 0x400
    ob_MEISTERBRIEF, ob_PERSONALBUCH, LAGER and TRANSPORT. ai_MarketContact runs every frame; a clicked plate opens
    its window (ai_ProductionWindow, ai_OpenTransport, ai_PersonnelBook, the store window ai_StorageWindow on the
    building's object list, ai_TradeSearchWindow, ai_MasterLetterWindow) */
@@ -5502,14 +5502,14 @@ void ai_MixingContact(AIBLD *bld, AIOBJ *room)
     r = sv_RunFrame(ai_MixingContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            sammeln = sv_RegisterNamePlate("contact_SAMMELN", ai_ContactTextRawMaterialSearch, 0x16);
-            mischen = sv_RegisterNamePlate("contact_PRODUKTION_MISCHEN", ai_ContactTextProductionMixing, 0x13);
+            sammeln = sv_RegisterNamePlate("contact_SAMMELN", txt_Ptrs[TXT_CONTACT_RAW_MATERIAL_SEARCH], 0x16);
+            mischen = sv_RegisterNamePlate("contact_PRODUKTION_MISCHEN", txt_Ptrs[TXT_CONTACT_PRODUCTION_MIXING], 0x13);
         }
         if (ai_BuildingPerms & 0x400) {
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
         }
         ai_MarketContact(bld);
         if (ai_ClickedObject != 0) {
@@ -5535,7 +5535,7 @@ void ai_PamphletWindow(struct AIBLD *bld);
 
 /* 0x5962b0, the stonecutter contact listener: it releases the name plates, pumps the frame (sv_RunFrame, this,
    mask 0x67fff) while the screen stays on top and, every frame, registers the contact plates ai_BuildingPerms
-   allows: with 0x200 the production plate PRODUKTION_STEINMETZ (text ai_ContactTextProductionStonecutter); with
+   allows: with 0x200 the production plate PRODUKTION_STEINMETZ (text TXT_CONTACT_PRODUCTION_STONECUTTER); with
    0x400 ob_MEISTERBRIEF, LAGER, TRANSPORT and ob_PERSONALBUCH. ai_MarketContact runs every frame; a clicked plate
    opens its window (ai_ProductionWindow, ai_OpenTransport, ai_PersonnelBook, the store window ai_StorageWindow on
    the building's object list, ai_MasterLetterWindow) */
@@ -5558,12 +5558,12 @@ void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
     while (r != 0) {
         ai_MarketContact(bld);
         if (ai_BuildingPerms & 0x200)
-            steinmetz = sv_RegisterNamePlate("contact_PRODUKTION_STEINMETZ", ai_ContactTextProductionStonecutter, 0x13);
+            steinmetz = sv_RegisterNamePlate("contact_PRODUKTION_STEINMETZ", txt_Ptrs[TXT_CONTACT_PRODUCTION_STONECUTTER], 0x13);
         if (ai_BuildingPerms & 0x400) {
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == steinmetz)
@@ -5960,7 +5960,7 @@ void ai_MistressContact(AIBLD *building, AIOBJ *room)
 
     r = sv_RunFrame(ai_MistressContact, 0x67fff);
     while (r != 0) {
-        geliebte = sv_RegisterNamePlate("contact_GELIEBTE", ai_ContactTextMistress, 0x16);
+        geliebte = sv_RegisterNamePlate("contact_GELIEBTE", txt_Ptrs[TXT_CONTACT_MISTRESS], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == geliebte)
             ai_MistressWindow(building);
         r = sv_RunFrame(ai_MistressContact, 0x67fff);
@@ -7294,9 +7294,9 @@ void ai_TavernContact(AIBLD *bld, AIOBJ *room)
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_TavernContact, 0x67fff) != 0) {
         ai_MarketContact(bld);
-        dice = sv_RegisterNamePlate("contact_WUERFELSPIEL", ai_ContactTextDiceGame, 0x16);
-        table = sv_RegisterNamePlate("contact_STAMMTISCH", ai_ContactTextStammtisch, 0x16);
-        corner = sv_RegisterNamePlate("ob_DUNKLE_ECKE", ai_ContactTextDarkCorner, 0x16);
+        dice = sv_RegisterNamePlate("contact_WUERFELSPIEL", txt_Ptrs[TXT_CONTACT_DICE_GAME], 0x16);
+        table = sv_RegisterNamePlate("contact_STAMMTISCH", txt_Ptrs[TXT_CONTACT_STAMMTISCH], 0x16);
+        corner = sv_RegisterNamePlate("ob_DUNKLE_ECKE", txt_Ptrs[TXT_CONTACT_DARK_CORNER], 0x16);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == dice)
                 ai_TavernDiceWindow(bld);
@@ -7324,7 +7324,7 @@ void ai_TavernContact(AIBLD *bld, AIOBJ *room)
 }
 /* 0x599cb0, the contact listener of the brewery: it releases the name plates and pumps the frame (sv_RunFrame,
    this, mask 0x67fff) while the screen stays on top and, every frame, registers the contact plates ai_BuildingPerms
-   allows: with 0x200 the production plate PRODUKTION_BRAUEN (text ai_ContactTextProductionBrewing, look 0x2d); with
+   allows: with 0x200 the production plate PRODUKTION_BRAUEN (text TXT_CONTACT_PRODUCTION_BREWING, look 0x2d); with
    0x400 ob_MEISTERBRIEF, ob_PERSONALBUCH, contact_TRANSPORT and contact_LAGER. ai_MarketContact runs every frame; a
    clicked plate opens its window (ai_PersonnelBook, the store window ai_StorageWindow on the building's object list,
    ai_MasterLetterWindow, ai_ProductionWindow, ai_OpenTransport) */
@@ -7345,12 +7345,12 @@ void ai_BreweryContact(AIBLD *bld, AIOBJ *room)
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_BreweryContact, 0x67fff) != 0) {
         if ((ai_BuildingPerms & 0x200) != 0)
-            brauen = sv_RegisterNamePlate("contact_PRODUKTION_BRAUEN", ai_ContactTextProductionBrewing, 0x2d);
+            brauen = sv_RegisterNamePlate("contact_PRODUKTION_BRAUEN", txt_Ptrs[TXT_CONTACT_PRODUCTION_BREWING], 0x2d);
         if ((ai_BuildingPerms & 0x400) != 0) {
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
         }
         ai_MarketContact(bld);
         if (ai_ClickedObject != 0) {
@@ -7605,10 +7605,10 @@ void ai_MapTableContact(AIBLD *bld, AIOBJ *room)
     while (sv_RunFrame(ai_MapTableContact, 0x67fff) != 0) {
         ai_MarketContact(bld);
         if ((ai_BuildingPerms & 0x200) != 0) {
-            transport = (D3OBJECT *)sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            lager = (D3OBJECT *)sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            meister = (D3OBJECT *)sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
-            kartentisch = (D3OBJECT *)sv_RegisterNamePlate("ob_KARTENTISCH", ai_ContactTextMapTable, 0x16);
+            transport = (D3OBJECT *)sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            lager = (D3OBJECT *)sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            meister = (D3OBJECT *)sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            kartentisch = (D3OBJECT *)sv_RegisterNamePlate("ob_KARTENTISCH", txt_Ptrs[TXT_CONTACT_MAP_TABLE], 0x16);
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == (int)transport)
@@ -7655,10 +7655,10 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
     if (sv_PanelForm != -1)
         d2_SetViewEnabled(sv_PanelForm, 1);
 }
-#define MARKET_FLECK_NAME (0x57 * 0xe - 2)  /* the name of building kind 0x57 (ai_BuildingNames[kind * 0xe - 2] as
+#define MARKET_FLECK_NAME (0x57 * 0xe - 2)  /* the name of building kind 0x57 (TXT_BUILDING_NAMES + kind * 0xe - 2 as
                                                f3init.c reads a kind's name); the kind is computed from the slot 0x4c0, a guess */
 /* 0x59a800, the market stand listener (736 B): registers the name plates of the market's stands (the object kind
-   names 0x92 .. 0x97 and 0x2db of txt_ObjectNames), the notice board (kind 0x98) and the stand ob_TRIBUENE and, in
+   names 0x92 .. 0x97 and 0x2db of TXT_OBJECT_NAMES), the notice board (kind 0x98) and the stand ob_TRIBUENE and, in
    Nuernberg (the own player slot's city name), the three "contact_MARKTFLECKEN_0x" plates; a clicked stand opens
    ai_MarketStandWindow(market, its kind), the notice board 0x5b5690, the stand 0x5b5a20, a market fleck plate the
    window of stand 0x95 for the building its object's parent stands for */
@@ -7671,19 +7671,19 @@ void ai_MarketStandListener(AIBLD *market)
     char *c;
     AIBLD *bld;
 
-    sv_RegisterNamePlate("ob_MARKTSTAND_TISCHLER_SCHMIEDE", (char *)txt_ObjectNames[0x92][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_STEINMETZ_WIRT", (char *)txt_ObjectNames[0x93][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_PARFUM_KRAEUTER", (char *)txt_ObjectNames[0x94][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_ROHSTOFFE", (char *)txt_ObjectNames[0x95][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_IMPORTEUR", (char *)txt_ObjectNames[0x96][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_KIRCHE", (char *)txt_ObjectNames[0x97][0], 0x10);
-    sv_RegisterNamePlate("ob_MARKTSTAND_OKKULT", (char *)txt_ObjectNames[0x2db][0], 0x10);
-    sv_RegisterNamePlate("ob_SCHWARZES_BRETT", (char *)txt_ObjectNames[0x98][0], 0x10);
-    sv_RegisterNamePlate("ob_TRIBUENE", txt_Tribune, 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_TISCHLER_SCHMIEDE", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x92], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_STEINMETZ_WIRT", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x93], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_PARFUM_KRAEUTER", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x94], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_ROHSTOFFE", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x95], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_IMPORTEUR", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x96], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_KIRCHE", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x97], 0x10);
+    sv_RegisterNamePlate("ob_MARKTSTAND_OKKULT", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x2db], 0x10);
+    sv_RegisterNamePlate("ob_SCHWARZES_BRETT", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x98], 0x10);
+    sv_RegisterNamePlate("ob_TRIBUENE", txt_Ptrs[TXT_TRIBUNE], 0x10);
     if (strcmp(ai_PlayerSlots[ai_OwnPlayer].name, "Nuernberg") == 0) {
-        fleck1 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_01", (char *)ai_BuildingNames[MARKET_FLECK_NAME], 0x10);
-        fleck2 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_02", (char *)ai_BuildingNames[MARKET_FLECK_NAME], 0x10);
-        fleck3 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_03", (char *)ai_BuildingNames[MARKET_FLECK_NAME], 0x10);
+        fleck1 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_01", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
+        fleck2 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_02", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
+        fleck3 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_03", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
     }
     c = (char *)ai_ClickedObject;
     if (c == 0)
@@ -7787,7 +7787,7 @@ void ai_WineCellarContact(AIBLD *building, AIOBJ *room)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_WineCellarContact, 0x67fff) != 0) {
-        c = sv_RegisterNamePlate("contact_WEINSCHRANK", ai_ContactTextWineCellar, 0x16);
+        c = sv_RegisterNamePlate("contact_WEINSCHRANK", txt_Ptrs[TXT_CONTACT_WINE_CELLAR], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == c)
             ai_WineCellarWindow();
     }
@@ -8331,13 +8331,13 @@ void ai_SortExchangeRows(LCEXCHROW *rows)
             else if (rows[i].good == 0)
                 strcpy(nameA, "ZZZZZZZZZ");
             else
-                strcpy(nameA, (char *)txt_ObjectNames[rows[i].good][0]);
+                strcpy(nameA, txt_Ptrs[TXT_OBJECT_NAMES + 2 * rows[i].good]);
             if (rows[j].good == own)
                 strcpy(nameB, "AAAAAAAAA");
             else if (rows[j].good == 0)
                 strcpy(nameB, "ZZZZZZZZZ");
             else
-                strcpy(nameB, (char *)txt_ObjectNames[rows[j].good][0]);
+                strcpy(nameB, txt_Ptrs[TXT_OBJECT_NAMES + 2 * rows[j].good]);
             if (strcmp(nameA, nameB) == 1) {
                 tmp = rows[i];
                 rows[i] = rows[j];
@@ -8416,7 +8416,7 @@ int ai_FillExchangeRows(AIOBJ *list, LCEXCHROW *rows, int view, int form, char i
         if (obj != 0 && gm_CurrencyDivide(obj->count, rows[i].good) != 0) {
             amount = gm_CurrencyDivide(obj->count, rows[i].good);
             d2_SetObjValue(rows[i].icon, 0, amount, value);
-            txt_Format(text, (intptr_t)"%I %s", amount, txt_ObjectNames[rows[i].good][0]);
+            txt_Format(text, (intptr_t)"%I %s", amount, txt_Ptrs[TXT_OBJECT_NAMES + 2 * rows[i].good]);
             d2_SetObjText(rows[i].text, text);
             d2_Objs[rows[i].text].w = 0xbe;
             rows[i].available = amount;
@@ -8469,7 +8469,7 @@ void ai_ShowExchangeRows(LCEXCHROW *rows, int view, int form, int input)
         d2_Objs[rows[i].icon].textShadow = 1;
         rows[i].text = d2_CreateWinText((d2_LastWindowPtr->w - 0xbe) >> 1, i * 0x4c + 0x30, ch_EmptyName,
                                         d2_LastWindow);
-        txt_Format(text, (intptr_t)"%S", txt_ObjectNames[rows[i].good][0]);
+        txt_Format(text, (intptr_t)"%S", txt_Ptrs[TXT_OBJECT_NAMES + 2 * rows[i].good]);
         d2_SetObjText(rows[i].text, text);
         d2_SetObjFont(rows[i].icon, 0x54);
         d2_SetObjFont(rows[i].text, 0x54);
@@ -9162,7 +9162,7 @@ void ai_FortuneOverview(AIBLD *bld)
 }
 /* 0x59df80, the money lender contact listener (288 B): the pump 0x5309a0 (0x59df80, 0x67fff) and the lookups
    "contact_GELDWECHSEL" (text 0x18f4) / "contact_KREDITE" (text 0x18c8), with the building permission 0x200
-   "contact_MEISTERBRIEF" (ai_ContactTextMasterLetter) and "contact_VERMOEGENSUEBERSICHT" (text 0x1fa4); the
+   "contact_MEISTERBRIEF" (TXT_CONTACT_MASTER_LETTER) and "contact_VERMOEGENSUEBERSICHT" (text 0x1fa4); the
    master letter opens 0x5c3200, the overview 0x59df10; the player's own building (bld->owner == ai_PlayerId)
    opens 0x59d5e0 (money exchange) / 0x59bad0 (credits), another player's 0x59c700 / 0x59b160 */
 
@@ -9178,7 +9178,7 @@ void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
         wechsel = sv_RegisterNamePlate("contact_GELDWECHSEL", txt_Ptrs[0x18f4], 0x10);
         kredite = sv_RegisterNamePlate("contact_KREDITE", txt_Ptrs[0x18c8], 0x10);
         if ((ai_BuildingPerms & 0x200) != 0) {
-            meister = sv_RegisterNamePlate("contact_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
+            meister = sv_RegisterNamePlate("contact_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
             overview = sv_RegisterNamePlate("contact_VERMOEGENSUEBERSICHT", txt_Ptrs[0x1fa4], 0x16);
         }
         if (ai_ClickedObject != 0) {
@@ -9256,7 +9256,7 @@ int ai_IsBuildingOpen(AIBLD *b, unsigned int *open, unsigned int *close)
 /* 0x59e210, whether the player may enter the building b: never while its flag 0x5b bit 2 is set; always in the
    flag 0x80 game mode, for a held player at a building of class 4 / 6, with the permission bit 0x200 or at the
    player's own building; otherwise the permission bit 1 and the opening hours (ai_IsBuildingOpen) must allow it.
-   A closed building shows the message ai_TextBuildingClosed: not yet open (0x2056, 0x2059 for the building
+   A closed building shows the message TXT_BUILDING_CLOSED: not yet open (0x2056, 0x2059 for the building
    classes 3 / 5) or already closed (0x2057 / 0x205a), and its hours (0x2058) */
 
 int ai_MayEnterBuilding(AIBLD *b)
@@ -9283,7 +9283,7 @@ int ai_MayEnterBuilding(AIBLD *b)
         return 0;
     if (ai_IsBuildingOpen(b, &open, &close) != 0)
         return 1;
-    strcpy(title, ai_TextBuildingClosed);
+    strcpy(title, txt_Ptrs[TXT_BUILDING_CLOSED]);
     if ((int)ai_Time.hour < (int)open) {
         if (cls == 3 || cls == 5)
             txt_Format(msg, 0x2059, b);
@@ -10201,7 +10201,7 @@ int ai_OfficeApplicantsWindow(AICHAR *me, unsigned int office)
                     d2_SetForm(win, 1);
                     io_PrintText(0x1a07, office + 0x253);
                     d2_SetForm(win, 3);
-                    sv_ButtonRow(d2_LastWindow, 0, outs, 3, ai_TextOfficeApply, ai_TextOfficeColumn, ai_TextOfficeInfo);
+                    sv_ButtonRow(d2_LastWindow, 0, outs, 3, txt_Ptrs[TXT_OFFICE_APPLY], txt_Ptrs[TXT_OFFICE_COLUMN], txt_Ptrs[TXT_OFFICE_INFO]);
                     apply = outs[0];
                     column = outs[1];
                     info = outs[2];
@@ -10257,11 +10257,11 @@ int ai_OfficeApplicantsWindow(AICHAR *me, unsigned int office)
 }
 /* 0x5a0590, the office application list "locations
 athausmtsbewerbung" of the town hall: a player whose
-   AICHAR.level is below 2 gets ai_TextOfficeNoRank; one who has applied already (appliedOffice) goes straight to
+   AICHAR.level is below 2 gets TXT_OFFICE_NO_RANK; one who has applied already (appliedOffice) goes straight to
    that office's applicants (ai_OfficeApplicantsWindow). Otherwise amt_GetOfficeCandidatesFull lists the offices
-   open to the player (ai_TextOfficeAllFull when they are all full, ai_TextOfficeNoneOpen when there is none);
+   open to the player (TXT_OFFICE_ALL_FULL when they are all full, TXT_OFFICE_NONE_OPEN when there is none);
    the window shows one button per office (text 0x1a04 with the office's name, 0x253 + kind), rebuilt whenever
-   the candidate count changes, and a click on one opens its applicants, ai_TextOfficeApplied and the window
+   the candidate count changes, and a click on one opens its applicants, TXT_OFFICE_APPLIED and the window
    closes once the application went in; a right click closes it */
 
 void ai_OfficeApplicationWindow(void)
@@ -10281,7 +10281,7 @@ void ai_OfficeApplicationWindow(void)
     changed = 1;
     me = &ai_Chars[ai_PlayerId];
     if (me->level < 2) {
-        sv_MessageBox((intptr_t)ai_TextOfficeNoRank, 0);
+        sv_MessageBox((intptr_t)txt_Ptrs[TXT_OFFICE_NO_RANK], 0);
         return;
     }
     if (me->appliedOffice != 0) {
@@ -10291,10 +10291,10 @@ void ai_OfficeApplicationWindow(void)
     }
     if (amt_GetOfficeCandidatesFull(me, 6, list, &full) == 0) {
         if (full == 0) {
-            sv_MessageBox((intptr_t)ai_TextOfficeNoneOpen, 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[TXT_OFFICE_NONE_OPEN], 0);
             return;
         }
-        sv_MessageBox((intptr_t)ai_TextOfficeAllFull, 0);
+        sv_MessageBox((intptr_t)txt_Ptrs[TXT_OFFICE_ALL_FULL], 0);
         return;
     }
     win = d2_OpenForm(0, 0, "locations\\rathaus\\amtsbewerbung");
@@ -10322,7 +10322,7 @@ void ai_OfficeApplicationWindow(void)
             for (i = 0; i < count; i++) {
                 if (ctls[i] == d2_PointerObj) {
                     if (i > -1 && i < count && ai_OfficeApplicantsWindow(me, list[i].kind) == 1) {
-                        sv_MessageBox((intptr_t)ai_TextOfficeApplied, 0);
+                        sv_MessageBox((intptr_t)txt_Ptrs[TXT_OFFICE_APPLIED], 0);
                         sv_PopRequest = 1;
                     }
                     break;
@@ -10523,7 +10523,7 @@ int ai_GuildGiftCallback(char *place, AIBLD *bld)
 }
 /* 0x5a0f10, the guild master's gift power (guild hall level 2): when amt_CanUseMayorPower2 allows the player its second step,
    the map pick (flags 1, mode -1, the building class filter 0x1007d4190, kind 6, option 0x727, the prompt
-   ai_TextGuildPowerPick) with ai_GuildGiftCallback; ai_TextGuildPowerUsed when the power is used already, else
+   TXT_GUILD_POWER_PICK) with ai_GuildGiftCallback; TXT_GUILD_POWER_USED when the power is used already, else
    sv_CheckMoney's message for the 5 the player lacks */
 
 void ai_GuildGiftEntry(AIBLD *building)
@@ -10534,7 +10534,7 @@ void ai_GuildGiftEntry(AIBLD *building)
     r = amt_CanUseMayorPower2(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
-            sv_MessageBox((intptr_t)ai_TextGuildPowerUsed, 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[TXT_GUILD_POWER_USED], 0);
         else
             sv_CheckMoney(&ai_Chars[ai_PlayerId], 5);
         return;
@@ -10545,14 +10545,14 @@ void ai_GuildGiftEntry(AIBLD *building)
     pick.kind = 6;
     pick.filter = 0x1007d4190;
     pick.option4c = 0x727;
-    ai_MapPick(1, &pick, ai_TextGuildPowerPick, ai_GuildGiftCallback, 0);
+    ai_MapPick(1, &pick, txt_Ptrs[TXT_GUILD_POWER_PICK], ai_GuildGiftCallback, 0);
 }
 
 int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
 int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
 
 /* 0x5a1000, the guild master's price power (guild hall level 1, "LOCATIONS\ZUNFTHAUS\LEVEL1"): when
-   amt_MayorBonusStep allows it (else ai_TextGuildPowerUsed, or sv_CheckMoney's message for the 3 the player lacks),
+   amt_MayorBonusStep allows it (else TXT_GUILD_POWER_USED, or sv_CheckMoney's message for the 3 the player lacks),
    the window shows the seven job icons (pictures 0x5a2 + i at fixed places, the picked one highlighted), the text
    0x1644 (the player's office name by sex, 3, the job's text 0x1649 + job) and the buttons raise / lower / close:
    raise and lower execute the guild-house price message {3, job + 1, 1 / -1} (amt_ExecutePriceMessage) and close
@@ -10575,7 +10575,7 @@ void ai_GuildLevel1Window(AIBLD *building)
     r = amt_MayorBonusStep(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
-            sv_MessageBox((intptr_t)ai_TextGuildPowerUsed, 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[TXT_GUILD_POWER_USED], 0);
         else
             sv_CheckMoney(&ai_Chars[ai_PlayerId], 3);
         return;
@@ -10601,7 +10601,7 @@ void ai_GuildLevel1Window(AIBLD *building)
         id = ai_Chars[ai_PlayerId].secondOffice + 0x27b;
     io_PrintText(0x1644, id, 3, 0x1649);
     d2_SetForm(win, 4);
-    sv_ButtonRow(d2_LastWindow, 0, buttons, 3, ai_TextGuildPriceRaise, ai_TextGuildPriceLower, ai_TextGuildPriceClose);
+    sv_ButtonRow(d2_LastWindow, 0, buttons, 3, txt_Ptrs[TXT_GUILD_PRICE_RAISE], txt_Ptrs[TXT_GUILD_PRICE_LOWER], txt_Ptrs[TXT_GUILD_PRICE_CLOSE]);
     d2_ClickedId = -1;
     do {
         if (dm_L.rup != 0)
@@ -10783,8 +10783,8 @@ void ai_GuildLevel3PowerCB(int column)
     }
 }
 /* 0x5a17b0, the guild master's third power (guild hall level 3): when amt_CanUseMayorPower3 allows it (else
-   ai_TextGuildPowerUsed, or sv_CheckMoney's message for the 8 the player lacks), by the player's second office:
-   0x1e picks a character (ai_AmountMenu, mode 0xc00, kind 6, the prompt ai_TextGuildLevel3Pick) for
+   TXT_GUILD_POWER_USED, or sv_CheckMoney's message for the 8 the player lacks), by the player's second office:
+   0x1e picks a character (ai_AmountMenu, mode 0xc00, kind 6, the prompt TXT_GUILD_LEVEL_3_PICK) for
    ai_GuildLevel3RequestCB; 0x1f / 0x21 pick a column (ai_AmountKindMenu) for ai_GuildLevel2RequestCB, 0x20 one for
    ai_GuildLevel3PowerCB; the camera follows the player again after the menu */
 
@@ -10797,7 +10797,7 @@ void ai_GuildLevel3Entry(void)
     r = amt_CanUseMayorPower3(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
-            sv_MessageBox((intptr_t)ai_TextGuildPowerUsed, 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[TXT_GUILD_POWER_USED], 0);
         else
             sv_CheckMoney(&ai_Chars[ai_PlayerId], 8);
         return;
@@ -10808,11 +10808,11 @@ void ai_GuildLevel3Entry(void)
         cfg.mode = 0xc00;
         cfg.kind = 6;
         cfg.lockSecond = 1;
-        ai_AmountMenu(&cfg, ai_TextGuildLevel3Pick, 0, ai_GuildLevel3RequestCB);
+        ai_AmountMenu(&cfg, txt_Ptrs[TXT_GUILD_LEVEL_3_PICK], 0, ai_GuildLevel3RequestCB);
     } else if (office == 0x1f || office == 0x21) {
-        ai_AmountKindMenu(ai_GuildLevel2RequestCB, ai_TextGuildLevel2Pick, 0);
+        ai_AmountKindMenu(ai_GuildLevel2RequestCB, txt_Ptrs[TXT_GUILD_LEVEL_2_PICK], 0);
     } else if (office == 0x20) {
-        ai_AmountKindMenu(ai_GuildLevel3PowerCB, ai_TextGuildLevel3PowerPick, 0);
+        ai_AmountKindMenu(ai_GuildLevel3PowerCB, txt_Ptrs[TXT_GUILD_LEVEL_3_POWER_PICK], 0);
     }
     sv_CameraFollow();
 }
@@ -11220,7 +11220,7 @@ int d2_RemoveWindowObjects();
 /* 0x5a28f0, the church's top five donors window "Locations\Kirche\Top5" (opened by ai_IndulgenceWindow after a
    purchase): each frame the five donors and their donations (gm_DonationTop5) are compared with the drawn ones;
    on a change the frame 1 is redrawn with the header 0x196b and per donor a special-amount row (ai_AmountRowStatus /
-   ai_DrawAmountRow, the row picture 0x5da), the text 0x196d (the id; txt_NoRelative without a record) and the
+   ai_DrawAmountRow, the row picture 0x5da), the text 0x196d (the id; TXT_NO_RELATIVE without a record) and the
    donation 0x196e (ai_LeftAlignedText); a right click leaves */
 void ai_Top5Window(void)
 {
@@ -11272,7 +11272,7 @@ void ai_Top5Window(void)
                 if (rows[i].rec != 0)
                     txt_Format(buf, 0x196d, id[i]);
                 else
-                    strcpy(buf, txt_NoRelative);
+                    strcpy(buf, txt_Ptrs[TXT_NO_RELATIVE]);
                 ai_LeftAlignedText(buf, x, 0x34 + i * 0x4c, d2_LastWindowPtr->w - x + 0x14, 0x53);
                 txt_Format(buf, 0x196e, sum[i]);
                 ai_LeftAlignedText(buf, x, 0x34 + i * 0x4c + 0x19, d2_LastWindowPtr->w - x + 0x14, 0x53);
@@ -11628,10 +11628,10 @@ void ai_ProductionWriteContact(AIBLD *building, AIOBJ *room)
         ai_MarketContact(building);
         if ((ai_BuildingPerms & 0x200) != 0) {
             schreiben = sv_RegisterNamePlate("contact_PRODUKTION_SCHREIBEN", txt_Ptrs[0x1fae], 0x13);
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            personalbuch = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
-            meisterbrief = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0xc);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            personalbuch = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            meisterbrief = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0xc);
         }
         if (ai_ClickedObject != 0 && (ai_BuildingPerms & 0x200) != 0) {
             if (ai_ClickedObject == personalbuch)
@@ -11711,8 +11711,8 @@ void ai_ChurchContact(AIBLD *building, AIOBJ *arg)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ChurchContact, 0x67fff) != 0) {
-        top5 = sv_RegisterNamePlate("contact_TOP5", ai_ContactTextTop5, 0x16);
-        ablass = sv_RegisterNamePlate("contact_ABLASS", ai_ContactTextIndulgence, 0x16);
+        top5 = sv_RegisterNamePlate("contact_TOP5", txt_Ptrs[TXT_CONTACT_TOP_5], 0x16);
+        ablass = sv_RegisterNamePlate("contact_ABLASS", txt_Ptrs[TXT_CONTACT_INDULGENCE], 0x16);
         click = ai_ClickedObject;
         if (click != 0) {
             if (click == top5)
@@ -11770,7 +11770,7 @@ void ai_DungeonContact(AIBLD *building, AIOBJ *room)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_DungeonContact, 0x67fff) != 0) {
-        plan = sv_RegisterNamePlate("ob_KERKERPLAN", ai_ContactTextDungeonPlan, 0x16);
+        plan = sv_RegisterNamePlate("ob_KERKERPLAN", txt_Ptrs[TXT_CONTACT_DUNGEON_PLAN], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == plan)
             ai_DungeonPlanWindow(building);
     }
@@ -11843,7 +11843,7 @@ void ai_DungeonBribeWindow(AIBLD *bld)
     sv_CameraFollow();
 }
 /* 0x5a3df0, the dungeon's bribe listener (245 B): the pump 0x5309a0 (this, the mask 0x677ff while the player's
-   character is held (AICHAR.heldRounds), else 0x67fff) looks up "contact_BESTECHEN" (ai_ContactTextBribe, class
+   character is held (AICHAR.heldRounds), else 0x67fff) looks up "contact_BESTECHEN" (TXT_CONTACT_BRIBE, class
    0x10) only while it is held and opens the bribe window 0x5a3b90 for a known owner */
 
 void ai_DungeonBribeListener(AIBLD *bld, AIOBJ *room)
@@ -11855,7 +11855,7 @@ void ai_DungeonBribeListener(AIBLD *bld, AIOBJ *room)
     mask = ai_Chars[ai_PlayerId].heldRounds > 0 ? 0x677ff : 0x67fff;
     while (sv_RunFrame(ai_DungeonBribeListener, mask) != 0) {
         if (ai_Chars[ai_PlayerId].heldRounds > 0)
-            bribe = sv_RegisterNamePlate("contact_BESTECHEN", ai_ContactTextBribe, 0x10);
+            bribe = sv_RegisterNamePlate("contact_BESTECHEN", txt_Ptrs[TXT_CONTACT_BRIBE], 0x10);
         if (ai_Chars[ai_PlayerId].heldRounds > 0 && ai_ClickedObject != 0 &&
             bld->owner != 0xffff && ai_ClickedObject == bribe)
             ai_DungeonBribeWindow(bld);
@@ -12297,7 +12297,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
 }
 /* 0x5a4b30, the attack start of the thieves' guild hall, the click of its contact_ANGRIFF plate (95 B): the
    20-int map pick record is zeroed, its +4 = 0x400, +8 = 0x90010 and +0x10 = 7; the player bar opens (0x525220,
-   the building), the map pick runs (0x5b2180: 1, the record, the prompt text ai_MapPickPrompt, the attack window
+   the building), the map pick runs (0x5b2180: 1, the record, the prompt text TXT_MAP_PICK_PROMPT, the attack window
    ai_AttackWindow as callback, 0), then the player bar closes (0x525440) and the selection is cleared (0x52ae40) */
 
 void ai_AttackStart(AIBLD *building)
@@ -12311,7 +12311,7 @@ void ai_AttackStart(AIBLD *building)
     req[4] = 7;
     req[2] = 0x90010;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, ai_MapPickPrompt, (int)ai_AttackWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_MAP_PICK_PROMPT], (int)ai_AttackWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12412,16 +12412,16 @@ void ai_ThievesGuildListener(AIBLD *building, AIOBJ *room)
         return;
     do {
         if (ai_BuildingPerms & 0x200) {
-            burglary = sv_RegisterNamePlate("contact_EINBRUCH", ai_ContactTextBurglary, 0x17);
-            espionage = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", ai_ContactTextSpyBuilding, 0x17);
+            burglary = sv_RegisterNamePlate("contact_EINBRUCH", txt_Ptrs[TXT_CONTACT_BURGLARY], 0x17);
+            espionage = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", txt_Ptrs[TXT_CONTACT_SPY_BUILDING], 0x17);
             if (type->level >= 2)
-                angriff = sv_RegisterNamePlate("contact_ANGRIFF", ai_ContactTextAttack, 0x17);
-            taschen = sv_RegisterNamePlate("contact_TASCHENDIEBSTAHL", ai_ContactTextPickpocket, 0x17);
-            pergament = sv_RegisterNamePlate("ob_INFORMATIONSPERGAMENT", ai_ContactTextInformation, 0x16);
+                angriff = sv_RegisterNamePlate("contact_ANGRIFF", txt_Ptrs[TXT_CONTACT_ATTACK], 0x17);
+            taschen = sv_RegisterNamePlate("contact_TASCHENDIEBSTAHL", txt_Ptrs[TXT_CONTACT_PICKPOCKET], 0x17);
+            pergament = sv_RegisterNamePlate("ob_INFORMATIONSPERGAMENT", txt_Ptrs[TXT_CONTACT_INFORMATION], 0x16);
         }
         if (ai_BuildingPerms & 0x400) {
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
         }
         click = ai_ClickedObject;
         if (click != 0) {
@@ -12470,12 +12470,12 @@ void ai_StorageContact(AIBLD *building, AIOBJ *room)
         return;
     do {
         if (ai_BuildingPerms & 0x200) {
-            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", ai_ContactTextEquip, 0xd);
-            regeneration = sv_RegisterNamePlate("contact_REGENERATION", ai_ContactTextRegeneration, 0x17);
+            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", txt_Ptrs[TXT_CONTACT_EQUIP], 0xd);
+            regeneration = sv_RegisterNamePlate("contact_REGENERATION", txt_Ptrs[TXT_CONTACT_REGENERATION], 0x17);
         }
         if (ai_BuildingPerms & 0x400) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
         }
         click = ai_ClickedObject;
         if (click != 0) {
@@ -12504,8 +12504,8 @@ void ai_TrainingContact(AIBLD *building, AIOBJ *room)
         return;
     do {
         if (ai_BuildingPerms & 0x200) {
-            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0xc);
-            nacht = sv_RegisterNamePlate("contact_NACHT", ai_ContactTextTraining, 0xc);
+            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0xc);
+            nacht = sv_RegisterNamePlate("contact_NACHT", txt_Ptrs[TXT_CONTACT_TRAINING], 0xc);
         }
         if ((ai_BuildingPerms & 0x200) && ai_ClickedObject != 0 &&
             (ai_ClickedObject == ziel || ai_ClickedObject == nacht))
@@ -12621,7 +12621,7 @@ typedef struct LCRANSOMEVENT {          /* the ransom event 0x3d's words over AI
 } LCRANSOMEVENT;
 
 /* 0x5a53e0, starts the kidnapping by the building bld (0x90 frame): 0x520fe0 (bld); the first kidnap event 0x3c
-   (0x53e400 (1, 0, 0x3c) / 0x53e300) of the guild bld->id shows the message ai_TextKidnapMessage and returns;
+   (0x53e400 (1, 0, 0x3c) / 0x53e300) of the guild bld->id shows the message TXT_KIDNAP_MESSAGE and returns;
    else the ransom events 0x3d: one of bld (its guild) with a live character (0x505df0, its victim) whose
    AICHAR.heldRounds is set shows the message and returns, otherwise the event's cm slot is set (0x4c4c60
    (-1, rec)); with no event the request (0, 0x400, the two words of gypsyFilter, 6, the eight -1 at +0x1c) and
@@ -12639,7 +12639,7 @@ void ai_KidnapStart(AIBLD *bld)
         return;
     for (rec = he_FindEvent(1, 0, 0x3c); rec != 0; rec = he_NextEvent()) {
         if (((LCKIDNAPEVENT *)rec)->guild == bld->id) {
-            sv_MessageBox((intptr_t)ai_TextKidnapMessage, 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[TXT_KIDNAP_MESSAGE], 0);
             return;
         }
     }
@@ -12647,7 +12647,7 @@ void ai_KidnapStart(AIBLD *bld)
         if (((LCRANSOMEVENT *)rec)->guild == bld->id) {
             ch = gm_FindChar(((LCRANSOMEVENT *)rec)->victim);
             if (ch != 0 && ch->heldRounds > 0) {
-                sv_MessageBox((intptr_t)ai_TextKidnapMessage, 0);
+                sv_MessageBox((intptr_t)txt_Ptrs[TXT_KIDNAP_MESSAGE], 0);
                 return;
             }
             rec->exSlot = cm_SendExSetHE(-1, rec);
@@ -12862,11 +12862,11 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
     r = sv_RunFrame(ai_KidnapContact, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            entfuehren = sv_RegisterNamePlate("contact_ENTFUEHREN", ai_ContactTextKidnap, 0x16);
-            loesegeld = sv_RegisterNamePlate("contact_LOESEGELD", ai_ContactTextRansom, 0x16);
+            entfuehren = sv_RegisterNamePlate("contact_ENTFUEHREN", txt_Ptrs[TXT_CONTACT_KIDNAP], 0x16);
+            loesegeld = sv_RegisterNamePlate("contact_LOESEGELD", txt_Ptrs[TXT_CONTACT_RANSOM], 0x16);
         }
         if (ch != 0 && ai_CharInts[ai_PlayerId][0] == ch->netId && ch->heldRounds > 0)
-            ausbrechen = sv_RegisterNamePlate("contact_AUSBRECHEN", ai_ContactTextBreakOut, 0x16);
+            ausbrechen = sv_RegisterNamePlate("contact_AUSBRECHEN", txt_Ptrs[TXT_CONTACT_BREAK_OUT], 0x16);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == entfuehren)
                 ai_KidnapStart(building);
@@ -12951,7 +12951,7 @@ int ai_CityWatchWindow(int ctx, AIBLD *target)
 /* 0x5a5f60, the city watch patrol start, the click of the contact_PATROL plate (112 B): 0x520fe0 (the
    building); the 20-int map pick record zeroed with its +4 = 0x400, +8 = 0 (the check's result) and +0x10 = 2;
    the player bar opens (0x525220, the building), the map pick runs (0x5b2180: 1, the record, the prompt text
-   ai_PatrolPickPrompt, the city watch window ai_CityWatchWindow as callback, 0), then the player bar closes
+   TXT_PATROL_PICK_PROMPT, the city watch window ai_CityWatchWindow as callback, 0), then the player bar closes
    (0x525440) and the selection is cleared (0x52ae40) */
 
 void ai_PatrolStart(AIBLD *building)
@@ -12971,7 +12971,7 @@ void ai_PatrolStart(AIBLD *building)
     if (building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, ai_PatrolPickPrompt, (int)ai_CityWatchWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_PATROL_PICK_PROMPT], (int)ai_CityWatchWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13051,7 +13051,7 @@ int ai_CityWatchCrewWindow(int ctx, AIBLD *target)
 /* 0x5a61f0, the city watch raid start, the click of the contact_RAZZIA plate (124 B): 0x520fe0 (the building);
    the 20-int map pick record zeroed with its +4 = 0x400, +8 = 0x90010, +0x10 = 7 and +0x4c = 0x727; the player
    bar opens (0x525220, the building), the map pick runs (0x5b2180: 1, the record, the prompt text
-   ai_RaidPickPrompt, the city watch crew window ai_CityWatchCrewWindow as callback, 0), then the player bar
+   TXT_RAID_PICK_PROMPT, the city watch crew window ai_CityWatchCrewWindow as callback, 0), then the player bar
    closes (0x525440) and the selection is cleared (0x52ae40) */
 
 void ai_RaidStart(AIBLD *building)
@@ -13070,7 +13070,7 @@ void ai_RaidStart(AIBLD *building)
         return;
     req[19] = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, ai_RaidPickPrompt, (int)ai_CityWatchCrewWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_RAID_PICK_PROMPT], (int)ai_CityWatchCrewWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13145,7 +13145,7 @@ int ai_WatchPlanWindow(int ctx, char *place)
 }
 /* 0x5a6480, the city watch plan start, the click of the ob_WACHPLAN plate (67 B): 0x520fe0 (the building);
    the player bar opens (0x525220, the building), the map pick runs (0x5b2180: 4, 0, the prompt text
-   ai_WatchPlanPickPrompt, the city watch search window ai_WatchPlanWindow as callback, 0), then the player bar
+   TXT_WATCH_PLAN_PICK_PROMPT, the city watch search window ai_WatchPlanWindow as callback, 0), then the player bar
    closes (0x525440) and the selection is cleared (0x52ae40) */
 
 void ai_WatchPlanStart(AIBLD *building)
@@ -13153,7 +13153,7 @@ void ai_WatchPlanStart(AIBLD *building)
     if (sv_CheckCharacterFlag(building) != 0 || building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(4, 0, ai_WatchPlanPickPrompt, (int)ai_WatchPlanWindow, 0);
+    ai_MapPick(4, 0, txt_Ptrs[TXT_WATCH_PLAN_PICK_PROMPT], (int)ai_WatchPlanWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13239,7 +13239,7 @@ int ai_ArrestWindow(int unused, AIBLD *bld)
 /* 0x5a6720, the city watch arrest map pick, the click of the customs box ob_ZOLLKASSE (the zoll branch of
    ai_CityWatchListener's contact dispatch, 127 B): the building's character gate (sv_CheckCharacterFlag, 0 with a free
    character) and the building; the 20-int request 1, -1, 0xa0744300, 1, 6 with 0x727 at +0x4c; the player bar
-   opens, ai_MapPick runs (1, the request, the prompt text ai_ArrestPickPrompt, the city watch arrest window
+   opens, ai_MapPick runs (1, the request, the prompt text TXT_ARREST_PICK_PROMPT, the city watch arrest window
    ai_ArrestWindow as callback, 0), then the player bar closes and the selection is cleared */
 
 void ai_ArrestStart(AIBLD *building)
@@ -13255,7 +13255,7 @@ void ai_ArrestStart(AIBLD *building)
     req[3] = 1;
     req[19] = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, ai_ArrestPickPrompt, (void *)(unsigned)&ai_ArrestWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_ARREST_PICK_PROMPT], (void *)(unsigned)&ai_ArrestWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13279,14 +13279,14 @@ void ai_CityWatchListener(AIBLD *bld, AIOBJ *room)
     r = sv_RunFrame(ai_CityWatchListener, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            patrol = sv_RegisterNamePlate("contact_PATROL", ai_ContactTextPatrol, 0x16);
-            wachplan = sv_RegisterNamePlate("ob_WACHPLAN", ai_ContactTextWatchPlan, 0x16);
-            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
-            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
+            patrol = sv_RegisterNamePlate("contact_PATROL", txt_Ptrs[TXT_CONTACT_PATROL], 0x16);
+            wachplan = sv_RegisterNamePlate("ob_WACHPLAN", txt_Ptrs[TXT_CONTACT_WATCH_PLAN], 0x16);
+            personal = sv_RegisterNamePlate("ob_PERSONALBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
             if (gm_Query(bld->objList, 2, 6, 0, 0x147) != 0)
-                zoll = sv_RegisterNamePlate("ob_ZOLLKASSE", ai_ContactTextCustomsBox, 0x16);
+                zoll = sv_RegisterNamePlate("ob_ZOLLKASSE", txt_Ptrs[TXT_CONTACT_CUSTOMS_BOX], 0x16);
             else if (gm_Query(bld->objList, 2, 6, 0, 0x148) != 0)
-                zoll = sv_RegisterNamePlate("ob_ZOLLKASSE_MIT_GEHEIMFACH", ai_ContactTextCustomsBox, 0x16);
+                zoll = sv_RegisterNamePlate("ob_ZOLLKASSE_MIT_GEHEIMFACH", txt_Ptrs[TXT_CONTACT_CUSTOMS_BOX], 0x16);
         }
         if ((ai_BuildingPerms & 0x200) && ai_ClickedObject != 0) {
             if (ai_ClickedObject == personal)
@@ -13324,12 +13324,12 @@ void ai_GuildHallListener(AIBLD *bld, AIOBJ *room)
     r = sv_RunFrame(ai_GuildHallListener, 0x67fff);
     while (r != 0) {
         if (ai_BuildingPerms & 0x200) {
-            lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", ai_ContactTextEquip, 0xd);
-            razzia = sv_RegisterNamePlate("contact_RAZZIA", ai_ContactTextRazzia, 0x16);
-            ausspionieren = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", ai_ContactTextSpy, 0x17);
-            pergament = sv_RegisterNamePlate("ub_INFORMATIONSPERGAMENT", ai_ContactTextParchment, 0xc);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            ausruesten = sv_RegisterNamePlate("contact_AUSRUESTEN", txt_Ptrs[TXT_CONTACT_EQUIP], 0xd);
+            razzia = sv_RegisterNamePlate("contact_RAZZIA", txt_Ptrs[TXT_CONTACT_RAZZIA], 0x16);
+            ausspionieren = sv_RegisterNamePlate("contact_GEBAEUDE_AUSSPIONIEREN", txt_Ptrs[TXT_CONTACT_SPY], 0x17);
+            pergament = sv_RegisterNamePlate("ub_INFORMATIONSPERGAMENT", txt_Ptrs[TXT_CONTACT_PARCHMENT], 0xc);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
         }
         if (ai_ClickedObject != 0 && (ai_BuildingPerms & 0x200) != 0) {
             if (ai_ClickedObject == lager)
@@ -13349,8 +13349,8 @@ void ai_GuildHallListener(AIBLD *bld, AIOBJ *room)
     }
 }
 /* 0x5a6a90, the training room's contact listener (172 B): 0x52e190, the pump 0x5309a0 (this, 0x67fff); with
-   the mask 0x200 the plates ob_ZIELSCHEIBE (ai_ContactTextTarget, 0xc), contact_NACHT (ai_ContactTextTraining,
-   0xc) and contact_REGENERATION (ai_ContactTextRegeneration, 0x17), and when the mask is still set and the
+   the mask 0x200 the plates ob_ZIELSCHEIBE (TXT_CONTACT_TARGET, 0xc), contact_NACHT (TXT_CONTACT_TRAINING,
+   0xc) and contact_REGENERATION (TXT_CONTACT_REGENERATION, 0x17), and when the mask is still set and the
    pending click (ai_ClickedObject) is one of them, ai_TrainingWindow (the building) */
 
 void ai_TrainingRoomListener(AIBLD *bld, AIOBJ *room)
@@ -13364,9 +13364,9 @@ void ai_TrainingRoomListener(AIBLD *bld, AIOBJ *room)
         return;
     do {
         if (ai_BuildingPerms & 0x200) {
-            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", ai_ContactTextTarget, 0xc);
-            nacht = sv_RegisterNamePlate("contact_NACHT", ai_ContactTextTraining, 0xc);
-            regeneration = sv_RegisterNamePlate("contact_REGENERATION", ai_ContactTextRegeneration, 0x17);
+            ziel = sv_RegisterNamePlate("ob_ZIELSCHEIBE", txt_Ptrs[TXT_CONTACT_TARGET], 0xc);
+            nacht = sv_RegisterNamePlate("contact_NACHT", txt_Ptrs[TXT_CONTACT_TRAINING], 0xc);
+            regeneration = sv_RegisterNamePlate("contact_REGENERATION", txt_Ptrs[TXT_CONTACT_REGENERATION], 0x17);
         }
         if ((ai_BuildingPerms & 0x200) && ai_ClickedObject != 0 &&
             (ai_ClickedObject == ziel || ai_ClickedObject == nacht || ai_ClickedObject == regeneration))

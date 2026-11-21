@@ -197,7 +197,7 @@ typedef struct LCEXCHROW {              /* 0x1c bytes, a row of the money lender
     int text;                           /* 0x04, its text object (d2_CreateWinText) */
     int name;                           /* 0x08, the text with the player slot's name (ai_ShowExchangeRows) */
     int good;                           /* 0x0c, the currency good of the row (an object of the class 9 in the list,
-                                           gm_Query(list, 1, 4, 9); its name txt_ObjectNames, its icon good + 0xdf), 0: free */
+                                           gm_Query(list, 1, 4, 9); its name TXT_OBJECT_NAMES, its icon good + 0xdf), 0: free */
     unsigned char player;               /* 0x10, the player slot the row names (ai_ShowExchangeRows) */
     char pad11[3];
     int value;                          /* 0x14, the icon's value, the amount picked (d2_GetObjValue) */
