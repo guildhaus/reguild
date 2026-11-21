@@ -50,34 +50,7 @@ extern AMTREC amt_Table[42];            /* 0x925120 */
 extern AMTKIND amt_Kinds[40];           /* 0x60ed58 */
 extern const float amt_Pay[];                 /* 0x5edfbc */
 extern float amt_Rates[];               /* 0x60ec90, 7 floats per row */
-/* views of the character record and of the kind record as amt_Rating reads them (type debt) */
-typedef struct AMTCHARVIEW {            /* a character record amt.c reads by offset (0x21c bytes, as ai_Chars) */
-    unsigned short id;                  /* 0x000, 0xffff when the record is not in use */
-    unsigned char kind;                 /* 0x002, 6 / 7 the player characters, 0x13 the applicants the office events create */
-    char pad003;
-    int netId;                          /* 0x004, compared with the owner of an office */
-    unsigned char health;               /* 0x008, > 0 = alive (ai.h AICHAR.health) */
-    char pad009[0x15b];
-    unsigned char rank;                 /* 0x164, the office rank: 1 .. 6 and 0x28 .. 0x2d are the deputy candidates */
-    char pad165;
-    unsigned char officeKind;           /* 0x166, the kind of the office held (0 = none) */
-    unsigned char prevOffice;           /* 0x167, the office held before the current one */
-    unsigned char appliedOffice;        /* 0x168, the office applied for (0 = none) */
-    unsigned char secondOffice;         /* 0x169, the second office (the x14 / deputy) */
-    char pad16a[2];
-    void *object;                       /* 0x16c, the building record the character is at (gm_FindById of the object) */
-    char pad170[0x24];
-    int money;                          /* 0x194, the character's money (the office price is taken off it) */
-    char pad198[0x30];
-    unsigned int powerFlags;            /* 0x1c8, the office-power bits already used: 0x4000000 / 0x8000000 / 0x10000000 = the first /
-                                           second / third bonus step (cleared with cm_SendSetField(cid, 0x1c8, 4, bit, 0)) */
-    unsigned int status;                /* 0x1cc, the status bits (0x400 .. 0x2000 select the rate table columns) */
-    char pad1d0[0x4c];
-} AMTCHARVIEW;
-#define AMT_STATUS(c) (((AMTCHARVIEW *)(c))->status)
-#define AMT_NETID(c) (((AMTCHARVIEW *)(c))->netId)
-#define AMT_KIND(c) (((AMTCHARVIEW *)(c))->kind)
-#define AMT_POWER(c) (((AMTCHARVIEW *)(c))->powerFlags)
+/* views of the records as amt_Rating reads them (type debt) */
 typedef struct AMTGOODS {              /* a 0x80-byte goods record (gm_FindGoods / the price table 0x4ffa10) */
     char pad000[0x20];
     float amount;                       /* 0x20, the amount (0x4ffa10 weighs it against the mean) */
