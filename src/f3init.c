@@ -1,11 +1,11 @@
 /* f3init.c -- the game initialisation of the town (0x50d100 ..): tag "f3_init:" ("f3_init:Gebaeude des Typs %s allokiert", 0x622ecc) and "init_" in the error strings ("init_LoadObjektScene:", "init_LoadGebaeudeScene:", "init_LocalData()"). The scene object names ("ob_NAME" / "gb_NAME" with the variant suffixes "_A" .. "_H") are mapped to the object / building prototypes, the object and building scenes "scenes/*ob_%s.ed3" / "scenes/*gb_%s.ed3" are loaded into universes of their own (tables 0x76faa0 per object prototype, 0x76fa60 per building class), the start objects are placed. The .data of this unit starts at 0x61adf8 (right after f3gm's last string 0x61ade0): its initialised globals (0x61adf8 / 0x61ae00 and the table of 19 records of 0x6c4 bytes at 0x61ae08) come first, then its strings from "KONTOR" (0x622e94) on. The unit ends at 0x5142e0, where io_text.c's text builders start. Names are ours.
-   Open: type debt - the local views INIT_* (ai.h's AIFIN / AIBTYPE / AIMSG, amt.h's AMTREC / AMTKIND records)
-   stand in for their types (the scene objects are D3OBJECT, the scene characters ch.h's CHARACTER, the characters
+   Open: type debt - the local view INIT_CAMREC (ai.h's AIFIN, gm_PlayerRecord returns short *) stands in for its
+   type (the scene objects are D3OBJECT, the scene characters ch.h's CHARACTER, the characters
    AICHAR) (the buildings and objects are AIBLD / AIOBJ), and local canonical prototypes for ai.h /
    amt.h / rd.h, which do not compile into this unit (gv.h conflicts).
    Open: not included yet (dcp headers conflicts f3init HEADER): ai.h amt.h cm.h d2.h f3snd.h gfx.h hmt.h hst.h
-   mission.h rmsg.h; held by own declarations that differ from the owner's:
-   amt_GetKind, amt_GetOffice, d2_ClearSurface, amt_GetFirstOffice.
+   mission.h rmsg.h; held by own copies of the owners' prototypes (amt_GetKind, amt_GetOffice, amt_GetFirstOffice
+   take the AMTREC / AMTKIND of amt_types.h).
    unit of rea 8cef7d5b (src/game/f3init.c); boundaries in decl/text.dcl */
 struct VFSENTRY;
 struct D3OBJECT;
@@ -38,46 +38,11 @@ extern AISTORE gm_Offers[];            /* 0x7e4b20 */
 
 
 
-/* the office record (amt.h's AMTREC, 0x18 bytes) as this unit reads it; amt.h cannot be included here, so only
-   the field in use is declared (type debt, see the lead comment) */
-typedef struct INIT_OFFICE {
-    unsigned idWord;                /* 0x00, AMTREC.idx in the low byte (the original loads the whole dword) */
-    char pad04[0x4];                /* 0x04 .. 0x07 */
-    unsigned kindWord;              /* 0x08, AMTREC.kind in the low byte (the original loads the whole dword) */
-    char pad0c[0xc];                /* 0x0c .. 0x17 */
-} INIT_OFFICE;
+#include "amt_types.h"             /* AMTREC, AMTKIND: the office and office kind records (amt_GetOffice / amt_GetKind) */
 
 
 
-#include "ai_types.h"                /* AITIME */
-#pragma pack(push, 1)
 
-/* the long-message record (ai.h's AIMSG, 0xf8 bytes, cm_SendLongMessage's argument); only the fields this unit
-   writes are declared (type debt: ai.h cannot be included here) */
-typedef struct INIT_AIMSG {
-    char pad000[0x4];               /* 0x00 */
-    unsigned char type;             /* 0x04, the message kind (0x1b / 0x4c) */
-    char pad005[3];                 /* 0x05 .. 0x07 */
-    int to;                         /* 0x08, the receiving player's netId (ai.h's AIMSG.to) */
-    int fromId;                     /* 0x0c, the sending building's id (0xffffffff = none) */
-    int nIds;                       /* 0x10, how many of ids[] are set (ai.h's AIMSG.nIds) */
-    int reserved14;                 /* 0x14, only ever written 0 (ai.h's AIMSG.unk14) */
-    char pad018[0x10];              /* 0x18 .. 0x27 */
-    AITIME time;                    /* 0x28, the game clock the message was made at (ai.h's AIMSG.time) */
-    unsigned char flags;            /* 0x36, the message flags (2 = a new-town building, 1 = the mission mode) */
-    char pad037;                    /* 0x37 */
-    int ids[8];                     /* 0x38 */
-    int arg[11];                    /* 0x58 */
-    char pad084[0x74];              /* 0x84 .. 0xf7 */
-} INIT_AIMSG;
-#pragma pack(pop)
-
-/* the office kind record (amt.h's AMTKIND, 0x18 bytes) as this unit reads it */
-typedef struct INIT_KIND {
-    char pad00[0x8];                /* 0x00 .. 0x07 */
-    unsigned levelWord;             /* 0x08, AMTKIND.level in the low byte (the original loads the whole dword) */
-    char pad0c[0xc];                /* 0x0c .. 0x17 */
-} INIT_KIND;
 
 
 /* the player record view (ai.h's AIFIN, 0xac bytes, gm_PlayerRecords): the camera fields this unit reads */
@@ -89,11 +54,6 @@ typedef struct INIT_CAMREC {
     float rot[3];                   /* 0x9c, AIFIN.camRot: the camera's angles (rot[1] = the stored y angle) */
 } INIT_CAMREC;
 
-/* d3_sm.h's D3TERRAIN as far as this unit reads it (written before the unit included d3_sm.h; the uses can
-   read D3TERRAIN now); type debt, see the lead comment */
-typedef struct INIT_TERRAIN {
-    unsigned int size;              /* 0x000, the cells per side (0x40 / 0x80 select the shadow map size) */
-} INIT_TERRAIN;
 
 /* stdlib min / max (the body ai.h defines; f3init does not include ai.h yet: its cm_SendExSellObject with an int
    third parameter, @original, supersedes ai.h's short) */
@@ -983,8 +943,7 @@ void init_PlaceOffices(int n, int *out, int *ids)
     unsigned s;
     int *q;
     int w;
-    INIT_OFFICE rec;
-    unsigned u;
+    AMTREC rec;
 
 
     tab[0] = 0x18;
@@ -1007,8 +966,7 @@ void init_PlaceOffices(int n, int *out, int *ids)
         q = out;
         do {
             amt_GetOffice(((unsigned char *)ids)[(char *)q - (char *)out], &rec);
-            u = rec.kindWord;
-            w = amt_GetKindLevel(u & 0xff);
+            w = amt_GetKindLevel(rec.kind);
             *q = tab[s] - w / 2;
             s = (int)(s + 1) % 0xf;
             q++;
@@ -1061,8 +1019,8 @@ int init_CreateStartCharacters(int unused)
     int out[30];
     AICHAR *f0[30];
     AICHAR *p, *ch, *q, *u, *v;
-    INIT_OFFICE rec, ob1, ob2, ob3;
-    INIT_KIND kind;
+    AMTREC rec, ob1, ob2, ob3;
+    AMTKIND kind;
     int cnt, i, n, k, j, h, w;
     unsigned msg0, msg1, msg4;
     int msg3;
@@ -1127,11 +1085,11 @@ int init_CreateStartCharacters(int unused)
 
         msg0 = 2;
         amt_GetOffice((unsigned char)ids[k], &rec);
-        amt_GetKind(rec.kindWord & 0xff, &kind);
+        amt_GetKind(rec.kind, &kind);
         age = (unsigned short)t[k];
-        msg5 = (char)(util_Random(0x2a) + ((int)(kind.levelWord & 0xff) / 3 + 1) * 21.0f);
-        msg0 = util_Random(2) + lv[kind.levelWord & 0xff];
-        w = money[kind.levelWord & 0xff];
+        msg5 = (char)(util_Random(0x2a) + ((int)(kind.level) / 3 + 1) * 21.0f);
+        msg0 = util_Random(2) + lv[kind.level];
+        w = money[kind.level];
         msg3 = gm_PlayerFactor(w - (int)(util_RandomF() * w * -0.5f), ai_OwnPlayer);
         ch = f0[k];
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, msg3);
@@ -1163,13 +1121,13 @@ int init_CreateStartCharacters(int unused)
         c = ch->officeKind;
         if (c == 0x1b) {
             amt_GetFirstOffice(0x25, &ob1);
-            amt_SendOfficeOwner(ob1.idWord, ch, 0xff);
+            amt_SendOfficeOwner(ob1.idx, ch, 0xff);
         } else if (c == 0x1a) {
             amt_GetFirstOffice(0x24, &ob2);
-            amt_SendOfficeOwner(ob2.idWord, ch, 0xff);
+            amt_SendOfficeOwner(ob2.idx, ch, 0xff);
         } else if (c == 0x19) {
             amt_GetFirstOffice(0x23, &ob3);
-            amt_SendOfficeOwner(ob3.idWord, ch, 0xff);
+            amt_SendOfficeOwner(ob3.idx, ch, 0xff);
         }
     }
     do {
@@ -1554,7 +1512,6 @@ float init_SoundVolume = 0.699999988f;  /* 0x61adfc, 0.7f: the volume factor of 
 int init_ShopScript = -1;  /* 0x61ae00, the handle of the shopping script running in the town scene (-1 = none; */
 INIT_ANIMSET init_ClassAnims[19] = { { 20, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "arbeit/mist_schaufeln", "arbeit/neufegen2", "arbeit/schweissab", "arbeit/schmieden", "", "", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "spezial/einhand_vom_tisch", "gestik/herranwinken", "gestik/gespraech1", "gestik/gespraech5", "gestik/gespraech6", "gestik/manipulieren_stehend", "gestik/zeigen", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "spezial/auf_tisch_legen", "spezial/meckern", "", "", "", "", "", "", "", "", "" } }, { 5, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/haende_reiben", "arbeit/schreiben", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 7, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "sitzend/hinsetzen", "sitzend/aufstehen", "gestik/manipulieren_stehend", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/bein_kratzen", "gestik/zeigen", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "arbeit/neufegen2", "", "", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/steh_noise7", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 6, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "sitzend/sitz_noise2", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "sitzend/aufstehen", "sitzend/hinsetzen", "sitzend/wuerfeln", "spezial/meckern", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 8, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/manipulieren_sitzend", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "spezial/auf_tisch_legen", "spezial/meckern", "", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "sitzend/sitzgespraech3", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/gespraech5", "gestik/gespraech6", "gestik/zeigen", "", "", "", "", "", "", "", "", "" } }, { 14, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise3", "spezial/meckern", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "spezial/auf_tisch_legen", "arbeit/umruehren_auftisch", "", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "gestik/zeigen", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/gespraech1", "gestik/gespraech5", "gestik/gespraech6", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/manipulieren_stehend", "", "", "", "", "", "", "", "", "" } }, { 15, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/steh_noise9", "gestik/durch_haar_fahr", "spezial/einhand_vom_tisch", "arbeit/neufegen2", "arbeit/schweissab", "", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise2", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "gestik/bein_kratzen", "gestik/steh_noise7", "gestik/steh_noise8", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 16, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "arbeit/schoepfen", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 18, { "sitzend/sitz_noise4", "sitzend/sitz_noise5", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/zeigen", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/gespraech5", "gestik/gespraech6", "gestik/manipulieren_hockend", "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "spezial/auf_tisch_legen", "spezial/in_andere_hand_geben", "spezial/runterbeug_such", "spezial/einhaendig_vom_boden_nehmen", "arbeit/schweissab", "arbeit/schmieden", "arbeit/schoepfen", "arbeit/metall_erhitzen", "arbeit/neufegen2", "gestik/manipulieren_stehend", "spezial/meckern", "spezial/einhand_vom_tisch", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise3", "", "", "" } }, { 19, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise2", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "sitzend/sitzgespraech1", "sitzend/sitzgespraech2", "sitzend/sitzgespraech3", "sitzend/sitzgespraech4", "sitzend/sitzgespraech5", "sitzend/sitzgespraech6", "sitzend/sitzgespraech7", "gestik/steh_noise7", "gestik/steh_noise8", "gestik/steh_noise9", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/gespraech5", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 9, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "spezial/auf_tisch_legen", "gestik/zeigen", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 13, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "arbeit/schreiben", "arbeit/schoepfen", "", "gestik/zeigen", "kampf/stechen", "kampf/streich", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 21, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "spezial/einhand_vom_tisch", "spezial/runterbeug_such", "arbeit/schweissab", "arbeit/schmieden", "arbeit/saegen", "arbeit/hobeln", "arbeit/neufegen2", "", "", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/zeigen", "gestik/kopf_nicken", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/gespraech1", "gestik/gespraech5", "gestik/gespraech6", "gestik/steh_noise7", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/manipulieren_hockend", "spezial/meckern", "spezial/auf_tisch_legen", "", "", "", "", "", "" } }, { 11, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "spezial/einhand_vom_tisch", "arbeit/schreiben", "arbeit/schoepfen", "arbeit/schmieden", "arbeit/schweissab", "arbeit/baumfaellen", "gestik/kinn_kratzen", "gestik/kopf_kratzen", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/gespraech1", "gestik/gespraech5", "gestik/gespraech6", "gestik/jubeln", "spezial/meckern", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 22, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "gestik/bein_kratzen", "gestik/herranwinken", "gestik/zeigen", "spezial/meckern", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "spezial/auf_tisch_legen", "arbeit/zapfen", "arbeit/umruehren_auftisch", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise2", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "sitzend/sitzgespraech1", "sitzend/sitzgespraech2", "sitzend/sitzgespraech3", "sitzend/sitzgespraech4", "sitzend/sitzgespraech5", "sitzend/sitzgespraech6", "sitzend/sitzgespraech7", "gestik/steh_noise7", "gestik/steh_noise8", "gestik/steh_noise9", "gestik/gespraech1", "gestik/gespraech5", "gestik/gespraech6", "gestik/kopf_nicken", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/kinn_kratzen", "gestik/kopf_kratzen" } }, { 1, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "sitzend/hinsetzen", "sitzend/aufstehen", "sitzend/sitz_noise2", "sitzend/sitz_noise3", "sitzend/sitz_noise4", "sitzend/sitz_noise5", "gestik/steh_noise7", "gestik/steh_noise8", "gestik/steh_noise9", "gestik/gespraech1", "gestik/kopf_nicken", "gestik/kopf_schuetteln", "gestik/durch_haar_fahr", "gestik/gespraech5", "gestik/haende_reiben", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 4, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 12, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "spezial/runterbeug_such", "spezial/einhand_vom_tisch", "arbeit/hacken", "arbeit/mist_schaufeln", "arbeit/schweissab", "", "gestik/manipulieren_stehend", "gestik/bein_kratzen", "gestik/manipulieren_hockend", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } }, { 0, { "bewegung/dreh_90_links", "bewegung/dreh_90_rechts", "bewegung/gehen", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "" } } };  /* 0x61ae08 .. */
 extern char ai_MissionMode;        /* 0x624580 */
-/* ai_CharInts: view of ai_Chars (tools/data_views.py) */
 /* 0x50f910, the opening of a new town's buildings (called by the new-game setup 0x511400; no return
    value, the caller ignores it). For each of up to eight player characters (kind 5 / 6 / 7) the first free building
    whose class lists the character's job (+0x164) is opened (0x50f750); a character without one gets a building of its
@@ -1596,7 +1553,6 @@ void init_OpenTown(void)
     int ncl, i, j, k;
     AIBLD *r, *q;
     int h, n, nch, m, ok;
-    char *p;
     AIBLD *b;
     AICHAR *c;
     AIBTYPE *cl;                       /* the type record of the building b */
@@ -1844,7 +1800,7 @@ void init_OpenTown(void)
     b = gm_BuildQuery(1, 6);
     while (b != 0) {
         if (b->masterId == 0xffff && b->type != 'E' && b->type != 'D' && b->type != 'F') {
-            INIT_AIMSG m2;
+            AIMSG m2;
 
             m2.type = 0x1b;
             m2.to = ai_PlayerChar->netId;
@@ -1858,7 +1814,7 @@ void init_OpenTown(void)
         b = gm_BuildNext();
     }
     if (ai_MissionMode == 5) {
-        INIT_AIMSG m2;
+        AIMSG m2;
         AITIME *clock = &ai_Time;
 
         i = 0;
@@ -1871,8 +1827,8 @@ void init_OpenTown(void)
         } while ((int)&c->kind < (int)&ai_Chars[0x300].kind);
         memset(&m2, 0, sizeof(m2));
         m2.type = 0x4c;
-        m2.to = ai_CharInts[i][0];
-        m2.fromId = ai_CharInts[i][0];
+        m2.to = ai_Chars[i].netId;
+        m2.fromId = ai_Chars[i].netId;
         m2.nIds = 0;
         m2.reserved14 = 0;
         m2.time = *clock;
@@ -2096,9 +2052,9 @@ int init_InitTown(char *city)
     }
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
-    if (((INIT_TERRAIN *)d3_Terrain)->size == 0x80)
+    if (((D3TERRAIN *)d3_Terrain)->size == 0x80)
         d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x100, 2);
-    else if (((INIT_TERRAIN *)d3_Terrain)->size == 0x40)
+    else if (((D3TERRAIN *)d3_Terrain)->size == 0x40)
         d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x80, 2);
     else
         d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x100, 2);
