@@ -4752,7 +4752,7 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
         bld = gm_FindBuildingById(party->thing);
         if (bld != 0) {
             if (gm_IsHomeType(bld) == 0) {
-                o = (AIOBJ *)gm_GetGebaeudeHauptraum(bld);
+                o = gm_GetGebaeudeHauptraum(bld);
                 if (o != 0)
                     note.head.arg[2] = o->objId;
             } else {

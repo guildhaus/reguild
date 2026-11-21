@@ -5221,7 +5221,7 @@ void he_RunRaid(int ev)
     case -1:
         if (e->opts & 2) {
             home = gm_BuildQuery(1, 1, e->raidStart);
-            o = (AIOBJ *)gm_GetGebaeudeHauptraum(home);
+            o = gm_GetGebaeudeHauptraum(home);
             for (i = 0; i < 8; i++) {
                 if (e->ids[i] != -1 && (c = (AICHAR *)gm_FindChar(e->ids[i])) != 0) {
                     cm_SendChrStop(e->ids[i]);
@@ -7079,7 +7079,7 @@ void he_RunGang(int ev)
         s = gm_BuildQuery(1, 1, e->from);
         sum = 0;
         if (s != 0 && leader != 0) {
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(s);
+            room = gm_GetGebaeudeHauptraum(s);
             for (i = 0; i < 6; i++) {
                 c = (AICHAR *)gm_FindChar(e->ids[i]);
                 if (c != 0) {
@@ -9276,7 +9276,7 @@ void he_RunSendHomeEvent(int ev)
         if (ai_Chars[i].health > 0 && ai_Chars[i].model != 0 && ai_Chars[i].bld == bld && ai_Chars[i].bld2 != 0
             && util_RandomF() > 0.5 && ai_Chars[i].model->bldId == e->bldId) {
             c = &ai_Chars[i];
-            home = (AIOBJ *)gm_HomeObject(c->bld2);
+            home = gm_HomeObject(c->bld2);
             cm_SendCharClear(c->netId, 0, 0);
             cm_SendCharHalt(c->netId);
             if (home != 0)
@@ -11365,7 +11365,7 @@ void he_RunCustomers(int ev)
         if (b == 0)
             break;
         if (c->target == -1) {
-            o = (AIOBJ *)gm_BuildingMainObject(b);
+            o = gm_BuildingMainObject(b);
             if (o != 0)
                 c->target = o->objId;
         }
@@ -11791,7 +11791,7 @@ void he_TransportFromHome(int ev)
                         && (gm_IsType10(to) == 0 || sv_PanelShown == 0
                             || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
-                o = (AIOBJ *)gm_BuildingMainObject(to);
+                o = gm_BuildingMainObject(to);
                 if (o != 0)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x608, to->id, o->objId, 0, 0);
                 else
@@ -12004,7 +12004,7 @@ void he_TransportStadtStadt(int ev)
                              && (gm_IsType10(to) == 0
                                  || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
-                o = (AIOBJ *)gm_BuildingMainObject(to);
+                o = gm_BuildingMainObject(to);
                 if (o != 0)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x608, to->id, o->objId, 0, 0);
                 else
@@ -12379,7 +12379,7 @@ void he_RunCartRepair(int ev)
         gm_FindById(0, &o, 0, r->cart);
         if (r->notify != 0) {
             txt_Format(text, 0x1c49, o->id * 2 + 0x9a8);
-            q = (AIOBJ *)gm_BuildingMainObject(gm_FindBuildingById(e->from));
+            q = gm_BuildingMainObject(gm_FindBuildingById(e->from));
             if (q != 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec, e->from, q->objId, 0, "_NACHRICHTEN_HS_55");
             else
@@ -12675,7 +12675,7 @@ void he_RunSlotOrder(int ev)
             m = (AICHAR *)gm_FindCharacterByMaster(b);
             if (m != 0 && (m->flags1b4 & 1) != 0)
                 tid = 0x60b;
-            q = (AIOBJ *)gm_BuildingMainObject(b);
+            q = gm_BuildingMainObject(b);
             txt_Format(text, 0x1bba, b);
             if (q != 0)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, q->objId, 0, 0);
@@ -12743,7 +12743,7 @@ void he_RunStoreExtension(int ev)
                 m = (AICHAR *)gm_FindCharacterByMaster(b);
                 if (m != 0 && (m->flags1b4 & 1) != 0)
                     tid = 0x60b;
-                q = (AIOBJ *)gm_BuildingMainObject(b);
+                q = gm_BuildingMainObject(b);
                 txt_Format(text, 0x1bbb, b);
                 if (q != 0)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, q->objId, 0, 0);
@@ -13040,7 +13040,7 @@ void he_RunAnimalHunt(int ev)
         }
         q = gm_Query((void *)b->objList, 1, 0, 0xdd);
         if (q == 0)
-            q = (AIOBJ *)gm_BuildingMainObject(b);
+            q = gm_BuildingMainObject(b);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             m = (AICHAR *)gm_FindCharacterByMaster(b);
@@ -13175,7 +13175,7 @@ void he_RunStudy(int ev)
             else if (bt->kind == 0x13)
                 q = gm_Query((void *)b->objList, 1, 0, 0x145);
             if (q == 0)
-                q = (AIOBJ *)gm_GetGebaeudeHauptraum(b);
+                q = gm_GetGebaeudeHauptraum(b);
             if (q != 0) {
                 txt_Format(text, 0x1bc8, c->id, b);
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, e->from, text, 0, 0x5f2, b->id, q->objId, ch_EmptyName, "_NACHRICHTEN_HS_81");
@@ -15452,7 +15452,7 @@ void he_RunWorkerQuits(int ev)
         }
         v = -5;
         cm_SendRelations(ai_CharInts[c->bld->owner][0], c->netId, v, 1);
-        o = (AIOBJ *)gm_BuildingMainObject(c->bld);
+        o = gm_BuildingMainObject(c->bld);
         txt_Format(text, 0x1bac, c->id, c->bld);
         b = c->bld;
         he_MessageBoxQuickjump(ai_CharInts[b->owner][0], -1, text, 0, 0x5f2, b->id, o->objId, 0, "_NACHRICHTEN_HS_01");
@@ -15497,7 +15497,7 @@ void he_RunWorkerTheft(int ev)
         store = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (store == 0)
             store = gm_Query((void *)b->objList, 2, 6, 0, 0x116);
-        o = (AIOBJ *)gm_BuildingMainObject(b);
+        o = gm_BuildingMainObject(b);
         if (store != 0) {
             n = 0;
             memset(goods, 0, sizeof(goods));
@@ -15661,7 +15661,7 @@ int he_FigureContact(AICHAR *p, int *bldId, int *contact)
     if (gm_IsHomeType(p->bld) == 0) {
         if (p->model->bldId == p->bld->id)
             return 0;
-        o = (AIOBJ *)gm_BuildingMainObject(p->bld);
+        o = gm_BuildingMainObject(p->bld);
         if (o == 0)
             return 0;
     } else {
@@ -15738,7 +15738,7 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
             b = p->bld;
         }
         if (o == 0 && p->bld2 != 0 && (p->bld == 0 || gm_IsHomeType(p->bld) == 0)) {
-            o = (AIOBJ *)gm_HomeObject(p->bld2);
+            o = gm_HomeObject(p->bld2);
             b = p->bld2;
         }
         if (b == 0)
@@ -16349,7 +16349,7 @@ void he_RunKidnap(AIJOB *ev)
             ev->stage = -1;
             return;
         }
-        room = (AIOBJ *)gm_GetGebaeudeHauptraum(b);
+        room = gm_GetGebaeudeHauptraum(b);
         if (room == 0) {
             ev->stage = -1;
             return;
@@ -16397,7 +16397,7 @@ void he_RunKidnap(AIJOB *ev)
             ev->stage = -1;
             return;
         }
-        room = (AIOBJ *)gm_GetGebaeudeHauptraum(b);
+        room = gm_GetGebaeudeHauptraum(b);
         sum = 0.0f;
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1) {
@@ -16489,7 +16489,7 @@ void he_RunKidnap(AIJOB *ev)
     case -1:
         b = gm_BuildQuery(1, 1, x->target);
         if (b != 0)
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(b);
+            room = gm_GetGebaeudeHauptraum(b);
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
                 cm_SendChrStop(ev->ids[k]);
@@ -16927,7 +16927,7 @@ void he_RunBurglary(AIJOB *ev)
             }
             g = gm_BuildQuery(1, 1, x->guild);
             if (g != 0) {
-                room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+                room = gm_GetGebaeudeHauptraum(g);
                 for (k = 0; k < 8; k++) {
                     if (ev->ids[k] != -1) {
                         cm_SendChrStop(ev->ids[k]);
@@ -16953,7 +16953,7 @@ void he_RunBurglary(AIJOB *ev)
             return;
         }
         if (g != 0) {
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+            room = gm_GetGebaeudeHauptraum(g);
             store = gm_Query((void *)g->objList, 2, 6, 0, 0x116);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
@@ -17057,7 +17057,7 @@ void he_RunBurglary(AIJOB *ev)
     case -1:
         g = gm_BuildQuery(1, 1, x->guild);
         if (g != 0)
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+            room = gm_GetGebaeudeHauptraum(g);
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
                 cm_SendChrStop(ev->ids[k]);
@@ -17199,7 +17199,7 @@ void he_RunBuildingSpying(AIJOB *ev)
             return;
         }
         master = (AICHAR *)gm_FindChar(ai_CharInts[g->owner][0]);
-        room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+        room = gm_GetGebaeudeHauptraum(g);
         sum = 0;
         n = 0;
         for (k = 0; k < 8; k++) {
@@ -17254,7 +17254,7 @@ void he_RunBuildingSpying(AIJOB *ev)
             p = (AICHAR *)gm_FindCharacterByMaster(g);
             if (spy != 0 && (p == 0 || (p->flags1b4 & 1) == 0)) {
                 txt_Format(text, 0x19f8, spy->id, owner->id, b);
-                obj = (AIOBJ *)gm_BuildingMainObject(g);
+                obj = gm_BuildingMainObject(g);
                 he_MessageBoxQuickjump(master->netId, master->netId, text, 1, 0x5f0, x->home, obj->objId, 0, "_NACHRICHTEN_HS_78");
             }
         }
@@ -17264,7 +17264,7 @@ void he_RunBuildingSpying(AIJOB *ev)
     case -1:
         g = gm_BuildQuery(1, 1, x->home);
         if (g != 0)
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+            room = gm_GetGebaeudeHauptraum(g);
         for (k = 0; k < 8; k++) {
             c = (AICHAR *)gm_FindChar(ev->ids[k]);
             if (c != 0) {
@@ -17691,7 +17691,7 @@ void he_RunAttack(AIJOB *ev)
     case -1:
         home = gm_BuildQuery(1, 1, ev->raidStart);
         if (home != 0)
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(home);
+            room = gm_GetGebaeudeHauptraum(home);
         for (i = 0; i < 8; i++) {
             if (ev->ids[i] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[i])) != 0) {
                 cm_SendChrStop(c->netId);
@@ -18892,7 +18892,7 @@ void he_RunRobbery(AIJOB *ev)
         g = gm_BuildQuery(1, 1, x->home);
         if (g == 0)
             break;
-        room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+        room = gm_GetGebaeudeHauptraum(g);
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1) {
                 cm_SendChrStop(ev->ids[k]);
@@ -18910,7 +18910,7 @@ void he_RunRobbery(AIJOB *ev)
         owner = &ai_Chars[b->owner];
         g = gm_BuildQuery(1, 1, x->home);
         if (g != 0) {
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+            room = gm_GetGebaeudeHauptraum(g);
             store = gm_Query((void *)g->objList, 2, 6, 0, 0x116);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
@@ -18991,7 +18991,7 @@ void he_RunRobbery(AIJOB *ev)
     case -1:
         g = gm_BuildQuery(1, 1, x->home);
         if (g != 0)
-            room = (AIOBJ *)gm_GetGebaeudeHauptraum(g);
+            room = gm_GetGebaeudeHauptraum(g);
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
                 cm_SendChrStop(ev->ids[k]);
@@ -19251,9 +19251,9 @@ void he_RunTutorialBuildingTour(AIJOB *ev)
         if (n != 0) {
             pick = list[util_Random(n)];
             if (util_Random(4) != 0 && pick != ai_MarketBuilding) {
-                o = (AIOBJ *)gm_BuildingMainObject(pick);
+                o = gm_BuildingMainObject(pick);
                 if (o == 0)
-                    o = (AIOBJ *)gm_GetGebaeudeHauptraum(pick);
+                    o = gm_GetGebaeudeHauptraum(pick);
                 if (o != 0)
                     sv_SelectPanelObject(pick, o->objId, ch_EmptyName);
                 else

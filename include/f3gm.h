@@ -10,7 +10,7 @@ struct AIBLD;
 
 struct AIBLD *gm_BuildNext(void);              /* 0x501030, the next building of the query */
 struct AIBLD *gm_BuildQuery(int n, ...);       /* 0x501190, n (kind, value) filters; 6 takes no value */
-int gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
+struct AIOBJ *gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
 short *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
 int gm_FindObjectProto(char *name);             /* 0x4fe900, the number of the object prototype with the given name (case-insensitive), 0 when none */
@@ -85,7 +85,7 @@ struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);  /* 0x4fd8
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
 int gm_AddToTreasury(int a);  /* 0x50c4e0, gives the amount a to the town treasury */
 struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
-char *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
+struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
 unsigned short *gm_AllocRaum(unsigned char *b, unsigned n);  /* 0x5031b0 */
@@ -169,7 +169,7 @@ int gm_EquipmentValue(struct AIBLD *b, int level);  /* 0x509b10 */
 char *gm_FindGoods(int p, unsigned id);  /* 0x4ffc40 */
 int gm_FindMarketObject(int id);  /* 0x500ec0 */
 int gm_FreeCapacity(short *l, int id, int n);  /* 0x50ab80 */
-void *gm_GetGebaeudeHauptraum(struct AIBLD *b);  /* 0x501ce0 */
+struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);  /* 0x501ce0 */
 int gm_GetGoodsValue(char *c);  /* 0x509e60 */
 float gm_GoodsPrice(unsigned id, unsigned char p);  /* 0x5089c0 */
 float gm_ItemPrice(int item, unsigned char n);  /* 0x5087f0 */

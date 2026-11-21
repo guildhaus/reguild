@@ -5169,11 +5169,11 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     c->kind = m->hire.kind;
     if (c->model == 0) {
         if (home != 0) {
-            t = (AIOBJ *)gm_HomeObject(home);
+            t = gm_HomeObject(home);
             if (t != 0 && t->objId != -1)
                 gm_PlaceOnStage(c->netId, home->id, t->objId, 0, 0);
         } else {
-            t = (AIOBJ *)gm_BuildingMainObject(b);
+            t = gm_BuildingMainObject(b);
             if (t != 0 && t->objId != -1)
                 gm_PlaceOnStage(c->netId, b->id, t->objId, 0, 0);
         }

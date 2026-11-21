@@ -5067,5 +5067,5 @@ unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
 int ls_Read();
 void * mem_Alloc(int size, char *tag); char dd_Lock(void); void dd_Unlock(); unsigned char bmp_Save24(char *path, int w, int h, unsigned char *data); void mem_Free(void *p);
 void ai_Quicksave(void); void ai_ApplyOptions(); void cm_RaiseSpeedLevel(void); void cm_LowerSpeedLevel(void);
-int gm_BuildingMainObject(struct AIBLD *b); void *gm_GetGebaeudeHauptraum(struct AIBLD *b);
+struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b); struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);
 struct AIBLD *gm_BuildNext(void); struct AIBLD *gm_BuildQuery(int n, ...);

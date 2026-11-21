@@ -2227,20 +2227,20 @@ found:
 }
 /* 0x4fdc10, the object of the home building b where an inhabitant is placed on stage (reasoned: the callers place characters there): by the kind (kind 1: 0x12, 2: 0x13, 0x1d: 0xfd, 0x16: 0x120), through 0x4ffe90 (its object id, 1, 0, n) */
 
-char *gm_HomeObject(AIBLD *bld)
+AIOBJ *gm_HomeObject(AIBLD *bld)
 {
-    char *o = 0;
+    AIOBJ *o = 0;
     char *type;
 
     type = (char *)ai_BTypes + bld->type * 0x24d;
     if (*type == 1)
-        o = (char *)gm_Query((void *)bld->objList, 1, o, 0x12);
+        o = gm_Query((void *)bld->objList, 1, o, 0x12);
     else if (*type == 2)
-        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0x13);
+        o = gm_Query((void *)bld->objList, 1, 0, 0x13);
     else if (*type == 0x1d)
-        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
+        o = gm_Query((void *)bld->objList, 1, 0, 0xfd);
     else if (*type == 0x16)
-        o = (char *)gm_Query((void *)bld->objList, 1, 0, 0x120);
+        o = gm_Query((void *)bld->objList, 1, 0, 0x120);
     return o;
 }
 /* 0x4fdcb0, the home of the character c: its own building bld2 with the object of gm_HomeObject (out3 = its id, -1 without) and out2 = the building id; without one the next building of ai_Blds (round-robin from gm_HomeSearchStart) of kind 3 / 0x16 / 0x0f. Returns the building, 0 when none */
@@ -2255,7 +2255,7 @@ char *gm_CharacterHome(char *c, int *out2, int *out3)
 
     n = 0xff;
     if (ch->bld2 != 0) {
-        o = (AIOBJ *)gm_HomeObject(ch->bld2);
+        o = gm_HomeObject(ch->bld2);
         if (o != 0)
             *out3 = o->objId;
         else
@@ -2301,7 +2301,7 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
         return 0;
     c = &ORD_CHARS[id];
     if (flags & 4) {
-        if (bld != 0 && (o = (AIOBJ *)gm_HomeObject(bld)) != 0)
+        if (bld != 0 && (o = gm_HomeObject(bld)) != 0)
             gm_PlaceOnStage(c->netId, bld->id, o->objId, 0, 0);
         return (short *)c;
     }
@@ -2476,7 +2476,7 @@ int gm_IsHomeType(struct AIBLD *b);
 int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
-void *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
+struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 int gm_BuildingClass();                     /* 0x501d80 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */

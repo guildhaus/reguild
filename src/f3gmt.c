@@ -2199,7 +2199,7 @@ void gm_SetCapacities(AIBLD *b)
 }
 
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
-void *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
+struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 int gm_BuildingClass();                     /* 0x501d80 */
 /* ai_BuildingNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -2411,11 +2411,11 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     return (unsigned char *)b;
 }
 /* 0x501b50, the main object of the building b, chosen by its building class (gm_BuildingClass): the classes 1 / 7 / 8 look by kind for the object 0x205 (kind 0x1d), 0x12e (0x16), 0x54 (4) or 0xfd (0x1f); class 4 takes the object 0xf7, a home (gm_IsHomeType) the 0xfd; otherwise (or when that object is missing) the first room of the kind's prototype list (an object of goods class 2 other than 0xfd). Returns the object, 0 when there is none */
-int gm_BuildingMainObject(AIBLD *b)
+AIOBJ *gm_BuildingMainObject(AIBLD *b)
 {
     GMBTYPE *bt;
     GMGOOD *g;
-    char *o;
+    AIOBJ *o;
     int cls, i;
     unsigned id;
 
@@ -2424,47 +2424,47 @@ int gm_BuildingMainObject(AIBLD *b)
     bt = GM_BTYPE(b->type);
     if (cls != 1 && cls != 7 && cls != 8) {
         if (cls == 4)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xf7);
+            o = gm_Query((void *)b->objList, 1, 0, 0xf7);
         else if (gm_IsHomeType(b) != 0)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xfd);
+            o = gm_Query((void *)b->objList, 1, 0, 0xfd);
         else {
             for (i = 0; i < 0x40; i++) {
                 if (bt->objs[i] != 0xffff) {
                     id = bt->objs[i] & 0x7fff;
                     g = GM_GOOD(id);
                     if (g->type == 2 && id != 0xfd)
-                        return (int)gm_Query((void *)b->objList, 1, 0, id);
+                        return gm_Query((void *)b->objList, 1, 0, id);
                 }
             }
         }
     } else {
         if (bt->kind == 0x1d)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x205);
+            o = gm_Query((void *)b->objList, 1, 0, 0x205);
         else if (bt->kind == 0x16)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x12e);
+            o = gm_Query((void *)b->objList, 1, 0, 0x12e);
         else if (bt->kind == 4)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0x54);
+            o = gm_Query((void *)b->objList, 1, 0, 0x54);
         else if (bt->kind == 0x1f)
-            o = (char *)gm_Query((void *)b->objList, 1, 0, 0xfd);
+            o = gm_Query((void *)b->objList, 1, 0, 0xfd);
         if (o == 0) {
             for (i = 0; i < 0x40; i++) {
                 if (bt->objs[i] != 0xffff) {
                     id = bt->objs[i] & 0x7fff;
                     g = GM_GOOD(id);
                     if (g->type == 2 && id != 0xfd)
-                        return (int)gm_Query((void *)b->objList, 1, 0, id);
+                        return gm_Query((void *)b->objList, 1, 0, id);
                 }
             }
         }
     }
-    return (int)o;
+    return o;
 }
 /* 0x501ce0, the main room of the building b ("gm_GetGebaeudeHauptraum", ai.c's error texts): the object 0xfd of a home (gm_IsHomeType), the 0x54 of a kind-type 4 building, else the first object of the goods class 2 in its list that is not the 0xfd; 0 when there is none */
 
-void *gm_GetGebaeudeHauptraum(AIBLD *b)
+AIOBJ *gm_GetGebaeudeHauptraum(AIBLD *b)
 {
     unsigned char *k;
-    unsigned short *o;
+    AIOBJ *o;
 
     gm_BuildingClass(b->type);
     k = (unsigned char *)ai_BTypes + b->type * 0x24d;
@@ -2472,9 +2472,9 @@ void *gm_GetGebaeudeHauptraum(AIBLD *b)
         return gm_Query((void *)b->objList, 1, 0, 0xfd);
     if (*k == 4)
         return gm_Query((void *)b->objList, 1, 0, 0x54);
-    o = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 2);
-    while (o != 0 && *o == 0xfd)
-        o = (unsigned short *)gm_QueryNext();
+    o = gm_Query((void *)b->objList, 1, 4, 2);
+    while (o != 0 && o->type == 0xfd)
+        o = gm_QueryNext();
     return o;
 }
 /* 0x501d80, the class of a building kind (the type byte of the kind record): 3 for 1 / 3 / 6 / 0xf, 6 for 2 / 0x1e, 8 for 4 / 5 / 9, 4 for 7, 1 for 8 / 0xe / 0x12 / 0x14 .. 0x16 / 0x1d / 0x1f / 0x20, 2 for 0xb .. 0xd, 7 for 0x13, 5 for 0x17 .. 0x1a, 9 for 0x21, else 0 */

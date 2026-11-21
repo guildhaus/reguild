@@ -4022,13 +4022,13 @@ void main_SettleRound(unsigned short pl)
 
                             if (q->model == 0) {
                                 if (q->bld2 != 0) {
-                                    o = (AIOBJ *)gm_HomeObject(q->bld2);
+                                    o = gm_HomeObject(q->bld2);
                                     if (o != 0 && o->objId != -1) {
                                         cnt++;
                                         gm_PlaceOnStage(q->netId, q->bld2->id, o->objId, 0, 0);
                                     }
                                 } else {
-                                    o = (AIOBJ *)gm_BuildingMainObject(p);
+                                    o = gm_BuildingMainObject(p);
                                     if (o != 0 && o->objId != -1) {
                                         cnt++;
                                         gm_PlaceOnStage(q->netId, p->id, o->objId, 0, 0);

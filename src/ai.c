@@ -4308,7 +4308,8 @@ void ai_SendJobOrders(AIINFO *info)
     AIJOB *job;
     AIOBJ *o;
     G15PLANT *map, *pl, *found;
-    int type, n, total, base, i, k, v;
+    int type, n, total, base, i, k;
+    AIOBJ *v;
 
     type = info->type;
     if (type == 0x28) {
@@ -4373,7 +4374,7 @@ void ai_SendJobOrders(AIINFO *info)
         msg.reserved14 = 0;
         msg.flags = 1;
         msg.goodsOrder.item = info->e->item;
-        o = (AIOBJ *)gm_BuildingMainObject(info->ch->bld);
+        o = gm_BuildingMainObject(info->ch->bld);
         msg.arg[1] = o->objId;
         for (i = 0; info->z2 < total && i < 768; i++) {
             if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title && !ai_Chars[i].job
@@ -4414,7 +4415,7 @@ void ai_SendJobOrders(AIINFO *info)
         if (o) {
             msg.arg[2] = o->objId;
         } else {
-            o = (AIOBJ *)gm_BuildingMainObject(info->ch->bld);
+            o = gm_BuildingMainObject(info->ch->bld);
             if (o)
                 msg.arg[2] = o->objId;
             else
@@ -4483,7 +4484,7 @@ void ai_SendJobOrders(AIINFO *info)
                 k = info->type;
                 v = 0;
                 if (k == 8 || k == 3)
-                    v = (int)gm_Query(info->ch->bld->objList, 1, 0, 0x37);
+                    v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
                 else if (k == 4)
                     v = gm_BuildingMainObject(info->ch->bld);
                 for (i = 0; info->z2 < total && i < 768; i++) {

@@ -114,7 +114,7 @@ short * gm_FindChar(int id);                                                    
 int gm_CompareTime(AITIME *a, AITIME *b);                                          /* 0x4fe210 */
 struct AIBLD *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
 int gm_IsHomeType(struct AIBLD *bld);                                                     /* 0x502520 */
-void *gm_GetGebaeudeHauptraum(struct AIBLD *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
+struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
 struct AIOBJ *gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
 struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);                                   /* 0x4fd820 */
@@ -426,10 +426,10 @@ extern char ai_DataPath[];  /* 0x75dca0 */
 void ai_ResetJob(struct AICHAR *c);  /* 0x47e940 */
 int gv_HandOverCrimes();  /* 0x4f3910 */
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
-char *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
+struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
-int gm_BuildingMainObject(struct AIBLD *b);  /* 0x501b50 */
+struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);  /* 0x501b50 */
 void gm_FreeObject(int o);  /* 0x5034b0 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 typedef struct G17B16 { char b[16]; } G17B16;

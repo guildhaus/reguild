@@ -1629,7 +1629,7 @@ void init_OpenBuilding(AIBLD *b)
         }
         ch = (INIT_CHAR *)cm_GetSlotValue(h);
         if (gm_IsHomeType(b) == 0) {
-            ent = (AIOBJ *)gm_BuildingMainObject(b);
+            ent = gm_BuildingMainObject(b);
             if (ent != 0)
                 cm_RequestChrMoveToUniverse(ch->netId, b->id, ent->objId, "dummy_EINGANG");
         } else {
