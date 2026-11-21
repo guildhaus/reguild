@@ -52,7 +52,7 @@ extern GAPDATA full_data_5fe7d0[];
 extern const int sv_PhaseMinutes[24];
 extern GAPDATA full_data_60d0d4[];
 extern struct G16TRACKHANDLES snd_TrackHandles;
-extern int * d3t_Rain;
+extern struct D3TRAIN *d3t_Rain;
 extern GAPDATA full_data_5f1890[];
 extern int ai_PermsDirty;
 

@@ -42,6 +42,29 @@ typedef struct D3TSNOW {             /* 0x94 bytes, the snow system (d3t_CreateS
     D3TEXHANDLE *Texture;            /* 0x90 */
 } D3TSNOW;
 
+typedef struct D3TRAINDROP {         /* 0x28 bytes */
+    D3VECTOR4 pos;                   /* w = tail length */
+    float windScale;                 /* 0x10, weight of the wind velocity */
+    float fallScale;                 /* 0x14, weight of the fall velocity */
+    float sx1, sy1;                  /* 0x18, projected head */
+    float sx2, sy2;                  /* 0x20, projected tail */
+} D3TRAINDROP;
+
+typedef struct D3TRAIN {             /* 0x60 bytes, the rain system (d3t_CreateRain; sv.c's d3t_Rain) */
+    int count;
+    int capacity;                    /* allocated drops */
+    int oldcount;                    /* count fade: oldcount -> newcount over time30..time34 */
+    int newcount;
+    D3TRAINDROP *drops;              /* 0x10 */
+    float oldwindx, oldwindz;        /* wind fade: old -> new over time38..time3c */
+    float windx, windz;              /* 0x1c */
+    float newwindx, newwindz;
+    int time2c;                      /* last update */
+    int time30, time34, time38, time3c;
+    D3VECTOR4 campos;                /* 0x40 */
+    D3VECTOR4 cam04c;                /* 0x50 */
+} D3TRAIN;
+
 int d3t_PlaceObject(struct D3OBJECT *camera, float px, float py, float pz, float dx, float dy, float dz, int unk, char flags); /* 0x411680, starts an animation that moves the object to pos and turns it to dir */
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); /* 0x411860, d3t_PlaceObject with the target position and direction given as */
 int d3t_PlaceAtObject(struct D3OBJECT *obj, int unk);                                   /* 0x4118a0, places the camera at the pose a zoom target object stores (its 0x5c */

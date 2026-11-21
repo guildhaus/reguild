@@ -132,7 +132,7 @@ extern GAPDATA full_data_5fe7d0[];
 extern const int sv_PhaseMinutes[24];
 extern GAPDATA full_data_60d0d4[];
 extern G16TRACKHANDLES snd_TrackHandles;
-extern int * d3t_Rain;
+extern struct D3TRAIN *d3t_Rain;
 extern GAPDATA full_data_5f1890[];
 extern int ai_PermsDirty;
 
@@ -11719,7 +11719,7 @@ void he_SetCartSpeed(int ev, int p)
 
     if (d3t_Snow != 0 && d3t_Snow->count > 0x64)
         ch->walkSpeed = (float)(t->speed * 0.7);
-    else if (d3t_Rain != 0 && *d3t_Rain > 0xc8)
+    else if (d3t_Rain != 0 && d3t_Rain->count > 0xc8)
         ch->walkSpeed = (float)(t->speed * 0.8);
     else
         ch->walkSpeed = t->speed;
@@ -12221,7 +12221,7 @@ void he_RunTransport(int ev)
                 chance = gm_BuildingSkill(b, 2, 1) + 100.0f;
             if (d3t_Snow != 0 && d3t_Snow->count > 100)
                 chance -= 15.0f;
-            else if (d3t_Rain != 0 && *d3t_Rain > 200)
+            else if (d3t_Rain != 0 && d3t_Rain->count > 200)
                 chance -= 10.0f;
             if (util_Random(0x69) > o->fill * (float)(chance * 0.01)) {
                 if ((ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) && (o->flags20 & 1) == 0) {
@@ -18036,7 +18036,7 @@ void he_RunBurn(AIJOB *ev)
             f6 = gm_FixedWorkMinutesBetween(&ev->clock60, &ai_Time) * 0.16666667f;
             dmg = (int)(f6 + f6);
             if (d3t_Rain != 0) {
-                r = *d3t_Rain * 0.002;
+                r = d3t_Rain->count * 0.002;
                 f = (float)(r * 0.7 + 1.0);
             }
             x->duration = (int)(x->duration - dmg * f);

@@ -174,7 +174,7 @@ void snd_UpdateQueue(void)
    spelling: without it VC6 folds both constants into one) */
 #define SND_RAINVOL(x, d) ((int)((float)((x) * 88.9f) / (d)))
 
-/* 0x4c0470, the rain sounds by the rain level *d3t_Rain (near / far loops louder the lower / higher the camera
+/* 0x4c0470, the rain sounds by the rain level d3t_Rain->count (near / far loops louder the lower / higher the camera
    is above the ground, drops "Tropfen_s"), then now and then a gust ("Boehe_*", chance and interval by season from
    the table 0x602ba8); everything stops without a scene, with sound off or when the season changed */
 void snd_UpdateRain(void)
@@ -203,7 +203,7 @@ void snd_UpdateRain(void)
     w = 0;
     f = d3_Camera->pos.y - d3t_GetMeanHeight(&d3_Camera->pos);
     memcpy(&snd_TimeCopy, &ai_Time, 14);
-    if (d3t_Rain == 0 || (n = *d3t_Rain) == 0) {
+    if (d3t_Rain == 0 || (n = d3t_Rain->count) == 0) {
         SND_STOP(snd_RainHeavyFar);
         SND_STOP(snd_RainHeavyNear);
         SND_STOP(snd_RainMediumFar);
@@ -327,7 +327,7 @@ void snd_UpdateAnimals(void)
         }
         h = (2000.0f - d3_Camera->pos.y - d3t_GetMeanHeight(&d3_Camera->pos)) * 0.0005f;
         if (d3t_Rain != 0)
-            n = *d3t_Rain;
+            n = d3t_Rain->count;
         if (t - snd_Animals[snd_AnimalSeason][0].last > rand() % 2000 + snd_Animals[snd_AnimalSeason][0].interval && n < 0x15e) {
             snd_Animals[snd_AnimalSeason][0].last = t;
             if (rand() * 3.0518509e-05f + snd_Animals[snd_AnimalSeason][0].chance > 1.0f)
@@ -1197,7 +1197,7 @@ void snd_StopMarketAmbience(void)
     }
 }
 
-extern int * d3t_Rain;
+extern struct D3TRAIN *d3t_Rain;
 float snd_VoiceVolume = 1.0f;  /* 0x602b08, voice volume (1.0, scaled by 127) */
 char snd_GustNames[3][0x32] = { "Boehe_Leicht_s", "Boehe_Mittel_s", "Boehe_Stark_s" };  /* 0x602b10, "Boehe_Leicht_s", "Boehe_Mittel_s", "Boehe_Stark_s" */
 G16SEASON snd_Gusts[] = { { 0.699999988f, 0.5f, 16000 }, { 0.300000012f, 0.200000003f, 27000 }, { 0.899999976f, 0.600000024f, 12000 }, { 0.5f, 0.400000006f, 20000 } };  /* 0x602ba8, by season */
@@ -1237,7 +1237,7 @@ int snd_VoiceBankClick = 0;  /* 0x6f0cc0, voice bank: click comments */
 int snd_VoiceBankNoise = 0;  /* 0x6f0cc4, voice bank: click noises */
 int snd_UnreadBss = 0;  /* 0x6f0cc8, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 int snd_VoiceBankGreeting = 0;  /* 0x6f0ccc, voice bank: greeting */
-extern int * d3t_Rain;
+extern struct D3TRAIN *d3t_Rain;
 /* ai_Selected: view of ai_Chars (tools/data_views.py) */
 SNDRAIN snd_Rain;  /* 0xf81240, the rain sounds' state: one common of 72 bytes (tools/exe/commongaps.py: the copy of
                       ai_Time, 14 bytes, starts the f3snd group 32-aligned at 0xf81240 and each loop handle lies 8 after

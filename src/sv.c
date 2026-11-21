@@ -2012,7 +2012,7 @@ void sv_UpdateMemberList(unsigned char *g)
 extern OPTIONBYTES ai_GfxResolution;        /* 0x6f2f94, the player bar variant */
 extern int sv_WinterWeather;  /* 0x760610 */
 extern int sv_WeatherHour;  /* 0x760614 */
-extern int * d3t_Rain;  /* 0x760618 */
+extern struct D3TRAIN *d3t_Rain;  /* 0x760618 */
 extern struct D3TSNOW *d3t_Snow;  /* 0x76061c */
 extern int sv_SkyPhase;  /* 0x760464 */
 extern int sv_ThunderFog;  /* 0x6f2370 */
@@ -6882,7 +6882,7 @@ void sv_UpdateWeather(void)
     float wx, wy, w;
     int c, k;
     SVSKYREC *sky;
-    struct D3TRAIN *rain = (struct D3TRAIN *)d3t_Rain;  /* @original: unused; naming d3t_Rain before sv_WeatherHour
+    struct D3TRAIN *rain = d3t_Rain;  /* @original: unused; naming d3t_Rain before sv_WeatherHour
                                                            makes VC6 reload it first after the rain call (esi before ecx) */
 
     sv_WeatherHour = ai_Time.hour;
@@ -6891,11 +6891,11 @@ void sv_UpdateWeather(void)
     if (d3t_Rain != 0) {
         if (d3t_Snow != 0) {
             if (sv_Weather.clouds[sv_WeatherHour] & 1)
-                d3t_SetRain((struct D3TRAIN *)d3t_Rain, 1, 1, (int)sv_Weather.clouds[sv_WeatherHour] / 5, 1000);
+                d3t_SetRain(d3t_Rain, 1, 1, (int)sv_Weather.clouds[sv_WeatherHour] / 5, 1000);
             else
-                d3t_SetRain((struct D3TRAIN *)d3t_Rain, 1, 1, 0, 1000);
+                d3t_SetRain(d3t_Rain, 1, 1, 0, 1000);
         } else
-            d3t_SetRain((struct D3TRAIN *)d3t_Rain, 1, 1, sv_Weather.clouds[sv_WeatherHour], 1000);
+            d3t_SetRain(d3t_Rain, 1, 1, sv_Weather.clouds[sv_WeatherHour], 1000);
     }
     wx = sv_Weather.windX[sv_WeatherHour];
     wy = sv_Weather.windY[sv_WeatherHour];
@@ -6907,7 +6907,7 @@ void sv_UpdateWeather(void)
     if (d3t_Snow != 0)
         d3t_SetSnow(d3t_Snow, 1, 2, (int)(-wx * (double)c * 2.0), (int)(-wy * (double)c * 2.0), 1000);
     if (d3t_Rain != 0)
-        d3t_SetRain((struct D3TRAIN *)d3t_Rain, 1, 2, (int)(-wx * (double)c * 0.5), (int)(-wy * (double)c * 0.5), 1000);
+        d3t_SetRain(d3t_Rain, 1, 2, (int)(-wx * (double)c * 0.5), (int)(-wy * (double)c * 0.5), 1000);
     if (d3_Sky != 0) {
         w = (float)(sqrt(wy * wy + wx * wx) * (c + 0x96) * 0.125);
         if (d3_SkyLayers[1]->alpha == 0) {
@@ -7634,7 +7634,7 @@ int sv_SelectedExtra;  /* 0x76631c, a fourth selection word, cleared with sv_Sel
 char * sv_SelectedObject;  /* 0x75ec60 */
 char cm_ChatLog[2048];  /* 0x75fba0 */
 struct AICHAR *ai_SceneChars[32];  /* 0x7603a0 .. INIT_WINDOWS_END: the characters of the current scene (cm.c 0x4cf000 updates them each tick) */
-int * d3t_Rain;  /* 0x760618, the rain level */
+struct D3TRAIN *d3t_Rain;  /* 0x760618, the rain system (d3t_CreateRain; its count is the rain level) */
 int sv_FrameMask;  /* 0x760638 */
 extern int d2_HitWindow;
 extern struct D3RECT d2_DirtyRect;

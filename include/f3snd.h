@@ -101,7 +101,7 @@ extern int snd_Season;                  /* 0x6f0b8c, the season */
 extern unsigned int snd_LastGust;       /* 0x6f0b90, time of the last gust */
 #include "ai_types.h"                /* AITIME */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
-extern int *d3t_Rain;               /* 0x760618, the rain level */
+extern struct D3TRAIN *d3t_Rain;    /* 0x760618, the rain system (its count: the rain level) */
 extern struct SBBANK *snd_Bank;                    /* 0x6f2404, the sample bank */
 typedef struct SNDRAIN {                /* 0x48 bytes, snd_UpdateRain's state */
     AITIME time;                        /* 0x00, a copy of ai_Time (14 bytes) */
