@@ -792,7 +792,7 @@ char * gm_FindGoods(int p, unsigned id);
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
-int ai_OpenTransport(int rec);                                   /* 0x5af1a0, below */
+int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 char *strstr(); unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void);
 struct D3OBJECT;
 struct D3VECTOR;
@@ -871,7 +871,7 @@ void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
 int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, int room, int talent);
-void ai_PamphletWindow(int bld);
+void ai_PamphletWindow(struct AIBLD *bld);
 #define PF_KIND67   0x100000             /* the partner filter's one-of bits (AMOUNTCFG.mode, ai_PassesPartnerFilter): kind 6 / 7 */
 #define PF_KIND5    0x200000             /* kind 5 */
 #define PF_SERVANT  0x400000             /* not kind 5, working for a master (ai_WorksForMaster) */
@@ -984,7 +984,7 @@ void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuilding
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
-void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(int building, int arg);
+void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, int arg);
 int gm_GetWorth(unsigned short id); void d2_ClearPaintbox(void);
 int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
 int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
@@ -993,8 +993,8 @@ typedef struct SVSAVEDVIEW {
     D3VECTOR rot;
 } SVSAVEDVIEW;
 int init_BuildingSceneUniverse(); void init_LoadBuildingScene(int k); void d3fl_SetDetail(unsigned int n); void veg_HidePlants();
-void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(struct AIBLD *rec);
-void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
+void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(struct AIBLD *building); void ai_GraveyardFogContact(struct AIBLD *rec);
+void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(struct AIBLD *building); void ai_TheatreContact(struct AIBLD *building); void ai_CurseContact(struct AIBLD *buildingArg);
 void ai_GraveyardTradeContact(struct AIBLD *rec);
 typedef struct LCSALEROW {          /* a row of ai_BuyBuildingWindow's list: a building offered for sale */
     int control;                    /* 0x0, the row's text control (d2_GetWinObj) */
@@ -1221,7 +1221,7 @@ void ai_TalentWindow(struct AIBLD *bld, int room, int talent);
 void ai_EvidenceBookWindow(AIBLD *bld);
 int ai_BribeAmountCB(AICHARREC *ch);
 void ai_DenounceWindow(AIBLD *bld);
-void ai_PamphletWindow(int bld);
+void ai_PamphletWindow(struct AIBLD *bld);
 void ai_NoticeBoardWindow(void);
 void ai_BardWindow(void);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table);
@@ -4119,7 +4119,7 @@ void ai_MasterLetterWindow(AIBLD *bld)
         return;
     me = &((AICHARREC *)ai_Chars)[ai_PlayerId];
     type = &ai_BTypes[bld->type];
-    master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
     if (type->kind == 5 || type->kind == 9) {
         mode = 0x40;
     } else if (master != 0) {

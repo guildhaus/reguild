@@ -1534,7 +1534,7 @@ void ai_RentGraveSelect(char *rec)
     }
 }
 
-int sv_MessageBoxGreen(); void sv_OpenPlayerBar(int a, char k); void sv_ClosePlayerBar(void);
+int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 
 /* 0x584900, the "GRAEBER_PFLEGEN" callback of the graveyard window (ai_GraveWindow, a function pointer only):
    sends a selected character to tend the picked grave. When a work is already pending on the grave
@@ -1688,7 +1688,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
     return r;
 }
 
-int sv_CheckCharacterFlag(int id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
+int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4);
 
 /* 0x584d70, the helpers window of a building (the form "HANDEL\HANDEL_SUCHEN"): rec = the building. Its type
@@ -1740,7 +1740,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
             n = 3;
         }
     }
-    if (sv_CheckCharacterFlag((char *)rec) != 0)
+    if (sv_CheckCharacterFlag(rec) != 0)
         return;
     memset(counts, 0, sizeof(counts));
     for (job = (AIJOB *)he_FindEvent(2, 0, 0x8c, 3, rec->id); job != 0; job = (AIJOB *)he_NextEvent()) {
@@ -1761,7 +1761,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
         io_PrintText(0x421e);
     else
         io_PrintText(0x4128);
-    sv_OpenPlayerBar((int)rec, 0);
+    sv_OpenPlayerBar(rec, 0);
     ai_InitProductionTables();
     d2_CentreViewWindows(win);
     d2_SetForm(win, 2);
@@ -2919,7 +2919,7 @@ void ai_GraveyardTradeContact(AIBLD *rec)
             if (ai_ClickedObject == c0)
                 ai_ProductionWindow(rec);
             else if (ai_ClickedObject == c1)
-                ai_OpenTransport((int)rec);
+                ai_OpenTransport(rec);
             else if (ai_ClickedObject == c2)
                 ai_MasterLetterWindow(rec);
             else if (ai_ClickedObject == c3)

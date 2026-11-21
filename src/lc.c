@@ -1008,9 +1008,9 @@ int ai_ProductionWindow(AIBLD *bld)
     win = d2_OpenForm(0, 0, "Handel\\Handel_PRODUKTION");
     d2_CentreViewWindows(win);
     if (ai_BTypes[bld->type].kind == 0x1e)
-        sv_OpenPlayerBar((int)bld, 2);
+        sv_OpenPlayerBar(bld, 2);
     else
-        sv_OpenPlayerBar((int)bld, 0);
+        sv_OpenPlayerBar(bld, 0);
     d2_SetForm(win, 3);
     io_PrintText(0xb7);
     ai_InitProductionTables();
@@ -2154,7 +2154,7 @@ void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, unsigned s
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
-int ai_OpenTransport(int rec);                                   /* 0x5af1a0, below */
+int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 
 /* 0x58f510, the shop-counter contact of a building (264 B): for a building of another player (the owner
    +0x27 differs from ai_PlayerId), the first existing counter dummy found by d3_FindObject (mask 0x60) among
@@ -2179,7 +2179,7 @@ void ai_MarketContact(AIBLD *b)
             plate = sv_RegisterNamePlate("contact_EINKAUF_STEIN", ai_TextEinkaufStein, 0x10);
     }
     if (ai_PlayerId != b->owner && ai_ClickedObject != 0 && ai_ClickedObject == plate)
-        ai_OpenTransport((int)b);
+        ai_OpenTransport(b);
 }
 
 
@@ -3615,14 +3615,14 @@ void ai_TechTreeWindow(int bld, int room)
 /* 0x592230, the upgrade listener (89 B): the pump 0x5309a0 (this, 0x67fff) until 0; when the pending contact
    0x6f22e4 is "UPGRADE" the tech tree 0x591bf0 (building, 0x2c) opens */
 
-void ai_UpgradeContact(int building)
+void ai_UpgradeContact(AIBLD *building)
 {
     int r;
 
     r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     while (r != 0) {
         if (ai_ClickedObject != 0 && strcmpi("UPGRADE", (char *)ai_ClickedObject) == 0)
-            ai_TechTreeWindow(building, 0x2c);
+            ai_TechTreeWindow((int)building, 0x2c);
         r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     }
 }
@@ -3718,7 +3718,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
         return 0;
     win = d2_OpenForm(0, 0, "Handel\\Handel_PRODUKTION");
     d2_CentreViewWindows(win);
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     d2_SetForm(win, 3);
     io_PrintText(0xc7);
     ai_InitProductionTables();
@@ -3921,7 +3921,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
         return 0;
     win = d2_OpenForm(0, 0, "Handel\\Handel_PRODUKTION");
     d2_CentreViewWindows(win);
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     d2_SetForm(win, 3);
     io_PrintText(0xca);
     ai_InitProductionTables();
@@ -4094,7 +4094,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
         return 0;
     win = d2_OpenForm(0, 0, "Handel\\Handel_PRODUKTION");
     d2_CentreViewWindows(win);
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     d2_SetForm(win, 3);
     io_PrintText(0xcb);
     ai_InitProductionTables();
@@ -4326,7 +4326,7 @@ void ai_KontorContact(AIBLD *bld)
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, 0);
             else if (ai_ClickedObject == metall)
@@ -4454,7 +4454,7 @@ void ai_StoneKontorContact(AIBLD *bld)
             else if (ai_ClickedObject == stein)
                 ai_SearchResourceWindow(bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == produktion)
                 ai_ProductionGoodsWindow((int)bld);
             else if (ai_ClickedObject == ziel || ai_ClickedObject == stroh)
@@ -4470,7 +4470,7 @@ void ai_StoneKontorContact(AIBLD *bld)
    (0x52e1c0): INFORMATION (0x143cb38, 0xc) -> the spy reports window 0x5a45c0, MEISTERBRIEF (0x143cbc8, 0xc) ->
    0x5c3200, PERSONALBUCH (0x143c9f0, 0xc) -> 0x5aab80 (the building, the name); the clicked plate (0x6f22e4)
    opens its window; the frame pump 0x5309a0 (this, 0x67fff) */
-void ai_InformationContact(int building)
+void ai_InformationContact(AIBLD *building)
 {
     int r;
     int inf;
@@ -4485,11 +4485,11 @@ void ai_InformationContact(int building)
         personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)building);
+                ai_MasterLetterWindow(building);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(building, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == inf)
-                ai_SpyReportsWindow((AIBLD *)building);
+                ai_SpyReportsWindow(building);
         }
         r = sv_RunFrame(ai_InformationContact, 0x67fff);
     }
@@ -4565,7 +4565,7 @@ int ai_BreakInCallback(char *place)
    prompt 0x1440c10, the break-in callback 0x593f40, 0), then the player bar closes (0x525440) and the selection is
    cleared (0x52ae40) */
 
-void ai_BreakInWindow(int building)
+void ai_BreakInWindow(AIBLD *building)
 {
     if (sv_CheckCharacterFlag(building) == 0) {
         sv_OpenPlayerBar(building, 0);
@@ -4666,7 +4666,7 @@ int he_NoProtectionEvent();
    0x93810 and +0x10 = 7; the player bar opens (0x525220), the map pick runs (0x5b2180: 1, the config, the
    prompt 0x1440974, the pickpocket window 0x5941c0 as callback, 0), then the player bar closes (0x525440) and the
    selection is cleared (0x52ae40) */
-void ai_OpenPickpocket(int building)
+void ai_OpenPickpocket(AIBLD *building)
 {
     int cfg[0x14];
 
@@ -4763,7 +4763,7 @@ int ai_BribeCallback(char *place, AIBLD *target)
    the prompt 0x1440be8, the bribe callback 0x5944e0, 0), then the bar closes (0x525440) and the selection is
    cleared (0x52ae40) */
 
-void ai_OpenBribe(int building)
+void ai_OpenBribe(AIBLD *building)
 {
     int cfg[0x14];
 
@@ -4883,7 +4883,7 @@ void ai_BriberyWindow(char *place, AIBLD *target)
    bar opens (0x525220), the map pick runs (0x5b2180: 1, the config, the text, the bribery window 0x594810, 0),
    then the bar closes (0x525440) and the selection is cleared (0x52ae40) */
 
-void ai_OpenSpying(int building)
+void ai_OpenSpying(AIBLD *building)
 {
     int cfg[0x14];
     char text[0x400];
@@ -4973,7 +4973,7 @@ void ai_RaidWindow(char *place, AIBLD *target)
    (txt_Format 0x5176d0) and the raid window 0x594bb0 as map-pick callback; the bar closes (0x525440) and the
    selection is cleared (0x52ae40) */
 
-void ai_OpenRaid(int building)
+void ai_OpenRaid(AIBLD *building)
 {
     int cfg[0x14];
     char text[0x400];
@@ -5061,22 +5061,22 @@ void ai_CriminalContact(AIBLD *bld)
             else if (ai_ClickedObject == gelage)
                 ai_GelageWindow(bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == ausruesten)
                 ai_EquipWindow(bld);
             else if (ai_ClickedObject == ziel || ai_ClickedObject == stroh ||
                      ai_ClickedObject == regen)
                 ai_TrainingWindow(bld);
             else if (ai_ClickedObject == lauer)
-                ai_BreakInWindow((int)bld);
+                ai_BreakInWindow(bld);
             else if (ai_ClickedObject == angriff)
-                ai_OpenPickpocket((int)bld);
+                ai_OpenPickpocket(bld);
             else if (ai_ClickedObject == schutzgeld)
-                ai_OpenBribe((int)bld);
+                ai_OpenBribe(bld);
             else if (ai_ClickedObject == spionieren)
-                ai_OpenSpying((int)bld);
+                ai_OpenSpying(bld);
             else if (ai_ClickedObject == raub)
-                ai_OpenRaid((int)bld);
+                ai_OpenRaid(bld);
         }
         r = sv_RunFrame(ai_CriminalContact, 0x67fff);
     }
@@ -5086,7 +5086,7 @@ void ai_CriminalContact(AIBLD *bld)
    FERNEINKAUF plate (text ai_ContactTextFarBuy) and the VERKAUF plate (ai_ContactTextSell), runs the trade checks
    and opens the transport window of the building in buy (mode 4) / sell (mode 2) mode when that plate was clicked */
 
-void ai_FarTradeContact(int building)
+void ai_FarTradeContact(AIBLD *building)
 {
     int r;
     int buy;
@@ -5164,7 +5164,7 @@ void ai_SmithyContact(AIBLD *bld, int room)
             else if (ai_ClickedObject == schmieden)
                 ai_ProductionWindow((AIBLD *)bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == meister)
@@ -5212,7 +5212,7 @@ void ai_CarpenterContact(AIBLD *bld, int room)
             if (ai_ClickedObject == tischler)
                 ai_ProductionWindow((AIBLD *)bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
@@ -5511,7 +5511,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIROOM *room)
    0x5af1a0, MEISTERBRIEF (0x143cbc8, 0x16) -> 0x5c3200, PERSONALBUCH (0x143c9f0, 0xc) -> 0x5aab80; 0x58f510
    every frame */
 
-void ai_PerfumeryContact(int building, int room)
+void ai_PerfumeryContact(AIBLD *building, int room)
 {
     int r;
     int sammeln;
@@ -5540,27 +5540,27 @@ void ai_PerfumeryContact(int building, int room)
             meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0x16);
             personal = sv_RegisterNamePlate("ob_PERSONALBUCH", ai_ContactTextPersonnelBook, 0xc);
         }
-        ai_MarketContact((AIBLD *)building);
+        ai_MarketContact(building);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == parfum)
-                ai_ProductionWindow((AIBLD *)building);
+                ai_ProductionWindow(building);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(building);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(building, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow(building, ((AIBLD *)building)->objList);
+                ai_StorageWindow(building, building->objList);
             else if (ai_ClickedObject == sammeln)
-                ai_TradeSearchWindow((unsigned char *)building, room);
+                ai_TradeSearchWindow(building, room);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)building);
+                ai_MasterLetterWindow(building);
         }
         r = sv_RunFrame(ai_PerfumeryContact, 0x67fff);
     }
 }
 /* 0x596060, the idle contact listener (28 B): 0x52e190, then the pump 0x5309a0 (this, 0x67fff) until 0 */
 
-void ai_IdleContact(int building, int room)
+void ai_IdleContact(AIBLD *building, int room)
 {
     int r;
 
@@ -5573,7 +5573,7 @@ void ai_IdleContact(int building, int room)
    contacts 0x52e1c0 FLIEGENGLAS (0x143cf58, 0x16), TERRARIUM (0x143cf78, 0x16) and TEICH (0x143cf50, 0x16);
    when TEICH is the pending 0x6f22e4, the trade search 0x595a00 (param_1, param_2) opens */
 
-void ai_AquariumContact(int building, int room)
+void ai_AquariumContact(AIBLD *building, int room)
 {
     int r;
     int teich;
@@ -5633,13 +5633,13 @@ void ai_MixingContact(AIBLD *bld, int room)
             if (ai_ClickedObject == mischen)
                 ai_ProductionWindow((AIBLD *)bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == sammeln)
-                ai_TradeSearchWindow((unsigned char *)bld, room);
+                ai_TradeSearchWindow(bld, room);
             else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow((AIBLD *)bld);
         }
@@ -5648,7 +5648,7 @@ void ai_MixingContact(AIBLD *bld, int room)
 }
 
 int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, int room, int talent);
-void ai_PamphletWindow(int bld);
+void ai_PamphletWindow(struct AIBLD *bld);
 
 /* 0x5962b0, the stonecutter contact listener: it releases the name plates, pumps the frame (sv_RunFrame, this,
    mask 0x67fff) while the screen stays on top and, every frame, registers the contact plates ai_BuildingPerms
@@ -5686,7 +5686,7 @@ void ai_StonecutterContact(AIBLD *bld, int room)
             if (ai_ClickedObject == steinmetz)
                 ai_ProductionWindow((AIBLD *)bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
@@ -5710,7 +5710,7 @@ void ai_StonecutterContact(AIBLD *bld, int room)
    kind 6, the gypsy filter, the prompt 0x1707; callback ai_BeatingCallback), the night-and-fog window
    (ai_TalentWindow, talent 2) or the bribe (ai_OpenRobberBribe) */
 
-void ai_RobberContact(int bld, int room)
+void ai_RobberContact(AIBLD *bld, int room)
 {
     int sabotage;
     int beating;
@@ -5759,7 +5759,7 @@ void ai_RobberContact(int bld, int room)
    the P key opens the pamphlet window and the space key the drohbrief window; a clicked plate opens the
    drohbrief window (then the camera follows), the pamphlet window, or the five-text window in mode 4 */
 
-void ai_RhetoricContact(int bld, int room)
+void ai_RhetoricContact(AIBLD *bld, int room)
 {
     int r;
     int drohbrief;
@@ -6070,7 +6070,7 @@ void ai_MistressWindow(AIBLD *bld)
 /* 0x596f90, the mistress listener (95 B): the pump 0x5309a0 (this, 0x67fff); the contact GELIEBTE
    (0x1440af8, 0x16) opens the mistress window 0x596ba0 (param_1) when it is the pending 0x6f22e4 */
 
-void ai_MistressContact(int building, int room)
+void ai_MistressContact(AIBLD *building, int room)
 {
     int r;
     int geliebte;
@@ -6079,7 +6079,7 @@ void ai_MistressContact(int building, int room)
     while (r != 0) {
         geliebte = sv_RegisterNamePlate("contact_GELIEBTE", ai_ContactTextMistress, 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == geliebte)
-            ai_MistressWindow((AIBLD *)building);
+            ai_MistressWindow(building);
         r = sv_RunFrame(ai_MistressContact, 0x67fff);
     }
 }
@@ -7480,7 +7480,7 @@ void ai_BreweryContact(AIBLD *bld, int room)
             else if (ai_ClickedObject == brauen)
                 ai_ProductionWindow((AIBLD *)bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
         }
     }
 }
@@ -7729,7 +7729,7 @@ void ai_MapTableContact(AIBLD *bld, int room)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == (int)transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
             if (ai_ClickedObject == (int)lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == (int)meister)
@@ -7898,7 +7898,7 @@ void ai_WineCellarWindow(void)
 /* 0x59ad00, the wine cellar contact listener (96 B): the pump 0x5309a0 (0x59ad00, 0x67fff) looks up
    "contact_WEINSCHRANK" (0x1440aec, class 0x16) and opens the cellar window 0x59aae0 when it is clicked */
 
-void ai_WineCellarContact(int building, int room)
+void ai_WineCellarContact(AIBLD *building, int room)
 {
     int c;
 
@@ -8986,7 +8986,7 @@ void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuilding
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
-void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(int building, int arg);
+void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, int arg);
 
 /* 0x59d5e0, the money lender's window of the bank bank for its owner, "locations\geldleihe\geldleihe_Wechsel"
    (1557 B): the bank's currency rows (its object list, form 5, as in ai_ExchangeWindow) and the rows of the
@@ -9529,22 +9529,22 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 ai_StudyContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x14:
-                ai_RobberContact((int)ai_PlayerBuilding, (int)room);
+                ai_RobberContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x16:
-                ai_WineCellarContact((int)ai_PlayerBuilding, (int)room);
+                ai_WineCellarContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x15:
-                ai_RhetoricContact((int)ai_PlayerBuilding, (int)room);
+                ai_RhetoricContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x17:
                 ai_FeastContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x18:
-                ai_MistressContact((int)ai_PlayerBuilding, (int)room);
+                ai_MistressContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x1f:
-                ai_MapTableContact((int)ai_PlayerBuilding, (int)room);
+                ai_MapTableContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x74:
                 ai_SmithyContact(ai_PlayerBuilding, (int)room);
@@ -9556,10 +9556,10 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 ai_MixingContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0xd6:
-                ai_IdleContact((int)ai_PlayerBuilding, (int)room);
+                ai_IdleContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0xdd:
-                ai_AquariumContact((int)ai_PlayerBuilding, (int)room);
+                ai_AquariumContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x9b:
                 ai_StonecutterContact(ai_PlayerBuilding, (int)room);
@@ -9569,40 +9569,40 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 break;
             case 0xe5:
             case 0xe6:
-                ai_ChurchListener((int)ai_PlayerBuilding, (int)room);
+                ai_ChurchListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0xf0:
-                ai_ChurchContact((int)ai_PlayerBuilding, (int)room);
+                ai_ChurchContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0xb7:
-                ai_DungeonContact((int)ai_PlayerBuilding, (int)room);
+                ai_DungeonContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0xba:
-                ai_DungeonBribeListener((int)ai_PlayerBuilding, (int)room);
+                ai_DungeonBribeListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0xbb:
-                ai_DungeonEmptyListener((int)ai_PlayerBuilding, (int)room);
+                ai_DungeonEmptyListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x54:
-                ai_ThievesGuildListener((int)ai_PlayerBuilding, (int)room);
+                ai_ThievesGuildListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x4d:
-                ai_ThievesGuildEmptyListener((int)ai_PlayerBuilding, (int)room);
+                ai_ThievesGuildEmptyListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x5c:
-                ai_StorageContact((int)ai_PlayerBuilding, (int)room);
+                ai_StorageContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x60:
-                ai_TrainingContact((int)ai_PlayerBuilding, (int)room);
+                ai_TrainingContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x65:
-                ai_KidnapContact((int)ai_PlayerBuilding, (int)room);
+                ai_KidnapContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0xf2:
-                ai_ConfessionListener((int)ai_PlayerBuilding, (int)room);
+                ai_ConfessionListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x118:
-                ai_PerfumeryContact((int)ai_PlayerBuilding, (int)room);
+                ai_PerfumeryContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x120:
                 ai_TavernContact(ai_PlayerBuilding, room);
@@ -9611,28 +9611,28 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 ai_BreweryContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x10e:
-                ai_TownHallContact((int)ai_PlayerBuilding, (int)room);
+                ai_TownHallContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x110:
                 ai_LawBookContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x114:
-                ai_TownCashContact((int)ai_PlayerBuilding, (int)room);
+                ai_TownCashContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x137:
-                ai_GuildLevel2Listener((int)ai_PlayerBuilding, (int)room);
+                ai_GuildLevel2Listener(ai_PlayerBuilding, (int)room);
                 break;
             case 0xf7:
-                ai_ProductionWriteContact((int)ai_PlayerBuilding, (int)room);
+                ai_ProductionWriteContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x138:
-                ai_GuildLevel1Listener((int)ai_PlayerBuilding, (int)room);
+                ai_GuildLevel1Listener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x139:
-                ai_GuildLevel3Listener((int)ai_PlayerBuilding, (int)room);
+                ai_GuildLevel3Listener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x145:
-                ai_TrainingRoomListener((int)ai_PlayerBuilding, (int)room);
+                ai_TrainingRoomListener(ai_PlayerBuilding, (int)room);
                 break;
             case 0x146:
                 ai_CityWatchListener(ai_PlayerBuilding, (int)room);
@@ -9647,7 +9647,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 ai_PumpFrames((int)room);
                 break;
             case 0x29e:
-                ai_ProductionContact((int)ai_PlayerBuilding, (int)room);
+                ai_ProductionContact(ai_PlayerBuilding, (int)room);
                 break;
             case 0x266:
                 ai_CabinetContact(ai_PlayerBuilding, room);
@@ -9698,8 +9698,8 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
 }
 
 int init_BuildingSceneUniverse(); void init_LoadBuildingScene(int k); void d3fl_SetDetail(unsigned int n); void veg_HidePlants();
-void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(struct AIBLD *rec);
-void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
+void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(struct AIBLD *building); void ai_GraveyardFogContact(struct AIBLD *rec);
+void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(struct AIBLD *building); void ai_TheatreContact(struct AIBLD *building); void ai_CurseContact(struct AIBLD *buildingArg);
 void ai_GraveyardTradeContact(struct AIBLD *rec);
 
 /* 0x59ee40, enters a building that has a universe of its own (the kontors, the criminal's and far trader's houses,
@@ -9817,7 +9817,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
         ai_CriminalContact(ai_FallbackBuilding);
         break;
     case 0x47:
-        ai_FarTradeContact((int)ai_FallbackBuilding);
+        ai_FarTradeContact(ai_FallbackBuilding);
         break;
     case 0x48:
     case 0x49:
@@ -9827,7 +9827,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
     case 0x4e:
     case 0x4f:
     case 0x50:
-        ai_GypsyProductionContact((int)ai_FallbackBuilding);
+        ai_GypsyProductionContact(ai_FallbackBuilding);
         break;
     default:
         ai_PumpFrames(0);
@@ -9939,16 +9939,16 @@ void ai_RunObjectRoom(AIOBJ *room)
         ai_MercenaryBookContact(ai_FallbackBuilding);
         break;
     case 0x2c:
-        ai_UpgradeContact((int)ai_FallbackBuilding);
+        ai_UpgradeContact(ai_FallbackBuilding);
         break;
     case 0x37:
         ai_MiningContact(ai_FallbackBuilding);
         break;
     case 0x107:
-        ai_InformationContact((int)ai_FallbackBuilding);
+        ai_InformationContact(ai_FallbackBuilding);
         break;
     case 0x109:
-        ai_UpgradeContact((int)ai_FallbackBuilding);
+        ai_UpgradeContact(ai_FallbackBuilding);
         break;
     case 0x205:
         ai_GraveyardTradeContact(ai_FallbackBuilding);
@@ -9960,13 +9960,13 @@ void ai_RunObjectRoom(AIOBJ *room)
         ai_GraveyardSeanceContact(ai_FallbackBuilding);
         break;
     case 0x276:
-        ai_GypsyContact((int)ai_FallbackBuilding);
+        ai_GypsyContact(ai_FallbackBuilding);
         break;
     case 0x28a:
-        ai_CurseContact((int)ai_FallbackBuilding);
+        ai_CurseContact(ai_FallbackBuilding);
         break;
     case 0x27f:
-        ai_TheatreContact((int)ai_FallbackBuilding);
+        ai_TheatreContact(ai_FallbackBuilding);
         break;
     default:
         ai_PumpFrames((int)room);
@@ -10132,7 +10132,7 @@ void ai_OpenAgendaMenu(void);
    (text 0x1fd0) / "contact_AMT_INFO" (text 0x8c); with the gate 0x6f2448 and the key 0x1468410 byte 0x14,
    0x4f9e30 opens; the clicks open 0x59f9a0 (buy building), 0x5c1df0 (agenda) and 0x5c1b20 (office info) */
 
-void ai_TownHallContact(int building, int room)
+void ai_TownHallContact(AIBLD *building, int room)
 {
     int kaufen = 0;
     int agenda = 0;
@@ -10643,7 +10643,7 @@ int ai_GuildGiftCallback(char *place, AIBLD *bld)
    ai_TextGuildPowerPick) with ai_GuildGiftCallback; ai_TextGuildPowerUsed when the power is used already, else
    sv_CheckMoney's message for the 5 the player lacks */
 
-void ai_GuildGiftEntry(int building)
+void ai_GuildGiftEntry(AIBLD *building)
 {
     AMOUNTCFG pick;
     int r;
@@ -10675,7 +10675,7 @@ int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
    raise and lower execute the guild-house price message {3, job + 1, 1 / -1} (amt_ExecutePriceMessage) and close
    the window; a click on another icon picks its job and rewrites the text */
 
-void ai_GuildLevel1Window(int building)
+void ai_GuildLevel1Window(AIBLD *building)
 {
     int buttons[3];
     POINT pos[7] = { {0x40, 0x50}, {0xc0, 0x50}, {0x140, 0x50}, {0x1c0, 0x50},
@@ -10938,7 +10938,7 @@ void ai_GuildLevel3Entry(void)
    "contact_ZUNFTLEVEL2" plate (txt_Ptrs[0x165d], class 0x16) and a click on it opens the office application
    entry (0x5a0f10) */
 
-void ai_GuildLevel2Listener(int building, int room)
+void ai_GuildLevel2Listener(AIBLD *building, int room)
 {
     int c = 0;
 
@@ -10956,7 +10956,7 @@ void ai_GuildLevel2Listener(int building, int room)
    with the guild office power (0x4e95a0, the player) and the id, the "contact_ZUNFTLEVEL3" plate (the text
    txt_Ptrs[id]); a click opens the guild cash payment window (0x5a0950) or the level 3 entry (0x5a17b0) */
 
-void ai_GuildLevel3Listener(int building, int room)
+void ai_GuildLevel3Listener(AIBLD *building, int room)
 {
     int kasse;
     int level3 = 0;
@@ -10979,7 +10979,7 @@ void ai_GuildLevel3Listener(int building, int room)
             level3 = sv_RegisterNamePlate("contact_ZUNFTLEVEL3", txt_Ptrs[id], 0x16);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == kasse)
-                ai_GuildCashPayWindow((AIBLD *)building);
+                ai_GuildCashPayWindow(building);
             else if (ai_ClickedObject == level3)
                 ai_GuildLevel3Entry();
         }
@@ -10990,7 +10990,7 @@ void ai_GuildLevel3Listener(int building, int room)
    "contact_ZUNFTLEVEL1" plate (txt_Ptrs[0x1641], class 0x16) and a click on it opens the guild level 1 window
    (0x5a1000) */
 
-void ai_GuildLevel1Listener(int building, int room)
+void ai_GuildLevel1Listener(AIBLD *building, int room)
 {
     int c = 0;
 
@@ -11473,7 +11473,7 @@ void ai_ConfessionWindow(AIBLD *bld)
    0x5309a0 (0x5a2de0, 0x67fff) looks up the "contact_BEICHTE" plate (txt_Ptrs[0x197e], class 0x16) while the
    building permission 0x200 (0x6f231c) is clear and a click on it opens the confession window (0x5a2b60) */
 
-void ai_ConfessionListener(int building, int room)
+void ai_ConfessionListener(AIBLD *building, int room)
 {
     int c = 0;
 
@@ -11732,7 +11732,7 @@ int ai_OpenTransport(); void ai_MasterLetterWindow();
    building's object list), the production window (0x58bd60), the transport window (0x5af1a0) or the master
    letter (0x5c3200) */
 
-void ai_ProductionWriteContact(int building, int room)
+void ai_ProductionWriteContact(AIBLD *building, int room)
 {
     int meisterbrief = 0;
     int lager = 0;
@@ -11742,7 +11742,7 @@ void ai_ProductionWriteContact(int building, int room)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ProductionWriteContact, 0x67fff) != 0) {
-        ai_MarketContact((AIBLD *)building);
+        ai_MarketContact(building);
         if ((ai_BuildingPerms & 0x200) != 0) {
             schreiben = sv_RegisterNamePlate("contact_PRODUKTION_SCHREIBEN", txt_Ptrs[0x1fae], 0x13);
             lager = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
@@ -11754,9 +11754,9 @@ void ai_ProductionWriteContact(int building, int room)
             if (ai_ClickedObject == personalbuch)
                 ai_PersonnelBook(building, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow(building, ((AIBLD *)building)->objList);
+                ai_StorageWindow(building, building->objList);
             else if (ai_ClickedObject == schreiben)
-                ai_ProductionWindow((AIBLD *)building);
+                ai_ProductionWindow(building);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(building);
             else if (ai_ClickedObject == meisterbrief)
@@ -11773,7 +11773,7 @@ void ai_ProductionWriteContact(int building, int room)
    and gm_AllowAll (0x6f2448) set the confession window opens itself; the clicks open the sermon window
    (0x5a2e60), the baptism window (0x5a23a0, the room) or the confession / donation windows (0x5a2b60 / 0x5a1af0) */
 
-void ai_ChurchListener(int building, int room)
+void ai_ChurchListener(AIBLD *building, int room)
 {
     int beichtstuhl = 0;
     int spendenkasten = 0;
@@ -11787,8 +11787,8 @@ void ai_ChurchListener(int building, int room)
             predigt = sv_RegisterNamePlate("contact_PREDIGT", txt_Ptrs[0x198d], 0x16);
             becken = sv_RegisterNamePlate("ob_WEIHWASSERBECKEN", txt_Ptrs[0x1975], 0x16);
         }
-        if (((AIBLD *)building)->owner != ai_PlayerId && ((AIBLD *)building)->owner != 0xffff) {
-            confessionRoom = gm_Query(((AIBLD *)building)->objList, 2, 6, 0, 0xf2);
+        if (building->owner != ai_PlayerId && building->owner != 0xffff) {
+            confessionRoom = gm_Query(building->objList, 2, 6, 0, 0xf2);
             if (confessionRoom != 0)
                 beichtstuhl = sv_RegisterNamePlate("ob_KIRCHE_BEICHTSTUHLRAUM", txt_Ptrs[0x197e], 0x16);
             else
@@ -11803,11 +11803,11 @@ void ai_ChurchListener(int building, int room)
                 else if (ai_ClickedObject == becken)
                     ai_BaptismWindow(building, room);
             }
-            if (((AIBLD *)building)->owner != ai_PlayerId) {
+            if (building->owner != ai_PlayerId) {
                 if (ai_ClickedObject == beichtstuhl)
                     ai_ConfessionWindow(building);
                 if (ai_ClickedObject == spendenkasten)
-                    ai_DonationWindow((AIBLD *)building);
+                    ai_DonationWindow(building);
                 if (ai_ClickedObject == becken)
                     ai_BaptismWindow(building, room);
             }
@@ -11820,7 +11820,7 @@ void ai_ChurchListener(int building, int room)
 /* 0x5a39b0, the church's top-5 / indulgence listener (141 B): the pump 0x5309a0 (this, 0x67fff) looks up
    "contact_TOP5" (0x1440768) and "contact_ABLASS" (0x144073c, both 0x16) and opens 0x5a28f0 / 0x5a1f70 */
 
-void ai_ChurchContact(int building, int arg)
+void ai_ChurchContact(AIBLD *building, int arg)
 {
     int top5;
     int ablass;
@@ -11835,7 +11835,7 @@ void ai_ChurchContact(int building, int arg)
             if (click == top5)
                 ai_Top5Window();
             else if (click == ablass)
-                ai_IndulgenceWindow((AIBLD *)building, arg);
+                ai_IndulgenceWindow(building, arg);
         }
     }
 }
@@ -11914,7 +11914,7 @@ void ai_DungeonPlanWindow(AIBLD *bld)
 /* 0x5a3b20, the dungeon listener (100 B): the pump 0x5309a0 (this, 0x67fff) looks up "ob_KERKERPLAN" (0x1440870,
    class 0x16) and opens 0x5a3a40 (the dungeon plan window) */
 
-void ai_DungeonContact(int building, int room)
+void ai_DungeonContact(AIBLD *building, int room)
 {
     int plan;
 
@@ -12014,7 +12014,7 @@ void ai_DungeonBribeListener(AIBLD *bld, int room)
 }
 /* 0x5a3ef0, an empty listener (28 B): the pump 0x5309a0 (this, 0x67fff) until it returns 0 */
 
-void ai_DungeonEmptyListener(int building, int room)
+void ai_DungeonEmptyListener(AIBLD *building, int room)
 {
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_DungeonEmptyListener, 0x67fff) != 0)
@@ -12103,7 +12103,7 @@ int ai_BurglaryWindow(int ctx, AIBLD *bld)
    pick 0x5b2180 (1, the record, the text 0x19e2, the burglary window 0x5a3f10, 0), then closes the bar
    (0x525440) and clears the selection (0x52ae40) */
 
-void ai_BurglaryStart(int building)
+void ai_BurglaryStart(AIBLD *building)
 {
     int req[20];
     char buf[0x80];
@@ -12248,7 +12248,7 @@ void ai_EspionageStart(AIBLD *bld)
     req[1] = 0x400;
     if (bld == 0)
         return;
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     req[19] = 0x727;
     req[4] = 7;
     if (ai_BTypes[bld->type].kind == 0x13) {
@@ -12450,7 +12450,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
    the building), the map pick runs (0x5b2180: 1, the record, the prompt text ai_MapPickPrompt, the attack window
    ai_AttackWindow as callback, 0), then the player bar closes (0x525440) and the selection is cleared (0x52ae40) */
 
-void ai_AttackStart(int building)
+void ai_AttackStart(AIBLD *building)
 {
     int req[20];
     int i;
@@ -12483,7 +12483,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
 
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     win = d2_OpenForm(0, 0, "locations\\diebesgilde\\taschendiebstahl");
     d2_SetPointerSprite(0, 0);
     d2_CentreViewWindows(win);
@@ -12532,7 +12532,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
    dispatches the pending click 0x6f22e4 to ai_BurglaryStart / ai_EspionageStart / ai_AttackStart,
    ai_PickpocketGangWindow / ai_SpyReportsWindow / ai_PersonnelBook / ai_MasterLetterWindow */
 
-void ai_ThievesGuildListener(int building, int room)
+void ai_ThievesGuildListener(AIBLD *building, int room)
 {
     int burglary = 0;
     int espionage = 0;
@@ -12547,7 +12547,7 @@ void ai_ThievesGuildListener(int building, int room)
     AIBTYPE *type;
 
     sv_ReleaseNamePlates();
-    bld = (AIBLD *)building;
+    bld = building;
     type = ai_BTypes + bld->type;
     if (type->level >= 2) {
         obj = d3_FindObject(0, 0xc0, 0, "ub_GROSSSCHWERT");
@@ -12586,7 +12586,7 @@ void ai_ThievesGuildListener(int building, int room)
             else if (click == personal)
                 ai_PersonnelBook(building, "ob_PERSONALBUCH");
             else if (click == pergament)
-                ai_SpyReportsWindow((AIBLD *)building);
+                ai_SpyReportsWindow(building);
             else if (click == meister)
                 ai_MasterLetterWindow(building);
         }
@@ -12595,7 +12595,7 @@ void ai_ThievesGuildListener(int building, int room)
 /* 0x5a4f50, an empty listener (28 B, room 0x4d of the building driver 0x59e420): 0x52e190 and the pump
    0x5309a0 (this, 0x67fff) until it returns 0 */
 
-void ai_ThievesGuildEmptyListener(int building, int room)
+void ai_ThievesGuildEmptyListener(AIBLD *building, int room)
 {
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ThievesGuildEmptyListener, 0x67fff) != 0)
@@ -12607,7 +12607,7 @@ void ai_ThievesGuildEmptyListener(int building, int room)
    the shown room's object list) for LAGER, ai_OpenTransport for TRANSPORT, ai_EquipWindow for AUSRUESTEN and
    ai_TrainingWindow for REGENERATION */
 
-void ai_StorageContact(int building, int room)
+void ai_StorageContact(AIBLD *building, int room)
 {
     int lager = 0;
     int transport = 0;
@@ -12644,7 +12644,7 @@ void ai_StorageContact(int building, int room)
    0x5309a0 (this, 0x67fff); with the mask 0x200 the ob_ZIELSCHEIBE / contact_NACHT plates, and when the mask is
    still set and the pending click 0x6f22e4 is one of them, ai_TrainingWindow (the building) */
 
-void ai_TrainingContact(int building, int room)
+void ai_TrainingContact(AIBLD *building, int room)
 {
     int ziel = 0;
     int nacht = 0;
@@ -12810,7 +12810,7 @@ void ai_KidnapStart(AIBLD *bld)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(buf, 0x19b8);
-    sv_OpenPlayerBar((int)bld, 0);
+    sv_OpenPlayerBar(bld, 0);
     ai_AmountMenu(&cfg, buf, 0, ai_KidnapWindow);
     sv_ClosePlayerBar();
     sv_CameraFollow();
@@ -12988,9 +12988,9 @@ int gm_CreateCharModel(); void cm_RequestChrMoveToUniverse(int a, int b, int c, 
    fetches contact_ENTFUEHREN / contact_LOESEGELD under the mask 0x200 and contact_AUSBRECHEN for an own victim
    with the held-rounds byte +0x1b1 set; the pending click 0x6f22e4 opens ai_KidnapStart / ai_RansomWindow /
    ai_HostageEscape; the model 0x4028a0 (the record) and +0x184 = 0 on the exit */
-void ai_KidnapContact(int building, int room)
+void ai_KidnapContact(AIBLD *building, int room)
 {
-    AIBLD *bld = (AIBLD *)building;
+    AIBLD *bld = building;
     AIROOM *rm = (AIROOM *)room;
     int entfuehren = 0;
     int loesegeld = 0;
@@ -13104,7 +13104,7 @@ int ai_CityWatchWindow(int ctx, AIBLD *target)
    ai_PatrolPickPrompt, the city watch window ai_CityWatchWindow as callback, 0), then the player bar closes
    (0x525440) and the selection is cleared (0x52ae40) */
 
-void ai_PatrolStart(int building)
+void ai_PatrolStart(AIBLD *building)
 {
     int req[20];
     int i;
@@ -13204,7 +13204,7 @@ int ai_CityWatchCrewWindow(int ctx, AIBLD *target)
    ai_RaidPickPrompt, the city watch crew window ai_CityWatchCrewWindow as callback, 0), then the player bar
    closes (0x525440) and the selection is cleared (0x52ae40) */
 
-void ai_RaidStart(int building)
+void ai_RaidStart(AIBLD *building)
 {
     int req[20];
     int i;
@@ -13298,7 +13298,7 @@ int ai_WatchPlanWindow(int ctx, char *place)
    ai_WatchPlanPickPrompt, the city watch search window ai_WatchPlanWindow as callback, 0), then the player bar
    closes (0x525440) and the selection is cleared (0x52ae40) */
 
-void ai_WatchPlanStart(int building)
+void ai_WatchPlanStart(AIBLD *building)
 {
     if (sv_CheckCharacterFlag(building) != 0 || building == 0)
         return;
@@ -13392,7 +13392,7 @@ int ai_ArrestWindow(int unused, AIBLD *bld)
    opens, ai_MapPick runs (1, the request, the prompt text ai_ArrestPickPrompt, the city watch arrest window
    ai_ArrestWindow as callback, 0), then the player bar closes and the selection is cleared */
 
-void ai_ArrestStart(int building)
+void ai_ArrestStart(AIBLD *building)
 {
     int req[20];
 
@@ -13442,11 +13442,11 @@ void ai_CityWatchListener(AIBLD *bld, int room)
             if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == patrol)
-                ai_PatrolStart((int)bld);
+                ai_PatrolStart(bld);
             else if (ai_ClickedObject == wachplan)
-                ai_WatchPlanStart((int)bld);
+                ai_WatchPlanStart(bld);
             else if (ai_ClickedObject == zoll)
-                ai_ArrestStart((int)bld);
+                ai_ArrestStart(bld);
             else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow((AIBLD *)bld);
         }
@@ -13487,13 +13487,13 @@ void ai_GuildHallListener(AIBLD *bld, int room)
             else if (ai_ClickedObject == ausruesten)
                 ai_EquipWindow(bld);
             else if (ai_ClickedObject == razzia)
-                ai_RaidStart((int)bld);
+                ai_RaidStart(bld);
             else if (ai_ClickedObject == ausspionieren)
                 ai_EspionageStart(bld);
             else if (ai_ClickedObject == pergament)
                 ai_SpyReportsWindow(bld);
             else if (ai_ClickedObject == transport)
-                ai_OpenTransport((int)bld);
+                ai_OpenTransport(bld);
         }
         r = sv_RunFrame(ai_GuildHallListener, 0x67fff);
     }

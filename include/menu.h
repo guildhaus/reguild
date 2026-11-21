@@ -213,15 +213,6 @@ typedef struct CURSEMSG {               /* 0xf8 bytes, ai.h's AIMSG (the long me
     char pad84[0x74];
 } CURSEMSG;
 
-#pragma pack(push, 1)
-typedef struct CURSEBLD {               /* the building record: the id and the owner */
-    unsigned char type;                 /* +0x00 */
-    int id;                             /* +0x01 */
-    char pad05[0x22];
-    unsigned short owner;               /* +0x27 */
-} CURSEBLD;
-#pragma pack(pop)
-
 #pragma pack(push, 2)
 typedef struct CURSEEVENT {             /* the event 0xa0 ai_FindCurseEvent finds: only the fields the curse target window reads */
     char pad00[0x44];
@@ -261,7 +252,7 @@ int sv_RegisterNamePlate(char *name, char *text, int b); /* 0x52e1c0, sv.c: find
                                        plate of the object called name (text shown, b the icon), returns
                                        the object or 0 */
 
-void sv_OpenPlayerBar(int building, char k);  /* 0x525220, sv.c: opens the player bar form (Misc\PlayerBar) for the building */
+void sv_OpenPlayerBar(struct AIBLD *building, char k);  /* 0x525220, sv.c: opens the player bar form (Misc\PlayerBar) for the building */
 void sv_ClosePlayerBar(void);       /* 0x525440, sv.c: closes the player bar again */
 void sv_ClearSelection(void);       /* 0x52ae40, sv.c: clears the group selection (the focus and the selected flag of every character) */
 
@@ -282,10 +273,10 @@ void sv_ClearSelection(void);       /* 0x52ae40, sv.c: clears the group selectio
 
 /* The windows and game screens the contact listeners open. They are defined below the listeners (see
    the order note in the .c): their bodies must not be visible to the callers, or VC6 drops the calls. */
-void ai_BloodRevengeWindow(int building); /* 0x5d85e0, the gypsy blood revenge window (no result: every exit ends in a call) */
-void ai_HomageWindow(int building);      /* 0x5d95a0, the "Ehrerbietung" homage window (no result: every exit ends in a call) */
-void ai_CurseWindow(int building);       /* 0x5d8c90, the curse window ("_WAHRSAGERIN_FLUCH_0%d"; no result: every exit ends in a call) */
-void ai_CurseTargetWindow(int building); /* 0x5d90e0, the curse victim / share picker (no result: every exit ends in a call) */
+void ai_BloodRevengeWindow(struct AIBLD *building); /* 0x5d85e0, the gypsy blood revenge window (no result: every exit ends in a call) */
+void ai_HomageWindow(struct AIBLD *building);      /* 0x5d95a0, the "Ehrerbietung" homage window (no result: every exit ends in a call) */
+void ai_CurseWindow(struct AIBLD *building);       /* 0x5d8c90, the curse window ("_WAHRSAGERIN_FLUCH_0%d"; no result: every exit ends in a call) */
+void ai_CurseTargetWindow(struct AIBLD *building); /* 0x5d90e0, the curse victim / share picker (no result: every exit ends in a call) */
 int ai_PokerGame(void);                  /* 0x5da030, the poker game window */
 
 /* The save / load windows and the three option screens of the options menu 0x5d7770. Their bodies are

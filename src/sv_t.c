@@ -5034,9 +5034,9 @@ typedef struct GVPICK {
     int id;                     /* 0x10, that dead person's id, -1: none */
 } GVPICK;
 int gv_OrderSetGraveHolder(); int gv_SizeOpen();
-int sv_MessageBoxGreen(); void sv_OpenPlayerBar(int a, char k); void sv_ClosePlayerBar(void);
+int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(unsigned char *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
-int sv_CheckCharacterFlag(int id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
+int sv_CheckCharacterFlag(struct AIBLD *id); char * he_FindEvent(int n, ...); char * he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4);
 int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay); int ai_MapPick();
 typedef struct GVSEANCE {

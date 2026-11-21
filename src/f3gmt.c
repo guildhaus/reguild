@@ -2906,7 +2906,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
         }
         t = ORD_CHARS[own].kind;
         if (t == 6 || t == 7) {
-            per = (ORDCHAR *)gm_FindCharacterByMaster((int)b);
+            per = (ORDCHAR *)gm_FindCharacterByMaster((AIBLD *)b);
             if (per != 0) {
                 per->title = 0;
                 per->flags1b4 &= ~1u;
@@ -7257,7 +7257,7 @@ int gm_IsBankrupt(unsigned short *p, int n)
    or m is 0 */
 
 
-char *gm_FindCharacterByMaster(int m)
+char *gm_FindCharacterByMaster(AIBLD *m)
 {
     char *found = 0;
     int i;
@@ -7265,8 +7265,8 @@ char *gm_FindCharacterByMaster(int m)
     if (m == 0)
         return found;
     for (i = 0; i < 0x300; i++) {
-        if (ORD_CHARS[i].jobId != 0 && (int)ORD_CHARS[i].bld == m
-            && (ORD_CHARS[i].kind == 6 || ORD_CHARS[i].kind == 7 || ORD_CHARS[i].kind == 1 || ORD_CHARS[i].kind == 2)) {
+        if (ai_Chars[i].jobId != 0 && ai_Chars[i].bld == m
+            && (ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7 || ai_Chars[i].kind == 1 || ai_Chars[i].kind == 2)) {
             found = (char *)&ai_Chars[i];
             break;
         }
@@ -8432,7 +8432,7 @@ float gm_StaffFactor(AIBLD *b, int n, int *ids)
     fit = 0.0f;
     t = GM_BTYPE(bld->type);
     skill = gm_BuildingSkill(b, 1, 1) * 0.01 + 1.0;
-    c = (ORDCHAR *)gm_FindCharacterByMaster((int)b);
+    c = (ORDCHAR *)gm_FindCharacterByMaster(b);
     if (c == 0)
         c = &ORD_CHARS[bld->owner];
     if (c->kind == 6 || c->kind == 7)

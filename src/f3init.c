@@ -3052,7 +3052,7 @@ void init_LoadShopScript(unsigned char *b, unsigned short *o)
     name = 0;
     w = 0;
     c = 0;
-    m = (INIT_CHAR *)gm_FindCharacterByMaster((int)b);
+    m = (INIT_CHAR *)gm_FindCharacterByMaster((struct AIBLD *)b);
     for (i = 0; i < 0x20; i++) {
         if (w != 0)
             break;

@@ -257,7 +257,7 @@ int sv_CheckMoney(char *o, int n)
 /* 0x520fe0, checks the character that works for the master id: when its flag +0x1b4 & 1 is set (gm_FindCharacterByMaster,
    0x50a810) a message box with the text 0x78 (the short id) in the pergament style; 1 when shown */
 
-int sv_CheckCharacterFlag(int id)
+int sv_CheckCharacterFlag(AIBLD *id)
 {
     AICHAR *p;
     char buf[0x100];
@@ -2048,7 +2048,7 @@ void sv_UpdateSkyPhase(AITIME *t);
 /* 0x525220, opens the player bar ("Misc\\PlayerBar", or "Misc\\PlayerBar_1" at the other resolution) of the kind k at the right screen edge: its two scroll
    buttons (style 3) go to the window, the panel form is disabled, the 0x20 member rows are cleared, the button picture 0x51d is created and every character's
    member list selection is dropped */
-void sv_OpenPlayerBar(int a, char k)
+void sv_OpenPlayerBar(AIBLD *a, char k)
 {
     int s, f, i;
 

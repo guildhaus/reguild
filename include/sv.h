@@ -37,7 +37,7 @@ void sv_InitTick(void);                                                 /* 0x520
 void sv_UnregisterTick(void);                                           /* 0x520f10 */
 void sv_ResetScreenClip(void);                                          /* 0x520f20 */
 int sv_CheckMoney(char *o, int n);                                      /* 0x520f90 */
-int sv_CheckCharacterFlag(int id);                                      /* 0x520fe0 */
+int sv_CheckCharacterFlag(struct AIBLD *id);                                      /* 0x520fe0 */
 int sv_CheckGoodAmount(char *o, int n, unsigned char t);                     /* 0x521040 */
 int sv_CheckStock(short *p, int stock, int n, unsigned char t);           /* 0x5210a0 */
 int sv_MessageBox(int text, unsigned flags);                            /* 0x521150 */
@@ -66,7 +66,7 @@ int sv_IsAtDoor(char *g, char *o);                                     /* 0x5247
 int sv_IsCartAtDoor(char *g, unsigned char *o);                            /* 0x524810 */
 int sv_CharStateIcons(char *c, int *out);                                    /* 0x524900 */
 void sv_UpdateMemberList(unsigned char *g);                                    /* 0x524990 */
-void sv_OpenPlayerBar(int a, char k);                                   /* 0x525220 */
+void sv_OpenPlayerBar(struct AIBLD *a, char k);                                   /* 0x525220 */
 void sv_ClosePlayerBar(void);                                           /* 0x525440 */
 int sv_ClockSeason(void *t);                                            /* 0x525480 */
 char sv_SetSkyLightColors(struct D3OBJECT *o, void *ctx);                                           /* 0x525490 */

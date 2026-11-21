@@ -5100,7 +5100,7 @@ void he_RunMasterWork(int ev)
     if (e->stage == -1 && sv_UsedGroupSlots(ev) <= 0)
         n = -1;
     if (bld != 0 && store != 0 && n > 0) {
-        master = (AICHAR *)gm_FindCharacterByMaster((int)bld);
+        master = (AICHAR *)gm_FindCharacterByMaster(bld);
         n = gm_FreeCapacity(store, p->good, n);
         if (n != 0) {
             cm_SendExSellObject(store->objId, -1, p->good, n, ai_OwnPlayer, 0);
@@ -5233,7 +5233,7 @@ void he_RunGraveCare(int ev)
     if (entry != 0 && n > 0) {
         gv_OrderAdjustEntry(bld, g->size, g->entry, n);
         if (w != 0) {
-            master = (AICHAR *)gm_FindCharacterByMaster((int)bld);
+            master = (AICHAR *)gm_FindCharacterByMaster(bld);
             txt_Format(text, 0x4126, 0x411e, w->id, bld);
             if ((ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) && (master == 0 || !(master->flags1b4 & 1)))
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec, bld->id, -1, 0, "_NACHRICHTEN_FRIEDHOF_02");
@@ -5382,7 +5382,7 @@ void he_RunGraveTraining(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    master = (AICHAR *)gm_FindCharacterByMaster((int)bld);
+    master = (AICHAR *)gm_FindCharacterByMaster(bld);
     if (master == 0 || !(master->flags1b4 & 1)) {
         obj = (AIOBJ *)gm_Query((void *)bld->objList, 1, 1, t->objId);
         if (obj == 0)

@@ -1547,8 +1547,8 @@ void ai_SaveNetworkGame(char *saveName, char *name)
 /* the callees of the front-end stretch (their units' headers are not included here, so their
    prototypes are repeated as the definitions spell them; the building pointers are this TU's ints) */
 struct AIBLD; int ai_ProductionWindow(struct AIBLD *bld); /* 0x58bd60, lc.c: "Handel\Handel_PRODUKTION" */
-int ai_OpenTransport(int rec);             /* 0x5af1a0, lc.c */
-void ai_TradeSearchWindow(unsigned char *cfg, int arg); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
+int ai_OpenTransport(struct AIBLD *rec);             /* 0x5af1a0, lc.c */
+void ai_TradeSearchWindow(struct AIBLD *bld, int arg); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
 void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRIEF" */
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
 int sv_CheckMoney(char *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
@@ -2441,7 +2441,7 @@ typedef struct CONTACTREQ {
    +0x10 = 6) goes through the amount menu ai_AmountMenu (the caption ai_TailorAmountText,
    ch_EmptyName as the second text, the callback ai_TailorChatWindow). Ends with the camera follow
    sv_CameraFollow. Void; the two arguments the contact dispatch passes are not read. */
-void ai_TailorContact(int building, int arg)
+void ai_TailorContact(AIBLD *building, int arg)
 {
     CONTACTREQ req;
 
@@ -2459,15 +2459,6 @@ void ai_TailorContact(int building, int arg)
     sv_CameraFollow();
 }
 
-/* ai.h's AIBLD (0xa9 bytes, packed) as the contact listener reads it: the head of the building's object
-   list. */
-#pragma pack(push, 1)
-typedef struct AIBLDVIEW {
-    char pad0[0x5d];
-    int objList;                        /* +0x5d, AIBLD.objList: the objects of the building */
-} AIBLDVIEW;
-#pragma pack(pop)
-
 /* 0x5d8420, the contact listener of the production buildings (429 B): building the building record,
    arg the caller's argument. The contacts 0x52e1c0 are created on the flags 0x6f231c: bit 0x200
    -> contact_PRODUKTION_SCHNEIDER 0x62dc48 (0x144aa84, 0x13), contact_ROHSTOFFE_SUCHEN_SCHNEIDER
@@ -2477,7 +2468,7 @@ typedef struct AIBLDVIEW {
    0x5af1a0 (param_1), PERSONALBUCH -> 0x5aab80 (param_1, "ob_PERSONALBUCH"), MEISTERBRIEF ->
    0x5c3200 (param_1), ROHSTOFFE -> 0x595480 (param_1, param_2), PLAUSCH -> 0x5d8360. Then
    0x58f510 (param_1). The pump 0x5309a0 (0x5d8420, 0x67fff) runs between 0x52e190 calls. */
-void ai_ProductionContact(int building, int arg)
+void ai_ProductionContact(AIBLD *building, int arg)
 {
     int lager, schn, trans, personal, meister, roh, plausch;
     int pump;
@@ -2506,22 +2497,22 @@ void ai_ProductionContact(int building, int arg)
         }
         if ((click = ai_ClickedObject) != 0) {
             if (click == lager) {
-                ai_StorageWindow(building, ((AIBLDVIEW *)building)->objList);
+                ai_StorageWindow(building, building->objList);
             } else if (click == schn) {
-                ai_ProductionWindow((struct AIBLD *)building);
+                ai_ProductionWindow(building);
             } else if (click == trans) {
                 ai_OpenTransport(building);
             } else if (click == personal) {
-                ai_PersonnelBook((struct AIBLD *)building, "ob_PERSONALBUCH");
+                ai_PersonnelBook(building, "ob_PERSONALBUCH");
             } else if (click == meister) {
-                ai_MasterLetterWindow((struct AIBLD *)building);
+                ai_MasterLetterWindow(building);
             } else if (click == roh) {
-                ai_TradeSearchWindow((unsigned char *)building, arg);
+                ai_TradeSearchWindow(building, arg);
             } else if (click == plausch) {
                 ai_TailorContact(building, arg);
             }
         }
-        ai_MarketContact((struct AIBLD *)building);
+        ai_MarketContact(building);
         pump = sv_RunFrame(ai_ProductionContact, 0x67fff);
     }
     sv_ReleaseNamePlates();
@@ -2539,7 +2530,7 @@ void ai_ProductionContact(int building, int arg)
    (ai_BloodRevengeWindow), contact_EHRERBIETUNG 0x62dcc8 (ai_ContactTextHomage 0x144a9d8, 0x16) the
    homage window 0x5d95a0 (ai_HomageWindow), between sv_ReleaseNamePlates calls and the pump 0x5309a0
    (this function, 0x67fff). The clicked object (ai_ClickedObject) selects one of the plates. */
-void ai_GypsyContact(int building)
+void ai_GypsyContact(AIBLD *building)
 {
     int blutrache = 0;
     int ehrerbietung = 0;
@@ -2565,10 +2556,10 @@ void ai_GypsyContact(int building)
    (ai_CurseWindow) when its plate is the clicked object (ai_ClickedObject), between
    sv_ReleaseNamePlates calls and the pump 0x5309a0 (this function, 0x67fff). */
 
-void ai_CurseContact(int buildingArg)
+void ai_CurseContact(AIBLD *buildingArg)
 {
     int fluch;
-    int building;
+    AIBLD *building;
     int clicked;
 
     /* the original keeps the building in a callee-saved register across the plate call */
@@ -2588,7 +2579,7 @@ void ai_CurseContact(int buildingArg)
    0x16) the poker game 0x5da030 (ai_PokerGame), between sv_ReleaseNamePlates calls and the pump
    0x5309a0 (this function, 0x67fff). */
 
-void ai_TheatreContact(int building)
+void ai_TheatreContact(AIBLD *building)
 {
     int theater = 0;
     int karten;
@@ -2634,7 +2625,7 @@ extern struct D2PIC *d2_Pics;              /* 0x6ed918, d2.h: D2PIC * */
    delivery text for the chosen targets is made (ai_GypsyDeliveryText) and shown (0x41b9 with 0x41b2); the second button and
    the right mouse button leave. The pump ends with d2_CloseView and the camera follow; a refused window
    returns right after the green box. */
-void ai_BloodRevengeWindow(int building)
+void ai_BloodRevengeWindow(AIBLD *building)
 {
     char msg[0x800];
     GYPSYROW rows[5];
@@ -2675,7 +2666,7 @@ void ai_BloodRevengeWindow(int building)
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x41b7], txt_Ptrs[0x41b8]);
     do {
         if (refresh != 0) {
-            n = gm_BathObjectCount((struct AIBLD *)building) + 1;
+            n = gm_BathObjectCount(building) + 1;
             tick = d3_Time;
             refresh = 0;
             d2_SetForm(form, 1);
@@ -2792,7 +2783,7 @@ unsigned short ai_PokerStep(); int gm_BuildingSkill(); float ai_NormalizeEffectS
    (cm_SendMoveGoodsUnchecked), the message 0x9d (arg 0 = the strength, arg 2 = the target's net id, the game time, flags 2) is sent
    (cm_SendLongMessage), the voice "_WAHRSAGERIN_FLUCH_0<v>" is played and the text 0x41da is shown. The pump ends with
    d2_CloseView and the camera follow. */
-void ai_CurseWindow(int building)
+void ai_CurseWindow(AIBLD *building)
 {
     AMOUNTCFG cfg;                      /* the config of the amount menu */
     int ids[2];                         /* the two buttons */
@@ -2831,7 +2822,7 @@ void ai_CurseWindow(int building)
     do {
         char text[0x200];
 
-        limit = gm_CurseObjectCount((struct AIBLD *)building) - 1;
+        limit = gm_CurseObjectCount(building) - 1;
         v = d2_GetObjValue(slider);
         if (v >= limit)
             v = limit;
@@ -2840,7 +2831,7 @@ void ai_CurseWindow(int building)
         d2_SetForm(form, 1);
         io_PrintText("$C");
         io_PrintText((char *)0x41d6, 0x41c1, v + 0x41c4, text);
-        if (ai_PlayerId != ((CURSEBLD *)building)->owner)
+        if (ai_PlayerId != building->owner)
             io_PrintText((char *)0x41d7, (v > 1 ? v : 1) * 32000);
         if (dm_L.rup != 0) {
             sv_PopRequest = 1;
@@ -2851,7 +2842,7 @@ void ai_CurseWindow(int building)
                     CURSEMSG msg;
 
                     cm_SendSetField(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, 0x1cc, 4, 0x10, 0);
-                    if (ai_PlayerId != ((CURSEBLD *)building)->owner)
+                    if (ai_PlayerId != building->owner)
                         cm_SendMoveGoodsUnchecked(-1, ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, ai_OwnPlayer,
                                                   (v > 1 ? v : 1) * 32000);
                     memset(&msg, 0, sizeof(msg));
@@ -2890,7 +2881,7 @@ void ai_CurseWindow(int building)
    (sv_CheckMoney, gm_SendMoneyDelta) and sends the message 0xa0 (the building id, the game time, arg 0 = the strength,
    flags 2) with cm_SendLongMessage. The pump ends with d2_CloseView and the camera follow. */
 
-void ai_CurseTargetWindow(int building)
+void ai_CurseTargetWindow(AIBLD *building)
 {
     CURSEMSG msg;
     AITIME when;
@@ -2925,7 +2916,7 @@ void ai_CurseTargetWindow(int building)
     do {
         if (d3_Time > tick + 0x8c || d2_GetObjValue(victim) != value) {
             tick = d3_Time;
-            ev = (CURSEEVENT *)ai_FindCurseEvent((struct AIBLD *)building);
+            ev = (CURSEEVENT *)ai_FindCurseEvent(building);
             if (ev != 0) {
                 when = ev->due;
                 when.hour += ev->done ? 0 : 2;
@@ -2970,7 +2961,7 @@ void ai_CurseTargetWindow(int building)
                     msg.type = 0xa0;
                     msg.flags = 2;
                     msg.to = ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId;
-                    msg.fromId = ((CURSEBLD *)building)->id;
+                    msg.fromId = building->id;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     msg.arg[0] = value;
                     cm_SendLongMessage((char *)&msg);
@@ -2995,7 +2986,7 @@ void ai_CurseTargetWindow(int building)
    gets the news 0x420e ("_NACHRICHTEN_ZIGEUNER_04", channel 0x5f0) with the id of the player (he_ShowNews). The pump ends
    with d2_CloseView and the camera follow. */
 
-void ai_HomageWindow(int building)
+void ai_HomageWindow(AIBLD *building)
 {
     char text[0x400];
     AMOUNTCFG cfg;                      /* the config of the amount menu */
@@ -3004,7 +2995,7 @@ void ai_HomageWindow(int building)
     AICHARVIEW *target;
     int value;
 
-    if (((CURSEBLD *)building)->owner == 0xffff) {
+    if (building->owner == 0xffff) {
         sv_CameraFollow();
         return;
     }
@@ -3070,7 +3061,7 @@ void ai_HomageWindow(int building)
    the form is the one the other gypsy windows use; message 0xa1 is not read at its receiver. Body read whole
    against the disassembly. */
 
-void ai_GypsyBeggingWindow(int building)
+void ai_GypsyBeggingWindow(AIBLD *building)
 {
     CURSEMSG msg;
     int chosen[4];                      /* the indices of the collected characters */
@@ -3105,7 +3096,7 @@ void ai_GypsyBeggingWindow(int building)
                     msg.type = 0xa1;
                     msg.flags = 1;
                     msg.to = ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId;
-                    msg.fromId = ((CURSEBLD *)building)->id;
+                    msg.fromId = building->id;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     for (i = 0; i < count; i++)
                         msg.ids[i] = ((AICHARVIEW *)&ai_Chars[chosen[i]])->netId;
@@ -3135,7 +3126,7 @@ void ai_GypsyBeggingWindow(int building)
    sv_ReleaseNamePlates call and the loop; the loop is entered by the pump result. Void. Reasoned: the plate names are
    the literal strings, the callees are read off the calls (the ingredient search window is the "HANDEL_SUCHEN" helper). */
 
-void ai_GypsyProductionContact(int building)
+void ai_GypsyProductionContact(AIBLD *building)
 {
     int zutaten = 0;
     int transport = 0;
@@ -3166,20 +3157,20 @@ void ai_GypsyProductionContact(int building)
         if (ai_ClickedObject != 0) {
             if ((ai_BuildingPerms & 0x200) != 0) {
                 if (ai_ClickedObject == zutaten)
-                    ai_GypsyHelperWindow((struct AIBLD *)building);
+                    ai_GypsyHelperWindow(building);
                 else if (ai_ClickedObject == transport)
                     ai_OpenTransport(building);
                 else if (ai_ClickedObject == produktion)
-                    ai_ProductionWindow((struct AIBLD *)building);
+                    ai_ProductionWindow(building);
                 else if (ai_ClickedObject == lager)
                     ai_StorageWindow(building, 0);
                 else if (ai_ClickedObject == meister)
-                    ai_MasterLetterWindow((struct AIBLD *)building);
+                    ai_MasterLetterWindow(building);
                 else if (ai_ClickedObject == betteln)
                     ai_GypsyBeggingWindow(building);
             }
             if (ai_ClickedObject == personal)
-                ai_PersonnelBook((struct AIBLD *)building, "ob_PERSONALBUCH");
+                ai_PersonnelBook(building, "ob_PERSONALBUCH");
         }
         ai_TradeContactChecks();
         pump = sv_RunFrame(ai_GypsyProductionContact, 0x67fff);

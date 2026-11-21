@@ -785,7 +785,7 @@ char * gm_FindGoods(int p, unsigned id);
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
-int ai_OpenTransport(int rec);                                   /* 0x5af1a0, below */
+int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 char *strstr(); unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void);
 struct D3OBJECT;
 struct D3VECTOR;
@@ -864,7 +864,7 @@ void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
 int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, int room, int talent);
-void ai_PamphletWindow(int bld);
+void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 short * gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
@@ -972,7 +972,7 @@ void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuilding
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
-void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(int building, int arg);
+void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, int arg);
 int gm_GetWorth(unsigned short id); void d2_ClearPaintbox(void);
 int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
 int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
@@ -981,8 +981,8 @@ typedef struct SVSAVEDVIEW {
     D3VECTOR rot;
 } SVSAVEDVIEW;
 int init_BuildingSceneUniverse(); void init_LoadBuildingScene(int k); void d3fl_SetDetail(unsigned int n); void veg_HidePlants();
-void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(struct AIBLD *rec);
-void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
+void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(struct AIBLD *building); void ai_GraveyardFogContact(struct AIBLD *rec);
+void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(struct AIBLD *building); void ai_TheatreContact(struct AIBLD *building); void ai_CurseContact(struct AIBLD *buildingArg);
 void ai_GraveyardTradeContact(struct AIBLD *rec);
 typedef struct LCSALEROW {          /* a row of ai_BuyBuildingWindow's list: a building offered for sale */
     int control;                    /* 0x0, the row's text control (d2_GetWinObj) */
@@ -1619,7 +1619,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     ai_CampaignStep(0x21, (int)book, 0, 0);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -1720,7 +1720,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
             d2_SetForm(book->views[0], 4);
             gm_BuildingBalance((unsigned char *)bld, ai_PlayerId, balance);
             io_PrintText(0x1a2c, balance[3]);
-            master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -2100,7 +2100,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2503,7 +2503,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2612,7 +2612,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                     }
                 }
             }
-            master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -3260,21 +3260,21 @@ void ai_TransportGoodsTotal(AIBLD *bld, float factor, int mode)
 }
 /* 0x5af1a0, a forwarder of 0x5af1d0 with the mode 1 (16 B) */
 
-int ai_OpenTransport(int building)
+int ai_OpenTransport(AIBLD *building)
 {
-    return ai_TransportWindow((AIBLD *)building, 1);
+    return ai_TransportWindow(building, 1);
 }
 /* 0x5af1b0, a forwarder of 0x5af1d0 with the mode 2 (16 B) */
 
-int ai_OpenTransportSell(int building)
+int ai_OpenTransportSell(AIBLD *building)
 {
-    return ai_TransportWindow((AIBLD *)building, 2);
+    return ai_TransportWindow(building, 2);
 }
 /* 0x5af1c0, a forwarder of 0x5af1d0 with the mode 4 (16 B) */
 
-int ai_OpenTransportBuy(int building)
+int ai_OpenTransportBuy(AIBLD *building)
 {
-    return ai_TransportWindow((AIBLD *)building, 4);
+    return ai_TransportWindow(building, 4);
 }
 typedef struct LCCARTROW {              /* 0xf0 bytes, a cart row of the transport window (ai_TransportWindow's 16) */
     AIOBJ *cart;                        /* 0x00, the cart, 0: a free row */
@@ -5482,7 +5482,7 @@ int gv_HeldCrimeCount(int culprit, unsigned short t);  /* 0x4f4130, gv.h's proto
    0x40400, the filter's high word from gypsyFilter (its low word stored 0) and kind 6, the prompt 0x174f, the menu with the callback ai_BribeAmountCB; the
    camera follows again */
 
-void ai_OpenRobberBribe(int bld)
+void ai_OpenRobberBribe(AIBLD *bld)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -5597,7 +5597,7 @@ int ai_DrohbriefAmountCB(AICHARREC *ch)
    menu 0x5c1130 with the config (mode 0x400, kind 6, the filter gypsyFilter, the rest cleared), the contact's
    text 0x1758 and the callback 0x5b4c60, whose result it returns; bld is not read */
 
-int ai_DrohbriefWindow(int bld)
+int ai_DrohbriefWindow(AIBLD *bld)
 {
     AMOUNTCFG cfg;
 
@@ -5772,7 +5772,7 @@ int ai_PamphletAmountCB(AICHARREC *ch)
    0x190c) formatted into a buffer, then the amount menu 0x5c1130 with the config (mode 0x400, kind 6, the
    filter gypsyFilter, the rest cleared) and the callback 0x5b5310; the camera follows. bld == 0 returns */
 
-void ai_PamphletWindow(int bld)
+void ai_PamphletWindow(AIBLD *bld)
 {
     AMOUNTCFG cfg;
     char text[0x40];
@@ -8683,7 +8683,7 @@ void ai_TrainingWindow(AIBLD *bld)
     sv_OpenWindowFrame(d2_LastWindow, 0x72f, 0);
     d2_SetForm(win, 3);
     io_PrintText(0x1a46);
-    sv_OpenPlayerBar((int)bld, 1);
+    sv_OpenPlayerBar(bld, 1);
     d2_SetForm(win, 2);
     parent = d2_LastWindow;
     ai_OpenTrainingRow(0, 0x762, &rows[0], parent);
@@ -9137,7 +9137,7 @@ int ai_OpenMasterListPage(void)
     bld = (AIBLD *)gm_BuildQuery(1, 4, ai_PlayerId);
     if (bld != 0) {
         do {
-            master = (AICHARREC *)gm_FindCharacterByMaster((int)bld);
+            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId) {
                 d2_SetForm(win, 2);
                 ai_MasterRows[count].pic = d2_WinOpenPic(0, count * 0x3e, bld->type + 0x427, d2_LastWindow);
@@ -9256,7 +9256,7 @@ void ai_PlayerStatsPanel(void)
                     cm_BeginFieldBlock((char *)ai_MasterRows[i].bld, ai_MasterRows[i].bld->id);
                     cm_AddFieldDelta(4, 1, (unsigned short)((char *)&ai_MasterRows[i].bld->budget - cm_FieldObject), &value);
                     cm_SendFieldDeltas();
-                    master = (AICHARREC *)gm_FindCharacterByMaster((int)ai_MasterRows[i].bld);
+                    master = (AICHARREC *)gm_FindCharacterByMaster(ai_MasterRows[i].bld);
                     value -= ai_MasterRows[i].bld->budget;
                     cm_BeginFieldBlock((char *)master, master->netId);
                     cm_AddFieldValues(4, 1, (char *)&master->budget - cm_FieldObject, &value);

@@ -3911,7 +3911,7 @@ void main_SettleRound(unsigned short pl)
                     }
                 } else if (kind == 0xd || kind == 0xc || kind == 0xb) {
                     if (c->owner == MAIN_ME->id) {
-                        AICHAR *m = (AICHAR *)gm_FindCharacterByMaster((int)c);
+                        AICHAR *m = (AICHAR *)gm_FindCharacterByMaster(c);
 
                         if (m == 0) {
                             cnt++;
