@@ -848,7 +848,7 @@ char *itoa(int value, char *buf, int radix);
 int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
-void ai_HandlePickedPlant(AIBLD *bld, int plants);
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 int he_NoProtectionEvent();
 struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
@@ -1081,7 +1081,7 @@ void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
 int d2_SetForm(int view, int n); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_CloseView(int view); void d2_RemoveObj(); void d2_ScrollWindowBy();
 #pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of gv.h's ORDBLD (gv.h cannot be included here yet): the
+typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
                                            fields the production settings read */
     unsigned char type;                 /* +0x00, the building kind */
     int id;                             /* +0x01, the building's id (the production settings chain's key) */
@@ -1497,7 +1497,7 @@ void ai_UpdateBldCarts(SVBOOK *book, AIBLD *bld)
     if (book->page == 2 && d2_ClickedId == 5) {
         for (i = 0; i < 3; i++) {
             if (ai_BldCartButtons[i] != -1 && d2_PointerObj == ai_BldCartButtons[i])
-                sv_SelectPanelObject((AIBLD *)d2_Objs[ai_BldCartButtons[i]].user, -1, ch_EmptyName);
+                sv_SelectPanelObject(d2_Objs[ai_BldCartButtons[i]].user, -1, ch_EmptyName);
         }
     }
 }
@@ -7630,7 +7630,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
     x = 0;
     ok = 1;
     ground = 0;
-    plants = (G15PLANT *)bld->plants;
+    plants = bld->plants;
     sel = 0;
     type = 0;
     count = 0;
@@ -7770,14 +7770,14 @@ void ob_HandleBepflanzung(AIBLD *bld)
    the character's netId, the plant's id); else the caption names the plant (text 0x8f with its object name) or
    says it is not ripe yet (text 0x8e) */
 
-void ai_HandlePickedPlant(AIBLD *bld, int plants)
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants)
 {
     G15PLANT *plant;
     int i;
 
     if (ai_PickedObject == 0)
         return;
-    plant = veg_FindPlantObject((G15PLANT *)plants, ai_PickedObject);
+    plant = veg_FindPlantObject(plants, ai_PickedObject);
     if (ai_SelectedCount != 0) {
         if (plant == 0)
             return;
@@ -9222,7 +9222,7 @@ void ai_PlayerStatsPanel(void)
             for (i = 0; i < ai_StatsBldCount; i++) {
                 if (d2_PointerObj == ai_StatsBldRows[i]) {
                     d2_EnableViewObjects(win, 0);
-                    ai_BuildingDetailWindow((AIBLD *)d2_Objs[d2_PointerObj].user);
+                    ai_BuildingDetailWindow(d2_Objs[d2_PointerObj].user);
                     d2_EnableViewObjects(win, 1);
                     break;
                 }

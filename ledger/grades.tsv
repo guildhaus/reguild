@@ -2989,7 +2989,7 @@ exe	0x004fea50	gm_FindById	f3gmt	byte	readable
 exe	0x004feb30	gm_UpdatePlayers	f3gmt	byte	readable		
 exe	0x004feb60	gm_InitPlayerRecord	f3gmt	byte	readable		
 exe	0x004fec10	gm_SyncMarket	f3gmt	byte	readable		
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	byte	readable		
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	shape	readable		byte+readable -> shape+readable at e2daf0d2: tie-break: ORDBLD went for AIBLD (gv.h's view typedef gone, ai_bld.h includes ai_types.h); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable		
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		

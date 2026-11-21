@@ -853,7 +853,7 @@ char *itoa(int, char *, int);
 int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
-void ai_HandlePickedPlant(AIBLD *bld, int plants);
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 int he_NoProtectionEvent();
 struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
@@ -1669,7 +1669,7 @@ void ai_CloseMapWindow(int *m_)
     m->view = -1;
 }
 #pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of gv.h's ORDBLD (gv.h cannot be included here yet): the
+typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
                                            fields the production settings read */
     unsigned char type;                 /* +0x00, the building kind */
     int id;                             /* +0x01, the building's id (the production settings chain's key) */
@@ -1817,7 +1817,7 @@ G8SLOT *ai_FindSettingSlots(int bldId)
     }
     return 0;
 }
-/* 0x5a8560, the production setting of the building bld (a G8BLD, gv.h's ORDBLD), created on demand (338 B): its
+/* 0x5a8560, the production setting of the building bld (a G8BLD, ai_bld.h's AIBLD), created on demand (338 B): its
    slots when the chain ai_Settings has one for the building's id (ai_FindSettingSlots); else, for a building with an
    item group (ai_FindItemGroup), a zeroed record ("hp_AddProdSetting") keyed by the id with a random seed, the
    factor 1.0 and the weights of its goods (ai_FillSettingWeights) is put at the head of the chain and its slots

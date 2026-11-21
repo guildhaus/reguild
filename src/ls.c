@@ -1516,7 +1516,7 @@ int ls_ReadBuildings(int f)
         LS_R(&b->level, 1)
         c = b->type;
         if (c == 0x1e) {
-            b->plants = (int)mem_Alloc(0x600, "f3g:PlantMap");
+            b->plants = mem_Alloc(0x600, "f3g:PlantMap");
             for (j = 0; j < 0x40; j++) {
                 LS_R(&((AIMAPENT *)b->plants)[j].id, 4)
                 LS_R(&((AIMAPENT *)b->plants)[j].bldId, 4)

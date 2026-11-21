@@ -4235,7 +4235,7 @@ void main_BeginPlayerRound(void)
 
                 d3if_SelectScene(init_BuildingUniverse[ai_BTypes[b->type].kind], 1);
                 d3_InflateScene(3);
-                veg_GrowPlants((G15PLANT *)b->plants);
+                veg_GrowPlants(b->plants);
                 d3_DeflateScene(3);
                 d3if_SelectScene(scene, 1);
             }

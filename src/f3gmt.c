@@ -174,7 +174,7 @@ int gm_TitleNumber(int group, int rank);                     /* 0x5043d0 */
 int ai_WorksForMaster(struct AICHAR *c);                     /* 0x47dd70 */
 extern char d2_GfxDir[256];
 extern GMCHARSTATS gm_CharacterStatistics;
-unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, ORDBLD *a5, unsigned a6, int a7, int a8);                     /* 0x507690 */
+unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, AIBLD *a5, unsigned a6, int a7, int a8);                     /* 0x507690 */
 int gm_SexForJob(int x);                   /* 0x503f30 */
 int gm_SexForTitle(int x);                   /* 0x503f50 */
 int gm_Opinion(int a, int b);                     /* 0x50c520 */
@@ -399,7 +399,7 @@ int gm_LoadTables(char *root)
     ai_BTypes = (AIBTYPE *)mem_Alloc(0xca78, "f3_gm:lpGebaeudePROT");
     if (ai_BTypes == 0)
         return -1;
-    ai_Blds = (AIBLD *)mem_Alloc(0xa900, "f3_gm:lpGebaeudeINST");
+    ai_Blds = mem_Alloc(0xa900, "f3_gm:lpGebaeudeINST");
     memset(ai_Blds, 0, 0xa900);
     if (ai_Blds == 0)
         return -2;
@@ -563,7 +563,7 @@ void gm_Free(void)
 int gm_FindById(int *bld, int *obj, int *chr, int id)
 {
     ORDCHAR *c;
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     int i;
 
@@ -587,7 +587,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id)
         }
         if (bld != 0) {
             i = 0;
-            b = (ORDBLD *)ai_Blds;
+            b = ai_Blds;
             do {
                 if (b->type != 0 && b->id == id) {
                     *bld = (int)b;
@@ -703,7 +703,7 @@ void gm_SyncMarket(unsigned p)
         b = (unsigned char *)gm_BuildQuery(1, 6);
         while (b != 0) {
             if (ai_BTypes[*b].kind != 10) {
-                o = (ORDOBJ *)gm_Query(((ORDBLD *)b)->objList, 1, 0, 0xff);
+                o = (ORDOBJ *)gm_Query(((AIBLD *)b)->objList, 1, 0, 0xff);
                 for (i = 0; o != 0 && i < 0x55; i++) {
                     {
                         g = &stock[i];
@@ -725,7 +725,7 @@ void gm_SyncMarket(unsigned p)
         for (i = 0; i < 0x55; i++) {
             rec = stock[i];
             g = &gm_StockBlocks[p].goods[i];
-            o = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, g->marketKind);
+            o = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, g->marketKind);
             if (o != 0) {
                 o2 = (ORDOBJ *)gm_Query(o->list, 1, 0, 0xff);
                 if (o2 == 0) {
@@ -752,7 +752,7 @@ void gm_SyncMarket(unsigned p)
         for (i = 0; list[i] != 0; i++) {
             int cnt = 0;
 
-            o = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, list[i]);
+            o = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, list[i]);
             if (o != 0 && (o2 = (ORDOBJ *)gm_Query(o->list, 1, 0, 0xff)) != 0) {
                 o2 = (ORDOBJ *)gm_Query(o2->list, 1, 5);
                 while (o2 != 0) {
@@ -771,7 +771,7 @@ void gm_SyncMarket(unsigned p)
         return;
     }
     o = (ORDOBJ *)gm_FindPlayerBuilding(p);
-    if (o != 0 && (a1 = (ORDOBJ *)gm_Query(((ORDBLD *)o)->objList, 2, 0, 0x1db, 6)) != 0 && (o2 = (ORDOBJ *)gm_Query(((ORDBLD *)o)->objList, 2, 0, 0x1dc, 6)) != 0) {
+    if (o != 0 && (a1 = (ORDOBJ *)gm_Query(((AIBLD *)o)->objList, 2, 0, 0x1db, 6)) != 0 && (o2 = (ORDOBJ *)gm_Query(((AIBLD *)o)->objList, 2, 0, 0x1dc, 6)) != 0) {
         cm_BeginSendGroup();
         for (i = 0; i < 0x55; i++) {
             rec = stock[i];
@@ -824,7 +824,7 @@ void gm_RefreshGoodsLists(unsigned p)
     b = (unsigned char *)gm_BuildQuery(1, 6);
     while (b != 0) {
         if (ai_BTypes[*b].kind != 10) {
-            o = (ORDOBJ *)gm_Query(((ORDBLD *)b)->objList, 1, 0, 0xff);
+            o = (ORDOBJ *)gm_Query(((AIBLD *)b)->objList, 1, 0, 0xff);
             for (i = 0; o != 0 && i < 0x55; i++) {
                 g = &stock[i];
                 if (g->item != 0 && gm_Query(o->list, 1, 0, g->item) != 0) {
@@ -843,7 +843,7 @@ void gm_RefreshGoodsLists(unsigned p)
     }
     for (i = 0; i < 0x55; i++) {
         g = &stock[i];
-        o = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, g->marketKind);
+        o = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, g->marketKind);
         if (o != 0) {
             o = (ORDOBJ *)gm_Query(o->list, 1, 0, 0xff);
             if (g->amount != 0 && gm_Query(o->list, 1, 0, g->item) == 0)
@@ -852,7 +852,7 @@ void gm_RefreshGoodsLists(unsigned p)
     }
     for (i = 0; list[i] != 0; i++) {
         cnt = 0;
-        o = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, list[i]);
+        o = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, list[i]);
         if (o != 0 && (o2 = (ORDOBJ *)gm_Query(o->list, 1, 0, 0xff)) != 0) {
             o2 = (ORDOBJ *)gm_Query(o2->list, 1, 5);
             while (o2 != 0) {
@@ -1055,7 +1055,7 @@ float gm_StockPrice(int p, int n)
     good = (char *)ai_Goods + id * 0x41;
     mk = gm_FindMarketObject(id);
     if (mk == 0 && p != ai_OwnPlayer && (b = gm_FindPlayerBuilding(p)) != 0)
-        mk = (int)gm_Query((void *)((ORDBLD *)b)->objList, 2, 0, 0x1db, 6);
+        mk = (int)gm_Query((void *)((AIBLD *)b)->objList, 2, 0, 0x1db, 6);
     count = 0.0f;
     if (mk == 0)
         return gm_ItemPrice(id, 100);
@@ -1342,7 +1342,7 @@ extern char gm_QueryStopFirst;
 
 extern unsigned short gm_BQMaster, gm_BQOwner;  /* 0x61a674 / 0x61a676 */
 extern char gm_BQStopFirst, gm_BQFirstCall; /* 0x6f1bd4, 0x6f1bd5, stop at the first, first call */
-extern ORDBLD *gm_BQCursor;
+extern AIBLD *gm_BQCursor;
 extern unsigned gm_KindObjs[732];
 extern unsigned short gm_KindObjCount;
 void rt_FreePoints(struct RTPOINT *p);                     /* 0x4bd9e0 */
@@ -1462,7 +1462,7 @@ int gm_FreeList(int *list)
     }
     return 0;
 }
-/* 0x500190, creates an object instance of the prototype proto with the amount n in the list of the holder id (a building, an object or a character, gm_FindById): takes a free record (gm_FindFreeObject) and appends it to the holder's list (ORDBLD.objList, ORDOBJ.list or the character's list at +0x178), fills it (the prototype, a new object id ai_NextObjectId, the holder id, the holder's own id, the amount, fill 100) and counts it (f3gm_ObjectCount); a few prototypes get their own start values (0xb8, 300, 0x12d, 0x15e / 0x160, 0x174 / 0x176, 0x24b / 0x256 / 0x266), the goods kinds 0x17 / 0x20 / 0x25 clear +0x1c, and the three carts 0x134 / 0x135 / 0x136 get the id of their building, a load object (prototype 0x1dd), a model (a cart man or the horse, ch_Create at the building's "dummy_TRANSPORTER") pulling the cart object ob_KARREN_klein / _mittel / _GROSS (textured by the owner character's v054). Returns the instance, 0 on failure
+/* 0x500190, creates an object instance of the prototype proto with the amount n in the list of the holder id (a building, an object or a character, gm_FindById): takes a free record (gm_FindFreeObject) and appends it to the holder's list (AIBLD.objList, ORDOBJ.list or the character's list at +0x178), fills it (the prototype, a new object id ai_NextObjectId, the holder id, the holder's own id, the amount, fill 100) and counts it (f3gm_ObjectCount); a few prototypes get their own start values (0xb8, 300, 0x12d, 0x15e / 0x160, 0x174 / 0x176, 0x24b / 0x256 / 0x266), the goods kinds 0x17 / 0x20 / 0x25 clear +0x1c, and the three carts 0x134 / 0x135 / 0x136 get the id of their building, a load object (prototype 0x1dd), a model (a cart man or the horse, ch_Create at the building's "dummy_TRANSPORTER") pulling the cart object ob_KARREN_klein / _mittel / _GROSS (textured by the owner character's v054). Returns the instance, 0 on failure
    @deep size queue s19 (raw 1995, padded 2000 vs 2016): the frame's extra slot is last in memory. The
    original zeroes b / o / c / last at [esp+0x10..0x1c] from ebx (last = 0 is the fourth store), stores
    last per walk step and reloads it for last->next = r; ours gives last edi (c2trace: last#1 prio 16, 2
@@ -1483,7 +1483,7 @@ int gm_FreeList(int *list)
    (143 at best, same hunks). Not tried for lack of time: the cart branch (most of the remaining code hunks
    follow the frame shift). (tiebreak: not measured (dcp headers sample gm_CreateObject)) prior: read the
    whole function against 0x500190..0x5007a4 and reconciled every statement: the holder lookup and its list
-   (ORDBLD.objList / ORDOBJ.list / the character's +0x178), the tail walk, the record fill in the original's
+   (AIBLD.objList / ORDOBJ.list / the character's +0x178), the tail walk, the record fill in the original's
    order, the 0x1f-byte clear (rep stosd 7 + stosw + stosb, now equal), the one switch on proto as an int (jg
    / the two byte tables equal), the case order 300 / 0x12d / 0xb8 / carts, the cart branch (holder netId, the
    walk up to the building, the 0x1dd load object, the scene, the dummy_TRANSPORTER position, the four
@@ -1493,7 +1493,7 @@ int gm_FreeList(int *list)
    cast sum, the dummy ternary with the cast outside. L... */
 unsigned short *gm_CreateObject(int id, int proto, int n)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     ORDOBJ *last;
@@ -1623,13 +1623,13 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
             scene = init_BuildingSceneUniverse((AIBLD *)home);
         saved = d3_CurrentScene;
         d3if_SelectScene(scene, 1);
-        dummy = d3_FindObject(gm_IsHomeType((AIBLD *)home) != 0 ? 0 : (int)((ORDBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");
+        dummy = d3_FindObject(gm_IsHomeType((AIBLD *)home) != 0 ? 0 : (int)((AIBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");
         if (dummy != 0)
             d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)pos);
-        else if (((ORDBLD *)home)->object != 0) {
-            pos[0] = ((ORDBLD *)home)->object->pos.x;
-            pos[1] = ((ORDBLD *)home)->object->pos.y;
-            pos[2] = ((ORDBLD *)home)->object->pos.z;
+        else if (((AIBLD *)home)->object != 0) {
+            pos[0] = ((AIBLD *)home)->object->pos.x;
+            pos[1] = ((AIBLD *)home)->object->pos.y;
+            pos[2] = ((AIBLD *)home)->object->pos.z;
         } else {
             pos[0] = 0;
             pos[1] = 0;
@@ -1680,7 +1680,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
             model->scriptGroup = -1;
             group = -1;
         } else if (gm_IsHomeType((AIBLD *)home) != 0) {
-            group = ((ORDBLD *)home)->id;
+            group = ((AIBLD *)home)->id;
             model->scriptGroup = -1;
         } else {
             model->scriptGroup = -1;
@@ -1713,7 +1713,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
 
 int gm_AddObjekt(int id, int proto, int n)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     int *list;
@@ -1744,7 +1744,7 @@ int gm_AddObjekt(int id, int proto, int n)
 
 int gm_TakeObjekt(int id, int proto, int n)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     int *list;
@@ -1772,7 +1772,7 @@ int gm_TakeObjekt(int id, int proto, int n)
 
 int gm_AddNegative(int id, int proto, int n)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     int *list;
@@ -1809,7 +1809,7 @@ int gm_BuildKindObjects(char *b)
         return 1;
     g = 0;
     for (i = 0; i < 37; i++) {
-        if (gm_BuildingItemGroups[i].key == ((ORDBLD *)b)->type) {
+        if (gm_BuildingItemGroups[i].key == ((AIBLD *)b)->type) {
             g = &gm_BuildingItemGroups[i];
             break;
         }
@@ -1846,7 +1846,7 @@ int gm_BuildKindObjects(char *b)
 
 int gm_CollectOffers(int goods)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *s, *mk, *o;
     AISTORE tmp;
     int k, i, j, f;
@@ -1854,7 +1854,7 @@ int gm_CollectOffers(int goods)
     if (ai_BTypes == 0)
         return 1;
     gm_NOffers = 0;
-    b = (ORDBLD *)ai_Blds;
+    b = ai_Blds;
     for (k = 0; k < 0x58; k++, b++) {
         if (b->type == 0)
             continue;
@@ -1862,10 +1862,10 @@ int gm_CollectOffers(int goods)
         gm_Offers[gm_NOffers].bld = 0;
         gm_Offers[gm_NOffers].goodsObj = 0;
         gm_Offers[gm_NOffers].stored = 0;
-        if (b == (ORDBLD *)ai_MarketBuilding) {
+        if (b == ai_MarketBuilding) {
             mk = (ORDOBJ *)gm_FindMarketObject(goods);
             if (mk != 0 && (o = (ORDOBJ *)gm_Query((void *)mk->list, 1, 0, goods)) != 0) {
-                gm_Offers[gm_NOffers].bld = (struct AIBLD *)b;
+                gm_Offers[gm_NOffers].bld = b;
                 gm_Offers[gm_NOffers].market = (int)mk;
                 gm_Offers[gm_NOffers].goodsObj = (int)o;
                 gm_Offers[gm_NOffers].count = gm_ListAmount((short *)mk, (char *)o)
@@ -1877,12 +1877,12 @@ int gm_CollectOffers(int goods)
             s = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0xff);
             if (s != 0 && gm_Query((void *)s->list, 1, 0, goods) != 0) {
                 f = 1;
-                gm_Offers[gm_NOffers].bld = (struct AIBLD *)b;
+                gm_Offers[gm_NOffers].bld = b;
                 gm_Offers[gm_NOffers].stored = 1;
             }
             mk = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
             if (mk != 0 && (o = (ORDOBJ *)gm_Query((void *)mk->list, 1, 0, goods)) != 0) {
-                gm_Offers[gm_NOffers].bld = (struct AIBLD *)b;
+                gm_Offers[gm_NOffers].bld = b;
                 gm_Offers[gm_NOffers].market = (int)mk;
                 gm_Offers[gm_NOffers].goodsObj = (int)o;
                 gm_Offers[gm_NOffers].count = gm_ListAmount((short *)mk, (char *)o)
@@ -1894,7 +1894,7 @@ int gm_CollectOffers(int goods)
         }
     }
     for (i = 0; i < gm_NOffers; i++)
-        gm_Offers[i].price = gm_GoodsPrice(goods, ai_OwnPlayer) * ((ORDBLD *)gm_Offers[i].bld)->priceFactor;
+        gm_Offers[i].price = gm_GoodsPrice(goods, ai_OwnPlayer) * gm_Offers[i].bld->priceFactor;
     for (i = 0; i < gm_NOffers; i++) {
         for (j = i + 1; j < gm_NOffers; j++) {
             if (gm_Offers[j].price > gm_Offers[i].price) {
@@ -1915,13 +1915,13 @@ int gm_FindMarketObject(int id)
     int i;
 
     if (ai_MarketBuilding != 0) {
-        l[0] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x92);
-        l[1] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x93);
-        l[2] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x94);
-        l[3] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x95);
-        l[4] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x96);
-        l[5] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x97);
-        l[6] = (ORDOBJ *)gm_Query(((ORDBLD *)ai_MarketBuilding)->objList, 1, 0, 0x2db);
+        l[0] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x92);
+        l[1] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x93);
+        l[2] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x94);
+        l[3] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x95);
+        l[4] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x96);
+        l[5] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x97);
+        l[6] = (ORDOBJ *)gm_Query(ai_MarketBuilding->objList, 1, 0, 0x2db);
         l[7] = 0;
         for (i = 0; l[i] != 0; i++) {
             if (gm_Query(l[i]->list, 2, 6, 0, id) != 0)
@@ -1934,13 +1934,13 @@ int gm_FindMarketObject(int id)
 
 int gm_FindPlayerBuilding(int p)
 {
-    ORDBLD *b;
+    AIBLD *b;
 
-    b = (ORDBLD *)gm_BuildQuery(1, 0, 0x47);
+    b = gm_BuildQuery(1, 0, 0x47);
     while (b != 0) {
-        if (b->v65 == p)
+        if (b->playerSlot == p)
             return (int)b;
-        b = (ORDBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     return 0;
 }
@@ -1962,10 +1962,10 @@ int gm_FindPlayerBuilding(int p)
 struct AIBLD *gm_BuildNext(void)
 {
     char m;
-    ORDBLD *end;
+    AIBLD *end;
 
     m = 0;
-    end = (ORDBLD *)ai_Blds + 0x100;
+    end = (AIBLD *)ai_Blds + 0x100;
     if (ai_BTypes == 0)
         return 0;
     if (gm_BQTested > 0x100)
@@ -2027,7 +2027,7 @@ struct AIBLD *gm_BuildNext(void)
         if (m)
             break;
     }
-    return (AIBLD *)gm_BQCursor;
+    return gm_BQCursor;
 }
 /* 0x501190, starts a building query and returns its first match (gm_BuildNext): resets the criteria, then reads n (kind, value) pairs: 0 the type, 1 the id, 2 a name (copied to gm_BQName, never tested), 3 the master id, 4 the owner, 5 the class of the type, 6 stop at the first (no value); the cursor starts at ai_Blds. Used all over the exe (gm_BuildQuery(1, 5, 10) ..) */
 
@@ -2076,17 +2076,17 @@ struct AIBLD *gm_BuildQuery(int n, ...)
         }
         va_end(ap);
     }
-    gm_BQCursor = (ORDBLD *)ai_Blds;
+    gm_BQCursor = ai_Blds;
     return gm_BuildNext();
 }
 /* 0x5012b0, the first free record of the building table (0x100 records of 0xa9 bytes), 0 when it is full */
 
 char *gm_FindFreeBuilding(void)
 {
-    ORDBLD *end, *b;
+    AIBLD *end, *b;
 
-    end = (ORDBLD *)ai_Blds + 0x100;
-    for (b = (ORDBLD *)ai_Blds; b < end; b++) {
+    end = (AIBLD *)ai_Blds + 0x100;
+    for (b = ai_Blds; b < end; b++) {
         if (b->type == 0)
             break;
     }
@@ -2098,7 +2098,7 @@ char *gm_FindFreeBuilding(void)
 
 int gm_FreeBuilding(char *p)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     int i;
 
     if (b == 0)
@@ -2118,14 +2118,14 @@ int gm_FreeBuilding(char *p)
     case 0x48:
     case 0x49:
     case 0x4a:
-        gv_FreeGraveyard((int *)b->block65);
-        b->block65 = 0;
+        gv_FreeGraveyard((int *)b->yard);
+        b->yard = 0;
         break;
     case 0x4b:
     case 0x4c:
     case 0x4d:
-        mem_Free(b->block65);
-        b->block65 = 0;
+        mem_Free(b->ahm);
+        b->ahm = 0;
         break;
     }
     for (i = 0; i < 0x300; i++) {
@@ -2162,7 +2162,7 @@ int gm_BuildingClass(int kind);
 /* 0x501400, stocks a new building b with the objects its building kind needs (gm_BuildingItemGroups: the kind byte and ten object prototypes): the container object 0xff (query (2, 6, 0, 0xff), created by gm_CreateObject when missing) gets each listed object with the amount 2 when it has none */
 void gm_StockBuildingObjects(char *p)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     ORDOBJ *o;
     int i, k;
 
@@ -2182,7 +2182,7 @@ void gm_StockBuildingObjects(char *p)
 
 void gm_SetCapacities(unsigned char *p)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     unsigned char *k;
     ORDOBJ *o;
 
@@ -2222,7 +2222,7 @@ unsigned short * gm_AllocRaum(unsigned char *b, unsigned n);
    for-condition / nested-else forms: same code. (2) frame order dbg / names swapped (c2frame: dbg count 3
    dens 11, names 2 dens 2; err / cand at function scope: no lever). Insensitive to the declaration set.
    (tiebreak: not measured (dcp headers sample gm_CreateBuilding)) prior: Read whole against the original
-   0x501580..0x501b4e and rewritten on typed ORDBLD / ORDOBJ fields (statements, constants, callees, the
+   0x501580..0x501b4e and rewritten on typed AIBLD / ORDOBJ fields (statements, constants, callees, the
    AI_ZERO asm clear of +0x65, the case order with the 4..7 else -1, the 0x1b5 object bytes, the word
    stores of 0x35..0x37 all match; switch tables equal). What is left is allocation: the original keeps
    base (ai_BTypes) in edi from the prologue (push edi first, so both early returns pop edi; ours keeps it
@@ -2233,7 +2233,7 @@ unsigned short * gm_AllocRaum(unsigned char *b, unsigned n);
    frame slots (err/names swapped: +0x18b / +0x2d... */
 unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 {
-    ORDBLD *b;
+    AIBLD *b;
     char *base;
     GMBTYPE *bt;
     char *name;
@@ -2250,7 +2250,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     if (base == 0)
         return 0;
     any = 0;
-    b = (ORDBLD *)gm_FindFreeBuilding();
+    b = (AIBLD *)gm_FindFreeBuilding();
     if (b == 0)
         return 0;
     bt = (GMBTYPE *)base + k;
@@ -2261,24 +2261,24 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     b->masterId = own;
     b->owner = own;
     b->mainRoom = 0;
-    b->v2b = 0;
-    b->b2f = 0;
+    b->saved2b = 0;
+    b->saved2f = 0;
     b->objList = 0;
     b->object = 0;
-    b->v30 = 0;
+    b->travel30 = 0;
     b->budget = 0x7d00;
     b->wageRate = 100;
     b->workRate = 2;
-    b->v45 = 100;
+    b->priceRate = 100;
     b->priceFactor = 1.0f;
     b->level = 100;
     b->smokeEffect = -1;
     if (own != 0xffff && ORD_CHARS[own].kind == 6)
         ai_ProdSetting(b);
-    memset(&b->flags99, 0, 0x10);
-    b->flags99 |= 1;
-    b->va5 = -1;
-    AI_ZERO(&b->v65, 0x30);
+    memset(&b->workSet, 0, 0x10);
+    b->workSet.flags |= 1;
+    b->workSet.target = -1;
+    AI_ZERO(b->kindData, 0x30);
     n = 0;
     name = (char *)ai_BuildingNames[k * 0xe];
     if (*name != 0)
@@ -2293,7 +2293,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 
             strcpy(cand, (char *)ai_BuildingNames[k * 0xe + i]);
             for (j = 0; j < 0x100; j++) {
-                if (((ORDBLD *)ai_Blds)[j].type != 0 && strcmp(((ORDBLD *)ai_Blds)[j].name, cand) == 0)
+                if (((AIBLD *)ai_Blds)[j].type != 0 && strcmp(((AIBLD *)ai_Blds)[j].name, cand) == 0)
                     break;
             }
             if (j < 0x100)
@@ -2335,8 +2335,8 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     s = (unsigned short *)gm_GetGebaeudeHauptraum((unsigned char *)b);
     if (s != 0)
         b->mainRoom = *s;
-    if (gm_IsHomeType((AIBLD *)b) != 0)
-        b->v30 = 0x1388;
+    if (gm_IsHomeType(b) != 0)
+        b->travel30 = 0x1388;
     switch (k) {
     case 4:
     case 5:
@@ -2344,9 +2344,9 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     case 7:
         b->created = ai_Time;
         if (own != 0xffff)
-            b->v65 = ORD_CHARS[own].netId;
+            b->ownerNetId = ORD_CHARS[own].netId;
         else
-            b->v65 = -1;
+            b->ownerNetId = -1;
         break;
     case 0x14:
     case 0x15:
@@ -2360,7 +2360,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
         }
         break;
     case 0x47:
-        b->v30 = 0x13880;
+        b->travel30 = 0x13880;
         break;
     case 0x1e:
         b->plants = (struct G15PLANT *)mem_Alloc(0x600, "f3_gm:PlantMap");
@@ -2370,40 +2370,40 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
         }
     case 0x1f:
     case 0x20:
-        b->v30 = 100;
+        b->travel30 = 100;
         b->priceFactor = 0.8f;
         break;
     case 0x35:
     case 0x36:
     case 0x37:
-        b->v65 = 0;
-        b->w69[0] = 0;
-        b->w69[1] = 0;
-        b->v6d = 0;
+        b->inn.takings = 0;
+        b->inn.guests = 0;
+        b->inn.served = 0;
+        b->inn.lastTakings = 0;
         break;
     case 0xb:
     case 0xc:
     case 0xd:
-        b->v65 = -1;
+        b->hostage = -1;
         break;
     case 0xe:
     case 0xf:
     case 0x10:
-        b->v65 = 10;
-        b->daySum = 3;
-        b->v6d = 5;
+        b->interest = 10;
+        b->messengerFee = 3;
+        b->exchangeFee = 5;
         break;
     case 0x48:
     case 0x49:
     case 0x4a:
-        b->block65 = (int)gv_AllocGraveyard((unsigned char *)b);
+        b->yard = gv_AllocGraveyard((unsigned char *)b);
         gv_BuryNewDead((unsigned char *)b, 3);
         break;
     case 0x4b:
     case 0x4c:
     case 0x4d:
         info = (int *)mem_Alloc(0x3c, "AHM_INFO");
-        b->block65 = (int)info;
+        b->ahm = (struct AHMREC *)info;
         *info = -1;
     }
     if (b->type == 0x26)
@@ -2416,7 +2416,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 /* 0x501b50, the main object of the building b, chosen by its building class (gm_BuildingClass): the classes 1 / 7 / 8 look by kind for the object 0x205 (kind 0x1d), 0x12e (0x16), 0x54 (4) or 0xfd (0x1f); class 4 takes the object 0xf7, a home (gm_IsHomeType) the 0xfd; otherwise (or when that object is missing) the first room of the kind's prototype list (an object of goods class 2 other than 0xfd). Returns the object, 0 when there is none */
 int gm_BuildingMainObject(unsigned char *p)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     GMBTYPE *bt;
     GMGOOD *g;
     char *o;
@@ -2429,7 +2429,7 @@ int gm_BuildingMainObject(unsigned char *p)
     if (cls != 1 && cls != 7 && cls != 8) {
         if (cls == 4)
             o = (char *)gm_Query((void *)b->objList, 1, 0, 0xf7);
-        else if (gm_IsHomeType((AIBLD *)b) != 0)
+        else if (gm_IsHomeType(b) != 0)
             o = (char *)gm_Query((void *)b->objList, 1, 0, 0xfd);
         else {
             for (i = 0; i < 0x40; i++) {
@@ -2467,13 +2467,13 @@ int gm_BuildingMainObject(unsigned char *p)
 
 void *gm_GetGebaeudeHauptraum(unsigned char *p)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     unsigned char *k;
     unsigned short *o;
 
     gm_BuildingClass(b->type);
     k = (unsigned char *)ai_BTypes + b->type * 0x24d;
-    if (gm_IsHomeType((AIBLD *)b) != 0)
+    if (gm_IsHomeType(b) != 0)
         return gm_Query((void *)b->objList, 1, 0, 0xfd);
     if (*k == 4)
         return gm_Query((void *)b->objList, 1, 0, 0x54);
@@ -2538,13 +2538,13 @@ unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
 
     r = 0;
     best = 1e+08f;
-    if (b != 0 && ((ORDBLD *)b)->object != 0) {
+    if (b != 0 && ((AIBLD *)b)->object != 0) {
         p = (unsigned char *)gm_BuildQuery(1, 6);
         while (p != 0) {
-            k = (unsigned char *)ai_BTypes + ((ORDBLD *)p)->type * 0x24d;
-            if (gm_IsHomeType((AIBLD *)p) == 0 && gm_IsType10((AIBLD *)p) == 0 && (o = ((ORDBLD *)p)->object) != 0 && p != b && *k == kind) {
+            k = (unsigned char *)ai_BTypes + ((AIBLD *)p)->type * 0x24d;
+            if (gm_IsHomeType((AIBLD *)p) == 0 && gm_IsType10((AIBLD *)p) == 0 && (o = ((AIBLD *)p)->object) != 0 && p != b && *k == kind) {
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v1);
-                d3_PointToWorld(((ORDBLD *)b)->object, &((ORDBLD *)b)->object->pos, (D3VECTOR *)&v2);
+                d3_PointToWorld(((AIBLD *)b)->object, &((AIBLD *)b)->object->pos, (D3VECTOR *)&v2);
                 dx = v1.x - v2.x;
                 dy = v1.y - v2.y;
                 dz = v1.z - v2.z;
@@ -2564,16 +2564,16 @@ unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
 
 unsigned char *gm_NearestFreeBuilding(unsigned char *p, unsigned kind)
 {
-    ORDBLD *b = (ORDBLD *)p;
+    AIBLD *b = (AIBLD *)p;
     float best, d, dx, dy, dz;
-    ORDBLD *r, *q;
+    AIBLD *r, *q;
     struct D3OBJECT *o;
 
     best = 1e+08f;
     r = 0;
-    q = (ORDBLD *)gm_BuildQuery(1, 6);
+    q = gm_BuildQuery(1, 6);
     while (q != 0) {
-        if (gm_IsHomeType((AIBLD *)q) == 0 && gm_IsType10((AIBLD *)q) == 0 && (o = q->object) != 0
+        if (gm_IsHomeType(q) == 0 && gm_IsType10(q) == 0 && (o = q->object) != 0
             && q != b && q->type == kind && q->owner == 0xffff) {
             dx = o->pos.x - b->object->pos.x;
             dy = o->pos.y - b->object->pos.y;
@@ -2584,7 +2584,7 @@ unsigned char *gm_NearestFreeBuilding(unsigned char *p, unsigned kind)
                 best = d;
             }
         }
-        q = (ORDBLD *)gm_BuildNext();
+        q = gm_BuildNext();
     }
     return (unsigned char *)r;
 }
@@ -2597,7 +2597,7 @@ struct AIBLD *gm_FindBuildingById(int id)
 
     i = 0;
     p = (char *)ai_Blds;
-    while (((ORDBLD *)p)->type == 0 || ((ORDBLD *)p)->id != id) {
+    while (((AIBLD *)p)->type == 0 || ((AIBLD *)p)->id != id) {
         i++;
         p += 0xa9;
         if (i >= 0x100)
@@ -2869,10 +2869,10 @@ extern int f3gm_ObjectCount;  /* 0x6f1bdc */
 /* 0x502b60, hands the building b to the owner own (a character slot, 0xffff: only the master is set) with the master character master: a player owner (kind 6) loses the building's production setting (ai_FreeProdSetting), a player new owner gets one (ai_ProdSetting); the old owner's home (bld2) link is cleared; a home (type 2) shows its objects (gm_ShowBuildingObjects) and becomes the new owner's home unless it has one of a higher type; for a person owner (kind 6 / 7) the character working there under the master (gm_FindCharacterByMaster) loses title and flag, and its building for the types 5 / 9; every cart (goods kind 0x1d) of the building gets the owner's netId and its model the owner's texture set (v054 - 0x599 for the kinds 5 / 6 / 7); last the banners are removed in scene 0 (sv_RemoveBanners) and, for another character of kind 5 / 6 / 7 than the player's with a model, made again (sv_CreateBanners) */
 void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
 {
-    ORDBLD *bd;
+    AIBLD *bd;
     unsigned char *p;
     unsigned short o;
-    ORDBLD *home;
+    AIBLD *home;
     ORDCHAR *per;
     ORDCHAR *ch;
     ORDOBJ *w;
@@ -2880,7 +2880,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
     int cnt, scn, owid;
     char t;
 
-    bd = (ORDBLD *)b;
+    bd = (AIBLD *)b;
     p = (unsigned char *)ai_BTypes + bd->type * 0x24d;
     bd->masterId = master;
     if (own != 0xffff) {
@@ -2959,15 +2959,15 @@ void gm_ShowBuildingObjects(unsigned char *b)
     int n, i, o;
 
     n = 0;
-    if (ai_BTypes[((ORDBLD *)b)->type].kind == 2) {
-        o = (int)gm_Query(((ORDBLD *)b)->objList, 1, 4, 2);
+    if (ai_BTypes[((AIBLD *)b)->type].kind == 2) {
+        o = (int)gm_Query(((AIBLD *)b)->objList, 1, 4, 2);
         while (o != 0) {
             l[n] = o;
             n++;
             o = (int)gm_QueryNext();
         }
         for (i = 0; i < n; i++)
-            gm_ShowSlotObjects((int)b, l[i], ((ORDBLD *)b)->owner);
+            gm_ShowSlotObjects((int)b, l[i], ((AIBLD *)b)->owner);
     }
 }
 /* 0x502eb0, lists the characters working in the building b (their building, bld, is b) into out and returns their number (also out[0]): out[1 ..] (0xc) those with the title of the kind's first job rank (+0x22f), out[0xd ..] (0xc) of the second (+0x230), out[0x19 ..] (0xc) the others, out[0x25] the one whose job is one of the kind's two jobs (+0x223 / +0x224, both set); the lists are filled with 0xffff
@@ -3008,7 +3008,7 @@ int gm_ListWorkers(unsigned char *b, int *out)
     p2 = out + 0xd;
     for (i = 0; i < 0x300; i++) {
         c = &ORD_CHARS[i];
-        if (c->bld == (ORDBLD *)b) {
+        if (c->bld == (AIBLD *)b) {
             if (k[0x22f] == (unsigned char)c->title)
                 *p1++ = c->id;
             else if (k[0x230] == (unsigned char)c->title)
@@ -3026,13 +3026,13 @@ int gm_ListWorkers(unsigned char *b, int *out)
 /* 0x502fd0, the sale of the building with the id id to the character with the netId buyer for price (the job record job, the building offer, may be 0; boss: also make the buyer the boss of a home): in the message group "buy_building" the buyer pays the master of the building (a message 0x17e6 "_NACHRICHTEN_HS_30" to the master, cm_SendMoveGoodsUnchecked) or, without a master, the bank (cm_SendMoveGoods), the ownership goes to the buyer (cm_SendOwnership) and for a home (type 2) with boss set the boss too (cm_SendBoss); the job's end is stamped now + 1 second and its HE message sent (cm_SendExSetHE, the slot kept in the job), and the building's field 0x5a set (cm_SendSetField (id, 0x5a, 2, 0, 2)) */
 void gm_SellBuilding(int id, int buyer, int price, int job, int boss)
 {
-    ORDBLD *bl;
+    AIBLD *bl;
     ORDCHAR *ch;
     unsigned char *k;
     GMJOB *j;
     char buf[256];
 
-    bl = (ORDBLD *)gm_BuildQuery(1, 1, id);
+    bl = gm_BuildQuery(1, 1, id);
     ch = (ORDCHAR *)gm_FindChar(buyer);
     k = (unsigned char *)ai_BTypes + bl->type * 0x24d;
     cm_BeginGroup("buy_building");
@@ -3072,7 +3072,7 @@ unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
 
     if (ai_Goods == 0 || ai_BTypes == 0 || f3gm_ObjectCount + 0x40 >= 0x5008)
         return 0;
-    o = (ORDOBJ *)gm_CreateObject(((ORDBLD *)b)->id, n, 1);
+    o = (ORDOBJ *)gm_CreateObject(((AIBLD *)b)->id, n, 1);
     bp = (unsigned char *)ai_BTypes + *b * 0x24d;
     i = 0;
     for (q = ((GMBTYPE *)bp)->objs; (*q & 0x7fff) != n; q++)
@@ -3091,7 +3091,7 @@ unsigned short *gm_AllocRaum(unsigned char *b, unsigned n)
     }
     g = (ORDOBJ *)gm_Query((void *)o->list, 1, 0, 0x2a);
     if (g != 0) {
-        g->ownerId = ((ORDBLD *)b)->id;
+        g->ownerId = ((AIBLD *)b)->id;
         g->count = 2;
         if (bp[0x23d] == 0 && bp[0x23e] == 0 && bp[0x23f] != 0)
             g->cap[0] = bp[0x23f];
@@ -3139,7 +3139,7 @@ int gm_RemoveObjectFromBuilding(int b, int id)
 {
     int r;
 
-    r = gm_RemoveObject(&((ORDBLD *)b)->objList, id);
+    r = gm_RemoveObject(&((AIBLD *)b)->objList, id);
     return (r != -2) ? 0 : -3;
 }
 /* 0x5034b0, frees the object o: its job is posted again and the new slot kept when the job's option 2 is set
@@ -3150,7 +3150,7 @@ void gm_FreeObject(int o)
 {
     ORDOBJ *obj = (ORDOBJ *)o;
     GMJOB *job;
-    ORDBLD *bld;
+    AIBLD *bld;
     struct CHARACTER *model;
     int saved;
 
@@ -3164,7 +3164,7 @@ void gm_FreeObject(int o)
         ch_Delete(model);
         d3if_SelectScene(saved, 1);
     }
-    bld = (ORDBLD *)gm_ObjectBuilding(o);
+    bld = (AIBLD *)gm_ObjectBuilding(o);
     if (bld != 0)
         gm_RemoveOwned(&bld->objList, obj->objId);
 }
@@ -3184,7 +3184,7 @@ int gm_TitleGroup(int n);                /* 0x504ad0 */
    its own v = 1 body (no fall-through) = control; flip.py (want case 10 falling into the b reload): 0 of
    804 mutants. headers sample not run (the tie-break line says four probes insensitive). (tiebreak: not
    measured (dcp headers sample gm_PermissionBits)) prior: Read whole against the original
-   0x503530..0x503bbf and rewritten (ORDBLD / ORDOBJ / ORDCHAR typed; switch on *btype in the original's
+   0x503530..0x503bbf and rewritten (AIBLD / ORDOBJ / ORDCHAR typed; switch on *btype in the original's
    case order 0x21, 2/0x1e, 9, 4, 5.., 0x17.., 0xb.., 0x10, 1/3/f, 0x13, 6, 0x1c->10, 0x1b/0x1d, 7; the job
    scans as index loops btype[0x223 + i] (the original's lea ecx,[edx+esi] test is VC6's replacement of i);
    job2 (+0x169) for the 0x17 .. 0x1a classes; the char pointer ch for 1/3/f, 6, 0x1c). Tables equal,
@@ -3494,8 +3494,8 @@ void gm_KillSpieler(int c, int mode)
         ch->model = 0;
     }
     if (ch->bld2 != 0) {
-        if (ai_BTypes[ch->bld2->type].kind == 1 && ch->bld2->people > 0)
-            ch->bld2->people--;
+        if (ai_BTypes[ch->bld2->type].kind == 1 && ch->bld2->residents > 0)
+            ch->bld2->residents--;
         ch->bld2 = 0;
     }
     ch->bld = 0;
@@ -4033,29 +4033,29 @@ int gm_HasBuilding(int p)
 }
 /* 0x5049e0, the treasury object of the building b's class: class 5 the object 0x142 (the treasury) of the building 2 .. 5 chosen by the player's job2 (0x1e .. 0x21), class 3 the object 0x115 of the building 1; 0 else */
 
-char *gm_ClassTreasury(ORDBLD *b)
+char *gm_ClassTreasury(AIBLD *b)
 {
     int cls;
     char *r;
-    ORDBLD *h;
+    AIBLD *h;
 
     r = 0;
     cls = gm_BuildingClass(b->type);
     if (cls == 5) {
         if (ORD_CHARS[ai_PlayerId].job2 == 0x1e)
-            h = (ORDBLD *)gm_FirstBuilding(2);
+            h = (AIBLD *)gm_FirstBuilding(2);
         else if (ORD_CHARS[ai_PlayerId].job2 == 0x1f)
-            h = (ORDBLD *)gm_FirstBuilding(3);
+            h = (AIBLD *)gm_FirstBuilding(3);
         else if (ORD_CHARS[ai_PlayerId].job2 == 0x20)
-            h = (ORDBLD *)gm_FirstBuilding(4);
+            h = (AIBLD *)gm_FirstBuilding(4);
         else if (ORD_CHARS[ai_PlayerId].job2 == 0x21)
-            h = (ORDBLD *)gm_FirstBuilding(5);
+            h = (AIBLD *)gm_FirstBuilding(5);
         else
             h = 0;
         if (h != 0)
             r = (char *)gm_Query((void *)h->objList, 2, 6, 0, 0x142);
     } else if (cls == 3) {
-        h = (ORDBLD *)gm_FirstBuilding(1);
+        h = (AIBLD *)gm_FirstBuilding(1);
         r = (char *)gm_Query((void *)h->objList, 2, 6, 0, 0x115);
     }
     return r;
@@ -4064,7 +4064,7 @@ char *gm_ClassTreasury(ORDBLD *b)
 
 struct AIOBJ *gm_PlayerSeat(int p)
 {
-    ORDBLD *b = (ORDBLD *)gm_FirstBuilding(p);
+    AIBLD *b = (AIBLD *)gm_FirstBuilding(p);
 
     if (p == 1)
         return gm_Query((void *)b->objList, 2, 6, 0, 0x115);
@@ -5208,7 +5208,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     short j;
     unsigned char *rec;
     unsigned *head;
-    ORDBLD *bl;
+    AIBLD *bl;
     ORDOBJ *o;
 
     ca = ORD_CHAR(gm_FindChar(a));
@@ -5216,7 +5216,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
         return -1;
     ai_RestartMission((struct G13MIS *)ca);
     for (j = 0; j < 0x100; j++) {
-        bl = &((ORDBLD *)ai_Blds)[j];
+        bl = &((AIBLD *)ai_Blds)[j];
         if (bl->type != 0 && gm_BuildingClass(bl->type) == 2 && bl->owner == ca->id)
             gm_AssignBuilding((unsigned char *)bl, ai_PlayerChar->id, ai_PlayerChar->id);
     }
@@ -5326,23 +5326,23 @@ struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
    guess for "inheritance") */
 void gm_InheritEstate(ORDCHAR *dead, ORDCHAR *heir)
 {
-    ORDBLD *blds[0x80];
+    AIBLD *blds[0x80];
     char t1[0x800];
     char t2[0x1000];
     GMMSG m;
     GVENTRY *e;
-    ORDBLD *s;                  /* the graves building, then the buildings of dead */
+    AIBLD *s;                  /* the graves building, then the buildings of dead */
     ORDCHAR *c;
     int n, taken, k, i, j;      /* k: the building's class, then the money and the worth handed on */
 
     n = 0;
     taken = 0;
     if (gv_FindHeldEntry(dead, (unsigned char **)&s, (int *)&e) != 0) {
-        gv_OrderBury((int *)dead, (char *)s, e->size, gv_EntryIndex((char *)s->block65, (int *)e));
+        gv_OrderBury((int *)dead, (char *)s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
         if (heir != 0 && heir != ai_PlayerChar && e->id == dead->netId)
-            gv_OrderSetGraveHolder((int *)heir, (char *)s, e->size, gv_EntryIndex((char *)s->block65, (int *)e));
+            gv_OrderSetGraveHolder((int *)heir, (char *)s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
     }
-    s = (ORDBLD *)gm_BuildQuery(1, 4, dead->id);
+    s = gm_BuildQuery(1, 4, dead->id);
     while (s != 0) {
         k = gm_BuildingClass(s->type);
         if (k == 2)
@@ -5374,7 +5374,7 @@ void gm_InheritEstate(ORDCHAR *dead, ORDCHAR *heir)
             }
             }
         blds[n++] = s;
-        s = (ORDBLD *)gm_BuildNext();
+        s = gm_BuildNext();
     }
     if (heir != ai_PlayerChar) {
         int kind;               /* the kind a heir with a building gets */
@@ -5463,9 +5463,9 @@ void gm_InheritEstate(ORDCHAR *dead, ORDCHAR *heir)
    the masked block inline */
 void gm_ForfeitEstate(ORDCHAR *c, char *out, int flag)
 {
-    ORDBLD *heirs[0x80];
+    AIBLD *heirs[0x80];
     ORDCHAR *pl;
-    ORDBLD *own, *best, *b, *h;
+    AIBLD *own, *best, *b, *h;
     ORDOBJ *o;
     ORDCHAR *t;
     unsigned char *kind;
@@ -5477,7 +5477,7 @@ void gm_ForfeitEstate(ORDCHAR *c, char *out, int flag)
     n = 0;
     bestv = 0;
     pl = ai_PlayerChar;
-    b = (ORDBLD *)gm_BuildQuery(1, 3, c->id);
+    b = gm_BuildQuery(1, 3, c->id);
     while (b != 0) {
         h = 0;
         kind = (unsigned char *)ai_BTypes + b->type * 0x24d;   /* the type record: its first byte is the kind */
@@ -5530,7 +5530,7 @@ void gm_ForfeitEstate(ORDCHAR *c, char *out, int flag)
                 }
             }
         }
-        b = (ORDBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     cm_SendMoveGoods(pl->netId, -1, ai_OwnPlayer, gm_CharSumAmounts((char *)c));
     o = (ORDOBJ *)gm_Query((void *)c->inventory, 1, 5);
@@ -5736,7 +5736,7 @@ extern JOBTALENTS gm_TitleTalents[0x24];  /* 0x61a8c8 */
    ours UNPROFITABLE sav -4 refs 4; the -1 constant no candidate in the original: v210 immediate,
    picture/partyId via 'or eax,-1'; ours -1 in edi across sprintf), p2 reload placement in the p2 child
    loop, mx1 compared from memory in the skill loop. */
-unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct ORDBLD *a5, unsigned a6, int a7, int a8)
+unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8)
 {
     int idx, i, k, w, r, n, mx1, mx2, v;
     ORDCHAR *c;
@@ -6364,14 +6364,14 @@ int gm_BuildingLevel(AIBLD *b)
 
 int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     unsigned char *kind;    /* the kind's ai_BTypes record: +0x223 the job ids, +0x22f the title ranks */
     char *own;
     ORDCHAR *c;
     int i, j, cost, income, wage, found, sum;
     ORDOBJ *o;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     sum = 0;
     cost = 0;
     income = 0;
@@ -6415,11 +6415,11 @@ int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
             }
         }
         out[3] = sum;
-        out[0x12] = bld->roundSum;
+        out[0x12] = bld->roundSums[0];
         cost = sum;
         if (*kind == 5) {
-            out[10] = bld->v55;
-            income = bld->v55;
+            out[10] = bld->roundSums[2];
+            income = bld->roundSums[2];
         }
         if (*kind == 7) {
             o = (ORDOBJ *)gm_Query((void *)bld->objList, 2, 6, 0, 0xe8);
@@ -6432,12 +6432,12 @@ int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
                 out[0xf] += gm_SumListAmounts((void *)o->list, ai_OwnPlayer);
                 income += out[0xf];
             }
-            out[0xd] += bld->v65;
+            out[0xd] += bld->earnings;
             out[0xe] += bld->daySum;
             income += out[0xd] + out[0xe];
         } else if (*kind == 0x16) {
-            income += bld->v6d;
-            out[0x13] = bld->v6d;
+            income += bld->inn.lastTakings;
+            out[0x13] = bld->inn.lastTakings;
         }
     }
     out[0x10] = cost;
@@ -6449,7 +6449,7 @@ int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
 }
 /* 0x509060, up to three carts of the building b: the instance table's objects of the goods kind 0x1d whose cartBld (+0x1c) is the building's id; returns the count and stores the objects in out */
 
-int gm_BuildingCarts(ORDBLD *b, int *out)
+int gm_BuildingCarts(AIBLD *b, int *out)
 {
     int n;
     ORDOBJ *o;
@@ -6525,13 +6525,13 @@ int gm_BuildingRankGate(AIBLD *b, AIBLD *c)
 
 int gm_BuildingValues(unsigned char *b, int *out)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     unsigned char *kind;
     ORDOBJ *stall, *o;
     float f, tot;
     int n;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     f = 0.0f;
     kind = (unsigned char *)ai_BTypes + bld->type * 0x24d;
     if (bld->owner != 0xffff) {
@@ -6693,12 +6693,12 @@ int gm_FixedWorkMinutesBetween(AITIME *a, AITIME *b)
 
 int gm_BuildingGoodsList(char *b, unsigned *out, int kind)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     ORDOBJ *stall, *o;
     GMGOOD *g;
     int i, cap;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     for (i = 0; i < 0x2e; i++)
         out[i] = 0;
     if (gm_Query((void *)bld->objList, 1, 0, 0xfd) == 0)
@@ -6737,12 +6737,12 @@ int gm_BuildingGoodsList(char *b, unsigned *out, int kind)
 
 int gm_BuildingGoodsList17(char *b, unsigned *out, int kind)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     ORDOBJ *stall, *o;
     GMGOOD *g;
     int i, cap;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     for (i = 0; i < 0x2e; i++)
         out[i] = 0;
     if (gm_Query((void *)bld->objList, 1, 0, 0xfd) == 0)
@@ -6789,7 +6789,7 @@ int gm_EquipmentValue(unsigned char *b, int level)
 
     holder = 0;
     found = 0;
-    t = GM_BTYPE(((ORDBLD *)b)->type);
+    t = GM_BTYPE(((AIBLD *)b)->type);
     value = t->baseValue * 0xf00;
     i = 0;
     w = &t->objs[1];
@@ -6800,7 +6800,7 @@ int gm_EquipmentValue(unsigned char *b, int level)
         g = GM_GOOD(id);
         if (!found) {
             if (g->type == 2 || g->type == 6) {
-                holder = (ORDOBJ *)gm_Query((void *)((ORDBLD *)b)->objList, 1, 0, id);
+                holder = (ORDOBJ *)gm_Query((void *)((AIBLD *)b)->objList, 1, 0, id);
                 if (holder != 0) {
                     value += gm_ItemPrice(holder->type, holder->fill);
                     if (i < 0x3f && (k = GM_GOOD(*w & 0x7fff)->type) != 2 && k != 6)
@@ -6823,7 +6823,7 @@ int gm_EquipmentValue(unsigned char *b, int level)
 
 int gm_OwnerWorth(char *b, int flag)
 {
-    ORDBLD *bld = (ORDBLD *)b;
+    AIBLD *bld = (AIBLD *)b;
     unsigned short id;
     int v;
     ORDOBJ *stall, *o;
@@ -6993,7 +6993,7 @@ int gm_StallValue(char *b)
     ORDOBJ *stall, *o;
 
     v = 0;
-    stall = (ORDOBJ *)gm_Query((void *)((ORDBLD *)b)->objList, 2, 6, 0, 0x2a);
+    stall = (ORDOBJ *)gm_Query((void *)((AIBLD *)b)->objList, 2, 6, 0, 0x2a);
     if (stall) {
         o = (ORDOBJ *)gm_Query((void *)stall->list, 1, 5);
         while (o) {
@@ -7009,7 +7009,7 @@ int gm_StallValue(char *b)
 
 unsigned short *gm_ObjectOwnerChar(unsigned short *o)
 {
-    ORDBLD *b;
+    AIBLD *b;
 
     gm_FindById((int *)&b, 0, (int *)&o, ((ORDOBJ *)o)->holderId);
     if (o == 0) {
@@ -7023,7 +7023,7 @@ unsigned short *gm_ObjectOwnerChar(unsigned short *o)
 
 unsigned short *gm_ObjectBuildingOwner(unsigned short *o)
 {
-    ORDBLD *b;
+    AIBLD *b;
 
     gm_FindById((int *)&b, 0, (int *)&o, ((ORDOBJ *)o)->holderId);
     if (o == 0) {
@@ -7038,7 +7038,7 @@ unsigned short *gm_ObjectBuildingOwner(unsigned short *o)
 
 unsigned short gm_ObjectOwnerNo(unsigned short *o)
 {
-    ORDBLD *b;
+    AIBLD *b;
 
     gm_FindById((int *)&b, 0, (int *)&o, ((ORDOBJ *)o)->holderId);
     if (o != 0)
@@ -7070,7 +7070,7 @@ int gm_ObjectBuilding(int o)
    charId +0xb0 is its netId), only of the building bld when it is not 0 (their bldId +0xac is its id);
    returns their number */
 
-int gm_CreditEvents(int c, ORDBLD *bld, int *out)
+int gm_CreditEvents(int c, AIBLD *bld, int *out)
 {
     int n;
     GMEVENT23 *ev;
@@ -7086,18 +7086,18 @@ int gm_CreditEvents(int c, ORDBLD *bld, int *out)
     }
     return n;
 }
-/* 0x50a1c0, collects into out (up to 9) the events of the kind 0x23 whose building belongs to the owner (ORDBLD.owner), only of the building b when b is not 0 and of the character slot c when c is not 0xffff; returns their number */
+/* 0x50a1c0, collects into out (up to 9) the events of the kind 0x23 whose building belongs to the owner (AIBLD.owner), only of the building b when b is not 0 and of the character slot c when c is not 0xffff; returns their number */
 
 int gm_BuildingEvents(unsigned owner, int b, int c, int *out)
 {
     int n;
     GMEVENT23 *ev;
-    ORDBLD *bl;
+    AIBLD *bl;
 
     n = 0;
     ev = (GMEVENT23 *)he_FindEvent(1, n, 0x23);
     while (ev != 0 && n < 9) {
-        bl = (ORDBLD *)gm_BuildQuery(1, 1, ev->bldId);
+        bl = gm_BuildQuery(1, 1, ev->bldId);
         if (bl != 0 && bl->owner == owner && (b == 0 || b == (int)bl) &&
             (c == 0xffff || ORD_CHARS[c].netId == ev->charId)) {
             out[n++] = (int)ev;
@@ -7106,7 +7106,7 @@ int gm_BuildingEvents(unsigned owner, int b, int c, int *out)
     }
     return n;
 }
-/* 0x50a250, the credit offers of the bank b to the person p: up to cnt offers (amount, term 2 .. 7, interest) written to out; returns 3, or 0 when b has no owner, p or cnt is 0 or the bank already has 9 credits running (gm_BuildingEvents). A player (kind 6) gets the bank's kept offers (ORDBLD.credits) while one of them is taken (-1) or within the bank's money (gm_SumSlotAmounts); before day 6 a bank of a computer owner tops its money up to 0.2 of the player's worth (at most 64000, cm_SendMoveGoods). New offers: at most worth (gm_GetWorth) x 0.3 (0.6 / 0.45 for the orders 0xf / 0xb of ord_DispatchOrder) and half the bank's money, each 70 .. 100 % of it (the first 1/4, the second 1/2); the interest lies between 0.7 and 1.5 of the bank's v65 by the term, less (liking - 50) / 20 (gm_Liking) for a player or a computer player at a computer bank; a player's offers are kept
+/* 0x50a250, the credit offers of the bank b to the person p: up to cnt offers (amount, term 2 .. 7, interest) written to out; returns 3, or 0 when b has no owner, p or cnt is 0 or the bank already has 9 credits running (gm_BuildingEvents). A player (kind 6) gets the bank's kept offers (AIBLD.credits) while one of them is taken (-1) or within the bank's money (gm_SumSlotAmounts); before day 6 a bank of a computer owner tops its money up to 0.2 of the player's worth (at most 64000, cm_SendMoveGoods). New offers: at most worth (gm_GetWorth) x 0.3 (0.6 / 0.45 for the orders 0xf / 0xb of ord_DispatchOrder) and half the bank's money, each 70 .. 100 % of it (the first 1/4, the second 1/2); the interest lies between 0.7 and 1.5 of the bank's v65 by the term, less (liking - 50) / 20 (gm_Liking) for a player or a computer player at a computer bank; a player's offers are kept
    @deep deep s26: the 70 .. 100 % factor matched: (float)(-util_Random(0x1e) * 0.01) + 1.0 keeps the
    original's neg eax / fadd 1.0 (a double expression folds to fsubr; toy compile: a float local or float
    cast of the product is the only form that keeps the neg) -> shape 4 ins / 58 bytes, padded size right.
@@ -7126,7 +7126,7 @@ int gm_BuildingEvents(unsigned owner, int b, int c, int *out)
 
 int gm_GetCreditOffers(int b, unsigned short *p, unsigned cnt, int *out)
 {
-    ORDBLD *bank = (ORDBLD *)b;
+    AIBLD *bank = (AIBLD *)b;
     ORDCHAR *ch = (ORDCHAR *)p;
     ORDCREDIT *offers = (ORDCREDIT *)out;
     int budget, worth, maxAmount, i, all, amount, term, interest;
@@ -7187,7 +7187,7 @@ int gm_GetCreditOffers(int b, unsigned short *p, unsigned cnt, int *out)
         else if (k == 1)
             amount = (int)(amount * 0.5);
         term = util_Random(6) + 2;
-        interest = (int)(bank->v65 * 0.7 + (bank->v65 * 1.5 - bank->v65 * 0.7) * (term / 6.0f));
+        interest = (int)(bank->interest * 0.7 + (bank->interest * 1.5 - bank->interest * 0.7) * (term / 6.0f));
         if (ORD_CHARS[bank->owner].kind != 6 && ORD_CHARS[bank->owner].kind != 7 && (ch->kind == 6 || ch->kind == 7)) {
             interest = (int)((float)interest - (float)((gm_Liking(*p, bank->owner, 1) - 50.0f) * 0.01) * 5.0f);
         }
@@ -8113,10 +8113,10 @@ void gm_CloseTechTree(void)
 
 int gm_AddToTreasury(int a)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
 
-    b = (ORDBLD *)gm_FirstBuilding(1);
+    b = (AIBLD *)gm_FirstBuilding(1);
     o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
     return cm_SendMoveGoodsUnchecked(-1, o->objId, ai_OwnPlayer, a);
 }
@@ -8161,7 +8161,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
     unsigned i;
     unsigned flags, n;
     float rel;
-    ORDBLD *bp;
+    AIBLD *bp;
     GMBTYPE *t;
     AMTKIND kind;
 
@@ -8170,13 +8170,13 @@ float gm_Liking(unsigned a, unsigned b, int c)
     if (a == 0xffff || b == 0xffff)
         return 50.0f;
     if (ORD_CHARS[a].bld2 != 0)
-        sum = (float)gm_BuildingSkill((AIBLD *)ORD_CHARS[a].bld2, 4, 1);
+        sum = (float)gm_BuildingSkill(ORD_CHARS[a].bld2, 4, 1);
     if (ORD_CHARS[a].job != 0) {
         amt_GetKind(ORD_CHARS[a].job, &kind);
         if (kind.col == 4) {
-            bp = (ORDBLD *)gm_FirstBuilding(1);
+            bp = (AIBLD *)gm_FirstBuilding(1);
             if (bp != 0)
-                sum += (float)gm_BuildingSkill((AIBLD *)bp, 4, 1);
+                sum += (float)gm_BuildingSkill(bp, 4, 1);
         }
     }
     if (ORD_CHARS[a].job2 >= 0x1e && ORD_CHARS[a].job2 <= 0x21) {
@@ -8195,13 +8195,13 @@ float gm_Liking(unsigned a, unsigned b, int c)
             g = 0x17;
             break;
         }
-        bp = (ORDBLD *)gm_BuildQuery(1, 5, g);
+        bp = gm_BuildQuery(1, 5, g);
         if (bp != 0 && (bp->flags5a & 1) == 0)
-            sum += (float)gm_BuildingSkill((AIBLD *)bp, 4, 1);
+            sum += (float)gm_BuildingSkill(bp, 4, 1);
     }
     rel = (ai_Relations[a][b] + 0x7f) * 0.003921569f;  /* the relation -127 .. 128 as 0 .. 1 */
     sum += rel * 100.0f;
-    bp = (ORDBLD *)ai_Blds;
+    bp = ai_Blds;
     i = 0;
     best = 0;
     for (; i < 0x100; i++, bp++) {
@@ -8313,14 +8313,14 @@ void gm_ChangeObjektZustand(int id, int d)
     cm_AddFieldValues(1, 1, 0x12, &v);
     cm_SendFieldDeltas();
 }
-/* 0x50cad0, changes the state (ORDBLD.level, kept in 0 .. 100) of the building b by d and sends it; when the
+/* 0x50cad0, changes the state (AIBLD.level, kept in 0 .. 100) of the building b by d and sends it; when the
    building drops to 0 and its type is not of the kinds 6, 10, 0xf, 0x10, 0x1b, 0x1c or 0x17 and up, every player
    character (kind 6 / 7) gets the news: HS_66 for the owner, HS_67 with the owner's name for the others, and the
    building is reported gone (cm_SendBuildingDestroyed) */
 
 void gm_ChangeBuildingState(unsigned char *b, int d)
 {
-    ORDBLD *bld = (ORDBLD *)b;
+    AIBLD *bld = (AIBLD *)b;
     char k;
     char v;
     GMBTYPE *bt;
@@ -8364,10 +8364,10 @@ void gm_SendMoneyDelta(int a, int b)
 
 void gm_ResetStock(void)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *l, *o;
 
-    b = (ORDBLD *)gm_BuildQuery(1, 0, 0x1e);
+    b = gm_BuildQuery(1, 0, 0x1e);
     while (b != 0) {
         l = (ORDOBJ *)gm_Query((void *)b->objList, 1, 0, 0xff);
         if (l != 0) {
@@ -8378,7 +8378,7 @@ void gm_ResetStock(void)
                 o = (ORDOBJ *)gm_QueryNext();
             }
         }
-        b = (ORDBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
 }
 /* 0x50ccd0, 1 when the character c (flag b1b1 set) owns no home: none of the 0x100 buildings has a type of
@@ -8387,13 +8387,13 @@ void gm_ResetStock(void)
 int gm_Homeless(char *c)
 {
     int i;
-    ORDBLD *b;
+    AIBLD *b;
 
     if (ORD_CHAR(c)->b1b1 == 0)
         return 0;
-    b = (ORDBLD *)ai_Blds;
+    b = ai_Blds;
     for (i = 0; i < 0x100; i++) {
-        if (b->type != 0 && ai_BTypes[b->type].kind == 4 && b->v65 == (int)ORD_CHAR(c)->netId)
+        if (b->type != 0 && ai_BTypes[b->type].kind == 4 && b->ownerNetId == (int)ORD_CHAR(c)->netId)
             return 0;
         b++;
     }
@@ -8417,7 +8417,7 @@ float gm_JobCost(char *c, int k, int a, int b)
 
 float gm_StaffFactor(AIBLD *b, int n, int *ids)
 {
-    ORDBLD *bld = (ORDBLD *)b;
+    AIBLD *bld = b;
     GMBTYPE *t;
     ORDCHAR *c;
     int i, cnt, id;
@@ -8468,9 +8468,9 @@ float gm_StaffFactor(AIBLD *b, int n, int *ids)
 int gm_BathObjectCount(char *b)
 {
     int n;
-    ORDBLD *bld;
+    AIBLD *bld;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     n = 1;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x27a) != 0)
         n = 2;
@@ -8486,9 +8486,9 @@ int gm_BathObjectCount(char *b)
 int gm_CurseObjectCount(char *b)
 {
     int n;
-    ORDBLD *bld;
+    AIBLD *bld;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     n = 2;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x274) != 0)
         n = 3;
@@ -8505,10 +8505,10 @@ int gm_CurseObjectCount(char *b)
 
 int gm_TrialBuildingKind(char *b)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     int n;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     n = 1;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x285) != 0)
         n = 2;
@@ -8521,10 +8521,10 @@ int gm_TrialBuildingKind(char *b)
 
 int gm_CurseTargetCount(char *b)
 {
-    ORDBLD *bld;
+    AIBLD *bld;
     int n;
 
-    bld = (ORDBLD *)b;
+    bld = (AIBLD *)b;
     n = 4;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x284) != 0)
         n = 7;
@@ -8548,10 +8548,10 @@ int ai_NextPartyId = 1;  /* 0x61a658, the next party id (ls.c saves and loads it
 unsigned char gm_UnreadData[16] = { 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 3, 4, 5, 0, 0, 0 };  /* 0x61a65c, a byte table no surviving
    code reads (no instruction operand or image dword points into it: data of functions /OPT:REF removed), between
    ai_NextPartyId and gm_BQType in the plain block; the original's bytes */
-unsigned char gm_BQType = 0xff;  /* 0x61a66c, the building query: the building type (ORDBLD.type, 0xff = any) */
+unsigned char gm_BQType = 0xff;  /* 0x61a66c, the building query: the building type (AIBLD.type, 0xff = any) */
 int gm_BQId = -1;  /* 0x61a670, the query: id (-1 = any) */
-unsigned short gm_BQMaster = 32767;  /* 0x61a674, the query: the master id (ORDBLD.masterId, 0x7fff = any) */
-unsigned short gm_BQOwner = 32767;  /* 0x61a676, the query: the owner (ORDBLD.owner, 0x7fff = any) */
+unsigned short gm_BQMaster = 32767;  /* 0x61a674, the query: the master id (AIBLD.masterId, 0x7fff = any) */
+unsigned short gm_BQOwner = 32767;  /* 0x61a676, the query: the owner (AIBLD.owner, 0x7fff = any) */
 unsigned char gm_BQClass = 0xff;  /* 0x61a678, the query: the class of the type (the first byte of its ai_BTypes record, 0xff = any) */
 int gm_QueryType = 32767;  /* 0x61a67c, the query: object prototype ( */
 int gm_QueryOwner = -1;  /* 0x61a680, the query: owner id (-1 = any) */
@@ -8579,7 +8579,7 @@ char gm_QueryScanAll = 0;  /* 0x6f1be8 */
 char gm_QueryChildren = 0;  /* 0x6f1be9 */
 char gm_QueryStopFirst = 0;  /* 0x6f1bea, first-step flag, scan all, descend into children, stop at the first */
 int gm_QueryUnreadBss = 0;  /* 0x6f1bec, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-ORDBLD *gm_BQCursor = 0;  /* 0x6f1bf0, the current building of the query */
+AIBLD *gm_BQCursor = 0;  /* 0x6f1bf0, the current building of the query */
 ORDOBJ *gm_QueryCursor = 0;  /* 0x6f1bf4, the current record */
 AICHAR *ai_PlayerChar = 0;  /* 0x6f1bf8, the player's character */
 unsigned short gm_KindObjCount;  /* 0x76fdc4, common: tentative as in the original (the common block past LIBC's

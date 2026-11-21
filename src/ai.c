@@ -1067,7 +1067,8 @@ void ai_EvaluateProductionCategory2(AICHAR *ch)
     AIPLANT *plant;
     void *x;
     AIINFO info;
-    int i, j, k, n, id, found, v71;
+    int i, j, k, n, id, found;
+    struct G15PLANT *v71;
     int r, y, idx;
 
     a = gm_Query(ch->bld->objList, 2, 6, 0, 0xff);
@@ -4312,7 +4313,7 @@ void ai_SendJobOrders(AIINFO *info)
     type = info->type;
     if (type == 0x28) {
         n = info->n1;
-        map = (G15PLANT *)info->ch->bld->plants;
+        map = info->ch->bld->plants;
         if (n <= 1 || info->z1 != 0) {
             total = info->n2 / n;
             base = info->z2;

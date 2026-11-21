@@ -3470,7 +3470,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
         }
         if (b->type == 0x1e && slot == 0xfd)
-            veg_ShowPlants((struct G15PLANT *)b->plants);
+            veg_ShowPlants(b->plants);
         ai_SceneBuilding = b;
         sv_CollectGroupCharacters((char *)b);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SyncSceneObjects);

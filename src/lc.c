@@ -68,7 +68,7 @@
    the gv record (AIWINDOWROW, AIPOSVIEW), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout), the
    player record (LCFIN, ai.h AIFIN) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
-   settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and G8BLD (a building's good id, gv.h's ORDBLD).
+   settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and G8BLD (a building's good id, ai_bld.h's AIBLD).
    The production window's tables are this unit's typed data (lc.h): the goods columns ai_ProdColumns (LCPRODCOL),
    the picked input ai_ProdSelectedInput and the goods grids ai_ProdRows / ai_ProdGoods / ai_ProdRows2 /
    ai_ProdGoods2 and the column slots ai_ProdColumnSlots (LCPRODROW / LCPRODSLOT); the member list rows are sv's SVMEMBERROW (sv_types.h, sv_MemberRows).
@@ -3308,7 +3308,7 @@ void ai_GameFrame(void)
             if ((float)ai_Time.hour >= gm_DayStartHours[season] && (float)ai_Time.hour < gm_DayEndHours[season]) {
                 for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     if (b->smokeEffect == -1)
-                        sv_UpdateChimneySmoke((struct AIBLD *)b);
+                        sv_UpdateChimneySmoke(b);
                 }
                 mode = 2;
             }
@@ -4332,7 +4332,7 @@ void ai_KontorContact(AIBLD *bld)
     ai_CampaignStep(0x1c, (int)bld, 0, 0);
 }
 void ob_HandleBepflanzung(AIBLD *bld);
-void ai_HandlePickedPlant(AIBLD *bld, int plants);
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 /* 0x593b00, the wood-kontor contact listener (416 B): 0x52e190; the context *(param_1 + 0x71); the pump
    0x5309a0 (this, 0x67fff); while the flag 0x6f231c has 0x200: LAGER (0x1441f90, 0xe), PRODUKTION_HOLZ
    (0x1442128, 0x13), GELAGE (0x1441f88, 0x16), TRANSPORT (0x1441fa0, 0x15), ZIELSCHEIBE (0x1440acc, 0xc),
@@ -4350,7 +4350,7 @@ void ai_WoodKontorContact(AIBLD *bld)
     int transport;
     int ziel;
     int stroh;
-    int plants;
+    struct G15PLANT *plants;
 
     transport = 0;
     lager = 0;
@@ -5153,13 +5153,13 @@ void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
             if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == schmieden)
-                ai_ProductionWindow((AIBLD *)bld);
+                ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
         }
         ai_MarketContact(bld);
         r = sv_RunFrame(ai_SmithyContact, 0x67fff);
@@ -5201,7 +5201,7 @@ void ai_CarpenterContact(AIBLD *bld, AIOBJ *room)
         ai_MarketContact(bld);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == tischler)
-                ai_ProductionWindow((AIBLD *)bld);
+                ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
@@ -5209,7 +5209,7 @@ void ai_CarpenterContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
         }
         r = sv_RunFrame(ai_CarpenterContact, 0x67fff);
     }
@@ -5622,7 +5622,7 @@ void ai_MixingContact(AIBLD *bld, AIOBJ *room)
         ai_MarketContact(bld);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == mischen)
-                ai_ProductionWindow((AIBLD *)bld);
+                ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
@@ -5632,7 +5632,7 @@ void ai_MixingContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == sammeln)
                 ai_TradeSearchWindow(bld, room);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
         }
         r = sv_RunFrame(ai_MixingContact, 0x67fff);
     }
@@ -5675,7 +5675,7 @@ void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == steinmetz)
-                ai_ProductionWindow((AIBLD *)bld);
+                ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == personal)
@@ -5683,7 +5683,7 @@ void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
         }
         r = sv_RunFrame(ai_StonecutterContact, 0x67fff);
     }
@@ -7467,9 +7467,9 @@ void ai_BreweryContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow((int)bld, bld->objList);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
             else if (ai_ClickedObject == brauen)
-                ai_ProductionWindow((AIBLD *)bld);
+                ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
         }
@@ -9291,7 +9291,7 @@ void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
             else if (ai_ClickedObject == overview)
                 ai_FortuneOverview(bld);
             if (ai_ClickedObject != 0) {
@@ -9303,7 +9303,7 @@ void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
                 } else if (ai_ClickedObject == wechsel) {
                     ai_ExchangeWindow((int)bld);
                 } else if (ai_ClickedObject == kredite) {
-                    ai_CreditListWindow((AIBLD *)bld);
+                    ai_CreditListWindow(bld);
                 }
             }
         }
@@ -9479,7 +9479,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 }
                 if (d3_CurrentScene != 0)
                     d3_DeflateScene(3);
-                ai_PlayerBuilding = (AIBLD *)b;
+                ai_PlayerBuilding = b;
                 sv_PanelShown = room;
                 evt_NoGroup = room->objId;
                 ch_CurrentGroup = b->id;
@@ -9740,7 +9740,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
             init_LoadBuildingScene(b->type);
             d2_CutsceneActive = 0;
         }
-        ai_FallbackBuilding = (AIBLD *)b;
+        ai_FallbackBuilding = b;
         evt_NoGroup = b->id;
         ch_CurrentGroup = b->id;
         room = gm_Query((void *)b->objList, 2, 6, 0, 0xfd);
@@ -13439,7 +13439,7 @@ void ai_CityWatchListener(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == zoll)
                 ai_ArrestStart(bld);
             else if (ai_ClickedObject == meister)
-                ai_MasterLetterWindow((AIBLD *)bld);
+                ai_MasterLetterWindow(bld);
         }
         r = sv_RunFrame(ai_CityWatchListener, 0x67fff);
     }
@@ -13521,7 +13521,7 @@ void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
 int d2_SetForm(int view, int n); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_CloseView(int view); void d2_RemoveObj(); void d2_ScrollWindowBy();
 #pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of gv.h's ORDBLD (gv.h cannot be included here yet): the
+typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
                                            fields the production settings read */
     unsigned char type;                 /* +0x00, the building kind */
     int id;                             /* +0x01, the building's id (the production settings chain's key) */

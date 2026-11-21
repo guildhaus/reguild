@@ -134,8 +134,8 @@ typedef struct ORDCHAR {
     unsigned char appliedOffice;    /* 0x168, ai.h AICHAR.appliedOffice, 0 = none */
     unsigned char job2;             /* 0x169, the second profession field, tested by the same orders */
     char pad16a[2];
-    struct ORDBLD *bld;             /* 0x16c, the character's building (ai.h AICHAR.bld) */
-    struct ORDBLD *bld2;            /* 0x170, the character's own building (its home), 0 when none */
+    struct AIBLD *bld;             /* 0x16c, the character's building (ai.h AICHAR.bld) */
+    struct AIBLD *bld2;            /* 0x170, the character's own building (its home), 0 when none */
     int jobDays;                    /* 0x174, the days served in the current job: a job change clears it (gm_SetJob 0x504790), gm_TitlePeriodServed weighs it against the title period */
     int inventory;                  /* 0x178, the character's goods inventory, an object list (ai.h AICHAR.inventory) */
     char pad17c[8];
@@ -219,63 +219,6 @@ typedef struct ORDMSG {
 #define ORD_MSG(p) ((ORDMSG *)(p))
 
 #pragma pack(push, 1)
-/* the building record ai.h's AIBLD, as ord.c reads it (gv.h and ai.h cannot be in one TU: both declare
-   ai_Time / ai_Chars / ai_BTypes); the object list of gm_BuildQuery's records */
-typedef struct ORDBLD {
-    unsigned char type;             /* 0x00, index into ai_BTypes */
-    int id;                         /* 0x01, ai.h AIBLD.id */
-    char name[0x20];                /* 0x05, the building's name (ai.h AIBLD.name) */
-    unsigned short masterId;        /* 0x25, the character id of the building's master (ai.h AIBLD.masterId) */
-    unsigned short owner;           /* 0x27, index into ai_Chars, 0xffff = none */
-    unsigned short mainRoom;        /* 0x29, the room the building's panel opens with (ai.h AIBLD.mainRoom; gm_CreateBuilding) */
-    int v2b;                        /* 0x2b, cleared by gm_CreateBuilding */
-    unsigned char b2f;              /* 0x2f, cleared by gm_CreateBuilding */
-    int v30;                        /* 0x30, set by gm_CreateBuilding: 0x1388 for a home, 100 for the kinds 0x1e .. 0x20, 0x13880 for the office 0x47, else 0 */
-    char pad34[5];
-    int budget;                     /* 0x39, ai.h AIBLD.budget, 0x7d00 when created */
-    int wageRate;                   /* 0x3d, ai.h AIBLD.wageRate, 100 when created */
-    int workRate;                   /* 0x41, ai.h AIBLD.workRate, 2 when created */
-    int v45;                        /* 0x45, 100 when created */
-    float priceFactor;              /* 0x49, scales the goods price of the building's offers (f3gm.c gm_CollectOffers) */
-    int roundSum;                   /* 0x4d, ai.h AIBLD.roundSums[0], cleared at the end of every day (gm_EndDayIncomes) */
-    char pad51[4];
-    int v55;                        /* 0x55, of a kind 5 building an income per round (gm_BuildingBalance out[10]) */
-    char pad59;
-    union {
-        unsigned char flags5a;      /* 0x5a, bit 0: takes no new inhabitants (gm_FindHome) */
-        unsigned short flags5aw;    /* 0x5a, read as a word (ai.h AIBLD.flags5aw): 0x1000 adds 0.1 to the building's
-                                       staff factor (gm_StaffFactor) */
-    };
-    char level;                     /* 0x5c, the building's level 0 .. 100 */
-    int objList;                    /* 0x5d */
-    struct D3OBJECT *object;        /* 0x61, its object in the scene */
-    union {
-        unsigned char people;       /* 0x65, the number of its inhabitants, below the kind's capacity
-                                       (ord_GetKindRecord [0]) while it has room (gm_FindHome) */
-        int block65;                /* 0x65, of the kinds 0x48 .. 0x4a a graveyard record (gv_FreeGraveyard), of
-                                       0x4b .. 0x4d a heap block (gm_FreeBuilding frees both; ai.h AIBLD.yard) */
-        int v65;                    /* 0x65, set by gm_CreateBuilding per kind: 4 .. 7 the owner's netId (-1 without
-                                       one), 0xb .. 0xd -1, 0xe .. 0x10 10, 0x35 .. 0x37 0 */
-    };
-    union {
-        struct {
-            int daySum;             /* 0x69, ai.h AIBLD.daySum, cleared for the kinds 11 .. 13 at the end of every day (reasoned guess: a per-day sum, as roundSum) */
-            int v6d;                /* 0x6d, gm_CreateBuilding: 5 for the kinds 0xe .. 0x10, 0 for 0x35 .. 0x37 */
-            struct G15PLANT *plants; /* 0x71, of a kind 0x1e building its plant records (ai.h AIBLD.plants), freed by gm_FreeBuilding */
-        };
-        AITIME created;             /* 0x69, of the kinds 4 .. 7 the game time it was created (gm_CreateBuilding) */
-        unsigned short w69[2];      /* 0x69, the kinds 0x35 .. 0x37 clear it as two words */
-        struct {
-            char pad69[8];
-            ORDCREDIT credits[3];   /* 0x71, of a bank the credit offers kept for the player (gm_GetCreditOffers) */
-        };
-        char u69[0x2c];             /* 0x69 .. 0x95 */
-    };
-    int smokeEffect;                /* 0x95, ai.h AIBLD.smokeEffect, -1 none */
-    int flags99;                    /* 0x99, bit 0 set when created */
-    char pad9d[8];
-    int va5;                        /* 0xa5, -1 when created */
-} ORDBLD;
 
 /* the head of an object record ai.h's AIOBJ, as gm_Query returns it (gv.h and ai.h cannot be in one TU) */
 typedef struct ORDOBJ {

@@ -1837,14 +1837,14 @@ int cm_SendMessage3d(char *p, unsigned char b, int c, int d)
     m.type = 0x3d;
     if (p == 0)
         return -1;
-    q = (AICHAR *)gm_FindApplicant((struct ORDBLD *)p, c, d);
+    q = (AICHAR *)gm_FindApplicant((struct AIBLD *)p, c, d);
     m.hire.bldId = ((AIBLD *)p)->id;
     if (q != 0) {
         m.hire.charId = q->netId;
-        r = q->bld2 == 0 ? (AIBLD *)gm_FindHome(q->id, (struct ORDBLD *)p) : 0;
+        r = q->bld2 == 0 ? (AIBLD *)gm_FindHome(q->id, (struct AIBLD *)p) : 0;
     } else {
         m.hire.charId = -1;
-        r = (AIBLD *)gm_FindHome(0xffff, (struct ORDBLD *)p);
+        r = (AIBLD *)gm_FindHome(0xffff, (struct AIBLD *)p);
     }
     if (r != 0)
         m.hire.homeId = r->id;
@@ -2392,7 +2392,7 @@ void cm_SendClearRoute(AIOBJ *o)
 
 int cm_CheckMoveGoods(G17MSG *m)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     int *list;
@@ -2417,13 +2417,13 @@ int cm_CheckMoveGoods(G17MSG *m)
 
 int cm_CheckSellObject(G17MSG *m)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     char *p;
     ORDCHAR *r;
     int *list;
-    ORDBLD *bb;                 /* the buyer's building: its own slot in the original, not b again */
+    AIBLD *bb;                 /* the buyer's building: its own slot in the original, not b again */
 
     if (m->sell.seller != -1) {
         m->sell.seller = cm_ResolveId((int)m, m->sell.seller);
@@ -2473,7 +2473,7 @@ int cm_CheckSellObject(G17MSG *m)
 
 int cm_CheckFieldDeltas(G17MSG *m)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     char *base, *a;
@@ -2534,7 +2534,7 @@ int cm_CheckFieldDeltas(G17MSG *m)
 
 int cm_CheckSetField(G17MSG *m)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
     char *base;
@@ -2723,7 +2723,7 @@ int cm_ExLoadBlock(G17MSG *m, G17STAT *s)
 
 int cm_ExCreateBuilding(G17MSG *m, G17STAT *s)
 {
-    ORDBLD *b;
+    AIBLD *b;
     unsigned short k;
     int id;
 
@@ -2740,13 +2740,13 @@ int cm_ExCreateBuilding(G17MSG *m, G17STAT *s)
         if (k >= 0x300)
             return 1;
     }
-    b = (ORDBLD *)gm_CreateBuilding(m->build.kind, k);
+    b = (AIBLD *)gm_CreateBuilding(m->build.kind, k);
     if (b == 0)
         return 1;
     cm_LastBuildingId = b->id;
     b->flags5aw = m->build.flags;
     if (m->build.hasBlock != 0)
-        memcpy(&b->v65, m->build.block, 0x30);
+        memcpy(b->kindData, m->build.block, 0x30);
     if (s != 0) {
         s->state = 1;
         s->kind = 2;
@@ -2759,7 +2759,7 @@ int cm_ExCreateBuilding(G17MSG *m, G17STAT *s)
 
 int cm_ExCreateCharacter(G17MSG *m, G17STAT *s)
 {
-    struct ORDBLD *b;
+    struct AIBLD *b;
     unsigned int k;
 
     if (net_Conn.s != INVALID_SOCKET)
@@ -2771,7 +2771,7 @@ int cm_ExCreateCharacter(G17MSG *m, G17STAT *s)
         b = 0;
     } else {
         m->chr.bldId = cm_ResolveId((int)m, m->chr.bldId);
-        b = (struct ORDBLD *)gm_BuildQuery(1, 1, m->chr.bldId);
+        b = gm_BuildQuery(1, 1, m->chr.bldId);
         if (b == 0)
             return 1;
     }
@@ -2864,7 +2864,7 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
 
 int cm_ExDeleteObject(G17MSG *m, G17STAT *s)
 {
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
     ORDCHAR *c;
 
@@ -4240,16 +4240,16 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
     if (b != 0) {
         t = veg_FindType(m->plant.type);
         if (t != 0 && m->plant.fall == 0) {
-            if (veg_Fits((G15PLANT *)b->plants, m->plant.x, m->plant.z, t->size) != 0)
+            if (veg_Fits(b->plants, m->plant.x, m->plant.z, t->size) != 0)
                 fits = 1;
         } else
             fits = 1;
         if (m->plant.fall != 0) {
-            o = veg_FindPlantAt((G15PLANT *)b->plants, m->plant.x, m->plant.z);
+            o = veg_FindPlantAt(b->plants, m->plant.x, m->plant.z);
             if (o != 0 && o->fallId != -1)
                 return 1;
         } else if (m->plant.fallId != -1) {
-            o = veg_FindPlantAt((G15PLANT *)b->plants, m->plant.x, m->plant.z);
+            o = veg_FindPlantAt(b->plants, m->plant.x, m->plant.z);
             if (o != 0 && o->fallId == m->plant.fallId) {
                 d3if_SelectScene(init_BuildingUniverse[(unsigned char)ai_BTypes[b->type].kind], 1);
                 d3if_Delete((struct D3OBJECT *)o->obj);
@@ -4267,7 +4267,7 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
         }
         if (fits != 0) {
             d3if_SelectScene(init_BuildingUniverse[(unsigned char)ai_BTypes[b->type].kind], 1);
-            o = veg_SetPlant((G15PLANT *)b->plants, m->plant.x, m->plant.z, m->plant.type, m->plant.fall);
+            o = veg_SetPlant(b->plants, m->plant.x, m->plant.z, m->plant.type, m->plant.fall);
             d3if_SelectScene(save, 1);
         }
         if (o != 0) {
@@ -5418,7 +5418,7 @@ int cm_ExChangePlayerHe(G17MSG *m, G17STAT *s)
     if (c == 0)
         err_Message("cm_ExChangePlayerHe(): invalid sp->id");
     if (c->id != 0xffff)
-        sv_MoveToGroup((struct AIBLD *)c->bld, (struct AIOBJ *)m->clear.room, c->id, 0);
+        sv_MoveToGroup(c->bld, (struct AIOBJ *)m->clear.room, c->id, 0);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;

@@ -6,7 +6,7 @@
    G13TYPE.offerSpeech, G13MIS.progress / fulfilled stand on their users (the _AUFTRAEGE_VERGABE speech,
    ai_CountMissionEvent and the completion flag of he.c 0x56ce40). AIFIN.missionMoney (ai.h) holds the five saved
    money statistics of the player record the money conditions read (no writer in the build).
-   Open: the mission conditions read AICHAR / AIBLD bytes through the G13_B view and (AIBLD *) casts of gm_BuildQuery (type debt).
+   Open: the mission conditions read AICHAR / AIBLD bytes through the G13_B view and casts of gm_BuildQuery (type debt).
    Open: not included yet (dcp headers conflicts mission HEADER): d2.h; held by own declarations that differ
    from the owner's: d2_Radios.
    unit of rea 8cef7d5b (src/game/unk_4b39f0.c); boundaries in decl/text.dcl */
@@ -548,10 +548,10 @@ int gm_BuildingTypeOfJob(int k);                                                
    >= 5 whose v65 is its netId and that was created more than t->threshold minutes ago */
 int ai_CondOldBuilding(AICHAR *c, G13TYPE *t)
 {
-    ORDBLD *b;
+    AIBLD *b;
 
-    for (b = (ORDBLD *)gm_BuildQuery(2, 4, c->id, 5, 2); b != 0; b = (ORDBLD *)gm_BuildNext()) {
-        if (b->type >= 5 && b->v65 == c->netId
+    for (b = gm_BuildQuery(2, 4, c->id, 5, 2); b != 0; b = gm_BuildNext()) {
+        if (b->type >= 5 && b->ownerNetId == c->netId
             && gm_MinutesBetween(&b->created, &ai_Time) > t->threshold)
             return 1;
     }

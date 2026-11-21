@@ -81,10 +81,10 @@ unsigned *gm_NameRecord(int kind, int id);  /* 0x4fb330, the name record (0x44 b
 unsigned *gm_CharNameRecord(int id);  /* 0x4fb390 */
 int gm_CreateCharModel(unsigned short *c, int scene, int *p, int *ori, int obj, char *dummy);  /* 0x4fbb80 */
 float gm_HealthRatio(short *c);  /* 0x4fc8e0 */
-struct ORDBLD; struct ORDBLD *gm_FindHome(int unused, struct ORDBLD *o);  /* 0x4fd820, a home with room for the building o (the nearest or least full) */
+struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);  /* 0x4fd820, a home with room for the building o (the nearest or least full) */
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
 int gm_AddToTreasury(int a);  /* 0x50c4e0, gives the amount a to the town treasury */
-struct ORDCHAR; struct ORDBLD; struct ORDCHAR *gm_FindApplicant(struct ORDBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
+struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
 char *gm_HomeObject(unsigned char *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, char *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
@@ -100,7 +100,7 @@ int gm_HasAdultRelative(char *c, int *n);  /* 0x506480 */
 unsigned gm_TakeOverCharacter(int a, int b);  /* 0x5064d0 */
 struct ORDCHAR; void gm_InheritEstate(struct ORDCHAR *dead, struct ORDCHAR *heir);  /* 0x506890, the heir inherits the dead character's estate */
 struct ORDCHAR; void gm_ForfeitEstate(struct ORDCHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
-struct ORDBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct ORDBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
+struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
 unsigned short *gm_ObjectBuildingOwner(unsigned short *o);  /* 0x50a050 */
 int gm_ListObjectsAfter(unsigned char *b, unsigned short *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
 int gm_RemoveOwned(int *list, int id);  /* 0x5000c0 */
@@ -205,23 +205,23 @@ char *gm_CharacterHome(char *c, int *out2, int *out3);  /* 0x4fdcb0 */
 struct ORDCHAR; int gm_DropRank(struct ORDCHAR *c);  /* 0x504840 */
 int gm_FindPlayerBuilding(int p);  /* 0x501000 */
 int gm_GetDisease(int n, int *out);  /* 0x5051d0 */
-struct ORDBLD; int gm_HandOutMoney(struct ORDBLD *b, int *out);  /* 0x4fae50 */
+struct AIBLD; int gm_HandOutMoney(struct AIBLD *b, int *out);  /* 0x4fae50 */
 int gm_JobSlots(int job, int *a, int *b);  /* 0x504100 */
 int gm_LikingChance(int a, int b, int c, int d);  /* 0x50b290 */
 struct ORDCHAR; int gm_MayRemoveChar(struct ORDCHAR *c);  /* 0x5075c0 */
 int gm_TrialBuildingKind(char *b);  /* 0x50d060 */
 void gm_StatisticsScreen(void);  /* 0x4f9e30, the city statistics screen */
 struct AITIME; void gm_ClockToDate(struct AITIME *c, unsigned char *out);  /* 0x4fe2c0, the calendar record of a clock */
-char *gm_ClassTreasury(struct ORDBLD *b);  /* 0x5049e0, the treasury text of a building */
+char *gm_ClassTreasury(struct AIBLD *b);  /* 0x5049e0, the treasury text of a building */
 int gm_CurrencyFactor(int a, int i);  /* 0x508620 */
 int gm_CurrencyDivide(int a, int i);  /* 0x508640 */
-int gm_BuildingCarts(struct ORDBLD *b, int *out);  /* 0x509060 */
+int gm_BuildingCarts(struct AIBLD *b, int *out);  /* 0x509060 */
 int gm_BuildingRankGate(struct AIBLD *b, struct AIBLD *c);  /* 0x509120 */
 int gm_CharMoney(int c);  /* 0x509f20 */
 int gm_GoodPicture(unsigned short *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
 int gm_ResearchClass(int k, int *out);  /* 0x50b090 */
 int gm_DonationRank(int c, int d);  /* 0x50b170 */
-int gm_CreditEvents(int c, struct ORDBLD *bld, int *out);  /* 0x50a150 */
+int gm_CreditEvents(int c, struct AIBLD *bld, int *out);  /* 0x50a150 */
 int gm_BuildingEvents(unsigned owner, int b, int c, int *out);  /* 0x50a1c0 */
 void gm_UpdateTechTree(struct AIBLD *bld, unsigned short *item);  /* 0x50b9f0 */
 int gm_TechTreeWindow(char *form, struct AIBLD *bld, unsigned short *item);  /* 0x50c340 */

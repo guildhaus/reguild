@@ -2,7 +2,9 @@
    ai.h includes it. */
 #ifndef AI_BLD_H
 #define AI_BLD_H
+#include "ai_types.h"                /* AITIME */
 struct D3OBJECT;
+struct G15PLANT;
 #pragma pack(push, 1)
 typedef struct AIWORKSET {              /* 0x10 bytes, a building's work settings (AIBLD.workSet), AICHAR.flags1b4 .. target */
     unsigned int flags;                 /* 0x0, the order flags (AICHAR.flags1b4; ls_ReadBuildings sets bit 0 for saves
@@ -11,6 +13,11 @@ typedef struct AIWORKSET {              /* 0x10 bytes, a building's work setting
     int prod;                           /* 0x8, AICHAR.prod */
     int target;                         /* 0xc, AICHAR.target, a building id or -1 */
 } AIWORKSET;
+typedef struct ORDCREDIT {          /* 12 bytes, a credit offer of a bank (gm_GetCreditOffers) */
+    int amount;                     /* 0x0, the sum lent; -1 = the slot is taken */
+    int term;                       /* 0x4, 2 .. 7 */
+    int interest;                   /* 0x8 */
+} ORDCREDIT;
 typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
     unsigned char type;                 /* 0x00, index into ai_BTypes */
     int id;                             /* 0x01 */
@@ -77,7 +84,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
                                                            cancels one otherwise) */
                     };
                     union {
-                        int daySum;                         /* 0x69, a per-day sum (gv.h ORDBLD.daySum; gm_BuildingBalance adds it to a kind 7 building's income), cleared for the kind 7 buildings at every round start (main_BeginPlayerRound) */
+                        int daySum;                         /* 0x69, a per-day sum (gm_BuildingBalance adds it to a kind 7 building's income), cleared for the kind 7 buildings at every round start (main_BeginPlayerRound) */
                         int messengerFee;                   /* 0x69, of a bank: the money messenger's fee in percent, 3 .. 0xf
                                                                (lc.c ai_ExchangeFeesWindow sends it as the field 0x69) */
                         int buyOutExtra;                    /* 0x69, of a class 2 building: see buyOutBase (lc.c ai_BuildingWindow) */
@@ -94,15 +101,16 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
                 } inn;
             };
             union {
-                int plants;                     /* 0x71, the 64 G15PLANT records (0x18 bytes each, rd.h) of the
+                struct G15PLANT *plants;        /* 0x71, the 64 G15PLANT records (0x18 bytes each, rd.h) of the
                                                    building's vegetation map (rd.c: veg_Fits / veg_FindPlantId) */
-                struct {                        /* 0x71, of a bank: the credit offers kept for the player (ORDCREDIT,
-                                                   gv_types.h / gv.h ORDBLD.credits, 12 bytes each) */
-                    int amount;
-                    int term;
-                    int interest;
-                } credits[3];
+                ORDCREDIT credits[3];           /* 0x71, of a bank: the credit offers kept for the player
+                                                   (gm_GetCreditOffers) */
             };
+        };
+        struct {
+            int padCreated;
+            AITIME created;             /* 0x69, of the classes 4 .. 7 the game time the building was created
+                                           (gm_CreateBuilding; mission.c's goals measure its age) */
         };
     };
     int smokeEffect;                    /* 0x95, the id of the running chimney smoke effect (evt_FindById), -1 none (sv.c 0x528490) */

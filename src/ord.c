@@ -3,7 +3,7 @@
    grid statistics that follow (0x4f82a0 ..). Split from gv.c: the table sits right after gv's strings, and
    0x4f5d50 matches only when 0x4f2870 is not defined above it in the same file.
    Open: no ord.h yet; the unit's declarations and views live in gv.h, shared with gv.c.
-   Open: gv.h's ORDBLD duplicates ai.h's AIBLD.
+   Open: gv.h's AIBLD duplicates ai.h's AIBLD.
    unit of rea 8cef7d5b (src/game/ord.c); boundaries in decl/text.dcl */
 #include <windows.h>
 #include <stdio.h>
@@ -1720,7 +1720,7 @@ int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y)
 void ord_CountGridObjects(void)
 {
     float f[64];
-    ORDBLD *b;
+    AIBLD *b;
     int y;
     int x;
     int i;
@@ -1729,13 +1729,13 @@ void ord_CountGridObjects(void)
     for (i = 0; i < 8; i++)
         for (j = 0; j < 8; j++)
             ai_Grid[i][j].used = 0;
-    b = (ORDBLD *)gm_BuildQuery(1, 6);
+    b = gm_BuildQuery(1, 6);
     while (b != 0) {
         if (b->object != 0 && ord_GetGridCell(&b->object->pos, &x, &y) != 0) {
             f[y + x * 8] = (float)gm_EquipmentValue((unsigned char *)b, b->level);
             ORD_CELLS[y + x * 8].used++;
         }
-        b = (ORDBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 8; j++) {
@@ -1759,7 +1759,7 @@ typedef struct ORDKIND {
 void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
 {
     AIDEC rec;
-    ORDBLD *b;
+    AIBLD *b;
     int x;
     int y;
     int xhi;
@@ -1793,7 +1793,7 @@ void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
 void ord_SubGridAmount(int who, unsigned char kind)
 {
     AIDEC rec;
-    ORDBLD *b;
+    AIBLD *b;
     int x;
     int y;
     int xhi;
@@ -1848,7 +1848,7 @@ int ord_RandomObjectId(char *c)
     int tries;
     int k;
     int idx;
-    ORDBLD *o;
+    AIBLD *o;
 
     kinds[0] = 1;
     kinds[1] = 2;
@@ -1886,7 +1886,7 @@ int ord_RandomObjectId(char *c)
         tries--;
         idx = util_Random(4) * 5 + util_Random(5);
         k = 0;
-        o = (ORDBLD *)gm_BuildQuery(1, 5, kinds[idx]);
+        o = gm_BuildQuery(1, 5, kinds[idx]);
         while (o != 0 && k < 3) {
             if (n >= 16)
                 break;
@@ -1895,7 +1895,7 @@ int ord_RandomObjectId(char *c)
                 n++;
                 k++;
             }
-            o = (ORDBLD *)gm_BuildNext();
+            o = gm_BuildNext();
         }
     }
     return list[util_Random(n)];
@@ -1935,7 +1935,7 @@ void ord_RebuildGridSums(void)
     int x;
     int y;
     float w;
-    ORDBLD *b;
+    AIBLD *b;
     AIBTYPE *bt;
     struct D3OBJECT *q;
     int n;
@@ -1958,7 +1958,7 @@ void ord_RebuildGridSums(void)
         if (p->state == 0 || p->id == -1)
             continue;
         r = *p;
-        b = (ORDBLD *)gm_BuildQuery(1, 1, r.place);
+        b = gm_BuildQuery(1, 1, r.place);
         if (b == 0 || b->type == 0)
             continue;
         bt = &ai_BTypes[b->type];
@@ -2008,7 +2008,7 @@ void ord_ComputeStatistics(float *out)
     float cntf, f, m, sum, w, g;
     float q3, q1, q2, income;               /* the inverted shares and the income rating of out[9] */
     ORDCHAR *c;
-    ORDBLD *p;
+    AIBLD *p;
     unsigned char *b;
     unsigned char *bt;
     unsigned short *t;
@@ -2051,7 +2051,7 @@ void ord_ComputeStatistics(float *out)
     s58 = 0;
     s4c = 0;
     s54 = 0;
-    p = (ORDBLD *)ai_Blds;
+    p = ai_Blds;
     for (i = 0; i < 0x100; i++, p++) {
         if (p->type == 0 || p->type >= 0x44 || p->owner == 0xffff)
             continue;

@@ -2900,11 +2900,11 @@ exe	0x004f81c0	ord_DispatchOrder	ord	818b9c01d67df507	no	byte	control=byte p1=by
 exe	0x004f8200	ord_PrivilegeDialog	ord	cff58b7110f3ce67	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f82a0	ord_ResetStatistics	ord	4ec08221403e27c5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f8300	ord_GetGridCell	ord	16e57dbe1b787629	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f8360	ord_CountGridObjects	ord	b0aab45d43a2155a	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	664131050d78e663
+exe	0x004f8360	ord_CountGridObjects	ord	2bf40d197d8f45a5	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=190	2913568bf31d9141
 exe	0x004f8460	ord_AddGridAmount	ord	d07b30d499f82e7f	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004f8590	ord_SubGridAmount	ord	85d5b634f645fe8f	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004f86a0	ord_RandomCellPoint	ord	1eb0695657deb1c9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f8700	ord_RandomObjectId	ord	73bf4b88016c5940	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	34238379b2001c1f
+exe	0x004f8700	ord_RandomObjectId	ord	623c13301fa0d926	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	2913568bf31d9141
 exe	0x004f8890	ord_GetKindRecord	ord	606dc781d8bd25a8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f88c0	ord_AppendStatisticsRound	ord	4a8bcb6f1f20a5e3	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f8920	ord_RebuildGridSums	ord	1a855290cce0a724	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -2931,7 +2931,7 @@ exe	0x004fa2a0	gm_IncomeKind4	f3gm	0b7b04be85608354	no	byte	control=byte p1=byte
 exe	0x004fa3d0	gm_IncomeKind5	f3gm	308f1feb6b8d437a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	fe1cfd2b759d6fa3
 exe	0x004fa4b0	gm_CharacterIncomes	f3gm	2e3fb62bcdcd53f5	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e29f439406c0ccde
 exe	0x004fa580	gm_CharacterUpkeep	f3gm	a0582358d6bba35f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
-exe	0x004fa700	gm_CharacterWages	f3gm	0bff7ffbde74f915	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
+exe	0x004fa700	gm_CharacterWages	f3gm	35e90649fc689f54	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7d9867547f337a84
 exe	0x004fa9b0	gm_PayAllCharacterWages	f3gm	d5c7e2e12921824a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004faa00	gm_UpdateWorthMood	f3gm	cf3814f644409eb6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fabe0	gm_EndDayIncomes	f3gm	cd4c27863574e925	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -2988,12 +2988,12 @@ exe	0x004fea50	gm_FindById	f3gm	9280933e4b64ea9a	no	byte	control=byte p1=byte p2
 exe	0x004feb30	gm_UpdatePlayers	f3gm	897f620640ebdee8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004feb60	gm_InitPlayerRecord	f3gm	9fae68b98adba9d5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fec10	gm_SyncMarket	f3gmt	10d6a4d7a44a4209	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	67971f23bb41af6a
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	61b072533ac67f74	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=568	4a81fc9e68993bc8
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	f36632c965848504	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=316	9face4bea92fc9a5
 exe	0x004ff450	gm_RandomMarketShake	f3gm	6404493593e4e5da	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
 exe	0x004ff550	gm_UpdatePrices	f3gmt	c99a5e4da2f8db88	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x004ff8c0	gm_GoodsDemand	f3gm	747d1674d7782fc0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ff950	gm_GoodsStock	f3gm	a3d1bd1cdfdb2f2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004ffa10	gm_StockPrice	f3gmt	8cbd7275b3ec4f0d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	8687524989773388
+exe	0x004ffa10	gm_StockPrice	f3gmt	0a5c11dba74634e2	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	9face4bea92fc9a5
 exe	0x004ffbf0	gm_GoodsValue	f3gm	3836209e5c5f8f3d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc40	gm_FindGoods	f3gm	ef3306d28a47d032	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc90	gm_MapDistance	f3gm	cda55d663378db8b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3012,7 +3012,7 @@ exe	0x00500b90	gm_BuildKindObjects	f3gm	d36629f377827a2b	no	draft	control=draft 
 exe	0x00500c20	gm_CollectOffers	f3gm	29c2b4137d91eb34	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00500ec0	gm_FindMarketObject	f3gmt	806c613841f3b994	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x00501000	gm_FindPlayerBuilding	f3gm	e85ce06fb90c9859	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00501030	gm_BuildNext	f3gmt	6496818a67f18508	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	21112be85bbb2f68
+exe	0x00501030	gm_BuildNext	f3gmt	8758152a4421e1eb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	9face4bea92fc9a5
 exe	0x00501190	gm_BuildQuery	f3gmt	6321c625c18f0bb2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x005012b0	gm_FindFreeBuilding	f3gm	946257dcb23a7901	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005012e0	gm_FreeBuilding	f3gm	85f5f7b665318d0f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3134,7 +3134,7 @@ exe	0x0050a0b0	gm_ObjectOwnerNo	f3gm	3b8d14d0ae3ae758	no	byte	control=byte p1=by
 exe	0x0050a0f0	gm_ObjectBuilding	f3gm	18e9adf46b4a24ac	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a150	gm_CreditEvents	f3gm	c0c1b045fd1994ec	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a1c0	gm_BuildingEvents	f3gm	c04027a0f325ce1f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050a250	gm_GetCreditOffers	f3gmt	162c5fd3de652439	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	5607da7668e70665
+exe	0x0050a250	gm_GetCreditOffers	f3gmt	d8768850bbd3d6d9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	9face4bea92fc9a5
 exe	0x0050a640	gm_GetWorth	f3gm	90f6cd642319e4a9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4850f870d40ae10b
 exe	0x0050a6c0	gm_IsBankrupt	f3gm	ff162d644e3ed16d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x0050a810	gm_FindCharacterByMaster	f3gm	8c122a9f06b2203d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4446,7 +4446,7 @@ exe	0x005bc420	ai_OpenMoneyInfoPage	lc	75051ac3b789ade6	no	byte	control=byte p1=
 exe	0x005bc6d0	ai_OpenBuildingListPage	lc	0534a6d8ba1a0978	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005bc790	ai_BuildingDetailWindow	lc	407510a17ce4f3d8	yes	byte	sweep control=shape best=byte by 1 unused typedef at the unit's start; codegens=2 compiled=190	092c2c5a4f463028
 exe	0x005bc9c0	ai_OpenMasterListPage	lcdom	912423f1393510a1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	fd3aa2ee67499a75
-exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	e43df8832fecaa7f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	ed302c2b3f8f045d
+exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	aa813631603173c8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d3c0209e5f258883
 exe	0x005bd060	ai_AmountLimit	lc	37c5d642560eb0b9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005bd0c0	ai_CentredText	lc	f05a4d239d0481ac	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005bd190	ai_RightAlignedText	lc	5bbb40f71b53df42	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

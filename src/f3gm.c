@@ -10,7 +10,7 @@
    Open: gm_IsBankrupt calls ai_LiquidateAssets (0x5b92e0: netId, character, amount, message) without a prototype;
    its definition in lc.c is still a one-parameter skeleton.
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
-   ORDCHAR / ORDBLD / ORDOBJ, the job record through GMJOB (AIJOB, next to AITIME), the long message through
+   ORDCHAR / AIBLD / ORDOBJ, the job record through GMJOB (AIJOB, next to AITIME), the long message through
    f3gm_types.h's GMMSG (AIMSG), the crime records ai_Crimes (cm_types.h CRIME,
    0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
@@ -191,7 +191,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
     int rec[9];
     int k, n, cnt;
     float x;
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
 
     gv_GetTableRecord(9, rec);
@@ -212,7 +212,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rec[6];
         if (flags & 1) {
-            b = (ORDBLD *)gm_FirstBuilding(1);
+            b = (AIBLD *)gm_FirstBuilding(1);
             o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
@@ -229,7 +229,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
     int rec[9];
     int k, n, cnt;
     float x;
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
 
     gv_GetTableRecord(10, rec);
@@ -250,7 +250,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rec[6];
         if (flags & 1) {
-            b = (ORDBLD *)gm_FirstBuilding(1);
+            b = (AIBLD *)gm_FirstBuilding(1);
             o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
@@ -271,12 +271,12 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
     AIDEC rec;
     int k, n, base;
     float x;
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
 
     gv_GetTableRecord(0xd, (int *)&rec);
     rate = rec.cur;
-    b = (ORDBLD *)gm_FirstBuilding(1);
+    b = (AIBLD *)gm_FirstBuilding(1);
     gm_Query((void *)b->objList, 2, 6, 0, 0x115);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
@@ -296,7 +296,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rate;
         if (flags & 1) {
-            b = (ORDBLD *)gm_FirstBuilding(1);
+            b = (AIBLD *)gm_FirstBuilding(1);
             o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             if (gm_GetGoodsValue((char *)&ORD_CHARS[id]) >= n)
                 cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[id].netId, ai_OwnPlayer, n);
@@ -319,12 +319,12 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
     AIDEC rec;
     int k, n, base;
     float x;
-    ORDBLD *b;
+    AIBLD *b;
     ORDOBJ *o;
 
     gv_GetTableRecord(0xc, (int *)&rec);
     rate = rec.cur;
-    b = (ORDBLD *)gm_FirstBuilding(1);
+    b = (AIBLD *)gm_FirstBuilding(1);
     gm_Query((void *)b->objList, 2, 6, 0, 0x115);
     id &= 0xffff;
     base = ORD_CHARS[id].v1a0 + ORD_CHARS[id].v1a4;
@@ -344,7 +344,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rate;
         out->amount[k] = n;
         if (flags & 1) {
-            b = (ORDBLD *)gm_FirstBuilding(1);
+            b = (AIBLD *)gm_FirstBuilding(1);
             o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[id].netId, 0, n);
             gm_NetMsgCount++;
@@ -511,7 +511,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
     AMTKIND kind;
     AIDEC rec;
     float pay;
-    ORDBLD *b;
+    AIBLD *b;
     int f, k;
     unsigned short r;
     ORDWAGES *out;
@@ -546,7 +546,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
         out->amount3 = (int)(kind.salary * 32 * pay);
         res = 1;
         if (flag != 0) {
-            b = (ORDBLD *)gm_FirstBuilding(1);
+            b = (AIBLD *)gm_FirstBuilding(1);
             if (b == 0)
                 return 0;
             if (gm_Query((void *)b->objList, 2, 6, 0, 0x115) == 0)
@@ -647,13 +647,13 @@ void gm_UpdateWorthMood(void)
 
 void gm_EndDayIncomes(unsigned flags)
 {
-    ORDBLD *b;
+    AIBLD *b;
     int i, n;
     GMBTYPE *bt;
     unsigned levels[8];
     union {                     /* one buffer: the original's frame holds the list where the incomes were */
         GMINCOME inc;
-        ORDBLD *list[8];
+        AIBLD *list[8];
     } u;
 
     memmove(gm_IncomeHistory[0], gm_IncomeHistory[0] + 1, 16 * sizeof(int));
@@ -679,7 +679,7 @@ void gm_EndDayIncomes(unsigned flags)
     if (flags & 1)
         gm_ShiftLoyalty();
     if (flags & 1) {
-        b = (ORDBLD *)gm_BuildQuery(1, 5, 7);
+        b = gm_BuildQuery(1, 5, 7);
         n = 0;
         while (b != 0 && n < 8) {
             if (b->owner != 0xffff) {
@@ -691,13 +691,13 @@ void gm_EndDayIncomes(unsigned flags)
                 u.list[n] = b;
                 n++;
             }
-            b = (ORDBLD *)gm_BuildNext();
+            b = gm_BuildNext();
         }
     }
     for (i = 0; i < 0x100; i++) {
-        ((ORDBLD *)ai_Blds)[i].roundSum = 0;
-        if (((ORDBLD *)ai_Blds)[i].type >= 11 && ((ORDBLD *)ai_Blds)[i].type <= 13)
-            ((ORDBLD *)ai_Blds)[i].daySum = 0;
+        ((AIBLD *)ai_Blds)[i].roundSums[0] = 0;
+        if (((AIBLD *)ai_Blds)[i].type >= 11 && ((AIBLD *)ai_Blds)[i].type <= 13)
+            ((AIBLD *)ai_Blds)[i].daySum = 0;
     }
 }
 /* 0x4fad60, finds the richest character (the highest gm_GetWorth of the used records of kind < 10 that are alive),
@@ -748,7 +748,7 @@ int gm_FindRichest(short *id, int *worth)
    paid, out[1] = the sum (the caller takes it from the owner). Returns 1, or 0 when b has no owner.
    out[2] is the partner: the tavern run handler he_RunTavern passes its hired helper there (0 for none). */
 
-int gm_HandOutMoney(ORDBLD *b, int *out)
+int gm_HandOutMoney(AIBLD *b, int *out)
 {
     int n, sum, i, a, v, top;
     short id;
@@ -765,7 +765,7 @@ int gm_HandOutMoney(ORDBLD *b, int *out)
     u = &ORD_CHARS[b->owner];
     gm_GetSkill((char *)u, 4);
     gv_GetTableRecord(2, (int *)&rec);
-    f = (float)gm_BuildingSkill((struct AIBLD *)b, 9, 1) * 0.0125f + 1.0f;
+    f = (float)gm_BuildingSkill(b, 9, 1) * 0.0125f + 1.0f;
     for (i = 0; i < 0x300; i++) {
         c = &ORD_CHARS[i];
         if (c->id != 0xffff && c->kind != 6 && c->kind != 7 && c->kind != 8 && c->kind < 10 && c->netId != u->netId) {
@@ -1270,7 +1270,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
 {
     int saved;
     ORDCHAR *c;
-    ORDBLD *o;
+    AIBLD *o;
     unsigned short *o2;
     int sc;
     D3OBJECT *d;
@@ -1279,15 +1279,15 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
     saved = d3_CurrentScene;
     c = ORD_CHAR(gm_FindChar(id));
     if (c != 0 && c->model == 0) {
-        o = (ORDBLD *)gm_BuildQuery(1, 1, a);
+        o = gm_BuildQuery(1, 1, a);
         if (o != 0) {
             if (b != -1) {
                 o2 = (unsigned short *)gm_Query((void *)o->objList, 1, 1, b);
                 if (o2 == 0)
                     return 0;
             }
-            if (gm_IsHomeType((AIBLD *)o))
-                sc = init_BuildingSceneUniverse((struct AIBLD *)o);
+            if (gm_IsHomeType(o))
+                sc = init_BuildingSceneUniverse(o);
             else if (o2 != 0)
                 sc = init_ObjectSceneUniverse((struct AIOBJ *)o2);
             else
@@ -1307,8 +1307,8 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                 if (c->model != 0) {
                     c->model->group = a;
                     c->model->scriptGroup = b;
-                    if ((ai_PlayerBuilding != 0 && ai_PlayerBuilding != (AIBLD *)o)
-                        || (ai_FallbackBuilding != 0 && ai_FallbackBuilding != (AIBLD *)o))
+                    if ((ai_PlayerBuilding != 0 && ai_PlayerBuilding != o)
+                        || (ai_FallbackBuilding != 0 && ai_FallbackBuilding != o))
                         ch_SetVisible(c->model, 0);
                     return (int)c->model;
                 }
@@ -1361,7 +1361,7 @@ float gm_DailyCharacterStep(unsigned short *id)
     double d;
     short age;
     ORDCHAR *c = ORD_CHAR(id);
-    ORDBLD *mst;
+    AIBLD *mst;
 
     age = 0;
     if (c->id == 0xffff)
@@ -1487,7 +1487,7 @@ float gm_DailyCharacterStep(unsigned short *id)
         if (c->bld2 != 0) {
             float p;   /* 3.75 % less per skill point */
 
-            p = gm_BuildingSkill((struct AIBLD *)c->bld2, 8, 1) * 0.0125f;
+            p = gm_BuildingSkill(c->bld2, 8, 1) * 0.0125f;
             p = p * -3.0f;
             lo += p;
         }
@@ -2037,7 +2037,7 @@ extern char d2_GfxDir[256];
 /* txt_FamilyNames: view of txt_Ptrs (build/mk_txt_views.py) */
 int gm_HomeSearchStart = 0;  /* 0x6f1bb4 */
 extern GMCHARSTATS gm_CharacterStatistics;
-unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, ORDBLD *a5, unsigned a6, int a7, int a8);                     /* 0x507690 */
+unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, AIBLD *a5, unsigned a6, int a7, int a8);                     /* 0x507690 */
 int gm_SexForJob(int x);                   /* 0x503f30 */
 int gm_SexForTitle(int x);                   /* 0x503f50 */
 int gm_Opinion(int a, int b);                     /* 0x50c520 */
@@ -2117,25 +2117,25 @@ int gm_IsUnderAge(unsigned short id)
    in the if / before the query, all 24 orders of the pick block (best 88 with the kind scalar). Left: the
    rotation pick edi / cap ebp / kind[0] ebx against the or... */
 
-ORDBLD *gm_FindHome(int unused, ORDBLD *o)
+AIBLD *gm_FindHome(int unused, AIBLD *o)
 {
     float best, d;
-    ORDBLD *b, *pick;
+    AIBLD *b, *pick;
     int pickKind[2], kind[2];
     int cap;
     D3VECTOR4 v1, v2;                   /* the engine's 16-byte vectors */
-    ORDBLD *list[16];
+    AIBLD *list[16];
     int n;
 
     pick = 0;
     best = 1e+08f;
     ord_GetKindRecord(1, pickKind);
-    b = (ORDBLD *)gm_BuildQuery(1, 5, 1);
+    b = gm_BuildQuery(1, 5, 1);
     cap = pickKind[0];
     if (b != 0) {
         do {
             ord_GetKindRecord(b->type, kind);
-            if ((unsigned short)b->people < (unsigned short)kind[0] && (b->flags5a & 1) == 0) {
+            if ((unsigned short)b->residents < (unsigned short)kind[0] && (b->flags5a & 1) == 0) {
                 if (o != 0 && o->object != 0 && b->object != 0) {
                     d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v1);
                     d3_PointToWorld(o->object, &o->object->pos, (D3VECTOR *)&v2);
@@ -2153,18 +2153,18 @@ ORDBLD *gm_FindHome(int unused, ORDBLD *o)
                     cap = kind[0];
                     pickKind[1] = kind[1];
                     pick = b;
-                } else if ((float)b->people / (unsigned short)kind[0] < (float)pick->people / (unsigned short)cap)
+                } else if ((float)b->residents / (unsigned short)kind[0] < (float)pick->residents / (unsigned short)cap)
                     pick = b;
             }
-            b = (ORDBLD *)gm_BuildNext();
+            b = gm_BuildNext();
         } while (b != 0);
     }
     if (pick == 0) {
-        b = (ORDBLD *)gm_BuildQuery(1, 5, 0x16);
+        b = gm_BuildQuery(1, 5, 0x16);
         memset(list, 0, sizeof(list));
         for (n = 0; b != 0 && (b->flags5a & 1) == 0 && n < 0x10; n++) {
             list[n] = b;
-            b = (ORDBLD *)gm_BuildNext();
+            b = gm_BuildNext();
         }
         return list[util_Random(n)];
     }
@@ -2177,16 +2177,16 @@ void gm_MoveIntoHome(char *c, char *b)
 {
     unsigned short cap[4];
     ORDCHAR *ch = ORD_CHAR(c);
-    ORDBLD *bld = (ORDBLD *)b;
-    ORDBLD *old;
+    AIBLD *bld = (AIBLD *)b;
+    AIBLD *old;
 
     ord_GetKindRecord(bld->type, (int *)cap);
-    if (bld->people < cap[0]) {
+    if (bld->residents < cap[0]) {
         old = ch->bld2;
-        if (old != 0 && old->people > 0)
-            old->people--;
+        if (old != 0 && old->residents > 0)
+            old->residents--;
         ch->bld2 = bld;
-        bld->people++;
+        bld->residents++;
     }
 }
 /* 0x4fda70, finds the applicant the building o hires for the job (and, when title is not 0, the title): a
@@ -2196,7 +2196,7 @@ void gm_MoveIntoHome(char *c, char *b)
    dislike (gm_Opinion above -30); marks it taken and returns it, 0 when there is none (or neither title nor
    job is given) */
 
-ORDCHAR *gm_FindApplicant(ORDBLD *o, unsigned title, unsigned job)
+ORDCHAR *gm_FindApplicant(AIBLD *o, unsigned title, unsigned job)
 {
     int i, sex;
 
@@ -2229,7 +2229,7 @@ found:
 
 char *gm_HomeObject(unsigned char *b)
 {
-    ORDBLD *bld = (ORDBLD *)b;
+    AIBLD *bld = (AIBLD *)b;
     char *o = 0;
     char *type;
 
@@ -2266,13 +2266,13 @@ char *gm_CharacterHome(char *c, int *out2, int *out3)
     }
     i = gm_HomeSearchStart;
     for (; n != 0; n--) {
-        if (((ORDBLD *)ai_Blds)[i].type != 0) {
-            type = (char *)ai_BTypes + ((ORDBLD *)ai_Blds)[i].type * 0x24d;
+        if (((AIBLD *)ai_Blds)[i].type != 0) {
+            type = (char *)ai_BTypes + ((AIBLD *)ai_Blds)[i].type * 0x24d;
             if (*type == 3 || *type == 0x16 || *type == 0x0f) {
                 gm_HomeSearchStart = i + 1;
                 *out3 = -1;
-                *out2 = ((ORDBLD *)ai_Blds)[i].id;
-                return (char *)&((ORDBLD *)ai_Blds)[i];
+                *out2 = ((AIBLD *)ai_Blds)[i].id;
+                return (char *)&((AIBLD *)ai_Blds)[i];
             }
         }
         i = (i + 1) % 256;
@@ -2303,7 +2303,7 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
     c = &ORD_CHARS[id];
     if (flags & 4) {
         if (bld != 0 && (o = (ORDOBJ *)gm_HomeObject((unsigned char *)bld)) != 0)
-            gm_PlaceOnStage(c->netId, ((ORDBLD *)bld)->id, o->objId, 0, 0);
+            gm_PlaceOnStage(c->netId, ((AIBLD *)bld)->id, o->objId, 0, 0);
         return (short *)c;
     }
     return (short *)c;

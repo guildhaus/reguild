@@ -855,7 +855,7 @@ char *itoa(int, char *, int);
 int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
-void ai_HandlePickedPlant(AIBLD *bld, int plants);
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 int he_NoProtectionEvent();
 struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
@@ -1093,7 +1093,7 @@ void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
 int d2_SetForm(int view, int n); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_CloseView(int view); void d2_RemoveObj(); void d2_ScrollWindowBy();
 #pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of gv.h's ORDBLD (gv.h cannot be included here yet): the
+typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
                                            fields the production settings read */
     unsigned char type;                 /* +0x00, the building kind */
     int id;                             /* +0x01, the building's id (the production settings chain's key) */
@@ -1218,7 +1218,7 @@ void ai_BardWindow(void);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table);
 void ai_TechEffectsWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
-void ai_HandlePickedPlant(AIBLD *bld, int plants);
+void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 int ai_FindUsableGoodIndex(int id, int *index);
 void ai_ChooseCoatOfArms(void);
 
