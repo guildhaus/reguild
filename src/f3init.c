@@ -3451,7 +3451,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         }
         ch_CurrentGroup = b->id;
         if (sv_PanelShown != 0)
-            evt_NoGroup = ((INIT_OBJ *)sv_PanelShown)->objId;
+            evt_NoGroup = sv_PanelShown->objId;
         else
             evt_NoGroup = b->id;
         if (season == 1)
@@ -3539,14 +3539,14 @@ void init_NoRoomNoOp(void)
    (mask 0xc0), the detail level set (d3_Terrain), the season textures switched and the sky colours updated */
 
 
-void init_FinishBuildingScene(AIBLD *b, unsigned short *o)
+void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
 {
     SCENEOBJ *d;
     char *p;
 
     p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     if (o == 0)
-        o = (unsigned short *)gm_Query(b->objList, 2, 6, 0, 0xfd);
+        o = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0xfd);
     d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF");
     if (d == 0)
         d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_METALL");
@@ -3561,11 +3561,11 @@ void init_FinishBuildingScene(AIBLD *b, unsigned short *o)
             d3if_Show((struct D3OBJECT *)d, 0);
         else {
             d3if_Show((struct D3OBJECT *)d, 1);
-            init_LoadShopScript((unsigned char *)b, o);
+            init_LoadShopScript((unsigned char *)b, (unsigned short *)o);
         }
         d->mask = 1;
     } else if (*p == 5 && b->owner != ai_PlayerId)
-        init_LoadShopScript((unsigned char *)b, o);
+        init_LoadShopScript((unsigned char *)b, (unsigned short *)o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
     init_PlayGraveyardSound((char *)b);
     if (gm_IsHomeType((unsigned char *)b) == 0)

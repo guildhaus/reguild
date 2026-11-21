@@ -66,7 +66,7 @@ char init_TextureSetHook(int o);                                        /* 0x512
 char init_BuildingTextureSetHook(struct D3OBJECT *o, void *ctx);  /* 0x512e80 */
 void init_SetCharacterAnimations(unsigned char *b);                     /* 0x512f30 */
 void init_ShowBuildingScene(struct AIBLD *b, int slot);                 /* 0x513050 */
-void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);     /* 0x513400 */
+void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);     /* 0x513400 */
 struct D3FLMAP;
 void init_SetDetailLevel(struct D3FLMAP *s, char f);                   /* 0x513590 */
 void init_LeaveTownScene(void *bld);                                               /* 0x5136b0, the building is not read */

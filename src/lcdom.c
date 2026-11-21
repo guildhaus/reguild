@@ -831,7 +831,7 @@ void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(ch
 void txt_Format(char *out, int id0, ...);
 int gm_CharCurrency(char *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -968,7 +968,7 @@ int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, .
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
-void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o); 
+void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
@@ -1791,7 +1791,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                                     if (gm_IsHomeType(bld) != 0)
                                         msg.hireMasterRoom = -1;
                                     else
-                                        msg.hireMasterRoom = ((AIROOM *)sv_PanelShown)->objId;
+                                        msg.hireMasterRoom = sv_PanelShown->objId;
                                     msg.hireTitle = 0;
                                     cm_SendLongMessage((char *)&msg);
                                     txt_Format(text1, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);
@@ -1924,7 +1924,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 if (gm_IsHomeType(bld) != 0)
                     msg.hireRoom = -1;
                 else
-                    msg.hireRoom = ((AIROOM *)sv_PanelShown)->objId;
+                    msg.hireRoom = sv_PanelShown->objId;
                 msg.hireFlag = 1;
                 msg.hireTitle = bt->title2;
                 cm_SendLongMessage((char *)&msg);
@@ -2339,7 +2339,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                 if (gm_IsHomeType(bld) != 0)
                     msg.hireRoom = -1;
                 else
-                    msg.hireRoom = ((AIROOM *)sv_PanelShown)->objId;
+                    msg.hireRoom = sv_PanelShown->objId;
                 msg.hireFlag = 0;
                 msg.hireTitle = 0x13;
                 cm_SendLongMessage((char *)&msg);
@@ -2655,7 +2655,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                         if (gm_IsHomeType(bld) != 0)
                             msg.hireMasterRoom = -1;
                         else
-                            msg.hireMasterRoom = ((AIROOM *)sv_PanelShown)->objId;
+                            msg.hireMasterRoom = sv_PanelShown->objId;
                         msg.hireTitle = 0;
                         cm_SendLongMessage((char *)&msg);
                         txt_Format(text1, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);
@@ -3391,7 +3391,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
         panelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_marktstand");
         for (i = 0; i < 7; i++) {
             panelBtns[i] = sv_AddPanelButton(0, i * 0x18 + 0xc, txt_InfoPanelButtons[i]);
-            if (*sv_PanelShown == panelIds[i]) {
+            if (sv_PanelShown->type == panelIds[i]) {
                 d2_Objs[panelBtns[i]].checked = 1;
                 d2_Objs[panelBtns[i]].highlighted = 1;
             }
@@ -3403,15 +3403,15 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     if (sv_PanelShown != 0) {
         mode1 = mode & 1;
         if (mode1) {
-            marketObj = (AIOBJ *)gm_Query((void *)((AIOBJ *)sv_PanelShown)->list, 2, 0, 0xff, 6);
-            if ((stall = (AIOBJ *)gm_Query((void *)((AIOBJ *)sv_PanelShown)->list, 2, 4, 5, 6)) == 0
-                && (stall = (AIOBJ *)gm_Query((void *)((AIOBJ *)sv_PanelShown)->list, 1, 4, 0x11)) == 0
+            marketObj = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0xff, 6);
+            if ((stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 4, 5, 6)) == 0
+                && (stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 1, 4, 0x11)) == 0
                 && (stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x2a, 6)) == 0)
                 stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 0, 0x116, 6);
         } else if (mode == 2) {
-            stall = (AIOBJ *)gm_Query((void *)((AIOBJ *)sv_PanelShown)->list, 2, 0, 0x1db, 6);
+            stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1db, 6);
         } else if (mode == 4) {
-            stall = (AIOBJ *)gm_Query((void *)((AIOBJ *)sv_PanelShown)->list, 2, 0, 0x1dc, 6);
+            stall = (AIOBJ *)gm_Query((void *)sv_PanelShown->list, 2, 0, 0x1dc, 6);
         }
     } else {
         mode1 = mode & 1;
@@ -3512,7 +3512,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     else if (mode == 4)
         io_PrintText(0xcf, ai_PlayerSlots[b->playerSlot].name);
     else if (sv_PanelShown != 0 && ai_PlayerBuilding == 0 && ai_FallbackBuilding == 0)
-        io_PrintText(*sv_PanelShown * 2 + 0x9a8);
+        io_PrintText(sv_PanelShown->type * 2 + 0x9a8);
     else if (canTrade == 0)
         io_PrintText(0xcc);
     else
@@ -4331,7 +4331,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     sv_PendingMoney = 0;
     if (mode8) {
         d2_CloseView(panelForm);
-        sv_PanelShown = (unsigned short *)picked;
+        sv_PanelShown = picked;
     }
     ai_CampaignStep(0x23, 0, 1, 0);
     return 0;
@@ -8768,8 +8768,8 @@ void ai_TrainingWindow(AIBLD *bld)
                         msg.time = ai_Time;
                         msg.flags = 1;
                         msg.arg[0] = lc_CharRecs[i].netId;
-                        if (sv_PanelShown != 0 && *sv_PanelShown != 0xfd)
-                            msg.arg[6] = ((AIOBJ *)sv_PanelShown)->objId;
+                        if (sv_PanelShown != 0 && sv_PanelShown->type != 0xfd)
+                            msg.arg[6] = sv_PanelShown->objId;
                         else
                             msg.arg[6] = -1;
                         sv_MoveToGroup((unsigned char *)bld, 0, lc_CharRecs[i].id, 0);
@@ -8793,7 +8793,7 @@ void ai_TrainingWindow(AIBLD *bld)
                         msg.fromId = bld->id;
                         msg.time = ai_Time;
                         if (sv_PanelShown != 0)
-                            msg.arg[2] = ((AIOBJ *)sv_PanelShown)->objId;
+                            msg.arg[2] = sv_PanelShown->objId;
                         else
                             msg.arg[2] = -1;
                         msg.arg[1] = lc_CharRecs[i].netId;

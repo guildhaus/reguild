@@ -838,7 +838,7 @@ void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(ch
 void txt_Format(char *out, int id0, ...);
 int gm_CharCurrency(char *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -980,7 +980,7 @@ int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, .
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
-void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o); 
+void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
@@ -3881,7 +3881,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode)
                     if (gm_IsHomeType(bld) != 0)
                         msg.hireMasterRoom = -1;
                     else
-                        msg.hireMasterRoom = ((AIROOM *)sv_PanelShown)->objId;
+                        msg.hireMasterRoom = sv_PanelShown->objId;
                     msg.hireTitle = 0;
                     cm_SendLongMessage((char *)&msg);
                     txt_Format(text, 0x1939, ai_BTypes[bld->type].jobs[0] + 0x130);

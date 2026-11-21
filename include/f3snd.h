@@ -65,7 +65,7 @@ extern int snd_MusicSeason;                /* 0x6f0cb4, the season of the music 
 extern unsigned int snd_PauseLength;       /* 0x6f0cb0, the pause length */
 extern unsigned int snd_LastDecision;       /* 0x6f0cb8, time of the last track decision */
 extern struct AIBLD *snd_TrackBuilding;     /* 0x6f0ca8, the building of the track */
-extern unsigned short *snd_TrackRoom;                /* 0x6f0cac, the room of the track */
+extern struct AIOBJ *snd_TrackRoom;                  /* 0x6f0cac, the room of the track */
 extern struct MSXTRACK *snd_SpecialTrack; /* 0x6f0b74, the special track of snd_PlaySpecialTrack */
 extern int snd_AmbientSaved;            /* 0x6f0b78, 1 while the ambient flag is off and saved (0x4c23f0) */
 extern unsigned int snd_AmbientOnSaved; /* 0x6f0b64, the saved snd_AmbientOn */
@@ -91,7 +91,7 @@ extern int snd_AnimalSeason;                /* 0x6f0b9c, the season */
 extern struct D3SOUND *snd_AmbientTrack;    /* 0x6f0b80, the d3snd handle of the ambient track (bird song, market ambience) */
 extern struct AIBLD *ai_MarketBuilding;        /* 0x6f1bc8, the market building (ai.c) */
 extern struct AIBLD *ai_PlayerBuilding;          /* 0x6f2308, the building the player is in: an AIBLD */
-extern unsigned short * sv_PanelShown;             /* 0x6f2310, its room */
+extern struct AIOBJ *sv_PanelShown;                /* 0x6f2310, its room */
 extern void *snd_AtmoTrack;              /* 0x6f0ba0, the atmosphere mp3 (MSXTRACK *) */
 extern int d3_CurrentScene;             /* 0x633444 */        /* 0x602ba8 */
 extern char snd_GustNames[3][0x32];     /* 0x602b10, "Boehe_Leicht_s", "Boehe_Mittel_s", "Boehe_Stark_s" */

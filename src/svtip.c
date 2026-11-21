@@ -1282,14 +1282,14 @@ void ai_SetBookmark(int idx)
     a = ai_PlayerBuilding;
     if (a != 0) {
         if (sv_PanelShown != 0)
-            o = (AIOBJ *)sv_PanelShown;
+            o = sv_PanelShown;
         else
             o = 0;
     } else {
         a = ai_FallbackBuilding;
         if (a != 0) {
             if (sv_PanelShown != 0)
-                o = (AIOBJ *)sv_PanelShown;
+                o = sv_PanelShown;
             else
                 o = (AIOBJ *)gm_Query((void *)a->objList, 2, 6, 0, 0xfd);
         } else {

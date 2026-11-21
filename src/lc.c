@@ -3100,7 +3100,7 @@ void ai_ConstructionWindow(void)
 }
 
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -3172,7 +3172,7 @@ void ai_HandleMapKey(void)
 void ai_TradeContactChecks(void)
 {
     unsigned short *item;           /* the clicked object record: its first word is its goods id */
-    unsigned short *room;
+    AIOBJ *room;
     AIBLD *b;
     AIBTYPE *type;
     AIGOOD *g;
@@ -3183,7 +3183,7 @@ void ai_TradeContactChecks(void)
         if ((g->type == 6 || g->type == 2) &&
             (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, item, 0) &
              0x4000) != 0) {
-            room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+            room = (AIOBJ *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
             ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
             init_FinishBuildingScene(ai_FallbackBuilding, room);
@@ -3191,9 +3191,9 @@ void ai_TradeContactChecks(void)
         }
     }
     if (sv_QuickJump.panelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == ai_FallbackBuilding) {
-        room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+        room = (AIOBJ *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         if (sv_QuickJump.record != room) {
-            ai_RunObjectRoom((AIOBJ *)sv_QuickJump.record);
+            ai_RunObjectRoom(sv_QuickJump.record);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
             init_FinishBuildingScene(ai_FallbackBuilding, room);
         } else {
@@ -3203,7 +3203,7 @@ void ai_TradeContactChecks(void)
         }
     }
     if (sv_ClickedContact != 0 && ai_SelectedCount == 0) {
-        room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+        room = (AIOBJ *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         ai_RunObjectRoom((AIOBJ *)sv_ClickedContact);
         init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
         init_FinishBuildingScene(ai_FallbackBuilding, room);
@@ -3357,7 +3357,7 @@ void ai_GameFrame(void)
             /* the building the info panel picked */
             b = sv_QuickJump.object;
             if (sv_QuickJump.record != 0) {
-                b->mainRoom = *sv_QuickJump.record;
+                b->mainRoom = sv_QuickJump.record->type;
                 if ((b->flags5a & 1) != 0) {
                     sv_QuickJump.panelFlag = 0;
                 } else {
@@ -3423,7 +3423,7 @@ void lc_PlayerInJail(void)
             return;
         }
         r = (AIOBJ *)gm_Query((void *)it->objList, 1, 0, 0x65);
-        if (r == 0 || sv_PanelShown == (unsigned short *)r)
+        if (r == 0 || sv_PanelShown == r)
             return;
         sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
         return;
@@ -3434,7 +3434,7 @@ void lc_PlayerInJail(void)
         return;
     }
     r = (AIOBJ *)gm_Query((void *)it->objList, 1, 0, 0xba);
-    if (r == 0 || sv_PanelShown == (unsigned short *)r)
+    if (r == 0 || sv_PanelShown == r)
         return;
     sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
 }
@@ -4742,7 +4742,7 @@ int ai_BribeCallback(char *place, AIBLD *target)
             msg.flags = 2;
             msg.arg[1] = target->id;
             msg.arg[4] = ai_PlayerBuilding != 0 ? ai_PlayerBuilding->id : ai_FallbackBuilding->id;
-            msg.arg[5] = sv_PanelShown != 0 ? ((AIROOM *)sv_PanelShown)->objId : -1;
+            msg.arg[5] = sv_PanelShown != 0 ? sv_PanelShown->objId : -1;
             for (i = 0; i < 0x20; i++)
                 if (ai_SceneChars[i] != 0 && ((AICHARREC *)ai_SceneChars[i])->selected != 0) {
                     msg.arg[0] = ((AICHARREC *)ai_SceneChars[i])->netId;
@@ -7758,7 +7758,7 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
     ai_PermsDirty = 1;
     if (sv_PanelForm != -1)
         d2_SetViewEnabled(sv_PanelForm, 0);
-    sv_PanelShown = (unsigned short *)gm_Query((void *)ai_MarketBuilding->objList, 1, 0, kind);
+    sv_PanelShown = (AIOBJ *)gm_Query((void *)ai_MarketBuilding->objList, 1, 0, kind);
     if (sv_PanelShown != 0) {
         ai_CampaignStep(0x17, (int)sv_PanelShown, 0, kind);
         while (sv_PanelShown != 0) {
@@ -7865,7 +7865,7 @@ void ai_WineCellarWindow(void)
 
     win = d2_OpenForm(0, 0, "locations\\wohnsitz\\weinkeller");
     own = gm_GetGoodsValue((char *)&ai_Chars[ai_PlayerId]);
-    cellar = gm_SumListMoney((void *)((AIROOM *)sv_PanelShown)->list);
+    cellar = gm_SumListMoney((void *)sv_PanelShown->list);
     d2_CentreViewWindows(win);
     d2_SetForm(win, 0);
     sv_FitForm(d2_LastWindow);
@@ -7883,10 +7883,10 @@ void ai_WineCellarWindow(void)
         if (d2_ClickedId == 0) {
             slider = gm_PlayerFactor(d2_GetObjValue(ctl), ai_OwnPlayer);
             if (cellar < slider)
-                cm_SendMoveGoods(((AIROOM *)sv_PanelShown)->objId, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId,
+                cm_SendMoveGoods(sv_PanelShown->objId, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId,
                                  ai_OwnPlayer, slider - cellar);
             else
-                cm_SendMoveGoods(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ((AIROOM *)sv_PanelShown)->objId,
+                cm_SendMoveGoods(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, sv_PanelShown->objId,
                                  ai_OwnPlayer, cellar - slider);
             sv_PopRequest = 1;
         }
@@ -8982,7 +8982,7 @@ int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, .
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
-void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o); 
+void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
@@ -9489,7 +9489,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 if (d3_CurrentScene != 0)
                     d3_DeflateScene(3);
                 ai_PlayerBuilding = (AIBLD *)b;
-                sv_PanelShown = (unsigned short *)room;
+                sv_PanelShown = room;
                 evt_NoGroup = room->objId;
                 ch_CurrentGroup = b->id;
                 ch_CurrentScriptGroup = room->objId;
@@ -9768,7 +9768,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
             }
         }
         init_ShowBuildingScene(ai_FallbackBuilding, room->type);
-        init_FinishBuildingScene(ai_FallbackBuilding, (unsigned short *)room);
+        init_FinishBuildingScene(ai_FallbackBuilding, room);
         if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[4].fn != 0)
             d3_DefaultScene->events[4].fn(d3_DefaultScene, 4, d3_DefaultScene->events[4].name, 0);
         lastEvent = evt_LastId;
@@ -9889,7 +9889,7 @@ void ai_RunObjectRoom(AIOBJ *room)
 
     lastEvent = -1;
     scene = d3_CurrentScene;
-    sv_PanelShown = (unsigned short *)room;
+    sv_PanelShown = room;
     evt_NoGroup = room->objId;
     ch_CurrentScriptGroup = room->objId;
     sv_FrameBase = sv_FrameDepth + 1;
@@ -9913,7 +9913,7 @@ void ai_RunObjectRoom(AIOBJ *room)
         d3if_SelectScene(init_ObjectUniverse[room->type], 0);
         d3_InflateScene(3);
         init_ShowBuildingScene(ai_FallbackBuilding, room->type);
-        init_FinishBuildingScene(ai_FallbackBuilding, (unsigned short *)room);
+        init_FinishBuildingScene(ai_FallbackBuilding, room);
         if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[4].fn != 0)
             d3_DefaultScene->events[4].fn(d3_DefaultScene, 4, d3_DefaultScene->events[4].name, 0);
         lastEvent = evt_LastId;
@@ -12630,7 +12630,7 @@ void ai_StorageContact(int building, int room)
         click = ai_ClickedObject;
         if (click != 0) {
             if (click == lager)
-                ai_StorageWindow(building, ((AIROOM *)sv_PanelShown)->list);
+                ai_StorageWindow(building, sv_PanelShown->list);
             else if (click == transport)
                 ai_OpenTransport(building);
             else if (click == ausruesten)
@@ -13276,7 +13276,7 @@ int ai_WatchPlanWindow(int ctx, char *place)
             memset(msg.ids, 0xff, 6 * sizeof(int));
             n = 0;
             msg.arg[8] = bld->id;
-            msg.arg[9] = ((AIROOM *)sv_PanelShown)->objId;
+            msg.arg[9] = sv_PanelShown->objId;
             for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32] && n < 6; pp++) {  /* signed compares (jl) */
                 ch = (AICHARREC *)*pp;
                 if (ch != 0 && ch->selected != 0)
@@ -13360,7 +13360,7 @@ int ai_ArrestWindow(int unused, AIBLD *bld)
                 msg.flags = 1;
                 msg.arg[1] = bld->id;
                 msg.arg[2] = ai_PlayerBuilding->id;
-                msg.arg[3] = ((AIROOM *)sv_PanelShown)->objId;
+                msg.arg[3] = sv_PanelShown->objId;
                 for (i = 0; i < 0x20; i++) {
                     if (ai_SceneChars[i] != 0 && ((AICHARREC *)ai_SceneChars[i])->selected != 0) {
                         msg.arg[0] = ((AICHARREC *)ai_SceneChars[i])->netId;
@@ -13483,7 +13483,7 @@ void ai_GuildHallListener(AIBLD *bld, int room)
         }
         if (ai_ClickedObject != 0 && (ai_BuildingPerms & 0x200) != 0) {
             if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, ((AIOBJ *)sv_PanelShown)->list);
+                ai_StorageWindow((int)bld, sv_PanelShown->list);
             else if (ai_ClickedObject == ausruesten)
                 ai_EquipWindow(bld);
             else if (ai_ClickedObject == razzia)

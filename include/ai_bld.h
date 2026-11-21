@@ -22,7 +22,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
         };
     };
     unsigned short owner;               /* 0x27, index into ai_Chars */
-    unsigned short mainRoom;            /* 0x29, the room (scene record) the building's panel opens with: sv_UpdatePanel passes it to ai_TechTreeWindow where it passes *sv_PanelShown for a shown room (reasoned) */
+    unsigned short mainRoom;            /* 0x29, the room (scene record) the building's panel opens with: sv_UpdatePanel passes it to ai_TechTreeWindow where it passes sv_PanelShown->type for a shown room (reasoned) */
     int saved2b;                        /* 0x2b, saved and loaded whole (ls_WriteBuildings); no reader read yet */
     unsigned char saved2f;              /* 0x2f, saved and loaded (ls_WriteBuildings); no reader read yet */
     int travel30;                       /* 0x30, he_AllocTransport sums it over the start and the goal building into

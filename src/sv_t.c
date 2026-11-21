@@ -828,7 +828,7 @@ int ai_QueryDefault(int *args)
     if (args[0] != 0x1a || !args[1])
         return 1;
     bld = (AIBLD *)args[1];
-    if (ai_BTypes[bld->type].kind == 0x12 && *sv_PanelShown == 0x74)
+    if (ai_BTypes[bld->type].kind == 0x12 && sv_PanelShown->type == 0x74)
         return 0;
     return 1;
 }
@@ -844,7 +844,7 @@ int ai_QueryBuilding0f(int *args)
         return 0;
     }
     if (args[0] == 0x1a && args[1]) {
-        if (ai_BTypes[((AIBLD *)args[1])->type].kind == 0xf && *sv_PanelShown == 0x10e)
+        if (ai_BTypes[((AIBLD *)args[1])->type].kind == 0xf && sv_PanelShown->type == 0x10e)
             return 0;
         return 1;
     }
@@ -1424,7 +1424,7 @@ int ai_MarkerChapter5Step2(int mode)
     int r;
 
     if (sv_PanelShown) {
-        room = *sv_PanelShown;
+        room = sv_PanelShown->type;
         r = room;
         if (r >= 0x92 && (r <= 0x97 || r == 0x2db) && !ai_Tutorial->goalDone)
             return room != 0x92;
@@ -1479,7 +1479,7 @@ int ai_MarkerChapter3Step8(int mode)
     int done;
 
     if (sv_PanelShown) {
-        room = *sv_PanelShown;
+        room = sv_PanelShown->type;
         r = room;
         if (r >= 0x92 && r <= 0x97) {
             done = ai_Tutorial->goalDone;

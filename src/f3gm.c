@@ -2487,7 +2487,7 @@ int gm_BuildingJob(int t);                   /* 0x5048e0 */
 int gm_ListBuildingsOfType();                     /* 0x5020a0 */
 extern int gm_AllowAll;
 int gm_JobBuildingType(int x);
-extern unsigned short * sv_PanelShown;                /* 0x6f2310 */
+extern struct AIOBJ *sv_PanelShown;                   /* 0x6f2310 */
 extern int ai_CharCount, ai_NextCharNumber, ai_NextPlayerNumber;  /* 0x6f1bc0, 0x6f1bb8, 0x6f1bbc */
 char d3if_ShowTree(struct D3OBJECT *obj, char show);                     /* 0x447300 */
 void cm_BeginGroup(const char *s);                     /* 0x4c4540 */

@@ -571,7 +571,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
     AIBTYPE *bt;
     AIBLD *cur = 0;
     int w;
-    unsigned short *old;
+    AIOBJ *old;
     int oldv;
 
     if (sv_QuickJump.panelFlag != 0)
@@ -583,19 +583,19 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
     else if (ai_FallbackBuilding != 0)
         cur = ai_FallbackBuilding;
     sv_QuickJump.object = o;
-    sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 1, b);
+    sv_QuickJump.record = (AIOBJ *)gm_Query(o->objList, 1, 1, b);
     if (o->type == 0x47)
-        sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 0, 0xfd);
+        sv_QuickJump.record = (AIOBJ *)gm_Query(o->objList, 1, 0, 0xfd);
     strcpy(sv_QuickJump.contactName, c);
     sv_QuickJump.panelFlag = 1;
-    if (sv_QuickJump.record == 0 || *sv_QuickJump.record == 0) {
+    if (sv_QuickJump.record == 0 || sv_QuickJump.record->type == 0) {
         if (cur == o && ai_FallbackBuilding == 0) {
             sv_QuickJump.panelFlag = 0;
             return;
         }
     } else if (sv_QuickJump.record != sv_PanelShown) {
         if (o == cur && gm_IsHomeType((unsigned char *)cur) != 0) {
-            o->mainRoom = *sv_QuickJump.record;
+            o->mainRoom = sv_QuickJump.record->type;
             if (sv_PanelShown != 0) {
                 sv_PopRequest = (sv_FrameDepth - sv_FrameBase) + 1;
                 return;
@@ -605,14 +605,14 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
         }
         old = sv_PanelShown;
         oldv = ai_FrameWait;
-        o->mainRoom = *sv_QuickJump.record;
+        o->mainRoom = sv_QuickJump.record->type;
         if (gm_IsHomeType((unsigned char *)o) == 0 && gm_IsType10((unsigned char *)o) == 0) {
             sv_PanelShown = sv_QuickJump.record;
             sv_QuickJump.panelFlag = 0;
             ai_FrameWait = 0;
-            w = init_ObjectSceneUniverse(sv_QuickJump.record);
+            w = init_ObjectSceneUniverse((unsigned short *)sv_QuickJump.record);
             if (d3_Scenes[w].dirty != 0)
-                init_LoadObjectScene(*sv_QuickJump.record);
+                init_LoadObjectScene(sv_QuickJump.record->type);
             sv_PanelShown = old;
             sv_QuickJump.panelFlag = 1;
             ai_FrameWait = oldv;
@@ -1175,7 +1175,7 @@ void sv_UpdateGroundplan(unsigned flags)
                                 }
                             }
                         }
-                        if (dm_L.lclick != 0 && obj != 0 && obj->id != *sv_PanelShown
+                        if (dm_L.lclick != 0 && obj != 0 && obj->id != sv_PanelShown->type
                             && ai_ScriptQuery(0x19, (int)ai_PlayerBuilding, 0, obj->id) == 1
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
                             if (gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, &obj->id, 0) & 0x4000)
@@ -1202,7 +1202,7 @@ void sv_UpdateGroundplan(unsigned flags)
                             }
                         }
                         if (dm_L.lclick != 0 && obj != 0
-                            && (sv_PanelShown == 0 || (obj->id != *sv_PanelShown && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
+                            && (sv_PanelShown == 0 || (obj->id != sv_PanelShown->type && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
                             if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, &obj->id, 0) & 0x4000)
                                 sv_SelectPanelObject(ai_FallbackBuilding, obj->objId, ch_EmptyName);
@@ -4094,7 +4094,7 @@ void sv_UpdatePanel(void)
         else if (ai_FallbackBuilding != 0 && sv_PanelShown == 0)
             ai_BuildingWindow(ai_FallbackBuilding);
         else if (ai_FallbackBuilding != 0 && (sv_PanelPerms & 0x10) != 0)
-            ai_TechTreeWindow((int)ai_FallbackBuilding, *sv_PanelShown);
+            ai_TechTreeWindow((int)ai_FallbackBuilding, sv_PanelShown->type);
         else if (sv_SelectedObject != 0) {
             cls = gm_BuildingClass(SV_SELBLD->type);
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, SV_SELBLD, 0, 0);
@@ -4182,7 +4182,7 @@ refresh:
             sv_RefreshPanel();
         } else if (sv_PanelShown != 0) {
             sv_ShownRoom = (int)sv_PanelShown;
-            sv_OpenItemPanel(sv_PanelShown);
+            sv_OpenItemPanel((unsigned short *)sv_PanelShown);
             sv_RefreshPanel();
         }
         return;
@@ -4335,7 +4335,7 @@ void sv_HoverPick(void)
                     d2_PointerLook = 0xb;
                     if (((AIOBJ *)sv_HoverContact)->id == 0xfd) {
                         if (sv_PanelShown != 0)
-                            sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + *sv_PanelShown * 2], txt_Ptrs[0x84]);
+                            sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + sv_PanelShown->type * 2], txt_Ptrs[0x84]);
                         else
                             sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x48e + b->type * 14], txt_Ptrs[0x84]);
                     } else
@@ -4445,7 +4445,7 @@ void sv_HandleObjects(void)
         subj = ai_PlayerBuilding != 0 ? ai_PlayerBuilding : ai_FallbackBuilding;
         if (subj == sv_QuickJump.object
             && (sv_PanelShown == sv_QuickJump.record
-                || (ai_FallbackBuilding != 0 && sv_PanelShown == 0 && sv_QuickJump.record != 0 && *sv_QuickJump.record == 0xfd))) {
+                || (ai_FallbackBuilding != 0 && sv_PanelShown == 0 && sv_QuickJump.record != 0 && sv_QuickJump.record->type == 0xfd))) {
             if (sv_QuickJump.contactName[0] != 0) {
                 o = d3_FindObject(0, 0x60, 0, sv_QuickJump.contactName);
                 if (o != 0) {
@@ -4456,7 +4456,7 @@ void sv_HandleObjects(void)
             }
             sv_QuickJump.panelFlag = 0;
         }
-        if (subj == sv_QuickJump.object && (sv_QuickJump.record == 0 || *sv_QuickJump.record == 0xfd)) {
+        if (subj == sv_QuickJump.object && (sv_QuickJump.record == 0 || sv_QuickJump.record->type == 0xfd)) {
             if (sv_QuickJump.contactName[0] != 0) {
                 o = d3_FindObject(0, 0x60, 0, sv_QuickJump.contactName);
                 if (o != 0) {
@@ -4647,8 +4647,8 @@ void sv_RunLocationScripts(AIBLD *a)
     char sp[0x80];
 
     cls = 0;
-    if (sv_PanelShown != 0 && *sv_PanelShown != 0xfd)
-        cls = &ai_Goods[*sv_PanelShown];
+    if (sv_PanelShown != 0 && sv_PanelShown->type != 0xfd)
+        cls = &ai_Goods[sv_PanelShown->type];
     kind = &ai_BTypes[a->type];
     if (d3_Time > sv_SceneEventTime + 500) {
         if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[6].fn != 0)
@@ -4665,25 +4665,25 @@ void sv_RunLocationScripts(AIBLD *a)
         if (sv_ActivityName(c, a, name) != 0) {
             if (kind->kind == 0xd) {
                 if (sv_PanelShown != 0) {
-                    if (*sv_PanelShown == 0x37 && c->model->scriptGroup == ((AIOBJ *)sv_PanelShown)->objId) {
+                    if (sv_PanelShown->type == 0x37 && c->model->scriptGroup == sv_PanelShown->objId) {
                         ok = 1;
                         goto lstart;
                     }
-                    if (*sv_PanelShown != 0xfd || c->model->scriptGroup != ((AIOBJ *)sv_PanelShown)->objId)
+                    if (sv_PanelShown->type != 0xfd || c->model->scriptGroup != sv_PanelShown->objId)
                         goto lstart;
                 }
                 ok = 1;
                 if (c->job != 0 && c->job->argc8 != 0)
                     ok = 0;
-            } else if (kind->kind == 8 && *sv_PanelShown == 0xdd && c->jobKind == 0x15) {
+            } else if (kind->kind == 8 && sv_PanelShown->type == 0xdd && c->jobKind == 0x15) {
                 ok = 1;
             } else {
                 ok = 1;
                 if (c->job != 0 && c->job->kind == 4 && c->job->argc8 != 0)
                     ok = 0;
             }
-        } else if (kind->kind == 0x16 && sv_PanelShown != 0 && *sv_PanelShown == 0x120
-                   && c->model->scriptGroup == ((AIOBJ *)sv_PanelShown)->objId && (c->flags1c8 & 0x1000) == 0) {
+        } else if (kind->kind == 0x16 && sv_PanelShown != 0 && sv_PanelShown->type == 0x120
+                   && c->model->scriptGroup == sv_PanelShown->objId && (c->flags1c8 & 0x1000) == 0) {
             strcpy(name, "besucher");
             ok = 1;
         } else if (kind->kind == 1 && c->bld2 == a && (c->flags1c8 & 0x1000) == 0) {
@@ -5051,7 +5051,7 @@ void sv_HandleSelectionMouse(void)
                     sv_SelectedChar = (int)c;
                 ai_SelectedCount++;
                 if (c->bld != 0 && c->bld->id == c->model->bldId
-                    && (ai_FallbackBuilding != 0 || (sv_PanelShown != 0 && *sv_PanelShown != 0x120)))
+                    && (ai_FallbackBuilding != 0 || (sv_PanelShown != 0 && sv_PanelShown->type != 0x120)))
                     d2_AddPointerItem(c->picture, 1);
             }
         }
@@ -5174,7 +5174,7 @@ void sv_SpeakPicked(void)
         ch = 0;
     if (ch != 0 && (ch->kind & 1) == 0)
         return;
-    if (b != 0 && (cls->kind != 0x16 || *sv_PanelShown != 0x120) && cls->kind != 0x0f)
+    if (b != 0 && (cls->kind != 0x16 || sv_PanelShown->type != 0x120) && cls->kind != 0x0f)
         return;
     util_Random(4);
     id = -1;
@@ -5423,7 +5423,7 @@ found:
         return;
     if (*obj == 0xfd) {
         if (sv_PanelShown != 0)
-            sprintf(buf, "%s %s", (char *)txt_ObjectNames[*sv_PanelShown][0], txt_GatePlaceSuffix);
+            sprintf(buf, "%s %s", (char *)txt_ObjectNames[sv_PanelShown->type][0], txt_GatePlaceSuffix);
         else
             sprintf(buf, "%s %s", (char *)ai_BuildingNames[b->type * 0xe - 2], txt_GatePlaceSuffix);
     } else {
@@ -5470,7 +5470,7 @@ void sv_DrawItemNames(void)
     D3RECT box;
 
     if (sv_PanelShown != 0) {
-        list = ((AIOBJ *)sv_PanelShown)->list;
+        list = sv_PanelShown->list;
     } else {
         if (ai_FallbackBuilding == 0)
             return;
@@ -5491,7 +5491,7 @@ void sv_DrawItemNames(void)
         }
     }
     if (sv_PanelShown != 0)
-        list = ((AIOBJ *)sv_PanelShown)->list;
+        list = sv_PanelShown->list;
     else if (ai_FallbackBuilding != 0)
         list = ai_FallbackBuilding->objList;
     for (q = (AIOBJ *)gm_Query((void *)list, 2, 5, 6); q != 0; q = (AIOBJ *)gm_QueryNext()) {
@@ -5524,7 +5524,7 @@ void sv_DrawBorderArrows(void)
         return;
     b = ai_PlayerBuilding;
     if ((b != 0 || (ai_FallbackBuilding != 0 && (b = ai_FallbackBuilding) != 0)) && (sv_PanelShown != 0 || ai_FallbackBuilding != 0)) {
-        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_PanelShown, 0);
+        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, (unsigned short *)sv_PanelShown, 0);
         if ((sv_PanelPerms & 0x1000) == 0)
             return;
     }
@@ -5648,7 +5648,7 @@ void sv_HandleRightClick(unsigned fl)
     AIJOB *job;
     HEEVSLOT *s;
     AIBLD *rb;
-    unsigned short *room;
+    AIOBJ *room;
     D3EVENT *ev;
 
     bld = 0;
@@ -5710,7 +5710,7 @@ void sv_HandleRightClick(unsigned fl)
             sv_ResetSelection();
             di_ClearEvents(0x10);
         }
-        if ((ai_PlayerBuilding != 0 && ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, *sv_PanelShown) == 0)
+        if ((ai_PlayerBuilding != 0 && ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, sv_PanelShown->type) == 0)
             || (ai_FallbackBuilding != 0 && ai_ScriptQuery(0x1c, (int)ai_FallbackBuilding, 0, 0) == 0))
             di_ClearAxes();
         if (ai_SelectedCount != 0 || sv_OtherSelected != 0 || dm_L.rup == 0)
@@ -5769,18 +5769,18 @@ void sv_HandleRightClick(unsigned fl)
             if (sv_PanelShown != 0) {
                 rb = 0;
                 if (ai_PlayerBuilding != 0) {
-                    if (ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, *sv_PanelShown) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
+                    if (ai_ScriptQuery(0x1a, (int)ai_PlayerBuilding, 0, sv_PanelShown->type) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
                         rb = ai_PlayerBuilding;
                 } else if (ai_FallbackBuilding != 0) {
                     if (ai_ScriptQuery(0x1c, (int)ai_FallbackBuilding, 0, 0) == 1 && !(ai_Chars[ai_PlayerId].heldRounds > 0))
                         rb = ai_FallbackBuilding;
                 }
-                if (rb != 0 && *sv_PanelShown == 0xf2)
-                    room = (unsigned short *)gm_GetGebaeudeHauptraum((unsigned char *)rb);
+                if (rb != 0 && sv_PanelShown->type == 0xf2)
+                    room = gm_GetGebaeudeHauptraum((unsigned char *)rb);
                 if (ai_PlayerBuilding == 0 || room == 0 || room == sv_PanelShown)
                     sv_PanelShown = 0;
                 else
-                    ai_SwitchRoom(-1, *room);
+                    ai_SwitchRoom(-1, room->type);
             } else if (ai_FallbackBuilding != 0 || ai_PlayerBuilding != 0) {
                 ai_FallbackBuilding = 0;
                 ai_PlayerBuilding = 0;
@@ -5804,14 +5804,14 @@ done:
         bld = ai_FallbackBuilding;
     if ((fl & 8) != 0 && bld != 0) {
         if (sv_PanelShown != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, (unsigned short *)sv_PanelShown, 0);
         else
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, 0, 0);
         if (bld->owner == ai_PlayerId || (sv_PanelPerms & 0x1000) != 0)
             sv_BorderCameraView();
     }
     if (sv_PermsBuilding != bld || sv_PermsRoom != sv_PanelShown || ai_PermsDirty != 0) {
-        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
+        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, bld, (unsigned short *)sv_PanelShown, 0);
         sv_ReleaseNamePlates();
         sv_PermsBuilding = bld;
         sv_PermsRoom = sv_PanelShown;
@@ -7543,7 +7543,7 @@ int sv_HoverContact = 0;  /* 0x6f2300, the goods item a contact gate under the p
 int sv_SelectedModel = 0;  /* 0x6f2304 */
 AIBLD *ai_PlayerBuilding = 0;  /* 0x6f2308 */
 AIBLD *ai_FallbackBuilding = 0;  /* 0x6f230c */
-unsigned short * sv_PanelShown = 0;  /* 0x6f2310, the scene record (room) the info panel shows now */
+struct AIOBJ *sv_PanelShown = 0;  /* 0x6f2310, the room object (its type: the scene record) the info panel shows now */
 struct AIOBJ *sv_LastRoom = 0;  /* 0x6f2314, the room whose handler ai_EnterBuilding ran last (cleared on entering a building); sv's by place (between sv_PanelShown and f3gm's ai_PermsDirty), only lc reads it */
 int ai_PermsDirty = 0;  /* 0x6f2318 */
 int ai_BuildingPerms = 0;  /* 0x6f231c */
@@ -7595,7 +7595,7 @@ int sv_ShownCount = 0;  /* 0x6f23d8, ai_SelectedCount when sv_UpdatePanel last b
 int sv_PointerSpriteFor = 0;  /* 0x6f23dc, reset with the pointer sprite (-1 / 0 when sv_HoverPick frees d2_PointerSprite; reasoned: what the sprite was made for) */
 char * sv_LastPicked = 0;  /* 0x6f23e0, ai_PickedObject at the last click (sv_HandleObjects; nothing reads it) */
 AIBLD *sv_PermsBuilding = 0;  /* 0x6f23e4, the building ai_BuildingPerms was last computed for (the right-click handler 0x52d940) */
-unsigned short *sv_PermsRoom = 0;  /* 0x6f23e8, the room (sv_PanelShown) it was computed for */
+struct AIOBJ *sv_PermsRoom = 0;  /* 0x6f23e8, the room (sv_PanelShown) it was computed for */
 int sv_DisabledCount = 0;  /* 0x6f23ec, the entries of sv_DisabledWidgets */
 unsigned char sv_BookPhase = 0;  /* 0x6f23f0, toggled 0 / 1 each frame by the open book's update: which page of the shown pair is redrawn this frame */
 unsigned char sv_InMissionComplete = 0;  /* 0x6f23f1, 1 while sv_RunFrame plays ai_MissionCompleteSequence (no re-entry); sv's by use, see sv.c's lead comment */

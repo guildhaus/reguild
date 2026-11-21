@@ -11789,7 +11789,7 @@ void he_TransportFromHome(int ev)
                 && (sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow
                     || (ai_PlayerBuilding != (AIBLD *)to
                         && (gm_IsType10((unsigned char *)to) == 0 || sv_PanelShown == 0
-                            || ((*sv_PanelShown < 0x92 || *sv_PanelShown > 0x97) && *sv_PanelShown != 0x2db))))
+                            || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)to);
                 if (o != 0)
@@ -12002,7 +12002,7 @@ void he_TransportStadtStadt(int ev)
                      && (gm_IsType10((unsigned char *)to) == 0 || sv_PanelShown == 0
                          || (ai_PlayerBuilding != (AIBLD *)to
                              && (gm_IsType10((unsigned char *)to) == 0
-                                 || ((*sv_PanelShown < 0x92 || *sv_PanelShown > 0x97) && *sv_PanelShown != 0x2db))))))
+                                 || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)to);
                 if (o != 0)
@@ -12456,7 +12456,7 @@ void he_RunMessageBox(int ev)
                 bld = ai_FallbackBuilding;
             d2_SetForm(e->slot->win, 1);
             if (bld != 0 && bld->id == m->bld && m->sel == 0
-                && ((sv_PanelShown != 0 && ((AIOBJ *)sv_PanelShown)->objId == m->obj) || m->obj == -1))
+                && ((sv_PanelShown != 0 && sv_PanelShown->objId == m->obj) || m->obj == -1))
                 io_PrintText(0x1ba2);
             else
                 io_PrintText(0x1ba1);

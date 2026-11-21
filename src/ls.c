@@ -274,7 +274,7 @@ int ls_WriteSaveHeader(int f, unsigned flags)
         ref = -1;
     vfs_fwrite(&ref, 4, 1, f);
     if (sv_PanelShown != 0)
-        ref = ((struct AIOBJ *)sv_PanelShown)->objId;
+        ref = sv_PanelShown->objId;
     else
         ref = -1;
     vfs_fwrite(&ref, 4, 1, f);

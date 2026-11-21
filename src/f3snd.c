@@ -307,7 +307,7 @@ void snd_UpdateAnimals(void)
     char *name;
     int k;
     AIBTYPE *bt;
-    unsigned short *panel;
+    AIOBJ *panel;
 
     if (d3_Terrain != 0 && snd_AmbientOn != 0) {
         n = 0;
@@ -415,7 +415,7 @@ void snd_UpdateAnimals(void)
     if (ai_PlayerBuilding != 0 && snd_AmbientOn != 0) {
         bt = &ai_BTypes[ai_PlayerBuilding->type];
         panel = sv_PanelShown;
-        if (bt->kind == 0x16 && panel != 0 && *panel == 0x120) {
+        if (bt->kind == 0x16 && panel != 0 && panel->type == 0x120) {
             int c;
 
             if (snd_AtmoTrack == 0) {
@@ -446,7 +446,7 @@ void snd_UpdateAnimals(void)
             msx_SetTrackVolume(snd_AtmoTrack, (int)vol);
             return;
         }
-        if (bt->kind == 7 && panel != 0 && *panel == 0xf7) {
+        if (bt->kind == 7 && panel != 0 && panel->type == 0xf7) {
             int c;
 
             c = ch_Count(d3_CurrentScene, 0) * 6;
@@ -517,7 +517,7 @@ void snd_EnterBuilding(void)
     }
     for (n = 0; snd_BuildingTracks[n].kind != 0; n++) {
         e = &snd_BuildingTracks[n];
-        if (e->kind == kind && (e->room == 0 || e->room == (unsigned int)*sv_PanelShown)
+        if (e->kind == kind && (e->room == 0 || e->room == (unsigned int)sv_PanelShown->type)
             && (season == e->season || e->season == -1))
             goto found;
     }
@@ -669,7 +669,7 @@ void snd_UpdateMusic(void)
 {
     unsigned int t;
     int i;
-    unsigned short *room;
+    AIOBJ *room;
     AIBLD *b;
     AIBLD *b2;
     MSXTRACK *trk;
@@ -1228,7 +1228,7 @@ int snd_AnimalSeason = 0;  /* 0x6f0b9c, the season */
 void * snd_AtmoTrack = 0;  /* 0x6f0ba0, the atmosphere mp3 (MSXTRACK *) */
 char snd_LastTrack[256] = {0};  /* 0x6f0ba8, the outdoor track played last */
 struct AIBLD *snd_TrackBuilding = 0;  /* 0x6f0ca8, the building of the track */
-unsigned short *snd_TrackRoom = 0;  /* 0x6f0cac, the room of the track */
+struct AIOBJ *snd_TrackRoom = 0;  /* 0x6f0cac, the room of the track */
 unsigned int snd_PauseLength = 0;  /* 0x6f0cb0, the pause length */
 int snd_MusicSeason = 0;  /* 0x6f0cb4, the season of the music */
 unsigned int snd_LastDecision = 0;  /* 0x6f0cb8, time of the last track decision */
