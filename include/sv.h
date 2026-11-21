@@ -36,9 +36,9 @@ void sv_UpdateFramesPerTick(void);                                      /* 0x520
 void sv_InitTick(void);                                                 /* 0x520ee0 */
 void sv_UnregisterTick(void);                                           /* 0x520f10 */
 void sv_ResetScreenClip(void);                                          /* 0x520f20 */
-int sv_CheckMoney(char *o, int n);                                      /* 0x520f90 */
+int sv_CheckMoney(struct AICHAR *o, int n);                                      /* 0x520f90 */
 int sv_CheckCharacterFlag(struct AIBLD *id);                                      /* 0x520fe0 */
-int sv_CheckGoodAmount(char *o, int n, unsigned char t);                     /* 0x521040 */
+int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);                     /* 0x521040 */
 int sv_CheckStock(short *p, int stock, int n, unsigned char t);           /* 0x5210a0 */
 int sv_MessageBox(int text, unsigned flags);                            /* 0x521150 */
 int sv_MessageBoxGreen(int a, int b, unsigned flags);                   /* 0x521410 */
@@ -62,9 +62,9 @@ void sv_RemoveGroupMember(int c, char *g);                              /* 0x524
 int sv_UsedGroupSlots(char *g);                                         /* 0x5241b0 */
 void sv_CountGroupMembers(char *g);                                     /* 0x5241d0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);       /* 0x524260 */
-int sv_IsAtDoor(char *g, struct AIBLD *o);                                     /* 0x524770 */
+int sv_IsAtDoor(struct AICHAR *g, struct AIBLD *o);                                     /* 0x524770 */
 int sv_IsCartAtDoor(char *g, struct AIBLD *o);                            /* 0x524810 */
-int sv_CharStateIcons(char *c, int *out);                                    /* 0x524900 */
+int sv_CharStateIcons(struct AICHAR *c, int *out);                                    /* 0x524900 */
 void sv_UpdateMemberList(struct AIBLD *g);                                    /* 0x524990 */
 void sv_OpenPlayerBar(struct AIBLD *a, char k);                                   /* 0x525220 */
 void sv_ClosePlayerBar(void);                                           /* 0x525440 */
@@ -322,7 +322,7 @@ extern struct AIBLD *sv_ShownFallback;  /* 0x6f23c0 */
 extern struct AIBLD *sv_ShownObject;  /* 0x6f23c4 */
 extern int sv_ShownRoom;  /* 0x6f23c8 */
 extern int sv_ShownItem;  /* 0x6f23cc */
-extern int sv_ShownChar;  /* 0x6f23d0 */
+extern struct AICHAR *sv_ShownChar;  /* 0x6f23d0 */
 extern int sv_ShownOther;  /* 0x6f23d4 */
 extern int sv_ShownCount;  /* 0x6f23d8 */
 extern unsigned char ai_GameState;                          /* 0x6f25ac */
@@ -343,7 +343,7 @@ extern SVBAND sv_Band;                                       /* 0x760440 */
 extern int sv_Season;                                        /* 0x760454, the game clock's season (written by main) */
 extern struct AIBLD *sv_ClickedBuilding;                               /* 0x760458 */
 extern int sv_ClickedItem;                                   /* 0x76045c */
-extern int sv_ClickedChar;                                   /* 0x760460 */
+extern struct AICHAR *sv_ClickedChar;                                   /* 0x760460 */
 extern int sv_SkyPhase;                                    /* 0x760464 */
 extern SVCLIMATE sv_Climate;                                /* 0x760480 */
 #define sv_CloudChance (sv_Climate.cloudChance)               /* 0x760480 */
@@ -361,7 +361,7 @@ extern struct D3TSNOW *d3t_Snow;                        /* 0x76061c, the snow sy
 extern struct D3SKYLAYER *d3_SkyLayers[6];                                 /* 0x760620, the sky layer handles (sv creates 0 .. 2) */
 extern char sv_StatusText[128];                             /* 0x761f40 */
 extern SVBUBBLE sv_Bubbles[0x40];                           /* 0x761fc0, the 64 speech bubble records */
-extern int sv_SelectedChar;                                    /* 0x7662c0 */
+extern struct AICHAR *sv_SelectedChar;                                    /* 0x7662c0 */
 extern int sv_GroundplanButtons[15];                                /* 0x7662e0 */
 extern int sv_SelectedExtra;                                       /* 0x76631c */
 extern int d2_HitWindow;                                    /* 0xf8aad0 */

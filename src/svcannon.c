@@ -380,7 +380,7 @@ struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
-int sv_CheckGoodAmount(char *o, int n, unsigned char t);
+int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 int sv_MessageBox();
 void txt_Format(char *out, int id0, ...);
 int ahm_SendCreateAlchemist();
@@ -1568,7 +1568,7 @@ int ai_CanSpyOn(AIBLD *rec)
     return r == 0;
 }
 
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 
 /* 0x581020, the cabinet's spy window for the building rec: the form "Locations\Domizil\kabinett_spy" (centred,
@@ -1627,7 +1627,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], amount, ai_OwnPlayer) != 0 && ai_CanSpyOn(rec) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], amount, ai_OwnPlayer) != 0 && ai_CanSpyOn(rec) != 0) {
                     AIMSG msg;
                     int pick;
                     LARGE_INTEGER mask;
@@ -1745,8 +1745,8 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost[i], ai_OwnPlayer) != 0 &&
-                    sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost[i], ai_OwnPlayer) != 0 &&
+                    sv_CheckMoney(&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
                     AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
@@ -1862,7 +1862,7 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -amt[i]);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x99;
@@ -1965,8 +1965,8 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0 &&
-                    sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 0x10) == 1 && ai_CanSpyOn(rec) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0 &&
+                    sv_CheckMoney(&ai_Chars[ai_PlayerId], 0x10) == 1 && ai_CanSpyOn(rec) != 0) {
                     AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
@@ -2114,7 +2114,7 @@ void ai_UnlockRoomWindow(AIBLD *rec, AIOBJ *room)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], price) == 1) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], price) == 1) {
                     zero = 0;
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -price);
                     cm_BeginFieldBlock((char *)room, room->objId);

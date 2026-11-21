@@ -4250,7 +4250,7 @@ exe	0x0059fe40	ai_CitizenRightWindow	lc	f9d8b4d53b5386fa	no	byte	control=byte p1
 exe	0x005a0220	ai_OfficeApplicantsWindow	lc	26adfb6a11485b56	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005a0590	ai_OfficeApplicationWindow	lc	993fa739afa0f7d6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005a07d0	ai_LawBookContact	lc	dd83b33a152cd33e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005a0950	ai_GuildCashPayWindow	lc	4904170f38aa2774	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	96621b4fc7c61d83
+exe	0x005a0950	ai_GuildCashPayWindow	lc	9eb5417ea9e01d5b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	387c2f193a2a174f
 exe	0x005a0ca0	ai_GuildGiftCallback	lc	0e3e20650c68899d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005a0f10	ai_GuildGiftEntry	lc	bf0b467f55d73fbc	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005a1000	ai_GuildLevel1Window	lc	e56aa632d5069a51	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4267,7 +4267,7 @@ exe	0x005a23a0	ai_BaptismWindow	lc	1c33ebae883a6a79	no	byte	control=byte p1=byte
 exe	0x005a28f0	ai_Top5Window	lc	d5b2501cbb36924b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2a408cdb9ba3d702
 exe	0x005a2b60	ai_ConfessionWindow	lc	2ea02f6e915fd095	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005a2de0	ai_ConfessionListener	lc	12cd21c83fe6efc6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005a2e60	ai_SermonWindow	lc	79a3ffa36d526566	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	80d0c841a7c2c04d
+exe	0x005a2e60	ai_SermonWindow	lc	95c002feebe35abd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	387c2f193a2a174f
 exe	0x005a36c0	ai_ProductionWriteContact	lc	8920ef7d7dbcbf6c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	363b43c45b83d63b
 exe	0x005a3810	ai_ChurchListener	lc	cf396a64d619c961	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	65f3805095278c82
 exe	0x005a39b0	ai_ChurchContact	lc	def575cf87a89c6a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4376,7 +4376,7 @@ exe	0x005aa520	ai_FillVacantPersonnelRow	lc	56d051be4ba9a4ba	no	byte	control=byt
 exe	0x005aa700	ai_ShowBldCarts	lc	3370230506a06a20	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005aa9a0	ai_UpdateBldCarts	lc	ca66c69e4fb9d5c7	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005aab80	ai_PersonnelBook	lc	856e8569f8217eb9	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x005ac110	ai_MercenaryBook	lcdom	3f1ac61105f63c62	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	97df2716b6072579
+exe	0x005ac110	ai_MercenaryBook	lcdom	05c2aa0a75b9a4e5	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	33292b409c32eb1a
 exe	0x005ad000	ai_AskHelperBonus	lcdom	e62d838de9b3af95	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	eb245f6a5444f9cc
 exe	0x005ad150	ai_HelperBook	lc	a681d7ba348c4a09	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005ae240	ai_BuyCartWindow	lcdom	385cb7de9499cc06	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	c3097bbae009c1dc

@@ -377,7 +377,7 @@ struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
-int sv_CheckGoodAmount(char *o, int n, unsigned char t);
+int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 int sv_MessageBox();
 void txt_Format(char *out, int id0, ...);
 int ahm_SendCreateAlchemist();
@@ -474,7 +474,7 @@ void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, 
 void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
@@ -1298,7 +1298,7 @@ int ai_GraveMoveConfirm(AIBLD *rec, int from, unsigned char entry, int to)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
-                if (cost == 0 || sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
+                if (cost == 0 || sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
                     h = gv_OrderMoveGrave((int *)&ai_Chars[ai_PlayerId], to, rec, from, entry, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
@@ -1458,7 +1458,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
-                if (cost == 0 || sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
+                if (cost == 0 || sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
                     h = gv_OrderReserveGrave((int *)&ai_Chars[ai_PlayerId], rec, size, 10, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
@@ -1936,7 +1936,7 @@ void ai_GraveFogWindow(AIBLD *rec)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnOrder) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], cost) == 1) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], cost) == 1) {
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x90;
                     msg.flags = 2;
@@ -2020,11 +2020,11 @@ int ai_SeanceWindow(char *unused, GVDETAILWIN *w, GVSEANCE *out)
                 sv_PopRequest = 1;
             } else {
                 if (d2_PointerObj == btn1)
-                    kind = sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 4);
+                    kind = sv_CheckMoney(&ai_Chars[ai_PlayerId], 4);
                 else if (d2_PointerObj == btn2)
-                    kind = sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 6) * 2;
+                    kind = sv_CheckMoney(&ai_Chars[ai_PlayerId], 6) * 2;
                 else if (d2_PointerObj == btn3)
-                    kind = sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 8) * 3;
+                    kind = sv_CheckMoney(&ai_Chars[ai_PlayerId], 8) * 3;
                 else
                     continue;
                 if (kind != 0) {
@@ -2448,10 +2448,10 @@ void ai_GraveyardSchlag(AIBLD *unused)
     AICHAR *c;
     EVTSCRIPT *script;
 
-    c = (AICHAR *)ai_PickedChar;
+    c = ai_PickedChar;
     if (c != 0 && (c->flags1b4 & 1) != 0 && dm_L.lup != 0) {
         ai_EndCharExtra(c, 0);
-        c = (AICHAR *)ai_PickedChar;
+        c = ai_PickedChar;
         cm_SendRelations(ai_CharInts[ai_PlayerId][0], c->netId, -5, 0);
         script = (EVTSCRIPT *)sv_StartPoseScript((char *)ai_PickedChar, "locations/friedhof/schlag_FRIEDHOF.esc");
         if (script != 0)
@@ -2595,7 +2595,7 @@ void ai_GraveHauntContact(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 poor = 0;
                 n = d2_GetObjValue(slider);
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], n) == 0)
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], n) == 0)
                     poor = 1;
                 f = 0;
                 for (i = 0; i < 0x300; i++) {
@@ -2703,7 +2703,7 @@ void ai_GraveAgeContact(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 poor = 0;
                 f = 0;
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 4) == 0)
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 4) == 0)
                     poor = 1;
                 for (i = 0; i < 0x300; i++) {
                     if (ai_Chars[i].selected) {

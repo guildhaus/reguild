@@ -9874,7 +9874,7 @@ int he_StepWalkSlot(HEWALKSLOT *s)
         s->bldIndex = 0;
         return 0;
     }
-    if (sv_IsAtDoor((char *)c, (char *)bld) == 0 && ai_Time.hour < 0x16)
+    if (sv_IsAtDoor(c, (char *)bld) == 0 && ai_Time.hour < 0x16)
         return 2;
     if (c->model != 0) {
         cm_SendChrStop(c->netId);
@@ -10010,7 +10010,7 @@ void he_StepWalk(HEWALKSLOT *s)
     if (b != 0) {
         weather = (d3t_Rain != 0 ? 2 : 0) + (d3t_Snow != 0);
         budget = weather + util_Random(6) + 2;
-        if (sv_IsAtDoor((char *)c, b) == 0)
+        if (sv_IsAtDoor(c, b) == 0)
             return;
         model = c->model;
         if (model != 0 && model->bldId != -1 && model->scriptGroup != -1) {

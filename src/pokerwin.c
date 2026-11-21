@@ -317,7 +317,7 @@ int ai_OpenTransport(struct AIBLD *rec);             /* 0x5af1a0, lc.c */
 struct AIOBJ; void ai_TradeSearchWindow(struct AIBLD *bld, struct AIOBJ *room); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
 void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRIEF" */
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
-int sv_CheckMoney(char *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
+int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
                                               covers n, else a message box with the text 0x74 */
 int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
@@ -356,7 +356,7 @@ typedef struct GYPSYROW {               /* 0x38 bytes: one row of the special-am
     int pad18[8];
 } GYPSYROW;
 extern struct D2PIC *d2_Pics;              /* 0x6ed918, d2.h: D2PIC * */
-void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(char *o, int n, unsigned char t);
+void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 int ai_PokerStart();

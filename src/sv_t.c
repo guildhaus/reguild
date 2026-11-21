@@ -4199,7 +4199,7 @@ void ai_AlchemistCandidates(unsigned char *obj)
 }
 
 char * ahm_OwnerChar();
-int sv_CheckGoodAmount(char *o, int n, unsigned char t);
+int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 int sv_MessageBox();
 void txt_Format(char *out, int id0, ...);
 int ahm_SendCreateAlchemist();
@@ -4217,7 +4217,7 @@ int ai_AlchemistHire(unsigned char *obj, AHMSTEP *step, int value)
     int slot;
 
     owner = ahm_OwnerChar(obj);
-    if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], value, ai_OwnPlayer)) {
+    if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], value, ai_OwnPlayer)) {
         if (owner) {
             sv_MessageBox((int)txt_Ptrs[0x4048], 0x100);
         } else {
@@ -4810,7 +4810,7 @@ int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == ok) {
                 v = gm_PlayerFactor(d2_GetObjValue(field), ai_OwnPlayer);
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], v, ai_OwnPlayer)) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], v, ai_OwnPlayer)) {
                     ahm_SendAddValue(owner, (float)v / (float)points * share * 0.75f);
                     done = 1;
                     sv_PopRequest = 1;
@@ -4980,7 +4980,7 @@ void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, 
 void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();

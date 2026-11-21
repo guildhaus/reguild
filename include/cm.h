@@ -613,7 +613,7 @@ extern int cm_SelectedCount;  /* 0x6f0d08 */
 extern char *cm_HoverObject;  /* 0x6f0ce0 */
 extern char *cm_PickMarker;  /* 0x6f0cf0 */
 extern char *ai_PickedObject;  /* 0x6f22e8 */
-extern int ai_PickedChar;  /* 0x6f22f8 */
+extern struct AICHAR *ai_PickedChar;  /* 0x6f22f8 */
 
 void cm_UpdatePortraits();  /* 0x4cf9c0 */
 void d2_SetObjText(int obj, char *text);  /* 0x4734d0 */

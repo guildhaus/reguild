@@ -1551,7 +1551,7 @@ int ai_OpenTransport(struct AIBLD *rec);             /* 0x5af1a0, lc.c */
 struct AIOBJ; void ai_TradeSearchWindow(struct AIBLD *bld, struct AIOBJ *room); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
 void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRIEF" */
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
-int sv_CheckMoney(char *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
+int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
                                               covers n, else a message box with the text 0x74 */
 int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
@@ -2449,7 +2449,7 @@ void ai_TailorContact(AIBLD *building, AIOBJ *arg)
         sv_MessageBox((int)ai_TailorBlockedText, 4);
         return;
     }
-    if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 1) != 0) {
+    if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 1) != 0) {
         D3_ZERO(&req, sizeof(req));
         req.type = 1;
         req.a = 0x400;
@@ -2707,7 +2707,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == ids[0]) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], total) == 1) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], total) == 1) {
                     AICHARVIEW *av = rows[0].rec;
 
                     txt_Format(msg, 0x41bf, av->id);
@@ -2765,7 +2765,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
     sv_CameraFollow();
 }
 /* batch 3: the gypsy / poker / particle stretch 0x5d8c90 .. 0x5dd3e0 */
-void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(char *o, int n, unsigned char t);
+void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 int ai_PokerStart();
@@ -2837,7 +2837,7 @@ void ai_CurseWindow(AIBLD *building)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == ids[0]) {
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], v, ai_OwnPlayer) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], v, ai_OwnPlayer) != 0) {
                     char name[100];
                     CURSEMSG msg;
 
@@ -2955,7 +2955,7 @@ void ai_CurseTargetWindow(AIBLD *building)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == ids[0]) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], cls) == 1) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], cls) == 1) {
                     gm_SendMoneyDelta(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, -cls);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0xa0;
@@ -3033,7 +3033,7 @@ void ai_HomageWindow(AIBLD *building)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == ids[0]) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], value) == 1) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], value) == 1) {
                     cm_SendSetField(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, 0x1cc, 4, 0x20, 0);
                     gm_SendMoneyDelta(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, -value);
                     cm_SendRelations(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, target->netId, value * 5, 1);

@@ -52,7 +52,7 @@ extern int d2_HitUnderPointer;
 
 
 extern char * ai_PickedObject;
-extern int ai_PickedChar;
+extern struct AICHAR *ai_PickedChar;
 extern int d2_HitUnderPointer;
 extern struct AICHAR *ai_SceneChars[32];
 extern int hst_KeyNext;
@@ -190,11 +190,11 @@ void sv_ResetScreenClip(void)
 }
 /* 0x520f90, checks that the object o has room for n slots (+0x194); otherwise a message box with the text 0x74 (n); 1 when ok */
 
-int sv_CheckMoney(char *o, int n)
+int sv_CheckMoney(AICHAR *o, int n)
 {
     char buf[0x80];
 
-    if (((AICHAR *)o)->money < n && n != 0) {
+    if (o->money < n && n != 0) {
         txt_Format(buf, 0x74, n);
         sv_MessageBox(buf, 0);
         return 0;
@@ -220,11 +220,11 @@ int sv_CheckCharacterFlag(AIBLD *id)
 /* 0x521040, checks that the stock of the character o (gm_SumSlotAmounts of its inventory +0x178 and the good t) covers n;
    otherwise a message box with the text 0x75 (t); 1 when ok */
 
-int sv_CheckGoodAmount(char *o, int n, unsigned char t)
+int sv_CheckGoodAmount(AICHAR *o, int n, unsigned char t)
 {
     char buf[0x40];
 
-    if (gm_SumSlotAmounts(((AICHAR *)o)->inventory, t) < n && n != 0) {
+    if (gm_SumSlotAmounts(o->inventory, t) < n && n != 0) {
         txt_Format(buf, 0x75, t);
         sv_MessageBox(buf, 0);
         return 0;
@@ -1538,7 +1538,7 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
    an old job a running "Pause" / "pause" script of the model is stopped. Then he joins g (sv_AddGroupMember)
    and the new job kind (field 0x180) is sent and the job set when it changed
    @deep match-deep s53: 88 -> 74 ins (draft -> shape): sv_RemoveGroupMember's id re-read from the record
-   (((AICHAR *)ai_Chars[c])->id, one of 19 ch uses; a 190-variant subset run, singles and pairs). Left:
+   (ai_Chars[c]->id, one of 19 ch uses; a 190-variant subset run, singles and pairs). Left:
    ch and old in swapped registers through the whole function (ours ch esi / old ebx, the original ch ebx /
    old esi: push ebx before push esi, mov ecx vs mov eax for o = ch->bld). Tried, no gain: a second pass
    over the 18 remaining ch uses (singles and pairs, 171 variants: none closer), old's uses re-read as
@@ -1663,13 +1663,13 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
    the building's object, else the object itself) is within 750.0 of the model's body and the model is idle (no
    queued action); or when the model's group is the building's id */
 
-int sv_IsAtDoor(char *g, AIBLD *o)
+int sv_IsAtDoor(AICHAR *g, AIBLD *o)
 {
     CHARACTER *dst;
     D3OBJECT *door;
     float pos[4];
 
-    dst = ((AICHAR *)g)->scene;
+    dst = g->scene;
     if (o->object != 0) {
         if (dst == 0)
             return 0;
@@ -1723,14 +1723,14 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
    kind of c's job (AIJOB.kind: the entry's icon, and, when the entry's valueOff is not -1, a short of the job
    record at that offset + 0xdf), then cm_CharWeapon's image + 0xdf; returns the count. */
 
-int sv_CharStateIcons(char *c, int *out)
+int sv_CharStateIcons(AICHAR *c, int *out)
 {
     AIJOB *job;
     unsigned short *word;
     int n, i, *p;
     int *q;
 
-    job = ((AICHAR *)c)->job;
+    job = c->job;
     n = 0;
     if (job != 0 && job->kind != 0) {
         i = 0;
@@ -1754,7 +1754,7 @@ int sv_CharStateIcons(char *c, int *out)
 }
 
 extern int d2_PointerObj;  /* 0x5fe710 */
-extern int sv_SelectedChar;
+extern struct AICHAR *sv_SelectedChar;
 extern char sv_PlayerBarKind;
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);                     /* 0x472aa0 */
 int d2_CreateWinText(short x, short y, char *text, int win);                     /* 0x473650 */
@@ -1901,7 +1901,7 @@ void sv_UpdateMemberList(AIBLD *g)
             d2_SetObjText(sv_MemberRows[n].text, text);
             sv_D2Objs[sv_MemberRows[n].text].w = 0x5f;
         }
-        cnt = sv_CharStateIcons((char *)&ai_Chars[sv_MemberRows[n].chr], im);
+        cnt = sv_CharStateIcons(&ai_Chars[sv_MemberRows[n].chr], im);
         if (cnt == 0)
             continue;
         if (cnt > 1)
@@ -1952,7 +1952,7 @@ void sv_UpdateMemberList(AIBLD *g)
                 sv_MoveToGroup(g, 0, sv_MemberRows[n].chr, 0);
         sv_ClearSelection();
     }
-    if (sv_SelectedChar != 0 && ((AICHAR *)sv_SelectedChar)->selected == 0)
+    if (sv_SelectedChar != 0 && sv_SelectedChar->selected == 0)
         sv_SelectedChar = 0;
 }
 
@@ -3789,7 +3789,7 @@ void sv_RefreshPanel(void)
         return;
     }
     if (sv_SelectedChar != 0) {
-        c = (AICHAR *)sv_SelectedChar;
+        c = sv_SelectedChar;
         if (ai_SelectedCount < 2 && c != 0) {
             d2_SetForm(sv_PanelForm, 1);
             n = (int)(gm_HealthRatio(c) * 100.0);
@@ -3803,7 +3803,7 @@ void sv_RefreshPanel(void)
         SV_CLEAR_PANEL_WIDGETS(i)
         d2_SetForm(sv_PanelForm, 0);
         x = (d2_Wins[d2_LastWindow].w - 0x30) >> 1;
-        n = sv_CharStateIcons((char *)sv_SelectedChar, icons);
+        n = sv_CharStateIcons(sv_SelectedChar, icons);
         for (i = 0; i < n; i++) {
             icon = icons[i];
             if (icon >= 0xdf && icon < 0x3bb)
@@ -4093,7 +4093,7 @@ refresh:
             if (ai_SelectedCount > 1)
                 sv_OpenPersonPanel(0);
             else {
-                sv_OpenPersonPanel((AICHAR *)sv_SelectedChar);
+                sv_OpenPersonPanel(sv_SelectedChar);
                 sv_ShownChar = sv_SelectedChar;
                 sv_RefreshPanel();
             }
@@ -4242,13 +4242,13 @@ void sv_HoverPick(void)
             sv_HoverBldPerms = sv_PanelPerms;
             break;
         case 3:
-            ai_PickedChar = (int)((D3OBJECT *)ai_PickedObject)->owner;
+            ai_PickedChar = ((D3OBJECT *)ai_PickedObject)->owner;
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, 0, ai_PickedChar);
             if (ai_PickedChar != 0) {
-                io_CharacterName(((AICHAR *)ai_PickedChar)->id, 1, 4, d2_CaptionCopy);
-                if (((AICHAR *)ai_PickedChar)->title == 0x1c && (((AICHAR *)ai_PickedChar)->flags1b4 & 1) != 0 && (sv_PanelPerms & 0x800) != 0
+                io_CharacterName(ai_PickedChar->id, 1, 4, d2_CaptionCopy);
+                if (ai_PickedChar->title == 0x1c && (ai_PickedChar->flags1b4 & 1) != 0 && (sv_PanelPerms & 0x800) != 0
                     && d3_CurrentScene != 0) {
-                    txt_Format(d2_CaptionCopy, 0x414c, ((AICHAR *)ai_PickedChar)->id);
+                    txt_Format(d2_CaptionCopy, 0x414c, ai_PickedChar->id);
                     d2_PointerLook = 0x2e;
                 }
             }
@@ -4386,7 +4386,7 @@ void sv_HandleObjects(void)
     ai_ClickedObject = 0;
     sv_ClickedChar = 0;
     sv_ClickedContact = 0;
-    if (sv_SelectedChar != 0 && ((AICHAR *)sv_SelectedChar)->selected == 0)
+    if (sv_SelectedChar != 0 && sv_SelectedChar->selected == 0)
         sv_SelectedChar = 0;
     if (sv_QuickJump.panelFlag != 0) {
         subj = ai_PlayerBuilding != 0 ? ai_PlayerBuilding : ai_FallbackBuilding;
@@ -4436,17 +4436,17 @@ void sv_HandleObjects(void)
                 sv_FocusDepth = sv_FrameDepth;
             }
             sv_LastPicked = ai_PickedObject;
-            if (ai_PickedChar != 0 && ((AICHAR *)ai_PickedChar)->health != 0) {
+            if (ai_PickedChar != 0 && ai_PickedChar->health != 0) {
                 perms = gm_PermissionBits(ai_PlayerId, 0, 0, ai_PickedChar);
                 sv_ClearSelection();
-                if ((perms & 0x800) != 0 && (((AICHAR *)ai_PickedChar)->title != 0x1c || (((AICHAR *)ai_PickedChar)->flags1b4 & 1) == 0)) {
-                    ai_Chars[((AICHAR *)ai_PickedChar)->id].selected = 1;
+                if ((perms & 0x800) != 0 && (ai_PickedChar->title != 0x1c || (ai_PickedChar->flags1b4 & 1) == 0)) {
+                    ai_Chars[ai_PickedChar->id].selected = 1;
                     sv_SelectedChar = ai_PickedChar;
-                    sv_PanelCartChar = (int)ai_Chars[((AICHAR *)ai_PickedChar)->id].model;
+                    sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].model;
                     ai_SelectedCount = 1;
                     snd_PlayWorkerClick((struct G16CHARCLICK *)ai_PickedChar);
                 }
-                sv_PanelCartChar = (int)ai_Chars[((AICHAR *)ai_PickedChar)->id].model;
+                sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].model;
             }
             if (ai_SelectedCount == 0 && sv_OtherSelected == 0 && sv_HoverBuilding != 0 && sv_SelectedItem == 0)
                 sv_SelectedModel = (int)ai_PickedObject;
@@ -4995,7 +4995,7 @@ void sv_HandleSelectionMouse(void)
             }
             if (c->selected != 0) {
                 if (ai_SelectedCount == 0)
-                    sv_SelectedChar = (int)c;
+                    sv_SelectedChar = c;
                 ai_SelectedCount++;
                 if (c->bld != 0 && c->bld->id == c->model->bldId
                     && (ai_FallbackBuilding != 0 || (sv_PanelShown != 0 && sv_PanelShown->type != 0x120)))
@@ -5114,7 +5114,7 @@ void sv_SpeakPicked(void)
     if (ai_PickedChar != 0)
         gm_PermissionBits(ai_PlayerId, 0, 0, ai_PickedChar);
     if (ai_PickedChar != 0)
-        ch = (CHARACTER *)((AICHAR *)ai_PickedChar)->model;
+        ch = ai_PickedChar->scene;
     else if (ai_PickedObject != 0)
         ch = ch_FindByObject((D3OBJECT *)ai_PickedObject);
     else
@@ -5130,7 +5130,7 @@ void sv_SpeakPicked(void)
         float st[10];
 
         if (ai_PickedChar != 0) {
-            c = (AICHAR *)ai_PickedChar;
+            c = ai_PickedChar;
             plain = 1;
             v = 0;
             if (c->jobId != 0)
@@ -5146,7 +5146,7 @@ void sv_SpeakPicked(void)
                 if (kind == 3)
                     kind = 4;
             }
-            c = (AICHAR *)ai_PickedChar;
+            c = ai_PickedChar;
             job = c->job;
             if (job != 0) {
                 kind = -1;
@@ -5277,11 +5277,11 @@ void sv_SpeakPicked(void)
         }
         if (ai_PickedChar != 0) {
             if (id != -1) {
-                sv_ShowBubble((CHARACTER *)((AICHAR *)ai_PickedChar)->model, id, 0);
+                sv_ShowBubble(ai_PickedChar->scene, id, 0);
                 return;
             }
             if (text[0] != 0)
-                sv_ShowBubble((CHARACTER *)((AICHAR *)ai_PickedChar)->model, 0, text);
+                sv_ShowBubble(ai_PickedChar->scene, 0, text);
         } else if (ai_PickedObject != 0) {
             sv_ShowBubble(ch_FindByObject((D3OBJECT *)ai_PickedObject), id, 0);
         }
@@ -7484,7 +7484,7 @@ char * ai_PickedObject = 0;  /* 0x6f22e8 */
 char * sv_FocusObject = 0;  /* 0x6f22ec, the clicked object the camera was placed at (d3t_PlaceAtObject): its handler (+0x1d4) gets message 2 at the focus (+0x108) and 3 at the release (+0x18c) */
 int sv_HoverItem = 0;  /* 0x6f22f0, the item (AIOBJ) under the pointer, from the picked object's +0x200 (kind 1) */
 struct AIBLD *sv_HoverBuilding = 0;  /* 0x6f22f4, the building (AIBLD) under the pointer (kind 2) */
-int ai_PickedChar = 0;  /* 0x6f22f8 */
+struct AICHAR *ai_PickedChar = 0;  /* 0x6f22f8 */
 int sv_ClickedContact = 0;  /* 0x6f22fc, sv_HoverContact at the last click (sv_HandleObjects) */
 int sv_HoverContact = 0;  /* 0x6f2300, the goods item a contact gate under the pointer resolves to */
 int sv_SelectedModel = 0;  /* 0x6f2304 */
@@ -7536,7 +7536,7 @@ struct AIBLD *sv_ShownFallback = 0;  /* 0x6f23c0, ai_FallbackBuilding when sv_Up
 struct AIBLD *sv_ShownObject = 0;  /* 0x6f23c4, sv_SelectedObject when sv_UpdatePanel last built the panel */
 int sv_ShownRoom = 0;  /* 0x6f23c8, sv_PanelShown when sv_UpdatePanel last built the panel */
 int sv_ShownItem = 0;  /* 0x6f23cc, sv_SelectedItem when sv_UpdatePanel last built the panel */
-int sv_ShownChar = 0;  /* 0x6f23d0, sv_SelectedChar when sv_UpdatePanel last built the panel */
+struct AICHAR *sv_ShownChar = 0;  /* 0x6f23d0, sv_SelectedChar when sv_UpdatePanel last built the panel */
 int sv_ShownOther = 0;  /* 0x6f23d4, sv_OtherSelected when sv_UpdatePanel last built the panel */
 int sv_ShownCount = 0;  /* 0x6f23d8, ai_SelectedCount when sv_UpdatePanel last built the panel */
 int sv_PointerSpriteFor = 0;  /* 0x6f23dc, reset with the pointer sprite (-1 / 0 when sv_HoverPick frees d2_PointerSprite; reasoned: what the sprite was made for) */
@@ -7562,7 +7562,7 @@ SVBAND sv_Band;  /* 0x760440, the rubber band: sv_BandActive and its corners */
 int sv_Season;  /* 0x760454, the season of the game clock (sv_ClockSeason's result), stored by main_EndRound / main_GameLoop (sv.c itself never reads it) */
 struct AIBLD *sv_ClickedBuilding;  /* 0x760458, sv_HoverBuilding at the last click (sv_HandleObjects) */
 int sv_ClickedItem;  /* 0x76045c, sv_HoverItem at the last click */
-int sv_ClickedChar;  /* 0x760460, ai_PickedChar at the last click */
+struct AICHAR *sv_ClickedChar;  /* 0x760460, ai_PickedChar at the last click */
 int sv_SkyPhase;  /* 0x760464 */
 SVCLIMATE sv_Climate;  /* 0x760480, sv_CloudChance, sv_SeasonClimate (0x760484) and sv_Weather (0x760488) */
 int sv_WinterWeather;  /* 0x760610 */
@@ -7572,7 +7572,7 @@ struct D3SKYLAYER *d3_SkyLayers[6];  /* 0x760620, the sky layer handles: sv crea
 SVPLATE sv_NamePlates[0x20];  /* 0x760640, the name plate records (200 bytes each) */
 char sv_StatusText[128];  /* 0x761f40, the status line text */
 SVBUBBLE sv_Bubbles[0x40];  /* 0x761fc0, the 64 speech bubble records */
-int sv_SelectedChar;  /* 0x7662c0 */
+struct AICHAR *sv_SelectedChar;  /* 0x7662c0 */
 int sv_GroundplanButtons[15];  /* 0x7662e0, 15 widget ids */
 int sv_SelectedExtra;  /* 0x76631c, a fourth selection word, cleared with sv_SelectedItem / sv_SelectedObject / sv_SelectedModel (its only use; name and int type are a guess) */
 struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */

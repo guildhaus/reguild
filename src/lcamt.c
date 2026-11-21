@@ -5250,7 +5250,7 @@ int ai_GiftWindow(AICHAR *giver, AICHAR *chr)
         if (d2_ClickedId != -1 && !used) {
             if (d2_PointerObj == giveBtn) {
                 amount = gm_PlayerFactor(d2_GetObjValue(slider), ai_OwnPlayer);
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], amount, ai_OwnPlayer)) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], amount, ai_OwnPlayer)) {
                     unsigned int flags = giver->flags1c8 | 0x20;
 
                     cm_BeginGroup("gift");
@@ -5619,7 +5619,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
             }
             if (i < 3) {
                 price = prices[i];
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer)) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer)) {
                     rounds = 0;
                     p = gm_FindChar(partner);
                     left = picks[i] - level;
@@ -6318,7 +6318,7 @@ int ai_MedicusHandler(AICHAR *ch, LCORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
-                if (sv_CheckMoney(ch, 2) != 0 && sv_CheckGoodAmount((char *)ch, price, ai_OwnPlayer) != 0) {
+                if (sv_CheckMoney(ch, 2) != 0 && sv_CheckGoodAmount(ch, price, ai_OwnPlayer) != 0) {
                     cm_SendMoneyDelta(ch->netId, -2);
                     txt_Format(text, 0x1d3c);
                     if ((short)util_Random(2) != 0) {
@@ -6405,7 +6405,7 @@ int ai_DivorceDialog(AICHAR *ch, LCORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_ClickedId == 0) {
-                if (sv_CheckMoney(ch, 8) != 0 && sv_CheckGoodAmount((char *)ch, price, ai_OwnPlayer) != 0) {
+                if (sv_CheckMoney(ch, 8) != 0 && sv_CheckGoodAmount(ch, price, ai_OwnPlayer) != 0) {
                     cm_SendMoneyDelta(ch->netId, -8);
                     cm_BeginFieldBlock((char *)ch, ch->netId);
                     cm_AddFieldValue(4, 1, 0x5c, &none);
@@ -7206,7 +7206,7 @@ int ai_BewitchWindow(AICHAR *ch)
         if (d2_ClickedId != -1) {
             if (d2_ClickedId == 0) {
                 amount = d2_GetObjValue(slider);
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], amount) != 0) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], amount) != 0) {
                     gain = ai_RelationGain((char *)&ai_Chars[ai_PlayerId], ch, amount);
                     cm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -amount);
                     cm_SendRelations(ai_Chars[ai_PlayerId].netId, ch->netId, gain, 1);
@@ -7555,7 +7555,7 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == ok) {
-                if (sv_CheckMoney(me, 4) != 0 && sv_CheckGoodAmount((char *)me, price, ai_OwnPlayer) != 0) {
+                if (sv_CheckMoney(me, 4) != 0 && sv_CheckGoodAmount(me, price, ai_OwnPlayer) != 0) {
                     int r1, r2, o1, o2;
 
                     r1 = util_Random(0x1e) + 3;
@@ -7976,7 +7976,7 @@ int ai_ConvertWindow(AICHAR *me, LCORDMSG *m)
                 n = 0;
                 skill = me->skills[4];
                 faith = me->faith;
-                if (sv_CheckMoney(me, 6) != 0 && sv_CheckGoodAmount((char *)me, price, ai_OwnPlayer) != 0) {
+                if (sv_CheckMoney(me, 6) != 0 && sv_CheckGoodAmount(me, price, ai_OwnPlayer) != 0) {
                     cm_SendMoveGoods(-1, me->netId, ai_OwnPlayer, price);
                     cm_SendMoneyDelta(me->netId, -6);
                     /* @original: the loop's strength-reduced pointer is based on c->kind (ai_Chars+2: cmp byte
@@ -8303,7 +8303,7 @@ int ai_MiracleWindow(void *chp, int *m)
         do {
             if (d2_ClickedId != -1) {
                 if (d2_ClickedId == 0) {
-                    if (sv_CheckMoney((char *)ch, 4) != 0) {
+                    if (sv_CheckMoney(ch, 4) != 0) {
                         cm_SendMoneyDelta(ch->netId, 0xfffffffc);
                         ai_Miracle(ch, util_Random(6));
                         ret = 1;

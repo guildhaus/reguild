@@ -2948,7 +2948,7 @@ void ai_ConstructionWindow(void)
             pointed = d2_PointerObj;
             if ((seat != 0 &&
                  sv_CheckStock((short *)seat, seat->list, gm_BuildingKindCost(&ai_Chars[ai_PlayerId], kind), ai_OwnPlayer)) ||
-                (seat == 0 && sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId],
+                (seat == 0 && sv_CheckGoodAmount(&ai_Chars[ai_PlayerId],
                                                   gm_BuildingKindCost(&ai_Chars[ai_PlayerId], kind), ai_OwnPlayer))) {
                 d2_SetViewEnabled(view, 0);
                 site = lc_GebaeudeAusrichten(kind, model);
@@ -3435,7 +3435,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             factor = (float)(ai_Difficulty * 0.25 + 0.5);
                             cost = (int)((int)gm_ItemPrice(i, 100) * factor);
                             if (b->owner != ai_PlayerChar->id) {
-                                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0)
+                                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0)
                                     ok = 1;
                                 txt_Format(text, 0x1a, cost, bld, i * 2 + 0x9a8);
                             } else {
@@ -5814,7 +5814,7 @@ void ai_MistressAffairWindow(AICHAR *player, AICHAR *ch, AIJOB *ev)
                     pick = ai_AmountMenu(&cfg, txt_Ptrs[0x1a5a], 0, 0);
                     if (pick != 0) {
                         txt_Format(ask, 0x1a5b, 2, ch->id, pick->id);
-                        if (sv_MessageBox(ask, 1) != 0 && sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 2) != 0) {
+                        if (sv_MessageBox(ask, 1) != 0 && sv_CheckMoney(&ai_Chars[ai_PlayerId], 2) != 0) {
                             ev->idbc = ai_Time.year;
                             cm_SendExSetHE(3, ev);
                             gm_SendMoneyDelta(player->netId, -2);
@@ -7069,7 +7069,7 @@ void ai_DarkCornerMenu(AIBLD *bld, AIOBJ *room, AIOBJ *corner)
             int price;
             unsigned short who;
 
-            if (gv_EvidencePrice(corner->recs[i], (char *)&ai_Chars[bld->owner], &price, &who, &law[i]) != 0) {
+            if (gv_EvidencePrice(corner->recs[i], &ai_Chars[bld->owner], &price, &who, &law[i]) != 0) {
                 if (cur[i] != corner->recs[i])
                     changed = 1;
                 rows[i].rec = &ai_Chars[who];
@@ -7176,7 +7176,7 @@ void ai_DarkCornerBuy(AIBLD *bld, AIOBJ *corner)
     changed = 1;
     do {
         for (i = 0; i < 3; i++) {
-            if (gv_EvidencePrice(corner->recs[i], (char *)&ai_Chars[bld->owner], &price, &who, &law[i]) != 0) {
+            if (gv_EvidencePrice(corner->recs[i], &ai_Chars[bld->owner], &price, &who, &law[i]) != 0) {
                 if (cur[i] != corner->recs[i])
                     changed = 1;
                 rows[i].rec = &ai_Chars[who];
@@ -7222,7 +7222,7 @@ void ai_DarkCornerBuy(AIBLD *bld, AIOBJ *corner)
                     if (corner->recs[i] == cur[sel]) {
                         id = cur[sel];
                         cost = vals[sel];
-                        if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0) {
+                        if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0) {
                             req[0] = 0x62757920;    /* 'buy ' */
                             req[2] = bld->id;
                             req[1] = ai_Chars[ai_PlayerId].netId;
@@ -7897,25 +7897,25 @@ void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
 {
     char news[0x200];
     char text[0x400];
-    unsigned short *borrower;
+    AICHAR *borrower;
     AICHAR *owner;
     LCFIN *fin;
 
-    borrower = (unsigned short *)gm_FindChar(loan->partner);
+    borrower = gm_FindChar(loan->partner);
     txt_Format(text, 0x18d5, loan->amount);
     if (bank == 0)
         return;
-    if (sv_CheckGoodAmount((char *)borrower, loan->amount, ai_OwnPlayer) == 0)
+    if (sv_CheckGoodAmount(borrower, loan->amount, ai_OwnPlayer) == 0)
         return;
     if (sv_MessageBox(text, 1) == 0)
         return;
     owner = &ai_Chars[bank->owner];
     cm_SendMoveGoods(bank->id, loan->partner, ai_OwnPlayer, loan->amount);
-    fin = (LCFIN *)gm_PlayerRecord((char *)borrower);
+    fin = (LCFIN *)gm_PlayerRecord(borrower);
     if (fin != 0)
         fin->loansRepaid += loan->amount;
     if (owner->kind != 5) {
-        txt_Format(news, 0x18d8, *borrower, bank, loan->amount);
+        txt_Format(news, 0x18d8, borrower->id, bank, loan->amount);
         he_MessageBoxQuickjump(owner->netId, -1, news, 0, 0x5ec, bank->id, -1, 0, 0);
     }
     he_FreeEvent(loan);
@@ -9960,7 +9960,7 @@ void ai_BuyBuildingWindow(void)
         if (d2_ClickedId != -1) {
             for (i = 0; i < n; i++) {
                 if (d2_PointerObj == rows[i].control && rows[i].bld->owner != ai_PlayerId &&
-                    sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], rows[i].sale->salePrice, ai_OwnPlayer) != 0)
+                    sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], rows[i].sale->salePrice, ai_OwnPlayer) != 0)
                     sv_SelectPanelObject(rows[i].bld, -1, ch_EmptyName);
             }
         }
@@ -10090,7 +10090,7 @@ void ai_CitizenRightWindow(AIBLD *b)
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
-            if (d2_ClickedId == 0 && sv_CheckGoodAmount((char *)me, 16000, ai_OwnPlayer) != 0) {
+            if (d2_ClickedId == 0 && sv_CheckGoodAmount(me, 16000, ai_OwnPlayer) != 0) {
                 AIMSG msg;
                 char text[0x200];
 
@@ -10450,7 +10450,7 @@ void ai_GuildCashPayWindow(AIBLD *bld)
             if (d2_PointerObj == payBtn) {
                 sum = d2_GetObjValue(d2_GetWinObj(win, 1, text));
                 sum = gm_PlayerFactor(sum, ai_OwnPlayer);
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], sum, ai_OwnPlayer) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], sum, ai_OwnPlayer) != 0) {
                     cm_SendMoveGoods(box->objId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, sum);
                     sv_PopRequest = 1;
                 }
@@ -10484,7 +10484,7 @@ int ai_GuildGiftCallback(char *place, AIBLD *bld)
     int giveBtn;
 
     fee = (int)max(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.01f, 160.0f);
-    if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], fee, ai_OwnPlayer) == 0)
+    if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], fee, ai_OwnPlayer) == 0)
         return 0;
     win = d2_OpenForm(0, 0, "LOCATIONS\\ZUNFTHAUS\\LEVEL2");
     d2_CentreViewWindows(win);
@@ -10507,7 +10507,7 @@ int ai_GuildGiftCallback(char *place, AIBLD *bld)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == giveBtn &&
-                sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], fee, ai_OwnPlayer) != 0) {
+                sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], fee, ai_OwnPlayer) != 0) {
                 req[0] = 2;
                 req[1] = bld->id;
                 req[2] = fee;
@@ -10536,7 +10536,7 @@ void ai_GuildGiftEntry(AIBLD *building)
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
         else
-            sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 5);
+            sv_CheckMoney(&ai_Chars[ai_PlayerId], 5);
         return;
     }
     D3_ZERO(&pick, sizeof(pick));
@@ -10577,7 +10577,7 @@ void ai_GuildLevel1Window(AIBLD *building)
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
         else
-            sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 3);
+            sv_CheckMoney(&ai_Chars[ai_PlayerId], 3);
         return;
     }
     win = d2_OpenForm(0, 0, "LOCATIONS\\ZUNFTHAUS\\LEVEL1");
@@ -10799,7 +10799,7 @@ void ai_GuildLevel3Entry(void)
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
         else
-            sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 8);
+            sv_CheckMoney(&ai_Chars[ai_PlayerId], 8);
         return;
     }
     office = ai_Chars[ai_PlayerId].secondOffice;
@@ -10962,7 +10962,7 @@ void ai_DonationWindow(AIBLD *bld)
             if (d2_PointerObj == giveBtn) {
                 gift = d2_GetObjValue(slider);
                 gift = gm_PlayerFactor(gift, ai_OwnPlayer);
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], gift, ai_OwnPlayer) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], gift, ai_OwnPlayer) != 0) {
                     cm_SendMoveGoods(box->objId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, gift);
                     rel = (float)(gift * 0xff) / total;
                     cm_SendRelations(ai_Chars[ai_PlayerId].netId,
@@ -11056,7 +11056,7 @@ void ai_IndulgenceWindow(AIBLD *bld, AIOBJ *room)
         if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1 && d2_PointerObj == buyBtn &&
-                   sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
+                   sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
             me = &ai_Chars[ai_PlayerId];
             cm_BeginFieldBlock((char *)me, me->netId);
             cm_AddFieldValues(4, 1, 0x1ac, &price);
@@ -11133,7 +11133,7 @@ void ai_BaptismWindow(AIBLD *bld, AIOBJ *room)
                 sv_PopRequest = 1;
             if (d2_ClickedId != -1) {
                 if (d2_PointerObj == convertBtn) {
-                    if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
+                    if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
                         faith = 1 - me->faith;
                         cm_SendMoveGoodsUnchecked(-1, me->netId, 0, price);
                         cm_BeginFieldBlock((char *)me, me->netId);
@@ -11191,7 +11191,7 @@ void ai_BaptismWindow(AIBLD *bld, AIOBJ *room)
             sv_PopRequest = 1;
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == convertBtn) {
-                if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
+                if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
                     faith = owner->faith;
                     cm_SendMoveGoodsUnchecked(owner->netId, me->netId, 0, price);
                     cm_BeginFieldBlock((char *)me, me->netId);
@@ -11542,7 +11542,7 @@ void ai_SermonWindow(AIBLD *bld)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == payBtn) {
-                if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 1) != 0) {
+                if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 1) != 0) {
                     flag = 1;
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -1);
                     cm_BeginFieldBlock((char *)sermon, sermon->objId);
@@ -12574,7 +12574,7 @@ int ai_KidnapWindow(AICHAR *victim)
     done = 0;
     if (victim == 0)
         return 0;
-    if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 3) != 0
+    if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 3) != 0
         && (victim->bld == 0 || victim->bld->owner != victim->id)) {
         if (victim->heldRounds != 0) {
             txt_Format(text, 0x19ba, victim->id);
@@ -12829,7 +12829,7 @@ void ai_HostageEscape(AIBLD *bld)
     owner = &ai_Chars[bld->owner];
     d2_SetPointerSprite(0, 0);
     txt_Format(failText, 0x3fea, ch->heldRounds * 2);
-    if (sv_MessageBox(failText, 0x11) != 0 && sv_CheckMoney((char *)ch, ch->heldRounds * 2) != 0) {
+    if (sv_MessageBox(failText, 0x11) != 0 && sv_CheckMoney(ch, ch->heldRounds * 2) != 0) {
         chance = gm_GetSkill(ch, 4);
         chance = gm_GetSkill(ch, 3) + chance;
         chance = (gm_GetSkill(ch, 2) + chance) * 0.2f + 0.15f;
