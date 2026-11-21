@@ -986,7 +986,7 @@ void ai_HookChapter2Step2(int arg)
 
     if (arg)
         return;
-    b = (AIBLD *)gm_BuildQuery(1, 5, 0xf);
+    b = gm_BuildQuery(1, 5, 0xf);
     if (b)
         b->mainRoom = 0x10e;
 }
@@ -1083,7 +1083,7 @@ void ai_HookChapter2Step5(int arg)
 
     if (arg != 1)
         return;
-    r = (AIBLD *)gm_BuildQuery(1, 5, 0xa);
+    r = gm_BuildQuery(1, 5, 0xa);
     if (r)
         sv_SelectPanelObject(r, -1, (char *)(unsigned)&ch_EmptyName);
 }
@@ -1533,7 +1533,7 @@ void ai_HookChapter3Intro(int arg)
         if (ai_BTypes[kind].kind == 0x12)
             return;
     }
-    r = (AIBLD *)gm_BuildQuery(1, 5, 0x12);
+    r = gm_BuildQuery(1, 5, 0x12);
     if (!r)
         return;
     q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x74);
@@ -1558,7 +1558,7 @@ void ai_HookChapter5Intro(int arg)
         if (ai_BTypes[kind].kind == 2)
             return;
     }
-    r = (AIBLD *)gm_BuildQuery(2, 5, 2, 4, ai_PlayerId);
+    r = gm_BuildQuery(2, 5, 2, 4, ai_PlayerId);
     if (!r)
         return;
     q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x13);
@@ -5061,11 +5061,11 @@ int gm_BuildingJob();
 int gm_BuildingKindCost(int c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
 float gm_GoodsPrice(unsigned id, unsigned char p);
 int ai_AmountRowStatus(); int ai_DrawAmountRow(); short * gm_FindChar(int id); int gm_TitlesLeft();
-char * gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
+struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 int sv_CreateScrollButtons(); void d2_RadioClear(int g);
 unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
 int ls_Read();
 void * mem_Alloc(int size, char *tag); char dd_Lock(void); void dd_Unlock(); unsigned char bmp_Save24(char *path, int w, int h, unsigned char *data); void mem_Free(void *p);
 void ai_Quicksave(void); void ai_ApplyOptions(); void cm_RaiseSpeedLevel(void); void cm_LowerSpeedLevel(void);
 int gm_BuildingMainObject(unsigned char *b); void *gm_GetGebaeudeHauptraum(unsigned char *b);
-unsigned char * gm_BuildNext(void); unsigned char * gm_BuildQuery(int n, ...);
+struct AIBLD *gm_BuildNext(void); struct AIBLD *gm_BuildQuery(int n, ...);

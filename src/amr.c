@@ -3403,7 +3403,7 @@ int ai_ExecuteCitizenship(G5CH *p)
     int i, n;
     int rank;
 
-    b = (AIBLD *)gm_BuildQuery(1, 5, 0xf);
+    b = gm_BuildQuery(1, 5, 0xf);
     rank = 2;
     if (b == 0)
         return 0;

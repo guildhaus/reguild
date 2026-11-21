@@ -1359,7 +1359,7 @@ void he_AllocIncomeEvent(int ev)
     d = gm_MeanLiking(e->chr, 8, e->ids) - 0.5;
     e->incomeCounter = 0;
     e->incomeRate = (float)(d * 0.25);
-    b = (AIBLD *)gm_FindBuildingById(e->incomeBld);
+    b = gm_FindBuildingById(e->incomeBld);
     for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
         if (rec->job == e)
             sv_MoveToGroup((unsigned char *)b, 0, rec->id, (char *)ev);
@@ -1503,7 +1503,7 @@ void he_AllocProduktion(AIJOB *ev)
         if (o != 0)
             txt_Format(buf, "he_AllocProduktion(): geb:%G", o);
     }
-    b = (AIBLD *)gm_FindBuildingById(p->bld);
+    b = gm_FindBuildingById(p->bld);
     g = (GMGOOD *)ai_Goods;
     id = p->good;
     v = (float)g[id].workTime;
@@ -1587,7 +1587,7 @@ void he_RunProduktion(AIJOB *ev)
 
     name[0] = 0;
     if (ev->chr == 0xffff) {
-        bld = (AIBLD *)gm_FindBuildingById(p->bld);
+        bld = gm_FindBuildingById(p->bld);
         if (bld != 0)
             txt_Format(buf, "he_RunProduktion(): geb:%G", bld);
         he_FreeEvent((int *)ev);
@@ -2531,7 +2531,7 @@ void he_ShowConstruction(int ev)
             }
         }
     } else if (c->stage > c->stages) {
-        bld = (AIBLD *)gm_FindBuildingById(c->bld);
+        bld = gm_FindBuildingById(c->bld);
         if (bld != 0 && bld->object != 0)
             d3if_ShowTree((D3OBJECT *)bld->object, 1);
         if (obj != 0) {
@@ -3809,7 +3809,7 @@ void he_RunSecretRoom(int ev)
                 e->exSlot = cm_SendExSetHE(6, ev);
                 return;
             }
-            if ((bld = (AIBLD *)gm_BuildQuery(1, 1, s->target)) == 0) {
+            if ((bld = gm_BuildQuery(1, 1, s->target)) == 0) {
                 e->end = ai_Time;
                 e->exSlot = cm_SendExSetHE(-1, ev);
                 return;
@@ -3850,7 +3850,7 @@ void he_RunSecretRoom(int ev)
             return;
         }
         victim = (AICHAR *)gm_FindChar(s->victim);
-        bld = (AIBLD *)gm_BuildQuery(1, 1, s->home);
+        bld = gm_BuildQuery(1, 1, s->home);
         if (per != 0 && victim != 0 && bld != 0) {
             switch (s->way) {
             case 1:
@@ -4172,7 +4172,7 @@ int he_SecretRoomDomizil(int bldId, AICHAR *victim)
     int ok;
 
     if (he_NoEvent9bFor(victim) != 0) {
-        bld = (AIBLD *)gm_BuildQuery(1, 1, bldId);
+        bld = gm_BuildQuery(1, 1, bldId);
         if (bld != 0) {
             owner = &ai_Chars[bld->owner];
             ok = 1;
@@ -4470,7 +4470,7 @@ void he_RunHaunting(int ev)
         if (cm_GetSlotState(e->exSlot) == 0)
             return;
         sv_MoveToGroup(0, 0, haunter->id, (char *)ev);
-        bld = (AIBLD *)gm_BuildQuery(1, 1, h->home);
+        bld = gm_BuildQuery(1, 1, h->home);
         if (bld == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -4626,7 +4626,7 @@ void he_RunDecay(int ev)
         e->stage++;
         return;
     case 1:
-        bld = (AIBLD *)gm_BuildQuery(1, 1, d->home);
+        bld = gm_BuildQuery(1, 1, d->home);
         if (bld == 0) {
             e->stage = -1;
             return;
@@ -4777,7 +4777,7 @@ void he_RunPlunder(int ev)
         e->exSlot = -1;
         return;
     case 1:
-        bld = (AIBLD *)gm_BuildQuery(1, 1, p->bld[p->at]);
+        bld = gm_BuildQuery(1, 1, p->bld[p->at]);
         if (bld == 0) {
             e->stage = -1;
             return;
@@ -4976,7 +4976,7 @@ void he_AllocMasterWork(int ev)
     int i, n = 0;
     AIJOB *e = (AIJOB *)ev;
     HEMASTERWORK *p = (HEMASTERWORK *)ev;
-    AIBLD *bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    AIBLD *bld = gm_BuildQuery(1, 1, e->from);
     short *grp = (short *)gm_Query((void *)bld->objList, 2, 0, 0xfd, 6);
     AICHAR *w;
 
@@ -5065,7 +5065,7 @@ void he_RunMasterWork(int ev)
     }
     if (cnt == 0)
         e->stage = -1;
-    bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    bld = gm_BuildQuery(1, 1, e->from);
     if (bld != 0) {
         bt = &ai_BTypes[bld->type];
         store = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
@@ -5152,7 +5152,7 @@ void he_AllocGraveCare(int ev)
     short *grp;
 
     if (per != 0) {
-        bld = (AIBLD *)gm_FindBuildingById(e->from);
+        bld = gm_FindBuildingById(e->from);
         if (bld != 0) {
             grp = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
             sv_MoveToGroup((unsigned char *)bld, grp, per->id, (char *)ev);
@@ -5206,7 +5206,7 @@ void he_RunGraveCare(int ev)
         sv_MoveToGroup(0, 0, w->id, (char *)ev);
     else
         e->stage = -1;
-    bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    bld = gm_BuildQuery(1, 1, e->from);
     if (bld == 0)
         e->stage = -1;
     entry = (GVENTRY *)gv_ListEntry((char *)bld->yard, g->size, g->entry);
@@ -5305,7 +5305,7 @@ void he_AllocGraveTraining(int ev)
     AIBLD *bld;
 
     if (per != 0 && (per->job == 0 || (unsigned char)per->job->kind != 0x8f)
-        && (bld = (AIBLD *)gm_BuildQuery(1, 1, e->from)) != 0) {
+        && (bld = gm_BuildQuery(1, 1, e->from)) != 0) {
         if (p->objId != -1)
             grp = (short *)gm_Query((void *)bld->objList, 2, 6, 1, p->objId);
         e->end = ai_Time;
@@ -5356,7 +5356,7 @@ void he_RunGraveTraining(int ev)
     if (ch != 0 && (float)ch->skills[t->skill] < 252.0f && gm_CompareTime(&ai_Time, &t->until) < 0) {
         unsigned char gain;
 
-        bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        bld = gm_BuildQuery(1, 1, e->from);
         if (bld == 0) {
             he_FreeEvent((int *)ev);
             return;
@@ -5377,7 +5377,7 @@ void he_RunGraveTraining(int ev)
         return;
     }
     ch = (AICHAR *)gm_FindChar(t->trainee);
-    bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    bld = gm_BuildQuery(1, 1, e->from);
     if (bld == 0 || ch == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -5639,7 +5639,7 @@ void he_RunMeeting(int ev)
     if (e->opts & 4)
         return;
     e->end = ai_Time;
-    bld = (AIBLD *)gm_BuildQuery(1, 1, p->bld);
+    bld = gm_BuildQuery(1, 1, p->bld);
     if (bld == 0) {
         cm_SendExSetHE(-1, ev);
         return;
@@ -5682,7 +5682,7 @@ void he_RunMeetingScene(int ev)
     int scene;
 
     other = (AIJOB *)he_FindEvent(1, 1, m->partner);
-    bld = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    bld = gm_BuildQuery(1, 1, e->from);
     if (bld != 0 && bld->object != 0 && other != 0 &&
         other->stage != -2 && other->stage != -1) {
         if (m->obj != -1) {
@@ -5759,7 +5759,7 @@ void he_AnswerGraveLease(int ev)
     AICHAR *per;
     int n;
 
-    bld = (AIBLD *)gm_BuildQuery(1, 1, l->bld);
+    bld = gm_BuildQuery(1, 1, l->bld);
     if (bld == 0 || ai_BTypes[bld->type].kind != 0x1d)
         return;
     per = (AICHAR *)gm_FindChar(e->netId);
@@ -5781,7 +5781,7 @@ void he_AnswerGraveLease(int ev)
 void he_ExamCancelled(int ev)
 {
     AIJOB *e = (AIOBJ *)ev;
-    AIBLD *bld = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    AIBLD *bld = gm_BuildQuery(1, 1, e->bldId);
     AICHAR *per;
 
     if (bld == 0 || ai_BTypes[bld->type].kind != 0x1d)
@@ -5890,7 +5890,7 @@ void he_RunGraveyardWorkers(int ev)
 
     switch (e->stage) {
     case 0:
-        bld = (AIBLD *)gm_BuildQuery(1, 5, 0x1d);
+        bld = gm_BuildQuery(1, 5, 0x1d);
         while (bld != 0) {
             if (bld->owner != 0xffff) {
                 chance = (float)gm_BuildingSkill(bld, 0x15, 1) * 0.0025f;
@@ -5929,7 +5929,7 @@ void he_RunGraveyardWorkers(int ev)
                         i++;
                     }
                 }
-                bld = (AIBLD *)gm_BuildNext();
+                bld = gm_BuildNext();
             }
         }
         e->end = ai_Time;
@@ -5937,7 +5937,7 @@ void he_RunGraveyardWorkers(int ev)
         e->stage++;
         break;
     case 1:
-        for (bld = (AIBLD *)gm_BuildQuery(1, 5, 0x1d); bld != 0; bld = (AIBLD *)gm_BuildNext()) {
+        for (bld = gm_BuildQuery(1, 5, 0x1d); bld != 0; bld = gm_BuildNext()) {
             n = 0;
             master = (AICHAR *)gm_FindCharacterByMaster(bld);
             for (ch = ai_Chars; (int)ch < (int)&ai_Chars[768]; ch++) {
@@ -6719,7 +6719,7 @@ void he_RunTrialScene(int ev)
     }
     if (e->stage == 0) {
         grp = 0;
-        bld = (AIBLD *)gm_FindBuildingById(e->from);
+        bld = gm_FindBuildingById(e->from);
         if (bld != 0)
             grp = (AIOBJ *)gm_Query((void *)bld->objList, 1, 0, 0x27f);
         gm_AddTime(&e->end, 2, 0, 0);

@@ -537,10 +537,10 @@ void gm_Free(void)
 {
     int o;
 
-    o = gm_BuildQuery(1, 6);
+    o = (int)gm_BuildQuery(1, 6);
     while (o != 0) {
         gm_FreeBuilding(o);
-        o = gm_BuildNext();
+        o = (int)gm_BuildNext();
     }
     if (ai_BTypes != 0) {
         mem_Free(ai_BTypes);
@@ -694,7 +694,7 @@ void gm_SyncMarket(unsigned p)
     list[5] = 0x97;
     list[6] = 0x2db;
     list[7] = 0;
-    ai_MarketBuilding = (struct AIBLD *)gm_BuildQuery(1, 5, 10);
+    ai_MarketBuilding = gm_BuildQuery(1, 5, 10);
     if (ai_MarketBuilding == 0)
         return;
     stock = gm_StockBlocks[p].goods;
@@ -814,7 +814,7 @@ void gm_RefreshGoodsLists(unsigned p)
     list[5] = 0x97;
     list[6] = 0x2db;
     list[7] = 0;
-    ai_MarketBuilding = (struct AIBLD *)gm_BuildQuery(1, 5, 10);
+    ai_MarketBuilding = gm_BuildQuery(1, 5, 10);
     if (ai_MarketBuilding == 0)
         return;
     stock = gm_StockBlocks[p].goods;
@@ -1011,10 +1011,10 @@ int gm_GoodsStock(int p, int i)
     if (s->group == 0)
         return 0;
     for (k = 4; k != 0; k--, s++) {
-        if (s->group != 0 && (o = gm_BuildQuery(1, 5, s->group)) != 0) {
+        if (s->group != 0 && (o = (int)gm_BuildQuery(1, 5, s->group)) != 0) {
             do {
                 sum = (int)((float)sum + s->factor);
-                o = gm_BuildNext();
+                o = (int)gm_BuildNext();
             } while (o != 0);
         }
     }
@@ -1618,7 +1618,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         load = (ORDOBJ *)gm_CreateObject(r->objId, 0x1dd, 1);
         load->count = r->type - 0x133;
         load->lvl1c = (unsigned char)r->type - 0x33;
-        home = gm_BuildQuery(1, 1, id);
+        home = (unsigned char *)gm_BuildQuery(1, 1, id);
         scene = 0;
         if (home != 0 && gm_IsHomeType(home) != 0)
             scene = init_BuildingSceneUniverse((AIBLD *)home);
@@ -1960,7 +1960,7 @@ int gm_FindPlayerBuilding(int p)
    ins (bottom exit threaded); store first + guarded inner while with break: 9; walks swapped under if
    (!first): 20; nested if/else per criterion with m = 0 at each level: 20. */
 
-unsigned char *gm_BuildNext(void)
+struct AIBLD *gm_BuildNext(void)
 {
     char m;
     ORDBLD *end;
@@ -2028,11 +2028,11 @@ unsigned char *gm_BuildNext(void)
         if (m)
             break;
     }
-    return (unsigned char *)gm_BQCursor;
+    return (AIBLD *)gm_BQCursor;
 }
 /* 0x501190, starts a building query and returns its first match (gm_BuildNext): resets the criteria, then reads n (kind, value) pairs: 0 the type, 1 the id, 2 a name (copied to gm_BQName, never tested), 3 the master id, 4 the owner, 5 the class of the type, 6 stop at the first (no value); the cursor starts at ai_Blds. Used all over the exe (gm_BuildQuery(1, 5, 10) ..) */
 
-unsigned char *gm_BuildQuery(int n, ...)
+struct AIBLD *gm_BuildQuery(int n, ...)
 {
     va_list ap;
     int i;
@@ -2555,7 +2555,7 @@ unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
                     best = d;
                 }
             }
-            p = gm_BuildNext();
+            p = (unsigned char *)gm_BuildNext();
         }
         return r;
     }
@@ -2591,7 +2591,7 @@ unsigned char *gm_NearestFreeBuilding(unsigned char *p, unsigned kind)
 }
 /* 0x502020, the building with the id (+1) in the building table, 0 when none */
 
-char *gm_FindBuildingById(int id)
+struct AIBLD *gm_FindBuildingById(int id)
 {
     int i;
     char *p;
@@ -2604,7 +2604,7 @@ char *gm_FindBuildingById(int id)
         if (i >= 0x100)
             return 0;
     }
-    return (char *)ai_Blds + i * 0xa9;
+    return &ai_Blds[i];
 }
 /* 0x502060, the number of the building kind with the name (case-insensitive; the name is at +1 of each 0x24d-byte record), 0 when none */
 
@@ -5311,7 +5311,7 @@ int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
-unsigned char * gm_BuildNext(void);                     /* 0x501030 */
+struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 
 /* 0x506890, the inheritance of the character dead by the heir heir (he.c's succession: the successor, or the player's
    character when there is none): dead is buried in the grave entry it holds (gv_OrderBury) and a heir that is not the
@@ -7217,7 +7217,7 @@ int gm_GetWorth(unsigned short id)
     if (c->id == 0xffff)
         return -1;
     v = gm_GetGoodsValue((char *)c);
-    for (bl = gm_BuildQuery(1, 3, id); bl != 0; bl = gm_BuildNext()) {
+    for (bl = (unsigned char *)gm_BuildQuery(1, 3, id); bl != 0; bl = (unsigned char *)gm_BuildNext()) {
         v += gm_EquipmentValue(bl, (char)bl[0x5c]);
         v += gm_StallValue((char *)bl);
     }
@@ -7587,22 +7587,22 @@ unsigned char *gm_FirstBuilding(int n)
     r = 0;
     switch (n) {
     case 1:
-        r = gm_BuildQuery(1, 5, 0xf);
+        r = (unsigned char *)gm_BuildQuery(1, 5, 0xf);
         break;
     case 6:
     case 7:
         return 0;
     case 2:
-        r = gm_BuildQuery(1, 5, 0x17);
+        r = (unsigned char *)gm_BuildQuery(1, 5, 0x17);
         break;
     case 3:
-        r = gm_BuildQuery(1, 5, 0x18);
+        r = (unsigned char *)gm_BuildQuery(1, 5, 0x18);
         break;
     case 4:
-        r = gm_BuildQuery(1, 5, 0x19);
+        r = (unsigned char *)gm_BuildQuery(1, 5, 0x19);
         break;
     case 5:
-        r = gm_BuildQuery(1, 5, 0x1a);
+        r = (unsigned char *)gm_BuildQuery(1, 5, 0x1a);
         break;
     }
     return r;

@@ -2555,7 +2555,7 @@ int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
-unsigned char * gm_BuildNext(void);                     /* 0x501030 */
+struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 extern int ai_Difficulty;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
 char * ahm_OwnerChar();                     /* 0x4eaa50 */

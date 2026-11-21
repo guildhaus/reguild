@@ -1533,7 +1533,7 @@ void main_GiveStartBuildings(int p)
     char *l;
     int i;
 
-    b = (AIBLD *)gm_BuildQuery(1, 0, 6);
+    b = gm_BuildQuery(1, 0, 6);
     if (b != 0) {
         strcpy(b->name, "Home-Sweet-Home");
         gm_AssignBuilding((unsigned char *)b, p, p);
@@ -1545,7 +1545,7 @@ void main_GiveStartBuildings(int p)
         cm_SendExSellObject(b->id, -1, 0x18, 1, ai_OwnPlayer, 0);
         cm_SendExSellObject(b->id, -1, 0x14, 1, ai_OwnPlayer, 0);
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x20);
+    b = gm_BuildQuery(1, 0, 0x20);
     if (b != 0) {
         b->masterId = (unsigned short)p;
         b->owner = (unsigned short)p;
@@ -1563,7 +1563,7 @@ void main_GiveStartBuildings(int p)
                 sv_PumpNet();
         }
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x2a);
+    b = gm_BuildQuery(1, 0, 0x2a);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -1578,21 +1578,21 @@ void main_GiveStartBuildings(int p)
                 sv_PumpNet();
         }
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x1e);
+    b = gm_BuildQuery(1, 0, 0x1e);
     if (b != 0)
         gm_AssignBuilding((unsigned char *)b, p, p);
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x1f);
+    b = gm_BuildQuery(1, 0, 0x1f);
     if (b != 0)
         gm_AssignBuilding((unsigned char *)b, p, p);
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x12);
+    b = gm_BuildQuery(1, 0, 0x12);
     if (b != 0)
         gm_AssignBuilding((unsigned char *)b, p, p);
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x14);
+    b = gm_BuildQuery(1, 0, 0x14);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         cm_SendExSellObject(b->id, -1, 0xf7, 1, ai_OwnPlayer, 0);
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x32);
+    b = gm_BuildQuery(1, 0, 0x32);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -1606,17 +1606,17 @@ void main_GiveStartBuildings(int p)
                 sv_PumpNet();
         }
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x21);
+    b = gm_BuildQuery(1, 0, 0x21);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x19);
+    b = gm_BuildQuery(1, 0, 0x19);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x34);
+    b = gm_BuildQuery(1, 0, 0x34);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -1630,7 +1630,7 @@ void main_GiveStartBuildings(int p)
                 sv_PumpNet();
         }
     }
-    b = (AIBLD *)gm_BuildQuery(1, 0, 0x36);
+    b = gm_BuildQuery(1, 0, 0x36);
     if (b != 0) {
         gm_AssignBuilding((unsigned char *)b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -3069,7 +3069,7 @@ void main_RundenBeginn(void)
                 if (e != 0)
                     *e = *e - 1;
             }
-            r = (AIBLD *)gm_BuildQuery(2, 4, ch->id, 5, 5);
+            r = gm_BuildQuery(2, 4, ch->id, 5, 5);
             while (r != 0) {
                 k = gm_BuildingSkill(r, 3, 1);
                 if (k != 0) {
@@ -3078,7 +3078,7 @@ void main_RundenBeginn(void)
                     if (e != 0)
                         *e = *e - 1;
                 }
-                r = (AIBLD *)gm_BuildNext();
+                r = gm_BuildNext();
             }
             t = carry.capacity + 4;
             t += he_SumApEvents(ch->id);
@@ -3285,11 +3285,11 @@ void main_EndRound(void)
         cm_SendLongMessage((char *)&msg);
     }
     if ((ai_GameFlags & 8) != 0) {
-        b = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+        b = gm_BuildQuery(1, 0, 0x44);
         obj = (AIOBJ *)gm_Query((void *)b->objList, 1, 4, 0x1d);
         while (obj != 0) {
             scene = (CHARACTER *)obj->sceneObj;
-            b = (AIBLD *)gm_BuildQuery(1, 1, obj->bldId);
+            b = gm_BuildQuery(1, 1, obj->bldId);
             if (b != 0 && (ch = &ai_Chars[b->owner]) != 0 && ai_CanAct(ch) != 0)
                 ch_SetVisible(scene, 1);
             else
@@ -3305,7 +3305,7 @@ void main_EndRound(void)
 
             value = gm_GetGoodsValue((char *)&ai_Chars[k]) * 0x4b;
             weight = 0;
-            b = (AIBLD *)gm_BuildQuery(1, 4, k);
+            b = gm_BuildQuery(1, 4, k);
             while (b != 0) {
                 if (gm_BuildingClass(b->type) == 1 || gm_BuildingClass(b->type) == 4 || gm_BuildingClass(b->type) == 2 || ai_BTypes[b->type].kind == 0x13 || ai_BTypes[b->type].kind == 4 || ai_BTypes[b->type].kind == 0x10 || ai_BTypes[b->type].kind == 5 || ai_BTypes[b->type].kind == 9) {
                     if (ai_BTypes[b->type].level == 1)
@@ -3342,9 +3342,9 @@ void main_EndRound(void)
                         }
                     }
                 }
-                b = (AIBLD *)gm_BuildNext();
+                b = gm_BuildNext();
             }
-            b = (AIBLD *)gm_BuildQuery(1, 4, k);
+            b = gm_BuildQuery(1, 4, k);
             while (b != 0) {
                 if (gm_BuildingClass(b->type) == 1 || gm_BuildingClass(b->type) == 4 || gm_BuildingClass(b->type) == 2 || ai_BTypes[b->type].kind == 0x13 || ai_BTypes[b->type].kind == 4 || ai_BTypes[b->type].kind == 0x10 || ai_BTypes[b->type].kind == 5 || ai_BTypes[b->type].kind == 9) {
                     if (ai_BTypes[b->type].level == 1) {
@@ -3370,7 +3370,7 @@ void main_EndRound(void)
                             b->budget = b->budget < 256000 ? b->budget : 256000;
                     }
                 }
-                b = (AIBLD *)gm_BuildNext();
+                b = gm_BuildNext();
             }
         }
         k++;
@@ -3599,7 +3599,7 @@ void main_RoundReport(void)
         d2_SetForm(win, 1);
         io_PrintText("$N");
         /* the buildings the player owns or masters */
-        b = (AIBLD *)gm_BuildQuery(1, 6);
+        b = gm_BuildQuery(1, 6);
         while (b != 0) {
             if (b->owner == ai_PlayerId || b->masterId == ai_PlayerId) {
                 t = gm_BuildingClass(b->type);
@@ -3611,7 +3611,7 @@ void main_RoundReport(void)
                     net += bal[0x14];
                 }
             }
-            b = (AIBLD *)gm_BuildNext();
+            b = gm_BuildNext();
         }
         /* the interest of the loans the player's banks gave */
         nrow = gm_BuildingEvents(ai_PlayerId, 0, 0xffff, (int *)loans);
@@ -3882,7 +3882,7 @@ void main_SettleRound(unsigned short pl)
                         if (o->reportKnow <= 5)
                             cm_SendMoveObject(c->id, -1, o->objId);
                         else {
-                            AIBLD *t = (AIBLD *)gm_FindBuildingById(o->reportBld);
+                            AIBLD *t = gm_FindBuildingById(o->reportBld);
 
                             if (t != 0) {
                                 char age = o->reportKnow - (char)gm_BuildingRank(t) * 2;
@@ -3992,7 +3992,7 @@ void main_SettleRound(unsigned short pl)
         if (t >= 2 && t <= 5)
             gm_HasBuilding(t);
     }
-    p = (AIBLD *)gm_BuildQuery(1, 6);
+    p = gm_BuildQuery(1, 6);
     while (p != 0) {
         if (p->owner == pl) {
             ps = &ai_Chars[p->owner];
@@ -4134,14 +4134,14 @@ void main_SettleRound(unsigned short pl)
                 }
             }
         }
-        p = (AIBLD *)gm_BuildNext();
+        p = gm_BuildNext();
     }
     if (cnt > 0x20) {
         sv_PumpNet();
         Sleep(0x14);
         cnt = 0;
     }
-    p = (AIBLD *)gm_BuildQuery(1, 4, pl);
+    p = gm_BuildQuery(1, 4, pl);
     while (p != 0) {
         if (gm_BuildingBalance(p, pl, sum) != 0) {
             int v;
@@ -4155,7 +4155,7 @@ void main_SettleRound(unsigned short pl)
                 cm_SendMoveGoods(ai_Chars[p->owner].netId, o->objId, ai_OwnPlayer, v);
             }
         }
-        p = (AIBLD *)gm_BuildNext();
+        p = gm_BuildNext();
         if (cnt > 0x20) {
             sv_PumpNet();
             Sleep(0x14);
@@ -4225,7 +4225,7 @@ void main_BeginPlayerRound(void)
         d2_SetForm(w, 0);
         d2_CloseView(w);
     }
-    b = (AIBLD *)gm_BuildQuery(1, 6);
+    b = gm_BuildQuery(1, 6);
     while (b != 0) {
         bt = &ai_BTypes[b->type];
         if (b->type == 0x1e) {
@@ -4241,7 +4241,7 @@ void main_BeginPlayerRound(void)
             }
         } else if (bt->kind == 7)
             b->daySum = 0;
-        b = (AIBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     gm_UpdatePlayers();
     ord_AppendStatisticsRound();
@@ -4638,7 +4638,7 @@ void main_GameLoop(int ctl)
                    d3_ZNear, d3_ZFar, d3_ScaleX, d2_ScreenW, d2_ScreenH);
     /* a loaded game: the weather, and the view at the building / object the save was made at */
     if ((ai_GameFlags & 2) != 0 && (sv_SetupWeather(&ai_Time, 0), ls_LoadedHeader.startBuilding != -1)) {
-        bld = (AIBLD *)gm_FindBuildingById(ls_LoadedHeader.startBuilding);
+        bld = gm_FindBuildingById(ls_LoadedHeader.startBuilding);
         inst = (AIOBJ *)gm_FindObjectInst(ls_LoadedHeader.startObject);
         ai_FrameWait = 2;
         if (bld != 0 && inst != 0) {

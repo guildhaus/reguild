@@ -3113,8 +3113,8 @@ void sv_FlyCameraToObject(int b)
 int d3t_PlaceObject(struct D3OBJECT *camera, float px, float py, float pz, float dx, float dy, float dz, int unk, char flags);                     /* 0x411680 */
 int stricmp();                     /* 0x5eaa30 (_strcmpi) */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
-unsigned char * gm_BuildQuery(int n, ...);                     /* 0x501190 */
-unsigned char * gm_BuildNext(void);                     /* 0x501030 */
+struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
+struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 int d3t_SceneIndex();                     /* 0x411be0 */
 void d3_SetWorldPosRot();                     /* 0x449920 */
 int d3t_PlayAnim();                     /* 0x411960 */
@@ -3333,7 +3333,7 @@ void sv_ColourBanners(int c)
     scene = d3_CurrentScene;
     ch = &ai_Chars[c];
     d3if_SelectScene(0, 1);
-    for (b = (AIBLD *)gm_BuildQuery(1, 4, c); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 4, c); b != 0; b = gm_BuildNext()) {
         if (b->object != 0)
             d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)b->object, 0x340, sv_ColourBannerCB, b);
     }
@@ -3461,7 +3461,7 @@ void sv_RefreshBanners(void)
     scene = d3_CurrentScene;
     c = 0;
     d3if_SelectScene(0, 1);
-    o = (AIBLD *)gm_BuildQuery(1, 6);
+    o = gm_BuildQuery(1, 6);
     while (o != 0) {
         if (o->owner != 0xffff)
             c = &ai_Chars[o->owner];
@@ -3469,7 +3469,7 @@ void sv_RefreshBanners(void)
             sv_RemoveBanners((char *)o);
             sv_CreateBanners((char *)o);
         }
-        o = (AIBLD *)gm_BuildNext();
+        o = gm_BuildNext();
     }
     d3if_SelectScene(scene, 1);
 }
@@ -3953,7 +3953,7 @@ void sv_RefreshPanel(void)
     d2_SetForm(sv_PanelForm, 2);
     SV_CLEAR_PANEL_WIDGETS(i)
     d2_RemoveWindowObjects(d2_LastWindow, 1);
-    if (SV_SELCART->job24 != 0 && (bld = gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
+    if (SV_SELCART->job24 != 0 && (bld = (unsigned char *)gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
         io_PrintText("$Y$Z%s", *bld * 0xe + 0x48e);
     load = (AIOBJ *)gm_Query((void *)SV_SELCART->list, 1, 0, 0x1dd);
     if (load == 0)
@@ -4046,7 +4046,7 @@ int gm_ConvertMoney(int a, unsigned char k);                     /* 0x5085b0 */
 void txt_Format(char *out, int id0, ...);  /* 0x5176d0 */
 
 
-unsigned char * gm_BuildQuery(int n, ...);                     /* 0x501190 */
+struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
 unsigned short * gm_QueryNext(void);                   /* 0x4ffcc0 */
 
 /* 0x52a050, the per-frame update of the info panel (not while the player bar is open or before the game runs):
@@ -4386,7 +4386,7 @@ void sv_ResetSelection(void)
     if (ai_PlayerBuilding == 0) {
         b = ai_FallbackBuilding;
         if (b == 0)
-            b = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+            b = gm_BuildQuery(1, 0, 0x44);
     } else {
         if (ai_FallbackBuilding == 0)
             return;
@@ -5205,11 +5205,11 @@ void sv_SpeakPicked(void)
                 kind = -1;
                 switch (c->jobKind) {
                 case 0x49:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->u.id)) != 0)
+                    if ((r = gm_FindBuildingById(job->u.id)) != 0)
                         txt_Format(text, util_Random(3) + 0x124a, r->owner, r);
                     break;
                 case 0x44:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->u.id)) != 0)
+                    if ((r = gm_FindBuildingById(job->u.id)) != 0)
                         txt_Format(text, util_Random(3) + 0x1259, r->owner, r);
                     break;
                 case 0x28:
@@ -5228,7 +5228,7 @@ void sv_SpeakPicked(void)
                     }
                     break;
                 case 0x19:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->u.id)) != 0)
+                    if ((r = gm_FindBuildingById(job->u.id)) != 0)
                         txt_Format(text, util_Random(3) + 0x125c, r->owner, r);
                     break;
                 case 0x62:
@@ -5239,7 +5239,7 @@ void sv_SpeakPicked(void)
                         txt_Format(text, util_Random(3) + 0x1262, c->id);
                     break;
                 case 0x40:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->u.id)) != 0 && r->owner != 0xffff)
+                    if ((r = gm_FindBuildingById(job->u.id)) != 0 && r->owner != 0xffff)
                         txt_Format(text, util_Random(3) + 0x1265, r->owner, r);
                     break;
                 case 0x43:
@@ -5252,7 +5252,7 @@ void sv_SpeakPicked(void)
                     txt_Format(text, util_Random(3) + 0x126e);
                     break;
                 case 100:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->id2)) != 0)
+                    if ((r = gm_FindBuildingById(job->id2)) != 0)
                         txt_Format(text, util_Random(3) + 0x1271, r->owner, r);
                     break;
                 case 0x65:
@@ -5264,7 +5264,7 @@ void sv_SpeakPicked(void)
                     break;
                 case 0x3f:
                 case 0x75:
-                    if ((r = (AIBLD *)gm_FindBuildingById(job->u.id)) != 0)
+                    if ((r = gm_FindBuildingById(job->u.id)) != 0)
                         txt_Format(text, util_Random(3) + 0x1250, r->owner, r);
                     break;
                 case 0x89:

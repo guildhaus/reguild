@@ -112,7 +112,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id);                          
 void main_GameLoop(int ctl);                                                              /* 0x53bb20 */
 short * gm_FindChar(int id);                                                      /* 0x505df0, ai.h: AICHAR * */
 int gm_CompareTime(AITIME *a, AITIME *b);                                          /* 0x4fe210 */
-char *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
+struct AIBLD *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
 int gm_IsHomeType(unsigned char *bld);                                                     /* 0x502520 */
 void *gm_GetGebaeudeHauptraum(unsigned char *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
 char * gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
@@ -124,7 +124,7 @@ int gm_SumSlotAmounts(void *list, unsigned char i);                             
 int gm_FreeCapacity(short *l, int item, int max);                                    /* 0x50ab80 */
 unsigned short * gm_ObjectBuildingOwner(unsigned short *p);                                                     /* 0x50a050 */
 int gm_TakeableCount(char *p, int item, int max);                                    /* 0x50ad70 */
-unsigned char * gm_BuildQuery(int n, ...);                                                  /* 0x501190, ai.h: AIBLD * */
+struct AIBLD *gm_BuildQuery(int n, ...);                                                  /* 0x501190, ai.h: AIBLD * */
 int amt_CheckApplication(struct AMTAPP *m);                                                       /* 0x4e6360 */
 int amt_CheckOfficeMessage(struct AMTMSG *m);                                                       /* 0x4e6710 */
 extern signed char ai_Relations[0x300][0x300];  /* 0x7e5360, relations between the characters */
@@ -756,7 +756,7 @@ void cm_CheerAction(char *ev);  /* 0x4d3ac0 */
 void cm_PickUpAction(char *ev);  /* 0x4d3ae0 */
 struct AICHAR *cm_CheckFightWinner(struct CMFIGHTREC *rec);  /* 0x4d3b30 */
 int cm_LootStock(AIBLD *a, AIBLD *b, struct AICHAR *d, struct AICHAR *t);  /* 0x4d3d10 */
-int cm_FightRole(unsigned char *b);  /* 0x4d4050 */
+int cm_FightRole(struct AIBLD *b);  /* 0x4d4050 */
 int cm_LootList(int x, int y, int mode);  /* 0x4d4090 */
 void cm_FightPortraits(int *ids, int x, int y);  /* 0x4d4340 */
 int cm_FightStartDialog(struct CMFIGHTREC *a);  /* 0x4d4540 */

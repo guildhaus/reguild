@@ -352,10 +352,10 @@ int gm_FindById(int *bld, int *obj, int *chr, int id);           /* 0x4fea50 */
 unsigned short * gm_QueryNext(void);                                               /* 0x4ffcc0, next of gm_Query */
 char * gm_Query(void *list, int n, ...);                               /* 0x4ffe90, n (key, value) pairs */
 int gm_FindMarketObject(int id);                                            /* 0x500ec0 */
-unsigned char * gm_BuildNext(void);                                               /* 0x501030, next of gm_BuildQuery */
-unsigned char * gm_BuildQuery(int n, ...);                                         /* 0x501190, n (key, value) filters; key 6 takes no value */
+struct AIBLD *gm_BuildNext(void);                                               /* 0x501030, next of gm_BuildQuery */
+struct AIBLD *gm_BuildQuery(int n, ...);                                         /* 0x501190, n (key, value) filters; key 6 takes no value */
 int gm_BuildingClass(int type);    /* 0x501d80, the class 0 .. 9 of ai_BTypes[type].kind: kinds 1 .. 0x20 index the byte table 0x501e14 and jump through 0x501dec (1..9), anything else is 0; ai.c dispatches its master / workshop logic on it, f3init.c's init_Betrieb stocks the classes 1 / 4 */
-char * gm_FindBuildingById(int id);                                             /* 0x502020 */
+struct AIBLD *gm_FindBuildingById(int id);                                             /* 0x502020 */
 short * gm_FindChar(int id);                                            /* 0x505df0 */
 int gm_CharLevel(unsigned short id, int again);                              /* 0x505e60, f3gm.c */
 short * gm_PlayerRecord(char *ch);                                         /* 0x506430 */

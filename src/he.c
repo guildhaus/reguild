@@ -2009,32 +2009,32 @@ void he_AddEventGfxInfo(AIJOB *ev)
         return;
     switch ((unsigned char)ev->kind) {
     case 0x1b:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0)
             he_CreateGfxInfo(ev, "he_muenze", (D3OBJECT *)b->object);
         break;
     case 0x1c:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
             he_CreateGfxInfo(ev, "he_hammer_gold", (D3OBJECT *)b->object);
         break;
     case 0x1e:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
             he_CreateGfxInfo(ev, "he_saege_hammer_gold", (D3OBJECT *)b->object);
         break;
     case 0x1f:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
             he_CreateGfxInfo(ev, "he_plus_hammer", (D3OBJECT *)b->object);
         break;
     case 2:
-        b = (AIBLD *)gm_FindBuildingById(ev->from);
+        b = gm_FindBuildingById(ev->from);
         if (b != 0 && b->object != 0)
             he_CreateGfxInfo(ev, "he_plus_hammer", (D3OBJECT *)b->object);
         break;
     case 0x40:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0 && ev->chr == ai_PlayerId)
             he_CreateGfxInfo(ev, "he_fernglas", (D3OBJECT *)b->object);
         break;
@@ -2054,13 +2054,13 @@ void he_AddEventGfxInfo(AIJOB *ev)
         }
         break;
     case 0x1a:
-        b = (AIBLD *)gm_FindBuildingById(ev->bldd0);
+        b = gm_FindBuildingById(ev->bldd0);
         if (b != 0 && b->object != 0)
             he_CreateGfxInfo(ev, "he_schlaege", (D3OBJECT *)b->object);
         break;
     case 4:
         if (ev->chr == ai_PlayerId && ev->argc8 != 0) {
-            b = (AIBLD *)gm_FindBuildingById(ev->idbc);
+            b = gm_FindBuildingById(ev->idbc);
             if (b != 0 && b->object != 0)
                 he_CreateGfxInfo(ev, "he_ausrufezeichen", (D3OBJECT *)b->object);
         }
@@ -2322,7 +2322,7 @@ void he_PostEvent2b(void)
     AIBLD *b;
 
     memset(&m, 0, sizeof(m));
-    for (b = (AIBLD *)gm_BuildQuery(1, 5, 7); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 5, 7); b != 0; b = gm_BuildNext()) {
         for (ev = (AIJOB *)he_FindEvent(1, 0, 0x2b); ev != 0; ev = (AIJOB *)he_NextEvent()) {
             if (ev->from == b->id) {
                 found = 1;
@@ -2371,7 +2371,7 @@ void he_PostWorkshopEvents98(void)
     AIBLD *b;
     AICHAR *o;
 
-    for (b = (AIBLD *)gm_BuildQuery(1, 5, 0x1e); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 5, 0x1e); b != 0; b = gm_BuildNext()) {
         AIMSG m;
 
         if (he_FindEvent(2, 0, 0x98, 3, b->id) == 0 && (o = (AICHAR *)ahm_OwnerChar(b)) != 0) {
@@ -2396,7 +2396,7 @@ void he_InnStaffLeave(void)
     int k;
     int *p;
 
-    f = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+    f = gm_BuildQuery(1, 5, 0x16);
     while (f != 0) {
         r = (AIOBJ *)gm_Query((void *)f->objList, 1, 0, 0x120);
         if (r != 0 && (r = (AIOBJ *)gm_Query((void *)r->list, 1, 0, 0x12d)) != 0) {
@@ -2415,7 +2415,7 @@ void he_InnStaffLeave(void)
                 p++;
             }
         }
-        f = (AIBLD *)gm_BuildNext();
+        f = gm_BuildNext();
     }
 }
 /* 0x53f500, for every inn building (type 0x16) whose job table (object 0x12c) was started more than one year ago sends
@@ -2426,7 +2426,7 @@ void he_ClearInnDarkCorner(void)
     AIBLD *f;
     AIOBJ *r;
 
-    f = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+    f = gm_BuildQuery(1, 5, 0x16);
     while (f != 0) {
         r = (AIOBJ *)gm_Query((void *)f->objList, 1, 0, 0x120);
         if (r != 0 && (r = (AIOBJ *)gm_Query((void *)r->list, 1, 0, 300)) != 0
@@ -2441,7 +2441,7 @@ void he_ClearInnDarkCorner(void)
             cm_SendScriptMessage(arg);
             cm_EndGroup("clear dunkle ecke");
         }
-        f = (AIBLD *)gm_BuildNext();
+        f = gm_BuildNext();
     }
 }
 /* 0x53f5b0, tops up the money of the characters of kind 5 and 4 (kind 2 when the year % 4 is its net id & 3) to the
@@ -2979,9 +2979,9 @@ void he_PostEvent67(void)
     int n, amt, pick;
 
     if (ai_Time.year >= 8 && util_Random(4) == 0 && he_FindEvent(1, 0, 0x67) == 0) {
-        a = (AIBLD *)gm_BuildQuery(1, 0, 0x20);
-        b = (AIBLD *)gm_BuildQuery(1, 0, 0x1e);
-        c = (AIBLD *)gm_BuildQuery(1, 0, 0x1f);
+        a = gm_BuildQuery(1, 0, 0x20);
+        b = gm_BuildQuery(1, 0, 0x1e);
+        c = gm_BuildQuery(1, 0, 0x1f);
         n = 0;
         if (a != 0 && a->owner == ai_PlayerChar->id)
             cand[n++] = a;
@@ -3020,7 +3020,7 @@ void he_InnReport(void)
     int none, noneW, guests, served;
     char buf1[512], buf2[512];
 
-    for (b = (AIBLD *)gm_BuildQuery(1, 5, 0x16); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 5, 0x16); b != 0; b = gm_BuildNext()) {
         owner = b->owner;
         if (owner != 0xffff && (b->flags5a & 1) == 0) {
             none = 0;
@@ -4765,8 +4765,8 @@ void he_AllocPatrol(int ev)
         return;
     e->start = ai_Time;
     memset(cand, -1, sizeof(cand));
-    target = (AIBLD *)gm_BuildQuery(1, 1, e->patrolTarget);
-    for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    target = gm_BuildQuery(1, 1, e->patrolTarget);
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         if (n >= 8)
             break;
         p = (D3OBJECT *)b->object;
@@ -4844,7 +4844,7 @@ void he_RunPatrol(int ev)
         e->stage = 0x400;
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->patrolTarget);
+        b = gm_BuildQuery(1, 1, e->patrolTarget);
         if (b == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
@@ -4869,7 +4869,7 @@ void he_RunPatrol(int ev)
         e->exSlot = cm_SendExSetHE(2, ev);
         return;
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->patrolStart);
+        b = gm_BuildQuery(1, 1, e->patrolStart);
         if (b == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
@@ -4942,7 +4942,7 @@ void he_RunPatrol(int ev)
                 e->exSlot = cm_SendExSetHE(1, ev);
                 return;
             }
-            b = (AIBLD *)gm_BuildQuery(1, 1, e->patrolWay[e->patrolStep]);
+            b = gm_BuildQuery(1, 1, e->patrolWay[e->patrolStep]);
             e->patrolStep++;
             if (b == 0) {
                 e->end = ai_Time;
@@ -5046,7 +5046,7 @@ void he_RunRaid(int ev)
     case 0:
         if ((e->opts == 0) & 2)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->raidTarget);
+        b = gm_BuildQuery(1, 1, e->raidTarget);
         if (b == 0 || b->owner == 0xffff) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
@@ -5072,7 +5072,7 @@ void he_RunRaid(int ev)
     case 1:
         if ((e->opts & 2) == 0)
             return;
-        home = (AIBLD *)gm_BuildQuery(1, 1, e->raidStart);
+        home = gm_BuildQuery(1, 1, e->raidStart);
         if (home == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
@@ -5120,11 +5120,11 @@ void he_RunRaid(int ev)
     case 3:
         if ((e->opts & 2) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->raidTarget);
+        b = gm_BuildQuery(1, 1, e->raidTarget);
         c = &ai_Chars[b->owner];
         raider = &ai_Chars[e->chr];
         defence = (float)(gm_BuildingSkill(b, 5, 1) * 0.01 + 1.0);
-        home = (AIBLD *)gm_BuildQuery(1, 1, e->raidStart);
+        home = gm_BuildQuery(1, 1, e->raidStart);
         o = (AIOBJ *)gm_Query((void *)home->objList, 1, 0, 0xca);
         for (; o != 0; o = (AIOBJ *)gm_QueryNext())
             if (o->reportBld == b->id)
@@ -5156,7 +5156,7 @@ void he_RunRaid(int ev)
             }
             for (i = 0; i < 3; i++)
                 party.raid.raid100[i] = -1;
-            home = (AIBLD *)gm_BuildQuery(1, 1, e->raidStart);
+            home = gm_BuildQuery(1, 1, e->raidStart);
             party.raid.raidHome = home->id;
             k = 0;
             for (i = 0; i < 8 && k < 6; i++) {
@@ -5185,8 +5185,8 @@ void he_RunRaid(int ev)
             e->stage = -1;
             return;
         }
-        home = (AIBLD *)gm_BuildQuery(1, 1, e->raidStart);
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->raidTarget);
+        home = gm_BuildQuery(1, 1, e->raidStart);
+        b = gm_BuildQuery(1, 1, e->raidTarget);
         loot = cm_LootStock(b, home, &ai_Chars[e->chr], &ai_Chars[b->owner]);
         if (ai_Chars[b->owner].kind == 6 || ai_Chars[b->owner].kind == 7) {
             txt_Format(text, 0x1c54, b, loot);
@@ -5220,7 +5220,7 @@ void he_RunRaid(int ev)
         return;
     case -1:
         if (e->opts & 2) {
-            home = (AIBLD *)gm_BuildQuery(1, 1, e->raidStart);
+            home = gm_BuildQuery(1, 1, e->raidStart);
             o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)home);
             for (i = 0; i < 8; i++) {
                 if (e->ids[i] != -1 && (c = (AICHAR *)gm_FindChar(e->ids[i])) != 0) {
@@ -6116,7 +6116,7 @@ void he_RunStoreSale(int ev)
     }
     if (e->stage != 0)
         return;
-    b = (AIBLD *)gm_BuildQuery(1, 4, e->chr);
+    b = gm_BuildQuery(1, 4, e->chr);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -6127,7 +6127,7 @@ void he_RunStoreSale(int ev)
         t = &ai_BTypes[b->type];
         if (gm_BuildingClass(b->type) == 1 || t->kind == 9)
             sel[n++] = b;
-    } while ((b = (AIBLD *)gm_BuildNext()) != 0);
+    } while ((b = gm_BuildNext()) != 0);
     if (n == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -6173,7 +6173,7 @@ void he_RunBuildingDecay(int ev)
     }
     if (e->stage != 0)
         return;
-    b = (AIBLD *)gm_BuildQuery(1, 4, e->chr);
+    b = gm_BuildQuery(1, 4, e->chr);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -6183,7 +6183,7 @@ void he_RunBuildingDecay(int ev)
             break;
         if (gm_BuildingClass(b->type) == 6)
             sel[n++] = b;
-    } while ((b = (AIBLD *)gm_BuildNext()) != 0);
+    } while ((b = gm_BuildNext()) != 0);
     if (n == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -6983,7 +6983,7 @@ void he_RunGang(int ev)
     idx = 0;
     member = 0;
     leader = (AICHAR *)gm_FindChar(g->leader);
-    s = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    s = gm_BuildQuery(1, 1, e->from);
     if (s != 0 && s->owner != 0xffff)
         leader = &ai_Chars[s->owner];
     if (e->stage == -2 || leader == 0) {
@@ -7012,7 +7012,7 @@ void he_RunGang(int ev)
     case 0:
         if (member == 0 || member->scene->actions != 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, g->targets[idx]);
+        b = gm_BuildQuery(1, 1, g->targets[idx]);
         n = 0;
         pick[0] = 10;
         pick[1] = 5;
@@ -7059,15 +7059,15 @@ void he_RunGang(int ev)
                 kind = pick[util_Random(5)];
             while ((unsigned char)bt->kind == kind);
         }
-        o = (AIBLD *)gm_BuildQuery(1, 5, kind);
+        o = gm_BuildQuery(1, 5, kind);
         if (o == 0)
-            o = (AIBLD *)gm_BuildQuery(1, 5, 10);
+            o = gm_BuildQuery(1, 5, 10);
         else {
             do {
                 if (n >= 4)
                     break;
                 pick[n++] = (int)o;
-            } while ((o = (AIBLD *)gm_BuildNext()) != 0);
+            } while ((o = gm_BuildNext()) != 0);
             o = (AIBLD *)pick[util_Random(n)];
         }
         sv_MoveToGroup((unsigned char *)o, 0, member->id, (char *)ev);
@@ -7076,7 +7076,7 @@ void he_RunGang(int ev)
         g->targets[idx] = o->id;
         return;
     case 1:
-        s = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        s = gm_BuildQuery(1, 1, e->from);
         sum = 0;
         if (s != 0 && leader != 0) {
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)s);
@@ -7142,7 +7142,7 @@ void he_RunProtectionAsk(int ev)
     p = (AIJOB *)he_FindEvent(1, 1, e->u.id);
     q = (HEPROTECTION *)p;
     if (p != 0)
-        b = (AIBLD *)gm_BuildQuery(1, 1, q->victim);
+        b = gm_BuildQuery(1, 1, q->victim);
     if (e->stage == -2 || e->stage == -1 || p == 0 || b == 0) {
         if (e->slot != 0)
             he_ReleaseSlot(ev);
@@ -7191,7 +7191,7 @@ void he_RunProtectionAsk(int ev)
             cm_SendSetField(b->id, 0x5a, 2, 0x100, 0);
             cm_SendMoveGoodsUnchecked(ai_Chars[p->chr].netId, ai_Chars[b->owner].netId, 0, q->amount);
             if (q->home != -1) {
-                home = (AIBLD *)gm_BuildQuery(1, 1, q->home);
+                home = gm_BuildQuery(1, 1, q->home);
                 home->roundSums[0] += q->amount;
             }
         } else if (d2_ClickedId == 1) {
@@ -7270,7 +7270,7 @@ void he_RunProtection(int ev)
     AIMSG msg;
     char text[0x200];
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, q->victim);
+    b = gm_BuildQuery(1, 1, q->victim);
     c = (AICHAR *)gm_FindChar(q->collector);
     if (e->stage == -1 || e->stage == -2) {
         if (b != 0 && (e->opts & 2) != 0)
@@ -7342,7 +7342,7 @@ void he_RunProtection(int ev)
             cm_SendSetField(b->id, 0x5a, 2, 0x100, 0);
             cm_SendMoveGoodsUnchecked(ai_Chars[e->chr].netId, ai_Chars[b->owner].netId, 0, q->amount);
             if (q->home != -1) {
-                home = (AIBLD *)gm_BuildQuery(1, 1, q->home);
+                home = gm_BuildQuery(1, 1, q->home);
                 home->roundSums[0] += q->amount;
             }
             e->end = ai_Time;
@@ -7394,7 +7394,7 @@ void he_StartAudit(int ev)
 {
     AIJOB *e = (AIJOB *)ev;
     HEAUDIT *a = (HEAUDIT *)ev;
-    AIBLD *b = (AIBLD *)gm_BuildQuery(1, 1, a->bld);
+    AIBLD *b = gm_BuildQuery(1, 1, a->bld);
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 2, 0);
@@ -7420,7 +7420,7 @@ void he_RunAudit(int ev)
     float shortfall;
     char text[0x400];
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, a->bld);
+    b = gm_BuildQuery(1, 1, a->bld);
     c = (AICHAR *)gm_FindChar(a->inspector);
     if (e->stage == -2 || c == 0 || b == 0 || b->owner == 0xffff) {
         he_FreeEvent((int *)ev);
@@ -7819,7 +7819,7 @@ void he_RunAuctionEvent(int ev)
         return;
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, a->bld);
+        b = gm_BuildQuery(1, 1, a->bld);
         if (b == 0) {
             cm_SendExSetHE(-1, ev);
             return;
@@ -8145,7 +8145,7 @@ void he_RunInnSim(int ev)
     }
     D3_ZERO(inns, sizeof(inns));
     n = 0;
-    inns[0].inn = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+    inns[0].inn = gm_BuildQuery(1, 5, 0x16);
     while (inns[n].inn != 0 && n < 16) {
         AIOBJ *bar = (AIOBJ *)gm_Query((void *)inns[n].inn->objList, 2, 0, 0x2a, 6);
 
@@ -8154,7 +8154,7 @@ void he_RunInnSim(int ev)
             inns[n].drink2 = (AIOBJ *)gm_Query((void *)bar->list, 1, 0, 0x17a);
         }
         n++;
-        inns[n].inn = (AIBLD *)gm_BuildNext();
+        inns[n].inn = gm_BuildNext();
     }
     if (e->stage != 0)
         return;
@@ -9267,7 +9267,7 @@ void he_RunSendHomeEvent(int ev)
     }
     if (e->stage != 0)
         return;
-    bld = (AIBLD *)gm_FindBuildingById(e->bldId);
+    bld = gm_FindBuildingById(e->bldId);
     if (bld == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -10046,7 +10046,7 @@ void he_StepWalk(HEWALKSLOT *s)
     s->state &= ~0x10;
     cm_SendChrStop(c->netId);
     if (util_RandomF() > 0.5f) {
-        AIBLD *e = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+        AIBLD *e = gm_BuildQuery(1, 5, 0x16);
         int bldId, objId;
 
         n = 0;
@@ -10056,7 +10056,7 @@ void he_StepWalk(HEWALKSLOT *s)
                     break;
                 if (e->owner != 0xffff && e->object != 0)
                     inns[n++] = e;
-                e = (AIBLD *)gm_BuildNext();
+                e = gm_BuildNext();
             } while (e != 0);
             if (n != 0 && he_PickNearBuilding(c, n, inns, &bldId, &objId) != 0)
                 gm_FindBuildingById(bldId);
@@ -11212,7 +11212,7 @@ void he_RunSale(int ev)
     case 1:
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0) {
             he_FreeEvent((int *)ev);
             return;
@@ -11225,7 +11225,7 @@ void he_RunSale(int ev)
         if (cm_GetSlotState(s->slot) == 0)
             return;
         p = (AIOBJ *)cm_GetSlotValue(s->slot);
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0 || p == 0) {
             he_FreeEvent((int *)ev);
             return;
@@ -11328,7 +11328,7 @@ void he_RunCustomers(int ev)
     case 1:
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         owner = &ai_Chars[b->owner];
@@ -11361,7 +11361,7 @@ void he_RunCustomers(int ev)
             return;
         }
         c->person = p->netId;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         if (c->target == -1) {
@@ -11375,7 +11375,7 @@ void he_RunCustomers(int ev)
         gm_AddTime(&e->end, 0, 0, 1);
         return;
     case 3:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         p = (AICHAR *)gm_FindChar(c->person);
@@ -11455,7 +11455,7 @@ void he_RunHire(int ev)
     case 1:
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         owner = &ai_Chars[b->owner];
@@ -11488,7 +11488,7 @@ void he_RunHire(int ev)
         }
         ai_PermsDirty = 1;
         h->person = p->netId;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         bt = &ai_BTypes[b->type];
@@ -11569,20 +11569,20 @@ void he_AllocTransport(int ev)
     e->end = e->start;
     t->started = 0;
     e->clock60 = e->start;
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
+    from = gm_BuildQuery(1, 1, t->start);
     if (from == 0)
         goto fail;
     gm_FindById(0, &o, 0, t->cart);
     if (o == 0)
         goto fail;
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    to = gm_BuildQuery(1, 1, t->goal);
     if (to == 0)
         goto fail;
     if (ai_BTypes[to->type].kind == 0xa && o != 0 && (o->flags20 & 1) != 0) {
         best = to;
         mind = 1e8f;
         d3_PointToWorld((D3OBJECT *)from->object, &((D3OBJECT *)from->object)->pos, (D3VECTOR *)&p1);
-        for (b = (AIBLD *)gm_BuildQuery(1, 5, 0xa); b != 0; b = (AIBLD *)gm_BuildNext()) {
+        for (b = gm_BuildQuery(1, 5, 0xa); b != 0; b = gm_BuildNext()) {
             d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&p2);
             dx = p2.x - p1.x;
             dy = p2.y - p1.y;
@@ -11634,7 +11634,7 @@ void he_AllocTransport(int ev)
     t->started = 0;
     gm_AddTime(&e->end, 0, 0, 1);
     if (o != 0) {
-        drv = (AIBLD *)gm_FindBuildingById(o->bldId);
+        drv = gm_FindBuildingById(o->bldId);
         ch = (CHARACTER *)o->sceneObj;
         ch->walkSpeed = o->fill * 0.01f * 0.5 + 0.9;
         if (o->type == 0x136)
@@ -11751,11 +11751,11 @@ void he_TransportFromHome(int ev)
     int sc;
     char text[0x400];
 
-    guards = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+    guards = gm_BuildQuery(1, 0, 0x44);
     gm_BuildQuery(1, 0, 0x45);
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
+    from = gm_BuildQuery(1, 1, t->start);
     bt = &ai_BTypes[from->type];
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
@@ -11827,10 +11827,10 @@ void he_TransportToHome(int ev)
     char quick[0x104];
     char text[0x400];
 
-    guards = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+    guards = gm_BuildQuery(1, 0, 0x44);
     gm_BuildQuery(1, 0, 0x45);
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    from = gm_BuildQuery(1, 1, t->start);
+    to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
@@ -11918,10 +11918,10 @@ void he_TransportStadtStadt(int ev)
     char text[0x400];
     char err[0x400];
 
-    guards = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+    guards = gm_BuildQuery(1, 0, 0x44);
     gm_BuildQuery(1, 0, 0x45);
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    from = gm_BuildQuery(1, 1, t->start);
+    to = gm_BuildQuery(1, 1, t->goal);
     if (t->at == from->id && t->started == 0) {
         D3VECTOR4 back, pos;
 
@@ -12049,10 +12049,10 @@ void he_TransportHomeHome(int ev)
     char quick[0x104];
     char text[0x400];
 
-    guards = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+    guards = gm_BuildQuery(1, 0, 0x44);
     gm_BuildQuery(1, 0, 0x45);
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    from = gm_BuildQuery(1, 1, t->start);
+    to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
@@ -12154,10 +12154,10 @@ void he_RunTransport(int ev)
             return;
         e->exSlot = -1;
     }
-    guards = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
-    market = (AIBLD *)gm_BuildQuery(1, 0, 0x45);
-    from = (AIBLD *)gm_BuildQuery(1, 1, t->start);
-    to = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+    guards = gm_BuildQuery(1, 0, 0x44);
+    market = gm_BuildQuery(1, 0, 0x45);
+    from = gm_BuildQuery(1, 1, t->start);
+    to = gm_BuildQuery(1, 1, t->goal);
     if (guards == 0 || from == 0 || to == 0 || market == 0)
         e->stage = -1;
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
@@ -12216,7 +12216,7 @@ void he_RunTransport(int ev)
                 return;
             chance = 0;
             gm_FindById(0, &o, 0, t->cart);
-            b = (AIBLD *)gm_FindBuildingById(o->bldId);
+            b = gm_FindBuildingById(o->bldId);
             if (b != 0)
                 chance = gm_BuildingSkill(b, 2, 1) + 100.0f;
             if (d3t_Snow != 0 && d3t_Snow->count > 100)
@@ -12244,7 +12244,7 @@ void he_RunTransport(int ev)
         gm_BuildQuery(1, 1, t->goal);
         m.due = ai_Time;
         gm_AddTime(&m.due, 0, 0, 1);
-        b = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+        b = gm_BuildQuery(1, 1, t->goal);
         m.sold.bld = b->id;
         cm_SendExSysMessage(4, &m);
         if (ai_PlayerBuilding == (AIBLD *)b || ai_FallbackBuilding == (AIBLD *)b)
@@ -12263,7 +12263,7 @@ void he_RunTransport(int ev)
         if ((e->opts & 2) == 0)
             return;
         pl = ai_OwnPlayer;
-        b = (AIBLD *)gm_BuildQuery(1, 1, t->goal);
+        b = gm_BuildQuery(1, 1, t->goal);
         if (b->type == 0x47)
             pl = (char)b->playerSlot;
         rt_UnloadAtPoint((char *)tr, pl);
@@ -12273,7 +12273,7 @@ void he_RunTransport(int ev)
         if ((e->opts & 2) == 0)
             return;
         p = rt_PointAt(tr->route, tr->routeIdx);
-        if (p == 0 || (b = (AIBLD *)gm_FindBuildingById(p->buildingId)) == 0) {
+        if (p == 0 || (b = gm_FindBuildingById(p->buildingId)) == 0) {
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
         }
@@ -12574,7 +12574,7 @@ void he_RunMessageBox(int ev)
                         p->done = 1;
                 }
                 if ((m->flags & 2) != 0) {
-                    bld = (AIBLD *)gm_BuildQuery(1, 1, m->bld);
+                    bld = gm_BuildQuery(1, 1, m->bld);
                     if (bld == 0)
                         return;
                     sv_SelectPanelObject(bld, m->obj, &m->sel);
@@ -12641,7 +12641,7 @@ void he_RunSlotOrder(int ev)
         if (o == 0)
             break;
         one = 1;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0)
             break;
         bt = &ai_BTypes[b->type];
@@ -12669,7 +12669,7 @@ void he_RunSlotOrder(int ev)
         }
         if (s->add1d == 0 && s->add1c == 0) {
             tid = 0x5f6;
-            b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+            b = gm_BuildQuery(1, 1, e->from);
             if (b == 0)
                 break;
             m = (AICHAR *)gm_FindCharacterByMaster(b);
@@ -12737,7 +12737,7 @@ void he_RunStoreExtension(int ev)
             cm_SendFieldDeltas();
             if (--x->rounds <= 0) {
                 tid = 0x606;
-                b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+                b = gm_BuildQuery(1, 1, e->from);
                 if (b == 0)
                     break;
                 m = (AICHAR *)gm_FindCharacterByMaster(b);
@@ -12827,12 +12827,12 @@ void he_RunHerbGathering(int ev)
                 AIBLD *b, *f;
                 int i;
 
-                b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+                b = gm_BuildQuery(1, 1, e->from);
                 if (b != 0) {
                     best = 1e8f;
                     obj = (D3OBJECT *)b->object;
                     d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&at);
-                    for (f = (AIBLD *)gm_BuildQuery(1, 5, 0xb); f != 0; f = (AIBLD *)gm_BuildNext()) {
+                    for (f = gm_BuildQuery(1, 5, 0xb); f != 0; f = gm_BuildNext()) {
                         obj = (D3OBJECT *)f->object;
                         d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
                         dx = pos.x - at.x;
@@ -12864,7 +12864,7 @@ void he_RunHerbGathering(int ev)
                 AICHAR *c;
                 int i;
 
-                f = (AIBLD *)gm_BuildQuery(1, 1, h->field);
+                f = gm_BuildQuery(1, 1, h->field);
                 if (f == 0) {
                     e->stage = -1;
                     return;
@@ -12886,7 +12886,7 @@ void he_RunHerbGathering(int ev)
                 int i, any;
 
                 any = 0;
-                b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+                b = gm_BuildQuery(1, 1, e->from);
                 if (b == 0) {
                     e->stage = -1;
                     return;
@@ -12910,7 +12910,7 @@ void he_RunHerbGathering(int ev)
                 AICHAR *c, *m;
                 int i, amount, got;
 
-                b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+                b = gm_BuildQuery(1, 1, e->from);
                 if (b == 0)
                     break;
                 for (i = 0; i < h->n; i++) {
@@ -12959,7 +12959,7 @@ void he_RunHerbGathering(int ev)
                 AIBLD *b;
                 int i;
 
-                b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+                b = gm_BuildQuery(1, 1, e->from);
                 if (b != 0) {
                     for (i = 0; i < h->n; i++) {
                         if (gm_FindChar(e->ids[i]) != 0) {
@@ -13033,7 +13033,7 @@ void he_RunAnimalHunt(int ev)
     case 1:
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0) {
             e->stage = -1;
             return;
@@ -13090,7 +13090,7 @@ void he_AllocStudy(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+    b = gm_BuildQuery(1, 1, e->from);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -13137,7 +13137,7 @@ void he_RunStudy(int ev)
     case 0:
         c = (AICHAR *)gm_FindChar(s->chr);
         if (c != 0 && c->skills[s->skill] < 252.0f) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+            b = gm_BuildQuery(1, 1, e->from);
             if (b == 0)
                 break;
             if (gm_CompareTime(&ai_Time, &s->until) < 0)
@@ -13163,7 +13163,7 @@ void he_RunStudy(int ev)
         return;
     case 1:
         c = (AICHAR *)gm_FindChar(s->chr);
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0 || c == 0)
             break;
         m = (AICHAR *)gm_FindCharacterByMaster(b);
@@ -13230,9 +13230,9 @@ void he_AllocSabotage(int ev)
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 1, 0);
     if (e->from == -1) {
-        b = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+        b = gm_BuildQuery(1, 5, 0x16);
         if (b == 0)
-            b = (AIBLD *)gm_BuildQuery(1, 5, 0xf);
+            b = gm_BuildQuery(1, 5, 0xf);
         if (b != 0)
             e->from = b->id;
     }
@@ -13293,7 +13293,7 @@ void he_RunSabotage(int ev)
         return;
     }
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             e->stage = -1;
             return;
@@ -13319,7 +13319,7 @@ void he_RunSabotage(int ev)
     case 3: {
         HEDETECT d;
 
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0 || b->owner == 0xffff) {
             e->stage = -1;
             return;
@@ -13346,7 +13346,7 @@ void he_RunSabotage(int ev)
 
         if (x->slot != -1 && cm_GetSlotState(x->slot) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         w = (HEWATCH *)he_FindEvent(1, 1, x->watch);
         if (b == 0 || w == 0 || w->attackId != e->id || x->slot == -1) {
             e->stage = -1;
@@ -13387,7 +13387,7 @@ void he_RunSabotage(int ev)
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
         x->blasts = 0;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0 || b->owner == 0xffff) {
             e->stage = -1;
             return;
@@ -13463,7 +13463,7 @@ void he_RunSabotage(int ev)
             struct SBSAMPLE *snd;
 
             scene = d3_CurrentScene;
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             if (b == 0) {
                 e->stage = -1;
                 return;
@@ -13782,9 +13782,9 @@ void he_AllocBrawl(AIJOB *e)
     gm_FindChar(br->victim);
     e->end = ai_Time;
     if (e->from == -1) {
-        b = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+        b = gm_BuildQuery(1, 5, 0x16);
         if (b == 0)
-            b = (AIBLD *)gm_BuildQuery(1, 5, 0xf);
+            b = gm_BuildQuery(1, 5, 0xf);
         if (b != 0)
             e->from = b->id;
     }
@@ -13794,10 +13794,10 @@ void he_AllocBrawl(AIJOB *e)
     if (victim->bld2 != 0)
         home = victim->bld2;
     else
-        home = (AIBLD *)gm_BuildQuery(1, 4, victim->id);
+        home = gm_BuildQuery(1, 4, victim->id);
     if (home == 0) {
         if (ai_PickActionBuilding((struct AIPER *)&ai_Chars[e->chr], 6, gypsyFilter, (int)home, 100.0f, &at) != 0)
-            home = (AIBLD *)gm_BuildQuery(1, 1, at);
+            home = gm_BuildQuery(1, 1, at);
     }
     br->meet = home->id;
 }
@@ -13848,7 +13848,7 @@ void he_RunBrawl(AIJOB *e)
         return;
     }
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, br->meet);
+        b = gm_BuildQuery(1, 1, br->meet);
         if (b != 0) {
             br->slot = cm_SendChrGotoBuilding(br->thug, b->id, -1, 0, 1, "Pr\xfcgel");
             e->stage++;
@@ -13874,7 +13874,7 @@ void he_RunBrawl(AIJOB *e)
     case 7: {
         HEDETECT d;
 
-        b = (AIBLD *)gm_BuildQuery(1, 1, br->meet);
+        b = gm_BuildQuery(1, 1, br->meet);
         victim = (AICHAR *)gm_FindChar(br->victim);
         if (b != 0 && victim != 0) {
             d.bld = b;
@@ -13898,7 +13898,7 @@ void he_RunBrawl(AIJOB *e)
 
         if (br->slot != -1 && cm_GetSlotState(br->slot) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, br->place);
+        b = gm_BuildQuery(1, 1, br->place);
         w = (HEWATCH *)he_FindEvent(1, 1, br->watch);
         if (b == 0 || w == 0 || w->attackId != e->id || br->slot == -1) {
             e->stage = -1;
@@ -14034,7 +14034,7 @@ void he_AllocTheft(AIJOB *e)
 
     e->end = ai_Time;
     gm_AddTime(&e->end, util_Random(3) + 4, 0, 0);
-    b = (AIBLD *)gm_BuildQuery(1, 1, t->bld);
+    b = gm_BuildQuery(1, 1, t->bld);
     if (b == 0) {
         he_FreeEvent((int *)e);
         return;
@@ -14086,7 +14086,7 @@ void he_RunTheft(AIJOB *e)
     switch (e->stage) {
     case 0:
         if (t->rounds >= 2) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, t->bld);
+            b = gm_BuildQuery(1, 1, t->bld);
             if (b == 0) {
                 he_FreeEvent((int *)e);
                 return;
@@ -14123,7 +14123,7 @@ void he_RunTheft(AIJOB *e)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, t->bld);
+        b = gm_BuildQuery(1, 1, t->bld);
         if (b == 0) {
             he_FreeEvent((int *)e);
             return;
@@ -14146,7 +14146,7 @@ void he_AllocRepair(AIJOB *e)
     AICHAR *c;
     float f;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, r->bld);
+    b = gm_BuildQuery(1, 1, r->bld);
     if (b == 0) {
         he_FreeEvent((int *)e);
         return;
@@ -14187,7 +14187,7 @@ void he_RunRepair(AIJOB *e)
 
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, r->bld);
+        b = gm_BuildQuery(1, 1, r->bld);
         if (b == 0)
             break;
         n = (int)(gm_MinutesBetween(&e->clock60, &ai_Time) * 0.1 + 0.5);
@@ -14210,7 +14210,7 @@ void he_RunRepair(AIJOB *e)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, r->bld);
+        b = gm_BuildQuery(1, 1, r->bld);
         if (b != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 4);
         break;
@@ -14232,7 +14232,7 @@ void he_AllocUpgrade(AIJOB *e)
 
     e->end = ai_Time;
     e->start = ai_Time;
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    b = gm_BuildQuery(1, 1, e->bldId);
     if (b == 0) {
         he_FreeEvent((int *)e);
         return;
@@ -14269,7 +14269,7 @@ void he_RunUpgrade(AIJOB *e)
     news = 0x5f6;
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
             m = (AICHAR *)gm_FindCharacterByMaster(b);
             if (m != 0 && (m->flags1b4 & 1) != 0)
@@ -14294,7 +14294,7 @@ void he_RunUpgrade(AIJOB *e)
         return;
     case -2:
     case -1:
-        at = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        at = gm_BuildQuery(1, 1, e->bldId);
         if (at != 0)
             cm_SendSetField(at->id, 0x5a, 2, 0, 0x40);
         he_FreeEvent((int *)e);
@@ -14316,7 +14316,7 @@ void he_AllocEvent1f(int ev)
         gm_AddTime(&e->end, 0, 0, 1);
     else
         gm_AddTime(&e->end, 5, 0, 0);
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    b = gm_BuildQuery(1, 1, e->bldId);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -14347,7 +14347,7 @@ void he_RunEvent1f(int ev)
     news = 0x606;
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
             cm_SendExSellObject(b->id, -1, g->good, 1, ai_OwnPlayer, 0);
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x80);
@@ -14355,7 +14355,7 @@ void he_RunEvent1f(int ev)
         e->stage++;
         return;
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
             o = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, g->good);
             if (o != 0) {
@@ -14381,7 +14381,7 @@ void he_RunEvent1f(int ev)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x80);
         he_FreeEvent((int *)ev);
@@ -14396,7 +14396,7 @@ void he_AllocDemolish(int ev)
     AIJOB *e = (AIJOB *)ev;
     AIBLD *b;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    b = gm_BuildQuery(1, 1, e->bldId);
     if (b != 0)
         cm_SendSetField(b->id, 0x5a, 2, 0x400, 0);
     e->end = ai_Time;
@@ -14418,7 +14418,7 @@ void he_RunDemolish(int ev)
 
     switch (e->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b == 0)
             return;
         for (i = 0; i < 768; i++) {
@@ -14439,7 +14439,7 @@ void he_RunDemolish(int ev)
         e->stage++;
         return;
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0 && ai_BTypes[b->type].kind != 0xf) {
             for (i = 0; i < 768; i++) {
                 c = &ai_Chars[i];
@@ -14468,7 +14468,7 @@ void he_AllocBuyBuilding(int ev)
     AIJOB *e = (AIJOB *)ev;
     AIBLD *b;
 
-    b = (AIBLD *)gm_FindBuildingById(e->bldId);
+    b = gm_FindBuildingById(e->bldId);
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, util_Random(10) + 10, 0);
     cm_SendSetField(b->id, 0x5a, 2, 0x200, 0);
@@ -14499,7 +14499,7 @@ void he_RunBuyBuilding(int ev)
     switch (e->stage) {
     case 0:
         buyer = (AICHAR *)gm_FindChar(p->buyer);
-        b = (AIBLD *)gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(e->bldId);
         if (buyer == 0 || b == 0) {
             he_FreeEvent((int *)ev);
             return;
@@ -14515,7 +14515,7 @@ void he_RunBuyBuilding(int ev)
             return;
         factor = 15.0f;
         buyer = (AICHAR *)gm_FindChar(p->buyer);
-        b = (AIBLD *)gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(e->bldId);
         bt = &ai_BTypes[b->type];
         value = gm_EquipmentValue((unsigned char *)b, b->level);
         if (bt->kind == 2) {
@@ -14564,7 +14564,7 @@ void he_RunBuyBuilding(int ev)
         if (d2_ClickedForm != e->slot->win || d2_ClickedId == -1)
             return;
         buyer = (AICHAR *)gm_FindChar(p->buyer);
-        b = (AIBLD *)gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(e->bldId);
         if (d2_ClickedId == 0) {
             txt_Format(text, 0x17e9, b->owner, b);
             he_MessageBoxQuickjump(buyer->netId, -1, text, 0, 0x5ec, b->id, -1, 0, 0);
@@ -14589,7 +14589,7 @@ void he_RunBuyBuilding(int ev)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(e->bldId);
         if (b != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x200);
         he_ReleaseSlot(ev);
@@ -14620,7 +14620,7 @@ void he_AllocKredit(int ev)
     l->due.min = 0;
     l->due.sec = 0;
     l->daysLeft = l->days;
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    b = gm_BuildQuery(1, 1, e->bldId);
     if (b == 0 || (e->opts & 2) == 0)
         return;
     owner = &ai_Chars[b->owner];
@@ -14663,7 +14663,7 @@ void he_RunKredit(int ev)
     switch (e->stage) {
     case 0:
         if (e->opts & 2) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+            b = gm_BuildQuery(1, 1, e->bldId);
             if (b != 0) {
                 partner = (AICHAR *)gm_FindChar(l->partner);
                 owner = &ai_Chars[b->owner];
@@ -14694,7 +14694,7 @@ void he_RunKredit(int ev)
         }
         if (--l->daysLeft >= 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b == 0)
             break;
         owner = &ai_Chars[b->owner];
@@ -14719,7 +14719,7 @@ void he_RunKredit(int ev)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
             partner = (AICHAR *)gm_FindChar(l->partner);
             owner = &ai_Chars[b->owner];
@@ -14998,7 +14998,7 @@ void he_AllocEvent27(int ev)
     AIJOB *e = (AIJOB *)ev;
     AIBLD *b;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+    b = gm_BuildQuery(1, 1, e->bldId);
     if (b != 0) {
         gm_BuildingSkill(b, 0x10, 1);
         e->end = ai_Time;
@@ -15026,7 +15026,7 @@ void he_RunEvent27(int ev)
         he_FreeEvent((int *)ev);
         break;
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
+        b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
             txt_Format(text, 0x190b, ai_PlayerSlots[p->player].name, p->amount);
             he_ShowNews(ai_CharInts[e->chr][0], -1, text, 0, 0x5ff, (char *)0);
@@ -15052,7 +15052,7 @@ void he_AllocHarvest(int ev)
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 0, 1);
     e->stage = 0;
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->harvestBld);
+    b = gm_BuildQuery(1, 1, e->harvestBld);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -15106,7 +15106,7 @@ void he_RunHarvest(int ev)
     char path[0x80];
     char name[0x80];
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, e->harvestBld);
+    b = gm_BuildQuery(1, 1, e->harvestBld);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -15316,7 +15316,7 @@ void he_RunPromotion(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    if (c->model != 0 && (b = (AIBLD *)gm_FindBuildingById(e->from)) != 0 && c->model->bldId != b->id)
+    if (c->model != 0 && (b = gm_FindBuildingById(e->from)) != 0 && c->model->bldId != b->id)
         return;
     switch (e->stage) {
     case 0:
@@ -15540,7 +15540,7 @@ void he_RunEvent38(int ev)
         he_FreeEvent((int *)ev);
         break;
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, e->from);
+        b = gm_BuildQuery(1, 1, e->from);
         if (b == 0) {
             he_FreeEvent((int *)ev);
             return;
@@ -15843,7 +15843,7 @@ void he_RunRoutine(AIJOB *ev)
                 && he_FigureContact(c, &bld, &contact) != 0 && bld != c->model->bldId) {
                 if (gm_IsHomeType(c->bld) == 0 && c->bld->object != 0) {
                     if (ai_Chars[c->bld->owner].kind != 6 && ai_Chars[c->bld->owner].kind != 7 && ch_Count(0, 0) < 0x20) {
-                        b = (AIBLD *)gm_FindBuildingById(c->model->bldId);
+                        b = gm_FindBuildingById(c->model->bldId);
                         dist = 0.0f;
                         if (b != 0 && b->object != 0) {
                             d3_PointToWorld((D3OBJECT *)c->bld->object, &((D3OBJECT *)c->bld->object)->pos, (D3VECTOR *)&from);
@@ -15897,9 +15897,9 @@ void he_RunRoutine(AIJOB *ev)
             he_FreeEvent((int *)ev);
             return;
         }
-        b = (AIBLD *)gm_BuildQuery(1, 5, 0x16);
+        b = gm_BuildQuery(1, 5, 0x16);
         n = 0;
-        for (; b != 0; b = (AIBLD *)gm_BuildNext()) {
+        for (; b != 0; b = gm_BuildNext()) {
             if (n >= 0x20)
                 break;
             if (b->owner != 0xffff && b->object != 0)
@@ -16306,7 +16306,7 @@ void he_AllocEvent3c(AIJOB *ev)
         if (e != x && (e->guild == x->guild || e->chr == x->chr))
             break;
     }
-    b = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+    b = gm_BuildQuery(1, 1, x->guild);
     if (e != 0 || (b != 0 && b->hostage != -1))
         ev->stage = -1;
     c = (AICHAR *)gm_FindChar(x->chr);
@@ -16344,7 +16344,7 @@ void he_RunKidnap(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -16366,7 +16366,7 @@ void he_RunKidnap(AIJOB *ev)
         ev->stage = 1;
         return;
     case 1:
-        b = (AIBLD *)gm_FindBuildingById(x->target);
+        b = gm_FindBuildingById(x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -16388,7 +16388,7 @@ void he_RunKidnap(AIJOB *ev)
     case 2:
         victim = (AICHAR *)gm_FindChar(x->chr);
         master = (AICHAR *)gm_FindChar(ai_CharInts[ev->chr][0]);
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+        b = gm_BuildQuery(1, 1, x->guild);
         if (b == 0 || victim == 0 || master == 0 || victim->heldRounds != 0)
             cancel = 1;     /* no guild, victim or master, or a held victim */
         else
@@ -16487,7 +16487,7 @@ void he_RunKidnap(AIJOB *ev)
         return;
     case -2:
     case -1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b != 0)
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)b);
         for (k = 0; k < 8; k++) {
@@ -16545,7 +16545,7 @@ void he_RunRansom(AIJOB *ev)
     switch (ev->stage) {
     case 0:
         victim = (AICHAR *)gm_FindChar(x->victim);
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+        b = gm_BuildQuery(1, 1, x->guild);
         if (b == 0 || victim == 0) {
             ev->stage = -1;
             return;
@@ -16675,7 +16675,7 @@ void he_RunRansomDemand(AIJOB *ev)
             int none, bld, obj;
 
             none = -1;
-            b = (AIBLD *)gm_BuildQuery(1, 1, ev->from);
+            b = gm_BuildQuery(1, 1, ev->from);
             txt_Format(text, 0x19d4, victim->id, x->ransom, victim->id);
             he_ShowNews(master->netId, master->netId, text, 0, 0x5fa, 0);
             if (b != 0) {
@@ -16698,7 +16698,7 @@ void he_RunRansomDemand(AIJOB *ev)
             }
             ev->stage = 3;
         } else if (d2_ClickedId == 1) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, ev->from);
+            b = gm_BuildQuery(1, 1, ev->from);
             if (b == 0) {
                 he_FreeEvent((int *)ev);
                 return;
@@ -16713,7 +16713,7 @@ void he_RunRansomDemand(AIJOB *ev)
             int none, bld, obj;
 
             none = -1;
-            b = (AIBLD *)gm_BuildQuery(1, 1, ev->from);
+            b = gm_BuildQuery(1, 1, ev->from);
             if (b == 0) {
                 he_FreeEvent((int *)ev);
                 return;
@@ -16817,7 +16817,7 @@ void he_RunBurglary(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -16834,7 +16834,7 @@ void he_RunBurglary(AIJOB *ev)
         ev->stage = 1;
         return;
     case 1:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -16852,7 +16852,7 @@ void he_RunBurglary(AIJOB *ev)
         ev->stage = 2;
         return;
     case 2:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b != 0) {
             HEDETECT d;
 
@@ -16878,7 +16878,7 @@ void he_RunBurglary(AIJOB *ev)
     case 3:
         if (x->slot != -1 && cm_GetSlotState(x->slot) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         w = (HEWATCH *)he_FindEvent(1, 1, x->watch);
         if (b == 0 || w == 0 || w->attackId != ev->id || x->slot == -1) {
             ev->stage = -1;
@@ -16898,11 +16898,11 @@ void he_RunBurglary(AIJOB *ev)
         else if (w->attackId == ev->id)
             gm_AddTime(&ev->end, 0, 6, 0);
         else {
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             if (b != 0) {
                 int reward;
 
-                g = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+                g = gm_BuildQuery(1, 1, x->guild);
                 if (g != 0)
                     master = (AICHAR *)gm_FindChar(ai_CharInts[g->owner][0]);
                 guard = &ai_Chars[((AIJOB *)w)->chr];
@@ -16914,7 +16914,7 @@ void he_RunBurglary(AIJOB *ev)
                     he_ShowNews(guard->netId, guard->netId, text, 1, 0x5f0, "_NACHRICHTEN_HS_77");
                     cm_SendMoveGoodsUnchecked(guard->netId, master->netId, ai_OwnPlayer, reward);
                 }
-                gb = (AIBLD *)gm_BuildQuery(1, 1, x->guardBld);
+                gb = gm_BuildQuery(1, 1, x->guardBld);
                 if (gb != 0) {
                     cm_BeginFieldBlock((char *)gb, gb->id);
                     cm_AddFieldValues(4, 1, 0x65, &reward);  /* 0x65: AIBLD.earnings */
@@ -16925,7 +16925,7 @@ void he_RunBurglary(AIJOB *ev)
                 if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0)
                     gm_AddHealth(c->id, -100 - util_Random(100));
             }
-            g = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+            g = gm_BuildQuery(1, 1, x->guild);
             if (g != 0) {
                 room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
                 for (k = 0; k < 8; k++) {
@@ -16939,8 +16939,8 @@ void he_RunBurglary(AIJOB *ev)
         }
         return;
     case 5:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+        b = gm_BuildQuery(1, 1, x->target);
+        g = gm_BuildQuery(1, 1, x->guild);
         if (g != 0)
             master = (AICHAR *)gm_FindChar(ai_CharInts[g->owner][0]);
         if (b == 0 || master == 0) {
@@ -16991,7 +16991,7 @@ void he_RunBurglary(AIJOB *ev)
 
             loot[0] = ch_EmptyName[0];
             memset(loot + 1, 0, sizeof(loot) - 1);
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
             gm_BuildingValues(b, vals);
             money = vals[0];
@@ -17037,7 +17037,7 @@ void he_RunBurglary(AIJOB *ev)
                 he_MessageBoxQuickjump(owner->netId, owner->netId, text, 0, 0x5f0, b->id, -1, 0, "_NACHRICHTEN_HS_27");
             }
         } else {
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             if (b != 0) {
                 if (master->kind == 6 || master->kind == 7) {
                     txt_Format(text, 0x19e7, owner->id, b, 0x19c1);
@@ -17049,13 +17049,13 @@ void he_RunBurglary(AIJOB *ev)
                 }
             }
         }
-        if (report != 0 && (gb = (AIBLD *)gm_BuildQuery(1, 1, x->guild)) != 0)
+        if (report != 0 && (gb = gm_BuildQuery(1, 1, x->guild)) != 0)
             cm_SendMoveObject(gb->id, -1, report->objId);
         he_FreeEvent((int *)ev);
         return;
     case -2:
     case -1:
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->guild);
+        g = gm_BuildQuery(1, 1, x->guild);
         if (g != 0)
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
         for (k = 0; k < 8; k++) {
@@ -17133,7 +17133,7 @@ void he_RunBuildingSpying(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -17152,7 +17152,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         return;
     case 1:
         all = 1;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -17176,7 +17176,7 @@ void he_RunBuildingSpying(AIJOB *ev)
                 break;
             sum /= n;
             mean = 1.0 > sum ? 1.0 : sum;
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             if (b == 0) {
                 ev->stage = -1;
                 return;
@@ -17193,7 +17193,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         gm_AddTime(&ev->end, 0, 5, 0);
         return;
     case 2:
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->home);
+        g = gm_BuildQuery(1, 1, x->home);
         if (g == 0) {
             ev->stage = -1;
             return;
@@ -17219,7 +17219,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         }
         sum /= n;
         sum = (int)(42.0f > sum ? 42.0f : sum);
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -17262,7 +17262,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         return;
     case -2:
     case -1:
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->home);
+        g = gm_BuildQuery(1, 1, x->home);
         if (g != 0)
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
         for (k = 0; k < 8; k++) {
@@ -17433,7 +17433,7 @@ void he_RunAmbush(AIJOB *ev)
             if (n != 0 && cm_FindPartyOfKind(3, -1) == 0 && util_Random(100) > chance) {
                 G28REC party;
 
-                b = (AIBLD *)gm_BuildQuery(1, 1, ev->from);
+                b = gm_BuildQuery(1, 1, ev->from);
                 if (b == 0)
                     break;
                 memset(&party, 0, sizeof(party));
@@ -17507,7 +17507,7 @@ void he_RunAmbush(AIJOB *ev)
     case -2:
     case -1:
         if (ev->opts & 2) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, ev->from);
+            b = gm_BuildQuery(1, 1, ev->from);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
                     if (b != 0)
@@ -17554,8 +17554,8 @@ void he_RunAttack(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, ev->raidTarget);
-        home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
+        b = gm_BuildQuery(1, 1, ev->raidTarget);
+        home = gm_BuildQuery(1, 1, ev->raidStart);
         if (b == 0 || home == 0)
             break;
         for (i = 0; i < 8; i++) {
@@ -17583,7 +17583,7 @@ void he_RunAttack(AIJOB *ev)
         ev->stage = 2;
         return;
     case 2:
-        b = (AIBLD *)gm_BuildQuery(1, 1, ev->raidTarget);
+        b = gm_BuildQuery(1, 1, ev->raidTarget);
         if (b == 0) {
             ev->stage = -1;
             return;
@@ -17591,7 +17591,7 @@ void he_RunAttack(AIJOB *ev)
         owner = &ai_Chars[b->owner];
         me = &ai_Chars[ev->chr];
         defence = (float)(gm_BuildingSkill(b, 5, 1) * 0.01 + 1.0);
-        home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
+        home = gm_BuildQuery(1, 1, ev->raidStart);
         o = (AIOBJ *)gm_Query((void *)home->objList, 1, 0, 0xca);
         for (; o != 0; o = (AIOBJ *)gm_QueryNext())
             if (o->reportBld == b->id)
@@ -17623,7 +17623,7 @@ void he_RunAttack(AIJOB *ev)
             }
             for (i = 0; i < 3; i++)
                 party.raid.raid100[i] = -1;
-            home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
+            home = gm_BuildQuery(1, 1, ev->raidStart);
             party.raid.raidHome = home->id;
             k = 0;
             for (i = 0; i < 8 && k < 6; i++) {
@@ -17640,8 +17640,8 @@ void he_RunAttack(AIJOB *ev)
                 gm_AddTime(&ev->end, 0, 0, 1);
                 ev->stage = 3;
             } else {
-                home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
-                b = (AIBLD *)gm_BuildQuery(1, 1, ev->raidTarget);
+                home = gm_BuildQuery(1, 1, ev->raidStart);
+                b = gm_BuildQuery(1, 1, ev->raidTarget);
                 loot = cm_LootStock(b, home, &ai_Chars[ev->chr], &ai_Chars[b->owner]);
                 if (home != 0)
                     home->roundSums[0] += loot;
@@ -17653,12 +17653,12 @@ void he_RunAttack(AIJOB *ev)
                 gm_AddTime(&ev->end, 0, 0, 1);
                 ev->stage = 5;
             }
-            if (o != 0 && (home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart)) != 0)
+            if (o != 0 && (home = gm_BuildQuery(1, 1, ev->raidStart)) != 0)
                 cm_SendMoveObject(home->id, -1, o->objId);
             return;
         }
-        home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
-        b = (AIBLD *)gm_BuildQuery(1, 1, ev->raidTarget);
+        home = gm_BuildQuery(1, 1, ev->raidStart);
+        b = gm_BuildQuery(1, 1, ev->raidTarget);
         role = cm_FightRole(home) + 0x1125;
         txt_Format(text, 0x114b, role, b->owner, b, role);
         he_MessageBoxQuickjump(ai_CharInts[ev->chr][0], -1, text, 0, 0x5f0, b->id, -1, 0, (char *)0);
@@ -17689,7 +17689,7 @@ void he_RunAttack(AIJOB *ev)
     case 5:
     case -2:
     case -1:
-        home = (AIBLD *)gm_BuildQuery(1, 1, ev->raidStart);
+        home = gm_BuildQuery(1, 1, ev->raidStart);
         if (home != 0)
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)home);
         for (i = 0; i < 8; i++) {
@@ -17733,7 +17733,7 @@ void he_AllocFire(AIJOB *ev)
     unsigned short n = 0, k = 1;
     int i;
 
-    for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         t = &ai_BTypes[b->type];
         if (gm_IsHomeType((unsigned char *)b) == 0 && gm_IsType10((unsigned char *)b) == 0 && b->object != 0
             && t->kind != 3)
@@ -17745,7 +17745,7 @@ void he_AllocFire(AIJOB *ev)
         c = list[util_Random(n)];
         x->blds[0] = c->id;
     } else {
-        c = (AIBLD *)gm_BuildQuery(1, 1, x->blds[0]);
+        c = gm_BuildQuery(1, 1, x->blds[0]);
     }
     for (i = 0; i < n && k < 0x10; i++) {
         b = list[i];
@@ -17804,10 +17804,10 @@ void he_RunFire(AIJOB *ev)
         ev->stage++;
         return;
     case 1:
-        c = (AIBLD *)gm_BuildQuery(1, 1, x->center);
+        c = gm_BuildQuery(1, 1, x->center);
         for (k = 0; k < 16; k++) {
             if (c != 0 && x->blds[k] != -1 && x->blds[k] != c->id
-                && (b = (AIBLD *)gm_BuildQuery(1, 1, x->blds[k])) != 0) {
+                && (b = gm_BuildQuery(1, 1, x->blds[k])) != 0) {
                 d3_PointToWorld((D3OBJECT *)c->object, &((D3OBJECT *)c->object)->pos, (D3VECTOR *)&p1);
                 d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&p2);
                 dx = p1.x - p2.x;
@@ -17829,7 +17829,7 @@ void he_RunFire(AIJOB *ev)
         return;
     case 2:
         if (x->center != -1) {
-            c = (AIBLD *)gm_BuildQuery(1, 1, x->center);
+            c = gm_BuildQuery(1, 1, x->center);
             for (k = 0; c != 0 && k < 16; k++) {
                 AIMSG m;
 
@@ -17887,7 +17887,7 @@ void he_AllocBurn(AIJOB *ev)
     ev->end = ai_Time;
     ev->clock60 = ai_Time;
     x->state = 0;
-    b = (AIBLD *)gm_BuildQuery(1, 1, x->bld);
+    b = gm_BuildQuery(1, 1, x->bld);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -17941,7 +17941,7 @@ void he_RunBurn(AIJOB *ev)
     }
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->bld);
+        b = gm_BuildQuery(1, 1, x->bld);
         if (b != 0 && (b->flags5a & 1) != 0) {
             ev->stage = -1;
             return;
@@ -18028,7 +18028,7 @@ void he_RunBurn(AIJOB *ev)
     case 1:
         if ((ev->opts & 2) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->bld);
+        b = gm_BuildQuery(1, 1, x->bld);
         if (x->duration > 0 && b != 0) {
             D3VECTOR4 p;
 
@@ -18064,7 +18064,7 @@ void he_RunBurn(AIJOB *ev)
             for (k = 0; k < 16; k++) {
                 if (x->helpers[k] != -1) {
                     if (b == 0) {
-                        b = (AIBLD *)gm_BuildQuery(1, 1, x->bld);
+                        b = gm_BuildQuery(1, 1, x->bld);
                         n = (AIBLD *)gm_NearestBuilding((unsigned char *)b, 3);
                     }
                     c = (AICHAR *)gm_FindChar(x->helpers[k]);
@@ -18088,7 +18088,7 @@ void he_RunBurn(AIJOB *ev)
     case -1: {
         char name[0x100];
 
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->bld);
+        b = gm_BuildQuery(1, 1, x->bld);
         if ((ev->opts & 2) != 0 && b != 0) {
             for (k = 0; k < 16; k++) {
                 if (x->helpers[k] != -1) {
@@ -18121,7 +18121,7 @@ void he_AllocStorm(AIJOB *ev)
 
     n = 0;
     k = 1;
-    for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         if (gm_IsHomeType((unsigned char *)b) == 0 && gm_IsType10((unsigned char *)b) == 0 && b->object != 0)
             list[n++ & 0xffff] = b;
     }
@@ -18131,7 +18131,7 @@ void he_AllocStorm(AIJOB *ev)
         c = list[util_Random(n)];
         ev->stormBlds[0] = c->id;
     } else {
-        c = (AIBLD *)gm_BuildQuery(1, 1, ev->stormBlds[0]);
+        c = gm_BuildQuery(1, 1, ev->stormBlds[0]);
     }
     for (i = 0; i < (n & 0xffff) && k < 0x10; i++) {
         b = list[i];
@@ -18168,7 +18168,7 @@ void he_RunStormEvent(int ev)
 
         if ((e->opts & 2) != 0 && e->stormDue != 0) {
             for (n = 0; n < 0x10; n++) {
-                if (e->stormBlds[n] != -1 && (b = (AIBLD *)gm_BuildQuery(1, 1, e->stormBlds[n])) != 0) {
+                if (e->stormBlds[n] != -1 && (b = gm_BuildQuery(1, 1, e->stormBlds[n])) != 0) {
                     dmg = util_Random(5) + 5;
                     gm_ChangeBuildingState((unsigned char *)b, -dmg);
                 }
@@ -18207,7 +18207,7 @@ void he_AllocHealing(AIJOB *ev)
 
     f = 0;
     c = (AICHAR *)gm_FindChar(x->charId);
-    b = gm_FindBuildingById(ev->from);
+    b = (int)gm_FindBuildingById(ev->from);
     if (x->room != -1)
         f = gm_FindObjectInst(x->room);
     sv_MoveToGroup(b, f, c->id, ev);
@@ -18259,7 +18259,7 @@ void he_RunHealing(AIJOB *ev)
         return;
     case 1:
         c = (AICHAR *)gm_FindChar(x->charId);
-        b = (AIBLD *)gm_FindBuildingById(ev->from);
+        b = gm_FindBuildingById(ev->from);
         if (c != 0 && b != 0) {
             sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
             txt_Format(text, 0x1a18, b, c->id);
@@ -18290,7 +18290,7 @@ void he_AllocNewWorker(AIJOB *ev)
     int i, title;
     int job = 0;
 
-    b = (AIBLD *)gm_FindBuildingById(w->bld);
+    b = gm_FindBuildingById(w->bld);
     if (b == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -18329,7 +18329,7 @@ void he_RunNewWorker(AIJOB *ev)
         if (cm_GetSlotState(w->slot) == 0)
             return;
         r = (AICHAR *)cm_GetSlotValue(w->slot);
-        o = (AIBLD *)gm_FindBuildingById(w->bld);
+        o = gm_FindBuildingById(w->bld);
         if (r != 0 && o != 0) {
             if (o->masterId != 0xffff)
                 cm_SendOwnership(o->id, ai_Chars[o->masterId].netId, r->netId);
@@ -18777,7 +18777,7 @@ void he_RunRobbery(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b == 0)
             break;
         for (k = 0; k < 8; k++) {
@@ -18793,7 +18793,7 @@ void he_RunRobbery(AIJOB *ev)
         return;
     case 1:
         id = x->target;
-        b = (AIBLD *)gm_BuildQuery(1, 1, id);
+        b = gm_BuildQuery(1, 1, id);
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0 && c->model != 0
                 && sv_IsAtDoor(c, b) == 0) {
@@ -18807,7 +18807,7 @@ void he_RunRobbery(AIJOB *ev)
         ev->stage = 2;
         return;
     case 2:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b != 0) {
             HEDETECT d;
 
@@ -18841,7 +18841,7 @@ void he_RunRobbery(AIJOB *ev)
     case 3:
         if (x->slot != -1 && cm_GetSlotState(x->slot) == 0)
             return;
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         w = (HEWATCH *)he_FindEvent(1, 1, x->watch);
         if (b == 0 || w == 0 || w->attackId != ev->id || x->slot == -1) {
             ev->stage = -1;
@@ -18864,7 +18864,7 @@ void he_RunRobbery(AIJOB *ev)
             gm_AddTime(&ev->end, 0, 6, 0);
             return;
         }
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         if (b != 0) {
             int reward;
 
@@ -18878,7 +18878,7 @@ void he_RunRobbery(AIJOB *ev)
                 he_ShowNews(guard->netId, guard->netId, text, 1, 0x5f0, "_NACHRICHTEN_HS_77");
                 cm_SendMoveGoodsUnchecked(guard->netId, master->netId, ai_OwnPlayer, reward);
             }
-            gb = (AIBLD *)gm_BuildQuery(1, 1, x->guardBld);
+            gb = gm_BuildQuery(1, 1, x->guardBld);
             if (gb != 0) {
                 cm_BeginFieldBlock((char *)gb, gb->id);
                 cm_AddFieldValues(4, 1, 0x65, &reward);  /* 0x65: AIBLD.earnings */
@@ -18889,7 +18889,7 @@ void he_RunRobbery(AIJOB *ev)
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0)
                 gm_AddHealth(c->id, -100 - util_Random(100));
         }
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->home);
+        g = gm_BuildQuery(1, 1, x->home);
         if (g == 0)
             break;
         room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
@@ -18901,14 +18901,14 @@ void he_RunRobbery(AIJOB *ev)
         }
         break;
     case 5:
-        b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+        b = gm_BuildQuery(1, 1, x->target);
         master = (AICHAR *)gm_FindChar(ai_CharInts[ev->chr][0]);
         if (b == 0 || master == 0) {
             ev->stage = -2;
             return;
         }
         owner = &ai_Chars[b->owner];
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->home);
+        g = gm_BuildQuery(1, 1, x->home);
         if (g != 0) {
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
             store = (AIOBJ *)gm_Query((void *)g->objList, 2, 6, 0, 0x116);
@@ -18933,7 +18933,7 @@ void he_RunRobbery(AIJOB *ev)
 
             loot[0] = ch_EmptyName[0];
             memset(loot + 1, 0, sizeof(loot) - 1);
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             stall = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
             gm_BuildingValues(b, vals);
             money = (int)(vals[0] * 0.35);
@@ -18974,7 +18974,7 @@ void he_RunRobbery(AIJOB *ev)
                 he_MessageBoxQuickjump(owner->netId, owner->netId, text, 0, 0x5f0, b->id, -1, 0, ch_EmptyName);
             }
         } else {
-            b = (AIBLD *)gm_BuildQuery(1, 1, x->target);
+            b = gm_BuildQuery(1, 1, x->target);
             if (b == 0)
                 break;
             if (master->kind == 6 || master->kind == 7) {
@@ -18989,7 +18989,7 @@ void he_RunRobbery(AIJOB *ev)
         break;
     case -2:
     case -1:
-        g = (AIBLD *)gm_BuildQuery(1, 1, x->home);
+        g = gm_BuildQuery(1, 1, x->home);
         if (g != 0)
             room = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)g);
         for (k = 0; k < 8; k++) {
@@ -19245,7 +19245,7 @@ void he_RunTutorialBuildingTour(AIJOB *ev)
             ev->stage++;
             return;
         }
-        for (b = (AIBLD *)gm_BuildQuery(1, 4, ev->chr); b != 0 && n < 0x40; b = (AIBLD *)gm_BuildNext())
+        for (b = gm_BuildQuery(1, 4, ev->chr); b != 0 && n < 0x40; b = gm_BuildNext())
             list[n++] = b;
         list[n++] = ai_MarketBuilding;
         if (n != 0) {
@@ -19339,7 +19339,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
         return;
     }
     p = rt_PointAt(c->route, c->routeIdx);
-    if (p == 0 || (at = (AIBLD *)gm_FindBuildingById(p->buildingId)) == 0)
+    if (p == 0 || (at = gm_FindBuildingById(p->buildingId)) == 0)
         return;
     if (c->routeIdx == 0) {
         waits[0] = 12;
@@ -19398,7 +19398,7 @@ void he_RunPatrolEvent(int ev)
     if (st >= 0) {
         if (st != 0)
             return;
-        he_PatrolBuilding = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+        he_PatrolBuilding = gm_BuildQuery(1, 0, 0x44);
         for (g = (AIOBJ *)gm_Query(0, 2, 7, 4, 0x1d); g != 0; g = (AIOBJ *)gm_QueryNext()) {
             if (g->route != 0 && (g->flags20 & 1) == 0 && (g->flags13 & 0x20) == 0 && g->patrolOn != 0)
                 he_PatrolStep(e, g);

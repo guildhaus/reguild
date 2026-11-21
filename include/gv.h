@@ -322,7 +322,7 @@ typedef struct ORDEVENT {
 extern volatile unsigned long d3_Time;  /* 0x6333cc, milliseconds (tb.c) */
 extern int d3_CurrentScene;                /* 0x633444 */
 
-unsigned char * gm_BuildQuery(int n, ...);                     /* 0x501190 */
+struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
 int gm_MinutesBetween();                     /* 0x4fe280 */
 struct D3PARTSYS *d3t_CreateExplosion(void *parent, struct D3VECTOR *pos, int count, float radius, float height, float z, float size, unsigned int duration); /* 0x416040, d3_tools.c */
@@ -654,7 +654,7 @@ char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, floa
 void ord_ResetStatistics(void);               /* 0x4f82a0 */
 int ord_GetGridCell(char *p, int *x, int *y);  /* 0x4f8300, the grid cell (x, y) of the position p */
 
-unsigned char * gm_BuildNext(void);                     /* 0x501030 */
+struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, fills *bld with the object of the id (ai.h's prototype) */
 int gm_EquipmentValue(unsigned char *b, int level);                     /* 0x509b10 */
 void ord_CountGridObjects(void);               /* 0x4f8360 */

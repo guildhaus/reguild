@@ -1831,7 +1831,7 @@ void amt_ElectDeputies(void)
     j = 0;
     n = 0;
     total = 0;
-    it = gm_BuildQuery(1, 5, 4);
+    it = (char *)gm_BuildQuery(1, 5, 4);
     while (it != 0 && n < 16) {
         id = ((AMTBLDVIEW *)it)->owner;
         if (id != 0xffff && id != ai_PlayerChar->id && (((AMTBLDVIEW *)it)->flags5a & 1) == 0) {
@@ -1849,9 +1849,9 @@ void amt_ElectDeputies(void)
                 }
             }
         }
-        it = gm_BuildNext();
+        it = (char *)gm_BuildNext();
     }
-    it = gm_BuildQuery(1, 5, 0x10);
+    it = (char *)gm_BuildQuery(1, 5, 0x10);
     while (it != 0 && n < 16) {
         id = ((AMTBLDVIEW *)it)->owner;
         if (id != 0xffff && id != ai_PlayerChar->id && (((AMTBLDVIEW *)it)->flags5a & 1) == 0) {
@@ -1869,7 +1869,7 @@ void amt_ElectDeputies(void)
                 }
             }
         }
-        it = gm_BuildNext();
+        it = (char *)gm_BuildNext();
     }
     if (total >= 3 && n != 0) {
         left = 2;
@@ -1963,7 +1963,7 @@ void amt_ElectKind22(void)
     j = 0;
     n = 0;
     total = 0;
-    it = gm_BuildQuery(1, 5, 7);
+    it = (char *)gm_BuildQuery(1, 5, 7);
     if (it == 0)
         return;
     do {
@@ -1985,7 +1985,7 @@ void amt_ElectKind22(void)
                 }
             }
         }
-        it = gm_BuildNext();
+        it = (char *)gm_BuildNext();
     } while (it != 0);
     if (total < 3)
         return;
@@ -2063,7 +2063,7 @@ void amt_CalcZuenfte(unsigned int kind)
     memset(cand, 0, sizeof(cand));
     n = 0;
     total = 0;
-    it = (AIBLD *)gm_BuildQuery(1, 5, k1);
+    it = gm_BuildQuery(1, 5, k1);
     if (it == 0)
         return;
     do {
@@ -2085,11 +2085,11 @@ void amt_CalcZuenfte(unsigned int kind)
                 }
             }
         }
-        it = (AIBLD *)gm_BuildNext();
+        it = gm_BuildNext();
     } while (it != 0);
     if (total < 3 || n == 0)
         return;
-    it = (AIBLD *)gm_BuildQuery(1, 5, k2);
+    it = gm_BuildQuery(1, 5, k2);
     if (it == 0) {
         D3VECTOR4 pos;
         D3VECTOR rot;

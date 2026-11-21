@@ -784,12 +784,12 @@ struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
-char *strstr(); unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void);
+char *strstr(); struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void);
 struct D3OBJECT;
 struct D3VECTOR;
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out); /* 0x458a20 (d3_pose.c) */
-unsigned char *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
-unsigned char *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
+struct AIBLD *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
+struct AIBLD *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
 #pragma pack(push, 1)
@@ -812,7 +812,7 @@ void d3_LocalToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR 
 void d3_DirToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);    /* 0x458810 (d3_pose.c) */
 float d3_VecAngle(struct D3VECTOR *a, struct D3VECTOR *b);      /* 0x4539f0 (d3_vec.c) */
 extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0, 0, 1) */
-unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
+struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
 char *strupr(char *); int sprintf(char *buf, const char *fmt, ...); char * vfs_GetPath();
 struct D3OBJECT * d3_LoadGroup(); void d3t_InflateObjectTree(D3OBJECT *obj); int d3t_DropObject();
 struct D3OBJECT;
@@ -929,8 +929,8 @@ typedef struct LCDUELBTN {              /* an action button of the dice game win
     int unused;                         /* 0x008, set to 0, never read */
     char text[0x100];                   /* 0x00c, its caption (0x1880 / 0x1881 with the raise amount, 0x1882) */
 } LCDUELBTN;
-int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); unsigned char * gm_BuildQuery(int n, ...);
-unsigned char * gm_BuildNext(void);
+int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); struct AIBLD *gm_BuildQuery(int n, ...);
+struct AIBLD *gm_BuildNext(void);
 int gv_EvidencePrice(); void cm_SendScriptMessage(void *p); void cm_SendProofExecuted(int a, int b);
 int d3t_PlaceAtObject(); void d2_SetBackgroundTexture(); 
 struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask); int gm_GetGoodsValue(); int gm_SumListAmounts(void *list, unsigned char p);
@@ -941,7 +941,7 @@ void ai_BardWindow(void); void ai_NoticeBoardWindow(void);
 void cm_BeginGroup(const char *s); void cm_SendScriptMessage(void *p); void cm_SendProofExecuted(int a, int b);
 int d3t_PlayAnim(); void d2_SetBackgroundTexture();
 char d3if_ShowTree(struct D3OBJECT *obj, char show); int ls_GetLanguage(); struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask);
-unsigned char * gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
+struct AIBLD *gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
 int ai_TransportWindow(); 
 typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCreditWindow): an offer and its object */
     ORDCREDIT offer;                /* 0x00, the bank's offer (gm_GetCreditOffers) */
@@ -1069,7 +1069,7 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
 char * he_NextEvent(void);
-unsigned char * gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
+struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
 int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
@@ -1338,7 +1338,7 @@ int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int fo
         rows[i].loan = loans[i];
         d2_Wins[rows[i].child].font = 0x56;
         d2_Wins[rows[i].child].ml = 0x10;
-        bank = gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
+        bank = (int)gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
         if (bank != 0)
             io_PrintText(0x1f41, bank, rows[i].loan->amount, rows[i].loan->interest, &rows[i].loan->due);
     }
@@ -1367,7 +1367,7 @@ int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls)
         memset(ctrls, -1, max * 4);
     }
     n = 0;
-    for (bld = (AIBLD *)gm_BuildQuery(1, 4, ch->id); bld != 0; bld = (AIBLD *)gm_BuildNext()) {
+    for (bld = gm_BuildQuery(1, 4, ch->id); bld != 0; bld = gm_BuildNext()) {
         if ((bld->flags5a & 1) == 0) {
             value = gm_EquipmentValue(bld, bld->level);
             y = n << 6;
@@ -7848,7 +7848,7 @@ int ai_ExpelWorkerWindow(AICHARREC *me, LCORDMSG *m)
         target = (AICHARREC *)gm_FindChar(m->target);
         if (target == 0)
             return 0x60;
-        bld = (AIBLD *)gm_BuildQuery(1, 1, m->target2);
+        bld = gm_BuildQuery(1, 1, m->target2);
         if (bld == 0)
             return 0x60;
         cm_SendMoneyDelta(me->netId, -5);
@@ -8584,7 +8584,7 @@ int ai_OpenTrial(AICHARREC *me, AICHARREC *target, int n, int byFaith)
     seated[1] = 0xffff;
     seated[2] = 0xffff;
     seated[3] = 0xffff;
-    for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext())
+    for (bld = (unsigned char *)gm_BuildQuery(1, 6); bld != 0; bld = (unsigned char *)gm_BuildNext())
         if (ai_BTypes[((AIBLD *)bld)->type].kind == 0xf)
             break;
     if (bld == 0)
@@ -9607,7 +9607,7 @@ int ai_UseGoodInfectOwner(AICHARREC *ch, G8USEVIEW *use)
             return 1;
         }
     } else {
-        bld = (AIBLD *)gm_BuildQuery(1, 1, use->target);
+        bld = gm_BuildQuery(1, 1, use->target);
         if (bld != 0 && bld->owner != 0) {
             AIMSG msg;
 
@@ -9709,7 +9709,7 @@ int ai_UseGoodSendHome(AICHARREC *ch, G8USEVIEW *use)
             goto done;
         }
     } else {
-        bld = (AIBLD *)gm_BuildQuery(1, 1, use->target);
+        bld = gm_BuildQuery(1, 1, use->target);
         if (bld == 0)
             goto done;
         {
@@ -9934,7 +9934,7 @@ int ai_UseGoodHalveWorkerValue(AICHARREC *ch, G8USEVIEW *use)
             goto done;
         ret = 1;
     } else {
-        bld = (AIBLD *)gm_BuildQuery(1, 1, use->target);
+        bld = gm_BuildQuery(1, 1, use->target);
         if (bld == 0)
             goto done;
         ret = 1;
@@ -11129,7 +11129,7 @@ int ai_UseGoodHeatBuilding(AICHARREC *ch, G8USEVIEW *use)
         cfg[0] = 0;
         bld = (AIBLD *)ai_MapPick(1, cfg, txt_Ptrs[0x9b], 0, 0);
     } else {
-        bld = (AIBLD *)gm_FindBuildingById(use->target);
+        bld = gm_FindBuildingById(use->target);
     }
     if (bld == 0)
         return 0;
@@ -11177,7 +11177,7 @@ int ai_UseGoodStaffBonus(AICHARREC *ch, G8USEVIEW *use)
         if (bld == 0)
             return 0;
     } else {
-        bld = (AIBLD *)gm_FindBuildingById(use->target);
+        bld = gm_FindBuildingById(use->target);
         if (bld == 0)
             return 0;
     }

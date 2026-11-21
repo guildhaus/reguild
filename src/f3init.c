@@ -3028,7 +3028,7 @@ void init_LoadTypeBScene(void)
 {
     AIBLD *b;
 
-    b = (AIBLD *)gm_BuildQuery(1, 5, 0xb);
+    b = gm_BuildQuery(1, 5, 0xb);
     if (b != 0)
         init_BuildingSceneUniverse(b);
 }

@@ -814,7 +814,7 @@ int ai_CondPlayerHoldsNoBuilding(AICHAR *c, G13TYPE *t)
 {
     AIBLD *b;
 
-    for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         if (b->owner != 0xffff && ai_Chars[b->owner].kind == 5)
             return 0;
     }
@@ -944,9 +944,9 @@ void ai_CharBuildingShare(AICHAR *c, int k, G13STAT *s)
 
     same = 0;
     if (k != 0)
-        b = (AIBLD *)gm_BuildQuery(1, 5, k);
+        b = gm_BuildQuery(1, 5, k);
     else
-        b = (AIBLD *)gm_BuildQuery(1, 6);
+        b = gm_BuildQuery(1, 6);
     n = 0;
     for (; b != 0; b = gm_BuildNext(), n++) {
         if (b->owner == c->id)
@@ -970,9 +970,9 @@ void ai_PlayerShare(int k, G13STAT *s)
 
     same = 0;
     if (k != 0)
-        b = (AIBLD *)gm_BuildQuery(1, 5, k);
+        b = gm_BuildQuery(1, 5, k);
     else
-        b = (AIBLD *)gm_BuildQuery(1, 6);
+        b = gm_BuildQuery(1, 6);
     n = 0;
     for (; b != 0; b = gm_BuildNext(), n++) {
         w = b->owner;

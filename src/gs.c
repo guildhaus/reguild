@@ -1377,7 +1377,7 @@ void gv_CheckRankUp(unsigned i)
     if (next > 10)
         next = 10;
     if (worth > gv_RankWorth[next] && rank == 1) {
-        bld = (AIBLD *)gm_BuildQuery(rank, 5, 0xf);
+        bld = gm_BuildQuery(rank, 5, 0xf);
         if (bld == 0)
             return;
         item = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 0, 0x110);

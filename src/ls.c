@@ -1840,7 +1840,7 @@ int ls_ReadSceneRecords(int f)
         if (ch == 0)
             continue;
         part = 0;
-        bld = (AIBLD *)gm_BuildQuery(1, 1, ch->group);
+        bld = gm_BuildQuery(1, 1, ch->group);
         if (bld != 0) {
             part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, ch->scriptGroup);
             if (part != 0 && part->id != 0xfd)
@@ -1967,7 +1967,7 @@ int ls_ReadSceneRecords(int f)
                 }
             }
             if (a->type == '3') {
-                bld = (AIBLD *)gm_BuildQuery(1, 1, a->args[1]);
+                bld = gm_BuildQuery(1, 1, a->args[1]);
                 if (bld != 0) {
                     part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, a->args[2]);
                     if (part != 0 && part->id != 0xfd)
@@ -2408,7 +2408,7 @@ int ls_FixupAfterLoad(void)
     ai_PlayerChar = (AICHAR *)gm_FindChar((int)ai_PlayerChar);
     if (ai_PlayerChar == 0)
         return 0;
-    ai_MarketBuilding = (AIBLD *)gm_BuildQuery(1, 5, 10);
+    ai_MarketBuilding = gm_BuildQuery(1, 5, 10);
     if (ls_Version >= 0x10017) {
         for (i = 0; i < 8; i++)
             ai_KindBChars[i] = (AICHAR *)gm_FindChar((int)ai_KindBChars[i]);

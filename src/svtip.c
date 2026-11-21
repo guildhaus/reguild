@@ -1216,7 +1216,7 @@ void ai_InitBookmarks(void)
     }
 }
 
-char * gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
+struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 
 /* 0x589450, drops the stale bookmarks (113 B): every set one (building not -1) whose building is gone
    (gm_FindBuildingById), whose object is set but gone (gm_FindObjectInst) or whose permission for the own player
@@ -1230,7 +1230,7 @@ void ai_ValidateBookmarks(void)
     for (i = 0; i < 11; i++) {
         if (ai_Bookmarks[i].building == -1)
             continue;
-        b = (AIBLD *)gm_FindBuildingById(ai_Bookmarks[i].building);
+        b = gm_FindBuildingById(ai_Bookmarks[i].building);
         if (b == 0) {
             ai_ClearBookmark(&ai_Bookmarks[i]);
         } else {
@@ -1258,7 +1258,7 @@ void ai_SelectBookmark(void)
         if (ai_Bookmarks[i].key == kb_Last && kb_Down[0x2a] == 0) {
             ai_ValidateBookmarks();
             if (ai_Bookmarks[i].building != -1) {
-                b = (AIBLD *)gm_FindBuildingById(ai_Bookmarks[i].building);
+                b = gm_FindBuildingById(ai_Bookmarks[i].building);
                 o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (o != 0)
                     sv_SelectPanelObject(b, o->objId, ch_EmptyName);
@@ -1375,7 +1375,7 @@ void ai_BookmarkWindow(void)
                 o = 0;
                 d2_RadioAdd(group, d2_WinOpenPic(0x10, i * 0x38 + 4, i + 0x769, d2_LastWindow));
                 if (ai_Bookmarks[i].building != -1)
-                    b = (AIBLD *)gm_FindBuildingById(ai_Bookmarks[i].building);
+                    b = gm_FindBuildingById(ai_Bookmarks[i].building);
                 if (ai_Bookmarks[i].object != -1)
                     o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (b != 0) {
@@ -1601,7 +1601,7 @@ void ai_BookmarkSetBuilding(int i, AIBLD *b)
         ai_Bookmarks[i].object = -1;
 }
 
-unsigned char * gm_BuildNext(void); unsigned char * gm_BuildQuery(int n, ...);
+struct AIBLD *gm_BuildNext(void); struct AIBLD *gm_BuildQuery(int n, ...);
 
 /* 0x589e50, presets the function-key bookmarks: F1 the market, F2 the town hall (gm_BuildQuery (1, 5, 0xf), the
    building type 0xf) when there is one, the next key the home (AICHAR.bld2) of the first character of the kind 6,
@@ -1618,17 +1618,17 @@ void ai_BookmarksPreset(void)
     }
     n = 1;
     ai_BookmarkSetBuilding(0, ai_MarketBuilding);
-    b = (AIBLD *)gm_BuildQuery(1, 5, 0xf);
+    b = gm_BuildQuery(1, 5, 0xf);
     if (b != 0)
         ai_BookmarkSetBuilding(n++, b);
     b = ai_Chars[i].bld2;
     if (b != 0)
         ai_BookmarkSetBuilding(n, b);
     n = 3;
-    b = (AIBLD *)gm_BuildQuery(1, 4, i);
+    b = gm_BuildQuery(1, 4, i);
     while (b != 0) {
         if (ai_BTypes[b->type].kind != 2)
             ai_BookmarkSetBuilding(n++, b);
-        b = (AIBLD *)gm_BuildNext();
+        b = gm_BuildNext();
     }
 }

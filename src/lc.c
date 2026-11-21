@@ -2185,7 +2185,7 @@ void ai_PumpFrames(int unused)
     } while (r != 0);
 }
 
-char *strstr(); unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void);
+char *strstr(); struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void);
 
 /* 0x58f640, the building name of a kind id (83 B): ai_BuildNames holds 15 groups of 0x50 bytes (the 12 kind ids
    after the 0x20-byte name); the name of the matching id is copied to out (inlined strcpy); 1 when found, 0 else */
@@ -2208,8 +2208,8 @@ int ai_BuildingName(int id, char *out)
 struct D3OBJECT;
 struct D3VECTOR;
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out); /* 0x458a20 (d3_pose.c) */
-unsigned char *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
-unsigned char *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
+struct AIBLD *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
+struct AIBLD *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
 
 /* 0x58f6a0, the placement-candidate filter (250 B, a d3_ForEachObject callback found through the pointer in
@@ -2232,7 +2232,7 @@ char ai_BauplatzFilter(int obj, char *prefix)
             return 1;
     }
     d3_PointToWorld((struct D3OBJECT *)obj, &((D3OBJECT *)obj)->pos, (struct D3VECTOR *)pos);
-    for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         c = (int)b->object;
         if (c != 0) {
             d3_PointToWorld((struct D3OBJECT *)c, &((D3OBJECT *)c)->pos, (struct D3VECTOR *)q);
@@ -2268,7 +2268,7 @@ int ai_FindBauplaetze(char *prefix, int *list)
             goto next;
         if (obj->parent != 0) {
             d3_PointToWorld(obj->parent, &obj->parent->pos, (D3VECTOR *)at);
-            for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+            for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                 o = (D3OBJECT *)b->object;
                 if (o != 0) {
                     d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
@@ -2282,7 +2282,7 @@ int ai_FindBauplaetze(char *prefix, int *list)
         for (obj = obj->child; obj != 0; obj = obj->next) {
             if (strncmp(obj->name, "bk_", 3) == 0) {
                 d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)at);
-                for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+                for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     o = (D3OBJECT *)b->object;
                     if (o != 0) {
                         d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
@@ -2374,7 +2374,7 @@ void ai_CheckBuildable(int obj)
     if (owner != 0) {
         d3_PointToWorld((struct D3OBJECT *)owner, &((D3OBJECT *)owner)->pos,
                         (struct D3VECTOR *)here);
-        for (bld = (AIBLD *)gm_BuildQuery(1, 6); bld != 0; bld = (AIBLD *)gm_BuildNext()) {
+        for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
             site = (AIOBJVIEW *)bld->object;
             if (site != 0) {
                 d3_PointToWorld((struct D3OBJECT *)site, &((D3OBJECT *)site)->pos,
@@ -2390,7 +2390,7 @@ void ai_CheckBuildable(int obj)
         if (strncmp((char *)view, "bk_", 3) == 0 || strncmp((char *)view, "!bk_", 4) == 0) {
             d3_PointToWorld((struct D3OBJECT *)view, &((D3OBJECT *)view)->pos,
                             (struct D3VECTOR *)here);
-            for (bld = (AIBLD *)gm_BuildQuery(1, 6); bld != 0; bld = (AIBLD *)gm_BuildNext()) {
+            for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
                 site = (AIOBJVIEW *)bld->object;
                 if (site != 0) {
                     d3_PointToWorld((struct D3OBJECT *)site, &((D3OBJECT *)site)->pos,
@@ -2572,7 +2572,7 @@ void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target)
         d3_SetObjectPos(obj, target);
 }
 
-unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
+struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
 char *strupr(char *); int sprintf(char *buf, const char *fmt, ...); char * vfs_GetPath();
 struct D3OBJECT * d3_LoadGroup(); void d3t_InflateObjectTree(D3OBJECT *obj); int d3t_DropObject();
 struct D3OBJECT;
@@ -2672,7 +2672,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
     best = 1e+09f;
     firstPick = 1;
     if (ai_BTypes[kind].kind == 2) {
-        for (b = gm_BuildQuery(2, 4, ai_PlayerId, 5, 2); b != 0; b = gm_BuildNext()) {
+        for (b = (unsigned char *)gm_BuildQuery(2, 4, ai_PlayerId, 5, 2); b != 0; b = (unsigned char *)gm_BuildNext()) {
             if (*b == kind) {
                 char ask[0x400];    /* the question whether to build another one */
 
@@ -3277,7 +3277,7 @@ void ai_GameFrame(void)
         }
     }
     if ((ai_GameFlags & 1) && main_Round == 1) {
-        for (it = gm_BuildQuery(1, 4, ai_PlayerId); it != 0; it = gm_BuildNext()) {
+        for (it = (unsigned char *)gm_BuildQuery(1, 4, ai_PlayerId); it != 0; it = (unsigned char *)gm_BuildNext()) {
             if ((int)it != ((AICHARREC *)ai_Chars)[ai_PlayerId].bld2) {
                 sv_CameraToObject(it);
                 break;
@@ -3294,7 +3294,7 @@ void ai_GameFrame(void)
         sv_UpdateCamera();
         if (mode == 0) {
             if ((float)ai_Time.hour < gm_DayStartHours[season] || (float)ai_Time.hour >= gm_DayEndHours[season]) {
-                for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+                for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     if (b->smokeEffect != -1) {
                         e = evt_FindById(b->smokeEffect);
                         if (e != 0)
@@ -3306,7 +3306,7 @@ void ai_GameFrame(void)
             }
         } else if (mode == 1) {
             if ((float)ai_Time.hour >= gm_DayStartHours[season] && (float)ai_Time.hour < gm_DayEndHours[season]) {
-                for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+                for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     if (b->smokeEffect == -1)
                         sv_UpdateChimneySmoke((struct AIBLD *)b);
                 }
@@ -3314,7 +3314,7 @@ void ai_GameFrame(void)
             }
         } else if (mode == 2) {
             if ((float)ai_Time.hour < gm_DayStartHours[season] || (float)ai_Time.hour >= gm_DayEndHours[season]) {
-                for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+                for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     if (b->smokeEffect != -1) {
                         e = evt_FindById(b->smokeEffect);
                         if (e != 0)
@@ -3403,11 +3403,11 @@ void lc_PlayerInJail(void)
         b = (AIJOB *)he_NextEvent();
     }
     if (b != 0) {
-        it = (AIBLD *)gm_BuildQuery(1, 5, 4);
+        it = gm_BuildQuery(1, 5, 4);
         while (it != 0) {
             if (it->victimId == ai_CharInts[ai_PlayerId][0])
                 break;
-            it = (AIBLD *)gm_BuildNext();
+            it = gm_BuildNext();
         }
         if (it == 0) {
             err_Message("lc_PlayerInJail(): Could not find ob_DIEBESGILDE_GEFAENGNIS...");
@@ -3419,7 +3419,7 @@ void lc_PlayerInJail(void)
         sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
         return;
     }
-    it = (AIBLD *)gm_BuildQuery(1, 5, 6);
+    it = gm_BuildQuery(1, 5, 6);
     if (it == 0) {
         err_Message("lc_PlayerInJail(): Could not find a jail...");
         return;
@@ -6973,8 +6973,8 @@ void ai_StammtischWindow(AIBLD *bld, AIOBJ *table)
     } while (sv_RunFrame((int)ai_StammtischWindow, 0x677c7) != 0);
     d2_CloseView(win);
 }
-int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); unsigned char * gm_BuildQuery(int n, ...);
-unsigned char * gm_BuildNext(void);
+int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); struct AIBLD *gm_BuildQuery(int n, ...);
+struct AIBLD *gm_BuildNext(void);
 
 
 /* 0x598dc0, the regulars' table window "locations\Wirtshaus\Stammtisch" of another player's tavern, with the join
@@ -7031,7 +7031,7 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
         } else if (n < 4) {
             if (mode == 0) {
                 mode = 3;
-                for (b = (AIBLD *)gm_BuildQuery(1, 0, 0x37); b != 0; b = (AIBLD *)gm_BuildNext()) {
+                for (b = gm_BuildQuery(1, 0, 0x37); b != 0; b = gm_BuildNext()) {
                     t = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
                     if (t != 0) {
                         for (i = 0; i < 4; i++) {
@@ -7592,7 +7592,7 @@ void ai_CityInfoWindow(AIBLD *city, int unused)
 
 int d3t_PlayAnim(); void d2_SetBackgroundTexture();
 char d3if_ShowTree(struct D3OBJECT *obj, char show); int ls_GetLanguage(); struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask);
-unsigned char * gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
+struct AIBLD *gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
 int ai_TransportWindow(); 
 
 /* 0x59a2c0, creates the city point object of a town (256 B): the name "dummy_<CITY>" (the uppercase city via
@@ -7660,13 +7660,13 @@ void ai_MapTableScreen(void)
         } else {
             ai_ClickedObject = (int)r;
             for (i = 0; i < 3; i++) {
-                if (ai_ClickedObject == (int)objs[i] && (rec = (AIBLD *)gm_BuildQuery(1, 0, 0x47)) != 0) {
+                if (ai_ClickedObject == (int)objs[i] && (rec = gm_BuildQuery(1, 0, 0x47)) != 0) {
                     do {
                         if (rec->playerSlot == i + 1) {
                             ai_CityInfoWindow(rec, 1);
                             break;
                         }
-                        rec = (AIBLD *)gm_BuildNext();
+                        rec = gm_BuildNext();
                     } while (rec != 0);
                 }
             }
@@ -10039,7 +10039,7 @@ void ai_BuyBuildingWindow(void)
             io_PrintText("$C");
             d2_RemoveWindowObjects(d2_LastWindow, 1);
             n = 0;
-            for (b = (AIBLD *)gm_BuildQuery(1, 6); b != 0; b = (AIBLD *)gm_BuildNext()) {
+            for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                 if ((b->flags5a & 2) == 0)
                     continue;
                 for (sale = (AIJOB *)he_FindEvent(1, 0, 0x1b); sale != 0; sale = (AIJOB *)he_NextEvent())
@@ -12255,7 +12255,7 @@ void ai_EspionageStart(AIBLD *bld)
     sv_ClearSelection();
 }
 
-unsigned char * gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
+struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
 
@@ -12310,7 +12310,7 @@ void ai_SpyReportsWindow(AIBLD *bld)
             n = 0;
             for (o = (AIOBJ *)gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0 && n < 8;
                  o = (AIOBJ *)gm_QueryNext()) {
-                target = (AIBLD *)gm_BuildQuery(1, 1, o->reportBld);
+                target = gm_BuildQuery(1, 1, o->reportBld);
                 if (target != 0 && target->owner != 0xffff)
                     reports[n++] = o;
             }
@@ -12318,7 +12318,7 @@ void ai_SpyReportsWindow(AIBLD *bld)
                 o = reports[j];
                 if (o == 0)
                     continue;
-                target = (AIBLD *)gm_BuildQuery(1, 1, o->reportBld);
+                target = gm_BuildQuery(1, 1, o->reportBld);
                 if (target != 0) {
                     if (target->owner != 0xffff) {
                         gm_BuildingValues(target, values);
@@ -12697,7 +12697,7 @@ int ai_KidnapWindow(AICHARREC *victim)
                 mask.HighPart = 0;
                 if (ai_PickActionBuilding((struct AIPER *)victim, 0, mask.QuadPart, 0, 100.0f, &picked) == 0)
                     return 0;
-                bld = (AIBLD *)gm_BuildQuery(1, 1, picked);
+                bld = gm_BuildQuery(1, 1, picked);
             }
             win = d2_OpenForm(0, 0, "locations\\diebesgilde\\diebesgilde_entfuehrung");
             d2_CentreViewWindows(win);

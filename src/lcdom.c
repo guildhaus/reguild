@@ -777,12 +777,12 @@ struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
-char *strstr(); unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void);
+char *strstr(); struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void);
 struct D3OBJECT;
 struct D3VECTOR;
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out); /* 0x458a20 (d3_pose.c) */
-unsigned char *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
-unsigned char *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
+struct AIBLD *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
+struct AIBLD *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
 #pragma pack(push, 1)
@@ -805,7 +805,7 @@ void d3_LocalToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR 
 void d3_DirToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);    /* 0x458810 (d3_pose.c) */
 float d3_VecAngle(struct D3VECTOR *a, struct D3VECTOR *b);      /* 0x4539f0 (d3_vec.c) */
 extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0, 0, 1) */
-unsigned char * gm_BuildQuery(int n, ...); unsigned char * gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
+struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void); int gm_MayTakeJob(int k, int c);
 char *strupr(char *); int sprintf(char *buf, const char *fmt, ...); char * vfs_GetPath();
 struct D3OBJECT * d3_LoadGroup(); void d3t_InflateObjectTree(D3OBJECT *obj); int d3t_DropObject();
 struct D3OBJECT;
@@ -917,8 +917,8 @@ typedef struct LCDUELBTN {              /* an action button of the dice game win
     int unused;                         /* 0x008, set to 0, never read */
     char text[0x100];                   /* 0x00c, its caption (0x1880 / 0x1881 with the raise amount, 0x1882) */
 } LCDUELBTN;
-int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); unsigned char * gm_BuildQuery(int n, ...);
-unsigned char * gm_BuildNext(void);
+int cm_SendTableRequest(G17TABLEMSG *p); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s); struct AIBLD *gm_BuildQuery(int n, ...);
+struct AIBLD *gm_BuildNext(void);
 int gv_EvidencePrice(); void cm_SendScriptMessage(void *p); void cm_SendProofExecuted(int a, int b);
 int d3t_PlaceAtObject(); void d2_SetBackgroundTexture(); 
 struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask); int gm_GetGoodsValue(); int gm_SumListAmounts(void *list, unsigned char p);
@@ -929,7 +929,7 @@ void ai_BardWindow(void); void ai_NoticeBoardWindow(void);
 void cm_BeginGroup(const char *s); void cm_SendScriptMessage(void *p); void cm_SendProofExecuted(int a, int b);
 int d3t_PlayAnim(); void d2_SetBackgroundTexture();
 char d3if_ShowTree(struct D3OBJECT *obj, char show); int ls_GetLanguage(); struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask);
-unsigned char * gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
+struct AIBLD *gm_BuildNext(void); void ai_StorageWindow(); void ai_MasterLetterWindow(); int ai_OpenTransport();
 int ai_TransportWindow(); 
 typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCreditWindow): an offer and its object */
     ORDCREDIT offer;                /* 0x00, the bank's offer (gm_GetCreditOffers) */
@@ -1057,7 +1057,7 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
 char * he_NextEvent(void);
-unsigned char * gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
+struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
 int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
@@ -1437,7 +1437,7 @@ void ai_ShowBldCarts(SVBOOK *book, AIBLD *bld)
         d2_WinOpenPic(0x10, i * 0x6e + 10, heads[ai_BldCarts[i]->objId & 3] + 0x639, d2_LastWindow);
         d2_WinOpenPic(0x50, i * 0x78, ai_BldCarts[i]->id + 0x4b1, d2_LastWindow);
         if (ai_BldCarts[i]->job24 != 0) {
-            dest = (AIBLD *)gm_BuildQuery(1, 1, ai_BldCarts[i]->job24->cartBld);
+            dest = gm_BuildQuery(1, 1, ai_BldCarts[i]->job24->cartBld);
             if (dest != 0)
                 txt_Format(text, 0x1a3e, dest);
         } else {
@@ -1472,7 +1472,7 @@ void ai_UpdateBldCarts(SVBOOK *book, AIBLD *bld)
 
     for (i = 0; i < ai_BldCartCount; i++) {
         if (ai_BldCarts[i]->job24 != 0) {
-            dest = (AIBLD *)gm_BuildQuery(1, 1, ai_BldCarts[i]->job24->cartBld);
+            dest = gm_BuildQuery(1, 1, ai_BldCarts[i]->job24->cartBld);
             if (dest != 0)
                 txt_Format(text, 0x1a3e, dest);
         } else {
@@ -3458,7 +3458,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     } else if (b->owner != ai_PlayerId) {
         if (bt->kind == 0xa) {
             market = 1;
-            src = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+            src = gm_BuildQuery(1, 0, 0x44);
             priced = 1;
             factor = gm_HealthFactor(ai_PlayerId);
         }
@@ -6336,7 +6336,7 @@ void ai_SellBuildingWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     sv_RunFrame(0, 0x677c7);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0)
@@ -6414,7 +6414,7 @@ void ai_RenovationWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     sv_RunFrame(0, 0x677c7);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0)
@@ -6493,7 +6493,7 @@ void ai_WithdrawSaleWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     sv_RunFrame(0, 0x677c7);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0)
@@ -6601,7 +6601,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     d2_ClearInput();
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0 || d2_ClickedId == 1)
@@ -6730,7 +6730,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
             return;
         if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) == 0)
             return;
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             return;
         memset(&msg, 0, sizeof(msg));
@@ -6827,7 +6827,7 @@ void ai_BuyBuildingOfferWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     sv_RunFrame(0, 0x677c7);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0)
@@ -6925,7 +6925,7 @@ void ai_TechEffectsWindow(AIBLD *bld)
     }
     d2_ClickedId = -1;
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0 || (d2_ClickedId != -1 && d2_PointerObj == close))
@@ -6991,7 +6991,7 @@ void ai_FireFightingWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     sv_RunFrame(0, 0x677c7);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (dm_L.rup != 0)
@@ -7127,7 +7127,7 @@ void ai_BuildingWindow(AIBLD *bld)
                 break;
     }
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (bld->flags5aw != lastFlags)
@@ -7392,7 +7392,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
     value = gm_EquipmentValue(bld, bld->level);
     sv_SetResearchClass(bld);
     do {
-        found = (AIBLD *)gm_FindBuildingById(bldId);
+        found = gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
             sv_PopRequest = 1;
         if (bld->flags5aw != lastFlags)
@@ -7493,9 +7493,9 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
         paid = take;
     }
     while (remaining > 0 && stop == 0) {
-        bld = gm_BuildQuery(1, 4, ch->id);
+        bld = (unsigned char *)gm_BuildQuery(1, 4, ch->id);
         stop = 1;
-        for (; bld != 0; bld = gm_BuildNext()) {
+        for (; bld != 0; bld = (unsigned char *)gm_BuildNext()) {
             if (remaining <= 0)
                 break;
             cls = gm_BuildingClass(*bld);
@@ -7533,9 +7533,9 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
     }
     stop = 0;
     while (remaining > 0 && stop == 0) {
-        bld = gm_BuildQuery(1, 4, ch->id);
+        bld = (unsigned char *)gm_BuildQuery(1, 4, ch->id);
         stop = 1;
-        for (; bld != 0; bld = gm_BuildNext()) {
+        for (; bld != 0; bld = (unsigned char *)gm_BuildNext()) {
             if (remaining <= 0)
                 break;
             cls = gm_BuildingClass(*bld);
@@ -8110,7 +8110,7 @@ void lc_UpdateGoodsReserves(void)
                         he_ShowNews(ai_CharInts[i][0], -1, text, 0, 0x5ec, "_NACHRICHTEN_HS_37");
                     }
                     if (o->id == 0x178) {
-                        bld = (AIBLD *)gm_BuildQuery(1, 1, o->bldId);
+                        bld = gm_BuildQuery(1, 1, o->bldId);
                         if (bld != 0)
                             cm_SendSetField(bld->id, 0x5a, 2, 0, 0x20);
                     }
@@ -8996,7 +8996,7 @@ int ai_OpenMoneyInfoPage(void)
         rows[i].loan = loans[i];
         d2_Wins[rows[i].child].font = 0x56;
         d2_Wins[rows[i].child].ml = 0x10;
-        bank = gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
+        bank = (char *)gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
         if (bank != 0)
             io_PrintText(0x1f41, bank, rows[i].loan->amount, rows[i].loan->interest, &rows[i].loan->due);
     }
@@ -9125,7 +9125,7 @@ int ai_OpenMasterListPage(void)
     d2_SetForm(win, 4);
     io_PrintText(0x1936);
     d2_SetForm(win, 2);
-    bld = (AIBLD *)gm_BuildQuery(1, 4, ai_PlayerId);
+    bld = gm_BuildQuery(1, 4, ai_PlayerId);
     if (bld != 0) {
         do {
             master = (AICHARREC *)gm_FindCharacterByMaster(bld);
@@ -9144,7 +9144,7 @@ int ai_OpenMasterListPage(void)
                 ai_MasterRows[count].bld = bld;
                 count++;
             }
-        } while ((bld = (AIBLD *)gm_BuildNext()) != 0);
+        } while ((bld = gm_BuildNext()) != 0);
     }
     if (count == 0) {
         d2_CloseView(win);

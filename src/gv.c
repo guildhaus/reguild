@@ -176,7 +176,7 @@ int gv_EffectNotifyOwner(GVEFFARG *a)
 
     for (i = 0; i < 3; i++) {
         if (a->cur == i) {
-            b = (AIBLD *)gm_BuildQuery(1, 1, a->recs[i].bldId);
+            b = gm_BuildQuery(1, 1, a->recs[i].bldId);
             m = 0;
             if (b != 0 && b->owner != 0xffff) {
                 ch = &ai_Chars[b->owner];

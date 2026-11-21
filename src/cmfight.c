@@ -1910,7 +1910,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     } else if (rec->flags & 4) {
         cm_LoadEventScene("Kampfszenario_BERGPASS.ed3");
     } else {
-        b = (AIBLD *)gm_BuildQuery(1, 1, rec->placeId);
+        b = gm_BuildQuery(1, 1, rec->placeId);
         if (gm_IsHomeType((unsigned char *)b) != 0) {
             t = &ai_BTypes[b->type];
             if (t->kind == 0x10) {
@@ -1966,9 +1966,9 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     cm_DaggerSounds = sb_LoadSampleBank("kampf\\dolche.sbf", 1);
     cm_PistolSounds = sb_LoadSampleBank("kampf\\pistole.sbf", 1);
     cm_SwordSounds = sb_LoadSampleBank("kampf\\schwerter.sbf", 1);
-    b = (AIBLD *)gm_BuildQuery(1, 1, rec->attackerBldId);
+    b = gm_BuildQuery(1, 1, rec->attackerBldId);
     if (b != 0)
-        cm_AttackerRole = cm_FightRole((unsigned char *)b);
+        cm_AttackerRole = cm_FightRole(b);
     if (cm_AttackerRole == 2) {
         CM_LOAD_VOICES(Attacker, "DIEBE");
     } else if (cm_AttackerRole == 1) {
@@ -1976,9 +1976,9 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     } else if (cm_AttackerRole == 0) {
         CM_LOAD_VOICES(Attacker, "SOELDNER");
     }
-    b = (AIBLD *)gm_BuildQuery(1, 1, rec->placeId);
+    b = gm_BuildQuery(1, 1, rec->placeId);
     if (b != 0)
-        cm_DefenderRole = cm_FightRole((unsigned char *)b);
+        cm_DefenderRole = cm_FightRole(b);
     if (cm_DefenderRole != cm_AttackerRole) {
         if (cm_DefenderRole == 2) {
             CM_LOAD_VOICES(Defender, "DIEBE");
@@ -3347,9 +3347,9 @@ int cm_LootCarts(CMFIGHTREC *a, AIBLD *b, AICHAR *d, int unused, float f)
 }
 /* 0x4d4050, the fight role of a building kind (first byte of its 0x24d-byte record): 0x13 -> 0, 0x10 -> 1, 4 -> 2, else 0 */
 
-int cm_FightRole(unsigned char *b)
+int cm_FightRole(AIBLD *b)
 {
-    AIBTYPE *t = &ai_BTypes[*b];
+    AIBTYPE *t = &ai_BTypes[b->type];
 
     if (t->kind == 0x13)
         return 0;
@@ -3465,7 +3465,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
     int line = 0;
     int win, role, i, n, r, v, sel, k, total;
     int b1, b2, b3, b4;
-    unsigned char *place, *home;
+    AIBLD *place, *home;
     float fv;
     AIJOB *job;
     char *bld;
@@ -3550,7 +3550,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         d2_SetForm(win, 1);
         io_PrintText("$C");
         if (job != 0) {
-            bld = gm_FindBuildingById(job->cartBld);
+            bld = (char *)gm_FindBuildingById(job->cartBld);
             k = 0;
             for (i = 0; i < 16; i++) {
                 if (a->attackers[i] != -1)
@@ -3694,7 +3694,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     d2_CopyCaption(&ch_EmptyName);
     sv_SetStatusText(&ch_EmptyName);
     if (a->attackerBldId != -1) {
-        b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+        b = gm_BuildQuery(1, 1, a->attackerBldId);
         obj = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x116);
         if (obj == 0)
             obj = (AIOBJ *)gm_Query(b->objList, 2, 6, 0, 0x2a);
@@ -3767,7 +3767,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     d2_SetForm(win, 1);
     io_PrintText("$C");
     io_PrintText(0x1191);
-    b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+    b = gm_BuildQuery(1, 1, a->attackerBldId);
     bt = &ai_BTypes[b->type];
     if (bt->kind == 0x13)
         role = 0;
@@ -3777,7 +3777,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         role = 2;
     io_PrintText(0x1193, cm_FightAttacker->id, role + 0x1125);
     cm_FightPortraits(a->attackers, 0, 100);
-    ca = (AIBLD *)gm_BuildQuery(1, 1, a->placeId);
+    ca = gm_BuildQuery(1, 1, a->placeId);
     if (ca != 0) {
         bt = &ai_BTypes[ca->type];
         if (bt->kind == 0x13)
@@ -3811,7 +3811,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->attackerBldId != -1) {
-                b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+                b = gm_BuildQuery(1, 1, a->attackerBldId);
                 b->roundSums[0] += v;
             }
         }
@@ -3836,7 +3836,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         wait = 1;
     } else if ((a->flags & 2) && side == cm_FightAttacker && side->id == ai_PlayerId) {
         /* the player took the building: four outcomes to choose */
-        ca = (AIBLD *)gm_BuildQuery(1, 1, a->placeId);
+        ca = gm_BuildQuery(1, 1, a->placeId);
         txt_Format(ba, 0x119f, ca, cm_FightAttacker->id, ca);
         if (ca->type != 0x1e && ca->type != 0x20 && ca->type != 0x1f) {
             txt_Format(bb, 0x11a0, ca->type * 14 + 0x48e);
@@ -3892,7 +3892,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->attackerBldId != -1) {
-                b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+                b = gm_BuildQuery(1, 1, a->attackerBldId);
                 b->roundSums[0] += v;
             }
             wait = 1;
@@ -3916,7 +3916,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         }
     } else if (a->flags & 4) {
         /* the defenders of a building of kind 0x13: their bars, the wounded paid for */
-        b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+        b = gm_BuildQuery(1, 1, a->attackerBldId);
         if (ai_BTypes[b->type].kind == 0x13) {
             total = 0;
             for (v = 0; v < 16; v++) {
@@ -3956,7 +3956,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             else if (ai_PlayerId == cm_FightAttacker->id)
                 io_PrintText(0x11b6);
             if (a->attackerBldId != -1) {
-                b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+                b = gm_BuildQuery(1, 1, a->attackerBldId);
                 b->roundSums[0] += total;
             }
             wait = 1;
@@ -4001,7 +4001,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->attackerBldId != -1) {
-                b = (AIBLD *)gm_BuildQuery(1, 1, a->attackerBldId);
+                b = gm_BuildQuery(1, 1, a->attackerBldId);
                 b->roundSums[0] += v;
             }
             wait = 1;
@@ -4065,7 +4065,7 @@ int cm_CheckFight(CMFIGHTREC *a)
             }
         }
     }
-    place = gm_FindBuildingById(a->placeId);
+    place = (char *)gm_FindBuildingById(a->placeId);
     if (gm_BuildQuery(1, 1, a->attackerBldId) == 0)
         return 0;
     if (a->flags & 1) {
@@ -4076,7 +4076,7 @@ int cm_CheckFight(CMFIGHTREC *a)
         strcat(buf, txt_Ptrs[0x11e2]);
         cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
     } else if (a->flags & 2) {
-        role = cm_FightRole((unsigned char *)gm_FindBuildingById(a->attackerBldId));
+        role = cm_FightRole(gm_FindBuildingById(a->attackerBldId));
         txt_Format(buf, 0x11e3, role + 0x1125, cb->id, place);
         strcat(buf, txt_Ptrs[0x11e5]);
         cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
@@ -4179,7 +4179,7 @@ void cm_RunFight(CMFIGHTREC *a)
             cm_FightOutro((char *)a);
         } else if (cm_FightLootValue != 0 && cm_FightAttacker->kind == 6) {
             e1 = 0;
-            bld = (AIBLD *)gm_BuildQuery(1, 1, cm_FightRecord->attackerBldId);
+            bld = gm_BuildQuery(1, 1, cm_FightRecord->attackerBldId);
             if (bld != 0)
                 e1 = gm_Query(bld->objList, 2, 6, 0, 0x116);
             if (cm_FightLootValue > 0) {
@@ -4229,12 +4229,12 @@ void cm_RunFight(CMFIGHTREC *a)
     }
     if (a->flags & 2) {
         if (win == G20_DEF) {
-            e1 = gm_BuildQuery(1, 1, a->attackerBldId);
-            e2 = gm_BuildQuery(1, 1, a->placeId);
+            e1 = (char *)gm_BuildQuery(1, 1, a->attackerBldId);
+            e2 = (char *)gm_BuildQuery(1, 1, a->placeId);
             cm_LootStock(e2, e1, G20_DEF, G20_ATT);
         }
     } else if (!(a->flags & 4) && (a->flags & 1) && win == G20_DEF) {
-        c = gm_BuildQuery(1, 1, a->attackerBldId);
+        c = (char *)gm_BuildQuery(1, 1, a->attackerBldId);
         cm_LootCarts((char *)a, c, G20_DEF, (int)cm_FightDefender, 100.0f);
     }
 }

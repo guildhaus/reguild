@@ -3304,7 +3304,7 @@ int cm_CheckAuction(G28REC *m)
     AIBLD *o;
     int i;
 
-    o = (AIBLD *)gm_FindBuildingById(m->auction.building);
+    o = gm_FindBuildingById(m->auction.building);
     if (o == 0)
         return 0;
     txt_Format(buf, 0x3fd9, o, m->auction.price);
@@ -3351,7 +3351,7 @@ void cm_RunAuction(G28REC *m)
     int i, k, speaker, bankIntro, bankBids, bankRemarks, behavior, enter, form;
     int best, rounds, round, done;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->auction.building);
+    b = gm_BuildQuery(1, 1, m->auction.building);
     best = -1;
     pos[0] = 0;
     pos[1] = 0;
@@ -4749,7 +4749,7 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
     note.head.arg[3] = party->id;
     note.head.arg[2] = -1;
     if (party->thing != -1) {
-        bld = (AIBLD *)gm_FindBuildingById(party->thing);
+        bld = gm_FindBuildingById(party->thing);
         if (bld != 0) {
             if (gm_IsHomeType((unsigned char *)bld) == 0) {
                 o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)bld);

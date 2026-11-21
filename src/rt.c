@@ -195,7 +195,7 @@ int rt_PutRouteMark(LCMAPWIN *win, int cart, RTPOINT *list, RTPOINT *p)
     hmap = (D3SM *)d3_Scenes[0].hmap;
     originX = ai_PlayerSlots[ai_OwnPlayer].townX;
     originY = ai_PlayerSlots[ai_OwnPlayer].townY;
-    b = (AIBLD *)gm_FindBuildingById(p->buildingId);
+    b = gm_FindBuildingById(p->buildingId);
     if (b == 0)
         return -1;
     d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)pos);
@@ -598,7 +598,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     cnt[2] = 3;
     sel = 0;
     selc = 0;
-    bld = (AIBLD *)gm_FindBuildingById(p->buildingId);
+    bld = gm_FindBuildingById(p->buildingId);
     cart = (AIOBJ *)gm_FindObjectInst(p->cartId);
     if (cart == 0 || bld == 0)
         return;
@@ -1049,7 +1049,7 @@ void rt_UnloadAtPoint(char *c, char pl)
     if (((AIOBJ *)c)->route == 0)
         return;
     q = rt_PointAt(((AIOBJ *)c)->route, ((AIOBJ *)c)->routeIdx);
-    b = gm_FindBuildingById(q->buildingId);
+    b = (char *)gm_FindBuildingById(q->buildingId);
     if (b == 0)
         return;
     t = (char *)ai_BTypes + ((AIBLD *)b)->type * 0x24d;
@@ -1116,7 +1116,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
         return;
     q = rt_PointAt(c->route, c->routeIdx);
     o = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)c);
-    b = (AIBLD *)gm_FindBuildingById(q->buildingId);
+    b = gm_FindBuildingById(q->buildingId);
     if (b == 0)
         return;
     t = &ai_BTypes[b->type];

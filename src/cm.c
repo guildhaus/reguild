@@ -1724,7 +1724,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
         return -1;
     if (f == 0 && c == -1) {
         o = 0;
-        b = (AIBLD *)gm_FindBuildingById(bld);
+        b = gm_FindBuildingById(bld);
         if (b != 0) {
             if (gm_IsHomeType((unsigned char *)b) != 0) {
                 o = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
@@ -2560,7 +2560,7 @@ int cm_CheckOwnership(G17MSG *m)
 {
     AIBLD *b;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->owner.bldId);
+    b = gm_BuildQuery(1, 1, m->owner.bldId);
     if (b != 0 && (b->flags5a & 2))
         return 0;
     return 1;
@@ -2588,14 +2588,14 @@ int cm_CheckDarkCorner(G17MSG *m)
     int i;
 
     if (m->script.op == 0x636c6572) {               /* 'cler' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->script.bldId);
+        b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b != 0) {
             o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
             if (o != 0)
                 return ai_Time.year - o->cornerYear <= 1;
         }
     } else if (m->script.op == 0x62757920) {        /* 'buy ' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->script.bldId);
+        b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b != 0) {
             o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
             if (o != 0) {
@@ -2620,7 +2620,7 @@ int cm_CheckTableRequest(G17MSG *m)
     unsigned short k;
 
     if (m->table.op == 'join') {
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId);
+        b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b != 0 && (t = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12d)) != 0) {
             for (i = 0; i < 4; i++)
                 if (t->seats[i] == m->table.charId)
@@ -2632,7 +2632,7 @@ int cm_CheckTableRequest(G17MSG *m)
                 return 0;
         }
     } else if (m->table.op == 'leav') {
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId);
+        b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b != 0 && (t = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12d)) != 0) {
             for (i = 0; i < 4; i++)
                 if (t->seats[i] == m->table.charId)
@@ -2640,7 +2640,7 @@ int cm_CheckTableRequest(G17MSG *m)
             if (i < 4)
                 return 0;
         }
-    } else if (m->table.op == 'cler' && (b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId)) != 0) {
+    } else if (m->table.op == 'cler' && (b = gm_BuildQuery(1, 1, m->table.bldId)) != 0) {
         k = b->owner;
         if (k != 0xffff) {
             c = &ai_Chars[k];
@@ -3130,7 +3130,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
     }
     if (ys != 0 && (ys->type == 0x2a || ys->type == 0x116) && r1 != 0 && m->sell.price != 0
         && r1->id == ai_PlayerId) {
-        x1 = (AIBLD *)gm_FindBuildingById(ys->ownerId);
+        x1 = gm_FindBuildingById(ys->ownerId);
         if (x1 != 0) {
             txt_Format(buf, 0x7c, x1->type * 14 + 0x48e, m->sell.price);
             sv_SetStatusText(buf);
@@ -3814,7 +3814,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
                 tb_SetFunctionOff(sv_UpdateClock, 0);
             break;
         case 4:
-            b = (struct AIBLD *)gm_BuildQuery(1, 1, msg.sys.arg[0]);
+            b = gm_BuildQuery(1, 1, msg.sys.arg[0]);
             if (b != 0) {
                 o = (AIOBJ *)gm_Query((void *)b->objList, 1, 1, msg.sys.arg[1]);
                 if (o != 0)
@@ -4236,7 +4236,7 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
 
     if (net_Conn.s != INVALID_SOCKET)
         veg_NextId = m->plant.id;
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->plant.bldId);
+    b = gm_BuildQuery(1, 1, m->plant.bldId);
     if (b != 0) {
         t = veg_FindType(m->plant.type);
         if (t != 0 && m->plant.fall == 0) {
@@ -4350,7 +4350,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     if (m->place.objId != -1)
         i = gm_FindObjectInst(m->place.objId);
     else
-        b = (AIBLD *)gm_FindBuildingById(m->place.bldId);
+        b = gm_FindBuildingById(m->place.bldId);
     save = d3_CurrentScene;
     if (m->place.objId != -1)
         i = init_ObjectSceneUniverse(i);
@@ -4403,7 +4403,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
     if (p == 0)
         return 1;
     if (m->place.bldId != -1) {
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->place.bldId);
+        b = gm_BuildQuery(1, 1, m->place.bldId);
         if (b == 0)
             return 2;
     }
@@ -4590,15 +4590,15 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
     p = ch_FindByName(buf);
     if (p == 0)
         return 1;
-    from = (AIBLD *)gm_BuildQuery(1, 0, 0x44);
+    from = gm_BuildQuery(1, 0, 0x44);
     if (m->go.bldId != -1) {
-        to = (AIBLD *)gm_BuildQuery(1, 1, m->go.bldId);
+        to = gm_BuildQuery(1, 1, m->go.bldId);
         if (to == 0)
             return 1;
     } else
         to = from;
     if (p->group != -1)
-        cb = (AIBLD *)gm_BuildQuery(1, 1, p->group);
+        cb = gm_BuildQuery(1, 1, p->group);
     save = d3_CurrentScene;
     if (cb != 0 && gm_IsHomeType((unsigned char *)cb) != 0) {
         scene = d3t_SceneIndex(p->scene);
@@ -4836,7 +4836,7 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
     p = ch_FindByName(buf);
     if (p == 0)
         return 1;
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->gate.bldId);
+    b = gm_BuildQuery(1, 1, m->gate.bldId);
     q = (AIOBJ *)gm_Query((void *)b->objList, 1, 1, m->gate.objId);
     if (p->scriptGroup != -1)
         r = (AIOBJ *)gm_Query((void *)b->objList, 1, 1, p->scriptGroup);
@@ -4889,7 +4889,7 @@ int cm_ExOwnership(G17MSG *m, G17STAT *s)
     AIBLD *b;
     AICHAR *c1, *c2;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->owner.bldId);
+    b = gm_BuildQuery(1, 1, m->owner.bldId);
     if (b == 0)
         return 1;
     c1 = (AICHAR *)gm_FindChar(m->owner.ownerId);
@@ -4915,7 +4915,7 @@ int cm_ExSetHome(G17MSG *m, G17STAT *s)
     AIBLD *b, *o;
     AICHAR *c;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->home.bldId);
+    b = gm_BuildQuery(1, 1, m->home.bldId);
     if (b == 0)
         return 1;
     c = (AICHAR *)gm_FindChar(m->home.charId);
@@ -4961,7 +4961,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
 
     if (net_Conn.s != (unsigned int)-1)
         ai_NextObjectId = m->upgrade.nextObjId;
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->upgrade.bldId);
+    b = gm_BuildQuery(1, 1, m->upgrade.bldId);
     if (b == 0)
         return 1;
     t = &ai_BTypes[b->type];
@@ -5072,7 +5072,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
     AIBLD **bld;
     EVTSCRIPT *sc;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->destroy.bldId);
+    b = gm_BuildQuery(1, 1, m->destroy.bldId);
     if (b == 0)
         return 1;
     if ((char *)b == sv_SelectedObject)
@@ -5140,12 +5140,12 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     else
         m->hire.seed = rand();
     util_Seed(m->hire.seed);
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->hire.bldId);
+    b = gm_BuildQuery(1, 1, m->hire.bldId);
     if (b == 0)
         return 1;
     c = (AICHAR *)gm_FindChar(m->hire.charId);
     if (m->hire.homeId != -1) {
-        home = (AIBLD *)gm_BuildQuery(1, 1, m->hire.homeId);
+        home = gm_BuildQuery(1, 1, m->hire.homeId);
         if (home == 0)
             return 1;
     } else if (c != 0)
@@ -5335,7 +5335,7 @@ int cm_ExUpdateSmoke(G17MSG *m, G17STAT *s)
 {
     AIBLD *b;
 
-    b = (AIBLD *)gm_BuildQuery(1, 1, m->smoke.bldId);
+    b = gm_BuildQuery(1, 1, m->smoke.bldId);
     if (b != 0 && b->object != 0 && gm_IsHomeType((unsigned char *)b) == 0)
         sv_UpdateChimneySmoke(b);
     if (s != 0) {
@@ -5469,7 +5469,7 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
     else {
         k = cm_ResolveId((int)m, m->spawn.bldId);
         m->spawn.bldId = k;
-        b = (AIBLD *)gm_BuildQuery(1, 1, k);
+        b = gm_BuildQuery(1, 1, k);
         if (b == 0)
             return 1;
     }
@@ -5820,7 +5820,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
         s->value = 0;
     }
     if (m->script.op == 0x636c6572) {               /* 'cler' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->script.bldId);
+        b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b == 0)
             return 1;
         q = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
@@ -5837,7 +5837,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
         c = (unsigned short *)gm_FindChar(m->script.netId);
         if (c == 0)
             return 1;
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->script.bldId);
+        b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b == 0)
             return 1;
         q = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
@@ -5877,7 +5877,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
         s->value = 0;
     }
     if (m->table.op == 0x6a6f696e) {               /* 'join' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId);
+        b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b == 0)
             return 1;
         q = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
@@ -5901,7 +5901,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
         return 0;
     }
     if (m->table.op == 0x6c656176) {               /* 'leav' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId);
+        b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b == 0)
             return 1;
         q = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
@@ -5921,7 +5921,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
         return 0;
     }
     if (m->table.op == 0x636c6572) {               /* 'cler' */
-        b = (AIBLD *)gm_BuildQuery(1, 1, m->table.bldId);
+        b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b == 0)
             return 1;
         if (b->owner != 0xffff) {
@@ -6235,10 +6235,10 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    a = (AIBLD *)gm_FindBuildingById(m->spy.rep.bld);
+    a = gm_FindBuildingById(m->spy.rep.bld);
     if (a == 0)
         return 1;
-    b = (AIBLD *)gm_FindBuildingById(m->spy.bldId);
+    b = gm_FindBuildingById(m->spy.bldId);
     if (b == 0)
         return 1;
     q = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xca);
