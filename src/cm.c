@@ -1731,7 +1731,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
                 if (o != 0)
                     m.go.objId = o->objId;
             } else {
-                o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)b);
+                o = gm_GetGebaeudeHauptraum((unsigned char *)b);
                 if (o != 0)
                     m.go.objId = o->objId;
             }
@@ -2393,7 +2393,7 @@ void cm_SendClearRoute(AIOBJ *o)
 int cm_CheckMoveGoods(G17MSG *m)
 {
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
     ORDCHAR *c;
     int *list;
 
@@ -2418,7 +2418,7 @@ int cm_CheckMoveGoods(G17MSG *m)
 int cm_CheckSellObject(G17MSG *m)
 {
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
     ORDCHAR *c;
     char *p;
     ORDCHAR *r;
@@ -2438,7 +2438,7 @@ int cm_CheckSellObject(G17MSG *m)
         p = (char *)gm_Query((void *)*list, 1, 0, m->sell.item);
         if (p == 0)
             return 1;
-        if (((ORDOBJ *)p)->count < m->sell.count)
+        if (((AIOBJ *)p)->count < m->sell.count)
             return 1;
     }
     if (m->sell.buyer != -1) {
@@ -2474,7 +2474,7 @@ int cm_CheckSellObject(G17MSG *m)
 int cm_CheckFieldDeltas(G17MSG *m)
 {
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
     ORDCHAR *c;
     char *base, *a;
     union {
@@ -2535,7 +2535,7 @@ int cm_CheckFieldDeltas(G17MSG *m)
 int cm_CheckSetField(G17MSG *m)
 {
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
     ORDCHAR *c;
     char *base;
 
@@ -2865,7 +2865,7 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
 int cm_ExDeleteObject(G17MSG *m, G17STAT *s)
 {
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
     ORDCHAR *c;
 
     m->del.objectId = (unsigned short)cm_ResolveId((int)m, m->del.objectId);
@@ -3305,7 +3305,7 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
 
 int cm_ExRemoveGoods(G17MSG *m, G17STAT *s)
 {
-    ORDOBJ *y;
+    AIOBJ *y;
     AIOBJ *o;
 
     m->removeGoods.objId = cm_ResolveId((int)m, m->removeGoods.objId);
@@ -4413,7 +4413,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
             return 3;
     }
     if (q != 0 && q->id != 0xfd)
-        k = init_ObjectSceneUniverse((struct AIOBJ *)q);
+        k = init_ObjectSceneUniverse(q);
     else if (b != 0 && gm_IsHomeType(b) != 0) {
         k = init_BuildingSceneUniverse(b);
         q = gm_Query((void *)b->objList, 1, 0, 0xfd);
@@ -4799,7 +4799,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                     }
                 }
             } else {
-                i = init_ObjectSceneUniverse((struct AIOBJ *)q);
+                i = init_ObjectSceneUniverse(q);
                 g = &ai_Goods[q->id];
                 sprintf(gate, "dummy_gate_ob_%s", strupr(g->name));
                 if (cb != 0) {
@@ -4847,7 +4847,7 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
         sprintf(gate2, "dummy_gate_ob_AUSSEN_RAUM");
     } else {
         g = &ai_Goods[q->id];
-        k = init_ObjectSceneUniverse((struct AIOBJ *)q);
+        k = init_ObjectSceneUniverse(q);
         sprintf(gate2, "dummy_gate_ob_%s", strupr(g->name));
     }
     g = &ai_Goods[r->id];

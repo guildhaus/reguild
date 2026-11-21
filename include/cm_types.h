@@ -244,7 +244,7 @@ typedef struct G17CREATEOBJMSG {        /* 0x29 bytes, the data of message 0x15 
                                            object of the item in the holder and copies its 0x1f-byte kind data) */
     int holder;                         /* 0x00, the holder id (gm_FindById: a building, an object or a character) */
     unsigned short item;                /* 0x04, the object prototype (gm_CreateObject) */
-    unsigned char block[0x1f];          /* 0x06, the object's kind data (ORDOBJ +0x1c) */
+    unsigned char block[0x1f];          /* 0x06, the object's kind data (AIOBJ +0x1c) */
     int objectId;                       /* 0x25, the next object id (the server's, read when connected) */
 } G17CREATEOBJMSG;
 

@@ -220,40 +220,6 @@ typedef struct ORDMSG {
 
 #pragma pack(push, 1)
 
-/* the head of an object record ai.h's AIOBJ, as gm_Query returns it (gv.h and ai.h cannot be in one TU) */
-typedef struct ORDOBJ {
-    unsigned short type;            /* 0x00, the prototype id */
-    int objId;                      /* 0x02, the object's own id (messages name the object by it) */
-    int ownerId;                    /* 0x06, the id of the building / object / character holding it (gm_ClearObjects finds it by 0x4fea50) */
-    int holderId;                   /* 0x0a, gm_CreateObject: the holder's building id, the holding object's holderId or the holding character's netId (a cart: its owner character's netId) */
-    int count;                      /* 0x0e, the amount of goods it stands for (ai.h AIOBJ.count) */
-    unsigned char fill;             /* 0x12, how full a cart is in percent (ai.h AIOBJ.fill), 100 when created */
-    unsigned char b13;              /* 0x13 */
-    int list;                       /* 0x14, the object list it holds (ai.h AIOBJ.list) */
-    struct D3OBJECT *obj;           /* 0x18, the scene object that shows it (ai.h AIOBJ.obj) */
-    union {                         /* 0x1c, gm_CreateObject clears 0x1f bytes from here (to 0x3b) and sets them per prototype */
-        unsigned char lvl1c;        /* 0x1c, a workshop's level (ai.h AIOBJ.lvl1c); gm_SyncMarket raises it to the market's goods count */
-        int v1c[4];                 /* 0x1c */
-        unsigned char cap[2];       /* 0x1c, of the objects 0x2a / 0x116 two capacities from the building kind (gm_SetCapacities) */
-        struct {                    /* 0x1c, of the object 0x1b5 of the building kinds 0x14 .. 0x16: -1, -1, -1, 0 when created (gm_CreateBuilding) */
-            char v1b5a;             /* 0x1c */
-            char v1b5b;             /* 0x1d */
-            int v1b5c;              /* 0x1e */
-            unsigned char v1b5d;    /* 0x22 */
-        };
-        struct {
-            int cartBld;            /* 0x1c, of a cart: the id of its building, -1 = none */
-            int cart20;             /* 0x20 */
-            int cart24;             /* 0x24 */
-            unsigned char cart28;   /* 0x28 */
-        };
-    };
-    char pad2c[5];
-    unsigned char b31;              /* 0x31, a cart: 2 when created */
-    char pad32[9];
-    struct CHARACTER *model;        /* 0x3b, a cart's model (the cart or the horse, ch_Create) */
-    struct ORDOBJ *next;            /* 0x3f, the next object of its list (ai.h AIOBJ.next) */
-} ORDOBJ;                           /* 0x43 bytes, the records of the instance table ai_Objects */
 #pragma pack(pop)
 
 /* a record of the event list (he_FindEvent / he_NextEvent) as the order handlers read it */

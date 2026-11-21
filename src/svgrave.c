@@ -3117,7 +3117,7 @@ int ai_PermissionBits1d(char *ch, char *b, char *x)
     f = 0x81;
     if (((AIBLD *)b)->masterId == ((AICHAR *)ch)->id)
         f = 0x10bd;
-    if (x != 0 && (((ORDOBJ *)x)->type == 0x211 || ((ORDOBJ *)x)->type == 0x205))
+    if (x != 0 && (((AIOBJ *)x)->type == 0x211 || ((AIOBJ *)x)->type == 0x205))
         f &= ~1;
     if (((AIBLD *)b)->owner == ((AICHAR *)ch)->id) {
         f |= 0x4461;
@@ -3130,7 +3130,7 @@ int ai_PermissionBits1d(char *ch, char *b, char *x)
             }
         }
     }
-    if (x != 0 && ((ORDOBJ *)x)->type == 0x21b)
+    if (x != 0 && ((AIOBJ *)x)->type == 0x21b)
         f |= 0x5000;
     if (gm_AllowAll != 0)
         return -1;

@@ -1389,12 +1389,12 @@ int ai_QueryChapter3Step6(int *p)
 
 void ai_HookChapter5Step2(int arg)
 {
-    ORDOBJ *r;
+    AIOBJ *r;
     int id;
 
     if (arg)
         return;
-    r = (ORDOBJ *)gm_FindMarketObject(0x155);
+    r = (AIOBJ *)gm_FindMarketObject(0x155);
     id = ai_CharInts[ai_PlayerId][0];
     cm_SendMoveGoodsUnchecked(id, -1, 0, 0x2bc0);
     cm_SendExSellObject(r->objId, -1, 0x155, 3, ai_OwnPlayer, 0);

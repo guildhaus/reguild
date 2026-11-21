@@ -2993,12 +2993,12 @@ exe	0x004ff450	gm_RandomMarketShake	f3gm	6404493593e4e5da	no	shape	sweep control
 exe	0x004ff550	gm_UpdatePrices	f3gmt	c99a5e4da2f8db88	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x004ff8c0	gm_GoodsDemand	f3gm	747d1674d7782fc0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ff950	gm_GoodsStock	f3gm	a3d1bd1cdfdb2f2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004ffa10	gm_StockPrice	f3gmt	0a5c11dba74634e2	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	9face4bea92fc9a5
+exe	0x004ffa10	gm_StockPrice	f3gmt	b155171292099e4d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	24d0e5c57fe14a5c
 exe	0x004ffbf0	gm_GoodsValue	f3gm	3836209e5c5f8f3d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc40	gm_FindGoods	f3gm	ef3306d28a47d032	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc90	gm_MapDistance	f3gm	cda55d663378db8b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffcc0	gm_QueryNext	f3gm	bebf1a4311b2cd74	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x004ffe90	gm_Query	f3gmt	816ce8ef929afca1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e56396f83a147550
+exe	0x004ffe90	gm_Query	f3gmt	3d06e0c0e5882c36	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24d0e5c57fe14a5c
 exe	0x004fffc0	gm_FindFreeObject	f3gm	6bb86bc5b9d8222a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffff0	gm_RemoveObject	f3gm	c627346c8edca235	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00500080	gm_FreeObjectExtra	f3gm	3e7521ba111cef97	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3040,7 +3040,7 @@ exe	0x00502fd0	gm_SellBuilding	f3gm	a8b9e7fc79d1f965	no	byte	control=byte p1=byt
 exe	0x005031b0	gm_AllocRaum	f3gm	3b901f4a4526d55e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503480	gm_RemoveObjectFromBuilding	f3gm	4907533e25a8f849	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005034b0	gm_FreeObject	f3gm	d57befa7d1ff8081	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00503530	gm_PermissionBits	f3gmt	a83256417b0687d3	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	aa4ae7462f9a3225
+exe	0x00503530	gm_PermissionBits	f3gmt	2691ef90ea57f4e6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24d0e5c57fe14a5c
 exe	0x00503c20	gm_ReleaseCharacter	f3gm	68f6992261634f9d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503c60	gm_KillSpieler	f3gmt	05b77931c03cdff7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	835fb17aeffaabb4
 exe	0x00503e80	gm_ResetCharacters	f3gm	d21a0804f78a3dc8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3145,7 +3145,7 @@ exe	0x0050aaf0	gm_ListAmount	f3gm	f84afbe47e835b0a	no	byte	control=byte p1=byte 
 exe	0x0050ab20	gm_ListAmountById	f3gm	49c9fc458f00ba9a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050ab50	gm_ListStock	f3gm	9070f7c602a06cdc	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x0050ab80	gm_FreeCapacity	f3gm	f775aa27bfe13e00	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x0050acf0	gm_FreeStallCapacity	f3gm	bd12df85b8d08337	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
+exe	0x0050acf0	gm_FreeStallCapacity	f3gmt	07e548aad2b1db1a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24d0e5c57fe14a5c
 exe	0x0050ad70	gm_TakeableCount	f3gm	28f9c0f1c8b8a666	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	a54162395c11de5e
 exe	0x0050af00	gm_CollectCarried	f3gm	7c504dfbf45924a3	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050b010	gm_FirstBuilding	f3gm	78fc29bc0e558116	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72

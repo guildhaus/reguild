@@ -10,13 +10,13 @@
    Open: gm_IsBankrupt calls ai_LiquidateAssets (0x5b92e0: netId, character, amount, message) without a prototype;
    its definition in lc.c is still a one-parameter skeleton.
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
-   ORDCHAR / AIBLD / ORDOBJ, the job record through GMJOB (AIJOB, next to AITIME), the long message through
+   ORDCHAR / AIBLD / AIOBJ, the job record through GMJOB (AIJOB, next to AITIME), the long message through
    f3gm_types.h's GMMSG (AIMSG), the crime records ai_Crimes (cm_types.h CRIME,
    0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
    the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
    byte offset), the kind 0x23 events through GMEVENT23, or by byte offset (the rest, GM_GOODS).
-   Open: gm_QueryNext returns unsigned short * in every header though the cursor is an ORDOBJ *.
+   Open: gm_QueryNext returns unsigned short * in every header though the cursor is an AIOBJ *.
    Open: the head tables (gm_BoyHead .. gm_SpyHeads, gm_OwnNameHeads) are GMHEAD records but still defined as
    unsigned arrays; their readers cast them.
    Open: not included yet (dcp headers conflicts f3gm HEADER): ai.h anm.h cm.h d3_interface.h d3_tools.h
@@ -192,7 +192,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
     int k, n, cnt;
     float x;
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
 
     gv_GetTableRecord(9, rec);
     for (k = 0; k < 6; k++) {
@@ -213,7 +213,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rec[6];
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -230,7 +230,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
     int k, n, cnt;
     float x;
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
 
     gv_GetTableRecord(10, rec);
     for (k = 0; k < 6; k++) {
@@ -251,7 +251,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rec[6];
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -272,7 +272,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
     int k, n, base;
     float x;
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
 
     gv_GetTableRecord(0xd, (int *)&rec);
     rate = rec.cur;
@@ -297,7 +297,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rate;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             if (gm_GetGoodsValue((char *)&ORD_CHARS[id]) >= n)
                 cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[id].netId, ai_OwnPlayer, n);
         }
@@ -320,7 +320,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
     int k, n, base;
     float x;
     AIBLD *b;
-    ORDOBJ *o;
+    AIOBJ *o;
 
     gv_GetTableRecord(0xc, (int *)&rec);
     rate = rec.cur;
@@ -345,7 +345,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = (ORDOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ORD_CHARS[id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -444,13 +444,13 @@ extern char * cm_FieldObject;                /* 0xa68d2c */
    (gm_PlayerSeat (1)). Pumps the net after every 0x40 messages */
 void gm_CharacterUpkeep(void)
 {
-    ORDOBJ *seat;
+    AIOBJ *seat;
     AIDEC rec;
     ORDCHAR *c;
     char *b;
     int rate, i, v;
 
-    seat = (ORDOBJ *)gm_PlayerSeat(1);
+    seat = gm_PlayerSeat(1);
     gv_GetTableRecord(5, (int *)&rec);
     rate = 0xe - rec.cur;
     rate = gm_PlayerFactor(rate, ai_OwnPlayer);
@@ -2249,14 +2249,14 @@ char *gm_HomeObject(unsigned char *b)
 char *gm_CharacterHome(char *c, int *out2, int *out3)
 {
     ORDCHAR *ch = (ORDCHAR *)c;
-    ORDOBJ *o;
+    AIOBJ *o;
     char *type;
     int i;
     int n;
 
     n = 0xff;
     if (ch->bld2 != 0) {
-        o = (ORDOBJ *)gm_HomeObject((unsigned char *)ch->bld2);
+        o = (AIOBJ *)gm_HomeObject((unsigned char *)ch->bld2);
         if (o != 0)
             *out3 = o->objId;
         else
@@ -2285,7 +2285,7 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
 {
     unsigned id;
     ORDCHAR *c;
-    ORDOBJ *o;
+    AIOBJ *o;
 
     if (flags & 1) {
         id = gm_CreateRandomChild(age);
@@ -2302,7 +2302,7 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
         return 0;
     c = &ORD_CHARS[id];
     if (flags & 4) {
-        if (bld != 0 && (o = (ORDOBJ *)gm_HomeObject((unsigned char *)bld)) != 0)
+        if (bld != 0 && (o = (AIOBJ *)gm_HomeObject((unsigned char *)bld)) != 0)
             gm_PlaceOnStage(c->netId, ((AIBLD *)bld)->id, o->objId, 0, 0);
         return (short *)c;
     }
@@ -2400,7 +2400,7 @@ typedef struct GMJOB {
     char pad88[0x24];
     unsigned short good;                /* 0xac, of an order (event kind 2): the goods it makes */
     char padAe[2];
-    int objId;                          /* 0xb0, of an order: the ORDOBJ.objId of the workshop it is for */
+    int objId;                          /* 0xb0, of an order: the AIOBJ.objId of the workshop it is for */
     int research;                       /* 0xb4, of a research job (event kind 0xc): the goods researched */
 } GMJOB;
 #pragma pack(pop)
@@ -2448,7 +2448,7 @@ extern unsigned short gm_QueryOwnerNo;
 extern unsigned char gm_QueryKind;
 extern char gm_QueryFirst, gm_QueryScanAll, gm_QueryChildren, gm_QueryStopFirst;  /* 0x6f1be0, 0x6f1be8, 0x6f1be9, 0x6f1bea, first-step flag, scan all, descend into children, stop at the first */
 extern int gm_QueryScanned;
-extern ORDOBJ *gm_QueryCursor;
+extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
 extern int gm_QueryChildStack[20488];
 int gm_FindMarketObject(int id);                     /* 0x500ec0 */

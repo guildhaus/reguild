@@ -11635,7 +11635,7 @@ void he_AllocTransport(int ev)
     gm_AddTime(&e->end, 0, 0, 1);
     if (o != 0) {
         drv = gm_FindBuildingById(o->bldId);
-        ch = (CHARACTER *)o->sceneObj;
+        ch = o->sceneObj;
         ch->walkSpeed = o->fill * 0.01f * 0.5 + 0.9;
         if (o->type == 0x136)
             ch->walkSpeed = ch->walkSpeed - 0.4;
@@ -11715,7 +11715,7 @@ void he_SetCartSpeed(int ev, int p)
 {
     HETRANSPORT *t = (HETRANSPORT *)ev;
     AIOBJ *cart = (AIOBJ *)p;
-    CHARACTER *ch = (CHARACTER *)cart->sceneObj;
+    CHARACTER *ch = cart->sceneObj;
 
     if (d3t_Snow != 0 && d3t_Snow->count > 0x64)
         ch->walkSpeed = (float)(t->speed * 0.7);
@@ -11767,7 +11767,7 @@ void he_TransportFromHome(int ev)
         t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
     } else {
-        ch = (CHARACTER *)tr->sceneObj;
+        ch = tr->sceneObj;
         if (ch != 0 && ch->actions == 0
             && ((ch->scene == &d3_Scenes[0] && d3_VecEqual(&ch->obj->pos, &t->lastPos, 100.0f) != 0) || t->rounds > 6)) {
             if (gm_IsType10(to) == 0) {
@@ -11942,7 +11942,7 @@ void he_TransportStadtStadt(int ev)
             int px, pz;
             float py;
 
-            ch = (CHARACTER *)tr->sceneObj;
+            ch = tr->sceneObj;
             he_SetCartSpeed(ev, (int)tr);
             hmap = (D3SM *)ch_GetHMap(ch);
             t->started = 1;
@@ -11979,7 +11979,7 @@ void he_TransportStadtStadt(int ev)
     if (tr == 0)
         tr = gm_Query(0, 2, 7, 1, t->cart);
     if (tr != 0) {
-        ch = (CHARACTER *)tr->sceneObj;
+        ch = tr->sceneObj;
         he_SetCartSpeed(ev, (int)tr);
         walk = ch->actions;
         if (walk != 0 && walk->type == 0x2d) {
@@ -12108,7 +12108,7 @@ void he_TransportHomeHome(int ev)
         }
         e->exSlot = cm_SendExSetHE(3, ev);
     } else if (t->started != 0 && t->rounds > 0x10) {
-        ch = (CHARACTER *)tr->sceneObj;
+        ch = tr->sceneObj;
         if (ch != 0 && ch->actions == 0) {
             cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 1, "Trans");
             t->rounds = 0;
