@@ -1514,7 +1514,7 @@ void ai_Quicksave(void); void ai_ApplyOptions(); void cm_RaiseSpeedLevel(void); 
    0.5f); kb_Last 0 = none and the panel flag sv_QuickJump.panelFlag == 1 return at once; the key 0x1f takes a screenshot
    (0x589bc0), the key 0x10 runs ai_Quicksave while d2_FocusedInput is 0 and sv_FrameMask has no 0x10000; then the
    ai_GameFlags byte: bit 2 (the network game) - with bit 0x10 (the host) the keys 0x4e / 0x4a only raise / lower
-   cm_SpeedLevel (cm_RaiseSpeedLevel / cm_LowerSpeedLevel), without it they show the status text txt_SpeedHostOnly;
+   cm_SpeedLevel (cm_RaiseSpeedLevel / cm_LowerSpeedLevel), without it they show the status text TXT_SPEED_HOST_ONLY;
    without bit 2 they raise / lower and step the speed between 0 and 4 * 40 by 40, then ai_ApplyOptions applies it
    (kb_Last is read once more after each call) */
 void ai_SpeedKeys(void)
@@ -1567,7 +1567,7 @@ void ai_SpeedKeys(void)
         }
     } else {
         if (key == 0x4e || key == 0x4a)
-            sv_SetStatusText(txt_SpeedHostOnly);
+            sv_SetStatusText(txt_Ptrs[TXT_SPEED_HOST_ONLY]);
     }
 }
 

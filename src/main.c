@@ -1371,15 +1371,15 @@ void main_Menue(void)
     d2_SetForm(f, 0);
     win = d2_LastWindow;
     bnew = main_MenuButton(0, (int)txt_Ptrs[0x1c63], win);
-    bload = main_MenuButton(1, (int)ai_TextLoadGame, win);
+    bload = main_MenuButton(1, (int)txt_Ptrs[TXT_LOAD_GAME], win);
     btut = main_MenuButton(2, (int)txt_Ptrs[0x3f19], win);
     bnet = main_MenuButton(3, (int)txt_Ptrs[0x1c64], win);
-    bopt3 = main_MenuButton(4, (int)ai_TextGameOptions, win);
+    bopt3 = main_MenuButton(4, (int)txt_Ptrs[TXT_GAME_OPTIONS], win);
     bcred = main_MenuButton(7, (int)txt_Ptrs[0x1c65], win);
     bquit = main_MenuButton(8, (int)txt_Ptrs[0x1c66], win);
     if (main_DevMenu == 0) {
-        bopt1 = main_MenuButton(5, (int)ai_TextGfxOptions, win);
-        bopt2 = main_MenuButton(6, (int)ai_TextSfxOptions, win);
+        bopt1 = main_MenuButton(5, (int)txt_Ptrs[TXT_GFX_OPTIONS], win);
+        bopt2 = main_MenuButton(6, (int)txt_Ptrs[TXT_SFX_OPTIONS], win);
         grp = d2_CreateRadioGroup(9, bnew, bload, btut, bnet, bopt3, bopt1, bopt2, bcred, bquit);
     } else {
         bini = main_MenuButton(4, (int)"Create Save with INI", win);
@@ -1637,7 +1637,7 @@ void main_GiveStartBuildings(int p)
 
 #define SV_WI2(i, o) (*(int *)(U_I((unsigned)&d2_Objs) + (i) * 0x2ec + (o)))
 
-/* 0x5344f0, puts a person (the template model name n of the list main_FamilyModelNames, index k) at the dummy "a" of the scene: the dummy position (0x458a20), a character object (0x403390 (b, pos)) that
+/* 0x5344f0, puts a person (the template model name n of the list TXT_FAMILY_MODEL_NAMES, index k) at the dummy "a" of the scene: the dummy position (0x458a20), a character object (0x403390 (b, pos)) that
    looks along the dummy's heading (0x458810 / 0x4539f0, 0x43b860), walks ("bewegung/gehen", walkSpeed 0.7), is registered as a status text plate (0x52e1c0); returns the new object or 0 */
 
 CHARACTER *main_PlaceFamilyModel(char *dummy, char *model, int k)
@@ -1668,7 +1668,7 @@ CHARACTER *main_PlaceFamilyModel(char *dummy, char *model, int k)
         ch->familySlot = -1;
         ch->group = 1;
         ch->pathType = 4;
-        sv_RegisterNamePlate((char *)ch->obj, main_FamilyModelNames[k], 0);
+        sv_RegisterNamePlate((char *)ch->obj, txt_Ptrs[TXT_FAMILY_MODEL_NAMES + k], 0);
     }
     return ch;
 }
@@ -2571,7 +2571,7 @@ int main_ChooseCity(int unused, int host)
             strupr(key);
             k = txt_FindKey(key);
             if (k != -1)
-                strcpy(name, d2_Strings[k]);
+                strcpy(name, txt_Ptrs[k]);
             else
                 strcpy(name, hdr.name);
             sprintf(objName, "stadt_%s", hdr.name);
@@ -3406,8 +3406,8 @@ void main_EndRound(void)
 /* 0x539620, replaces a dead / imprisoned player (character slot p, kind 6 and health 0) by a new figure: with no
    slot of kind 6 and health left it sets ai_GameOver; the character's events (he_Events as AIJOB records) whose
    kind is in la are closed (he_FreeEvent), and a second walk (terminated by lb, comparing la) sets their stage
-   to -1; the kind becomes 5, the name is taken from txt_MaleFirstNames (flag9 clear, random 0xbf) or
-   txt_FemaleFirstNames (random 0x70), seq takes the old ai_NextCharNumber (then raised) and the eight ids are
+   to -1; the kind becomes 5, the name is taken from TXT_MALE_FIRST_NAMES (flag9 clear, random 0xbf) or
+   TXT_FEMALE_FIRST_NAMES (random 0x70), seq takes the old ai_NextCharNumber (then raised) and the eight ids are
    reset; finally every party record (cm_Parties, G28REC) the character is a member of, with a kind 3 .. 9, is
    cleared (cm_ClearParty). */
 
@@ -3453,9 +3453,9 @@ void main_ReplaceFigure(unsigned p)
         } while ((int)e < (int)(he_Events + 0x400));
         ch->kind = 5;
         if (ch->flag9 == 0) {
-            strcpy(ch->name, txt_MaleFirstNames[util_Random(0xbf)]);
+            strcpy(ch->name, txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)]);
         } else {
-            strcpy(ch->name, txt_FemaleFirstNames[util_Random(0x70)]);
+            strcpy(ch->name, txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)]);
         }
         ch->seq = (short)ai_NextCharNumber;
         memset(ch->clear, 0xff, sizeof(ch->clear));
@@ -4324,7 +4324,7 @@ int main_CheckCD(void)
 {
     return 1;
 }
-/* 0x53b840, creates the player character from the profile (cm_SendMessage0c) and its parents, the start couple (cm_SendCreateCharacter, mother with the female flag): random first names (txt_FemaleFirstNames / txt_MaleFirstNames), the father the profile's family name, the player's number and coat, the family links (spouse, parents, child), the model, love 0x7f between all three, 16000 .. 32352 money for each parent, the profile's mission and talents */
+/* 0x53b840, creates the player character from the profile (cm_SendMessage0c) and its parents, the start couple (cm_SendCreateCharacter, mother with the female flag): random first names (TXT_FEMALE_FIRST_NAMES / TXT_MALE_FIRST_NAMES), the father the profile's family name, the player's number and coat, the family links (spouse, parents, child), the model, love 0x7f between all three, 16000 .. 32352 money for each parent, the profile's mission and talents */
 
 void main_CreateStartCouple(void)
 {
@@ -4354,7 +4354,7 @@ void main_CreateStartCouple(void)
         mother->seq = a->seq;
         mother->coat = a->coat;
         mother->rel.child = a->netId;
-        t = txt_FemaleFirstNames[util_Random(0x70)];
+        t = txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)];
         d = mother->firstName;
         do {
             c = *t++;
@@ -4364,7 +4364,7 @@ void main_CreateStartCouple(void)
         father->seq = a->seq;
         father->coat = a->coat;
         father->rel.child = a->netId;
-        t = txt_MaleFirstNames[util_Random(0xbf)];
+        t = txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)];
         d = father->firstName;
         do {
             c = *t++;
@@ -4528,9 +4528,9 @@ void main_GameLoop(int ctl)
     if ((ai_GameFlags & 4) != 0)
         main_SetLoadProgress((int)txt_Ptrs[0x1cad], 5);
     else
-        main_SetLoadProgress((int)d2_Strings[0x6d], 5);
+        main_SetLoadProgress((int)txt_Ptrs[0x6d], 5);
     sv_PumpMessages();
-    main_SetLoadProgress((int)d2_Strings[0x6c], 5);
+    main_SetLoadProgress((int)txt_Ptrs[0x6c], 5);
     main_StartGame();
     if ((ai_GameFlags & 1) != 0 && main_StartCoupleOn != 0)
         main_CreateStartCouple();
@@ -5053,7 +5053,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE prev, char *cmd, int show)
             k = 0x38;
             if (main_JobName[0] != 0) {
                 for (i = 0; i < 0x5f; i++) {
-                    if (strcmpi(main_JobName, txt_JobNames[i]) == 0) {
+                    if (strcmpi(main_JobName, txt_Ptrs[TXT_JOB_NAMES + i]) == 0) {
                         k = i;
                         break;
                     }
@@ -5147,7 +5147,7 @@ int main_TextReopen = 0;  /* 0x6f2460 */
 int ai_WriteActionTable = 0;  /* 0x6f2464, set: write the action table */
 int main_HmtMode = 0;  /* 0x6f2468 */
 int main_HmtBuild = 0;  /* 0x6f246c */
-char main_JobName[0x104] = { 0 };  /* 0x6f2470, the job name of the BERUF=" command line option (WinMain: the starting job, matched against txt_JobNames, else 0x38) */
+char main_JobName[0x104] = { 0 };  /* 0x6f2470, the job name of the BERUF=" command line option (WinMain: the starting job, matched against TXT_JOB_NAMES, else 0x38) */
 int main_MoviesOpen = 0;  /* 0x6f2574, nonzero while the movie player is set up (mov_Init); the outro opens and closes it itself otherwise */
 int snd_MusicEnabled = 0;  /* 0x6f2578, the "msx" setting of game.INI [Sound]: music enabled */
 int snd_SfxEnabled = 0;  /* 0x6f257c, the "sfx" setting of game.INI [Sound]: effects and voices on */

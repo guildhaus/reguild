@@ -2043,8 +2043,8 @@ void ai_AlchemistLabContact(AIBLD *rec, AIOBJ *room)
         }
         if (ai_BuildingPerms & 0x400) {
             contract = sv_RegisterNamePlate("contact_CONTRACT", txt_Ptrs[0x4038], 0xe);
-            storage = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
-            transport = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+            storage = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
             alchemistContract = sv_RegisterNamePlate("contact_ALCHIMISTENVERTRAG", txt_Ptrs[0x4037], 0x16);
         }
         if (ai_ClickedObject == 0)

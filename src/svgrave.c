@@ -1765,7 +1765,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
         d2_Objs[id].captionX = 100;
         d2_Objs[id].captionY = 0x10;
         d2_Objs[id].font = 0x54;
-        d2_SetCaption(id, (char *)txt_ObjectNames[kinds[i]][0]);
+        d2_SetCaption(id, txt_Ptrs[TXT_OBJECT_NAMES + 2 * kinds[i]]);
         btns[i] = id;
         d2_SetObjEnabled(id, 1);
     }
@@ -2482,7 +2482,7 @@ void ai_GraveyardContact(AIBLD *rec)
             c_gehilfen = sv_RegisterNamePlate("contact_GEHILFEN_ERSCHAFFEN", txt_Ptrs[0x4130], 0x28);
             c_vers = sv_RegisterNamePlate("contact_VERSICHERUNG", txt_Ptrs[0x40f4], 0x2b);
             c_liege = sv_RegisterNamePlate("contact_LIEGEPLAN", txt_Ptrs[0x4104], 0x13);
-            c_trans = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
+            c_trans = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
         }
         c_mieten = sv_RegisterNamePlate("contact_GRAB_MIETEN", txt_Ptrs[0x4105], 0x16);
         if (ai_ClickedObject != 0) {
@@ -2882,9 +2882,9 @@ void ai_GraveInsuranceContact(AIBLD *rec)
    (sv_ReleaseNamePlates); each frame (sv_RunFrame, pump 0x67fff) the graveyard chatter (ai_GraveyardChatter); with
    the building permission 0x200 the five contact plates are registered (sv_RegisterNamePlate): the graveyard
    chapel's production ("contact_PRODUKTION_FRIEDHOFSKAPELLE", text 0x4155, look 0x13), the transport
-   ("contact_TRANSPORT", ai_ContactTextTransport, 0x15), the master letter ("ob_MEISTERBRIEF",
-   ai_ContactTextMasterLetter, 0xc), the personnel book ("ob_GEHILFENBUCH", ai_ContactTextPersonnelBook, 0xc) and
-   the storage ("contact_LAGER", ai_ContactTextStorage, 0xe); then the "Schlag" action (ai_GraveyardSchlag). A
+   ("contact_TRANSPORT", TXT_CONTACT_TRANSPORT, 0x15), the master letter ("ob_MEISTERBRIEF",
+   TXT_CONTACT_MASTER_LETTER, 0xc), the personnel book ("ob_GEHILFENBUCH", TXT_CONTACT_PERSONNEL_BOOK, 0xc) and
+   the storage ("contact_LAGER", TXT_CONTACT_STORAGE, 0xe); then the "Schlag" action (ai_GraveyardSchlag). A
    clicked plate (ai_ClickedObject) opens its window: ai_ProductionWindow, ai_OpenTransport, ai_MasterLetterWindow,
    ai_HelperBook (with the plate's name) or ai_StorageWindow (with the building's object list) */
 void ai_GraveyardTradeContact(AIBLD *rec)
@@ -2901,10 +2901,10 @@ void ai_GraveyardTradeContact(AIBLD *rec)
         ai_GraveyardChatter(rec);
         if (ai_BuildingPerms & 0x200) {
             c0 = sv_RegisterNamePlate("contact_PRODUKTION_FRIEDHOFSKAPELLE", txt_Ptrs[0x4155], 0x13);
-            c1 = sv_RegisterNamePlate("contact_TRANSPORT", ai_ContactTextTransport, 0x15);
-            c2 = sv_RegisterNamePlate("ob_MEISTERBRIEF", ai_ContactTextMasterLetter, 0xc);
-            c3 = sv_RegisterNamePlate("ob_GEHILFENBUCH", ai_ContactTextPersonnelBook, 0xc);
-            c4 = sv_RegisterNamePlate("contact_LAGER", ai_ContactTextStorage, 0xe);
+            c1 = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            c2 = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0xc);
+            c3 = sv_RegisterNamePlate("ob_GEHILFENBUCH", txt_Ptrs[TXT_CONTACT_PERSONNEL_BOOK], 0xc);
+            c4 = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
             ai_GraveyardSchlag(rec);
         }
         if (ai_ClickedObject != 0) {
