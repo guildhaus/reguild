@@ -139,7 +139,7 @@ typedef struct SVCHARREC {
     unsigned char jobId;                /* +0x164, AICHAR.jobId */
     char title;                         /* +0x165, the title rank (AICHAR.title) */
     char pad166[6];
-    unsigned char *bld;                 /* +0x16c, the building the character is in (AICHAR.bld) */
+    struct AIBLD *bld;                  /* +0x16c, the building the character is in (AICHAR.bld) */
     char pad170[8];
     int inventory;                      /* +0x178, the character's goods inventory (AICHAR.inventory) */
     SVGROUP *group;                     /* +0x17c, the job the character is a member of (AICHAR.job) */
@@ -610,7 +610,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
             sv_PanelShown = sv_QuickJump.record;
             sv_QuickJump.panelFlag = 0;
             ai_FrameWait = 0;
-            w = init_ObjectSceneUniverse((unsigned short *)sv_QuickJump.record);
+            w = init_ObjectSceneUniverse(sv_QuickJump.record);
             if (d3_Scenes[w].dirty != 0)
                 init_LoadObjectScene(sv_QuickJump.record->type);
             sv_PanelShown = old;
@@ -945,7 +945,7 @@ struct D2SURF * d2_LoadBmpSurface(char *name);                     /* 0x478b50 *
 void d2_GetPixelColour(int x, int y, struct D2SURF *surf, unsigned char *rgb);                     /* 0x4798f0 */
 struct D2SURF; int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g, unsigned char b, struct D2SURF *surf);  /* 0x4799e0 */
 void ai_SwitchRoom(int index, unsigned room);                                /* 0x59e0a0 */
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);                     /* 0x503530 */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);                     /* 0x503530 */
 int d2_FindPic(char *name);                     /* 0x468890 */
 char *strupr(char *);                     /* 0x5ea986 */
 extern int d2_PicShift;                   /* 0x6ed98c, d2.h (not includable here) */
@@ -1181,7 +1181,7 @@ void sv_UpdateGroundplan(unsigned flags)
                         if (dm_L.lclick != 0 && obj != 0 && obj->id != sv_PanelShown->type
                             && ai_ScriptQuery(0x19, (int)ai_PlayerBuilding, 0, obj->id) == 1
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
-                            if (gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, &obj->id, 0) & 0x4000)
+                            if (gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, obj, 0) & 0x4000)
                                 ai_SwitchRoom(-1, obj->id);
                         } else if (obj != 0)
                             d2_CopyCaption((char *)txt_ObjectNames[obj->id][0]);
@@ -1207,7 +1207,7 @@ void sv_UpdateGroundplan(unsigned flags)
                         if (dm_L.lclick != 0 && obj != 0
                             && (sv_PanelShown == 0 || (obj->id != sv_PanelShown->type && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
-                            if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, &obj->id, 0) & 0x4000)
+                            if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, obj, 0) & 0x4000)
                                 sv_SelectPanelObject(ai_FallbackBuilding, obj->objId, ch_EmptyName);
                         } else if (obj != 0)
                             d2_CopyCaption((char *)txt_ObjectNames[obj->id][0]);
@@ -1555,7 +1555,7 @@ void sv_CountGroupMembers(char *g)
         if (*p != -1) {
             c = (char *)gm_FindChar(*p);
             if (c != 0 && ((SVCHARREC *)c)->bld != 0) {
-                b = (char *)ai_BTypes + *((SVCHARREC *)c)->bld * 0x24d;
+                b = (char *)ai_BTypes + ((SVCHARREC *)c)->bld->type * 0x24d;
                 /* b: the building's type record (AIBTYPE, 0x24d bytes): +0x22f / +0x230 its two title ranks, +0x00 the kind */
                 if (c[0x165] == b[0x22f]) {
                     ((SVGROUP *)g)->rank1Count++;
@@ -1606,7 +1606,7 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
    lines differ, the callee-save push order (ours push ebp first / ebx later, the original push ebx first /
    ebp later), and ev taking ebp where the original reuses old's esi in the no-old path; ch / old / it
    rotate over ebx / esi / ebp */
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g)
+void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
 {
     SVCHARREC *ch;
     SVGROUP *old;
@@ -1626,15 +1626,15 @@ void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g)
     if (o == 0)
         o = ch->bld;
     if (it != 0) {
-        bt = &ai_BTypes[*o];
-        if (*it != 0xfd)
+        bt = &ai_BTypes[o->type];
+        if (it->type != 0xfd)
             w = init_ObjectSceneUniverse(it);
         else
-            w = init_BuildingSceneUniverse((AIBLD *)o);
+            w = init_BuildingSceneUniverse(o);
         k = gm_ClockSeason(&ai_Time);
         if ((((float)ai_Time.hour < gm_DayEndHours[k] && gm_DayStartHours[k] <= (float)ai_Time.hour) || bt->kind == 4 || bt->kind == 0x13 || bt->kind == 0x1d)
             && w >= 0 && ch->model != 0 && &d3_Scenes[w] != ch->model->scene) {
-            msg = (char *)ch_AddAction((struct CHARACTER *)ch->model, 0x33, w, ((AIBLD *)o)->id, ((AIOBJ *)it)->objId);
+            msg = (char *)ch_AddAction((struct CHARACTER *)ch->model, 0x33, w, o->id, it->objId);
             strcpy(msg + 0x70, "sv_ChangePlayerHE");
             msg = (char *)ch_AddAction((struct CHARACTER *)ch->model, 0x39, w);
             strcpy(msg + 0x70, "sv_ChangePlayerHE");
@@ -1826,7 +1826,7 @@ int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x
    (flag 0x800) and has no job of kind 0x14; each row shows "name health%" and up to two state pictures
    (sv_CharStateIcons, styled for the pictures 0xdf .. 0x3bb); with the button 0x51d the selected characters leave
    their job (sv_MoveToGroup) */
-void sv_UpdateMemberList(unsigned char *g)
+void sv_UpdateMemberList(AIBLD *g)
 {
     char *bt;
     SVMEMBERROW *r;
@@ -1838,7 +1838,7 @@ void sv_UpdateMemberList(unsigned char *g)
 
     if (sv_PlayerBarForm == -1)
         return;
-    bt = (char *)ai_BTypes + *g * sizeof(AIBTYPE);
+    bt = (char *)ai_BTypes + g->type * sizeof(AIBTYPE);
     d2_SetForm(sv_PlayerBarForm, 1);
     d2_ClearPointerItems();
     for (n = 0; n < 0x20; n++) {
@@ -1925,7 +1925,7 @@ void sv_UpdateMemberList(unsigned char *g)
             } else
                 ((SVCHARREC *)&ai_Chars[r->chr])->selected = 0;
         }
-        if (r->chr != 0xffff && ((SVCHARREC *)&ai_Chars[r->chr])->model->group == ((AIBLD *)g)->id
+        if (r->chr != 0xffff && ((SVCHARREC *)&ai_Chars[r->chr])->model->group == g->id
             && (((SVCHARREC *)&ai_Chars[r->chr])->flags & 0x800) == 0 && ((SVCHARREC *)&ai_Chars[r->chr])->groupKind != 0x14)
             d2_SetObjEnabled(r->check, 1);
         else
@@ -4083,7 +4083,7 @@ void sv_UpdatePanel(void)
                 perms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, 0, 0);
             else {
                 room = (int)gm_Query(ai_FallbackBuilding->objList, 1, 0, ai_FallbackBuilding->mainRoom);
-                perms = gm_PermissionBits(ai_PlayerId, 0, room, 0);
+                perms = gm_PermissionBits(ai_PlayerId, 0, (struct AIOBJ *)room, 0);
             }
         } else {
             if (sv_SelectedObject == 0)
@@ -4268,9 +4268,9 @@ void sv_HoverPick(void)
         case 1:
             sv_HoverItem = (int)((D3OBJECT *)ai_PickedObject)->owner;
             if (ai_FallbackBuilding != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, sv_HoverItem, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)sv_HoverItem, 0);
         else
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, sv_HoverItem, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, (struct AIOBJ *)sv_HoverItem, 0);
             if (sv_HoverItem != 0) {
                 n = ((AIOBJ *)sv_HoverItem)->id;
                 g = &ai_Goods[n];
@@ -4332,7 +4332,7 @@ void sv_HoverPick(void)
             else if (ai_FallbackBuilding != 0)
                 sv_HoverContact = (int)gm_Query(b->objList, 1, 0, 0xfd);
             if (sv_HoverContact != 0) {
-                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_HoverContact, 0);
+                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, (struct AIOBJ *)sv_HoverContact, 0);
                 if ((sv_PanelPerms & 1) != 0) {
                     d2_PointerLook = 0xb;
                     if (((AIOBJ *)sv_HoverContact)->id == 0xfd) {
@@ -4862,7 +4862,7 @@ void sv_SendSelectedToBuilding(void)
                                 break;
                             }
                         }
-                        sv_MoveToGroup((unsigned char *)sv_ClickedBuilding, 0, c->id, 0);
+                        sv_MoveToGroup(sv_ClickedBuilding, 0, c->id, 0);
                         cm_SendChrStop(c->netId);
                         cm_SendChrGotoBuilding(c->netId, sv_ClickedBuilding->id, room->objId, 0, 0, 0);
                         cur = sv_ClickedBuilding;
@@ -4890,7 +4890,7 @@ void sv_SendSelectedToBuilding(void)
                         break;
                     }
                 }
-                sv_MoveToGroup((unsigned char *)sv_ClickedBuilding, 0, c->id, 0);
+                sv_MoveToGroup(sv_ClickedBuilding, 0, c->id, 0);
                 cm_SendChrStop(c->netId);
                 cm_SendChrGotoBuilding(c->netId, sv_ClickedBuilding->id, room->objId, 0, 0, 0);
                 cur = sv_ClickedBuilding;
@@ -4984,7 +4984,7 @@ void sv_HandleSelectionMouse(void)
                             }
                         } while (ix < 0 || ix >= size || iy < 0 || iy >= size || cell == 0 || cell == 0xd);
                         if (ai_Chars[j].bld != 0)
-                            sv_MoveToGroup((unsigned char *)ai_Chars[j].bld, 0, ai_Chars[j].id, 0);
+                            sv_MoveToGroup(ai_Chars[j].bld, 0, ai_Chars[j].id, 0);
                         if (ai_Chars[j].model->scriptId != -1 && (t = (int)evt_FindById(ai_Chars[j].model->scriptId)) != 0)
                             evt_Stop((EVTSCRIPT *)t);
                         cm_SendChrWalkTo(ai_Chars[j].netId, ix, iy, d3_CurrentScene);
@@ -5005,9 +5005,9 @@ void sv_HandleSelectionMouse(void)
                 if (c != 0 && c->selected != 0) {
                     cm_SendChrStop(c->netId);
                     if (c->bld != 0)
-                        sv_MoveToGroup((unsigned char *)c->bld, 0, c->id, 0);
+                        sv_MoveToGroup(c->bld, 0, c->id, 0);
                     if (((AIOBJ *)sv_ClickedContact)->id != 0xfd) {
-                        t = init_ObjectSceneUniverse((unsigned short *)sv_ClickedContact);
+                        t = init_ObjectSceneUniverse((struct AIOBJ *)sv_ClickedContact);
                         if (ai_FallbackBuilding != 0)
                             b = ai_FallbackBuilding;
                         else if (ai_PlayerBuilding != 0)
@@ -5526,7 +5526,7 @@ void sv_DrawBorderArrows(void)
         return;
     b = ai_PlayerBuilding;
     if ((b != 0 || (ai_FallbackBuilding != 0 && (b = ai_FallbackBuilding) != 0)) && (sv_PanelShown != 0 || ai_FallbackBuilding != 0)) {
-        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, (unsigned short *)sv_PanelShown, 0);
+        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_PanelShown, 0);
         if ((sv_PanelPerms & 0x1000) == 0)
             return;
     }
@@ -5806,14 +5806,14 @@ done:
         bld = ai_FallbackBuilding;
     if ((fl & 8) != 0 && bld != 0) {
         if (sv_PanelShown != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, (unsigned short *)sv_PanelShown, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
         else
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, 0, 0);
         if (bld->owner == ai_PlayerId || (sv_PanelPerms & 0x1000) != 0)
             sv_BorderCameraView();
     }
     if (sv_PermsBuilding != bld || sv_PermsRoom != sv_PanelShown || ai_PermsDirty != 0) {
-        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, bld, (unsigned short *)sv_PanelShown, 0);
+        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
         sv_ReleaseNamePlates();
         sv_PermsBuilding = bld;
         sv_PermsRoom = sv_PanelShown;
@@ -7156,7 +7156,7 @@ l64:
         ch_CurrentGroup = -1;
     } else {
         sv_RunLocationScripts(c);
-        sv_UpdateMemberList((unsigned char *)c);
+        sv_UpdateMemberList(c);
         ch_CurrentGroup = c->id;
     }
     if (ai_GameState != 0) {

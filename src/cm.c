@@ -4353,7 +4353,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
         b = gm_FindBuildingById(m->place.bldId);
     save = d3_CurrentScene;
     if (m->place.objId != -1)
-        i = init_ObjectSceneUniverse(i);
+        i = init_ObjectSceneUniverse((struct AIOBJ *)i);
     else if (m->place.bldId != -1)
         i = init_BuildingSceneUniverse(b);
     else
@@ -4413,7 +4413,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
             return 3;
     }
     if (q != 0 && q->id != 0xfd)
-        k = init_ObjectSceneUniverse((unsigned short *)q);
+        k = init_ObjectSceneUniverse((struct AIOBJ *)q);
     else if (b != 0 && gm_IsHomeType(b) != 0) {
         k = init_BuildingSceneUniverse(b);
         q = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
@@ -4721,7 +4721,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         }
         if (m->go.noObject == 0) {
             if (m->go.objId != -1)
-                i = init_ObjectSceneUniverse((unsigned short *)gm_Query((void *)to->objList, 1, 1, m->go.objId));
+                i = init_ObjectSceneUniverse((struct AIOBJ *)gm_Query((void *)to->objList, 1, 1, m->go.objId));
             else
                 i = 0;
             if (i >= 0) {
@@ -4799,7 +4799,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                     }
                 }
             } else {
-                i = init_ObjectSceneUniverse((unsigned short *)q);
+                i = init_ObjectSceneUniverse((struct AIOBJ *)q);
                 g = &ai_Goods[q->id];
                 sprintf(gate, "dummy_gate_ob_%s", strupr(g->name));
                 if (cb != 0) {
@@ -4847,7 +4847,7 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
         sprintf(gate2, "dummy_gate_ob_AUSSEN_RAUM");
     } else {
         g = &ai_Goods[q->id];
-        k = init_ObjectSceneUniverse((unsigned short *)q);
+        k = init_ObjectSceneUniverse((struct AIOBJ *)q);
         sprintf(gate2, "dummy_gate_ob_%s", strupr(g->name));
     }
     g = &ai_Goods[r->id];
@@ -5418,7 +5418,7 @@ int cm_ExChangePlayerHe(G17MSG *m, G17STAT *s)
     if (c == 0)
         err_Message("cm_ExChangePlayerHe(): invalid sp->id");
     if (c->id != 0xffff)
-        sv_MoveToGroup((unsigned char *)c->bld, (short *)m->clear.room, c->id, 0);
+        sv_MoveToGroup((struct AIBLD *)c->bld, (struct AIOBJ *)m->clear.room, c->id, 0);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;

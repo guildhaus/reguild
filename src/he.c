@@ -3145,7 +3145,7 @@ void he_SetEventChar(int r, int pl)
 }
 
 int rd_PointsNear();
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
 
 /* 0x541280, the idle behaviour of the event's characters (ids[], 8 of them) in the default scene: each one whose scene
    character has no queued action either walks to 1 .. 3 points near pos (rd_PointsNear, actions 0x2d tagged
@@ -5058,7 +5058,7 @@ void he_RunRaid(int ev)
                 continue;
             c = (AICHAR *)gm_FindChar(e->ids[i]);
             if (c != 0) {
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
                 cm_SendChrStop(e->ids[i]);
                 cm_SendChrGotoBuilding(e->ids[i], b->id, -1, 0, 0, "Razzia");
             } else {
@@ -5087,7 +5087,7 @@ void he_RunRaid(int ev)
             if (c != 0 && c->health > 0) {
                 cm_SendChrStop(e->ids[i]);
                 cm_SendChrGotoBuilding(e->ids[i], home->id, o->objId, 0, 0, "Razzia");
-                sv_MoveToGroup((unsigned char *)home, 0, c->id, (char *)ev);
+                sv_MoveToGroup(home, 0, c->id, (char *)ev);
             } else {
                 e->ids[i] = -1;
             }
@@ -5226,7 +5226,7 @@ void he_RunRaid(int ev)
                 if (e->ids[i] != -1 && (c = (AICHAR *)gm_FindChar(e->ids[i])) != 0) {
                     cm_SendChrStop(e->ids[i]);
                     cm_SendChrGotoBuilding(e->ids[i], home->id, o->objId, 0, 0, "Razzia");
-                    sv_MoveToGroup((unsigned char *)home, 0, c->id, 0);
+                    sv_MoveToGroup(home, 0, c->id, 0);
                 }
             }
         }
@@ -7070,7 +7070,7 @@ void he_RunGang(int ev)
             } while ((o = gm_BuildNext()) != 0);
             o = (AIBLD *)pick[util_Random(n)];
         }
-        sv_MoveToGroup((unsigned char *)o, 0, member->id, (char *)ev);
+        sv_MoveToGroup(o, 0, member->id, (char *)ev);
         cm_SendChrStop(member->netId);
         cm_SendChrGotoBuilding(member->netId, o->id, -1, 0, 1, "Taschendieb");
         g->targets[idx] = o->id;
@@ -7292,7 +7292,7 @@ void he_RunProtection(int ev)
     }
     switch (e->stage) {
     case 1:
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+        sv_MoveToGroup(b, 0, c->id, (char *)ev);
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, b->id, -1, 0, 1, "Schutzgeld");
         e->end = ai_Time;
@@ -7376,7 +7376,7 @@ void he_RunProtection(int ev)
             he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, 0x5f3, (char *)0);
             he_ShowNews(ai_Chars[b->owner].netId, ai_Chars[b->owner].netId, text, 0, 0x5f3, (char *)0);
         }
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+        sv_MoveToGroup(b, 0, c->id, 0);
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, q->home, q->homeRoom, 0, 0, "Schutzgeld");
         e->end = ai_Time;
@@ -7428,7 +7428,7 @@ void he_RunAudit(int ev)
     }
     switch (e->stage) {
     case 0:
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+        sv_MoveToGroup(b, 0, c->id, (char *)ev);
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, b->id, -1, 0, 1, "BetriebsPr\xfc" "fung");
         e->end = ai_Time;
@@ -7471,7 +7471,7 @@ void he_RunAudit(int ev)
         e->stage = 2;
         return;
     case 2:
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+        sv_MoveToGroup(b, 0, c->id, 0);
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, a->home, a->homeRoom, 0, 0, "BetriebsPr\xfc" "fung");
         he_FreeEvent((int *)ev);
@@ -12609,7 +12609,7 @@ void he_RunMessageBox(int ev)
     }
 }
 
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
 
 /* 0x5578a0, the run handler of the slot order event 18 (HESLOTORDER, the type 0x12 message ai_BuySlots posts;
    allocated by he_AllocSlotOrderStore). Stage 0 goes on to 1. Stage 1, once due: with the workshop object (gm_FindById) and
@@ -13100,9 +13100,9 @@ void he_AllocStudy(int ev)
     e->end = ai_Time;
     e->start = ai_Time;
     if (room != 0)
-        sv_MoveToGroup((unsigned char *)b, (short *)room, c->id, (char *)ev);
+        sv_MoveToGroup(b, room, c->id, (char *)ev);
     else
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+        sv_MoveToGroup(b, 0, c->id, (char *)ev);
     e->clock60 = ai_Time;
     gm_AddTime(&e->end, 0, 0x1e, 0);
     s->until = e->end;
@@ -13181,7 +13181,7 @@ void he_RunStudy(int ev)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, e->from, text, 0, 0x5f2, b->id, q->objId, ch_EmptyName, "_NACHRICHTEN_HS_81");
             }
         }
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+        sv_MoveToGroup(b, 0, c->id, 0);
         he_FreeEvent((int *)ev);
         return;
     case -2:
@@ -15062,7 +15062,7 @@ void he_AllocHarvest(int ev)
     c = (AICHAR *)gm_FindChar(e->harvestWorker);
     if (pl == 0 || pl->fallId != -1) {
         if (c != 0)
-            sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+            sv_MoveToGroup(b, 0, c->id, 0);
         he_FreeEvent((int *)ev);
         return;
     }
@@ -15071,7 +15071,7 @@ void he_AllocHarvest(int ev)
         return;
     }
     o = (short *)gm_Query((void *)b->objList, 1, 0, 0xfd);
-    sv_MoveToGroup((unsigned char *)b, o, c->id, (char *)ev);
+    sv_MoveToGroup(b, o, c->id, (char *)ev);
     e->harvestSlot = cm_SetPlant(e->harvestBld, pl->x, pl->z, pl->type, 1, e->id);
     e->harvestType = pl->type;
     e->harvestScript = -1;
@@ -15116,7 +15116,7 @@ void he_RunHarvest(int ev)
     c = (AICHAR *)gm_FindChar(e->harvestWorker);
     if (pl == 0 || c == 0 || (pl->fallId != -1 && pl->fallId != e->id)) {
         if (c != 0)
-            sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+            sv_MoveToGroup(b, 0, c->id, 0);
         he_FreeEvent((int *)ev);
         return;
     }
@@ -15204,7 +15204,7 @@ void he_RunHarvest(int ev)
             m.flags = 1;
             cm_SendLongMessage((char *)&m);
         }
-        sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+        sv_MoveToGroup(b, 0, c->id, 0);
         he_FreeEvent((int *)ev);
         return;
     case -2:
@@ -16481,7 +16481,7 @@ void he_RunKidnap(AIJOB *ev)
         }
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0)
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+                sv_MoveToGroup(b, 0, c->id, 0);
         }
         he_FreeEvent((int *)ev);
         return;
@@ -16496,7 +16496,7 @@ void he_RunKidnap(AIJOB *ev)
                 if (b != 0) {
                     if (room != 0)
                         cm_SendChrGotoBuilding(ev->ids[k], b->id, room->objId, 0, 0, "Entf\374hren");
-                    sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+                    sv_MoveToGroup(b, 0, c->id, 0);
                 }
             }
         }
@@ -16824,7 +16824,7 @@ void he_RunBurglary(AIJOB *ev)
         }
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
                 cm_SendChrStop(ev->ids[k]);
                 cm_SendChrGotoBuilding(ev->ids[k], b->id, -1, 0, 1, "Einbruch");
             }
@@ -16961,7 +16961,7 @@ void he_RunBurglary(AIJOB *ev)
                     cm_SendChrGotoBuilding(ev->ids[k], g->id, room->objId, 0, 0, "Einbruch");
                     n++;
                     gm_SkillPoints(c, 2);
-                    sv_MoveToGroup((unsigned char *)g, 0, c->id, 0);
+                    sv_MoveToGroup(g, 0, c->id, 0);
                 }
             }
             for (report = (AIOBJ *)gm_Query((void *)g->objList, 1, 0, 0xca); report != 0;
@@ -17143,7 +17143,7 @@ void he_RunBuildingSpying(AIJOB *ev)
             if (c != 0) {
                 cm_SendChrStop(c->netId);
                 cm_SendChrGotoBuilding(c->netId, b->id, -1, 0, 1, "GebSpionage");
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
             }
         }
         ev->end = ai_Time;
@@ -17209,7 +17209,7 @@ void he_RunBuildingSpying(AIJOB *ev)
                 spy = c;
                 cm_SendChrStop(ev->ids[k]);
                 cm_SendChrGotoBuilding(ev->ids[k], g->id, room->objId, 0, 0, "GebSpionage");
-                sv_MoveToGroup((unsigned char *)g, 0, c->id, 0);
+                sv_MoveToGroup(g, 0, c->id, 0);
                 n++;
             }
         }
@@ -17563,7 +17563,7 @@ void he_RunAttack(AIJOB *ev)
                 c = (AICHAR *)gm_FindChar(ev->ids[i]);
                 cm_SendChrStop(ev->ids[i]);
                 cm_SendChrGotoBuilding(ev->ids[i], b->id, -1, 0, 0, "Angriff");
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
             }
         }
         ev->end = ai_Time;
@@ -18261,7 +18261,7 @@ void he_RunHealing(AIJOB *ev)
         c = (AICHAR *)gm_FindChar(x->charId);
         b = gm_FindBuildingById(ev->from);
         if (c != 0 && b != 0) {
-            sv_MoveToGroup((unsigned char *)b, 0, c->id, 0);
+            sv_MoveToGroup(b, 0, c->id, 0);
             txt_Format(text, 0x1a18, b, c->id);
             he_MessageBoxQuickjump(ai_CharInts[ev->chr][0], -1, text, 0, 0x5f2, ev->from, -1, 0, "_NACHRICHTEN_HS_80");
         }
@@ -18782,7 +18782,7 @@ void he_RunRobbery(AIJOB *ev)
             break;
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
                 cm_SendChrStop(ev->ids[k]);
                 cm_SendChrGotoBuilding(ev->ids[k], b->id, -1, 0, 1, "Raubzug");
             }
@@ -18828,7 +18828,7 @@ void he_RunRobbery(AIJOB *ev)
         }
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1 && (c = (AICHAR *)gm_FindChar(ev->ids[k])) != 0) {
-                sv_MoveToGroup((unsigned char *)b, 0, c->id, (char *)ev);
+                sv_MoveToGroup(b, 0, c->id, (char *)ev);
                 cm_SendChrStop(ev->ids[k]);
                 cm_SendChrGotoBuilding(ev->ids[k], b->id, -1, 0, 0, "Raubzug");
                 cm_SendChrAnim(ev->ids[k], names[util_Random(3)], 1);
@@ -18918,7 +18918,7 @@ void he_RunRobbery(AIJOB *ev)
                     cm_SendChrGotoBuilding(ev->ids[k], g->id, room->objId, 0, 0, "Raubzug");
                     n++;
                     gm_SkillPoints(c, 2);
-                    sv_MoveToGroup((unsigned char *)g, 0, c->id, 0);
+                    sv_MoveToGroup(g, 0, c->id, 0);
                 }
             }
             ok = 1;
@@ -19719,7 +19719,7 @@ void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per);     /* 0x573970 */
 void he_GypsySwapSkills(AICHAR *pl, AICHAR *per);     /* 0x573ae0 */
 void he_GypsyCurse(AICHAR *pl, AICHAR *per);     /* 0x573c20 */
 void he_GypsySlowdown(AICHAR *pl, AICHAR *per);     /* 0x573d30 */
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g); /* 0x524260, the group register */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g); /* 0x524260, the group register */
 int sv_IsAtDoor();                 /* 0x524770 */
 void he_CircusShowIncome(int ev, int n);   /* 0x575030 */
 unsigned short ai_RandomDomizilGoodNotIn(int param_1, unsigned short *param_2);                 /* 0x5a9e90 */

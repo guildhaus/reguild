@@ -1104,7 +1104,7 @@ int ai_ProductionWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup((unsigned char *)bld, (short *)sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
                         ((AICHARREC *)ai_Chars)[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -3091,7 +3091,7 @@ void ai_ConstructionWindow(void)
 }
 
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -3172,7 +3172,7 @@ void ai_TradeContactChecks(void)
     if (item != 0) {
         g = ai_Goods + *item;
         if ((g->type == 6 || g->type == 2) &&
-            (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, item, 0) &
+            (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)item, 0) &
              0x4000) != 0) {
             room = (AIOBJ *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
             ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
@@ -3810,7 +3810,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup((unsigned char *)bld, (short *)sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
                         ((AICHARREC *)ai_Chars)[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -3981,7 +3981,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup((unsigned char *)bld, (short *)sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
                         ((AICHARREC *)ai_Chars)[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -4156,7 +4156,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                                 target = (short *)sv_PanelShown;
                                 if (target == 0)
                                     target = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
-                                sv_MoveToGroup((unsigned char *)bld, target, sv_MemberRows[i].chr, (char *)job);
+                                sv_MoveToGroup(bld, (struct AIOBJ *)target, sv_MemberRows[i].chr, (char *)job);
                                 ((AICHARREC *)ai_Chars)[sv_MemberRows[i].chr].selected = 0;
                             }
                         }
@@ -8970,7 +8970,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
 }
 
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); int ai_AmountMenu();
-int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
+int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
@@ -12484,7 +12484,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
     memset(msg.ids, 0xff, 6 * sizeof(int));  /* the gang's six members (HEGANG: AIJOB.ids[0..5]) */
     n = 0;
     do {
-        sv_UpdateMemberList((unsigned char *)bld);
+        sv_UpdateMemberList(bld);
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (d2_ClickedId == -1)

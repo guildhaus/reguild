@@ -1290,7 +1290,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
             if (gm_IsHomeType((AIBLD *)o))
                 sc = init_BuildingSceneUniverse((struct AIBLD *)o);
             else if (o2 != 0)
-                sc = init_ObjectSceneUniverse(o2);
+                sc = init_ObjectSceneUniverse((struct AIOBJ *)o2);
             else
                 sc = 0;
             if (sc >= 0) {
@@ -2500,7 +2500,7 @@ void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, 
 int d3t_SceneIndex();                     /* 0x411be0 */
 int ch_Delete();                     /* 0x4028a0 */
 int gm_ObjectBuilding(int y);                     /* 0x50a0f0 */
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);                     /* 0x524260 */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);                     /* 0x524260 */
 void he_EndPersonEvents(unsigned short *p);                     /* 0x5538b0 */
 void he_EndKind23Events(int ev);                     /* 0x568aa0 */
 void d3io_NoopCallback();                     /* 0x44ee40 */

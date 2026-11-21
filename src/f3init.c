@@ -270,7 +270,7 @@ typedef struct INIT_TORCHLIST {
 float gm_JobWage();
 int gm_IsBuildingKind(int n);           /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
 int gm_FindBuildingKind(char *name);    /* 0x502060, f3gm.c: the building kind of the name */
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
 
 
 struct D3SCENE;
@@ -2799,25 +2799,25 @@ void init_GiveFirstPlayerBuildings(void)
 /* 0x511dc0, the universe of the scene of the object prototype p (a new one marked dirty (0xfd7f75) is only reserved, named after the prototype, and loaded later; the current prototype 0x6f2310 is loaded at once by 0x50d7f0) */
 
 
-int init_ObjectSceneUniverse(unsigned short *p)
+int init_ObjectSceneUniverse(AIOBJ *p)
 {
     int uni;
     char *d, *s;
     char c;
 
-    if (init_ObjectUniverse[*p] == -1) {
-        if (p == (unsigned short *)sv_PanelShown) {
-            init_LoadObjectScene(*p);
-            return init_ObjectUniverse[*p];
+    if (init_ObjectUniverse[p->type] == -1) {
+        if (p == sv_PanelShown) {
+            init_LoadObjectScene(p->type);
+            return init_ObjectUniverse[p->type];
         }
         uni = d3t_FindFreeScene();
         if (uni == -1)
             return -1;
-        init_ObjectUniverse[*p] = uni;
+        init_ObjectUniverse[p->type] = uni;
         init_SceneDirty[uni * 0x3e0] = 1;
-        strcpy(d3_Scenes[uni].name, (char *)ai_Goods + *p * 0x41 + 1);
+        strcpy(d3_Scenes[uni].name, (char *)ai_Goods + p->type * 0x41 + 1);
     }
-    return init_ObjectUniverse[*p];
+    return init_ObjectUniverse[p->type];
 }
 /* 0x511e60, the universe of the scene of the building b's type (0x76fa60): reserved (marked dirty, named after the type) when it is not the current building, else loaded at once by 0x50dc30; -1 when no universe is free; both paths reach the one final return, which re-reads init_BuildingUniverse[k] */
 
@@ -2980,7 +2980,7 @@ void init_SyncSceneObjects(char *o)
             d3if_ShowTree((struct D3OBJECT *)o, 1);
             so->owner = (SCENEOBJ *)rec;
             if ((g[0] == 6 || g[0] == 2) && ai_FallbackBuilding != 0) {
-                if (gm_PermissionBits(ai_PlayerId, ai_SceneBuilding, (unsigned short *)rec, 0) & 0x4000)
+                if (gm_PermissionBits(ai_PlayerId, ai_SceneBuilding, (struct AIOBJ *)rec, 0) & 0x4000)
                     so->mask = 1;
             } else {
                 so->mask = 0;

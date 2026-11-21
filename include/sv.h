@@ -61,11 +61,11 @@ void sv_AddGroupMember(int c, char *g);                                      /* 
 void sv_RemoveGroupMember(int c, char *g);                              /* 0x524160 */
 int sv_UsedGroupSlots(char *g);                                         /* 0x5241b0 */
 void sv_CountGroupMembers(char *g);                                     /* 0x5241d0 */
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);       /* 0x524260 */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);       /* 0x524260 */
 int sv_IsAtDoor(char *g, char *o);                                     /* 0x524770 */
 int sv_IsCartAtDoor(char *g, unsigned char *o);                            /* 0x524810 */
 int sv_CharStateIcons(char *c, int *out);                                    /* 0x524900 */
-void sv_UpdateMemberList(unsigned char *g);                                    /* 0x524990 */
+void sv_UpdateMemberList(struct AIBLD *g);                                    /* 0x524990 */
 void sv_OpenPlayerBar(struct AIBLD *a, char k);                                   /* 0x525220 */
 void sv_ClosePlayerBar(void);                                           /* 0x525440 */
 int sv_ClockSeason(void *t);                                            /* 0x525480 */

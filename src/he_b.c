@@ -1131,7 +1131,7 @@ int sprintf(char *buf, const char *fmt, ...);
 void mem_Free(void *p);
 void err_Message(char *text);
 int rd_PointsNear();
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
 void ai_ShowTributeDelayedNews(int param_1);
 void ai_ShowTributeCollectNews(int param_1);
 void ai_ShowTributeClaimNews(int param_1, int param_2);
@@ -1216,7 +1216,7 @@ int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 int sv_IsCartAtDoor();
 int init_BuildingSceneUniverse();
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
 int sv_IsAtDoor();
 int ord_DispatchOrder(int id, char *c, int *m);
 int ai_BrawlWin();
@@ -1362,7 +1362,7 @@ void he_AllocIncomeEvent(int ev)
     b = gm_FindBuildingById(e->incomeBld);
     for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
         if (rec->job == e)
-            sv_MoveToGroup((unsigned char *)b, 0, rec->id, (char *)ev);
+            sv_MoveToGroup(b, 0, rec->id, (char *)ev);
     }
     gm_AddTime(&e->end, 0, 0, 1);
 }
@@ -1443,7 +1443,7 @@ void he_RunIncomeEvent(AIJOB *ev)
                                            "_NACHRICHTEN_HS_07");
                     for (i = 0; i < 768; i++) {
                         if (ai_Chars[i].job == ev)
-                            sv_MoveToGroup((unsigned char *)bld, 0, ai_Chars[i].id, 0);
+                            sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
                     }
                     he_FreeEvent((int *)ev);
                     return;
@@ -1471,7 +1471,7 @@ void he_RunIncomeEvent(AIJOB *ev)
         }
         for (i = 0; i < 768; i++) {
             if (ai_Chars[i].job == ev)
-                sv_MoveToGroup((unsigned char *)bld, 0, ai_Chars[i].id, 0);
+                sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
         }
         he_FreeEvent((int *)ev);
         return;
@@ -1833,7 +1833,7 @@ lacking:
         }
         for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
-                sv_MoveToGroup((unsigned char *)bld, 0, rec->id, 0);
+                sv_MoveToGroup(bld, 0, rec->id, 0);
         }
         if (bld != 0)
             cm_SendUpdateSmoke(bld->id);
@@ -1899,7 +1899,7 @@ void he_RunSearchEvent(AIJOB *ev)
         he_MessageBoxQuickjump(ai_Chars[bld->owner].netId, -1, text, 0, 0x5f1, bld->id, -1, 0, "_NACHRICHTEN_HS_08");
         for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
-                sv_MoveToGroup((unsigned char *)bld, 0, rec->id, 0);
+                sv_MoveToGroup(bld, 0, rec->id, 0);
         }
         he_FreeEvent((int *)ev);
         return;
@@ -1995,7 +1995,7 @@ void he_RunSearch9(AIJOB *ev)
         }
         for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
-                sv_MoveToGroup((unsigned char *)bld, 0, rec->id, 0);
+                sv_MoveToGroup(bld, 0, rec->id, 0);
         }
         he_FreeEvent((int *)ev);
         return;
@@ -3260,7 +3260,7 @@ void he_AllocRecipeResearch(int ev)
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 5, 0);
             e->stage = 0;
-            sv_MoveToGroup((unsigned char *)c->bld, (short *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
+            sv_MoveToGroup(c->bld, (struct AIOBJ *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
                            (char *)ev);
             snd_PlayFavourComment();
             return;
@@ -3348,7 +3348,7 @@ void he_AllocResearchRecipe(int ev)
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 5, 0);
                 e->stage = 0;
-                sv_MoveToGroup((unsigned char *)c->bld, (short *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
+                sv_MoveToGroup(c->bld, (struct AIOBJ *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
                                (char *)ev);
                 snd_PlayFavourComment();
                 return;
@@ -3437,7 +3437,7 @@ void he_AllocTrainShare(int ev)
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 5, 0);
             e->stage = 0;
-            sv_MoveToGroup((unsigned char *)c->bld, (short *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
+            sv_MoveToGroup(c->bld, (struct AIOBJ *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
                            (char *)ev);
             snd_PlayFavourComment();
             return;
@@ -4984,7 +4984,7 @@ void he_AllocMasterWork(int ev)
         w = (AICHAR *)gm_FindChar(e->ids[i]);
         if (w != 0) {
             n++;
-            sv_MoveToGroup((unsigned char *)bld, grp, w->id, (char *)ev);
+            sv_MoveToGroup(bld, (struct AIOBJ *)grp, w->id, (char *)ev);
         }
     }
     if (n == 0) {
@@ -5155,7 +5155,7 @@ void he_AllocGraveCare(int ev)
         bld = gm_FindBuildingById(e->from);
         if (bld != 0) {
             grp = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
-            sv_MoveToGroup((unsigned char *)bld, grp, per->id, (char *)ev);
+            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, (char *)ev);
             p->care = 0.0f;
             p->left = 0x1fe;
             p->since = ai_Time;
@@ -5311,9 +5311,9 @@ void he_AllocGraveTraining(int ev)
         e->end = ai_Time;
         e->start = ai_Time;
         if (grp != 0)
-            sv_MoveToGroup((unsigned char *)bld, grp, per->id, (char *)ev);
+            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, (char *)ev);
         else
-            sv_MoveToGroup((unsigned char *)bld, 0, per->id, (char *)ev);
+            sv_MoveToGroup(bld, 0, per->id, (char *)ev);
         e->clock60 = ai_Time;
         gm_AddTime(&e->end, 0, 0x1e, 0);
         p->until = e->end;
@@ -5392,7 +5392,7 @@ void he_RunGraveTraining(int ev)
             he_MessageBoxQuickjump(ai_Chars[e->chr].netId, e->from, text, 0, 0x5f2, bld->id, obj->objId, ch_EmptyName, "_NACHRICHTEN_HS_81");
         }
     }
-    sv_MoveToGroup((int)bld, 0, ch->id, 0);
+    sv_MoveToGroup(bld, 0, ch->id, 0);
     he_FreeEvent((int *)ev);
 }
 /* 0x571f60, the alloc of the meeting event 0x90: stage 0, then paused -> nothing; the due clock = now; another
@@ -6728,7 +6728,7 @@ void he_RunTrialScene(int ev)
             txt_Format(text, 0x4205, bld);
             he_MessageBoxQuickjump(ch->netId, ch->netId, text, 0, 0x5fc, bld->id, grp->objId, ch_EmptyName, ch_EmptyName);
             sc = d3_CurrentScene;
-            sc2 = init_ObjectSceneUniverse((unsigned short *)grp);
+            sc2 = init_ObjectSceneUniverse((struct AIOBJ *)grp);
             d3if_SelectScene(sc2, 1);
             o = evt_Load("locations/zirkuszelt/theaterauffuehrung.esc");
             if (o != 0) {
@@ -6866,7 +6866,7 @@ void he_CircusShowPayout(int ev)
     he_ShowNews(per->netId, -1, text2, 0, 0x5ff, 0);
 }
 
-void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g); /* 0x524260, the group register */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g); /* 0x524260, the group register */
 int sv_IsAtDoor();                 /* 0x524770 */
 void he_CircusShowIncome(int ev, int n);   /* 0x575030 */
 

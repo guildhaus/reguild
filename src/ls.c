@@ -1844,7 +1844,7 @@ int ls_ReadSceneRecords(int f)
         if (bld != 0) {
             part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, ch->scriptGroup);
             if (part != 0 && part->id != 0xfd)
-                uni = init_ObjectSceneUniverse((unsigned short *)part);
+                uni = init_ObjectSceneUniverse((struct AIOBJ *)part);
             else
                 uni = init_BuildingSceneUniverse(bld);
         } else {
@@ -1971,7 +1971,7 @@ int ls_ReadSceneRecords(int f)
                 if (bld != 0) {
                     part = (AIOBJ *)gm_Query((void *)bld->objList, 2, 6, 1, a->args[2]);
                     if (part != 0 && part->id != 0xfd)
-                        a->u.scene.universe = a->args[0] = init_ObjectSceneUniverse((unsigned short *)part);
+                        a->u.scene.universe = a->args[0] = init_ObjectSceneUniverse((struct AIOBJ *)part);
                     else
                         a->u.scene.universe = a->args[0] = init_BuildingSceneUniverse(bld);
                 } else {

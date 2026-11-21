@@ -49,7 +49,7 @@ void init_NameBuildings(void);                                          /* 0x511
 void init_LocalData(void);                                              /* 0x511ad0 */
 void init_FillMarkets(int p);                                           /* 0x511bc0 */
 void init_GiveFirstPlayerBuildings(void);                                               /* 0x511c70 */
-int init_ObjectSceneUniverse(unsigned short *p);                        /* 0x511dc0 */
+int init_ObjectSceneUniverse(struct AIOBJ *p);                        /* 0x511dc0 */
 int init_BuildingSceneUniverse(struct AIBLD *b);                        /* 0x511e60 */
 void init_SyncSceneObjects(char *o);                                    /* 0x511f20 */
 void init_LoadTypeBScene(void);                                               /* 0x5124d0 */
