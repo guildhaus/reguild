@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
+exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		byte+readable -> shape+readable at c83f9c9f: tie-break: menu.h lost the unused CURSEBLD view (a25b8c7e); its text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
