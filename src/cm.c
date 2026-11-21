@@ -30,12 +30,10 @@
    Open: head: message 0x3f has no record type in cm_types.h (a struct typedef there flips
    ord_CountGridObjects shape -> draft, a declaration-set tie-break the probe does not reproduce), so 0x3f / 0x40
    read the player / item head of the goods record through G17GOODSMSG.goods.
-   The fight scene (cm_SetupFightScene .. cm_MostThreatenedCellNear) reads its fight record as CMFIGHTREC (a partial
-   layout, cm_types.h; cm_FightRecord points to it).
+   The fight scene (cm_SetupFightScene .. cm_MostThreatenedCellNear) reads its fight record as a G28REC party
+   (G28REC.fight, cm_types.h; cm_FightRecord points to it).
    Open: types: CMFIGHTSLOT and CMCUTENTRY (cm_types.h) are one 0x2c-byte record in two views (a cutscene entry is sent
    as the fight command's slot, cm_RunCutOrders casts between them); one type for both is unsettled.
-   Open: types: CMFIGHTREC (this file) is G28REC's raid view (cm_types.h: defenders 0x80, attackers 0xc0, carts 0x100,
-   home 0x10c; escort 0x110 is G28REC's pad110), two declarations of one party record.
    unit of rea 8cef7d5b (src/game/cm.c); boundaries in decl/text.dcl */
 #include "d2_types.h"
 #include "txt_views.h"

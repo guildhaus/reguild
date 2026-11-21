@@ -779,7 +779,7 @@ typedef struct HEGATHERING {            /* the patrol gathering event 0x65's wor
     char pad00[0xac];
     char place[0x20];                   /* 0xac, the name of the scene object the figures gather at; an event 0x48 of
                                            another character at the same place is its opponent */
-    int home;                           /* 0xcc, the building the figures go back to (the fight party's raidHome) */
+    int home;                           /* 0xcc, the building the figures go back to (the fight party's fight.attackerBld) */
     int homeRoom;                       /* 0xd0, the room object there */
     int party;                          /* 0xd4, the id of the fight party (cm_GetSlotValue), -1 at the start */
     int partySlot;                      /* 0xd8, the cm send slot of the fight party (cm_SendNewParty) */
@@ -5076,24 +5076,24 @@ void he_RunRaid(AIJOB *e)
             party.members[0] = raider->netId;
             party.members[1] = c->netId;
             for (i = 0; i < 16; i++) {
-                party.raid.raiders[i] = -1;
-                party.raid.defenders[i] = -1;
+                party.fight.attackers[i] = -1;
+                party.fight.defenders[i] = -1;
             }
             n = 0;
             for (i = 0; i < 768 && n < 16 && n < 6; i++) {
                 if (ai_Chars[i].health != 0 && ai_Chars[i].bld == b) {
-                    party.raid.defenders[n] = ai_Chars[i].netId;
+                    party.fight.defenders[n] = ai_Chars[i].netId;
                     n++;
                 }
             }
             for (i = 0; i < 3; i++)
-                party.raid.raid100[i] = -1;
+                party.fight.carts[i] = -1;
             home = gm_BuildQuery(1, 1, e->raidStart);
-            party.raid.raidHome = home->id;
+            party.fight.attackerBld = home->id;
             k = 0;
             for (i = 0; i < 8 && k < 6; i++) {
                 if (e->ids[i] != -1) {
-                    party.raid.raiders[k] = e->ids[i];
+                    party.fight.attackers[k] = e->ids[i];
                     k++;
                 }
             }
@@ -7478,21 +7478,21 @@ void he_RunGathering(AIJOB *e)
                 party.members[0] = ai_CharInts[mine][0];
                 party.members[1] = ai_CharInts[theirs][0];
                 for (i = 0; i < 16; i++) {
-                    party.raid.raiders[i] = -1;
-                    party.raid.defenders[i] = -1;
+                    party.fight.attackers[i] = -1;
+                    party.fight.defenders[i] = -1;
                 }
                 for (n = 0, i = 0; i < 8 && n < 6; i++) {
                     if (p->ids[i] != -1)
-                        party.raid.defenders[n++] = p->ids[i];
+                        party.fight.defenders[n++] = p->ids[i];
                 }
                 for (n = 0, i = 0; i < 6 && n < 6; i++) {
                     if (e->ids[i] != -1)
-                        party.raid.raiders[n++] = e->ids[i];
+                        party.fight.attackers[n++] = e->ids[i];
                 }
-                party.raid.raid100[0] = -1;
-                party.raid.raid100[1] = -1;
-                party.raid.raid100[2] = -1;
-                party.raid.raidHome = g->home;
+                party.fight.carts[0] = -1;
+                party.fight.carts[1] = -1;
+                party.fight.carts[2] = -1;
+                party.fight.attackerBld = g->home;
                 party.time = ai_Time;
                 gm_AddTime(&party.time, 0, 0x1e, 0);
                 g->partySlot = cm_SendNewParty(&party);
@@ -17097,7 +17097,7 @@ void he_AllocAmbush(AIJOB *ev)
    5 from 100 .. 500 up to above 700); when one was taken, with a chance of 80 of 100 (30 while an event 0x51 runs,
    none with gm_AllowAll) and no fight 3 running (cm_FindPartyOfKind), the gang raids them: a fight party (G28REC kind 3, flags
    0xa2, variant 1 | 8 at a "STADT" place) of the gang's building owner against the transports' owner, the carts'
-   objects in raid100, the carts' escorts armed (ai_ArmGateGuards; one cart of escort 2: kinds 2 and 1), the gang
+   objects in fight.carts, the carts' escorts armed (ai_ArmGateGuards; one cart of escort 2: kinds 2 and 1), the gang
    as raiders, in 15 minutes (stage 2). Else it waits 10 .. 14 minutes more until the event's time is up (then the
    cm ends it). Stage 2 waits for the party's slot (no party: cm slot 1), stage 3 waits (5 minutes) while the party
    runs, then ends a second later. Stages -2 / -1 send the gang (option 2) home and free the record */
@@ -17231,14 +17231,14 @@ void he_RunAmbush(AIJOB *ev)
                 if (o != 0 && strstr(o->name, "STADT") != 0)
                     party.variant |= 8;
                 for (k = 0; k < 16; k++) {
-                    party.raid.raiders[k] = -1;
-                    party.raid.defenders[k] = -1;
+                    party.fight.attackers[k] = -1;
+                    party.fight.defenders[k] = -1;
                 }
                 for (k = 0; k < 3; k++) {
                     if (cartObj[k] != 0)
-                        party.raid.raid100[k] = cartObj[k]->objId;
+                        party.fight.carts[k] = cartObj[k]->objId;
                     else
-                        party.raid.raid100[k] = -1;
+                        party.fight.carts[k] = -1;
                 }
                 for (k = 0; k < n; k++) {
                     if (cartObj[k]->escort == 2 && n == 1) {
@@ -17247,8 +17247,8 @@ void he_RunAmbush(AIJOB *ev)
                     } else
                         ai_ArmGateGuards(&party, cartObj[k]->escort);
                 }
-                party.raid.raidHome = b->id;
-                memcpy(party.raid.raiders, ev->ids, sizeof(ev->ids));
+                party.fight.attackerBld = b->id;
+                memcpy(party.fight.attackers, ev->ids, sizeof(ev->ids));
                 party.time = ai_Time;
                 gm_AddTime(&party.time, 0, 0xf, 0);
                 x->partySlot = cm_SendNewParty(&party);
@@ -17394,24 +17394,24 @@ void he_RunAttack(AIJOB *ev)
             party.members[1] = owner->netId;
             party.variant = 2;
             for (i = 0; i < 16; i++) {
-                party.raid.raiders[i] = -1;
-                party.raid.defenders[i] = -1;
+                party.fight.attackers[i] = -1;
+                party.fight.defenders[i] = -1;
             }
             n = 0;
             for (i = 0; i < 768 && n < 6; i++) {
                 if (ai_Chars[i].health != 0 && ai_Chars[i].bld == b) {
-                    party.raid.defenders[n] = ai_Chars[i].netId;
+                    party.fight.defenders[n] = ai_Chars[i].netId;
                     n++;
                 }
             }
             for (i = 0; i < 3; i++)
-                party.raid.raid100[i] = -1;
+                party.fight.carts[i] = -1;
             home = gm_BuildQuery(1, 1, ev->raidStart);
-            party.raid.raidHome = home->id;
+            party.fight.attackerBld = home->id;
             k = 0;
             for (i = 0; i < 8 && k < 6; i++) {
                 if (ev->ids[i] != -1) {
-                    party.raid.raiders[k] = ev->ids[i];
+                    party.fight.attackers[k] = ev->ids[i];
                     k++;
                 }
             }

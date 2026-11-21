@@ -169,7 +169,7 @@ int cm_FightWinner = 0;  /* 0x6f0cf4 */
 int cm_FightSettled = 0;  /* 0x6f0cf8 */
 int cm_FightLootValue = 0;  /* 0x6f0cfc */
 int cm_UnreadBss = 0;  /* 0x6f0d00, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-CMFIGHTREC *cm_FightRecord = 0;  /* 0x6f0d04 */
+G28REC *cm_FightRecord = 0;  /* 0x6f0d04 */
 int cm_SelectedCount = 0;  /* 0x6f0d08 */
 struct SBBANK *cm_FightSounds = 0;  /* 0x6f0d0c */
 struct SBBANK *cm_CrossbowSounds = 0;  /* 0x6f0d10 */
@@ -404,7 +404,7 @@ int *cm_CutEntrySlot(char *rec, AICHAR *c)
 
 int *cm_FightCutEntry(AICHAR *c)
 {
-    int n = cm_FightRecord->nChars;
+    int n = cm_FightRecord->used;
     CMCUTINFO *r;
     int i, j;
 
@@ -1879,7 +1879,7 @@ char cm_ClearKind3MaskCB(char *o)
    "dummy_DEFENSE_ENTRY", the scene characters collected, the carts "ob_KARREN_<size>_KAMPF.ogr" put at their
    dummies "dummy_KARREN_0<n>" with up to three of their goods shown as "WARE_0<n>" (shuffled), the border cells of the
    height map set to the ground type 0xd and cm_DefenseFactor from the defender's building */
-void cm_SetupFightScene(CMFIGHTREC *rec)
+void cm_SetupFightScene(G28REC *rec)
 {
     char name[0x100];
     D3VECTOR4 pos;
@@ -1896,15 +1896,15 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     char *p;
 
     border = 10;
-    if (rec->flags & 1) {
-        if (rec->flags & 8)
+    if (rec->fight.flags & 1) {
+        if (rec->fight.flags & 8)
             cm_LoadEventScene("Kampfszenario_STADT.ed3");
         else
             cm_LoadEventScene("Kampfszenario_BERGPASS.ed3");
-    } else if (rec->flags & 4) {
+    } else if (rec->fight.flags & 4) {
         cm_LoadEventScene("Kampfszenario_BERGPASS.ed3");
     } else {
-        b = gm_BuildQuery(1, 1, rec->placeId);
+        b = gm_BuildQuery(1, 1, rec->thing);
         if (gm_IsHomeType(b) != 0) {
             t = &ai_BTypes[b->type];
             if (t->kind == 0x10) {
@@ -1960,7 +1960,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     cm_DaggerSounds = sb_LoadSampleBank("kampf\\dolche.sbf", 1);
     cm_PistolSounds = sb_LoadSampleBank("kampf\\pistole.sbf", 1);
     cm_SwordSounds = sb_LoadSampleBank("kampf\\schwerter.sbf", 1);
-    b = gm_BuildQuery(1, 1, rec->attackerBldId);
+    b = gm_BuildQuery(1, 1, rec->fight.attackerBld);
     if (b != 0)
         cm_AttackerRole = cm_FightRole(b);
     if (cm_AttackerRole == 2) {
@@ -1970,7 +1970,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     } else if (cm_AttackerRole == 0) {
         CM_LOAD_VOICES(Attacker, "SOELDNER");
     }
-    b = gm_BuildQuery(1, 1, rec->placeId);
+    b = gm_BuildQuery(1, 1, rec->thing);
     if (b != 0)
         cm_DefenderRole = cm_FightRole(b);
     if (cm_DefenderRole != cm_AttackerRole) {
@@ -1999,12 +1999,12 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     sv_CameraEaseOn = 0;
     cm_FightRecord = rec;
     cm_PlaceFlagObjects();
-    cm_FightAttacker = gm_FindChar(rec->attackerId);
-    cm_FightDefender = gm_FindChar(rec->defenderId);
-    if (ai_Chars[ai_PlayerId].netId == cm_FightOwner && (rec->flags & 1)) {
+    cm_FightAttacker = gm_FindChar(rec->members[0]);
+    cm_FightDefender = gm_FindChar(rec->members[1]);
+    if (ai_Chars[ai_PlayerId].netId == cm_FightOwner && (rec->fight.flags & 1)) {
         cm_BeginSendGroup();
         for (i = 0; i < 3; i++) {
-            if (rec->carts[i] != -1)
+            if (rec->fight.carts[i] != -1)
                 cm_SendExSellObject(-2, -1, 0x154, 1, ai_OwnPlayer, 0);
         }
         cm_EndSendGroup();
@@ -2015,16 +2015,16 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
         }
     }
     for (i = 0; i < 16; i++) {
-        if (rec->attackers[i] != -1) {
-            r = cm_AddFighter(rec->attackers[i], "dummy_OFFENSE_ENTRY");
+        if (rec->fight.attackers[i] != -1) {
+            r = cm_AddFighter(rec->fight.attackers[i], "dummy_OFFENSE_ENTRY");
             r->side = cm_FightAttacker;     /* in a fight: the side's leader */
             if (r->scene != 0)
                 d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 5, 1);
         }
     }
     for (i = 0; i < 16; i++) {
-        if (rec->defenders[i] != -1) {
-            r = cm_AddFighter(rec->defenders[i], "dummy_DEFENSE_ENTRY");
+        if (rec->fight.defenders[i] != -1) {
+            r = cm_AddFighter(rec->fight.defenders[i], "dummy_DEFENSE_ENTRY");
             r->side = cm_FightDefender;
             r->scene->walkSpeed *= 1.2;
             if (r->scene != 0)
@@ -2045,7 +2045,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
         if (o != 0)
             d3if_Show(o, 0);
     }
-    for (i = 0, cart = rec->carts; i < 3; i++, cart++) {
+    for (i = 0, cart = rec->fight.carts; i < 3; i++, cart++) {
         goods[0] = 0;
         goods[1] = 0;
         goods[2] = 0;
@@ -2111,7 +2111,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
    (gm_AddHealth, not for the kind 0xb ones; only in the own fight or without a network connection) and loses the scene
    character; then the scroll speed, the sky, the scene and the caption are put back */
 
-void cm_EndFightScene(CMFIGHTREC *rec)
+void cm_EndFightScene(G28REC *rec)
 {
     AICHAR *k;
     int i;
@@ -2147,7 +2147,7 @@ void cm_EndFightScene(CMFIGHTREC *rec)
     }
     for (i = 0; i < 32; i++) {
         if (cm_Fighters[i].id != 0xffff && cm_Fighters[i].scene != 0) {
-            if (rec->owner == ai_Chars[ai_PlayerId].netId || net_Conn.s == INVALID_SOCKET) {
+            if (rec->host == ai_Chars[ai_PlayerId].netId || net_Conn.s == INVALID_SOCKET) {
                 k = gm_FindChar(cm_Fighters[i].netId);
                 if (k->kind != 0xb)
                     gm_AddHealth(k->id, cm_Fighters[i].v024 - k->v024);
@@ -2322,11 +2322,11 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
     sc = (D3SM *)d3_DefaultScene->hmap;
     threat = 0.0f;
     if (c->side == cm_FightAttacker) {      /* in a fight: the side's leader */
-        own = cm_FightRecord->attackers;
-        enemies = cm_FightRecord->defenders;
+        own = cm_FightRecord->fight.attackers;
+        enemies = cm_FightRecord->fight.defenders;
     } else {
-        own = cm_FightRecord->defenders;
-        enemies = cm_FightRecord->attackers;
+        own = cm_FightRecord->fight.defenders;
+        enemies = cm_FightRecord->fight.attackers;
     }
     d3sm_GetVertex(sc, a, b, (D3VECTOR *)&v);
     for (i = 0; i < 16; i++) {
@@ -2740,30 +2740,30 @@ float *cm_OrderChancesFor(int side)
     int i, cnt, lvl;
 
     kind = 6;
-    if ((cm_FightRecord->flags & 1) && (int)cm_FightAttacker == side)
+    if ((cm_FightRecord->fight.flags & 1) && (int)cm_FightAttacker == side)
         kind = 0;
-    else if ((cm_FightRecord->flags & 1) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 1) && (int)cm_FightDefender == side)
         kind = 1;
-    else if ((cm_FightRecord->flags & 2) && (int)cm_FightAttacker == side)
+    else if ((cm_FightRecord->fight.flags & 2) && (int)cm_FightAttacker == side)
         kind = 2;
-    else if ((cm_FightRecord->flags & 2) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 2) && (int)cm_FightDefender == side)
         kind = 3;
-    else if ((cm_FightRecord->flags & 4) && (int)cm_FightAttacker == side)
+    else if ((cm_FightRecord->fight.flags & 4) && (int)cm_FightAttacker == side)
         kind = 4;
-    else if ((cm_FightRecord->flags & 4) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 4) && (int)cm_FightDefender == side)
         kind = 5;
     def = 0.0f;
     for (i = 0; i < 16; i++) {
-        if (cm_FightRecord->defenders[i] != -1) {
-            o = (char *)cm_FindFighter(cm_FightRecord->defenders[i]);
+        if (cm_FightRecord->fight.defenders[i] != -1) {
+            o = (char *)cm_FindFighter(cm_FightRecord->fight.defenders[i]);
             if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
                 def = cm_FightStrength(o) + def;
         }
     }
     att = 0.0f;
     for (i = 0; i < 16; i++) {
-        if (cm_FightRecord->attackers[i] != -1) {
-            o = (char *)cm_FindFighter(cm_FightRecord->attackers[i]);
+        if (cm_FightRecord->fight.attackers[i] != -1) {
+            o = (char *)cm_FindFighter(cm_FightRecord->fight.attackers[i]);
             if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
                 att = cm_FightStrength(o) + att;
         }
@@ -2877,16 +2877,16 @@ void cm_GiveFightOrders(AICHAR *side)
     order = 0;
     cut = 0;
     row = cm_OrderChancesFor(side);
-    for (i = 0; i < cm_FightRecord->nChars; i++) {
-        if (cm_FightRecord->charIds[i] == side->netId) {
+    for (i = 0; i < cm_FightRecord->used; i++) {
+        if (cm_FightRecord->members[i] == side->netId) {
             cut = (char *)&cm_CutInfos[i];
             break;
         }
     }
     if (side == (int)cm_FightAttacker)
-        ids = cm_FightRecord->attackers;
+        ids = cm_FightRecord->fight.attackers;
     else
-        ids = cm_FightRecord->defenders;
+        ids = cm_FightRecord->fight.defenders;
     for (i = 0; i < 16; i++) {
         if (ids[i] != -1) {
             c[i] = cm_FindFighter(ids[i]);
@@ -3206,7 +3206,7 @@ void cm_PickUpAction(char *ev)
    the winner's cutscene entry (cm_CutEntrySlot, the record of the first leader of cm_FightRecord) is sent with state 5
    (cm_SendCutEntry). Returns the winner, 0 while the fight goes on */
 
-AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
+AICHAR *cm_CheckFightWinner(G28REC *rec)
 {
     AICHAR *winner;
     int flags, owned;
@@ -3224,16 +3224,16 @@ AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
         return (AICHAR *)cm_FightWinner;
     nDef = 0;
     for (i = 0; i < 16; i++) {
-        if (rec->defenders[i] != -1) {
-            c = cm_FindFighter(rec->defenders[i]);
+        if (rec->fight.defenders[i] != -1) {
+            c = cm_FindFighter(rec->fight.defenders[i]);
             if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                 nDef++;
         }
     }
     nAtt = 0;
     for (i = 0; i < 16; i++) {
-        if (rec->attackers[i] != -1) {
-            c = cm_FindFighter(rec->attackers[i]);
+        if (rec->fight.attackers[i] != -1) {
+            c = cm_FindFighter(rec->fight.attackers[i]);
             if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                 nAtt++;
         }
@@ -3254,8 +3254,8 @@ AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
     if (flags != 0 && owned == flags)
         winner = cm_FightDefender;
     if (winner != 0) {
-        n = cm_FightRecord->nChars;
-        for (i = 0; i < n && cm_FightRecord->charIds[i] == -1; i++)
+        n = cm_FightRecord->used;
+        for (i = 0; i < n && cm_FightRecord->members[i] == -1; i++)
             ;
         slot = (CMCUTENTRY *)cm_CutEntrySlot((char *)&cm_CutInfos[i], winner);
         entry = *slot;
@@ -3297,11 +3297,11 @@ int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
         ((AIFIN *)q)->lootTakings += v;
     return v;
 }
-/* 0x4d3ea0, the loot of the carts of a won fight: for each of the 3 cart ids (CMFIGHTREC.carts), the goods of the
+/* 0x4d3ea0, the loot of the carts of a won fight: for each of the 3 cart ids (G28REC.carts), the goods of the
    cart (0x4ffe90 chains) go to the winner (0x4c4880, at least 1, f of the count; a free pick-up with b == 0) and their
    price is added; with no winner record half of the value goes to the money message 0x4c47e0; the value goes to the
    record of the attacker side (0x506430, AIFIN.lootTakings) */
-int cm_LootCarts(CMFIGHTREC *a, AIBLD *b, AICHAR *d, int unused, float f)
+int cm_LootCarts(G28REC *a, AIBLD *b, AICHAR *d, int unused, float f)
 {
     AIOBJ *ob, *q, *p;
     int cnt, i;
@@ -3313,8 +3313,8 @@ int cm_LootCarts(CMFIGHTREC *a, AIBLD *b, AICHAR *d, int unused, float f)
     {
         ob = gm_Query(b->objList, 2, 6, 0, 0x116);
         for (i = 0; i < 3; i++) {
-            if (a->carts[i] != -1) {
-                p = gm_Query(0, 2, 7, 1, a->carts[i]);
+            if (a->fight.carts[i] != -1) {
+                p = gm_Query(0, 2, 7, 1, a->fight.carts[i]);
                 p = gm_Query(p->list, 1, 0, 0x1dd);
                 for (q = gm_Query(p->list, 1, 5); q != 0; q = gm_QueryNext()) {
                     gm_ObjectBuildingOwner(q);
@@ -3367,9 +3367,9 @@ int cm_LootList(int x, int y, int mode)
     char buf[0x100];
 
     for (i = 0; i < 3; i++) {
-        if (cm_FightRecord->carts[i] == -1)
+        if (cm_FightRecord->fight.carts[i] == -1)
             continue;
-        q = gm_Query(0, 2, 7, 1, cm_FightRecord->carts[i]);
+        q = gm_Query(0, 2, 7, 1, cm_FightRecord->fight.carts[i]);
         q = gm_Query(q->list, 1, 0, 0x1dd);
         for (q = gm_Query(q->list, 1, 5); q != 0; q = gm_QueryNext()) {
             if (mode != 0 && !(mode == 1 && q->fightSide == ai_PlayerId) &&
@@ -3453,7 +3453,7 @@ void cm_FightPortraits(int *ids, int x, int y)
    it fights no defenders or its random 0 .. 4 is above the escort. The loot goes through cm_LootCarts into
    cm_FightLootValue (-1: refused), cm_FightSettled = 1 when it was taken. Returns 1 when the fight goes on. */
 
-int cm_FightStartDialog(CMFIGHTREC *a)
+int cm_FightStartDialog(G28REC *a)
 {
     int res = 1;
     int st = 0;
@@ -3470,18 +3470,18 @@ int cm_FightStartDialog(CMFIGHTREC *a)
     win = d2_OpenForm(0, 0, "cutscenes\\combat_start");
     d2_PlaceMainWindow(win, 3);
     cm_FightSettled = 0;
-    place = gm_BuildQuery(1, 1, a->placeId);
-    home = gm_BuildQuery(1, 1, a->attackerBldId);
+    place = gm_BuildQuery(1, 1, a->thing);
+    home = gm_BuildQuery(1, 1, a->fight.attackerBld);
     role = cm_FightRole(home);
     d2_SetForm(win, 1);
     if (cm_FightAttacker->kind == 6) {
-        if (a->flags & 2) {
+        if (a->fight.flags & 2) {
             io_PrintText(0x1138, role + 0x1125, home, cm_FightDefender->id, place);
             d2_SetForm(win, 2);
             line = io_PrintText(0x113a, cm_FightDefender->id, place);
-        } else if (a->flags & 1) {
+        } else if (a->fight.flags & 1) {
             for (i = 0; i < 3; i++) {
-                if (a->carts[i] != -1)
+                if (a->fight.carts[i] != -1)
                     st++;
             }
             fv = gm_GetSkill(cm_FightAttacker, 3);
@@ -3489,7 +3489,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
             d2_SetForm(win, 2);
             io_PrintText(0x112f, st, 0xc10);
             if (fv >= 0.5) {
-                if (a->escort != 0)
+                if (a->fight.escort != 0)
                     io_PrintText(0x1134);
                 else
                     io_PrintText(0x1135);
@@ -3506,14 +3506,14 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                 line = io_PrintText(0x1133, 0x1136);
             else
                 line = io_PrintText(0x1133, 0x1137);
-        } else if (a->flags & 4) {
+        } else if (a->fight.flags & 4) {
             io_PrintText(0x113b, home, cm_FightDefender->id);
             d2_SetForm(win, 2);
             line = io_PrintText(0x113c, cm_FightDefender->id, place);
         }
         d2_SetForm(win, 1);
         io_PrintText(0x1132);
-        cm_FightPortraits(a->attackers, 0, 0xb4);
+        cm_FightPortraits(a->fight.attackers, 0, 0xb4);
         d2_GetWinObj(win, 2, line);
         line++;
         d2_GetWinObj(win, 2, line);
@@ -3533,22 +3533,22 @@ int cm_FightStartDialog(CMFIGHTREC *a)
             }
         }
     }
-    if ((a->flags & 1) && cm_FightDefender->kind == 6 && cm_FightSettled == 0) {
+    if ((a->fight.flags & 1) && cm_FightDefender->kind == 6 && cm_FightSettled == 0) {
         AIRECIPE rc = {0};
 
         total = 0;
         for (i = 0; i < 3; i++) {
-            if (a->carts[i] != -1)
+            if (a->fight.carts[i] != -1)
                 st++;
         }
-        job = (gm_Query(0, 2, 7, 1, a->carts[0]))->job24;     /* the job the first cart runs */
+        job = (gm_Query(0, 2, 7, 1, a->fight.carts[0]))->job24;     /* the job the first cart runs */
         d2_SetForm(win, 1);
         io_PrintText((intptr_t)"$C");
         if (job != 0) {
             bld = (char *)gm_FindBuildingById(job->cartBld);
             k = 0;
             for (i = 0; i < 16; i++) {
-                if (a->attackers[i] != -1)
+                if (a->fight.attackers[i] != -1)
                     k++;
             }
             if (bld != 0)
@@ -3558,13 +3558,13 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         r = (int)(v * 0.023809524f);
         if (r > 4)
             r = 4;
-        if (a->escort != 0)
+        if (a->fight.escort != 0)
             io_PrintText(0x113e, (r < 0 ? 0 : r) + 0x1128);
         else
             io_PrintText(0x113f);
         cm_LootList(0x10, 0x96, 0);
         for (i = 0; i < 3; i++) {
-            n = a->carts[i];
+            n = a->fight.carts[i];
             if (n != -1) {
                 bld = (char *)gm_FindObjectInst(n);
                 if (bld != 0) {
@@ -3582,7 +3582,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         b3 = d2_GetWinObj(win, 2, k + 2);
         line = 0;
         for (i = 0; i < 16; i++) {
-            if (a->defenders[i] != -1)
+            if (a->fight.defenders[i] != -1)
                 line++;
         }
         b4 = d2_GetWinObj(win, 2, k + 3);
@@ -3608,7 +3608,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                 else if (sel == b3)
                     st = 90;
                 if (util_Random(0x5a) + 10 <= st) {
-                    home = gm_BuildQuery(1, 1, a->attackerBldId);
+                    home = gm_BuildQuery(1, 1, a->fight.attackerBld);
                     txt_Format(tb, 0x1142);
                     cm_MessageBox((intptr_t)tb, 0);
                     fv = (float)(st * 0.01);
@@ -3624,13 +3624,13 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                 }
             }
         }
-    } else if ((a->flags & 1) && cm_FightDefender->kind != 6 && cm_FightSettled == 0) {
+    } else if ((a->fight.flags & 1) && cm_FightDefender->kind != 6 && cm_FightSettled == 0) {
         n = 0;
         for (i = 0; i < 16; i++) {
-            if (a->defenders[i] != -1)
+            if (a->fight.defenders[i] != -1)
                 n++;
         }
-        if (n == 0 || util_Random(5) > a->escort) {
+        if (n == 0 || util_Random(5) > a->fight.escort) {
             st = 0;
             r = util_Random(4);
             if (r == 0)
@@ -3640,7 +3640,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
             else if (r >= 2)
                 st = 50;
             if (util_Random(0x5a) + 10 <= st) {
-                home = gm_BuildQuery(1, 1, a->attackerBldId);
+                home = gm_BuildQuery(1, 1, a->fight.attackerBld);
                 fv = (float)(st * 0.01);
                 res = 0;
                 cm_FightSettled = 1;
@@ -3669,7 +3669,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
    money and goods is taken, 3 the attacker gains face, 0 the town guards are called, 0x11a4 .. 0x11a7), the bars of
    the defenders of a building of kind 0x13 (flags 4: their health, the money for the wounded) or the AI's capture
    (flags 2, the AI attacking: the same outcomes by random) */
-void cm_FightEndDialog(CMFIGHTREC *a)
+void cm_FightEndDialog(G28REC *a)
 {
     char ba[0x800];
     char bb[0x400];
@@ -3688,20 +3688,20 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     role = 0;
     d2_CopyCaption(&ch_EmptyName);
     sv_SetStatusText(&ch_EmptyName);
-    if (a->attackerBldId != -1) {
-        b = gm_BuildQuery(1, 1, a->attackerBldId);
+    if (a->fight.attackerBld != -1) {
+        b = gm_BuildQuery(1, 1, a->fight.attackerBld);
         obj = gm_Query(b->objList, 2, 6, 0, 0x116);
         if (obj == 0)
             obj = gm_Query(b->objList, 2, 6, 0, 0x2a);
     }
     if (cm_FightOwner == ai_Chars[ai_PlayerId].netId) {
         for (i = 0; i < 16; i++) {
-            id = a->defenders[i];
+            id = a->fight.defenders[i];
             if (id != -1 && (c = gm_FindChar(id)) != 0)
                 cm_FightWeaponLoss(c);
         }
         for (i = 0; i < 16; i++) {
-            id = a->attackers[i];
+            id = a->fight.attackers[i];
             if (id != -1 && (c = gm_FindChar(id)) != 0)
                 cm_FightWeaponLoss(c);
         }
@@ -3709,7 +3709,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     if (cm_FightWinner == 0) {
         na = 0;
         for (i = 0; i < 16; i++) {
-            id = a->defenders[i];
+            id = a->fight.defenders[i];
             if (id != -1) {
                 c = cm_FindFighter(id);
                 if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
@@ -3718,7 +3718,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         }
         nb = 0;
         for (i = 0; i < 16; i++) {
-            id = a->attackers[i];
+            id = a->fight.attackers[i];
             if (id != -1) {
                 c = cm_FindFighter(id);
                 if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
@@ -3735,12 +3735,12 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     d2_SetForm(win, 1);
     if (ai_Chars[ai_PlayerId].netId == side->netId) {
         if (side == cm_FightDefender) {
-            if (a->flags & 1) {
+            if (a->fight.flags & 1) {
                 io_PrintText(0x1189, cm_FightDefender->id, cm_FightAttacker->id);
                 io_PrintText(0x118a);
             } else
                 io_PrintText(0x1189, cm_FightDefender->id, cm_FightAttacker->id);
-        } else if (a->flags & 1)
+        } else if (a->fight.flags & 1)
             /* @original the same text both ways: VC6 merges the arms, the flags load stays ahead of the defender
                test */
             io_PrintText(0x118e, cm_FightAttacker->id, cm_FightDefender->id);
@@ -3748,8 +3748,8 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             io_PrintText(0x118e, cm_FightAttacker->id, cm_FightDefender->id);
     } else if (side == cm_FightAttacker) {
         io_PrintText(0x118c, cm_FightDefender->id, cm_FightAttacker->id);
-        if (a->flags & 1) {
-            p = gm_Query(0, 2, 7, 1, a->carts[0]);
+        if (a->fight.flags & 1) {
+            p = gm_Query(0, 2, 7, 1, a->fight.carts[0]);
             if (p->job24 != 0 && gm_FindBuildingById(p->job24->cartBld) != 0)
                 io_PrintText(0x118d);
         }
@@ -3762,7 +3762,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     d2_SetForm(win, 1);
     io_PrintText((intptr_t)"$C");
     io_PrintText(0x1191);
-    b = gm_BuildQuery(1, 1, a->attackerBldId);
+    b = gm_BuildQuery(1, 1, a->fight.attackerBld);
     bt = &ai_BTypes[b->type];
     if (bt->kind == 0x13)
         role = 0;
@@ -3771,8 +3771,8 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     else if (bt->kind == 4)
         role = 2;
     io_PrintText(0x1193, cm_FightAttacker->id, role + 0x1125);
-    cm_FightPortraits(a->attackers, 0, 100);
-    ca = gm_BuildQuery(1, 1, a->placeId);
+    cm_FightPortraits(a->fight.attackers, 0, 100);
+    ca = gm_BuildQuery(1, 1, a->thing);
     if (ca != 0) {
         bt = &ai_BTypes[ca->type];
         if (bt->kind == 0x13)
@@ -3785,7 +3785,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         role = 0;
     io_PrintText((intptr_t)"$7A");
     io_PrintText(0x1193, cm_FightDefender->id, role + 0x1125);
-    cm_FightPortraits(a->defenders, 0, 0x12c);
+    cm_FightPortraits(a->fight.defenders, 0, 0x12c);
     while (sv_RunFrame(cm_FightEndDialog, 0x7d6c6)) {
         if (dm_L.rup != 0 || d2_ClickedId == 0)
             sv_PopRequest = 1;
@@ -3793,7 +3793,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     d2_SetForm(win, 1);
     io_PrintText((intptr_t)"$C");
     io_PrintText(0x1197);
-    if (a->flags & 1) {
+    if (a->fight.flags & 1) {
         /* the carts: the loot list, the goods moved to the attacker's building */
         if (ai_PlayerId == cm_FightDefender->id)
             cm_LootList(0x24, 0x32, 2);
@@ -3805,13 +3805,13 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
-            if (a->attackerBldId != -1) {
-                b = gm_BuildQuery(1, 1, a->attackerBldId);
+            if (a->fight.attackerBld != -1) {
+                b = gm_BuildQuery(1, 1, a->fight.attackerBld);
                 b->roundSums[0] += v;
             }
         }
         for (i = 0; i < 3; i++) {
-            id = a->carts[i];
+            id = a->fight.carts[i];
             if (id == -1)
                 continue;
             p = gm_Query(0, 2, 7, 1, id);
@@ -3829,9 +3829,9 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             }
         }
         wait = 1;
-    } else if ((a->flags & 2) && side == cm_FightAttacker && side->id == ai_PlayerId) {
+    } else if ((a->fight.flags & 2) && side == cm_FightAttacker && side->id == ai_PlayerId) {
         /* the player took the building: four outcomes to choose */
-        ca = gm_BuildQuery(1, 1, a->placeId);
+        ca = gm_BuildQuery(1, 1, a->thing);
         txt_Format(ba, 0x119f, ca, cm_FightAttacker->id, ca);
         if (ca->type != 0x1e && ca->type != 0x20 && ca->type != 0x1f) {
             txt_Format(bb, 0x11a0, ca->type * 14 + 0x48e);
@@ -3886,8 +3886,8 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
-            if (a->attackerBldId != -1) {
-                b = gm_BuildQuery(1, 1, a->attackerBldId);
+            if (a->fight.attackerBld != -1) {
+                b = gm_BuildQuery(1, 1, a->fight.attackerBld);
                 b->roundSums[0] += v;
             }
             wait = 1;
@@ -3909,13 +3909,13 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                     cm_SendRelations(cm_FightAttacker->netId, ch->netId, 6, 1);
             }
         }
-    } else if (a->flags & 4) {
+    } else if (a->fight.flags & 4) {
         /* the defenders of a building of kind 0x13: their bars, the wounded paid for */
-        b = gm_BuildQuery(1, 1, a->attackerBldId);
+        b = gm_BuildQuery(1, 1, a->fight.attackerBld);
         if (ai_BTypes[b->type].kind == 0x13) {
             total = 0;
             for (v = 0; v < 16; v++) {
-                id = a->defenders[v];
+                id = a->fight.defenders[v];
                 if (id != -1) {
                     c = cm_FindFighter(id);
                     col = v % 4;
@@ -3950,13 +3950,13 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                 cm_SendMoveGoods(cm_FightAttacker->netId, -1, ai_OwnPlayer, total);
             else if (ai_PlayerId == cm_FightAttacker->id)
                 io_PrintText(0x11b6);
-            if (a->attackerBldId != -1) {
-                b = gm_BuildQuery(1, 1, a->attackerBldId);
+            if (a->fight.attackerBld != -1) {
+                b = gm_BuildQuery(1, 1, a->fight.attackerBld);
                 b->roundSums[0] += total;
             }
             wait = 1;
         }
-    } else if ((a->flags & 2) && side == cm_FightAttacker && cm_FightAttacker->kind != 6 && cm_FightAttacker->kind != 7) {
+    } else if ((a->fight.flags & 2) && side == cm_FightAttacker && cm_FightAttacker->kind != 6 && cm_FightAttacker->kind != 7) {
         /* the AI took the building: the outcome by random (a guard's or a job's building of its own always) */
         k = 0;
         if (!gm_TitleJob(cm_FightAttacker->id, gm_BuildingJob(bt->kind)) || bt->kind == 0xd || bt->kind == 0xc ||
@@ -3995,8 +3995,8 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
-            if (a->attackerBldId != -1) {
-                b = gm_BuildQuery(1, 1, a->attackerBldId);
+            if (a->fight.attackerBld != -1) {
+                b = gm_BuildQuery(1, 1, a->fight.attackerBld);
                 b->roundSums[0] += v;
             }
             wait = 1;
@@ -4030,7 +4030,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
    (gm_StallGoodsList's value) or the attacker's building is gone; else for both leaders one party note each by the
    kind of the fight (flags 1: texts 0x11e0 / 0x11e1, 2: 0x11e3 / 0x11e4 with the role of the attacker's building and
    the target building, 4: 0x11e6 / 0x11e7), the kind's closing text (0x11e2 / 0x11e5 / 0x11e8) appended; 1 */
-int cm_CheckFight(CMFIGHTREC *a)
+int cm_CheckFight(G28REC *a)
 {
     char buf[0x400];
     AIRECIPE rc;
@@ -4038,8 +4038,8 @@ int cm_CheckFight(CMFIGHTREC *a)
     AICHAR *ca, *cb;
     char *place;
 
-    ca = gm_FindChar(a->attackerId);
-    cb = gm_FindChar(a->defenderId);
+    ca = gm_FindChar(a->members[0]);
+    cb = gm_FindChar(a->members[1]);
     if (ca == 0 || cb == 0 || ca == cb) {
         /* @original the failing guard tests ca == cb once more and returns 0 either way (no code left of it):
            only with that second test, one more reference of ca and cb, VC6 serves cb before the cart loop's
@@ -4048,10 +4048,10 @@ int cm_CheckFight(CMFIGHTREC *a)
             return 0;
         return 0;
     }
-    if (a->flags & 1) {
+    if (a->fight.flags & 1) {
         for (i = 0; i < 3; i++) {
-            if (a->carts[i] != -1) {
-                cart = gm_FindObjectInst(a->carts[i]);
+            if (a->fight.carts[i] != -1) {
+                cart = gm_FindObjectInst(a->fight.carts[i]);
                 if (cart == 0)
                     return 0;
                 gm_StallGoodsList((char *)cart, (unsigned *)&rc);
@@ -4060,25 +4060,25 @@ int cm_CheckFight(CMFIGHTREC *a)
             }
         }
     }
-    place = (char *)gm_FindBuildingById(a->placeId);
-    if (gm_BuildQuery(1, 1, a->attackerBldId) == 0)
+    place = (char *)gm_FindBuildingById(a->thing);
+    if (gm_BuildQuery(1, 1, a->fight.attackerBld) == 0)
         return 0;
-    if (a->flags & 1) {
+    if (a->fight.flags & 1) {
         txt_Format(buf, 0x11e0, cb->id);
         strcat(buf, txt_Ptrs[0x11e2]);
         cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
         txt_Format(buf, 0x11e1, ca->id);
         strcat(buf, txt_Ptrs[0x11e2]);
         cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
-    } else if (a->flags & 2) {
-        role = cm_FightRole(gm_FindBuildingById(a->attackerBldId));
+    } else if (a->fight.flags & 2) {
+        role = cm_FightRole(gm_FindBuildingById(a->fight.attackerBld));
         txt_Format(buf, 0x11e3, role + 0x1125, cb->id, place);
         strcat(buf, txt_Ptrs[0x11e5]);
         cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
         txt_Format(buf, 0x11e4, ca->id, role + 0x1125, place);
         strcat(buf, txt_Ptrs[0x11e5]);
         cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
-    } else if (a->flags & 4) {
+    } else if (a->fight.flags & 4) {
         txt_Format(buf, 0x11e6, cb->id);
         strcat(buf, txt_Ptrs[0x11e8]);
         cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
@@ -4095,7 +4095,7 @@ int cm_CheckFight(CMFIGHTREC *a)
    random 30 per side, every fighter loses up to 20 * random 10 health) and the loot goes through cm_LootStock /
    cm_LootCarts. */
 
-void cm_RunFight(CMFIGHTREC *a)
+void cm_RunFight(G28REC *a)
 {
     char buf[0x800];
     int rc[0x2e];
@@ -4108,25 +4108,25 @@ void cm_RunFight(CMFIGHTREC *a)
     seed = cut_GetRandSeed();
     nb = 0;
     for (i = 0; i < 16; i++) {
-        id = a->defenders[i];
+        id = a->fight.defenders[i];
         if (id != -1 && gm_FindChar(id) == 0) {
             bad = 1;
-            a->defenders[i] = -1;
+            a->fight.defenders[i] = -1;
         }
     }
     for (i = 0; i < 16; i++) {
-        id = a->attackers[i];
+        id = a->fight.attackers[i];
         if (id != -1) {
             if (gm_FindChar(id) == 0) {
                 bad = 1;
-                a->attackers[i] = -1;
+                a->fight.attackers[i] = -1;
             } else
                 nb++;
         }
     }
-    if (a->flags & 1) {
+    if (a->fight.flags & 1) {
         for (i = 0; i < 3; i++) {
-            id = a->carts[i];
+            id = a->fight.carts[i];
             if (id != -1) {
                 p = (char *)gm_FindObjectInst(id);
                 if (p != 0) {
@@ -4138,15 +4138,15 @@ void cm_RunFight(CMFIGHTREC *a)
             }
         }
     }
-    if (gm_BuildQuery(1, 1, a->attackerBldId) == 0 || bad == 2 || nb == 0)
+    if (gm_BuildQuery(1, 1, a->fight.attackerBld) == 0 || bad == 2 || nb == 0)
         return;
     if (cm_SkipEvents == 0) {
         cm_SceneDuration = 200;
-        cm_FightOwner = a->owner;
+        cm_FightOwner = a->host;
         cm_SetupFightScene(a);
         cm_CollectSceneChars();
-        cm_PlaceFighters(a->attackers, "OFF");
-        cm_PlaceFighters(a->defenders, "DEF");
+        cm_PlaceFighters(a->fight.attackers, "OFF");
+        cm_PlaceFighters(a->fight.defenders, "DEF");
         cm_FightIntro((char *)a);
         if (cm_FightFixedLight != 0)
             d3_SetLightSet(2, 0, 1.0f, 1);
@@ -4174,7 +4174,7 @@ void cm_RunFight(CMFIGHTREC *a)
             cm_FightOutro((char *)a);
         } else if (cm_FightLootValue != 0 && cm_FightAttacker->kind == 6) {
             e1 = 0;
-            bld = gm_BuildQuery(1, 1, cm_FightRecord->attackerBldId);
+            bld = gm_BuildQuery(1, 1, cm_FightRecord->fight.attackerBld);
             if (bld != 0)
                 e1 = (char *)gm_Query(bld->objList, 2, 6, 0, 0x116);
             if (cm_FightLootValue > 0) {
@@ -4191,10 +4191,10 @@ void cm_RunFight(CMFIGHTREC *a)
     }
     sa = 0;
     sb = 0;
-    cm_FightAttacker = gm_FindChar(a->attackerId);
-    cm_FightDefender = gm_FindChar(a->defenderId);
+    cm_FightAttacker = gm_FindChar(a->members[0]);
+    cm_FightDefender = gm_FindChar(a->members[1]);
     for (i = 0; i < 16; i++) {
-        id = a->defenders[i];
+        id = a->fight.defenders[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
             sa = (int)(cm_FightStrength((char *)ch) + sa);
             r = util_Random(10);
@@ -4202,7 +4202,7 @@ void cm_RunFight(CMFIGHTREC *a)
         }
     }
     for (i = 0; i < 16; i++) {
-        id = a->attackers[i];
+        id = a->fight.attackers[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
             sb = (int)(cm_FightStrength((char *)ch) + sb);
             r = util_Random(10);
@@ -4214,22 +4214,22 @@ void cm_RunFight(CMFIGHTREC *a)
     else
         win = G20_ATT;
     for (i = 0; i < 16; i++) {
-        id = a->defenders[i];
+        id = a->fight.defenders[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0)
             cm_FightWeaponLoss(ch);
     }
     for (i = 0; i < 16; i++) {
-        if (a->attackers[i] != -1 && (ch = gm_FindChar(a->defenders[i])) != 0)
+        if (a->fight.attackers[i] != -1 && (ch = gm_FindChar(a->fight.defenders[i])) != 0)
             cm_FightWeaponLoss(ch);
     }
-    if (a->flags & 2) {
+    if (a->fight.flags & 2) {
         if (win == G20_DEF) {
-            e1 = (char *)gm_BuildQuery(1, 1, a->attackerBldId);
-            e2 = (char *)gm_BuildQuery(1, 1, a->placeId);
+            e1 = (char *)gm_BuildQuery(1, 1, a->fight.attackerBld);
+            e2 = (char *)gm_BuildQuery(1, 1, a->thing);
             cm_LootStock(e2, e1, G20_DEF, G20_ATT);
         }
-    } else if (!(a->flags & 4) && (a->flags & 1) && win == G20_DEF) {
-        c = (char *)gm_BuildQuery(1, 1, a->attackerBldId);
+    } else if (!(a->fight.flags & 4) && (a->fight.flags & 1) && win == G20_DEF) {
+        c = (char *)gm_BuildQuery(1, 1, a->fight.attackerBld);
         cm_LootCarts((char *)a, c, G20_DEF, (int)cm_FightDefender, 100.0f);
     }
 }
@@ -4592,9 +4592,9 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
         s.kill = hit;
         if (cm_CutChar->netId == cm_FightOwner && k->kind == 0) {
             other = 0;
-            n = cm_FightRecord->nChars;
+            n = cm_FightRecord->used;
             for (i = 0; i < n; i++) {
-                if (cm_FightRecord->charIds[i] != -1 && rec != &cm_CutInfos[i]) {
+                if (cm_FightRecord->members[i] != -1 && rec != &cm_CutInfos[i]) {
                     other = &cm_CutInfos[i];
                     break;
                 }

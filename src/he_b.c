@@ -695,7 +695,7 @@ typedef struct HEGATHERING {            /* the patrol gathering event 0x65's wor
     char pad00[0xac];
     char place[0x20];                   /* 0xac, the name of the scene object the figures gather at; an event 0x48 of
                                            another character at the same place is its opponent */
-    int home;                           /* 0xcc, the building the figures go back to (the fight party's raidHome) */
+    int home;                           /* 0xcc, the building the figures go back to (the fight party's fight.attackerBld) */
     int homeRoom;                       /* 0xd0, the room object there */
     int party;                          /* 0xd4, the id of the fight party (cm_GetSlotValue), -1 at the start */
     int partySlot;                      /* 0xd8, the cm send slot of the fight party (cm_SendNewParty) */

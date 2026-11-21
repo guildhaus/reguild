@@ -536,7 +536,7 @@ int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);  
 extern char ai_WeaponRecordData[];  /* 0x60c7c0 */
 extern int cm_LobbyChatCount;  /* 0x6f0cd8 */
 extern int cm_LobbyChatPos;  /* 0x6f0cdc */
-extern CMFIGHTREC *cm_FightRecord;  /* 0x6f0d04, the fight being run */
+extern G28REC *cm_FightRecord;  /* 0x6f0d04, the fight being run */
 extern int gm_AllowAll;  /* 0x6f2448 */
 extern G18LOG cm_LobbyChat[15];  /* 0x935da0 */
 extern int cm_LobbyChatNext;  /* 0x9363f4 */
@@ -674,7 +674,7 @@ struct CMGUARDREC; void ai_ArmGateGuards(struct CMGUARDREC *rec, unsigned char k
 char cm_ClearKind3MaskCB(char *o);  /* 0x4d0f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 
-struct CMFIGHTREC; void cm_SetupFightScene(struct CMFIGHTREC *rec);  /* 0x4d0fa0, sets up the fight scene of a fight record */
+void cm_SetupFightScene(G28REC *rec);  /* 0x4d0fa0, sets up the fight scene of a fight record */
 struct SBBANK *snd_LoadVoiceBank(char *name, int a);  /* 0x4c2830 */
 struct SBBANK * sb_LoadSampleBank();  /* 0x426950 */
 int cm_FightRole();  /* 0x4d4050 */
@@ -704,7 +704,7 @@ extern int cm_BootsObject;  /* 0x6f0d5c */
 extern float cm_FightCellScale;  /* 0x935d00 */
 extern float cm_DefenseFactor;  /* 0x60cb58 */
 
-void cm_EndFightScene(struct CMFIGHTREC *rec);  /* 0x4d1a10, ends the fight scene of a fight record (cm_SetupFightScene its counterpart) */
+void cm_EndFightScene(G28REC *rec);  /* 0x4d1a10, ends the fight scene of a fight record (cm_SetupFightScene its counterpart) */
 void cm_PlaceFighters(int *ids, char *side);  /* 0x4d1c20, places the fighters of one side of the fight at their dummies */
 int cm_FadeToBlack();  /* 0x4e3060 */
 int sb_UnloadSampleBank();  /* 0x426ba0 */
@@ -755,14 +755,14 @@ void cm_LayBombAction(char *ev);  /* 0x4d3980 */
 void cm_ThrowBombAction(char *ev);  /* 0x4d3a30 */
 void cm_CheerAction(char *ev);  /* 0x4d3ac0 */
 void cm_PickUpAction(char *ev);  /* 0x4d3ae0 */
-struct AICHAR *cm_CheckFightWinner(struct CMFIGHTREC *rec);  /* 0x4d3b30 */
+struct AICHAR *cm_CheckFightWinner(G28REC *rec);  /* 0x4d3b30 */
 int cm_LootStock(AIBLD *a, AIBLD *b, struct AICHAR *d, struct AICHAR *t);  /* 0x4d3d10 */
 int cm_FightRole(struct AIBLD *b);  /* 0x4d4050 */
 int cm_LootList(int x, int y, int mode);  /* 0x4d4090 */
 void cm_FightPortraits(int *ids, int x, int y);  /* 0x4d4340 */
-int cm_FightStartDialog(struct CMFIGHTREC *a);  /* 0x4d4540 */
-void cm_FightEndDialog(struct CMFIGHTREC *a);  /* 0x4d4d70 */
-int cm_CheckFight(struct CMFIGHTREC *a);  /* 0x4d60b0 */
+int cm_FightStartDialog(G28REC *a);  /* 0x4d4540 */
+void cm_FightEndDialog(G28REC *a);  /* 0x4d4d70 */
+int cm_CheckFight(G28REC *a);  /* 0x4d60b0 */
 void cm_FightResult(char *r);  /* 0x4d6930 */
 void cm_FightFrame(char *r);  /* 0x4d6970 */
 void cm_BuildFightUI(char *a);  /* 0x4d6a50, a: the member record, unused */
@@ -779,7 +779,7 @@ extern int cm_FightButton;  /* 0x60cb68 */
 extern int cm_FightForm;  /* 0x6f0d64 */
 
 extern int cm_TextBox;  /* 0x60d368 */
-void cm_RunFight(struct CMFIGHTREC *a);  /* 0x4d63e0, runs a fight record */
+void cm_RunFight(G28REC *a);  /* 0x4d63e0, runs a fight record */
 unsigned int cut_GetRandSeed();  /* 0x4e52c0 */
 void cut_RandSeed(unsigned int seed);  /* 0x4e52a0 */
 void cm_RunSceneParty(char *m, void *ctx);  /* 0x4e3830 */
@@ -804,7 +804,7 @@ extern int cm_FightSettled;  /* 0x6f0cf8 */
 extern int cm_FightLootValue;  /* 0x6f0cfc */
 extern struct D2WIN *d2_LastWindowPtr;  /* 0x6ed980, window created last (d2.c) */
 
-int cm_LootCarts(struct CMFIGHTREC *a, AIBLD *b, struct AICHAR *d, int unused, float f);  /* 0x4d3ea0 */
+int cm_LootCarts(G28REC *a, AIBLD *b, struct AICHAR *d, int unused, float f);  /* 0x4d3ea0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);  /* 0x5089c0, a price */
 int gm_GetGoodsValue(struct AICHAR *ch);  /* 0x509e60 */
 struct D3HMAP * ch_GetHMap();  /* 0x402140 */
