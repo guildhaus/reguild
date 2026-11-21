@@ -1720,7 +1720,7 @@ char *cm_AddFighter(int id, char *dummy)
     AIOBJ *item;
     int i;
 
-    c = (AICHAR *)gm_FindChar(id);
+    c = gm_FindChar(id);
     for (i = 0; i < 32; i++) {
         if (cm_Fighters[i].id == 0xffff) {
             memcpy(&cm_Fighters[i], c, sizeof(AICHAR));
@@ -2005,8 +2005,8 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     sv_CameraEaseOn = 0;
     cm_FightRecord = rec;
     cm_PlaceFlagObjects();
-    cm_FightAttacker = (AICHAR *)gm_FindChar(rec->attackerId);
-    cm_FightDefender = (AICHAR *)gm_FindChar(rec->defenderId);
+    cm_FightAttacker = gm_FindChar(rec->attackerId);
+    cm_FightDefender = gm_FindChar(rec->defenderId);
     if (ai_Chars[ai_PlayerId].netId == cm_FightOwner && (rec->flags & 1)) {
         cm_BeginSendGroup();
         for (i = 0; i < 3; i++) {
@@ -2154,7 +2154,7 @@ void cm_EndFightScene(CMFIGHTREC *rec)
     for (i = 0; i < 32; i++) {
         if (cm_Fighters[i].id != 0xffff && cm_Fighters[i].scene != 0) {
             if (rec->owner == ai_Chars[ai_PlayerId].netId || net_Conn.s == INVALID_SOCKET) {
-                k = (AICHAR *)gm_FindChar(cm_Fighters[i].netId);
+                k = gm_FindChar(cm_Fighters[i].netId);
                 if (k->kind != 0xb)
                     gm_AddHealth(k->id, cm_Fighters[i].v024 - k->v024);
             }
@@ -3702,12 +3702,12 @@ void cm_FightEndDialog(CMFIGHTREC *a)
     if (cm_FightOwner == ai_Chars[ai_PlayerId].netId) {
         for (i = 0; i < 16; i++) {
             id = a->defenders[i];
-            if (id != -1 && (c = (AICHAR *)gm_FindChar(id)) != 0)
+            if (id != -1 && (c = gm_FindChar(id)) != 0)
                 cm_FightWeaponLoss((char *)c);
         }
         for (i = 0; i < 16; i++) {
             id = a->attackers[i];
-            if (id != -1 && (c = (AICHAR *)gm_FindChar(id)) != 0)
+            if (id != -1 && (c = gm_FindChar(id)) != 0)
                 cm_FightWeaponLoss((char *)c);
         }
     }
@@ -4043,8 +4043,8 @@ int cm_CheckFight(CMFIGHTREC *a)
     AICHAR *ca, *cb;
     char *place;
 
-    ca = (AICHAR *)gm_FindChar(a->attackerId);
-    cb = (AICHAR *)gm_FindChar(a->defenderId);
+    ca = gm_FindChar(a->attackerId);
+    cb = gm_FindChar(a->defenderId);
     if (ca == 0 || cb == 0 || ca == cb) {
         /* @original the failing guard tests ca == cb once more and returns 0 either way (no code left of it):
            only with that second test, one more reference of ca and cb, VC6 serves cb before the cart loop's
@@ -4196,11 +4196,11 @@ void cm_RunFight(CMFIGHTREC *a)
     }
     sa = 0;
     sb = 0;
-    cm_FightAttacker = (AICHAR *)gm_FindChar(a->attackerId);
-    cm_FightDefender = (AICHAR *)gm_FindChar(a->defenderId);
+    cm_FightAttacker = gm_FindChar(a->attackerId);
+    cm_FightDefender = gm_FindChar(a->defenderId);
     for (i = 0; i < 16; i++) {
         id = a->defenders[i];
-        if (id != -1 && (ch = (AICHAR *)gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
+        if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
             sa = (int)(cm_FightStrength((char *)ch) + sa);
             r = util_Random(10);
             gm_AddHealth(ch->id, -r * 20);
@@ -4208,7 +4208,7 @@ void cm_RunFight(CMFIGHTREC *a)
     }
     for (i = 0; i < 16; i++) {
         id = a->attackers[i];
-        if (id != -1 && (ch = (AICHAR *)gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
+        if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
             sb = (int)(cm_FightStrength((char *)ch) + sb);
             r = util_Random(10);
             gm_AddHealth(ch->id, -r * 20);
@@ -4220,11 +4220,11 @@ void cm_RunFight(CMFIGHTREC *a)
         win = G20_ATT;
     for (i = 0; i < 16; i++) {
         id = a->defenders[i];
-        if (id != -1 && (ch = (AICHAR *)gm_FindChar(id)) != 0)
+        if (id != -1 && (ch = gm_FindChar(id)) != 0)
             cm_FightWeaponLoss((char *)ch);
     }
     for (i = 0; i < 16; i++) {
-        if (a->attackers[i] != -1 && (ch = (AICHAR *)gm_FindChar(a->defenders[i])) != 0)
+        if (a->attackers[i] != -1 && (ch = gm_FindChar(a->defenders[i])) != 0)
             cm_FightWeaponLoss((char *)ch);
     }
     if (a->flags & 2) {
@@ -4484,7 +4484,7 @@ void cm_FightSlotWinner(CMFIGHTSLOT *f)
     char buf[0x100];
     AICHAR *c;
 
-    c = (AICHAR *)gm_FindChar(f->id);
+    c = gm_FindChar(f->id);
     cm_FightWinner = (int)c;
     txt_Format(buf, 0x11b7, c->id);
     sv_SetStatusText(buf);

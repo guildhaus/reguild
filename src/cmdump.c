@@ -211,7 +211,7 @@ void ai_DumpPersonRelatives(char *c, char *buf)
 
     p = ((AICHAR *)c)->relatives;
     for (i = 8; i != 0; i--) {
-        o = (AICHAR *)gm_FindChar(*p);
+        o = gm_FindChar(*p);
         if (o != 0)
             sprintf(tmp, "%i\t%s", o->netId, o->name);
         else

@@ -356,7 +356,7 @@ struct AIBLD *gm_BuildNext(void);                                               
 struct AIBLD *gm_BuildQuery(int n, ...);                                         /* 0x501190, n (key, value) filters; key 6 takes no value */
 int gm_BuildingClass(int type);    /* 0x501d80, the class 0 .. 9 of ai_BTypes[type].kind: kinds 1 .. 0x20 index the byte table 0x501e14 and jump through 0x501dec (1..9), anything else is 0; ai.c dispatches its master / workshop logic on it, f3init.c's init_Betrieb stocks the classes 1 / 4 */
 struct AIBLD *gm_FindBuildingById(int id);                                             /* 0x502020 */
-short * gm_FindChar(int id);                                            /* 0x505df0 */
+struct AICHAR *gm_FindChar(int id);                                            /* 0x505df0 */
 int gm_CharLevel(unsigned short id, int again);                              /* 0x505e60, f3gm.c */
 short * gm_PlayerRecord(char *ch);                                         /* 0x506430 */
 float gm_ItemPrice(int item, unsigned char n);                           /* 0x5087f0 */

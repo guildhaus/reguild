@@ -1078,7 +1078,7 @@ int ahm_DeleteAlchemist(int unused, int *rec, unsigned char *o)
     int *q;
     int i;
 
-    c = (AICHAR *)gm_FindChar(rec[0]);
+    c = gm_FindChar(rec[0]);
     if (c != 0) {
         sp = (char *)gm_Query(((AHMOBJ *)o)->objs, 2, 6, 0, 0xff);
         c->bld2 = 0;

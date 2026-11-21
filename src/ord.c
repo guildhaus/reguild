@@ -446,7 +446,7 @@ int ord_DivorceOrder(char *c, int *m)
         return 1;
     if (i >= 0x300)
         return 1;
-    partner = (AICHAR *)gm_FindChar(ch->relatives[0]);
+    partner = gm_FindChar(ch->relatives[0]);
     if (partner == 0)
         return 1;
     if (partner->health == 0)

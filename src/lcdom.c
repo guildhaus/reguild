@@ -749,7 +749,7 @@ void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short 
 int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
-short * gm_FindChar(int id);
+struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
 typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
                                            ai_AmountRow; cm.c CMAMOUNTROW) */
@@ -828,7 +828,7 @@ typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCre
     int obj;                        /* 0x0c, the row's window object (d2_GetWinObj) */
     int index;                      /* 0x10, the offer's slot in the bank's credits[] */
 } CREDITROW;
-short * gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
+struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
 short * gm_PlayerRecord(char *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); void d2_SetObjText(); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, unsigned char i);
@@ -902,7 +902,7 @@ int gv_RetireCrimesOf(int p, int n); int cm_SendMoveGoods(int a, int b, unsigned
 void txt_Format(char *out, int id0, ...);
 void d2_CloseView(int view); int _ftol();
 void ai_Top5Window();
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); short * gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); struct AICHAR *gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
 void gm_DonationTop5(unsigned *ids, int *sc); int ai_DrawAmountRow();
 int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
@@ -5185,7 +5185,7 @@ void ai_EvidenceBookWindow(AIBLD *bld)
     count = gv_RankCulpritsAll(ids, open, total, me->id);
     n = 0;
     for (i = 0; i < count; i++) {
-        ch = (AICHAR *)gm_FindChar(ids[i]);
+        ch = gm_FindChar(ids[i]);
         if (ch != 0) {
             rows[n].rec = ch;
             rows[n].x2c = total[i];
@@ -5712,7 +5712,7 @@ void ai_NoticeBoardWindow(void)
             i = 0;
             for (ev = (AIJOB *)he_FindEvent(1, 0, 0x35); ev != 0 && n < 5; ev = (AIJOB *)he_NextEvent()) {
                 if (ev->stage > -1) {
-                    ch = (AICHAR *)gm_FindChar(ev->idbc);
+                    ch = gm_FindChar(ev->idbc);
                     if (ch != 0) {
                         d2_SetForm(win, n * 2 - 1);
                         io_PrintText("$C");
@@ -6150,7 +6150,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     } else {
         when = ev->end;
         for (k = 0; k < 4; k++)
-            guests[k] = (AICHAR *)gm_FindChar(table->festGuests[k]);
+            guests[k] = gm_FindChar(table->festGuests[k]);
         essen = table->festEssen;
         musik = table->festMusik;
     }
@@ -8694,12 +8694,12 @@ select:
                 if (row != 2) {
                     cls = (row != 0) + 2;
                     for (ev = (AIJOB *)he_FindEvent(2, 0, 0x16, 3, bld->id); ev != 0; ev = (AIJOB *)he_NextEvent()) {
-                        if (ev->thiefClass == cls && (ch = (AICHAR *)gm_FindChar(ev->thief)) != 0)
+                        if (ev->thiefClass == cls && (ch = gm_FindChar(ev->thief)) != 0)
                             ch->selected = 1;
                     }
                 } else {
                     for (ev = (AIJOB *)he_FindEvent(2, 0, 0x6c, 3, bld->id); ev != 0; ev = (AIJOB *)he_NextEvent()) {
-                        if ((ch = (AICHAR *)gm_FindChar(ev->ownerCh)) != 0)
+                        if ((ch = gm_FindChar(ev->ownerCh)) != 0)
                             ch->selected = 1;
                     }
                 }

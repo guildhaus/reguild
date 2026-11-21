@@ -5676,7 +5676,7 @@ void ai_RhetoricContact(AIBLD *bld, AIOBJ *room)
 }
 
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
-short * gm_FindChar(int id);
+struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
 
 /* 0x5966f0, the contact listener of the residence's social room (room kind 0x17 in ai_EnterBuilding; the feast window
@@ -5892,7 +5892,7 @@ void ai_MistressWindow(AIBLD *bld)
         io_PrintText("$Z$[%s$]$N", 0x1a4e);
         io_PrintText(0x1a4f);
         for (i = 0; i < 4; i++) {
-            AICHAR *ch = (AICHAR *)gm_FindChar(charIds[i]);
+            AICHAR *ch = gm_FindChar(charIds[i]);
 
             if (ch == 0)
                 break;
@@ -5935,7 +5935,7 @@ void ai_MistressWindow(AIBLD *bld)
             } else {
                 for (i = 0; i < 4; i++) {
                     if (d2_PointerObj == ctl[i]) {
-                        AICHAR *ch = (AICHAR *)gm_FindChar(charIds[i]);
+                        AICHAR *ch = gm_FindChar(charIds[i]);
 
                         ev = (AIJOB *)he_FindEvent(1, 1, evIds[i]);
                         d2_SetViewEnabled(win, 0);
@@ -6828,7 +6828,7 @@ void ai_StammtischWindow(AIBLD *bld, AIOBJ *table)
         changed = 0;
         seat = table->seats;
         for (i = 0; i < 4; i++, seat++) {
-            c = (AICHAR *)gm_FindChar(*seat);
+            c = gm_FindChar(*seat);
             if (c != rows[n].rec)
                 changed = 1;
             if (c != 0) {
@@ -6907,7 +6907,7 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
         changed = 0;
         seat = table->seats;
         for (i = 0; i < 4; i++, seat++) {
-            c = (AICHAR *)gm_FindChar(*seat);
+            c = gm_FindChar(*seat);
             if (c != rows[n].rec)
                 changed = 1;
             if (c != 0) {
@@ -7877,7 +7877,7 @@ void ai_NewCreditWindow(AIBLD *bank)
     d2_CloseView(win);
 }
 
-short * gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
+struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
 short * gm_PlayerRecord(char *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); void d2_SetObjText(); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, unsigned char i);
@@ -8261,7 +8261,7 @@ void ai_CreditGiverWindow(AIBLD *bank)
                     if (ai_Chars[borrowers[j]].netId == loans[i]->partner)
                         break;
                     if (borrowers[j] == -1) {
-                        ch = (AICHAR *)gm_FindChar(loans[i]->partner);
+                        ch = gm_FindChar(loans[i]->partner);
                         if (ch != 0) {
                             borrowers[j] = ch->id;
                             count++;
@@ -11085,7 +11085,7 @@ void ai_IndulgenceWindow(AIBLD *bld, AIOBJ *room)
         sv_CameraFollow();
 }
 
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); short * gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); struct AICHAR *gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
 
 /* 0x5a23a0, the baptism window "Locations\Kirche\Taufe" of the church bld: the fee is a hundredth of the
    player's worth (gm_GetWorth). In the player's own church the fee is fifteen times that: the text 0x1976 (the
@@ -11141,7 +11141,7 @@ void ai_BaptismWindow(AIBLD *bld, AIOBJ *room)
                         cm_SendFieldDeltas();
                         for (i = 3; i <= 7; i++) {
                             if (ai_Chars[ai_PlayerId].relatives[i] != -1 &&
-                                (rel = (AICHAR *)gm_FindChar(ai_Chars[ai_PlayerId].relatives[i])) != 0) {
+                                (rel = gm_FindChar(ai_Chars[ai_PlayerId].relatives[i])) != 0) {
                                 cm_BeginFieldBlock((char *)rel, rel->netId);
                                 cm_AddFieldDelta(1, 1, 0xc, &faith);
                                 cm_SendFieldDeltas();
@@ -11451,7 +11451,7 @@ void ai_SermonWindow(AIBLD *bld)
     if (sermon->sermon.enabled == 0)
         state = 0;
     else if (sermon->sermon.text1 != -1 && sermon->sermon.text2 != -1 &&
-             (priest = (AICHAR *)gm_FindChar(sermon->sermon.priest)) != 0)
+             (priest = gm_FindChar(sermon->sermon.priest)) != 0)
         state = 2;
     else
         state = 1;
@@ -11473,7 +11473,7 @@ void ai_SermonWindow(AIBLD *bld)
                     state = 0;
                 } else if (sermon->sermon.text1 != -1 && sermon->sermon.text2 != -1 &&
                            sermon->sermon.priest != -1) {
-                    priest = (AICHAR *)gm_FindChar(sermon->sermon.priest);
+                    priest = gm_FindChar(sermon->sermon.priest);
                     if (priest != 0)
                         state = 2;
                     else
@@ -11831,7 +11831,7 @@ void ai_DungeonBribeWindow(AIBLD *bld)
 
     if (amt_GetFirstOffice(0x11, &office) == 0)
         return;
-    jailer = (AICHAR *)gm_FindChar(office.owner);
+    jailer = gm_FindChar(office.owner);
     if (jailer == 0) {
         sv_MessageBox(txt_Ptrs[0x19b5], 0);
         sv_CameraFollow();
@@ -12678,7 +12678,7 @@ void ai_KidnapStart(AIBLD *bld)
     }
     for (rec = (AIJOB *)he_FindEvent(1, 0, 0x3d); rec != 0; rec = (AIJOB *)he_NextEvent()) {
         if (((LCRANSOMEVENT *)rec)->guild == bld->id) {
-            ch = (AICHAR *)gm_FindChar(((LCRANSOMEVENT *)rec)->victim);
+            ch = gm_FindChar(((LCRANSOMEVENT *)rec)->victim);
             if (ch != 0 && ch->heldRounds > 0) {
                 sv_MessageBox(ai_TextKidnapMessage, 0);
                 return;
@@ -12731,7 +12731,7 @@ void ai_RansomWindow(AIBLD *bld)
     factor = 0;
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
-    victim = (AICHAR *)gm_FindChar(bld->victimId);
+    victim = gm_FindChar(bld->victimId);
     if (victim == 0) {
         sv_MessageBox(txt_Ptrs[0x19c8], 0);
         return;
@@ -12883,7 +12883,7 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
     int r;
 
     if (bld->victimId != -1) {
-        ch = (AICHAR *)gm_FindChar(bld->victimId);
+        ch = gm_FindChar(bld->victimId);
         if (ch != 0) {
             if (ch->model == 0 && ch->kind != 6 && ch->kind != 7)
                 cell = gm_CreateCharModel(ch, d3_CurrentScene, 0, 0, 0, "dummy_EINGANG_ZELLE");

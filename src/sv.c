@@ -5216,7 +5216,7 @@ void sv_SpeakPicked(void)
                     txt_Format(text, util_Random(3) + 0x124d);
                     break;
                 case 0x3c:
-                    if ((c = (AICHAR *)gm_FindChar(job->u.id)) != 0)
+                    if ((c = gm_FindChar(job->u.id)) != 0)
                         txt_Format(text, util_Random(3) + 0x1253, c->id);
                     break;
                 case 0x14:
@@ -5235,7 +5235,7 @@ void sv_SpeakPicked(void)
                     txt_Format(text, util_Random(3) + 0x125f);
                     break;
                 case 0x18:
-                    if ((c = (AICHAR *)gm_FindChar(job->id4)) != 0)
+                    if ((c = gm_FindChar(job->id4)) != 0)
                         txt_Format(text, util_Random(3) + 0x1262, c->id);
                     break;
                 case 0x40:
@@ -5259,7 +5259,7 @@ void sv_SpeakPicked(void)
                     txt_Format(text, util_Random(3) + 0x1274);
                     break;
                 case 0x1a:
-                    if ((c = (AICHAR *)gm_FindChar(job->id3)) != 0)
+                    if ((c = gm_FindChar(job->id3)) != 0)
                         txt_Format(text, util_Random(3) + 0x1277, c->id);
                     break;
                 case 0x3f:
@@ -5268,7 +5268,7 @@ void sv_SpeakPicked(void)
                         txt_Format(text, util_Random(3) + 0x1250, r->owner, r);
                     break;
                 case 0x89:
-                    if ((c = (AICHAR *)gm_FindChar(job->id2)) != 0)
+                    if ((c = gm_FindChar(job->id2)) != 0)
                         txt_Format(text, util_Random(3) + 0x127a, c->id);
                     break;
                 case 0x8e:

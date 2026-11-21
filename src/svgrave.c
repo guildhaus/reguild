@@ -684,7 +684,7 @@ void ai_GraveDetail(AIBLD *rec, int *w, int clicked, int flag)
     int bar;
     GVITEM *items;
     GVITEM *item;
-    short *c;
+    AICHAR *c;
     int x;
     int y;
     int k;
@@ -764,7 +764,7 @@ void ai_GraveDetail(AIBLD *rec, int *w, int clicked, int flag)
         c = gm_FindChar(e->id);
         buf[0] = 0;
         if (c) {
-            txt_Format(buf, "%1N3", (unsigned short)*c);
+            txt_Format(buf, "%1N3", c->id);
         } else {
             for (i = 0; i < n; i++) {
                 if (items[i].grave->id == e->id) {
@@ -3227,7 +3227,7 @@ void ai_ClearTurnTable(void)
 /* dcp unit split: the declarations that moved to svtip (copies: drop what svgrave does not use) */
 int gm_BuildingKindCost(int c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
 float gm_GoodsPrice(unsigned id, unsigned char p);
-int ai_AmountRowStatus(); int ai_DrawAmountRow(); short * gm_FindChar(int id); int gm_TitlesLeft();
+int ai_AmountRowStatus(); int ai_DrawAmountRow(); struct AICHAR *gm_FindChar(int id); int gm_TitlesLeft();
 struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
 int sv_CreateScrollButtons(); void d2_RadioClear(int g);
 unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);

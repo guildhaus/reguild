@@ -81,7 +81,7 @@ int ai_DecideOfficePartner(int a, AICHAR *p, int *ctx, int d, AIARG *m)
             return 0;
     }
     for (i = 0; i < n; i++)
-        who[i] = (AICHAR *)gm_FindChar(rec[i].id);
+        who[i] = gm_FindChar(rec[i].id);
     for (i = n; i < 6; i++)
         who[i] = 0;
     r = util_Random(6);
@@ -327,7 +327,7 @@ int ai_DecideAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
             j = n;
             do {
                 if (cnt[i] >= lim) {
-                    o = (AICHAR *)gm_FindChar(ids[i]);
+                    o = gm_FindChar(ids[i]);
                     if (o != 0 && o->kind != 15 && o->health != 0) {
                         k = o->officeKind;
                         if (k != 13 && k != 27 && k != 15 && k != 21) {
@@ -398,7 +398,7 @@ int ai_DecideCloseAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
             j = n;
             do {
                 if (cnt[i] >= lim) {
-                    o = (AICHAR *)gm_FindChar(ids[i]);
+                    o = gm_FindChar(ids[i]);
                     if (o != 0 && o->kind != 15 && o->health != 0) {
                         k = o->officeKind;
                         if (k != 13 && k != 27 && k != 15 && k != 21) {
@@ -433,7 +433,7 @@ int ai_DecideOfficeAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
             j = n;
             do {
                 if (cnt[i] >= 4) {
-                    o = (AICHAR *)gm_FindChar(ids[i]);
+                    o = gm_FindChar(ids[i]);
                     if (o != 0 && (o->flags1c8 & 0x200) == 0) {
                         if (amt_GetKind(o->officeKind, &kind) != 0 && kind.level >= 4) {
                             m->kind = 7;
@@ -552,7 +552,7 @@ int ai_DecideColumn4Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
     }
     n = amt_GetColumnOffices(4, 6, rec);
     for (i = 0; i < n; i++)
-        who[i] = (AICHAR *)gm_FindChar(rec[i].owner);
+        who[i] = gm_FindChar(rec[i].owner);
     for (i = n; i < 6; i++)
         who[i] = 0;
     r = util_Random(6);
@@ -599,7 +599,7 @@ int ai_DecideColumn5Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
     }
     n = amt_GetColumnOffices(5, 6, rec);
     for (i = 0; i < n; i++)
-        who[i] = (AICHAR *)gm_FindChar(rec[i].owner);
+        who[i] = gm_FindChar(rec[i].owner);
     for (i = n; i < 6; i++)
         who[i] = 0;
     r = util_Random(6);
@@ -1039,7 +1039,7 @@ int ai_DecideLittleKnownChar(AICHAR *p, AIARG *in, AIARG *m)
         i = util_Random(n);
         j = n;
         do {
-            o = (AICHAR *)gm_FindChar(ids[i]);
+            o = gm_FindChar(ids[i]);
             if (o == 0)
                 return 0;
             if (he_NoEvent2ePair((int)p, (int)o) == 0)
@@ -1097,7 +1097,7 @@ int aip_ExecPamphlet(AIPER *p, int c, AIARG *m)
 
     if (m->kind != 7)
         return 0;
-    o = (AICHAR *)gm_FindChar(m->ref);
+    o = gm_FindChar(m->ref);
     if (o == 0)
         return 0;
     gm_BuildQuery(1, 5, 10);

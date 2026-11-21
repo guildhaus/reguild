@@ -1698,7 +1698,7 @@ wait:
                     continue;
                 if (bld->workRate != 2)
                     cm_SendRelations(ai_Chars[bld->owner].netId, ev->ids[i], 2 - bld->workRate, 0);
-                worker = (AICHAR *)gm_FindChar(ev->ids[i]);
+                worker = gm_FindChar(ev->ids[i]);
                 if (worker != 0) {
                     fv = gm_HealthRatio((short *)worker);
                     if (worker->title == 0x1b || worker->title == 0x1c) {
@@ -2763,7 +2763,7 @@ void he_RunConstruction(int ev)
         if (!(e->opts & 2))
             break;
         if (c->payer != ai_PlayerChar->netId) {
-            ch = (AICHAR *)gm_FindChar(c->payer);
+            ch = gm_FindChar(c->payer);
             if (ch == 0) {
                 e->exSlot = cm_SendExSetHE(-1, ev);
                 break;
@@ -3247,7 +3247,7 @@ void he_AllocRecipeResearch(int ev)
     HEAHMRECIPE *p;
     int v;
 
-    c = (AICHAR *)gm_FindChar(r->alchemist);
+    c = gm_FindChar(r->alchemist);
     if (c != 0) {
         p = (HEAHMRECIPE *)ahm_RandomRecipe((char *)c);
         if (p != 0) {
@@ -3286,7 +3286,7 @@ void he_RunRecipeResearch(int ev)
     int season;
 
     season = gm_ClockSeason(&ai_Time);
-    c = (AICHAR *)gm_FindChar(r->alchemist);
+    c = gm_FindChar(r->alchemist);
     if (c == 0 || ahm_HasRecord((char *)c) == 0)
         e->stage = -2;
     if (e->stage == -2 || e->stage == -1) {
@@ -3296,7 +3296,7 @@ void he_RunRecipeResearch(int ev)
     if (!((float)ai_Time.hour >= gm_DayEndHours[season] || (float)ai_Time.hour < gm_DayStartHours[season])) {
         if (e->stage == 1) {
             o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
-            to = (AICHAR *)gm_FindChar(e->netId);
+            to = gm_FindChar(e->netId);
             if (to != 0)
                 ai_DomizilMessage((struct G8CHARREC *)to, (struct G8CHARREC *)c, (struct G8OBJ *)o, r->recipe);
             ahm_SendAddPlace((char *)c, r->recipe);
@@ -3336,7 +3336,7 @@ void he_AllocResearchRecipe(int ev)
     AICHAR *c;
     char *p;
 
-    c = (AICHAR *)gm_FindChar(r->chr);
+    c = gm_FindChar(r->chr);
     if (c != 0) {
         p = (char *)ahm_FindRecipe(r->id);
         if (p != 0) {
@@ -3378,7 +3378,7 @@ void he_RunResearchRecipe(int ev)
 
     season = gm_ClockSeason(&ai_Time);
     p = 0;
-    c = (AICHAR *)gm_FindChar(r->chr);
+    c = gm_FindChar(r->chr);
     if (c == 0 || ahm_HasRecord((char *)c) == 0 || (p = ahm_SlotOf((char *)c, r->id)) == 0)
         e->stage = -2;
     if (e->stage != -2) {
@@ -3390,7 +3390,7 @@ void he_RunResearchRecipe(int ev)
             }
             if (e->stage == 1) {
                 o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
-                to = (AICHAR *)gm_FindChar(e->netId);
+                to = gm_FindChar(e->netId);
                 if (to != 0)
                     ai_DomizilMessageResearchKind((int)to, (int)c, (int)o, r->id);
                 ahm_SendSetPlaceValue((char *)c, r->id, r->progress + p->v);
@@ -3427,7 +3427,7 @@ void he_AllocTrainShare(int ev)
     HEAHMRESEARCH *r = (HEAHMRESEARCH *)ev;
     AICHAR *c;
 
-    c = (AICHAR *)gm_FindChar(r->chr);
+    c = gm_FindChar(r->chr);
     if (c != 0) {
         r->progress = ahm_ShareProgress((char *)c, r->id, &r->start);
         if (!(r->progress <= 0.0f)) {
@@ -3463,7 +3463,7 @@ void he_RunTrainShare(int ev)
 
     season = gm_ClockSeason(&ai_Time);
     share = 0;
-    c = (AICHAR *)gm_FindChar(r->chr);
+    c = gm_FindChar(r->chr);
     if (c == 0 || ahm_HasRecord((char *)c) == 0 || (share = ahm_Share((char *)c, r->id)) <= 0.0f)
         e->stage = -2;
     if (e->stage == -2 || e->stage == -1) {
@@ -3473,7 +3473,7 @@ void he_RunTrainShare(int ev)
     if (!((float)ai_Time.hour >= gm_DayEndHours[season] || (float)ai_Time.hour < gm_DayStartHours[season])) {
         if (e->stage == 1) {
             o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
-            to = (AICHAR *)gm_FindChar(e->netId);
+            to = gm_FindChar(e->netId);
             if (to != 0)
                 ai_DomizilMessageResearch((int)to, (int)c, (int)o, r->id);
             ahm_SendSetShare((char *)c, r->id, share + r->progress);
@@ -3556,7 +3556,7 @@ void he_RunAlchemistDay(int ev)
     int season, state;
 
     season = (gm_ClockSeason(&ai_Time) + 1) % 4;
-    c = (AICHAR *)gm_FindChar(e->netId);
+    c = gm_FindChar(e->netId);
     if (e->stage == -1 || e->stage == -2) {
         he_FreeEvent((int *)ev);
         return;
@@ -3821,7 +3821,7 @@ void he_RunSecretRoom(int ev)
         return;
     case 1:
         s->walkSlot = -1;
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         if (agent == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -3842,13 +3842,13 @@ void he_RunSecretRoom(int ev)
         e->exSlot = cm_SendExSetHE(3, ev);
         return;
     case 3:
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         if (agent == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
             return;
         }
-        victim = (AICHAR *)gm_FindChar(s->victim);
+        victim = gm_FindChar(s->victim);
         bld = gm_BuildQuery(1, 1, s->home);
         if (per != 0 && victim != 0 && bld != 0) {
             switch (s->way) {
@@ -3888,7 +3888,7 @@ void he_RunSecretRoom(int ev)
         e->exSlot = cm_SendExSetHE(4, ev);
         break;
     case 4:
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         e->end = ai_Time;
         if (agent == 0) {
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -3898,7 +3898,7 @@ void he_RunSecretRoom(int ev)
         e->exSlot = cm_SendExSetHE(5, ev);
         return;
     case 5:
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         if (agent == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -3940,7 +3940,7 @@ void he_RunSecretRoom(int ev)
             e->exSlot = cm_SendExSetHE(4, ev);
             return;
         }
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         if (agent == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -3970,7 +3970,7 @@ void he_RunSecretRoom(int ev)
         return;
     case 7:
         minutes = gm_MinutesBetween(&e->start, &ai_Time);
-        agent = (AICHAR *)gm_FindChar(s->agent);
+        agent = gm_FindChar(s->agent);
         if (agent == 0) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -4007,7 +4007,7 @@ void he_AllocEvent9a(int ev)
     AIJOB *e = (AIJOB *)ev;
 
     e->end = ai_Time;
-    if (he_NoEvent9aFor(e->bldId, (AICHAR *)gm_FindChar(e->id2)) != 0) {
+    if (he_NoEvent9aFor(e->bldId, gm_FindChar(e->id2)) != 0) {
         gm_AddTime(&e->end, 0x18, 0, 0);
         cm_SendExSetHE(0, ev);
     }
@@ -4040,8 +4040,8 @@ void he_RunDomizilEvent(int ev)
     AICHAR *c, *c2;
 
     if (e->stage == 0) {
-        c = (AICHAR *)gm_FindChar(e->partner1);
-        c2 = (AICHAR *)gm_FindChar(e->partner2);
+        c = gm_FindChar(e->partner1);
+        c2 = gm_FindChar(e->partner2);
         if (c != 0) {
             txt_Format(text, 0x4035);
             he_ShowNews(e->partner1, -1, text, 1, 0x5fb, "_NACHRICHTEN_DOMIZIL_11");
@@ -4277,7 +4277,7 @@ int he_SecretRoomCatchSpy(AICHAR *agent, int ev, AIJOB *spy)
     if ((unsigned int)s->spyEvent >= 0x14)
         return -1;
     s->spyEvent++;
-    spyChr = (AICHAR *)gm_FindChar(sp->spy);
+    spyChr = gm_FindChar(sp->spy);
     if (spyChr == 0 || spyChr->scene == 0)
         return -1;
     d.x = (agent->scene->obj->pos.x);
@@ -4292,7 +4292,7 @@ int he_SecretRoomCatchSpy(AICHAR *agent, int ev, AIJOB *spy)
     dist = sqrt(d.z * d.z + d.y * d.y + d.x * d.x);
     if (dist < 1850.0f) {
         employer = &ai_Chars[spy->chr];
-        victim = (AICHAR *)gm_FindChar(sp->victim);
+        victim = gm_FindChar(sp->victim);
         spyBonus = (sp->days + 1) * 0.5f;
         guard = (s->strength + 1) * 0.5f;
         skill = gm_GetSkill((char *)employer, 2);
@@ -4449,7 +4449,7 @@ void he_RunHaunting(int ev)
     AIBLD *bld;
     int years;
 
-    haunter = (AICHAR *)gm_FindChar(h->haunter);
+    haunter = gm_FindChar(h->haunter);
     if (haunter == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -4488,7 +4488,7 @@ void he_RunHaunting(int ev)
         }
         if (gm_BuildQuery(1, 1, h->home) != 0) {
             e->end = ai_Time;
-            victim = (AICHAR *)gm_FindChar(h->victim);
+            victim = gm_FindChar(h->victim);
             if (victim != 0) {
                 gm_AddTime(&e->end, 0x18, 0, 0);
                 ai_HauntingText((unsigned short *)&ai_Chars[e->chr], (int)victim, (unsigned int)&e->end);
@@ -4545,7 +4545,7 @@ void he_AllocDecay(int ev)
 
     if (e->opts & 4)
         return;
-    per = (AICHAR *)gm_FindChar(d->victim);
+    per = gm_FindChar(d->victim);
     for (r = (AIJOB *)he_FindEvent(1, 0, 0x89); r != 0; r = (AIJOB *)he_NextEvent()) {
         if (r != e && r->chr == e->chr && ((HEDECAY *)r)->victim == d->victim)
             break;
@@ -4607,7 +4607,7 @@ void he_RunDecay(int ev)
     int told;
     int age;
 
-    agent = (AICHAR *)gm_FindChar(d->agent);
+    agent = gm_FindChar(d->agent);
     if (e->stage == -1 || e->stage == -2) {
         if (agent != 0)
             sv_MoveToGroup(0, 0, agent->id, 0);
@@ -4635,7 +4635,7 @@ void he_RunDecay(int ev)
         break;
     case 2:
         gm_BuildQuery(1, 1, d->home);
-        agent = (AICHAR *)gm_FindChar(d->agent);
+        agent = gm_FindChar(d->agent);
         if (agent == 0) {
             e->stage = -1;
             return;
@@ -4647,8 +4647,8 @@ void he_RunDecay(int ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 1, 0, 0);
-        victim = (AICHAR *)gm_FindChar(d->victim);
-        agent = (AICHAR *)gm_FindChar(d->agent);
+        victim = gm_FindChar(d->victim);
+        agent = gm_FindChar(d->agent);
         chance = gm_Mix((int)agent, (int)victim, 2);
         if (victim != 0) {
             if (util_RandomF() + chance > 1.0) {
@@ -4667,7 +4667,7 @@ void he_RunDecay(int ev)
         e->stage++;
         return;
     case 3:
-        agent = (AICHAR *)gm_FindChar(d->agent);
+        agent = gm_FindChar(d->agent);
         if (agent == 0 || (bld = agent->bld) == 0) {
             e->stage = -1;
             return;
@@ -4676,7 +4676,7 @@ void he_RunDecay(int ev)
         e->stage++;
         return;
     case 4:
-        agent = (AICHAR *)gm_FindChar(d->agent);
+        agent = gm_FindChar(d->agent);
         if (agent == 0 || agent->bld == 0) {
             e->stage = -1;
             return;
@@ -4687,9 +4687,9 @@ void he_RunDecay(int ev)
             return;
         }
         gm_BuildQuery(1, 1, d->home);
-        victim = (AICHAR *)gm_FindChar(d->victim);
+        victim = gm_FindChar(d->victim);
         per = &ai_Chars[e->chr];
-        agent = (AICHAR *)gm_FindChar(d->agent);
+        agent = gm_FindChar(d->agent);
         if (victim != 0 && per != 0 && agent != 0) {
             if (d->aged != 0) {
                 chance = 1.0f - gm_GetSkill((char *)agent, 1);
@@ -4762,7 +4762,7 @@ void he_RunPlunder(int ev)
     AIBLD *bld;
     int price, worth;
 
-    agent = (AICHAR *)gm_FindChar(p->agent);
+    agent = gm_FindChar(p->agent);
     if (e->stage == -1 || e->stage == -2 || agent == 0 || agent->health == 0) {
         if (agent != 0)
             sv_MoveToGroup(0, 0, agent->id, 0);
@@ -4785,7 +4785,7 @@ void he_RunPlunder(int ev)
         e->stage++;
         break;
     case 2:
-        agent = (AICHAR *)gm_FindChar(p->agent);
+        agent = gm_FindChar(p->agent);
         if (agent == 0) {
             e->stage = -1;
             return;
@@ -4835,7 +4835,7 @@ void he_RunPlunder(int ev)
         e->stage = -1;
         return;
     case 3:
-        agent = (AICHAR *)gm_FindChar(p->agent);
+        agent = gm_FindChar(p->agent);
         if (agent == 0 || agent->bld == 0) {
             e->stage = -1;
             return;
@@ -4844,7 +4844,7 @@ void he_RunPlunder(int ev)
         e->stage++;
         return;
     case 4:
-        agent = (AICHAR *)gm_FindChar(p->agent);
+        agent = gm_FindChar(p->agent);
         if (agent == 0 || agent->bld == 0 || agent->scene->actions == 0) {
             e->stage = -1;
             return;
@@ -4891,7 +4891,7 @@ void he_RunPlunderOffer(int ev)
     AICHAR *client;
     int id;
 
-    client = (AICHAR *)gm_FindChar(d->deal[0]);
+    client = gm_FindChar(d->deal[0]);
     if (client == 0 || (ai_Chars[e->chr].flags1cc & 1))
         e->stage = -2;
     if (e->stage == -2) {
@@ -4980,7 +4980,7 @@ void he_AllocMasterWork(int ev)
     AICHAR *w;
 
     for (i = 0; i < 4; i++) {
-        w = (AICHAR *)gm_FindChar(e->ids[i]);
+        w = gm_FindChar(e->ids[i]);
         if (w != 0) {
             n++;
             sv_MoveToGroup(bld, (struct AIOBJ *)grp, w->id, (char *)ev);
@@ -5054,7 +5054,7 @@ void he_RunMasterWork(int ev)
         return;
     }
     for (i = 0; i < 4; i++) {
-        w = (AICHAR *)gm_FindChar(e->ids[i]);
+        w = gm_FindChar(e->ids[i]);
         if (w != 0) {
             cnt++;
             busy++;
@@ -5132,7 +5132,7 @@ void he_RunMasterWork(int ev)
         }
     }
     for (i = 0; i < 4; i++) {
-        w = (AICHAR *)gm_FindChar(e->ids[i]);
+        w = gm_FindChar(e->ids[i]);
         if (w != 0)
             sv_MoveToGroup(0, 0, w->id, 0);
     }
@@ -5146,7 +5146,7 @@ void he_AllocGraveCare(int ev)
 {
     AIJOB *e = (AIJOB *)ev;
     HEGRAVECARE *p = (HEGRAVECARE *)ev;
-    AICHAR *per = (AICHAR *)gm_FindChar(e->ids[0]);
+    AICHAR *per = gm_FindChar(e->ids[0]);
     AIBLD *bld;
     AIOBJ *grp;
 
@@ -5200,7 +5200,7 @@ void he_RunGraveCare(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    w = (AICHAR *)gm_FindChar(e->ids[0]);
+    w = gm_FindChar(e->ids[0]);
     if (w != 0)
         sv_MoveToGroup(0, 0, w->id, (char *)ev);
     else
@@ -5266,7 +5266,7 @@ void he_RunDeathDue(int ev)
 
     if (e->stage < -2 || e->stage > 0)
         return;
-    ch = (AICHAR *)gm_FindChar(e->netId);
+    ch = gm_FindChar(e->netId);
     if (ch != 0) {
         money = gm_CharCurrency((char *)ch, ai_OwnPlayer);
         if (money > d->price)
@@ -5275,7 +5275,7 @@ void he_RunDeathDue(int ev)
             found = 0;
             for (i = 0; i < 5; i++) {
                 if (ch->relatives[3 + i] != -1) {
-                    r = (AICHAR *)gm_FindChar(ch->relatives[3 + i]);
+                    r = gm_FindChar(ch->relatives[3 + i]);
                     if (r != 0) {
                         gm_AddHealth(r->id, -1001);
                         found = 1;
@@ -5300,7 +5300,7 @@ void he_AllocGraveTraining(int ev)
     AIJOB *e = (AIJOB *)ev;
     HEGRAVETRAINING *p = (HEGRAVETRAINING *)ev;
     short *grp = 0;
-    AICHAR *per = (AICHAR *)gm_FindChar(p->trainee);
+    AICHAR *per = gm_FindChar(p->trainee);
     AIBLD *bld;
 
     if (per != 0 && (per->job == 0 || (unsigned char)per->job->kind != 0x8f)
@@ -5351,7 +5351,7 @@ void he_RunGraveTraining(int ev)
     }
     if (e->stage != 0)
         return;
-    ch = (AICHAR *)gm_FindChar(t->trainee);
+    ch = gm_FindChar(t->trainee);
     if (ch != 0 && (float)ch->skills[t->skill] < 252.0f && gm_CompareTime(&ai_Time, &t->until) < 0) {
         unsigned char gain;
 
@@ -5375,7 +5375,7 @@ void he_RunGraveTraining(int ev)
         gm_AddTime(&e->end, 0, 0x1e, 0);
         return;
     }
-    ch = (AICHAR *)gm_FindChar(t->trainee);
+    ch = gm_FindChar(t->trainee);
     bld = gm_BuildQuery(1, 1, e->from);
     if (bld == 0 || ch == 0) {
         he_FreeEvent((int *)ev);
@@ -5761,7 +5761,7 @@ void he_AnswerGraveLease(int ev)
     bld = gm_BuildQuery(1, 1, l->bld);
     if (bld == 0 || ai_BTypes[bld->type].kind != 0x1d)
         return;
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (per == 0)
         return;
     gv_OrderExtendGrave((int *)per, bld, l->size, l->entry, l->years, l->price);
@@ -5786,7 +5786,7 @@ void he_ExamCancelled(int ev)
     if (bld == 0 || ai_BTypes[bld->type].kind != 0x1d)
         return;
     gv_OrderSetGraveHolder(0, bld, e->graveSize, e->graveEntry);
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (per != 0)
         ai_ShowGraveOrderCancelled((int *)&ai_Chars[bld->owner], (unsigned short *)per, (int)bld, e->graveSize);
 }
@@ -6005,7 +6005,7 @@ void he_RunGraveyardTheft(int ev)
     default:
         return;
     }
-    per = (AICHAR *)gm_FindChar(t->worker);
+    per = gm_FindChar(t->worker);
     if (per == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -6201,7 +6201,7 @@ void he_AllocGypsyApproach(int ev)
         return;
     e->start = ai_Time;
     e->end = ai_Time;
-    per = (AICHAR *)gm_FindChar(g->figure);
+    per = gm_FindChar(g->figure);
     if (per == 0) {
         e->exSlot = cm_SendExSetHE(-1, ev);
         return;
@@ -6236,7 +6236,7 @@ void he_RunGypsyApproach(int ev)
         return;
     e->exSlot = -1;
     e->end = ai_Time;
-    per = (AICHAR *)gm_FindChar(g->figure);
+    per = gm_FindChar(g->figure);
     if (per == 0 || ai_Chars[e->chr].id == 0xffff) {
         e->exSlot = cm_SendExSetHE(-1, ev);
         return;
@@ -6548,8 +6548,8 @@ void he_RunGypsyCurse(int ev)
         return;
     }
     e->stage = e->stage + 1;
-    a = (AICHAR *)gm_FindChar(g->cursed);
-    b = (AICHAR *)gm_FindChar(g->gypsy);
+    a = gm_FindChar(g->cursed);
+    b = gm_FindChar(g->gypsy);
     if (a != 0) {
         n = a->money;
         if (n != 0) {
@@ -6642,7 +6642,7 @@ void he_TrialPayment(int ev)
     gm_FindById(&bld, 0, 0, e->from);
     if (bld == 0)
         return;
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (per == 0)
         return;
     kind = gm_TrialBuildingKind(bld);
@@ -6766,7 +6766,7 @@ void he_AllocMeeting4(int ev)
     w[2] = 0xf;
     w[3] = 0xa;
     for (i = 0; i < 4; i++) {
-        per = (AICHAR *)gm_FindChar(e->ids[i]);
+        per = gm_FindChar(e->ids[i]);
         if (per == 0)
             continue;
         bld = per->bld;
@@ -6819,7 +6819,7 @@ void he_CircusShowPayout(int ev)
     int (*row)[4];
     int n, i, ngiven;
 
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (per == 0)
         return;
     gm_FindById(&bld, 0, 0, e->from);
@@ -6894,7 +6894,7 @@ void he_RunCircusShow(int ev)
     memset(pers, 0, sizeof(pers));
     bld = 0;
     for (i = 0; i < 4; i++) {
-        if (e->ids[i] != -1 && (p = (AICHAR *)gm_FindChar(e->ids[i])) != 0)
+        if (e->ids[i] != -1 && (p = gm_FindChar(e->ids[i])) != 0)
             pers[n++] = p;
     }
     if (e->stage == -1 || e->stage == -2 || n == 0) {
@@ -7021,7 +7021,7 @@ void he_CircusShowIncome(int ev, int n)
     float rate, base, skill;
     int i;
 
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (per == 0)
         return;
     gm_FindById(&bld, 0, 0, e->from);
@@ -7066,7 +7066,7 @@ void he_RunPettyLoss(int ev)
     AICHAR *per;
     int x;
 
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     if (e->stage == -1 || e->stage == -2 || e->stage > 3 || per == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -7113,7 +7113,7 @@ void he_RunEventGood(int ev)
     float r;
     int state;
 
-    per = (AICHAR *)gm_FindChar(e->netId);
+    per = gm_FindChar(e->netId);
     state = e->stage;
     if (state == -1 || state == -2 || per == 0) {
         he_FreeEvent((int *)ev);

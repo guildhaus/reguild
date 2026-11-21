@@ -2405,13 +2405,13 @@ int ls_FixupAfterLoad(void)
     AIOBJ *o, *last;
     AIJOB *j;
 
-    ai_PlayerChar = (AICHAR *)gm_FindChar((int)ai_PlayerChar);
+    ai_PlayerChar = gm_FindChar((int)ai_PlayerChar);
     if (ai_PlayerChar == 0)
         return 0;
     ai_MarketBuilding = gm_BuildQuery(1, 5, 10);
     if (ls_Version >= 0x10017) {
         for (i = 0; i < 8; i++)
-            ai_KindBChars[i] = (AICHAR *)gm_FindChar((int)ai_KindBChars[i]);
+            ai_KindBChars[i] = gm_FindChar((int)ai_KindBChars[i]);
     }
     for (i = 0; i < 768; i++) {
         c = &ai_Chars[i];

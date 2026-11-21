@@ -256,7 +256,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
         if (p->state == 0 || p->charId == -1)
             continue;
         if (p->state == 5)
-            c = (AICHAR *)gm_FindChar(p->charId);
+            c = gm_FindChar(p->charId);
         else
             c = (AICHAR *)cm_FindFighter(p->charId);
         k = (AIWEAPON *)cm_CharWeapon((char *)c);
@@ -647,7 +647,7 @@ void cm_FightLoop(char *a, int ctx)
             if (tb_Calls > t + 0x1a4) {
                 for (i = 0; i < cm_FightRecord->nChars; i++) {
                     if (cm_FightRecord->charIds[i] != -1) {
-                        o = (AICHAR *)gm_FindChar(cm_FightRecord->charIds[i]);
+                        o = gm_FindChar(cm_FightRecord->charIds[i]);
                         if (o != 0 && o->kind != 6 && o->kind != 7)
                             cm_GiveFightOrders((int)o);
                     }

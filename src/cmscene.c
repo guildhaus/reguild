@@ -317,7 +317,7 @@ void cm_RunCouncilSession(G28REC *a)
     cm_PlaySpecialTrack(0);
     npresent = 0;
     for (i = 0; i < a->used; i++) {
-        c = (AICHAR *)gm_FindChar(a->members[i]);
+        c = gm_FindChar(a->members[i]);
         if (c != 0)
             present[npresent++] = c;
     }
@@ -327,7 +327,7 @@ void cm_RunCouncilSession(G28REC *a)
         kind = columns[k];
         n = amt_GetColumnOffices(kind, 6, offices);
         for (i = 0, nh = 0; i < n; i++) {
-            c = (AICHAR *)gm_FindChar(offices[i].owner);
+            c = gm_FindChar(offices[i].owner);
             if (c != 0 && c->heldRounds == 0) {
                 holderIdx[nh] = i;
                 holders[nh] = c;
@@ -414,8 +414,8 @@ void cm_RunCouncilSession(G28REC *a)
             viewTop = d2_OpenForm(0, 0, "cutscenes\\sitzung_top_absetzen");
             d2_PlaceMainWindow(viewTop, 3);
             left--;
-            holder = (AICHAR *)gm_FindChar(offices[j].owner);
-            challenger = (AICHAR *)gm_FindChar(offices[j].x14);
+            holder = gm_FindChar(offices[j].owner);
+            challenger = gm_FindChar(offices[j].x14);
             d2_SetForm(viewTop, 1);
             row.rec = holder;
             row.y = 0;
@@ -463,7 +463,7 @@ void cm_RunCouncilSession(G28REC *a)
                 s = &cm_CutInfos[i];
                 if ((unsigned)s->session.answer >= 3)
                     continue;
-                c = (AICHAR *)gm_FindChar(s->playerId);
+                c = gm_FindChar(s->playerId);
                 tally[s->session.answer]++;
                 d2_SetForm(view, 0);
                 d2_Objs[holderRows[i].ctl].highlighted = 1;
@@ -522,7 +522,7 @@ void cm_RunCouncilSession(G28REC *a)
                         sv_PumpNet();
                 }
             } else {
-                c = (AICHAR *)gm_FindChar(offices[j].owner);
+                c = gm_FindChar(offices[j].owner);
                 cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_ERGEBNIS_NICHT_ABGESETZT", cm_Random(3), 100);
                 d2_SetForm(view, 0);
                 io_PrintText("$C");
@@ -842,7 +842,7 @@ int cm_AskElectVote(unsigned char office, AICHAR *b, int *ids, int *click)
         return -1;
     k = amt_GetOfficeApplicants(rec.kind, 2, (char **)cand);
     for (i = 0, n = 0; i < 4; i++) {
-        c = (AICHAR *)gm_FindChar(ids[i]);
+        c = gm_FindChar(ids[i]);
         if (c != 0)
             cand[n++] = c;
     }
@@ -894,12 +894,12 @@ void cm_SessionAskPlayer(CMCUTINFO *r, CMSESSIONREQ *m)
     r->session.click = -1;
     if (r->session.observer != 0)
         return;
-    c = (AICHAR *)gm_FindChar(r->playerId);
+    c = gm_FindChar(r->playerId);
     if (c == 0 || c->officeKind == 0 || c->heldRounds > 0)
         return;
     if (m->mode == 1) {
-        holder = (AICHAR *)gm_FindChar(m->ids[0]);
-        challenger = (AICHAR *)gm_FindChar(m->ids[1]);
+        holder = gm_FindChar(m->ids[0]);
+        challenger = gm_FindChar(m->ids[1]);
         if (holder == 0 || challenger == 0)
             return;
         res = cm_AskDeposeVote(c, holder, challenger, &click);
@@ -930,12 +930,12 @@ void cm_SessionAskAI(CMCUTINFO *r, CMSESSIONREQ *m)
     r->session.click = -1;
     if (r->session.observer != 0)
         return;
-    c = (AICHAR *)gm_FindChar(r->playerId);
+    c = gm_FindChar(r->playerId);
     if (c == 0 || c->officeKind == 0 || c->heldRounds > 0)
         return;
     if (m->mode == 1) {
-        holder = (AICHAR *)gm_FindChar(m->ids[0]);
-        challenger = (AICHAR *)gm_FindChar(m->ids[1]);
+        holder = gm_FindChar(m->ids[0]);
+        challenger = gm_FindChar(m->ids[1]);
         if (holder == 0 || challenger == 0)
             return;
         res = ai_TrustedOfTwo(c, holder, challenger, &click);
@@ -971,7 +971,7 @@ int cm_CheckTrial(G28REC *p)
 
     held = 0;
     code = 0;
-    c0 = (AICHAR *)gm_FindChar(p->members[0]);
+    c0 = gm_FindChar(p->members[0]);
     if (c0 == 0 || c0->kind == 0xf || c0->health == 0)
         code = 1;
     else if (c0->heldRounds != 0) {
@@ -983,7 +983,7 @@ int cm_CheckTrial(G28REC *p)
                 break;
             }
     }
-    c1 = (AICHAR *)gm_FindChar(p->members[1]);
+    c1 = gm_FindChar(p->members[1]);
     if (code == 0) {
         if (c1 == 0 || c1->kind == 0xf || c1->health == 0)
             code = 2;
@@ -997,7 +997,7 @@ int cm_CheckTrial(G28REC *p)
                 }
         }
     }
-    c2 = (AICHAR *)gm_FindChar(p->members[2]);
+    c2 = gm_FindChar(p->members[2]);
     if (code == 0) {
         if (c2 == 0 || c2->kind == 0xf || c2->health == 0)
             code = 3;
@@ -1011,7 +1011,7 @@ int cm_CheckTrial(G28REC *p)
                 }
         }
     }
-    c3 = (AICHAR *)gm_FindChar(p->members[3]);
+    c3 = gm_FindChar(p->members[3]);
     if (code == 0) {
         if (c3 == 0 || c3->kind == 0xf || c3->health == 0)
             code = 4;
@@ -1025,7 +1025,7 @@ int cm_CheckTrial(G28REC *p)
                 }
         }
     }
-    c4 = (AICHAR *)gm_FindChar(p->members[4]);
+    c4 = gm_FindChar(p->members[4]);
     if (code == 0) {
         if (c4 == 0 || c4->kind == 0xf || c4->health == 0)
             code = 4;
@@ -1039,7 +1039,7 @@ int cm_CheckTrial(G28REC *p)
                 }
         }
     }
-    c5 = (AICHAR *)gm_FindChar(p->members[5]);
+    c5 = gm_FindChar(p->members[5]);
     if (code == 0 && p->used >= 6) {
         if (c5 == 0 || c5->kind == 0xf || c5->health == 0)
             code = 5;
@@ -1233,22 +1233,22 @@ void cm_RunTrial(G28REC *m)
     plan.mode = 0;
     ncrimes = gv_FindCrimesByState(m->crimeState, crimeIds);
     plan.crimes = (unsigned char)ncrimes;
-    c0 = (AICHAR *)gm_FindChar(m->members[0]);
+    c0 = gm_FindChar(m->members[0]);
     if (c0 == 0)
         return;
-    c1 = (AICHAR *)gm_FindChar(m->members[1]);
+    c1 = gm_FindChar(m->members[1]);
     if (c1 == 0)
         return;
-    c2 = (AICHAR *)gm_FindChar(m->members[2]);
+    c2 = gm_FindChar(m->members[2]);
     if (c2 == 0)
         return;
-    c3 = (AICHAR *)gm_FindChar(m->members[3]);
+    c3 = gm_FindChar(m->members[3]);
     if (c3 == 0)
         return;
-    c4 = (AICHAR *)gm_FindChar(m->members[4]);
+    c4 = gm_FindChar(m->members[4]);
     if (c4 == 0)
         return;
-    c5 = (AICHAR *)gm_FindChar(m->members[5]);
+    c5 = gm_FindChar(m->members[5]);
     if (c5 == 0 && plan.crimes > 2 && m->members[5] != -1)
         return;
     if (cm_SkipEvents == 0)
@@ -1438,7 +1438,7 @@ void cm_RunTrial(G28REC *m)
             }
             strcpy(path, "cutscenes\\prozess\\folter\\");
             pathEnd = path + strlen(path);
-            p = (AICHAR *)gm_FindChar(m->members[5]);
+            p = gm_FindChar(m->members[5]);
             d2_SetForm(cm_TextBox, 0);
             io_PrintText("$C");
             plan.mode = 2;
@@ -1607,7 +1607,7 @@ void cm_RunTrial(G28REC *m)
         vote = cm_CutInfos[i + 1].session.answer;
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-1.esc", (int)ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
-        assessor = (AICHAR *)gm_FindChar(plan.ids[3]);
+        assessor = gm_FindChar(plan.ids[3]);
         io_PrintText("$N");
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
@@ -1624,7 +1624,7 @@ void cm_RunTrial(G28REC *m)
         vote = cm_CutInfos[i + 2].session.answer;
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-2.esc", (int)ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
-        assessor = (AICHAR *)gm_FindChar(plan.ids[4]);
+        assessor = gm_FindChar(plan.ids[4]);
         io_PrintText("$N");
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
@@ -1785,8 +1785,8 @@ void cm_TrialAskPlayer(CMCUTINFO *r, AIPLAN *m)
     r->session.answer = -1;
     for (i = 0; i < 7; i++)
         btn[i] = -1;
-    c = (AICHAR *)gm_FindChar(r->playerId);
-    accused = (AICHAR *)gm_FindChar(m->ids[1]);
+    c = gm_FindChar(r->playerId);
+    accused = gm_FindChar(m->ids[1]);
     switch (m->mode) {
     case 0:
         if (r->playerId != m->ids[1])
@@ -1963,7 +1963,7 @@ void cm_TrialAskAI(CMCUTINFO *r, AIPLAN *m)
     case 0:
         if (r->playerId != m->ids[1])
             return;
-        c = (AICHAR *)gm_FindChar(m->ids[1]);
+        c = gm_FindChar(m->ids[1]);
         r->session.amount = (float)c->v024 + c->f01c;
         r->session.answer = ai_PlanWorth(m);
         return;
@@ -2000,7 +2000,7 @@ void cm_TrialAskAI(CMCUTINFO *r, AIPLAN *m)
     case 5:
         if (r->playerId != m->ids[2])
             return;
-        c = (AICHAR *)gm_FindChar(m->ids[2]);
+        c = gm_FindChar(m->ids[2]);
         r->session.answer = ai_DecideSentence(c, m);
         return;
     }
@@ -2222,8 +2222,8 @@ void cm_DuelOutcome(G28REC *m)
     AMTREC office;
     int i, txt;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     if (a == 0 || b == 0)
         return;
     fa = gm_GetSkill((char *)a, 3);
@@ -2284,8 +2284,8 @@ void cm_RunDuel(G28REC *m)
         hitb = 0;
         r = util_Random(3) - 5;
         w = 0;
-        a = (AICHAR *)gm_FindChar(m->members[0]);
-        b = (AICHAR *)gm_FindChar(m->members[1]);
+        a = gm_FindChar(m->members[0]);
+        b = gm_FindChar(m->members[1]);
         if (a == 0 || b == 0)
             return;
         if (cm_SkipEvents != 0) {
@@ -2317,8 +2317,8 @@ void cm_RunDuel(G28REC *m)
     snd1 = (int)sb_LoadSampleBank("duell_sfx.sbf", 0);
     snd2 = snd_LoadVoiceBank("duell.sbf", 0);
     scene = cm_StartScript("cutscenes\\duell\\enter_DUELL.esc");
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     ca = *a;
     cb = *b;
     cm_DuelLeft = (int)&ca;
@@ -2529,8 +2529,8 @@ int cm_DuelAftermath(G28REC *m)
     int bld;
 
     flag = 0;
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     if (a == 0 || b == 0)
         return 0;
     if (b->heldRounds == 0 && a->heldRounds == 0) {
@@ -2612,8 +2612,8 @@ void cm_DuelChooseRound(CMCUTINFO *r, G28REC *m)
     AICHAR *a, *b, *other;
     int view, first, insult, roll, shot, dlg;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     other = a->netId == ((AICHAR *)cm_CutChar)->netId ? b : a;
     view = d2_OpenForm(0, 0, "cutscenes\\duell");
     d2_PlaceMainWindow(view, 3);
@@ -2699,7 +2699,7 @@ int cm_ExecutionAftermath(G28REC *m)
     int i;
 
     if (m->quiet == 0) {
-        c = (AICHAR *)gm_FindChar(m->members[0]);
+        c = gm_FindChar(m->members[0]);
         if (c == 0)
             return 0;
         if (c->kind == 6 || c->kind == 7) {
@@ -2709,17 +2709,17 @@ int cm_ExecutionAftermath(G28REC *m)
         }
         txt_Format(buf, 0x11c8, c->id);
         for (i = 1; i < m->used; i++) {
-            o = (AICHAR *)gm_FindChar(m->members[i]);
+            o = gm_FindChar(m->members[i]);
             if (o != 0 && (o->kind == 6 || o->kind == 7))
                 cm_SendPartyNote(o, m, buf, &ch_EmptyName);
         }
     } else {
-        c = (AICHAR *)gm_FindChar(m->members[0]);
+        c = gm_FindChar(m->members[0]);
         if (c == 0)
             return 0;
         txt_Format(buf, 0x11c8, c->id);
         for (i = 1; i < m->used; i++) {
-            o = (AICHAR *)gm_FindChar(m->members[i]);
+            o = gm_FindChar(m->members[i]);
             if (o != 0 && (o->kind == 6 || o->kind == 7))
                 cm_SendPartyNote(o, m, buf, &ch_EmptyName);
         }
@@ -2743,12 +2743,12 @@ void cm_RunExecution(G28REC *m)
     AICHAR *v, *p1, *p2, *p3;
     char *end;
 
-    v = (AICHAR *)gm_FindChar(m->members[0]);
+    v = gm_FindChar(m->members[0]);
     if (v == 0)
         return;
-    p1 = (AICHAR *)gm_FindChar(m->members[1]);
-    p2 = (AICHAR *)gm_FindChar(m->members[2]);
-    p3 = (AICHAR *)gm_FindChar(m->members[3]);
+    p1 = gm_FindChar(m->members[1]);
+    p2 = gm_FindChar(m->members[2]);
+    p3 = gm_FindChar(m->members[3]);
     cm_DialogFrameFlags = 0x702c6;
     d2_CutsceneActive = 1;
     cm_LoadEventScene("Richtplatz.ed3");
@@ -2812,8 +2812,8 @@ int cm_CheckWedding(G28REC *m)
     AICHAR *a, *b;
     int i;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     if (a != 0) {
         if (b != 0 && a->sex != b->sex) {
             if (a->kind == 6 || a->kind == 7) {
@@ -2894,10 +2894,10 @@ int cm_RunWedding(G28REC *m)
     GMHEAD *ha, *hb;
     int r;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
+    a = gm_FindChar(m->members[0]);
     if (a == 0)
         return 0;
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    b = gm_FindChar(m->members[1]);
     if (b == 0)
         return 0;
     if (a->kind == 6)
@@ -2999,10 +2999,10 @@ int cm_CheckBirth(G28REC *m)
     char buf[0x200];
     AICHAR *a, *b, *p;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     if (a != 0 && b != 0) {
-        p = (AICHAR *)gm_FindChar(a->relatives[0]);
+        p = gm_FindChar(a->relatives[0]);
         if (p != 0 && p->kind != 0xf) {
             if (a->kind == 6 || a->kind == 7) {
                 txt_Format(buf, 0x11c1);
@@ -3029,8 +3029,8 @@ void cm_RunBirth(G28REC *m)
     AICHAR *a, *b;
     int bank, sc, view, box, k;
 
-    a = (AICHAR *)gm_FindChar(m->members[0]);
-    b = (AICHAR *)gm_FindChar(m->members[1]);
+    a = gm_FindChar(m->members[0]);
+    b = gm_FindChar(m->members[1]);
     if (a == 0 || b == 0)
         return;
     {
@@ -3103,7 +3103,7 @@ void cm_RunBirth(G28REC *m)
 
 int cm_DeathSceneCheck(G28REC *m)
 {
-    if (gm_CharacterHealth(gm_FindChar(m->members[0])) > 0.0f)
+    if (gm_CharacterHealth((short *)gm_FindChar(m->members[0])) > 0.0f)
         return 0;
     return 1;
 }
@@ -3121,7 +3121,7 @@ void cm_RunDeath(G28REC *m)
 {
     char buf[0x400];
     char estate[0x1fb8];
-    AICHAR *a = (AICHAR *)gm_FindChar(m->members[0]);
+    AICHAR *a = gm_FindChar(m->members[0]);
     int hours[6] = {8, 10, 12, 15, 18, 20};
     int stage, i, sc, bank, rc, kin, revive;
     unsigned int t0;
@@ -3233,7 +3233,7 @@ void cm_RunBankruptcy(G28REC *m)
     char stagetext[0x100];
     char buf[0x200];
     char estate[0x1fb8];
-    AICHAR *a = (AICHAR *)gm_FindChar(m->members[0]);
+    AICHAR *a = gm_FindChar(m->members[0]);
     int hours[6] = {8, 10, 12, 15, 18, 20};
     int i, stage, sc, bank;
 
@@ -3313,7 +3313,7 @@ int cm_CheckAuction(G28REC *m)
     else
         strcat(buf, txt_AuctionNoteLocal);
     for (i = 0; i < m->used; i++) {
-        p = (AICHAR *)gm_FindChar(m->members[i]);
+        p = gm_FindChar(m->members[i]);
         if (p != 0 && (p->kind == 6 || p->kind == 7))
             cm_SendPartyNote(p, m, buf, &ch_EmptyName);
     }
@@ -3375,7 +3375,7 @@ void cm_RunAuction(G28REC *m)
     req.count = m->used;
     for (i = 0; i < m->used; i++) {
         req.bids[i] = 0;
-        chars[i] = (AICHAR *)gm_FindChar(m->members[i]);
+        chars[i] = gm_FindChar(m->members[i]);
         req.bids[i] = chars[i] != 0 ? 0 : -1;
         req.ids[i] = m->members[i];
     }
@@ -3573,7 +3573,7 @@ void cm_AuctionAskPlayer(CMCUTINFO *r, CMAUCTION *m)
     r->session.answer = m->price;
     gm_BuildQuery(1, 1, m->building);
     price = m->price;
-    c = (AICHAR *)gm_FindChar(r->playerId);
+    c = gm_FindChar(r->playerId);
     if (c == 0)
         return;
     worth = gm_GetGoodsValue((char *)c);
@@ -3629,7 +3629,7 @@ void cm_AuctionAskAI(CMCUTINFO *r, CMAUCTION *m)
     r->session.answer = m->price;
     gm_BuildQuery(1, 1, m->building);
     price = m->price;
-    c = (AICHAR *)gm_FindChar(r->playerId);
+    c = gm_FindChar(r->playerId);
     if (c == 0)
         return;
     lim = (float)(m->countdown * 32000 + price);
@@ -4363,7 +4363,7 @@ void cm_RunSceneParty(char *m, int ctx)
                 for (i = 0; i < party->used; i++) {
                     CMCUTINFO r;
 
-                    c = (AICHAR *)gm_FindChar(party->members[i]);
+                    c = gm_FindChar(party->members[i]);
                     if (c == 0 || c->kind == 6 || c->kind == 7 || cm_CutInfos[i].valid != 0)
                         continue;
                     cm_CutChar = (char *)c;
@@ -4442,7 +4442,7 @@ void cm_RunSceneParty(char *m, int ctx)
                 /* the owner answers for the first computer member whose turn it is */
                 if (party->host == ai_Chars[ai_PlayerId].netId) {
                     for (i = 0; i < party->used; i++) {
-                        c = (AICHAR *)gm_FindChar(party->members[i]);
+                        c = gm_FindChar(party->members[i]);
                         if (c == 0 || c->kind == 6 || c->kind == 7)
                             continue;
                         if (i != 0 && cm_CutInfos[cm_PrevPartyMember(m, i)].valid != 1)
@@ -4546,13 +4546,13 @@ void cm_ExecCutscene(char *m)
         /* ours: no player's character (kind 6) is a member */
         ours = 1;
         for (i = 0; i < party->used; i++) {
-            if (party->members[i] != -1 && (c = (AICHAR *)gm_FindChar(party->members[i])) != 0 && c->kind == 6) {
+            if (party->members[i] != -1 && (c = gm_FindChar(party->members[i])) != 0 && c->kind == 6) {
                 ours = 0;
                 break;
             }
         }
         for (i = 0; i < party->used; i++) {
-            if (party->members[i] != -1 && (c = (AICHAR *)gm_FindChar(party->members[i])) != 0 && c->kind == 6) {
+            if (party->members[i] != -1 && (c = gm_FindChar(party->members[i])) != 0 && c->kind == 6) {
                 ours = 0;
                 break;
             }
@@ -4684,7 +4684,7 @@ void cm_ExecCutscene(char *m)
             cm_CutInfos[i].ready = 0;
             cm_CutInfos[i].fresh = 0;
             cm_CutInfos[i].valid = 0;
-            if (party->members[i] != -1 && (c = (AICHAR *)gm_FindChar(party->members[i])) != 0) {
+            if (party->members[i] != -1 && (c = gm_FindChar(party->members[i])) != 0) {
                 int v = -1;
 
                 cm_BeginFieldBlock(c, c->netId);
@@ -4696,7 +4696,7 @@ void cm_ExecCutscene(char *m)
     if (party->host != -1) {
         int v = -1;
 
-        if ((c = (AICHAR *)gm_FindChar(party->host)) != 0) {
+        if ((c = gm_FindChar(party->host)) != 0) {
             cm_BeginFieldBlock(c, c->netId);
             cm_AddFieldValue(4, 1, (char *)c - cm_FieldObject + 0x20c, &v);
             cm_SendFieldValues();
@@ -4785,11 +4785,11 @@ int cm_CheckMaster(char *m)
 
     if (cm_IsPartyMember(party->host, m) == 0) {
         flag = 1;
-        c = (AICHAR *)gm_FindChar(party->host);
+        c = gm_FindChar(party->host);
         sprintf(buf, "cut_CheckMaster(): invalid master for id %i", party->id);
         for (i = 0; i < 0x10 && flag != 0; i++) {
             if (party->members[i] != -1) {
-                c = (AICHAR *)gm_FindChar(party->members[i]);
+                c = gm_FindChar(party->members[i]);
                 if (c != 0 && (c->kind == 6 || c->kind == 7))
                     flag = 0;
             }
@@ -4823,7 +4823,7 @@ int cm_CutsceneReady(char *m)
         for (; i < party->used; i++) {
             if (party->members[i] == -1)
                 continue;
-            c = (AICHAR *)gm_FindChar(party->members[i]);
+            c = gm_FindChar(party->members[i]);
             if (c == 0 || (c->partyId != -1 && c->partyId != party->id && (c->kind == 6 || c->kind == 7)))
                 h = cm_SendLeaveParty(party->id, party->members[i]);
         }
@@ -4833,7 +4833,7 @@ int cm_CutsceneReady(char *m)
         for (; i < party->used; i++) {
             if (party->members[i] == -1)
                 continue;
-            c = (AICHAR *)gm_FindChar(party->members[i]);
+            c = gm_FindChar(party->members[i]);
             if (c != 0 && c->partyId != -1 && c->partyId != party->id && (c->kind == 6 || c->kind == 7))
                 return 0;
         }

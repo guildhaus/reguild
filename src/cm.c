@@ -1702,7 +1702,7 @@ int cm_SendPlaceOnStage(int charId, int bldId, int objId)
 int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const char *s2)
 {
     G17MSG m;
-    char *ch;
+    AICHAR *ch;
     AIBLD *b;
     AIOBJ *o;
 
@@ -1720,7 +1720,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
     else
         m.go.text[0] = 0;
     ch = gm_FindChar(id);
-    if (ch != 0 && ch[8] == 0)
+    if (ch != 0 && ch->health == 0)
         return -1;
     if (f == 0 && c == -1) {
         o = 0;
@@ -2662,7 +2662,7 @@ int cm_CheckCutsceneReady(G17MSG *m)
     if (m->ready.partyId == -1)
         return 1;
     for (i = 0; i < 0x10; i++) {
-        c = (AICHAR *)gm_FindChar(m->ready.members[i]);
+        c = gm_FindChar(m->ready.members[i]);
         if (c != 0 && (c->kind == 6 || c->kind == 7) && c->partyId != -1 && c->partyId != m->ready.partyId)
             return 1;
     }
@@ -2794,7 +2794,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
     AIFIN *t;
-    char *r;
+    AICHAR *r;
     unsigned int k;
     int type;
 
@@ -2820,7 +2820,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
         strncpy(ai_Chars[k].family, m->named.family, 0x10);
         r = gm_FindChar(ai_Chars[k].relatives[1]);
         if (r != 0)
-            strncpy(((AICHAR *)r)->family, m->named.family, 0x10);
+            strncpy(r->family, m->named.family, 0x10);
         t->camAngle = -1.0f;
     }
     ai_Chars[k].ref54 = m->named.ref54;
@@ -2837,7 +2837,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
 
 int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
 {
-    char *c;
+    AICHAR *c;
     int k;
 
     k = gm_TakeOverCharacter(m->takeover.taker, m->takeover.taken);
@@ -3653,7 +3653,7 @@ int cm_ExLongMessage(G17MSG *m, G17STAT *s)
     char *t1, *t2;
 
     memcpy(&msg, cm_LongMsg, sizeof msg);
-    c = (AICHAR *)gm_FindChar(msg.to);
+    c = gm_FindChar(msg.to);
     if (net_Conn.s != INVALID_SOCKET) {
         if (msg.flags & 1) {
             if (c == 0)
@@ -3928,7 +3928,7 @@ int cm_ExKillCharacter(G17MSG *m, G17STAT *s)
 
     if (s != 0)
         s->state = 2;
-    c = (AICHAR *)gm_FindChar(m->kill.netId);
+    c = gm_FindChar(m->kill.netId);
     if (c != 0) {
         ok = 1;
         sv_MoveToGroup(0, 0, c->id, 0);
@@ -3963,7 +3963,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
         ai_NextCrimeId = ai_NextCrimeId + 1;
     slot = gv_FreeCrimeSlot();
     if (slot != -1) {
-        c = (AICHAR *)gm_FindChar(m->crime.culprit);
+        c = gm_FindChar(m->crime.culprit);
         if (c != 0 && c->kind == 6)
             ai_CountMissionEvent(c, 0x17);
         rec = &ai_Crimes[slot];
@@ -3973,7 +3973,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
                 m->crime.culprit, m->crime.victim);
         place = m->crime.place;
         if (place == -1) {
-            c = (AICHAR *)gm_FindChar(m->crime.victim);
+            c = gm_FindChar(m->crime.victim);
             if (c != 0) {
                 if (c->bld2 != 0)
                     place = c->bld2->id;
@@ -3998,7 +3998,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
                 if (gv_AddEvidence(rec->id, ai_Chars[j->chr].netId) == 0)
                     break;
                 if (s != 0) {
-                    c = (AICHAR *)gm_FindChar(j->id4);
+                    c = gm_FindChar(j->id4);
                     if (c != 0)
                         ai_NotifyPlayerOfChar((unsigned short *)c, (unsigned short *)&ai_Chars[j->chr]);
                 }
@@ -4393,7 +4393,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
     AIBLD *b = 0;
     AIOBJ *q = 0;
     CHACTION *r;
-    short *c;
+    AICHAR *c;
     D3OBJECT *o;
     int x = -1;
     int k, v, save;
@@ -4892,10 +4892,10 @@ int cm_ExOwnership(G17MSG *m, G17STAT *s)
     b = gm_BuildQuery(1, 1, m->owner.bldId);
     if (b == 0)
         return 1;
-    c1 = (AICHAR *)gm_FindChar(m->owner.ownerId);
+    c1 = gm_FindChar(m->owner.ownerId);
     if (c1 == 0 && m->owner.ownerId != -1)
         return 1;
-    c2 = (AICHAR *)gm_FindChar(m->owner.masterId);
+    c2 = gm_FindChar(m->owner.masterId);
     if (c2 == 0 && m->owner.masterId != -1)
         return 2;
     gm_AssignBuilding(b, c2->id, c1->id);
@@ -4918,7 +4918,7 @@ int cm_ExSetHome(G17MSG *m, G17STAT *s)
     b = gm_BuildQuery(1, 1, m->home.bldId);
     if (b == 0)
         return 1;
-    c = (AICHAR *)gm_FindChar(m->home.charId);
+    c = gm_FindChar(m->home.charId);
     if (c == 0 && m->home.charId != -1)
         return 1;
     if (ai_BTypes[b->type].kind == 1) {
@@ -5143,7 +5143,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     b = gm_BuildQuery(1, 1, m->hire.bldId);
     if (b == 0)
         return 1;
-    c = (AICHAR *)gm_FindChar(m->hire.charId);
+    c = gm_FindChar(m->hire.charId);
     if (m->hire.homeId != -1) {
         home = gm_BuildQuery(1, 1, m->hire.homeId);
         if (home == 0)
@@ -5227,7 +5227,7 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
     char *p, *q;
     int save;
 
-    c = (AICHAR *)gm_FindChar(m->model.charId);
+    c = gm_FindChar(m->model.charId);
     if (c == 0 || c->model == 0)
         return 1;
     save = d3_CurrentScene;
@@ -5352,7 +5352,7 @@ int cm_ExSkillsChanged(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
 
-    c = (AICHAR *)gm_FindChar(m->skills.charId);
+    c = gm_FindChar(m->skills.charId);
     if (c != 0 && c->bld2 != 0)
         gm_ShowBuildingObjects(c->bld2);
     if (s != 0) {
@@ -5414,7 +5414,7 @@ int cm_ExChangePlayerHe(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
 
-    c = (AICHAR *)gm_FindChar(m->clear.charId);
+    c = gm_FindChar(m->clear.charId);
     if (c == 0)
         err_Message("cm_ExChangePlayerHe(): invalid sp->id");
     if (c->id != 0xffff)
@@ -5433,7 +5433,7 @@ int cm_ExSetJob(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
 
-    c = (AICHAR *)gm_FindChar(m->setJob.charId);
+    c = gm_FindChar(m->setJob.charId);
     if (c == 0)
         return 1;
     gm_SetJob(c->id, m->setJob.job);
@@ -5570,7 +5570,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
     D3OBJECT *o;
     int scene, i;
 
-    c = (AICHAR *)gm_FindChar(m->geb.owner);
+    c = gm_FindChar(m->geb.owner);
     if (c == 0)
         return 1;
     if (net_Conn.s != -1)
@@ -5644,7 +5644,7 @@ int cm_ExCharHalt(G17MSG *m, G17STAT *s)
     AICHAR *c;
     AITASK *g;
 
-    c = (AICHAR *)gm_FindChar(m->halt.charId);
+    c = gm_FindChar(m->halt.charId);
     if (c == 0)
         return 1;
     g = c->model;
@@ -6039,7 +6039,7 @@ int cm_ExChrDelete(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    c = (AICHAR *)gm_FindChar(m->chrDelete.charId);
+    c = gm_FindChar(m->chrDelete.charId);
     if (c != 0 && c->scene != 0) {
         ch_Delete(c->scene);
         c->scene = 0;
@@ -6064,7 +6064,7 @@ int cm_ExCancelParty(G17MSG *m, G17STAT *s)
     for (i = 0; i < q->used; i++) {
         id = q->members[i];
         if (id != -1) {
-            c = (AICHAR *)gm_FindChar(id);
+            c = gm_FindChar(id);
             if (c != 0 && c->partyId == q->id)
                 c->partyId = -1;
         }
@@ -6097,7 +6097,7 @@ int cm_ExCutsceneReady(G17MSG *m, G17STAT *s)
     if (q != 0)
         q->state = 1;
     for (i = 0; i < 16; i++) {
-        c = (AICHAR *)gm_FindChar(m->ready.members[i]);
+        c = gm_FindChar(m->ready.members[i]);
         if (c != 0)
             c->partyId = m->ready.partyId;
     }
@@ -6116,7 +6116,7 @@ int cm_ExMoneyDelta(G17MSG *m, G17STAT *s)
     AICHAR *c;
     int v;
 
-    c = (AICHAR *)gm_FindChar(m->money.charId);
+    c = gm_FindChar(m->money.charId);
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
@@ -6142,7 +6142,7 @@ int cm_ExHeldRounds(G17MSG *m, G17STAT *s)
     AICHAR *c;
     int v;
 
-    c = (AICHAR *)gm_FindChar(m->heldRounds.charId);
+    c = gm_FindChar(m->heldRounds.charId);
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
@@ -6195,7 +6195,7 @@ int cm_ExAddSkill(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    c = (AICHAR *)gm_FindChar(m->skill.charId);
+    c = gm_FindChar(m->skill.charId);
     if (c == 0)
         return 1;
     k = m->skill.skill;

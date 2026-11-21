@@ -1583,7 +1583,7 @@ void gv_GraveyardTurn(AIBLD *bld)
             rounds = 0;
             h = -1;
         }
-        c = (AICHAR *)gm_FindChar(e->id);
+        c = gm_FindChar(e->id);
         if (c == 0) {
             size = e->size;
             for (k = 0; k < gv_EntryCounts[size]; k++) {

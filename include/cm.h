@@ -110,7 +110,7 @@ typedef struct G17B15 { char b[15]; } G17B15;
 
 int gm_FindById(int *bld, int *obj, int *chr, int id);                             /* 0x4fea50, out: three object views */
 void main_GameLoop(int ctl);                                                              /* 0x53bb20 */
-short * gm_FindChar(int id);                                                      /* 0x505df0, ai.h: AICHAR * */
+struct AICHAR *gm_FindChar(int id);                                                      /* 0x505df0, ai.h: AICHAR * */
 int gm_CompareTime(AITIME *a, AITIME *b);                                          /* 0x4fe210 */
 struct AIBLD *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
 int gm_IsHomeType(struct AIBLD *bld);                                                     /* 0x502520 */

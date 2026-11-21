@@ -761,7 +761,7 @@ void ai_PamphletWindow(struct AIBLD *bld);
 #define PF_KIND0    0x800000             /* kind 0 */
 #define PF_ONE_OF   0xf00000             /* one of these must hold */
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
-short * gm_FindChar(int id);
+struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
 typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
                                            ai_AmountRow; cm.c CMAMOUNTROW) */
@@ -840,7 +840,7 @@ typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCre
     int obj;                        /* 0x0c, the row's window object (d2_GetWinObj) */
     int index;                      /* 0x10, the offer's slot in the bank's credits[] */
 } CREDITROW;
-short * gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
+struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
 short * gm_PlayerRecord(char *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); void d2_SetObjText(); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, unsigned char i);
@@ -914,7 +914,7 @@ int gv_RetireCrimesOf(int p, int n); int cm_SendMoveGoods(int a, int b, unsigned
 void txt_Format(char *out, int id0, ...);
 void d2_CloseView(int view); int _ftol();
 void ai_Top5Window();
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); short * gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); struct AICHAR *gm_FindChar(int id); int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);
 void gm_DonationTop5(unsigned *ids, int *sc); int ai_DrawAmountRow();
 int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
@@ -1769,19 +1769,19 @@ int ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, ch
             } else if (kind > 0 && kind < 7) {
                 n = amt_GetColumnOffices(kind, 6, seats);
                 for (i = 0; i < n; i++) {
-                    rows[i].rec = (AICHAR *)gm_FindChar(seats[i].owner);
+                    rows[i].rec = gm_FindChar(seats[i].owner);
                     rows[i].office = seats[i].kind;
                 }
             } else if (kind == 7) {
                 n = amt_GetColumn7Offices(0, 6, seats7);
                 for (i = 0; i < n; i++) {
-                    rows[i].rec = (AICHAR *)gm_FindChar(seats7[i].owner);
+                    rows[i].rec = gm_FindChar(seats7[i].owner);
                     rows[i].office = seats7[i].kind;
                 }
             } else if (kind == 8) {
                 n = amt_GetColumnOffices(kind, 5, seats8);
                 for (i = 0; i < n; i++) {
-                    rows[i].rec = (AICHAR *)gm_FindChar(seats8[i].owner);
+                    rows[i].rec = gm_FindChar(seats8[i].owner);
                     rows[i].office = seats8[i].kind;
                 }
             } else {
@@ -1983,7 +1983,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
     if (n < max) {
         for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
             if (ev->partner1 == me->netId) {
-                c = (AICHAR *)gm_FindChar(ev->partner2);
+                c = gm_FindChar(ev->partner2);
                 if (c != 0 && c->netId != me->relatives[0]) {
                     rows[n].rec = c;
                     rows[n].x2c = (c->sex != 0) + 8;
@@ -2152,7 +2152,7 @@ unsigned int ai_FillLoversTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
     n = 0;
     for (ev = (AIJOB *)he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = (AIJOB *)he_NextEvent()) {
         if (ev->partner1 == me->netId) {
-            c = (AICHAR *)gm_FindChar(ev->partner2);
+            c = gm_FindChar(ev->partner2);
             if (c != 0)
                 lovers[n++] = c;
         }
@@ -2201,33 +2201,33 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     if (max == 0) {
         for (ev = (LCOFFEREVENT *)he_FindEvent(1, 0, 0x2c); ev != 0; ev = (LCOFFEREVENT *)he_NextEvent()) {
             mine = 0;
-            c = (AICHAR *)gm_FindChar(ev->who[0]);
+            c = gm_FindChar(ev->who[0]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = (AICHAR *)gm_FindChar(ev->who[1]);
+            c = gm_FindChar(ev->who[1]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = (AICHAR *)gm_FindChar(ev->who[2]);
+            c = gm_FindChar(ev->who[2]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = (AICHAR *)gm_FindChar(ev->who[3]);
+            c = gm_FindChar(ev->who[3]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = (AICHAR *)gm_FindChar(ev->who[4]);
+            c = gm_FindChar(ev->who[4]);
             if (c == 0)
                 continue;
             k = 5;
             if (c == me)
                 mine = 1;
-            c = (AICHAR *)gm_FindChar(ev->who[5]);
+            c = gm_FindChar(ev->who[5]);
             if (c != 0) {
                 k = 6;
                 if (c == me)
@@ -2242,37 +2242,37 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
         mine = 0;
         if (ev->clock.year - ai_Time.year > soonest)
             continue;
-        guests[0] = (AICHAR *)gm_FindChar(ev->who[0]);
+        guests[0] = gm_FindChar(ev->who[0]);
         if (guests[0] == 0)
             continue;
         roles[0] = 0;
         if (guests[0] == me)
             mine = 1;
-        guests[1] = (AICHAR *)gm_FindChar(ev->who[1]);
+        guests[1] = gm_FindChar(ev->who[1]);
         if (guests[1] == 0)
             continue;
         roles[1] = 1;
         if (guests[1] == me)
             mine = 1;
-        guests[2] = (AICHAR *)gm_FindChar(ev->who[2]);
+        guests[2] = gm_FindChar(ev->who[2]);
         if (guests[2] == 0)
             continue;
         roles[2] = 2;
         if (guests[2] == me)
             mine = 1;
-        guests[3] = (AICHAR *)gm_FindChar(ev->who[3]);
+        guests[3] = gm_FindChar(ev->who[3]);
         if (guests[3] == 0)
             continue;
         roles[3] = 3;
         if (guests[3] == me)
             mine = 1;
-        guests[4] = (AICHAR *)gm_FindChar(ev->who[4]);
+        guests[4] = gm_FindChar(ev->who[4]);
         if (guests[4] == 0)
             continue;
         roles[4] = 3;
         if (guests[4] == me)
             mine = 1;
-        guests[5] = (AICHAR *)gm_FindChar(ev->who[5]);
+        guests[5] = gm_FindChar(ev->who[5]);
         if (guests[5] != 0) {
             roles[5] = 4;
             if (guests[5] == me)
@@ -2336,11 +2336,11 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     if ((me->flags1c8 & 0x400) != 0) {
         for (ev = (AIJOB *)he_FindEvent(1, 0, 0x47); ev != 0; ev = (AIJOB *)he_NextEvent()) {
             if (ev->partner1 == me->netId) {
-                c = (AICHAR *)gm_FindChar(ev->partner2);
+                c = gm_FindChar(ev->partner2);
                 break;
             }
             if (ev->partner2 == me->netId) {
-                c = (AICHAR *)gm_FindChar(ev->partner1);
+                c = gm_FindChar(ev->partner1);
                 break;
             }
         }
@@ -2351,7 +2351,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
         n = 1;
     }
     for (ev = (AIJOB *)he_FindEvent(2, 2, me->id, 0, 0x18); ev != 0 && n < max; ev = (AIJOB *)he_NextEvent()) {
-        c = (AICHAR *)gm_FindChar(ev->id4);
+        c = gm_FindChar(ev->id4);
         if (c != 0) {
             rows[n].rec = c;
             rows[n].x2c = 1;
@@ -3113,13 +3113,13 @@ void ai_AmountListWindow(int kind)
             if ((kind > 0 && kind < 7) || kind == 8) {
                 n = amt_GetColumnOffices(kind, 6, seats);
                 for (i = 0; i < n; i++) {
-                    rows[i].rec = (AICHAR *)gm_FindChar(seats[i].owner);
+                    rows[i].rec = gm_FindChar(seats[i].owner);
                     rows[i].office = seats[i].kind;
                 }
             } else if (kind == 7) {
                 n = amt_GetColumn7Offices(0, 6, seats7);
                 for (i = 0; i < n; i++) {
-                    rows[i].rec = (AICHAR *)gm_FindChar(seats7[i].owner);
+                    rows[i].rec = gm_FindChar(seats7[i].owner);
                     rows[i].office = seats7[i].kind;
                 }
             } else {
@@ -3390,8 +3390,8 @@ void ai_AgendaOfficeList(int kind)
     for (i = 0; i < n; i++) {
         if (seats[i].state != 2)
             continue;
-        holder = (AICHAR *)gm_FindChar(seats[i].owner);
-        other = (AICHAR *)gm_FindChar(seats[i].x14);
+        holder = gm_FindChar(seats[i].owner);
+        other = gm_FindChar(seats[i].x14);
         if (holder != 0 && other != 0) {
             listed |= 1;
             io_PrintText(0x139f, other->id, holder->id, holder->sex == 0 ? seats[i].kind + 0x253 : seats[i].kind + 0x27b);
@@ -4077,7 +4077,7 @@ int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg,
         if ((mask & 2) && ai_Chars[id].sex == 0)
             goto reject;
         if ((mask & 0x1000) && ai_Chars[id].relatives[0] != -1) {
-            rel = (AICHAR *)gm_FindChar(ai_Chars[id].relatives[0]);
+            rel = gm_FindChar(ai_Chars[id].relatives[0]);
             if (rel != 0 && rel->health > 0)
                 goto reject;
         }
@@ -4583,7 +4583,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId
     if (ai_RunAllows(1) == 0)
         return;
     ai_CampaignStep(6, 0, 0, 0);
-    ch = (AICHAR *)gm_FindChar(netId);
+    ch = gm_FindChar(netId);
     if (ch == 0)
         return;
     win = d2_OpenForm(0, 0, "Special\\Stammbaum");
@@ -4612,20 +4612,20 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId
             memset(children, 0xff, sizeof children);
             draw = 0;
             row[2].id = ch->id;
-            rel = (AICHAR *)gm_FindChar(ch->relatives[0]);
+            rel = gm_FindChar(ch->relatives[0]);
             if (rel != 0 && (ch->flags1c8 & 0x40000) == 0 && (rel->flags1c8 & 0x40000) == 0) {
                 partner = 1;
                 row[3].id = rel->id;
             }
-            rel = (AICHAR *)gm_FindChar(ch->relatives[2]);
+            rel = gm_FindChar(ch->relatives[2]);
             if (rel != 0)
                 parents[1].id = rel->id;
-            rel = (AICHAR *)gm_FindChar(ch->relatives[1]);
+            rel = gm_FindChar(ch->relatives[1]);
             if (rel != 0) {
                 parents[0].id = rel->id;
                 for (j = 3; j < 8 && k < 6; j++) {
                     if (rel->relatives[j] != -1 && rel->relatives[j] != ch->netId) {
-                        pick = (AICHAR *)gm_FindChar(rel->relatives[j]);
+                        pick = gm_FindChar(rel->relatives[j]);
                         if (pick != 0) {
                             row[k].id = pick->id;
                             k++;
@@ -4638,7 +4638,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId
             }
             for (i = 3; i < 8 && nChildren < 5; i++) {
                 if (ch->relatives[i] != -1) {
-                    rel = (AICHAR *)gm_FindChar(ch->relatives[i]);
+                    rel = gm_FindChar(ch->relatives[i]);
                     if (rel != 0 && rel->kind < 10) {
                         children[nChildren].id = rel->id;
                         nChildren++;
@@ -4860,20 +4860,20 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId
             for (i = 0; i < 6; i++) {
                 if (d2_PointerObj == row[i].ctrl) {
                     found = i;
-                    pick = (AICHAR *)gm_FindChar(ai_Chars[row[i].id].netId);
+                    pick = gm_FindChar(ai_Chars[row[i].id].netId);
                     break;
                 }
             }
             for (i = 0; i < 2 && found == -1; i++) {
                 if (d2_PointerObj == parents[i].ctrl) {
                     found = i;
-                    pick = (AICHAR *)gm_FindChar(ai_Chars[parents[i].id].netId);
+                    pick = gm_FindChar(ai_Chars[parents[i].id].netId);
                     break;
                 }
             }
             for (i = 0; i < 5 && found == -1; i++) {
                 if (d2_PointerObj == children[i].ctrl) {
-                    pick = (AICHAR *)gm_FindChar(ai_Chars[children[i].id].netId);
+                    pick = gm_FindChar(ai_Chars[children[i].id].netId);
                     break;
                 }
             }
@@ -4991,7 +4991,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
         gm_GetWorth(chr->id);
         io_PrintText("$5<$R%s$0<$3>$L%s$A$0>", 0x1f58, "-");
     }
-    rel = (AICHAR *)gm_FindChar(chr->relatives[0]);
+    rel = gm_FindChar(chr->relatives[0]);
     if (dead) {
         strcpy(text, "-");
         io_PrintText("$5<$R%s$0<$3>$L%s$A$0>", txt_Ptrs[0x1f59], text);
@@ -5002,7 +5002,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
         ev = he_FindEvent(1, 0, 0x41);
         while (ev != 0 && ((AIJOB *)ev)->partner1 != chr->netId)
             ev = he_NextEvent();
-        if (ev != 0 && (betrothed = (AICHAR *)gm_FindChar(((AIJOB *)ev)->partner2)) != 0) {
+        if (ev != 0 && (betrothed = gm_FindChar(((AIJOB *)ev)->partner2)) != 0) {
             txt_Format(text, 0x1f5e, betrothed->id);
             io_PrintText("$5<$R%s$0<$3>$L%s$A$0>", 0x1f59, text);
         } else if (rel != 0) {
@@ -5016,7 +5016,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
     io_PrintText("$5<$R%s$0<", 0x1f5a);
     any = 0;
     for (i = 3; i < 8; i++) {
-        rel = (AICHAR *)gm_FindChar(chr->relatives[i]);
+        rel = gm_FindChar(chr->relatives[i]);
         if (rel != 0) {
             any = 1;
             io_PrintText("$3>$L%1N1$A$0>", rel->id);
@@ -5350,14 +5350,14 @@ int ai_CourtshipRounds(int idA, int idB)
     parentA = parentB = 0.0f;
     memset(req, 0, sizeof(req));
     req[0] = 1;
-    a = (AICHAR *)gm_FindChar(idA);
-    b = (AICHAR *)gm_FindChar(idB);
+    a = gm_FindChar(idA);
+    b = gm_FindChar(idB);
     if (a == 0 || b == 0)
         return 0;
-    p = (AICHAR *)gm_FindChar(b->relatives[1]);
+    p = gm_FindChar(b->relatives[1]);
     if (p != 0)
         parentA = (float)(gm_GetWorth(p->id) / 2);
-    p = (AICHAR *)gm_FindChar(b->relatives[2]);
+    p = gm_FindChar(b->relatives[2]);
     if (p != 0)
         parentB = (float)(gm_GetWorth(p->id) / 2);
     standing = max((float)gm_GetWorth(b->id), 0.0f);
@@ -5486,7 +5486,7 @@ int ai_CourtshipListWindow(G8CHARREC *ch, LCORDMSG *m)
     for (i = 0; i < n; i++) {
         rows[i].x = margin + (d2_Pics[0x5da].w + 10) * (i % 3) + (i % 3 + 1) * gap - 10;
         rows[i].y = i / 3 * 0x82 + 5;
-        rows[i].rec = (AICHAR *)gm_FindChar(ids[i]);
+        rows[i].rec = gm_FindChar(ids[i]);
         rows[i].pickable = 1;
         ai_AmountRowStatus(&rows[i]);
         rows[i].x2c = ai_CourtshipRounds(ai_Chars[ai_PlayerId].netId, rows[i].rec->netId);
@@ -5564,7 +5564,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
     if (ch->kind != 6) {
         if (ev != 0)
             return 0x20;
-        p = (AICHAR *)gm_FindChar(m->target);
+        p = gm_FindChar(m->target);
         if (p != 0 && p->health != 0) {
             AIMSG msg;
 
@@ -5589,14 +5589,14 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
     d2_SetForm(win, 1);
     io_PrintText(0x1cf3);
     if (state == 2) {
-        p = (AICHAR *)gm_FindChar(partner);
+        p = gm_FindChar(partner);
         io_PrintText(0x1ce7, ch->id, p->id, max(0, ev->pairRounds - ev->pairRound), 0x5d);
     } else if (state == 3) {
-        p = (AICHAR *)gm_FindChar(partner);
+        p = gm_FindChar(partner);
         io_PrintText(0x1ce3);
         io_PrintText(0x1d31, p->id);
     } else if (state == 4) {
-        p = (AICHAR *)gm_FindChar(partner);
+        p = gm_FindChar(partner);
         level = p->b00d;
         for (i = 0; i < 3; i++) {
             prices[i] = ev->pairPrice[i];
@@ -5621,7 +5621,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
                 price = prices[i];
                 if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer)) {
                     rounds = 0;
-                    p = (AICHAR *)gm_FindChar(partner);
+                    p = gm_FindChar(partner);
                     left = picks[i] - level;
                     gain = (int)(max(left * 0.11111111f, 0.0f) * 3.0f + 0.5f);
                     if (gain > 0)
@@ -5647,7 +5647,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
                     sv_PopRequest = 1;
                 }
             } else if (i == 3) {
-                txt_Format(closing, 0x1cfa, ((AICHAR *)gm_FindChar(partner))->id);
+                txt_Format(closing, 0x1cfa, gm_FindChar(partner)->id);
                 ev->pairDrawn = 0;
                 ev->exSlot = cm_SendExSetHE(0, ev);
                 sv_MessageBox(closing, 0);
@@ -6163,7 +6163,7 @@ void ai_PrivilegesPanel(void)
                         break;
                 }
                 if (job != 0)
-                    partner = (AICHAR *)gm_FindChar(job->partner2);
+                    partner = gm_FindChar(job->partner2);
                 else
                     partner = 0;
             }
@@ -6375,7 +6375,7 @@ int ai_DivorceDialog(AICHAR *ch, LCORDMSG *m)
         worth = (float)gm_GetWorth(ch->id);
         if (gm_GetGoodsValue(ch) / worth < 0.12)
             return 0x22;
-        spouse = (AICHAR *)gm_FindChar(ch->relatives[0]);
+        spouse = gm_FindChar(ch->relatives[0]);
         cm_SendMoneyDelta(ch->netId, -8);
         cm_BeginFieldBlock((char *)ch, ch->netId);
         cm_AddFieldValue(4, 1, 0x5c, &none);
@@ -6391,7 +6391,7 @@ int ai_DivorceDialog(AICHAR *ch, LCORDMSG *m)
     }
     worth = (float)gm_GetWorth(ch->id);
     price = (int)(worth * 0.08);
-    spouse = (AICHAR *)gm_FindChar(ch->relatives[0]);
+    spouse = gm_FindChar(ch->relatives[0]);
     win = d2_OpenForm(0, 0, "privillegien\\scheidung");
     d2_SetPointerSprite(0, 0);
     d2_CentreViewWindows(win);
@@ -6549,7 +6549,7 @@ int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
     LCAMOUNTROW rows[0x20];
 
     if (me->kind != 6 && me->kind != 7) {
-        victim = (AICHAR *)gm_FindChar(m->target);
+        victim = gm_FindChar(m->target);
         if (victim == 0)
             return 0x60;
         open[0] = gv_HeldCrimeIdsOf(victim->netId, ids, me->id);  /* the count in open[0]: the original's slot */
@@ -6582,7 +6582,7 @@ int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
     d2_CreateScrollButtons(-1, -1, d2_LastWindow, list, 0x767);
     count = gv_RankCulpritsAll(ids, open, total, me->id);
     for (i = 0, n = 0; i < count; i++) {
-        ch = (AICHAR *)gm_FindChar(ids[i]);
+        ch = gm_FindChar(ids[i]);
         if (ch != 0) {
             rows[n].rec = ch;
             rows[n].x2c = total[i];
@@ -6617,7 +6617,7 @@ int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
                         } else if ((unsigned int)rows[i].x34 < 3) {
                             sv_MessageBox(txt_Ptrs[0x1d51], 0);
                         } else {
-                            if (ai_BlackmailWindow(me, (AICHAR *)gm_FindChar(ids[i])) != 0)
+                            if (ai_BlackmailWindow(me, gm_FindChar(ids[i])) != 0)
                                 sv_PopRequest = 1;
                             ret = 0x92;
                         }
@@ -6736,7 +6736,7 @@ int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         AIMSG msg;
 
-        victim = (AICHAR *)gm_FindChar(m->target);
+        victim = gm_FindChar(m->target);
         if (victim == 0)
             return 0x60;
         text2 = util_Random(9) + 0x1d76;
@@ -6844,7 +6844,7 @@ int ai_IntimidateContact(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         AIMSG msg;
 
-        victim = (AICHAR *)gm_FindChar(m->target);
+        victim = gm_FindChar(m->target);
         if (victim == 0)
             return 0x60;
         cm_SendMoneyDelta(me->netId, -2);
@@ -7044,7 +7044,7 @@ int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
         AMTKIND kind;
         AMTREC office;
 
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
         if (amt_FindOffice((char *)ch, &kind, &office) == 0)
@@ -7256,7 +7256,7 @@ int ai_BewitchOrder(AICHAR *me, LCORDMSG *m)
     }
     if (me->money < m->amount || m->amount < 1 || m->amount > 5)
         return 0x60;
-    target = (AICHAR *)gm_FindChar(m->target);
+    target = gm_FindChar(m->target);
     if (target == 0)
         return 0x60;
     n = m->amount;
@@ -7503,10 +7503,10 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
 
         if (me->money < 4)
             return 0x20;
-        a = (AICHAR *)gm_FindChar(m->target);
+        a = gm_FindChar(m->target);
         if (a == 0)
             return 0x20;
-        b = (AICHAR *)gm_FindChar(m->target2);
+        b = gm_FindChar(m->target2);
         if (b == 0)
             return 0x20;
         price = (int)((float)(gm_GetWorth(b->id) + gm_GetWorth(a->id)) * 0.02f);
@@ -7615,7 +7615,7 @@ int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
             return 0x20;
         if (me->flags1c8 & LC_POWER_HEARING)
             return 0x20;
-        target = (AICHAR *)gm_FindChar(m->target);
+        target = gm_FindChar(m->target);
         if (target == 0)
             return 0x60;
         cm_SendMoneyDelta(me->netId, -2);
@@ -7723,7 +7723,7 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
             if (holder == 0 || ((int)holder->flags1c8 & LC_POWER_EXPEL))
                 return 0x60;
         }
-        target = (AICHAR *)gm_FindChar(m->target);
+        target = gm_FindChar(m->target);
         if (target == 0)
             return 0x60;
         bld = gm_BuildQuery(1, 1, m->target2);
@@ -7839,10 +7839,10 @@ int ai_PeaceWindow(AICHAR *me, LCORDMSG *m)
         r2 = util_Random(0x28) + 0xf;
         if (me->money < 3)
             return 0x20;
-        a = (AICHAR *)gm_FindChar(m->target);
+        a = gm_FindChar(m->target);
         if (a == 0)
             return 0x60;
-        b = (AICHAR *)gm_FindChar(m->target2);
+        b = gm_FindChar(m->target2);
         if (b == 0)
             return 0x60;
         cm_SendRelations(a->netId, b->netId, r1, 1);
@@ -8624,7 +8624,7 @@ int ai_AccusationWindow(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         if (me->officeKind == 0xd)
             return 0x60;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0 || ch->officeKind == 0xd)
             return 0x60;
         open[0] = gv_HeldCrimesOf(m->target, ids, me->id);    /* the original keeps the count in open[0] */
@@ -8642,7 +8642,7 @@ int ai_AccusationWindow(AICHAR *me, LCORDMSG *m)
     d2_CreateScrollButtons(-1, -1, d2_LastWindow, list, 0x767);
     count = gv_RankCulpritsAll(ids, open, total, me->id);
     for (i = 0, n = 0; i < count; i++) {
-        ch = (AICHAR *)gm_FindChar(ids[i]);
+        ch = gm_FindChar(ids[i]);
         if (ch != 0) {
             rows[n].rec = ch;
             rows[n].x2c = total[i];
@@ -8712,7 +8712,7 @@ int ai_FaithAccusationWindow(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         if (me->officeKind == 0xd)
             return 0x60;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0 || ch->officeKind == 0xd)
             return 0x60;
         open[0] = gv_HeldCrimesOf(m->target, ids, me->id);    /* the original keeps the count in open[0] */
@@ -8730,7 +8730,7 @@ int ai_FaithAccusationWindow(AICHAR *me, LCORDMSG *m)
     d2_CreateScrollButtons(-1, -1, d2_LastWindow, list, 0x767);
     count = gv_RankCulpritsAll(ids, open, total, me->id);
     for (i = 0, n = 0; i < count; i++) {
-        ch = (AICHAR *)gm_FindChar(ids[i]);
+        ch = gm_FindChar(ids[i]);
         if (ch != 0) {
             rows[n].rec = ch;
             rows[n].x2c = total[i];
@@ -8800,7 +8800,7 @@ void ai_Interrogate(AICHAR *me, AICHAR *ch)
                 he_ShowNews(ch->netId, -1, text, 0, 0x5fb, "_NACHRICHTEN_NEU_05");
             }
         } else {
-            holder = (AICHAR *)gm_FindChar(offices[i].owner);
+            holder = gm_FindChar(offices[i].owner);
             if (holder == 0)
                 continue;
             cm_SendRelations(me->netId, offices[i].owner, -20, 1);
@@ -8835,7 +8835,7 @@ int ai_InterrogationWindow(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6) {
         if ((me->flags1cc & 0x80000) != 0)
             return 0x20;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
         if (ch->officeKind == 0)
@@ -8960,7 +8960,7 @@ int ai_DismissalHandler(AICHAR *me, LCORDMSG *m)
             return 0x20;
         if (me->money < 8)
             return 0x20;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
         if (ch->officeKind == 0)
@@ -9068,7 +9068,7 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
             return 0x20;
         if (me->money < 4)
             return 0x20;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
         if (ch->officeKind == 0)
@@ -9134,7 +9134,7 @@ int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
             return 0x20;
         if (me->money < 4)
             return 0x20;
-        ch = (AICHAR *)gm_FindChar(m->target);
+        ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
         if (ch->officeKind == 0)
@@ -9674,7 +9674,7 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
             return 1;
         }
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             AIMSG msg;
             msg.type = 0x82;
@@ -9737,7 +9737,7 @@ int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use)
             return 1;
         }
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             if (target->kind == 6 || target->kind == 7) {
                 txt_Format(news, 0xff6);
@@ -9974,7 +9974,7 @@ int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use)
             return 0;
         ret = 1;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0)
             ret = 1;
     }
@@ -10031,8 +10031,8 @@ int ai_QuarrelCallback(AICHAR *ch, int *req)
         /* @original ret set to 0 again in this arm (already 0): its reference in the else block
            ranks req above ch, so ch takes ebx and ret's kind-6 piece esi */
         ret = 0;
-        a = (AICHAR *)gm_FindChar(req[1]);
-        b = (AICHAR *)gm_FindChar(req[2]);
+        a = gm_FindChar(req[1]);
+        b = gm_FindChar(req[2]);
         if (a == 0 || b == 0)
             goto done;
     }
@@ -10118,7 +10118,7 @@ int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target != 0) {
         level = ai_InventoryHas(ch, 0x2c5) != 0 ? 2 : 1;
@@ -10299,8 +10299,8 @@ int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use)
         txt_Format(text, 0x9e);
         b = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        a = (AICHAR *)gm_FindChar(use->target);
-        b = (AICHAR *)gm_FindChar(use->arg);
+        a = gm_FindChar(use->target);
+        b = gm_FindChar(use->arg);
         if (a == 0)
             goto done;
     }
@@ -10362,7 +10362,7 @@ int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;
@@ -10396,7 +10396,7 @@ int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;
@@ -10458,7 +10458,7 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         if (target == 0)
             return 0;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target == 0)
             return 0;
         gm_FindById((int *)&bld, 0, 0, use->arg);
@@ -10574,7 +10574,7 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
         if (target == 0)
             return 0;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target == 0)
             return 0;
     }
@@ -10653,7 +10653,7 @@ int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;
@@ -10689,7 +10689,7 @@ int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;
@@ -10750,7 +10750,7 @@ int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
         if (target == 0)
             return 0;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0)
             ret = 1;
     }
@@ -10817,7 +10817,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
             return 1;
         }
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             AIMSG msg;
             msg.type = 0x82;
@@ -10876,7 +10876,7 @@ int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use)
             goto done;
         ret = 1;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target == 0)
             goto done;
         ret = 1;
@@ -10947,7 +10947,7 @@ int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use)
             goto done;
         ret = 1;
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target == 0)
             goto done;
         ret = 1;
@@ -11089,7 +11089,7 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;
@@ -11182,7 +11182,7 @@ int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use)
         cfg.filter = gypsyFilter;
         target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
     } else {
-        target = (AICHAR *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
     }
     if (target == 0)
         return 0;

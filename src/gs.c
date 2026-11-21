@@ -149,7 +149,7 @@ int gv_OnDecisionValue(GVDECMSG *p)
 {
     AIDEC rec;
     char buf[0x100];
-    short *c;
+    AICHAR *c;
 
     if (gv_GetTableRecord(p->rec, (int *)&rec) == 0)
         return 0;
@@ -158,7 +158,7 @@ int gv_OnDecisionValue(GVDECMSG *p)
         c = gm_FindChar(p->id);
         if (c != 0) {
             gv_TableRecordText(buf, p->rec);
-            ai_ShowCharacterNews(c, buf);
+            ai_ShowCharacterNews((unsigned short *)c, buf);
         }
     }
     return 1;
@@ -710,7 +710,7 @@ int gv_RetireCrime(int id, int force)
 {
     int k, i;
     short count;
-    short *culprit;
+    AICHAR *culprit;
 
     k = gv_FindCrime(id);
     if (k == -1)
@@ -808,7 +808,7 @@ int gv_CulpritGuilt(int c)
 int gv_RetireCrimesOf(int culprit, int n)
 {
     int cnt, i, k, j, m;
-    short *c;
+    AICHAR *c;
     int told[8];
     ORDCHAR *who[8];
 
@@ -852,7 +852,7 @@ int gv_RetireCrimesOf(int culprit, int n)
 int gv_RetireCrimeIds(int culprit, int n, int *ids)
 {
     int cnt, i, k, e, j, m, id;
-    short *c;
+    AICHAR *c;
     int told[8];
     ORDCHAR *who[8];
 
@@ -1119,7 +1119,7 @@ char *gv_FindAccused(char *c, int max, int *ids, int *cnt)
     nw = 1;
     for (i = 0; i < 0x200; i++) {
         if (ai_Crimes[i].state > 0 && ai_Crimes[i].culprit != ch->netId) {
-            o = (AICHAR *)gm_FindChar(ai_Crimes[i].culprit);
+            o = gm_FindChar(ai_Crimes[i].culprit);
             if (o != 0) {
                 for (k = 0; k < 0x800; k++)
                     if (ai_Evidence[k][0] == ch->netId && ai_Evidence[k][1] == ai_Crimes[i].id)
@@ -1461,7 +1461,7 @@ int gv_EvidencePrice(int id, AICHAR *seller, int *price, short *culprit, unsigne
         return 0;
     if (gv_GetTableRecord(ai_Crimes[i].law, (int *)&rec) == 0 || rec.guilt == 0)
         return 0;
-    ch = (AICHAR *)gm_FindChar(ai_Crimes[i].culprit);
+    ch = gm_FindChar(ai_Crimes[i].culprit);
     if (ch == 0)
         return 0;
     *culprit = ch->id;

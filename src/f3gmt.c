@@ -4946,13 +4946,13 @@ char gm_RandomAge(unsigned char n)
 }
 /* 0x505df0, the character in use whose netId is id, 0 when none */
 
-short *gm_FindChar(int id)
+struct AICHAR *gm_FindChar(int id)
 {
     int i;
 
     for (i = 0; i < 768; i++)
         if (ORD_CHARS[i].id != 0xffff && ORD_CHARS[i].netId == id)
-            return (short *)&ai_Chars[i];
+            return &ai_Chars[i];
     return 0;
 }
 /* 0x505e30, the age (its w00a word) of the character with the number id as a float */
@@ -4968,7 +4968,7 @@ float gm_CharAge(unsigned short id)
 int gm_CharLevel(unsigned short id, int again)
 {
     AMTKIND kind;
-    short *parent;
+    AICHAR *parent;
     int level;
 
     if (ORD_CHARS[id].netId == -1 || ORD_CHARS[id].health <= 0)
@@ -4982,9 +4982,9 @@ int gm_CharLevel(unsigned short id, int again)
         return level;
     parent = gm_FindChar(ORD_CHARS[id].relatives[1]);
     if (parent != 0) {
-        if (level > gm_CharLevel(*parent, 1))
+        if (level > gm_CharLevel(parent->id, 1))
             return level;
-        return gm_CharLevel(*parent, 1);
+        return gm_CharLevel(parent->id, 1);
     }
     return level;
 }
@@ -4995,7 +4995,7 @@ int gm_CharLevel(unsigned short id, int again)
 int gm_CharPrevLevel(unsigned short id, int again)
 {
     AMTKIND kind;
-    short *parent;
+    AICHAR *parent;
     int level;
 
     if (ORD_CHARS[id].netId == -1 || ORD_CHARS[id].health <= 0)
@@ -5009,9 +5009,9 @@ int gm_CharPrevLevel(unsigned short id, int again)
         return level;
     parent = gm_FindChar(ORD_CHARS[id].relatives[1]);
     if (parent != 0) {
-        if (level > gm_CharPrevLevel(*parent, 1))
+        if (level > gm_CharPrevLevel(parent->id, 1))
             return level;
-        return gm_CharPrevLevel(*parent, 1);
+        return gm_CharPrevLevel(parent->id, 1);
     }
     return level;
 }

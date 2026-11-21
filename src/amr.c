@@ -6560,7 +6560,7 @@ int ai_PickDislikedColumn(G5CH *p)
         if (n >= 3) {
             sum = 0.0f;
             for (t = 0; t < n; t++)
-                sum += gm_Liking(p->id, ((AICHAR *)gm_FindChar(list[t].owner))->id, 1);
+                sum += gm_Liking(p->id, gm_FindChar(list[t].owner)->id, 1);
             if (sum / (float)n < 66.0f)
                 return order[i];
         }

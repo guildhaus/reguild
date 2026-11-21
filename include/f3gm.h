@@ -6,12 +6,12 @@
 
 #include "f3gm_types.h"
 
-struct AIBLD;
+struct AIBLD; struct AICHAR;
 
 struct AIBLD *gm_BuildNext(void);              /* 0x501030, the next building of the query */
 struct AIBLD *gm_BuildQuery(int n, ...);       /* 0x501190, n (kind, value) filters; 6 takes no value */
 struct AIOBJ *gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
-short *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
+struct AICHAR *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
 int gm_FindObjectProto(char *name);             /* 0x4fe900, the number of the object prototype with the given name (case-insensitive), 0 when none */
 int gm_FindObjectInst(int id);                  /* 0x4fe980, the object instance with the id (int +2) */

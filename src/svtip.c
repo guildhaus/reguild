@@ -972,7 +972,7 @@ int ai_OpenUpgradeTooltip(int idx)
     return view;
 }
 
-int ai_AmountRowStatus(); int ai_DrawAmountRow(); short * gm_FindChar(int id); int gm_TitlesLeft();
+int ai_AmountRowStatus(); int ai_DrawAmountRow(); struct AICHAR *gm_FindChar(int id); int gm_TitlesLeft();
 
 /* 0x588bb0, opens the help tooltip of the record named s: the key "_HILFE_<S>+0" (the name upper-cased) is
    looked up in the texts; without it -1 (no window). Else the form "ToolTip\ToolTip_Contact", centred, its
@@ -1073,7 +1073,7 @@ int ai_OpenCharTooltip(char *ch)
     io_PrintText(0x2e, gm_GetWorth(c->id));
     if ((c->flags1cc & 0x3000) == 0) {
         io_PrintText(0x2f);
-        p = (AICHAR *)gm_FindChar(c->relatives[0]);
+        p = gm_FindChar(c->relatives[0]);
         if (p != 0 && p->health > 0) {
             io_PrintText(0x30, p->id);
         } else {
@@ -1081,7 +1081,7 @@ int ai_OpenCharTooltip(char *ch)
                 if (ev->partner1 == c->netId)
                     break;
             }
-            if (ev != 0 && (p = (AICHAR *)gm_FindChar(ev->partner2)) != 0)
+            if (ev != 0 && (p = gm_FindChar(ev->partner2)) != 0)
                 io_PrintText(0x31, p->id);
             else
                 io_PrintText(0x32);
@@ -1092,7 +1092,7 @@ int ai_OpenCharTooltip(char *ch)
         any = 0;
         io_PrintText(0x34);
         for (i = 0; i < 5; i++) {
-            p = (AICHAR *)gm_FindChar(c->relatives[3 + i]);
+            p = gm_FindChar(c->relatives[3 + i]);
             if (p != 0) {
                 io_PrintText("$3>%1N1$A", p->id);
                 any = 1;
@@ -1155,7 +1155,7 @@ void ai_CharInfoWindow(char *ch)
     io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->b00d);
     io_PrintText(0x2e, gm_GetWorth(c->id));
     io_PrintText(0x2f);
-    p = (AICHAR *)gm_FindChar(c->relatives[0]);
+    p = gm_FindChar(c->relatives[0]);
     if (p != 0 && p->health > 0) {
         io_PrintText(0x30, p->id);
     } else {
@@ -1163,7 +1163,7 @@ void ai_CharInfoWindow(char *ch)
             if (ev->partner1 == c->netId)
                 break;
         }
-        if (ev != 0 && (p = (AICHAR *)gm_FindChar(ev->partner2)) != 0)
+        if (ev != 0 && (p = gm_FindChar(ev->partner2)) != 0)
             io_PrintText(0x31, p->id);
         else
             io_PrintText(0x32);
@@ -1172,7 +1172,7 @@ void ai_CharInfoWindow(char *ch)
     any = 0;
     io_PrintText(0x34);
     for (i = 0; i < 5; i++) {
-        p = (AICHAR *)gm_FindChar(c->relatives[3 + i]);
+        p = gm_FindChar(c->relatives[3 + i]);
         if (p != 0) {
             io_PrintText("$3>%1N1$A", p->id);
             any = 1;
