@@ -149,7 +149,7 @@ int amt_SendOfficeOwner(char a, struct AICHAR *b, unsigned char c); /* 0x4e6650,
 void gm_AgeCharacter(struct AICHAR *c, unsigned short age);    /* 0x4fc6f0, f3gm.c: ages the character c to the age */
 int ai_WorksForMaster(struct AICHAR *c);                 /* 0x47dd70, ai.c */
 void hmt_Begin(void);                           /* 0x4ad0a0, hmt.c */
-void ai_ObjectAngle(void *out, int plot);                 /* 0x58fd90, lc.c: the angle of the object plot to out */
+void ai_ObjectAngle(void *out, struct D3OBJECT *plot);                 /* 0x58fd90, lc.c: the angle of the object plot to out */
 int cm_SendOwnership(int a, int b, int c);               /* 0x4c54a0, cm.c: message 0x38, the building a changes its person from b to c */
 void cm_SendBoss(int a, int b);                            /* 0x4c5540, cm.c: message 0x39, the building a gets the character b as its boss */
 int cm_RequestCreateGeb(int owner, int kind, D3VECTOR4 *pos, int *rot);  /* 0x4c5ae0, cm.c: message 0x4c, a building of kind k at pos */
@@ -1548,7 +1548,7 @@ void init_OpenTown(void)
     AICHAR *ch2[16];
     char vecA[16], vecB[12];
     char buf260[96];
-    int list200[128];
+    D3OBJECT *list200[128];
     int ncl, i, j, k;
     AIBLD *r, *q;
     int h, n, nch, m, ok;
@@ -1609,7 +1609,7 @@ void init_OpenTown(void)
                         m++;
                     } while (m < n);
                 }
-                d3_PointToWorld((struct D3OBJECT *)list200[m], (D3VECTOR *)(list200[m] + 0x4c), (D3VECTOR *)vecA);
+                d3_PointToWorld(list200[m], &list200[m]->pos, (D3VECTOR *)vecA);
                 ai_ObjectAngle(vecB, list200[m]);
                 h = cm_RequestCreateGeb(c->netId, proto, (D3VECTOR4 *)vecA, (int *)vecB);
                 while (h != -1 && cm_GetSlotState(h) == 0)

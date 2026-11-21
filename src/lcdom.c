@@ -4019,7 +4019,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 if (rows[i].cart != 0 && rows[i].selected != 0)
                     pickCarts[n++] = rows[i].cart;
             txt_Format(text1, 0xce, n, 0xc10);
-            dest = (AIBLD *)ai_MapPick(0x11, &cfg, text1, 0, 0);
+            dest = ai_MapPick(0x11, &cfg, text1, 0, 0);
             if (dest != 0 && dest != bld) {
                 fee = 0;
                 if (gm_IsHomeType(dest) == 0 && gm_IsHomeType(bld) == 0) {
@@ -4214,10 +4214,10 @@ void ai_LoadTownMap(void)
    and ai_CloseMapWindow. The record is 0x27ac bytes in the original's 0x27b0-byte frame (ai_OpenTownMap stores
    the background tile at +0x27a8). The fifth argument is not read */
 
-int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused)
+void *ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused)
 {
     LCMAPWIN map;
-    int picked;
+    void *picked;
     int i;
 
     picked = 0;
@@ -4240,11 +4240,11 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
             if (dm_L.lclick != 0 && d2_PointerObj != -1) {
                 for (i = 0; i < 0x10; i++) {
                     if (map.spotCtrls[i] != -1 && d2_PointerObj == map.spotCtrls[i]) {
-                        picked = (int)d2_Objs[map.spotCtrls[i]].user;
+                        picked = d2_Objs[map.spotCtrls[i]].user;
                         if (picked != 0 && cb != 0) {
                             d2_SetViewEnabled(map.view, 0);
                             d2_EnableObject(d2_Wins[map.screen].parent, 0);
-                            ai_MapPickCb(cb)((void *)picked, (void *)picked);
+                            ai_MapPickCb(cb)(picked, picked);
                             d2_SetViewEnabled(map.view, 1);
                             d2_EnableObject(d2_Wins[map.screen].parent, 1);
                         } else {
@@ -4268,11 +4268,11 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
                 continue;
             picked = 0;
             if (flags & 1) {
-                picked = (int)map.marks[i].bld;
+                picked = map.marks[i].bld;
             } else if (flags & 2) {
                 d2_SetViewEnabled(map.view, 0);
                 d2_EnableObject(d2_Wins[map.screen].parent, 0);
-                picked = ai_LawSelectionEntry((unsigned char *)map.marks[i].bld, req, (int)name, cb);
+                picked = ai_LawSelectionEntry(map.marks[i].bld, req, name, cb);
                 d2_EnableObject(d2_Wins[map.screen].parent, 1);
                 d2_SetViewEnabled(map.view, 1);
             } else {
@@ -4288,13 +4288,13 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
                 continue;
             d2_SetViewEnabled(map.view, 0);
             d2_EnableObject(d2_Wins[map.screen].parent, 0);
-            ai_MapPickCb(cb)((void *)picked, (void *)map.marks[i].bld);
+            ai_MapPickCb(cb)(picked, map.marks[i].bld);
             d2_SetViewEnabled(map.view, 1);
             d2_EnableObject(d2_Wins[map.screen].parent, 1);
             break;
         }
     }
-    ai_CampaignStep(0xd, (void *)picked, 1, 0);
+    ai_CampaignStep(0xd, picked, 1, 0);
     ai_CloseMapWindow((int *)&map);
     return picked;
 }

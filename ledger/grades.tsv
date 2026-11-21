@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		byte+readable -> shape+readable at 780a7585: tie-break: the voice API's struct SBBANK * / struct SBSAMPLE * prototypes (cm.h), then the site chain (am.h, lc.h); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
+exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		byte+readable -> shape+readable at 780a7585: tie-break: the building sites are D3OBJECT * (ai_FindBauplaetze's lists, ai_PlacementSites, the site helpers, AIARG.plot) and ai_MapPick returns void * (the K&R int copies went); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -4004,7 +4004,7 @@ exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
 exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at 780a7585: tie-break (sv_t's tutorial chapters, shape under another declaration set): the site chain and ai_MapPick's void * return; the K&R ai_MapPick copy in sv_t went [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		

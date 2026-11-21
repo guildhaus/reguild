@@ -81,7 +81,7 @@ void ai_MasterLetterWindow(struct AIBLD *bld);         /* 0x5c3200, opens the ma
 int ai_FreeProdSetting(int id);                     /* 0x5a86c0, unlinks and frees the production setting of the building id (ai_ProdSetting), -1 when it has none */
 
 /* the placement-candidate list of the build screen (ai_BauplatzFilter / ai_FindBauplaetze) */
-extern int *ai_BauplatzList;            /* 0x6f5308 */
+extern struct D3OBJECT **ai_BauplatzList; /* 0x6f5308 */
 
 /* the goods grids of the production window (ai_InitProductionTables sets them up, ai_UpdateProdGoodsList fills
    them from the store, ai_LayoutProdGoodsList lays them out): a row of four slots, and a slot */
@@ -150,7 +150,7 @@ extern int ai_DragScrollY;              /* 0x6f26a8 */
 extern int ai_DragStartX;               /* 0x6f26b4, the mouse position the drag began at */
 extern int ai_DragStartY;               /* 0x6f26b8 */
 extern int ai_Dragging;                 /* 0x6f26bc, 1 while the town map is dragged */
-extern int *ai_PlacementSites;          /* 0x6f26b0, the candidate site list of the running building placement (the map window marks each entry) */
+extern struct D3OBJECT **ai_PlacementSites; /* 0x6f26b0, the candidate site list of the running building placement (the map window marks each entry) */
 /* The production settings chain (0x6f26c0, the head ai_Settings): one 0x4c-byte record per building, the seed at +4,
    the rotation byte at +8, seven {good, weight, lock} slots at +0xc (stride 8) and the factor at +0x44 */
 typedef struct G8SLOT {                 /* one slot of a setting (stride 8) */
@@ -392,10 +392,10 @@ void ai_ShowPartingNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5
 void ai_ShowFeudNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a8f90 */
 void ai_ShowPartnerNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a9050 */
 int ai_GoodFitsBuilding(void *ch, int good);  /* 0x5bb2d0 */
-int ai_FindBauplaetze(char *prefix, int *list);  /* 0x58f7a0 */
+int ai_FindBauplaetze(char *prefix, struct D3OBJECT **list);  /* 0x58f7a0 */
 int ai_InventoryHas(void *ch, int id);  /* 0x5ba6b0 */
-void ai_ObjectAngle(void *out_, int plot);  /* 0x58fd90 */
-void ai_ObjectPosition(void *out, int plot);  /* 0x58fd40 */
+void ai_ObjectAngle(void *out_, struct D3OBJECT *plot);  /* 0x58fd90 */
+void ai_ObjectPosition(void *out, struct D3OBJECT *plot);  /* 0x58fd40 */
 void ai_ShowIndulgenceNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5);  /* 0x5a8b80 */
 void ai_ShowPaymentNews(unsigned short *param_1, struct AICHAR *param_2, int param_3);  /* 0x5a8c00 */
 int ai_FindUsableGood(int param_1);  /* 0x5ba620 */
@@ -446,7 +446,7 @@ int ai_OpenTransport(struct AIBLD *building);  /* 0x5af1a0, the transport list o
 struct D3OBJECT *ai_CreateCityPoint(char *city);  /* 0x59a2c0, creates the city point object of a town, 0 when its dummy is missing */
 void ai_LoadTownMap(void);  /* 0x5b2090, loads the town map picture of the own player */
 int ai_OpenTransportBuy(struct AIBLD *building);  /* 0x5af1c0 */
-int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused);  /* 0x5b2180 */
+void *ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused);  /* 0x5b2180 */
 void ai_OpenRobberBribe(struct AIBLD *bld);  /* 0x5b4bf0 */
 int ai_DrohbriefWindow(struct AIBLD *bld);  /* 0x5b4fb0 */
 void ai_LeftAlignedText(char *text, int x, int y, int w, int font);  /* 0x5bd1f0 */
@@ -454,7 +454,7 @@ struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *
                                int (*pick)(struct AICHAR *, int));  /* 0x5bea50 */
 struct AICHAR *ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(struct AICHAR *, int));  /* 0x5c0970 */
 int ai_PassesMapPickFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c39a0 */
-int ai_LawSelectionEntry(struct AIBLD *bld, struct AMOUNTCFG *filter, char *text, void (*cb)(struct AICHAR *, struct AIBLD *));  /* 0x5c4100 */
+struct AICHAR *ai_LawSelectionEntry(struct AIBLD *bld, struct AMOUNTCFG *filter, char *text, void (*cb)(struct AICHAR *, struct AIBLD *));  /* 0x5c4100 */
 int ai_GiftWindow(struct AICHAR *giver, struct AICHAR *chr);  /* 0x5c6050 */
 void ai_HandleMapKey(void);  /* 0x591170, a key of the map window */
 void ai_InventoryPanel(void);  /* 0x5bac10, the inventory panel */

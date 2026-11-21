@@ -2380,7 +2380,7 @@ done:
 }
 
 int ai_FindBauplaetze();
-int ai_FindNearestObject(float *ref, int *list);  /* 0x58fe10 (lc.c) */
+struct D3OBJECT *ai_FindNearestObject(float *ref, struct D3OBJECT **list);  /* 0x58fe10 (lc.c) */
 
 /* 0x56b570, "he_AllocGebaeudeBauen", the alloc of an event of the type 0xd (when another one of the type is still
    below the stage 5 the record is freed): both clocks (end / clock60) = the start clock, due now + 1, workTotal /
@@ -2391,7 +2391,7 @@ void he_AllocGebaeudeBauen(AIJOB *e)
 {
     HEBUILD *b = (HEBUILD *)e;
     char buf[0x80];
-    char tab[0x400];
+    D3OBJECT *tab[0x100];
     AIJOB *e2;
     int n, i, scene;
 

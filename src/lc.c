@@ -2108,26 +2108,27 @@ int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 
    0x58f7a0): obj passes when its name (or its name + 1) starts with the prefix (case-insensitive; "bk_" when the
    prefix is 0); it is dropped when a building of the build query (gm_BuildQuery (1, 6) .. gm_BuildNext) stands
    within 100.0 of it; otherwise it is appended to ai_BauplatzList (count ai_BauplatzCount); always returns 1 */
-char ai_BauplatzFilter(int obj, char *prefix)
+char ai_BauplatzFilter(D3OBJECT *obj, void *ctx)
 {
+    char *prefix = ctx;
     AIBLD *b;
-    int c;
+    D3OBJECT *c;
     float pos[4];
     float q[4];
 
     if (prefix == 0) {
-        if (strnicmp((char *)obj, "bk_", 3) != 0 && strnicmp((char *)(obj + 1), "bk_", 3) != 0)
+        if (strnicmp(obj->name, "bk_", 3) != 0 && strnicmp(obj->name + 1, "bk_", 3) != 0)
             return 1;
     } else {
-        if (strnicmp((char *)obj, prefix, strlen(prefix)) != 0 &&
-            strnicmp((char *)(obj + 1), prefix, strlen(prefix)) != 0)
+        if (strnicmp(obj->name, prefix, strlen(prefix)) != 0 &&
+            strnicmp(obj->name + 1, prefix, strlen(prefix)) != 0)
             return 1;
     }
-    d3_PointToWorld((struct D3OBJECT *)obj, &((D3OBJECT *)obj)->pos, (struct D3VECTOR *)pos);
+    d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)pos);
     for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
-        c = (int)b->object;
+        c = b->object;
         if (c != 0) {
-            d3_PointToWorld((struct D3OBJECT *)c, &((D3OBJECT *)c)->pos, (struct D3VECTOR *)q);
+            d3_PointToWorld(c, &c->pos, (struct D3VECTOR *)q);
             if (d3_VecEqual((struct D3VECTOR *)q, (struct D3VECTOR *)pos, 100.0f) != 0)
                 return 1;
         }
@@ -2143,7 +2144,7 @@ int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80
    filter ai_BauplatzFilter puts the objects named with prefix into list (ai_BauplatzList, count ai_BauplatzCount);
    a site is dropped again when the object of a building (gm_BuildQuery 1, 6) stands within 100.0 of its parent
    object or of one of its "bk_" named children; returns the count */
-int ai_FindBauplaetze(char *prefix, int *list)
+int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
 {
     int i;
     D3OBJECT *obj;
@@ -2156,7 +2157,7 @@ int ai_FindBauplaetze(char *prefix, int *list)
     ai_BauplatzList = list;
     d3_ForEachObject(d3_DefaultScene, 0, 0x180, ai_BauplatzFilter, prefix);
     for (i = 0; i < ai_BauplatzCount; i++) {
-        if ((obj = (D3OBJECT *)ai_BauplatzList[i]) == 0)
+        if ((obj = ai_BauplatzList[i]) == 0)
             goto next;
         if (obj->parent != 0) {
             d3_PointToWorld(obj->parent, &obj->parent->pos, (D3VECTOR *)at);
@@ -2228,14 +2229,14 @@ char d3if_ShowTree(struct D3OBJECT *obj, char show);                /* 0x447300 
    filled by d3_ForEachObject (mask 0x2c0) with ai_VgFilter, then every entry is shown by d3if_ShowTree (obj, 0) or
    hidden by d3if_ShowTree (obj, 1); showAll == 0 shows all, else the entries from the index ai_GfxDetail (when
    that detail is not 2) are hidden */
-void ai_ShowVgObjects(int start, int showAll)
+void ai_ShowVgObjects(D3OBJECT *start, int showAll)
 {
     int list[0x21];
     int i;
     int v;
 
     memset(list, 0, 0x84);
-    d3_ForEachObject(d3_DefaultScene, (struct D3OBJECT *)start, 0x2c0,
+    d3_ForEachObject(d3_DefaultScene, start, 0x2c0,
                      (char (*)(struct D3OBJECT *, void *))ai_VgFilter, (AIVGLIST *)list);
     for (i = 0; i < list[0x20]; i++) {
         v = list[i];
@@ -2251,7 +2252,7 @@ void ai_ShowVgObjects(int start, int showAll)
    owner (+0x1f8) or of one of its "bk_" / "!bk_" named children (+0x1fc list); 1 when free. The result is passed
    to ai_ShowVgObjects (obj, result), which shows / hides the "vg_" markers of the object */
 
-void ai_CheckBuildable(int obj)
+void ai_CheckBuildable(D3OBJECT *obj)
 {
     AIOBJVIEW *view;
     AIOBJVIEW *owner;
@@ -2303,7 +2304,7 @@ done:
 
 void ai_CheckBuildSites(void)
 {
-    int list[0x100];
+    D3OBJECT *list[0x100];
     int n;
     int i;
 
@@ -2383,7 +2384,7 @@ extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0
 /* 0x58fd40, the world position of a plot record's origin, written to out (79 B): d3if_SelectScene (0, 1) brackets
    the work; the zeroed 0x10-byte vector goes through d3_LocalToWorld (the plot, the vector, out), which applies
    the record's matrix and its parent chain; d3_CurrentScene is selected again afterwards */
-void ai_ObjectPosition(void *out, int plot)
+void ai_ObjectPosition(void *out, D3OBJECT *plot)
 {
     float v[4];
     int scene;
@@ -2393,14 +2394,14 @@ void ai_ObjectPosition(void *out, int plot)
     v[0] = 0;
     v[1] = 0;
     v[2] = 0;
-    d3_LocalToWorld((struct D3OBJECT *)plot, (struct D3VECTOR *)v, (struct D3VECTOR *)out);
+    d3_LocalToWorld(plot, (struct D3VECTOR *)v, (struct D3VECTOR *)out);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fd90, the rotation angle of a plot record (123 B): d3if_SelectScene (0, 1) brackets the work; out[0..2] is
    cleared, the zeroed vector takes the record's world direction (d3_DirToWorld on d3_ZAxis) and its angle to
    d3_ZAxis (d3_VecAngle) is stored to out[1]; d3_CurrentScene is selected again afterwards */
 
-void ai_ObjectAngle(void *out_, int plot)
+void ai_ObjectAngle(void *out_, D3OBJECT *plot)
 {
     float v[3];
     float *out = (float *)out_;
@@ -2414,17 +2415,17 @@ void ai_ObjectAngle(void *out_, int plot)
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
-    d3_DirToWorld((struct D3OBJECT *)plot, &d3_ZAxis, (struct D3VECTOR *)v);
+    d3_DirToWorld(plot, &d3_ZAxis, (struct D3VECTOR *)v);
     out[1] = d3_VecAngle((struct D3VECTOR *)&d3_ZAxis, (struct D3VECTOR *)v);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fe10, the nearest object of a 0x100-entry list within 100.0 (157 B): the horizontal distance of the
    position ref (x, z) to each object's position (+0x4c) picks the nearest below 100.0; 0 when none */
 
-int ai_FindNearestObject(float *ref, int *list)
+D3OBJECT *ai_FindNearestObject(float *ref, D3OBJECT **list)
 {
     int i;
-    int obj;
+    D3OBJECT *obj;
     float best;
     float p[4];
     float pos[4];
@@ -2436,8 +2437,7 @@ int ai_FindNearestObject(float *ref, int *list)
     pos[2] = ref[2];
     for (i = 0; i < 0x100; i++) {
         if (list[i] != 0) {
-            d3_PointToWorld((struct D3OBJECT *)list[i], (struct D3VECTOR *)(list[i] + 0x4c),
-                            (struct D3VECTOR *)p);
+            d3_PointToWorld(list[i], &list[i]->pos, (struct D3VECTOR *)p);
             p[1] = 0.0f;
             dx = p[0] - pos[0];
             dz = p[2] - pos[2];
@@ -2510,13 +2510,13 @@ extern char ai_DataPath[];  /* 0x75dca0, the data path (am.h) */
    v.y all give ours); +0x97f the original pushes the known-zero esi for sv_MessageBox(txt_Ptrs[0x17f0], 0)
    where ours pushes 0 (the original keeps esi as the zero register through the banner loop). The rest is
    slots / order / regs. A variant round. */
-int lc_GebaeudeAusrichten(int kind, char *out)
+D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
 {
     char names[128][0x60];          /* the model files of the kind found in the vfs */
     char text[0x400];               /* the confirmation text */
     char found[0x100];              /* vfs_GetPath's output */
     D3OBJECT *flags[0x100];         /* the banner per site */
-    int sites[0x100];               /* the "bk_" site objects (ai_FindBauplaetze) */
+    D3OBJECT *sites[0x100];             /* the "bk_" site objects (ai_FindBauplaetze) */
     char flagPath[MAX_PATH];
     char path[0x100];
     D3MATRIX mat;
@@ -2539,17 +2539,17 @@ int lc_GebaeudeAusrichten(int kind, char *out)
     float dx;
     float dy;
     float dz;
-    int result;
+    D3OBJECT *result;
     int color;
     int n;
     int reload;
-    int sel;                        /* the banner nearest to the camera */
-    int cur;
-    int hit;
+    D3OBJECT *sel;                  /* the banner nearest to the camera */
+    D3OBJECT *cur;
+    D3OBJECT *hit;
     int firstPick;
     int idx;
     int count;
-    int picked;
+    D3OBJECT *picked;
     int ok;
     int i;
 
@@ -2607,7 +2607,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
     ai_PlacementSites = sites;
     for (i = 0; i < count; i++) {
         if (sites[i] != 0) {
-            d3_PointToWorld((D3OBJECT *)sites[i], &((D3OBJECT *)sites[i])->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(sites[i], &sites[i]->pos, (D3VECTOR *)&pos);
             sprintf(flagPath, "%s*sp_BAU_WIMPEL.ogr", ai_DataPath);
             flags[i] = d3_LoadGroup(flagPath, 0, 0);
             d3t_InflateObjectTree(flags[i]);
@@ -2624,7 +2624,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
             d = (float)sqrt(dz * dz + dy * dy + dx * dx);
             if (d < best) {
                 best = d;
-                cur = sel = (int)flags[i];
+                cur = sel = flags[i];
             }
             d3t_PlayAnim(flags[i], "sonstiges\\sp_WIMPEL.baf", 1);
         }
@@ -2698,7 +2698,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
                 picked = ai_MapPick(8, 0, txt_Ptrs[0x17ec], 0, 0);
                 if (picked != 0) {
                     sv_FlyCameraToModel(picked);
-                    d3_PointToWorld((D3OBJECT *)picked, &((D3OBJECT *)picked)->pos, (D3VECTOR *)&pos);
+                    d3_PointToWorld(picked, &picked->pos, (D3VECTOR *)&pos);
                     ai_DropObjectAt(model, (D3VECTOR *)&pos);
                 } else if (firstPick) {
                     sv_PopRequest = 1;
@@ -2709,7 +2709,7 @@ int lc_GebaeudeAusrichten(int kind, char *out)
             if (hit != 0) {
                 if (hit != cur) {
                     cur = hit;
-                    d3_PointToWorld((D3OBJECT *)hit, &((D3OBJECT *)hit)->pos, (D3VECTOR *)&pos);
+                    d3_PointToWorld(hit, &hit->pos, (D3VECTOR *)&pos);
                     d3_SetObjectPos(model, (D3VECTOR *)&pos);
                     ai_ObjectAngle(&ang, hit);
                     d3_SetObjectRot(model, &ang);
@@ -2838,7 +2838,7 @@ void ai_ConstructionWindow(void)
     int off;
     int ctl;
     int text;
-    int site;
+    D3OBJECT *site;
     int kind;
     int ok;
     int n;
@@ -2963,7 +2963,7 @@ void ai_ConstructionWindow(void)
                         msg.arg[0] = msg.to;
                     msg.arg[1] = kind;
                     msg.arg[2] = gm_BuildingKindCost(&ai_Chars[ai_PlayerId], kind);
-                    d3_PointToWorld((D3OBJECT *)site, &((D3OBJECT *)site)->pos, (D3VECTOR *)msg.buildPos);
+                    d3_PointToWorld(site, &site->pos, (D3VECTOR *)msg.buildPos);
                     ai_ObjectAngle(msg.buildRot, site);
                     strncpy(msg.buildPath, model, 0x3f);
                     cm_SendLongMessage((char *)&msg);
@@ -3018,7 +3018,7 @@ void ai_HandleMapKey(void)
         msg[4] = 0;
         msg[2] = 0;
         msg[0x13] = 0x71f;
-        p = (AIBLD *)ai_MapPick(1, msg, 0, 0, 0);
+        p = ai_MapPick(1, msg, 0, 0, 0);
         if (p != 0 && sv_OtherSelected == 0) {
             if (ai_FallbackBuilding != 0) {
                 r = gm_IsHomeType(p);
@@ -13561,14 +13561,14 @@ int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, i
 extern const int ai_CharWalkSteps[16];  /* 0x5ed100, the random walk steps (am.h, not included) */
 extern AIDEC gv_Decisions[];  /* 0x611258, the 0x1d AI decision (law) records (gv.h, not included) */
 
-extern int * ai_BauplatzList;
+extern struct D3OBJECT **ai_BauplatzList;
 AIBUILDNAME ai_BuildNames[0xf] = { { "bk_BRUNNEN", { 8, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_GEFAENGNIS", { 17, 18, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_HANDWERK", { 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28 } }, { "bk_HANDWERK", { 41, 42, 43, 47, 48, 49, 50, 51, 52, 33, 34, 35 } }, { "bk_HANDWERK", { 72, 73, 74, 81, 82, 83, 78, 79, 80, 0, 0, 0 } }, { "bk_KIRCHE_KL", { 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_KIRCHE_GR", { 22, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_RATHAUS", { 36, 37, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_STADTWACHE", { 44, 45, 46, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_WIRTSHAUS_GR", { 53, 54, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_WOHNSITZ_KL", { 4, 5, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_WOHNSITZ_GR", { 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_ZUNFTHAUS", { 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67 } }, { "bk_STATUEN", { 84, 85, 86, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { "bk_DOMIZIL", { 75, 76, 77, 0, 0, 0, 0, 0, 0, 0, 0, 0 } } };  /* 0x62aae8 */
 int ai_BuildGroup = 6;  /* 0x62af98, the building group the construction window shows (1 .. 9, its group buttons) */
 LCOPENHOURS ai_OpeningHours[19] = { { 5, 9, 20 }, { 6, 7, 22 }, { 8, 9, 20 }, { 9, 9, 20 }, { 0xe, 9, 20 }, { 0xf, 6, 22 }, { 0x12, 9, 20 }, { 0x13, 9, 20 }, { 0x14, 9, 20 }, { 0x15, 9, 20 }, { 0x16, 12, 23 }, { 0x17, 7, 22 }, { 0x18, 7, 22 }, { 0x19, 7, 22 }, { 0x1a, 7, 22 }, { 0x20, 9, 20 }, { 0x1f, 9, 20 }, { 0x1d, 9, 20 }, { 0, 0, 0 } };  /* 0x62afa0, the opening hours per building class, ended by class 0 (ai_IsBuildingOpen) */
 LCPRODROW ai_ProdRows[4];  /* 0x6f4f00 */
 LCPRODSLOT ai_ProdGoods[16];  /* 0x6f4f60 */
 LCPRODROW ai_ProdRows2[2];  /* 0x6f52e0 */
-int * ai_BauplatzList;  /* 0x6f5308 */
+struct D3OBJECT **ai_BauplatzList;  /* 0x6f5308 */
 LCPRODCOL ai_ProdColumns[16];  /* 0x6f5320, the goods columns of the production window */
 LCPRODSLOT ai_ProdGoods2[8];  /* 0x6f58a0 */
 int ai_ProdSelectedInput;  /* 0x6f5a60, the input goods picked in the production goods window, 0 = none */

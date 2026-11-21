@@ -3139,7 +3139,7 @@ void sv_CameraToObject(AIBLD *b)
 /* 0x527e90, moves the camera (animated, d3t_PlaceObjectV) to 600 units back along its view from the 3D object
    m, like sv_FlyCameraToObject for a bare object: no stored view, no selection */
 
-void sv_FlyCameraToModel(int m)
+void sv_FlyCameraToModel(D3OBJECT *m)
 {
     float h;                        /* the pull-in factor */
     D3VECTOR4 up;                   /* the camera above the centre (only its height is used) */
@@ -3163,7 +3163,7 @@ void sv_FlyCameraToModel(int m)
     back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
     back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
     back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld((char *)m, &((D3OBJECT *)m)->pos, cen);
+    d3_PointToWorld((char *)m, &m->pos, cen);
     pos[0] = cen[0] + back[0];
     pos[1] = cen[1] + back[1];
     pos[2] = cen[2] + back[2];

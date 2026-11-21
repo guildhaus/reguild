@@ -1852,7 +1852,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     sv_CameraFollow();
 }
 
-struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay); int ai_MapPick();
+struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay);
 
 /* 0x585380, the graveyard's fog window (the Graveyard Owner's action 0x90, am.c ai_DecideGraveyardOwner1): rec =
    the graveyard. A fog of this graveyard still pending (he_FindEvent 0x90) -> the voice "_NACHRICHTEN_FRIEDHOF_14"
@@ -1889,7 +1889,7 @@ void ai_GraveFogWindow(AIBLD *rec)
     cfg.kind = 6;
     cfg.filter = 0x1a07c43b4;
     cfg.option4c = 0x727;
-    target = (AIBLD *)ai_MapPick(1, &cfg, txt_Ptrs[0x40b6], 0, 0);
+    target = ai_MapPick(1, &cfg, txt_Ptrs[0x40b6], 0, 0);
     if (target == 0) {
         sv_CameraFollow();
         return;

@@ -19436,7 +19436,7 @@ void sv_CountGroupMembers(struct AIJOB *g);
 int he_HasEvent9f(AICHAR *a);
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);
 int ai_FindBauplaetze();
-int ai_FindNearestObject(float *ref, int *list);  /* 0x58fe10 (lc.c) */
+struct D3OBJECT *ai_FindNearestObject(float *ref, struct D3OBJECT **list);  /* 0x58fe10 (lc.c) */
 void sv_CreateBanners(struct AIBLD *b);
 void snd_PlayFavourComment(void);
 void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);

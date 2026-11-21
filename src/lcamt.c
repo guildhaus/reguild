@@ -4439,7 +4439,7 @@ AICHAR *ai_PickBuildingChar(AIBLD *bld, AMOUNTCFG *cfg, char *caption, void (*cb
    LINK folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040, where the original's tail jump in ai_LawSelectionEntry
    points. Defined above its caller as in the original: VC6 tail-calls it with the class stored over the first
    argument (mov [esp+4],edx; jmp), which it does only for a callee whose body it has seen */
-int ai_ResearchSelectionEntry(int cls, AMOUNTCFG *filter, char *text, void (*cb)(AICHAR *, AIBLD *))
+AICHAR *ai_ResearchSelectionEntry(int cls, AMOUNTCFG *filter, char *text, void (*cb)(AICHAR *, AIBLD *))
 {
     return 0;
 }
@@ -4448,7 +4448,7 @@ int ai_ResearchSelectionEntry(int cls, AMOUNTCFG *filter, char *text, void (*cb)
    research class (0x50b090) it returns the research selection entry of that class (ai_ResearchSelectionEntry, 0
    in this build), else it opens the law selection window 0x5c3bb0 (param_2 the filter, param_3 the caption
    text, param_4 the pick callback) */
-int ai_LawSelectionEntry(AIBLD *bld, AMOUNTCFG *filter, char *text, void (*cb)(AICHAR *, AIBLD *))
+AICHAR *ai_LawSelectionEntry(AIBLD *bld, AMOUNTCFG *filter, char *text, void (*cb)(AICHAR *, AIBLD *))
 {
     int cls;
 
@@ -4456,7 +4456,7 @@ int ai_LawSelectionEntry(AIBLD *bld, AMOUNTCFG *filter, char *text, void (*cb)(A
         return 0;
     if (gm_ResearchClass(bld->type, &cls) != 0)
         return ai_ResearchSelectionEntry(cls, filter, text, cb);
-    return (int)ai_PickBuildingChar(bld, filter, text, cb);
+    return ai_PickBuildingChar(bld, filter, text, cb);
 }
 
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
@@ -7725,7 +7725,7 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
     cfg.filter = gypsyFilter;
     cfg.flags = 0;
     txt_Format(text, 0x1ddc);
-    bld = (AIBLD *)ai_MapPick(1, &cfg, text, 0, 0);
+    bld = ai_MapPick(1, &cfg, text, 0, 0);
     if (bld == 0)
         return 0;
     if (bld->owner == 0xffff)
@@ -9426,7 +9426,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = -1;
         cfg.kind = 6;
         cfg.classMask[0] = 4;
-        bld = (AIBLD *)ai_MapPick(1, &cfg, text, 0, 0);
+        bld = ai_MapPick(1, &cfg, text, 0, 0);
         if (bld != 0 && bld->owner != 0) {
             AIMSG msg;
 
@@ -9510,7 +9510,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = -1;
         cfg.kind = 6;
         cfg.filter = 0x1a0744300;
-        bld = (AIBLD *)ai_MapPick(1, &cfg, text, 0, 0);
+        bld = ai_MapPick(1, &cfg, text, 0, 0);
         if (bld != 0) {
             {
                 AIMSG msg;
@@ -9774,7 +9774,7 @@ int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = -1;
         cfg.kind = 4;
         cfg.filter = 0x90010;
-        bld = (AIBLD *)ai_MapPick(1, &cfg, text, 0, 0);
+        bld = ai_MapPick(1, &cfg, text, 0, 0);
         if (bld == 0)
             goto done;
         ret = 1;
@@ -10413,7 +10413,7 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = -1;
         cfg.kind = 6;
         cfg.filter = 0x1a0744300;
-        bld = (AIBLD *)ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
+        bld = ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
         if (bld == 0)
             return 0;
         cfg.option14 = 3;
@@ -10475,7 +10475,7 @@ int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = -1;
         cfg.kind = 6;
         cfg.filter = 0x1a0744300;
-        bld = (AIBLD *)ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
+        bld = ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
         if (bld == 0)
             return 0;
     } else {
@@ -10972,7 +10972,7 @@ int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use)
         cfg[2] = 0xa0400300;
         cfg[3] = 1;
         cfg[0] = 0;
-        bld = (AIBLD *)ai_MapPick(1, cfg, txt_Ptrs[0x9b], 0, 0);
+        bld = ai_MapPick(1, cfg, txt_Ptrs[0x9b], 0, 0);
     } else {
         bld = gm_FindBuildingById(use->target);
     }
@@ -11018,7 +11018,7 @@ int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use)
         cfg[2] = 0xa0747980;
         cfg[3] = 1;
         cfg[0] = 0;
-        bld = (AIBLD *)ai_MapPick(1, cfg, ch_EmptyName, 0, 0);
+        bld = ai_MapPick(1, cfg, ch_EmptyName, 0, 0);
         if (bld == 0)
             return 0;
     } else {

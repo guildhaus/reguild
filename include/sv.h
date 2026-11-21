@@ -85,7 +85,7 @@ int sv_MouseCamera(void);                                                 /* 0x5
 int sv_UpdateCamera(void);                                                 /* 0x527640 */
 void sv_FlyCameraToObject(struct AIBLD *o);                                               /* 0x527840 */
 void sv_CameraToObject(struct AIBLD *o);                                               /* 0x527bb0 */
-void sv_FlyCameraToModel(int m);                                               /* 0x527e90 */
+void sv_FlyCameraToModel(struct D3OBJECT *m);                                               /* 0x527e90 */
 void sv_MoveCameraToView(void);                                                /* 0x528140 */
 struct D3OBJECT; struct AIBLD; char sv_CreateBannerCB(struct D3OBJECT *part, struct AIBLD *b);                             /* 0x528180 */
 char sv_ColourBannerCB(struct D3OBJECT *o, struct AIBLD *b);                                    /* 0x528290 */

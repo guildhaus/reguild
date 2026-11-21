@@ -2039,7 +2039,7 @@ void amt_CalcZuenfte(unsigned int kind)
     AICHAR *cand[16];
     AIMSG m;
     char buf[128], name[128];
-    int list[64];
+    D3OBJECT *list[64];
     AIBLD *it;
     AICHAR *ch, *cur, *pick, *cp;
     AIBTYPE *t;
@@ -2101,19 +2101,18 @@ void amt_CalcZuenfte(unsigned int kind)
         t = &ai_BTypes[bld];
         ai_BuildingName(bld, buf);
         cnt = ai_FindBauplaetze(buf, list);
-        j = list[util_Random(cnt)];
+        plot = list[util_Random(cnt)];
         i = 0;
-        while (j == 0) {
+        while (plot == 0) {
             if (i >= cnt)
                 break;
             if (list[i] != 0)
-                j = list[i];
+                plot = list[i];
             i++;
         }
-        if (j != 0) {
-            plot = (D3OBJECT *)j;
+        if (plot != 0) {
             d3_PointToWorld(plot, &plot->pos, (D3VECTOR *)&pos);
-            ai_ObjectAngle(&rot, j);
+            ai_ObjectAngle(&rot, plot);
             d3if_SelectScene(scene, 1);
             strcpy(gb, "gb_");
             strcat(gb, t->name);

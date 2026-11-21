@@ -1184,7 +1184,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
         d2_LastWindow = m->screen;
         ctl = m->siteCtrls;
         for (i = 0; i < 0x100; i++, ctl++) {
-            obj = (D3OBJECT *)ai_PlacementSites[i];
+            obj = ai_PlacementSites[i];
             if (obj != 0) {
                 d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
                 d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
@@ -2643,7 +2643,7 @@ int ai_MapScrollX = 0;  /* 0x6f26a0 */
 int ai_DragScrollX = 0;  /* 0x6f26a4, the map window's scroll when the drag began */
 int ai_DragScrollY = 0;  /* 0x6f26a8 */
 struct D2SURF *rt_MapSurface = 0;  /* 0x6f26ac, the town map's screen surface (in this unit's .bss block; rt.c's rt_EditCartRoute draws its routes on it) */
-int *ai_PlacementSites = 0;  /* 0x6f26b0, the candidate site list of the running building placement (lc_GebaeudeAusrichten points it at its sites[]); the map window marks each entry */
+struct D3OBJECT **ai_PlacementSites = 0;  /* 0x6f26b0, the candidate site list of the running building placement (lc_GebaeudeAusrichten points it at its sites[]); the map window marks each entry */
 int ai_DragStartX = 0;  /* 0x6f26b4, the mouse position (dm_L) the drag began at */
 int ai_DragStartY = 0;  /* 0x6f26b8 */
 int ai_Dragging = 0;  /* 0x6f26bc, 1 while the town map is dragged */
