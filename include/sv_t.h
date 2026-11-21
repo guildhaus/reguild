@@ -212,15 +212,15 @@ void ai_EndCharExtra(char *ch, int f);  /* 0x587c40 */
 void ai_SetupTutorialPlayer(void);  /* 0x57bc30, sets up the tutorial player's profile */
 int ai_TutorialWindow(void);  /* 0x57bce0, the tutorial chooser window: 1 starts the tutorial, 0 is the back */
 
-void ai_GraveyardContact(char *rec);       /* 0x586840, the graveyard's contact dispatcher */
+void ai_GraveyardContact(struct AIBLD *rec);     /* 0x586840, the graveyard's contact dispatcher */
 void ai_GraveHauntContact(struct AIBLD *rec);    /* 0x586ab0, the graveyard contact HEIMSUCHUNG */
 void ai_GraveAgeContact(struct AIBLD *rec);      /* 0x586e40, the graveyard contact ALTERN_LASSEN */
-void ai_GravePlanContact(char *rec);       /* 0x5871c0, the graveyard contact LIEGEPLAN */
+void ai_GravePlanContact(struct AIBLD *rec);     /* 0x5871c0, the graveyard contact LIEGEPLAN */
 void ai_GraveRentContact(struct AIBLD *rec);     /* 0x5871e0, the graveyard contact GRAB_MIETEN */
-void ai_GraveCareContact(char *rec);       /* 0x587300, the graveyard contact GRAEBER_PFLEGEN */
-void ai_GraveHelperContact(char *rec);     /* 0x587340, the graveyard contact GEHILFEN_ERSCHAFFEN */
+void ai_GraveCareContact(struct AIBLD *rec);     /* 0x587300, the graveyard contact GRAEBER_PFLEGEN */
+void ai_GraveHelperContact(struct AIBLD *rec);     /* 0x587340, the graveyard contact GEHILFEN_ERSCHAFFEN */
 void ai_GraveInsuranceContact(struct AIBLD *rec);/* 0x587370, the graveyard contact VERSICHERUNG */
-void ai_GraveyardChatter(char *unused);    /* 0x587c90, the graveyard's idle-chatter tick */
+void ai_GraveyardChatter(struct AIBLD *unused);    /* 0x587c90, the graveyard's idle-chatter tick */
 void ai_GraveDeadDescription(struct GVGRAVE *g, char *out);  /* 0x583150, the second line of a dead person in a grave (ai_GraveDetail) */
 void ai_SeanceRollFormulas(int n, int *ids, int *variants, int base);  /* 0x585c40, rolls the seance formula texts into ids / variants */
 void ai_UnlockRoomWindow(struct AIBLD *rec, struct AIOBJ *room);  /* 0x5823b0, the window that unlocks a locked room for a fee */

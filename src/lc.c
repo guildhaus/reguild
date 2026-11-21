@@ -3631,7 +3631,7 @@ void ai_UpgradeContact(int building)
    with ai_ContactTextPersonnelBook) and opens ai_MasterLetterWindow / ai_PersonnelBook when one is the clicked
    object (ai_ClickedObject) */
 
-void ai_BookContact(char *bld)
+void ai_BookContact(AIBLD *bld)
 {
     int r;
     int a;
@@ -3656,7 +3656,7 @@ void ai_BookContact(char *bld)
    text ai_ContactTextMercenaryBook) and ub_STAENDER_WAFFEN (ai_ContactTextEquip) and opens ai_MercenaryBook /
    ai_EquipWindow when one is the clicked object (ai_ClickedObject) */
 
-void ai_MercenaryBookContact(char *bld)
+void ai_MercenaryBookContact(AIBLD *bld)
 {
     int r;
     int a;
@@ -3673,7 +3673,7 @@ void ai_MercenaryBookContact(char *bld)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == a)
-                ai_MercenaryBook((AIBLD *)bld, "ob_SOELDNERBUCH");
+                ai_MercenaryBook(bld, "ob_SOELDNERBUCH");
             else if (ai_ClickedObject == b)
                 ai_EquipWindow(bld);
         }
@@ -4261,7 +4261,7 @@ int ai_ExtractResourceWindow(AIBLD *bld);
    pump sv_RunFrame, while ai_BuildingPerms has 0x200, registers the two plates contact_SUCHEN_ERZ (the hover
    text ai_ContactTextSearchOre) and contact_ABBAUEN (ai_ContactTextExtract) and opens ai_SearchResourceWindow /
    ai_ExtractResourceWindow when one is the clicked object (ai_ClickedObject) */
-void ai_MiningContact(char *bld)
+void ai_MiningContact(AIBLD *bld)
 {
     int r;
     int a;
@@ -9698,9 +9698,9 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
 }
 
 int init_BuildingSceneUniverse(); void init_LoadBuildingScene(int k); void d3fl_SetDetail(unsigned int n); void veg_HidePlants();
-void ai_GraveyardContact(char *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(char *rec);
-void ai_GraveyardSeanceContact(char *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
-void ai_GraveyardTradeContact(char *rec);
+void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(struct AIBLD *rec);
+void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
+void ai_GraveyardTradeContact(struct AIBLD *rec);
 
 /* 0x59ee40, enters a building that has a universe of its own (the kontors, the criminal's and far trader's houses,
    the graveyards, the gypsy camps): when ai_MayEnterBuilding refuses, nothing happens; else the town view is saved,
@@ -9822,7 +9822,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
     case 0x48:
     case 0x49:
     case 0x4a:
-        ai_GraveyardContact((char *)ai_FallbackBuilding);
+        ai_GraveyardContact(ai_FallbackBuilding);
         break;
     case 0x4e:
     case 0x4f:
@@ -9933,16 +9933,16 @@ void ai_RunObjectRoom(AIOBJ *room)
     snd_AmbientOn = 0;
     switch (room->type) {
     case 0x2d:
-        ai_BookContact((char *)ai_FallbackBuilding);
+        ai_BookContact(ai_FallbackBuilding);
         break;
     case 0x33:
-        ai_MercenaryBookContact((char *)ai_FallbackBuilding);
+        ai_MercenaryBookContact(ai_FallbackBuilding);
         break;
     case 0x2c:
         ai_UpgradeContact((int)ai_FallbackBuilding);
         break;
     case 0x37:
-        ai_MiningContact((char *)ai_FallbackBuilding);
+        ai_MiningContact(ai_FallbackBuilding);
         break;
     case 0x107:
         ai_InformationContact((int)ai_FallbackBuilding);
@@ -9951,13 +9951,13 @@ void ai_RunObjectRoom(AIOBJ *room)
         ai_UpgradeContact((int)ai_FallbackBuilding);
         break;
     case 0x205:
-        ai_GraveyardTradeContact((char *)ai_FallbackBuilding);
+        ai_GraveyardTradeContact(ai_FallbackBuilding);
         break;
     case 0x211:
-        ai_GraveyardFogContact((char *)ai_FallbackBuilding);
+        ai_GraveyardFogContact(ai_FallbackBuilding);
         break;
     case 0x21b:
-        ai_GraveyardSeanceContact((char *)ai_FallbackBuilding);
+        ai_GraveyardSeanceContact(ai_FallbackBuilding);
         break;
     case 0x276:
         ai_GypsyContact((int)ai_FallbackBuilding);

@@ -2443,7 +2443,7 @@ void ai_EndCharExtra(char *ch, int f); int cm_SendRelations(int a, int b, int c,
    with the at-work flag bit 0 of +0x1b4 and the left button (dm_L.lup) is latched: ends its extra (ai_EndCharExtra,
    0), sends the player character's relation change towards it (-5, 0), then starts its role pose
    "locations/friedhof/schlag_FRIEDHOF.esc" (sv_StartPoseScript) and marks that script to run in its own scene */
-void ai_GraveyardSchlag(char *unused)
+void ai_GraveyardSchlag(AIBLD *unused)
 {
     AICHAR *c;
     EVTSCRIPT *script;
@@ -2467,7 +2467,7 @@ void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
    A clicked contact: with 0x200 the "Schlag" script (ai_GraveyardSchlag) first, then that contact's handler;
    GRAB_MIETEN needs the permission bit 0x80. No click: with gm_AllowAll the keys 0x1e / 0x2f / 0x22 / 0x23 /
    0x19 / 0x16 / 0x11 open the handlers directly (a cheat path, a reasoned guess) */
-void ai_GraveyardContact(char *rec)
+void ai_GraveyardContact(AIBLD *rec)
 {
     int c_altern, c_heim, c_zut, c_graeber, c_gehilfen, c_vers, c_liege, c_trans, c_mieten;
 
@@ -2497,37 +2497,37 @@ void ai_GraveyardContact(char *rec)
             if (ai_BuildingPerms & 0x200) {
                 ai_GraveyardSchlag(rec);
                 if (ai_ClickedObject == c_altern)
-                    ai_GraveAgeContact((AIBLD *)rec);
+                    ai_GraveAgeContact(rec);
                 else if (ai_ClickedObject == c_heim)
-                    ai_GraveHauntContact((AIBLD *)rec);
+                    ai_GraveHauntContact(rec);
                 else if (ai_ClickedObject == c_zut)
-                    ai_GypsyHelperWindow((AIBLD *)rec);
+                    ai_GypsyHelperWindow(rec);
                 else if (ai_ClickedObject == c_graeber)
                     ai_GraveCareContact(rec);
                 else if (ai_ClickedObject == c_gehilfen)
                     ai_GraveHelperContact(rec);
                 else if (ai_ClickedObject == c_vers)
-                    ai_GraveInsuranceContact((AIBLD *)rec);
+                    ai_GraveInsuranceContact(rec);
                 else if (ai_ClickedObject == c_liege)
                     ai_GravePlanContact(rec);
                 else if (ai_ClickedObject == c_trans)
                     ai_OpenTransport(rec);
             }
             if ((ai_BuildingPerms & 0x80) && ai_ClickedObject == c_mieten)
-                ai_GraveRentContact((AIBLD *)rec);
+                ai_GraveRentContact(rec);
         } else if (gm_AllowAll != 0) {
             if (kb_Last == 0x1e)
-                ai_GraveAgeContact((AIBLD *)rec);
+                ai_GraveAgeContact(rec);
             else if (kb_Last == 0x2f)
-                ai_GraveInsuranceContact((AIBLD *)rec);
+                ai_GraveInsuranceContact(rec);
             else if (kb_Last == 0x22)
-                ai_GraveFogWindow((AIBLD *)rec);
+                ai_GraveFogWindow(rec);
             else if (kb_Last == 0x23)
-                ai_GraveHauntContact((AIBLD *)rec);
+                ai_GraveHauntContact(rec);
             else if (kb_Last == 0x19)
                 ai_GraveCareContact(rec);
             else if (kb_Last == 0x16)
-                ai_GraveRentContact((AIBLD *)rec);
+                ai_GraveRentContact(rec);
             else if (kb_Last == 0x11)
                 ai_GraveHelperContact(rec);
         }
@@ -2760,7 +2760,7 @@ void ai_GraveAgeContact(AIBLD *rec)
 /* 0x5871c0, the graveyard "GRAB_MIETEN" contact (30 B): opens the grave window (ai_GraveWindow: no output, rec,
    the title text 0x4104, flag 0, no callback), then follows the camera again (sv_CameraFollow) */
 
-void ai_GravePlanContact(char *rec)
+void ai_GravePlanContact(AIBLD *rec)
 {
     ai_GraveWindow(0, rec, txt_Ptrs[0x4104], 0, 0);
     sv_CameraFollow();
@@ -2803,7 +2803,7 @@ void ai_GraveRentContact(AIBLD *rec)
    0x411e, flag 1 = the detail's slider picks, the callback ai_GraveCare) and follows the camera again
    (sv_CameraFollow) */
 
-void ai_GraveCareContact(char *rec)
+void ai_GraveCareContact(AIBLD *rec)
 {
     if (sv_CheckCharacterFlag(rec) != 0)
         return;
@@ -2815,7 +2815,7 @@ void ai_GraveCareContact(char *rec)
    text 0x4131, flag 0 = a dead person is picked, the callback ai_GraveRaiseHelper) and follows the camera again
    (sv_CameraFollow) */
 
-void ai_GraveHelperContact(char *rec)
+void ai_GraveHelperContact(AIBLD *rec)
 {
     if (sv_CheckCharacterFlag(rec) == 0)
         ai_GraveWindow(0, rec, txt_Ptrs[0x4131], 0, (void (*)(AIBLD *, GVPICK *))ai_GraveRaiseHelper);
@@ -2895,7 +2895,7 @@ void ai_GraveInsuranceContact(AIBLD *rec)
    the storage ("contact_LAGER", ai_ContactTextStorage, 0xe); then the "Schlag" action (ai_GraveyardSchlag). A
    clicked plate (ai_ClickedObject) opens its window: ai_ProductionWindow, ai_OpenTransport, ai_MasterLetterWindow,
    ai_HelperBook (with the plate's name) or ai_StorageWindow (with the building's object list) */
-void ai_GraveyardTradeContact(char *rec)
+void ai_GraveyardTradeContact(AIBLD *rec)
 {
     int c0, c1, c2, c3, c4;
 
@@ -2917,15 +2917,15 @@ void ai_GraveyardTradeContact(char *rec)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == c0)
-                ai_ProductionWindow((struct AIBLD *)rec);
+                ai_ProductionWindow(rec);
             else if (ai_ClickedObject == c1)
                 ai_OpenTransport((int)rec);
             else if (ai_ClickedObject == c2)
-                ai_MasterLetterWindow((struct AIBLD *)rec);
+                ai_MasterLetterWindow(rec);
             else if (ai_ClickedObject == c3)
-                ai_HelperBook((struct AIBLD *)rec, "ob_GEHILFENBUCH");
+                ai_HelperBook(rec, "ob_GEHILFENBUCH");
             else if (ai_ClickedObject == c4)
-                ai_StorageWindow((int)rec, ((AIBLD *)rec)->objList);
+                ai_StorageWindow(rec, rec->objList);
         }
     }
 }
@@ -2933,14 +2933,14 @@ void ai_GraveyardTradeContact(char *rec)
    pump 0x67fff) the "contact_SEANCE" name plate is registered (sv_RegisterNamePlate, text 0x4169, look 0x16); a
    click on it (ai_ClickedObject) opens the seance (ai_GraveSeance) */
 
-void ai_GraveyardSeanceContact(char *rec)
+void ai_GraveyardSeanceContact(AIBLD *rec)
 {
     int c;
 
     while (sv_RunFrame(ai_GraveyardSeanceContact, 0x67fff) != 0) {
         c = sv_RegisterNamePlate("contact_SEANCE", txt_Ptrs[0x4169], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == c)
-            ai_GraveSeance((AIBLD *)rec);
+            ai_GraveSeance(rec);
     }
 }
 /* 0x587700, the confirm of the graveyard's worker upgrade (ai_UpgradeWorkerWindow) for the graveyard rec, the
@@ -3075,7 +3075,7 @@ void ai_UpgradeWorkerWindow(AIBLD *rec)
    look 0x28) and the fog of horror ("contact_NEBEL_DES_GRAUENS", text 0x40b4, look 0x13). A clicked plate
    (ai_ClickedObject) opens ai_UpgradeWorkerWindow or ai_GraveFogWindow (rec) */
 
-void ai_GraveyardFogContact(char *rec)
+void ai_GraveyardFogContact(AIBLD *rec)
 {
     int c0, c1;
 
@@ -3089,7 +3089,7 @@ void ai_GraveyardFogContact(char *rec)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == c0)
-                ai_UpgradeWorkerWindow((AIBLD *)rec);
+                ai_UpgradeWorkerWindow(rec);
             else if (ai_ClickedObject == c1)
                 ai_GraveFogWindow(rec);
         }
@@ -3161,7 +3161,7 @@ void ai_EndCharExtra(char *ch, int f)
    a second different one (y) at random, and runs the script "locations\friedhof\gespraeche.esc" with
    (x's model, a, b): a / b the speaker's line set, netId % 3, or 3 + (netId & 1) for sex 1; b = -1 without y */
 
-void ai_GraveyardChatter(char *unused)
+void ai_GraveyardChatter(AIBLD *unused)
 {
     AICHAR *list[0x20];
     int cnt;

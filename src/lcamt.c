@@ -993,9 +993,9 @@ typedef struct SVSAVEDVIEW {
     D3VECTOR rot;
 } SVSAVEDVIEW;
 int init_BuildingSceneUniverse(); void init_LoadBuildingScene(int k); void d3fl_SetDetail(unsigned int n); void veg_HidePlants();
-void ai_GraveyardContact(char *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(char *rec);
-void ai_GraveyardSeanceContact(char *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
-void ai_GraveyardTradeContact(char *rec);
+void ai_GraveyardContact(struct AIBLD *rec); void ai_GypsyProductionContact(int building); void ai_GraveyardFogContact(struct AIBLD *rec);
+void ai_GraveyardSeanceContact(struct AIBLD *rec); void ai_GypsyContact(int building); void ai_TheatreContact(int building); void ai_CurseContact(int buildingArg);
+void ai_GraveyardTradeContact(struct AIBLD *rec);
 typedef struct LCSALEROW {          /* a row of ai_BuyBuildingWindow's list: a building offered for sale */
     int control;                    /* 0x0, the row's text control (d2_GetWinObj) */
     AIJOB *sale;                    /* 0x4, the building's sale event (kind 0x1b) */
