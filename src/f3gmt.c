@@ -2279,18 +2279,18 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     b->workSet.target = -1;
     AI_ZERO(b->kindData, 0x30);
     n = 0;
-    name = (char *)ai_BuildingNames[k * 0xe];
+    name = txt_Ptrs[TXT_BUILDING_NAMES + k * 0xe];
     if (*name != 0)
-        strcpy(b->name, (char *)ai_BuildingNames[k * 0xe - 2]);
+        strcpy(b->name, txt_Ptrs[TXT_BUILDING_NAMES + (k * 0xe - 2)]);
     else
         b->name[0] = ch_EmptyName[0];
     for (i = 0; i < 0xc; i++) {
-        name = (char *)ai_BuildingNames[k * 0xe + i];
+        name = txt_Ptrs[TXT_BUILDING_NAMES + (k * 0xe + i)];
         if (*name != 0) {
             char cand[0x100];
             char err[0x200];
 
-            strcpy(cand, (char *)ai_BuildingNames[k * 0xe + i]);
+            strcpy(cand, txt_Ptrs[TXT_BUILDING_NAMES + (k * 0xe + i)]);
             for (j = 0; j < 0x100; j++) {
                 if (((AIBLD *)ai_Blds)[j].type != 0 && strcmp(((AIBLD *)ai_Blds)[j].name, cand) == 0)
                     break;
@@ -6072,12 +6072,12 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
         c->f020 = 12.0f;
         c->f010 = util_Random((int)(c->f01c * 0.2)) + c->f01c * 0.33f - c->f01c * 0.1f;
         c->f018 = c->f01c;
-        strncpy(c->family, txt_FamilyNames[util_Random(0x95)], 0xf);
+        strncpy(c->family, txt_Ptrs[TXT_FAMILY_NAMES + util_Random(0x95)], 0xf);
     }
     if (c->sex == 0)
-        strncpy(c->first, txt_MaleFirstNames[util_Random(0xbf)], 0xf);
+        strncpy(c->first, txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)], 0xf);
     else
-        strncpy(c->first, txt_FemaleFirstNames[util_Random(0x70)], 0xf);
+        strncpy(c->first, txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)], 0xf);
     a = (float)c->age;
     if (a > c->f020) {
         l = c->f01c;
@@ -6212,7 +6212,7 @@ float gm_ItemPrice(int item, unsigned char n)
         if (g->in[i] != 0xffff)
             s = gm_ItemPrice(g->in[i], n) * g->need[i] / g->batch + s;
         else
-            sprintf(buf, "eval_ObjektPreis2Credits:Unterobjekt f\xfcr '%s' nicht vorhanden!!!", (char *)txt_ObjectNames[item][0]);
+            sprintf(buf, "eval_ObjektPreis2Credits:Unterobjekt f\xfcr '%s' nicht vorhanden!!!", txt_Ptrs[TXT_OBJECT_NAMES + 2 * item]);
     }
     g->price = (int)(s * 0.06875f);
     f = n * s * 0.01f;

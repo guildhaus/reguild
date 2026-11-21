@@ -447,7 +447,7 @@ void init_AllocSceneBuilding(D3OBJECT *o)
                 } else
                     b = (AIBLD *)gm_CreateBuilding(id, 0xffff);
                 if (b != 0) {
-                    sprintf(buf, "f3_init:Geb\xe4ude des Typs %s allokiert", (char *)ai_BuildingNames[id * 0xe - 2]);
+                    sprintf(buf, "f3_init:Geb\xe4ude des Typs %s allokiert", txt_Ptrs[TXT_BUILDING_NAMES + (id * 0xe - 2)]);
                     b->object = o;
                     obj->owner = b;
                 }
@@ -2101,7 +2101,7 @@ int init_StartNetworkGame(char *name)
     AICHAR *ch;
     short s;
 
-    sprintf(c, (char *)init_StatusFormat, ai_NumPlayers);
+    sprintf(c, txt_Ptrs[TXT_STATUS_FORMAT], ai_NumPlayers);
     init_ShowStatus((int)c);
     cm_NetFlags = 0;
     do {
@@ -2111,12 +2111,12 @@ int init_StartNetworkGame(char *name)
     if ((cm_NetFlags & 1) != 0) {
         if (*name == 0)
             sprintf(name, "%s/AUGSBURG.NET", main_CitiesDir);
-        init_ShowStatus(init_StatusSendGame);
+        init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_SEND_GAME]);
         if (ls_SendGame(name) == 0)
             return 1;
     }
     flags = cm_NetFlags & 1;
-    init_ShowStatus(init_StatusReceiveGame);
+    init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_RECEIVE_GAME]);
     if (ls_ReceiveGame() == 0)
         return 2;
     GetModuleFileNameA(main_Instance, ini, 0x104);
@@ -2179,11 +2179,11 @@ int init_StartNetworkGame(char *name)
         sv_PumpNet();
     }
     if (flags != 0) {
-        init_ShowStatus(init_StatusSetupGame);
+        init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_SETUP_GAME]);
         init_SetupNewGame(ai_OwnPlayer);
     }
     sv_NetworkSyncWait(0x24087);
-    init_ShowStatus(init_StatusLocalData);
+    init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_LOCAL_DATA]);
     init_LocalData();
     sv_NetworkSyncWait(0x24087);
     if (flags != 0) {
@@ -2215,7 +2215,7 @@ int init_JoinNetworkGame(int saveName)
     char a[0x104], b[0x104], c[0x200];
 
     sprintf(a, "gamedata/network/%s.SAV", (char *)saveName);
-    sprintf(c, (char *)init_StatusFormat, ai_NumPlayers);
+    sprintf(c, txt_Ptrs[TXT_STATUS_FORMAT], ai_NumPlayers);
     init_ShowStatus((int)c);
     cm_NetFlags = 0;
     do {
@@ -2224,7 +2224,7 @@ int init_JoinNetworkGame(int saveName)
     } while (cm_NetFlags == 0);
     if ((cm_NetFlags & 1) != 0) {
         sprintf(b, "gamedata/network/%s.SRV", (char *)saveName);
-        init_ShowStatus(init_StatusSendGame);
+        init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_SEND_GAME]);
         r = ls_SendGame(b);
         if (r == 0)
             return 1;
@@ -2241,7 +2241,7 @@ int init_JoinNetworkGame(int saveName)
     }
     ls_LoadGame(a, 5);
     sv_NetworkSyncWait(0x24087);
-    init_ShowStatus(init_StatusLocalData);
+    init_ShowStatus((intptr_t)txt_Ptrs[TXT_STATUS_LOCAL_DATA]);
     init_LocalData();
     d2_CutsceneActive = 0;
     return 0;
@@ -2452,7 +2452,7 @@ void init_RecreateQuadTree(void)
    both live through cost them alike, b gains outside the i loop (the for's def/next +16+16, the class test
    +20, the name clear +24) and i only its own init (+24) and increment block (+32). The original's second
    table read (sub edx,[idx*4+T] with the index recomputed from cl = *b and ebx = i) is a rematerialisation
-   of the memory-homed b, not source: every spelling of a second read (ai_BuildingNames / txt_Ptrs[0x490 +
+   of the memory-homed b, not source: every spelling of a second read (TXT_BUILDING_NAMES / txt_Ptrs[0x490 +
    ..], index orders, 50+32 variants) is CSE'd to one code (65 ins). strcpy(names[cnt], one); cnt++; (and
    names[(cnt += 1) - 1], u = names[cnt++]) puts b in memory as the original but the strcpy offset temp
    takes ebx (k#1a3) and i stays in memory (68 ins, the strength-reduced names pointer lost); if (j ==
@@ -2493,7 +2493,7 @@ void init_NameBuildings(void)
             cnt = 0;
             ((AIBLD *)b)->name[0] = ch_EmptyName[0];
             for (i = 0; i < 0xc; i++) {
-                src = (char *)ai_BuildingNames[i + *b * 0xe];
+                src = txt_Ptrs[TXT_BUILDING_NAMES + (i + *b * 0xe)];
                 if (*src != 0) {
                     strcpy(one, src);
                     bl = (char *)ai_Blds;

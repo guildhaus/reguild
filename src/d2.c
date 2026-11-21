@@ -790,7 +790,7 @@ int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win)
         w->contentHeight = y + 4;
     return obj;
 }
-/* 0x469fe0, puts string number str (d2_Strings) into the input's text buffer, in front of the window text */
+/* 0x469fe0, puts string number str (txt_Ptrs) into the input's text buffer, in front of the window text */
 
 void d2_InputSetString(int in, int str)
 {
@@ -4784,7 +4784,7 @@ int d2_OpenForm(short x, short y, char *name)
                 if (strcmp(r->name[k], "") != 0) {
                     idx = txt_FindKey(r->name[k]);
                     if (idx != -1) {
-                        o = d2_CreateWinText(r->ix[k], r->iy[k], d2_Strings[idx], win);
+                        o = d2_CreateWinText(r->ix[k], r->iy[k], txt_Ptrs[idx], win);
                         d2_Objs[o].pic = txt_FindKey(r->name[k]);
                         d2_Objs[o].buf = (D2CTRL *)&d2_Views[view];
                     }
@@ -4807,7 +4807,7 @@ int d2_OpenForm(short x, short y, char *name)
         else {
             idx = txt_FindKey(r->key);
             if (idx != -1)
-                strcpy(ww->text, d2_Strings[idx]);
+                strcpy(ww->text, txt_Ptrs[idx]);
             ((int *)ww)[0x90] = idx;
         }
         if (ver == 0) {

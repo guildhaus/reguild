@@ -1258,9 +1258,9 @@ BOOL CALLBACK dd_DlgProc(HWND dlg, UINT msg, WPARAM wp, LPARAM lp)
     case WM_INITDIALOG:
         dd_DrvCombo = GetDlgItem(dlg, 102);
         dd_DevCombo = GetDlgItem(dlg, 103);
-        SetWindowText(dlg, txt_DlgTitle);
-        SetDlgItemText(dlg, 104, txt_DlgLabel104);
-        SetDlgItemText(dlg, 105, txt_DlgLabel105);
+        SetWindowText(dlg, txt_Ptrs[TXT_DLG_TITLE]);
+        SetDlgItemText(dlg, 104, txt_Ptrs[TXT_DLG_LABEL_104]);
+        SetDlgItemText(dlg, 105, txt_Ptrs[TXT_DLG_LABEL_105]);
         if (dd_DlgFlag) {
             SetWindowLong(dlg, GWL_STYLE, GetWindowLong(dlg, GWL_STYLE) & ~WS_CAPTION);
             EnableWindow(dd_DrvCombo, FALSE);

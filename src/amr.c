@@ -123,9 +123,9 @@ unsigned int ai_MakeDuelOpponent(unsigned int k)
     memset(&ai_DuelOpponent, 0, sizeof(ai_DuelOpponent));
     ai_DuelOpponent.sex = (unsigned char)util_Random(2);
     if (ai_DuelOpponent.sex == 0)
-        strncpy(ai_DuelOpponent.name, txt_MaleFirstNames[util_Random(0xbf)], 15);
+        strncpy(ai_DuelOpponent.name, txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)], 15);
     else
-        strncpy(ai_DuelOpponent.name, txt_FemaleFirstNames[util_Random(0x70)], 15);
+        strncpy(ai_DuelOpponent.name, txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)], 15);
     switch (cls) {
     case 1:
         base = 0x15;

@@ -57,7 +57,7 @@
    HEGRAVETRAINING (0x8f) and HEMEETING (0x90), HEMEETSCENE / HEMEETNAME (the meeting scene object 0x91), HEGRAVELEASE (the grave
     lease answer 0x92), HEGYPSY (the gypsy approach 0x9d), HEGYPSYCURSE (the curse 0x9e), HETRIALCASE (the trial 0xa0) and HEMEET4 (the circus show 0xa1), and over AIOBJ
    HETAVERNOBJ / HEOBJ1B5VALUE (the tavern's object 0x1b5); the hint table he_Hints (0x6fa260, HEHINT), the tip
-   order he_TipOrder (0x6fa1e0) and the tip texts txt_TipTexts (0x1442430) are typed (the scene, voice and activity
+   order he_TipOrder (0x6fa1e0) and the tip texts TXT_TIP_TEXTS (0x1442430) are typed (the scene, voice and activity
    names are string literals of he / he_b, not objects). AIJOB's fields between
    0x14 and 0xac are named only as the message's words; a member added to AIJOB / AIMSG / G28REC can flip other
    units' matches by declaration set (ai_CalcMeisterFernhaendler, ord_CountGridObjects are debt for it; ai_TutorialInitChapter3
@@ -6211,7 +6211,7 @@ void he_AllocPunishment(AIJOB *e)
 }
 /* 0x549080, the run handler of the pillory-punishment event 0x5c (the trial's sentences 0 and 2, gv_PassSentence):
    a stage of -2 or below ends it, a negative one frees it, and at stage 0 it registers an AP event of the event's
-   character (e->chr) named txt_PilloryPunishment, the negated amount +0xac as its income, counts one payment down
+   character (e->chr) named TXT_PILLORY_PUNISHMENT, the negated amount +0xac as its income, counts one payment down
    and, with payments left, posts the event again 0x18 hours on, else frees it */
 
 void he_RunPilloryPunishment(AIJOB *e)
@@ -6223,7 +6223,7 @@ void he_RunPilloryPunishment(AIJOB *e)
         if (st >= 0) {
             if (st != 0)
                 return;
-            he_AddApEvent(e->chr, txt_PilloryPunishment, -p->amount, 0);
+            he_AddApEvent(e->chr, txt_Ptrs[TXT_PILLORY_PUNISHMENT], -p->amount, 0);
             p->days = p->days - 1;
             if (p->days != 0) {
                 e->end = ai_Time;
@@ -15917,7 +15917,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
         if (o == 0) {
             char text[0x100];
 
-            sprintf(text, "he_RunMarktSupervisor(): Could not find markt-lager:%s", (char *)txt_ObjectNames[s.item][0]);
+            sprintf(text, "he_RunMarktSupervisor(): Could not find markt-lager:%s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * s.item]);
             continue;
         }
         q = gm_Query(o->list, 2, 6, 0, s.item);
@@ -16835,7 +16835,7 @@ void he_RunBurglary(AIJOB *ev)
                             amt = (int)(amt * (n * 0.1));
                             if (amt < 1)
                                 amt = 1;
-                            sprintf(line, "%i %s$A", amt, (char *)txt_ObjectNames[it->id][0]);
+                            sprintf(line, "%i %s$A", amt, txt_Ptrs[TXT_OBJECT_NAMES + 2 * it->id]);
                             strcat(loot, line);
                             cm_SendExSellObject(store->objId, stall->objId, it->id, amt, ai_OwnPlayer, 0);
                             money = (int)(gm_GoodsPrice(it->id, ai_OwnPlayer) * amt + money);
@@ -18771,7 +18771,7 @@ void he_RunRobbery(AIJOB *ev)
                             amt = (int)(amt * (n * 0.1));
                             if (amt < 1)
                                 amt = 1;
-                            sprintf(line, "%i %s$A", amt, (char *)txt_ObjectNames[it->id][0]);
+                            sprintf(line, "%i %s$A", amt, txt_Ptrs[TXT_OBJECT_NAMES + 2 * it->id]);
                             strcat(loot, line);
                             cm_SendExSellObject(store->objId, stall->objId, it->id, amt, ai_OwnPlayer, 0);
                             money = (int)(gm_GoodsPrice(it->id, ai_OwnPlayer) * amt + money);
@@ -18971,7 +18971,7 @@ void he_RunHint(AIJOB *ev)
             return;
         v = he_Hints[h->entry].text;
         if (v != 0 && v != -1 && ai_GamePanel.byte[1] != 0)
-            he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, d2_Strings[v], 0x40, 0x5f9, 0);
+            he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, txt_Ptrs[v], 0x40, 0x5f9, 0);
         h->entry++;
         if (he_Hints[h->entry].text == 0) {
             ev->stage = 1;
@@ -18999,7 +18999,7 @@ void he_AllocTip(AIJOB *ev)
     ev->end.min = 0;
     gm_Shuffled(0x1a, he_TipOrder);
 }
-/* 0x567c00, the run handler of the tips event 0x84: state 0 shows the next of the 27 tip texts (txt_TipTexts[he_TipOrder[entry]]) to the local player while the tips option ai_GamePanel.byte[3] is on, steps the entry and sets the next run to random(4) + 8 units; with the tips off it runs again in 1 unit; stages -1 / -2 free the record */
+/* 0x567c00, the run handler of the tips event 0x84: state 0 shows the next of the 27 tip texts (TXT_TIP_TEXTS[he_TipOrder[entry]]) to the local player while the tips option ai_GamePanel.byte[3] is on, steps the entry and sets the next run to random(4) + 8 units; with the tips off it runs again in 1 unit; stages -1 / -2 free the record */
 
 void he_RunTip(AIJOB *ev)
 {
@@ -19013,7 +19013,7 @@ void he_RunTip(AIJOB *ev)
         if (st != 0)
             return;
         if (ai_GamePanel.byte[3] != 0) {
-            he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, txt_TipTexts[he_TipOrder[t->entry]], 0, 0x5f9, 0);
+            he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, txt_Ptrs[TXT_TIP_TEXTS + he_TipOrder[t->entry]], 0, 0x5f9, 0);
             t->entry++;
             if (t->entry > 0x1a)
                 ev->stage = 1;

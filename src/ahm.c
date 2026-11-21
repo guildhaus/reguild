@@ -840,8 +840,8 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     for (i = 0; i < 5; i++)
         c->skills[i] = (unsigned char)(util_Random(0x40) + 0x54);
     c->sex = 0;
-    strcpy(c->first, ai_AlchemistFirstNames[m->x]);
-    strcpy(c->family, ai_AlchemistFamilyNames[m->y]);
+    strcpy(c->first, txt_Ptrs[TXT_ALCHEMIST_FIRST_NAMES + m->x]);
+    strcpy(c->family, txt_Ptrs[TXT_ALCHEMIST_FAMILY_NAMES + m->y]);
     c->f01c = 1000.0f;
     v = util_RandomSq();
     c->f020 = 12.0f;

@@ -21,8 +21,8 @@ struct G15PLANT;
 extern AITIME gv_LastTime;              /* 0x6f0e38, ai_Time at the last effect step (struct copies of it) */
 typedef struct GVGRAVE {                /* 0x44 bytes, a dead person in a grave (GVYARD.graves; filled by gv_BuryNewDead) */
     int id;                             /* 0x00, the object id (ai_NextObjectId), -1 when free */
-    char first[0x10];                   /* 0x04, the first name (txt_MaleFirstNames / txt_FemaleFirstNames by sex) */
-    char family[0x10];                  /* 0x14, the family name (txt_FamilyNames) */
+    char first[0x10];                   /* 0x04, the first name (TXT_MALE_FIRST_NAMES / TXT_FEMALE_FIRST_NAMES by sex) */
+    char family[0x10];                  /* 0x14, the family name (TXT_FAMILY_NAMES) */
     unsigned char traits[5];            /* 0x24, five values 42 .. 189 (random 0 .. 7 * 21 + 42) */
     char pad29[3];
     int v2c;                            /* 0x2c, 1 .. 9 */
