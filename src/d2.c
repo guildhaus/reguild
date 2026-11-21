@@ -1298,7 +1298,7 @@ void d2_SetSliderFlags(int id, int flags)
 }
 /* 0x46be00, creates a slider widget */
 
-int d2_CreateSlider(int x, int y, int kind, int unk)
+int d2_CreateSlider(int x, int y, int kind, char *caption)
 {
     int id;
 
@@ -1316,17 +1316,17 @@ int d2_CreateSlider(int x, int y, int kind, int unk)
     d2_Objs[id].clipx1 = d2_ScreenW;
     d2_Objs[id].font = d2_DefaultFont;
     d2_Objs[id].data = d2_GetPic(kind);
-    d2_SetCaption(id, (char *)unk);
+    d2_SetCaption(id, caption);
     d2_AddRefcount(kind);
     return id;
 }
 /* 0x46bf10, creates a slider in a dialog (position relative to the dialog) */
 
-int d2_WinCreateSlider(int x, int y, int kind, int unk, int dlg)
+int d2_WinCreateSlider(int x, int y, int kind, char *caption, int dlg)
 {
     int id;
 
-    id = d2_CreateSlider(d2_Wins[dlg].x + x, d2_Wins[dlg].y + y, kind, unk);
+    id = d2_CreateSlider(d2_Wins[dlg].x + x, d2_Wins[dlg].y + y, kind, caption);
     d2_AddToWin(id, dlg);
     return id;
 }
@@ -3156,7 +3156,7 @@ void d2_DrawWindowText(void *surf, int win)
                             hasinputs = 1;
                             if (w->args[argi] == -1) {
                                 k = d2_FindPic("_BUTTON_RED");
-                                id = d2_WinCreateSlider(cm_PickCellX - w->x, cm_PickCellZ - w->y, k, (int)ch_EmptyName, win);
+                                id = d2_WinCreateSlider(cm_PickCellX - w->x, cm_PickCellZ - w->y, k, ch_EmptyName, win);
                                 if (w->text[pos + 2] == '[') {
                                     char buf512[512];
                                     D3_ZERO(buf512, 0x200);

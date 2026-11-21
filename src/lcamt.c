@@ -4514,7 +4514,7 @@ typedef struct LCFAMILYBOX {        /* 0x10 bytes, one box of the family tree wi
    [ebp+8],cx and stores ctrl first (+0x77c, +0x867, +0xa86, +0xb79); the line midpoints end in lea
    ebp,[eax+ebx] vs ours mov esi,eax; ...; add esi,ebx (+0xc68, +0xd52); the loop counters and 4W/5 sit in
    [esp+0x18]/[esp+0x10] swapped. proof stops at the sibling loop's store order (x before ctrl). */
-void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId)
+void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption, int callId)
 {
     AICHAR *ch;
     AICHAR *rel;

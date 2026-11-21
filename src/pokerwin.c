@@ -140,7 +140,7 @@ extern D2INPUTVIEW d2_Inputs[];         /* 0xfa6020, d2.h: D2INPUT [0x80] */
 extern int d2_FontHeight;               /* 0xf8f084, d2.h */
 extern struct D2INPUT *d2_FocusedInput;           /* 0x6ed9dc, d2.h: D2INPUT * */
 extern unsigned char kb_Last;           /* 0x1468410, d2.h */
-int d2_WinCreateSlider(int x, int y, int pic, int unk, int win);     /* 0x46bf10, d2.h: D2OBJ *d2_Objs */
+int d2_WinCreateSlider(int x, int y, int pic, char *caption, int win);     /* 0x46bf10, d2.h: D2OBJ *d2_Objs */
 void d2_CloseView(int view);                                         /* 0x4758f0, d2.h */
 void d2_SetObjWidth(int obj, short w);                               /* 0x46c260, d2.h */
 int d2_OpenInput(int x, int y, int w, int h, unsigned char flags);   /* 0x46a110 */
@@ -210,7 +210,7 @@ extern int d2_HitWindow;                    /* 0xf8aad0, the window the pointer 
                                                d2_PointerWin; also the "double click" id of the slots) */
 extern int ai_GameFlags;                /* 0x6f23f8, the game flags: the load window writes the load mode 10 whole */
 void d2_EnableObject(int obj, int on);      /* 0x475aa0, d2.h: enables / disables an object and its items */
-int sv_OpenMessageBox(int text, unsigned char flags); /* 0x521900, sv.c: opens the waiting box with text */
+int sv_OpenMessageBox(intptr_t text, unsigned char flags); /* 0x521900, sv.c: opens the waiting box with text */
 extern int ai_Opponents[7];
 extern char ai_OptionsFile[288];
 typedef struct SCREENMODE {                 /* 8 bytes, a screen mode of the table 0x62d7b8 */

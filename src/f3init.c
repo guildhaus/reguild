@@ -2062,7 +2062,7 @@ int init_InitTown(char *city)
 /* 0x510e20, prints the title ("$C") and the text t in the form 0x75df00 */
 
 
-void init_ShowStatus(int t)
+void init_ShowStatus(intptr_t t)
 {
     d2_SetForm(init_StatusForm, 2);
     io_PrintText((intptr_t)"$C");
@@ -2101,7 +2101,7 @@ int init_StartNetworkGame(char *name)
     short s;
 
     sprintf(c, txt_Ptrs[TXT_STATUS_FORMAT], ai_NumPlayers);
-    init_ShowStatus((int)c);
+    init_ShowStatus((intptr_t)c);
     cm_NetFlags = 0;
     do {
         sv_PumpMessages();
@@ -2215,7 +2215,7 @@ int init_JoinNetworkGame(int saveName)
 
     sprintf(a, "gamedata/network/%s.SAV", (char *)saveName);
     sprintf(c, txt_Ptrs[TXT_STATUS_FORMAT], ai_NumPlayers);
-    init_ShowStatus((int)c);
+    init_ShowStatus((intptr_t)c);
     cm_NetFlags = 0;
     do {
         sv_PumpMessages();

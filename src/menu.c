@@ -411,7 +411,7 @@ extern D2INPUTVIEW d2_Inputs[];         /* 0xfa6020, d2.h: D2INPUT [0x80] */
 extern int d2_FontHeight;               /* 0xf8f084, d2.h */
 extern struct D2INPUT *d2_FocusedInput;           /* 0x6ed9dc, d2.h: D2INPUT * */
 extern unsigned char kb_Last;           /* 0x1468410, d2.h */
-int d2_WinCreateSlider(int x, int y, int pic, int unk, int win);     /* 0x46bf10, d2.h: D2OBJ *d2_Objs */
+int d2_WinCreateSlider(int x, int y, int pic, char *caption, int win);     /* 0x46bf10, d2.h: D2OBJ *d2_Objs */
 void d2_CloseView(int view);                                         /* 0x4758f0, d2.h */
 void d2_SetObjWidth(int obj, short w);                               /* 0x46c260, d2.h */
 int d2_OpenInput(int x, int y, int w, int h, unsigned char flags);   /* 0x46a110 */
@@ -489,7 +489,7 @@ extern int d2_HitWindow;                    /* 0xf8aad0, the window the pointer 
                                                d2_PointerWin; also the "double click" id of the slots) */
 extern int ai_GameFlags;                /* 0x6f23f8, the game flags: the load window writes the load mode 10 whole */
 void d2_EnableObject(int obj, int on);      /* 0x475aa0, d2.h: enables / disables an object and its items */
-int sv_OpenMessageBox(int text, unsigned char flags); /* 0x521900, sv.c: opens the waiting box with text */
+int sv_OpenMessageBox(intptr_t text, unsigned char flags); /* 0x521900, sv.c: opens the waiting box with text */
 
 OPTIONBYTES ai_GfxResolution = {0};  /* 0x6f2f94: byte 0 cur_res */
 MENUOPTIONS ai_Options;  /* 0x6f35c0 .. 0x6f3670, the profile's option values (menu_types.h: the old names are its field macros) */
@@ -1233,11 +1233,11 @@ typedef struct AICHARKINDVIEW {
    0xbf, the caption texts text1 / text2) at x 0x20 and the row's y, centred (d2_Objs[id].centred,
    d2_SetObjWidth re-centres it on the 300 width). The twin of main_MenuButton (row stride 0x2b).
    Returns the control id. */
-int ai_MenuButton(int row, int text1, int text2)
+int ai_MenuButton(int row, char *text, int win)
 {
     int id;
 
-    id = d2_WinCreateSlider(0x20, row * 0x2e + 10, 0xbf, text1, text2);
+    id = d2_WinCreateSlider(0x20, row * 0x2e + 10, 0xbf, text, win);
     d2_Objs[id].centred = 1;
     d2_SetObjWidth(id, 300);
     return id;
@@ -1587,8 +1587,8 @@ void ai_OptionsMenu(void)
     sv_FitForm(d2_LastWindow);
     sv_ResetScreenClip();
     d2_SetForm(0, 0);
-    id0 = ai_MenuButton(0, (int)txt_Ptrs[TXT_LOAD_GAME], d2_LastWindow);
-    id1 = ai_MenuButton(1, (int)txt_Ptrs[TXT_SAVE_GAME], d2_LastWindow);
+    id0 = ai_MenuButton(0, txt_Ptrs[TXT_LOAD_GAME], d2_LastWindow);
+    id1 = ai_MenuButton(1, txt_Ptrs[TXT_SAVE_GAME], d2_LastWindow);
     if ((ai_GameFlags & 4) != 0) {
         d2_SetObjEnabled(id0, 0);
         if ((ai_GameFlags & 0x10) == 0)
@@ -1600,13 +1600,13 @@ void ai_OptionsMenu(void)
         d2_SetObjEnabled(id1, 0);
     }
     sv_MenuOpen = 1;
-    id2 = ai_MenuButton(2, (int)txt_Ptrs[TXT_GAME_OPTIONS], d2_LastWindow);
-    id3 = ai_MenuButton(3, (int)txt_Ptrs[TXT_GFX_OPTIONS], d2_LastWindow);
-    id4 = ai_MenuButton(4, (int)txt_Ptrs[TXT_SFX_OPTIONS], d2_LastWindow);
-    id5 = ai_MenuButton(5, (int)txt_Ptrs[TXT_LEAVE_GAME], d2_LastWindow);
+    id2 = ai_MenuButton(2, txt_Ptrs[TXT_GAME_OPTIONS], d2_LastWindow);
+    id3 = ai_MenuButton(3, txt_Ptrs[TXT_GFX_OPTIONS], d2_LastWindow);
+    id4 = ai_MenuButton(4, txt_Ptrs[TXT_SFX_OPTIONS], d2_LastWindow);
+    id5 = ai_MenuButton(5, txt_Ptrs[TXT_LEAVE_GAME], d2_LastWindow);
     if ((ai_GameFlags & 4) == 0)
         tb_Paused = 1;
-    id7 = ai_MenuButton(7, (int)txt_Ptrs[TXT_BACK], d2_LastWindow);
+    id7 = ai_MenuButton(7, txt_Ptrs[TXT_BACK], d2_LastWindow);
     group = d2_CreateRadioGroup(7, id0, id1, id2, id3, id4, id5, id7);
     msx_SetAmbVolume(0);
     saved = snd_AmbientOn;
@@ -1752,7 +1752,7 @@ int ai_SaveOptionWindow(int image)
                         sprintf(name, "Gamedata/saves/GILDE_SAVEGAME_%i.SAV", i);
                         memcpy(ai_ScreenImage, (void *)image, 0x9600);
                         ls_SaveSlot = i;
-                        view = sv_OpenMessageBox(txt_Ptrs[TXT_SAVE_PROGRESS], 0);
+                        view = sv_OpenMessageBox((intptr_t)txt_Ptrs[TXT_SAVE_PROGRESS], 0);
                         ls_SaveGame(name, slots[i].title, 1);
                         d2_CloseView(view);
                         sv_PopRequest = 1;

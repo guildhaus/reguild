@@ -3227,7 +3227,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     if (mode8) {
         panelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_marktstand");
         for (i = 0; i < 7; i++) {
-            panelBtns[i] = sv_AddPanelButton(0, i * 0x18 + 0xc, (intptr_t)txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
+            panelBtns[i] = sv_AddPanelButton(0, i * 0x18 + 0xc, txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
             if (sv_PanelShown->type == panelIds[i]) {
                 d2_Objs[panelBtns[i]].checked = 1;
                 d2_Objs[panelBtns[i]].highlighted = 1;

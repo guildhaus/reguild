@@ -1012,7 +1012,7 @@ void d2_RadioAdd(int g, int obj);
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_SetObjFont();
 int d2_FindPic();
-int sv_OpenMessageBox(int text, unsigned char flags);
+int sv_OpenMessageBox(intptr_t text, unsigned char flags);
 int ls_ReadSaveHeader(struct VFSFILE *f, int *h);
 
 /* 0x532da0, the network game search window "Menu\SEARCH_NETWORK": every 1.5 s (the clock d3_Time) or on the
@@ -1058,7 +1058,7 @@ int main_SearchNetworkGame(int saved)
             if ((unsigned)d3_Time > ts + 0x5dc || redraw) {
                 ok = 1;
                 d2_CutsceneActive = 1;
-                h = sv_OpenMessageBox((int)txt_Ptrs[0x1cb1], 0);
+                h = sv_OpenMessageBox((intptr_t)txt_Ptrs[0x1cb1], 0);
                 n = udp_FindServers(0x3039, 0xbb8, recs, 8);
                 d2_CloseView(h);
                 d2_CutsceneActive = 0;
@@ -1301,7 +1301,7 @@ void main_MoneyDialog(void)
 }
 /* 0x5337f0, creates a menu button (0x46bf10 (0x20, n * 0x2b + 10, 0xbf, text, form), text centred, width 300) for the row n of a dialog */
 
-int main_MenuButton(int n, int text, int form)
+int main_MenuButton(int n, char *text, int form)
 {
     int b;
 
@@ -1370,21 +1370,21 @@ void main_Menue(void)
     d2_PlaceMainWindow(f, 3);
     d2_SetForm(f, 0);
     win = d2_LastWindow;
-    bnew = main_MenuButton(0, (int)txt_Ptrs[0x1c63], win);
-    bload = main_MenuButton(1, (int)txt_Ptrs[TXT_LOAD_GAME], win);
-    btut = main_MenuButton(2, (int)txt_Ptrs[0x3f19], win);
-    bnet = main_MenuButton(3, (int)txt_Ptrs[0x1c64], win);
-    bopt3 = main_MenuButton(4, (int)txt_Ptrs[TXT_GAME_OPTIONS], win);
-    bcred = main_MenuButton(7, (int)txt_Ptrs[0x1c65], win);
-    bquit = main_MenuButton(8, (int)txt_Ptrs[0x1c66], win);
+    bnew = main_MenuButton(0, txt_Ptrs[0x1c63], win);
+    bload = main_MenuButton(1, txt_Ptrs[TXT_LOAD_GAME], win);
+    btut = main_MenuButton(2, txt_Ptrs[0x3f19], win);
+    bnet = main_MenuButton(3, txt_Ptrs[0x1c64], win);
+    bopt3 = main_MenuButton(4, txt_Ptrs[TXT_GAME_OPTIONS], win);
+    bcred = main_MenuButton(7, txt_Ptrs[0x1c65], win);
+    bquit = main_MenuButton(8, txt_Ptrs[0x1c66], win);
     if (main_DevMenu == 0) {
-        bopt1 = main_MenuButton(5, (int)txt_Ptrs[TXT_GFX_OPTIONS], win);
-        bopt2 = main_MenuButton(6, (int)txt_Ptrs[TXT_SFX_OPTIONS], win);
+        bopt1 = main_MenuButton(5, txt_Ptrs[TXT_GFX_OPTIONS], win);
+        bopt2 = main_MenuButton(6, txt_Ptrs[TXT_SFX_OPTIONS], win);
         grp = d2_CreateRadioGroup(9, bnew, bload, btut, bnet, bopt3, bopt1, bopt2, bcred, bquit);
     } else {
-        bini = main_MenuButton(4, (int)"Create Save with INI", win);
-        bnetsave = main_MenuButton(5, (int)"Create Save for Network", win);
-        bcheck = main_MenuButton(6, (int)"Check Textfile", win);
+        bini = main_MenuButton(4, "Create Save with INI", win);
+        bnetsave = main_MenuButton(5, "Create Save for Network", win);
+        bcheck = main_MenuButton(6, "Check Textfile", win);
         grp = d2_CreateRadioGroup(9, bnew, bload, btut, bnet, bopt3, bini, bnetsave, bcred, bquit);
     }
     if (snd_MusicEnabled != 0) {
@@ -2362,7 +2362,7 @@ int main_ChooseHistory(void)
                     r = main_CharacterIntro(0);
                     if (r == 1) {
                         d2_CutsceneActive = 1;
-                        main_MessageBox = sv_OpenMessageBox((int)txt_Ptrs[0x1af9], 0);
+                        main_MessageBox = sv_OpenMessageBox((intptr_t)txt_Ptrs[0x1af9], 0);
                         if (main_ChooseFamily(0) == 0) {
                             d3if_SelectScene(0, 0);
                             goto lback2;

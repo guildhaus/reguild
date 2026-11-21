@@ -6,6 +6,7 @@
 
 #include "f3init_types.h"                 /* INIT_PLAYER */
 #include "rd_types.h"                     /* G15BK */
+#include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 struct AIBLD;
 struct AIBLD;
 struct D3OBJECT;
@@ -34,7 +35,7 @@ void init_OpenTown(void);                                               /* 0x50f
 char init_CollectSiteObject(struct D3OBJECT *o, void *ctx);             /* 0x510730 */
 void init_LoadSiteScene(char *name);                                    /* 0x510770 */
 int init_InitTown(char *city);                                          /* 0x510ad0 */
-void init_ShowStatus(int t);                                            /* 0x510e20 */
+void init_ShowStatus(intptr_t t);                                            /* 0x510e20 */
 int init_StartNetworkGame(char *name);                                  /* 0x510e50 */
 int init_JoinNetworkGame(int saveName);                                               /* 0x5112d0 */
 int init_SetupNewGame(int n);                                           /* 0x511400 */

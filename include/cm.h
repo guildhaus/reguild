@@ -959,7 +959,7 @@ int cm_DeathSceneCheck(G28REC *m);  /* 0x4e1220 */
 float gm_CharacterHealth();  /* 0x4fc820 */
 int gm_HasAdultRelative();  /* 0x506480 */
 struct AICHAR; void gm_ForfeitEstate(struct AICHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
-void ai_FamilyTreeWindow(int param_1, unsigned char param_2, int param_3, int param_4);  /* 0x5c4150 */
+void ai_FamilyTreeWindow(int param_1, unsigned char param_2, intptr_t param_3, int param_4);  /* 0x5c4150 */
 void cm_RunDeath(G28REC *m);  /* 0x4e1250 */
 
 

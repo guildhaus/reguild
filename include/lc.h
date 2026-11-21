@@ -6,6 +6,7 @@ struct VFSFILE;
 
 #include "am_types.h"                 /* G9DOMIZIL, the Domizil table's entry (ai_DomizilTable) */
 #include "ai_types.h"                 /* AITIME, the goods-reserve clock (LCSETTINGS.reserveTime) */
+#include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 
 struct AIBLD;
 struct G8INVOBJ;
@@ -372,7 +373,7 @@ struct AICHAR; struct LCORDMSG; int ai_IntimidateContact(struct AICHAR *me, stru
 int ai_CounterEspionage(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cae00, the counter-espionage order's ask */
 int ai_SeatSwapWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cb250, the seat swap order's ask */
 int ai_AmountLimit(int param_1, int param_2, int param_3, int *param_4);  /* 0x5bd060 */
-void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId);  /* 0x5c4150, the family tree window */
+void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption, int callId);  /* 0x5c4150, the family tree window */
 struct AICHAR;
 void ai_CharInfoPanel(struct AICHAR *chr, int other);  /* 0x5c5310, the character info panel */
 void ai_ShowOfficeNews(unsigned short *param_1, struct AICHAR *param_2);  /* 0x5a8cb0 */

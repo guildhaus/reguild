@@ -4288,7 +4288,7 @@ void cm_BuildFightUI(char *a)
     cm_FightForm = v;
     d2_PlaceMainWindow(v, 3);
     d2_SetForm(v, 0);
-    t = d2_WinCreateSlider(0x10, 0xc, 0xbf, (intptr_t)txt_Ptrs[TXT_FIGHT_BUTTON], d2_LastWindow);
+    t = d2_WinCreateSlider(0x10, 0xc, 0xbf, txt_Ptrs[TXT_FIGHT_BUTTON], d2_LastWindow);
     cm_FightButton = t;
     d2_Objs[t].centred = 1;
     d2_CenterObj(cm_FightButton);

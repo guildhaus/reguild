@@ -4503,7 +4503,7 @@ exe	0x005c37a0	ai_PassesBuildingFilter	lcamt	b672946a031b7d99	no	draft	sweep con
 exe	0x005c39a0	ai_PassesMapPickFilter	lc	65eb0135671435a2	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005c3bb0	ai_PickBuildingChar	lc	6686bd2b4375d6dd	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	e415d6ea4fd0d502	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=568	2eb3e29bb00f55b1
-exe	0x005c4150	ai_FamilyTreeWindow	lcamt	a48a7850ab5de3ca	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	3cd871aa72d7ecb4
+exe	0x005c4150	ai_FamilyTreeWindow	lcamt	f8cf243c25c45def	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	fe598ca2347cec34
 exe	0x005c5310	ai_CharInfoPanel	lcamt	9924361f6ccbfaae	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=4 compiled=24 (stopped at the goal)	bd379bfadd647555
 exe	0x005c6050	ai_GiftWindow	lc	994c37b0cffb8ec2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cdb8650ca52967df
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	8183ba27ce227d37	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	2eb3e29bb00f55b1

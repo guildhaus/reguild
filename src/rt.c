@@ -433,7 +433,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
     d2_SetForm(w, 3);
     g = d2_CreateRadioGroup(0);
     for (i = 0, y = 4; y < 0xd6; i++, y += 0x1e) {
-        o = sv_AddPanelButton(0, y, (intptr_t)txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
+        o = sv_AddPanelButton(0, y, txt_Ptrs[TXT_INFO_PANEL_BUTTONS + i]);
         tabs[i] = o;
         d2_Objs[o].user = gm_Query(b->objList, 2, 6, 0, kinds[i]);
         d2_RadioAdd(g, o);
