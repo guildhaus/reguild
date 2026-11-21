@@ -6173,7 +6173,8 @@ the bytes no portable form gives.
   hst_ListModeSet / hst_ListModeUse in hst.c (a label's 4-byte tag compared with the first four characters of
   the 5-byte strings of `char hst_ListModes[2][5]`, the second at an odd address: no C type puts an int at +5;
   the inline `*(int *)hst_ListModes[k]` compiles the same but is dcp's Q4 raw access, which wants the view).
-  main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c).
+  main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
+  (handler and query types, he_Jobs) added no (c) case.
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6310,6 +6311,33 @@ the bytes no portable form gives.
   and cast to AIOBJ / a unit's AIROOM copy for its objId / list (sv_PanelShown, SVQUICKJUMP.record,
   sv_PermsRoom, snd_TrackRoom): `struct AIOBJ *`, `g->type`; the locals and parameters that hold the same
   pointer follow, the callees still taking `unsigned short *` get the cast.
+- **A handler family that takes `int building` / `int room` and casts it back at every use** (lc.c's contact
+  handlers, called with `(int)ai_PlayerBuilding, (int)room`; fifth data pass): give the whole family its record
+  parameter at once (`AIBLD *building`, `AIOBJ *room`; names kept), with the windows and map-pick starts it
+  passes the value on to and what they all call with it (sv_CheckCharacterFlag, sv_OpenPlayerBar,
+  gm_FindCharacterByMaster): typing only the top moves the casts one level down. A parameter the body never
+  reads is typed as its callers pass it. Function pointers of the handlers passed to `sv_RunFrame(int cb, ..)`
+  warn the same before and after (sv_RunFrame's int cb is its own debt). Arguments of the generic int hooks
+  (ai_CampaignStep, ai_ScriptQuery: a building, a room or an id by step) and of txt_Format keep `(int)bld`.
+  Every function stayed the same code (about 180 casts, lc 1106 -> 995 warnings over the pass).
+- **A query function returning `unsigned char *` / `char *` whose callers cast the result to the record**
+  (gm_BuildQuery / gm_BuildNext / gm_FindBuildingById: 429 `(AIBLD *)` casts; gm_Query / gm_QueryNext /
+  gm_PlayerSeat: 357 `(AIOBJ *)` casts): the return type is the record pointer. The callers that keep the result
+  in a local of another type (`char *it` read through a unit's view, `unsigned short *room`, `int o`) get the cast
+  at the assignment (the local's debt; 39 and 45). Find them by VC6's new `C4133 '=' / 'return'` and `C4047`
+  warnings per unit: with line-preserving edits a plain diff of the unit's warning lines before / after names
+  each site; wrap the call or the argument on that line.
+- **A unit's copy of a record the types header already defines** (AIROOM in lc / lcamt / lcdom / lcmap = AIOBJ's
+  type / objId / list): use the header's type; the copies go (four typedefs fewer: tie-breaks, accepted).
+- **A byte array viewed as its record array by a header that cannot see the record** (he_Events `unsigned
+  char[339968]`, ls.h's `he_Jobs` view as AIJOB[0x400]): the definition and the units that use it declare the
+  record array (`extern AIJOB he_Events[0x400];` in their head, after ai_types.h), the header's extern and view
+  go (an array of an incomplete type in a header is dcp M6), unused unit-local externs go.
+- **ints that hold the same pointer as a typed global** (sv_ShownObject / sv_ShownBuilding / sv_ShownFallback /
+  sv_GroundplanBuilding / sv_HoverBuilding / sv_ClickedBuilding, stored from and compared with
+  ai_PlayerBuilding / sv_SelectedObject): type them `struct AIBLD *` (data placement unchanged). An `extern`
+  line declaring several globals with one address comment must stay one type per line, each with its own
+  addresses: dcp maps the comment's addresses to the line's names in order (N2 / C.name.alias otherwise).
 - **A function that takes a text id or a string's address in one `int` (txt_Format, io_PrintText)**: callers
   of a literal pass `(int)"..."` to the one prototype (no cast macro with a `char *` parameter).
 - **The callers read a 16-bit result of an int function (util_Random; `mov si,ax`)**: the units saw another
