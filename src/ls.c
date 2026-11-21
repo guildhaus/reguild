@@ -2490,7 +2490,7 @@ int ls_FixupAfterLoad(void)
 
             gm_FindById(&bld, 0, 0, j->constructBld);
             if (bld != 0)
-                he_ShowConstruction((int)j);
+                he_ShowConstruction(j);
         } else if (j->kind == 0xf) {
             o = (AIOBJ *)gm_FindObjectInst(j->from);
             if (o != 0)

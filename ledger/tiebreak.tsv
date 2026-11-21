@@ -3826,7 +3826,7 @@ exe	0x0056b750	he_CollectChild	he	9bcd403a75aa6246	no	byte	control=byte p1=byte 
 exe	0x0056b780	he_ShowConstruction	he	cb15dc8aacd8bfd8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bac0	he_ConstructionStage	he	35deb30781de00a1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bc50	he_CreateConstruction	he	85436a6f90088bca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0056be30	he_RunConstruction	he_b	1635e0a034498ef8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	aba3a360ab3b79c5
+exe	0x0056be30	he_RunConstruction	he_b	92c4201677ac24bd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	338cd106238c538f
 exe	0x0056cdd0	he_AllocMissionCheck	he	91266650b9870904	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056ce40	he_RunMissionCheck	he	0935945f54bdf6e8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056d050	he_RegisterEventTypes03	he	16ede35742be5a19	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3870,14 +3870,14 @@ exe	0x00570c70	he_PlunderFailNews	he	e51dfea9af602611	no	byte	control=byte p1=by
 exe	0x00570cc0	he_RunPlunderOffer	he	9b14ff93d82032c7	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00570ea0	he_NoEvent88Pair	he	27778bb92c334a25	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00570ef0	he_AllocMasterWork	he	2925641e3ece3d1a	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x00571000	he_RunMasterWork	he_b	0cf6359245a9a82c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	647bfee66ed9bba1
+exe	0x00571000	he_RunMasterWork	he_b	e365476f2139a755	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	338cd106238c538f
 exe	0x00571550	he_AllocGraveCare	he	b572664d65e5e5c2	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00571640	he_RunGraveCare	he	d00acab41dfddfc9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00571990	he_AllocDeathDue	he	99dc9932567e8ae5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005719e0	he_RunDeathDue	he	32c94ebd3a4cee07	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00571ac0	he_AllocGraveTraining	he	b4e48bdd30b63c20	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4cbf06cae45cb11e
 exe	0x00571c30	he_RunGraveTraining	he	cd804e3b809f464a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7a3148e73a2869ed
-exe	0x00571f60	he_AllocMeeting	he_b	99e6c6b4b8934e8f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	fb5ba64e8edae152
+exe	0x00571f60	he_AllocMeeting	he_b	fde733b3712176f2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	338cd106238c538f
 exe	0x005720f0	he_CatchMeetingDisease	he_b	089c8caf08b39168	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	96c3cec0c31d2032
 exe	0x00572310	he_SpreadMeetingDisease	he_b	38d3a78fe89af5e1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e6400e55c148741b
 exe	0x005725b0	he_RunMeeting	he	ecf3da0bb67cfb36	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

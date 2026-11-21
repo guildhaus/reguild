@@ -19539,52 +19539,52 @@ int he_RegisterEventTypes02(void)
 }
 
 /* dcp unit split: the functions of he_b the rest of he uses */
-void he_AllocRecipeResearch(int ev);
-void he_RunRecipeResearch(int ev);
-void he_AllocResearchRecipe(int ev);
-void he_RunResearchRecipe(int ev);
-void he_AllocTrainShare(int ev);
-void he_RunTrainShare(int ev);
+void he_AllocRecipeResearch(struct AIJOB *ev);
+void he_RunRecipeResearch(struct AIJOB *ev);
+void he_AllocResearchRecipe(struct AIJOB *ev);
+void he_RunResearchRecipe(struct AIJOB *ev);
+void he_AllocTrainShare(struct AIJOB *ev);
+void he_RunTrainShare(struct AIJOB *ev);
 void he_AllocAlchemistDay(AIJOB *e);
-void he_RunAlchemistDay(int ev);
+void he_RunAlchemistDay(struct AIJOB *ev);
 void he_AllocSecretRoom(AIJOB *e);
-void he_RunSecretRoom(int ev);
-void he_AllocEvent9a(int ev);
-void he_FreeEventNow(int *r);
+void he_RunSecretRoom(struct AIJOB *ev);
+void he_AllocEvent9a(struct AIJOB *ev);
+void he_FreeEventNow(AIJOB *r);
 void he_AllocDomizilEvent(AIJOB *e);
-void he_RunDomizilEvent(int ev);
-void he_AllocHaunting(int ev);
-void he_RunHaunting(int ev);
-void he_AllocDecay(int ev);
-void he_RunDecay(int ev);
-void he_AllocPlunder(int ev);
-void he_RunPlunder(int ev);
+void he_RunDomizilEvent(struct AIJOB *ev);
+void he_AllocHaunting(struct AIJOB *ev);
+void he_RunHaunting(struct AIJOB *ev);
+void he_AllocDecay(struct AIJOB *ev);
+void he_RunDecay(struct AIJOB *ev);
+void he_AllocPlunder(struct AIJOB *ev);
+void he_RunPlunder(struct AIJOB *ev);
 void he_PlunderTakePrice(int *a, AICHAR *c);
 void he_PlunderFailNews(int *a, AICHAR *c);
-void he_RunPlunderOffer(int ev);
-void he_AllocMasterWork(int ev);
-void he_RunMasterWork(int ev);
-void he_AllocGraveCare(int ev);
-void he_RunGraveCare(int ev);
-void he_AllocDeathDue(int ev);
-void he_RunDeathDue(int ev);
-void he_AllocGraveTraining(int ev);
-void he_RunGraveTraining(int ev);
-void he_AllocMeeting(int ev);
-void he_RunMeeting(int ev);
-void he_AllocMeetingScene(int ev);
-void he_RunMeetingScene(int ev);
-void he_AllocPlunderOfferLease(int ev);
-void he_AnswerGraveLease(int ev);
-void he_ExamCancelled(int ev);
-void he_RunGraveLease(int ev);
-void he_AllocGraveyardWorkers(int ev);
-void he_RunGraveyardWorkers(int ev);
-void he_RunGraveyardTheft(int ev);
-void he_AllocCouncil(int ev);
-void he_RunCouncil(int ev);
-void he_AllocGypsyApproach(int ev);
-void he_RunGypsyApproach(int ev);
+void he_RunPlunderOffer(struct AIJOB *ev);
+void he_AllocMasterWork(struct AIJOB *ev);
+void he_RunMasterWork(struct AIJOB *ev);
+void he_AllocGraveCare(struct AIJOB *ev);
+void he_RunGraveCare(struct AIJOB *ev);
+void he_AllocDeathDue(struct AIJOB *ev);
+void he_RunDeathDue(struct AIJOB *ev);
+void he_AllocGraveTraining(struct AIJOB *ev);
+void he_RunGraveTraining(struct AIJOB *ev);
+void he_AllocMeeting(struct AIJOB *ev);
+void he_RunMeeting(struct AIJOB *ev);
+void he_AllocMeetingScene(struct AIJOB *ev);
+void he_RunMeetingScene(struct AIJOB *ev);
+void he_AllocPlunderOfferLease(struct AIJOB *ev);
+void he_AnswerGraveLease(struct AIJOB *ev);
+void he_ExamCancelled(struct AIJOB *ev);
+void he_RunGraveLease(struct AIJOB *ev);
+void he_AllocGraveyardWorkers(struct AIJOB *ev);
+void he_RunGraveyardWorkers(struct AIJOB *ev);
+void he_RunGraveyardTheft(struct AIJOB *ev);
+void he_AllocCouncil(struct AIJOB *ev);
+void he_RunCouncil(struct AIJOB *ev);
+void he_AllocGypsyApproach(struct AIJOB *ev);
+void he_RunGypsyApproach(struct AIJOB *ev);
 void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);
 void he_GypsyDisease(AICHAR *pl, AICHAR *per);
 void he_GypsyRumour(AICHAR *pl, AICHAR *per);
@@ -19593,20 +19593,20 @@ void he_GypsySwapSkills(AICHAR *pl, AICHAR *per);
 void he_GypsyCurse(AICHAR *pl, AICHAR *per);
 void he_GypsySlowdown(AICHAR *pl, AICHAR *per);
 void he_GypsyFee(AICHAR *pl, int a);
-void he_AllocGypsyCurse(int ev);
-void he_RunGypsyCurse(int ev);
-void he_AllocGypsySlowdown(int ev);
-void he_RunGypsySlowdown(int ev);
+void he_AllocGypsyCurse(struct AIJOB *ev);
+void he_RunGypsyCurse(struct AIJOB *ev);
+void he_AllocGypsySlowdown(struct AIJOB *ev);
+void he_RunGypsySlowdown(struct AIJOB *ev);
 int he_HasEvent9f(AICHAR *a);
-void he_AllocTrialScene(int ev);
-void he_RunTrialScene(int ev);
-void he_AllocMeeting4(int ev);
-void he_RunCircusShow(int ev);
-void he_CircusShowIncome(int ev, int n);
-void he_AllocPettyLoss(int ev);
-void he_RunPettyLoss(int ev);
-void he_AllocEventGood(int ev);
-void he_RunEventGood(int ev);
+void he_AllocTrialScene(struct AIJOB *ev);
+void he_RunTrialScene(struct AIJOB *ev);
+void he_AllocMeeting4(struct AIJOB *ev);
+void he_RunCircusShow(struct AIJOB *ev);
+void he_CircusShowIncome(struct AIJOB *ev, int n);
+void he_AllocPettyLoss(struct AIJOB *ev);
+void he_RunPettyLoss(struct AIJOB *ev);
+void he_AllocEventGood(struct AIJOB *ev);
+void he_RunEventGood(struct AIJOB *ev);
 void he_GiveDomizilGood(AICHAR *per);
 void he_EventGoodMoney(AICHAR *per);
 void he_EventGoodRefund(AICHAR *per);
@@ -19640,31 +19640,31 @@ void he_AllocEvent9a();
 void he_RunDomizilEvent();
 void he_AllocDomizilEvent();
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);   /* 0x4a63f0, @original: lo an int, as this unit declares it above */
-void he_FreeEventNow(int *r);          /* 0x56f040 */
-void he_AllocHaunting(int ev);          /* 0x56fc50 */
-void he_RunHaunting(int ev);          /* 0x56fda0 */
-void he_AllocDecay(int ev);          /* 0x570130 */
-void he_RunDecay(int ev);          /* 0x5702e0 */
-void he_AllocMasterWork(int ev);          /* 0x570ef0 */
-void he_RunMasterWork(int ev);          /* 0x571000 */
-void he_AllocGraveCare(int ev);          /* 0x571550 */
-void he_RunGraveCare(int ev);          /* 0x571640 */
-void he_AllocPlunder(int ev);          /* 0x5706e0 */
-void he_RunPlunder(int ev);          /* 0x5707a0 */
-void he_AllocPlunderOfferLease(int ev);          /* 0x572860 */
-void he_RunPlunderOffer(int ev);          /* 0x570cc0 */
-void he_AllocDeathDue(int ev);          /* 0x571990 */
-void he_RunDeathDue(int ev);          /* 0x5719e0 */
-void he_AllocGraveTraining(int ev);          /* 0x571ac0 */
-void he_RunGraveTraining(int ev);          /* 0x571c30 */
-void he_AllocMeeting(int ev);          /* 0x571f60 */
-void he_RunMeeting(int ev);          /* 0x5725b0 */
-void he_AllocMeetingScene(int ev);          /* 0x5726a0 */
-void he_RunMeetingScene(int ev);          /* 0x5726b0 */
-void he_AllocGraveyardWorkers(int ev);          /* 0x572b90 */
-void he_RunGraveyardWorkers(int ev);          /* 0x572bf0 */
-void he_RunGraveyardTheft(int ev);          /* 0x572fd0 */
-void he_RunGraveLease(int ev);          /* 0x572a50 */
+void he_FreeEventNow(AIJOB *r);          /* 0x56f040 */
+void he_AllocHaunting(struct AIJOB *ev);          /* 0x56fc50 */
+void he_RunHaunting(struct AIJOB *ev);          /* 0x56fda0 */
+void he_AllocDecay(struct AIJOB *ev);          /* 0x570130 */
+void he_RunDecay(struct AIJOB *ev);          /* 0x5702e0 */
+void he_AllocMasterWork(struct AIJOB *ev);          /* 0x570ef0 */
+void he_RunMasterWork(struct AIJOB *ev);          /* 0x571000 */
+void he_AllocGraveCare(struct AIJOB *ev);          /* 0x571550 */
+void he_RunGraveCare(struct AIJOB *ev);          /* 0x571640 */
+void he_AllocPlunder(struct AIJOB *ev);          /* 0x5706e0 */
+void he_RunPlunder(struct AIJOB *ev);          /* 0x5707a0 */
+void he_AllocPlunderOfferLease(struct AIJOB *ev);          /* 0x572860 */
+void he_RunPlunderOffer(struct AIJOB *ev);          /* 0x570cc0 */
+void he_AllocDeathDue(struct AIJOB *ev);          /* 0x571990 */
+void he_RunDeathDue(struct AIJOB *ev);          /* 0x5719e0 */
+void he_AllocGraveTraining(struct AIJOB *ev);          /* 0x571ac0 */
+void he_RunGraveTraining(struct AIJOB *ev);          /* 0x571c30 */
+void he_AllocMeeting(struct AIJOB *ev);          /* 0x571f60 */
+void he_RunMeeting(struct AIJOB *ev);          /* 0x5725b0 */
+void he_AllocMeetingScene(struct AIJOB *ev);          /* 0x5726a0 */
+void he_RunMeetingScene(struct AIJOB *ev);          /* 0x5726b0 */
+void he_AllocGraveyardWorkers(struct AIJOB *ev);          /* 0x572b90 */
+void he_RunGraveyardWorkers(struct AIJOB *ev);          /* 0x572bf0 */
+void he_RunGraveyardTheft(struct AIJOB *ev);          /* 0x572fd0 */
+void he_RunGraveLease(struct AIJOB *ev);          /* 0x572a50 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 void ai_TellGraveWorkSuccess(struct AICHAR *param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(struct AICHAR *param_1);                 /* 0x5a99e0 */
@@ -19685,31 +19685,31 @@ void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned i
 void ai_ShowGraveOrderExtended(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
-void he_AnswerGraveLease(int ev);          /* 0x5728d0 */
-void he_ExamCancelled(int ev);          /* 0x5729c0 */
+void he_AnswerGraveLease(struct AIJOB *ev);          /* 0x5728d0 */
+void he_ExamCancelled(struct AIJOB *ev);          /* 0x5729c0 */
 void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */
 int ls_GetLanguage();                 /* 0x5190a0 */
-void he_AllocCouncil(int ev);          /* 0x573280 */
-void he_RunCouncil(int ev);          /* 0x5732d0 */
+void he_AllocCouncil(struct AIJOB *ev);          /* 0x573280 */
+void he_RunCouncil(struct AIJOB *ev);          /* 0x5732d0 */
 void hmt_Update();                 /* 0x4ace40, hmt_Update */
 void hmt_Begin();                 /* 0x4ad0a0, hmt_Begin */
 void hmt_Election();                 /* 0x4ad1c0, hmt_Election */
 void hmt_ClearOffices(void); /* 0x4ad510 */
 void hmt_DecideElection();                 /* 0x4ad580 */
-void he_AllocGypsyApproach(int ev);          /* 0x5734b0 */
-void he_RunGypsyApproach(int ev);          /* 0x573580 */
-void he_AllocGypsyCurse(int ev);          /* 0x573f20 */
-void he_RunGypsyCurse(int ev);          /* 0x573fb0 */
-void he_AllocGypsySlowdown(int ev);          /* 0x574060 */
-void he_RunGypsySlowdown(int ev);          /* 0x5740d0 */
-void he_AllocTrialScene(int ev);          /* 0x574120 */
-void he_RunTrialScene(int ev);          /* 0x5743c0 */
-void he_AllocMeeting4(int ev);          /* 0x574550 */
-void he_RunCircusShow(int ev);          /* 0x5748d0 */
-void he_AllocPettyLoss(int ev);          /* 0x575150 */
-void he_RunPettyLoss(int ev);          /* 0x5751e0 */
-void he_AllocEventGood(int ev);          /* 0x575320 */
-void he_RunEventGood(int ev);          /* 0x5753a0 */
+void he_AllocGypsyApproach(struct AIJOB *ev);          /* 0x5734b0 */
+void he_RunGypsyApproach(struct AIJOB *ev);          /* 0x573580 */
+void he_AllocGypsyCurse(struct AIJOB *ev);          /* 0x573f20 */
+void he_RunGypsyCurse(struct AIJOB *ev);          /* 0x573fb0 */
+void he_AllocGypsySlowdown(struct AIJOB *ev);          /* 0x574060 */
+void he_RunGypsySlowdown(struct AIJOB *ev);          /* 0x5740d0 */
+void he_AllocTrialScene(struct AIJOB *ev);          /* 0x574120 */
+void he_RunTrialScene(struct AIJOB *ev);          /* 0x5743c0 */
+void he_AllocMeeting4(struct AIJOB *ev);          /* 0x574550 */
+void he_RunCircusShow(struct AIJOB *ev);          /* 0x5748d0 */
+void he_AllocPettyLoss(struct AIJOB *ev);          /* 0x575150 */
+void he_RunPettyLoss(struct AIJOB *ev);          /* 0x5751e0 */
+void he_AllocEventGood(struct AIJOB *ev);          /* 0x575320 */
+void he_RunEventGood(struct AIJOB *ev);          /* 0x5753a0 */
 void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);  /* 0x5736d0 */
 void he_GypsyFee(AICHAR *pl, int a);           /* 0x573e30 */
 void he_GypsyDisease(AICHAR *pl, AICHAR *per);     /* 0x573760 */
@@ -19720,7 +19720,7 @@ void he_GypsyCurse(AICHAR *pl, AICHAR *per);     /* 0x573c20 */
 void he_GypsySlowdown(AICHAR *pl, AICHAR *per);     /* 0x573d30 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g); /* 0x524260, the group register */
 int sv_IsAtDoor();                 /* 0x524770 */
-void he_CircusShowIncome(int ev, int n);   /* 0x575030 */
+void he_CircusShowIncome(struct AIJOB *ev, int n);   /* 0x575030 */
 unsigned short ai_RandomDomizilGoodNotIn(int param_1, unsigned short *param_2);                 /* 0x5a9e90 */
 void he_GiveDomizilGood(AICHAR *per);     /* 0x575430 */
 void he_EventGoodMoney(AICHAR *per);      /* 0x575540 */
