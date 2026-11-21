@@ -1394,7 +1394,7 @@ void ai_HookChapter5Step2(int arg)
 
     if (arg)
         return;
-    r = (AIOBJ *)gm_FindMarketObject(0x155);
+    r = gm_FindMarketObject(0x155);
     id = ai_CharInts[ai_PlayerId][0];
     cm_SendMoveGoodsUnchecked(id, -1, 0, 0x2bc0);
     cm_SendExSellObject(r->objId, -1, 0x155, 3, ai_OwnPlayer, 0);

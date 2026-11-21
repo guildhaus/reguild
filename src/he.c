@@ -6056,7 +6056,7 @@ void he_RunStoreSale(AIJOB *e)
     AIBLD *b;
     AIBTYPE *t;
     AIOBJ *store;
-    unsigned short *good;
+    AIOBJ *good;
 
     if (e->stage == -2) {
         he_FreeEvent(e);
@@ -6086,13 +6086,13 @@ void he_RunStoreSale(AIJOB *e)
         if (store == 0)
             store = gm_Query(b->objList, 2, 6, 0, 0x116);
         if (store != 0) {
-            for (good = (unsigned short *)gm_Query(store->list, 1, 5); good != 0; good = (unsigned short *)gm_QueryNext()) {
+            for (good = gm_Query(store->list, 1, 5); good != 0; good = gm_QueryNext()) {
                 amount = (int)(gm_ListAmount(store, good) * 0.25f);
                 if (amount < 1)
                     amount = 1;
-                sprintf(log, "cm_RequestSellObjekt(%i, %i, %i, %i, %i, %i)", -1, store->objId, *good, amount, ai_OwnPlayer, 0);
-                cm_SendExSellObject(-1, store->objId, *good, amount, ai_OwnPlayer, 0);
-                total = (int)(gm_GoodsPrice(*good, ai_OwnPlayer) * amount + total);
+                sprintf(log, "cm_RequestSellObjekt(%i, %i, %i, %i, %i, %i)", -1, store->objId, good->id, amount, ai_OwnPlayer, 0);
+                cm_SendExSellObject(-1, store->objId, good->id, amount, ai_OwnPlayer, 0);
+                total = (int)(gm_GoodsPrice(good->id, ai_OwnPlayer) * amount + total);
             }
         }
     }
@@ -12791,7 +12791,7 @@ void he_RunHerbGathering(AIJOB *e)
                     amount = (int)((util_Random(6) + 9) * h->n * (gm_BuildingSkill(b, 0xb, 1) * (1.0 / 90) + 1.0));
                 if (season == 3 && (b->flags5aw & 0x2000) == 0)
                     amount = (int)(amount * 0.5);
-                got = gm_FreeCapacity((short *)o, h->good, amount);
+                got = gm_FreeCapacity(o, h->good, amount);
                 if (h->good == 0)
                     break;
                 m = gm_FindCharacterByMaster(b);
@@ -15913,7 +15913,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
         s = *rec;
         if (rec->amount == 0 || (good->type != 0x25 && good->type != 0x17))
             continue;
-        o = (AIOBJ *)gm_FindMarketObject(s.item);
+        o = gm_FindMarketObject(s.item);
         if (o == 0) {
             char text[0x100];
 
@@ -15966,7 +15966,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
         if (rec->amount == 0 || good->type == 0x25 || good->type == 0x17)
             continue;
         s = *rec;
-        o = (AIOBJ *)gm_FindMarketObject(s.item);
+        o = gm_FindMarketObject(s.item);
         if (o == 0)
             continue;
         q = gm_Query(o->list, 1, 0, s.item);
@@ -16089,7 +16089,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
                 continue;
             g = (float)(s2.demand * (1.0f / 14) * (minutes * (1.0 / 60)));
             f = util_Random(3) + g;
-            f = (float)gm_FreeCapacity((short *)st, s2.item, (int)(1.0f > f ? 1.0f : f));
+            f = (float)gm_FreeCapacity(st, s2.item, (int)(1.0f > f ? 1.0f : f));
             have = gm_ListAmount(st, q);
             if (have < s2.demand * 0.5) {
                 cm_SendExSellObject(st->objId, -1, s2.item, (int)f, ai_OwnPlayer, 0);

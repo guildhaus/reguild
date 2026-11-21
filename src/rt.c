@@ -491,7 +491,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
 /* 0x4be790, the controls of one good slot (k 0..2) of a route point: a slider (gm_ListStock(a, good) steps) and the
    good's picture with its name; out = {-1, picture, slider}; returns the picture */
 
-int rt_OpenSlotControls(AIOBJ *cart, int a, int good, int k, int x, int y, int win, int *out)
+int rt_OpenSlotControls(AIOBJ *cart, AIOBJ *a, int good, int k, int x, int y, int win, int *out)
 {
     int offs[9];
     int s;
@@ -600,7 +600,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     del = btns[1];
     n = cnt[cart->id - 0x134];
     s = gm_Query(cart->list, 1, 0, 0x1dd);
-    a = gm_ListStock((int)s, 0);
+    a = gm_ListStock(s, 0);
     for (i = 0; i < 3; i++)
         objs1[i] = -1;
     for (i = 0; i < 3; i++)
@@ -648,7 +648,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
             d2_SetObjEnabled(del, 0);
         for (i = 0; i < 3; i++) {
             if (loadCtls[i][1] == -1 && p->loadSlots[i * 2] != 0) {
-                rt_OpenSlotControls(cart, (int)s, p->loadSlots[i * 2], i, 0, 0, v2, loadCtls[i]);
+                rt_OpenSlotControls(cart, s, p->loadSlots[i * 2], i, 0, 0, v2, loadCtls[i]);
                 d2_SetObjValue(loadCtls[i][1], 1, a, p->loadSlots[i * 2 + 1] < 1 ? 1 : p->loadSlots[i * 2 + 1]);
             }
             if (loadCtls[i][2] != -1)
@@ -656,7 +656,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
         }
         for (i = 0; i < 3; i++) {
             if (unloadCtls[i][1] == -1 && p->unloadSlots[i * 2] != 0) {
-                rt_OpenSlotControls(cart, (int)s, p->unloadSlots[i * 2], i, 0, 0x6e, v2, unloadCtls[i]);
+                rt_OpenSlotControls(cart, s, p->unloadSlots[i * 2], i, 0, 0x6e, v2, unloadCtls[i]);
                 d2_SetObjValue(unloadCtls[i][1], 1, a, p->unloadSlots[i * 2 + 1] < 1 ? 1 : p->unloadSlots[i * 2 + 1]);
             }
             if (unloadCtls[i][2] != -1)
@@ -1021,8 +1021,8 @@ void rt_UnloadAtPoint(char *c, char pl)
     AIBLD *b;
     char *t;
     short *o;
-    char *st;
-    unsigned short *g;
+    AIOBJ *st;
+    AIOBJ *g;
     int *s;
     int k;
     int n;
@@ -1050,23 +1050,23 @@ void rt_UnloadAtPoint(char *c, char pl)
             else if (*t == 0x1c)
                 st = gm_Query(b->objList, 2, 0, 0x1db, 6);
             else
-                st = (char *)bi.pada8[3];
-            g = gm_Query(((AIOBJ *)ci.pada8[3])->list, 1, 0, s[0]);
+                st = bi.stall;
+            g = gm_Query(ci.stall->list, 1, 0, s[0]);
             if (g != 0) {
                 n = s[1];
-                if (n >= gm_ListAmount((char *)ci.pada8[3], g))
-                    n = gm_ListAmount((char *)ci.pada8[3], g);
+                if (n >= gm_ListAmount(ci.stall, g))
+                    n = gm_ListAmount(ci.stall, g);
                 n = gm_FreeCapacity(st, s[0], n);
                 if (n > 0) {
                     price = 0;
                     if ((short)(b)->owner != *o) {
                         if (*t == 10)
-                            price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * 1.1f);
+                            price = (int)(gm_GoodsPrice(g->id, ai_OwnPlayer) * 1.1f);
                         else
-                            price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * b->priceFactor);
+                            price = (int)(gm_GoodsPrice(g->id, ai_OwnPlayer) * b->priceFactor);
                     }
                     if (gm_CharCurrency(o, pl) >= price * n)
-                        cm_SendExSellObject(((AIOBJ *)st)->objId, ((AIOBJ *)ci.pada8[3])->objId, s[0], n, pl, price);
+                        cm_SendExSellObject(st->objId, ci.stall->objId, s[0], n, pl, price);
                 }
             }
         }
@@ -1086,7 +1086,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
     AIBLD *b;
     AIBTYPE *t;
     AIOBJ *st;
-    unsigned short *g;
+    AIOBJ *g;
     int *s;
     int k;
     int n;
@@ -1111,24 +1111,24 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
         if (s[0] != 0) {
             price = 0;
             if (t->kind == 10)
-                st = (AIOBJ *)gm_FindMarketObject(s[0]);
+                st = gm_FindMarketObject(s[0]);
             else if (t->kind == 0x1c)
                 st = gm_Query(b->objList, 2, 0, 0x1dc, 6);
             else
-                st = (AIOBJ *)bi.pada8[3];
-            g = (unsigned short *)gm_Query(st->list, 1, 0, s[0]);
+                st = bi.stall;
+            g = gm_Query(st->list, 1, 0, s[0]);
             if (g != 0) {
                 n = s[1];
-                if (n >= gm_ListAmount((char *)st, g))
-                    n = gm_ListAmount((char *)st, g);
-                n = gm_FreeCapacity((char *)ci.pada8[3], s[0], n);
+                if (n >= gm_ListAmount(st, g))
+                    n = gm_ListAmount(st, g);
+                n = gm_FreeCapacity(ci.stall, s[0], n);
                 if (b->owner != o->id) {
                     if (t->kind == 10)
-                        price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * 1.1f);
+                        price = (int)(gm_GoodsPrice(g->id, ai_OwnPlayer) * 1.1f);
                     else if (t->kind == 0x1c)
-                        price = (int)(gm_GoodsPrice(*g, b->playerSlot) * 1.1f);
+                        price = (int)(gm_GoodsPrice(g->id, b->playerSlot) * 1.1f);
                     else
-                        price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * b->priceFactor);
+                        price = (int)(gm_GoodsPrice(g->id, ai_OwnPlayer) * b->priceFactor);
                 }
                 if (n > 0) {
                     if (gm_CharCurrency(o, pl) < n * price) {
@@ -1136,7 +1136,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
                         txt_Format(buf, 0x42f0, name, 0xc14, name, pl);
                         he_ShowNews(o->netId, -1, buf, 0, 0x5ef, ch_EmptyName);
                     }
-                    cm_SendExSellObject(((AIOBJ *)ci.pada8[3])->objId, st->objId, s[0], n, pl, price);
+                    cm_SendExSellObject(ci.stall->objId, st->objId, s[0], n, pl, price);
                 }
             }
         }

@@ -2904,7 +2904,7 @@ int ai_TransportFromLager(int lagerId, AIOBJ *cart, AIBLD *bld, int priced, char
 {
     float total;
     float price;
-    char *lager;
+    AIOBJ *lager;
     AIBTYPE *bt;
     char text[256];
     LCPRODSLOT *slot;
@@ -2917,7 +2917,7 @@ int ai_TransportFromLager(int lagerId, AIOBJ *cart, AIBLD *bld, int priced, char
     if (bld != 0)
         bt = &ai_BTypes[bld->type];
     if (source == 0) {
-        lager = (char *)gm_Query(0, 2, 7, 1, lagerId);
+        lager = gm_Query(0, 2, 7, 1, lagerId);
         if (lager == 0) {
             err_Message("ob_TransportFromLager(): Could not find lager by id...");
             return 0;
@@ -3596,7 +3596,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                     continue;
                 for (j = 0; j < goods.n; j++) {
                     if (rows[i].goodsCtl[j] == -1) {
-                        stock = gm_ListStock((short *)goods.pada8[3], goods.item[k]);
+                        stock = gm_ListStock(goods.stall, goods.item[k]);
                         x = slotX[rows[i].cart->id - 0x134][j] - d2_Wins[d2_LastWindow].x + d2_Objs[rows[i].pic].x;
                         y = (d2_Pics[0x5e2].h + 0x16) * i + 0x1e;
                         rows[i].goodsPic[j] = d2_WinOpenSlider(x - 8, y - 5, 0x2f, 0, stock, 0x6a, 0x2d, d2_LastWindow);
@@ -7325,7 +7325,7 @@ int ai_LiquidateAssets(int to, AICHAR *ch, int amount, char *note)
     int cls;
     AIBLD *bld;
     AIOBJ *store;
-    unsigned short *item;
+    AIOBJ *item;
 
     stop = 0;
     paid = 0;
@@ -7353,22 +7353,22 @@ int ai_LiquidateAssets(int to, AICHAR *ch, int amount, char *note)
                 if (store == 0)
                     continue;
             }
-            for (item = (unsigned short *)gm_Query(store->list, 1, 5); item != 0;
-                 item = (unsigned short *)gm_QueryNext()) {
+            for (item = gm_Query(store->list, 1, 5); item != 0;
+                 item = gm_QueryNext()) {
                 if (remaining <= 0)
                     break;
-                g = ai_Goods + *item;
+                g = ai_Goods + item->id;
                 if (g->type == 0x17 || g->type == 0x25)
                     continue;
-                price = (int)(gm_GoodsPrice(*item, ai_OwnPlayer) * 0.5);
+                price = (int)(gm_GoodsPrice(item->id, ai_OwnPlayer) * 0.5);
                 if (price == 0)
                     continue;
                 n = remaining / price;
                 if (n <= 1)
                     n = 1;
-                if (n >= gm_ListAmount((short *)store, (char *)item))
-                    n = gm_ListAmount((short *)store, (char *)item);
-                cm_SendExSellObject(-1, store->objId, *item, n, ai_OwnPlayer, 0);
+                if (n >= gm_ListAmount(store, item))
+                    n = gm_ListAmount(store, item);
+                cm_SendExSellObject(-1, store->objId, item->id, n, ai_OwnPlayer, 0);
                 remaining -= n * price;
                 sold += n * price;
                 paid += n * price;
@@ -7390,22 +7390,22 @@ int ai_LiquidateAssets(int to, AICHAR *ch, int amount, char *note)
             store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
             if (store == 0)
                 continue;
-            for (item = (unsigned short *)gm_Query(store->list, 1, 5); item != 0;
-                 item = (unsigned short *)gm_QueryNext()) {
+            for (item = gm_Query(store->list, 1, 5); item != 0;
+                 item = gm_QueryNext()) {
                 if (remaining <= 0)
                     break;
-                g = ai_Goods + *item;
+                g = ai_Goods + item->id;
                 if (g->type != 0x17 && g->type != 0x25)
                     continue;
-                price = (int)(gm_GoodsPrice(*item, ai_OwnPlayer) * 0.5);
+                price = (int)(gm_GoodsPrice(item->id, ai_OwnPlayer) * 0.5);
                 if (price == 0)
                     continue;
                 n = remaining / price;
                 if (n <= 1)
                     n = 1;
-                if (n >= gm_ListAmount((short *)store, (char *)item))
-                    n = gm_ListAmount((short *)store, (char *)item);
-                cm_SendExSellObject(-1, store->objId, *item, n, ai_OwnPlayer, 0);
+                if (n >= gm_ListAmount(store, item))
+                    n = gm_ListAmount(store, item);
+                cm_SendExSellObject(-1, store->objId, item->id, n, ai_OwnPlayer, 0);
                 remaining -= n * price;
                 paid += n * price;
                 sold += n * price;

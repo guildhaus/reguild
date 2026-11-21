@@ -163,7 +163,7 @@ void d2_DrawAll(void);                      /* 0x46e150, d2.c */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */
 struct AIOBJ *gm_QueryNext(void);                   /* 0x4ffcc0 */
 float gm_ItemPrice(int item, unsigned char n);
-int gm_ListStock(short *l, int id);               /* 0x50ab50, f3gm.c */
+int gm_ListStock(struct AIOBJ *l, int id);               /* 0x50ab50, f3gm.c */
 struct AICHAR *ai_JudgeCatholic = 0;  /* 0x6f1bfc / */
 struct AICHAR *ai_JudgeProtestant = 0;  /* 0x6f1c00 */
 AICHAR *ai_KindBChars[8] = {0};  /* 0x6f1c04, the characters of the kind 0xb */
@@ -1434,10 +1434,10 @@ void init_Betrieb(AIBLD *b)
                 return;
             if (*rw0 != 0xffff) {
                 v = rw0[-4] * n;
-                if (v < gm_ListStock((short *)st, *rw0))
+                if (v < gm_ListStock(st, *rw0))
                     n = v;
                 else
-                    n = gm_ListStock((short *)st, *rw0);
+                    n = gm_ListStock(st, *rw0);
                 cm_SendExSellObject(st->objId, -1, *rw0, n, ai_OwnPlayer, 0);
             }
             rw0++;
@@ -2580,7 +2580,7 @@ void init_FillMarkets(int p)
     g = &gm_StockBlocks[p].goods[0];
     do {
         pr = (char *)ai_Goods + g->item * 0x41;
-        m = (AIOBJ *)gm_FindMarketObject(g->item);
+        m = gm_FindMarketObject(g->item);
         if (m != 0) {
             if (*pr == 0x17 || *pr == 0x25)
                 cm_SendExSellObject(m->objId, -1, g->item, (int)((util_RandomF() + 0.5) * g->demand), ai_OwnPlayer, 0);

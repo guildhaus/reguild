@@ -2447,7 +2447,7 @@ extern int gm_QueryScanned;
 extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
 extern AIOBJ *gm_QueryChildStack[20488];
-int gm_FindMarketObject(int id);                     /* 0x500ec0 */
+struct AIOBJ *gm_FindMarketObject(int id);                     /* 0x500ec0 */
 int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 extern struct AIBLD *ai_MarketBuilding;                /* 0x6f1bc8, the market building (group 1, 5, 10) */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
@@ -2457,8 +2457,8 @@ extern unsigned gm_KindObjs[732];
 extern unsigned short gm_KindObjCount;
 void rt_FreePoints(struct RTPOINT *p);                     /* 0x4bd9e0 */
 extern int gm_NOffers;
-int gm_ListStock(short *l, int id);     /* 0x50ab50 */
-int gm_ListAmount(short *l, char *o);   /* 0x50aaf0 */
+int gm_ListStock(struct AIOBJ *l, int id);     /* 0x50ab50 */
+int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);   /* 0x50aaf0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                   /* 0x5089c0 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                     /* 0x50a050 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);                     /* 0x50d380 */
@@ -2569,7 +2569,7 @@ int sprintf(char *buf, const char *fmt, ...);                     /* 0x5de652 */
 char * ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
 int gm_EquipmentValue(struct AIBLD *b, int level);
 int gm_GetWorth(unsigned short id);
-int gm_ListAmount(short *l, char *o);
+int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
 float gm_Liking();

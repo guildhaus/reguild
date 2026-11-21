@@ -337,10 +337,9 @@ typedef struct AIRECIPE {               /* 0xb8 bytes, a goods list: filled by g
     int max[16];                        /* 0x08, per entry its stock (gm_ListStock): ai.c takes max - amount as the room left */
     unsigned short item[16];            /* 0x48, per entry the goods id */
     int amount[16];                     /* 0x68, per entry its amount (gm_ListAmount; the object's count of a stall) */
-    int pada8[4];                       /* 0xa8, gm_StallGoodsList: the sum of the stocks, the sum of the amounts, the goods'
-                                           value (gm_ItemPrice at 100 times the count); all three fillers: [3] the stall
-                                           object (an AIOBJ *). One array: split into four fields, the declaration set
-                                           flips VC6 tie-breaks in d3_engine.c / sv_t.c */
+    int pada8[3];                       /* 0xa8, gm_StallGoodsList: the sum of the stocks, the sum of the amounts, the goods'
+                                           value (gm_ItemPrice at 100 times the count) */
+    struct AIOBJ *stall;                /* 0xb4, all three fillers: the stall object */
 } AIRECIPE;
 
 #pragma pack(push, 1)

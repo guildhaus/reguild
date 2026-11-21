@@ -1048,7 +1048,7 @@ float gm_StockPrice(int p, int n)
 {
     unsigned id;
     char *good;
-    int mk;
+    AIOBJ *mk;
     int b;
     AIOBJ *o;
     float count, cur, ratio, r;
@@ -1058,11 +1058,11 @@ float gm_StockPrice(int p, int n)
     good = (char *)ai_Goods + id * 0x41;
     mk = gm_FindMarketObject(id);
     if (mk == 0 && p != ai_OwnPlayer && (b = gm_FindPlayerBuilding(p)) != 0)
-        mk = (int)gm_Query((void *)((AIBLD *)b)->objList, 2, 0, 0x1db, 6);
+        mk = gm_Query(((AIBLD *)b)->objList, 2, 0, 0x1db, 6);
     count = 0.0f;
     if (mk == 0)
         return gm_ItemPrice(id, 100);
-    o = (AIOBJ *)gm_Query(((AIOBJ *)mk)->list, 1, 0, id);
+    o = gm_Query(mk->list, 1, 0, id);
     if (o != 0)
         count = (float)o->count;
     ratio = GM_BLOCK(p)->goods[n].mean / GM_BLOCK(p)->goods[n].demand;
@@ -1127,7 +1127,7 @@ extern int gm_QueryScanned;
 extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
 extern AIOBJ *gm_QueryChildStack[20488];
-int gm_FindMarketObject(int id);                     /* 0x500ec0 */
+struct AIOBJ *gm_FindMarketObject(int id);                     /* 0x500ec0 */
 int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 
 /* 0x4ffcc0, the next match of the object query gm_Query set up: from the cursor record it walks the whole instance table (gm_QueryScanAll, skipping empty records, counting them in gm_QueryScanned) or the next pointers of the list (with gm_QueryChildren the child lists go on gm_QueryChildStack and are walked when a list ends), tests each record against the set criteria (prototype, owner id, the owner's character number gm_ObjectOwnerNo, the prototype kind) and returns the last record that matched before the first match ends the walk (or, with gm_QueryStopFirst, the first record looked at); 0 when none
@@ -1865,13 +1865,13 @@ int gm_CollectOffers(int goods)
         gm_Offers[gm_NOffers].goodsObj = 0;
         gm_Offers[gm_NOffers].stored = 0;
         if (b == ai_MarketBuilding) {
-            mk = (AIOBJ *)gm_FindMarketObject(goods);
+            mk = gm_FindMarketObject(goods);
             if (mk != 0 && (o = gm_Query(mk->list, 1, 0, goods)) != 0) {
                 gm_Offers[gm_NOffers].bld = b;
                 gm_Offers[gm_NOffers].market = (int)mk;
                 gm_Offers[gm_NOffers].goodsObj = (int)o;
-                gm_Offers[gm_NOffers].count = gm_ListAmount((short *)mk, (char *)o)
-                    - ((unsigned)(gm_ListStock((short *)mk, o->type) * o->reserve) >> 2);
+                gm_Offers[gm_NOffers].count = gm_ListAmount(mk, o)
+                    - ((unsigned)(gm_ListStock(mk, o->type) * o->reserve) >> 2);
                 gm_Offers[gm_NOffers].count = gm_Offers[gm_NOffers].count < 0 ? 0 : gm_Offers[gm_NOffers].count;
                 gm_NOffers++;
             }
@@ -1887,8 +1887,8 @@ int gm_CollectOffers(int goods)
                 gm_Offers[gm_NOffers].bld = b;
                 gm_Offers[gm_NOffers].market = (int)mk;
                 gm_Offers[gm_NOffers].goodsObj = (int)o;
-                gm_Offers[gm_NOffers].count = gm_ListAmount((short *)mk, (char *)o)
-                    - ((unsigned)(gm_ListStock((short *)mk, o->type) * o->reserve) >> 2);
+                gm_Offers[gm_NOffers].count = gm_ListAmount(mk, o)
+                    - ((unsigned)(gm_ListStock(mk, o->type) * o->reserve) >> 2);
                 gm_Offers[gm_NOffers].count = gm_Offers[gm_NOffers].count < 0 ? 0 : gm_Offers[gm_NOffers].count;
                 gm_NOffers++;
             } else if (f)
@@ -1910,7 +1910,7 @@ int gm_CollectOffers(int goods)
 }
 /* 0x500ec0, the market object of the town market building (0x6f1bc5's market 0x6f1bc8) that holds the goods id: looks through its objects 0x92 .. 0x97 / 0x2db for one with the goods id (query (2, 6, 0, id)) and returns its 0x116 object, 0 when none */
 
-int gm_FindMarketObject(int id)
+AIOBJ *gm_FindMarketObject(int id)
 {
     AIOBJ *l[8];
     AIOBJ *o;
@@ -1927,7 +1927,7 @@ int gm_FindMarketObject(int id)
         l[7] = 0;
         for (i = 0; l[i] != 0; i++) {
             if (gm_Query(l[i]->list, 2, 6, 0, id) != 0)
-                return (int)gm_Query(l[i]->list, 1, 0, 0x116);
+                return gm_Query(l[i]->list, 1, 0, 0x116);
         }
     }
     return 0;
@@ -2142,8 +2142,8 @@ int gm_FreeBuilding(AIBLD *b)
 }
 
 extern int gm_NOffers;
-int gm_ListStock(short *l, int id);     /* 0x50ab50 */
-int gm_ListAmount(short *l, char *o);   /* 0x50aaf0 */
+int gm_ListStock(struct AIOBJ *l, int id);     /* 0x50ab50 */
+int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);   /* 0x50aaf0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                   /* 0x5089c0 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                     /* 0x50a050 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);                     /* 0x50d380 */
@@ -6545,7 +6545,7 @@ int gm_BuildingValues(AIBLD *b, int *out)
     if (stall) {
         o = gm_Query(stall->list, 1, 5);
         while (o) {
-            n = (int)(gm_ListAmount((short *)stall, (char *)o) * 0.3);
+            n = (int)(gm_ListAmount(stall, o) * 0.3);
             if (n < 1)
                 n = 1;
             tot = gm_ItemPrice(o->type, 100) * n + tot;
@@ -6713,14 +6713,14 @@ int gm_BuildingGoodsList(AIBLD *bld, unsigned *out, int kind)
         g = GM_GOOD(o->type);
         if (((g->type == 0x17 || g->type == 0x25) && kind != 0) || ((g->type != 0x17 && g->type != 0x25) && kind == 0)
             || stall->type == 0x116) {
-            out[0x1a + out[1]] = gm_ListAmount((short *)stall, (char *)o);
-            out[2 + out[1]] = gm_ListStock((short *)stall, o->type);
+            out[0x1a + out[1]] = gm_ListAmount(stall, o);
+            out[2 + out[1]] = gm_ListStock(stall, o->type);
             ((AIRECIPE *)out)->item[out[1]] = o->type;
             out[1]++;
         }
         o = gm_QueryNext();
     }
-    out[0x2d] = (unsigned)stall;
+    ((AIRECIPE *)out)->stall = stall;
     return 1;
 }
 /* 0x5099e0, the goods list of the building b as gm_BuildingGoodsList (the same out record, stall, capacity and
@@ -6756,14 +6756,14 @@ int gm_BuildingGoodsList17(AIBLD *b, unsigned *out, int kind)
     while (o) {
         g = GM_GOOD(o->type);
         if ((g->type == 0x17 && kind != 0) || (g->type != 0x17 && kind == 0)) {
-            out[0x1a + out[1]] = gm_ListAmount((short *)stall, (char *)o);
-            out[2 + out[1]] = gm_ListStock((short *)stall, o->type);
+            out[0x1a + out[1]] = gm_ListAmount(stall, o);
+            out[2 + out[1]] = gm_ListStock(stall, o->type);
             ((AIRECIPE *)out)->item[out[1]] = o->type;
             out[1]++;
         }
         o = gm_QueryNext();
     }
-    out[0x2d] = (unsigned)stall;
+    ((AIRECIPE *)out)->stall = stall;
     return 1;
 }
 /* 0x509b10, the value of the building b at the level (percent): its type's base value x 0xf00 plus the price (gm_ItemPrice) of its equipment: each object of the type's list of the kinds 2 / 6 that the building holds, and the objects listed after it (up to the next kind 2 / 6) held inside that one; the sum times level / 100 */
@@ -6955,7 +6955,7 @@ int gm_CharCurrency(AICHAR *c, char p)
 char * ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
 int gm_EquipmentValue(struct AIBLD *b, int level);
 int gm_GetWorth(unsigned short id);
-int gm_ListAmount(short *l, char *o);
+int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);
 
 /* 0x509f20, the money of the character record at slot c: the sum of the amounts (count +0x0e) of the inventory's
    objects of the prototype kind 9, the record found by its netId (+0x4) through gm_FindChar; -1 when there is none */
@@ -7331,7 +7331,7 @@ int gm_StallGoodsList(char *c, unsigned *out)
     out[0] = stall->lvl1c;
     while (o) {
         out[0x1a + out[1]] = o->count;
-        out[2 + out[1]] = gm_ListStock((short *)stall, o->type);
+        out[2 + out[1]] = gm_ListStock(stall, o->type);
         out[0x2a] += out[2 + out[1]];
         out[0x2b] += o->count;
         ((AIRECIPE *)out)->item[out[1]] = o->type;
@@ -7339,40 +7339,40 @@ int gm_StallGoodsList(char *c, unsigned *out)
         out[0x2c] = (int)(gm_ItemPrice(o->type, 100) * o->count + (int)out[0x2c]);
         o = gm_QueryNext();
     }
-    out[0x2d] = (unsigned)stall;
+    ((AIRECIPE *)out)->stall = stall;
     return 1;
 }
 /* 0x50aaf0, the amount of the object o in the list object l: minus one for the stall objects 0x2a / 0x116 / 0x1db / 0x1dc (the stall itself) */
 
-int gm_ListAmount(short *l, char *o)
+int gm_ListAmount(AIOBJ *l, AIOBJ *o)
 {
     short k;
 
-    k = *l;
+    k = l->type;
     if (k != 0x2a && k != 0x116 && k != 0x1db && k != 0x1dc)
-        return ((AIOBJ *)o)->count;
-    return ((AIOBJ *)o)->count - 1;
+        return o->count;
+    return o->count - 1;
 }
 /* 0x50ab20, the amount (0x50aaf0) of the object id in the list of l */
 
-int gm_ListAmountById(char *l, int id)
+int gm_ListAmountById(AIOBJ *l, int id)
 {
-    char *o;
+    AIOBJ *o;
 
-    o = (char *)gm_Query(((AIOBJ *)l)->list, 1, 0, id);
+    o = gm_Query(l->list, 1, 0, id);
     if (o == 0)
         return 0;
-    return gm_ListAmount((short *)l, o);
+    return gm_ListAmount(l, o);
 }
 /* 0x50ab50, the stock a list object l holds: (amount + 2) * 5 for the stall 0x1dd, 0x50 for 3, else 0x14 per amount */
 
-int gm_ListStock(short *l, int id)
+int gm_ListStock(AIOBJ *l, int id)
 {
-    if (*l == 0x1dd)
-        return (((AIOBJ *)l)->count + 2) * 5;
-    if (((AIOBJ *)l)->count == 3)
+    if (l->type == 0x1dd)
+        return (l->count + 2) * 5;
+    if (l->count == 3)
         return 0x50;
-    return ((AIOBJ *)l)->count * 0x14;
+    return l->count * 0x14;
 }
 /* 0x50ab80, how many of the goods id the stall object l can still take, at most n: the room left on its stock
    (gm_ListStock less the amount it holds) when it holds the goods already; else none when its places are full,
@@ -7380,9 +7380,8 @@ int gm_ListStock(short *l, int id)
    others against cap[1]; in a building of the class 2 only the type 0x17 is that group), in another stall all
    goods against cap[0]; else the stock, at most n */
 
-int gm_FreeCapacity(short *l, int id, int n)
+int gm_FreeCapacity(AIOBJ *s, int id, int n)
 {
-    AIOBJ *s = (AIOBJ *)l;
     unsigned char *b;
     AIOBJ *o;
     GMGOOD *g;
@@ -7392,10 +7391,10 @@ int gm_FreeCapacity(short *l, int id, int n)
     if (b == 0)
         return 0;
     cls2 = gm_BuildingClass(*b) == 2;
-    stock = gm_ListStock(l, id);
+    stock = gm_ListStock(s, id);
     o = gm_Query(s->list, 1, 0, id);
     if (o != 0) {
-        held = gm_ListAmount(l, (char *)o);
+        held = gm_ListAmount(s, o);
         if (stock - held > n)
             return n;
         return stock - held;
@@ -7448,13 +7447,12 @@ int gm_FreeCapacity(short *l, int id, int n)
    for init / increment, ternary / >= / n = stock, nested cap test). (declaration set: no declaration set
    makes this text byte (every symbol-count shift 0..63 at the unit's start and before the function) */
 
-int gm_FreeStallCapacity(char *l, int id, int n)
+int gm_FreeStallCapacity(AIOBJ *s, int id, int n)
 {
-    AIOBJ *s = (AIOBJ *)l;
     AIOBJ *o;
     int stock, cnt;
 
-    stock = gm_ListStock((short *)l, id);
+    stock = gm_ListStock(s, id);
     o = gm_Query(s->list, 1, 0, id);
     if (o != 0) {
         if (stock - o->count > n)

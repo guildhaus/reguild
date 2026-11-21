@@ -2189,7 +2189,7 @@ void he_RunTrade(AIJOB *ev)
                 g = gm_Query(cargo->list, 1, 0, t->sell[i]);
                 if (g != 0) {
                     if (ai_BTypes[bld->type].kind == 0xa)
-                        store = (AIOBJ *)gm_FindMarketObject(t->sell[i]);
+                        store = gm_FindMarketObject(t->sell[i]);
                     else if ((store = gm_Query(bld->objList, 2, 6, 0, 0x2a)) == 0)
                         store = gm_Query(bld->objList, 2, 6, 0, 0x116);
                     if (store != 0) {
@@ -2221,7 +2221,7 @@ void he_RunTrade(AIJOB *ev)
         for (i = 0; i < slots; i++) {
             if (t->buy[i] != 0 && t->buyBld[i] == bld->id) {
                 if (ai_BTypes[bld->type].kind == 0xa)
-                    store = (AIOBJ *)gm_FindMarketObject(t->buy[i]);
+                    store = gm_FindMarketObject(t->buy[i]);
                 else if ((store = gm_Query(bld->objList, 2, 6, 0, 0x2a)) == 0)
                     store = gm_Query(bld->objList, 2, 6, 0, 0x116);
                 if (store != 0) {

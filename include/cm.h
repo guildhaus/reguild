@@ -122,7 +122,7 @@ struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);           
 char * gm_FindGoods(int p, unsigned id);                                            /* 0x4ffc40, ai.h: int * */
 extern int *cm_CurrentFight;               /* 0x6f0d90 */
 int gm_SumSlotAmounts(void *list, unsigned char i);                                     /* 0x508660 */
-int gm_FreeCapacity(short *l, int item, int max);                                    /* 0x50ab80 */
+int gm_FreeCapacity(struct AIOBJ *l, int item, int max);                                    /* 0x50ab80 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                                                     /* 0x50a050 */
 int gm_TakeableCount(struct AICHAR *p, int item, int max);                                    /* 0x50ad70 */
 struct AIBLD *gm_BuildQuery(int n, ...);                                                  /* 0x501190, ai.h: AIBLD * */
@@ -149,8 +149,8 @@ int gm_AddObjekt(int id, int proto, int n);                                     
 int gm_AddNegative(int id, int good, int n);                                       /* 0x500ae0 */
 extern struct AIGOOD *ai_Goods;         /* 0x91aaf0, the goods (0x41 bytes each, the kind at 0) */
 extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
-int gm_ListAmount(short *l, char *o);                                              /* 0x50aaf0 */
-int gm_ListStock(short *l, int item);                                             /* 0x50ab50 */
+int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);                                              /* 0x50aaf0 */
+int gm_ListStock(struct AIOBJ *l, int item);                                             /* 0x50ab50 */
 int gm_RemoveObject(struct AIOBJ **list, unsigned item);                                          /* 0x4ffff0 */
 int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);                                            /* 0x503480 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                                           /* 0x5031b0 */

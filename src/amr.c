@@ -4647,10 +4647,10 @@ int ai_DecideBuyMarketObject(int a, AICHAR *p, int f, AIARG *s1, AIARG *o)
     int money;
 
     if (f == 2 && s1->kind == 2) {
-        bld = (AIOBJ *)gm_FindMarketObject(s1->ref);
+        bld = gm_FindMarketObject(s1->ref);
         if (bld != 0) {
             obj = gm_Query(bld->list, 1, 0, s1->ref);
-            if (obj != 0 && gm_ListAmount((short *)bld, (char *)obj) >= 1) {
+            if (obj != 0 && gm_ListAmount(bld, obj) >= 1) {
                 money = gm_CharCurrency(p, ai_OwnPlayer);
                 if (s1->fvalue > 0.0f && s1->fvalue < 1.0f)
                     money = (int)(money * s1->fvalue);

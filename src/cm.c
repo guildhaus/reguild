@@ -2454,7 +2454,7 @@ int cm_CheckSellObject(G17MSG *m)
                 r = 0;
         } else if (o != 0) {
             if (o->type == 0x2a || o->type == 0x116 || o->type == 0x1dd) {
-                if (gm_FreeCapacity((short *)o, m->sell.item, m->sell.count) < m->sell.count)
+                if (gm_FreeCapacity(o, m->sell.item, m->sell.count) < m->sell.count)
                     return 1;
             }
             r = gm_ObjectBuildingOwner(o);
@@ -3010,7 +3010,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             sprintf(buf, "cm_ExSellObjekt(): Object not found: ObjProt:%i Menge:%i CmdCnt:", m->sell.item, m->sell.count, m->seq);
             return 1;
         }
-        if (ys != 0 && gm_ListAmount((short *)ys, (char *)o) < m->sell.count) {
+        if (ys != 0 && gm_ListAmount(ys, o) < m->sell.count) {
             sprintf(buf, "cm_ExSellObjekt() Not enough Objekts at source: ObjProt:%i Menge:%i CmdCnt:%i", m->sell.item, m->sell.count, m->seq);
             return 1;
         }
@@ -3035,7 +3035,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             if (y->type == 0x2a || y->type == 0x1db || y->type == 0x1dc || y->type == 0x116)
                 y2 = y;
             if ((y2 != 0 || y->type == 0x1dd)
-                && gm_FreeCapacity((short *)y, m->sell.item, m->sell.count) < m->sell.count)
+                && gm_FreeCapacity(y, m->sell.item, m->sell.count) < m->sell.count)
                 return 1;
             q = &y->list;
             r2 = gm_ObjectBuildingOwner(y);
@@ -3054,7 +3054,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
     }
     if (ys != 0 && r2 != 0) {
         if (gm_ObjectBuildingOwner(o) != r2 && o->reserve != 0) {
-            if (gm_ListAmount((short *)ys, (char *)o) - ((unsigned int)(gm_ListStock((short *)ys, o->type) * o->reserve) >> 2)
+            if (gm_ListAmount(ys, o) - ((unsigned int)(gm_ListStock(ys, o->type) * o->reserve) >> 2)
                 < (unsigned int)m->sell.count)
                 return 1;
         }
@@ -3185,14 +3185,14 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
         if (pp[4] != 0) {
             o = gm_Query(y->list, 1, 0, pp[4]);
             if (o != 0) {
-                if (n >= gm_ListAmount((short *)y, (char *)o) / *pp)
-                    n = gm_ListAmount((short *)y, (char *)o) / *pp;
+                if (n >= gm_ListAmount(y, o) / *pp)
+                    n = gm_ListAmount(y, o) / *pp;
             } else {
                 n = 0;
             }
         }
     }
-    v = gm_FreeCapacity((short *)y, m->make.item, g->batch * n) / g->batch;
+    v = gm_FreeCapacity(y, m->make.item, g->batch * n) / g->batch;
     if (n >= v)
         n = v;
     if (n == 0) {
