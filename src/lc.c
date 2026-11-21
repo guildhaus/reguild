@@ -4211,7 +4211,7 @@ void ai_KontorContact(AIBLD *bld)
             if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, 0);
+                ai_StorageWindow(bld, 0);
             else if (ai_ClickedObject == metall)
                 ai_ProductionGoodsWindow((int)bld);
             else if (ai_ClickedObject == gelage)
@@ -4329,7 +4329,7 @@ void ai_StoneKontorContact(AIBLD *bld)
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == gelage)
                 ai_GelageWindow(bld);
             else if (ai_ClickedObject == abbau)
@@ -4940,7 +4940,7 @@ void ai_CriminalContact(AIBLD *bld)
         ai_TradeContactChecks();
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == gelage)
                 ai_GelageWindow(bld);
             else if (ai_ClickedObject == transport)
@@ -5043,7 +5043,7 @@ void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
         }
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == schmieden)
                 ai_ProductionWindow(bld);
             else if (ai_ClickedObject == transport)
@@ -5099,7 +5099,7 @@ void ai_CarpenterContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow(bld);
         }
@@ -5520,7 +5520,7 @@ void ai_MixingContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == sammeln)
                 ai_TradeSearchWindow(bld, room);
             else if (ai_ClickedObject == meister)
@@ -5573,7 +5573,7 @@ void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
             else if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow(bld);
         }
@@ -7357,7 +7357,7 @@ void ai_BreweryContact(AIBLD *bld, AIOBJ *room)
             if (ai_ClickedObject == personal)
                 ai_PersonnelBook(bld, "ob_PERSONALBUCH");
             else if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow(bld);
             else if (ai_ClickedObject == brauen)
@@ -7614,7 +7614,7 @@ void ai_MapTableContact(AIBLD *bld, AIOBJ *room)
             if (ai_ClickedObject == (int)transport)
                 ai_OpenTransport(bld);
             if (ai_ClickedObject == (int)lager)
-                ai_StorageWindow((int)bld, bld->objList);
+                ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == (int)meister)
                 ai_MasterLetterWindow((int)bld);
             else if (ai_ClickedObject == (int)kartentisch) {
@@ -13333,7 +13333,7 @@ void ai_GuildHallListener(AIBLD *bld, AIOBJ *room)
         }
         if (ai_ClickedObject != 0 && (ai_BuildingPerms & 0x200) != 0) {
             if (ai_ClickedObject == lager)
-                ai_StorageWindow((int)bld, sv_PanelShown->list);
+                ai_StorageWindow(bld, sv_PanelShown->list);
             else if (ai_ClickedObject == ausruesten)
                 ai_EquipWindow(bld);
             else if (ai_ClickedObject == razzia)
