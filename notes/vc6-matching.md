@@ -6267,7 +6267,7 @@ the bytes no portable form gives.
   `unsigned id` prototype went because its only other caller is the defining unit (no unit sees two). The
   definition keeps `unsigned id` (an unsigned short definition is draft: it masks the id itself).
 - **An int handle or `unsigned short *` global read once as a record**: cast the value at the read
-  (`((D3OBJECT *)ai_ClickedObject)->name`, `((struct AIOBJ *)sv_PanelShown)->objId`) as the other units do; a
+  (`((D3OBJECT *)ai_ClickedObject)->name`) as the other units do (an interim step: sv_PanelShown then got its type); a
   view of the global (`*(T **)&g`) goes. dcp's Q4 counts `*(T *)datum` (a datum read as another type) as raw and
   wants a view for it, but not a pointer value cast to a record.
 - **The high word of an unsigned global** (G28_HI): `(cut_RandState >> 16)` is the same `mov ax, word ptr [g+2]`.
@@ -6275,6 +6275,18 @@ the bytes no portable form gives.
   114 `(AIBLD *)` casts, 23 views): type it `AIBLD *`, retype the locals that only hold it, and cast where a
   callee's prototype still takes `char *` / `unsigned char *` (the callee is the debt). Compare VC6's per-unit
   warning counts before and after (`dcp build --units`): no implicit pointer conversion may be added.
+  The callees then follow (fourth data pass): ai_Graveyard*Contact, ai_Book / MercenaryBook / MiningContact,
+  gm_BuildingLevel / Rank / RankGate / Skill / StaffFactor, gm_PermissionBits, init_ShowBuildingScene /
+  FinishBuildingScene / BuildingSceneUniverse and sv_SelectPanelObject take `AIBLD *`; the unit's own view of
+  the record inside the body (ORDBLD / INIT_BLD / SVOBJREC aliases `bld = (T *)b`) goes for AIBLD's fields at the
+  same offsets (name a missing union member, as AIBLD.ownerNetId), `*b` is `b->type`, and every caller's
+  `(unsigned char *)` / `(char *)` cast of an AIBLD * goes (about 90 casts, every function the same code). A
+  caller whose building is still another type (an ORDBLD, a `char *` from gm_FindBuildingById, an int handle)
+  casts to AIBLD * or retypes its local (`AIBLD *b = (AIBLD *)gm_FindBuildingById(..)`); a callee the body
+  passes it on to that still takes `unsigned char *` (gm_IsHomeType, gm_ShowBuildingObjects) gets the cast.
+  `struct AIBLD *` in a header prototype needs a file-scope `struct AIBLD;` before it (f3gm.h, f3init.h), or the
+  struct has prototype scope and every call warns. Count the warnings per unit (VC6's `C4133 incompatible
+  types` lines: compile the unit with cl as the build does to see them) before and after each callee.
 - **A pointer global tested and cleared through an int view** (`d3t_CamMoveI`): the pointer compares and stores
   the same; a chained `a = b = 0` over an int and a pointer is two statements in the store order (b first).
 - **A float global copied as its bits** (`o[6] = *(int *)&ai_RatingBase`): VC6 copies a float variable with integer
@@ -6284,11 +6296,20 @@ the bytes no portable form gives.
   global read through an int view and masked (`main_PlayerIdInt & 0xffff`) is the plain global: VC6 loads an
   unsigned short global as `mov eax,[g]; and eax,0xffff` itself. The high word of an __int64 is `(unsigned
   int)(g >> 32)` (one dword load, ai_OpenRobberBribe byte).
-- **A datum two units read at two widths, one of them byte-matched** (cm_Bombs: cmfight.c's CMBOMB[32] records,
-  sv.c's sv_InitTick clears the same bytes as 0x40 ints; d3_YAxis: a D3VECTOR4 that ecmd.c copies as a
-  D3VECTOR): header drift; the owner keeps the record type, the other unit declares its type itself with
-  `@original why` and does not see the owner's declaration (cm_Bombs left sv.h; ecmd.c no longer includes d3_vec.h,
-  it used nothing else from it).
+- **A datum two units read at two widths, one of them byte-matched** (d3_YAxis: a D3VECTOR4 that ecmd.c copies as
+  a D3VECTOR): header drift; the owner keeps the record type, the other unit declares its type itself with
+  `@original why` and does not see the owner's declaration (ecmd.c no longer includes d3_vec.h, it used nothing
+  else from it). Try the record type with a portable spelling first: cm_Bombs (sv.c's sv_InitTick cleared the
+  CMBOMB[32] records as 0x40 ints) was drift until `memset(cm_Bombs, 0, sizeof cm_Bombs)` over the true type
+  compiled the same; the record moved into cm_bomb.h (cm_types.h includes it) and the five unit copies went.
+- **A view of a record's first field** (sv_PanelFlag = `*(int *)&sv_QuickJump`, SVQUICKJUMP.panelFlag): read the
+  field; the units that saw only the record's tag include its body header (sv_quickjump.h).
+- **A pointer global whose readers take `*g`** (d3t_Rain `int *`, read as the rain level): it points to a record
+  whose first field that is; type the record pointer (`struct D3TRAIN *`, the typedef moved next to D3TSNOW in
+  d3_tools.h) and read `g->count`. Likewise `unsigned short *` room globals read `*g` for the room's type word
+  and cast to AIOBJ / a unit's AIROOM copy for its objId / list (sv_PanelShown, SVQUICKJUMP.record,
+  sv_PermsRoom, snd_TrackRoom): `struct AIOBJ *`, `g->type`; the locals and parameters that hold the same
+  pointer follow, the callees still taking `unsigned short *` get the cast.
 - **A function that takes a text id or a string's address in one `int` (txt_Format, io_PrintText)**: callers
   of a literal pass `(int)"..."` to the one prototype (no cast macro with a `char *` parameter).
 - **The callers read a 16-bit result of an int function (util_Random; `mov si,ax`)**: the units saw another
