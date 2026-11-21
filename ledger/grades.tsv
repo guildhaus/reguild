@@ -2978,7 +2978,7 @@ exe	0x004fe310	gm_AddTime2	f3gmt	byte	readable
 exe	0x004fe330	gm_Season	f3gmt	byte	readable		
 exe	0x004fe350	gm_ClockSeason	f3gmt	byte	readable		
 exe	0x004fe370	gm_InitBuildingTables	f3gmt	draft	readable	deep	
-exe	0x004fe570	gm_LoadTables	f3gmt	shape	readable		byte+readable -> shape+readable at 201f8f87: tie-break: amt.h lost AMTBLDVIEW and rd.h G15BLD (the units read AIBLD); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x004fe570	gm_LoadTables	f3gmt	byte	readable		
 exe	0x004fe7f0	gm_ClearBuildings	f3gmt	byte	readable		
 exe	0x004fe830	gm_ClearObjects	f3gmt	byte	readable		
 exe	0x004fe900	gm_FindObjectProto	f3gmt	byte	readable		
@@ -3312,7 +3312,7 @@ exe	0x00522040	sv_PanelImage	sv	byte	readable
 exe	0x00522100	sv_SetPanelEnabled	sv	byte	readable		
 exe	0x00522280	sv_ClosePanelWidgets	sv	byte	readable		
 exe	0x005223c0	sv_DestroyScreen	sv	byte	readable		
-exe	0x005224a0	sv_LoadGroundplan	sv	shape	readable		byte+readable -> shape+readable at 68e3d1be: tie-break: amt.h / rd.h lost their AIBLD views (68e3d1be); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x005224a0	sv_LoadGroundplan	sv	byte	readable		
 exe	0x005229b0	sv_UpdateGroundplan	sv	byte	readable		
 exe	0x00522ec0	sv_SetResearchClass	sv	byte	readable		
 exe	0x00522f10	sv_UpdateCityPanel	sv	byte	readable		
@@ -3771,7 +3771,7 @@ exe	0x00561190	he_RunRansom	he	byte	readable
 exe	0x00561470	he_AllocEvent39_3e	he	byte	readable		
 exe	0x005614c0	he_RunRansomDemand	he	byte	readable		
 exe	0x005619a0	he_AllocBurglary	he	byte	readable		
-exe	0x00561a20	he_RunBurglary	he	shape	readable		
+exe	0x00561a20	he_RunBurglary	he	byte	readable		
 exe	0x005628e0	he_RunBuildingSpying	he	shape	readable	deep	
 exe	0x00563070	he_AllocAmbush	he	byte	readable		
 exe	0x005630f0	he_RunAmbush	he	byte	readable		
@@ -4003,7 +4003,7 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
 exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at 68e3d1be: tie-break: the building / object views went for AIBLD / AIOBJ (420637e7 .. 68e3d1be); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
@@ -4505,7 +4505,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
-exe	0x005c5310	ai_CharInfoPanel	lcamt	shape	readable		byte+readable -> shape+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (07df00b2); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
 exe	0x005c6530	ai_MarriageTest	lcamt	byte	readable		
