@@ -4452,7 +4452,7 @@ void ai_BreakInWindow(AIBLD *building)
 {
     if (sv_CheckCharacterFlag(building) == 0) {
         sv_OpenPlayerBar(building, 0);
-        ai_MapPick(4, 0, txt_Ptrs[TXT_BREAK_IN_PICK], (int)ai_BreakInCallback, 0);
+        ai_MapPick(4, 0, txt_Ptrs[TXT_BREAK_IN_PICK], ai_BreakInCallback, 0);
         sv_ClosePlayerBar();
         sv_ClearSelection();
     }
@@ -4559,7 +4559,7 @@ void ai_OpenPickpocket(AIBLD *building)
     cfg[4] = 7;
     cfg[2] = 0x93810;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, cfg, txt_Ptrs[TXT_MAP_PICK_PROMPT], (int)ai_PickpocketWindow, 0);
+    ai_MapPick(1, cfg, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_PickpocketWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -4658,7 +4658,7 @@ void ai_OpenBribe(AIBLD *building)
         cfg[2] = 0xa07c43a0;
         cfg[3] = 1;
         sv_OpenPlayerBar(building, 0);
-        ai_MapPick(1, cfg, txt_Ptrs[TXT_BRIBE_PICK], (int)ai_BribeCallback, 0);
+        ai_MapPick(1, cfg, txt_Ptrs[TXT_BRIBE_PICK], ai_BribeCallback, 0);
         sv_ClosePlayerBar();
         sv_ClearSelection();
     }
@@ -4780,7 +4780,7 @@ void ai_OpenSpying(AIBLD *building)
             cfg[4] = 6;
             cfg[2] = 0;
             txt_Format(text, 0x19f6);
-            ai_MapPick(1, cfg, text, (int)ai_BriberyWindow, 0);
+            ai_MapPick(1, cfg, text, ai_BriberyWindow, 0);
             sv_ClosePlayerBar();
             sv_ClearSelection();
         }
@@ -4871,7 +4871,7 @@ void ai_OpenRaid(AIBLD *building)
             cfg[2] = 0xa07443a0;
             cfg[3] = 1;
             txt_Format(text, 0x1a83);
-            ai_MapPick(1, cfg, text, (int)ai_RaidWindow, 0);
+            ai_MapPick(1, cfg, text, ai_RaidWindow, 0);
             sv_ClosePlayerBar();
             sv_ClearSelection();
         }
@@ -11972,7 +11972,7 @@ void ai_BurglaryStart(AIBLD *building)
     req[4] = 7;
     req[2] = 0xa07443b4;
     req[3] = 1;
-    ai_MapPick(1, req, buf, (int)ai_BurglaryWindow, 0);
+    ai_MapPick(1, req, buf, ai_BurglaryWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12109,7 +12109,7 @@ void ai_EspionageStart(AIBLD *bld)
         req[3] = 1;
     }
     txt_Format(buf, 0x19f6);
-    ai_MapPick(1, req, buf, (void *)(unsigned)&ai_GuildSpyWindow, 0);
+    ai_MapPick(1, req, buf, ai_GuildSpyWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12311,7 +12311,7 @@ void ai_AttackStart(AIBLD *building)
     req[4] = 7;
     req[2] = 0x90010;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_MAP_PICK_PROMPT], (int)ai_AttackWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_AttackWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12971,7 +12971,7 @@ void ai_PatrolStart(AIBLD *building)
     if (building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_PATROL_PICK_PROMPT], (int)ai_CityWatchWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_PATROL_PICK_PROMPT], ai_CityWatchWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13070,7 +13070,7 @@ void ai_RaidStart(AIBLD *building)
         return;
     req[19] = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_RAID_PICK_PROMPT], (int)ai_CityWatchCrewWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_RAID_PICK_PROMPT], ai_CityWatchCrewWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13153,7 +13153,7 @@ void ai_WatchPlanStart(AIBLD *building)
     if (sv_CheckCharacterFlag(building) != 0 || building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(4, 0, txt_Ptrs[TXT_WATCH_PLAN_PICK_PROMPT], (int)ai_WatchPlanWindow, 0);
+    ai_MapPick(4, 0, txt_Ptrs[TXT_WATCH_PLAN_PICK_PROMPT], ai_WatchPlanWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13255,7 +13255,7 @@ void ai_ArrestStart(AIBLD *building)
     req[3] = 1;
     req[19] = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_ARREST_PICK_PROMPT], (void *)(unsigned)&ai_ArrestWindow, 0);
+    ai_MapPick(1, req, txt_Ptrs[TXT_ARREST_PICK_PROMPT], ai_ArrestWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
