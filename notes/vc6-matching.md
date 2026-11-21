@@ -6175,7 +6175,9 @@ the bytes no portable form gives.
   the inline `*(int *)hst_ListModes[k]` compiles the same but is dcp's Q4 raw access, which wants the view).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
-  G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case.
+  G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
+  nor did the seventh (the character views AICHARREC / ORDCHAR / AIPER / G5CH / AIPX / AIC4 / AGCH, the character
+  lookups and callees).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6385,6 +6387,33 @@ the bytes no portable form gives.
   an old-style function pointer `void (*cb)()`; VC6 passes void- and int-returning functions of any parameter
   list to it silently (it warns a void function against `int (*)()`), so the 213 call casts went and 462
   warnings with them; a handler returning a pointer still warns.
+- **A unit's copy of the character record (seventh data pass: the lc units' AICHARREC, gv.h ORDCHAR with
+  ORD_CHARS / ORD_CHAR, am.h AIPER / G5CH / AIPX / AIC4 / AGCH, main.c MAINCHARWORK)**: as the building views,
+  rename the view to AICHAR in its users and drop it. Before the switch, rename every view field whose NAME
+  exists in AICHAR at another offset or with another type (ORDCHAR.partner 0x5c = relatives[0] against
+  AICHAR.partner 0x210, ORDCHAR.job 0x166 against AICHAR.job 0x17c, ORDCHAR.model a CHARACTER * against the AITASK
+  * model, AIC4.health 0x24 against health 0x08): the compiler only reports names AICHAR lacks, a clash compiles
+  silently at the wrong offset. Rename with the compiler's `C2039 'f' : is not a member of 'T'` lines only
+  (scratchpad p7/fixmem.py); a line with two accesses of the same name (`out->job = c->job`) needs a look.
+  Placeholder names in AICHAR take the views' names (b00c faith, b00d level, w00a age, v02c ailments, v174
+  jobDays, b058 generation, f07c pregnancy, v1d0 `float loyalty`, block1d4 `int worth[4]`, AIARG arg1 / arg2).
+- **Signedness of a merged field is read from the compares**: AICHAR.title is `unsigned char` (lc's `cmp cl,
+  byte [..]` against an unsigned type field), so GMBTYPE.title (f3gm_types.h's view of AIBTYPE.title) is unsigned
+  too (gm_StaffFactor fell to draft with the char view: `movsx`); `title == (char)bt->k230` and `jobKind !=
+  -0x78` were the signed models of the same byte compares: `title == bt->title2`, `jobKind != 0x88` (byte).
+- **Query functions and callees of a record follow the record** (the fifth / sixth pass rules applied to
+  characters): gm_FindChar, gm_FindCharacterByMaster, cm_FindFighter, the special-amount menus return `struct
+  AICHAR *`; a parameter the body casts to the record takes it (scratchpad p7/cands.py lists them, p7/rtc.py
+  retypes definition, prototypes and body casts; it refuses a body that uses the parameter raw, `c[2]`, `*c`,
+  `c + n`: read those as fields first, c[2] kind, c[9] sex, c[0xd] level, c[0x166] officeKind, *b a building's
+  type); give a dispatch table's whole family the record (ord_OrderHandlers). Then strip the callers' argument
+  casts (p7/argstrip.py) and restore the lines with a new warning; detect new warnings by LINE, not by the unit's
+  count (a removed warning masks an added one).
+- **A parameter reused as gm_FindById's out slot** (gm_ObjectOwnerChar / gm_ObjectBuildingOwner /
+  gm_ObjectOwnerNo, ai_ExecHandleGrave's AGARG *s1): type it as what the callers pass (`AIOBJ *o`) and read the
+  reused slot back with one cast (`return (AICHAR *)o`, `(AIBLD *)s1`); the same code.
+- **A record-returning function used as a frame key** (the amount windows: `AICHAR *` against sv_RunFrame's `void
+  (*cb)()`) draws C4047 + C4024 at every sv_RunFrame call; accepted (the return type is the truer type).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
