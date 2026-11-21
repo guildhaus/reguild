@@ -314,7 +314,7 @@ typedef struct AICHARKINDVIEW {
 #pragma pack(pop)
 struct AIBLD; int ai_ProductionWindow(struct AIBLD *bld); /* 0x58bd60, lc.c: "Handel\Handel_PRODUKTION" */
 int ai_OpenTransport(struct AIBLD *rec);             /* 0x5af1a0, lc.c */
-void ai_TradeSearchWindow(struct AIBLD *bld, int arg); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
+struct AIOBJ; void ai_TradeSearchWindow(struct AIBLD *bld, struct AIOBJ *room); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
 void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRIEF" */
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
 int sv_CheckMoney(char *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)

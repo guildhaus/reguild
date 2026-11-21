@@ -697,15 +697,6 @@ typedef struct LCSEARCHWORDS {     /* the search message 0x14's words at AIMSG +
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-typedef struct AIROOM {            /* the room object sv_PanelShown / the driver's room parameter points to (ai_types.h AIOBJ) */
-    unsigned short id;             /* 0x00, the room (scene record) id */
-    int objId;                     /* 0x02, the object's own id (AIOBJ.objId) */
-    char pad006[0xe];
-    int list;                      /* 0x14, its object list (ai_types.h AIOBJ.list; ai_StorageWindow / gm_SumListAmounts) */
-} AIROOM;
-#pragma pack(pop)
-
-#pragma pack(push, 1)
 typedef struct G8USEVIEW {              /* a local view of am.h's G8USE (am.h cannot be included here yet): the
                                            record ai_UseGood hands to a Domizil record's use callback (+0x14) */
     G8INVOBJ *obj;                      /* 0x00, the inventory object used (G8USE.obj; its +0 id) */
@@ -868,7 +859,7 @@ unsigned short * gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
-int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, int room, int talent);
+int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 short * gm_FindChar(int id);
@@ -977,7 +968,7 @@ void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuilding
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
-void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, int arg);
+void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, struct AIOBJ *arg);
 int gm_GetWorth(unsigned short id); void d2_ClearPaintbox(void);
 int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
 int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
@@ -2661,13 +2652,13 @@ void ai_DomizilMessageResearch(int toRec, int cRec, int objRec, int kind)
 {
     G8CHARREC *to;
     G8CHARREC *c;
-    AIROOM *obj;
+    AIOBJ *obj;
 
     to = (G8CHARREC *)toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
     c = (G8CHARREC *)cRec;
-    obj = (AIROOM *)objRec;
+    obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4074, c->name, c->family, kind + 0x4172);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
                  "_NACHRICHTEN_DOMIZIL_03");
@@ -2680,13 +2671,13 @@ void ai_DomizilMessageResearchKind(int toRec, int cRec, int objRec, int kind)
 {
     G8CHARREC *to;
     G8CHARREC *c;
-    AIROOM *obj;
+    AIOBJ *obj;
 
     to = (G8CHARREC *)toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
     c = (G8CHARREC *)cRec;
-    obj = (AIROOM *)objRec;
+    obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4075, c->name, c->family, kind * 2 + 0x9a8);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
                  "_NACHRICHTEN_DOMIZIL_03");

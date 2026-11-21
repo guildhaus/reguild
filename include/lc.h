@@ -418,27 +418,27 @@ int ai_UpdateProdGoodsList(struct AIBLD *bld, struct AIOBJ *store);  /* 0x58d720
 void ai_MarketStandListener(struct AIBLD *market);  /* 0x59a800 */
 void ai_EnterBuilding(struct AIBLD *b, int mainRoom);  /* 0x59e420 */
 void ai_EnterOwnBuilding(struct AIBLD *b);  /* 0x59ee40 */
-void ai_TownCashContact(struct AIBLD *bld, int room);  /* 0x59fca0 */
-void ai_TownHallContact(struct AIBLD *building, int room);  /* 0x59fd30 */
-void ai_LawBookContact(struct AIBLD *bld, int room);  /* 0x5a07d0 */
-void ai_GuildLevel2Listener(struct AIBLD *building, int room);  /* 0x5a18d0 */
-void ai_GuildLevel3Listener(struct AIBLD *building, int room);  /* 0x5a1960 */
-void ai_GuildLevel1Listener(struct AIBLD *building, int room);  /* 0x5a1a60 */
-void ai_ConfessionListener(struct AIBLD *building, int room);  /* 0x5a2de0 */
-void ai_ProductionWriteContact(struct AIBLD *building, int room);  /* 0x5a36c0 */
-void ai_ChurchListener(struct AIBLD *building, int room);  /* 0x5a3810 */
-void ai_ChurchContact(struct AIBLD *building, int arg);  /* 0x5a39b0 */
-void ai_DungeonContact(struct AIBLD *building, int room);  /* 0x5a3b20 */
-void ai_DungeonBribeListener(struct AIBLD *bld, int room);  /* 0x5a3df0 */
-void ai_DungeonEmptyListener(struct AIBLD *building, int room);  /* 0x5a3ef0 */
-void ai_ThievesGuildListener(struct AIBLD *building, int room);  /* 0x5a4d40 */
-void ai_ThievesGuildEmptyListener(struct AIBLD *building, int room);  /* 0x5a4f50 */
-void ai_StorageContact(struct AIBLD *building, int room);  /* 0x5a4f70 */
-void ai_TrainingContact(struct AIBLD *building, int room);  /* 0x5a5080 */
-void ai_KidnapContact(struct AIBLD *building, int room);  /* 0x5a5bc0 */
-void ai_CityWatchListener(struct AIBLD *bld, int room);  /* 0x5a67a0 */
-void ai_GuildHallListener(struct AIBLD *bld, int room);  /* 0x5a6920 */
-void ai_TrainingRoomListener(struct AIBLD *bld, int room);  /* 0x5a6a90 */
+void ai_TownCashContact(struct AIBLD *bld, struct AIOBJ *room);  /* 0x59fca0 */
+void ai_TownHallContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x59fd30 */
+void ai_LawBookContact(struct AIBLD *bld, struct AIOBJ *room);  /* 0x5a07d0 */
+void ai_GuildLevel2Listener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a18d0 */
+void ai_GuildLevel3Listener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a1960 */
+void ai_GuildLevel1Listener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a1a60 */
+void ai_ConfessionListener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a2de0 */
+void ai_ProductionWriteContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a36c0 */
+void ai_ChurchListener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a3810 */
+void ai_ChurchContact(struct AIBLD *building, struct AIOBJ *arg);  /* 0x5a39b0 */
+void ai_DungeonContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a3b20 */
+void ai_DungeonBribeListener(struct AIBLD *bld, struct AIOBJ *room);  /* 0x5a3df0 */
+void ai_DungeonEmptyListener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a3ef0 */
+void ai_ThievesGuildListener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a4d40 */
+void ai_ThievesGuildEmptyListener(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a4f50 */
+void ai_StorageContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a4f70 */
+void ai_TrainingContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a5080 */
+void ai_KidnapContact(struct AIBLD *building, struct AIOBJ *room);  /* 0x5a5bc0 */
+void ai_CityWatchListener(struct AIBLD *bld, struct AIOBJ *room);  /* 0x5a67a0 */
+void ai_GuildHallListener(struct AIBLD *bld, struct AIOBJ *room);  /* 0x5a6920 */
+void ai_TrainingRoomListener(struct AIBLD *bld, struct AIOBJ *room);  /* 0x5a6a90 */
 int ai_OpenTransportSell(struct AIBLD *building);  /* 0x5af1b0 */
 int ai_OpenTransport(struct AIBLD *building);  /* 0x5af1a0, the transport list of the building (ai_TransportWindow mode 1) */
 struct D3OBJECT *ai_CreateCityPoint(char *city);  /* 0x59a2c0, creates the city point object of a town, 0 when its dummy is missing */
