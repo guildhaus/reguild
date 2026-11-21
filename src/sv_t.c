@@ -1600,7 +1600,7 @@ void ai_HookChapter5Step5(int end)
         if (ai_Chars[i].kind == 5) {
             chr = &ai_Chars[i];
             if (amt_GetOfficeCandidates((char *)chr, 1, &cand) > 0)
-                amt_ApplyForOffice((char *)chr, cand.kind);
+                amt_ApplyForOffice(chr, cand.kind);
             return;
         }
     }

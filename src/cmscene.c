@@ -541,7 +541,7 @@ void cm_RunCouncilSession(G28REC *a)
                             cm_SendRelations(s->playerId, holder->netId, 5, 1);
                     }
                     if (c != 0)
-                        slot = amt_SendOfficeMessage(offices[j].idx, (char *)c, 0, 1, 0xff);
+                        slot = amt_SendOfficeMessage(offices[j].idx, c, 0, 1, 0xff);
                     else
                         slot = amt_SendOfficeMessage(offices[j].idx, 0, 0, 4, 0xff);
                     while (cm_GetSlotState(slot) == 0)
@@ -596,7 +596,7 @@ void cm_RunCouncilSession(G28REC *a)
             elect.kind = offices[j].kind;
             nvoters = 0;
             for (i = 0; i < nh; i++)
-                if (amt_CanTakeOffice((char *)holders[i], elect.kind) != 0 && holders[i]->heldRounds == 0)
+                if (amt_CanTakeOffice(holders[i], elect.kind) != 0 && holders[i]->heldRounds == 0)
                     nvoters++;
             viewBottom = d2_OpenForm(0, 0, "cutscenes\\sitzung_bottom");
             d2_PlaceMainWindow(viewBottom, 3);
@@ -643,7 +643,7 @@ void cm_RunCouncilSession(G28REC *a)
                 step = (0x320 - d2_Pics[0x5da].w * nvoters) / (nvoters + 1);
                 shown = 0;
                 for (i = 0; i < nh; i++) {
-                    if (amt_CanTakeOffice((char *)holders[i], elect.kind) != 0) {
+                    if (amt_CanTakeOffice(holders[i], elect.kind) != 0) {
                         holderRows[i].rec = holders[i];
                         holderRows[i].y = 0;
                         holderRows[i].x30 = 0;
@@ -663,7 +663,7 @@ void cm_RunCouncilSession(G28REC *a)
                 io_PrintText(0x12e0, applicants[0]->id, offices[j].kind + 0x253);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
-                    slot = amt_SendOfficeMessage(offices[j].idx, (char *)applicants[0], 0, 1, 0xff);
+                    slot = amt_SendOfficeMessage(offices[j].idx, applicants[0], 0, 1, 0xff);
                     while (cm_GetSlotState(slot) == 0)
                         sv_PumpNet();
                 }
@@ -679,7 +679,7 @@ void cm_RunCouncilSession(G28REC *a)
                 io_PrintText(0x12e2, applicants[r]->id);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
-                    slot = amt_SendOfficeMessage(offices[j].idx, (char *)applicants[r], 0, 1, 0xff);
+                    slot = amt_SendOfficeMessage(offices[j].idx, applicants[r], 0, 1, 0xff);
                     while (cm_GetSlotState(slot) == 0)
                         sv_PumpNet();
                 }
@@ -734,7 +734,7 @@ void cm_RunCouncilSession(G28REC *a)
                         io_PrintText(0x12e5, offices[j].kind + 0x253, applicants[win]->id);
                         cm_RunSceneTicks(0xfa0);
                         if (a->host == ai_Chars[ai_PlayerId].netId) {
-                            slot = amt_SendOfficeMessage(offices[j].idx, (char *)applicants[win], 0, 1, 0xff);
+                            slot = amt_SendOfficeMessage(offices[j].idx, applicants[win], 0, 1, 0xff);
                             while (cm_GetSlotState(slot) == 0)
                                 sv_PumpNet();
                         }
@@ -756,7 +756,7 @@ void cm_RunCouncilSession(G28REC *a)
                     io_PrintText(0x12e4, applicants[win]->id);
                     cm_RunSceneTicks(0xfa0);
                     if (a->host == ai_Chars[ai_PlayerId].netId) {
-                        slot = amt_SendOfficeMessage(offices[j].idx, (char *)applicants[win], 0, 1, 0xff);
+                        slot = amt_SendOfficeMessage(offices[j].idx, applicants[win], 0, 1, 0xff);
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                     }
@@ -909,7 +909,7 @@ void cm_SessionAskPlayer(CMCUTINFO *r, CMSESSIONREQ *m)
     } else {
         if (m->mode != 2)
             return;
-        if (amt_CanTakeOffice((char *)c, m->kind) == 0)
+        if (amt_CanTakeOffice(c, m->kind) == 0)
             return;
         res = cm_AskElectVote(m->office, c, m->ids, &click);
         r->session.click = click;
@@ -945,7 +945,7 @@ void cm_SessionAskAI(CMCUTINFO *r, CMSESSIONREQ *m)
     } else {
         if (m->mode != 2)
             return;
-        if (amt_CanTakeOffice((char *)c, m->kind) == 0)
+        if (amt_CanTakeOffice(c, m->kind) == 0)
             return;
         res = ai_TrustedOfFour(m->office, c, m->ids, &click);
         r->session.click = click;
@@ -2232,7 +2232,7 @@ void cm_DuelOutcome(G28REC *m)
         w = a;
     if (w->officeKind == 0)
         return;
-    if (amt_FindOffice((char *)w, &kind, &office) == 0)
+    if (amt_FindOffice(w, &kind, &office) == 0)
         return;
     if (m->host != ai_Chars[ai_PlayerId].netId)
         return;
@@ -2475,7 +2475,7 @@ void cm_RunDuel(G28REC *m)
         if (w->officeKind != 0) {
             io_PrintText(w->sex + 0x1123, w->id);
             snd_PlayVoice(-8, 0, "_DUELL_INTRO_D2", w->sex + 1);
-            if (amt_FindOffice((char *)w, &kind, &office) != 0 && m->host == ai_Chars[ai_PlayerId].netId) {
+            if (amt_FindOffice(w, &kind, &office) != 0 && m->host == ai_Chars[ai_PlayerId].netId) {
                 amt_SendOfficeMessage(office.idx, 0, 0, 4, 0xff);
                 for (i = 0; i < 768; i++) {
                     AICHAR *c = &ai_Chars[i];

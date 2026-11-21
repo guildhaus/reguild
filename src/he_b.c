@@ -1199,7 +1199,7 @@ typedef struct HERANKLINE {             /* 0xb9 bytes, one ranked player's packe
 #pragma pack(pop)
 int sv_IsAtDoor();
 int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
-int amt_InitApplicant(char *c, int k);
+int amt_InitApplicant(struct AICHAR *c, int k);
 int amt_GetOpenOffice(int k);
 int amt_CreateApplicant(int k);
 int ai_TutorialSetHost();

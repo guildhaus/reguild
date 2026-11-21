@@ -505,7 +505,7 @@ int ai_ActionOnStack(int k);                                        /* 0x4957a0 
 /* ai_ExecuteAction: ai.h */                                         /* 0x495ce0 */
 int ai_DecideApplyForOffice(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);  /* 0x497490 */
 int ai_ExecuteApplyForOffice(AICHAR *p, AIARG *s1);                            /* 0x497630 */
-int amt_ApplyForOffice(char *c, unsigned int kind);                                /* 0x4e6180 */
+int amt_ApplyForOffice(struct AICHAR *c, unsigned int kind);                                /* 0x4e6180 */
 int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1);                            /* 0x498470 */
 
 int ai_GetDesireByName(char *s);                                      /* 0x4a47c0, a need name -> index */
@@ -539,7 +539,7 @@ AICHAR *ai_PickLeastLikedRival(AICHAR *p);                                      
 G6RING *ai_NextNearRingEntry(void);                                                     /* 0x4a3a90 */
 int ai_PickDislikedColumn(AICHAR *p);                                                      /* 0x4a0410 */
 int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1);                             /* 0x49fc90 */
-int amt_MayorBonusStep(char *c);                                                      /* 0x4e94a0 */
+int amt_MayorBonusStep(struct AICHAR *c);                                                      /* 0x4e94a0 */
 int ai_DecideBuildResidence(int a, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);                 /* 0x4984d0 */
 int ai_CanBuildType(int a, struct AICHAR *p, int b, struct AIARG *s1, struct AIARG *s2, int f);           /* 0x4a5140 */
 int gm_BuildingKindCost(struct AICHAR *c, int kind);                                               /* 0x509dc0 */
@@ -550,7 +550,7 @@ int ai_DecideUpgradeResidence(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);   
 int amt_GetColumnOfficesOwned(int col, int max, struct AMTREC *out);                                      /* 0x4e7040 */
 
 int amt_GetKind(int k, struct AMTKIND *out);                             /* 0x4e6f80 */
-int amt_FindOffice(char *c, struct AMTKIND *kind, struct AMTREC *office);                                    /* 0x4e6030 */
+int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind, struct AMTREC *office);                                    /* 0x4e6030 */
 
 /* ---- 0x49a0a0..0x4a16f0 (was unk_49a0a0.h) ---- */
 #pragma pack(push, 1)
@@ -705,16 +705,16 @@ void gm_SendMoneyDelta(int a, int b);                                      /* 0x
 int ai_ExecuteChangeProfession(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49f7f0 */
 int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49f850 */
 int ai_ExecuteStammtisch(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49fb80 */
-int amt_ExecutePriceMessage(char *c, int *m);                                           /* 0x4e9660 */
+int amt_ExecutePriceMessage(struct AICHAR *c, int *m);                                           /* 0x4e9660 */
 int ai_ExecutePriceManipulation(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a0040 */
-int amt_CanUseMayorPower2(char *c);                                                      /* 0x4e94e0 */
+int amt_CanUseMayorPower2(struct AICHAR *c);                                                      /* 0x4e94e0 */
 int ai_DecideGuildRiot(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0090 */
-int amt_ExecuteShareMessage(short *c, int *m);                                           /* 0x4e9a00 */
+int amt_ExecuteShareMessage(struct AICHAR *c, int *m);                                           /* 0x4e9a00 */
 int ai_ExecuteGuildRiot(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a01f0 */
 int ai_PickLikedColumn(AICHAR *p);                                                      /* 0x4a05e0 */
-int amt_CanUseMayorPower3(char *c);                                                      /* 0x4e95a0 */
+int amt_CanUseMayorPower3(struct AICHAR *c);                                                      /* 0x4e95a0 */
 int ai_DecideGuildLevel3(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0890 */
-int amt_ExecuteMayorPowerMessage(char *c, int *m);                                           /* 0x4e9ce0 */
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);                                           /* 0x4e9ce0 */
 int ai_ExecuteGuildLevel3(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a0940 */
 int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x4a0990 */
 int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0a70 */

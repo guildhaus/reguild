@@ -5225,7 +5225,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     sb = cb->id;
     if (ca->w050 != cb->w050)
         cb->w050 = ca->w050;
-    amt_ClearOffices((char *)ca);
+    amt_ClearOffices(ca);
     newA = *cb;
     newA.id = ca->id;
     newA.netId = ca->netId;
@@ -8205,7 +8205,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
                 break;
         }
     }
-    sum += amt_Rating((char *)&ai_Chars[a], (char *)&ai_Chars[b], best, c);
+    sum += amt_Rating(&ai_Chars[a], &ai_Chars[b], best, c);
     if (ai_Chars[b].officeKind != 0) {
         amt_GetKind(ai_Chars[b].officeKind, &kind);
         if (kind.level > 0 && kind.level < 4) {

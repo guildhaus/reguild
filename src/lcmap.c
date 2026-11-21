@@ -884,10 +884,10 @@ int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); int amt_ApplyForOffi
 void ai_AmountInfoWindow(); int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
 int ai_AmountLimit();
 int amt_CanUseMayorPower2(); void d2_SetObjEnabled();
-int amt_ExecuteShareMessage(short *c, int *m);
-int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(char *c, int *m);
+int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
+int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
 int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
-int amt_ExecuteMayorPowerMessage(char *c, int *m);
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
 typedef struct AMTPICK {           /* the row record the special-amount list hands its callback (8 bytes): the
                                       office index and the owner (0x5bea50 compares the word with 0xffff) */
     unsigned short office;         /* 0x00, the office index, 0xffff = an empty row */

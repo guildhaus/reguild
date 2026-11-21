@@ -6156,7 +6156,7 @@ int cm_ExHeldRounds(G17MSG *m, G17STAT *s)
     c->heldRounds = c->heldRounds > 0 ? c->heldRounds : 0;
     if (c->id == ai_PlayerId && ai_GameState != 0 && c->heldRounds > 0)
         sv_PopTo(ai_GameFrame);
-    amt_ClearOfficesIfAll((char *)c, m->heldRounds.all);
+    amt_ClearOfficesIfAll(c, m->heldRounds.all);
     if (s != 0)
         s->state = 1;
     return 0;

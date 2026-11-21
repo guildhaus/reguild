@@ -891,10 +891,10 @@ int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); int amt_ApplyForOffi
 void ai_AmountInfoWindow(); int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
 int ai_AmountLimit();
 int amt_CanUseMayorPower2(); void d2_SetObjEnabled();
-int amt_ExecuteShareMessage(short *c, int *m);
-int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(char *c, int *m);
+int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
+int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
 int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
-int amt_ExecuteMayorPowerMessage(char *c, int *m);
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
 typedef struct AMTPICK {           /* the row record the special-amount list hands its callback (8 bytes): the
                                       office index and the owner (0x5bea50 compares the word with 0xffff) */
     unsigned short office;         /* 0x00, the office index, 0xffff = an empty row */
@@ -2396,7 +2396,7 @@ unsigned int ai_FillOfficeTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
     n = 0;
     if (me->officeKind == 0)
         return 0;
-    nOffices = amt_GetEligibleOffices((char *)me, 4, offices);
+    nOffices = amt_GetEligibleOffices(me, 4, offices);
     if (nOffices == 0)
         return 0;
     if (max == 0) {
@@ -7014,12 +7014,12 @@ int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
         ch = gm_FindChar(m->target);
         if (ch == 0)
             return 0x60;
-        if (amt_FindOffice((char *)ch, &kind, &office) == 0)
+        if (amt_FindOffice(ch, &kind, &office) == 0)
             return 0x60;
         if (ownerKind.col != kind.col)
             return 0x60;
         cm_BeginGroup("absetzen");
-        amt_SendOfficeCandidates((char *)ch, (char *)owner);
+        amt_SendOfficeCandidates(ch, owner);
         cm_SendSetField(owner->netId, 0x1c8, 4, 0x200000, 0);
         cm_SendRelations(me->netId, ch->netId, -40, 1);
         cm_EndGroup("absetzen");
@@ -7045,12 +7045,12 @@ int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
         txt_Format(caption2, 0x1d99);
         ch = ai_SpecialAmountListWindow(ownerKind.col, (unsigned int *)&cfg, caption, caption2, 0);
         if (ch != 0) {
-            if (amt_FindOffice((char *)ch, &kind, &office) == 0)
+            if (amt_FindOffice(ch, &kind, &office) == 0)
                 return 0x60;
             if (office.state != 1)
                 goto refused;
             cm_BeginGroup("absetzen");
-            amt_SendOfficeCandidates((char *)ch, (char *)owner);
+            amt_SendOfficeCandidates(ch, owner);
             flagSlot = cm_SendSetField(owner->netId, 0x1c8, 4, 0x200000, 0);
             cm_SendRelations(me->netId, ch->netId, -20, 1);
             slot = cm_EndGroup("absetzen");
@@ -7330,7 +7330,7 @@ int amt_SendOfficeSwap();
 /* 0x5cb1e0, the counter-espionage office swap (64 B): amt_SendOfficeSwap (0x4e6ba0) sends the requester's
    request for the two characters; -1 returns 0, another requester returns 1; a player (kind 6) waits on the
    message slot 0x4c3ae0 with the pump 0x52fe00 and returns whether the answer's status is not 2. */
-int ai_SwapSeats(AICHAR *requester, char *b, char *c)
+int ai_SwapSeats(AICHAR *requester, AICHAR *b, AICHAR *c)
 {
     int h;
 
@@ -7404,7 +7404,7 @@ int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         if (me->money < 6 || n > 0)
             return 0x20;
-        return ai_SwapSeats(me, (char *)second, (char *)first) ? 0x10 : 0x20;
+        return ai_SwapSeats(me, second, first) ? 0x10 : 0x20;
     }
     if (n > 0) {
         txt_Format(text, "$Z%s", 0x1dcb);
@@ -7423,7 +7423,7 @@ int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == ok) {
                 if (sv_CheckMoney(me, 6) != 0) {
-                    if (ai_SwapSeats(me, (char *)second, (char *)first) != 0)
+                    if (ai_SwapSeats(me, second, first) != 0)
                         txt_Format(text, 0x1dca);
                     else
                         txt_Format(text, "$Z%s", 0x1dcb);
@@ -8034,7 +8034,7 @@ int ai_PenanceWindow(AICHAR *me, LCORDMSG *m)
     return 0;
 }
 int ai_FindPartnersRandomWalk(struct AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
-int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
+int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
 #define LC_MIRACLE_PICK_FLAGS3 0x400800  /* ai_FindPartnersRandomWalk flags of the miracle that takes an office (bits not read) */
 #define LC_MIRACLE_PICK_FLAGS4 0x300000  /* ai_FindPartnersRandomWalk flags of the miracle that raises a skill (bits not read) */
 /* 0x5ccc10, a miracle (ai_MiracleWindow, the miracle order's ask, rolls which = 0 .. 5): it builds the news title 0x1df7
@@ -8159,7 +8159,7 @@ void ai_Miracle(AICHAR *me, int which)
         if (ai_FindPartnersRandomWalk(me, 1, &flags, 0.0f, 100.0f, (unsigned short *)&id) == 0)
             return;
         c = &ai_Chars[(unsigned short)id];
-        if (amt_FindOffice((char *)c, &kind, &office) == 0)
+        if (amt_FindOffice(c, &kind, &office) == 0)
             return;
         amt_SendOfficeMessage(office.idx, 0, 0, 4, 0xff);
         txt_Format(text, 0x1dfd, c->id, c->id, c->id);
@@ -8780,7 +8780,7 @@ void ai_Interrogate(AICHAR *me, AICHAR *ch)
     cm_SendSetField(me->netId, 0x1cc, 4, 0x80000, 0);
 }
 
-int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e); int gm_TitleNumber();
+int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e); int gm_TitleNumber();
 
 /* 0x5ce610, the interrogation order's ask (ord.c, the callers push (c, m)): the AI (not kind 6) interrogates the
    character m->target unless me already did (AICHAR.flags1cc 0x80000: 0x20), he is unknown or holds no office
@@ -9227,7 +9227,7 @@ int ai_UniversityWindow(AICHAR *parent, AICHAR *child)
     int i;
     int ret;
 
-    ai_RollStudyOffers((char *)&ai_Chars[ai_PlayerId], offers);
+    ai_RollStudyOffers(&ai_Chars[ai_PlayerId], offers);
     win = d2_OpenForm(0, 0, "special\\uni");
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
@@ -10588,7 +10588,7 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
 int ai_UsePayGood(AICHAR *ch)
 {
     if (ch->kind == 6) {
-        if (sv_CheckMoney((char *)ch, 3) == 0)
+        if (sv_CheckMoney(ch, 3) == 0)
             return 0;
     } else if (ch->money < 3) {
         return 0;

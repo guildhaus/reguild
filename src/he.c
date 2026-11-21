@@ -5398,7 +5398,7 @@ void he_DuelAccepted(int ev, AICHAR *p2, AICHAR *p3)
     cm_SendExSetHE(2, ev);
 }
 
-void amt_ChangeDistrictOpinion(char *c, int d, int v);  /* 0x4ea550, amt.c */
+void amt_ChangeDistrictOpinion(struct AICHAR *c, int d, int v);  /* 0x4ea550, amt.c */
 int ai_DrawAmountRow();
 
 /* 0x5472d0, a Ghidra miss (disassembled): the challenge of the insult event ("Special\Beleidigung") is declined
@@ -10516,7 +10516,7 @@ void he_StartApplicants(int ev)
     }
 }
 
-int amt_InitApplicant(char *c, int k);
+int amt_InitApplicant(struct AICHAR *c, int k);
 int amt_GetOpenOffice(int k);
 int amt_CreateApplicant(int k);
 

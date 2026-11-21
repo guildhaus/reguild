@@ -10463,7 +10463,7 @@ void ai_GuildCashPayWindow(AIBLD *bld)
     d2_CloseView(win);
 }
 
-int amt_ExecuteShareMessage(short *c, int *m);
+int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
 
 /* 0x5a0ca0, the ai_MapPick callback of ai_GuildGiftEntry: the guild master's gift window
    "LOCATIONS\ZUNFTHAUS\LEVEL2" for the picked building bld. The fee is a hundredth of the player's worth, at
@@ -10511,7 +10511,7 @@ int ai_GuildGiftCallback(char *place, AIBLD *bld)
                 req[0] = 2;
                 req[1] = bld->id;
                 req[2] = fee;
-                amt_ExecuteShareMessage((char *)&ai_Chars[ai_PlayerId], req);
+                amt_ExecuteShareMessage(&ai_Chars[ai_PlayerId], req);
                 sv_PopRequest = 2;
             } else if (d2_PointerObj == cancelBtn) {
                 sv_PopRequest = 1;
@@ -10531,7 +10531,7 @@ void ai_GuildGiftEntry(AIBLD *building)
     AMOUNTCFG pick;
     int r;
 
-    r = amt_CanUseMayorPower2((char *)&ai_Chars[ai_PlayerId]);
+    r = amt_CanUseMayorPower2(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
@@ -10548,7 +10548,7 @@ void ai_GuildGiftEntry(AIBLD *building)
     ai_MapPick(1, &pick, ai_TextGuildPowerPick, ai_GuildGiftCallback, 0);
 }
 
-int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(char *c, int *m);
+int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
 int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
 
 /* 0x5a1000, the guild master's price power (guild hall level 1, "LOCATIONS\ZUNFTHAUS\LEVEL1"): when
@@ -10572,7 +10572,7 @@ void ai_GuildLevel1Window(AIBLD *building)
     int job;
     int id;
 
-    r = amt_MayorBonusStep((char *)&ai_Chars[ai_PlayerId]);
+    r = amt_MayorBonusStep(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
@@ -10613,13 +10613,13 @@ void ai_GuildLevel1Window(AIBLD *building)
                 raise[0] = 3;
                 raise[1] = job + 1;
                 raise[2] = 1;
-                amt_ExecutePriceMessage((char *)&ai_Chars[ai_PlayerId], raise);
+                amt_ExecutePriceMessage(&ai_Chars[ai_PlayerId], raise);
                 sv_PopRequest = 1;
             } else if (d2_PointerObj == buttons[1]) {
                 lower[0] = 3;
                 lower[1] = job + 1;
                 lower[2] = -1;
-                amt_ExecutePriceMessage((char *)&ai_Chars[ai_PlayerId], lower);
+                amt_ExecutePriceMessage(&ai_Chars[ai_PlayerId], lower);
                 sv_PopRequest = 1;
             } else {
                 for (i = 0; i < 7; i++) {
@@ -10644,7 +10644,7 @@ void ai_GuildLevel1Window(AIBLD *building)
     sv_CameraFollow();
 }
 
-int amt_ExecuteMayorPowerMessage(char *c, int *m);
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
 
 typedef struct AMTPICK {           /* the row record the special-amount list hands its callback (8 bytes): the
                                       office index and the owner (0x5bea50 compares the word with 0xffff) */
@@ -10685,7 +10685,7 @@ int ai_GuildLevel3RequestCB(AMTPICK *pick)
         if (d2_ClickedId == 0) {
             req[0] = 1;
             req[1] = pick->charId;
-            amt_ExecuteMayorPowerMessage((char *)ai_Chars + ai_PlayerId * 0x21c, req);
+            amt_ExecuteMayorPowerMessage(&ai_Chars[ai_PlayerId], req);
             sv_PopRequest = 3;
             ok = 1;
         } else if (d2_ClickedId == 1) {
@@ -10728,7 +10728,7 @@ void ai_GuildLevel2RequestCB(int column)
         if (d2_ClickedId == 0) {
             req[0] = 4;
             req[1] = column;
-            amt_ExecuteMayorPowerMessage((char *)ai_Chars + ai_PlayerId * 0x21c, req);
+            amt_ExecuteMayorPowerMessage(&ai_Chars[ai_PlayerId], req);
             sv_PopRequest = 2;
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
@@ -10771,7 +10771,7 @@ void ai_GuildLevel3PowerCB(int column)
         if (d2_ClickedId == 0) {
             req[0] = 4;
             req[1] = column;
-            amt_ExecuteMayorPowerMessage((char *)ai_Chars + ai_PlayerId * 0x21c, req);
+            amt_ExecuteMayorPowerMessage(&ai_Chars[ai_PlayerId], req);
             sv_PopRequest = 2;
         } else if (d2_ClickedId == 1) {
             sv_PopRequest = 1;
@@ -10794,7 +10794,7 @@ void ai_GuildLevel3Entry(void)
     unsigned char office;
     int r;
 
-    r = amt_CanUseMayorPower3((char *)&ai_Chars[ai_PlayerId]);
+    r = amt_CanUseMayorPower3(&ai_Chars[ai_PlayerId]);
     if (r != 1) {
         if (r == -1)
             sv_MessageBox(ai_TextGuildPowerUsed, 0);
@@ -10827,7 +10827,7 @@ void ai_GuildLevel2Listener(AIBLD *building, AIOBJ *room)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GuildLevel2Listener, 0x67fff) != 0) {
-        if (amt_CanUseMayorPower2((char *)ai_Chars + ai_PlayerId * 0x21c) != 0)
+        if (amt_CanUseMayorPower2(&ai_Chars[ai_PlayerId]) != 0)
             c = sv_RegisterNamePlate("contact_ZUNFTLEVEL2", txt_Ptrs[0x165d], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == c)
             ai_GuildGiftEntry(building);
@@ -10857,7 +10857,7 @@ void ai_GuildLevel3Listener(AIBLD *building, AIOBJ *room)
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GuildLevel2Listener, 0x67fff) != 0) {
         kasse = sv_RegisterNamePlate("ob_ZUNFTKASSE", txt_Ptrs[0x1a19], 0x16);
-        r = amt_CanUseMayorPower3((char *)ai_Chars + ai_PlayerId * 0x21c);
+        r = amt_CanUseMayorPower3(&ai_Chars[ai_PlayerId]);
         if (r != 0 && id != 0)
             level3 = sv_RegisterNamePlate("contact_ZUNFTLEVEL3", txt_Ptrs[id], 0x16);
         if (ai_ClickedObject != 0) {
@@ -10879,7 +10879,7 @@ void ai_GuildLevel1Listener(AIBLD *building, AIOBJ *room)
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GuildLevel1Listener, 0x67fff) != 0) {
-        if (amt_MayorBonusStep((char *)ai_Chars + ai_PlayerId * 0x21c) != 0)
+        if (amt_MayorBonusStep(&ai_Chars[ai_PlayerId]) != 0)
             c = sv_RegisterNamePlate("contact_ZUNFTLEVEL1", txt_Ptrs[0x1641], 0x16);
         if (ai_ClickedObject != 0 && ai_ClickedObject == c)
             ai_GuildLevel1Window(building);
@@ -11336,7 +11336,7 @@ void ai_ConfessionWindow(AIBLD *bld)
                     if (bld->owner != 0xffff && bld->owner != ai_PlayerId) {
                         gm_SendMoneyDelta(ai_Chars[bld->owner].netId, 1);
                         ai_ShowPaymentNews((unsigned short *)&ai_Chars[ai_PlayerId],
-                                           (char *)&ai_Chars[bld->owner], (int)bld);
+                                           &ai_Chars[bld->owner], (int)bld);
                     }
                     gv_RetireCrimesOf(me->netId, amount / 2);
                     sv_MessageBox(txt_Ptrs[0x1984], 0);
@@ -13552,12 +13552,12 @@ int gv_SetTableRecord(struct AICHAR *c, int i, int v);   /* 0x4f2750 */
 int amt_GetKind(); int amt_FindOffice(); int amt_SendOfficeCandidates(); int ai_RelationGain();
 int amt_SendOfficeSwap();
 int ai_FindPartnersRandomWalk(struct AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
-int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
+int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
 void cm_SendSetJob(int id, int job);  /* 0x4c59b0 (cm.h, not included) */
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 (am.h, not included) */
 extern struct AICHAR *ai_JudgeCatholic;    /* 0x6f1bfc (gv.h), the catholic judge */
 extern struct AICHAR *ai_JudgeProtestant;  /* 0x6f1c00 (gv.h), the protestant judge */
-int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e); int gm_TitleNumber();
+int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e); int gm_TitleNumber();
 extern const int ai_CharWalkSteps[16];  /* 0x5ed100, the random walk steps (am.h, not included) */
 extern AIDEC gv_Decisions[];  /* 0x611258, the 0x1d AI decision (law) records (gv.h, not included) */
 

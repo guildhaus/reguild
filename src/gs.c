@@ -1327,7 +1327,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         if (c->kind == 6 || c->kind == 7)
             party.flags = 0xa2;
         cm_SendNewParty(&party);
-        if (amt_FindOffice((char *)c, &kind, &office) != 0)
+        if (amt_FindOffice(c, &kind, &office) != 0)
             amt_SendOfficeMessage(office.idx, 0, 0, 3, 0xff);
         break;
     }

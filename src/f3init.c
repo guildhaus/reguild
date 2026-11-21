@@ -199,7 +199,7 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 int amt_GetOffice(unsigned char i, struct AMTREC *out);  /* 0x4e6f30, amt.c: copies the office i to out (an AMTREC, 0x18 bytes) */
 int amt_GetKind(int k, struct AMTKIND *out);              /* 0x4e6f80, amt.c: copies the office kind k to out (an AMTKIND, 0x18 bytes) */
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out);  /* 0x4e6ec0, amt.c: copies the first office of the kind k to out (an AMTREC) */
-int amt_SendOfficeOwner(char a, char *b, unsigned char c); /* 0x4e6650, amt.c */
+int amt_SendOfficeOwner(char a, struct AICHAR *b, unsigned char c); /* 0x4e6650, amt.c */
 void gm_AgeCharacter(struct AICHAR *c, unsigned short age);    /* 0x4fc6f0, f3gm.c: ages the character c to the age */
 int ai_WorksForMaster(struct AICHAR *c);                 /* 0x47dd70, ai.c */
 void hmt_Begin(void);                           /* 0x4ad0a0, hmt.c */
@@ -1161,7 +1161,7 @@ int init_CreateStartCharacters(int unused)
         }
         cm_SendFieldDeltas();
         gm_AgeCharacter(ch, age);
-        j = amt_SendOfficeOwner((unsigned char)ids[k], (char *)ch, 0xff);
+        j = amt_SendOfficeOwner((unsigned char)ids[k], ch, 0xff);
         while (j != -1 && cm_GetSlotState(j) == 0)
             sv_PumpNet();
         c = ch->officeKind;
@@ -1177,13 +1177,13 @@ int init_CreateStartCharacters(int unused)
         c = ch->officeKind;
         if (c == 0x1b) {
             amt_GetFirstOffice(0x25, &ob1);
-            amt_SendOfficeOwner(ob1.idWord, (char *)ch, 0xff);
+            amt_SendOfficeOwner(ob1.idWord, ch, 0xff);
         } else if (c == 0x1a) {
             amt_GetFirstOffice(0x24, &ob2);
-            amt_SendOfficeOwner(ob2.idWord, (char *)ch, 0xff);
+            amt_SendOfficeOwner(ob2.idWord, ch, 0xff);
         } else if (c == 0x19) {
             amt_GetFirstOffice(0x23, &ob3);
-            amt_SendOfficeOwner(ob3.idWord, (char *)ch, 0xff);
+            amt_SendOfficeOwner(ob3.idWord, ch, 0xff);
         }
     }
     do {

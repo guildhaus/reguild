@@ -6465,7 +6465,7 @@ AICHAR *ai_PickLeastLikedRival(AICHAR *p)
         amt_GetKind(p->prevOffice, &kind);
         for (i = 0; i < 768; i++) {
             o = &ai_Chars[i];
-            if (o->officeKind != 0 && amt_FindOffice((char *)o, &kind, &office) != 0 && kind.level <= 1) {
+            if (o->officeKind != 0 && amt_FindOffice(o, &kind, &office) != 0 && kind.level <= 1) {
                 if (best == 0) {
                     best = o;
                     bd = gm_Liking(p->id, o->id, 1);

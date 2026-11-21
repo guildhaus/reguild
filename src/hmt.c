@@ -638,7 +638,7 @@ void hmt_DecideElection(void)
                     }
                 }
                 if (win != 0) {
-                    amt_SendOfficeMessage(o.obj, (int)win, 0, 1, 0xff);
+                    amt_SendOfficeMessage(o.obj, win, 0, 1, 0xff);
                     if (win->kind == 6 || win->kind == 7 || win->kind == 5) {
                         AIMSG msg;
 
