@@ -16021,7 +16021,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
     for (pl = 1; pl < 4; pl++) {
         if (ai_PlayerSlots[pl].name[0] == 0)
             break;
-        b = (AIBLD *)gm_FindPlayerBuilding(pl);
+        b = gm_FindPlayerBuilding(pl);
         if (b == 0)
             continue;
         st = gm_Query(b->objList, 2, 0, 0x1db, 6);

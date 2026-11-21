@@ -664,7 +664,7 @@ void cm_SendGoodsRecord(void *p, unsigned char k);                     /* 0x4c56
 void cm_BeginSendGroup(void);                     /* 0x4c3b30 */
 void cm_EndSendGroup(void);                     /* 0x4c3b40 */
 int cm_SendGroupState();                     /* 0x4c3b50 */
-int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
+struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 
 /* the goods record n (0x80 bytes) of the player p */
@@ -773,8 +773,8 @@ void gm_SyncMarket(unsigned p)
         }
         return;
     }
-    o = (AIOBJ *)gm_FindPlayerBuilding(p);
-    if (o != 0 && (a1 = gm_Query(((AIBLD *)o)->objList, 2, 0, 0x1db, 6)) != 0 && (o2 = gm_Query(((AIBLD *)o)->objList, 2, 0, 0x1dc, 6)) != 0) {
+    b = gm_FindPlayerBuilding(p);
+    if (b != 0 && (a1 = gm_Query(b->objList, 2, 0, 0x1db, 6)) != 0 && (o2 = gm_Query(b->objList, 2, 0, 0x1dc, 6)) != 0) {
         cm_BeginSendGroup();
         for (i = 0; i < 0x55; i++) {
             rec = stock[i];
@@ -1049,7 +1049,7 @@ float gm_StockPrice(int p, int n)
     unsigned id;
     char *good;
     AIOBJ *mk;
-    int b;
+    AIBLD *b;
     AIOBJ *o;
     float count, cur, ratio, r;
     double f, t;
@@ -1058,7 +1058,7 @@ float gm_StockPrice(int p, int n)
     good = (char *)ai_Goods + id * 0x41;
     mk = gm_FindMarketObject(id);
     if (mk == 0 && p != ai_OwnPlayer && (b = gm_FindPlayerBuilding(p)) != 0)
-        mk = gm_Query(((AIBLD *)b)->objList, 2, 0, 0x1db, 6);
+        mk = gm_Query(b->objList, 2, 0, 0x1db, 6);
     count = 0.0f;
     if (mk == 0)
         return gm_ItemPrice(id, 100);
@@ -1128,7 +1128,7 @@ extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
 extern AIOBJ *gm_QueryChildStack[20488];
 struct AIOBJ *gm_FindMarketObject(int id);                     /* 0x500ec0 */
-int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
+struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 
 /* 0x4ffcc0, the next match of the object query gm_Query set up: from the cursor record it walks the whole instance table (gm_QueryScanAll, skipping empty records, counting them in gm_QueryScanned) or the next pointers of the list (with gm_QueryChildren the child lists go on gm_QueryChildStack and are walked when a list ends), tests each record against the set criteria (prototype, owner id, the owner's character number gm_ObjectOwnerNo, the prototype kind) and returns the last record that matched before the first match ends the walk (or, with gm_QueryStopFirst, the first record looked at); 0 when none
    @deep 155 -> 153 ins: the criteria as four plain tests with an ok flag (if (ok && ..), if (!ok) m = 0)
@@ -1934,14 +1934,14 @@ AIOBJ *gm_FindMarketObject(int id)
 }
 /* 0x501000, the building of the type 0x47 (group (1, 0, 0x47)) whose int at +0x65 is the player p, 0 when none */
 
-int gm_FindPlayerBuilding(int p)
+AIBLD *gm_FindPlayerBuilding(int p)
 {
     AIBLD *b;
 
     b = gm_BuildQuery(1, 0, 0x47);
     while (b != 0) {
         if (b->playerSlot == p)
-            return (int)b;
+            return b;
         b = gm_BuildNext();
     }
     return 0;

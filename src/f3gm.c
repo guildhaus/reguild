@@ -2433,7 +2433,7 @@ void cm_SendGoodsRecord(void *p, unsigned char k);                     /* 0x4c56
 void cm_BeginSendGroup(void);                     /* 0x4c3b30 */
 void cm_EndSendGroup(void);                     /* 0x4c3b40 */
 int cm_SendGroupState();                     /* 0x4c3b50 */
-int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
+struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 void gm_SyncMarket(unsigned p);
 int gm_GoodsDemand(int p, int i);
@@ -2448,7 +2448,7 @@ extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
 extern AIOBJ *gm_QueryChildStack[20488];
 struct AIOBJ *gm_FindMarketObject(int id);                     /* 0x500ec0 */
-int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
+struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 extern struct AIBLD *ai_MarketBuilding;                /* 0x6f1bc8, the market building (group 1, 5, 10) */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
 extern unsigned short gm_BQMaster, gm_BQOwner;  /* 0x61a674 / 0x61a676 */
