@@ -3463,7 +3463,7 @@ void main_ReplaceFigure(unsigned p)
         /* the original walks the records by their kind byte, 8 bytes into each */
         for (pt = cm_Parties; (int)&pt->kind < (int)((unsigned)cm_Parties + 0x6788); pt++) {
             if (pt->used != 0) {
-                if (cm_IsPartyMember(ch->netId, (char *)pt) != 0 && (pt->kind == 3 || pt->kind == 5 || pt->kind == 4 || pt->kind == 6 || pt->kind == 9 || pt->kind == 7))
+                if (cm_IsPartyMember(ch->netId, pt) != 0 && (pt->kind == 3 || pt->kind == 5 || pt->kind == 4 || pt->kind == 6 || pt->kind == 9 || pt->kind == 7))
                     cm_ClearParty(pt->id);
             }
         }
@@ -3733,7 +3733,7 @@ void main_RoundReport(void)
         msg.members[0] = msg.host;
         if (fade != 0)
             d2_ReleaseFade(fade);
-        cm_ExecCutscene((char *)&msg);
+        cm_ExecCutscene(&msg);
         if (main_ReplaceFigureOn != 0)
             main_ReplaceFigure(ai_PlayerId);
         main_ReplaceFigureOn = 0;

@@ -1807,7 +1807,7 @@ void cm_PlaceFlagObjects()
     cm_FlagObjectCount = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x100, cm_CreateDummyFlag, 0);
 }
-/* 0x4d0cd0, the first free (-1) netId slot of the 16 of a CMGUARDREC, else -1 */
+/* 0x4d0cd0, the first free (-1) netId slot of the 16 of a fight party's defenders (G28REC.fight), else -1 */
 
 int cm_FreeNetIdSlot(int *a)
 {
@@ -1820,30 +1820,22 @@ int cm_FreeNetIdSlot(int *a)
     return -1;
 }
 
-/* the record ai_ArmGateGuards fills: a local of the town gate event's run handler (he_RunAmbush passes its
-   address); only these two fields are read here, the rest of its layout is not known */
-typedef struct CMGUARDREC {
-    char pad000[0x80];
-    int netIds[16];                 /* 0x080, the netIds of the guards already armed, -1 = a free slot (cm_FreeNetIdSlot) */
-    char pad0c0[0x50];
-    int kind;                       /* 0x110, the kind of arming last asked for (1 .. 3) */
-} CMGUARDREC;
-
 /* arms the next guard: takes the first free slot i of rec, the character ai_KindBChars[i] gives up its weapons and
    gets the item ITEM, loses its v024 health and its skill sk83 is set to SKILL (a field delta of the character).
    The original repeats this code inline (the four copies of 0x4d0cf0 reload ai_KindBChars[i] each time) */
-#define CM_ARM_GUARD(ITEM, SKILL)                                                                             i = cm_FreeNetIdSlot(rec->netIds);                                                                           rec->netIds[i] = ai_KindBChars[i]->netId;                                                               cm_DiscardWeapons(ai_KindBChars[i]);                                                            cm_SendExSellObject(ai_KindBChars[i]->netId, -1, ITEM, 1, ai_OwnPlayer, 0);                              gm_AddHealth(ai_KindBChars[i]->id, -ai_KindBChars[i]->v024);                                            skill = SKILL;                                                                                            cm_BeginFieldBlock(ai_KindBChars[i], ai_KindBChars[i]->netId);                                  cm_AddFieldDelta(1, 1, (unsigned short)((char *)ai_KindBChars[i] - cm_FieldObject + 0x83), &skill);      cm_SendFieldDeltas()
+#define CM_ARM_GUARD(ITEM, SKILL)                                                                             i = cm_FreeNetIdSlot(rec->fight.defenders);                                                                           rec->fight.defenders[i] = ai_KindBChars[i]->netId;                                                               cm_DiscardWeapons(ai_KindBChars[i]);                                                            cm_SendExSellObject(ai_KindBChars[i]->netId, -1, ITEM, 1, ai_OwnPlayer, 0);                              gm_AddHealth(ai_KindBChars[i]->id, -ai_KindBChars[i]->v024);                                            skill = SKILL;                                                                                            cm_BeginFieldBlock(ai_KindBChars[i], ai_KindBChars[i]->netId);                                  cm_AddFieldDelta(1, 1, (unsigned short)((char *)ai_KindBChars[i] - cm_FieldObject + 0x83), &skill);      cm_SendFieldDeltas()
 
 /* 0x4d0cf0, arms the guards of the town gate event: kind 1 two guards with the item 0x156 (sk83 = 0xa8), kinds 2 / 3
-   one with 0x158 and one with 0x160 (sk83 = 0xd2); a nonzero kind is kept in rec->kind (reasoned: the items replace
+   one with 0x158 and one with 0x160 (sk83 = 0xd2); a nonzero kind is kept in rec->fight.escort (the fight party of the ambush,
+   he_RunAmbush; reasoned: the items replace
    the weapons cm_DiscardWeapons sends away, the characters are the kind 0xb ones of ai_KindBChars) */
-void ai_ArmGateGuards(CMGUARDREC *rec, unsigned char kind)
+void ai_ArmGateGuards(G28REC *rec, unsigned char kind)
 {
     unsigned char skill;
     int i;
 
     if (kind != 0)
-        rec->kind = kind;
+        rec->fight.escort = kind;
     if (kind == 1) {
         CM_ARM_GUARD(0x156, 0xa8);
         CM_ARM_GUARD(0x156, 0xa8);
@@ -4066,25 +4058,25 @@ int cm_CheckFight(G28REC *a)
     if (a->fight.flags & 1) {
         txt_Format(buf, 0x11e0, cb->id);
         strcat(buf, txt_Ptrs[0x11e2]);
-        cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(ca, a, buf, ch_EmptyName);
         txt_Format(buf, 0x11e1, ca->id);
         strcat(buf, txt_Ptrs[0x11e2]);
-        cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(cb, a, buf, ch_EmptyName);
     } else if (a->fight.flags & 2) {
         role = cm_FightRole(gm_FindBuildingById(a->fight.attackerBld));
         txt_Format(buf, 0x11e3, role + 0x1125, cb->id, place);
         strcat(buf, txt_Ptrs[0x11e5]);
-        cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(ca, a, buf, ch_EmptyName);
         txt_Format(buf, 0x11e4, ca->id, role + 0x1125, place);
         strcat(buf, txt_Ptrs[0x11e5]);
-        cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(cb, a, buf, ch_EmptyName);
     } else if (a->fight.flags & 4) {
         txt_Format(buf, 0x11e6, cb->id);
         strcat(buf, txt_Ptrs[0x11e8]);
-        cm_SendPartyNote(ca, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(ca, a, buf, ch_EmptyName);
         txt_Format(buf, 0x11e7, ca->id);
         strcat(buf, txt_Ptrs[0x11e8]);
-        cm_SendPartyNote(cb, (G28REC *)a, buf, ch_EmptyName);
+        cm_SendPartyNote(cb, a, buf, ch_EmptyName);
     }
     return 1;
 }
@@ -4159,9 +4151,9 @@ void cm_RunFight(G28REC *a)
         cut_RandSeed(seed);
         cm_CollectSceneChars();
         cm_CollectSceneChars();
-        cm_RunSceneParty((char *)a, 0);
+        cm_RunSceneParty(a, 0);
         if (cm_FightWinner == 0 && cm_FightSettled == 0)
-            cm_RunSceneParty((char *)a, 0);
+            cm_RunSceneParty(a, 0);
         if (cm_FightSettled == 0) {
             for (i = 0; i < 16; i++) {
                 if (cm_DamagePops[i].h != -1)
@@ -4230,7 +4222,7 @@ void cm_RunFight(G28REC *a)
         }
     } else if (!(a->fight.flags & 4) && (a->fight.flags & 1) && win == G20_DEF) {
         c = (char *)gm_BuildQuery(1, 1, a->fight.attackerBld);
-        cm_LootCarts((char *)a, c, G20_DEF, (int)cm_FightDefender, 100.0f);
+        cm_LootCarts(a, c, G20_DEF, (int)cm_FightDefender, 100.0f);
     }
 }
 /* 0x4d6930, the result of the fight in the record r (+0x354 / +0x358): 0x6f0cf8 set -> 0 and the ransom 0x6f0cfc, else 1 */

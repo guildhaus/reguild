@@ -130,12 +130,6 @@ typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) 
     char pad1c[0x1c];
     HESPYREPORT report;
 } CMSPYREPORT;
-typedef struct CMGUARDREC {
-    char pad000[0x80];
-    int netIds[16];                 /* 0x080, the netIds of the guards already armed, -1 = a free slot (cm_FreeNetIdSlot) */
-    char pad0c0[0x50];
-    int kind;                       /* 0x110, the kind of arming last asked for (1 .. 3) */
-} CMGUARDREC;
 
 char ai_CharKindNames[10][24] = { "DUMMY_NPC", "MEISTER_NPC", "POLITICIAN_NPC", "AI_NPC", "NPC", "PLAYER", "REMOTE_PLAYER", "RELATIVE_PLAYER", "USED_PLAYER", "INVISIBLE_NPC" };  /* 0x60eae0, the names of the NPC kinds */
 

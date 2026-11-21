@@ -120,7 +120,7 @@ struct AIOBJ *gm_Query(void *list, int n, ...);                                 
 struct AICHAR; struct AIBLD; struct AICHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);                                   /* 0x4fd820 */
 char * gm_FindGoods(int p, unsigned id);                                            /* 0x4ffc40, ai.h: int * */
-extern int *cm_CurrentFight;               /* 0x6f0d90 */
+extern G28REC *cm_CurrentFight;            /* 0x6f0d90, the scene party running (cm_ExecCutscene) */
 int gm_SumSlotAmounts(void *list, unsigned char i);                                     /* 0x508660 */
 int gm_FreeCapacity(struct AIOBJ *l, int item, int max);                                    /* 0x50ab80 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                                                     /* 0x50a050 */
@@ -670,7 +670,7 @@ extern struct D3OBJECT *cm_FlagObjects[32];  /* 0x935980, the conquest flag obje
 
 void cm_PlaceFlagObjects();  /* 0x4d0ca0 */
 int cm_FreeNetIdSlot(int *a);  /* 0x4d0cd0 */
-struct CMGUARDREC; void ai_ArmGateGuards(struct CMGUARDREC *rec, unsigned char kind);  /* 0x4d0cf0, arms the guards of the town gate event (the kind 0xb characters ai_KindBChars) */
+void ai_ArmGateGuards(G28REC *rec, unsigned char kind);  /* 0x4d0cf0, arms the guards of the town gate event (the kind 0xb characters ai_KindBChars) */
 char cm_ClearKind3MaskCB(char *o);  /* 0x4d0f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 
@@ -782,7 +782,7 @@ extern int cm_TextBox;  /* 0x60d368 */
 void cm_RunFight(G28REC *a);  /* 0x4d63e0, runs a fight record */
 unsigned int cut_GetRandSeed();  /* 0x4e52c0 */
 void cut_RandSeed(unsigned int seed);  /* 0x4e52a0 */
-void cm_RunSceneParty(char *m, void *ctx);  /* 0x4e3830 */
+void cm_RunSceneParty(G28REC *party, void *ctx);  /* 0x4e3830 */
 char d3_SetLightSet(unsigned int set, float t, float scale, char calc);  /* 0x449de0 */
 extern int cm_SceneDuration;  /* 0x60d364 */
 extern int cm_FightFixedLight;  /* 0x6f244c */
@@ -913,7 +913,7 @@ void cm_DuelShotAction(struct CHACTION *a);  /* 0x4de640 */
 extern int cm_DuelRight;  /* 0x92bca0 */
 int amt_FindOffice();  /* 0x4e6030 */
 void cm_DuelOutcome(G28REC *m);  /* 0x4debe0 */
-int cm_ResetCutInfos(char *m);  /* 0x4e36a0 */
+int cm_ResetCutInfos(G28REC *party);  /* 0x4e36a0 */
 char d3_SetFogSet(unsigned int a, unsigned int b, float t);  /* 0x44a170 */
 int cm_StartScript(char *name);  /* 0x4e2bf0, loads the script name (evt_Load), runs it and returns its id */
 struct SBSAMPLE *cm_PlayVoice(int id, struct SBBANK *bank, char *text, int var);  /* 0x4e32b0, plays the voice sample of speaker id in bank (text, var pick the sample); 0 in the replay mode */
@@ -983,10 +983,10 @@ extern struct D3SKYLAYER *cm_SkyLayer;  /* 0x6f0db4, the layer of cm_CreateScene
 extern struct D3SKY *cm_SceneSky;  /* 0x6f0db8, the scene's sky (cm_CreateSceneSky) */
 struct D3SKY; struct D3SKYLAYER; void d3sky_DeleteLayer(struct D3SKY *s, struct D3SKYLAYER *l);  /* 0x45d800 */
 void d3sky_Destroy();  /* 0x45daa0 */
-int cm_ShowPartyTexts(char *m);  /* 0x4e37a0 */
+int cm_ShowPartyTexts(G28REC *party);  /* 0x4e37a0 */
 int cm_WaitTicks(int a);  /* 0x4e3420 */
-int cm_PartyAnswered();  /* 0x4e3750 */
-int cm_PrevPartyMember();  /* 0x4e3800 */
+int cm_PartyAnswered(G28REC *party);  /* 0x4e3750 */
+int cm_PrevPartyMember(G28REC *party, int n);  /* 0x4e3800 */
 struct D3SKY; struct D3SKY *d3sky_Create(float horizon, float fogstart, float fogscale);  /* 0x45da30 */
 /* d3sky_CreateLayer (0x45d880): declared in cm's head after d3.h (its D3TEXFLAGS parameter is passed by value) */
 void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l, float speed);  /* 0x45d960 */
@@ -1044,9 +1044,9 @@ void d3if_Prerender(char map);  /* 0x447860 */
 extern int cm_PartyTurn;  /* 0x6f0d78 */
 
 
-void cm_ExecCutscene(char *m);  /* 0x4e4060, runs the scene party m */
+void cm_ExecCutscene(G28REC *party);  /* 0x4e4060, runs the scene party m */
 int cm_UpdateParties(void);  /* 0x4e4060's caller: runs every done party within its hour (cm_ExecCutscene) */
-int cm_IsPartyMember(int id, char *m);  /* 0x4e4870, 1 when the character id is one of the scene party m's members and still exists */
+int cm_IsPartyMember(int id, G28REC *party);  /* 0x4e4870, 1 when the character id is one of the scene party m's members and still exists */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);  /* 0x4fe140 */
 
 

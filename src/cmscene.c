@@ -148,12 +148,6 @@ typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) 
     char pad1c[0x1c];
     HESPYREPORT report;
 } CMSPYREPORT;
-typedef struct CMGUARDREC {
-    char pad000[0x80];
-    int netIds[16];                 /* 0x080, the netIds of the guards already armed, -1 = a free slot (cm_FreeNetIdSlot) */
-    char pad0c0[0x50];
-    int kind;                       /* 0x110, the kind of arming last asked for (1 .. 3) */
-} CMGUARDREC;
 #define G20_ME (ai_CharInts[ai_PlayerId][0])
 
 int cm_DialogFrameFlags = 464838;  /* 0x60d360, the frame wait of the dialogs ( */
@@ -186,7 +180,7 @@ int cm_SceneTicks = 0;  /* 0x6f0d80 */
 int cm_SceneDeadline = 0;  /* 0x6f0d84 */
 int cm_SceneTimedOut = 0;  /* 0x6f0d88 */
 int cm_SkipEvents = 0;  /* 0x6f0d8c */
-int * cm_CurrentFight = 0;  /* 0x6f0d90 */
+G28REC *cm_CurrentFight = 0;  /* 0x6f0d90, the scene party running (cm_ExecCutscene) */
 int cm_DuelOver = 0;  /* 0x6f0d94 */
 unsigned int cm_SceneInflateFlags = 0;  /* 0x6f0d98 */
 int cm_SceneDepth = 0;  /* 0x6f0d9c, the scene nesting depth */
@@ -1354,7 +1348,7 @@ void cm_RunTrial(G28REC *m)
     io_PrintText((intptr_t)"$C");
     cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", (int)"0");
     cm_SetViewEnabled(cm_TextBox, 0);
-    cm_RunSceneParty((char *)m, &plan);
+    cm_RunSceneParty(m, &plan);
     if (m->host == ai_Chars[ai_PlayerId].netId)
         gv_RetireCrimeIds(c1->netId, nlist, list);
     cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", (int)"1");
@@ -1397,7 +1391,7 @@ void cm_RunTrial(G28REC *m)
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C");
         cm_SetViewEnabled(cm_TextBox, 0);
-        cm_RunSceneParty((char *)m, &plan);
+        cm_RunSceneParty(m, &plan);
         cm_WaitEvent(ev);
         for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[0]; i++)
             ;
@@ -1447,7 +1441,7 @@ void cm_RunTrial(G28REC *m)
             plan.mode = 2;
             ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"0");
             cm_SetViewEnabled(cm_TextBox, 0);
-            cm_RunSceneParty((char *)m, &plan);
+            cm_RunSceneParty(m, &plan);
             for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[0]; i++)
                 ;
             cm_WaitEvent(ev);
@@ -1474,7 +1468,7 @@ void cm_RunTrial(G28REC *m)
             cm_WaitEvent(ev2);
             plan.mode = 3;
             cm_SetViewEnabled(cm_TextBox, 0);
-            cm_RunSceneParty((char *)m, &plan);
+            cm_RunSceneParty(m, &plan);
             for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[5]; i++)
                 ;
             plan.answer = cm_CutInfos[i].session.answer;
@@ -1585,7 +1579,7 @@ void cm_RunTrial(G28REC *m)
     cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"1");
     cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
     cm_SetViewEnabled(cm_TextBox, 0);
-    cm_RunSceneParty((char *)m, &plan);
+    cm_RunSceneParty(m, &plan);
     cm_UnloadVoiceBank(bank6);
     for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[2]; i++)
         ;
@@ -1649,7 +1643,7 @@ void cm_RunTrial(G28REC *m)
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
         cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
         cm_SetViewEnabled(cm_TextBox, 0);
-        cm_RunSceneParty((char *)m, &plan);
+        cm_RunSceneParty(m, &plan);
         for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[2]; i++)
             ;
         sentence = cm_CutInfos[i].session.answer;
@@ -2687,8 +2681,8 @@ void cm_DuelAskPlayer(CMCUTINFO *r, G28REC *m)
 void cm_RunPictureShow(G28REC *m)
 {
     cm_LoadEventScene("cutscene_toby.ed3");
-    cm_RunSceneParty((char *)m, 0);
-    cm_RunSceneParty((char *)m, 0);
+    cm_RunSceneParty(m, 0);
+    cm_RunSceneParty(m, 0);
     cm_WaitTicks(5);
     cm_LeaveEventScene();
 }
@@ -3719,7 +3713,7 @@ void cm_ShowObjectScene(AIBLD *o, int id)
         return;
     b = o;
     if ((ai_PlayerBuilding == b && b->mainRoom == id) || (ai_FallbackBuilding == b && b->mainRoom == id)) {
-        if (((G28REC *)cm_CurrentFight)->flags & 0x20) {
+        if (cm_CurrentFight->flags & 0x20) {
             d2_ClearSurface(d2_ScreenSurf);
             G27_FRAME(d2_ScreenSurf, d2_BackSurf);
             sv_RunFrame(0, 0x86);
@@ -3756,7 +3750,7 @@ void cm_ShowObjectScene(AIBLD *o, int id)
         d3_InflateScene(d3_SceneFlags & ~2);
         cm_SceneInflateFlags = cm_SceneInflateFlags & ~2;
     }
-    if (((G28REC *)cm_CurrentFight)->flags & 0x20) {
+    if (cm_CurrentFight->flags & 0x20) {
         d2_ClearSurface(d2_ScreenSurf);
         G27_FRAME(d2_ScreenSurf, d2_BackSurf);
         sv_RunFrame(0, 0x86);
@@ -3932,7 +3926,7 @@ void cm_LoadEventScene(char *name)
         }
         d3fl_SetShift((struct D3FLMAP *)d3_Terrain, sh >> 1, 1);
     }
-    if (((G28REC *)cm_CurrentFight)->flags & 0x20) {
+    if (cm_CurrentFight->flags & 0x20) {
         d2_ClearSurface(d2_ScreenSurf);
         G27_FRAME(d2_ScreenSurf, d2_BackSurf);
         sv_RunFrame(0, 0x86);
@@ -4210,9 +4204,8 @@ void cm_ApplySeason(void)
    text, and the member's netId m->members[j] as its playerId (-1 without a party); for a fight (kind 3) the 16 entries
    of each of the first m->used records whose playerId is set are freed (charId -1, state 0) */
 
-int cm_ResetCutInfos(char *m)
+int cm_ResetCutInfos(G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     int j, i, q;
 
     for (j = 0; j < 16; j++) {
@@ -4244,9 +4237,8 @@ int cm_ResetCutInfos(char *m)
 /* 0x4e3750, 1 when every member of the party m has answered: no cutscene record of its first m->used ones is still fresh
    (as cm_ResetCutInfos left it) without being valid and with a player (playerId != -1); cm_RunSceneParty waits on it */
 
-int cm_PartyAnswered(char *m)
+int cm_PartyAnswered(G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     int i, ok;
 
     ok = 1;
@@ -4262,9 +4254,8 @@ int cm_PartyAnswered(char *m)
    (cm_CutInfos) that is valid and not yet announced (recvFlag) gets its text printed in the party's
    window, separated by "$A" */
 
-int cm_ShowPartyTexts(char *m)
+int cm_ShowPartyTexts(G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     CMCUTINFO *s;
     int i;
 
@@ -4280,9 +4271,8 @@ int cm_ShowPartyTexts(char *m)
 }
 /* 0x4e3800, the highest index below n (1 ..) of the scene party m's members that is not -1; 0 without */
 
-int cm_PrevPartyMember(char *m, int n)
+int cm_PrevPartyMember(G28REC *party, int n)
 {
-    G28REC *party = (G28REC *)m;
     int i;
 
     for (i = n - 1; i > 0; i--)
@@ -4331,9 +4321,8 @@ int cm_PrevPartyMember(char *m, int n)
    positive if, the valid test split, rec copied before cm_CutChar = c in the first owner loop (73), next
    instead of rec there (75), a separate counter j for any subset of the four loops (all = control). */
 
-void cm_RunSceneParty(char *m, void *ctx)
+void cm_RunSceneParty(G28REC *party, void *ctx)
 {
-    G28REC *party = (G28REC *)m;
     CMCUTTYPEMSG msg;
     CMCUTINFO rec;
     CMCUTINFO next;
@@ -4342,7 +4331,7 @@ void cm_RunSceneParty(char *m, void *ctx)
     void (*cb)();
 
     saved = cut_GetRandSeed();
-    cm_ResetCutInfos(m);
+    cm_ResetCutInfos(party);
     if (ai_GameFlags & 4) {
         if (party->host == ai_Chars[ai_PlayerId].netId && cm_SkipEvents == 0) {
             memset(&msg, 0, sizeof(msg));
@@ -4399,7 +4388,7 @@ void cm_RunSceneParty(char *m, void *ctx)
                     h = cm_RequestSendCutInfo(c->netId, party->id);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
-                    cm_ShowPartyTexts(m);
+                    cm_ShowPartyTexts(party);
                     sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
                 }
             }
@@ -4422,8 +4411,8 @@ void cm_RunSceneParty(char *m, void *ctx)
                     break;
                 }
             }
-            while (cm_PartyAnswered(m) == 0) {
-                cm_ShowPartyTexts(m);
+            while (cm_PartyAnswered(party) == 0) {
+                cm_ShowPartyTexts(party);
                 sv_SetStatusText(txt_Ptrs[TXT_SCENE_PARTY_WAIT]);
                 sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
             }
@@ -4438,9 +4427,9 @@ void cm_RunSceneParty(char *m, void *ctx)
                 }
             }
             if (me != -1)
-                prev = cm_PrevPartyMember(m, me);
-            while (cm_PartyAnswered(m) == 0) {
-                cm_ShowPartyTexts(m);
+                prev = cm_PrevPartyMember(party, me);
+            while (cm_PartyAnswered(party) == 0) {
+                cm_ShowPartyTexts(party);
                 sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
                 if (me != -1 && (me == 0 || cm_CutInfos[prev].valid == 1) && cm_CutInfos[me].valid == 0) {
                     CMCUTINFO r;
@@ -4448,7 +4437,7 @@ void cm_RunSceneParty(char *m, void *ctx)
                     r = cm_CutInfos[me];
                     cm_PartyTurn = me;
                     cm_CutChar = gm_FindChar(party->members[me]);
-                    cm_ShowPartyTexts(m);
+                    cm_ShowPartyTexts(party);
                     cm_SceneDeadline = cm_SceneTicks + cm_SceneDuration;
                     cm_SceneTimedOut = 0;
                     cm_Kinds[party->kind].askPlayer(&r, ctx);
@@ -4458,7 +4447,7 @@ void cm_RunSceneParty(char *m, void *ctx)
                     h = cm_RequestSendCutInfo(cm_CutChar->netId, party->id);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
-                    cm_ShowPartyTexts(m);
+                    cm_ShowPartyTexts(party);
                     sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
                 }
                 /* the owner answers for the first computer member whose turn it is */
@@ -4467,7 +4456,7 @@ void cm_RunSceneParty(char *m, void *ctx)
                         c = gm_FindChar(party->members[i]);
                         if (c == 0 || c->kind == 6 || c->kind == 7)
                             continue;
-                        if (i != 0 && cm_CutInfos[cm_PrevPartyMember(m, i)].valid != 1)
+                        if (i != 0 && cm_CutInfos[cm_PrevPartyMember(party, i)].valid != 1)
                             continue;
                         if (cm_CutInfos[i].valid != 0)
                             continue;
@@ -4487,7 +4476,7 @@ void cm_RunSceneParty(char *m, void *ctx)
                     }
                 }
             }
-            cm_ShowPartyTexts(m);
+            cm_ShowPartyTexts(party);
             sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
         }
     }
@@ -4528,9 +4517,9 @@ int cm_ResumeSceneChars(void)
    fades in again, and the owner gives every member's character back its scene party field (+0x20c = -1, a field
    message) */
 
-void cm_ExecCutscene(char *m)
+void cm_ExecCutscene(G28REC *m)
 {
-    G28REC *party = (G28REC *)m;
+    G28REC *party = m;
     int ours, shown, panel;
     float savedSpeed;
     int savedFog, savedLowPoly;
@@ -4586,7 +4575,7 @@ void cm_ExecCutscene(char *m)
         if (ai_GameFlags & 8) {
             if (ours != 0)
                 cm_SkipEvents = 1;
-        } else if ((ai_GameFlags & 4) && cm_IsPartyMember(ai_Chars[ai_PlayerId].netId, m) == 0)
+        } else if ((ai_GameFlags & 4) && cm_IsPartyMember(ai_Chars[ai_PlayerId].netId, party) == 0)
             cm_SkipEvents = 1;
     }
     if (cm_SkipEvents == 0) {
@@ -4638,7 +4627,7 @@ void cm_ExecCutscene(char *m)
                 panel = 0;
         }
     } else if (cm_CurrentFight == 0)
-        cm_ResetCutInfos(m);
+        cm_ResetCutInfos(party);
     savedBox = cm_TextBox;
     if (party->kind == 2)
         party->window = d2_OpenForm(0, 0, "cutscenes\\prozess_main");
@@ -4652,8 +4641,8 @@ void cm_ExecCutscene(char *m)
         d2_SetViewEnabled(cm_TextBox, 0);
     cut_RandSeed(party->seed);
     sprintf(buf, "Exec Cutscene(Mainfunc) <Type = %i>", party->kind);
-    cm_CurrentFight = (int *)m;
-    cm_Kinds[party->kind].run(m);
+    cm_CurrentFight = party;
+    cm_Kinds[party->kind].run(party);
     d2_CloseView(party->window);
     cm_TextBox = savedBox;
     if (cm_SkipEvents == 0) {
@@ -4700,7 +4689,7 @@ void cm_ExecCutscene(char *m)
             d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 10);
         }
     }
-    cm_ResetCutInfos(m);
+    cm_ResetCutInfos(party);
     if (party->host == ai_Chars[ai_PlayerId].netId) {
         for (i = 0; i < 16; i++) {
             cm_CutInfos[i].ready = 0;
@@ -4729,9 +4718,8 @@ void cm_ExecCutscene(char *m)
 }
 /* 0x4e4870, 1 when the character id is one of the scene party m's members and still exists */
 
-int cm_IsPartyMember(int id, char *m)
+int cm_IsPartyMember(int id, G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     int i, n;
 
     n = party->used;
@@ -4798,14 +4786,13 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
    "new master for id %i => %i", a request (cm_SendMasterChange) and the wait for its answer
    (cm_GetSlotState with the frame wait sv_PumpNet); 0 then. The log "invalid master for id %i" comes first. */
 
-int cm_CheckMaster(char *m)
+int cm_CheckMaster(G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     char buf[0x80];
     AICHAR *c;
     int flag, i, h;
 
-    if (cm_IsPartyMember(party->host, m) == 0) {
+    if (cm_IsPartyMember(party->host, party) == 0) {
         flag = 1;
         c = gm_FindChar(party->host);
         sprintf(buf, "cut_CheckMaster(): invalid master for id %i", party->id);
@@ -4831,9 +4818,8 @@ int cm_CheckMaster(char *m)
    for; on the other side such a member makes 0. Then the owner is checked (cm_CheckMaster, -1 when it had to change) and the
    party's id with its 16 members goes out as message 0x59: 0 when the answer is 2, else 1 */
 
-int cm_CutsceneReady(char *m)
+int cm_CutsceneReady(G28REC *party)
 {
-    G28REC *party = (G28REC *)m;
     int buf[0x12];
     int i, h;
     AICHAR *c;
@@ -4860,7 +4846,7 @@ int cm_CutsceneReady(char *m)
                 return 0;
         }
     }
-    if (cm_CheckMaster(m) == 0)
+    if (cm_CheckMaster(party) == 0)
         return -1;
     buf[0] = party->id;
     memcpy(buf + 1, party->members, sizeof(party->members));
@@ -4893,7 +4879,7 @@ int cm_UpdateParties(void)
         if (p->host == -1 && ((cm_NetFlags & 8) || (ai_GameFlags & 8)))
             p->host = ai_Chars[ai_PlayerId].netId;
         if (ai_Chars[ai_PlayerId].netId == p->host && p->state == 0 && gm_CompareTime(&ai_Time, &soon) > 0) {
-            k = cm_CutsceneReady((char *)p);
+            k = cm_CutsceneReady(p);
             if (k == -1) {
                 gm_AddTime(&p->time, 0, 5, 0);
                 if (p->time.hour >= 0x16)
@@ -4914,7 +4900,7 @@ int cm_UpdateParties(void)
         if (cm_Kinds[p->kind].check == 0 && gm_CompareTime(&ai_Time, &p->time) > 0)
             p->done = 1;
         if (gm_CompareTime(&ai_Time, &p->time) > 0 && p->done == 0) {
-            if (cm_IsPartyMember(ai_Chars[ai_PlayerId].netId, (char *)p) != 0 && (p->flags & 0x80)) {
+            if (cm_IsPartyMember(ai_Chars[ai_PlayerId].netId, p) != 0 && (p->flags & 0x80)) {
                 if (ai_Chars[ai_PlayerId].partyId == p->id)
                     p->done = 1;
             } else if (p->host == ai_Chars[ai_PlayerId].netId && (p->flags & 2))
@@ -4924,7 +4910,7 @@ int cm_UpdateParties(void)
         }
         if (gm_CompareTime(&ai_Time, &soon) > 0 && p->done != 0) {
             sv_QuickJump.panelFlag = 0;
-            cm_ExecCutscene((char *)p);
+            cm_ExecCutscene(p);
             cm_ClearParty(p->id);
         }
     }
@@ -4960,9 +4946,9 @@ char ai_RunPendingParties(int pl)
     save = ai_Chars[pl].partyId;
     p = (G28REC *)cm_FirstPendingParty();
     while (p != 0) {
-        if (cm_IsPartyMember(ai_Chars[pl].netId, (char *)p) != 0) {
+        if (cm_IsPartyMember(ai_Chars[pl].netId, p) != 0) {
             ai_Chars[pl].partyId = p->id;
-            cm_ExecCutscene((char *)p);
+            cm_ExecCutscene(p);
             ai_Chars[pl].partyId = -1;
             ret = 1;
         }
@@ -5090,7 +5076,7 @@ int cm_RemovePartyMember(int id, int who)
             break;
         }
     }
-    if (cm_CurrentFight != 0 && *cm_CurrentFight == id) {
+    if (cm_CurrentFight != 0 && cm_CurrentFight->id == id) {
         for (i = 0; i < 16; i++) {
             if (cm_CutInfos[i].playerId == who) {
                 cm_CutInfos[i].playerId = -1;

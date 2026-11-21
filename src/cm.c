@@ -2072,7 +2072,7 @@ int cm_SendObjCell(const char *s, int a, int b, const char *s2)
         m.objCell.name2[0] = 0;
     return cm_QueueSend(&m);
 }
-/* 0x4c5c40, message 0x50 (0x2c bytes of p, the id *cm_CurrentFight). p is the entry's address passed as an integer:
+/* 0x4c5c40, message 0x50 (0x2c bytes of p, the id cm_CurrentFight->id). p is the entry's address passed as an integer:
    the callers' entry locals count as escaped in the original (cm_FightFrame copies into its entry before the pointer
    loads behind it; cm_RunCutOrders orders three stores to m the same way), which a pointer parameter of this body
    does not give (VC6 knows a function defined above does not let p escape) */
@@ -2084,7 +2084,7 @@ int cm_SendCutEntry(int a, int p)
     m.type = 0x50;
     m.cutEntry.playerId = a;
     if (cm_CurrentFight != 0)
-        m.cutEntry.fightId = *cm_CurrentFight;
+        m.cutEntry.fightId = cm_CurrentFight->id;
     else
         m.cutEntry.fightId = -1;
     memcpy(&m.cutEntry.entry, (void *)p, sizeof(m.cutEntry.entry));
@@ -2099,7 +2099,7 @@ int cm_SendCutEntryUpdate(int a, int p)
     m.type = 0x51;
     m.cutEntry.playerId = a;
     if (cm_CurrentFight != 0)
-        m.cutEntry.fightId = *cm_CurrentFight;
+        m.cutEntry.fightId = cm_CurrentFight->id;
     else
         m.cutEntry.fightId = -1;
     memcpy(&m.cutEntry.entry, (void *)p, sizeof(m.cutEntry.entry));
@@ -2147,7 +2147,7 @@ int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
     D3OBJECT *b;
     AICHAR *t;
 
-    m.fight.fight = *cm_CurrentFight;
+    m.fight.fight = cm_CurrentFight->id;
     m.type = 0x55;
     m.fight.cmd = (unsigned char)cmd;
     m.fight.slot = *f;
@@ -4078,7 +4078,7 @@ int cm_ExSendCutInfo(G17MSG *m, G17STAT *s)
 
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == m->cut.playerId) {
-            if (cm_CurrentFight != 0 && *cm_CurrentFight == m->cut.fightId) {
+            if (cm_CurrentFight != 0 && cm_CurrentFight->id == m->cut.fightId) {
                 memcpy(&cm_CutInfos[i], cm_LongMsg, sizeof(CMCUTINFO));
                 cm_CutInfos[i].recvFlag = 0;
                 sprintf(buf, "cm_ExSendCutInfo: PlayerId:%i Valid:%i  Ready:%i  Time:%i", cm_CutInfos[i].playerId,
@@ -4088,7 +4088,7 @@ int cm_ExSendCutInfo(G17MSG *m, G17STAT *s)
         }
     }
     if (i >= 16) {
-        if (cm_CurrentFight != 0 && *cm_CurrentFight == m->cut.fightId)
+        if (cm_CurrentFight != 0 && cm_CurrentFight->id == m->cut.fightId)
             sprintf(buf, "cm_ExSendCutInfo(): io-buffer has not been written, because player not found (player id %i)",
                     m->cut.playerId);
         return 1;
@@ -5970,7 +5970,7 @@ int cm_ExFightCommand(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
 
-    if (cm_CurrentFight == 0 || *cm_CurrentFight != m->fight.fight)
+    if (cm_CurrentFight == 0 || cm_CurrentFight->id != m->fight.fight)
         return 1;
     c = cm_FindFighter(m->fight.slot.id);
     switch (m->fight.cmd) {
@@ -6888,12 +6888,6 @@ int cm_ExLobby(G17MSG *m, G17STAT *s)
 }
 
 /* dcp unit split: the declarations that moved to cmfight (copies: drop what cm does not use) */
-typedef struct CMGUARDREC {
-    char pad000[0x80];
-    int netIds[16];                 /* 0x080, the netIds of the guards already armed, -1 = a free slot (cm_FreeNetIdSlot) */
-    char pad0c0[0x50];
-    int kind;                       /* 0x110, the kind of arming last asked for (1 .. 3) */
-} CMGUARDREC;
 
 extern unsigned int ai_MissionSeed;
 extern struct AIBLD *sv_SelectedObject;
