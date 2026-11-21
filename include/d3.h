@@ -66,7 +66,13 @@ struct D3OBJECT {
         char name[0x4c];            /* compared with _strcmpi by name lookups; real length unknown */
         struct {
             char padname[0x48];
-            unsigned int pickId;    /* 0x48, a character's body: its AICHAR id | 0x3000000 (ls_ReadSceneRecords) */
+            union {
+                unsigned int pickId;    /* 0x48, the game record the object stands for: 0x1000000 | an object
+                                           prototype (ai_Goods), 0x2000000 | a building type (ai_BTypes; f3init's
+                                           init_SceneNameToPrototype), a character's body its AICHAR id | 0x3000000
+                                           (ls_ReadSceneRecords) */
+                char pickBytes[4];      /* the same word by byte: [3] its kind (1 object, 2 building, 3 character) */
+            };
         };
     };
     D3VECTOR pos;
@@ -76,7 +82,7 @@ struct D3OBJECT {
                                        default view (sv_BorderCameraView) */
         D3VECTOR lightColor;        /* a light's colour (D3LOBJ.color, d3_light.h) */
     };
-    char pad068[0x4];
+    float soundRange;               /* 0x68, an "sfx_" object's sound radius (init_SoundObjectHook: + 50 = the range) */
     D3VECTOR pivot;                 /* 0x6c, the point the object's rotation turns about (d3_pose.c) */
     D3VECTOR posOffset;               /* 0x78 */
     D3VECTOR rotation;                /* 0x84, rotation angles in degrees; d3_SetObjectRot writes them */

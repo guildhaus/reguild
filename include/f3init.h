@@ -10,13 +10,13 @@ struct AIBLD;
 struct AIBLD;
 struct D3OBJECT;
 
-int init_SceneNameToPrototype(char *o);                                 /* 0x50d100 */
+int init_SceneNameToPrototype(struct D3OBJECT *o);                                 /* 0x50d100 */
 void init_SceneObjectDestroyCB(int o);                                  /* 0x50d350 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);            /* 0x50d380 */
 char init_ResetSceneUniverses(void);                                    /* 0x50d460 */
 void init_FreeScenes(void);                                             /* 0x50d490 */
-void init_AllocSceneBuilding(int o);                                    /* 0x50d550 */
-void init_InheritOwner(char *o);                                        /* 0x50d6a0 */
+void init_AllocSceneBuilding(struct D3OBJECT *o);                                    /* 0x50d550 */
+void init_InheritOwner(struct D3OBJECT *o);                                        /* 0x50d6a0 */
 char init_LoadTownScene(char *n);                                       /* 0x50d6d0 */
 void init_AdjustSceneLights(struct D3OBJECT *o);                        /* 0x50d730 */
 void init_LoadObjectScene(int n);                                       /* 0x50d7f0 */
@@ -41,9 +41,9 @@ int init_SetupNewGame(int n);                                           /* 0x511
 char init_CollectTorchObject(struct D3OBJECT *o, void *ctx);           /* 0x5115b0 */
 void init_StripTorches(struct D3OBJECT *s);                                              /* 0x511600 */
 void init_RebuildQuadTree(void);                                               /* 0x5116b0 */
-char init_TownBuildingHook(char *o);                                    /* 0x511700 */
+char init_TownBuildingHook(struct D3OBJECT *o);                                    /* 0x511700 */
 void init_PrepareTownScene(void);                                               /* 0x511790 */
-int init_FlagTreeObject(char *o);                                              /* 0x511810 */
+int init_FlagTreeObject(struct D3OBJECT *o);                                              /* 0x511810 */
 void init_RecreateQuadTree(void);                                               /* 0x511840 */
 void init_NameBuildings(void);                                          /* 0x511890 */
 void init_LocalData(void);                                              /* 0x511ad0 */
@@ -51,18 +51,18 @@ void init_FillMarkets(int p);                                           /* 0x511
 void init_GiveFirstPlayerBuildings(void);                                               /* 0x511c70 */
 int init_ObjectSceneUniverse(struct AIOBJ *p);                        /* 0x511dc0 */
 int init_BuildingSceneUniverse(struct AIBLD *b);                        /* 0x511e60 */
-void init_SyncSceneObjects(char *o);                                    /* 0x511f20 */
+void init_SyncSceneObjects(struct D3OBJECT *o);                                    /* 0x511f20 */
 void init_LoadTypeBScene(void);                                               /* 0x5124d0 */
 void init_LoadShopScript(struct AIBLD *b, struct AIOBJ *o);          /* 0x5124f0 */
-void init_SoundObjectHook(char *o);                                     /* 0x5126a0 */
+void init_SoundObjectHook(struct D3OBJECT *o);                                     /* 0x5126a0 */
 void init_GateObjectHook(struct D3OBJECT *o);                           /* 0x512780 */
-void init_SoundObjectFreeHook(char *o);                                 /* 0x5127c0 */
+void init_SoundObjectFreeHook(struct D3OBJECT *o);                                 /* 0x5127c0 */
 void init_PlayTownSound(char *name, int volume, int delay);             /* 0x5127f0 */
 void init_PlayGraveyardSound(struct AIBLD *b);                                  /* 0x512840 */
 void init_StopTownSounds(void);                                               /* 0x512890 */
 void init_SetSeasonTextures(void);                                      /* 0x5128d0 */
-void init_PlantTextureSetHook(char *o);                                 /* 0x512de0 */
-char init_TextureSetHook(int o);                                        /* 0x512e40 */
+void init_PlantTextureSetHook(struct D3OBJECT *o);                                 /* 0x512de0 */
+char init_TextureSetHook(struct D3OBJECT *o);                                        /* 0x512e40 */
 char init_BuildingTextureSetHook(struct D3OBJECT *o, void *ctx);  /* 0x512e80 */
 void init_SetCharacterAnimations(struct AIBLD *b);                     /* 0x512f30 */
 void init_ShowBuildingScene(struct AIBLD *b, int slot);                 /* 0x513050 */

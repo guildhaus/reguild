@@ -208,8 +208,8 @@ typedef struct INIT_TORCHLIST {
     D3OBJECT *obj[0x20];            /* 0x000, the collected objects */
     int n;                          /* 0x080, the number collected */
 } INIT_TORCHLIST;                   /* 0x84 bytes */
-#define INIT_PROTO_OBJECT   0x1000000u   /* SCENEOBJ.proto: an index into the object prototypes ai_Goods */
-#define INIT_PROTO_BUILDING 0x2000000u   /* SCENEOBJ.proto: an index into the building prototypes ai_BTypes */
+#define INIT_PROTO_OBJECT   0x1000000u   /* D3OBJECT.pickId: an index into the object prototypes ai_Goods */
+#define INIT_PROTO_BUILDING 0x2000000u   /* D3OBJECT.pickId: an index into the building prototypes ai_BTypes */
 #define INIT_KONTOR_BUILDING 0x47        /* the building prototype index the special name "KONTOR" maps to */
 #define INIT_PROTO_MASK 0xffffffu      /* the prototype reference's index bits (o + 0x48), the original's plain
                                           immediates: `and esi, 0xffffff` (init_SyncSceneObjects 0x511f3e,
@@ -402,16 +402,15 @@ void ai_FavourComment(char *a);
 /* ---- the town scene loading 0x5124f0 .. 0x5128d0, 0x510770, 0x510ad0, 0x513050 (ROUGH drafts) ---- */
 
 extern unsigned char d3fl_DetailSizeShift;      /* 0x633751 */
-/* 0x50d100, maps the name of the scene object o (copied: "ob_NAME_X" / "gb_NAME") to a prototype: a variant suffix "_A" .. "_H" is cut off, "ob" looks the name up in the object prototypes (the result 0x1000000 | number at SCENEOBJ.proto), "gb" in the building prototypes (0x2000000 | number), a name containing "KONTOR" is the building 0x47 (0x2000047). Returns 1 when found. */
+/* 0x50d100, maps the name of the scene object o (copied: "ob_NAME_X" / "gb_NAME") to a prototype: a variant suffix "_A" .. "_H" is cut off, "ob" looks the name up in the object prototypes (the result 0x1000000 | number at D3OBJECT.pickId), "gb" in the building prototypes (0x2000000 | number), a name containing "KONTOR" is the building 0x47 (0x2000047). Returns 1 when found. */
 
-int init_SceneNameToPrototype(char *o)
+int init_SceneNameToPrototype(D3OBJECT *o)
 {
-    SCENEOBJ *obj = (SCENEOBJ *)o;
     char head[0x100], rest[0x100], tail[0x80];
     char *u, *t;
     int i;
 
-    strcpy(head, o);
+    strcpy(head, o->name);
     u = strchr(head, '_');
     if (u == 0)
         return 0;
@@ -427,7 +426,7 @@ int init_SceneNameToPrototype(char *o)
     if (strcmpi(head, "ob") == 0 || strcmpi(head + 1, "ob") == 0) {
         for (i = 0; i < 0xb9dc / 0x41; i++) {
             if (strcmpi(rest, ai_Goods[i].name) == 0) {
-                obj->proto = i | INIT_PROTO_OBJECT;
+                o->pickId = i | INIT_PROTO_OBJECT;
                 return 1;
             }
         }
@@ -437,12 +436,12 @@ int init_SceneNameToPrototype(char *o)
         return 0;
     for (i = 0; i < 0xca78 / 0x24d; i++) {
         if (strcmpi(rest, ((INIT_BTYPEREC *)ai_BTypes)[i].name) == 0) {
-            obj->proto = i | INIT_PROTO_BUILDING;
+            o->pickId = i | INIT_PROTO_BUILDING;
             return 1;
         }
     }
     if (strstr(rest, "KONTOR") != 0) {
-        obj->proto = INIT_PROTO_BUILDING | INIT_KONTOR_BUILDING;   /* the Kontor building, 0x2000000 | 0x47 */
+        o->pickId = INIT_PROTO_BUILDING | INIT_KONTOR_BUILDING;   /* the Kontor building, 0x2000000 | 0x47 */
         return 1;
     }
     return 0;
@@ -485,7 +484,7 @@ void init_HookObject(D3OBJECT *o, void *p, int kind)
         o->kind = 4;
         break;
     }
-    init_SceneNameToPrototype(o->name);
+    init_SceneNameToPrototype(o);
     o->owner = p;
     if (o->material != 0)
         o->material->freeCallback = (void (*)(struct D3OBJECT *))init_SceneObjectDestroyCB;
@@ -543,29 +542,29 @@ void init_FreeScenes(void)
 /* 0x50d550, the scene object callback (a function start Ghidra missed) that allocates the building for a "gb_NAME" scene object o (0x50d100 resolved the name to the building type, bits 0x2000000 in +0x48): a new instance of the type without an owner (0x501580), for the KONTOR (type 0x47) the office of the player slot whose name is the part after the last '_' of the object name (the slot number goes to +0x65, its name to +5); the object and the building are linked (+0x61 / +0x200) and "f3_init:Gebaeude des Typs %s allokiert" is the (unused) log text. An object without a state of its own takes its parent's record. */
 
 
-void init_AllocSceneBuilding(int o)
+void init_AllocSceneBuilding(D3OBJECT *o)
 {
     char buf[0x100];
     char tail[0x80];
     unsigned id;
-    SCENEOBJ *obj;
+    D3OBJECT *obj;
     AIBLD *b;
-    SCENEOBJ *par;
+    D3OBJECT *par;
     int i, kind;
     char *u;
 
-    if (init_SceneNameToPrototype((char *)o) != 0) {
-        obj = (SCENEOBJ *)o;
-        if (obj->proto != -1) {
-            kind = obj->protoBytes[3];
-            id = obj->proto & INIT_PROTO_MASK;
+    if (init_SceneNameToPrototype(o) != 0) {
+        obj = o;
+        if (obj->pickId != -1) {
+            kind = obj->pickBytes[3];
+            id = obj->pickId & INIT_PROTO_MASK;
             if (kind == 2 && obj->type != 0) {
                 /* @original the Kontor is named by kind and index (the kind tested again, decided by VC6): the
                    kind is a register value (movsx ecx, byte ptr [ebp+0x4b] / cmp ecx,2), which a single
                    kind compare folds into cmp byte ptr [ebp+0x4b],2 */
                 if (kind == 2 && id == INIT_KONTOR_BUILDING) {
                     b = (AIBLD *)gm_CreateBuilding(INIT_KONTOR_BUILDING, 0xffff);
-                    u = strrchr((char *)o, '_') + 1;
+                    u = strrchr(o->name, '_') + 1;
                     strcpy(tail, u);
                     for (i = 1; i < 4; i++) {
                         if (ai_PlayerSlots[i].name[0] == 0)
@@ -580,8 +579,8 @@ void init_AllocSceneBuilding(int o)
                     b = (AIBLD *)gm_CreateBuilding(id, 0xffff);
                 if (b != 0) {
                     sprintf(buf, "f3_init:Geb\xe4ude des Typs %s allokiert", (char *)ai_BuildingNames[id * 0xe - 2]);
-                    b->object = (D3OBJECT *)o;
-                    obj->owner = (SCENEOBJ *)b;
+                    b->object = o;
+                    obj->owner = b;
                 }
             }
         }
@@ -592,16 +591,15 @@ void init_AllocSceneBuilding(int o)
         }
     }
 }
-/* 0x50d6a0, the scene object callback (a function start Ghidra missed): an object without an owner record (SCENEOBJ.owner) takes the one of its closest ancestor (SCENEOBJ.parent) that has one */
+/* 0x50d6a0, the scene object callback (a function start Ghidra missed): an object without an owner record (D3OBJECT.owner) takes the one of its closest ancestor (D3OBJECT.parent) that has one */
 
 
-void init_InheritOwner(char *o)
+void init_InheritOwner(D3OBJECT *o)
 {
-    SCENEOBJ *obj = (SCENEOBJ *)o;
-    SCENEOBJ *par;
+    D3OBJECT *par;
 
-    for (par = obj->parent; obj->owner == 0 && par != 0; par = par->parent)
-        obj->owner = par->owner;
+    for (par = o->parent; o->owner == 0 && par != 0; par = par->parent)
+        o->owner = par->owner;
 }
 /* 0x50d6d0, loads the town scene "scenes/*stadt_%s.ed3" (name n) into the current scene; the callback 0x50d730 adjusts its lights. 0 when it does not exist */
 
@@ -2508,29 +2506,27 @@ void init_RebuildQuadTree(void)
    for the building type 0x1f), objects with "_TOR_" in the name are left alone; returns 1. The return type is char (the original sets only al). The prototype pointer is 0 for a non-building, and that test leads to the "_TOR_" arm, which the original lays out inline */
 
 
-char init_TownBuildingHook(char *o)
+char init_TownBuildingHook(D3OBJECT *o)
 {
-    SCENEOBJ *so;
     char *p;
 
-    so = (SCENEOBJ *)o;
-    if (strncmp(o, "gb_", 3) != 0)
+    if (strncmp(o->name, "gb_", 3) != 0)
         return 1;
-    if (o[0x4b] == 2)
-        p = (char *)ai_BTypes + (so->proto & INIT_PROTO_MASK) * 0x24d;
+    if (o->pickBytes[3] == 2)
+        p = (char *)ai_BTypes + (o->pickId & INIT_PROTO_MASK) * 0x24d;
     else
         p = 0;
     if (p == 0) {
-        if (strstr(o, "_TOR_") != 0)
+        if (strstr(o->name, "_TOR_") != 0)
             return 1;
-        o[0x212] = (o[0x212] & 0xf7) | 4;
+        o->stateFlags = (o->stateFlags & 0xf7) | 4;
         return 1;
     }
     if (*p != 0x1f) {
-        o[0x212] = (o[0x212] & 0xf7) | 4;
+        o->stateFlags = (o->stateFlags & 0xf7) | 4;
         return 1;
     }
-    o[0x212] = o[0x212] | 0xc;
+    o->stateFlags = o->stateFlags | 0xc;
     return 1;
 }
 /* 0x511790, prepares the town scene: the flag 4 on every building scene object of the class 6, the hook 0x511700 on all "gb_" objects, the torches (0x5116b0), and the scene's tree is rebuilt */
@@ -2558,15 +2554,13 @@ void init_PrepareTownScene(void)
 /* 0x511810, scene object callback: an object of the type 0 / 1 / 3 / 4 (+0x220) gets the flag 4 in +0x213 */
 
 
-int init_FlagTreeObject(char *o)
+int init_FlagTreeObject(D3OBJECT *o)
 {
-    D3OBJECT *obj;
     int t;
 
-    obj = (D3OBJECT *)o;
-    t = obj->kind;
+    t = o->kind;
     if (t == 3 || t == 4 || t == 1 || t == 0)
-        obj->flags |= 4;
+        o->flags |= 4;
     return t;
 }
 /* 0x511840, frees and re-creates the quad tree 0x6f1c28 from the scene's objects (0x511810) */
@@ -2842,13 +2836,12 @@ extern unsigned char init_TextureSet;      /* 0x6f1c24 */
    Left: regs 104 / code 127 / slots 28 (rec esi vs edi, s at [esp+0x20] vs [esp+0x24], base at [esp+0x34]
    vs [esp+0x30], push ebx before cmp eax,1 and pop ebx at the end in the original (ebx = rec in the flags
    section, ours eax reloads)) (tiebreak: insensitive) */
-void init_SyncSceneObjects(char *o)
+void init_SyncSceneObjects(D3OBJECT *o)
 {
-    SCENEOBJ *so = (SCENEOBJ *)o;
     char *base;                        /* the object list of the scene */
     char *g;                           /* the ai_Goods record (0x41 bytes) of o's prototype, its class at 0 */
     AIOBJ *rec, *s, *e;
-    SCENEOBJ *parent;
+    D3OBJECT *parent;
     INIT_BTYPEREC *bt;
     EVTSCRIPT *sc;
     D3VECTOR center;
@@ -2858,26 +2851,26 @@ void init_SyncSceneObjects(char *o)
     int kind, fx, i, n, ia, ib;
 
     rec = 0;
-    id = so->proto & INIT_PROTO_MASK;
-    kind = o[0x4b];
+    id = o->pickId & INIT_PROTO_MASK;
+    kind = o->pickBytes[3];
     base = ai_SceneObject != 0 ? (char *)ai_SceneObject->list : (char *)ai_SceneBuilding->objList;
     if (kind == 1) {
         g = (char *)ai_Goods + id * 0x41;
         if (g[0] != 2 && g[0] != 0x1d && g[0] != 0x21 && g[0] != 6 && (rec = gm_Query(base, 1, 0, id)) != 0) {
             rec->obj = 0;
-            parent = so->parent;
+            parent = o->parent;
             if (parent != 0) {
-                unsigned pid = parent->proto & INIT_PROTO_MASK;
+                unsigned pid = parent->pickId & INIT_PROTO_MASK;
 
-                if (((char *)parent)[0x4b] == 1) {
+                if (parent->pickBytes[3] == 1) {
                     s = gm_Query(base, 1, 0, pid);
                     if (s != 0) {
                         char *sg;
 
-                        d3if_ShowTree((struct D3OBJECT *)o, 1);
-                        so->owner = (SCENEOBJ *)rec;
-                        so->mask = 0;
-                        rec->obj = (D3OBJECT *)so;
+                        d3if_ShowTree(o, 1);
+                        o->owner = rec;
+                        o->mask = 0;
+                        rec->obj = o;
                         if (gm_IsBuildingKind(rec->type) != 0) {
                             for (e = gm_Query(base, 1, 4, (unsigned char)g[0]); e != 0; e = gm_QueryNext()) {
                                 a = e->type;
@@ -2897,7 +2890,7 @@ void init_SyncSceneObjects(char *o)
                                         }
                                     }
                                     if (ia != -1 && ia > ib)
-                                        d3if_ShowTree((struct D3OBJECT *)o, 0);
+                                        d3if_ShowTree(o, 0);
                                 }
                             }
                         }
@@ -2905,58 +2898,58 @@ void init_SyncSceneObjects(char *o)
                         if (gm_IsBuildingKind(rec->type) != 0) {
                             for (e = gm_Query(base, 1, 4, (unsigned char)sg[0]); e != 0; e = gm_QueryNext()) {
                                 if (e->type > s->type)
-                                    d3if_ShowTree((struct D3OBJECT *)o, 0);
+                                    d3if_ShowTree(o, 0);
                             }
                         }
                     } else {
-                        d3if_ShowTree((struct D3OBJECT *)o, 0);
-                        so->owner = 0;
+                        d3if_ShowTree(o, 0);
+                        o->owner = 0;
                     }
                 } else {
-                    d3if_ShowTree((struct D3OBJECT *)o, 1);
-                    so->owner = (SCENEOBJ *)rec;
-                    so->mask = 0;
-                    rec->obj = (D3OBJECT *)so;
+                    d3if_ShowTree(o, 1);
+                    o->owner = rec;
+                    o->mask = 0;
+                    rec->obj = o;
                     if (gm_IsBuildingKind(rec->type) != 0) {
                         for (e = gm_Query(base, 1, 4, (unsigned char)g[0]); e != 0; e = gm_QueryNext()) {
                             if (e->type > rec->type)
-                                d3if_ShowTree((struct D3OBJECT *)o, 0);
+                                d3if_ShowTree(o, 0);
                         }
                     }
                 }
             } else {
                 g = (char *)ai_Goods + id * 0x41;
-                d3if_ShowTree((struct D3OBJECT *)o, 1);
-                so->owner = (SCENEOBJ *)rec;
+                d3if_ShowTree(o, 1);
+                o->owner = rec;
                 if (g[0] != 0x1d)
-                    so->mask = 0;
-                rec->obj = (D3OBJECT *)so;
+                    o->mask = 0;
+                rec->obj = o;
                 if (gm_IsBuildingKind(rec->type) != 0) {
                     for (e = gm_Query(base, 1, 4, (unsigned char)g[0]); e != 0; e = gm_QueryNext()) {
                         if (e->type > rec->type)
-                            d3if_ShowTree((struct D3OBJECT *)o, 0);
+                            d3if_ShowTree(o, 0);
                     }
                 }
             }
         } else if (g[0] != 0x1d && (rec = gm_Query((void *)ai_SceneBuilding->objList, 2, 6, 0, id)) != 0) {
-            d3if_ShowTree((struct D3OBJECT *)o, 1);
-            so->owner = (SCENEOBJ *)rec;
+            d3if_ShowTree(o, 1);
+            o->owner = rec;
             if ((g[0] == 6 || g[0] == 2) && ai_FallbackBuilding != 0) {
                 if (gm_PermissionBits(ai_PlayerId, ai_SceneBuilding, rec, 0) & 0x4000)
-                    so->mask = 1;
+                    o->mask = 1;
             } else {
-                so->mask = 0;
+                o->mask = 0;
             }
-            rec->obj = (D3OBJECT *)so;
+            rec->obj = o;
         } else if (ai_Goods[id].type != 0x1d && ai_Goods[id].type != 0x21) {
-            so->owner = 0;
-            if (so->type != 1)
-                d3if_ShowTree((struct D3OBJECT *)o, 0);
+            o->owner = 0;
+            if (o->type != 1)
+                d3if_ShowTree(o, 0);
         }
         if (rec != 0 && (rec->flags13 & 0xa0) != 0) {
-            if (so->info == 0)
-                d3_InflateObject((D3OBJECT *)o);
-            if (so->mesh != 0 && d3t_GetBoundingSphere((struct D3OBJECT *)o, d3_Camera, &center, &radius) != 0) {
+            if (o->info == 0)
+                d3_InflateObject(o);
+            if (o->material != 0 && d3t_GetBoundingSphere(o, d3_Camera, &center, &radius) != 0) {
                 fx = (int)(radius * 1.5);
                 sc = evt_Load("Effekte/upgrade2.esc");
                 if (sc != 0)
@@ -2965,22 +2958,22 @@ void init_SyncSceneObjects(char *o)
             rec->flags13 &= 0x5f;
         }
     }
-    if (strncmp(o, "no_", 3) == 0) {
-        i = gm_FindObjectProto(o + 6);
+    if (strncmp(o->name, "no_", 3) == 0) {
+        i = gm_FindObjectProto(o->name + 6);
         if (i != -1) {
             s = gm_Query(ai_Goods[i].type == 2 ? (char *)ai_SceneBuilding->objList : base, 1, 0, i);
             if (s != 0)
-                d3if_ShowTree((struct D3OBJECT *)o, 0);
+                d3if_ShowTree(o, 0);
             else
-                d3if_ShowTree((struct D3OBJECT *)o, 1);
+                d3if_ShowTree(o, 1);
         }
         return;
     }
-    if (strncmp(o, "pfl_", 4) == 0 || strncmp(o, "vg_", 3) == 0) {
-        if (so->info != 0)
-            d3if_SelectTextureSet((struct D3OBJECT *)o, (struct D3SURF *)so->info, init_TextureSet, 1);
+    if (strncmp(o->name, "pfl_", 4) == 0 || strncmp(o->name, "vg_", 3) == 0) {
+        if (o->info != 0)
+            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, init_TextureSet, 1);
         else
-            d3if_SelectTextureSet((struct D3OBJECT *)o, (struct D3SURF *)so->mesh->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, (struct D3SURF *)o->material->animCtl, init_TextureSet, 1);
     }
 }
 /* 0x5124d0, the first building of the type 0xb: 0x511e60 */
@@ -3066,15 +3059,15 @@ void init_LoadShopScript(AIBLD *b, AIOBJ *o)
    MAX_PATH): the original's frame 0xf8, 12 -> 9 bytes. Left: regs 26 (18 ins). */
 
 
-void init_SoundObjectHook(char *o)
+void init_SoundObjectHook(D3OBJECT *o)
 {
     char name[0x100];
     int loop, delay;
     struct D3SOUND *h;
     struct SBSAMPLE *s;
 
-    if (strncmp(o, "sfx_", 4) == 0) {
-        strcpy(name, o + 4);
+    if (strncmp(o->name, "sfx_", 4) == 0) {
+        strcpy(name, o->name + 4);
         loop = strstr(name, "_l") == 0;
         if (strstr(name, "_r") != 0) {
             delay = 2000;
@@ -3084,12 +3077,12 @@ void init_SoundObjectHook(char *o)
         if (snd_SfxEnabled != 0) {
             s = sb_GetSample(0, name);
             if (s != 0) {
-                h = d3snd_Attach(s, (struct D3OBJECT *)o, 0x7f, (float)((int)((SCENEOBJ *)o)->soundRange + 0x32));
+                h = d3snd_Attach(s, o, 0x7f, (float)((int)o->soundRange + 0x32));
                 if (h != 0)
                     d3snd_Play(h, 0, loop, delay);
             }
         }
-        ((SCENEOBJ *)o)->mask = 0;
+        o->mask = 0;
     }
 }
 /* 0x512780, the scene object callback for "gate" objects: sets the state (+0x224 = 1, the flag 1 of +0x211 cleared) when the name contains "gate", else the state 0 */
@@ -3104,13 +3097,13 @@ void init_GateObjectHook(D3OBJECT *o)
     }
     o->mask = 0;
 }
-/* 0x5127c0, the sound hook of the "sfx_" scene objects: frees the sound at SCENEOBJ.sound (0x4179d0) */
+/* 0x5127c0, the sound hook of the "sfx_" scene objects: frees the sound at D3OBJECT.sound (0x4179d0) */
 
 
-void init_SoundObjectFreeHook(char *o)
+void init_SoundObjectFreeHook(D3OBJECT *o)
 {
-    if (strncmp(o, "sfx_", 4) == 0 && ((SCENEOBJ *)o)->sound != 0)
-        d3snd_Free(((SCENEOBJ *)o)->sound);
+    if (strncmp(o->name, "sfx_", 4) == 0 && o->sound != 0)
+        d3snd_Free(o->sound);
 }
 /* 0x5127f0, starts the looped sound name once (its volume scaled by the 0.7 of 0x61adfc) and keeps its handle in
    the table 0x76fd80 (16 entries) */
@@ -3288,28 +3281,28 @@ void init_SetSeasonTextures(void)
    at +0x1cc) to the current set (init_TextureSet) */
 
 
-void init_PlantTextureSetHook(char *o)
+void init_PlantTextureSetHook(D3OBJECT *o)
 {
-    if (strncmp(o, "pfl_", 4) != 0 && strncmp(o, "vg_", 3) != 0 && strncmp(o, "!vg_", 4) != 0)
+    if (strncmp(o->name, "pfl_", 4) != 0 && strncmp(o->name, "vg_", 3) != 0 && strncmp(o->name, "!vg_", 4) != 0)
         return;
-    d3if_SelectTextureSet((struct D3OBJECT *)o, (struct D3SURF *)((SCENEOBJ *)o)->info, init_TextureSet, 1);
+    d3if_SelectTextureSet(o, (struct D3SURF *)o->info, init_TextureSet, 1);
 }
 /* 0x512e40, the scene object callback: unless the object is of the kind 2 / 4 it switches the textures of the
-   object's mesh (SCENEOBJ.mesh, the set list at +0xf4) to the current set (init_TextureSet, 0x446f30) */
+   object's mesh (D3OBJECT.material, the set list at +0xf4) to the current set (init_TextureSet, 0x446f30) */
 
 
-char init_TextureSetHook(int o)
+char init_TextureSetHook(D3OBJECT *o)
 {
     int s;
 
-    s = ((SCENEOBJ *)o)->kind;
+    s = o->kind;
     if (s != 2 && s != 4) {
         /* @original: the kind 3 had its own arm, the same call; VC6 merged the two calls and left the
            dead cmp ecx,3 in the argument setup */
         if (s == 3)
-            d3if_SelectTextureSet((D3OBJECT *)o, ((SCENEOBJ *)o)->mesh->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, o->material->animCtl, init_TextureSet, 1);
         else
-            d3if_SelectTextureSet((D3OBJECT *)o, ((SCENEOBJ *)o)->mesh->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, o->material->animCtl, init_TextureSet, 1);
     }
     return 1;
 }
@@ -3501,26 +3494,26 @@ void init_NoRoomNoOp(void)
 
 void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
 {
-    SCENEOBJ *d;
+    D3OBJECT *d;
     char *p;
 
     p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     if (o == 0)
         o = gm_Query(b->objList, 2, 6, 0, 0xfd);
-    d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF");
+    d = d3_FindObject(0, 0xa0, 0, "contact_EINKAUF");
     if (d == 0)
-        d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_METALL");
+        d = d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_METALL");
     if (d == 0)
-        d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_SKRIPTE");
+        d = d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_SKRIPTE");
     if (d == 0)
-        d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_HOLZ");
+        d = d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_HOLZ");
     if (d == 0)
-        d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_STEIN");
+        d = d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_STEIN");
     if (d != 0) {
         if (b->owner == ai_PlayerId)
-            d3if_Show((struct D3OBJECT *)d, 0);
+            d3if_Show(d, 0);
         else {
-            d3if_Show((struct D3OBJECT *)d, 1);
+            d3if_Show(d, 1);
             init_LoadShopScript(b, o);
         }
         d->mask = 1;

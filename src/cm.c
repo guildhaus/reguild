@@ -5034,8 +5034,8 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
                         init_TextureSet = 2;
                     else if (season == 3)
                         init_TextureSet = 3;
-                    init_TextureSetHook((int)b->object);
-                    d3_ForEachObject2(d3_DefaultScene, b->object, 0x2c0, (void (*)(D3OBJECT *))init_StripTorches);
+                    init_TextureSetHook(b->object);
+                    d3_ForEachObject2(d3_DefaultScene, b->object, 0x2c0, init_StripTorches);
                     key = (float)sv_DayPhase + sv_DayPhaseFrac;
                     d3_ForEachObject(d3_DefaultScene, b->object, 0x21e, (D3OBJECTCB)d3_SetLightKeyCB, &key);
                     d3_RelightObjects(b->object);

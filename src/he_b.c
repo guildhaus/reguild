@@ -3002,7 +3002,7 @@ void he_RunConstruction(int ev)
                     init_TextureSet = 2;
                 else if (season == 3)
                     init_TextureSet = 3;
-                init_TextureSetHook((int)bld->object);
+                init_TextureSetHook(bld->object);
             }
             if (d3_QuadTree != 0)
                 d3q_Rebuild(bld->object, (D3QNODE *)d3_QuadTree);
