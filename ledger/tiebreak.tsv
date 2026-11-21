@@ -3175,12 +3175,12 @@ exe	0x0050cf60	gm_BathObjectCount	f3gm	fad39ced6ed4ae45	no	byte	control=byte p1=
 exe	0x0050cfd0	gm_CurseObjectCount	f3gm	d4e7fa3b9f2b90a6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d060	gm_Unk50d060	f3gm	afa239cc4ec19ff5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d0b0	gm_CurseTargetCount	f3gm	e5c5bbc07c5d4caf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050d100	init_SceneNameToPrototype	f3init	cb5921b978cdca37	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4133274ad1112113
+exe	0x0050d100	init_SceneNameToPrototype	f3init	e0021e6a21da3bf9	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	9a2e564b8ab9e088
 exe	0x0050d350	init_SceneObjectDestroyCB	f3init	d4876e7dc3da81be	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d380	init_HookObject	f3init	ea5d8b5dab96062f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d460	init_ResetSceneUniverses	f3init	254fd99face5cd17	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d490	init_FreeScenes	f3init	d11248ce177aaa0b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050d550	init_AllocSceneBuilding	f3init	faba14c9be2ac4ae	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	a8a5c40d0e203575
+exe	0x0050d550	init_AllocSceneBuilding	f3init	f123ddf8273e82df	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	9a2e564b8ab9e088
 exe	0x0050d6a0	init_InheritOwner	f3init	773b94032f4762b9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3371284ff47bad88
 exe	0x0050d6d0	init_LoadTownScene	f3init	75a0ebb553315c2a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d730	init_AdjustSceneLights	f3init	3b763734256b6eec	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -3193,7 +3193,7 @@ exe	0x0050e5a0	init_PlaceOffices	f3init	ce303634650af2b7	no	shape	sweep control=
 exe	0x0050e690	init_CreateStartCharacters	f3init	fe9dd50b50d8d6d0	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x0050f0b0	init_CreateOpeningObjects	f3init	91c7cb5cfc37c4c6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050f340	init_StockMarketStalls	f3init	4300f931b43b6466	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3371284ff47bad88
-exe	0x0050f570	init_Betrieb	f3init	c9154ee6f4d980b8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	98d5acb7ac4cf314
+exe	0x0050f570	init_Betrieb	f3init	ee139963937b6c80	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	9a2e564b8ab9e088
 exe	0x0050f750	init_OpenBuilding	f3init	35b1554abb743765	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3371284ff47bad88
 exe	0x0050f910	init_OpenTown	f3init	374667a1c0e8397e	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00510730	init_CollectSiteObject	f3init	85f1adfd854ea640	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3206,7 +3206,7 @@ exe	0x00511400	init_SetupNewGame	f3init	1b0fc9dd4ab00706	no	draft	sweep control=
 exe	0x005115b0	init_CollectTorchObject	f3init	e57a18d9eb63c7ca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00511600	init_StripTorches	f3init	4dcff251847a74c8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005116b0	init_RebuildQuadTree	f3init	267007813a324882	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00511700	init_TownBuildingHook	f3init	6e71687c11381644	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
+exe	0x00511700	init_TownBuildingHook	f3init	83bf1a498d41a5bb	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=316	9a2e564b8ab9e088
 exe	0x00511790	init_PrepareTownScene	f3init	e1e5bf3ea7a858af	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00511810	init_FlagTreeObject	f3init	a6a1c9aff66e2bdb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00511840	init_RecreateQuadTree	f3init	72bb43f037580d38	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

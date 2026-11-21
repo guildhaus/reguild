@@ -6,7 +6,7 @@
 
 #include "f3init_types.h"                 /* INIT_PLAYER */
 #include "rd_types.h"                     /* G15BK */
-struct INIT_BLD;
+struct AIBLD;
 struct AIBLD;
 struct D3OBJECT;
 
@@ -28,8 +28,8 @@ void init_PlaceOffices(int n, int *out, int *ids);            /* 0x50e5a0 */
 int init_CreateStartCharacters(int unused);                                   /* 0x50e690 */
 void init_CreateOpeningObjects(void);                                   /* 0x50f0b0 */
 void init_StockMarketStalls(void);                                      /* 0x50f340 */
-void init_Betrieb(struct INIT_BLD *b);                                  /* 0x50f570 */
-void init_OpenBuilding(struct INIT_BLD *b);                             /* 0x50f750 */
+void init_Betrieb(struct AIBLD *b);                                  /* 0x50f570 */
+void init_OpenBuilding(struct AIBLD *b);                             /* 0x50f750 */
 void init_OpenTown(void);                                               /* 0x50f910 */
 char init_CollectSiteObject(struct D3OBJECT *o, void *ctx);             /* 0x510730 */
 void init_LoadSiteScene(char *name);                                    /* 0x510770 */
