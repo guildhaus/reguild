@@ -1027,7 +1027,7 @@ void ai_CannonShotResults(CANNONSCENE *sc)
             if (ai_ShotTable[rec].id == rec) {
                 ai_ShotDirty = 1;
                 for (i = 0; i < 3; i++) {
-                    gm_FindById((int *)&bld, 0, 0, ai_ShotTable[rec].e[i].obj);
+                    gm_FindById(&bld, 0, 0, ai_ShotTable[rec].e[i].obj);
                     if (bld == 0)
                         break;
                     v = 0x4071;

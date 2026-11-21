@@ -571,7 +571,7 @@ int ai_DecideCannonTower(int a, AICHAR *p, int b, AIARGX *o1, AIARGX *o2)
     m.s.hi = 1;
     if (!ai_PickActionBuilding(p, 6, m.q, 0, (float)(util_Random(0x20) + 0x20), &v))
         return 0;
-    gm_FindById((int)&b2, 0, 0, v);
+    gm_FindById(&b2, 0, 0, v);
     if (!b2)
         return 0;
     if (!ai_AimCannon(p, bld, b2))
@@ -590,10 +590,10 @@ int ai_ExecCannonTower(AICHAR *p, AIARGX *s1, AIARGX *s2)
 
     if (s1->kind != 4 || s2->kind != 4)
         return 0;
-    gm_FindById((int)&x, 0, 0, s1->ref);
+    gm_FindById(&x, 0, 0, s1->ref);
     if (!x)
         return 0;
-    gm_FindById((int)&y, 0, 0, s2->ref);
+    gm_FindById(&y, 0, 0, s2->ref);
     if (!y)
         return 0;
     return ai_FireCannon(p, x) ? 0x42 : 0;
@@ -977,7 +977,7 @@ int ai_DecideGraveyardOwner0(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2)
 }
 /* 0x4900c0, way 0 of the "Graveyard Owner" execute: sends message 0x88 (flags 2) from the building to the character with the way's AIARG (ref2, ref, arg2, arg) */
 
-int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, int unused, AIARG *o)
+int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o)
 {
     AIMSG msg;
 
@@ -1033,7 +1033,7 @@ done:
 }
 /* 0x4902b0, way 1 of the "Graveyard Owner" execute: sends message 0x90 (flags 2) from the building to the character with the way's AIARG (ref2, ref, arg) */
 
-int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, int unused, AIARG *o)
+int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o)
 {
     AIMSG msg;
 
@@ -1094,7 +1094,7 @@ int ai_DecideGraveyardOwner2(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2)
 }
 /* 0x4904c0, way 2 of the "Graveyard Owner" execute: sends message 0x89 (flags 1) from the building to the character with the way's AIARG (ref2, ref, arg2, arg) */
 
-int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, int unused, AIARG *o)
+int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o)
 {
     AIMSG msg;
 
@@ -1132,7 +1132,7 @@ int ai_DecideGraveyardOwner3(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2)
 }
 /* 0x490600, way 3 of the "Graveyard Owner" execute: sends message 0x8a (flag 1) from the building to the character with the way's AIARG (ref) */
 
-int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, int unused, AIARG *o)
+int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o)
 {
     AIMSG msg;
 
@@ -1153,7 +1153,8 @@ int ai_DecideGraveyardOwner(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
     AIARG s1[4], s2[4];
     int r[4] = { 0, 0, 0, 0 };
-    int v, x, i, n;
+    AIBLD *v;
+    int x, i, n;
     LARGE_INTEGER mask;
 
     mask.LowPart = 0x20000000;
@@ -1171,10 +1172,10 @@ int ai_DecideGraveyardOwner(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     gm_FindById(&v, 0, 0, x);
     if (!v)
         return 0;
-    r[0] = ai_DecideGraveyardOwner0(p, (AIBLD *)v, &s1[0], &s2[0]);
-    r[1] = ai_DecideGraveyardOwner1(p, (AIBLD *)v, &s1[1], &s2[1]);
-    r[2] = ai_DecideGraveyardOwner2(p, (AIBLD *)v, &s1[2], &s2[2]);
-    r[3] = ai_DecideGraveyardOwner3(p, (AIBLD *)v, &s1[3], &s2[3]);
+    r[0] = ai_DecideGraveyardOwner0(p, v, &s1[0], &s2[0]);
+    r[1] = ai_DecideGraveyardOwner1(p, v, &s1[1], &s2[1]);
+    r[2] = ai_DecideGraveyardOwner2(p, v, &s1[2], &s2[2]);
+    r[3] = ai_DecideGraveyardOwner3(p, v, &s1[3], &s2[3]);
     i = util_Random(4);
     n = 4;
     do {
@@ -1194,17 +1195,17 @@ int ai_ExecGraveyardOwner(AICHAR *p, AGARG *s1, AGARG *s2)
 {
     AGARG *a = s1;
 
-    gm_FindById((int)&s1, 0, 0, a->bldId);
+    gm_FindById((AIBLD **)&s1, 0, 0, a->bldId);
     if (s1 != 0) {
         switch (a->kind) {
         case 0:
-            return ai_ExecGraveyardOwner0(p, (AIBLD *)s1, (int)a, s2);
+            return ai_ExecGraveyardOwner0(p, (AIBLD *)s1, a, s2);
         case 1:
-            return ai_ExecGraveyardOwner1(p, (AIBLD *)s1, (int)a, s2);
+            return ai_ExecGraveyardOwner1(p, (AIBLD *)s1, a, s2);
         case 2:
-            return ai_ExecGraveyardOwner2(p, (AIBLD *)s1, (int)a, s2);
+            return ai_ExecGraveyardOwner2(p, (AIBLD *)s1, a, s2);
         case 3:
-            return ai_ExecGraveyardOwner3(p, (AIBLD *)s1, (int)a, s2);
+            return ai_ExecGraveyardOwner3(p, (AIBLD *)s1, a, s2);
         }
     }
     return 0;
@@ -1296,7 +1297,7 @@ int ai_ExecHandleGrave(AICHAR *p, AGARG *s1, AGARG *s2)
 {
     AGARG *a = s1;
 
-    gm_FindById((int)&s1, 0, 0, a->bldId);
+    gm_FindById((AIBLD **)&s1, 0, 0, a->bldId);
     if (s1 != 0) {
         if (a->kind == 4) {
             gv_OrderReserveGrave(p, (AIBLD *)s1, a->entry, 10, a->price);

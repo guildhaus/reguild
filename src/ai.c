@@ -1785,7 +1785,7 @@ void ai_CalcMeisterDiebe(AICHAR *ch)
     AIBLD *bb, *best;
     AIJOB *job;
     AIBTYPE *bt;
-    unsigned short *item;
+    AIOBJ *item;
     char *name;
     int i, j, k, c, n, all, half, r, t;
     float max, v, w, bestw;
@@ -1795,7 +1795,7 @@ void ai_CalcMeisterDiebe(AICHAR *ch)
     obj = 0;
     o = gm_Query(ch->bld->objList, 2, 6, 0, 0x116);
     for (; !obj && o; o = gm_QueryNext()) {
-        if (gm_FindById(0, &item, 0, o->ownerId) && ai_Goods[*item].type == 2)
+        if (gm_FindById(0, &item, 0, o->ownerId) && ai_Goods[item->id].type == 2)
             obj = o;
     }
     if (obj) {
@@ -4892,7 +4892,7 @@ void ai_MeisterCollectTrans(AICHAR *ch)
                             goto next;
                         break;
                     }
-                    if (!gm_FindById((int)&own, (int *)&q, 0, v))
+                    if (!gm_FindById(&own, &q, 0, v))
                         v = -1;
                     else if (q)
                         v = q->ownerId;

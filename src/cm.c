@@ -724,13 +724,15 @@ int cm_SendGroupState(void)
 
 void cm_BeginFieldBlock(char *o, int id)
 {
-    int a, b;
+    AIBLD *a;
+    AIOBJ *b;
+    AICHAR *c;
 
     cm_FieldBlock.id = id;
     cm_FieldBlock.n = 0;
     memset(cm_FieldBlock.buf, 0, sizeof(cm_FieldBlock.buf));
     cm_FieldBlockLen = 0;
-    if (gm_FindById(&a, &b, &id, id) != 0)
+    if (gm_FindById(&a, &b, &c, id) != 0)
         cm_FieldObject = o;
 }
 /* 0x4c3c00, adds n values of size bytes at field as differences to the object's values
@@ -2399,7 +2401,7 @@ int cm_CheckMoveGoods(G17MSG *m)
 
     if (m->moveGoods.to != -1) {
         m->moveGoods.to = cm_ResolveId((int)m, m->moveGoods.to);
-        if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->moveGoods.to) == 0)
+        if (gm_FindById(&b, &o, &c, m->moveGoods.to) == 0)
             return 1;
         if (b != 0)
             list = &b->objList;
@@ -2427,7 +2429,7 @@ int cm_CheckSellObject(G17MSG *m)
 
     if (m->sell.seller != -1) {
         m->sell.seller = cm_ResolveId((int)m, m->sell.seller);
-        if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->sell.seller) == 0)
+        if (gm_FindById(&b, &o, &c, m->sell.seller) == 0)
             return 1;
         if (b != 0)
             list = &b->objList;
@@ -2443,7 +2445,7 @@ int cm_CheckSellObject(G17MSG *m)
     }
     if (m->sell.buyer != -1) {
         m->sell.buyer = cm_ResolveId((int)m, m->sell.buyer);
-        if (gm_FindById((int *)&bb, (int *)&o, (int *)&c, m->sell.buyer) == 0)
+        if (gm_FindById(&bb, &o, &c, m->sell.buyer) == 0)
             return 1;
         if (bb != 0) {
             if (bb->owner != 0xffff)
@@ -2488,7 +2490,7 @@ int cm_CheckFieldDeltas(G17MSG *m)
     int size, id;
 
     m->fields.id = cm_ResolveId((int)m, m->fields.id);
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->fields.id) == 0)
+    if (gm_FindById(&b, &o, &c, m->fields.id) == 0)
         return 1;
     if (b != 0)
         base = (char *)b;
@@ -2540,7 +2542,7 @@ int cm_CheckSetField(G17MSG *m)
     char *base;
 
     m->setField.objId = cm_ResolveId((int)m, m->setField.objId);
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->setField.objId) == 0)
+    if (gm_FindById(&b, &o, &c, m->setField.objId) == 0)
         return 1;
     if (b != 0)
         base = (char *)b;
@@ -2869,7 +2871,7 @@ int cm_ExDeleteObject(G17MSG *m, G17STAT *s)
     AICHAR *c;
 
     m->del.objectId = (unsigned short)cm_ResolveId((int)m, m->del.objectId);
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->del.objectId) == 0)
+    if (gm_FindById(&b, &o, &c, m->del.objectId) == 0)
         return 1;
     if (b != 0) {
         if (gm_FreeBuilding(b) != 0)
@@ -2984,7 +2986,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
         ai_NextObjectId = m->sell.objectId;
     if (m->sell.seller != -1) {
         m->sell.seller = cm_ResolveId((int)m, m->sell.seller);
-        if (gm_FindById((int *)&x1, (int *)&y, (int *)&z, m->sell.seller) == 0)
+        if (gm_FindById(&x1, &y, &z, m->sell.seller) == 0)
             return 1;
         if (x1 != 0) {
             p = &x1->objList;
@@ -3021,7 +3023,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
     }
     if (m->sell.buyer != -1) {
         m->sell.buyer = cm_ResolveId((int)m, m->sell.buyer);
-        if (gm_FindById((int *)&x2, (int *)&y, (int *)&z, m->sell.buyer) == 0)
+        if (gm_FindById(&x2, &y, &z, m->sell.buyer) == 0)
             return 1;
         if (x2 != 0) {
             q = &x2->objList;
@@ -3169,7 +3171,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     if (net_Conn.s != INVALID_SOCKET)
         ai_NextObjectId = m->make.objectId;
     m->make.objId = cm_ResolveId((int)m, m->make.objId);
-    if (gm_FindById(0, (int *)&y, 0, m->make.objId) == 0)
+    if (gm_FindById(0, &y, 0, m->make.objId) == 0)
         return 1;
     if (y->type != 0x2a && y->type != 0x116)
         return 1;
@@ -3230,7 +3232,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
             o->reserve = 4;
     }
     v = (int)(gm_ItemPrice(m->make.item, 100) * n);
-    b = (AIBLD *)gm_ObjectBuilding((int)y);
+    b = gm_ObjectBuilding(y);
     if (b != 0)
         b->roundSums[0] += v;
     st = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->make.item);
@@ -3262,7 +3264,7 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
     AIOBJ *prev;
 
     m->move.from = cm_ResolveId((int)m, m->move.from);
-    if (gm_FindById((int *)&x, (int *)&y, (int *)&z, m->move.from) == 0)
+    if (gm_FindById(&x, &y, &z, m->move.from) == 0)
         return 1;
     if (x != 0)
         from = &x->objList;
@@ -3271,7 +3273,7 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
     else
         from = &z->inventory;
     m->move.to = cm_ResolveId((int)m, m->move.to);
-    if (gm_FindById((int *)&x, (int *)&y, (int *)&z, m->move.to) == 0)
+    if (gm_FindById(&x, &y, &z, m->move.to) == 0)
         return 1;
     if (x != 0)
         to = &x->objList;
@@ -3309,7 +3311,7 @@ int cm_ExRemoveGoods(G17MSG *m, G17STAT *s)
     AIOBJ *o;
 
     m->removeGoods.objId = cm_ResolveId((int)m, m->removeGoods.objId);
-    if (gm_FindById(0, (int *)&y, 0, m->removeGoods.objId) == 0)
+    if (gm_FindById(0, &y, 0, m->removeGoods.objId) == 0)
         return 1;
     if (y->type != 0x2a && y->type != 0x116)
         return 1;
@@ -3348,7 +3350,10 @@ int cm_ExCreateObject(G17MSG *m, G17STAT *s)
 
 int cm_ExFieldDeltas(G17MSG *m, G17STAT *s)
 {
-    char *x, *y, *z, *base;
+    AIBLD *x;
+    AIOBJ *y;
+    AICHAR *z;
+    char *base;
     union {
         char *b;
         short *s;
@@ -3364,15 +3369,15 @@ int cm_ExFieldDeltas(G17MSG *m, G17STAT *s)
     int size, id;
 
     id = cm_ResolveId((int)m, m->fields.id);
-    if (gm_FindById((int *)&x, (int *)&y, (int *)&z, id) == 0)
+    if (gm_FindById(&x, &y, &z, id) == 0)
         return 1;
     m->fields.id = id;
     if (x != 0)
-        base = x;
+        base = (char *)x;
     else if (y != 0)
-        base = y;
+        base = (char *)y;
     else
-        base = z;
+        base = (char *)z;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
         size = (char)*p.b++;
@@ -3403,7 +3408,10 @@ int cm_ExFieldDeltas(G17MSG *m, G17STAT *s)
 
 int cm_ExFieldValues(G17MSG *m, G17STAT *s)
 {
-    char *x, *y, *z, *base;
+    AIBLD *x;
+    AIOBJ *y;
+    AICHAR *z;
+    char *base;
     union {
         char *b;
         short *s;
@@ -3419,14 +3427,14 @@ int cm_ExFieldValues(G17MSG *m, G17STAT *s)
     int size;
 
     m->fields.id = cm_ResolveId((int)m, m->fields.id);
-    if (gm_FindById((int *)&x, (int *)&y, (int *)&z, m->fields.id) == 0)
+    if (gm_FindById(&x, &y, &z, m->fields.id) == 0)
         return 1;
     if (x != 0)
-        base = x;
+        base = (char *)x;
     else if (y != 0)
-        base = y;
+        base = (char *)y;
     else
-        base = z;
+        base = (char *)z;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
         size = (char)*p.b++;
@@ -3464,7 +3472,7 @@ int cm_ExMoodDeltas(G17MSG *m, G17STAT *s)
     unsigned int i, k;
 
     m->fields.id = cm_ResolveId((int)m, m->fields.id);
-    if (gm_FindById(0, 0, (int *)&chr, m->fields.id) == 0)
+    if (gm_FindById(0, 0, &chr, m->fields.id) == 0)
         return 1;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
@@ -3481,7 +3489,9 @@ int cm_ExMoodDeltas(G17MSG *m, G17STAT *s)
 
 int cm_ExSetField(G17MSG *m, G17STAT *s)
 {
-    char *x, *y, *z;
+    AIBLD *x;
+    AIOBJ *y;
+    AICHAR *z;
     union {
         char *c;
         unsigned char *b;
@@ -3492,11 +3502,11 @@ int cm_ExSetField(G17MSG *m, G17STAT *s)
     m->setField.objId = cm_ResolveId((int)m, m->setField.objId);
     if (gm_FindById(&x, &y, &z, m->setField.objId) == 0)
         return 1;
-    a.c = x;
+    a.c = (char *)x;
     if (a.c == 0) {
-        a.c = y;
+        a.c = (char *)y;
         if (a.c == 0)
-            a.c = z;
+            a.c = (char *)z;
     }
     a.c += m->setField.offset;
     switch (m->setField.size) {
@@ -3522,7 +3532,9 @@ int cm_ExSetField(G17MSG *m, G17STAT *s)
 
 int cm_ExFloatDelta(G17MSG *m, G17STAT *s)
 {
-    char *x, *y, *z;
+    AIBLD *x;
+    AIOBJ *y;
+    AICHAR *z;
     union {
         char *c;
         float *f;
@@ -3531,11 +3543,11 @@ int cm_ExFloatDelta(G17MSG *m, G17STAT *s)
     m->floatDelta.id = cm_ResolveId((int)m, m->floatDelta.id);
     if (gm_FindById(&x, &y, &z, m->floatDelta.id) == 0)
         return 1;
-    a.c = z;
+    a.c = (char *)z;
     if (a.c == 0) {
-        a.c = y;
+        a.c = (char *)y;
         if (a.c == 0)
-            a.c = x;
+            a.c = (char *)x;
     }
     a.c += m->floatDelta.field;
     *a.f += m->floatDelta.delta;
@@ -3985,7 +3997,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
                 util_Seed(m->crime.seed);
         }
         ord_AddGridAmount(place, m->crime.law, &x, &y);
-        gm_FindById((int *)&b, 0, 0, place);
+        gm_FindById(&b, 0, 0, place);
         if (b == 0)
             ord_RandomCellPoint(x, y, &pos);
         else if (b->object != 0) {
@@ -4192,7 +4204,7 @@ int cm_ExRemoveOwned(G17MSG *m, G17STAT *s)
 
     if (s != 0)
         s->state = 2;
-    gm_FindById((int *)&bld, (int *)&obj, (int *)&chr, m->remove.holder);
+    gm_FindById(&bld, &obj, &chr, m->remove.holder);
     if (bld != 0) {
         if (m->remove.objId == -1)
             r = gm_RemoveOwned(&bld->objList, m->remove.entry);
@@ -5079,7 +5091,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
         sv_ResetSelection();
     for (o = gm_Query(0, 2, 7, 4, 0x1d); o != 0; o = gm_QueryNext()) {
         if (o->bldId == b->id)
-            gm_FreeObject((int)o);
+            gm_FreeObject(o);
     }
     /* the bld of every character record (the end is the field of the record after the table) */
     for (bld = &ai_Chars[0].bld; (int)bld < (int)&ai_Chars[0x300].bld;
@@ -5503,7 +5515,7 @@ int cm_ExFreeObject(G17MSG *m, G17STAT *s)
     t = gm_FindObjectInst(m->freeObject.objId);
     if (t == 0)
         return 1;
-    gm_FreeObject(t);
+    gm_FreeObject((AIOBJ *)t);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;

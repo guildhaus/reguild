@@ -3654,14 +3654,15 @@ void cm_AuctionAskAI(CMCUTINFO *r, CMAUCTION *m)
 
 void cm_RunSale(G28REC *m)
 {
-    int o, f, i;
+    AIBLD *o;
+    int f, i;
     int *p;
 
     f = 0;
     cm_PlaySpecialTrack(0);
     gm_FindById(&o, 0, 0, m->thing);
     if (o != 0)
-        cm_ShowObjectScene((AIBLD *)o, 0x17);
+        cm_ShowObjectScene(o, 0x17);
     else {
         f = 1;
         cm_LoadEventScene("ob_SALON.ed3");

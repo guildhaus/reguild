@@ -340,7 +340,7 @@ int gv_Accuse(int i, int v, int a, int b, int obj)
 {
     AIDEC rec;
     char *culprit;
-    int place;
+    AIBLD *place;
     float escape;
     CRIME m;
 
@@ -510,7 +510,8 @@ int gv_CrimeTextLaw9to16(char *out, CRIME r, int mode)
 int gv_CrimeTextLaw17to28(char *out, CRIME r, int mode)
 {
     char name[0x80] = "Geb\xe4ude";
-    int text, bld;
+    int text;
+    AIBLD *bld;
     unsigned short *victim;
     unsigned short id;
 

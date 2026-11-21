@@ -2446,7 +2446,7 @@ int amt_ExecuteShareMessage(AICHAR *c, int *m)
     char msg[1024];
 
     if (m[0] == 2) {
-        gm_FindById((int *)&o, 0, 0, m[1]);
+        gm_FindById(&o, 0, 0, m[1]);
         if (o != 0) {
             if (o->owner != c->id && o->owner != 0xffff) {
                 f = gm_GetSkill((char *)c, 4);

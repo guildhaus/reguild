@@ -2417,11 +2417,11 @@ int ls_FixupAfterLoad(void)
             if ((int)c->bld == -1)
                 c->bld = 0;
             else
-                gm_FindById((int *)&c->bld, 0, 0, (int)c->bld);
+                gm_FindById(&c->bld, 0, 0, (int)c->bld);
             if ((int)c->bld2 == -1)
                 c->bld2 = 0;
             else
-                gm_FindById((int *)&c->bld2, 0, 0, (int)c->bld2);
+                gm_FindById(&c->bld2, 0, 0, (int)c->bld2);
             if ((int)c->job == -1)
                 c->job = 0;
             else
@@ -2430,33 +2430,35 @@ int ls_FixupAfterLoad(void)
         }
     }
     for (i = 0; i < f3gm_ObjectCount; i++) {
-        int bld, obj, chr;      /* what gm_FindById finds for an id: a building, an object or a character */
+        AIBLD *bld;             /* what gm_FindById finds for an id: a building, an object or a character */
+        AIOBJ *obj;
+        AICHAR *chr;
 
         o = &ai_Objects[i];
         if (ai_Goods[o->id].type == 0x1d)
             o->job24 = 0;
         if (o->ownerId != -1 && gm_FindById(&bld, &obj, &chr, o->ownerId) != 0) {
             if (bld != 0) {
-                if (((AIBLD *)bld)->objList == 0) {
-                    ((AIBLD *)bld)->objList = o;
+                if (bld->objList == 0) {
+                    bld->objList = o;
                 } else {
-                    for (last = ((AIBLD *)bld)->objList; last->next != 0; last = last->next)
+                    for (last = bld->objList; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }
             } else if (obj != 0) {
-                if (((AIOBJ *)obj)->list == 0) {
-                    ((AIOBJ *)obj)->list = o;
+                if (obj->list == 0) {
+                    obj->list = o;
                 } else {
-                    for (last = ((AIOBJ *)obj)->list; last->next != 0; last = last->next)
+                    for (last = obj->list; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }
             } else {
-                if (((AICHAR *)chr)->inventory == 0) {
-                    ((AICHAR *)chr)->inventory = o;
+                if (chr->inventory == 0) {
+                    chr->inventory = o;
                 } else {
-                    for (last = ((AICHAR *)chr)->inventory; last->next != 0; last = last->next)
+                    for (last = chr->inventory; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }
@@ -2484,7 +2486,7 @@ int ls_FixupAfterLoad(void)
         if (j->kind == 0xc) {
             /* nothing (the original tests the kind 0xc first and leaves it alone) */
         } else if (j->kind == 0xd) {
-            int bld;      /* the building under construction */
+            AIBLD *bld;   /* the building under construction */
 
             gm_FindById(&bld, 0, 0, j->constructBld);
             if (bld != 0)

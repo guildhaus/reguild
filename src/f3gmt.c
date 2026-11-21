@@ -443,7 +443,7 @@ int gm_LoadTables(char *root)
 
 extern int f3gm_ObjectCount;
 int gm_RemoveObject();                     /* 0x4ffff0 */
-int gm_FindById(int *bld, int *obj, int *chr, int id);
+int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);
 int gm_GoodsStock(int p, int i);                   /* 0x4ff950 */
 int gm_GoodsDemand(int p, int i);                   /* 0x4ff8c0 */
 float gm_ItemPrice(int item, unsigned char n); /* 0x5087f0 */
@@ -465,22 +465,25 @@ void gm_ClearBuildings(void)
 
 void gm_ClearObjects(void)
 {
-    int i, list;
-    int b, o, c;
+    int i;
+    AIOBJ **list;
+    AIBLD *b;
+    AIOBJ *o;
+    AICHAR *c;
 
     for (i = 0; i < 0x5008; i++) {
         if (((AIOBJ *)ai_Objects)[i].type != 0) {
             gm_FindById(&b, &o, &c, ((AIOBJ *)ai_Objects)[i].ownerId);
             if (b != 0)
-                list = b + 0x5d;
+                list = &b->objList;
             else if (o != 0)
-                list = o + 0x14;
+                list = &o->list;
             else if (c != 0)
-                list = c + 0x178;
+                list = &c->inventory;
             else
                 list = 0;
             if (list != 0) {
-                gm_RemoveObject((AIOBJ **)list, ((AIOBJ *)ai_Objects)[i].type);
+                gm_RemoveObject(list, ((AIOBJ *)ai_Objects)[i].type);
             } else {
                 gm_FreeObjectExtra(&((AIOBJ *)ai_Objects)[i]);
                 ((AIOBJ *)ai_Objects)[i].type = 0;
@@ -560,7 +563,7 @@ void gm_Free(void)
 }
 /* 0x4fea50, finds what has the id: a character (0x300 records, int +4; stored in *chr, returns 3), a building (*bld, returns 1) or an object instance (*obj, returns 2); each result pointer is cleared first; 0 when nothing (or the prototype table is not loaded) */
 
-int gm_FindById(int *bld, int *obj, int *chr, int id)
+int gm_FindById(AIBLD **bld, AIOBJ **obj, AICHAR **chr, int id)
 {
     AICHAR *c;
     AIBLD *b;
@@ -578,7 +581,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id)
             i = 0;
             do {
                 if (c->id != 0xffff && c->netId == id) {
-                    *chr = (int)c;
+                    *chr = c;
                     return 3;
                 }
                 c++;
@@ -590,7 +593,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id)
             b = ai_Blds;
             do {
                 if (b->type != 0 && b->id == id) {
-                    *bld = (int)b;
+                    *bld = b;
                     return 1;
                 }
                 i++;
@@ -601,7 +604,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id)
             do {
                 if (o->type != 0) {
                     if (o->objId == id) {
-                        *obj = (int)o;
+                        *obj = o;
                         return 2;
                     }
                     i++;
@@ -1721,7 +1724,7 @@ int gm_AddObjekt(int id, int proto, int n)
 
     if (proto == 0)
         return 0;
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, id) == 0) {
+    if (gm_FindById(&b, &o, &c, id) == 0) {
         sprintf(buf, "gm_AddObjekt(): Parent not found. ObjProt:%i Menge:%i", proto, n);
         return 0;
     }
@@ -1749,7 +1752,7 @@ int gm_TakeObjekt(int id, int proto, int n)
     AIOBJ **list;
     AIOBJ *r;
 
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, id) == 0)
+    if (gm_FindById(&b, &o, &c, id) == 0)
         return 0;
     if (b != 0)
         list = &b->objList;
@@ -1777,7 +1780,7 @@ int gm_AddNegative(int id, int proto, int n)
     AIOBJ **list;
     AIOBJ *r;
 
-    if (gm_FindById((int *)&b, (int *)&o, (int *)&c, id) == 0)
+    if (gm_FindById(&b, &o, &c, id) == 0)
         return 0;
     if (b != 0)
         list = &b->objList;
@@ -2758,7 +2761,7 @@ int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);                     /* 0x53dee0 */
 int d3t_SceneIndex();                     /* 0x411be0 */
 int ch_Delete();                     /* 0x4028a0 */
-int gm_ObjectBuilding(int y);                     /* 0x50a0f0 */
+struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);                     /* 0x50a0f0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);                     /* 0x524260 */
 void he_EndPersonEvents(struct AICHAR *p);                     /* 0x5538b0 */
 void he_EndKind23Events(struct AICHAR *ev);                     /* 0x568aa0 */
@@ -3140,9 +3143,8 @@ int gm_RemoveObjectFromBuilding(AIBLD *b, int id)
    (0x4c4c60), its model character is deleted in its own scene (0x4028a0), and its record is removed from the
    list of the building that holds it (0x50a0f0 finds the building, 0x5000c0 frees the record by its objId) */
 
-void gm_FreeObject(int o)
+void gm_FreeObject(AIOBJ *obj)
 {
-    AIOBJ *obj = (AIOBJ *)o;
     GMJOB *job;
     AIBLD *bld;
     struct CHARACTER *model;
@@ -3158,7 +3160,7 @@ void gm_FreeObject(int o)
         ch_Delete(model);
         d3if_SelectScene(saved, 1);
     }
-    bld = (AIBLD *)gm_ObjectBuilding(o);
+    bld = gm_ObjectBuilding(obj);
     if (bld != 0)
         gm_RemoveOwned(&bld->objList, obj->objId);
 }
@@ -7003,7 +7005,7 @@ AICHAR *gm_ObjectOwnerChar(AIOBJ *o)
 {
     AIBLD *b;
 
-    gm_FindById((int *)&b, 0, (int *)&o, o->holderId);
+    gm_FindById(&b, 0, (AICHAR **)&o, o->holderId);
     if (o == 0) {
         if (b != 0 && b->masterId != 0xffff)
             return &ai_Chars[b->masterId];
@@ -7017,7 +7019,7 @@ AICHAR *gm_ObjectBuildingOwner(AIOBJ *o)
 {
     AIBLD *b;
 
-    gm_FindById((int *)&b, 0, (int *)&o, o->holderId);
+    gm_FindById(&b, 0, (AICHAR **)&o, o->holderId);
     if (o == 0) {
         if (b != 0 && b->owner != 0xffff)
             return &ai_Chars[b->owner];
@@ -7032,20 +7034,23 @@ unsigned short gm_ObjectOwnerNo(AIOBJ *o)
 {
     AIBLD *b;
 
-    gm_FindById((int *)&b, 0, (int *)&o, o->holderId);
+    gm_FindById(&b, 0, (AICHAR **)&o, o->holderId);
     if (o != 0)
         return o->id;
     if (b != 0)
         return b->owner;
     return 0xffff;
 }
-/* 0x50a0f0, the building that holds the object o (an AIOBJ as int), through any objects holding it in turn: its holder's id (ownerId) is looked up (gm_FindById) until a building is found; 0 when a character holds it or an id is unknown */
+/* 0x50a0f0, the building that holds the object o, through any objects holding it in turn: its holder's id (ownerId) is looked up (gm_FindById) until a building is found; 0 when a character holds it or an id is unknown */
 
-int gm_ObjectBuilding(int o)
+AIBLD *gm_ObjectBuilding(AIOBJ *o)
 {
-    int id, bld, holder, chr;
+    int id;
+    AIBLD *bld;
+    AIOBJ *holder;
+    AICHAR *chr;
 
-    id = ((AIOBJ *)o)->ownerId;
+    id = o->ownerId;
     while (id != -1) {
         if (gm_FindById(&bld, &holder, &chr, id) == 0)
             break;
@@ -7054,7 +7059,7 @@ int gm_ObjectBuilding(int o)
         if (chr != 0)
             break;
         if (holder != 0)
-            id = ((AIOBJ *)holder)->ownerId;
+            id = holder->ownerId;
     }
     return 0;
 }
@@ -7385,7 +7390,7 @@ int gm_FreeCapacity(short *l, int id, int n)
     GMGOOD *g;
     int cls2, stock, held, cnt, grp;
 
-    b = (unsigned char *)gm_ObjectBuilding((int)l);
+    b = (unsigned char *)gm_ObjectBuilding(s);
     if (b == 0)
         return 0;
     cls2 = gm_BuildingClass(*b) == 2;

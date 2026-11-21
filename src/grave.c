@@ -665,7 +665,7 @@ int gv_BuryCharacter(int *p)
     char *s, *d;
     char ch;
 
-    gm_FindById((int *)&bld, 0, 0, p[2]);
+    gm_FindById(&bld, 0, 0, p[2]);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -675,7 +675,7 @@ int gv_BuryCharacter(int *p)
         return -3;
     if (gv_SizeOpen(g, p[3]) == 0)
         return -4;
-    gm_FindById(0, 0, (int *)&c, p[1]);
+    gm_FindById(0, 0, &c, p[1]);
     if (c == 0)
         return -6;
     list = p[3];
@@ -750,7 +750,7 @@ int gv_ReserveGrave(GVORDER *m)
     GVENTRY *e;
     int i;
 
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -759,7 +759,7 @@ int gv_ReserveGrave(GVORDER *m)
         return -3;
     if (gv_SizeOpen(bld->yard, m->size) == 0)
         return -4;
-    gm_FindById(0, 0, (int *)&c, m->chr);
+    gm_FindById(0, 0, &c, m->chr);
     if (c == 0)
         return -6;
     if (m->size >= 0 && m->size <= 3) {
@@ -816,7 +816,7 @@ int gv_ExtendGrave(GVORDER *m)
     GVYARD *g;
     GVENTRY *e;
 
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -826,7 +826,7 @@ int gv_ExtendGrave(GVORDER *m)
         return -3;
     if (gv_SizeOpen(g, m->size) == 0)
         return -4;
-    gm_FindById(0, 0, (int *)&c, m->chr);
+    gm_FindById(0, 0, &c, m->chr);
     if (c == 0)
         return -6;
     e = (GVENTRY *)gv_ListEntry(g, m->size, m->entry);
@@ -878,7 +878,7 @@ int gv_SetGraveHolder(GVORDER *m)
 
     id = -1;
     key = 0xffff;
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -889,7 +889,7 @@ int gv_SetGraveHolder(GVORDER *m)
     if (gv_SizeOpen(g, m->size) == 0)
         return -4;
     if (m->chr != -1) {
-        gm_FindById(0, 0, (int *)&c, m->chr);
+        gm_FindById(0, 0, &c, m->chr);
         if (c == 0)
             return -6;
         id = m->chr;
@@ -932,7 +932,7 @@ int gv_OpenSize(GVORDER *m)
     AICHAR *c;
     GVYARD *g;
 
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -940,7 +940,7 @@ int gv_OpenSize(GVORDER *m)
     g = bld->yard;
     if (g == 0)
         return -3;
-    gm_FindById(0, 0, (int *)&c, m->chr);
+    gm_FindById(0, 0, &c, m->chr);
     if (c == 0)
         return -6;
     if (m->size == 3) {
@@ -995,7 +995,7 @@ int gv_AdjustEntry(GVORDER *m)
     int size;
     int v;
 
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -1038,7 +1038,7 @@ int gv_AddNewDead(unsigned char *p)
     AIBLD *bld;
     int n;
 
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || (char *)&ai_Chars[bld->owner] == (char *)ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -1083,10 +1083,10 @@ int gv_MoveGrave(GVMOVE *m)
     int from;
     int n;
 
-    gm_FindById(0, 0, (int *)&c, m->chr);
+    gm_FindById(0, 0, &c, m->chr);
     if (c == 0)
         return -6;
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return -1;
     if (ai_BTypes[bld->type].kind != 0x1d)
@@ -1180,7 +1180,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
 
     if (m->kind != 0x1b && m->kind != 0x1c)
         return (unsigned)-6;
-    gm_FindById((int *)&bld, 0, 0, m->bld);
+    gm_FindById(&bld, 0, 0, m->bld);
     if (bld == 0 || bld->owner == 0xffff || &ai_Chars[bld->owner] == ai_PlayerChar)
         return (unsigned)-1;
     if (ai_BTypes[bld->type].kind != 0x1d)

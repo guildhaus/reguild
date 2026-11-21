@@ -1176,7 +1176,7 @@ void ai_FillPersonnelRow(AICHAR *ch, G9DOMIZILROW *row, int bars)
     }
 }
 
-void d2_RemoveObj(); int gm_HeadIconNumber(); int gm_ObjectBuilding(int y);
+void d2_RemoveObj(); int gm_HeadIconNumber(); struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);
 void d2_SetObjFont(); void d2_SetCaption();
 
 
@@ -1287,7 +1287,7 @@ void ai_ShowBldCarts(SVBOOK *book, AIBLD *bld)
             if (dest != 0)
                 txt_Format(text, 0x1a3e, dest);
         } else {
-            dest = (AIBLD *)gm_ObjectBuilding((int)ai_BldCarts[i]);
+            dest = gm_ObjectBuilding(ai_BldCarts[i]);
             if (dest->type == 'D')
                 dest = ai_MarketBuilding;
             txt_Format(text, 0x1a3e, dest);
@@ -1322,7 +1322,7 @@ void ai_UpdateBldCarts(SVBOOK *book, AIBLD *bld)
             if (dest != 0)
                 txt_Format(text, 0x1a3e, dest);
         } else {
-            dest = (AIBLD *)gm_ObjectBuilding((int)ai_BldCarts[i]);
+            dest = gm_ObjectBuilding(ai_BldCarts[i]);
             if (dest->type == 'D')
                 dest = ai_MarketBuilding;
             txt_Format(text, 0x1a3f, dest);
@@ -2655,7 +2655,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
 }
 
 
-void d2_CenterObj(); void gm_FreeObject(int o); int gm_LevelPayout(int v, int kind);
+void d2_CenterObj(); void gm_FreeObject(struct AIOBJ *obj); int gm_LevelPayout(int v, int kind);
 
 /* 0x5ae240, the new cart purchase window "Handel\Handel_Transport_neuer_Karren" of the building bld (808 B;
    ai_TransportWindow opens it): with three carts already (gm_BuildingCarts) only the text 0xf1 (3); else the three
@@ -2772,7 +2772,7 @@ void ai_SellCarts(int n, AIOBJ **carts)
     }
     if (sv_MessageBox((intptr_t)text, 0x101) != 0) {
         for (i = 0; i < n; i++)
-            gm_FreeObject((int)carts[i]);
+            gm_FreeObject(carts[i]);
         cm_SendMoveGoods(ai_CharInts[ai_PlayerId][0], -1, ai_OwnPlayer, price);
     }
 }
@@ -2858,9 +2858,9 @@ int ai_CartAtBuilding(AIBLD *bld, AIOBJ *cart)
     G8SCENECHAR *rec;
     D3OBJECT *obj;
     float v[4];
-    AIOBJ *hitObj;
     AIBLD *hitBld;
-    int out;
+    AIOBJ *hitObj;
+    AICHAR *out;
     int id;
 
     rec = (G8SCENECHAR *)cart->sceneObj;
@@ -2876,12 +2876,12 @@ int ai_CartAtBuilding(AIBLD *bld, AIOBJ *cart)
     }
     id = cart->ownerId;
     while (id != -1) {
-        if (gm_FindById((int *)&hitObj, (int *)&hitBld, &out, id) == 0)
+        if (gm_FindById(&hitBld, &hitObj, &out, id) == 0)
             return 0;
-        if (hitObj != 0)
-            return (int)hitObj == (int)bld;
         if (hitBld != 0)
-            id = ((AIOBJ *)hitBld)->ownerId;
+            return hitBld == bld;
+        if (hitObj != 0)
+            id = hitObj->ownerId;
         if (out != 0)
             return 0;
     }

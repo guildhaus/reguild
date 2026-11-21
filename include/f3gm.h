@@ -12,7 +12,7 @@ struct AIBLD *gm_BuildNext(void);              /* 0x501030, the next building of
 struct AIBLD *gm_BuildQuery(int n, ...);       /* 0x501190, n (kind, value) filters; 6 takes no value */
 struct AIOBJ *gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
 struct AICHAR *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
-int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
+int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
 int gm_FindObjectProto(char *name);             /* 0x4fe900, the number of the object prototype with the given name (case-insensitive), 0 when none */
 int gm_FindObjectInst(int id);                  /* 0x4fe980, the object instance with the id (int +2) */
 struct AIBLD *gm_FindBuildingById(int id);              /* 0x502020, the building with the id (+1) */
@@ -61,7 +61,7 @@ extern unsigned gm_KindObjs[732];  /* 0x889400 */
 int gm_BuildKindObjects(struct AIBLD *b);  /* 0x500b90 */
 int gm_BathObjectCount(struct AIBLD *b);  /* 0x50cf60 */
 int gm_CurseObjectCount(struct AIBLD *b);  /* 0x50cfd0 */
-int gm_ObjectBuilding(int o);  /* 0x50a0f0 */
+struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);  /* 0x50a0f0 */
 int gm_TakeableCount(struct AICHAR *c, int proto, int n);  /* 0x50ad70 */
 float gm_HealthFactor(int c);  /* 0x508a20 */
 int gm_FreeStallCapacity(char *l, int id, int n);  /* 0x50acf0, how many of the goods the stall object l can still take, at most n */
@@ -94,7 +94,7 @@ extern GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500 */
 int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4fa700 */
 int gm_TakeObjekt(int id, int proto, int n);  /* 0x500a40 */
 unsigned short *gm_CreateObject(int id, int proto, int n);  /* 0x500190, the new object instance of the prototype proto with the amount n in the holder's list (gm_FindById); 0 on failure */
-void gm_FreeObject(int o);  /* 0x5034b0 */
+void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
 int gm_SkillPoints(char *c, int skill);  /* 0x504e00 */
 int gm_HasAdultRelative(struct AICHAR *c, int *n);  /* 0x506480 */
 unsigned gm_TakeOverCharacter(int a, int b);  /* 0x5064d0 */

@@ -2267,7 +2267,7 @@ int ai_ExecuteProduceGood(AICHAR *p, AIARG *s1, AIARG *s2)
         return 0;
     if (s1->arg2 == 0x39) {
         price = (int)gm_GoodsPrice(s1->ref, ai_OwnPlayer);
-        gm_FindById(0, (unsigned short **)&it, 0, s1->ref2);
+        gm_FindById(0, &it, 0, s1->ref2);
         if (!it)
             return 0;
         cm_SendMoveGoods(-1, it->objId, ai_OwnPlayer, price);
@@ -3032,7 +3032,7 @@ int ai_DecideUpgradeBusiness(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     m.HighPart = 1;
     if (!ai_PickActionBuilding(p, 4, m.QuadPart, 0, 100.0f, &x))
         return 0;
-    gm_FindById((int)&y, 0, 0, x);
+    gm_FindById(&y, 0, 0, x);
     if (!ai_FindGoodToMake(&w, &z, y, 0))
         return 0;
     s1.kind = 2;
@@ -3148,7 +3148,7 @@ int ai_DecideSabotage(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
             x = -1;
             if ((ai_Partner && (ai_PickActionBuilding(ai_Partner, 4, mask.QuadPart, 0, 100.0f, &x), x != -1))
                 || ai_PickActionBuilding(p, 6, mask.QuadPart, 0, util_Random(0x20) + 19.0f, &x)) {
-                gm_FindById((int)&y, 0, 0, x);
+                gm_FindById(&y, 0, 0, x);
                 if (y && y->owner != 0xffff && he_NoEvent88Pair(&ai_Chars[y->owner], p)) {
                     memset(buf, 0, sizeof(buf));
                     buf[0] = 1;
@@ -3508,7 +3508,7 @@ int ai_DecideUseMilitaryObject(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     mask.HighPart = 0;
     if (ai_PickActionBuilding(p, 4, mask.QuadPart, 0, 100.0f, &id) == 0)
         return 0;
-    gm_FindById((int *)&b, 0, 0, id);
+    gm_FindById(&b, 0, 0, id);
     if (b == 0)
         return 0;
     n = 0;
@@ -5364,7 +5364,7 @@ int ai_DecideMayorUpgrade(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         m.HighPart = 0;
         if (!ai_PickActionBuilding(p, 2, m.QuadPart, 0, 100.0f, &x))
             continue;
-        gm_FindById((int)&y, 0, 0, x);
+        gm_FindById(&y, 0, 0, x);
         if (y == 0)
             continue;
         if (!ai_FindGoodToMake(&w, &z, y, 0))
@@ -5413,7 +5413,7 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     if (!ai_PickActionBuilding(p, 2, m.QuadPart, 0, 100.0f, &x))
         return 0;
-    gm_FindById((int)&y, 0, 0, x);
+    gm_FindById(&y, 0, 0, x);
     if (y == 0)
         return 0;
     o = gm_Query(y->objList, 2, 6, 0, 0x115);
@@ -5534,7 +5534,7 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     if (!ai_PickActionBuilding(p, 2, m.QuadPart, 0, 100.0f, &x))
         return 0;
-    gm_FindById((int)&y, 0, 0, x);
+    gm_FindById(&y, 0, 0, x);
     if (y == 0)
         return 0;
     o = gm_PlayerSeat(1);
@@ -6002,10 +6002,10 @@ int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2)
 
     if (s1->kind != 4 || s2->kind != 0x14)
         return 0;
-    gm_FindById((int *)&a, 0, 0, s1->ref);
+    gm_FindById(&a, 0, 0, s1->ref);
     if (a == 0)
         return 0;
-    gm_FindById((int *)&b, 0, 0, s1->arg);
+    gm_FindById(&b, 0, 0, s1->arg);
     memset(&m, 0, sizeof(m));
     m.type = 0x23;
     m.to = ai_Chars[a->owner].netId;
@@ -6402,7 +6402,9 @@ int ai_ExecutePriceManipulation(AICHAR *p, AIARG *s1, AIARG *s2)
 int ai_DecideGuildRiot(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     LARGE_INTEGER m;
-    int v, n, b, y, i;
+    int v, n, b;
+    AIBLD *y;
+    int i;
 
     if (f != 0)
         return 0;
@@ -6417,12 +6419,12 @@ int ai_DecideGuildRiot(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     m.HighPart = 1;
     if (!ai_PickActionBuilding(p, 6, m.QuadPart, 0, (float)(util_Random(0x20) + 0x20), &b))
         return 0;
-    gm_FindById((int)&y, 0, 0, b);
+    gm_FindById(&y, 0, 0, b);
     if (y == 0)
         return 0;
     n = 0;
     for (i = 0; i < 768; i++) {
-        if (ai_Chars[i].bld == (AIBLD *)y)
+        if (ai_Chars[i].bld == y)
             n++;
     }
     if (n == 0)
@@ -6882,7 +6884,7 @@ int ai_ExecuteUpgradeGuild(AICHAR *p, AIARG *s1, AIARG *s2)
     AIBLD *b;
 
     if (s1->kind == 1 && s2->kind == 0x12 && s2->arg > 0) {
-        gm_FindById(0, (int *)&o, 0, s1->ref);
+        gm_FindById(0, &o, 0, s1->ref);
         if (o == 0)
             return 0;
         cm_SendMoveGoods(o->objId, p->netId, ai_OwnPlayer, s2->arg);
@@ -6890,10 +6892,10 @@ int ai_ExecuteUpgradeGuild(AICHAR *p, AIARG *s1, AIARG *s2)
     }
     if (s1->kind != 4 || s2->kind != 1)
         return 0;
-    gm_FindById((int *)&b, 0, 0, s1->ref2);
+    gm_FindById(&b, 0, 0, s1->ref2);
     if (b == 0)
         return 0;
-    gm_FindById(0, (int *)&o, 0, s2->ref);
+    gm_FindById(0, &o, 0, s2->ref);
     if (o == 0)
         return 0;
     memset(&m, 0, sizeof(m));

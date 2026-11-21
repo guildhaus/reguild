@@ -409,7 +409,9 @@ int ai_MsgPayPct1to3BuildingType11(G14MSG *m)
     AICHAR *c;
     double k;
     LARGE_INTEGER mask;
-    int v, r, o;
+    int v;
+    AIBLD *r;
+    int o;
     char buf[0x200];
 
     c = gm_FindChar(m->id);
@@ -897,8 +899,8 @@ int ai_MsgCartFillDropType22(G14MSG *m)
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
         o = (AIOBJ *)gm_FindObjectInst(j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
@@ -913,8 +915,8 @@ int ai_MsgCartFillDropType22(G14MSG *m)
     r = util_Random(n);
     j = js[r];
     o = os[r];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     v = (unsigned char)(o->fill * ((util_Random(0x23) + 0x3c) * 0.01f));
     cm_BeginFieldBlock((char *)o, o->objId);
     cm_AddFieldDelta(1, 1, 0x12, &v);
@@ -950,8 +952,8 @@ int ai_MsgJobTime(G14MSG *m)
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
         o = (AIOBJ *)gm_FindObjectInst(j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
@@ -972,8 +974,8 @@ int ai_MsgJobTime(G14MSG *m)
     j->end = ai_Time;
     cm_SendMoveObject(-1, -1, o->objId);
     cm_SendExSetHE(-1, j);
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w != 0 && u != 0) {
         if (w->type == 0x47)
             txt_Format(buf, m->type + 0x12e7, ai_PlayerSlots[w->playerSlot].name, ai_PlayerSlots[0].name, s);
@@ -1002,10 +1004,10 @@ int ai_MsgJobEndPlayerType24(G14MSG *m)
     if (c == 0)
         return 1;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type == 0x47 || u->type == 0x47) {
                     js[n] = j;
@@ -1020,8 +1022,8 @@ int ai_MsgJobEndPlayerType24(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w->type == 0x47)
         txt_Format(buf, m->type + 0x12e7, ai_PlayerSlots[w->playerSlot].name, ai_PlayerSlots[0].name, ai_PlayerSlots[0].name);
     else
@@ -1052,10 +1054,10 @@ int ai_MsgJobEndPayType25(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
@@ -1073,8 +1075,8 @@ int ai_MsgJobEndPayType25(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w != 0 && u != 0) {
         if (w->type == 0x47)
             txt_Format(buf, m->type + 0x12e7, ai_PlayerSlots[0].name);
@@ -1105,10 +1107,10 @@ int ai_MsgJobBothEndsType26(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type != 0x47) || u->type != 0x47) {
                     js[n] = j;
@@ -1124,8 +1126,8 @@ int ai_MsgJobBothEndsType26(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w != 0 && u != 0) {
         txt_Format(buf, m->type + 0x12e7, w, u, s);
         he_ShowNews(c->netId, c->netId, buf, strlen(buf) > 0x100, 0x5ef, 0);
@@ -1149,10 +1151,10 @@ int ai_MsgJobBothEndsType27(G14MSG *m)
     if (c == 0)
         return 1;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type != 0x47 || u->type != 0x47) {
                     js[n] = j;
@@ -1168,8 +1170,8 @@ int ai_MsgJobBothEndsType27(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w != 0 && u != 0) {
         txt_Format(buf, m->type + 0x12e7, w, u, s);
         he_ShowNews(c->netId, c->netId, buf, strlen(buf) > 0x100, 0x5ef, 0);
@@ -1203,10 +1205,10 @@ int ai_MsgJobEndDateType29(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((u != 0 && w != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
@@ -1223,8 +1225,8 @@ int ai_MsgJobEndDateType29(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w != 0 && u != 0) {
         if (w->type == 0x47)
             txt_Format(buf, m->type + 0x12e7, ai_PlayerSlots[w->playerSlot].name, ai_PlayerSlots[0].name, &t,
@@ -1254,10 +1256,10 @@ int ai_MsgJobEndValueType2a(G14MSG *m)
     if (c == 0)
         return 1;
     for (j = he_FindEvent(1, 0, 0xf); j != 0 && n < 8; j = he_NextEvent()) {
-        gm_FindById(0, (int *)&o, 0, j->u.id);
+        gm_FindById(0, &o, 0, j->u.id);
         if (o != 0 && o->fightSide == c->id) {
-            gm_FindById((int *)&u, 0, 0, j->id3);
-            gm_FindById((int *)&w, 0, 0, j->id2);
+            gm_FindById(&u, 0, 0, j->id3);
+            gm_FindById(&w, 0, 0, j->id2);
             if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type == 0x47 || u->type == 0x47) {
                     js[n] = j;
@@ -1273,8 +1275,8 @@ int ai_MsgJobEndValueType2a(G14MSG *m)
     n = util_Random(n);
     j = js[n];
     o = os[n];
-    gm_FindById((int *)&w, 0, 0, j->id2);
-    gm_FindById((int *)&u, 0, 0, j->id3);
+    gm_FindById(&w, 0, 0, j->id2);
+    gm_FindById(&u, 0, 0, j->id3);
     if (w->type == 0x47)
         txt_Format(buf, m->type + 0x12e7, ai_PlayerSlots[w->playerSlot].name, ai_PlayerSlots[0].name, s, ai_PlayerSlots[0].name);
     else

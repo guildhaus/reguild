@@ -1770,7 +1770,7 @@ void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
     int j;
 
     gv_GetTableRecord(kind, (int *)&rec);
-    gm_FindById((int *)&b, 0, 0, who);
+    gm_FindById(&b, 0, 0, who);
     x = util_Random(8);
     y = util_Random(8);
     if (b != 0 && b->object != 0) {
@@ -1804,7 +1804,7 @@ void ord_SubGridAmount(int who, unsigned char kind)
     int j;
 
     gv_GetTableRecord(kind, (int *)&rec);
-    gm_FindById((int *)&b, 0, 0, who);
+    gm_FindById(&b, 0, 0, who);
     x = util_Random(8);
     y = util_Random(8);
     if (b != 0 && b->object != 0) {

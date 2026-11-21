@@ -976,10 +976,10 @@ typedef struct G9DOMIZILROW {           /* a row of the Domizil personnel book: 
     int view;                           /* 0x58, the view (d2_CurrentView, 0x5aa0d0) */
 } G9DOMIZILROW;
 #pragma pack(pop)
-void d2_RemoveObj(); int gm_HeadIconNumber(); int gm_ObjectBuilding(int y);
+void d2_RemoveObj(); int gm_HeadIconNumber(); struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);
 void d2_SetObjFont(); void d2_SetCaption();
 void d2_RadioSelect(int g, int sel);
-void d2_CenterObj(); void gm_FreeObject(int o); int gm_LevelPayout(int v, int kind);
+void d2_CenterObj(); void gm_FreeObject(struct AIOBJ *obj); int gm_LevelPayout(int v, int kind);
 #pragma pack(push, 1)
 typedef struct G8SCENECHAR {            /* the scene character fields this unit reads (ch.h CHARACTER) */
     char pad00[0x34];
@@ -8097,7 +8097,7 @@ void ai_Miracle(AICHAR *me, int which)
         kinds.HighPart = 0;
         if (ai_PickActionBuilding(me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
-        gm_FindById((int *)&bld, 0, 0, out);
+        gm_FindById(&bld, 0, 0, out);
         c = &ai_Chars[bld->owner];
         worth = gm_GetWorth(c->id);
         price = (int)((util_Random(3) + 2) * (worth * 0.01));
@@ -8140,7 +8140,7 @@ void ai_Miracle(AICHAR *me, int which)
         kinds.HighPart = 1;
         if (ai_PickActionBuilding(me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
-        gm_FindById((int *)&bld, 0, 0, out);
+        gm_FindById(&bld, 0, 0, out);
         c = &ai_Chars[bld->owner];
         level = bld->level - util_Random(0x10) - 10;
         if (level <= 0)
@@ -8223,7 +8223,7 @@ void ai_Miracle(AICHAR *me, int which)
         if (ai_PickActionBuilding(c, 4, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
         price = (int)((float)(util_Random(5) + 3) * worth * 0.01f);
-        gm_FindById((int *)&bld, 0, 0, out);
+        gm_FindById(&bld, 0, 0, out);
         cm_SendMoveGoodsUnchecked(c->netId, -1, ai_OwnPlayer, price);
         txt_Format(text, 0x1dff, c->id, bld, c->id, price);
     } else {
@@ -10428,7 +10428,7 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         target = gm_FindChar(use->target);
         if (target == 0)
             return 0;
-        gm_FindById((int *)&bld, 0, 0, use->arg);
+        gm_FindById(&bld, 0, 0, use->arg);
         if (bld == 0)
             return 0;
     }
@@ -10479,7 +10479,7 @@ int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use)
         if (bld == 0)
             return 0;
     } else {
-        gm_FindById((int *)&bld, 0, 0, use->target);
+        gm_FindById(&bld, 0, 0, use->target);
         if (bld == 0)
             return 0;
     }

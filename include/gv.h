@@ -464,7 +464,7 @@ void ord_ResetStatistics(void);               /* 0x4f82a0 */
 int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y);  /* 0x4f8300, the grid cell (x, y) of the position p */
 
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
-int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, fills *bld with the object of the id (ai.h's prototype) */
+int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);  /* 0x4fea50, fills *bld with the object of the id (ai.h's prototype) */
 int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 void ord_CountGridObjects(void);               /* 0x4f8360 */
 

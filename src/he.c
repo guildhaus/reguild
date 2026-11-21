@@ -5660,7 +5660,7 @@ void he_AllocGeselle(AIJOB *e)
     AIBLD *b = 0;
     AIBTYPE *t;
 
-    gm_FindById((int *)&b, 0, 0, g->bldId);
+    gm_FindById(&b, 0, 0, g->bldId);
     if (b == 0)
         he_FreeEvent(e);
     t = &ai_BTypes[b->type];
@@ -5682,7 +5682,8 @@ void he_RunGeselle(AIJOB *e)
 {
     HEGESELLE *g = (HEGESELLE *)e;
     char text[0x200];
-    int bld = 0, chr = 0;
+    AIBLD *bld = 0;
+    AICHAR *chr = 0;
     AICHAR *c;
     int title;
 
@@ -5837,7 +5838,8 @@ void he_RunCharPayouts(AIJOB *ev)
     char line[0x200];
     AICHAR *c;
     union { struct { unsigned int lo, hi; } s; __int64 q; } kinds;
-    int bld, i, at, amount;
+    AIBLD *bld;
+    int i, at, amount;
 
     if (ev->stage == -2) {
         he_FreeEvent(ev);
@@ -9024,7 +9026,7 @@ void he_StartEffectEvent(AIJOB *e)
     AIBLD *bld;
     G9DOMIZIL *d;
 
-    gm_FindById((int *)&bld, 0, 0, e->bldId);
+    gm_FindById(&bld, 0, 0, e->bldId);
     if (bld != 0 && bld->object != 0 && (d = (G9DOMIZIL *)ai_FindUsableGood(e->effectGood)) != 0) {
         if (d->minutes != 0) {
             e->end6c = ai_Time;
@@ -9201,10 +9203,10 @@ int he_CreateReaper(AIJOB *e)
     D3OBJECT *obj;
 
     d3if_SelectScene(0, 1);
-    gm_FindById((int *)&bld, 0, 0, e->reaperFrom);
+    gm_FindById(&bld, 0, 0, e->reaperFrom);
     if (bld != 0 && bld->object != 0 && bld->object->info != 0 && bld->object->info->mesh != 0) {
         from = bld;
-        gm_FindById((int *)&bld, 0, 0, e->reaperTo);
+        gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0 && bld->object->info->mesh != 0) {
             to = bld;
             if (e->reaperPlaced == 0) {
@@ -9290,7 +9292,7 @@ int he_MoveReaper(AIJOB *e)
 
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
-        gm_FindById((int *)&bld, 0, 0, e->reaperTo);
+        gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0
             && bld->object->info->mesh != 0) {
             if (e->reaper->path != 0) {
@@ -9366,7 +9368,7 @@ int he_AimReaper(AIJOB *e)
 
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
-        gm_FindById((int *)&bld, 0, 0, e->reaperTo);
+        gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0
             && bld->object->info->mesh != 0) {
             d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
@@ -9405,7 +9407,7 @@ int he_TurnReaper(AIJOB *e)
 
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
-        gm_FindById((int *)&bld, 0, 0, e->reaperTo);
+        gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0
             && bld->object->info->mesh != 0) {
             d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
@@ -9733,7 +9735,7 @@ int sv_IsAtDoor();
 int he_StepWalkSlot(HEWALKSLOT *s)
 {
     AICHAR *c;
-    int bld;
+    AIBLD *bld;
 
     if (s->chr == -1)
         return 0;
@@ -9812,12 +9814,12 @@ int he_FillWalkSlot(HEWALKSLOT *slot, int n, int m)
     else if (ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.q, 0, 100.0f, &tgt) == 0)
         return -1;
     if (util_RandomF() > n * 0.1f) {
-        int bld;
+        AIBLD *bld;
 
         gm_FindById(&bld, 0, 0, tgt);
         if (bld == 0)
             return -1;
-        idx = (bld - (int)ai_Blds) / 0xa9;
+        idx = bld - ai_Blds;
         cm_SendSetField(ch->netId, 0x1c8, 4, 0x40000000, 0);
         slot->chr = ch->netId;
         slot->target = tgt;
@@ -9892,7 +9894,7 @@ void he_StepWalk(HEWALKSLOT *s)
         s->holdHour = 0xff;
         return;
     }
-    gm_FindById((int *)&b, 0, 0, s->target);
+    gm_FindById(&b, 0, 0, s->target);
     held = 0;
     if (b != 0) {
         weather = (d3t_Rain != 0 ? 2 : 0) + (d3t_Snow != 0);
@@ -19129,7 +19131,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
     AICHAR *owner;
     RTPOINT *p;
     AIBLD *at;
-    int bld;
+    AIBLD *bld;
     int n;                              /* the goods to refill, then the next route point */
     int count;
     int waits[5];
@@ -19179,7 +19181,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
         ev->exSlot = cm_SendFieldValues();
         return;
     }
-    bld = gm_ObjectBuilding((int)c);
+    bld = gm_ObjectBuilding(c);
     if (bld == 0)
         return;
     memset(&m, 0, sizeof(m));
@@ -19189,7 +19191,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
     m.flags = 2;
     m.time = ai_Time;
     m.car = c->objId;
-    m.n = ((AIBLD *)bld)->id;
+    m.n = bld->id;
     m.ch = at->id;
     m.flag9e = 1;
     cm_SendLongMessage(&m);

@@ -109,7 +109,7 @@ typedef struct G17B12 { char b[12]; } G17B12;
 typedef struct G17B15 { char b[15]; } G17B15;
 #pragma pack(pop)
 
-int gm_FindById(int *bld, int *obj, int *chr, int id);                             /* 0x4fea50, out: three object views */
+int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);                             /* 0x4fea50, out: three object views */
 void main_GameLoop(int ctl);                                                              /* 0x53bb20 */
 struct AICHAR *gm_FindChar(int id);                                                      /* 0x505df0, ai.h: AICHAR * */
 int gm_CompareTime(AITIME *a, AITIME *b);                                          /* 0x4fe210 */
@@ -158,7 +158,7 @@ unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                     
 void txt_Format(char *buf, intptr_t id, ...);                                       /* 0x5176d0 */
 struct SBSAMPLE *sb_PlaySample(struct SBBANK *bank, char *name, int loops, int pan, int volume, int fade, int delay); /* 0x426fa0, sblib.c */
 float gm_ItemPrice(int item, unsigned char n);                                   /* 0x5087f0 */
-int gm_ObjectBuilding(int y);                                                     /* 0x50a0f0 */
+struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);                                                     /* 0x50a0f0 */
 void util_Seed(unsigned int seed);                                               /* 0x42ec90, tr.c */
 extern int cm_NetFlags;                /* 0x6f2594, flags */
 extern unsigned cm_LoadSize;           /* 0xa68d28, size of the load buffer */
@@ -431,7 +431,7 @@ struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);  /* 0x501b50 */
-void gm_FreeObject(int o);  /* 0x5034b0 */
+void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 typedef struct G17B16 { char b[16]; } G17B16;
 

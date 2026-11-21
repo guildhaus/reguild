@@ -400,13 +400,13 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2);                    
 int ai_RegisterBuildingActions(int a);                                                        /* 0x48fb70 */
 AICHAR *ai_PickRandomBuildingChar(AIBLD *b);                                                   /* 0x48feb0 */
 int ai_DecideGraveyardOwner0(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x48ff50 */
-int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, int unused, AIARG *o);                      /* 0x4900c0 */
+int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4900c0 */
 int ai_DecideGraveyardOwner1(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490170 */
-int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, int unused, AIARG *o);                      /* 0x4902b0 */
+int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4902b0 */
 int ai_DecideGraveyardOwner2(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490350 */
-int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, int unused, AIARG *o);                      /* 0x4904c0 */
+int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4904c0 */
 int ai_DecideGraveyardOwner3(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490570 */
-int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, int unused, AIARG *o);                      /* 0x490600 */
+int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x490600 */
 int ai_DecideGraveyardOwner(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2);                  /* 0x490690 */
 
 /* callees outside this file */

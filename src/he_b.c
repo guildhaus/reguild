@@ -1390,7 +1390,7 @@ void he_RunIncomeEvent(AIJOB *ev)
     int n;
 
     owner = 0;
-    gm_FindById((int *)&bld, 0, 0, ev->incomeBld);
+    gm_FindById(&bld, 0, 0, ev->incomeBld);
     if (bld == 0) {
         for (i = 0; i < 768; i++) {
             if (ai_Chars[i].job == ev)
@@ -1410,7 +1410,7 @@ void he_RunIncomeEvent(AIJOB *ev)
             ev->stage = 2;
             return;
         }
-        gm_FindById((int *)&bld, 0, 0, ev->incomeBld);
+        gm_FindById(&bld, 0, 0, ev->incomeBld);
         factor = gm_BuildingSkill(bld, 1, 1) * 0.01 + 1.0;
         if (ev->incomeCounter >= 60) {
             for (i = 0; i < 8 && owner != 0; i++) {
@@ -1431,9 +1431,9 @@ void he_RunIncomeEvent(AIJOB *ev)
             n = gm_WorkMinutesBetween(&ev->clock60, &ev->end, 0) * (ev->words14[0] * 2 + ev->words14[1]);
             ev->incomeAmount = (int)(amount - n * factor);
             while (ev->incomeAmount <= 0) {
-                gm_FindById(0, (int *)&from, 0, ev->incomeFrom);
+                gm_FindById(0, &from, 0, ev->incomeFrom);
                 stock = gm_Query(from->list, 1, 0, ev->incomeGood);
-                gm_FindById(0, (int *)&to, 0, ev->incomeTo);
+                gm_FindById(0, &to, 0, ev->incomeTo);
                 if (stock == 0) {
                     txt_Format(text, 0x1bb7, ev->incomeGood * 2 + 0x9a8, bld);
                     he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, -1, text, 0, 0x5f1, bld->id, -1, 0,
@@ -1461,7 +1461,7 @@ void he_RunIncomeEvent(AIJOB *ev)
             ev->stage = 1;
             return;
         }
-        gm_FindById((int *)&bld, 0, 0, ev->incomeBld);
+        gm_FindById(&bld, 0, 0, ev->incomeBld);
         if (bld == 0) {
             ev->stage = -1;
             return;
@@ -1599,7 +1599,7 @@ void he_RunProduktion(AIJOB *ev)
         if (p->slot != -1) {
             if (cm_GetSlotState(p->slot) == 0)
                 return;
-            gm_FindById((int *)&bld, 0, 0, p->bld);
+            gm_FindById(&bld, 0, 0, p->bld);
             if (bld == 0) {
                 ev->stage = -1;
                 return;
@@ -1614,7 +1614,7 @@ void he_RunProduktion(AIJOB *ev)
                         worker = rec;
                 }
                 if (worker != 0 && (master == 0 || (master->flags1b4 & 1) == 0) && p->lacking == 0) {
-                    gm_FindById(0, (int *)&store, 0, p->store);
+                    gm_FindById(0, &store, 0, p->store);
                     mainObj = gm_BuildingMainObject(bld);
                     if (gm_Query(store->list, 1, 0, p->good) != 0 && gm_FreeCapacity(store, p->good, 1) == 0) {
                         txt_Format(text, 0x1bb3, bld, p->good * 2 + 0x9a8);
@@ -1673,7 +1673,7 @@ wait:
                 return;
             }
         }
-        gm_FindById((int *)&bld, 0, 0, p->bld);
+        gm_FindById(&bld, 0, 0, p->bld);
         if (bld == 0) {
             ev->stage = -1;
             return;
@@ -1723,7 +1723,7 @@ wait:
         if (n > 0)
             p->counter += n;
         f = ((bld->flags5aw & 0x1000 ? f + 0.1f : f) + p->rate + (bld->workRate - 2) * 0.1) * p->staff;
-        if (gm_FindById(0, (int *)&store, 0, p->store) == 0 || (store->type != 0x2a && store->type != 0x116)) {
+        if (gm_FindById(0, &store, 0, p->store) == 0 || (store->type != 0x2a && store->type != 0x116)) {
             he_FreeEvent(ev);
             return;
         }
@@ -1823,7 +1823,7 @@ lacking:
             ev->stage = 1;
             return;
         }
-        gm_FindById((int *)&bld, 0, 0, p->bld);
+        gm_FindById(&bld, 0, 0, p->bld);
         if (bld == 0) {
             ev->stage = -1;
             return;
@@ -1838,7 +1838,7 @@ lacking:
         return;
     case -2:
     case -1:
-        gm_FindById((int *)&bld, 0, 0, p->bld);
+        gm_FindById(&bld, 0, 0, p->bld);
         if (bld != 0)
             cm_SendUpdateSmoke(bld->id);
         for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
@@ -1884,7 +1884,7 @@ void he_RunSearchEvent(AIJOB *ev)
             break;
         if (gm_CompareTime(&ev->end, &ai_Time) >= 0)
             return;
-        gm_FindById((int *)&bld, 0, 0, s->bld);
+        gm_FindById(&bld, 0, 0, s->bld);
         if (bld == 0) {
             ev->stage = -1;
             return;
@@ -1955,12 +1955,12 @@ void he_RunSearch9(AIJOB *ev)
             break;
         if (gm_CompareTime(&ev->end, &ai_Time) >= 0)
             return;
-        gm_FindById((int *)&bld, 0, 0, s->bld);
+        gm_FindById(&bld, 0, 0, s->bld);
         if (bld == 0) {
             ev->stage = -1;
             return;
         }
-        gm_FindById(0, (int *)&src, 0, s->source);
+        gm_FindById(0, &src, 0, s->source);
         for (found = gm_Query(src->list, 1, 4, 0x17); found != 0;
              found = gm_QueryNext()) {
             if (found->count == 1)
@@ -2141,9 +2141,9 @@ void he_RunTrade(AIJOB *ev)
         }
         t->msgSlot = -1;
     }
-    gm_FindById(0, (int *)&cart, 0, t->cart);
-    gm_FindById((int *)&bld, 0, 0, t->bld);
-    gm_FindById(0, 0, (int *)&chr, t->chr);
+    gm_FindById(0, &cart, 0, t->cart);
+    gm_FindById(&bld, 0, 0, t->bld);
+    gm_FindById(0, 0, &chr, t->chr);
     if (cart == 0)
         goto done;
     if (bld == 0)
@@ -2275,7 +2275,7 @@ void he_RunTrade(AIJOB *ev)
     if (t->bld == -1) {
         AIBLD *home;
 
-        gm_FindById((int *)&home, 0, 0, ev->from);
+        gm_FindById(&home, 0, 0, ev->from);
         t->bld = home->id;
     }
     if (t->deferred != 0) {
@@ -2361,7 +2361,7 @@ void he_RunResearch(AIJOB *e)
         if (gm_CompareTime(&e->end, &ai_Time) >= 0)
             return;
         do {
-            gm_FindById(0, (int *)&o, 0, r->objId);
+            gm_FindById(0, &o, 0, r->objId);
             gm_AddTime(&e->end, 0, 1, 0);
             if (r->rounds > r->limit) {
                 init_HookObject(o->obj, o, 1);
@@ -2811,7 +2811,7 @@ void he_RunConstruction(AIJOB *e)
         return;
     case 4:
         e->exSlot = -1;
-        gm_FindById((int *)&bld, 0, 0, c->bld);
+        gm_FindById(&bld, 0, 0, c->bld);
         if (bld == 0) {
             e->stage = -1;
             return;
@@ -2839,7 +2839,7 @@ void he_RunConstruction(AIJOB *e)
 
         e->exSlot = -1;
         d3if_SelectScene(0, 1);
-        gm_FindById((int *)&bld, 0, 0, c->bld);
+        gm_FindById(&bld, 0, 0, c->bld);
         if (bld == 0 || lc_GetGebaeudeBauplatz(&site, bld) == 0) {
             e->exSlot = cm_SendExSetHE(-1, e);
             d3if_SelectScene(scene, 1);
@@ -2895,7 +2895,7 @@ void he_RunConstruction(AIJOB *e)
         if (c->placing != 0)
             break;
         d3if_SelectScene(0, 1);
-        gm_FindById((int *)&bld, 0, 0, c->bld);
+        gm_FindById(&bld, 0, 0, c->bld);
         if (lc_GetGebaeudeBauplatz(&site, bld) == 0) {
             e->exSlot = cm_SendExSetHE(-1, e);
             d3if_SelectScene(scene, 1);
@@ -2923,7 +2923,7 @@ void he_RunConstruction(AIJOB *e)
         }
         e->clock60 = e->end;
         if (bld == 0)
-            gm_FindById((int *)&bld, 0, 0, c->bld);
+            gm_FindById(&bld, 0, 0, c->bld);
         if (c->script == -1 && c->stage >= 2) {
             D3VECTOR at;
             D3VECTOR v;
@@ -3065,7 +3065,7 @@ void he_RunConstruction(AIJOB *e)
         break;
     case -2:
     case -1:
-        gm_FindById((int *)&bld, 0, 0, c->bld);
+        gm_FindById(&bld, 0, 0, c->bld);
         d3if_SelectScene(0, 1);
         if (c->script != -1) {
             sc = evt_FindById(c->script);
@@ -4220,7 +4220,7 @@ AIJOB *he_FindNearestSpying(AICHAR *per, AICHAR *agent, int skip)
             continue;
         if (((HESPYING *)ev)->victim != per->netId)
             continue;
-        gm_FindById((int *)&bld, 0, 0, ((HESPYING *)ev)->at);
+        gm_FindById(&bld, 0, 0, ((HESPYING *)ev)->at);
         if (bld == 0)
             continue;
         body = bld->object;
@@ -6571,7 +6571,7 @@ void he_TrialPayment(AIJOB *e)
 {
     HETRIALCASE *t = (HETRIALCASE *)e;
     char text[0x200];
-    char *bld;
+    AIBLD *bld;
     AICHAR *per, *ch;
     int kind, bonus, cnt, fee, sum, i;
     float bar;
@@ -6741,7 +6741,7 @@ done:                               /* no contact object: -1 */
 void he_CircusShowPayout(AIJOB *e)
 {
     HEMEET4 *m = (HEMEET4 *)e;
-    char *bld;
+    AIBLD *bld;
     int st[3];                          /* ai_FindWantedItems: st[0] the inventory's entries */
     int given[4];
     int want[4][4];                     /* ai_FindWantedItems' records: [0] the object, [3] the inventory entry (AIOBJ) */

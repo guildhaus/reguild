@@ -788,7 +788,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     int n, i, j;
     float v;
 
-    gm_FindById((int *)&o, 0, 0, m->building);
+    gm_FindById(&o, 0, 0, m->building);
     if (o == 0)
         return 0xffff;
     if (ai_BTypes[o->type].kind != 0x1e)
