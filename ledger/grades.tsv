@@ -890,7 +890,7 @@ exe	0x0044a9e0	d3_SceneVersion	d3_interface	byte	readable
 exe	0x0044aa10	d3_SaveScene	d3_interface	byte	readable		
 exe	0x0044abb0	rd_object	d3_int_io	byte	readable		
 exe	0x0044b920	d3io_ReadFloor	d3_int_io	byte	readable		
-exe	0x0044be60	d3_LoadScene	d3_int_io	byte	readable		
+exe	0x0044be60	d3_LoadScene	d3_int_io	shape	readable		
 exe	0x0044c3f0	d3_LoadGroup	d3_int_io	byte	readable		
 exe	0x0044c510	d3io_SetStockDir	d3_io_t	byte	readable		
 exe	0x0044c530	d3io_StockFile	d3_io_t	byte	readable		
@@ -2989,7 +2989,7 @@ exe	0x004fea50	gm_FindById	f3gmt	byte	readable
 exe	0x004feb30	gm_UpdatePlayers	f3gmt	byte	readable		
 exe	0x004feb60	gm_InitPlayerRecord	f3gmt	byte	readable		
 exe	0x004fec10	gm_SyncMarket	f3gmt	byte	readable		
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	byte	readable		
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	shape	readable		
 exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable		
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		
@@ -3476,7 +3476,7 @@ exe	0x00537f40	main_EndGame	main	byte	readable
 exe	0x00538140	main_RundenBeginn	main	byte	readable		
 exe	0x005384e0	main_EndRound	main	byte	readable		
 exe	0x00539620	main_ReplaceFigure	main	byte	readable		
-exe	0x00539870	main_RoundReport	main	shape	readable		byte+readable -> shape+readable at ce63a16b: tie-break: the character views went for AICHAR (ORDCHAR, ce63a16b; the callees' AICHAR * prototypes); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x00539870	main_RoundReport	main	byte	readable		
 exe	0x0053a250	main_UpdateFigure	main	byte	readable		
 exe	0x0053a450	main_UpdateFigures	main	byte	readable		
 exe	0x0053a520	main_SettleRound	main	byte	readable		
@@ -3771,7 +3771,7 @@ exe	0x00561190	he_RunRansom	he	byte	readable
 exe	0x00561470	he_AllocEvent39_3e	he	byte	readable		
 exe	0x005614c0	he_RunRansomDemand	he	byte	readable		
 exe	0x005619a0	he_AllocBurglary	he	byte	readable		
-exe	0x00561a20	he_RunBurglary	he	byte	readable		
+exe	0x00561a20	he_RunBurglary	he	shape	readable		
 exe	0x005628e0	he_RunBuildingSpying	he	shape	readable	deep	
 exe	0x00563070	he_AllocAmbush	he	byte	readable		
 exe	0x005630f0	he_RunAmbush	he	byte	readable		
@@ -4003,8 +4003,8 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at 68e3d1be: tie-break: the building / object views went for AIBLD / AIOBJ (420637e7 .. 68e3d1be); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		byte+readable -> shape+readable at cfa6de8d: tie-break: the building views went for AIBLD (420637e7 ..); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
