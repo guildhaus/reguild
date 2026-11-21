@@ -1198,21 +1198,19 @@ typedef struct HEMEET4 {                /* the circus show event 0xa1's words ov
 #pragma pack(pop)
 /* 0x53d430, the allocation handler of an event of an unknown type (debug text only) */
 
-void he_AllocNone(AIJOB *ev)
+void he_AllocNone(AIJOB *e)
 {
-    AIJOB *e = ev;
     char buf[256];
 
-    sprintf(buf, "he_AllocNone(): Invalid HE-Type : %i, von Spieler %s", ev->kind, ai_Chars[e->chr].name);
+    sprintf(buf, "he_AllocNone(): Invalid HE-Type : %i, von Spieler %s", e->kind, ai_Chars[e->chr].name);
 }
 /* 0x53d470, the run handler of an event of an unknown type (debug text only) */
 
-void he_RunNone(AIJOB *ev)
+void he_RunNone(AIJOB *e)
 {
-    AIJOB *e = ev;
     char buf[256];
 
-    sprintf(buf, "he_RunNone(): Invalid HE-Type : %i, von Spieler %s", ev->kind, ai_Chars[e->chr].name);
+    sprintf(buf, "he_RunNone(): Invalid HE-Type : %i, von Spieler %s", e->kind, ai_Chars[e->chr].name);
 }
 /* 0x53d4b0, the init of the event module: registers the alloc / run handlers of the types 0 and 1, runs the init of the other event modules (0x553060 .. 0x573260; non 0 = failed) and clears the tables */
 
@@ -1316,9 +1314,8 @@ int he_FreeOldestSlot(void)
    nor freed by he_FreeOldestSlot): the slot's picture object (pic, at 32 * the slot index) and its event window, the view
    form opened at (x, y); the slot is kept in the event's slot field; 0 */
 
-int he_OpenEventSlot(AIJOB *ev, int x, int y, char *form, int pic)
+int he_OpenEventSlot(AIJOB *job, int x, int y, char *form, int pic)
 {
-    AIJOB *job = ev;
     int i;
 
     if ((job->opts & 8) == 0) {
@@ -1356,9 +1353,8 @@ int he_OpenEventSlot(AIJOB *ev, int x, int y, char *form, int pic)
    the slots after the first free one down by one (their objects 32 to the left, d2_MoveObj) and sets he_LastSlot to the
    highest slot still used */
 
-void he_ReleaseSlot(AIJOB *ev)
+void he_ReleaseSlot(AIJOB *job)
 {
-    AIJOB *job = ev;
     int i, k;
 
     if (job->slot == 0)
@@ -1688,12 +1684,11 @@ unsigned char *he_CreateEvent(unsigned char *m)
     he_EventCount++;
     return (unsigned char *)ev;
 }
-/* 0x53e1f0, frees the event record `r`: its message box text (+0x7c), its entry in he_QuickList when it is shown in the
+/* 0x53e1f0, frees the event record `ev`: its message box text (+0x7c), its entry in he_QuickList when it is shown in the
    event bar (flags 8: releases its slot first, shrinks he_QuickTop), counts it off (he_EventCount), clears it and,
    when it was the last used record, shrinks he_EventTop */
-void he_FreeEvent(AIJOB *r)
+void he_FreeEvent(AIJOB *ev)
 {
-    AIJOB *ev = r;
     AIJOB *q;
     int i, t;
 
@@ -2103,9 +2098,8 @@ void he_ShowObjectInfos(int obj, int a)
 /* 0x53ec40, makes the event `r` due now (stage -2, end = the game clock) when its character is gone (another netId
    or kind 0xf) or dead (health 0) for the kinds of the list */
 
-void he_RecheckEventPerson(AIJOB *r)
+void he_RecheckEventPerson(AIJOB *ev)
 {
-    AIJOB *ev = r;
     unsigned short us = ev->chr;
 
     if (us == 0xffff)
@@ -3131,9 +3125,8 @@ void he_EndEventNow(AIJOB *r)
 }
 /* 0x541250, sets the character slot (AIJOB.chr, +0x8) of the event record and its netId (+0xc), -1 for 0xffff */
 
-void he_SetEventChar(AIJOB *r, int pl)
+void he_SetEventChar(AIJOB *e, int pl)
 {
-    AIJOB *e = r;
 
     e->chr = (unsigned short)pl;
     if (pl != 0xffff) {
@@ -3319,10 +3312,9 @@ void he_RunDueNow(AIJOB *ev)
    clock (+0xb0) now + 0x18 units with its minutes cleared and a random hour 0x13 .. 0x16, state 1, posts it and
    keeps the cm slot (+0x84) */
 
-void he_AllocStammtisch(AIJOB *r)
+void he_AllocStammtisch(AIJOB *e)
 {
-    AIJOB *e = r;
-    HESTAMMTISCH *m = (HESTAMMTISCH *)r;
+    HESTAMMTISCH *m = (HESTAMMTISCH *)e;
     short s;
 
     if ((e->opts & 4) == 0) {
@@ -3334,7 +3326,7 @@ void he_AllocStammtisch(AIJOB *r)
         s = util_Random(4);
         m->meeting.hour = s + 0x13;
         m->state = 1;
-        e->exSlot = cm_SendExSetHE(0, r);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 
@@ -3486,17 +3478,16 @@ void he_StammtischCommand(unsigned cmd, AIBLD *inn, AIOBJ *table, int figId)
    push 4 before the min store, ours add esp,0x30 after the call. min / hour swapped in the arm: worse
    (21/245), both copies 23. The e->end / meeting code once after the if / else: 193. climb round 1 and
    initgen (bld, table, boss): nothing. */
-void he_RunStammtisch(AIJOB *r)
+void he_RunStammtisch(AIJOB *e)
 {
-    AIJOB *e = r;
-    HESTAMMTISCH *m = (HESTAMMTISCH *)r;
+    HESTAMMTISCH *m = (HESTAMMTISCH *)e;
     AIBLD *bld;
     AIOBJ *table;
     AICHAR *boss;
     int cmd[3];
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(r);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -3507,13 +3498,13 @@ void he_RunStammtisch(AIJOB *r)
     gm_FindById(&bld, 0, 0, m->innId);
     if (bld == 0) {
         gm_AddTime(&e->end, 0, 5, 0);
-        cm_SendExSetHE(-1, r);
+        cm_SendExSetHE(-1, e);
         return;
     }
     table = gm_Query((void *)bld->objList, 2, 6, 0, 0x12d);
     if (table == 0) {
         gm_AddTime(&e->end, 0, 5, 0);
-        cm_SendExSetHE(-1, r);
+        cm_SendExSetHE(-1, e);
         return;
     }
     if (bld->owner != 0xffff && (boss = &ai_Chars[bld->owner]) != 0 && boss != ai_PlayerChar && boss->health != 0
@@ -3528,7 +3519,7 @@ void he_RunStammtisch(AIJOB *r)
         } else {
             if (gm_MinutesBetween(&ai_Time, &m->meeting) > 0) {
                 gm_AddTime(&e->end, 1, 0, 0);
-                cm_SendExSetHE(0, r);
+                cm_SendExSetHE(0, e);
                 return;
             }
             he_StammtischCommand('exec', bld, table, -1);
@@ -3539,7 +3530,7 @@ void he_RunStammtisch(AIJOB *r)
         }
         m->meeting.min = 0;
         m->meeting.hour = util_Random(4) + 0x13;
-        cm_SendExSetHE(0, r);
+        cm_SendExSetHE(0, e);
         return;
     }
     if (m->state == 0) {
@@ -3557,14 +3548,13 @@ void he_RunStammtisch(AIJOB *r)
     gm_AddTime(&m->meeting, 0x18, 0, 0);
     m->meeting.min = 0;
     m->meeting.hour = util_Random(4) + 0x13;
-    cm_SendExSetHE(0, r);
+    cm_SendExSetHE(0, e);
 }
 /* 0x542490, a Ghidra miss (disassembled): the event of the building `from`: sets its end clock to a day ahead at 7:00;
    with the building gone it is posted again (key -1), else a building without an object of kind 0x1b5 gets one
    (cm_SendObject1b5, its value all -1) and the event is posted (key 0) */
-void he_AllocTavern(AIJOB *r)
+void he_AllocTavern(AIJOB *e)
 {
-    AIJOB *e = r;
     AIBLD *bld = 0;
     HEOBJ1B5VALUE v;
 
@@ -3576,7 +3566,7 @@ void he_AllocTavern(AIJOB *r)
     e->end.min = 0;
     gm_FindById(&bld, 0, 0, e->from);
     if (bld == 0) {
-        cm_SendExSetHE(-1, r);
+        cm_SendExSetHE(-1, e);
         return;
     }
     if (gm_Query((void *)bld->objList, 1, 0, 0x1b5) == 0) {
@@ -3586,7 +3576,7 @@ void he_AllocTavern(AIJOB *r)
         cm_SendObject1b5(bld->id, v.block);
     }
     e->exSlot = -1;
-    cm_SendExSetHE(0, r);
+    cm_SendExSetHE(0, e);
 }
 
 int ai_ChooseObjectTarget();
@@ -3598,16 +3588,15 @@ void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int
    Stage 1 waits 1 .. 2 hours. Stage 2: the hired helper is done: its news (ai_ShowTavernHelperNews), the object is
    reset (no helper), and when the tavern pays out (gm_HandOutMoney) its owner gets the takings (the news 0x19a7 for a
    player) and the building's field 0x69 the amount; again in a day at 7:00 */
-void he_RunTavern(AIJOB *r)
+void he_RunTavern(AIJOB *e)
 {
-    AIJOB *e = r;
     AIBLD *bld = 0;
     HETAVERNOBJ *t;
     AICHAR *helper;
     char buf[0x100];
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(r);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -3617,13 +3606,13 @@ void he_RunTavern(AIJOB *r)
     e->exSlot = -1;
     gm_FindById(&bld, 0, 0, e->from);
     if (bld == 0) {
-        cm_SendExSetHE(-1, r);
+        cm_SendExSetHE(-1, e);
         return;
     }
     if (bld->owner == 0xffff) {
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 7;
-        cm_SendExSetHE(0, r);
+        cm_SendExSetHE(0, e);
         return;
     }
     t = (HETAVERNOBJ *)gm_Query((void *)bld->objList, 1, 0, 0x1b5);
@@ -3632,32 +3621,32 @@ void he_RunTavern(AIJOB *r)
         if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
             if (t != 0 && t->hired != 0) {
                 gm_AddTime(&e->end, 1, 0, 0);
-                e->exSlot = cm_SendExSetHE(1, r);
+                e->exSlot = cm_SendExSetHE(1, e);
             } else {
                 gm_AddTime(&e->end, 0x18, 0, 0);
                 e->end.hour = 7;
-                e->exSlot = cm_SendExSetHE(0, r);
+                e->exSlot = cm_SendExSetHE(0, e);
             }
         } else {
             if (t != 0) {
                 if (ai_ChooseObjectTarget(&ai_Chars[bld->owner], t) != 0) {
                     gm_AddTime(&e->end, 1, 0, 0);
-                    e->exSlot = cm_SendExSetHE(1, r);
+                    e->exSlot = cm_SendExSetHE(1, e);
                 } else {
                     gm_AddTime(&e->end, 0x18, 0, 0);
                     e->end.hour = 7;
-                    e->exSlot = cm_SendExSetHE(0, r);
+                    e->exSlot = cm_SendExSetHE(0, e);
                 }
             } else {
                 gm_AddTime(&e->end, 0x18, 0, 0);
                 e->end.hour = 7;
-                e->exSlot = cm_SendExSetHE(0, r);
+                e->exSlot = cm_SendExSetHE(0, e);
             }
         }
         return;
     case 1:
         gm_AddTime(&e->end, util_Random(2) + 1, 0, 0);
-        e->exSlot = cm_SendExSetHE(2, r);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
         if (t != 0 && t->hired != 0) {
@@ -3693,7 +3682,7 @@ void he_RunTavern(AIJOB *r)
         }
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 7;
-        e->exSlot = cm_SendExSetHE(0, r);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x542960, the alloc handler of the offer event 0x2c between the figures partner1 (+0xac) and partner2 (+0xb0):
@@ -3701,10 +3690,9 @@ void he_RunTavern(AIJOB *r)
    opts bit 2 is set it walks the other pending 0x2c offers of the same kind: an offer of the same figure only
    shows the news 0x1bbe and re-posts this event at once, an older one of another figure moves our clock to its
    time; at the end the offer is created (cm_SendHandOverCrimes, +0xd4) and the event posted */
-void he_AllocOffer(AIJOB *ev)
+void he_AllocOffer(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFER *o = (HEOFFER *)ev;
+    HEOFFER *o = (HEOFFER *)e;
     AIJOB *o2;
     HEOFFER *f2;
     AICHAR *q, *p;
@@ -3730,7 +3718,7 @@ void he_AllocOffer(AIJOB *ev)
                     txt_Format(buf, 0x1bbe, p->id, q->id);
                     he_ShowNews(p->netId, p->netId, buf, 0, 0x5f5, (char *)0);
                     e->end = ai_Time;
-                    e->exSlot = cm_SendExSetHE(-1, ev);
+                    e->exSlot = cm_SendExSetHE(-1, e);
                     return;
                 }
                 if (o->clock.year <= f2->clock.year) {
@@ -3743,7 +3731,7 @@ void he_AllocOffer(AIJOB *ev)
             r = he_NextEvent();
         }
         o->offer = cm_SendHandOverCrimes(e->partner1, e->partner2, e->id, 1);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x542b60, a Ghidra miss (disassembled): the run handler of the wedding offer event (see 0x542960; HEOFFER). Stage 0
@@ -3753,17 +3741,16 @@ void he_AllocOffer(AIJOB *ev)
    (HS_12) when they are players, and the event goes on to stage 1. Refused: the suitor hears 0x1bbe and the event is
    posted again two minutes on. Stage 1 sends the wedding party (G28REC, kind 2, flags 0xa2, its 5 or 6 members, 45
    minutes from now, hosted by the player) and posts the event again */
-void he_RunWeddingOffer(AIJOB *r)
+void he_RunWeddingOffer(AIJOB *e)
 {
-    AIJOB *e = r;
-    HEOFFER *o = (HEOFFER *)r;
+    HEOFFER *o = (HEOFFER *)e;
     AICHAR *partner, *suitor, *g2, *g3, *g4, *g5;
     char ok;
     G28REC m;
     char buf[0x200];
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(r);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -3802,7 +3789,7 @@ void he_RunWeddingOffer(AIJOB *r)
                 he_ShowNews(g2->netId, g2->netId, buf, 0, 0x5f5, "_NACHRICHTEN_HS_12");
             if (g5 != 0 && (g5->kind == 6 || g5->kind == 7))
                 he_ShowNews(g5->netId, g5->netId, buf, 0, 0x5f5, "_NACHRICHTEN_HS_12");
-            cm_SendExSetHE(1, r);
+            cm_SendExSetHE(1, e);
             return;
         }
         if (ok == 2) {
@@ -3812,7 +3799,7 @@ void he_RunWeddingOffer(AIJOB *r)
             }
             e->end = ai_Time;
             e->end.min += 2;
-            cm_SendExSetHE(-1, r);
+            cm_SendExSetHE(-1, e);
         }
         return;
     case 1:
@@ -3834,7 +3821,7 @@ void he_RunWeddingOffer(AIJOB *r)
         gm_AddTime(&m.time, 0, 0x2d, 0);
         cm_SendNewParty(&m);
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, r);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -3843,9 +3830,8 @@ void he_RunWeddingOffer(AIJOB *r)
    0x175a) and reports the crime (gv_Accuse 0x13, 1, partner2, partner1) with the home building (AICHAR.bld2) id of
    partner2, else of partner1 */
 
-void he_AllocQuarrel(AIJOB *ev)
+void he_AllocQuarrel(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     AIBLD *t;
     int id;
@@ -3859,11 +3845,11 @@ void he_AllocQuarrel(AIJOB *ev)
     if ((fl & 2) != 0) {
         if (a == 0 || b == 0) {
             e->end = ai_Time;
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0x30, 0, 0);
-        cm_SendExSetHE(0, ev);
+        cm_SendExSetHE(0, e);
         cm_SendRelations(b->netId, a->netId, -20, 1);
         if (a->kind == 6 || a->kind == 7) {
             txt_Format(buf, 0x175a, b->id, b->id);
@@ -3884,9 +3870,8 @@ void he_AllocQuarrel(AIJOB *ev)
 /* 0x543180, the run handler of the quarrel event 0x2e: tells partner2 (news 0x175d, message 0x5fa) when its option 2
    is set, then re-posts the event in one unit (stage 0 only); a missing partner ends it at the current time */
 
-void he_RunQuarrel(AIJOB *ev)
+void he_RunQuarrel(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     char buf[0x100];
 
@@ -3903,7 +3888,7 @@ void he_RunQuarrel(AIJOB *ev)
     b = gm_FindChar(e->partner2);
     if (b == 0 || a == 0) {
         e->end = ai_Time;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (e->stage == 0) {
@@ -3913,7 +3898,7 @@ void he_RunQuarrel(AIJOB *ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
     }
 }
 /* 0x5432f0, a Ghidra miss (disassembled): the run handler of the master exam event ("Meisterpruefung") of the three
@@ -3923,10 +3908,9 @@ void he_RunQuarrel(AIJOB *ev)
    (d2_ClickedId 0: passed, 1: failed) or for the due time (then stage 2). Stage 2 decides by chance
    (gm_Mix(who[1], who[0], 4) + a random 0 .. 1 below 1: failed). Passed: who[1] hears 0x1764 and the master's
    relation to the candidate drops by 20; failed: 0x1765 and who[1] and the candidate drop by 15 each way */
-void he_RunMasterExam(AIJOB *ev)
+void he_RunMasterExam(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFER *o = (HEOFFER *)ev;
+    HEOFFER *o = (HEOFFER *)e;
     AICHAR *p, *q, *r;
     float f;
     char buf[0x100];
@@ -3935,18 +3919,18 @@ void he_RunMasterExam(AIJOB *ev)
     q = gm_FindChar(o->who[1]);
     r = gm_FindChar(o->who[2]);
     if (e->stage == -2 || p == 0 || q == 0 || r == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
+            he_ReleaseSlot(e);
         return;
     }
     if (e->stage == -1 || (r->kind != 6 && r->kind != 7))
         e->stage = 2;
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_SetForm(e->slot->win, 0);
@@ -3959,7 +3943,7 @@ void he_RunMasterExam(AIJOB *ev)
         return;
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
-            he_ReleaseSlot(ev);
+            he_ReleaseSlot(e);
             e->stage = 2;
             return;
         }
@@ -3975,8 +3959,8 @@ void he_RunMasterExam(AIJOB *ev)
             cm_SendRelations(q->netId, r->netId, -15, 1);
             cm_SendRelations(r->netId, q->netId, -15, 1);
         }
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     case 2:
         f = gm_Mix((int)q, (int)p, 4);
@@ -3990,7 +3974,7 @@ void he_RunMasterExam(AIJOB *ev)
             cm_SendRelations(q->netId, r->netId, -15, 1);
             cm_SendRelations(r->netId, q->netId, -15, 1);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -3998,10 +3982,9 @@ void he_RunMasterExam(AIJOB *ev)
    units, hour 0x14; with inviteGuests set every guest gets the invitation message 0x36 carrying the feast time and
    event id (flag 9 for the players, else 1), then the event is posted */
 
-void he_AllocFeast(AIJOB *ev)
+void he_AllocFeast(AIJOB *e)
 {
     AIMSG msg;
-    AIJOB *e = ev;
     AICHAR *c;
     int *pp;
     int k;
@@ -4033,7 +4016,7 @@ void he_AllocFeast(AIJOB *ev)
                 }
             }
         }
-        cm_SendExSetHE(0, ev);
+        cm_SendExSetHE(0, e);
     }
 }
 
@@ -4047,9 +4030,8 @@ int ai_EvalFest();
    verdict + a random 0 .. 2); it re-posts the event, as stage 1 does. The original clears only the group's first
    4 bytes, and without a building it tests the guests of a null table (*(int *)0x1c ..) before it looks up the
    event's own guests: both kept */
-void he_RunFeast(AIJOB *ev)
+void he_RunFeast(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *bld = 0;
     AIOBJ *table = 0;
     AICHAR *c;
@@ -4058,7 +4040,7 @@ void he_RunFeast(AIJOB *ev)
     char line[0x100];
 
     if (e->stage == -2 || e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->opts & 4)
@@ -4066,7 +4048,7 @@ void he_RunFeast(AIJOB *ev)
     gm_FindById(&bld, 0, 0, e->from);
     if (bld != 0 && (table = gm_Query((void *)bld->objList, 1, 0, 0x17)) == 0) {
         e->end = ai_Time;
-        cm_SendExSetHE(-1, ev);
+        cm_SendExSetHE(-1, e);
         return;
     }
     switch (e->stage) {
@@ -4103,12 +4085,12 @@ void he_RunFeast(AIJOB *ev)
             he_ShowNews(g.leader->netId, -1, text, 0x20, 0x5fd, ch_EmptyName);
         }
         e->end = ai_Time;
-        cm_SendExSetHE(-1, ev);
+        cm_SendExSetHE(-1, e);
         return;
     }
     case 1:
         e->end = ai_Time;
-        cm_SendExSetHE(-1, ev);
+        cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -4124,9 +4106,8 @@ int ai_MasterExamPassed();
    (then stage 2); stage 2 decides by ai_MasterExamPassed. Passed: the examiner hears 0x1785; failed: the candidate
    leaves the feast's guests (the table's field, or the feast event re-posted) and the examiner hears 0x1786; either
    only while the candidate is a guest. The text 0x1771 reads the owner of a null building: kept as the original */
-void he_RunFeastExam(AIJOB *ev)
+void he_RunFeastExam(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *bld = 0;
     AIOBJ *table = 0;
     AIJOB *feast = 0;
@@ -4136,49 +4117,49 @@ void he_RunFeastExam(AIJOB *ev)
 
     if (e->stage == -1 || e->stage == -2) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     if (e->examAt == 0) {
         gm_FindById(&bld, 0, 0, e->from);
         if (bld == 0) {
             if (e->slot != 0)
-                he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         table = gm_Query((void *)bld->objList, 1, 0, 0x17);
         if (table == 0 || bld->owner == 0xffff) {
             if (e->slot != 0)
-                he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         master = &ai_Chars[bld->owner];
         if (master == 0) {
             if (e->slot != 0)
-                he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
     } else if (e->examAt == 1) {
         feast = he_FindEvent(2, 1, e->examFeast, 0, 0x37);
         if (feast == 0) {
             if (e->slot != 0)
-                he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         master = &ai_Chars[feast->chr];
         if (master == 0) {
             if (e->slot != 0)
-                he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
     } else {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     cand = &ai_Chars[e->chr];
@@ -4186,9 +4167,9 @@ void he_RunFeastExam(AIJOB *ev)
         e->stage = 2;
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_SetForm(e->slot->win, 0);
@@ -4204,7 +4185,7 @@ void he_RunFeastExam(AIJOB *ev)
         return;
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
-            he_ReleaseSlot(ev);
+            he_ReleaseSlot(e);
             e->stage++;
             return;
         }
@@ -4240,7 +4221,7 @@ void he_RunFeastExam(AIJOB *ev)
                 for (i = 0; i < 4; i++)
                     if (feast->festGuests[i] == cand->netId) {
                         feast->festGuests[i] = -1;
-                        cm_SendExSetHE(0, ev);
+                        cm_SendExSetHE(0, e);
                         break;
                     }
             }
@@ -4249,8 +4230,8 @@ void he_RunFeastExam(AIJOB *ev)
                 he_ShowNews(master->netId, -1, buf, 0, 0x5ec, 0);
             }
         }
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     case 2:
         if (ai_MasterExamPassed(master, cand) == 1) {
@@ -4281,7 +4262,7 @@ void he_RunFeastExam(AIJOB *ev)
                 for (i = 0; i < 4; i++)
                     if (feast->festGuests[i] == cand->netId) {
                         feast->festGuests[i] = -1;
-                        cm_SendExSetHE(0, ev);
+                        cm_SendExSetHE(0, e);
                         break;
                     }
             }
@@ -4290,7 +4271,7 @@ void he_RunFeastExam(AIJOB *ev)
                 he_ShowNews(master->netId, -1, buf, 0, 0x5ec, 0);
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -4302,9 +4283,8 @@ void he_RunFeastExam(AIJOB *ev)
    starts at a random one with a random stride, and the character's skill 4 is kept. A collector holding the good
    0x15c re-posts it and tells of the claim (ai_ShowTributeClaimNews), else ai_ShowTributeCollectNews and the event is
    posted with key 0 */
-void he_AllocTribute(AIJOB *ev)
+void he_AllocTribute(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *coll;
     int n = 0;
 
@@ -4313,7 +4293,7 @@ void he_AllocTribute(AIJOB *ev)
     coll = gm_FindChar(e->idbc);
     if (coll == 0) {
         e->end = ai_Time;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (he_FindEvent(1, 0, 0x35) != 0) {
@@ -4322,7 +4302,7 @@ void he_AllocTribute(AIJOB *ev)
         while (he_NextEvent() != 0);
         if (n > 4) {
             e->end = ai_Time;
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             ai_ShowTributeDelayedNews(&ai_Chars[e->chr]);
             return;
         }
@@ -4340,12 +4320,12 @@ void he_AllocTribute(AIJOB *ev)
     e->tributeLeft = 0x300;
     if (ai_InventoryHas(coll, 0x15c) != 0) {
         e->end = ai_Time;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         ai_ShowTributeClaimNews(coll, &ai_Chars[e->chr]);
         return;
     }
     ai_ShowTributeCollectNews(coll);
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
 }
 
 /* ---- drafted out of address order (the big 0x53f6b0 / 0x541b40 / 0x5437c0 are still missing above this point; move the functions below into address order when those exist) ---- */
@@ -4404,9 +4384,8 @@ void he_RunTribute(AIJOB *ev)
 /* 0x544550, draws the three picks of the pair event 0x41 for the partners a and b (its handlers 0x544630 /
    0x544840): twelve values from half a's level (gm_CharLevel) on, shuffled; the first three go to pairPick with the
    prices (pick + 1) * (a's worth + b's worth, each at least 32000) / 640 in pairPrice */
-void he_DrawPairPicks(AIJOB *ev, AICHAR *a, AICHAR *b)
+void he_DrawPairPicks(AIJOB *e, AICHAR *a, AICHAR *b)
 {
-    AIJOB *e = ev;
     int tab[12];
     int base, i, wa, wb;
 
@@ -4426,9 +4405,8 @@ void he_DrawPairPicks(AIJOB *ev, AICHAR *a, AICHAR *b)
    cleared (sent as field deltas); while another courtship names partner1 as its partner2 it is re-posted two minutes
    later as well. Else its first round is due tomorrow at 8:00, the rounds start at 0 of 0x5c6620(partner1,
    partner2), the picks are drawn (he_DrawPairPicks) and it is posted with key 0 */
-void he_AllocCourtship(AIJOB *ev)
+void he_AllocCourtship(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     AIJOB *r;
 
@@ -4440,7 +4418,7 @@ void he_AllocCourtship(AIJOB *ev)
     if (a == 0 || b == 0 || a->sex == b->sex) {
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (a->relatives[0] != -1) {
@@ -4461,7 +4439,7 @@ void he_AllocCourtship(AIJOB *ev)
         if (r->partner2 == a->netId) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
     }
@@ -4473,10 +4451,10 @@ void he_AllocCourtship(AIJOB *ev)
     e->end.hour = 8;
     e->pairRounds = (char)ai_CourtshipRounds(e->partner1, e->partner2);
     e->pairDrawn = 0;
-    he_DrawPairPicks(ev, a, b);
+    he_DrawPairPicks(e, a, b);
     e->pairDone = 0;
     e->exSlot = -1;
-    cm_SendExSetHE(0, ev);
+    cm_SendExSetHE(0, e);
 }
 
 unsigned int ai_MarriageTest(int param_1, int param_2);
@@ -4494,9 +4472,8 @@ unsigned int ai_MarriageTest(int param_1, int param_2);
    relatives[0], both relations go to 0x7f, a player or kind 5 a hears 0x1d31 and the partner of sex 1 gets f07c 1.1,
    b's reserved grave entry is ordered, and the wedding party (G28REC kind 6, flags 0xb2, two hours on, between 7 and
    22 o'clock) is sent with the event posted with key 4; else a player a hears the family text again */
-void he_RunCourtship(AIJOB *ev)
+void he_RunCourtship(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     unsigned int r;
     char news[0x200];
@@ -4511,14 +4488,14 @@ void he_RunCourtship(AIJOB *ev)
             else if (a != 0 && (a->flags1c8 & 0x40000) && b == 0)
                 cm_SendSetField(a->netId, 0x1c8, 4, 0, 0x40000);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     } else {
         if (e->opts & 4)
             return;
         if (a == 0 || b == 0 || a->sex == b->sex) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
@@ -4530,7 +4507,7 @@ void he_RunCourtship(AIJOB *ev)
             if (r == -0x405) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 2, 0);
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 txt_Format(gave, 0x42f6, b->id);
                 he_ShowNews(a->netId, a->netId, gave, 1, 0x5f4, 0);
                 return;
@@ -4538,7 +4515,7 @@ void he_RunCourtship(AIJOB *ev)
             if (r == -0x406) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 2, 0);
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 txt_Format(gave, 0x42f7, b->id);
                 he_ShowNews(a->netId, a->netId, gave, 1, 0x5f4, 0);
                 return;
@@ -4603,7 +4580,7 @@ void he_RunCourtship(AIJOB *ev)
             if (e->pairRound >= e->pairRounds) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 2, 0);
-                e->exSlot = cm_SendExSetHE(1, ev);
+                e->exSlot = cm_SendExSetHE(1, e);
                 return;
             }
             if (a->kind == 6) {
@@ -4621,9 +4598,9 @@ void he_RunCourtship(AIJOB *ev)
             gm_AddTime(&e->end, 0x18, 0, 0);
             e->end.hour = 8;
             e->pairDrawn = 1;
-            he_DrawPairPicks(ev, a, b);
+            he_DrawPairPicks(e, a, b);
             e->exSlot = -1;
-            cm_SendExSetHE(0, ev);
+            cm_SendExSetHE(0, e);
             return;
         case 1:
             cm_BeginGroup("werbung");
@@ -4639,7 +4616,7 @@ void he_RunCourtship(AIJOB *ev)
             cm_EndGroup("werbung");
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(5, ev);
+            e->exSlot = cm_SendExSetHE(5, e);
             return;
         case 5:
             /* each other's relatives[0]: the original tests both, bitwise (and edx, eax; test dl, 1) */
@@ -4706,27 +4683,26 @@ void he_RunCourtship(AIJOB *ev)
                 e->end = party.time;
                 e->pairDone = 1;
                 e->exSlot = -1;
-                cm_SendExSetHE(4, ev);
+                cm_SendExSetHE(4, e);
                 cm_SendNewParty(&party);
                 return;
             }
         case 4:
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         default:
             return;
         }
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
     }
 }
 /* 0x5455e0, the alloc handler of the random-message event 0x42 (ai_PostRandomMessages wraps a random message in
    it): the due clock is now at a random hour 10 .. 19, minute 0 .. 0x3a and second 0 */
 
-void he_AllocRandomMessage(AIJOB *ev)
+void he_AllocRandomMessage(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     e->end.hour = (short)(util_Random(10) + 10);
@@ -4735,9 +4711,8 @@ void he_AllocRandomMessage(AIJOB *ev)
 }
 /* 0x545640, the run handler of the random-message event 0x42: runs the message it wraps (a G14MSG at 0xac) unless
    the event is cancelled (stage -2), then frees the event record */
-void he_RunRandomMessage(AIJOB *ev)
+void he_RunRandomMessage(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if (e->stage != -2)
         ai_RunMessage(&e->u.id);
@@ -4748,9 +4723,8 @@ void he_RunRandomMessage(AIJOB *ev)
    other than the target and the start and not of type 0x47, within 950 of the target's object are collected, and
    up to four of them in a random order (gm_Shuffled) become its way (patrolWay, else -1); prints the
    "STREIFE_INIT" line (not shown), its first step is due in a second, and it is posted with key 0 */
-void he_AllocPatrol(AIJOB *ev)
+void he_AllocPatrol(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *target, *b;
     D3OBJECT *p, *q;
     int cand[8];
@@ -4792,7 +4766,7 @@ void he_AllocPatrol(AIJOB *ev)
     e->patrolStep = 0;
     e->patrolRound = 0;
     e->patrolWait = -1;
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
 }
 /* 0x545840, a Ghidra miss (disassembled): the run handler of the patrol event 0x43 (he_AllocPatrol); each stage
    posts the next one with cm_SendExSetHE, due after gm_AddTime (hours, minutes, seconds). While none of the four
@@ -4805,9 +4779,8 @@ void he_AllocPatrol(AIJOB *ev)
    turns home -> 1; stage 1 sends them to the start building's object 0x146 and pays the event's character for
    each guard 3 .. 6 rolls of random(v * (v + 1)) + 2v, v = sk82 / 42 + 1 (gm_PlayerFactor of the sum: the news
    0x1a6a and cm_SendMoveGoods; "GOTO_START: %i") -> -1, the end; a building not found ends it as well */
-void he_RunPatrol(AIJOB *ev)
+void he_RunPatrol(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
     AIOBJ *o;
     AICHAR *c;
@@ -4817,12 +4790,12 @@ void he_RunPatrol(AIJOB *ev)
     int gone = 0, leaving = 0, paid, sum;
 
     if (e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->opts & 4) {
         if (e->stage == -2)
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
         return;
     }
     for (i = 0; i < 4; i++) {
@@ -4832,7 +4805,7 @@ void he_RunPatrol(AIJOB *ev)
     }
     if (gone == 4) {
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (e->stage == -2) {
@@ -4847,7 +4820,7 @@ void he_RunPatrol(AIJOB *ev)
         if (b == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         for (i = 0; i < 4; i++) {
@@ -4855,7 +4828,7 @@ void he_RunPatrol(AIJOB *ev)
                 continue;
             c = gm_FindChar(e->patrolGuards[i]);
             if (c != 0 && c->scene != 0) {
-                sv_MoveToGroup(0, 0, c->id, ev);
+                sv_MoveToGroup(0, 0, c->id, e);
                 cm_SendChrStop(e->patrolGuards[i]);
                 cm_SendChrGotoBuilding(e->patrolGuards[i], b->id, -1, 0, 1, "Streife");
             } else {
@@ -4865,14 +4838,14 @@ void he_RunPatrol(AIJOB *ev)
         sprintf(line, "GOTO_TARGET: %i", b->id);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 1:
         b = gm_BuildQuery(1, 1, e->patrolStart);
         if (b == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         o = gm_Query((void *)b->objList, 1, 0, 0x146);
@@ -4889,13 +4862,13 @@ void he_RunPatrol(AIJOB *ev)
                 paid++;
                 cm_SendChrStop(e->patrolGuards[i]);
                 cm_SendChrGotoBuilding(e->patrolGuards[i], b->id, o->objId, 0, 0, "Streife");
-                sv_MoveToGroup(0, 0, c->id, ev);
+                sv_MoveToGroup(0, 0, c->id, e);
             } else {
                 e->patrolGuards[i] = -1;
             }
         }
         if (leaving) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         if (paid != 0) {
@@ -4906,7 +4879,7 @@ void he_RunPatrol(AIJOB *ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         sprintf(line, "GOTO_START: %i", b->id);
         return;
     case 2:
@@ -4917,28 +4890,28 @@ void he_RunPatrol(AIJOB *ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
         return;
     case 0x400:
         for (i = 0; i < 4; i++) {
             if (e->patrolGuards[i] != -1 && (c = gm_FindChar(e->patrolGuards[i])) != 0 && c->scene != 0
                 && c->scene->actions != 0) {
                 gm_AddTime(&e->end, 0, 4, 0);
-                e->exSlot = cm_SendExSetHE(0x400, ev);
+                e->exSlot = cm_SendExSetHE(0x400, e);
                 return;
             }
         }
         e->end = ai_Time;
         e->patrolWait = -1;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
         return;
     case 3:
         if (e->patrolStep <= 3 && e->patrolWay[e->patrolStep] != -1) {
             if (gm_MinutesBetween(&e->start, &ai_Time) > 0x1e0) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 2, 0);
-                e->exSlot = cm_SendExSetHE(1, ev);
+                e->exSlot = cm_SendExSetHE(1, e);
                 return;
             }
             b = gm_BuildQuery(1, 1, e->patrolWay[e->patrolStep]);
@@ -4946,7 +4919,7 @@ void he_RunPatrol(AIJOB *ev)
             if (b == 0) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0, 2, 0);
-                e->exSlot = cm_SendExSetHE(1, ev);
+                e->exSlot = cm_SendExSetHE(1, e);
                 return;
             }
             for (i = 0; i < 4; i++) {
@@ -4956,7 +4929,7 @@ void he_RunPatrol(AIJOB *ev)
                 if (c != 0 && c->scene != 0) {
                     char gestures[3][0x20] = { "gestik/kopf_kratzen", "gestik/durch_haar_fahr", "gestik/kinn_kratzen" };
 
-                    sv_MoveToGroup(0, 0, c->id, ev);
+                    sv_MoveToGroup(0, 0, c->id, e);
                     cm_SendChrStop(e->patrolGuards[i]);
                     cm_SendChrGotoBuilding(e->patrolGuards[i], b->id, -1, 0, 1, "Streife");
                     k = util_Random(2) + 1;
@@ -4967,21 +4940,21 @@ void he_RunPatrol(AIJOB *ev)
             }
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             sprintf(line, "GOTO_NEXT: %i", b->id);
             return;
         }
         if (gm_MinutesBetween(&e->start, &ai_Time) > 0x1e0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
             return;
         }
         e->patrolStep = 0;
         e->patrolRound++;
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
         return;
     }
 }
@@ -4989,19 +4962,18 @@ void he_RunPatrol(AIJOB *ev)
    and its target building (gm_BuildQuery kind 1) is gone, it ends the event at once; either way it posts the event
    again in a second */
 
-void he_AllocRaid(AIJOB *ev)
+void he_AllocRaid(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if ((e->opts & 2) != 0) {
         if (gm_BuildQuery(1, 1, e->raidTarget) == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 0, 1);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 0, 1);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x5461c0, a Ghidra miss (disassembled): the run handler of the raid event 0x44 ("Razzia"; the raiders are ids[],
@@ -5018,9 +4990,8 @@ void he_AllocRaid(AIJOB *ev)
    (only with opts 2) sends the living raiders back to the start building's object 0x146 -> -1; stage -1
    sends them to its main room and frees the event. The opts tests of the stages 0 and 2 are
    @original `(opts == 0) & 2`, never true. */
-void he_RunRaid(AIJOB *ev)
+void he_RunRaid(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b, *home;
     AICHAR *c, *raider;
     AIOBJ *o;
@@ -5032,7 +5003,7 @@ void he_RunRaid(AIJOB *ev)
 
     if (e->stage == -2) {
         if ((e->opts & 2) == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         leaving = 1;
@@ -5049,7 +5020,7 @@ void he_RunRaid(AIJOB *ev)
         if (b == 0 || b->owner == 0xffff) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         for (i = 0; i < 8; i++) {
@@ -5066,7 +5037,7 @@ void he_RunRaid(AIJOB *ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 1:
         if ((e->opts & 2) == 0)
@@ -5075,7 +5046,7 @@ void he_RunRaid(AIJOB *ev)
         if (home == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         o = gm_Query((void *)home->objList, 1, 0, 0x146);
@@ -5094,10 +5065,10 @@ void he_RunRaid(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
         if (leaving) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 2:
         if ((e->opts == 0) & 2)
@@ -5112,9 +5083,9 @@ void he_RunRaid(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
         if (idle)
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
         else
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 3:
         if ((e->opts & 2) == 0)
@@ -5229,7 +5200,7 @@ void he_RunRaid(AIJOB *ev)
                 }
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -5244,9 +5215,8 @@ int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
    relation to b gets 0x34, up to three crimes of b whose evidence a holds are dropped (gv_HeldCrimeIdsOf in a
    random order, cm_SendDropEvidence), a player a counts the mission event 0xb, code -2. Both get their flag and
    cm_SendMoneyDelta(a, code) */
-void he_AllocFight(AIJOB *ev)
+void he_AllocFight(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     char text[0x100];
     int pick[16];
@@ -5263,7 +5233,7 @@ void he_AllocFight(AIJOB *ev)
     if (a == 0 || (a->flags1c8 & 0x100) != 0 || b == 0 || (b->flags1c8 & 0x200) != 0) {
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (e->id3 != 0) {
@@ -5309,9 +5279,8 @@ void he_AllocFight(AIJOB *ev)
    1 / 2 a player partner2 (b) hears the news 0x1e19 / 0x1e20, else a's relation to b drops by 0x68 and b hears
    0x1d5d, a player a's news 0x1d5c goes to b as well; the event ends in two minutes. Stage -1 / -2 (left) clears
    the flags (when started) and frees the event */
-void he_RunFight(AIJOB *ev)
+void he_RunFight(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     char text[0x100];
 
@@ -5350,7 +5319,7 @@ void he_RunFight(AIJOB *ev)
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case -1:
     case -2:
@@ -5362,16 +5331,15 @@ void he_RunFight(AIJOB *ev)
             if (b != 0)
                 cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x200);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
 /* 0x547170, the alloc handler of the duel challenge event 0x46 (its run handler he_RunDuelChallenge): the start and
    the due clock are now, the event runs two units later */
 
-void he_AllocDuelChallenge(AIJOB *ev)
+void he_AllocDuelChallenge(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->start = ai_Time;
     e->end = ai_Time;
@@ -5379,9 +5347,8 @@ void he_AllocDuelChallenge(AIJOB *ev)
 }
 /* 0x5471e0, the duel intro: lets both duellists (p2 / p3, 0x4c4a60 flag 0x400) hear the news 0x1d83 / 0x1d82 (messages 0x5fa / 0x5fb, "_DUELL_INTRO_EVENT_DUELLANTEN_HS_00" for the first) and posts the event (state 2) */
 
-void he_DuelAccepted(AIJOB *ev, AICHAR *p2, AICHAR *p3)
+void he_DuelAccepted(AIJOB *e, AICHAR *p2, AICHAR *p3)
 {
-    AIJOB *e = ev;
     char buf[1024];
 
     cm_SendSetField(p2->netId, 0x1c8, 4, 0x400, 0);
@@ -5394,7 +5361,7 @@ void he_DuelAccepted(AIJOB *ev, AICHAR *p2, AICHAR *p3)
         txt_Format(buf, 0x1d82, p2->id, &e->end, p2->id);
         he_ShowNews(p3->netId, -1, buf, 0, 0x5fb, "_DUELL_INTRO_EVENT_DUELLANTEN_HS_00");
     }
-    cm_SendExSetHE(2, ev);
+    cm_SendExSetHE(2, e);
 }
 
 void amt_ChangeDistrictOpinion(struct AICHAR *c, int d, int v);  /* 0x4ea550, amt.c */
@@ -5442,9 +5409,8 @@ void he_DuelDeclined(AIJOB *ev, AICHAR *p, AICHAR *q)
    clickable) and the news 0x1d6b; the answer is due in two hours. Stage 1: past that time, or with the second
    choice, q declines (he_DuelDeclined); the first choice accepts (he_DuelAccepted); then the slot is released and
    the event freed */
-void he_RunDuelChallenge(AIJOB *ev)
+void he_RunDuelChallenge(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *duel;
     AICHAR *q = 0, *p = 0;
     int row[14];                        /* a special-amount row, cm.c's CMAMOUNTROW: [0] the character, [1] its control */
@@ -5456,19 +5422,19 @@ void he_RunDuelChallenge(AIJOB *ev)
     }
     if (e->stage == -1 || e->stage == -2 || duel == 0 || q == 0 || p == 0) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
+            he_ReleaseSlot(e);
         if (duel != 0) {
             duel->end = ai_Time;
             cm_SendExSetHE(-1, duel);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, (int)"Special\\Beleidigung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, (int)"Special\\Beleidigung", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         if (ai_GameState != 2)
@@ -5493,8 +5459,8 @@ void he_RunDuelChallenge(AIJOB *ev)
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
             he_DuelDeclined(duel, p, q);
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (d2_ClickedForm != e->slot->win)
@@ -5505,8 +5471,8 @@ void he_RunDuelChallenge(AIJOB *ev)
             he_DuelAccepted(duel, p, q);
         else if (d2_ClickedId == 1)
             he_DuelDeclined(duel, p, q);
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -5519,9 +5485,8 @@ void he_RunDuelChallenge(AIJOB *ev)
    gm_Mix(b, a, 3) of 1 or more it challenges (both in a quarrel, a player a hears the duel intro news 0x1d83)
    -> 2; below, it declines as he_DuelDeclined does (a hears 0x1d81, b's district's opinion and b's relation to a
    drop) and the event ends in two minutes */
-void he_AllocInsult(AIJOB *ev)
+void he_AllocInsult(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
     int office[6];
     int seat[6];
@@ -5540,7 +5505,7 @@ void he_AllocInsult(AIJOB *ev)
         if ((a->flags1c8 & 0x400) != 0 || (b->flags1c8 & 0x400) != 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
     }
@@ -5565,7 +5530,7 @@ void he_AllocInsult(AIJOB *ev)
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 6;
         e->end.min = 0x1e;
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         cm_SendSetField(a->netId, 0x1c8, 4, 0x400, 0);
         cm_SendSetField(b->netId, 0x1c8, 4, 0x400, 0);
         return;
@@ -5583,7 +5548,7 @@ void he_AllocInsult(AIJOB *ev)
             txt_Format(text, 0x1d83, b->id, &e->end, b->id);
             he_ShowNews(a->netId, a->netId, text, 0, 0x5fa, "_DUELL_INTRO_EVENT_DUELLANTEN_HS_00");
         }
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     }
     district = 0;
@@ -5610,7 +5575,7 @@ void he_AllocInsult(AIJOB *ev)
     cm_SendRelations(b->netId, a->netId, -0x14, 1);
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 2, 0);
-    e->exSlot = cm_SendExSetHE(-1, ev);
+    e->exSlot = cm_SendExSetHE(-1, e);
 }
 /* 0x547ba0, a Ghidra miss (disassembled): the run handler of the insult event 0x47 (he_AllocInsult), once its cm
    slot is answered: stage 2 (the insulted challenged) posts a fight party of kind 4 between partner1 (a) and
@@ -5618,9 +5583,8 @@ void he_AllocInsult(AIJOB *ev)
    player's challenge sent, he_RunDuelChallenge goes on) take the quarrel flag 0x400 (flags1c8) from both and end
    the event in two minutes; stage -1 / -2 (left) does the same when it was started and frees the event; all only
    once started (opts 2) */
-void he_RunInsult(AIJOB *ev)
+void he_RunInsult(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *a, *b;
 
     if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
@@ -5655,7 +5619,7 @@ void he_RunInsult(AIJOB *ev)
             cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x400);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 1:
         if ((e->opts & 2) == 0)
@@ -5668,7 +5632,7 @@ void he_RunInsult(AIJOB *ev)
             cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x400);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case -2:
     case -1:
@@ -5681,9 +5645,9 @@ void he_RunInsult(AIJOB *ev)
                 cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x400);
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -5691,16 +5655,15 @@ void he_RunInsult(AIJOB *ev)
    the building g->bldId must exist (else the event is freed); g->slot is cm_SendMessage3d's slot for the journeyman
    of the building's kind record byte at +0x22f (0x24d bytes per kind, ai_BTypes); the clock is six units ahead */
 
-void he_AllocGeselle(AIJOB *ev)
+void he_AllocGeselle(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGESELLE *g = (HEGESELLE *)ev;
+    HEGESELLE *g = (HEGESELLE *)e;
     AIBLD *b = 0;
     AIBTYPE *t;
 
     gm_FindById((int *)&b, 0, 0, g->bldId);
     if (b == 0)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     t = &ai_BTypes[b->type];
     g->slot = cm_SendMessage3d(b, 0, t->title, 0);
     e->end = ai_Time;
@@ -5716,10 +5679,9 @@ void he_AllocGeselle(AIJOB *ev)
    reference more or chr one fewer). Declaration order / init order / init statements late / text as a
    block local: = control or order hunks only. */
 
-void he_RunGeselle(AIJOB *ev)
+void he_RunGeselle(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGESELLE *g = (HEGESELLE *)ev;
+    HEGESELLE *g = (HEGESELLE *)e;
     char text[0x200];
     int bld = 0, chr = 0;
     AICHAR *c;
@@ -5730,7 +5692,7 @@ void he_RunGeselle(AIJOB *ev)
     gm_FindById(&bld, 0, 0, g->bldId);
     gm_FindById(0, 0, &chr, g->chrId);
     if (e->stage == -2 || bld == 0)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     if (e->stage == 0 && cm_GetSlotState(g->slot) != 0) {
         c = (AICHAR *)cm_GetSlotValue(g->slot);
         if (c != 0) {
@@ -5739,7 +5701,7 @@ void he_RunGeselle(AIJOB *ev)
             txt_Format(text, g->newsId, c->id, title, chr);
             he_MessageBoxQuickjump(g->chrId, g->chrId, text, 0, 0x5ec, g->bldId, g->bldArg, 0, "_NACHRICHTEN_HS_00");
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x548110, the alloc / start handler of the insult news event 0x4b (its run handler he_RunInsultNews): an event
@@ -5747,9 +5709,8 @@ void he_RunGeselle(AIJOB *ev)
    looked up, a gone one ends it with the clock copied (posted -1), and for a player partner (kind 6 / 7) the news
    0x1d64 about partner1 goes to partner2's netId; the event is then posted (state 0) */
 
-void he_AllocInsultNews(AIJOB *ev)
+void he_AllocInsultNews(AIJOB *e)
 {
-    AIJOB *e = ev;
     char text[0x400];
     AICHAR *a, *b;
 
@@ -5762,7 +5723,7 @@ void he_AllocInsultNews(AIJOB *ev)
             a = gm_FindChar(e->partner1);
             if (a == 0 || b == 0) {
                 e->end = ai_Time;
-                cm_SendExSetHE(-1, ev);
+                cm_SendExSetHE(-1, e);
                 return;
             }
             if (b->kind == 6 || b->kind == 7) {
@@ -5770,7 +5731,7 @@ void he_AllocInsultNews(AIJOB *ev)
                 he_ShowNews(b->netId, -1, text, 0, 0x5fb, "_NACHRICHTEN_HS_20");
             }
         }
-        cm_SendExSetHE(0, ev);
+        cm_SendExSetHE(0, e);
     }
 }
 
@@ -5783,9 +5744,8 @@ void amt_ChangeDistrictOpinion();
 /* 0x548230, the run handler of the insult news event (type 0x4b, whose start handler is 0x548110): a pending cm
    slot still in state 0 keeps it; a freed state (-2) ends it, a negative one frees it, and in state 0 with opts
    bit 2 it is posted again two minutes later (the end time = the clock now, cm_SendExSetHE) */
-void he_RunInsultNews(AIJOB *ev)
+void he_RunInsultNews(AIJOB *e)
 {
-    AIJOB *e = ev;
     int st;
 
     if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
@@ -5801,17 +5761,16 @@ void he_RunInsultNews(AIJOB *ev)
             return;
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x5482c0, the shared alloc / start handler of the event types 0x51 and 0x56 (the payment event, he_RunPayment):
    the end clock is the game time one day (0x18 hours) ahead */
 
-void he_AllocNextDay(AIJOB *ev)
+void he_AllocNextDay(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0x18, 0, 0);
@@ -5819,10 +5778,9 @@ void he_AllocNextDay(AIJOB *ev)
 /* 0x548300, the run handler of the countdown event 0x51 (he_AllocNextDay): while the stage is 0 it counts the
    event's byte +0xac down and returns; at 0 (or in the state -2) it frees the event */
 
-void he_RunCountdown(AIJOB *ev)
+void he_RunCountdown(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECOUNTDOWN *c = (HECOUNTDOWN *)ev;
+    HECOUNTDOWN *c = (HECOUNTDOWN *)e;
 
     if (e->stage != -2) {
         if (e->stage != 0)
@@ -5832,16 +5790,15 @@ void he_RunCountdown(AIJOB *ev)
             return;
         }
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x548330, the alloc handler of the history comment event 0x52 (the KOMMENTARE text command, ai_CommandComments,
    posts the message): the end clock is one day (0x18 hours) ahead and the entry index the message carries is kept
    with its successor (entry + 1) */
 
-void he_AllocComment(AIJOB *ev)
+void he_AllocComment(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECOMMENT *c = (HECOMMENT *)ev;
+    HECOMMENT *c = (HECOMMENT *)e;
 
     e->end = ai_Time;
     c->next = c->entry + 1;
@@ -5850,20 +5807,18 @@ void he_AllocComment(AIJOB *ev)
 /* 0x548380, the run handler of the history comment event 0x52 (he_AllocComment): it frees the record in the
    stage 0 or -2 */
 
-void he_RunComment(AIJOB *ev)
+void he_RunComment(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if (e->stage == -2 || e->stage == 0)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
 }
 /* 0x5483a0, the alloc handler of the character payouts event 0x53 (he_RunCharPayouts): the word +0xb0 is -1, the
    end clock is the start clock with 2 .. 5 hours added, the stage is 0 */
 
-void he_AllocCharPayouts(AIJOB *ev)
+void he_AllocCharPayouts(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEFESTPAYOUT *f = (HEFESTPAYOUT *)ev;
+    HEFESTPAYOUT *f = (HEFESTPAYOUT *)e;
 
     f->bld = -1;
     e->end = e->start;
@@ -5879,14 +5834,13 @@ void he_AllocCharPayouts(AIJOB *ev)
 
 void he_RunCharPayouts(AIJOB *ev)
 {
-    AIJOB *e = ev;
     char news[0x800];
     char line[0x200];
     AICHAR *c;
     union { struct { unsigned int lo, hi; } s; __int64 q; } kinds;
     int bld, i, at, amount;
 
-    if (e->stage == -2) {
+    if (ev->stage == -2) {
         he_FreeEvent(ev);
         return;
     }
@@ -5920,15 +5874,14 @@ void he_RunCharPayouts(AIJOB *ev)
    player's character and the event's character (cm_SendMoveGoods) and changes the character's relation to jobs by
    +8, no (1) by -6; both release the slot and free the event */
 
-void he_RunMasterExamFee(AIJOB *ev)
+void he_RunMasterExamFee(AIJOB *e)
 {
-    AIJOB *e = ev;
     int fee;
 
     if (e->stage == -1 || e->stage == -2) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     if (gm_CompareTime(&ai_Time, &e->start) == -1)
@@ -5937,7 +5890,7 @@ void he_RunMasterExamFee(AIJOB *ev)
     case 0:
         fee = (int)(gm_GetWorth(e->chr) * 0.03f);
         if (e->slot == 0)
-            he_OpenEventSlot(ev, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         d2_SetForm(e->slot->win, 0);
         io_PrintText("$C");
         io_PrintText(0x10b1, e->chr, fee);
@@ -5952,14 +5905,14 @@ void he_RunMasterExamFee(AIJOB *ev)
             if (d2_ClickedId == 0) {
                 cm_SendMoveGoods(ai_PlayerChar->netId, ai_CharInts[e->chr][0], ai_OwnPlayer, (int)(gm_GetWorth(e->chr) * 0.03f));
                 gm_ChangeRelationToJobs(e->chr, 8);
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
                 return;
             }
             if (d2_ClickedId == 1) {
                 gm_ChangeRelationToJobs(e->chr, -6);
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
                 return;
             }
         }
@@ -5968,9 +5921,8 @@ void he_RunMasterExamFee(AIJOB *ev)
 /* 0x548750, the alloc handler of the master exam payment event 0x55 (he_RunMasterExamPay): the due (end) clock is
    the start clock 3 hours ahead */
 
-void he_AllocMasterExamPay(AIJOB *ev)
+void he_AllocMasterExamPay(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = e->start;
     gm_AddTime(&e->end, 3, 0, 0);
@@ -5982,16 +5934,15 @@ void he_AllocMasterExamPay(AIJOB *ev)
    and the event's character (cm_SendMoveGoodsUnchecked) and posts the AI message 0x56 (flags 0x11) with it to the
    character, no (1) only ends it */
 
-void he_RunMasterExamPay(AIJOB *ev)
+void he_RunMasterExamPay(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIMSG m;
     int fee;
 
     if (e->stage == -1 || e->stage == -2) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     if (gm_CompareTime(&ai_Time, &e->start) == -1)
@@ -6001,9 +5952,9 @@ void he_RunMasterExamPay(AIJOB *ev)
         fee = (int)(gm_GetWorth(e->chr) * 0.05f);
         ((HEEXAMPAY *)e)->fee = fee;
         if (e->slot == 0)
-            he_OpenEventSlot(ev, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_SetForm(e->slot->win, 0);
@@ -6013,8 +5964,8 @@ void he_RunMasterExamPay(AIJOB *ev)
         return;
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (e->slot == 0) {
@@ -6033,13 +5984,13 @@ void he_RunMasterExamPay(AIJOB *ev)
                 ((HEFEEMSG *)&m)->what = 4;
                 ((HEFEEMSG *)&m)->amount = fee;
                 cm_SendLongMessage((char *)&m);
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
                 return;
             }
             if (d2_ClickedId == 1) {
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
                 return;
             }
         }
@@ -6050,15 +6001,14 @@ void he_RunMasterExamPay(AIJOB *ev)
    twice the amount (the news 0x10b5), else half of it (the news 0x10b6), both by cm_SendMoveGoods from the own
    player; then frees the event */
 
-void he_RunPayment(AIJOB *ev)
+void he_RunPayment(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPAYMENT *p = (HEPAYMENT *)ev;
+    HEPAYMENT *p = (HEPAYMENT *)e;
     char text[0x418];
     int r;
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage != 0)
@@ -6077,18 +6027,17 @@ void he_RunPayment(AIJOB *ev)
         he_ShowNews(ai_CharInts[e->chr][0], ai_CharInts[e->chr][0], text, 0, 0x5ff, (char *)0);
         cm_SendMoveGoods(ai_CharInts[e->chr][0], -1, ai_OwnPlayer, (int)(p->amount * 0.5f));
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x548b70, the alloc handler shared by the store sale event 0x57 (he_RunStoreSale) and the building decay event
    0x58 (he_RunBuildingDecay): the due clock is the start clock, and on half of the calls it frees the event at once */
 
-void he_AllocRandomHalf(AIJOB *ev)
+void he_AllocRandomHalf(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = e->start;
     if ((short)util_Random(2) != 0)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
 }
 /* 0x548bb0, a Ghidra miss: the run handler of event 0x57: stage -2 frees it; at stage 0 it collects up to 16 of
    the character's buildings (owner query, gm_BuildQuery key 4) of class 1 or of type kind 9, picks one at random
@@ -6097,9 +6046,8 @@ void he_AllocRandomHalf(AIJOB *ev)
    a character of kind 6 with a total gets the news 0x10b7 (the building, the total) in a quick-jump box; then frees
    the event */
 
-void he_RunStoreSale(AIJOB *ev)
+void he_RunStoreSale(AIJOB *e)
 {
-    AIJOB *e = ev;
     char text[0x418];
     char log[0x400];
     AIBLD *sel[16];
@@ -6110,14 +6058,14 @@ void he_RunStoreSale(AIJOB *ev)
     unsigned short *good;
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage != 0)
         return;
     b = gm_BuildQuery(1, 4, e->chr);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     do {
@@ -6128,7 +6076,7 @@ void he_RunStoreSale(AIJOB *ev)
             sel[n++] = b;
     } while ((b = gm_BuildNext()) != 0);
     if (n == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     b = sel[util_Random(n)];
@@ -6151,30 +6099,29 @@ void he_RunStoreSale(AIJOB *ev)
         txt_Format(text, 0x10b7, b, total);
         he_MessageBoxQuickjump(ai_CharInts[e->chr][0], ai_CharInts[e->chr][0], text, 0, 0x5ec, b->id, -1, 0, (char *)0);
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x548de0, a Ghidra miss: the run handler of event 0x58: stage -2 frees it; at stage 0 it collects up to 16 of
    the character's buildings (gm_BuildQuery key 4) of class 6, picks one at random and lowers its state by 50
    (gm_ChangeBuildingState); a character of kind 6 gets the news 0x10b8 (the building) in a quick-jump box; then
    frees the event */
 
-void he_RunBuildingDecay(AIJOB *ev)
+void he_RunBuildingDecay(AIJOB *e)
 {
-    AIJOB *e = ev;
     char text[0x418];
     AIBLD *sel[16];
     int n = 0;
     AIBLD *b;
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage != 0)
         return;
     b = gm_BuildQuery(1, 4, e->chr);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     do {
@@ -6184,7 +6131,7 @@ void he_RunBuildingDecay(AIJOB *ev)
             sel[n++] = b;
     } while ((b = gm_BuildNext()) != 0);
     if (n == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     b = sel[util_Random(n)];
@@ -6194,14 +6141,13 @@ void he_RunBuildingDecay(AIJOB *ev)
         txt_Format(text, 0x10b8, b);
         he_MessageBoxQuickjump(ai_CharInts[e->chr][0], ai_CharInts[e->chr][0], text, 0, 0x5ec, b->id, -1, 0, (char *)0);
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x548ef0, the alloc handler of the repost event 0x5a (he_RunRepostEvent): the due clock is the game time 0x60
    hours (four days) ahead */
 
-void he_AllocRepostEvent(AIJOB *ev)
+void he_AllocRepostEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0x60, 0, 0);
@@ -6210,9 +6156,8 @@ void he_AllocRepostEvent(AIJOB *ev)
    0x548230: a freed state (-2) ends it, a negative one frees it, and in state 0 with opts bit 2 it is posted
    again two minutes later (the end time = the clock now, cm_SendExSetHE) */
 
-void he_RunRepostEvent(AIJOB *ev)
+void he_RunRepostEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     int st = e->stage;
 
     if (st < -2)
@@ -6224,20 +6169,19 @@ void he_RunRepostEvent(AIJOB *ev)
             return;
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x548fa0, the run handler of the fine event 0x5b (the trial's sentence 1, gv_PassSentence: 3% of the character's
    worth): a stage of -2 or below ends it, a negative one frees it, and at stage 0 it takes the amount +0xac from the
    event's character (cm_SendMoveGoods with -1 as the destination, under the own player) and counts one payment
    down; with payments left it is posted again 0x18 hours on, else it is freed */
 
-void he_RunFinePayment(AIJOB *ev)
+void he_RunFinePayment(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPUNISHMENT *p = (HEPUNISHMENT *)ev;
+    HEPUNISHMENT *p = (HEPUNISHMENT *)e;
     int st = e->stage;
 
     if (st >= -2) {
@@ -6252,15 +6196,14 @@ void he_RunFinePayment(AIJOB *ev)
                 return;
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x549040, the alloc handler of the trial-punishment events 0x5b and 0x5c (he_RunFinePayment,
    he_RunPilloryPunishment): the due clock +0x52 is the clock now, five minutes on */
 
-void he_AllocPunishment(AIJOB *ev)
+void he_AllocPunishment(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 5, 0);
@@ -6270,10 +6213,9 @@ void he_AllocPunishment(AIJOB *ev)
    character (e->chr) named txt_PilloryPunishment, the negated amount +0xac as its income, counts one payment down
    and, with payments left, posts the event again 0x18 hours on, else frees it */
 
-void he_RunPilloryPunishment(AIJOB *ev)
+void he_RunPilloryPunishment(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPUNISHMENT *p = (HEPUNISHMENT *)ev;
+    HEPUNISHMENT *p = (HEPUNISHMENT *)e;
     int st = e->stage;
 
     if (st >= -2) {
@@ -6288,16 +6230,15 @@ void he_RunPilloryPunishment(AIJOB *ev)
                 return;
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x549110, the alloc handler of the offspring event 0x5d (he_RunOffspring): the event starts at stage 0 with no
    chance built up */
 
-void he_AllocOffspring(AIJOB *ev)
+void he_AllocOffspring(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFSPRING *s = (HEOFFSPRING *)ev;
+    HEOFFSPRING *s = (HEOFFSPRING *)e;
 
     e->stage = 0;
     s->chance = 0;
@@ -6309,10 +6250,9 @@ void he_AllocOffspring(AIJOB *ev)
    6 gets a party of kind 7 (flags 0x20) with its partner half an hour from now, and cm_SendCreateCharacter creates the
    child (the two parents in an order by the character's sex, the home building's id or -1); back to stage 0, 1 .. 8 years on */
 
-void he_RunOffspring(AIJOB *ev)
+void he_RunOffspring(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFSPRING *s = (HEOFFSPRING *)ev;
+    HEOFFSPRING *s = (HEOFFSPRING *)e;
     int home = -1;
     AICHAR *c, *partner;
     int i, n;
@@ -6321,7 +6261,7 @@ void he_RunOffspring(AIJOB *ev)
     c = &ai_Chars[e->chr];
     partner = gm_FindChar(c->relatives[0]);
     if (partner == 0 || partner->health == 0 || c->health == 0 || e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage != 0) {
@@ -6363,7 +6303,7 @@ void he_RunOffspring(AIJOB *ev)
                 n++;
         }
         if (n == 5) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         f = (5.0f - n) * 0.2f;
@@ -6381,9 +6321,8 @@ void he_RunOffspring(AIJOB *ev)
    running 0x5e event of its player (he_FindEvent (2, 0, 0x5e, 2, chr), skipping itself); none: the event starts
    in state 0 with unkb8 cleared and is posted, else it ends at the clock now (posted as failed) */
 
-void he_StartTrialEvent(AIJOB *ev)
+void he_StartTrialEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *found = he_FindEvent(2, 0, 0x5e, 2, e->chr);
 
     if (found != 0) {
@@ -6392,14 +6331,14 @@ void he_StartTrialEvent(AIJOB *ev)
                 found = he_NextEvent();
             } else {
                 e->end = ai_Time;
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 return;
             }
         } while (found != 0);
     }
     e->stage = 0;
     e->rounds = 0;
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
 }
 /* 0x549430, a Ghidra miss (disassembled): the run handler of the trial event 0x5e (the character e->chr's trial
    with the teacher, a character found by its netId): stage -2 / -1 frees it; nothing while it is not started or
@@ -6408,17 +6347,16 @@ void he_StartTrialEvent(AIJOB *ev)
    title group (gm_JobSlots) by 16 .. 31 each, gives the character the job and tells the teacher (the news 0x1a9c
    with the job title, the female forms 0x5f on); without the teacher it ends now */
 
-void he_RunTrialEvent(AIJOB *ev)
+void he_RunTrialEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRIAL *t = (HETRIAL *)ev;
+    HETRIAL *t = (HETRIAL *)e;
     char text[0x100];
     AICHAR *c, *teacher;
     int skillA, skillB;
     unsigned char raise;
 
     if (e->stage == -2 || e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->opts & 4)
@@ -6432,13 +6370,13 @@ void he_RunTrialEvent(AIJOB *ev)
         teacher = gm_FindChar(t->teacher);
         if (teacher == 0) {
             e->end = ai_Time;
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, 0x1a9b, c->id);
         e->rounds++;
         e->end.hour += 0x18;
-        cm_SendExSetHE(e->rounds >= 3, ev);
+        cm_SendExSetHE(e->rounds >= 3, e);
         he_AddApEvent(teacher->id, text, 0, -t->cost);
         return;
     case 1:
@@ -6454,13 +6392,13 @@ void he_RunTrialEvent(AIJOB *ev)
         teacher = gm_FindChar(t->teacher);
         if (teacher == 0) {
             e->end = ai_Time;
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, 0x1a9c, c->id, (c->sex != 0 ? 0x18f : 0x130) + t->job);
         he_ShowNews(teacher->netId, teacher->netId, text, 0, 0x5f4, (char *)0);
         e->end = ai_Time;
-        cm_SendExSetHE(-1, ev);
+        cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -6469,9 +6407,8 @@ void he_RunTrialEvent(AIJOB *ev)
    (he_FindEvent (2, 0, 0x5f, 2, chr), skipping itself); none: the event starts in state 0 with its step count
    cleared, else it ends at the clock now */
 
-void he_StartNextTrialStep(AIJOB *ev)
+void he_StartNextTrialStep(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *found = he_FindEvent(2, 0, 0x5f, 2, e->chr);
 
     if (found != 0) {
@@ -6480,7 +6417,7 @@ void he_StartNextTrialStep(AIJOB *ev)
                 found = he_NextEvent();
             } else {
                 e->end = ai_Time;
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 return;
             }
         } while (found != 0);
@@ -6495,16 +6432,15 @@ void he_StartNextTrialStep(AIJOB *ev)
    teacher (the news 0x1a9f), counts the course in the teacher's player record and ends the event now; without
    the teacher it ends now */
 
-void he_RunTrialSteps(AIJOB *ev)
+void he_RunTrialSteps(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRIALSTEP *t = (HETRIALSTEP *)ev;
+    HETRIALSTEP *t = (HETRIALSTEP *)e;
     char text[0x100];
     AICHAR *c, *teacher;
     HEFINVIEW *fin;
 
     if (e->stage == -2 || e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->opts & 4)
@@ -6518,7 +6454,7 @@ void he_RunTrialSteps(AIJOB *ev)
         teacher = gm_FindChar(t->teacher);
         if (teacher == 0) {
             e->end = ai_Time;
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
             return;
         }
         ai_ApplyTrialStep(c, t->skill[0]);
@@ -6534,7 +6470,7 @@ void he_RunTrialSteps(AIJOB *ev)
         teacher = gm_FindChar(t->teacher);
         if (teacher == 0) {
             e->end = ai_Time;
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, 0x1a9f, c->id);
@@ -6543,7 +6479,7 @@ void he_RunTrialSteps(AIJOB *ev)
         if (fin != 0)
             fin->taught++;
         e->end = ai_Time;
-        cm_SendExSetHE(-1, ev);
+        cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -6552,21 +6488,20 @@ void he_RunTrialSteps(AIJOB *ev)
    (he_FindEvent (2, 2, chr, 0, 0x60), skipping itself); else it raises the skill by 0x15 less a random part of
    2 * (skill / 42 + 3), starts at stage 0, due 5 hours from now (a second with gm_AllowAll), started now */
 
-void he_StartTraining(AIJOB *ev)
+void he_StartTraining(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRAINING *t = (HETRAINING *)ev;
+    HETRAINING *t = (HETRAINING *)e;
     AIJOB *found;
 
     if ((float)ai_Chars[e->chr].skills[t->skill] >= 252.0f) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     found = he_FindEvent(2, 2, e->chr, 0, 0x60);
     if (found != 0) {
         do {
             if (found != e) {
-                he_FreeEvent(ev);
+                he_FreeEvent(e);
                 return;
             }
             found = he_NextEvent();
@@ -6588,10 +6523,9 @@ void he_StartTraining(AIJOB *ev)
    the skill's name 0x16f3 + skill and the sound "tal_0<skill>"; then the skills' message (cm_SendSkillsChanged)
    and the event is freed */
 
-void he_RunTraining(AIJOB *ev)
+void he_RunTraining(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRAINING *t = (HETRAINING *)ev;
+    HETRAINING *t = (HETRAINING *)e;
     char text[0x800];
     char sound[0x20];
     AIMSG msg;
@@ -6600,7 +6534,7 @@ void he_RunTraining(AIJOB *ev)
 
     switch (e->stage) {
     case -2:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case 0:
         rise = t->base - util_Random(t->range);
@@ -6631,7 +6565,7 @@ void he_RunTraining(AIJOB *ev)
             }
         }
         cm_SendSkillsChanged(c->netId);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x549ce0, begins the plague event 0x59 (its run handler 0x54a020 calls it at stage 5): from a random one of the
@@ -6640,10 +6574,9 @@ void he_RunTraining(AIJOB *ev)
    created at it, it is their home; due a minute from now, posted at stage 0, and the plague news
    (ai_PlagueNews). Without such a building the event is posted as failed */
 
-void he_BeginPlague(AIJOB *ev)
+void he_BeginPlague(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPLAGUE *p = (HEPLAGUE *)ev;
+    HEPLAGUE *p = (HEPLAGUE *)e;
     AIMSG msg;
     HEPLAGUEMSG *m = (HEPLAGUEMSG *)&msg;
     AIBLD *b;
@@ -6680,14 +6613,14 @@ void he_BeginPlague(AIJOB *ev)
             p->carriers[3] = cm_SendSpawnCharacter(0xe, b->id, -1, 0x12, 0, 0, "PEST");
             p->home = b->id;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             ai_PlagueNews();
             return;
         }
         n--;
         i = (i + 1) % 0x100;
     } while (n != 0);
-    e->exSlot = cm_SendExSetHE(-1, ev);
+    e->exSlot = cm_SendExSetHE(-1, e);
 }
 
 int sv_IsAtDoor();
@@ -6697,9 +6630,8 @@ float util_RandomF2();
    running 0x59 event (skipping itself) ends it at the clock now, posted as failed (cm_SendExSetHE -1, its slot
    kept); else it starts at stage 5 with the due clock at its start clock, its slot -1, and is posted (5) */
 
-void he_StartPlague(AIJOB *ev)
+void he_StartPlague(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *found;
 
     if ((e->opts & 4) != 0)
@@ -6708,7 +6640,7 @@ void he_StartPlague(AIJOB *ev)
     while (found != 0) {
         if (found != e) {
             e->end = ai_Time;
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         found = he_NextEvent();
@@ -6716,7 +6648,7 @@ void he_StartPlague(AIJOB *ev)
     e->stage = 5;
     e->end = e->start;
     e->exSlot = -1;
-    cm_SendExSetHE(5, ev);
+    cm_SendExSetHE(5, e);
 }
 /* 0x54a020, a Ghidra miss (disassembled; 1720 B): the run handler of the plague event 0x59 ("Pest"): stage -1 / -2
    stops and kills the four carriers when the event is freed with the option 2, and frees it; nothing while it is
@@ -6730,10 +6662,9 @@ void he_StartPlague(AIJOB *ev)
    makes the character ill (he_CharIllness, illness 1). While left counts down it goes on to the next target,
    else the carriers go home. Stage 3 waits until every carrier is home, then the event ends */
 
-void he_RunPlague(AIJOB *ev)
+void he_RunPlague(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPLAGUE *p = (HEPLAGUE *)ev;
+    HEPLAGUE *p = (HEPLAGUE *)e;
     AIBLD *o;
     AIBTYPE *bt;
     AICHAR *c, *owner, *other;
@@ -6757,7 +6688,7 @@ void he_RunPlague(AIJOB *ev)
                 carrier++;
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->opts & 4)
@@ -6765,7 +6696,7 @@ void he_RunPlague(AIJOB *ev)
     if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
         return;
     if (e->stage == 5)
-        he_BeginPlague(ev);
+        he_BeginPlague(e);
     switch (e->stage) {
     case 0:
         carrier = p->carriers;
@@ -6777,7 +6708,7 @@ void he_RunPlague(AIJOB *ev)
             carrier++;
         }
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         break;
     case 1:
         n = 0x100;
@@ -6800,7 +6731,7 @@ void he_RunPlague(AIJOB *ev)
         p->walk = (p->step + k) % 0x100;
         if (o == 0) {
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, "EvtPest: next target = %G", o);
@@ -6817,13 +6748,13 @@ void he_RunPlague(AIJOB *ev)
         }
         gm_AddTime(&e->end, 0, n > 0 ? 5 : 0x14, 0);
         p->target = o->id;
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         break;
     case 2:
         gm_FindById(&o, 0, 0, p->target);
         gm_AddTime(&e->end, 0, 5, 0);
         if (o == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         for (i = 0; i < 4; i++) {
@@ -6831,7 +6762,7 @@ void he_RunPlague(AIJOB *ev)
             if (c != 0 && sv_IsAtDoor(c, o) == 0) {
                 e->stage = 2;
                 gm_AddTime(&e->end, 0, 5, 0);
-                e->exSlot = cm_SendExSetHE(2, ev);
+                e->exSlot = cm_SendExSetHE(2, e);
                 return;
             }
         }
@@ -6883,7 +6814,7 @@ void he_RunPlague(AIJOB *ev)
         if (--p->left <= 0) {
             gm_FindById(&o, 0, 0, p->home);
             if (o == 0) {
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 return;
             }
             n = 0;
@@ -6898,16 +6829,16 @@ void he_RunPlague(AIJOB *ev)
                 carrier++;
             }
             gm_AddTime(&e->end, 0, n > 0 ? 1 : 10, 0);
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         break;
     case 3:
         gm_AddTime(&e->end, 0, 5, 0);
         gm_FindById(&o, 0, 0, p->home);
         if (o == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         for (i = 0; i < 4; i++) {
@@ -6915,11 +6846,11 @@ void he_RunPlague(AIJOB *ev)
             if (c != 0 && sv_IsAtDoor(c, o) == 0) {
                 e->stage = 3;
                 gm_AddTime(&e->end, 0, 5, 0);
-                e->exSlot = cm_SendExSetHE(3, ev);
+                e->exSlot = cm_SendExSetHE(3, e);
                 return;
             }
         }
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         break;
     }
 }
@@ -6927,10 +6858,9 @@ void he_RunPlague(AIJOB *ev)
    not -1); without any it frees the event, else no targets yet, the first member next, started now and due two
    minutes from now */
 
-void he_StartGang(AIJOB *ev)
+void he_StartGang(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGANG *g = (HEGANG *)ev;
+    HEGANG *g = (HEGANG *)e;
     int *id;
     int i;
 
@@ -6941,7 +6871,7 @@ void he_StartGang(AIJOB *ev)
             g->members++;
     }
     if (g->members == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     for (i = 0; i < (int)(sizeof(g->targets) / sizeof(g->targets[0])); i++)
@@ -6965,10 +6895,9 @@ void he_StartGang(AIJOB *ev)
    0x7e (the news 0x19f3), else it loses the take (the news 0x19f2); then the member walks to a random building of
    a random other kind (10 / 5 / 7 / 0x16 / 0xf, kind 10 when there is none) */
 
-void he_RunGang(AIJOB *ev)
+void he_RunGang(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGANG *g = (HEGANG *)ev;
+    HEGANG *g = (HEGANG *)e;
     AICHAR *member, *leader, *c, *victim;
     AIBLD *s, *b, *o;
     AIBTYPE *bt;
@@ -7105,7 +7034,7 @@ void he_RunGang(AIJOB *ev)
                 }
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -7115,9 +7044,8 @@ int ls_GetLanguage();
 /* 0x54ae20, the alloc handler of the protection-ask event 0x63 (he_RunProtectionAsk): the due clock +0x52 is the
    clock now, two minutes on */
 
-void he_AllocProtectionAsk(AIJOB *ev)
+void he_AllocProtectionAsk(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 2, 0);
@@ -7130,9 +7058,8 @@ void he_AllocProtectionAsk(AIJOB *ev)
    building gets the flag 0x100 at +0x5a, its owner pays the collector, the collector's home building counts the
    money), 1 refuses (the answer 0); the answer's time is now (offline: 6:00 of today) */
 
-void he_RunProtectionAsk(AIJOB *ev)
+void he_RunProtectionAsk(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *p;
     HEPROTECTION *q;
     AIBLD *b = 0, *home;
@@ -7144,14 +7071,14 @@ void he_RunProtectionAsk(AIJOB *ev)
         b = gm_BuildQuery(1, 1, q->victim);
     if (e->stage == -2 || e->stage == -1 || p == 0 || b == 0) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, (int)"Berufe\\Messagebox_SCHUTZGELD", 0x5f3);
+        he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_SCHUTZGELD", 0x5f3);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_SetForm(e->slot->win, 0);
@@ -7171,8 +7098,8 @@ void he_RunProtectionAsk(AIJOB *ev)
         return;
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (d2_ClickedForm != e->slot->win || d2_ClickedId == -1)
@@ -7199,8 +7126,8 @@ void he_RunProtectionAsk(AIJOB *ev)
             p->end = now;
             cm_SendExSetHE(3, p);
         }
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
     }
 }
 
@@ -7209,10 +7136,9 @@ void he_RunProtectionAsk(AIJOB *ev)
    opts bit 2 is clear, its answer is -1 (open), its due clock two minutes on, stage 1, and it is posted
    (cm_SendExSetHE 1, the slot kept) */
 
-void he_StartProtection(AIJOB *ev)
+void he_StartProtection(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPROTECTION *p = (HEPROTECTION *)ev;
+    HEPROTECTION *p = (HEPROTECTION *)e;
 
     e->exSlot = -1;
     if ((e->opts & 4) == 0) {
@@ -7220,7 +7146,7 @@ void he_StartProtection(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
         e->stage = 1;
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
     }
 }
 /* 0x54b1e0, a Ghidra miss: the run handler of the protection money event 0x62 ("Schutzgeld", HEPROTECTION: the
@@ -7259,10 +7185,9 @@ void he_StartProtection(AIJOB *ev)
    line is the ai_Time struct copy into e->end, the same four loads in the same order on both sides with
    ecx/edx/eax renamed; the aligner pairs different loads, no other object is referenced) */
 
-void he_RunProtection(AIJOB *ev)
+void he_RunProtection(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPROTECTION *q = (HEPROTECTION *)ev;
+    HEPROTECTION *q = (HEPROTECTION *)e;
     AIBLD *b, *home;
     AICHAR *c;
     int owner;
@@ -7274,7 +7199,7 @@ void he_RunProtection(AIJOB *ev)
     if (e->stage == -1 || e->stage == -2) {
         if (b != 0 && (e->opts & 2) != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x100);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -7286,7 +7211,7 @@ void he_RunProtection(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
         e->stage = -1;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     switch (e->stage) {
@@ -7297,14 +7222,14 @@ void he_RunProtection(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 10, 0);
         e->stage = 2;
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
         if (c->scene->actions != 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 4, 0);
             e->stage = 2;
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             return;
         }
         q->amount = (int)((float)gm_EquipmentValue(b, 100) * 0.065f);
@@ -7322,7 +7247,7 @@ void he_RunProtection(AIJOB *ev)
             gm_AddTime(&e->end, 3, 0, 0);
             e->stage = 3;
             q->answer = 2;
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
         e->end = ai_Time;
@@ -7334,7 +7259,7 @@ void he_RunProtection(AIJOB *ev)
             q->answer = util_Random(2);
         else
             q->answer = 1;
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
         return;
     case 3:
         if (q->answer == 1) {
@@ -7348,7 +7273,7 @@ void he_RunProtection(AIJOB *ev)
             e->start = ai_Time;
             gm_AddTime(&e->end, 0x30, 0, 0);
             e->stage = 4;
-            e->exSlot = cm_SendExSetHE(4, ev);
+            e->exSlot = cm_SendExSetHE(4, e);
             txt_Format(text, 0x1a8d, b->owner, b, q->amount);
             he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, 0x5f3, "_NACHRICHTEN_HS_84");
             return;
@@ -7357,7 +7282,7 @@ void he_RunProtection(AIJOB *ev)
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 5, 0);
             e->stage = 4;
-            e->exSlot = cm_SendExSetHE(4, ev);
+            e->exSlot = cm_SendExSetHE(4, e);
             txt_Format(text, 0x1a8e, b->owner, b);
             he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, 0x5f3, "_NACHRICHTEN_HS_85");
             return;
@@ -7365,7 +7290,7 @@ void he_RunProtection(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 5, 0);
         e->stage = 4;
-        e->exSlot = cm_SendExSetHE(4, ev);
+        e->exSlot = cm_SendExSetHE(4, e);
         txt_Format(text, 0x1a8f, b->owner, b);
         he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, 0x5f3, "_NACHRICHTEN_HS_85");
         return;
@@ -7381,7 +7306,7 @@ void he_RunProtection(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 2, 0);
         e->stage = -1;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -7389,10 +7314,9 @@ void he_RunProtection(AIJOB *ev)
    on; the audited building (HEAUDIT.bld), when it is still there, gets its field 0x5a (size 2) set to 0x800
    (cm_SendSetField) */
 
-void he_StartAudit(AIJOB *ev)
+void he_StartAudit(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEAUDIT *a = (HEAUDIT *)ev;
+    HEAUDIT *a = (HEAUDIT *)e;
     AIBLD *b = gm_BuildQuery(1, 1, a->bld);
 
     e->end = ai_Time;
@@ -7408,10 +7332,9 @@ void he_StartAudit(AIJOB *ev)
    is filled below 80%, nobody is fined (the news 0x1a76 to the character, 0x1a78 to the owner); else the owner
    pays the character equipment value * shortfall * 0.07 (the news 0x1a75 / 0x1a77 to players). Stage 2 sends the
    inspector home and frees the event */
-void he_RunAudit(AIJOB *ev)
+void he_RunAudit(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEAUDIT *a = (HEAUDIT *)ev;
+    HEAUDIT *a = (HEAUDIT *)e;
     AIBLD *b;
     AICHAR *c;
     AIOBJ *o;
@@ -7422,7 +7345,7 @@ void he_RunAudit(AIJOB *ev)
     b = gm_BuildQuery(1, 1, a->bld);
     c = gm_FindChar(a->inspector);
     if (e->stage == -2 || c == 0 || b == 0 || b->owner == 0xffff) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
@@ -7473,7 +7396,7 @@ void he_RunAudit(AIJOB *ev)
         sv_MoveToGroup(b, 0, c->id, 0);
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, a->home, a->homeRoom, 0, 0, "BetriebsPr\xfc" "fung");
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -7482,10 +7405,9 @@ void he_RunAudit(AIJOB *ev)
    posts it at once (cm_SendExSetHE 0, state 0, the slot in exSlot) */
 
 
-void he_StartGathering(AIJOB *ev)
+void he_StartGathering(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGATHERING *g = (HEGATHERING *)ev;
+    HEGATHERING *g = (HEGATHERING *)e;
 
     if ((e->opts & 4) == 0) {
         g->party = -1;
@@ -7493,7 +7415,7 @@ void he_StartGathering(AIJOB *ev)
         e->start = ai_Time;
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x54bec0, a Ghidra miss: the run handler of the patrol gathering event 0x65 ("Patrol", HEGATHERING: the figures
@@ -7505,10 +7427,9 @@ void he_StartGathering(AIJOB *ev)
    in 30 minutes: the opponent's figures defend, ours raid, stage 3), else the figures idle about the place
    (he_CharacterBehavior) for ten minutes more. Stage 3 waits for the party's slot (stage 4 with its id, stage 5
    without), stage 4 waits until the party is over, stage 5 sends the figures home and ends the event */
-void he_RunGathering(AIJOB *ev)
+void he_RunGathering(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEGATHERING *g = (HEGATHERING *)ev;
+    HEGATHERING *g = (HEGATHERING *)e;
     AIJOB *p, *q;
     AICHAR *c;
     D3OBJECT *o;
@@ -7523,14 +7444,14 @@ void he_RunGathering(AIJOB *ev)
     freeIt = 0;
     if (e->stage == -2) {
         if ((e->opts & 4) != 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         e->stage = 5;
         freeIt = 1;
     }
     if (e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -7547,27 +7468,27 @@ void he_RunGathering(AIJOB *ev)
             }
         }
         gm_AddTime(&e->end, 0, 5, 0);
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         return;
     case 1:
         for (i = 0; i < 6; i++) {
             c = gm_FindChar(e->ids[i]);
             if (c != 0 && c->scene != 0 && c->scene->actions != 0) {
                 gm_AddTime(&e->end, 0, 4, 0);
-                e->exSlot = cm_SendExSetHE(1, ev);
+                e->exSlot = cm_SendExSetHE(1, e);
                 return;
             }
         }
         e->start = ai_Time;
         gm_AddTime(&e->end, 0, 10, 0);
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
         giveUp = e->start;
         gm_AddTime(&giveUp, 0x18, 0, 0);
         if (gm_CompareTime(&ai_Time, &giveUp) > 0) {
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(5, ev);
+            e->exSlot = cm_SendExSetHE(5, e);
             return;
         }
         q = he_FindEvent(1, 0, 0x48);
@@ -7614,7 +7535,7 @@ void he_RunGathering(AIJOB *ev)
                 g->partySlot = cm_SendNewParty(&party);
                 e->stage = 3;
                 gm_AddTime(&e->end, 0, 10, 0);
-                e->exSlot = cm_SendExSetHE(3, ev);
+                e->exSlot = cm_SendExSetHE(3, e);
                 return;
             }
         }
@@ -7623,29 +7544,29 @@ void he_RunGathering(AIJOB *ev)
             d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
             he_CharacterBehavior(e, (float *)&pos);
         }
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 3:
         gm_AddTime(&e->end, 0, 1, 0);
         if (cm_GetSlotState(g->partySlot) == 0) {
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
         r = (int *)cm_GetSlotValue(g->partySlot);
         if (r == 0) {
-            e->exSlot = cm_SendExSetHE(5, ev);
+            e->exSlot = cm_SendExSetHE(5, e);
             return;
         }
         g->party = *r;
-        e->exSlot = cm_SendExSetHE(4, ev);
+        e->exSlot = cm_SendExSetHE(4, e);
         return;
     case 4:
         gm_AddTime(&e->end, 0, 5, 0);
         if (cm_PartyById(g->party) != 0) {
-            e->exSlot = cm_SendExSetHE(4, ev);
+            e->exSlot = cm_SendExSetHE(4, e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(5, ev);
+        e->exSlot = cm_SendExSetHE(5, e);
         return;
     case 5:
         for (id = e->ids, k = 6; k != 0; k--, id++) {
@@ -7658,20 +7579,19 @@ void he_RunGathering(AIJOB *ev)
         }
         gm_AddTime(&e->end, 0, 2, 0);
         if (freeIt) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
 /* 0x54c4c0, the allocation handler of the simulation events 0x66 (the accident simulation) and 0x70 (the disease
    simulation): the due clock is now at hour 0xa with its minute and second cleared, and HESIM's cursor, step and
    done are cleared (the run starts at the first character) */
-void he_AllocSim(AIJOB *ev)
+void he_AllocSim(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESIM *s = (HESIM *)ev;
+    HESIM *s = (HESIM *)e;
 
     e->end = ai_Time;
     e->end.hour = 0xa;
@@ -7710,10 +7630,9 @@ int he_IsAtWork(AICHAR *rec)
    * 0.0125: it loses 50 + random(1 + 255 * (2 - skill * 0.0125), clamped to 0 .. 2) health, and the accident
    gets the health gm_AddHealth leaves. After all 0x300 the round is over: due the next day at 10:00, else due in
    30 minutes, the next day at 10:00 once that is 18:00 or later */
-void he_RunAccidentSim(AIJOB *ev)
+void he_RunAccidentSim(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESIM *s = (HESIM *)ev;
+    HESIM *s = (HESIM *)e;
     AIBLD *b;
     int n, cur, skill;
     float roll, lim, health;
@@ -7721,7 +7640,7 @@ void he_RunAccidentSim(AIJOB *ev)
     char text[0x200];
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     txt_Format(text, (int)"-------> RunSimUnfall: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
@@ -7781,16 +7700,15 @@ void he_RunAccidentSim(AIJOB *ev)
 }
 /* 0x54c870, the allocation handler of the auction event 0x67: unless the event is paused (opts 4) its due clock is
    now plus a day at 9:00, and it is posted at once (cm_SendExSetHE 0, state 0, the slot in exSlot) */
-void he_StartAuctionEvent(AIJOB *ev)
+void he_StartAuctionEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if ((e->opts & 4) == 0) {
         e->end = ai_Time;
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 9;
         e->end.min = 0;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x54c8e0, a Ghidra miss: the run handler of the auction event 0x67 (HEAUCTION: the building +0xac, the start
@@ -7799,10 +7717,9 @@ void he_StartAuctionEvent(AIJOB *ev)
    is due the next day at 13:30 (stage 1). Stage 1 invites as bidders up to 8 living player characters (kind 6 /
    7, not held, worth at least the price), then the 8 worthiest such characters of the kinds 3 .. 5, and posts the
    auction party (G28REC kind 10, cm_RunAuction) for 30 minutes from now when there is one; the event ends */
-void he_RunAuctionEvent(AIJOB *ev)
+void he_RunAuctionEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEAUCTION *a = (HEAUCTION *)ev;
+    HEAUCTION *a = (HEAUCTION *)e;
     AIBLD *b;
     int n, i, j, k, v, found;
     int best[8];
@@ -7811,7 +7728,7 @@ void he_RunAuctionEvent(AIJOB *ev)
     char text[0x200];
 
     if (e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -7820,7 +7737,7 @@ void he_RunAuctionEvent(AIJOB *ev)
     case 0:
         b = gm_BuildQuery(1, 1, a->bld);
         if (b == 0) {
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, 0x11be, b, a->price);
@@ -7831,7 +7748,7 @@ void he_RunAuctionEvent(AIJOB *ev)
         e->end.year++;
         e->end.hour = 0xd;
         e->end.min = 0x1e;
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         return;
     case 1:
         memset(best, -1, sizeof(best));
@@ -7890,16 +7807,15 @@ void he_RunAuctionEvent(AIJOB *ev)
         else
             e->end = ai_Time;
         gm_AddTime(&e->end, 0x18, 0, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
 /* 0x54cc20, the allocation handler of the title ceremony event 0x69: the due clock copies the start clock, the stage is
    0 and the sent flag is cleared */
-void he_StartTitleCeremony(AIJOB *ev)
+void he_StartTitleCeremony(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETITLE *t = (HETITLE *)ev;
+    HETITLE *t = (HETITLE *)e;
 
     e->end = e->start;
     e->stage = 0;
@@ -7915,10 +7831,9 @@ void he_StartTitleCeremony(AIJOB *ev)
    character the news 0x42a4 / 0x42a2 / 0x42a0, 0x161b or 0x161a with the rival's voice; then the news 0x161c below
    (stage 1). Stage 1 frees the event when the window is answered (button 0, or the event bar's confirmation of
    its slot); without a window it starts over */
-void he_RunTitleCeremony(AIJOB *ev)
+void he_RunTitleCeremony(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETITLE *t = (HETITLE *)ev;
+    HETITLE *t = (HETITLE *)e;
     AICHAR *own, *c;
     int text;
 
@@ -7930,20 +7845,20 @@ void he_RunTitleCeremony(AIJOB *ev)
     c = gm_FindChar(t->ch);
     if (e->stage == -2 || e->stage == -1 || own->id == 0xffff || c == 0) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
     case 0:
         if (e->slot == 0) {
             if (c == own)
-                he_OpenEventSlot(ev, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
+                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
             else
-                he_OpenEventSlot(ev, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
+                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
         }
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_CentreViewWindows(e->slot->win);
@@ -8040,25 +7955,24 @@ void he_RunTitleCeremony(AIJOB *ev)
         if (d2_ClickedForm != e->slot->win && he_SlotConfirmed == 0)
             return;
         if (d2_ClickedId == 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (he_SlotConfirmed == 0 || he_ActiveSlot != e->slot)
             return;
         he_SlotConfirmed = 0;
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
 }
 /* 0x54d190, the allocation handler of the inn simulation event 0x68 ("SIM_WIRTSHAUS"; HESIM's cursor): the due clock
    is now at 22:30 with its second cleared, and HESIM's cursor and step are cleared (the round starts at the first
    character) */
-void he_StartInnSim(AIJOB *ev)
+void he_StartInnSim(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESIM *s = (HESIM *)ev;
+    HESIM *s = (HESIM *)e;
 
     e->end = ai_Time;
     e->end.hour = 0x16;
@@ -8130,16 +8044,15 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
    counts at +0x69 too, so does one who could afford the first drink of an inn without the second. After the last
    character the round is over (due the next day at 22:30), else due in 15 minutes */
 
-void he_RunInnSim(AIJOB *ev)
+void he_RunInnSim(AIJOB *e)
 {
     unsigned int first;
-    AIJOB *e = ev;
-    HESIM *s = (HESIM *)ev;
+    HESIM *s = (HESIM *)e;
     HEINN inns[16];
     int i, n, end, idx, wealth, price1, price2, lim, guests;
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     D3_ZERO(inns, sizeof(inns));
@@ -8202,10 +8115,9 @@ struct G11REC *hmt_GetRecord(unsigned short k);
 
 /* 0x54d790, the allocation handler of the skill level-up event 0x6a: the due clock copies the start clock and the
    variant is a random 0 .. 5 (one of six texts per skill) */
-void he_StartSkillUp(AIJOB *ev)
+void he_StartSkillUp(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESKILLUP *s = (HESKILLUP *)ev;
+    HESKILLUP *s = (HESKILLUP *)e;
 
     e->end = e->start;
     s->variant = util_Random(6);
@@ -8215,10 +8127,9 @@ void he_StartSkillUp(AIJOB *ev)
    ("_TALENT_MAIN"), the level's news and voice ("_TALENT_STUFE") or below level 6 the skill's master news
    ("_TALENT_MAX"), then 0x16f1; stage 1 waits for the click and frees the event */
 
-void he_RunSkillUp(AIJOB *ev)
+void he_RunSkillUp(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESKILLUP *s = (HESKILLUP *)ev;
+    HESKILLUP *s = (HESKILLUP *)e;
     AICHAR *own;
 
     own = &ai_Chars[e->chr];
@@ -8228,16 +8139,16 @@ void he_RunSkillUp(AIJOB *ev)
         return;
     if (e->stage == -2 || e->stage == -1 || own->id == 0xffff) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
     case 0:
         if (e->slot == 0)
-            he_OpenEventSlot(ev, 0, 0, (int)"SPECIAL\\TALENT_STUFE", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TALENT_STUFE", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_CentreViewWindows(e->slot->win);
@@ -8266,15 +8177,15 @@ void he_RunSkillUp(AIJOB *ev)
         if (d2_ClickedForm != e->slot->win && he_SlotConfirmed == 0 && d2_ClickedId == -1)
             return;
         if (d2_ClickedId == 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (he_SlotConfirmed == 0 || he_ActiveSlot != e->slot)
             return;
         he_SlotConfirmed = 0;
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -8283,16 +8194,15 @@ void he_RunSkillUp(AIJOB *ev)
    -1 (no script yet), the due clock is the clock now and the event is posted in state 0; it does nothing while
    opts still says the event is not started yet (bit 4) */
 
-void he_StartBard(AIJOB *ev)
+void he_StartBard(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEBARD *b = (HEBARD *)ev;
+    HEBARD *b = (HEBARD *)e;
 
     if ((e->opts & 4) == 0) {
         b->rec = (unsigned short)hmt_RecordCount();
         b->script = -1;
         e->end = ai_Time;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x54da80, the run handler of the bard event: stage 0 draws the song's subject (an hmt record and its text) and
@@ -8301,18 +8211,17 @@ void he_StartBard(AIJOB *ev)
    set) and keeps it until 20:00, then stops it; it frees the gfx info once the own player has the flag 0x20000;
    stage 3 clears the flag 0x20000 of everybody and ends the event a day later at 6:00 */
 
-void he_RunBard(AIJOB *ev)
+void he_RunBard(AIJOB *e)
 {
     char text[0x200];
-    AIJOB *e = ev;
-    HEBARD *b = (HEBARD *)ev;
+    HEBARD *b = (HEBARD *)e;
     int i;
     EVTSCRIPT *sc;
     struct G11REC *rec;
     int scene;
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
@@ -8328,7 +8237,7 @@ void he_RunBard(AIJOB *ev)
         e->end.year += util_Random(4) + 3;
         e->end.hour = 0xa;
         e->end.min = 0;
-        cm_SendExSetHE(1, ev);
+        cm_SendExSetHE(1, e);
         e->exSlot = -1;
         return;
     case 1:
@@ -8340,7 +8249,7 @@ void he_RunBard(AIJOB *ev)
                 he_ShowNews(ai_Chars[i].netId, e->id, text, 0, 0x601, ch_EmptyName);
         }
         gm_AddTime(&e->end, 0, 5, 0);
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
         e->end = ai_Time;
@@ -8390,7 +8299,7 @@ void he_RunBard(AIJOB *ev)
             e->gfx = 0;
         }
         if ((e->opts & 2) != 0)
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
         e->exSlot = -1;
         return;
     }
@@ -8401,16 +8310,15 @@ float ord_GetStatistics(int *o);
 /* 0x54de60, a Ghidra miss: the init of the population event 0x6d (its run handler he_RunPopulation): the due clock
    is the clock now, the round's count and the newcomer chance are cleared and the event is posted in state 0; it
    does nothing while opts still says the event is not started yet (bit 4) */
-void he_StartPopulation(AIJOB *ev)
+void he_StartPopulation(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPOPULATION *p = (HEPOPULATION *)ev;
+    HEPOPULATION *p = (HEPOPULATION *)e;
 
     if ((e->opts & 4) == 0) {
         e->end = ai_Time;
         p->count = 0;
         p->chance = 0.0f;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x54dec0, the run handler of the population event: stage 1 rates the town (ord_GetStatistics: the free room
@@ -8420,10 +8328,9 @@ void he_StartPopulation(AIJOB *ev)
    2 / 0xc set); stage 6 likewise kills a homeless figure of kind 0 without a workplace (-2000 health); stage 7 gives
    a homeless figure of kind 0 / 1 a free home every ten minutes until 22:00, then the event rests until 6:00 */
 
-void he_RunPopulation(AIJOB *ev)
+void he_RunPopulation(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEPOPULATION *p = (HEPOPULATION *)ev;
+    HEPOPULATION *p = (HEPOPULATION *)e;
     AIBLD *b;
     AICHAR *c;
     int found, zero, id, n, i, j;
@@ -8432,7 +8339,7 @@ void he_RunPopulation(AIJOB *ev)
     float x;
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -8443,7 +8350,7 @@ void he_RunPopulation(AIJOB *ev)
         p->step = 0.0f;
         p->count = 0;
         gm_AddTime(&e->end, 0, 0, 5);
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         break;
     case 1:
         ord_GetStatistics((int *)&st);
@@ -8453,24 +8360,24 @@ void he_RunPopulation(AIJOB *ev)
         gm_AddTime(&e->end, 1, 0, 0);
         if (st.col[3] < 0.1) {
             p->chance = (2.0f - st.score) * p->chance;
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             break;
         }
         if (st.col[3] > 0.3) {
             p->chance = (float)fabs((st.score + 1.0f) * p->chance);
             p->step = (float)fabs(p->step);
-            e->exSlot = cm_SendExSetHE(6, ev);
+            e->exSlot = cm_SendExSetHE(6, e);
             break;
         }
         e->end = ai_Time;
         e->end.hour = 0xf;
-        e->exSlot = cm_SendExSetHE(7, ev);
+        e->exSlot = cm_SendExSetHE(7, e);
         break;
     case 2:
         if (ai_Time.hour >= 0x14) {
             e->end = ai_Time;
             e->end.min++;
-            e->exSlot = cm_SendExSetHE(7, ev);
+            e->exSlot = cm_SendExSetHE(7, e);
             return;
         }
         if (util_RandomF() > p->chance) {
@@ -8478,25 +8385,25 @@ void he_RunPopulation(AIJOB *ev)
             p->slot = cm_SendCreateCharacter(0xff, -1, -1, util_Random(0xc) + 0xf, -1, 0, 0, 2);
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 0, 1);
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             break;
         }
         p->chance -= p->step;
         e->end = ai_Time;
         gm_AddTime(&e->end, 1, 0, 0);
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         break;
     case 3:
         if (cm_GetSlotState(p->slot) == 0) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 0, 1);
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             break;
         }
         if (cm_GetSlotState(p->slot) == 2) {
             gm_AddTime(&e->end, 1, 0, 0);
             p->slot = -1;
-            e->exSlot = cm_SendExSetHE(6, ev);
+            e->exSlot = cm_SendExSetHE(6, e);
             return;
         }
         c = (AICHAR *)cm_GetSlotValue(p->slot);
@@ -8506,7 +8413,7 @@ void he_RunPopulation(AIJOB *ev)
         if (c == 0) {
             gm_AddTime(&e->end, 1, 0, 0);
             p->slot = -1;
-            e->exSlot = cm_SendExSetHE(6, ev);
+            e->exSlot = cm_SendExSetHE(6, e);
             return;
         }
         found = 0;
@@ -8530,13 +8437,13 @@ void he_RunPopulation(AIJOB *ev)
         e->end = ai_Time;
         gm_AddTime(&e->end, 1, 0, 0);
         p->count++;
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         break;
     case 6:
         if (ai_Time.hour >= 0x14) {
             e->end = ai_Time;
             e->end.min++;
-            e->exSlot = cm_SendExSetHE(7, ev);
+            e->exSlot = cm_SendExSetHE(7, e);
             return;
         }
         if (util_RandomF() > p->chance) {
@@ -8554,13 +8461,13 @@ void he_RunPopulation(AIJOB *ev)
             p->slot = -1;
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 0x1e, 0);
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
             return;
         }
         p->chance -= p->step;
         e->end = ai_Time;
         gm_AddTime(&e->end, 1, 0, 0);
-        e->exSlot = cm_SendExSetHE(6, ev);
+        e->exSlot = cm_SendExSetHE(6, e);
         break;
     case 7:
         b = 0;
@@ -8597,16 +8504,16 @@ void he_RunPopulation(AIJOB *ev)
             e->end.year++;
             e->end.min = 0;
             e->end.hour = 6;
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             break;
         }
         if (e->end.hour < 0xf) {
             e->end = ai_Time;
             e->end.min++;
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             break;
         }
-        e->exSlot = cm_SendExSetHE(7, ev);
+        e->exSlot = cm_SendExSetHE(7, e);
         break;
     }
 }
@@ -8618,10 +8525,9 @@ void he_RunPopulation(AIJOB *ev)
    (AICHAR flag 0x800000) ends it (posted -1); else the lover is marked kept (cm_SendSetField 0x1c8 bit 0x800000), the
    keeper's relation to it falls by 0x32, the rounds / the daily pay / the spare id are set (0 / 2 / -1) and the event
    is posted with the key 2 */
-void he_StartLover(AIJOB *ev)
+void he_StartLover(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HELOVER *l = (HELOVER *)ev;
+    HELOVER *l = (HELOVER *)e;
     AICHAR *lover = gm_FindChar(l->lover);
     AICHAR *keeper = gm_FindChar(l->keeper);
 
@@ -8630,11 +8536,11 @@ void he_StartLover(AIJOB *ev)
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 1, 0);
     if (lover == 0) {
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if ((lover->flags1c8 & HE_LOVER_FLAG) != 0) {
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     cm_BeginGroup("Alloc_Geliebte");
@@ -8644,7 +8550,7 @@ void he_StartLover(AIJOB *ev)
     l->rounds = 0;
     l->pay = 2;
     e->idbc = -1;
-    e->exSlot = cm_SendExSetHE(2, ev);
+    e->exSlot = cm_SendExSetHE(2, e);
 }
 /* 0x54e890, the run handler of the lover event ("Geliebte"): stage 2 waits for the posting (cm_GetSlotState: 1 goes
    on, 2 ends it); while the keeper lives, every day the keeper pays the lover (an AP event of -pay with the news
@@ -8652,23 +8558,22 @@ void he_StartLover(AIJOB *ev)
    flag 0x800000 cleared, at stage 1 the relation falls by (2 + rounds) * 5); stage -2 frees it with the relation
    -(8 + rounds) * 5 */
 
-void he_RunLover(AIJOB *ev)
+void he_RunLover(AIJOB *e)
 {
     char text[0x200];
-    AIJOB *e = ev;
-    HELOVER *l = (HELOVER *)ev;
+    HELOVER *l = (HELOVER *)e;
     AICHAR *lover, *keeper;
     int h;
 
     lover = gm_FindChar(l->lover);
     keeper = gm_FindChar(l->keeper);
     if (e->stage == -1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage == -2) {
         if ((e->opts & 4) != 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         if (lover != 0) {
@@ -8676,14 +8581,14 @@ void he_RunLover(AIJOB *ev)
             if (keeper != 0)
                 cm_SendRelations(keeper->netId, lover->netId, (-8 - l->rounds) * 5, 1);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
         return;
     if (lover == 0) {
         gm_AddTime(&e->end, 0, 2, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     if (e->stage == 2) {
@@ -8692,12 +8597,12 @@ void he_RunLover(AIJOB *ev)
             return;
         if (h == 1) {
             gm_AddTime(&e->end, 0, 2, 0);
-            cm_SendExSetHE(0, ev);
+            cm_SendExSetHE(0, e);
             return;
         }
         if (h == 2) {
             gm_AddTime(&e->end, 0, 2, 0);
-            cm_SendExSetHE(-1, ev);
+            cm_SendExSetHE(-1, e);
         }
         return;
     }
@@ -8706,12 +8611,12 @@ void he_RunLover(AIJOB *ev)
             cm_SendSetField(lover->netId, 0x1c8, 4, 0, HE_LOVER_FLAG);
             cm_SendRelations(keeper->netId, lover->netId, (-2 - l->rounds) * 5, 1);
             gm_AddTime(&e->end, 0, 2, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (e->stage == 3) {
             e->end = ai_Time;
-            cm_SendExSetHE(0, ev);
+            cm_SendExSetHE(0, e);
             return;
         }
         if (lover->sex == 1)
@@ -8721,12 +8626,12 @@ void he_RunLover(AIJOB *ev)
         he_AddApEvent(e->chr, text, -l->pay, 0);
         l->rounds++;
         gm_AddTime(&e->end, 0x18, 0, 0);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
         return;
     }
     cm_SendSetField(lover->netId, 0x1c8, 4, 0, HE_LOVER_FLAG);
     gm_AddTime(&e->end, 0, 2, 0);
-    e->exSlot = cm_SendExSetHE(-1, ev);
+    e->exSlot = cm_SendExSetHE(-1, e);
 }
 /* 0x54eb80, a Ghidra miss: the figure record test of the street simulation: alive, kind below 10, and (0x47e840 or 0x47e7f0 non zero) */
 
@@ -8753,10 +8658,9 @@ int he_IsSimCandidate(AICHAR *rec)
    a worker whose building has an owner is reported (he_CharIllness), else a player figure (kind 6 / 7) healthier
    than that hears the news 0x163c. After all 0x300 the round is over: due the next day at 10:00, else due in 30
    minutes, the next day at 10:00 once that is 18:00 or later */
-void he_RunDiseaseSim(AIJOB *ev)
+void he_RunDiseaseSim(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESIM *s = (HESIM *)ev;
+    HESIM *s = (HESIM *)e;
     AICHAR *c;
     AIBLD *b;
     int n, cur, kind;
@@ -8765,7 +8669,7 @@ void he_RunDiseaseSim(AIJOB *ev)
     char text[0x200];
 
     if (e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     txt_Format(text, (int)"-------> RunSimKrankheiten: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
@@ -8841,10 +8745,9 @@ void he_RunDiseaseSim(AIJOB *ev)
    same victim, or the victim building or its job table (object 0x12c) is gone; else the job table gets the year,
    and the carrier figure (cm_SendSpawnCharacter 0xe "DunkleEcke") is spawned at the victim */
 
-void he_StartDarkCorner(AIJOB *ev)
+void he_StartDarkCorner(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEDARKCORNER *d = (HEDARKCORNER *)ev;
+    HEDARKCORNER *d = (HEDARKCORNER *)e;
     AIJOB *o;
     AIBLD *bld;
     AIOBJ *jt;
@@ -8862,13 +8765,13 @@ void he_StartDarkCorner(AIJOB *ev)
     gm_AddTime(&e->end, 0, 1, 0);
     for (o = he_FindEvent(1, 0, 0x74); o != 0; o = he_NextEvent()) {
         if (o->id != e->id && ((HEDARKCORNER *)o)->victim == d->victim) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
     }
     gm_FindById(&bld, 0, 0, d->victim);
     if (bld == 0 || (jt = gm_Query((void *)bld->objList, 2, 6, 0, 0x12c)) == 0) {
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     {
@@ -8881,7 +8784,7 @@ void he_StartDarkCorner(AIJOB *ev)
     }
     cm_BeginGroup("Dunkle Ecke");
     d->carrier = cm_SendSpawnCharacter(0xe, bld->id, -1, 0, 0, 0, "DunkleEcke");
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
     cm_EndGroup("Dunkle Ecke");
 }
 /* 0x54f160, the run handler of the "Dunkle Ecke" robbery event 0x74 (HEDARKCORNER): stage 0 waits for the carrier
@@ -8893,11 +8796,10 @@ void he_StartDarkCorner(AIJOB *ev)
    open crimes of others from ai_Crimes as proofs (cm_SendProofExecuted), writes them into the victim's job table
    and tells its owner (the news 0x18a9 / 0x18aa); freed with the flag 2 it removes the carrier */
 
-void he_RunDarkCorner(AIJOB *ev)
+void he_RunDarkCorner(AIJOB *e)
 {
     char text[0x400];
-    AIJOB *e = ev;
-    HEDARKCORNER *d = (HEDARKCORNER *)ev;
+    HEDARKCORNER *d = (HEDARKCORNER *)e;
     AIBLD *bld;
     AICHAR *c;
     AIOBJ *jt;
@@ -8915,7 +8817,7 @@ void he_RunDarkCorner(AIJOB *ev)
                 cm_SendKillCharacter(c->netId, 1);
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -8927,11 +8829,11 @@ void he_RunDarkCorner(AIJOB *ev)
         if (cm_GetSlotState(d->carrier) == 1) {
             d->carrier = ((AICHAR *)cm_GetSlotValue(d->carrier))->netId;
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
             return;
         }
         gm_AddTime(&e->end, 0x18, 0, 0);
-        e->exSlot = cm_SendExSetHE(4, ev);
+        e->exSlot = cm_SendExSetHE(4, e);
         return;
     case 1:
         idx = d->cursor;
@@ -8954,7 +8856,7 @@ void he_RunDarkCorner(AIJOB *ev)
         d->cursor = (d->step + idx) % 0x100;
         if (bld == 0) {
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, (int)"Dunkle Ecke: next target = %G", bld);
@@ -8964,29 +8866,29 @@ void he_RunDarkCorner(AIJOB *ev)
             cm_SendChrGotoBuilding(c->netId, bld->id, -1, 0, 1, "Dunkle Ecke");
             gm_AddTime(&e->end, 0, 5, 0);
             d->target = bld->id;
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             return;
         }
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 2:
         gm_FindById(&bld, 0, 0, d->target);
         gm_AddTime(&e->end, 0, 5, 0);
         if (bld == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         c = gm_FindChar(d->carrier);
         if (c == 0) {
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (sv_IsAtDoor(c, bld) == 0) {
             e->stage = 2;
             gm_AddTime(&e->end, 0, 5, 0);
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             return;
         }
         d->steps--;
@@ -8999,29 +8901,29 @@ void he_RunDarkCorner(AIJOB *ev)
             d->steps = 0;
         gm_FindById(&bld, 0, 0, d->victim);
         if (bld == 0 || bld->owner == 0xffff) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (d->steps <= 0) {
             cm_SendChrStop(c->netId);
             cm_SendChrGotoBuilding(c->netId, bld->id, d->amount, 0, 0, "Dunkle Ecke");
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         return;
     case 3:
         gm_AddTime(&e->end, 0, 5, 0);
         gm_FindById(&bld, 0, 0, d->victim);
         if (bld == 0 || bld->owner == 0xffff) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         c = gm_FindChar(d->carrier);
         if (c != 0 && sv_IsAtDoor(c, bld) == 0) {
             e->stage = 3;
             gm_AddTime(&e->end, 0, 5, 0);
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
         d->loot = MAX(MIN(d->loot, 3), 0);
@@ -9060,12 +8962,12 @@ void he_RunDarkCorner(AIJOB *ev)
             txt_Format(text, 0x18aa);
             he_MessageBoxQuickjump(ai_Chars[bld->owner].netId, -1, text, 0, 0x5ec, bld->id, d->amount, 0, ch_EmptyName);
         }
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         break;
     case 4:
         gm_FindById(&bld, 0, 0, d->victim);
         if (bld == 0 || bld->owner == 0xffff) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         d->loot = 0;
@@ -9109,7 +9011,7 @@ void he_RunDarkCorner(AIJOB *ev)
             he_MessageBoxQuickjump(ai_Chars[bld->owner].netId, -1, text, 0, 0x5ec, bld->id, d->amount, 0, ch_EmptyName);
         }
         e->end = ai_Time;
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -9118,9 +9020,8 @@ int mem_IsValid(void *p);
 void par_Delete();
 
 /* 0x54fb50, a Ghidra miss: the init of the effect event: the object +0xac (0x4fea50) must have a scene record (+0x61) and the effect word +0xc2 a table record (0x5ba620) with a duration (+4): +0xb4 = now + that duration (0x4fe140), +0xb0 = 0, state 0; else the event is freed */
-void he_StartEffectEvent(AIJOB *ev)
+void he_StartEffectEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *bld;
     G9DOMIZIL *d;
 
@@ -9134,7 +9035,7 @@ void he_StartEffectEvent(AIJOB *ev)
             return;
         }
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x54fc00, the smoke emitter of the effect event: creates the effect 0x177 ("Rauch", the colour 0x64ffa0, a
    30 / 2 / 7.5 / 0.4 / 1 emitter) on the scene record (AIBLD.object) of the building o and returns its handle */
@@ -9178,9 +9079,8 @@ int he_CreatePointsEffect(AIBLD *o)
    (no emitter: -1); stage 1 waits for the end time end6c, then stops the emitter's spawning and goes to 2; stage
    2 waits until the emitter has run out (flag 2) and ends; freed (-1 / -2) it deletes a valid emitter */
 
-void he_RunEffectEvent(AIJOB *ev)
+void he_RunEffectEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *bld;
     int scene;
 
@@ -9188,7 +9088,7 @@ void he_RunEffectEvent(AIJOB *ev)
     case 0:
         gm_FindById(&bld, 0, 0, e->bldId);
         if (bld == 0 || bld->object == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         scene = d3_CurrentScene;
@@ -9223,7 +9123,7 @@ void he_RunEffectEvent(AIJOB *ev)
             par_Delete(e->effectObj);
             d3if_SelectScene(scene, 1);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -9231,9 +9131,8 @@ void he_RunEffectEvent(AIJOB *ev)
    homeUntil (+0xb0) is now + the minutes of the Domizil record 0x178; without that record (or without minutes) the
    event is freed */
 
-void he_StartSendHomeEvent(AIJOB *ev)
+void he_StartSendHomeEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     G9DOMIZIL *goods;
 
     e->end = ai_Time;
@@ -9243,16 +9142,15 @@ void he_StartSendHomeEvent(AIJOB *ev)
         gm_AddTime(&e->homeUntil, 0, goods->minutes, 0);
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x54ff20, the run handler of the send-home event 0x77 (its init 0x54fe80): every 30 minutes until homeUntil, each
    living character standing in the building bldId and sent there (model->bldId) who has a home goes home with a
    chance of one half: its action is cleared (messages 0x47 / 0x4d) and it walks to its home object ("Unkendunk");
    a missing building or a freed event (-1 / -2) frees it */
 
-void he_RunSendHomeEvent(AIJOB *ev)
+void he_RunSendHomeEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *bld;
     AIOBJ *home;
     AICHAR *c;
@@ -9261,14 +9159,14 @@ void he_RunSendHomeEvent(AIJOB *ev)
     if (e->stage < -2)
         return;
     if (e->stage < 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage != 0)
         return;
     bld = gm_FindBuildingById(e->bldId);
     if (bld == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     for (i = 0; i < 768; i++) {
@@ -9285,7 +9183,7 @@ void he_RunSendHomeEvent(AIJOB *ev)
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 0x1e, 0);
     if (gm_CompareTime(&ai_Time, &e->homeUntil) == 1)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
 }
 
 int d3t_PlayAnim();
@@ -9296,9 +9194,8 @@ float d3_VecAngle2();
    + 80) turned (y angle) towards the same point above reaperTo's, later at the cached reaperPos / reaperRot; the
    object's position and angles are cached (reaperPlaced = 1), its flags set and "*sensenmann.baf" played, the clock
    reaperClock started. 1 = created, 0 = a building or the object missing */
-int he_CreateReaper(AIJOB *ev)
+int he_CreateReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     int scene = d3_CurrentScene;
     AIBLD *bld, *from, *to;
     D3VECTOR4 pos, target, rot, dir;      /* padded to 16 bytes, as the engine keeps them */
@@ -9384,9 +9281,8 @@ int he_CreateReaper(AIJOB *ev)
    the original's zero store is missing: draft 1); dir.y = 0.0f at each position of the first dir block: =
    control or worse (5..19). Left: target.y = dir.y + at.y emitted as fld at.y / fadd dir.y (the original
    dir.y first, as x and z). */
-int he_MoveReaper(AIJOB *ev)
+int he_MoveReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     int scene = d3_CurrentScene;
     AIBLD *bld;
     D3VECTOR4 target, at, dir;
@@ -9463,9 +9359,8 @@ int he_MoveReaper(AIJOB *ev)
    need a mesh driver; the target is the point above reaperTo's object (its height + 80), the object's angles are
    set from the direction to it (d3_VecAngle2 writes them), cached in reaperRot with the reaper's own world
    position in reaperPos, and reaperPlaced = 1. 1 = done, 0 = an object missing */
-int he_AimReaper(AIJOB *ev)
+int he_AimReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     int scene = d3_CurrentScene;
     AIBLD *bld;
     D3VECTOR4 target, at, dir;
@@ -9502,9 +9397,8 @@ int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VEC
    the angle between the object's forward axis (its z axis in the world) and the direction to the point above
    reaperTo's object (its height + 80) is added to its y angle, and d3t_PlaceObjectV moves it to its own position
    with those angles over 0x78 (flags 8). 1 = done, 0 = an object missing */
-int he_TurnReaper(AIJOB *ev)
+int he_TurnReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     int scene = d3_CurrentScene;
     AIBLD *bld;
     D3VECTOR4 rot, target, at, dir;
@@ -9546,9 +9440,8 @@ void ai_PlagueMessageAll(void);
    plague event, he_RunPlague), notes where the next walk starts, and flies the reaper to it (reaperTo, read even when
    none was found) by creating its object; nothing found or no object: the record is freed. Posted again 15 minutes
    later */
-void he_StartReaper(AIJOB *ev)
+void he_StartReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     char text[0x200];
     AIBLD *o;
     AIBTYPE *bt;
@@ -9575,12 +9468,12 @@ void he_StartReaper(AIJOB *ev)
     } while (n != 0);
     e->reaperNext = (e->reaperStep + k) % 0x100;
     if (o == 0)
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     else
         txt_Format(text, "EvtSensenmann: next target = %G", o);
     e->reaperTo = o->id;
-    if (he_CreateReaper(ev) == 0)
-        he_FreeEvent(ev);
+    if (he_CreateReaper(e) == 0)
+        he_FreeEvent(e);
     gm_AddTime(&e->end, 0, 0xf, 0);
 }
 /* 0x550b60, the run handler of the reaper event ("Sensenmann"): freed (-1 / -2) it deletes the reaper object, stops
@@ -9589,9 +9482,8 @@ void he_StartReaper(AIJOB *ev)
    target becomes reaperFrom and while reaperLeft > 0 the next building of the kind mask is the new target (none:
    -1), at 0 the reaper turns back to reaperHome; turned (he_TurnReaper) it goes to stage 2 in 15 minutes, else -1.
    Stage 2 aims it (he_AimReaper) and flies on (0), or ends with the plague message to all (-1) */
-void he_RunReaper(AIJOB *ev)
+void he_RunReaper(AIJOB *e)
 {
-    AIJOB *e = ev;
     char text[0x200];
     AIBLD *o;
     AIBTYPE *bt;
@@ -9604,11 +9496,11 @@ void he_RunReaper(AIJOB *ev)
         if (he_ReaperMusic != 0)
             cm_EndSpecialTrack();
         he_ReaperMusic = 0;
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
-    if (e->reaper == 0 && he_CreateReaper(ev) == 0) {
-        he_FreeEvent(ev);
+    if (e->reaper == 0 && he_CreateReaper(e) == 0) {
+        he_FreeEvent(e);
         if (he_ReaperMusic != 0)
             cm_EndSpecialTrack();
         he_ReaperMusic = 0;
@@ -9622,7 +9514,7 @@ void he_RunReaper(AIJOB *ev)
     e->end = ai_Time;
     switch (e->stage) {
     case 0:
-        r = he_MoveReaper(ev);
+        r = he_MoveReaper(e);
         if (r == 1) {
             e->stage = 0;
             gm_AddTime(&e->end, 0, 2, 0);
@@ -9633,7 +9525,7 @@ void he_RunReaper(AIJOB *ev)
             if (e->reaperLeft <= 0) {
                 if (e->reaperLeft == 0) {
                     e->reaperTo = e->reaperHome;
-                    if (he_TurnReaper(ev) != 0) {
+                    if (he_TurnReaper(e) != 0) {
                         gm_AddTime(&e->end, 0, 0xf, 0);
                         e->reaperLeft--;
                         e->stage = 2;
@@ -9669,7 +9561,7 @@ void he_RunReaper(AIJOB *ev)
             txt_Format(text, "EvtSensenmann: next target = %G", o);
             e->reaperTo = o->id;
             e->reaperLeft--;
-            if (he_TurnReaper(ev) != 0) {
+            if (he_TurnReaper(e) != 0) {
                 gm_AddTime(&e->end, 0, 0xf, 0);
                 e->stage = 2;
             } else {
@@ -9683,7 +9575,7 @@ void he_RunReaper(AIJOB *ev)
         return;
     case 2:
         gm_AddTime(&e->end, 0, 2, 0);
-        if (he_AimReaper(ev) != 0) {
+        if (he_AimReaper(e) != 0) {
             e->stage = 0;
         } else {
             ai_PlagueMessageAll();
@@ -9694,9 +9586,8 @@ void he_RunReaper(AIJOB *ev)
 /* 0x550ea0, the init of the ranking event 0x79 (its run handler he_RunRanking): stage 0 and the due clock today at
    7:00 (hour 7, minute 0) */
 
-void he_StartRanking(AIJOB *ev)
+void he_StartRanking(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->stage = 0;
     e->end = ai_Time;
@@ -9740,9 +9631,8 @@ typedef struct HERANKLINE {             /* 0xb9 bytes, one ranked player's packe
    (gm_RankPlayers) and sends the ranking over the network (udp_Send): a head packet with the column titles and the own
    player's name, then a line per ranked player; at 21 o'clock it goes to stage 1, which waits a day (0x18 hours) and
    starts again at 7:00 */
-void he_RunRanking(AIJOB *ev)
+void he_RunRanking(AIJOB *e)
 {
-    AIJOB *e = ev;
     int cnt = 8;
     GMRANK recs[8];
     HERANKHEAD head;
@@ -9813,10 +9703,9 @@ void he_RunRanking(AIJOB *ev)
    the event is not started yet (bit 4) it frees the ten walk slots (+0xac: character and target -1, stage / state /
    step / building index 0), sets the due clock today at 11:00 and posts the event (handle in exSlot) */
 
-void he_StartWalk(AIJOB *ev)
+void he_StartWalk(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEWALKS *w = (HEWALKS *)ev;
+    HEWALKS *w = (HEWALKS *)e;
     int i;
 
     e->stage = 0;
@@ -9832,7 +9721,7 @@ void he_StartWalk(AIJOB *ev)
         e->end = ai_Time;
         e->end.hour = 0xb;
         e->end.min = 0;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 
@@ -10103,16 +9992,15 @@ void he_StepWalk(HEWALKSLOT *s)
    slot still walking counts; when none walks, the due clock moves to midnight of the next day), before that each
    slot is stepped by he_StepWalkSlot (state 4, done) or he_StepWalk and the ones with state 1 counted; then up to
    ten tries to fill a free slot (he_FillWalkSlot) post the event again 1 minute later */
-void he_RunWalk(AIJOB *ev)
+void he_RunWalk(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEWALKS *w = (HEWALKS *)ev;
+    HEWALKS *w = (HEWALKS *)e;
     int st = e->stage;
     int n, i, r;
     HEWALKSLOT *s;
 
     if (st == -1 || st == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -10134,7 +10022,7 @@ void he_RunWalk(AIJOB *ev)
             e->end.hour = (unsigned short)n;    /* n is 0 here */
             e->end.year = e->end.year + 1;
         }
-        cm_SendExSetHE(0, ev);
+        cm_SendExSetHE(0, e);
         return;
     }
     for (i = 0; i < 10; i++) {
@@ -10154,15 +10042,14 @@ void he_RunWalk(AIJOB *ev)
             break;
         }
     }
-    cm_SendExSetHE(0, ev);
+    cm_SendExSetHE(0, e);
 }
 /* 0x551d00, the alloc handler of the six-group event (type 0x7d, the run handler 0x551d70 walks its six figure
    groups at +0xb0): gm_Shuffled fills the six ids and each is incremented (0 -> the first figure), the due time
    is the clock now with hour 9 / min 0, and the state becomes 0xc */
 
-void he_InitSixGroupEvent(AIJOB *ev)
+void he_InitSixGroupEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     int i;
     int *q;
 
@@ -10245,9 +10132,8 @@ void he_RunSixGroupEvent(AIJOB *ev)
 /* 0x552040, the stage-0 start handler of the exam events 0x7e (the master exam question, its run handler
    he_RunExamQuestion) and 0x36 (the feast exam, he_RunFeastExam): the due clock is now + 2 hours and the stage 0 */
 
-void he_StartExam(AIJOB *ev)
+void he_StartExam(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 2, 0, 0);
@@ -10258,22 +10144,21 @@ void he_StartExam(AIJOB *ev)
    centres it and prints the question 0x10b9 (the own player's name, the character), then waits in stage 1: past
    the due time, or on the second answer, it ends; the first answer marks the character's exam event (examId, found
    with he_FindEvent) accepted. No slot in stage 1 opens it again */
-void he_RunExamQuestion(AIJOB *ev)
+void he_RunExamQuestion(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if (e->stage == -1 || e->stage == -2) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
     case 0:
         if (e->slot == 0)
-            he_OpenEventSlot(ev, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_CentreViewWindows(e->slot->win);
@@ -10284,8 +10169,8 @@ void he_RunExamQuestion(AIJOB *ev)
         return;
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end) > 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (e->slot == 0) {
@@ -10296,11 +10181,11 @@ void he_RunExamQuestion(AIJOB *ev)
             return;
         if (d2_ClickedId == 0) {
             ((HEEXAMOFFER *)he_FindEvent(2, 2, e->chr, 1, ((HEEXAMBOX *)e)->examId))->accepted = 1;
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
         } else if (d2_ClickedId == 1) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
         }
         return;
     }
@@ -10309,10 +10194,9 @@ void he_RunExamQuestion(AIJOB *ev)
 
 /* 0x552200, the stage-0 start handler of the master exam offer event 0x7f (its run handler he_RunExamOffer): the
    stage 0, the due clock now with the hour 9 + random(3) and the minute random(4) * 15, no answer yet */
-void he_StartExamOffer(AIJOB *ev)
+void he_StartExamOffer(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEXAMOFFER *o = (HEEXAMOFFER *)ev;
+    HEEXAMOFFER *o = (HEEXAMOFFER *)e;
     int r;
 
     e->stage = 0;
@@ -10328,9 +10212,8 @@ void he_StartExamOffer(AIJOB *ev)
    set accepted), the character loses (1 - skill 3) / 2 of its health (the skill at least 0.1), the own player is
    paid 6% of its worth times the skill (cm_SendMoveGoodsUnchecked) and the character is told 0x10ba, else 0x10bb;
    then, as any other stage, the event is freed */
-void he_RunExamOffer(AIJOB *ev)
+void he_RunExamOffer(AIJOB *e)
 {
-    AIJOB *e = ev;
     float skill;
     int worth, pay;
     HEEXAMMSG m;
@@ -10338,7 +10221,7 @@ void he_RunExamOffer(AIJOB *ev)
     AICHAR *c;
 
     if (e->stage < 0 || e->stage > 1) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (e->stage == 0) {
@@ -10373,20 +10256,19 @@ void he_RunExamOffer(AIJOB *ev)
             txt_Format(text, 0x10bb);
             he_ShowNews(((HEEXAMOFFER *)e)->chr, -1, text, 0x20, 0x5fd, ch_EmptyName);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x5524e0, the stage-0 start handler shared by the events 0x80 and 0x81 (the conversion): unless its option 4
    says it is not started yet, the due clock is a copy of the start clock and the event is posted at once (its
    cm slot kept in exSlot) */
 
-void he_StartDue(AIJOB *ev)
+void he_StartDue(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     if ((e->opts & 4) == 0) {
         e->end = e->start;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 
@@ -10394,13 +10276,12 @@ void he_StartDue(AIJOB *ev)
 /* 0x552520, the run handler of the delay event 0x80 (its start handler he_StartDue): a negative stage or no day
    left (HEDELAY.days) frees the record; a record with the option 4 does nothing; else a day is counted off and the
    event is posted a day later (its cm slot kept in exSlot) */
-void he_RunDelay(AIJOB *ev)
+void he_RunDelay(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEDELAY *d = (HEDELAY *)ev;
+    HEDELAY *d = (HEDELAY *)e;
 
     if (e->stage < 0 || d->days <= 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -10408,24 +10289,23 @@ void he_RunDelay(AIJOB *ev)
     d->days = d->days - 1;
     e->end = ai_Time;
     gm_AddTime(&e->end, 0x18, 0, 0);
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
 }
 /* 0x5525a0, the run handler of the conversion event 0x81 (its alloc handler he_StartDue): while it has rounds and
    characters left, each round (a day apart) turns up to n = min(left, ceil(left + rounds)) characters whose b00c
    (the kind the person tooltip names) is `from` to the other kind (1 - from, a field delta of AICHAR +0xc), walking
    the 0x300 characters from a random one (ids in use, kinds up to 4); found fewer than n, it tries again 5 minutes
    later. A negative stage, no rounds or no characters left free the event, flag 4 of opts holds it */
-void he_RunConversion(AIJOB *ev)
+void he_RunConversion(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECONVERT *cv = (HECONVERT *)ev;
+    HECONVERT *cv = (HECONVERT *)e;
     int cnt = 0;
     int to = 1 - cv->from;
     int n, ring, left;
     AICHAR *c;
 
     if (e->stage < 0 || cv->rounds <= 0 || cv->left <= 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -10449,57 +10329,54 @@ void he_RunConversion(AIJOB *ev)
     if (cnt < n) {
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 5, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     cv->rounds--;
     cv->left -= n;
     e->end = ai_Time;
     gm_AddTime(&e->end, 0x18, 0, 0);
-    e->exSlot = cm_SendExSetHE(0, ev);
+    e->exSlot = cm_SendExSetHE(0, e);
 }
 /* 0x5527c0, the stage-0 start handler of the skill-bonus event 0x82 (its run handler 0x552820; GMSKILLEV in
    f3gm_types.h holds the bonus words): unless its option 4 says it is not started yet, the due clock is now + the
    bonus's duration (HESKILLBONUS.hours) and the event is posted at once (its cm slot kept in exSlot) */
 
-void he_StartSkillBonus(AIJOB *ev)
+void he_StartSkillBonus(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESKILLBONUS *b = (HESKILLBONUS *)ev;
+    HESKILLBONUS *b = (HESKILLBONUS *)e;
 
     if ((e->opts & 4) == 0) {
         e->end = ai_Time;
         gm_AddTime(&e->end, b->hours, 0, 0);
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 /* 0x552820, the run handler of the skill-bonus event 0x82 (its start handler he_StartSkillBonus): the states -1 / -2
    free the record; else, unless its option 4 says it is not started yet, the bonus is over: the due clock is set to
    now and the event is ended with the cm slot handle -1 (the next call frees it) */
 
-void he_RunSkillBonus(AIJOB *ev)
+void he_RunSkillBonus(AIJOB *e)
 {
-    AIJOB *e = ev;
     int st = e->stage;
 
     if (st == -1 || st == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
         return;
     e->end = ai_Time;
-    e->exSlot = cm_SendExSetHE(-1, ev);
+    e->exSlot = cm_SendExSetHE(-1, e);
 }
 /* 0x552880, the start handler of the applicants event 0x86 (its run handler he_RunApplicants): unless its option 4
    says it is not started yet, the due clock is now at 17:00, moved a day on when it was already past 17:00; the
    office is unset, the highest kind looked at is 0x1b, both applicant handles are -1 and the event is posted at
    once (its cm slot kept in exSlot) */
 
-void he_StartApplicants(AIJOB *ev)
+void he_StartApplicants(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEAPPLICANTS *a = (HEAPPLICANTS *)ev;
+    HEAPPLICANTS *a = (HEAPPLICANTS *)e;
 
     if ((e->opts & 4) == 0) {
         e->end = ai_Time;
@@ -10511,7 +10388,7 @@ void he_StartApplicants(AIJOB *ev)
         a->maxKind = 0x1b;
         a->applicant[0] = -1;
         a->applicant[1] = -1;
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     }
 }
 
@@ -10526,15 +10403,14 @@ int amt_CreateApplicant(int k);
    Stage 1 waits for both created characters (cm_GetSlotState 1: initialised as applicants, amt_InitApplicant; 2: gone)
    and when both are done posts the event 5 minutes later; else, as after stage 0, the event is posted again now
    (cm_SendExSetHE 1) */
-void he_RunApplicants(AIJOB *ev)
+void he_RunApplicants(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEAPPLICANTS *ap = (HEAPPLICANTS *)ev;
+    HEAPPLICANTS *ap = (HEAPPLICANTS *)e;
     int done, r;
     char *c;
 
     if (e->stage == -1 || e->stage == -2) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -10552,7 +10428,7 @@ void he_RunApplicants(AIJOB *ev)
             ap->maxKind = 0x1b;
             ap->applicant[0] = -1;
             ap->applicant[1] = -1;
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             return;
         }
         ap->office = amt_GetOpenOffice(ap->maxKind);
@@ -10564,7 +10440,7 @@ void he_RunApplicants(AIJOB *ev)
             ap->maxKind = 0x1b;
             ap->applicant[0] = -1;
             ap->applicant[1] = -1;
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             return;
         }
         ap->applicant[0] = amt_CreateApplicant(ap->office);
@@ -10603,7 +10479,7 @@ void he_RunApplicants(AIJOB *ev)
         if (done == 2) {
             e->end = ai_Time;
             gm_AddTime(&e->end, 0, 5, 0);
-            e->exSlot = cm_SendExSetHE(0, ev);
+            e->exSlot = cm_SendExSetHE(0, e);
             return;
         }
         break;
@@ -10611,7 +10487,7 @@ void he_RunApplicants(AIJOB *ev)
         return;
     }
     e->end = ai_Time;
-    e->exSlot = cm_SendExSetHE(1, ev);
+    e->exSlot = cm_SendExSetHE(1, e);
 }
 
 int ai_TutorialSetHost();
@@ -10660,10 +10536,9 @@ void he_RunTutorialIntro(AIJOB *ev)
 /* 0x552c30, the alloc handler of the imperial office award event 0xa5 (HEOFFICEAWARD): the due clock AIJOB.end
    and the award's clock (0xac) are now, stage 0 */
 
-void he_StartOfficeAward(AIJOB *ev)
+void he_StartOfficeAward(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFICEAWARD *a = (HEOFFICEAWARD *)ev;
+    HEOFFICEAWARD *a = (HEOFFICEAWARD *)e;
 
     e->end = ai_Time;
     a->when = ai_Time;
@@ -10679,10 +10554,9 @@ void he_StartOfficeAward(AIJOB *ev)
    the award's clock and the office's text by sex; for another character the news 0x42ac / 0x42b0 / 0x42ae with
    the character; then the news 0x161c below (stage 1). Stage 1 frees the event when the window is answered
    (button 0, or the event bar's confirmation of its slot); without a window it starts over */
-void he_RunOfficeAward(AIJOB *ev)
+void he_RunOfficeAward(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEOFFICEAWARD *a = (HEOFFICEAWARD *)ev;
+    HEOFFICEAWARD *a = (HEOFFICEAWARD *)e;
     AICHAR *own, *c;
     int addrNews, officeNews;
 
@@ -10694,20 +10568,20 @@ void he_RunOfficeAward(AIJOB *ev)
     c = gm_FindChar(a->ch);
     if (e->stage == -2 || e->stage == -1 || own->id == 0xffff || c == 0) {
         if (e->slot != 0)
-            he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
     case 0:
         if (e->slot == 0) {
             if (c == own)
-                he_OpenEventSlot(ev, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
+                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
             else
-                he_OpenEventSlot(ev, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
+                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
         }
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_CentreViewWindows(e->slot->win);
@@ -10783,15 +10657,15 @@ void he_RunOfficeAward(AIJOB *ev)
         if (d2_ClickedForm != e->slot->win && he_SlotConfirmed == 0)
             return;
         if (d2_ClickedId == 0) {
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (he_SlotConfirmed == 0 || he_ActiveSlot != e->slot)
             return;
         he_SlotConfirmed = 0;
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
     }
 }
 
@@ -11169,10 +11043,9 @@ int he_NoEvent35Pair(unsigned short *a, AICHAR *b, int *count)
 /* 0x553e10, the alloc handler of the sale event 2: the due clock (AIJOB.end) is now, one second later with
    gm_AllowAll set, else after the production time (GMGOOD.workTime) of the good sold (HESALE.good) */
 
-void he_AllocSale(AIJOB *ev)
+void he_AllocSale(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESALE *s = (HESALE *)ev;
+    HESALE *s = (HESALE *)e;
     GMGOOD *good;
 
     good = GM_GOOD(s->good);
@@ -11194,10 +11067,9 @@ void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, 
    building's master is a kind 1 character with flags1b4 bit 0 and notify is set): the text 0x1c2b with the
    quick jump to "ob_<NAME>" of the good while the object is still in the building (not a 0xfd), else 0x1c2d;
    the object gets the bits 0xa0. Then the sys message 4 (the building, the object's id) and the event is freed */
-void he_RunSale(AIJOB *ev)
+void he_RunSale(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESALE *s = (HESALE *)ev;
+    HESALE *s = (HESALE *)e;
     AIOBJ *p, *q;
     AIBLD *b;
     unsigned short ty;
@@ -11213,7 +11085,7 @@ void he_RunSale(AIJOB *ev)
             return;
         b = gm_BuildQuery(1, 1, e->from);
         if (b == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         gm_Query((void *)b->objList, 1, 1, s->obj);
@@ -11226,7 +11098,7 @@ void he_RunSale(AIJOB *ev)
         p = (AIOBJ *)cm_GetSlotValue(s->slot);
         b = gm_BuildQuery(1, 1, e->from);
         if (b == 0 || p == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         ty = p->type;
@@ -11290,7 +11162,7 @@ void he_RunSale(AIJOB *ev)
             m.sold.objId = q->objId;
             cm_SendExSysMessage(4, &m);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 
@@ -11306,10 +11178,9 @@ void he_RunSale(AIJOB *ev)
    event's character, whose player record counts it (HEFINVIEW.customerTakings), a player character (kind 6 / 7)
    gets the news 0x1bab (0x60c when the building's master is a character with flags1b4 bit 0, else 0x5f2); with
    customers left stage 1 again after 30 .. 39 minutes, else the event is freed */
-void he_RunCustomers(AIJOB *ev)
+void he_RunCustomers(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECUSTOMERS *c = (HECUSTOMERS *)ev;
+    HECUSTOMERS *c = (HECUSTOMERS *)e;
     AIBLD *b;
     AICHAR *p, *m, *owner;
     AIOBJ *o;
@@ -11335,7 +11206,7 @@ void he_RunCustomers(AIJOB *ev)
         if (cost > gm_GetGoodsValue(&ai_Chars[b->owner])) {
             txt_Format(text, 0x1a40, b);
             he_MessageBoxQuickjump(ai_Chars[b->owner].netId, e->from, text, 0, 0x5f2, b->id, c->target, 0, 0);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         for (i = 0; i < 12; i++) {
@@ -11356,7 +11227,7 @@ void he_RunCustomers(AIJOB *ev)
         p = (AICHAR *)cm_GetSlotValue(c->slot);
         if (p == 0) {
             he_ShowNews(ai_Chars[e->chr].netId, -1, "$2AEinwohnerlimit erreicht!", 0, 0x5f2, 0);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         c->person = p->netId;
@@ -11412,7 +11283,7 @@ void he_RunCustomers(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x554820, the allocation handler of the customers / hire events (6 / 7): the due clock is the start clock,
    posted 0xf minutes later */
@@ -11432,10 +11303,9 @@ void he_AllocCustomersHire(AIJOB *ev)
    the event's character, a player character (kind 6 / 7) gets the news 0x1bb1; it walks to the target object's
    entrance ("dummy_EINGANG"; target 0: the building's main room object, -1: its 0xfd object); with hires left
    stage 1 again 10 .. 19 minutes later, else the event is freed */
-void he_RunHire(AIJOB *ev)
+void he_RunHire(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEHIRE *h = (HEHIRE *)ev;
+    HEHIRE *h = (HEHIRE *)e;
     AIBLD *b;
     AIBTYPE *bt;
     AICHAR *p, *n;
@@ -11463,7 +11333,7 @@ void he_RunHire(AIJOB *ev)
         if (cost > gm_GetGoodsValue(&ai_Chars[b->owner])) {
             txt_Format(text, 0x1a41, b);
             he_MessageBoxQuickjump(ai_Chars[b->owner].netId, e->from, text, 0, 0x5f2, b->id, h->target, 0, 0);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         for (i = 0; i < 1; i++) {
@@ -11482,7 +11352,7 @@ void he_RunHire(AIJOB *ev)
         p = (AICHAR *)cm_GetSlotValue(h->slot);
         if (p == 0) {
             he_ShowNews(ai_Chars[e->chr].netId, -1, "Einwohnerlimit erreicht!", 0, 0x5f8, 0);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         ai_PermsDirty = 1;
@@ -11531,7 +11401,7 @@ void he_RunHire(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 
 int gm_LevelPayout(int v, int kind);
@@ -11547,10 +11417,9 @@ int gm_LevelPayout(int v, int kind);
    to the event, the event's AIJOB.from is the cart. An escorted cart gets the escort kind by its goods' value
    (gm_StallGoodsList: value / 16000 + random 0 .. 1, at most 2), and the escort is paid (gm_LevelPayout, sent with
    opts bit 1) */
-void he_AllocTransport(AIJOB *ev)
+void he_AllocTransport(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRANSPORT *t = (HETRANSPORT *)ev;
+    HETRANSPORT *t = (HETRANSPORT *)e;
     AIOBJ *o;
     AIBLD *from, *to, *b, *best, *drv;
     HEROUTEREFS *r;
@@ -11624,7 +11493,7 @@ void he_AllocTransport(AIJOB *ev)
         t->mode = 4;
         if (from == to) {
             err_Message("he_AllocTransport(): Start and goal are the same!");
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
     }
@@ -11671,7 +11540,7 @@ void he_AllocTransport(AIJOB *ev)
         return;
     }
 fail:
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x5551c0, an object callback of 0x438d40: objects whose name contains "dummy_TRANSPORTER" are collected into the context (32 pointers, +0x80 the count); returns 1 while there is room */
 
@@ -11738,10 +11607,9 @@ int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
    the transport window shows the goal (or a market stall 0x92 .. 0x97 / 0x2db of a type 10 goal), the cart is
    escorted (flags20 bit 0) or the transport is quiet, with the quick jump to the goal's main object; the event is
    posted again (cm_SendExSetHE 3). The current scene is selected again at the end */
-void he_TransportFromHome(AIJOB *ev)
+void he_TransportFromHome(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRANSPORT *t = (HETRANSPORT *)ev;
+    HETRANSPORT *t = (HETRANSPORT *)e;
     AIBLD *guards, *from, *to;
     AIBTYPE *bt;
     AIOBJ *tr, *o;
@@ -11758,7 +11626,7 @@ void he_TransportFromHome(AIJOB *ev)
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
-    he_SetCartSpeed(ev, tr);
+    he_SetCartSpeed(e, tr);
     if (t->started == 0) {
         cm_SendChrStop(tr->objId);
         cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 1, "Trans");
@@ -11795,7 +11663,7 @@ void he_TransportFromHome(AIJOB *ev)
                 else
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x608, to->id, -1, 0, 0);
             }
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
         }
     }
     d3if_SelectScene(sc, 1);
@@ -11814,10 +11682,9 @@ int sv_IsCartAtDoor();
    the icon 0x608; the goal types 0x1e / 0x1f / 0x20 add the quick jump "_NACHRICHTEN_HS_58" / "_57" / "_56". The
    news goes to the event's character unless the transport window shows the goal, the cart is escorted (flags20
    bit 0) or the transport is quiet; the event is posted again (cm_SendExSetHE 3) and the scene selected again */
-void he_TransportToHome(AIJOB *ev)
+void he_TransportToHome(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRANSPORT *t = (HETRANSPORT *)ev;
+    HETRANSPORT *t = (HETRANSPORT *)e;
     AIBLD *guards, *from, *to;
     AIBTYPE *bt;
     AIOBJ *tr;
@@ -11833,7 +11700,7 @@ void he_TransportToHome(AIJOB *ev)
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
-    he_SetCartSpeed(ev, tr);
+    he_SetCartSpeed(e, tr);
     if (t->started == 0) {
         cm_SendChrStop(tr->objId);
         if (gm_IsType10(from) == 0)
@@ -11882,7 +11749,7 @@ void he_TransportToHome(AIJOB *ev)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, icon, to->id, -1, 0, 0);
             }
         }
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
     }
     d3if_SelectScene(sc, 1);
 }
@@ -11904,7 +11771,6 @@ void he_TransportToHome(AIJOB *ev)
    its last place gives the debug text "character-action not attached but target should be reached" */
 void he_TransportStadtStadt(AIJOB *ev)
 {
-    AIJOB *e = ev;
     HETRANSPORT *t = (HETRANSPORT *)ev;
     AIBLD *guards, *from, *to;
     AIOBJ *tr, *o;
@@ -12004,12 +11870,12 @@ void he_TransportStadtStadt(AIJOB *ev)
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 o = gm_BuildingMainObject(to);
                 if (o != 0)
-                    he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x608, to->id, o->objId, 0, 0);
+                    he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, tr->objId, text, 0, 0x608, to->id, o->objId, 0, 0);
                 else
-                    he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x608, to->id, -1, 0, 0);
+                    he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, tr->objId, text, 0, 0x608, to->id, -1, 0, 0);
             }
             t->at = t->goal;
-            e->exSlot = cm_SendExSetHE(3, ev);
+            ev->exSlot = cm_SendExSetHE(3, ev);
             if (ch->actions == 0 && t->rounds > 6 && d3_VecEqual(&ch->obj->pos, &t->lastPos, 100.0f) == 0)
                 sprintf(err, "he_TransportStadtStadt(): character-action not attached but target should be reached : %s",
                         txt_Ptrs[0x48e + to->type * 14]);
@@ -12033,10 +11899,9 @@ int init_BuildingSceneUniverse();
    "_NACHRICHTEN_HS_56" .. "_60"), the event is posted again (cm_SendExSetHE 3). Not at the door after more than
    16 rounds with the cart's character idle: it is sent to the goal again and the rounds start over. The scene
    selected at the start is selected again at the end */
-void he_TransportHomeHome(AIJOB *ev)
+void he_TransportHomeHome(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRANSPORT *t = (HETRANSPORT *)ev;
+    HETRANSPORT *t = (HETRANSPORT *)e;
     AIBLD *guards, *from, *to;
     AIBTYPE *bt;
     AIOBJ *tr;
@@ -12055,7 +11920,7 @@ void he_TransportHomeHome(AIJOB *ev)
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
-    he_SetCartSpeed(ev, tr);
+    he_SetCartSpeed(e, tr);
     if (t->started == 0) {
         cm_SendChrStop(tr->objId);
         cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 1, "Trans");
@@ -12104,7 +11969,7 @@ void he_TransportHomeHome(AIJOB *ev)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, tr->objId, text, 0, 0x609, to->id, -1, 0, 0);
             }
         }
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
     } else if (t->started != 0 && t->rounds > 0x10) {
         ch = tr->sceneObj;
         if (ch != 0 && ch->actions == 0) {
@@ -12134,10 +11999,9 @@ void he_TransportHomeHome(AIJOB *ev)
     4: the cart unloads at its point for the player slot of a kind 0x47 goal (else the own player), stage 5.
     5: at the building of the cart's route point that takes the load (ai_IsBuildingOpen) the cart hands it over
        (rt_LoadAtPoint) and the transport ends (-1); no such point: -1; else it waits 15 minutes */
-void he_RunTransport(AIJOB *ev)
+void he_RunTransport(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HETRANSPORT *t = (HETRANSPORT *)ev;
+    HETRANSPORT *t = (HETRANSPORT *)e;
     AIBLD *guards, *market, *from, *to, *b;
     AIOBJ *tr, *c;
     RTPOINT *p;
@@ -12160,7 +12024,7 @@ void he_RunTransport(AIJOB *ev)
         e->stage = -1;
     tr = (AIOBJ *)gm_FindObjectInst(t->cart);
     if (tr == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     switch (e->stage) {
@@ -12169,7 +12033,7 @@ void he_RunTransport(AIJOB *ev)
             return;
         t->slotE8 = -1;
         gm_AddTime(&e->end, 0, 0, 1);
-        e->exSlot = cm_SendExSetHE(e->stage + 1, ev);
+        e->exSlot = cm_SendExSetHE(e->stage + 1, e);
         return;
     case 1: {
         AIOBJ *o;
@@ -12181,19 +12045,19 @@ void he_RunTransport(AIJOB *ev)
             if (t->route != -1 && cm_GetSlotState(t->route) == 0)
                 return;
             if (t->route != -1 && cm_GetSlotState(t->route) == 2) {
-                e->exSlot = cm_SendExSetHE(-1, ev);
+                e->exSlot = cm_SendExSetHE(-1, e);
                 break;
             }
             t->route = -1;
             mode = t->mode;
             if (mode == 2)
-                he_TransportFromHome(ev);
+                he_TransportFromHome(e);
             else if (mode == 1)
-                he_TransportToHome(ev);
+                he_TransportToHome(e);
             else if (mode == 3)
-                he_TransportStadtStadt(ev);
+                he_TransportStadtStadt(e);
             else if (mode == 4)
-                he_TransportHomeHome(ev);
+                he_TransportHomeHome(e);
             else
                 err_Message("he_RunTransport: invalid type!");
             t->rounds++;
@@ -12206,7 +12070,7 @@ void he_RunTransport(AIJOB *ev)
                     txt_Format(text, 0x1c46, o->id * 2 + 0x9a8);
                     he_ShowNews(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec, 0);
                     cm_SendFreeObject(o->objId);
-                    e->exSlot = cm_SendExSetHE(-1, ev);
+                    e->exSlot = cm_SendExSetHE(-1, e);
                     return;
                 }
             }
@@ -12247,15 +12111,15 @@ void he_RunTransport(AIJOB *ev)
         cm_SendExSysMessage(4, &m);
         if (ai_PlayerBuilding == b || ai_FallbackBuilding == b)
             sb_PlaySample(snd_TransportBank, "Karrenrumpeln_r", 1, 0x3f, 0x7f, 0, 0);
-        e->exSlot = cm_SendExSetHE(3, ev);
+        e->exSlot = cm_SendExSetHE(3, e);
         return;
     case 3:
         if ((e->opts & 2) == 0)
             return;
         if (t->quiet != 0)
-            e->exSlot = cm_SendExSetHE(4, ev);
+            e->exSlot = cm_SendExSetHE(4, e);
         else
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 4:
         if ((e->opts & 2) == 0)
@@ -12265,14 +12129,14 @@ void he_RunTransport(AIJOB *ev)
         if (b->type == 0x47)
             pl = (char)b->playerSlot;
         rt_UnloadAtPoint((char *)tr, pl);
-        e->exSlot = cm_SendExSetHE(5, ev);
+        e->exSlot = cm_SendExSetHE(5, e);
         return;
     case 5:
         if ((e->opts & 2) == 0)
             return;
         p = rt_PointAt(tr->route, tr->routeIdx);
         if (p == 0 || (b = gm_FindBuildingById(p->buildingId)) == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (ai_IsBuildingOpen((unsigned char *)b, 0, 0) != 0) {
@@ -12280,20 +12144,20 @@ void he_RunTransport(AIJOB *ev)
             if (b->type == 0x47)
                 pl = (char)b->playerSlot;
             rt_LoadAtPoint(tr, pl);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, 0xf, 0);
         return;
     case -2:
-        he_SetEventChar(ev, ai_PlayerChar->id);
+        he_SetEventChar(e, ai_PlayerChar->id);
         if (t->at == guards->id)
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
         else if (t->at == to->id)
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
         else if (t->at == from->id)
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
         return;
     case -1:
         c = gm_Query(0, 2, 7, 1, t->cart);
@@ -12307,7 +12171,7 @@ void he_RunTransport(AIJOB *ev)
             c->job24 = 0;
             c->flags13 &= ~0x40;
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -12318,10 +12182,9 @@ void he_RunTransport(AIJOB *ev)
    bit 0x20) frees the event, else it gets the bit (cm_SendSetField 0x13); the clock60 starts now and the cart's byte
    +0x12 is to rise by `points`, to 100 at most (target). Reasoned: a repair of the cart (its run handler changes
    the object's state, gm_ChangeObjektZustand, and the transport damages the same byte) */
-void he_AllocCartRepair(AIJOB *ev)
+void he_AllocCartRepair(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECARTREPAIR *r = (HECARTREPAIR *)ev;
+    HECARTREPAIR *r = (HECARTREPAIR *)e;
     AIOBJ *o = 0;
 
     r->done = e->start;
@@ -12331,7 +12194,7 @@ void he_AllocCartRepair(AIJOB *ev)
     gm_FindById(0, &o, 0, r->cart);
     if (o != 0) {
         if ((o->flags13 & 0x20) != 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         cm_SendSetField(o->objId, 0x13, 1, 0x20, 0);
@@ -12347,10 +12210,9 @@ void he_AllocCartRepair(AIJOB *ev)
       "_NACHRICHTEN_HS_55" to the main object of the building (AIJOB.from); the cart's bit 0x20 is cleared, its byte
       +0x12 set to the target (a field delta) and the event freed.
    -2 / -1: cancelled: the cart's bit 0x20 is cleared and the event freed */
-void he_RunCartRepair(AIJOB *ev)
+void he_RunCartRepair(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HECARTREPAIR *r = (HECARTREPAIR *)ev;
+    HECARTREPAIR *r = (HECARTREPAIR *)e;
     AIOBJ *o = 0, *q;
     int mins;
     char v;
@@ -12362,7 +12224,7 @@ void he_RunCartRepair(AIJOB *ev)
         o = gm_Query(0, 2, 7, 1, r->cart);
         if (o == 0) {
             o = gm_Query(0, 2, 7, 1, r->cart);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         if (o->fill < r->target) {
@@ -12388,14 +12250,14 @@ void he_RunCartRepair(AIJOB *ev)
         cm_BeginFieldBlock((char *)o, o->objId);
         cm_AddFieldDelta(1, 1, 0x12, &v);
         cm_SendFieldDeltas();
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
         gm_FindById(0, &o, 0, r->cart);
         if (o != 0)
             cm_SendSetField(o->objId, 0x13, 1, 0, 0x20);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -12426,10 +12288,9 @@ void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
    other boxes end when due. A click on the window: 0 carries the quick jump out (sv_SelectPanelObject on the
    building and object), 1 (or the slot confirmed) dismisses it and leaves a cutscene's party; both stop the voice,
    unpause a help box and close the window. Stages -2 / -1 stop the voice, unpause and close it */
-void he_RunMessageBox(AIJOB *ev)
+void he_RunMessageBox(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEMSGBOX *m = (HEMSGBOX *)ev;
+    HEMSGBOX *m = (HEMSGBOX *)e;
     AIBLD *bld;
     G28REC *p;
     char speak[0x80];
@@ -12441,11 +12302,11 @@ void he_RunMessageBox(AIJOB *ev)
         if ((m->flags & 2) != 0) {
             bld = 0;
             if ((m->flags & 1) != 0)
-                he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_QJ_BIG", m->pic);
+                he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox_QJ_BIG", m->pic);
             else
-                he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_QJ", m->pic);
+                he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox_QJ", m->pic);
             if (e->slot == 0) {
-                he_FreeEvent(ev);
+                he_FreeEvent(e);
                 return;
             }
             if (ai_PlayerBuilding != 0)
@@ -12459,30 +12320,30 @@ void he_RunMessageBox(AIJOB *ev)
             else
                 io_PrintText(0x1ba1);
         } else if ((m->flags & 1) != 0) {
-            he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_BIG", m->pic);
+            he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox_BIG", m->pic);
             if (e->slot != 0) {
                 d2_SetForm(e->slot->win, 1);
                 io_PrintText(0x1ba3);
             }
         } else if ((m->flags & 0x20) != 0) {
-            he_OpenEventSlot(ev, 0, 0, "misc\\EventMsgbox_History", m->pic);
+            he_OpenEventSlot(e, 0, 0, "misc\\EventMsgbox_History", m->pic);
             if (e->slot != 0) {
                 d2_SetForm(e->slot->win, 1);
                 io_PrintText(0x1ba3);
             }
         } else if ((m->flags & 4) != 0) {
-            he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_Cutscenes", m->pic);
+            he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox_Cutscenes", m->pic);
         } else if ((m->flags & 0x40) != 0) {
-            he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_Help", m->pic);
+            he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox_Help", m->pic);
         } else {
-            he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox", m->pic);
+            he_OpenEventSlot(e, 0, 0, "misc\\EventMessagebox", m->pic);
             if (e->slot != 0) {
                 d2_SetForm(e->slot->win, 1);
                 io_PrintText(0x7d);
             }
         }
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_CentreViewWindows(e->slot->win);
@@ -12518,8 +12379,8 @@ void he_RunMessageBox(AIJOB *ev)
                 if ((p->flags & 0x80) != 0) {
                     if ((m->flags & 2) == 0 || m->bld == -1 || (p->flags & 0x10) == 0)
                         p->done = 1;
-                    he_ReleaseSlot(ev);
-                    he_FreeEvent(ev);
+                    he_ReleaseSlot(e);
+                    he_FreeEvent(e);
                     return;
                 }
                 if ((ai_GameFlags & 8) != 0)
@@ -12531,8 +12392,8 @@ void he_RunMessageBox(AIJOB *ev)
         } else if (gm_CompareTime(&ai_Time, &e->end) > 0) {
             if ((m->flags & 0x40) != 0 && (ai_GameFlags & 4) == 0)
                 tb_Paused = 0;
-            he_ReleaseSlot(ev);
-            he_FreeEvent(ev);
+            he_ReleaseSlot(e);
+            he_FreeEvent(e);
             return;
         }
         if (e->slot == 0)
@@ -12561,8 +12422,8 @@ void he_RunMessageBox(AIJOB *ev)
                         di_GuiClick = 1;
                         di_ClearButtons();
                     }
-                    he_ReleaseSlot(ev);
-                    he_FreeEvent(ev);
+                    he_ReleaseSlot(e);
+                    he_FreeEvent(e);
                 }
                 he_SlotConfirmed = 0;
             } else {
@@ -12587,8 +12448,8 @@ void he_RunMessageBox(AIJOB *ev)
                     di_GuiClick = 1;
                     di_ClearButtons();
                 }
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
                 return;
             }
         }
@@ -12601,8 +12462,8 @@ void he_RunMessageBox(AIJOB *ev)
         }
         if ((m->flags & 0x40) != 0 && (ai_GameFlags & 4) == 0)
             tb_Paused = 0;
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -12617,10 +12478,9 @@ void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
    counts done: the news 0x1bba (the building) goes to the event's character with the quick jump to the
    building's main object (icon 0x5f6, 0x60b for a master's character with flags1b4 bit 0) and the event is freed;
    else the next round is due in 15 minutes. Stages -2 / -1 free the event */
-void he_RunSlotOrder(AIJOB *ev)
+void he_RunSlotOrder(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESLOTORDER *s = (HESLOTORDER *)ev;
+    HESLOTORDER *s = (HESLOTORDER *)e;
     AIOBJ *o, *q;
     AIBLD *b;
     AIBTYPE *bt;
@@ -12679,7 +12539,7 @@ void he_RunSlotOrder(AIJOB *ev)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, q->objId, 0, 0);
             else
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, -1, 0, 0);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         e->end = ai_Time;
@@ -12691,14 +12551,13 @@ void he_RunSlotOrder(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x557b30, the allocation handler shared by the slot order event 18 and the store extension event 19: the due
    clock (AIJOB.end) starts as the start clock, two hours later */
 
-void he_AllocSlotOrderStore(AIJOB *ev)
+void he_AllocSlotOrderStore(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = e->start;
     gm_AddTime(&e->end, 2, 0, 0);
@@ -12710,10 +12569,9 @@ void he_AllocSlotOrderStore(AIJOB *ev)
    building, AIJOB.from) goes to the event's character with the quick jump to the building's main object (icon
    0x606, 0x60b for a master's character with flags1b4 bit 0) and the event is freed. Stages -2 / -1 free the
    event */
-void he_RunStoreExtension(AIJOB *ev)
+void he_RunStoreExtension(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESTOREEXT *x = (HESTOREEXT *)ev;
+    HESTOREEXT *x = (HESTOREEXT *)e;
     AIOBJ *o, *q;
     AIBLD *b;
     AICHAR *m;
@@ -12747,7 +12605,7 @@ void he_RunStoreExtension(AIJOB *ev)
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, q->objId, 0, 0);
                 else
                     he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, tid, b->id, -1, 0, 0);
-                he_FreeEvent(ev);
+                he_FreeEvent(e);
                 return;
             } else {
                 e->end = ai_Time;
@@ -12755,7 +12613,7 @@ void he_RunStoreExtension(AIJOB *ev)
             }
         } else {
             err_Message("he_RunLagerErweitern():Wrong LagerID...");
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
         }
         return;
     case -2:
@@ -12764,16 +12622,15 @@ void he_RunStoreExtension(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x557d70, the allocation handler of the herb gathering event 20 (HEHERBS): every gatherer id (AIJOB.ids, HEHERBS.n
    of them) that exists is moved to the event's group (sv_MoveToGroup); with none the event is freed, else stage 1
    and due in 5 minutes */
 
-void he_AllocHerbGathering(AIJOB *ev)
+void he_AllocHerbGathering(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEHERBS *h = (HEHERBS *)ev;
+    HEHERBS *h = (HEHERBS *)e;
     AICHAR *p;
     int i, any = 0;
 
@@ -12785,7 +12642,7 @@ void he_AllocHerbGathering(AIJOB *ev)
         }
     }
     if (any == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     e->end = ai_Time;
@@ -12805,10 +12662,9 @@ int sv_IsAtDoor();
    without the building's flag 0x2000) goes into the building's store object 0x2a (gm_FreeCapacity, sold to the
    own player by cm_SendExSellObject); the news 0x1802 + 0x1803 (or 0x1804 for nothing) goes to the character of
    kind 6 / 7 unless its master has flags1b4 bit 0. Stages -2 / -1 send the gatherers back and free the event */
-void he_RunHerbGathering(AIJOB *ev)
+void he_RunHerbGathering(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEHERBS *h = (HEHERBS *)ev;
+    HEHERBS *h = (HEHERBS *)e;
     AIBLD *nearest;
     int season;
     char text[0x400], line[0x200];
@@ -12972,7 +12828,7 @@ void he_RunHerbGathering(AIJOB *ev)
                 return;
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     gm_AddTime(&e->end, 0, 5, 0);
@@ -12981,10 +12837,9 @@ void he_RunHerbGathering(AIJOB *ev)
    them) that exists is moved to the event's group (sv_MoveToGroup); the due clock starts as the start clock, one
    minute later (the stage is kept) */
 
-void he_AllocAnimalHunt(AIJOB *ev)
+void he_AllocAnimalHunt(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEHUNT *h = (HEHUNT *)ev;
+    HEHUNT *h = (HEHUNT *)e;
     AICHAR *p;
     int i;
 
@@ -13004,10 +12859,9 @@ void he_AllocAnimalHunt(AIJOB *ev)
    0x1809 + 0x180a (0x1805, the building) goes to the event's character of kind 6 / 7 unless its master has flags1b4
    bit 0. The original passes the quick jump backwards: -1 with the object, the object's objId without one (it
    reads address 2). Then the stage is -1. Stages -2 / -1 release the hunters from the group and free the event */
-void he_RunAnimalHunt(AIJOB *ev)
+void he_RunAnimalHunt(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEHUNT *h = (HEHUNT *)ev;
+    HEHUNT *h = (HEHUNT *)e;
     AIBLD *b;
     AIOBJ *q, *o;
     AICHAR *c, *m;
@@ -13066,7 +12920,7 @@ void he_RunAnimalHunt(AIJOB *ev)
             if (c != 0)
                 sv_MoveToGroup(c->bld, 0, c->id, 0);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -13075,22 +12929,21 @@ void he_RunAnimalHunt(AIJOB *ev)
    character joins the event's group at the building in its room (the object of type 1 with the objId HESTUDY.room,
    if given; sv_MoveToGroup), the clock60 is now, the event is due in 30 minutes and ends at the latest 6 units
    after that; a latest end past midnight (its hour below 6) gets the hour - the due hour + 29 */
-void he_AllocStudy(AIJOB *ev)
+void he_AllocStudy(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESTUDY *s = (HESTUDY *)ev;
+    HESTUDY *s = (HESTUDY *)e;
     AICHAR *c;
     AIBLD *b;
     AIOBJ *room = 0;
 
     c = gm_FindChar(s->chr);
     if (c == 0 || (c->job != 0 && c->job->kind == 0x16)) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     b = gm_BuildQuery(1, 1, e->from);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (s->room != -1)
@@ -13117,10 +12970,9 @@ void he_AllocStudy(AIJOB *ev)
    character, the building) goes to the event's character with the quick jump to the building's room (object 0x60
    of a type kind 4, 0x145 of kind 0x13, else gm_GetGebaeudeHauptraum; none: no news) and "_NACHRICHTEN_HS_81";
    the character leaves the group and the event is freed. Stages -2 / -1 free the event */
-void he_RunStudy(AIJOB *ev)
+void he_RunStudy(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESTUDY *s = (HESTUDY *)ev;
+    HESTUDY *s = (HESTUDY *)e;
     AICHAR *c;
     AIBLD *b;
     AIOBJ *q;
@@ -13180,7 +13032,7 @@ void he_RunStudy(AIJOB *ev)
             }
         }
         sv_MoveToGroup(b, 0, c->id, 0);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
@@ -13188,22 +13040,20 @@ void he_RunStudy(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x558de0, the allocation handler of the event type 0x17: its due clock starts as the event's own clock (HEEV17.due) */
 
-void he_AllocEvent17(AIJOB *ev)
+void he_AllocEvent17(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV17 *v = (HEEV17 *)ev;
+    HEEV17 *v = (HEEV17 *)e;
 
     e->end = v->due;
 }
 /* 0x558e10, the run handler of the event type 0x17: state 3 sets its due clock to now + 1 minute, state 9 frees the record */
 
-void he_RunEvent17(AIJOB *ev)
+void he_RunEvent17(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     switch (e->stage) {
     case 3:
@@ -13211,7 +13061,7 @@ void he_RunEvent17(AIJOB *ev)
         gm_AddTime(&e->end, 0, 1, 0);
         break;
     case 9:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     }
 }
@@ -13219,10 +13069,9 @@ void he_RunEvent17(AIJOB *ev)
    building (AIJOB.from -1) the first inn (kind 0x16, else 0xf) is taken; the saboteur is -1 and the spawn request's
    slot goes to HESABOTAGE.slot */
 
-void he_AllocSabotage(AIJOB *ev)
+void he_AllocSabotage(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESABOTAGE *s = (HESABOTAGE *)ev;
+    HESABOTAGE *s = (HESABOTAGE *)e;
     AIBLD *b;
 
     e->end = ai_Time;
@@ -13258,10 +13107,9 @@ int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
    stage is 6. 6: back home (else 4 more minutes) it is cancelled. 7: the accusation answered, the proof goes to the
    watch (cm_SendProofExecuted), the stage is 8 in 10 minutes. 8: while the watch event still holds it 6 more
    minutes, then the saboteur walks home (stage 6). Stages -2 / -1 kill the saboteur and free the event */
-void he_RunSabotage(AIJOB *ev)
+void he_RunSabotage(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESABOTAGE *x = (HESABOTAGE *)ev;
+    HESABOTAGE *x = (HESABOTAGE *)e;
     AIBLD *b;
     AICHAR *c;
     char text[0x400];
@@ -13535,7 +13383,7 @@ void he_RunSabotage(AIJOB *ev)
     case -1:
         if (x->saboteur != -1)
             cm_SendKillCharacter(x->saboteur, 1);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -13547,10 +13395,9 @@ void he_RunSabotage(AIJOB *ev)
    from now (4 when order 0x26 of the event's character answers 2). Inside the cm group "Spionage": for a player's
    event, a victim of kind 6 / 7 or fewer than 8 spies a spy is spawned at the target ("SPIONAGE") and the event
    started (cm_SendExSetHE 0), else it is due at the end (cm_SendExSetHE 4) */
-void he_AllocSpying(AIJOB *ev)
+void he_AllocSpying(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HESPYING *s = (HESPYING *)ev;
+    HESPYING *s = (HESPYING *)e;
     AIBLD *tgt;
     int spawn = 0, spies = 0;
     AICHAR *victim, *me;
@@ -13562,7 +13409,7 @@ void he_AllocSpying(AIJOB *ev)
     s->spy = -1;
     victim = gm_FindChar(s->victim);
     if (victim == 0) {
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
     s->cursor = util_Random(0x100);
@@ -13573,7 +13420,7 @@ void he_AllocSpying(AIJOB *ev)
     gm_AddTime(&e->end, 0, 1, 0);
     for (o = he_FindEvent(1, 0, 0x18); o != 0; o = he_NextEvent()) {
         if (e->chr == o->chr && o->id != e->id && ((HESPYING *)o)->victim == s->victim) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (((HESPYING *)o)->spy != -1)
@@ -13584,7 +13431,7 @@ void he_AllocSpying(AIJOB *ev)
         ai_PickActionBuilding(&ai_Chars[e->chr], 6, gypsyFilter, 0, 100.0f, &s->target);
         gm_FindById(&tgt, 0, 0, s->target);
         if (tgt == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
     }
@@ -13604,10 +13451,10 @@ void he_AllocSpying(AIJOB *ev)
     cm_BeginGroup("Spionage");
     if (spawn != 0) {
         s->spy = cm_SendSpawnCharacter(0x11, tgt->id, -1, 0, 0, 0, "SPIONAGE");
-        e->exSlot = cm_SendExSetHE(0, ev);
+        e->exSlot = cm_SendExSetHE(0, e);
     } else {
         e->end = s->until;
-        e->exSlot = cm_SendExSetHE(4, ev);
+        e->exSlot = cm_SendExSetHE(4, e);
     }
     cm_EndGroup("Spionage");
 }
@@ -13619,11 +13466,10 @@ void he_AllocSpying(AIJOB *ev)
    its door, before the end the next round (stage 1), at the end the spy goes to the target (stage 3). 3: there,
    the event's character gets the news 0x1734 (the victim) and the event ends. 4: ended. Stages -2 / -1: a started
    event's spy is stopped and killed, the event freed */
-void he_RunSpying(AIJOB *ev)
+void he_RunSpying(AIJOB *e)
 {
     char text[0x400];
-    AIJOB *e = ev;
-    HESPYING *s = (HESPYING *)ev;
+    HESPYING *s = (HESPYING *)e;
     AIBLD *bld = 0;
     AICHAR *c;
     HEFINVIEW *fin;
@@ -13639,7 +13485,7 @@ void he_RunSpying(AIJOB *ev)
                 cm_SendKillCharacter(c->netId, 1);
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if ((e->opts & 4) != 0)
@@ -13659,12 +13505,12 @@ void he_RunSpying(AIJOB *ev)
             cm_SendMoveGoodsUnchecked(-1, ai_Chars[e->chr].netId, ai_OwnPlayer, s->fee);
             sv_MoveToGroup(0, 0, c->id, e);
             e->end = ai_Time;
-            e->exSlot = cm_SendExSetHE(1, ev);
+            e->exSlot = cm_SendExSetHE(1, e);
             return;
         }
         s->spy = -1;
         e->end = s->until;
-        e->exSlot = cm_SendExSetHE(4, ev);
+        e->exSlot = cm_SendExSetHE(4, e);
         return;
     case 1:
         idx = s->cursor;
@@ -13687,7 +13533,7 @@ void he_RunSpying(AIJOB *ev)
         s->cursor = (s->step + idx) % 0x100;
         if (bld == 0) {
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         txt_Format(text, (int)"Spionage: next target = %G", bld);
@@ -13697,56 +13543,56 @@ void he_RunSpying(AIJOB *ev)
             cm_SendChrGotoBuilding(c->netId, bld->id, -1, 0, 1, "Spionage");
             gm_AddTime(&e->end, 0, 5, 0);
             s->at = bld->id;
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             return;
         }
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 2:
         gm_FindById(&bld, 0, 0, s->at);
         gm_AddTime(&e->end, 0, 5, 0);
         if (bld == 0) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         c = gm_FindChar(s->spy);
         if (c == 0) {
             gm_AddTime(&e->end, 0, 1, 0);
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (sv_IsAtDoor(c, bld) == 0) {
             e->stage = 2;
             gm_AddTime(&e->end, 0, 5, 0);
-            e->exSlot = cm_SendExSetHE(2, ev);
+            e->exSlot = cm_SendExSetHE(2, e);
             return;
         }
         gm_FindById(&bld, 0, 0, s->target);
         if (bld == 0 || bld->owner == 0xffff) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         if (gm_CompareTime(&s->until, &ai_Time) == -1) {
             cm_SendChrStop(c->netId);
             cm_SendChrGotoBuilding(c->netId, bld->id, -1, 0, 1, "Spionage");
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
-        e->exSlot = cm_SendExSetHE(1, ev);
+        e->exSlot = cm_SendExSetHE(1, e);
         return;
     case 3:
         gm_AddTime(&e->end, 0, 5, 0);
         gm_FindById(&bld, 0, 0, s->target);
         if (bld == 0 || bld->owner == 0xffff) {
-            e->exSlot = cm_SendExSetHE(-1, ev);
+            e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
         c = gm_FindChar(s->spy);
         if (c != 0 && sv_IsAtDoor(c, bld) == 0) {
             e->stage = 3;
             gm_AddTime(&e->end, 0, 5, 0);
-            e->exSlot = cm_SendExSetHE(3, ev);
+            e->exSlot = cm_SendExSetHE(3, e);
             return;
         }
         c = gm_FindChar(s->victim);
@@ -13754,11 +13600,11 @@ void he_RunSpying(AIJOB *ev)
             txt_Format(text, 0x1734, c->id);
             he_ShowNews(ai_Chars[e->chr].netId, -1, text, 0, 0x5fa, 0);
         }
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     case 4:
         gm_AddTime(&e->end, 0, 1, 0);
-        e->exSlot = cm_SendExSetHE(-1, ev);
+        e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
 }
@@ -14303,9 +14149,8 @@ void he_RunUpgrade(AIJOB *e)
    gm_AllowAll); the building +0xac (none: the record is freed) is copied to +0x10 and gets the field 0x5a / 2 / 0x80
    while the 0x80 bit of its byte +0x5a is clear */
 
-void he_AllocEvent1f(AIJOB *ev)
+void he_AllocEvent1f(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
 
     e->end = ai_Time;
@@ -14316,7 +14161,7 @@ void he_AllocEvent1f(AIJOB *ev)
         gm_AddTime(&e->end, 5, 0, 0);
     b = gm_BuildQuery(1, 1, e->bldId);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     e->from = b->id;
@@ -14330,10 +14175,9 @@ void he_AllocEvent1f(AIJOB *ev)
    kind 1 character with flags1b4 bit 0, else 0x606), a home type sends the sys message 4 (HESOLDMSG: the building,
    its object of key 4 = 2), and the event is freed. Stages -2 / -1 clear the mark and free the event */
 
-void he_RunEvent1f(AIJOB *ev)
+void he_RunEvent1f(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV1F *g = (HEEV1F *)ev;
+    HEEV1F *g = (HEEV1F *)e;
     AIBLD *b;
     AIOBJ *o, *q;
     AICHAR *m;
@@ -14375,23 +14219,22 @@ void he_RunEvent1f(AIJOB *ev)
                 cm_SendExSysMessage(4, &msg);
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
         b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x80);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
 /* 0x55bd20, the allocation handler of the demolition event 0x20 (he_RunDemolish): the building (AIJOB.bldId, when
    found) gets the message 0x5a / 2 / 0x400, the due clock is now */
 
-void he_AllocDemolish(AIJOB *ev)
+void he_AllocDemolish(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
 
     b = gm_BuildQuery(1, 1, e->bldId);
@@ -14406,9 +14249,8 @@ void he_AllocDemolish(AIJOB *ev)
    not the owner) gets the news 0x1c52 (0x5ed, "_NACHRICHTEN_HS_67") and the building is destroyed
    (cm_SendBuildingDestroyed); the event is freed. Stages -2 / -1 free the event */
 
-void he_RunDemolish(AIJOB *ev)
+void he_RunDemolish(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
     AICHAR *c;
     int i, homeBld, homeObj;
@@ -14448,11 +14290,11 @@ void he_RunDemolish(AIJOB *ev)
             }
             cm_SendBuildingDestroyed(b->id);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -14461,9 +14303,8 @@ void he_RunDemolish(AIJOB *ev)
 /* 0x55bf50, the allocation handler of the building purchase event 0x21: the building (AIJOB.bldId) gets the message
    0x5a / 2 / 0x200, the due clock is now + 10 .. 19 minutes */
 
-void he_AllocBuyBuilding(AIJOB *ev)
+void he_AllocBuyBuilding(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
 
     b = gm_FindBuildingById(e->bldId);
@@ -14484,7 +14325,6 @@ void he_AllocBuyBuilding(AIJOB *ev)
 
 void he_RunBuyBuilding(AIJOB *ev)
 {
-    AIJOB *e = ev;
     HEBUYBLD *p = (HEBUYBLD *)ev;
     AICHAR *buyer;
     AIBLD *b, *home;
@@ -14494,26 +14334,26 @@ void he_RunBuyBuilding(AIJOB *ev)
     float liking;
     char text[0x400];
 
-    switch (e->stage) {
+    switch (ev->stage) {
     case 0:
         buyer = gm_FindChar(p->buyer);
-        b = gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (buyer == 0 || b == 0) {
             he_FreeEvent(ev);
             return;
         }
         if (ai_Chars[b->masterId].kind == 6 || ai_Chars[b->masterId].kind == 7) {
             he_OpenEventSlot(ev, 0, 0, "misc\\EventMessagebox_NULL", 0x5ec);
-            d2_SetForm(e->slot->win, 0);
+            d2_SetForm(ev->slot->win, 0);
             io_PrintText(0x17e8, buyer->id, b, p->price);
-            e->stage++;
+            ev->stage++;
             return;
         }
-        if (gm_CompareTime(&e->end, &ai_Time) >= 0)
+        if (gm_CompareTime(&ev->end, &ai_Time) >= 0)
             return;
         factor = 15.0f;
         buyer = gm_FindChar(p->buyer);
-        b = gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         bt = &ai_BTypes[b->type];
         value = gm_EquipmentValue(b, b->level);
         if (bt->kind == 2) {
@@ -14559,10 +14399,10 @@ void he_RunBuyBuilding(AIJOB *ev)
         he_FreeEvent(ev);                /* the original's: the decline above frees the record once more */
         return;
     case 1:
-        if (d2_ClickedForm != e->slot->win || d2_ClickedId == -1)
+        if (d2_ClickedForm != ev->slot->win || d2_ClickedId == -1)
             return;
         buyer = gm_FindChar(p->buyer);
-        b = gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (d2_ClickedId == 0) {
             txt_Format(text, 0x17e9, b->owner, b);
             he_MessageBoxQuickjump(buyer->netId, -1, text, 0, 0x5ec, b->id, -1, 0, 0);
@@ -14587,7 +14427,7 @@ void he_RunBuyBuilding(AIJOB *ev)
         return;
     case -2:
     case -1:
-        b = gm_FindBuildingById(e->bldId);
+        b = gm_FindBuildingById(ev->bldId);
         if (b != 0)
             cm_SendSetField(b->id, 0x5a, 2, 0, 0x200);
         he_ReleaseSlot(ev);
@@ -14601,10 +14441,9 @@ void he_RunBuyBuilding(AIJOB *ev)
    interest, days, the building's money: its object of the player's moneyGood) and reports the owner for the law
    0xe with the interest (gv_Accuse) */
 
-void he_AllocKredit(AIJOB *ev)
+void he_AllocKredit(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HELOAN *l = (HELOAN *)ev;
+    HELOAN *l = (HELOAN *)e;
     AIBLD *b;
     AICHAR *owner, *partner;
     AIOBJ *o;
@@ -14643,10 +14482,9 @@ void he_AllocKredit(AIJOB *ev)
    short), a player owner gets the news 0x18d8, and the event is freed. Stages -2 / -1 tell the owner 0x18e7 when
    the partner is gone and free the event */
 
-void he_RunKredit(AIJOB *ev)
+void he_RunKredit(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HELOAN *l = (HELOAN *)ev;
+    HELOAN *l = (HELOAN *)e;
     AIBLD *b;
     AICHAR *owner, *partner;
     float due;
@@ -14668,7 +14506,7 @@ void he_RunKredit(AIJOB *ev)
                 if (partner == 0) {
                     txt_Format(text, 0x18e7, l->amount);
                     he_ShowNews(owner->netId, -1, text, 0, 0x5ff, 0);
-                    e->exSlot = cm_SendExSetHE(-1, ev);
+                    e->exSlot = cm_SendExSetHE(-1, e);
                     return;
                 }
                 due = l->amount * (l->interest * 0.01);
@@ -14686,7 +14524,7 @@ void he_RunKredit(AIJOB *ev)
                 }
             } else {
                 sprintf(dbg, "he_RunKredit(): Could not find GebaeudeId '%i'", e->bldId);
-                he_FreeEvent(ev);
+                he_FreeEvent(e);
                 return;
             }
         }
@@ -14713,7 +14551,7 @@ void he_RunKredit(AIJOB *ev)
             txt_Format(text2, 0x18d8, partner->id, b, l->amount);
             he_ShowNews(owner->netId, -1, text2, 0, 0x5ff, 0);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
@@ -14730,17 +14568,16 @@ void he_RunKredit(AIJOB *ev)
     default:
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x55cb00, the run handler of the event 0x24 (HEEV24): stage 0 counts daysLeft down; once it is below 0 and the
    character AIJOB.ownerCh is found, a player character (kind 6 / 7) gets the long message 0x26 (to and arg[0] the
    character, from -1, now, flags 9), the character's job becomes jobId - 1 (cm_SendSetJob) and the event is freed.
    Stages -2 / -1 free the event */
 
-void he_RunEvent24(AIJOB *ev)
+void he_RunEvent24(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV24 *w = (HEEV24 *)ev;
+    HEEV24 *w = (HEEV24 *)e;
     AICHAR *c;
     AIMSG msg;
 
@@ -14760,12 +14597,12 @@ void he_RunEvent24(AIJOB *ev)
                 cm_SendLongMessage((char *)&msg);
             }
             cm_SendSetJob(c->netId, c->jobId - 1);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
         }
         return;
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -14782,22 +14619,21 @@ struct SBBANK * sb_FindBank();
    free the event. Stages -2 / -1 close and free */
 void he_RunMasterExamNotice(AIJOB *ev)
 {
-    AIJOB *e = ev;
     AICHAR *c;
     AIOBJ *o;
     struct SBBANK *bank;
     int left, group, text;
 
-    if (gm_CompareTime(&ai_Time, &e->end) < 0)
+    if (gm_CompareTime(&ai_Time, &ev->end) < 0)
         return;
-    switch (e->stage) {
+    switch (ev->stage) {
     case 0:
         he_OpenEventSlot(ev, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5fd);
-        if (e->slot == 0) {
+        if (ev->slot == 0) {
             he_FreeEvent(ev);
             return;
         }
-        c = gm_FindChar(e->ownerCh);
+        c = gm_FindChar(ev->ownerCh);
         if (c != 0) {
             left = gm_TitlesLeft(c->jobId) + 1;
             text = (c->sex != 0 ? 0x10 : 0) + 0x159b;
@@ -14821,13 +14657,13 @@ void he_RunMasterExamNotice(AIJOB *ev)
             }
             io_PrintText(0x159a, c->id, left + 0x1556, group + text, 4);
         }
-        e->stage++;
+        ev->stage++;
         return;
     case 1:
-        if (d2_ClickedForm != e->slot->win || d2_ClickedId == -1)
+        if (d2_ClickedForm != ev->slot->win || d2_ClickedId == -1)
             return;
         if (d2_ClickedId == 0) {
-            c = gm_FindChar(e->ownerCh);
+            c = gm_FindChar(ev->ownerCh);
             if (c->bld2 != 0) {
                 o = gm_Query((void *)c->bld2->objList, 2, 0, 0x13, 6);
                 sv_SelectPanelObject(c->bld2, o->objId, ch_EmptyName);
@@ -14851,9 +14687,8 @@ void he_RunMasterExamNotice(AIJOB *ev)
 /* 0x55ce00, the allocation handler of the passed master exam event 0x26: the event 0x25 record of the same character
    is ended (stage -1), the due clock is now */
 
-void he_AllocMasterExamPass(AIJOB *ev)
+void he_AllocMasterExamPass(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIJOB *exam;
 
     gm_FindChar(e->ownerCh);
@@ -14873,10 +14708,9 @@ void he_AllocMasterExamPass(AIJOB *ev)
    "_BERUFE_VEREINIGUNG_UNTERSCHRIFT" and the click. Stage 2 waits for the box's answer (or a confirmed slot)
    and closes and frees it. Stages -2 / -1 close and free */
 
-void he_RunMasterExamPassed(AIJOB *ev)
+void he_RunMasterExamPassed(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEXAMPASS *x = (HEEXAMPASS *)ev;
+    HEEXAMPASS *x = (HEEXAMPASS *)e;
     AICHAR *c, *o;
     struct SBBANK *list, *sign, *bld, *self;
     int i, group, left, sexText;
@@ -14896,9 +14730,9 @@ void he_RunMasterExamPassed(AIJOB *ev)
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, "Berufe\\Meisterpruefung_BESTANDEN", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, "Berufe\\Meisterpruefung_BESTANDEN", 0x5ec);
         if (e->slot == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d2_SetForm(e->slot->win, 0);
@@ -14969,20 +14803,20 @@ void he_RunMasterExamPassed(AIJOB *ev)
         if (d2_ClickedId != -1 || (he_SlotConfirmed != 0 && he_ActiveSlot == e->slot)) {
             if (d2_ClickedId != 0) {
                 if (d2_ClickedId == 1 || he_SlotConfirmed != 0) {
-                    he_ReleaseSlot(ev);
-                    he_FreeEvent(ev);
+                    he_ReleaseSlot(e);
+                    he_FreeEvent(e);
                     he_SlotConfirmed = 0;
                 }
             } else {
-                he_ReleaseSlot(ev);
-                he_FreeEvent(ev);
+                he_ReleaseSlot(e);
+                he_FreeEvent(e);
             }
         }
         return;
     case -2:
     case -1:
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -14991,9 +14825,8 @@ struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
 
 /* 0x55d310, the allocation handler of the event type 0x27: the building +0xac (none: the record is freed) is asked for its
    skill 0x10 / 1, the due clock is now + 0x18 hours with its minute field cleared */
-void he_AllocEvent27(AIJOB *ev)
+void he_AllocEvent27(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
 
     b = gm_BuildQuery(1, 1, e->bldId);
@@ -15004,24 +14837,23 @@ void he_AllocEvent27(AIJOB *ev)
         e->end.min = 0;
     }
     else {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
     }
 }
 /* 0x55d390, the run handler of the event type 0x27 (a payment from a player into a building): stages -2 / -1 free the
    record, a later stage leaves it; at stage 0 the building AIJOB.bldId (none: freed) gets the amount in the paying
    player's money good (cm_SendExSellObject, the good GMPLAYERSLOT.moneyGood of the player slot HEEV27.player), the
    event character the news 0x190b (the player's name, the amount); then the record is freed */
-void he_RunEvent27(AIJOB *ev)
+void he_RunEvent27(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV27 *p = (HEEV27 *)ev;
+    HEEV27 *p = (HEEV27 *)e;
     AIBLD *b;
     char text[0x400];
 
     switch (e->stage) {
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     case 0:
         b = gm_BuildQuery(1, 1, e->bldId);
@@ -15030,7 +14862,7 @@ void he_RunEvent27(AIJOB *ev)
             he_ShowNews(ai_CharInts[e->chr][0], -1, text, 0, 0x5ff, (char *)0);
             cm_SendExSellObject(b->id, -1, ai_PlayerSlots[p->player].moneyGood, p->amount, ai_OwnPlayer, 0);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     }
 }
@@ -15039,9 +14871,8 @@ void he_RunEvent27(AIJOB *ev)
    the building's group and frees the record, as does a missing worker or one already harvesting (job kind 0x28).
    Else the worker joins the group at the building's object 0xfd, the plant is taken under the event's id
    (cm_SetPlant, fall 1; its send slot to harvestSlot), no script runs yet and the plant's type is noted */
-void he_AllocHarvest(AIJOB *ev)
+void he_AllocHarvest(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
     AICHAR *c;
     G15PLANT *pl, *plants;
@@ -15052,7 +14883,7 @@ void he_AllocHarvest(AIJOB *ev)
     e->stage = 0;
     b = gm_BuildQuery(1, 1, e->harvestBld);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     plants = b->plants;
@@ -15061,11 +14892,11 @@ void he_AllocHarvest(AIJOB *ev)
     if (pl == 0 || pl->fallId != -1) {
         if (c != 0)
             sv_MoveToGroup(b, 0, c->id, 0);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (c == 0 || c->jobKind == 0x28) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     o = gm_Query((void *)b->objList, 1, 0, 0xfd);
@@ -15086,9 +14917,8 @@ void he_AllocHarvest(AIJOB *ev)
    Stages -2 / -1 put the plant back under the event's id and free the record. The case -2 / -1 body and the shared
    tails lie after the last case (0x55db60 ..), the jump table after them: one function, 0x55d5c0 .. 0x55dbd8. */
 
-void he_RunHarvest(AIJOB *ev)
+void he_RunHarvest(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
     AICHAR *c;
     G15PLANT *pl, *plants, *ripe;
@@ -15106,7 +14936,7 @@ void he_RunHarvest(AIJOB *ev)
 
     b = gm_BuildQuery(1, 1, e->harvestBld);
     if (b == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     plants = b->plants;
@@ -15115,7 +14945,7 @@ void he_RunHarvest(AIJOB *ev)
     if (pl == 0 || c == 0 || (pl->fallId != -1 && pl->fallId != e->id)) {
         if (c != 0)
             sv_MoveToGroup(b, 0, c->id, 0);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     ch = c->scene;
@@ -15203,12 +15033,12 @@ void he_RunHarvest(AIJOB *ev)
             cm_SendLongMessage((char *)&m);
         }
         sv_MoveToGroup(b, 0, c->id, 0);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
         cm_SetPlant(e->harvestBld, pl->x, pl->z, pl->type, 0, e->id);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -15219,13 +15049,12 @@ void he_RunHarvest(AIJOB *ev)
    into the building); the record is freed */
 void he_RunDismissal(AIJOB *ev)
 {
-    AIJOB *e = ev;
     HEDISMISS *d = (HEDISMISS *)ev;
     AICHAR *c;
     int drop = 0;
     int homeBld, homeObj;
 
-    switch (e->stage) {
+    switch (ev->stage) {
     case -2:
     case -1:
         he_FreeEvent(ev);
@@ -15233,7 +15062,7 @@ void he_RunDismissal(AIJOB *ev)
     case 0:
         c = gm_FindChar(d->worker);
         if (c == 0 || c->health == 0) {
-            e->stage = -1;
+            ev->stage = -1;
             return;
         }
         drop = 0;
@@ -15264,15 +15093,14 @@ void he_RunDismissal(AIJOB *ev)
    second and a figure that does not exist frees the record; a record with the option bit 2 sends the field 0x1cc / 4 /
    HE_PROMOTION_BIT to the figure */
 
-void he_AllocEvent32(AIJOB *ev)
+void he_AllocEvent32(AIJOB *j)
 {
-    AIJOB *j = ev;
     AIJOB *e;
     AICHAR *p;
 
     for (e = he_FindEvent(1, 0, 0x32); e != 0; e = he_NextEvent()) {
         if (e != j && j->ownerCh == e->ownerCh) {
-            he_FreeEvent(ev);
+            he_FreeEvent(j);
             return;
         }
     }
@@ -15281,7 +15109,7 @@ void he_AllocEvent32(AIJOB *ev)
     gm_AddTime(&j->end, 0, 0, 1);
     p = gm_FindChar(j->ownerCh);
     if (p == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(j);
         return;
     }
     if ((j->opts & 2) != 0)
@@ -15295,9 +15123,8 @@ void he_AllocEvent32(AIJOB *ev)
    runs none: the scene character is made anew in its scene at its place and angles (gm_CreateCharModel, keeping its
    groups and the object in its right hand) and plays "Effekte/befoerdern.esc" there. Stages 2 / 3 without a scene
    character and 3 / -2 / -1 end the event: with the option 2 HE_PROMOTION_BIT is cleared again, the record is freed */
-void he_RunPromotion(AIJOB *ev)
+void he_RunPromotion(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *c;
     AIBLD *b;
     struct CHARACTER *ch;
@@ -15311,7 +15138,7 @@ void he_RunPromotion(AIJOB *ev)
         return;
     c = gm_FindChar(e->ownerCh);
     if (c == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (c->scene != 0 && (b = gm_FindBuildingById(e->from)) != 0 && c->scene->group != b->id)
@@ -15328,13 +15155,13 @@ void he_RunPromotion(AIJOB *ev)
         if (e->dropSlot != -1 && cm_GetSlotState(e->dropSlot) == 0)
             return;
         e->dropSlot = -1;
-        e->exSlot = cm_SendExSetHE(2, ev);
+        e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
         if (c->scene == 0) {
             if ((e->opts & 2) != 0)
                 cm_SendSetField(c->netId, 0x1cc, 4, 0, HE_PROMOTION_BIT);
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         if (c->scene->scriptId != -1)
@@ -15386,13 +15213,13 @@ void he_RunPromotion(AIJOB *ev)
         }
         if ((e->opts & 2) != 0)
             cm_SendSetField(c->netId, 0x1cc, 4, 0, HE_PROMOTION_BIT);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     case -2:
     case -1:
         if ((e->opts & 2) != 0)
             cm_SendSetField(c->netId, 0x1cc, 4, 0, HE_PROMOTION_BIT);
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
 }
@@ -15418,7 +15245,6 @@ void he_AllocWorkerQuits(AIJOB *ev)
    building; 0x5f2, quick jump to the building's main object, "_NACHRICHTEN_HS_01"); the record is freed */
 void he_RunWorkerQuits(AIJOB *ev)
 {
-    AIJOB *e = ev;
     AICHAR *c;
     AIBLD *b;
     AIOBJ *o;
@@ -15426,13 +15252,13 @@ void he_RunWorkerQuits(AIJOB *ev)
     int homeBld, homeObj;
     char text[0x400];
 
-    switch (e->stage) {
+    switch (ev->stage) {
     case -2:
     case -1:
         he_FreeEvent(ev);
         break;
     case 0:
-        c = gm_FindChar(e->ownerCh);
+        c = gm_FindChar(ev->ownerCh);
         if (c == 0 || c->bld == 0 || gm_Opinion(c->bld->owner, c->id) > -26) {
             he_FreeEvent(ev);
             return;
@@ -15471,9 +15297,8 @@ void he_AllocDueIsStart(AIJOB *ev)
    (cm_SendExSellObject to nobody, one piece); the event character gets the message box 0x1bb9 (the building, the
    good's name 0x9a8 + 2 * good, its price; 0x5f2, quick jump to the building's main object, "_NACHRICHTEN_HS_09");
    the record is freed (reasoned: a theft, from the dislike and the good leaving the store unpaid) */
-void he_RunWorkerTheft(AIJOB *ev)
+void he_RunWorkerTheft(AIJOB *e)
 {
-    AIJOB *e = ev;
     AICHAR *c;
     AIBLD *b;
     AIOBJ *store, *o, *g;
@@ -15484,12 +15309,12 @@ void he_RunWorkerTheft(AIJOB *ev)
     switch (e->stage) {
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     case 0:
         c = gm_FindChar(e->ownerCh);
         if (c == 0 || (b = c->bld) == 0 || gm_Opinion(b->owner, c->id) > -26) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         store = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
@@ -15508,7 +15333,7 @@ void he_RunWorkerTheft(AIJOB *ev)
                 he_MessageBoxQuickjump(ai_CharInts[e->chr][0], -1, text, 0, 0x5f2, b->id, o->objId, 0, "_NACHRICHTEN_HS_09");
             }
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     }
 }
@@ -15524,10 +15349,9 @@ void he_AllocEvent38(AIJOB *ev)
    event character's relation to every character working there (AICHAR.bld) changes by 20 times HEEV38.amount /
    gm_PlayerFactor (1000, the own player); an event character of the kind 6 / 7 (a player) gets the message box
    0x19ab (the building; 0x5ec, quick jump to it); the record is freed */
-void he_RunEvent38(AIJOB *ev)
+void he_RunEvent38(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV38 *x = (HEEV38 *)ev;
+    HEEV38 *x = (HEEV38 *)e;
     AIBLD *b;
     int i, d;
     char text[0x100];
@@ -15535,12 +15359,12 @@ void he_RunEvent38(AIJOB *ev)
     switch (e->stage) {
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     case 0:
         b = gm_BuildQuery(1, 1, e->from);
         if (b == 0) {
-            he_FreeEvent(ev);
+            he_FreeEvent(e);
             return;
         }
         d = x->amount / gm_PlayerFactor(1000, ai_OwnPlayer) * 20;
@@ -15552,7 +15376,7 @@ void he_RunEvent38(AIJOB *ev)
             txt_Format(text, 0x19ab, b);
             he_MessageBoxQuickjump(ai_CharInts[e->chr][0], ai_CharInts[e->chr][0], text, 0, 0x5ec, b->id, -1, 0, (char *)0);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     }
 }
@@ -15564,17 +15388,16 @@ void he_RunEvent38(AIJOB *ev)
    held rounds back), no tells it 0x19b4 (the payer, the amount). Stage 2 pays by gm_LikingChance (the amount
    against 16000 per held round): paid as yes, refused as no and the held character's relation to the payer
    changes (cm_SendRelations 10, 1) */
-void he_RunEvent39(AIJOB *ev)
+void he_RunEvent39(AIJOB *e)
 {
-    AIJOB *e = ev;
-    HEEV39 *x = (HEEV39 *)ev;
+    HEEV39 *x = (HEEV39 *)e;
     AICHAR *held, *payer;
     char text[0x100];
 
     held = gm_FindChar(x->held);
     payer = gm_FindChar(x->payer);
     if (held == 0 || payer == 0) {
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     if (payer->kind != 6 && payer->kind != 7) {
@@ -15584,7 +15407,7 @@ void he_RunEvent39(AIJOB *ev)
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(ev, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         d2_SetForm(e->slot->win, 0);
         io_PrintText(0x19b2, held->id, x->amount, held->id, held->id);
         e->stage++;
@@ -15603,8 +15426,8 @@ void he_RunEvent39(AIJOB *ev)
         /* fall through: the answer closes the slot */
     case -2:
     case -1:
-        he_ReleaseSlot(ev);
-        he_FreeEvent(ev);
+        he_ReleaseSlot(e);
+        he_FreeEvent(e);
         break;
     case 2:
         if (gm_LikingChance(held->id, payer->id, x->amount, held->heldRounds * 16000) != 0) {
@@ -15616,7 +15439,7 @@ void he_RunEvent39(AIJOB *ev)
             he_ShowNews(held->netId, held->netId, text, 0, 0x5fa, 0);
             cm_SendRelations(held->netId, payer->netId, 10, 1);
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         break;
     }
 }
@@ -16611,9 +16434,8 @@ void he_RunRansom(AIJOB *ev)
 /* 0x561470, the allocation handler the events 0x39 and 0x3e share: the due clock is now + 1 hour + a random
    0 .. 0x1d minutes less 0x14 */
 
-void he_AllocEvent39_3e(AIJOB *ev)
+void he_AllocEvent39_3e(AIJOB *e)
 {
-    AIJOB *e = ev;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 1, util_Random(0x1e) - 0x14, 0);
@@ -18144,9 +17966,8 @@ void he_AllocStorm(AIJOB *ev)
    sv_Weather for the three hours after now (clouds 1000, storm 3) and runs again two hours ahead; state 1 damages the stock of
    the 16 buildings the alloc handler collected (gm_ChangeBuildingState, -(random(5) + 5)) once, then frees the record */
 
-void he_RunStormEvent(AIJOB *ev)
+void he_RunStormEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIBLD *b;
     int i;
 
@@ -18173,12 +17994,12 @@ void he_RunStormEvent(AIJOB *ev)
             }
             e->stormDue = 0;
         }
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     }
     case -2:
     case -1:
-        he_FreeEvent(ev);
+        he_FreeEvent(e);
         return;
     default:
         return;
@@ -19379,9 +19200,8 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
    cart (gm_Query (0, 2, 7, 4, 0x1d)) that has a route, is not flagged and has a pause counter; it runs again 15 minutes
    later; the negative states free the record */
 
-void he_RunPatrolEvent(AIJOB *ev)
+void he_RunPatrolEvent(AIJOB *e)
 {
-    AIJOB *e = ev;
     AIOBJ *g;
     int st;
 
@@ -19405,7 +19225,7 @@ void he_RunPatrolEvent(AIJOB *ev)
         gm_AddTime(&e->end, 0, 0xf, 0);
         return;
     }
-    he_FreeEvent(ev);
+    he_FreeEvent(e);
 }
 /* 0x568310, registers the event types 0x02 .. 0xa6 (second part, after 0x553060): he_SetEventHandlers (type, alloc, run) for each (a non-zero result = out of table space: return 1), the type texts 0x52b350 (type, name, 0, menu id, icon) for the types with an entry in the event list, and the tip table 0x505ca0 (0x1a, 0x6fa1e0); returns 0 */
 int he_RegisterEventTypes02(void)
