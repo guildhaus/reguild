@@ -3053,7 +3053,7 @@ void sv_FlyCameraToObject(AIBLD *b)
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
     float step, dx, dy, dz, len;
-    char *obj;
+    D3OBJECT *obj;
     D3OBJECT *cam;
     AIFIN *rec;
     const float *ax = (const float *)&d3_ZAxis;
@@ -3068,7 +3068,7 @@ void sv_FlyCameraToObject(AIBLD *b)
     back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
     back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
     back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld(obj, &((D3OBJECT *)obj)->pos, cen);
+    d3_PointToWorld(obj, &obj->pos, cen);
     pos[0] = cen[0] + back[0];
     pos[1] = cen[1] + back[1];
     pos[2] = cen[2] + back[2];
@@ -3137,7 +3137,7 @@ void sv_CameraToObject(AIBLD *b)
     float up[4];                    /* the camera above the centre (a padded vector, only y used) */
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
-    char *obj;
+    D3OBJECT *obj;
     AIFIN *rec;
     const float *ax = (const float *)&d3_ZAxis;
     float vx, vy, vz;               /* the view axis (0, 0, 1) scaled to -600 */
@@ -3151,7 +3151,7 @@ void sv_CameraToObject(AIBLD *b)
     back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
     back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
     back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld(obj, &((D3OBJECT *)obj)->pos, cen);
+    d3_PointToWorld(obj, &obj->pos, cen);
     pos[0] = cen[0] + back[0];
     pos[1] = cen[1] + back[1];
     pos[2] = cen[2] + back[2];
@@ -3305,15 +3305,15 @@ void sv_CreateBanners(char *b)
     char c;
 
     bld = (AIBLD *)b;
-    m = (D3OBJECT *)bld->object;
+    m = bld->object;
     if (m != 0 && bld->owner != 0xffff) {
         c = ai_Chars[bld->owner].kind;
         if (c == 6 || c == 7 || c == 5) {
             if ((m->state & 1) == 0) {
                 save = m->next;
                 m->next = 0;
-                d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)bld->object, 0x100, sv_CreateBannerCB, b);
-                ((D3OBJECT *)bld->object)->next = save;
+                d3_ForEachObject(d3_DefaultScene, bld->object, 0x100, sv_CreateBannerCB, b);
+                bld->object->next = save;
                 return;
             }
             d3_ForEachObject(d3_DefaultScene, m, 0x100, sv_CreateBannerCB, b);
@@ -3338,7 +3338,7 @@ void sv_ColourBanners(int c)
     d3if_SelectScene(0, 1);
     for (b = gm_BuildQuery(1, 4, c); b != 0; b = gm_BuildNext()) {
         if (b->object != 0)
-            d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)b->object, 0x340, sv_ColourBannerCB, b);
+            d3_ForEachObject(d3_DefaultScene, b->object, 0x340, sv_ColourBannerCB, b);
     }
     for (o = gm_Query(0, 3, 7, 3, c, 4, 0x1d); o != 0; o = gm_QueryNext()) {
         m = (SVMODEL *)o->sceneObj;
@@ -3430,15 +3430,15 @@ void sv_RemoveBanners(char *b)
     D3OBJECT *save;
 
     bld = (AIBLD *)b;
-    m = (D3OBJECT *)bld->object;
+    m = bld->object;
     if (m != 0) {
         for (i = 0; i < 0x21; i++)
             list[i] = 0;
         if ((m->state & 1) == 0) {
             save = m->next;
             m->next = 0;
-            d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)bld->object, 0x40, sv_CollectBannerCB, list);
-            ((D3OBJECT *)bld->object)->next = save;
+            d3_ForEachObject(d3_DefaultScene, bld->object, 0x40, sv_CollectBannerCB, list);
+            bld->object->next = save;
         } else
             d3_ForEachObject(d3_DefaultScene, m, 0x40, sv_CollectBannerCB, list);
         i = 0;

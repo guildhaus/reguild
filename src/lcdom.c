@@ -3020,7 +3020,7 @@ int ai_CartAtBuilding(AIBLD *bld, AIOBJ *cart)
     rec = (G8SCENECHAR *)cart->sceneObj;
     if (rec == 0)
         return 0;
-    obj = (D3OBJECT *)bld->object;
+    obj = bld->object;
     if (obj != 0) {
         d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)v);
         if (d3_VecEqual(&rec->body->pos, (struct D3VECTOR *)v, 1350.0f) != 0) {

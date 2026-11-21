@@ -2532,7 +2532,7 @@ void he_ShowConstruction(int ev)
     } else if (c->stage > c->stages) {
         bld = gm_FindBuildingById(c->bld);
         if (bld != 0 && bld->object != 0)
-            d3if_ShowTree((D3OBJECT *)bld->object, 1);
+            d3if_ShowTree(bld->object, 1);
         if (obj != 0) {
             if (d3_QuadTree != 0)
                 d3q_RemoveObject(obj, (D3QNODE *)d3_QuadTree);
@@ -2826,7 +2826,7 @@ void he_RunConstruction(int ev)
             d3if_SelectScene(scene, 1);
             return;
         }
-        init_HookObject((D3OBJECT *)bld->object, bld, 2);
+        init_HookObject(bld->object, bld, 2);
         bt = &ai_BTypes[bld->type];
         if (gm_AllowAll != 0) {
             c->stages = he_ConstructionStage(ev);
@@ -2988,8 +2988,8 @@ void he_RunConstruction(int ev)
                 c->script = -1;
             }
             if (scene != 0) {
-                d3t_InflateObjectTree((D3OBJECT *)bld->object);
-                ((D3OBJECT *)bld->object)->flags |= 4;
+                d3t_InflateObjectTree(bld->object);
+                bld->object->flags |= 4;
             }
             he_ShowConstruction(ev);
             if (bld->object != 0) {
@@ -3005,16 +3005,16 @@ void he_RunConstruction(int ev)
                 init_TextureSetHook((int)bld->object);
             }
             if (d3_QuadTree != 0)
-                d3q_Rebuild((D3OBJECT *)bld->object, (D3QNODE *)d3_QuadTree);
-            if (bld->object != 0 && ((D3OBJECT *)bld->object)->type == 1)
-                d3if_ShowTree((D3OBJECT *)bld->object, 1);
+                d3q_Rebuild(bld->object, (D3QNODE *)d3_QuadTree);
+            if (bld->object != 0 && bld->object->type == 1)
+                d3if_ShowTree(bld->object, 1);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 5 || ai_Chars[bld->owner].kind == 7)
                 sv_CreateBanners((char *)bld);
             ai_CheckBuildSites();
-            if (((D3OBJECT *)bld->object)->info == 0)
-                d3_InflateObject((D3OBJECT *)bld->object);
-            if (((D3OBJECT *)bld->object)->material != 0
-                && d3t_GetBoundingSphere((D3OBJECT *)bld->object, d3_Camera, (D3VECTOR *)&center, &radius) != 0) {
+            if (bld->object->info == 0)
+                d3_InflateObject(bld->object);
+            if (bld->object->material != 0
+                && d3t_GetBoundingSphere(bld->object, d3_Camera, (D3VECTOR *)&center, &radius) != 0) {
                 size = (int)(radius * 1.8);
                 sc = evt_Load("Effekte/geb_bauen.esc");
                 if (sc != 0) {
@@ -4239,7 +4239,7 @@ AIJOB *he_FindNearestSpying(AICHAR *per, AICHAR *agent, int skip)
         gm_FindById((int *)&bld, 0, 0, ((HESPYING *)ev)->at);
         if (bld == 0)
             continue;
-        body = (D3OBJECT *)bld->object;
+        body = bld->object;
         diff.x = (body->pos.x);
         diff.y = (body->pos.y);
         diff.z = (body->pos.z);
@@ -5568,7 +5568,7 @@ void he_SpreadMeetingDisease(AIBLD *b, int radiusKind, int kind, int group)
         lim = 800.0f;
     else
         lim = 400.0f;
-    o = (D3OBJECT *)b->object;
+    o = b->object;
     pos.x = (o->pos.x);
     pos.y = (o->pos.y);
     pos.z = (o->pos.z);
@@ -5587,7 +5587,7 @@ void he_SpreadMeetingDisease(AIBLD *b, int radiusKind, int kind, int group)
             continue;
         if ((lo & MEETING_KINDS_LO) == 0 && (hi & MEETING_KINDS_HI) == 0)
             continue;
-        o = (D3OBJECT *)rec->object;
+        o = rec->object;
         at.x = (o->pos.x);
         at.y = (o->pos.y);
         at.z = (o->pos.z);
@@ -5705,7 +5705,7 @@ void he_RunMeetingScene(int ev)
         ((HEMEETNAME *)obj)->bld = e->from;
         scene = d3_CurrentScene;
         d3if_SelectScene(0, 1);
-        o = (D3OBJECT *)bld->object;
+        o = bld->object;
         d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p);
         p.y += 500.0f;
         evt_RunScriptArgs(obj, 3, (int)p.x, (int)p.y, (int)p.z);

@@ -1203,7 +1203,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
     for (i = 0; i < m->nMarks; i++) {
         if (m->marks[i].bld->object != 0) {
             bld = m->marks[i].bld;
-            d3_PointToWorld((D3OBJECT *)bld->object, &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
             d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
             m->marks[i].cellX = x;
             m->marks[i].cellZ = y;
@@ -1346,7 +1346,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
     if ((bld = ai_PlayerBuilding) == 0 && (bld = ai_FallbackBuilding) == 0 && obj == 0)
         return;
     if (bld != 0 && bld->object != 0)
-        d3_PointToWorld(((D3OBJECT *)bld->object), &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&pos);
+        d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
     else
         d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
     d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);

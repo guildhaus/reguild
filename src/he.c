@@ -2011,32 +2011,32 @@ void he_AddEventGfxInfo(AIJOB *ev)
     case 0x1b:
         b = gm_FindBuildingById(ev->bldId);
         if (b != 0)
-            he_CreateGfxInfo(ev, "he_muenze", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_muenze", b->object);
         break;
     case 0x1c:
         b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
-            he_CreateGfxInfo(ev, "he_hammer_gold", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_hammer_gold", b->object);
         break;
     case 0x1e:
         b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
-            he_CreateGfxInfo(ev, "he_saege_hammer_gold", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_saege_hammer_gold", b->object);
         break;
     case 0x1f:
         b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0)
-            he_CreateGfxInfo(ev, "he_plus_hammer", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_plus_hammer", b->object);
         break;
     case 2:
         b = gm_FindBuildingById(ev->from);
         if (b != 0 && b->object != 0)
-            he_CreateGfxInfo(ev, "he_plus_hammer", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_plus_hammer", b->object);
         break;
     case 0x40:
         b = gm_FindBuildingById(ev->bldId);
         if (b != 0 && b->object != 0 && ev->chr == ai_PlayerId)
-            he_CreateGfxInfo(ev, "he_fernglas", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_fernglas", b->object);
         break;
     case 0x35:
         ch = (unsigned short *)gm_FindChar(ev->idbc);
@@ -2056,13 +2056,13 @@ void he_AddEventGfxInfo(AIJOB *ev)
     case 0x1a:
         b = gm_FindBuildingById(ev->bldd0);
         if (b != 0 && b->object != 0)
-            he_CreateGfxInfo(ev, "he_schlaege", (D3OBJECT *)b->object);
+            he_CreateGfxInfo(ev, "he_schlaege", b->object);
         break;
     case 4:
         if (ev->chr == ai_PlayerId && ev->argc8 != 0) {
             b = gm_FindBuildingById(ev->idbc);
             if (b != 0 && b->object != 0)
-                he_CreateGfxInfo(ev, "he_ausrufezeichen", (D3OBJECT *)b->object);
+                he_CreateGfxInfo(ev, "he_ausrufezeichen", b->object);
         }
         break;
     }
@@ -4769,9 +4769,9 @@ void he_AllocPatrol(int ev)
     for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         if (n >= 8)
             break;
-        p = (D3OBJECT *)b->object;
+        p = b->object;
         if (p != 0 && b->id != target->id && b->id != e->patrolStart && b->type != 0x47) {
-            q = (D3OBJECT *)target->object;
+            q = target->object;
             dx = p->pos.x - q->pos.x;
             dy = p->pos.y - q->pos.y;
             dz = p->pos.z - q->pos.z;
@@ -9307,16 +9307,16 @@ int he_CreateReaper(int ev)
 
     d3if_SelectScene(0, 1);
     gm_FindById((int *)&bld, 0, 0, e->reaperFrom);
-    if (bld != 0 && bld->object != 0 && ((D3OBJECT *)bld->object)->info != 0 && ((D3OBJECT *)bld->object)->info->mesh != 0) {
+    if (bld != 0 && bld->object != 0 && bld->object->info != 0 && bld->object->info->mesh != 0) {
         from = bld;
         gm_FindById((int *)&bld, 0, 0, e->reaperTo);
-        if (bld != 0 && bld->object != 0 && ((D3OBJECT *)bld->object)->info != 0 && ((D3OBJECT *)bld->object)->info->mesh != 0) {
+        if (bld != 0 && bld->object != 0 && bld->object->info != 0 && bld->object->info->mesh != 0) {
             to = bld;
             if (e->reaperPlaced == 0) {
-                d3_PointToWorld(((D3OBJECT *)from->object), &((D3OBJECT *)from->object)->pos, (D3VECTOR *)&pos);
-                pos.y = pos.y + ((D3OBJECT *)from->object)->info->mesh->radius + 80.0f;
-                d3_PointToWorld(((D3OBJECT *)to->object), &((D3OBJECT *)to->object)->pos, (D3VECTOR *)&target);
-                target.y = target.y + ((D3OBJECT *)to->object)->info->mesh->radius + 80.0f;
+                d3_PointToWorld(from->object, &from->object->pos, (D3VECTOR *)&pos);
+                pos.y = pos.y + from->object->info->mesh->radius + 80.0f;
+                d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&target);
+                target.y = target.y + to->object->info->mesh->radius + 80.0f;
                 rot.x = 0.0f;
                 rot.y = 0.0f;
                 rot.z = 0.0f;
@@ -9331,8 +9331,8 @@ int he_CreateReaper(int ev)
                 pos.x = e->reaperPos.x;
                 pos.y = e->reaperPos.y;
                 pos.z = e->reaperPos.z;
-                d3_PointToWorld(((D3OBJECT *)to->object), &((D3OBJECT *)to->object)->pos, (D3VECTOR *)&target);
-                target.y = target.y + ((D3OBJECT *)to->object)->info->mesh->radius + 80.0f;
+                d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&target);
+                target.y = target.y + to->object->info->mesh->radius + 80.0f;
                 dir.x = target.x - pos.x;
                 dir.y = target.y - pos.y;
                 dir.z = target.z - pos.z;
@@ -9397,14 +9397,14 @@ int he_MoveReaper(int ev)
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
         gm_FindById((int *)&bld, 0, 0, e->reaperTo);
-        if (bld != 0 && bld->object != 0 && ((D3OBJECT *)bld->object)->info != 0
-            && ((D3OBJECT *)bld->object)->info->mesh != 0) {
+        if (bld != 0 && bld->object != 0 && bld->object->info != 0
+            && bld->object->info->mesh != 0) {
             if (e->reaper->path != 0) {
                 e->reaperClock = d3_Time;
                 d3if_SelectScene(scene, 1);
                 return 1;
             }
-            d3_PointToWorld((D3OBJECT *)bld->object, &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&target);
+            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
             d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
             dir.x = target.x - at.x;
             dir.y = 0.0f;
@@ -9474,10 +9474,10 @@ int he_AimReaper(int ev)
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
         gm_FindById((int *)&bld, 0, 0, e->reaperTo);
-        if (bld != 0 && bld->object != 0 && ((D3OBJECT *)bld->object)->info != 0
-            && ((D3OBJECT *)bld->object)->info->mesh != 0) {
-            d3_PointToWorld((D3OBJECT *)bld->object, &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&target);
-            target.y = target.y + ((D3OBJECT *)bld->object)->info->mesh->radius + 80.0f;
+        if (bld != 0 && bld->object != 0 && bld->object->info != 0
+            && bld->object->info->mesh != 0) {
+            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
+            target.y = target.y + bld->object->info->mesh->radius + 80.0f;
             d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
             dir.x = target.x - at.x;
             dir.y = target.y - at.y;
@@ -9514,10 +9514,10 @@ int he_TurnReaper(int ev)
     d3if_SelectScene(0, 1);
     if (e->reaper != 0 && e->reaper->info != 0 && e->reaper->info->mesh != 0) {
         gm_FindById((int *)&bld, 0, 0, e->reaperTo);
-        if (bld != 0 && bld->object != 0 && ((D3OBJECT *)bld->object)->info != 0
-            && ((D3OBJECT *)bld->object)->info->mesh != 0) {
-            d3_PointToWorld((D3OBJECT *)bld->object, &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&target);
-            target.y = target.y + ((D3OBJECT *)bld->object)->info->mesh->radius + 80.0f;
+        if (bld != 0 && bld->object != 0 && bld->object->info != 0
+            && bld->object->info->mesh != 0) {
+            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
+            target.y = target.y + bld->object->info->mesh->radius + 80.0f;
             d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
             dir.x = target.x - at.x;
             dir.y = target.y - at.y;
@@ -11065,7 +11065,7 @@ int he_DetectAttack(int p)
             seen = (AICHAR *)gm_FindChar(w->guard[i]);
             if (seen == 0)
                 continue;
-            a = (D3OBJECT *)d->bld->object;
+            a = d->bld->object;
             b = seen->model->body;
             dx = a->pos.x - b->pos.x;
             dy = a->pos.y - b->pos.y;
@@ -11581,9 +11581,9 @@ void he_AllocTransport(int ev)
     if (ai_BTypes[to->type].kind == 0xa && o != 0 && (o->flags20 & 1) != 0) {
         best = to;
         mind = 1e8f;
-        d3_PointToWorld((D3OBJECT *)from->object, &((D3OBJECT *)from->object)->pos, (D3VECTOR *)&p1);
+        d3_PointToWorld(from->object, &from->object->pos, (D3VECTOR *)&p1);
         for (b = gm_BuildQuery(1, 5, 0xa); b != 0; b = gm_BuildNext()) {
-            d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&p2);
+            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p2);
             dx = p2.x - p1.x;
             dy = p2.y - p1.y;
             dz = p2.z - p1.z;
@@ -11689,10 +11689,10 @@ char he_CollectTransporter(char *name, int *ctx)
    0x5551c0, list); the object's sibling list is cleared during the walk unless its state bit 1 is set) and
    returns a random one of them, 0 when the list is empty */
 
-int he_RandomTransporter(char *obj)
+int he_RandomTransporter(struct D3OBJECT *obj)
 {
     int list[0x21];
-    D3OBJECT *o = (D3OBJECT *)obj;
+    D3OBJECT *o = obj;
     D3OBJECT *save;
 
     memset(list, 0, sizeof(list));
@@ -11931,7 +11931,7 @@ void he_TransportStadtStadt(int ev)
         if (o != 0)
             d3_PointToWorld((D3OBJECT *)o, &((D3OBJECT *)o)->pos, (D3VECTOR *)&pos);
         else
-            d3_PointToWorld((D3OBJECT *)to->object, &((D3OBJECT *)to->object)->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&pos);
         if (gm_IsType10(from) != 0)
             tr = gm_Query((void *)guards->objList, 1, 1, t->cart);
         else
@@ -11956,7 +11956,7 @@ void he_TransportStadtStadt(int ev)
                     if (o != 0)
                         d3_PointToWorld((D3OBJECT *)o, &((D3OBJECT *)o)->pos, (D3VECTOR *)&back);
                     else {
-                        bo = (D3OBJECT *)to->object;
+                        bo = to->object;
                         back.x = bo->pos.x;
                         back.y = bo->pos.y;
                         back.z = bo->pos.z;
@@ -12830,10 +12830,10 @@ void he_RunHerbGathering(int ev)
                 b = gm_BuildQuery(1, 1, e->from);
                 if (b != 0) {
                     best = 1e8f;
-                    obj = (D3OBJECT *)b->object;
+                    obj = b->object;
                     d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&at);
                     for (f = gm_BuildQuery(1, 5, 0xb); f != 0; f = gm_BuildNext()) {
-                        obj = (D3OBJECT *)f->object;
+                        obj = f->object;
                         d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
                         dx = pos.x - at.x;
                         dy = pos.y - at.y;
@@ -13471,11 +13471,11 @@ void he_RunSabotage(int ev)
             if (x->blasts == 0 && d3_CurrentScene == 0) {
                 snd = sb_GetSample(0, "Explosion");
                 if (snd != 0)
-                    d3snd_PlayAt(snd, (D3OBJECT *)b->object, 0x6b, 12200.0f);
+                    d3snd_PlayAt(snd, b->object, 0x6b, 12200.0f);
                 scale = 3.0f;
             }
             d3if_SelectScene(0, 1);
-            o = (D3OBJECT *)b->object;
+            o = b->object;
             if (o != 0) {
                 if (x->blasts == 0) {
                     AIMSG msg;
@@ -15776,8 +15776,8 @@ int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId)
 
     for (i = 0; i < n; i++) {
         if ((blds[i]->flags5a & 1) == 0 && blds[i]->object != 0 && c->bld2 != 0 && c->bld2->object != 0) {
-            a = (D3OBJECT *)blds[i]->object;
-            h = (D3OBJECT *)c->bld2->object;
+            a = blds[i]->object;
+            h = c->bld2->object;
             dx = a->pos.x - h->pos.x;
             dy = a->pos.y - h->pos.y;
             dz = a->pos.z - h->pos.z;
@@ -15846,8 +15846,8 @@ void he_RunRoutine(AIJOB *ev)
                         b = gm_FindBuildingById(c->model->bldId);
                         dist = 0.0f;
                         if (b != 0 && b->object != 0) {
-                            d3_PointToWorld((D3OBJECT *)c->bld->object, &((D3OBJECT *)c->bld->object)->pos, (D3VECTOR *)&from);
-                            d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&to);
+                            d3_PointToWorld(c->bld->object, &c->bld->object->pos, (D3VECTOR *)&from);
+                            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&to);
                             dx = from.x - to.x;
                             dy = from.y - to.y;
                             dz = from.z - to.z;
@@ -17749,9 +17749,9 @@ void he_AllocFire(AIJOB *ev)
     }
     for (i = 0; i < n && k < 0x10; i++) {
         b = list[i];
-        o = (D3OBJECT *)b->object;
+        o = b->object;
         d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p1);
-        o = (D3OBJECT *)c->object;
+        o = c->object;
         d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p2);
         if (b != c && d3_VecEqual((D3VECTOR *)&p1, (D3VECTOR *)&p2, (float)x->radius) != 0)
             x->blds[k++] = b->id;
@@ -17808,8 +17808,8 @@ void he_RunFire(AIJOB *ev)
         for (k = 0; k < 16; k++) {
             if (c != 0 && x->blds[k] != -1 && x->blds[k] != c->id
                 && (b = gm_BuildQuery(1, 1, x->blds[k])) != 0) {
-                d3_PointToWorld((D3OBJECT *)c->object, &((D3OBJECT *)c->object)->pos, (D3VECTOR *)&p1);
-                d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&p2);
+                d3_PointToWorld(c->object, &c->object->pos, (D3VECTOR *)&p1);
+                d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p2);
                 dx = p1.x - p2.x;
                 dy = p1.y - p2.y;
                 dz = p1.z - p2.z;
@@ -17894,8 +17894,8 @@ void he_AllocBurn(AIJOB *ev)
     }
     n = (AIBLD *)gm_NearestBuilding((unsigned char *)b, 3);
     if (n != 0) {
-        d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&p1);
-        d3_PointToWorld((D3OBJECT *)n->object, &((D3OBJECT *)n->object)->pos, (D3VECTOR *)&p2);
+        d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p1);
+        d3_PointToWorld(n->object, &n->object->pos, (D3VECTOR *)&p2);
         dx = p1.x - p2.x;
         dy = p1.y - p2.y;
         dz = p1.z - p2.z;
@@ -17957,14 +17957,14 @@ void he_RunBurn(AIJOB *ev)
                 if (x->state == 1) {
                     smp = sb_GetSample(0, "Brand_l");
                     if (smp != 0) {
-                        snd = d3snd_Attach(smp, (D3OBJECT *)b->object, 0x6b, 2200.0f);
+                        snd = d3snd_Attach(smp, b->object, 0x6b, 2200.0f);
                         if (snd != 0)
                             d3snd_Play(snd, 0, 0, 0);
                     }
                 } else if (x->state == 0) {
                     smp = sb_GetSample(0, "Stichflamme_s");
                     if (smp != 0)
-                        d3snd_PlayAt(smp, (D3OBJECT *)b->object, 0x6b, 2200.0f);
+                        d3snd_PlayAt(smp, b->object, 0x6b, 2200.0f);
                     if (b->owner == ai_PlayerId) {
                         snd_QueueVoice(-8, 0, "Brand_Betroffen", 0, 100);
                         if (x->news != 0) {
@@ -18103,8 +18103,8 @@ void he_RunBurn(AIJOB *ev)
             if (sc != 0)
                 evt_Stop(sc);
         }
-        if (b != 0 && b->object != 0 && ((D3OBJECT *)b->object)->sound != 0)
-            d3snd_Free(((D3OBJECT *)b->object)->sound);
+        if (b != 0 && b->object != 0 && b->object->sound != 0)
+            d3snd_Free(b->object->sound);
         he_FreeEvent((int *)ev);
         return;
     }
@@ -18135,7 +18135,7 @@ void he_AllocStorm(AIJOB *ev)
     }
     for (i = 0; i < (n & 0xffff) && k < 0x10; i++) {
         b = list[i];
-        if (b != c && d3_VecEqual(&((D3OBJECT *)b->object)->pos, &((D3OBJECT *)c->object)->pos, (float)((HESTORM *)ev)->radius) != 0)
+        if (b != c && d3_VecEqual(&b->object->pos, &c->object->pos, (float)((HESTORM *)ev)->radius) != 0)
             ev->stormBlds[k++] = b->id;
     }
     ((HESTORM *)ev)->w100 = 0;

@@ -1440,7 +1440,7 @@ city:
         if (!bl)
             goto umland;
         do {
-            if (bl->object && ord_GetGridCell(bl->object + 0x4c, &gx, &gy) && best == &ai_Grid[gx][gy]) {
+            if (bl->object && ord_GetGridCell(&bl->object->pos, &gx, &gy) && best == &ai_Grid[gx][gy]) {
                 if (!sel)
                     sel = bl;
                 else if (bl->owner != 0xffff && gm_Opinion(ch->id, bl->owner) > gm_Opinion(ch->id, sel->owner))
@@ -1493,7 +1493,7 @@ city:
         if (!bl)
             goto umland;
         do {
-            if (bl->object && ord_GetGridCell(bl->object + 0x4c, &gx, &gy) && best == &ai_Grid[gx][gy]) {
+            if (bl->object && ord_GetGridCell(&bl->object->pos, &gx, &gy) && best == &ai_Grid[gx][gy]) {
                 if (!sel)
                     sel = bl;
                 else if (bl->owner != 0xffff && !(bl->flags5a & 1)
@@ -1653,7 +1653,7 @@ int ai_CalcAngriff(AICHAR *ch, int n)
                 && bb->owner != ai_PlayerChar->id
                 && (bt->kind == 0x13 || bt->kind == 4 || bt->kind == 0x10)
                 && he_NoProtectionEvent(bb)) {
-                if (!bb->object || !ord_GetGridCell(bb->object + 0x4c, &i, &j))
+                if (!bb->object || !ord_GetGridCell(&bb->object->pos, &i, &j))
                     w = 0.0f;
                 else
                     w = 1.0f - (ai_Grid[i][j].a * 0.125f + ai_Grid[i][j].b) / max;
@@ -1880,7 +1880,7 @@ void ai_CalcMeisterDiebe(AICHAR *ch)
                         && r != 0
                         && (!ai_Chars[bb->owner].bld || ai_Chars[bb->owner].bld->owner != ch->bld->owner)
                         && ai_Chars[bb->owner].kind <= 7) {
-                        if (!bb->object || !ord_GetGridCell(bb->object + 0x4c, &i, &j))
+                        if (!bb->object || !ord_GetGridCell(&bb->object->pos, &i, &j))
                             w = 0.0f;
                         else
                             w = 1.0f - (ai_Grid[i][j].a * 0.125f + ai_Grid[i][j].b) / max;
@@ -1950,7 +1950,7 @@ burgle:
                 if (bb->owner != ch->bld->owner && bb->owner != 0xffff && !(bb->flags5a & 1)
                     && bb->owner != ai_PlayerChar->id && !gm_IsHomeType(bb) && bt->kind != '!'
                     && he_NoProtectionEvent(bb)) {
-                    if (!bb->object || !ord_GetGridCell(bb->object + 0x4c, &i, &j))
+                    if (!bb->object || !ord_GetGridCell(&bb->object->pos, &i, &j))
                         w = 0.0f;
                     else
                         w = 1.0f - (ai_Grid[i][j].a * 0.125f + ai_Grid[i][j].b) / max;
@@ -2138,7 +2138,7 @@ attack:
                     bt = &ai_BTypes[bb->type];
                     if (bb->owner != ch->bld->owner && bb->owner != 0xffff && !(bb->flags5a & 1)
                         && bb->owner != ai_PlayerChar->id && !gm_IsHomeType(bb) && bt->kind != '!') {
-                        if (!bb->object || !ord_GetGridCell(bb->object + 0x4c, &i, &j))
+                        if (!bb->object || !ord_GetGridCell(&bb->object->pos, &i, &j))
                             w = 0.0f;
                         else
                             w = 1.0f - (ai_Grid[i][j].a * 0.125f + ai_Grid[i][j].b) / max;

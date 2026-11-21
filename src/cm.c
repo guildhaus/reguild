@@ -3989,9 +3989,9 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
         if (b == 0)
             ord_RandomCellPoint(x, y, &pos);
         else if (b->object != 0) {
-            pos.x = ((D3OBJECT *)b->object)->pos.x;
-            pos.y = ((D3OBJECT *)b->object)->pos.y;
-            pos.z = ((D3OBJECT *)b->object)->pos.z;
+            pos.x = b->object->pos.x;
+            pos.y = b->object->pos.y;
+            pos.z = b->object->pos.z;
         }
         for (j = (AIJOB *)he_FindEvent(1, 0, 0x18); j != 0; j = (AIJOB *)he_NextEvent()) {
             if (j->id4 == ai_Crimes[slot].culprit) {
@@ -4651,7 +4651,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 if (o != 0)
                     d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
                 else
-                    d3_PointToWorld((D3OBJECT *)cb->object, &((D3OBJECT *)cb->object)->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(cb->object, &cb->object->pos, (D3VECTOR *)&v);
                 r->move.pos.x = v.x;
                 r->move.pos.y = v.y;
                 r->move.pos.z = v.z;
@@ -4685,7 +4685,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 if (o != 0)
                     d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
                 else if (cb->object != 0)
-                    d3_PointToWorld((D3OBJECT *)cb->object, &((D3OBJECT *)cb->object)->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(cb->object, &cb->object->pos, (D3VECTOR *)&v);
                 else
                     err_Message("cm_ExChrGotoBuilding(): start->D3Object is NULL!");
                 r->move.hasPos = 1;
@@ -4708,7 +4708,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                     o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
             }
             if (o == 0)
-                o = (D3OBJECT *)to->object;
+                o = to->object;
         }
         if (o != 0) {
             hm = (D3SM *)d3_Scenes[0].hmap;
@@ -4991,7 +4991,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
         if (vfs_GetPath(path, vfs_Root, vfs_Root, found) != 0) {
             save = d3_CurrentScene;
             d3if_SelectScene(0, 1);
-            d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)&v);
+            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v);
             o = d3_LoadGroup(path, 0, 0);
             if (o == 0) {
                 sprintf(name, "cm_ExGebUpgrade(): Could not load 3D-Object-Group '%s'...", path);
@@ -4999,7 +4999,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
             } else {
                 float radius, key;
 
-                d3_DirToWorld((struct D3OBJECT *)b->object, &d3_ZAxis, &dir);
+                d3_DirToWorld(b->object, &d3_ZAxis, &dir);
                 rot.x = 0;
                 rot.y = 0;
                 rot.z = 0;
@@ -5008,8 +5008,8 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
                 d3_SetObjectRot(o, &rot);
                 ai_DropObjectAt(o, (D3VECTOR *)&v);
                 if (d3_QuadTree != 0)
-                    d3q_RemoveObject((D3OBJECT *)b->object, (D3QNODE *)d3_QuadTree);
-                d3if_Delete((D3OBJECT *)b->object);
+                    d3q_RemoveObject(b->object, (D3QNODE *)d3_QuadTree);
+                d3if_Delete(b->object);
                 if (o->info == 0)
                     d3_InflateObject(o);
                 if (o->material != 0) {
@@ -5035,10 +5035,10 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
                     else if (season == 3)
                         init_TextureSet = 3;
                     init_TextureSetHook((int)b->object);
-                    d3_ForEachObject2(d3_DefaultScene, (D3OBJECT *)b->object, 0x2c0, (void (*)(D3OBJECT *))init_StripTorches);
+                    d3_ForEachObject2(d3_DefaultScene, b->object, 0x2c0, (void (*)(D3OBJECT *))init_StripTorches);
                     key = (float)sv_DayPhase + sv_DayPhaseFrac;
-                    d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)b->object, 0x21e, (D3OBJECTCB)d3_SetLightKeyCB, &key);
-                    d3_RelightObjects((D3OBJECT *)b->object);
+                    d3_ForEachObject(d3_DefaultScene, b->object, 0x21e, (D3OBJECTCB)d3_SetLightKeyCB, &key);
+                    d3_RelightObjects(b->object);
                     if (b->smokeEffect != -1) {
                         sc = evt_FindById(b->smokeEffect);
                         if (sc != 0)
@@ -5089,8 +5089,8 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
     }
     d3if_SelectScene(0, 1);
     if (d3_QuadTree != 0)
-        d3q_RemoveObject((D3OBJECT *)b->object, (D3QNODE *)d3_QuadTree);
-    d3if_Delete((D3OBJECT *)b->object);
+        d3q_RemoveObject(b->object, (D3QNODE *)d3_QuadTree);
+    d3if_Delete(b->object);
     if (b->smokeEffect != -1) {
         sc = evt_FindById(b->smokeEffect);
         if (sc != 0)

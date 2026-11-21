@@ -198,7 +198,7 @@ int rt_PutRouteMark(LCMAPWIN *win, int cart, RTPOINT *list, RTPOINT *p)
     b = gm_FindBuildingById(p->buildingId);
     if (b == 0)
         return -1;
-    d3_PointToWorld((D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos, (D3VECTOR *)pos);
+    d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)pos);
     if (!d3_GetHeightAt(hmap, (D3VECTOR *)pos, &mark.cellX, &mark.cellZ, &y))
         return -1;
     ai_MapCellToScreen(&mark, originX, originY);

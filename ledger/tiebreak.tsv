@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	557836d9dae12699	no	draft	contr
 exe	0x00480e70	ai_CalcMeisterWache	ai	e1ab6bc1a7430b4e	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
 exe	0x004817a0	ai_CalcAngriff	ai	9fc938ae6fdda478	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	92a89df299574205	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	0d21e988c757b654	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	4546b25e8bade926
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	7ba993af3ec9f5e1	yes	byte	sweep control=shape best=byte by 3 unused typedefs before ai_CalcMeisterRaeuber; codegens=2 compiled=12 (stopped at the goal)	1b55f3a479f3a836
 exe	0x004836a0	ai_CalcMeisterBank	ai	6c8e69d5968668ad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	3970287b34b39b1c	yes	byte	sweep control=shape best=byte by 17 unused typedefs at the unit's start; codegens=2 compiled=36 (stopped at the goal)	63fd104250288054
 exe	0x00483d30	ai_StartBuildingWork	ai	fb4756fabe173208	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
@@ -2900,7 +2900,7 @@ exe	0x004f81c0	ord_DispatchOrder	ord	818b9c01d67df507	no	byte	control=byte p1=by
 exe	0x004f8200	ord_PrivilegeDialog	ord	cff58b7110f3ce67	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f82a0	ord_ResetStatistics	ord	4ec08221403e27c5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f8300	ord_GetGridCell	ord	16e57dbe1b787629	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f8360	ord_CountGridObjects	ord	83d796c5ee262512	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	dc671bf8ebe636a7
+exe	0x004f8360	ord_CountGridObjects	ord	b0aab45d43a2155a	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	664131050d78e663
 exe	0x004f8460	ord_AddGridAmount	ord	d07b30d499f82e7f	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004f8590	ord_SubGridAmount	ord	85d5b634f645fe8f	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004f86a0	ord_RandomCellPoint	ord	1eb0695657deb1c9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3652,7 +3652,7 @@ exe	0x0054fce0	he_RunEffectEvent	he	ee2a93928e24efa9	no	shape	control=shape p1=s
 exe	0x0054fe80	he_StartSendHomeEvent	he	586753ea234a7102	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0054ff20	he_RunSendHomeEvent	he	15ff3a1a7dba3bc6	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00550070	he_CreateReaper	he	94e941fa40e5d03b	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	7e3cc8a80867a479
-exe	0x00550370	he_MoveReaper	he	f40a430a36156889	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	5076cb0f7a1ad60a
+exe	0x00550370	he_MoveReaper	he	fb1a6e18adb67bbb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4ebeacd391ef3999
 exe	0x005506c0	he_AimReaper	he	e9200a4e074ebb1e	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00550850	he_TurnReaper	he	94188416a266ea93	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005509f0	he_StartReaper	he	e0d59237f14f7cce	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3826,7 +3826,7 @@ exe	0x0056b750	he_CollectChild	he	9bcd403a75aa6246	no	byte	control=byte p1=byte 
 exe	0x0056b780	he_ShowConstruction	he	cb15dc8aacd8bfd8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bac0	he_ConstructionStage	he	35deb30781de00a1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bc50	he_CreateConstruction	he	85436a6f90088bca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0056be30	he_RunConstruction	he_b	358104f20aa3b65f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	882506994ab76075
+exe	0x0056be30	he_RunConstruction	he_b	4cb6727c44d75087	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	39d86fa8e58418c3
 exe	0x0056cdd0	he_AllocMissionCheck	he	91266650b9870904	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056ce40	he_RunMissionCheck	he	0935945f54bdf6e8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056d050	he_RegisterEventTypes03	he	16ede35742be5a19	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

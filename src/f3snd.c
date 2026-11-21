@@ -394,7 +394,7 @@ void snd_UpdateAnimals(void)
                     (int)(h * snd_Animals[snd_AnimalSeason][2].vol * 127.0f), 0, 0);
         }
         if (snd_AmbientTrack != 0 && ai_MarketBuilding != 0) {
-            d3_PointToWorld(ai_MarketBuilding->object, ai_MarketBuilding->object + 0x4c, v);
+            d3_PointToWorld(ai_MarketBuilding->object, &ai_MarketBuilding->object->pos, v);
             k = ch_CountAt(0, 0, v, 900.0f) * 0x14;
             if (k >= 0x7f)
                 k = 0x7f;
@@ -1169,14 +1169,14 @@ void ai_FavourComment(char *a)
 
 void snd_StartMarketAmbience(void)
 {
-    char *o;
+    struct D3OBJECT *o;
     struct SBSAMPLE *smp;
 
     if (snd_AmbientTrack == 0) {
         o = ai_MarketBuilding->object;
         if (o != 0) {
             smp = sb_GetSample(0, "Athmo_Marktplatz_Mono_4Bit");
-            snd_AmbientTrack = d3snd_Attach(smp, (struct D3OBJECT *)o, 0x7f, 2200.0f);
+            snd_AmbientTrack = d3snd_Attach(smp, o, 0x7f, 2200.0f);
             if (snd_AmbientTrack != 0) {
                 d3snd_SetHold(snd_AmbientTrack, 1);
                 d3snd_Play(snd_AmbientTrack, 0, 0, 0);

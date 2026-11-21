@@ -1167,10 +1167,10 @@ int ai_BuildingAimPoints(AIBLD *x, float *a, AIBLD *y, float *b)
 
     if (x != 0 && y != 0 && x->object != 0 && y->object != 0 && x != y) {
         d3if_SelectScene(0, 1);
-        d3_PointToWorld((void *)x->object, x->object + 0x4c, a);
-        d3t_GetObjectBounds((D3VECTOR *)mn, (D3VECTOR *)mx, (D3OBJECT *)x->object);
+        d3_PointToWorld(x->object, &x->object->pos, a);
+        d3t_GetObjectBounds((D3VECTOR *)mn, (D3VECTOR *)mx, x->object);
         a[1] = (mx[1] - mn[1]) * 0.8f + a[1];
-        d3_PointToWorld((void *)y->object, y->object + 0x4c, b);
+        d3_PointToWorld(y->object, &y->object->pos, b);
         d3if_SelectScene(scene, 1);
         return 0;
     }

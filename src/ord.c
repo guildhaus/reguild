@@ -1674,7 +1674,7 @@ void ord_ResetStatistics(void)
 }
 /* 0x4f8300, the 8 x 8 grid cell of a position: d3_GetHeightAt gives the cell on scene 0's height map (d3_Scenes[0].hmap) and x / y are divided by the map's cell count per side (D3SM.size, +0x20) over 8; 0 when the call fails */
 
-int ord_GetGridCell(char *p, int *x, int *y)
+int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y)
 {
     D3SM *hmap;
     int n;
@@ -1731,7 +1731,7 @@ void ord_CountGridObjects(void)
             ai_Grid[i][j].used = 0;
     b = (ORDBLD *)gm_BuildQuery(1, 6);
     while (b != 0) {
-        if (b->object != 0 && ord_GetGridCell((char *)&b->object->pos, &x, &y) != 0) {
+        if (b->object != 0 && ord_GetGridCell(&b->object->pos, &x, &y) != 0) {
             f[y + x * 8] = (float)gm_EquipmentValue((unsigned char *)b, b->level);
             ORD_CELLS[y + x * 8].used++;
         }
@@ -1774,7 +1774,7 @@ void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
     x = util_Random(8);
     y = util_Random(8);
     if (b != 0 && b->object != 0) {
-        ord_GetGridCell((char *)&b->object->pos, &x, &y);
+        ord_GetGridCell(&b->object->pos, &x, &y);
         ORD_CELLS[y + x * 8].b += rec.guilt;
         xhi = x + 1 > 8 ? 8 : x + 1;
         yhi = y + 1 > 8 ? 8 : y + 1;
@@ -1808,7 +1808,7 @@ void ord_SubGridAmount(int who, unsigned char kind)
     x = util_Random(8);
     y = util_Random(8);
     if (b != 0 && b->object != 0) {
-        ord_GetGridCell((char *)&b->object->pos, &x, &y);
+        ord_GetGridCell(&b->object->pos, &x, &y);
         ORD_CELLS[y + x * 8].b -= rec.guilt;
         xhi = x + 1 > 8 ? 8 : x + 1;
         yhi = y + 1 > 8 ? 8 : y + 1;
@@ -1967,7 +1967,7 @@ void ord_RebuildGridSums(void)
             continue;
         if ((bt->kind >= 0xb && bt->kind <= 0xd) || bt->kind == 0x10)
             continue;
-        if (ord_GetGridCell((char *)&q->pos, &x, &y) == 0)
+        if (ord_GetGridCell(&q->pos, &x, &y) == 0)
             continue;
         gv_GetTableRecord(r.law, (int *)&dec);
         w = (float)r.count / dec.crimeCount * dec.guilt;
@@ -2034,7 +2034,7 @@ void ord_ComputeStatistics(float *out)
             bt = (unsigned char *)ai_BTypes + c->bld->type * 0x24d;
             n0++;
             if (c->bld->object != 0 && (*bt < 0xb || *bt > 0xd) && *bt != 0x10
-                && ord_GetGridCell((char *)&c->bld->object->pos, &x, &y) != 0)
+                && ord_GetGridCell(&c->bld->object->pos, &x, &y) != 0)
                 ai_Grid[x][y].buildingCount += 1.0f;
         }
         if (c->bld2 != 0) {
@@ -2043,7 +2043,7 @@ void ord_ComputeStatistics(float *out)
             bt = (unsigned char *)ai_BTypes + c->bld2->type * 0x24d;
             n1++;
             if (c->bld2->object != 0 && (*bt < 0xb || *bt > 0xd) && *bt != 0x10
-                && ord_GetGridCell((char *)&c->bld2->object->pos, &x, &y) != 0)
+                && ord_GetGridCell(&c->bld2->object->pos, &x, &y) != 0)
                 ai_Grid[x][y].buildingCount += 1.0f;
         }
     }

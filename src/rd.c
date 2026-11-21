@@ -317,7 +317,7 @@ void veg_HidePlants(G15PLANT *p)
    they are pooled literals. Left: as prior, plus the WorldToCell argument stores (hunks 0x4bcdf7,
    0x4bce1b) and the slots at 0x4bd144. */
 
-int rd_BuildRoad(char *obj, int name)
+int rd_BuildRoad(struct D3OBJECT *obj, int name)
 {
     G15BKFIND f;
     G15BK *bk;
@@ -326,7 +326,7 @@ int rd_BuildRoad(char *obj, int name)
     float dx, dz;
     float x, z, step;
     int i, j, k;
-    char *o;
+    struct D3OBJECT *o;
     int px, pz;
     int ok;
     char buf[0x40];
@@ -424,7 +424,7 @@ int rd_BuildRoad(char *obj, int name)
     o = d3_FindObject(obj, 0x100, 0, "dummy_TUER");
     if (o == 0)
         o = obj;
-    d3_PointToWorld(o, o + 0x4c, v);
+    d3_PointToWorld(o, &o->pos, v);
     ok = 0;
     if (d3_GetHeightAt((char *)rd_Road.grid, v, &px, &pz, 0)) {
         if (rd_PathToRoad(&rd_Road, px, pz, -1, -1)) {

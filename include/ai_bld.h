@@ -2,6 +2,7 @@
    ai.h includes it. */
 #ifndef AI_BLD_H
 #define AI_BLD_H
+struct D3OBJECT;
 #pragma pack(push, 1)
 typedef struct AIWORKSET {              /* 0x10 bytes, a building's work settings (AIBLD.workSet), AICHAR.flags1b4 .. target */
     unsigned int flags;                 /* 0x0, the order flags (AICHAR.flags1b4; ls_ReadBuildings sets bit 0 for saves
@@ -47,7 +48,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
                                            threshold, 100 - level in the renovation message, am.c) */
     int objList;                        /* 0x5d, head of the building's object-instance list (gm_Query 0x4ffe90,
                                            released with gm_RemoveObject) */
-    char *object;                       /* 0x61, its 3D object in the scene */
+    struct D3OBJECT *object;            /* 0x61, its 3D object in the scene */
     union {
         char kindData[0x30];            /* 0x65 .. 0x95, the part the building's kind gives its meaning (ls_WriteBuildings
                                            saves it whole for the kinds without a writer of their own) */

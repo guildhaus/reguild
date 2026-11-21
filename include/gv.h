@@ -652,7 +652,7 @@ extern float ai_RatingBase;              /* 0x6f1b9c, the running rating: it mov
 extern float ord_RatingRate;             /* 0x91aaf4, the change rate of the rating (ord.c 0x4f8ed0; ls.c saves it) */
 char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, float *py);                    /* 0x45f170 */
 void ord_ResetStatistics(void);               /* 0x4f82a0 */
-int ord_GetGridCell(char *p, int *x, int *y);  /* 0x4f8300, the grid cell (x, y) of the position p */
+int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y);  /* 0x4f8300, the grid cell (x, y) of the position p */
 
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, fills *bld with the object of the id (ai.h's prototype) */

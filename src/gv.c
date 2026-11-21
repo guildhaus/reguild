@@ -648,7 +648,7 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
         bld = &ai_Blds[i];
         if (bld->id == -1 || bld->type == 0 || bld->object == 0)
             continue;
-        d3_PointToWorld((D3OBJECT *)bld->object, &((D3OBJECT *)bld->object)->pos, (D3VECTOR *)&pos);
+        d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
         dx = c.x - pos.x;
         dy = c.y - pos.y;
         dz = c.z - pos.z;
@@ -660,7 +660,7 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
         }
         w1 = 1.0f / (fd * 0.005f + 1.0f);
         w2 = 1.0f / ((fd * 0.0002f + 0.005f) * fd + 1.0f);
-        d3t_GetMeshBounds(&mn, &half, (D3OBJECT *)bld->object);
+        d3t_GetMeshBounds(&mn, &half, bld->object);
         half.x -= mn.x;
         half.y -= mn.y;
         half.z -= mn.z;
@@ -732,7 +732,7 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
     d3t_CreateExplosion(0, &c, 150, radius, height, z, 80.0f, 200);
     snd = sb_GetSample(0, "Explosion");
     if (snd != 0)
-        d3snd_PlayAt(snd, (D3OBJECT *)nearest->object, 0x6b, 12200.0f);
+        d3snd_PlayAt(snd, nearest->object, 0x6b, 12200.0f);
     if (damage != 0) {
         for (i = 0; i < 3; i++) {
             if (h.recs[i].bldId == -1)

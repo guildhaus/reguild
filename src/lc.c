@@ -2269,7 +2269,7 @@ int ai_FindBauplaetze(char *prefix, int *list)
         if (obj->parent != 0) {
             d3_PointToWorld(obj->parent, &obj->parent->pos, (D3VECTOR *)at);
             for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
-                o = (D3OBJECT *)b->object;
+                o = b->object;
                 if (o != 0) {
                     d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
                     if (d3_VecEqual((D3VECTOR *)pos, (D3VECTOR *)at, 100.0f) != 0) {
@@ -2283,7 +2283,7 @@ int ai_FindBauplaetze(char *prefix, int *list)
             if (strncmp(obj->name, "bk_", 3) == 0) {
                 d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)at);
                 for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
-                    o = (D3OBJECT *)b->object;
+                    o = b->object;
                     if (o != 0) {
                         d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
                         if (d3_VecEqual((D3VECTOR *)pos, (D3VECTOR *)at, 100.0f) != 0) {
@@ -2466,7 +2466,7 @@ int lc_GetGebaeudeBauplatz(AIBUILDSITE *out, AIBLD *b)
         d3if_SelectScene(scene, 1);
         return 0;
     }
-    d3_PointToWorld((struct D3OBJECT *)b->object, &((D3OBJECT *)b->object)->pos,
+    d3_PointToWorld(b->object, &b->object->pos,
                     (struct D3VECTOR *)out->pos);
     sprintf(text, "lc_GetGebaeudeBauplatz(): FindPos->Pos:%f  %f  %f",
             (double)out->pos[0], (double)out->pos[1], (double)out->pos[2]);

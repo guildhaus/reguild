@@ -137,7 +137,7 @@ void veg_GrowPlants(G15PLANT *p);
 void veg_LoadModel(G15PLANT *q, int fall);
 void veg_ShowPlants(G15PLANT *p);
 void veg_HidePlants(G15PLANT *p);
-int rd_BuildRoad(char *obj, int name);
+int rd_BuildRoad(struct D3OBJECT *obj, int name);
 int rd_PathToRoad(G15ROAD *r, int x, int z, int tx, int tz);
 void rd_AddBauplaetze(G15ROAD *r);
 void rd_AllBauplatzToSupermap(G15ROAD *r, char *name);
