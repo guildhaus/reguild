@@ -140,7 +140,7 @@ short * gm_PlayerRecord(char *ch);                                              
 unsigned gm_TakeOverCharacter(int a, int b);                                                  /* 0x5064d0 */
 int gv_FindHeldEntry(void *a, unsigned char **o, int *e);                                    /* 0x4f2540 */
 int gv_EntryIndex(char *r, int *e);                                       /* 0x4ef6b0 */
-int gv_OrderBury(int *g, char *o, int v, int b);                     /* 0x4f01d0 */
+int gv_OrderBury(int *g, struct AIBLD *o, int v, int b);                     /* 0x4f01d0 */
 int gm_FreeBuilding(struct AIBLD *b);                                                       /* 0x5012e0 */
 void gm_KillSpieler(int c, int mode);                                     /* 0x503c60 */
 int gm_TakeObjekt(int id, int good, int n);                                       /* 0x500a40 */
@@ -413,7 +413,7 @@ char d3_SetLightKeyCB(struct D3OBJECT *obj, float *time);  /* 0x449da0 */
 struct D3OBJECT * d3_LoadGroup();  /* 0x44c3f0 */
 float d3_VecAngle();  /* 0x4539f0 */
 void d3_DirToWorld();  /* 0x458810 */
-struct GVYARD *gv_GrowGraveyard(unsigned char *o);  /* 0x4eff50 */
+struct GVYARD *gv_GrowGraveyard(struct AIBLD *o);  /* 0x4eff50 */
 int ord_GetKindRecord();  /* 0x4f8890 */
 int gm_ClockSeason();  /* 0x4fe350 */
 void gm_RefreshGoodsLists(unsigned p);  /* 0x4ff190 */

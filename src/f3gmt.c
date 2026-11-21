@@ -5333,9 +5333,9 @@ void gm_InheritEstate(ORDCHAR *dead, ORDCHAR *heir)
     n = 0;
     taken = 0;
     if (gv_FindHeldEntry(dead, (unsigned char **)&s, (int *)&e) != 0) {
-        gv_OrderBury((int *)dead, (char *)s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
+        gv_OrderBury((int *)dead, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
         if (heir != 0 && heir != ai_PlayerChar && e->id == dead->netId)
-            gv_OrderSetGraveHolder((int *)heir, (char *)s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
+            gv_OrderSetGraveHolder((int *)heir, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
     }
     s = gm_BuildQuery(1, 4, dead->id);
     while (s != 0) {

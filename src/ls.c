@@ -1530,7 +1530,7 @@ int ls_ReadBuildings(int f)
             }
         } else if (c == 'H' || c == 'I' || c == 'J') {
             if (ls_Version >= 0x10047) {
-                if (gv_ReadGraveyard((void *)f, (unsigned char *)b) == 0)
+                if (gv_ReadGraveyard((void *)f, b) == 0)
                     return 0;
             } else {
                 LS_R(b->kindData, 0x30)

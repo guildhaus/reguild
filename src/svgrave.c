@@ -533,7 +533,7 @@ void ai_GraveSizeButtons(AIBLD *rec, int *w)
     d2_Objs[w[w[12] + 8]].checked = 1;
 }
 
-int sv_CreateScrollButtons(); unsigned gv_FindEntry(void *a, unsigned char *o, unsigned after, int (*cb)(), int l); int gv_EntryIndex(char *r, int *e);
+int sv_CreateScrollButtons(); unsigned gv_FindEntry(void *a, struct AIBLD *bld, unsigned after, int (*cb)(), int l); int gv_EntryIndex(char *r, int *e);
 
 /* a row of the graveyard contact window's grave list (w + 0xd, 0x10 rows of 4 dwords; ai_GraveList fills them) */
 typedef struct GVROW {
@@ -600,7 +600,7 @@ void ai_GraveList(AIBLD *rec, int *w, int sel)
     d2_SetForm(w[0], 4);
     io_PrintText("$C");
     sv_CreateScrollButtons(0, 0, w[5], w[2], 0x35, a, b, &sel);
-    e = (GVENTRY *)gv_FindEntry(0, (unsigned char *)rec, 0, 0, w[0xc]);
+    e = (GVENTRY *)gv_FindEntry(0, rec, 0, 0, w[0xc]);
     n = 0;
     if (e) {
         row = ((GVWIN *)w)->rows;
@@ -616,7 +616,7 @@ void ai_GraveList(AIBLD *rec, int *w, int sel)
                 d2_WinOpenPic(0xf, n * 0x35 + 9, 0x7de, w[2]);
             d2_Objs[row->btn].interactive = 1;
             d2_Objs[row->btn].style = 3;
-            e = (GVENTRY *)gv_FindEntry(0, (unsigned char *)rec, (unsigned)e, 0, w[0xc]);
+            e = (GVENTRY *)gv_FindEntry(0, rec, (unsigned)e, 0, w[0xc]);
             n++;
             row++;
         } while (e);
@@ -1184,7 +1184,7 @@ int gv_OrderSetGraveHolder(); int gv_SizeOpen();
    centred, fitted), the texts 0x410f / 0x410e and the two entries 0x4111 / +1 (d2_GetWinObj), d2_ClickedId
    cleared; the pump loop (this window, 0x677c7): a right button release (dm_L.rup) or the second entry sets
    sv_PopRequest, the first sets the grave holder (0, rec, a, b) and returns 1; the close of the window, the result */
-int ai_GraveFreeConfirm(char *rec, int a, unsigned char b)
+int ai_GraveFreeConfirm(AIBLD *rec, int a, unsigned char b)
 {
     int win;
     int b1;
@@ -1241,7 +1241,7 @@ int ai_GraveSizeEnable(AIBLD *rec, int from, unsigned char entry, int *btns, int
         d2_Objs[btns[i]].checked = 0;
     }
     for (i = from + 1; i < 4; i++) {
-        if (gv_SizeOpen((char *)rec->yard, i)) {
+        if (gv_SizeOpen(rec->yard, i)) {
             any = 1;
             d2_SetObjEnabled(btns[i], 1);
             if (first == -1)
@@ -1403,7 +1403,7 @@ void ai_GraveDetailButtons(char *rec, int *w)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == first) {
                 d2_SetViewEnabled(w[0], 0);
-                if (ai_GraveFreeConfirm(rec, w[8], w[9]) == 1)
+                if (ai_GraveFreeConfirm((AIBLD *)rec, w[8], w[9]) == 1)
                     sv_PopRequest = 1;
                 d2_SetViewEnabled(w[0], 1);
             } else if (d2_PointerObj == move) {
@@ -1614,7 +1614,7 @@ int ai_GraveCare(AIBLD *rec, GVPICK *pick)
     return r;
 }
 
-int gv_RoomForRaised(unsigned char *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
+int gv_RoomForRaised(struct AIBLD *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
 
 /* 0x584b70, the "GEHILFEN_ERSCHAFFEN" callback of the graveyard window (ai_GraveWindow, a function pointer
    only): raises the picked dead person as a helper. gv_RoomForRaised counts the yard's raised: -1 -> 0; 0 (the
@@ -1639,7 +1639,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
     EVTSCRIPT *sc;
 
     r = 0;
-    v = gv_RoomForRaised((unsigned char *)rec, &n);
+    v = gv_RoomForRaised(rec, &n);
     if (v != 1) {
         if (v == 0) {
             txt_Format(buf, 0x4135, n, 0x229, rec);
@@ -1667,7 +1667,7 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick)
                 if (pick->grave->id == -1) {
                     sv_PopRequest = 1;
                 } else {
-                    h = gv_OrderRaiseDead((char *)rec, pick->entry->size, pick->index, pick->id, 0x1c);
+                    h = gv_OrderRaiseDead(rec, pick->entry->size, pick->index, pick->id, 0x1c);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     c = (AICHAR *)cm_GetSlotValue(h);
@@ -2403,7 +2403,7 @@ void ai_GraveSeance(AIBLD *rec)
     char line[0x100];
     GVENTRY *e;
 
-    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], (unsigned char *)rec, 0, gv_EntrySameId, 0xff);
+    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
     if (e != 0) {
         w.entry = e;
         w.size = e->size;
@@ -2780,7 +2780,7 @@ void ai_GraveRentContact(AIBLD *rec)
     GVDETAILWIN w;
     char line[0x100];
 
-    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], (unsigned char *)rec, 0, gv_EntrySameId, 0xff);
+    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
     if (e != 0) {
         w.entry = e;
         w.size = e->size;

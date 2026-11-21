@@ -2753,7 +2753,7 @@ exe	0x004ef3c0	gv_GraveCount	gv	955fcd1c1d1fc4ce	no	byte	control=byte p1=byte p2
 exe	0x004ef440	gv_GravesInUse	gv	e51f352d299a22f6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ef470	gv_EntryCount	gv	025aaced3edad6e7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ef4f0	gv_SizeOpen	gv	2982aba807bd5b9b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004ef570	gv_ListEntry	gv	577c050a139f4d4c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
+exe	0x004ef570	gv_ListEntry	grave	d3955c4087103817	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	37e37cdb7c9008cd
 exe	0x004ef6b0	gv_EntryIndex	gv	f9bf85a6cf439e5d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ef710	gv_EntryHeldBy	gv	b5d2e136d2ab9e02	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ef740	gv_EntrySameId	gv	7378fd864d19b600	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2765,7 +2765,7 @@ exe	0x004ef900	gv_LoadGraveyard	gv	7679c4b8b8c617cd	no	byte	control=byte p1=byte
 exe	0x004ef930	gv_RandomGrave	gv	eadf6d3530738cf0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ef9c0	gv_BuryNewDead	grave	835d77ab86c3ed45	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=442	8e2803bd14ee7240
 exe	0x004efc10	gv_AllocGraveyard	grave	1d0e7f836fcd7b91	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	9533f50d20479b9a
-exe	0x004eff50	gv_GrowGraveyard	grave	b94ab5522f0d229e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	01b4d372f94db360
+exe	0x004eff50	gv_GrowGraveyard	grave	f5a4494bc52419d5	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	37e37cdb7c9008cd
 exe	0x004f0180	gv_FreeGraveyard	gv	eab36f0085a34cf3	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f01d0	gv_OrderBury	gv	1b99eabbdeccfdb3	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x004f0240	gv_BuryCharacter	grave	2dcdd137b356af83	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=442	8e2803bd14ee7240

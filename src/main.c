@@ -3927,7 +3927,7 @@ void main_SettleRound(unsigned short pl)
                         }
                     }
                 } else if (kind == 0x1d)
-                    gv_GraveyardTurn((char *)c);
+                    gv_GraveyardTurn(c);
                 if (c->masterId == MAIN_ME->id && (c->flags5a & 3) == 0) {
                     kind = bt->kind;
                     if (kind != 1 && kind != 3 && kind != 6 && kind != 10 && kind != 11 && kind != 12 && kind != 13 && kind != 15 && kind != 0x1c && kind != 0x1b && kind != 0x1a

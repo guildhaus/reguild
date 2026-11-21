@@ -2849,7 +2849,7 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
 
             c = gm_FindChar(m->takeover.taken);
             if (gv_FindHeldEntry(c, (unsigned char **)&y, (int *)&x) != 0)     /* y the graveyard building, x the entry (gv.h GVENTRY, its size first) */
-                gv_OrderBury((int *)c, (char *)y, *x, (unsigned char)gv_EntryIndex((char *)y->yard, x));
+                gv_OrderBury((int *)c, y, *x, (unsigned char)gv_EntryIndex((char *)y->yard, x));
             s->kind = 1;
             s->value = (int)&ai_Chars[k];
         } else {
@@ -4974,7 +4974,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
     gm_SetCapacities(b);
     gm_StockBuildingObjects(b);
     if (t->kind == 0x1d)
-        gv_GrowGraveyard((unsigned char *)b);
+        gv_GrowGraveyard(b);
     strcpy(name, "gb_");
     strcat(name, ai_BTypes[b->type].name);
     strupr(name + 2);

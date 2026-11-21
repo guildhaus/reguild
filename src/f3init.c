@@ -287,7 +287,7 @@ int cm_RequestCreateGeb(int owner, int kind, D3VECTOR4 *pos, int *rot);  /* 0x4c
 unsigned char *gm_NearestFreeBuilding(unsigned char *b, unsigned kind); /* 0x501f60, f3gm.c */
 void main_SetLoadProgress(int unused, int pct);          /* 0x537af0, main.c: the loading progress bar */
 int cm_SendMessage3d(char *p, unsigned char b, int c, int d);                     /* 0x4c55d0 */
-int gv_SendGrave(unsigned char *o);                     /* 0x4f15e0 */
+int gv_SendGrave(struct AIBLD *o);                     /* 0x4f15e0 */
 int cm_GetSlotState();                     /* 0x4c3ae0 */
 void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s);                     /* 0x4c51b0 */
 void d2_DrawAll(void);                      /* 0x46e150, d2.c */
@@ -1613,7 +1613,7 @@ void init_OpenBuilding(AIBLD *b)
     if (k != 9) {
         if (k == 4 || k == 0x10 || k == 0x13 || k == 0x1d) {
             if (k == 0x1d) {
-                h = gv_SendGrave((unsigned char *)b);
+                h = gv_SendGrave(b);
             } else {
                 if (ai_Chars[b->owner].kind != 6 && ai_Chars[b->owner].kind != 7)
                     cm_SendMessage3d((char *)b, 0, p[0x230], 0);
@@ -3129,14 +3129,12 @@ void init_PlayTownSound(char *name, int volume, int delay)
 /* 0x512840, the ambient sound of a graveyard building b of the type 0x1e on the map (the word +0x29 == 0xfd): "AesteKnacken_s" */
 
 
-void init_PlayGraveyardSound(char *b)
+void init_PlayGraveyardSound(AIBLD *bld)
 {
-    AIBLD *bld;
 
     gm_ClockSeason(&ai_Time);
-    if (b != 0) {
-        bld = (AIBLD *)b;
-        if (gm_IsHomeType((AIBLD *)b) != 0 && bld->mainRoom == 0xfd && bld->type == 0x1e)
+    if (bld != 0) {
+        if (gm_IsHomeType(bld) != 0 && bld->mainRoom == 0xfd && bld->type == 0x1e)
             init_PlayTownSound("AesteKnacken_s", 0x50, 8000);
     }
 }
@@ -3529,7 +3527,7 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
     } else if (*p == 5 && b->owner != ai_PlayerId)
         init_LoadShopScript(b, (unsigned short *)o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
-    init_PlayGraveyardSound((char *)b);
+    init_PlayGraveyardSound(b);
     if (gm_IsHomeType(b) == 0)
         d3_ForEachObject(d3_DefaultScene, 0, 0xc0, init_BuildingTextureSetHook, b);
     init_SetDetailLevel(d3_Terrain, 0);
