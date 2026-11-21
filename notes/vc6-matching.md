@@ -6177,7 +6177,9 @@ the bytes no portable form gives.
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
   G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
   nor did the seventh (the character views AICHARREC / ORDCHAR / AIPER / G5CH / AIPX / AIC4 / AGCH, the character
-  lookups and callees).
+  lookups and callees) or the eighth (f3init's SCENEOBJ / INIT_CHAR / INIT_PANELCHAR, sv's SVCHARREC / SVGROUP /
+  SVMODEL, the lc units' G8CHARREC, amt.h's AMTCHARVIEW with its four cast macros, the picked / selected character
+  globals).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6414,6 +6416,32 @@ the bytes no portable form gives.
   reused slot back with one cast (`return (AICHAR *)o`, `(AIBLD *)s1`); the same code.
 - **A record-returning function used as a frame key** (the amount windows: `AICHAR *` against sv_RunFrame's `void
   (*cb)()`) draws C4047 + C4024 at every sv_RunFrame call; accepted (the return type is the truer type).
+- **One view describing two records** (f3init's SCENEOBJ: CHARACTER's script / group / scene / transport and
+  D3OBJECT's prototype word, info, material, parent, owner, sound, mask): split it by use, not by field. The
+  d3_ForEachObject2 callbacks and hooks that took the scene object as `char *o` / `int o` take `D3OBJECT *o`
+  (`strncmp(o, ..)` is o->name, `o[0x4b]` o->pickBytes[3], `o[0x212]` o->stateFlags; the fields the view alone
+  named go into D3OBJECT: the pickId byte union, soundRange), the ch_List walks and AICHAR.scene reads are
+  CHARACTER. Re-check a unit's stated reason for not including a header: f3init could include ch.h (gv.h's K&R
+  d3sm_GetVertex, the reason given, was long fixed). A view's "chain" at an odd offset (INIT_PANELCHAR.next at
+  +0x3b) was another record's field (AIOBJ.sceneObj): keep the query result in its own local (`cart =
+  gm_Query(..); t = cart->sceneObj`), the same code.
+- **Signedness from the compares, the other way round** (eighth pass): AIJOB.kind was `char` and sv.c's SVGROUP
+  view `unsigned char`; with the char field sv_MoveToGroup's switch and sv_CharStateIcons fell to draft, with the
+  unsigned field the other units' `kind == (char)0x8c` / `== -0x74` / `== -0x71` / `== (char)0x87` fell, and
+  written as 0x8c / 0x8f / 0x87 they are byte again: the negative and (char) constants were our signed models of
+  byte compares. When a merge drops functions of one unit, try the other signedness with the constants written
+  unsigned before keeping a cast.
+- **A merged unit-local record type hid declaration drift**: while lcmap's news callees took the unit's own
+  G8CHARREC, dcp check's M5 did not compare he.c / he_b.c's Ghidra-typed declarations of them (`int param_1`,
+  `unsigned short *param_2`); with AICHAR it does (gate FAIL): give those units the definition's prototype and drop
+  the call casts in the same commit.
+- **A view's cast macros and raw offset reads before a retype** (amt.h's AMT_STATUS / AMT_NETID / AMT_KIND /
+  AMT_POWER, amt.c's `c[0x166]`, `a[0x1b1]`, `a[2]`): write the macros out as `((AICHAR *)c)->field` and the raw
+  reads as fields while the variable is still `char *` (same code; `(unsigned char)c[0x166]` is the unsigned
+  field), then retype the variables and strip the casts. Never retype a `char *` that still has raw `c[k]` /
+  `*c` / `c + n` uses: on a record pointer they index records and compile silently (p7/rtc.py refuses such
+  bodies; its RAW test also fires on comment text, check by hand). A union member added for a view's field must
+  not reuse a name an anonymous member already has (AIJOB.groupMembers, not members: C2020).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
