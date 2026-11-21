@@ -1171,8 +1171,6 @@ extern struct AIBTYPE *ai_BTypes;
 extern signed char ai_Relations[768][768];
 extern signed char ai_RelationMemory[768][768];
 int ahm_Tab[8] = { 1, 3, 7, 11, 13, 17, 19, 21 };  /* 0x60f1b0 */
-/* ai_AlchemistFirstNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_AlchemistFamilyNames: view of txt_Ptrs (build/mk_txt_views.py) */
 int ai_WalkX = 0;  /* 0x6f0dc8 */
 int ai_WalkDX = 0;  /* 0x6f0dcc */
 int ai_WalkY = 0;  /* 0x6f0dd0 */

@@ -6959,31 +6959,6 @@ extern unsigned int cm_GroupFirstSeq;
 extern char d2_CaptionCopy[0x80];
 extern int cm_PickCellX;
 extern int cm_PickCellZ;
-/* txt_HonourTitles: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_JobNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_TitleNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_OfficeNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_FaithNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_SexNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_FightPaused: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_WeaponEmpty15e: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_WeaponEmpty174: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_WeaponEmpty176: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_ClickNoGround: view of txt_Ptrs (build/mk_txt_views.py) */
-/* cm_FightButtonText: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_AuctionNoteLocal: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_AuctionNoteNet: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_BirthNoteTail: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_ExecNoteTail: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DuelNoteTail: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DuelDeathNews: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DuelHeldNews: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_Unk143e948: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_Unk143e954: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_Unk143e960: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DeathTreeCaption: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_SpeedNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_ScenePartySync: view of txt_Ptrs (build/mk_txt_views.py) */
 const int cm_SpeedTicks[] = { 1155, 937, 770, 577, 385, 0 };  /* 0x5edc10 */
 int cm_SpeedTick = 770;  /* 0x60bd80 */
 unsigned int cm_SpeedLevel = 2;  /* 0x60bd84, = 2 (0..4) */
@@ -7044,4 +7019,3 @@ extern AIWATCH ai_Watch;
 extern char d2_CaptionCopy[0x80];
 extern int cm_PickCellX;
 extern int cm_PickCellZ;
-/* txt_AmountUnit: view of txt_Ptrs (build/mk_txt_views.py) */

@@ -890,9 +890,6 @@ char dd_Has800x600 = 0;  /* 0x631225 */
 char dd_Has1024x768 = 0;  /* 0x631226 */
 char dd_Has1152x864 = 0;  /* 0x631227 */
 
-/* txt_DlgTitle: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DlgLabel104: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_DlgLabel105: view of txt_Ptrs (build/mk_txt_views.py) */
 int dd_BytesPerPixel;  /* 0x1463568 */
 ULONG dd_Ref; /* 0x146356c */
 unsigned char dd_RBits; /* 0x1463570 */

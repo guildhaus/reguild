@@ -851,7 +851,7 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     by fiadd; every double spelling (casts, operand order, a named sum, / 2.0) loads it by fild first
     (he_RunMasterExamPassed byte; toy compiles settled it in two runs). he_PostEvent67 has the same expression.
   - **A table indexed through a named k where the original's index is a temporary**: `t =
-    txt_MaleFirstNames[(unsigned short)util_Random(0xbf)];` (main_CreateStartCouple: the second name copy's ecx /
+    txt_Ptrs[TXT_MALE_FIRST_NAMES + (unsigned short)util_Random(0xbf)];` (main_CreateStartCouple: the second name copy's ecx /
     al instead of eax / cl, byte).
   - **It was a meaning bug, hidden by the x87 stack**: he_SetLifeByAge's original loads `c->f018` before the
     `fnum <= f020` branch and keeps it on the FPU stack on both paths; `_ftol` pops only the step count
@@ -6281,6 +6281,18 @@ the bytes no portable form gives.
   view of the global (`*(T **)&g`) goes. dcp's Q4 counts `*(T *)datum` (a datum read as another type) as raw and
   wants a view for it, but not a pointer value cast to a record.
 - **The high word of an unsigned global** (G28_HI): `(cut_RandState >> 16)` is the same `mov ax, word ptr [g+2]`.
+- **Named slots of a pointer table are indices, not views** (txt_views.h, twelfth pass): the original reads a text
+  as `txt_Ptrs[i]`; a byte-offset view `*(char **)((char *)txt_Ptrs + 0x22c)` is our spelling and reads another
+  slot wherever pointers are not 4 bytes. Name the slot by an index constant (`#define TXT_TRIBUNE 0x8b`, a range
+  as its first index plus `_N`, a derived range `(TXT_JOB_NAMES + 0x5f)`) and index the table
+  (`txt_Ptrs[TXT_JOB_NAMES + i]`, a two-slot stride `txt_Ptrs[TXT_OBJECT_NAMES + 2 * k]`, an expression index in
+  parentheses `txt_Ptrs[TXT_BUILDING_NAMES + (k * 0xe - 2)]`). #defines, not an enum: enumerators are
+  declarations and move VC6's declaration-set tie-breaks in every unit that includes the header. A view typed
+  `int` / `int[]` over such a slot was a pointer passed to an int parameter: read the char * and cast
+  `(intptr_t)` at the int parameter until it is typed (sv_AddPanelButton, init_ShowStatus, sv_OpenMessageBox,
+  d2_WinCreateSlider, ai_FamilyTreeWindow), drop the `(char *)` casts the int views needed. Every function the
+  same code (one tie-break: he_RunBurglary). With no views left dcp's L15 has nothing to check; `dcp why` names
+  txt_Ptrs as the owner of every slot address.
 - **A record pointer global typed `char *` with casts at every reader** (ai_PlayerBuilding / ai_FallbackBuilding:
   114 `(AIBLD *)` casts, 23 views): type it `AIBLD *`, retype the locals that only hold it, and cast where a
   callee's prototype still takes `char *` / `unsigned char *` (the callee is the debt). Compare VC6's per-unit

@@ -2032,9 +2032,6 @@ void gm_PopulationStep(void)
 }
 
 extern char d2_GfxDir[256];
-/* txt_MaleFirstNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_FemaleFirstNames: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_FamilyNames: view of txt_Ptrs (build/mk_txt_views.py) */
 int gm_HomeSearchStart = 0;  /* 0x6f1bb4 */
 extern GMCHARSTATS gm_CharacterStatistics;
 unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, AIBLD *a5, unsigned a6, int a7, int a8);                     /* 0x507690 */

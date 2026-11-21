@@ -68,8 +68,6 @@ int io_TrailingDigits(char *s, int n, char *out)
 
 
 
-/* txt_PseudoCharName: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_NoCharacter: view of txt_Ptrs (build/mk_txt_views.py) */
 #define G30_ENDS_S(p) ((p)[strlen(p) - 1] == 's' || (p)[strlen(p) - 1] == 'z' || (p)[strlen(p) - 1] == '\xdf' || (p)[strlen(p) - 1] == 'x')  /* the sharp s: on an unsigned char record name the original compares the zero-extended byte with -0x21, never equal */
 #define CH_NAME(r) ((r) + 0x30)         /* the first name */
 #define CH_FAMILY(r) ((r) + 0x40)       /* the family name */

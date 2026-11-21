@@ -2203,7 +2203,6 @@ void gm_SetCapacities(AIBLD *b)
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 int gm_BuildingClass();                     /* 0x501d80 */
-/* ai_BuildingNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
@@ -5663,7 +5662,6 @@ int gm_MayRemoveChar(AICHAR *c)
 }
 
 extern int ai_Difficulty;
-/* txt_ObjectNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern int ai_GameFlags;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
 struct AICHAR *ahm_OwnerChar();                     /* 0x4eaa50 */

@@ -7332,14 +7332,6 @@ extern struct D3TSNOW *d3t_Snow;
 extern struct D3SKYLAYER *d3_SkyLayers[6];
 extern int d2_HitWindow;
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-/* txt_NetworkSyncWait: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnBuild: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnOwn: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnKind1e: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnForeign: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnItemOwn: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnItem: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelPersons: view of txt_Ptrs (build/mk_txt_views.py) */
 int sv_UnreadData[3] = { 10, 124, 190 };  /* 0x623780, sv's first plain datum (after ls's last string "rbn"): no
    surviving instruction or image dword reads it (tools/exe/holes.py --section data); the original's values */
 float sv_FramesPerTick = 30.0f;  /* 0x62378c */

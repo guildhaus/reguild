@@ -164,7 +164,6 @@ int d2_SetForm(int view, int n);                     /* 0x475f70 */
 struct AIOBJ *gm_QueryNext(void);                   /* 0x4ffcc0 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_ListStock(short *l, int id);               /* 0x50ab50, f3gm.c */
-/* init_StatusFormat: view of txt_Ptrs (build/mk_txt_views.py) */
 struct AICHAR *ai_JudgeCatholic = 0;  /* 0x6f1bfc / */
 struct AICHAR *ai_JudgeProtestant = 0;  /* 0x6f1c00 */
 AICHAR *ai_KindBChars[8] = {0};  /* 0x6f1c04, the characters of the kind 0xb */
@@ -3728,7 +3727,3 @@ int init_LoadCityINI(char *city, int slot)
     return 1;
 }
 
-/* init_StatusSendGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* init_StatusReceiveGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* init_StatusSetupGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* init_StatusLocalData: view of txt_Ptrs (build/mk_txt_views.py) */

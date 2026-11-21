@@ -30,22 +30,6 @@
 
 int rt_MarkGroup = -1;                  /* 0x602a90 */
 extern RTMARK rt_Marks[8];
-/* txt_InfoPanelButtons: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PanelBtnCart: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteLoadHead: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteUnloadHead: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteEditPoint: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteAddPoint: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteSettings: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteOk: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteDeletePoint: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_RouteNew: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolLevel0: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolLevel1: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolLevel2: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolLevel3: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolLevel4: view of txt_Ptrs (build/mk_txt_views.py) */
-/* txt_PatrolToggle: view of txt_Ptrs (build/mk_txt_views.py) */
 struct D2SURF *rt_MapSaved = 0;  /* 0x6f074c, rt_EditCartRoute's copy of rt_MapSurface, blitted back at its end */
 int rt_MarkCount = 0;  /* 0x6f0750, the marks used */
 int rt_PickedBuilding = 0;  /* 0x6f0754, the building shown */

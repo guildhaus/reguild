@@ -363,22 +363,6 @@ int ai_PokerStart();
 unsigned short ai_PokerStep(); int gm_BuildingSkill(); float ai_NormalizeEffectScale(float x);
 
 POKERGAME ai_PokerState;  /* 0x6f3500 .. 0x6f35c0, the poker game state (poker.c steps it) */
-/* ai_TextLoadGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextSaveGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextGameOptions: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextGfxOptions: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextSfxOptions: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextLeaveGame: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TextBack: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_QuickSaveNoPlayerText: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_QuickSaveDisabledText: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_ContactTextBloodRevenge: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_ContactTextCurse: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_ContactTextTheatre: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_ContactTextHomage: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_ContactTextChat: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TailorBlockedText: view of txt_Ptrs (build/mk_txt_views.py) */
-/* ai_TailorAmountText: view of txt_Ptrs (build/mk_txt_views.py) */
 POKERUI ai_PokerUi = { -1 };  /* 0x62dda0, the poker window state (window -1 when closed, the rest zero) */
 
 /* 0x5d9de0, opens the poker table window "Locations\zigeuner\poker" 0x62de10 (273 B): returns 0 when a window is open
