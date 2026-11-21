@@ -123,7 +123,7 @@ extern int ai_DragCutscene;  /* 0x6f2670, 1 while the tooltip view holds d2_Cuts
 extern int ai_ScreenshotCount;  /* 0x6f2674, the number of the next screenshot */
 extern AIBOOKMARK ai_Bookmarks[11];  /* 0x6f5ec0, the function-key building bookmarks */
 extern unsigned int ai_GraveChatterAt;  /* 0x62a538, d3_Time at the last graveyard chatter tick */
-extern int ai_TutorialBanks[6];         /* 0x6f2640, the tutorial's voice banks */
+extern struct SBBANK *ai_TutorialBanks[6];      /* 0x6f2640, the tutorial's voice banks */
 extern TUTRUN *ai_TutorialRuns;         /* 0x6f2658, the chain of the tutorial's run records */
 extern int ai_TutorialOn;               /* 0x6f265c, the tutorial runs */
 extern int ai_TutorialRunning;          /* 0x6f2660, its state machine advances */

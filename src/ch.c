@@ -62,7 +62,7 @@ CHACTION * ch_Queue = 0;  /* 0x631050 */
 int ch_Time = 0;  /* 0x631054 */
 char ch_MarkWalkErrors = 0;  /* 0x631058, when set, a failed walk animation marks the character's
                                 flags bit 8; a debug switch (no writer in the image, always 0) */
-int ch_SndLib = 0;  /* 0x63105c, sound library for step sounds */
+struct SBBANK *ch_SndLib = 0;  /* 0x63105c, sound library for step sounds */
 int ch_StepSounds = 0;  /* 0x631060 */
 int ch_LowPoly = 0;  /* 0x631064 */
 D3VECTOR ch_PathOffset = {0};  /* 0x631068, added to the last path cell */

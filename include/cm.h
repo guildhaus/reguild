@@ -630,10 +630,10 @@ void cm_ClosePortraits();  /* 0x4cfe70 */
 int d2_CreateWinText(short x, short y, char *text, int win);  /* 0x473650 */
 
 void cm_ClickSceneChar();  /* 0x4cfeb0 */
-int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay);  /* 0x4c27d0 */
+struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay);  /* 0x4c27d0 */
 extern int ai_ClickedObject;  /* 0x6f22e4 */
-extern int cm_AttackerClickVoices;  /* 0x6f0d24 */
-extern int cm_DefenderClickVoices;  /* 0x6f0d28 */
+extern struct SBBANK *cm_AttackerClickVoices;  /* 0x6f0d24 */
+extern struct SBBANK *cm_DefenderClickVoices;  /* 0x6f0d28 */
 
 int cm_OrderAttack(char *rec, struct AICHAR *c, struct AICHAR *tgt, int x, int z);  /* 0x4cffd0 */
 char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, float *py);  /* 0x45f170 */
@@ -654,10 +654,10 @@ char cm_OrderClick(char *rec, struct AICHAR *c);  /* 0x4d0570 */
 
 
 void cm_FightMouse(char *rec);  /* 0x4d0740 */
-int snd_PlayVoice(int id, int bank, char *text, int var);  /* 0x4c2760 */
+struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text, int var);  /* 0x4c2760 */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);  /* 0x446f30 */
-extern int cm_AttackerOrderVoices;  /* 0x6f0d34 */
-extern int cm_DefenderOrderVoices;  /* 0x6f0d38 */
+extern struct SBBANK *cm_AttackerOrderVoices;  /* 0x6f0d34 */
+extern struct SBBANK *cm_DefenderOrderVoices;  /* 0x6f0d38 */
 
 void cm_ClearMarks();  /* 0x4d08c0 */
 struct AICHAR *cm_AddFighter(int id, char *dummy);  /* 0x4d0920 */
@@ -675,7 +675,7 @@ char cm_ClearKind3MaskCB(char *o);  /* 0x4d0f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 
 struct CMFIGHTREC; void cm_SetupFightScene(struct CMFIGHTREC *rec);  /* 0x4d0fa0, sets up the fight scene of a fight record */
-int snd_LoadVoiceBank();  /* 0x4c2830 */
+struct SBBANK *snd_LoadVoiceBank(char *name, int a);  /* 0x4c2830 */
 struct SBBANK * sb_LoadSampleBank();  /* 0x426950 */
 int cm_FightRole();  /* 0x4d4050 */
 void cm_LoadEventScene(char *name);  /* 0x4e2e60, loads the scene file name into a free scene and fades it in */
@@ -692,12 +692,12 @@ extern struct SBBANK *cm_CrossbowSounds;  /* 0x6f0d10 */
 extern struct SBBANK *cm_DaggerSounds;  /* 0x6f0d18 */
 extern struct SBBANK *cm_PistolSounds;  /* 0x6f0d1c */
 extern struct SBBANK *cm_SwordSounds;  /* 0x6f0d20 */
-extern int cm_AttackerAttackVoices;  /* 0x6f0d2c */
-extern int cm_DefenderAttackVoices;  /* 0x6f0d30 */
-extern int cm_AttackerTauntVoices;  /* 0x6f0d3c */
-extern int cm_DefenderTauntVoices;  /* 0x6f0d40 */
-extern int cm_AttackerPainVoices;  /* 0x6f0d44 */
-extern int cm_DefenderPainVoices;  /* 0x6f0d48 */
+extern struct SBBANK *cm_AttackerAttackVoices;  /* 0x6f0d2c */
+extern struct SBBANK *cm_DefenderAttackVoices;  /* 0x6f0d30 */
+extern struct SBBANK *cm_AttackerTauntVoices;  /* 0x6f0d3c */
+extern struct SBBANK *cm_DefenderTauntVoices;  /* 0x6f0d40 */
+extern struct SBBANK *cm_AttackerPainVoices;  /* 0x6f0d44 */
+extern struct SBBANK *cm_DefenderPainVoices;  /* 0x6f0d48 */
 extern int cm_AttackerRole;  /* 0x6f0d50 */
 extern int cm_DefenderRole;  /* 0x6f0d54 */
 extern int cm_BootsObject;  /* 0x6f0d5c */
@@ -855,7 +855,7 @@ typedef struct G22ENT {                 /* 0x18 bytes, one participant of a sess
     char pad[7];
 } G22ENT;
 extern struct D2PIC *d2_Pics;  /* 0x6ed918 */
-int cm_LoadVoiceBank(char *name, int a);  /* 0x4e3270 */
+struct SBBANK *cm_LoadVoiceBank(char *name, int a);  /* 0x4e3270 */
 void cm_PlaySpecialTrack(char *a);  /* 0x4e3620 */
 int amt_GetColumnOffices(int col, int max, struct AMTREC *out);  /* 0x4e6fc0 */
 int amt_IsColumnDecided();  /* 0x4e83b0 */
@@ -865,13 +865,13 @@ void d2_SetViewEnabled(int view, int on);  /* 0x475590 */
 void d2_CloseView(int view);  /* 0x4758f0 */
 int ai_AmountRowStatus();  /* 0x5be1d0 */
 int ai_AmountRow();  /* 0x5be3b0 */
-int cm_QueueVoice(int id, int bank, char *text, int var, unsigned int delay);  /* 0x4e32d0 */
+struct SBSAMPLE *cm_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay);  /* 0x4e32d0 */
 int cm_RunSceneTicks(int a);  /* 0x4e3570 */
 int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e);  /* 0x4e6680 */
 unsigned * gm_CharNameRecord();  /* 0x4fb390 */
 int cm_StartEventArg(char *name, int arg);  /* 0x4e2c30 */
 int cm_WaitEvent(int a);  /* 0x4e2c70 */
-int cm_UnloadVoiceBank(int a);  /* 0x4e3290, drops the reference of the voice bank a (0 in the replay mode) */
+int cm_UnloadVoiceBank(struct SBBANK *a);  /* 0x4e3290, drops the reference of the voice bank a (0 in the replay mode) */
 int cm_WaitEventFull(int a);  /* 0x4e2d40 */
 void cm_EndSpecialTrack();  /* 0x4e3640 */
 void amt_UpdateOffices();  /* 0x4e85d0 */
@@ -916,7 +916,7 @@ void cm_DuelOutcome(G28REC *m);  /* 0x4debe0 */
 int cm_ResetCutInfos(char *m);  /* 0x4e36a0 */
 char d3_SetFogSet(unsigned int a, unsigned int b, float t);  /* 0x44a170 */
 int cm_StartScript(char *name);  /* 0x4e2bf0, loads the script name (evt_Load), runs it and returns its id */
-int cm_PlayVoice(int id, int bank, char *text, int var);  /* 0x4e32b0, plays the voice sample of speaker id in bank (text, var pick the sample); 0 in the replay mode */
+struct SBSAMPLE *cm_PlayVoice(int id, struct SBBANK *bank, char *text, int var);  /* 0x4e32b0, plays the voice sample of speaker id in bank (text, var pick the sample); 0 in the replay mode */
 int sb_IsPlaying();  /* 0x426f20 */
 int cm_StopScript(int a);  /* 0x4e2d90 */
 void cm_RunDuel(G28REC *m);  /* 0x4ded10 */
@@ -940,9 +940,9 @@ int cm_DestroySceneSky();  /* 0x4e3390 */
 void cm_RunExecution(G28REC *m);  /* 0x4e01e0 */
 int cm_CheckWedding(G28REC *m);  /* 0x4e0580 */
 void sb_Stop();  /* 0x427290 */
-int cm_EndWedding(int *s);  /* 0x4e06d0 */
-int cm_RunSceneTicksOrClick(int ticks, int (*cb)(int), int arg);  /* 0x4e3490 */
-int cm_WaitEventOrClick(int a, int (*cb)(int), int arg);  /* 0x4e2cc0 */
+int cm_EndWedding(void *arg);  /* 0x4e06d0 */
+int cm_RunSceneTicksOrClick(int ticks, int (*cb)(void *), void *arg);  /* 0x4e3490 */
+int cm_WaitEventOrClick(int a, int (*cb)(void *), void *arg);  /* 0x4e2cc0 */
 int sb_IsPlaying();  /* 0x426f20 */
 int cm_RunWedding(G28REC *m);  /* 0x4e0770 */
 

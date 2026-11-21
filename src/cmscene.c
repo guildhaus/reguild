@@ -307,13 +307,14 @@ void cm_RunCouncilSession(G28REC *a)
     GMHEAD *head;
     CMCUTINFO *s;
     struct MSXTRACK *sound;
-    int bankDepose, bankElect, loaded, view, viewBottom, viewTop, viewLeft;
+    struct SBBANK *bankDepose, *bankElect;
+    int loaded, view, viewBottom, viewTop, viewLeft;
     int npresent, k, kind, n, nh, m, left, nvoters, shown, napp, best, win, tie, r, i, j, e, slot;
 
     saved = *a;
     sound = 0;
-    bankDepose = cm_LoadVoiceBank((int)"ABSETZUNG.sbf", 0);
-    bankElect = cm_LoadVoiceBank((int)"AMTSWAHL.sbf", 0);
+    bankDepose = cm_LoadVoiceBank("ABSETZUNG.sbf", 0);
+    bankElect = cm_LoadVoiceBank("AMTSWAHL.sbf", 0);
     cm_PlaySpecialTrack(0);
     npresent = 0;
     for (i = 0; i < a->used; i++) {
@@ -424,7 +425,7 @@ void cm_RunCouncilSession(G28REC *a)
             ai_AmountRow(0x28, 0, d2_LastWindow, 0x54, &row, 1);
             d2_SetForm(viewTop, 2);
             cm_TallyStack(d2_LastWindow, 1, 0);
-            cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_KAMMERN", kind - 1, 0x32);
+            cm_QueueVoice(-8, bankDepose, "_ABSETZEN_KAMMERN", kind - 1, 0x32);
             d2_SetViewEnabled(view, 1);
             d2_SetForm(view, 0);
             io_PrintText((intptr_t)"$C");
@@ -472,7 +473,7 @@ void cm_RunCouncilSession(G28REC *a)
                 cm_RunSceneTicks(0x3e8);
                 d2_SetForm(view, 0);
                 if (s->session.answer == 0) {
-                    cm_QueueVoice(c->id, bankDepose, (int)"_ABSETZEN_JA", cm_Random(4), 100);
+                    cm_QueueVoice(c->id, bankDepose, "_ABSETZEN_JA", cm_Random(4), 100);
                     io_PrintText(0x12c8);
                     if (s->session.click == 1)
                         io_PrintText(0x12cb + cm_Random(2), challenger->id);
@@ -481,7 +482,7 @@ void cm_RunCouncilSession(G28REC *a)
                     d2_SetForm(viewTop, 2);
                     cm_TallyStack(d2_LastWindow, 0, 0);
                 } else if (s->session.answer == 1) {
-                    cm_QueueVoice(c->id, bankDepose, (int)"_ABSETZEN_NEIN", cm_Random(4), 100);
+                    cm_QueueVoice(c->id, bankDepose, "_ABSETZEN_NEIN", cm_Random(4), 100);
                     io_PrintText(0x12ca);
                     if (s->session.click == 1)
                         io_PrintText(0x12cd + cm_Random(2), holder->id, challenger->id);
@@ -490,7 +491,7 @@ void cm_RunCouncilSession(G28REC *a)
                     d2_SetForm(viewTop, 2);
                     cm_TallyStack(d2_LastWindow, 0, 1);
                 } else {
-                    cm_QueueVoice(c->id, bankDepose, (int)"_ABSETZEN_ENTHALTUNG", cm_Random(4), 100);
+                    cm_QueueVoice(c->id, bankDepose, "_ABSETZEN_ENTHALTUNG", cm_Random(4), 100);
                     io_PrintText(0x12c9);
                     d2_SetForm(viewTop, 2);
                     cm_TallyStack(d2_LastWindow, 0, 2);
@@ -500,7 +501,7 @@ void cm_RunCouncilSession(G28REC *a)
                 cm_RunSceneTicks(0x3e8);
             }
             if (tally[0] > tally[1]) {
-                cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_ERGEBNIS_ABGESETZT", cm_Random(3), 100);
+                cm_QueueVoice(-8, bankDepose, "_ABSETZEN_ERGEBNIS_ABGESETZT", cm_Random(3), 100);
                 d2_SetForm(view, 0);
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12d6, tally[0], tally[1], holder->id);
@@ -523,7 +524,7 @@ void cm_RunCouncilSession(G28REC *a)
                 }
             } else {
                 c = gm_FindChar(offices[j].owner);
-                cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_ERGEBNIS_NICHT_ABGESETZT", cm_Random(3), 100);
+                cm_QueueVoice(-8, bankDepose, "_ABSETZEN_ERGEBNIS_NICHT_ABGESETZT", cm_Random(3), 100);
                 d2_SetForm(view, 0);
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12d7, tally[0], tally[1], holder->id, holder->id);
@@ -625,8 +626,8 @@ void cm_RunCouncilSession(G28REC *a)
                 applicants[i] = 0;
                 elect.ids[i] = -1;
             }
-            cm_QueueVoice(-8, bankElect, (int)"_INTRO", kind - 1, 100);
-            cm_QueueVoice(-8, bankElect, (int)"_BEWERBER", napp - 1, 0x1f4);
+            cm_QueueVoice(-8, bankElect, "_INTRO", kind - 1, 100);
+            cm_QueueVoice(-8, bankElect, "_BEWERBER", napp - 1, 0x1f4);
             d2_SetViewEnabled(view, 1);
             d2_SetForm(view, 0);
             io_PrintText((intptr_t)"$C");
@@ -656,7 +657,7 @@ void cm_RunCouncilSession(G28REC *a)
             cm_RunSceneTicks(0x9c4);
             if (napp == 1) {
                 /* a single applicant takes the office */
-                cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 0, 100);
+                cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 0, 100);
                 d2_Objs[applicantRows[0].ctl].highlighted = 1;
                 d2_SetForm(view, 0);
                 io_PrintText((intptr_t)"$C");
@@ -670,7 +671,7 @@ void cm_RunCouncilSession(G28REC *a)
             } else if (nvoters == 0) {
                 /* nobody to vote: one is drawn */
                 r = cm_Random(napp);
-                cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 1, 100);
+                cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 1, 100);
                 d2_SetForm(view, 0);
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12e1);
@@ -728,7 +729,7 @@ void cm_RunCouncilSession(G28REC *a)
                 if (tie == 0) {
                     if (win != -1) {
                         d2_Objs[applicantRows[win].ctl].highlighted = 1;
-                        cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 3, 100);
+                        cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 3, 100);
                         d2_SetForm(view, 0);
                         io_PrintText((intptr_t)"$C");
                         io_PrintText(0x12e5, offices[j].kind + 0x253, applicants[win]->id);
@@ -747,7 +748,7 @@ void cm_RunCouncilSession(G28REC *a)
                             win = r;
                             break;
                         }
-                    cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 2, 100);
+                    cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 2, 100);
                     d2_SetForm(view, 0);
                     io_PrintText((intptr_t)"$C");
                     io_PrintText(0x12e3);
@@ -1183,8 +1184,10 @@ void cm_RunTrial(G28REC *m)
     struct MSXTRACK *sound;
     char *pathEnd, *end;
     float severity, sum;
-    int ncrimes, nlist, plea, confessed, sel, scene, k, i, j, ev, ev2, h, votes, sentence, fee;
-    int bankTrial, bankPlea, bankV, bankVerdict, bank8, bankF1, bankF2, bankT1, bankT2, bankT3, bankT4, bankE, bank6;
+    int ncrimes, nlist, plea, confessed, sel, scene, k, i, j, ev, ev2;
+    struct SBSAMPLE *h;
+    int votes, sentence, fee;
+    struct SBBANK *bankTrial, *bankPlea, *bankV, *bankVerdict, *bank8, *bankF1, *bankF2, *bankT1, *bankT2, *bankT3, *bankT4, *bankE, *bank6;
 
     confessed = 0;
     scene = -1;
@@ -1257,7 +1260,7 @@ void cm_RunTrial(G28REC *m)
         cm_PlaySpecialTrack((int)"cd2\\ArmerDelinquent.mp3");
     else
         cm_PlaySpecialTrack((int)"cd2\\ImKerker.mp3");
-    bankTrial = cm_LoadVoiceBank((int)"ADDON\\PROZESS_NEU.sbf", 0);
+    bankTrial = cm_LoadVoiceBank("ADDON\\PROZESS_NEU.sbf", 0);
     plan.rating2c = ai_WealthRating(c0, c1);
 
     /* the figures of the court */
@@ -1281,7 +1284,7 @@ void cm_RunTrial(G28REC *m)
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText(0x1491);
-    h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", 5);
+    h = cm_PlayVoice(c2->id, bankTrial, "_PROZESS_NEU", 5);
     CM_WAIT_VOICE(h);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
@@ -1293,7 +1296,7 @@ void cm_RunTrial(G28REC *m)
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     io_PrintText(0x1499, c1->id);
-    h = cm_PlayVoice(c0->id, bankTrial, (int)"_PROZESS_NEU", c1->sex == 1);
+    h = cm_PlayVoice(c0->id, bankTrial, "_PROZESS_NEU", c1->sex == 1);
     CM_WAIT_VOICE(h);
     cm_WaitEvent(ev);
 
@@ -1333,7 +1336,7 @@ void cm_RunTrial(G28REC *m)
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C$Z");
         io_PrintText((intptr_t)text);
-        h = cm_PlayVoice(c0->id, bankTrial, (int)"_PROZESS_GESETZ", (unsigned char)dec.b1e);
+        h = cm_PlayVoice(c0->id, bankTrial, "_PROZESS_GESETZ", (unsigned char)dec.b1e);
         CM_WAIT_VOICE(h);
         cm_Random(0x1e);
         io_PrintText((intptr_t)"$C");
@@ -1345,7 +1348,7 @@ void cm_RunTrial(G28REC *m)
     /* the plea of the accused */
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
     io_PrintText(0x14ba, c1->id, ncrimes);
-    h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", (c1->sex != 0) + 2);
+    h = cm_PlayVoice(c2->id, bankTrial, "_PROZESS_NEU", (c1->sex != 0) + 2);
     CM_WAIT_VOICE(h);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
@@ -1366,13 +1369,13 @@ void cm_RunTrial(G28REC *m)
     if (plea == 1) {
         plan.score = sum - gm_Liking(c1->id, c2->id, 1) * sum * 0.002f;
         plan.plea = plea;
-        h = cm_LoadVoiceBank((int)"PROZESS_3_SCHULDIG.sbf", 0);
-        cm_QueueVoice(c1->id, h, (int)"_PROZESS_3_SCHULDIG", 0, 0);
+        bankPlea = cm_LoadVoiceBank("PROZESS_3_SCHULDIG.sbf", 0);
+        cm_QueueVoice(c1->id, bankPlea, "_PROZESS_3_SCHULDIG", 0, 0);
         io_PrintText(0x14bd, c1->id, 0x14be);
     } else {
         plan.plea = 0;
-        h = cm_LoadVoiceBank((int)"PROZESS_3_NICHT_SCHULDIG.sbf", 0);
-        cm_QueueVoice(c1->id, h, (int)"_PROZESS_3_NICHT_SCHULDIG", 0, 0);
+        bankPlea = cm_LoadVoiceBank("PROZESS_3_NICHT_SCHULDIG.sbf", 0);
+        cm_QueueVoice(c1->id, bankPlea, "_PROZESS_3_NICHT_SCHULDIG", 0, 0);
         io_PrintText(0x14bd, c1->id, 0x14c4);
         if (c5 != 0 && ncrimes > 2)
             plan.mode = 1;
@@ -1405,10 +1408,10 @@ void cm_RunTrial(G28REC *m)
         if (k == 1) {
             j = cm_Random(6);
             k = cm_Random(6);
-            bankF1 = cm_LoadVoiceBank((int)"PROZESS_4_FOLTER_1.sbf", 0);
-            bankF2 = cm_LoadVoiceBank((int)"PROZESS_4_FOLTER_2.sbf", 0);
-            cm_QueueVoice(c0->id, bankF1, (int)"_PROZESS_4_FOLTER_1", j, 0x32);
-            cm_QueueVoice(c0->id, bankF2, (int)"_PROZESS_4_FOLTER_2", k, 0x12c);
+            bankF1 = cm_LoadVoiceBank("PROZESS_4_FOLTER_1.sbf", 0);
+            bankF2 = cm_LoadVoiceBank("PROZESS_4_FOLTER_2.sbf", 0);
+            cm_QueueVoice(c0->id, bankF1, "_PROZESS_4_FOLTER_1", j, 0x32);
+            cm_QueueVoice(c0->id, bankF2, "_PROZESS_4_FOLTER_2", k, 0x12c);
             io_PrintText(0x14d9);
             cm_WaitTicks(1);
             io_PrintText((intptr_t)"$C");
@@ -1454,10 +1457,10 @@ void cm_RunTrial(G28REC *m)
             plan.tries = ai_PlanLevel(&plan);
             plan.answer = 0;
             sprintf(buf, "PROZESS_5_FOLTER2_%s.sbf", instruments[sel]);
-            bankT1 = cm_LoadVoiceBank((int)"PROZESS_5_FOLTER2_GESTEHEN.sbf", 0);
-            bankT2 = cm_LoadVoiceBank((int)buf, 0);
-            bankT3 = cm_LoadVoiceBank((int)"PROZESS_5_FOLTER2_WEITER.sbf", 0);
-            bankT4 = cm_LoadVoiceBank((int)"PROZESS_5_FOLTER2_UNSCHULDSBETEUERUNG.sbf", 0);
+            bankT1 = cm_LoadVoiceBank("PROZESS_5_FOLTER2_GESTEHEN.sbf", 0);
+            bankT2 = cm_LoadVoiceBank(buf, 0);
+            bankT3 = cm_LoadVoiceBank("PROZESS_5_FOLTER2_WEITER.sbf", 0);
+            bankT4 = cm_LoadVoiceBank("PROZESS_5_FOLTER2_UNSCHULDSBETEUERUNG.sbf", 0);
             sprintf(buf, "_PROZESS_5_FOLTER2_%s", instruments[sel]);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
@@ -1488,7 +1491,7 @@ void cm_RunTrial(G28REC *m)
             d2_SetForm(cm_TextBox, 0);
             io_PrintText((intptr_t)"$C");
             io_PrintText(0x14e4);
-            h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", 4);
+            h = cm_PlayVoice(c2->id, bankTrial, "_PROZESS_NEU", 4);
             CM_WAIT_VOICE(h);
             strcpy(pathEnd, files[sel]);
             cm_SetViewEnabled(cm_TextBox, 0);
@@ -1499,7 +1502,7 @@ void cm_RunTrial(G28REC *m)
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
             k = cm_Random(5);
-            cm_QueueVoice(c0->id, bankT2, (int)buf, k, 0x320);
+            cm_QueueVoice(c0->id, bankT2, buf, k, 0x320);
             io_PrintText((intptr_t)"$C");
             io_PrintText(0x14ec, texts[sel] + k);
             cm_WaitTicks(5);
@@ -1515,12 +1518,12 @@ void cm_RunTrial(G28REC *m)
                 d2_SetForm(cm_TextBox, 0);
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x14e6 + k);
-                cm_QueueVoice(c1->id, bankT4, (int)"_PROZESS_5_FOLTER2_UNSCHULDSBETEUERUNG", k, 0x1f4);
+                cm_QueueVoice(c1->id, bankT4, "_PROZESS_5_FOLTER2_UNSCHULDSBETEUERUNG", k, 0x1f4);
                 cm_WaitTicks(5);
             } else {
                 k = cm_Random(10);
-                cm_QueueVoice(c1->id, bankT1, (int)"_PROZESS_5_FOLTER2_GESTEHEN", k, 0);
-                cm_QueueVoice(c1->id, bankT3, (int)"_PROZESS_5_FOLTER2_WEITER", 0, 0x1f4);
+                cm_QueueVoice(c1->id, bankT1, "_PROZESS_5_FOLTER2_GESTEHEN", k, 0);
+                cm_QueueVoice(c1->id, bankT3, "_PROZESS_5_FOLTER2_WEITER", 0, 0x1f4);
                 cm_SetViewEnabled(cm_TextBox, 1);
                 d2_SetForm(cm_TextBox, 0);
                 io_PrintText((intptr_t)"$C");
@@ -1558,21 +1561,21 @@ void cm_RunTrial(G28REC *m)
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     if (plan.tortured != 0) {
-        bankV = cm_LoadVoiceBank((int)"PROZESS_6_FOLTERERGEBNIS.sbf", 0);
+        bankV = cm_LoadVoiceBank("PROZESS_6_FOLTERERGEBNIS.sbf", 0);
         cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
         if (confessed != 0) {
-            cm_QueueVoice(c2->id, bankV, (int)"_PROZESS_6_FOLTERERGEBNIS", 0, 100);
+            cm_QueueVoice(c2->id, bankV, "_PROZESS_6_FOLTERERGEBNIS", 0, 100);
             io_PrintText(0x1520, c1->id, 0x1521);
         } else {
-            cm_QueueVoice(c2->id, bankV, (int)"_PROZESS_6_FOLTERERGEBNIS", 1, 100);
+            cm_QueueVoice(c2->id, bankV, "_PROZESS_6_FOLTERERGEBNIS", 1, 100);
             io_PrintText(0x1520, c1->id, 0x1522);
         }
         cm_WaitTicks(4);
     }
 
     /* the vote of the judge and the assessors */
-    bank6 = cm_LoadVoiceBank((int)"PROZESS_6_ANKUENDIGUNG.sbf", 0);
-    cm_QueueVoice(c2->id, bank6, (int)"_PROZESS_6_ANKUENDIGUNG", 0, 0);
+    bank6 = cm_LoadVoiceBank("PROZESS_6_ANKUENDIGUNG.sbf", 0);
+    cm_QueueVoice(c2->id, bank6, "_PROZESS_6_ANKUENDIGUNG", 0, 0);
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
@@ -1586,7 +1589,7 @@ void cm_RunTrial(G28REC *m)
     cm_UnloadVoiceBank(bank6);
     for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[2]; i++)
         ;
-    bankE = cm_LoadVoiceBank((int)"PROZESS_6_ABSTIMMUNG_ERGEBNISSE.sbf", 0);
+    bankE = cm_LoadVoiceBank("PROZESS_6_ABSTIMMUNG_ERGEBNISSE.sbf", 0);
     cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
@@ -1594,7 +1597,7 @@ void cm_RunTrial(G28REC *m)
     io_PrintText(0x1528, c2->id);
     cm_WaitTicks(2);
     votes = cm_CutInfos[i].session.answer;
-    cm_QueueVoice(c2->id, bankE, (int)"_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i].session.answer * 3, 100);
+    cm_QueueVoice(c2->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i].session.answer * 3, 100);
     io_PrintText(0x152c + votes);
     cm_WaitTicks(2);
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"1");
@@ -1612,7 +1615,7 @@ void cm_RunTrial(G28REC *m)
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
         io_PrintText(0x152c + vote);
-        cm_QueueVoice(c3->id, bankE, (int)"_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 1].session.answer * 3, 100);
+        cm_QueueVoice(c3->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 1].session.answer * 3, 100);
         cm_WaitTicks(2);
         votes += cm_CutInfos[i + 1].session.answer;
         cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"2");
@@ -1629,7 +1632,7 @@ void cm_RunTrial(G28REC *m)
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
         io_PrintText(0x152c + vote);
-        cm_QueueVoice(c4->id, bankE, (int)"_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 2].session.answer * 3, 100);
+        cm_QueueVoice(c4->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 2].session.answer * 3, 100);
         cm_WaitTicks(2);
         votes += cm_CutInfos[i + 2].session.answer;
         cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"2");
@@ -1638,10 +1641,10 @@ void cm_RunTrial(G28REC *m)
     cm_UnloadVoiceBank(bankV);
 
     /* the verdict */
-    bank8 = cm_LoadVoiceBank((int)"PROZESS_8.sbf", 0);
+    bank8 = cm_LoadVoiceBank("PROZESS_8.sbf", 0);
     if ((unsigned)votes < 2) {
-        bankVerdict = cm_LoadVoiceBank((int)"PROZESS_7_SCHULDIG.sbf", 0);
-        bankV = cm_LoadVoiceBank((int)"PROZESS_7_STRAFEN.sbf", 0);
+        bankVerdict = cm_LoadVoiceBank("PROZESS_7_SCHULDIG.sbf", 0);
+        bankV = cm_LoadVoiceBank("PROZESS_7_STRAFEN.sbf", 0);
         plan.mode = 5;
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
         cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
@@ -1658,8 +1661,8 @@ void cm_RunTrial(G28REC *m)
         io_PrintText(0x152f, c1->id);
         io_PrintText(0x1530);
         /* @original the three verdict voices pass the sex test masked with & 1 (xor; cmp; sete; and reg,1), the other sex tests of this function do not */
-        cm_QueueVoice(c2->id, bankVerdict, (int)"_PROZESS_7_SCHULDIG", (c1->sex == 1) & 1, 100);
-        cm_QueueVoice(c2->id, bankVerdict, (int)"_PROZESS_7_SCHULDIG", 2, 0xfa);
+        cm_QueueVoice(c2->id, bankVerdict, "_PROZESS_7_SCHULDIG", (c1->sex == 1) & 1, 100);
+        cm_QueueVoice(c2->id, bankVerdict, "_PROZESS_7_SCHULDIG", 2, 0xfa);
         cm_WaitTicks(3);
         gv_CheckSentence(c1, sentence);
         cm_SetViewEnabled(cm_TextBox, 1);
@@ -1672,8 +1675,8 @@ void cm_RunTrial(G28REC *m)
             if (fin != 0)
                 fin->officeSentences++;
         }
-        cm_QueueVoice(c2->id, bankV, (int)"_PROZESS_7_STRAFEN", sentence, 100);
-        cm_QueueVoice(c2->id, bank8, (int)"_PROZESS_8", (c1->sex == 1) & 1, 200);
+        cm_QueueVoice(c2->id, bankV, "_PROZESS_7_STRAFEN", sentence, 100);
+        cm_QueueVoice(c2->id, bank8, "_PROZESS_8", (c1->sex == 1) & 1, 200);
         if (m->host == ai_Chars[ai_PlayerId].netId)
             gv_PassSentence(c1, sentence, c2, c3, c4);
         io_PrintText(0x1531);
@@ -1688,9 +1691,9 @@ void cm_RunTrial(G28REC *m)
         io_PrintText(0x1557, plan.rating2c, c1->id);
         cm_WaitTicks(4);
     } else {
-        bankVerdict = cm_LoadVoiceBank((int)"PROZESS_7_NICHT_SCHULDIG.sbf", 0);
-        cm_QueueVoice(c2->id, bankVerdict, (int)"_PROZESS_7_NICHT_SCHULDIG", c1->sex == 1, 100);
-        cm_QueueVoice(c2->id, bank8, (int)"_PROZESS_8", ((c0->sex == 1) & 1) + 2, 200);
+        bankVerdict = cm_LoadVoiceBank("PROZESS_7_NICHT_SCHULDIG.sbf", 0);
+        cm_QueueVoice(c2->id, bankVerdict, "_PROZESS_7_NICHT_SCHULDIG", c1->sex == 1, 100);
+        cm_QueueVoice(c2->id, bank8, "_PROZESS_8", ((c0->sex == 1) & 1) + 2, 200);
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
@@ -2270,7 +2273,8 @@ void cm_RunDuel(G28REC *m)
     CHACTION *act;
     char buf[200];
     char text[0x400];
-    int i, n, r, v, snd1, snd2;
+    int i, n, r, v;
+    struct SBBANK *snd1, *snd2;
     D3OBJECT *mark;
     int scene;
     int hita, hitb;
@@ -2314,7 +2318,7 @@ void cm_RunDuel(G28REC *m)
         else
             cm_PlaySpecialTrack("cd2\\AmKuehlenGrabe.mp3");
     }
-    snd1 = (int)sb_LoadSampleBank("duell_sfx.sbf", 0);
+    snd1 = sb_LoadSampleBank("duell_sfx.sbf", 0);
     snd2 = snd_LoadVoiceBank("duell.sbf", 0);
     scene = cm_StartScript("cutscenes\\duell\\enter_DUELL.esc");
     a = gm_FindChar(m->members[0]);
@@ -2336,12 +2340,14 @@ void cm_RunDuel(G28REC *m)
     ch_SetHandObject(cb.scene, 2, "ob_PISTOLE");
     cb.scene->pathType = 4;
     for (i = 0; i < 3; i++) {
+        struct SBSAMPLE *voice;
+
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C");
         io_PrintText(v * 3 + 0x10cb + i);
         sprintf(buf, "_DUELL_INTRO_NEU_0%d", i);
-        n = cm_PlayVoice(-7, 0, buf, -1);
-        while (n != 0 && sb_IsPlaying(n) != 0)
+        voice = cm_PlayVoice(-7, 0, buf, -1);
+        while (voice != 0 && sb_IsPlaying(voice) != 0)
             cm_WaitTicks(2);
     }
     ch_WalkToObject(ca.scene, d3_FindObject(0, 0x100, 0, "dummy_DUELL_START_A"));
@@ -2837,27 +2843,36 @@ int cm_CheckWedding(G28REC *m)
         cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x40000);
     return 0;
 }
-/* 0x4e06d0, ends a wedding scene s (s[0] the scene, s[1] its view, s[2] a sample bank, s[3] a playing sample): the exit scene
+typedef struct CMWEDDING {          /* the wedding's state (cm_RunWedding), ended by cm_EndWedding */
+    int scene;                          /* the speech scene (cm_StartEventArg), -1 none */
+    int view;                           /* the text view, -1 none */
+    struct SBBANK *bank;                /* the voice bank "ADDON\\HOCHZEIT_NEU.sbf" */
+    struct SBSAMPLE *voice;             /* the playing voice, 0 none */
+} CMWEDDING;
+
+/* 0x4e06d0, ends a wedding scene s (a CMWEDDING: the scene, its view, the
+   voice bank, the playing voice): the exit scene
    "cutscenes\\hochzeit\\hochzeit-exit.esc", the globals reset. Returns 1 */
 
-int cm_EndWedding(int *s)
+int cm_EndWedding(void *arg)
 {
-    int v;
+    CMWEDDING *s = arg;
+    struct SBBANK *v;
 
     cm_FadeToBlack();
-    if (s[3] != 0)
-        sb_Stop(s[3], 0);
-    v = s[2];
-    s[3] = 0;
+    if (s->voice != 0)
+        sb_Stop(s->voice, 0);
+    v = s->bank;
+    s->voice = 0;
     sb_UnloadSampleBank(v);
-    if (s[1] != -1)
-        d2_CloseView(s[1]);
-    if (s[0] != -1)
-        cm_StopScript(s[0]);
-    s[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-exit.esc", &ch_EmptyName);
-    cm_WaitEvent(s[0]);
-    s[0] = -1;
-    s[1] = -1;
+    if (s->view != -1)
+        d2_CloseView(s->view);
+    if (s->scene != -1)
+        cm_StopScript(s->scene);
+    s->scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-exit.esc", &ch_EmptyName);
+    cm_WaitEvent(s->scene);
+    s->scene = -1;
+    s->view = -1;
     cm_FightStart = 0;
     cm_LeaveEventScene();
     cm_EndSpecialTrack();
@@ -2865,9 +2880,9 @@ int cm_EndWedding(int *s)
     return 1;
 }
 
-#define WED_STEP(ms) if ((r = cm_RunSceneTicksOrClick((ms), cm_EndWedding, st)) != 0) return r  /* a pause; a click ends the wedding */
-#define WED_WAIT() if ((r = cm_WaitEventOrClick(st[0], cm_EndWedding, st)) != 0) return r  /* waits for the speech scene st[0] */
-#define WED_VOICE(tag) st[3] = cm_PlayVoice(-7, st[2], (tag), 0); while (sb_IsPlaying(st[3]) != 0) { WED_STEP(0x3e8); }  /* plays a voice of the bank and waits for it */
+#define WED_STEP(ms) if ((r = cm_RunSceneTicksOrClick((ms), cm_EndWedding, &st)) != 0) return r  /* a pause; a click ends the wedding */
+#define WED_WAIT() if ((r = cm_WaitEventOrClick(st.scene, cm_EndWedding, &st)) != 0) return r  /* waits for the speech scene st.scene */
+#define WED_VOICE(tag) st.voice = cm_PlayVoice(-7, st.bank, (tag), 0); while (sb_IsPlaying(st.voice) != 0) { WED_STEP(0x3e8); }  /* plays a voice of the bank and waits for it */
 /* 0x4e0770, the wedding (the scene callback of the wedding event) of the couple m->members[0] / [1] (a the one with sex 0,
    swapped so; the players' characters, kind 6, count the mission event 0x28; both get the field 0x1c8 set): the scene
    "KIRCHE_HOCHZEIT.ed3", the track "Hochzeit", the sample bank "ADDON\\HOCHZEIT_NEU.sbf", the scenes hochzeit-create (the
@@ -2888,7 +2903,7 @@ int cm_EndWedding(int *s)
 
 int cm_RunWedding(G28REC *m)
 {
-    int st[4];
+    CMWEDDING st;
     char buf[0x100];
     AICHAR *a, *b, *t;
     GMHEAD *ha, *hb;
@@ -2918,76 +2933,76 @@ int cm_RunWedding(G28REC *m)
         a = t;
         sprintf(buf, "%s %s %i", hb->name, ha->name, 1);
     }
-    st[2] = cm_LoadVoiceBank("ADDON\\HOCHZEIT_NEU.sbf", 0);
+    st.bank = cm_LoadVoiceBank("ADDON\\HOCHZEIT_NEU.sbf", 0);
     cm_LoadEventScene("KIRCHE_HOCHZEIT.ed3");
     cm_PlaySpecialTrack("cd2\\Hochzeit.mp3");
-    st[1] = d2_OpenForm(0, 0, "cutscenes\\hochzeit");
-    d2_PlaceMainWindow(st[1], 3);
-    d2_SetViewEnabled(st[1], 0);
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-create.esc", buf);
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-intro.esc", &ch_EmptyName);
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden1.esc", &ch_EmptyName);
+    st.view = d2_OpenForm(0, 0, "cutscenes\\hochzeit");
+    d2_PlaceMainWindow(st.view, 3);
+    d2_SetViewEnabled(st.view, 0);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-create.esc", buf);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-intro.esc", &ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden1.esc", &ch_EmptyName);
     WED_STEP(0x5dc);
-    d2_SetViewEnabled(st[1], 1);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 1);
+    d2_SetForm(st.view, 0);
     io_PrintText(0x1aa9, a->id, b->id);
     WED_VOICE("_HOCHZEIT_NEU_MAIN_00");
     WED_STEP(0x3e8);
-    d2_SetForm(st[1], 0);
+    d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
-    d2_SetViewEnabled(st[1], 0);
+    d2_SetViewEnabled(st.view, 0);
     WED_WAIT();
     WED_STEP(0x3e8);
 
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden2.esc", &ch_EmptyName);
-    d2_SetForm(st[1], 0);
-    d2_SetViewEnabled(st[1], 1);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden2.esc", &ch_EmptyName);
+    d2_SetForm(st.view, 0);
+    d2_SetViewEnabled(st.view, 1);
     io_PrintText(0x1aac, a->id, b->id);
     WED_VOICE("_HOCHZEIT_NEU_MAIN_03");
     WED_STEP(0x3e8);
-    d2_SetForm(st[1], 0);
+    d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
-    d2_SetViewEnabled(st[1], 0);
+    d2_SetViewEnabled(st.view, 0);
     WED_STEP(0x1f4);
-    d2_SetViewEnabled(st[1], 1);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 1);
+    d2_SetForm(st.view, 0);
     io_PrintText(0x1aab);
     WED_VOICE("_HOCHZEIT_NEU_M");
     WED_STEP(0x3e8);
     WED_WAIT();
 
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden3.esc", &ch_EmptyName);
-    d2_SetViewEnabled(st[1], 0);
-    d2_SetForm(st[1], 0);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden3.esc", &ch_EmptyName);
+    d2_SetViewEnabled(st.view, 0);
+    d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
     WED_STEP(0x5dc);
-    d2_SetViewEnabled(st[1], 1);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 1);
+    d2_SetForm(st.view, 0);
     io_PrintText(0x1aaa, b->id, a->id);
     WED_VOICE("_HOCHZEIT_NEU_MAIN_01");
     WED_STEP(0x1f4);
-    d2_SetViewEnabled(st[1], 0);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 0);
+    d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
     WED_STEP(0x1f4);
-    d2_SetViewEnabled(st[1], 1);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 1);
+    d2_SetForm(st.view, 0);
     io_PrintText(0x1aab);
     WED_VOICE("_HOCHZEIT_NEU_W");
     WED_STEP(0x1f4);
     WED_WAIT();
 
-    st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden4.esc", &ch_EmptyName);
-    d2_SetForm(st[1], 0);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden4.esc", &ch_EmptyName);
+    d2_SetForm(st.view, 0);
     io_PrintText(0x1aad);
     WED_VOICE("_HOCHZEIT_NEU_MAIN_04");
     WED_STEP(0x1f4);
-    d2_SetViewEnabled(st[1], 0);
-    d2_SetForm(st[1], 0);
+    d2_SetViewEnabled(st.view, 0);
+    d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
     WED_WAIT();
-    st[0] = -1;
-    return cm_EndWedding(st);
+    st.scene = -1;
+    return cm_EndWedding(&st);
 }
 /* 0x4e0e90, the check function of the birth (scene kind 7, run function 0x4e0f70) for its party m: the mother
    m->members[0] and the father m->members[1]; when the mother's partner (her relatives[0]) exists and is not dead
@@ -3027,7 +3042,8 @@ void cm_RunBirth(G28REC *m)
 {
     char name[0x10];
     AICHAR *a, *b;
-    int bank, sc, view, box, k;
+    struct SBBANK *bank;
+    int sc, view, box, k;
 
     a = gm_FindChar(m->members[0]);
     b = gm_FindChar(m->members[1]);
@@ -3123,7 +3139,9 @@ void cm_RunDeath(G28REC *m)
     char estate[0x1fb8];
     AICHAR *a = gm_FindChar(m->members[0]);
     int hours[6] = {8, 10, 12, 15, 18, 20};
-    int stage, i, sc, bank, rc, kin, revive;
+    int stage, i, sc;
+    struct SBBANK *bank;
+    int rc, kin, revive;
     unsigned int t0;
 
     stage = 6;
@@ -3235,7 +3253,8 @@ void cm_RunBankruptcy(G28REC *m)
     char estate[0x1fb8];
     AICHAR *a = gm_FindChar(m->members[0]);
     int hours[6] = {8, 10, 12, 15, 18, 20};
-    int i, stage, sc, bank;
+    int i, stage, sc;
+    struct SBBANK *bank;
 
     stage = 6;
     cm_DialogFrameFlags = 0x702c6;
@@ -3348,7 +3367,9 @@ void cm_RunAuction(G28REC *m)
     GMHEAD *rec;
     CMAUCTION req;
     float pos[4];
-    int i, k, speaker, bankIntro, bankBids, bankRemarks, behavior, enter, form;
+    int i, k, speaker;
+    struct SBBANK *bankIntro, *bankBids, *bankRemarks;
+    int behavior, enter, form;
     int best, rounds, round, done;
 
     b = gm_BuildQuery(1, 1, m->auction.building);
@@ -3807,7 +3828,7 @@ int cm_WaitEvent(int a)
 }
 /* 0x4e2cc0, like 0x4e2c70, but ends with the callback cb(arg) and 1 as soon as 0x14673a0 is set */
 
-int cm_WaitEventOrClick(int a, int (*cb)(int), int arg)
+int cm_WaitEventOrClick(int a, int (*cb)(void *), void *arg)
 {
     if (cm_SkipEvents != 0)
         return 0;
@@ -4015,7 +4036,7 @@ int cm_DeleteChar(int a)
 }
 /* 0x4e3270, loads the voice bank name (snd_LoadVoiceBank; a set preloads its entries), 0 in the replay mode */
 
-int cm_LoadVoiceBank(char *name, int a)
+struct SBBANK *cm_LoadVoiceBank(char *name, int a)
 {
     if (cm_SkipEvents != 0)
         return 0;
@@ -4023,7 +4044,7 @@ int cm_LoadVoiceBank(char *name, int a)
 }
 /* 0x4e3290, drops the reference of the voice bank a (sb_UnloadSampleBank), 0 in the replay mode */
 
-int cm_UnloadVoiceBank(int a)
+int cm_UnloadVoiceBank(struct SBBANK *a)
 {
     if (cm_SkipEvents != 0)
         return 0;
@@ -4031,7 +4052,7 @@ int cm_UnloadVoiceBank(int a)
 }
 /* 0x4e32b0, plays the voice sample of speaker id in bank (text, var pick the sample; snd_PlayVoice), 0 in the replay mode */
 
-int cm_PlayVoice(int id, int bank, char *text, int var)
+struct SBSAMPLE *cm_PlayVoice(int id, struct SBBANK *bank, char *text, int var)
 {
     if (cm_SkipEvents != 0)
         return 0;
@@ -4039,7 +4060,7 @@ int cm_PlayVoice(int id, int bank, char *text, int var)
 }
 /* 0x4e32d0, queues the voice sample of speaker id in bank (text, var pick the sample; snd_QueueVoice) after delay, 0 in the replay mode */
 
-int cm_QueueVoice(int id, int bank, char *text, int var, unsigned int delay)
+struct SBSAMPLE *cm_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay)
 {
     if (cm_SkipEvents != 0)
         return 0;
@@ -4116,7 +4137,7 @@ int cm_WaitTicks(int a)
    party's texts each frame (cm_UpdateDamagePops, cm_ShowPartyTexts); a right click (dm_L.rup) ends it at once with cb(arg) as the
    result (1 without cb), else 0. Nothing (0) when replaying */
 
-int cm_RunSceneTicksOrClick(int ticks, int (*cb)(int), int arg)
+int cm_RunSceneTicksOrClick(int ticks, int (*cb)(void *), void *arg)
 {
     int start, res;
 

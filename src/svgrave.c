@@ -311,7 +311,6 @@ typedef struct SHOTRESULT {     /* 0x38 bytes, three of them in ai_ShotTable: th
 extern int ai_TutorialChapterOn[5];
 extern int (*ai_TutorialChapterInit[5])(void);
 extern unsigned int ai_GraveChatterAt;
-extern int ai_TutorialBanks[6];
 extern TUTRUN *ai_TutorialRuns;
 extern int ai_TutorialOn;
 extern int ai_TutorialRunning;
@@ -370,7 +369,6 @@ int ai_TutorialInitMainIntro();
 int ai_TutorialInitMainOutro();
 void ai_TutorialStop();
 int sb_UnloadSampleBank();
-int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
 struct AICHAR; struct G9REC; struct VFSFILE;
@@ -467,7 +465,7 @@ void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemF
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox(intptr_t text, unsigned flags);
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, intptr_t id0, ...); int sv_MessageBox(intptr_t text, unsigned flags);
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
@@ -1854,7 +1852,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     sv_CameraFollow();
 }
 
-int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay); int ai_MapPick();
+struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text, int var, unsigned int delay); int ai_MapPick();
 
 /* 0x585380, the graveyard's fog window (the Graveyard Owner's action 0x90, am.c ai_DecideGraveyardOwner1): rec =
    the graveyard. A fog of this graveyard still pending (he_FindEvent 0x90) -> the voice "_NACHRICHTEN_FRIEDHOF_14"
@@ -2047,13 +2045,12 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     char text[0x100];
     int variants[8];
     int ids[8];
-    int wait[9];                /* the clock path's delays, the voice path's voice handles */
     char *name1;
     char *name2;
     int script;
     int win;
     int i;
-    int h;
+    struct SBSAMPLE *h;
     int k;                      /* the formula's offset from txt 0x40d7: its pair (/ 6) and variant (% 6) */
     unsigned int t;
 
@@ -2076,13 +2073,15 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     }
     i = 0;
     if (sb_IsInit() != 0) {
+        struct SBSAMPLE *voice[8];
+
         for (i = 0; i < 8; i++) {
             k = ids[i] - 0x40d7;
             sprintf(text, "_SEANCE_FORMEL_PART_%i_0%i", k / 6 + 1, k % 6);
-            wait[i] = snd_QueueVoice(-7, 0, text, -1, 100);
+            voice[i] = snd_QueueVoice(-7, 0, text, -1, 100);
         }
         for (i = 0; i < 8; i++) {
-            h = wait[i];
+            h = voice[i];
             while (sb_IsPlaying(h) == 0)
                 sv_RunFrame(0, 0x743c7);
             d2_SetForm(win, 0);
@@ -2091,6 +2090,8 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
                 sv_RunFrame(0, 0x743c7);
         }
     } else {
+        int wait[9];
+
         t = d3_Time;
         wait[0] = 0x47;
         wait[1] = 0xf8;

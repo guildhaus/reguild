@@ -539,7 +539,7 @@ typedef struct CHSLOT {             /* D3ANIMSLOT as the walk code sees it */
 #define CH_POS038(ch)   ((D3VECTOR *)((char *)(ch) + 0x38))
 
 extern char ch_MarkWalkErrors;           /* 0x631058, marks a failed walk animation on the character (a debug switch, always 0) */
-extern int ch_SndLib;               /* 0x63105c, sound library for step sounds */
+extern struct SBBANK *ch_SndLib;            /* 0x63105c, sound library for step sounds */
 struct SBSAMPLE * sb_GetSample(struct SBBANK *bank, char *name);                                               /* 0x426030 */
 int d3snd_PlayAt(struct SBSAMPLE *snd, struct D3OBJECT *obj, int volume, float range);                    /* 0x417e30 */
 

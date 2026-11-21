@@ -176,7 +176,7 @@ typedef struct MAINCHARNEW {        /* the AICHAR fields the character replaceme
     char pad190[0x64];
     char ownName[0x1c];             /* 0x1f4, the model name (AICHAR.ownName; from INIT_PLAYER.model) */
 } MAINCHARNEW;
-extern int main_SoundBanks[0x80];   /* 0x75df20 */
+extern struct SBBANK *main_SoundBanks[0x80]; /* 0x75df20 */
 extern char cm_RequestedSaveName[0x40];
 extern int main_LastLoadProgress;  /* 0x6f2610 */
 extern int main_BookObject;  /* 0x6f2614 */
@@ -2811,7 +2811,7 @@ void sv_UpdateClock(void);
    "sprache\") into the table 0x75df20 (0x80 slots); returns 1 when done, 0 on errors (a message box "main_PreloadSound(): Could not open sound-definition!") */
 int main_PreloadSound(char *f)
 {
-    int *slot;
+    struct SBBANK **slot;
     int *line;
     FILE *fp;
     char *q, *inc;
@@ -2843,7 +2843,7 @@ int main_PreloadSound(char *f)
             } else
                 *slot = sb_LoadSampleBank(q, 0);
             slot++;
-            if ((int)slot > (int)&main_SoundBanks[0x80])
+            if ((intptr_t)slot > (intptr_t)&main_SoundBanks[0x80])
                 return 0;
         }
         if (feof(fp)) {
@@ -2856,14 +2856,14 @@ int main_PreloadSound(char *f)
 
 void main_FreeSoundBanks(void)
 {
-    int *p;
+    struct SBBANK **p;
 
     p = main_SoundBanks;
     do {
         if (*p != 0)
             sb_UnloadSampleBank(*p);
         p++;
-    } while ((int)p < (int)&main_SoundBanks[0x80]);
+    } while ((intptr_t)p < (intptr_t)&main_SoundBanks[0x80]);
 }
 /* 0x537de0, "start of a game": resets the global state (0x6f2358 = 1, 0x6f2598 = 1 the round number, the day 0x770ae0 = 2, the quit flags 0x6f259c / 0x6f25a0 / 0x6f25ad), registers the tick callback 0x5315c0
    (0x42e970 (cb, 0x47) / 0x42ea10), starts the sound banks (natur\regen, wind, blitzunddonner, objekte\buecher, TuerenUndRaeume, Transporter, Lebewesen\schritte) when the sound is on, and
@@ -5206,7 +5206,7 @@ int he_EventCount;  /* 0x7585e4 */
 HEHANDLER he_RunHandlers[0xa8];  /* 0x758600, the event run handlers by type (he_SetEventHandlers) */
 HEGFXINFO he_GfxInfos[0x40];  /* 0x7588a0, he.h: the gfx infos (he_CreateGfxInfo) */
 HEAPEVENT he_ApEvents[0x100];  /* 0x758ca0, he.h: the AP events (he_AddApEvent) */
-int main_SoundBanks[0x80];  /* 0x75df20, the loaded sample-bank handles (main_PreloadSound fills, main_FreeSoundBanks frees; the next object is ai_MissionSeed 0x75e120) */
+struct SBBANK *main_SoundBanks[0x80];  /* 0x75df20, the loaded sample-bank handles (main_PreloadSound fills, main_FreeSoundBanks frees; the next object is ai_MissionSeed 0x75e120) */
 void * main_Instance;  /* 0x75e140, its instance handle (HINSTANCE) */
 MAINFAMILY main_Family;  /* 0x75e180, the character creation's family and talents */
 char main_NetHost[0x80];  /* 0x75e1c0, the network host address ([Network] Host of game.INI, read with size 0x80 at 0x53ccf0; up to main_AppDir 0x75e240) */

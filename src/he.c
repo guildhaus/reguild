@@ -411,7 +411,7 @@ typedef struct HEMSGBOX {               /* the message box event 17's words over
     int party;                          /* 0xb8, of a cutscene box: the party it shows (cm_PartyById) */
     char sel;                           /* 0xbc, sv_SelectPanelObject's third argument (written by it) */
     char padbd[0x2f];
-    int voice;                          /* 0xec, the spoken text's sample (snd_QueueVoice), 0: none */
+    struct SBSAMPLE *voice;             /* 0xec, the spoken text's sample (snd_QueueVoice), 0: none */
     unsigned char flags;                /* 0xf0, 1 big, 2 quick jump, 4 cutscene, 8 activate, 0x10 speak, 0x20 history, 0x40 help */
 } HEMSGBOX;
 typedef struct HESLOTORDER {            /* the slot order event 18's words over AIJOB's union (he_AllocSlotOrderStore / he_RunSlotOrder; AIJOB's
@@ -12414,7 +12414,7 @@ void he_RunMessageBox(AIJOB *e)
                             cm_SendLeaveParty(m->party, ai_Chars[ai_PlayerId].netId);
                     }
                     if ((m->flags & 0x10) != 0 && m->voice != 0) {
-                        sb_Stop((struct SBSAMPLE *)m->voice, 0);
+                        sb_Stop(m->voice, 0);
                         m->voice = 0;
                     }
                     if ((m->flags & 0x40) != 0 && (ai_GameFlags & 4) == 0)
@@ -12440,7 +12440,7 @@ void he_RunMessageBox(AIJOB *e)
                     sv_SelectPanelObject(bld, m->obj, &m->sel);
                 }
                 if ((m->flags & 0x10) != 0 && m->voice != 0) {
-                    sb_Stop((struct SBSAMPLE *)m->voice, 0);
+                    sb_Stop(m->voice, 0);
                     m->voice = 0;
                 }
                 if ((m->flags & 0x40) != 0 && (ai_GameFlags & 4) == 0)
@@ -12458,7 +12458,7 @@ void he_RunMessageBox(AIJOB *e)
     case -2:
     case -1:
         if ((m->flags & 0x10) != 0 && m->voice != 0) {
-            sb_Stop((struct SBSAMPLE *)m->voice, 0);
+            sb_Stop(m->voice, 0);
             m->voice = 0;
         }
         if ((m->flags & 0x40) != 0 && (ai_GameFlags & 4) == 0)
@@ -14642,18 +14642,18 @@ void he_RunMasterExamNotice(AIJOB *ev)
             if (c->sex == 0) {
                 if (group <= 12) {
                     bank = sb_FindBank("BERUF_TRAINING_SPIELER_MAENNLICH");
-                    snd_QueueVoice(-8, (int)bank, "BERUF_TRAINING_SPIELER_MAENNLICH", group - 1, 0);
+                    snd_QueueVoice(-8, bank, "BERUF_TRAINING_SPIELER_MAENNLICH", group - 1, 0);
                 } else {
                     bank = sb_FindBank("ADDON_BERUF_TRAINING_SPIELER_MAENNLICH");
-                    snd_QueueVoice(-8, (int)bank, "BERUF_TRAINING_SPIELER_MAENNLICH", group - 13, 0);
+                    snd_QueueVoice(-8, bank, "BERUF_TRAINING_SPIELER_MAENNLICH", group - 13, 0);
                 }
             } else {
                 if (group <= 12) {
                     bank = sb_FindBank("BERUF_TRAINING_SPIELER_WEIBLICH");
-                    snd_QueueVoice(-8, (int)bank, "BERUF_TRAINING_SPIELER_WEIBLICH", group - 1, 0);
+                    snd_QueueVoice(-8, bank, "BERUF_TRAINING_SPIELER_WEIBLICH", group - 1, 0);
                 } else {
                     bank = sb_FindBank("ADDON_BERUF_TRAINING_SPIELER_WEIBLICH");
-                    snd_QueueVoice(-8, (int)bank, "BERUF_TRAINING_SPIELER_WEIBLICH", group - 13, 0);
+                    snd_QueueVoice(-8, bank, "BERUF_TRAINING_SPIELER_WEIBLICH", group - 13, 0);
                 }
             }
             io_PrintText(0x159a, c->id, left + 0x1556, group + text, 4);
@@ -14784,13 +14784,13 @@ void he_RunMasterExamPassed(AIJOB *e)
             snd_QueueVoice(-7, 0, "FanfarePositivMittel", -1, 0);
         else
             snd_QueueVoice(-7, 0, "FanfarePositivLang", -1, 0);
-        snd_QueueVoice(-6, (int)self, "SELBST", 1, 0);
-        snd_QueueVoice(-8, (int)list, bank, left - 2, 0);
-        snd_QueueVoice(-6, (int)self, "SELBST", 0, 0);
+        snd_QueueVoice(-6, self, "SELBST", 1, 0);
+        snd_QueueVoice(-8, list, bank, left - 2, 0);
+        snd_QueueVoice(-6, self, "SELBST", 0, 0);
         left--;
-        snd_QueueVoice(-8, (int)bld, bank, (int)(3.0 - (left + 1.0) * 0.5), 0);
-        snd_QueueVoice(-6, (int)self, "GEZEICHNET", -1, 0);
-        snd_QueueVoice(-8, (int)sign, "_BERUFE_VEREINIGUNG_UNTERSCHRIFT", group > 12 ? group - 13 : group - 1, 0);
+        snd_QueueVoice(-8, bld, bank, (int)(3.0 - (left + 1.0) * 0.5), 0);
+        snd_QueueVoice(-6, self, "GEZEICHNET", -1, 0);
+        snd_QueueVoice(-8, sign, "_BERUFE_VEREINIGUNG_UNTERSCHRIFT", group > 12 ? group - 13 : group - 1, 0);
         snd_QueueVoice(-7, 0, "MausclickLinks_s_01", -1, 0);
         e->stage++;
         return;

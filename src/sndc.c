@@ -103,7 +103,7 @@ struct SBSAMPLE *sndc_GetSampleHandle(struct SBBANK **bank, char **name)
 /* 0x410180, script command SpeechQueued: queues the spoken text (speaker id, bank, text, variation, delay)
    with the voice queue, only while the running script is in no group; returns the voice sample or 0 */
 
-int sndc_SpeechQueued(int *id, int *bank, char **name, int *var, int *delay)
+struct SBSAMPLE *sndc_SpeechQueued(int *id, struct SBBANK **bank, char **name, int *var, int *delay)
 {
     if (evt_Cur->group != evt_NoGroup)
         return 0;
