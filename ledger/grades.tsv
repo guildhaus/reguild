@@ -2509,7 +2509,7 @@ exe	0x004d8b50	cm_DrawFightTime	cmscene	byte	readable
 exe	0x004d8c40	cm_DeleteSceneChars	cmscene	byte	readable		
 exe	0x004d8c70	cm_StackPicture	cmscene	byte	readable		
 exe	0x004d8cb0	cm_TallyStack	cmscene	byte	readable		
-exe	0x004d8e20	cm_RunCouncilSession	cmscene	draft	readable		byte+readable -> draft+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (CMBOMB + extern cm_Bombs, 07df00b2); the text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x004d8e20	cm_RunCouncilSession	cmscene	byte	readable		
 exe	0x004da9e0	cm_AskDeposeVote	cmscene	byte	readable		
 exe	0x004dab50	cm_AskElectVote	cmscene	byte	readable		
 exe	0x004dada0	cm_SessionAskPlayer	cmscene	byte	readable		
@@ -4003,7 +4003,7 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
 exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		byte+readable -> shape+readable at 311d03c4: tie-break: the contact handlers' AIBLD * prototypes (a25b8c7e); its text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
@@ -4445,7 +4445,7 @@ exe	0x005bc0f0	ai_FreePicture	lcdom	byte	readable
 exe	0x005bc110	ai_ChooseCoatOfArms	lcdom	byte	readable		
 exe	0x005bc420	ai_OpenMoneyInfoPage	lcdom	byte	readable		
 exe	0x005bc6d0	ai_OpenBuildingListPage	lcdom	byte	readable		
-exe	0x005bc790	ai_BuildingDetailWindow	lcdom	shape	readable		byte+readable -> shape+readable at fb75b2bf: tie-break: sv_PanelShown / SVQUICKJUMP.record / sv_PermsRoom typed struct AIOBJ * (sv.h, sv_quickjump.h, f3init.h); its text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x005bc790	ai_BuildingDetailWindow	lcdom	byte	readable		
 exe	0x005bc9c0	ai_OpenMasterListPage	lcdom	byte	readable		
 exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	shape	readable	deep	
 exe	0x005bd060	ai_AmountLimit	lcamt	byte	readable		
