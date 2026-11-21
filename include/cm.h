@@ -683,7 +683,7 @@ void d3sky_Init(struct D3SKY *s, char build);  /* 0x45d690 */
 struct D3BGF * d3io_LoadObjectRef();  /* 0x44e190 */
 struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);  /* 0x45eeb0, d3_sm.h */
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
-int gm_BuildingSkill(unsigned char *b, unsigned k, int flag);  /* 0x5092e0, f3gm.h (not includable here, cm.c lead comment) */
+int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0, f3gm.h (not includable here, cm.c lead comment) */
 extern struct AICHAR *cm_FightDefender;  /* 0x6f0ce8, the defending side's leader */
 extern int cm_FightWinner;  /* 0x6f0cf4 */
 extern struct SBBANK *cm_FightSounds;  /* 0x6f0d0c */

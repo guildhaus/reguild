@@ -3514,7 +3514,7 @@ void sv_OpenBuildingPanel(AIBLD *b)
     AIBTYPE *bt;
     unsigned perm;
 
-    level = gm_BuildingLevel((char *)b);
+    level = gm_BuildingLevel(b);
     if (sv_PanelForm != -1)
         return;
     sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_gebaeude");
@@ -3676,7 +3676,7 @@ void sv_OpenDefaultPanel(void)
             return;
         }
     } else if (ai_FallbackBuilding->owner == (unsigned short)ai_PlayerId) {
-        level = gm_BuildingLevel((char *)ai_FallbackBuilding);
+        level = gm_BuildingLevel(ai_FallbackBuilding);
         sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_gebaeude");
         d2_SetForm(sv_PanelForm, 0);
         d2_SetForm(sv_PanelForm, 1);
@@ -3790,7 +3790,7 @@ void sv_RefreshPanel(void)
     if (sv_PanelForm == -1)
         return;
     if (sv_SelectedObject != 0 && sv_PanelHealthBar != -1 && sv_PanelBldPic != -1) {
-        level = gm_BuildingLevel(sv_SelectedObject);
+        level = gm_BuildingLevel(SV_SELBLD);
         d2_SetForm(sv_PanelForm, 1);
         io_PrintText("$C");
         if (SV_SELBLD->type != 0x47) {

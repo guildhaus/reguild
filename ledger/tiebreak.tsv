@@ -3109,7 +3109,7 @@ exe	0x00508cc0	gm_ListObjectsAfter	f3gm	ea1fab2c70960bad	no	draft	control=draft 
 exe	0x00508d70	gm_BuildingLevel	f3gm	52709faf0cab91a9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00508d80	gm_BuildingBalance	f3gm	af452c69ad0d5219	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00509060	gm_BuildingCarts	f3gm	fcc7a2f87b033575	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005090b0	gm_BuildingRank	f3gm	c3418727620d28cc	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
+exe	0x005090b0	gm_BuildingRank	f3gmt	635b3bc0d6304d33	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f15366611c1c219f
 exe	0x00509120	gm_BuildingRankGate	f3gm	716b0f03ba45207e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	c233327e4ed399b6
 exe	0x005091a0	gm_BuildingValues	f3gm	06c09b9998c6f67c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005092e0	gm_BuildingSkill	f3gm	13838db945493696	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
@@ -3771,7 +3771,7 @@ exe	0x00561470	he_AllocEvent39_3e	he	8751adc3b4d056b4	no	byte	control=byte p1=by
 exe	0x005614c0	he_RunRansomDemand	he	7b398cebf45b153d	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x005619a0	he_AllocBurglary	he	5c9615a02655ad1b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00561a20	he_RunBurglary	he	784b70b96843edbb	yes	byte	sweep control=shape best=byte by 5 unused typedefs at the unit's start; codegens=2 compiled=442	364a12de88594ff1
-exe	0x005628e0	he_RunBuildingSpying	he	adee91da488732af	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=442	364a12de88594ff1
+exe	0x005628e0	he_RunBuildingSpying	he	a00fcfaa41cce633	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	896ca01a3ae3207d
 exe	0x00563070	he_AllocAmbush	he	4e9b1b1b12883099	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005630f0	he_RunAmbush	he	2250ce36866269d9	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	093505b2b35f78cf
 exe	0x00563980	he_AllocDueInOne	he	7b291ae89dcee62a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

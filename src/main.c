@@ -3004,7 +3004,7 @@ void main_RundenBeginn(void)
     char hdr[0x100] = "";
     AICHAR *ch;
     MAINPLREC *rec;
-    unsigned char *r;
+    AIBLD *r;
     char *e;
     int i, k, m, t;
 
@@ -3062,13 +3062,13 @@ void main_RundenBeginn(void)
                 cm_SendSetField(ch->netId, 0x1cc, 4, 0, 0x200000);
             }
             gm_CollectCarried(ch->id, (int *)&carry);
-            if (ch->bld2 != 0 && (k = gm_BuildingSkill((unsigned char *)ch->bld2, 3, 1)) != 0) {
+            if (ch->bld2 != 0 && (k = gm_BuildingSkill(ch->bld2, 3, 1)) != 0) {
                 txt_Format(b5, 0x2053, (int)ch->bld2);
                 e = (char *)he_AddApEvent(ch->id, b5, k, 0);
                 if (e != 0)
                     *e = *e - 1;
             }
-            r = gm_BuildQuery(2, 4, ch->id, 5, 5);
+            r = (AIBLD *)gm_BuildQuery(2, 4, ch->id, 5, 5);
             while (r != 0) {
                 k = gm_BuildingSkill(r, 3, 1);
                 if (k != 0) {
@@ -3077,7 +3077,7 @@ void main_RundenBeginn(void)
                     if (e != 0)
                         *e = *e - 1;
                 }
-                r = gm_BuildNext();
+                r = (AIBLD *)gm_BuildNext();
             }
             t = carry.capacity + 4;
             t += he_SumApEvents(ch->id);
@@ -3315,7 +3315,7 @@ void main_EndRound(void)
                         weight += 8;
                 }
                 if (ai_IsLocalMaster(&ai_Chars[k]) != 0 || ai_Chars[k].kind == 1) {
-                    if (gm_BuildingLevel((char *)b) < util_Random(0x5a)) {
+                    if (gm_BuildingLevel(b) < util_Random(0x5a)) {
                         cost = (float)gm_EquipmentValue((unsigned char *)b, 100) * 0.005f;
                         if (32.0f > cost)
                             cost = 32.0f;
@@ -3881,7 +3881,7 @@ void main_SettleRound(unsigned short pl)
                         if (o->reportKnow <= 5)
                             cm_SendMoveObject(c->id, -1, o->objId);
                         else {
-                            unsigned char *t = (unsigned char *)gm_FindBuildingById(o->reportBld);
+                            AIBLD *t = (AIBLD *)gm_FindBuildingById(o->reportBld);
 
                             if (t != 0) {
                                 char age = o->reportKnow - (char)gm_BuildingRank(t) * 2;

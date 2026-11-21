@@ -7442,7 +7442,7 @@ void he_RunAudit(int ev)
             e->stage = 1;
             return;
         }
-        shortfall = (100.0f - gm_BuildingLevel((char *)b)) * 0.01f;
+        shortfall = (100.0f - gm_BuildingLevel(b)) * 0.01f;
         found = 0;
         for (o = (AIOBJ *)gm_Query(0, 2, 7, 4, 0x1d); o != 0; o = (AIOBJ *)gm_QueryNext()) {
             if (o->bldId == b->id && o->fill < 0x50) {
@@ -7752,7 +7752,7 @@ void he_RunAccidentSim(int ev)
     for (n = 12; n != 0; n--) {
         if (he_IsAtWork((int)&ai_Chars[cur]) != 0 && ai_Chars[cur].bld->owner != 0xffff) {
             roll = util_RandomF() * 100.0f;
-            skill = gm_BuildingSkill((unsigned char *)ai_Chars[cur].bld, 2, 1);
+            skill = gm_BuildingSkill(ai_Chars[cur].bld, 2, 1);
             if (25.0f - 20.0f * (skill * 0.0125f) > roll) {
                 lim = MIN(MAX(2.0f - skill * 0.0125f, 0.0f), 2.0f);
                 health = gm_AddHealth(cur, -50 - util_Random((int)(lim * 255.0f + 1.0f)));
@@ -8801,9 +8801,9 @@ void he_RunDiseaseSim(int ev)
             immunity = 0.0f;
             if (ai_Chars[cur].bld2 != 0) {
                 if (ai_BTypes[ai_Chars[cur].bld2->type].kind == 2)
-                    immunity = 20.0f * (gm_BuildingSkill((unsigned char *)ai_Chars[cur].bld2, 8, 1) * 0.0125f);
+                    immunity = 20.0f * (gm_BuildingSkill(ai_Chars[cur].bld2, 8, 1) * 0.0125f);
                 else
-                    immunity = 20.0f * (gm_BuildingSkill((unsigned char *)ai_Chars[cur].bld2, 8, 1) * 0.02f);
+                    immunity = 20.0f * (gm_BuildingSkill(ai_Chars[cur].bld2, 8, 1) * 0.02f);
             } else
                 risk = (float)(25.0 - util_RandomF() * 20.0f * 0.5);
             if (ai_InventoryHas(c, 0x2b3) != 0)
@@ -12931,9 +12931,9 @@ void he_RunHerbGathering(int ev)
                     break;
                 season = gm_ClockSeason(&ai_Time);
                 if (ai_BTypes[b->type].kind == ' ')
-                    amount = (int)((util_Random(6) + 9) * h->n * (gm_BuildingSkill((unsigned char *)b, 0x1e, 1) * (1.0 / 90) + 1.0));
+                    amount = (int)((util_Random(6) + 9) * h->n * (gm_BuildingSkill(b, 0x1e, 1) * (1.0 / 90) + 1.0));
                 else
-                    amount = (int)((util_Random(6) + 9) * h->n * (gm_BuildingSkill((unsigned char *)b, 0xb, 1) * (1.0 / 90) + 1.0));
+                    amount = (int)((util_Random(6) + 9) * h->n * (gm_BuildingSkill(b, 0xb, 1) * (1.0 / 90) + 1.0));
                 if (season == 3 && (b->flags5aw & 0x2000) == 0)
                     amount = (int)(amount * 0.5);
                 got = gm_FreeCapacity((short *)o, h->good, amount);
@@ -13044,7 +13044,7 @@ void he_RunAnimalHunt(int ev)
         o = (AIOBJ *)gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             m = (AICHAR *)gm_FindCharacterByMaster((int)b);
-            rate = gm_BuildingSkill((unsigned char *)b, 0xb, 1) * 0.01 + 1.0;
+            rate = gm_BuildingSkill(b, 0xb, 1) * 0.01 + 1.0;
             amount = (int)((util_Random(5) + 5) * rate);
             cm_SendExSellObject(o->objId, -1, h->good, amount, ai_OwnPlayer, 0);
             txt_Format(text, 0x1809, 0x1805, b);
@@ -13146,7 +13146,7 @@ void he_RunStudy(int ev)
                 mins = (float)gm_WorkMinutesBetween(&e->clock60, &s->until, b);
                 e->stage = 1;
             }
-            gain = (unsigned char)((gm_BuildingSkill((unsigned char *)b, 0xc, 1) * 0.01 + 1.0) * ((mins / 30.0) * 8.0));
+            gain = (unsigned char)((gm_BuildingSkill(b, 0xc, 1) * 0.01 + 1.0) * ((mins / 30.0) * 8.0));
             skill = &c->skills[s->skill];
             gain = (unsigned char)(gain / (*skill / 252.0f + 1.0));
             if (gain + *skill > 252.0f)
@@ -15000,7 +15000,7 @@ void he_AllocEvent27(int ev)
 
     b = (AIBLD *)gm_BuildQuery(1, 1, e->bldId);
     if (b != 0) {
-        gm_BuildingSkill((unsigned char *)b, 0x10, 1);
+        gm_BuildingSkill(b, 0x10, 1);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.min = 0;
@@ -15788,7 +15788,7 @@ int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId)
         }
     }
     for (i = 0; i < n; i++) {
-        score[i] = (float)(gm_BuildingSkill((unsigned char *)blds[i], 9, 1) * 0.0125 + (1.0f - score[i] / maxDist));
+        score[i] = (float)(gm_BuildingSkill(blds[i], 9, 1) * 0.0125 + (1.0f - score[i] / maxDist));
         if (best < score[i]) {
             best = score[i];
             pick = i;
@@ -16407,7 +16407,7 @@ void he_RunKidnap(AIJOB *ev)
                 sum += ((AICHAR *)gm_FindChar(ev->ids[k]))->skills[3];
             }
         }
-        ratio = (gm_BuildingSkill((unsigned char *)b, 0xf, 1) * 0.01f + 1.0) * ((n * 0.1f + 1.0f) * (sum / n));
+        ratio = (gm_BuildingSkill(b, 0xf, 1) * 0.01f + 1.0) * ((n * 0.1f + 1.0f) * (sum / n));
         ratio /= victim->skills[3];
         if (util_RandomF() + 0.5f < ratio)
             ok = 1;
@@ -17181,7 +17181,7 @@ void he_RunBuildingSpying(AIJOB *ev)
                 ev->stage = -1;
                 return;
             }
-            t = (float)((gm_BuildingRank((unsigned char *)b) * 120.0) * (252.0f / (int)mean) / n);
+            t = (float)((gm_BuildingRank(b) * 120.0) * (252.0f / (int)mean) / n);
             t = 2880.0f < t ? 2880.0f : t;
             ev->start = ai_Time;
             ev->end = ai_Time;
@@ -17238,7 +17238,7 @@ void he_RunBuildingSpying(AIJOB *ev)
             }
         }
         v = (float)n * sum * 0.25f;
-        know = (int)(v / gm_BuildingRank((unsigned char *)b));
+        know = (int)(v / gm_BuildingRank(b));
         know += util_Random(4) - 2;
         if (know > 100)
             know = 100;

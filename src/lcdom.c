@@ -6959,9 +6959,9 @@ void ai_TechEffectsWindow(AIBLD *bld)
                     max = 4;
                 else
                     max = gm_BuildingKindSkill(bld->type, skill);
-                gm_BuildingSkill((unsigned char *)bld, skill, 0);    /* its value unused (the original calls it too) */
-                lo = gm_BuildingSkill((unsigned char *)bld, skill, 0);
-                hi = gm_BuildingSkill((unsigned char *)bld, skill, 1);
+                gm_BuildingSkill(bld, skill, 0);    /* its value unused (the original calls it too) */
+                lo = gm_BuildingSkill(bld, skill, 0);
+                hi = gm_BuildingSkill(bld, skill, 1);
                 d2_SetObjValue(sliders[i], 0, max, hi, lo);
             }
         }
@@ -7166,7 +7166,7 @@ void ai_BuildingWindow(AIBLD *bld)
             buyOutBtn = -1;
             fireBtn = -1;
             d2_SetForm(win, 1);
-            level = gm_BuildingLevel((char *)bld);
+            level = gm_BuildingLevel(bld);
             if (bld->owner != ai_PlayerId && bld->masterId != ai_PlayerId) {
                 cond = (int)(9.0f - level * 0.1f + 0.5);
                 if (type->kind == 0x21)
@@ -7409,7 +7409,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
         lastFlags = bld->flags5aw;
         if (redraw != 0) {
             d2_SetForm(win, 1);
-            cond = (int)(9 - gm_BuildingLevel((char *)bld) / 10 + 0.5);
+            cond = (int)(9 - gm_BuildingLevel(bld) / 10 + 0.5);
             if (bld->owner != ai_PlayerId && bld->masterId != ai_PlayerId) {
                 io_PrintText(0x17a0, bld->masterId, bld, cond + 0x17b1, cond + 0x17bb, value);
                 if (type->kind == 1)
@@ -9057,7 +9057,7 @@ void ai_BuildingDetailWindow(AIBLD *bld)
     d2_SetForm(win, 1);
     gm_BuildingClass(bld->type);
     gm_BuildingBalance((unsigned char *)bld, ai_PlayerId, balance);
-    io_PrintText(0xa3, gm_BuildingLevel((char *)bld));
+    io_PrintText(0xa3, gm_BuildingLevel(bld));
     if (balance[0] != 0)
         io_PrintText(0xa4, balance[0]);
     if (balance[2] != 0)

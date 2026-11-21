@@ -803,13 +803,13 @@ int ai_OpenItemTooltip(int idx)
         io_PrintText(0x20, item->workTime);
     } else {
         n = 0;
-        gm_BuildingSkill((unsigned char *)bld, 1, 1);
+        gm_BuildingSkill(bld, 1, 1);
         master = (AICHAR *)gm_FindCharacterByMaster((int)bld);
         for (i = 0; i < 0x300; i++) {
             if (ai_Chars[i].bld == bld && &ai_Chars[i] != master)
                 list[n++] = ai_Chars[i].netId;
         }
-        factor = gm_StaffFactor((unsigned char *)bld, n, list);
+        factor = gm_StaffFactor(bld, n, list);
         c = (AICHAR *)gm_FindCharacterByMaster((int)bld);
         if (c == 0)
             c = (AICHAR *)&ai_Chars[bld->owner];

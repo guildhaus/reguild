@@ -6352,9 +6352,9 @@ int gm_ListObjectsAfter(unsigned char *b, unsigned short *proto, int *out)
 }
 /* 0x508d70, the building's level (its byte at +0x5c) */
 
-int gm_BuildingLevel(char *c)
+int gm_BuildingLevel(AIBLD *b)
 {
-    return c[0x5c];
+    return b->level;
 }
 /* 0x508d80, the income / cost summary of the building b for the owner id into out (0x15 ints, cleared first):
    the wages of the characters working there per job (out[6 + j]) and title (out[4 + t], a worker of neither
@@ -6480,11 +6480,11 @@ int gm_BuildingCarts(ORDBLD *b, int *out)
    original's first body uses ecx, the second edx). = control: the case groups swapped, the default return
    after the switch; one body for the last group and default: 26. */
 
-int gm_BuildingRank(unsigned char *b)
+int gm_BuildingRank(AIBLD *b)
 {
     unsigned char *p;
 
-    p = (unsigned char *)ai_BTypes + (unsigned)*b * 0x24d;
+    p = (unsigned char *)ai_BTypes + (unsigned)b->type * 0x24d;
     switch (*p) {
     case 2:
     case 5:
@@ -6505,13 +6505,13 @@ int gm_BuildingRank(unsigned char *b)
    building b (+0x247) sets: 1 allows c's rank below 2, 2 below 3, 3 up to 7, anything else only 0; the
    gate of the burglary window (ai_BurglaryWindow on the player's building) */
 
-int gm_BuildingRankGate(unsigned char *b, unsigned char *c)
+int gm_BuildingRankGate(AIBLD *b, AIBLD *c)
 {
     char *p;
     int r, lim;
 
     lim = 0;
-    p = (char *)ai_BTypes + (unsigned)*b * 0x24d;
+    p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     r = gm_BuildingRank(c);
     if (p[0x247] == 1)
         lim = 1;
@@ -6568,29 +6568,27 @@ int gm_BuildingValues(unsigned char *b, int *out)
 /* 0x5092e0, the skill k of the building b: of the kind record's 0x40 object slots (+0x23, prototype ids, bit 15
    a flag) those whose skill byte (+0x1a3) is k and whose object the building holds add their value (+0x1e3);
    with flag the sum is scaled by the building's level in percent (rounded) */
-int gm_BuildingSkill(unsigned char *b, unsigned k, int flag)
+int gm_BuildingSkill(AIBLD *b, unsigned k, int flag)
 {
-    ORDBLD *bld;
     unsigned char *kind;
     int i, s, proto;
     unsigned short *slot;
 
-    bld = (ORDBLD *)b;
     s = 0;
-    kind = (unsigned char *)ai_BTypes + bld->type * 0x24d;
+    kind = (unsigned char *)ai_BTypes + b->type * 0x24d;
     i = 0;
     slot = ((GMBTYPE *)kind)->objs;
     do {
         proto = *slot & 0x7fff;
         if (proto != 0 && kind[i + 0x1a3] == k) {
-            if (gm_Query((void *)bld->objList, 2, 6, 0, proto))
+            if (gm_Query((void *)b->objList, 2, 6, 0, proto))
                 s += kind[i + 0x1e3];
         }
         i++;
         slot++;
     } while (i < 0x40);
     if (flag)
-        return (int)(s * (gm_BuildingLevel((char *)b) * 0.01) + 0.5);
+        return (int)(s * (gm_BuildingLevel(b) * 0.01) + 0.5);
     return s;
 }
 /* 0x5093a0, the sum over the building kind `kind` alone (the same as gm_BuildingSkill's, without the query for
@@ -8174,13 +8172,13 @@ float gm_Liking(unsigned a, unsigned b, int c)
     if (a == 0xffff || b == 0xffff)
         return 50.0f;
     if (ORD_CHARS[a].bld2 != 0)
-        sum = (float)gm_BuildingSkill((unsigned char *)ORD_CHARS[a].bld2, 4, 1);
+        sum = (float)gm_BuildingSkill((AIBLD *)ORD_CHARS[a].bld2, 4, 1);
     if (ORD_CHARS[a].job != 0) {
         amt_GetKind(ORD_CHARS[a].job, &kind);
         if (kind.col == 4) {
             bp = (ORDBLD *)gm_FirstBuilding(1);
             if (bp != 0)
-                sum += (float)gm_BuildingSkill((unsigned char *)bp, 4, 1);
+                sum += (float)gm_BuildingSkill((AIBLD *)bp, 4, 1);
         }
     }
     if (ORD_CHARS[a].job2 >= 0x1e && ORD_CHARS[a].job2 <= 0x21) {
@@ -8201,7 +8199,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
         }
         bp = (ORDBLD *)gm_BuildQuery(1, 5, g);
         if (bp != 0 && (bp->flags5a & 1) == 0)
-            sum += (float)gm_BuildingSkill((unsigned char *)bp, 4, 1);
+            sum += (float)gm_BuildingSkill((AIBLD *)bp, 4, 1);
     }
     rel = (ai_Relations[a][b] + 0x7f) * 0.003921569f;  /* the relation -127 .. 128 as 0 .. 1 */
     sum += rel * 100.0f;
@@ -8419,7 +8417,7 @@ float gm_JobCost(char *c, int k, int a, int b)
    building's skill (gm_BuildingSkill kind 1), the owner's (or master's) skill 1 / 1008 for a player character,
    0.1 for the flag 0x1000 of flags5aw, (the workers' mean liking of the owner - 0.5) / 4 and (workRate - 2) / 10 */
 
-float gm_StaffFactor(unsigned char *b, int n, int *ids)
+float gm_StaffFactor(AIBLD *b, int n, int *ids)
 {
     ORDBLD *bld = (ORDBLD *)b;
     GMBTYPE *t;

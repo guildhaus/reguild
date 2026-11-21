@@ -4074,7 +4074,7 @@ void ai_BuyUpgrade(AICHAR *ch)
         return;
     rv = util_Random(0x14);
     lim = rv + 0x4b;
-    if (gm_BuildingLevel((AIBLD *)bld) < lim) {
+    if (gm_BuildingLevel(bld) < lim) {
         f = (float)gm_EquipmentValue(ch->bld, 100) * 0.005f;
         f = f * 0.005f;
         if (128.0f > f)

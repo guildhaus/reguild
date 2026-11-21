@@ -12052,7 +12052,7 @@ int ai_BurglaryWindow(int ctx, AIBLD *bld)
         sv_MessageBox(buf, 0);
         return 0;
     }
-    if (gm_BuildingRankGate((unsigned char *)ai_PlayerBuilding, bld) == 0) {
+    if (gm_BuildingRankGate(ai_PlayerBuilding, bld) == 0) {
         sv_MessageBox(txt_Ptrs[0x19e5], 0);
         return 0;
     }

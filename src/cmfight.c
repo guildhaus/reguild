@@ -2111,7 +2111,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
         }
     }
     if (b != 0)
-        cm_DefenseFactor = (float)gm_BuildingSkill((unsigned char *)b, 6, 1) + 1.4f;
+        cm_DefenseFactor = (float)gm_BuildingSkill(b, 6, 1) + 1.4f;
     else
         cm_DefenseFactor = 1.0f;
 }

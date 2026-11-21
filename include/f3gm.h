@@ -6,6 +6,8 @@
 
 #include "f3gm_types.h"
 
+struct AIBLD;
+
 unsigned char *gm_BuildNext(void);              /* 0x501030, the next building of the query */
 unsigned char *gm_BuildQuery(int n, ...);       /* 0x501190, n (kind, value) filters; 6 takes no value */
 int gm_BuildingMainObject(unsigned char *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
@@ -155,13 +157,13 @@ int gm_ListStock(short *l, int id);  /* 0x50ab50 */
 int gm_ListAmountById(char *l, int id);  /* 0x50ab20 */
 int gm_BuildingClass(int kind);  /* 0x501d80 */
 int gm_BuildingGoodsList(char *b, unsigned *out, int kind);  /* 0x5098a0 */
-int gm_BuildingLevel(char *c);  /* 0x508d70 */
-int gm_BuildingRank(unsigned char *b);  /* 0x5090b0 */
-int gm_BuildingSkill(unsigned char *b, unsigned k, int flag);  /* 0x5092e0 */
+int gm_BuildingLevel(struct AIBLD *b);  /* 0x508d70 */
+int gm_BuildingRank(struct AIBLD *b);  /* 0x5090b0 */
+int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0 */
 int gm_BuildingKindSkill(int kind, unsigned k);  /* 0x5093a0, the level the building kind reaches in skill k (gm_BuildingSkill without the instance) */
 float gm_StockPrice(int p, int n);  /* 0x4ffa10, the price of the goods n of the player p */
 float gm_CharAge(unsigned short id);  /* 0x505e30, the age (+0x0a) of the character id */
-float gm_StaffFactor(unsigned char *b, int n, int *ids);  /* 0x50cdc0, the staff factor of the building b with the persons ids[0 .. n - 1] */
+float gm_StaffFactor(struct AIBLD *b, int n, int *ids);  /* 0x50cdc0, the staff factor of the building b with the persons ids[0 .. n - 1] */
 int gm_CollectOffers(int goods);  /* 0x500c20 */
 int gm_EquipmentValue(unsigned char *b, int level);  /* 0x509b10 */
 char *gm_FindGoods(int p, unsigned id);  /* 0x4ffc40 */
@@ -214,7 +216,7 @@ char *gm_ClassTreasury(struct ORDBLD *b);  /* 0x5049e0, the treasury text of a b
 int gm_CurrencyFactor(int a, int i);  /* 0x508620 */
 int gm_CurrencyDivide(int a, int i);  /* 0x508640 */
 int gm_BuildingCarts(struct ORDBLD *b, int *out);  /* 0x509060 */
-int gm_BuildingRankGate(unsigned char *b, unsigned char *c);  /* 0x509120 */
+int gm_BuildingRankGate(struct AIBLD *b, struct AIBLD *c);  /* 0x509120 */
 int gm_CharMoney(int c);  /* 0x509f20 */
 int gm_GoodPicture(unsigned short *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
 int gm_ResearchClass(int k, int *out);  /* 0x50b090 */

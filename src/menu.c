@@ -152,7 +152,7 @@ int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a, i
 /* Callees whose units have no header here (type debt: the canonical prototypes live in d2.h, f3gm.c,
    gv.h, cm.h and he.h; the pointer views follow this TU's declarations). */
 int d2_GetViewWin(int view, int i);         /* 0x475ff0, d2.h: window i of a view, -1 if out of range */
-int gm_BuildingSkill(unsigned char *b, unsigned k, int flag); /* 0x5092e0, f3gm.c: the building skill (ai.h's
+int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag); /* 0x5092e0, f3gm.c: the building skill (ai.h's
                                                prototype; f3snd.h's building view is unsigned char *) */
 char *gv_FindAccused(char *c, int max, int *ids, int *cnt);  /* 0x4f41b0, gv.c: the character with the
                                                most records of its table not yet paired with c */
@@ -2378,7 +2378,7 @@ void ai_TailorChatWindow(int request)
     wnd = d2_OpenForm(0, 0, "locations\\schneider\\plausch");
     found = gv_FindAccused((char *)&ai_Chars[ai_PlayerId], 4, ids, &count);
     if (ai_PlayerBuilding != 0)
-        limit = gm_BuildingSkill((unsigned char *)ai_PlayerBuilding, 0x24, 1);
+        limit = gm_BuildingSkill(ai_PlayerBuilding, 0x24, 1);
     else
         limit = 1;
     if (count >= limit + 1)

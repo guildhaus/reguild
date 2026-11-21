@@ -766,7 +766,7 @@ int gm_HandOutMoney(ORDBLD *b, int *out)
     u = &ORD_CHARS[b->owner];
     gm_GetSkill((char *)u, 4);
     gv_GetTableRecord(2, (int *)&rec);
-    f = (float)gm_BuildingSkill((unsigned char *)b, 9, 1) * 0.0125f + 1.0f;
+    f = (float)gm_BuildingSkill((struct AIBLD *)b, 9, 1) * 0.0125f + 1.0f;
     for (i = 0; i < 0x300; i++) {
         c = &ORD_CHARS[i];
         if (c->id != 0xffff && c->kind != 6 && c->kind != 7 && c->kind != 8 && c->kind < 10 && c->netId != u->netId) {
@@ -1488,7 +1488,7 @@ float gm_DailyCharacterStep(unsigned short *id)
         if (c->bld2 != 0) {
             float p;   /* 3.75 % less per skill point */
 
-            p = gm_BuildingSkill((unsigned char *)c->bld2, 8, 1) * 0.0125f;
+            p = gm_BuildingSkill((struct AIBLD *)c->bld2, 8, 1) * 0.0125f;
             p = p * -3.0f;
             lo += p;
         }
