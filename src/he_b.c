@@ -3249,10 +3249,10 @@ void he_AllocRecipeResearch(int ev)
 
     c = gm_FindChar(r->alchemist);
     if (c != 0) {
-        p = (HEAHMRECIPE *)ahm_RandomRecipe((char *)c);
+        p = (HEAHMRECIPE *)ahm_RandomRecipe(c);
         if (p != 0) {
             r->recipe = p->id;
-            v = ahm_ResearchMinutes((char *)c, (union AHMGRID *)p);
+            v = ahm_ResearchMinutes(c, (union AHMGRID *)p);
             r->left = v;
             r->total = v;
             r->worked = ai_Time;
@@ -3287,7 +3287,7 @@ void he_RunRecipeResearch(int ev)
 
     season = gm_ClockSeason(&ai_Time);
     c = gm_FindChar(r->alchemist);
-    if (c == 0 || ahm_HasRecord((char *)c) == 0)
+    if (c == 0 || ahm_HasRecord(c) == 0)
         e->stage = -2;
     if (e->stage == -2 || e->stage == -1) {
         he_FreeEvent((int *)ev);
@@ -3299,7 +3299,7 @@ void he_RunRecipeResearch(int ev)
             to = gm_FindChar(e->netId);
             if (to != 0)
                 ai_DomizilMessage(to, c, o, r->recipe);
-            ahm_SendAddPlace((char *)c, r->recipe);
+            ahm_SendAddPlace(c, r->recipe);
             sv_MoveToGroup(0, 0, c->id, 0);
             he_FreeEvent((int *)ev);
             return;
@@ -3340,7 +3340,7 @@ void he_AllocResearchRecipe(int ev)
     if (c != 0) {
         p = (char *)ahm_FindRecipe(r->id);
         if (p != 0) {
-            r->progress = ahm_ResearchProgress((char *)c, p, &r->start);
+            r->progress = ahm_ResearchProgress(c, p, &r->start);
             if (!(r->progress <= 0.0f)) {
                 r->amount = r->start;
                 r->clock = ai_Time;
@@ -3379,7 +3379,7 @@ void he_RunResearchRecipe(int ev)
     season = gm_ClockSeason(&ai_Time);
     p = 0;
     c = gm_FindChar(r->chr);
-    if (c == 0 || ahm_HasRecord((char *)c) == 0 || (p = ahm_SlotOf((char *)c, r->id)) == 0)
+    if (c == 0 || ahm_HasRecord(c) == 0 || (p = ahm_SlotOf(c, r->id)) == 0)
         e->stage = -2;
     if (e->stage != -2) {
         if (!((float)ai_Time.hour >= gm_DayEndHours[season] || (float)ai_Time.hour < gm_DayStartHours[season])) {
@@ -3393,7 +3393,7 @@ void he_RunResearchRecipe(int ev)
                 to = gm_FindChar(e->netId);
                 if (to != 0)
                     ai_DomizilMessageResearchKind(to, c, (int)o, r->id);
-                ahm_SendSetPlaceValue((char *)c, r->id, r->progress + p->v);
+                ahm_SendSetPlaceValue(c, r->id, r->progress + p->v);
                 sv_MoveToGroup(0, 0, c->id, 0);
                 he_FreeEvent((int *)ev);
                 return;
@@ -3429,7 +3429,7 @@ void he_AllocTrainShare(int ev)
 
     c = gm_FindChar(r->chr);
     if (c != 0) {
-        r->progress = ahm_ShareProgress((char *)c, r->id, &r->start);
+        r->progress = ahm_ShareProgress(c, r->id, &r->start);
         if (!(r->progress <= 0.0f)) {
             r->amount = r->start;
             r->clock = ai_Time;
@@ -3464,7 +3464,7 @@ void he_RunTrainShare(int ev)
     season = gm_ClockSeason(&ai_Time);
     share = 0;
     c = gm_FindChar(r->chr);
-    if (c == 0 || ahm_HasRecord((char *)c) == 0 || (share = ahm_Share((char *)c, r->id)) <= 0.0f)
+    if (c == 0 || ahm_HasRecord(c) == 0 || (share = ahm_Share(c, r->id)) <= 0.0f)
         e->stage = -2;
     if (e->stage == -2 || e->stage == -1) {
         he_FreeEvent((int *)ev);
@@ -3476,7 +3476,7 @@ void he_RunTrainShare(int ev)
             to = gm_FindChar(e->netId);
             if (to != 0)
                 ai_DomizilMessageResearch(to, c, (int)o, r->id);
-            ahm_SendSetShare((char *)c, r->id, share + r->progress);
+            ahm_SendSetShare(c, r->id, share + r->progress);
             sv_MoveToGroup(0, 0, c->id, 0);
             he_FreeEvent((int *)ev);
             return;
@@ -3563,7 +3563,7 @@ void he_RunAlchemistDay(int ev)
     }
     if (e->opts & 4)
         return;
-    if (c == 0 || ahm_HasRecord((char *)c) == 0 || e->stage == -2 || e->stage == -1) {
+    if (c == 0 || ahm_HasRecord(c) == 0 || e->stage == -2 || e->stage == -1) {
         cm_SendExSetHE(-1, ev);
         return;
     }
@@ -3573,7 +3573,7 @@ void he_RunAlchemistDay(int ev)
     e->end.hour = util_Random((int)(gm_DayEndHours[season] - gm_DayStartHours[season])) + (int)gm_DayStartHours[season];
     e->end.min = util_Random(4) * 15;
     if (d->bonus != 0) {
-        ahm_SendAddValue((char *)c, (util_RandomF() + 1.0f) * 0.25f);
+        ahm_SendAddValue(c, (util_RandomF() + 1.0f) * 0.25f);
         d->bonus = 0;
         cm_SendExSetHE(0, ev);
         return;
@@ -3599,7 +3599,7 @@ void he_RunAlchemistDay(int ev)
         delta = util_RandomF() * 0.15f + 0.05f;
         break;
     }
-    ahm_SendAddValue((char *)c, delta);
+    ahm_SendAddValue(c, delta);
     cm_SendExSetHE(0, ev);
 }
 
@@ -3700,7 +3700,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
             for (n = 6; n != 0; n--) {
                 if (rec->slots[k].id != 0 && rec->slots[k].v > 0.2f) {
                     v = rec->slots[k].v - (util_RandomF() * 0.1f + 0.05f);
-                    ahm_SendSetPlaceValue((char *)c, rec->slots[k].id, v);
+                    ahm_SendSetPlaceValue(c, rec->slots[k].id, v);
                     ai_DomizilMessagePlace(&ai_Chars[b->owner], c, b, rec->slots[k].id);
                     break;
                 }

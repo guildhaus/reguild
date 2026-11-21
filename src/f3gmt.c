@@ -5664,7 +5664,7 @@ extern int ai_Difficulty;
 /* txt_ObjectNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern int ai_GameFlags;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-char * ahm_OwnerChar();                     /* 0x4eaa50 */
+struct AICHAR *ahm_OwnerChar();                     /* 0x4eaa50 */
 int ahm_ObjectValue();                     /* 0x4ec3d0 */
 int gm_ListAmount();                     /* 0x50aaf0 */
 int gm_ListStock();                     /* 0x50ab50 */
@@ -6375,8 +6375,8 @@ int gm_BuildingBalance(AIBLD *b, unsigned id, int *out)
     if (id == bld->owner) {
         own = (char *)&ai_Chars[id];
         if (*kind == 0x1e) {
-            if (ahm_OwnerChar((unsigned char *)b) != 0) {
-                out[6] = ahm_ObjectValue((unsigned char *)b);
+            if (ahm_OwnerChar(b) != 0) {
+                out[6] = ahm_ObjectValue(b);
                 sum = out[6];
             }
         } else {

@@ -6402,8 +6402,8 @@ int cm_ExCreateAlchemist(G17MSG *m, G17STAT *s)
 int cm_ExAlchemistOrder(G17MSG *m, G17STAT *s)
 {
     AHMORDER *o;
-    AHMCHAR *c;
-    AHMOBJ *g;
+    AICHAR *c;
+    AIBLD *g;
     int r;
 
     if (s != 0) {
@@ -6411,33 +6411,33 @@ int cm_ExAlchemistOrder(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    c = (AHMCHAR *)gm_FindChar(((AHMORDER *)m->data)->charId);
+    c = gm_FindChar(((AHMORDER *)m->data)->charId);
     if (c == 0)
         return -1;
-    if (ahm_HasRecord((char *)c) == 0)
+    if (ahm_HasRecord(c) == 0)
         return -2;
     o = (AHMORDER *)m->data;
     switch ((unsigned int)o->tag) {
     case AHM_CMD_ADD_VALUE:
-        r = ahm_AddValue((int *)o, (char *)c->obj->rec);
+        r = ahm_AddValue((int *)o, c->bld->ahm);
         break;
     case AHM_CMD_DELETE:
-        g = c->obj;
-        r = ahm_DeleteAlchemist((int)o, (int *)g->rec, (unsigned char *)g);
+        g = c->bld;
+        r = ahm_DeleteAlchemist((int)o, (int *)g->ahm, g);
         break;
     case AHM_CMD_SET_SHARE:
-        r = ahm_SetShare((int *)o, (char *)c->obj->rec);
+        r = ahm_SetShare((int *)o, c->bld->ahm);
         break;
     case AHM_CMD_SET_PLACE:
-        r = ahm_SetPlaceValue((int *)o, (char *)c->obj->rec);
+        r = ahm_SetPlaceValue((int *)o, c->bld->ahm);
         break;
     case AHM_CMD_ADD_PLACE:
-        g = c->obj;
-        r = ahm_AddPlace((int *)o, (char *)g->rec, (unsigned char *)g);
+        g = c->bld;
+        r = ahm_AddPlace((int *)o, g->ahm, g);
         break;
     case AHM_CMD_REMOVE_PLACE:
-        g = c->obj;
-        r = ahm_RemovePlace((int *)o, (char *)g->rec, (unsigned char *)g);
+        g = c->bld;
+        r = ahm_RemovePlace((int *)o, g->ahm, g);
         break;
     default:
         return -3;

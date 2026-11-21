@@ -3989,10 +3989,10 @@ void main_SettleRound(unsigned short pl)
         if (p->owner == pl) {
             ps = &ai_Chars[p->owner];
             if (ai_BTypes[p->type].kind == 0x1e) {
-                AICHAR *r = (AICHAR *)ahm_OwnerChar((unsigned char *)p);
+                AICHAR *r = ahm_OwnerChar(p);
 
                 if (r != 0) {
-                    cm_SendMoveGoodsUnchecked(r->netId, ps->netId, ai_OwnPlayer, ahm_ObjectValue((unsigned char *)p));
+                    cm_SendMoveGoodsUnchecked(r->netId, ps->netId, ai_OwnPlayer, ahm_ObjectValue(p));
                     cnt++;
                 }
             } else {

@@ -4081,7 +4081,7 @@ void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen();
    [esp+ebp+0x50], add edx,4 at the end) and computes &d2_Wins[win2].w after the name text, ours keeps i in
    ebx (scaled [esp+ebx*4+..]) and hoists &d2_Wins[win2].w out of the loop; the original saves edi only
    after the no-candidate return (push edi at 0x57bfaf); frame 0x55c vs 0x548 */
-void ai_AlchemistCandidates(unsigned char *obj)
+void ai_AlchemistCandidates(AIBLD *obj)
 {
     int t;
     int i;
@@ -4198,7 +4198,7 @@ void ai_AlchemistCandidates(unsigned char *obj)
     sv_CameraFollow();
 }
 
-char * ahm_OwnerChar();
+struct AICHAR *ahm_OwnerChar();
 int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 int sv_MessageBox();
 void txt_Format(char *out, int id0, ...);
@@ -4210,10 +4210,10 @@ int ahm_SendCreateAlchemist();
    creation is posted (ahm_SendCreateAlchemist) and its slot awaited (the frame pump while cm_GetSlotState
    is 0); a slot that did not end in state 1 answers 0. On success the step is cleared, the price moved from
    the player (cm_SendMoveGoods) and 1 answered */
-int ai_AlchemistHire(unsigned char *obj, AHMSTEP *step, int value)
+int ai_AlchemistHire(AIBLD *obj, AHMSTEP *step, int value)
 {
     char text[0x200];
-    char *owner;
+    AICHAR *owner;
     int slot;
 
     owner = ahm_OwnerChar(obj);
@@ -4237,7 +4237,7 @@ int ai_AlchemistHire(unsigned char *obj, AHMSTEP *step, int value)
     return 0;
 }
 
-int ahm_ResearchState(); char * ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
+int ahm_ResearchState(); struct AICHAR *ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
 
 /* 0x57c690, the alchemist's research window of the alchemist object obj ("Locations\Domizil\Alchemistry2"):
    without an owning character only the text 0x4051 (0x182); else the places of the record at +0x65 as
@@ -4262,13 +4262,13 @@ int ahm_ResearchState(); char * ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
    SetForm(form, 2) and reloads it in the loops. Next: from the row-block form, make win2 / start / other
    lose priority (fewer references or a split) - c2trace.py with the arw2 variant sep_ptr_row1 in the
    session notes' generator. (tiebreak: insensitive under the four probes only, best draft) */
-void ai_AlchemistResearchWindow(unsigned char *obj)
+void ai_AlchemistResearchWindow(AIBLD *obj)
 {
     char msg[0x100];
     char line[0x100];
     int pics[6];
     AHMREC *rec;
-    char *owner;
+    AICHAR *owner;
     int *pic;
     AHMSLOT *slot;
     int n;
@@ -4294,7 +4294,7 @@ void ai_AlchemistResearchWindow(unsigned char *obj)
     int j;
 
     owner = ahm_OwnerChar(obj);
-    rec = ((AHMOBJ *)obj)->rec;
+    rec = obj->ahm;
     lastState = ahm_ResearchState(obj, &a, &f, 0);
     lastClock = d3_Time;
     d2_ClickedId = -1;
@@ -4422,7 +4422,7 @@ void ai_AlchemistResearchWindow(unsigned char *obj)
    (cm_SendLongMessage; from the building, to the owner character's netId, the game clock, flags 1, arg[0] the
    record's id, arg[1] the place's id, arg[4] a random duration 1000 .. 66535); 0 when a research already runs
    (ahm_ResearchState), else 1 */
-int ai_AlchemistSendRecipeResearch(unsigned char *obj, AHMREC *rec, int slot)
+int ai_AlchemistSendRecipeResearch(AIBLD *obj, AHMREC *rec, int slot)
 {
     AIMSG msg;
     int a;
@@ -4433,8 +4433,8 @@ int ai_AlchemistSendRecipeResearch(unsigned char *obj, AHMREC *rec, int slot)
     memset(&msg, 0, sizeof(msg));
     msg.type = 0x96;
     msg.flags = 1;
-    msg.to = ai_Chars[((AIBLD *)obj)->owner].netId;
-    msg.fromId = ((AIBLD *)obj)->id;
+    msg.to = ai_Chars[obj->owner].netId;
+    msg.fromId = obj->id;
     msg.time = ai_Time;
     msg.arg[1] = rec->slots[slot].id;
     msg.arg[0] = rec->id;
@@ -4445,7 +4445,7 @@ int ai_AlchemistSendRecipeResearch(unsigned char *obj, AHMREC *rec, int slot)
 /* 0x57ced0, starts the alchemist object obj's own research (record rec) with the message 0x95 (cm_SendLongMessage;
    the 0x57cde0 shape without a place: arg[0] and arg[3] the record's id, no random duration); 0 when a research
    already runs (ahm_ResearchState), else 1 */
-int ai_AlchemistSendResearchStart(unsigned char *obj, AHMREC *rec)
+int ai_AlchemistSendResearchStart(AIBLD *obj, AHMREC *rec)
 {
     AIMSG msg;
     int a;
@@ -4456,8 +4456,8 @@ int ai_AlchemistSendResearchStart(unsigned char *obj, AHMREC *rec)
     memset(&msg, 0, sizeof(msg));
     msg.type = 0x95;
     msg.flags = 1;
-    msg.to = ai_Chars[((AIBLD *)obj)->owner].netId;
-    msg.fromId = ((AIBLD *)obj)->id;
+    msg.to = ai_Chars[obj->owner].netId;
+    msg.fromId = obj->id;
     msg.time = ai_Time;
     msg.arg[0] = rec->id;
     msg.arg[3] = rec->id;
@@ -4494,7 +4494,7 @@ int ai_AlchemistSendResearchStart(unsigned char *obj, AHMREC *rec)
    (= control), centred before w in the name block (200), index click loop (117), flip.py --want
    '[ecx+eax+92], 1' (one hit, 76 ins); headers sample insensitive. Open: M10 100.0f vs ai_FloatHundred
    (tiebreak: not measured (dcp headers sample ai_AlchemistWindow)) */
-void ai_AlchemistWindow(unsigned char *obj)
+void ai_AlchemistWindow(AIBLD *obj)
 {
     char msg[0x100];
     char line[0x100];
@@ -4518,8 +4518,8 @@ void ai_AlchemistWindow(unsigned char *obj)
 
     int *pb;
 
-    owner = (AICHAR *)ahm_OwnerChar(obj);
-    rec = ((AHMOBJ *)obj)->rec;
+    owner = ahm_OwnerChar(obj);
+    rec = obj->ahm;
     lastState = ahm_ResearchState(obj, &a, &f, 0);
     lastClock = d3_Time;
     d2_ClickedId = -1;
@@ -4610,7 +4610,7 @@ void ai_AlchemistWindow(unsigned char *obj)
             d2_SetObjValue(prog, 0, 100, (int)(f * 100.0f));
         }
         if (state != lastState || d3_Time > lastClock + 0x32) {
-            owner = (AICHAR *)ahm_OwnerChar(obj);
+            owner = ahm_OwnerChar(obj);
             if (owner == 0) {
                 sv_PopRequest = 1;
                 sv_RunFrame(ai_AlchemistWindow, 0x20007);
@@ -4695,7 +4695,7 @@ void ai_AlchemistWindow(unsigned char *obj)
    from the building, to the owner character, the game clock, arg[0] the record's id, arg[1] the share, arg[4] a
    random duration 1000 .. 66535) and closes the window; the second answer and the right mouse button close it.
    Answers 1 */
-int ai_AlchemistTrainShareWindow(unsigned char *obj, AHMREC *rec, int idx)
+int ai_AlchemistTrainShareWindow(AIBLD *obj, AHMREC *rec, int idx)
 {
 
     int win;
@@ -4736,8 +4736,8 @@ int ai_AlchemistTrainShareWindow(unsigned char *obj, AHMREC *rec, int idx)
                 memset(&msg, 0, sizeof(msg));
                 msg.type = 0x97;
                 msg.flags = 1;
-                msg.to = ai_Chars[((AIBLD *)obj)->owner].netId;
-                msg.fromId = ((AIBLD *)obj)->id;
+                msg.to = ai_Chars[obj->owner].netId;
+                msg.fromId = obj->id;
                 msg.time = ai_Time;
                 msg.arg[0] = rec->id;
                 msg.arg[4] = util_Random(0x5a0) + 1000;
@@ -4762,9 +4762,9 @@ int ai_AlchemistTrainShareWindow(unsigned char *obj, AHMREC *rec, int idx)
    * 0.75 (ahm_SendAddValue, the float passed by value), the amount is moved from the player (cm_SendMoveGoods)
    and the window closes with the answer 1; the second answer and the right mouse button close it. The window
    closes with 0 when the owner is gone */
-int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
+int ai_AlchemistFundWindow(AIBLD *obj, AHMREC *rec)
 {
-    char *owner;
+    AICHAR *owner;
     int win;
     int points;
     int tenth;
@@ -4814,7 +4814,7 @@ int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
                     ahm_SendAddValue(owner, (float)v / (float)points * share * 0.75f);
                     done = 1;
                     sv_PopRequest = 1;
-                    cm_SendMoveGoods(((AICHAR *)owner)->netId, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, v);
+                    cm_SendMoveGoods(owner->netId, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, v);
                 }
             } else if (d2_PointerObj == cancel) {
                 sv_PopRequest = 1;
@@ -4829,9 +4829,9 @@ int ai_AlchemistFundWindow(unsigned char *obj, AHMREC *rec)
    the object's research (ahm_RescheduleResearch) and deletes the alchemist (ahm_SendDelete) and closes the window
    with the answer 1; the second answer and the right mouse button close it. The window closes with 0 when the
    owner is gone */
-int ai_AlchemistRescheduleWindow(unsigned char *obj, AHMREC *rec)
+int ai_AlchemistRescheduleWindow(AIBLD *obj, AHMREC *rec)
 {
-    char *owner;
+    AICHAR *owner;
     int win;
     int ok;
     int cancel;

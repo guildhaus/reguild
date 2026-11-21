@@ -2374,7 +2374,7 @@ void he_PostWorkshopEvents98(void)
     for (b = gm_BuildQuery(1, 5, 0x1e); b != 0; b = gm_BuildNext()) {
         AIMSG m;
 
-        if (he_FindEvent(2, 0, 0x98, 3, b->id) == 0 && (o = (AICHAR *)ahm_OwnerChar(b)) != 0) {
+        if (he_FindEvent(2, 0, 0x98, 3, b->id) == 0 && (o = ahm_OwnerChar(b)) != 0) {
             memset(&m, 0, sizeof(m));
             m.type = 0x98;
             m.to = o->netId;

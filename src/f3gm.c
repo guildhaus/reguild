@@ -2556,7 +2556,7 @@ int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field,
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 extern int ai_Difficulty;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-char * ahm_OwnerChar();                     /* 0x4eaa50 */
+struct AICHAR *ahm_OwnerChar();                     /* 0x4eaa50 */
 int ahm_ObjectValue();                     /* 0x4ec3d0 */
 int gm_ListAmount();                     /* 0x50aaf0 */
 int gm_ListStock();                     /* 0x50ab50 */

@@ -379,16 +379,16 @@ void ai_TutorialFreeRuns(TUTRUN *rec);
 struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
-char * ahm_OwnerChar();
+struct AICHAR *ahm_OwnerChar();
 int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 int sv_MessageBox();
 void txt_Format(char *out, int id0, ...);
 int ahm_SendCreateAlchemist();
-int ahm_ResearchState(); char * ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
+int ahm_ResearchState(); struct AICHAR *ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
 
 /* dcp unit split: the definitions of sv_t the functions of svcannon use */
-void ai_AlchemistResearchWindow(unsigned char *obj);
-void ai_AlchemistWindow(unsigned char *obj);
+void ai_AlchemistResearchWindow(struct AIBLD *obj);
+void ai_AlchemistWindow(struct AIBLD *obj);
 
 /* 0x57e230, the table callback of the cannon scene: stores the shot record src (its index 0 .. 2 in src->id)
    in the table ai_ShotTable at that index and marks the table as changed (ai_ShotDirty); answers 1, else 0 for

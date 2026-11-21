@@ -198,13 +198,13 @@ int ai_TutorialInitChapter4(void);                 /* 0x57aa80, the chapter 4 ch
 int ai_TutorialInitChapter5(void);                 /* 0x57aeb0, the chapter 5 chain */
 int ai_TutorialInitMainOutro(void);                 /* 0x57b750, the main-outro record */
 void ai_TutorialBezier(float *a, float *b, float *c, float *d, float t, float *out);  /* 0x57b810, the Bezier */
-void ai_AlchemistCandidates(unsigned char *obj);  /* 0x57bf00, the alchemist's candidates window: hires one of the walk steps */
-int ai_AlchemistHire(unsigned char *obj, struct AHMSTEP *step, int value);  /* 0x57c560, hires the candidate step (ROUGH) */
-int ai_AlchemistSendRecipeResearch(unsigned char *obj, struct AHMREC *rec, int slot);  /* 0x57cde0, starts the research of the place slot (message 0x96) */
-int ai_AlchemistSendResearchStart(unsigned char *obj, struct AHMREC *rec);  /* 0x57ced0, starts the alchemist's own research (message 0x95) */
-int ai_AlchemistTrainShareWindow(unsigned char *obj, struct AHMREC *rec, int idx);  /* 0x57dc50, the share research window of the share idx */
-int ai_AlchemistFundWindow(unsigned char *obj, struct AHMREC *rec);  /* 0x57de60, the money window (rec unread) */
-int ai_AlchemistRescheduleWindow(unsigned char *obj, struct AHMREC *rec);  /* 0x57e0e0, the dismissal window (rec unread) */
+void ai_AlchemistCandidates(struct AIBLD *obj);  /* 0x57bf00, the alchemist's candidates window: hires one of the walk steps */
+int ai_AlchemistHire(struct AIBLD *obj, struct AHMSTEP *step, int value);  /* 0x57c560, hires the candidate step (ROUGH) */
+int ai_AlchemistSendRecipeResearch(struct AIBLD *obj, struct AHMREC *rec, int slot);  /* 0x57cde0, starts the research of the place slot (message 0x96) */
+int ai_AlchemistSendResearchStart(struct AIBLD *obj, struct AHMREC *rec);  /* 0x57ced0, starts the alchemist's own research (message 0x95) */
+int ai_AlchemistTrainShareWindow(struct AIBLD *obj, struct AHMREC *rec, int idx);  /* 0x57dc50, the share research window of the share idx */
+int ai_AlchemistFundWindow(struct AIBLD *obj, struct AHMREC *rec);  /* 0x57de60, the money window (rec unread) */
+int ai_AlchemistRescheduleWindow(struct AIBLD *obj, struct AHMREC *rec);  /* 0x57e0e0, the dismissal window (rec unread) */
 
 /* declared in other units' headers before (moved to the owner) */
 struct AICHAR;

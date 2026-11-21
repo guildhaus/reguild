@@ -1508,7 +1508,7 @@ void sv_CountGroupMembers(AIJOB *g)
                 } else if (c->title == b->title2) {
                     g->rank2Count++;
                 } else if (b->kind == 0x1e) {
-                    if (ahm_HasRecord((char *)c) != 0)
+                    if (ahm_HasRecord(c) != 0)
                         g->rank1Count++;
                 }
             }
