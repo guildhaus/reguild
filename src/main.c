@@ -1239,7 +1239,7 @@ int main_NetworkMenu(void)
     b2 = d2_GetWinObj(f, 0, io_PrintText(0x1ca7));
     b3 = d2_GetWinObj(f, 0, io_PrintText(0x1ca8));
     g = d2_CreateRadioGroup(3, b1, b2, b3);
-    ai_MissionMode = (char)0xfe;
+    ai_MissionMode = -2;
     if (sv_RunFrame(main_NetworkMenu, 0x24087) != 0) {
         do {
             d2_MenuNavigate(g);
