@@ -2838,7 +2838,7 @@ exe	0x004f48f0	gv_SentenceText	gv	bf011dcf4f1ae0dd	no	byte	control=byte p1=byte 
 exe	0x004f4970	gv_CheckRankUp	gs	f361d400f4e23504	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	2e3deb9ff84c76e5
 exe	0x004f4d10	gv_CheckRankUps	gv	e4ae1be51466e2bf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4d30	gv_EvidencePrice	gv	d52f98d9c87d00de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f4e20	ord_ApplyForOffice	ord	b839d47590f41194	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f823960e7b4646f4
+exe	0x004f4e20	ord_ApplyForOffice	ord	6d186341a080ce23	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	61e57e66adc84a0c
 exe	0x004f4f20	ord_LevelOrder	ord	5f9bb61280911d08	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	dc671bf8ebe636a7
 exe	0x004f4ff0	ord_ChangeProfessionOrder	ord	6cdc923adcfdcb8c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f5070	ord_MedicusOrder	ord	2b1a93d4f2cdf521	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2904,13 +2904,13 @@ exe	0x004f8360	ord_CountGridObjects	ord	1096ad1ef8c7a174	yes	shape	sweep control
 exe	0x004f8460	ord_AddGridAmount	ord	d07b30d499f82e7f	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004f8590	ord_SubGridAmount	ord	85d5b634f645fe8f	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004f86a0	ord_RandomCellPoint	ord	1eb0695657deb1c9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f8700	ord_RandomObjectId	ord	623c13301fa0d926	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	2913568bf31d9141
+exe	0x004f8700	ord_RandomObjectId	ord	2f8789dd601a7132	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	76dbabffeb953219
 exe	0x004f8890	ord_GetKindRecord	ord	606dc781d8bd25a8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f88c0	ord_AppendStatisticsRound	ord	4a8bcb6f1f20a5e3	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f8920	ord_RebuildGridSums	ord	1a855290cce0a724	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004f8ae0	ord_ComputeStatistics	ord	c87c89bfdf2dc7ac	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	1550ff5812286bf9
 exe	0x004f8ed0	ord_UpdateStatistics	ord	5866dd378bd153f1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	bffa762eb5dfbac1
-exe	0x004f9020	ord_LoadStatistics	ord	e64cec5f9881aa86	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	dc671bf8ebe636a7
+exe	0x004f9020	ord_LoadStatistics	ord	dbee7ce2588f5d26	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	76dbabffeb953219
 exe	0x004f9170	ord_GetMessageRecord	ord	054b55d878dc4919	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f9190	ord_InitMessageRecord	ord	afd702685b9b62f6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f9220	ord_UpdateMessageEvent	ord	98810afd5702648d	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
@@ -2929,9 +2929,9 @@ exe	0x004fa060	gm_IncomeKind2	f3gm	988d27c18b659aa0	no	shape	sweep control=shape
 exe	0x004fa160	gm_IncomeKind3	f3gm	dc49a8faf6470f8c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e179daf34268b182
 exe	0x004fa2a0	gm_IncomeKind4	f3gm	0b7b04be85608354	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fa3d0	gm_IncomeKind5	f3gm	308f1feb6b8d437a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	fe1cfd2b759d6fa3
-exe	0x004fa4b0	gm_CharacterIncomes	f3gm	2e3fb62bcdcd53f5	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e29f439406c0ccde
+exe	0x004fa4b0	gm_CharacterIncomes	f3gm	e95c30636a6c52db	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	75c1d3492588f672
 exe	0x004fa580	gm_CharacterUpkeep	f3gm	a0582358d6bba35f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
-exe	0x004fa700	gm_CharacterWages	f3gm	35e90649fc689f54	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7d9867547f337a84
+exe	0x004fa700	gm_CharacterWages	f3gm	dde8f6833d808bc8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	be8bd7259cdd1dac
 exe	0x004fa9b0	gm_PayAllCharacterWages	f3gm	d5c7e2e12921824a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004faa00	gm_UpdateWorthMood	f3gm	cf3814f644409eb6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fabe0	gm_EndDayIncomes	f3gm	cd4c27863574e925	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -2954,7 +2954,7 @@ exe	0x004fc890	gm_CharacterBaseHealth	f3gm	ecffbcb8de9e693b	no	byte	control=byte
 exe	0x004fc8e0	gm_HealthRatio	f3gm	e20280b6c6d1961a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fc920	gm_DailyCharacters	f3gm	9b5746d1a8f99b6f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fca40	gm_AddHealth	f3gm	1091ca2ebefa4488	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x004fccc0	gm_PartnerStep	f3gm	c1ef502d156d5fa2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	15a83e0d381caddf
+exe	0x004fccc0	gm_PartnerStep	f3gm	f17d93e569cfcf64	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	0c73ddf16b4450a5
 exe	0x004fd090	gm_IsNoPlayerKin	f3gm	3ed47f420dcb686d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fd120	gm_PopulationStep	f3gm	2c0eccd071c10c86	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
 exe	0x004fd5c0	gm_CreateRandomChild	f3gm	2ad17e6a777d8d8f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3040,7 +3040,7 @@ exe	0x00502fd0	gm_SellBuilding	f3gm	a8b9e7fc79d1f965	no	byte	control=byte p1=byt
 exe	0x005031b0	gm_AllocRaum	f3gm	3b901f4a4526d55e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503480	gm_RemoveObjectFromBuilding	f3gm	4907533e25a8f849	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005034b0	gm_FreeObject	f3gm	d57befa7d1ff8081	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00503530	gm_PermissionBits	f3gmt	2691ef90ea57f4e6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24d0e5c57fe14a5c
+exe	0x00503530	gm_PermissionBits	f3gmt	9acf6c4bc7be58c1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a5909646d8ddab51
 exe	0x00503c20	gm_ReleaseCharacter	f3gm	68f6992261634f9d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503c60	gm_KillSpieler	f3gmt	05b77931c03cdff7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	835fb17aeffaabb4
 exe	0x00503e80	gm_ResetCharacters	f3gm	d21a0804f78a3dc8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3086,7 +3086,7 @@ exe	0x00505e60	gm_CharLevel	f3gm	cc0ea9a22d912e21	no	shape	sweep control=shape b
 exe	0x00505f30	gm_CharPrevLevel	f3gm	7e0f47cf40529e7b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x00506000	gm_BirthDate	f3gm	2a5f5869d8fe8a1e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	55dbe17996343dd4
 exe	0x005060d0	gm_DeathDate	f3gm	c911c4339d0ac454	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
-exe	0x00506180	gm_RankPlayers	f3gmt	7ad1312e1dbba0a4	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d64ed2173edaf982
+exe	0x00506180	gm_RankPlayers	f3gmt	ef906da68c59b159	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a5909646d8ddab51
 exe	0x00506430	gm_PlayerRecord	f3gm	96707c788812cc66	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00506480	gm_HasAdultRelative	f3gm	4a01a82b285f0652	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005064d0	gm_TakeOverCharacter	f3gm	82d1a68912aa6ba9	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
@@ -3170,7 +3170,7 @@ exe	0x0050cc50	gm_SendMoneyDelta	f3gm	43becc2d460acaed	no	byte	control=byte p1=b
 exe	0x0050cc60	gm_ResetStock	f3gm	d5520489584d0cb6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050ccd0	gm_Homeless	f3gm	2ee541a47a919f95	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x0050cd40	gm_JobCost	f3gm	23c3b572ff7729fb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050cdc0	gm_StaffFactor	f3gmt	0910d4956a924713	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	30e74b47a3ce7b5e
+exe	0x0050cdc0	gm_StaffFactor	f3gmt	9a68a190e51a5892	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	13d883d915269d26
 exe	0x0050cf60	gm_BathObjectCount	f3gm	fad39ced6ed4ae45	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050cfd0	gm_CurseObjectCount	f3gm	d4e7fa3b9f2b90a6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050d060	gm_Unk50d060	f3gm	afa239cc4ec19ff5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

@@ -921,7 +921,7 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
     unsigned char health;               /* +0x008, > 0 = alive */
     unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
     char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.b00c); picks the news text */
+    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
     char pad0d[0x23];                   /* +0x00d .. 0x02f */
     union {
         char name[0x58];                /* +0x030, the character's name (AICHAR.name) */
@@ -1180,7 +1180,7 @@ void ai_FillPersonnelRow(AICHAR *ch, G9DOMIZILROW *row, int bars)
     d2_Objs[row->slider].clickDisabled = 1;
     row->state = 1;
     d2_Objs[row->pic].user = ch;
-    v = ch->v174;
+    v = ch->jobDays;
     if (v != 0 && ch->jobId == 0) {
         if (row->ch->title == bt->title2)
             txt_Format(text, "%i %s", v, 0x1a39);
@@ -1826,7 +1826,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
             if (c->model != 0 && c->model->bldId != bld->id) {
                 txt_Format(text3, 0x42c4, c->id);
                 sv_MessageBox(text3, 4);
-            } else if (gm_AllowAll == 0 && c->v174 < 4) {
+            } else if (gm_AllowAll == 0 && c->jobDays < 4) {
                 txt_Format(text4, 0x1a27, 4);
                 sv_MessageBox(text4, 4);
             } else {
@@ -2237,7 +2237,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
             }
         } else if (d2_PointerObj == promoteButton && sel != -1) {
             c = rows[sel].ch;
-            if (c->v174 < 4) {
+            if (c->jobDays < 4) {
                 txt_Format(text, 0x1a27, 4);
                 sv_MessageBox(text, 0);
             } else {

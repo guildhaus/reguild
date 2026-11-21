@@ -3208,7 +3208,7 @@ void cm_RunDeath(G28REC *m)
         cm_MessageBox(buf, 0);
         sv_PopTo(main_GameLoop);
     } else {
-        gm_ForfeitEstate((struct ORDCHAR *)a, estate, 1);
+        gm_ForfeitEstate(a, estate, 1);
         cm_MessageBox(estate, 0x10);
     }
     cm_FadeToBlack();
@@ -3290,7 +3290,7 @@ void cm_RunBankruptcy(G28REC *m)
         sv_PopTo(main_GameLoop);
         return;
     }
-    gm_ForfeitEstate((struct ORDCHAR *)a, estate, 0);
+    gm_ForfeitEstate(a, estate, 0);
 }
 /* 0x4e19a0, the check function of the auction (scene kind 10, run function 0x4e1a80) for its party m: the auctioned
    building m->auction.building and its start price m->auction.price go into the text 0x3fd9, joined with

@@ -51,7 +51,7 @@ typedef struct GMBTYPE {
     unsigned short objs[0x40];          /* 0x023, the objects the type can hold, goods ids (bit 15 = flag) */
     unsigned short parents[0x40][2];    /* 0x0a3, the two goods each of objs needs first (gm_LayoutTree's tree) */
     char pad1a3[0x8c];
-    char title;                         /* 0x22f, the title rank that suits the type's workers (ORDCHAR.title: +0.3 each, gm_StaffFactor) */
+    unsigned char title;                       /* 0x22f, the title rank that suits the type's workers (AICHAR.title: +0.3 each, gm_StaffFactor) */
     char pad230[0x17];
     unsigned char level;                /* 0x247, the type's level 1 .. 3 (ai.h AIBTYPE.level / cap247) */
     unsigned char maxLevel;             /* 0x248, the highest level of the type's line (ai.h AIBTYPE.maxLevel) */
@@ -65,7 +65,7 @@ typedef char gm_AssertGMBTYPE[sizeof(GMBTYPE) == 0x24d ? 1 : -1];
 typedef struct GMEVENT23 {
     char pad000[0xac];
     int bldId;                          /* 0x0ac, the building's id (AIBLD.id) */
-    int charId;                         /* 0x0b0, the character's netId (ORDCHAR.netId) */
+    int charId;                         /* 0x0b0, the character's netId (AICHAR.netId) */
 } GMEVENT23;
 
 

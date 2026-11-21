@@ -42,14 +42,14 @@ int gm_CollectCarried(int id, int *out);                                   /* 0x
 int gm_IsBankrupt(unsigned short *p, int n);                                  /* 0x50a6c0, p: an AICHAR */
 
 /* declared in other units' headers before (moved to the owner) */
-struct ORDCHAR; int gm_CatchDisease(struct ORDCHAR *c, int *kind, float *health);  /* 0x505230, the character catches a disease: *kind its kind, *health the new health (either may be 0); 1 when it caught one */
-struct ORDCHAR; int gm_CatchUpperDisease(struct ORDCHAR *c);  /* 0x5056a0, the character catches one of the upper diseases 5 .. 8; the kind or 0 */
-struct ORDCHAR; int gm_CureDisease(struct ORDCHAR *c);  /* 0x505840, cures one disease of the character; the kind or 0 */
-struct ORDCHAR; int gm_CureMinorDisease(struct ORDCHAR *c);  /* 0x5059d0, cures one of the minor diseases 2 .. 5 of the character; the kind or 0 */
-struct ORDCHAR; int gm_CureUpperDisease(struct ORDCHAR *c);  /* 0x505ad0, cures one of the diseases 6, 7, 8, 3 of the character; the kind or 0 */
+struct AICHAR; int gm_CatchDisease(struct AICHAR *c, int *kind, float *health);  /* 0x505230, the character catches a disease: *kind its kind, *health the new health (either may be 0); 1 when it caught one */
+struct AICHAR; int gm_CatchUpperDisease(struct AICHAR *c);  /* 0x5056a0, the character catches one of the upper diseases 5 .. 8; the kind or 0 */
+struct AICHAR; int gm_CureDisease(struct AICHAR *c);  /* 0x505840, cures one disease of the character; the kind or 0 */
+struct AICHAR; int gm_CureMinorDisease(struct AICHAR *c);  /* 0x5059d0, cures one of the minor diseases 2 .. 5 of the character; the kind or 0 */
+struct AICHAR; int gm_CureUpperDisease(struct AICHAR *c);  /* 0x505ad0, cures one of the diseases 6, 7, 8, 3 of the character; the kind or 0 */
 int gm_CurseTargetCount(struct AIBLD *b);  /* 0x50d0b0 */
 int gm_Season(char *d);  /* 0x4fe330 */
-struct ORDCHAR; int gm_CatchMinorDisease(struct ORDCHAR *c);  /* 0x5054f0, the character catches one of the minor diseases 2 .. 5; the kind or 0 */
+struct AICHAR; int gm_CatchMinorDisease(struct AICHAR *c);  /* 0x5054f0, the character catches one of the minor diseases 2 .. 5; the kind or 0 */
 int gm_HeadIconNumber(char *name);  /* 0x4fb770 */
 int gm_FindRichest(short *id, int *rate);  /* 0x4fad60 */
 void gm_Shuffle(unsigned n, int *out);  /* 0x505d30 */
@@ -84,7 +84,7 @@ float gm_HealthRatio(short *c);  /* 0x4fc8e0 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);  /* 0x4fd820, a home with room for the building o (the nearest or least full) */
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
 int gm_AddToTreasury(int a);  /* 0x50c4e0, gives the amount a to the town treasury */
-struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
+struct AICHAR; struct AIBLD; struct AICHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
 struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
@@ -98,8 +98,8 @@ void gm_FreeObject(int o);  /* 0x5034b0 */
 int gm_SkillPoints(char *c, int skill);  /* 0x504e00 */
 int gm_HasAdultRelative(char *c, int *n);  /* 0x506480 */
 unsigned gm_TakeOverCharacter(int a, int b);  /* 0x5064d0 */
-struct ORDCHAR; void gm_InheritEstate(struct ORDCHAR *dead, struct ORDCHAR *heir);  /* 0x506890, the heir inherits the dead character's estate */
-struct ORDCHAR; void gm_ForfeitEstate(struct ORDCHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
+struct AICHAR; void gm_InheritEstate(struct AICHAR *dead, struct AICHAR *heir);  /* 0x506890, the heir inherits the dead character's estate */
+struct AICHAR; void gm_ForfeitEstate(struct AICHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
 unsigned short *gm_ObjectBuildingOwner(unsigned short *o);  /* 0x50a050 */
 int gm_ListObjectsAfter(struct AIBLD *b, struct AIOBJ *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
@@ -143,8 +143,8 @@ int gm_StallGoodsList(char *c, unsigned *out);  /* 0x50aa00 */
 int gm_SumSlotAmounts(void *list, unsigned char p);  /* 0x508660 */
 int gm_CharLevel(unsigned short id, int again);  /* 0x505e60, the level of the character id (its job's kind level + 1, raised to the parent's) */
 int gm_CharPrevLevel(unsigned short id, int again);  /* 0x505f30, gm_CharLevel for the previous office (+0x167) */
-struct ORDCHAR; struct GMDATE; void gm_BirthDate(struct ORDCHAR *c, struct GMDATE *out);  /* 0x506000, the birthday of the character c (its birth year, a month and day from its first name) */
-struct ORDCHAR; struct GMDATE; int gm_DeathDate(struct ORDCHAR *c, struct GMDATE *out);  /* 0x5060d0, the day of death of the character c; 0 for a living one */
+struct AICHAR; struct GMDATE; void gm_BirthDate(struct AICHAR *c, struct GMDATE *out);  /* 0x506000, the birthday of the character c (its birth year, a month and day from its first name) */
+struct AICHAR; struct GMDATE; int gm_DeathDate(struct AICHAR *c, struct GMDATE *out);  /* 0x5060d0, the day of death of the character c; 0 for a living one */
 struct GMRANK; void gm_RankPlayers(int *count, struct GMRANK *out);  /* 0x506180, the ranking of the up to 8 players into out, *count of them */
 float gm_JobCost(char *c, int k, int a, int b);  /* 0x50cd40 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
@@ -198,17 +198,17 @@ struct AITIME; void gm_AddTime2(struct AITIME *c, int unused, int hours, int min
 struct AITIME; int gm_WorkMinutesBetween(struct AITIME *a, struct AITIME *b, unsigned char *bld);  /* 0x509400 */
 struct AITIME; int gm_FixedWorkMinutesBetween(struct AITIME *a, struct AITIME *b);  /* 0x5096a0 */
 int gm_BuildingValues(unsigned char *b, int *out);  /* 0x5091a0 */
-struct ORDCHAR; float gm_CatchPlague(struct ORDCHAR *c);  /* 0x505440 */
+struct AICHAR; float gm_CatchPlague(struct AICHAR *c);  /* 0x505440 */
 void gm_ChangeObjektZustand(int id, int d);  /* 0x50ca50 */
 float gm_CharacterBaseHealth(short *c);  /* 0x4fc890 */
 char *gm_CharacterHome(char *c, int *out2, int *out3);  /* 0x4fdcb0 */
-struct ORDCHAR; int gm_DropRank(struct ORDCHAR *c);  /* 0x504840 */
+struct AICHAR; int gm_DropRank(struct AICHAR *c);  /* 0x504840 */
 int gm_FindPlayerBuilding(int p);  /* 0x501000 */
 int gm_GetDisease(int n, int *out);  /* 0x5051d0 */
 struct AIBLD; int gm_HandOutMoney(struct AIBLD *b, int *out);  /* 0x4fae50 */
 int gm_JobSlots(int job, int *a, int *b);  /* 0x504100 */
 int gm_LikingChance(int a, int b, int c, int d);  /* 0x50b290 */
-struct ORDCHAR; int gm_MayRemoveChar(struct ORDCHAR *c);  /* 0x5075c0 */
+struct AICHAR; int gm_MayRemoveChar(struct AICHAR *c);  /* 0x5075c0 */
 int gm_TrialBuildingKind(char *b);  /* 0x50d060 */
 void gm_StatisticsScreen(void);  /* 0x4f9e30, the city statistics screen */
 struct AITIME; void gm_ClockToDate(struct AITIME *c, unsigned char *out);  /* 0x4fe2c0, the calendar record of a clock */

@@ -833,7 +833,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     c->ownName[0] = 0;
     c->v190 = 4;
     c->money = 0;
-    c->b00d = 1;
+    c->level = 1;
     c->picture = -1;
     c->partyId = -1;
     c->w050 = 0x7fff;

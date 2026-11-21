@@ -708,7 +708,7 @@ void hmt_FillCouncils(void)
     titles[2] = 0x1b;
     for (j = 0; j < 768; j++) {
         p = &ai_Chars[j];
-        if (p->b00d >= 7
+        if (p->level >= 7
             && (p->kind == 6 || p->kind == 7 || p->kind == 5 || p->kind == 4 || p->kind == 3 || p->kind == 2)) {
             for (n = 3; n != 0; n--) {
                 i = n - 1;
@@ -817,8 +817,8 @@ void hmt_Create(int type, int unk, unsigned short v, AICHAR *c)
         }
     }
     c->w050 = 0x7fff;
-    c->f07c = 0.0f;
-    c->b058 = 0;
+    c->pregnancy = 0.0f;
+    c->generation = 0;
     for (i = 0; i < 8; i++)
         c->relatives[i] = -1;
     c->bld2 = 0;
@@ -830,7 +830,7 @@ void hmt_Create(int type, int unk, unsigned short v, AICHAR *c)
     c->f018 = 1000.0f;
     for (j = 0; j < 5; j++)
         c->skills[j] = (unsigned char)(util_Random(0x2a) + 210.0f);
-    c->b00d = 9;
+    c->level = 9;
     gm_AddObjekt(c->netId, ai_PlayerSlots[ai_OwnPlayer].moneyGood, HMT_START_MONEY);
     pl = 0xffff;
     for (i = 0; i < 768; i++) {

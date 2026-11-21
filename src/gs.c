@@ -810,7 +810,7 @@ int gv_RetireCrimesOf(int culprit, int n)
     int cnt, i, k, j, m;
     AICHAR *c;
     int told[8];
-    ORDCHAR *who[8];
+    AICHAR *who[8];
 
     cnt = 0;
     c = gm_FindChar(culprit);
@@ -819,9 +819,9 @@ int gv_RetireCrimesOf(int culprit, int n)
         for (i = 0; i < 0x300; i++) {
             if (m >= 8)
                 break;
-            if ((ORD_CHARS[i].kind == 6 || ORD_CHARS[i].kind == 7) && ORD_CHARS[i].netId != culprit) {
+            if ((ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7) && ai_Chars[i].netId != culprit) {
                 told[m] = 0;
-                who[m] = &ORD_CHARS[i];
+                who[m] = &ai_Chars[i];
                 m++;
             }
         }
@@ -854,7 +854,7 @@ int gv_RetireCrimeIds(int culprit, int n, int *ids)
     int cnt, i, k, e, j, m, id;
     AICHAR *c;
     int told[8];
-    ORDCHAR *who[8];
+    AICHAR *who[8];
 
     cnt = 0;
     c = gm_FindChar(culprit);
@@ -863,9 +863,9 @@ int gv_RetireCrimeIds(int culprit, int n, int *ids)
         for (i = 0; i < 0x300; i++) {
             if (m >= 8)
                 break;
-            if ((ORD_CHARS[i].kind == 6 || ORD_CHARS[i].kind == 7) && ORD_CHARS[i].netId != culprit) {
+            if ((ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7) && ai_Chars[i].netId != culprit) {
                 told[m] = 0;
-                who[m] = &ORD_CHARS[i];
+                who[m] = &ai_Chars[i];
                 m++;
             }
         }
@@ -900,7 +900,7 @@ int gv_RankCulprits(int *ids, int *cnt, unsigned short t)
 {
     int culprits[0x200];
     int n, m, i, k, c, own, hi, x;
-    ORDCHAR *ch;
+    AICHAR *ch;
 
     n = 0;
     for (i = 0; i < 0x20; i++) {
@@ -909,7 +909,7 @@ int gv_RankCulprits(int *ids, int *cnt, unsigned short t)
     }
     memset(culprits, 0xff, sizeof(culprits));
     m = 0;
-    ch = &ORD_CHARS[t];
+    ch = &ai_Chars[t];
     for (i = 0; i < 0x800; i++) {
         if (ai_Evidence[i][0] == ch->netId) {
             k = gv_FindCrime(ai_Evidence[i][1]);
@@ -958,14 +958,14 @@ int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t)
 {
     CRIME *rec[0x200];
     int n, m, i, k, tot, st, own, x, id;
-    ORDCHAR *ch;
+    AICHAR *ch;
 
     memset(ids, 0xff, 0x20 * sizeof(int));
     n = 0;
     memset(open, 0, 0x20 * sizeof(int));
     memset(total, 0, 0x20 * sizeof(int));
     memset(rec, 0, sizeof(rec));
-    ch = &ORD_CHARS[t];
+    ch = &ai_Chars[t];
     m = 0;
     for (i = 0; i < 0x800; i++) {
         if (ai_Evidence[i][0] == ch->netId) {
@@ -1020,12 +1020,12 @@ int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t)
 int gv_HeldCrimesOf(int culprit, int *out, unsigned short t)
 {
     int n, i, k;
-    ORDCHAR *ch;
+    AICHAR *ch;
 
     n = 0;
     if (gm_FindChar(culprit) == 0)
         return 0;
-    ch = &ORD_CHARS[t];
+    ch = &ai_Chars[t];
     if (ch == 0)
         return 0;
     memset(out, 0xff, 0x20 * sizeof(int));
@@ -1047,12 +1047,12 @@ int gv_HeldCrimesOf(int culprit, int *out, unsigned short t)
 int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t)
 {
     int n, i, k;
-    ORDCHAR *ch;
+    AICHAR *ch;
 
     n = 0;
     if (gm_FindChar(culprit) == 0)
         return 0;
-    ch = &ORD_CHARS[t];
+    ch = &ai_Chars[t];
     if (ch == 0)
         return 0;
     memset(out, 0xff, 0x20 * sizeof(int));
@@ -1075,12 +1075,12 @@ int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t)
 int gv_HeldCrimeCount(int culprit, unsigned short t)
 {
     int n, i, k;
-    ORDCHAR *ch;
+    AICHAR *ch;
 
     n = 0;
     if (gm_FindChar(culprit) == 0)
         return 0;
-    ch = &ORD_CHARS[t];
+    ch = &ai_Chars[t];
     if (ch == 0)
         return 0;
     for (i = 0; i < 0x800; i++) {
@@ -1201,7 +1201,7 @@ void gv_SortCrimesByLaw(int n, CRIME *r)
 }
 /* 0x4f4420, whether the sentence k (0 .. 9, the trial's punishment choices of cm.c's "cutscenes\prozess") can be passed on
    the character c: 0 yes, -1 without c, -3 for k >= 10, -4 when c lacks what it takes (5: an office, AICHAR.officeKind;
-   7: AICHAR.b00d). The name is a reasoned guess from the trial window. */
+   7: AICHAR.level). The name is a reasoned guess from the trial window. */
 
 int gv_CheckSentence(AICHAR *c, unsigned k)
 {
@@ -1216,7 +1216,7 @@ int gv_CheckSentence(AICHAR *c, unsigned k)
         if (c->officeKind == 0)
             r = -4;
     } else if (k == 7) {
-        if (c->b00d == 0)
+        if (c->level == 0)
             r = -4;
     }
     return r;
@@ -1224,7 +1224,7 @@ int gv_CheckSentence(AICHAR *c, unsigned k)
 /* 0x4f4460, carries out the sentence a (0 .. 9, the trial's punishments, see gv_CheckSentence) on the character c:
    0 / 2 the long message 0x5c (arg 3, kind 1 / 3) and 1 / 3 the message 0x5b (3 per cent of c's worth, kind 1 / 4), due in
    an hour; 4 / 6 / 8 cm_SendMessage5b (c, 1 / 2 / 3, 0); 5 takes his office (amt_SendOfficeMessage, mode 4); 7 raises
-   lowers the rank AICHAR.b00d (to 2 when above 2, else 1) and sends it; 9 cm_SendMessage5b (c, 0xff, 1) and a scene party (G28REC, message
+   lowers the rank AICHAR.level (to 2 when above 2, else 1) and sends it; 9 cm_SendMessage5b (c, 0xff, 1) and a scene party (G28REC, message
    0x27) of c, both judges and up to 13 player characters (kinds 5 / 6 / 7) held by the player's character a day later
    at 10, then frees an office of c (amt_FindOffice, mode 3). */
 
@@ -1294,7 +1294,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         cm_SendMessage5b(c->netId, 2, 0);
         break;
     case 7:
-        b = (c->b00d > 2) + 1;
+        b = (c->level > 2) + 1;
         cm_BeginFieldBlock((char *)c, c->netId);
         cm_AddFieldDelta(1, 1, 0xd, &b);
         cm_SendFieldDeltas();
@@ -1352,7 +1352,7 @@ void gv_SentenceText(unsigned short *c, int a, char *out)
     }
 }
 /* 0x4f4970, the rank check of the character slot i (in use, kind 1 .. 9, alive): when his worth (gm_GetWorth) exceeds
-   the threshold gv_RankWorth [rank + 1] (at most [10]) his rank AICHAR.b00d rises. From rank 1 only with the item 0x110
+   the threshold gv_RankWorth [rank + 1] (at most [10]) his rank AICHAR.level rises. From rank 1 only with the item 0x110
    in the building (5, 0xf): field 0x1c8 gets 0x4000 (cm_SendSetField) and a player's character the news 0x161d
    ("_NACHRICHTEN_HS_25"), the rank itself is not raised here. Below rank 9 the new rank goes to a player's character as
    the message 0x69 (flags 9, due at 7 o'clock), to any other one as the field 0xd; the rise of a kind 5 / 6 / 7 character
@@ -1372,7 +1372,7 @@ void gv_CheckRankUp(unsigned i)
     if (c->id == 0xffff || c->kind >= 10 || c->health == 0 || c->kind == 0)
         return;
     worth = gm_GetWorth(i);
-    rank = c->b00d;
+    rank = c->level;
     next = rank + 1;
     if (next > 10)
         next = 10;

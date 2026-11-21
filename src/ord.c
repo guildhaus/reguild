@@ -95,7 +95,7 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
     __asm rep movsb                                                 \
 }
 
-/* the statistics record views of 0x4f9020 (unit-private: gv.h's ORDCHAR is the shared character view) */
+/* the statistics record views of 0x4f9020 (unit-private: gv.h's AICHAR is the shared character view) */
 typedef struct ORDSAVE {                /* the saved record of 0x4f9020 (15 words) */
     float col[4];                       /* 0x00, ORDSTATS */
     int chars;                          /* 0x10 */
@@ -107,13 +107,13 @@ typedef struct ORDSAVE {                /* the saved record of 0x4f9020 (15 word
     AITIME clock;                       /* 0x2c, the clock stamp (ord_StatisticsClock) */
 } ORDSAVE;
 typedef struct ORDCHARKIND {            /* the character record seen from its kind byte */
-    unsigned char kind;                 /* 0x00 (ORDCHAR + 0x02) */
+    unsigned char kind;                 /* 0x00 (AICHAR + 0x02) */
     char pad01[5];
-    unsigned char health;               /* 0x06 (ORDCHAR + 0x08) */
+    unsigned char health;               /* 0x06 (AICHAR + 0x08) */
     char pad07[4];
-    unsigned char level;                /* 0x0b (ORDCHAR + 0x0d) */
+    unsigned char level;                /* 0x0b (AICHAR + 0x0d) */
     char pad0c[0x72];
-    unsigned char stats[5];             /* 0x7e (ORDCHAR + 0x80), the five skill bytes 0x4f9020 averages */
+    unsigned char stats[5];             /* 0x7e (AICHAR + 0x80), the five skill bytes 0x4f9020 averages */
     char pad83[0x21c - 0x83];
 } ORDCHARKIND;
 #define ORD_CHARKINDS ((ORDCHARKIND *)((char *)ai_Chars + 2))
@@ -133,28 +133,28 @@ GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500, the character statistics (gm_C
    (its result | 2), the do of a player (kind 6) looks for the player's first office event (0x53e400 (1, 0,
    0x41)) and writes the text 0x1ce2 with the event's target id, else the text 0x1ce1, into m + 5; returns 1
    (not handled) or 2
-@deep s42 (36 -> 15 ins, size 242 -> 246 of 251): the event search as a found flag (found = 1; break; .. if (!found) the 0x1ce1 text) gives the original's loop return through r (mov eax,esi); the outer form if (m[0] == 3 || m[0] == 1) { r = 1; if (partner ok) { r = 2; .. } return r; } return 1; gives the original's registers m ebx / c edi / r esi and the RET1 block at the end. Left: the m-test failure returns early before push esi/edi (shrink-wrapped, its own return-1 copy; the original pushes all three first and jne's to the one RET1 at the end) and the partner failure goes through mov esi,1 (r = 1) where the original jumps straight into RET1 (mov eax,1: r = 1 known on both failure paths). Rounds (scratch af1..af7): r = 1 at the top (r1def, 40: const 1 becomes a register candidate, cmp eax,edi), else r = 1 / Y1-Y4 / N1-N4 / ok flags / r = 1 per failure (X5, 51: two RET1 copies inline): all worse; climb 2 rounds from r1def: nothing. Next: a form where both failures reach one return with r = 1 known and the m guard is no early return (pushes in the prologue). prior: meaning settled, only allocation/layout left: the original's m = ebx, c = edi, r = esi (ours m = edi, c = ebx, r = esi), its return-1 block sits at the end of the function (ours inline before the body), and its loop return is mov eax,esi where ours constant-folds mov eax,2. Read vs tools/disasm.py 0x4f4e20. Tried and kept (no WORSE, 240 -> 191 differing bytes): r = 2 + if/else-if with a shared return r (the 0x4f4ff0 idiom), typed ORDCHAR/ORDEVENT views (gv.h). Tried and reverted (build shows the same m = edi allocation): spell.py menu push-pop/dup-tail/reload leads; early-return guard if (!(...)) return 1; explicit else return 1; goto fail: label at the end; int partner = c->partner temp; char kind = c->kind temp; partner + kind temps; declaration-order permutations of o/p/r; unsigned r; unsigned char *o; int *m copy (int *msg = m, copy-propagated back). Needs match-deep's register-allocation toolbox (spell 'push-pop: the block the callee-saved register crosses' / vargen ren). */
+@deep s42 (36 -> 15 ins, size 242 -> 246 of 251): the event search as a found flag (found = 1; break; .. if (!found) the 0x1ce1 text) gives the original's loop return through r (mov eax,esi); the outer form if (m[0] == 3 || m[0] == 1) { r = 1; if (partner ok) { r = 2; .. } return r; } return 1; gives the original's registers m ebx / c edi / r esi and the RET1 block at the end. Left: the m-test failure returns early before push esi/edi (shrink-wrapped, its own return-1 copy; the original pushes all three first and jne's to the one RET1 at the end) and the partner failure goes through mov esi,1 (r = 1) where the original jumps straight into RET1 (mov eax,1: r = 1 known on both failure paths). Rounds (scratch af1..af7): r = 1 at the top (r1def, 40: const 1 becomes a register candidate, cmp eax,edi), else r = 1 / Y1-Y4 / N1-N4 / ok flags / r = 1 per failure (X5, 51: two RET1 copies inline): all worse; climb 2 rounds from r1def: nothing. Next: a form where both failures reach one return with r = 1 known and the m guard is no early return (pushes in the prologue). prior: meaning settled, only allocation/layout left: the original's m = ebx, c = edi, r = esi (ours m = edi, c = ebx, r = esi), its return-1 block sits at the end of the function (ours inline before the body), and its loop return is mov eax,esi where ours constant-folds mov eax,2. Read vs tools/disasm.py 0x4f4e20. Tried and kept (no WORSE, 240 -> 191 differing bytes): r = 2 + if/else-if with a shared return r (the 0x4f4ff0 idiom), typed AICHAR/ORDEVENT views (gv.h). Tried and reverted (build shows the same m = edi allocation): spell.py menu push-pop/dup-tail/reload leads; early-return guard if (!(...)) return 1; explicit else return 1; goto fail: label at the end; int partner = c->partner temp; char kind = c->kind temp; partner + kind temps; declaration-order permutations of o/p/r; unsigned r; unsigned char *o; int *m copy (int *msg = m, copy-propagated back). Needs match-deep's register-allocation toolbox (spell 'push-pop: the block the callee-saved register crosses' / vargen ren). */
 
-unsigned ord_ApplyForOffice(ORDCHAR *c, int *m)
+unsigned ord_ApplyForOffice(AICHAR *c, int *m)
 {
     ORDEVENT *ev;
-    ORDCHAR *ch;
+    AICHAR *ch;
     unsigned short *p;
     int r, found;
 
     if (m[0] == 3 || m[0] == 1) {
         r = 1;
-        if (c->partner == -1
-            || ((ch = (ORDCHAR *)gm_FindChar(c->partner)) != 0 && (ch->health == 0 || ch->kind == 0x0f))) {
+        if (c->relatives[0] == -1
+            || ((ch = gm_FindChar(c->relatives[0])) != 0 && (ch->health == 0 || ch->kind == 0x0f))) {
             r = 2;
             if (m[0] == 3) {
-                r = ai_CourtshipWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
+                r = ai_CourtshipWindow(c, (struct LCORDMSG *)m);
                 r |= 2;
             } else if (m[0] == 1 && c->kind == 6) {
                 found = 0;
                 ev = (ORDEVENT *)he_FindEvent(1, 0, 0x41);
                 while (ev != 0) {
-                    if (ev->ownerId == ORD_CHARS[ai_PlayerId].netId) {
+                    if (ev->ownerId == ai_Chars[ai_PlayerId].netId) {
                         p = (unsigned short *)gm_FindChar(ev->targetId);
                         txt_Format(m + 5, 0x1ce2, *p);
                         found = 1;
@@ -202,10 +202,10 @@ int ord_ChangeProfessionOrder(char *c, int *m)
         return 1;
     if (c[2] != 6 && c[2] != 5)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
         r = ai_ChangeProfessionWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         r |= 2;
-    } else if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    } else if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(ORD_MSG(m)->text, "%s", 0x1d35);
     return r;
 }
@@ -218,11 +218,11 @@ int ord_MedicusOrder(char *c, int *m)
     int k;
 
     k = m[0];
-    if ((k == 3 || k == 1) && (ORD_CHAR(c)->flags1c8 & 0x40) == 0
-        && (ORD_CHAR(c)->v024 < -20.0 || (ORD_CHAR(c)->v02c & 0xfffffff0) != 0)) {
+    if ((k == 3 || k == 1) && (((AICHAR *)c)->flags1c8 & 0x40) == 0
+        && (((AICHAR *)c)->v024 < -20.0 || (((AICHAR *)c)->ailments & 0xfffffff0) != 0)) {
         if (k == 3)
             return ai_MedicusHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
-        if (k == 1 && ORD_CHAR(c)->kind == 6)
+        if (k == 1 && ((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1d3a);
         return 2;
     }
@@ -236,12 +236,12 @@ int ord_AccusationOrder(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if (ORD_CHAR(c)->job == 0xd)
+    if (((AICHAR *)c)->officeKind == 0xd)
         return 1;
     o = he_FindEvent(1, 0, 0x2c);
     if (o != 0) {
         do {
-            if (((ORDEVENT *)o)->ownerId == ORD_CHAR(c)->netId)
+            if (((ORDEVENT *)o)->ownerId == ((AICHAR *)c)->netId)
                 return 1;
             o = he_NextEvent();
         } while (o != 0);
@@ -260,7 +260,7 @@ int ord_BlackmailBuildingOrder(char *c, int *m)
 {
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1c8 & 0x100) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x100) != 0)
         return 1;
     if (m[0] == 3) {
         ai_BlackmailBuildingListener((struct AICHAR *)c, (struct LCORDMSG *)m);
@@ -311,7 +311,7 @@ int ord_IntimidateOrder(char *c, int *m)
 
 int ord_BlackmailContactOrder(char *c, int *m)
 {
-    if ((m[0] == 3 || m[0] == 1) && (unsigned char)c[0xd] >= 3 && (ORD_CHAR(c)->flags1c8 & 0x400) == 0) {
+    if ((m[0] == 3 || m[0] == 1) && (unsigned char)c[0xd] >= 3 && (((AICHAR *)c)->flags1c8 & 0x400) == 0) {
         if (m[0] == 3) {
             ai_BlackmailContact((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 2;
@@ -436,7 +436,7 @@ int ord_DivorceOrder(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if (ch->b00d < 5)
+    if (ch->level < 5)
         return 1;
     for (i = 0; i < 0x300; i++) {
         if (ai_Chars[i].id != 0xffff && (ai_Chars[i].officeKind != 0x12 || ai_Chars[i].officeKind <= 0x15))
@@ -506,25 +506,25 @@ int ord_WageReportOrder(char *c, int *m)
 {
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if (ORD_CHAR(c)->job == 0 && ORD_CHAR(c)->job2 == 0 && (ORD_CHAR(c)->flags1cc & 0xe00) == 0)
+    if (((AICHAR *)c)->officeKind == 0 && ((AICHAR *)c)->secondOffice == 0 && (((AICHAR *)c)->flags1cc & 0xe00) == 0)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
         ORDWAGES o;
         char buf[0x400];
         int base;
 
-        gm_CharacterWages(ORD_CHAR(c)->id, 0, (unsigned char *)&o);
+        gm_CharacterWages(((AICHAR *)c)->id, 0, (unsigned char *)&o);
         memset(buf, 0, sizeof buf);
-        base = (ORD_CHAR(c)->textVariant != 0 ? 0x27b : 0x253);
+        base = (((AICHAR *)c)->sex != 0 ? 0x27b : 0x253);
         txt_Format(buf, "$Z%s$N", 0x1d96);
-        if (ORD_CHAR(c)->job != 0)
-            txt_Format(buf + strlen(buf), 0x1d97, ORD_CHAR(c)->job + base, o.amount);
-        if (ORD_CHAR(c)->job2 != 0)
-            txt_Format(buf + strlen(buf), 0x1d97, ORD_CHAR(c)->job2 + base, o.amount2);
+        if (((AICHAR *)c)->officeKind != 0)
+            txt_Format(buf + strlen(buf), 0x1d97, ((AICHAR *)c)->officeKind + base, o.amount);
+        if (((AICHAR *)c)->secondOffice != 0)
+            txt_Format(buf + strlen(buf), 0x1d97, ((AICHAR *)c)->secondOffice + base, o.amount2);
         if (o.kind != 0)
             txt_Format(buf + strlen(buf), 0x1d97, o.kind + base, o.amount3);
         ord_PrivilegeDialog(buf, 1, 0x657c7);
-    } else if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    } else if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1d96);
     return 2;
 }
@@ -538,28 +538,28 @@ int ord_DismissOfficeOrder(char *c, int *m)
     r = 0;
     ORD_MSG(m)->text[0] = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->job == 0)
+        if (((AICHAR *)c)->officeKind == 0)
             return 1;
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1d98);
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200000) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200000) != 0)
             return 1;
         if (m[0] == 3)
             r = ai_DismissOfficeAsk((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if (ORD_CHAR(t)->job == 0)
+        if (((AICHAR *)t)->officeKind == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1c8 & 0x200000) != 0)
+        if ((((AICHAR *)t)->flags1c8 & 0x200000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_DismissOfficeAsk((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1d98);
         return r | 0xa;
     }
@@ -575,15 +575,15 @@ int ord_LawOrder(char *c, int *m)
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->job == 0)
+        if (((AICHAR *)c)->officeKind == 0)
             return 1;
         if (gv_FindTableRecord(c, 1, rec) == 0)
             return 1;
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1c8 & 0x80000) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x80000) != 0)
             return 1;
         m[1] = rec[0] & 0xff;
         if (m[0] == 3) {
@@ -593,11 +593,11 @@ int ord_LawOrder(char *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if (ORD_CHAR(t)->job == 0)
+        if (((AICHAR *)t)->officeKind == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1c8 & 0x80000) != 0)
+        if ((((AICHAR *)t)->flags1c8 & 0x80000) != 0)
             return 1;
         if (gv_FindTableRecord(t, 1, rec) == 0)
             return 1;
@@ -605,7 +605,7 @@ int ord_LawOrder(char *c, int *m)
         if (m[0] == 4) {
             ORD_MSG(m)->answerFlag = 1;
             r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
         return r | 0xa;
     }
@@ -621,15 +621,15 @@ int ord_LawOrder2(char *c, int *m)
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->job == 0)
+        if (((AICHAR *)c)->officeKind == 0)
             return 1;
         if (gv_FindTableRecord(c, 2, rec) == 0)
             return 1;
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1c8 & 0x100000) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100000) != 0)
             return 1;
         m[1] = rec[0] & 0xff;
         if (m[0] == 3) {
@@ -639,11 +639,11 @@ int ord_LawOrder2(char *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if (ORD_CHAR(t)->job == 0)
+        if (((AICHAR *)t)->officeKind == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1c8 & 0x100000) != 0)
+        if ((((AICHAR *)t)->flags1c8 & 0x100000) != 0)
             return 1;
         if (gv_FindTableRecord(t, 2, rec) == 0)
             return 1;
@@ -651,7 +651,7 @@ int ord_LawOrder2(char *c, int *m)
         if (m[0] == 4) {
             ORD_MSG(m)->answerFlag = 2;
             r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
         return r | 0xa;
     }
@@ -807,19 +807,19 @@ int ord_BewitchOrder(char *c, int *m)
     if (m[0] == 3 || m[0] == 1) {
         if (c[2] == 6)
             txt_Format(m + 5, "%s", 0x1dad);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x16 && j != 0x19 && j != 0x12)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_BewitchOrder((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x16 && j != 0x19 && j != 0x12)
             return 1;
         if (m[0] == 4) {
@@ -842,19 +842,19 @@ int ord_CounterEspionageOrder(char *c, int *m)
     if (m[0] == 3 || m[0] == 1) {
         if (c[2] == 6)
             txt_Format(m + 5, "%s", 0x1db6);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x13 && j != 0x14 && j != 0x18 && j != 0x1a)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_CounterEspionage((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x13 && j != 0x14 && j != 0x18 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
@@ -907,7 +907,7 @@ int ord_Job17Order2(char *c, int *m)
         txt_Format(m + 5, "%s", 0x1dbd);
     return 2;
 }
-/* 0x4f6a70, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc0 (ORD_CHAR(c)->id) shown through 0x4f8200 (mode 1); kind 1 writes text 0x1dbf into m + 0x14; else 2 */
+/* 0x4f6a70, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc0 (c->id) shown through 0x4f8200 (mode 1); kind 1 writes text 0x1dbf into m + 0x14; else 2 */
 
 int ord_JobMultiOrder4(char *c, int *m)
 {
@@ -919,7 +919,7 @@ int ord_JobMultiOrder4(char *c, int *m)
         return 1;
     if (m[0] == 3 && c[2] == 6) {
         memset(buf, 0, sizeof buf);
-        txt_Format(buf, 0x1dc0, ORD_CHAR(c)->id);
+        txt_Format(buf, 0x1dc0, ((AICHAR *)c)->id);
         ord_PrivilegeDialog(buf, 1, 0x657c7);
         return 2;
     }
@@ -936,34 +936,34 @@ int ord_MisappropriationOrder(char *c, int *m)
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1dc1);
-        if (ORD_CHAR(c)->job != 0xe)
+        if (((AICHAR *)c)->officeKind != 0xe)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
+        if ((((AICHAR *)c)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
             return 1;
         if (m[0] == 3)
             r = ai_MisappropriationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if (ORD_CHAR(t)->job != 0xe)
+        if (((AICHAR *)t)->officeKind != 0xe)
             return 1;
-        if ((ORD_CHAR(t)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
+        if ((((AICHAR *)t)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_MisappropriationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1dc1);
         return r | 0xa;
     }
     return 1;
 }
-/* 0x4f6c60, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc5 (ORD_CHAR(c)->id) shown through 0x4f8200 (mode 2); kind 1 writes text 0x1dc4 into m + 0x14; else 2 */
+/* 0x4f6c60, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc5 (c->id) shown through 0x4f8200 (mode 2); kind 1 writes text 0x1dc4 into m + 0x14; else 2 */
 
 int ord_Job10Order(char *c, int *m)
 {
@@ -975,7 +975,7 @@ int ord_Job10Order(char *c, int *m)
         return 1;
     if (m[0] == 3 && c[2] == 6) {
         memset(buf, 0, sizeof buf);
-        txt_Format(buf, 0x1dc5, ORD_CHAR(c)->id);
+        txt_Format(buf, 0x1dc5, ((AICHAR *)c)->id);
         ord_PrivilegeDialog(buf, 2, 0x657c7);
         return 2;
     }
@@ -983,7 +983,7 @@ int ord_Job10Order(char *c, int *m)
         txt_Format(m + 5, "%s", 0x1dc4);
     return 2;
 }
-/* 0x4f6d30, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc7 (ORD_CHAR(c)->id) shown through 0x4f8200 (mode 2); kind 1 writes text 0x1dc6 into m + 0x14; else 2 */
+/* 0x4f6d30, an order handler (c, m; kinds 1 / 3) for one job (+0x166; others: 1): a player (+2 = 6) with kind 3 gets the text 0x1dc7 (c->id) shown through 0x4f8200 (mode 2); kind 1 writes text 0x1dc6 into m + 0x14; else 2 */
 
 int ord_Job15Order(char *c, int *m)
 {
@@ -995,7 +995,7 @@ int ord_Job15Order(char *c, int *m)
         return 1;
     if (m[0] == 3 && c[2] == 6) {
         memset(buf, 0, sizeof buf);
-        txt_Format(buf, 0x1dc7, ORD_CHAR(c)->id);
+        txt_Format(buf, 0x1dc7, ((AICHAR *)c)->id);
         ord_PrivilegeDialog(buf, 2, 0x657c7);
         return 2;
     }
@@ -1011,28 +1011,28 @@ int ord_SeatSwapOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dc8);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0xf && j != 0x15 && j != 0x1b)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_SeatSwapWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0xf && j != 0x15 && j != 0x1b)
             return 1;
         if (m[0] == 4) {
             ai_SeatSwapWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dc8);
         return 0xa;
     }
@@ -1046,28 +1046,28 @@ int ord_HatredOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dce);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x18)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_HatredWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
             ai_HatredWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dce);
         return 0xa;
     }
@@ -1101,28 +1101,28 @@ int ord_HearingOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dd6);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x17 && j != 0x13 && j != 0x14 && j != 0xd)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_HearingWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x17 && j != 0x13 && j != 0x14 && j != 0xd)
             return 1;
         if (m[0] == 4) {
             ai_HearingWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dd6);
         return 0xa;
     }
@@ -1136,28 +1136,28 @@ int ord_ExpelWorkerOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1ddb);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x16 && j != 0x19)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_ExpelWorkerWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x16 && j != 0x19)
             return 1;
         if (m[0] == 4) {
             ai_ExpelWorkerWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1ddb);
         return 0xa;
     }
@@ -1171,28 +1171,28 @@ int ord_ConvertOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de0);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x15 && j != 0x1a)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_ConvertWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x15 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
             ai_ConvertWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de0);
         return 0xa;
     }
@@ -1206,28 +1206,28 @@ int ord_PeaceOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de3);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x1b)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_PeaceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x1b)
             return 1;
         if (m[0] == 4) {
             ai_PeaceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de3);
         return 0xa;
     }
@@ -1241,28 +1241,28 @@ int ord_PenanceOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de9);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x18)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_PenanceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
             ai_PenanceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1de9);
         return 0xa;
     }
@@ -1276,28 +1276,28 @@ int ord_SpyTargetFlagOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dec);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x12 && j != 0x16)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_FaithAccusationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x12 && j != 0x16)
             return 1;
         if (m[0] == 4) {
             ai_FaithAccusationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1dec);
         return 0xa;
     }
@@ -1311,28 +1311,28 @@ int ord_MiracleOrder(char *c, int *m)
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1df5);
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0x1a)
             return 1;
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
             ai_MiracleWindow(c, m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ORD_CHAR(t)->job;
+        j = ((AICHAR *)t)->officeKind;
         if (j != 0x1a)
             return 1;
         if (m[0] == 4) {
             ai_MiracleWindow(c, m);
             return 0xa;
         }
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1df5);
         return 0xa;
     }
@@ -1409,28 +1409,28 @@ int ord_InterrogationOrder(char *c, int *m)
     r = 0;
     ORD_MSG(m)->text[0] = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if ((ORD_CHAR(c)->flags1cc & 0x800) == 0)
+        if ((((AICHAR *)c)->flags1cc & 0x800) == 0)
             return 1;
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e07);
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1cc & 0x80000) != 0)
+        if ((((AICHAR *)c)->flags1cc & 0x80000) != 0)
             return 1;
         if (m[0] == 3)
             r = ai_InterrogationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1cc & 0x800) == 0)
+        if ((((AICHAR *)t)->flags1cc & 0x800) == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1cc & 0x80000) != 0)
+        if ((((AICHAR *)t)->flags1cc & 0x80000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_InterrogationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e07);
         return r | 0xa;
     }
@@ -1446,28 +1446,28 @@ int ord_DismissalOrder(char *c, int *m)
     r = 0;
     ORD_MSG(m)->text[0] = 0;
     if (m[0] == 3 || m[0] == 1) {
-        if ((ORD_CHAR(c)->flags1cc & 0x800) == 0)
+        if ((((AICHAR *)c)->flags1cc & 0x800) == 0)
             return 1;
-        if (ORD_CHAR(c)->kind == 6)
+        if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e0d);
-        if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
             return 9;
-        if ((ORD_CHAR(c)->flags1cc & 0x40000) != 0)
+        if ((((AICHAR *)c)->flags1cc & 0x40000) != 0)
             return 1;
         if (m[0] == 3)
             r = ai_DismissalHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((ORD_CHAR(c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((((AICHAR *)c)->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1cc & 0x800) == 0)
+        if ((((AICHAR *)t)->flags1cc & 0x800) == 0)
             return 1;
-        if ((ORD_CHAR(t)->flags1cc & 0x40000) != 0)
+        if ((((AICHAR *)t)->flags1cc & 0x40000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_DismissalHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
-        } else if (ORD_CHAR(c)->kind == 6)
+        } else if (((AICHAR *)c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e0d);
         return r | 0xa;
     }
@@ -1481,14 +1481,14 @@ int ord_Flag800Order(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x800) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x800) == 0)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
-        txt_Format(buf, 0x1e12, (ORD_CHAR(c)->textVariant != 0 ? 0x2a0 : 0x278));
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
+        txt_Format(buf, 0x1e12, (((AICHAR *)c)->sex != 0 ? 0x2a0 : 0x278));
         ord_PrivilegeDialog(buf, 0, 0x657c7);
         return 2;
     }
-    if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e11);
     return 2;
 }
@@ -1500,14 +1500,14 @@ int ord_Flag800Order2(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x800) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x800) == 0)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
-        txt_Format(buf, 0x1e14, (ORD_CHAR(c)->textVariant != 0 ? 0x2a0 : 0x278), 0x16b9);
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
+        txt_Format(buf, 0x1e14, (((AICHAR *)c)->sex != 0 ? 0x2a0 : 0x278), 0x16b9);
         ord_PrivilegeDialog(buf, 0, 0x657c7);
         return 2;
     }
-    if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e13);
     return 2;
 }
@@ -1521,15 +1521,15 @@ int ord_InterrogationOrder2(char *c, int *m)
     ORD_MSG(m)->text[0] = 0;
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1c8 & 0x100) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x100) != 0)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x200) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x200) == 0)
         return 1;
-    if (ORD_CHAR(c)->kind == 6)
+    if (((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e15);
-    if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
         return 9;
-    if ((ORD_CHAR(c)->flags1c8 & 0x40000) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x40000) != 0)
         return 1;
     if (m[0] == 3)
         r = ai_InterrogationWindow1((struct AICHAR *)c, (struct LCORDMSG *)m);
@@ -1543,14 +1543,14 @@ int ord_Flag200Order(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x200) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x200) == 0)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
-        txt_Format(buf, 0x1e1b, (ORD_CHAR(c)->textVariant != 0 ? 0x29e : 0x276), 0x16ba);
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
+        txt_Format(buf, 0x1e1b, (((AICHAR *)c)->sex != 0 ? 0x29e : 0x276), 0x16ba);
         ord_PrivilegeDialog(buf, 0, 0x657c7);
         return 2;
     }
-    if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e1a);
     return 2;
 }
@@ -1564,15 +1564,15 @@ int ord_InterrogationOrder3(char *c, int *m)
     ORD_MSG(m)->text[0] = 0;
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1c8 & 0x100) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x100) != 0)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x400) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x400) == 0)
         return 1;
-    if (ORD_CHAR(c)->kind == 6)
+    if (((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e1c);
-    if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x200) != 0)
         return 9;
-    if ((ORD_CHAR(c)->flags1c8 & 0x40000) != 0)
+    if ((((AICHAR *)c)->flags1c8 & 0x40000) != 0)
         return 1;
     if (m[0] == 3)
         r = ai_InterrogationWindow2((struct AICHAR *)c, (struct LCORDMSG *)m);
@@ -1586,14 +1586,14 @@ int ord_Flag400Order(char *c, int *m)
 
     if (m[0] != 3 && m[0] != 1)
         return 1;
-    if ((ORD_CHAR(c)->flags1cc & 0x400) == 0)
+    if ((((AICHAR *)c)->flags1cc & 0x400) == 0)
         return 1;
-    if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
-        txt_Format(buf, 0x1e22, (ORD_CHAR(c)->textVariant != 0 ? 0x29f : 0x277), 0x16bb);
+    if (m[0] == 3 && ((AICHAR *)c)->kind == 6) {
+        txt_Format(buf, 0x1e22, (((AICHAR *)c)->sex != 0 ? 0x29f : 0x277), 0x16bb);
         ord_PrivilegeDialog(buf, 0, 0x657c7);
         return 2;
     }
-    if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
+    if (m[0] == 1 && ((AICHAR *)c)->kind == 6)
         txt_Format(m + 5, "%s", 0x1e21);
     return 2;
 }
@@ -1605,11 +1605,11 @@ int ord_DismissWorkerOrder(char *c, int *m)
     int r = 2;
 
     if (m[0] == 3 || m[0] == 1) {
-        j = ORD_CHAR(c)->job;
+        j = ((AICHAR *)c)->officeKind;
         if (j != 0 && j <= 0x1b) {
-            if (m[0] == 3 && ORD_CHAR(c)->kind == 6)
+            if (m[0] == 3 && ((AICHAR *)c)->kind == 6)
                 return ai_WorkerDismissalWindow(c, m);
-            if (m[0] == 1 && ORD_CHAR(c)->kind == 6) {
+            if (m[0] == 1 && ((AICHAR *)c)->kind == 6) {
                 txt_Format(ORD_MSG(m)->text, "%s", 0x1e23);
                 return 2;
             }
@@ -1874,12 +1874,12 @@ int ord_RandomObjectId(char *c)
         return -1;
     n = 0;
     tries = 0x20;
-    if (ORD_CHAR(c)->bld != 0 && ORD_CHAR(c)->bld->object != 0) {
-        list[0] = ORD_CHAR(c)->bld->id;
+    if (((AICHAR *)c)->bld != 0 && ((AICHAR *)c)->bld->object != 0) {
+        list[0] = ((AICHAR *)c)->bld->id;
         n = 1;
     }
-    if (ORD_CHAR(c)->bld2 != 0 && ORD_CHAR(c)->bld2->object != 0) {
-        list[n] = ORD_CHAR(c)->bld2->id;
+    if (((AICHAR *)c)->bld2 != 0 && ((AICHAR *)c)->bld2->object != 0) {
+        list[n] = ((AICHAR *)c)->bld2->id;
         n++;
     }
     while (n < 16 && tries != 0) {
@@ -2007,7 +2007,7 @@ void ord_ComputeStatistics(float *out)
     int sumA, sumC, sumD, s58, s54, s50, s4c;
     float cntf, f, m, sum, w, g;
     float q3, q1, q2, income;               /* the inverted shares and the income rating of out[9] */
-    ORDCHAR *c;
+    AICHAR *c;
     AIBLD *p;
     unsigned char *b;
     unsigned char *bt;
@@ -2024,7 +2024,7 @@ void ord_ComputeStatistics(float *out)
     sum = 0;
     ord_RebuildGridSums();
     for (i = 0; i < 0x300; i++) {
-        c = &ORD_CHARS[i];
+        c = &ai_Chars[i];
         if (c->id == 0xffff || c->kind != 0 && c->kind != 1)
             continue;
         cnt++;
@@ -2148,7 +2148,7 @@ void ord_UpdateStatistics(void)
    @deep deep s26: climb round 1 (148 mutants, 100 codes): nothing below 8 ins / 91 bytes. Left: the same
    level / w hunk (the level byte in eax and w + l + 4l through edx in ours, the original level in edx and
    w updated in place: add esi,edx; lea esi,[esi+edx*4]). prior: headers sample: insensitive (32, one
-   codegen). Kept (47 ins/160 B -> 8 ins): the character walk as an index loop over ORD_CHARS[j] /
+   codegen). Kept (47 ins/160 B -> 8 ins): the character walk as an index loop over ai_Chars[j] /
    ORD_CHARKINDS[j] (the original's jl pointer compare and the kind+2 base), and n = 0; w = 0 at the top of
    the function (the original zeroes n's own slot first: frame 0x18 -> 0x1c, n no longer packed into the
    dead parameter slot). Left: one hunk in the counted body, ours 'xor eax,eax; inc edi; mov al,[ecx+0xb];
@@ -2191,7 +2191,7 @@ void ord_LoadStatistics(void *p)
     for (i = 0; i < 5; i++)
         sum[i] = 0;
     for (j = 0; j < 768; j++) {
-        if (ORD_CHARS[j].id != 0xffff && ORD_CHARKINDS[j].kind < 10 && ORD_CHARKINDS[j].health > 0) {
+        if (ai_Chars[j].id != 0xffff && ORD_CHARKINDS[j].kind < 10 && ORD_CHARKINDS[j].health > 0) {
             n++;
             w += ORD_CHARKINDS[j].level * 5;
             for (i = 0; i < 5; i++)
@@ -2309,7 +2309,7 @@ void ord_UpdateMessageEvent(void)
         }
         if (r.phase == 1) {
             msg.kind = 0x59;
-            msg.netId = ORD_CHAR(ai_PlayerChar)->netId;
+            msg.netId = ai_PlayerChar->netId;
             msg.target = -1;
             msg.time = ai_Time;
             msg.mode = 2;
@@ -2323,7 +2323,7 @@ void ord_UpdateMessageEvent(void)
             cm_SendLongMessage((char *)&msg);
         } else if (r.phase == 2) {
             msg.kind = 0x4e;
-            msg.netId = ORD_CHAR(ai_PlayerChar)->netId;
+            msg.netId = ai_PlayerChar->netId;
             msg.target = -1;
             msg.value = -1;
             msg.mode = 1;
@@ -2337,7 +2337,7 @@ void ord_UpdateMessageEvent(void)
             cm_SendLongMessage((char *)&msg);
         } else if (r.phase == 3) {
             msg.kind = 0x50;
-            msg.netId = ORD_CHAR(ai_PlayerChar)->netId;
+            msg.netId = ai_PlayerChar->netId;
             msg.target = -1;
             msg.time = ai_Time;
             msg.mode = 2;
@@ -2479,27 +2479,27 @@ void ord_ReportStatistics(void)
     if (d > 0.55) {
         txt_Format(sentence, 0x1c0d, txt0, txt1, txt2, txt3, 0x1c0e);
         for (i = 0; i < 768; i++)
-            if (ORD_CHARS[i].kind == 6) {
-                he_ShowNews(ORD_CHARS[i].netId, -1, sentence, 1, 0x5f8, 0);
+            if (ai_Chars[i].kind == 6) {
+                he_ShowNews(ai_Chars[i].netId, -1, sentence, 1, 0x5f8, 0);
                 if (any)
-                    he_ShowNews(ORD_CHARS[i].netId, -1, tierText, 0, 0x5f8, 0);
+                    he_ShowNews(ai_Chars[i].netId, -1, tierText, 0, 0x5f8, 0);
             }
         return;
     }
     if (d < 0.45) {
         txt_Format(sentence, 0x1c0f, txt0, txt1, txt2, txt3, 0x1c10);
         for (i = 0; i < 768; i++)
-            if (ORD_CHARS[i].kind == 6) {
-                he_ShowNews(ORD_CHARS[i].netId, -1, sentence, 1, 0x5f8, 0);
+            if (ai_Chars[i].kind == 6) {
+                he_ShowNews(ai_Chars[i].netId, -1, sentence, 1, 0x5f8, 0);
                 if (any)
-                    he_ShowNews(ORD_CHARS[i].netId, -1, tierText, 0, 0x5f8, 0);
+                    he_ShowNews(ai_Chars[i].netId, -1, tierText, 0, 0x5f8, 0);
             }
         return;
     }
     if (any) {
         for (i = 0; i < 768; i++)
-            if (ORD_CHARS[i].kind == 6)
-                he_ShowNews(ORD_CHARS[i].netId, -1, tierText, 0, 0x5f8, 0);
+            if (ai_Chars[i].kind == 6)
+                he_ShowNews(ai_Chars[i].netId, -1, tierText, 0, 0x5f8, 0);
     }
 }
 /* 0x4f9c00, advances the float 0x6f1b9c by the time since the stamp 0x91b470 (14 bytes, the layout of the clock 0x770ae0): 0x4fe280 (stamp, clock) gives the elapsed steps k; no step: the stamp is set to the clock; otherwise, when the float 0x6f1ba0 is not 0 and the clock's hour (word at +4) is between 7 and 0x14, 0x6f1b9c += k * the float 0x91aaf4, clamped to 0x6f1ba0 * 0.25, and the stamp = the clock */

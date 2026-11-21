@@ -3946,7 +3946,7 @@ void ai_UpdateStaff(AICHAR *ch)
             bt = &ai_BTypes[ch->bld->type];
             for (i = 0; i < 768; i++) {
                 if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title != 0 &&
-                    ai_Chars[i].title == bt->title2 && ai_Chars[i].v174 >= 4) {
+                    ai_Chars[i].title == bt->title2 && ai_Chars[i].jobDays >= 4) {
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x32;
                     msg.to = ai_Chars[ch->bld->owner].netId;

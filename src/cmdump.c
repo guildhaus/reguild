@@ -156,7 +156,7 @@ void ai_DumpPersonHead(char *c, char *buf)
     else
         name = ai_CharKindNames[p->kind];
     sprintf(buf, "%i\t%i\t%i\t%s\t%s\t%i\t%s\t%i\t%s\t%s\t%s\t%s\t", ai_Time.year, p->netId, p->id, name, p->name, p->health,
-            txt_SexNames[p->sex], p->w00a, txt_FaithNames[p->faith], txt_HonourTitles[p->b00d], txt_JobNames[p->jobId],
+            txt_SexNames[p->sex], p->w00a, txt_FaithNames[p->faith], txt_HonourTitles[p->level], txt_JobNames[p->jobId],
             txt_TitleNames[(unsigned char)p->title]);
 }
 /* 0x4e5980, the debug dump of the floats +0x10 .. +0x20 (the 6th "%5.2f" gets the int +0x24 as the original does), the word +0x28 and the bit fields of +0x2c */

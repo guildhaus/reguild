@@ -129,7 +129,7 @@ typedef struct HECONVERT {              /* the conversion event 0x81's words ove
     char pad00[0xac];
     int left;                           /* 0xac, the characters still to turn */
     int rounds;                         /* 0xb0, the rounds (days) left */
-    int from;                           /* 0xb4, the AICHAR.b00c kind turned (0 / 1) into the other */
+    int from;                           /* 0xb4, the AICHAR.faith kind turned (0 / 1) into the other */
 } HECONVERT;
 typedef struct HEDELAY {                /* the delay event 0x80's words over AIJOB's union (he_StartDue starts it,
                                            he_RunDelay counts the days down) */

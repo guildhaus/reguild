@@ -82,123 +82,23 @@ typedef struct GVCANNON {               /* 0x20 bytes, the state of the cannon s
 extern GVCANNON gv_Cannon;              /* 0x925100 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 
-/* the 0x21c-byte character records (ai_Chars) as the order handlers read them */
-typedef struct ORDCHAR {
-    unsigned short id;              /* 0x000 */
-    unsigned char kind;             /* 0x002, 6 = player */
-    char pad003;
-    unsigned int netId;             /* 0x004, the id the order events carry */
-    unsigned char health;           /* 0x008, > 0 = the record is in use */
-    unsigned char textVariant;      /* 0x009, the sex (ai.h AICHAR.sex: 0 male, 1 female); nonzero: the alternate text block (level texts +10, job texts +0x28) */
-    unsigned short w00a;            /* 0x00a, ai.h AICHAR.w00a; gm_ShiftLoyalty and gm_HandOutMoney skip the characters below 12 (reasoned guess: the age) */
-    unsigned char b00c;             /* 0x00c, a kind (ai.h AICHAR.b00c); gm_HandOutMoney compares it between two characters and with the decision 2's value (reasoned guess: the faith) */
-    unsigned char level;            /* 0x00d, the level the level orders test */
-    char pad00e[2];
-    float f010;                     /* 0x010, ai.h AICHAR.f010; the life value the daily step moves f01c toward while w00a is below f020 */
-    float f014;                     /* 0x014, ai.h AICHAR.f014; the base of the daily life loss beyond f020 */
-    float f018;                     /* 0x018, ai.h AICHAR.f018; gm_AgeCharacter ages the life from it */
-    float f01c;                     /* 0x01c, ai.h AICHAR.f01c, the life value: the character dies when f01c + v024 is used up (gm_DailyCharacterStep) */
-    float f020;                     /* 0x020, ai.h AICHAR.f020; a child (jobId 0) whose w00a is below it gets the child head (gm_CharNameRecord) */
-    int v024;                       /* 0x024, ai.h AICHAR.v024, added to f01c by the daily step's death test */
-    short w028;                     /* 0x028, ai.h AICHAR.w028 */
-    char pad02a[2];
-    unsigned int v02c;              /* 0x02c, ai.h AICHAR.v02c: nine counters of 2 .. 4 bits (bits 0, 4, 8, 12, 14, 17, 20, 23, 25) the daily step halves */
-    union {
-        char first[0x10];           /* 0x030, the first name (ai.h AICHAR.first) */
-        unsigned int nameKey;       /* 0x030, its first four bytes as one number: gm_BirthDate's seed for the birthday */
-    };
-    char family[0x10];              /* 0x040, the family name (ai.h AICHAR.family) */
-    unsigned short w050;            /* 0x050, ai.h AICHAR.w050; a player's character has the top bit set and its
-                                       gm_PlayerRecords slot in the low 4 bits (gm_PlayerRecord) */
-    char pad052[2];
-    int v054;                       /* 0x054, gm_CreateObject: nonzero for a character of the kinds 5 .. 7, its low byte + 0x67 is the texture set of the character's carts */
-    unsigned char generation;       /* 0x058, 1 for a character created without parents, else the parent's + 1
-                                       (gm_CreateCharacter; reasoned guess: the generation) */
-    char pad059[3];
-    union {
-        int partner;                /* 0x05c, the partner character id, -1 = none */
-        int relatives[8];           /* 0x05c, the netIds of the relatives (ai.h AICHAR.relatives), -1 = none: [0] the
-                                       partner, [1] / [2] the parents (gm_PopulationStep), [3..7] the children
-                                       (reasoned guess: gm_PartnerStep counts them for the chance of another birth) */
-    };
-    float pregnancy;                /* 0x07c, above 1.0 the mother gives birth (gm_PartnerStep), set from the birth
-                                       chance, reset below 0 after the birth (reasoned guess: the pregnancy) */
-    unsigned char skills[5];        /* 0x080, the five skill bytes (ai.h AICHAR.skills; gm_GetSkill reads them as the base value) */
-    char pad085[3];
-    float mood[14][3];              /* 0x088, the mood triples (a, b, value) (ai.h AICHAR.mood) */
-    char pad130[0x34];
-    unsigned char jobId;            /* 0x164, the title / job id gm_TitleGroup groups (ai.h AICHAR.jobId) */
-    char title;                     /* 0x165, the title rank (ai.h AICHAR.title) */
-    unsigned char job;              /* 0x166, the profession id the job orders test (text 0x253 + job) */
-    unsigned char prevOffice;       /* 0x167, ai.h AICHAR.prevOffice; gm_PopulationStep gives a newcomer 10 .. 21 */
-    unsigned char appliedOffice;    /* 0x168, ai.h AICHAR.appliedOffice, 0 = none */
-    unsigned char job2;             /* 0x169, the second profession field, tested by the same orders */
-    char pad16a[2];
-    struct AIBLD *bld;             /* 0x16c, the character's building (ai.h AICHAR.bld) */
-    struct AIBLD *bld2;            /* 0x170, the character's own building (its home), 0 when none */
-    int jobDays;                    /* 0x174, the days served in the current job: a job change clears it (gm_SetJob 0x504790), gm_TitlePeriodServed weighs it against the title period */
-    int inventory;                  /* 0x178, the character's goods inventory, an object list (ai.h AICHAR.inventory) */
-    char pad17c[8];
-    struct CHARACTER *model;        /* 0x184, the character's model (ai.h AICHAR.model, ch.h CHARACTER) */
-    char pad188[4];
-    int picture;                    /* 0x18c, the portrait picture (ai.h AICHAR.picture), -1 = none */
-    int v190;                       /* 0x190, 4 at creation, 10 with gm_AllowAll (ai.h AICHAR.v190) */
-    int v194;                       /* 0x194, gm_TakeOverCharacter sets it to 4 for the character that takes over */
-    int v198;                       /* 0x198, cleared with wage at the end of every day (f3gm.c gm_EndDayIncomes) */
-    int wage;                       /* 0x19c, the wage paid in the last round settlement (ai.h AICHAR.wage) */
-    int v1a0;                       /* 0x1a0, a trade sum cm.c's goods move adds to (price x amount) for an object of the type 0x1dc (seller) / 0x1db (buyer); the income kind 4 taxes v1a0 + v1a4 */
-    int v1a4;                       /* 0x1a4, the same for the types 0x1db (seller) / 0x1dc (buyer) */
-    int v1a8;                       /* 0x1a8, an amount the income kind 3 (f3gm.c gm_IncomeKind3) taxes at the decision 0xd's rate and clears once paid */
-    int donated;                    /* 0x1ac, the sum the character gave the church (ai_IndulgenceWindow shows it with its rank, gm_DonationRank) */
-    unsigned char b1b0;             /* 0x1b0, scales the chance that gm_HandOutMoney takes money from the character (x 0.25) */
-    unsigned char b1b1;             /* 0x1b1, gm_PartnerStep takes no step unless it is 0 */
-    char pad1b2[2];
-    unsigned int flags1b4;          /* 0x1b4, bit 0 is cleared when the character's master building changes hands (gm_AssignBuilding) */
-    char pad1b8[0x10];
-    int flags1c8;                   /* 0x1c8, order flags: 0x100 answer, 0x200 / 0x80000 / 0x100000 / 0x200000 / 0x400000 */
-    int flags1cc;                   /* 0x1cc, privilege flags: 0xe00 */
-    float loyalty;                  /* 0x1d0, 0 .. 1, starts at 0.25 .. 0.75; gm_ShiftLoyalty / gm_HandOutMoney move it (reasoned guess: the loyalty) */
-    int worth[4];                   /* 0x1d4, the character's worth (gm_GetWorth) of the last rounds, worth[3] the newest (gm_UpdateWorthMood shifts it) */
-    float mood3Rate;                /* 0x1e4, scales the base growth of mood need 3 (ai.h AICHAR.mood3Rate) */
-    int v1e8;                       /* 0x1e8, 1 at creation for the kinds 3 / 0x10 / 0x13 (gm_CreateCharacter) */
-    char pad1ec[4];
-    int v1f0;                       /* 0x1f0, gm_PopulationStep counts the working characters with it set; below 6, a
-                                       newcomer of kind 0x10 may arrive */
-    union {
-        char ownName[0x1c];         /* 0x1f4, the character's own head name (ai.h AICHAR.ownName), empty: the job's / title's head record */
-        struct {
-            char padOwnName[0x18];
-            int partyId;            /* 0x20c, the scene party (ai.h AICHAR.partyId), -1 at creation */
-        };
-    };
-    int v210;                       /* 0x210, ai.h AICHAR.partner, -1 at creation */
-    signed char relationBias;       /* 0x214, ai.h AICHAR.relationBias */
-    unsigned char b215;             /* 0x215, ai.h AICHAR.b215, the partner search's step counter */
-    unsigned char b216;             /* 0x216, ai.h AICHAR.b216, the steps the partner search needs */
-    unsigned char b217;             /* 0x217, ai.h AICHAR.b217: one of 0x3c .. 0x5c (or 0xc2) by the kind, the title group and chance (gm_CreateCharacter), a child takes a parent's */
-    unsigned char mask;             /* 0x218, ai.h AICHAR.mask, 1 at creation */
-    char pad219[3];
-} ORDCHAR;
-typedef char gv_AssertORDCHAR[sizeof(ORDCHAR) == 0x21c ? 1 : -1];
 
 typedef struct GVAVATAR {               /* 0xf4 bytes, a record of the avatar table gv_Avatars (32) */
     unsigned id;                        /* 0x00, four characters ("neVm"), the key of the save game's (id, used) pairs */
     char name[0x10];                    /* 0x04, "Maven" (the read report prints it): the first name of the character made from it */
     char title[0x10];                   /* 0x14, "of Reading": its family name */
-    unsigned char skills[5];            /* 0x24, the five skill bytes (ORDCHAR.skills) */
+    unsigned char skills[5];            /* 0x24, the five skill bytes (AICHAR.skills) */
     char pad29[3];
-    float mood[14][3];                  /* 0x2c, the mood triples (ORDCHAR.mood; gv_AllocAvatar sets the second of each to the first * 0.001) */
-    unsigned char jobId;                /* 0xd4, ORDCHAR.jobId */
-    unsigned char sex;                  /* 0xd5, ORDCHAR.textVariant */
-    unsigned char b00c;                 /* 0xd6, ORDCHAR.b00c */
-    char ownName[0x1b];                 /* 0xd7, ORDCHAR.ownName, the head name */
+    float mood[14][3];                  /* 0x2c, the mood triples (AICHAR.mood; gv_AllocAvatar sets the second of each to the first * 0.001) */
+    unsigned char jobId;                /* 0xd4, AICHAR.jobId */
+    unsigned char sex;                  /* 0xd5, AICHAR.sex */
+    unsigned char b00c;                 /* 0xd6, AICHAR.faith */
+    char ownName[0x1b];                 /* 0xd7, AICHAR.ownName, the head name */
     unsigned char used;                 /* 0xf2, 1 while the record is in use (gv_AllocAvatar), 0 free */
     char padf3;
 } GVAVATAR;
 typedef char gv_AssertGVAVATAR[sizeof(GVAVATAR) == 0xf4 ? 1 : -1];
 extern GVAVATAR gv_Avatars[0x20];     /* 0x60f310, the avatars: the characters the graveyard raises (gv_AllocAvatar) */
-#define ORD_CHARS ((ORDCHAR *)ai_Chars)
-#define ORD_CHAR(p) ((ORDCHAR *)(p))   /* a raw character record as the order handlers read it */
 
 /* the message record of an order (c = the character, m = this record): the handlers write their text at +0x14 */
 typedef struct ORDMSG {
@@ -214,7 +114,7 @@ typedef struct ORDMSG {
                                        its netId */
     };
     char pad218[4];
-    ORDCHAR *partner;               /* 0x21c, the partner character of an answer */
+    struct AICHAR *partner;             /* 0x21c, the partner character of an answer */
 } ORDMSG;
 #define ORD_MSG(p) ((ORDMSG *)(p))
 
@@ -453,7 +353,7 @@ struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);  /
 void gv_PassSentence(struct AICHAR *c, int a, struct AICHAR *judge, struct AICHAR *assessor1, struct AICHAR *assessor2);  /* 0x4f4460 */
 void gv_SentenceText(unsigned short *c, int a, char *out);  /* 0x4f48f0 */
 
-unsigned ord_ApplyForOffice(ORDCHAR *c, int *m);  /* 0x4f4e20 */
+unsigned ord_ApplyForOffice(struct AICHAR *c, int *m);  /* 0x4f4e20 */
 char * he_NextEvent(void);                   /* 0x53e300 */
 
 int ord_LevelOrder(char *c, int *m);     /* 0x4f4f20 */

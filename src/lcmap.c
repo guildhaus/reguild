@@ -926,7 +926,7 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
     unsigned char health;               /* +0x008, > 0 = alive */
     unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
     char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.b00c); picks the news text */
+    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
     char pad0d[0x23];                   /* +0x00d .. 0x02f */
     union {
         char name[0x58];                /* +0x030, the character's name (AICHAR.name) */

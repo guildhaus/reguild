@@ -500,7 +500,7 @@ int ai_CondTitlesLeft(AICHAR *c, G13TYPE *t)
 {
     return gm_TitlesLeft(G13_B(c, 0x164)) >= t->goal;
 }
-/* 0x4b45c0, mission condition (types 3 / 10 / 24): the character's rank (byte 0x0d, AICHAR.b00d) reaches
+/* 0x4b45c0, mission condition (types 3 / 10 / 24): the character's rank (byte 0x0d, AICHAR.level) reaches
    t->goal, held for t->threshold minutes */
 
 int ai_CondRankTimed(AICHAR *c, int x, G13TYPE *t)

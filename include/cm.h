@@ -116,7 +116,7 @@ struct AIBLD *gm_FindBuildingById(int id);                                      
 int gm_IsHomeType(struct AIBLD *bld);                                                     /* 0x502520 */
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
 struct AIOBJ *gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
-struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
+struct AICHAR; struct AIBLD; struct AICHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);                                   /* 0x4fd820 */
 char * gm_FindGoods(int p, unsigned id);                                            /* 0x4ffc40, ai.h: int * */
 extern int *cm_CurrentFight;               /* 0x6f0d90 */
@@ -957,7 +957,7 @@ void cm_RunBirth(G28REC *m);  /* 0x4e0f70 */
 int cm_DeathSceneCheck(G28REC *m);  /* 0x4e1220 */
 float gm_CharacterHealth();  /* 0x4fc820 */
 int gm_HasAdultRelative();  /* 0x506480 */
-struct ORDCHAR; void gm_ForfeitEstate(struct ORDCHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
+struct AICHAR; void gm_ForfeitEstate(struct AICHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
 void ai_FamilyTreeWindow(int param_1, unsigned char param_2, int param_3, int param_4);  /* 0x5c4150 */
 void cm_RunDeath(G28REC *m);  /* 0x4e1250 */
 

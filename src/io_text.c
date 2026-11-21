@@ -3,7 +3,7 @@
    (io_PrintText into a window, txt_Format into a buffer). The string block starts where f3init.c's ends
    (0x623564) and ends before the language getter 0x519010 (its global 0x62364c opens the "ls" unit).
    Open: the 0x21c character record is untyped; the name builders read it as unsigned char at raw offsets
-   (0x9, 0xd, 0x164.., 0x166; 0x1cc through gv.h's ORDCHAR).
+   (0x9, 0xd, 0x164.., 0x166; 0x1cc through gv.h's AICHAR).
    Open: not included yet (dcp headers conflicts io_text HEADER): d2.h; held by own declarations that differ
    from the owner's: d2_Objs.
    unit of rea 8cef7d5b (src/game/io_text.c); boundaries in decl/text.dcl */
@@ -221,17 +221,17 @@ int io_CharacterName(int id, unsigned char c, unsigned char kind, char *out)
             sprintf(out, "%s %s", C, A);
         break;
     case 9:
-        if (ORD_CHAR(rec)->flags1cc & 0x3e00) {
-            if (ORD_CHAR(rec)->flags1cc & 0x1000)
+        if (((AICHAR *)rec)->flags1cc & 0x3e00) {
+            if (((AICHAR *)rec)->flags1cc & 0x1000)
                 v = 0x26;
-            else if (ORD_CHAR(rec)->flags1cc & 0x2000)
+            else if (((AICHAR *)rec)->flags1cc & 0x2000)
                 v = 0x27;
-            else if (ORD_CHAR(rec)->flags1cc & 0x800)
+            else if (((AICHAR *)rec)->flags1cc & 0x800)
                 v = 0x25;
-            else if (ORD_CHAR(rec)->flags1cc & 0x400)
+            else if (((AICHAR *)rec)->flags1cc & 0x400)
                 v = 0x24;
             else
-                v = (ORD_CHAR(rec)->flags1cc & 0x200) ? 0x23 : 0;
+                v = (((AICHAR *)rec)->flags1cc & 0x200) ? 0x23 : 0;
         } else {
             v = rec[0x166];
         }
@@ -396,17 +396,17 @@ int io_CharacterNameMarkup(int id, unsigned char c, unsigned char kind, char *ou
             sprintf(out, "%s$A%s", C, A);
         break;
     case 9:
-        if (ORD_CHAR(rec)->flags1cc & 0x3e00) {
-            if (ORD_CHAR(rec)->flags1cc & 0x1000)
+        if (((AICHAR *)rec)->flags1cc & 0x3e00) {
+            if (((AICHAR *)rec)->flags1cc & 0x1000)
                 v = 0x26;
-            else if (ORD_CHAR(rec)->flags1cc & 0x2000)
+            else if (((AICHAR *)rec)->flags1cc & 0x2000)
                 v = 0x27;
-            else if (ORD_CHAR(rec)->flags1cc & 0x800)
+            else if (((AICHAR *)rec)->flags1cc & 0x800)
                 v = 0x25;
-            else if (ORD_CHAR(rec)->flags1cc & 0x400)
+            else if (((AICHAR *)rec)->flags1cc & 0x400)
                 v = 0x24;
             else
-                v = (ORD_CHAR(rec)->flags1cc & 0x200) ? 0x23 : 0;
+                v = (((AICHAR *)rec)->flags1cc & 0x200) ? 0x23 : 0;
         } else {
             v = rec[0x166];
         }

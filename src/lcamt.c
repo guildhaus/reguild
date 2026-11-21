@@ -933,7 +933,7 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
     unsigned char health;               /* +0x008, > 0 = alive */
     unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
     char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.b00c); picks the news text */
+    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
     char pad0d[0x23];                   /* +0x00d .. 0x02f */
     union {
         char name[0x58];                /* +0x030, the character's name (AICHAR.name) */
@@ -1373,12 +1373,12 @@ int ai_ShowAmountRows(int win, int kind, unsigned int *filter, int n, LCAMOUNTRO
             d2_WinOpenPic(d2_Pics[0x5da].w + left - 0x10, y + 3, row->icons[2], d2_LastWindow);
         d2_WinOpenPic(d2_Pics[0x5da].w + left - 0x10, d2_Pics[0x5da].h + y - 0x13, row->icons[3], d2_LastWindow);
         if (kind == 7) {
-            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->b00d, row->rec->id);
+            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->level, row->rec->id);
             ai_CentredText(text, x, row->y, 0xca, 0x56);
             txt_Format(text, "%s", (row->rec->sex ? 0x27b : 0x253) + row->rec->secondOffice);
             ai_CentredText(text, x, row->y + 0xf, 0xca, 0x56);
         } else {
-            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->b00d, row->rec->id);
+            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->level, row->rec->id);
             ai_CentredText(text, x, row->y, 0xca, 0x56);
             txt_Format(text, "%1N5", row->rec->id);
             ai_CentredText(text, x, row->y + 0xf, 0xca, 0x56);
@@ -1479,7 +1479,7 @@ int ai_ShowOfficeRows(int win, int kind, unsigned int *filter, int n, LCAMOUNTRO
                 d2_WinOpenPic(d2_Pics[0x5da].w + left - 0x10, y + 3, rows[i].icons[2], d2_LastWindow);
             d2_WinOpenPic(d2_Pics[0x5da].w + left - 0x10, d2_Pics[0x5da].h + y - 0x13, rows[i].icons[3], d2_LastWindow);
             if (kind != 8) {
-                txt_Format(text, "%s %1N7", (rows[i].rec->sex ? 0x11e : 0x114) + rows[i].rec->b00d, rows[i].rec->id);
+                txt_Format(text, "%s %1N7", (rows[i].rec->sex ? 0x11e : 0x114) + rows[i].rec->level, rows[i].rec->id);
                 ai_CentredText(text, x, rows[i].y, 0xca, 0x56);
                 txt_Format(text, "%1N5", rows[i].rec->id);
                 ai_CentredText(text, x, rows[i].y + 0xf, 0xca, 0x56);
@@ -1613,8 +1613,8 @@ int ai_AmountRow(int x, int y, int win, int font, LCAMOUNTROW *row, int titled)
         if (row->icons[2] != 0)
             d2_WinOpenPic(d2_Pics[0x5da].w + x - 0x10, y + 0x1f, row->icons[2], d2_LastWindow);
         d2_WinOpenPic(d2_Pics[0x5da].w + x - 0x10, d2_Pics[0x5da].h + y + 9, row->icons[3], d2_LastWindow);
-        if (row->rec->b00d != 0 && titled != 0)
-            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->b00d, row->rec->id);
+        if (row->rec->level != 0 && titled != 0)
+            txt_Format(text, "%s %1N7", (row->rec->sex ? 0x11e : 0x114) + row->rec->level, row->rec->id);
         else
             txt_Format(text, "%1N7", row->rec->id);
         ai_CentredText(text, cx, row->y, 0xca, font);
@@ -1931,7 +1931,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
                     break;
                 }
             }
-            if (found || (c->w050 == me->w050 && c->b058 == me->b058))
+            if (found || (c->w050 == me->w050 && c->generation == me->generation))
                 cnt++;
         }
         for (ev = (AIJOB *)he_FindEvent(1, 0, 0x41); ev != 0; ev = (AIJOB *)he_NextEvent()) {
@@ -1974,7 +1974,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
                 break;
             }
             n++;
-        } else if (c->w050 == me->w050 && c->b058 == me->b058) {
+        } else if (c->w050 == me->w050 && c->generation == me->generation) {
             rows[n].rec = c;
             rows[n].x2c = (c->sex != 0) + 2;
             n++;
@@ -2296,7 +2296,7 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     return n;
 }
 /* 0x5bfa90, the fill of the special-amount window's quarrel tab (tab 5, 428 B): while me is in a quarrel
-   (AICHAR.powerFlags 0x400) the other side of its insult event 0x47 (role 0), then the characters (id4) of the
+   (AICHAR.flags1c8 0x400) the other side of its insult event 0x47 (role 0), then the characters (id4) of the
    crime events 0x18 of me (role 1). With max 0 it only counts them; else it fills rows with them (LCAMOUNTROW.rec,
    x2c the role; the crimes up to max rows) and gives each the corner icons (ai_AmountRowStatus) and the partner
    filter filter (ai_PassesPartnerFilter, pickable); returns the count */
@@ -5200,7 +5200,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
 /* 0x5c6050, the gift window "misc\geschenck" (1133 B): the player (giver, the player's character record) gives chr
    money. The least gift is 0.5 % of the player's worth (gm_GetWorth), at least 0x640, the most 5 % of the worth or
    the player's money (gm_GetGoodsValue), whichever is less, at least 0xc80 (none: returns 0). A giver whose power
-   bit 0x20 (AICHAR.powerFlags, a gift given this round) is set sees the text 0x1f4f only; else the caption
+   bit 0x20 (AICHAR.flags1c8, a gift given this round) is set sees the text 0x1f4f only; else the caption
    0x1f4c, the amount slider (text 0x1f4d with chr's name, in the player's money) and the buttons of the text 0x1f4e
    (give, close). Give: when the player has the amount (sv_CheckGoodAmount) the group "gift" moves it from the giver
    to chr and sets the giver's bit 0x20; the window closes and it returns 1. A right click or close returns 0 */
@@ -5597,7 +5597,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
         io_PrintText(0x1d31, p->id);
     } else if (state == 4) {
         p = gm_FindChar(partner);
-        level = p->b00d;
+        level = p->level;
         for (i = 0; i < 3; i++) {
             prices[i] = ev->pairPrice[i];
             picks[i] = ev->pairPick[i];
@@ -6397,7 +6397,7 @@ int ai_DivorceDialog(AICHAR *ch, LCORDMSG *m)
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
     text = (ch->sex != 0 ? 10 : 0) + 0x114;
-    slot = io_PrintText(0x1d8f, text + ch->b00d, 8, price - (int)(worth * -0.04), spouse->id,
+    slot = io_PrintText(0x1d8f, text + ch->level, 8, price - (int)(worth * -0.04), spouse->id,
                         spouse->id);
     d2_GetWinObj(win, 1, slot);
     d2_GetWinObj(win, 1, slot + 1);
@@ -7104,7 +7104,7 @@ refused:
         return 0x20;
     }
 }
-#define LC_POWER_EMBEZZLED 0x400000  /* AICHAR.powerFlags: the office's embezzlement used (ai_MisappropriationWindow) */
+#define LC_POWER_EMBEZZLED 0x400000  /* AICHAR.flags1c8: the office's embezzlement used (ai_MisappropriationWindow) */
 
 /* 0x5ca860, the embezzlement order's ask "privillegien\unterschlagung" (kinds 3 / 4) for the character me: the office
    holder owner (me for kind 3, m->partner for kind 4; none or another kind: 0x60) embezzles (25 .. 200) * 0.005 of
@@ -7589,7 +7589,7 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
     d2_CloseView(win);
     return done;
 }
-#define LC_POWER_HEARING 0x8000  /* AICHAR.powerFlags: the office's hearing used (ai_HearingWindow) */
+#define LC_POWER_HEARING 0x8000  /* AICHAR.flags1c8: the office's hearing used (ai_HearingWindow) */
 /* 0x5cba90, the hearing order's ask (ord_HearingOrder, kinds 3 / 4) "privillegien\verhoer": me summons a character
    to a hearing, once per office (LC_POWER_HEARING not yet set): me pays 2 and the character 3 (cm_SendMoneyDelta),
    the power is marked used on me's powerFlags (cm_SendSetField), and a player character summoned gets the news 0x1dda (me, the 3;
@@ -7677,7 +7677,7 @@ int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
     d2_CloseView(win);
     return ret;
 }
-#define LC_POWER_EXPEL 0x80  /* AICHAR.powerFlags: the office's worker expulsion used (ai_ExpelWorkerWindow) */
+#define LC_POWER_EXPEL 0x80  /* AICHAR.flags1c8: the office's worker expulsion used (ai_ExpelWorkerWindow) */
 /* 0x5cbe00, the expel-worker order's ask (ord_ExpelWorkerOrder, kinds 3 / 4) "privillegien\arbeiter_ausweisen": the
    office holder (me for kind 3, m->partner for kind 4; none: 0x60), once per office (LC_POWER_EXPEL not yet set), has
    a worker of a building removed: me pays 5, the power is marked used, the building's owner, when a player, gets the
@@ -7735,7 +7735,7 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
             txt_Format(news, 0x1ddf, me->id, bld, target->id);
             he_ShowNews(bld->owner, bld->owner, news, 0, 0x5fb, "_NACHRICHTEN_HS_20");
         }
-        gm_InheritEstate((struct ORDCHAR *)target, (struct ORDCHAR *)ai_PlayerChar);
+        gm_InheritEstate(target, ai_PlayerChar);
         cm_SendKillCharacter(target->netId, 1);
         return 0x10;
     }
@@ -7796,7 +7796,7 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
                             txt_Format(news, 0x1ddf, me->id, bld, worker->id);
                             he_ShowNews(owner->netId, owner->netId, news, 0, 0x5fb, "_NACHRICHTEN_HS_20");
                         }
-                        gm_InheritEstate((struct ORDCHAR *)worker, (struct ORDCHAR *)ai_PlayerChar);
+                        gm_InheritEstate(worker, ai_PlayerChar);
                         cm_SendKillCharacter(worker->netId, 1);
                     }
                     ret = 0x81;
@@ -9043,7 +9043,7 @@ int ai_SendInterrogationRefusal(char *ch, char *target, int variant)
     return cm_SendLongMessage((char *)&msg);
 }
 /* 0x5cede0, the interrogation order's ask, variant 1 (ord_InterrogationOrder2, the callers push (c, m)): me has an
-   office holder questioned for 4, once (AICHAR.powerFlags 0x100): the message 0x45 of variant 1
+   office holder questioned for 4, once (AICHAR.flags1c8 0x100): the message 0x45 of variant 1
    (ai_SendInterrogationRefusal). The AI (not kind 6) questions m->target: 0x20 when already done or me has less
    than 4, 0x60 when he is unknown or holds no office, else 0x10. A player who already did gets the message box
    txt_Ptrs[0x1ce0] (0x81); else he picks the holder from the office list ai_SpecialAmountListWindow (kind 4, mode
@@ -9475,7 +9475,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
-            gm_CatchDisease((struct ORDCHAR *)&ai_Chars[bld->owner], 0, 0);
+            gm_CatchDisease((struct AICHAR *)&ai_Chars[bld->owner], 0, 0);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
                 char news[0x800];
 
@@ -9502,7 +9502,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
             if (ai_InventoryHas(&ai_Chars[bld->owner], 0x2c4) == 0 || util_RandomF() > 0.75f)
-                gm_CatchDisease((struct ORDCHAR *)&ai_Chars[bld->owner], 0, 0);
+                gm_CatchDisease((struct AICHAR *)&ai_Chars[bld->owner], 0, 0);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
                 char news[0x800];
 

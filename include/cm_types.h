@@ -177,7 +177,7 @@ typedef struct G17NAMEDCHARMSG {        /* 0x39 bytes, the data of message 0xc (
             unsigned char job;          /* 0x0e */
             int ref54;                  /* 0x0f, the new character's AICHAR.ref54 */
             unsigned char a8;           /* 0x13, gm_CreateCharacter's last argument */
-            unsigned char b00c;         /* 0x14, the new character's AICHAR.b00c */
+            unsigned char b00c;         /* 0x14, the new character's AICHAR.faith */
             char first[0x10];           /* 0x15, its first name */
         };
         struct {

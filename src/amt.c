@@ -2811,7 +2811,7 @@ void amt_TellOpenOffices(char *c)
     char buf[2048];
     int n, i;
 
-    if (ch->b00d >= 2 && (n = amt_GetOfficeCandidates(c, 6, cand)) != 0) {
+    if (ch->level >= 2 && (n = amt_GetOfficeCandidates(c, 6, cand)) != 0) {
         memset(buf, 0, sizeof(buf));
         txt_Format(buf, 0x13ac);
         for (i = 0; i < n; i++)

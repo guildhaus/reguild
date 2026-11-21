@@ -1069,7 +1069,7 @@ int ai_OpenCharTooltip(char *ch)
             io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
     }
     if ((c->flags1cc & 0x3000) == 0)
-        io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->b00d);
+        io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->level);
     io_PrintText(0x2e, gm_GetWorth(c->id));
     if ((c->flags1cc & 0x3000) == 0) {
         io_PrintText(0x2f);
@@ -1152,7 +1152,7 @@ void ai_CharInfoWindow(char *ch)
         if (c->secondOffice != 0)
             io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
     }
-    io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->b00d);
+    io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->level);
     io_PrintText(0x2e, gm_GetWorth(c->id));
     io_PrintText(0x2f);
     p = gm_FindChar(c->relatives[0]);

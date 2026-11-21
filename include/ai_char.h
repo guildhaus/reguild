@@ -26,7 +26,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned char faith;                /* 0x00c, the faith, 0 / 1: the person tooltip names it (text 0x486 + it,
                                            ai_OpenCharTooltip), the baptism window sets it to 1 - it (text 0x197a + it),
                                            the church donation reaches the characters of the owner's faith (lc.c) */
-    unsigned char b00d;                 /* 0x00d, 1 .. 2 (gv: kept in a grave as GVGRAVE.v30) */
+    unsigned char level;                /* 0x00d, the level the level orders test (gv.h ord.c), 1 .. 2 (gv: kept in a
+                                           grave as GVGRAVE.v30) */
     char pad00e[2];
     float f010;                         /* 0x010, start values set by the character creators (ahm_CreateAlchemist, gv_RaiseDead) */
     float f014;                         /* 0x014, the step gm_AgeCharacter ages f01c by; a raised dead person loses it daily (gv_DecayRaisedDead) */
@@ -41,6 +42,7 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
                                            the diseases 2 .. 9 sit in the field pairs (f3gm.c gm_CatchDisease) */
     union {
         char name[0x58];                /* 0x030 */
+        unsigned int nameKey;           /* 0x030, the first four bytes of the name as one number: gm_BirthDate's seed for the birthday */
         struct {
             char first[0x10];           /* 0x030, the first name (gv: copied to the grave, GVGRAVE.first) */
             char family[0x10];          /* 0x040, the family name (GVGRAVE.family) */
@@ -62,7 +64,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
             int ref54;                  /* 0x054, a reference word (the save adds the base 0x59a back,
                                            ls_ReadCharacters); its low byte picks a cart's texture set
                                            ('g' + it, ls_ReadSceneRecords) */
-            unsigned char b058;         /* 0x058, 0 at creation (hmt_Create) */
+            unsigned char generation;   /* 0x058, 1 for a character created without parents, else the parent's + 1
+                                           (gm_CreateCharacter; reasoned guess: the generation); 0 at creation by hmt_Create */
         };
         struct {
             char padname5c[0x2c];
@@ -72,8 +75,9 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
         };
         struct {
             char padname7c[0x4c];
-            float f07c;                 /* 0x07c, set to 1.1 for the partner of sex 1 when a courtship ends in the
-                                           party (he.c 0x544840, a float delta of 1.1 - it) */
+            float pregnancy;            /* 0x07c, above 1.0 the mother gives birth (gm_PartnerStep), set from the birth
+                                           chance, reset below 0 after the birth; set to 1.1 for the partner of sex 1 when
+                                           a courtship ends in the party (he.c 0x544840, a float delta of 1.1 - it) */
         };
     };
     float mood[14][3];                  /* 0x088, 13 triples (a, b, value), the current one at 0x124 */
@@ -91,7 +95,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     char pad16a[2];
     AIBLD *bld;                         /* 0x16c */
     AIBLD *bld2;                        /* 0x170, the character's own building (the f3gm.c 0x4fdcb0 comment: its home), 0 when none */
-    int v174;                           /* 0x174, 0 when hired (cm_ExHire); ai.c 0x487b40 wants it >= 4 with a title
+    int jobDays;                        /* 0x174, the days served in the current job: 0 when hired (cm_ExHire), a job change
+                                           clears it (gm_SetJob), gm_TitlePeriodServed weighs it against the title period; ai.c 0x487b40 wants it >= 4 with a title
                                            (reasoned: rounds in the job) */
     int inventory;                      /* 0x178, the character's goods inventory (a G8 object list of item ids,
                                            next at +0x3f): gm_Query finds a prototype kind in it, gm_SumSlotAmounts
@@ -151,8 +156,10 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     char pad1c6[2];
     unsigned int flags1c8;              /* 0x1c8 */
     unsigned int flags1cc;              /* 0x1cc */
-    int v1d0;                           /* 0x1d0, saved and loaded (ls_WriteCharacters); no reader read yet */
-    char block1d4[0x10];                /* 0x1d4, saved and loaded as one block (ls_WriteCharacters); no reader read yet */
+    float loyalty;                      /* 0x1d0, 0 .. 1, starts at 0.25 .. 0.75; gm_ShiftLoyalty / gm_HandOutMoney move it
+                                           (reasoned guess: the loyalty) */
+    int worth[4];                       /* 0x1d4, the character's worth (gm_GetWorth) of the last rounds, worth[3] the newest
+                                           (gm_UpdateWorthMood shifts it); saved and loaded as one block (ls_WriteCharacters) */
     float mood3Rate;                    /* 0x1e4, scales the base growth of mood need 3; message 0x1a keeps it in sync */
     int v1e8;                           /* 0x1e8, saved and loaded (ls_WriteCharacters); no reader read yet */
     unsigned int goodsMask;             /* 0x1ec, the classes of the Domizil goods in use (am.h / lc.c goodsMask: ai_UseGood sets them), cleared for every character at the round start (main_BeginPlayerRound) */

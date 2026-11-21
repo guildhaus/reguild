@@ -90,7 +90,7 @@ extern int sv_ViewShape;  /* 0x6f22c0 */
 extern struct D2SURF *sv_GroundplanSurf, *sv_GroundplanView;  /* 0x6f22c4, 0x6f22c8 */
 #define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: sv_BuildScreenLayout clears the key byte by byte (mov byte [0x6f0454] / [0x6f0455] / [0x6f0456], bl), not through the D2COLKEY word gb */
 /* the object / character record fields sv.c reads (AIBLD / AICHAR in ai.h; ai.h cannot be included here: its
-   declarations of ai_Time / ai_Chars / ai_BTypes / ai_Blds clash with gv.h's char views). Views, as gv.h's ORDCHAR */
+   declarations of ai_Time / ai_Chars / ai_BTypes / ai_Blds clash with gv.h's char views). Views, as gv.h's ORDCHAR was */
 #pragma pack(push, 1)
 typedef struct SVPLATE {                /* 200 bytes, a name plate record: the object it belongs to */
     char *obj;                          /* +0x00, the object that shows the plate, 0 = free */

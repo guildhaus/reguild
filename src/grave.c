@@ -709,7 +709,7 @@ int gv_BuryCharacter(int *p)
     } while (ch != 0);
     memcpy(best->traits, c->skills, sizeof(best->traits));
     best->v2c = c->prevOffice;
-    best->v30 = c->b00d;
+    best->v30 = c->level;
     best->nameId = c->jobId;
     best->sex = c->sex;
     best->year = ai_Time.year;
@@ -1244,7 +1244,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
             c->partyId = -1;
             c->v190 = 4;
             c->money = 0;
-            c->b00d = 1;
+            c->level = 1;
             c->w050 = 0x7fff;
             for (j = 0; j < 5; j++)
                 c->skills[j] = q->traits[j] >> 1;

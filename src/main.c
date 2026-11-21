@@ -3744,7 +3744,7 @@ void main_RoundReport(void)
 #define PL(i) ((unsigned)&ai_Chars + (i) * 0x21c)
 float gm_TitlePeriodServed(int n, int *out);
 
-/* 0x53a250, the daily update of the figure i by its kind: kinds 6 / 7 get the field delta 0x174 (AICHAR.v174, the
+/* 0x53a250, the daily update of the figure i by its kind: kinds 6 / 7 get the field delta 0x174 (AICHAR.jobDays, the
    days in the job) = 1 sent; kinds 0 .. 9 otherwise the same delta when the character has a building or is of the
    kind 1 / 2 / 4 / 5, and for a character with a job the master exam: with no exam event (he 0x24) pending, titles
    left (gm_TitlesLeft 1 .. 5), the title period served counting this day (gm_TitlePeriodServed >= 1.0) and money
@@ -3774,9 +3774,9 @@ void main_UpdateFigure(int i)
             /* the master exam: due once the title period is served (counted with this day) */
             left = gm_TitlesLeft(ai_Chars[i].jobId);
             ev = he_FindEvent(2, 2, c->id, 0, 0x24);
-            c->v174++;
+            c->jobDays++;
             f = gm_TitlePeriodServed(i, (int *)&when);
-            c->v174--;
+            c->jobDays--;
             if (ev == 0 && left != 0 && left < 6 && f >= 1.0 && ai_Chars[i].money >= 0) {
                 memset(&msg, 0, sizeof(msg));
                 msg.arg[3] = 0;

@@ -210,7 +210,7 @@ typedef struct HECONVERT {              /* the conversion event 0x81's words ove
     char pad00[0xac];
     int left;                           /* 0xac, the characters still to turn */
     int rounds;                         /* 0xb0, the rounds (days) left */
-    int from;                           /* 0xb4, the AICHAR.b00c kind turned (0 / 1) into the other */
+    int from;                           /* 0xb4, the AICHAR.faith kind turned (0 / 1) into the other */
 } HECONVERT;
 typedef struct HEDELAY {                /* the delay event 0x80's words over AIJOB's union (he_StartDue starts it,
                                            he_RunDelay counts the days down) */
@@ -4683,7 +4683,7 @@ void he_RunCourtship(int ev)
                         who = b;
                     txt_Format(news, 0x1d31, b->id);
                     he_ShowNews(a->netId, a->netId, news, 0, 0x5f4, 0);
-                    cm_SendFloatDelta(who->netId, 0x7c, 1.1f - who->f07c);
+                    cm_SendFloatDelta(who->netId, 0x7c, 1.1f - who->pregnancy);
                 }
                 if (gv_FindReservedEntry(b, &yard, &entry) != 0)
                     gv_OrderSetGraveHolder(0, yard, *entry, gv_EntryIndex((char *)yard->yard, entry));
@@ -9793,7 +9793,7 @@ void he_RunRanking(int ev)
             txt_Format(tmp, "%s", (c->sex != 0 ? 0x18f : 0x130) + c->jobId);
             strncpy(line.job, tmp, 0x20);
             line.job[0x1f] = 0;
-            txt_Format(tmp, "%s", (c->sex != 0 ? 0x11e : 0x114) + c->b00d);
+            txt_Format(tmp, "%s", (c->sex != 0 ? 0x11e : 0x114) + c->level);
             strncpy(line.rank, tmp, 0x20);
             line.job[0x1f] = 0;         /* sic: the original ends job again, not rank */
             txt_Format(tmp, "%s", (c->sex != 0 ? 0x27b : 0x253) + c->officeKind);
@@ -10717,13 +10717,13 @@ void he_RunOfficeAward(int ev)
             char voice[0x200];
 
             officeNews = 0;
-            if (c->b00d == 9) {
+            if (c->level == 9) {
                 addrNews = 0x42a9;
                 if (c->sex == 1)
                     strcpy(voice, "_VERLEIHUNG_REICHSAMT_ANREDE_HS_W_02");
                 else
                     strcpy(voice, "_VERLEIHUNG_REICHSAMT_ANREDE_HS_M_02");
-            } else if (c->b00d == 8) {
+            } else if (c->level == 8) {
                 addrNews = 0x42a7;
                 if (c->sex == 1)
                     strcpy(voice, "_VERLEIHUNG_REICHSAMT_ANREDE_HS_W_01");
@@ -14159,11 +14159,11 @@ void he_AllocRepair(AIJOB *e)
     gm_AddTime(&e->end, 0, 10, 0);
     r->until = e->end;
     c = &ai_Chars[e->chr];
-    if (c->b00d >= 9)
+    if (c->level >= 9)
         f = 0.4f;
-    else if (c->b00d == 8)
+    else if (c->level == 8)
         f = 0.6f;
-    else if (c->b00d == 7)
+    else if (c->level == 7)
         f = 0.8f;
     else
         f = 1.0f;
@@ -18570,9 +18570,9 @@ void he_RunKillPlayer(AIJOB *ev)
             return;
         }
         gm_InheritEstate(p, h);
-        if ((p->kind == 6 || p->kind == 7 || p->kind == 5) && p->b00d > h->b00d) {
+        if ((p->kind == 6 || p->kind == 7 || p->kind == 5) && p->level > h->level) {
             cm_BeginFieldBlock((char *)h, h->netId);
-            cm_AddFieldDelta(1, 1, 0xd, &p->b00d);
+            cm_AddFieldDelta(1, 1, 0xd, &p->level);
             cm_SendFieldDeltas();
         }
         cm_SendKillCharacter(p->netId, gm_MayRemoveChar(p));

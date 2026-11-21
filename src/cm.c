@@ -1837,7 +1837,7 @@ int cm_SendMessage3d(char *p, unsigned char b, int c, int d)
     m.type = 0x3d;
     if (p == 0)
         return -1;
-    q = (AICHAR *)gm_FindApplicant((struct AIBLD *)p, c, d);
+    q = gm_FindApplicant((struct AIBLD *)p, c, d);
     m.hire.bldId = ((AIBLD *)p)->id;
     if (q != 0) {
         m.hire.charId = q->netId;
@@ -2394,7 +2394,7 @@ int cm_CheckMoveGoods(G17MSG *m)
 {
     AIBLD *b;
     AIOBJ *o;
-    ORDCHAR *c;
+    AICHAR *c;
     int *list;
 
     if (m->moveGoods.to != -1) {
@@ -2419,9 +2419,9 @@ int cm_CheckSellObject(G17MSG *m)
 {
     AIBLD *b;
     AIOBJ *o;
-    ORDCHAR *c;
+    AICHAR *c;
     char *p;
-    ORDCHAR *r;
+    AICHAR *r;
     int *list;
     AIBLD *bb;                 /* the buyer's building: its own slot in the original, not b again */
 
@@ -2447,7 +2447,7 @@ int cm_CheckSellObject(G17MSG *m)
             return 1;
         if (bb != 0) {
             if (bb->owner != 0xffff)
-                r = (ORDCHAR *)&ai_Chars[bb->owner];
+                r = (AICHAR *)&ai_Chars[bb->owner];
             else
                 r = 0;
         } else if (o != 0) {
@@ -2455,7 +2455,7 @@ int cm_CheckSellObject(G17MSG *m)
                 if (gm_FreeCapacity((short *)o, m->sell.item, m->sell.count) < m->sell.count)
                     return 1;
             }
-            r = (ORDCHAR *)gm_ObjectBuildingOwner((unsigned short *)o);
+            r = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)o);
         } else {
             if (gm_TakeableCount((char *)c, m->sell.item, m->sell.count) < m->sell.count)
                 return 1;
@@ -2475,7 +2475,7 @@ int cm_CheckFieldDeltas(G17MSG *m)
 {
     AIBLD *b;
     AIOBJ *o;
-    ORDCHAR *c;
+    AICHAR *c;
     char *base, *a;
     union {
         unsigned char *b;
@@ -2483,7 +2483,7 @@ int cm_CheckFieldDeltas(G17MSG *m)
         short *s;
         int *i;
     } p;
-    ORDCHAR *r;
+    AICHAR *r;
     unsigned int i, j, n;
     int size, id;
 
@@ -2504,12 +2504,12 @@ int cm_CheckFieldDeltas(G17MSG *m)
         if (c != 0) {
             if (a == (char *)&c->netId)
                 return 1;
-            if (a == (char *)&c->partner) {
-                id = *p.i + c->partner;
-                r = (ORDCHAR *)gm_FindChar(id);
+            if (a == (char *)&c->relatives[0]) {
+                id = *p.i + c->relatives[0];
+                r = gm_FindChar(id);
                 if (r == 0)
                     return 1;
-                if (r->partner != -1 && r->partner != c->netId)
+                if (r->relatives[0] != -1 && r->relatives[0] != c->netId)
                     return 1;
             }
         }
@@ -2536,7 +2536,7 @@ int cm_CheckSetField(G17MSG *m)
 {
     AIBLD *b;
     AIOBJ *o;
-    ORDCHAR *c;
+    AICHAR *c;
     char *base;
 
     m->setField.objId = cm_ResolveId((int)m, m->setField.objId);
@@ -2866,7 +2866,7 @@ int cm_ExDeleteObject(G17MSG *m, G17STAT *s)
 {
     AIBLD *b;
     AIOBJ *o;
-    ORDCHAR *c;
+    AICHAR *c;
 
     m->del.objectId = (unsigned short)cm_ResolveId((int)m, m->del.objectId);
     if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->del.objectId) == 0)
@@ -5195,7 +5195,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     c->bld = b;
     if (home != 0)
         gm_MoveIntoHome((char *)c, (char *)home);
-    c->v174 = 0;
+    c->jobDays = 0;
     c->flags1c8 &= ~0x2000;
     ai_ResetJob(c);
     memcpy(&c->flags1b4, &b->workSet, sizeof(b->workSet));

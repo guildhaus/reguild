@@ -29,13 +29,13 @@ typedef struct AIPER {                  /* a character, 0x21c bytes (ai_Chars[76
     int netId;                         /* 0x004 */
     char pad008[0x2];
     unsigned short age;                 /* 0x00a, the age in years (children above 11, below 40; 0x4fc7a0 projects the age at death from it) */
-    unsigned char faith;                /* 0x00c, 0 / 1, the character's faith class (ai.h AICHAR.b00c;
+    unsigned char faith;                /* 0x00c, 0 / 1, the character's faith class (ai.h AICHAR.faith;
                                            gm_ShiftLoyalty flips it, ai_DecideStateReligion reads it) */
-    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.b00d: gv_CheckRankUp sends it as the new rank) */
+    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.level: gv_CheckRankUp sends it as the new rank) */
     char pad00e[0xe];
     float f01c;                         /* 0x01c, the life value (ai.h AICHAR.f01c) */
     char pad020[0x60];
-    unsigned char skills[8];            /* 0x080, the five skill bytes (0..252; ord.c ORDCHAR stats, ord_RatingBytes their maxima) */
+    unsigned char skills[8];            /* 0x080, the five skill bytes (0..252; ord.c AICHAR stats, ord_RatingBytes their maxima) */
     float mood[14][3];                  /* 0x088, (a, b, value) */
     unsigned char sel;                  /* 0x130 */
     char pad131[0x33];
@@ -437,7 +437,7 @@ typedef struct AIPX {                   /* a character, 0x21c bytes (ai_Chars[76
     int netId;                         /* 0x004 */
     unsigned char health;               /* 0x008, > 0 = alive (ai_char.h AICHAR.health) */
     char pad009[4];
-    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.b00d: gv_CheckRankUp sends it as the new rank) */
+    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.level: gv_CheckRankUp sends it as the new rank) */
     char pad00e[0x15e];
     union { AIBLD *bld; AIBLD *bld16c; };   /* 0x16c */
     union { AIBLD *bld2; AIBLD *bld170; };  /* 0x170 */
@@ -549,7 +549,7 @@ typedef struct AIC4 {                   /* 0x21c bytes, ai_Chars[] with the fiel
     char pad002[2];
     unsigned int netId;                /* 0x004 */
     char pad008[5];
-    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.b00d: gv_CheckRankUp sends it as the new rank) */
+    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.level: gv_CheckRankUp sends it as the new rank) */
     char pad00e[0xe];
     float life;                         /* 0x01c, AICHAR.f01c: the life value the daily step ages (part of the death test's f01c + v024) */
     char pad020[4];
@@ -619,7 +619,7 @@ typedef struct G5CH {                   /* a character, 0x21c bytes (ai_Chars[76
     unsigned char sex;                  /* 0x009, 0 male / 1 female */
     unsigned short age;                 /* 0x00a, the age in years (children above 11, below 40; 0x4fc7a0 projects the age at death from it) */
     char pad00c;
-    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.b00d: gv_CheckRankUp sends it as the new rank) */
+    unsigned char rank;                  /* 0x00d, the rank (ai.h AICHAR.level: gv_CheckRankUp sends it as the new rank) */
     char pad00e[0x12];
     float f020;                         /* 0x020, the age it is grown up at (ai.h AICHAR.f020: a child is w00a < f020) */
     char pad024[8];
