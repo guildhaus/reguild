@@ -3190,7 +3190,7 @@ void ai_TradeContactChecks(void)
             sv_FrameBase = sv_FrameDepth;
         }
     }
-    if (sv_PanelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == (char *)ai_FallbackBuilding) {
+    if (sv_PanelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == ai_FallbackBuilding) {
         room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         if (sv_QuickJump.record != room) {
             ai_RunObjectRoom((AIOBJ *)sv_QuickJump.record);
@@ -3355,7 +3355,7 @@ void ai_GameFrame(void)
             ai_MarketStandListener(ai_MarketBuilding);
         if (sv_PanelFlag != 0) {
             /* the building the info panel picked */
-            b = (AIBLD *)sv_QuickJump.object;
+            b = sv_QuickJump.object;
             if (sv_QuickJump.record != 0) {
                 b->mainRoom = *sv_QuickJump.record;
                 if ((b->flags5a & 1) != 0) {

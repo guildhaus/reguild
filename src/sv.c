@@ -585,7 +585,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
         cur = ai_PlayerBuilding;
     else if (ai_FallbackBuilding != 0)
         cur = ai_FallbackBuilding;
-    sv_QuickJump.object = (char *)o;
+    sv_QuickJump.object = o;
     sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 1, b);
     if (o->type == 0x47)
         sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 0, 0xfd);
@@ -4428,7 +4428,7 @@ void sv_ClearSelection(void)
    selection */
 void sv_HandleObjects(void)
 {
-    char *subj;
+    AIBLD *subj;
     AIGOOD *cls;
     D3OBJECT *o;
     int found, door, perms;
@@ -4445,7 +4445,7 @@ void sv_HandleObjects(void)
     if (sv_SelectedChar != 0 && ((AICHAR *)sv_SelectedChar)->selected == 0)
         sv_SelectedChar = 0;
     if (sv_PanelFlag != 0) {
-        subj = (char *)(ai_PlayerBuilding != 0 ? ai_PlayerBuilding : ai_FallbackBuilding);
+        subj = ai_PlayerBuilding != 0 ? ai_PlayerBuilding : ai_FallbackBuilding;
         if (subj == sv_QuickJump.object
             && (sv_PanelShown == sv_QuickJump.record
                 || (ai_FallbackBuilding != 0 && sv_PanelShown == 0 && sv_QuickJump.record != 0 && *sv_QuickJump.record == 0xfd))) {
