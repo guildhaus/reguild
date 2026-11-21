@@ -6182,7 +6182,8 @@ the bytes no portable form gives.
   globals) or the ninth (f3init's INIT_BTYPEREC / INIT_OFFICE / INIT_KIND / INIT_AIMSG / INIT_TERRAIN, AITASK,
   ahm.h's AHMCHAR / AHMOBJ, the cannon windows' CANNONREC, the group helpers' `char *g`) or the tenth (the 252
   event handlers' `int ev`, the HEHANDLER tables, he_FindEvent / he_NextEvent / he_CreateEvent, GMCARRYREC.ref, the
-  save game's `int f` file handles and vfs_Tfopen's `int unk` directory).
+  save game's `int f` file handles and vfs_Tfopen's `int unk` directory) or the eleventh (portability: TUTEVENT, the
+  intptr_t text-id-or-string parameters, the object list heads, gm_FindById's out pointers).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6499,6 +6500,26 @@ the bytes no portable form gives.
   byte functions the gate holds.
 - **p8/strip1.sh that does not converge in eight rounds** (d3_interface, sv: casts on int handles): revert that
   unit's file and keep the other units' result.
+- **A value that is "a small id or a pointer" in one parameter is the original's API; its portable spelling is a
+  pointer-sized integer** (eleventh pass, portability): include/portable.h gives `intptr_t` / `uintptr_t` (VC6,
+  `_MSC_VER < 1600`: typedefs of int / unsigned int, byte-identical; any other compiler: <stdint.h>). io_PrintText(intptr_t
+  fmt, ...), txt_Format(char *, intptr_t id0, ...), sv_MessageBox / YesNo / Green and cm_MessageBox take it; ids are
+  passed plain, strings as `(intptr_t)"..."` / `(intptr_t)buf` (never `(char *)0x123` or `(int)buf`); the engine's own
+  test is `(uintptr_t)fmt < 0x4800`, its "%s" / "%t" vararg is read `va_arg(ap, intptr_t)` into an intptr_t (D2WIN.args
+  is `intptr_t[0x40]`). Use intptr_t / uintptr_t also for address arithmetic that must stay integral; everything else
+  gets the pointer type. Every function compiled the same; the new typedef in six headers moved tie-breaks only.
+- **Generic hooks that pack their arguments into `int p[4]`** (ai_CampaignStep / ai_ScriptQuery for the tutorial's
+  stepHook / query: a building / room / character / book in p[1]): a struct with the pointer slot typed `void *`
+  (`TUTEVENT { int event; void *obj; int stage; int arg; }`) filled field by field and passed by address is the same
+  code; the hooks read `((AIBLD *)p->obj)->type`, the callers pass the pointer uncast.
+- **A list head or handle field typed `int`** (AIBLD.objList, AIOBJ.list, AICHAR.inventory: the first AIOBJ of a
+  list): the field takes the pointer type in its own slot (same layout), the `int *list` cursors become `AIOBJ **`, the
+  `(void *)x->objList` casts at gm_Query strip by warning (541 sites, no new warning, every function the same).
+  Byte-offset arithmetic on ints (`list = b + 0x5d` with `int b` from gm_FindById) is `&b->objList` once b is typed.
+- **Out parameters typed `int *` that receive pointers** (gm_FindById's bld / obj / chr): `AIBLD **` .. and the callers'
+  typed locals (the `(int *)&x` casts strip by warning). An int parameter passed as such an out slot (cm_BeginFieldBlock's
+  `&id`) gets its own typed local: VC6 puts it into the dead parameter slot (dcp try: = control). The index of a record
+  pointer `(bld - (int)ai_Blds) / 0xa9` is `bld - ai_Blds` (same code).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
