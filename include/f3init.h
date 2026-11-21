@@ -100,7 +100,7 @@ extern signed char init_BuildingUniverse[0x22];             /* 0x76fa60 */
 extern unsigned short * ai_SceneObject;                     /* 0x76fa84 */
 extern signed char init_ObjectUniverse[0x2dc];              /* 0x76faa0 */
 extern int init_TownSounds[16];                             /* 0x76fd80 */
-extern unsigned char * ai_SceneBuilding;                    /* 0x76fdc0 */
+extern struct AIBLD *ai_SceneBuilding;                      /* 0x76fdc0 */
 extern int ai_NBauplaetze;                                  /* 0xf812e0 */
 extern G15BK * ai_Bauplaetze;                               /* 0xf812e4 */
 extern int evt_NoGroup;                                     /* 0x5f8430 */

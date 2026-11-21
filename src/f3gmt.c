@@ -3194,9 +3194,8 @@ int gm_TitleGroup(int n);                /* 0x504ad0 */
    the allocator's reload of b (ebx is the switch index): VC6 places it after the 0x17 case (ours +0x289)
    where the original has it after case 10 (+0x4be). (2) the cross-jumped tail 'or ebp,0x2200; jmp' shared
    by the cases 9/4/0x13/7: the original keeps... */
-unsigned gm_PermissionBits(unsigned p, unsigned char *b, unsigned short *o, int c)
+unsigned gm_PermissionBits(unsigned p, AIBLD *bld, unsigned short *o, int c)
 {
-    ORDBLD *bld = (ORDBLD *)b;
     ORDOBJ *obj = (ORDOBJ *)o;
     unsigned char *btype;
     int i;

@@ -270,7 +270,7 @@ typedef struct INIT_TORCHLIST {
 float gm_JobWage();
 int gm_IsBuildingKind(int n);           /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
 int gm_FindBuildingKind(char *name);    /* 0x502060, f3gm.c: the building kind of the name */
-unsigned gm_PermissionBits(unsigned p1, unsigned char *b, unsigned short *o, int c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
 
 
 struct D3SCENE;
@@ -414,7 +414,7 @@ signed char init_BuildingUniverse[0x22];  /* 0x76fa60, the universe of each buil
 unsigned short * ai_SceneObject;  /* 0x76fa84 */
 signed char init_ObjectUniverse[0x2dc];  /* 0x76faa0, the universe of each object prototype's scene (-1 = not loaded) */
 int init_TownSounds[16];  /* 0x76fd80, the handles of the town's sounds (16 at most), stopped by */
-unsigned char * ai_SceneBuilding;  /* 0x76fdc0 */
+AIBLD *ai_SceneBuilding;  /* 0x76fdc0 */
 extern int ai_NBauplaetze;
 extern G15BK * ai_Bauplaetze;
 /* 0x50a810, f3gm.c: the first kind 6 / 7 / 1 / 2 character with a job whose master is m */
@@ -2897,7 +2897,7 @@ void init_SyncSceneObjects(char *o)
     rec = 0;
     id = so->proto & INIT_PROTO_MASK;
     kind = o[0x4b];
-    base = ai_SceneObject != 0 ? (char *)((INIT_OBJ *)ai_SceneObject)->list : (char *)((INIT_BLD *)ai_SceneBuilding)->objList;
+    base = ai_SceneObject != 0 ? (char *)((INIT_OBJ *)ai_SceneObject)->list : (char *)ai_SceneBuilding->objList;
     if (kind == 1) {
         g = (char *)ai_Goods + id * 0x41;
         if (g[0] != 2 && g[0] != 0x1d && g[0] != 0x21 && g[0] != 6 && (rec = (INIT_OBJ *)gm_Query(base, 1, 0, id)) != 0) {
@@ -2922,7 +2922,7 @@ void init_SyncSceneObjects(char *o)
                                 if (a != b) {
                                     ia = -1;
                                     ib = -1;
-                                    bt = (INIT_BTYPEREC *)((char *)ai_BTypes + *ai_SceneBuilding * 0x24d);
+                                    bt = (INIT_BTYPEREC *)((char *)ai_BTypes + ai_SceneBuilding->type * 0x24d);
                                     n = bt->nParts;
                                     for (i = 0; i < n; i++) {
                                         v = bt->parts[i] & 0x7fff;
@@ -2975,7 +2975,7 @@ void init_SyncSceneObjects(char *o)
                     }
                 }
             }
-        } else if (g[0] != 0x1d && (rec = (INIT_OBJ *)gm_Query((void *)((INIT_BLD *)ai_SceneBuilding)->objList, 2, 6, 0, id)) != 0) {
+        } else if (g[0] != 0x1d && (rec = (INIT_OBJ *)gm_Query((void *)ai_SceneBuilding->objList, 2, 6, 0, id)) != 0) {
             d3if_ShowTree((struct D3OBJECT *)o, 1);
             so->owner = (SCENEOBJ *)rec;
             if ((g[0] == 6 || g[0] == 2) && ai_FallbackBuilding != 0) {
@@ -3005,7 +3005,7 @@ void init_SyncSceneObjects(char *o)
     if (strncmp(o, "no_", 3) == 0) {
         i = gm_FindObjectProto(o + 6);
         if (i != -1) {
-            s = (INIT_OBJ *)gm_Query(ai_Goods[i].type == 2 ? (char *)((INIT_BLD *)ai_SceneBuilding)->objList : base, 1, 0, i);
+            s = (INIT_OBJ *)gm_Query(ai_Goods[i].type == 2 ? (char *)ai_SceneBuilding->objList : base, 1, 0, i);
             if (s != 0)
                 d3if_ShowTree((struct D3OBJECT *)o, 0);
             else
@@ -3471,7 +3471,7 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
         }
         if (*b == 0x1e && slot == 0xfd)
             veg_ShowPlants((struct G15PLANT *)bd->plants);
-        ai_SceneBuilding = b;
+        ai_SceneBuilding = (AIBLD *)b;
         sv_CollectGroupCharacters((char *)b);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SyncSceneObjects);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_GateObjectHook);

@@ -956,7 +956,7 @@ struct D2SURF * d2_LoadBmpSurface(char *name);                     /* 0x478b50 *
 void d2_GetPixelColour(int x, int y, struct D2SURF *surf, unsigned char *rgb);                     /* 0x4798f0 */
 struct D2SURF; int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g, unsigned char b, struct D2SURF *surf);  /* 0x4799e0 */
 void ai_SwitchRoom(int index, unsigned room);                                /* 0x59e0a0 */
-unsigned gm_PermissionBits(unsigned p1, unsigned char *b, unsigned short *o, int c);                     /* 0x503530 */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);                     /* 0x503530 */
 int d2_FindPic(char *name);                     /* 0x468890 */
 char *strupr(char *);                     /* 0x5ea986 */
 extern int d2_PicShift;                   /* 0x6ed98c, d2.h (not includable here) */
@@ -1192,7 +1192,7 @@ void sv_UpdateGroundplan(unsigned flags)
                         if (dm_L.lclick != 0 && obj != 0 && obj->id != *sv_PanelShown
                             && ai_ScriptQuery(0x19, (int)ai_PlayerBuilding, 0, obj->id) == 1
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
-                            if (gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_PlayerBuilding, &obj->id, 0) & 0x4000)
+                            if (gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, &obj->id, 0) & 0x4000)
                                 ai_SwitchRoom(-1, obj->id);
                         } else if (obj != 0)
                             d2_CopyCaption((char *)txt_ObjectNames[obj->id][0]);
@@ -1218,7 +1218,7 @@ void sv_UpdateGroundplan(unsigned flags)
                         if (dm_L.lclick != 0 && obj != 0
                             && (sv_PanelShown == 0 || (obj->id != *sv_PanelShown && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
-                            if (gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_FallbackBuilding, &obj->id, 0) & 0x4000)
+                            if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, &obj->id, 0) & 0x4000)
                                 sv_SelectPanelObject((unsigned char *)ai_FallbackBuilding, obj->objId, ch_EmptyName);
                         } else if (obj != 0)
                             d2_CopyCaption((char *)txt_ObjectNames[obj->id][0]);
@@ -3542,7 +3542,7 @@ void sv_OpenBuildingPanel(AIBLD *b)
     if ((b->flags5a & 1) == 0 && b->type != 0x47 && b->type != 0x1d && b->type != 0x57) {
         cls = gm_BuildingClass(b->type);
         bt = &ai_BTypes[b->type];
-        perm = gm_PermissionBits(ai_PlayerId, (unsigned char *)b, 0, 0);
+        perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
         if (b->owner != ai_PlayerId && b->masterId != ai_PlayerId && (perm & 0x10) == 0)
             sv_PanelActionBtn = sv_AddPanelButton(0, 0x8c, txt_PanelBtnForeign);
         else
@@ -3592,7 +3592,7 @@ void sv_OpenItemPanel(unsigned short *p)
         g = &ai_Goods[*p];
         if (b != 0 && (g->type == 2 || g->type == 6)) {
             owner = gm_ObjectBuildingOwner(p);
-            perm = gm_PermissionBits(ai_PlayerId, (unsigned char *)b, 0, 0);
+            perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
             if (*owner == ai_PlayerId || (perm & 0x10) != 0) {
                 if (gm_ListObjectsAfter((unsigned char *)b, p, 0) != 0)
                     sv_PanelActionBtn = sv_AddPanelButton(0, 0x8c, txt_PanelBtnItemOwn);
@@ -4089,10 +4089,10 @@ void sv_UpdatePanel(void)
         d2_SetObjEnabled(sv_PanelTransportBtn, 1);
     if ((sv_FrameMask & 0x2000) != 0 && d2_ClickedId != -1 && sv_PanelActionBtn != -1 && d2_PointerObj == sv_PanelActionBtn) {
         if (ai_PlayerBuilding != 0)
-            perms = gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_PlayerBuilding, 0, 0);
+            perms = gm_PermissionBits(ai_PlayerId, ai_PlayerBuilding, 0, 0);
         else if (ai_FallbackBuilding != 0) {
             if (sv_PanelShown == 0)
-                perms = gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_FallbackBuilding, 0, 0);
+                perms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, 0, 0);
             else {
                 room = (int)gm_Query(ai_FallbackBuilding->objList, 1, 0, ai_FallbackBuilding->mainRoom);
                 perms = gm_PermissionBits(ai_PlayerId, 0, room, 0);
@@ -4100,7 +4100,7 @@ void sv_UpdatePanel(void)
         } else {
             if (sv_SelectedObject == 0)
                 goto refresh;
-            perms = gm_PermissionBits(ai_PlayerId, (unsigned char *)sv_SelectedObject, 0, 0);
+            perms = gm_PermissionBits(ai_PlayerId, SV_SELBLD, 0, 0);
         }
         sv_PanelPerms = perms;
         if (ai_PlayerBuilding != 0 && (sv_PanelPerms & 0x10) != 0)
@@ -4111,7 +4111,7 @@ void sv_UpdatePanel(void)
             ai_TechTreeWindow((int)ai_FallbackBuilding, *sv_PanelShown);
         else if (sv_SelectedObject != 0) {
             cls = gm_BuildingClass(SV_SELBLD->type);
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)sv_SelectedObject, 0, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, SV_SELBLD, 0, 0);
             if ((cls == 3 || cls == 5) && (sv_PanelPerms & 0x10) != 0)
                 ai_ManagedBuildingWindow((AIBLD *)sv_SelectedObject);
             else
@@ -4124,7 +4124,7 @@ void sv_UpdatePanel(void)
                 cls = gm_BuildingClass(sel->type);
                 bt = &ai_BTypes[sel->type];
                 if ((cls == 1 || cls == 2 || cls == 4 || cls == 7 || cls == 8 || bt->kind == 0x10 || bt->kind == 0x1e) && ai_RunAllows(0x400) == 1) {
-                    ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)sel, 0, 0);
+                    ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, sel, 0, 0);
                     ai_CampaignStep(0x12, (int)sel, 0, 0);
                     ai_TransportWindow((int)sel, 1);
                     ai_CampaignStep(0x12, (int)sel, 1, 0);
@@ -4280,7 +4280,7 @@ void sv_HoverPick(void)
         case 1:
             sv_HoverItem = (int)((D3OBJECT *)ai_PickedObject)->owner;
             if (ai_FallbackBuilding != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_FallbackBuilding, sv_HoverItem, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, sv_HoverItem, 0);
         else
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, sv_HoverItem, 0);
             if (sv_HoverItem != 0) {
@@ -4298,7 +4298,7 @@ void sv_HoverPick(void)
             break;
         case 2:
             sv_HoverBuilding = (int)((D3OBJECT *)ai_PickedObject)->owner;
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)sv_HoverBuilding, 0, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (AIBLD *)sv_HoverBuilding, 0, 0);
             b = (AIBLD *)sv_HoverBuilding;
             if (b != 0 && (b->flags5a & 1) == 0) {
                 if (b->name[0] != 0)
@@ -4344,7 +4344,7 @@ void sv_HoverPick(void)
             else if (ai_FallbackBuilding != 0)
                 sv_HoverContact = (int)gm_Query(b->objList, 1, 0, 0xfd);
             if (sv_HoverContact != 0) {
-                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)b, sv_HoverContact, 0);
+                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_HoverContact, 0);
                 if ((sv_PanelPerms & 1) != 0) {
                     d2_PointerLook = 0xb;
                     if (((AIOBJ *)sv_HoverContact)->id == 0xfd) {
@@ -5538,7 +5538,7 @@ void sv_DrawBorderArrows(void)
         return;
     b = ai_PlayerBuilding;
     if ((b != 0 || (ai_FallbackBuilding != 0 && (b = ai_FallbackBuilding) != 0)) && (sv_PanelShown != 0 || ai_FallbackBuilding != 0)) {
-        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)b, sv_PanelShown, 0);
+        sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_PanelShown, 0);
         if ((sv_PanelPerms & 0x1000) == 0)
             return;
     }
@@ -5818,14 +5818,14 @@ done:
         bld = ai_FallbackBuilding;
     if ((fl & 8) != 0 && bld != 0) {
         if (sv_PanelShown != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)bld, sv_PanelShown, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
         else
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)bld, 0, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, bld, 0, 0);
         if (bld->owner == ai_PlayerId || (sv_PanelPerms & 0x1000) != 0)
             sv_BorderCameraView();
     }
     if (sv_PermsBuilding != bld || sv_PermsRoom != sv_PanelShown || ai_PermsDirty != 0) {
-        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, (unsigned char *)bld, sv_PanelShown, 0);
+        ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, bld, sv_PanelShown, 0);
         sv_ReleaseNamePlates();
         sv_PermsBuilding = bld;
         sv_PermsRoom = sv_PanelShown;

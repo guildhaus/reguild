@@ -1215,28 +1215,28 @@ void ai_InitBookmarks(void)
     }
 }
 
-char * gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, unsigned char *b, unsigned short *o, int c);
+char * gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 
 /* 0x589450, drops the stale bookmarks (113 B): every set one (building not -1) whose building is gone
    (gm_FindBuildingById), whose object is set but gone (gm_FindObjectInst) or whose permission for the own player
    lacks bit 1 (gm_PermissionBits) is cleared (ai_ClearBookmark) */
 void ai_ValidateBookmarks(void)
 {
-    char *b;
+    AIBLD *b;
     int e;
     int i;
 
     for (i = 0; i < 11; i++) {
         if (ai_Bookmarks[i].building == -1)
             continue;
-        b = gm_FindBuildingById(ai_Bookmarks[i].building);
+        b = (AIBLD *)gm_FindBuildingById(ai_Bookmarks[i].building);
         if (b == 0) {
             ai_ClearBookmark(&ai_Bookmarks[i]);
         } else {
             e = gm_FindObjectInst(ai_Bookmarks[i].object);
             if (e == 0 && ai_Bookmarks[i].object != -1)
                 ai_ClearBookmark(&ai_Bookmarks[i]);
-            else if ((gm_PermissionBits(ai_PlayerId, (unsigned char *)b, (unsigned short *)e, 0) & 1) == 0)
+            else if ((gm_PermissionBits(ai_PlayerId, b, (unsigned short *)e, 0) & 1) == 0)
                 ai_ClearBookmark(&ai_Bookmarks[i]);
         }
     }

@@ -3100,7 +3100,7 @@ void ai_ConstructionWindow(void)
 }
 
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, unsigned char *b, unsigned short *o, int c); void init_ShowBuildingScene(unsigned char *b, int slot); void init_FinishBuildingScene(unsigned char *b, unsigned short *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(unsigned char *b, int slot); void init_FinishBuildingScene(unsigned char *b, unsigned short *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -3154,7 +3154,7 @@ void ai_HandleMapKey(void)
                 }
                 sv_SelectPanelObject(p, p->mainRoom, (void *)(unsigned)&ch_EmptyName);
             } else {
-                u = gm_PermissionBits(ai_PlayerId, (unsigned char *)p, 0, 0);
+                u = gm_PermissionBits(ai_PlayerId, p, 0, 0);
                 if (u & 1) {
                     sv_SelectPanelObject(p, 0xfd, (void *)(unsigned)&ch_EmptyName);
                     return;
@@ -3181,7 +3181,7 @@ void ai_TradeContactChecks(void)
     if (item != 0) {
         g = ai_Goods + *item;
         if ((g->type == 6 || g->type == 2) &&
-            (gm_PermissionBits(ai_PlayerId, (unsigned char *)ai_FallbackBuilding, item, 0) &
+            (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, item, 0) &
              0x4000) != 0) {
             room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
             ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
@@ -3340,7 +3340,7 @@ void ai_GameFrame(void)
         if (d2_ClickedId != -1 && d2_PointerObj == sv_PanelBuildBtn)
             ai_ConstructionWindow();
         if (sv_SelectedObject != 0) {
-            perm = gm_PermissionBits(ai_PlayerId, (unsigned char *)sv_SelectedObject, 0, 0);
+            perm = gm_PermissionBits(ai_PlayerId, (AIBLD *)sv_SelectedObject, 0, 0);
             b = (AIBLD *)sv_SelectedObject;
             if (b != 0 && sv_HoverBuilding == (int)b &&
                 (dm_L.lextra != 0 || (dm_L.lup != 0 && d2_PointerLook == 0xb)) && (perm & 1) != 0 &&
@@ -8979,7 +8979,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
 }
 
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); int ai_AmountMenu();
-int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, unsigned char *b, unsigned short *o, int c);
+int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
 void init_ShowBuildingScene(unsigned char *b, int slot); void init_FinishBuildingScene(unsigned char *b, unsigned short *o); 
@@ -9389,7 +9389,7 @@ int ai_MayEnterBuilding(AIBLD *b)
 
     type = &ai_BTypes[b->type];
     cls = gm_BuildingClass(b->type);
-    perm = gm_PermissionBits(ai_PlayerId, (unsigned char *)b, 0, 0);
+    perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
     if ((b->flags5aw & 0x400) != 0)
         return 0;
     if ((ai_GameFlags & 0x80) != 0 ||
