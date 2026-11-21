@@ -2509,7 +2509,7 @@ exe	0x004d8b50	cm_DrawFightTime	cmscene	byte	readable
 exe	0x004d8c40	cm_DeleteSceneChars	cmscene	byte	readable		
 exe	0x004d8c70	cm_StackPicture	cmscene	byte	readable		
 exe	0x004d8cb0	cm_TallyStack	cmscene	byte	readable		
-exe	0x004d8e20	cm_RunCouncilSession	cmscene	byte	readable		
+exe	0x004d8e20	cm_RunCouncilSession	cmscene	draft	readable		byte+readable -> draft+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (CMBOMB + extern cm_Bombs, 07df00b2); the text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x004da9e0	cm_AskDeposeVote	cmscene	byte	readable		
 exe	0x004dab50	cm_AskElectVote	cmscene	byte	readable		
 exe	0x004dada0	cm_SessionAskPlayer	cmscene	byte	readable		
@@ -3476,7 +3476,7 @@ exe	0x00537f40	main_EndGame	main	byte	readable
 exe	0x00538140	main_RundenBeginn	main	byte	readable		
 exe	0x005384e0	main_EndRound	main	byte	readable		
 exe	0x00539620	main_ReplaceFigure	main	byte	readable		
-exe	0x00539870	main_RoundReport	main	byte	readable		
+exe	0x00539870	main_RoundReport	main	shape	readable		byte+readable -> shape+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (07df00b2); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0053a250	main_UpdateFigure	main	byte	readable		
 exe	0x0053a450	main_UpdateFigures	main	byte	readable		
 exe	0x0053a520	main_SettleRound	main	byte	readable		
@@ -4505,7 +4505,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
-exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
+exe	0x005c5310	ai_CharInfoPanel	lcamt	shape	readable		byte+readable -> shape+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (07df00b2); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
 exe	0x005c6530	ai_MarriageTest	lcamt	byte	readable		
