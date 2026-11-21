@@ -1523,7 +1523,7 @@ int init_BuildingSceneUniverse();                     /* 0x511e60 */
 int init_ObjectSceneUniverse();                     /* 0x511dc0 */
 int gm_ClockSeason(AITIME *c);         /* 0x4fe350, f3gm.c */                     /* 0x4fe350 */
 char *strstr();                   /* 0x5de6b0, strstr (LIBC; as ls.c) */
-int cm_SendExSetHE(int k, char *p);                     /* 0x4c4c60 */
+int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
 void he_FreeEvent();                     /* 0x53e1f0 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
@@ -1614,7 +1614,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, AIJOB *g)
             sv_CountGroupMembers(old);
             if (sv_UsedGroupSlots(old) <= 0) {
                 old->end = ai_Time;
-                cm_SendExSetHE(-1, (char *)old);
+                cm_SendExSetHE(-1, old);
             }
             break;
         case 0x48:
@@ -1622,7 +1622,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, AIJOB *g)
         case 0x75:
         case 0xa1:
             if (sv_UsedGroupSlots(old) <= 0)
-                cm_SendExSetHE(-1, (char *)old);
+                cm_SendExSetHE(-1, old);
             break;
         case 0x16:
         case 0x88:
@@ -4843,7 +4843,7 @@ void sv_SendSelectedToBuilding(void)
         c->selected = 0;
     }
     if (job != 0)
-        cm_SendExSetHE(job->stage, (char *)job);
+        cm_SendExSetHE(job->stage, job);
     if (msg.type != 0)
         cm_SendLongMessage((char *)&msg);
 }

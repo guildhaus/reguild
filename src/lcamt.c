@@ -10301,7 +10301,7 @@ int ai_UseGoodTributeClaim(AICHAR *ch)
         if ((int)ch->netId == ev->idbc) {
             ai_ShowTributeClaimNews(ch, &ai_Chars[ev->chr]);
             ev->end = ai_Time;
-            cm_SendExSetHE(-1, (char *)ev);
+            cm_SendExSetHE(-1, ev);
         }
         ev = (AIJOB *)he_NextEvent();
     }

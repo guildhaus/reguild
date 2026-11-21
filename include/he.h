@@ -16,8 +16,8 @@ typedef struct HEGFXINFO {              /* 16 bytes, a gfx info: a 3D model show
 } HEGFXINFO;
 extern HEGFXINFO he_GfxInfos[0x40];     /* 0x7588a0, the gfx infos */
 
-void he_AllocNone(unsigned char *ev);
-void he_RunNone(unsigned char *ev);
+void he_AllocNone(struct AIJOB *ev);
+void he_RunNone(struct AIJOB *ev);
 int he_InitEvents(void);
 void he_FreeEvents(void);
 int he_ReleaseEvents(void);
@@ -25,8 +25,8 @@ int he_FigureContact(struct AICHAR *p, int *bldId, int *contact);  /* 0x55ea60, 
 int he_FindFigurePlace(struct AICHAR *p, int *bldId, int *objId, int *scene);  /* 0x55eba0, 1 with the building, object and scene where the character is, 0: none */
 int he_SetEventHandlers(int type, void *alloc, void *run);
 int he_FreeOldestSlot(void);
-int he_OpenEventSlot(int ev, int x, int y, char *form, int pic);
-void he_ReleaseSlot(int ev);
+int he_OpenEventSlot(struct AIJOB *ev, int x, int y, char *form, int pic);
+void he_ReleaseSlot(struct AIJOB *ev);
 void he_CreateEventBar(void);
 void he_CloseEventSlots(void);
 void he_ShowEventBar(int pl);
@@ -68,7 +68,7 @@ int he_ShowNews(int pid, int from, char *text, int tflags, int news, char *text2
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 
 unsigned char * he_CreateEvent(unsigned char *m);
-void he_FreeEvent(int *r);
+void he_FreeEvent(struct AIJOB *r);
 char *he_NextEvent(void);
 char *he_FindEvent(int n, ...);
 int he_NoEvent9aFor(int bldId, struct AICHAR *c);   /* 0x56f360, 1 when no running type 0x9a event has both the building bldId and the netId of the character c */
@@ -91,7 +91,7 @@ void he_AddEventGfxInfo(struct AIJOB *ev);
 void he_RemoveStaleGfxInfos(void);
 void he_RemoveGfxInfos(int obj);
 void he_ShowObjectInfos(int obj, int a);
-void he_RecheckEventPerson(unsigned char *r);
+void he_RecheckEventPerson(struct AIJOB *r);
 void he_RecheckPersonEvents(unsigned short *pl);
 void he_RunEvents(void);
 void he_RunQuickList(void);
@@ -130,28 +130,28 @@ void he_PostEvent3a(void);
 void he_PostEvent3b(void);
 void he_PostEvent73(void);
 void he_PostEventA6(void);
-void he_EndEventNow(int r);
-void he_SetEventChar(int r, int pl);
+void he_EndEventNow(struct AIJOB *r);
+void he_SetEventChar(struct AIJOB *r, int pl);
 
 
 
 void he_CharacterBehavior(struct AIJOB *ev, float *pos);
 void he_CharAccident(struct AIJOB *ev, struct AICHAR *c, struct AICHAR *boss, struct AIBLD *bld, float value, int quiet); /* 0x5414a0, a character's accident: carried away ("Unfall") or dead, with the boss's news */
 void he_CharIllness(struct AIJOB *ev, struct AICHAR *c, struct AICHAR *boss, struct AIBLD *bld, int disease, float value); /* 0x5417d0, a character's illness: carried away ("Unfall") or dead, with the boss's news */
-void he_AllocStammtisch(int r);
+void he_AllocStammtisch(struct AIJOB *r);
 
-void he_RunTribute(int ev);
-void he_DrawPairPicks(int ev, struct AICHAR *a, struct AICHAR *b);
-void he_AllocCourtship(int ev);
-void he_DuelAccepted(int ev, struct AICHAR *p2, struct AICHAR *p3);
+void he_RunTribute(struct AIJOB *ev);
+void he_DrawPairPicks(struct AIJOB *ev, struct AICHAR *a, struct AICHAR *b);
+void he_AllocCourtship(struct AIJOB *ev);
+void he_DuelAccepted(struct AIJOB *ev, struct AICHAR *p2, struct AICHAR *p3);
 
-void he_RunFeast(int ev);
+void he_RunFeast(struct AIJOB *ev);
 
-void he_RunRandomMessage(int ev);
+void he_RunRandomMessage(struct AIJOB *ev);
 
-void he_AllocPatrol(int ev);
+void he_AllocPatrol(struct AIJOB *ev);
 
-void he_AllocTribute(int ev);
+void he_AllocTribute(struct AIJOB *ev);
 
 void he_SpawnFounders(void);
 extern const float he_FounderOdds[5];  /* 0x5eebc4 */
@@ -163,22 +163,22 @@ extern HEBLDMODEL he_BuildingModels[37]; /* 0x627e98, the construction models, t
 
 void he_StammtischCommand(unsigned cmd, struct AIBLD *inn, struct AIOBJ *table, int figId); /* 0x541b40, the inn meeting hears of a table request: join / leav / cler / exec / new */
 
-void he_AllocTavern(int ev);
+void he_AllocTavern(struct AIJOB *ev);
 
-void he_RunTavern(int ev);
+void he_RunTavern(struct AIJOB *ev);
 
-void he_AllocQuarrel(int ev);
-void he_RunQuarrel(int ev);
+void he_AllocQuarrel(struct AIJOB *ev);
+void he_RunQuarrel(struct AIJOB *ev);
 
-void he_RunMasterExam(int ev);
+void he_RunMasterExam(struct AIJOB *ev);
 
-void he_AllocFeast(int ev);
+void he_AllocFeast(struct AIJOB *ev);
 
-void he_AllocOffer(int ev);
+void he_AllocOffer(struct AIJOB *ev);
 
-void he_RunWeddingOffer(int ev);
+void he_RunWeddingOffer(struct AIJOB *ev);
 
-void he_RunStammtisch(int ev);
+void he_RunStammtisch(struct AIJOB *ev);
 
 void he_SaveMessageFilter(void);                                       /* 0x575600 */
 

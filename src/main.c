@@ -3439,7 +3439,7 @@ void main_ReplaceFigure(unsigned p)
             if (e->kind != 0 && e->chr == p) {
                 for (j = 0; la[j] != 0; j++) {
                     if (la[j] == (unsigned char)e->kind) {
-                        he_FreeEvent((int *)e);
+                        he_FreeEvent(e);
                         break;
                     }
                 }

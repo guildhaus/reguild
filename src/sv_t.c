@@ -1649,7 +1649,7 @@ int ai_TutorialOpenIntro(void)
         return -4;
     if (host->slot)
         return -4;
-    he_OpenEventSlot((int)host, 0, 0, "tutorial\\main", 0x5ec);
+    he_OpenEventSlot((struct AIJOB *)host, 0, 0, "tutorial\\main", 0x5ec);
     if (!ai_Tutorial->host->slot)
         return -1;
     d2_PlaceMainWindow(ai_Tutorial->host->slot->win, 3);
@@ -1673,7 +1673,7 @@ int ai_TutorialCloseIntro(void)
         return -4;
     if (!host->slot)
         return -4;
-    he_ReleaseSlot((int)host);
+    he_ReleaseSlot((struct AIJOB *)host);
     return 0;
 }
 /* 0x577850, clears the run window's two text controls: -4 without a host / with no open event slot, else sets the

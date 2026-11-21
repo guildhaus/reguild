@@ -12650,7 +12650,7 @@ void ai_KidnapStart(AIBLD *bld)
                 sv_MessageBox(ai_TextKidnapMessage, 0);
                 return;
             }
-            rec->exSlot = cm_SendExSetHE(-1, (int)rec);
+            rec->exSlot = cm_SendExSetHE(-1, rec);
         }
     }
     memset(&cfg, 0, sizeof(cfg));

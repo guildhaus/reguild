@@ -82,7 +82,7 @@ extern int ahm_Tab[8];                  /* 0x60f1b0 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 char * he_FindEvent(int n, ...);                   /* 0x53e400 */
 char * he_NextEvent(void);                   /* 0x53e300 */
-int cm_SendExSetHE(int k, char *p);                                     /* 0x4c4c60, cm.c */
+int cm_SendExSetHE(int k, struct AIJOB *p);                                     /* 0x4c4c60, cm.c */
 
 struct AICHAR *ahm_OwnerChar(struct AIBLD *p);  /* 0x4eaa50, the character the alchemist object p belongs to */
 int ahm_UsedSlots(struct AICHAR *c);             /* 0x4eaa90, the number of the places in use in the record of c's object */

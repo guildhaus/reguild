@@ -2754,7 +2754,7 @@ int cm_EndGroup(const char *s);                     /* 0x4c4580 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
 int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 void cm_SendBoss(int a, int b);                     /* 0x4c5540 */
-int cm_SendExSetHE(int k, char *p);                     /* 0x4c4c60 */
+int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);                     /* 0x53dee0 */
 int d3t_SceneIndex();                     /* 0x411be0 */
 int ch_Delete();                     /* 0x4028a0 */
@@ -3047,7 +3047,7 @@ void gm_SellBuilding(int id, int buyer, int price, int job, int boss)
     if (j != 0) {
         j->end = ai_Time;
         gm_AddTime(&j->end, 0, 0, 1);
-        j->msgSlot = cm_SendExSetHE(-1, (char *)job);
+        j->msgSlot = cm_SendExSetHE(-1, (struct AIJOB *)job);
     }
     cm_SendSetField(bl->id, 0x5a, 2, 0, 2);
     cm_EndGroup("buy_building");
@@ -3151,7 +3151,7 @@ void gm_FreeObject(int o)
     saved = d3_CurrentScene;
     job = (GMJOB *)obj->job24;
     if (job != 0 && (job->opts & 2) != 0)
-        job->msgSlot = cm_SendExSetHE(-1, (char *)job);
+        job->msgSlot = cm_SendExSetHE(-1, (struct AIJOB *)job);
     model = obj->sceneObj;
     if (model != 0) {
         d3if_SelectScene(d3t_SceneIndex(model->scene), 1);
