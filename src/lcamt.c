@@ -662,7 +662,7 @@ int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); 
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
@@ -964,7 +964,7 @@ char * he_NextEvent(void);
 struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
 void cm_SendMessage5b(int a, int b, int c);
 typedef struct LCKIDNAPEVENT {          /* the kidnap event 0x3c's words over AIJOB's union (he.c HEEV3C, same layout) */
     char pad00[0xac];
@@ -4844,7 +4844,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId
             for (i = 0; i < 5; i++) {
                 if (children[i].id != 0xffff) {
                     d2_Objs[children[i].ctrl].interactive = (flags & 1) && (flags & 0xc) == 0
-                        || (flags & 2) && (flags & 8) && ai_Chars[children[i].id].w00a > 10 ? 1 : 0;
+                        || (flags & 2) && (flags & 8) && ai_Chars[children[i].id].age > 10 ? 1 : 0;
                     txt_Format(childText, "%1N7", children[i].id);
                     ai_CentredText(childText, children[i].x, children[i].y + h + 3, 0x50, 0x56);
                     if (children[i].id == ch->id)
@@ -5121,7 +5121,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
         if (ai_Chars[ai_PlayerId].sex == 0 && chr->relatives[1] == ai_Chars[ai_PlayerId].netId
             || ai_Chars[ai_PlayerId].sex == 1 && chr->relatives[2] == ai_Chars[ai_PlayerId].netId) {
             if (chr->jobId == 0) {
-                if (he_FindEvent(2, 2, chr->id, 0, 0x5e) == 0 && chr->f020 <= chr->w00a + 4) {
+                if (he_FindEvent(2, 2, chr->id, 0, 0x5e) == 0 && chr->f020 <= chr->age + 4) {
                     if ((ai_Chars[ai_PlayerId].flags1c8 & 0x20) == 0) {
                         txt_Format(text1, 0x1f4b, chr->id);
                         txt_Format(text2, 0x1a96);
@@ -5271,9 +5271,9 @@ int ai_GiftWindow(AICHAR *giver, AICHAR *chr)
     return given;
 }
 
-struct AIPER;
+struct AICHAR;
 int gm_CharLevel(unsigned short id, int again); int ord_DispatchOrder();
-unsigned int ai_FindCandidates(struct AIPER *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
+unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
 
 #define AI_CANDIDATE_FLAGS_SEX0 0xc0540a    /* the candidate flags of the kind 9 (advertising) search for a character with sex 0 (the mask bits of ai_PassesPartnerFilter) */
 #define AI_CANDIDATE_FLAGS_SEX1 0xc05409    /* ditto for sex != 0 */
@@ -5288,7 +5288,7 @@ void ai_FindCandidateIds(G8CHARREC *p, int *n, int *out)
 
     unsigned int fl = p->sex != 0 ? AI_CANDIDATE_FLAGS_SEX1 : AI_CANDIDATE_FLAGS_SEX0;
 
-    *n = ai_FindCandidates((struct AIPER *)p, 9, fl, 0.0f, 100.0f, ids);
+    *n = ai_FindCandidates((struct AICHAR *)p, 9, fl, 0.0f, 100.0f, ids);
     for (i = 0; i < *n; i++)
         out[i] = ai_CharInts[ids[i]][0];
 }
@@ -8066,7 +8066,7 @@ int ai_PenanceWindow(AICHAR *me, LCORDMSG *m)
     }
     return 0;
 }
-int ai_FindPartnersRandomWalk(struct AIPER *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
+int ai_FindPartnersRandomWalk(struct AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
 int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
 #define LC_MIRACLE_PICK_FLAGS3 0x400800  /* ai_FindPartnersRandomWalk flags of the miracle that takes an office (bits not read) */
 #define LC_MIRACLE_PICK_FLAGS4 0x300000  /* ai_FindPartnersRandomWalk flags of the miracle that raises a skill (bits not read) */
@@ -8128,7 +8128,7 @@ void ai_Miracle(AICHAR *me, int which)
 
         kinds.LowPart = 0x80;
         kinds.HighPart = 0;
-        if (ai_PickActionBuilding((struct AIPER *)me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
+        if (ai_PickActionBuilding(me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
         gm_FindById((int *)&bld, 0, 0, out);
         c = &ai_Chars[bld->owner];
@@ -8171,7 +8171,7 @@ void ai_Miracle(AICHAR *me, int which)
 
         kinds.LowPart = 0xa07c43b0;
         kinds.HighPart = 1;
-        if (ai_PickActionBuilding((struct AIPER *)me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
+        if (ai_PickActionBuilding(me, 2, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
         gm_FindById((int *)&bld, 0, 0, out);
         c = &ai_Chars[bld->owner];
@@ -8189,7 +8189,7 @@ void ai_Miracle(AICHAR *me, int which)
         AMTREC office;
 
         flags = LC_MIRACLE_PICK_FLAGS3;
-        if (ai_FindPartnersRandomWalk((struct AIPER *)me, 1, &flags, 0.0f, 100.0f, (unsigned short *)&id) == 0)
+        if (ai_FindPartnersRandomWalk(me, 1, &flags, 0.0f, 100.0f, (unsigned short *)&id) == 0)
             return;
         c = &ai_Chars[(unsigned short)id];
         if (amt_FindOffice((char *)c, &kind, &office) == 0)
@@ -8205,7 +8205,7 @@ void ai_Miracle(AICHAR *me, int which)
 
         flags = LC_MIRACLE_PICK_FLAGS4;
         gain = util_Random(0x15);
-        if (ai_FindPartnersRandomWalk((struct AIPER *)me, 1, &flags, 0.0f, 100.0f, (unsigned short *)&id) == 0)
+        if (ai_FindPartnersRandomWalk(me, 1, &flags, 0.0f, 100.0f, (unsigned short *)&id) == 0)
             return;
         c = &ai_Chars[(unsigned short)id];
         skill = -1;
@@ -8253,7 +8253,7 @@ void ai_Miracle(AICHAR *me, int which)
         }
         kinds.LowPart = 0xb07d43b4;
         kinds.HighPart = 1;
-        if (ai_PickActionBuilding((struct AIPER *)c, 4, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
+        if (ai_PickActionBuilding(c, 4, kinds.QuadPart, 0.0f, 100.0f, &out) == 0)
             return;
         price = (int)((float)(util_Random(5) + 3) * worth * 0.01f);
         gm_FindById((int *)&bld, 0, 0, out);
@@ -8440,7 +8440,7 @@ int ai_ChangeProfessionWindow(AICHAR *me, LCORDMSG *m)
     }
     return 0;
 }
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 (am.h, not included) */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 (am.h, not included) */
 extern struct AICHAR *ai_JudgeCatholic;    /* 0x6f1bfc (gv.h), the catholic judge */
 extern struct AICHAR *ai_JudgeProtestant;  /* 0x6f1c00 (gv.h), the protestant judge */
 #define LC_TRIAL_PICK_FLAGS 0xc00          /* the ai_PickPartnerRandomWalk flags of the trial's assessors (bits not read) */
@@ -8509,7 +8509,7 @@ int ai_OpenTrial(AICHAR *me, AICHAR *target, int n, int byFaith)
             }
         }
     }
-    if (ai_PickPartnerRandomWalk((struct AIPER *)me, LC_TRIAL_PICK_FLAGS, 4, seated, 0.0f, 100.0f,
+    if (ai_PickPartnerRandomWalk(me, LC_TRIAL_PICK_FLAGS, 4, seated, 0.0f, 100.0f,
                                  (unsigned short *)&picked) == 0)
         return 0x40;
     if (seated[2] == 0xffff)
@@ -8517,7 +8517,7 @@ int ai_OpenTrial(AICHAR *me, AICHAR *target, int n, int byFaith)
     else
         seated[3] = picked;
     msg.arg[3] = ai_Chars[(unsigned short)picked].netId;
-    if (ai_PickPartnerRandomWalk((struct AIPER *)me, LC_TRIAL_PICK_FLAGS, 4, seated, 0.0f, 100.0f,
+    if (ai_PickPartnerRandomWalk(me, LC_TRIAL_PICK_FLAGS, 4, seated, 0.0f, 100.0f,
                                  (unsigned short *)&picked) == 0)
         return 0x40;
     msg.arg[4] = ai_Chars[(unsigned short)picked].netId;

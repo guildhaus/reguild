@@ -160,7 +160,7 @@ extern float gm_DayEndHours[];
 extern const float gm_MoodRanges[476];
 extern const float gv_SaleShares[];
 
-struct AIPER; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIPT; struct G15PLANT; struct G11REC; struct AITIME;
+struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIPT; struct G15PLANT; struct G11REC; struct AITIME;
 
 
 #define U_I(a) (*(int *)(a))
@@ -4076,25 +4076,25 @@ void he_RunFeast(int ev)
 
         MEM_ZERO(&g, 4);
         n = 0;
-        g.leader = (struct AIC4 *)&ai_Chars[e->chr];
+        g.leader = (struct AICHAR *)&ai_Chars[e->chr];
         if (table != 0) {
             g.essen = table->festEssen;
             g.musik = table->festMusik;
             for (k = 0; k < 4; k++) {
                 if (table->festGuests[k] != -1 && (c = gm_FindChar(table->festGuests[k])) != 0)
-                    g.mem[n++].ch = (struct AIC4 *)c;
+                    g.mem[n++].ch = c;
             }
         } else {
             g.essen = e->festEssen;
             g.musik = e->festMusik;
             for (k = 0; k < 4; k++) {
                 if (table->festGuests[k] != -1 && (c = gm_FindChar(e->festGuests[k])) != 0)
-                    g.mem[n++].ch = (struct AIC4 *)c;
+                    g.mem[n++].ch = c;
             }
         }
         g.n = (unsigned char)n;
         if (ai_EvalFest(&g, 1) == 0
-            && (((AICHAR *)g.leader)->kind == 6 || ((AICHAR *)g.leader)->kind == 7)) {
+            && (g.leader->kind == 6 || g.leader->kind == 7)) {
             txt_Format(text, 0x1787, g.cost);
             for (k = 0; k < g.n; k++) {
                 verdict = util_Random(3) + 0x178f + g.mem[k].d * 3;   /* the guest's verdict text */
@@ -5777,7 +5777,7 @@ void he_AllocInsultNews(int ev)
 
 void gm_ChangeRelationToJobs(unsigned short a, int b);
 void ai_PlagueNews(void);
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, int lo, float hi, int *out);  /* 0x4a63f0, @original: amt_ai.c defines lo as a float; this unit passes it as an int, he_AllocBrawl its (null) home building through a register (push edi) */
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);  /* 0x4a63f0, @original: amt_ai.c defines lo as a float; this unit passes it as an int, he_AllocBrawl its (null) home building through a register (push edi) */
 void amt_ChangeDistrictOpinion();
 
 
@@ -5898,7 +5898,7 @@ void he_RunCharPayouts(int ev)
     for (i = 0; i < 0x300; i++) {
         c = &ai_Chars[i];
         if (c->id != 0xffff && c->health >= 2 && (c->kind == 6 || c->kind == 7 || c->kind == 5)) {
-            if (ai_PickActionBuilding((struct AIPER *)c, 4, kinds.q, 0, 100.0f, &at) != 0)
+            if (ai_PickActionBuilding(c, 4, kinds.q, 0, 100.0f, &at) != 0)
                 gm_FindById(&bld, 0, 0, at);
             if (c->kind == 6 || c->kind == 7)
                 he_ShowNews(c->netId, -1, news, 0x20, 0x601, (char *)0);
@@ -9914,15 +9914,15 @@ int he_FillWalkSlot(HEWALKSLOT *slot, int n, int m)
         kinds[0] = HE_WALK_PARTNERS2;
         kinds[1] = HE_WALK_PARTNERS1;
     }
-    if (ai_FindPartnersRandomWalk((struct AIPER *)&ai_Chars[ai_PlayerId], 1, &kinds[0], 0.0f, 100.0f, &id) == 0
-        && ai_FindPartnersRandomWalk((struct AIPER *)&ai_Chars[ai_PlayerId], 1, &kinds[1], 0.0f, 100.0f, &id) == 0)
+    if (ai_FindPartnersRandomWalk((struct AICHAR *)&ai_Chars[ai_PlayerId], 1, &kinds[0], 0.0f, 100.0f, &id) == 0
+        && ai_FindPartnersRandomWalk((struct AICHAR *)&ai_Chars[ai_PlayerId], 1, &kinds[1], 0.0f, 100.0f, &id) == 0)
         return -1;
     ch = &ai_Chars[id];
     mask.s.lo = 0xa7f4c3a0;
     mask.s.hi = 1;                      /* HE_WALK_BUILDINGS, set as two dwords */
     if (ch->bld2 != 0)
         tgt = ch->bld2->id;
-    else if (ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.q, 0, 100.0f, &tgt) == 0)
+    else if (ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.q, 0, 100.0f, &tgt) == 0)
         return -1;
     if (util_RandomF() > n * 0.1f) {
         int bld;
@@ -13583,7 +13583,7 @@ void he_AllocSpying(int ev)
     }
     gm_FindById(&tgt, 0, 0, s->target);
     if (tgt == 0) {
-        ai_PickActionBuilding((struct AIPER *)&ai_Chars[e->chr], 6, gypsyFilter, 0, 100.0f, &s->target);
+        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[e->chr], 6, gypsyFilter, 0, 100.0f, &s->target);
         gm_FindById(&tgt, 0, 0, s->target);
         if (tgt == 0) {
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -13796,7 +13796,7 @@ void he_AllocBrawl(AIJOB *e)
     else
         home = gm_BuildQuery(1, 4, victim->id);
     if (home == 0) {
-        if (ai_PickActionBuilding((struct AIPER *)&ai_Chars[e->chr], 6, gypsyFilter, (int)home, 100.0f, &at) != 0)
+        if (ai_PickActionBuilding((struct AICHAR *)&ai_Chars[e->chr], 6, gypsyFilter, (int)home, 100.0f, &at) != 0)
             home = gm_BuildQuery(1, 1, at);
     }
     br->meet = home->id;
@@ -18564,7 +18564,7 @@ void he_RunKillPlayer(AIJOB *ev)
         ev->stage = 6;
         return;
     case 4:
-        h = (AICHAR *)ai_FindSuccessor(p);
+        h = ai_FindSuccessor(p);
         if (h == 0) {
             ev->stage = 5;
             return;
@@ -19640,7 +19640,7 @@ void he_RunSecretRoom();
 void he_AllocEvent9a();
 void he_RunDomizilEvent();
 void he_AllocDomizilEvent();
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, int lo, float hi, int *out);   /* 0x4a63f0, @original: lo an int, as this unit declares it above */
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);   /* 0x4a63f0, @original: lo an int, as this unit declares it above */
 void he_FreeEventNow(int *r);          /* 0x56f040 */
 void he_AllocHaunting(int ev);          /* 0x56fc50 */
 void he_RunHaunting(int ev);          /* 0x56fda0 */
@@ -19671,12 +19671,12 @@ void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
 void ai_GraveyardMessage(int param_1, unsigned short *param_2, unsigned short *param_3, int param_4);                 /* 0x5a9a30 */
 void ai_GraveyardMessagePlain(int param_1, unsigned short *param_2, unsigned short *param_3);                 /* 0x5a9af0 */
-int ai_PickActionBuildings(struct AIPER *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
+int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */

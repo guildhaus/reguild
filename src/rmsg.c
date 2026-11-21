@@ -419,7 +419,7 @@ int ai_MsgPayPct1to3BuildingType11(G14MSG *m)
         return 0x400;
     mask.LowPart = 1 << 22;  /* 0x400000: the building kind bit of the filter */
     mask.HighPart = 0;
-    if (!ai_PickActionBuilding((AIPER *)c, 6, mask.QuadPart, 0, 100.0f, &o))
+    if (!ai_PickActionBuilding(c, 6, mask.QuadPart, 0, 100.0f, &o))
         return 0x400;
     if (!gm_FindById(&r, 0, 0, o))
         return 0x400;
@@ -487,7 +487,7 @@ int ai_MsgPartnerRelation4to10Type15(G14MSG *m)
     if (c == 0)
         return 1;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT;  /* the partner filter bits of ai_PassesPartnerFilter */
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 0.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 0.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     n = util_Random(4) * 2 + 4;
@@ -510,7 +510,7 @@ int ai_MsgPartnerRelation6to14Type16(G14MSG *m)
     if (c == 0)
         return 1;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT;
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 33.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 33.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     n = util_Random(5) * 2 + 6;
@@ -533,7 +533,7 @@ int ai_MsgPartnerRelation6to18Type17(G14MSG *m)
     if (c == 0)
         return 1;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT_MALE;
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 33.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 33.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     n = util_Random(7) * 2 + 6;
@@ -641,7 +641,7 @@ int ai_MsgPartnerRelationMinus6to14Type1a(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT;
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 0.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 0.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     n = util_Random(5) * 2 + 6;
@@ -666,7 +666,7 @@ int ai_MsgPartnerRelationMinus10to38Type1b(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT;
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 0.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 0.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     if (p == 0)
@@ -692,7 +692,7 @@ int ai_MsgPartnerRelationMinus4to18Type1c(G14MSG *m)
     if (ai_InventoryHas(c, 0x290))
         return 0x400;
     fl = AI_PARTNER_FILTER_MINOR_SERVANT;
-    if (!ai_FindPartnersRandomWalk((AIPER *)c, 1, &fl, 0.0f, 100.0f, &id))
+    if (!ai_FindPartnersRandomWalk(c, 1, &fl, 0.0f, 100.0f, &id))
         return 0x400;
     p = &ai_Chars[id];
     n = util_Random(8) * 2 + 4;

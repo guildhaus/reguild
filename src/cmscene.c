@@ -848,7 +848,7 @@ int cm_AskElectVote(unsigned char office, AICHAR *b, int *ids, int *click)
     }
     if (n == 0)
         return -1;
-    res = ai_TrustedOfFour(office, (struct AIPER *)b, ids, proposed);
+    res = ai_TrustedOfFour(office, b, ids, proposed);
     view = d2_OpenForm(0, 0, "cutscenes\\sitzungen");
     d2_PlaceMainWindow(view, 1);
     d2_SetForm(view, 0);
@@ -947,7 +947,7 @@ void cm_SessionAskAI(CMCUTINFO *r, CMSESSIONREQ *m)
             return;
         if (amt_CanTakeOffice((char *)c, m->kind) == 0)
             return;
-        res = ai_TrustedOfFour(m->office, (struct AIPER *)c, m->ids, &click);
+        res = ai_TrustedOfFour(m->office, c, m->ids, &click);
         r->session.click = click;
         r->session.answer = res;
         sprintf(r->text, ch_EmptyName);

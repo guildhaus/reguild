@@ -3,7 +3,7 @@ struct AITIME;
    ai_CalcMeisterDiebe, ai_MeisterTrade, ai_MeisterCollectTrans, ai_MeisterTradeFernEinkauf ...). Original file name
    unknown. Names are ours except the ones taken from the strings; the layouts only hold the fields the AI code
    touches. Unified in round 21 from the headers of the round 19 / 20 files and in round 22 (ai2) from the views of
-   the round 21 files (AIEN / AIS / AIENX / AISLX / AICHX / AIBLDX / AIJOBX / AIBTYPEX / AIOBJT / AIWATCHW / AIINFOW
+   the round 21 files (AIEN / AIS / AIENX / AISLX / AICHX / AIBLD / AIJOBX / AIBTYPEX / AIOBJT / AIWATCHW / AIINFOW
    are now fields of the types below). Where two files named the same field differently, an anonymous union keeps
    both names (one offset, one type). */
 #ifndef AI_H

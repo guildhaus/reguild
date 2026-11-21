@@ -4959,7 +4959,7 @@ struct AICHAR *gm_FindChar(int id)
 
 float gm_CharAge(unsigned short id)
 {
-    return (float)ai_Chars[id].w00a;
+    return (float)ai_Chars[id].age;
 }
 /* 0x505e60, the level of the character id: 0 for a free slot or a dead one, 1 when its job has no kind record
    (amt_GetKind), else the kind's level + 1; below the top level 10 and unless again is set, the level of its
@@ -5028,7 +5028,7 @@ void gm_BirthDate(AICHAR *c, GMDATE *out)
     clk = ai_Time;
     if (c->health == 0)
         clk.year = c->w028;
-    clk.year -= c->w00a;
+    clk.year -= c->age;
     gm_ClockToDate(&clk, (unsigned char *)&d);
     x = c->nameKey ^ d.year;
     d.month = (char)(((x >> 3) % 13 + clk.year % 11) % 12) + 1;
@@ -5176,7 +5176,7 @@ int gm_HasAdultRelative(AICHAR *c, int *n)
     q = &ch->relatives[3];
     for (k = 5; k != 0; k--, q++) {
         rel = gm_FindChar(*q);
-        if (rel != 0 && rel->health > 0 && (cnt++, 0xb < rel->w00a))
+        if (rel != 0 && rel->health > 0 && (cnt++, 0xb < rel->age))
             r = 1;
     }
     if (n != 0)
@@ -5552,7 +5552,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
         w028 = 0;
         cm_BeginFieldBlock((char *)c, c->netId);
         cm_AddFieldDelta(1, 1, (char *)&c->health - cm_FieldObject, &health);
-        cm_AddFieldDelta(2, 1, (char *)&c->w00a - cm_FieldObject, &age);
+        cm_AddFieldDelta(2, 1, (char *)&c->age - cm_FieldObject, &age);
         cm_AddFieldDelta(4, 1, (char *)&c->money - cm_FieldObject, &v194);
         cm_AddFieldDelta(4, 1, (char *)&c->spent198 - cm_FieldObject, &v198);
         cm_AddFieldDelta(4, 1, (char *)&c->wage - cm_FieldObject, &wage);
@@ -5778,7 +5778,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
     c->partyId = -1;
     c->mood3Rate = 1.0f;
     c->health = 100;
-    c->w00a = (unsigned short)a4;
+    c->age = (unsigned short)a4;
     c->officeKind = 0;
     c->title = (char)a7;
     c->ownName[0] = 0;
@@ -5786,7 +5786,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
     c->money = 0;
     c->level = 1;
     if (c->kind == 3 || c->kind == 0x10 || c->kind == 0x13) {
-        c->v1e8 = 1;
+        c->flags1e8 = 1;
         c->level = 2;
     }
     if (c->kind == 0x10) {
@@ -5819,7 +5819,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
             c->b217 = r < 6 ? 0xc2 : 0x3c;     /* as the original: overrides the two above */
             {
                 float life;
-                a = (float)c->w00a;
+                a = (float)c->age;
                 if (a > c->f020) {
                     l = c->f01c;
                     life = c->f014;
@@ -6076,7 +6076,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
         strncpy(c->first, txt_MaleFirstNames[util_Random(0xbf)], 0xf);
     else
         strncpy(c->first, txt_FemaleFirstNames[util_Random(0x70)], 0xf);
-    a = (float)c->w00a;
+    a = (float)c->age;
     if (a > c->f020) {
         l = c->f01c;
         life = c->f014;

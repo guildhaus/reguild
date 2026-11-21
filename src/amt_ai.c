@@ -33,7 +33,7 @@
 extern int ai_PlayerCountYear;
 G6CURSOR ai_NearRingCursorState = { ai_NearRing, 1 };  /* 0x60034c, the next entry of ai_NearRing and the stride */
 extern int ai_NumPlayerChars;
-extern AGCH ai_DuelOpponent;
+extern AICHAR ai_DuelOpponent;
 G9SHOT ai_CannonShot = {0};  /* 0x6f0698 */
 int ai_NearRingCount = 0;  /* 0x6f070c, the number of entries */
 extern int ai_WriteActionTable;
@@ -100,7 +100,7 @@ G6RING *ai_NextNearRingEntry(void)
         n = amt_GetColumnOfficesOwned((col), 6, list);                               \
         for (j = 0; j < n; j++) {                                                    \
             guard                                                                    \
-            if ((cond) && (o = (G5CH *)gm_FindChar(list[j].owner)) != 0 && o != p) { \
+            if ((cond) && (o = (AICHAR *)gm_FindChar(list[j].owner)) != 0 && o != p) { \
                 ai_NearRing[cnt].flags = (f);                                        \
                 ai_NearRing[cnt].dist = gm_Liking(o->id, p->id, 1);                  \
                 ai_NearRing[cnt].who = o;                                            \
@@ -120,13 +120,13 @@ G6RING *ai_NextNearRingEntry(void)
    a random stride from ai_RingStrides below the count, changed by one when it divides the count */
 void ai_FillNearRing(AICHAR *c)
 {
-    G5CH *p = (G5CH *)c;
+    AICHAR *p = c;
     AMTKIND kind;
     AMTREC list[6];
     int cnt, n, j, i, g, step;
     unsigned int f;
     unsigned char k;
-    G5CH *o;
+    AICHAR *o;
     const int *sz;
 
     cnt = 0;
@@ -197,10 +197,10 @@ void ai_FillNearRing(AICHAR *c)
 
         nrivals = amt_GetOfficeApplicants(p->appliedOffice, 6, rivals);
         for (j = 0; j < nrivals; j++) {
-            if ((G5CH *)rivals[j] == p)
+            if ((AICHAR *)rivals[j] == p)
                 continue;
             for (i = 0; i < cnt; i++) {
-                if ((G5CH *)rivals[j] == ai_NearRing[i].who) {
+                if ((AICHAR *)rivals[j] == ai_NearRing[i].who) {
                     ai_NearRing[i].flags |= 2;
                     break;
                 }
@@ -211,14 +211,14 @@ void ai_FillNearRing(AICHAR *c)
                 ai_NearRing[cnt].flags = 2;
                 /* the original reads o, the last holder found above, not the applicant */
                 ai_NearRing[cnt].dist = gm_Liking(o->id, p->id, 1);
-                ai_NearRing[cnt].who = (G5CH *)rivals[j];
+                ai_NearRing[cnt].who = (AICHAR *)rivals[j];
                 cnt++;
             }
         }
     }
     if (p->appliedOffice != 0 || p->kind == 5) {
         for (j = 0; j < 768; j++) {
-            o = &G5_CHARS[j];
+            o = &ai_Chars[j];
             f = 0;
             if (p == o || o->id == 0xffff)
                 continue;
@@ -343,7 +343,7 @@ int ai_GetDesireByName(char *s)
 }
 /* 0x4a49a0, eval callback: the action's weights against the moods */
 
-int ai_EvalMoodWeights(float *a, float *b, int i, AIPER *p, int f, void *x, void *y)
+int ai_EvalMoodWeights(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y)
 {
     G5ACT *act;
     float d1, d2;
@@ -381,7 +381,7 @@ int ai_EvalMoodWeights(float *a, float *b, int i, AIPER *p, int f, void *x, void
 }
 /* 0x4a4ae0, eval callback: only the weights of the current need count */
 
-int ai_EvalCurrentNeed(float *a, float *b, int i, AIPER *p, int f, void *x, void *y)
+int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y)
 {
     G5ACT *act;
     float d1;
@@ -417,7 +417,7 @@ int ai_EvalCurrentNeed(float *a, float *b, int i, AIPER *p, int f, void *x, void
 }
 /* 0x4a4c10, eval callback with the character's rank and the decision's value */
 
-int ai_EvalGuiltWeights(float *a, float *b, int i, AIPER *p, AIDEC *dec)
+int ai_EvalGuiltWeights(float *a, float *b, int i, AICHAR *p, AIDEC *dec)
 {
     G5ACT *act;
     float v, rank, d1, d2;
@@ -497,7 +497,7 @@ int ai_RepairCost(AIBLD *b, int k)
    vs ours +0x80); the fallback counter is ebx in the original, ecx in ours (0x4a50e0: + mov ebx,edi before
    the call / - mov ecx,edi after it) */
 
-int ai_PickBuildSite(AIPER *p, int name)
+int ai_PickBuildSite(AICHAR *p, int name)
 {
     int scene = d3_CurrentScene;
     char buf[64];
@@ -514,8 +514,8 @@ int ai_PickBuildSite(AIPER *p, int name)
         memset(list, 0, sizeof(list));
         n = ai_FindBauplaetze(buf, list);
         if (n != 0) {
-            if (p->bld2 != 0 && AI_BX(p->bld2)->object != 0 && util_Random(3) != 0) {
-                obj = AI_BX(p->bld2)->object;
+            if (p->bld2 != 0 && (p->bld2)->object != 0 && util_Random(3) != 0) {
+                obj = (p->bld2)->object;
                 d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)o);
                 r = 0;
                 best = 1e21f;
@@ -535,7 +535,7 @@ int ai_PickBuildSite(AIPER *p, int name)
                 d3if_SelectScene(scene, 1);
                 return r;
             }
-            if (ai_MarketBuilding != 0 && (obj = AI_BX(ai_MarketBuilding)->object) != 0) {
+            if (ai_MarketBuilding != 0 && (obj = (ai_MarketBuilding)->object) != 0) {
                 d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)o);
                 r = 0;
                 best = 1e21f;
@@ -572,7 +572,7 @@ int ai_PickBuildSite(AIPER *p, int name)
    the one it has (0x170) and pass 0x4f81c0 (2 or 4) for types 4..7; other types ask gm_MayTakeJob. With f, s2 becomes
    the plot (kind 0xc) that 0x4a4e70 finds */
 
-int ai_CanBuildType(int a, AIPER *p, int b, AIARG *s1, AIARG *s2, int f)
+int ai_CanBuildType(int a, AICHAR *p, int b, AIARG *s1, AIARG *s2, int f)
 {
     int q[0x88];
     AIBLD *h;
@@ -620,7 +620,7 @@ int ai_CanBuildType(int a, AIPER *p, int b, AIARG *s1, AIARG *s2, int f)
 /* 0x4a5320, amt_ExecGebaeudeBauen: builds the building type s1->unk04 (kind 5) on the plot s2->unk04 (kind 0xc):
    finds its model group "gb_<NAME>" (with a "_A" variant), message 0xd with the price, place and group path */
 
-int ai_ExecBuildBuilding(AIPER *p, AIARG *s1, AIARG *s2)
+int ai_ExecBuildBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIMSG m;
     char name[0x104];
@@ -737,7 +737,7 @@ int ai_FindGoodToMake(int *item, int *obj, AIBLD *b, int f)
    Domizil entry's mask shares no bit with the character's goodsMask and ai_InventoryHas refuses), else -1.
    st[0] counts the entries, st[1] the unusable, st[2] the usable ones */
 
-void ai_FindWantedItems(G5CH *p, int n, G9REC *rec, int *st)
+void ai_FindWantedItems(AICHAR *p, int n, G9REC *rec, int *st)
 {
     AIOBJ *e;
     G9REC *r;
@@ -787,7 +787,7 @@ void ai_FindWantedItems(G5CH *p, int n, G9REC *rec, int *st)
    ai_Partner first when ai_PassesPartnerFilter accepts it, then for each further slot the next near-ring entry whose
    rating lies in [b, f] and that ai_PassesPartnerFilter accepts with the chain so far; ids into id[] */
 
-int ai_PickPartnerChain(AIPER *p, int a, int *flags, float b, float f, unsigned short *id)
+int ai_PickPartnerChain(AICHAR *p, int a, int *flags, float b, float f, unsigned short *id)
 {
     unsigned int q[0x14];
     G6RING *e;
@@ -803,9 +803,9 @@ int ai_PickPartnerChain(AIPER *p, int a, int *flags, float b, float f, unsigned 
     if (ai_Partner != 0 && !(q[1] & 0x10000000)) {
         q[16] = 0;
         q[1] = flags[0];
-        if (ai_PassesPartnerFilter(p->id, AI_PARTNER->id, q, 0) != 0) {
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
             i = 1;
-            id[0] = AI_PARTNER->id;
+            id[0] = ai_Partner->id;
         }
     }
     for (; i < (unsigned int)a; i++) {
@@ -836,7 +836,7 @@ int ai_PickPartnerChain(AIPER *p, int a, int *flags, float b, float f, unsigned 
 /* 0x4a5a30: one partner for an action with the flags fl and the chain ids[n]: the leader ai_Partner when
    ai_PassesPartnerFilter accepts it, else the first near-ring entry rated in [lo, hi] that it accepts; into *id */
 
-int ai_PickPartnerInRange(AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
+int ai_PickPartnerInRange(AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
 {
     unsigned int q[0x14];
     G6RING *e;
@@ -852,8 +852,8 @@ int ai_PickPartnerInRange(AIPER *p, unsigned int fl, int n, unsigned short *ids,
     if (ai_Partner != 0 && !(q[1] & 0x10000000)) {
         q[16] = 0;
         q[1] = fl;
-        if (ai_PassesPartnerFilter(p->id, AI_PARTNER->id, q, 0) != 0) {
-            *id = AI_PARTNER->id;
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+            *id = ai_Partner->id;
             return 1;
         }
     }
@@ -874,7 +874,7 @@ int ai_PickPartnerInRange(AIPER *p, unsigned int fl, int n, unsigned short *ids,
 /* 0x4a5b50: as ai_PickPartnerChain, but the partners come from a random walk over all 768 characters (ai_CharWalkSteps);
    the rating window [lo, hi] (0x50c550) only counts when it is narrower than 0..100 */
 
-int ai_FindPartnersRandomWalk(AIPER *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id)
+int ai_FindPartnersRandomWalk(AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id)
 {
     unsigned int q[0x14];
     unsigned int i, c;
@@ -890,9 +890,9 @@ int ai_FindPartnersRandomWalk(AIPER *p, unsigned int a, int *flags, float lo, fl
     if (ai_Partner != 0) {
         q[16] = 0;
         q[1] = flags[0];
-        if (ai_PassesPartnerFilter(p->id, AI_PARTNER->id, q, 0) != 0) {
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
             i = 1;
-            id[0] = AI_PARTNER->id;
+            id[0] = ai_Partner->id;
         }
     }
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
@@ -927,7 +927,7 @@ int ai_FindPartnersRandomWalk(AIPER *p, unsigned int a, int *flags, float lo, fl
 /* 0x4a5d30: as ai_PickPartnerInRange, but the partner comes from a random walk over all 768 characters (as
    ai_FindPartnersRandomWalk) */
 
-int ai_PickPartnerRandomWalk(AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
+int ai_PickPartnerRandomWalk(AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
 {
     unsigned int q[0x14];
     unsigned int len, c;
@@ -943,8 +943,8 @@ int ai_PickPartnerRandomWalk(AIPER *p, unsigned int fl, int n, unsigned short *i
     if (ai_Partner != 0) {
         q[16] = 0;
         q[1] = fl;
-        if (ai_PassesPartnerFilter(p->id, AI_PARTNER->id, q, 0) != 0) {
-            *id = AI_PARTNER->id;
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+            *id = ai_Partner->id;
             return 1;
         }
     }
@@ -976,7 +976,7 @@ int ai_PickPartnerRandomWalk(AIPER *p, unsigned int fl, int n, unsigned short *i
    accepted by ai_PassesPartnerFilter, with a previous-office level (gm_CharPrevLevel) within 5 of p's and, when
    the window is narrower than 0..100, a liking in [lo, hi]; ids into out[], returns the number */
 
-unsigned int ai_FindCandidates(AIPER *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out)
+unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out)
 {
     unsigned int q[0x14];
     unsigned int cnt;
@@ -1027,7 +1027,7 @@ unsigned int ai_FindCandidates(AIPER *p, unsigned int n, unsigned int fl, float 
    far, with a liking in [lo, hi] when that window is narrower than 0..100 and an office level (officeKind,
    amt_GetKindLevel) at most d away from p's; ids into id[], returns the number found */
 
-unsigned int ai_PickPartnerChainLevel(AIPER *p, unsigned int a, unsigned int fl, float lo, float hi, int d, unsigned short *id)
+unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a, unsigned int fl, float lo, float hi, int d, unsigned short *id)
 {
     unsigned int q[0x14];
     unsigned int i, c;
@@ -1084,7 +1084,7 @@ unsigned int ai_PickPartnerChainLevel(AIPER *p, unsigned int a, unsigned int fl,
    reads it): the original compares both bounds against that float, which it never sets (lo and hi only switch the
    test on); its id into *out (-1 for none), returns 1 when found */
 
-int ai_PickActionBuilding(AIPER *p, int a, __int64 mask, float lo, float hi, int *out)
+int ai_PickActionBuilding(AICHAR *p, int a, __int64 mask, float lo, float hi, int *out)
 {
     unsigned int q[0x14];
     AIBLD *b;
@@ -1125,7 +1125,7 @@ int ai_PickActionBuilding(AIPER *p, int a, __int64 mask, float lo, float hi, int
    whose owner's liking equals the filter record's unset minimum (+0x44, both bounds, as in ai_PickActionBuilding);
    ids into out[], returns the number */
 
-int ai_PickActionBuildings(AIPER *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out)
+int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out)
 {
     unsigned int q[0x14];
     AIBLD *b;
@@ -1181,7 +1181,7 @@ int ai_BuildingAimPoints(AIBLD *x, float *a, AIBLD *y, float *b)
    ai_SolveCannonAim) within -15..45 degrees, its charge (gv_SalvoCharge) within the cannon's limit and its cost
    (gv_CannonCost) within a quarter of p's goods; the shot goes into ai_CannonShot, 1 when aimed */
 
-int ai_AimCannon(AIPER *p, AIBLD *b, AIBLD *t)
+int ai_AimCannon(AICHAR *p, AIBLD *b, AIBLD *t)
 {
     G9CANNON *cn;
     G9KIND kind;
@@ -1275,7 +1275,7 @@ int ai_AimCannon(AIPER *p, AIBLD *b, AIBLD *t)
    FPU (only z stored), i.e. case 2's product vector is not address-taken there (dead stores dropped) while
    cases 1/3 pass ... */
 
-int ai_FireCannon(AIPER *p, AIBLD *b)
+int ai_FireCannon(AICHAR *p, AIBLD *b)
 {
     float u, v;
     float v1[4], v2[4], v3[4], v4[4];

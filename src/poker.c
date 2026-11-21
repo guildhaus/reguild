@@ -35,7 +35,7 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 
 /* 0x4a7140, starts a game of character p in g: the stake from p's money, the deck, two random opponents */
 
-int ai_PokerStart(AIPER *p, G10GAME *g)
+int ai_PokerStart(AICHAR *p, G10GAME *g)
 {
     double d;
     int i, j, k;
@@ -392,7 +392,7 @@ void ai_PokerPayStakes(void)
             ai_PokerTable->pot += ai_PokerTable->stake2;
             if (i == 0) {
                 gm_PlayerFactor(ai_PokerTable->stake2, ai_OwnPlayer);
-                cm_SendMoveGoodsUnchecked(-1, ((AIPER *)ai_PokerTable->seat[0].who)->netId, ai_OwnPlayer,
+                cm_SendMoveGoodsUnchecked(-1, ((AICHAR *)ai_PokerTable->seat[0].who)->netId, ai_OwnPlayer,
                              ai_PokerTable->stake2);
             }
             ai_PokerTable->seat[i].bet += ai_PokerTable->stake2;
@@ -897,7 +897,7 @@ void ai_PokerExchange(int k)
 void ai_PokerAnte(void)
 {
     ai_PokerTable->pot = ai_PokerTable->stake2 * 3;
-    cm_SendMoveGoodsUnchecked(-1, ((AIPER *)ai_PokerTable->seat[0].who)->netId, ai_OwnPlayer, ai_PokerTable->stake2);
+    cm_SendMoveGoodsUnchecked(-1, ((AICHAR *)ai_PokerTable->seat[0].who)->netId, ai_OwnPlayer, ai_PokerTable->stake2);
 }
 /* 0x4a8690, ends the round: the winner into winner, the pot to the player if he won, all cards back */
 
@@ -907,7 +907,7 @@ void ai_PokerEndRound(void)
 
     ai_PokerTable->winner = (short)ai_PokerShowdown();
     if (ai_PokerTable->winner == 0)
-        cm_SendMoveGoodsUnchecked(((AIPER *)ai_PokerTable->seat[0].who)->netId, -1, ai_OwnPlayer,
+        cm_SendMoveGoodsUnchecked(((AICHAR *)ai_PokerTable->seat[0].who)->netId, -1, ai_OwnPlayer,
                      ai_PokerTable->pot);
     for (i = 0; i < 24; i++) {
         ai_PokerDeck[i].owner = 3;

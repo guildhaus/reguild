@@ -660,7 +660,7 @@ int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); 
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
@@ -957,7 +957,7 @@ char * he_NextEvent(void);
 struct AIBLD *gm_BuildQuery(int n, ...); int gm_BuildingValues(); int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj);
 void d2_RadioClear(int g); int d2_RadioGetSel(); int cm_SendMoveObject(int a, int b, int c); void cm_SendDeleteObject(int id);
 int d2_GetViewWin(); void d2_CreateScrollButtons(); void d2_ClearInput(void);
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
 void cm_SendMessage5b(int a, int b, int c);
 typedef struct LCKIDNAPEVENT {          /* the kidnap event 0x3c's words over AIJOB's union (he.c HEEV3C, same layout) */
     char pad00[0xac];

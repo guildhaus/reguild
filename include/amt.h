@@ -1,6 +1,6 @@
 struct AMTKIND;
 struct VFSFILE;
-struct AIPER;
+struct AICHAR;
 /* Declarations of amt.c (0x4e5cd0.., the offices; tags "amt_"). Names are ours. */
 #ifndef AMT_H
 #define AMT_H

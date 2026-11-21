@@ -489,7 +489,7 @@ int ai_PokerGame(void)
         kb_Down[0x1e] = 0;
         if (ai_OpenPokerWindow() == 0)
             return 0;
-        if (ai_PokerStart((struct AIPER *)((char *)&ai_Chars[ai_PlayerId]), (struct G10GAME *)&ai_PokerState) == 0) {
+        if (ai_PokerStart((struct AICHAR *)((char *)&ai_Chars[ai_PlayerId]), (struct G10GAME *)&ai_PokerState) == 0) {
             ai_ClosePokerWindow();
             return 0;
         }

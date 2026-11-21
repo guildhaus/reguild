@@ -1235,7 +1235,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
             ai_NextObjectId++;
             c->mood3Rate = 1.0f;
             c->health = 100;
-            c->w00a = 0x10;
+            c->age = 0x10;
             c->jobId = 0;
             c->officeKind = 0;
             c->title = (char)m->kind;

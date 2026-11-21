@@ -15,6 +15,16 @@ typedef struct AITASK {                 /* the character's scene character (ch.h
     struct D3SCENE *scene;              /* 0x88, the scene it stands in (CHARACTER.scene) */
 } AITASK;
 
+typedef struct AIARG {                  /* 0x18 bytes, what a decide callback fills for its execute callback (am.h; AICHAR.arg1 / arg2) */
+    unsigned char kind;                 /* 0x00 */
+    char pad01[3];
+    int ref;                            /* 0x04, what the kind refers to: a building id, an item, a character's netId (kind 7) */
+    unsigned int arg;                   /* 0x08, a second value of the kind: a count (kind 7 at 0x4a8ad0: 1..5), -1 = none */
+    int ref2;                           /* 0x0c, a second reference: a character's netId (the helper at 0x4ab3e0, the sender msg.fromId) */
+    int arg2;                           /* 0x10, a third value of the kind, passed on in the action's message (msg.arg[3] at 0x48ff40): a count (0x4a9030: graves), a step */
+    float fvalue;                       /* 0x14, a float value of the kind: the share 0..1 of a money amount to use (0x4a.. callbacks scale by it), a weight factor, a count */
+} AIARG;
+
 typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned short id;                  /* 0x000 */
     unsigned char kind;                 /* 0x002 */
@@ -22,7 +32,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned int netId;                /* 0x004 */
     unsigned char health;               /* 0x008, 100 at creation (ahm.c), > 0 = alive (0x4adff0 'lives') */
     unsigned char sex;                  /* 0x009, 0 / non-0 (reasoned: 0x4a8ad0 asks the partner search for flags 0xf00502 / 0xf00501 by it, the other sex) */
-    unsigned short w00a;                /* 0x00a, 0x10 for a raised dead person (gv_RaiseDead), a value of the order for the alchemist (ahm_CreateAlchemist) */
+    unsigned short age;                 /* 0x00a, the age in years (gm_CharAge; children above 11, below 40; 0x4fc7a0 projects
+                                           the age at death from it); 0x10 for a raised dead person (gv_RaiseDead) */
     unsigned char faith;                /* 0x00c, the faith, 0 / 1: the person tooltip names it (text 0x486 + it,
                                            ai_OpenCharTooltip), the baptism window sets it to 1 - it (text 0x197a + it),
                                            the church donation reaches the characters of the owner's faith (lc.c) */
@@ -82,9 +93,11 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     };
     float mood[14][3];                  /* 0x088, 13 triples (a, b, value), the current one at 0x124 */
     unsigned char sel;                  /* 0x130 */
-    char pad131;
+    unsigned char prev;                 /* 0x131, the previous action */
     unsigned char act;                  /* 0x132, the current action */
-    char pad133[0x31];
+    char pad133;
+    AIARG arg1;                         /* 0x134, what the current action's decide callback filled (am.h) */
+    AIARG arg2;                         /* 0x14c */
     unsigned char jobId;               /* 0x164 */
     unsigned char title;                /* 0x165, the title rank (f3gm.c 0x4fda70 / 0x504840) */
     unsigned char officeKind;           /* 0x166, the kind of the office held, 0 = none (amt.h AMTCHARVIEW.officeKind;
@@ -161,7 +174,7 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     int worth[4];                       /* 0x1d4, the character's worth (gm_GetWorth) of the last rounds, worth[3] the newest
                                            (gm_UpdateWorthMood shifts it); saved and loaded as one block (ls_WriteCharacters) */
     float mood3Rate;                    /* 0x1e4, scales the base growth of mood need 3; message 0x1a keeps it in sync */
-    int v1e8;                           /* 0x1e8, saved and loaded (ls_WriteCharacters); no reader read yet */
+    unsigned int flags1e8;              /* 0x1e8, flags (am.h); 1 at creation for the kinds 3 / 0x10 / 0x13 (gm_CreateCharacter) */
     unsigned int goodsMask;             /* 0x1ec, the classes of the Domizil goods in use (am.h / lc.c goodsMask: ai_UseGood sets them), cleared for every character at the round start (main_BeginPlayerRound) */
     int v1f0;                         /* 0x1f0, 0 at creation */
     union {

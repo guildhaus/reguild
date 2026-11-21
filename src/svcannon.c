@@ -376,7 +376,7 @@ int sb_UnloadSampleBank();
 int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
-struct G5CH; struct G9REC; struct VFSFILE;
+struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
@@ -1569,7 +1569,7 @@ int ai_CanSpyOn(AIBLD *rec)
 }
 
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 
 /* 0x581020, the cabinet's spy window for the building rec: the form "Locations\Domizil\kabinett_spy" (centred,
    fitted, the default pointer) with the title txt 0x4020 centred over the window's width in font 0x54, a slider of
@@ -1650,7 +1650,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     msg.arg[1] = rec->id;
                     mask.LowPart = 0x7b4c4a0;
                     mask.HighPart = 0;
-                    ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                    ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                     msg.arg[0] = pick;
                     id = cm_SendLongMessage((char *)&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
@@ -1774,7 +1774,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -1885,7 +1885,7 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -1994,7 +1994,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);

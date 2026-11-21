@@ -3874,7 +3874,7 @@ void ai_TutorialBezier(float *a, float *b, float *c, float *d, float t, float *o
     out[1] = u3 * a[1] + (u * b[1] + t * c[1]) * u * t * 3.0f + t3 * d[1];
 }
 
-struct G5CH; struct G9REC; struct VFSFILE;
+struct AICHAR; struct G9REC; struct VFSFILE;
 
 /* 0x57b8a0, moves the tutorial's position marker along the run's paths (TUTRUN.marks), once per frame: nothing
    while the tutorial is off or the run has no paths. `mode` is the caller's; the run's markPick (when set)
@@ -4553,7 +4553,7 @@ void ai_AlchemistWindow(unsigned char *obj)
     d2_Objs[t].w = d2_Wins[w.win2].w;
     d2_Objs[t].centred = 1;
     d2_SetObjFont(t, 0x53);
-    txt_Format(line, 0x403f, owner->w00a);
+    txt_Format(line, 0x403f, owner->age);
     t = d2_CreateWinText(0x12c, 0x64, line, w.win2);
     d2_SetObjFont(t, 0x53);
     d2_Objs[t].centred = 1;
@@ -4628,7 +4628,7 @@ void ai_AlchemistWindow(unsigned char *obj)
             d2_Objs[t].w = d2_Wins[w.win2].w;
             d2_Objs[t].centred = 1;
             d2_SetObjFont(t, 0x53);
-            txt_Format(line, 0x403f, owner->w00a);
+            txt_Format(line, 0x403f, owner->age);
             t = d2_CreateWinText(0x12c, 0x64, line, w.win2);
             d2_SetObjFont(t, 0x53);
             d2_Objs[t].centred = 1;
@@ -4981,7 +4981,7 @@ void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor();
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
@@ -5051,7 +5051,7 @@ typedef struct GVSEANCE {
 int sb_IsInit(); void d2_PlaceViewWindows(int view, unsigned char flags);
 int snd_VoiceVariant(); struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt); float gv_SeanceChance(); float util_RandomF();
 void cm_SendProofExecuted(int a, int b); 
-void ai_FindWantedItems(struct G5CH *p, int n, struct G9REC *rec, int *st);
+void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
 void gm_SendMoneyDelta(int a, int b);
 void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
 void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);

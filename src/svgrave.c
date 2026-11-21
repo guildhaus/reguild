@@ -373,7 +373,7 @@ int sb_UnloadSampleBank();
 int snd_LoadVoiceBank();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
-struct G5CH; struct G9REC; struct VFSFILE;
+struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
 char * ahm_OwnerChar();
@@ -475,7 +475,7 @@ void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor();
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
+int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
@@ -2267,7 +2267,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
         evt_Stop((EVTSCRIPT *)script);
 }
 
-void ai_FindWantedItems(struct G5CH *p, int n, struct G9REC *rec, int *st);
+void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
 
 /* 0x586200, the seance kind 2, the ghost's gift (rec = the graveyard, ev = the seance window's result): the dead
    person's voice and the ritual as in ai_SeanceGhost. The fifteen gifts 0x2b8 .. 0x2c6 are looked up in the
@@ -2310,7 +2310,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
     gifts[12].item = 0x2c0;
     gifts[13].item = 0x2be;
     gifts[14].item = 0x2b9;
-    ai_FindWantedItems((struct G5CH *)&ai_Chars[ai_PlayerId], 0xf, gifts, st);
+    ai_FindWantedItems((struct AICHAR *)&ai_Chars[ai_PlayerId], 0xf, gifts, st);
     if ((st[0] == 6 && st[2] == 0) || st[1] == 0xf) {
         mode = 1;
     } else {
@@ -2627,7 +2627,7 @@ void ai_GraveHauntContact(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -2735,7 +2735,7 @@ void ai_GraveAgeContact(AIBLD *rec)
                             mask.LowPart = 0x7b4c4a0;
                             mask.HighPart = 0;
                             pick = -1;
-                            ai_PickActionBuilding((struct AIPER *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                            ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                             msg.arg[0] = pick;
                         }
                         id = cm_SendLongMessage((char *)&msg);

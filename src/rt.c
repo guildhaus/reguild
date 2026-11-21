@@ -1064,7 +1064,7 @@ void rt_UnloadAtPoint(char *c, char pl)
             if (*t == 10)
                 st = gm_FindMarketObject(s[0]);
             else if (*t == 0x1c)
-                st = gm_Query(((AIBLD *)b)->objList, 2, 0, 0x1db, 6);
+                st = gm_Query(b->objList, 2, 0, 0x1db, 6);
             else
                 st = (char *)bi.pada8[3];
             g = gm_Query(((AIOBJ *)ci.pada8[3])->list, 1, 0, s[0]);
@@ -1075,11 +1075,11 @@ void rt_UnloadAtPoint(char *c, char pl)
                 n = gm_FreeCapacity(st, s[0], n);
                 if (n > 0) {
                     price = 0;
-                    if ((short)((AIBLD *)b)->owner != *o) {
+                    if ((short)(b)->owner != *o) {
                         if (*t == 10)
                             price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * 1.1f);
                         else
-                            price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * ((AIBLD *)b)->priceFactor);
+                            price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * b->priceFactor);
                     }
                     if (gm_CharCurrency(o, pl) >= price * n)
                         cm_SendExSellObject(((AIOBJ *)st)->objId, ((AIOBJ *)ci.pada8[3])->objId, s[0], n, pl, price);

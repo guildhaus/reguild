@@ -139,7 +139,7 @@ void hmt_ApplyRecord(AICHAR *p, int d, unsigned short k)
         if (e->kind == 0 && e->id <= 4) {
             v = util_Random(8) + 8;
             v = (unsigned char)min((float)(char)v, 252.0f - ((unsigned char *)p)[e->id + 0x80]);
-            cm_BeginFieldBlock((AIPER *)p, p->netId);
+            cm_BeginFieldBlock(p, p->netId);
             cm_AddFieldValues(1, 1, e->id + 0x80, &v);
             cm_SendFieldDeltas();
         } else if (e->kind == 1) {
@@ -736,7 +736,7 @@ void hmt_FillCouncils(void)
             title = titles[i];
             p = cm_GetSlotValue(h);
             cm_SendMoveGoods(p->netId, -1, ai_OwnPlayer, money);
-            cm_BeginFieldBlock((AIPER *)p, p->netId);
+            cm_BeginFieldBlock(p, p->netId);
             cm_AddFieldDelta(1, 1, 0xd, &rank);
             cm_AddFieldDelta(1, 1, 0x167, &title);
             cm_SendFieldDeltas();
@@ -808,7 +808,7 @@ void hmt_Create(int type, int unk, unsigned short v, AICHAR *c)
         c->flags1cc |= 0x2000;
         amt_SetPersonOwner(c->netId);
     }
-    c->w00a = v;
+    c->age = v;
     c->faith = 0;
     for (j = 0; j < 768; j++) {
         for (k = 0; k < 768; k++) {

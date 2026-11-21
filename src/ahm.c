@@ -826,7 +826,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     ai_NextObjectId++;
     c->mood3Rate = 1.0f;
     c->health = 100;
-    c->w00a = m->proto.plr.attr[4];
+    c->age = m->proto.plr.attr[4];
     c->jobId = 0x52;
     c->officeKind = 0;
     c->title = 0;

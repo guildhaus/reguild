@@ -3620,7 +3620,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                     sv_PopRequest = 1;
                     res = 0;
                     cm_FightSettled = 1;
-                    cm_FightLootValue = cm_LootCarts(cm_FightRecord, (AIBLD *)home, cm_FightAttacker, (int)cm_FightDefender, fv);
+                    cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, (int)cm_FightDefender, fv);
                 } else {
                     txt_Format(tc, 0x1143);
                     cm_MessageBox(tc, 0);
@@ -3649,7 +3649,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                 fv = (float)(st * 0.01);
                 res = 0;
                 cm_FightSettled = 1;
-                cm_FightLootValue = cm_LootCarts(cm_FightRecord, (AIBLD *)home, cm_FightAttacker, (int)cm_FightDefender, fv);
+                cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, (int)cm_FightDefender, fv);
             } else {
                 cm_FightLootValue = -1;
                 res = 1;

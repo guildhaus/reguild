@@ -130,9 +130,9 @@ int gm_ConvertMoney(int a, unsigned char k);   /* 0x5085b0, f3gm.c: a / the divi
 extern POKERGAME ai_PokerState;     /* 0x6f3500 */
 void ai_PokerSeatPanel(int seat, int mode, int *cards);  /* 0x5dadf0, builds the seat panel (the three-string message) */
 void ai_PokerWindow2(void);            /* 0x5db110, the second poker window "Locations\zigeuner\poker2" */
-struct AIPER;
+struct AICHAR;
 struct G10GAME;
-int ai_PokerStart(struct AIPER *p, struct G10GAME *g);  /* 0x4a7140, poker.c: starts a poker game of the player's character into g (ai_PokerState), 0 when it cannot */
+int ai_PokerStart(struct AICHAR *p, struct G10GAME *g);  /* 0x4a7140, poker.c: starts a poker game of the player's character into g (ai_PokerState), 0 when it cannot */
 unsigned short ai_PokerStep(void);          /* 0x4a74e0, poker.c: one step of the game, returns the button mask to show (0x10 / 0x21 / 9 / 0x29 / 0x1c) or 0 */
 void ai_PokerExchange(int k);           /* 0x4a8630, poker.c: the player exchanges card k */
 int gm_PlayerFactor(int a, unsigned char k);   /* 0x5085f0, f3gm.c: a * the factor of the player slot k */
@@ -166,7 +166,7 @@ int cm_SendRelations(int a, int b, int c, int d);   /* 0x4c4b00, cm.c: message 0
 float gm_Mix(int a, int b, int c);                   /* 0x504e20, f3gm.c: the mix of two relation values */
 int sv_MessageBoxGreen(int a, int b, unsigned flags); /* 0x521410, sv.c: the green message box with the title text a and the text b */
 struct AIBLD;
-struct AIPER;
+struct AICHAR;
 int gm_BathObjectCount(char *b);             /* 0x50cf60, f3gm.c: 1 + the kitchen / bath objects of the building (as poker.h) */
 void gm_SendMoneyDelta(int a, int b);                /* 0x50cc50, f3gm.c: forwards to cm_SendMoneyDelta */
 int amt_GetKindLevel(int k);                         /* 0x4e7c40, amt.c: the level of the office kind k */

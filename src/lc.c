@@ -1076,7 +1076,7 @@ int ai_ProductionWindow(AIBLD *bld)
     return 0;
 }
 
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(int obj); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 
@@ -12546,7 +12546,7 @@ void ai_TrainingContact(AIBLD *building, AIOBJ *room)
     } while (sv_RunFrame(ai_TrainingContact, 0x67fff) != 0);
 }
 
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int gv_Accuse();
 
 #define LC_KIDNAP_PLACES ((1 << 5) | (1 << 7) | (1 << 15) | (1 << 22))  /* 0x4080a0, the building kinds a kidnapping may take the victim to (the ai_PickActionBuilding mask) */
 /* 0x5a5120, the thieves' guild kidnapping window "locations\diebesgilde\diebesgilde_entfuehrung" for the character
@@ -12587,7 +12587,7 @@ int ai_KidnapWindow(AICHAR *victim)
 
                 mask.LowPart = LC_KIDNAP_PLACES;
                 mask.HighPart = 0;
-                if (ai_PickActionBuilding((struct AIPER *)victim, 0, mask.QuadPart, 0, 100.0f, &picked) == 0)
+                if (ai_PickActionBuilding(victim, 0, mask.QuadPart, 0, 100.0f, &picked) == 0)
                     return 0;
                 bld = gm_BuildQuery(1, 1, picked);
             }
@@ -13549,9 +13549,9 @@ typedef struct LCFAMILYBOX {        /* 0x10 bytes, one box of the family tree wi
 } LCFAMILYBOX;
 int gm_GetGoodsValue();
 void ai_ShowMissions(int owner);
-struct AIPER;
+struct AICHAR;
 int gm_CharLevel(unsigned short id, int again); int ord_DispatchOrder();
-unsigned int ai_FindCandidates(struct AIPER *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
+unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
 void d2_EnableViewObjects(); void gm_AddTime(struct AITIME *c, int hours, int mins, int secs); 
 int cm_GetSlotState();
 typedef struct LCORDMSG {          /* the message record of an order (gv.h ORDMSG, which this unit cannot include): the
@@ -13584,10 +13584,10 @@ int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
 int gv_SetTableRecord(struct AICHAR *c, int i, int v);   /* 0x4f2750 */
 int amt_GetKind(); int amt_FindOffice(); int amt_SendOfficeCandidates(); int ai_RelationGain();
 int amt_SendOfficeSwap();
-int ai_FindPartnersRandomWalk(struct AIPER *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
+int ai_FindPartnersRandomWalk(struct AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
 int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e);  /* 0x4e6680 (amt.h) */
 void cm_SendSetJob(int id, int job);  /* 0x4c59b0 (cm.h, not included) */
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 (am.h, not included) */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 (am.h, not included) */
 extern struct AICHAR *ai_JudgeCatholic;    /* 0x6f1bfc (gv.h), the catholic judge */
 extern struct AICHAR *ai_JudgeProtestant;  /* 0x6f1c00 (gv.h), the protestant judge */
 int amt_SendOfficeMessage(unsigned char a, char *b, char *c, int d, unsigned char e); int gm_TitleNumber();

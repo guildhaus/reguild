@@ -79,7 +79,7 @@ extern float gm_DayEndHours[];
 extern const float gm_MoodRanges[476];
 extern const float gv_SaleShares[];
 
-struct AIPER; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIPT; struct G15PLANT; struct G11REC; struct AITIME;
+struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIPT; struct G15PLANT; struct G11REC; struct AITIME;
 
 
 #define U_I(a) (*(int *)(a))
@@ -1144,7 +1144,7 @@ void amt_ChangeDistrictOpinion();
 int ai_DrawAmountRow();
 void gm_ChangeRelationToJobs(unsigned short a, int b);
 void ai_PlagueNews(void);
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out);
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out);
 void amt_ChangeDistrictOpinion();
 int sv_IsAtDoor();
 void ai_PlagueMessage(struct G8CHARREC *c, void *bld);
@@ -3758,7 +3758,7 @@ taken:
     he_FreeEvent((int *)e);
 }
 
-int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out);   /* 0x4a63f0 (amt_ai.h) */
+int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out);   /* 0x4a63f0 (amt_ai.h) */
 void he_FreeEventNow(int *r);          /* 0x56f040 */
 
 /* 0x56e5b0, the run handler of the secret room event 0x99 (alloc he_AllocSecretRoom): the stages -1 / -2 remove the
@@ -3958,7 +3958,7 @@ void he_RunSecretRoom(int ev)
         } else {
             kinds.s.lo = 0xa7f4c7a0;
             kinds.s.hi = 1;
-            ai_PickActionBuilding((struct AIPER *)per, 0, kinds.q, 0.0f, 100.0f, &s->target);
+            ai_PickActionBuilding(per, 0, kinds.q, 0.0f, 100.0f, &s->target);
             s->spyEvent = -1;
             s->hunting = 0;
             cm_SendChrStop(agent->netId);
@@ -4706,7 +4706,7 @@ void he_RunDecay(int ev)
     }
 }
 
-int ai_PickActionBuildings(struct AIPER *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
+int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
 
 /* 0x5706e0, the alloc of the plunder event 0x8a: paused -> nothing; the buildings the character (chr) can plunder are
    picked (ai_PickActionBuildings, mask 4, at most 5, into bld) -> none -> free; the picked slot of the found index
@@ -4722,7 +4722,7 @@ void he_AllocPlunder(int ev)
         return;
     mask.LowPart = 4;
     mask.HighPart = 0;
-    r = ai_PickActionBuildings((struct AIPER *)((unsigned)&ai_Chars + e->chr * 0x21c), 5, mask.QuadPart, 0, 0, 5, p->bld);
+    r = ai_PickActionBuildings((struct AICHAR *)((unsigned)&ai_Chars + e->chr * 0x21c), 5, mask.QuadPart, 0, 0, 5, p->bld);
     if (r == 0) {
         he_FreeEvent((int *)ev);
         return;
@@ -4735,7 +4735,7 @@ void he_AllocPlunder(int ev)
     e->exSlot = cm_SendExSetHE(0, ev);
 }
 
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 
@@ -4795,7 +4795,7 @@ void he_RunPlunder(int ev)
             gm_AddTime(&e->end, 0, 10, 0);
             return;
         }
-        if (ai_PickPartnerRandomWalk((struct AIPER *)&ai_Chars[e->chr], PLUNDER_PARTNER_FLAGS, 4, p->victims, 0, 100.0f, &idx) != 0) {
+        if (ai_PickPartnerRandomWalk((struct AICHAR *)&ai_Chars[e->chr], PLUNDER_PARTNER_FLAGS, 4, p->victims, 0, 100.0f, &idx) != 0) {
             price = gv_ProtectionPrice((unsigned short *)&ai_Chars[idx]);
             worth = gm_ConvertMoney(gm_GetWorth(idx), ai_OwnPlayer);
             p->victims[p->at] = idx;
@@ -4946,7 +4946,7 @@ void he_RunPlunderOffer(int ev)
     }
 }
 
-int ai_PickPartnerRandomWalk(struct AIPER *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
+int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */

@@ -821,7 +821,7 @@ void gm_ShiftLoyalty(void)
         for (i = 0; i < 0x300; i++) {
             c = &ai_Chars[i];
             if (c->id != 0xffff && c->kind < 10 && c->kind > 0 && c->kind != 6 && c->kind != 7 && c->kind != 8
-                && c->w00a >= 12 && util_RandomF() * 0.2f > c->loyalty) {
+                && c->age >= 12 && util_RandomF() * 0.2f > c->loyalty) {
                 flip = c->faith == 0;
                 cm_SendFloatDelta(c->netId, 0x1d0, util_RandomF() * 0.5f + 0.25f);
                 gm_NetMsgCount++;
@@ -849,7 +849,7 @@ void gm_ShiftLoyalty(void)
     for (i = 0; i < 0x300; i++) {
         c = &ai_Chars[i];
         if (c->id != 0xffff && c->kind < 10 && c->kind > 0 && c->kind != 6 && c->kind != 7 && c->kind != 8
-            && c->w00a >= 12 && c->faith != faith) {
+            && c->age >= 12 && c->faith != faith) {
             t = -1;
             if (c->bld2 != 0)
                 t = c->bld2->id;
@@ -939,7 +939,7 @@ unsigned *gm_CharNameRecord(int id)
     p = 0;
     i = 0;
     k = ai_Chars[id].jobId;
-    if (k != 0 || !((float)ai_Chars[id].w00a < ai_Chars[id].f020)) {
+    if (k != 0 || !((float)ai_Chars[id].age < ai_Chars[id].f020)) {
         if (ai_Chars[id].ownName[0] != 0 && (v = ai_Chars[id].picture) != -1) {
             gm_OwnNameHeadLast = (gm_OwnNameHeadLast + 1) % 8;
             strcpy(((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast].name, ai_Chars[id].ownName);
@@ -1478,7 +1478,7 @@ float gm_DailyCharacterStep(AICHAR *id)
         }
         return t;
     }
-    fl = (float)c->w00a;
+    fl = (float)c->age;
     h = fl;
     if (h <= c->f020) {
         t = ((c->f01c - c->f010) / c->f020) * h + c->f010;
@@ -1524,7 +1524,7 @@ float gm_DailyCharacterStep(AICHAR *id)
         mst = c->bld;
         if (mst != 0 && mst->owner != 0xffff && (ai_Chars[mst->owner].kind == 6 || ai_Chars[mst->owner].kind == 7)) {
             if (c->flags1cc & 4) {
-                txt_Format(buf, 0x4080, c->first, c->family, c->w00a);
+                txt_Format(buf, 0x4080, c->first, c->family, c->age);
                 he_ShowNews(ai_Chars[c->bld->owner].netId, -1, buf, 0, 0x60a, "_NACHRICHTEN_DOMIZIL_05");
             } else {
                 txt_Format(buf, 0x1c51, mst, c->id);
@@ -1539,7 +1539,7 @@ float gm_DailyCharacterStep(AICHAR *id)
         d = (double)fl;
     else
         d = 0.0;
-    age = c->w00a + 1;
+    age = c->age + 1;
     cm_BeginFieldBlock((char *)c, c->netId);
     cm_AddFieldDelta(2, 1, 10, &age);
     cm_SendFieldDeltas();
@@ -1604,10 +1604,10 @@ int gm_ExpectedDeathAge(AICHAR *c)
         v = v - k + t;
         n++;
     }
-    r = ch->f020 - (float)ch->w00a;
+    r = ch->f020 - (float)ch->age;
     if (!(r > 0.0f))
         r = 0.0f;
-    return (int)((float)(ch->w00a + n) + r);
+    return (int)((float)(ch->age + n) + r);
 }
 /* 0x4fc820, the life of the character c now (-1 for a free slot or a dead one): f01c once its age w00a is
    above f020, before that the line from f010 to f01c over the years up to f020; plus v024, not below 0 */
@@ -1621,7 +1621,7 @@ float gm_CharacterHealth(AICHAR *c)
         return -1.0f;
     if (ch->health == 0)
         return -1.0f;
-    a = (float)ch->w00a;
+    a = (float)ch->age;
     if (a <= ch->f020)
         f = ((ch->f01c - ch->f010) / ch->f020) * a + ch->f010;
     else
@@ -1641,7 +1641,7 @@ float gm_CharacterBaseHealth(AICHAR *c)
         return -1.0f;
     if (ch->health == 0)
         return -1.0f;
-    a = (float)ch->w00a;
+    a = (float)ch->age;
     if (a <= ch->f020)
         return ((ch->f01c - ch->f010) / ch->f020) * a + ch->f010;
     return ch->f01c;
@@ -1692,7 +1692,7 @@ void gm_DailyCharacters(void)
         }
         if ((c->kind < 10 || c->kind == 0x14) && c->health != 0) {
             gm_DailyCharacterStep(c);
-            v = c->w00a;
+            v = c->age;
             if ((float)v == c->f020 - 1.0f && c->scene != 0) {
                 if (c->sex == 0)
                     cm_SendCharModel(c->netId, "stallbursche_MANN");
@@ -1721,7 +1721,7 @@ float gm_AddHealth(unsigned short id, int d)
     if (c->id == 0xffff || c->kind == 10 || c->health == 0)
         return -1.0f;
     if (c->kind != 0x14) {
-        a = (float)c->w00a;
+        a = (float)c->age;
         if (a <= c->f020)
             f = ((c->f01c - c->f010) / c->f020) * a + c->f010;
         else
@@ -1871,7 +1871,7 @@ void gm_PartnerStep(AICHAR *c)
             return;
         }
     }
-    if (o == 0 || o->health == 0 || c->w00a > 0x26)
+    if (o == 0 || o->health == 0 || c->age > 0x26)
         return;
     n = 0;
     for (k = 3; k < 8; k++) {
@@ -1961,7 +1961,7 @@ void gm_PopulationStep(void)
     for (i = 0; i < 0x300; i++) {
         c = &ai_Chars[i];
         if (c->id != 0xffff && c->health != 0 && c->kind == 3
-            && (c->w00a >= util_Random(4) + 0x2c || !((float)n < 652.80005f))
+            && (c->age >= util_Random(4) + 0x2c || !((float)n < 652.80005f))
             && c->officeKind == 0 && c->appliedOffice == 0 && c->secondOffice == 0 && gm_IsNoPlayerKin(c) != 0) {
             gm_AddHealth(c->id, (int)-(c->f01c + 1.0f));
             n--;
@@ -2060,7 +2060,7 @@ unsigned short gm_CreateRandomChild(int age)
         a = util_Random(range);
         if (ai_Chars[a].id == 0xffff)
             range = range * 3 / 4;
-        else if (ai_Chars[a].kind < 6 && !((float)ai_Chars[a].w00a < ai_Chars[a].f020) && ai_Chars[a].health != 0) {
+        else if (ai_Chars[a].kind < 6 && !((float)ai_Chars[a].age < ai_Chars[a].f020) && ai_Chars[a].health != 0) {
             n = 0;
             for (k = 3; k < 8; k++)
                 if (ai_Chars[a].relatives[k] != -1)
@@ -2076,7 +2076,7 @@ unsigned short gm_CreateRandomChild(int age)
         b = util_Random(range);
         if (ai_Chars[b].id == 0xffff)
             range = range * 3 / 4;
-        else if (ai_Chars[b].kind < 6 && !((float)ai_Chars[b].w00a < ai_Chars[b].f020) && ai_Chars[b].health != 0) {
+        else if (ai_Chars[b].kind < 6 && !((float)ai_Chars[b].age < ai_Chars[b].f020) && ai_Chars[b].health != 0) {
             n = 0;
             for (k = 3; k < 8; k++)
                 if (ai_Chars[b].relatives[k] != -1)
@@ -2094,7 +2094,7 @@ unsigned short gm_CreateRandomChild(int age)
 
 int gm_IsUnderAge(unsigned short id)
 {
-    if ((float)ai_Chars[id].w00a < ai_Chars[id].f020)
+    if ((float)ai_Chars[id].age < ai_Chars[id].f020)
         return 1;
     return 0;
 }
@@ -2204,7 +2204,7 @@ AICHAR *gm_FindApplicant(AIBLD *o, unsigned title, unsigned job)
         for (i = 0; i < 0x300; i++) {
             if (ai_Chars[i].id != 0xffff && (ai_Chars[i].flags1c8 & 0x2000) == 0 && ai_Chars[i].kind <= 1
                 && ((unsigned char)ai_Chars[i].title == title || ai_Chars[i].title == 0) && ai_Chars[i].bld == 0
-                && (float)ai_Chars[i].w00a >= ai_Chars[i].f020 && ai_Chars[i].jobId == job) {
+                && (float)ai_Chars[i].age >= ai_Chars[i].f020 && ai_Chars[i].jobId == job) {
                 sex = gm_SexForTitle(title);
                 if ((sex == 2 || ai_Chars[i].sex == sex)
                     && (o->owner == 0xffff || gm_Opinion(o->owner, i) > -0x1e))
