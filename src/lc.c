@@ -159,7 +159,7 @@ extern unsigned char kb_Last;
 extern struct AIBTYPE *ai_BTypes;
 extern float gm_DayStartHours[];
 extern float gm_DayEndHours[];
-extern char * sv_SelectedObject;
+extern struct AIBLD *sv_SelectedObject;
 extern int di_Absolute;
 extern int di_MaxX;
 extern int di_MaxY;
@@ -271,7 +271,7 @@ extern char * ai_PickedObject;
 
 extern struct AIBLD *ai_MarketBuilding;
 extern int ai_PermsDirty;
-extern char * sv_SelectedObject;
+extern struct AIBLD *sv_SelectedObject;
 
 
 
@@ -3140,7 +3140,7 @@ void ai_HandleMapKey(void)
             r = gm_IsHomeType(p);
             if (r == 0 || p->type != 'G') {
                 if (ai_FallbackBuilding == 0 && ai_PlayerBuilding == 0) {
-                    sv_FlyCameraToObject((int)p);
+                    sv_FlyCameraToObject(p);
                     return;
                 }
                 sv_SelectPanelObject(p, p->mainRoom, (void *)(unsigned)&ch_EmptyName);
@@ -3242,7 +3242,7 @@ void ai_GameFrame(void)
 {
     AICHARREC *c;
     AIBLD *b;
-    unsigned char *it;
+    AIBLD *it;
     EVTSCRIPT *e;
     unsigned int perm;
     int season;
@@ -3277,7 +3277,7 @@ void ai_GameFrame(void)
         }
     }
     if ((ai_GameFlags & 1) && main_Round == 1) {
-        for (it = (unsigned char *)gm_BuildQuery(1, 4, ai_PlayerId); it != 0; it = (unsigned char *)gm_BuildNext()) {
+        for (it = gm_BuildQuery(1, 4, ai_PlayerId); it != 0; it = gm_BuildNext()) {
             if ((int)it != ((AICHARREC *)ai_Chars)[ai_PlayerId].bld2) {
                 sv_CameraToObject(it);
                 break;
@@ -3331,9 +3331,9 @@ void ai_GameFrame(void)
         if (d2_ClickedId != -1 && d2_PointerObj == sv_PanelBuildBtn)
             ai_ConstructionWindow();
         if (sv_SelectedObject != 0) {
-            perm = gm_PermissionBits(ai_PlayerId, (AIBLD *)sv_SelectedObject, 0, 0);
-            b = (AIBLD *)sv_SelectedObject;
-            if (b != 0 && sv_HoverBuilding == (int)b &&
+            perm = gm_PermissionBits(ai_PlayerId, sv_SelectedObject, 0, 0);
+            b = sv_SelectedObject;
+            if (b != 0 && sv_HoverBuilding == b &&
                 (dm_L.lextra != 0 || (dm_L.lup != 0 && d2_PointerLook == 0xb)) && (perm & 1) != 0 &&
                 (b->flags5a & 1) == 0) {
                 if (gm_IsHomeType(b) != 0 && ai_ScriptQuery(0x1b, b, 0, 0) == 1)
@@ -3359,12 +3359,12 @@ void ai_GameFrame(void)
                     } else if (gm_IsType10(b) == 0) {
                         ai_EnterBuilding(b, b->mainRoom);
                     } else if (gm_IsType10(b) != 0) {
-                        sv_FlyCameraToObject((int)b);
+                        sv_FlyCameraToObject(b);
                         sv_QuickJump.panelFlag = 0;
                     }
                 }
             } else {
-                sv_FlyCameraToObject((int)b);
+                sv_FlyCameraToObject(b);
                 sv_QuickJump.panelFlag = 0;
             }
         }

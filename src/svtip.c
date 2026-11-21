@@ -797,7 +797,7 @@ int ai_OpenItemTooltip(int idx)
     if (bld == 0) {
         bld = ai_FallbackBuilding;
         if (bld == 0)
-            bld = (AIBLD *)sv_SelectedObject;
+            bld = sv_SelectedObject;
     }
     d2_SetForm(view, 4);
     if (bld == 0) {
@@ -945,7 +945,7 @@ int ai_OpenUpgradeTooltip(int idx)
     if (bld == 0) {
         bld = ai_FallbackBuilding;
         if (bld == 0) {
-            bld = (AIBLD *)sv_SelectedObject;
+            bld = sv_SelectedObject;
             if (bld == 0)
                 return view;
         }
@@ -1293,7 +1293,7 @@ void ai_SetBookmark(int idx)
             else
                 o = (AIOBJ *)gm_Query((void *)a->objList, 2, 6, 0, 0xfd);
         } else {
-            a = (AIBLD *)sv_SelectedObject;
+            a = sv_SelectedObject;
             if (a == 0)
                 a = ai_MarketBuilding;
             o = 0;

@@ -431,7 +431,7 @@ short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, 
 unsigned short * gm_QueryNext(void);  /* 0x4ffcc0 */
 int gm_BuildingMainObject(unsigned char *b);  /* 0x501b50 */
 void gm_FreeObject(int o);  /* 0x5034b0 */
-extern char *sv_SelectedObject;  /* 0x75ec60 */
+extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 typedef struct G17B16 { char b[16]; } G17B16;
 
 int amt_AcceptApplication();  /* 0x4e6430 */

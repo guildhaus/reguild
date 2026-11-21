@@ -5075,7 +5075,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
     b = gm_BuildQuery(1, 1, m->destroy.bldId);
     if (b == 0)
         return 1;
-    if ((char *)b == sv_SelectedObject)
+    if (b == sv_SelectedObject)
         sv_ResetSelection();
     for (o = (AIOBJ *)gm_Query(0, 2, 7, 4, 0x1d); o != 0; o = (AIOBJ *)gm_QueryNext()) {
         if (o->bldId == b->id)
@@ -6891,7 +6891,7 @@ typedef struct CMGUARDREC {
 } CMGUARDREC;
 
 extern unsigned int ai_MissionSeed;
-extern char * sv_SelectedObject;
+extern struct AIBLD *sv_SelectedObject;
 extern char cm_ChatLog[2048];
 extern int cm_SaveAcks[8][2];
 extern int ai_Evidence[0x800][2];
@@ -6987,7 +6987,7 @@ int cm_NoticeCount = 0;  /* 0x6f0cd4 */
 int cm_LobbyChatCount = 0;  /* 0x6f0cd8, the lines in the ring (at most 15) */
 int cm_LobbyChatPos = 0;  /* 0x6f0cdc, the index of the line the chat window reads next (cm_LobbyChatFirst / 0x4cd4c0) */
 extern unsigned int ai_MissionSeed;
-extern char * sv_SelectedObject;
+extern struct AIBLD *sv_SelectedObject;
 extern char cm_ChatLog[2048];
 extern int cm_SaveAcks[8][2];
 /* ai_Unk770d8c: view of ai_Chars (tools/data_views.py) */
