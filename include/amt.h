@@ -86,16 +86,6 @@ typedef struct AMTGOODS {              /* a 0x80-byte goods record (gm_FindGoods
     float price;                        /* 0x38, the price 0x4ffa10 computes */
     char pad03c[0x44];
 } AMTGOODS;
-#pragma pack(push, 1)
-typedef struct AMTBLDVIEW {             /* a building record as gm_BuildQuery (f3gm.c 0x501190) returns it: the AIBLD of ai.h, which amt.c includes now: the view can give way to AIBLD) */
-    unsigned char type;                 /* 0x00, index into ai_BTypes */
-    int id;                             /* 0x01, the building's own id (AIBLD.id) */
-    char pad005[0x22];
-    unsigned short owner;               /* 0x27, the character id (AIBLD.owner) */
-    char pad029[0x31];
-    unsigned char flags5a;              /* 0x5a, bit 0 = flagged (AIBLD.flags5a) */
-} AMTBLDVIEW;
-#pragma pack(pop)
 typedef union AMTFLOATBITS { float f; int i; } AMTFLOATBITS;    /* a float read as its bit pattern */
 #define AMT_BITS(p) (((AMTFLOATBITS *)(p))->i)
 typedef struct AMTKINDF {               /* an AMTKIND's +0x14 dword read as a float */

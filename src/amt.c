@@ -1812,13 +1812,13 @@ void amt_SendOfficeLost(unsigned short *p, int v)
    assignment in the condition. Headers sample: insensitive. (tiebreak: insensitive) prior: the whole original was read against the source
    and the statement sequence matched (the two build queries with the owner / 0xffff / player / flags5a
    guard, total and the 16-candidate dedupe, the rank ranges, the 36..0 scan with the rep movs into a / b,
-   the best loop, the send arms); readability done (AMTBLDVIEW pack(1) in amt.h). */
+   the best loop, the send arms); readability done (the building record AIBLD). */
 
 void amt_ElectDeputies(void)
 {
     AMTREC a, b;
     char *cand[16];
-    char *it, *cur, *pick, *cp, *ch;
+    AIBLD *it; char *cur, *pick, *cp, *ch;
     int n, total, i, j, left, best, s, v;
     unsigned short id;
     unsigned char k;
@@ -1831,10 +1831,10 @@ void amt_ElectDeputies(void)
     j = 0;
     n = 0;
     total = 0;
-    it = (char *)gm_BuildQuery(1, 5, 4);
+    it = gm_BuildQuery(1, 5, 4);
     while (it != 0 && n < 16) {
-        id = ((AMTBLDVIEW *)it)->owner;
-        if (id != 0xffff && id != ai_PlayerChar->id && (((AMTBLDVIEW *)it)->flags5a & 1) == 0) {
+        id = it->owner;
+        if (id != 0xffff && id != ai_PlayerChar->id && (it->flags5a & 1) == 0) {
             total++;
             ch = (char *)&ai_Chars[id];
             k = ((AMTCHARVIEW *)ch)->rank;
@@ -1849,12 +1849,12 @@ void amt_ElectDeputies(void)
                 }
             }
         }
-        it = (char *)gm_BuildNext();
+        it = gm_BuildNext();
     }
-    it = (char *)gm_BuildQuery(1, 5, 0x10);
+    it = gm_BuildQuery(1, 5, 0x10);
     while (it != 0 && n < 16) {
-        id = ((AMTBLDVIEW *)it)->owner;
-        if (id != 0xffff && id != ai_PlayerChar->id && (((AMTBLDVIEW *)it)->flags5a & 1) == 0) {
+        id = it->owner;
+        if (id != 0xffff && id != ai_PlayerChar->id && (it->flags5a & 1) == 0) {
             total++;
             ch = (char *)&ai_Chars[id];
             k = ((AMTCHARVIEW *)ch)->rank;
@@ -1869,7 +1869,7 @@ void amt_ElectDeputies(void)
                 }
             }
         }
-        it = (char *)gm_BuildNext();
+        it = gm_BuildNext();
     }
     if (total >= 3 && n != 0) {
         left = 2;
@@ -1952,7 +1952,7 @@ void amt_ElectKind22(void)
 {
     AMTREC a;
     char *cand[16];
-    char *it, *cur, *pick, *cp, *ch;
+    AIBLD *it; char *cur, *pick, *cp, *ch;
     int n, total, i, j, left, best, s;
     unsigned short id;
     unsigned char k;
@@ -1963,14 +1963,14 @@ void amt_ElectKind22(void)
     j = 0;
     n = 0;
     total = 0;
-    it = (char *)gm_BuildQuery(1, 5, 7);
+    it = gm_BuildQuery(1, 5, 7);
     if (it == 0)
         return;
     do {
         if (n >= 16)
             break;
-        id = ((AMTBLDVIEW *)it)->owner;
-        if (id != 0xffff && (((AMTBLDVIEW *)it)->flags5a & 1) == 0) {
+        id = it->owner;
+        if (id != 0xffff && (it->flags5a & 1) == 0) {
             total++;
             ch = (char *)&ai_Chars[id];
             k = ((AMTCHARVIEW *)ch)->rank;
@@ -1985,7 +1985,7 @@ void amt_ElectKind22(void)
                 }
             }
         }
-        it = (char *)gm_BuildNext();
+        it = gm_BuildNext();
     } while (it != 0);
     if (total < 3)
         return;
@@ -2229,7 +2229,7 @@ void amt_CheckOffices(void)
 int amt_HasTownObject(int k)
 {
     int v;
-    AMTBLDVIEW *it;
+    AIBLD *it;
 
     if (he_FindEvent(1, 0, 0x80) != 0) {
         amt_CalcZuenfte(0x1e);
@@ -2246,7 +2246,7 @@ int amt_HasTownObject(int k)
         return 0;
     case 5: v = 0x17;
     }
-    it = (AMTBLDVIEW *)gm_BuildQuery(1, 5, v);
+    it = gm_BuildQuery(1, 5, v);
     if (it != 0) {
         if ((it->flags5a & 1) == 0)
             return 1;
@@ -2275,7 +2275,7 @@ int amt_CanUseMayorPower2(char *c)
 {
     AMTCHARVIEW *cv;
     int v;
-    AMTBLDVIEW *it;
+    AIBLD *it;
 
     cv = (AMTCHARVIEW *)c;
     if (cv->secondOffice >= 0x1e && cv->secondOffice <= 0x21) {
@@ -2287,7 +2287,7 @@ int amt_CanUseMayorPower2(char *c)
         default:
             return 0;
         }
-        it = (AMTBLDVIEW *)gm_BuildQuery(1, 5, v);
+        it = gm_BuildQuery(1, 5, v);
         if (it != 0 && (it->flags5a & 1) == 0 && ai_BTypes[it->type].level >= 2) {
             if ((cv->powerFlags & 0x8000000) != 0)
                 return -1;
@@ -2302,7 +2302,7 @@ int amt_CanUseMayorPower3(char *c)
 {
     AMTCHARVIEW *cv;
     int v;
-    AMTBLDVIEW *it;
+    AIBLD *it;
 
     cv = (AMTCHARVIEW *)c;
     if (cv->secondOffice >= 0x1e && cv->secondOffice <= 0x21) {
@@ -2314,7 +2314,7 @@ int amt_CanUseMayorPower3(char *c)
         default:
             return 0;
         }
-        it = (AMTBLDVIEW *)gm_BuildQuery(1, 5, v);
+        it = gm_BuildQuery(1, 5, v);
         if (it != 0 && (it->flags5a & 1) == 0 && ai_BTypes[it->type].level >= 3) {
             if ((cv->powerFlags & 0x10000000) != 0)
                 return -1;
@@ -2334,7 +2334,7 @@ int amt_ExecutePriceMessage(char *c, int *m)
 {
     int best;
     AIBTYPE *bt;                        /* the building's type */
-    AMTBLDVIEW *it;
+    AIBLD *it;
     unsigned int id, id2, r;
     int i, n, t, pick[10], cands[10];
     unsigned short *row;
@@ -2352,7 +2352,7 @@ int amt_ExecutePriceMessage(char *c, int *m)
     if (m[0] == 3 && (m[2] == 1 || m[2] == -1) && (unsigned int)m[1] >= 1 && (unsigned int)m[1] <= 7) {
         t = gm_JobBuildingType(m[1]);
         if (t != 0) {
-            it = (AMTBLDVIEW *)gm_BuildQuery(1, 5, t);
+            it = gm_BuildQuery(1, 5, t);
             if (it != 0) {
                 do {
                     bt = &ai_BTypes[it->type];
@@ -2360,7 +2360,7 @@ int amt_ExecutePriceMessage(char *c, int *m)
                         best = bt->level;
                         id = it->type;
                     }
-                    it = (AMTBLDVIEW *)gm_BuildNext();
+                    it = gm_BuildNext();
                 } while (it != 0);
                 if (id != 0) {
                     for (i = 0; i < 0x25; i++) {
@@ -2439,7 +2439,7 @@ int amt_ExecutePriceMessage(char *c, int *m)
 
 int amt_ExecuteShareMessage(short *c, int *m)
 {
-    AMTBLDVIEW *o;
+    AIBLD *o;
     int loss, cnt, i;
     float f;
     int *q;
@@ -2456,7 +2456,7 @@ int amt_ExecuteShareMessage(short *c, int *m)
                 i = 0;
                 cnt = 0;
                 do {
-                    if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == (AIBLD *)o && o->owner != i) {
+                    if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == o && o->owner != i) {
                         cm_SendRelations(ai_CharInts[o->owner][0], ai_Chars[i].netId, -loss, 1);
                         cnt++;
                     }
@@ -2465,7 +2465,7 @@ int amt_ExecuteShareMessage(short *c, int *m)
                 if (cnt != 0) {
                     loss = (int)((float)m[2] / cnt) + 0x20;
                     for (i = 0; i < 768; i++) {
-                        if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == (AIBLD *)o && o->owner != i)
+                        if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == o && o->owner != i)
                             cm_SendMoveGoodsUnchecked(ai_Chars[i].netId, -1, ai_OwnPlayer, loss);
                     }
                 }
