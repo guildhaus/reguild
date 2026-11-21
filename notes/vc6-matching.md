@@ -6184,7 +6184,10 @@ the bytes no portable form gives.
   event handlers' `int ev`, the HEHANDLER tables, he_FindEvent / he_NextEvent / he_CreateEvent, GMCARRYREC.ref, the
   save game's `int f` file handles and vfs_Tfopen's `int unk` directory) or the eleventh (portability: TUTEVENT, the
   intptr_t text-id-or-string parameters, the object list heads, gm_FindById's out pointers) or the twelfth (the text table's index constants, the
-  caption / text parameters, ai_MapPick's callbacks passed uncast to its `void (*cb)()`).
+  caption / text parameters, ai_MapPick's callbacks passed uncast to its `void (*cb)()`) or the thirteenth (the voice banks
+  and samples, the building sites as D3OBJECT *, ai_MapPick's void * pick, CMKIND's function pointers, err_Init /
+  tb_SetFunctionOff, the callbacks' unread parameters, cm_SendLongMessage's AIMSG, the stock callees' AIOBJ *,
+  AIRECIPE.stall, cm_BeginFieldBlock's void *).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6533,6 +6536,42 @@ the bytes no portable form gives.
   typed locals (the `(int *)&x` casts strip by warning). An int parameter passed as such an out slot (cm_BeginFieldBlock's
   `&id`) gets its own typed local: VC6 puts it into the dead parameter slot (dcp try: = control). The index of a record
   pointer `(bld - (int)ai_Blds) / 0xa9` is `bld - ai_Blds` (same code).
+- **An owner API's handles held as `int` in many units (the voice banks / samples of snd_PlayVoice / snd_QueueVoice /
+  snd_LoadVoiceBank and the cm_* wrappers; thirteenth pass)**: type the API and every holder in one commit (globals,
+  fields, the callers' locals); the earlier note's "a data cast at the hand-over" was not needed. Multi-name
+  declarations are split by hand in name order (`struct SBBANK *bankDepose, *bankElect; int loaded, ..;`), never by a
+  regex retype over declarations. A local that holds both kinds of handle gets a second local for one of them (the
+  trial's plea bank went into its declared, unused bankPlea; the duel's voice into a block-local), an `int` array
+  used for the samples in one path and the delays in the other becomes one block-local array per path (`struct
+  SBSAMPLE *voice[8]` / `int wait[9]`): = control each time.
+- **A state array passed as a callback's `int` context** (the wedding's `int st[4]`: scene, view, bank, voice, given
+  to cm_RunSceneTicksOrClick / cm_WaitEventOrClick for cm_EndWedding): a struct of the true field types (CMWEDDING), the
+  API's context is `void *arg` with `int (*cb)(void *)`, and the callback reads `CMWEDDING *s = arg`. The same code;
+  the new typedef moved a tie-break (cm_RunCouncilSession, back in a later commit).
+- **A table of functions held as `int` whose functions take differing record types** (CMKIND's run / askPlayer /
+  askOther / check: G28REC * or CMFIGHTREC *, ask contexts CMSESSIONREQ * / AIPLAN * / CMAUCTION *): old-style
+  function pointer fields (`void (*run)()`, `int (*check)()`), registered without casts and called directly
+  (`cm_Kinds[k].run(m)`); as sv_RunFrame's cb, VC6 accepts void- and int-returning functions of any parameter list.
+  The context parameter that carries the ask callbacks' records is `void *` (cm_RunSceneParty).
+- **A function's address passed as an int flag** (err_Init's first parameter: main passed `(int)main_Exit`, err.c only
+  tests it for nonzero): the parameter and the global take the function pointer type (`void (*err_Started)(void)`).
+- **A callback registered with fewer parameters than its caller passes** (the amount menu calls pick(c, 0); D3OBJECTCB
+  is (D3OBJECT *, void *ctx)): add the unread parameter (`int n`, `void *ctx`; a body that used the context as its
+  own type reads `AICHAR *c = ctx`): = control. A foreign zero function passed as such a callback (`(int)sv_ReturnZero`
+  for (AICHAR *, int)) is the unit's own unlinked twin at the end of the unit (ai_PickNothing).
+- **A byte offset written on an int that holds a pointer** (`(D3VECTOR *)(list[i] + 0x4c)`, `list200[m] + 0x4c`):
+  rewrite it as the field (`&list[i]->pos`) in the same edit that types the list: on a `D3OBJECT **` list the old
+  text scales by the record size and compiles silently.
+- **A callee typed `char *` / `short *` for a record its callers pass** (cm_SendLongMessage's AIMSG, gm_ListStock /
+  gm_ListAmount / gm_FreeCapacity's AIOBJ, cm_BeginFieldBlock's any-record `void *`): type the callee and strip the
+  `(char *)` casts at the calls; a caller that sends through its own view of the record (GMMSG, CMNOTE, HEEXAMMSG,
+  CURSEMSG, ORDLONGMSG for AIMSG) casts to the record at the call until the view goes (one record described twice).
+- **A record's int slot that holds a pointer** (AIRECIPE.pada8[3]: the stall object; AIARG.ref of kind 0xc: the site
+  object): the pointer field in its slot (`struct AIOBJ *stall`, an anonymous `union { int ref; struct D3OBJECT *plot;
+  }`); the same layout under VC6, the record is a port-side note when it is saved or sent.
+- **A record with an `__int64` member embedded in another record** (AMOUNTCFG in LCMAPWIN.req at +0xc): VC6 would
+  8-align it and move every later field; keep the embedding record's `int req[0x14]` and the callers' `int cfg[0x14]`
+  request arrays until the record question is settled.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
