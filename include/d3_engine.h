@@ -9,15 +9,6 @@ struct D3FLMAP;                     /* the tag (d3_fl.h spells it out; MS compat
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct D3SOUND;
 
-typedef struct D3SCENELISTS {       /* view of the D3SCENE fields used by the object walks */
-    char pad000[0x80];
-    D3OBJECT *first;                /* 0x80, first top-level object (d3_TopFirst) */
-    D3OBJECT *last;                 /* 0x84, last top-level object (d3_TopLast) */
-    char pad088[0x1c];
-    void *parHead;                  /* 0xa4, first of the particle list (d3_ParHead, D3PARTSYS * in d3_par.h) */
-    void *parTail;                  /* 0xa8, last of the particle list (d3_ParTail, D3PARTSYS * in d3_par.h) */
-} D3SCENELISTS;
-
 typedef union D3CLIP {              /* clip code of a point or a box */
     unsigned char raw;              /* the code as a whole: cleared, and | / & of two codes */
     struct {

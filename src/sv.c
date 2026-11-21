@@ -2217,9 +2217,9 @@ void sv_UpdateSkyColors(void)
     d3_ForEachObject(d3_DefaultScene, 0, 8, sv_SetSkyLightColors, 0);
     p = sv_WinterWeather == 0 ? sv_LevelAmbient : sv_LevelAmbientWinter;
     for (i = 0; i < 7; i++) {
-        ((D3IFSCENE *)d3_DefaultScene)->levels[i].amb.x = p[i].amb.x;
-        ((D3IFSCENE *)d3_DefaultScene)->levels[i].amb.y = p[i].amb.y;
-        ((D3IFSCENE *)d3_DefaultScene)->levels[i].amb.z = p[i].amb.z;
+        d3_DefaultScene->levels[i].amb.x = p[i].amb.x;
+        d3_DefaultScene->levels[i].amb.y = p[i].amb.y;
+        d3_DefaultScene->levels[i].amb.z = p[i].amb.z;
         d3_AmbientColor.x = p[i].amb.x;
         d3_AmbientColor.y = p[i].amb.y;
         d3_AmbientColor.z = p[i].amb.z;

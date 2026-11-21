@@ -1927,8 +1927,8 @@ void cm_SetupFightScene(G28REC *rec)
     sc = (D3SM *)d3_DefaultScene->hmap;
     cm_ApplySeason();
     if (d3_Terrain != 0) {
-        D3IF_SCENE(d3_CurrentScene).sky = D3IF_SCENE(0).sky;
-        d3_Sky = D3IF_SCENE(0).sky;
+        d3_Scenes[d3_CurrentScene].sky = d3_Scenes[0].sky;
+        d3_Sky = d3_Scenes[0].sky;
         sv_UpdateWeather();
         d3sky_Init(d3_Sky, 1);
     }
@@ -1983,7 +1983,7 @@ void cm_SetupFightScene(G28REC *rec)
     cm_BootsObject = d3io_LoadObjectRef("ub_STIEFEL", "ub_STIEFEL");
     if (sc == 0) {
         d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create((struct D3TERRAIN *)d3_Terrain,
-                                                             ((D3IFSCENE *)d3_DefaultScene)->mapSize, 2);
+                                                             d3_DefaultScene->mapSize, 2);
         sc = (D3SM *)d3_DefaultScene->hmap;
     }
     cm_FightCellScale = sc->cell.x * 1.1;
@@ -2151,7 +2151,7 @@ void cm_EndFightScene(G28REC *rec)
     sv_ScrollSpeed = 1.0f;
     if (d3_Terrain != 0) {
         d3_Sky = 0;
-        D3IF_SCENE(d3_CurrentScene).sky = 0;
+        d3_Scenes[d3_CurrentScene].sky = 0;
     }
     cm_LeaveEventScene();
     snd_EndSpecialTrack();

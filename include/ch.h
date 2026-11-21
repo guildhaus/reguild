@@ -147,7 +147,7 @@ void err_Message(char *msg);                                                    
 int d3t_ReleaseObjectTextures(D3OBJECT *obj);                                           /* 0x411b70 */
 int sv_ReturnZero(void);                                                       /* 0x52a040 */
 extern int ch_LowPoly;              /* 0x631064, 2 - the ch_SetLowPoly mode */
-struct D3OBJECT; struct D3IFSCENE; char d3if_MoveObject(struct D3OBJECT *obj, struct D3IFSCENE *from, struct D3IFSCENE *to);                           /* 0x447fd0, moves obj to another scene */
+struct D3OBJECT; struct D3SCENE; char d3if_MoveObject(struct D3OBJECT *obj, struct D3SCENE *from, struct D3SCENE *to);                           /* 0x447fd0, moves obj to another scene */
 void vfs_ToSlashes(char *path);                                                         /* 0x42ed10 */
 /* D3ANIMFLAGS as built for d3anim_StartAnim here: field-wise, so VC6 keeps the dword at 4 in a register */
 typedef union CHANIMFLAGS {

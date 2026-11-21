@@ -9598,7 +9598,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
     view.rot.z = sv_ViewRot[2];
     strcpy(ch_StepSample, "normal_s");
     universe = init_BuildingSceneUniverse(b);
-    D3IF_SCENE(universe).sky = D3IF_SCENE(0).sky;
+    d3_Scenes[universe].sky = d3_Scenes[0].sky;
     if (universe != 0) {
         snd_LoadBuildingVoices(b);
         if (universe == -1 || d3_Scenes[universe].dirty != 0) {
@@ -9693,7 +9693,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
         break;
     }
     if (universe != -1) {
-        D3IF_SCENE(universe).sky = 0;
+        d3_Scenes[universe].sky = 0;
         d3_Sky = 0;
     }
     sv_ResetSelection();

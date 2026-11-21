@@ -790,7 +790,7 @@ exe	0x0043e110	d3_ToggleRLightCB	d3_engine	09af237ce335fe85	no	byte	control=byte
 exe	0x0043e180	d3_SetRLights	d3_engine	fd769faf316c9202	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043e1b0	d3_EndFrame	d3_engine	232c6df9dfa4549c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043e200	d3_Render	d3_engine	337846ce2dd747f0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0043e4d0	d3_Animate	d3_engine	1610cbd5ebceed8a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cd7ec9ed5ef4b6d7
+exe	0x0043e4d0	d3_Animate	d3_engine	8161f7598470b7ad	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7508a3126b543b67
 exe	0x0043e680	d3_Frame	d3_engine	5a113822bc877a32	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043e6b0	d3e_DefaultResolve	d3_engine	23a5cc1a686f248e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043e6c0	d3e_EventId	d3_engine	b6e05d50f68fb5ac	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
