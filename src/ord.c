@@ -1732,7 +1732,7 @@ void ord_CountGridObjects(void)
     b = gm_BuildQuery(1, 6);
     while (b != 0) {
         if (b->object != 0 && ord_GetGridCell(&b->object->pos, &x, &y) != 0) {
-            f[y + x * 8] = (float)gm_EquipmentValue((unsigned char *)b, b->level);
+            f[y + x * 8] = (float)gm_EquipmentValue(b, b->level);
             ORD_CELLS[y + x * 8].used++;
         }
         b = gm_BuildNext();

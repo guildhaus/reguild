@@ -2909,8 +2909,8 @@ void ai_CurseTargetWindow(AIBLD *building)
     d2_SetObjValue(share, 0, 100, 0);
     d2_SetForm(form, 2);
     victim = d2_WinOpenSlider(0x57, 7, 200, 0, 100, 0x7b, 2, d2_LastWindow);
-    gm_CurseTargetCount((char *)building);
-    d2_SetObjValue(victim, 0, gm_CurseTargetCount((char *)building) - 1, 0, 1);
+    gm_CurseTargetCount(building);
+    d2_SetObjValue(victim, 0, gm_CurseTargetCount(building) - 1, 0, 1);
     d2_SetForm(form, 3);
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x41f6], txt_Ptrs[0x41f7]);
     do {

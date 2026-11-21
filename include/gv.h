@@ -334,8 +334,8 @@ extern const int gv_ListEntries0[4];         /* 0x5ee084, the entries of list 0 
 extern const int gv_ListEntries1[4];         /* 0x5ee094, of list 1 */
 extern const int gv_ListEntries2[4];         /* 0x5ee0a4, of list 2 */
 extern const int gv_ListEntries3[4];         /* 0x5ee0b4, of list 3 */
-int gv_BuryNewDead(unsigned char *o, int n);  /* 0x4ef9c0 */
-GVYARD *gv_AllocGraveyard(unsigned char *o);  /* 0x4efc10, allocates the graveyard record of the building o ("gv_AllocGraveyardField", at +0x65 of o) */
+int gv_BuryNewDead(struct AIBLD *o, int n);  /* 0x4ef9c0 */
+GVYARD *gv_AllocGraveyard(struct AIBLD *o);  /* 0x4efc10, allocates the graveyard record of the building o ("gv_AllocGraveyardField", at +0x65 of o) */
 extern const int gv_EntryTotals[];             /* 0x5ee064 */
 extern const int gv_GraveTotals[];             /* 0x5ee074 */
 extern int ai_NextObjectId;                /* 0x61a654 */
@@ -565,7 +565,7 @@ int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y);  /* 0x4f8300, the grid 
 
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, fills *bld with the object of the id (ai.h's prototype) */
-int gm_EquipmentValue(unsigned char *b, int level);                     /* 0x509b10 */
+int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 void ord_CountGridObjects(void);               /* 0x4f8360 */
 
 char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);                              /* 0x45f100, d3_sm.c */

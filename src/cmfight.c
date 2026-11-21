@@ -3902,7 +3902,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             txt_Format(tc, 0x11a6, cm_FightAttacker->id, ca);
             cm_MessageBox(tc, 0);
             if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
-                gm_ChangeBuildingState((unsigned char *)ca, 0x14 - cm_Random(0x14));
+                gm_ChangeBuildingState(ca, 0x14 - cm_Random(0x14));
         } else if (n == 0) {
             /* the town guards are called: every guard (title groups 10 .. 12) turns against the attacker */
             txt_Format(ba, 0x11a7, cm_FightAttacker->id, cm_FightAttacker->id);
@@ -4011,7 +4011,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             txt_Format(tc, 0x11a6, cm_FightAttacker->id, ca);
             cm_MessageBox(tc, 0);
             if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
-                gm_ChangeBuildingState((unsigned char *)ca, 0x14 - cm_Random(0x14));
+                gm_ChangeBuildingState(ca, 0x14 - cm_Random(0x14));
         } else if (k == 1) {
             txt_Format(bb, 0x11a7, cm_FightAttacker->id, cm_FightAttacker->id);
             cm_MessageBox(bb, 0);

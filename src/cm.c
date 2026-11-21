@@ -1731,7 +1731,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
                 if (o != 0)
                     m.go.objId = o->objId;
             } else {
-                o = gm_GetGebaeudeHauptraum((unsigned char *)b);
+                o = gm_GetGebaeudeHauptraum(b);
                 if (o != 0)
                     m.go.objId = o->objId;
             }
@@ -2872,7 +2872,7 @@ int cm_ExDeleteObject(G17MSG *m, G17STAT *s)
     if (gm_FindById((int *)&b, (int *)&o, (int *)&c, m->del.objectId) == 0)
         return 1;
     if (b != 0) {
-        if (gm_FreeBuilding((char *)b) != 0)
+        if (gm_FreeBuilding(b) != 0)
             return 1;
     } else {
         if (o != 0)
@@ -4971,8 +4971,8 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
     }
     b->type++;
     b->level = b->level + (100 - b->level) / 2;
-    gm_SetCapacities((unsigned char *)b);
-    gm_StockBuildingObjects((char *)b);
+    gm_SetCapacities(b);
+    gm_StockBuildingObjects(b);
     if (t->kind == 0x1d)
         gv_GrowGraveyard((unsigned char *)b);
     strcpy(name, "gb_");
@@ -5023,7 +5023,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
                     }
                 }
                 init_HookObject(o, b, 2);
-                sv_CreateBanners((char *)b);
+                sv_CreateBanners(b);
                 if (b->object != 0) {
                     season = gm_ClockSeason(&ai_Time);
                     if (season == 1)
@@ -5098,7 +5098,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
         b->smokeEffect = -1;
     }
     d3if_SelectScene(save, 1);
-    gm_FreeBuilding((char *)b);
+    gm_FreeBuilding(b);
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
@@ -5151,7 +5151,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     } else if (c != 0)
         home = c->bld2;
     if (c == 0 || c->bld != 0)
-        c = (AICHAR *)gm_SpawnCharacter(6, m->hire.kind, 0x12, m->hire.job, m->hire.title, (char *)home);
+        c = (AICHAR *)gm_SpawnCharacter(6, m->hire.kind, 0x12, m->hire.job, m->hire.title, home);
     if (c == 0) {
         if (s != 0) {
             s->state = 2;
@@ -5169,11 +5169,11 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     c->kind = m->hire.kind;
     if (c->model == 0) {
         if (home != 0) {
-            t = (AIOBJ *)gm_HomeObject((unsigned char *)home);
+            t = (AIOBJ *)gm_HomeObject(home);
             if (t != 0 && t->objId != -1)
                 gm_PlaceOnStage(c->netId, home->id, t->objId, 0, 0);
         } else {
-            t = (AIOBJ *)gm_BuildingMainObject((unsigned char *)b);
+            t = (AIOBJ *)gm_BuildingMainObject(b);
             if (t != 0 && t->objId != -1)
                 gm_PlaceOnStage(c->netId, b->id, t->objId, 0, 0);
         }
@@ -5354,7 +5354,7 @@ int cm_ExSkillsChanged(G17MSG *m, G17STAT *s)
 
     c = (AICHAR *)gm_FindChar(m->skills.charId);
     if (c != 0 && c->bld2 != 0)
-        gm_ShowBuildingObjects((unsigned char *)c->bld2);
+        gm_ShowBuildingObjects(c->bld2);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
@@ -5621,7 +5621,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
                         }
                     } else
                         err_Message("cm_ExCreateGeb(): could not lc_GetGebaeudeBauplatz()...");
-                    sv_CreateBanners((char *)b);
+                    sv_CreateBanners(b);
                     rd_BuildRoad(b->object, b->type);
                 }
                 d3if_SelectScene(scene, 1);

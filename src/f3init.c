@@ -1629,7 +1629,7 @@ void init_OpenBuilding(AIBLD *b)
         }
         ch = (INIT_CHAR *)cm_GetSlotValue(h);
         if (gm_IsHomeType(b) == 0) {
-            ent = (AIOBJ *)gm_BuildingMainObject((unsigned char *)b);
+            ent = (AIOBJ *)gm_BuildingMainObject(b);
             if (ent != 0)
                 cm_RequestChrMoveToUniverse(ch->netId, b->id, ent->objId, "dummy_EINGANG");
         } else {
@@ -1790,7 +1790,7 @@ void init_OpenTown(void)
         if (b != 0) {
             int v;
 
-            v = gm_EquipmentValue(b, 100);
+            v = gm_EquipmentValue((AIBLD *)b, 100);
             cm_BeginFieldBlock(b, ((AIBLD *)b)->id);
             cm_AddFieldDelta(4, 1, 0x65, &v);
             v = v * 2;
@@ -1936,7 +1936,7 @@ void init_OpenTown(void)
             m2.fromId = -1;
             m2.flags = 2;
             m2.arg[0] = ((AIBLD *)b)->id;
-            m2.arg[1] = gm_EquipmentValue((unsigned char *)b, (char)((AIBLD *)b)->level);
+            m2.arg[1] = gm_EquipmentValue((AIBLD *)b, ((AIBLD *)b)->level);
             cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)ai_PlayerChar)->netId, ((INIT_CHAR *)ai_PlayerChar)->netId);
             cm_SendLongMessage((char *)&m2);
         }
@@ -2158,7 +2158,7 @@ int init_InitTown(char *city)
     }
     h = gm_BuildQuery(1, 5, 0x1c);
     while (h != 0) {
-        gm_AssignBuilding(h, ((INIT_CHAR *)ai_PlayerChar)->id, ((INIT_CHAR *)ai_PlayerChar)->id);
+        gm_AssignBuilding((AIBLD *)h, ((INIT_CHAR *)ai_PlayerChar)->id, ((INIT_CHAR *)ai_PlayerChar)->id);
         h = gm_BuildNext();
     }
     gm_UpdatePlayers();
@@ -3000,7 +3000,7 @@ void init_LoadTypeBScene(void)
    type for a home, else of o's prototype. When the file exists, an earlier script of the character's model (+0x28)
    is stopped, the new one runs with the model and ai_FavourComment, the script records the model and its id goes to
    the model and to init_ShopScript (-1 when the script does not load). */
-void init_LoadShopScript(unsigned char *b, unsigned short *o)
+void init_LoadShopScript(AIBLD *b, unsigned short *o)
 {
     INIT_CHAR *c, *w, *m;
     int i;
@@ -3014,7 +3014,7 @@ void init_LoadShopScript(unsigned char *b, unsigned short *o)
     name = 0;
     w = 0;
     c = 0;
-    m = (INIT_CHAR *)gm_FindCharacterByMaster((struct AIBLD *)b);
+    m = (INIT_CHAR *)gm_FindCharacterByMaster(b);
     for (i = 0; i < 0x20; i++) {
         if (w != 0)
             break;
@@ -3024,7 +3024,7 @@ void init_LoadShopScript(unsigned char *b, unsigned short *o)
     }
     if (w != 0 && w->health > 1 && (o == 0 || w->model->scriptGroup == ((AIOBJ *)o)->objId)) {
         goods = 0;
-        if (gm_IsHomeType((AIBLD *)b) != 0)
+        if (gm_IsHomeType(b) != 0)
             name = (char *)INIT_BTYPE(b);
         else
             goods = (char *)ai_Goods + ((AIOBJ *)o)->type * 0x41;
@@ -3437,7 +3437,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         sv_CollectGroupCharacters((char *)b);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SyncSceneObjects);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_GateObjectHook);
-        gm_ShowBuildingObjects((unsigned char *)b);
+        gm_ShowBuildingObjects(b);
         i = 0;
         if (*p == 0x16)
             limit = 8;
@@ -3523,11 +3523,11 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
             d3if_Show((struct D3OBJECT *)d, 0);
         else {
             d3if_Show((struct D3OBJECT *)d, 1);
-            init_LoadShopScript((unsigned char *)b, (unsigned short *)o);
+            init_LoadShopScript(b, (unsigned short *)o);
         }
         d->mask = 1;
     } else if (*p == 5 && b->owner != ai_PlayerId)
-        init_LoadShopScript((unsigned char *)b, (unsigned short *)o);
+        init_LoadShopScript(b, (unsigned short *)o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
     init_PlayGraveyardSound((char *)b);
     if (gm_IsHomeType(b) == 0)

@@ -3297,14 +3297,14 @@ char sv_ColourBannerCB(D3OBJECT *o, AIBLD *b)
 /* 0x5282f0, colours the banner of the building b (+0x61 its model) for a character owner (type 5 / 6 / 7, +0x27): the model's parts are walked (0x438d40, 0x100, the callback 0x528180) with the model's +0x1f0 cleared
    when its flag +0x210 & 1 is not set */
 
-void sv_CreateBanners(char *b)
+void sv_CreateBanners(AIBLD *b)
 {
     AIBLD *bld;
     D3OBJECT *m;
     D3OBJECT *save;
     char c;
 
-    bld = (AIBLD *)b;
+    bld = b;
     m = bld->object;
     if (m != 0 && bld->owner != 0xffff) {
         c = ai_Chars[bld->owner].kind;
@@ -3421,15 +3421,13 @@ int sv_AddPanelButton(int x, int y, int text);
 
 /* 0x5286a0, tints the banners of the building b: its model's parts named "sp_WIMPEL" (0x438d40, 0x40, the collector 0x528660; the model's +0x1f0 cleared when its flag +0x210 & 1 is not set) are recoloured
    (0x458780 with the colour 0x6f1c28, when set) and updated (0x447190) */
-void sv_RemoveBanners(char *b)
+void sv_RemoveBanners(AIBLD *bld)
 {
     int list[33];
     int i;
-    AIBLD *bld;
     D3OBJECT *m;
     D3OBJECT *save;
 
-    bld = (AIBLD *)b;
     m = bld->object;
     if (m != 0) {
         for (i = 0; i < 0x21; i++)
@@ -3469,8 +3467,8 @@ void sv_RefreshBanners(void)
         if (o->owner != 0xffff)
             c = &ai_Chars[o->owner];
         if (c != 0 && (char *)c != (char *)ai_PlayerChar && ((t = c->kind) == 6 || t == 7 || t == 5) && (o->flags5a & 1) == 0) {
-            sv_RemoveBanners((char *)o);
-            sv_CreateBanners((char *)o);
+            sv_RemoveBanners(o);
+            sv_CreateBanners(o);
         }
         o = gm_BuildNext();
     }
@@ -3583,7 +3581,7 @@ void sv_OpenItemPanel(unsigned short *p)
             owner = gm_ObjectBuildingOwner(p);
             perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
             if (*owner == ai_PlayerId || (perm & 0x10) != 0) {
-                if (gm_ListObjectsAfter((unsigned char *)b, p, 0) != 0)
+                if (gm_ListObjectsAfter(b, p, 0) != 0)
                     sv_PanelActionBtn = sv_AddPanelButton(0, 0x8c, txt_PanelBtnItemOwn);
                 sv_PanelItemBtn = sv_AddPanelButton(0, 0xa6, txt_PanelBtnItem);
             } else
@@ -5778,7 +5776,7 @@ void sv_HandleRightClick(unsigned fl)
                         rb = ai_FallbackBuilding;
                 }
                 if (rb != 0 && sv_PanelShown->type == 0xf2)
-                    room = gm_GetGebaeudeHauptraum((unsigned char *)rb);
+                    room = gm_GetGebaeudeHauptraum(rb);
                 if (ai_PlayerBuilding == 0 || room == 0 || room == sv_PanelShown)
                     sv_PanelShown = 0;
                 else

@@ -388,9 +388,8 @@ GVGRAVE *gv_RandomGrave(unsigned char *o)
    graveyard building o (kind 0x1d, level 1 .. 3): each grave gets a new object id, random traits, values and year, a random
    family and first name by sex and an icon from its gm_NameRecord; returns how many were buried (0 for no graveyard) */
 
-int gv_BuryNewDead(unsigned char *o, int n)
+int gv_BuryNewDead(AIBLD *bld, int n)
 {
-    AIBLD *bld = (AIBLD *)o;
     AIBTYPE *bt;
     GVENTRY *e;
     unsigned *rec;
@@ -399,7 +398,7 @@ int gv_BuryNewDead(unsigned char *o, int n)
     bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
     if (bt->kind == 0x1d && bt->cap247 >= 1 && bt->cap247 <= 3) {
         for (i = 0; i < n; i++) {
-            e = (GVENTRY *)gv_FindEntry(0, o, 0, gv_EntryIsFree, 0);
+            e = (GVENTRY *)gv_FindEntry(0, (unsigned char *)bld, 0, gv_EntryIsFree, 0);
             if (e == 0)
                 return i;
             e->grave->id = ai_NextObjectId;
@@ -443,9 +442,8 @@ int gv_BuryNewDead(unsigned char *o, int n)
    grave (0x44 << size bytes): level 1: 8 / 4, level 2: 12 / 6 / 2, level 3: 16 / 8 / 4 / 2 graves of the sizes 0 .. 3.
    Stores it as AIBLD.yard and returns it; 0 when out of memory or o is no graveyard */
 
-GVYARD *gv_AllocGraveyard(unsigned char *o)
+GVYARD *gv_AllocGraveyard(AIBLD *bld)
 {
-    AIBLD *bld = (AIBLD *)o;
     AIBTYPE *bt;
     GVYARD *g;
     GVENTRY *e;
@@ -568,7 +566,7 @@ GVYARD *gv_GrowGraveyard(unsigned char *o)
     bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
     if (bt->kind == 0x1d && old != 0 && old->kind < 3 && bt->cap247 - old->kind == 1) {
         bld->yard = 0;
-        nw = gv_AllocGraveyard(o);
+        nw = gv_AllocGraveyard((AIBLD *)o);
         if (nw == 0) {
             bld->yard = old;
             return 0;
@@ -1059,7 +1057,7 @@ int gv_AddNewDead(unsigned char *p)
         return -2;
     if (bld->yard == 0)
         return -3;
-    n = gv_BuryNewDead((unsigned char *)bld, m->price);
+    n = gv_BuryNewDead(bld, m->price);
     return (n > 0) - 1 & 0xfffffffc;
 }
 /* 0x4f0e80, sends a grave move (GVMOVE, message 0x61, cm_SendGraveMove): the character c (c[1]: its AICHAR.netId) moves the
@@ -1464,7 +1462,7 @@ int gv_ReadGraveyard(void *f, unsigned char *o)
     GVENTRY *e;
     int i, idx;
 
-    g = gv_AllocGraveyard(o);
+    g = gv_AllocGraveyard((AIBLD *)o);
     if (g == 0)
         return 0;
     if (ls_Read(&g->id, 4, 1, (int)f) == 0)

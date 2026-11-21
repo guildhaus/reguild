@@ -1536,7 +1536,7 @@ void main_GiveStartBuildings(int p)
     b = gm_BuildQuery(1, 0, 6);
     if (b != 0) {
         strcpy(b->name, "Home-Sweet-Home");
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         l = (char *)gm_Query((void *)b->objList, 1, 0, 0x13);
         if (l != 0)
             gm_ShowSlotObjects((int)b, (int)l, p);
@@ -1565,7 +1565,7 @@ void main_GiveStartBuildings(int p)
     }
     b = gm_BuildQuery(1, 0, 0x2a);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
@@ -1580,21 +1580,21 @@ void main_GiveStartBuildings(int p)
     }
     b = gm_BuildQuery(1, 0, 0x1e);
     if (b != 0)
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
     b = gm_BuildQuery(1, 0, 0x1f);
     if (b != 0)
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
     b = gm_BuildQuery(1, 0, 0x12);
     if (b != 0)
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
     b = gm_BuildQuery(1, 0, 0x14);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         cm_SendExSellObject(b->id, -1, 0xf7, 1, ai_OwnPlayer, 0);
     }
     b = gm_BuildQuery(1, 0, 0x32);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
@@ -1608,17 +1608,17 @@ void main_GiveStartBuildings(int p)
     }
     b = gm_BuildQuery(1, 0, 0x21);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
     }
     b = gm_BuildQuery(1, 0, 0x19);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
     }
     b = gm_BuildQuery(1, 0, 0x34);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             cm_BeginSendGroup();
@@ -1632,7 +1632,7 @@ void main_GiveStartBuildings(int p)
     }
     b = gm_BuildQuery(1, 0, 0x36);
     if (b != 0) {
-        gm_AssignBuilding((unsigned char *)b, p, p);
+        gm_AssignBuilding(b, p, p);
         gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
     }
 }
@@ -3317,7 +3317,7 @@ void main_EndRound(void)
                 }
                 if (ai_IsLocalMaster(&ai_Chars[k]) != 0 || ai_Chars[k].kind == 1) {
                     if (gm_BuildingLevel(b) < util_Random(0x5a)) {
-                        cost = (float)gm_EquipmentValue((unsigned char *)b, 100) * 0.005f;
+                        cost = (float)gm_EquipmentValue(b, 100) * 0.005f;
                         if (32.0f > cost)
                             cost = 32.0f;
                         budget = (float)value;
@@ -3603,7 +3603,7 @@ void main_RoundReport(void)
         while (b != 0) {
             if (b->owner == ai_PlayerId || b->masterId == ai_PlayerId) {
                 t = gm_BuildingClass(b->type);
-                v = gm_BuildingBalance((unsigned char *)b, ai_PlayerId, bal);
+                v = gm_BuildingBalance(b, ai_PlayerId, bal);
                 if (v != 0 || (t != 5 && t != 6)) {
                     wageCost += bal[3];
                     costs += bal[0x10];
@@ -3939,7 +3939,7 @@ void main_SettleRound(unsigned short pl)
                     msg1.fromId = -1;
                     msg1.flags = 2;
                     msg1.arg[0] = c->id;
-                    msg1.arg[1] = gm_EquipmentValue((unsigned char *)c, c->level);
+                    msg1.arg[1] = gm_EquipmentValue(c, c->level);
                     cm_SendLongMessage((char *)&msg1);
                     }
                 }
@@ -3956,7 +3956,7 @@ void main_SettleRound(unsigned short pl)
                         msg2.fromId = -1;
                         msg2.flags = 2;
                         msg2.arg[0] = c->id;
-                        msg2.arg[1] = gm_EquipmentValue((unsigned char *)c, c->level);
+                        msg2.arg[1] = gm_EquipmentValue(c, c->level);
                         cm_SendLongMessage((char *)&msg2);
                         cnt++;
                         for (i = 0; i < 0x300; i++) {
@@ -3979,7 +3979,7 @@ void main_SettleRound(unsigned short pl)
                     if (kind != 0xd && kind != 0xc && kind != 0xb && kind != 0x10 && (c->flags5a & 1) == 0 && kind != 10) {
                         int d = util_Random(3) + 2;
 
-                        gm_ChangeBuildingState((unsigned char *)c, -d);
+                        gm_ChangeBuildingState(c, -d);
                         cnt++;
                     }
                 }
@@ -4006,7 +4006,7 @@ void main_SettleRound(unsigned short pl)
             } else {
                 int workers[0x26];  /* gm_ListWorkers's lists: [0] the number, [1 ..] and [0xd ..] the two job ranks, [0x19 ..] the others */
 
-                if (gm_ListWorkers((unsigned char *)p, workers) != 0) {
+                if (gm_ListWorkers(p, workers) != 0) {
                 int pass;
                 int j;
                 int k;
@@ -4022,13 +4022,13 @@ void main_SettleRound(unsigned short pl)
 
                             if (q->model == 0) {
                                 if (q->bld2 != 0) {
-                                    o = (AIOBJ *)gm_HomeObject((unsigned char *)q->bld2);
+                                    o = (AIOBJ *)gm_HomeObject(q->bld2);
                                     if (o != 0 && o->objId != -1) {
                                         cnt++;
                                         gm_PlaceOnStage(q->netId, q->bld2->id, o->objId, 0, 0);
                                     }
                                 } else {
-                                    o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)p);
+                                    o = (AIOBJ *)gm_BuildingMainObject(p);
                                     if (o != 0 && o->objId != -1) {
                                         cnt++;
                                         gm_PlaceOnStage(q->netId, p->id, o->objId, 0, 0);

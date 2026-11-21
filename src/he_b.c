@@ -1230,7 +1230,7 @@ typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AI
     int guild;                          /* 0xb0, the id of the thieves' guild that holds it (gm_BuildQuery(1, 1, id)) */
     AITIME since;                       /* 0xb4, the time of the kidnap (he_AllocRansom: now), shown by the news 0x19c2 */
 } HEEV3D;
-unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind);
+struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 typedef struct HEEV3E {                 /* the ransom demand event 0x3e's words over AIJOB's union (he_RunRansom's message 0x3e) */
     char pad00[0xac];
@@ -1617,7 +1617,7 @@ void he_RunProduktion(AIJOB *ev)
                 }
                 if (worker != 0 && (master == 0 || (master->flags1b4 & 1) == 0) && p->lacking == 0) {
                     gm_FindById(0, (int *)&store, 0, p->store);
-                    mainObj = (AIOBJ *)gm_BuildingMainObject((unsigned char *)bld);
+                    mainObj = (AIOBJ *)gm_BuildingMainObject(bld);
                     if (gm_Query((void *)store->list, 1, 0, p->good) != 0 && gm_FreeCapacity(store, p->good, 1) == 0) {
                         txt_Format(text, 0x1bb3, bld, p->good * 2 + 0x9a8);
                         strcpy(name, "_NACHRICHTEN_HS_04");
@@ -1798,7 +1798,7 @@ lacking:
             else if (bt->kind == 0x20 || bt->kind == 0x1f || bt->kind == 0x1d)
                 strcpy(name, "_NACHRICHTEN_ROHSTOFFMANGEL_HS_20");
         }
-        mainObj = (AIOBJ *)gm_BuildingMainObject((unsigned char *)bld);
+        mainObj = (AIOBJ *)gm_BuildingMainObject(bld);
         if (p->lacking == 0 && (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7)) {
             news = 0x5f1;
             master = (AICHAR *)gm_FindCharacterByMaster(bld);
@@ -1970,7 +1970,7 @@ void he_RunSearch9(AIJOB *ev)
         }
         if (found != 0) {
             cm_SendExSellObject(src->objId, -1, found->id, 1, ai_OwnPlayer, 0);
-            gm_BuildKindObjects((char *)bld);
+            gm_BuildKindObjects(bld);
             for (i = 0; i < gm_KindObjCount; i++) {
                 g = GM_GOOD(gm_KindObjs[i]);
                 if (g->type == 0x17)
@@ -2690,7 +2690,7 @@ D3OBJECT *he_CreateConstruction(D3VECTOR *rot, D3VECTOR *pos, unsigned char *typ
 
 /* the construction event's run handler stores gm_AddToTreasury's result (the send slot of its goods message) as
    the payment's slot (0x56bf1a .. 0x56bf22) */
-void sv_CreateBanners(char *b);
+void sv_CreateBanners(struct AIBLD *b);
 
 /* 0x56be30, the run handler of the building construction event 0xd, by its stage: 0 pays the price when due (the
    player's own money to the treasury, else moved from the payer), 1 waits for the payment, 2 sends the building
@@ -3009,7 +3009,7 @@ void he_RunConstruction(int ev)
             if (bld->object != 0 && bld->object->type == 1)
                 d3if_ShowTree(bld->object, 1);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 5 || ai_Chars[bld->owner].kind == 7)
-                sv_CreateBanners((char *)bld);
+                sv_CreateBanners(bld);
             ai_CheckBuildSites();
             if (bld->object->info == 0)
                 d3_InflateObject(bld->object);
@@ -5385,7 +5385,7 @@ void he_RunGraveTraining(int ev)
     if (master == 0 || !(master->flags1b4 & 1)) {
         obj = gm_Query((void *)bld->objList, 1, 1, t->objId);
         if (obj == 0)
-            obj = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)bld);
+            obj = (AIOBJ *)gm_GetGebaeudeHauptraum(bld);
         if (obj != 0) {
             txt_Format(text, 0x1bc8, ch->id, bld);
             he_MessageBoxQuickjump(ai_Chars[e->chr].netId, e->from, text, 0, 0x5f2, bld->id, obj->objId, ch_EmptyName, "_NACHRICHTEN_HS_81");
@@ -6022,7 +6022,7 @@ void he_RunGraveyardTheft(int ev)
     store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
     if (store == 0)
         store = gm_Query((void *)bld->objList, 2, 6, 0, 0x116);
-    main = (AIOBJ *)gm_BuildingMainObject((unsigned char *)bld);
+    main = (AIOBJ *)gm_BuildingMainObject(bld);
     if (store == 0)
         goto done;
     n = 0;
@@ -6912,7 +6912,7 @@ void he_RunCircusShow(int ev)
         } else {
             gm_FindById(&bld, 0, 0, e->from);
             viaRoom = 0;
-            if (bld != 0 && (hall = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)bld)) != 0)
+            if (bld != 0 && (hall = (AIOBJ *)gm_GetGebaeudeHauptraum(bld)) != 0)
                 place = hall->objId;
         }
         if (bld == 0) {

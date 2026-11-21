@@ -114,7 +114,7 @@ short * gm_FindChar(int id);                                                    
 int gm_CompareTime(AITIME *a, AITIME *b);                                          /* 0x4fe210 */
 struct AIBLD *gm_FindBuildingById(int id);                                                      /* 0x502020, ai.h: AIBLD * */
 int gm_IsHomeType(struct AIBLD *bld);                                                     /* 0x502520 */
-void *gm_GetGebaeudeHauptraum(unsigned char *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
+void *gm_GetGebaeudeHauptraum(struct AIBLD *bld);                                                   /* 0x501ce0, ai.h: AIOBJ * */
 struct AIOBJ *gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
 struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);                                   /* 0x4fd820 */
@@ -141,7 +141,7 @@ unsigned gm_TakeOverCharacter(int a, int b);                                    
 int gv_FindHeldEntry(void *a, unsigned char **o, int *e);                                    /* 0x4f2540 */
 int gv_EntryIndex(char *r, int *e);                                       /* 0x4ef6b0 */
 int gv_OrderBury(int *g, char *o, int v, int b);                     /* 0x4f01d0 */
-int gm_FreeBuilding(char *b);                                                       /* 0x5012e0 */
+int gm_FreeBuilding(struct AIBLD *b);                                                       /* 0x5012e0 */
 void gm_KillSpieler(int c, int mode);                                     /* 0x503c60 */
 int gm_TakeObjekt(int id, int good, int n);                                       /* 0x500a40 */
 int gm_AddObjekt(int id, int proto, int n);                                       /* 0x500970, hmt.h: void * n */
@@ -417,7 +417,7 @@ struct GVYARD *gv_GrowGraveyard(unsigned char *o);  /* 0x4eff50 */
 int ord_GetKindRecord();  /* 0x4f8890 */
 int gm_ClockSeason();  /* 0x4fe350 */
 void gm_RefreshGoodsLists(unsigned p);  /* 0x4ff190 */
-void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own);  /* 0x502b60 */
+void gm_AssignBuilding(struct AIBLD *b, unsigned master, unsigned own);  /* 0x502b60 */
 void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target);  /* 0x58feb0 */
 extern const struct D3VECTOR4 d3_ZAxis;  /* 0x5ebb74, (0, 0, 1), d3_vec.c */
 extern struct VFSDIR *vfs_Root;  /* 0x6333fc */
@@ -426,10 +426,10 @@ extern char ai_DataPath[];  /* 0x75dca0 */
 void ai_ResetJob(struct AICHAR *c);  /* 0x47e940 */
 int gv_HandOverCrimes();  /* 0x4f3910 */
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
-char *gm_HomeObject(unsigned char *b);  /* 0x4fdc10 */
-short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, char *p6);  /* 0x4fddb0 */
+char *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
+short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
-int gm_BuildingMainObject(unsigned char *b);  /* 0x501b50 */
+int gm_BuildingMainObject(struct AIBLD *b);  /* 0x501b50 */
 void gm_FreeObject(int o);  /* 0x5034b0 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 typedef struct G17B16 { char b[16]; } G17B16;
@@ -791,7 +791,7 @@ void cm_SendPartyNote(struct AICHAR *a, G28REC *b, char *text, char *extra);  /*
 
 int gm_TitleGroup();  /* 0x504ad0 */
 int gm_BuildingJob();  /* 0x5048e0 */
-void gm_ChangeBuildingState(unsigned char *b, int d);  /* 0x50cad0 */
+void gm_ChangeBuildingState(struct AIBLD *b, int d);  /* 0x50cad0 */
 
 int d2_OpenForm(short x, short y, char *name);  /* 0x4741f0 */
 int d2_SetForm(int view, int n);  /* 0x475f70 */

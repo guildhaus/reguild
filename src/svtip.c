@@ -1579,7 +1579,7 @@ void ai_SpeedKeys(void)
     }
 }
 
-int gm_BuildingMainObject(unsigned char *b); void *gm_GetGebaeudeHauptraum(unsigned char *b);
+int gm_BuildingMainObject(struct AIBLD *b); void *gm_GetGebaeudeHauptraum(struct AIBLD *b);
 
 /* 0x589e00, fills bookmark slot i from the building b (79 B): the slot's building = b->id, and its object = the id
    (AIOBJ.objId) of the building's main object (gm_BuildingMainObject, else gm_GetGebaeudeHauptraum; none for the
@@ -1590,9 +1590,9 @@ void ai_BookmarkSetBuilding(int i, AIBLD *b)
 
     o = 0;
     if (b->type != 0x1d) {
-        o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)b);
+        o = (AIOBJ *)gm_BuildingMainObject(b);
         if (o == 0)
-            o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)b);
+            o = (AIOBJ *)gm_GetGebaeudeHauptraum(b);
     }
     ai_Bookmarks[i].building = b->id;
     if (o != 0)

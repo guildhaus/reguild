@@ -602,7 +602,7 @@ int ai_TokenBestInn(int mode, G12ARG *args, int k, char *fmt, char *out)
             return 0;
     } else {
         for (b = gm_BuildQuery(1, 5, 0x16); b != 0; b = gm_BuildNext()) {
-            v = gm_EquipmentValue((void *)b, b->level);
+            v = gm_EquipmentValue(b, b->level);
             if (v > best) {
                 pick = b;
                 best = v;

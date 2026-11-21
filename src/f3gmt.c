@@ -456,7 +456,7 @@ void gm_ClearBuildings(void)
     i = 0;
     do {
         if (((char *)ai_Blds)[i] != 0)
-            gm_FreeBuilding((char *)ai_Blds + i);
+            gm_FreeBuilding((AIBLD *)((char *)ai_Blds + i));
         i += 0xa9;
     } while (i < 0xa900);
     memset(ai_Blds, 0, 0xa900);
@@ -534,12 +534,12 @@ int gm_FindObjectInst(int id)
 
 void gm_Free(void)
 {
-    int o;
+    AIBLD *o;
 
-    o = (int)gm_BuildQuery(1, 6);
+    o = gm_BuildQuery(1, 6);
     while (o != 0) {
         gm_FreeBuilding(o);
-        o = (int)gm_BuildNext();
+        o = gm_BuildNext();
     }
     if (ai_BTypes != 0) {
         mem_Free(ai_BTypes);
@@ -1800,7 +1800,7 @@ int gm_AddNegative(int id, int proto, int n)
 }
 /* 0x500b90, looks the kind of the building b up in gm_BuildingItemGroups (37 records: a kind byte and ten object prototypes) and collects its non-zero prototypes into the list gm_KindObjs (count gm_KindObjCount); 1 when the kind is not there (or no tables), else 0 */
 
-int gm_BuildKindObjects(char *b)
+int gm_BuildKindObjects(AIBLD *b)
 {
     G7GRP *g;
     int i, k;
@@ -1809,7 +1809,7 @@ int gm_BuildKindObjects(char *b)
         return 1;
     g = 0;
     for (i = 0; i < 37; i++) {
-        if (gm_BuildingItemGroups[i].key == ((AIBLD *)b)->type) {
+        if (gm_BuildingItemGroups[i].key == b->type) {
             g = &gm_BuildingItemGroups[i];
             break;
         }
@@ -2096,9 +2096,8 @@ char *gm_FindFreeBuilding(void)
 }
 /* 0x5012e0, frees the building b: a player's building (its owner a character of kind 6) frees its production setting (ai_FreeProdSetting); by type, 0x1e frees its plant records, 0x48 .. 0x4a its graveyard record, 0x4b .. 0x4d its heap block; every character living or working in it loses it, its object list is freed and the type set to 0 (free). Returns 0, -1 for no building, -2 for one already free */
 
-int gm_FreeBuilding(char *p)
+int gm_FreeBuilding(AIBLD *b)
 {
-    AIBLD *b = (AIBLD *)p;
     int i;
 
     if (b == 0)
@@ -2160,9 +2159,8 @@ int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
 
 /* 0x501400, stocks a new building b with the objects its building kind needs (gm_BuildingItemGroups: the kind byte and ten object prototypes): the container object 0xff (query (2, 6, 0, 0xff), created by gm_CreateObject when missing) gets each listed object with the amount 2 when it has none */
-void gm_StockBuildingObjects(char *p)
+void gm_StockBuildingObjects(AIBLD *b)
 {
-    AIBLD *b = (AIBLD *)p;
     AIOBJ *o;
     int i, k;
 
@@ -2180,9 +2178,8 @@ void gm_StockBuildingObjects(char *p)
 }
 /* 0x5014b0, sets the capacities of the objects of building b from its kind record (bytes +0x23d / +0x23e / +0x23f): the object 0x2a gets cap[0] = the first, cap[1] = the second (each at least 2), or cap[0] = the third when the first two are 0; the object 0x116 gets the third in cap[0] in that case */
 
-void gm_SetCapacities(unsigned char *p)
+void gm_SetCapacities(AIBLD *b)
 {
-    AIBLD *b = (AIBLD *)p;
     unsigned char *k;
     AIOBJ *o;
 
@@ -2202,7 +2199,7 @@ void gm_SetCapacities(unsigned char *p)
 }
 
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
-void *gm_GetGebaeudeHauptraum(unsigned char *b);                     /* 0x501ce0 */
+void *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 int gm_BuildingClass();                     /* 0x501d80 */
 /* ai_BuildingNames: view of txt_Ptrs (build/mk_txt_views.py) */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -2332,7 +2329,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
         }
         s = (unsigned short *)gm_QueryNext();
     }
-    s = (unsigned short *)gm_GetGebaeudeHauptraum((unsigned char *)b);
+    s = (unsigned short *)gm_GetGebaeudeHauptraum(b);
     if (s != 0)
         b->mainRoom = *s;
     if (gm_IsHomeType(b) != 0)
@@ -2396,8 +2393,8 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     case 0x48:
     case 0x49:
     case 0x4a:
-        b->yard = gv_AllocGraveyard((unsigned char *)b);
-        gv_BuryNewDead((unsigned char *)b, 3);
+        b->yard = gv_AllocGraveyard(b);
+        gv_BuryNewDead(b, 3);
         break;
     case 0x4b:
     case 0x4c:
@@ -2408,15 +2405,14 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     }
     if (b->type == 0x26)
         b->mainRoom = 0x10e;
-    gm_SetCapacities((unsigned char *)b);
+    gm_SetCapacities(b);
     gm_BuildingClass(b->type);
-    gm_StockBuildingObjects((char *)b);
+    gm_StockBuildingObjects(b);
     return (unsigned char *)b;
 }
 /* 0x501b50, the main object of the building b, chosen by its building class (gm_BuildingClass): the classes 1 / 7 / 8 look by kind for the object 0x205 (kind 0x1d), 0x12e (0x16), 0x54 (4) or 0xfd (0x1f); class 4 takes the object 0xf7, a home (gm_IsHomeType) the 0xfd; otherwise (or when that object is missing) the first room of the kind's prototype list (an object of goods class 2 other than 0xfd). Returns the object, 0 when there is none */
-int gm_BuildingMainObject(unsigned char *p)
+int gm_BuildingMainObject(AIBLD *b)
 {
-    AIBLD *b = (AIBLD *)p;
     GMBTYPE *bt;
     GMGOOD *g;
     char *o;
@@ -2465,9 +2461,8 @@ int gm_BuildingMainObject(unsigned char *p)
 }
 /* 0x501ce0, the main room of the building b ("gm_GetGebaeudeHauptraum", ai.c's error texts): the object 0xfd of a home (gm_IsHomeType), the 0x54 of a kind-type 4 building, else the first object of the goods class 2 in its list that is not the 0xfd; 0 when there is none */
 
-void *gm_GetGebaeudeHauptraum(unsigned char *p)
+void *gm_GetGebaeudeHauptraum(AIBLD *b)
 {
-    AIBLD *b = (AIBLD *)p;
     unsigned char *k;
     unsigned short *o;
 
@@ -2529,22 +2524,22 @@ int gm_BuildingClass(int kind)
 }
 /* 0x501e40, the nearest other building of the type kind to the building b (both need an object at +0x61; not a home (0x502520), not a type-10 (0x5024f0) one): by the squared-root distance of the positions 0x458a20 gives, 0 when none */
 
-unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
+AIBLD *gm_NearestBuilding(AIBLD *b, unsigned kind)
 {
     float best, d, dx, dy, dz;
-    unsigned char *r, *p, *k;
+    AIBLD *r, *p; unsigned char *k;
     D3OBJECT *o;
     D3VECTOR4 v1, v2;
 
     r = 0;
     best = 1e+08f;
-    if (b != 0 && ((AIBLD *)b)->object != 0) {
-        p = (unsigned char *)gm_BuildQuery(1, 6);
+    if (b != 0 && b->object != 0) {
+        p = gm_BuildQuery(1, 6);
         while (p != 0) {
-            k = (unsigned char *)ai_BTypes + ((AIBLD *)p)->type * 0x24d;
-            if (gm_IsHomeType((AIBLD *)p) == 0 && gm_IsType10((AIBLD *)p) == 0 && (o = ((AIBLD *)p)->object) != 0 && p != b && *k == kind) {
+            k = (unsigned char *)ai_BTypes + p->type * 0x24d;
+            if (gm_IsHomeType(p) == 0 && gm_IsType10(p) == 0 && (o = p->object) != 0 && p != b && *k == kind) {
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v1);
-                d3_PointToWorld(((AIBLD *)b)->object, &((AIBLD *)b)->object->pos, (D3VECTOR *)&v2);
+                d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v2);
                 dx = v1.x - v2.x;
                 dy = v1.y - v2.y;
                 dz = v1.z - v2.z;
@@ -2554,7 +2549,7 @@ unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
                     best = d;
                 }
             }
-            p = (unsigned char *)gm_BuildNext();
+            p = gm_BuildNext();
         }
         return r;
     }
@@ -2850,8 +2845,8 @@ extern int ai_Unk770ae0_day;            /* the clock's day (0x770ae0) */
 #ifndef TIME_VIEW_H
 #endif
 extern char ai_Unk770ce4[];             /* 0x770ce4: the field +0x164 of the character records (stride 0x21c) */
-void sv_RemoveBanners(char *b);                     /* 0x5286a0 */
-void sv_CreateBanners(char *b);                     /* 0x5282f0 */
+void sv_RemoveBanners(struct AIBLD *b);                     /* 0x5286a0 */
+void sv_CreateBanners(struct AIBLD *b);                     /* 0x5282f0 */
 void ch_InflateModel();                     /* 0x402540 */
 int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec);     /* 0x5a9430 */
@@ -2867,7 +2862,7 @@ extern int ai_CharCount;  /* 0x6f1bc0 */
 extern int f3gm_ObjectCount;  /* 0x6f1bdc */
 
 /* 0x502b60, hands the building b to the owner own (a character slot, 0xffff: only the master is set) with the master character master: a player owner (kind 6) loses the building's production setting (ai_FreeProdSetting), a player new owner gets one (ai_ProdSetting); the old owner's home (bld2) link is cleared; a home (type 2) shows its objects (gm_ShowBuildingObjects) and becomes the new owner's home unless it has one of a higher type; for a person owner (kind 6 / 7) the character working there under the master (gm_FindCharacterByMaster) loses title and flag, and its building for the types 5 / 9; every cart (goods kind 0x1d) of the building gets the owner's netId and its model the owner's texture set (v054 - 0x599 for the kinds 5 / 6 / 7); last the banners are removed in scene 0 (sv_RemoveBanners) and, for another character of kind 5 / 6 / 7 than the player's with a model, made again (sv_CreateBanners) */
-void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
+void gm_AssignBuilding(AIBLD *b, unsigned master, unsigned own)
 {
     AIBLD *bd;
     unsigned char *p;
@@ -2880,7 +2875,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
     int cnt, scn, owid;
     char t;
 
-    bd = (AIBLD *)b;
+    bd = b;
     p = (unsigned char *)ai_BTypes + bd->type * 0x24d;
     bd->masterId = master;
     if (own != 0xffff) {
@@ -2889,7 +2884,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
             if (o != 0xffff && ORD_CHARS[o].kind == 6)
                 ai_FreeProdSetting(bd->id);
             if (ORD_CHARS[own].kind == 6)
-                ai_ProdSetting((AIBLD *)b);
+                ai_ProdSetting(b);
         }
         o = bd->owner;
         if (o != 0xffff && ORD_CHARS[o].bld2 == bd)
@@ -2905,7 +2900,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
         }
         t = ORD_CHARS[own].kind;
         if (t == 6 || t == 7) {
-            per = (ORDCHAR *)gm_FindCharacterByMaster((AIBLD *)b);
+            per = (ORDCHAR *)gm_FindCharacterByMaster(b);
             if (per != 0) {
                 per->title = 0;
                 per->flags1b4 &= ~1u;
@@ -2953,21 +2948,21 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
 /* 0x502e30, for a building of the type 2: runs 0x502a60 for every object of the kind 2 in its list (up to 32), with the building's owner (+0x27) */
 
 
-void gm_ShowBuildingObjects(unsigned char *b)
+void gm_ShowBuildingObjects(AIBLD *b)
 {
     int l[32];
     int n, i, o;
 
     n = 0;
-    if (ai_BTypes[((AIBLD *)b)->type].kind == 2) {
-        o = (int)gm_Query(((AIBLD *)b)->objList, 1, 4, 2);
+    if (ai_BTypes[b->type].kind == 2) {
+        o = (int)gm_Query(b->objList, 1, 4, 2);
         while (o != 0) {
             l[n] = o;
             n++;
             o = (int)gm_QueryNext();
         }
         for (i = 0; i < n; i++)
-            gm_ShowSlotObjects((int)b, l[i], ((AIBLD *)b)->owner);
+            gm_ShowSlotObjects((int)b, l[i], b->owner);
     }
 }
 /* 0x502eb0, lists the characters working in the building b (their building, bld, is b) into out and returns their number (also out[0]): out[1 ..] (0xc) those with the title of the kind's first job rank (+0x22f), out[0xd ..] (0xc) of the second (+0x230), out[0x19 ..] (0xc) the others, out[0x25] the one whose job is one of the kind's two jobs (+0x223 / +0x224, both set); the lists are filled with 0xffff
@@ -2988,14 +2983,14 @@ void gm_ShowBuildingObjects(unsigned char *b)
    the arm stores split into *p = id; p++ / p[0] = id; p += 1 (one code), p / n init orders and k after
    them (48 variants, best = 74). Left: k must lose its register to p3 (a priority question), the slot
    pairing that follows from it (tiebreak: insensitive) */
-int gm_ListWorkers(unsigned char *b, int *out)
+int gm_ListWorkers(AIBLD *b, int *out)
 {
     int i, n, j;
     unsigned char *k;
     ORDCHAR *c;
     int *p1, *p2, *p3;
 
-    k = (unsigned char *)ai_BTypes + *b * 0x24d;
+    k = (unsigned char *)ai_BTypes + b->type * 0x24d;
     out[0] = 0;
     for (j = 0; j < 0x18; j++)
         out[1 + j] = 0xffff;
@@ -3008,7 +3003,7 @@ int gm_ListWorkers(unsigned char *b, int *out)
     p2 = out + 0xd;
     for (i = 0; i < 0x300; i++) {
         c = &ORD_CHARS[i];
-        if (c->bld == (AIBLD *)b) {
+        if (c->bld == b) {
             if (k[0x22f] == (unsigned char)c->title)
                 *p1++ = c->id;
             else if (k[0x230] == (unsigned char)c->title)
@@ -5218,7 +5213,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     for (j = 0; j < 0x100; j++) {
         bl = &((AIBLD *)ai_Blds)[j];
         if (bl->type != 0 && gm_BuildingClass(bl->type) == 2 && bl->owner == ca->id)
-            gm_AssignBuilding((unsigned char *)bl, ai_PlayerChar->id, ai_PlayerChar->id);
+            gm_AssignBuilding(bl, ai_PlayerChar->id, ai_PlayerChar->id);
     }
     sa = ca->id;
     worth = gm_GetWorth(sa);
@@ -5294,7 +5289,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     return sa;
 }
 
-int gm_EquipmentValue(unsigned char *b, int level);                     /* 0x509b10 */
+int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
 int cm_SendMoveObject(int a, int b, int c);                     /* 0x4c5010 */
 #define ORD_F1C8_ANEW 0x800000  /* flags1c8 bit 23, set for a character that starts anew (gm_ForfeitEstate) */
@@ -5357,7 +5352,7 @@ void gm_InheritEstate(ORDCHAR *dead, ORDCHAR *heir)
             m.fromId = -1;
             m.flags = 2;
             m.arg0 = s->id;
-            m.arg1 = gm_EquipmentValue((unsigned char *)s, s->level);
+            m.arg1 = gm_EquipmentValue(s, s->level);
             cm_SendLongMessage((char *)&m);
             for (i = 0; i < 0x300; i++) {
                 c = &ORD_CHARS[i];
@@ -5488,7 +5483,7 @@ void gm_ForfeitEstate(ORDCHAR *c, char *out, int flag)
         else
             lo = 1 << *kind;
         if ((lo & ai_BuildingTypeMasks[2]) || (hi & ai_BuildingTypeMasks[3])) {
-            v = gm_EquipmentValue((unsigned char *)b, b->level);
+            v = gm_EquipmentValue(b, b->level);
             if (v > bestv) {
                 /* the most valuable so far: c keeps it, the player takes the one it kept before */
                 if (best != 0) {
@@ -5514,7 +5509,7 @@ void gm_ForfeitEstate(ORDCHAR *c, char *out, int flag)
             m.fromId = -1;
             m.flags = 2;
             m.arg0 = h->id;
-            m.arg1 = gm_EquipmentValue((unsigned char *)h, h->level);
+            m.arg1 = gm_EquipmentValue(h, h->level);
             cm_SendLongMessage((char *)&m);
             for (i = 0; i < 0x300; i++) {
                 t = &ORD_CHARS[i];
@@ -6320,7 +6315,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out)
    record (+0x23, the low 15 bits; +0x22 of them searched, 0x40 at most): counts the following ones up to a 0 word or
    one of type 2 / 6 (type 0x21 not counted) and stores their ids at out[1 ..] (out may be 0); 0 when *proto is not
    listed */
-int gm_ListObjectsAfter(unsigned char *b, unsigned short *proto, int *out)
+int gm_ListObjectsAfter(AIBLD *b, unsigned short *proto, int *out)
 {
     GMBTYPE *bt;
     GMGOOD *g;
@@ -6328,7 +6323,7 @@ int gm_ListObjectsAfter(unsigned char *b, unsigned short *proto, int *out)
     unsigned id;
 
     n = 0;
-    bt = GM_BTYPE(*b);
+    bt = GM_BTYPE(b->type);
     for (i = 0; i < bt->objCount; i++)
         if ((unsigned short)(bt->objs[i] & 0x7fff) == *proto)
             break;
@@ -6362,7 +6357,7 @@ int gm_BuildingLevel(AIBLD *b)
    out[0xd] / out[0xe]) and 0x16 (out[0x13]), out[0x11] the income, out[0x14] income - costs; nothing but zeros
    when id is not the owner. Returns 0 when costs and income are both zero, else 1 */
 
-int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
+int gm_BuildingBalance(AIBLD *b, unsigned id, int *out)
 {
     AIBLD *bld;
     unsigned char *kind;    /* the kind's ai_BTypes record: +0x223 the job ids, +0x22f the title ranks */
@@ -6371,7 +6366,7 @@ int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
     int i, j, cost, income, wage, found, sum;
     AIOBJ *o;
 
-    bld = (AIBLD *)b;
+    bld = b;
     sum = 0;
     cost = 0;
     income = 0;
@@ -6381,8 +6376,8 @@ int gm_BuildingBalance(unsigned char *b, unsigned id, int *out)
     if (id == bld->owner) {
         own = (char *)&ai_Chars[id];
         if (*kind == 0x1e) {
-            if (ahm_OwnerChar(b) != 0) {
-                out[6] = ahm_ObjectValue(b);
+            if (ahm_OwnerChar((unsigned char *)b) != 0) {
+                out[6] = ahm_ObjectValue((unsigned char *)b);
                 sum = out[6];
             }
         } else {
@@ -6691,14 +6686,12 @@ int gm_FixedWorkMinutesBetween(AITIME *a, AITIME *b)
    capacity its cap[1] (of a market the larger of both caps); else those goods, the capacity its cap[0], and nothing
    for a market. Every goods of a market counts. 0 when the building has no object 0xfd or no stall */
 
-int gm_BuildingGoodsList(char *b, unsigned *out, int kind)
+int gm_BuildingGoodsList(AIBLD *bld, unsigned *out, int kind)
 {
-    AIBLD *bld;
     AIOBJ *stall, *o;
     GMGOOD *g;
     int i, cap;
 
-    bld = (AIBLD *)b;
     for (i = 0; i < 0x2e; i++)
         out[i] = 0;
     if (gm_Query((void *)bld->objList, 1, 0, 0xfd) == 0)
@@ -6776,7 +6769,7 @@ int gm_BuildingGoodsList17(char *b, unsigned *out, int kind)
 }
 /* 0x509b10, the value of the building b at the level (percent): its type's base value x 0xf00 plus the price (gm_ItemPrice) of its equipment: each object of the type's list of the kinds 2 / 6 that the building holds, and the objects listed after it (up to the next kind 2 / 6) held inside that one; the sum times level / 100 */
 
-int gm_EquipmentValue(unsigned char *b, int level)
+int gm_EquipmentValue(AIBLD *b, int level)
 {
     char k, found;
     int i;
@@ -6789,7 +6782,7 @@ int gm_EquipmentValue(unsigned char *b, int level)
 
     holder = 0;
     found = 0;
-    t = GM_BTYPE(((AIBLD *)b)->type);
+    t = GM_BTYPE(b->type);
     value = t->baseValue * 0xf00;
     i = 0;
     w = &t->objs[1];
@@ -6800,7 +6793,7 @@ int gm_EquipmentValue(unsigned char *b, int level)
         g = GM_GOOD(id);
         if (!found) {
             if (g->type == 2 || g->type == 6) {
-                holder = gm_Query((void *)((AIBLD *)b)->objList, 1, 0, id);
+                holder = gm_Query((void *)b->objList, 1, 0, id);
                 if (holder != 0) {
                     value += gm_ItemPrice(holder->type, holder->fill);
                     if (i < 0x3f && (k = GM_GOOD(*w & 0x7fff)->type) != 2 && k != 6)
@@ -6961,7 +6954,7 @@ int gm_CharCurrency(char *c, char p)
 
 /* ---- layout 2026-10-23: the character / building worth helpers 0x509f20 .. 0x50af00 (ROUGH drafts) ---- */
 char * ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
-int gm_EquipmentValue(unsigned char *b, int level);
+int gm_EquipmentValue(struct AIBLD *b, int level);
 int gm_GetWorth(unsigned short id);
 int gm_ListAmount(short *l, char *o);
 
@@ -7207,7 +7200,7 @@ int gm_GetCreditOffers(int b, unsigned short *p, unsigned cnt, int *out)
 int gm_GetWorth(unsigned short id)
 {
     int v;
-    unsigned char *bl;
+    AIBLD *bl;
     ORDCHAR *c;
 
     if (id >= 0x300)
@@ -7216,8 +7209,8 @@ int gm_GetWorth(unsigned short id)
     if (c->id == 0xffff)
         return -1;
     v = gm_GetGoodsValue((char *)c);
-    for (bl = (unsigned char *)gm_BuildQuery(1, 3, id); bl != 0; bl = (unsigned char *)gm_BuildNext()) {
-        v += gm_EquipmentValue(bl, (char)bl[0x5c]);
+    for (bl = gm_BuildQuery(1, 3, id); bl != 0; bl = gm_BuildNext()) {
+        v += gm_EquipmentValue(bl, bl->level);
         v += gm_StallValue((char *)bl);
     }
     return v;
@@ -7541,13 +7534,13 @@ int gm_CollectCarried(int id, int *out)
 {
     GMCARRY *cr;
     GMCARRYREC *r;
-    unsigned char *b;
+    AIBLD *b;
     int workers[0x26];
     int w, i, j;
 
     cr = (GMCARRY *)out;
     memset(cr, 0, sizeof(GMCARRY));
-    b = (unsigned char *)gm_BuildQuery(1, 4, id);
+    b = gm_BuildQuery(1, 4, id);
     while (b != 0) {
         gm_ListWorkers(b, workers);
         w = workers[0x25];
@@ -7556,7 +7549,7 @@ int gm_CollectCarried(int id, int *out)
             cr->capacity += 0xe;
             break;
         }
-        b = (unsigned char *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     j = 0;
     for (i = 0; i < 0x100; i++) {
@@ -8318,9 +8311,8 @@ void gm_ChangeObjektZustand(int id, int d)
    character (kind 6 / 7) gets the news: HS_66 for the owner, HS_67 with the owner's name for the others, and the
    building is reported gone (cm_SendBuildingDestroyed) */
 
-void gm_ChangeBuildingState(unsigned char *b, int d)
+void gm_ChangeBuildingState(AIBLD *bld, int d)
 {
-    AIBLD *bld = (AIBLD *)b;
     char k;
     char v;
     GMBTYPE *bt;
@@ -8334,7 +8326,7 @@ void gm_ChangeBuildingState(unsigned char *b, int d)
         v = -k;
     if (d + k > 100)
         v = 100 - k;
-    cm_BeginFieldBlock(b, bld->id);
+    cm_BeginFieldBlock((char *)bld, bld->id);
     cm_AddFieldValues(1, 1, 0x5c, &v);
     cm_SendFieldDeltas();
     if (bld->type != 0 && v + bld->level <= 0 && (bt = GM_BTYPE(bld->type))->kind != 0xf && bt->kind != 0x1c
@@ -8343,10 +8335,10 @@ void gm_ChangeBuildingState(unsigned char *b, int d)
             c = &ORD_CHARS[i];
             if (c->kind == 6 || c->kind == 7) {
                 if (c->id != bld->owner) {
-                    txt_Format(other, 0x1c52, bld->owner, b);
+                    txt_Format(other, 0x1c52, bld->owner, bld);
                     he_ShowNews(c->netId, -1, other, 0, 0x5fe, "_NACHRICHTEN_HS_67");
                 } else {
-                    txt_Format(own, 0x1c53, b);
+                    txt_Format(own, 0x1c53, bld);
                     he_ShowNews(c->netId, -1, own, 0, 0x5fe, "_NACHRICHTEN_HS_66");
                 }
             }
@@ -8519,12 +8511,10 @@ int gm_TrialBuildingKind(char *b)
 /* 0x50d0b0, the number of curse victims the building b offers (the range of the strength slider of the curse
    target window, 0x5d90e0): 4, 7 with the curse object 0x284, plus 3 with the 0x289 */
 
-int gm_CurseTargetCount(char *b)
+int gm_CurseTargetCount(AIBLD *bld)
 {
-    AIBLD *bld;
     int n;
 
-    bld = (AIBLD *)b;
     n = 4;
     if (gm_Query((void *)bld->objList, 2, 6, 0, 0x284) != 0)
         n = 7;

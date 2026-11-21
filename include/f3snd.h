@@ -156,7 +156,7 @@ int snd_FindVoiceSample(int id, int bank, char *text, int var);
 int snd_PlayVoice(int id, int bank, char *text, int var);
 int snd_QueueVoice(int id, int bank, char *text, int var, unsigned int delay);
 int snd_LoadVoiceBank(char *name, int a);
-void snd_LoadBuildingVoices(unsigned char *b);
+void snd_LoadBuildingVoices(struct AIBLD *b);
 void snd_UnloadBuildingVoices(void);
 void snd_PlayWorkerClick(G16CHARCLICK *c);
 void snd_PlaySelectedClick(void);

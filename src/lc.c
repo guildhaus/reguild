@@ -1184,7 +1184,7 @@ int ai_ProductionWindow(AIBLD *bld)
     return 0;
 }
 
-int gm_BuildingGoodsList(char *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(int obj); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 
@@ -1215,7 +1215,7 @@ void ai_UpdateResourceColumns(int win, int part, int ncols, int unused)
         bld = ai_FallbackBuilding;
     d2_SetForm(win, 0);
     d2_SetForm(win, part);
-    gm_BuildingGoodsList((char *)bld, (unsigned *)&list, 1);
+    gm_BuildingGoodsList(bld, (unsigned *)&list, 1);
     for (c = 0; c < ncols; c++) {
         if (ai_ProdColumns[c].win < 0) {
             ai_ProdColumns[c].win = d2_CreateChildWindow(ai_ProdColumns[c].x, ai_ProdColumns[c].y, 0xcd, 0x57, 0x10, d2_LastWindow);
@@ -1343,7 +1343,7 @@ void ai_UpdateProdColumns(int win, int part, int ncols, int store, int mode)
     cls = gm_BuildingClass(bld->type);
     d2_SetForm(win, 0);
     d2_SetForm(win, part);
-    gm_BuildingGoodsList((char *)bld, (unsigned *)&list, 1);
+    gm_BuildingGoodsList(bld, (unsigned *)&list, 1);
     for (c = 0; c < ncols; c++) {
         ai_ProdColumns[c].selected = -1;
         if (ai_ProdSelectedInput != 0)
@@ -4044,7 +4044,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
     return 0;
 }
 
-int gm_BuildKindObjects(char *b);
+int gm_BuildKindObjects(struct AIBLD *b);
 char *itoa(int, char *, int);
 
 /* 0x593150, the production window of a workshop bld (1894 B): the production screen "Handel\Handel_PRODUKTION" with
@@ -4192,7 +4192,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
             }
         }
         /* the columns: the objects the building can make whose inputs the room holds */
-        gm_BuildKindObjects((char *)bld);
+        gm_BuildKindObjects(bld);
         for (i = 0; ncols < 16 && i < gm_KindObjCount; i++) {
             g = &ai_Goods[gm_KindObjs[i]];
             if (g->type != 0x17) {
@@ -9463,7 +9463,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
         sb_PlaySample(snd_RoomBank, "FremdesGeschaeftBetreten_s", 1, 0x3f, 0x7f, 0, 0);
     strcpy(ch_StepSample, "normal_s");
     gm_Query((void *)b->objList, 1, 0, b->mainRoom);
-    snd_LoadBuildingVoices((unsigned char *)b);
+    snd_LoadBuildingVoices(b);
     do {
         sv_FrameBase = sv_FrameDepth + 1;
         room = gm_Query((void *)b->objList, 1, 0, b->mainRoom);
@@ -9732,7 +9732,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
     universe = init_BuildingSceneUniverse(b);
     D3IF_SCENE(universe).sky = D3IF_SCENE(0).sky;
     if (universe != 0) {
-        snd_LoadBuildingVoices((unsigned char *)b);
+        snd_LoadBuildingVoices(b);
         if (universe == -1 || d3_Scenes[universe].dirty != 0) {
             d2_CutsceneActive = 1;
             sv_RunFrame(0, 0x603c7);

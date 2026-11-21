@@ -10,7 +10,7 @@ struct AIBLD;
 
 struct AIBLD *gm_BuildNext(void);              /* 0x501030, the next building of the query */
 struct AIBLD *gm_BuildQuery(int n, ...);       /* 0x501190, n (kind, value) filters; 6 takes no value */
-int gm_BuildingMainObject(unsigned char *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
+int gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main object of the building by its class (an AIOBJ, ai.c +0x2 objId) */
 short *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
 int gm_FindById(int *bld, int *obj, int *chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
 int gm_FindObjectProto(char *name);             /* 0x4fe900, the number of the object prototype with the given name (case-insensitive), 0 when none */
@@ -25,8 +25,8 @@ int gm_IsType10(struct AIBLD *b);              /* 0x5024f0, 1 for the town marke
 int gm_IsHomeType(struct AIBLD *b);            /* 0x502520, 1 for a home type */
 char *gm_FindCharacterByMaster(struct AIBLD *m);          /* 0x50a810, the first kind 6 / 7 / 1 / 2 character with a job whose master (+0x16c) is m */
 void gm_ShowSlotObjects(int unused, int scene, int c);  /* 0x502a60, the scene objects of the character's five slots on */
-void gm_ShowBuildingObjects(unsigned char *b);  /* 0x502e30, for a building of the type 2: gm_ShowSlotObjects for every object of the kind 2 in its list (up to 32) */
-void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own);  /* 0x502b60 */
+void gm_ShowBuildingObjects(struct AIBLD *b);  /* 0x502e30, for a building of the type 2: gm_ShowSlotObjects for every object of the kind 2 in its list (up to 32) */
+void gm_AssignBuilding(struct AIBLD *b, unsigned master, unsigned own);  /* 0x502b60 */
 
 void gm_ClearBuildings(void);                   /* 0x4fe7f0, clears the 0x100 records of ai_Blds */
 float gm_Mix2(float u, float v);                /* 0x504e80 */
@@ -47,7 +47,7 @@ struct ORDCHAR; int gm_CatchUpperDisease(struct ORDCHAR *c);  /* 0x5056a0, the c
 struct ORDCHAR; int gm_CureDisease(struct ORDCHAR *c);  /* 0x505840, cures one disease of the character; the kind or 0 */
 struct ORDCHAR; int gm_CureMinorDisease(struct ORDCHAR *c);  /* 0x5059d0, cures one of the minor diseases 2 .. 5 of the character; the kind or 0 */
 struct ORDCHAR; int gm_CureUpperDisease(struct ORDCHAR *c);  /* 0x505ad0, cures one of the diseases 6, 7, 8, 3 of the character; the kind or 0 */
-int gm_CurseTargetCount(char *b);  /* 0x50d0b0 */
+int gm_CurseTargetCount(struct AIBLD *b);  /* 0x50d0b0 */
 int gm_Season(char *d);  /* 0x4fe330 */
 struct ORDCHAR; int gm_CatchMinorDisease(struct ORDCHAR *c);  /* 0x5054f0, the character catches one of the minor diseases 2 .. 5; the kind or 0 */
 int gm_HeadIconNumber(char *name);  /* 0x4fb770 */
@@ -58,15 +58,15 @@ extern GMPLAYERSLOT ai_PlayerSlots[4];        /* 0x7e3f40, the player slots (the
 extern GMBLOCK gm_StockBlocks[];             /* 0x7d6a60, the five stock blocks (one per player slot) */
 extern unsigned short gm_KindObjCount;  /* 0x76fdc4 */
 extern unsigned gm_KindObjs[732];  /* 0x889400 */
-int gm_BuildKindObjects(char *b);  /* 0x500b90 */
+int gm_BuildKindObjects(struct AIBLD *b);  /* 0x500b90 */
 int gm_BathObjectCount(char *b);  /* 0x50cf60 */
 int gm_CurseObjectCount(char *b);  /* 0x50cfd0 */
 int gm_ObjectBuilding(int o);  /* 0x50a0f0 */
 int gm_TakeableCount(char *c, int proto, int n);  /* 0x50ad70 */
 float gm_HealthFactor(int c);  /* 0x508a20 */
 int gm_FreeStallCapacity(char *l, int id, int n);  /* 0x50acf0, how many of the goods the stall object l can still take, at most n */
-void gm_ChangeBuildingState(unsigned char *b, int d);  /* 0x50cad0 */
-int gm_ListWorkers(unsigned char *b, int *out);  /* 0x502eb0, the worker lists of the building b (out[1 ..], out[0x19 ..]); returns their number */
+void gm_ChangeBuildingState(struct AIBLD *b, int d);  /* 0x50cad0 */
+int gm_ListWorkers(struct AIBLD *b, int *out);  /* 0x502eb0, the worker lists of the building b (out[1 ..], out[0x19 ..]); returns their number */
 int gm_TitleNumberGroup(int n);  /* 0x504350, the group of the title number n */
 int gm_HasBuilding(int p);  /* 0x5049c0 */
 void gm_EndDayIncomes(unsigned flags);  /* 0x4fabe0, the end of the day for the income histories */
@@ -76,7 +76,7 @@ void gm_CharacterUpkeep(void);  /* 0x4fa580, the daily upkeep of the characters 
 void gm_PayAllCharacterWages(void);  /* 0x4fa9b0 */
 void gm_UpdateWorthMood(void);  /* 0x4faa00 */
 float gm_JobWage(char *c, int k, int a, int b);  /* 0x508740, the wage of a job (a) or title (b) of the building kind k for the character c */
-int gm_BuildingBalance(unsigned char *b, unsigned id, int *out);  /* 0x508d80, the income / cost summary of the building b for the owner id */
+int gm_BuildingBalance(struct AIBLD *b, unsigned id, int *out);  /* 0x508d80, the income / cost summary of the building b for the owner id */
 unsigned *gm_NameRecord(int kind, int id);  /* 0x4fb330, the name record (0x44 bytes, the name at +4) with the id in the table of the sex kind (0 / 1), or the first free one */
 unsigned *gm_CharNameRecord(int id);  /* 0x4fb390 */
 int gm_CreateCharModel(unsigned short *c, int scene, int *p, int *ori, int obj, char *dummy);  /* 0x4fbb80 */
@@ -85,8 +85,8 @@ struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);  /* 0x4fd8
 void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
 int gm_AddToTreasury(int a);  /* 0x50c4e0, gives the amount a to the town treasury */
 struct ORDCHAR; struct AIBLD; struct ORDCHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);  /* 0x4fda70 */
-char *gm_HomeObject(unsigned char *b);  /* 0x4fdc10 */
-short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, char *p6);  /* 0x4fddb0 */
+char *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
+short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
 unsigned short *gm_AllocRaum(unsigned char *b, unsigned n);  /* 0x5031b0 */
 int gm_BuildingGoodsList17(char *b, unsigned *out, int kind);  /* 0x5099e0 */
@@ -102,16 +102,16 @@ struct ORDCHAR; void gm_InheritEstate(struct ORDCHAR *dead, struct ORDCHAR *heir
 struct ORDCHAR; void gm_ForfeitEstate(struct ORDCHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
 unsigned short *gm_ObjectBuildingOwner(unsigned short *o);  /* 0x50a050 */
-int gm_ListObjectsAfter(unsigned char *b, unsigned short *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
+int gm_ListObjectsAfter(struct AIBLD *b, unsigned short *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
 int gm_RemoveOwned(int *list, int id);  /* 0x5000c0 */
 void gm_SelectModelVariant(char *o);  /* 0x4fb5a0 */
 void gm_SetJob(int i, unsigned n);  /* 0x504790 */
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
-int gm_FreeBuilding(char *b);  /* 0x5012e0 */
+int gm_FreeBuilding(struct AIBLD *b);  /* 0x5012e0 */
 int gm_RemoveObjectFromBuilding(int b, int id);  /* 0x503480 */
 unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own);  /* 0x501580 */
-void gm_StockBuildingObjects(char *p);  /* 0x501400, stocks a new building p with the objects its building kind needs */
-void gm_SetCapacities(unsigned char *p);  /* 0x5014b0, sets the capacities of the objects of building p from its kind record */
+void gm_StockBuildingObjects(struct AIBLD *p);  /* 0x501400, stocks a new building p with the objects its building kind needs */
+void gm_SetCapacities(struct AIBLD *p);  /* 0x5014b0, sets the capacities of the objects of building p from its kind record */
 extern int gm_AllowAll;  /* 0x6f2448 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 int gm_AddNegative(int id, int proto, int n);  /* 0x500ae0 */
@@ -156,7 +156,7 @@ float gm_ObjectValue(int n);  /* 0x5086b0 */
 int gm_ListStock(short *l, int id);  /* 0x50ab50 */
 int gm_ListAmountById(char *l, int id);  /* 0x50ab20 */
 int gm_BuildingClass(int kind);  /* 0x501d80 */
-int gm_BuildingGoodsList(char *b, unsigned *out, int kind);  /* 0x5098a0 */
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind);  /* 0x5098a0 */
 int gm_BuildingLevel(struct AIBLD *b);  /* 0x508d70 */
 int gm_BuildingRank(struct AIBLD *b);  /* 0x5090b0 */
 int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0 */
@@ -165,11 +165,11 @@ float gm_StockPrice(int p, int n);  /* 0x4ffa10, the price of the goods n of the
 float gm_CharAge(unsigned short id);  /* 0x505e30, the age (+0x0a) of the character id */
 float gm_StaffFactor(struct AIBLD *b, int n, int *ids);  /* 0x50cdc0, the staff factor of the building b with the persons ids[0 .. n - 1] */
 int gm_CollectOffers(int goods);  /* 0x500c20 */
-int gm_EquipmentValue(unsigned char *b, int level);  /* 0x509b10 */
+int gm_EquipmentValue(struct AIBLD *b, int level);  /* 0x509b10 */
 char *gm_FindGoods(int p, unsigned id);  /* 0x4ffc40 */
 int gm_FindMarketObject(int id);  /* 0x500ec0 */
 int gm_FreeCapacity(short *l, int id, int n);  /* 0x50ab80 */
-void *gm_GetGebaeudeHauptraum(unsigned char *b);  /* 0x501ce0 */
+void *gm_GetGebaeudeHauptraum(struct AIBLD *b);  /* 0x501ce0 */
 int gm_GetGoodsValue(char *c);  /* 0x509e60 */
 float gm_GoodsPrice(unsigned id, unsigned char p);  /* 0x5089c0 */
 float gm_ItemPrice(int item, unsigned char n);  /* 0x5087f0 */

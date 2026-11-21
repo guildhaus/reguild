@@ -2227,9 +2227,8 @@ found:
 }
 /* 0x4fdc10, the object of the home building b where an inhabitant is placed on stage (reasoned: the callers place characters there): by the kind (kind 1: 0x12, 2: 0x13, 0x1d: 0xfd, 0x16: 0x120), through 0x4ffe90 (its object id, 1, 0, n) */
 
-char *gm_HomeObject(unsigned char *b)
+char *gm_HomeObject(AIBLD *bld)
 {
-    AIBLD *bld = (AIBLD *)b;
     char *o = 0;
     char *type;
 
@@ -2256,7 +2255,7 @@ char *gm_CharacterHome(char *c, int *out2, int *out3)
 
     n = 0xff;
     if (ch->bld2 != 0) {
-        o = (AIOBJ *)gm_HomeObject((unsigned char *)ch->bld2);
+        o = (AIOBJ *)gm_HomeObject(ch->bld2);
         if (o != 0)
             *out3 = o->objId;
         else
@@ -2281,7 +2280,7 @@ char *gm_CharacterHome(char *c, int *out2, int *out3)
 }
 /* 0x4fddb0, creates a character: flags bit 0 = gm_CreateRandomChild(age), else gm_CreateCharacter(type, -1, -1, age, 0, job, title, 2); bit 1 (random child only): sets its jobId / title; bit 2: places it on the stage of the building bld at its gm_HomeObject. Returns the character or 0 */
 
-short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char job, unsigned char title, char *bld)
+short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char job, unsigned char title, AIBLD *bld)
 {
     unsigned id;
     ORDCHAR *c;
@@ -2302,8 +2301,8 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
         return 0;
     c = &ORD_CHARS[id];
     if (flags & 4) {
-        if (bld != 0 && (o = (AIOBJ *)gm_HomeObject((unsigned char *)bld)) != 0)
-            gm_PlaceOnStage(c->netId, ((AIBLD *)bld)->id, o->objId, 0, 0);
+        if (bld != 0 && (o = (AIOBJ *)gm_HomeObject(bld)) != 0)
+            gm_PlaceOnStage(c->netId, bld->id, o->objId, 0, 0);
         return (short *)c;
     }
     return (short *)c;
@@ -2477,7 +2476,7 @@ int gm_IsHomeType(struct AIBLD *b);
 int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
-void *gm_GetGebaeudeHauptraum(unsigned char *b);                     /* 0x501ce0 */
+void *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 int gm_BuildingClass();                     /* 0x501d80 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
@@ -2511,8 +2510,8 @@ extern int ai_Unk770ae0_day;            /* the clock's day (0x770ae0) */
 #ifndef TIME_VIEW_H
 #endif
 extern char ai_Unk770ce4[];             /* 0x770ce4: the field +0x164 of the character records (stride 0x21c) */
-void sv_RemoveBanners(char *b);                     /* 0x5286a0 */
-void sv_CreateBanners(char *b);                     /* 0x5282f0 */
+void sv_RemoveBanners(struct AIBLD *b);                     /* 0x5286a0 */
+void sv_CreateBanners(struct AIBLD *b);                     /* 0x5282f0 */
 void ch_InflateModel();                     /* 0x402540 */
 int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec);     /* 0x5a9430 */
@@ -2540,7 +2539,7 @@ int ai_InventoryHas(void *ch, int id);                     /* 0x5ba6b0 */
 float gm_Liking();                     /* 0x50c550 */
 void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
 void he_RecheckPersonEvents();                     /* 0x53ed40 */
-int gm_EquipmentValue(unsigned char *b, int level);                     /* 0x509b10 */
+int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
 int cm_SendMoveObject(int a, int b, int c);                     /* 0x4c5010 */
 extern const unsigned int ai_BuildingTypeMasks[6];  /* 0x5eed70 (ai.h, not includable here): [2..3] the 64-bit mask of the house-owner building kinds */
@@ -2571,7 +2570,7 @@ void hmt_Create(int type, int unk, unsigned short v, struct AICHAR *c);         
 void ai_ResetJob(struct AICHAR *c);                     /* 0x47e940 */
 int sprintf(char *buf, const char *fmt, ...);                     /* 0x5de652 */
 char * ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
-int gm_EquipmentValue(unsigned char *b, int level);
+int gm_EquipmentValue(struct AIBLD *b, int level);
 int gm_GetWorth(unsigned short id);
 int gm_ListAmount(short *l, char *o);
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */

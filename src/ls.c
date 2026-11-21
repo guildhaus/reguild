@@ -1534,7 +1534,7 @@ int ls_ReadBuildings(int f)
                     return 0;
             } else {
                 LS_R(b->kindData, 0x30)
-                b->yard = gv_AllocGraveyard((unsigned char *)b);
+                b->yard = gv_AllocGraveyard(b);
             }
         } else if (c == 'K' || c == 'L' || c == 'M') {
             if (ls_Version >= 0x10049) {

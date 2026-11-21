@@ -763,7 +763,7 @@ int ai_ScriptQuery(); int cm_SendLongMessage(char *msg); int cm_GetSlotState(); 
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 int gm_ListAmount(); struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, int param_4); char *itoa(int, char *, int); void d2_SetObjText();
-int gm_BuildingGoodsList(char *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AIPER; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(); int gm_MinutesBetween(); char * he_FindEvent(int n, ...); char * he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(char *fmt, ...);
 int gm_BuildingClass(); void d2_SetObjFont(); void d2_SetCaption();
@@ -843,7 +843,7 @@ typedef struct LCTREENODE {        /* a node of f3gm's research tree layout gm_T
 } LCTREENODE;
 extern char gm_TreeNodes[3328];    /* 0x76fde0, LCTREENODE[64] (f3gm.c) */
 extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h) */
-int gm_BuildKindObjects(char *b);
+int gm_BuildKindObjects(struct AIBLD *b);
 char *itoa(int value, char *buf, int radix);
 int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
@@ -1696,7 +1696,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 slot = cm_SendFieldDeltas();
             }
             d2_SetForm(book->views[0], 4);
-            gm_BuildingBalance((unsigned char *)bld, ai_PlayerId, balance);
+            gm_BuildingBalance(bld, ai_PlayerId, balance);
             io_PrintText(0x1a2c, balance[3]);
             master = (AICHARREC *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
@@ -1816,7 +1816,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         memcpy(oldRows, rows, sizeof(rows));
         for (k = 0; k < n; k++)
             rows[k].ch = 0;
-        nWorkers = gm_ListWorkers((unsigned char *)bld, workers);
+        nWorkers = gm_ListWorkers(bld, workers);
         for (a = 0; a < 2; a++) {
             for (b = 0; b < 12; b++) {
                 v = workers[1 + a * 12 + b];
@@ -2182,7 +2182,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
         memcpy(oldRows, rows, sizeof(rows));
         for (k = 0; k < n; k++)
             rows[k].ch = 0;
-        nWorkers = gm_ListWorkers((unsigned char *)bld, workers);
+        nWorkers = gm_ListWorkers(bld, workers);
         for (i = 0; i < 12; i++) {
             v = workers[0x19 + i];
             if (v != 0xffff && ((AICHARREC *)&ai_Chars[v])->jobId == 0) {
@@ -2667,7 +2667,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
         memcpy(oldRows, rows, sizeof(rows));
         for (k = 0; k < n; k++)
             rows[k].ch = 0;
-        nWorkers = gm_ListWorkers((unsigned char *)bld, workers);
+        nWorkers = gm_ListWorkers(bld, workers);
         for (i = 0; i < 12; i++) {
             v = workers[0xd + i];
             if (v != 0xffff && ((AICHARREC *)&ai_Chars[v])->jobId == 0) {
@@ -4938,7 +4938,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
     memset(arg, 0, sizeof(arg));
     arg[0] = 1;
     price = (int)(gm_GetWorth(((AICHARREC *)ai_Chars)[ai_PlayerId].id) * 0.02f +
-                  gm_EquipmentValue((unsigned char *)target, 100) * 0.05f);
+                  gm_EquipmentValue(target, 100) * 0.05f);
     if (ord_DispatchOrder(0x1b, (char *)&ai_Chars[ai_PlayerId], arg) & 2)
         price /= 2;
     if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) == 0)
@@ -9034,7 +9034,7 @@ void ai_BuildingDetailWindow(AIBLD *bld)
     io_PrintText("$[%1G$]", bld);
     d2_SetForm(win, 1);
     gm_BuildingClass(bld->type);
-    gm_BuildingBalance((unsigned char *)bld, ai_PlayerId, balance);
+    gm_BuildingBalance(bld, ai_PlayerId, balance);
     io_PrintText(0xa3, gm_BuildingLevel(bld));
     if (balance[0] != 0)
         io_PrintText(0xa4, balance[0]);

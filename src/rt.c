@@ -304,7 +304,7 @@ int rt_ChooseGoodsDialog(AIBLD *b, int x, int def)
             }
         }
     } else {
-        gm_BuildKindObjects((char *)b);
+        gm_BuildKindObjects(b);
         store = gm_Query((void *)b->objList, 2, 0, 0xff, 6);
         n = 0;
         for (i = 0; i < gm_KindObjCount; i++) {
@@ -1034,7 +1034,7 @@ void rt_EditCartRoute(AIOBJ *c)
 void rt_UnloadAtPoint(char *c, char pl)
 {
     RTPOINT *q;
-    char *b;
+    AIBLD *b;
     char *t;
     short *o;
     char *st;
@@ -1049,10 +1049,10 @@ void rt_UnloadAtPoint(char *c, char pl)
     if (((AIOBJ *)c)->route == 0)
         return;
     q = rt_PointAt(((AIOBJ *)c)->route, ((AIOBJ *)c)->routeIdx);
-    b = (char *)gm_FindBuildingById(q->buildingId);
+    b = gm_FindBuildingById(q->buildingId);
     if (b == 0)
         return;
-    t = (char *)ai_BTypes + ((AIBLD *)b)->type * 0x24d;
+    t = (char *)ai_BTypes + b->type * 0x24d;
     if (*t != 10 && *t != 0x1c && !gm_BuildingGoodsList(b, (unsigned *)&bi, 0))
         return;
     o = gm_ObjectBuildingOwner(c);
@@ -1120,7 +1120,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
     if (b == 0)
         return;
     t = &ai_BTypes[b->type];
-    if (t->kind != 10 && t->kind != 0x1c && !gm_BuildingGoodsList((char *)b, (unsigned *)&bi, 0) || !gm_StallGoodsList((char *)c, (unsigned *)&ci))
+    if (t->kind != 10 && t->kind != 0x1c && !gm_BuildingGoodsList(b, (unsigned *)&bi, 0) || !gm_StallGoodsList((char *)c, (unsigned *)&ci))
         return;
     s = q->loadSlots;
     for (k = 3; k != 0; k--) {

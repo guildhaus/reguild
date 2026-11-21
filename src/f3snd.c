@@ -932,7 +932,7 @@ int snd_LoadVoiceBank(char *name, int a)
    robbers 0x10, mercenaries 0x13, addon kinds 0x1d / 0x20 / 0x1f / 0x1e, else craftsmen) and the greeting of
    its kind */
 
-void snd_LoadBuildingVoices(unsigned char *b)
+void snd_LoadBuildingVoices(AIBLD *b)
 {
     char greet[0x100];
     char order[0x100];
@@ -941,7 +941,7 @@ void snd_LoadBuildingVoices(unsigned char *b)
 
     greet[0] = ch_EmptyName[0];
     memset(greet + 1, 0, sizeof(greet) - 1);
-    t = (char *)ai_BTypes + *b * 0x24d;
+    t = (char *)ai_BTypes + b->type * 0x24d;
     if (*t == 4) {
         strcpy(order, "ARBEITER_KOMMENTARE_BEFEHL_DIEBE.sbf");
         strcpy(click, "ARBEITER_KOMMENTARE_KLICK_DIEBE.sbf");
@@ -1142,7 +1142,7 @@ void ai_FavourComment(char *a)
     g = c->bld;
     level = (int)gm_Liking((unsigned short)ai_PlayerId, g->owner, 1) / 33;
     /* the three building kinds with their own goods list, all others the generic one */
-    if ((g->type == 0x20 || g->type == 0x1f || g->type == 0x1e) ? gm_BuildingGoodsList17((char *)g, (unsigned *)&out, 0) : gm_BuildingGoodsList((char *)g, (unsigned *)&out, 0)) {
+    if ((g->type == 0x20 || g->type == 0x1f || g->type == 0x1e) ? gm_BuildingGoodsList17((char *)g, (unsigned *)&out, 0) : gm_BuildingGoodsList(g, (unsigned *)&out, 0)) {
         if (out.count == 0)
             x = 1;
     }
