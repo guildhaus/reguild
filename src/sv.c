@@ -46,7 +46,7 @@ struct VFSDIR;
 #include "menu_types.h"
 #include "ai_types.h"
 
-extern int cm_Bombs[0x40];  /* 0x935c00, @original why: sv_InitTick (byte-matched) clears the bomb records as 0x40 ints; cmfight.c, which owns them, reads CMBOMB[32] */
+#include "cm_bomb.h"                 /* cm_Bombs (sv_InitTick clears them) */
 extern int d2_HitUnderPointer;
 
 
@@ -211,16 +211,13 @@ void sv_UpdateFramesPerTick(void)
     sv_TickFrames = 0;
 }
 /* 0x520ee0, registers sv_UpdateFramesPerTick as the tick callback (the period 0x47) and clears the selection flags
-   sv_SelectionFlags (one byte per character) and the bomb records cm_Bombs (0x40 words) */
+   sv_SelectionFlags (one byte per character) and the bomb records cm_Bombs */
 
 void sv_InitTick(void)
 {
-    int i;
-
     tb_OpenFunction(sv_UpdateFramesPerTick, 0x47);
     memset(sv_SelectionFlags, 0, sizeof sv_SelectionFlags);
-    for (i = 0; i < 0x40; i++)
-        cm_Bombs[i] = 0;
+    memset(cm_Bombs, 0, sizeof cm_Bombs);
 }
 /* 0x520f10, unregisters the tick callback */
 

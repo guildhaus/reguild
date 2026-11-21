@@ -123,10 +123,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
     D3ANIM *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
     int x, y;                       /* 0x08, the target cell */
 } CMGRENADE;
-typedef struct CMBOMB {             /* 8 bytes, one of the 32 bombs of cm_Bombs */
-    D3OBJECT *obj;                  /* the bomb object "ob_BOMBE", 0 = a free slot */
-    unsigned long time;             /* d3_Time when it was laid */
-} CMBOMB;
 typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus / ai_AmountRow read it
                                        as ints; menu.c GYPSYROW) */
     AICHAR *rec;                    /* 0x00, the character the row shows */

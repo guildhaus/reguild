@@ -7,6 +7,7 @@
 #include "d3_types.h"                /* D3VECTOR, D3VECTOR4 */
 #include "amt_types.h"               /* AMTAPP, AMTMSG, for messages 0x44 / 0x45 */
 #include "gv_types.h"                /* GVDECMSG, for message 0x46 */
+#include "cm_bomb.h"                 /* CMBOMB, cm_Bombs */
 
 #pragma pack(push, 1)
 typedef struct G17B7 {                  /* blocks copied as one */
