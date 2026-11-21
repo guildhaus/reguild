@@ -26,7 +26,7 @@ struct AITIME;
 
 #include "ai_types.h"                /* AITIME, AISTORE, AIOBJ */
 
-#include "ai_char.h"                 /* AITASK, AICHAR */
+#include "ai_char.h"                 /* AICHAR */
 
 typedef struct AIENTRY {                /* 0x58 bytes, ai_Entries[32]: a good the workshop makes */
     int item;                           /* 0x00, index into ai_Goods */

@@ -258,7 +258,7 @@ void ai_MsgNoOp(struct AICHAR *c);                     /* 0x4b70f0 */
 void init_RoomNoOp(void);                                /* unlinked, folded into ai_MsgNoOp (below init_ShowBuildingScene) */
 void init_NoRoomNoOp(void);                              /* unlinked, folded into ai_MsgNoOp (below init_ShowBuildingScene) */
 struct G15PLANT;
-void ai_FavourComment(char *a);
+void ai_FavourComment(CHARACTER *a);
 
 /* ---- the start-of-game setup rules 0x50e0d0 .. 0x50e5a0 (no strings; ROUGH drafts) ---- */
 

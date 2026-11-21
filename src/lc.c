@@ -12808,7 +12808,7 @@ void ai_HostageEscape(AIBLD *bld)
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&bld->victimId - cm_FieldObject), &none);
             cm_SendFieldDeltas();
             cm_SendMessage5b(ch->netId, -ch->heldRounds, 0);
-            if (ch->model != 0 && he_FindFigurePlace(ch, &placeBld, &placeObj, 0) != 0)
+            if (ch->scene != 0 && he_FindFigurePlace(ch, &placeBld, &placeObj, 0) != 0)
                 cm_SendChrGotoBuilding(ch->netId, placeBld, placeObj, 0, 0, "L\366segeld");
             for (ev = (LCRANSOMEVENT *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (LCRANSOMEVENT *)he_NextEvent())
                 if (ev->guild == bld->id && ch->netId == ev->victim) {
@@ -12852,9 +12852,9 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
     if (bld->victimId != -1) {
         ch = gm_FindChar(bld->victimId);
         if (ch != 0) {
-            if (ch->model == 0 && ch->kind != 6 && ch->kind != 7)
+            if (ch->scene == 0 && ch->kind != 6 && ch->kind != 7)
                 cell = gm_CreateCharModel(ch, d3_CurrentScene, 0, 0, 0, "dummy_EINGANG_ZELLE");
-            if (ch->model != 0 && ch->model->scriptGroup != rm->objId)
+            if (ch->scene != 0 && ch->scene->scriptGroup != rm->objId)
                 cm_RequestChrMoveToUniverse(ch->netId, bld->id, rm->objId, "dummy_EINGANG_ZELLE");
         }
     }
@@ -12879,7 +12879,7 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
     }
     if (cell != 0 && ch != 0) {
         ch_Delete(cell);
-        ch->model = 0;
+        ch->scene = 0;
     }
 }
 /* 0x5a5d70, the city watch window "LOCATIONS\STADTWACHE\STANDARD" (the map pick's callback in 0x5a5f60: its context,

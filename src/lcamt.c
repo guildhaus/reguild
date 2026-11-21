@@ -4073,7 +4073,7 @@ int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg,
         if ((cfg->mode & 0x400) && gm_IsUnderAge(id) != 0)
             goto reject;
         mask = cfg->mode;
-        if ((mask & 0x2000) && ai_Chars[id].model != 0)
+        if ((mask & 0x2000) && ai_Chars[id].scene != 0)
             goto reject;
         if ((mask & 0x4000) && (ai_Chars[id].kind == 6 || ai_Chars[id].kind == 7 || ai_Chars[id].kind == 5))
             goto reject;

@@ -1726,7 +1726,7 @@ int ls_ReadCharacters(int f)
         if (ls_Version >= 0x10021)
             LS_R(&c->b1c5, 1)
         LS_R(&model, 4)
-        c->model = (AITASK *)model;
+        c->scene = (CHARACTER *)model;
         if (ls_Version >= 0x10021)
             LS_R(c->ownName, 0x18)
         if (ls_Version >= 0x10036) {
@@ -1889,7 +1889,7 @@ int ls_ReadSceneRecords(int f)
             sprintf(ch->obj->name, "sp_%i", c->netId);
             ch->obj->owner = c;
             ch->obj->pickId = c->id | 0x3000000;
-            c->model = (AITASK *)ch;
+            c->scene = ch;
             if (c->job != 0)
                 c->jobKind = c->job->kind;
             cm_UpdateHandObject(c);
@@ -2428,7 +2428,7 @@ int ls_FixupAfterLoad(void)
                 c->job = 0;
             else
                 c->job = (AIJOB *)he_FindEvent(1, 1, (int)c->job);
-            c->model = 0;
+            c->scene = 0;
         }
     }
     for (i = 0; i < f3gm_ObjectCount; i++) {

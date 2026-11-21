@@ -1790,7 +1790,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
             }
         } else if (d2_PointerObj == promoteButton && sel != -1) {
             c = rows[sel].ch;
-            if (c->model != 0 && c->model->bldId != bld->id) {
+            if (c->scene != 0 && c->scene->group != bld->id) {
                 txt_Format(text3, 0x42c4, c->id);
                 sv_MessageBox(text3, 4);
             } else if (gm_AllowAll == 0 && c->jobDays < 4) {

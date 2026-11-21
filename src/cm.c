@@ -2155,8 +2155,8 @@ int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
     m.type = 0x55;
     m.fight.cmd = (unsigned char)cmd;
     m.fight.slot = *f;
-    if (c != 0 && c->model != 0) {
-        b = c->model->body;
+    if (c != 0 && c->scene != 0) {
+        b = c->scene->obj;
         m.fight.pos.x = b->pos.x;
         m.fight.pos.y = b->pos.y;
         m.fight.pos.z = b->pos.z;
@@ -3932,8 +3932,8 @@ int cm_ExKillCharacter(G17MSG *m, G17STAT *s)
     if (c != 0) {
         ok = 1;
         sv_MoveToGroup(0, 0, c->id, 0);
-        if (c->model != 0 && c->model->scriptId != -1)
-            evt_Stop(evt_FindById(c->model->scriptId));
+        if (c->scene != 0 && c->scene->scriptId != -1)
+            evt_Stop(evt_FindById(c->scene->scriptId));
         gm_KillSpieler(c->id, m->kill.mode);
     }
     if (s != 0 && ok)
@@ -5167,7 +5167,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     else
         c->jobId = 0;
     c->kind = m->hire.kind;
-    if (c->model == 0) {
+    if (c->scene == 0) {
         if (home != 0) {
             t = gm_HomeObject(home);
             if (t != 0 && t->objId != -1)
@@ -5208,7 +5208,6 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     }
     return 0;
 }
-#define CM_CHR(c) ((CHARACTER *)(c)->model)  /* AICHAR.model (ai.h: AITASK *) as the CHARACTER it is */
 
 /* 0x4cb4a0, handler of message 0x3e (cm_SendCharModel): the character charId gets the model "<body>_<name>": a new
    scene object at the old one's place and angles (its name, owner and pick id kept), relit and marked as a
@@ -5228,11 +5227,11 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
     int save;
 
     c = gm_FindChar(m->model.charId);
-    if (c == 0 || c->model == 0)
+    if (c == 0 || c->scene == 0)
         return 1;
     save = d3_CurrentScene;
-    d3if_SelectScene(d3t_SceneIndex(CM_CHR(c)->scene), 1);
-    ch = CM_CHR(c);
+    d3if_SelectScene(d3t_SceneIndex(c->scene->scene), 1);
+    ch = c->scene;
     pos.x = ch->obj->pos.x;
     pos.y = ch->obj->pos.y;
     pos.z = ch->obj->pos.z;
@@ -5242,15 +5241,15 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
     owner = ch->obj->owner;
     t = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, m->model.name);
     if (t != 0) {
-        strcpy(t->name, CM_CHR(c)->obj->name);
-        strcpy(CM_CHR(c)->name, m->model.name);
-        d3if_Delete(CM_CHR(c)->obj);
-        CM_CHR(c)->obj = t;
-        CM_CHR(c)->obj->owner = owner;
-        CM_CHR(c)->obj->pickId = 0x3000000;
-        d3_RelightObject(CM_CHR(c)->obj);
-        CM_CHR(c)->obj->stateFlags = (CM_CHR(c)->obj->stateFlags & 0xf7) | 4;
-        CM_CHR(c)->obj->kind = 2;
+        strcpy(t->name, c->scene->obj->name);
+        strcpy(c->scene->name, m->model.name);
+        d3if_Delete(c->scene->obj);
+        c->scene->obj = t;
+        c->scene->obj->owner = owner;
+        c->scene->obj->pickId = 0x3000000;
+        d3_RelightObject(c->scene->obj);
+        c->scene->obj->stateFlags = (c->scene->obj->stateFlags & 0xf7) | 4;
+        c->scene->obj->kind = 2;
         strcpy(buf, m->model.name);
         p = strrchr(buf, '_');
         if (p != 0) {
@@ -5258,11 +5257,11 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
             q = strrchr(p, '_');
             if (q != 0)
                 *q = 0;
-            strcpy(CM_CHR(c)->body, p);
+            strcpy(c->scene->body, p);
             p[-1] = 0;
-            strcpy(CM_CHR(c)->fullname, buf);
+            strcpy(c->scene->fullname, buf);
         } else
-            CM_CHR(c)->body[0] = ch_EmptyName[0];
+            c->scene->body[0] = ch_EmptyName[0];
         d3if_SelectScene(save, 1);
         if (s != 0) {
             s->state = 2;
@@ -5642,12 +5641,12 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
 int cm_ExCharHalt(G17MSG *m, G17STAT *s)
 {
     AICHAR *c;
-    AITASK *g;
+    CHARACTER *g;
 
     c = gm_FindChar(m->halt.charId);
     if (c == 0)
         return 1;
-    g = c->model;
+    g = c->scene;
     if (g != 0 && g->scriptId != -1)
         evt_Stop(evt_FindById(g->scriptId));
     if (s != 0) {
@@ -5949,11 +5948,11 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
 
 void cm_PlaceFighter(AICHAR *c, D3VECTOR *pos, D3VECTOR *rot, int v)
 {
-    if (c != 0 && c->model != 0) {
-        if (d3_VecEqual(&c->model->body->pos, pos, 8.0f) == 0)
-            d3_SetObjectPos(c->model->body, pos);
-        if (d3_VecEqual(&c->model->body->rotation, rot, 8.0f) == 0)
-            d3_SetObjectRot(c->model->body, rot);
+    if (c != 0 && c->scene != 0) {
+        if (d3_VecEqual(&c->scene->obj->pos, pos, 8.0f) == 0)
+            d3_SetObjectPos(c->scene->obj, pos);
+        if (d3_VecEqual(&c->scene->obj->rotation, rot, 8.0f) == 0)
+            d3_SetObjectRot(c->scene->obj, rot);
         c->v024 = v;
     }
 }

@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		byte+readable -> shape+readable at 4c3178ab: tie-break: AITASK merged into CHARACTER (AICHAR.model went for AICHAR.scene; one typedef fewer in ai_char.h); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
@@ -4120,7 +4120,7 @@ exe	0x0058af50	lobby_ChoosePlayer	lobby	byte	readable
 exe	0x0058b880	lobby_ChooseProfession	lobby	byte	readable		
 exe	0x0058ba70	lobby_ShowChat	lobby	byte	readable		
 exe	0x0058bbd0	ai_InitProductionTables	lc	byte	readable		
-exe	0x0058bd60	ai_ProductionWindow	lc	byte	readable		
+exe	0x0058bd60	ai_ProductionWindow	lc	shape	readable		byte+readable -> shape+readable at 4c3178ab: tie-break: AITASK merged into CHARACTER (AICHAR.model went for AICHAR.scene; one typedef fewer in ai_char.h); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0058c680	ai_UpdateResourceColumns	lc	byte	readable		
 exe	0x0058cc10	ai_UpdateProdColumns	lc	byte	readable		
 exe	0x0058d720	ai_UpdateProdGoodsList	lc	byte	readable		

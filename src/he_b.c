@@ -5952,7 +5952,7 @@ void he_RunGraveyardWorkers(int ev)
                     continue;
                 if (master != 0 && master == ch)
                     continue;
-                if (util_RandomF() > 0.75f || (master != 0 && (master->flags1b4 & 1) && ch->model != 0))
+                if (util_RandomF() > 0.75f || (master != 0 && (master->flags1b4 & 1) && ch->scene != 0))
                     ai_EndCharExtra(ch, 0);
             }
         }
@@ -6965,7 +6965,7 @@ void he_RunCircusShow(int ev)
         e->stage = 2;
         for (i = 0; i < n; i++) {
             p = pers[i];
-            if (p->model != 0) {
+            if (p->scene != 0) {
                 for (k = 8; k != 0; k--)
                     cm_SendChrAnim(p->netId, anims[util_Random(0xa)], util_Random(2) + 1);
             }

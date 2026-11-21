@@ -1,19 +1,10 @@
-/* ai.h's character record (ai_Chars) and its scene character view for the units that read characters without the
+/* ai.h's character record (ai_Chars) for the units that read characters without the
    rest of ai.h (he.c): types only. ai.h includes it. */
 #ifndef AI_CHAR_H
 #define AI_CHAR_H
 #include "ai_bld.h"                  /* AIBLD */
 #include "ai_types.h"                /* AIJOB */
 
-typedef struct AITASK {                 /* the character's scene character (ch.h CHARACTER: scriptId, group, scriptGroup, scene) as ai.h reads it */
-    char pad00[0x28];
-    int scriptId;                       /* 0x28, the event script it runs, -1 = none (CHARACTER.scriptId) */
-    int bldId;                          /* 0x2c, the building the character was sent to (f3gm.c 0x4fbd10; CHARACTER.group) */
-    int scriptGroup;                    /* 0x30, the group of the script that created / moved it (CHARACTER.scriptGroup) */
-    struct D3OBJECT *body;              /* 0x34, its body object (CHARACTER.obj) */
-    char pad38[0x50];
-    struct D3SCENE *scene;              /* 0x88, the scene it stands in (CHARACTER.scene) */
-} AITASK;
 
 typedef struct AIARG {                  /* 0x18 bytes, what a decide callback fills for its execute callback (am.h; AICHAR.arg1 / arg2) */
     unsigned char kind;                 /* 0x00 */
@@ -117,11 +108,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     AIJOB *job;                       /* 0x17c */
     unsigned char jobKind;              /* 0x180, the kind (first byte) of job, refreshed on load */
     char pad181[3];
-    union {
-        AITASK *model;                  /* 0x184, the character's model record; its +0x2c is the building the
-                                           character was sent to (f3gm.c 0x4fbd10) */
-        struct CHARACTER *scene;        /* 0x184, the same: the scene character (ch.h), as cm_UpdateHandObject reads it */
-    };
+    struct CHARACTER *scene;            /* 0x184, the scene character (ch.h): its group is the building the character
+                                           was sent to (f3gm.c 0x4fbd10), its obj the body */
     unsigned char selected;             /* 0x188, nonzero: the character is in the player's selection (sv_ClearSelection clears it, sv_HandleObjects sets it) */
     char pad189[3];
     int picture;                        /* 0x18c, the portrait picture (sv.c: the person panel, the member list) */

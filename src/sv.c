@@ -4441,11 +4441,11 @@ void sv_HandleObjects(void)
                 if ((perms & 0x800) != 0 && (ai_PickedChar->title != 0x1c || (ai_PickedChar->flags1b4 & 1) == 0)) {
                     ai_Chars[ai_PickedChar->id].selected = 1;
                     sv_SelectedChar = ai_PickedChar;
-                    sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].model;
+                    sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].scene;
                     ai_SelectedCount = 1;
                     snd_PlayWorkerClick((struct G16CHARCLICK *)ai_PickedChar);
                 }
-                sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].model;
+                sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].scene;
             }
             if (ai_SelectedCount == 0 && sv_OtherSelected == 0 && sv_HoverBuilding != 0 && sv_SelectedItem == 0)
                 sv_SelectedModel = (int)ai_PickedObject;
@@ -4478,10 +4478,10 @@ void sv_CollectGroupCharacters(AIBLD *b)
             if (n >= 31)
                 return;
             c = &ai_Chars[i];
-            if (c->model != 0 && c->model->bldId == b->id) {
+            if (c->scene != 0 && c->scene->group == b->id) {
                 ai_SceneChars[n++] = c;
                 if (n > 8)
-                    ch_SetVisible((CHARACTER *)c->model, 0);
+                    ch_SetVisible(c->scene, 0);
             }
         }
     } else {
@@ -4489,7 +4489,7 @@ void sv_CollectGroupCharacters(AIBLD *b)
         for (i = 0; i < 768; i++) {
             if (n >= 31)
                 return;
-            if (ai_Chars[i].model != 0 && ai_Chars[i].model->bldId == -1)
+            if (ai_Chars[i].scene != 0 && ai_Chars[i].scene->group == -1)
                 ai_SceneChars[n++] = &ai_Chars[i];
         }
     }
@@ -4548,8 +4548,8 @@ int sv_StartPoseScript(AICHAR *a, int b)
     script = evt_Load((char *)b);
     if (script != 0) {
         evt_RunScriptArgs(script, 1, buf);
-        script->character = (CHARACTER *)c->model;
-        c->model->scriptId = script->id;
+        script->character = c->scene;
+        c->scene->scriptId = script->id;
     }
     return (int)script;
 }
@@ -4581,7 +4581,7 @@ void sv_RunLocationScripts(AIBLD *a)
     AIGOOD *cls;
     AIBTYPE *kind;
     AICHAR *c, *e;
-    AITASK *m;
+    CHARACTER *m;
     EVTSCRIPT *s;
     char *r;
     int season, i, j, ok, n, d;
@@ -4604,18 +4604,18 @@ void sv_RunLocationScripts(AIBLD *a)
     season = gm_ClockSeason(&ai_Time);
     for (i = 0; i < 0x20; i++) {
         c = ai_SceneChars[i];
-        if (c == 0 || c->model == 0 || c->model->bldId != a->id || c->health <= 0 || c->model->scene != d3_DefaultScene)
+        if (c == 0 || c->scene == 0 || c->scene->group != a->id || c->health <= 0 || c->scene->scene != d3_DefaultScene)
             continue;
         ok = 0;
         name[0] = 0;
         if (sv_ActivityName(c, a, name) != 0) {
             if (kind->kind == 0xd) {
                 if (sv_PanelShown != 0) {
-                    if (sv_PanelShown->type == 0x37 && c->model->scriptGroup == sv_PanelShown->objId) {
+                    if (sv_PanelShown->type == 0x37 && c->scene->scriptGroup == sv_PanelShown->objId) {
                         ok = 1;
                         goto lstart;
                     }
-                    if (sv_PanelShown->type != 0xfd || c->model->scriptGroup != sv_PanelShown->objId)
+                    if (sv_PanelShown->type != 0xfd || c->scene->scriptGroup != sv_PanelShown->objId)
                         goto lstart;
                 }
                 ok = 1;
@@ -4629,13 +4629,13 @@ void sv_RunLocationScripts(AIBLD *a)
                     ok = 0;
             }
         } else if (kind->kind == 0x16 && sv_PanelShown != 0 && sv_PanelShown->type == 0x120
-                   && c->model->scriptGroup == sv_PanelShown->objId && (c->flags1c8 & 0x1000) == 0) {
+                   && c->scene->scriptGroup == sv_PanelShown->objId && (c->flags1c8 & 0x1000) == 0) {
             strcpy(name, "besucher");
             ok = 1;
         } else if (kind->kind == 1 && c->bld2 == a && (c->flags1c8 & 0x1000) == 0) {
             strcpy(name, "bewohner");
             ok = 1;
-        } else if (c->jobKind == 0 && c->bld == a && c->model->scriptId == -1) {
+        } else if (c->jobKind == 0 && c->bld == a && c->scene->scriptId == -1) {
             if (c->jobId != 0)
                 strcpy(name, "meister");
             else if (c->title == 0x1c && (c->flags1b4 & 1) != 0)
@@ -4645,12 +4645,12 @@ void sv_RunLocationScripts(AIBLD *a)
             ok = 1;
         }
 lstart:
-        if (c->title == 0x1c && (c->flags1b4 & 1) != 0 && c->model->scriptId == -1)
+        if (c->title == 0x1c && (c->flags1b4 & 1) != 0 && c->scene->scriptId == -1)
             strcpy(name, "faulenzen");
         else if (!ok)
             goto lstop;
         if (name[0] != 0) {
-            m = c->model;
+            m = c->scene;
             if (m->scriptId != -1 && evt_FindById(m->scriptId) != 0)
                 continue;
             if (m->scriptId != -1)
@@ -4659,7 +4659,7 @@ lstart:
                 used[n] = 1;
             for (j = 0; j < 0x20; j++) {
                 e = ai_SceneChars[j];
-                if (e != 0 && e->model != 0 && e->model->scriptId != -1 && (s = evt_FindById(e->model->scriptId)) != 0
+                if (e != 0 && e->scene != 0 && e->scene->scriptId != -1 && (s = evt_FindById(e->scene->scriptId)) != 0
                     && (r = strstr(s->name, name)) != 0) {
                     d = r[strlen(name)] - '0';
                     if (d < 0 || d > 9)
@@ -4684,7 +4684,7 @@ lstart:
                 s = evt_LoadScript(path);
                 if (s != 0) {
                     evt_RunScriptArgs(s, 1, sp);
-                    s->character = (CHARACTER *)m;
+                    s->character = m;
                     m->scriptId = s->id;
                 }
             }
@@ -4692,13 +4692,13 @@ lstart:
         }
 lstop:
         ok = 0;
-        if (c->bld != a || c->model == 0 || c->model->scriptId == -1)
+        if (c->bld != a || c->scene == 0 || c->scene->scriptId == -1)
             continue;
         if (c->jobKind == 0 || (float)ai_Time.hour > gm_DayEndHours[season])
             ok = 1;
         if ((c->job != 0 && c->job->kind == 4 && c->job->argc8 != 0) || ok) {
             ok = 0;
-            s = evt_FindById(c->model->scriptId);
+            s = evt_FindById(c->scene->scriptId);
             if (s != 0) {
                 for (j = 0; j < 0x30; j++) {
                     if (ok)
@@ -4910,7 +4910,7 @@ void sv_HandleSelectionMouse(void)
             for (j = 0; j < 768; j++) {
                 c = &ai_Chars[j];
                 if (ai_Chars[j].selected != 0 && c->health != 0 && (gm_PermissionBits(ai_PlayerId, 0, 0, c) & 0x800) != 0
-                    && c->model != 0) {
+                    && c->scene != 0) {
                     int off[9][2] = { {0, 0}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1} };
                     int cell = 0;
 
@@ -4929,7 +4929,7 @@ void sv_HandleSelectionMouse(void)
                         } while (ix < 0 || ix >= size || iy < 0 || iy >= size || cell == 0 || cell == 0xd);
                         if (ai_Chars[j].bld != 0)
                             sv_MoveToGroup(ai_Chars[j].bld, 0, ai_Chars[j].id, 0);
-                        if (ai_Chars[j].model->scriptId != -1 && (t = (int)evt_FindById(ai_Chars[j].model->scriptId)) != 0)
+                        if (ai_Chars[j].scene->scriptId != -1 && (t = (int)evt_FindById(ai_Chars[j].scene->scriptId)) != 0)
                             evt_Stop((EVTSCRIPT *)t);
                         cm_SendChrWalkTo(ai_Chars[j].netId, ix, iy, d3_CurrentScene);
                     }
@@ -4985,18 +4985,18 @@ void sv_HandleSelectionMouse(void)
     d2_ClearPointerItems();
     for (j = 0; j < 768; j++) {
         c = &ai_Chars[j];
-        if (c->model != 0) {
-            if (c->selected != sv_SelectionFlags[j] && ((CHARACTER *)c->model)->flags.fading == 0) {
+        if (c->scene != 0) {
+            if (c->selected != sv_SelectionFlags[j] && c->scene->flags.fading == 0) {
                 if (c->selected != 0)
-                    d3t_SetGrey(((CHARACTER *)c->model)->obj, 1);
+                    d3t_SetGrey(c->scene->obj, 1);
                 else
-                    d3t_SetGrey(((CHARACTER *)c->model)->obj, 0);
+                    d3t_SetGrey(c->scene->obj, 0);
             }
             if (c->selected != 0) {
                 if (ai_SelectedCount == 0)
                     sv_SelectedChar = c;
                 ai_SelectedCount++;
-                if (c->bld != 0 && c->bld->id == c->model->bldId
+                if (c->bld != 0 && c->bld->id == c->scene->group
                     && (ai_FallbackBuilding != 0 || (sv_PanelShown != 0 && sv_PanelShown->type != 0x120)))
                     d2_AddPointerItem(c->picture, 1);
             }
@@ -6249,7 +6249,7 @@ void sv_UpdateBand(void)
             continue;
         bits = gm_PermissionBits(ai_PlayerId, 0, 0, c);
         c->selected = 0;
-        if ((bits & 0x800) == 0 || c->model == 0 || c->model->scene != d3_DefaultScene || (info = c->model->body->info) == 0)
+        if ((bits & 0x800) == 0 || c->scene == 0 || c->scene->scene != d3_DefaultScene || (info = c->scene->obj->info) == 0)
             continue;
         p.x = 0.0f;
         p.y = 0.0f;
@@ -6302,7 +6302,7 @@ void sv_UpdateBandLed(void)
             continue;
         bits = ai_LedSelectBits(ai_PlayerId, c);
         c->selected = 0;
-        if ((bits & 0x800) == 0 || c->model == 0 || c->model->scene != d3_DefaultScene || (info = c->model->body->info) == 0)
+        if ((bits & 0x800) == 0 || c->scene == 0 || c->scene->scene != d3_DefaultScene || (info = c->scene->obj->info) == 0)
             continue;
         p.x = 0.0f;
         p.y = 0.0f;

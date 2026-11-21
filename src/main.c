@@ -3387,17 +3387,17 @@ void main_EndRound(void)
 
         x = -1;
         y = -1;
-        if (ai_Chars[k].model != 0 && he_FindFigurePlace((char *)&ai_Chars[k], &x, &y, &place) != 0) {
-            fig = (CHARACTER *)ai_Chars[k].model;
+        if (ai_Chars[k].scene != 0 && he_FindFigurePlace((char *)&ai_Chars[k], &x, &y, &place) != 0) {
+            fig = ai_Chars[k].scene;
             if (x != fig->group || y != fig->scriptGroup) {
                 if (fig->scriptId != -1)
                     evt_Stop(evt_FindById(fig->scriptId));
-                ch_StopActions((CHARACTER *)ai_Chars[k].model);
-                if (y != -1 && (act = ch_AddAction((CHARACTER *)ai_Chars[k].model, 0x33, place, x, y)) != 0)
+                ch_StopActions(ai_Chars[k].scene);
+                if (y != -1 && (act = ch_AddAction(ai_Chars[k].scene, 0x33, place, x, y)) != 0)
                     strcpy(CHACT_NAME70(act), "Beamed home");
             }
         }
-        if ((ai_GameFlags & 8) != 0 && ai_Chars[k].model != 0 && ai_Chars[k].kind == 0xd && ai_Chars[k].job == 0)
+        if ((ai_GameFlags & 8) != 0 && ai_Chars[k].scene != 0 && ai_Chars[k].kind == 0xd && ai_Chars[k].job == 0)
             cm_SendKillCharacter(ai_Chars[k].netId, 1);
     }
     hst_SeedPending = 1;
@@ -4012,7 +4012,7 @@ void main_SettleRound(unsigned short pl)
                             char rel = 0;
                             int m;
 
-                            if (q->model == 0) {
+                            if (q->scene == 0) {
                                 if (q->bld2 != 0) {
                                     o = gm_HomeObject(q->bld2);
                                     if (o != 0 && o->objId != -1) {
@@ -4027,7 +4027,7 @@ void main_SettleRound(unsigned short pl)
                                     }
                                 }
                             } else
-                                ((CHARACTER *)q->model)->flags.bytes.lo &= 0xfb;
+                                q->scene->flags.bytes.lo &= 0xfb;
                             if (q->kind != 0x14)
                                 cm_SendMoveGoodsUnchecked(ai_Chars[workers[1 + pass * 12 + j]].netId, ai_Chars[pl].netId, ai_OwnPlayer, wage);
                             cnt++;

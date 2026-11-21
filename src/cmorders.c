@@ -136,7 +136,6 @@ typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount
 } CMAMOUNTROW;
 
 /* dcp unit split: the declarations of cm before the moved functions */
-#define CM_CHR(c) ((CHARACTER *)(c)->model)  /* AICHAR.model (ai.h: AITASK *) as the CHARACTER it is */
 typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
                                            0x1c .. 0x37 (HESPYREPORT) after the object's head */
     char pad1c[0x1c];
@@ -634,8 +633,8 @@ void cm_FightLoop(char *a, int ctx)
             cm_FightPaused = cm_FightPaused == 0;
             for (i = 0; i < 32; i++) {
                 o = ai_SceneChars[i];
-                if (o != 0 && CM_CHR(o)->scene == d3_DefaultScene)
-                    ch_PauseAnim(CM_CHR(o), cm_FightPaused);
+                if (o != 0 && o->scene->scene == d3_DefaultScene)
+                    ch_PauseAnim(o->scene, cm_FightPaused);
             }
             sv_SetStatusText(&ch_EmptyName);
         }

@@ -142,7 +142,6 @@ typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount
 } CMAMOUNTROW;
 
 /* dcp unit split: the declarations of cm before the moved functions */
-#define CM_CHR(c) ((CHARACTER *)(c)->model)  /* AICHAR.model (ai.h: AITASK *) as the CHARACTER it is */
 typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
                                            0x1c .. 0x37 (HESPYREPORT) after the object's head */
     char pad1c[0x1c];
@@ -2558,7 +2557,7 @@ D3OBJECT *cm_NearestConquerPoint(AICHAR *c)
     res = 0;
     cm_PointCount = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x40, cm_CollectConquerPoint, c);
-    body = c->model->body;
+    body = c->scene->obj;
     d3_PointToWorld(body, &body->pos, (D3VECTOR *)&v);
     for (i = 0; i < cm_PointCount; i++) {
         o = (D3OBJECT *)cm_PointList[i];
@@ -3717,7 +3716,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             id = a->defenders[i];
             if (id != -1) {
                 c = cm_FindFighter(id);
-                if (c->health != 0 && c->health != 4 && c->model->body->type != 1)
+                if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                     na++;
             }
         }
@@ -3726,7 +3725,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             id = a->attackers[i];
             if (id != -1) {
                 c = cm_FindFighter(id);
-                if (c->health != 0 && c->health != 4 && c->model->body->type != 1)
+                if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                     nb++;
             }
         }

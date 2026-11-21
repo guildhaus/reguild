@@ -3204,8 +3204,8 @@ void he_CharAccident(AIJOB *ev, AICHAR *c, AICHAR *boss, AIBLD *bld, float value
 
     if (value <= 0.0f) {
         sv_MoveToGroup(0, 0, c->id, 0);
-        if (c->model != 0 && c->model->scriptId != -1)
-            evt_Stop(evt_FindById(c->model->scriptId));
+        if (c->scene != 0 && c->scene->scriptId != -1)
+            evt_Stop(evt_FindById(c->scene->scriptId));
         memset(&m, 0, sizeof(m));
         m.type = 0x71;
         if (ev != 0)
@@ -3232,10 +3232,10 @@ void he_CharAccident(AIJOB *ev, AICHAR *c, AICHAR *boss, AIBLD *bld, float value
     }
     half = gm_CharacterBaseHealth(c) * 0.5f;
     if (value < half
-        && he_FindFigurePlace(c, &place, &obj, 0) != 0 && c->model != 0) {
+        && he_FindFigurePlace(c, &place, &obj, 0) != 0 && c->scene != 0) {
         sv_MoveToGroup(0, 0, c->id, 0);
-        if (c->model->scriptId != -1)
-            evt_Stop(evt_FindById(c->model->scriptId));
+        if (c->scene->scriptId != -1)
+            evt_Stop(evt_FindById(c->scene->scriptId));
         cm_SendSetField(c->netId, 0x1c8, 4, 0x800, 0);
         if (obj == -1)
             cm_SendChrGotoBuilding(c->netId, place, obj, 0, 1, "Unfall");
@@ -3290,10 +3290,10 @@ void he_CharIllness(AIJOB *ev, AICHAR *c, AICHAR *boss, AIBLD *bld, int disease,
     }
     half = gm_CharacterBaseHealth(c) * 0.5f;
     if (value < half
-        && he_FindFigurePlace(c, &place, &obj, 0) != 0 && c->model != 0) {
+        && he_FindFigurePlace(c, &place, &obj, 0) != 0 && c->scene != 0) {
         sv_MoveToGroup(0, 0, c->id, 0);
-        if (c->model->scriptId != -1)
-            evt_Stop(evt_FindById(c->model->scriptId));
+        if (c->scene->scriptId != -1)
+            evt_Stop(evt_FindById(c->scene->scriptId));
         if (obj == -1)
             cm_SendChrGotoBuilding(c->netId, place, obj, 0, 1, "Unfall");
         else
@@ -7696,7 +7696,7 @@ int he_IsAtWork(AICHAR *rec)
         ok = 0;
     if (c->health == 0)
         ok = 0;
-    if (c->kind == 0 && ok && c->bld != 0 && c->model != 0 && c->model->bldId == c->bld->id)
+    if (c->kind == 0 && ok && c->bld != 0 && c->scene != 0 && c->scene->group == c->bld->id)
         return ai_IsLocalWorker(rec);
     return 0;
 }
@@ -8087,13 +8087,13 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
 
     if (c->id == 0xffff || c->health == 0 || c->kind != 0)
         return 0;
-    if (c->model == 0 || ai_CanAct(rec) == 0)
+    if (c->scene == 0 || ai_CanAct(rec) == 0)
         return 0;
     for (i = 0; i < 16; i++) {
         b = tab[i].inn;
         if (b == 0)
             return 0;
-        if (b->id == c->model->bldId && b->owner != 0xffff) {
+        if (b->id == c->scene->group && b->owner != 0xffff) {
             *out = i;
             return 1;
         }
@@ -9273,8 +9273,8 @@ void he_RunSendHomeEvent(int ev)
         return;
     }
     for (i = 0; i < 768; i++) {
-        if (ai_Chars[i].health > 0 && ai_Chars[i].model != 0 && ai_Chars[i].bld == bld && ai_Chars[i].bld2 != 0
-            && util_RandomF() > 0.5 && ai_Chars[i].model->bldId == e->bldId) {
+        if (ai_Chars[i].health > 0 && ai_Chars[i].scene != 0 && ai_Chars[i].bld == bld && ai_Chars[i].bld2 != 0
+            && util_RandomF() > 0.5 && ai_Chars[i].scene->group == e->bldId) {
             c = &ai_Chars[i];
             home = gm_HomeObject(c->bld2);
             cm_SendCharClear(c->netId, 0, 0);
@@ -9862,7 +9862,7 @@ int he_StepWalkSlot(HEWALKSLOT *s)
     }
     gm_FindById(&bld, 0, 0, s->target);
     if (bld == 0) {
-        if (c->model != 0) {
+        if (c->scene != 0) {
             cm_SendChrDelete(s->chr);
             cm_SendSetField(c->netId, 0x1c8, 4, 0, 0x40000000);
         }
@@ -9876,7 +9876,7 @@ int he_StepWalkSlot(HEWALKSLOT *s)
     }
     if (sv_IsAtDoor(c, (char *)bld) == 0 && ai_Time.hour < 0x16)
         return 2;
-    if (c->model != 0) {
+    if (c->scene != 0) {
         cm_SendChrStop(c->netId);
         cm_SendChrDelete(s->chr);
     }
@@ -9988,7 +9988,7 @@ void he_StepWalk(HEWALKSLOT *s)
     int budget;
     AIBLD *inns[0x20];
     AICHAR *c;
-    AITASK *model;
+    CHARACTER *model;
     int weather, n, hour;
     int idx = 0;
     unsigned int lo, hi;
@@ -10012,8 +10012,8 @@ void he_StepWalk(HEWALKSLOT *s)
         budget = weather + util_Random(6) + 2;
         if (sv_IsAtDoor(c, b) == 0)
             return;
-        model = c->model;
-        if (model != 0 && model->bldId != -1 && model->scriptGroup != -1) {
+        model = c->scene;
+        if (model != 0 && model->group != -1 && model->scriptGroup != -1) {
             hour = s->holdHour;
             s->state |= 0x40;
             held = 1;
@@ -11066,7 +11066,7 @@ int he_DetectAttack(int p)
             if (seen == 0)
                 continue;
             a = d->bld->object;
-            b = seen->model->body;
+            b = seen->scene->obj;
             dx = a->pos.x - b->pos.x;
             dy = a->pos.y - b->pos.y;
             dz = a->pos.z - b->pos.z;
@@ -14424,7 +14424,7 @@ void he_RunDemolish(int ev)
         for (i = 0; i < 768; i++) {
             c = &ai_Chars[i];
             if (c->bld == b) {
-                if (c->model != 0)
+                if (c->scene != 0)
                     cm_SendCharHalt(c->netId);
                 if (gm_CharacterHome(c, &homeBld, &homeObj) != 0) {
                     if (homeObj != -1)
@@ -15316,7 +15316,7 @@ void he_RunPromotion(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    if (c->model != 0 && (b = gm_FindBuildingById(e->from)) != 0 && c->model->bldId != b->id)
+    if (c->scene != 0 && (b = gm_FindBuildingById(e->from)) != 0 && c->scene->group != b->id)
         return;
     switch (e->stage) {
     case 0:
@@ -15649,7 +15649,7 @@ int he_FigureContact(AICHAR *p, int *bldId, int *contact)
     AIOBJ *o;
     unsigned char kind;
 
-    if (p == 0 || p->kind == 0xd || p->kind == 0xe || p->bld == 0 || p->model == 0)
+    if (p == 0 || p->kind == 0xd || p->kind == 0xe || p->bld == 0 || p->scene == 0)
         return 0;
     kind = p->jobKind;
     if (kind == 0x3f || kind == 0x40 || kind == 0x48 || kind == 0x3c || kind == 0x49 || kind == 0x44 || kind == 0x62
@@ -15659,7 +15659,7 @@ int he_FigureContact(AICHAR *p, int *bldId, int *contact)
     if (p->heldRounds != 0)
         return 0;
     if (gm_IsHomeType(p->bld) == 0) {
-        if (p->model->bldId == p->bld->id)
+        if (p->scene->group == p->bld->id)
             return 0;
         o = gm_BuildingMainObject(p->bld);
         if (o == 0)
@@ -15671,7 +15671,7 @@ int he_FigureContact(AICHAR *p, int *bldId, int *contact)
             o = gm_Query((void *)p->bld->objList, 1, 0, 0xfd);
         if (o == 0)
             goto done;
-        if (o->objId == p->model->scriptGroup)
+        if (o->objId == p->scene->scriptGroup)
             return 0;
         if (o->type == 0xfd)
             goto done;
@@ -15839,11 +15839,11 @@ void he_RunRoutine(AIJOB *ev)
             int bld, contact;
 
             c = &ai_Chars[i];
-            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->model != 0 && (c->flags1c8 & 0x1000) == 0
-                && he_FigureContact(c, &bld, &contact) != 0 && bld != c->model->bldId) {
+            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->scene != 0 && (c->flags1c8 & 0x1000) == 0
+                && he_FigureContact(c, &bld, &contact) != 0 && bld != c->scene->group) {
                 if (gm_IsHomeType(c->bld) == 0 && c->bld->object != 0) {
                     if (ai_Chars[c->bld->owner].kind != 6 && ai_Chars[c->bld->owner].kind != 7 && ch_Count(0, 0) < 0x20) {
-                        b = gm_FindBuildingById(c->model->bldId);
+                        b = gm_FindBuildingById(c->scene->group);
                         dist = 0.0f;
                         if (b != 0 && b->object != 0) {
                             d3_PointToWorld(c->bld->object, &c->bld->object->pos, (D3VECTOR *)&from);
@@ -15877,9 +15877,9 @@ void he_RunRoutine(AIJOB *ev)
             for (i = 0; i < 768; i++) {
                 int bld, contact;
 
-                if ((ai_Chars[i].title != 0 || ai_Chars[i].jobId != 0) && ai_Chars[i].bld != 0 && ai_Chars[i].model != 0
+                if ((ai_Chars[i].title != 0 || ai_Chars[i].jobId != 0) && ai_Chars[i].bld != 0 && ai_Chars[i].scene != 0
                     && (ai_Chars[i].flags1c8 & 0x1000) == 0 && he_FigureContact(&ai_Chars[i], &contact, &bld) != 0
-                    && contact != ai_Chars[i].model->bldId) {
+                    && contact != ai_Chars[i].scene->group) {
                     cm_SendCharHalt(ai_Chars[i].netId);
                     cm_RequestChrMoveToUniverse(ai_Chars[i].netId, contact, bld, "dummy_EINGANG");
                     cm_RequestChrMove(ai_Chars[i].netId, contact, bld, ch_EmptyName);
@@ -15909,11 +15909,11 @@ void he_RunRoutine(AIJOB *ev)
             int place, obj;
 
             c = &ai_Chars[i];
-            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->model != 0) {
+            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->scene != 0) {
                 bt = &ai_BTypes[c->bld->type];
                 if (bt->kind != 4 && bt->kind != 0x10 && bt->kind != 0x13
                     && he_FindFigurePlace(c, &place, &obj, 0) != 0
-                    && (place != c->model->bldId || obj != c->model->scriptGroup)
+                    && (place != c->scene->group || obj != c->scene->scriptGroup)
                     && (c->flags1c8 & 0x800) == 0
                     && (ai_Chars[c->bld->owner].kind == 6 || ai_Chars[c->bld->owner].kind == 7)) {
                     cm_SendCharHalt(c->netId);
@@ -15936,11 +15936,11 @@ void he_RunRoutine(AIJOB *ev)
             int place, obj;
 
             c = &ai_Chars[i];
-            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->model != 0) {
+            if ((c->title != 0 || c->jobId != 0) && c->bld != 0 && c->scene != 0) {
                 bt = &ai_BTypes[c->bld->type];
                 if (bt->kind != 4 && bt->kind != 0x10 && bt->kind != 0x13
                     && he_FindFigurePlace(c, &place, &obj, 0) != 0
-                    && (place != c->model->bldId || obj != c->model->scriptGroup)
+                    && (place != c->scene->group || obj != c->scene->scriptGroup)
                     && (c->flags1c8 & 0x800) == 0) {
                     cm_SendCharHalt(c->netId);
                     if (n != 0 && gm_GetGoodsValue(c) > 0xc80 && (short)util_Random(2) != 0) {
@@ -15966,11 +15966,11 @@ void he_RunRoutine(AIJOB *ev)
             for (i = 0; i < 768; i++) {
                 int bld, contact;
 
-                if ((ai_Chars[i].title != 0 || ai_Chars[i].jobId != 0) && ai_Chars[i].bld != 0 && ai_Chars[i].bld2 != 0 && ai_Chars[i].model != 0) {
+                if ((ai_Chars[i].title != 0 || ai_Chars[i].jobId != 0) && ai_Chars[i].bld != 0 && ai_Chars[i].bld2 != 0 && ai_Chars[i].scene != 0) {
                     bt = &ai_BTypes[ai_Chars[i].bld->type];
                     if (bt->kind != 4 && bt->kind != 0x10 && bt->kind != 0x13
                         && he_FindFigurePlace(&ai_Chars[i], &bld, &contact, 0) != 0
-                        && (bld != ai_Chars[i].model->bldId || contact != ai_Chars[i].model->scriptGroup)
+                        && (bld != ai_Chars[i].scene->group || contact != ai_Chars[i].scene->scriptGroup)
                         && (ai_Chars[i].flags1c8 & 0x800) == 0) {
                         cm_SendCharHalt(ai_Chars[i].netId);
                         if (n != 0 && gm_GetGoodsValue(&ai_Chars[i]) > 0xc80 && (short)util_Random(2) != 0) {
@@ -16374,7 +16374,7 @@ void he_RunKidnap(AIJOB *ev)
         for (k = 0; k < 8; k++) {
             if (ev->ids[k] != -1) {
                 c = gm_FindChar(ev->ids[k]);
-                if (c->model != 0 && sv_IsAtDoor(c, b) == 0) {
+                if (c->scene != 0 && sv_IsAtDoor(c, b) == 0) {
                     ev->end = ai_Time;
                     gm_AddTime(&ev->end, 0, 10, 0);
                     return;
@@ -16425,7 +16425,7 @@ void he_RunKidnap(AIJOB *ev)
                 return;
             }
             cell = gm_Query((void *)b->objList, 1, 0, 0x65);
-            if (victim->model != 0) {
+            if (victim->scene != 0) {
                 cm_SendChrStop(victim->netId);
                 cm_RequestChrMoveToUniverse(victim->netId, b->id, cell->objId, "dummy_EINGANG_ZELLE");
             }
@@ -16561,7 +16561,7 @@ void he_RunRansom(AIJOB *ev)
 
                 txt_Format(text, 0x19da);
                 he_ShowNews(victim->netId, victim->netId, text, 0, 0x5fb, 0);
-                if (victim->model != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
+                if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                     cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
                 cm_BeginFieldBlock((char *)b, b->id);
                 cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x65, &none);
@@ -16685,7 +16685,7 @@ void he_RunRansomDemand(AIJOB *ev)
             }
             cm_SendMessage5b(victim->netId, -victim->heldRounds, 0);
             cm_SendMoveGoodsUnchecked(master->netId, victim->netId, ai_OwnPlayer, x->ransom);
-            if (victim->model != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
+            if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
             if (b != 0) {
                 fin = (HEFINVIEW *)gm_PlayerRecord(master);
@@ -16725,7 +16725,7 @@ void he_RunRansomDemand(AIJOB *ev)
             cm_SendFieldDeltas();
             cm_SendMessage5b(victim->netId, -victim->heldRounds, 0);
             cm_SendMoveGoodsUnchecked(master->netId, victim->netId, ai_OwnPlayer, x->ransom);
-            if (victim->model != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
+            if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
             cm_BeginFieldBlock((char *)b, b->id);
             cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
@@ -16840,7 +16840,7 @@ void he_RunBurglary(AIJOB *ev)
             return;
         }
         for (k = 0; k < 8; k++) {
-            if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0 && c->model != 0
+            if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0 && c->scene != 0
                 && sv_IsAtDoor(c, b) == 0) {
                 ev->end = ai_Time;
                 gm_AddTime(&ev->end, 0, 4, 0);
@@ -17159,7 +17159,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         }
         for (k = 0; k < 8; k++) {
             c = gm_FindChar(ev->ids[k]);
-            if (c != 0 && c->model != 0 && sv_IsAtDoor(c, b) == 0 && c->scene->actions != 0)
+            if (c != 0 && c->scene != 0 && sv_IsAtDoor(c, b) == 0 && c->scene->actions != 0)
                 all = 0;
         }
         if (all != 0) {
@@ -17375,7 +17375,7 @@ void he_RunAmbush(AIJOB *ev)
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0
-                    && d3_VecEqual(&c->model->body->pos, (D3VECTOR *)&pos, 25000.0f) == 0) {
+                    && d3_VecEqual(&c->scene->obj->pos, (D3VECTOR *)&pos, 25000.0f) == 0) {
                     all = 0;
                     break;
                 }
@@ -17385,7 +17385,7 @@ void he_RunAmbush(AIJOB *ev)
             t = (AIJOB *)he_FindEvent(1, 0, 0xf);
             for (; all != 0 && o != 0 && t != 0 && n < 3; t = (AIJOB *)he_NextEvent()) {
                 unsigned goods[0x2e];
-                AITASK *task;
+                CHARACTER *task;
 
                 if (((HETRANSPORT *)t)->ambushed != 0 || t->chr == ev->chr || (owner != -1 && owner != ai_CharInts[t->chr][0]))
                     continue;
@@ -17394,8 +17394,8 @@ void he_RunAmbush(AIJOB *ev)
                 cart = (AIOBJ *)gm_FindObjectInst(((HETRANSPORT *)t)->cart);
                 if (cart == 0)
                     continue;
-                task = (AITASK *)cart->sceneObj;
-                if (d3_VecEqual(&task->body->pos, (D3VECTOR *)&pos, 1500.0f) != 0)
+                task = cart->sceneObj;
+                if (d3_VecEqual(&task->obj->pos, (D3VECTOR *)&pos, 1500.0f) != 0)
                     nearby = 1;
                 gm_StallGoodsList((char *)cart, goods);
                 value = goods[0x2c];
@@ -18009,7 +18009,7 @@ void he_RunBurn(AIJOB *ev)
             n = gm_NearestBuilding(b, 3);
             if (n != 0) {
                 for (i = 0; i < 768; i++) {
-                    if (ai_Chars[i].health != 0 && ai_Chars[i].model != 0 && ai_Chars[i].model->bldId == b->id
+                    if (ai_Chars[i].health != 0 && ai_Chars[i].scene != 0 && ai_Chars[i].scene->group == b->id
                         && (ai_Chars[i].jobKind == 0 || ai_Chars[i].jobKind == 4) && k < 16) {
                         c = &ai_Chars[i];
                         x->helpers[k] = c->netId;
@@ -18795,7 +18795,7 @@ void he_RunRobbery(AIJOB *ev)
         id = x->target;
         b = gm_BuildQuery(1, 1, id);
         for (k = 0; k < 8; k++) {
-            if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0 && c->model != 0
+            if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0 && c->scene != 0
                 && sv_IsAtDoor(c, b) == 0) {
                 ev->end = ai_Time;
                 gm_AddTime(&ev->end, 0, 4, 0);

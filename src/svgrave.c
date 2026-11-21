@@ -3148,8 +3148,8 @@ void ai_EndCharExtra(AICHAR *ch, int f)
     AICHAR *c = ch;
     EVTSCRIPT *script;
 
-    if (c->model->scriptId != -1) {
-        script = evt_FindById(c->model->scriptId);
+    if (c->scene->scriptId != -1) {
+        script = evt_FindById(c->scene->scriptId);
         if (script != 0)
             evt_Stop(script);
     }
@@ -3185,7 +3185,7 @@ void ai_GraveyardChatter(AIBLD *unused)
         return;
     for (slot = ai_SceneChars; (int)slot < (int)(ai_SceneChars + 0x20); slot++) {
         c = *slot;
-        if (c != 0 && c->kind == 0x14 && c->model != 0 && (void *)c->model->scene == (void *)d3_DefaultScene)
+        if (c != 0 && c->kind == 0x14 && c->scene != 0 && (void *)c->scene->scene == (void *)d3_DefaultScene)
             list[cnt++] = c;
     }
     if (cnt == 0)
@@ -3214,7 +3214,7 @@ void ai_GraveyardChatter(AIBLD *unused)
     }
     script = evt_Load("locations\\friedhof\\gespraeche.esc");
     if (script != 0)
-        evt_RunScriptArgs(script, 3, (int)x->model, a, b);
+        evt_RunScriptArgs(script, 3, (int)x->scene, a, b);
 }
 /* 0x587de0, clears the 0x4000-byte table ai_TurnTable (17 B), called from main.c main_OpenEngine 0x532160 right after
    ai_InitStates; the table has no other reader or writer in the binary, so its role is the function's name */

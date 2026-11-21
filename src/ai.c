@@ -618,7 +618,7 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall)
    ai_UpdateProduction / ai_UpdateStaff / ai_BuySlots / ai_BuyCapacity / ai_BuyUpgrade / ai_HasMaterials /
    ai_StartProduction / ai_FreeJobCharacters / ai_SendJobOrders / ai_DrawSettingGood / sv_MoveToGroup /
    gm_FreeCapacity, fields AIENTRY.capacity / amount, AIGOOD.batch, AIBLD.objList, AICHAR.health / title /
-   model, AITASK.bldId */
+   model (AICHAR.scene), CHARACTER.group */
 
 void ai_EvaluateProduction(AICHAR *ch)
 {
@@ -761,7 +761,7 @@ done:
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
         if (ai_Chars[j].health && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
-            && ai_Chars[j].title && ai_Chars[j].model && ai_Chars[j].model->bldId == ai_Chars[j].bld->id) {
+            && ai_Chars[j].title && ai_Chars[j].scene && ai_Chars[j].scene->group == ai_Chars[j].bld->id) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
             n2 = info.n2 + 1;
             info.n2 = n2;
@@ -978,7 +978,7 @@ done:
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
         if (ai_Chars[j].health && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
-            && ai_Chars[j].title && ai_Chars[j].model && ai_Chars[j].model->bldId == ai_Chars[j].bld->id
+            && ai_Chars[j].title && ai_Chars[j].scene && ai_Chars[j].scene->group == ai_Chars[j].bld->id
             && (!ai_Chars[j].job || (ai_Chars[j].job->kind != 0x14 && ai_Chars[j].job->kind != 0x15))) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
             n2 = info.n2 + 1;
@@ -1226,8 +1226,8 @@ check:
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
         if (ai_Chars[j].health > 0 && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10
-            && ai_Chars[j].bld == ch->bld && ai_Chars[j].title && ai_Chars[j].model
-            && ai_Chars[j].model->bldId == ai_Chars[j].bld->id && (!ai_Chars[j].job || ai_Chars[j].job->kind != '(')
+            && ai_Chars[j].bld == ch->bld && ai_Chars[j].title && ai_Chars[j].scene
+            && ai_Chars[j].scene->group == ai_Chars[j].bld->id && (!ai_Chars[j].job || ai_Chars[j].job->kind != '(')
             && (!found || ch != &ai_Chars[j])) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
             info.n2++;
@@ -1388,7 +1388,7 @@ void ai_CalcMeisterWache(AICHAR *ch)
     idle = 0;
     for (i = 0; i < 768; i++) {
         if (ai_Chars[i].health > 0 && ai_Chars[i].id != 0xffff && ai_Chars[i].kind != 10 && ai_Chars[i].bld == ch->bld
-            && ai_Chars[i].title && ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+            && ai_Chars[i].title && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
             total++;
             if (!ai_Chars[i].job)
                 idle++;
@@ -1464,7 +1464,7 @@ city:
         n = min(idle, 4);
         for (k = 0, c = 0; k < n && c < 768; c++) {
             if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
+                && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
                 msg.arg[6 + k++] = ai_Chars[c].netId;
         }
         for (; k < 4; k++)
@@ -1526,7 +1526,7 @@ city:
            (nonzero), so the search never runs and the check is never sent */
         for (c = 0; !found && c < 768; c++) {
             if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+                && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
                 guard = ai_Chars[c].netId;
                 found++;
                 msg.arg[0] = guard;
@@ -1559,7 +1559,7 @@ umland:
     n = min(idle, 6);
     for (cnt = 0, k = 0, c = 0; cnt < n && c < 768; c++) {
         if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && !ai_Chars[c].job
-            && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+            && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
             msg.ids[k++] = ai_Chars[c].netId;
             cnt++;
         }
@@ -1577,7 +1577,7 @@ umland:
         if (c >= 768)                                                                                       \
             break;                                                                                          \
         if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title                    \
-            && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)  \
+            && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)  \
             msg.ids[k++] = ai_Chars[c].netId;                                                              \
     }                                                                                                       \
     for (; k < 8; k++)                                                                                      \
@@ -1700,7 +1700,7 @@ spy:
     t = min(n, 8);
     for (k = 0, c = 0; k < t && c < 768; c++) {
         if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-            && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
+            && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
             msg.ids[k++] = ai_Chars[c].netId;
     }
     for (; k < 8; k++)
@@ -1735,7 +1735,7 @@ report:
     t = min(n, 8);
     for (k = 0, c = 0; k < t && c < 768; c++) {
         if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-            && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
+            && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
             msg.ids[k++] = ai_Chars[c].netId;
     }
     for (; k < 8; k++)
@@ -1833,8 +1833,8 @@ void ai_CalcMeisterDiebe(AICHAR *ch)
     n = 0;
     for (c = 0; c < 768; c++) {
         if (ai_Chars[c].health > 0 && ai_Chars[c].id != 0xffff && ai_Chars[c].kind != 10
-            && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && ai_Chars[c].model
-            && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+            && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && ai_Chars[c].scene
+            && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
             all++;
             if (!ai_Chars[c].job)
                 n++;
@@ -2090,8 +2090,8 @@ void ai_CalcMeisterRaeuber(AICHAR *ch)
     n = 0;
     for (c = 0; c < 768; c++) {
         if (ai_Chars[c].health > 0 && ai_Chars[c].id != 0xffff && ai_Chars[c].kind != 10
-            && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && ai_Chars[c].model
-            && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+            && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && ai_Chars[c].scene
+            && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
             all++;
             if (!ai_Chars[c].job)
                 n++;
@@ -2175,7 +2175,7 @@ attack:
                 if (c >= 768)
                     break;
                 if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                    && !ai_Chars[c].job && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+                    && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
                     msg.arg[0] = ai_Chars[c].netId;
                     k++;
                 }
@@ -2204,7 +2204,7 @@ lauer:
         if (k >= 4 || c >= 768)
             break;
         if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title && !ai_Chars[c].job
-            && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id) {
+            && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
             msg.ids[t++] = ai_Chars[c].netId;
             k++;
         }
@@ -2394,7 +2394,7 @@ void ai_StartBuildingWork(AICHAR *ch)
                     }
                     if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
                         && (!ai_Chars[c].job || ai_Chars[c].job->kind == 4 || ai_Chars[c].job->kind == 0x8c)
-                        && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
+                        && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
                         f = &ai_Chars[c];
                 }
                 memset(&msg, 0, sizeof(msg));
@@ -2437,8 +2437,8 @@ void ai_EndWorkerPose(AICHAR *ch)
                 break;
             }
             if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title == 0x1c
-                && ai_Chars[c].kind == 0x14 && (ai_Chars[c].flags1b4 & 1) && ai_Chars[c].model
-                && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
+                && ai_Chars[c].kind == 0x14 && (ai_Chars[c].flags1b4 & 1) && ai_Chars[c].scene
+                && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
                 f = &ai_Chars[c];
         }
         if (util_RandomF() > 0.75f)
@@ -2642,7 +2642,7 @@ done:
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
         if (ai_Chars[j].health > 0 && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
-            && ai_Chars[j].title && ai_Chars[j].model && ai_Chars[j].model->bldId == ai_Chars[j].bld->id
+            && ai_Chars[j].title && ai_Chars[j].scene && ai_Chars[j].scene->group == ai_Chars[j].bld->id
             && (!ai_Chars[j].job || ai_Chars[j].job->kind == 4)) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
             info.n2++;
@@ -2879,7 +2879,7 @@ done:
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
         if (ai_Chars[j].health > 0 && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
-            && ai_Chars[j].title && ai_Chars[j].model && ai_Chars[j].model->bldId == ai_Chars[j].bld->id
+            && ai_Chars[j].title && ai_Chars[j].scene && ai_Chars[j].scene->group == ai_Chars[j].bld->id
             && (!ai_Chars[j].job || ai_Chars[j].job->kind == 4)) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
             info.n2++;
@@ -4330,7 +4330,7 @@ void ai_SendJobOrders(AIINFO *info)
         }
         for (i = 0; info->z2 < total && i < 768; i++) {
             if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title && !ai_Chars[i].job
-                && ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                 AIMSG msg;
 
                 found = 0;
@@ -4378,7 +4378,7 @@ void ai_SendJobOrders(AIINFO *info)
         msg.arg[1] = o->objId;
         for (i = 0; info->z2 < total && i < 768; i++) {
             if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title && !ai_Chars[i].job
-                && ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                 msg.ids[msg.nIds] = ai_Chars[i].netId;
                 msg.nIds++;
                 info->z2++;
@@ -4423,7 +4423,7 @@ void ai_SendJobOrders(AIINFO *info)
         }
         for (i = 0; info->z2 < total && i < 768; i++) {
             if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title && !ai_Chars[i].job
-                && ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                 msg.ids[msg.nIds] = ai_Chars[i].netId;
                 msg.nIds++;
                 info->z2++;
@@ -4457,7 +4457,7 @@ void ai_SendJobOrders(AIINFO *info)
         if (base < total) {
             for (i = 0; info->z2 < total && i < 768; i++) {
                 if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
-                    && !ai_Chars[i].job && ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                    && !ai_Chars[i].job && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                     msg.ids[msg.nIds] = ai_Chars[i].netId;
                     msg.nIds++;
                     info->z2++;
@@ -4646,7 +4646,7 @@ void ai_SendFreeThieves(AICHAR *ch)
                     if (ai_Chars[i].job->kind == 0x16)
                         ai_Chars[i].flags1b4 &= ~0x10;
                 } else {
-                    if (ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                    if (ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                         if (ai_Chars[i].sk83 < ai_Chars[i].sk82) {
                             msg.arg[1] = ai_Chars[i].netId;
                             msg.thiefClass = 3;
@@ -4721,7 +4721,7 @@ void ai_SendFreeSpies(AICHAR *ch)
                     if (ai_Chars[i].job->kind == 0x8f)
                         ai_Chars[i].flags1b4 &= ~0x10;
                 } else {
-                    if (ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {
+                    if (ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
                         ai_Chars[i].flags1b4 &= ~0x10;
                         if (ai_Chars[i].sk81 < ai_Chars[i].sk82) {
                             msg.arg[0] = ai_Chars[i].netId;
@@ -4766,7 +4766,7 @@ void ai_MeisterBewaffnen(AICHAR *ch, AIOBJ *b)
     i = 0;
     do {
         c = &ai_Chars[i];
-        if (c->id != 0xffff && c->bld == ch->bld && c->title && c->model && c->model->bldId == c->bld->id) {
+        if (c->id != 0xffff && c->bld == ch->bld && c->title && c->scene && c->scene->group == c->bld->id) {
             sel = NULL;
             p = (unsigned short *)gm_Query(c->inventory, 1, 4, 12);
             if (!p)
