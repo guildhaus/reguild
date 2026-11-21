@@ -102,7 +102,7 @@ struct ORDCHAR; void gm_InheritEstate(struct ORDCHAR *dead, struct ORDCHAR *heir
 struct ORDCHAR; void gm_ForfeitEstate(struct ORDCHAR *c, char *out, int flag);  /* 0x506e70, the character c forfeits its estate after a lost fight; the announcement into out */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
 unsigned short *gm_ObjectBuildingOwner(unsigned short *o);  /* 0x50a050 */
-int gm_ListObjectsAfter(struct AIBLD *b, unsigned short *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
+int gm_ListObjectsAfter(struct AIBLD *b, struct AIOBJ *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
 int gm_RemoveOwned(int *list, int id);  /* 0x5000c0 */
 void gm_SelectModelVariant(char *o);  /* 0x4fb5a0 */
 void gm_SetJob(int i, unsigned n);  /* 0x504790 */
@@ -218,13 +218,13 @@ int gm_CurrencyDivide(int a, int i);  /* 0x508640 */
 int gm_BuildingCarts(struct AIBLD *b, int *out);  /* 0x509060 */
 int gm_BuildingRankGate(struct AIBLD *b, struct AIBLD *c);  /* 0x509120 */
 int gm_CharMoney(int c);  /* 0x509f20 */
-int gm_GoodPicture(unsigned short *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
+int gm_GoodPicture(struct AIOBJ *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
 int gm_ResearchClass(int k, int *out);  /* 0x50b090 */
 int gm_DonationRank(int c, int d);  /* 0x50b170 */
 int gm_CreditEvents(int c, struct AIBLD *bld, int *out);  /* 0x50a150 */
 int gm_BuildingEvents(unsigned owner, int b, int c, int *out);  /* 0x50a1c0 */
-void gm_UpdateTechTree(struct AIBLD *bld, unsigned short *item);  /* 0x50b9f0 */
-int gm_TechTreeWindow(char *form, struct AIBLD *bld, unsigned short *item);  /* 0x50c340 */
+void gm_UpdateTechTree(struct AIBLD *bld, struct AIOBJ *item);  /* 0x50b9f0 */
+int gm_TechTreeWindow(char *form, struct AIBLD *bld, struct AIOBJ *item);  /* 0x50c340 */
 int gm_Homeless(char *c);  /* 0x50ccd0 */
 
 #endif

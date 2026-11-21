@@ -2079,7 +2079,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
    in the part form of the view, as ai_LayoutProdGoodsList does for the production window but with the rows
    (the picture 0x743's height + 0x23) apart and the slots' side by the object obj: 0x1db (1), 0x1dc (2), else 3;
    with pointer set it puts the checked goods of both grids on the mouse pointer */
-void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, unsigned short *obj)
+void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, AIOBJ *obj)
 {
     D2WIN *win;
     int width;
@@ -2123,9 +2123,9 @@ void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, unsigned s
         }
         ai_ProdGoods[k].x = ai_ProdRows[row].x + n * 0x44 - 0x44;
         ai_ProdGoods[k].y = ai_ProdRows[row].y;
-        if (*obj == 0x1db)
+        if (obj->type == 0x1db)
             ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 1, bld);
-        else if (*obj == 0x1dc)
+        else if (obj->type == 0x1dc)
             ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 2, bld);
         else
             ai_ShowProdSlot(view, part, &ai_ProdGoods[k], pointer, 3, bld);

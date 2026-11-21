@@ -53,7 +53,7 @@ int init_ObjectSceneUniverse(struct AIOBJ *p);                        /* 0x511dc
 int init_BuildingSceneUniverse(struct AIBLD *b);                        /* 0x511e60 */
 void init_SyncSceneObjects(char *o);                                    /* 0x511f20 */
 void init_LoadTypeBScene(void);                                               /* 0x5124d0 */
-void init_LoadShopScript(struct AIBLD *b, unsigned short *o);          /* 0x5124f0 */
+void init_LoadShopScript(struct AIBLD *b, struct AIOBJ *o);          /* 0x5124f0 */
 void init_SoundObjectHook(char *o);                                     /* 0x5126a0 */
 void init_GateObjectHook(struct D3OBJECT *o);                           /* 0x512780 */
 void init_SoundObjectFreeHook(char *o);                                 /* 0x5127c0 */

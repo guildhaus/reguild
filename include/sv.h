@@ -95,7 +95,7 @@ void sv_RemoveBanners(struct AIBLD *b);                                         
 void sv_RefreshBanners(void);                                                /* 0x528770 */
 int sv_AddPanelButton(int x, int y, int text);                               /* 0x528800 */
 struct AIBLD; void sv_OpenBuildingPanel(struct AIBLD *b);                                /* 0x528860 */
-void sv_OpenItemPanel(unsigned short *p);                                   /* 0x528b80 */
+void sv_OpenItemPanel(struct AIOBJ *p);                                   /* 0x528b80 */
 struct AIOBJ; void sv_OpenCartPanel(struct AIOBJ *c);                                /* 0x528d90 */
 void sv_OpenDefaultPanel(void);                                                /* 0x528ee0 */
 struct AICHAR; void sv_OpenPersonPanel(struct AICHAR *c);                                 /* 0x5290f0 */

@@ -1091,7 +1091,7 @@ int ai_UpdateMarketGoodsList(AIOBJ *stall, AIOBJ *market);
 void ai_LayoutMarketGoodsList(int view, int part, int pointer, int bld);
 void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned char side, AIBLD *bld);
 int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store);
-void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, unsigned short *obj);
+void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, struct AIOBJ *obj);
 void lc_PlayerInJail(void);
 void ai_TechTreeWindow(struct AIBLD *bld, int room);
 int ai_SearchResourceWindow(AIBLD *bld);
@@ -4741,7 +4741,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
         }
         if (store->id == 0x116) {
             ai_UpdateStoreGoods(bld, store);
-            ai_LayoutStoreGoods(win, 1, 1, bld, (unsigned short *)store);
+            ai_LayoutStoreGoods(win, 1, 1, bld, store);
         } else {
             ai_UpdateProdGoodsList(bld, store);
             ai_LayoutProdGoodsList(win, 1, 0, (int)bld);
@@ -8471,7 +8471,7 @@ void ai_EquipWindow(AIBLD *bld)
     do {
         if (store->id == 0x116 || g->type == 0x11) {
             listShown = ai_UpdateStoreGoods(bld, store);
-            ai_LayoutStoreGoods(win, 1, 1, bld, (unsigned short *)store);
+            ai_LayoutStoreGoods(win, 1, 1, bld, store);
         } else if (g->type == 5) {
             listShown = ai_UpdateProdGoodsList(bld, store);
             ai_LayoutProdGoodsList(win, 1, 1, (int)bld);

@@ -968,7 +968,7 @@ void sv_LoadGroundplan(void)
     int x, y, i, n, slot, cnt, pic, cls;
     unsigned id;
     AIGOOD *g;
-    unsigned short *obj;
+    AIOBJ *obj;
     unsigned char white[3];
     unsigned char rgb[4];
     char name[0x100];
@@ -1062,8 +1062,8 @@ loaded:
                 continue;
             cnt = 0;
             if (bt->kind == 2) {
-                for (obj = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 2); obj != 0; obj = (unsigned short *)gm_QueryNext())
-                    if (*obj != 0xfd) {
+                for (obj = gm_Query((void *)b->objList, 1, 4, 2); obj != 0; obj = gm_QueryNext())
+                    if (obj->type != 0xfd) {
                         if (cnt == i)
                             break;
                         cnt++;
@@ -1077,7 +1077,7 @@ loaded:
                     id = bt->slot[slot] & 0x7fff;
                     if ((g->type == 2 || g->type == 6) && id != 0xfd) {
                         if (cnt == i) {
-                            obj = (unsigned short *)gm_Query((void *)b->objList, 1, 0, id);
+                            obj = gm_Query((void *)b->objList, 1, 0, id);
                             break;
                         }
                         cnt++;
@@ -3552,7 +3552,7 @@ void sv_OpenBuildingPanel(AIBLD *b)
    0xdf + id (interactive) one pixel left of the window's centre; for a goods type 2 / 6 item in a building the buttons:
    0x8c (sv_PanelActionBtn, txt_PanelBtnItemOwn) when the player owns the item's building or has permission bit 0x10 and
    the building lists objects after it (gm_ListObjectsAfter), and always 0xa6 (sv_PanelItemBtn, txt_PanelBtnItem) */
-void sv_OpenItemPanel(unsigned short *p)
+void sv_OpenItemPanel(AIOBJ *p)
 {
     AIBLD *b;
     unsigned short *owner;
@@ -3560,7 +3560,7 @@ void sv_OpenItemPanel(unsigned short *p)
     AIGOOD *g;
 
     b = 0;
-    if (sv_PanelForm == -1 && (*p < 0x92 || *p > 0x97) && *p != 0x2db) {
+    if (sv_PanelForm == -1 && (p->type < 0x92 || p->type > 0x97) && p->type != 0x2db) {
         sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_gebaeude");
         d2_SetForm(sv_PanelForm, 1);
         if (ai_PlayerBuilding != 0)
@@ -3569,16 +3569,16 @@ void sv_OpenItemPanel(unsigned short *p)
             b = ai_FallbackBuilding;
         if (b != 0) {
             if (b->name[0] != 0)
-                io_PrintText("$Z%s$A>%s<$A%s", b->type * 0xe + 0x48e, b->name, *p * 2 + 0x9a8);
+                io_PrintText("$Z%s$A>%s<$A%s", b->type * 0xe + 0x48e, b->name, p->type * 2 + 0x9a8);
             else
-                io_PrintText("$Z%s$A%s", b->type * 0xe + 0x48e, *p * 2 + 0x9a8);
+                io_PrintText("$Z%s$A%s", b->type * 0xe + 0x48e, p->type * 2 + 0x9a8);
         } else
-            io_PrintText("$Z%s", *p * 2 + 0x9a8);
+            io_PrintText("$Z%s", p->type * 2 + 0x9a8);
         d2_SetForm(sv_PanelForm, 0);
-        ((D2OBJ *)d2_Objs)[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, *p + 0xdf, d2_LastWindow)].interactive = 1;
-        g = &ai_Goods[*p];
+        ((D2OBJ *)d2_Objs)[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, p->type + 0xdf, d2_LastWindow)].interactive = 1;
+        g = &ai_Goods[p->type];
         if (b != 0 && (g->type == 2 || g->type == 6)) {
-            owner = gm_ObjectBuildingOwner(p);
+            owner = gm_ObjectBuildingOwner((unsigned short *)p);
             perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
             if (*owner == ai_PlayerId || (perm & 0x10) != 0) {
                 if (gm_ListObjectsAfter(b, p, 0) != 0)
@@ -3640,7 +3640,7 @@ int sv_ReturnZero(void);
 void sv_OpenDefaultPanel(void);
 void sv_OpenPersonPanel(AICHAR *c);
 void sv_RefreshPanel(void);
-void sv_OpenItemPanel(unsigned short *p);
+void sv_OpenItemPanel(struct AIOBJ *p);
 
 /* 0x528ee0, opens the default info panel when no panel is open (sv_PanelForm): without a selected building the
    "standard" panel with the construction button 0x8c (sv_PanelBuildBtn) and the item button 0xa6; for the player's
@@ -4178,11 +4178,11 @@ refresh:
         if (sv_SelectedItem != 0) {
             sv_ShownModel = sv_SelectedModel;
             sv_ShownItem = (int)sv_SelectedItem;
-            sv_OpenItemPanel(sv_SelectedItem);
+            sv_OpenItemPanel((AIOBJ *)sv_SelectedItem);
             sv_RefreshPanel();
         } else if (sv_PanelShown != 0) {
             sv_ShownRoom = (int)sv_PanelShown;
-            sv_OpenItemPanel((unsigned short *)sv_PanelShown);
+            sv_OpenItemPanel(sv_PanelShown);
             sv_RefreshPanel();
         }
         return;

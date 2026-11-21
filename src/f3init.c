@@ -3000,7 +3000,7 @@ void init_LoadTypeBScene(void)
    type for a home, else of o's prototype. When the file exists, an earlier script of the character's model (+0x28)
    is stopped, the new one runs with the model and ai_FavourComment, the script records the model and its id goes to
    the model and to init_ShopScript (-1 when the script does not load). */
-void init_LoadShopScript(AIBLD *b, unsigned short *o)
+void init_LoadShopScript(AIBLD *b, AIOBJ *o)
 {
     INIT_CHAR *c, *w, *m;
     int i;
@@ -3022,12 +3022,12 @@ void init_LoadShopScript(AIBLD *b, unsigned short *o)
         if (c != 0 && c == m)
             w = c;
     }
-    if (w != 0 && w->health > 1 && (o == 0 || w->model->scriptGroup == ((AIOBJ *)o)->objId)) {
+    if (w != 0 && w->health > 1 && (o == 0 || w->model->scriptGroup == o->objId)) {
         goods = 0;
         if (gm_IsHomeType(b) != 0)
             name = (char *)INIT_BTYPE(b);
         else
-            goods = (char *)ai_Goods + ((AIOBJ *)o)->type * 0x41;
+            goods = (char *)ai_Goods + o->type * 0x41;
         if (goods == 0)
             sprintf(buf, "%slocations\\%s\\Einkauf_%s.esc", evt_Path, name + 1, name + 1);
         else
@@ -3521,11 +3521,11 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
             d3if_Show((struct D3OBJECT *)d, 0);
         else {
             d3if_Show((struct D3OBJECT *)d, 1);
-            init_LoadShopScript(b, (unsigned short *)o);
+            init_LoadShopScript(b, o);
         }
         d->mask = 1;
     } else if (*p == 5 && b->owner != ai_PlayerId)
-        init_LoadShopScript(b, (unsigned short *)o);
+        init_LoadShopScript(b, o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
     init_PlayGraveyardSound(b);
     if (gm_IsHomeType(b) == 0)

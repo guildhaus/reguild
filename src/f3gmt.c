@@ -48,7 +48,7 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 #include "ai_types.h"
 extern int gm_TreeNodeCount;
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);
-void gm_FreeObjectExtra(unsigned short *o);
+void gm_FreeObjectExtra(struct AIOBJ *o);
 unsigned short gm_ObjectOwnerNo(unsigned short *o);
 void gm_UpdatePrices(unsigned p, void *t);
 
@@ -482,7 +482,7 @@ void gm_ClearObjects(void)
             if (list != 0) {
                 gm_RemoveObject(list, ((AIOBJ *)ai_Objects)[i].type);
             } else {
-                gm_FreeObjectExtra((unsigned short *)&((AIOBJ *)ai_Objects)[i]);
+                gm_FreeObjectExtra(&((AIOBJ *)ai_Objects)[i]);
                 ((AIOBJ *)ai_Objects)[i].type = 0;
                 f3gm_ObjectCount--;
             }
@@ -1385,7 +1385,7 @@ int gm_RemoveObject(int *list, unsigned id)
         if (cur->type == id) {
             if (cur->list != 0)
                 gm_FreeList(&cur->list);
-            gm_FreeObjectExtra((unsigned short *)cur);
+            gm_FreeObjectExtra(cur);
             if (n == 0)
                 *list = (int)cur->next;
             else
@@ -1402,9 +1402,8 @@ int gm_RemoveObject(int *list, unsigned id)
 }
 /* 0x500080, an object instance of the prototype kind 0x1d frees the route it holds (+0x29) */
 
-void gm_FreeObjectExtra(unsigned short *o)
+void gm_FreeObjectExtra(AIOBJ *obj)
 {
-    struct AIOBJ *obj = (struct AIOBJ *)o;
 
     if (ai_Goods[obj->type].type == 0x1d && obj->route != 0) {
         rt_FreePoints(obj->route);
@@ -1427,7 +1426,7 @@ int gm_RemoveOwned(int *list, int id)
         if (cur->objId == id) {
             if (cur->list != 0)
                 gm_FreeList(&cur->list);
-            gm_FreeObjectExtra((unsigned short *)cur);
+            gm_FreeObjectExtra(cur);
             if (n == 0)
                 *list = (int)cur->next;
             else
@@ -1456,7 +1455,7 @@ int gm_FreeList(int *list)
             *list = (int)o->next;
             if (o->list != 0)
                 gm_FreeList(&o->list);
-            gm_FreeObjectExtra((unsigned short *)o);
+            gm_FreeObjectExtra(o);
             o = (AIOBJ *)*list;
         } while (o != 0);
     }
@@ -2769,7 +2768,7 @@ void gm_KillSpieler(int c, int mode);                     /* 0x503c60 */
 extern struct D3SCENE *d3_DefaultScene;  /* 0x5fb5b0 (as d3.h / anm.h) */
 
 /* 0x502570, the string-table number (0x60e + n) of the picture of the good o (an object of the kinds 2 / 6): the pairs (prototype number, n) of a local table (0x13 -> 1, 0x54 -> 2, 0x15 -> 4 ..), searched for the object's prototype number up to the 0 entry; -1 when it is not in it or the object is of another kind */
-int gm_GoodPicture(unsigned short *o)
+int gm_GoodPicture(AIOBJ *o)
 {
     int t[55][2] = {
         { 0x13, 0x1 }, { 0x54, 0x2 }, { 0x15, 0x4 }, { 0x18, 0xd }, { 0x14, 0x9 }, { 0x16, 0x18 },
@@ -2786,11 +2785,11 @@ int gm_GoodPicture(unsigned short *o)
     char *g;
     int i;
 
-    g = (char *)ai_Goods + *o * 0x41;
+    g = (char *)ai_Goods + o->type * 0x41;
     if (*g == 2 || *g == 6) {
         i = 0;
         do {
-            if (t[i][0] == *o)
+            if (t[i][0] == o->type)
                 return t[i][1] + 0x60e;
             i++;
         } while (t[i][0] != 0);
@@ -6315,7 +6314,7 @@ void gm_FormatAmount(int v, unsigned char k, char *out)
    record (+0x23, the low 15 bits; +0x22 of them searched, 0x40 at most): counts the following ones up to a 0 word or
    one of type 2 / 6 (type 0x21 not counted) and stores their ids at out[1 ..] (out may be 0); 0 when *proto is not
    listed */
-int gm_ListObjectsAfter(AIBLD *b, unsigned short *proto, int *out)
+int gm_ListObjectsAfter(AIBLD *b, AIOBJ *proto, int *out)
 {
     GMBTYPE *bt;
     GMGOOD *g;
@@ -6325,7 +6324,7 @@ int gm_ListObjectsAfter(AIBLD *b, unsigned short *proto, int *out)
     n = 0;
     bt = GM_BTYPE(b->type);
     for (i = 0; i < bt->objCount; i++)
-        if ((unsigned short)(bt->objs[i] & 0x7fff) == *proto)
+        if ((unsigned short)(bt->objs[i] & 0x7fff) == proto->type)
             break;
     if (i >= bt->objCount)
         return 0;
@@ -7736,7 +7735,7 @@ extern unsigned short gm_TreeRankStart[64];
 unsigned gm_TreeNodeRank();                /* 0x50b2f0 */
 
 /* 0x50b3a0, lays out the goods tree of the building bld's type from the item *item on (the entries of its objs list that follow it, up to one of goods type 2 / 6) in the w x h area: the nodes go into gm_TreeNodes (id, the two parents, rank = gm_TreeNodeRank) sorted by rank, the first node of each rank into gm_TreeRankStart; the first rank is spread evenly, each further one under the mean x of its parents (equal x spread apart, neighbours 0x50 apart), the whole scaled back into the width when it leaves it, and the ranks spread over the height (0x60 apart at most). 1 when there is nothing to lay out, else 0 */
-int gm_LayoutTree(AIBLD *bld, unsigned short *item, int w, int h)
+int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
 {
     GMBTYPE *bt;
     int n, cnt, i, j, u, lv, rmax, again;
@@ -7747,7 +7746,7 @@ int gm_LayoutTree(AIBLD *bld, unsigned short *item, int w, int h)
 
     bt = GM_BTYPE(bld->type);
     for (n = 0; n < bt->objCount; n++)
-        if ((bt->objs[n] & 0x7fff) == *item)
+        if ((bt->objs[n] & 0x7fff) == item->type)
             break;
     if (n >= bt->objCount)
         return 1;
@@ -7903,7 +7902,7 @@ int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x
    2) makes them. When the state changed the node's widgets are rebuilt: the frame 0x36 x 0x36, its picture
    (0x52b locked, 0x529 / 0x52a), the goods icon (0xdf + id), the lock 0x4fb or the hourglass 0x4fc and the name
    label (text 0x9a8 + 2 * id); a node in progress shows the elapsed part of its job as the icon's fill */
-void gm_UpdateTechTree(AIBLD *bld, unsigned short *item)
+void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
 {
     AIBLD *bl;
     AIOBJ *ob;
@@ -7912,7 +7911,7 @@ void gm_UpdateTechTree(AIBLD *bld, unsigned short *item)
     int i, k, cnt, state, saved, parent;
 
     bl = bld;
-    ob = (AIOBJ *)item;
+    ob = item;
     parent = d2_Views[gm_TechTreeView].wins[3];
     for (i = 0; i < gm_TreeNodeCount; i++) {
         state = 0;
@@ -8065,7 +8064,7 @@ void gm_TreeLine(int a, int b, int c, int d)
    that window, d2_Wins its width / height), gm_UpdateTechTree builds their widgets, then a line (gm_TreeLine)
    joins every node to each of its two parents; returns the view, or -1 when the layout failed */
 
-int gm_TechTreeWindow(char *form, AIBLD *bld, unsigned short *item)
+int gm_TechTreeWindow(char *form, AIBLD *bld, AIOBJ *item)
 {
     int i, j;
     D2WIN *win;
@@ -8075,10 +8074,10 @@ int gm_TechTreeWindow(char *form, AIBLD *bld, unsigned short *item)
     gm_TechTreeTime = d3_Time;
     win = &d2_Wins[d2_Views[gm_TechTreeView].wins[3]];
     d2_SetForm(0, 1);
-    if (*item == 0xfd)
+    if (item->type == 0xfd)
         io_PrintText("$[%s$]", 0x19, bld->type * 0xe + 0x48e);
     else
-        io_PrintText("$[%s$]", 0x19, *item * 2 + 0x9a8);
+        io_PrintText("$[%s$]", 0x19, item->type * 2 + 0x9a8);
     d2_SetForm(0, 3);
     if (gm_LayoutTree(bld, item, win->w, win->h) != 0) {
         d2_CloseView(gm_TechTreeView);
