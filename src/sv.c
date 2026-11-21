@@ -1218,18 +1218,18 @@ void sv_UpdateGroundplan(unsigned flags)
 /* 0x522ec0, remembers the research list of the building o for the panel (sv_ResearchClass): the category 3 (0x501d80,
    the research buildings) sets it to 1, the category 5 takes the class number of the building kind (gm_BuildingClass) */
 
-void sv_SetResearchClass(unsigned char *o)
+void sv_SetResearchClass(AIBLD *o)
 {
     int k;
     int v;
 
-    k = gm_BuildingClass(*o);
+    k = gm_BuildingClass(o->type);
     if (k == 3) {
         sv_ResearchClass = 1;
         return;
     }
     if (k == 5) {
-        if (gm_ResearchClass(*o, &v) != 0)
+        if (gm_ResearchClass(o->type, &v) != 0)
             sv_ResearchClass = v;
     }
 }
@@ -3634,7 +3634,7 @@ int d2_RemoveWindowObjects();                     /* 0x472d20 */
 int gm_ListAmount();                     /* 0x50aaf0 */
 int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, int b, int c, int d);                     /* 0x576040 */
-void ai_TechTreeWindow(int param_1, int param_2);                     /* 0x591bf0 */
+void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 int sv_ReturnZero(void);
 void sv_OpenDefaultPanel(void);
 void sv_OpenPersonPanel(AICHAR *c);
@@ -4090,11 +4090,11 @@ void sv_UpdatePanel(void)
         }
         sv_PanelPerms = perms;
         if (ai_PlayerBuilding != 0 && (sv_PanelPerms & 0x10) != 0)
-            ai_TechTreeWindow((int)ai_PlayerBuilding, ai_PlayerBuilding->mainRoom);
+            ai_TechTreeWindow(ai_PlayerBuilding, ai_PlayerBuilding->mainRoom);
         else if (ai_FallbackBuilding != 0 && sv_PanelShown == 0)
             ai_BuildingWindow(ai_FallbackBuilding);
         else if (ai_FallbackBuilding != 0 && (sv_PanelPerms & 0x10) != 0)
-            ai_TechTreeWindow((int)ai_FallbackBuilding, sv_PanelShown->type);
+            ai_TechTreeWindow(ai_FallbackBuilding, sv_PanelShown->type);
         else if (sv_SelectedObject != 0) {
             cls = gm_BuildingClass(SV_SELBLD->type);
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, SV_SELBLD, 0, 0);
@@ -4612,7 +4612,7 @@ void d2_SetObjEnabled();                     /* 0x475e40 */
 int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, int b, int c, int d);                     /* 0x576040 */
 int gm_BuildingClass(int kind);                /* 0x501d80, f3gm.c, the class of a building kind */
-void ai_TechTreeWindow(int param_1, int param_2);                     /* 0x591bf0 */
+void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 void d2_FreeAnim(int n);                     /* 0x47ce30 */
 int d3t_PlaceAtObject();                     /* 0x4118a0 */
 void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c70 */

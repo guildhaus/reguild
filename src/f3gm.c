@@ -2423,7 +2423,7 @@ int gm_FreeList(int *list);
 int gm_ListBuildingsOfType(unsigned t, int *out);
 int gm_CharSumAmounts(char *c);
 unsigned gm_TreeNodeRank(int p);
-int gm_LayoutTree(unsigned char *bld, unsigned short *item, int w, int h);
+int gm_LayoutTree(struct AIBLD *bld, unsigned short *item, int w, int h);
 /* dcp unit split: the declarations that moved to f3gmt (copies: drop what f3gm does not use) */
 extern int f3gm_ObjectCount;
 int gm_RemoveObject();                     /* 0x4ffff0 */

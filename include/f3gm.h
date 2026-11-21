@@ -223,8 +223,8 @@ int gm_ResearchClass(int k, int *out);  /* 0x50b090 */
 int gm_DonationRank(int c, int d);  /* 0x50b170 */
 int gm_CreditEvents(int c, struct ORDBLD *bld, int *out);  /* 0x50a150 */
 int gm_BuildingEvents(unsigned owner, int b, int c, int *out);  /* 0x50a1c0 */
-void gm_UpdateTechTree(unsigned char *bld, unsigned short *item);  /* 0x50b9f0 */
-int gm_TechTreeWindow(char *form, unsigned char *bld, unsigned short *item);  /* 0x50c340 */
+void gm_UpdateTechTree(struct AIBLD *bld, unsigned short *item);  /* 0x50b9f0 */
+int gm_TechTreeWindow(char *form, struct AIBLD *bld, unsigned short *item);  /* 0x50c340 */
 int gm_Homeless(char *c);  /* 0x50ccd0 */
 
 #endif

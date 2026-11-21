@@ -1115,7 +1115,7 @@ void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned c
 int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store);
 void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, unsigned short *obj);
 void lc_PlayerInJail(void);
-void ai_TechTreeWindow(int bld, int room);
+void ai_TechTreeWindow(struct AIBLD *bld, int room);
 int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
 int ai_FillExchangeRows(int list, LCEXCHROW *rows, int view, int form, char input);
@@ -7248,7 +7248,7 @@ void ai_BuildingWindow(AIBLD *bld)
             continue;
         if (d2_PointerObj == techBtn) {
             d2_SetViewEnabled(win, 0);
-            ai_TechTreeWindow((int)bld, 0xfd);
+            ai_TechTreeWindow(bld, 0xfd);
             d2_SetViewEnabled(win, 1);
             continue;
         }
@@ -7399,7 +7399,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
     d2_CentreViewWindows(win);
     d2_SetPointerSprite(0, 0);
     value = gm_EquipmentValue(bld, bld->level);
-    sv_SetResearchClass((unsigned char *)bld);
+    sv_SetResearchClass(bld);
     do {
         found = (AIBLD *)gm_FindBuildingById(bldId);
         if ((bld->flags5aw & 0x400) != 0 || found == 0)
@@ -7444,7 +7444,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
             continue;
         if (d2_PointerObj == techBtn) {
             d2_SetViewEnabled(win, 0);
-            ai_TechTreeWindow((int)bld, 0xfd);
+            ai_TechTreeWindow(bld, 0xfd);
             d2_SetViewEnabled(win, 1);
         } else if (d2_PointerObj == renovateBtn) {
             d2_SetViewEnabled(win, 0);

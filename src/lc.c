@@ -3456,7 +3456,7 @@ extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h
    goods or the treasury (text 0x1a / 0x1c, cm_SendMoveGoods); the research message (type 0xc for a building
    upgrade, goods kind 6, else 2) goes out in the group "upgrade" and its slot is waited for; an object already
    held is selected on the panel ("ob_<NAME>"); gm_UpdateTechTree redraws the tree every frame */
-void ai_TechTreeWindow(int bld, int room)
+void ai_TechTreeWindow(AIBLD *bld, int room)
 {
     AIMSG msg;
     char text[0x100];
@@ -3479,11 +3479,11 @@ void ai_TechTreeWindow(int bld, int room)
     int i;
     float factor;
 
-    b = (AIBLD *)bld;
-    if (bld == (int)ai_PlayerBuilding) {
+    b = bld;
+    if (bld == ai_PlayerBuilding) {
         if (ai_RunAllows(0x200) == 0)
             return;
-        ai_CampaignStep(0x11, bld, 0, room);
+        ai_CampaignStep(0x11, (int)bld, 0, room);
     }
     me = &((AICHARREC *)ai_Chars)[ai_PlayerId];
     rec = (AIROOM *)gm_Query((void *)b->objList, 1, 0, room);
@@ -3500,7 +3500,7 @@ void ai_TechTreeWindow(int bld, int room)
     d2_CentreViewWindows(win);
     d2_SetForm(win, 4);
     button = d2_GetWinObj(win, 4, io_PrintText(0x17e2));
-    sv_SetResearchClass((unsigned char *)bld);
+    sv_SetResearchClass(bld);
     if (sv_RunFrame((int)ai_TechTreeWindow, 0x657c7) != 0) {
         do {
             if (dm_L.rup != 0)
@@ -3518,7 +3518,7 @@ void ai_TechTreeWindow(int bld, int room)
                 if (k < gm_TreeNodeCount) {
                     memset(&msg, 0, sizeof(msg));
                     i = id - 0xdf;
-                    if (ai_ScriptQuery(0x2b, bld, 0, i) == 0)
+                    if (ai_ScriptQuery(0x2b, (int)bld, 0, i) == 0)
                         continue;
                     good = &ai_Goods[i];
                     if (rec != 0)
@@ -3563,7 +3563,7 @@ void ai_TechTreeWindow(int bld, int room)
                             }
                             if (ok == 0 || sv_MessageBox(text, 1) == 0)
                                 goto redraw;
-                            ai_CampaignStep(0x2b, bld, 0, i);
+                            ai_CampaignStep(0x2b, (int)bld, 0, i);
                             cm_BeginGroup("upgrade");
                             if (b->owner != ai_PlayerChar->id) {
                                 cm_SendMoveGoods(-1, ai_CharInts[b->owner][0], ai_OwnPlayer, cost);
@@ -3599,7 +3599,7 @@ void ai_TechTreeWindow(int bld, int room)
                         strcpy(name, good->name);
                         strupr(name);
                         sprintf(objName, "ob_%s", name);
-                        sv_SelectPanelObject((AIBLD *)bld, rec->objId, objName);
+                        sv_SelectPanelObject(bld, rec->objId, objName);
                     }
                 }
             }
@@ -3609,8 +3609,8 @@ void ai_TechTreeWindow(int bld, int room)
     }
     gm_CloseTechTree();
     sv_ResearchClass = 0;
-    if (bld == (int)ai_PlayerBuilding)
-        ai_CampaignStep(0x11, bld, 1, room);
+    if (bld == ai_PlayerBuilding)
+        ai_CampaignStep(0x11, (int)bld, 1, room);
 }
 /* 0x592230, the upgrade listener (89 B): the pump 0x5309a0 (this, 0x67fff) until 0; when the pending contact
    0x6f22e4 is "UPGRADE" the tech tree 0x591bf0 (building, 0x2c) opens */
@@ -3622,7 +3622,7 @@ void ai_UpgradeContact(AIBLD *building)
     r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     while (r != 0) {
         if (ai_ClickedObject != 0 && strcmpi("UPGRADE", (char *)ai_ClickedObject) == 0)
-            ai_TechTreeWindow((int)building, 0x2c);
+            ai_TechTreeWindow(building, 0x2c);
         r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     }
 }

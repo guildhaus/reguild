@@ -7744,7 +7744,7 @@ extern unsigned short gm_TreeRankStart[64];
 unsigned gm_TreeNodeRank();                /* 0x50b2f0 */
 
 /* 0x50b3a0, lays out the goods tree of the building bld's type from the item *item on (the entries of its objs list that follow it, up to one of goods type 2 / 6) in the w x h area: the nodes go into gm_TreeNodes (id, the two parents, rank = gm_TreeNodeRank) sorted by rank, the first node of each rank into gm_TreeRankStart; the first rank is spread evenly, each further one under the mean x of its parents (equal x spread apart, neighbours 0x50 apart), the whole scaled back into the width when it leaves it, and the ranks spread over the height (0x60 apart at most). 1 when there is nothing to lay out, else 0 */
-int gm_LayoutTree(unsigned char *bld, unsigned short *item, int w, int h)
+int gm_LayoutTree(AIBLD *bld, unsigned short *item, int w, int h)
 {
     GMBTYPE *bt;
     int n, cnt, i, j, u, lv, rmax, again;
@@ -7753,7 +7753,7 @@ int gm_LayoutTree(unsigned char *bld, unsigned short *item, int w, int h)
     GMGOOD *g;
     RTNODE tmp;
 
-    bt = GM_BTYPE(*bld);
+    bt = GM_BTYPE(bld->type);
     for (n = 0; n < bt->objCount; n++)
         if ((bt->objs[n] & 0x7fff) == *item)
             break;
@@ -7911,15 +7911,15 @@ int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x
    2) makes them. When the state changed the node's widgets are rebuilt: the frame 0x36 x 0x36, its picture
    (0x52b locked, 0x529 / 0x52a), the goods icon (0xdf + id), the lock 0x4fb or the hourglass 0x4fc and the name
    label (text 0x9a8 + 2 * id); a node in progress shows the elapsed part of its job as the icon's fill */
-void gm_UpdateTechTree(unsigned char *bld, unsigned short *item)
+void gm_UpdateTechTree(AIBLD *bld, unsigned short *item)
 {
-    ORDBLD *bl;
+    AIBLD *bl;
     ORDOBJ *ob;
     RTNODE *q;
     GMJOB *o;
     int i, k, cnt, state, saved, parent;
 
-    bl = (ORDBLD *)bld;
+    bl = bld;
     ob = (ORDOBJ *)item;
     parent = d2_Views[gm_TechTreeView].wins[3];
     for (i = 0; i < gm_TreeNodeCount; i++) {
@@ -8073,7 +8073,7 @@ void gm_TreeLine(int a, int b, int c, int d)
    that window, d2_Wins its width / height), gm_UpdateTechTree builds their widgets, then a line (gm_TreeLine)
    joins every node to each of its two parents; returns the view, or -1 when the layout failed */
 
-int gm_TechTreeWindow(char *form, unsigned char *bld, unsigned short *item)
+int gm_TechTreeWindow(char *form, AIBLD *bld, unsigned short *item)
 {
     int i, j;
     D2WIN *win;
@@ -8084,7 +8084,7 @@ int gm_TechTreeWindow(char *form, unsigned char *bld, unsigned short *item)
     win = &d2_Wins[d2_Views[gm_TechTreeView].wins[3]];
     d2_SetForm(0, 1);
     if (*item == 0xfd)
-        io_PrintText("$[%s$]", 0x19, *bld * 0xe + 0x48e);
+        io_PrintText("$[%s$]", 0x19, bld->type * 0xe + 0x48e);
     else
         io_PrintText("$[%s$]", 0x19, *item * 2 + 0x9a8);
     d2_SetForm(0, 3);

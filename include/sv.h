@@ -54,7 +54,7 @@ void sv_ClosePanelWidgets(void);                                                
 void sv_DestroyScreen(void);                                            /* 0x5223c0 */
 void sv_LoadGroundplan(void);                                                /* 0x5224a0 */
 void sv_UpdateGroundplan(unsigned flags);                                      /* 0x5229b0 */
-void sv_SetResearchClass(unsigned char *o);                             /* 0x522ec0 */
+void sv_SetResearchClass(struct AIBLD *o);                             /* 0x522ec0 */
 void sv_UpdateCityPanel(unsigned char a, int b);                              /* 0x522f10 */
 void sv_RedrawScreen(void);                                             /* 0x524010 */
 void sv_AddGroupMember(int c, char *g);                                      /* 0x524100 */
