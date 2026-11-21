@@ -3783,7 +3783,7 @@ int ai_StartProduction(AICHAR *ch, AIENTRY *e)
 
 void ai_AddEquipmentNeeds(AICHAR *ch, AIOBJ *obj, int limit)
 {
-    unsigned short *it;
+    AIOBJ *it;
     int *p;
     int i, j, k, n, sum, id, found;
     unsigned int u;
@@ -3791,7 +3791,7 @@ void ai_AddEquipmentNeeds(AICHAR *ch, AIOBJ *obj, int limit)
     n = ai_NSlots;
     for (i = 0; i < 768; i++) {
         if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title != 0) {
-            it = (unsigned short *)gm_Query(ai_Chars[i].inventory, 1, 4, 0xc);
+            it = gm_Query(ai_Chars[i].inventory, 1, 4, 0xc);
             n = ai_NSlots;
             if (it == 0) {
                 for (j = 0; j < n; j++) {
@@ -3807,7 +3807,7 @@ void ai_AddEquipmentNeeds(AICHAR *ch, AIOBJ *obj, int limit)
                 do {
                     if (p[-1] == 0 || *p == 0)
                         break;
-                    u = *it;
+                    u = it->type;
                     p[-1] = u;
                     if (u != 0) {
                         for (j = 0; !found && j < n; j++) {
@@ -3825,7 +3825,7 @@ void ai_AddEquipmentNeeds(AICHAR *ch, AIOBJ *obj, int limit)
                     do {
                         if (p[-1] == 0 || *p == 0)
                             break;
-                        u = *it;
+                        u = it->type;
                         p[-1] = u;
                         if (u != 0) {
                             for (j = 0; !found && j < n; j++) {

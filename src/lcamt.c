@@ -8564,15 +8564,15 @@ int ai_OpenTrial(AICHARREC *me, AICHARREC *target, int n, int byFaith)
     unsigned short seated[4];
     int picked;
     AIMSG msg;
-    unsigned char *bld;
+    AIBLD *bld;
     unsigned int i;
 
     seated[0] = 0xffff;
     seated[1] = 0xffff;
     seated[2] = 0xffff;
     seated[3] = 0xffff;
-    for (bld = (unsigned char *)gm_BuildQuery(1, 6); bld != 0; bld = (unsigned char *)gm_BuildNext())
-        if (ai_BTypes[((AIBLD *)bld)->type].kind == 0xf)
+    for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext())
+        if (ai_BTypes[bld->type].kind == 0xf)
             break;
     if (bld == 0)
         return 0x10;

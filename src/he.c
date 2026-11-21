@@ -15047,7 +15047,7 @@ void he_AllocHarvest(int ev)
     AIBLD *b;
     AICHAR *c;
     G15PLANT *pl, *plants;
-    short *o;
+    AIOBJ *o;
 
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 0, 1);
@@ -15070,7 +15070,7 @@ void he_AllocHarvest(int ev)
         he_FreeEvent((int *)ev);
         return;
     }
-    o = (short *)gm_Query((void *)b->objList, 1, 0, 0xfd);
+    o = gm_Query((void *)b->objList, 1, 0, 0xfd);
     sv_MoveToGroup(b, o, c->id, (char *)ev);
     e->harvestSlot = cm_SetPlant(e->harvestBld, pl->x, pl->z, pl->type, 1, e->id);
     e->harvestType = pl->type;
@@ -18203,11 +18203,11 @@ void he_AllocHealing(AIJOB *ev)
 {
     HEHEAL *x = (HEHEAL *)ev;
     AICHAR *c;
-    int b, f;
+    AIBLD *b; int f;
 
     f = 0;
     c = (AICHAR *)gm_FindChar(x->charId);
-    b = (int)gm_FindBuildingById(ev->from);
+    b = gm_FindBuildingById(ev->from);
     if (x->room != -1)
         f = gm_FindObjectInst(x->room);
     sv_MoveToGroup(b, f, c->id, ev);

@@ -374,7 +374,7 @@ extern struct AICHAR *ai_SceneChars[32];
 #include "sv.h"
 #include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 signed char init_BuildingUniverse[0x22];  /* 0x76fa60, the universe of each building class's scene */
-unsigned short * ai_SceneObject;  /* 0x76fa84 */
+struct AIOBJ *ai_SceneObject;  /* 0x76fa84 */
 signed char init_ObjectUniverse[0x2dc];  /* 0x76faa0, the universe of each object prototype's scene (-1 = not loaded) */
 int init_TownSounds[16];  /* 0x76fd80, the handles of the town's sounds (16 at most), stopped by */
 AIBLD *ai_SceneBuilding;  /* 0x76fdc0 */
@@ -2860,7 +2860,7 @@ void init_SyncSceneObjects(char *o)
     rec = 0;
     id = so->proto & INIT_PROTO_MASK;
     kind = o[0x4b];
-    base = ai_SceneObject != 0 ? (char *)((AIOBJ *)ai_SceneObject)->list : (char *)ai_SceneBuilding->objList;
+    base = ai_SceneObject != 0 ? (char *)ai_SceneObject->list : (char *)ai_SceneBuilding->objList;
     if (kind == 1) {
         g = (char *)ai_Goods + id * 0x41;
         if (g[0] != 2 && g[0] != 0x1d && g[0] != 0x21 && g[0] != 6 && (rec = gm_Query(base, 1, 0, id)) != 0) {
@@ -3379,7 +3379,7 @@ void init_SetCharacterAnimations(unsigned char *b)
 
 void init_ShowBuildingScene(AIBLD *b, int slot)
 {
-    unsigned short *o;
+    AIOBJ *o;
     SCENEOBJ *t;
     SCENEOBJ **q;
     INIT_CHAR *c;
@@ -3391,8 +3391,8 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
     season = gm_ClockSeason(&ai_Time);
     cls = gm_BuildingClass(b->type);
     p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
-    o = (unsigned short *)gm_Query(b->objList, 1, 0, slot);
-    if (o == 0 || (proto = *o) == 0xfd) {
+    o = gm_Query(b->objList, 1, 0, slot);
+    if (o == 0 || (proto = o->type) == 0xfd) {
         uni = init_BuildingUniverse[ai_BTypes[b->type].kind];
         ai_SceneObject = 0;
         init_NoRoomNoOp();
@@ -3446,7 +3446,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         for (k = 0; k < INIT_CHARACTER_COUNT; k++) {
             t = (SCENEOBJ *)ch_List[k];
             if (t != 0 && d3t_SceneIndex(t->scene) == uni) {
-                if (t->group == b->id || t->scriptGroup == ((AIOBJ *)o)->objId) {
+                if (t->group == b->id || t->scriptGroup == o->objId) {
                     ch_SetVisible((struct CHARACTER *)t, 1);
                     ch_PlaceOnGround((struct CHARACTER *)t, 0);
                 } else
@@ -3457,7 +3457,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
             c = (INIT_CHAR *)&ai_Chars[k];
             if (c->model != 0 && d3t_SceneIndex(c->model->scene) == uni) {
                 t = c->model;
-                if ((t->group == b->id || t->scriptGroup == ((AIOBJ *)o)->objId) && i < limit) {
+                if ((t->group == b->id || t->scriptGroup == o->objId) && i < limit) {
                     ch_SetVisible((struct CHARACTER *)t, 1);
                     ch_PlaceOnGround(c->model, 0);
                     gm_SelectModelVariant((char *)c);

@@ -5148,13 +5148,13 @@ void he_AllocGraveCare(int ev)
     HEGRAVECARE *p = (HEGRAVECARE *)ev;
     AICHAR *per = (AICHAR *)gm_FindChar(e->ids[0]);
     AIBLD *bld;
-    short *grp;
+    AIOBJ *grp;
 
     if (per != 0) {
         bld = gm_FindBuildingById(e->from);
         if (bld != 0) {
-            grp = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
-            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, (char *)ev);
+            grp = gm_Query((void *)bld->objList, 1, 0, 0xfd);
+            sv_MoveToGroup(bld, grp, per->id, (char *)ev);
             p->care = 0.0f;
             p->left = 0x1fe;
             p->since = ai_Time;

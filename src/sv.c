@@ -4217,7 +4217,7 @@ void sv_HoverPick(void)
 {
     char *o;
     AIBLD *b;
-    unsigned short *it;
+    AIOBJ *it;
     AIGOOD *g;
     int x, y, n;
     char goods[0x60];
@@ -4317,11 +4317,11 @@ void sv_HoverPick(void)
         if ((b != 0 || (b = ai_PlayerBuilding) != 0) && ai_PickedObject != 0 && strncmp(ai_PickedObject, "contact_gate_", 0xd) == 0) {
             strcpy(goods, ai_PickedObject + 0x10);
             if (ai_FallbackBuilding != 0)
-                it = (unsigned short *)gm_Query(b->objList, 1, 4, 6);
+                it = gm_Query(b->objList, 1, 4, 6);
             else
-                it = (unsigned short *)gm_Query(b->objList, 1, 4, 2);
-            for (; it != 0; it = (unsigned short *)gm_QueryNext()) {
-                g = &ai_Goods[*it];
+                it = gm_Query(b->objList, 1, 4, 2);
+            for (; it != 0; it = gm_QueryNext()) {
+                g = &ai_Goods[it->type];
                 if (strcmpi(goods, g->name) == 0)
                     break;
             }
@@ -5388,7 +5388,7 @@ void sv_DrawBubbles(void)
 void sv_DrawGateName(D3OBJECT *part)
 {
     AIBLD *b;
-    unsigned short *it, *obj;
+    AIOBJ *it, *obj;
     char name[0x60];
     char buf[0x100];
     D3RECT box;
@@ -5405,11 +5405,11 @@ void sv_DrawGateName(D3OBJECT *part)
         return;
     strcpy(name, part->name + 0x10);
     if (ai_FallbackBuilding != 0)
-        it = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 6);
+        it = gm_Query((void *)b->objList, 1, 4, 6);
     else
-        it = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 2);
-    for (; it != 0; it = (unsigned short *)gm_QueryNext()) {
-        g = &ai_Goods[*it];
+        it = gm_Query((void *)b->objList, 1, 4, 2);
+    for (; it != 0; it = gm_QueryNext()) {
+        g = &ai_Goods[it->type];
         if (strcmpi(name, g->name) == 0) {
             obj = it;
             goto found;
@@ -5417,17 +5417,17 @@ void sv_DrawGateName(D3OBJECT *part)
     }
     if (ai_FallbackBuilding == 0)
         return;
-    obj = (unsigned short *)gm_Query((void *)b->objList, 1, 0, 0xfd);
+    obj = gm_Query((void *)b->objList, 1, 0, 0xfd);
 found:
     if (obj == 0)
         return;
-    if (*obj == 0xfd) {
+    if (obj->type == 0xfd) {
         if (sv_PanelShown != 0)
             sprintf(buf, "%s %s", (char *)txt_ObjectNames[sv_PanelShown->type][0], txt_GatePlaceSuffix);
         else
             sprintf(buf, "%s %s", (char *)ai_BuildingNames[b->type * 0xe - 2], txt_GatePlaceSuffix);
     } else {
-        sprintf(buf, "%s %s", (char *)txt_ObjectNames[*obj][0], txt_GateItemSuffix);
+        sprintf(buf, "%s %s", (char *)txt_ObjectNames[obj->type][0], txt_GateItemSuffix);
     }
     if (d3if_ScreenBox(part, &box) != 0) {
         y = box.top;
