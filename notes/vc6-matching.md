@@ -6179,7 +6179,8 @@ the bytes no portable form gives.
   nor did the seventh (the character views AICHARREC / ORDCHAR / AIPER / G5CH / AIPX / AIC4 / AGCH, the character
   lookups and callees) or the eighth (f3init's SCENEOBJ / INIT_CHAR / INIT_PANELCHAR, sv's SVCHARREC / SVGROUP /
   SVMODEL, the lc units' G8CHARREC, amt.h's AMTCHARVIEW with its four cast macros, the picked / selected character
-  globals).
+  globals) or the ninth (f3init's INIT_BTYPEREC / INIT_OFFICE / INIT_KIND / INIT_AIMSG / INIT_TERRAIN, AITASK,
+  ahm.h's AHMCHAR / AHMOBJ, the cannon windows' CANNONREC, the group helpers' `char *g`).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6442,6 +6443,33 @@ the bytes no portable form gives.
   `*c` / `c + n` uses: on a record pointer they index records and compile silently (p7/rtc.py refuses such
   bodies; its RAW test also fires on comment text, check by hand). A union member added for a view's field must
   not reuse a name an anonymous member already has (AIJOB.groupMembers, not members: C2020).
+- **A byte-offset walk over a record table is an index loop, and the loop shape follows it** (ninth pass,
+  init_OpenTown): `b = (char *)ai_Blds + k; .. k += 0xa9; k < 0xa900` cast at every field read was ours; `b =
+  &ai_Blds[k]; .. k++; k < 0x100` gives VC6's same strength-reduced offset and here a better register / slot
+  assignment (63 -> 15 ins), and then the loop form the old note had ruled out compiled right: `k = 0; do { if
+  (ok) break; ..; k++; } while (k < 0x100)` (15 -> 8). Rewrite the walk with the record type before working the
+  loop's shape; a deep note's "all forms tried" was about the byte-offset text.
+- **A view whose int fields say "the original loads the whole dword" can be a misreading** (f3init's INIT_OFFICE /
+  INIT_KIND for AMTREC / AMTKIND): init_PlaceOffices' `u = rec.kindWord; amt_GetKindLevel(u & 0xff)` is
+  `amt_GetKindLevel(rec.kind)` with the unsigned char field (byte; the masking temp u was the model of the
+  load). Try the true record and the plain field read (dcp try) before keeping a dword view as drift.
+- **One pointer in two union members, one of them a partial view** (AICHAR.model `AITASK *` and AICHAR.scene
+  `struct CHARACTER *` at 0x184): drop the view member and its typedef, rename by the compiler's C2039 lines only
+  (`model->bldId` = scene->group, `model->body` = scene->obj), and the `(CHARACTER *)c->model` casts and their
+  wrapper macros (cm's CM_CHR) become `c->scene`. A regex for `((T *)x->f)` must not take a call's own
+  parenthesis (`f((T *)x->f)` became `fx->scene`): check the compiler's syntax errors after such a pass.
+- **A record field reused for another record in one phase** (AICHAR.bld of a cm_Fighters copy holds the side's
+  leader, cm_SetupFightScene stores `r->bld = (AIBLD *)cm_FightAttacker`): a union member of the other type
+  (`struct AICHAR *side`), read and stored without casts.
+- **Handlers that take `int ev` with an `AIJOB *e = (AIJOB *)ev` alias** (he.c / he_b.c, 360 of them, the handler
+  tables' int): pass the alias to typed callees (sv_MoveToGroup(.., e)), not `(char *)ev`; the same code. The
+  handlers' own `int ev` is one family for a later pass (their tables, he_AllocHandlers / he_RunHandlers).
+- **Removing a partial view's typedef from a widely included header** (ai_char.h's AITASK, ahm.h's AHMCHAR /
+  AHMOBJ) shifts declaration-set tie-breaks in every unit that includes it, up and down (eighteen functions
+  across ai, cm, cmscene, f3gmt, ls, lc, main, he, rt, sv, sv_t); accepted as they fall, `dcp debt add` for the
+  byte functions the gate holds.
+- **p8/strip1.sh that does not converge in eight rounds** (d3_interface, sv: casts on int handles): revert that
+  unit's file and keep the other units' result.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
