@@ -75,7 +75,7 @@ extern char hst_Key[];                 /* 0xf83520, the history key ("G12", 0x20
 int gv_ReadEffects();                     /* 0x4ed910 */
 
 /* he_EventTop: view of ai_NextEventId (tools/data_views.py) */
-extern unsigned char he_Events[339968];
+extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
 extern char * he_QuickList[0x100];
 extern int he_EventCount;
 extern void (*he_RunHandlers[0xa8])(unsigned char *);
@@ -990,7 +990,7 @@ int ls_WriteAvatars(void *f)
 {
     return gv_WriteAvatars(f);
 }
-/* 0x51bdc0, the save game step that writes the event tables: the number of used he_Jobs records (kind != 0) and the
+/* 0x51bdc0, the save game step that writes the event tables: the number of used he_Events records (kind != 0) and the
    size 0xa0 of their tail, then each used record in pieces (kind, id, chr, netId, from, the 12 words, the three
    clocks, stage, opts, the eight ids one by one, the text: its size and bytes, or a 0 when it has none, and the 0xa0
    bytes from +0xac); then the used carried-goods records (gm_CarryRecs, ref != 0: the id of the event ref points to,
@@ -1006,16 +1006,16 @@ int ls_WriteEventTables(int f)
 
   n = 0;
   for (i = 0; i < 0x400; i++) {
-    if (he_Jobs[i].kind != 0)
+    if (he_Events[i].kind != 0)
       n++;
   }
   LS_W(&n, 4)
   i = 0xa0;                             /* the size of each record's tail from +0xac */
   LS_W(&i, 4)
   for (i = 0; i < 0x400; i++) {
-    if (he_Jobs[i].kind == 0)
+    if (he_Events[i].kind == 0)
       continue;
-    job = &he_Jobs[i];
+    job = &he_Events[i];
     LS_W(&job->kind, 1)
     LS_W(&job->id, 4)
     LS_W(&job->chr, 2)
@@ -2197,7 +2197,7 @@ int ls_ReadEventTables(int f)
     if (n > 0) {
         do {
             idx = he_EventCount;
-            rec = &he_Jobs[idx];
+            rec = &he_Events[idx];
             LS_R(&rec->kind, 1)
             LS_R(&rec->id, 4)
             LS_R(&rec->chr, 2)
@@ -2395,7 +2395,7 @@ int ls_ReadEnvironment(int f)
     return 1;
   return 0;
 }
-/* 0x5206b0, the fix-up after a load, the counterpart of ls_RefsToIds 0x519a00 before a save: it turns the loaded ids back into pointers: the player's character (ai_PlayerChar = gm_FindChar, 0 = fail), the market building (ai_MarketBuilding = gm_BuildQuery (1, 5, 10)), the eight kind 0xb characters (ai_KindBChars, from version 0x10017), the reference fields of the used ai_Chars records (bld / bld2 by gm_FindById, job by he_FindEvent, model cleared), the objects of ai_Objects (an object with an owner is appended to the owner's list: AIBLD.objList, AIOBJ.list or AICHAR.inventory, linked by AIOBJ.next; a cart of goods type 0x1d loses its job24), the events of he_Jobs in scene 0 (the kinds 0x29 0x2d 0x2f 0x11 0x25 5 10 0x26 or those in the event bar re-run their handler he_RunHandlers[kind] with ai_GameState = 2 and the stage cleared, the stage put back after; the kinds 0xd / 0xf / 0x78 / 0x76 / 0x14 get their own fixes), the events of the carried-goods records gm_CarryRecs and the values of cm_SendStates by kind (1 gm_FindChar, 3 gm_FindObjectInst, 2 gm_FindBuildingById, 9 cm_PartyById); it closes with gm_ResetStock. Returns 1, 0 when the player's character is gone */
+/* 0x5206b0, the fix-up after a load, the counterpart of ls_RefsToIds 0x519a00 before a save: it turns the loaded ids back into pointers: the player's character (ai_PlayerChar = gm_FindChar, 0 = fail), the market building (ai_MarketBuilding = gm_BuildQuery (1, 5, 10)), the eight kind 0xb characters (ai_KindBChars, from version 0x10017), the reference fields of the used ai_Chars records (bld / bld2 by gm_FindById, job by he_FindEvent, model cleared), the objects of ai_Objects (an object with an owner is appended to the owner's list: AIBLD.objList, AIOBJ.list or AICHAR.inventory, linked by AIOBJ.next; a cart of goods type 0x1d loses its job24), the events of he_Events in scene 0 (the kinds 0x29 0x2d 0x2f 0x11 0x25 5 10 0x26 or those in the event bar re-run their handler he_RunHandlers[kind] with ai_GameState = 2 and the stage cleared, the stage put back after; the kinds 0xd / 0xf / 0x78 / 0x76 / 0x14 get their own fixes), the events of the carried-goods records gm_CarryRecs and the values of cm_SendStates by kind (1 gm_FindChar, 3 gm_FindObjectInst, 2 gm_FindBuildingById, 9 cm_PartyById); it closes with gm_ResetStock. Returns 1, 0 when the player's character is gone */
 
 
 int ls_FixupAfterLoad(void)
@@ -2467,7 +2467,7 @@ int ls_FixupAfterLoad(void)
     }
     saved = d3_CurrentScene;
     d3if_SelectScene(0, 0);
-    for (j = he_Jobs; (int)j < (int)&he_Jobs[0x400]; j++) {
+    for (j = he_Events; (int)j < (int)&he_Events[0x400]; j++) {
         if (j->kind == 0)
             continue;
         if (j->kind == 0x29 || j->kind == 0x2d || j->kind == 0x2f || j->kind == 0x11 || j->kind == 0x25 || j->kind == 5

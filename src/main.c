@@ -192,7 +192,7 @@ extern int sv_PopRequest;
 
 
 extern int ai_NextCharNumber;
-extern unsigned char he_Events[339968];
+extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
 extern char * he_QuickList[0x100];
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern GAPDATA full_data_6024e4[];
@@ -3434,7 +3434,7 @@ void main_ReplaceFigure(unsigned p)
     }
     if (ai_Chars[p].kind == 6 && ai_Chars[p].health == 0) {
         ch = (MAINCHARNEW *)&ai_Chars[p];
-        e = (AIJOB *)he_Events;
+        e = he_Events;
         do {
             if (e->kind != 0 && e->chr == p) {
                 for (j = 0; la[j] != 0; j++) {
@@ -3451,7 +3451,7 @@ void main_ReplaceFigure(unsigned p)
                 }
             }
             e++;
-        } while ((int)e < (int)((AIJOB *)he_Events + 0x400));
+        } while ((int)e < (int)(he_Events + 0x400));
         ch->kind = 5;
         if (ch->flag9 == 0) {
             strcpy(ch->name, txt_MaleFirstNames[util_Random(0xbf)]);
@@ -5206,7 +5206,7 @@ int he_TipOrder[0x20];  /* 0x6fa1e0, he.h: the tip order (the 27 tip text slots,
 HEHINT he_Hints[128];  /* 0x6fa260, he.h: the tutorial hint table (he_OpenHelpEvents fills it, he_RunHint walks it) */
 int he_BarView;  /* 0x6faa60, he.h */
 HEEVSLOT he_EventSlots[16];  /* 0x6faa80, he.h: the event bar's 16 slots */
-unsigned char he_Events[339968];  /* 0x6fab40, the */
+AIJOB he_Events[0x400];  /* 0x6fab40, the event / job records */
 char * he_QuickList[0x100];  /* 0x74db40, the event records shown in the event bar (he_QuickTop the last used) */
 void (*he_AllocHandlers[0xa8])(struct AIJOB *ev);  /* 0x74df40, he.h: the event alloc handlers by type (he_SetEventHandlers) */
 GMCARRYREC gm_CarryRecs[0x100];  /* 0x74e1e0, f3gm_carry.h: the carried-goods records */

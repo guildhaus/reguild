@@ -55,7 +55,6 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 #include "am_types.h"
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 #include "d3_types.h"
-extern unsigned char he_Events[339968];
 #include "amt_types.h"
 
 #include "ai_types.h"

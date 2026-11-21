@@ -7,7 +7,7 @@
    strings up to 0x627e92 (the last ones he_RegisterEventTypes02's). he_b (0x568aa0 ..) follows; the handlers of
    the running income 3, the production, searches, trade, construction and the 0x88 .. 0xa4 events below are its.
    (no @bytes: the block after he_TransportStadtStadt's ret at 0x556055 is its int 3 error path, reached by the je at 0x555dd7)
-   The event record is AIJOB (0x14c bytes, he_Jobs over he_Events), the message record AIMSG (both in ai_types.h,
+   The event record is AIJOB (0x14c bytes, he_Events over he_Events), the message record AIMSG (both in ai_types.h,
    readable without ai.h); the buildings and characters are AIBLD / AICHAR (ai_bld.h / ai_char.h, ai_PlayerChar), the
    carts AIOBJ (ai_types.h), the carried-goods records GMCARRYREC (f3gm_carry.h), the goods prototypes GMGOOD
    (f3gm_types.h), the AP events HEAPEVENT (he.h, he_ApEvents). The event bar, the event create / free / search, the
@@ -151,7 +151,7 @@ extern int d2_ClickedForm;
 #include "ahm_types.h"                /* AHMSLOT */
 extern float gm_DayStartHours[];
 extern float gm_DayEndHours[];
-extern unsigned char he_Events[339968];
+extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
 extern int d2_ClickedForm;
 extern GAPDATA full_data_602568[];
 extern const int sv_PhaseMinutes[24];
@@ -1646,11 +1646,11 @@ unsigned char *he_CreateEvent(unsigned char *m)
     if (msg->to != -1 && (ch = gm_FindChar(msg->to)) == 0)
         return 0;
     for (i = 0; i < 0x400; i++)
-        if (he_Jobs[i].kind == 0)
+        if (he_Events[i].kind == 0)
             break;
     if (i == 0x400)
         return 0;
-    ev = &he_Jobs[i];
+    ev = &he_Events[i];
     if (i > he_EventTop)
         he_EventTop = i;
     if (msg->to == -1) {
@@ -1723,9 +1723,9 @@ void he_FreeEvent(int *r)
     }
     he_EventCount--;
     memset(ev, 0, sizeof(AIJOB));
-    if (ev == &he_Jobs[he_EventTop]) {
+    if (ev == &he_Events[he_EventTop]) {
         t = he_EventTop;
-        for (; t >= 0 && he_Jobs[t].kind == 0; t--)
+        for (; t >= 0 && he_Events[t].kind == 0; t--)
             ;
         he_EventTop = t < 0 ? 0 : t;
     }
@@ -1741,7 +1741,7 @@ void he_FreeEvent(int *r)
    he_FindKind (al / cl swapped, because p, prio 42, is served before temp#aa): 12 ins. = control or worse:
    a cursor local p (folds; 128 p / he_Cursor read mixes, best 37), p = 0 initialised / returned on the
    guard path, volatile stores, an extern / block-static / file-static global instead of the he_QuickList
-   view, the filters (or he_FindKind) as locals, the error test spellings (>= 0 && <, nested, he_Jobs +
+   view, the filters (or he_FindKind) as locals, the error test spellings (>= 0 && <, nested, he_Events +
    top), guard splits, he_FindFirst spellings, returns in the loop, a ret local, a goto loop; flip --want
    on mov eax,esi / mov esi,[he_Cursor] after the call: no mutant. climb 3 rounds (tree and from P):
    nothing. Next: what else puts a call into the cursor's range (a decided test with a call, a macro around
@@ -1763,7 +1763,7 @@ char *he_NextEvent(void)
     if (he_EventTop < 0 || he_EventTop >= 0x400)
         err_Message("he_fn_Handlung(): invalid Handlungen_LAST");
     else
-        last = &he_Jobs[he_EventTop];
+        last = &he_Events[he_EventTop];
     if (he_Cursor == 0 || he_Cursor == last || he_Cursor > last)
         return 0;
     if (he_FindFirst != 0)
@@ -1841,7 +1841,7 @@ char *he_FindEvent(int n, ...)
         }
     }
     va_end(ap);
-    he_Cursor = he_Jobs;
+    he_Cursor = he_Events;
     for (i = 0; he_Cursor->kind == 0; i++) {
         if (i >= 0x400)
             break;
@@ -2148,9 +2148,9 @@ void he_RunEvents(void)
     he_RemoveStaleGfxInfos();
     i = 0;
     if (he_EventTop >= 0) {
-        pb = he_Jobs;
+        pb = he_Events;
         do {
-            if ((int)pb >= (int)(he_Jobs + 0x400))
+            if ((int)pb >= (int)(he_Events + 0x400))
                 return;
             if (pb->kind != 0 && (pb->opts & 0x18) == 0) {
                 he_AddEventGfxInfo(pb);
@@ -2193,9 +2193,9 @@ void he_RunEveryFrameEvents(void)
     int i = 0;
 
     if (he_EventTop >= 0) {
-        pb = he_Jobs;
+        pb = he_Events;
         do {
-            if ((int)pb >= (int)(he_Jobs + 0x400))
+            if ((int)pb >= (int)(he_Events + 0x400))
                 return;
             if (pb->kind != 0 && (pb->opts & 0x10) != 0 && (unsigned char)pb->kind < 0xa7) {
                 he_RecheckEventPerson((unsigned char *)pb);

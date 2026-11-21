@@ -71,7 +71,6 @@ extern int d2_ClickedForm;
 #include "ahm_types.h"                /* AHMSLOT */
 extern float gm_DayStartHours[];
 extern float gm_DayEndHours[];
-extern unsigned char he_Events[339968];
 extern int d2_ClickedForm;
 extern GAPDATA full_data_602568[];
 extern const int sv_PhaseMinutes[24];
