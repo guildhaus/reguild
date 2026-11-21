@@ -1258,7 +1258,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
             c->f020 = 0;
             c->v024 = 0;
             c->w028 = 0;
-            c->v02c = 0;
+            c->ailments = 0;
             c->f014 = 1000.0f / (r * 4.0f + 8.0f);
             for (j = 0; j < 0x300; j++) {
                 ai_Relations[j][c->id] = (signed char)util_Random(0x40) - 0x20;

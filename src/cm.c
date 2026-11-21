@@ -2824,7 +2824,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
         t->camAngle = -1.0f;
     }
     ai_Chars[k].ref54 = m->named.ref54;
-    ai_Chars[k].b00c = m->named.b00c;
+    ai_Chars[k].faith = m->named.b00c;
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
@@ -3742,7 +3742,7 @@ int cm_ExTime(G17MSG *m, G17STAT *s)
         memset(&ai_Watch, 0, 0xb00);
         if (cm_RunCharacters) {
             ai_TradeMsgCount = 0;
-            for (c = (AICHAR *)ai_Chars; (int)c < (int)&ai_Chars[0x300]; c++) {
+            for (c = ai_Chars; (int)c < (int)&ai_Chars[0x300]; c++) {
                 if (c->id != 0xffff)
                     ai_RunMasterEvaluation(c);
             }

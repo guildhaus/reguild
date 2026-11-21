@@ -532,7 +532,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             p->orderSlot = -1;
             o = d3_FindObject(0, 0x40, 0, p->dummy);
             if (o != 0) {
-                tgt = (AICHAR *)o->owner;
+                tgt = o->owner;
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
                 if (tgt == 0 || (cm_OtherBuilding((char *)c, (char *)tgt) != 0 &&
                                  (tgt->health == 0 || !d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)))) {
@@ -562,7 +562,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
             if (cm_OtherBuilding((char *)c, (char *)o->owner) != 0 && tgt->health > 0 &&
                 d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)) {
-                res = cm_Attack(rec, c, (AICHAR *)o->owner);
+                res = cm_Attack(rec, c, o->owner);
                 goto done;
             }
             if (tgt->health > 0)

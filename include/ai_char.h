@@ -23,7 +23,9 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned char health;               /* 0x008, 100 at creation (ahm.c), > 0 = alive (0x4adff0 'lives') */
     unsigned char sex;                  /* 0x009, 0 / non-0 (reasoned: 0x4a8ad0 asks the partner search for flags 0xf00502 / 0xf00501 by it, the other sex) */
     unsigned short w00a;                /* 0x00a, 0x10 for a raised dead person (gv_RaiseDead), a value of the order for the alchemist (ahm_CreateAlchemist) */
-    unsigned char b00c;                 /* 0x00c, a kind the person tooltip names (text 0x486 + it, ai_OpenCharTooltip) */
+    unsigned char faith;                /* 0x00c, the faith, 0 / 1: the person tooltip names it (text 0x486 + it,
+                                           ai_OpenCharTooltip), the baptism window sets it to 1 - it (text 0x197a + it),
+                                           the church donation reaches the characters of the owner's faith (lc.c) */
     unsigned char b00d;                 /* 0x00d, 1 .. 2 (gv: kept in a grave as GVGRAVE.v30) */
     char pad00e[2];
     float f010;                         /* 0x010, start values set by the character creators (ahm_CreateAlchemist, gv_RaiseDead) */
@@ -34,7 +36,9 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     int v024;                           /* 0x024, a value ai.c decays every frame (sent as message field 0x24), 0 at creation */
     short w028;                         /* 0x028, 0 at creation */
     char pad02a[2];
-    int v02c;                         /* 0x02c, the ailment counters: the diseases 2 .. 9 as bit fields (f3gm.c gm_CatchDisease), 0 at creation */
+    unsigned int ailments;              /* 0x02c, the ailment counters, 0 at creation: the fields at bits 0, 4, 8, 12, 14, 17,
+                                           20, 23, 25 (4, 4, 4, 2, 3, 3, 3, 2, 4 bits), the daily step 0x4fbe90 halves each,
+                                           the diseases 2 .. 9 sit in the field pairs (f3gm.c gm_CatchDisease) */
     union {
         char name[0x58];                /* 0x030 */
         struct {
@@ -78,7 +82,7 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned char act;                  /* 0x132, the current action */
     char pad133[0x31];
     unsigned char jobId;               /* 0x164 */
-    char title;                         /* 0x165, the title rank (f3gm.c 0x4fda70 / 0x504840) */
+    unsigned char title;                /* 0x165, the title rank (f3gm.c 0x4fda70 / 0x504840) */
     unsigned char officeKind;           /* 0x166, the kind of the office held, 0 = none (amt.h AMTCHARVIEW.officeKind;
                                            amt_KindColumn / amt_GetKind take it) */
     unsigned char prevOffice;           /* 0x167, the office kind held before the current one (amt.h AMTCHARVIEW.prevOffice) */
@@ -112,23 +116,35 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
                                            0x1db (cm.c 0x4c70b0) */
     int v1a4;                           /* 0x1a4, the same for sales from 0x1db / purchases into 0x1dc */
     int v1a8;                           /* 0x1a8, saved and loaded (ls_WriteCharacters); no reader read yet */
-    int v1ac;                           /* 0x1ac, a scene object of the fighter (cm.c 0x4d1xxx puts it at the body, shows it and
-                                           clears it; the fighter copy cm_AddFighter starts with 0) */
+    union {
+        int donated;                    /* 0x1ac, the money the character gave the church: ai_IndulgenceWindow adds the
+                                           price (cm_AddFieldValues 0x1ac) and shows it (text 0x1964), gm_DonationRank
+                                           ranks the characters by it */
+        int v1ac;                       /* 0x1ac, as cmfight.c reads it: a scene object of the fighter (cm.c 0x4d1xxx puts
+                                           it at the body, shows it and clears it; the fighter copy cm_AddFighter starts
+                                           with 0) */
+    };
     unsigned char b1b0;                 /* 0x1b0, saved and loaded (ls_WriteCharacters); no reader read yet */
     unsigned char heldRounds;           /* 0x1b1, rounds the character is held: message 0x5b (cm.c 0x4ccb10) adds to it, each
                                            round adds 0xff (main.c); nonzero: the AI chooses no new action (ai.c
                                            0x47e360), the character takes no office (amt.c), the player's room click
                                            does not switch rooms (sv.c); reasoned (a jail term or the like) */
     char pad1b2[2];
-    unsigned int flags1b4;              /* 0x1b4 */
-    int budget;                         /* 0x1b8, money */
     union {
-        int prodAll;                    /* 0x1bc, prod read as the whole int (main_SettleRound copies flags1b4 .. target as four ints) */
-        unsigned short prod;            /* 0x1bc, the item the workshop makes */
-    };
-    union {
-        int target;                     /* 0x1c0, a building id or -1 */
-        int unk1c0;                     /* 0x1c0 */
+        AIWORKSET workSet;              /* 0x1b4, the work settings the character took over from its building (AIBLD.workSet;
+                                           cm_ExHire copies the 16 bytes, main_SettleRound and the master letter window too) */
+        struct {
+            unsigned int flags1b4;      /* 0x1b4, the order flags */
+            int budget;                 /* 0x1b8, money */
+            union {
+                int prodAll;            /* 0x1bc, prod read as the whole int */
+                unsigned short prod;    /* 0x1bc, the item the workshop makes */
+            };
+            union {
+                int target;             /* 0x1c0, a building id or -1 */
+                int unk1c0;             /* 0x1c0 */
+            };
+        };
     };
     unsigned char formation;            /* 0x1c4, the fighter's formation type 0 .. 5 (cm.c 0x4d3120 switches on it, 0x4d2e30 rates by it) */
     unsigned char b1c5;                 /* 0x1c5, a per-worker value am.c 0x49a390 averages over a building's workers (at least 6 with a random 0..3 added lets the AI use the good 0x161 there); the meaning is not known */

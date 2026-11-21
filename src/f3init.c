@@ -2677,9 +2677,9 @@ void init_LocalData(void)
             break;
         if (ai_Chars[i].kind == 0xc) {
             if (((INIT_CHAR *)&ai_Chars[i])->faith == 0)
-                ai_JudgeCatholic = (struct AICHAR *)&ai_Chars[i];
+                ai_JudgeCatholic = &ai_Chars[i];
             else if (((INIT_CHAR *)&ai_Chars[i])->faith == 1)
-                ai_JudgeProtestant = (struct AICHAR *)&ai_Chars[i];
+                ai_JudgeProtestant = &ai_Chars[i];
             else
                 continue;
             n--;

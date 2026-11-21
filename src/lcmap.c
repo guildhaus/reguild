@@ -562,114 +562,6 @@ struct AITIME;  /* f3gm.h typedef; file-scope tag for the gm_AddTime prototype *
 #define U_I(a) (*(int *)(a))
 #define U_W(a) (*(unsigned short *)(a))
 
-#pragma pack(push, 1)
-typedef struct AITASKVIEW {       /* the character's model record fields this unit reads (ai_char.h AITASK) */
-    char pad000[0x2c];
-    int bldId;                     /* 0x2c, the building the character was sent to (ai_char.h AITASK.bldId) */
-    int scriptGroup;               /* 0x30, the group of the script that created / moved it (the room object's id) */
-} AITASKVIEW;
-
-typedef struct LCWORKSET {       /* the work settings a building keeps at AIBLD +0x99 (ai_bld.h AIBLD.workSet) and a
-                                      hired worker takes over into AICHAR.flags1b4 .. target (ai_char.h; cm_ExHire
-                                      copies them as 16 bytes); the master letter window passes them by value */
-    unsigned int flags;            /* +0x0, the order flags (bit 0 .. 3: the page's four checkboxes) */
-    int budget;                    /* +0x4, AICHAR.budget */
-    int prod;                      /* +0x8, AICHAR.prod (the item the workshop makes) */
-    int target;                    /* +0xc, AICHAR.target (a building id or -1) */
-} LCWORKSET;
-typedef struct AICHARREC {         /* the character record fields this unit reads (ai_char.h AICHAR, same layout;
-                                      G8CHARREC below is the view of the news messages) */
-    unsigned short id;             /* 0x000, the character's id (AIBLD.owner refers to it) */
-    unsigned char kind;            /* 0x002, the character kind (ai_char.h AICHAR.kind; 6 / 7 need no cell model) */
-    char pad003;
-    unsigned int netId;            /* 0x004, the character's network id (ai_char.h AICHAR.netId) */
-    unsigned char health;          /* 0x008 */
-    unsigned char sex;             /* 0x009, 0 / non-0 (ai_char.h AICHAR.sex; it picks the male / female name table) */
-    unsigned short w00a;           /* 0x00a, the age in years (ai_char.h AICHAR.w00a, gm_CharAge; the family tree
-                                      window lets a child above 10 be picked) */
-    unsigned char faith;           /* 0x00c, the faith, 0 / 1 (ai_char.h AICHAR.b00c): the baptism window sets it to
-                                      1 - it (or to the church owner's) and names it by the text 0x197a + it; the
-                                      church donation reaches the characters of the owner's faith */
-    unsigned char b00d;            /* 0x00d, 1 .. 2 (ai_char.h AICHAR.b00d, gv.c copies it to the grave's v30) */
-    char pad00e[0xe];
-    float f01c;                    /* 0x01c, the life value (ai_char.h AICHAR.f01c: 1000.0 at creation, aged
-                                      by gm_AgeCharacter, the character dies when it is used up) */
-    float f020;                    /* 0x020, ai_char.h AICHAR.f020 (the character info panel offers a jobless child
-                                      the profession choice when it is at most the age + 4) */
-    int v024;                      /* 0x024, ai_char.h AICHAR.v024: below 0 the character is hurt (ord.c's medicus
-                                      order tests it below -20); the medicus heals half of it (gm_AddHealth) */
-    char pad028[4];
-    unsigned int ailments;         /* 0x02c, the ailment counters (am.h G5CH.ailments; ai_char.h AICHAR.v02c):
-                                      the fields at bits 0, 4, 8, 12, 14, 17, 20, 23, 25 (4, 4, 4, 2, 3, 3, 3, 2, 4
-                                      bits), the daily step 0x4fbe90 halves each, the diseases 2 .. 9 sit in the
-                                      field pairs of gm_CatchMinorDisease / gm_CatchUpperDisease */
-    char name[0x20];               /* 0x030, the character's name (ai_char.h AICHAR.name) */
-    unsigned short w050;           /* 0x050, the family's grave word (ai_char.h AICHAR.w050); the family tab takes the
-                                      characters with the same w050 and b058 */
-    char pad052[2];
-    int ref54;                     /* 0x054, a reference word the related characters share (ai_char.h AICHAR.ref54;
-                                      the game frame compares it with the player's); a picture id, 0x59a + the
-                                      dynasty's colour 0 .. 7 (ai_PlayerComparePanel shows it and colours the
-                                      slider by it) */
-    unsigned char b058;            /* 0x058, compared with w050 by the family tab (ai_FillFamilyTab) */
-    char pad059[3];
-    unsigned int relatives[8];     /* 0x05c, the netIds of the character's relatives (ai_char.h AICHAR.relatives;
-                                      the baptism window converts [3..7] with the player) */
-    char pad07c[4];
-    unsigned char skills[5];       /* 0x080, the five skill values (ai_char.h AICHAR.skills; the personnel book shows
-                                      [3] and [2] as bars) */
-    char pad085[0xdf];
-    unsigned char jobId;           /* 0x164, the character's job (ai_char.h AICHAR.jobId; the construction window's group 7
-                                      needs 0x34 .. 0x39) */
-    unsigned char title;           /* 0x165, the title rank (ai_char.h AICHAR.title; text 0x20d / 0x230 + it) */
-    unsigned char officeKind;      /* 0x166, the office the character holds, 0 = none (ai_char.h AICHAR.officeKind) */
-    char pad167;
-    unsigned char appliedOffice;   /* 0x168, the office kind applied for, 0 = none (ai_char.h AICHAR.appliedOffice) */
-    unsigned char secondOffice;    /* 0x169, the second office kind, the deputy one (ai_char.h AICHAR.secondOffice) */
-    char pad16a[2];
-    struct AIBLD *bld;             /* 0x16c, the building the character is in (ai_char.h AICHAR.bld) */
-    int bld2;                      /* 0x170, the character's own building, 0 when none (ai_char.h AICHAR.bld2) */
-    int v174;                      /* 0x174, 0 when hired (ai_char.h AICHAR.v174); the personnel book shows it with
-                                      the texts 0x1a39 / 0x1a3a */
-    int inventory;                 /* 0x178, the character's goods inventory, an object list (ai_char.h AICHAR.inventory) */
-    struct AIJOB *job;             /* 0x17c, the job the character works in, 0 = none (ai_char.h AICHAR.job) */
-    char pad180[4];
-    struct AITASKVIEW *model;      /* 0x184, the character's model record, 0 when none (ai_char.h AICHAR.model) */
-    unsigned char selected;        /* 0x188, nonzero: in the player's selection (ai_char.h AICHAR.selected) */
-    char pad189[3];
-    int picture;                   /* 0x18c, the portrait picture (ai_char.h AICHAR.picture) */
-    char pad190[4];
-    int money;                     /* 0x194, the character's money (ai_char.h AICHAR.money) */
-    char pad198[0x14];
-    int donated;                   /* 0x1ac, the money the character gave the church: ai_IndulgenceWindow adds the price
-                                      (cm_AddFieldValues 0x1ac) and shows it with the text 0x1964 */
-    char pad1b0;
-    unsigned char heldRounds;      /* 0x1b1, the rounds the character is held (ai_char.h AICHAR.heldRounds) */
-    char pad1b2[2];
-    union {
-        LCWORKSET workSet;         /* 0x1b4, the work settings the character took over from its building (ai_char.h
-                                      AICHAR.flags1b4 .. target; the master letter window edits them) */
-        struct {
-            unsigned int flags1b4; /* 0x1b4, the order flags (ai_char.h AICHAR.flags1b4) */
-            int budget;            /* 0x1b8, the money the character may spend (ai_char.h AICHAR.budget; main_EndRound
-                                      copies the building's budget to its jobs; the master list page shows it) */
-        };
-    };
-    char pad1c4;
-    unsigned char b1c5;            /* 0x1c5, ai_char.h AICHAR.b1c5 (a worker value am.c averages per building; the
-                                      Domizil good 0x161 halves it, rounded up, for everyone in the building) */
-    char pad1c6[2];
-    unsigned int powerFlags;       /* 0x1c8, the office-power bits already used (ai_char.h AICHAR.powerFlags) */
-    unsigned int flags1cc;         /* 0x1cc, ai_char.h AICHAR.flags1cc (0x800: a bribe raises the relation by 6 instead of 4) */
-    char pad1d0[0x1c];
-    unsigned int goodsMask;        /* 0x1ec, the classes of the Domizil goods in use (G9DOMIZIL.mask; ai_UseGood sets them) */
-    int w1f0;                      /* 0x1f0, ai_char.h AICHAR.v1f0 (0 at creation; the partner filter bit 0x80 wants it set) */
-    char pad1f4[0x1c];
-    int partner;                   /* 0x210, the netId of the partner (ai_char.h AICHAR.partner; the amount rows mark
-                                      a kind 6 viewer's partner) */
-    char pad214[8];
-} AICHARREC;                       /* 0x21c bytes, ai_Chars[768] */
-#pragma pack(pop)
 
 #pragma pack(push, 1)
 typedef struct LCFIREEVENT {       /* the fire event 0x3d's word over AIJOB's union (its alloc 0x564860; the jail check
@@ -866,7 +758,7 @@ short * gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
 typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
                                            ai_AmountRow; cm.c CMAMOUNTROW) */
-    AICHARREC *rec;                     /* 0x00, the character the row shows */
+    AICHAR *rec;                     /* 0x00, the character the row shows */
     int ctl[2];                         /* 0x04, the row's controls (ai_AmountRow): the frame picture, the liking slider */
     int office;                         /* 0x0c, of a vacant seat: its office, the text 0x253 + it (ai_ShowOfficeRows) */
     int x;                              /* 0x10 */
@@ -883,7 +775,7 @@ int gm_HasAdultRelative(); float gm_AddHealth(unsigned short id, int d); int ai_
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();
 typedef struct LCDUELSIDE {             /* one side of a dice duel: am.h AGDUEL's side1 (+0x0c) or side2 (+0x30) block
                                            (am.h cannot be included here yet) */
-    AICHARREC *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
+    AICHAR *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
     unsigned char n;                    /* 0x04, the dice thrown (AGDUEL.n1) */
     char pad05[3];
     unsigned int stats;                 /* 0x08 (AGDUEL.stats1) */
@@ -970,8 +862,8 @@ void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void);
 struct SBSAMPLE * sb_PlaySample();
 void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, struct AIOBJ *arg);
 int gm_GetWorth(unsigned short id); void d2_ClearPaintbox(void);
-int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
-int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
+int ai_ShowBuildingRows(AICHAR *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
+int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
 typedef struct SVSAVEDVIEW {
     D3VECTOR4 pos;
     D3VECTOR rot;
@@ -1165,7 +1057,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
     int dirs[8][2] = { { 0, -1 }, { 1, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 } };
     AIBLD *bld;
     AIBLD *hall;
-    AICHARREC *owner;
+    AICHAR *owner;
     D3OBJECT *obj;
     char *spot;
     int *ctl;
@@ -1235,7 +1127,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
             ai_FormatCityName((int)m->marks[i].bld, d2_Objs[m->marks[i].ctrl].caption);
         }
         if (m->marks[i].bld->owner != 0xffff) {
-            owner = &((AICHARREC *)ai_Chars)[m->marks[i].bld->owner];
+            owner = &ai_Chars[m->marks[i].bld->owner];
             if (owner->kind == 5 || owner->kind == 6 || owner->kind == 7)
                 d2_WinOpenPic(x - 8, y - 8, owner->ref54, d2_LastWindow);
         }
@@ -1274,7 +1166,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
             m->marks[i].cellX = x;
             m->marks[i].cellZ = y;
             d2_MoveObj(d2_LastWindowPtr->x + x, d2_LastWindowPtr->y + y, m->marks[i].ctrl);
-            if (ai_PassesMapPickFilter((AICHARREC *)&ai_Chars[ai_PlayerId], m->req, m->marks[i].bld) == 0) {
+            if (ai_PassesMapPickFilter(&ai_Chars[ai_PlayerId], m->req, m->marks[i].bld) == 0) {
                 d2_Objs[m->marks[i].ctrl].interactive = 0;
                 d2_Objs[m->marks[i].ctrl].style = 0;
             }
@@ -1284,7 +1176,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
     /* the owners' crests */
     for (i = 0; i < m->nMarks; i++) {
         if (m->marks[i].ctrl != -1 && m->marks[i].bld->owner != 0xffff) {
-            owner = &((AICHARREC *)ai_Chars)[m->marks[i].bld->owner];
+            owner = &ai_Chars[m->marks[i].bld->owner];
             if (owner->kind == 5 || owner->kind == 6 || owner->kind == 7)
                 d2_WinOpenPic(m->marks[i].cellX - 8, m->marks[i].cellZ - 8, owner->ref54, d2_LastWindow);
         }
@@ -1535,8 +1427,8 @@ void ai_UpdateTownMap(LCMAPWIN *m)
     D2WIN *win;
     CHARACTER *ch;
     AIBLD *bld;
-    AICHARREC *owner;
-    AICHARREC *rec;
+    AICHAR *owner;
+    AICHAR *rec;
     D3VECTOR4 pos;
     float half;
     float x;
@@ -1567,8 +1459,8 @@ void ai_UpdateTownMap(LCMAPWIN *m)
     if (d2_RightHeldObj != -1 && d3_Time > m->scrollTime + 0x4b && dm_L.rhold != 0 && ai_DragWindow == -1) {
         for (i = 0; i < m->nMarks; i++) {
             if (d2_PointerObj != -1 && d2_PointerObj == m->marks[i].ctrl && m->marks[i].bld->owner != 0xffff &&
-                ((AICHARREC *)ai_Chars)[m->marks[i].bld->owner].kind < 10)
-                ai_CharInfoWindow(&((AICHARREC *)ai_Chars)[m->marks[i].bld->owner]);
+                ai_Chars[m->marks[i].bld->owner].kind < 10)
+                ai_CharInfoWindow(&ai_Chars[m->marks[i].bld->owner]);
         }
     }
     d2_LastWindow = m->screen;
@@ -1595,16 +1487,16 @@ void ai_UpdateTownMap(LCMAPWIN *m)
             py = (int)((float)(ai_MapHeight / 2) + originY + edgeY);
             if (m->controls[i] == -1) {
                 if (ch->obj->type != 1 || ch->transport != 0) {
-                    if ((owner = (AICHARREC *)ch->obj->owner) != 0 && ch->transport == 0) {
+                    if ((owner = ch->obj->owner) != 0 && ch->transport == 0) {
                         bld = owner->bld;
                         if (bld == 0 || bld->owner == 0xffff)
                             goto removed;
-                        kind = ((AICHARREC *)ai_Chars)[bld->owner].kind;
+                        kind = ai_Chars[bld->owner].kind;
                         if (kind != 6 && kind != 7 && kind != 5)
                             goto removed;
-                        pic = ((AICHARREC *)ai_Chars)[bld->owner].ref54 - 0x53;
+                        pic = ai_Chars[bld->owner].ref54 - 0x53;
                     } else if (ch->obj->owner != 0 && ch->transport != 0 &&
-                               (rec = (AICHARREC *)gm_ObjectBuildingOwner((unsigned short *)ch->obj->owner)) != 0 &&
+                               (rec = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)ch->obj->owner)) != 0 &&
                                (rec->kind == 6 || rec->kind == 7 || rec->kind == 5))
                         pic = rec->ref54 - 0x53;
                     else
@@ -2301,7 +2193,7 @@ void ai_ShowCharacterNews(unsigned short *cRec, char *text)
     c = (G8CHARREC *)cRec;
     if (c->id != ai_PlayerId) {
         txt_Format(ai_NewsText, 0x20c5, c->id, text);
-        he_ShowNews(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x605, ch_EmptyName);
+        he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x605, ch_EmptyName);
     }
 }
 /* 0x5a9170, tells a player character about another character (74 B): for a kind 6 / 7 character the text 0x20c6
@@ -2402,7 +2294,7 @@ void ai_SendSwapText(unsigned short *cRec, unsigned short *o1Rec, unsigned short
     }
     if (c->kind != 6) {
         txt_Format(ai_NewsText, 0x1dcd, c->id, o1->id, o2->id);
-        he_ShowNews(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x5fe, ch_EmptyName);
+        he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x5fe, ch_EmptyName);
     }
 }
 /* 0x5a9430, tells a character that its evidence against a culprit is void (61 B): the text 0x1747 with the
@@ -2433,10 +2325,10 @@ void ai_GypsyDeliveryText(void *from, int n, void **to)
 
     if (n < 1 || n >= 4)
         return;
-    txt_Format(ai_NewsText, 0x41bf, ((AICHARREC *)from)->id);
+    txt_Format(ai_NewsText, 0x41bf, ((AICHAR *)from)->id);
     for (i = 0; i < n; i++) {
-        if (((AICHARREC *)to[i])->kind == 6 || ((AICHARREC *)to[i])->kind == 7)
-            he_ShowNews(((AICHARREC *)to[i])->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_06");
+        if (((AICHAR *)to[i])->kind == 6 || ((AICHAR *)to[i])->kind == 7)
+            he_ShowNews(((AICHAR *)to[i])->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_06");
     }
     strcpy(ai_NewsText, txt_Ptrs[0x41ba]);
     if (n > 1) {
@@ -2444,14 +2336,14 @@ void ai_GypsyDeliveryText(void *from, int n, void **to)
         for (i = 0; i < 4; i++) {
             if (i >= last)
                 break;
-            txt_Format(line, 0x41bb, ((AICHARREC *)to[i])->id);
+            txt_Format(line, 0x41bb, ((AICHAR *)to[i])->id);
             strcat(ai_NewsText, line);
         }
         done = 0;
         for (; i < 4; i++) {
             if (done)
                 break;
-            txt_Format(line, 0x41bc, ((AICHARREC *)to[i])->id);
+            txt_Format(line, 0x41bc, ((AICHAR *)to[i])->id);
             strcat(ai_NewsText, line);
             done = 1;
         }
@@ -2460,12 +2352,12 @@ void ai_GypsyDeliveryText(void *from, int n, void **to)
         for (i = 0; i < 4; i++) {
             if (i >= 1)
                 break;
-            txt_Format(line, 0x41bb, ((AICHARREC *)to[i])->id);
+            txt_Format(line, 0x41bb, ((AICHAR *)to[i])->id);
             strcat(ai_NewsText, line);
         }
         strcat(ai_NewsText, txt_Ptrs[0x41bd]);
     }
-    he_ShowNews(((AICHARREC *)from)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_05");
+    he_ShowNews(((AICHAR *)from)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_05");
 }
 /* 0x5a9690, tells a player character that relatives were angered by neglected graves (69 B): for a kind 6 / 7
    character the text 0x4154 with the building, shown to its netId (event 0x5fc); gv_GraveyardTurn sends it when
@@ -2487,7 +2379,7 @@ void ai_TellGraveNeglect(unsigned short *plRec, int bld)
 
 void ai_NotifySale(int owner, unsigned short *buyer, int bld, int size, int price, int share)
 {
-    if (((AICHARREC *)owner)->kind != 6 && ((AICHARREC *)owner)->kind != 7)
+    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2498,7 +2390,7 @@ void ai_NotifySale(int owner, unsigned short *buyer, int bld, int size, int pric
         txt_Format(ai_NewsText, 0x414e, *buyer, ai_GraveNames[size], bld, price, share);
         break;
     }
-    he_ShowNews(((AICHARREC *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, "_NACHRICHTEN_FRIEDHOF_08");
+    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, "_NACHRICHTEN_FRIEDHOF_08");
 }
 /* 0x5a9780, tells a player character that its graves were leased (94 B): for a kind 6 / 7 character the text
    0x4151 with the building, the number of paid leases, the singular / plural text (0x4152 for exactly one paid
@@ -2521,7 +2413,7 @@ void ai_TellGravesPaid(int plRec, int bld, int paid, int sum)
 
 void ai_ShowGraveOrderExtended(int owner, unsigned short *lessee, int bld, int size, int price, int share)
 {
-    if (((AICHARREC *)owner)->kind != 6 && ((AICHARREC *)owner)->kind != 7)
+    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2532,7 +2424,7 @@ void ai_ShowGraveOrderExtended(int owner, unsigned short *lessee, int bld, int s
         txt_Format(ai_NewsText, 0x414f, *lessee, ai_GraveNames[size], bld, price, share);
         break;
     }
-    he_ShowNews(((AICHARREC *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
+    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
 }
 /* 0x5a9880, the news of a grave order cancelled, to the graveyard's owner (139 B, he_AnswerGraveLease): as
    ai_ShowGraveOrderExtended with the text 0x4150: the character's id, the graveyard bld and the grave size's
@@ -2540,7 +2432,7 @@ void ai_ShowGraveOrderExtended(int owner, unsigned short *lessee, int bld, int s
 
 void ai_ShowGraveOrderCancelled(int owner, unsigned short *lessee, int bld, int size)
 {
-    if (((AICHARREC *)owner)->kind != 6 && ((AICHARREC *)owner)->kind != 7)
+    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2551,7 +2443,7 @@ void ai_ShowGraveOrderCancelled(int owner, unsigned short *lessee, int bld, int 
         txt_Format(ai_NewsText, 0x4150, *lessee, ai_GraveNames[size], bld);
         break;
     }
-    he_ShowNews(((AICHARREC *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
+    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
 }
 /* 0x5a9910, the haunting text of a grave owner's event 0x88 to its victim (124 B, he_RunHaunting): the
    character's id (twice) and the event's end time around a random variant of the text 0x409c .. 0x409e in
@@ -2569,7 +2461,7 @@ void ai_HauntingText(unsigned short *chrId, int victim, unsigned int end)
         txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, *chrId, *chrId, end);
         break;
     }
-    he_ShowNews(((AICHARREC *)victim)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_11");
+    he_ShowNews(((AICHAR *)victim)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_11");
 }
 /* 0x5a9990, tells a character of the graveyard work's outcome (69 B): the text 0x40a8 with one of the three
    sub-texts 0x40a9 .. 0x40ab (util_Random(3)) into ai_NewsText, shown to its netId (1, event 0x5fb, the sound

@@ -809,7 +809,7 @@ void hmt_Create(int type, int unk, unsigned short v, AICHAR *c)
         amt_SetPersonOwner(c->netId);
     }
     c->w00a = v;
-    c->b00c = 0;
+    c->faith = 0;
     for (j = 0; j < 768; j++) {
         for (k = 0; k < 768; k++) {
             ai_Relations[j][k] = (char)util_Random(0x40) - 0x20;

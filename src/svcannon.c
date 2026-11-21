@@ -1140,7 +1140,7 @@ void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
     d2_Objs[m].centred = 1;
     d2_Objs[m].w = d2_Wins[d2_LastWindow].w / 2;
     d2_SetObjFont(m, 0x54);
-    txt_Format(buf, (int)"%T %a", gm_CharCurrency((char *)&ai_Chars[ai_PlayerId], ai_OwnPlayer), ((AICHAR *)&ai_Chars[ai_PlayerId])->money);
+    txt_Format(buf, (int)"%T %a", gm_CharCurrency((char *)&ai_Chars[ai_PlayerId], ai_OwnPlayer), ai_Chars[ai_PlayerId].money);
     m = d2_CreateWinText(d2_Wins[d2_LastWindow].w / 2, 0x23, buf, d2_LastWindow);
     d2_Objs[m].centred = 1;
     d2_Objs[m].w = d2_Wins[d2_LastWindow].w / 2;
@@ -1326,7 +1326,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         p1.z = t.z + sc->pos.z;
         ai_InitShot(&shotA, &p1, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, (AICHAR *)&ai_Chars[ai_PlayerId], &shotA, 0, 0, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotA, 0, 0, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 0;
         y1 = 0;
         z1 = 50;
@@ -1356,7 +1356,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         ai_InitShot(&shotA, &p2, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, (AICHAR *)&ai_Chars[ai_PlayerId], &shotB, &shotA, 0, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotB, &shotA, 0, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 5;
         y1 = 0;
         z1 = 40;
@@ -1406,7 +1406,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
         ai_ScatterShot(&shotC, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
-        h = gv_FireShots((AIBLD *)rec, (AICHAR *)&ai_Chars[ai_PlayerId], &shotC, &shotA, &shotB, gv_SalvoCharge(a, b, 1), cost, x);
+        h = gv_FireShots((AIBLD *)rec, &ai_Chars[ai_PlayerId], &shotC, &shotA, &shotB, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 5;
         y1 = -3;
         z1 = 40;
@@ -1635,7 +1635,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
 
                     if (fin != 0)
                         fin->spyPaid += amount;
-                    cm_SendMoveGoodsUnchecked(-1, ((AICHAR *)&ai_Chars[ai_PlayerId])->netId, ai_OwnPlayer, amount);
+                    cm_SendMoveGoodsUnchecked(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, amount);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x99;
                     msg.flags = 2;
@@ -1644,7 +1644,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     msg.arg[4] = 3;
                     msg.arg[5] = i;
                     pick = -1;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[1] = rec->id;
@@ -1751,15 +1751,15 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
 
                     if (fin != 0)
                         fin->spyPaid += cost[i];
-                    cm_SendMoveGoodsUnchecked(-1, ((AICHAR *)&ai_Chars[ai_PlayerId])->netId, ai_OwnPlayer, cost[i]);
-                    gm_SendMoneyDelta(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, -amt[i]);
+                    cm_SendMoveGoodsUnchecked(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, cost[i]);
+                    gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -amt[i]);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x99;
                     msg.flags = 2;
                     msg.arg[3] = -1;
                     msg.arg[4] = 2;
                     msg.arg[5] = i;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[2] = p->netId;
@@ -1863,13 +1863,13 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
-                    gm_SendMoneyDelta(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, -amt[i]);
+                    gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -amt[i]);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x99;
                     msg.flags = 2;
                     msg.arg[3] = -1;
                     msg.arg[4] = 1;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[2] = p->netId;
@@ -1971,12 +1971,12 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
 
                     if (fin != 0)
                         fin->spyPaid += price;
-                    cm_SendMoveGoodsUnchecked(-1, ((AICHAR *)&ai_Chars[ai_PlayerId])->netId, ai_OwnPlayer, price);
-                    gm_SendMoneyDelta(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, -0x10);
+                    cm_SendMoveGoodsUnchecked(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, price);
+                    gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -0x10);
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x99;
                     msg.flags = 2;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[1] = rec->id;
@@ -2116,7 +2116,7 @@ void ai_UnlockRoomWindow(AIBLD *rec, AIOBJ *room)
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], price) == 1) {
                     zero = 0;
-                    gm_SendMoneyDelta(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, -price);
+                    gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -price);
                     cm_BeginFieldBlock((char *)room, room->objId);
                     cm_AddFieldDelta(4, 1, 0x1c, &zero);
                     cm_AddFieldDelta(4, 1, 0x20, &zero);

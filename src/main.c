@@ -3834,14 +3834,6 @@ int sv_MessageBox();
 
 #define MAIN_ME ai_PlayerChar  /* the player's character (ai_PlayerChar: unsigned short *) */
 
-/* A character as main_SettleRound copies it: the four work-setting fields (AICHAR.flags1b4 .. +0x1c3) are one
-   AIWORKSET there. The member cannot be declared in ai_char.h: any new member moves tie-break-sensitive
-   functions of sv_t off byte (notes/vc6-matching.md), so the view lives in this unit. */
-typedef struct MAINCHARWORK {
-    char pad000[0x1b4];
-    AIWORKSET work;                     /* 0x1b4 */
-} MAINCHARWORK;
-
 /* 0x53a520, settles the round for the player pl: every building of pl loses its round sums and the 0x3800 flags; the kinds 4 / 0x10 / 0x13 (stores) age their objects (+0x37 by the
    rank of the target building, message 0x2b / 0xe), the kind 5 clears its three records and pays the owner level * 16000 below a worth of 160000, the kinds 0xb .. 0xd (the player's) check the
    master (cm_SendMessage3d / flags1b4 bit 0), the kind 0x1d runs the graveyard; a building whose master is the player gets the 0x1b equipment message; buildings of a player that is gone or
@@ -3919,7 +3911,7 @@ void main_SettleRound(unsigned short pl)
                         } else if ((m->flags1b4 & 1) == 0) {
                             AIWORKSET ws;
 
-                            ws = ((MAINCHARWORK *)m)->work;
+                            ws = m->workSet;
                             ws.flags |= 1;
                             cm_BeginFieldBlock((char *)m, m->netId);
                             cm_AddFieldDelta(4, 1, (char *)&m->flags1b4 - cm_FieldObject, &ws);

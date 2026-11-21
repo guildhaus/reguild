@@ -115,7 +115,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
     };
     int smokeEffect;                    /* 0x95, the id of the running chimney smoke effect (evt_FindById), -1 none (sv.c 0x528490) */
     AIWORKSET workSet;                  /* 0x99, the work settings a hired worker takes over into AICHAR flags1b4 ..
-                                           target (cm_ExHire copies the 16 bytes; lc.c LCWORKSET) */
+                                           target (cm_ExHire copies the 16 bytes; AICHAR.workSet) */
 } AIBLD;
 
 typedef struct AIBTYPE {                /* 0x24d bytes, ai_BTypes[] */

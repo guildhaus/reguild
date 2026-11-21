@@ -148,7 +148,7 @@ unsigned ord_ApplyForOffice(ORDCHAR *c, int *m)
             || ((ch = (ORDCHAR *)gm_FindChar(c->partner)) != 0 && (ch->health == 0 || ch->kind == 0x0f))) {
             r = 2;
             if (m[0] == 3) {
-                r = ai_CourtshipWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+                r = ai_CourtshipWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
                 r |= 2;
             } else if (m[0] == 1 && c->kind == 6) {
                 found = 0;
@@ -203,7 +203,7 @@ int ord_ChangeProfessionOrder(char *c, int *m)
     if (c[2] != 6 && c[2] != 5)
         return 1;
     if (m[0] == 3 && ORD_CHAR(c)->kind == 6) {
-        r = ai_ChangeProfessionWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        r = ai_ChangeProfessionWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         r |= 2;
     } else if (m[0] == 1 && ORD_CHAR(c)->kind == 6)
         txt_Format(ORD_MSG(m)->text, "%s", 0x1d35);
@@ -221,7 +221,7 @@ int ord_MedicusOrder(char *c, int *m)
     if ((k == 3 || k == 1) && (ORD_CHAR(c)->flags1c8 & 0x40) == 0
         && (ORD_CHAR(c)->v024 < -20.0 || (ORD_CHAR(c)->v02c & 0xfffffff0) != 0)) {
         if (k == 3)
-            return ai_MedicusHandler((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            return ai_MedicusHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
         if (k == 1 && ORD_CHAR(c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1d3a);
         return 2;
@@ -247,7 +247,7 @@ int ord_AccusationOrder(char *c, int *m)
         } while (o != 0);
     }
     if (m[0] == 3) {
-        ai_AccusationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        ai_AccusationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 1 && c[2] == 6)
@@ -263,7 +263,7 @@ int ord_BlackmailBuildingOrder(char *c, int *m)
     if ((ORD_CHAR(c)->flags1c8 & 0x100) != 0)
         return 1;
     if (m[0] == 3) {
-        ai_BlackmailBuildingListener((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        ai_BlackmailBuildingListener((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 1 && c[2] == 6)
@@ -300,7 +300,7 @@ int ord_IntimidateOrder(char *c, int *m)
     if ((unsigned char)c[0xd] < 3)
         return 1;
     if (m[0] == 3) {
-        ai_IntimidateContact((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        ai_IntimidateContact((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 1 && c[2] == 6)
@@ -313,7 +313,7 @@ int ord_BlackmailContactOrder(char *c, int *m)
 {
     if ((m[0] == 3 || m[0] == 1) && (unsigned char)c[0xd] >= 3 && (ORD_CHAR(c)->flags1c8 & 0x400) == 0) {
         if (m[0] == 3) {
-            ai_BlackmailContact((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_BlackmailContact((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 2;
         }
         if (m[0] == 1 && c[2] == 6)
@@ -452,7 +452,7 @@ int ord_DivorceOrder(char *c, int *m)
     if (partner->health == 0)
         return 1;
     if (m[0] == 3)
-        return ai_DivorceDialog((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        return ai_DivorceDialog((struct AICHAR *)c, (struct LCORDMSG *)m);
     if (m[0] == 1 && ch->kind == 6)
         txt_Format(m + 5, "%s", 0x1d8e);
     return 2;
@@ -547,7 +547,7 @@ int ord_DismissOfficeOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200000) != 0)
             return 1;
         if (m[0] == 3)
-            r = ai_DismissOfficeAsk((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_DismissOfficeAsk((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -558,7 +558,7 @@ int ord_DismissOfficeOrder(char *c, int *m)
         if ((ORD_CHAR(t)->flags1c8 & 0x200000) != 0)
             return 1;
         if (m[0] == 4) {
-            r = ai_DismissOfficeAsk((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_DismissOfficeAsk((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1d98);
         return r | 0xa;
@@ -588,7 +588,7 @@ int ord_LawOrder(char *c, int *m)
         m[1] = rec[0] & 0xff;
         if (m[0] == 3) {
             ORD_MSG(m)->answerFlag = 1;
-            r = ai_LawPrivilegeWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         }
         return r | 2;
     }
@@ -604,7 +604,7 @@ int ord_LawOrder(char *c, int *m)
         m[1] = rec[0] & 0xff;
         if (m[0] == 4) {
             ORD_MSG(m)->answerFlag = 1;
-            r = ai_LawPrivilegeWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
         return r | 0xa;
@@ -634,7 +634,7 @@ int ord_LawOrder2(char *c, int *m)
         m[1] = rec[0] & 0xff;
         if (m[0] == 3) {
             ORD_MSG(m)->answerFlag = 2;
-            r = ai_LawPrivilegeWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         }
         return r | 2;
     }
@@ -650,7 +650,7 @@ int ord_LawOrder2(char *c, int *m)
         m[1] = rec[0] & 0xff;
         if (m[0] == 4) {
             ORD_MSG(m)->answerFlag = 2;
-            r = ai_LawPrivilegeWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_LawPrivilegeWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             gv_TableRecordText(ORD_MSG(m)->text, rec[0] & 0xff);
         return r | 0xa;
@@ -813,7 +813,7 @@ int ord_BewitchOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_BewitchOrder((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_BewitchOrder((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -823,7 +823,7 @@ int ord_BewitchOrder(char *c, int *m)
         if (j != 0x16 && j != 0x19 && j != 0x12)
             return 1;
         if (m[0] == 4) {
-            ai_BewitchOrder((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_BewitchOrder((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (c[2] == 6)
@@ -848,7 +848,7 @@ int ord_CounterEspionageOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_CounterEspionage((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_CounterEspionage((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -858,7 +858,7 @@ int ord_CounterEspionageOrder(char *c, int *m)
         if (j != 0x13 && j != 0x14 && j != 0x18 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
-            ai_CounterEspionage((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_CounterEspionage((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (c[2] == 6)
@@ -945,7 +945,7 @@ int ord_MisappropriationOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
             return 1;
         if (m[0] == 3)
-            r = ai_MisappropriationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_MisappropriationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -956,7 +956,7 @@ int ord_MisappropriationOrder(char *c, int *m)
         if ((ORD_CHAR(t)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
             return 1;
         if (m[0] == 4) {
-            r = ai_MisappropriationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_MisappropriationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             txt_Format(ORD_MSG(m)->text, "%s", 0x1dc1);
         return r | 0xa;
@@ -1019,7 +1019,7 @@ int ord_SeatSwapOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_SeatSwapWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_SeatSwapWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1029,7 +1029,7 @@ int ord_SeatSwapOrder(char *c, int *m)
         if (j != 0xf && j != 0x15 && j != 0x1b)
             return 1;
         if (m[0] == 4) {
-            ai_SeatSwapWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_SeatSwapWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1054,7 +1054,7 @@ int ord_HatredOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_HatredWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_HatredWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1064,7 +1064,7 @@ int ord_HatredOrder(char *c, int *m)
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
-            ai_HatredWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_HatredWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1109,7 +1109,7 @@ int ord_HearingOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_HearingWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_HearingWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1119,7 +1119,7 @@ int ord_HearingOrder(char *c, int *m)
         if (j != 0x17 && j != 0x13 && j != 0x14 && j != 0xd)
             return 1;
         if (m[0] == 4) {
-            ai_HearingWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_HearingWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1144,7 +1144,7 @@ int ord_ExpelWorkerOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_ExpelWorkerWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_ExpelWorkerWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1154,7 +1154,7 @@ int ord_ExpelWorkerOrder(char *c, int *m)
         if (j != 0x16 && j != 0x19)
             return 1;
         if (m[0] == 4) {
-            ai_ExpelWorkerWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_ExpelWorkerWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1179,7 +1179,7 @@ int ord_ConvertOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_ConvertWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_ConvertWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1189,7 +1189,7 @@ int ord_ConvertOrder(char *c, int *m)
         if (j != 0x15 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
-            ai_ConvertWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_ConvertWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1214,7 +1214,7 @@ int ord_PeaceOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_PeaceWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_PeaceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1224,7 +1224,7 @@ int ord_PeaceOrder(char *c, int *m)
         if (j != 0x1b)
             return 1;
         if (m[0] == 4) {
-            ai_PeaceWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_PeaceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1249,7 +1249,7 @@ int ord_PenanceOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_PenanceWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_PenanceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1259,7 +1259,7 @@ int ord_PenanceOrder(char *c, int *m)
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
-            ai_PenanceWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_PenanceWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1284,7 +1284,7 @@ int ord_SpyTargetFlagOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1c8 & 0x200) != 0)
             return 9;
         if (m[0] == 3)
-            ai_FaithAccusationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_FaithAccusationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1294,7 +1294,7 @@ int ord_SpyTargetFlagOrder(char *c, int *m)
         if (j != 0x12 && j != 0x16)
             return 1;
         if (m[0] == 4) {
-            ai_FaithAccusationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            ai_FaithAccusationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
             return 0xa;
         }
         if (ORD_CHAR(c)->kind == 6)
@@ -1418,7 +1418,7 @@ int ord_InterrogationOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1cc & 0x80000) != 0)
             return 1;
         if (m[0] == 3)
-            r = ai_InterrogationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_InterrogationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1429,7 +1429,7 @@ int ord_InterrogationOrder(char *c, int *m)
         if ((ORD_CHAR(t)->flags1cc & 0x80000) != 0)
             return 1;
         if (m[0] == 4) {
-            r = ai_InterrogationWindow((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_InterrogationWindow((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e07);
         return r | 0xa;
@@ -1455,7 +1455,7 @@ int ord_DismissalOrder(char *c, int *m)
         if ((ORD_CHAR(c)->flags1cc & 0x40000) != 0)
             return 1;
         if (m[0] == 3)
-            r = ai_DismissalHandler((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_DismissalHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
@@ -1466,7 +1466,7 @@ int ord_DismissalOrder(char *c, int *m)
         if ((ORD_CHAR(t)->flags1cc & 0x40000) != 0)
             return 1;
         if (m[0] == 4) {
-            r = ai_DismissalHandler((struct AICHARREC *)c, (struct LCORDMSG *)m);
+            r = ai_DismissalHandler((struct AICHAR *)c, (struct LCORDMSG *)m);
         } else if (ORD_CHAR(c)->kind == 6)
             txt_Format(m + 5, "%s", 0x1e0d);
         return r | 0xa;
@@ -1532,7 +1532,7 @@ int ord_InterrogationOrder2(char *c, int *m)
     if ((ORD_CHAR(c)->flags1c8 & 0x40000) != 0)
         return 1;
     if (m[0] == 3)
-        r = ai_InterrogationWindow1((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        r = ai_InterrogationWindow1((struct AICHAR *)c, (struct LCORDMSG *)m);
     return r | 2;
 }
 /* 0x4f7ef0, an order handler (c, m; kinds 1 / 3) for characters with the flag 0x200 of +0x1cc: a player (+2 = 6) with kind 3 gets the text 0x1e1b (0x276, + 0x28 with +9, extra argument 0x16ba) shown through 0x4f8200 (mode 0); kind 1 writes text 0x1e1a into m + 0x14; else 2 */
@@ -1575,7 +1575,7 @@ int ord_InterrogationOrder3(char *c, int *m)
     if ((ORD_CHAR(c)->flags1c8 & 0x40000) != 0)
         return 1;
     if (m[0] == 3)
-        r = ai_InterrogationWindow2((struct AICHARREC *)c, (struct LCORDMSG *)m);
+        r = ai_InterrogationWindow2((struct AICHAR *)c, (struct LCORDMSG *)m);
     return r | 2;
 }
 /* 0x4f8070, an order handler (c, m; kinds 1 / 3) for characters with the flag 0x400 of +0x1cc: a player (+2 = 6) with kind 3 gets the text 0x1e22 (0x277, + 0x28 with +9, extra argument 0x16bb) shown through 0x4f8200 (mode 0); kind 1 writes text 0x1e21 into m + 0x14; else 2 */

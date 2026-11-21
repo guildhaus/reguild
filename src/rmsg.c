@@ -1790,7 +1790,7 @@ int ai_MsgPayPct1to4Type3c(G14MSG *m)
     c = gm_FindChar(m->id);
     if (c == 0)
         return 1;
-    if (c->v02c == 0)
+    if (c->ailments == 0)
         return 0x400;
     k = util_Random(4) + 1.0;
     v = (int)(gm_GetWorth(c->id) * k * 0.01);
@@ -1813,7 +1813,7 @@ int ai_MsgSeasonAilingType3d(G14MSG *m)
     c = gm_FindChar(m->id);
     if (c == 0)
         return 1;
-    if (c->v02c == 0)
+    if (c->ailments == 0)
         return 0x400;
     t = ai_Time;
     gm_ClockToDate(&t, d);

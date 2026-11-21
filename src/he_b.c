@@ -5478,22 +5478,22 @@ int he_CatchMeetingDisease(AICHAR *ch, float chance, int kind, float *health)
     if (!(util_RandomF() >= chance)) {
         a = 0;
         if (kind == 2) {
-            if ((ch->v02c & 0xf0) == 0)
+            if ((ch->ailments & 0xf0) == 0)
                 a = 2;
-            if ((ch->v02c & 0xf00) == 0)
+            if ((ch->ailments & 0xf00) == 0)
                 b = 3;
         } else if (kind == 1) {
-            if ((ch->v02c & 0x3000) == 0)
+            if ((ch->ailments & 0x3000) == 0)
                 a = 4;
-            if ((ch->v02c & 0x1c000) == 0)
+            if ((ch->ailments & 0x1c000) == 0)
                 b = 5;
         } else {
-            if ((ch->v02c & 0xe0000) == 0)
+            if ((ch->ailments & 0xe0000) == 0)
                 a = 6;
             b = util_Random(2) ? 7 : 8;
-            if ((ch->v02c & 0x1800000) != 0 && b == 8)
+            if ((ch->ailments & 0x1800000) != 0 && b == 8)
                 b = 0;
-            if ((ch->v02c & (7 << 0x14)) != 0 && b == 7)
+            if ((ch->ailments & (7 << 0x14)) != 0 && b == 7)
                 b = 0;
         }
         if (a != 0) {
@@ -5504,7 +5504,7 @@ int he_CatchMeetingDisease(AICHAR *ch, float chance, int kind, float *health)
                 return 0;
             a = b;
         }
-        bits = ch->v02c;
+        bits = ch->ailments;
         if (gm_GetDisease(a, &d) == 0)
             return a;
         sev = util_Random(d.range);

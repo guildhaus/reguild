@@ -3946,7 +3946,7 @@ void ai_UpdateStaff(AICHAR *ch)
             bt = &ai_BTypes[ch->bld->type];
             for (i = 0; i < 768; i++) {
                 if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title != 0 &&
-                    ai_Chars[i].title == (char)bt->k230 && ai_Chars[i].v174 >= 4) {
+                    ai_Chars[i].title == bt->title2 && ai_Chars[i].v174 >= 4) {
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x32;
                     msg.to = ai_Chars[ch->bld->owner].netId;
@@ -4036,7 +4036,7 @@ void ai_OfferGrave(AICHAR *ch)
         ch->flags1b4 &= ~0x40;
     }
 }
-/* 0x487fb0, buys a renovation of the building or an upgrade of the workshop @deep behaviour draft, now near: 52 code / 10 regs / 6 order / 6 fill hunks = 48 differing instructions of 361 (baseline 99). This session's fix: the two slot loops were a do-while over a hand-walked p with a separate i - VC6 spilled BOTH (frame 0x200 vs 0x1fc) and the loop counter went to the frame; rewritten as for (i = 0; i < bt->nslots; i++) with bt->slot[i] (index only) the frame matched and 99 -> 48 differing instructions in one edit (code 151 -> 52, every slots hunk gone). Tried and reverted / identical, one edit one build each: all-c->bld (81 code hunks, worse), all-bld (377, worse), int n (identical), dropping the redundant AICHAR *c = (AICHAR *)ch alias (identical, the cleaner ch form kept). What is left, all read against tools/disasm.py 0x487fb0 0x4c0 and build/ghidra/487fb0.c: the register pair of the building pointer (original edi, ours ebp; knock-on hunks at 0x487fc0 zero register, 0x488060 the lim registers, 0x4881c3 test vs cmp against the zero register, 0x488217 the re-zero, 0x48824c / 0x4882e3 the ai_Goods[n] address form), the store order at 0x488101 and the 3-instruction dup-tail at 0x4884aa; every statement, constant, callee, field offset and the float block (0.005 * 0.005, max 128, budget * 0.75) match Ghidra. Readability done this session: Q2 gm_PlayerRecord -> gm_PlayerRecord (unified with the f3gm.c definition), gm_BuildingLevel -> gm_BuildingLevel (f3gm.c definition renamed too; it returns the building's level byte +0x5c), gm_EquipmentValue -> gm_EquipmentValue (the f3gm.c gm_EquipmentValue definition and every ai_ alias), AIBLD.unk25 -> masterId (am.c 0x497cf0 looks the AI's buildings up by it, the upgrade message goes to that character), AIBLD.level -> level (0..100, renovation threshold, 100 - level in the renovation message), AIFIN.unk40 / unk44 -> upgradeSpent / renovationSpent; Q4 *(unsigned short *)&msg2.arg[0] = ret -> the new AIMSG.itemId union view; Q6 already there */
+/* 0x487fb0, buys a renovation of the building or an upgrade of the workshop @deep behaviour draft, now near: 52 code / 10 regs / 6 order / 6 fill hunks = 48 differing instructions of 361 (baseline 99). This session's fix: the two slot loops were a do-while over a hand-walked p with a separate i - VC6 spilled BOTH (frame 0x200 vs 0x1fc) and the loop counter went to the frame; rewritten as for (i = 0; i < bt->nslots; i++) with bt->slot[i] (index only) the frame matched and 99 -> 48 differing instructions in one edit (code 151 -> 52, every slots hunk gone). Tried and reverted / identical, one edit one build each: all-c->bld (81 code hunks, worse), all-bld (377, worse), int n (identical), dropping the redundant AICHAR *c = ch alias (identical, the cleaner ch form kept). What is left, all read against tools/disasm.py 0x487fb0 0x4c0 and build/ghidra/487fb0.c: the register pair of the building pointer (original edi, ours ebp; knock-on hunks at 0x487fc0 zero register, 0x488060 the lim registers, 0x4881c3 test vs cmp against the zero register, 0x488217 the re-zero, 0x48824c / 0x4882e3 the ai_Goods[n] address form), the store order at 0x488101 and the 3-instruction dup-tail at 0x4884aa; every statement, constant, callee, field offset and the float block (0.005 * 0.005, max 128, budget * 0.75) match Ghidra. Readability done this session: Q2 gm_PlayerRecord -> gm_PlayerRecord (unified with the f3gm.c definition), gm_BuildingLevel -> gm_BuildingLevel (f3gm.c definition renamed too; it returns the building's level byte +0x5c), gm_EquipmentValue -> gm_EquipmentValue (the f3gm.c gm_EquipmentValue definition and every ai_ alias), AIBLD.unk25 -> masterId (am.c 0x497cf0 looks the AI's buildings up by it, the upgrade message goes to that character), AIBLD.level -> level (0..100, renovation threshold, 100 - level in the renovation message), AIFIN.unk40 / unk44 -> upgradeSpent / renovationSpent; Q4 *(unsigned short *)&msg2.arg[0] = ret -> the new AIMSG.itemId union view; Q6 already there */
 
 void ai_BuyUpgrade(AICHAR *ch)
 {
@@ -4161,7 +4161,7 @@ found:
 
 void ai_BuySlots(AIOBJ *b, AICHAR *ch, int n)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     AIJOB *job;
     AIBLD *bld;
     AIMSG msg;
@@ -4222,7 +4222,7 @@ void ai_BuySlots(AIOBJ *b, AICHAR *ch, int n)
 
 void ai_BuyCapacity(AIOBJ *b, AICHAR *ch, int n)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     AIMSG msg;
 
     if (b && !(c->flags1c8 & 8)) {
@@ -4251,7 +4251,7 @@ void ai_BuyCapacity(AIOBJ *b, AICHAR *ch, int n)
 
 void ai_FreeJobCharacters(AICHAR *ch, int n)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     AIJOB *job;
     int i, found;
 
@@ -4531,7 +4531,7 @@ void ai_SendJobOrders(AIINFO *info)
 
 int ai_CheckFreeThieves(AICHAR *ch)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     int i, found;
 
     if (c->flags1c8 & 4)
@@ -4569,7 +4569,7 @@ int ai_CheckFreeThieves(AICHAR *ch)
 
 int ai_CheckFreeStaff(AICHAR *ch)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     int i, found;
 
     if (c->flags1c8 & 4)
@@ -4606,7 +4606,7 @@ int ai_CheckFreeStaff(AICHAR *ch)
 
 void ai_SendFreeThieves(AICHAR *ch)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     AIOBJ *o;
     AIMSG msg;
     int i, n;

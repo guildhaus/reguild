@@ -2576,7 +2576,7 @@ void he_SpawnFounders(void)
                 if (b->owner == 0xffff || b->owner == ai_PlayerChar->id)
                     own[bt->kind]++;
                 else if (bt->kind == 7) {
-                    if (ai_Chars[b->owner].b00c == 0)
+                    if (ai_Chars[b->owner].faith == 0)
                         n7a++;
                     else
                         n7b++;
@@ -4098,10 +4098,10 @@ void he_RunFeast(int ev)
             txt_Format(text, 0x1787, g.cost);
             for (k = 0; k < g.n; k++) {
                 verdict = util_Random(3) + 0x178f + g.mem[k].d * 3;   /* the guest's verdict text */
-                txt_Format(line, 0x1788, ((AICHAR *)g.mem[k].ch)->id, verdict);
+                txt_Format(line, 0x1788, g.mem[k].ch->id, verdict);
                 strcat(text, line);
             }
-            he_ShowNews(((AICHAR *)g.leader)->netId, -1, text, 0x20, 0x5fd, ch_EmptyName);
+            he_ShowNews(g.leader->netId, -1, text, 0x20, 0x5fd, ch_EmptyName);
         }
         e->end = ai_Time;
         cm_SendExSetHE(-1, ev);
@@ -10437,7 +10437,7 @@ void he_RunConversion(int ev)
     while (left != 0) {
         if (cnt >= n)
             break;
-        if (ai_Chars[ring].id != 0xffff && ai_Chars[ring].kind <= 4 && ai_Chars[ring].b00c == cv->from) {
+        if (ai_Chars[ring].id != 0xffff && ai_Chars[ring].kind <= 4 && ai_Chars[ring].faith == cv->from) {
             c = &ai_Chars[ring];
             cm_BeginFieldBlock((char *)c, c->netId);
             cm_AddFieldDelta(1, 1, 0xc, &to);

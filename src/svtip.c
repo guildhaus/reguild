@@ -620,7 +620,7 @@ void ai_HandleItemDrag(void)
         user = d2_Objs[d2_PointerObj].user;
         if (user != 0) {
             if ((char *)user >= (char *)&ai_Chars[0] && (char *)user < (char *)&ai_Chars[768]) {  /* ai_Chars[768]: one past the table */
-                ch = (AICHAR *)user;
+                ch = user;
                 if (ch->id == 0xffff)
                     ch = 0;
             } else if ((char *)user >= (char *)ai_Blds && (char *)user < (char *)&ai_Blds[0x100]) {  /* ai_Blds[0x100]: one past the table */
@@ -813,7 +813,7 @@ int ai_OpenItemTooltip(int idx)
         factor = gm_StaffFactor(bld, n, list);
         c = (AICHAR *)gm_FindCharacterByMaster(bld);
         if (c == 0)
-            c = (AICHAR *)&ai_Chars[bld->owner];
+            c = &ai_Chars[bld->owner];
         io_PrintText(0x22, (int)(item->workTime / ((float)(c->sk81 * (1.0 / 1008)) + factor)), item->workTime);
     }
     d2_SetForm(0, 4);
@@ -1087,7 +1087,7 @@ int ai_OpenCharTooltip(char *ch)
                 io_PrintText(0x32);
         }
     }
-    io_PrintText(0x33, c->b00c + 0x486);
+    io_PrintText(0x33, c->faith + 0x486);
     if ((c->flags1cc & 0x3000) == 0) {
         any = 0;
         io_PrintText(0x34);
@@ -1168,7 +1168,7 @@ void ai_CharInfoWindow(char *ch)
         else
             io_PrintText(0x32);
     }
-    io_PrintText(0x33, c->b00c + 0x486);
+    io_PrintText(0x33, c->faith + 0x486);
     any = 0;
     io_PrintText(0x34);
     for (i = 0; i < 5; i++) {

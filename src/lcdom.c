@@ -557,114 +557,6 @@ struct AITIME;  /* f3gm.h typedef; file-scope tag for the gm_AddTime prototype *
 #define U_I(a) (*(int *)(a))
 #define U_W(a) (*(unsigned short *)(a))
 
-#pragma pack(push, 1)
-typedef struct AITASKVIEW {       /* the character's model record fields this unit reads (ai_char.h AITASK) */
-    char pad000[0x2c];
-    int bldId;                     /* 0x2c, the building the character was sent to (ai_char.h AITASK.bldId) */
-    int scriptGroup;               /* 0x30, the group of the script that created / moved it (the room object's id) */
-} AITASKVIEW;
-
-typedef struct LCWORKSET {       /* the work settings a building keeps at AIBLD +0x99 (ai_bld.h AIBLD.workSet) and a
-                                      hired worker takes over into AICHAR.flags1b4 .. target (ai_char.h; cm_ExHire
-                                      copies them as 16 bytes); the master letter window passes them by value */
-    unsigned int flags;            /* +0x0, the order flags (bit 0 .. 3: the page's four checkboxes) */
-    int budget;                    /* +0x4, AICHAR.budget */
-    int prod;                      /* +0x8, AICHAR.prod (the item the workshop makes) */
-    int target;                    /* +0xc, AICHAR.target (a building id or -1) */
-} LCWORKSET;
-typedef struct AICHARREC {         /* the character record fields this unit reads (ai_char.h AICHAR, same layout;
-                                      G8CHARREC below is the view of the news messages) */
-    unsigned short id;             /* 0x000, the character's id (AIBLD.owner refers to it) */
-    unsigned char kind;            /* 0x002, the character kind (ai_char.h AICHAR.kind; 6 / 7 need no cell model) */
-    char pad003;
-    unsigned int netId;            /* 0x004, the character's network id (ai_char.h AICHAR.netId) */
-    unsigned char health;          /* 0x008 */
-    unsigned char sex;             /* 0x009, 0 / non-0 (ai_char.h AICHAR.sex; it picks the male / female name table) */
-    unsigned short w00a;           /* 0x00a, the age in years (ai_char.h AICHAR.w00a, gm_CharAge; the family tree
-                                      window lets a child above 10 be picked) */
-    unsigned char faith;           /* 0x00c, the faith, 0 / 1 (ai_char.h AICHAR.b00c): the baptism window sets it to
-                                      1 - it (or to the church owner's) and names it by the text 0x197a + it; the
-                                      church donation reaches the characters of the owner's faith */
-    unsigned char b00d;            /* 0x00d, 1 .. 2 (ai_char.h AICHAR.b00d, gv.c copies it to the grave's v30) */
-    char pad00e[0xe];
-    float f01c;                    /* 0x01c, the life value (ai_char.h AICHAR.f01c: 1000.0 at creation, aged
-                                      by gm_AgeCharacter, the character dies when it is used up) */
-    float f020;                    /* 0x020, ai_char.h AICHAR.f020 (the character info panel offers a jobless child
-                                      the profession choice when it is at most the age + 4) */
-    int v024;                      /* 0x024, ai_char.h AICHAR.v024: below 0 the character is hurt (ord.c's medicus
-                                      order tests it below -20); the medicus heals half of it (gm_AddHealth) */
-    char pad028[4];
-    unsigned int ailments;         /* 0x02c, the ailment counters (am.h G5CH.ailments; ai_char.h AICHAR.v02c):
-                                      the fields at bits 0, 4, 8, 12, 14, 17, 20, 23, 25 (4, 4, 4, 2, 3, 3, 3, 2, 4
-                                      bits), the daily step 0x4fbe90 halves each, the diseases 2 .. 9 sit in the
-                                      field pairs of gm_CatchMinorDisease / gm_CatchUpperDisease */
-    char name[0x20];               /* 0x030, the character's name (ai_char.h AICHAR.name) */
-    unsigned short w050;           /* 0x050, the family's grave word (ai_char.h AICHAR.w050); the family tab takes the
-                                      characters with the same w050 and b058 */
-    char pad052[2];
-    int ref54;                     /* 0x054, a reference word the related characters share (ai_char.h AICHAR.ref54;
-                                      the game frame compares it with the player's); a picture id, 0x59a + the
-                                      dynasty's colour 0 .. 7 (ai_PlayerComparePanel shows it and colours the
-                                      slider by it) */
-    unsigned char b058;            /* 0x058, compared with w050 by the family tab (ai_FillFamilyTab) */
-    char pad059[3];
-    unsigned int relatives[8];     /* 0x05c, the netIds of the character's relatives (ai_char.h AICHAR.relatives;
-                                      the baptism window converts [3..7] with the player) */
-    char pad07c[4];
-    unsigned char skills[5];       /* 0x080, the five skill values (ai_char.h AICHAR.skills; the personnel book shows
-                                      [3] and [2] as bars) */
-    char pad085[0xdf];
-    unsigned char jobId;           /* 0x164, the character's job (ai_char.h AICHAR.jobId; the construction window's group 7
-                                      needs 0x34 .. 0x39) */
-    unsigned char title;           /* 0x165, the title rank (ai_char.h AICHAR.title; text 0x20d / 0x230 + it) */
-    unsigned char officeKind;      /* 0x166, the office the character holds, 0 = none (ai_char.h AICHAR.officeKind) */
-    char pad167;
-    unsigned char appliedOffice;   /* 0x168, the office kind applied for, 0 = none (ai_char.h AICHAR.appliedOffice) */
-    unsigned char secondOffice;    /* 0x169, the second office kind, the deputy one (ai_char.h AICHAR.secondOffice) */
-    char pad16a[2];
-    struct AIBLD *bld;             /* 0x16c, the building the character is in (ai_char.h AICHAR.bld) */
-    int bld2;                      /* 0x170, the character's own building, 0 when none (ai_char.h AICHAR.bld2) */
-    int v174;                      /* 0x174, 0 when hired (ai_char.h AICHAR.v174); the personnel book shows it with
-                                      the texts 0x1a39 / 0x1a3a */
-    int inventory;                 /* 0x178, the character's goods inventory, an object list (ai_char.h AICHAR.inventory) */
-    struct AIJOB *job;             /* 0x17c, the job the character works in, 0 = none (ai_char.h AICHAR.job) */
-    char pad180[4];
-    struct AITASKVIEW *model;      /* 0x184, the character's model record, 0 when none (ai_char.h AICHAR.model) */
-    unsigned char selected;        /* 0x188, nonzero: in the player's selection (ai_char.h AICHAR.selected) */
-    char pad189[3];
-    int picture;                   /* 0x18c, the portrait picture (ai_char.h AICHAR.picture) */
-    char pad190[4];
-    int money;                     /* 0x194, the character's money (ai_char.h AICHAR.money) */
-    char pad198[0x14];
-    int donated;                   /* 0x1ac, the money the character gave the church: ai_IndulgenceWindow adds the price
-                                      (cm_AddFieldValues 0x1ac) and shows it with the text 0x1964 */
-    char pad1b0;
-    unsigned char heldRounds;      /* 0x1b1, the rounds the character is held (ai_char.h AICHAR.heldRounds) */
-    char pad1b2[2];
-    union {
-        LCWORKSET workSet;         /* 0x1b4, the work settings the character took over from its building (ai_char.h
-                                      AICHAR.flags1b4 .. target; the master letter window edits them) */
-        struct {
-            unsigned int flags1b4; /* 0x1b4, the order flags (ai_char.h AICHAR.flags1b4) */
-            int budget;            /* 0x1b8, the money the character may spend (ai_char.h AICHAR.budget; main_EndRound
-                                      copies the building's budget to its jobs; the master list page shows it) */
-        };
-    };
-    char pad1c4;
-    unsigned char b1c5;            /* 0x1c5, ai_char.h AICHAR.b1c5 (a worker value am.c averages per building; the
-                                      Domizil good 0x161 halves it, rounded up, for everyone in the building) */
-    char pad1c6[2];
-    unsigned int powerFlags;       /* 0x1c8, the office-power bits already used (ai_char.h AICHAR.powerFlags) */
-    unsigned int flags1cc;         /* 0x1cc, ai_char.h AICHAR.flags1cc (0x800: a bribe raises the relation by 6 instead of 4) */
-    char pad1d0[0x1c];
-    unsigned int goodsMask;        /* 0x1ec, the classes of the Domizil goods in use (G9DOMIZIL.mask; ai_UseGood sets them) */
-    int w1f0;                      /* 0x1f0, ai_char.h AICHAR.v1f0 (0 at creation; the partner filter bit 0x80 wants it set) */
-    char pad1f4[0x1c];
-    int partner;                   /* 0x210, the netId of the partner (ai_char.h AICHAR.partner; the amount rows mark
-                                      a kind 6 viewer's partner) */
-    char pad214[8];
-} AICHARREC;                       /* 0x21c bytes, ai_Chars[768] */
-#pragma pack(pop)
 
 #pragma pack(push, 1)
 typedef struct LCFIREEVENT {       /* the fire event 0x3d's word over AIJOB's union (its alloc 0x564860; the jail check
@@ -861,7 +753,7 @@ short * gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b); void d2_SetObjEnabled();
 typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
                                            ai_AmountRow; cm.c CMAMOUNTROW) */
-    AICHARREC *rec;                     /* 0x00, the character the row shows */
+    AICHAR *rec;                     /* 0x00, the character the row shows */
     int ctl[2];                         /* 0x04, the row's controls (ai_AmountRow): the frame picture, the liking slider */
     int office;                         /* 0x0c, of a vacant seat: its office, the text 0x253 + it (ai_ShowOfficeRows) */
     int x;                              /* 0x10 */
@@ -878,7 +770,7 @@ int gm_HasAdultRelative(); float gm_AddHealth(unsigned short id, int d); int ai_
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();
 typedef struct LCDUELSIDE {             /* one side of a dice duel: am.h AGDUEL's side1 (+0x0c) or side2 (+0x30) block
                                            (am.h cannot be included here yet) */
-    AICHARREC *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
+    AICHAR *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
     unsigned char n;                    /* 0x04, the dice thrown (AGDUEL.n1) */
     char pad05[3];
     unsigned int stats;                 /* 0x08 (AGDUEL.stats1) */
@@ -965,8 +857,8 @@ void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void);
 struct SBSAMPLE * sb_PlaySample();
 void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, struct AIOBJ *arg);
 int gm_GetWorth(unsigned short id); void d2_ClearPaintbox(void);
-int ai_ShowBuildingRows(AICHARREC *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
-int ai_ShowLoanRows(AICHARREC *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
+int ai_ShowBuildingRows(AICHAR *ch, int max, int *ctrls);  /* 0x5bd470, defined below */
+int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form);  /* 0x5bd330, defined below */
 typedef struct SVSAVEDVIEW {
     D3VECTOR4 pos;
     D3VECTOR rot;
@@ -1214,7 +1106,7 @@ typedef struct G9DOMIZILROW {           /* a row of the Domizil personnel book: 
                                            0x5aa1f0 / 0x5aa520 fill them, ai_DomizilFreeRow frees them */
     int x;                              /* 0x00, the row's position (0x5aa0d0's arguments) */
     int y;                              /* 0x04 */
-    AICHARREC *ch;                      /* 0x08, the character record it shows */
+    AICHAR *ch;                      /* 0x08, the character record it shows */
     int pic;                            /* 0x0c, the picture control (d2_WinOpenPic, 0x5aa0d0) */
     int slider;                         /* 0x10, the value slider (d2_WinOpenSlider, 0x5aa1f0) */
     int text;                           /* 0x14, the text control (0x5aa1f0 / 0x5aa520) */
@@ -1270,7 +1162,7 @@ void ai_CreatePersonnelRow(int x, int y, G9DOMIZILROW *row)
    texts 0x1a39 / 0x1a3a after it, else 0x1a3b / 0x1a3c; with bars the skills [3] / [2] as value bars; the slider
    shows the player's opinion of the owner (gm_Opinion, -128 .. 127 as 0 .. 100) */
 
-void ai_FillPersonnelRow(AICHARREC *ch, G9DOMIZILROW *row, int bars)
+void ai_FillPersonnelRow(AICHAR *ch, G9DOMIZILROW *row, int bars)
 {
     char text[128];
     AIBTYPE *bt;
@@ -1357,7 +1249,7 @@ void ai_FillVacantPersonnelRow(AIBLD *bld, G9DOMIZILROW *row, int kind, int slot
 {
     char text[256];
     AIJOB *job;
-    AICHARREC *ch;
+    AICHAR *ch;
 
     job = (AIJOB *)he_FindEvent(2, 0, kind, 3, bld->id);
     if (job != 0 && job->tourCounters[slot] != 0) {
@@ -1535,7 +1427,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     int promoteButton;
     AIBTYPE *bt;
     int hireButton;
-    AICHARREC *master;
+    AICHAR *master;
     int n;
     int fireMasterButton;
     int nWorkers;
@@ -1572,7 +1464,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     int amount;
     int cost;
     int v;
-    AICHARREC *c;
+    AICHAR *c;
     char *owner;
     AIJOB *job;
 
@@ -1597,7 +1489,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     ai_CampaignStep(0x21, (int)book, 0, 0);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+    master = (AICHAR *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -1698,7 +1590,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
             d2_SetForm(book->views[0], 4);
             gm_BuildingBalance(bld, ai_PlayerId, balance);
             io_PrintText(0x1a2c, balance[3]);
-            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+            master = (AICHAR *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -1822,12 +1714,12 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 v = workers[1 + a * 12 + b];
                 if (v != 0xffff) {
                     for (k = 0; k < n; k++)
-                        if (rows[k].ch == (AICHARREC *)&ai_Chars[v])
+                        if (rows[k].ch == &ai_Chars[v])
                             break;
                     if (k >= n) {
                         for (k = 0; k < n; k++) {
                             if (rows[k].ch == 0) {
-                                c = (AICHARREC *)&ai_Chars[v];
+                                c = &ai_Chars[v];
                                 rows[k].ch = c;
                                 rows[k].title = c->title;
                                 break;
@@ -2061,8 +1953,8 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     int cost;
     int v;
     double f;
-    AICHARREC *master;
-    AICHARREC *c;
+    AICHAR *master;
+    AICHAR *c;
     AIJOB *job;
     char *owner;
 
@@ -2078,7 +1970,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+    master = (AICHAR *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2185,14 +2077,14 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
         nWorkers = gm_ListWorkers(bld, workers);
         for (i = 0; i < 12; i++) {
             v = workers[0x19 + i];
-            if (v != 0xffff && ((AICHARREC *)&ai_Chars[v])->jobId == 0) {
+            if (v != 0xffff && ai_Chars[v].jobId == 0) {
                 for (k = 0; k < n; k++)
-                    if (rows[k].ch == (AICHARREC *)&ai_Chars[v])
+                    if (rows[k].ch == &ai_Chars[v])
                         break;
                 if (k >= n) {
                     for (k = 0; k < n; k++) {
                         if (rows[k].ch == 0) {
-                            rows[k].ch = (AICHARREC *)&ai_Chars[v];
+                            rows[k].ch = &ai_Chars[v];
                             break;
                         }
                     }
@@ -2464,8 +2356,8 @@ void ai_HelperBook(AIBLD *bld, char *model)
     int cost;
     int v;
     double f;
-    AICHARREC *master;
-    AICHARREC *c;
+    AICHAR *master;
+    AICHAR *c;
     AIJOB *job;
     char *owner;
 
@@ -2481,7 +2373,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+    master = (AICHAR *)gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2590,7 +2482,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                     }
                 }
             }
-            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+            master = (AICHAR *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -2670,14 +2562,14 @@ void ai_HelperBook(AIBLD *bld, char *model)
         nWorkers = gm_ListWorkers(bld, workers);
         for (i = 0; i < 12; i++) {
             v = workers[0xd + i];
-            if (v != 0xffff && ((AICHARREC *)&ai_Chars[v])->jobId == 0) {
+            if (v != 0xffff && ai_Chars[v].jobId == 0) {
                 for (k = 0; k < n; k++)
-                    if (rows[k].ch == (AICHARREC *)&ai_Chars[v])
+                    if (rows[k].ch == &ai_Chars[v])
                         break;
                 if (k >= n) {
                     for (k = 0; k < n; k++) {
                         if (rows[k].ch == 0) {
-                            rows[k].ch = (AICHARREC *)&ai_Chars[v];
+                            rows[k].ch = &ai_Chars[v];
                             break;
                         }
                     }
@@ -2940,7 +2832,7 @@ int ai_SendTransportOrder(unsigned int who, AIOBJ *cart, AIBLD *from, AIBLD *to)
     if (ai_ScriptQuery(0x24, to, 0, 0) == 1) {
         memset(&msg, 0, sizeof(msg));
         msg.type = 0xf;
-        msg.to = ((AICHARREC *)ai_Chars)[who].netId;
+        msg.to = ai_Chars[who].netId;
         msg.fromId = -1;
         msg.flags = 2;
         msg.time = ai_Time;
@@ -2954,7 +2846,7 @@ int ai_SendTransportOrder(unsigned int who, AIOBJ *cart, AIBLD *from, AIBLD *to)
         if (cart->escort != 0) {
             gm_StallGoodsList((char *)cart, (unsigned *)&goods);
             fee = gm_LevelPayout(goods.pada8[2], cart->escort);
-            cm_SendMoveGoodsUnchecked(-1, ((AICHARREC *)ai_Chars)[who].netId, ai_OwnPlayer, fee);
+            cm_SendMoveGoodsUnchecked(-1, ai_Chars[who].netId, ai_OwnPlayer, fee);
         }
         if (who == ai_PlayerId)
             ai_CampaignStep(0x24, to, 0, 0);
@@ -4073,7 +3965,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                     if (ok && v > 0) {
                         n = gm_TakeableCount((char *)&ai_Chars[ai_PlayerId], item, v);
                         if (n > 0) {
-                            cm_SendExSellObject(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, sobj->objId, item, n, owner, 0);
+                            cm_SendExSellObject(ai_Chars[ai_PlayerId].netId, sobj->objId, item, n, owner, 0);
                             d2_SetObjValue(ctl, 0, 100, 0);
                         }
                     }
@@ -4235,7 +4127,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 txt_Format(text3, 0xdd, cost, n, date.day, date.month, date.year);
                 if (sv_MessageBox(text3, 0x101) != 0
                     && sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0) {
-                    cm_SendMoveGoods(-1, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, owner, cost);
+                    cm_SendMoveGoods(-1, ai_Chars[ai_PlayerId].netId, owner, cost);
                     for (i = 0; i <= 15; i++) {
                         c = rows[i].cart;
                         if (c == 0 || rows[i].selected == 0)
@@ -4244,7 +4136,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         msg.type = 0x10;
                         msg.flags = 1;
                         msg.fromId = bld->id;
-                        msg.to = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
+                        msg.to = ai_Chars[ai_PlayerId].netId;
                         msg.time = ai_Time;
                         gm_AddTime(&msg.time, 0, 0, 10);
                         msg.car = c->objId;
@@ -4608,10 +4500,10 @@ void ai_StorageWindow(AIBLD *bld, int list)
                 if (slots2 != 0)
                     level2 += slots2->slotOrder1d;
                 choice = ai_NewStorageSlotWindow(store, bld, level, level2);
-                gm_SumListAmounts((void *)((AICHARREC *)ai_Chars)[ai_PlayerId].inventory, ai_OwnPlayer);
+                gm_SumListAmounts((void *)ai_Chars[ai_PlayerId].inventory, ai_OwnPlayer);
                 if (choice == 1) {
                     if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], 0x1f40, ai_OwnPlayer) != 0) {
-                        slot = cm_SendMoveGoods(-1, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ai_OwnPlayer, 0x1f40);
+                        slot = cm_SendMoveGoods(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, 0x1f40);
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
@@ -4623,7 +4515,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
                             } else {
                                 memset(&msg1, 0, sizeof(msg1));
                                 msg1.type = 0x12;
-                                msg1.to = ((AICHARREC *)ai_Chars)[bld->owner].netId;
+                                msg1.to = ai_Chars[bld->owner].netId;
                                 msg1.fromId = bld->id;
                                 msg1.flags = 1;
                                 msg1.n = 1;
@@ -4636,7 +4528,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
                     }
                 } else if (choice == 2) {
                     if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], 0x1f40, ai_OwnPlayer) != 0) {
-                        slot = cm_SendMoveGoods(-1, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ai_OwnPlayer, 0x1f40);
+                        slot = cm_SendMoveGoods(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, 0x1f40);
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
@@ -4650,7 +4542,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
 
                                 memset(&msg2, 0, sizeof(msg2));
                                 msg2.type = 0x12;
-                                msg2.to = ((AICHARREC *)ai_Chars)[bld->owner].netId;
+                                msg2.to = ai_Chars[bld->owner].netId;
                                 msg2.fromId = bld->id;
                                 msg2.flags = 1;
                                 msg2.n = 0;
@@ -4668,7 +4560,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
 
                     txt_Format(text, 0x113, 0x3200);
                     if (sv_MessageBox(text, 0x101) != 0) {
-                        slot = cm_SendMoveGoods(-1, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ai_OwnPlayer, 0x3200);
+                        slot = cm_SendMoveGoods(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, 0x3200);
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
@@ -4682,7 +4574,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
 
                                 memset(&msg3, 0, sizeof(msg3));
                                 msg3.type = 0x13;
-                                msg3.to = ((AICHARREC *)ai_Chars)[bld->owner].netId;
+                                msg3.to = ai_Chars[bld->owner].netId;
                                 msg3.fromId = bld->id;
                                 msg3.flags = 1;
                                 msg3.n = 1;
@@ -4754,7 +4646,7 @@ void ai_StorageWindow(AIBLD *bld, int list)
     ai_CampaignStep(0x1d, bld, 1, 0);
 }
 /* 0x5b3130, the talent window "Special\Talente" (the robber / rhetoric / tavern contact listeners): the player's
-   talent `talent` (0 .. 4, AICHARREC.skills) with its picture (pics + level / 42, at most 5) and value bar, and the
+   talent `talent` (0 .. 4, AICHAR.skills) with its picture (pics + level / 42, at most 5) and value bar, and the
    offer to train it for a price by its level (1 / 2 / 4 / 6 / 9 / 12, one less when the order 0x3a / 0x1a / 0x17 /
    0x18 / 0x19 of the talent reports the flag 2); a running training event 0x60 of the player shows its progress
    instead, a talent of 252 or more cannot be trained. OK pays the price (cm_SendMoneyDelta) and sends the
@@ -4794,16 +4686,16 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
     if (talent >= 5)
         return;
     discount = (ord_DispatchOrder(orders[talent], (char *)&ai_Chars[ai_PlayerId], arg) & 2) ? -1 : 0;
-    if (((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] < 0x2a)
+    if (ai_Chars[ai_PlayerId].skills[talent] < 0x2a)
         price = 1;
-    else if (((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] < 0x54)
+    else if (ai_Chars[ai_PlayerId].skills[talent] < 0x54)
         price = 2;
-    else if (((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] < 0x7e)
+    else if (ai_Chars[ai_PlayerId].skills[talent] < 0x7e)
         price = 4;
-    else if (((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] < 0xa8)
+    else if (ai_Chars[ai_PlayerId].skills[talent] < 0xa8)
         price = 6;
     else
-        price = ((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] < 0xd2 ? 9 : 12;
+        price = ai_Chars[ai_PlayerId].skills[talent] < 0xd2 ? 9 : 12;
     price += discount;
     form = d2_OpenForm(0, 0, "Special\\Talente");
     d2_SetForm(form, 0);
@@ -4816,18 +4708,18 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
     io_PrintText(talent + 0x16c3);
     d2_SetForm(form, 2);
     w = d2_Wins[d2_LastWindow].w;
-    level = ((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] * 0.023809524f;
+    level = ai_Chars[ai_PlayerId].skills[talent] * 0.023809524f;
     if (!(level < 5.0f))
         level = 5.0f;
     bar = d2_WinOpenPic(w / 2 - 0x18, 4, (int)(pics[talent] + level), d2_LastWindow);
-    sv_ValueBar(w / 2 - 0x23, 0x3c, ((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent], 0x4df);
+    sv_ValueBar(w / 2 - 0x23, 0x3c, ai_Chars[ai_PlayerId].skills[talent], 0x4df);
     d2_SetForm(form, 3);
     if (ev != 0) {
         io_PrintText(0x16b3, ev->training.talent + 0x16b7, text);
-    } else if (((AICHARREC *)ai_Chars)[ai_PlayerId].skills[talent] >= 0xfc) {
+    } else if (ai_Chars[ai_PlayerId].skills[talent] >= 0xfc) {
         io_PrintText(0x16b2);
     } else {
-        if (((AICHARREC *)ai_Chars)[ai_PlayerId].money >= price) {
+        if (ai_Chars[ai_PlayerId].money >= price) {
             if (discount == 0) {
                 switch (ls_GetLanguage()) {
                 case 0:
@@ -4840,11 +4732,11 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
             } else {
                 switch (ls_GetLanguage()) {
                 case 0:
-                    io_PrintText(0x16b0, (((AICHARREC *)ai_Chars)[ai_PlayerId].sex ? 0x27b : 0x253) + ((AICHARREC *)ai_Chars)[ai_PlayerId].secondOffice,
+                    io_PrintText(0x16b0, (ai_Chars[ai_PlayerId].sex ? 0x27b : 0x253) + ai_Chars[ai_PlayerId].secondOffice,
                                  price, text);
                     break;
                 case 1:
-                    io_PrintText(0x16b0, (((AICHARREC *)ai_Chars)[ai_PlayerId].sex ? 0x27b : 0x253) + ((AICHARREC *)ai_Chars)[ai_PlayerId].secondOffice,
+                    io_PrintText(0x16b0, (ai_Chars[ai_PlayerId].sex ? 0x27b : 0x253) + ai_Chars[ai_PlayerId].secondOffice,
                                  text, price);
                     break;
                 }
@@ -4867,12 +4759,12 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0) {
             if (canTrain) {
-                cm_SendMoneyDelta(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, -(int)price);
+                cm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -(int)price);
                 msg.flags = 1;
                 msg.type = 0x60;
                 msg.training.talent = (unsigned char)talent;
-                msg.to = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
-                msg.fromId = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
+                msg.to = ai_Chars[ai_PlayerId].netId;
+                msg.fromId = ai_Chars[ai_PlayerId].netId;
                 cm_SendLongMessage((char *)&msg);
                 ai_CampaignStep(0x2c, 0, 0, talent);
                 sv_PopRequest = 1;
@@ -4937,7 +4829,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
         return 0;
     memset(arg, 0, sizeof(arg));
     arg[0] = 1;
-    price = (int)(gm_GetWorth(((AICHARREC *)ai_Chars)[ai_PlayerId].id) * 0.02f +
+    price = (int)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.02f +
                   gm_EquipmentValue(target, 100) * 0.05f);
     if (ord_DispatchOrder(0x1b, (char *)&ai_Chars[ai_PlayerId], arg) & 2)
         price /= 2;
@@ -4956,7 +4848,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
         return 0;
     }
     if (he_NoEvent2ePair((int)ch, (int)&ai_Chars[ai_PlayerId]) == 0) {
-        txt_Format(text, 0x1704, ((AICHARREC *)ch)->id);
+        txt_Format(text, 0x1704, ((AICHAR *)ch)->id);
         sv_MessageBox(text, 0);
         return 0;
     }
@@ -4965,8 +4857,8 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
         sv_MessageBox(buf.text, 0);
         return 0;
     }
-    if (he_NoEvent88Pair((struct AICHAR *)ch, (struct AICHAR *)&ai_Chars[ai_PlayerId]) == 0) {
-        txt_Format(text, 0x409f, ((AICHARREC *)ch)->id);
+    if (he_NoEvent88Pair((struct AICHAR *)ch, &ai_Chars[ai_PlayerId]) == 0) {
+        txt_Format(text, 0x409f, ((AICHAR *)ch)->id);
         sv_MessageBox(text, 0);
         return 0;
     }
@@ -4989,7 +4881,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0 && ok != -1 && d2_PointerObj == ok) {
             buf.msg.type = 0x19;
-            buf.msg.to = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
+            buf.msg.to = ai_Chars[ai_PlayerId].netId;
             buf.msg.fromId = ai_PlayerBuilding->id;
             buf.msg.flags = 1;
             buf.msg.sabotage.price = price;
@@ -5015,7 +4907,7 @@ int ai_SabotageCallback(char *ch, AIBLD *target)
    the player has the price, tells it with the text 0x42bf and closes; the second button (0x42ba), a right click or
    an empty pick close it. Returns 1 once the espionage was ordered, else 0 */
 
-int ai_EspionageAmountCB(AICHARREC *ch)
+int ai_EspionageAmountCB(AICHAR *ch)
 {
     int ordered;
     int running;
@@ -5070,7 +4962,7 @@ int ai_EspionageAmountCB(AICHARREC *ch)
             continue;
         }
         factor = d2_GetObjValue(slider) * 0.33f + 1.0f;
-        own = gm_GetWorth(((AICHARREC *)ai_Chars)[ai_PlayerId].id) * 0.005f;
+        own = gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.005f;
         base = (int)(own + gm_GetWorth(ch->id) * 0.005f);
         price = (int)(base * factor);
         d2_SetForm(win, 1);
@@ -5081,11 +4973,11 @@ int ai_EspionageAmountCB(AICHARREC *ch)
         if (d2_PointerObj == buttons[0] && sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0) {
             msg.type = 0x18;
             msg.flags = 2;
-            msg.to = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.fromId = -1;
             msg.espionage.target = ch->netId;
-            msg.espionage.bld = ((AICHARREC *)ai_Chars)[ai_PlayerId].bld2 != 0 ?
-                                ((AIBLD *)((AICHARREC *)ai_Chars)[ai_PlayerId].bld2)->id : -1;
+            msg.espionage.bld = ai_Chars[ai_PlayerId].bld2 != 0 ?
+                                ai_Chars[ai_PlayerId].bld2->id : -1;
             msg.espionage.price = price;
             cm_BeginGroup("spionage");
             msg.espionage.length = d2_GetObjValue(slider);
@@ -5113,7 +5005,7 @@ int ai_EspionageAmountCB(AICHARREC *ch)
    tells it with the text 0x1709, a right click or the button 1 close it. Returns 1 once the beating was ordered,
    else 0 */
 
-int ai_BeatingCallback(AICHARREC *ch)
+int ai_BeatingCallback(AICHAR *ch)
 {
     int ordered;
     int ok;
@@ -5132,7 +5024,7 @@ int ai_BeatingCallback(AICHARREC *ch)
     ordered = 0;
     memset(arg, 0, sizeof(arg));
     arg[0] = 1;
-    price = (int)(gm_GetWorth(((AICHARREC *)ai_Chars)[ai_PlayerId].id) * 0.0085f);
+    price = (int)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.0085f);
     if (ord_DispatchOrder(0x1b, (char *)&ai_Chars[ai_PlayerId], arg) & 2)
         price /= 2;
     for (ev = (AIJOB *)he_FindEvent(2, 2, ai_PlayerId, 0, 0x1a); ev != 0; ev = (AIJOB *)he_NextEvent()) {
@@ -5154,7 +5046,7 @@ int ai_BeatingCallback(AICHARREC *ch)
         sv_MessageBox(buf.text, 0);
         return 0;
     }
-    if (he_NoEvent88Pair((struct AICHAR *)ch, (struct AICHAR *)&ai_Chars[ai_PlayerId]) == 0) {
+    if (he_NoEvent88Pair(ch, &ai_Chars[ai_PlayerId]) == 0) {
         txt_Format(buf.text, 0x409f);
         sv_MessageBox(buf.text, 0);
         return 0;
@@ -5180,7 +5072,7 @@ int ai_BeatingCallback(AICHARREC *ch)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0 && ok != -1 && d2_PointerObj == ok) {
             buf.msg.type = 0x1a;
-            buf.msg.to = ((AICHARREC *)ai_Chars)[ai_PlayerId].netId;
+            buf.msg.to = ai_Chars[ai_PlayerId].netId;
             buf.msg.fromId = ai_PlayerBuilding->id;
             buf.msg.flags = 1;
             buf.msg.u.s.cost = price;
@@ -5208,7 +5100,7 @@ void gv_SortCrimesByLaw(int n, CRIME *r);  /* 0x4f4390, gv.h's prototype (gv.h i
    follows when the order 0x16 reports the flag 2 for the culprit. A right click closes it. Nothing for an empty
    culprit or none held */
 
-void ai_EvidenceDetailsWindow(AICHARREC *me, AICHARREC *culprit)
+void ai_EvidenceDetailsWindow(AICHAR *me, AICHAR *culprit)
 {
     int n;
     int i;
@@ -5273,15 +5165,15 @@ void ai_EvidenceBookWindow(AIBLD *bld)
     int win;
     int list;
     int sel;
-    AICHARREC *me;
-    AICHARREC *ch;
+    AICHAR *me;
+    AICHAR *ch;
     char text[0x40];
     int ids[0x20];
     int open[0x20];
     int total[0x20];
     LCAMOUNTROW rows[0x20];
 
-    me = &((AICHARREC *)ai_Chars)[ai_PlayerId];
+    me = &ai_Chars[ai_PlayerId];
     win = d2_OpenForm(0, 0, "privillegien\\Beweise_Sichten");
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
@@ -5293,7 +5185,7 @@ void ai_EvidenceBookWindow(AIBLD *bld)
     count = gv_RankCulpritsAll(ids, open, total, me->id);
     n = 0;
     for (i = 0; i < count; i++) {
-        ch = (AICHARREC *)gm_FindChar(ids[i]);
+        ch = (AICHAR *)gm_FindChar(ids[i]);
         if (ch != 0) {
             rows[n].rec = ch;
             rows[n].x2c = total[i];
@@ -5329,13 +5221,13 @@ void ai_EvidenceBookWindow(AIBLD *bld)
                 }
             }
             if (sel > -1)
-                ai_EvidenceDetailsWindow((AICHARREC *)&ai_Chars[ai_PlayerId], rows[sel].rec);
+                ai_EvidenceDetailsWindow(&ai_Chars[ai_PlayerId], rows[sel].rec);
         }
     } while (sv_RunFrame(ai_EvidenceBookWindow, 0x657c7) != 0);
     d2_CloseView(win);
     sv_CameraFollow();
 }
-int ai_BribeAmountCB(AICHARREC *ch);
+int ai_BribeAmountCB(AICHAR *ch);
 
 /* 0x5b4820, the bribe window "misc\perga_rolle" (ai_OpenRobberBribe's amount menu callback, with the picked
    character ch): the text 0x174d (ch, the player's currency) with a money slider (up to 0.078 % of the two
@@ -5351,7 +5243,7 @@ int ai_BribeAmountCB(AICHARREC *ch);
    more complex argument first, whatever the source order or the callee's declaration (prototype / K&R /
    stdcall / two callees / inline wrappers all the same): [reg] field > global > local, byte (movzx) >
    word, record[idx].id > ch->id; volatile, dllimport and TLS globals rank above ch->id; two calls as
-   ARGUMENTS of a call go right to left. Second sum, what comes close: gm_GetWorth(((AICHARREC
+   ARGUMENTS of a call go right to left. Second sum, what comes close: gm_GetWorth(((AICHAR
    *)ai_Chars)[ai_PlayerId].id) 13 ins (order right, the id read from the record); the argument as a
    decided int ternary (ch != 0 ? ai_PlayerId : 0) 15 ins (order right, but index and argument share the
    zero-extended eax, the original has mov cx,[ai_PlayerId]; xor eax,eax; mov ax,cx; .. push ecx); the same
@@ -5360,7 +5252,7 @@ int ai_BribeAmountCB(AICHARREC *ch);
    call first (me spilled). So the original's argument is an anonymous 16-bit value of ai_PlayerId computed
    before the flags1cc index and its call comes first; a user local for it always ranks last. = control /
    ch first: every view, qualifier, identity and cast of ai_PlayerId or ch->id, the address taken,
-   AICHARREC.id signed, 64 declaration counts, cl /Oa /Ow /Ox /O1, flip.py (0 hits). Statement forms sink
+   AICHAR.id signed, 64 declaration counts, cl /Oa /Ow /Ox /O1, flip.py (0 hits). Statement forms sink
    the product behind the calls (32, frame 0x434). Not tried: ai_PlayerId's real width / owner struct in
    this unit's headers (a tree edit, not an in-function cast: *(int *)&ai_PlayerId disturbs the whole
    function), an __inline helper taking both worths. prior: s45: the original's ai_PlayerId is one global
@@ -5368,14 +5260,14 @@ int ai_BribeAmountCB(AICHARREC *ch);
    push, so the player's call must come first in the sum. VC6 orders the two calls by the operands' trees,
    not their source order: = control for the sum swapped, (short) / (int) / (unsigned short) casts on
    either argument, ai_PlayerId + 0, *&ai_PlayerId, ch[0].id, (float) of the sum, extra parentheses,
-   (float)amount, worth = (sum) inside the expression. gm_GetWorth(((AICHARREC *)ai_Chars)[ai_PlayerId].id)
+   (float)amount, worth = (sum) inside the expression. gm_GetWorth(ai_Chars[ai_PlayerId].id)
    puts the player's call first (13 ins: the arg then comes from the record, mov dx,[eax+X], no CSE) = the
    deeper argument is evaluated first. (worth = gm_GetWorth(ai_PlayerId)) + .. inside: 32 ins but frame
    0x434. int arithmetic, 500.0 double: worse. climb 2 rounds: 38 ins via rec written out (no). Next: an
    argument tree for the player's call as deep as ch->id's that still loads ai_PlayerId (a macro / helper
    of the original?), or the sum's operands as a CSE'd index (c2dag of the sum). */
 
-int ai_BribeAmountCB(AICHARREC *ch)
+int ai_BribeAmountCB(AICHAR *ch)
 {
     int given;
     int win;
@@ -5434,17 +5326,17 @@ int ai_BribeAmountCB(AICHARREC *ch)
             rec = (LCFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
             if (rec != 0)
                 rec->spyPaid += amount;
-            cm_SendMoveGoods(ch->netId, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ai_OwnPlayer, amount);
-            relation = (int)(amount * ((((AICHARREC *)ai_Chars)[ai_PlayerId].flags1cc & 0x800) ? 6.0f : 4.0f) * 500.0f /
+            cm_SendMoveGoods(ch->netId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, amount);
+            relation = (int)(amount * ((ai_Chars[ai_PlayerId].flags1cc & 0x800) ? 6.0f : 4.0f) * 500.0f /
                              (gm_GetWorth(ai_PlayerId) + gm_GetWorth(ch->id)));
-            slot = cm_SendRelations(((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ch->netId, relation, 1);
+            slot = cm_SendRelations(ai_Chars[ai_PlayerId].netId, ch->netId, relation, 1);
             while (cm_GetSlotState(slot) == 0)
                 sv_PumpNet();
             if (ch->kind == 6 || ch->kind == 7) {
                 txt_Format(news, 0x1751, ai_PlayerId, amount);
                 he_ShowNews(ch->netId, -1, news, 0, 0x5fb, "_NACHRICHTEN_HS_22");
             }
-            gv_Accuse(0x10, 1, ((AICHARREC *)ai_Chars)[ai_PlayerId].netId, ch->netId, -1);
+            gv_Accuse(0x10, 1, ai_Chars[ai_PlayerId].netId, ch->netId, -1);
             sv_PopRequest = 1;
             given = 1;
         } else if (d2_PointerObj == cancel) {
@@ -5483,7 +5375,7 @@ void ai_OpenRobberBribe(AIBLD *bld)
    0x175b), else tells the letter failed (0x175c); the second button or a right click close it. Returns 1 once
    the letter went out, else 0 */
 
-int ai_DrohbriefAmountCB(AICHARREC *ch)
+int ai_DrohbriefAmountCB(AICHAR *ch)
 {
     int sent;
     int n;
@@ -5492,7 +5384,7 @@ int ai_DrohbriefAmountCB(AICHARREC *ch)
     int ok;
     int cancel;
     float chance;
-    AICHARREC *me;
+    AICHAR *me;
     AIWINDOWROW row;
     AIMSG msg;
 
@@ -5505,7 +5397,7 @@ int ai_DrohbriefAmountCB(AICHARREC *ch)
         return 0;
     if (sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 2) == 0)
         return 0;
-    if (he_NoEvent88Pair((struct AICHAR *)ch, (struct AICHAR *)&ai_Chars[ai_PlayerId]) == 0) {
+    if (he_NoEvent88Pair(ch, &ai_Chars[ai_PlayerId]) == 0) {
         /* @original each message has its own block-local text buffer, packed into one frame slot; the 0x1756
            one is smaller: two buffers of one size compare equal and VC6 cross-jumps the two message exits into
            one, of different sizes it keeps both with their own epilogue as the original */
@@ -5514,7 +5406,7 @@ int ai_DrohbriefAmountCB(AICHARREC *ch)
         sv_MessageBox(haunt, 0);
         return 0;
     }
-    me = &((AICHARREC *)ai_Chars)[ai_PlayerId];
+    me = &ai_Chars[ai_PlayerId];
     n = gv_HeldCrimeCount(ch->netId, ai_PlayerId);
     if (n <= 0) {
         char none[0x200];
@@ -5601,8 +5493,8 @@ void ai_DenounceWindow(AIBLD *bld)
     int text;
     int ok;
     int cancel;
-    AICHARREC *culprit;
-    AICHARREC *judge;
+    AICHAR *culprit;
+    AICHAR *judge;
     AMOUNTCFG cfg;
     char title[0x40];
     char note[0x200];
@@ -5614,11 +5506,11 @@ void ai_DenounceWindow(AIBLD *bld)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(title, 0x175f);
-    culprit = (AICHARREC *)ai_AmountMenu(&cfg, title, 0, 0);
+    culprit = (AICHAR *)ai_AmountMenu(&cfg, title, 0, 0);
     if (culprit == 0)
         return;
     txt_Format(title, 0x1760, culprit->id);
-    judge = (AICHARREC *)ai_AmountMenu(&cfg, title, 0, 0);
+    judge = (AICHAR *)ai_AmountMenu(&cfg, title, 0, 0);
     if (judge == 0)
         return;
     n = gv_HeldCrimeCount(culprit->netId, ai_PlayerId);
@@ -5675,7 +5567,7 @@ void ai_DenounceWindow(AIBLD *bld)
    (from and to the player, flags 2, the game time, ch's netId and a random text variant 0..0x1c), the second
    button or a right click close it. Returns 1 once the pamphlet went out, else 0 */
 
-int ai_PamphletAmountCB(AICHARREC *ch)
+int ai_PamphletAmountCB(AICHAR *ch)
 {
     int sent;
     int count;
@@ -5696,7 +5588,7 @@ int ai_PamphletAmountCB(AICHARREC *ch)
         sv_MessageBox(note, 0);
         return 0;
     }
-    if (he_NoEvent88Pair((struct AICHAR *)ch, (struct AICHAR *)&ai_Chars[ai_PlayerId]) == 0) {
+    if (he_NoEvent88Pair(ch, &ai_Chars[ai_PlayerId]) == 0) {
         txt_Format(note, 0x409f, ch->id);
         sv_MessageBox(note, 0);
         return 0;
@@ -5798,7 +5690,7 @@ void ai_NoticeBoardWindow(void)
     int slot;
     unsigned long refresh;
     AIJOB *ev;
-    AICHARREC *ch;
+    AICHAR *ch;
     int ctl[4];                         /* the rows' tear-down buttons */
     int evIds[4];                       /* the rows' pamphlet events */
 
@@ -5820,7 +5712,7 @@ void ai_NoticeBoardWindow(void)
             i = 0;
             for (ev = (AIJOB *)he_FindEvent(1, 0, 0x35); ev != 0 && n < 5; ev = (AIJOB *)he_NextEvent()) {
                 if (ev->stage > -1) {
-                    ch = (AICHARREC *)gm_FindChar(ev->idbc);
+                    ch = (AICHAR *)gm_FindChar(ev->idbc);
                     if (ch != 0) {
                         d2_SetForm(win, n * 2 - 1);
                         io_PrintText("$C");
@@ -5871,7 +5763,7 @@ void hmt_ApplyRecord(struct AICHAR *p, int d, unsigned short k); /* 0x4ac2f0 */
 
 /* 0x5b5a20, the bard's window "special\barde" (the TRIBUENE plate of the market, ai_MarketStandListener): without
    a bard event 0x6b at its stage 2 the text 0x1e26; else the song's hmt record (AIJOB.bardRec), the player's
-   waiting event 0x11 for it is dropped (stage -1), a player who already bought a song (powerFlags 0x20000) gets
+   waiting event 0x11 for it is dropped (stage -1), a player who already bought a song (flags1c8 0x20000) gets
    the text 0x1e27, one too poor for it (hmt_GetPrice 0) 0x1e28. Else the offer 0x1e2a (the record's text + 1,
    the price) asks: the first button buys the song (hmt_ApplyRecord), then the window "special\barde2" shows the
    record's title and its poem (text + 2) with scroll buttons, and after a right click its effect (0x1e5c, then
@@ -5913,7 +5805,7 @@ void ai_BardWindow(void)
     wait = (AIJOB *)he_FindEvent(3, 0, 0x11, 3, ev->id, 2, ai_PlayerId);
     if (wait != 0)
         wait->stage = -1;
-    if ((((AICHARREC *)ai_Chars)[ai_PlayerId].powerFlags & 0x20000) != 0) {
+    if ((ai_Chars[ai_PlayerId].flags1c8 & 0x20000) != 0) {
         io_PrintText(0x1e27);
         do {
             if (dm_L.rup != 0)
@@ -5923,7 +5815,7 @@ void ai_BardWindow(void)
         sv_CameraFollow();
         return;
     }
-    price = hmt_GetPrice((struct AICHAR *)&ai_Chars[ai_PlayerId]);
+    price = hmt_GetPrice(&ai_Chars[ai_PlayerId]);
     if (price == 0) {
         io_PrintText(0x1e28);
         do {
@@ -5943,7 +5835,7 @@ void ai_BardWindow(void)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_ClickedId == 0) {
-                hmt_ApplyRecord((struct AICHAR *)&ai_Chars[ai_PlayerId], price, ev->bardRec);
+                hmt_ApplyRecord(&ai_Chars[ai_PlayerId], price, ev->bardRec);
                 bought = 1;
                 sv_PopRequest = 1;
             } else if (d2_ClickedId == 1) {
@@ -6026,11 +5918,11 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     int ok;
     int cancel;
     AIJOB *ev;
-    AICHARREC *ch;
-    AICHARREC *pick;
+    AICHAR *ch;
+    AICHAR *pick;
     unsigned short *id;
     AITIME when;
-    AICHARREC *guests[4] = {0, 0, 0, 0};
+    AICHAR *guests[4] = {0, 0, 0, 0};
     AIGRP g;
     int ctl[6];                         /* the pick rows, then the guests' rows */
     int btns[2];
@@ -6192,7 +6084,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     for (k = 0; k < 4; k++)
                         if (guests[k] != 0)
                             *id++ = guests[k]->id;
-                    pick = (AICHARREC *)ai_AmountMenu(&cfg, "$ZZum Fest einladen", 0, 0);
+                    pick = (AICHAR *)ai_AmountMenu(&cfg, "$ZZum Fest einladen", 0, 0);
                     if (pick != 0) {
                         for (k = 0; k < 4; k++) {
                             if (guests[k] == 0) {
@@ -6258,7 +6150,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     } else {
         when = ev->end;
         for (k = 0; k < 4; k++)
-            guests[k] = (AICHARREC *)gm_FindChar(table->festGuests[k]);
+            guests[k] = (AICHAR *)gm_FindChar(table->festGuests[k]);
         essen = table->festEssen;
         musik = table->festMusik;
     }
@@ -7200,7 +7092,7 @@ void ai_BuildingWindow(AIBLD *bld)
                     fireBtn = d2_GetWinObj(win, 1, io_PrintText(0x17b0));
                 if (bld->owner == ai_PlayerId) {
                     d2_SetForm(win, 1);
-                    if (type->kind == 2 && ((AICHARREC *)&ai_Chars[ai_PlayerId])->bld2 != (int)bld)
+                    if (type->kind == 2 && ai_Chars[ai_PlayerId].bld2 != bld)
                         bossBtn = d2_GetWinObj(win, 1, io_PrintText(0x17a9));
                 }
             }
@@ -7316,7 +7208,7 @@ void ai_BuildingWindow(AIBLD *bld)
             txt_Format(buyOutText, 0x17e3, bld, bld, amount);
             if (sv_MessageBox(buyOutText, 1) != 0) {
                 cm_SendMoveGoods(ai_CharInts[bld->owner][0], -1, ai_OwnPlayer, amount);
-                cm_SendOwnership(bld->id, ((AICHARREC *)ai_PlayerChar)->netId, ((AICHARREC *)ai_PlayerChar)->netId);
+                cm_SendOwnership(bld->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
                 cm_BeginFieldBlock((char *)bld, bld->id);
                 cm_AddFieldValue(4, 1, (unsigned short)((char *)&bld->buyOutBase - cm_FieldObject), &amount);
                 cm_SendFieldDeltas();
@@ -7451,7 +7343,7 @@ void ai_ManagedBuildingWindow(AIBLD *bld)
    while something sells. The sale proceeds go to `to`, noted in `note` (text 0x18eb appended); without any sale
    the rest is moved unchecked. Returns what was paid */
 
-int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
+int ai_LiquidateAssets(int to, AICHAR *ch, int amount, char *note)
 {
     int remaining;
     int paid;
@@ -7770,7 +7662,7 @@ void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants)
             return;
         if ((plant->state > 1 || gm_AllowAll != 0) && dm_L.lup != 0) {
             for (i = 0; i < 768; i++) {
-                if (((AICHARREC *)ai_Chars)[i].selected != 0) {
+                if (ai_Chars[i].selected != 0) {
                     AIMSG msg;
 
                     memset(&msg, 0, sizeof(msg));
@@ -7783,7 +7675,7 @@ void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants)
                     msg.flags = 1;
                     msg.arg[3] = plant->id;
                     msg.arg[0] = bld->id;
-                    msg.arg[1] = ((AICHARREC *)ai_Chars)[i].netId;
+                    msg.arg[1] = ai_Chars[i].netId;
                     cm_SendLongMessage((char *)&msg);
                     snd_PlayFavourComment();
                 }
@@ -7872,7 +7764,7 @@ void ai_OpenInventoryWindow(int win, int x, int y, unsigned short charId, int te
         ai_InvSlots[i].ctl = -1;
         ai_InvSlots[i].obj = 0;
     }
-    ai_InvChar = (AICHARREC *)&ai_Chars[charId];
+    ai_InvChar = &ai_Chars[charId];
     ai_ChildWindowId = d2_CreateChildWindow(x, y, 0xcd, 0xc4, 0x10, win);
     d2_WinOpenPic(0, 0, 0x587, ai_ChildWindowId);
     d2_CreateChildWindow(0, 0x2c, d2_LastWindowPtr->w, 0x1e, 0x110, d2_LastWindow);
@@ -7889,7 +7781,7 @@ void ai_OpenInventoryWindow(int win, int x, int y, unsigned short charId, int te
 
 int ai_UpdateInventoryWindow(void)
 {
-    AICHARREC *ch;
+    AICHAR *ch;
     G8INVOBJ *o;
     G9DOMIZIL *use;
     int picked;
@@ -8075,9 +7967,9 @@ void lc_UpdateGoodsReserves(void)
         return;
     gm_MinutesBetween(&lc_Settings.reserveTime, &ai_Time);
     for (i = lc_Settings.reserveCursor; i < lc_Settings.reserveCursor + 0x20 && i < 0x300; i++) {
-        if (((AICHARREC *)ai_Chars)[i].id == 0xffff)
+        if (ai_Chars[i].id == 0xffff)
             continue;
-        o = (G8INVOBJ *)gm_Query((void *)((AICHARREC *)ai_Chars)[i].inventory, 1, 5);
+        o = (G8INVOBJ *)gm_Query((void *)ai_Chars[i].inventory, 1, 5);
         if (o != 0) {
             do {
                 use = (G9DOMIZIL *)ai_FindUsableGood(o->id);
@@ -8092,7 +7984,7 @@ void lc_UpdateGoodsReserves(void)
                         continue;
                     /* the effect ran out */
                     o->active = 0;
-                    if (((AICHARREC *)ai_Chars)[i].kind == 6) {
+                    if (ai_Chars[i].kind == 6) {
                         txt_Format(text, 0x1bc9, o->id * 2 + 0x9a8);
                         he_ShowNews(ai_CharInts[i][0], -1, text, 0, 0x5ec, "_NACHRICHTEN_HS_37");
                     }
@@ -8101,7 +7993,7 @@ void lc_UpdateGoodsReserves(void)
                         if (bld != 0)
                             cm_SendSetField(bld->id, 0x5a, 2, 0, 0x20);
                     }
-                    if (ai_CanAct((char *)&ai_Chars[i]) && ((AICHARREC *)ai_Chars)[i].kind != 7)
+                    if (ai_CanAct((char *)&ai_Chars[i]) && ai_Chars[i].kind != 7)
                         cm_SendExSellObject(-1, o->ownerId, o->id, 1, ai_OwnPlayer, 0);
                 } else if (o->active != 0) {
                     o->active = 0;
@@ -8136,7 +8028,7 @@ int ai_UseGoodWindow(G8INVOBJ *o)
         win = d2_OpenForm(0, 0, "panel\\useobj");
         d2_CentreViewWindows(win);
         d2_SetForm(win, 1);
-        if ((rec->mask & ((AICHARREC *)ai_Chars)[ai_PlayerId].goodsMask) == 0 && ai_FindUsableGood(o->id) != 0)
+        if ((rec->mask & ai_Chars[ai_PlayerId].goodsMask) == 0 && ai_FindUsableGood(o->id) != 0)
             io_PrintText(0xfe3, o->id * 2 + 0x9a8, rec->rank, o->id * 2 + 0x9a8);
         else
             io_PrintText(0xfe4, o->id * 2 + 0x9a8);
@@ -8277,7 +8169,7 @@ int ai_UpdateEquipRows(int view, int form)
     AICHAR **sc;
     AIEQUIPROW *row;
     AIOBJ *item;
-    AICHARREC *ch;
+    AICHAR *ch;
     int r;
     int i;
     int group;
@@ -8359,7 +8251,7 @@ int ai_UpdateEquipRows(int view, int form)
     for (sc = ai_SceneChars; (int)sc < (int)&ai_SceneChars[0x20]; sc++) {
         if (*sc == 0)
             continue;
-        group = gm_TitleJobGroup(((AICHARREC *)*sc)->title);
+        group = gm_TitleJobGroup(((AICHAR *)*sc)->title);
         if (group < 10 || group > 12)
             continue;
         found = 0;
@@ -8373,7 +8265,7 @@ int ai_UpdateEquipRows(int view, int form)
         for (r = 0, row = ai_EquipRowTab; (int)row < (int)(ai_EquipRowTab + 0x20); row++, r++) {
             if (row->ch == 0) {
                 d2_SetForm(view, form);
-                ai_EquipRowTab[r].ch = (AICHARREC *)*sc;
+                ai_EquipRowTab[r].ch = (AICHAR *)*sc;
                 ai_EquipRowTab[r].frame = d2_WinOpenPic(0, r * 0x78, 0x74c, d2_LastWindow);
                 d2_Objs[ai_EquipRowTab[r].frame].interactive = 1;
                 ai_EquipRowTab[r].portrait = d2_WinOpenPic(0x10, r * 0x78 + 5, ai_EquipRowTab[r].ch->picture, d2_LastWindow);
@@ -8440,7 +8332,7 @@ void ai_EquipWindow(AIBLD *bld)
     int k;
     AIOBJ *store;
     AIGOOD *g;
-    AICHARREC *ch;
+    AICHAR *ch;
     char count[0x100];
 
     listShown = 0;
@@ -8577,7 +8469,6 @@ rows:
     d2_CloseView(win);
     sv_CameraFollow();
 }
-#define lc_CharRecs ((AICHARREC *)ai_Chars)  /* the character records as AICHARREC */
 
 typedef struct LCTRAINROW {             /* 0xc bytes, a row of the training window (ai_TrainingWindow keeps three) */
     int pic;                            /* 0x00, the training's picture (0x762 + the row), interactive */
@@ -8648,7 +8539,7 @@ void ai_TrainingWindow(AIBLD *bld)
     int count;
     int cls;
     double alpha;
-    AICHARREC *ch;
+    AICHAR *ch;
     AIJOB *ev;
 
     type = &ai_BTypes[bld->type];
@@ -8738,28 +8629,28 @@ void ai_TrainingWindow(AIBLD *bld)
                     for (i = 0; i < 0x300; i++) {
                         if (count >= 3)
                             break;
-                        if (lc_CharRecs[i].selected == 0)
+                        if (ai_Chars[i].selected == 0)
                             continue;
                         msg.type = 0x6c;
                         msg.to = ai_CharInts[bld->owner][0];
                         msg.fromId = bld->id;
                         msg.time = ai_Time;
                         msg.flags = 1;
-                        msg.arg[0] = lc_CharRecs[i].netId;
+                        msg.arg[0] = ai_Chars[i].netId;
                         if (sv_PanelShown != 0 && sv_PanelShown->type != 0xfd)
                             msg.arg[6] = sv_PanelShown->objId;
                         else
                             msg.arg[6] = -1;
-                        sv_MoveToGroup(bld, 0, lc_CharRecs[i].id, 0);
+                        sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
                         cm_SendLongMessage((char *)&msg);
                         count++;
                     }
                 } else {
                     for (i = 0; i < 0x300; i++) {
-                        if (lc_CharRecs[i].selected == 0)
+                        if (ai_Chars[i].selected == 0)
                             continue;
                         memset(&msg, 0, sizeof(msg));
-                        if (lc_CharRecs[i].job != 0 && lc_CharRecs[i].job->kind == 0x16)
+                        if (ai_Chars[i].job != 0 && ai_Chars[i].job->kind == 0x16)
                             count--;
                         if (count >= 3) {
                             count = 4;
@@ -8774,9 +8665,9 @@ void ai_TrainingWindow(AIBLD *bld)
                             msg.arg[2] = sv_PanelShown->objId;
                         else
                             msg.arg[2] = -1;
-                        msg.arg[1] = lc_CharRecs[i].netId;
+                        msg.arg[1] = ai_Chars[i].netId;
                         msg.thiefClass = (row != 0) + 2;
-                        sv_MoveToGroup(bld, 0, lc_CharRecs[i].id, 0);
+                        sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
                         cm_SendLongMessage((char *)&msg);
                         count++;
                     }
@@ -8803,12 +8694,12 @@ select:
                 if (row != 2) {
                     cls = (row != 0) + 2;
                     for (ev = (AIJOB *)he_FindEvent(2, 0, 0x16, 3, bld->id); ev != 0; ev = (AIJOB *)he_NextEvent()) {
-                        if (ev->thiefClass == cls && (ch = (AICHARREC *)gm_FindChar(ev->thief)) != 0)
+                        if (ev->thiefClass == cls && (ch = (AICHAR *)gm_FindChar(ev->thief)) != 0)
                             ch->selected = 1;
                     }
                 } else {
                     for (ev = (AIJOB *)he_FindEvent(2, 0, 0x6c, 3, bld->id); ev != 0; ev = (AIJOB *)he_NextEvent()) {
-                        if ((ch = (AICHARREC *)gm_FindChar(ev->ownerCh)) != 0)
+                        if ((ch = (AICHAR *)gm_FindChar(ev->ownerCh)) != 0)
                             ch->selected = 1;
                     }
                 }
@@ -8830,7 +8721,7 @@ void ai_FreePicture(void)
 }
 /* 0x5bc110, the coat of arms choice "misc\choosewappen" (ai_GameFrame, when a relative of the player took the
    player's crest): the eight crests 0x59a .. 0x5a1 as a radio group, each disabled while another player character
-   (kind 5 .. 7) bears it (AICHARREC.ref54); the OK button (text 0x7f) is enabled with a crest picked. OK sets the
+   (kind 5 .. 7) bears it (AICHAR.ref54); the OK button (text 0x7f) is enabled with a crest picked. OK sets the
    player's crest (cm field block on ref54) and, when no other player character bears it, closes the window and
    sends the system message 0xd with the player's id */
 
@@ -8847,7 +8738,7 @@ void ai_ChooseCoatOfArms(void)
     int taken;
     int slot;
     int c;
-    AICHARREC *ch;
+    AICHAR *ch;
 
     win = d2_OpenForm(0, 0, "misc\\choosewappen");
     d2_CentreViewWindows(win);
@@ -8864,8 +8755,8 @@ void ai_ChooseCoatOfArms(void)
     /* the crests other player characters bear (the original counts the crest down against the button up) */
     for (i = 0; i < 8; i++) {
         for (c = 0; c < 0x300; c++) {
-            if (lc_CharRecs[c].id != 0xffff && lc_CharRecs[c].ref54 == 0x59a - i && lc_CharRecs[c].id != ai_PlayerId
-                && (lc_CharRecs[c].kind == 6 || lc_CharRecs[c].kind == 7 || lc_CharRecs[c].kind == 5))
+            if (ai_Chars[c].id != 0xffff && ai_Chars[c].ref54 == 0x59a - i && ai_Chars[c].id != ai_PlayerId
+                && (ai_Chars[c].kind == 6 || ai_Chars[c].kind == 7 || ai_Chars[c].kind == 5))
                 d2_SetObjEnabled(arms[i], 0);
         }
     }
@@ -8877,8 +8768,8 @@ void ai_ChooseCoatOfArms(void)
         for (i = 0; i < 8; i++) {
             d2_SetObjEnabled(arms[i], 1);
             for (c = 0; c < 0x300; c++) {
-                if (lc_CharRecs[c].id != 0xffff && lc_CharRecs[c].ref54 == i + 0x59a && lc_CharRecs[c].id != ai_PlayerId
-                    && (lc_CharRecs[c].kind == 6 || lc_CharRecs[c].kind == 7 || lc_CharRecs[c].kind == 5))
+                if (ai_Chars[c].id != 0xffff && ai_Chars[c].ref54 == i + 0x59a && ai_Chars[c].id != ai_PlayerId
+                    && (ai_Chars[c].kind == 6 || ai_Chars[c].kind == 7 || ai_Chars[c].kind == 5))
                     d2_SetObjEnabled(arms[i], 0);
             }
         }
@@ -8887,7 +8778,7 @@ void ai_ChooseCoatOfArms(void)
         else
             d2_SetObjEnabled(ok, 0);
         if (d2_ClickedId == 0 && d2_Radios[group].sel != -1) {
-            ch = &lc_CharRecs[ai_PlayerId];
+            ch = &ai_Chars[ai_PlayerId];
             value = d2_Radios[group].sel + 0x59a;
             taken = 0;
             cm_BeginFieldBlock((char *)ch, ch->netId);
@@ -8897,8 +8788,8 @@ void ai_ChooseCoatOfArms(void)
                 sv_PumpNet();
             for (k = 0; k < 8; k++) {
                 for (c = 0; c < 0x300; c++) {
-                    if (lc_CharRecs[c].id != 0xffff && lc_CharRecs[c].ref54 == d2_Radios[group].sel + 0x59a && lc_CharRecs[c].id != ai_PlayerId
-                        && (lc_CharRecs[c].kind == 6 || lc_CharRecs[c].kind == 7 || lc_CharRecs[c].kind == 5))
+                    if (ai_Chars[c].id != 0xffff && ai_Chars[c].ref54 == d2_Radios[group].sel + 0x59a && ai_Chars[c].id != ai_PlayerId
+                        && (ai_Chars[c].kind == 6 || ai_Chars[c].kind == 7 || ai_Chars[c].kind == 5))
                         taken = 1;
                 }
             }
@@ -8956,7 +8847,7 @@ int ai_OpenMoneyInfoPage(void)
     d2_SetForm(win, 5);
     io_PrintText(0x1f40);
     d2_SetForm(win, 1);
-    ai_FillExchangeRows(lc_CharRecs[ai_PlayerId].inventory, ai_StatsMoneyRows, win, 1, 0);
+    ai_FillExchangeRows(ai_Chars[ai_PlayerId].inventory, ai_StatsMoneyRows, win, 1, 0);
     for (i = 0; i < 9; i++) {
         if (rows[i].child != -1) {
             d2_RemoveWindow(rows[i].child);
@@ -9000,9 +8891,9 @@ int ai_OpenBuildingListPage(void)
     int up;
     int down;
     int win;
-    AICHARREC *ch;
+    AICHAR *ch;
 
-    ch = &lc_CharRecs[ai_PlayerId];
+    ch = &ai_Chars[ai_PlayerId];
     win = d2_OpenForm(0, 0, "panel\\geb_liste_2");
     d2_CentreViewWindows(win);
     d2_SetForm(win, 0);
@@ -9084,7 +8975,7 @@ int d2_WinOpenInput(int x, int y, int w, int h, unsigned char flags, int win);  
 int ai_OpenMasterListPage(void)
 {
     int count;
-    AICHARREC *master;
+    AICHAR *master;
     char text[0x100];
     int i;
     AIBLD *bld;
@@ -9115,7 +9006,7 @@ int ai_OpenMasterListPage(void)
     bld = gm_BuildQuery(1, 4, ai_PlayerId);
     if (bld != 0) {
         do {
-            master = (AICHARREC *)gm_FindCharacterByMaster(bld);
+            master = (AICHAR *)gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId) {
                 d2_SetForm(win, 2);
                 ai_MasterRows[count].pic = d2_WinOpenPic(0, count * 0x3e, bld->type + 0x427, d2_LastWindow);
@@ -9150,7 +9041,7 @@ int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg,
    without masters) in a radio group that starts on the page picked last (ai_StatsPage). Per frame: shows the
    picked page, refills the money rows, opens the building detail window for a clicked building row, scrolls the
    master list by its buttons and sends a changed master budget input to the building (AIBLD.budget, in the
-   player's money: gm_PlayerFactor) and the change to its master (AICHARREC.budget)
+   player's money: gm_PlayerFactor) and the change to its master (AICHAR.budget)
    @deep near-byte sweep s22: left win in the slot above the one the original gives it ([esp+0xc] vs
    [esp+0x8]) and two reloads after the master loop in swapped registers. value as a local of the if / the
    loop body = control (frame sweep lever does not reach it). */
@@ -9166,7 +9057,7 @@ void ai_PlayerStatsPanel(void)
     int i;
     int down;
     int list;
-    AICHARREC *master;
+    AICHAR *master;
 
     if (ai_RunAllows(0x800) == 0)
         return;
@@ -9203,7 +9094,7 @@ void ai_PlayerStatsPanel(void)
         }
         if (moneyPage != -1) {
             d2_SetForm(moneyPage, 1);
-            ai_FillExchangeRows(lc_CharRecs[ai_PlayerId].inventory, ai_StatsMoneyRows, moneyPage, 1, 0);
+            ai_FillExchangeRows(ai_Chars[ai_PlayerId].inventory, ai_StatsMoneyRows, moneyPage, 1, 0);
         }
         if (bldPage != -1 && d2_ClickedId != -1) {
             for (i = 0; i < ai_StatsBldCount; i++) {
@@ -9234,7 +9125,7 @@ void ai_PlayerStatsPanel(void)
                     cm_BeginFieldBlock((char *)ai_MasterRows[i].bld, ai_MasterRows[i].bld->id);
                     cm_AddFieldDelta(4, 1, (unsigned short)((char *)&ai_MasterRows[i].bld->budget - cm_FieldObject), &value);
                     cm_SendFieldDeltas();
-                    master = (AICHARREC *)gm_FindCharacterByMaster(ai_MasterRows[i].bld);
+                    master = (AICHAR *)gm_FindCharacterByMaster(ai_MasterRows[i].bld);
                     value -= ai_MasterRows[i].bld->budget;
                     cm_BeginFieldBlock((char *)master, master->netId);
                     cm_AddFieldValues(4, 1, (char *)&master->budget - cm_FieldObject, &value);
@@ -9257,44 +9148,44 @@ void ai_PlayerStatsPanel(void)
 }
 
 /* the use callbacks of the Domizil table (lcamt.c defines them; prototypes here until lcamt.h can carry the
-   AICHARREC / G8USEVIEW views) */
-int ai_UseGoodAddMoney(AICHARREC *ch);
-int ai_UseGoodHeal(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodInfectOwner(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodSendHome(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills2(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodCureAilment(AICHARREC *ch);
-int ai_UseGoodHalveWorkerValue(AICHARREC *ch, G8USEVIEW *use);
+   AICHAR / G8USEVIEW views) */
+int ai_UseGoodAddMoney(AICHAR *ch);
+int ai_UseGoodHeal(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodCureAilment(AICHAR *ch);
+int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use);
 int ai_TrialStep1(G8CHARREC *ch, G8USEVIEW *use);
 int ai_TrialStep3(G8CHARREC *ch, G8USEVIEW *use);
 int ai_TrialStep4(G8CHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodRaiseRelation(AICHARREC *ch, G8USEVIEW *use);
-int ai_QuarrelCallback(AICHARREC *ch, int *req);
-int ai_UseGoodTrialStep(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodLowerOfficialRelations(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodTwoTrialSteps(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodCharmOtherSex(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodSowDiscord(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodTributeClaim(AICHARREC *ch);
-int ai_UseGoodDrainActionPoints(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodDrainSkill(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodHarmBuilding(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodSpoilStock(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodCharmOfficials(AICHARREC *ch, G8USEVIEW *use);
+int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use);
+int ai_QuarrelCallback(AICHAR *ch, int *req);
+int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodTributeClaim(AICHAR *ch);
+int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use);
 int ai_UsePayGood(G8CHARREC *ch);
-int ai_UseGoodDrainActionPoints8(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodHoldRound(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodCharmPartner(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills3(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodFrameChar(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodFrameChar2(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodHeatBuilding(AICHARREC *ch, G8USEVIEW *use);
+int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use);
 int ai_UseEventGood(G8CHARREC *ch);
-int ai_UseGoodStaffBonus(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodPettyLoss(AICHARREC *ch, G8USEVIEW *use);
-int ai_UseGoodSkillBonus(AICHARREC *ch);
-int ai_UseGoodDistrust(AICHARREC *ch, G8USEVIEW *use);
+int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodSkillBonus(AICHAR *ch);
+int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use);
 /* the unit's data in the original's order: .rdata gm_SpecialItemGroups 0x5eed94 and its count (this object's named
    constants, after lc.c's literals 52.0f / 0.435f / 0.48f; its literal 128.0 follows), .data ai_ChildWindowId 0x62c418
    (the first of the block, after lc.c's strings) .. "panel\useobj", .bss 0x6f2f60 .. 0x6f2f84 and the common rows */
@@ -9371,7 +9262,7 @@ G9DOMIZIL ai_DomizilTable[0x42] = {  /* 0x62c420, the 0x42 entries of 0x1c: id +
 };
 int ai_DomizilCount = 0x42;  /* 0x62cb58, the number of 0x1c-byte entries of the Domizil table ai_DomizilTable (0x62c420) */
 GAPDATA full_data_62cb5c[88] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x01, 0x01, 0xff, 0x01, 0xff, 0xff, 0x00, 0x00, 0x01, 0x02, 0x00, 0xff, 0x01, 0xff, 0xff, 0x01, 0xff, 0x00, 0x03, 0x01, 0x00, 0x00, 0xff, 0xff, 0x01, 0xff, 0x01, 0x04, 0x00, 0xff, 0x00, 0x00, 0xff, 0x01, 0x00, 0x01, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0x00, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x07, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x01, 0x00, 0x01, 0xff, 0x00, 0x00, 0x00, 0x00, 0x08, 0x01, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00 };  /* 0x62cb5c, the rest of the 92-byte block at 0x62cb58 (no reader; lcdom's .data after the count) */
-struct AICHARREC *ai_InvChar = 0;  /* 0x6f2f60, the character whose inventory the inventory child window (ai_OpenInventoryWindow) lists: ai_OpenInventoryWindow points it at ai_Chars[id]; the transport window sends its goods by its netId */
+struct AICHAR *ai_InvChar = 0;  /* 0x6f2f60, the character whose inventory the inventory child window (ai_OpenInventoryWindow) lists: ai_OpenInventoryWindow points it at ai_Chars[id]; the transport window sends its goods by its netId */
 LCSETTINGS lc_Settings = { 0 };  /* 0x6f2f64, the escort kind of the last transport order, the goods-reserve clock and cursor and the equip window's row count (see LCSETTINGS) */
 int ai_StatsBldCount = 0;  /* 0x6f2f80, the rows of the stats panel's building page ai_ShowBuildingRows filled (ai_OpenBuildingListPage stores it, ai_PlayerStatsPanel loops over it) */
 int ai_StatsPage = 0;  /* 0x6f2f84, the stats panel's page selected last (ai_PlayerStatsPanel selects the radio group with it and stores the radio's sel back) */

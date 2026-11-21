@@ -487,7 +487,7 @@ int ai_LedSelectBits(int idx, char *c)
 {
     int r = 0;
 
-    if ((AICHAR *)((AICHAR *)c)->bld == (AICHAR *)&ai_Chars[idx])
+    if ((AICHAR *)((AICHAR *)c)->bld == &ai_Chars[idx])
         r = 0x800;
     if (gm_AllowAll != 0)
         r = 0x800;
@@ -4512,7 +4512,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
             txt_Format(buf, 0x11b8, c->id);
             sv_SetStatusText(buf);
         }
-        if ((AICHAR *)o->owner != c) {
+        if (o->owner != c) {
             if (o->flagObj != 0) {
                 d3if_Delete(o->flagObj);
                 o->flagObj = 0;

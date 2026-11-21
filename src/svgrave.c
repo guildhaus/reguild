@@ -1940,7 +1940,7 @@ void ai_GraveFogWindow(AIBLD *rec)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x90;
                     msg.flags = 2;
-                    msg.to = ((AICHAR *)&ai_Chars[ai_PlayerId])->netId;
+                    msg.to = ai_Chars[ai_PlayerId].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[1] = d2_GetObjValue(factor1);
@@ -2416,9 +2416,9 @@ void ai_GraveSeance(AIBLD *rec)
         e = (GVENTRY *)ai_SeancePick((char *)rec, &w, &out);
         d2_CloseView(w.win);
         if (e != 0) {
-            cm_SendSetField(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, 0x1cc, 4, SEANCE_HELD, 0);
+            cm_SendSetField(ai_Chars[ai_PlayerId].netId, 0x1cc, 4, SEANCE_HELD, 0);
             if (out.cost != 0)
-                gm_SendMoneyDelta(((AICHAR *)&ai_Chars[ai_PlayerId])->netId, -out.cost);
+                gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -out.cost);
             switch (out.kind) {
             case 1:
                 ai_SeanceGhost(rec, &out);
@@ -2611,7 +2611,7 @@ void ai_GraveHauntContact(AIBLD *rec)
                     msg.type = 0x88;
                     msg.flags = 2;
                     msg.arg[3] = n;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[1] = p->netId;
@@ -2719,7 +2719,7 @@ void ai_GraveAgeContact(AIBLD *rec)
                         msg.type = 0x89;
                         msg.flags = 1;
                         msg.arg[3] = 4;
-                        msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                        msg.to = ai_Chars[rec->owner].netId;
                         msg.fromId = rec->id;
                         msg.time = ai_Time;
                         msg.arg[2] = f->netId;
@@ -2867,7 +2867,7 @@ void ai_GraveInsuranceContact(AIBLD *rec)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x8a;
                     msg.flags = 1;
-                    msg.to = ((AICHAR *)&ai_Chars[rec->owner])->netId;
+                    msg.to = ai_Chars[rec->owner].netId;
                     msg.fromId = rec->id;
                     msg.time = ai_Time;
                     msg.arg[0] = f->netId;
@@ -2959,7 +2959,7 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel)
         memset(&msg, 0, sizeof(msg));
         msg.type = 0x8f;
         msg.flags = 1;
-        msg.to = ((AICHAR *)&ai_Chars[ai_PlayerId])->netId;
+        msg.to = ai_Chars[ai_PlayerId].netId;
         msg.fromId = rec->id;
         msg.time = ai_Time;
         if (obj != 0)
