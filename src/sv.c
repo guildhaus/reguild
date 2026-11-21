@@ -3767,7 +3767,7 @@ void sv_RefreshPanel(void)
     int icons[8];
     unsigned char kind;
     unsigned short fl;
-    unsigned char *bld;
+    AIBLD *bld;
     AIOBJ *load, *goods;
     char amount[64];
     char text[256];
@@ -3953,8 +3953,8 @@ void sv_RefreshPanel(void)
     d2_SetForm(sv_PanelForm, 2);
     SV_CLEAR_PANEL_WIDGETS(i)
     d2_RemoveWindowObjects(d2_LastWindow, 1);
-    if (SV_SELCART->job24 != 0 && (bld = (unsigned char *)gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
-        io_PrintText("$Y$Z%s", *bld * 0xe + 0x48e);
+    if (SV_SELCART->job24 != 0 && (bld = gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
+        io_PrintText("$Y$Z%s", bld->type * 0xe + 0x48e);
     load = gm_Query((void *)SV_SELCART->list, 1, 0, 0x1dd);
     if (load == 0)
         return;

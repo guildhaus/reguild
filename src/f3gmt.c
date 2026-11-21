@@ -680,7 +680,7 @@ void gm_SyncMarket(unsigned p)
     int list[8];
     GMSTOCK rec;
     GMSTOCK *stock, *g, *g2;
-    unsigned char *b;
+    AIBLD *b;
     AIOBJ *o, *o2, *m, *a1;
     char *gp;
     int i, j, k, h;
@@ -700,10 +700,10 @@ void gm_SyncMarket(unsigned p)
     if (p == ai_OwnPlayer) {
         for (i = 0; i < 0x55; i++)
             stock[i].amount = 0;
-        b = (unsigned char *)gm_BuildQuery(1, 6);
+        b = gm_BuildQuery(1, 6);
         while (b != 0) {
-            if (ai_BTypes[*b].kind != 10) {
-                o = gm_Query(((AIBLD *)b)->objList, 1, 0, 0xff);
+            if (ai_BTypes[b->type].kind != 10) {
+                o = gm_Query(b->objList, 1, 0, 0xff);
                 for (i = 0; o != 0 && i < 0x55; i++) {
                     {
                         g = &stock[i];
@@ -720,7 +720,7 @@ void gm_SyncMarket(unsigned p)
                     }
                 }
             }
-            b = (unsigned char *)gm_BuildNext();
+            b = gm_BuildNext();
         }
         for (i = 0; i < 0x55; i++) {
             rec = stock[i];
@@ -800,7 +800,7 @@ void gm_RefreshGoodsLists(unsigned p)
 {
     int list[8];
     GMSTOCK *stock, *g, *g2;
-    unsigned char *b;
+    AIBLD *b;
     AIOBJ *o, *o2;
     char *gp;
     int i, j, k, cnt;
@@ -821,10 +821,10 @@ void gm_RefreshGoodsLists(unsigned p)
         return;
     for (i = 0; i < 0x55; i++)
         stock[i].amount = 0;
-    b = (unsigned char *)gm_BuildQuery(1, 6);
+    b = gm_BuildQuery(1, 6);
     while (b != 0) {
-        if (ai_BTypes[*b].kind != 10) {
-            o = gm_Query(((AIBLD *)b)->objList, 1, 0, 0xff);
+        if (ai_BTypes[b->type].kind != 10) {
+            o = gm_Query(b->objList, 1, 0, 0xff);
             for (i = 0; o != 0 && i < 0x55; i++) {
                 g = &stock[i];
                 if (g->item != 0 && gm_Query(o->list, 1, 0, g->item) != 0) {
@@ -839,7 +839,7 @@ void gm_RefreshGoodsLists(unsigned p)
                 }
             }
         }
-        b = (unsigned char *)gm_BuildNext();
+        b = gm_BuildNext();
     }
     for (i = 0; i < 0x55; i++) {
         g = &stock[i];
@@ -1002,7 +1002,7 @@ int gm_GoodsStock(int p, int i)
     int sum;
     GMSTOCK *g;
     GMSTOCKGROUP *s;
-    int k, o;
+    int k; AIBLD *o;
 
     sum = 0;
     g = &GM_BLOCK(p)->goods[i];
@@ -1010,10 +1010,10 @@ int gm_GoodsStock(int p, int i)
     if (s->group == 0)
         return 0;
     for (k = 4; k != 0; k--, s++) {
-        if (s->group != 0 && (o = (int)gm_BuildQuery(1, 5, s->group)) != 0) {
+        if (s->group != 0 && (o = gm_BuildQuery(1, 5, s->group)) != 0) {
             do {
                 sum = (int)((float)sum + s->factor);
-                o = (int)gm_BuildNext();
+                o = gm_BuildNext();
             } while (o != 0);
         }
     }
@@ -1504,7 +1504,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
     float rot[3];
     AIOBJ *it;
     AIOBJ *load;
-    unsigned char *home;
+    AIBLD *home;
     int scene, saved, holder;
     D3OBJECT *dummy;
     D3OBJECT *cart;
@@ -1616,19 +1616,19 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         load = (AIOBJ *)gm_CreateObject(r->objId, 0x1dd, 1);
         load->count = r->type - 0x133;
         load->lvl1c = (unsigned char)r->type - 0x33;
-        home = (unsigned char *)gm_BuildQuery(1, 1, id);
+        home = gm_BuildQuery(1, 1, id);
         scene = 0;
-        if (home != 0 && gm_IsHomeType((AIBLD *)home) != 0)
-            scene = init_BuildingSceneUniverse((AIBLD *)home);
+        if (home != 0 && gm_IsHomeType(home) != 0)
+            scene = init_BuildingSceneUniverse(home);
         saved = d3_CurrentScene;
         d3if_SelectScene(scene, 1);
-        dummy = d3_FindObject(gm_IsHomeType((AIBLD *)home) != 0 ? 0 : (int)((AIBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");
+        dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : (int)home->object, 0x100, 0, "dummy_TRANSPORTER");
         if (dummy != 0)
             d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)pos);
-        else if (((AIBLD *)home)->object != 0) {
-            pos[0] = ((AIBLD *)home)->object->pos.x;
-            pos[1] = ((AIBLD *)home)->object->pos.y;
-            pos[2] = ((AIBLD *)home)->object->pos.z;
+        else if (home->object != 0) {
+            pos[0] = home->object->pos.x;
+            pos[1] = home->object->pos.y;
+            pos[2] = home->object->pos.z;
         } else {
             pos[0] = 0;
             pos[1] = 0;
@@ -1674,12 +1674,12 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         if (home == 0) {
             model->scriptGroup = -1;
             group = -1;
-        } else if (gm_IsHomeType((AIBLD *)home) == 0) {
+        } else if (gm_IsHomeType(home) == 0) {
             ch_SetVisible(model, 0);
             model->scriptGroup = -1;
             group = -1;
-        } else if (gm_IsHomeType((AIBLD *)home) != 0) {
-            group = ((AIBLD *)home)->id;
+        } else if (gm_IsHomeType(home) != 0) {
+            group = home->id;
             model->scriptGroup = -1;
         } else {
             model->scriptGroup = -1;
@@ -2239,7 +2239,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     int i, j, n, any, id;
     GMGOOD *g;
     unsigned short u;
-    unsigned short *s;
+    AIOBJ *s;
     AIOBJ *o;
 
     base = (char *)ai_BTypes;
@@ -2320,17 +2320,17 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
             }
         }
     }
-    s = (unsigned short *)gm_Query((void *)b->objList, 1, 4, 2);
+    s = gm_Query((void *)b->objList, 1, 4, 2);
     while (s != 0) {
-        if (*s != 0xfd) {
-            b->mainRoom = *s;
+        if (s->type != 0xfd) {
+            b->mainRoom = s->type;
             break;
         }
-        s = (unsigned short *)gm_QueryNext();
+        s = gm_QueryNext();
     }
-    s = (unsigned short *)gm_GetGebaeudeHauptraum(b);
+    s = gm_GetGebaeudeHauptraum(b);
     if (s != 0)
-        b->mainRoom = *s;
+        b->mainRoom = s->type;
     if (gm_IsHomeType(b) != 0)
         b->travel30 = 0x1388;
     switch (k) {
@@ -7477,7 +7477,7 @@ int gm_TakeableCount(char *c, int proto, int n)
     int i;
     GMGOOD *g;
     AIOBJ *o;
-    unsigned short *w;
+    AIOBJ *w;
 
     found = 0;
     g = GM_GOOD(proto);
@@ -7501,12 +7501,12 @@ int gm_TakeableCount(char *c, int proto, int n)
             v = n;
     } else {
         kinds = 0;
-        w = (unsigned short *)gm_Query((void *)ch->inventory, 1, 5);
+        w = gm_Query((void *)ch->inventory, 1, 5);
         if (w != 0) {
             do {
-                if (GM_GOOD(*w)->type != 9)
+                if (GM_GOOD(w->type)->type != 9)
                     kinds++;
-                w = (unsigned short *)gm_QueryNext();
+                w = gm_QueryNext();
             } while (w != 0);
         }
         if (kinds < 6) {

@@ -6525,7 +6525,7 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
     int down;
     int up;
     int bar;
-    unsigned short *obj;
+    AIOBJ *obj;
     AIJOB *ev;
     float total;
     AIBLD *found;
@@ -6554,9 +6554,9 @@ void ai_RoomUpgradeWindow(AIBLD *bld)
             }
         }
     }
-    for (obj = (unsigned short *)gm_Query((void *)bld->objList, 1, 5); obj != 0; obj = (unsigned short *)gm_QueryNext()) {
-        g = &ai_Goods[*obj];
-        if ((g->type == 2 || g->type == 6) && *obj != 0xfd)
+    for (obj = gm_Query((void *)bld->objList, 1, 5); obj != 0; obj = gm_QueryNext()) {
+        g = &ai_Goods[obj->type];
+        if ((g->type == 2 || g->type == 6) && obj->type != 0xfd)
             built++;
     }
     win = d2_OpenForm(0, 0, "Panel\\Gebaeude_Raum_Erweitern");
@@ -7464,7 +7464,7 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
     int price;
     AIGOOD *g;
     int cls;
-    unsigned char *bld;
+    AIBLD *bld;
     AIOBJ *store;
     unsigned short *item;
 
@@ -7480,17 +7480,17 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
         paid = take;
     }
     while (remaining > 0 && stop == 0) {
-        bld = (unsigned char *)gm_BuildQuery(1, 4, ch->id);
+        bld = gm_BuildQuery(1, 4, ch->id);
         stop = 1;
-        for (; bld != 0; bld = (unsigned char *)gm_BuildNext()) {
+        for (; bld != 0; bld = gm_BuildNext()) {
             if (remaining <= 0)
                 break;
-            cls = gm_BuildingClass(*bld);
+            cls = gm_BuildingClass(bld->type);
             if (cls != 1 && cls != 2 && cls != 8)
                 continue;
-            store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
+            store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
             if (store == 0) {
-                store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x116);
+                store = gm_Query((void *)bld->objList, 2, 6, 0, 0x116);
                 if (store == 0)
                     continue;
             }
@@ -7520,15 +7520,15 @@ int ai_LiquidateAssets(int to, AICHARREC *ch, int amount, char *note)
     }
     stop = 0;
     while (remaining > 0 && stop == 0) {
-        bld = (unsigned char *)gm_BuildQuery(1, 4, ch->id);
+        bld = gm_BuildQuery(1, 4, ch->id);
         stop = 1;
-        for (; bld != 0; bld = (unsigned char *)gm_BuildNext()) {
+        for (; bld != 0; bld = gm_BuildNext()) {
             if (remaining <= 0)
                 break;
-            cls = gm_BuildingClass(*bld);
+            cls = gm_BuildingClass(bld->type);
             if (cls != 1 && cls != 2 && cls != 8)
                 continue;
-            store = gm_Query((void *)((AIBLD *)bld)->objList, 2, 6, 0, 0x2a);
+            store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
             if (store == 0)
                 continue;
             for (item = (unsigned short *)gm_Query((void *)store->list, 1, 5); item != 0;
@@ -7591,7 +7591,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
     G15TREE *type;
     D3OBJECT *model;
     D3OBJECT *obj;
-    unsigned short *item;
+    AIOBJ *item;
     char *room;
     int ground;                     /* the PFLANZBAR ground type */
     int view;
@@ -7632,9 +7632,9 @@ void ob_HandleBepflanzung(AIBLD *bld)
     room = (char *)gm_Query((void *)bld->objList, 1, 0, 0xff);
     if (room == 0)
         return;
-    for (item = (unsigned short *)gm_Query((void *)((AIOBJ *)room)->list, 1, 4, 0x17); item != 0;
-         item = (unsigned short *)gm_QueryNext())
-        types[count++] = *item;
+    for (item = gm_Query((void *)((AIOBJ *)room)->list, 1, 4, 0x17); item != 0;
+         item = gm_QueryNext())
+        types[count++] = item->type;
     view = d2_OpenForm(d2_ScreenW - 0x5f, 0x10a, "Misc\\PlantBar");
     if (view == -1)
         return;

@@ -3461,7 +3461,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     int *prec;
     int win;
     int button;
-    int found;
+    AIOBJ *found;
     int cost;
     int slot;
     int ok;
@@ -3513,9 +3513,9 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                         continue;
                     good = &ai_Goods[i];
                     if (rec != 0)
-                        found = (int)gm_Query((void *)rec->list, 1, 0, i);
+                        found = gm_Query((void *)rec->list, 1, 0, i);
                     else
-                        found = (int)gm_Query((void *)b->objList, 2, 6, 0, i);
+                        found = gm_Query((void *)b->objList, 2, 6, 0, i);
                     if (found == 0) {
                         /* research it */
                         if (ai_Goods[i].type == 6) {
@@ -7112,19 +7112,19 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
 
 void ai_OpenStammtisch(AIBLD *bld, AIOBJ *room)
 {
-    int rec;
+    AIOBJ *rec;
     int b;
 
-    rec = (int)gm_Query(room->list, 1, 0, 0x12d);
+    rec = gm_Query(room->list, 1, 0, 0x12d);
     if (rec != 0) {
         b = he_FindEvent(2, 0, 0x2a, 3, bld->id);
         if (b != 0) {
             if (((AICHARREC *)ai_Chars)[ai_PlayerId].id == bld->owner) {
-                ai_StammtischWindow(bld, (AIOBJ *)rec);
+                ai_StammtischWindow(bld, rec);
                 sv_CameraFollow();
                 return;
             }
-            ai_StammtischJoinWindow(bld, (AIOBJ *)rec);
+            ai_StammtischJoinWindow(bld, rec);
         }
     }
     sv_CameraFollow();
@@ -9316,19 +9316,19 @@ void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
 
 void ai_SwitchRoom(int index, unsigned room)
 {
-    unsigned short *p;
+    AIOBJ *p;
     int i;
 
     if (index != -1) {
-        p = (unsigned short *)gm_Query(ai_PlayerBuilding->objList, 1, 4, 2);
+        p = gm_Query(ai_PlayerBuilding->objList, 1, 4, 2);
         if (p == 0)
             return;
         for (i = 1; i < index; i++) {
-            p = (unsigned short *)gm_QueryNext();
+            p = gm_QueryNext();
             if (p == 0)
                 return;
         }
-        ai_PlayerBuilding->mainRoom = *p;
+        ai_PlayerBuilding->mainRoom = p->type;
     } else
         ai_PlayerBuilding->mainRoom = room;
     sv_PopRequest = (sv_FrameDepth - sv_FrameBase) + 1;
@@ -11770,7 +11770,7 @@ void ai_ChurchListener(AIBLD *building, AIOBJ *room)
     int spendenkasten = 0;
     int predigt = 0;
     int becken = 0;
-    int confessionRoom;
+    AIOBJ *confessionRoom;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ChurchListener, 0x67fff) != 0) {
@@ -11779,7 +11779,7 @@ void ai_ChurchListener(AIBLD *building, AIOBJ *room)
             becken = sv_RegisterNamePlate("ob_WEIHWASSERBECKEN", txt_Ptrs[0x1975], 0x16);
         }
         if (building->owner != ai_PlayerId && building->owner != 0xffff) {
-            confessionRoom = (int)gm_Query(building->objList, 2, 6, 0, 0xf2);
+            confessionRoom = gm_Query(building->objList, 2, 6, 0, 0xf2);
             if (confessionRoom != 0)
                 beichtstuhl = sv_RegisterNamePlate("ob_KIRCHE_BEICHTSTUHLRAUM", txt_Ptrs[0x197e], 0x16);
             else
@@ -11874,12 +11874,12 @@ typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHA
    its id) and, with no line, 0x19af; the pump 0x5309a0 (this, 0x677c7), the exit 0x52d7a0 / 0x4758f0 */
 void ai_DungeonPlanWindow(AIBLD *bld)
 {
-    int room;
+    AIOBJ *room;
     int win;
     int n = 0;
     int i;
 
-    room = (int)gm_Query((void *)bld->objList, 1, 0, 0xba);
+    room = gm_Query((void *)bld->objList, 1, 0, 0xba);
     if (room == 0)
         return;
     win = d2_OpenForm(0, 0, "locations\\kerker\\kerkerplan");
