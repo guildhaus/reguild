@@ -1078,13 +1078,13 @@ fail:
 
 void ai_HookChapter2Step5(int arg)
 {
-    char *r;
+    AIBLD *r;
 
     if (arg != 1)
         return;
-    r = (char *)gm_BuildQuery(1, 5, 0xa);
+    r = (AIBLD *)gm_BuildQuery(1, 5, 0xa);
     if (r)
-        sv_SelectPanelObject((unsigned char *)r, -1, (char *)(unsigned)&ch_EmptyName);
+        sv_SelectPanelObject(r, -1, (char *)(unsigned)&ch_EmptyName);
 }
 /* 0x576ab0, the kinds 0x19 / 0x1a with a record whose word is 0x13: the kind 0x19 only in the pending state 4
    (state 0xa), the kind 0x1a in any state (state 0xb); else 3 */
@@ -1538,7 +1538,7 @@ void ai_HookChapter3Intro(int arg)
     q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x74);
     if (!q)
         return;
-    sv_SelectPanelObject((unsigned char *)r, q->objId, ch_EmptyName);
+    sv_SelectPanelObject(r, q->objId, ch_EmptyName);
 }
 /* 0x577540, when `arg` is 0 and the building 0x6f2308 is not already of the table byte 0x2: finds a record
    (0x501190 (2, 5, 2, 4, player) with the player word 0x6f25b8), picks 0x4ffe90 (r+0x5d, 1, 0, 0x13) and passes
@@ -1563,7 +1563,7 @@ void ai_HookChapter5Intro(int arg)
     q = (AIOBJ *)gm_Query((void *)r->objList, 1, 0, 0x13);
     if (!q)
         return;
-    sv_SelectPanelObject((unsigned char *)r, q->objId, ch_EmptyName);
+    sv_SelectPanelObject(r, q->objId, ch_EmptyName);
 }
 /* 0x5775c0, the run hook of the run record FTInitChapter5Step4: at the run's start (end 0) sends two messages for
    the player's character - cm_SendSetField (netId, 0x1c8, 4, 0x4000, 0) and cm_SendMoveGoodsUnchecked (netId, -1,

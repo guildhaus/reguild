@@ -1247,7 +1247,7 @@ void ai_ValidateBookmarks(void)
    the panel (sv_SelectPanelObject) */
 void ai_SelectBookmark(void)
 {
-    char *b;
+    AIBLD *b;
     AIOBJ *o;
     int i;
 
@@ -1257,12 +1257,12 @@ void ai_SelectBookmark(void)
         if (ai_Bookmarks[i].key == kb_Last && kb_Down[0x2a] == 0) {
             ai_ValidateBookmarks();
             if (ai_Bookmarks[i].building != -1) {
-                b = gm_FindBuildingById(ai_Bookmarks[i].building);
+                b = (AIBLD *)gm_FindBuildingById(ai_Bookmarks[i].building);
                 o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (o != 0)
-                    sv_SelectPanelObject((unsigned char *)b, o->objId, ch_EmptyName);
+                    sv_SelectPanelObject(b, o->objId, ch_EmptyName);
                 else
-                    sv_SelectPanelObject((unsigned char *)b, -1, ch_EmptyName);
+                    sv_SelectPanelObject(b, -1, ch_EmptyName);
                 return;
             }
         }

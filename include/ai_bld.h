@@ -62,6 +62,8 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
                         int buyOutBase;                 /* 0x65, of a class 2 building: with buyOutExtra what its buy-out pays
                                                            half of, and set to that payment (lc.c ai_BuildingWindow; reasoned) */
                         int playerSlot;                 /* 0x65, of a kind 0x47 building: its ai_PlayerSlots index (sv_OpenBuildingPanel) */
+                        int ownerNetId;                 /* 0x65, of a class 4 building: the netId of the character it belongs to
+                                                           (sv_SelectPanelObject selects it for that player only) */
                         int interest;                   /* 0x65, of a bank: the interest rate its owner sets, 5 .. 0x28 (lc.c ai_CreditReleaseWindow
                                                            sends it as the field delta 0x65) */
                         unsigned char residents;        /* 0x65, of a home (AIBTYPE.kind 1): the characters whose bld2 it is, below the

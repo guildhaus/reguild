@@ -3599,7 +3599,7 @@ void ai_TechTreeWindow(int bld, int room)
                         strcpy(name, good->name);
                         strupr(name);
                         sprintf(objName, "ob_%s", name);
-                        sv_SelectPanelObject((unsigned char *)bld, rec->objId, objName);
+                        sv_SelectPanelObject((AIBLD *)bld, rec->objId, objName);
                     }
                 }
             }

@@ -92,15 +92,6 @@ extern struct D2SURF *sv_GroundplanSurf, *sv_GroundplanView;  /* 0x6f22c4, 0x6f2
 /* the object / character record fields sv.c reads (AIBLD / AICHAR in ai.h; ai.h cannot be included here: its
    declarations of ai_Time / ai_Chars / ai_BTypes / ai_Blds clash with gv.h's char views). Views, as gv.h's ORDCHAR */
 #pragma pack(push, 1)
-typedef struct SVOBJREC {
-    unsigned char kind;                 /* +0x00, index into ai_BTypes (0x47: a building, 4: an object of the player) */
-    char pad01[0x28];
-    short sceneRec;                     /* +0x29, the scene record word the panel shows for the object */
-    char pad2b[0x32];
-    int objList;                        /* +0x5d, head of its object-instance list (gm_Query's list) */
-    char pad61[4];
-    int ownerId;                        /* +0x65, the character id of a type-4 object */
-} SVOBJREC;
 typedef struct SVPLATE {                /* 200 bytes, a name plate record: the object it belongs to */
     char *obj;                          /* +0x00, the object that shows the plate, 0 = free */
     char name[0x40];                    /* +0x04, the object's name (sv_RegisterNamePlate finds the plate by it) */
@@ -578,28 +569,26 @@ int sv_OpenMessageBox(int text, unsigned char flags)
    sv_PopRequest is set to the frame difference (sv_FrameDepth - sv_FrameBase), else the record is taken over and shown
    (init_LoadObjectScene for a scene universe that is still dirty); finally sv_PopTo(0x591520) */
 
-void sv_SelectPanelObject(unsigned char *o, int b, char *c)
+void sv_SelectPanelObject(AIBLD *o, int b, char *c)
 {
     AIBTYPE *bt;
-    unsigned char *cur = 0;
+    AIBLD *cur = 0;
     int w;
     unsigned short *old;
     int oldv;
-    SVOBJREC *bld;
 
-    bld = (SVOBJREC *)o;
     if (sv_PanelFlag != 0)
         return;
-    if (!(ai_PlayerId == 0xffff || ai_Chars[ai_PlayerId].heldRounds == 0 || (bt = &ai_BTypes[bld->kind])->kind == 6 || (bt->kind == 4 && bld->ownerId == ((SVCHARREC *)&ai_Chars[ai_PlayerId])->netId)))
+    if (!(ai_PlayerId == 0xffff || ai_Chars[ai_PlayerId].heldRounds == 0 || (bt = &ai_BTypes[o->type])->kind == 6 || (bt->kind == 4 && o->ownerNetId == ((SVCHARREC *)&ai_Chars[ai_PlayerId])->netId)))
         return;
     if (ai_PlayerBuilding != 0)
-        cur = (unsigned char *)ai_PlayerBuilding;
+        cur = ai_PlayerBuilding;
     else if (ai_FallbackBuilding != 0)
-        cur = (unsigned char *)ai_FallbackBuilding;
+        cur = ai_FallbackBuilding;
     sv_QuickJump.object = (char *)o;
-    sv_QuickJump.record = (unsigned short *)gm_Query(bld->objList, 1, 1, b);
-    if (bld->kind == 0x47)
-        sv_QuickJump.record = (unsigned short *)gm_Query(bld->objList, 1, 0, 0xfd);
+    sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 1, b);
+    if (o->type == 0x47)
+        sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 0, 0xfd);
     strcpy(sv_QuickJump.contactName, c);
     sv_PanelFlag = 1;
     if (sv_QuickJump.record == 0 || *sv_QuickJump.record == 0) {
@@ -608,8 +597,8 @@ void sv_SelectPanelObject(unsigned char *o, int b, char *c)
             return;
         }
     } else if (sv_QuickJump.record != sv_PanelShown) {
-        if (o == cur && gm_IsHomeType(cur) != 0) {
-            bld->sceneRec = *sv_QuickJump.record;
+        if (o == cur && gm_IsHomeType((unsigned char *)cur) != 0) {
+            o->mainRoom = *sv_QuickJump.record;
             if (sv_PanelShown != 0) {
                 sv_PopRequest = (sv_FrameDepth - sv_FrameBase) + 1;
                 return;
@@ -619,8 +608,8 @@ void sv_SelectPanelObject(unsigned char *o, int b, char *c)
         }
         old = sv_PanelShown;
         oldv = ai_FrameWait;
-        bld->sceneRec = *sv_QuickJump.record;
-        if (gm_IsHomeType(o) == 0 && gm_IsType10(o) == 0) {
+        o->mainRoom = *sv_QuickJump.record;
+        if (gm_IsHomeType((unsigned char *)o) == 0 && gm_IsType10((unsigned char *)o) == 0) {
             sv_PanelShown = sv_QuickJump.record;
             sv_PanelFlag = 0;
             ai_FrameWait = 0;
@@ -1219,7 +1208,7 @@ void sv_UpdateGroundplan(unsigned flags)
                             && (sv_PanelShown == 0 || (obj->id != *sv_PanelShown && ai_ScriptQuery(0x19, (int)ai_FallbackBuilding, 0, obj->id) == 1))
                             && !(ai_Chars[ai_PlayerId].heldRounds > 0)) {
                             if (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, &obj->id, 0) & 0x4000)
-                                sv_SelectPanelObject((unsigned char *)ai_FallbackBuilding, obj->objId, ch_EmptyName);
+                                sv_SelectPanelObject(ai_FallbackBuilding, obj->objId, ch_EmptyName);
                         } else if (obj != 0)
                             d2_CopyCaption((char *)txt_ObjectNames[obj->id][0]);
                     }

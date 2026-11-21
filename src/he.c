@@ -12414,7 +12414,7 @@ void he_AllocMessageBox(AIJOB *ev)
         he_FreeEvent((int *)ev);
 }
 
-void sv_SelectPanelObject(unsigned char *o, int b, char *c);
+void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 
 /* 0x557190, the run handler of the message box event 17 (HEMSGBOX; allocated by he_AllocMessageBox), only for the player's
    own character while a game runs. Stage 0 opens the event window by the flavour flags: 2 a quick jump
@@ -12577,7 +12577,7 @@ void he_RunMessageBox(int ev)
                     bld = (AIBLD *)gm_BuildQuery(1, 1, m->bld);
                     if (bld == 0)
                         return;
-                    sv_SelectPanelObject((unsigned char *)bld, m->obj, &m->sel);
+                    sv_SelectPanelObject(bld, m->obj, &m->sel);
                 }
                 if ((m->flags & 0x10) != 0 && m->voice != 0) {
                     sb_Stop((struct SBSAMPLE *)m->voice, 0);
@@ -14832,7 +14832,7 @@ void he_RunMasterExamNotice(int ev)
             c = (AICHAR *)gm_FindChar(e->ownerCh);
             if (c->bld2 != 0) {
                 o = (AIOBJ *)gm_Query((void *)c->bld2->objList, 2, 0, 0x13, 6);
-                sv_SelectPanelObject((unsigned char *)c->bld2, o->objId, ch_EmptyName);
+                sv_SelectPanelObject(c->bld2, o->objId, ch_EmptyName);
             }
             he_ReleaseSlot(ev);
             he_FreeEvent((int *)ev);
@@ -19255,11 +19255,11 @@ void he_RunTutorialBuildingTour(AIJOB *ev)
                 if (o == 0)
                     o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)pick);
                 if (o != 0)
-                    sv_SelectPanelObject((unsigned char *)pick, o->objId, ch_EmptyName);
+                    sv_SelectPanelObject(pick, o->objId, ch_EmptyName);
                 else
-                    sv_SelectPanelObject((unsigned char *)pick, -1, ch_EmptyName);
+                    sv_SelectPanelObject(pick, -1, ch_EmptyName);
             } else {
-                sv_SelectPanelObject((unsigned char *)pick, -1, ch_EmptyName);
+                sv_SelectPanelObject(pick, -1, ch_EmptyName);
             }
         }
         ev->end = ai_Time;

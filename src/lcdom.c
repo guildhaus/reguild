@@ -1506,7 +1506,7 @@ void ai_UpdateBldCarts(SVBOOK *book, AIBLD *bld)
     if (book->page == 2 && d2_ClickedId == 5) {
         for (i = 0; i < 3; i++) {
             if (ai_BldCartButtons[i] != -1 && d2_PointerObj == ai_BldCartButtons[i])
-                sv_SelectPanelObject((unsigned char *)d2_Objs[ai_BldCartButtons[i]].user, -1, ch_EmptyName);
+                sv_SelectPanelObject((AIBLD *)d2_Objs[ai_BldCartButtons[i]].user, -1, ch_EmptyName);
         }
     }
 }

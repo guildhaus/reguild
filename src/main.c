@@ -4642,10 +4642,10 @@ void main_GameLoop(int ctl)
         ai_FrameWait = 2;
         if (bld != 0 && inst != 0) {
             init_LoadObjectScene(inst->type);
-            sv_SelectPanelObject((unsigned char *)bld, inst->objId, ch_EmptyName);
+            sv_SelectPanelObject(bld, inst->objId, ch_EmptyName);
         } else {
             init_LoadBuildingScene(bld->type);
-            sv_SelectPanelObject((unsigned char *)bld, -1, ch_EmptyName);
+            sv_SelectPanelObject(bld, -1, ch_EmptyName);
         }
     }
     while (ai_PlayerId < 0x300 && ai_GameOver == 0 && ai_Chars[ai_PlayerId].kind != 6)

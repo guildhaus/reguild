@@ -44,7 +44,7 @@ int sv_MessageBox(int text, unsigned flags);                            /* 0x521
 int sv_MessageBoxGreen(int a, int b, unsigned flags);                   /* 0x521410 */
 int sv_MessageBoxYesNo(int text, unsigned flags);                       /* 0x5216a0 */
 int sv_OpenMessageBox(int text, unsigned char flags);                   /* 0x521900 */
-void sv_SelectPanelObject(unsigned char *o, int b, char *c);            /* 0x521960 */
+void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);             /* 0x521960 */
 void sv_DrawPanelPointer(void);                                         /* 0x521ba0 */
 void sv_SceneLoadProgress(int kind, int cur, int total);                /* 0x521c10 */
 void sv_BuildScreenLayout(int s);                                       /* 0x521e70 */

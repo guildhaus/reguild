@@ -1215,7 +1215,7 @@ int gm_LevelPayout(int v, int kind);
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 int sv_IsCartAtDoor();
 int init_BuildingSceneUniverse();
-void sv_SelectPanelObject(unsigned char *o, int b, char *c);
+void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g);
 int sv_IsAtDoor();
 int ord_DispatchOrder(int id, char *c, int *m);
