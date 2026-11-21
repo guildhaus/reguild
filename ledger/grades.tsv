@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
@@ -2989,7 +2989,7 @@ exe	0x004fea50	gm_FindById	f3gmt	byte	readable
 exe	0x004feb30	gm_UpdatePlayers	f3gmt	byte	readable		
 exe	0x004feb60	gm_InitPlayerRecord	f3gmt	byte	readable		
 exe	0x004fec10	gm_SyncMarket	f3gmt	byte	readable		
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	shape	readable		byte+readable -> shape+readable at e2daf0d2: tie-break: ORDBLD went for AIBLD (gv.h's view typedef gone, ai_bld.h includes ai_types.h); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	byte	readable		
 exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable		
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		
@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		byte+readable -> shape+readable at c83f9c9f: tie-break: menu.h lost the unused CURSEBLD view (a25b8c7e); its text is unchanged and dcp's sweep proves it byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -3476,7 +3476,7 @@ exe	0x00537f40	main_EndGame	main	byte	readable
 exe	0x00538140	main_RundenBeginn	main	byte	readable		
 exe	0x005384e0	main_EndRound	main	byte	readable		
 exe	0x00539620	main_ReplaceFigure	main	byte	readable		
-exe	0x00539870	main_RoundReport	main	shape	readable		byte+readable -> shape+readable at 07df00b2: tie-break: cm_types.h includes cm_bomb.h (07df00b2); text unchanged, proven byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
+exe	0x00539870	main_RoundReport	main	byte	readable		
 exe	0x0053a250	main_UpdateFigure	main	byte	readable		
 exe	0x0053a450	main_UpdateFigures	main	byte	readable		
 exe	0x0053a520	main_SettleRound	main	byte	readable		
