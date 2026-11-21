@@ -1739,7 +1739,7 @@ int ai_TutorialIntroAnswered(void)
         return -4;
     if (!ai_Tutorial->host->slot)
         return -4;
-    if (he_ActiveSlot->ev && he_ActiveSlot->ev->kind == (char)0x87) {
+    if (he_ActiveSlot->ev && he_ActiveSlot->ev->kind == 0x87) {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == ai_Tutorial->continueObj) {
                 if (ai_Tutorial->voice) {

@@ -23,7 +23,9 @@ typedef struct AISTORE {                /* 24 bytes, a stock list per building, 
 } AISTORE;
 
 typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he_Events, he_CreateEvent; he_FindEvent / he_NextEvent) */
-    char kind;                          /* 0x00, the message type it was made from, 0: a free record */
+    unsigned char kind;                 /* 0x00, the message type it was made from, 0: a free record (unsigned:
+                                           sv_MoveToGroup / sv_CharStateIcons read it zero-extended, the kinds
+                                           0x87 / 0x8c / 0x8f compare as bytes) */
     char pad01[3];
     int id;                             /* 0x04, the event id (ai_NextEventId at its creation) */
     unsigned short chr;                 /* 0x08, the index in ai_Chars of the character it is for (cm_ExAddCrime: of a
@@ -33,7 +35,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
     int from;                           /* 0x10, the message's fromId */
     union {
         int words14[12];                /* 0x14, the message's 12 words from +0x10 */
-        struct {                        /* 0x14, of a group job 0x14 (sv.c SVGROUP): its members counted by the title
+        struct {                        /* 0x14, of a group job 0x14 (AICHAR.job): its members counted by the title
                                            ranks of their building type (sv_CountGroupMembers) */
             int rank1Count;             /* 0x14, the members of the type's first rank */
             int rank2Count;             /* 0x18, those of its second rank */
@@ -57,6 +59,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
         int ids[8];                     /* 0x8c, the message's ids[] */
         int helpers[4];                 /* 0x8c, of a helper job 0x8c the characters on it, -1: a free place
                                            (ai_GypsyHelperWindow counts them) */
+        int groupMembers[8];            /* 0x8c, of a group job (AICHAR.job: sv_AddGroupMember, sv_CountGroupMembers)
+                                           the members' netIds, -1: a free slot */
     };
     union {                             /* 0xac..0xeb: the three unions, or a kind's own words over them */
         struct {

@@ -103,59 +103,6 @@ typedef struct SVPLATEOBJ {             /* the 3D object fields the plate code c
     char pad00[0x224];
     int plate;                          /* +0x224, the name plate attached to the object */
 } SVPLATEOBJ;
-typedef struct SVGROUP {                 /* the group record fields sv.c reads (AICHAR.job, ai.h AIJOB) */
-    unsigned char kind;                 /* +0x00, the job kind (sv_MoveToGroup's switch) */
-    char pad01[0x13];
-    int rank1Count;                     /* +0x14, members whose title is their building type's first rank (+0x22f;
-                                           sv_CountGroupMembers, or of a kind 0x1e building accepted by ahm_HasRecord) */
-    int rank2Count;                     /* +0x18, members whose title is the type's second rank (+0x230) */
-    char pad1c[0x36];
-    AITIME time;                        /* +0x52, when the job was left empty (kinds 0x14 / 0x15 / 0x28 / 0x8c) */
-    char pad60[0x10];
-    int state;                          /* +0x70, of a kind 0x28 job: below 3 the job is reset (-1) when a member leaves */
-    char pad74[0x18];
-    int member[8];                      /* +0x8c, the character ids of the members, -1 = a free slot */
-} SVGROUP;
-typedef struct SVMODEL {                /* the CHARACTER fields (ch.h) sv.c reads of a character's model */
-    char pad00[0x28];
-    int scriptId;                       /* +0x28, the event script the model runs, -1 = none */
-    int group;                          /* +0x2c, the group id (compared with a building's id) */
-    char pad30[4];
-    D3OBJECT *obj;                      /* +0x34, the body */
-    char pad38[0x50];
-    D3SCENE *scene;                     /* +0x88, the scene the model is in */
-    char pad8c[0x98];
-    D3OBJECT **transport;               /* +0x124, the cart object the model shows (CHARACTER.transport) */
-    void *actions;                      /* +0x128, the action queue, 0 = idle */
-} SVMODEL;
-typedef struct SVCHARREC {
-    unsigned short id;                  /* +0x00 */
-    char pad02[2];
-    unsigned int netId;                 /* +0x04, the id the order events carry (AICHAR.netId) */
-    unsigned char health;               /* +0x08, > 0 = alive (AICHAR.health) */
-    char pad09[0x27];
-    char name[0x58];                    /* +0x30, AICHAR.name */
-    char pad88[0xdc];
-    unsigned char jobId;                /* +0x164, AICHAR.jobId */
-    char title;                         /* +0x165, the title rank (AICHAR.title) */
-    char pad166[6];
-    struct AIBLD *bld;                  /* +0x16c, the building the character is in (AICHAR.bld) */
-    char pad170[8];
-    int inventory;                      /* +0x178, the character's goods inventory (AICHAR.inventory) */
-    SVGROUP *group;                     /* +0x17c, the job the character is a member of (AICHAR.job) */
-    unsigned char groupKind;            /* +0x180, its kind (AICHAR.jobKind) */
-    char pad181[3];
-    SVMODEL *model;                     /* +0x184, the character's model (a ch.h CHARACTER) */
-    unsigned char selected;             /* +0x188, selected in the member list */
-    char pad189[3];
-    int picture;                        /* +0x18c, the portrait picture of the member list */
-    char pad190[4];
-    int money;                          /* +0x194, the character's money (AICHAR.money) */
-    char pad198[0x19];
-    unsigned char flag1b1;              /* +0x1b1, nonzero: the info panel stays closed for the character */
-    char pad1b2[0x16];
-    unsigned int flags;                 /* +0x1c8, AICHAR.flags1c8 (0x800: not available for the member list) */
-} SVCHARREC;
 #pragma pack(pop)
 extern SVPLATE sv_NamePlates[0x20];
 
@@ -247,7 +194,7 @@ int sv_CheckMoney(char *o, int n)
 {
     char buf[0x80];
 
-    if (((SVCHARREC *)o)->money < n && n != 0) {
+    if (((AICHAR *)o)->money < n && n != 0) {
         txt_Format(buf, 0x74, n);
         sv_MessageBox(buf, 0);
         return 0;
@@ -277,7 +224,7 @@ int sv_CheckGoodAmount(char *o, int n, unsigned char t)
 {
     char buf[0x40];
 
-    if (gm_SumSlotAmounts(((SVCHARREC *)o)->inventory, t) < n && n != 0) {
+    if (gm_SumSlotAmounts(((AICHAR *)o)->inventory, t) < n && n != 0) {
         txt_Format(buf, 0x75, t);
         sv_MessageBox(buf, 0);
         return 0;
@@ -576,7 +523,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
 
     if (sv_QuickJump.panelFlag != 0)
         return;
-    if (!(ai_PlayerId == 0xffff || ai_Chars[ai_PlayerId].heldRounds == 0 || (bt = &ai_BTypes[o->type])->kind == 6 || (bt->kind == 4 && o->ownerNetId == ((SVCHARREC *)&ai_Chars[ai_PlayerId])->netId)))
+    if (!(ai_PlayerId == 0xffff || ai_Chars[ai_PlayerId].heldRounds == 0 || (bt = &ai_BTypes[o->type])->kind == 6 || (bt->kind == 4 && o->ownerNetId == ai_Chars[ai_PlayerId].netId)))
         return;
     if (ai_PlayerBuilding != 0)
         cur = ai_PlayerBuilding;
@@ -1494,13 +1441,13 @@ void sv_AddGroupMember(int c, char *g)
 
     ch = &ai_Chars[c];
     for (i = 0; i < 8; i++)
-        if (((SVGROUP *)g)->member[i] == ch->netId)
+        if (((AIJOB *)g)->groupMembers[i] == ch->netId)
             break;
     if (i < 8)
         return;
     for (i = 0; i < 8; i++)
-        if (((SVGROUP *)g)->member[i] == -1) {
-            ((SVGROUP *)g)->member[i] = ch->netId;
+        if (((AIJOB *)g)->groupMembers[i] == -1) {
+            ((AIJOB *)g)->groupMembers[i] = ch->netId;
             return;
         }
 }
@@ -1513,8 +1460,8 @@ void sv_RemoveGroupMember(int c, char *g)
 
     ch = &ai_Chars[c];
     for (i = 0; i < 8; i++)
-        if (((SVGROUP *)g)->member[i] == ch->netId) {
-            ((SVGROUP *)g)->member[i] = -1;
+        if (((AIJOB *)g)->groupMembers[i] == ch->netId) {
+            ((AIJOB *)g)->groupMembers[i] = -1;
             return;
         }
 }
@@ -1526,7 +1473,7 @@ int sv_UsedGroupSlots(char *g)
     int *p;
 
     n = 0;
-    p = ((SVGROUP *)g)->member;
+    p = ((AIJOB *)g)->groupMembers;
     i = 8;
     do {
         if (*p != -1)
@@ -1547,23 +1494,23 @@ void sv_CountGroupMembers(char *g)
     char *c;
     char *b;
 
-    ((SVGROUP *)g)->rank1Count = 0;
-    ((SVGROUP *)g)->rank2Count = 0;
-    p = ((SVGROUP *)g)->member;
+    ((AIJOB *)g)->rank1Count = 0;
+    ((AIJOB *)g)->rank2Count = 0;
+    p = ((AIJOB *)g)->groupMembers;
     i = 8;
     do {
         if (*p != -1) {
             c = (char *)gm_FindChar(*p);
-            if (c != 0 && ((SVCHARREC *)c)->bld != 0) {
-                b = (char *)ai_BTypes + ((SVCHARREC *)c)->bld->type * 0x24d;
+            if (c != 0 && ((AICHAR *)c)->bld != 0) {
+                b = (char *)ai_BTypes + ((AICHAR *)c)->bld->type * 0x24d;
                 /* b: the building's type record (AIBTYPE, 0x24d bytes): +0x22f / +0x230 its two title ranks, +0x00 the kind */
                 if (c[0x165] == b[0x22f]) {
-                    ((SVGROUP *)g)->rank1Count++;
+                    ((AIJOB *)g)->rank1Count++;
                 } else if (c[0x165] == b[0x230]) {
-                    ((SVGROUP *)g)->rank2Count++;
+                    ((AIJOB *)g)->rank2Count++;
                 } else if (b[0] == 0x1e) {
                     if (ahm_HasRecord(c) != 0)
-                        ((SVGROUP *)g)->rank1Count++;
+                        ((AIJOB *)g)->rank1Count++;
                 }
             }
         }
@@ -1591,7 +1538,7 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
    an old job a running "Pause" / "pause" script of the model is stopped. Then he joins g (sv_AddGroupMember)
    and the new job kind (field 0x180) is sent and the job set when it changed
    @deep match-deep s53: 88 -> 74 ins (draft -> shape): sv_RemoveGroupMember's id re-read from the record
-   (((SVCHARREC *)ai_Chars[c])->id, one of 19 ch uses; a 190-variant subset run, singles and pairs). Left:
+   (((AICHAR *)ai_Chars[c])->id, one of 19 ch uses; a 190-variant subset run, singles and pairs). Left:
    ch and old in swapped registers through the whole function (ours ch esi / old ebx, the original ch ebx /
    old esi: push ebx before push esi, mov ecx vs mov eax for o = ch->bld). Tried, no gain: a second pass
    over the 18 remaining ch uses (singles and pairs, 171 variants: none closer), old's uses re-read as
@@ -1601,15 +1548,15 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
    prior: read against the original and fixed: room (*it != 0xfd) polarity, w >= 0, the action arguments
    o->id / it->objId, old != 0 first, the case bodies in the original's order (0x28 before 0x14; tables now
    equal), <= 0 slot tests, 'pause' before 'Pause', g != 0 first, newkind = 0 at entry, the job time as an
-   AITIME struct copy (memcpy took esi/edi), cm_SendExSetHE(-1) as an int push; typed SVCHARREC / SVGROUP /
-   SVMODEL. Instruction count equal (287). Left is allocation only: with --regs ebp=esi,esi=ebx,ebx=ebp 16
+   AITIME struct copy (memcpy took esi/edi), cm_SendExSetHE(-1) as an int push; typed AICHAR / AIJOB /
+   CHARACTER. Instruction count equal (287). Left is allocation only: with --regs ebp=esi,esi=ebx,ebx=ebp 16
    lines differ, the callee-save push order (ours push ebp first / ebx later, the original push ebx first /
    ebp later), and ev taking ebp where the original reuses old's esi in the no-old path; ch / old / it
    rotate over ebx / esi / ebp */
 void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
 {
-    SVCHARREC *ch;
-    SVGROUP *old;
+    AICHAR *ch;
+    AIJOB *old;
     AIBTYPE *bt;
     char *msg;
     EVTSCRIPT *ev;
@@ -1619,8 +1566,8 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
     newkind = 0;
     if (c >= 0x300)
         return;
-    ch = (SVCHARREC *)&ai_Chars[c];
-    old = ch->group;
+    ch = &ai_Chars[c];
+    old = ch->job;
     if ((char *)old == g)
         return;
     if (o == 0)
@@ -1633,20 +1580,20 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
             w = init_BuildingSceneUniverse(o);
         k = gm_ClockSeason(&ai_Time);
         if ((((float)ai_Time.hour < gm_DayEndHours[k] && gm_DayStartHours[k] <= (float)ai_Time.hour) || bt->kind == 4 || bt->kind == 0x13 || bt->kind == 0x1d)
-            && w >= 0 && ch->model != 0 && &d3_Scenes[w] != ch->model->scene) {
-            msg = (char *)ch_AddAction((struct CHARACTER *)ch->model, 0x33, w, o->id, it->objId);
+            && w >= 0 && ch->scene != 0 && &d3_Scenes[w] != ch->scene->scene) {
+            msg = (char *)ch_AddAction(ch->scene, 0x33, w, o->id, it->objId);
             strcpy(msg + 0x70, "sv_ChangePlayerHE");
-            msg = (char *)ch_AddAction((struct CHARACTER *)ch->model, 0x39, w);
+            msg = (char *)ch_AddAction(ch->scene, 0x39, w);
             strcpy(msg + 0x70, "sv_ChangePlayerHE");
-            if (ch->model->scriptId != -1) {
-                ev = evt_FindById(ch->model->scriptId);
+            if (ch->scene->scriptId != -1) {
+                ev = evt_FindById(ch->scene->scriptId);
                 if (ev != 0)
                     evt_Stop(ev);
             }
         }
     }
     if (old != 0) {
-        sv_RemoveGroupMember(((SVCHARREC *)&ai_Chars[c])->id, (char *)old);
+        sv_RemoveGroupMember(ai_Chars[c].id, (char *)old);
         switch (old->kind) {
         case 3:
         case 4:
@@ -1655,11 +1602,11 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
             sv_CountGroupMembers((char *)old);
             break;
         case 0x28:
-            if (ch->model != 0 && ch->model->scriptId != -1)
-                evt_Stop(evt_FindById(ch->model->scriptId));
-            if (old->state < 3) {
-                old->time = ai_Time;
-                old->state = -1;
+            if (ch->scene != 0 && ch->scene->scriptId != -1)
+                evt_Stop(evt_FindById(ch->scene->scriptId));
+            if (old->stage < 3) {
+                old->end = ai_Time;
+                old->stage = -1;
             }
             break;
         case 0x14:
@@ -1667,7 +1614,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         case 0x8c:
             sv_CountGroupMembers((char *)old);
             if (sv_UsedGroupSlots((char *)old) <= 0) {
-                old->time = ai_Time;
+                old->end = ai_Time;
                 cm_SendExSetHE(-1, (char *)old);
             }
             break;
@@ -1685,8 +1632,8 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         case 0x8f:
             he_FreeEvent(old);
         }
-    } else if (ch->model != 0 && ch->model->scriptId != -1) {
-        ev = evt_FindById(ch->model->scriptId);
+    } else if (ch->scene != 0 && ch->scene->scriptId != -1) {
+        ev = evt_FindById(ch->scene->scriptId);
         if (ev != 0 && (strstr((char *)ev, "pause") != 0 || strstr((char *)ev, "Pause") != 0))
             evt_Stop(ev);
     }
@@ -1705,11 +1652,11 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         newkind = g[0];
     } else
         newkind = 0;
-    if ((ch->group != 0 && g == 0) || newkind != 0) {
+    if ((ch->job != 0 && g == 0) || newkind != 0) {
         cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldValue(1, 1, 0x180, &newkind);
         cm_SendFieldValues();
-        ch->group = (SVGROUP *)g;
+        ch->job = (AIJOB *)g;
     }
 }
 /* 0x524770, 1 when the character g's model stands at the door of the building o: the door ("dummy_TUER" of
@@ -1718,11 +1665,11 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
 
 int sv_IsAtDoor(char *g, AIBLD *o)
 {
-    SVMODEL *dst;
+    CHARACTER *dst;
     D3OBJECT *door;
     float pos[4];
 
-    dst = ((SVCHARREC *)g)->model;
+    dst = ((AICHAR *)g)->scene;
     if (o->object != 0) {
         if (dst == 0)
             return 0;
@@ -1745,14 +1692,14 @@ int sv_IsAtDoor(char *g, AIBLD *o)
 int sv_IsCartAtDoor(char *g, AIBLD *o)
 {
     float r;
-    SVMODEL *dst;
+    CHARACTER *dst;
     D3OBJECT *door;
     float pos[4];
 
     r = 650.0f;
     if (ai_BTypes[o->type].kind == 10)
         r = 1950.0f;
-    dst = (SVMODEL *)((AIOBJ *)g)->sceneObj;
+    dst = (CHARACTER *)((AIOBJ *)g)->sceneObj;
     if (o->object != 0) {
         if (dst == 0)
             return 0;
@@ -1773,17 +1720,17 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
     return 0;
 }
 /* 0x524900, collects the state icon numbers of the character c into out[]: the icons sv_Activities holds for the
-   kind of c's job (SVGROUP.kind: the entry's icon, and, when the entry's valueOff is not -1, a short of the job
+   kind of c's job (AIJOB.kind: the entry's icon, and, when the entry's valueOff is not -1, a short of the job
    record at that offset + 0xdf), then cm_CharWeapon's image + 0xdf; returns the count. */
 
 int sv_CharStateIcons(char *c, int *out)
 {
-    SVGROUP *job;
+    AIJOB *job;
     unsigned short *word;
     int n, i, *p;
     int *q;
 
-    job = ((SVCHARREC *)c)->group;
+    job = ((AICHAR *)c)->job;
     n = 0;
     if (job != 0 && job->kind != 0) {
         i = 0;
@@ -1828,7 +1775,7 @@ int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x
    their job (sv_MoveToGroup) */
 void sv_UpdateMemberList(AIBLD *g)
 {
-    char *bt;
+    AIBTYPE *bt;
     SVMEMBERROW *r;
     int i, n, cnt, y;
     int im[8];
@@ -1838,12 +1785,12 @@ void sv_UpdateMemberList(AIBLD *g)
 
     if (sv_PlayerBarForm == -1)
         return;
-    bt = (char *)ai_BTypes + g->type * sizeof(AIBTYPE);
+    bt = &ai_BTypes[g->type];
     d2_SetForm(sv_PlayerBarForm, 1);
     d2_ClearPointerItems();
     for (n = 0; n < 0x20; n++) {
         r = &sv_MemberRows[n];
-        if (r->chr != 0xffff && (((SVCHARREC *)&ai_Chars[r->chr])->model == 0 || ((SVCHARREC *)&ai_Chars[r->chr])->health == 0)) {
+        if (r->chr != 0xffff && (ai_Chars[r->chr].scene == 0 || ai_Chars[r->chr].health == 0)) {
             if (r->icon[0] != -1) {
                 d2_RemoveObj(r->icon[0]);
                 r->icon[0] = -1;
@@ -1865,14 +1812,14 @@ void sv_UpdateMemberList(AIBLD *g)
         }
     }
     for (i = 0; i < 0x300; i++) {
-        if (((SVCHARREC *)&ai_Chars[i])->bld != g || ((SVCHARREC *)&ai_Chars[i])->model == 0 || ((SVCHARREC *)&ai_Chars[i])->health == 0)
+        if (ai_Chars[i].bld != g || ai_Chars[i].scene == 0 || ai_Chars[i].health == 0)
             continue;
         if (sv_PlayerBarKind == 0) {
-            if (!((((SVCHARREC *)&ai_Chars[i])->title == bt[0x22f] || ((SVCHARREC *)&ai_Chars[i])->title == bt[0x230]) && ((SVCHARREC *)&ai_Chars[i])->jobId == 0))
+            if (!((ai_Chars[i].title == bt->title || ai_Chars[i].title == bt->title2) && ai_Chars[i].jobId == 0))
                 continue;
         } else if (sv_PlayerBarKind == 1) {
-            n = gm_TitleJobGroup((unsigned char)((SVCHARREC *)&ai_Chars[i])->title);
-            if (((SVCHARREC *)&ai_Chars[i])->jobId != 0)
+            n = gm_TitleJobGroup(ai_Chars[i].title);
+            if (ai_Chars[i].jobId != 0)
                 continue;
             if (n != 10 && n != 0xb && n != 0xc)
                 continue;
@@ -1891,7 +1838,7 @@ void sv_UpdateMemberList(AIBLD *g)
         d2_SetForm(sv_PlayerBarForm, 1);
         y = n * 0x4e;
         sv_MemberRows[n].frame = d2_WinOpenPic(6, y, 0x5dc, d2_LastWindow);
-        sv_MemberRows[n].check = d2_WinOpenPic(8, y + 0x11, ((SVCHARREC *)&ai_Chars[i])->picture, d2_LastWindow);
+        sv_MemberRows[n].check = d2_WinOpenPic(8, y + 0x11, ai_Chars[i].picture, d2_LastWindow);
         sv_MemberRows[n].text = d2_CreateWinText(0, y + 4, ch_EmptyName, d2_LastWindow);
         sv_D2Objs[sv_MemberRows[n].text].centred = 1;
         sv_D2Objs[sv_MemberRows[n].text].w = 0x5f;
@@ -1903,7 +1850,7 @@ void sv_UpdateMemberList(AIBLD *g)
         }
         sv_MemberRows[n].chr = i;
         sv_MemberRows[n].cleared1c = 0;
-        if (bt[0] == 0x10 || bt[0] == 0x13 || bt[0] == 4) {
+        if (bt->kind == 0x10 || bt->kind == 0x13 || bt->kind == 4) {
             d2_SetForm(sv_PlayerBarForm, 1);
             sv_MemberRows[n].window = d2_CreateChildWindow(6, y + 0x3f, 0x50, 0xf, 0, d2_LastWindow);
             d2_WinOpenPic(4, 1, 0x5df, d2_LastWindow);
@@ -1911,7 +1858,7 @@ void sv_UpdateMemberList(AIBLD *g)
             d2_WinOpenPic(0x28, 1, 0x5e0, d2_LastWindow);
             sv_DrawBalanceBar(0x34, 4, (char *)&ai_Chars[sv_MemberRows[n].chr], 3, 0x4f1);
         }
-        if (((SVCHARREC *)&ai_Chars[i])->selected != 0)
+        if (ai_Chars[i].selected != 0)
             d2_SetObjValue(sv_MemberRows[n].check, 1);
         else
             d2_SetObjValue(sv_MemberRows[n].check, 0);
@@ -1920,13 +1867,13 @@ void sv_UpdateMemberList(AIBLD *g)
         r = &sv_MemberRows[n];
         if (d2_ClickedId != -1 && r->chr != 0xffff && d2_PointerObj == r->check) {
             if (sv_D2Objs[r->check].checked != 0) {
-                ((SVCHARREC *)&ai_Chars[r->chr])->selected = 1;
+                ai_Chars[r->chr].selected = 1;
                 snd_PlayWorkerClick((struct G16CHARCLICK *)&ai_Chars[r->chr]);
             } else
-                ((SVCHARREC *)&ai_Chars[r->chr])->selected = 0;
+                ai_Chars[r->chr].selected = 0;
         }
-        if (r->chr != 0xffff && ((SVCHARREC *)&ai_Chars[r->chr])->model->group == g->id
-            && (((SVCHARREC *)&ai_Chars[r->chr])->flags & 0x800) == 0 && ((SVCHARREC *)&ai_Chars[r->chr])->groupKind != 0x14)
+        if (r->chr != 0xffff && ai_Chars[r->chr].scene->group == g->id
+            && (ai_Chars[r->chr].flags1c8 & 0x800) == 0 && ai_Chars[r->chr].jobKind != 0x14)
             d2_SetObjEnabled(r->check, 1);
         else
             d2_SetObjEnabled(r->check, 0);
@@ -1934,7 +1881,7 @@ void sv_UpdateMemberList(AIBLD *g)
     for (n = 0; n < 0x20; n++) {
         if (sv_MemberRows[n].chr == 0xffff)
             continue;
-        if (((SVCHARREC *)&ai_Chars[sv_MemberRows[n].chr])->selected != 0) {
+        if ((&ai_Chars[sv_MemberRows[n].chr])->selected != 0) {
             d2_AddPointerItem(sv_D2Objs[sv_MemberRows[n].check].pic, 1);
             d2_SetObjValue(sv_MemberRows[n].check, 1);
         } else
@@ -1950,7 +1897,7 @@ void sv_UpdateMemberList(AIBLD *g)
         }
         d2_SetForm(sv_PlayerBarForm, 1);
         if (sv_MemberRows[n].text != -1) {
-            sprintf(text, "%s %i%%", ((SVCHARREC *)&ai_Chars[sv_MemberRows[n].chr])->name, (int)(gm_HealthRatio(&ai_Chars[sv_MemberRows[n].chr]) * 100.0));
+            sprintf(text, "%s %i%%", (&ai_Chars[sv_MemberRows[n].chr])->name, (int)(gm_HealthRatio(&ai_Chars[sv_MemberRows[n].chr]) * 100.0));
             d2_SetObjText(sv_MemberRows[n].text, text);
             sv_D2Objs[sv_MemberRows[n].text].w = 0x5f;
         }
@@ -1993,7 +1940,7 @@ void sv_UpdateMemberList(AIBLD *g)
     }
     for (n = 0; n < 0x20; n++) {
         if (sv_MemberRows[n].chr != 0xffff) {
-            i = ((SVCHARREC *)&ai_Chars[sv_MemberRows[n].chr])->selected != 0;
+            i = (&ai_Chars[sv_MemberRows[n].chr])->selected != 0;
             sv_MemberRows[n].selected = i;
             sv_D2Objs[sv_MemberRows[n].check].checked = i;
             sv_D2Objs[sv_MemberRows[n].check].highlighted = i;
@@ -2005,7 +1952,7 @@ void sv_UpdateMemberList(AIBLD *g)
                 sv_MoveToGroup(g, 0, sv_MemberRows[n].chr, 0);
         sv_ClearSelection();
     }
-    if (sv_SelectedChar != 0 && ((SVCHARREC *)sv_SelectedChar)->selected == 0)
+    if (sv_SelectedChar != 0 && ((AICHAR *)sv_SelectedChar)->selected == 0)
         sv_SelectedChar = 0;
 }
 
@@ -2092,8 +2039,8 @@ void sv_OpenPlayerBar(AIBLD *a, char k)
         ((D2OBJ *)d2_Objs)[f].interactive = 1;
         ((D2OBJ *)d2_Objs)[f].style = 3;
         for (i = 0; i < 768; i++)
-            if (((SVCHARREC *)&ai_Chars[i])->selected != 0 && ((SVCHARREC *)&ai_Chars[i])->jobId != 0)
-                ((SVCHARREC *)&ai_Chars[i])->selected = 0;
+            if (ai_Chars[i].selected != 0 && ai_Chars[i].jobId != 0)
+                ai_Chars[i].selected = 0;
     }
 }
 /* 0x525440, closes the player bar (d2_CloseView, sv_PlayerBarForm), shows the info panel (sv_PanelForm) again and
@@ -3330,7 +3277,7 @@ void sv_ColourBanners(int c)
     AICHAR *ch;
     AIBLD *b;
     AIOBJ *o;
-    SVMODEL *m;
+    CHARACTER *m;
     int set;
 
     scene = d3_CurrentScene;
@@ -3341,7 +3288,7 @@ void sv_ColourBanners(int c)
             d3_ForEachObject(d3_DefaultScene, b->object, 0x340, sv_ColourBannerCB, b);
     }
     for (o = gm_Query(0, 3, 7, 3, c, 4, 0x1d); o != 0; o = gm_QueryNext()) {
-        m = (SVMODEL *)o->sceneObj;
+        m = (CHARACTER *)o->sceneObj;
         if (m != 0) {
             d3if_SelectScene(d3t_SceneIndex(m->scene), 1);
             if (ch != 0 && ch->ref54 != 0 && (ch->kind == 5 || ch->kind == 6 || ch->kind == 7)) {
@@ -5660,7 +5607,7 @@ void sv_HandleRightClick(unsigned fl)
         job = he_ActiveSlot->ev;
         if (job != 0 && (job->kind == 0x11 || job->kind == 0x26 || job->kind == 0x69))
             he_SlotConfirmed = 1;
-        else if (job != 0 && job->kind == (char)0x87)
+        else if (job != 0 && job->kind == 0x87)
             ai_TutorialTick();
         else
             he_ActivateSlot(0);

@@ -2393,7 +2393,7 @@ void ai_StartBuildingWork(AICHAR *ch)
                         break;
                     }
                     if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                        && (!ai_Chars[c].job || ai_Chars[c].job->kind == 4 || ai_Chars[c].job->kind == (char)0x8c)
+                        && (!ai_Chars[c].job || ai_Chars[c].job->kind == 4 || ai_Chars[c].job->kind == 0x8c)
                         && ai_Chars[c].model && ai_Chars[c].model->bldId == ai_Chars[c].bld->id)
                         f = &ai_Chars[c];
                 }
@@ -4581,7 +4581,7 @@ int ai_CheckFreeStaff(AICHAR *ch)
         if (i >= 768)
             break;
         if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == c->bld && ai_Chars[i].title &&
-            (ai_Chars[i].job == 0 || ai_Chars[i].job->kind == 4 || ai_Chars[i].job->kind == -0x74) && !(ai_Chars[i].flags1c8 & 4) &&
+            (ai_Chars[i].job == 0 || ai_Chars[i].job->kind == 4 || ai_Chars[i].job->kind == 0x8c) && !(ai_Chars[i].flags1c8 & 4) &&
             ((float)ai_Chars[i].sk81 < 168.0f || (float)ai_Chars[i].sk82 < 168.0f || (float)ai_Chars[i].sk84 < 168.0f))
             found = 1;
         i++;
@@ -4597,7 +4597,7 @@ int ai_CheckFreeStaff(AICHAR *ch)
     }
     for (i = 0; i < 768; i++) {
         if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == c->bld && ai_Chars[i].title &&
-            (ai_Chars[i].job == 0 || ai_Chars[i].job->kind == 4 || ai_Chars[i].job->kind == -0x74) && !(ai_Chars[i].flags1c8 & 4))
+            (ai_Chars[i].job == 0 || ai_Chars[i].job->kind == 4 || ai_Chars[i].job->kind == 0x8c) && !(ai_Chars[i].flags1c8 & 4))
             ai_Chars[i].flags1b4 |= 0x10;
     }
     return 1;
@@ -4701,7 +4701,7 @@ void ai_SendFreeSpies(AICHAR *ch)
 
     n = 1;
     for (i = 0; i < 768; i++) {
-        if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title && ai_Chars[i].job && ai_Chars[i].job->kind == -0x71)
+        if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title && ai_Chars[i].job && ai_Chars[i].job->kind == 0x8f)
             n--;
     }
     if (0 < n && ai_BTypes[ch->bld->type].kind == 0x1d && (o = gm_Query(ch->bld->objList, 2, 6, 0, 0x211)) != 0) {
@@ -4718,7 +4718,7 @@ void ai_SendFreeSpies(AICHAR *ch)
                 break;
             if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == ch->bld && ai_Chars[i].title && (ai_Chars[i].flags1b4 & 0x10)) {
                 if (ai_Chars[i].job) {
-                    if (ai_Chars[i].job->kind == -0x71)
+                    if (ai_Chars[i].job->kind == 0x8f)
                         ai_Chars[i].flags1b4 &= ~0x10;
                 } else {
                     if (ai_Chars[i].model && ai_Chars[i].model->bldId == ai_Chars[i].bld->id) {

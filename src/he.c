@@ -1465,7 +1465,7 @@ void he_SetBarEnabled(int state)
 }
 
 /* the quick jump marker (0x6333e0): set when the active event is a type 0x11 record with bit 0x40 at +0xf0 or a type 0x87 record, outside the network games */
-#define HE_PAUSES(e) ((e) != 0 && ((e)->kind == 0x11 && ((e)->modes & 0x40) != 0 || (e)->kind == (char)0x87) && (ai_GameFlags & 4) == 0)  /* the event pauses the game while its window is active (kinds 0x11 with mode 0x40, 0x87; not with game flag 4) */
+#define HE_PAUSES(e) ((e) != 0 && ((e)->kind == 0x11 && ((e)->modes & 0x40) != 0 || (e)->kind == 0x87) && (ai_GameFlags & 4) == 0)  /* the event pauses the game while its window is active (kinds 0x11 with mode 0x40, 0x87; not with game flag 4) */
 #define HE_JUMP(r) HE_PAUSES((AIJOB *)(r))
 
 /* 0x53daf0, picks the active event window (he_ActiveSlot): drops the active slot whose object is no longer checked (hides

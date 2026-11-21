@@ -3320,11 +3320,11 @@ exe	0x00524100	sv_AddGroupMember	sv	601eb885ac24765f	no	byte	control=byte p1=byt
 exe	0x00524160	sv_RemoveGroupMember	sv	d87cd57a8ad5490c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d8781dc03ebd17fa
 exe	0x005241b0	sv_UsedGroupSlots	sv	0615eb594a51c8f2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005241d0	sv_CountGroupMembers	sv	cae812672e0b5b09	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00524260	sv_MoveToGroup	sv	ba9866956cd29d7b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	0ef745eadd416cc0
+exe	0x00524260	sv_MoveToGroup	sv	eb552698e92840e6	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	fd8a5791307ebf18
 exe	0x00524770	sv_IsAtDoor	sv	4be622cab708ceb5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00524810	sv_IsCartAtDoor	sv	30f6c85d3a6acf06	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00524900	sv_CharStateIcons	sv	6312e9875ba62563	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00524990	sv_UpdateMemberList	sv	2bd145abc09416b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
+exe	0x00524900	sv_CharStateIcons	sv	1d17c2317c35142d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	fd8a5791307ebf18
+exe	0x00524990	sv_UpdateMemberList	sv	5ea962edacc25e1d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	fd8a5791307ebf18
 exe	0x00525220	sv_OpenPlayerBar	sv	8663d9b5c1aca3f5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00525440	sv_ClosePlayerBar	sv	38bbd1735b11df61	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00525480	sv_ClockSeason	sv	bead8ddd56d01019	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
