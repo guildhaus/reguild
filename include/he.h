@@ -8,6 +8,8 @@ struct AICHAR;
 struct AIBLD;
 struct AIOBJ;
 
+typedef void (*HEHANDLER)(struct AIJOB *ev);  /* an event type's alloc or run handler (he_SetEventHandlers, he_AllocHandlers / he_RunHandlers) */
+
 typedef struct HEGFXINFO {              /* 16 bytes, a gfx info: a 3D model shown over an object for an event (he_CreateGfxInfo) */
     int eventId;                        /* 0x0, the event's AIJOB.id */
     struct AIJOB *ev;                   /* 0x4, the event */
@@ -23,7 +25,7 @@ void he_FreeEvents(void);
 int he_ReleaseEvents(void);
 int he_FigureContact(struct AICHAR *p, int *bldId, int *contact);  /* 0x55ea60, 1 with the building and contact the character works at, 0: not at work */
 int he_FindFigurePlace(struct AICHAR *p, int *bldId, int *objId, int *scene);  /* 0x55eba0, 1 with the building, object and scene where the character is, 0: none */
-int he_SetEventHandlers(int type, void *alloc, void *run);
+int he_SetEventHandlers(int type, HEHANDLER alloc, HEHANDLER run);
 int he_FreeOldestSlot(void);
 int he_OpenEventSlot(struct AIJOB *ev, int x, int y, char *form, int pic);
 void he_ReleaseSlot(struct AIJOB *ev);
@@ -50,8 +52,9 @@ typedef struct HEHINT {                 /* 16 bytes, an entry of the tutorial hi
     int text;                           /* 0x0c, the hint's text id (txt_FindKey, d2_Strings) */
 } HEHINT;
 extern HEHINT he_Hints[128];            /* 0x6fa260, the tutorial hints he_OpenHelpEvents fills and he_RunHint walks */
-extern void (*he_AllocHandlers[0xa8])(struct AIJOB *ev);  /* 0x74df40, the event alloc handlers by type (he_SetEventHandlers;
-                                           0xa7 types) */
+extern HEHANDLER he_AllocHandlers[0xa8];  /* 0x74df40, the event alloc handlers by type (he_SetEventHandlers; 0xa7 types) */
+extern HEHANDLER he_RunHandlers[0xa8];    /* 0x758600, the event run handlers by type (he_SetEventHandlers) */
+extern struct AIJOB *he_QuickList[0x100]; /* 0x74db40, the event records shown in the event bar (he_QuickTop the last used) */
 extern struct AIJOB *he_Cursor;         /* 0x7585e0, the record he_NextEvent stands on, 0: the search ended */
 extern int he_TipOrder[0x20];           /* 0x6fa1e0, the tip order: 27 indices into txt_TipTexts (gm_Shuffled fills it) */
 extern HEEVSLOT *he_ActiveSlot;         /* 0x6f262c, the slot of the active event window (0x53dcb0, 0x53daf0), 0 = none */

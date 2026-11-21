@@ -187,13 +187,11 @@ extern int main_WindBank;           /* 0x75e630, the wind sound bank */
 extern int sv_FrameMask;
 extern char ai_MissionMode;
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-extern void (*he_RunHandlers[0xa8])(unsigned char *);
 extern int sv_PopRequest;
 
 
 extern int ai_NextCharNumber;
 extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
-extern char * he_QuickList[0x100];
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern GAPDATA full_data_6024e4[];
 extern int sv_FrameMask;
@@ -5199,12 +5197,12 @@ HEHINT he_Hints[128];  /* 0x6fa260, he.h: the tutorial hint table (he_OpenHelpEv
 int he_BarView;  /* 0x6faa60, he.h */
 HEEVSLOT he_EventSlots[16];  /* 0x6faa80, he.h: the event bar's 16 slots */
 AIJOB he_Events[0x400];  /* 0x6fab40, the event / job records */
-char * he_QuickList[0x100];  /* 0x74db40, the event records shown in the event bar (he_QuickTop the last used) */
-void (*he_AllocHandlers[0xa8])(struct AIJOB *ev);  /* 0x74df40, he.h: the event alloc handlers by type (he_SetEventHandlers) */
+AIJOB *he_QuickList[0x100];  /* 0x74db40, the event records shown in the event bar (he_QuickTop the last used) */
+HEHANDLER he_AllocHandlers[0xa8];  /* 0x74df40, he.h: the event alloc handlers by type (he_SetEventHandlers) */
 GMCARRYREC gm_CarryRecs[0x100];  /* 0x74e1e0, f3gm_carry.h: the carried-goods records */
 struct AIJOB *he_Cursor;  /* 0x7585e0, he.h: the record he_NextEvent stands on, 0: the search ended */
 int he_EventCount;  /* 0x7585e4 */
-void (*he_RunHandlers[0xa8])(unsigned char *);  /* 0x758600, the event run handlers by type (he_SetEventHandlers) */
+HEHANDLER he_RunHandlers[0xa8];  /* 0x758600, the event run handlers by type (he_SetEventHandlers) */
 HEGFXINFO he_GfxInfos[0x40];  /* 0x7588a0, he.h: the gfx infos (he_CreateGfxInfo) */
 HEAPEVENT he_ApEvents[0x100];  /* 0x758ca0, he.h: the AP events (he_AddApEvent) */
 int main_SoundBanks[0x80];  /* 0x75df20, the loaded sample-bank handles (main_PreloadSound fills, main_FreeSoundBanks frees; the next object is ai_MissionSeed 0x75e120) */

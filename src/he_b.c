@@ -24,6 +24,7 @@ struct D3SM;
 #include <stdlib.h>
 #include <d3d.h>
 #include "he.h"
+void he_NoHandlerB(struct AIJOB *ev);  /* unlinked, defined at the end of the unit: the empty handler of the event types without one */
 #include "he_b.h"
 #include "hmt_types.h"
 #include "d3.h"
@@ -39,7 +40,6 @@ struct D3SM;
 
 extern int ai_TransportWindow();
 /* full rebuild: the symbols whose original addresses the code above spells literally */
-extern void (*he_RunHandlers[0xa8])(unsigned char *);
 extern const unsigned __int64 gypsyFilter;  /* 0x5eed68, lcmap.c */
 #include "menu_types.h"
 extern GAPDATA full_data_602568[];
@@ -83,7 +83,6 @@ struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIP
 
 
 #define U_I(a) (*(int *)(a))
-typedef void (*HEALLOC)(AIJOB *ev);     /* an event type's alloc handler (registered with its run handler by he_SetEventHandlers) */
 
 
 #define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
@@ -1208,7 +1207,7 @@ int ai_TutorialTick();
 int ai_TutorialCloseIntro();
 void ai_TutorialClearHost(void);
 void sv_PopTo(void (*v)());
-void he_FreeEventNow();
+void he_FreeEventNow(AIJOB *r);
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 int gm_LevelPayout(int v, int kind);
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
@@ -3174,53 +3173,53 @@ void he_RunMissionCheck(AIJOB *ev)
 
 int he_RegisterEventTypes03(void)
 {
-    if (he_SetEventHandlers(3, (void *)he_AllocIncomeEvent, (void *)he_RunIncomeEvent) != 0)
+    if (he_SetEventHandlers(3, he_AllocIncomeEvent, he_RunIncomeEvent) != 0)
         return 1;
     sv_RegisterActivity(3, "Abbau", 1, 0x501, 0xac);
-    if (he_SetEventHandlers(4, (void *)he_AllocProduktion, (void *)he_RunProduktion) != 0)
+    if (he_SetEventHandlers(4, he_AllocProduktion, he_RunProduktion) != 0)
         return 1;
     sv_RegisterActivity(4, "Produktion", 1, 0x4ff, 0xac);
-    if (he_SetEventHandlers(5, (void *)he_FreeEventNow, (void *)d3io_NoopCallback) != 0)
+    if (he_SetEventHandlers(5, he_FreeEventNow, he_NoHandlerB) != 0)
         return 1;
-    if (he_SetEventHandlers(8, (void *)he_AllocSearchEvent, (void *)he_RunSearchEvent) != 0)
+    if (he_SetEventHandlers(8, he_AllocSearchEvent, he_RunSearchEvent) != 0)
         return 1;
     sv_RegisterActivity(8, "Suchen", 1, 0x500, 0xac);
-    if (he_SetEventHandlers(9, (void *)he_AllocSearch9, (void *)he_RunSearch9) != 0)
+    if (he_SetEventHandlers(9, he_AllocSearch9, he_RunSearch9) != 0)
         return 1;
     sv_RegisterActivity(9, "Suchen", 1, 0x500, -1);
-    if (he_SetEventHandlers(10, (void *)d3io_NoopCallback, (void *)he_RunNewOccurrenceMsg) != 0)
+    if (he_SetEventHandlers(10, he_NoHandlerB, he_RunNewOccurrenceMsg) != 0)
         return 1;
-    if (he_SetEventHandlers(0xb, (void *)he_AllocTrade, (void *)he_RunTrade) != 0)
+    if (he_SetEventHandlers(0xb, he_AllocTrade, he_RunTrade) != 0)
         return 1;
-    if (he_SetEventHandlers(0xc, (void *)he_AllocResearch, (void *)he_RunResearch) != 0)
+    if (he_SetEventHandlers(0xc, he_AllocResearch, he_RunResearch) != 0)
         return 1;
-    if (he_SetEventHandlers(0xd, (void *)he_AllocGebaeudeBauen, (void *)he_RunConstruction) != 0)
+    if (he_SetEventHandlers(0xd, he_AllocGebaeudeBauen, he_RunConstruction) != 0)
         return 1;
-    if (he_SetEventHandlers(0xe, (void *)d3io_NoopCallback, (void *)d3io_NoopCallback) != 0)
+    if (he_SetEventHandlers(0xe, he_NoHandlerB, he_NoHandlerB) != 0)
         return 1;
-    if (he_SetEventHandlers(0x4c, (void *)he_AllocMissionCheck, (void *)he_RunMissionCheck) != 0)
+    if (he_SetEventHandlers(0x4c, he_AllocMissionCheck, he_RunMissionCheck) != 0)
         return 1;
-    if (he_SetEventHandlers(0x4d, (void *)he_FreeEventNow, (void *)d3io_NoopCallback) != 0)
+    if (he_SetEventHandlers(0x4d, he_FreeEventNow, he_NoHandlerB) != 0)
         return 1;
     return 0;
 }
 
-void he_AllocRecipeResearch();
-void he_RunRecipeResearch();
-void he_AllocResearchRecipe();
-void he_RunResearchRecipe();
-void he_AllocTrainShare();
-void he_RunTrainShare();
-void he_AllocAlchemistDay();
-void he_RunAlchemistDay();
+void he_AllocRecipeResearch(AIJOB *ev);
+void he_RunRecipeResearch(AIJOB *ev);
+void he_AllocResearchRecipe(AIJOB *ev);
+void he_RunResearchRecipe(AIJOB *ev);
+void he_AllocTrainShare(AIJOB *ev);
+void he_RunTrainShare(AIJOB *ev);
+void he_AllocAlchemistDay(AIJOB *ev);
+void he_RunAlchemistDay(AIJOB *ev);
 
 /* 0x56d220, registers the research event types 0x95 .. 0x98 (called by 0x53d4b0) and the texts of 0x95 / 0x96; 0 = ok, 1 = a registration failed */
 int he_RegisterEventTypes95(void)
 {
-    if (he_SetEventHandlers(0x95, (void *)he_AllocRecipeResearch, (void *)he_RunRecipeResearch) == 0) {
-        if (he_SetEventHandlers(0x96, (void *)he_AllocResearchRecipe, (void *)he_RunResearchRecipe) == 0) {
-            if (he_SetEventHandlers(0x97, (void *)he_AllocTrainShare, (void *)he_RunTrainShare) == 0) {
-                if (he_SetEventHandlers(0x98, (void *)he_AllocAlchemistDay, (void *)he_RunAlchemistDay) == 0) {
+    if (he_SetEventHandlers(0x95, he_AllocRecipeResearch, he_RunRecipeResearch) == 0) {
+        if (he_SetEventHandlers(0x96, he_AllocResearchRecipe, he_RunResearchRecipe) == 0) {
+            if (he_SetEventHandlers(0x97, he_AllocTrainShare, he_RunTrainShare) == 0) {
+                if (he_SetEventHandlers(0x98, he_AllocAlchemistDay, he_RunAlchemistDay) == 0) {
                     sv_RegisterActivity(0x95, "erforschen", 1, 0x500, -1);
                     sv_RegisterActivity(0x96, "erforschen", 1, 0x500, -1);
                     return 0;
@@ -3714,18 +3713,18 @@ void he_LabIncident(AICHAR *c, AIJOB *ev, AIBLD *b, int state)
     }
 }
 
-void he_AllocSecretRoom();
-void he_RunSecretRoom();
-void he_AllocEvent9a();
-void he_RunDomizilEvent();
-void he_AllocDomizilEvent();
+void he_AllocSecretRoom(AIJOB *ev);
+void he_RunSecretRoom(AIJOB *ev);
+void he_AllocEvent9a(AIJOB *ev);
+void he_RunDomizilEvent(AIJOB *ev);
+void he_AllocDomizilEvent(AIJOB *ev);
 
 /* 0x56e400, registers the event types 0x99 .. 0x9b (called by 0x53d4b0): the pairs (0x56e460, 0x56e5b0), (0x56efc0, 0x56f040) and (0x56f050, 0x56f0b0); 0 = ok, 1 = a registration failed */
 int he_RegisterEventTypes99(void)
 {
-    if (he_SetEventHandlers(0x99, (void *)he_AllocSecretRoom, (void *)he_RunSecretRoom) == 0) {
-        if (he_SetEventHandlers(0x9a, (void *)he_AllocEvent9a, (void *)he_FreeEventNow) == 0) {
-            if (he_SetEventHandlers(0x9b, (void *)he_AllocDomizilEvent, (void *)he_RunDomizilEvent) == 0)
+    if (he_SetEventHandlers(0x99, he_AllocSecretRoom, he_RunSecretRoom) == 0) {
+        if (he_SetEventHandlers(0x9a, he_AllocEvent9a, he_FreeEventNow) == 0) {
+            if (he_SetEventHandlers(0x9b, he_AllocDomizilEvent, he_RunDomizilEvent) == 0)
                 return 0;
         }
     }
@@ -4342,20 +4341,20 @@ void he_RunGraveLease(struct AIJOB *ev);          /* 0x572a50 */
 /* 0x56f980, registers the event types 0x88 .. 0x94 (called by 0x53d4b0): (0x88, 0x56fc50, 0x56fda0), (0x89, 0x570130, 0x5702e0), (0x8c, 0x570ef0, 0x571000), (0x8d, 0x571550, 0x571640), (0x8a, 0x5706e0, 0x5707a0), (0x8b, 0x572860, 0x570cc0), (0x8d again), (0x8e, 0x571990, 0x5719e0), (0x8f, 0x571ac0, 0x571c30), (0x90, 0x571f60, 0x5725b0), (0x91, 0x5726a0, 0x5726b0), (0x93, 0x572b90, 0x572bf0), (0x94, 0x55e3a0, 0x572fd0), (0x92, 0x572860, 0x572a50), then the texts of 0x52b350; 0 = ok, 1 = a registration failed */
 int he_RegisterEventTypes88(void)
 {
-    if (he_SetEventHandlers(0x88, (void *)he_AllocHaunting, (void *)he_RunHaunting) == 0) {
-        if (he_SetEventHandlers(0x89, (void *)he_AllocDecay, (void *)he_RunDecay) == 0) {
-            if (he_SetEventHandlers(0x8c, (void *)he_AllocMasterWork, (void *)he_RunMasterWork) == 0) {
-                if (he_SetEventHandlers(0x8d, (void *)he_AllocGraveCare, (void *)he_RunGraveCare) == 0) {
-                    if (he_SetEventHandlers(0x8a, (void *)he_AllocPlunder, (void *)he_RunPlunder) == 0) {
-                        if (he_SetEventHandlers(0x8b, (void *)he_AllocPlunderOfferLease, (void *)he_RunPlunderOffer) == 0) {
-                            if (he_SetEventHandlers(0x8d, (void *)he_AllocGraveCare, (void *)he_RunGraveCare) == 0) {
-                                if (he_SetEventHandlers(0x8e, (void *)he_AllocDeathDue, (void *)he_RunDeathDue) == 0) {
-                                    if (he_SetEventHandlers(0x8f, (void *)he_AllocGraveTraining, (void *)he_RunGraveTraining) == 0) {
-                                        if (he_SetEventHandlers(0x90, (void *)he_AllocMeeting, (void *)he_RunMeeting) == 0) {
-                                            if (he_SetEventHandlers(0x91, (void *)he_AllocMeetingScene, (void *)he_RunMeetingScene) == 0) {
-                                                if (he_SetEventHandlers(0x93, (void *)he_AllocGraveyardWorkers, (void *)he_RunGraveyardWorkers) == 0) {
-                                                    if (he_SetEventHandlers(0x94, (void *)he_AllocDueIsStart, (void *)he_RunGraveyardTheft) == 0) {
-                                                        if (he_SetEventHandlers(0x92, (void *)he_AllocPlunderOfferLease, (void *)he_RunGraveLease) == 0) {
+    if (he_SetEventHandlers(0x88, he_AllocHaunting, he_RunHaunting) == 0) {
+        if (he_SetEventHandlers(0x89, he_AllocDecay, he_RunDecay) == 0) {
+            if (he_SetEventHandlers(0x8c, he_AllocMasterWork, he_RunMasterWork) == 0) {
+                if (he_SetEventHandlers(0x8d, he_AllocGraveCare, he_RunGraveCare) == 0) {
+                    if (he_SetEventHandlers(0x8a, he_AllocPlunder, he_RunPlunder) == 0) {
+                        if (he_SetEventHandlers(0x8b, he_AllocPlunderOfferLease, he_RunPlunderOffer) == 0) {
+                            if (he_SetEventHandlers(0x8d, he_AllocGraveCare, he_RunGraveCare) == 0) {
+                                if (he_SetEventHandlers(0x8e, he_AllocDeathDue, he_RunDeathDue) == 0) {
+                                    if (he_SetEventHandlers(0x8f, he_AllocGraveTraining, he_RunGraveTraining) == 0) {
+                                        if (he_SetEventHandlers(0x90, he_AllocMeeting, he_RunMeeting) == 0) {
+                                            if (he_SetEventHandlers(0x91, he_AllocMeetingScene, he_RunMeetingScene) == 0) {
+                                                if (he_SetEventHandlers(0x93, he_AllocGraveyardWorkers, he_RunGraveyardWorkers) == 0) {
+                                                    if (he_SetEventHandlers(0x94, he_AllocDueIsStart, he_RunGraveyardTheft) == 0) {
+                                                        if (he_SetEventHandlers(0x92, he_AllocPlunderOfferLease, he_RunGraveLease) == 0) {
                                                             sv_RegisterActivity(0x8d, "grabpflege", 1, 0x513, -1);
                                                             sv_RegisterActivity(0x8c, "Rohstoffsuchen", 1, 0x500, 0xac);
                                                             sv_RegisterActivity(0x8f, "Upgraden", 0, 0x512, -1);
@@ -6076,7 +6075,7 @@ void he_RunCouncil(struct AIJOB *ev);          /* 0x5732d0 */
 /* 0x573260, registers the event type 0xa2 (called by 0x53d4b0): the pair (0x573280, 0x5732d0); 0 = ok, 1 = a registration failed */
 int he_RegisterEventTypeA2(void)
 {
-    return he_SetEventHandlers(0xa2, (void *)he_AllocCouncil, (void *)he_RunCouncil) != 0;
+    return he_SetEventHandlers(0xa2, he_AllocCouncil, he_RunCouncil) != 0;
 }
 /* 0x573280, the alloc of the event 0xa2 (the daily Hanseatic League politics): nothing while paused (AIJOB.opts & 4) or
    while the hour (ai_Time.hour) is 0xa or less; else the due clock AIJOB.end = now + 24 hours (0x4fe140), its hour 0xa,
@@ -6165,13 +6164,13 @@ void he_RunEventGood(struct AIJOB *ev);          /* 0x5753a0 */
    then the type text 0x50f of 0xa1 (0x52b350); 0 = ok, 1 = a registration failed */
 int he_RegisterEventTypes9d(void)
 {
-    if (he_SetEventHandlers(0x9d, (void *)he_AllocGypsyApproach, (void *)he_RunGypsyApproach) == 0) {
-        if (he_SetEventHandlers(0x9e, (void *)he_AllocGypsyCurse, (void *)he_RunGypsyCurse) == 0) {
-            if (he_SetEventHandlers(0x9f, (void *)he_AllocGypsySlowdown, (void *)he_RunGypsySlowdown) == 0) {
-                if (he_SetEventHandlers(0xa0, (void *)he_AllocTrialScene, (void *)he_RunTrialScene) == 0) {
-                    if (he_SetEventHandlers(0xa1, (void *)he_AllocMeeting4, (void *)he_RunCircusShow) == 0) {
-                        if (he_SetEventHandlers(0xa3, (void *)he_AllocPettyLoss, (void *)he_RunPettyLoss) == 0) {
-                            if (he_SetEventHandlers(0xa4, (void *)he_AllocEventGood, (void *)he_RunEventGood) == 0) {
+    if (he_SetEventHandlers(0x9d, he_AllocGypsyApproach, he_RunGypsyApproach) == 0) {
+        if (he_SetEventHandlers(0x9e, he_AllocGypsyCurse, he_RunGypsyCurse) == 0) {
+            if (he_SetEventHandlers(0x9f, he_AllocGypsySlowdown, he_RunGypsySlowdown) == 0) {
+                if (he_SetEventHandlers(0xa0, he_AllocTrialScene, he_RunTrialScene) == 0) {
+                    if (he_SetEventHandlers(0xa1, he_AllocMeeting4, he_RunCircusShow) == 0) {
+                        if (he_SetEventHandlers(0xa3, he_AllocPettyLoss, he_RunPettyLoss) == 0) {
+                            if (he_SetEventHandlers(0xa4, he_AllocEventGood, he_RunEventGood) == 0) {
                                 sv_RegisterActivity(0xa1, 0, 0, 0x50f, -1);
                                 return 0;
                             }
@@ -7295,4 +7294,9 @@ void he_SetMessageKindFiltered(int id, int on)
             he_MessageFilterMask &= ~0x100;
         break;
     }
+}
+/* unlinked: the empty alloc / run handler of the event types without one; LINK folds it (/OPT:ICF) into
+   d3io_NoopCallback, 0x44ee40, where the original's registrations (he_SetEventHandlers) point */
+void he_NoHandlerB(AIJOB *ev)
+{
 }

@@ -105,6 +105,7 @@ struct D3SM;
 #include <stdlib.h>
 #include <d3d.h>
 #include "he.h"
+void he_NoHandler(struct AIJOB *ev);  /* unlinked, defined at the end of the unit: the empty handler of the event types without one */
 #include "hmt_types.h"
 #include "d3.h"
 #include "d3_quad.h"
@@ -119,7 +120,6 @@ struct D3SM;
 
 extern int ai_TransportWindow();
 /* full rebuild: the symbols whose original addresses the code above spells literally */
-extern void (*he_RunHandlers[0xa8])(unsigned char *);
 extern const unsigned __int64 gypsyFilter;  /* 0x5eed68, lcmap.c */
 #include "menu_types.h"
 extern GAPDATA full_data_602568[];
@@ -164,7 +164,6 @@ struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIP
 
 
 #define U_I(a) (*(int *)(a))
-typedef void (*HEALLOC)(AIJOB *ev);     /* an event type's alloc handler (registered with its run handler by he_SetEventHandlers) */
 
 
 #define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
@@ -1219,9 +1218,9 @@ void he_RunNone(AIJOB *ev)
 
 int he_InitEvents(void)
 {
-    if (he_SetEventHandlers(0, (void *)he_AllocNone, (void *)he_RunNone) != 0)
+    if (he_SetEventHandlers(0, he_AllocNone, he_RunNone) != 0)
         return 1;
-    if (he_SetEventHandlers(1, (void *)d3io_NoopCallback, (void *)d3io_NoopCallback) != 0)
+    if (he_SetEventHandlers(1, he_NoHandler, he_NoHandler) != 0)
         return 1;
     if (he_RegisterEventTypes22() != 0)
         return 1;
@@ -1276,11 +1275,11 @@ int he_ReleaseEvents(void)
 }
 /* 0x53d600, sets the alloc / run handlers of the event type `type` (0 .. 0xa6; 1 = type out of range) */
 
-int he_SetEventHandlers(int type, void *alloc, void *run)
+int he_SetEventHandlers(int type, HEHANDLER alloc, HEHANDLER run)
 {
     if (type >= 0 && type < 0xa7) {
-        he_AllocHandlers[type] = (HEALLOC)alloc;
-        he_RunHandlers[type] = (void (*)(unsigned char *))run;
+        he_AllocHandlers[type] = alloc;
+        he_RunHandlers[type] = run;
         return 0;
     }
     return 1;
@@ -1666,7 +1665,7 @@ unsigned char *he_CreateEvent(unsigned char *m)
                 break;
         if (j == 0x100)
             return 0;
-        he_QuickList[j] = (char *)ev;
+        he_QuickList[j] = ev;
         if (j > he_QuickTop)
             he_QuickTop = j;
     }
@@ -1706,9 +1705,9 @@ void he_FreeEvent(AIJOB *r)
     }
     if (ev->opts & 8) {
         for (i = 0; i < 0x100; i++)
-            if (he_QuickList[i] == (char *)ev)
+            if (he_QuickList[i] == ev)
                 break;
-        q = (AIJOB *)he_QuickList[i];
+        q = he_QuickList[i];
         if (q != ev)
             return;
         if (q->slot != 0 && q->slot->win != -1)
@@ -2169,17 +2168,17 @@ void he_RunEvents(void)
 
 void he_RunQuickList(void)
 {
-    unsigned char *pb;
+    AIJOB *pb;
     int i = 0;
 
     if (he_QuickTop >= 0) {
         do {
             if (i >= 0x100)
                 return;
-            pb = (unsigned char *)he_QuickList[i];
-            if (pb != 0 && *pb < 0xa7) {
+            pb = he_QuickList[i];
+            if (pb != 0 && pb->kind < 0xa7) {
                 he_RecheckEventPerson(pb);
-                he_RunHandlers[*pb](pb);
+                he_RunHandlers[pb->kind](pb);
             }
             i++;
         } while (i <= he_QuickTop);
@@ -10796,149 +10795,149 @@ void he_RunOfficeAward(AIJOB *ev)
     }
 }
 
-void he_FreeEventNow();
+void he_FreeEventNow(AIJOB *r);
 
 /* 0x553060, registers the alloc / run handler pairs of the event types 0x22 .. 0xa5 (he_SetEventHandlers; the pair of a type is (alloc, run); 1 = a registration failed; 0x52b350 (type, 0, 0, 0x507 / 0x50e, -1) registers the message type of a few of them). The handlers above 0x553060 are the ones of this file; 0x56f040 is a forwarder to the free (0x53e1f0); the rest lives in the stretch 0x553880 .. 0x575700 (drafts to come) */
 int he_RegisterEventTypes22(void)
 {
-    if (he_SetEventHandlers(0x22, (void *)d3io_NoopCallback, (void *)d3io_NoopCallback) != 0)
+    if (he_SetEventHandlers(0x22, he_NoHandler, he_NoHandler) != 0)
         return 1;
-    if (he_SetEventHandlers(0x29, (void *)he_RunDueNow, (void *)he_FreeEventNow) != 0)
+    if (he_SetEventHandlers(0x29, he_RunDueNow, he_FreeEventNow) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2a, (void *)he_AllocStammtisch, (void *)he_RunStammtisch) != 0)
+    if (he_SetEventHandlers(0x2a, he_AllocStammtisch, he_RunStammtisch) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2b, (void *)he_AllocTavern, (void *)he_RunTavern) != 0)
+    if (he_SetEventHandlers(0x2b, he_AllocTavern, he_RunTavern) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2c, (void *)he_AllocOffer, (void *)he_RunWeddingOffer) != 0)
+    if (he_SetEventHandlers(0x2c, he_AllocOffer, he_RunWeddingOffer) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2d, (void *)he_FreeEventNow, (void *)he_FreeEventNow) != 0)
+    if (he_SetEventHandlers(0x2d, he_FreeEventNow, he_FreeEventNow) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2e, (void *)he_AllocQuarrel, (void *)he_RunQuarrel) != 0)
+    if (he_SetEventHandlers(0x2e, he_AllocQuarrel, he_RunQuarrel) != 0)
         return 1;
-    if (he_SetEventHandlers(0x2f, (void *)he_RunDueNow, (void *)he_RunMasterExam) != 0)
+    if (he_SetEventHandlers(0x2f, he_RunDueNow, he_RunMasterExam) != 0)
         return 1;
-    if (he_SetEventHandlers(0x30, (void *)he_FreeEventNow, (void *)he_FreeEventNow) != 0)
+    if (he_SetEventHandlers(0x30, he_FreeEventNow, he_FreeEventNow) != 0)
         return 1;
-    if (he_SetEventHandlers(0x37, (void *)he_AllocFeast, (void *)he_RunFeast) != 0)
+    if (he_SetEventHandlers(0x37, he_AllocFeast, he_RunFeast) != 0)
         return 1;
-    if (he_SetEventHandlers(0x36, (void *)he_StartExam, (void *)he_RunFeastExam) != 0)
+    if (he_SetEventHandlers(0x36, he_StartExam, he_RunFeastExam) != 0)
         return 1;
-    if (he_SetEventHandlers(0x35, (void *)he_AllocTribute, (void *)he_RunTribute) != 0)
+    if (he_SetEventHandlers(0x35, he_AllocTribute, he_RunTribute) != 0)
         return 1;
-    if (he_SetEventHandlers(0x41, (void *)he_AllocCourtship, (void *)he_RunCourtship) != 0)
+    if (he_SetEventHandlers(0x41, he_AllocCourtship, he_RunCourtship) != 0)
         return 1;
-    if (he_SetEventHandlers(0x42, (void *)he_AllocRandomMessage, (void *)he_RunRandomMessage) != 0)
+    if (he_SetEventHandlers(0x42, he_AllocRandomMessage, he_RunRandomMessage) != 0)
         return 1;
-    if (he_SetEventHandlers(0x43, (void *)he_AllocPatrol, (void *)he_RunPatrol) != 0)
+    if (he_SetEventHandlers(0x43, he_AllocPatrol, he_RunPatrol) != 0)
         return 1;
     sv_RegisterActivity(0x43, 0x0, 0x0, 0x507, -1);
-    if (he_SetEventHandlers(0x44, (void *)he_AllocRaid, (void *)he_RunRaid) != 0)
+    if (he_SetEventHandlers(0x44, he_AllocRaid, he_RunRaid) != 0)
         return 1;
-    if (he_SetEventHandlers(0x45, (void *)he_AllocFight, (void *)he_RunFight) != 0)
+    if (he_SetEventHandlers(0x45, he_AllocFight, he_RunFight) != 0)
         return 1;
-    if (he_SetEventHandlers(0x46, (void *)he_AllocDuelChallenge, (void *)he_RunDuelChallenge) != 0)
+    if (he_SetEventHandlers(0x46, he_AllocDuelChallenge, he_RunDuelChallenge) != 0)
         return 1;
-    if (he_SetEventHandlers(0x47, (void *)he_AllocInsult, (void *)he_RunInsult) != 0)
+    if (he_SetEventHandlers(0x47, he_AllocInsult, he_RunInsult) != 0)
         return 1;
-    if (he_SetEventHandlers(0x4a, (void *)he_AllocGeselle, (void *)he_RunGeselle) != 0)
+    if (he_SetEventHandlers(0x4a, he_AllocGeselle, he_RunGeselle) != 0)
         return 1;
-    if (he_SetEventHandlers(0x4b, (void *)he_AllocInsultNews, (void *)he_RunInsultNews) != 0)
+    if (he_SetEventHandlers(0x4b, he_AllocInsultNews, he_RunInsultNews) != 0)
         return 1;
-    if (he_SetEventHandlers(0x51, (void *)he_AllocNextDay, (void *)he_RunCountdown) != 0)
+    if (he_SetEventHandlers(0x51, he_AllocNextDay, he_RunCountdown) != 0)
         return 1;
-    if (he_SetEventHandlers(0x52, (void *)he_AllocComment, (void *)he_RunComment) != 0)
+    if (he_SetEventHandlers(0x52, he_AllocComment, he_RunComment) != 0)
         return 1;
-    if (he_SetEventHandlers(0x53, (void *)he_AllocCharPayouts, (void *)he_RunCharPayouts) != 0)
+    if (he_SetEventHandlers(0x53, he_AllocCharPayouts, he_RunCharPayouts) != 0)
         return 1;
-    if (he_SetEventHandlers(0x54, (void *)he_AllocDueIsStart, (void *)he_RunMasterExamFee) != 0)
+    if (he_SetEventHandlers(0x54, he_AllocDueIsStart, he_RunMasterExamFee) != 0)
         return 1;
-    if (he_SetEventHandlers(0x55, (void *)he_AllocMasterExamPay, (void *)he_RunMasterExamPay) != 0)
+    if (he_SetEventHandlers(0x55, he_AllocMasterExamPay, he_RunMasterExamPay) != 0)
         return 1;
-    if (he_SetEventHandlers(0x56, (void *)he_AllocNextDay, (void *)he_RunPayment) != 0)
+    if (he_SetEventHandlers(0x56, he_AllocNextDay, he_RunPayment) != 0)
         return 1;
-    if (he_SetEventHandlers(0x57, (void *)he_AllocRandomHalf, (void *)he_RunStoreSale) != 0)
+    if (he_SetEventHandlers(0x57, he_AllocRandomHalf, he_RunStoreSale) != 0)
         return 1;
-    if (he_SetEventHandlers(0x58, (void *)he_AllocRandomHalf, (void *)he_RunBuildingDecay) != 0)
+    if (he_SetEventHandlers(0x58, he_AllocRandomHalf, he_RunBuildingDecay) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5a, (void *)he_AllocRepostEvent, (void *)he_RunRepostEvent) != 0)
+    if (he_SetEventHandlers(0x5a, he_AllocRepostEvent, he_RunRepostEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5b, (void *)he_AllocPunishment, (void *)he_RunFinePayment) != 0)
+    if (he_SetEventHandlers(0x5b, he_AllocPunishment, he_RunFinePayment) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5c, (void *)he_AllocPunishment, (void *)he_RunPilloryPunishment) != 0)
+    if (he_SetEventHandlers(0x5c, he_AllocPunishment, he_RunPilloryPunishment) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5d, (void *)he_AllocOffspring, (void *)he_RunOffspring) != 0)
+    if (he_SetEventHandlers(0x5d, he_AllocOffspring, he_RunOffspring) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5e, (void *)he_StartTrialEvent, (void *)he_RunTrialEvent) != 0)
+    if (he_SetEventHandlers(0x5e, he_StartTrialEvent, he_RunTrialEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x5f, (void *)he_StartNextTrialStep, (void *)he_RunTrialSteps) != 0)
+    if (he_SetEventHandlers(0x5f, he_StartNextTrialStep, he_RunTrialSteps) != 0)
         return 1;
-    if (he_SetEventHandlers(0x60, (void *)he_StartTraining, (void *)he_RunTraining) != 0)
+    if (he_SetEventHandlers(0x60, he_StartTraining, he_RunTraining) != 0)
         return 1;
-    if (he_SetEventHandlers(0x59, (void *)he_StartPlague, (void *)he_RunPlague) != 0)
+    if (he_SetEventHandlers(0x59, he_StartPlague, he_RunPlague) != 0)
         return 1;
-    if (he_SetEventHandlers(0x61, (void *)he_StartGang, (void *)he_RunGang) != 0)
+    if (he_SetEventHandlers(0x61, he_StartGang, he_RunGang) != 0)
         return 1;
     sv_RegisterActivity(0x61, 0x0, 0x0, 0x507, -1);
-    if (he_SetEventHandlers(0x63, (void *)he_AllocProtectionAsk, (void *)he_RunProtectionAsk) != 0)
+    if (he_SetEventHandlers(0x63, he_AllocProtectionAsk, he_RunProtectionAsk) != 0)
         return 1;
-    if (he_SetEventHandlers(0x62, (void *)he_StartProtection, (void *)he_RunProtection) != 0)
+    if (he_SetEventHandlers(0x62, he_StartProtection, he_RunProtection) != 0)
         return 1;
     sv_RegisterActivity(0x62, 0x0, 0x0, 0x50e, -1);
-    if (he_SetEventHandlers(0x64, (void *)he_StartAudit, (void *)he_RunAudit) != 0)
+    if (he_SetEventHandlers(0x64, he_StartAudit, he_RunAudit) != 0)
         return 1;
     sv_RegisterActivity(0x64, 0x0, 0x0, 0x507, -1);
-    if (he_SetEventHandlers(0x65, (void *)he_StartGathering, (void *)he_RunGathering) != 0)
+    if (he_SetEventHandlers(0x65, he_StartGathering, he_RunGathering) != 0)
         return 1;
     sv_RegisterActivity(0x65, 0x0, 0x0, 0x507, -1);
-    if (he_SetEventHandlers(0x66, (void *)he_AllocSim, (void *)he_RunAccidentSim) != 0)
+    if (he_SetEventHandlers(0x66, he_AllocSim, he_RunAccidentSim) != 0)
         return 1;
-    if (he_SetEventHandlers(0x67, (void *)he_StartAuctionEvent, (void *)he_RunAuctionEvent) != 0)
+    if (he_SetEventHandlers(0x67, he_StartAuctionEvent, he_RunAuctionEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x68, (void *)he_StartInnSim, (void *)he_RunInnSim) != 0)
+    if (he_SetEventHandlers(0x68, he_StartInnSim, he_RunInnSim) != 0)
         return 1;
-    if (he_SetEventHandlers(0x69, (void *)he_StartTitleCeremony, (void *)he_RunTitleCeremony) != 0)
+    if (he_SetEventHandlers(0x69, he_StartTitleCeremony, he_RunTitleCeremony) != 0)
         return 1;
-    if (he_SetEventHandlers(0x6a, (void *)he_StartSkillUp, (void *)he_RunSkillUp) != 0)
+    if (he_SetEventHandlers(0x6a, he_StartSkillUp, he_RunSkillUp) != 0)
         return 1;
-    if (he_SetEventHandlers(0x6b, (void *)he_StartBard, (void *)he_RunBard) != 0)
+    if (he_SetEventHandlers(0x6b, he_StartBard, he_RunBard) != 0)
         return 1;
-    if (he_SetEventHandlers(0x6d, (void *)he_StartPopulation, (void *)he_RunPopulation) != 0)
+    if (he_SetEventHandlers(0x6d, he_StartPopulation, he_RunPopulation) != 0)
         return 1;
-    if (he_SetEventHandlers(0x6f, (void *)he_StartLover, (void *)he_RunLover) != 0)
+    if (he_SetEventHandlers(0x6f, he_StartLover, he_RunLover) != 0)
         return 1;
-    if (he_SetEventHandlers(0x70, (void *)he_AllocSim, (void *)he_RunDiseaseSim) != 0)
+    if (he_SetEventHandlers(0x70, he_AllocSim, he_RunDiseaseSim) != 0)
         return 1;
-    if (he_SetEventHandlers(0x74, (void *)he_StartDarkCorner, (void *)he_RunDarkCorner) != 0)
+    if (he_SetEventHandlers(0x74, he_StartDarkCorner, he_RunDarkCorner) != 0)
         return 1;
-    if (he_SetEventHandlers(0x76, (void *)he_StartEffectEvent, (void *)he_RunEffectEvent) != 0)
+    if (he_SetEventHandlers(0x76, he_StartEffectEvent, he_RunEffectEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x77, (void *)he_StartSendHomeEvent, (void *)he_RunSendHomeEvent) != 0)
+    if (he_SetEventHandlers(0x77, he_StartSendHomeEvent, he_RunSendHomeEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x78, (void *)he_StartReaper, (void *)he_RunReaper) != 0)
+    if (he_SetEventHandlers(0x78, he_StartReaper, he_RunReaper) != 0)
         return 1;
-    if (he_SetEventHandlers(0x79, (void *)he_StartRanking, (void *)he_RunRanking) != 0)
+    if (he_SetEventHandlers(0x79, he_StartRanking, he_RunRanking) != 0)
         return 1;
-    if (he_SetEventHandlers(0x7a, (void *)he_StartWalk, (void *)he_RunWalk) != 0)
+    if (he_SetEventHandlers(0x7a, he_StartWalk, he_RunWalk) != 0)
         return 1;
-    if (he_SetEventHandlers(0x7b, (void *)he_FreeEventNow, (void *)he_FreeEventNow) != 0)
+    if (he_SetEventHandlers(0x7b, he_FreeEventNow, he_FreeEventNow) != 0)
         return 1;
-    if (he_SetEventHandlers(0x7d, (void *)he_InitSixGroupEvent, (void *)he_RunSixGroupEvent) != 0)
+    if (he_SetEventHandlers(0x7d, he_InitSixGroupEvent, he_RunSixGroupEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(0x7e, (void *)he_StartExam, (void *)he_RunExamQuestion) != 0)
+    if (he_SetEventHandlers(0x7e, he_StartExam, he_RunExamQuestion) != 0)
         return 1;
-    if (he_SetEventHandlers(0x7f, (void *)he_StartExamOffer, (void *)he_RunExamOffer) != 0)
+    if (he_SetEventHandlers(0x7f, he_StartExamOffer, he_RunExamOffer) != 0)
         return 1;
-    if (he_SetEventHandlers(0x80, (void *)he_StartDue, (void *)he_RunDelay) != 0)
+    if (he_SetEventHandlers(0x80, he_StartDue, he_RunDelay) != 0)
         return 1;
-    if (he_SetEventHandlers(0x81, (void *)he_StartDue, (void *)he_RunConversion) != 0)
+    if (he_SetEventHandlers(0x81, he_StartDue, he_RunConversion) != 0)
         return 1;
-    if (he_SetEventHandlers(0x82, (void *)he_StartSkillBonus, (void *)he_RunSkillBonus) != 0)
+    if (he_SetEventHandlers(0x82, he_StartSkillBonus, he_RunSkillBonus) != 0)
         return 1;
-    if (he_SetEventHandlers(0x86, (void *)he_StartApplicants, (void *)he_RunApplicants) != 0)
+    if (he_SetEventHandlers(0x86, he_StartApplicants, he_RunApplicants) != 0)
         return 1;
-    if (he_SetEventHandlers(0x87, (void *)he_AllocTutorialIntro, (void *)he_RunTutorialIntro) != 0)
+    if (he_SetEventHandlers(0x87, he_AllocTutorialIntro, he_RunTutorialIntro) != 0)
         return 1;
-    return he_SetEventHandlers(0xa5, (void *)he_StartOfficeAward, (void *)he_RunOfficeAward) != 0;
+    return he_SetEventHandlers(0xa5, he_StartOfficeAward, he_RunOfficeAward) != 0;
 }
 
 
@@ -19411,128 +19410,128 @@ void he_RunPatrolEvent(AIJOB *ev)
 /* 0x568310, registers the event types 0x02 .. 0xa6 (second part, after 0x553060): he_SetEventHandlers (type, alloc, run) for each (a non-zero result = out of table space: return 1), the type texts 0x52b350 (type, name, 0, menu id, icon) for the types with an entry in the event list, and the tip table 0x505ca0 (0x1a, 0x6fa1e0); returns 0 */
 int he_RegisterEventTypes02(void)
 {
-    if (he_SetEventHandlers(2, (void *)he_AllocSale, (void *)he_RunSale) != 0)
+    if (he_SetEventHandlers(2, he_AllocSale, he_RunSale) != 0)
         return 1;
-    if (he_SetEventHandlers(6, (void *)he_AllocCustomersHire, (void *)he_RunCustomers) != 0)
+    if (he_SetEventHandlers(6, he_AllocCustomersHire, he_RunCustomers) != 0)
         return 1;
-    if (he_SetEventHandlers(7, (void *)he_AllocCustomersHire, (void *)he_RunHire) != 0)
+    if (he_SetEventHandlers(7, he_AllocCustomersHire, he_RunHire) != 0)
         return 1;
-    if (he_SetEventHandlers(15, (void *)he_AllocTransport, (void *)he_RunTransport) != 0)
+    if (he_SetEventHandlers(15, he_AllocTransport, he_RunTransport) != 0)
         return 1;
-    if (he_SetEventHandlers(16, (void *)he_AllocCartRepair, (void *)he_RunCartRepair) != 0)
+    if (he_SetEventHandlers(16, he_AllocCartRepair, he_RunCartRepair) != 0)
         return 1;
-    if (he_SetEventHandlers(17, (void *)he_AllocMessageBox, (void *)he_RunMessageBox) != 0)
+    if (he_SetEventHandlers(17, he_AllocMessageBox, he_RunMessageBox) != 0)
         return 1;
-    if (he_SetEventHandlers(18, (void *)he_AllocSlotOrderStore, (void *)he_RunSlotOrder) != 0)
+    if (he_SetEventHandlers(18, he_AllocSlotOrderStore, he_RunSlotOrder) != 0)
         return 1;
-    if (he_SetEventHandlers(19, (void *)he_AllocSlotOrderStore, (void *)he_RunStoreExtension) != 0)
+    if (he_SetEventHandlers(19, he_AllocSlotOrderStore, he_RunStoreExtension) != 0)
         return 1;
-    if (he_SetEventHandlers(20, (void *)he_AllocHerbGathering, (void *)he_RunHerbGathering) != 0)
+    if (he_SetEventHandlers(20, he_AllocHerbGathering, he_RunHerbGathering) != 0)
         return 1;
     sv_RegisterActivity(20, 0, 1, 1280, 174);
-    if (he_SetEventHandlers(21, (void *)he_AllocAnimalHunt, (void *)he_RunAnimalHunt) != 0)
+    if (he_SetEventHandlers(21, he_AllocAnimalHunt, he_RunAnimalHunt) != 0)
         return 1;
     sv_RegisterActivity(21, "Getier", 1, 1280, 174);
-    if (he_SetEventHandlers(22, (void *)he_AllocStudy, (void *)he_RunStudy) != 0)
+    if (he_SetEventHandlers(22, he_AllocStudy, he_RunStudy) != 0)
         return 1;
     sv_RegisterActivity(22, "Trainieren", 0, 1289, -1);
-    if (he_SetEventHandlers(23, (void *)he_AllocEvent17, (void *)he_RunEvent17) != 0)
+    if (he_SetEventHandlers(23, he_AllocEvent17, he_RunEvent17) != 0)
         return 1;
-    if (he_SetEventHandlers(25, (void *)he_AllocSabotage, (void *)he_RunSabotage) != 0)
+    if (he_SetEventHandlers(25, he_AllocSabotage, he_RunSabotage) != 0)
         return 1;
-    if (he_SetEventHandlers(24, (void *)he_AllocSpying, (void *)he_RunSpying) != 0)
+    if (he_SetEventHandlers(24, he_AllocSpying, he_RunSpying) != 0)
         return 1;
-    if (he_SetEventHandlers(26, (void *)he_AllocBrawl, (void *)he_RunBrawl) != 0)
+    if (he_SetEventHandlers(26, he_AllocBrawl, he_RunBrawl) != 0)
         return 1;
-    if (he_SetEventHandlers(27, (void *)he_AllocTheft, (void *)he_RunTheft) != 0)
+    if (he_SetEventHandlers(27, he_AllocTheft, he_RunTheft) != 0)
         return 1;
-    if (he_SetEventHandlers(28, (void *)he_AllocRepair, (void *)he_RunRepair) != 0)
+    if (he_SetEventHandlers(28, he_AllocRepair, he_RunRepair) != 0)
         return 1;
-    if (he_SetEventHandlers(30, (void *)he_AllocUpgrade, (void *)he_RunUpgrade) != 0)
+    if (he_SetEventHandlers(30, he_AllocUpgrade, he_RunUpgrade) != 0)
         return 1;
-    if (he_SetEventHandlers(32, (void *)he_AllocDemolish, (void *)he_RunDemolish) != 0)
+    if (he_SetEventHandlers(32, he_AllocDemolish, he_RunDemolish) != 0)
         return 1;
-    if (he_SetEventHandlers(33, (void *)he_AllocBuyBuilding, (void *)he_RunBuyBuilding) != 0)
+    if (he_SetEventHandlers(33, he_AllocBuyBuilding, he_RunBuyBuilding) != 0)
         return 1;
-    if (he_SetEventHandlers(31, (void *)he_AllocEvent1f, (void *)he_RunEvent1f) != 0)
+    if (he_SetEventHandlers(31, he_AllocEvent1f, he_RunEvent1f) != 0)
         return 1;
-    if (he_SetEventHandlers(35, (void *)he_AllocKredit, (void *)he_RunKredit) != 0)
+    if (he_SetEventHandlers(35, he_AllocKredit, he_RunKredit) != 0)
         return 1;
-    if (he_SetEventHandlers(36, (void *)he_AllocDueIsStart, (void *)he_RunEvent24) != 0)
+    if (he_SetEventHandlers(36, he_AllocDueIsStart, he_RunEvent24) != 0)
         return 1;
-    if (he_SetEventHandlers(37, (void *)he_RunDueNow, (void *)he_RunMasterExamNotice) != 0)
+    if (he_SetEventHandlers(37, he_RunDueNow, he_RunMasterExamNotice) != 0)
         return 1;
-    if (he_SetEventHandlers(38, (void *)he_AllocMasterExamPass, (void *)he_RunMasterExamPassed) != 0)
+    if (he_SetEventHandlers(38, he_AllocMasterExamPass, he_RunMasterExamPassed) != 0)
         return 1;
-    if (he_SetEventHandlers(39, (void *)he_AllocEvent27, (void *)he_RunEvent27) != 0)
+    if (he_SetEventHandlers(39, he_AllocEvent27, he_RunEvent27) != 0)
         return 1;
-    if (he_SetEventHandlers(40, (void *)he_AllocHarvest, (void *)he_RunHarvest) != 0)
+    if (he_SetEventHandlers(40, he_AllocHarvest, he_RunHarvest) != 0)
         return 1;
     sv_RegisterActivity(40, 0, 1, 1279, 188);
-    if (he_SetEventHandlers(49, (void *)he_AllocDueInOne, (void *)he_RunDismissal) != 0)
+    if (he_SetEventHandlers(49, he_AllocDueInOne, he_RunDismissal) != 0)
         return 1;
-    if (he_SetEventHandlers(50, (void *)he_AllocEvent32, (void *)he_RunPromotion) != 0)
+    if (he_SetEventHandlers(50, he_AllocEvent32, he_RunPromotion) != 0)
         return 1;
-    if (he_SetEventHandlers(51, (void *)he_AllocWorkerQuits, (void *)he_RunWorkerQuits) != 0)
+    if (he_SetEventHandlers(51, he_AllocWorkerQuits, he_RunWorkerQuits) != 0)
         return 1;
-    if (he_SetEventHandlers(52, (void *)he_AllocDueIsStart, (void *)he_RunWorkerTheft) != 0)
+    if (he_SetEventHandlers(52, he_AllocDueIsStart, he_RunWorkerTheft) != 0)
         return 1;
-    if (he_SetEventHandlers(56, (void *)he_AllocEvent38, (void *)he_RunEvent38) != 0)
+    if (he_SetEventHandlers(56, he_AllocEvent38, he_RunEvent38) != 0)
         return 1;
-    if (he_SetEventHandlers(57, (void *)he_AllocEvent39_3e, (void *)he_RunEvent39) != 0)
+    if (he_SetEventHandlers(57, he_AllocEvent39_3e, he_RunEvent39) != 0)
         return 1;
-    if (he_SetEventHandlers(58, (void *)he_AllocRoutine, (void *)he_RunRoutine) != 0)
+    if (he_SetEventHandlers(58, he_AllocRoutine, he_RunRoutine) != 0)
         return 1;
-    if (he_SetEventHandlers(59, (void *)he_AllocMarket, (void *)he_RunMarketSupervisor) != 0)
+    if (he_SetEventHandlers(59, he_AllocMarket, he_RunMarketSupervisor) != 0)
         return 1;
-    if (he_SetEventHandlers(60, (void *)he_AllocEvent3c, (void *)he_RunKidnap) != 0)
+    if (he_SetEventHandlers(60, he_AllocEvent3c, he_RunKidnap) != 0)
         return 1;
     sv_RegisterActivity(60, 0, 0, 1284, -1);
-    if (he_SetEventHandlers(61, (void *)he_AllocRansom, (void *)he_RunRansom) != 0)
+    if (he_SetEventHandlers(61, he_AllocRansom, he_RunRansom) != 0)
         return 1;
-    if (he_SetEventHandlers(62, (void *)he_AllocEvent39_3e, (void *)he_RunRansomDemand) != 0)
+    if (he_SetEventHandlers(62, he_AllocEvent39_3e, he_RunRansomDemand) != 0)
         return 1;
-    if (he_SetEventHandlers(63, (void *)he_AllocBurglary, (void *)he_RunBurglary) != 0)
+    if (he_SetEventHandlers(63, he_AllocBurglary, he_RunBurglary) != 0)
         return 1;
     sv_RegisterActivity(63, 0, 0, 1290, -1);
-    if (he_SetEventHandlers(64, (void *)he_AllocDueInOne, (void *)he_RunBuildingSpying) != 0)
+    if (he_SetEventHandlers(64, he_AllocDueInOne, he_RunBuildingSpying) != 0)
         return 1;
     sv_RegisterActivity(64, 0, 0, 1283, -1);
-    if (he_SetEventHandlers(72, (void *)he_AllocAmbush, (void *)he_RunAmbush) != 0)
+    if (he_SetEventHandlers(72, he_AllocAmbush, he_RunAmbush) != 0)
         return 1;
     sv_RegisterActivity(72, 0, 0, 1282, -1);
-    if (he_SetEventHandlers(73, (void *)he_AllocDueInOne, (void *)he_RunAttack) != 0)
+    if (he_SetEventHandlers(73, he_AllocDueInOne, he_RunAttack) != 0)
         return 1;
     sv_RegisterActivity(73, 0, 0, 1290, -1);
-    if (he_SetEventHandlers(78, (void *)he_AllocFire, (void *)he_RunFire) != 0)
+    if (he_SetEventHandlers(78, he_AllocFire, he_RunFire) != 0)
         return 1;
-    if (he_SetEventHandlers(79, (void *)he_AllocBurn, (void *)he_RunBurn) != 0)
+    if (he_SetEventHandlers(79, he_AllocBurn, he_RunBurn) != 0)
         return 1;
-    if (he_SetEventHandlers(80, (void *)he_AllocStorm, (void *)he_RunStormEvent) != 0)
+    if (he_SetEventHandlers(80, he_AllocStorm, he_RunStormEvent) != 0)
         return 1;
-    if (he_SetEventHandlers(108, (void *)he_AllocHealing, (void *)he_RunHealing) != 0)
+    if (he_SetEventHandlers(108, he_AllocHealing, he_RunHealing) != 0)
         return 1;
     sv_RegisterActivity(108, "Heilen", 0, 1285, -1);
-    if (he_SetEventHandlers(110, (void *)he_AllocNewWorker, (void *)he_RunNewWorker) != 0)
+    if (he_SetEventHandlers(110, he_AllocNewWorker, he_RunNewWorker) != 0)
         return 1;
-    if (he_SetEventHandlers(113, (void *)he_AllocDiePlayer, (void *)he_RunDiePlayer) != 0)
+    if (he_SetEventHandlers(113, he_AllocDiePlayer, he_RunDiePlayer) != 0)
         return 1;
-    if (he_SetEventHandlers(114, (void *)he_AllocKillPlayer, (void *)he_RunKillPlayer) != 0)
+    if (he_SetEventHandlers(114, he_AllocKillPlayer, he_RunKillPlayer) != 0)
         return 1;
-    if (he_SetEventHandlers(115, (void *)he_AllocNightWatch, (void *)he_RunNightWatch) != 0)
+    if (he_SetEventHandlers(115, he_AllocNightWatch, he_RunNightWatch) != 0)
         return 1;
-    if (he_SetEventHandlers(117, (void *)he_AllocDueInOne, (void *)he_RunRobbery) != 0)
+    if (he_SetEventHandlers(117, he_AllocDueInOne, he_RunRobbery) != 0)
         return 1;
     sv_RegisterActivity(117, 0, 0, 1282, -1);
-    if (he_SetEventHandlers(124, (void *)he_AllocTitleDue, (void *)he_RunTitleDue) != 0)
+    if (he_SetEventHandlers(124, he_AllocTitleDue, he_RunTitleDue) != 0)
         return 1;
-    if (he_SetEventHandlers(131, (void *)he_AllocHint, (void *)he_RunHint) != 0)
+    if (he_SetEventHandlers(131, he_AllocHint, he_RunHint) != 0)
         return 1;
-    if (he_SetEventHandlers(132, (void *)he_AllocTip, (void *)he_RunTip) != 0)
+    if (he_SetEventHandlers(132, he_AllocTip, he_RunTip) != 0)
         return 1;
-    if (he_SetEventHandlers(133, (void *)he_AllocTutorialBuildingTour, (void *)he_RunTutorialBuildingTour) != 0)
+    if (he_SetEventHandlers(133, he_AllocTutorialBuildingTour, he_RunTutorialBuildingTour) != 0)
         return 1;
-    if (he_SetEventHandlers(166, (void *)he_AllocPatrolEvent, (void *)he_RunPatrolEvent) != 0)
+    if (he_SetEventHandlers(166, he_AllocPatrolEvent, he_RunPatrolEvent) != 0)
         return 1;
     gm_Shuffled(0x1a, he_TipOrder);
     return 0;
@@ -19618,14 +19617,6 @@ void init_HookObject(struct D3OBJECT *o, void *p, int kind);
 int ai_FindBauplaetze();
 int ai_FindNearestObject(float *ref, int *list);  /* 0x58fe10 (lc.c) */
 void sv_CreateBanners(struct AIBLD *b);
-void he_AllocRecipeResearch();
-void he_RunRecipeResearch();
-void he_AllocResearchRecipe();
-void he_RunResearchRecipe();
-void he_AllocTrainShare();
-void he_RunTrainShare();
-void he_AllocAlchemistDay();
-void he_RunAlchemistDay();
 void snd_PlayFavourComment(void);
 void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);
 void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
@@ -19634,11 +19625,6 @@ void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bl
 void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
 void ai_DomizilMessageAge(struct AICHAR *param_1, struct AICHAR *param_2, struct AIBLD *param_3);
 void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, int placeId);
-void he_AllocSecretRoom();
-void he_RunSecretRoom();
-void he_AllocEvent9a();
-void he_RunDomizilEvent();
-void he_AllocDomizilEvent();
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);   /* 0x4a63f0, @original: lo an int, as this unit declares it above */
 void he_FreeEventNow(AIJOB *r);          /* 0x56f040 */
 void he_AllocHaunting(struct AIJOB *ev);          /* 0x56fc50 */
@@ -19725,3 +19711,8 @@ unsigned short ai_RandomDomizilGoodNotIn(int param_1, unsigned short *param_2); 
 void he_GiveDomizilGood(AICHAR *per);     /* 0x575430 */
 void he_EventGoodMoney(AICHAR *per);      /* 0x575540 */
 void he_EventGoodRefund(AICHAR *per);     /* 0x575570 */
+/* unlinked: the empty alloc / run handler of the event types without one; LINK folds it (/OPT:ICF) into
+   d3io_NoopCallback, 0x44ee40, where the original's registrations (he_SetEventHandlers) point */
+void he_NoHandler(AIJOB *ev)
+{
+}

@@ -76,9 +76,7 @@ int gv_ReadEffects();                     /* 0x4ed910 */
 
 /* he_EventTop: view of ai_NextEventId (tools/data_views.py) */
 extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
-extern char * he_QuickList[0x100];
 extern int he_EventCount;
-extern void (*he_RunHandlers[0xa8])(unsigned char *);
 
 void he_FreeEvents();                    /* 0x53d590 */
 
@@ -2234,7 +2232,7 @@ int ls_ReadEventTables(int f)
                 LS_R(&rec->u, size2)
             }
             if ((rec->opts & 8) != 0) {
-                he_QuickList[he_QuickTop] = (char *)rec;
+                he_QuickList[he_QuickTop] = rec;
                 he_QuickTop++;
             }
             he_EventCount++;
@@ -2478,7 +2476,7 @@ int ls_FixupAfterLoad(void)
                 ai_GameState = 2;
                 if (j->kind == 0x11)
                     j->modes &= 0xef;
-                he_RunHandlers[(unsigned char)j->kind]((unsigned char *)j);
+                he_RunHandlers[(unsigned char)j->kind](j);
                 ai_GameState = 0;
                 j->stage = v;
             }

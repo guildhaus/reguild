@@ -99,7 +99,6 @@ extern unsigned char ls_SaveSlot;                           /* 0x6f1c38 */
 extern int ai_NextEventId;                                    /* 0x6f2618 */
 extern int he_EventTop;                                      /* 0x6f261c, the highest used index of he_Events */
 extern int he_QuickTop;                                    /* 0x6f2620 */
-extern char * he_QuickList[0x100];                          /* 0x74db40 */
 extern int he_EventCount;                                    /* 0x7585e4 */
 #ifndef DATA_VIEWS_H
 #endif
