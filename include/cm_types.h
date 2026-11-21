@@ -880,15 +880,16 @@ typedef struct G28REC {
 } G28REC;
 typedef char cm_AssertG28REC[sizeof(G28REC) == 0x114 ? 1 : -1];
 
-/* a scene kind (cm_Kinds, 0x92c500, 12 of 0x14 bytes, filled by cm_RegisterSceneKind); the functions are kept as ints and
-   cast at their calls */
+/* a scene kind (cm_Kinds, 0x92c500, 12 of 0x14 bytes, filled by cm_RegisterSceneKind); the functions are old-style
+   function pointers: the kinds' functions take their own record types (G28REC * or the fight's view, the ask callbacks'
+   context CMSESSIONREQ *, AIPLAN *, CMAUCTION * ..), the dispatch passes the party and the context through */
 typedef struct CMKIND {
-    int run;                            /* 0x00, void (*)(char *m): the scene (cm_ExecCutscene) */
-    int askPlayer;                      /* 0x04, int (*)(CMCUTINFO *, int): asks a player's character (kind 6), cm_RunSceneParty */
-    int askOther;                       /* 0x08, int (*)(CMCUTINFO *, int): asks the other members */
+    void (*run)();                      /* 0x00, the scene, called with the party (cm_ExecCutscene) */
+    void (*askPlayer)();                /* 0x04, (CMCUTINFO *, the context): asks a player's character (kind 6), cm_RunSceneParty */
+    void (*askOther)();                 /* 0x08, (CMCUTINFO *, the context): asks the other members */
     char allAtOnce;                     /* 0x0c, 1: cm_RunSceneParty asks the members all at once, 0: one after the other */
     char pad0d[3];
-    int check;                          /* 0x10, int (*)(char *m): 0 cancels the party (cm_UpdateParties), 0: none */
+    int (*check)();                     /* 0x10, called with the party: 0 cancels it (cm_UpdateParties), 0: none */
 } CMKIND;
 typedef char cm_AssertCMKIND[sizeof(CMKIND) == 0x14 ? 1 : -1];
 
