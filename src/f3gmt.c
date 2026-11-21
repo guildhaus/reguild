@@ -2556,7 +2556,7 @@ AIBLD *gm_NearestBuilding(AIBLD *b, unsigned kind)
 }
 /* 0x501f60, the building of the kind kind nearest to the building b (by the scene positions of their objects) among those without an owner, as gm_NearestBuilding (0x501e40) but owner 0xffff only: of the query (1, 6), not a home (gm_IsHomeType), not of type 10 (gm_IsType10), with a scene object, not b itself. Returns it, 0 when there is none */
 
-unsigned char *gm_NearestFreeBuilding(AIBLD *p, unsigned kind)
+AIBLD *gm_NearestFreeBuilding(AIBLD *p, unsigned kind)
 {
     AIBLD *b = p;
     float best, d, dx, dy, dz;
@@ -2580,7 +2580,7 @@ unsigned char *gm_NearestFreeBuilding(AIBLD *p, unsigned kind)
         }
         q = gm_BuildNext();
     }
-    return (unsigned char *)r;
+    return r;
 }
 /* 0x502020, the building with the id (+1) in the building table, 0 when none */
 
