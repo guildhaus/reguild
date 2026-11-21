@@ -1621,7 +1621,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         home = gm_BuildQuery(1, 1, id);
         scene = 0;
         if (home != 0 && gm_IsHomeType(home) != 0)
-            scene = init_BuildingSceneUniverse(home);
+            scene = init_BuildingSceneUniverse((AIBLD *)home);
         saved = d3_CurrentScene;
         d3if_SelectScene(scene, 1);
         dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : (int)((ORDBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");

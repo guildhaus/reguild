@@ -3719,7 +3719,7 @@ void cm_ShowObjectScene(char *o, int id)
                 if (init_ObjectUniverse[id] == (char)0xff || init_SceneDirty[init_ObjectUniverse[id] * 0x3e0] != 0)
                     init_LoadObjectScene(id);
                 d3if_SelectScene(init_ObjectUniverse[id], 0);
-                init_ShowBuildingScene(o, id);
+                init_ShowBuildingScene(b, id);
             }
         } else {
             k = (unsigned char)ai_BTypes[b->type].kind;
@@ -3728,7 +3728,7 @@ void cm_ShowObjectScene(char *o, int id)
                     init_LoadBuildingScene(k);
                 k = (unsigned char)ai_BTypes[b->type].kind;
                 d3if_SelectScene(init_BuildingUniverse[k], 0);
-                init_ShowBuildingScene(o, 0xfd);
+                init_ShowBuildingScene(b, 0xfd);
             }
         }
     }

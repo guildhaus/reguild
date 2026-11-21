@@ -1846,7 +1846,7 @@ int ls_ReadSceneRecords(int f)
             if (part != 0 && part->id != 0xfd)
                 uni = init_ObjectSceneUniverse((unsigned short *)part);
             else
-                uni = init_BuildingSceneUniverse((unsigned char *)bld);
+                uni = init_BuildingSceneUniverse(bld);
         } else {
             uni = 0;
         }
@@ -1973,7 +1973,7 @@ int ls_ReadSceneRecords(int f)
                     if (part != 0 && part->id != 0xfd)
                         a->u.scene.universe = a->args[0] = init_ObjectSceneUniverse((unsigned short *)part);
                     else
-                        a->u.scene.universe = a->args[0] = init_BuildingSceneUniverse((unsigned char *)bld);
+                        a->u.scene.universe = a->args[0] = init_BuildingSceneUniverse(bld);
                 } else {
                     a->u.scene.universe = a->args[0] = 0;
                 }

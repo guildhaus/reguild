@@ -1288,7 +1288,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                     return 0;
             }
             if (gm_IsHomeType((unsigned char *)o))
-                sc = init_BuildingSceneUniverse((unsigned char *)o);
+                sc = init_BuildingSceneUniverse((struct AIBLD *)o);
             else if (o2 != 0)
                 sc = init_ObjectSceneUniverse(o2);
             else

@@ -12066,7 +12066,7 @@ void he_TransportHomeHome(int ev)
     } else if (sv_IsCartAtDoor((char *)tr, (unsigned char *)to) != 0) {
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         cm_RequestChrMoveToUniverse(tr->objId, to->id, -1, "dummy_TRANSPORTER_ENTRY");
-        u = init_BuildingSceneUniverse((unsigned char *)to);
+        u = init_BuildingSceneUniverse(to);
         d3if_SelectScene(u, 1);
         if (he_RandomTransporter(0) != 0 && d3_Scenes[u].hmap != 0
             && d3_GetHeightAt((D3SM *)d3_Scenes[u].hmap, (D3VECTOR *)&pos, &px, &pz, &py) != 0)
@@ -15128,7 +15128,7 @@ void he_RunHarvest(int ev)
     case 0:
         if (cm_GetSlotState(e->harvestSlot) == 0)
             return;
-        if (d3_CurrentScene == init_BuildingSceneUniverse((unsigned char *)b)) {
+        if (d3_CurrentScene == init_BuildingSceneUniverse(b)) {
             struct VFSDIR *dir;
             bt = &ai_BTypes[b->type];
             sprintf(name, "Ernten_start_%s", t->name);
@@ -15157,7 +15157,7 @@ void he_RunHarvest(int ev)
     case 2:
         if (e->harvestScript != -1)
             evt_Stop(evt_FindById(e->harvestScript));
-        if (d3_CurrentScene == init_BuildingSceneUniverse((unsigned char *)b)) {
+        if (d3_CurrentScene == init_BuildingSceneUniverse(b)) {
             struct VFSDIR *dir;
             bt = &ai_BTypes[b->type];
             sprintf(name, "Ernten_end_%s", t->name);
@@ -15717,7 +15717,7 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
         if (scene != 0) {
             o = (AIOBJ *)gm_FindObjectInst(*objId);
             if (gm_IsHomeType(home) != 0) {
-                *scene = init_BuildingSceneUniverse(home);
+                *scene = init_BuildingSceneUniverse((AIBLD *)home);
                 return 1;
             }
             if (o != 0) {

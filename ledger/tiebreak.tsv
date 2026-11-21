@@ -3320,7 +3320,7 @@ exe	0x00524100	sv_AddGroupMember	sv	601eb885ac24765f	no	byte	control=byte p1=byt
 exe	0x00524160	sv_RemoveGroupMember	sv	d87cd57a8ad5490c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d8781dc03ebd17fa
 exe	0x005241b0	sv_UsedGroupSlots	sv	0615eb594a51c8f2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005241d0	sv_CountGroupMembers	sv	cae812672e0b5b09	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00524260	sv_MoveToGroup	sv	dee4a36758f9b899	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	74a83f14d003ce9b
+exe	0x00524260	sv_MoveToGroup	sv	3052e59a480ead32	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	91fbda3110d659c5
 exe	0x00524770	sv_IsAtDoor	sv	4be622cab708ceb5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00524810	sv_IsCartAtDoor	sv	30f6c85d3a6acf06	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00524900	sv_CharStateIcons	sv	6312e9875ba62563	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

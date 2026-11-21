@@ -4228,7 +4228,7 @@ void main_BeginPlayerRound(void)
     while (b != 0) {
         bt = &ai_BTypes[b->type];
         if (b->type == 0x1e) {
-            i = init_BuildingSceneUniverse((unsigned char *)b);
+            i = init_BuildingSceneUniverse(b);
             if (i != -1) {
                 int scene = d3_CurrentScene;
 

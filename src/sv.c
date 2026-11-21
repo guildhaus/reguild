@@ -1641,7 +1641,7 @@ void sv_MoveToGroup(unsigned char *o, short *it, int c, char *g)
         if (*it != 0xfd)
             w = init_ObjectSceneUniverse(it);
         else
-            w = init_BuildingSceneUniverse(o);
+            w = init_BuildingSceneUniverse((AIBLD *)o);
         k = gm_ClockSeason(&ai_Time);
         if ((((float)ai_Time.hour < gm_DayEndHours[k] && gm_DayStartHours[k] <= (float)ai_Time.hour) || bt->kind == 4 || bt->kind == 0x13 || bt->kind == 0x1d)
             && w >= 0 && ch->model != 0 && &d3_Scenes[w] != ch->model->scene) {
@@ -5026,7 +5026,7 @@ void sv_HandleSelectionMouse(void)
                             b = ai_PlayerBuilding;
                     } else {
                         if (ai_FallbackBuilding != 0) {
-                            t = init_BuildingSceneUniverse((unsigned char *)ai_FallbackBuilding);
+                            t = init_BuildingSceneUniverse(ai_FallbackBuilding);
                             if (ai_FallbackBuilding != 0)
                                 b = ai_FallbackBuilding;
                             else if (ai_PlayerBuilding != 0)

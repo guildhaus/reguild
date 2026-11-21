@@ -3822,9 +3822,9 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
             if (b != 0) {
                 o = (AIOBJ *)gm_Query((void *)b->objList, 1, 1, msg.sys.arg[1]);
                 if (o != 0)
-                    init_ShowBuildingScene((unsigned char *)b, o->id);
+                    init_ShowBuildingScene(b, o->id);
                 else
-                    init_ShowBuildingScene((unsigned char *)b, 0xfd);
+                    init_ShowBuildingScene(b, 0xfd);
             }
             break;
         case 5:
@@ -4344,7 +4344,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     D3OBJECT *o;
     CHACTION *r;
     int i = 0;
-    char *b = 0;
+    AIBLD *b = 0;
     int save;
 
     sprintf(buf, "sp_%i", m->place.netId);
@@ -4354,7 +4354,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     if (m->place.objId != -1)
         i = gm_FindObjectInst(m->place.objId);
     else
-        b = gm_FindBuildingById(m->place.bldId);
+        b = (AIBLD *)gm_FindBuildingById(m->place.bldId);
     save = d3_CurrentScene;
     if (m->place.objId != -1)
         i = init_ObjectSceneUniverse(i);
@@ -4419,7 +4419,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
     if (q != 0 && q->id != 0xfd)
         k = init_ObjectSceneUniverse((unsigned short *)q);
     else if (b != 0 && gm_IsHomeType((unsigned char *)b) != 0) {
-        k = init_BuildingSceneUniverse((unsigned char *)b);
+        k = init_BuildingSceneUniverse(b);
         q = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
     } else
         k = 0;
@@ -4615,7 +4615,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 g = &ai_Goods[q->id];
                 sprintf(gate, "dummy_gate_ob_%s", strupr(g->name));
                 q2 = (AIOBJ *)gm_Query((void *)cb->objList, 1, 0, 0xfd);
-                k = init_BuildingSceneUniverse((unsigned char *)cb);
+                k = init_BuildingSceneUniverse(cb);
                 if (k >= 0 && q2 != 0) {
                     ch_StandUp(p, "sitzend/aufstehen");
                     r = ch_UseGate(p, gate, "dummy_gate_ob_AUSSEN_RAUM", k, cb->id, q2->objId);
@@ -4625,7 +4625,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             }
         }
         if (to->id != cb->id) {
-            k = init_BuildingSceneUniverse((unsigned char *)cb);
+            k = init_BuildingSceneUniverse(cb);
             if (k < 0)
                 return 0;
             d3if_SelectScene(k, 1);
@@ -4765,7 +4765,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             if (q == 0)
                 q = (AIOBJ *)gm_Query((void *)to->objList, 1, 0, 0xfd);
             if (q == 0) {
-                i = init_BuildingSceneUniverse((unsigned char *)to);
+                i = init_BuildingSceneUniverse(to);
                 if (i >= 0) {
                     ch_AddAction(p, 0x38, 0);
                     r = ch_AddAction(p, 0x33, i, to->id, -1);
@@ -4777,7 +4777,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 }
             } else if (q->id == 0xfd) {
                 if (to->id != p->group) {
-                    k = init_BuildingSceneUniverse((unsigned char *)to);
+                    k = init_BuildingSceneUniverse(to);
                     if (k < 0)
                         return 0;
                     ch_AddAction(p, 0x38, 0);
@@ -4847,7 +4847,7 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
     else
         r = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
     if (q->id == 0xfd) {
-        k = init_BuildingSceneUniverse((unsigned char *)b);
+        k = init_BuildingSceneUniverse(b);
         sprintf(gate2, "dummy_gate_ob_AUSSEN_RAUM");
     } else {
         g = &ai_Goods[q->id];

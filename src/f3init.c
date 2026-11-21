@@ -2821,22 +2821,22 @@ int init_ObjectSceneUniverse(unsigned short *p)
 /* 0x511e60, the universe of the scene of the building b's type (0x76fa60): reserved (marked dirty, named after the type) when it is not the current building, else loaded at once by 0x50dc30; -1 when no universe is free; both paths reach the one final return, which re-reads init_BuildingUniverse[k] */
 
 
-int init_BuildingSceneUniverse(unsigned char *b)
+int init_BuildingSceneUniverse(AIBLD *b)
 {
     unsigned k;
     int uni;
 
-    k = ai_BTypes[*b].kind;
+    k = ai_BTypes[b->type].kind;
     if (init_BuildingUniverse[k] == -1) {
-        if (b != (unsigned char *)ai_FallbackBuilding && *b != 0x1e) {
+        if (b != ai_FallbackBuilding && b->type != 0x1e) {
             uni = d3t_FindFreeScene();
             if (uni == -1)
                 return -1;
             init_BuildingUniverse[k] = uni;
             init_SceneDirty[uni * 0x3e0] = 1;
-            strcpy(d3_Scenes[uni].name, (char *)ai_BTypes + *b * 0x24d + 1);
+            strcpy(d3_Scenes[uni].name, (char *)ai_BTypes + b->type * 0x24d + 1);
         } else
-            init_LoadBuildingScene(*b);
+            init_LoadBuildingScene(b->type);
     }
     return init_BuildingUniverse[k];
 }
@@ -3025,9 +3025,9 @@ void init_SyncSceneObjects(char *o)
 
 void init_LoadTypeBScene(void)
 {
-    int b;
+    AIBLD *b;
 
-    b = (int)gm_BuildQuery(1, 5, 0xb);
+    b = (AIBLD *)gm_BuildQuery(1, 5, 0xb);
     if (b != 0)
         init_BuildingSceneUniverse(b);
 }
@@ -3416,9 +3416,8 @@ void init_SetCharacterAnimations(unsigned char *b)
    ch_List first, then the models of the ai_Chars records) */
 
 
-void init_ShowBuildingScene(unsigned char *b, int slot)
+void init_ShowBuildingScene(AIBLD *b, int slot)
 {
-    INIT_BLD *bd = (INIT_BLD *)b;
     unsigned short *o;
     SCENEOBJ *t;
     SCENEOBJ **q;
@@ -3429,11 +3428,11 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
     char *p;
 
     season = gm_ClockSeason(&ai_Time);
-    cls = gm_BuildingClass(*b);
-    p = (char *)ai_BTypes + (unsigned)*b * 0x24d;
-    o = (unsigned short *)gm_Query(bd->objList, 1, 0, slot);
+    cls = gm_BuildingClass(b->type);
+    p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
+    o = (unsigned short *)gm_Query(b->objList, 1, 0, slot);
     if (o == 0 || (proto = *o) == 0xfd) {
-        uni = init_BuildingUniverse[ai_BTypes[*b].kind];
+        uni = init_BuildingUniverse[ai_BTypes[b->type].kind];
         ai_SceneObject = 0;
         init_NoRoomNoOp();
     } else {
@@ -3441,7 +3440,7 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
         uni = init_ObjectUniverse[proto];
         init_RoomNoOp();
     }
-    if (d3_CurrentScene == uni && (ai_PlayerBuilding == 0 || ai_PlayerBuilding == (int)b) && (ai_FallbackBuilding == 0 || ai_FallbackBuilding == (int)b)) {
+    if (d3_CurrentScene == uni && (ai_PlayerBuilding == 0 || ai_PlayerBuilding == b) && (ai_FallbackBuilding == 0 || ai_FallbackBuilding == b)) {
         d = d3_FindObject(0, 0x180, 0, "ordner_DETAILS");
         if (d != 0) {
             if (ai_GfxDetail == 0)
@@ -3449,11 +3448,11 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
             else
                 d3if_ShowTree(d, 1);
         }
-        ch_CurrentGroup = bd->id;
+        ch_CurrentGroup = b->id;
         if (sv_PanelShown != 0)
             evt_NoGroup = ((INIT_OBJ *)sv_PanelShown)->objId;
         else
-            evt_NoGroup = bd->id;
+            evt_NoGroup = b->id;
         if (season == 1)
             init_TextureSet = 1;
         else if (season == 0)
@@ -3465,17 +3464,17 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
         d3_FogByDistance = 0;
         d3o_FogScale = 1.0f;
         d3_LightKeyBudgetVisible = 0x800;
-        if (gm_IsHomeType(b) != 0) {
+        if (gm_IsHomeType((unsigned char *)b) != 0) {
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_PlantTextureSetHook);
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
         }
-        if (*b == 0x1e && slot == 0xfd)
-            veg_ShowPlants((struct G15PLANT *)bd->plants);
-        ai_SceneBuilding = (AIBLD *)b;
+        if (b->type == 0x1e && slot == 0xfd)
+            veg_ShowPlants((struct G15PLANT *)b->plants);
+        ai_SceneBuilding = b;
         sv_CollectGroupCharacters((char *)b);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SyncSceneObjects);
         d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_GateObjectHook);
-        gm_ShowBuildingObjects(b);
+        gm_ShowBuildingObjects((unsigned char *)b);
         i = 0;
         if (*p == 0x16)
             limit = 8;
@@ -3486,7 +3485,7 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
         for (k = 0; k < INIT_CHARACTER_COUNT; k++) {
             t = (SCENEOBJ *)ch_List[k];
             if (t != 0 && d3t_SceneIndex(t->scene) == uni) {
-                if (t->group == bd->id || t->scriptGroup == ((INIT_OBJ *)o)->objId) {
+                if (t->group == b->id || t->scriptGroup == ((INIT_OBJ *)o)->objId) {
                     ch_SetVisible((struct CHARACTER *)t, 1);
                     ch_PlaceOnGround((struct CHARACTER *)t, 0);
                 } else
@@ -3497,7 +3496,7 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
             c = (INIT_CHAR *)&ai_Chars[k];
             if (c->model != 0 && d3t_SceneIndex(c->model->scene) == uni) {
                 t = c->model;
-                if ((t->group == bd->id || t->scriptGroup == ((INIT_OBJ *)o)->objId) && i < limit) {
+                if ((t->group == b->id || t->scriptGroup == ((INIT_OBJ *)o)->objId) && i < limit) {
                     ch_SetVisible((struct CHARACTER *)t, 1);
                     ch_PlaceOnGround(c->model, 0);
                     gm_SelectModelVariant((char *)c);
@@ -3510,7 +3509,7 @@ void init_ShowBuildingScene(unsigned char *b, int slot)
         t = (SCENEOBJ *)gm_Query(0, 2, 7, 4, 0x1d);
         while (t != 0) {
             t = ((INIT_PANELCHAR *)t)->next;
-            if (t->scene == d3_DefaultScene && t->group == bd->id) {
+            if (t->scene == d3_DefaultScene && t->group == b->id) {
                 ch_SetVisible((struct CHARACTER *)t, 1);
                 ch_PlaceOnGround((struct CHARACTER *)t, 0);
                 ch_PlaceTransport((struct CHARACTER *)t, 1);
@@ -3539,15 +3538,14 @@ void init_NoRoomNoOp(void)
    (mask 0xc0), the detail level set (d3_Terrain), the season textures switched and the sky colours updated */
 
 
-void init_FinishBuildingScene(unsigned char *b, unsigned short *o)
+void init_FinishBuildingScene(AIBLD *b, unsigned short *o)
 {
-    INIT_BLD *bd = (INIT_BLD *)b;
     SCENEOBJ *d;
     char *p;
 
-    p = (char *)ai_BTypes + (unsigned)*b * 0x24d;
+    p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     if (o == 0)
-        o = (unsigned short *)gm_Query(bd->objList, 2, 6, 0, 0xfd);
+        o = (unsigned short *)gm_Query(b->objList, 2, 6, 0, 0xfd);
     d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF");
     if (d == 0)
         d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_METALL");
@@ -3558,18 +3556,18 @@ void init_FinishBuildingScene(unsigned char *b, unsigned short *o)
     if (d == 0)
         d = (SCENEOBJ *)d3_FindObject(0, 0xa0, 0, "contact_EINKAUF_STEIN");
     if (d != 0) {
-        if (bd->owner == ai_PlayerId)
+        if (b->owner == ai_PlayerId)
             d3if_Show((struct D3OBJECT *)d, 0);
         else {
             d3if_Show((struct D3OBJECT *)d, 1);
-            init_LoadShopScript(b, o);
+            init_LoadShopScript((unsigned char *)b, o);
         }
         d->mask = 1;
-    } else if (*p == 5 && bd->owner != ai_PlayerId)
-        init_LoadShopScript(b, o);
+    } else if (*p == 5 && b->owner != ai_PlayerId)
+        init_LoadShopScript((unsigned char *)b, o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
     init_PlayGraveyardSound((char *)b);
-    if (gm_IsHomeType(b) == 0)
+    if (gm_IsHomeType((unsigned char *)b) == 0)
         d3_ForEachObject(d3_DefaultScene, 0, 0xc0, init_BuildingTextureSetHook, b);
     init_SetDetailLevel(d3_Terrain, 0);
     init_SetSeasonTextures();

@@ -7,6 +7,7 @@
 #include "f3init_types.h"                 /* INIT_PLAYER */
 #include "rd_types.h"                     /* G15BK */
 struct INIT_BLD;
+struct AIBLD;
 struct D3OBJECT;
 
 int init_SceneNameToPrototype(char *o);                                 /* 0x50d100 */
@@ -49,7 +50,7 @@ void init_LocalData(void);                                              /* 0x511
 void init_FillMarkets(int p);                                           /* 0x511bc0 */
 void init_GiveFirstPlayerBuildings(void);                                               /* 0x511c70 */
 int init_ObjectSceneUniverse(unsigned short *p);                        /* 0x511dc0 */
-int init_BuildingSceneUniverse(unsigned char *b);                       /* 0x511e60 */
+int init_BuildingSceneUniverse(struct AIBLD *b);                        /* 0x511e60 */
 void init_SyncSceneObjects(char *o);                                    /* 0x511f20 */
 void init_LoadTypeBScene(void);                                               /* 0x5124d0 */
 void init_LoadShopScript(unsigned char *b, unsigned short *o);          /* 0x5124f0 */
@@ -64,8 +65,8 @@ void init_PlantTextureSetHook(char *o);                                 /* 0x512
 char init_TextureSetHook(int o);                                        /* 0x512e40 */
 char init_BuildingTextureSetHook(struct D3OBJECT *o, void *ctx);  /* 0x512e80 */
 void init_SetCharacterAnimations(unsigned char *b);                     /* 0x512f30 */
-void init_ShowBuildingScene(unsigned char *b, int slot);                /* 0x513050 */
-void init_FinishBuildingScene(unsigned char *b, unsigned short *o);     /* 0x513400 */
+void init_ShowBuildingScene(struct AIBLD *b, int slot);                 /* 0x513050 */
+void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);     /* 0x513400 */
 struct D3FLMAP;
 void init_SetDetailLevel(struct D3FLMAP *s, char f);                   /* 0x513590 */
 void init_LeaveTownScene(void *bld);                                               /* 0x5136b0, the building is not read */

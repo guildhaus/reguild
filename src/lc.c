@@ -3100,7 +3100,7 @@ void ai_ConstructionWindow(void)
 }
 
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(unsigned char *b, int slot); void init_FinishBuildingScene(unsigned char *b, unsigned short *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -3185,8 +3185,8 @@ void ai_TradeContactChecks(void)
              0x4000) != 0) {
             room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
             ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
-            init_ShowBuildingScene((unsigned char *)ai_FallbackBuilding, 0xfd);
-            init_FinishBuildingScene((unsigned char *)ai_FallbackBuilding, room);
+            init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
+            init_FinishBuildingScene(ai_FallbackBuilding, room);
             sv_FrameBase = sv_FrameDepth;
         }
     }
@@ -3194,8 +3194,8 @@ void ai_TradeContactChecks(void)
         room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         if (sv_QuickJump.record != room) {
             ai_RunObjectRoom((AIOBJ *)sv_QuickJump.record);
-            init_ShowBuildingScene((unsigned char *)ai_FallbackBuilding, 0xfd);
-            init_FinishBuildingScene((unsigned char *)ai_FallbackBuilding, room);
+            init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
+            init_FinishBuildingScene(ai_FallbackBuilding, room);
         } else {
             sv_PanelFlag = 0;
             sv_QuickJump.record = 0;
@@ -3205,8 +3205,8 @@ void ai_TradeContactChecks(void)
     if (sv_ClickedContact != 0 && ai_SelectedCount == 0) {
         room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         ai_RunObjectRoom((AIOBJ *)sv_ClickedContact);
-        init_ShowBuildingScene((unsigned char *)ai_FallbackBuilding, 0xfd);
-        init_FinishBuildingScene((unsigned char *)ai_FallbackBuilding, room);
+        init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
+        init_FinishBuildingScene(ai_FallbackBuilding, room);
     }
     b = ai_FallbackBuilding;
     type = ai_BTypes + b->type;
@@ -8982,7 +8982,7 @@ int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, .
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, unsigned short *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
-void init_ShowBuildingScene(unsigned char *b, int slot); void init_FinishBuildingScene(unsigned char *b, unsigned short *o); 
+void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, unsigned short *o); 
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 struct SBSAMPLE * sb_PlaySample();
@@ -9498,8 +9498,8 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 d3_InflateScene(3);
                 d3_ForEachObject2(d3_DefaultScene, 0, 0xe0, d3s_ResetShadows);
                 init_SetCharacterAnimations((unsigned char *)b);
-                init_ShowBuildingScene((unsigned char *)ai_PlayerBuilding, ai_PlayerBuilding->mainRoom);
-                init_FinishBuildingScene((unsigned char *)ai_PlayerBuilding, sv_PanelShown);
+                init_ShowBuildingScene(ai_PlayerBuilding, ai_PlayerBuilding->mainRoom);
+                init_FinishBuildingScene(ai_PlayerBuilding, sv_PanelShown);
                 d3_SetObjectPos(d3_Camera, &d3_Camera->savedPos);
                 d3_SetObjectRot(d3_Camera, &d3_Camera->savedRot);
                 if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[4].fn != 0)
@@ -9738,7 +9738,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
     view.rot.y = sv_ViewRot[1];
     view.rot.z = sv_ViewRot[2];
     strcpy(ch_StepSample, "normal_s");
-    universe = init_BuildingSceneUniverse((unsigned char *)b);
+    universe = init_BuildingSceneUniverse(b);
     D3IF_SCENE(universe).sky = D3IF_SCENE(0).sky;
     if (universe != 0) {
         snd_LoadBuildingVoices((unsigned char *)b);
@@ -9767,8 +9767,8 @@ void ai_EnterOwnBuilding(AIBLD *b)
                 d3fl_SetDetail(0x40);
             }
         }
-        init_ShowBuildingScene((unsigned char *)ai_FallbackBuilding, room->type);
-        init_FinishBuildingScene((unsigned char *)ai_FallbackBuilding, (unsigned short *)room);
+        init_ShowBuildingScene(ai_FallbackBuilding, room->type);
+        init_FinishBuildingScene(ai_FallbackBuilding, (unsigned short *)room);
         if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[4].fn != 0)
             d3_DefaultScene->events[4].fn(d3_DefaultScene, 4, d3_DefaultScene->events[4].name, 0);
         lastEvent = evt_LastId;
@@ -9912,8 +9912,8 @@ void ai_RunObjectRoom(AIOBJ *room)
         ai_FallbackBuilding->mainRoom = room->type;
         d3if_SelectScene(init_ObjectUniverse[room->type], 0);
         d3_InflateScene(3);
-        init_ShowBuildingScene((unsigned char *)ai_FallbackBuilding, room->type);
-        init_FinishBuildingScene((unsigned char *)ai_FallbackBuilding, (unsigned short *)room);
+        init_ShowBuildingScene(ai_FallbackBuilding, room->type);
+        init_FinishBuildingScene(ai_FallbackBuilding, (unsigned short *)room);
         if (d3_DefaultScene != 0 && d3_DefaultScene->events != 0 && d3_DefaultScene->events[4].fn != 0)
             d3_DefaultScene->events[4].fn(d3_DefaultScene, 4, d3_DefaultScene->events[4].name, 0);
         lastEvent = evt_LastId;
