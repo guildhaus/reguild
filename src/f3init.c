@@ -1,6 +1,7 @@
 /* f3init.c -- the game initialisation of the town (0x50d100 ..): tag "f3_init:" ("f3_init:Gebaeude des Typs %s allokiert", 0x622ecc) and "init_" in the error strings ("init_LoadObjektScene:", "init_LoadGebaeudeScene:", "init_LocalData()"). The scene object names ("ob_NAME" / "gb_NAME" with the variant suffixes "_A" .. "_H") are mapped to the object / building prototypes, the object and building scenes "scenes/*ob_%s.ed3" / "scenes/*gb_%s.ed3" are loaded into universes of their own (tables 0x76faa0 per object prototype, 0x76fa60 per building class), the start objects are placed. The .data of this unit starts at 0x61adf8 (right after f3gm's last string 0x61ade0): its initialised globals (0x61adf8 / 0x61ae00 and the table of 19 records of 0x6c4 bytes at 0x61ae08) come first, then its strings from "KONTOR" (0x622e94) on. The unit ends at 0x5142e0, where io_text.c's text builders start. Names are ours.
-   Open: type debt - the local views SCENEOBJ (ch.h's CHARACTER, typed as this unit reads it) and INIT_* (ai.h's
-   AICHAR / AIFIN records) stand in for their types (the buildings and objects are AIBLD / AIOBJ), and local canonical prototypes for ai.h /
+   Open: type debt - the local views INIT_* (ai.h's AIFIN / AIBTYPE / AIMSG, amt.h's AMTREC / AMTKIND records)
+   stand in for their types (the scene objects are D3OBJECT, the scene characters ch.h's CHARACTER, the characters
+   AICHAR) (the buildings and objects are AIBLD / AIOBJ), and local canonical prototypes for ai.h /
    amt.h / rd.h, which do not compile into this unit (gv.h conflicts).
    Open: not included yet (dcp headers conflicts f3init HEADER): ai.h amt.h cm.h d2.h f3snd.h gfx.h hmt.h hst.h
    mission.h rmsg.h; held by own declarations that differ from the owner's:
@@ -21,6 +22,7 @@ struct D3TERRAIN;
 #include <d3d.h>
 #include "gv.h"
 #include "d3.h"
+#include "ch.h"                      /* CHARACTER, ch_List: the scene characters */
 #include "d3_quad.h"
 #include "txt.h"
 #include "evt.h"
@@ -34,56 +36,7 @@ struct D3TERRAIN;
 extern AICHAR ai_Chars[768];           /* 0x770b80, the characters (ai.h is not included here) */
 extern AISTORE gm_Offers[];            /* 0x7e4b20 */
 
-/* the scene object view of this unit: a CHARACTER (ch.h, 0x244 bytes, the list 0x1468ae0); the unit cannot
-   include ch.h (gv.h's d3sm_GetVertex is a K&R declaration), so the fields this unit reads are declared here
-   (type debt, see the lead comment) */
-typedef struct SCENEOBJ {
-    char pad000[0x28];              /* 0x00 .. 0x27 */
-    int script;                     /* 0x28, the id of the event script running for the object (-1 = none; init_LoadShopScript) */
-    int group;                      /* 0x2c, ch.h CHARACTER.group: the group id the character belongs to (compared with
-                                       ch_CurrentGroup / evt_NoGroup; here with the building's id) */
-    int scriptGroup;                /* 0x30, ch.h CHARACTER.scriptGroup: the group of the script that created / moved it
-                                       (here compared with the room object's instance id) */
-    D3OBJECT *obj;                  /* 0x34, ch.h CHARACTER.obj: the character's body */
-    D3VECTOR pos;                   /* 0x38, ch.h CHARACTER.pos: the character's stored position (ls_ReadCharacter) */
-    char pad044[0x4];               /* 0x44 .. 0x47 */
-    union {
-        unsigned proto;                 /* 0x48, the prototype reference: 0x1000000 | object index (ai_Goods), 0x2000000 | building index (ai_BTypes) */
-        char protoBytes[4];             /* the same word by byte: [3] is its top byte (2 = a building, the bits 0x2000000) */
-    };
-    char pad04c[0x1c];              /* 0x4c .. 0x67 */
-    float soundRange;               /* 0x68, the radius of the object's sound (0x5126a0: + 50 = the range) */
-    char pad06c[0x1c];              /* 0x6c .. 0x87 */
-    void *scene;                    /* 0x88, CHARACTER.scene: the scene slot the character is in (a D3SCENE *) */
-    char pad08c[0x98];              /* 0x8c .. 0x123 */
-    void *transport;                /* 0x124, CHARACTER.transport: the character's transport record, 0 = none */
-    char pad128[0xa4];              /* 0x128 .. 0x1cb */
-    void *info;                     /* 0x1cc, D3OBJECT.info: the mesh data (0 until d3_InflateObject loads it) */
-    char pad1d0[0x1c];              /* 0x1d0 .. 0x1eb */
-    struct D3MATERIAL *mesh;        /* 0x1ec, D3OBJECT.material: the mesh driver (its texture-set list is animCtl, +0xf4) */
-    char pad1f0[0x8];               /* 0x1f0 .. 0x1f7 */
-    struct SCENEOBJ *parent;        /* 0x1f8, D3OBJECT.parent */
-    char pad1fc[0x4];               /* 0x1fc, D3OBJECT.child */
-    struct SCENEOBJ *owner;         /* 0x200, the owner record (the prototype instance of an object or building) */
-    char pad204[0x8];               /* 0x204 .. 0x20b */
-    void *sound;                    /* 0x20c, D3OBJX.sound: the sound attached to the object (0x5128a0 attaches, 0x5127c0 frees) */
-    char pad210[0x8];               /* 0x210 .. 0x217 */
-    int type;                       /* 0x218, D3OBJECT.type */
-    char pad21c[0x4];               /* 0x21c, D3OBJECT.type0 */
-    int kind;                       /* 0x220, D3OBJECT.kind */
-    int mask;                       /* 0x224, D3OBJECT.mask */
-    char pad228[0x4];               /* 0x228, ch.h CHARACTER.onDelete */
-    D3OBJECT *lowPolyBody;          /* 0x22c, ch.h CHARACTER.lowPolyBody: the low-poly body of a character */
-} SCENEOBJ;
 
-/* the chain of the character records the info panel walks (gm_Query(0, 2, 7, 4, 0x1d)): the next record at +0x3b,
-   which is not 4-byte aligned, so this view is packed (no other function uses it) */
-#pragma pack(push, 1)
-typedef struct INIT_PANELCHAR {
-    char pad000[0x3b];              /* 0x00 .. 0x3a */
-    struct INIT_PANELCHAR *next;    /* 0x3b */
-} INIT_PANELCHAR;
-#pragma pack(pop)
 
 /* the office record (amt.h's AMTREC, 0x18 bytes) as this unit reads it; amt.h cannot be included here, so only
    the field in use is declared (type debt, see the lead comment) */
@@ -139,35 +92,6 @@ typedef struct INIT_KIND {
     char pad0c[0xc];                /* 0x0c .. 0x17 */
 } INIT_KIND;
 
-/* the character record prefix the start of the game reads (ai.h's AICHAR, 0x21c bytes); ai.h cannot be included
-   here, so only the fields in use are declared (type debt, see the lead comment) */
-typedef struct INIT_CHAR {
-    unsigned short id;              /* 0x000, 0xffff = the slot is free */
-    unsigned char kind;             /* 0x002 */
-    char pad003[0x1];               /* 0x003 */
-    unsigned int netId;             /* 0x004, the record's network id (the field block id) */
-    unsigned char health;           /* 0x008, ai.h AICHAR.health (100 at creation, > 0 = alive) */
-    unsigned char female;           /* 0x009, 0 male / 1 female (poker.h's female, he.c's title texts by +9) */
-    unsigned short age;             /* 0x00a, the age in years (am.c: "grown up (0x0a + 4 >= 0x20)") */
-    unsigned char faith;            /* 0x00c, the faith: 0 catholic, 1 protestant (am.h's faith; the judges, init_LocalData) */
-    char pad00d[0x1f];              /* 0x00d .. 0x02b */
-    int group;                      /* 0x02c, the id of the building the character belongs to (-1 = none, sv.c 0x52b2a0) */
-    char name[0x2c];                /* 0x030, the start of ai.h's AICHAR.name (0x58 bytes; this view stops at
-                                       the partner view below) */
-    int partner;                    /* 0x05c, the spouse's character id, -1 = none (am.c: gm_FindChar(+0x5c)) */
-    char pad060[0x20];              /* 0x060 .. 0x07f */
-    unsigned char skillBytes[5];    /* 0x080, the five bytes the opponent difficulty moves (inside ai.h's name / skill union) */
-    char pad085[0xdf];              /* 0x085 .. 0x163 */
-    unsigned char jobId;            /* 0x164, the character's job / title group (ai.h's jobId, gm_TitleGroup's argument) */
-    char pad165[0x1];               /* 0x165 (ai.h title) */
-    unsigned char officeKind;       /* 0x166, the kind of the office held, 0 = none (amt.h's officeKind) */
-    char pad167[0x5];               /* 0x167 .. 0x16b */
-    AIBLD *bld;                  /* 0x16c, the building the character is in / belongs to (ai.h's AICHAR.bld) */
-    char pad170[0x14];              /* 0x170 .. 0x183 */
-    SCENEOBJ *model;                /* 0x184, the character's scene record (ai.h's AICHAR.model; ch_SetVisible /
-                                       ch_PlaceOnGround take it as a CHARACTER) */
-    char pad188[0x94];              /* 0x188 .. 0x21b */
-} INIT_CHAR;
 
 /* the player record view (ai.h's AIFIN, 0xac bytes, gm_PlayerRecords): the camera fields this unit reads */
 typedef struct INIT_CAMREC {
@@ -245,8 +169,7 @@ struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, uns
 void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */                     /* 0x476860 */
 
 /* the canonical declarations of the engine / other-unit functions the scene loaders call (their headers drag the
-   gv.h conflicts in; the types match the canonical prototypes, the CHARACTER arguments are cast through the
-   SCENEOBJ view - type debt, see the lead comment) */
+   gv.h conflicts in; the types match the canonical prototypes) */
 struct CHARACTER;
 int ch_PlaceOnGround(struct CHARACTER *ch, int force);                           /* 0x404a80, ch.h */
 int tb_SetFunctionOff(void (*proc)(void), int off);                              /* 0x42ea10, tb.h */
@@ -658,8 +581,8 @@ void init_LoadObjectScene(int n)
         D3VECTOR vec;
         char raw[0x10];
     } tmp;
-    struct SCENEOBJ **q;
-    struct SCENEOBJ *o;
+    CHARACTER **q;
+    CHARACTER *o;
     struct D3OBJECT *d;
     void (*cb)(int, int, int);
     unsigned fl;
@@ -717,17 +640,17 @@ void init_LoadObjectScene(int n)
             d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
             /* the original compares the walk pointer as an int (jl): a plain pointer compare would be jb */
-            for (q = (struct SCENEOBJ **)ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
+            for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
                 o = *q;
                 if (o != 0 && o->scene == &d3_Scenes[uni]) {
                     if (d3_VecEqual(&o->pos, &d3_Origin, 0.5f) != 0) {
                         if ((o->transport != 0 && (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER")) != 0) || (d = ch_FindDummy()) != 0 ||
                             ((d = d3_FindObject(0, 0x100, 0, "dummy_EINGANG")) != 0 || (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY")) != 0)) {
                             d3_PointToWorld(d, &d->pos, &tmp.vec);
-                            ch_SetPos((struct CHARACTER *)o, &tmp.vec, 1);
+                            ch_SetPos(o, &tmp.vec, 1);
                         }
                     } else {
-                        ch_SetPos((struct CHARACTER *)o, &o->pos, 1);
+                        ch_SetPos(o, &o->pos, 1);
                         ch_PlaceOnGround((struct CHARACTER *)o, 1);
                     }
                 }
@@ -789,8 +712,8 @@ void init_LoadBuildingScene(int k)
         D3VECTOR vec;
         char raw[0x10];
     } tmp;
-    struct SCENEOBJ **q;
-    struct SCENEOBJ *co;
+    CHARACTER **q;
+    CHARACTER *co;
 
     save = d3_CurrentScene;
     cb = 0;
@@ -871,7 +794,7 @@ void init_LoadBuildingScene(int k)
             d3sm_Build(d3_DefaultScene->hmap, d3_Terrain);
             d3_ForEachObject2(d3_DefaultScene, 0, 0x160, init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
-            for (q = (struct SCENEOBJ **)ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
+            for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
                 co = *q;
                 if (co != 0 && co->scene == &d3_Scenes[cls]) {
                     if (d3_VecEqual(&co->pos, &d3_Origin, 0.5f) != 0) {
@@ -879,10 +802,10 @@ void init_LoadBuildingScene(int k)
                             ((d = d3_FindObject(0, 0x100, 0, "dummy_EINGANG")) != 0 || (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY")) != 0)) {
                             /* d + 0x4c: D3OBJECT.pos, the dummy's position */
                             d3_PointToWorld(d, &d->pos, &tmp.vec);
-                            ch_SetPos((struct CHARACTER *)co, &tmp.vec, 1);
+                            ch_SetPos(co, &tmp.vec, 1);
                         }
                     } else {
-                        ch_SetPos((struct CHARACTER *)co, &co->pos, 1);
+                        ch_SetPos(co, &co->pos, 1);
                     }
                 }
             }
@@ -902,12 +825,12 @@ void init_LoadBuildingScene(int k)
    argument 0x13, each one also announced as a trade message from object -2) in a fourth; every group is
    waited for by pumping the queue. The message senders leave their send slot in eax where cm.h's prototypes
    say void, so the calls are made through 8-argument int function pointers. No caller in the exe.
-   The purse goes through its own address-taken local (money), so the two judge send slots stay in registers. Caller: 0x511400 at 0x511423 (the new-game setup). Readability done: Q1 init_StartNewGame, Q2 cleared, Q3 INIT_START_CHARACTERS_END, Q4 INIT_CHAR view, Q5 marker removed, Q6 described. */
+   The purse goes through its own address-taken local (money), so the two judge send slots stay in registers. Caller: 0x511400 at 0x511423 (the new-game setup). Readability done: Q1 init_StartNewGame, Q2 cleared, Q3 INIT_START_CHARACTERS_END, Q4 AICHAR view, Q5 marker removed, Q6 described. */
 
 
 void init_StartNewGame(int unused)
 {
-    INIT_CHAR *c;
+    AICHAR *c;
     int i;
     int rec[16];                /* the send slots of the created characters (never read) */
     int m;
@@ -915,7 +838,7 @@ void init_StartNewGame(int unused)
     int w1, w2;
 
     rand();                     /* the first random value of the game is dropped */
-    c = (INIT_CHAR *)&ai_Chars[0];
+    c = &ai_Chars[0];
     do {
         if (c->id != 0xffff && c->kind < 5) {
             money = gm_PlayerFactor(util_Random(0x122) + 10, ai_OwnPlayer);
@@ -940,11 +863,11 @@ void init_StartNewGame(int unused)
     ai_JudgeProtestant = (struct AICHAR *)cm_GetSlotValue(w2);
     cm_BeginSendGroup();
     m = 0;
-    cm_BeginFieldBlock((char *)ai_JudgeCatholic, ((INIT_CHAR *)ai_JudgeCatholic)->netId);
+    cm_BeginFieldBlock((char *)ai_JudgeCatholic, ai_JudgeCatholic->netId);
     cm_AddFieldDelta(1, 1, ((char *)ai_JudgeCatholic - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
     cm_SendFieldDeltas();
     m = 1;
-    cm_BeginFieldBlock((char *)ai_JudgeProtestant, ((INIT_CHAR *)ai_JudgeProtestant)->netId);
+    cm_BeginFieldBlock((char *)ai_JudgeProtestant, ai_JudgeProtestant->netId);
     cm_AddFieldDelta(1, 1, ((char *)ai_JudgeProtestant - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
     cm_SendFieldDeltas();
     cm_EndSendGroup();
@@ -1001,7 +924,7 @@ void init_CreateOpponents(int n, int m, int *list)
     int delta[5];
     int ids[8];
     int i, j, cnt, idx, step, v;
-    INIT_CHAR *pc;
+    AICHAR *pc;
 
     prm = 0;
     i = 0;
@@ -1041,15 +964,15 @@ void init_CreateOpponents(int n, int m, int *list)
     }
     cm_BeginSendGroup();
     for (i = 0; i < n; i++) {
-        pc = (INIT_CHAR *)cm_GetSlotValue(ids[i]);
+        pc = (AICHAR *)cm_GetSlotValue(ids[i]);
         if (ai_Opponents[i] != 2) {
             cm_BeginFieldBlock((char *)pc, pc->netId);
             for (j = 0; j < 5; j++) {
                 unsigned char b;
-                v = pc->skillBytes[j] + delta[ai_Opponents[i]];
+                v = pc->skills[j] + delta[ai_Opponents[i]];
                 v = (int)(252.0f < v ? 252.0f : v);
                 b = v < 0 ? 0 : v;
-                cm_AddFieldValue(1, 1, (char *)&pc->skillBytes[j] - cm_FieldObject, &b);
+                cm_AddFieldValue(1, 1, (char *)&pc->skills[j] - cm_FieldObject, &b);
             }
             cm_SendFieldValues();
         }
@@ -1150,8 +1073,8 @@ int init_CreateStartCharacters(int unused)
     int money[10];                      /* the start money per office level */
     int ids[30];
     int out[30];
-    INIT_CHAR *f0[30];
-    INIT_CHAR *p, *ch, *q, *u, *v;
+    AICHAR *f0[30];
+    AICHAR *p, *ch, *q, *u, *v;
     INIT_OFFICE rec, ob1, ob2, ob3;
     INIT_KIND kind;
     int cnt, i, n, k, j, h, w;
@@ -1172,13 +1095,13 @@ int init_CreateStartCharacters(int unused)
     for (i = 0; i < 30; i++)
         t[i] += util_Random(3);
     n = 0;
-    p = (INIT_CHAR *)&ai_Chars[0];
+    p = &ai_Chars[0];
     do {
         if (n >= 30)
             break;
         if (n >= 12)
             break;
-        if (ai_WorksForMaster((char *)p) != 0 && p->kind != 5) {
+        if (ai_WorksForMaster(p) != 0 && p->kind != 5) {
             f0[n] = p;
             n++;
         }
@@ -1207,7 +1130,7 @@ int init_CreateStartCharacters(int unused)
             cm_ReceiveMessages();
             cm_ExecCommands();
         }
-        f0[i] = (INIT_CHAR *)cm_GetSlotValue(h);
+        f0[i] = (AICHAR *)cm_GetSlotValue(h);
     }
     lv[0] = 1; lv[1] = 3; lv[2] = 3; lv[3] = 4; lv[4] = 4; lv[5] = 5;
     lv[6] = 6; lv[7] = 7; lv[8] = 7; lv[9] = 7;
@@ -1270,9 +1193,9 @@ int init_CreateStartCharacters(int unused)
             q = f0[k];
 
             if (q->age >= 0x17) {
-                if (u == 0 && q->female == 0 && q->partner == -1)
+                if (u == 0 && q->sex == 0 && q->relatives[0] == -1)
                     u = q;
-                else if (v == 0 && q->female == 1 && q->partner == -1)
+                else if (v == 0 && q->sex == 1 && q->relatives[0] == -1)
                     v = q;
             }
         }
@@ -1290,7 +1213,7 @@ int init_CreateStartCharacters(int unused)
                 j = cm_SendCreateCharacter(8, u->netId, v->netId, n, -1, w, 0, 2);
                 while (j != -1 && cm_GetSlotState(j) == 0)
                     sv_PumpNet();
-                ch = (INIT_CHAR *)cm_GetSlotValue(j);
+                ch = (AICHAR *)cm_GetSlotValue(j);
                 cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
                 cm_BeginFieldBlock((char *)ch, ch->netId);
                 cm_AddFieldDelta(1, 1, 0xd, &msg4);
@@ -1309,7 +1232,7 @@ int init_CreateStartCharacters(int unused)
             gm_TitleNumber(util_Random(0xc) + 1, util_Random(2) + 1), 0, 0);
         while (h != -1 && cm_GetSlotState(h) == 0)
             sv_PumpNet();
-        ch = (INIT_CHAR *)cm_GetSlotValue(h);
+        ch = (AICHAR *)cm_GetSlotValue(h);
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
         cm_BeginFieldBlock((char *)ch, ch->netId);
         cm_AddFieldDelta(1, 1, 0xd, &msg0);
@@ -1319,7 +1242,7 @@ int init_CreateStartCharacters(int unused)
             gm_TitleNumber(util_Random(0xc) + 1, util_Random(2) + 1), 0, 1);
         while (h != -1 && cm_GetSlotState(h) == 0)
             sv_PumpNet();
-        ch = (INIT_CHAR *)cm_GetSlotValue(h);
+        ch = (AICHAR *)cm_GetSlotValue(h);
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, (util_Random(0x400) + 0x200) * 0x20);
         cm_BeginFieldBlock((char *)ch, ch->netId);
         cm_AddFieldDelta(1, 1, 0xd, &msg0);
@@ -1593,7 +1516,7 @@ void init_OpenBuilding(AIBLD *b)
     unsigned char *p;
     char k;
     int h, r, v;
-    INIT_CHAR *ch;
+    AICHAR *ch;
     AIOBJ *ent;
 
     gm_BuildingClass(b->type);
@@ -1602,7 +1525,7 @@ void init_OpenBuilding(AIBLD *b)
     if (k == 9) {
         cm_SendExSellObject(b->id, -1, 0x136, 1, ai_OwnPlayer, 0);
         v = gm_PlayerFactor(500, ai_OwnPlayer);
-        ch = (INIT_CHAR *)&ai_Chars[b->owner];
+        ch = &ai_Chars[b->owner];
         cm_SendMoveGoods(ch->netId, -1, ai_OwnPlayer, v);
     } else if (k != 4 && k != 0x10 && k != 0x13) {
         cm_SendExSellObject(b->id, -1, 0x134, 1, ai_OwnPlayer, 0);
@@ -1625,7 +1548,7 @@ void init_OpenBuilding(AIBLD *b)
             sv_PumpNet();
             r = cm_GetSlotState(h);
         }
-        ch = (INIT_CHAR *)cm_GetSlotValue(h);
+        ch = (AICHAR *)cm_GetSlotValue(h);
         if (gm_IsHomeType(b) == 0) {
             ent = gm_BuildingMainObject(b);
             if (ent != 0)
@@ -1689,11 +1612,11 @@ void init_OpenTown(void)
     memset(pl, 0, sizeof(pl));
     memset(ch2, 0, sizeof(ch2));
     ncl = 0;
-    p = (char *)&((INIT_CHAR *)ai_Chars)->kind;
+    p = (char *)&ai_Chars->kind;
     do {
         if (ncl >= 8)
             break;
-        if (((INIT_CHAR *)(p - 2))->id != 0xffff && (*p == 6 || *p == 7 || *p == 5)) {
+        if (((AICHAR *)(p - 2))->id != 0xffff && (*p == 6 || *p == 7 || *p == 5)) {
             pl[ncl] = (int)(p - 2);
             ncl++;
         }
@@ -1701,7 +1624,7 @@ void init_OpenTown(void)
     } while ((int)p < (int)(INIT_CHARACTERS_END + 2));
     for (i = 0; i < ncl; i++) {
         c = (char *)pl[i];
-        if (c == 0 || !(((INIT_CHAR *)c)->kind == 6 || ((INIT_CHAR *)c)->kind == 7 || ((INIT_CHAR *)c)->kind == 5))
+        if (c == 0 || !(((AICHAR *)c)->kind == 6 || ((AICHAR *)c)->kind == 7 || ((AICHAR *)c)->kind == 5))
             continue;
         ok = 0;
         k = 0;
@@ -1711,7 +1634,7 @@ void init_OpenTown(void)
                 cl = INIT_BTYPE(b);
                 for (j = 0; j < 6; j++) {
                     if (cl[0x223 + j] != 0 && cl[0x223 + j] == (unsigned char)c[0x164]) {
-                        h = cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)c)->netId, ((INIT_CHAR *)c)->netId);
+                        h = cm_SendOwnership(((AIBLD *)b)->id, ((AICHAR *)c)->netId, ((AICHAR *)c)->netId);
                         while (cm_GetSlotState(h) == 0)
                             sv_PumpNet();
                         init_OpenBuilding((AIBLD *)b);
@@ -1739,7 +1662,7 @@ void init_OpenTown(void)
                 }
                 d3_PointToWorld((struct D3OBJECT *)list200[m], (D3VECTOR *)(list200[m] + 0x4c), (D3VECTOR *)vecA);
                 ai_ObjectAngle(vecB, list200[m]);
-                h = cm_RequestCreateGeb(((INIT_CHAR *)c)->netId, proto, (D3VECTOR4 *)vecA, (int *)vecB);
+                h = cm_RequestCreateGeb(((AICHAR *)c)->netId, proto, (D3VECTOR4 *)vecA, (int *)vecB);
                 while (h != -1 && cm_GetSlotState(h) == 0)
                     sv_PumpNet();
                 h = cm_GetSlotValue(h);
@@ -1753,10 +1676,10 @@ void init_OpenTown(void)
         c = (char *)pl[i];
         if (c == 0)
             continue;
-        q = gm_BuildQuery(1, 4, ((INIT_CHAR *)c)->id);
+        q = gm_BuildQuery(1, 4, ((AICHAR *)c)->id);
         if (q != 0 && gm_IsHomeType((AIBLD *)q) != 0)
             q = 0;
-        if (((INIT_CHAR *)c)->kind != 5 && ((INIT_CHAR *)c)->kind != 4) {
+        if (((AICHAR *)c)->kind != 5 && ((AICHAR *)c)->kind != 4) {
             if (q != 0) {
                 r = gm_NearestFreeBuilding((AIBLD *)q, 4);
                 if (r == 0)
@@ -1777,8 +1700,8 @@ void init_OpenTown(void)
         }
         if (r == 0)
             break;
-        cm_SendBoss(((INIT_CHAR *)c)->netId, ((AIBLD *)r)->id);
-        h = cm_SendOwnership(((AIBLD *)r)->id, ((INIT_CHAR *)c)->netId, ((INIT_CHAR *)c)->netId);
+        cm_SendBoss(((AICHAR *)c)->netId, ((AIBLD *)r)->id);
+        h = cm_SendOwnership(((AIBLD *)r)->id, ((AICHAR *)c)->netId, ((AICHAR *)c)->netId);
         while (cm_GetSlotState(h) == 0)
             sv_PumpNet();
     }
@@ -1795,7 +1718,7 @@ void init_OpenTown(void)
             cm_AddFieldDelta(4, 1, 0x69, &v);
             cm_SendFieldDeltas();
             cl = INIT_BTYPE(b);
-            cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)ai_PlayerChar)->netId, ((INIT_CHAR *)ai_PlayerChar)->netId);
+            cm_SendOwnership(((AIBLD *)b)->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
             cm_SendMessage3d((AIBLD *)b, 1, INIT_BTYPE(b)[0x230], cl[0x223]);
             cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
             cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
@@ -1810,7 +1733,7 @@ void init_OpenTown(void)
         while (cm_GetSlotState(h) == 0)
             sv_PumpNet();
         h = cm_GetSlotValue(h);
-        cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)h)->netId, ((INIT_CHAR *)h)->netId);
+        cm_SendOwnership(((AIBLD *)b)->id, ((AICHAR *)h)->netId, ((AICHAR *)h)->netId);
         cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x22f], 0);
         cm_SendMessage3d((AIBLD *)b, 0, INIT_BTYPE(b)[0x230], 0);
         cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
@@ -1837,8 +1760,8 @@ void init_OpenTown(void)
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     h = cm_GetSlotValue(h);
-                    cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)h)->netId, ((INIT_CHAR *)h)->netId);
-                    cm_SendMoveGoods(((INIT_CHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(3000, ai_OwnPlayer));
+                    cm_SendOwnership(((AIBLD *)b)->id, ((AICHAR *)h)->netId, ((AICHAR *)h)->netId);
+                    cm_SendMoveGoods(((AICHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(3000, ai_OwnPlayer));
                     if (nch < 0x10) {
                         ch2[nch] = h;
                         nch++;
@@ -1853,7 +1776,7 @@ void init_OpenTown(void)
                     }
                     cm_SendExSellObject(((AIBLD *)b)->id, -1, 0x135, 1, ai_OwnPlayer, 0);
                     if (*cl == 5)
-                        cm_SendMoveGoods(((INIT_CHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(6000, ai_OwnPlayer));
+                        cm_SendMoveGoods(((AICHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(6000, ai_OwnPlayer));
                     init_Betrieb((AIBLD *)b);
                     cm_EndSendGroup();
                     cnt[bk]++;
@@ -1869,7 +1792,7 @@ void init_OpenTown(void)
             c = (char *)ch2[i];
             if (c == 0)
                 continue;
-            q = gm_BuildQuery(1, 4, ((INIT_CHAR *)c)->id);
+            q = gm_BuildQuery(1, 4, ((AICHAR *)c)->id);
             if (q != 0 && gm_IsHomeType((AIBLD *)q) == 0) {
                 r = gm_NearestFreeBuilding((AIBLD *)q, 5);
                 if (r == 0)
@@ -1881,14 +1804,14 @@ void init_OpenTown(void)
             }
             if (r == 0)
                 break;
-            cm_SendBoss(((INIT_CHAR *)c)->netId, ((AIBLD *)r)->id);
-            h = cm_SendOwnership(((AIBLD *)r)->id, ((INIT_CHAR *)c)->netId, ((INIT_CHAR *)c)->netId);
+            cm_SendBoss(((AICHAR *)c)->netId, ((AIBLD *)r)->id);
+            h = cm_SendOwnership(((AIBLD *)r)->id, ((AICHAR *)c)->netId, ((AICHAR *)c)->netId);
             while (cm_GetSlotState(h) == 0)
                 sv_PumpNet();
         }
         for (; i < nch; i++) {
             if (ch2[i] != 0)
-                cm_SendMoveGoods(((INIT_CHAR *)ch2[i])->netId, -1, ai_OwnPlayer, gm_BuildingKindValue(4));
+                cm_SendMoveGoods(((AICHAR *)ch2[i])->netId, -1, ai_OwnPlayer, gm_BuildingKindValue(4));
         }
     }
     cm_BeginSendGroup();
@@ -1913,7 +1836,7 @@ void init_OpenTown(void)
                 init_Betrieb((AIBLD *)b);
             }
         } else if (cls[*cl] == 0 && o == 0xffff) {
-            cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)ai_PlayerChar)->netId, ((INIT_CHAR *)ai_PlayerChar)->netId);
+            cm_SendOwnership(((AIBLD *)b)->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
         }
     }
     cm_EndSendGroup();
@@ -1930,12 +1853,12 @@ void init_OpenTown(void)
             INIT_AIMSG m2;
 
             m2.type = 0x1b;
-            m2.to = ((INIT_CHAR *)ai_PlayerChar)->netId;
+            m2.to = ai_PlayerChar->netId;
             m2.fromId = -1;
             m2.flags = 2;
             m2.arg[0] = ((AIBLD *)b)->id;
             m2.arg[1] = gm_EquipmentValue((AIBLD *)b, ((AIBLD *)b)->level);
-            cm_SendOwnership(((AIBLD *)b)->id, ((INIT_CHAR *)ai_PlayerChar)->netId, ((INIT_CHAR *)ai_PlayerChar)->netId);
+            cm_SendOwnership(((AIBLD *)b)->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
             cm_SendLongMessage((char *)&m2);
         }
         b = (char *)gm_BuildNext();
@@ -1945,7 +1868,7 @@ void init_OpenTown(void)
         AITIME *clock = &ai_Time;
 
         i = 0;
-        p = (char *)&((INIT_CHAR *)ai_Chars)->kind;
+        p = (char *)&ai_Chars->kind;
         do {
             if (*p == 6)
                 break;
@@ -1968,12 +1891,12 @@ void init_OpenTown(void)
     he_PostEvent2b();
     for (i = 0; i < 0x2ff; i++) {
         c = (char *)&ai_Chars[i];
-        if (((INIT_CHAR *)c)->kind == 6 || ((INIT_CHAR *)c)->kind == 7 || ((INIT_CHAR *)c)->kind == 5 || ((INIT_CHAR *)c)->kind == 3 || ((INIT_CHAR *)c)->kind == 4 || ((INIT_CHAR *)c)->kind == 2) {
+        if (((AICHAR *)c)->kind == 6 || ((AICHAR *)c)->kind == 7 || ((AICHAR *)c)->kind == 5 || ((AICHAR *)c)->kind == 3 || ((AICHAR *)c)->kind == 4 || ((AICHAR *)c)->kind == 2) {
             m = 0;
             for (j = i + 1; j < 0x300; j++) {
-                if (((INIT_CHAR *)&ai_Chars[j])->kind == 6 || ((INIT_CHAR *)&ai_Chars[j])->kind == 7 || ((INIT_CHAR *)&ai_Chars[j])->kind == 5 || ((INIT_CHAR *)&ai_Chars[j])->kind == 3 || ((INIT_CHAR *)&ai_Chars[j])->kind == 4 || ((INIT_CHAR *)&ai_Chars[j])->kind == 2) {
-                    cm_SendRelations(((INIT_CHAR *)c)->netId, ((INIT_CHAR *)&ai_Chars[j])->netId, util_Random(0x40) - 0x20, 0);
-                    h = cm_SendRelations(((INIT_CHAR *)&ai_Chars[j])->netId, ((INIT_CHAR *)c)->netId, util_Random(0x40) - 0x20, 0);
+                if (ai_Chars[j].kind == 6 || ai_Chars[j].kind == 7 || ai_Chars[j].kind == 5 || ai_Chars[j].kind == 3 || ai_Chars[j].kind == 4 || ai_Chars[j].kind == 2) {
+                    cm_SendRelations(((AICHAR *)c)->netId, ai_Chars[j].netId, util_Random(0x40) - 0x20, 0);
+                    h = cm_SendRelations(ai_Chars[j].netId, ((AICHAR *)c)->netId, util_Random(0x40) - 0x20, 0);
                     m += 2;
                     while (h != -1 && m % 10 == 0 && cm_GetSlotState(h) == 0)
                         sv_PumpNet();
@@ -2081,7 +2004,7 @@ int init_InitTown(char *city)
     char ok;
     int h, i;
     GMPLAYERSLOT *p;
-    INIT_CHAR *ch;
+    AICHAR *ch;
     GMPLAYERSLOT *pc;
     int bank;
 
@@ -2125,10 +2048,10 @@ int init_InitTown(char *city)
         i = cm_SendGroupState();
     }
     cm_BeginSendGroup();
-    ch = (INIT_CHAR *)cm_GetSlotValue(bank);
-    ai_PlayerChar = (AICHAR *)ch;
+    ch = (AICHAR *)cm_GetSlotValue(bank);
+    ai_PlayerChar = ch;
     strcpy(ch->name, "STADT");
-    cm_SendMoveGoods(((INIT_CHAR *)ai_PlayerChar)->netId, -1, ai_OwnPlayer, 200000000);
+    cm_SendMoveGoods(ai_PlayerChar->netId, -1, ai_OwnPlayer, 200000000);
     i = cm_SendGroupState();
     while (i == 0) {
         cm_FlushSendQueue();
@@ -2141,7 +2064,7 @@ int init_InitTown(char *city)
     p = &ai_PlayerSlots[1];
     do {
         if (p->moneyGood != 0)
-            cm_SendMoveGoods(((INIT_CHAR *)ai_PlayerChar)->netId, -1, i, 200000000);
+            cm_SendMoveGoods(ai_PlayerChar->netId, -1, i, 200000000);
         p++;
         i++;
     } while ((int)&p->moneyGood < (int)&ai_PlayerSlots[4].moneyGood);
@@ -2156,7 +2079,7 @@ int init_InitTown(char *city)
     }
     h = gm_BuildQuery(1, 5, 0x1c);
     while (h != 0) {
-        gm_AssignBuilding((AIBLD *)h, ((INIT_CHAR *)ai_PlayerChar)->id, ((INIT_CHAR *)ai_PlayerChar)->id);
+        gm_AssignBuilding((AIBLD *)h, ai_PlayerChar->id, ai_PlayerChar->id);
         h = gm_BuildNext();
     }
     gm_UpdatePlayers();
@@ -2225,7 +2148,7 @@ int init_StartNetworkGame(char *name)
     unsigned args[31];
     int h, r, i;
     int saved, free;
-    INIT_CHAR *ch;
+    AICHAR *ch;
     short s;
 
     sprintf(c, (char *)init_StatusFormat, ai_NumPlayers);
@@ -2280,7 +2203,7 @@ int init_StartNetworkGame(char *name)
         sv_PumpNet();
         r = cm_GetSlotState(h);
     }
-    ch = (INIT_CHAR *)cm_GetSlotValue(h);
+    ch = (AICHAR *)cm_GetSlotValue(h);
     if ((cm_NetFlags & 1) != 0) {
         ai_MissionMode = -1;
         args[0] = 0xffffffff;
@@ -2670,9 +2593,9 @@ void init_LocalData(void)
         if (n == 0)
             break;
         if (ai_Chars[i].kind == 0xc) {
-            if (((INIT_CHAR *)&ai_Chars[i])->faith == 0)
+            if (ai_Chars[i].faith == 0)
                 ai_JudgeCatholic = &ai_Chars[i];
-            else if (((INIT_CHAR *)&ai_Chars[i])->faith == 1)
+            else if (ai_Chars[i].faith == 1)
                 ai_JudgeProtestant = &ai_Chars[i];
             else
                 continue;
@@ -2724,12 +2647,12 @@ void init_FillMarkets(int p)
 
 void init_GiveFirstPlayerBuildings(void)
 {
-    INIT_CHAR *c;
+    AICHAR *c;
     int i;
     AIBLD *b;
     char k;
 
-    c = (INIT_CHAR *)&ai_Chars[0];
+    c = &ai_Chars[0];
     for (i = 0; i < 0x300; i++) {
         if (c->kind == 6)
             break;
@@ -2995,7 +2918,7 @@ void init_LoadTypeBScene(void)
    the model and to init_ShopScript (-1 when the script does not load). */
 void init_LoadShopScript(AIBLD *b, AIOBJ *o)
 {
-    INIT_CHAR *c, *w, *m;
+    AICHAR *c, *w, *m;
     int i;
     char *goods;           /* the prototype name of o (null-checked, the home type wins) */
     EVTSCRIPT *h, *old;
@@ -3007,15 +2930,15 @@ void init_LoadShopScript(AIBLD *b, AIOBJ *o)
     name = 0;
     w = 0;
     c = 0;
-    m = (INIT_CHAR *)gm_FindCharacterByMaster(b);
+    m = gm_FindCharacterByMaster(b);
     for (i = 0; i < 0x20; i++) {
         if (w != 0)
             break;
-        c = (INIT_CHAR *)ai_SceneChars[i];
+        c = ai_SceneChars[i];
         if (c != 0 && c == m)
             w = c;
     }
-    if (w != 0 && w->health > 1 && (o == 0 || w->model->scriptGroup == o->objId)) {
+    if (w != 0 && w->health > 1 && (o == 0 || w->scene->scriptGroup == o->objId)) {
         goods = 0;
         if (gm_IsHomeType(b) != 0)
             name = (char *)INIT_BTYPE(b);
@@ -3029,12 +2952,12 @@ void init_LoadShopScript(AIBLD *b, AIOBJ *o)
             sprintf(s2, "sp_%i", c->netId);
             h = evt_LoadScript(buf);
             if (h != 0) {
-                id = c->model->script;
+                id = c->scene->scriptId;
                 if (id != -1 && (old = evt_FindById(id)) != 0)
                     evt_Stop(old);
-                evt_RunScriptArgs(h, 2, c->model, ai_FavourComment);
-                h->character = (struct CHARACTER *)c->model;
-                c->model->script = h->id;
+                evt_RunScriptArgs(h, 2, c->scene, ai_FavourComment);
+                h->character = c->scene;
+                c->scene->scriptId = h->id;
                 init_ShopScript = h->id;
                 return;
             }
@@ -3338,8 +3261,8 @@ void init_SetCharacterAnimations(AIBLD *b)
 {
     int idx;
     unsigned char *cls;
-    INIT_CHAR *c;
-    int ch;
+    AICHAR *c;
+    CHARACTER *ch;
     INIT_ANIMSET *r;
 
     cls = (unsigned char *)&ai_BTypes[b->type];
@@ -3348,16 +3271,16 @@ void init_SetCharacterAnimations(AIBLD *b)
             break;
     r = init_ClassAnims + idx;
     sv_CollectGroupCharacters(b);
-    c = (INIT_CHAR *)ai_Chars;
+    c = ai_Chars;
     do {
-        ch = (int)c->model;
-        if (ch != 0 && (c->bld == b || ((INIT_CHAR *)ch)->group == b->id)) {
-            ch_PreloadAnims((struct CHARACTER *)ch, 0x10, r->names[0], r->names[1], r->names[2], r->names[3],
+        ch = c->scene;
+        if (ch != 0 && (c->bld == b || ch->group == b->id)) {
+            ch_PreloadAnims(ch, 0x10, r->names[0], r->names[1], r->names[2], r->names[3],
                             r->names[4], r->names[5], r->names[6], r->names[7], r->names[8], r->names[9],
                             r->names[10], r->names[11], r->names[12], r->names[13], r->names[14], r->names[15]);
         }
         c++;
-    } while ((int)&c->model < (int)&((INIT_CHAR *)ai_Chars)[INIT_CHARACTER_COUNT].model);  /* the original walks and compares the model field's address */
+    } while ((int)&c->scene < (int)&ai_Chars[INIT_CHARACTER_COUNT].scene);  /* the original walks and compares the model field's address */
 }
 /* 0x513050, enters the scene of the building b (init_ShowBuildingScene): the room object o (the slot of b's object
    list, or 0xfd = the building's own scene) selects the universe (init_ObjectUniverse / init_BuildingUniverse),
@@ -3372,10 +3295,9 @@ void init_SetCharacterAnimations(AIBLD *b)
 
 void init_ShowBuildingScene(AIBLD *b, int slot)
 {
-    AIOBJ *o;
-    SCENEOBJ *t;
-    SCENEOBJ **q;
-    INIT_CHAR *c;
+    AIOBJ *o, *cart;
+    CHARACTER *t;
+    AICHAR *c;
     struct D3OBJECT *d;
     int season, cls, i, uni, limit, k;
     unsigned short proto;
@@ -3437,39 +3359,39 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         else
             limit = 8;
         for (k = 0; k < INIT_CHARACTER_COUNT; k++) {
-            t = (SCENEOBJ *)ch_List[k];
+            t = ch_List[k];
             if (t != 0 && d3t_SceneIndex(t->scene) == uni) {
                 if (t->group == b->id || t->scriptGroup == o->objId) {
-                    ch_SetVisible((struct CHARACTER *)t, 1);
-                    ch_PlaceOnGround((struct CHARACTER *)t, 0);
+                    ch_SetVisible(t, 1);
+                    ch_PlaceOnGround(t, 0);
                 } else
-                    ch_SetVisible((struct CHARACTER *)t, 0);
+                    ch_SetVisible(t, 0);
             }
         }
         for (k = 0; k < INIT_CHARACTER_COUNT; k++) {
-            c = (INIT_CHAR *)&ai_Chars[k];
-            if (c->model != 0 && d3t_SceneIndex(c->model->scene) == uni) {
-                t = c->model;
+            c = &ai_Chars[k];
+            if (c->scene != 0 && d3t_SceneIndex(c->scene->scene) == uni) {
+                t = c->scene;
                 if ((t->group == b->id || t->scriptGroup == o->objId) && i < limit) {
-                    ch_SetVisible((struct CHARACTER *)t, 1);
-                    ch_PlaceOnGround(c->model, 0);
+                    ch_SetVisible(t, 1);
+                    ch_PlaceOnGround(c->scene, 0);
                     gm_SelectModelVariant(c);
-                    gm_ChooseHeadIcon(&c->id);
+                    gm_ChooseHeadIcon(c);
                     i++;
                 } else
-                    ch_SetVisible((struct CHARACTER *)t, 0);
+                    ch_SetVisible(t, 0);
             }
         }
-        t = (SCENEOBJ *)gm_Query(0, 2, 7, 4, 0x1d);
-        while (t != 0) {
-            t = ((INIT_PANELCHAR *)t)->next;
+        cart = gm_Query(0, 2, 7, 4, 0x1d);
+        while (cart != 0) {
+            t = cart->sceneObj;
             if (t->scene == d3_DefaultScene && t->group == b->id) {
-                ch_SetVisible((struct CHARACTER *)t, 1);
-                ch_PlaceOnGround((struct CHARACTER *)t, 0);
-                ch_PlaceTransport((struct CHARACTER *)t, 1);
+                ch_SetVisible(t, 1);
+                ch_PlaceOnGround(t, 0);
+                ch_PlaceTransport(t, 1);
             } else if (t->scene == d3_DefaultScene)
-                ch_SetVisible((struct CHARACTER *)t, 0);
-            t = (SCENEOBJ *)gm_QueryNext();
+                ch_SetVisible(t, 0);
+            cart = gm_QueryNext();
         }
     }
 }
@@ -3632,7 +3554,7 @@ void init_LeaveTownScene(void *bld)
 void init_AfterTownLoad(void)
 {
     INIT_CAMREC *cam;
-    INIT_CHAR *c;
+    AICHAR *c;
     D3EVENT *events;
     int phase;
 
@@ -3647,19 +3569,19 @@ void init_AfterTownLoad(void)
             d3_Camera->rotation.y = cam->rot[1];
             d3_SetObjectRot(d3_Camera, &d3_Camera->rotation);
         }
-        c = (INIT_CHAR *)ai_Chars;
+        c = ai_Chars;
         do {
-            if (c->model != 0) {
-                if (d3t_SceneIndex(c->model->scene) == 0 && c->model->group == -1) {
-                    if (c->model->obj->info == 0
-                        || (c->model->lowPolyBody != 0 && c->model->lowPolyBody->info == 0))
-                        ch_InflateModel((CHARACTER *)c->model);
-                    ch_SetVisible((CHARACTER *)c->model, 1);
+            if (c->scene != 0) {
+                if (d3t_SceneIndex(c->scene->scene) == 0 && c->scene->group == -1) {
+                    if (c->scene->obj->info == 0
+                        || (c->scene->lowPolyBody != 0 && c->scene->lowPolyBody->info == 0))
+                        ch_InflateModel(c->scene);
+                    ch_SetVisible(c->scene, 1);
                     gm_SelectModelVariant(c);
                 }
             }
             c++;
-        } while ((int)&c->model < (int)&((INIT_CHAR *)ai_Chars)[INIT_CHARACTER_COUNT].model);
+        } while ((int)&c->scene < (int)&ai_Chars[INIT_CHARACTER_COUNT].scene);
         if (phase == 1)
             init_TextureSet = 1;
         else if (phase == 0)
