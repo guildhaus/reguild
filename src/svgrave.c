@@ -476,7 +476,7 @@ int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side
 int he_EventOnBuilding(); int sv_MessageBox();
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(char *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
-int ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
+struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
 void ai_AlchemistResearchWindow(); void ai_AlchemistWindow();
@@ -2144,7 +2144,7 @@ void ai_SeanceRollFormulas(int n, int *ids, int *variants, int base)
     }
 }
 
-int snd_VoiceVariant(); char *gv_FindAccused(char *c, int max, int *ids, int *cnt); float gv_SeanceChance(); float util_RandomF();
+int snd_VoiceVariant(); struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt); float gv_SeanceChance(); float util_RandomF();
 void cm_SendProofExecuted(int a, int b); 
 
 /* 0x585cb0, the seance kind 1, the ghost of the dead person (rec = the graveyard, ev = the seance window's
@@ -2170,7 +2170,7 @@ void ai_SeanceGhost(AIBLD *rec, GVSEANCE *ev)
 
     snd_VoiceVariant(ev->grave.id, ev->grave.sex);
     script = ai_SeanceRitual((char *)rec, ev);
-    accuser = (AICHAR *)gv_FindAccused((char *)&ai_Chars[ai_PlayerId], 4, ids, &cnt);
+    accuser = gv_FindAccused(&ai_Chars[ai_PlayerId], 4, ids, &cnt);
     mode = accuser == 0;
     f = gv_SeanceChance((char *)rec);
     if (util_RandomF() + f - 0.1f < 1.0f)
@@ -2535,7 +2535,7 @@ void ai_GraveyardContact(AIBLD *rec)
     }
 }
 
-int ai_AmountMenu(); int sv_CheckMoney();
+struct AICHAR *ai_AmountMenu(); int sv_CheckMoney();
 
 /* 0x586ab0, the graveyard contact HEIMSUCHUNG (the haunting) for the graveyard rec: the target is picked in the
    amount menu (AMOUNTCFG flags 1, mode 0x400, kind 6, no ids left out; title txt 0x4095), none -> the camera
@@ -2569,7 +2569,7 @@ void ai_GraveHauntContact(AIBLD *rec)
     q.flags = 1;
     q.mode = 0x400;
     q.kind = 6;
-    p = (AICHAR *)ai_AmountMenu(&q, txt_Ptrs[0x4095], 0, 0);
+    p = ai_AmountMenu(&q, txt_Ptrs[0x4095], 0, 0);
     if (p == 0) {
         sv_CameraFollow();
         return;
@@ -2676,7 +2676,7 @@ void ai_GraveAgeContact(AIBLD *rec)
     q.flags = 1;
     q.mode = 0x400;
     q.kind = 6;
-    p = (AICHAR *)ai_AmountMenu(&q, txt_Ptrs[0x40a1], 0, 0);
+    p = ai_AmountMenu(&q, txt_Ptrs[0x40a1], 0, 0);
     if (p == 0) {
         sv_CameraFollow();
         return;

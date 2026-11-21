@@ -71,7 +71,7 @@ void ai_AmountKindMenu(void (*pick)(int kind), char *caption, int withKind8);  /
 void ai_AgendaOfficeList(int kind);  /* 0x5c1e10, the agenda of one office column (ai_AmountKindMenu's callback) */
 void ai_OpenLawBook(int book);  /* 0x5c2160, the law book 0x111 / 0x112 / 0x113 */
 void ai_LawBookInfoWindow(int textId, int lawText);  /* 0x5c2410, the info box of one law */
-int ai_AmountMenu(struct AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(struct AICHAR *, int));  /* 0x5c1130, the special-amount menu: returns the chosen character record (0: none) */
+struct AICHAR *ai_AmountMenu(struct AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(struct AICHAR *, int));  /* 0x5c1130, the special-amount menu: returns the chosen character record (0: none) */
 void ai_PersonnelBook(struct AIBLD *bld, char *model);  /* 0x5aab80, the personnel book of a building (ob_PERSONALBUCH) */
 void ai_MercenaryBook(struct AIBLD *bld, char *model);  /* 0x5ac110, the mercenary book of a building (ob_SOELDNERBUCH) */
 void ai_HelperBook(struct AIBLD *bld, char *model);     /* 0x5ad150, the helpers' book of a building (ob_GEHILFENBUCH) */
@@ -448,9 +448,9 @@ int ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unuse
 void ai_OpenRobberBribe(struct AIBLD *bld);  /* 0x5b4bf0 */
 int ai_DrohbriefWindow(struct AIBLD *bld);  /* 0x5b4fb0 */
 void ai_LeftAlignedText(char *text, int x, int y, int w, int font);  /* 0x5bd1f0 */
-int ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
+struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
                                int (*pick)(struct AICHAR *, int));  /* 0x5bea50 */
-int ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(struct AICHAR *, int));  /* 0x5c0970 */
+struct AICHAR *ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(struct AICHAR *, int));  /* 0x5c0970 */
 int ai_PassesMapPickFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c39a0 */
 int ai_LawSelectionEntry(struct AIBLD *bld, struct AMOUNTCFG *filter, char *text, void (*cb)(struct AICHAR *, struct AIBLD *));  /* 0x5c4100 */
 int ai_GiftWindow(struct AICHAR *giver, struct AICHAR *chr);  /* 0x5c6050 */

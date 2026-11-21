@@ -521,7 +521,7 @@ int *cm_CutEntrySlot(char *rec, char *c);  /* 0x4cdf00 */
 int *cm_FightCutEntry(char *c);  /* 0x4cdf80 */
 int cm_CellUsable(int x, int y);  /* 0x4cdfe0 */
 int cm_FindNearCell(int a, int b, int *ox, int *oy);  /* 0x4ce040 */
-char *cm_FindFighter(int id);  /* 0x4ce130 */
+struct AICHAR *cm_FindFighter(int id);  /* 0x4ce130 */
 int ai_LedSelectBits(int idx, char *c);  /* 0x4ce170 */
 float cm_CharObjDistXZ(char *c, char *o);  /* 0x4ce1b0 */
 float cm_CharCellDistXZ(char *c, int x, int y);  /* 0x4ce200 */
@@ -593,7 +593,7 @@ void cm_UpdateSceneChars();  /* 0x4cf000 */
 char d3if_ShowTree(struct D3OBJECT *obj, char show);  /* 0x447300 */
 float d3_YawTo();  /* 0x448ac0 */
 extern int cm_FightOwner;  /* 0x60cb5c */
-extern char *cm_CutChar;  /* 0x6f0d74 */
+extern struct AICHAR *cm_CutChar;  /* 0x6f0d74, the character the player commands in the running cut scene */
 
 void cm_DrawScrollArrows();  /* 0x4cf370 */
 void * d2_GetPic();  /* 0x4690b0 */
@@ -659,7 +659,7 @@ extern int cm_AttackerOrderVoices;  /* 0x6f0d34 */
 extern int cm_DefenderOrderVoices;  /* 0x6f0d38 */
 
 void cm_ClearMarks();  /* 0x4d08c0 */
-char *cm_AddFighter(int id, char *dummy);  /* 0x4d0920 */
+struct AICHAR *cm_AddFighter(int id, char *dummy);  /* 0x4d0920 */
 int gm_CreateCharModel();  /* 0x4fbb80 */
 
 void cm_CollectSceneChars();  /* 0x4d0a30 */

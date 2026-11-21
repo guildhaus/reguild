@@ -262,7 +262,7 @@ int sv_CheckCharacterFlag(AIBLD *id)
     AICHAR *p;
     char buf[0x100];
 
-    p = (AICHAR *)gm_FindCharacterByMaster(id);
+    p = gm_FindCharacterByMaster(id);
     if (p != 0 && (p->flags1b4 & 1) != 0) {
         txt_Format(buf, 0x78, p->id);
         sv_MessageBox(buf, 0x100);

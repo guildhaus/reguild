@@ -258,7 +258,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
         if (p->state == 5)
             c = gm_FindChar(p->charId);
         else
-            c = (AICHAR *)cm_FindFighter(p->charId);
+            c = cm_FindFighter(p->charId);
         k = (AIWEAPON *)cm_CharWeapon((char *)c);
         if ((c == 0 || c->health == 0) && k != 0) {
             p->charId = -1;
@@ -300,7 +300,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
                 break;
             p->orderSlot = -1;
-            x = (AICHAR *)cm_FindFighter(p->stateArg);
+            x = cm_FindFighter(p->stateArg);
             if (x != 0 && (x->health == 0 || x->scene->obj->type == 1 || c == 0 || c->health == 0)) {
                 m.state = 0;
                 m.charId = c->netId;
@@ -374,7 +374,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     p->kill = hit;
                     if (hit != 0 && c->bld != 0 && ai_InventoryHas(c->bld, 0x2b9) != 0)
                         p->damage = (int)(p->damage * 1.25f);
-                    if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner && k->kind == 0 && x != 0) {
+                    if (cm_CutChar->netId == cm_FightOwner && k->kind == 0 && x != 0) {
                         other = 0;
                         n = cm_FightRecord->nChars;
                         for (i = 0; i < n; i++) {
@@ -654,7 +654,7 @@ void cm_FightLoop(char *a, int ctx)
                 }
                 t = tb_Calls;
             }
-            if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner) {
+            if (cm_CutChar->netId == cm_FightOwner) {
                 cm_CheckFightWinner(cm_FightRecord);
                 for (i = 0; i < cm_FightRecord->nChars; i++) {
                     if (cm_FightRecord->charIds[i] != -1)

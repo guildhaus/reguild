@@ -7248,9 +7248,9 @@ int gm_IsBankrupt(unsigned short *p, int n)
    or m is 0 */
 
 
-char *gm_FindCharacterByMaster(AIBLD *m)
+struct AICHAR *gm_FindCharacterByMaster(AIBLD *m)
 {
-    char *found = 0;
+    AICHAR *found = 0;
     int i;
 
     if (m == 0)
@@ -7258,7 +7258,7 @@ char *gm_FindCharacterByMaster(AIBLD *m)
     for (i = 0; i < 0x300; i++) {
         if (ai_Chars[i].jobId != 0 && ai_Chars[i].bld == m
             && (ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7 || ai_Chars[i].kind == 1 || ai_Chars[i].kind == 2)) {
-            found = (char *)&ai_Chars[i];
+            found = &ai_Chars[i];
             break;
         }
     }

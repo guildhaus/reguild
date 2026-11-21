@@ -179,7 +179,7 @@ float cm_OrderChances[0xb4];  /* 0x9300a0 */
 int cm_TallyNo = 0;  /* 0x6f0d68, the "no" pictures of the deposition tally (cm_TallyStack's stack 1) */
 int cm_TallyYes = 0;  /* 0x6f0d6c, the "yes" pictures of the deposition tally (cm_TallyStack's stack 0) */
 int cm_TallyAbstain = 0;  /* 0x6f0d70, the abstentions of the deposition tally (cm_TallyStack's stack 2) */
-char * cm_CutChar = 0;  /* 0x6f0d74 */
+struct AICHAR *cm_CutChar = 0;  /* 0x6f0d74 */
 int cm_PartyTurn = 0;  /* 0x6f0d78 */
 int cm_ScenePartyRuns = 0;  /* 0x6f0d7c */
 int cm_SceneTicks = 0;  /* 0x6f0d80 */
@@ -1994,7 +1994,7 @@ void cm_TrialAskAI(CMCUTINFO *r, AIPLAN *m)
         id = r->playerId;
         if (id != m->ids[2] && id != m->ids[3] && id != m->ids[4])
             return;
-        c = (AICHAR *)gm_FindChar(((AICHAR *)cm_CutChar)->netId);
+        c = gm_FindChar(cm_CutChar->netId);
         r->session.answer = ai_DecideAcquittal(c, m);
         return;
     case 5:
@@ -2585,7 +2585,7 @@ void cm_DuelRoundDialog(CMCUTINFO *r, G28REC *m)
     view = d2_OpenForm(0, 0, "cutscenes\\duell");
     d2_PlaceMainWindow(view, 3);
     d2_SetForm(view, 0);
-    io_PrintText(0x10de, ((AICHAR *)cm_CutChar)->id);
+    io_PrintText(0x10de, cm_CutChar->id);
     r->duel.round = 0;
     r->text[0] = ch_EmptyName[0];
     dlg = CUT_BOX();
@@ -2614,11 +2614,11 @@ void cm_DuelChooseRound(CMCUTINFO *r, G28REC *m)
 
     a = gm_FindChar(m->members[0]);
     b = gm_FindChar(m->members[1]);
-    other = a->netId == ((AICHAR *)cm_CutChar)->netId ? b : a;
+    other = a->netId == cm_CutChar->netId ? b : a;
     view = d2_OpenForm(0, 0, "cutscenes\\duell");
     d2_PlaceMainWindow(view, 3);
     d2_SetForm(view, 0);
-    first = io_PrintText(0x10e6, cm_ScenePartyRuns, ((AICHAR *)cm_CutChar)->id, other->id);
+    first = io_PrintText(0x10e6, cm_ScenePartyRuns, cm_CutChar->id, other->id);
     insult = d2_GetWinObj(view, 0, first);
     roll = d2_GetWinObj(view, 0, first + 1);
     shot = d2_GetWinObj(view, 0, first + 2);
@@ -4337,12 +4337,12 @@ void cm_RunSceneParty(char *m, int ctx)
             cm_PartyTurn = i;
             if (party->members[i] == -1)
                 continue;
-            cm_CutChar = (char *)gm_FindChar(party->members[i]);
+            cm_CutChar = gm_FindChar(party->members[i]);
             if (cm_CutChar == 0) {
                 party->members[i] = -1;
                 continue;
             }
-            if (((AICHAR *)cm_CutChar)->kind == 6) {
+            if (cm_CutChar->kind == 6) {
                 cm_SceneDeadline = cm_SceneTicks + cm_SceneDuration;
                 cm_SceneTimedOut = 0;
                 ((int (*)(CMCUTINFO *, int))cm_Kinds[party->kind].askPlayer)(&cm_CutInfos[i], ctx);
@@ -4356,7 +4356,7 @@ void cm_RunSceneParty(char *m, int ctx)
             io_PrintText("$A");
         }
     } else if (ai_GameFlags & 4) {
-        cm_CutChar = (char *)&ai_Chars[ai_PlayerId];
+        cm_CutChar = &ai_Chars[ai_PlayerId];
         if (cm_Kinds[party->kind].allAtOnce == 1) {
             if (party->host == ai_Chars[ai_PlayerId].netId) {
                 /* the owner answers for the computer members */
@@ -4366,7 +4366,7 @@ void cm_RunSceneParty(char *m, int ctx)
                     c = gm_FindChar(party->members[i]);
                     if (c == 0 || c->kind == 6 || c->kind == 7 || cm_CutInfos[i].valid != 0)
                         continue;
-                    cm_CutChar = (char *)c;
+                    cm_CutChar = c;
                     r = cm_CutInfos[i];
                     cb = (int (*)(CMCUTINFO *, int))cm_Kinds[party->kind].askOther;
                     if (cb != 0)
@@ -4382,9 +4382,9 @@ void cm_RunSceneParty(char *m, int ctx)
                 }
             }
             /* each player answers for his own character */
-            cm_CutChar = (char *)&ai_Chars[ai_PlayerId];
+            cm_CutChar = &ai_Chars[ai_PlayerId];
             for (i = 0; i < party->used; i++) {
-                if (party->members[i] == ((AICHAR *)cm_CutChar)->netId) {
+                if (party->members[i] == cm_CutChar->netId) {
                     CMCUTINFO r;
 
                     r = cm_CutInfos[i];
@@ -4394,7 +4394,7 @@ void cm_RunSceneParty(char *m, int ctx)
                     r.valid = 1;
                     r.ready = 0;
                     cm_SetLongMsg(0x35c, &r);
-                    h = cm_RequestSendCutInfo(((AICHAR *)cm_CutChar)->netId, party->id);
+                    h = cm_RequestSendCutInfo(cm_CutChar->netId, party->id);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     break;
@@ -4425,7 +4425,7 @@ void cm_RunSceneParty(char *m, int ctx)
 
                     r = cm_CutInfos[me];
                     cm_PartyTurn = me;
-                    cm_CutChar = (char *)gm_FindChar(party->members[me]);
+                    cm_CutChar = gm_FindChar(party->members[me]);
                     cm_ShowPartyTexts(m);
                     cm_SceneDeadline = cm_SceneTicks + cm_SceneDuration;
                     cm_SceneTimedOut = 0;
@@ -4433,7 +4433,7 @@ void cm_RunSceneParty(char *m, int ctx)
                     r.valid = 1;
                     r.ready = 0;
                     cm_SetLongMsg(0x35c, &r);
-                    h = cm_RequestSendCutInfo(((AICHAR *)cm_CutChar)->netId, party->id);
+                    h = cm_RequestSendCutInfo(cm_CutChar->netId, party->id);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
                     cm_ShowPartyTexts(m);
@@ -4451,7 +4451,7 @@ void cm_RunSceneParty(char *m, int ctx)
                             continue;
                         next = cm_CutInfos[i];
                         cm_PartyTurn = i;
-                        cm_CutChar = (char *)c;
+                        cm_CutChar = c;
                         cb = (int (*)(CMCUTINFO *, int))cm_Kinds[party->kind].askOther;
                         if (cb != 0)
                             cb(&next, ctx);

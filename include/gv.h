@@ -449,7 +449,7 @@ int gv_CrimeTextLaw2to8(char *out, CRIME r, int mode);  /* 0x4f30a0 */
 int gv_CrimeTextLaw9to16(char *out, CRIME r, int mode);  /* 0x4f31d0 */
 int gv_CrimeTextLaw17to28(char *out, CRIME r, int mode);  /* 0x4f3270 */
 int gv_CrimeText(char *out, CRIME r, int mode);  /* 0x4f3580 */
-char *gv_FindAccused(char *c, int max, int *ids, int *cnt);  /* 0x4f41b0 */
+struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);  /* 0x4f41b0 */
 void gv_PassSentence(struct AICHAR *c, int a, struct AICHAR *judge, struct AICHAR *assessor1, struct AICHAR *assessor2);  /* 0x4f4460 */
 void gv_SentenceText(unsigned short *c, int a, char *out);  /* 0x4f48f0 */
 

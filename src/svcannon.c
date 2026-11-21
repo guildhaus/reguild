@@ -1667,7 +1667,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
     sv_CameraFollow();
 }
 
-int ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
+struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 
 /* 0x581400, the cabinet's spy window on a character for the building rec: the target is picked in the amount menu
    (AMOUNTCFG flags 1, mode 0x400, kind 6, no ids left out; title txt 0x400d), none -> return. The three steps of
@@ -1704,7 +1704,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
     q.flags = 1;
     q.mode = 0x400;
     q.kind = 6;
-    p = (AICHAR *)ai_AmountMenu(&q, txt_Ptrs[0x400d], 0, 0);
+    p = ai_AmountMenu(&q, txt_Ptrs[0x400d], 0, 0);
     if (!p)
         return;
     worth += gm_GetWorth(p->id);
@@ -1823,7 +1823,7 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
     q.flags = 1;
     q.mode = 0x400;
     q.kind = 6;
-    p = (AICHAR *)ai_AmountMenu(&q, txt_Ptrs[0x3ffc], 0, 0);
+    p = ai_AmountMenu(&q, txt_Ptrs[0x3ffc], 0, 0);
     if (!p) {
         sv_CameraFollow();
         return;
@@ -1936,7 +1936,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
     q.flags = 1;
     q.mode = 0x400;
     q.kind = 6;
-    p = (AICHAR *)ai_AmountMenu(&q, txt_Ptrs[0x402c], 0, 0);
+    p = ai_AmountMenu(&q, txt_Ptrs[0x402c], 0, 0);
     if (!he_NoEvent9bFor(p)) {
         txt_Format(text, 0x4030, p->id);
         sv_MessageBox(text, 0);

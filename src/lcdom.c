@@ -746,7 +746,7 @@ struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
-int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
+struct AICHAR *ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 struct AICHAR *gm_FindChar(int id);
@@ -847,7 +847,7 @@ int gm_SumSlotAmounts(void *list, unsigned char i); int gm_GetGoodsValue(); int 
 void d2_SetObjEnabled(); void d2_EnableViewObjects(); void d2_EnableObject();
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow(); void d2_RemoveObj();
 void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont();
-int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); int ai_AmountMenu();
+int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
@@ -908,7 +908,7 @@ int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
 int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
-int ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
+struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(push, 1)
@@ -1489,7 +1489,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     ai_CampaignStep(0x21, (int)book, 0, 0);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHAR *)gm_FindCharacterByMaster(bld);
+    master = gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -1590,7 +1590,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
             d2_SetForm(book->views[0], 4);
             gm_BuildingBalance(bld, ai_PlayerId, balance);
             io_PrintText(0x1a2c, balance[3]);
-            master = (AICHAR *)gm_FindCharacterByMaster(bld);
+            master = gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -1970,7 +1970,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHAR *)gm_FindCharacterByMaster(bld);
+    master = gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2373,7 +2373,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     sv_UpdateBook(book);
     io_CharacterName(bld->owner, 1, 2, ownerName);
     io_CharacterName(bld->masterId, 1, 2, masterName);
-    master = (AICHAR *)gm_FindCharacterByMaster(bld);
+    master = gm_FindCharacterByMaster(bld);
     if (master == 0)
         strcpy(masterText, txt_NoCharacter);
     else
@@ -2482,7 +2482,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                     }
                 }
             }
-            master = (AICHAR *)gm_FindCharacterByMaster(bld);
+            master = gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId && master->health != 0 && masterRow.icon == -1) {
                 masterRow.ch = master;
                 ai_FillPersonnelRow(master, &masterRow, 0);
@@ -5475,7 +5475,7 @@ int ai_DrohbriefWindow(AIBLD *bld)
     cfg.mode = 0x400;
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
-    return ai_AmountMenu(&cfg, txt_Ptrs[0x1758], 0, (void *)ai_DrohbriefAmountCB);
+    return (int)ai_AmountMenu(&cfg, txt_Ptrs[0x1758], 0, (void *)ai_DrohbriefAmountCB);
 }
 /* 0x5b5010, the denounce window "misc\perga_rolle" (the ANSCHWAERZEN plate of ai_FeastContact; nothing for no
    building or a player without 2 money): the amount menu (mode 0x400, kind 6, the gypsy filter) picks the
@@ -5506,11 +5506,11 @@ void ai_DenounceWindow(AIBLD *bld)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(title, 0x175f);
-    culprit = (AICHAR *)ai_AmountMenu(&cfg, title, 0, 0);
+    culprit = ai_AmountMenu(&cfg, title, 0, 0);
     if (culprit == 0)
         return;
     txt_Format(title, 0x1760, culprit->id);
-    judge = (AICHAR *)ai_AmountMenu(&cfg, title, 0, 0);
+    judge = ai_AmountMenu(&cfg, title, 0, 0);
     if (judge == 0)
         return;
     n = gv_HeldCrimeCount(culprit->netId, ai_PlayerId);
@@ -6084,7 +6084,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                     for (k = 0; k < 4; k++)
                         if (guests[k] != 0)
                             *id++ = guests[k]->id;
-                    pick = (AICHAR *)ai_AmountMenu(&cfg, "$ZZum Fest einladen", 0, 0);
+                    pick = ai_AmountMenu(&cfg, "$ZZum Fest einladen", 0, 0);
                     if (pick != 0) {
                         for (k = 0; k < 4; k++) {
                             if (guests[k] == 0) {
@@ -9006,7 +9006,7 @@ int ai_OpenMasterListPage(void)
     bld = gm_BuildQuery(1, 4, ai_PlayerId);
     if (bld != 0) {
         do {
-            master = (AICHAR *)gm_FindCharacterByMaster(bld);
+            master = gm_FindCharacterByMaster(bld);
             if (master != 0 && master->id != ai_PlayerId) {
                 d2_SetForm(win, 2);
                 ai_MasterRows[count].pic = d2_WinOpenPic(0, count * 0x3e, bld->type + 0x427, d2_LastWindow);
@@ -9125,7 +9125,7 @@ void ai_PlayerStatsPanel(void)
                     cm_BeginFieldBlock((char *)ai_MasterRows[i].bld, ai_MasterRows[i].bld->id);
                     cm_AddFieldDelta(4, 1, (unsigned short)((char *)&ai_MasterRows[i].bld->budget - cm_FieldObject), &value);
                     cm_SendFieldDeltas();
-                    master = (AICHAR *)gm_FindCharacterByMaster(ai_MasterRows[i].bld);
+                    master = gm_FindCharacterByMaster(ai_MasterRows[i].bld);
                     value -= ai_MasterRows[i].bld->budget;
                     cm_BeginFieldBlock((char *)master, master->netId);
                     cm_AddFieldValues(4, 1, (char *)&master->budget - cm_FieldObject, &value);

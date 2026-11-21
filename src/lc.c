@@ -5530,7 +5530,7 @@ void ai_MixingContact(AIBLD *bld, AIOBJ *room)
     }
 }
 
-int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
+struct AICHAR *ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_PamphletWindow(struct AIBLD *bld);
 
 /* 0x5962b0, the stonecutter contact listener: it releases the name plates, pumps the frame (sv_RunFrame, this,
@@ -5811,7 +5811,7 @@ void ai_MistressAffairWindow(AICHAR *player, AICHAR *ch, AIJOB *ev)
                     cfg.filter = gypsyFilter;
                     txt_Format(title, 0x1a53);
                     txt_Format(prompt, 0x1a54);
-                    pick = (AICHAR *)ai_AmountMenu(&cfg, txt_Ptrs[0x1a5a], 0, 0);
+                    pick = ai_AmountMenu(&cfg, txt_Ptrs[0x1a5a], 0, 0);
                     if (pick != 0) {
                         txt_Format(ask, 0x1a5b, 2, ch->id, pick->id);
                         if (sv_MessageBox(ask, 1) != 0 && sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 2) != 0) {
@@ -5913,7 +5913,7 @@ void ai_MistressWindow(AIBLD *bld)
                 cfg.filter = gypsyFilter;
                 txt_Format(title, 0x1a53);
                 txt_Format(prompt, 0x1a54);
-                pick = (AICHAR *)ai_AmountMenu(&cfg, title, prompt, 0);
+                pick = ai_AmountMenu(&cfg, title, prompt, 0);
                 if (pick != 0) {
                     if (ai_Chars[ai_PlayerId].sex == 0)
                         txt_Format(text, 0x1a55, pick->id);
@@ -8861,7 +8861,7 @@ int ai_MoneyMessengerWindow(AIBLD *bank, int good, int amount, unsigned char pla
     return sent;
 }
 
-int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); int ai_AmountMenu();
+int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
@@ -11371,7 +11371,7 @@ void ai_ConfessionListener(AIBLD *building, AIOBJ *room)
 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
 int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
-int ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
+struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 
 /* 0x5a2e60, the sermon window "Locations\Kirche\Predigt" of the player's own church bld: its sermon object (gm_Query
    kind 0x1b5 of the objList; made by cm_SendObject1b5 with every setting -1 when missing) and its event 0x2b
@@ -11559,7 +11559,7 @@ void ai_SermonWindow(AIBLD *bld)
                 cfg.kind = 6;
                 cfg.filter = gypsyFilter;
                 txt_Format(title, 0x19a2);
-                priest = (AICHAR *)ai_AmountMenu(&cfg, title, 0, 0);
+                priest = ai_AmountMenu(&cfg, title, 0, 0);
                 sermon = gm_Query((void *)bld->objList, 1, 0, 0x1b5);
                 if (priest != 0 && priest->netId != -1 && sermon != 0) {
                     text1 = util_Random(8);

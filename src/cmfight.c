@@ -468,14 +468,14 @@ int cm_FindNearCell(int a, int b, int *ox, int *oy)
 }
 /* 0x4ce130, the fighter (an AICHAR, 0x21c bytes) with the netId id among the 32 of cm_Fighters, 0 when none */
 
-char *cm_FindFighter(int id)
+struct AICHAR *cm_FindFighter(int id)
 {
     int i = 0;
     AICHAR *p;
 
     for (p = cm_Fighters; (int)&p->netId < (int)&cm_Fighters[32].netId; p++) {
         if (p->id != 0xffff && p->netId == id)
-            return (char *)&cm_Fighters[i];
+            return &cm_Fighters[i];
         i++;
     }
     return 0;
@@ -993,7 +993,7 @@ void cm_UpdateSceneChars()
     float best, dist, ang;
     unsigned char b;
 
-    if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner && d3_Time % 0x15e == 0) {
+    if (cm_CutChar->netId == cm_FightOwner && d3_Time % 0x15e == 0) {
         for (i = 0; i < 32; i++) {
             c = ai_SceneChars[i];
             if (c == 0)
@@ -1020,7 +1020,7 @@ void cm_UpdateSceneChars()
         if (w != 0 && w->id == 0x172) {
             fl = 0;
             if (cm_CutChar != 0)
-                fl = ai_LedSelectBits(((AICHAR *)cm_CutChar)->id, (char *)c);
+                fl = ai_LedSelectBits(cm_CutChar->id, (char *)c);
             if (fl & 0x800) {
                 col.all = 0;
                 col.b[2] = 0;
@@ -1056,7 +1056,7 @@ void cm_UpdateSceneChars()
         }
         e = (CMCUTENTRY *)cm_FightCutEntry((char *)c);
         if (e != 0 && e->state == 2 && e->turn != 0) {
-            o = (AICHAR *)cm_FindFighter(e->stateArg);
+            o = cm_FindFighter(e->stateArg);
             if (o != 0) {
                 if (d3_VecEqual(&c->scene->obj->pos, &o->scene->obj->pos, 10.0f) == 0) {
                     ang = d3_YawTo(c->scene->obj, &o->scene->obj->pos.x);
@@ -1170,7 +1170,7 @@ void cm_UpdatePointer()
     for (i = 0; i < 31; i++) {
         c = ai_SceneChars[i];
         if (c != 0 && c->selected != 0) {
-            if (ai_LedSelectBits(((AICHAR *)cm_CutChar)->id, (char *)c) & 0x800) {
+            if (ai_LedSelectBits(cm_CutChar->id, (char *)c) & 0x800) {
                 if (kb_Down[0x36] == 0) {
                     w = (AIWEAPON *)cm_CharWeapon((char *)c);
                     if (w != 0) {
@@ -1206,7 +1206,7 @@ void cm_UpdatePointer()
         else if (strncmp(ai_PickedObject, "WARE", 4) == 0 && n != 0)
             d2_PointerLook = 0xe;
         else if (((D3OBJECT *)ai_PickedObject)->kind == 2 && n != 0) {
-            if (!(ai_LedSelectBits(((AICHAR *)cm_CutChar)->id, (char *)((D3OBJECT *)ai_PickedObject)->owner) & 0x800) ||
+            if (!(ai_LedSelectBits(cm_CutChar->id, (char *)((D3OBJECT *)ai_PickedObject)->owner) & 0x800) ||
                 kb_Down[0x36] != 0)
                 d2_PointerLook = cur;
         } else
@@ -1308,7 +1308,7 @@ void cm_BuildPortraits()
         c = ai_SceneChars[i];
         if (c == 0)
             continue;
-        if (!(ai_LedSelectBits(((AICHAR *)cm_CutChar)->id, (char *)c) & 0x800))
+        if (!(ai_LedSelectBits(cm_CutChar->id, (char *)c) & 0x800))
             continue;
         cm_Portraits[n].frame = d2_CreatePicObj(x + 0x18, 0xf, 0x5da);
         cm_Portraits[n].win = d2_CreateWindow(x, 0, 0x80, 0x4b, 0x110);
@@ -1359,7 +1359,7 @@ void cm_ClosePortraits()
 
 void cm_ClickSceneChar()
 {
-    AICHAR *t = (AICHAR *)cm_CutChar;
+    AICHAR *t = cm_CutChar;
     AICHAR *c, *o, **pp;
     D3OBJECT *sel;
 
@@ -1661,10 +1661,10 @@ void cm_FightMouse(char *rec)
     } else if (dm_L.lup != 0) {
         for (pp = ai_SceneChars; (int)pp < (int)(ai_SceneChars + 32); pp++) {
             c = *pp;
-            if (c != 0 && c->selected != 0 && (ai_LedSelectBits(((AICHAR *)cm_CutChar)->id, (char *)c) & 0x800) &&
+            if (c != 0 && c->selected != 0 && (ai_LedSelectBits(cm_CutChar->id, (char *)c) & 0x800) &&
                 c->scene != 0 && c->health != 0) {
                 if (cm_OrderClick(rec, (char *)c)) {
-                    if (cm_CutChar == (char *)cm_FightAttacker)
+                    if (cm_CutChar == cm_FightAttacker)
                         snd_PlayVoice(c->id, cm_AttackerOrderVoices, "_K_C2C_BEFEHL_ERHALTEN", -1);
                     else
                         snd_PlayVoice(c->id, cm_DefenderOrderVoices, "_K_C2C_BEFEHL_ERHALTEN", -1);
@@ -1713,7 +1713,7 @@ void cm_ClearMarks()
    (gm_CreateCharModel at the dummy object, path type 4, flag 0x8000) with its hand object, the speed of its weapon
    (AIWEAPON.speed * 2/7) and "cmb_<netId>" as its body's name; the weapon item's uses are reset to 6 (kind 2) or 15 */
 
-char *cm_AddFighter(int id, char *dummy)
+struct AICHAR *cm_AddFighter(int id, char *dummy)
 {
     AICHAR *c;
     AIWEAPON *w;
@@ -1740,7 +1740,7 @@ char *cm_AddFighter(int id, char *dummy)
                 else
                     item->usesLeft = 0xf;
             }
-            return (char *)&cm_Fighters[i];
+            return &cm_Fighters[i];
         }
     }
     return 0;
@@ -2022,7 +2022,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     }
     for (i = 0; i < 16; i++) {
         if (rec->attackers[i] != -1) {
-            r = (AICHAR *)cm_AddFighter(rec->attackers[i], "dummy_OFFENSE_ENTRY");
+            r = cm_AddFighter(rec->attackers[i], "dummy_OFFENSE_ENTRY");
             r->bld = (AIBLD *)cm_FightAttacker;     /* in a fight: the side's leader */
             if (r->scene != 0)
                 d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 5, 1);
@@ -2030,7 +2030,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     }
     for (i = 0; i < 16; i++) {
         if (rec->defenders[i] != -1) {
-            r = (AICHAR *)cm_AddFighter(rec->defenders[i], "dummy_DEFENSE_ENTRY");
+            r = cm_AddFighter(rec->defenders[i], "dummy_DEFENSE_ENTRY");
             r->bld = (AIBLD *)cm_FightDefender;
             r->scene->walkSpeed *= 1.2;
             if (r->scene != 0)
@@ -2195,7 +2195,7 @@ void cm_PlaceFighters(int *ids, char *side)
     for (i = 0; i < 16; i++) {
         if (ids[i] == -1)
             continue;
-        c = (AICHAR *)cm_FindFighter(ids[i]);
+        c = cm_FindFighter(ids[i]);
         if (c == 0)
             continue;
         weapon = (int *)cm_CharWeapon((char *)c);
@@ -2337,7 +2337,7 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
     d3sm_GetVertex(sc, a, b, (D3VECTOR *)&v);
     for (i = 0; i < 16; i++) {
         if (enemies[i] != -1) {
-            o = (AICHAR *)cm_FindFighter(enemies[i]);
+            o = cm_FindFighter(enemies[i]);
             if (o != 0 && o->health > 0) {
                 dx = v.x - o->scene->obj->pos.x;
                 dy = v.y - o->scene->obj->pos.y;
@@ -2350,7 +2350,7 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
     }
     for (i = 0; i < 16; i++) {
         if (own[i] != -1) {
-            o = (AICHAR *)cm_FindFighter(own[i]);
+            o = cm_FindFighter(own[i]);
             if (o != 0 && o->health > 0 && o != c) {
                 dx = v.x - o->scene->obj->pos.x;
                 dy = v.y - o->scene->obj->pos.y;
@@ -2760,7 +2760,7 @@ float *cm_OrderChancesFor(int side)
     def = 0.0f;
     for (i = 0; i < 16; i++) {
         if (cm_FightRecord->defenders[i] != -1) {
-            o = cm_FindFighter(cm_FightRecord->defenders[i]);
+            o = (char *)cm_FindFighter(cm_FightRecord->defenders[i]);
             if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
                 def = cm_FightStrength(o) + def;
         }
@@ -2768,7 +2768,7 @@ float *cm_OrderChancesFor(int side)
     att = 0.0f;
     for (i = 0; i < 16; i++) {
         if (cm_FightRecord->attackers[i] != -1) {
-            o = cm_FindFighter(cm_FightRecord->attackers[i]);
+            o = (char *)cm_FindFighter(cm_FightRecord->attackers[i]);
             if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
                 att = cm_FightStrength(o) + att;
         }
@@ -2894,7 +2894,7 @@ void cm_GiveFightOrders(int side)
         ids = cm_FightRecord->defenders;
     for (i = 0; i < 16; i++) {
         if (ids[i] != -1) {
-            c[i] = (AICHAR *)cm_FindFighter(ids[i]);
+            c[i] = cm_FindFighter(ids[i]);
             n++;
         } else
             c[i] = 0;
@@ -2925,7 +2925,7 @@ void cm_GiveFightOrders(int side)
     }
     for (i = 0; i < 16; i++) {
         if (ids[i] != -1)
-            cm_CarryOutOrder(cut, cm_FindFighter(ids[i]));
+            cm_CarryOutOrder(cut, (char *)cm_FindFighter(ids[i]));
     }
 }
 /* 0x4d3120, the formation order for the character c of the fight record rec by its formation type (AICHAR.formation):
@@ -3087,7 +3087,7 @@ void cm_HitAction(CHACTION *a)
         damage = 0;
         ok = 0;
     }
-    if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner && (hw->kind == 1 || hw->kind == 2)) {
+    if (cm_CutChar->netId == cm_FightOwner && (hw->kind == 1 || hw->kind == 2)) {
         item = (AIOBJ *)cm_CharWeaponItem((char *)hitter);
         if (item != 0) {
             int v = -1;
@@ -3161,7 +3161,7 @@ void cm_LayBombAction(char *ev)
     k = (AIWEAPON *)cm_CharWeapon((char *)att);
     cm_LayBomb(&att->scene->obj->pos);
     sb_PlaySample(cm_BombSounds, "ZuendschnurBrennt_l_01", 3, 0x3f, 0x7f, 0, 0);
-    if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner && (k->kind == 1 || k->kind == 2)) {
+    if (cm_CutChar->netId == cm_FightOwner && (k->kind == 1 || k->kind == 2)) {
         G19_FIGHTER_SYNC(att);
     }
 }
@@ -3174,7 +3174,7 @@ void cm_ThrowBombAction(char *ev)
     AICHAR *att = b->bomb.thrower;
     AIOBJ *r;
 
-    if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner) {
+    if (cm_CutChar->netId == cm_FightOwner) {
         G19_FIGHTER_SYNC(att);
     }
     cm_ThrowGrenade(&att->scene->obj->pos, b->bomb.x, b->bomb.y);
@@ -3230,7 +3230,7 @@ AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
     nDef = 0;
     for (i = 0; i < 16; i++) {
         if (rec->defenders[i] != -1) {
-            c = (AICHAR *)cm_FindFighter(rec->defenders[i]);
+            c = cm_FindFighter(rec->defenders[i]);
             if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                 nDef++;
         }
@@ -3238,7 +3238,7 @@ AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
     nAtt = 0;
     for (i = 0; i < 16; i++) {
         if (rec->attackers[i] != -1) {
-            c = (AICHAR *)cm_FindFighter(rec->attackers[i]);
+            c = cm_FindFighter(rec->attackers[i]);
             if (c->health != 0 && c->health != 4 && c->scene->obj->type != 1)
                 nAtt++;
         }
@@ -3423,7 +3423,7 @@ void cm_FightPortraits(int *ids, int x, int y)
     for (i = 0; i < 16; i++) {
         if (ids[i] == -1)
             continue;
-        c = (AICHAR *)cm_FindFighter(ids[i]);
+        c = cm_FindFighter(ids[i]);
         px = (i % 6 + 1) * w + x;
         py = y + i / 6 * 100;
         d2_WinOpenPic(px - 0x10, py, 0x5da, d2_LastWindow);
@@ -3716,7 +3716,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         for (i = 0; i < 16; i++) {
             id = a->defenders[i];
             if (id != -1) {
-                c = (AICHAR *)cm_FindFighter(id);
+                c = cm_FindFighter(id);
                 if (c->health != 0 && c->health != 4 && c->model->body->type != 1)
                     na++;
             }
@@ -3725,7 +3725,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         for (i = 0; i < 16; i++) {
             id = a->attackers[i];
             if (id != -1) {
-                c = (AICHAR *)cm_FindFighter(id);
+                c = cm_FindFighter(id);
                 if (c->health != 0 && c->health != 4 && c->model->body->type != 1)
                     nb++;
             }
@@ -3922,7 +3922,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             for (v = 0; v < 16; v++) {
                 id = a->defenders[v];
                 if (id != -1) {
-                    c = (AICHAR *)cm_FindFighter(id);
+                    c = cm_FindFighter(id);
                     col = v % 4;
                     row = v / 4 + 1;
                     px = col * 80 + 0x30;
@@ -4269,9 +4269,9 @@ void cm_FightFrame(char *r)
     cm_UpdateGrenades();
     if (cm_SceneTimedOut == 0 && cm_FightWinner == 0) {
         if (d2_ClickedId != -1 && d2_PointerObj == cm_FightButton) {
-            q = (CMCUTENTRY *)cm_CutEntrySlot(r, cm_CutChar);
+            q = (CMCUTENTRY *)cm_CutEntrySlot(r, (char *)cm_CutChar);
             memcpy(&sl, q, sizeof(CMCUTENTRY));
-            sl.charId = ((AICHAR *)cm_CutChar)->netId;
+            sl.charId = cm_CutChar->netId;
             sl.state = 5;
             cm_SendCutEntry(((CMCUTINFO *)r)->playerId, (int)&sl);
         }
@@ -4330,10 +4330,10 @@ void cm_FighterAct(CMFIGHTSLOT *f)
 
     if (f->active == 0 || f->id == -1)
         return;
-    c = (AICHAR *)cm_FindFighter(f->id);
+    c = cm_FindFighter(f->id);
     k = (AIWEAPON *)cm_CharWeapon((char *)c);
     side = (AICHAR *)c->bld;  /* in a fight: the leader of the fighter's side */
-    tgt = (AICHAR *)cm_FindFighter(f->target);
+    tgt = cm_FindFighter(f->target);
     if (tgt != 0)
         tgt->v024 = f->health;
     if (!(k != 0 && (k->id == 0x174 || k->id == 0x176))) {
@@ -4382,7 +4382,7 @@ void cm_FighterAct(CMFIGHTSLOT *f)
         ev->pot.x = f->x;
         ev->pot.y = f->y;
         strcpy(ev->u.name, "spezial/einhaendig_vom_boden_nehmen");
-        if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner) {
+        if (cm_CutChar->netId == cm_FightOwner) {
             if (!d3_GetHeightAt((struct D3SM *)h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
                 return;
             cm_BestCellNear((char *)c, cm_PickCellX, cm_PickCellZ, 8, &ox, &oy);
@@ -4412,7 +4412,7 @@ void cm_FightSlotStop(CMFIGHTSLOT *f)
     AICHAR *c;
 
     if (f->active != 0 && f->id != -1) {
-        c = (AICHAR *)cm_FindFighter(f->id);
+        c = cm_FindFighter(f->id);
         if (c != 0)
             ch_StopActions(c->scene);
     }
@@ -4425,7 +4425,7 @@ void cm_FightSlotCheer(CMFIGHTSLOT *f)
     CHACTION *ev;
 
     if (f->active != 0 && f->id != -1) {
-        c = (AICHAR *)cm_FindFighter(f->id);
+        c = cm_FindFighter(f->id);
         ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_CheerAction, 5, 0x2e, 1);
         ev->cheer.fighter = c;
         strcpy(ev->u.name, "gestik/jubeln");
@@ -4441,7 +4441,7 @@ void cm_FightSlotPickUp(CMFIGHTSLOT *f)
     CHACTION *ev;
 
     if (f->active != 0 && f->id != -1) {
-        c = (AICHAR *)cm_FindFighter(f->id);
+        c = cm_FindFighter(f->id);
         side = (AICHAR *)c->bld;
         ch_StopActions(c->scene);
         o = d3_FindObject(0, 0x40, 0, f->dummy);
@@ -4463,7 +4463,7 @@ void cm_FightSlotPutDown(CMFIGHTSLOT *f)
     CHACTION *a;
 
     if (f->active != 0 && f->id != -1) {
-        c = (AICHAR *)cm_FindFighter(f->id);
+        c = cm_FindFighter(f->id);
         ch_StopActions(c->scene);
         d3_FindObject(0, 0x40, 0, f->dummy);
         o = (D3OBJECT *)c->v1ac;
@@ -4507,7 +4507,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
     if (f->active != 0) {
         o = d3_FindObject(0, 0x40, 0, f->dummy);
         if (f->id != -1) {
-            c = (AICHAR *)cm_FindFighter(f->id);
+            c = cm_FindFighter(f->id);
             c->scene->flags.fled = 1;
             txt_Format(buf, 0x11b8, c->id);
             sv_SetStatusText(buf);
@@ -4595,7 +4595,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
             s.damage = (int)(s.damage * 1.25f);
         s.hit = 1;
         s.kill = hit;
-        if (((AICHAR *)cm_CutChar)->netId == cm_FightOwner && k->kind == 0) {
+        if (cm_CutChar->netId == cm_FightOwner && k->kind == 0) {
             other = 0;
             n = cm_FightRecord->nChars;
             for (i = 0; i < n; i++) {

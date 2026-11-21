@@ -7099,7 +7099,7 @@ void he_RunGang(int ev)
                 fin = (HEFINVIEW *)gm_PlayerRecord((char *)leader);
                 if (fin != 0)
                     fin->gangTakings += amt;
-                c = (AICHAR *)gm_FindCharacterByMaster(s);
+                c = gm_FindCharacterByMaster(s);
                 if (c == 0 || (c->flags1b4 & 1) == 0) {
                     txt_Format(text, 0x19f4, amt);
                     he_ShowNews(leader->netId, leader->netId, text, 0, 0x5f0, ch_EmptyName);
@@ -11258,7 +11258,7 @@ void he_RunSale(int ev)
             if (q != 0 && q->type != 0xfd) {
                 tid = 0x606;
                 if (ai_BTypes[b->type].kind != 6) {
-                    AICHAR *m = (AICHAR *)gm_FindCharacterByMaster(b);
+                    AICHAR *m = gm_FindCharacterByMaster(b);
 
                     if (m != 0 && m->kind == 1 && (m->flags1b4 & 1) != 0 && s->notify != 0)
                         tid = 0x60b;
@@ -11271,7 +11271,7 @@ void he_RunSale(int ev)
             } else {
                 tid = 0x606;
                 if (ai_BTypes[b->type].kind != 6) {
-                    AICHAR *m = (AICHAR *)gm_FindCharacterByMaster(b);
+                    AICHAR *m = gm_FindCharacterByMaster(b);
 
                     if (m != 0 && m->kind == 1 && (m->flags1b4 & 1) != 0 && s->notify != 0)
                         tid = 0x60b;
@@ -11385,7 +11385,7 @@ void he_RunCustomers(int ev)
                 cost = (int)gm_JobCost(owner, b->type, -1, 1);
                 c->count[i]--;
                 if (ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) {
-                    m = (AICHAR *)gm_FindCharacterByMaster(b);
+                    m = gm_FindCharacterByMaster(b);
                     txt_Format(text, 0x1bab, cost, p->id, b);
                     if (m != 0 && (m->flags1b4 & 1) != 0)
                         he_MessageBoxQuickjump(ai_Chars[e->chr].netId, b->id, text, 0, 0x60c, b->id, c->target, 0, "_NACHRICHTEN_HS_00");
@@ -12672,7 +12672,7 @@ void he_RunSlotOrder(int ev)
             b = gm_BuildQuery(1, 1, e->from);
             if (b == 0)
                 break;
-            m = (AICHAR *)gm_FindCharacterByMaster(b);
+            m = gm_FindCharacterByMaster(b);
             if (m != 0 && (m->flags1b4 & 1) != 0)
                 tid = 0x60b;
             q = gm_BuildingMainObject(b);
@@ -12740,7 +12740,7 @@ void he_RunStoreExtension(int ev)
                 b = gm_BuildQuery(1, 1, e->from);
                 if (b == 0)
                     break;
-                m = (AICHAR *)gm_FindCharacterByMaster(b);
+                m = gm_FindCharacterByMaster(b);
                 if (m != 0 && (m->flags1b4 & 1) != 0)
                     tid = 0x60b;
                 q = gm_BuildingMainObject(b);
@@ -12939,7 +12939,7 @@ void he_RunHerbGathering(int ev)
                 got = gm_FreeCapacity((short *)o, h->good, amount);
                 if (h->good == 0)
                     break;
-                m = (AICHAR *)gm_FindCharacterByMaster(b);
+                m = gm_FindCharacterByMaster(b);
                 if (got != 0) {
                     cm_SendExSellObject(o->objId, -1, h->good, got, ai_OwnPlayer, 0);
                     txt_Format(text, 0x1802, 0x17fd, b);
@@ -13043,7 +13043,7 @@ void he_RunAnimalHunt(int ev)
             q = gm_BuildingMainObject(b);
         o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
-            m = (AICHAR *)gm_FindCharacterByMaster(b);
+            m = gm_FindCharacterByMaster(b);
             rate = gm_BuildingSkill(b, 0xb, 1) * 0.01 + 1.0;
             amount = (int)((util_Random(5) + 5) * rate);
             cm_SendExSellObject(o->objId, -1, h->good, amount, ai_OwnPlayer, 0);
@@ -13166,7 +13166,7 @@ void he_RunStudy(int ev)
         b = gm_BuildQuery(1, 1, e->from);
         if (b == 0 || c == 0)
             break;
-        m = (AICHAR *)gm_FindCharacterByMaster(b);
+        m = gm_FindCharacterByMaster(b);
         if (m == 0 || (m->flags1b4 & 1) == 0) {
             q = 0;
             bt = &ai_BTypes[b->type];
@@ -14200,7 +14200,7 @@ void he_RunRepair(AIJOB *e)
             return;
         }
         news = 0x5f6;
-        m = (AICHAR *)gm_FindCharacterByMaster(b);
+        m = gm_FindCharacterByMaster(b);
         if (m != 0 && m->kind == 1 && (m->flags1b4 & 1) != 0)
             news = 0x60b;
         txt_Format(text, 0x17cb, 0x48e + b->type * 14);
@@ -14271,7 +14271,7 @@ void he_RunUpgrade(AIJOB *e)
     case 0:
         b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
-            m = (AICHAR *)gm_FindCharacterByMaster(b);
+            m = gm_FindCharacterByMaster(b);
             if (m != 0 && (m->flags1b4 & 1) != 0)
                 news = 0x60b;
             me = &ai_Chars[e->chr];
@@ -14362,7 +14362,7 @@ void he_RunEvent1f(int ev)
                 bt = &ai_BTypes[b->type];
                 txt_Format(text, 0x1c2b, b, g->good * 2 + 0x9a8);
                 if (bt->kind != 6) {
-                    m = (AICHAR *)gm_FindCharacterByMaster(b);
+                    m = gm_FindCharacterByMaster(b);
                     if (m != 0 && m->kind == 1 && (m->flags1b4 & 1) != 0)
                         news = 0x60b;
                 }
@@ -16570,7 +16570,7 @@ void he_RunRansom(AIJOB *ev)
             he_FreeEvent((int *)ev);
             return;
         }
-        payer = (AICHAR *)gm_FindCharacterByMaster(b);
+        payer = gm_FindCharacterByMaster(b);
         if (!(ev->opts & 2))
             return;
         he_AddApEvent(owner->id, txt_Ptrs[0x3fd8], -2, 0);
@@ -17251,7 +17251,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         rec.know = know;
         cm_SendSpyReport((char *)g, &rec);
         if (master->kind == 6 || master->kind == 7) {
-            p = (AICHAR *)gm_FindCharacterByMaster(g);
+            p = gm_FindCharacterByMaster(g);
             if (spy != 0 && (p == 0 || (p->flags1b4 & 1) == 0)) {
                 txt_Format(text, 0x19f8, spy->id, owner->id, b);
                 obj = gm_BuildingMainObject(g);

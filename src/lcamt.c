@@ -753,7 +753,7 @@ struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, int id0, ...);
 void gm_SendMoneyDelta(int a, int b);
 int ai_RunAllowsContact();
 void d2_SetObjEnabled(); void d2_SetCaption(); int d2_WinOpenPic(short x, short y, int pic, int win);
-int ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
+struct AICHAR *ai_AmountMenu(); void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_PamphletWindow(struct AIBLD *bld);
 #define PF_KIND67   0x100000             /* the partner filter's one-of bits (AMOUNTCFG.mode, ai_PassesPartnerFilter): kind 6 / 7 */
 #define PF_KIND5    0x200000             /* kind 5 */
@@ -859,7 +859,7 @@ int gm_SumSlotAmounts(void *list, unsigned char i); int gm_GetGoodsValue(); int 
 void d2_SetObjEnabled(); void d2_EnableViewObjects(); void d2_EnableObject();
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow(); void d2_RemoveObj();
 void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont();
-int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); int ai_AmountMenu();
+int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
 int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
@@ -920,7 +920,7 @@ int d2_RemoveWindowObjects();
 void cm_SendMoneyDelta(int a, int b); void ai_ShowPaymentNews(); 
 int cm_SendObject1b5(int owner, G17B7 value); int cm_GetSlotValue(int h); int cm_SendGroupState(); int cm_FlushSendQueue();
 int cm_ReceiveMessages(); int cm_ExecCommands(); int cm_SendLongMessage(char *msg); int cm_GetSlotState();
-int ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
+struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *, int);
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(push, 1)
@@ -1691,7 +1691,7 @@ int ai_DrawAmountRow(int x, int y, int win, LCAMOUNTROW *row)
    zeroed and gets +4 = 0x204, +8 = 0x5eed68, +0xc = 0x5eed6c and +0x10 = 6, then 0x5c0970 (the config, the
    second argument, 0, 0) runs the tabbed list; its result is returned */
 
-int ai_SpecialAmountList(G8CHARREC *ch, char *text)
+struct AICHAR *ai_SpecialAmountList(G8CHARREC *ch, char *text)
 {
     AMOUNTCFG cfg;
 
@@ -1712,7 +1712,7 @@ int ai_SpecialAmountList(G8CHARREC *ch, char *text)
    with it, else pick (character, 0) decides (the window disabled meanwhile); a vacant seat ends the viewing. Returns
    the chosen character record (0: none) */
 
-int ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
+struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
                                int (*pick)(AICHAR *, int))
 {
     int viewing;
@@ -1898,7 +1898,7 @@ int ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, ch
         }
     } while (sv_RunFrame(ai_SpecialAmountListWindow, 0x657c7) != 0);
     d2_CloseView(win);
-    return (int)chosen;
+    return chosen;
 }
 /* 0x5bf0d0, the fill of the special-amount window's family tab (tab 0, 551 B): the characters other than me, alive
    (id != 0xffff) and of a kind below 10 that are one of my relatives (the relation class 4 / 5 for relatives[0],
@@ -2805,7 +2805,7 @@ void ai_AmountLikingRows(AICHAR *me, unsigned count, int *rows)
    ticks while the page is not scrolled the tabs are counted and the open one refilled again (state 3). Returns
    the chosen character record (0: none) */
 
-int ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(AICHAR *, int))
+struct AICHAR *ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(AICHAR *, int))
 {
     LCAMOUNTROW rows[16];
     int page;
@@ -2966,7 +2966,7 @@ int ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*p
 next:;
     } while (sv_RunFrame(ai_SpecialAmountWindow, 0x657c7) != 0);
     d2_CloseView(win);
-    return (int)chosen;
+    return chosen;
 }
 /* 0x5c1130, the special-amount menu "special\amt1" (975 B): the caption (caption, else the text 0xa1), the
    tabbed window's button (the text 0x1687, its object in form 3) and nine picture buttons, each named by its
@@ -2977,13 +2977,13 @@ next:;
    chosen there closes the menu too unless pick decides or cfg->option14 has bit 4; a right release closes it.
    Returns the chosen character record (0: none); prompt is not read */
 
-int ai_AmountMenu(AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(AICHAR *, int))
+struct AICHAR *ai_AmountMenu(AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(AICHAR *, int))
 {
     int ctrl;
     int btn[9];
     int order[9];
     int win;
-    int r;
+    AICHAR *r;
     int i;
     int hit;
 
@@ -3988,7 +3988,7 @@ void ai_MasterLetterWindow(AIBLD *bld)
         return;
     me = &ai_Chars[ai_PlayerId];
     type = &ai_BTypes[bld->type];
-    master = (AICHAR *)gm_FindCharacterByMaster(bld);
+    master = gm_FindCharacterByMaster(bld);
     if (type->kind == 5 || type->kind == 9) {
         mode = 0x40;
     } else if (master != 0) {
@@ -6762,7 +6762,7 @@ int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
         txt_Format(text, 0x1d66);
-        pick = (AICHAR *)ai_AmountMenu(&cfg, text, 0, ai_BlackmailContactWindow);
+        pick = ai_AmountMenu(&cfg, text, 0, ai_BlackmailContactWindow);
         if (pick != 0 && (pick->flags1c8 & 0x400) != 0)
             ret = 0x81;
     }
@@ -7076,7 +7076,7 @@ int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
         cfg.filter = gypsyFilter;
         txt_Format(caption, 0x1d98);
         txt_Format(caption2, 0x1d99);
-        ch = (AICHAR *)ai_SpecialAmountListWindow(ownerKind.col, (unsigned int *)&cfg, caption, caption2, 0);
+        ch = ai_SpecialAmountListWindow(ownerKind.col, (unsigned int *)&cfg, caption, caption2, 0);
         if (ch != 0) {
             if (amt_FindOffice((char *)ch, &kind, &office) == 0)
                 return 0x60;
@@ -7536,11 +7536,11 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(text, 0x1dcf);
-    a = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+    a = ai_AmountMenu(&cfg, text, 0, 0);
     if (a == 0)
         return 0;
     txt_Format(text, 0x1dd0, a->id);
-    b = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+    b = ai_AmountMenu(&cfg, text, 0, 0);
     if (b == 0)
         return 0;
     price = (int)((float)(gm_GetWorth(b->id) + gm_GetWorth(a->id)) * 0.02f);
@@ -7638,7 +7638,7 @@ int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(text, 0x1dd7);
-    target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+    target = ai_AmountMenu(&cfg, text, 0, 0);
     if (target == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
@@ -7864,11 +7864,11 @@ int ai_PeaceWindow(AICHAR *me, LCORDMSG *m)
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
     txt_Format(text, 0x1de4);
-    a = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+    a = ai_AmountMenu(&cfg, text, 0, 0);
     if (a == 0)
         return 0;
     txt_Format(text, 0x1de5, a->id);
-    b = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+    b = ai_AmountMenu(&cfg, text, 0, 0);
     if (b == 0)
         return 0;
     win = d2_OpenForm(0, 0, "privillegien\\frieden_stiften");
@@ -8852,7 +8852,7 @@ int ai_InterrogationWindow(AICHAR *me, LCORDMSG *m)
     cfg.mode = 0xc00;
     cfg.filter = gypsyFilter;
     cfg.kind = 6;
-    ch = (AICHAR *)ai_AmountMenu(&cfg, txt_Ptrs[0x1e08], 0, 0);
+    ch = ai_AmountMenu(&cfg, txt_Ptrs[0x1e08], 0, 0);
     if (ch == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
@@ -8985,7 +8985,7 @@ int ai_DismissalHandler(AICHAR *me, LCORDMSG *m)
     cfg.mode = 0xc00;
     cfg.kind = 6;
     cfg.filter = gypsyFilter;
-    ch = (AICHAR *)ai_AmountMenu(&cfg, txt_Ptrs[0x1e0e], 0, 0);
+    ch = ai_AmountMenu(&cfg, txt_Ptrs[0x1e0e], 0, 0);
     if (ch == 0)
         return 2;
     if (amt_GetFirstOffice(ch->officeKind, office) == 0)
@@ -9085,7 +9085,7 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
     cfg.mode = 0xc00;
     cfg.filter = gypsyFilter;
     cfg.kind = 6;
-    ch = (AICHAR *)ai_SpecialAmountListWindow(4, (unsigned int *)&cfg, txt_Ptrs[0x1e16], ch_EmptyName, 0);
+    ch = ai_SpecialAmountListWindow(4, (unsigned int *)&cfg, txt_Ptrs[0x1e16], ch_EmptyName, 0);
     if (ch == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
@@ -9151,7 +9151,7 @@ int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
     cfg.mode = 0xc00;
     cfg.filter = gypsyFilter;
     cfg.kind = 6;
-    ch = (AICHAR *)ai_SpecialAmountListWindow(5, (unsigned int *)&cfg, txt_Ptrs[0x1e1d], ch_EmptyName, 0);
+    ch = ai_SpecialAmountListWindow(5, (unsigned int *)&cfg, txt_Ptrs[0x1e1d], ch_EmptyName, 0);
     if (ch == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
@@ -9654,7 +9654,7 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
             msg.type = 0x82;
@@ -9717,7 +9717,7 @@ int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
             msg.type = 0x82;
@@ -9969,7 +9969,7 @@ int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400 | (ai_Chars[ai_PlayerId].sex != 0 ? 1 : 2);
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             return 0;
         ret = 1;
@@ -10018,13 +10018,13 @@ int ai_QuarrelCallback(AICHAR *ch, int *req)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        a = (AICHAR *)ai_AmountMenu((int)&cfg, text, 0, 0);
+        a = ai_AmountMenu((int)&cfg, text, 0, 0);
         if (a == 0)
             goto done;
         cfg.option14 = 3;
         cfg.ids[0] = a->id;
         txt_Format(text, (char *)0x9e);
-        b = (AICHAR *)ai_AmountMenu((int)&cfg, text, 0, 0);
+        b = ai_AmountMenu((int)&cfg, text, 0, 0);
         if (b == 0)
             goto done;
     } else {
@@ -10116,7 +10116,7 @@ int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -10291,13 +10291,13 @@ int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        a = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        a = ai_AmountMenu(&cfg, text, 0, 0);
         if (a == 0)
             goto done;
         cfg.option14 = 3;
         cfg.ids[0] = a->id;
         txt_Format(text, 0x9e);
-        b = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        b = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         a = gm_FindChar(use->target);
         b = gm_FindChar(use->arg);
@@ -10360,7 +10360,7 @@ int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -10394,7 +10394,7 @@ int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -10454,7 +10454,7 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
+        target = ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
         if (target == 0)
             return 0;
     } else {
@@ -10570,7 +10570,7 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
+        target = ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
         if (target == 0)
             return 0;
     } else {
@@ -10651,7 +10651,7 @@ int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -10687,7 +10687,7 @@ int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -10746,7 +10746,7 @@ int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
         cfg.kind = 6;
         cfg.mode = ((ai_Chars[ai_PlayerId].sex != 0) + 1) | 0x400;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             return 0;
     } else {
@@ -10794,7 +10794,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
             msg.type = 0x82;
@@ -10871,7 +10871,7 @@ int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             goto done;
         ret = 1;
@@ -10942,7 +10942,7 @@ int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             goto done;
         ret = 1;
@@ -11087,7 +11087,7 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }
@@ -11180,7 +11180,7 @@ int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use)
         cfg.mode = 0x400;
         cfg.kind = 6;
         cfg.filter = gypsyFilter;
-        target = (AICHAR *)ai_AmountMenu(&cfg, text, 0, 0);
+        target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
     }

@@ -154,7 +154,7 @@ int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a, i
 int d2_GetViewWin(int view, int i);         /* 0x475ff0, d2.h: window i of a view, -1 if out of range */
 int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag); /* 0x5092e0, f3gm.c: the building skill (ai.h's
                                                prototype; f3snd.h's building view is unsigned char *) */
-char *gv_FindAccused(char *c, int max, int *ids, int *cnt);  /* 0x4f41b0, gv.c: the character with the
+struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);  /* 0x4f41b0, gv.c: the character with the
                                                most records of its table not yet paired with c */
 void cm_SendProofExecuted(int record, int character); /* 0x4c4ed0, cm.c: message 0x24, the pair (character,
                                                record) into the executed table 0x91b6e0 */
@@ -2365,7 +2365,7 @@ void ai_TailorChatWindow(int request)
     AICHARVIEW *rec;
     int count;
     int obj;
-    int found;
+    AICHAR *found;
     int ids[4];                         /* the record ids the query fills (its max is 4) */
     char buf[0x400];                    /* both event texts are built here, one after the other */
     int limit;
@@ -2376,7 +2376,7 @@ void ai_TailorChatWindow(int request)
     req = (AIREQ *)request;
     rec = (AICHARVIEW *)&ai_Chars[ai_PlayerId];
     wnd = d2_OpenForm(0, 0, "locations\\schneider\\plausch");
-    found = gv_FindAccused((char *)&ai_Chars[ai_PlayerId], 4, ids, &count);
+    found = gv_FindAccused(&ai_Chars[ai_PlayerId], 4, ids, &count);
     if (ai_PlayerBuilding != 0)
         limit = gm_BuildingSkill(ai_PlayerBuilding, 0x24, 1);
     else

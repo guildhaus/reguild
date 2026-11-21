@@ -23,7 +23,7 @@ int gm_TitleJobGroup(int n);                    /* 0x504c00, the job group of a 
 int gm_TitleJob(int i, int p);       /* 0x5044b0, the job byte of the character i in the title group p, 0 when none */
 int gm_IsType10(struct AIBLD *b);              /* 0x5024f0, 1 for the town market */
 int gm_IsHomeType(struct AIBLD *b);            /* 0x502520, 1 for a home type */
-char *gm_FindCharacterByMaster(struct AIBLD *m);          /* 0x50a810, the first kind 6 / 7 / 1 / 2 character with a job whose master (+0x16c) is m */
+struct AICHAR *gm_FindCharacterByMaster(struct AIBLD *m);          /* 0x50a810, the first kind 6 / 7 / 1 / 2 character with a job whose master (+0x16c) is m */
 void gm_ShowSlotObjects(int unused, int scene, int c);  /* 0x502a60, the scene objects of the character's five slots on */
 void gm_ShowBuildingObjects(struct AIBLD *b);  /* 0x502e30, for a building of the type 2: gm_ShowSlotObjects for every object of the kind 2 in its list (up to 32) */
 void gm_AssignBuilding(struct AIBLD *b, unsigned master, unsigned own);  /* 0x502b60 */

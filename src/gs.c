@@ -1100,7 +1100,7 @@ int gv_HeldCrimeCount(int culprit, unsigned short t)
    them per culprit (up to 0x300 culprits) and returns the culprit with the most; ids[] gets the ids of its crimes (up
    to max), *cnt their number; 0 when there is none (the seance's ghost: ai_SeanceGhost) */
 
-char *gv_FindAccused(char *c, int max, int *ids, int *cnt)
+struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt)
 {
     int count[0x300];
     AICHAR *who[0x300];
@@ -1108,7 +1108,7 @@ char *gv_FindAccused(char *c, int max, int *ids, int *cnt)
     int i, j, k, n, nw, nr, bestn;
     AICHAR *ch, *o, *best;
 
-    ch = (AICHAR *)c;
+    ch = c;
     *cnt = 0;
     memset(who, 0, sizeof(who));
     memset(count, 0, sizeof(count));
@@ -1160,7 +1160,7 @@ next:;
             ids[k++] = rec[i]->id;
     }
     *cnt = k;
-    return (char *)best;
+    return best;
 }
 /* 0x4f4350, clears the crimes: ai_NextCrimeId = 0, every CRIME record free (culprit, victim and id -1, state 0) and
    every evidence pair (-1, -1) */

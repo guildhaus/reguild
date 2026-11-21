@@ -2165,7 +2165,7 @@ int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
         m.fight.rot.z = b->rotation.z;
         m.fight.health = c->v024;
         if (cmd == 2) {
-            t = (AICHAR *)cm_FindFighter(m.fight.slot.target);
+            t = cm_FindFighter(m.fight.slot.target);
             if (t != 0)
                 m.fight.slot.health = t->v024;
         }
@@ -5735,7 +5735,7 @@ int cm_ExCutEntry(G17MSG *m, G17STAT *s)
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == m->cutEntry.playerId) {
             rec = &cm_CutInfos[i];
-            c = cm_FindFighter(m->cutEntry.entry.charId);
+            c = (char *)cm_FindFighter(m->cutEntry.entry.charId);
             if (c == 0)
                 c = (char *)gm_FindChar(m->cutEntry.entry.charId);
             if (c != 0) {
@@ -5767,7 +5767,7 @@ int cm_ExCutEntryUpdate(G17MSG *m, G17STAT *s)
         return 1;
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == m->cutEntry.playerId) {
-            r = (CMCUTENTRY *)cm_CutEntrySlot((char *)&cm_CutInfos[i], cm_FindFighter(m->cutEntry.entry.charId));
+            r = (CMCUTENTRY *)cm_CutEntrySlot((char *)&cm_CutInfos[i], (char *)cm_FindFighter(m->cutEntry.entry.charId));
             if (r->state == m->cutEntry.entry.state) {
                 if (r->state != 2 || r->stateArg == m->cutEntry.entry.stateArg)
                     *r = m->cutEntry.entry;
@@ -5789,7 +5789,7 @@ int cm_ExDamage(G17MSG *m, G17STAT *s)
 {
     AICHAR *r;
 
-    r = (AICHAR *)cm_FindFighter(m->damage.netId);
+    r = cm_FindFighter(m->damage.netId);
     if (r != 0) {
         cm_ShowDamage((char *)r, m->damage.damage, 0);
         r->v024 -= m->damage.damage;
@@ -5967,7 +5967,7 @@ int cm_ExFightCommand(G17MSG *m, G17STAT *s)
 
     if (cm_CurrentFight == 0 || *cm_CurrentFight != m->fight.fight)
         return 1;
-    c = (AICHAR *)cm_FindFighter(m->fight.slot.id);
+    c = cm_FindFighter(m->fight.slot.id);
     switch (m->fight.cmd) {
     case 2:                                         /* attack */
         if (c->health != 0) {
