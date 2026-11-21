@@ -9475,7 +9475,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             cm_BeginFieldBlock((char *)use->obj, use->obj->objId);
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
-            gm_CatchDisease((struct AICHAR *)&ai_Chars[bld->owner], 0, 0);
+            gm_CatchDisease(&ai_Chars[bld->owner], 0, 0);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
                 char news[0x800];
 
@@ -9502,7 +9502,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
             if (ai_InventoryHas(&ai_Chars[bld->owner], 0x2c4) == 0 || util_RandomF() > 0.75f)
-                gm_CatchDisease((struct AICHAR *)&ai_Chars[bld->owner], 0, 0);
+                gm_CatchDisease(&ai_Chars[bld->owner], 0, 0);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
                 char news[0x800];
 

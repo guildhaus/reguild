@@ -199,8 +199,8 @@ int ai_DecideTwoNearChars(int a, AICHAR *p, int c, int d, AIARG *m)
     if (ai_PickPartnerChain(p, 2, flags, 0, (float)util_Random(0x40), id) == 0)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id[0]].netId;
-    m->arg = ((AICHAR *)ai_Chars)[id[1]].netId;
+    m->ref = ai_Chars[id[0]].netId;
+    m->arg = ai_Chars[id[1]].netId;
     return 1;
 }
 /* 0x4a8d20, decide callback: p (money >= 3) picks a character within 32..49 units, into m (kind 7) */
@@ -216,7 +216,7 @@ int ai_DecideNearChar(int a, AICHAR *p, int c, int d, AIARG *m)
     if (ai_PickPartnerChain(p, 1, &flags, 0, (float)util_Random(0x12) + 32.0f, &id) == 0)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id].netId;
+    m->ref = ai_Chars[id].netId;
     return 1;
 }
 /* 0x4a8db0, decide callback: a building for action 4 of ai_Partner (or action 6 of p, rated 32..63), then from a
@@ -462,10 +462,10 @@ int ai_DecideAcceptedChar(int a, AICHAR *p, int c, int d, AIARG *m)
     flags = PARTNER_FLAGS_ANY;
     if (ai_PickPartnerChain(p, 1, &flags, 0, (float)util_Random(0x20) + 40.0f, &id) == 0)
         return 0;
-    if (he_NoEvent4bPair(p, &((AICHAR *)ai_Chars)[id]) == 0)
+    if (he_NoEvent4bPair(p, &ai_Chars[id]) == 0)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id].netId;
+    m->ref = ai_Chars[id].netId;
     return 1;
 }
 /* 0x4a94e0, decide callback: p (money > 2, not flagged 0x400) picks a character within 18..49 units, not flagged
@@ -479,10 +479,10 @@ int ai_DecideUnflaggedChar(int a, AICHAR *p, int c, int d, AIARG *m)
     if (p->money >= 3 && (p->flags1c8 & 0x400) == 0) {
         flags = PARTNER_FLAGS_ANY;
         if (ai_PickPartnerChain(p, 1, &flags, 0, (float)util_Random(0x20) + 18.0f, &id) != 0
-            && (((AICHAR *)ai_Chars)[id].flags1c8 & 0x400) == 0
-            && util_RandomF() + gm_Mix(p, &((AICHAR *)ai_Chars)[id], 3) >= 1.0f) {
+            && (ai_Chars[id].flags1c8 & 0x400) == 0
+            && util_RandomF() + gm_Mix(p, &ai_Chars[id], 3) >= 1.0f) {
             m->kind = 7;
-            m->ref = ((AICHAR *)ai_Chars)[id].netId;
+            m->ref = ai_Chars[id].netId;
             return 1;
         }
     }
@@ -502,7 +502,7 @@ int ai_DecideFarChar(int a, AICHAR *p, int c, int d, AIARG *m)
     if (ai_PickPartnerChain(p, 1, &flags, 20.0f, (float)util_Random(0x20) + 32.0f, &id) == 0)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id].netId;
+    m->ref = ai_Chars[id].netId;
     return 1;
 }
 /* 0x4a9660, decide callback: p (not flagged 0x40000, money >= 8) picks a character within 18..33 units who
@@ -521,7 +521,7 @@ int ai_DecideCloseChar(int a, AICHAR *p, int c, int d, AIARG *m)
     if (ai_PickPartnerChain(p, 1, &flags, 0, (float)util_Random(0x10) + 18.0f, &id) == 0)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id].netId;
+    m->ref = ai_Chars[id].netId;
     return 1;
 }
 /* 0x4a9700, decide callback: p (not flagged 0x100, money >= 4) picks one of the holders of the offices of
@@ -1012,7 +1012,7 @@ int ai_PickPamphletTarget(AICHAR *p, int c, AIARG *m)
     flags = PARTNER_FLAGS_ANY;
     if (ai_PickPartnerChain(p, 1, &flags, 0, (float)util_Random(0x40), &id) == 0)
         return 0;
-    if (he_NoEvent35Pair(p, &((AICHAR *)ai_Chars)[id], &k) == 0)
+    if (he_NoEvent35Pair(p, &ai_Chars[id], &k) == 0)
         return 0;
     if (he_NoEvent88Pair(&ai_Chars[id], p) == 0)
         return 0;
@@ -1021,7 +1021,7 @@ int ai_PickPamphletTarget(AICHAR *p, int c, AIARG *m)
     if (util_RandomF() < k * 0.25f)
         return 0;
     m->kind = 7;
-    m->ref = ((AICHAR *)ai_Chars)[id].netId;
+    m->ref = ai_Chars[id].netId;
     return 1;
 }
 /* 0x4aa6a0, decide callback: p (money > 1) picks a random acquaintance within 20..80 units that 0x553d10
@@ -1401,7 +1401,7 @@ int ai_ExecBuyDunkleEcke(AICHAR *p, AIARG *a, AIARG *b)
     cm_BeginGroup("buy dunkle ecke");
     cm_SendScriptMessage(rec);
     cm_SendProofExecuted(a->ref, p->netId);
-    cm_SendMoveGoodsUnchecked(((AICHAR *)ai_Chars)[bld->owner].netId, p->netId, 0, a->arg2);
+    cm_SendMoveGoodsUnchecked(ai_Chars[bld->owner].netId, p->netId, 0, a->arg2);
     cm_EndGroup("buy dunkle ecke");
     return 1;
 }
@@ -1460,7 +1460,7 @@ int ai_DecideBlutrache(int a, AICHAR *p, int c, AIARG *m, AIARG *m2)
     flags = PARTNER_FLAGS_ANY;
     if (ai_PickPartnerChain(p, 1, (int *)&flags, 0.0f, (float)util_Random(0x20) + 25.0f, &id) == 0)
         return 0;
-    o = &((AICHAR *)ai_Chars)[id];
+    o = &ai_Chars[id];
     s = amt_GetKindLevel(o->officeKind) / 3 + 2;
     if (s + 2 > p->money)
         return 0;
@@ -1470,7 +1470,7 @@ int ai_DecideBlutrache(int a, AICHAR *p, int c, AIARG *m, AIARG *m2)
     for (i = 0, cnt = 0; i < n; i++) {
         t = amt_GetKindLevel(ai_Chars[ids[i]].officeKind) / 3 + 2;
         if (s + t >= p->money) {
-            who[cnt++] = &((AICHAR *)ai_Chars)[ids[i]];
+            who[cnt++] = &ai_Chars[ids[i]];
             s += t;
         }
     }
@@ -1565,7 +1565,7 @@ int ai_DecideVerfluchen(int a, AICHAR *p, int c, AIARG *m)
     flags = PARTNER_FLAGS_ANY;
     if (ai_PickPartnerChain(p, 1, (int *)&flags, 0.0f, (float)util_Random(0x20) + 25.0f, &id) == 0)
         return 0;
-    o = &((AICHAR *)ai_Chars)[id];
+    o = &ai_Chars[id];
     money = (int)(gm_SumListAmounts(p->inventory, ai_OwnPlayer) * 0.25f);
     gm_GetWorth(p->id);
     for (k = bestv - 1; k > 0; k--) {
@@ -1704,7 +1704,7 @@ int ai_DecideEhrerbietung(int a, AICHAR *p, int c, AIARG *m)
             flags = PARTNER_FLAGS_ANY;
             if (ai_PickPartnerChain(p, 1, (int *)&flags, 0.0f, (float)util_Random(0x20) + 25.0f, &id) == 0)
                 return 0;
-            o = &((AICHAR *)ai_Chars)[id];
+            o = &ai_Chars[id];
             n = util_Random(p->money < 8 ? p->money : 8);
             if (n <= 2)
                 n = 2;

@@ -2310,7 +2310,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
     gifts[12].item = 0x2c0;
     gifts[13].item = 0x2be;
     gifts[14].item = 0x2b9;
-    ai_FindWantedItems((struct AICHAR *)&ai_Chars[ai_PlayerId], 0xf, gifts, st);
+    ai_FindWantedItems(&ai_Chars[ai_PlayerId], 0xf, gifts, st);
     if ((st[0] == 6 && st[2] == 0) || st[1] == 0xf) {
         mode = 1;
     } else {
@@ -2627,7 +2627,7 @@ void ai_GraveHauntContact(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -2735,7 +2735,7 @@ void ai_GraveAgeContact(AIBLD *rec)
                             mask.LowPart = 0x7b4c4a0;
                             mask.HighPart = 0;
                             pick = -1;
-                            ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                            ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                             msg.arg[0] = pick;
                         }
                         id = cm_SendLongMessage((char *)&msg);

@@ -1650,7 +1650,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     msg.arg[1] = rec->id;
                     mask.LowPart = 0x7b4c4a0;
                     mask.HighPart = 0;
-                    ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                    ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                     msg.arg[0] = pick;
                     id = cm_SendLongMessage((char *)&msg);
                     while (id != -1 && cm_GetSlotState(id) == 0)
@@ -1774,7 +1774,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -1885,7 +1885,7 @@ void ai_CabinetSpyByMoney(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);
@@ -1994,7 +1994,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
                         mask.LowPart = 0x7b4c4a0;
                         mask.HighPart = 0;
                         pick = -1;
-                        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
+                        ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.QuadPart, 0, 100.0f, &pick);
                         msg.arg[0] = pick;
                     }
                     id = cm_SendLongMessage((char *)&msg);

@@ -4795,7 +4795,7 @@ void he_RunPlunder(int ev)
             gm_AddTime(&e->end, 0, 10, 0);
             return;
         }
-        if (ai_PickPartnerRandomWalk((struct AICHAR *)&ai_Chars[e->chr], PLUNDER_PARTNER_FLAGS, 4, p->victims, 0, 100.0f, &idx) != 0) {
+        if (ai_PickPartnerRandomWalk(&ai_Chars[e->chr], PLUNDER_PARTNER_FLAGS, 4, p->victims, 0, 100.0f, &idx) != 0) {
             price = gv_ProtectionPrice((unsigned short *)&ai_Chars[idx]);
             worth = gm_ConvertMoney(gm_GetWorth(idx), ai_OwnPlayer);
             p->victims[p->at] = idx;

@@ -74,7 +74,7 @@ int ai_FindMasterBuilding(AICHAR *p, int *out)
     if (ai_PlayerCountYear < ai_Time.year) {
         ai_NumPlayerChars = 0;
         for (i = 0; i < 768; i++) {
-            AICHAR *c = &((AICHAR *)ai_Chars)[i];
+            AICHAR *c = &ai_Chars[i];
 
             if (c->kind == 6 || c->kind == 7 || c->kind == 5)
                 ai_NumPlayerChars++;
@@ -252,7 +252,7 @@ int ai_DecideSecretRoom0(AICHAR *p, AIARGX *s1, AIARGX *s2)
     flags = (0xf << 20) | (5 << 8);  /* the partner flags 0xf00500 (bits 8, 10, 20..23) */
     if (!ai_PickPartnerChain(p, 1, &flags, 0, util_Random(0x20) + 25.0f, &cid))
         return 0;
-    c = &((AICHAR *)ai_Chars)[cid];
+    c = &ai_Chars[cid];
     m = gm_SumListAmounts(p->inventory, ai_OwnPlayer);
     lim = (int)(m * 0.25f);
     {
@@ -279,7 +279,7 @@ int ai_DecideSecretRoom1(AICHAR *p, AIARGX *s1, AIARGX *s2)
     flags = (0xf << 20) | (5 << 8);  /* the partner flags 0xf00500 (bits 8, 10, 20..23) */
     if (!ai_PickPartnerChain(p, 1, &flags, 0, util_Random(0x20) + 25.0f, &cid))
         return 0;
-    c = &((AICHAR *)ai_Chars)[cid];
+    c = &ai_Chars[cid];
     t = amt_GetKindLevel(((unsigned char *)c)[0x166]) / 3 + 2;
     a[0] = t + 3;
     a[1] = t + 5;
@@ -310,7 +310,7 @@ int ai_DecideSecretRoom2(AICHAR *p, AIARGX *s1, AIARGX *s2)
     flags = (0xf << 20) | (5 << 8);  /* the partner flags 0xf00500 (bits 8, 10, 20..23) */
     if (!ai_PickPartnerChain(p, 1, &flags, 0, util_Random(0x20) + 32.0f, &cid))
         return 0;
-    c = &((AICHAR *)ai_Chars)[cid];
+    c = &ai_Chars[cid];
     f = (float)(amt_GetKindLevel(((unsigned char *)c)[0x166]) / 3 + 2);
     a[0] = (int)f;
     a[1] = (int)(f * 1.5f);
@@ -1085,7 +1085,7 @@ int ai_DecideGraveyardOwner2(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2)
         x = -1;
         m.s.lo = 0x7b4c4a0;
         m.s.hi = 0;
-        ai_PickActionBuilding((AICHAR *)&ai_Chars[ai_PlayerId], 0, m.q, 0, 100.0f, &x);
+        ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, m.q, 0, 100.0f, &x);
         if (x == -1)
             return 0;
         o2->arg = x;

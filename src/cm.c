@@ -2447,7 +2447,7 @@ int cm_CheckSellObject(G17MSG *m)
             return 1;
         if (bb != 0) {
             if (bb->owner != 0xffff)
-                r = (AICHAR *)&ai_Chars[bb->owner];
+                r = &ai_Chars[bb->owner];
             else
                 r = 0;
         } else if (o != 0) {

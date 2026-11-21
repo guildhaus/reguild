@@ -6040,7 +6040,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
                 io_PrintText("$C");
                 io_PrintText(0x1769, &when);
                 g.cost = 0;
-                g.leader = (struct AICHAR *)&ai_Chars[ai_PlayerId];
+                g.leader = &ai_Chars[ai_PlayerId];
                 n = 0;
                 g.n = 0;
                 g.musik = musik;
@@ -6157,7 +6157,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     g.musik = musik;
     g.essen = essen;
     g.cost = 0;
-    g.leader = (struct AICHAR *)&ai_Chars[ai_PlayerId];
+    g.leader = &ai_Chars[ai_PlayerId];
     win = d2_OpenForm(0, 0, "locations\\wohnsitz\\fest2");
     d2_SetForm(win, 0);
     sv_FitForm(d2_LastWindow);

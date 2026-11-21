@@ -4076,7 +4076,7 @@ void he_RunFeast(int ev)
 
         MEM_ZERO(&g, 4);
         n = 0;
-        g.leader = (struct AICHAR *)&ai_Chars[e->chr];
+        g.leader = &ai_Chars[e->chr];
         if (table != 0) {
             g.essen = table->festEssen;
             g.musik = table->festMusik;
@@ -9914,15 +9914,15 @@ int he_FillWalkSlot(HEWALKSLOT *slot, int n, int m)
         kinds[0] = HE_WALK_PARTNERS2;
         kinds[1] = HE_WALK_PARTNERS1;
     }
-    if (ai_FindPartnersRandomWalk((struct AICHAR *)&ai_Chars[ai_PlayerId], 1, &kinds[0], 0.0f, 100.0f, &id) == 0
-        && ai_FindPartnersRandomWalk((struct AICHAR *)&ai_Chars[ai_PlayerId], 1, &kinds[1], 0.0f, 100.0f, &id) == 0)
+    if (ai_FindPartnersRandomWalk(&ai_Chars[ai_PlayerId], 1, &kinds[0], 0.0f, 100.0f, &id) == 0
+        && ai_FindPartnersRandomWalk(&ai_Chars[ai_PlayerId], 1, &kinds[1], 0.0f, 100.0f, &id) == 0)
         return -1;
     ch = &ai_Chars[id];
     mask.s.lo = 0xa7f4c3a0;
     mask.s.hi = 1;                      /* HE_WALK_BUILDINGS, set as two dwords */
     if (ch->bld2 != 0)
         tgt = ch->bld2->id;
-    else if (ai_PickActionBuilding((struct AICHAR *)&ai_Chars[ai_PlayerId], 0, mask.q, 0, 100.0f, &tgt) == 0)
+    else if (ai_PickActionBuilding(&ai_Chars[ai_PlayerId], 0, mask.q, 0, 100.0f, &tgt) == 0)
         return -1;
     if (util_RandomF() > n * 0.1f) {
         int bld;
@@ -13583,7 +13583,7 @@ void he_AllocSpying(int ev)
     }
     gm_FindById(&tgt, 0, 0, s->target);
     if (tgt == 0) {
-        ai_PickActionBuilding((struct AICHAR *)&ai_Chars[e->chr], 6, gypsyFilter, 0, 100.0f, &s->target);
+        ai_PickActionBuilding(&ai_Chars[e->chr], 6, gypsyFilter, 0, 100.0f, &s->target);
         gm_FindById(&tgt, 0, 0, s->target);
         if (tgt == 0) {
             e->exSlot = cm_SendExSetHE(-1, ev);
@@ -13796,7 +13796,7 @@ void he_AllocBrawl(AIJOB *e)
     else
         home = gm_BuildQuery(1, 4, victim->id);
     if (home == 0) {
-        if (ai_PickActionBuilding((struct AICHAR *)&ai_Chars[e->chr], 6, gypsyFilter, (int)home, 100.0f, &at) != 0)
+        if (ai_PickActionBuilding(&ai_Chars[e->chr], 6, gypsyFilter, (int)home, 100.0f, &at) != 0)
             home = gm_BuildQuery(1, 1, at);
     }
     br->meet = home->id;

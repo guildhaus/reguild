@@ -572,7 +572,7 @@ int ai_ChooseObjectTarget(AICHAR *p, AIOBJ *o)
         flags = 0xc00;
         if (ai_FindPartnersRandomWalk(p, 1, &flags, 0.0f, util_Random(30) + 40.0f, &id) == 0)
             goto release;
-        q = (AICHAR *)&ai_Chars[id];
+        q = &ai_Chars[id];
     } else
         goto release;
     if (q != 0) {
@@ -1424,7 +1424,7 @@ void ai_RollCharFlags(void)
 
     f = 1;
     for (i = 0; i < 768; i++) {
-        c = (AICHAR *)&ai_Chars[i];
+        c = &ai_Chars[i];
         if (c->kind == 3) {
             f |= util_Random(2) ? 2 : 0;
             f |= util_Random(3) ? 4 : 0;
@@ -2005,7 +2005,7 @@ int ai_DecideBribe(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
             flags = 0x10000500;
             if (!ai_PickPartnerChain(p, 1, &flags, 0, util_Random(25) + 10.0, &cid))
                 return 0;
-            c = (AICHAR *)&ai_Chars[cid];
+            c = &ai_Chars[cid];
         }
         if (!c)
             return 0;
@@ -2220,7 +2220,7 @@ int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         else if (bld) {
             if (bld->owner == 0xffff)
                 return 0;
-            owner = (AICHAR *)&ai_Chars[bld->owner];
+            owner = &ai_Chars[bld->owner];
         } else if (c)
             owner = c;
         else
@@ -2303,7 +2303,7 @@ int ai_DecideBuyRoom(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         return 0;
     if (bld->owner == 0xffff)
         return 0;
-    c = (AICHAR *)&ai_Chars[bld->owner];
+    c = &ai_Chars[bld->owner];
     v = gm_CharCurrency(c, ai_OwnPlayer);
     if (o1->fvalue > 0.0f && o1->fvalue < 1.0f)
         v = (int)(v * o1->fvalue);
@@ -3153,7 +3153,7 @@ int ai_DecideSabotage(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
                     memset(buf, 0, sizeof(buf));
                     buf[0] = 1;
                     v = (int)(gm_EquipmentValue(y, 100) * 0.05f + gm_GetWorth(p->id) * 0.02f);
-                    ch = (AICHAR *)&ai_Chars[y->owner];
+                    ch = &ai_Chars[y->owner];
                     if (ord_DispatchOrder(0x1b, p, buf) & 2)
                         v /= 2;
                     if (!(m * 0.44f < v)) {
@@ -3300,7 +3300,7 @@ int ai_DecideBeatUp(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
                         t = util_Random(0x20) + 32.0f;
                         if (!ai_PickPartnerChain(p, 1, &flags, 0, t, &cid))
                             return 0;
-                        c = (AICHAR *)&ai_Chars[cid];
+                        c = &ai_Chars[cid];
                     }
                     if (c->money >= 2) {
                         g = gm_Mix(p, c, 3);
@@ -4865,7 +4865,7 @@ int ai_DecideThreaten(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         memset(&s2, 0, sizeof(s2));
         if (ai_DecideLittleKnownChar(p, &s1, &s2) == 0)
             return 0;
-        c = (AICHAR *)&ai_Chars[s2.arg2];
+        c = &ai_Chars[s2.arg2];
         g = gm_Mix(p, c, 4);
         if (!(util_RandomF() + g >= 1.0f)) {
             s1.kind = 4;
