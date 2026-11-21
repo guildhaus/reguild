@@ -533,7 +533,7 @@ int ord_WageReportOrder(AICHAR *c, int *m)
 int ord_DismissOfficeOrder(AICHAR *c, int *m)
 {
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     ORD_MSG(m)->text[0] = 0;
@@ -551,11 +551,11 @@ int ord_DismissOfficeOrder(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if (((AICHAR *)t)->officeKind == 0)
+        if (t->officeKind == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1c8 & 0x200000) != 0)
+        if ((t->flags1c8 & 0x200000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_DismissOfficeAsk(c, (struct LCORDMSG *)m);
@@ -571,7 +571,7 @@ int ord_LawOrder(AICHAR *c, int *m)
 {
     int rec[9];
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
@@ -593,11 +593,11 @@ int ord_LawOrder(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if (((AICHAR *)t)->officeKind == 0)
+        if (t->officeKind == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1c8 & 0x80000) != 0)
+        if ((t->flags1c8 & 0x80000) != 0)
             return 1;
         if (gv_FindTableRecord(t, 1, rec) == 0)
             return 1;
@@ -617,7 +617,7 @@ int ord_LawOrder2(AICHAR *c, int *m)
 {
     int rec[9];
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
@@ -639,11 +639,11 @@ int ord_LawOrder2(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if (((AICHAR *)t)->officeKind == 0)
+        if (t->officeKind == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1c8 & 0x100000) != 0)
+        if ((t->flags1c8 & 0x100000) != 0)
             return 1;
         if (gv_FindTableRecord(t, 2, rec) == 0)
             return 1;
@@ -801,7 +801,7 @@ int ord_JobMultiOrder2(AICHAR *c, int *m)
 
 int ord_BewitchOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -817,9 +817,9 @@ int ord_BewitchOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x16 && j != 0x19 && j != 0x12)
             return 1;
         if (m[0] == 4) {
@@ -836,7 +836,7 @@ int ord_BewitchOrder(AICHAR *c, int *m)
 
 int ord_CounterEspionageOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -852,9 +852,9 @@ int ord_CounterEspionageOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x13 && j != 0x14 && j != 0x18 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
@@ -932,7 +932,7 @@ int ord_JobMultiOrder4(AICHAR *c, int *m)
 int ord_MisappropriationOrder(AICHAR *c, int *m)
 {
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     if (m[0] == 3 || m[0] == 1) {
@@ -949,11 +949,11 @@ int ord_MisappropriationOrder(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if (((AICHAR *)t)->officeKind != 0xe)
+        if (t->officeKind != 0xe)
             return 1;
-        if ((((AICHAR *)t)->flags1c8 & ORD_FLAG_BLOCKED) != 0)
+        if ((t->flags1c8 & ORD_FLAG_BLOCKED) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_MisappropriationWindow(c, (struct LCORDMSG *)m);
@@ -1007,7 +1007,7 @@ int ord_Job15Order(AICHAR *c, int *m)
 
 int ord_SeatSwapOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1023,9 +1023,9 @@ int ord_SeatSwapOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0xf && j != 0x15 && j != 0x1b)
             return 1;
         if (m[0] == 4) {
@@ -1042,7 +1042,7 @@ int ord_SeatSwapOrder(AICHAR *c, int *m)
 
 int ord_HatredOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1058,9 +1058,9 @@ int ord_HatredOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
@@ -1097,7 +1097,7 @@ int ord_JobMultiOrder3(AICHAR *c, int *m)
 
 int ord_HearingOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1113,9 +1113,9 @@ int ord_HearingOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x17 && j != 0x13 && j != 0x14 && j != 0xd)
             return 1;
         if (m[0] == 4) {
@@ -1132,7 +1132,7 @@ int ord_HearingOrder(AICHAR *c, int *m)
 
 int ord_ExpelWorkerOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1148,9 +1148,9 @@ int ord_ExpelWorkerOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x16 && j != 0x19)
             return 1;
         if (m[0] == 4) {
@@ -1167,7 +1167,7 @@ int ord_ExpelWorkerOrder(AICHAR *c, int *m)
 
 int ord_ConvertOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1183,9 +1183,9 @@ int ord_ConvertOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x15 && j != 0x1a)
             return 1;
         if (m[0] == 4) {
@@ -1202,7 +1202,7 @@ int ord_ConvertOrder(AICHAR *c, int *m)
 
 int ord_PeaceOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1218,9 +1218,9 @@ int ord_PeaceOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x1b)
             return 1;
         if (m[0] == 4) {
@@ -1237,7 +1237,7 @@ int ord_PeaceOrder(AICHAR *c, int *m)
 
 int ord_PenanceOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1253,9 +1253,9 @@ int ord_PenanceOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x18)
             return 1;
         if (m[0] == 4) {
@@ -1272,7 +1272,7 @@ int ord_PenanceOrder(AICHAR *c, int *m)
 
 int ord_SpyTargetFlagOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1288,9 +1288,9 @@ int ord_SpyTargetFlagOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x12 && j != 0x16)
             return 1;
         if (m[0] == 4) {
@@ -1307,7 +1307,7 @@ int ord_SpyTargetFlagOrder(AICHAR *c, int *m)
 
 int ord_MiracleOrder(AICHAR *c, int *m)
 {
-    char *t;
+    AICHAR *t;
     unsigned char j;
 
     if (m[0] == 3 || m[0] == 1) {
@@ -1323,9 +1323,9 @@ int ord_MiracleOrder(AICHAR *c, int *m)
         return 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        j = ((AICHAR *)t)->officeKind;
+        j = t->officeKind;
         if (j != 0x1a)
             return 1;
         if (m[0] == 4) {
@@ -1404,7 +1404,7 @@ int ord_Level9UpOrder(AICHAR *c, int *m)
 int ord_InterrogationOrder(AICHAR *c, int *m)
 {
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     ORD_MSG(m)->text[0] = 0;
@@ -1422,11 +1422,11 @@ int ord_InterrogationOrder(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1cc & 0x800) == 0)
+        if ((t->flags1cc & 0x800) == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1cc & 0x80000) != 0)
+        if ((t->flags1cc & 0x80000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_InterrogationWindow(c, (struct LCORDMSG *)m);
@@ -1441,7 +1441,7 @@ int ord_InterrogationOrder(AICHAR *c, int *m)
 int ord_DismissalOrder(AICHAR *c, int *m)
 {
     int r;
-    char *t;
+    AICHAR *t;
 
     r = 0;
     ORD_MSG(m)->text[0] = 0;
@@ -1459,11 +1459,11 @@ int ord_DismissalOrder(AICHAR *c, int *m)
         return r | 2;
     }
     if (m[0] == 4 || m[0] == 2) {
-        if ((c->flags1c8 & 0x100) == 0 || (t = (char *)ORD_MSG(m)->partner) == 0)
+        if ((c->flags1c8 & 0x100) == 0 || (t = ORD_MSG(m)->partner) == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1cc & 0x800) == 0)
+        if ((t->flags1cc & 0x800) == 0)
             return 1;
-        if ((((AICHAR *)t)->flags1cc & 0x40000) != 0)
+        if ((t->flags1cc & 0x40000) != 0)
             return 1;
         if (m[0] == 4) {
             r = ai_DismissalHandler(c, (struct LCORDMSG *)m);

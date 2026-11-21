@@ -611,7 +611,7 @@ int cm_UpdateBombs()
                 t = (int)((cm_Random(w->dmgMax - w->dmgMin) + w->dmgMin) * (c->f01c * 0.01));
                 amt = (int)(t * (1.0 - dist * 0.0058823530562222f));
                 ai_SceneChars[j]->v024 -= amt;
-                if ((AICHAR *)ai_SceneChars[j]->bld == cm_FightAttacker)
+                if (ai_SceneChars[j]->side == cm_FightAttacker)
                     cm_ShowDamage(ai_SceneChars[j], amt, 1);
                 else
                     cm_ShowDamage(ai_SceneChars[j], amt, 2);
@@ -764,7 +764,7 @@ int cm_UpdateGrenades()
                 t = (int)((cm_Random(w->dmgMax - w->dmgMin) + w->dmgMin) * (c->f01c * 0.01));
                 amt = (int)(t * (1.0 - dist * 0.01f));
                 ai_SceneChars[j]->v024 -= amt;
-                if ((AICHAR *)ai_SceneChars[j]->bld == cm_FightAttacker)
+                if (ai_SceneChars[j]->side == cm_FightAttacker)
                     cm_ShowDamage(ai_SceneChars[j], amt, 1);
                 else
                     cm_ShowDamage(ai_SceneChars[j], amt, 2);
@@ -1377,7 +1377,7 @@ void cm_ClickSceneChar()
                 (c == 0 || cm_OtherBuilding(c, o) == 0)) {
                 cm_ClearMarks();
                 o->selected = 1;
-                if ((AICHAR *)o->bld == cm_FightAttacker)
+                if (o->side == cm_FightAttacker)
                     snd_QueueVoice(o->id, cm_AttackerClickVoices, "_ARBEITER_KOMMENTARE_KLICK", -1, 0);
                 else
                     snd_QueueVoice(o->id, cm_DefenderClickVoices, "_ARBEITER_KOMMENTARE_KLICK", -1, 0);
@@ -2022,7 +2022,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     for (i = 0; i < 16; i++) {
         if (rec->attackers[i] != -1) {
             r = cm_AddFighter(rec->attackers[i], "dummy_OFFENSE_ENTRY");
-            r->bld = (AIBLD *)cm_FightAttacker;     /* in a fight: the side's leader */
+            r->side = cm_FightAttacker;     /* in a fight: the side's leader */
             if (r->scene != 0)
                 d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 5, 1);
         }
@@ -2030,7 +2030,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
     for (i = 0; i < 16; i++) {
         if (rec->defenders[i] != -1) {
             r = cm_AddFighter(rec->defenders[i], "dummy_DEFENSE_ENTRY");
-            r->bld = (AIBLD *)cm_FightDefender;
+            r->side = cm_FightDefender;
             r->scene->walkSpeed *= 1.2;
             if (r->scene != 0)
                 d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 4, 1);
@@ -2326,7 +2326,7 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
 
     sc = (D3SM *)d3_DefaultScene->hmap;
     threat = 0.0f;
-    if ((AICHAR *)c->bld == cm_FightAttacker) {      /* in a fight: the side's leader */
+    if (c->side == cm_FightAttacker) {      /* in a fight: the side's leader */
         own = cm_FightRecord->attackers;
         enemies = cm_FightRecord->defenders;
     } else {
@@ -2777,7 +2777,7 @@ float *cm_OrderChancesFor(int side)
         if (strstr(cm_FlagObjects[i]->name, "sp_CONQUER") != 0) {
             d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, (D3VECTOR *)&v);
             o = cm_FlagObjects[i]->owner;
-            if (o != 0 && (AICHAR *)((AICHAR *)o)->bld == cm_FightAttacker)
+            if (o != 0 && ((AICHAR *)o)->side == cm_FightAttacker)
                 cnt++;
         }
     }
@@ -3097,7 +3097,7 @@ void cm_HitAction(CHACTION *a)
     }
     if (damage != 0) {
         rnd = cm_Random(10);
-        if ((AICHAR *)victim->bld == cm_FightAttacker)
+        if (victim->side == cm_FightAttacker)
             cm_ShowDamage(victim, damage, 1);
         else
             cm_ShowDamage(victim, damage, 2);
@@ -3251,7 +3251,7 @@ AICHAR *cm_CheckFightWinner(CMFIGHTREC *rec)
             d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, (D3VECTOR *)&v);
             flags++;
             c = cm_FlagObjects[i]->owner;
-            if (c != 0 && (AICHAR *)c->bld == cm_FightAttacker)
+            if (c != 0 && c->side == cm_FightAttacker)
                 owned++;
         }
     }
@@ -4331,7 +4331,7 @@ void cm_FighterAct(CMFIGHTSLOT *f)
         return;
     c = cm_FindFighter(f->id);
     k = (AIWEAPON *)cm_CharWeapon(c);
-    side = (AICHAR *)c->bld;  /* in a fight: the leader of the fighter's side */
+    side = c->side;  /* in a fight: the leader of the fighter's side */
     tgt = cm_FindFighter(f->target);
     if (tgt != 0)
         tgt->v024 = f->health;
@@ -4441,7 +4441,7 @@ void cm_FightSlotPickUp(CMFIGHTSLOT *f)
 
     if (f->active != 0 && f->id != -1) {
         c = cm_FindFighter(f->id);
-        side = (AICHAR *)c->bld;
+        side = c->side;
         ch_StopActions(c->scene);
         o = d3_FindObject(0, 0x40, 0, f->dummy);
         if (o != 0) {
@@ -4524,7 +4524,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
                 r = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, "ub_FLUCHTFLAGGE");
                 cm_FlagObjects[cm_FlagObjectCount] = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, &ch_EmptyName);
                 d3t_PlayAnim(r, "sonstiges/anim_FLUCHTFLAGGE.baf", 1);
-                side = (AICHAR *)c->bld;  /* in a fight: the leader of the fighter's side */
+                side = c->side;  /* in a fight: the leader of the fighter's side */
                 if (side != 0 && side->ref54 != 0 && (side->kind == 5 || side->kind == 6 || side->kind == 7))
                     k = side->ref54 + 'g';
                 else
@@ -4581,7 +4581,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
         if (c->scene->actions != 0)
             return -1;
         r = util_Random(0xff);
-        side = (AICHAR *)c->bld;  /* in a fight: the leader of the fighter's side */
+        side = c->side;  /* in a fight: the leader of the fighter's side */
         if (r > 0xff - (int)((k->accuracy * 0.01) * c->sk83))
             hit = 1;
         else

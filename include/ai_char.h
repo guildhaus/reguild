@@ -97,7 +97,11 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     unsigned char appliedOffice;        /* 0x168, the office kind applied for, 0 = none (amt.h AMTCHARVIEW.appliedOffice) */
     unsigned char secondOffice;         /* 0x169, the second office kind, the deputy one (amt.h AMTCHARVIEW.secondOffice) */
     char pad16a[2];
-    AIBLD *bld;                         /* 0x16c */
+    union {
+        AIBLD *bld;                     /* 0x16c */
+        struct AICHAR *side;            /* 0x16c, of a fighter record (cm_Fighters): the leader of its side,
+                                           cm_FightAttacker or cm_FightDefender (cm_SetupFightScene 0x4d0fa0) */
+    };
     AIBLD *bld2;                        /* 0x170, the character's own building (the f3gm.c 0x4fdcb0 comment: its home), 0 when none */
     int jobDays;                        /* 0x174, the days served in the current job: 0 when hired (cm_ExHire), a job change
                                            clears it (gm_SetJob), gm_TitlePeriodServed weighs it against the title period; ai.c 0x487b40 wants it >= 4 with a title

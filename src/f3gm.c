@@ -1277,7 +1277,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
 
     o2 = 0;
     saved = d3_CurrentScene;
-    c = (AICHAR *)(gm_FindChar(id));
+    c = gm_FindChar(id);
     if (c != 0 && c->scene == 0) {
         o = gm_BuildQuery(1, 1, a);
         if (o != 0) {
@@ -1803,7 +1803,7 @@ void gm_PartnerStep(AICHAR *c)
 
     if (c->kind >= 10 || c->health == 0 || c->sex != 1 || c->heldRounds > 0 || (c->flags1c8 & 0x40000) != 0)
         return;
-    o = (AICHAR *)(gm_FindChar(c->relatives[0]));
+    o = gm_FindChar(c->relatives[0]);
     if (c->pregnancy > 1.0f) {
         AITIME clk;
         int arg;
@@ -1876,7 +1876,7 @@ void gm_PartnerStep(AICHAR *c)
     n = 0;
     for (k = 3; k < 8; k++) {
         if (c->relatives[k] != -1) {
-            kind = ((AICHAR *)(gm_FindChar(c->relatives[k])))->kind;
+            kind = gm_FindChar(c->relatives[k])->kind;
             if (kind == 6 || kind == 7 || kind == 5)
                 return;
             if (kind != 0xf)
@@ -1889,7 +1889,7 @@ void gm_PartnerStep(AICHAR *c)
         m = 0;
         for (k = 3; k < 8; k++) {
             if (o->relatives[k] != -1) {
-                kind = ((AICHAR *)(gm_FindChar(o->relatives[k])))->kind;
+                kind = gm_FindChar(o->relatives[k])->kind;
                 if (kind == 6 || kind == 7 || kind == 5)
                     return;
                 if (kind != 0xf)
@@ -1972,8 +1972,8 @@ void gm_PopulationStep(void)
         if (c->id == 0xffff || c->health <= 1)
             continue;
         if ((float)n > 652.80005f && c->kind == 8) {
-            a = (AICHAR *)(gm_FindChar(c->relatives[1]));
-            b = (AICHAR *)(gm_FindChar(c->relatives[2]));
+            a = gm_FindChar(c->relatives[1]);
+            b = gm_FindChar(c->relatives[2]);
             if ((a == 0 || a->kind == 0xf) && (b == 0 || b->kind == 0xf)) {
                 if (gm_IsNoPlayerKin(c) != 0) {
                     gm_AddHealth(c->id, (int)-(c->f01c + 1.0f));
@@ -1983,8 +1983,8 @@ void gm_PopulationStep(void)
             }
         }
         if (c->kind == 8 && gm_IsUnderAge(c->id) == 0) {
-            a = (AICHAR *)(gm_FindChar(c->relatives[1]));
-            b = (AICHAR *)(gm_FindChar(c->relatives[2]));
+            a = gm_FindChar(c->relatives[1]);
+            b = gm_FindChar(c->relatives[2]);
             if ((a == 0 || a->kind == 0xf) && (b == 0 || b->kind == 0xf)) {
                 int kind = 3, level = 2;
                 cm_BeginFieldBlock((char *)c, c->netId);

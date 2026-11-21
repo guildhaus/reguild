@@ -4430,8 +4430,8 @@ int ai_BreakInCallback(char *place)
                 snd_PlayFavourComment();
                 dst = msg.ids;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)  /* a signed compare (jl) */
-                    if (*ch != 0 && ((AICHAR *)*ch)->selected != 0)
-                        *dst++ = ((AICHAR *)*ch)->netId;
+                    if (*ch != 0 && (*ch)->selected != 0)
+                        *dst++ = (*ch)->netId;
                 cm_SendLongMessage((char *)&msg);
             }
             sv_ClearSelection();
@@ -4511,8 +4511,8 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
                 memset(msg.ids, 0xff, sizeof(msg.ids));
                 n = 0;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32] && n < 6; ch++)  /* signed compares (jl) */
-                    if (*ch != 0 && ((AICHAR *)*ch)->selected != 0)
-                        msg.ids[n++] = ((AICHAR *)*ch)->netId;
+                    if (*ch != 0 && (*ch)->selected != 0)
+                        msg.ids[n++] = (*ch)->netId;
                 if (n == 0) {
                     sv_MessageBox(txt_Ptrs[0x1a49], 0);
                     continue;
@@ -4522,7 +4522,7 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
                 snd_PlayFavourComment();
                 n = 0;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)
-                    if (*ch != 0 && ((AICHAR *)*ch)->selected != 0)
+                    if (*ch != 0 && (*ch)->selected != 0)
                         n++;
                 if (n > 6) {
                     txt_Format(text, 0x19ef, 6);
@@ -4533,8 +4533,8 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
                 result = 1;
                 sv_PopRequest = 2;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)
-                    if (*ch != 0 && ((AICHAR *)*ch)->selected != 0)
-                        sv_MoveToGroup(0, 0, ((AICHAR *)*ch)->id, ev);
+                    if (*ch != 0 && (*ch)->selected != 0)
+                        sv_MoveToGroup(0, 0, (*ch)->id, ev);
             }
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
@@ -11748,7 +11748,7 @@ void ai_DungeonPlanWindow(AIBLD *bld)
     d2_SetForm(win, 1);
     for (i = 0; i < 0x300; i++) {
         if (gm_Homeless(&ai_Chars[i]) != 0)
-            io_PrintText(0x19ae, n++ + 1, ((AICHAR *)&ai_Chars[i])->id);
+            io_PrintText(0x19ae, n++ + 1, ai_Chars[i].id);
     }
     if (n == 0)
         io_PrintText(0x19af);
@@ -12268,7 +12268,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
                 memset(msg.ids, 0xff, sizeof(msg.ids));
                 n = 0;
                 for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32] && n < 8; pp++) {  /* signed compares (jl) */
-                    ch = (AICHAR *)*pp;
+                    ch = *pp;
                     if (ch != 0 && ch->selected != 0)
                         msg.ids[n++] = ch->netId;
                 }
@@ -12284,7 +12284,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
                 done = 1;
                 sv_PopRequest = 2;
                 for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32]; pp++) {
-                    ch = (AICHAR *)*pp;
+                    ch = *pp;
                     if (ch != 0 && ch->selected != 0)
                         sv_MoveToGroup(0, 0, ch->id, ev);
                 }
@@ -12350,7 +12350,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
             continue;
         if (d2_ClickedId == 0) {
             for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32] && n < 6; pp++) {  /* signed compares (jl) */
-                ch = (AICHAR *)*pp;
+                ch = *pp;
                 if (ch != 0 && ch->selected != 0)
                     msg.ids[n++] = ch->netId;
             }
@@ -13128,7 +13128,7 @@ int ai_WatchPlanWindow(int ctx, char *place)
             msg.arg[8] = bld->id;
             msg.arg[9] = sv_PanelShown->objId;
             for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32] && n < 6; pp++) {  /* signed compares (jl) */
-                ch = (AICHAR *)*pp;
+                ch = *pp;
                 if (ch != 0 && ch->selected != 0)
                     msg.ids[n++] = ch->netId;
             }
@@ -13221,7 +13221,7 @@ int ai_ArrestWindow(int unused, AIBLD *bld)
                 }
                 n = 0;
                 for (p = ai_SceneChars; (int)p < (int)&ai_SceneChars[32]; p++) {  /* a signed compare (jl) */
-                    if (*p != 0 && ((AICHAR *)*p)->selected != 0)
+                    if (*p != 0 && (*p)->selected != 0)
                         n++;
                 }
                 if (n > 1)

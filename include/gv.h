@@ -284,7 +284,7 @@ int gv_FindHeldEntry(void *a, unsigned char **o, int *e);  /* 0x4f2540 */
 int gv_FindReservedEntry(void *a, unsigned char **o, int *e);  /* 0x4f25d0 */
 float gv_SeanceChance(struct AIBLD *o);           /* 0x4f2660 */
 int gv_GetTableRecord(int i, int *out);     /* 0x4f2720 */
-int gv_FindTableRecord(char *c, unsigned b, int *out);  /* 0x4f2870 */
+int gv_FindTableRecord(struct AICHAR *c, unsigned b, int *out);  /* 0x4f2870 */
 extern AIDEC gv_Decisions[];           /* 0x611258, 0x1d AIDEC records of 0x24 bytes (the AI decision table) */
 
 int gv_WriteCrimes(void *f);             /* 0x4f28d0 */
