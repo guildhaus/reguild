@@ -235,7 +235,7 @@ int hmt_WriteBinaryFile(HMTFILE *h)
     int i;
 
     magic = 0x68466153;
-    f = vfs_Tfopen("/gamedata/ai/historical.dfn", "wb", (int)vfs_Root);
+    f = vfs_Tfopen("/gamedata/ai/historical.dfn", "wb", vfs_Root);
     if (f != 0) {
         if (HMT_FW(&magic, 4, 1, f) && HMT_FW(&h->np, 4, 1, f) && HMT_FW(&h->nk, 4, 1, f)) {
             for (i = 0; i < h->np; i++) {
@@ -287,7 +287,7 @@ int hmt_ReadBinaryFile(HMTFILE *h)
     int i;
 
     magic = 0x68466153;
-    f = vfs_Tfopen("/gamedata/ai/historical.dfn", "rb", (int)vfs_Root);
+    f = vfs_Tfopen("/gamedata/ai/historical.dfn", "rb", vfs_Root);
     i = 0;
     if (f != 0) {
         if (HMT_FR(&magic, 4, 1, f) && magic == 0x68466153 && HMT_FR(&h->np, 4, 1, f)

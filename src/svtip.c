@@ -1422,7 +1422,7 @@ unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
 
 /* 0x589aa0, the save game's bookmarks step (142 B): writes the count 0xb, then each bookmark's key (1 byte),
    building and object (4 bytes each); 0 on a failed write, 1 */
-int ai_SaveBookmarks(int fh)
+int ai_SaveBookmarks(VFSFILE *fh)
 {
     int n;
     int i;
@@ -1445,7 +1445,7 @@ int ls_Read();
 
 /* 0x589b30, the save game's bookmarks reader, ai_SaveBookmarks's counterpart (136 B): reads the count, then
    that many bookmarks' key (1 byte), building and object (4 bytes each) through ls_Read; 0 on a failed read, 1 */
-int ai_LoadBookmarks(int fh)
+int ai_LoadBookmarks(VFSFILE *fh)
 {
     int n;
     int i;

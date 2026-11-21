@@ -1450,41 +1450,41 @@ int gv_ReadGraveyard(void *f, AIBLD *o)
     g = gv_AllocGraveyard(o);
     if (g == 0)
         return 0;
-    if (ls_Read(&g->id, 4, 1, (int)f) == 0)
+    if (ls_Read(&g->id, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&g->kind, 4, 1, (int)f) == 0)
+    if (ls_Read(&g->kind, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&g->open[0], 1, 1, (int)f) == 0)
+    if (ls_Read(&g->open[0], 1, 1, f) == 0)
         return 0;
-    if (ls_Read(&g->open[1], 1, 1, (int)f) == 0)
+    if (ls_Read(&g->open[1], 1, 1, f) == 0)
         return 0;
-    if (ls_Read(&g->open[2], 1, 1, (int)f) == 0)
+    if (ls_Read(&g->open[2], 1, 1, f) == 0)
         return 0;
-    if (ls_Read(&g->open[3], 1, 1, (int)f) == 0)
+    if (ls_Read(&g->open[3], 1, 1, f) == 0)
         return 0;
     z = g->graves;
     i = 0;
     if (gv_GraveTotals[g->kind] > 0) {
         do {
-            if (ls_Read(&z->id, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->id, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(z->first, 0x10, 1, (int)f) == 0)
+            if (ls_Read(z->first, 0x10, 1, f) == 0)
                 return 0;
-            if (ls_Read(z->family, 0x10, 1, (int)f) == 0)
+            if (ls_Read(z->family, 0x10, 1, f) == 0)
                 return 0;
-            if (ls_Read(z->traits, 5, 1, (int)f) == 0)
+            if (ls_Read(z->traits, 5, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->v2c, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->v2c, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->v30, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->v30, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->nameId, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->nameId, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->sex, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->sex, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->icon, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->icon, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&z->year, 4, 1, (int)f) == 0)
+            if (ls_Read(&z->year, 4, 1, f) == 0)
                 return 0;
             i++;
             z++;
@@ -1494,17 +1494,17 @@ int gv_ReadGraveyard(void *f, AIBLD *o)
     e = g->entries;
     if (gv_EntryTotals[g->kind] > 0) {
         do {
-            if (ls_Read(&e->size, 4, 1, (int)f) == 0)
+            if (ls_Read(&e->size, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&e->id, 4, 1, (int)f) == 0)
+            if (ls_Read(&e->id, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&e->w08, 2, 1, (int)f) == 0)
+            if (ls_Read(&e->w08, 2, 1, f) == 0)
                 return 0;
-            if (ls_Read(&e->until, 2, 1, (int)f) == 0)
+            if (ls_Read(&e->until, 2, 1, f) == 0)
                 return 0;
-            if (ls_Read(&e->b0c, 1, 1, (int)f) == 0)
+            if (ls_Read(&e->b0c, 1, 1, f) == 0)
                 return 0;
-            if (ls_Read(&idx, 4, 1, (int)f) == 0)
+            if (ls_Read(&idx, 4, 1, f) == 0)
                 return 0;
             e->grave = g->graves + idx;
             e++;

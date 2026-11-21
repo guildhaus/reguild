@@ -389,7 +389,8 @@ void d2_RaiseViewWindows(int view);                                /* 0x4741a0, 
 /* 0x4741f0..0x476c00 (round 18) */
 int d2_BlitPartToDD(int sx, int sy, int w, int h, D2SURF *src, int x, int y, struct IDirectDrawSurface4 *dst); /* 0x4794c0 */
 int d2_BlitPartFromDD(int sx, int sy, int w, int h, struct IDirectDrawSurface4 *src, int x, int y, D2SURF *dst); /* 0x479610, blits a part of a DirectDraw surface onto a D2SURF */
-struct VFSFILE * vfs_Tfopen(char *name, char *mode, int unk);                            /* 0x430470 */
+struct VFSDIR;
+struct VFSFILE * vfs_Tfopen(char *name, char *mode, struct VFSDIR *dir);                            /* 0x430470 */
 unsigned int vfs_fread(void *buf, int size, int n, struct VFSFILE *f);                             /* 0x430bd0 */
 int vfs_fseek(struct VFSFILE *f, long offset, int origin);                                    /* 0x430fa0 */
 int vfs_fclose(struct VFSFILE *f);                                                        /* 0x430aa0 */

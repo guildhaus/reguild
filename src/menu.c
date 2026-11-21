@@ -481,7 +481,7 @@ typedef struct SAVEHEADERVIEW {             /* 0xfc */
 #pragma pack(pop)
 
 extern int ls_Version;                      /* 0x623650, ls.c: the version of the save read last */
-int ls_ReadSaveHeader(int f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
+int ls_ReadSaveHeader(struct VFSFILE *f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); /* 0x472aa0, d2.h */
 int d2_WinOpenRaw(int x, int y, int w, int h, void *src, int win);  /* 0x46c390, d2.h */
 int d2_WinOpenPic(short x, short y, int pic, int win); /* 0x4731d0, d2.h: creates a picture object */
@@ -530,7 +530,7 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
     int n;
     int i;
     int slot;
-    int file;
+    VFSFILE *file;
     int k;
 
     (void)reserved;
@@ -1186,7 +1186,7 @@ extern unsigned int dd_RMask;           /* 0x1464fa4, dd_vesa.h: the red channel
 extern unsigned int dd_GMask;           /* 0x1464fb0, dd_vesa.h */
 extern unsigned int dd_BMask;           /* 0x146359c, dd_vesa.h */
 
-int ls_Read(void *buf, int size, int count, int f);   /* 0x51c920, ls.c: vfs_fread items */
+int ls_Read(void *buf, int size, int count, struct VFSFILE *f);   /* 0x51c920, ls.c: vfs_fread items */
 void sv_SetStatusText(char *s);   /* 0x52e330, sv.c */
 int cm_SendExSysMessage(unsigned char id, void *msg);   /* 0x4c4db0, as in cm.h */
 DWORD dd_RGB(unsigned char r, unsigned char g, unsigned char b);   /* 0x41e670, as in dd_vesa.h */
@@ -1194,8 +1194,8 @@ unsigned int util_Hash(unsigned char *buf, unsigned int len);      /* 0x401000, 
 void sv_PumpNet(void);                                             /* 0x52fe00, sv.c */
 void sv_BroadcastText(unsigned fl, char *t);  /* 0x52fcf0, sv.c: sends t as the network message 0xe and
                                                  shows it until the answer, then clears the status line */
-int ls_WriteSaveHeader(int f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
-int ls_ReadSaveHeader(int f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
+int ls_WriteSaveHeader(struct VFSFILE *f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
+int ls_ReadSaveHeader(struct VFSFILE *f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
 
 /* cm.h's save-request state (the 0x0f the network message carries) and the acknowledgement slots. */
 extern int cm_RequestedSaveSlot;        /* 0x6f25c8, cm.h: the save slot the request asked for */
@@ -1386,7 +1386,7 @@ void ai_LoadScreenImage(char *path)
     if (h == 0)
         return;
     buf = (unsigned char *)mem_Alloc(0xe100, "ls:tmp");
-    ls_Read(buf, 0xe100, 1, (int)h);
+    ls_Read(buf, 0xe100, 1, h);
     for (y = 0; y < 0x78; y++) {
         for (x = 0; x < 0xa0; x++) {
             ai_ScreenImage[i] = dd_RGB(buf[i * 3], buf[i * 3 + 1], buf[i * 3 + 2]);

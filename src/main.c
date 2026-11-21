@@ -922,9 +922,9 @@ int main_JoinNetworkGame(void)
 
     if (ai_JoinGameWindow() != 0) {
         sprintf(path, "gamedata/network/%s.SAV", main_NetSaveName);
-        f = vfs_Tfopen(path, "rb", (int)vfs_Root);
+        f = vfs_Tfopen(path, "rb", vfs_Root);
         if (f != 0) {
-            ls_ReadSaveHeader((int)f, (int *)&hdr);
+            ls_ReadSaveHeader(f, (int *)&hdr);
             ai_NumPlayers = hdr.players;
             strcpy(main_NetHost, "127.0.0.1");
             ai_GameFlags |= 0x50;
@@ -1013,7 +1013,7 @@ int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags,
 void d2_SetObjFont();
 int d2_FindPic();
 int sv_OpenMessageBox(int text, unsigned char flags);
-int ls_ReadSaveHeader(int f, int *h);
+int ls_ReadSaveHeader(struct VFSFILE *f, int *h);
 
 /* 0x532da0, the network game search window "Menu\SEARCH_NETWORK": every 1.5 s (the clock d3_Time) or on the
    refresh button (btn[1]) it scans the LAN (udp_FindServers, port 12345, 3 s, up to 8 hosts) under the message
@@ -1075,10 +1075,10 @@ int main_SearchNetworkGame(int saved)
                         strcpy(name, recs[i].info.game.name);
                     } else {
                         sprintf(path, "Gamedata\\network\\%s.SAV", recs[i].info.game.save);
-                        fp = vfs_Tfopen(path, "rb", (int)vfs_Root);
+                        fp = vfs_Tfopen(path, "rb", vfs_Root);
                         if (fp != 0) {
                             ok = 1;
-                            ls_ReadSaveHeader((int)fp, (int *)&hdr);
+                            ls_ReadSaveHeader(fp, (int *)&hdr);
                             for (k = 0; k < hdr.players; k++) {
                                 if (recs[i].info.game.party[k] != hdr.party[k]) {
                                     ok = 0;
@@ -1133,9 +1133,9 @@ int main_SearchNetworkGame(int saved)
                             ai_GameFlags |= 0x40;
                             sprintf(path2, "Gamedata\\network\\%s.SAV", main_NetSaveName);
                             memset(&joined, 0, sizeof(LSHDR));
-                            fp = vfs_Tfopen(path2, "rb", (int)vfs_Root);
+                            fp = vfs_Tfopen(path2, "rb", vfs_Root);
                             if (fp != 0) {
-                                ls_ReadSaveHeader((int)fp, (int *)&joined);
+                                ls_ReadSaveHeader(fp, (int *)&joined);
                                 vfs_fclose(fp);
                             }
                             memset(&cm_JoinChar, 0, sizeof(CMJOIN));
@@ -2528,7 +2528,8 @@ void main_ChooseOpponents(int n)
 
 int main_ChooseCity(int unused, int host)
 {
-    int ret, cap, n, i, k, f, f1, f2, ok, opp, out[2], w, ht;
+    int ret, cap, n, i, k, f1, f2, ok, opp, out[2], w, ht;
+    VFSFILE *f;
     D3OBJECT *tower, *last, *sel, *h;
     D3OBJECT *cityobj[64];
     int diff[64];
@@ -2552,7 +2553,7 @@ int main_ChooseCity(int unused, int host)
     else
         n = ai_ListFiles(main_CitiesDir, ".NET", (char *)recs);
     for (i = 0; i < n; i++) {
-        f = vfs_Tfopen(recs[i] + 0x109, "rb", (int)vfs_Root);
+        f = vfs_Tfopen(recs[i] + 0x109, "rb", vfs_Root);
         if (f == 0)
             return 0;
         if (ls_ReadSaveHeader(f, (int *)&hdr) == 0) {

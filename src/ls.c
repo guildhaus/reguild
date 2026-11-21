@@ -38,7 +38,7 @@ int gv_WriteCrimes();                     /* 0x4f28d0 */
 #include "rd_types.h"                 /* G15BK */
 int gv_WriteGraveyard();                     /* 0x4f17f0 */
 
-#define LS_R(p, sz) if (ls_Read((int)(p), (sz), 1, f) == 0) return 0;
+#define LS_R(p, sz) if (ls_Read((p), (sz), 1, f) == 0) return 0;
 
 extern int f3gm_ObjectCount;                /* 0x6f1bdc */
 char d3if_ClearScene(int index);                    /* 0x447e60 */
@@ -117,9 +117,9 @@ int ls_GetLanguage(void)
    1 after the last. */
 
 
-int ls_SaveGame(int name, char *path, unsigned flags)
+int ls_SaveGame(char *name, char *path, unsigned flags)
 {
-    int f;
+    VFSFILE *f;
 
     f = vfs_Tfopen(name, "wb", vfs_Root);
     if (f == 0)
@@ -189,7 +189,7 @@ int ls_SaveGame(int name, char *path, unsigned flags)
    ls_SavePath. Returns 1, 0 when one of the checked writes fails (the shot buffer is then not freed). */
 
 
-int ls_WriteSaveHeader(int f, unsigned flags)
+int ls_WriteSaveHeader(VFSFILE *f, unsigned flags)
 {
     unsigned char noJob, noByteD, noOffice, noByte9;
     int ref;
@@ -359,7 +359,7 @@ void ls_IdsToRefs(void)
 /* 0x519b50, after a load: the buildings' objects point back to their buildings, the scene is restored (0x44aa10) and the pointers are set again */
 
 
-int ls_RelinkScene(int f)
+int ls_RelinkScene(VFSFILE *f)
 {
     int saved = d3_CurrentScene;
     int k;
@@ -383,7 +383,7 @@ int ls_RelinkScene(int f)
 /* 0x519bf0, the object list ai_Objects (0x5008 records of 0x43 bytes; the used ones have a nonzero first word): the count, then each used record in pieces (2, 4, 4, 4, 4, 1, 1 bytes and 0x1f bytes at +0x1c) */
 
 
-int ls_WriteObjects(int f)
+int ls_WriteObjects(VFSFILE *f)
 {
     int n = 0;
     int i;
@@ -412,7 +412,7 @@ int ls_WriteObjects(int f)
 /* 0x519d20, the buildings: the count of the used ones (0x100 AIBLD records of 0xa9 bytes, ai_Blds), then each field by field (+0 .. +0x5c, then by type: 0x1e its 64 vegetation records at AIBLD.plants, 0x48 .. 0x4a gv_WriteGraveyard, 0x4b .. 0x4d ahm_WriteRecord, the others the 0x30 bytes at +0x65), the work settings at +0x99; at the end the building sites (ai_NBauplaetze, then ai_Bauplaetze's name, minimum and maximum corner). Returns 1, 0 when a write fails */
 
 
-int ls_WriteBuildings(int f)
+int ls_WriteBuildings(VFSFILE *f)
 {
     int n = 0, off, i, j;
     char *p;
@@ -489,7 +489,7 @@ int ls_WriteBuildings(int f)
    0 when a write fails. */
 
 
-int ls_WritePlayerRecords(int f)
+int ls_WritePlayerRecords(VFSFILE *f)
 {
     int k;
 
@@ -534,7 +534,7 @@ int ls_WritePlayerRecords(int f)
    scene pointers as their ids, ref54 and picture less their bases 0x59a / 0x639). Returns 1, 0 when a write fails. */
 
 
-int ls_WriteCharacters(int f)
+int ls_WriteCharacters(VFSFILE *f)
 {
     int none;
     int model;
@@ -690,7 +690,7 @@ CHACTION *ls_ActionAt(int n)
    (empty for none); returns 1, 0 when a write fails */
 
 
-int ls_WriteSceneCharacter(CHARACTER *c, int owner, int f)
+int ls_WriteSceneCharacter(CHARACTER *c, int owner, VFSFILE *f)
 {
     float zero[7];
     char blank[0x40];
@@ -743,7 +743,7 @@ int ls_WriteSceneCharacter(CHARACTER *c, int owner, int f)
    then the action queue ch_Queue: the used actions' character, prev and next pointers turned into indices (the free
    ones cleared), per action whose character index is valid its type (0 when the character's body has no owner) and
    the saved fields, and at the end the indices turned back into pointers. Returns 1, 0 when a write fails */
-int ls_WriteSceneRecords(int f)
+int ls_WriteSceneRecords(VFSFILE *f)
 {
     int cnt = 0, i;
     int n;
@@ -835,7 +835,7 @@ int ls_WriteSceneRecords(int f)
    +0x1dc and the map offset +0x2ec (8). Returns 1, 0 when a write fails. */
 
 
-int ls_WritePlayerSlots(int f)
+int ls_WritePlayerSlots(VFSFILE *f)
 {
     int n;
     int j;
@@ -911,7 +911,7 @@ int ls_WritePlayerSlots(int f)
 /* 0x51b890, writes the two relation maps ai_Relations / ai_RelationMemory (0x300 x 0x300 bytes, row by row) */
 
 
-int ls_WriteRelations(int f)
+int ls_WriteRelations(VFSFILE *f)
 {
     int i, j;
 
@@ -929,7 +929,7 @@ int ls_WriteRelations(int f)
    a write fails */
 
 
-int ls_WriteStatistics(int f)
+int ls_WriteStatistics(VFSFILE *f)
 {
     int i, j;
 
@@ -994,7 +994,7 @@ int ls_WriteAvatars(void *f)
    bytes from +0xac); then the used carried-goods records (gm_CarryRecs, ref != 0: the id of the event ref points to,
    ttl, hasValue, owner, value, spec, data) and the used AP events (he_ApEvents with income, cost or a name). The
    reader is 0x51fb90. Returns 1, 0 when a write fails */
-int ls_WriteEventTables(int f)
+int ls_WriteEventTables(VFSFILE *f)
 {
   int i;
   int n;
@@ -1078,7 +1078,7 @@ int ls_WriteEventTables(int f)
    time and the host */
 
 
-int ls_WriteParties(int f)
+int ls_WriteParties(VFSFILE *f)
 {
   G28REC *p;
   int n;
@@ -1114,7 +1114,7 @@ int ls_WriteParties(int f)
    pairs each). Returns 1, or 0 when a write fails. */
 
 
-int ls_WriteHistory(int f)
+int ls_WriteHistory(VFSFILE *f)
 {
   int n, i, j;
 
@@ -1144,7 +1144,7 @@ int ls_WriteHistory(int f)
    fails. The reader is 0x520310. */
 
 
-int ls_WriteMessageQueues(int f)
+int ls_WriteMessageQueues(VFSFILE *f)
 {
     int idx;
     G17MSG m;
@@ -1186,7 +1186,7 @@ int ls_WriteMessageQueues(int f)
    windX, windY), then the wind option (ai_SaveWind) and the effects (gv_WriteEffects); 0 on a failed write */
 
 
-int ls_WriteEnvironment(int f)
+int ls_WriteEnvironment(VFSFILE *f)
 {
     int i;
 
@@ -1207,7 +1207,7 @@ int ls_WriteEnvironment(int f)
    true when the read returned a positive count */
 
 
-int ls_Read(void *buf, int size, int count, int f)
+int ls_Read(void *buf, int size, int count, VFSFILE *f)
 {
     unsigned got = vfs_fread(buf, size, count, f);
 
@@ -1220,16 +1220,16 @@ unsigned short ai_ScreenImage[19200];  /* 0x766320, the */
 LSHEADER ls_LoadedHeader;  /* 0x76f920, the 0x100-byte header of the loaded save game (id, flag byte, name, ..; ls_ReadSaveHeader fills it up to +0xfc) */
 int cm_SaveAcks[8][2];  /* 0x76fa20 */
 extern char * cm_LoadBuf;                /* 0xf31140 */
-#define LS_RD(p, sz) ls_Read((int)(p), (sz), 1, h)
+#define LS_RD(p, sz) ls_Read((p), (sz), 1, h)
 #define LS_CLOSEFAIL { vfs_fclose(h); return 0; }   /* a reader failed: the file closed */
 #define LS_LOADFAIL { vfs_fclose(h); mem_Free(cm_LoadBuf); cm_LoadBuf = 0; return 0; }   /* a late reader failed: the file closed, the load buffer freed */
 /* 0x51c950, loads a save game: resets the game, reads the header into ls_LoadedHeader (versions 0x10026 .. 0x1005a)
    and the fixed globals, then the readers of the subsystems in the writer's order (a map-only save, header flag 2,
    stops after the scene); a failed reader closes the file (the late ones also free cm_LoadBuf) and returns 0. At the
    end the town scene is prepared and the save path kept in ls_SavePath. Returns 1 */
-int ls_LoadGame(int name, int kind)
+int ls_LoadGame(char *name, int kind)
 {
-    int h;
+    VFSFILE *h;
 
     h = vfs_Tfopen(name, "rb", vfs_Root);
     if (h == 0)
@@ -1327,7 +1327,7 @@ close:
    into ai_ScreenImage. Returns 1, 0 when a read fails or the version is below 0x10025 */
 
 
-int ls_ReadSaveHeader(int f, int *h)
+int ls_ReadSaveHeader(VFSFILE *f, int *h)
 {
     LSHEADER *hd = (LSHEADER *)h;
     char *shot;
@@ -1394,7 +1394,7 @@ int ls_ReadSaveHeader(int f, int *h)
    init_Detail) and registers the two scene callbacks 0x51d4f0 (0x1c0) / 0x51d530 (0xc0) with 0x438e60. Returns 1 */
 
 
-int ls_LoadScene(int f)
+int ls_LoadScene(VFSFILE *f)
 {
     int saved;
 
@@ -1422,7 +1422,7 @@ int ls_LoadScene(int f)
 /* 0x51d3d0, reads the object list 0x7e3f34 (after 0x4fe830 cleared it): the count, then each record in the pieces of the writer 0x519bf0; the count is kept in 0x6f1bdc. Returns 1 */
 
 
-int ls_ReadObjects(int f)
+int ls_ReadObjects(VFSFILE *f)
 {
     int n, i;
     char *r;
@@ -1474,7 +1474,7 @@ char ls_ClearObjectFlag(char *o)
    (below 0x10043: cleared, target -1, flag bit 0 set), travel30 = 5000 and no smoke effect; at the end the building
    sites ai_Bauplaetze (ai_NBauplaetze records). Returns 1, 0 when a read fails. */
 
-int ls_ReadBuildings(int f)
+int ls_ReadBuildings(VFSFILE *f)
 {
     int n, k, i, j;
     AIBLD *b;
@@ -1568,7 +1568,7 @@ int ls_ReadBuildings(int f)
 /* 0x51db00, reads the 16 player records gm_PlayerRecords (AIFIN, 0xac bytes each; the counterpart of the writer 0x51a1a0): the fields, each version gated (spyPaid from 0x1002c, costB .. officeSentences from 0x10014, roundFactors[2] = 1.0 below 0x10056, the 0x11 (0x0e below 0x10046) jobByGroup bytes from 0x10015, saved70 from 0x10018). Returns 1, 0 when a read fails. */
 
 
-int ls_ReadPlayerRecords(int f)
+int ls_ReadPlayerRecords(VFSFILE *f)
 {
     int k, i, n;
 
@@ -1620,7 +1620,7 @@ int ls_ReadPlayerRecords(int f)
 /* 0x51de70, reads the characters (the counterpart of the header writer 0x5194c0 and the character writer 0x51a4b0): ai_PlayerId, ai_CharCount, the two judge pointers ai_JudgeCatholic / ai_JudgeProtestant and the eight slots of ai_KindBChars (from 0x10016), then ai_CharCount records of the 0x21c bytes of ai_Chars (the id word first, it picks the record): each field from its version (the reference fields +0x54 / +0x18c get their base 0x59a / 0x639 added, +0x174 is 2 instead of 4 below 0x10020), some fields with their defaults for older versions (+0x20c = -1 and +0x190 = 4 below 0x1003e, +0x1cc = 0 below 0x10049); the last chunk +0x210 .. +0x218 from 0x10036. Returns 1, 0 when a read fails. */
 
 
-int ls_ReadCharacters(int f)
+int ls_ReadCharacters(VFSFILE *f)
 {
     int cnt;
     int i;
@@ -1741,7 +1741,7 @@ int ls_ReadCharacters(int f)
 /* 0x51e750, reads one ch.c CHARACTER record from the save (allocated by ch_AllocAt from the id read first): its name (+8, 0x20 bytes), the group / script group (+0x2c / +0x30), the flag word +0x8c (bit 5 set when the flag byte read is 1), the full name +0x170 (0x30) and the body name +0x130 (0x40), +0x38 (0x10), +0x48 (0xc), the texts +0x1a8 (from 0x10013) and +0x1e8 (from 0x1005a), the flags &= 0xdffb, then the reference index read last goes to +0x12c (0x51e900 turns it into a pointer). Returns the record */
 
 
-struct CHARACTER *ls_ReadCharacter(int f)
+struct CHARACTER *ls_ReadCharacter(VFSFILE *f)
 {
     int id;
     CHARACTER *c;
@@ -1803,7 +1803,7 @@ struct CHARACTER *ls_ReadCharacter(int f)
    (tiebreak: not measured (dcp headers sample ls_ReadSceneRecords)) */
 
 
-int ls_ReadSceneRecords(int f)
+int ls_ReadSceneRecords(VFSFILE *f)
 {
     int n, i, j, saved, uni;
     CHARACTER *ch;
@@ -2003,7 +2003,7 @@ int ls_ReadSceneRecords(int f)
    there is none. Returns 1, 0 when a read fails. */
 
 
-int ls_ReadPlayerSlots(int f)
+int ls_ReadPlayerSlots(VFSFILE *f)
 {
     int n;
     int b, j, k;
@@ -2087,7 +2087,7 @@ int ls_ReadPlayerSlots(int f)
 /* 0x51f650, reads the two relation maps ai_Relations / ai_RelationMemory (n x n bytes, a row of 0x300: n = 0x100 below 0x1003a, 0x100 below 0x10042 else 0x300; the second map from 0x10036). Returns 1 */
 
 
-int ls_ReadRelations(int f)
+int ls_ReadRelations(VFSFILE *f)
 {
     int n, i, j;
 
@@ -2113,7 +2113,7 @@ int ls_ReadRelations(int f)
    8 x 8 cells of ai_Grid (a, b, used, average). Returns 1, 0 when a read fails. */
 
 
-int ls_ReadStatistics(int f)
+int ls_ReadStatistics(VFSFILE *f)
 {
     int i, j;
 
@@ -2180,7 +2180,7 @@ int ls_ReadAvatars(void *f)
    used gm_CarryRecs records and the used he_ApEvents (counter, key, income, cost and name). Returns 1, 0 when a
    read fails */
 
-int ls_ReadEventTables(int f)
+int ls_ReadEventTables(VFSFILE *f)
 {
     int n, size2, i, idx;
     AIJOB *rec;
@@ -2266,7 +2266,7 @@ int ls_ReadEventTables(int f)
    hours below version 0x1003f) and the host (-1 below 0x10040). Returns 1 */
 
 
-int ls_ReadParties(int f)
+int ls_ReadParties(VFSFILE *f)
 {
     int tmp[0x400];
     int k;
@@ -2309,7 +2309,7 @@ int ls_ReadParties(int f)
 /* 0x520200, reads the history (hst.c) part of a save game, the counterpart of ls_WriteHistory 0x51c450: the texts-on byte hst_TextsOn (then hst_LoadPlayerTexts resets the lists and opens the player's texts), the offsets of the current text and of the next key-list entry (hst_TextCurrent / hst_KeyNext from hst_TextFirst / hst_KeyFirst), the 0x10 bytes of the key hst_Key and the four lists hst_Lists (used flag and eight id/value pairs each). Returns 1, 0 when a read fails. */
 
 
-int ls_ReadHistory(int f)
+int ls_ReadHistory(VFSFILE *f)
 {
     int n, i, j;
 
@@ -2334,7 +2334,7 @@ int ls_ReadHistory(int f)
 /* 0x520310, reads cm's message queues, the counterpart of ls_WriteMessageQueues 0x51c560: the 0x2000 records of cm_RecvPool and the heads cm_RecvQueue / cm_RecvFree, then (all 0x8000 cm_SendStates reset first: free, idx -1, value 0) the records of cm_SendRing (0x2000 of them before version 0x1003c, 0x8000 from it) and its head cm_SendQueue, cm_LastSeq, as many states of cm_SendStates, the group bounds cm_GroupFirstSeq / cm_GroupEndSeq and the three ids cm_LastCharId / cm_LastBuildingId / cm_LastObjectId. The records' prev / next and the heads are saved as record indices (-1 for none) and turned back into pointers. Returns 1, 0 when a read fails. */
 
 
-int ls_ReadMessageQueues(int f)
+int ls_ReadMessageQueues(VFSFILE *f)
 {
     int i, n;
 
@@ -2377,7 +2377,7 @@ int ls_ReadMessageQueues(int f)
    wind table (ai_LoadWind) and the effects (gv_ReadEffects). Returns 1, or 0 when a read fails */
 
 
-int ls_ReadEnvironment(int f)
+int ls_ReadEnvironment(VFSFILE *f)
 {
   int i;
 
@@ -2532,7 +2532,7 @@ int ls_SendGame(char *name)
     int len, size, sent, cnt = 0;
     char *buf, *p;
 
-    fh = vfs_Tfopen(name, "rbn", (int)vfs_Root);
+    fh = vfs_Tfopen(name, "rbn", vfs_Root);
     if (fh == 0)
         return 0;
     vfs_fseek(fh, 0, SEEK_END);
@@ -2581,7 +2581,7 @@ int ls_SendGame(char *name)
 
 int ls_ReceiveGame(void)
 {
-    int h;
+    VFSFILE *h;
     LSHDR hdr;
     int i;
 
@@ -2589,7 +2589,7 @@ int ls_ReceiveGame(void)
         sv_PumpMessages();
         sv_PumpNet();
     }
-    h = (int)vfs_MemOpen(cm_LoadBuf, cm_LoadSize, "rb");
+    h = vfs_MemOpen(cm_LoadBuf, cm_LoadSize, "rb");
     if (h == 0) {
         mem_Free(cm_LoadBuf);
         cm_LoadBuf = 0;

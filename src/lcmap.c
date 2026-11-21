@@ -1646,7 +1646,7 @@ unsigned char *ai_FindItemGroup(char *good)
     return 0;
 }
 
-int ls_Read(void *buf, int size, int count, int f); void * mem_Alloc(int size, char *tag);
+int ls_Read(void *buf, int size, int count, struct VFSFILE *f); void * mem_Alloc(int size, char *tag);
 unsigned vfs_fwrite();
 
 /* The production settings (the "hp_" module with the map window: the literals "hp_AddProdSetting" 0x62c284 and
@@ -1909,7 +1909,7 @@ int ai_SaveSettings(void *f)
    id -1) put at the head of ai_Settings, then each record's building id, seed and factor and its seven slots'
    good and weight read back in chain order; 1 done, 0 on a read or memory error (the chain freed again) */
 
-int ai_LoadSettings(int f)
+int ai_LoadSettings(VFSFILE *f)
 {
     G8SETTING *rec;
     G8SETTING *s;

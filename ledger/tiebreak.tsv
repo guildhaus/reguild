@@ -3269,7 +3269,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	0457b3163773ef41	no	shape	sweep control=
 exe	0x0051c870	ls_WriteEnvironment	ls	d984ce088d952031	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0051c920	ls_Read	ls	8ef6952a1392156e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0051c950	ls_LoadGame	ls	e181b24b97bc9bec	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0051cee0	ls_ReadSaveHeader	ls	3d4858ba8f00b8f7	yes	byte	sweep control=shape best=byte by 6 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	3cdb35a7ebb3da4f
+exe	0x0051cee0	ls_ReadSaveHeader	ls	241cc48b13733cda	yes	byte	sweep control=shape best=byte by 3 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	6e0679f86dec0df0
 exe	0x0051d2d0	ls_LoadScene	ls	36281c1b51aa7f8a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0051d3d0	ls_ReadObjects	ls	48fdc5f9f398cd1e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0051d4f0	ls_HookBuildingCB	ls	c92fc2edada53f47	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

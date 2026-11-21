@@ -465,7 +465,7 @@ int ahm_LoadDfn(void)
     void *f;
     int magic, i;
 
-    f = vfs_Tfopen("/gamedata/ai/alchemy.dfn", "rb", (int)vfs_Root);
+    f = vfs_Tfopen("/gamedata/ai/alchemy.dfn", "rb", vfs_Root);
     if (f != 0) {
         if (0 < vfs_fread(&magic, 4, 1, f) && magic == 0x61486d52 && 0 < vfs_fread(&ai_PlayerPrototypeCount, 4, 1, f) &&
             ai_PlayerPrototypeCount >= 1 && ai_PlayerPrototypeCount <= 0x64) {
@@ -526,7 +526,7 @@ int ahm_SaveDfn(void)
     int magic, i;
 
     magic = 0x61486d52;
-    f = vfs_Tfopen("/gamedata/ai/alchemy.dfn", "wb", (int)vfs_Root);
+    f = vfs_Tfopen("/gamedata/ai/alchemy.dfn", "wb", vfs_Root);
     if (f != 0) {
         if (vfs_fwrite(&magic, 4, 1, f) > 0 && vfs_fwrite(&ai_PlayerPrototypeCount, 4, 1, f) > 0) {
             for (i = 0; i < ai_PlayerPrototypeCount; i++) {

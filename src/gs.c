@@ -250,7 +250,7 @@ int gv_WriteCrimes(void *f)
    pairs), the crime records (the rest of ai_Crimes are made free) and the evidence pairs (ai_Evidence starts as all
    -1); 1 when all was read */
 
-int gv_ReadCrimes(int f)
+int gv_ReadCrimes(VFSFILE *f)
 {
     unsigned crimes, evidence;
     int tag;

@@ -1471,7 +1471,7 @@ int ai_SaveMissions(void *f)
     return 1;
 }
 
-int ls_Read(void *buf, int size, int n, int f);                             /* 0x51c920, ls.c: true when the fread returned a positive count */
+int ls_Read(void *buf, int size, int n, struct VFSFILE *f);                             /* 0x51c920, ls.c: true when the fread returned a positive count */
 
 /* 0x4b63b0, loads the mission kind and the running missions from f (cf. 0x4b62e0) */
 int ai_LoadMissions(void *f)

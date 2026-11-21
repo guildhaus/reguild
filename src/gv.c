@@ -124,16 +124,16 @@ int gv_ReadAvatars(void *f)
 
     if (f == 0)
         return 0;
-    if (ls_Read(&n, 4, 1, (int)f) == 0)
+    if (ls_Read(&n, 4, 1, f) == 0)
         return 0;
     if (n != 0x20)
         sprintf(buf, "Inconsisten Avatar count: <Expected: %i> <Found: %i>", 0x20, n);
     for (i = 0; i < 0x20; i++)
         gv_Avatars[i].used = 0xff;
     for (i = 0; i < n; i++) {
-        if (ls_Read(&id, 4, 1, (int)f) == 0)
+        if (ls_Read(&id, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&used, 1, 1, (int)f) == 0)
+        if (ls_Read(&used, 1, 1, f) == 0)
             return 0;
         for (j = 0; j < 0x20; j++) {
             if (gv_Avatars[j].id == id) {
@@ -307,105 +307,105 @@ int gv_ReadEffects(void *f, int v)
     GVEFFARG *q;
     GVEFFPART *p;
 
-    if (ls_Read(&gv_LastTime.year, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_LastTime.year, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_LastTime.hour, 2, 1, (int)f) == 0)
+    if (ls_Read(&gv_LastTime.hour, 2, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_LastTime.min, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_LastTime.min, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_LastTime.sec, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_LastTime.sec, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.bld, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.bld, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.spare, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.spare, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.camTarget, 12, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.camTarget, 12, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.sliderA, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.sliderA, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.sliderB, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.sliderB, 4, 1, f) == 0)
         return 0;
-    if (ls_Read(&gv_Cannon.selected, 4, 1, (int)f) == 0)
+    if (ls_Read(&gv_Cannon.selected, 4, 1, f) == 0)
         return 0;
     q = gv_EffectArgs;
     for (i = 0; i < 8; i++) {
         e = &gv_Effects[i];
-        if (ls_Read(&e->id, 4, 1, (int)f) == 0)
+        if (ls_Read(&e->id, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&e->f08, 4, 1, (int)f) == 0)
+        if (ls_Read(&e->f08, 4, 1, f) == 0)
             return 0;
         if (v >= 0x10055) {
-            if (ls_Read(&e->f0c, 4, 1, (int)f) == 0)
+            if (ls_Read(&e->f0c, 4, 1, f) == 0)
                 return 0;
-            if (ls_Read(&e->f10, 4, 1, (int)f) == 0)
+            if (ls_Read(&e->f10, 4, 1, f) == 0)
                 return 0;
         } else {
             e->f0c = 1.0f;
             e->f10 = 1.0f;
         }
-        if (ls_Read(&e->f14, 4, 1, (int)f) == 0)
+        if (ls_Read(&e->f14, 4, 1, f) == 0)
             return 0;
         p = &e->parts[0];
-        if (ls_Read(p->v0, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v0, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v1, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v2, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v4, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->a, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->b, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->c, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->state, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->steps, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->steps, 4, 1, f) == 0)
             return 0;
         p->time = d3_Time;
         p = &e->parts[1];
-        if (ls_Read(p->v0, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v0, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v1, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v2, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v4, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->a, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->b, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->c, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->state, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->steps, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->steps, 4, 1, f) == 0)
             return 0;
         p->time = d3_Time;
         p = &e->parts[2];
-        if (ls_Read(p->v0, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v0, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v1, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v2, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, (int)f) == 0)
+        if (ls_Read(p->v4, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->a, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->b, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->c, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->state, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->steps, 4, 1, (int)f) == 0)
+        if (ls_Read(&p->steps, 4, 1, f) == 0)
             return 0;
         p->time = d3_Time;
-        if (ls_Read(e->tail, 12, 1, (int)f) == 0)
+        if (ls_Read(e->tail, 12, 1, f) == 0)
             return 0;
         e->arg = q;
         e->cb = gv_EffectNotifyOwner;

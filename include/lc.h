@@ -2,6 +2,7 @@
    screen, see src/game/unk_58bbd0.c */
 #ifndef LC_H
 #define LC_H
+struct VFSFILE;
 
 #include "am_types.h"                 /* G9DOMIZIL, the Domizil table's entry (ai_DomizilTable) */
 #include "ai_types.h"                 /* AITIME, the goods-reserve clock (LCSETTINGS.reserveTime) */
@@ -296,7 +297,7 @@ typedef struct G8INVCHAR {
 #pragma pack(pop)
 
 void ai_FreeSettings(void);                                        /* 0x5a8920 */
-int ai_LoadSettings(int f);  /* 0x5a8a20, reads the production settings chain back from the save f (ls_LoadGame); 0 on an error */
+int ai_LoadSettings(struct VFSFILE *f);  /* 0x5a8a20, reads the production settings chain back from the save f (ls_LoadGame); 0 on an error */
 void ai_FreePicture(void);                                         /* 0x5bc0f0 */
 
 /* declared in other units' headers before (moved to the owner) */

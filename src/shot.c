@@ -207,7 +207,7 @@ typedef struct SAVEHEADERVIEW {             /* 0xfc */
 } SAVEHEADERVIEW;                           /* 0xfc */
 #pragma pack(pop)
 extern int ls_Version;                      /* 0x623650, ls.c: the version of the save read last */
-int ls_ReadSaveHeader(int f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
+int ls_ReadSaveHeader(struct VFSFILE *f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); /* 0x472aa0, d2.h */
 int d2_WinOpenRaw(int x, int y, int w, int h, void *src, int win);  /* 0x46c390, d2.h */
 int d2_WinOpenPic(short x, short y, int pic, int win); /* 0x4731d0, d2.h: creates a picture object */
@@ -272,7 +272,7 @@ void mem_Free(void *p);                 /* 0x422620, d3.h */
 extern unsigned int dd_RMask;           /* 0x1464fa4, dd_vesa.h: the red channel mask of the display */
 extern unsigned int dd_GMask;           /* 0x1464fb0, dd_vesa.h */
 extern unsigned int dd_BMask;           /* 0x146359c, dd_vesa.h */
-int ls_Read(void *buf, int size, int count, int f);   /* 0x51c920, ls.c: vfs_fread items */
+int ls_Read(void *buf, int size, int count, struct VFSFILE *f);   /* 0x51c920, ls.c: vfs_fread items */
 void sv_SetStatusText(char *s);   /* 0x52e330, sv.c */
 int cm_SendExSysMessage(unsigned char id, void *msg);   /* 0x4c4db0, as in cm.h */
 DWORD dd_RGB(unsigned char r, unsigned char g, unsigned char b);   /* 0x41e670, as in dd_vesa.h */
@@ -280,8 +280,8 @@ unsigned int util_Hash(unsigned char *buf, unsigned int len);      /* 0x401000, 
 void sv_PumpNet(void);                                             /* 0x52fe00, sv.c */
 void sv_BroadcastText(unsigned fl, char *t);  /* 0x52fcf0, sv.c: sends t as the network message 0xe and
                                                  shows it until the answer, then clears the status line */
-int ls_WriteSaveHeader(int f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
-int ls_ReadSaveHeader(int f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
+int ls_WriteSaveHeader(struct VFSFILE *f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
+int ls_ReadSaveHeader(struct VFSFILE *f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
 extern int cm_RequestedSaveSlot;        /* 0x6f25c8, cm.h: the save slot the request asked for */
 extern char cm_RequestedSaveName[];     /* 0x6f25d0, cm.h: the save name the request carried */
 extern int cm_SaveAcks[][2];            /* 0x76fa20, cm.h: 8 slots; [0] = the player's netId, [1] = the
@@ -534,7 +534,7 @@ int ai_SaveWind(struct VFSFILE *f)
    0x10050): the fields of ai_EffectState in ai_SaveWind's order with ls_Read. 0 as soon as a read fails,
    else 1. */
 
-int ai_LoadWind(int f)
+int ai_LoadWind(VFSFILE *f)
 {
     if (!ls_Read(&ai_EffectState.year, 4, 1, f))
         return 0;
