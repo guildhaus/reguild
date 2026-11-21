@@ -1840,7 +1840,7 @@ int ls_ReadSceneRecords(VFSFILE *f)
         part = 0;
         bld = gm_BuildQuery(1, 1, ch->group);
         if (bld != 0) {
-            part = gm_Query((void *)bld->objList, 2, 6, 1, ch->scriptGroup);
+            part = gm_Query(bld->objList, 2, 6, 1, ch->scriptGroup);
             if (part != 0 && part->id != 0xfd)
                 uni = init_ObjectSceneUniverse(part);
             else
@@ -1967,7 +1967,7 @@ int ls_ReadSceneRecords(VFSFILE *f)
             if (a->type == '3') {
                 bld = gm_BuildQuery(1, 1, a->args[1]);
                 if (bld != 0) {
-                    part = gm_Query((void *)bld->objList, 2, 6, 1, a->args[2]);
+                    part = gm_Query(bld->objList, 2, 6, 1, a->args[2]);
                     if (part != 0 && part->id != 0xfd)
                         a->u.scene.universe = a->args[0] = init_ObjectSceneUniverse(part);
                     else
@@ -2438,25 +2438,25 @@ int ls_FixupAfterLoad(void)
         if (o->ownerId != -1 && gm_FindById(&bld, &obj, &chr, o->ownerId) != 0) {
             if (bld != 0) {
                 if (((AIBLD *)bld)->objList == 0) {
-                    ((AIBLD *)bld)->objList = (int)o;
+                    ((AIBLD *)bld)->objList = o;
                 } else {
-                    for (last = (AIOBJ *)((AIBLD *)bld)->objList; last->next != 0; last = last->next)
+                    for (last = ((AIBLD *)bld)->objList; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }
             } else if (obj != 0) {
                 if (((AIOBJ *)obj)->list == 0) {
-                    ((AIOBJ *)obj)->list = (int)o;
+                    ((AIOBJ *)obj)->list = o;
                 } else {
-                    for (last = (AIOBJ *)((AIOBJ *)obj)->list; last->next != 0; last = last->next)
+                    for (last = ((AIOBJ *)obj)->list; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }
             } else {
                 if (((AICHAR *)chr)->inventory == 0) {
-                    ((AICHAR *)chr)->inventory = (int)o;
+                    ((AICHAR *)chr)->inventory = o;
                 } else {
-                    for (last = (AIOBJ *)((AICHAR *)chr)->inventory; last->next != 0; last = last->next)
+                    for (last = ((AICHAR *)chr)->inventory; last->next != 0; last = last->next)
                         ;
                     last->next = o;
                 }

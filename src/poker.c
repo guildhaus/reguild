@@ -49,7 +49,7 @@ int ai_PokerStart(AICHAR *p, G10GAME *g)
     ai_PokerTable = g;
     memset(g, 0, sizeof(G10GAME));
     ai_PokerTable->seat[0].who = p;
-    k = gm_ConvertMoney(gm_SumListAmounts((void *)p->inventory, ai_OwnPlayer), ai_OwnPlayer);
+    k = gm_ConvertMoney(gm_SumListAmounts(p->inventory, ai_OwnPlayer), ai_OwnPlayer);
     d = k;
     if (10000.0 > d)
         d = 10000.0;

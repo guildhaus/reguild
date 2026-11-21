@@ -272,10 +272,10 @@ int rt_ChooseGoodsDialog(AIBLD *b, int x, int def)
     d2_GetWinObj(w, 4, io_PrintText(0x7d));
     d2_SetForm(w, 2);
     if (t->kind == 0x1c) {
-        store = gm_Query((void *)b->objList, 2, 0, 0x1dc, 6);
+        store = gm_Query(b->objList, 2, 0, 0x1dc, 6);
         n = 0;
         if (store != 0) {
-            for (item = gm_Query((void *)store->list, 1, 5); item != 0; item = gm_QueryNext()) {
+            for (item = gm_Query(store->list, 1, 5); item != 0; item = gm_QueryNext()) {
                 if (item->count > 1) {
                     o = d2_WinOpenPic(n % 4 << 6, n / 4 << 6, item->id + 0xdf, d2_LastWindow);
                     objs[n] = o;
@@ -288,10 +288,10 @@ int rt_ChooseGoodsDialog(AIBLD *b, int x, int def)
             }
         }
     } else if (t->kind == 9) {
-        store = gm_Query((void *)b->objList, 2, 0, 0x116, 6);
+        store = gm_Query(b->objList, 2, 0, 0x116, 6);
         n = 0;
         if (store != 0) {
-            for (item = gm_Query((void *)store->list, 1, 5); item != 0; item = gm_QueryNext()) {
+            for (item = gm_Query(store->list, 1, 5); item != 0; item = gm_QueryNext()) {
                 if (item->count >= 1) {
                     o = d2_WinOpenPic(n % 4 << 6, n / 4 << 6, item->id + 0xdf, d2_LastWindow);
                     objs[n] = o;
@@ -305,10 +305,10 @@ int rt_ChooseGoodsDialog(AIBLD *b, int x, int def)
         }
     } else {
         gm_BuildKindObjects(b);
-        store = gm_Query((void *)b->objList, 2, 0, 0xff, 6);
+        store = gm_Query(b->objList, 2, 0, 0xff, 6);
         n = 0;
         for (i = 0; i < gm_KindObjCount; i++) {
-            item = gm_Query((void *)store->list, 1, 0, gm_KindObjs[n]);
+            item = gm_Query(store->list, 1, 0, gm_KindObjs[n]);
             if (item != 0 && item->count > 1) {
                 o = d2_WinOpenPic(n % 4 << 6, n / 4 << 6, gm_KindObjs[n] + 0xdf, d2_LastWindow);
                 objs[n] = o;
@@ -451,7 +451,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
     for (i = 0, y = 4; y < 0xd6; i++, y += 0x1e) {
         o = sv_AddPanelButton(0, y, txt_InfoPanelButtons[i]);
         tabs[i] = o;
-        d2_Objs[o].user = gm_Query((void *)b->objList, 2, 6, 0, kinds[i]);
+        d2_Objs[o].user = gm_Query(b->objList, 2, 6, 0, kinds[i]);
         d2_RadioAdd(g, o);
     }
     d2_RadioSelect(g, 0);
@@ -467,11 +467,11 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
             n = 0;
             s = d2_Objs[tabs[d2_Radios[g].sel]].user;
             if (s != 0)
-                s = gm_Query((void *)s->list, 1, 0, 0xff);
+                s = gm_Query(s->list, 1, 0, 0xff);
             else
-                s = gm_Query((void *)b->objList, 1, 0, 0xff);
+                s = gm_Query(b->objList, 1, 0, 0xff);
             if (s != 0) {
-                for (e = (unsigned short *)gm_Query((void *)s->list, 1, 5); e != 0; e = gm_QueryNext(), n++) {
+                for (e = (unsigned short *)gm_Query(s->list, 1, 5); e != 0; e = gm_QueryNext(), n++) {
                     o = d2_WinOpenPic(n % 4 << 6, n / 4 << 6, *e + 0xdf, d2_LastWindow);
                     objs[n] = o;
                     d2_Objs[o].interactive = 1;
@@ -615,7 +615,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     ok = btns[0];
     del = btns[1];
     n = cnt[cart->id - 0x134];
-    s = gm_Query((void *)cart->list, 1, 0, 0x1dd);
+    s = gm_Query(cart->list, 1, 0, 0x1dd);
     a = gm_ListStock((int)s, 0);
     for (i = 0; i < 3; i++)
         objs1[i] = -1;
@@ -1129,10 +1129,10 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
             if (t->kind == 10)
                 st = (AIOBJ *)gm_FindMarketObject(s[0]);
             else if (t->kind == 0x1c)
-                st = gm_Query((void *)b->objList, 2, 0, 0x1dc, 6);
+                st = gm_Query(b->objList, 2, 0, 0x1dc, 6);
             else
                 st = (AIOBJ *)bi.pada8[3];
-            g = (unsigned short *)gm_Query((void *)st->list, 1, 0, s[0]);
+            g = (unsigned short *)gm_Query(st->list, 1, 0, s[0]);
             if (g != 0) {
                 n = s[1];
                 if (n >= gm_ListAmount((char *)st, g))

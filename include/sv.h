@@ -2,6 +2,7 @@
    selection, the clock): its functions and data as the definitions spell them. Names are ours. */
 #ifndef SV_H
 #define SV_H
+struct AIOBJ;
 #include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 
 #include "sv_types.h"
@@ -40,7 +41,7 @@ void sv_ResetScreenClip(void);                                          /* 0x520
 int sv_CheckMoney(struct AICHAR *o, int n);                                      /* 0x520f90 */
 int sv_CheckCharacterFlag(struct AIBLD *id);                                      /* 0x520fe0 */
 int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);                     /* 0x521040 */
-int sv_CheckStock(short *p, int stock, int n, unsigned char t);           /* 0x5210a0 */
+int sv_CheckStock(short *p, struct AIOBJ *stock, int n, unsigned char t);           /* 0x5210a0 */
 int sv_MessageBox(intptr_t text, unsigned flags);                            /* 0x521150 */
 int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);                   /* 0x521410 */
 int sv_MessageBoxYesNo(intptr_t text, unsigned flags);                       /* 0x5216a0 */

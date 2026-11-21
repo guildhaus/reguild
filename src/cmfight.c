@@ -2065,9 +2065,9 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
                     *cart = -1;
                     continue;
                 }
-                load = gm_Query((void *)obj->list, 1, 0, 0x1dd);
+                load = gm_Query(obj->list, 1, 0, 0x1dd);
                 n = 0;
-                for (w = gm_Query((void *)load->list, 1, 5); n < 3 && w != 0; w = gm_QueryNext())
+                for (w = gm_Query(load->list, 1, 5); n < 3 && w != 0; w = gm_QueryNext())
                     goods[n++] = w;
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
                 if (obj->type == 0x134)

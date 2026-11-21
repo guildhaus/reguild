@@ -1401,10 +1401,10 @@ void init_Betrieb(AIBLD *b)
     p = (char *)ai_BTypes + (unsigned)b->type * 0x24d;
     if (cls != 1 && cls != 4)
         return;
-    o1 = gm_Query((void *)b->objList, 1, 0, 0xff);
+    o1 = gm_Query(b->objList, 1, 0, 0xff);
     if (o1 == 0)
         return;
-    st = gm_Query((void *)o1->list, 1, 5);
+    st = gm_Query(o1->list, 1, 5);
     if (st == 0)
         return;
     while (st != 0 && ai_Goods[st->type].type == '%')
@@ -1427,7 +1427,7 @@ void init_Betrieb(AIBLD *b)
             n = 16000 / sum;
         if (n <= 1)
             n = 1;
-        st = gm_Query((void *)b->objList, 1, 4, 5);
+        st = gm_Query(b->objList, 1, 4, 5);
         if (st == 0)
             return;
         for (i = 0; i < 4; i++) {
@@ -2316,7 +2316,7 @@ int init_SetupNewGame(int n)
     init_OpenTown();
     b = (AIBLD *)gm_FirstBuilding(1);
     if (b != 0) {
-        o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+        o = gm_Query(b->objList, 2, 6, 0, 0x115);
         if (o != 0)
             cm_SendMoveGoodsUnchecked(o->objId, -1, ai_OwnPlayer, 480000);
     }
@@ -2711,7 +2711,7 @@ extern unsigned char init_TextureSet;      /* 0x6f1c24 */
    section, ours eax reloads)) (tiebreak: insensitive) */
 void init_SyncSceneObjects(D3OBJECT *o)
 {
-    char *base;                        /* the object list of the scene */
+    AIOBJ *base;                       /* the object list of the scene */
     char *g;                           /* the ai_Goods record (0x41 bytes) of o's prototype, its class at 0 */
     AIOBJ *rec, *s, *e;
     D3OBJECT *parent;
@@ -2726,7 +2726,7 @@ void init_SyncSceneObjects(D3OBJECT *o)
     rec = 0;
     id = o->pickId & INIT_PROTO_MASK;
     kind = o->pickBytes[3];
-    base = ai_SceneObject != 0 ? (char *)ai_SceneObject->list : (char *)ai_SceneBuilding->objList;
+    base = ai_SceneObject != 0 ? ai_SceneObject->list : ai_SceneBuilding->objList;
     if (kind == 1) {
         g = (char *)ai_Goods + id * 0x41;
         if (g[0] != 2 && g[0] != 0x1d && g[0] != 0x21 && g[0] != 6 && (rec = gm_Query(base, 1, 0, id)) != 0) {
@@ -2804,7 +2804,7 @@ void init_SyncSceneObjects(D3OBJECT *o)
                     }
                 }
             }
-        } else if (g[0] != 0x1d && (rec = gm_Query((void *)ai_SceneBuilding->objList, 2, 6, 0, id)) != 0) {
+        } else if (g[0] != 0x1d && (rec = gm_Query(ai_SceneBuilding->objList, 2, 6, 0, id)) != 0) {
             d3if_ShowTree(o, 1);
             o->owner = rec;
             if ((g[0] == 6 || g[0] == 2) && ai_FallbackBuilding != 0) {
@@ -2834,7 +2834,7 @@ void init_SyncSceneObjects(D3OBJECT *o)
     if (strncmp(o->name, "no_", 3) == 0) {
         i = gm_FindObjectProto(o->name + 6);
         if (i != -1) {
-            s = gm_Query(ai_Goods[i].type == 2 ? (char *)ai_SceneBuilding->objList : base, 1, 0, i);
+            s = gm_Query(ai_Goods[i].type == 2 ? ai_SceneBuilding->objList : base, 1, 0, i);
             if (s != 0)
                 d3if_ShowTree(o, 0);
             else

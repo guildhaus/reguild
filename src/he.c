@@ -2390,8 +2390,8 @@ void he_InnStaffLeave(void)
 
     f = gm_BuildQuery(1, 5, 0x16);
     while (f != 0) {
-        r = gm_Query((void *)f->objList, 1, 0, 0x120);
-        if (r != 0 && (r = gm_Query((void *)r->list, 1, 0, 0x12d)) != 0) {
+        r = gm_Query(f->objList, 1, 0, 0x120);
+        if (r != 0 && (r = gm_Query(r->list, 1, 0, 0x12d)) != 0) {
             p = r->seats;
             for (k = 4; k != 0; k--) {
                 if (*p != -1 && ((o = gm_FindChar(*p)) == 0 || o->health == 0 || o->kind == 0xf)) {
@@ -2420,8 +2420,8 @@ void he_ClearInnDarkCorner(void)
 
     f = gm_BuildQuery(1, 5, 0x16);
     while (f != 0) {
-        r = gm_Query((void *)f->objList, 1, 0, 0x120);
-        if (r != 0 && (r = gm_Query((void *)r->list, 1, 0, 300)) != 0
+        r = gm_Query(f->objList, 1, 0, 0x120);
+        if (r != 0 && (r = gm_Query(r->list, 1, 0, 300)) != 0
                 && ai_Time.year - ((HEJOBTABLE *)r)->year > 1) {
             int arg[5];         /* the 0x14-byte record cm_SendScriptMessage copies; arg[4] left unset */
 
@@ -3500,7 +3500,7 @@ void he_RunStammtisch(AIJOB *e)
         cm_SendExSetHE(-1, e);
         return;
     }
-    table = gm_Query((void *)bld->objList, 2, 6, 0, 0x12d);
+    table = gm_Query(bld->objList, 2, 6, 0, 0x12d);
     if (table == 0) {
         gm_AddTime(&e->end, 0, 5, 0);
         cm_SendExSetHE(-1, e);
@@ -3568,7 +3568,7 @@ void he_AllocTavern(AIJOB *e)
         cm_SendExSetHE(-1, e);
         return;
     }
-    if (gm_Query((void *)bld->objList, 1, 0, 0x1b5) == 0) {
+    if (gm_Query(bld->objList, 1, 0, 0x1b5) == 0) {
         v.f.c1c = -1;
         v.f.c1d = -1;
         v.f.v1e = -1;
@@ -3614,7 +3614,7 @@ void he_RunTavern(AIJOB *e)
         cm_SendExSetHE(0, e);
         return;
     }
-    t = (HETAVERNOBJ *)gm_Query((void *)bld->objList, 1, 0, 0x1b5);
+    t = (HETAVERNOBJ *)gm_Query(bld->objList, 1, 0, 0x1b5);
     switch (e->stage) {
     case 0:
         if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
@@ -4045,7 +4045,7 @@ void he_RunFeast(AIJOB *e)
     if (e->opts & 4)
         return;
     gm_FindById(&bld, 0, 0, e->from);
-    if (bld != 0 && (table = gm_Query((void *)bld->objList, 1, 0, 0x17)) == 0) {
+    if (bld != 0 && (table = gm_Query(bld->objList, 1, 0, 0x17)) == 0) {
         e->end = ai_Time;
         cm_SendExSetHE(-1, e);
         return;
@@ -4128,7 +4128,7 @@ void he_RunFeastExam(AIJOB *e)
             he_FreeEvent(e);
             return;
         }
-        table = gm_Query((void *)bld->objList, 1, 0, 0x17);
+        table = gm_Query(bld->objList, 1, 0, 0x17);
         if (table == 0 || bld->owner == 0xffff) {
             if (e->slot != 0)
                 he_ReleaseSlot(e);
@@ -4847,7 +4847,7 @@ void he_RunPatrol(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        o = gm_Query((void *)b->objList, 1, 0, 0x146);
+        o = gm_Query(b->objList, 1, 0, 0x146);
         paid = 0;
         sum = 0;
         for (i = 0; i < 4; i++) {
@@ -5048,7 +5048,7 @@ void he_RunRaid(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        o = gm_Query((void *)home->objList, 1, 0, 0x146);
+        o = gm_Query(home->objList, 1, 0, 0x146);
         for (i = 0; i < 8; i++) {
             if (e->ids[i] == -1)
                 continue;
@@ -5094,7 +5094,7 @@ void he_RunRaid(AIJOB *e)
         raider = &ai_Chars[e->chr];
         defence = (float)(gm_BuildingSkill(b, 5, 1) * 0.01 + 1.0);
         home = gm_BuildQuery(1, 1, e->raidStart);
-        o = gm_Query((void *)home->objList, 1, 0, 0xca);
+        o = gm_Query(home->objList, 1, 0, 0xca);
         for (; o != 0; o = gm_QueryNext())
             if (o->reportBld == b->id)
                 break;
@@ -6080,11 +6080,11 @@ void he_RunStoreSale(AIJOB *e)
     }
     b = sel[util_Random(n)];
     if (b != 0) {
-        store = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(b->objList, 2, 6, 0, 0x2a);
         if (store == 0)
-            store = gm_Query((void *)b->objList, 2, 6, 0, 0x116);
+            store = gm_Query(b->objList, 2, 6, 0, 0x116);
         if (store != 0) {
-            for (good = (unsigned short *)gm_Query((void *)store->list, 1, 5); good != 0; good = (unsigned short *)gm_QueryNext()) {
+            for (good = (unsigned short *)gm_Query(store->list, 1, 5); good != 0; good = (unsigned short *)gm_QueryNext()) {
                 amount = (int)(gm_ListAmount(store, good) * 0.25f);
                 if (amount < 1)
                     amount = 1;
@@ -8061,8 +8061,8 @@ void he_RunInnSim(AIJOB *e)
         AIOBJ *bar = gm_Query((void *)inns[n].inn->objList, 2, 0, 0x2a, 6);
 
         if (bar != 0) {
-            inns[n].drink1 = gm_Query((void *)bar->list, 1, 0, 0x179);
-            inns[n].drink2 = gm_Query((void *)bar->list, 1, 0, 0x17a);
+            inns[n].drink1 = gm_Query(bar->list, 1, 0, 0x179);
+            inns[n].drink2 = gm_Query(bar->list, 1, 0, 0x17a);
         }
         n++;
         inns[n].inn = gm_BuildNext();
@@ -8769,7 +8769,7 @@ void he_StartDarkCorner(AIJOB *e)
         }
     }
     gm_FindById(&bld, 0, 0, d->victim);
-    if (bld == 0 || (jt = gm_Query((void *)bld->objList, 2, 6, 0, 0x12c)) == 0) {
+    if (bld == 0 || (jt = gm_Query(bld->objList, 2, 6, 0, 0x12c)) == 0) {
         e->exSlot = cm_SendExSetHE(-1, e);
         return;
     }
@@ -8946,7 +8946,7 @@ void he_RunDarkCorner(AIJOB *e)
             d->loot = i;
             for (k = 0; k < i; k++)
                 cm_SendProofExecuted(loot[k], ai_Chars[bld->owner].netId);
-            jt = gm_Query((void *)bld->objList, 2, 6, 0, 0x12c);
+            jt = gm_Query(bld->objList, 2, 6, 0, 0x12c);
             if (jt != 0) {
                 cm_BeginFieldBlock((char *)jt, jt->objId);
                 for (k = 0; k < 3; k++)
@@ -8994,7 +8994,7 @@ void he_RunDarkCorner(AIJOB *e)
             d->loot = i;
             for (k = 0; k < i; k++)
                 cm_SendProofExecuted(loot[k], ai_Chars[bld->owner].netId);
-            jt = gm_Query((void *)bld->objList, 2, 6, 0, 0x12c);
+            jt = gm_Query(bld->objList, 2, 6, 0, 0x12c);
             if (jt != 0) {
                 cm_BeginFieldBlock((char *)jt, jt->objId);
                 for (k = 0; k < 3; k++)
@@ -11087,7 +11087,7 @@ void he_RunSale(AIJOB *e)
             he_FreeEvent(e);
             return;
         }
-        gm_Query((void *)b->objList, 1, 1, s->obj);
+        gm_Query(b->objList, 1, 1, s->obj);
         s->slot = cm_SendExSellObject(s->obj, -1, s->good, 1, ai_OwnPlayer, 0);
         e->stage = e->stage + 1;
         return;
@@ -11123,7 +11123,7 @@ void he_RunSale(AIJOB *e)
             char jump[0x80];
             char name[0x80];
 
-            q = gm_Query((void *)b->objList, 1, 1, s->obj);
+            q = gm_Query(b->objList, 1, 1, s->obj);
             g = GM_GOOD(s->good);
             if (q != 0 && q->type != 0xfd) {
                 tid = 0x606;
@@ -11154,7 +11154,7 @@ void he_RunSale(AIJOB *e)
         {
             HESOLDMSG m;
 
-            q = gm_Query((void *)b->objList, 1, 1, s->obj);
+            q = gm_Query(b->objList, 1, 1, s->obj);
             m.due = ai_Time;
             gm_AddTime(&m.due, 0, 0, 1);
             m.sold.bld = b->id;
@@ -11379,11 +11379,11 @@ void he_RunHire(AIJOB *e)
         tgt = h->target;
         if (tgt != 0) {
             if (tgt == -1) {
-                o = gm_Query((void *)b->objList, 1, 0, 0xfd);
+                o = gm_Query(b->objList, 1, 0, 0xfd);
                 tgt = o != 0 ? o->objId : -1;
             }
         } else {
-            o = gm_Query((void *)b->objList, 1, 0, b->mainRoom);
+            o = gm_Query(b->objList, 1, 0, b->mainRoom);
             tgt = o != 0 ? o->objId : -1;
         }
         cm_RequestChrMoveToUniverse(h->person, e->from, tgt, "dummy_EINGANG");
@@ -11796,9 +11796,9 @@ void he_TransportStadtStadt(AIJOB *ev)
         else
             d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&pos);
         if (gm_IsType10(from) != 0)
-            tr = gm_Query((void *)guards->objList, 1, 1, t->cart);
+            tr = gm_Query(guards->objList, 1, 1, t->cart);
         else
-            tr = gm_Query((void *)from->objList, 1, 1, t->cart);
+            tr = gm_Query(from->objList, 1, 1, t->cart);
         if (tr == 0)
             tr = (AIOBJ *)gm_FindObjectInst(t->cart);
         if (tr != 0) {
@@ -11838,7 +11838,7 @@ void he_TransportStadtStadt(AIJOB *ev)
     }
     if (t->at != guards->id)
         return;
-    tr = gm_Query((void *)guards->objList, 1, 1, t->cart);
+    tr = gm_Query(guards->objList, 1, 1, t->cart);
     if (tr == 0)
         tr = gm_Query(0, 2, 7, 1, t->cart);
     if (tr != 0) {
@@ -12779,7 +12779,7 @@ void he_RunHerbGathering(AIJOB *e)
                     if (c != 0)
                         sv_MoveToGroup(0, 0, c->id, 0);
                 }
-                o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+                o = gm_Query(b->objList, 2, 6, 0, 0x2a);
                 if (o == 0)
                     break;
                 season = gm_ClockSeason(&ai_Time);
@@ -12889,10 +12889,10 @@ void he_RunAnimalHunt(AIJOB *e)
             e->stage = -1;
             return;
         }
-        q = gm_Query((void *)b->objList, 1, 0, 0xdd);
+        q = gm_Query(b->objList, 1, 0, 0xdd);
         if (q == 0)
             q = gm_BuildingMainObject(b);
-        o = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        o = gm_Query(b->objList, 2, 6, 0, 0x2a);
         if (o != 0) {
             m = gm_FindCharacterByMaster(b);
             rate = gm_BuildingSkill(b, 0xb, 1) * 0.01 + 1.0;
@@ -12946,7 +12946,7 @@ void he_AllocStudy(AIJOB *e)
         return;
     }
     if (s->room != -1)
-        room = gm_Query((void *)b->objList, 2, 6, 1, s->room);
+        room = gm_Query(b->objList, 2, 6, 1, s->room);
     e->end = ai_Time;
     e->start = ai_Time;
     if (room != 0)
@@ -13020,9 +13020,9 @@ void he_RunStudy(AIJOB *e)
             q = 0;
             bt = &ai_BTypes[b->type];
             if (bt->kind == 4)
-                q = gm_Query((void *)b->objList, 1, 0, 0x60);
+                q = gm_Query(b->objList, 1, 0, 0x60);
             else if (bt->kind == 0x13)
-                q = gm_Query((void *)b->objList, 1, 0, 0x145);
+                q = gm_Query(b->objList, 1, 0, 0x145);
             if (q == 0)
                 q = gm_GetGebaeudeHauptraum(b);
             if (q != 0) {
@@ -13901,7 +13901,7 @@ void he_AllocTheft(AIJOB *e)
         }
     }
     if (bt->kind == 5 && master != 0 && master->kind != 6 && master->kind != 7
-        && (n = gm_SumListMoney((void *)b->objList)) != 0)
+        && (n = gm_SumListMoney(b->objList)) != 0)
         cm_SendMoveGoods(master->netId, b->id, ai_OwnPlayer, n);
     e->exSlot = -1;
 }
@@ -14198,7 +14198,7 @@ void he_RunEvent1f(AIJOB *e)
     case 1:
         b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
-            o = gm_Query((void *)b->objList, 1, 0, g->good);
+            o = gm_Query(b->objList, 1, 0, g->good);
             if (o != 0) {
                 bt = &ai_BTypes[b->type];
                 txt_Format(text, 0x1c2b, b, g->good * 2 + 0x9a8);
@@ -14210,7 +14210,7 @@ void he_RunEvent1f(AIJOB *e)
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, news, b->id, o->objId, 0, "_NACHRICHTEN_HS_53");
             }
             if (gm_IsHomeType(b)) {
-                q = gm_Query((void *)b->objList, 1, 4, 2);
+                q = gm_Query(b->objList, 1, 4, 2);
                 msg.due = ai_Time;
                 gm_AddTime(&msg.due, 0, 0, 1);
                 msg.sold.bld = b->id;
@@ -14463,7 +14463,7 @@ void he_AllocKredit(AIJOB *e)
     partner = gm_FindChar(l->partner);
     if (owner->kind == 6 || owner->kind == 7) {
         cash = 0;
-        o = gm_Query((void *)b->objList, 1, 0, ai_PlayerSlots[ai_OwnPlayer].moneyGood);
+        o = gm_Query(b->objList, 1, 0, ai_PlayerSlots[ai_OwnPlayer].moneyGood);
         if (o != 0)
             cash = o->count;
         txt_Format(text, 0x18d7, partner->id, b, l->amount, l->interest, l->days, 0x5d, cash);
@@ -14898,7 +14898,7 @@ void he_AllocHarvest(AIJOB *e)
         he_FreeEvent(e);
         return;
     }
-    o = gm_Query((void *)b->objList, 1, 0, 0xfd);
+    o = gm_Query(b->objList, 1, 0, 0xfd);
     sv_MoveToGroup(b, o, c->id, e);
     e->harvestSlot = cm_SetPlant(e->harvestBld, pl->x, pl->z, pl->type, 1, e->id);
     e->harvestType = pl->type;
@@ -15003,7 +15003,7 @@ void he_RunHarvest(AIJOB *e)
         return;
     case 3:
         cm_SetPlant(e->harvestBld, pl->x, pl->z, 0, 0, -1);
-        store = gm_Query((void *)b->objList, 2, 0, 0x2a, 6);
+        store = gm_Query(b->objList, 2, 0, 0x2a, 6);
         if (store != 0)
             cm_SendExSellObject(store->objId, -1, pl->type, 1 << (pl->state - 1), ai_OwnPlayer, 0);
         ripe = 0;
@@ -15316,14 +15316,14 @@ void he_RunWorkerTheft(AIJOB *e)
             he_FreeEvent(e);
             return;
         }
-        store = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(b->objList, 2, 6, 0, 0x2a);
         if (store == 0)
-            store = gm_Query((void *)b->objList, 2, 6, 0, 0x116);
+            store = gm_Query(b->objList, 2, 6, 0, 0x116);
         o = gm_BuildingMainObject(b);
         if (store != 0) {
             n = 0;
             memset(goods, 0, sizeof(goods));
-            for (g = gm_Query((void *)store->list, 1, 5); g != 0; g = gm_QueryNext())
+            for (g = gm_Query(store->list, 1, 5); g != 0; g = gm_QueryNext())
                 goods[n++] = g;
             if (n != 0 && (g = goods[util_Random(n)]) != 0) {
                 price = (int)gm_GoodsPrice(g->id, ai_OwnPlayer);
@@ -15614,7 +15614,7 @@ int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId)
             pick = i;
         }
     }
-    o = gm_Query((void *)blds[pick]->objList, 1, 0, 0x120);
+    o = gm_Query(blds[pick]->objList, 1, 0, 0x120);
     *bldId = blds[pick]->id;
     *objId = o->objId;
     return blds[pick]->object != 0;
@@ -15918,7 +15918,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
             sprintf(text, "he_RunMarktSupervisor(): Could not find markt-lager:%s", (char *)txt_ObjectNames[s.item][0]);
             continue;
         }
-        q = gm_Query((void *)o->list, 2, 6, 0, s.item);
+        q = gm_Query(o->list, 2, 6, 0, s.item);
         if (q != 0)
             inStore = gm_ListAmount(o, q);
         else
@@ -15967,7 +15967,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
         o = (AIOBJ *)gm_FindMarketObject(s.item);
         if (o == 0)
             continue;
-        q = gm_Query((void *)o->list, 1, 0, s.item);
+        q = gm_Query(o->list, 1, 0, s.item);
         if (q != 0)
             amount = gm_ListAmount(o, q);
         else
@@ -16022,7 +16022,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
         b = (AIBLD *)gm_FindPlayerBuilding(pl);
         if (b == 0)
             continue;
-        st = gm_Query((void *)b->objList, 2, 0, 0x1db, 6);
+        st = gm_Query(b->objList, 2, 0, 0x1db, 6);
         if (st == 0)
             continue;
         for (i = 0; i < 0x55; i++) {
@@ -16031,7 +16031,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
             s = gm_StockBlocks[pl].goods[i];
             if (s.item == 0)
                 continue;
-            q = gm_Query((void *)st->list, 1, 0, s.item);
+            q = gm_Query(st->list, 1, 0, s.item);
             if (q == 0)
                 continue;
             have = gm_ListAmount(st, q);
@@ -16072,7 +16072,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
                 s.price = gm_StockPrice(pl, i);
             cm_SendGoodsDelta(&s, pl);
         }
-        st = gm_Query((void *)b->objList, 2, 0, 0x1dc, 6);
+        st = gm_Query(b->objList, 2, 0, 0x1dc, 6);
         if (st == 0)
             continue;
         for (i = 0; i < 0x55; i++) {
@@ -16082,7 +16082,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
             s2 = gm_StockBlocks[pl].goods[i];
             if (s2.item == 0)
                 continue;
-            q = gm_Query((void *)st->list, 1, 0, s2.item);
+            q = gm_Query(st->list, 1, 0, s2.item);
             if (q == 0)
                 continue;
             g = (float)(s2.demand * (1.0f / 14) * (minutes * (1.0 / 60)));
@@ -16244,7 +16244,7 @@ void he_RunKidnap(AIJOB *ev)
                 ev->stage = -1;
                 return;
             }
-            cell = gm_Query((void *)b->objList, 1, 0, 0x65);
+            cell = gm_Query(b->objList, 1, 0, 0x65);
             if (victim->scene != 0) {
                 cm_SendChrStop(victim->netId);
                 cm_RequestChrMoveToUniverse(victim->netId, b->id, cell->objId, "dummy_EINGANG_ZELLE");
@@ -16773,7 +16773,7 @@ void he_RunBurglary(AIJOB *ev)
         }
         if (g != 0) {
             room = gm_GetGebaeudeHauptraum(g);
-            store = gm_Query((void *)g->objList, 2, 6, 0, 0x116);
+            store = gm_Query(g->objList, 2, 6, 0, 0x116);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0) {
                     cm_SendChrStop(ev->ids[k]);
@@ -16783,7 +16783,7 @@ void he_RunBurglary(AIJOB *ev)
                     sv_MoveToGroup(g, 0, c->id, 0);
                 }
             }
-            for (report = gm_Query((void *)g->objList, 1, 0, 0xca); report != 0;
+            for (report = gm_Query(g->objList, 1, 0, 0xca); report != 0;
                  report = gm_QueryNext()) {
                 if (report->reportBld == b->id)
                     break;
@@ -16811,7 +16811,7 @@ void he_RunBurglary(AIJOB *ev)
             loot[0] = ch_EmptyName[0];
             memset(loot + 1, 0, sizeof(loot) - 1);
             b = gm_BuildQuery(1, 1, x->target);
-            stall = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+            stall = gm_Query(b->objList, 2, 6, 0, 0x2a);
             gm_BuildingValues(b, vals);
             money = vals[0];
             money = (int)((util_Random(50) * 0.001f + 1.0) * money);
@@ -16825,7 +16825,7 @@ void he_RunBurglary(AIJOB *ev)
             cm_SendFieldDeltas();
             if (stall != 0) {
                 if (store != 0) {
-                    for (it = gm_Query((void *)stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
+                    for (it = gm_Query(stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
                         if (util_Random(100) > 0x32 && it->id != 0x1c7 && it->id != 0x1c4
                             && it->id != 0x1c5 && it->id != 0x1c6 && it->id != 0x2af && it->id != 0x2b0
                             && it->id != 0x1c1 && it->id != 0x1c2 && it->id != 0x1c3) {
@@ -17044,14 +17044,14 @@ void he_RunBuildingSpying(AIJOB *ev)
             return;
         }
         owner = &ai_Chars[b->owner];
-        stall = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+        stall = gm_Query(b->objList, 2, 6, 0, 0x2a);
         worth = gm_GetWorth(owner->id);
         if (worth >= 1600000)
             worth = 1600000;
         rec.worth = (int)(worth * 0.1);
         goods = 0;
         if (stall != 0) {
-            for (it = gm_Query((void *)stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
+            for (it = gm_Query(stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
                 amt = (float)gm_ListAmount(stall, it);
                 goods += amt * gm_GoodsPrice(it->id, ai_OwnPlayer);
             }
@@ -17411,7 +17411,7 @@ void he_RunAttack(AIJOB *ev)
         me = &ai_Chars[ev->chr];
         defence = (float)(gm_BuildingSkill(b, 5, 1) * 0.01 + 1.0);
         home = gm_BuildQuery(1, 1, ev->raidStart);
-        o = gm_Query((void *)home->objList, 1, 0, 0xca);
+        o = gm_Query(home->objList, 1, 0, 0xca);
         for (; o != 0; o = gm_QueryNext())
             if (o->reportBld == b->id)
                 break;
@@ -18729,7 +18729,7 @@ void he_RunRobbery(AIJOB *ev)
         g = gm_BuildQuery(1, 1, x->home);
         if (g != 0) {
             room = gm_GetGebaeudeHauptraum(g);
-            store = gm_Query((void *)g->objList, 2, 6, 0, 0x116);
+            store = gm_Query(g->objList, 2, 6, 0, 0x116);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0) {
                     cm_SendChrStop(ev->ids[k]);
@@ -18752,7 +18752,7 @@ void he_RunRobbery(AIJOB *ev)
             loot[0] = ch_EmptyName[0];
             memset(loot + 1, 0, sizeof(loot) - 1);
             b = gm_BuildQuery(1, 1, x->target);
-            stall = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
+            stall = gm_Query(b->objList, 2, 6, 0, 0x2a);
             gm_BuildingValues(b, vals);
             money = (int)(vals[0] * 0.35);
             txt_Format(line, (intptr_t)"$Z%T$A", money);
@@ -18763,7 +18763,7 @@ void he_RunRobbery(AIJOB *ev)
             cm_SendFieldDeltas();
             if (stall != 0) {
                 if (store != 0) {
-                    for (it = gm_Query((void *)stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
+                    for (it = gm_Query(stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
                         if (util_Random(100) > 0x32) {
                             amt = gm_ListAmount(stall, it);
                             amt = (int)(amt * (n * 0.1));

@@ -854,7 +854,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
         ai_Relations[c->id][j] = (signed char)util_Random(0x40) - 0x20;
         ai_RelationMemory[c->id][j] = 0;
     }
-    g = gm_Query((void *)o->objList, 1, 0, 0x24b);
+    g = gm_Query(o->objList, 1, 0, 0x24b);
     gm_PlaceOnStage(c->netId, o->id, g != 0 ? g->objId : -1, 0, 0);
     gm_ChooseHeadIcon(&c->id);
     if (o->ahm == 0)
@@ -867,7 +867,7 @@ int ahm_CreateAlchemist(AHMCREATEMSG *m)
     o->ahm->share[2] = m->proto.plr.attr[2];
     o->ahm->share[3] = m->proto.plr.attr[3];
     o->ahm->slots[0].id = m->proto.plr.id;
-    place = gm_Query((void *)o->objList, 2, 6, 0, 0xff);
+    place = gm_Query(o->objList, 2, 6, 0, 0xff);
     if (place != 0) {
         while (place->items != 0)
             gm_RemoveObject(&place->list, *place->items);
@@ -955,7 +955,7 @@ int ahm_AddPlace(int *p, AHMREC *rec, AIBLD *o)
     i = 0;
     do {
         if (q->id == 0) {
-            sp = (AHMGOOD *)gm_Query((void *)obj->objList, 2, 6, 0, 0xff);
+            sp = (AHMGOOD *)gm_Query(obj->objList, 2, 6, 0, 0xff);
             if (net_Conn.s != INVALID_SOCKET)   /* a network game: the server's id counter wins */
                 ai_NextObjectId = m->nextObjectId;
             r->slots[i].id = m->id;
@@ -977,16 +977,16 @@ int ahm_RemovePlace(int *p, AHMREC *rec, AIBLD *o)
     AIBLD *obj = o;
     AHMREC *r = rec;
     int i;
-    char *sp;
+    AIOBJ *sp;
     AHMSLOT *q;
 
     q = r->slots;
     i = 0;
     do {
         if (q->id == p[2]) {
-            sp = (char *)gm_Query((void *)obj->objList, 2, 6, 0, 0xff);
+            sp = gm_Query(obj->objList, 2, 6, 0, 0xff);
             if (sp != 0)
-                gm_RemoveObject(sp + 0x14, p[2]);
+                gm_RemoveObject(&sp->list, p[2]);
             r->slots[i].id = 0;
             r->slots[i].v = 0.0f;
             return 1;
@@ -1074,20 +1074,20 @@ int ahm_SendDelete(AICHAR *c)
 int ahm_DeleteAlchemist(int unused, int *rec, AIBLD *o)
 {
     AICHAR *c;
-    char *sp;
+    AIOBJ *sp;
     int *q;
     int i;
 
     c = gm_FindChar(rec[0]);
     if (c != 0) {
-        sp = (char *)gm_Query((void *)(o)->objList, 2, 6, 0, 0xff);
+        sp = gm_Query(o->objList, 2, 6, 0, 0xff);
         c->bld2 = 0;
         c->bld = 0;
         q = rec + 3;
         for (i = 6; i != 0; i--) {
             if (*q != 0) {
                 if (sp != 0)
-                    gm_RemoveObject(sp + 0x14, *q);
+                    gm_RemoveObject(&sp->list, *q);
                 *q = 0;
                 q[1] = 0;
             }

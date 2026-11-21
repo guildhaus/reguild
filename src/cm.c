@@ -1727,7 +1727,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
         b = gm_FindBuildingById(bld);
         if (b != 0) {
             if (gm_IsHomeType(b) != 0) {
-                o = gm_Query((void *)b->objList, 1, 0, 0xfd);
+                o = gm_Query(b->objList, 1, 0, 0xfd);
                 if (o != 0)
                     m.go.objId = o->objId;
             } else {
@@ -2395,7 +2395,7 @@ int cm_CheckMoveGoods(G17MSG *m)
     AIBLD *b;
     AIOBJ *o;
     AICHAR *c;
-    int *list;
+    AIOBJ **list;
 
     if (m->moveGoods.to != -1) {
         m->moveGoods.to = cm_ResolveId((int)m, m->moveGoods.to);
@@ -2407,7 +2407,7 @@ int cm_CheckMoveGoods(G17MSG *m)
             list = &o->list;
         else
             list = &c->inventory;
-        if (gm_SumSlotAmounts((void *)*list, m->moveGoods.player) - m->moveGoods.amount < 0)
+        if (gm_SumSlotAmounts(*list, m->moveGoods.player) - m->moveGoods.amount < 0)
             return 1;
     }
     return 0;
@@ -2422,7 +2422,7 @@ int cm_CheckSellObject(G17MSG *m)
     AICHAR *c;
     char *p;
     AICHAR *r;
-    int *list;
+    AIOBJ **list;
     AIBLD *bb;                 /* the buyer's building: its own slot in the original, not b again */
 
     if (m->sell.seller != -1) {
@@ -2435,7 +2435,7 @@ int cm_CheckSellObject(G17MSG *m)
             list = &o->list;
         else
             list = &c->inventory;
-        p = (char *)gm_Query((void *)*list, 1, 0, m->sell.item);
+        p = (char *)gm_Query(*list, 1, 0, m->sell.item);
         if (p == 0)
             return 1;
         if (((AIOBJ *)p)->count < m->sell.count)
@@ -2462,7 +2462,7 @@ int cm_CheckSellObject(G17MSG *m)
             r = c;
         }
         if (m->sell.price != 0 && r != 0) {
-            if (gm_SumSlotAmounts((void *)r->inventory, m->sell.player) < m->sell.count * m->sell.price)
+            if (gm_SumSlotAmounts(r->inventory, m->sell.player) < m->sell.count * m->sell.price)
                 return 1;
         }
     }
@@ -2590,14 +2590,14 @@ int cm_CheckDarkCorner(G17MSG *m)
     if (m->script.op == 0x636c6572) {               /* 'cler' */
         b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b != 0) {
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
+            o = gm_Query(b->objList, 2, 6, 0, 0x12c);
             if (o != 0)
                 return ai_Time.year - o->cornerYear <= 1;
         }
     } else if (m->script.op == 0x62757920) {        /* 'buy ' */
         b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b != 0) {
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
+            o = gm_Query(b->objList, 2, 6, 0, 0x12c);
             if (o != 0) {
                 for (i = 0; i < 3; i++)
                     if (o->recs[i] == m->script.offer)
@@ -2621,7 +2621,7 @@ int cm_CheckTableRequest(G17MSG *m)
 
     if (m->table.op == 'join') {
         b = gm_BuildQuery(1, 1, m->table.bldId);
-        if (b != 0 && (t = gm_Query((void *)b->objList, 2, 6, 0, 0x12d)) != 0) {
+        if (b != 0 && (t = gm_Query(b->objList, 2, 6, 0, 0x12d)) != 0) {
             for (i = 0; i < 4; i++)
                 if (t->seats[i] == m->table.charId)
                     return 1;
@@ -2633,7 +2633,7 @@ int cm_CheckTableRequest(G17MSG *m)
         }
     } else if (m->table.op == 'leav') {
         b = gm_BuildQuery(1, 1, m->table.bldId);
-        if (b != 0 && (t = gm_Query((void *)b->objList, 2, 6, 0, 0x12d)) != 0) {
+        if (b != 0 && (t = gm_Query(b->objList, 2, 6, 0, 0x12d)) != 0) {
             for (i = 0; i < 4; i++)
                 if (t->seats[i] == m->table.charId)
                     break;
@@ -2647,7 +2647,7 @@ int cm_CheckTableRequest(G17MSG *m)
             if (c != 0 && c != ai_PlayerChar && c->health != 0 && c->kind != 0xf)
                 return 1;
         }
-        return gm_Query((void *)b->objList, 2, 6, 0, 0x12d) == 0;
+        return gm_Query(b->objList, 2, 6, 0, 0x12d) == 0;
     }
     return 1;
 }
@@ -2963,10 +2963,10 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
     AIBLD *x2;
     AICHAR *z;
     AIBLD *x1;
-    int *p;
+    AIOBJ **p;
     AIOBJ *o;
     AICHAR *r2;
-    int *q;
+    AIOBJ **q;
     char buf[0x200];
 
     r1 = 0;
@@ -3003,7 +3003,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             r1 = z;
             p = &z->inventory;
         }
-        o = gm_Query((void *)*p, 1, 0, m->sell.item);
+        o = gm_Query(*p, 1, 0, m->sell.item);
         if (o == 0) {
             sprintf(buf, "cm_ExSellObjekt(): Object not found: ObjProt:%i Menge:%i CmdCnt:", m->sell.item, m->sell.count, m->seq);
             return 1;
@@ -3017,7 +3017,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             return 1;
         }
         if (m->sell.price != 0 && r1 != 0)
-            gm_SumSlotAmounts((void *)r1->inventory, m->sell.player);
+            gm_SumSlotAmounts(r1->inventory, m->sell.player);
     }
     if (m->sell.buyer != -1) {
         m->sell.buyer = cm_ResolveId((int)m, m->sell.buyer);
@@ -3044,9 +3044,9 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
         if (ai_Goods[m->sell.item].type == 0x1d)
             o2 = 0;
         else
-            o2 = gm_Query((void *)*q, 1, 0, m->sell.item);
+            o2 = gm_Query(*q, 1, 0, m->sell.item);
         if (m->sell.price != 0 && r2 != 0) {
-            if (gm_SumSlotAmounts((void *)r2->inventory, m->sell.player) < m->sell.count * m->sell.price)
+            if (gm_SumSlotAmounts(r2->inventory, m->sell.player) < m->sell.count * m->sell.price)
                 return 1;
         }
     }
@@ -3181,7 +3181,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     pp = g->need;
     for (i = 4; i != 0; i--, pp++) {
         if (pp[4] != 0) {
-            o = gm_Query((void *)y->list, 1, 0, pp[4]);
+            o = gm_Query(y->list, 1, 0, pp[4]);
             if (o != 0) {
                 if (n >= gm_ListAmount((short *)y, (char *)o) / *pp)
                     n = gm_ListAmount((short *)y, (char *)o) / *pp;
@@ -3200,7 +3200,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     }
     for (i = 0; i < 4; i++) {
         if (g->in[i] != 0) {
-            o = gm_Query((void *)y->list, 1, 0, g->in[i]);
+            o = gm_Query(y->list, 1, 0, g->in[i]);
             if (o == 0) {
                 if (s != 0)
                     s->kind = 8;
@@ -3214,7 +3214,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
                 gm_RemoveObject(&y->list, g->in[i]);
         }
     }
-    o = gm_Query((void *)y->list, 1, 0, m->make.item);
+    o = gm_Query(y->list, 1, 0, m->make.item);
     if (o != 0) {
         o->count += g->batch * n;
     } else {
@@ -3257,8 +3257,8 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
     AIBLD *x;
     AIOBJ *y;
     AICHAR *z;
-    int *from;
-    int *to;
+    AIOBJ **from;
+    AIOBJ **to;
     AIOBJ *prev;
 
     m->move.from = cm_ResolveId((int)m, m->move.from);
@@ -3281,10 +3281,10 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
         to = &z->inventory;
     m->move.objId = cm_ResolveId((int)m, m->move.objId);
     prev = 0;
-    for (y = (AIOBJ *)*from; y != 0; y = y->next) {
+    for (y = *from; y != 0; y = y->next) {
         if (y->objId == m->move.objId) {
             if (prev == 0)
-                *from = (int)y->next;
+                *from = y->next;
             else
                 prev->next = y->next;
             break;
@@ -3294,8 +3294,8 @@ int cm_ExMoveObject(G17MSG *m, G17STAT *s)
     if (y == 0)
         return 1;
     y->ownerId = m->move.to;
-    y->next = (AIOBJ *)*to;
-    *to = (int)y;
+    y->next = *to;
+    *to = y;
     if (s != 0)
         s->state = 1;
     return 0;
@@ -3313,7 +3313,7 @@ int cm_ExRemoveGoods(G17MSG *m, G17STAT *s)
         return 1;
     if (y->type != 0x2a && y->type != 0x116)
         return 1;
-    o = gm_Query((void *)y->list, 1, 0, m->removeGoods.item);
+    o = gm_Query(y->list, 1, 0, m->removeGoods.item);
     if (o == 0)
         return 1;
     if (o->count != 1)
@@ -3816,7 +3816,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
         case 4:
             b = gm_BuildQuery(1, 1, msg.sys.arg[0]);
             if (b != 0) {
-                o = gm_Query((void *)b->objList, 1, 1, msg.sys.arg[1]);
+                o = gm_Query(b->objList, 1, 1, msg.sys.arg[1]);
                 if (o != 0)
                     init_ShowBuildingScene(b, o->id);
                 else
@@ -4197,7 +4197,7 @@ int cm_ExRemoveOwned(G17MSG *m, G17STAT *s)
         if (m->remove.objId == -1)
             r = gm_RemoveOwned(&bld->objList, m->remove.entry);
         else {
-            obj = gm_Query((void *)bld->objList, 2, 6, 1, m->remove.objId);
+            obj = gm_Query(bld->objList, 2, 6, 1, m->remove.objId);
             if (obj != 0)
                 r = gm_RemoveOwned(&obj->list, m->remove.entry);
             else
@@ -4408,7 +4408,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
             return 2;
     }
     if (m->place.objId != -1) {
-        q = gm_Query((void *)b->objList, 1, 1, m->place.objId);
+        q = gm_Query(b->objList, 1, 1, m->place.objId);
         if (q == 0)
             return 3;
     }
@@ -4416,7 +4416,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
         k = init_ObjectSceneUniverse(q);
     else if (b != 0 && gm_IsHomeType(b) != 0) {
         k = init_BuildingSceneUniverse(b);
-        q = gm_Query((void *)b->objList, 1, 0, 0xfd);
+        q = gm_Query(b->objList, 1, 0, 0xfd);
     } else
         k = 0;
     if (k >= 0) {
@@ -4606,11 +4606,11 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         if (scene < 0)
             return 0;
         if (p->scriptGroup != -1) {
-            q = gm_Query((void *)cb->objList, 1, 1, p->scriptGroup);
+            q = gm_Query(cb->objList, 1, 1, p->scriptGroup);
             if (q != 0 && q->id != 0xfd) {
                 g = &ai_Goods[q->id];
                 sprintf(gate, "dummy_gate_ob_%s", strupr(g->name));
-                q2 = gm_Query((void *)cb->objList, 1, 0, 0xfd);
+                q2 = gm_Query(cb->objList, 1, 0, 0xfd);
                 k = init_BuildingSceneUniverse(cb);
                 if (k >= 0 && q2 != 0) {
                     ch_StandUp(p, "sitzend/aufstehen");
@@ -4721,13 +4721,13 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         }
         if (m->go.noObject == 0) {
             if (m->go.objId != -1)
-                i = init_ObjectSceneUniverse(gm_Query((void *)to->objList, 1, 1, m->go.objId));
+                i = init_ObjectSceneUniverse(gm_Query(to->objList, 1, 1, m->go.objId));
             else
                 i = 0;
             if (i >= 0) {
                 if (m->go.objId == -1)
                     err_Message("cm_ExChrGotoBuilding(): invalid room-id (cm_ID_NONE)");
-                else if (gm_Query((void *)to->objList, 1, 1, m->go.objId) == 0)
+                else if (gm_Query(to->objList, 1, 1, m->go.objId) == 0)
                     err_Message("cm_ExChrGotoBuilding(): invalid room-id (raum==NULL)");
                 ch_AddAction(p, 0x38, 0);
                 r = ch_AddAction(p, 0x33, i, to->id, m->go.objId);
@@ -4757,9 +4757,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             }
         }
         if (m->go.noObject == 0) {
-            q = gm_Query((void *)to->objList, 1, 1, m->go.objId);
+            q = gm_Query(to->objList, 1, 1, m->go.objId);
             if (q == 0)
-                q = gm_Query((void *)to->objList, 1, 0, 0xfd);
+                q = gm_Query(to->objList, 1, 0, 0xfd);
             if (q == 0) {
                 i = init_BuildingSceneUniverse(to);
                 if (i >= 0) {
@@ -4837,11 +4837,11 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
     if (p == 0)
         return 1;
     b = gm_BuildQuery(1, 1, m->gate.bldId);
-    q = gm_Query((void *)b->objList, 1, 1, m->gate.objId);
+    q = gm_Query(b->objList, 1, 1, m->gate.objId);
     if (p->scriptGroup != -1)
-        r = gm_Query((void *)b->objList, 1, 1, p->scriptGroup);
+        r = gm_Query(b->objList, 1, 1, p->scriptGroup);
     else
-        r = gm_Query((void *)b->objList, 1, 0, 0xfd);
+        r = gm_Query(b->objList, 1, 0, 0xfd);
     if (q->id == 0xfd) {
         k = init_BuildingSceneUniverse(b);
         sprintf(gate2, "dummy_gate_ob_AUSSEN_RAUM");
@@ -5822,7 +5822,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
         b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b == 0)
             return 1;
-        q = gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
+        q = gm_Query(b->objList, 2, 6, 0, 0x12c);
         if (q == 0)
             return 1;
         if (ai_Time.year - q->cornerYear > 1) {
@@ -5839,7 +5839,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
         b = gm_BuildQuery(1, 1, m->script.bldId);
         if (b == 0)
             return 1;
-        q = gm_Query((void *)b->objList, 2, 6, 0, 0x12c);
+        q = gm_Query(b->objList, 2, 6, 0, 0x12c);
         if (q == 0)
             return 1;
         k = m->script.offer;
@@ -5879,7 +5879,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
         b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b == 0)
             return 1;
-        q = gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
+        q = gm_Query(b->objList, 2, 6, 0, 0x12d);
         if (q == 0)
             return 1;
         for (i = 0; i < 4; i++) {
@@ -5903,7 +5903,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
         b = gm_BuildQuery(1, 1, m->table.bldId);
         if (b == 0)
             return 1;
-        q = gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
+        q = gm_Query(b->objList, 2, 6, 0, 0x12d);
         if (q == 0)
             return 1;
         for (j = 0; j < 4; j++) {
@@ -5928,7 +5928,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
             if (ch != 0 && (char *)ch != (char *)ai_PlayerChar && ch->health != 0 && ch->kind != 0xf)
                 return 1;
         }
-        q = gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
+        q = gm_Query(b->objList, 2, 6, 0, 0x12d);
         if (q == 0)
             return 1;
         if (s != 0) {
@@ -6240,7 +6240,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
     b = gm_FindBuildingById(m->spy.bldId);
     if (b == 0)
         return 1;
-    q = gm_Query((void *)b->objList, 1, 0, 0xca);
+    q = gm_Query(b->objList, 1, 0, 0xca);
     while (q != 0) {
         if (((CMSPYREPORT *)q)->report.bld == a->id)
             goto found;

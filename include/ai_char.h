@@ -106,7 +106,7 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     int jobDays;                        /* 0x174, the days served in the current job: 0 when hired (cm_ExHire), a job change
                                            clears it (gm_SetJob), gm_TitlePeriodServed weighs it against the title period; ai.c 0x487b40 wants it >= 4 with a title
                                            (reasoned: rounds in the job) */
-    int inventory;                      /* 0x178, the character's goods inventory (a G8 object list of item ids,
+    struct AIOBJ *inventory;            /* 0x178, the character's goods inventory (a G8 object list of item ids,
                                            next at +0x3f): gm_Query finds a prototype kind in it, gm_SumSlotAmounts
                                            sums a need slot over it (am.c 0x4a5760) */
     AIJOB *job;                       /* 0x17c */

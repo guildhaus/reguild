@@ -213,7 +213,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rec[6];
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -251,7 +251,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rec[6];
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -277,7 +277,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
     gv_GetTableRecord(0xd, (int *)&rec);
     rate = rec.cur;
     b = (AIBLD *)gm_FirstBuilding(1);
-    gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+    gm_Query(b->objList, 2, 6, 0, 0x115);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
             break;
@@ -297,7 +297,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rate;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query(b->objList, 2, 6, 0, 0x115);
             if (gm_GetGoodsValue(&ai_Chars[id]) >= n)
                 cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[id].netId, ai_OwnPlayer, n);
         }
@@ -325,7 +325,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
     gv_GetTableRecord(0xc, (int *)&rec);
     rate = rec.cur;
     b = (AIBLD *)gm_FirstBuilding(1);
-    gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+    gm_Query(b->objList, 2, 6, 0, 0x115);
     id &= 0xffff;
     base = ai_Chars[id].v1a0 + ai_Chars[id].v1a4;
     x = (float)(rate * 0.01f);
@@ -345,7 +345,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
-            o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+            o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[id].netId, 0, n);
             gm_NetMsgCount++;
         }
@@ -549,7 +549,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
             b = (AIBLD *)gm_FirstBuilding(1);
             if (b == 0)
                 return 0;
-            if (gm_Query((void *)b->objList, 2, 6, 0, 0x115) == 0)
+            if (gm_Query(b->objList, 2, 6, 0, 0x115) == 0)
                 return 0;
             if (out->amount != 0) {
                 cm_SendMoveGoodsUnchecked(ai_Chars[id].netId, -1, 0, out->amount);
@@ -1282,7 +1282,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
         o = gm_BuildQuery(1, 1, a);
         if (o != 0) {
             if (b != -1) {
-                o2 = (unsigned short *)gm_Query((void *)o->objList, 1, 1, b);
+                o2 = (unsigned short *)gm_Query(o->objList, 1, 1, b);
                 if (o2 == 0)
                     return 0;
             }
@@ -2234,13 +2234,13 @@ AIOBJ *gm_HomeObject(AIBLD *bld)
 
     type = (char *)ai_BTypes + bld->type * 0x24d;
     if (*type == 1)
-        o = gm_Query((void *)bld->objList, 1, o, 0x12);
+        o = gm_Query(bld->objList, 1, o, 0x12);
     else if (*type == 2)
-        o = gm_Query((void *)bld->objList, 1, 0, 0x13);
+        o = gm_Query(bld->objList, 1, 0, 0x13);
     else if (*type == 0x1d)
-        o = gm_Query((void *)bld->objList, 1, 0, 0xfd);
+        o = gm_Query(bld->objList, 1, 0, 0xfd);
     else if (*type == 0x16)
-        o = gm_Query((void *)bld->objList, 1, 0, 0x120);
+        o = gm_Query(bld->objList, 1, 0, 0x120);
     return o;
 }
 /* 0x4fdcb0, the home of the character c: its own building bld2 with the object of gm_HomeObject (out3 = its id, -1 without) and out2 = the building id; without one the next building of ai_Blds (round-robin from gm_HomeSearchStart) of kind 3 / 0x16 / 0x0f. Returns the building, 0 when none */
@@ -2417,7 +2417,7 @@ void util_Randomize();                     /* 0x42ec80 */
 void gm_SyncMarket(unsigned p);
 int gm_GoodsDemand(int p, int i);
 int gm_GoodsStock(int p, int i);
-int gm_FreeList(int *list);
+int gm_FreeList(struct AIOBJ **list);
 int gm_ListBuildingsOfType(unsigned t, int *out);
 int gm_CharSumAmounts(struct AICHAR *c);
 unsigned gm_TreeNodeRank(int p);
@@ -2429,7 +2429,7 @@ int gm_FindById(int *bld, int *obj, int *chr, int id);
 int gm_GoodsStock(int p, int i);                   /* 0x4ff950 */
 int gm_GoodsDemand(int p, int i);                   /* 0x4ff8c0 */
 float gm_ItemPrice(int item, unsigned char n); /* 0x5087f0 */
-int gm_FreeList(int *list);                     /* 0x500140 */
+int gm_FreeList(struct AIOBJ **list);                     /* 0x500140 */
 void cm_SendGoodsDelta(struct GMSTOCK *p, unsigned char k);                     /* 0x4c5710 */
 int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f);                     /* 0x4c4880 */
 void cm_SendGoodsRecord(void *p, unsigned char k);                     /* 0x4c56d0 */
@@ -2449,7 +2449,7 @@ extern char gm_QueryFirst, gm_QueryScanAll, gm_QueryChildren, gm_QueryStopFirst;
 extern int gm_QueryScanned;
 extern AIOBJ *gm_QueryCursor;
 extern int gm_QueryDepth;
-extern int gm_QueryChildStack[20488];
+extern AIOBJ *gm_QueryChildStack[20488];
 int gm_FindMarketObject(int id);                     /* 0x500ec0 */
 int gm_FindPlayerBuilding(int p);                   /* 0x501000 */
 extern struct AIBLD *ai_MarketBuilding;                /* 0x6f1bc8, the market building (group 1, 5, 10) */
@@ -2515,7 +2515,7 @@ void sv_CreateBanners(struct AIBLD *b);                     /* 0x5282f0 */
 void ch_InflateModel();                     /* 0x402540 */
 int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);     /* 0x5a9430 */
-int gm_FreeList(int *list);                     /* 0x500140 */
+int gm_FreeList(struct AIOBJ **list);                     /* 0x500140 */
 int gm_TitlesLeft(int n);                     /* 0x504ce0 */
 float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */

@@ -151,7 +151,7 @@ extern struct AIGOOD *ai_Goods;         /* 0x91aaf0, the goods (0x41 bytes each,
 extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
 int gm_ListAmount(short *l, char *o);                                              /* 0x50aaf0 */
 int gm_ListStock(short *l, int item);                                             /* 0x50ab50 */
-int gm_RemoveObject(int *list, unsigned item);                                          /* 0x4ffff0 */
+int gm_RemoveObject(struct AIOBJ **list, unsigned item);                                          /* 0x4ffff0 */
 int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);                                            /* 0x503480 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                                           /* 0x5031b0 */
 /* 0x500190 */
@@ -399,7 +399,7 @@ void veg_LoadModel();  /* 0x4bc940 */
 void gm_SelectModelVariant(struct AICHAR *o);  /* 0x4fb5a0, f3gm.c: the model variant of the object o */
 int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
 int gm_FindObjectInst(int id);  /* 0x4fe980 */
-int gm_RemoveOwned(int *list, int id);  /* 0x5000c0, f3gm.h */
+int gm_RemoveOwned(struct AIOBJ **list, int id);  /* 0x5000c0, f3gm.h */
 extern int veg_NextId;  /* 0x6f0748 */
 extern AIBTYPE *ai_BTypes;  /* 0x7e3f30 */
 #ifndef DATA_VIEWS_H

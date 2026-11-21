@@ -917,10 +917,10 @@ int ai_ProductionWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     do {
         d2_SetForm(win, 2);
-        room = gm_Query((void *)bld->objList, 2, 6, 0, 0xff);
+        room = gm_Query(bld->objList, 2, 6, 0, 0xff);
         if (room == 0)
             return 0;
-        store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
         if (store == 0)
             return 0;
         if (d2_ClickedId != -1 && d2_ClickedForm == win) {
@@ -957,7 +957,7 @@ int ai_ProductionWindow(AIBLD *bld)
                     if (g->in[k] == 0)
                         break;
                     if (g->in[k] != 0xffff) {
-                        item = gm_Query((void *)store->list, 1, 0, g->in[k]);
+                        item = gm_Query(store->list, 1, 0, g->in[k]);
                         if (item == 0 || item->count < g->need[k])
                             ok = 0;
                     }
@@ -1021,7 +1021,7 @@ int ai_ProductionWindow(AIBLD *bld)
             }
         }
         /* the columns: each kind of goods in the room once */
-        item = gm_Query((void *)room->list, 1, 5);
+        item = gm_Query(room->list, 1, 5);
         if (item != 0) {
             do {
                 if (item->count > 1) {
@@ -1041,7 +1041,7 @@ int ai_ProductionWindow(AIBLD *bld)
                 col->in[k] = ai_Goods[col->good].in[k];
                 col->need[k] = ai_Goods[col->good].need[k];
                 if (col->in[k] != 0) {
-                    item = gm_Query((void *)store->list, 1, 0, col->in[k]);
+                    item = gm_Query(store->list, 1, 0, col->in[k]);
                     if (item == 0)
                         col->maxAmount = 0;
                     else
@@ -1049,7 +1049,7 @@ int ai_ProductionWindow(AIBLD *bld)
                 }
             }
             col->maxAmount = ai_Goods[col->good].batch * col->maxAmount;
-            item = gm_Query((void *)store->list, 1, 0, col->good);
+            item = gm_Query(store->list, 1, 0, col->good);
             if (item != 0)
                 col->stock = gm_ListAmount(store, item);
             else
@@ -1210,7 +1210,7 @@ void d2_SetPointerItem(int id, int amount); void d2_ClearPointerItems(void);
    fill fraction and its amount); then the amount text: without a picked input the texts 0xb8 / 0xba / 0xbb by
    mode, with one it highlights it and prints the batch (0xc1 / 0xc2 in the language's word order), the amount of
    the input a run takes (0xc3 / 0xc4) and what is missing (0xc5 / 0xc6). Removes the columns from ncols up to 16 */
-void ai_UpdateProdColumns(int win, int part, int ncols, int store, int mode)
+void ai_UpdateProdColumns(int win, int part, int ncols, AIOBJ *store, int mode)
 {
     AIBLD *bld;
     AIJOB *job;
@@ -1441,7 +1441,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
         ai_ProdRows[i].slots = rows[store->lvl1c][i];
     for (i = 0; i < 2; i++)
         ai_ProdRows2[i].slots = rows2[store->lvl1d][i];
-    for (item = gm_Query((void *)store->list, 1, 5); item != 0; item = gm_QueryNext()) {
+    for (item = gm_Query(store->list, 1, 5); item != 0; item = gm_QueryNext()) {
         if (value == 2 && ai_Goods[item->id].type == 0x17 ||
             value != 2 && (ai_Goods[item->id].type == 0x17 || ai_Goods[item->id].type == 0x25)) {
             for (i = 0; i < 16; i++)
@@ -1484,10 +1484,10 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
         }
     }
     for (i = 0; i < 16; i++)
-        if (gm_Query((void *)store->list, 1, 0, ai_ProdGoods[i].good) == 0)
+        if (gm_Query(store->list, 1, 0, ai_ProdGoods[i].good) == 0)
             ai_ProdGoods[i].good = 0;
     for (i = 0; i < 8; i++)
-        if (gm_Query((void *)store->list, 1, 0, ai_ProdGoods2[i].good) == 0)
+        if (gm_Query(store->list, 1, 0, ai_ProdGoods2[i].good) == 0)
             ai_ProdGoods2[i].good = 0;
     any = 0;
     for (i = 0; !any && i < 16; i++)
@@ -1501,7 +1501,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
         for (i = 0; i < 16; i++) {
             if (ai_ProdGoods[i].slider == -1 || ai_ProdGoods[i].slider != d2_PointerObj)
                 continue;
-            item = gm_Query((void *)store->list, 1, 0, ai_ProdGoods[i].good);
+            item = gm_Query(store->list, 1, 0, ai_ProdGoods[i].good);
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
@@ -1513,7 +1513,7 @@ int ai_UpdateProdGoodsList(AIBLD *bld, AIOBJ *store)
         for (i = 0; i < 8; i++) {
             if (ai_ProdGoods2[i].slider == -1 || ai_ProdGoods2[i].slider != d2_PointerObj)
                 continue;
-            item = gm_Query((void *)store->list, 1, 0, ai_ProdGoods2[i].good);
+            item = gm_Query(store->list, 1, 0, ai_ProdGoods2[i].good);
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
@@ -1644,7 +1644,7 @@ int ai_UpdateMarketGoodsList(AIOBJ *stall, AIOBJ *market)
 
     for (i = 0; i < 4; i++)
         ai_ProdRows[i].slots = rows[stall->lvl1c][i];
-    for (item = gm_Query((void *)market->list, 1, 5); item != 0; item = gm_QueryNext()) {
+    for (item = gm_Query(market->list, 1, 5); item != 0; item = gm_QueryNext()) {
         for (i = 0; i < 16; i++)
             if (ai_ProdGoods[i].good == item->id)
                 break;
@@ -1662,7 +1662,7 @@ int ai_UpdateMarketGoodsList(AIOBJ *stall, AIOBJ *market)
             ai_ProdGoods[i].amount = 0;
     }
     for (i = 0; i < 16; i++) {
-        item = gm_Query((void *)stall->list, 1, 0, ai_ProdGoods[i].good);
+        item = gm_Query(stall->list, 1, 0, ai_ProdGoods[i].good);
         if (item != 0) {
             ai_ProdGoods[i].amount = gm_ListAmount(stall, item);
             ai_ProdGoods[i].stock = gm_ListStock(stall, item->id);
@@ -1912,7 +1912,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
 
     for (i = 0; i < 4; i++)
         ai_ProdRows[i].slots = rows[store->lvl1c][i];
-    for (item = gm_Query((void *)store->list, 1, 5); item != 0; item = gm_QueryNext()) {
+    for (item = gm_Query(store->list, 1, 5); item != 0; item = gm_QueryNext()) {
         for (i = 0; i < 16; i++)
             if (ai_ProdGoods[i].good == item->id)
                 break;
@@ -1931,7 +1931,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
             ai_ProdGoods[i].amount = gm_ListAmount(store, item);
     }
     for (i = 0; i < 16; i++) {
-        item = gm_Query((void *)store->list, 1, 0, ai_ProdGoods[i].good);
+        item = gm_Query(store->list, 1, 0, ai_ProdGoods[i].good);
         if (item != 0) {
             if (store->id != 0x1db && store->id != 0x1dc) {
                 ai_ProdGoods[i].reserved = (unsigned)(gm_ListStock(store, item->id) * item->reserve) >> 2;
@@ -1951,7 +1951,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
         for (i = 0; i < 16; i++) {
             if (ai_ProdGoods[i].slider == -1 || ai_ProdGoods[i].slider != d2_PointerObj)
                 continue;
-            item = gm_Query((void *)store->list, 1, 0, ai_ProdGoods[i].good);
+            item = gm_Query(store->list, 1, 0, ai_ProdGoods[i].good);
             if (item == 0)
                 break;
             value = item->reserve >= 4 ? 0 : item->reserve + 1;
@@ -3066,7 +3066,7 @@ void ai_TradeContactChecks(void)
         if ((g->type == 6 || g->type == 2) &&
             (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)item, 0) &
              0x4000) != 0) {
-            room = gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+            room = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
             ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
             init_FinishBuildingScene(ai_FallbackBuilding, room);
@@ -3074,7 +3074,7 @@ void ai_TradeContactChecks(void)
         }
     }
     if (sv_QuickJump.panelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == ai_FallbackBuilding) {
-        room = gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+        room = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         if (sv_QuickJump.record != room) {
             ai_RunObjectRoom(sv_QuickJump.record);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
@@ -3086,7 +3086,7 @@ void ai_TradeContactChecks(void)
         }
     }
     if (sv_ClickedContact != 0 && ai_SelectedCount == 0) {
-        room = gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+        room = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         ai_RunObjectRoom((AIOBJ *)sv_ClickedContact);
         init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
         init_FinishBuildingScene(ai_FallbackBuilding, room);
@@ -3305,7 +3305,7 @@ void lc_PlayerInJail(void)
             err_Message("lc_PlayerInJail(): Could not find ob_DIEBESGILDE_GEFAENGNIS...");
             return;
         }
-        r = gm_Query((void *)it->objList, 1, 0, 0x65);
+        r = gm_Query(it->objList, 1, 0, 0x65);
         if (r == 0 || sv_PanelShown == r)
             return;
         sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
@@ -3316,7 +3316,7 @@ void lc_PlayerInJail(void)
         err_Message("lc_PlayerInJail(): Could not find a jail...");
         return;
     }
-    r = gm_Query((void *)it->objList, 1, 0, 0xba);
+    r = gm_Query(it->objList, 1, 0, 0xba);
     if (r == 0 || sv_PanelShown == r)
         return;
     sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
@@ -3369,9 +3369,9 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
         ai_CampaignStep(0x11, bld, 0, room);
     }
     me = &ai_Chars[ai_PlayerId];
-    rec = gm_Query((void *)b->objList, 1, 0, room);
+    rec = gm_Query(b->objList, 1, 0, room);
     if (rec == 0) {
-        rec = gm_Query((void *)b->objList, 1, 4, 2);
+        rec = gm_Query(b->objList, 1, 4, 2);
         if (rec == 0)
             return;
     }
@@ -3405,9 +3405,9 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                         continue;
                     good = &ai_Goods[i];
                     if (rec != 0)
-                        found = gm_Query((void *)rec->list, 1, 0, i);
+                        found = gm_Query(rec->list, 1, 0, i);
                     else
-                        found = gm_Query((void *)b->objList, 2, 6, 0, i);
+                        found = gm_Query(b->objList, 2, 6, 0, i);
                     if (found == 0) {
                         /* research it */
                         if (ai_Goods[i].type == 6) {
@@ -3618,13 +3618,13 @@ int ai_SearchResourceWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     do {
         d2_SetForm(win, 2);
-        room = gm_Query((void *)bld->objList, 2, 6, 0, 0xff);
+        room = gm_Query(bld->objList, 2, 6, 0, 0xff);
         if (room == 0)
             return 0;
-        store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
         if (store == 0)
             return 0;
-        res = gm_Query((void *)bld->objList, 1, 0, 0xfe);
+        res = gm_Query(bld->objList, 1, 0, 0xfe);
         if (res == 0)
             return 0;
         if (d2_ClickedId != -1 && d2_ClickedForm == win) {
@@ -3727,7 +3727,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
             }
         }
         /* the goods columns after the search column: each kind of goods in the room once */
-        item = gm_Query((void *)room->list, 1, 4, 0x17);
+        item = gm_Query(room->list, 1, 4, 0x17);
         if (item != 0) {
             do {
                 if (item->count > 1) {
@@ -3747,7 +3747,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                 col->in[k] = ai_Goods[col->good].in[k];
                 col->need[k] = ai_Goods[col->good].need[k];
                 if (col->in[k] != 0) {
-                    item = gm_Query((void *)store->list, 1, 0, col->in[k]);
+                    item = gm_Query(store->list, 1, 0, col->in[k]);
                     if (item == 0)
                         col->maxAmount = 0;
                     else
@@ -3755,7 +3755,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                 }
             }
             col->maxAmount = ai_Goods[col->good].batch * col->maxAmount;
-            item = gm_Query((void *)store->list, 1, 0, col->good);
+            item = gm_Query(store->list, 1, 0, col->good);
             if (item != 0)
                 col->stock = gm_ListAmount(store, item);
             else
@@ -3819,13 +3819,13 @@ int ai_ExtractResourceWindow(AIBLD *bld)
     d2_Objs[bar].font = 0x54;
     do {
         d2_SetForm(win, 2);
-        room = gm_Query((void *)bld->objList, 2, 6, 0, 0xff);
+        room = gm_Query(bld->objList, 2, 6, 0, 0xff);
         if (room == 0)
             return 0;
-        res = gm_Query((void *)bld->objList, 1, 0, 0xfe);
+        res = gm_Query(bld->objList, 1, 0, 0xfe);
         if (res == 0)
             return 0;
-        store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
         if (store == 0)
             return 0;
         if (d2_ClickedId != -1 && d2_ClickedForm == win) {
@@ -3898,7 +3898,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
             }
         }
         /* the columns: each kind of goods in the room once */
-        item = gm_Query((void *)room->list, 1, 4, 0x17);
+        item = gm_Query(room->list, 1, 4, 0x17);
         if (item != 0) {
             do {
                 if (item->count > 1) {
@@ -3913,12 +3913,12 @@ int ai_ExtractResourceWindow(AIBLD *bld)
             } while (item != 0);
         }
         for (c = 0; c < ncols; c++) {
-            item = gm_Query((void *)res->list, 1, 0, ai_ProdColumns[c].good);
+            item = gm_Query(res->list, 1, 0, ai_ProdColumns[c].good);
             if (item != 0)
                 ai_ProdColumns[c].maxAmount = item->count;
             else
                 ai_ProdColumns[c].maxAmount = 0;
-            item = gm_Query((void *)store->list, 1, 0, ai_ProdColumns[c].good);
+            item = gm_Query(store->list, 1, 0, ai_ProdColumns[c].good);
             if (item != 0)
                 ai_ProdColumns[c].stock = gm_ListAmount(store, item);
             else
@@ -3992,10 +3992,10 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
     d2_Objs[bar].font = 0x54;
     do {
         d2_SetForm(win, 2);
-        room = gm_Query((void *)bld->objList, 2, 6, 0, 0xff);
+        room = gm_Query(bld->objList, 2, 6, 0, 0xff);
         if (room == 0)
             return 0;
-        store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+        store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
         if (store == 0)
             return 0;
         if (d2_ClickedId != -1 && d2_ClickedForm == win) {
@@ -4047,7 +4047,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                             if (sv_MemberRows[i].selected != 0) {
                                 target = (short *)sv_PanelShown;
                                 if (target == 0)
-                                    target = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
+                                    target = (short *)gm_Query(bld->objList, 1, 0, 0xfd);
                                 sv_MoveToGroup(bld, (struct AIOBJ *)target, sv_MemberRows[i].chr, job);
                                 ai_Chars[sv_MemberRows[i].chr].selected = 0;
                             }
@@ -4091,7 +4091,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                 ok = 1;
                 for (k = 0; ok && k < 4; k++) {
                     if (g->in[k] != 0) {
-                        item = gm_Query((void *)room->list, 1, 0, g->in[k]);
+                        item = gm_Query(room->list, 1, 0, g->in[k]);
                         if (item == 0 || (item->count != 2 && bld->type != 0x1e))
                             ok = 0;
                     }
@@ -4112,7 +4112,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                 col->in[k] = ai_Goods[col->good].in[k];
                 col->need[k] = ai_Goods[col->good].need[k];
                 if (col->in[k] != 0) {
-                    item = gm_Query((void *)store->list, 1, 0, col->in[k]);
+                    item = gm_Query(store->list, 1, 0, col->in[k]);
                     if (item == 0)
                         col->maxAmount = 0;
                     else
@@ -4120,7 +4120,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                 }
             }
             col->maxAmount = ai_Goods[col->good].batch * col->maxAmount;
-            item = gm_Query((void *)store->list, 1, 0, col->good);
+            item = gm_Query(store->list, 1, 0, col->good);
             if (item != 0)
                 col->stock = gm_ListAmount(store, item);
             else
@@ -4707,7 +4707,7 @@ void ai_BriberyWindow(char *place, AIBLD *target)
     if (bld == 0)
         bld = ai_FallbackBuilding;
     if (bld != 0)
-        for (o = gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
+        for (o = gm_Query(bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
             if (o->reportBld != target->id)
                 reports[n++] = o;
     for (ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = he_NextEvent()) {
@@ -5140,7 +5140,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
     goods[0] = 0x1c4;
     goods[1] = 0x1c5;
     goods[2] = 0x1c6;
-    store = (int)gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+    store = (int)gm_Query(bld->objList, 2, 6, 0, 0x2a);
     type = &ai_BTypes[bld->type];
     if (type->kind == 0x20) {
         goods[0] = 0x2af;
@@ -5288,7 +5288,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
     goods[0] = 0x1c1;
     goods[1] = 0x1c2;
     goods[2] = 0x1c3;
-    store = (int)gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+    store = (int)gm_Query(bld->objList, 2, 6, 0, 0x2a);
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
     for (i = 0; i < 3; i++)
@@ -6924,7 +6924,7 @@ void ai_StammtischJoinWindow(AIBLD *bld, AIOBJ *table)
             if (mode == 0) {
                 mode = 3;
                 for (b = gm_BuildQuery(1, 0, 0x37); b != 0; b = gm_BuildNext()) {
-                    t = gm_Query((void *)b->objList, 2, 6, 0, 0x12d);
+                    t = gm_Query(b->objList, 2, 6, 0, 0x12d);
                     if (t != 0) {
                         for (i = 0; i < 4; i++) {
                             if (t->seats[i] == ai_Chars[ai_PlayerId].netId) {
@@ -7256,7 +7256,7 @@ void ai_DarkCornerTable(AIBLD *bld, AIOBJ *room)
 {
     AIOBJ *rec;
 
-    rec = gm_Query((void *)room->list, 1, 0, 300);
+    rec = gm_Query(room->list, 1, 0, 300);
     if (rec != 0) {
         if (bld->owner == ai_PlayerId) {
             ai_DarkCornerMenu(bld, room, rec);
@@ -7445,16 +7445,16 @@ void ai_CityInfoWindow(AIBLD *city, int unused)
             d2_SetBackgroundTexture(text, bg->id);
             bg->alpha = 0;
             start = d3_Time;
-            group1 = gm_Query((void *)city->objList, 2, 0, 0x1db, 6);
+            group1 = gm_Query(city->objList, 2, 0, 0x1db, 6);
             if (group1 == 0)
                 return;
-            group2 = gm_Query((void *)city->objList, 2, 0, 0x1dc, 6);
+            group2 = gm_Query(city->objList, 2, 0, 0x1dc, 6);
             if (group2 == 0)
                 return;
             d2_SetForm(win, 3);
             io_PrintText(0x1a12);
             n = 0;
-            for (item = gm_Query((void *)group1->list, 1, 5); item != 0; item = gm_QueryNext()) {
+            for (item = gm_Query(group1->list, 1, 5); item != 0; item = gm_QueryNext()) {
                 stock = (GMSTOCK *)gm_FindGoods(city->playerSlot, item->id);
                 if (stock != 0 && stock->amount != 0) {
                     ai_DrawGoodsCell(n % 4 * 0x3c + 0xe, n / 4 * 0x50 + 0x1e, d2_LastWindow, item->id, city->playerSlot);
@@ -7464,7 +7464,7 @@ void ai_CityInfoWindow(AIBLD *city, int unused)
             n = 0;
             d2_SetForm(win, 4);
             io_PrintText(0x1a13);
-            for (item = gm_Query((void *)group2->list, 1, 5); item != 0; item = gm_QueryNext()) {
+            for (item = gm_Query(group2->list, 1, 5); item != 0; item = gm_QueryNext()) {
                 stock = (GMSTOCK *)gm_FindGoods(city->playerSlot, item->id);
                 if (stock != 0 && stock->amount != 0) {
                     ai_DrawGoodsCell(n % 4 * 0x3c + 0xe, n / 4 * 0x50 + 0x1e, d2_LastWindow, item->id, city->playerSlot);
@@ -7641,7 +7641,7 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
     ai_PermsDirty = 1;
     if (sv_PanelForm != -1)
         d2_SetViewEnabled(sv_PanelForm, 0);
-    sv_PanelShown = gm_Query((void *)ai_MarketBuilding->objList, 1, 0, kind);
+    sv_PanelShown = gm_Query(ai_MarketBuilding->objList, 1, 0, kind);
     if (sv_PanelShown != 0) {
         ai_CampaignStep(0x17, sv_PanelShown, 0, kind);
         while (sv_PanelShown != 0) {
@@ -7748,7 +7748,7 @@ void ai_WineCellarWindow(void)
 
     win = d2_OpenForm(0, 0, "locations\\wohnsitz\\weinkeller");
     own = gm_GetGoodsValue(&ai_Chars[ai_PlayerId]);
-    cellar = gm_SumListMoney((void *)sv_PanelShown->list);
+    cellar = gm_SumListMoney(sv_PanelShown->list);
     d2_CentreViewWindows(win);
     d2_SetForm(win, 0);
     sv_FitForm(d2_LastWindow);
@@ -8154,7 +8154,7 @@ void ai_CreditReleaseWindow(AIBLD *bank)
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
     io_PrintText(0x18e5);
-    stock = gm_SumSlotAmounts((void *)bank->objList, ai_OwnPlayer);
+    stock = gm_SumSlotAmounts(bank->objList, ai_OwnPlayer);
     d2_SetForm(win, 2);
     text = io_PrintText(0x18e6, ai_PlayerSlots[ai_OwnPlayer].moneyGood * 2 + 0x9a8);
     interestCtl = d2_GetWinObj(win, 2, text);
@@ -8361,7 +8361,7 @@ void ai_SortExchangeRows(LCEXCHROW *rows)
    and the good's name ("%I %s"); with input, a picked amount goes to the pointer (d2_AddPointerItem) and turns
    the other rows off; when a row came or went the rows are sorted (ai_SortExchangeRows); returns the row whose
    amount was picked, else -1 */
-int ai_FillExchangeRows(int list, LCEXCHROW *rows, int view, int form, char input)
+int ai_FillExchangeRows(AIOBJ *list, LCEXCHROW *rows, int view, int form, char input)
 {
     char text[0x20];
     int sel;
@@ -8375,7 +8375,7 @@ int ai_FillExchangeRows(int list, LCEXCHROW *rows, int view, int form, char inpu
 
     sel = -1;
     changed = 0;
-    for (good = (unsigned short *)gm_Query((void *)list, 1, 4, 9); good != 0; good = (unsigned short *)gm_QueryNext()) {
+    for (good = (unsigned short *)gm_Query(list, 1, 4, 9); good != 0; good = (unsigned short *)gm_QueryNext()) {
         for (i = 0; i < 16; i++) {
             if (rows[i].good == *good)
                 break;
@@ -8412,7 +8412,7 @@ int ai_FillExchangeRows(int list, LCEXCHROW *rows, int view, int form, char inpu
             continue;
         value = d2_GetObjValue(rows[i].icon);
         rows[i].value = value;
-        obj = gm_Query((void *)list, 1, 0, rows[i].good);
+        obj = gm_Query(list, 1, 0, rows[i].good);
         if (obj != 0 && gm_CurrencyDivide(obj->count, rows[i].good) != 0) {
             amount = gm_CurrencyDivide(obj->count, rows[i].good);
             d2_SetObjValue(rows[i].icon, 0, amount, value);
@@ -8943,7 +8943,7 @@ void ai_MoneyExchangeWindow(AIBLD *bank)
     sv_ButtonRow(d2_LastWindow, 0, buttons, 2, txt_Ptrs[0x1906], txt_Ptrs[0x3fd6]);
     feesButton = buttons[0];
     exchangeButton = buttons[1];
-    if (gm_SumListMoney((void *)bank->objList) <= 0) {
+    if (gm_SumListMoney(bank->objList) <= 0) {
         d2_SetForm(win, 5);
         io_PrintText(0x190a, bank);
     }
@@ -9354,11 +9354,11 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
     else
         sb_PlaySample(snd_RoomBank, "FremdesGeschaeftBetreten_s", 1, 0x3f, 0x7f, 0, 0);
     strcpy(ch_StepSample, "normal_s");
-    gm_Query((void *)b->objList, 1, 0, b->mainRoom);
+    gm_Query(b->objList, 1, 0, b->mainRoom);
     snd_LoadBuildingVoices(b);
     do {
         sv_FrameBase = sv_FrameDepth + 1;
-        room = gm_Query((void *)b->objList, 1, 0, b->mainRoom);
+        room = gm_Query(b->objList, 1, 0, b->mainRoom);
         if (room != 0) {
             universe = init_ObjectUniverse[room->type];
             if (universe != -2) {
@@ -9635,9 +9635,9 @@ void ai_EnterOwnBuilding(AIBLD *b)
         ai_FallbackBuilding = b;
         evt_NoGroup = b->id;
         ch_CurrentGroup = b->id;
-        room = gm_Query((void *)b->objList, 2, 6, 0, 0xfd);
+        room = gm_Query(b->objList, 2, 6, 0, 0xfd);
         if (room == 0)
-            room = gm_Query((void *)b->objList, 2, 6, 4, 2);
+            room = gm_Query(b->objList, 2, 6, 4, 2);
         ch_CurrentScriptGroup = room->objId;
         d3if_SelectScene(universe, 0);
         d3_InflateScene(3);
@@ -9877,7 +9877,7 @@ void ai_RunObjectRoom(AIOBJ *room)
     ai_FallbackBuilding->mainRoom = 0xfd;
     evt_NoGroup = 0;
     ch_CurrentGroup = ai_FallbackBuilding->id;
-    home = gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
+    home = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
     ch_CurrentScriptGroup = home->objId;
     sv_FrameBase = sv_FrameDepth;
     sv_BorderViewY = borderY;
@@ -10070,7 +10070,7 @@ void ai_CitizenRightWindow(AIBLD *b)
 
     me = &ai_Chars[ai_PlayerId];
     worth = gm_GetGoodsValue(me);
-    cash = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+    cash = gm_Query(b->objList, 2, 6, 0, 0x115);
     bought = 0;
     if (worth < 16000) {
         char text[0x100];
@@ -10416,8 +10416,8 @@ void ai_GuildCashPayWindow(AIBLD *bld)
     payBtn = -1;
     text = 0;
     type = &ai_BTypes[bld->type];
-    box = gm_Query((void *)bld->objList, 2, 6, 0, 0x142);
-    amount = gm_SumListAmounts((void *)box->list, ai_OwnPlayer);
+    box = gm_Query(bld->objList, 2, 6, 0, 0x142);
+    amount = gm_SumListAmounts(box->list, ai_OwnPlayer);
     worth = gm_GetGoodsValue(&ai_Chars[ai_PlayerId]);
     if (type->kind == 0x17 && ai_Chars[ai_PlayerId].secondOffice == 0x1e)
         master = 1;
@@ -10924,7 +10924,7 @@ void ai_DonationWindow(AIBLD *bld)
     cancelBtn = giveBtn = slider = -1;
     if (bld == 0 || bld->owner == 0xffff || bld->owner == ai_PlayerId)
         return;
-    box = gm_Query((void *)bld->objList, 2, 6, 0, 0xe8);
+    box = gm_Query(bld->objList, 2, 6, 0, 0xe8);
     if (box == 0)
         return;
     total = (float)(max(gm_GetWorth(ai_PlayerId), 1) + max(gm_GetWorth(bld->owner), 1));
@@ -11422,7 +11422,7 @@ void ai_SermonWindow(AIBLD *bld)
     clearBtn = 0;
     if (bld == 0 || bld->owner == 0xffff || bld->owner != ai_PlayerId)
         return;
-    sermon = gm_Query((void *)bld->objList, 1, 0, 0x1b5);
+    sermon = gm_Query(bld->objList, 1, 0, 0x1b5);
     if (sermon == 0) {
         settings.sermon.text1 = -1;
         settings.sermon.text2 = -1;
@@ -11467,7 +11467,7 @@ void ai_SermonWindow(AIBLD *bld)
         if (d3_Time - lastTime > 100 && state != 3) {
             lastTime = d3_Time;
             changed = 1;
-            sermon = gm_Query((void *)bld->objList, 1, 0, 0x1b5);
+            sermon = gm_Query(bld->objList, 1, 0, 0x1b5);
             if (sermon != 0 && bld->owner == ai_PlayerId) {
                 if (sermon->sermon.enabled == 0) {
                     state = 0;
@@ -11560,7 +11560,7 @@ void ai_SermonWindow(AIBLD *bld)
                 cfg.filter = gypsyFilter;
                 txt_Format(title, 0x19a2);
                 priest = ai_AmountMenu(&cfg, title, 0, 0);
-                sermon = gm_Query((void *)bld->objList, 1, 0, 0x1b5);
+                sermon = gm_Query(bld->objList, 1, 0, 0x1b5);
                 if (priest != 0 && priest->netId != -1 && sermon != 0) {
                     text1 = util_Random(8);
                     text2 = util_Random(8);
@@ -11738,7 +11738,7 @@ void ai_DungeonPlanWindow(AIBLD *bld)
     int n = 0;
     int i;
 
-    room = gm_Query((void *)bld->objList, 1, 0, 0xba);
+    room = gm_Query(bld->objList, 1, 0, 0xba);
     if (room == 0)
         return;
     win = d2_OpenForm(0, 0, "locations\\kerker\\kerkerplan");
@@ -12025,7 +12025,7 @@ int ai_GuildSpyWindow(int ctx, AIBLD *target)
         bld = ai_FallbackBuilding;
     type = &ai_BTypes[ai_PlayerBuilding->type];
     if (bld != 0)
-        for (o = gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
+        for (o = gm_Query(bld->objList, 1, 0, 0xca); o != 0; o = gm_QueryNext())
             if (o->reportBld != target->id)
                 reports[n++] = o;
     for (ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x40); ev != 0; ev = he_NextEvent()) {
@@ -12167,7 +12167,7 @@ void ai_SpyReportsWindow(AIBLD *bld)
             d2_SetForm(win, 2);
             io_PrintText((intptr_t)"$C");
             n = 0;
-            for (o = gm_Query((void *)bld->objList, 1, 0, 0xca); o != 0 && n < 8;
+            for (o = gm_Query(bld->objList, 1, 0, 0xca); o != 0 && n < 8;
                  o = gm_QueryNext()) {
                 target = gm_BuildQuery(1, 1, o->reportBld);
                 if (target != 0 && target->owner != 0xffff)

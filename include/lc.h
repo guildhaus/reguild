@@ -58,7 +58,7 @@ void ai_CheckBuildSites(void);          /* 0x58fb60 */
 void ai_TradeContactChecks(void);       /* 0x5912c0, the pending trade / master checks every contact listener runs once per frame */
 /* The windows the building contacts open (defined far below their callers in the .c). */
 int ai_TransportWindow(struct AIBLD *bld, unsigned int mode);          /* 0x5af1d0, the transport window of a building (sv_UpdatePanel: mode 1) */
-void ai_StorageWindow(struct AIBLD *bld, int list);           /* 0x5b26b0, the store window */
+void ai_StorageWindow(struct AIBLD *bld, struct AIOBJ *list);           /* 0x5b26b0, the store window */
 int ai_ProductionGoodsWindow(struct AIBLD *bld);        /* 0x593150, the goods / production window a kontor contact opens */
 void ai_SpyReportsWindow(struct AIBLD *bld);           /* 0x5a45c0, the spy reports window "locations\diebesgilde\diebesgilde_informationen" of a guild building */
 void ai_GelageWindow(struct AIBLD *bld);                 /* 0x5b9f30, the "special\gelage" window of the kontor contacts */
@@ -414,7 +414,7 @@ int ai_CartAtBuilding(struct AIBLD *bld, struct AIOBJ *cart);  /* 0x5ae8e0, whet
 unsigned short ai_DomizilGoodInRange(int from, int to);  /* 0x5a9f10, a Domizil entry whose rank lies in from .. to */
 
 /* the unit's own contact listeners and window openers (defined in lc.c after their callers) */
-void ai_UpdateProdColumns(int win, int part, int ncols, int store, int mode);  /* 0x58cc10 */
+void ai_UpdateProdColumns(int win, int part, int ncols, struct AIOBJ *store, int mode);  /* 0x58cc10 */
 int ai_UpdateProdGoodsList(struct AIBLD *bld, struct AIOBJ *store);  /* 0x58d720 */
 void ai_MarketStandListener(struct AIBLD *market);  /* 0x59a800 */
 void ai_EnterBuilding(struct AIBLD *b, int mainRoom);  /* 0x59e420 */

@@ -53,7 +53,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
     };
     char level;                         /* 0x5c, the building's level 0 .. 100 (renovation below a rolled
                                            threshold, 100 - level in the renovation message, am.c) */
-    int objList;                        /* 0x5d, head of the building's object-instance list (gm_Query 0x4ffe90,
+    struct AIOBJ *objList;              /* 0x5d, head of the building's object-instance list (gm_Query 0x4ffe90,
                                            released with gm_RemoveObject) */
     struct D3OBJECT *object;            /* 0x61, its 3D object in the scene */
     union {

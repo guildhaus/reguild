@@ -103,7 +103,7 @@ struct AICHAR; void gm_ForfeitEstate(struct AICHAR *c, char *out, int flag);  /*
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8);  /* 0x507690 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);  /* 0x50a050 */
 int gm_ListObjectsAfter(struct AIBLD *b, struct AIOBJ *proto, int *out);  /* 0x508cc0, counts (and with out lists) the objects b lists after proto */
-int gm_RemoveOwned(int *list, int id);  /* 0x5000c0 */
+int gm_RemoveOwned(struct AIOBJ **list, int id);  /* 0x5000c0 */
 void gm_SelectModelVariant(struct AICHAR *o);  /* 0x4fb5a0 */
 void gm_SetJob(int i, unsigned n);  /* 0x504790 */
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
@@ -178,7 +178,7 @@ int gm_ListAmount(short *l, char *o);  /* 0x50aaf0 */
 extern struct AIOBJ *ai_Objects;  /* 0x7e3f34 */
 extern int ai_GameFlags;  /* 0x6f23f8 */
 extern struct AIGOOD *ai_Goods;  /* 0x91aaf0 */
-int gm_RemoveObject(int *list, unsigned id);  /* 0x4ffff0 */
+int gm_RemoveObject(struct AIOBJ **list, unsigned id);  /* 0x4ffff0 */
 void gm_KillSpieler(int c, int mode);  /* 0x503c60 */
 extern struct AIBLD *ai_Blds;  /* 0x889f74 */
 extern int ai_Difficulty;  /* 0x6f23fc */

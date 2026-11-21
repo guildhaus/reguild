@@ -233,7 +233,7 @@ int sv_CheckGoodAmount(AICHAR *o, int n, unsigned char t)
 }
 /* 0x5210a0, sv_CheckStock: checks that the stock list holds at least n of the good record p (its prototype word; 0x508660) and shows a message box with the text by the prototype (0x142 / 0x115, the two money seats, pick 0x76 / 0x77, else 0x75); flag 4 auto-closes the box. 1 when the stock covers n, 0 after the box */
 
-int sv_CheckStock(short *p, int stock, int n, unsigned char t)
+int sv_CheckStock(short *p, AIOBJ *stock, int n, unsigned char t)
 {
     int v;
     char buf[0x200];
@@ -1009,7 +1009,7 @@ loaded:
                 continue;
             cnt = 0;
             if (bt->kind == 2) {
-                for (obj = gm_Query((void *)b->objList, 1, 4, 2); obj != 0; obj = gm_QueryNext())
+                for (obj = gm_Query(b->objList, 1, 4, 2); obj != 0; obj = gm_QueryNext())
                     if (obj->type != 0xfd) {
                         if (cnt == i)
                             break;
@@ -1024,7 +1024,7 @@ loaded:
                     id = bt->slot[slot] & 0x7fff;
                     if ((g->type == 2 || g->type == 6) && id != 0xfd) {
                         if (cnt == i) {
-                            obj = gm_Query((void *)b->objList, 1, 0, id);
+                            obj = gm_Query(b->objList, 1, 0, id);
                             break;
                         }
                         cnt++;
@@ -1104,7 +1104,7 @@ void sv_UpdateGroundplan(unsigned flags)
                         bt = &ai_BTypes[b->type];
                         cnt = 0;
                         if (bt->kind == 2) {
-                            for (obj = gm_Query((void *)b->objList, 1, 4, 2); obj != 0; obj = gm_QueryNext())
+                            for (obj = gm_Query(b->objList, 1, 4, 2); obj != 0; obj = gm_QueryNext())
                                 if (obj->id != 0xfd) {
                                     if (cnt == i)
                                         break;
@@ -1118,7 +1118,7 @@ void sv_UpdateGroundplan(unsigned flags)
                                 id = bt->slot[slot] & 0x7fff;
                                 if ((g->type == 2 || g->type == 6) && id != 0xfd) {
                                     if (cnt == i) {
-                                        obj = gm_Query((void *)b->objList, 1, 0, id);
+                                        obj = gm_Query(b->objList, 1, 0, id);
                                         break;
                                     }
                                     cnt++;
@@ -1145,7 +1145,7 @@ void sv_UpdateGroundplan(unsigned flags)
                             id = bt->slot[slot] & 0x7fff;
                             if ((g->type == 2 || g->type == 6) && id != 0xfd) {
                                 if (cnt == i) {
-                                    obj = gm_Query((void *)b->objList, 1, 0, id);
+                                    obj = gm_Query(b->objList, 1, 0, id);
                                     break;
                                 }
                                 cnt++;
@@ -1359,7 +1359,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
                 who = ai_FallbackBuilding->playerSlot;
             else
                 who = ai_OwnPlayer;
-            n = gm_SumSlotAmounts((void *)ai_Chars[ai_PlayerId].inventory, who) + sv_PendingMoney;
+            n = gm_SumSlotAmounts(ai_Chars[ai_PlayerId].inventory, who) + sv_PendingMoney;
         } else {
             n = gm_SumListMoney(gm_PlayerSeat(sv_ResearchClass)->list) + sv_PendingMoney;
             who = ai_OwnPlayer;
@@ -3901,10 +3901,10 @@ void sv_RefreshPanel(void)
     d2_RemoveWindowObjects(d2_LastWindow, 1);
     if (SV_SELCART->job24 != 0 && (bld = gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
         io_PrintText((intptr_t)"$Y$Z%s", bld->type * 0xe + 0x48e);
-    load = gm_Query((void *)SV_SELCART->list, 1, 0, 0x1dd);
+    load = gm_Query(SV_SELCART->list, 1, 0, 0x1dd);
     if (load == 0)
         return;
-    goods = gm_Query((void *)load->list, 1, 5);
+    goods = gm_Query(load->list, 1, 5);
     if (goods == 0)
         return;
     q = sv_PanelWidgets;
@@ -4341,7 +4341,7 @@ void sv_ResetSelection(void)
     if (b == 0)
         return;
     sv_OtherSelected = 0;
-    o = gm_Query((void *)b->objList, 1, 5);
+    o = gm_Query(b->objList, 1, 5);
     while (o != 0) {
         if (ai_Goods[o->id].type == 0x1d)
             o->flags20 &= ~2u;
@@ -4799,7 +4799,7 @@ void sv_SendSelectedToBuilding(void)
                             }
                         }
                     } else {
-                        room = gm_Query((void *)cur->objList, 1, 0, 0x146);
+                        room = gm_Query(cur->objList, 1, 0, 0x146);
                         for (k = 0; k < 4; k++) {
                             if (job->members[k] == c->netId) {
                                 job->members[k] = -1;
@@ -4827,7 +4827,7 @@ void sv_SendSelectedToBuilding(void)
                 if (n > 3)
                     done = 1;
             } else {
-                room = gm_Query((void *)cur->objList, 1, 0, 0x146);
+                room = gm_Query(cur->objList, 1, 0, 0x146);
                 for (k = 0; k < 4; k++) {
                     if (job->members[k] == c->netId) {
                         job->members[k] = -1;
@@ -5351,9 +5351,9 @@ void sv_DrawGateName(D3OBJECT *part)
         return;
     strcpy(name, part->name + 0x10);
     if (ai_FallbackBuilding != 0)
-        it = gm_Query((void *)b->objList, 1, 4, 6);
+        it = gm_Query(b->objList, 1, 4, 6);
     else
-        it = gm_Query((void *)b->objList, 1, 4, 2);
+        it = gm_Query(b->objList, 1, 4, 2);
     for (; it != 0; it = gm_QueryNext()) {
         g = &ai_Goods[it->type];
         if (strcmpi(name, g->name) == 0) {
@@ -5363,7 +5363,7 @@ void sv_DrawGateName(D3OBJECT *part)
     }
     if (ai_FallbackBuilding == 0)
         return;
-    obj = gm_Query((void *)b->objList, 1, 0, 0xfd);
+    obj = gm_Query(b->objList, 1, 0, 0xfd);
 found:
     if (obj == 0)
         return;
@@ -5410,7 +5410,8 @@ void sv_DrawNamePlates(void)
 
 void sv_DrawItemNames(void)
 {
-    int list, x, y;
+    AIOBJ *list;
+    int x, y;
     AIGOOD *g;
     AIOBJ *q;
     D3RECT box;
@@ -5420,14 +5421,14 @@ void sv_DrawItemNames(void)
     } else {
         if (ai_FallbackBuilding == 0)
             return;
-        q = gm_Query((void *)ai_FallbackBuilding->objList, 1, 0, 0xfd);
+        q = gm_Query(ai_FallbackBuilding->objList, 1, 0, 0xfd);
         if (q != 0)
             list = q->list;
         else
             list = ai_FallbackBuilding->objList;
     }
     d2_SetFont(0x54);
-    for (q = gm_Query((void *)list, 1, 5); q != 0; q = gm_QueryNext()) {
+    for (q = gm_Query(list, 1, 5); q != 0; q = gm_QueryNext()) {
         g = &ai_Goods[q->id];
         if (q->obj != 0 && g->type != 6 && g->type != 2 && d3if_ScreenBox(q->obj, &box) != 0) {
             y = box.top;
@@ -5440,7 +5441,7 @@ void sv_DrawItemNames(void)
         list = sv_PanelShown->list;
     else if (ai_FallbackBuilding != 0)
         list = ai_FallbackBuilding->objList;
-    for (q = gm_Query((void *)list, 2, 5, 6); q != 0; q = gm_QueryNext()) {
+    for (q = gm_Query(list, 2, 5, 6); q != 0; q = gm_QueryNext()) {
         g = &ai_Goods[q->id];
         if (q->obj != 0 && (g->type == 6 || g->type == 2) && d3if_ScreenBox(q->obj, &box) != 0) {
             y = box.top;

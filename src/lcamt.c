@@ -10484,10 +10484,10 @@ int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use)
             return 0;
     }
     owner = &ai_Chars[bld->owner];
-    store = gm_Query((void *)bld->objList, 2, 6, 0, 0x2a);
+    store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
     if (store != 0) {
-        gm_Query((void *)store->list, 1, 5);
-        for (item = gm_Query((void *)store->list, 1, 5); item != 0; item = gm_QueryNext()) {
+        gm_Query(store->list, 1, 5);
+        for (item = gm_Query(store->list, 1, 5); item != 0; item = gm_QueryNext()) {
             if (item->count > 1) {
                 n = (int)((util_RandomF() * 0.2f + 0.1f) * item->count) < 1
                         ? 1

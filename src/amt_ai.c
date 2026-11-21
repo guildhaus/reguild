@@ -677,7 +677,8 @@ int ai_FindGoodToMake(int *item, int *obj, AIBLD *b, int f)
 {
     AIBTYPE *t;
     AIOBJ *o, *cart;
-    int list, n, i, found;
+    AIOBJ *list;
+    int n, i, found;
     AIGOOD *g;
 
     list = b->objList;
@@ -751,7 +752,7 @@ void ai_FindWantedItems(AICHAR *p, int n, G9REC *rec, int *st)
     st[1] = 0;
     st[2] = 0;
     st[0] = 0;
-    for (e = (AIOBJ *)p->inventory; e != 0; e = e->next) {
+    for (e = p->inventory; e != 0; e = e->next) {
         if (ai_Goods[e->id].type == 9)
             continue;
         st[0]++;

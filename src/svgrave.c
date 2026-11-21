@@ -1713,7 +1713,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     int x;
 
     kinds[2] = 0x227;
-    res = (char *)gm_Query((void *)rec->objList, 2, 6, 0, 0x2a);
+    res = (char *)gm_Query(rec->objList, 2, 6, 0, 0x2a);
     type = &ai_BTypes[rec->type];
     if (type->kind == 0x1f) {
         kinds[0] = 0x293;
@@ -2947,7 +2947,7 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel)
 
     txt_Format(line, 0x413a, ch->id);
     if (sv_MessageBox((intptr_t)line, 1) != 0) {
-        obj = gm_Query((void *)rec->objList, 1, 0, 0x211);
+        obj = gm_Query(rec->objList, 1, 0, 0x211);
         memset(&msg, 0, sizeof(msg));
         msg.type = 0x8f;
         msg.flags = 1;
