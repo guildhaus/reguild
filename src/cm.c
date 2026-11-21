@@ -3667,7 +3667,7 @@ int cm_ExLongMessage(G17MSG *m, G17STAT *s)
     }
     if (msg.type == 0x11 && he_IsMessageKindFiltered(msg.arg[0]) != 0)
         return 0;
-    ev = (AIJOB *)he_CreateEvent((unsigned char *)&msg);
+    ev = he_CreateEvent(&msg);
     if (ev == 0)
         return 1;
     if (ev->kind == 0x11) {

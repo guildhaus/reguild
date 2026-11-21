@@ -4,6 +4,7 @@
 
 struct D3OBJECT;
 struct AIJOB;
+struct AIMSG;
 struct AICHAR;
 struct AIBLD;
 struct AIOBJ;
@@ -70,7 +71,7 @@ extern char he_OptionsPath[256];         /* 0x6fa0e0, the options INI path he_Lo
 int he_ShowNews(int pid, int from, char *text, int tflags, int news, char *text2);
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 
-unsigned char * he_CreateEvent(unsigned char *m);
+struct AIJOB *he_CreateEvent(struct AIMSG *msg);
 void he_FreeEvent(struct AIJOB *r);
 struct AIJOB *he_NextEvent(void);
 struct AIJOB *he_FindEvent(int n, ...);

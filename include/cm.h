@@ -131,7 +131,7 @@ extern signed char ai_Relations[0x300][0x300];  /* 0x7e5360, relations between t
 extern signed char ai_RelationMemory[0x300][0x300];  /* 0x889f80 */
 extern int ai_NextEventId;                /* 0x6f2618 */
 int he_IsMessageKindFiltered(int id);                                                        /* 0x575640 */
-unsigned char * he_CreateEvent(unsigned char *m);                                                   /* 0x53e040, AIMSG * */
+struct AIJOB *he_CreateEvent(struct AIMSG *msg);                                                   /* 0x53e040, AIMSG * */
 struct AIJOB *he_FindEvent(int n, ...);                                                  /* 0x53e400, ai.h: AIJOB * */
 extern int ai_NextObjectId;                /* 0x61a654 */
 unsigned char * gm_CreateBuilding(unsigned char kind, unsigned short owner);                    /* 0x501580 */

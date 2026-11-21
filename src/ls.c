@@ -1047,7 +1047,7 @@ int ls_WriteEventTables(int f)
   for (i = 0; i < 0x100; i++) {
     if (gm_CarryRecs[i].ref == 0)
       continue;
-    LS_W(&((AIJOB *)gm_CarryRecs[i].ref)->id, 4)
+    LS_W(&gm_CarryRecs[i].ref->id, 4)
     LS_W(&gm_CarryRecs[i].ttl, 1)
     LS_W(&gm_CarryRecs[i].hasValue, 4)
     LS_W(&gm_CarryRecs[i].owner, 4)
@@ -2242,7 +2242,7 @@ int ls_ReadEventTables(int f)
     LS_R(&n, 4)
     for (i = 0; i < n; i++) {
             gm_CarryRecs[i].ref = 0;
-            LS_R(&gm_CarryRecs[i].ref, 4)
+            LS_R(&gm_CarryRecs[i].refId, 4)
             LS_R(&gm_CarryRecs[i].ttl, 1)
             LS_R(&gm_CarryRecs[i].hasValue, 4)
             LS_R(&gm_CarryRecs[i].owner, 4)
@@ -2506,7 +2506,7 @@ int ls_FixupAfterLoad(void)
     d3if_SelectScene(saved, 0);
     for (i = 0; i < 0x100; i++) {
         if (gm_CarryRecs[i].ref != 0)
-            gm_CarryRecs[i].ref = (int)he_FindEvent(1, 1, gm_CarryRecs[i].ref);
+            gm_CarryRecs[i].ref = he_FindEvent(1, 1, gm_CarryRecs[i].refId);
     }
     for (i = 0; i < 0x8000; i++) {
         if (cm_SendStates[i].value != 0) {

@@ -80,7 +80,7 @@ extern struct AICHAR *gm_RichestChar;
 #pragma pack(push, 1)
 /* an entry of gm_CollectCarried's list (0x1e bytes) */
 typedef struct GMCARRYENTRY {
-    int ref;                            /* 0x00, the record's ref */
+    struct AIJOB *ref;                  /* 0x00, the record's event */
     GMCARRYREC *rec;                    /* 0x04, the record */
     char *data;                         /* 0x08, the record's data */
     int value;                          /* 0x0c, the record's value when it has one */

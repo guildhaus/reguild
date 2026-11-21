@@ -1629,9 +1629,8 @@ void err_Message(char *text);
    words, the time, the flags, the ids and the arguments 0x58.. to 0xac..), lists it in he_QuickList when it is
    shown in the event bar (flags 8, he_QuickTop), calls the alloc handler and counts it (he_EventCount); 0 when it
    cannot */
-unsigned char *he_CreateEvent(unsigned char *m)
+AIJOB *he_CreateEvent(AIMSG *msg)
 {
-    AIMSG *msg = (AIMSG *)m;
     AICHAR *ch = 0;
     AIJOB *ev;
     int i, j, k;
@@ -1682,7 +1681,7 @@ unsigned char *he_CreateEvent(unsigned char *m)
     memcpy(&ev->u.id, msg->arg, 0xa0);  /* the arguments 0x58..0xf8 */
     he_AllocHandlers[msg->type](ev);
     he_EventCount++;
-    return (unsigned char *)ev;
+    return ev;
 }
 /* 0x53e1f0, frees the event record `ev`: its message box text (+0x7c), its entry in he_QuickList when it is shown in the
    event bar (flags 8: releases its slot first, shrinks he_QuickTop), counts it off (he_EventCount), clears it and,
