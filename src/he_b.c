@@ -1130,7 +1130,7 @@ int sprintf(char *buf, const char *fmt, ...);
 void mem_Free(void *p);
 void err_Message(char *text);
 int rd_PointsNear();
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 void ai_ShowTributeDelayedNews(struct AICHAR *param_1);
 void ai_ShowTributeCollectNews(struct AICHAR *param_1);
 void ai_ShowTributeClaimNews(struct AICHAR *param_1, struct AICHAR *param_2);
@@ -1215,7 +1215,7 @@ int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 int sv_IsCartAtDoor();
 int init_BuildingSceneUniverse();
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 int sv_IsAtDoor();
 int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
 int ai_BrawlWin();
@@ -1361,7 +1361,7 @@ void he_AllocIncomeEvent(int ev)
     b = gm_FindBuildingById(e->incomeBld);
     for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
         if (rec->job == e)
-            sv_MoveToGroup(b, 0, rec->id, (char *)ev);
+            sv_MoveToGroup(b, 0, rec->id, e);
     }
     gm_AddTime(&e->end, 0, 0, 1);
 }
@@ -1521,7 +1521,7 @@ void he_AllocProduktion(AIJOB *ev)
     p->staff = 1.0f;
 }
 
-void sv_CountGroupMembers(char *g);
+void sv_CountGroupMembers(struct AIJOB *g);
 int he_HasEvent9f(AICHAR *a);
 
 
@@ -1717,7 +1717,7 @@ wait:
                 if (he_HasEvent9f(&ai_Chars[bld->owner]))
                     p->staff = p->staff * 0.9f;
             }
-            sv_CountGroupMembers((char *)ev);
+            sv_CountGroupMembers(ev);
             p->rate = (gm_MeanLiking(bld->owner, 8, ev->ids) - 0.5) * 0.25;
             p->counter = 0;
         }
@@ -4455,7 +4455,7 @@ void he_RunHaunting(int ev)
         return;
     }
     if (e->stage == -1 || e->stage == -2) {
-        sv_MoveToGroup(0, 0, haunter->id, (char *)ev);
+        sv_MoveToGroup(0, 0, haunter->id, e);
         he_FreeEvent((int *)ev);
         return;
     }
@@ -4468,7 +4468,7 @@ void he_RunHaunting(int ev)
     case 0:
         if (cm_GetSlotState(e->exSlot) == 0)
             return;
-        sv_MoveToGroup(0, 0, haunter->id, (char *)ev);
+        sv_MoveToGroup(0, 0, haunter->id, e);
         bld = gm_BuildQuery(1, 1, h->home);
         if (bld == 0) {
             e->end = ai_Time;
@@ -4620,7 +4620,7 @@ void he_RunDecay(int ev)
     }
     switch (e->stage) {
     case 0:
-        sv_MoveToGroup(0, 0, agent->id, (char *)ev);
+        sv_MoveToGroup(0, 0, agent->id, e);
         e->exSlot = -1;
         e->stage++;
         return;
@@ -4771,7 +4771,7 @@ void he_RunPlunder(int ev)
     }
     switch (e->stage) {
     case 0:
-        sv_MoveToGroup(0, 0, agent->id, (char *)ev);
+        sv_MoveToGroup(0, 0, agent->id, e);
         e->stage++;
         e->exSlot = -1;
         return;
@@ -4950,7 +4950,7 @@ int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned 
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */
-int sv_UsedGroupSlots();                 /* 0x5241b0 */
+int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 
@@ -4983,7 +4983,7 @@ void he_AllocMasterWork(int ev)
         w = gm_FindChar(e->ids[i]);
         if (w != 0) {
             n++;
-            sv_MoveToGroup(bld, (struct AIOBJ *)grp, w->id, (char *)ev);
+            sv_MoveToGroup(bld, (struct AIOBJ *)grp, w->id, e);
         }
     }
     if (n == 0) {
@@ -5096,7 +5096,7 @@ void he_RunMasterWork(int ev)
     n = (int)p->made;
     if (n <= 1)
         n = 1;
-    if (e->stage == -1 && sv_UsedGroupSlots(ev) <= 0)
+    if (e->stage == -1 && sv_UsedGroupSlots(e) <= 0)
         n = -1;
     if (bld != 0 && store != 0 && n > 0) {
         master = gm_FindCharacterByMaster(bld);
@@ -5154,7 +5154,7 @@ void he_AllocGraveCare(int ev)
         bld = gm_FindBuildingById(e->from);
         if (bld != 0) {
             grp = gm_Query((void *)bld->objList, 1, 0, 0xfd);
-            sv_MoveToGroup(bld, grp, per->id, (char *)ev);
+            sv_MoveToGroup(bld, grp, per->id, e);
             p->care = 0.0f;
             p->left = 0x1fe;
             p->since = ai_Time;
@@ -5202,7 +5202,7 @@ void he_RunGraveCare(int ev)
     }
     w = gm_FindChar(e->ids[0]);
     if (w != 0)
-        sv_MoveToGroup(0, 0, w->id, (char *)ev);
+        sv_MoveToGroup(0, 0, w->id, e);
     else
         e->stage = -1;
     bld = gm_BuildQuery(1, 1, e->from);
@@ -5310,9 +5310,9 @@ void he_AllocGraveTraining(int ev)
         e->end = ai_Time;
         e->start = ai_Time;
         if (grp != 0)
-            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, (char *)ev);
+            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, e);
         else
-            sv_MoveToGroup(bld, 0, per->id, (char *)ev);
+            sv_MoveToGroup(bld, 0, per->id, e);
         e->clock60 = ai_Time;
         gm_AddTime(&e->end, 0, 0x1e, 0);
         p->until = e->end;
@@ -6865,7 +6865,7 @@ void he_CircusShowPayout(int ev)
     he_ShowNews(per->netId, -1, text2, 0, 0x5ff, 0);
 }
 
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g); /* 0x524260, the group register */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g); /* 0x524260, the group register */
 int sv_IsAtDoor();                 /* 0x524770 */
 void he_CircusShowIncome(int ev, int n);   /* 0x575030 */
 
@@ -6923,7 +6923,7 @@ void he_RunCircusShow(int ev)
         m->bld = bld->id;
         for (i = 0; i < n; i++) {
             p = pers[i];
-            sv_MoveToGroup(0, 0, p->id, (char *)ev);
+            sv_MoveToGroup(0, 0, p->id, e);
             cm_SendChrStop(p->netId);
             cm_SendChrGotoBuilding(p->netId, bld->id, place, 0, viaRoom, "Bettler");
         }

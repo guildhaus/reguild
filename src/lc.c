@@ -996,7 +996,7 @@ int ai_ProductionWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, job);
                         ai_Chars[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -3702,7 +3702,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, job);
                         ai_Chars[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -3873,7 +3873,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
                     if (sv_MemberRows[i].chr == 0xffff)
                         break;
                     if (sv_MemberRows[i].selected != 0) {
-                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, (char *)job);
+                        sv_MoveToGroup(bld, sv_PanelShown, sv_MemberRows[i].chr, job);
                         ai_Chars[sv_MemberRows[i].chr].selected = 0;
                     }
                 }
@@ -4048,7 +4048,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                                 target = (short *)sv_PanelShown;
                                 if (target == 0)
                                     target = (short *)gm_Query((void *)bld->objList, 1, 0, 0xfd);
-                                sv_MoveToGroup(bld, (struct AIOBJ *)target, sv_MemberRows[i].chr, (char *)job);
+                                sv_MoveToGroup(bld, (struct AIOBJ *)target, sv_MemberRows[i].chr, job);
                                 ai_Chars[sv_MemberRows[i].chr].selected = 0;
                             }
                         }
@@ -4534,7 +4534,7 @@ int ai_PickpocketWindow(char *place, AIBLD *target)
                 sv_PopRequest = 2;
                 for (ch = ai_SceneChars; (int)ch < (int)&ai_SceneChars[32]; ch++)
                     if (*ch != 0 && ((AICHAR *)*ch)->selected != 0)
-                        sv_MoveToGroup(0, 0, ((AICHAR *)*ch)->id, (char *)ev);
+                        sv_MoveToGroup(0, 0, ((AICHAR *)*ch)->id, ev);
             }
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
@@ -12286,7 +12286,7 @@ int ai_AttackWindow(int ctx, AIBLD *target)
                 for (pp = ai_SceneChars; (int)pp < (int)&ai_SceneChars[32]; pp++) {
                     ch = (AICHAR *)*pp;
                     if (ch != 0 && ch->selected != 0)
-                        sv_MoveToGroup(0, 0, ch->id, (char *)ev);
+                        sv_MoveToGroup(0, 0, ch->id, ev);
                 }
             }
         } else if (d2_PointerObj == cancel)

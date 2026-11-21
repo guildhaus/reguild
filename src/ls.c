@@ -2501,7 +2501,7 @@ int ls_FixupAfterLoad(void)
         } else if (j->kind == 0x76) {
             j->effectObj = 0;
         } else if (j->kind == 0x14) {
-            sv_CountGroupMembers((char *)j);
+            sv_CountGroupMembers(j);
             j->groupSize = (unsigned char)(j->rank1Count + j->rank2Count);
         }
     }

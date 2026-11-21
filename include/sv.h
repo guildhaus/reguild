@@ -57,11 +57,11 @@ void sv_UpdateGroundplan(unsigned flags);                                      /
 void sv_SetResearchClass(struct AIBLD *o);                             /* 0x522ec0 */
 void sv_UpdateCityPanel(unsigned char a, int b);                              /* 0x522f10 */
 void sv_RedrawScreen(void);                                             /* 0x524010 */
-void sv_AddGroupMember(int c, char *g);                                      /* 0x524100 */
-void sv_RemoveGroupMember(int c, char *g);                              /* 0x524160 */
-int sv_UsedGroupSlots(char *g);                                         /* 0x5241b0 */
-void sv_CountGroupMembers(char *g);                                     /* 0x5241d0 */
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);       /* 0x524260 */
+struct AIJOB; void sv_AddGroupMember(int c, struct AIJOB *g);                                      /* 0x524100 */
+void sv_RemoveGroupMember(int c, struct AIJOB *g);                              /* 0x524160 */
+int sv_UsedGroupSlots(struct AIJOB *g);                                         /* 0x5241b0 */
+void sv_CountGroupMembers(struct AIJOB *g);                                     /* 0x5241d0 */
+void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);       /* 0x524260 */
 int sv_IsAtDoor(struct AICHAR *g, struct AIBLD *o);                                     /* 0x524770 */
 int sv_IsCartAtDoor(char *g, struct AIBLD *o);                            /* 0x524810 */
 int sv_CharStateIcons(struct AICHAR *c, int *out);                                    /* 0x524900 */

@@ -1434,46 +1434,46 @@ void sv_RedrawScreen(void)
 /* 0x524100, enters the character c (index) into the first free (-1) of the 8 member slots of the group record
    g, unless he is a member already; a member slot holds the character's AICHAR.netId */
 
-void sv_AddGroupMember(int c, char *g)
+void sv_AddGroupMember(int c, AIJOB *g)
 {
     AICHAR *ch;
     int i;
 
     ch = &ai_Chars[c];
     for (i = 0; i < 8; i++)
-        if (((AIJOB *)g)->groupMembers[i] == ch->netId)
+        if (g->groupMembers[i] == ch->netId)
             break;
     if (i < 8)
         return;
     for (i = 0; i < 8; i++)
-        if (((AIJOB *)g)->groupMembers[i] == -1) {
-            ((AIJOB *)g)->groupMembers[i] = ch->netId;
+        if (g->groupMembers[i] == -1) {
+            g->groupMembers[i] = ch->netId;
             return;
         }
 }
 /* 0x524160, removes the character c (index) from the member slots (+0x8c) of the group record g */
 
-void sv_RemoveGroupMember(int c, char *g)
+void sv_RemoveGroupMember(int c, AIJOB *g)
 {
     AICHAR *ch;
     int i;
 
     ch = &ai_Chars[c];
     for (i = 0; i < 8; i++)
-        if (((AIJOB *)g)->groupMembers[i] == ch->netId) {
-            ((AIJOB *)g)->groupMembers[i] = -1;
+        if (g->groupMembers[i] == ch->netId) {
+            g->groupMembers[i] = -1;
             return;
         }
 }
 /* 0x5241b0, the number of used member slots (+0x8c, 8 of them) of the group record g */
 
-int sv_UsedGroupSlots(char *g)
+int sv_UsedGroupSlots(AIJOB *g)
 {
     int n, i;
     int *p;
 
     n = 0;
-    p = ((AIJOB *)g)->groupMembers;
+    p = g->groupMembers;
     i = 8;
     do {
         if (*p != -1)
@@ -1487,30 +1487,29 @@ int sv_UsedGroupSlots(char *g)
    first title rank of their building's type (+0x22f; for a kind 0x1e building, one accepted by ahm_HasRecord),
    rank2Count those of the second rank (+0x230). */
 
-void sv_CountGroupMembers(char *g)
+void sv_CountGroupMembers(AIJOB *g)
 {
     int i;
     int *p;
-    char *c;
-    char *b;
+    AICHAR *c;
+    AIBTYPE *b;
 
-    ((AIJOB *)g)->rank1Count = 0;
-    ((AIJOB *)g)->rank2Count = 0;
-    p = ((AIJOB *)g)->groupMembers;
+    g->rank1Count = 0;
+    g->rank2Count = 0;
+    p = g->groupMembers;
     i = 8;
     do {
         if (*p != -1) {
-            c = (char *)gm_FindChar(*p);
-            if (c != 0 && ((AICHAR *)c)->bld != 0) {
-                b = (char *)ai_BTypes + ((AICHAR *)c)->bld->type * 0x24d;
-                /* b: the building's type record (AIBTYPE, 0x24d bytes): +0x22f / +0x230 its two title ranks, +0x00 the kind */
-                if (c[0x165] == b[0x22f]) {
-                    ((AIJOB *)g)->rank1Count++;
-                } else if (c[0x165] == b[0x230]) {
-                    ((AIJOB *)g)->rank2Count++;
-                } else if (b[0] == 0x1e) {
-                    if (ahm_HasRecord(c) != 0)
-                        ((AIJOB *)g)->rank1Count++;
+            c = gm_FindChar(*p);
+            if (c != 0 && c->bld != 0) {
+                b = &ai_BTypes[c->bld->type];
+                if (c->title == b->title) {
+                    g->rank1Count++;
+                } else if (c->title == b->title2) {
+                    g->rank2Count++;
+                } else if (b->kind == 0x1e) {
+                    if (ahm_HasRecord((char *)c) != 0)
+                        g->rank1Count++;
                 }
             }
         }
@@ -1553,7 +1552,7 @@ int cm_SendFieldValues(void);                     /* 0x4c49e0 */
    lines differ, the callee-save push order (ours push ebp first / ebx later, the original push ebx first /
    ebp later), and ev taking ebp where the original reuses old's esi in the no-old path; ch / old / it
    rotate over ebx / esi / ebp */
-void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
+void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, AIJOB *g)
 {
     AICHAR *ch;
     AIJOB *old;
@@ -1568,7 +1567,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         return;
     ch = &ai_Chars[c];
     old = ch->job;
-    if ((char *)old == g)
+    if (old == g)
         return;
     if (o == 0)
         o = ch->bld;
@@ -1593,13 +1592,13 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         }
     }
     if (old != 0) {
-        sv_RemoveGroupMember(ai_Chars[c].id, (char *)old);
+        sv_RemoveGroupMember(ai_Chars[c].id, old);
         switch (old->kind) {
         case 3:
         case 4:
         case 8:
         case 9:
-            sv_CountGroupMembers((char *)old);
+            sv_CountGroupMembers(old);
             break;
         case 0x28:
             if (ch->scene != 0 && ch->scene->scriptId != -1)
@@ -1612,8 +1611,8 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         case 0x14:
         case 0x15:
         case 0x8c:
-            sv_CountGroupMembers((char *)old);
-            if (sv_UsedGroupSlots((char *)old) <= 0) {
+            sv_CountGroupMembers(old);
+            if (sv_UsedGroupSlots(old) <= 0) {
                 old->end = ai_Time;
                 cm_SendExSetHE(-1, (char *)old);
             }
@@ -1622,7 +1621,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         case 0x49:
         case 0x75:
         case 0xa1:
-            if (sv_UsedGroupSlots((char *)old) <= 0)
+            if (sv_UsedGroupSlots(old) <= 0)
                 cm_SendExSetHE(-1, (char *)old);
             break;
         case 0x16:
@@ -1639,7 +1638,7 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
     }
     if (g != 0) {
         sv_AddGroupMember(ch->id, g);
-        switch ((unsigned char)g[0]) {
+        switch (g->kind) {
         case 3:
         case 4:
         case 8:
@@ -1649,14 +1648,14 @@ void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, char *g)
         case 0x8c:
             sv_CountGroupMembers(g);
         }
-        newkind = g[0];
+        newkind = g->kind;
     } else
         newkind = 0;
     if ((ch->job != 0 && g == 0) || newkind != 0) {
         cm_BeginFieldBlock(ch, ch->netId);
         cm_AddFieldValue(1, 1, 0x180, &newkind);
         cm_SendFieldValues();
-        ch->job = (AIJOB *)g;
+        ch->job = g;
     }
 }
 /* 0x524770, 1 when the character g's model stands at the door of the building o: the door ("dummy_TUER" of
