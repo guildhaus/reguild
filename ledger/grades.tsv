@@ -4120,7 +4120,7 @@ exe	0x0058af50	lobby_ChoosePlayer	lobby	byte	readable
 exe	0x0058b880	lobby_ChooseProfession	lobby	byte	readable		
 exe	0x0058ba70	lobby_ShowChat	lobby	byte	readable		
 exe	0x0058bbd0	ai_InitProductionTables	lc	byte	readable		
-exe	0x0058bd60	ai_ProductionWindow	lc	byte	readable		
+exe	0x0058bd60	ai_ProductionWindow	lc	shape	readable		byte+readable -> shape+readable at d4643a01: tie-break: the text-id-or-string APIs take intptr_t (portable.h in io_text.h / cm.h / sv.h / amt.h / menu.h / d2_types.h, the call casts); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0058c680	ai_UpdateResourceColumns	lc	byte	readable		
 exe	0x0058cc10	ai_UpdateProdColumns	lc	byte	readable		
 exe	0x0058d720	ai_UpdateProdGoodsList	lc	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
+exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		byte+readable -> shape+readable at d4643a01: tie-break: the text-id-or-string APIs take intptr_t (portable.h in io_text.h / cm.h / sv.h / amt.h / menu.h / d2_types.h, the call casts); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
@@ -4505,7 +4505,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
-exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
+exe	0x005c5310	ai_CharInfoPanel	lcamt	shape	readable		byte+readable -> shape+readable at d4643a01: tie-break: the text-id-or-string APIs take intptr_t (portable.h in io_text.h / cm.h / sv.h / amt.h / menu.h / d2_types.h, the call casts); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
 exe	0x005c6530	ai_MarriageTest	lcamt	byte	readable		

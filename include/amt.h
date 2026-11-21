@@ -4,6 +4,7 @@ struct AICHAR;
 /* Declarations of amt.c (0x4e5cd0.., the offices; tags "amt_"). Names are ours. */
 #ifndef AMT_H
 #define AMT_H
+#include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 
 /* copy of am.h's AI_ZERO (the headers do not compile together) */
 #define AI_ZERO_CAT(a, b) a##b
@@ -96,7 +97,7 @@ int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
 struct AIJOB *he_FindEvent(int n, ...);                     /* 0x53e400 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
 void cm_SendMoneyDelta(int a, int b);                     /* 0x4c5f60 */
-int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c */
+int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c */
 extern int amt_Flip;                    /* 0x60f118, 2 at the start */
 #include "am_types.h"                /* G7GRP */
 extern G7GRP gm_BuildingItemGroups[];            /* 0x61a348 */

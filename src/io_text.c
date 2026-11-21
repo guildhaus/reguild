@@ -478,7 +478,7 @@ int ls_GetLanguage();                     /* 0x5190a0, the language number */
    vs 2), the 'I' va_arg increment hoisted above the first sprintf, the 'i' table branch reloads buf[pos+1]
    after the args store; (3) slots: dig/st share [esp+0xc], art/k/len [esp+0x14], p/good/grp [esp+0x18] in the
    original (58 slots hunks). */
-int io_PrintText(char *fmt, ...)
+int io_PrintText(intptr_t fmt, ...)
 {
     char buf[0x17d0];                   /* the text being expanded */
     char tmp[0x17d0];                   /* the substitution */
@@ -493,7 +493,8 @@ int io_PrintText(char *fmt, ...)
     char digits1[0x40], digits2[0x40], digits3[0x40];
     va_list ap;
     D2WIN *w;                           /* the window d2_LastWindow on entry */
-    int pos, dig, st, toklen, i, k, n, len, v, id;
+    int pos, dig, st, toklen, i, k, n, len, v;
+    intptr_t id;                        /* a text id, or the address of a string (above 0x4800) */
     int gcase, gender, plural, redraw, drawall;
     char code, c;
     char *s, *art, *p;
@@ -513,15 +514,15 @@ int io_PrintText(char *fmt, ...)
         return -1;
     va_start(ap, fmt);
     memset(buf, 0, sizeof(buf));
-    if ((unsigned)fmt < 0x4800) {
-        s = txt_Ptrs[(int)fmt];
+    if ((uintptr_t)fmt < 0x4800) {
+        s = txt_Ptrs[fmt];
         if (s == 0)
             return -1;
         if (strlen(s) > 0x17c0)
             return -1;
         strncpy(buf, s, 0x17c0);
     } else {
-        strcpy(buf, fmt);
+        strcpy(buf, (char *)fmt);
     }
     for (pos = 0; pos < strlen(buf) && pos <= 0x17d0; pos++) {
         while (buf[pos] == '%' || buf[pos] == '$' || buf[pos] == '{') {
@@ -550,7 +551,7 @@ int io_PrintText(char *fmt, ...)
                 gender = 0xff;
                 if (buf[pos - 1] != '{') {
                     pos++;
-                    id = va_arg(ap, int);
+                    id = va_arg(ap, intptr_t);
                     if (id > 0x4800) {
                         s = (char *)id;
                     } else {
@@ -647,7 +648,7 @@ int io_PrintText(char *fmt, ...)
                 break;
             case 'l':
             case 't':
-                w->args[w->nargs] = va_arg(ap, int);
+                w->args[w->nargs] = va_arg(ap, intptr_t);
                 redraw = 1;
                 w->nargs++;
                 pos++;
@@ -1061,7 +1062,7 @@ int io_PrintText(char *fmt, ...)
    original's S gcase==0 tail jumps into G's tail (0x51790f jmp 0x518a26), 'a' else into T's memmove (0x518843
    jmp 0x51815f), ours the other way round (T jumps into a's) and own tails; the I non-dig sprintf pushes
    merge differently; (3) slots: the loop counters k/i of the dot grouping swap [esp+0x10]/[esp+0x14]. */
-void txt_Format(char *out, int id0, ...)
+void txt_Format(char *out, intptr_t id0, ...)
 {
     char buf[0x17d0];                   /* the text being expanded */
     char tmp[0x17d0];                   /* the substitution */
@@ -1077,7 +1078,8 @@ void txt_Format(char *out, int id0, ...)
     char digits4[0x40], digits5[0x40], digits6[0x40];   /* "%G": the number before the token */
     char sign[0x100];                   /* "%I": the grouped number with its sign */
     va_list ap;
-    int pos, dig, st, toklen, i, k, n, len, v, id;
+    int pos, dig, st, toklen, i, k, n, len, v;
+    intptr_t id;                        /* a text id, or the address of a string (above 0x4800) */
     int gcase, gender, plural;
     char code, c;
     char *s, *art, *p;
@@ -1120,7 +1122,7 @@ void txt_Format(char *out, int id0, ...)
             case 'S':
             case 's':
                 pos++;
-                id = va_arg(ap, int);
+                id = va_arg(ap, intptr_t);
                 if (id > 0x4800) {
                     s = (char *)id;
                 } else {

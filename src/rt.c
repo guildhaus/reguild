@@ -443,7 +443,7 @@ unsigned int rt_ChooseTabGood(AIBLD *b, int x, unsigned int def)
     w = d2_OpenForm(0, 0, "misc\\routing_choose_good_enhanced");
     d2_CentreViewWindows(w);
     d2_SetForm(w, 1);
-    io_PrintText((int)"$Z%2N3$A%1G", b->owner, b);
+    io_PrintText((intptr_t)"$Z%2N3$A%1G", b->owner, b);
     d2_SetForm(w, 4);
     ok = d2_GetWinObj(w, 4, io_PrintText(0x7d));
     d2_SetForm(w, 3);
@@ -609,7 +609,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     v2 = d2_GetViewWin(w, 2);
     d2_GetViewWin(w, 1);
     d2_SetForm(w, 1);
-    io_PrintText((int)"$Z%2N3$A%1G", bld->owner, bld);
+    io_PrintText((intptr_t)"$Z%2N3$A%1G", bld->owner, bld);
     d2_SetForm(w, 3);
     sv_ButtonRow(d2_LastWindow, 0, btns, 2, txt_RouteOk, txt_RouteDeletePoint);
     ok = btns[0];

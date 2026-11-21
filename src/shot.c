@@ -100,7 +100,7 @@ int sprintf(char *buf, const char *fmt, ...); /* 0x5de652, the CRT's sprintf (no
 /* dcp unit split: the declarations of menu before the moved functions */
 void d2_CentreViewWindows(int view); void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 void d2_CloseView(int view);
-int io_PrintText(char *fmt, ...); int d2_GetWinObj(int view, int idx, int k);
+int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj(int view, int idx, int k);
 int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a, int *c); /* 0x52e860, sv.c:
                                            the slider of the form f at (x, y) */
 int d2_GetViewWin(int view, int i);         /* 0x475ff0, d2.h: window i of a view, -1 if out of range */
@@ -160,7 +160,7 @@ extern float sv_FramesPerTick;          /* 0x62378c, sv.c: the frames drawn sinc
                                            0x520ec0 copies the count as a float and clears it) */
 void d2_PlaceWindowScaled(int win, int flags); /* 0x475730, d2.c */
 int d2_RemoveWindow(int win);           /* 0x472ce0, d2.c */
-int io_PrintText(char *fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
+int io_PrintText(intptr_t fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
                                            tokens into the current window and redraws it */
 extern short d2_ScreenW;                /* 0xfb9072, d2.h */
 extern short d2_ScreenH;                /* 0xfb9070, d2.h */
@@ -322,9 +322,9 @@ void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRI
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
 int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
                                               covers n, else a message box with the text 0x74 */
-int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c: the modal message box */
+int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
-int d2_RemoveWindow(); int io_PrintText(char *fmt, ...);
+int d2_RemoveWindow(); int io_PrintText(intptr_t fmt, ...);
 int d2_GetObjValue();
 int he_IsMessageKindFiltered(int kind); /* 0x575640, he.c: nonzero when the kind is filtered */
 void he_SetMessageKindFiltered(int kind, int filtered); /* 0x575710, he.c: sets / clears the kind's bit */

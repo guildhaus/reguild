@@ -30,6 +30,7 @@ struct D3SURF;
    0x60bd80 (0x302, 2, -1 globals, the handler table 0x60bd98). Names are ours. */
 #ifndef CM_H
 #define CM_H
+#include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 struct AICHAR;
 struct D3FLMAP;
 typedef struct G18POP { float t; int v; int h; struct AICHAR *c; int kind; } G18POP;      /* 0x14 bytes, a floating number: its rise left (t), the value, the screen text, the character, the kind */
@@ -154,7 +155,7 @@ int gm_RemoveObject(int *list, unsigned item);                                  
 int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);                                            /* 0x503480 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                                           /* 0x5031b0 */
 /* 0x500190 */
-void txt_Format(char *buf, int id, ...);                                       /* 0x5176d0 */
+void txt_Format(char *buf, intptr_t id, ...);                                       /* 0x5176d0 */
 struct SBSAMPLE *sb_PlaySample(struct SBBANK *bank, char *name, int loops, int pan, int volume, int fade, int delay); /* 0x426fa0, sblib.c */
 float gm_ItemPrice(int item, unsigned char n);                                   /* 0x5087f0 */
 int gm_ObjectBuilding(int y);                                                     /* 0x50a0f0 */
@@ -796,8 +797,8 @@ void gm_ChangeBuildingState(struct AIBLD *b, int d);  /* 0x50cad0 */
 int d2_OpenForm(short x, short y, char *name);  /* 0x4741f0 */
 int d2_SetForm(int view, int n);  /* 0x475f70 */
 int d2_GetWinObj(int view, int idx, int k);  /* 0x475b80 */
-int io_PrintText(char *fmt, ...);  /* 0x515960 */
-int cm_MessageBox(int id, int flags);  /* 0x4e5470, a message box for the text id with the flags (see cm.c) */
+int io_PrintText(intptr_t fmt, ...);  /* 0x515960 */
+int cm_MessageBox(intptr_t id, int flags);  /* 0x4e5470, a message box for the text id with the flags (see cm.c) */
 int gm_StallGoodsList(char *c, unsigned *out);  /* 0x50aa00 */
 extern int cm_FightSettled;  /* 0x6f0cf8 */
 extern int cm_FightLootValue;  /* 0x6f0cfc */

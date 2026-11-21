@@ -1658,7 +1658,7 @@ int ai_TutorialOpenIntro(void)
     sv_FitForm(d2_LastWindow);
     d2_SetForm(ai_Tutorial->host->slot->win, 3);
     ai_Tutorial->continueObj = d2_GetWinObj(ai_Tutorial->host->slot->win, 3,
-            io_PrintText("$Z%s", 0x7d));
+            io_PrintText((intptr_t)"$Z%s", 0x7d));
     return 0;
 }
 /* 0x577820, closes the tutorial's main event: -4 without a host / with no open event slot, else releases the slot
@@ -1689,9 +1689,9 @@ int ai_TutorialClearRunWindow(void)
     if (!host->slot)
         return -4;
     d2_SetForm(host->slot->win, 1);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     d2_SetForm(ai_Tutorial->host->slot->win, 2);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     return 0;
 }
 /* 0x5778b0, shows the current run's texts in the run window (the tutorial host's event slot window): clears it
@@ -1772,8 +1772,8 @@ void ai_TutorialShowText(void)
         return;
     sv_SetStatusText(ch_EmptyName);
     d2_SetForm(ai_Tutorial->text1Win, 0);
-    io_PrintText("$C");
-    io_PrintText((char *)ai_Tutorial->run->text1);
+    io_PrintText((intptr_t)"$C");
+    io_PrintText(ai_Tutorial->run->text1);
     d2_SetViewEnabled(ai_Tutorial->text1Win, 1);
     if (!ai_Tutorial->run->text1Voice)
         return;
@@ -1790,7 +1790,7 @@ void ai_TutorialShowText(void)
 void ai_TutorialHideText(void)
 {
     d2_SetForm(ai_Tutorial->text1Win, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     d2_SetViewEnabled(ai_Tutorial->text1Win, 0);
 }
 /* 0x577b90, shows the run's second text window, the sibling of ai_TutorialShowText: nothing without a run record
@@ -1805,8 +1805,8 @@ void ai_TutorialShowText2(void)
         return;
     sv_SetStatusText(ch_EmptyName);
     d2_SetForm(ai_Tutorial->text2Win, 0);
-    io_PrintText("$C");
-    io_PrintText((char *)ai_Tutorial->run->text2);
+    io_PrintText((intptr_t)"$C");
+    io_PrintText(ai_Tutorial->run->text2);
     d2_SetViewEnabled(ai_Tutorial->text2Win, 1);
     if (!ai_Tutorial->run->text2Voice)
         return;
@@ -1824,7 +1824,7 @@ void ai_TutorialShowText2(void)
 void ai_TutorialHideText2(void)
 {
     d2_SetForm(ai_Tutorial->text2Win, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     d2_SetViewEnabled(ai_Tutorial->text2Win, 0);
     if (ai_Tutorial->voice) {
         if (sb_IsPlaying(ai_Tutorial->voice))
@@ -1908,9 +1908,9 @@ int ai_TutorialStepForm(void)
     }
     if (ai_Tutorial->stepKind == ai_Tutorial->run->steps[ai_Tutorial->step].kind) {
         d2_SetForm(ai_Tutorial->stepForm, 1);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         d2_SetForm(ai_Tutorial->stepForm, 2);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
     } else {
         if (ai_Tutorial->stepForm != -1) {
             d2_CloseView(ai_Tutorial->stepForm);
@@ -1930,9 +1930,9 @@ int ai_TutorialStepForm(void)
         ai_Tutorial->stepKind = ai_Tutorial->run->steps[ai_Tutorial->step].kind;
     }
     d2_SetForm(ai_Tutorial->stepForm, 1);
-    io_PrintText((char *)ai_Tutorial->run->steps[ai_Tutorial->step].text);
+    io_PrintText(ai_Tutorial->run->steps[ai_Tutorial->step].text);
     d2_SetForm(ai_Tutorial->stepForm, 2);
-    ai_Tutorial->stepControl = d2_GetWinObj(ai_Tutorial->stepForm, 2, io_PrintText("$Z%s", 0x7d));
+    ai_Tutorial->stepControl = d2_GetWinObj(ai_Tutorial->stepForm, 2, io_PrintText((intptr_t)"$Z%s", 0x7d));
     if (ai_Tutorial->run->steps[ai_Tutorial->step].voice) {
         if (ai_Tutorial->voice) {
             if (sb_IsPlaying(ai_Tutorial->voice))
@@ -4006,16 +4006,16 @@ int ai_TutorialWindow(void)
     id = d2_OpenForm(0, 0, "tutorial\\CHOOSE_tutorial");
     d2_CentreViewWindows(id);
     d2_SetForm(id, 1);
-    io_PrintText("$Z%s", 0x3f1a);
+    io_PrintText((intptr_t)"$Z%s", 0x3f1a);
     d2_SetForm(id, 2);
     for (i = 0; i < 5; i++) {
-        ids[i] = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f1b + i));
+        ids[i] = d2_GetWinObj(id, 2, io_PrintText((intptr_t)"%ia[%s]$N", 0x3f1b + i));
         d2_Objs[ids[i]].checkable = 1;
         d2_Objs[ids[i]].checked = ai_TutorialChapterOn[i];
         d2_Objs[ids[i]].style &= ~2;
     }
-    start = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f20));
-    back = d2_GetWinObj(id, 2, io_PrintText("%ia[%s]$N", 0x3f21));
+    start = d2_GetWinObj(id, 2, io_PrintText((intptr_t)"%ia[%s]$N", 0x3f20));
+    back = d2_GetWinObj(id, 2, io_PrintText((intptr_t)"%ia[%s]$N", 0x3f21));
     d2_SetForm(id, 2);
     while (sv_RunFrame(ai_TutorialWindow, 0x86) != 0) {
         for (i = 0, n = 0; i < 5; i++) {
@@ -4052,7 +4052,7 @@ int ai_TutorialWindow(void)
     return result;
 }
 
-void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
+void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); void sv_ValueBar();
 
 /* 0x57bf00, the alchemist's candidates window of the alchemist object obj ("Locations\Domizil\Alchemistry1"):
    the walk steps in use (ahm_WalkStep 0 .. 2) are the candidates; none: the green message box (title text
@@ -4116,7 +4116,7 @@ void ai_AlchemistCandidates(AIBLD *obj)
     }
     if (n == 0) {
         txt_Format(msg, 0x404a, ai_PlayerSlots[ai_OwnPlayer].name);
-        sv_MessageBoxGreen((int)txt_Ptrs[0x4039], (int)msg, 0);
+        sv_MessageBoxGreen((intptr_t)txt_Ptrs[0x4039], (intptr_t)msg, 0);
         sv_CameraFollow();
         return;
     }
@@ -4141,27 +4141,27 @@ void ai_AlchemistCandidates(AIBLD *obj)
         d2_Objs[portraits[i]].interactive = 1;
         d2_RadioAdd(group, portraits[i]);
         step = steps[i];
-        txt_Format(line, (int)"%s %s", txt_Ptrs[0x417a + step->x], txt_Ptrs[0x4193 + step->y]);
+        txt_Format(line, (intptr_t)"%s %s", txt_Ptrs[0x417a + step->x], txt_Ptrs[0x4193 + step->y]);
         t = d2_CreateWinText(0, y - 0x30, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w;
         d2_Objs[t].centred = 1;
         d2_SetObjFont(t, 0x54);
-        txt_Format(line, (int)"%s", txt_Ptrs[0x4172]);
+        txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
         t = d2_CreateWinText(0x50, y - 0x1a, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0x50;
         d2_SetObjFont(t, 0x54);
         sv_ValueBar(0x8c, y - 0x1a, step->grid.plr.attr[0], 0x4df);
-        txt_Format(line, (int)"%s", txt_Ptrs[0x4173]);
+        txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4173]);
         t = d2_CreateWinText(0x50, y - 0xd, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0x50;
         d2_SetObjFont(t, 0x54);
         sv_ValueBar(0x8c, y - 0xd, step->grid.plr.attr[1], 0x4df);
-        txt_Format(line, (int)"%s", txt_Ptrs[0x4174]);
+        txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4174]);
         t = d2_CreateWinText(0x50, y, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0x50;
         d2_SetObjFont(t, 0x54);
         sv_ValueBar(0x8c, y, step->grid.plr.attr[2], 0x4df);
-        txt_Format(line, (int)"%s", txt_Ptrs[0x4175]);
+        txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4175]);
         t = d2_CreateWinText(0x50, y + 0xd, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0x50;
         d2_SetObjFont(t, 0x54);
@@ -4200,8 +4200,8 @@ void ai_AlchemistCandidates(AIBLD *obj)
 
 struct AICHAR *ahm_OwnerChar();
 int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-int sv_MessageBox();
-void txt_Format(char *out, int id0, ...);
+int sv_MessageBox(intptr_t text, unsigned flags);
+void txt_Format(char *out, intptr_t id0, ...);
 int ahm_SendCreateAlchemist();
 
 /* 0x57c560, hires the alchemist candidate step for the alchemist object obj at the price value: 0 when the
@@ -4219,10 +4219,10 @@ int ai_AlchemistHire(AIBLD *obj, AHMSTEP *step, int value)
     owner = ahm_OwnerChar(obj);
     if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], value, ai_OwnPlayer)) {
         if (owner) {
-            sv_MessageBox((int)txt_Ptrs[0x4048], 0x100);
+            sv_MessageBox((intptr_t)txt_Ptrs[0x4048], 0x100);
         } else {
             txt_Format(text, 0x4044, txt_Ptrs[0x417a + step->x], txt_Ptrs[0x4193 + step->y]);
-            if (sv_MessageBox((int)text, 1)) {
+            if (sv_MessageBox((intptr_t)text, 1)) {
                 slot = ahm_SendCreateAlchemist(obj, step);
                 while (slot != -1 && !cm_GetSlotState(slot))
                     sv_RunFrame(0, 0x20007);
@@ -4322,7 +4322,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
     start = row[0];
     other = row[1];
     d2_SetForm(form, 2);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     group = d2_CreateRadioGroup(0);
     n = 0;
     pic = pics;
@@ -4337,7 +4337,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
         d2_Objs[pid].interactive = 1;
         d2_Objs[pid].user = &ai_Goods[slot->id];
         d2_RadioAdd(group, pid);
-        txt_Format(line, (int)"%s", slot->id * 2 + 0x9a8);
+        txt_Format(line, (intptr_t)"%s", slot->id * 2 + 0x9a8);
         t = d2_CreateWinText(x + 0x3c, y + 5, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w / 2 - 10;
         d2_SetObjFont(t, 0x54);
@@ -4348,7 +4348,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
     do {
         state = ahm_ResearchState(obj, &a, &f, 0);
         d2_SetForm(form, 4);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (state != 0) {
             slider = d2_WinOpenSlider((d2_LastWindowPtr->w - 300) / 2, 0x12, 300, 0, 100, 0x75, 0x42, d2_LastWindow);
             if (state == 1)
@@ -4371,7 +4371,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
             sel = d2_Radios[group].sel;
             d2_RadioClear(group);
             d2_SetForm(form, 2);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             group = d2_CreateRadioGroup(0);
         n = 0;
         pic = pics;
@@ -4386,7 +4386,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
             d2_Objs[pid].interactive = 1;
             d2_Objs[pid].user = &ai_Goods[slot->id];
             d2_RadioAdd(group, pid);
-            txt_Format(line, (int)"%s", slot->id * 2 + 0x9a8);
+            txt_Format(line, (intptr_t)"%s", slot->id * 2 + 0x9a8);
             t = d2_CreateWinText(x + 0x3c, y + 5, line, win2);
             d2_Objs[t].w = d2_Wins[win2].w / 2 - 10;
             d2_SetObjFont(t, 0x54);
@@ -4406,7 +4406,7 @@ void ai_AlchemistResearchWindow(AIBLD *obj)
                         if (ahm_RandomRecipe(owner))
                             ai_AlchemistSendRecipeResearch(obj, rec, j);
                         else
-                            sv_MessageBox(txt_Ptrs[0x41b0], 0);
+                            sv_MessageBox((intptr_t)txt_Ptrs[0x41b0], 0);
                     }
                 }
             } else if (d2_PointerObj == other) {
@@ -4548,7 +4548,7 @@ void ai_AlchemistWindow(AIBLD *obj)
     d2_WinOpenPic(d2_LastWindowPtr->w / 2 - 0x16, 0x20, owner->picture, w.win2);
     w.slider = d2_WinOpenSlider((d2_LastWindowPtr->w - 0x32) / 2, 0x55, 0x32, 0, 100, 0x75, 0x42, d2_LastWindow);
     d2_SetObjValue(w.slider, 0, 100, (int)(rec->value * 100.0f));
-    txt_Format(line, (int)"%s %s", owner->first, owner->family);
+    txt_Format(line, (intptr_t)"%s %s", owner->first, owner->family);
     t = d2_CreateWinText(0, 0, line, w.win2);
     d2_Objs[t].w = d2_Wins[w.win2].w;
     d2_Objs[t].centred = 1;
@@ -4563,26 +4563,26 @@ void ai_AlchemistWindow(AIBLD *obj)
     d2_SetObjFont(t, 0x53);
     d2_Objs[t].centred = 1;
     d2_Objs[t].w = 0xc8;
-    txt_Format(line, (int)"%s", txt_Ptrs[0x4172]);
+    txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
     w.extra = d2_WinCreateSlider(0x14a, 0xbe, 0xc5, txt_Ptrs[0x42f9], w.win2);
     d2_SetObjWidth(w.extra, d2_Wins[w.win2].w / 3 - 0x14);
     d2_SetObjFont(w.extra, 0x54);
-    txt_Format(line, (int)"%s", txt_Ptrs[0x4172]);
+    txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
     w.bars[0] = d2_WinCreateSlider(10, 0x64, 0xc5, line, w.win2);
     d2_SetObjWidth(w.bars[0], d2_Wins[w.win2].w / 3 - 0x14);
     d2_SetObjFont(w.bars[0], 0x54);
     sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0x68, rec->share[0], 0x4df);
-    txt_Format(line, (int)"%s", txt_Ptrs[0x4173]);
+    txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4173]);
     w.bars[1] = d2_WinCreateSlider(10, 0x82, 0xc5, line, w.win2);
     d2_SetObjWidth(w.bars[1], d2_Wins[w.win2].w / 3 - 0x14);
     d2_SetObjFont(w.bars[1], 0x54);
     sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0x86, rec->share[1], 0x4df);
-    txt_Format(line, (int)"%s", txt_Ptrs[0x4174]);
+    txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4174]);
     w.bars[2] = d2_WinCreateSlider(10, 0xa0, 0xc5, line, w.win2);
     d2_SetObjWidth(w.bars[2], d2_Wins[w.win2].w / 3 - 0x14);
     d2_SetObjFont(w.bars[2], 0x54);
     sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0xa4, rec->share[2], 0x4df);
-    txt_Format(line, (int)"%s", txt_Ptrs[0x4175]);
+    txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4175]);
     w.bars[3] = d2_WinCreateSlider(10, 0xbe, 0xc5, line, w.win2);
     d2_SetObjWidth(w.bars[3], d2_Wins[w.win2].w / 3 - 0x14);
     d2_SetObjFont(w.bars[3], 0x54);
@@ -4592,7 +4592,7 @@ void ai_AlchemistWindow(AIBLD *obj)
     do {
         state = ahm_ResearchState(obj, &a, &f, 0);
         d2_SetForm(w.form, 4);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (state != 0) {
             int prog;
 
@@ -4618,12 +4618,12 @@ void ai_AlchemistWindow(AIBLD *obj)
                 return;
             }
             d2_SetForm(w.form, 2);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             d2_WinOpenPic(d2_LastWindowPtr->w / 2 - 0x18, 0x1e, 0x6c7, w.win2);
             d2_WinOpenPic(d2_LastWindowPtr->w / 2 - 0x16, 0x20, owner->picture, w.win2);
             w.slider = d2_WinOpenSlider((d2_LastWindowPtr->w - 0x32) / 2, 0x55, 0x32, 0, 100, 0x75, 0x42, d2_LastWindow);
             d2_SetObjValue(w.slider, 0, 100, (int)(rec->value * 100.0f));
-            txt_Format(line, (int)"%s %s", owner->first, owner->family);
+            txt_Format(line, (intptr_t)"%s %s", owner->first, owner->family);
             t = d2_CreateWinText(0, 0, line, w.win2);
             d2_Objs[t].w = d2_Wins[w.win2].w;
             d2_Objs[t].centred = 1;
@@ -4638,26 +4638,26 @@ void ai_AlchemistWindow(AIBLD *obj)
             d2_SetObjFont(t, 0x53);
             d2_Objs[t].centred = 1;
             d2_Objs[t].w = 0xc8;
-            txt_Format(line, (int)"%s", txt_Ptrs[0x4172]);
+            txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
             w.extra = d2_WinCreateSlider(0x14a, 0xbe, 0xc5, txt_Ptrs[0x42f9], w.win2);
             d2_SetObjWidth(w.extra, d2_Wins[w.win2].w / 3 - 0x14);
             d2_SetObjFont(w.extra, 0x54);
-            txt_Format(line, (int)"%s", txt_Ptrs[0x4172]);
+            txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
             w.bars[0] = d2_WinCreateSlider(10, 0x64, 0xc5, line, w.win2);
             d2_SetObjWidth(w.bars[0], d2_Wins[w.win2].w / 3 - 0x14);
             d2_SetObjFont(w.bars[0], 0x54);
             sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0x68, rec->share[0], 0x4df);
-            txt_Format(line, (int)"%s", txt_Ptrs[0x4173]);
+            txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4173]);
             w.bars[1] = d2_WinCreateSlider(10, 0x82, 0xc5, line, w.win2);
             d2_SetObjWidth(w.bars[1], d2_Wins[w.win2].w / 3 - 0x14);
             d2_SetObjFont(w.bars[1], 0x54);
             sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0x86, rec->share[1], 0x4df);
-            txt_Format(line, (int)"%s", txt_Ptrs[0x4174]);
+            txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4174]);
             w.bars[2] = d2_WinCreateSlider(10, 0xa0, 0xc5, line, w.win2);
             d2_SetObjWidth(w.bars[2], d2_Wins[w.win2].w / 3 - 0x14);
             d2_SetObjFont(w.bars[2], 0x54);
             sv_ValueBar(d2_Wins[w.win2].w / 3 + 10, 0xa4, rec->share[2], 0x4df);
-            txt_Format(line, (int)"%s", txt_Ptrs[0x4175]);
+            txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4175]);
             w.bars[3] = d2_WinCreateSlider(10, 0xbe, 0xc5, line, w.win2);
             d2_SetObjWidth(w.bars[3], d2_Wins[w.win2].w / 3 - 0x14);
             d2_SetObjFont(w.bars[3], 0x54);
@@ -4968,14 +4968,14 @@ void d3_DirToWorld();
 int gm_FindById();
 float gv_SalvoCharge(); void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
+void txt_Format(char *out, intptr_t id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
-int he_EventOnBuilding(); int sv_MessageBox();
+int he_EventOnBuilding(); int sv_MessageBox(intptr_t text, unsigned flags);
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
-void txt_Format(char *out, int id0, ...); int sv_MessageBox();
+void txt_Format(char *out, intptr_t id0, ...); int sv_MessageBox(intptr_t text, unsigned flags);
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
 void ai_AlchemistResearchWindow(); void ai_AlchemistWindow();
 void cm_BeginFieldBlock(char *o, int id); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
@@ -5026,7 +5026,7 @@ typedef struct GVPICK {
     int id;                     /* 0x10, that dead person's id, -1: none */
 } GVPICK;
 int gv_OrderSetGraveHolder(); int gv_SizeOpen();
-int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
+int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(struct AIBLD *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
 int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);

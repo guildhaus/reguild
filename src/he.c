@@ -3409,7 +3409,7 @@ void he_StammtischCommand(unsigned cmd, AIBLD *inn, AIOBJ *table, int figId)
 
                 txt_Format(s1, 0x1894, inn, fig->id);
                 txt_Format(s2, 0x1896);
-                txt_Format(big, "%s%s", s1, s2);
+                txt_Format(big, (intptr_t)"%s%s", s1, s2);
             } else {
                 txt_Format(big, 0x1894, inn, fig->id);
             }
@@ -3432,7 +3432,7 @@ void he_StammtischCommand(unsigned cmd, AIBLD *inn, AIOBJ *table, int figId)
 
                 txt_Format(s1, 0x1895, inn, fig->id);
                 txt_Format(s2, 0x1897);
-                txt_Format(big, "%s%s", s1, s2);
+                txt_Format(big, (intptr_t)"%s%s", s1, s2);
             } else {
                 txt_Format(big, 0x1895, inn, fig->id);
             }
@@ -5891,7 +5891,7 @@ void he_RunMasterExamFee(AIJOB *e)
         if (e->slot == 0)
             he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         d2_SetForm(e->slot->win, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x10b1, e->chr, fee);
         e->stage = 1;
         return;
@@ -5957,7 +5957,7 @@ void he_RunMasterExamPay(AIJOB *e)
             return;
         }
         d2_SetForm(e->slot->win, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x10b4, e->chr, fee);
         e->stage = 1;
         return;
@@ -6559,7 +6559,7 @@ void he_RunTraining(AIJOB *e)
                 cm_SendLongMessage((char *)&msg);
             } else {
                 sprintf(sound, "tal_0%i", skill);
-                txt_Format(text, "%s%s", 0x16f2, t->skill + 0x16f3);
+                txt_Format(text, (intptr_t)"%s%s", 0x16f2, t->skill + 0x16f3);
                 he_ShowNews(ai_CharInts[e->chr][0], ai_CharInts[e->chr][0], text, 0, 0x5fd, sound);
             }
         }
@@ -6733,7 +6733,7 @@ void he_RunPlague(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        txt_Format(text, "EvtPest: next target = %G", o);
+        txt_Format(text, (intptr_t)"EvtPest: next target = %G", o);
         n = 0;
         carrier = p->carriers;
         for (i = 4; i != 0; i--) {
@@ -7642,7 +7642,7 @@ void he_RunAccidentSim(AIJOB *e)
         he_FreeEvent(e);
         return;
     }
-    txt_Format(text, (int)"-------> RunSimUnfall: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
+    txt_Format(text, (intptr_t)"-------> RunSimUnfall: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
     if (s->step == 0) {
         primes[0] = 1;
         primes[1] = 3;
@@ -8671,7 +8671,7 @@ void he_RunDiseaseSim(AIJOB *e)
         he_FreeEvent(e);
         return;
     }
-    txt_Format(text, (int)"-------> RunSimKrankheiten: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
+    txt_Format(text, (intptr_t)"-------> RunSimKrankheiten: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
     if (s->step == 0) {
         primes[0] = 1;
         primes[1] = 3;
@@ -8858,7 +8858,7 @@ void he_RunDarkCorner(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        txt_Format(text, (int)"Dunkle Ecke: next target = %G", bld);
+        txt_Format(text, (intptr_t)"Dunkle Ecke: next target = %G", bld);
         c = gm_FindChar(d->carrier);
         if (c != 0) {
             cm_SendChrStop(c->netId);
@@ -9469,7 +9469,7 @@ void he_StartReaper(AIJOB *e)
     if (o == 0)
         he_FreeEvent(e);
     else
-        txt_Format(text, "EvtSensenmann: next target = %G", o);
+        txt_Format(text, (intptr_t)"EvtSensenmann: next target = %G", o);
     e->reaperTo = o->id;
     if (he_CreateReaper(e) == 0)
         he_FreeEvent(e);
@@ -9557,7 +9557,7 @@ void he_RunReaper(AIJOB *e)
                 e->stage = -1;
                 return;
             }
-            txt_Format(text, "EvtSensenmann: next target = %G", o);
+            txt_Format(text, (intptr_t)"EvtSensenmann: next target = %G", o);
             e->reaperTo = o->id;
             e->reaperLeft--;
             if (he_TurnReaper(e) != 0) {
@@ -9653,7 +9653,7 @@ void he_RunRanking(AIJOB *e)
         head.kind = 3;
         head.size = 0xcf;
         for (i = 0; i < 5; i++) {
-            txt_Format(tmp, "%s", 0x16b7 + i);
+            txt_Format(tmp, (intptr_t)"%s", 0x16b7 + i);
             strncpy(head.titles[i], tmp, 0x18);
             head.titles[i][0x17] = 0;
         }
@@ -9678,16 +9678,16 @@ void he_RunRanking(AIJOB *e)
             memcpy(line.skills, c->skills, 5);
             strncpy(line.name, c->name, 0x18);
             line.name[0x17] = 0;
-            txt_Format(tmp, "%s", (c->sex != 0 ? 0x18f : 0x130) + c->jobId);
+            txt_Format(tmp, (intptr_t)"%s", (c->sex != 0 ? 0x18f : 0x130) + c->jobId);
             strncpy(line.job, tmp, 0x20);
             line.job[0x1f] = 0;
-            txt_Format(tmp, "%s", (c->sex != 0 ? 0x11e : 0x114) + c->level);
+            txt_Format(tmp, (intptr_t)"%s", (c->sex != 0 ? 0x11e : 0x114) + c->level);
             strncpy(line.rank, tmp, 0x20);
             line.job[0x1f] = 0;         /* sic: the original ends job again, not rank */
-            txt_Format(tmp, "%s", (c->sex != 0 ? 0x27b : 0x253) + c->officeKind);
+            txt_Format(tmp, (intptr_t)"%s", (c->sex != 0 ? 0x27b : 0x253) + c->officeKind);
             strncpy(line.office, tmp, 0x24);
             line.office[0x23] = 0;
-            txt_Format(tmp, "%s", (c->sex != 0 ? 0x27b : 0x253) + c->secondOffice);
+            txt_Format(tmp, (intptr_t)"%s", (c->sex != 0 ? 0x27b : 0x253) + c->secondOffice);
             strncpy(line.office2, tmp, 0x24);
             line.office2[0x23] = 0;
             udp_Send((char *)&line, line.size);
@@ -10162,7 +10162,7 @@ void he_RunExamQuestion(AIJOB *e)
         }
         d2_CentreViewWindows(e->slot->win);
         d2_SetForm(e->slot->win, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x10b9, ai_PlayerSlots[ai_OwnPlayer].townName, e->chr);
         e->stage = 1;
         return;
@@ -12347,7 +12347,7 @@ void he_RunMessageBox(AIJOB *e)
         }
         d2_CentreViewWindows(e->slot->win);
         d2_SetForm(e->slot->win, 0);
-        io_PrintText("%s", e->text);
+        io_PrintText((intptr_t)"%s", e->text);
         if (ai_GameState != 2)
             sb_PlaySample(snd_SystemBank, "NeueMessage_s_01", 1, 0x3f, 0x7f, 0, 0);
         if ((m->flags & 8) != 0)
@@ -13535,7 +13535,7 @@ void he_RunSpying(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        txt_Format(text, (int)"Spionage: next target = %G", bld);
+        txt_Format(text, (intptr_t)"Spionage: next target = %G", bld);
         c = gm_FindChar(s->spy);
         if (c != 0) {
             cm_SendChrStop(c->netId);
@@ -16817,7 +16817,7 @@ void he_RunBurglary(AIJOB *ev)
             money = (int)((util_Random(50) * 0.001f + 1.0) * money);
             money = (int)((gm_BuildingSkill(g, 1, 1) * 0.0025f + 1.0f) * money);
             money = money < 0 ? 0 : money;
-            txt_Format(line, "$Z%T$A", money);
+            txt_Format(line, (intptr_t)"$Z%T$A", money);
             strcat(loot, line);
             cm_SendMoveGoodsUnchecked(master->netId, owner->netId, ai_OwnPlayer, money);
             cm_BeginFieldBlock((char *)g, g->id);
@@ -18755,7 +18755,7 @@ void he_RunRobbery(AIJOB *ev)
             stall = gm_Query((void *)b->objList, 2, 6, 0, 0x2a);
             gm_BuildingValues(b, vals);
             money = (int)(vals[0] * 0.35);
-            txt_Format(line, "$Z%T$A", money);
+            txt_Format(line, (intptr_t)"$Z%T$A", money);
             strcat(loot, line);
             cm_SendMoveGoods(master->netId, owner->netId, ai_OwnPlayer, money);
             cm_BeginFieldBlock((char *)g, g->id);

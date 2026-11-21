@@ -188,7 +188,7 @@ int ai_TokenMayor(int mode, G12ARG *args, int k, char *fmt, char *out)
     n1 = (int)buf;
     AI_ZERO((char *)n1, 0x200);
     ai_SplitTokenFormat(fmt, buf, &n1, &n2);
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4ae280, the BISCHOF token of a history text (callback 0x601b10[1], name 0x601730[1]): a bishop (officeKind
@@ -220,7 +220,7 @@ int ai_TokenBishop(int mode, G12ARG *args, int k, char *fmt, char *out)
     n1 = (int)buf;
     AI_ZERO((char *)n1, 0x200);
     ai_SplitTokenFormat(fmt, buf, &n1, &n2);
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4ae3a0, the RND_GILDENMEISTER token of a history text (callback 0x601b10[2], name 0x601730[2]): a random
@@ -294,7 +294,7 @@ int ai_TokenRandomGuildMaster(int mode, G12ARG *args, int k, char *fmt, char *ou
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 
@@ -373,7 +373,7 @@ int ai_TokenRandomOfficeHolderFemale(int mode, G12ARG *args, int k, char *fmt, c
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4ae900, the same as 0x4ae600 for a man (byte 9 == 0; 0x4ae600, RND_AMTSTRAEGERIN, takes byte 9 == 1)
@@ -447,7 +447,7 @@ int ai_TokenRandomOfficeHolder(int mode, G12ARG *args, int k, char *fmt, char *o
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4aec00, the same as 0x4ae600 for anybody (no sex test); mode 2 gives no token
@@ -519,7 +519,7 @@ int ai_TokenRandomOfficePerson(int mode, G12ARG *args, int k, char *fmt, char *o
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 
@@ -582,7 +582,7 @@ int ai_TokenRichestInhabitant(int mode, G12ARG *args, int k, char *fmt, char *ou
     }
     if (mode == 0)
         args[k].id = c->netId;
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4af090, text token for the building of type 0x16 with the highest 0x509b10 rating */
@@ -616,7 +616,7 @@ int ai_TokenBestInn(int mode, G12ARG *args, int k, char *fmt, char *out)
     n1 = (int)buf;
     AI_ZERO((char *)n1, 0x200);
     ai_SplitTokenFormat(fmt, buf, &n1, &n2);
-    txt_Format(out, (int)buf, pick);
+    txt_Format(out, (intptr_t)buf, pick);
     return 1;
 }
 /* 0x4af1b0, text token (mode 2 only): fmt "...-n" gives n percent of the wealth (0x50a640) of the character
@@ -656,7 +656,7 @@ int ai_TokenMoney(int mode, G12ARG *args, int k, char *fmt, char *out)
         }
         ai_SplitTokenFormat(fmt, buf, &n1, &n2);
         n1 = atoi(fmt + n1);
-        txt_Format(out, (int)buf, gm_ConvertMoney((int)(v * (n1 * 0.01f)), ai_OwnPlayer), ai_OwnPlayer);
+        txt_Format(out, (intptr_t)buf, gm_ConvertMoney((int)(v * (n1 * 0.01f)), ai_OwnPlayer), ai_OwnPlayer);
         return 1;
     }
     return 0;
@@ -690,7 +690,7 @@ int ai_TokenCityTreasury(int mode, G12ARG *args, int k, char *fmt, char *out)
     AI_ZERO((char *)n2, cnt);
     ai_SplitTokenFormat(fmt, buf, &n1, &n2);
     n1 = atoi(fmt + n1);
-    txt_Format(out, (int)buf, gm_ConvertMoney((int)(v * (n1 * 0.01f)), ai_OwnPlayer), ai_OwnPlayer);
+    txt_Format(out, (intptr_t)buf, gm_ConvertMoney((int)(v * (n1 * 0.01f)), ai_OwnPlayer), ai_OwnPlayer);
     return 1;
 }
 
@@ -765,7 +765,7 @@ int ai_TokenRandomChurchProfession(int mode, G12ARG *args, int k, char *fmt, cha
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4af6c0, text token for one of the five richest characters (0x50a640) passing a predicate: fmt "...-n"
@@ -851,7 +851,7 @@ int ai_TokenRandomRich(int mode, G12ARG *args, int k, char *fmt, char *out)
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4af8d0, text token for the first character in the lists of 0x4adfb0 who passes 0x4ae120; fmt "...-n" as in
@@ -901,7 +901,7 @@ int ai_TokenRandomNpcInhabitant(int mode, G12ARG *args, int k, char *fmt, char *
                 if (mode == 0)
                     args[k].id = c->netId;
             }
-            txt_Format(out, (int)buf, c->id);
+            txt_Format(out, (intptr_t)buf, c->id);
             return 1;
         }
     }
@@ -975,7 +975,7 @@ int ai_TokenRandomMerchant(int mode, G12ARG *args, int k, char *fmt, char *out)
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4afc30, text token for a random character passing 0x4ae0d0 / 0x4adfb0, searched with a random step
@@ -1023,7 +1023,7 @@ int ai_TokenRandomPlayer(int mode, G12ARG *args, int k, char *fmt, char *out)
         if (mode == 0)
             args[k].id = c->netId;
     }
-    txt_Format(out, (int)buf, c->id);
+    txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
 /* 0x4afdd0, the FEST text command (callback 0x601b50[0], name 0x601070[0]) "-n" (n > 0): sends message 0x53
@@ -2571,7 +2571,7 @@ void hst_ParseText_Real(char *out, int k)
     }
     if (open != 0 || hash != 0)
         return;
-    txt_Format(out, (int)"%s", buf);
+    txt_Format(out, (intptr_t)"%s", buf);
 }
 
 /* G12_COPY2: G12_COPY with destination and source in variables */
@@ -2653,13 +2653,13 @@ int hst_ParseDate(int k, int mode, int *year, char *name)
     } else if (mode & 2) {
         switch (known) {
         case 0:
-            txt_Format(name, (int)"%s, %i %s %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.day, date.month + 0x4f, date.year);
+            txt_Format(name, (intptr_t)"%s, %i %s %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.day, date.month + 0x4f, date.year);
             break;
         case 1:
-            txt_Format(name, (int)"%s, %s %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.month + 0x4f, date.year);
+            txt_Format(name, (intptr_t)"%s, %s %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.month + 0x4f, date.year);
             break;
         case 2:
-            txt_Format(name, (int)"%s, %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.year);
+            txt_Format(name, (intptr_t)"%s, %i", ai_PlayerSlots[ai_OwnPlayer].townName, date.year);
             break;
         }
     }
@@ -2714,7 +2714,7 @@ void d2_CreateScrollButtons(int x, int y, int win, int obj, int pic);           
 int sv_CreateScrollForm(void);                                                          /* 0x52fa10, defined elsewhere */
 void sv_ScrollFormAnimate(void);                                                         /* 0x52fad0, defined elsewhere */
 void sv_DestroyScrollForm(void);                                                         /* 0x52fa90, defined elsewhere */
-int io_PrintText(char *fmt, ...);                                               /* 0x515960, defined elsewhere */
+int io_PrintText(intptr_t fmt, ...);                                               /* 0x515960, defined elsewhere */
 int sv_RunFrame(void (*cb)(), unsigned mask);                                      /* 0x5309a0, defined elsewhere */
 extern int sv_PopRequest;                /* 0x6f22a0 */
 
@@ -2735,14 +2735,14 @@ void hst_LastYearDialog(void)
     d2_SetForm(view, 1);
     win = d2_LastWindow;
     d2_SetForm(view, 2);
-    io_PrintText((char *)0x10b0);
+    io_PrintText(0x10b0);
     d2_CreateScrollButtons(-1, -1, d2_LastWindow, win, 0x767);
     vis = &d2_Wins[win].visible;
     *vis = 0x18;
     d2_SetForm(view, 1);
-    io_PrintText("$C%s", text);
+    io_PrintText((intptr_t)"$C%s", text);
     d2_SetForm(view, 3);
-    io_PrintText("$C$Z$[%s$]", name);
+    io_PrintText((intptr_t)"$C$Z$[%s$]", name);
     d2_ClickedId = -1;
     do {
         sv_ScrollFormAnimate();
@@ -2753,15 +2753,15 @@ void hst_LastYearDialog(void)
                 sv_PopRequest = 1;
             } else {
                 d2_SetForm(view, 2);
-                io_PrintText((char *)0x10b0);
+                io_PrintText(0x10b0);
                 d2_CreateScrollButtons(-1, -1, d2_LastWindow, win, 0x767);
                 *vis = 0x18;
                 d2_SetForm(view, 1);
-                io_PrintText("$C%s", text);
+                io_PrintText((intptr_t)"$C%s", text);
                 d2_LastWindowPtr->scrollY = 0;
                 d2_LastWindowPtr->scrollStep = 2;
                 d2_SetForm(view, 3);
-                io_PrintText("$C$Z$[%s$]", name);
+                io_PrintText((intptr_t)"$C$Z$[%s$]", name);
             }
         }
     } while (sv_RunFrame(hst_LastYearDialog, 0x66087));
@@ -2818,14 +2818,14 @@ void hst_LastYearCmdDialog(int cmd)
     d2_SetForm(view, 1);
     win = d2_LastWindow;
     d2_SetForm(view, 2);
-    io_PrintText((char *)0x10b0);
+    io_PrintText(0x10b0);
     d2_CreateScrollButtons(-1, -1, d2_LastWindow, win, 0x767);
     vis = &d2_Wins[win].visible;
     *vis = 0x18;
     d2_SetForm(view, 1);
-    io_PrintText("$C%s", text);
+    io_PrintText((intptr_t)"$C%s", text);
     d2_SetForm(view, 3);
-    io_PrintText("$C$Z$[%s$]", name);
+    io_PrintText((intptr_t)"$C$Z$[%s$]", name);
     d2_ClickedId = -1;
     do {
         sv_ScrollFormAnimate();
@@ -2836,15 +2836,15 @@ void hst_LastYearCmdDialog(int cmd)
                 sv_PopRequest = 1;
             } else {
                 d2_SetForm(view, 2);
-                io_PrintText((char *)0x10b0);
+                io_PrintText(0x10b0);
                 d2_CreateScrollButtons(-1, -1, d2_LastWindow, win, 0x767);
                 *vis = 0x18;
                 d2_SetForm(view, 1);
-                io_PrintText("$C%s", text);
+                io_PrintText((intptr_t)"$C%s", text);
                 d2_LastWindowPtr->scrollY = 0;
                 d2_LastWindowPtr->scrollStep = 2;
                 d2_SetForm(view, 3);
-                io_PrintText("$C$Z$[%s$]", name);
+                io_PrintText((intptr_t)"$C$Z$[%s$]", name);
             }
         }
     } while (sv_RunFrame(hst_LastYearCmdDialog, 0x66087));

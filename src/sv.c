@@ -196,7 +196,7 @@ int sv_CheckMoney(AICHAR *o, int n)
 
     if (o->money < n && n != 0) {
         txt_Format(buf, 0x74, n);
-        sv_MessageBox(buf, 0);
+        sv_MessageBox((intptr_t)buf, 0);
         return 0;
     }
     return 1;
@@ -212,7 +212,7 @@ int sv_CheckCharacterFlag(AIBLD *id)
     p = gm_FindCharacterByMaster(id);
     if (p != 0 && (p->flags1b4 & 1) != 0) {
         txt_Format(buf, 0x78, p->id);
-        sv_MessageBox(buf, 0x100);
+        sv_MessageBox((intptr_t)buf, 0x100);
         return 1;
     }
     return 0;
@@ -226,7 +226,7 @@ int sv_CheckGoodAmount(AICHAR *o, int n, unsigned char t)
 
     if (gm_SumSlotAmounts(o->inventory, t) < n && n != 0) {
         txt_Format(buf, 0x75, t);
-        sv_MessageBox(buf, 0);
+        sv_MessageBox((intptr_t)buf, 0);
         return 0;
     }
     return 1;
@@ -253,7 +253,7 @@ int sv_CheckStock(short *p, int stock, int n, unsigned char t)
     }
     txt_Format(buf, 0x75, t);
 show:
-    sv_MessageBox(buf, 4);
+    sv_MessageBox((intptr_t)buf, 4);
     return 0;
 }
 /* 0x521150, a modal message box (the form "misc\\Messagebox" in the sizes by the flags 2 Autosize / 0x10 BIG / 0x20 VERY_BIG, 0x100 the pergament "NONE_PERGA", 8 all messages): shows the text, loops
@@ -276,7 +276,7 @@ show:
    quick = flags & 0x40 in the flags slot [esp+0x2c] (ours in esi), scene in the text slot; frame 0x18 vs
    ours 0x10 (two more slots in the original). */
 
-int sv_MessageBox(int text, unsigned flags)
+int sv_MessageBox(intptr_t text, unsigned flags)
 {
     int ret, form, bar, idx, i, k, scene, timed;
     unsigned mask;
@@ -354,7 +354,7 @@ int sv_MessageBox(int text, unsigned flags)
 }
 /* 0x521410, the green message box ("misc\\MessageBoxGreen" 0x623ed0) with an optional title text a and the text b; like 0x521150, a button returns its number + 1. Not reentrant (sv_MessageBoxGreenOpen, 0x6f2351) */
 
-int sv_MessageBoxGreen(int a, int b, unsigned flags)
+int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags)
 {
     int ret, form, bar, idx, i, k;
     unsigned mask;
@@ -424,7 +424,7 @@ int sv_MessageBoxGreen(int a, int b, unsigned flags)
    for the first button (yes), 0 for the second. Not reentrant: it holds sv_MessageBoxYesNoOpen (0x6f2352) while it runs, and
    returns 0 at once when the box is already open */
 
-int sv_MessageBoxYesNo(int text, unsigned flags)
+int sv_MessageBoxYesNo(intptr_t text, unsigned flags)
 {
     int t0, ret, form, bar, idx, i, w;
     unsigned mask;
@@ -1367,7 +1367,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
         if (sv_PanelMoneyText != -1) {
             if (n != 0) {
                 h = gm_ConvertMoney(n, who);
-                txt_Format(buf, "%I~ %w", (int)(float)h, who);   /* 0x523d17: the second argument (esi) is
+                txt_Format(buf, (intptr_t)"%I~ %w", (int)(float)h, who);   /* 0x523d17: the second argument (esi) is
                                                                     the same owner index, for the %w city name */
                 d2_SetObjText(sv_PanelMoneyText, buf);
             } else
@@ -3455,11 +3455,11 @@ void sv_OpenBuildingPanel(AIBLD *b)
     if (b->type != 0x47) {
         io_CharacterNameMarkup(b->owner, 2, 1, name);
         if (b->name[0] != 0)
-            io_PrintText("$Z%s$A%s$A>%s<", name, b->type * 0xe + 0x48e, b->name);
+            io_PrintText((intptr_t)"$Z%s$A%s$A>%s<", name, b->type * 0xe + 0x48e, b->name);
         else
-            io_PrintText("$Z%s$A%s", name, b->type * 0xe + 0x48e);
+            io_PrintText((intptr_t)"$Z%s$A%s", name, b->type * 0xe + 0x48e);
     } else {
-        io_PrintText("$Z%s$A%s", 0x870, ai_PlayerSlots[b->playerSlot].name);
+        io_PrintText((intptr_t)"$Z%s$A%s", 0x870, ai_PlayerSlots[b->playerSlot].name);
     }
     d2_SetForm(sv_PanelForm, 0);
     sv_PanelBldPic = d2_WinOpenPic((d2_Wins[d2_LastWindow].w - 0x30) >> 1, 0x48, b->type + 0x427, d2_LastWindow);
@@ -3515,11 +3515,11 @@ void sv_OpenItemPanel(AIOBJ *p)
             b = ai_FallbackBuilding;
         if (b != 0) {
             if (b->name[0] != 0)
-                io_PrintText("$Z%s$A>%s<$A%s", b->type * 0xe + 0x48e, b->name, p->type * 2 + 0x9a8);
+                io_PrintText((intptr_t)"$Z%s$A>%s<$A%s", b->type * 0xe + 0x48e, b->name, p->type * 2 + 0x9a8);
             else
-                io_PrintText("$Z%s$A%s", b->type * 0xe + 0x48e, p->type * 2 + 0x9a8);
+                io_PrintText((intptr_t)"$Z%s$A%s", b->type * 0xe + 0x48e, p->type * 2 + 0x9a8);
         } else
-            io_PrintText("$Z%s", p->type * 2 + 0x9a8);
+            io_PrintText((intptr_t)"$Z%s", p->type * 2 + 0x9a8);
         d2_SetForm(sv_PanelForm, 0);
         ((D2OBJ *)d2_Objs)[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, p->type + 0xdf, d2_LastWindow)].interactive = 1;
         g = &ai_Goods[p->type];
@@ -3552,7 +3552,7 @@ void sv_OpenCartPanel(AIOBJ *c)
         return;
     sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_transporter");
     d2_SetForm(sv_PanelForm, 1);
-    io_PrintText("$Z%2N1$A%s", *owner, c->id * 2 + 0x9a8);
+    io_PrintText((intptr_t)"$Z%2N1$A%s", *owner, c->id * 2 + 0x9a8);
     d2_SetForm(sv_PanelForm, 0);
     x = ((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1;
     ((D2OBJ *)d2_Objs)[d2_WinOpenPic(x, 0x30, c->id + 0xdf, d2_LastWindow)].interactive = 1;
@@ -3614,7 +3614,7 @@ void sv_OpenDefaultPanel(void)
         d2_SetForm(sv_PanelForm, 0);
         d2_SetForm(sv_PanelForm, 1);
         io_CharacterNameMarkup(ai_FallbackBuilding->owner, 2, 1, name);
-        io_PrintText("$Z%s$A%s$A%s", name, ai_FallbackBuilding->type * 0xe + 0x48e, ai_FallbackBuilding->name);
+        io_PrintText((intptr_t)"$Z%s$A%s$A%s", name, ai_FallbackBuilding->type * 0xe + 0x48e, ai_FallbackBuilding->name);
         d2_SetForm(sv_PanelForm, 0);
         d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x4c, ai_FallbackBuilding->type + 0x427, d2_LastWindow);
         sv_PanelHealthBar = d2_WinOpenSlider(0x15, 0x7a, 0x30, 0, 100, 0x75, 0x442, d2_LastWindow);
@@ -3645,7 +3645,7 @@ void sv_OpenPersonPanel(AICHAR *c)
     d2_SetForm(sv_PanelForm, 1);
     if (c == 0 || ai_SelectedCount >= 2) {
         sprintf(text, "%i %s", ai_SelectedCount, txt_PanelPersons);
-        io_PrintText(text);
+        io_PrintText((intptr_t)text);
     } else {
         opinion = gm_Opinion(ai_PlayerId, c->id);
         group = 0;
@@ -3653,7 +3653,7 @@ void sv_OpenPersonPanel(AICHAR *c)
             group = gm_TitleJobGroup((unsigned char)c->title);
         health = (int)(gm_HealthRatio(c) * 100.0);
         io_CharacterNameMarkup(c->id, 1, 4, text);
-        io_PrintText("%s %i%%", text, health);
+        io_PrintText((intptr_t)"%s %i%%", text, health);
         d2_SetForm(sv_PanelForm, 0);
         x = (d2_Wins[d2_LastWindow].w - 0x30) >> 1;
         sv_PanelHealthBar = d2_WinOpenSlider(0x18, 0x6c, 0x30, 0, 100, 0x75, 0x442, d2_LastWindow);
@@ -3724,15 +3724,15 @@ void sv_RefreshPanel(void)
     if (sv_SelectedObject != 0 && sv_PanelHealthBar != -1 && sv_PanelBldPic != -1) {
         level = gm_BuildingLevel(sv_SelectedObject);
         d2_SetForm(sv_PanelForm, 1);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (sv_SelectedObject->type != 0x47) {
             io_CharacterNameMarkup(sv_SelectedObject->owner, 2, 1, text);
             if (sv_SelectedObject->name[0] != 0)
-                io_PrintText("$Z%s$A%s$A>%s<", text, sv_SelectedObject->type * 0xe + 0x48e, sv_SelectedObject->name);
+                io_PrintText((intptr_t)"$Z%s$A%s$A>%s<", text, sv_SelectedObject->type * 0xe + 0x48e, sv_SelectedObject->name);
             else
-                io_PrintText("$Z%s$A%s", text, sv_SelectedObject->type * 0xe + 0x48e);
+                io_PrintText((intptr_t)"$Z%s$A%s", text, sv_SelectedObject->type * 0xe + 0x48e);
         } else {
-            io_PrintText("$Z%s$A%s", 0x870, ai_PlayerSlots[sv_SelectedObject->playerSlot].name);
+            io_PrintText((intptr_t)"$Z%s$A%s", 0x870, ai_PlayerSlots[sv_SelectedObject->playerSlot].name);
         }
         d2_SetObjValue(sv_PanelHealthBar, 0, 100, level);
         fl = sv_SelectedObject->flags5aw;
@@ -3793,7 +3793,7 @@ void sv_RefreshPanel(void)
             d2_SetForm(sv_PanelForm, 1);
             n = (int)(gm_HealthRatio(c) * 100.0);
             io_CharacterNameMarkup(c->id, 1, 4, text);
-            io_PrintText("$C%s %i%%", text, n);
+            io_PrintText((intptr_t)"$C%s %i%%", text, n);
         }
         if (c->bld == 0 || c->bld->owner != (unsigned short)ai_PlayerId || ai_SelectedCount >= 2) {
             SV_CLEAR_PANEL_WIDGETS(i)
@@ -3900,7 +3900,7 @@ void sv_RefreshPanel(void)
     SV_CLEAR_PANEL_WIDGETS(i)
     d2_RemoveWindowObjects(d2_LastWindow, 1);
     if (SV_SELCART->job24 != 0 && (bld = gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
-        io_PrintText("$Y$Z%s", bld->type * 0xe + 0x48e);
+        io_PrintText((intptr_t)"$Y$Z%s", bld->type * 0xe + 0x48e);
     load = gm_Query((void *)SV_SELCART->list, 1, 0, 0x1dd);
     if (load == 0)
         return;
@@ -3989,7 +3989,7 @@ int ls_GetLanguage();                     /* 0x5190a0 */
 struct AIOBJ *gm_PlayerSeat(int p);                     /* 0x504a80 */
 int gm_SumListAmounts(void *list, unsigned char p);                     /* 0x509e30 */
 int gm_ConvertMoney(int a, unsigned char k);                     /* 0x5085b0 */
-void txt_Format(char *out, int id0, ...);  /* 0x5176d0 */
+void txt_Format(char *out, intptr_t id0, ...);  /* 0x5176d0 */
 
 
 struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
@@ -6641,7 +6641,7 @@ int cm_ReceiveMessages();                     /* 0x4c3fd0 */
 int cm_ExecCommands();                     /* 0x4c4190 */
 void d2_SetObjValue(int obj, ...);                     /* 0x475cb0 */
 void d2_SetObjFont();                     /* 0x4760b0 */
-int io_PrintText(char *fmt, ...);                     /* 0x515960 */
+int io_PrintText(intptr_t fmt, ...);                     /* 0x515960 */
 int d2_GetWinObj();                     /* 0x475b80 */
 void d2_SetObjMax();                     /* 0x475f40 */
 int d2_GetObjValue();                     /* 0x475980 */
@@ -6756,8 +6756,8 @@ void sv_ChatConsole(void)
     d2_SetObjMax(ed, 0x60);
     while (sv_RunFrame(sv_ChatConsole, 0x657c7) != 0) {
         d2_SetForm(f, 1);
-        io_PrintText("$C");
-        io_PrintText(cm_ChatLog);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText((intptr_t)cm_ChatLog);
         if (dm_L.rup != 0 || kb_Last == 1)
             sv_PopRequest = 1;
         d2_FocusInput(ed);
@@ -6797,8 +6797,8 @@ void sv_UpdateQuickChat(void)
     }
     if (sv_QuickChatForm != -1) {
         d2_SetForm(sv_QuickChatForm, 0);
-        io_PrintText("$C");
-        io_PrintText(cm_ChatLog);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText((intptr_t)cm_ChatLog);
     }
 }
 
@@ -7263,7 +7263,7 @@ l3f5:
                 main_DayEnding = 1;
                 tb_SetFunctionOff(sv_UpdateClock, 1);
                 sv_FrameMask |= 0x100000;
-                sv_MessageBoxYesNo((int)txt_Ptrs[0x81], 0xc4);
+                sv_MessageBoxYesNo((intptr_t)txt_Ptrs[0x81], 0xc4);
                 sv_PopTo(main_GameLoop);
             }
             goto l444;

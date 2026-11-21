@@ -517,7 +517,7 @@ int gv_CrimeTextLaw17to28(char *out, CRIME r, int mode)
     text = mode <= 1;
     gm_FindById(&bld, 0, 0, r.place);
     if (bld != 0)
-        txt_Format(name, "%1G", bld);
+        txt_Format(name, (intptr_t)"%1G", bld);
     victim = (unsigned short *)gm_FindChar(r.victim);
     if (victim != 0)
         id = *victim;

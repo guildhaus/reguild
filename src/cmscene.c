@@ -395,7 +395,7 @@ void cm_RunCouncilSession(G28REC *a)
                 sprintf(name, "%i", holderIdx[i]);
                 cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", (int)name);
             }
-            txt_Format(name, (int)"cutscenes\\sitzungen\\%s", fly[k]);
+            txt_Format(name, (intptr_t)"cutscenes\\sitzungen\\%s", fly[k]);
             cm_WaitEvent(cm_StartEventArg(name, (int)&ch_EmptyName));
             loaded = 1;
             sv_SyncText(&ch_EmptyName);
@@ -427,7 +427,7 @@ void cm_RunCouncilSession(G28REC *a)
             cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_KAMMERN", kind - 1, 0x32);
             d2_SetViewEnabled(view, 1);
             d2_SetForm(view, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             io_PrintText(0x12c4);
             io_PrintText(0x12c5, kind + 0x12a9, kind + 0x12bb, challenger->id, holder->id);
             cm_RunSceneTicks(0x9c4);
@@ -467,7 +467,7 @@ void cm_RunCouncilSession(G28REC *a)
                 tally[s->session.answer]++;
                 d2_SetForm(view, 0);
                 d2_Objs[holderRows[i].ctl].highlighted = 1;
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12c7, c->id);
                 cm_RunSceneTicks(0x3e8);
                 d2_SetForm(view, 0);
@@ -502,7 +502,7 @@ void cm_RunCouncilSession(G28REC *a)
             if (tally[0] > tally[1]) {
                 cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_ERGEBNIS_ABGESETZT", cm_Random(3), 100);
                 d2_SetForm(view, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12d6, tally[0], tally[1], holder->id);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
@@ -525,7 +525,7 @@ void cm_RunCouncilSession(G28REC *a)
                 c = gm_FindChar(offices[j].owner);
                 cm_QueueVoice(-8, bankDepose, (int)"_ABSETZEN_ERGEBNIS_NICHT_ABGESETZT", cm_Random(3), 100);
                 d2_SetForm(view, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12d7, tally[0], tally[1], holder->id, holder->id);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
@@ -550,7 +550,7 @@ void cm_RunCouncilSession(G28REC *a)
             }
             d2_SetForm(view, 0);
             d2_SetViewEnabled(view, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             d2_CloseView(viewTop);
             d2_CloseView(viewBottom);
             cm_RunSceneTicks(0x3e8);
@@ -578,7 +578,7 @@ void cm_RunCouncilSession(G28REC *a)
                 sprintf(name2, "%i", holderIdx[i]);
                 cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", (int)name2);
             }
-            txt_Format(name2, (int)"cutscenes\\sitzungen\\%s", fly[k]);
+            txt_Format(name2, (intptr_t)"cutscenes\\sitzungen\\%s", fly[k]);
             cm_WaitEvent(cm_StartEventArg(name2, (int)&ch_EmptyName));
             loaded = 1;
             sv_SyncText(&ch_EmptyName);
@@ -629,7 +629,7 @@ void cm_RunCouncilSession(G28REC *a)
             cm_QueueVoice(-8, bankElect, (int)"_BEWERBER", napp - 1, 0x1f4);
             d2_SetViewEnabled(view, 1);
             d2_SetForm(view, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             io_PrintText(0x12d8);
             io_PrintText(0x12d9, kind + 0x12a9, kind + 0x12bb, offices[j].kind + 0x253);
             for (i = 0; i < napp; i++)
@@ -659,7 +659,7 @@ void cm_RunCouncilSession(G28REC *a)
                 cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 0, 100);
                 d2_Objs[applicantRows[0].ctl].highlighted = 1;
                 d2_SetForm(view, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12e0, applicants[0]->id, offices[j].kind + 0x253);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
@@ -672,7 +672,7 @@ void cm_RunCouncilSession(G28REC *a)
                 r = cm_Random(napp);
                 cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 1, 100);
                 d2_SetForm(view, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12e1);
                 cm_RunSceneTicks(0x3e8);
                 d2_Objs[applicantRows[r].ctl].highlighted = 1;
@@ -696,7 +696,7 @@ void cm_RunCouncilSession(G28REC *a)
                             if (elect.ids[e] == s->session.answer) {
                                 d2_Objs[holderRows[i].ctl].highlighted = 1;
                                 d2_SetForm(view, 0);
-                                io_PrintText("$C");
+                                io_PrintText((intptr_t)"$C");
                                 io_PrintText(0x12de, holders[i]->id);
                                 votes[e]++;
                                 cm_RunSceneTicks(0x3e8);
@@ -730,7 +730,7 @@ void cm_RunCouncilSession(G28REC *a)
                         d2_Objs[applicantRows[win].ctl].highlighted = 1;
                         cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 3, 100);
                         d2_SetForm(view, 0);
-                        io_PrintText("$C");
+                        io_PrintText((intptr_t)"$C");
                         io_PrintText(0x12e5, offices[j].kind + 0x253, applicants[win]->id);
                         cm_RunSceneTicks(0xfa0);
                         if (a->host == ai_Chars[ai_PlayerId].netId) {
@@ -749,7 +749,7 @@ void cm_RunCouncilSession(G28REC *a)
                         }
                     cm_QueueVoice(-8, bankElect, (int)"_ERGEBNIS", 2, 100);
                     d2_SetForm(view, 0);
-                    io_PrintText("$C");
+                    io_PrintText((intptr_t)"$C");
                     io_PrintText(0x12e3);
                     cm_RunSceneTicks(0x3e8);
                     d2_Objs[applicantRows[win].ctl].highlighted = 1;
@@ -763,7 +763,7 @@ void cm_RunCouncilSession(G28REC *a)
                 }
             }
             d2_SetForm(view, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             d2_SetViewEnabled(view, 0);
             d2_CloseView(viewLeft);
             d2_CloseView(viewBottom);
@@ -857,7 +857,7 @@ int cm_AskElectVote(unsigned char office, AICHAR *b, int *ids, int *click)
     else
         io_PrintText(0x12dd, b->id, b->id, rec.kind + 0x253);
     for (i = 0; i < n; i++)
-        btn[i] = d2_GetWinObj(view, 0, io_PrintText("%ia[%1N3]$A", cand[i]->id));
+        btn[i] = d2_GetWinObj(view, 0, io_PrintText((intptr_t)"%ia[%1N3]$A", cand[i]->id));
     for (i = n; i < 4; i++)
         btn[i] = -1;
     dlg = d2_WinOpenSlider((d2_LastWindowPtr->w - 300) / 2 - 8, 8, 300, 0, 100, 0x75, 0x42, d2_LastWindow);
@@ -1054,7 +1054,7 @@ int cm_CheckTrial(G28REC *p)
         }
     }
     if (code == 0) {
-        txt_Format(intro, (int)"%s", 0x11d7);
+        txt_Format(intro, (intptr_t)"%s", 0x11d7);
         if (c0->kind == 6 || c0->kind == 7) {
             txt_Format(msg, 0x11d0, c1->id);
             strcat(msg, intro);
@@ -1284,14 +1284,14 @@ void cm_RunTrial(G28REC *m)
     h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", 5);
     CM_WAIT_VOICE(h);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1492, c0->id, c1->id, c0->id);
     cm_WaitTicks(4);
 
     /* the accuser states the charge */
     ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"1");
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1499, c1->id);
     h = cm_PlayVoice(c0->id, bankTrial, (int)"_PROZESS_NEU", c1->sex == 1);
     CM_WAIT_VOICE(h);
@@ -1331,12 +1331,12 @@ void cm_RunTrial(G28REC *m)
         ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"1");
         gv_CrimeText(text, crime, k);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C$Z");
-        io_PrintText(text);
+        io_PrintText((intptr_t)"$C$Z");
+        io_PrintText((intptr_t)text);
         h = cm_PlayVoice(c0->id, bankTrial, (int)"_PROZESS_GESETZ", (unsigned char)dec.b1e);
         CM_WAIT_VOICE(h);
         cm_Random(0x1e);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         cm_WaitEvent(ev);
     }
     plan.score = sum;
@@ -1348,7 +1348,7 @@ void cm_RunTrial(G28REC *m)
     h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", (c1->sex != 0) + 2);
     CM_WAIT_VOICE(h);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", (int)"0");
     cm_SetViewEnabled(cm_TextBox, 0);
     cm_RunSceneParty((char *)m, (int)&plan);
@@ -1361,7 +1361,7 @@ void cm_RunTrial(G28REC *m)
     plea = cm_CutInfos[i].session.answer;
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     plan.mode = 4;
     if (plea == 1) {
         plan.score = sum - gm_Liking(c1->id, c2->id, 1) * sum * 0.002f;
@@ -1387,12 +1387,12 @@ void cm_RunTrial(G28REC *m)
     if (plan.mode == 1) {
         plan.rating30 = ai_WealthRatingHalf(c0, c1);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x14ca, c0->id, c1->id, plan.rating30);
         cm_WaitTicks(4);
         ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-1.esc", (int)ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         cm_SetViewEnabled(cm_TextBox, 0);
         cm_RunSceneParty((char *)m, (int)&plan);
         cm_WaitEvent(ev);
@@ -1401,7 +1401,7 @@ void cm_RunTrial(G28REC *m)
         k = cm_CutInfos[i].session.answer;
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (k == 1) {
             j = cm_Random(6);
             k = cm_Random(6);
@@ -1411,7 +1411,7 @@ void cm_RunTrial(G28REC *m)
             cm_QueueVoice(c0->id, bankF2, (int)"_PROZESS_4_FOLTER_2", k, 0x12c);
             io_PrintText(0x14d9);
             cm_WaitTicks(1);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-3.esc", (int)ch_EmptyName);
             plan.tortured = 1;
         } else {
@@ -1440,7 +1440,7 @@ void cm_RunTrial(G28REC *m)
             pathEnd = path + strlen(path);
             p = gm_FindChar(m->members[5]);
             d2_SetForm(cm_TextBox, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             plan.mode = 2;
             ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"0");
             cm_SetViewEnabled(cm_TextBox, 0);
@@ -1461,11 +1461,11 @@ void cm_RunTrial(G28REC *m)
             sprintf(buf, "_PROZESS_5_FOLTER2_%s", instruments[sel]);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             io_PrintText(0x14dd, c0->id, 0xb20 + sel * 2);
             cm_WaitTicks(4);
             d2_SetForm(cm_TextBox, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             cm_SetViewEnabled(cm_TextBox, 0);
             cm_WaitTicks(2);
             cm_WaitEvent(ev2);
@@ -1486,21 +1486,21 @@ void cm_RunTrial(G28REC *m)
             cm_StartEventArg("cutscenes\\prozess\\folter-create.esc", (int)names);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             io_PrintText(0x14e4);
             h = cm_PlayVoice(c2->id, bankTrial, (int)"_PROZESS_NEU", 4);
             CM_WAIT_VOICE(h);
             strcpy(pathEnd, files[sel]);
             cm_SetViewEnabled(cm_TextBox, 0);
             d2_SetForm(cm_TextBox, 0);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             ev = cm_StartEventArg(path, (int)ch_EmptyName);
             cm_WaitTicks(5);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
             k = cm_Random(5);
             cm_QueueVoice(c0->id, bankT2, (int)buf, k, 0x320);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             io_PrintText(0x14ec, texts[sel] + k);
             cm_WaitTicks(5);
             cm_SetViewEnabled(cm_TextBox, 0);
@@ -1513,7 +1513,7 @@ void cm_RunTrial(G28REC *m)
                 k = cm_Random(6);
                 cm_SetViewEnabled(cm_TextBox, 1);
                 d2_SetForm(cm_TextBox, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x14e6 + k);
                 cm_QueueVoice(c1->id, bankT4, (int)"_PROZESS_5_FOLTER2_UNSCHULDSBETEUERUNG", k, 0x1f4);
                 cm_WaitTicks(5);
@@ -1523,9 +1523,9 @@ void cm_RunTrial(G28REC *m)
                 cm_QueueVoice(c1->id, bankT3, (int)"_PROZESS_5_FOLTER2_WEITER", 0, 0x1f4);
                 cm_SetViewEnabled(cm_TextBox, 1);
                 d2_SetForm(cm_TextBox, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 io_PrintText(0x1514 + k);
-                io_PrintText("$N");
+                io_PrintText((intptr_t)"$N");
                 io_PrintText(0x1510);
                 cm_WaitTicks(4);
                 confessed = 1;
@@ -1536,7 +1536,7 @@ void cm_RunTrial(G28REC *m)
     if (plan.tortured != 0) {
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (plan.success == 0) {
             io_PrintText(0x151f, c1->id, c0->id);
             plan.score *= 0.8f;
@@ -1556,7 +1556,7 @@ void cm_RunTrial(G28REC *m)
     cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     if (plan.tortured != 0) {
         bankV = cm_LoadVoiceBank((int)"PROZESS_6_FOLTERERGEBNIS.sbf", 0);
         cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
@@ -1575,7 +1575,7 @@ void cm_RunTrial(G28REC *m)
     cm_QueueVoice(c2->id, bank6, (int)"_PROZESS_6_ANKUENDIGUNG", 0, 0);
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1523);
     cm_WaitTicks(4);
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"1");
@@ -1590,7 +1590,7 @@ void cm_RunTrial(G28REC *m)
     cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1528, c2->id);
     cm_WaitTicks(2);
     votes = cm_CutInfos[i].session.answer;
@@ -1608,7 +1608,7 @@ void cm_RunTrial(G28REC *m)
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-1.esc", (int)ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
         assessor = gm_FindChar(plan.ids[3]);
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
         io_PrintText(0x152c + vote);
@@ -1625,7 +1625,7 @@ void cm_RunTrial(G28REC *m)
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-2.esc", (int)ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
         assessor = gm_FindChar(plan.ids[4]);
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         io_PrintText(0x1528, assessor->id);
         cm_WaitTicks(2);
         io_PrintText(0x152c + vote);
@@ -1654,7 +1654,7 @@ void cm_RunTrial(G28REC *m)
             ai_CountMissionEvent(c0, 0x13);
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x152f, c1->id);
         io_PrintText(0x1530);
         /* @original the three verdict voices pass the sex test masked with & 1 (xor; cmp; sete; and reg,1), the other sex tests of this function do not */
@@ -1665,7 +1665,7 @@ void cm_RunTrial(G28REC *m)
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
         gv_SentenceText(c1, sentence, buf);
-        io_PrintText(buf);
+        io_PrintText((intptr_t)buf);
         if (c1->officeKind != 0 && (sentence == 4 || sentence == 6 || sentence == 8)) {
             AIFIN *fin = (AIFIN *)gm_PlayerRecord(c0);
 
@@ -1684,7 +1684,7 @@ void cm_RunTrial(G28REC *m)
             cm_SendMoveGoodsUnchecked(c4->netId, c1->netId, ai_OwnPlayer, fee);
         }
         cm_WaitTicks(6);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x1557, plan.rating2c, c1->id);
         cm_WaitTicks(4);
     } else {
@@ -1694,10 +1694,10 @@ void cm_RunTrial(G28REC *m)
         cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x152e, c1->id);
         cm_WaitTicks(4);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x1557, plan.rating2c, c0->id);
         cm_WaitTicks(4);
         if (m->host == ai_Chars[ai_PlayerId].netId) {
@@ -2140,7 +2140,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
         return;
     rec = (CMCUTINFO *)cm_CutInfoById(a->netId);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     switch (rec->duel.round) {
     case 4:
         d2_SetForm(cm_TextBox, 0);
@@ -2148,7 +2148,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
         io_PrintText(n + 0x10fa, a->id);
         snd_PlayVoice(a->id, 0, "_DUELL_INTRO_C2_AUSWAHL_SCHIESSEN", n);
         cm_WaitTicks(2);
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         act = ch_AddActionCB(a->scene, cm_DuelShotAction, 6, 0x2e, 1);
         act->shot.target = b;
         act->shot.shooter = a;
@@ -2172,7 +2172,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
             else
                 io_PrintText(0x10f9, a->id);
         }
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         break;
     case 2:
         d2_SetForm(cm_TextBox, 0);
@@ -2180,7 +2180,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
         n = cm_DuelVariant(8);
         io_PrintText(n + 0x10e9);
         snd_PlayVoice(a->id, 0, "_DUELL_INTRO_C2_AUSWAHL_LAESTERN", n);
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         ch_QueueAnim(a->scene, "gestik/abfaellig", 1);
         cm_WaitTicks(2);
         fa = gm_GetSkill(a, 4);
@@ -2203,7 +2203,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
             else
                 io_PrintText(0x10f5, b->id);
         }
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         break;
     }
     cm_WaitTicks(4);
@@ -2337,7 +2337,7 @@ void cm_RunDuel(G28REC *m)
     cb.scene->pathType = 4;
     for (i = 0; i < 3; i++) {
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(v * 3 + 0x10cb + i);
         sprintf(buf, "_DUELL_INTRO_NEU_0%d", i);
         n = cm_PlayVoice(-7, 0, buf, -1);
@@ -2349,10 +2349,10 @@ void cm_RunDuel(G28REC *m)
     ch_WalkToObject(cb.scene, d3_FindObject(0, 0x100, 0, "dummy_DUELL_START_B"));
     ch_AddAction(cb.scene, 0x35, d3_FindObject(0, 0x100, 0, "dummy_DUELL_SCHUSS_B"));
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x10dd);
     cm_WaitTicks(4);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     snd_PlayVoice(-7, 0, "_DUELL_INTRO_BEGRUESSUNG_RUECKEN", -1);
     cm_RunSceneParty(m, 0);
 
@@ -2368,7 +2368,7 @@ void cm_RunDuel(G28REC *m)
         n = cm_DuelVariant(6);
         d2_SetForm(cm_TextBox, 0);
         io_PrintText(n + 0x10df);
-        io_PrintText("$A");
+        io_PrintText((intptr_t)"$A");
         snd_PlayVoice(r, snd2, "_DUELL_INTRO_C2_SEKUNDANTEN", n);
         act = ch_AddActionCB(ca.scene, cm_DuelShotAction, 6, 0x2e, 1);
         act->shot.target = &cb;
@@ -2420,7 +2420,7 @@ void cm_RunDuel(G28REC *m)
             cm_WaitTicks(5);
         }
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
     }
 
     /* the result: the one with the lower health is down */
@@ -2431,16 +2431,16 @@ void cm_RunDuel(G28REC *m)
         else
             w = &ca;
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x111d, w->id, w->id);
         cm_WaitTicks(5);
     } else {
         d2_SetForm(cm_TextBox, 0);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         io_PrintText(0x111c);
     }
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     if (hita == 0) {
         if (cm_DuelScore[0] != 0) {
             io_PrintText(0x111e, ca.id);
@@ -2454,7 +2454,7 @@ void cm_RunDuel(G28REC *m)
         io_PrintText(0x1121, ca.id);
     cm_WaitTicks(4);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     if (hitb == 0) {
         if (cm_DuelScore[1] != 0) {
             io_PrintText(0x111e, cb.id);
@@ -2468,7 +2468,7 @@ void cm_RunDuel(G28REC *m)
         io_PrintText(0x1121, cb.id);
     cm_WaitTicks(4);
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
 
     /* the loser's office */
     if (w != 0) {
@@ -2934,7 +2934,7 @@ int cm_RunWedding(G28REC *m)
     WED_VOICE("_HOCHZEIT_NEU_MAIN_00");
     WED_STEP(0x3e8);
     d2_SetForm(st[1], 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     d2_SetViewEnabled(st[1], 0);
     WED_WAIT();
     WED_STEP(0x3e8);
@@ -2946,7 +2946,7 @@ int cm_RunWedding(G28REC *m)
     WED_VOICE("_HOCHZEIT_NEU_MAIN_03");
     WED_STEP(0x3e8);
     d2_SetForm(st[1], 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     d2_SetViewEnabled(st[1], 0);
     WED_STEP(0x1f4);
     d2_SetViewEnabled(st[1], 1);
@@ -2959,7 +2959,7 @@ int cm_RunWedding(G28REC *m)
     st[0] = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden3.esc", &ch_EmptyName);
     d2_SetViewEnabled(st[1], 0);
     d2_SetForm(st[1], 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     WED_STEP(0x5dc);
     d2_SetViewEnabled(st[1], 1);
     d2_SetForm(st[1], 0);
@@ -2968,7 +2968,7 @@ int cm_RunWedding(G28REC *m)
     WED_STEP(0x1f4);
     d2_SetViewEnabled(st[1], 0);
     d2_SetForm(st[1], 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     WED_STEP(0x1f4);
     d2_SetViewEnabled(st[1], 1);
     d2_SetForm(st[1], 0);
@@ -2984,7 +2984,7 @@ int cm_RunWedding(G28REC *m)
     WED_STEP(0x1f4);
     d2_SetViewEnabled(st[1], 0);
     d2_SetForm(st[1], 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     WED_WAIT();
     st[0] = -1;
     return cm_EndWedding(st);
@@ -3073,7 +3073,7 @@ void cm_RunBirth(G28REC *m)
     else
         io_PrintText(0x1aaf);
     d2_SetForm(view, 2);
-    box = d2_GetWinObj(view, 2, io_PrintText("$L%t", b->first));
+    box = d2_GetWinObj(view, 2, io_PrintText((intptr_t)"$L%t", b->first));
     d2_SetObjMax(box, 0xf);
     d2_FocusInput(box);
     do {
@@ -3169,7 +3169,7 @@ void cm_RunDeath(G28REC *m)
         revive = 0;
         if ((a->flags1cc & 1) != 0 && (a->flags1cc & 2) == 0) {
             txt_Format(buf, 0x40fb, 0x40f5, a->id);
-            revive = cm_MessageBox(buf, 0x10);
+            revive = cm_MessageBox((intptr_t)buf, 0x10);
         }
         if (revive == 0)
             ai_FamilyTreeWindow(ai_CharInts[ai_PlayerId][0], 0xa, txt_DeathTreeCaption, cm_DialogFrameFlags);
@@ -3192,7 +3192,7 @@ void cm_RunDeath(G28REC *m)
         zero = 0;
         life = 100.0f;
         txt_Format(buf, 0x40fc, 0x40f5, a->id);
-        cm_MessageBox(buf, 0x10);
+        cm_MessageBox((intptr_t)buf, 0x10);
         cm_BeginFieldBlock((char *)a, a->netId);
         cm_AddFieldDelta(4, 1, 0x1c, &life);
         cm_AddFieldDelta(4, 1, 0x24, &zero);
@@ -3205,11 +3205,11 @@ void cm_RunDeath(G28REC *m)
             txt_Format(buf, 0x1ab4);
         else
             txt_Format(buf, 0x1ab3, a->id);
-        cm_MessageBox(buf, 0);
+        cm_MessageBox((intptr_t)buf, 0);
         sv_PopTo(main_GameLoop);
     } else {
         gm_ForfeitEstate(a, estate, 1);
-        cm_MessageBox(estate, 0x10);
+        cm_MessageBox((intptr_t)estate, 0x10);
     }
     cm_FadeToBlack();
     cm_StopScript(sc);
@@ -3273,7 +3273,7 @@ void cm_RunBankruptcy(G28REC *m)
         txt_Format(buf, 0x3fda, a->id);
     else
         txt_Format(buf, 0x1ab1, a->id);
-    cm_MessageBox(buf, 0);
+    cm_MessageBox((intptr_t)buf, 0);
     cm_FadeToBlack();
     cm_StopScript(sc);
     cm_WaitEvent(sc);
@@ -4250,8 +4250,8 @@ int cm_ShowPartyTexts(char *m)
     for (i = 0; i < party->used; i++, s++) {
         if (s->recvFlag == 0 && s->valid != 0) {
             d2_SetForm(party->window, 0);
-            io_PrintText(s->text);
-            io_PrintText("$A");
+            io_PrintText((intptr_t)s->text);
+            io_PrintText((intptr_t)"$A");
             s->recvFlag = 1;
         }
     }
@@ -4352,8 +4352,8 @@ void cm_RunSceneParty(char *m, int ctx)
                     cb(&cm_CutInfos[i], ctx);
             }
             d2_SetForm(party->window, 0);
-            io_PrintText(cm_CutInfos[i].text);
-            io_PrintText("$A");
+            io_PrintText((intptr_t)cm_CutInfos[i].text);
+            io_PrintText((intptr_t)"$A");
         }
     } else if (ai_GameFlags & 4) {
         cm_CutChar = &ai_Chars[ai_PlayerId];
@@ -5142,7 +5142,7 @@ int cm_DialogTimer(int dlg, int a, int c)
    objects are put into a radio group (all but the type 0x40), the loop runs the frame wait sv_RunFrame until the stop request; the answer: the selected
    button index + 1 when the text window is clicked, 0 otherwise (a right click on it, the escape key, a timeout); not reentrant (cm_MessageBoxOpen). */
 
-int cm_MessageBox(int id, int flags)
+int cm_MessageBox(intptr_t id, int flags)
 {
     unsigned long t0;
     int ret, win, textwin, radio, i, k, slider, fl;

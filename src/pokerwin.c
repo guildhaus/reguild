@@ -95,7 +95,7 @@ int sprintf(char *buf, const char *fmt, ...); /* 0x5de652, the CRT's sprintf (no
 /* dcp unit split: the declarations of menu before the moved functions */
 void d2_CentreViewWindows(int view); void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 void d2_CloseView(int view);
-int io_PrintText(char *fmt, ...); int d2_GetWinObj(int view, int idx, int k);
+int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj(int view, int idx, int k);
 int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a, int *c); /* 0x52e860, sv.c:
                                            the slider of the form f at (x, y) */
 int d2_GetViewWin(int view, int i);         /* 0x475ff0, d2.h: window i of a view, -1 if out of range */
@@ -155,7 +155,7 @@ extern float sv_FramesPerTick;          /* 0x62378c, sv.c: the frames drawn sinc
                                            0x520ec0 copies the count as a float and clears it) */
 void d2_PlaceWindowScaled(int win, int flags); /* 0x475730, d2.c */
 int d2_RemoveWindow(int win);           /* 0x472ce0, d2.c */
-int io_PrintText(char *fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
+int io_PrintText(intptr_t fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
                                            tokens into the current window and redraws it */
 extern short d2_ScreenW;                /* 0xfb9072, d2.h */
 extern short d2_ScreenH;                /* 0xfb9070, d2.h */
@@ -319,9 +319,9 @@ void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRI
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
 int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
                                               covers n, else a message box with the text 0x74 */
-int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c: the modal message box */
+int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
-int d2_RemoveWindow(); int io_PrintText(char *fmt, ...);
+int d2_RemoveWindow(); int io_PrintText(intptr_t fmt, ...);
 int d2_GetObjValue();
 int he_IsMessageKindFiltered(int kind); /* 0x575640, he.c: nonzero when the kind is filtered */
 void he_SetMessageKindFiltered(int kind, int filtered); /* 0x575710, he.c: sets / clears the kind's bit */
@@ -505,7 +505,7 @@ int ai_PokerGame(void)
             if (d2_ClickedId != -1) {
                 if (ai_PokerUi.buttons[1] == d2_PointerObj) {
                     txt_Format(msg, 0x4263);
-                    if (sv_MessageBox((int)msg, 0x101) != 0)
+                    if (sv_MessageBox((intptr_t)msg, 0x101) != 0)
                         sv_PopRequest = 1;
                 }
                 if (ai_PokerUi.buttons[4] == d2_PointerObj) {
@@ -530,16 +530,16 @@ int ai_PokerGame(void)
                         s[d] = c;
                         s++;
                     } while (c != 0);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                     if (d2_ClickedId != -1 && ai_PokerUi.buttons[0] == d2_PointerObj) {
                         ai_PokerState.bet = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
                         mask = ai_PokerStep();
                     }
                 } else {
                     sprintf(text, txt_Ptrs[0x424f], ai_PokerState.seat[ai_PokerState.actor].who->vname, ai_PokerState.seat[ai_PokerState.actor].who->nname);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                     txt_Format(text, 0x4251, ai_PokerState.minBet);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                     if (d2_ClickedId != -1 && ai_PokerUi.buttons[3] == d2_PointerObj)
                         mask = ai_PokerStep();
                 }
@@ -547,14 +547,14 @@ int ai_PokerGame(void)
             case 2:
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4256);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 if (ai_PokerState.actor != 0) {
                     txt_Format(text, 0x425a, ai_PokerState.bet);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 } else {
-                    io_PrintText(txt_Ptrs[0x4259]);
+                    io_PrintText((intptr_t)txt_Ptrs[0x4259]);
                 }
                 ai_PokerSeatPanel(1, 3, ai_PokerState.seat[1].card);
                 ai_PokerSeatPanel(2, 3, ai_PokerState.seat[2].card);
@@ -578,14 +578,14 @@ int ai_PokerGame(void)
             case 4:
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4257);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 if (ai_PokerState.actor != 0) {
                     txt_Format(text, 0x425a, ai_PokerState.bet);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 } else {
-                    io_PrintText(txt_Ptrs[0x4259]);
+                    io_PrintText((intptr_t)txt_Ptrs[0x4259]);
                 }
                 if (lastPhase != 4) {
                     lastPhase = 4;
@@ -612,8 +612,8 @@ int ai_PokerGame(void)
             case 6:
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
-                io_PrintText(text);
-                io_PrintText(txt_Ptrs[0x425b]);
+                io_PrintText((intptr_t)text);
+                io_PrintText((intptr_t)txt_Ptrs[0x425b]);
                 d2_Objs[ai_PokerUi.panel[0].slot[0]].greyed = 0;
                 d2_Objs[ai_PokerUi.panel[0].slot[1]].greyed = 0;
                 d2_Objs[ai_PokerUi.panel[0].slot[2]].greyed = 1;
@@ -669,20 +669,20 @@ int ai_PokerGame(void)
                 d2_Objs[ai_PokerUi.panel[0].slot[1]].style = 0;
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 if (ai_PokerState.seat[1].dropped != -1) {
                     sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[1].who->vname, ai_PokerState.seat[1].who->nname);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 } else {
                     sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[1].who->vname, ai_PokerState.seat[1].who->nname);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 }
                 if (ai_PokerState.seat[2].dropped != -1) {
                     sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[2].who->vname, ai_PokerState.seat[2].who->nname);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 } else {
                     sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[2].who->vname, ai_PokerState.seat[2].who->nname);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 }
                 if (d2_ClickedId != -1 && ai_PokerUi.buttons[3] == d2_PointerObj)
                     mask = ai_PokerStep();
@@ -690,14 +690,14 @@ int ai_PokerGame(void)
             case 8:
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4258);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 if (ai_PokerState.actor != 0) {
                     txt_Format(text, 0x425a, ai_PokerState.bet);
-                    io_PrintText(text);
+                    io_PrintText((intptr_t)text);
                 } else {
-                    io_PrintText(txt_Ptrs[0x4259]);
+                    io_PrintText((intptr_t)txt_Ptrs[0x4259]);
                 }
                 ai_PokerSeatPanel(1, 5, ai_PokerState.seat[1].card);
                 ai_PokerSeatPanel(2, 5, ai_PokerState.seat[2].card);
@@ -728,7 +728,7 @@ int ai_PokerGame(void)
                     txt_Format(text, 0x4265, ai_PokerState.winRank + 0x4266, ai_PokerState.pot);
                 else
                     txt_Format(text, 0x4264, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->vname, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->nname, ai_PokerState.winRank + 0x4266, ai_PokerState.pot);
-                io_PrintText(text);
+                io_PrintText((intptr_t)text);
                 break;
             case 11:
                 if (d2_ClickedId != -1) {
@@ -746,7 +746,7 @@ int ai_PokerGame(void)
             return 0;
         d2_CentreViewWindows(ai_PokerUi.window);
         txt_Format(text, 0x4239, 0x4238);
-        io_PrintText(text);
+        io_PrintText((intptr_t)text);
         while (sv_RunFrame(ai_PokerGame, 0x777c7) != 0) {
             if (dm_L.rup != 0 || kb_Down[1] != 0)
                 sv_PopRequest = 1;
@@ -773,7 +773,7 @@ void ai_PokerSeatPanel(int seat, int n, int *cards)
     int o, pic, x, w, h, i;
 
     d2_LastWindow = ai_PokerUi.panel[seat].win;
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     w = d2_Wins[d2_LastWindow].w;
     h = d2_Wins[d2_LastWindow].h;
     x = (w - 0xc4) / 2;
@@ -827,7 +827,7 @@ void ai_PokerWindow2(void)
     d2_SetPointerSprite(0, 0);
     d2_CentreViewWindows(form);
     d2_SetForm(form, 1);
-    io_PrintText((char *)0x423e);
+    io_PrintText(0x423e);
     d2_SetForm(form, 3);
     sv_ButtonRow(d2_LastWindow, 0, ids, 1, txt_Ptrs[0x4249]);
     d2_SetForm(form, 2);
@@ -836,8 +836,8 @@ void ai_PokerWindow2(void)
     d2_SetForm(form, 4);
     sv_CreateScrollButtons(0, 0, d2_LastWindow, win, 0x35, &c, &b, &a);
     d2_SetForm(form, 2);
-    io_PrintText((char *)0x4247);
-    io_PrintText((char *)0x4248);
+    io_PrintText(0x4247);
+    io_PrintText(0x4248);
     o = d2_WinOpenPic(0x5, 0xa0, 0x779, d2_LastWindow);
     d2_Objs[o].highlighted = 1;
     o = d2_WinOpenPic(0x25, 0xa0, 0x77a, d2_LastWindow);

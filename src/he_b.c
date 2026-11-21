@@ -1498,7 +1498,7 @@ void he_AllocProduktion(AIJOB *ev)
     if (ev->chr == 0xffff) {
         o = (int)gm_FindBuildingById(p->bld);
         if (o != 0)
-            txt_Format(buf, "he_AllocProduktion(): geb:%G", o);
+            txt_Format(buf, (intptr_t)"he_AllocProduktion(): geb:%G", o);
     }
     b = gm_FindBuildingById(p->bld);
     g = (GMGOOD *)ai_Goods;
@@ -1586,7 +1586,7 @@ void he_RunProduktion(AIJOB *ev)
     if (ev->chr == 0xffff) {
         bld = gm_FindBuildingById(p->bld);
         if (bld != 0)
-            txt_Format(buf, "he_RunProduktion(): geb:%G", bld);
+            txt_Format(buf, (intptr_t)"he_RunProduktion(): geb:%G", bld);
         he_FreeEvent(ev);
         return;
     }
@@ -2028,7 +2028,7 @@ void he_RunNewOccurrenceMsg(AIJOB *ev)
         good = v->good;
         he_OpenEventSlot(ev, 0, 0, "Misc\\EventMessagebox", 0x5f2);
         d2_SetForm(ev->slot->win, 0);
-        io_PrintText("HE_NEUE_VORKOMMEN_SUCHEN_MSG: Ich bin ein Bug !!! %s gefunden!!", good * 2 + 0x9a8);
+        io_PrintText((intptr_t)"HE_NEUE_VORKOMMEN_SUCHEN_MSG: Ich bin ein Bug !!! %s gefunden!!", good * 2 + 0x9a8);
         ev->stage++;
         return;
     case 1:
@@ -2422,7 +2422,7 @@ void he_AllocGebaeudeBauen(AIJOB *e)
             return;
         }
     }
-    txt_Format(buf, "he_AllocGebaeudeBauen: %1N1", e->chr);
+    txt_Format(buf, (intptr_t)"he_AllocGebaeudeBauen: %1N1", e->chr);
     d3if_SelectScene(scene, 1);
     e->exSlot = -1;
     return;
@@ -4887,8 +4887,8 @@ void he_RunPlunderOffer(AIJOB *e)
         }
         d2_CentreViewWindows(e->slot->win);
         d2_SetForm(e->slot->win, 0);
-        io_PrintText("$C");
-        io_PrintText((char *)0x40fd, client->id, d->deal[3]);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText(0x40fd, client->id, d->deal[3]);
         snd_QueueVoice(-7, 0, "_NACHRICHTEN_FRIEDHOF_09", -1, 0);
         e->stage = 1;
         return;
@@ -5768,8 +5768,8 @@ void he_RunGraveLease(AIJOB *ev)
         }
         d2_CentreViewWindows(ev->slot->win);
         d2_SetForm(ev->slot->win, 0);
-        io_PrintText("$C");
-        io_PrintText((char *)0x411c, l->price);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText(0x411c, l->price);
         snd_QueueVoice(-7, 0, "_NACHRICHTEN_FRIEDHOF_07", -1, 0);
         ev->stage = 1;
         return;

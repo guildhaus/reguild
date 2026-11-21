@@ -146,7 +146,7 @@ int ai_ListFiles(char *dirPath, const char *ext, char *records)
 
 void d2_CentreViewWindows(int view); void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 void d2_CloseView(int view);
-int io_PrintText(char *fmt, ...); int d2_GetWinObj(int view, int idx, int k);
+int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj(int view, int idx, int k);
 int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a, int *c); /* 0x52e860, sv.c:
                                            the slider of the form f at (x, y) */
 /* Callees whose units have no header here (type debt: the canonical prototypes live in d2.h, f3gm.c,
@@ -193,7 +193,7 @@ int ai_FilePickWindow(unsigned mask, int flags, char *caption, char *dir, char *
     d2_CentreViewWindows(win);
     d2_SetPointerSprite(0, 0);
     d2_SetForm(win, 2);
-    io_PrintText(caption);
+    io_PrintText((intptr_t)caption);
     d2_SetForm(win, 0);
     sv_CreateScrollButtons(0x140, 0x100, d2_LastWindow, d2_GetViewWin(win, 1), 0x18, &slidA, &slidB, &count);
     memset(recs, 0, sizeof(recs));
@@ -431,7 +431,7 @@ extern float sv_FramesPerTick;          /* 0x62378c, sv.c: the frames drawn sinc
 int d2_CreateWindow(); /* 0x472390, d2.c; @original why: d2_CreateWindow is a K&R definition, the original's calls push movsx-promoted ints (byte-matched d2_CreateChildWindow) */
 void d2_PlaceWindowScaled(int win, int flags); /* 0x475730, d2.c */
 int d2_RemoveWindow(int win);           /* 0x472ce0, d2.c */
-int io_PrintText(char *fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
+int io_PrintText(intptr_t fmt, ...);          /* 0x515960, io_text.c: prints a text (id or literal) with its
                                            tokens into the current window and redraws it */
 extern short d2_ScreenW;                /* 0xfb9072, d2.h */
 extern short d2_ScreenH;                /* 0xfb9070, d2.h */
@@ -1553,9 +1553,9 @@ void ai_MasterLetterWindow(struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRI
 void ai_MarketContact(struct AIBLD *rec);  /* 0x58f510, lc.c */
 int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when the object's money (+0x194)
                                               covers n, else a message box with the text 0x74 */
-int sv_MessageBox(int text, unsigned flags); /* 0x521150, sv.c: the modal message box */
+int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
-int d2_RemoveWindow(); int io_PrintText(char *fmt, ...);
+int d2_RemoveWindow(); int io_PrintText(intptr_t fmt, ...);
 int d2_GetObjValue();
 
 /* 0x5d7770, the options menu screen (1112 B): param none, void. The game screen 0x5d7160 is copied
@@ -2390,8 +2390,8 @@ void ai_TailorChatWindow(int request)
     io_PrintText(0x4227);
     io_PrintText(0x422b, req->id, count, 0x422c, req->id, 1);
     d2_SetForm(wnd, 2);
-    obj = d2_GetWinObj(wnd, 2, io_PrintText("%ia[%s]$N", 0x422d));
-    io_PrintText("%in[%s]", 0x422e);
+    obj = d2_GetWinObj(wnd, 2, io_PrintText((intptr_t)"%ia[%s]$N", 0x422d));
+    io_PrintText((intptr_t)"%in[%s]", 0x422e);
     if (found == 0 || count == 0)
         d2_SetObjEnabled(obj, 0);
     pump = sv_RunFrame(ai_TailorChatWindow, 0x67fff);
@@ -2446,7 +2446,7 @@ void ai_TailorContact(AIBLD *building, AIOBJ *arg)
     CONTACTREQ req;
 
     if ((((AICHARVIEW *)&ai_Chars[ai_PlayerId])->flags1cc & 0x20000) != 0) {
-        sv_MessageBox((int)ai_TailorBlockedText, 4);
+        sv_MessageBox((intptr_t)ai_TailorBlockedText, 4);
         return;
     }
     if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 1) != 0) {
@@ -2643,7 +2643,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
     total = 0;
     tick = 0;
     if (((AICHARVIEW *)&ai_Chars[ai_PlayerId])->flags1cc & 8) {
-        sv_MessageBoxGreen((int)txt_Ptrs[0x41b2], (int)txt_Ptrs[0x41b3], 0);
+        sv_MessageBoxGreen((intptr_t)txt_Ptrs[0x41b2], (intptr_t)txt_Ptrs[0x41b3], 0);
         return;
     }
     form = d2_OpenForm(0, 0, "Locations\\zigeuner\\blutrache");
@@ -2670,8 +2670,8 @@ void ai_BloodRevengeWindow(AIBLD *building)
             tick = d3_Time;
             refresh = 0;
             d2_SetForm(form, 1);
-            io_PrintText("$C");
-            io_PrintText((char *)0x41b2);
+            io_PrintText((intptr_t)"$C");
+            io_PrintText(0x41b2);
             total = 0;
             for (i = 0; i < 5; i++) {
                 row = &rows[i];
@@ -2699,8 +2699,8 @@ void ai_BloodRevengeWindow(AIBLD *building)
                 total += r;
             }
             d2_SetForm(form, 2);
-            io_PrintText("$C", total);
-            io_PrintText((char *)0x41b6, total);
+            io_PrintText((intptr_t)"$C", total);
+            io_PrintText(0x41b6, total);
             d2_SetObjEnabled(ids[0], rows[0].rec != 0 && total != 0);
         }
         if (dm_L.rup != 0) {
@@ -2724,7 +2724,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
                     cm_SendSetField(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, 0x1cc, 4, 8, 0);
                     ai_GypsyDeliveryText((struct AICHAR *)av, k, (struct AICHAR **)&sel[5]);
                     txt_Format(msg, 0x41b9, 0x41b2);
-                    sv_MessageBox((int)msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == ids[1]) {
@@ -2793,7 +2793,7 @@ void ai_CurseWindow(AIBLD *building)
 
     if (((AICHARVIEW *)&ai_Chars[ai_PlayerId])->flags1cc & 0x10) {
         snd_PlayVoice(-7, 0, "RAUSWURF", -1);
-        sv_MessageBoxGreen((int)txt_Ptrs[0x41c1], (int)txt_Ptrs[0x41c2], 0);
+        sv_MessageBoxGreen((intptr_t)txt_Ptrs[0x41c1], (intptr_t)txt_Ptrs[0x41c2], 0);
         return;
     }
     memset(&cfg, 0, sizeof(cfg));
@@ -2829,10 +2829,10 @@ void ai_CurseWindow(AIBLD *building)
         d2_SetObjValue(slider, 0, limit, v, 1);
         txt_Format(text, v + 0x41d0, target->id);
         d2_SetForm(form, 1);
-        io_PrintText("$C");
-        io_PrintText((char *)0x41d6, 0x41c1, v + 0x41c4, text);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText(0x41d6, 0x41c1, v + 0x41c4, text);
         if (ai_PlayerId != building->owner)
-            io_PrintText((char *)0x41d7, (v > 1 ? v : 1) * 32000);
+            io_PrintText(0x41d7, (v > 1 ? v : 1) * 32000);
         if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
@@ -2857,7 +2857,7 @@ void ai_CurseWindow(AIBLD *building)
                     txt_Format(text, 0x41da, 0x41c1);
                     sprintf(name, "_WAHRSAGERIN_FLUCH_0%d", v);
                     snd_PlayVoice(-7, 0, name, -1);
-                    sv_MessageBox((int)text, 0);
+                    sv_MessageBox((intptr_t)text, 0);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == ids[1]) {
@@ -2931,19 +2931,19 @@ void ai_CurseTargetWindow(AIBLD *building)
                 d2_SetObjValue(share, 0, 100, 0);
             }
             d2_SetForm(form, 1);
-            io_PrintText("$C");
+            io_PrintText((intptr_t)"$C");
             if (ev != 0) {
                 if (ev->done == 0)
-                    io_PrintText((char *)0x41f8, 0x41f4, ev->victim + 0x41fb, &when);
+                    io_PrintText(0x41f8, 0x41f4, ev->victim + 0x41fb, &when);
                 else
-                    io_PrintText((char *)0x41f9, 0x41f4);
+                    io_PrintText(0x41f9, 0x41f4);
             } else {
                 value = d2_GetObjValue(victim);
                 if (value < 4)
                     cls = 2;
                 else
                     cls = (value >= 7) + 3;
-                io_PrintText((char *)0x41f5, 0x41f4, cls, value + 0x41fb, &when);
+                io_PrintText(0x41f5, 0x41f4, cls, value + 0x41fb, &when);
             }
             d2_SetObjEnabled(ids[0], ev == 0);
             d2_SetObjEnabled(ids[1], ev == 0);
@@ -3000,7 +3000,7 @@ void ai_HomageWindow(AIBLD *building)
         return;
     }
     if (((AICHARVIEW *)&ai_Chars[ai_PlayerId])->flags1cc & 0x20) {
-        sv_MessageBoxGreen((int)txt_Ptrs[0x4207], (int)txt_Ptrs[0x4208], 0);
+        sv_MessageBoxGreen((intptr_t)txt_Ptrs[0x4207], (intptr_t)txt_Ptrs[0x4208], 0);
         return;
     }
     memset(&cfg, 0, sizeof(cfg));
@@ -3027,8 +3027,8 @@ void ai_HomageWindow(AIBLD *building)
     do {
         value = d2_GetObjValue(slider);
         d2_SetForm(form, 1);
-        io_PrintText("$C");
-        io_PrintText((char *)0x420a, 0x4207, target->id, value);
+        io_PrintText((intptr_t)"$C");
+        io_PrintText(0x420a, 0x4207, target->id, value);
         if (dm_L.rup != 0) {
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
@@ -3075,8 +3075,8 @@ void ai_GypsyBeggingWindow(AIBLD *building)
     d2_SetForm(form, 0);
     sv_FitForm(d2_LastWindow);
     d2_SetForm(form, 1);
-    io_PrintText("$C");
-    io_PrintText((char *)0x41e7, 0x41e6, 0xed6);
+    io_PrintText((intptr_t)"$C");
+    io_PrintText(0x41e7, 0x41e6, 0xed6);
     d2_SetForm(form, 3);
     sv_ButtonRow(d2_LastWindow, 0, ids, 2, txt_Ptrs[0x41e8], txt_Ptrs[0x41e9]);
     do {
@@ -3103,7 +3103,7 @@ void ai_GypsyBeggingWindow(AIBLD *building)
                     cm_SendLongMessage((char *)&msg);
                     sv_PopRequest = 1;
                 } else {
-                    sv_MessageBox((int)txt_Ptrs[0x41ea], 0);
+                    sv_MessageBox((intptr_t)txt_Ptrs[0x41ea], 0);
                 }
             } else if (d2_PointerObj == ids[1]) {
                 sv_PopRequest = 1;

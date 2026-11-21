@@ -2066,7 +2066,7 @@ int init_InitTown(char *city)
 void init_ShowStatus(int t)
 {
     d2_SetForm(init_StatusForm, 2);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(t);
     d2_DrawAll();
 }

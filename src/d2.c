@@ -3048,7 +3048,8 @@ void d2_DrawWindowText(void *surf, int win)
     int top;
     D2RGB col;
     int width, extra, num, nlines, align, right, i, argi, left, pos;
-    int arg, id, h, xx, yy, k, t;
+    intptr_t arg;                       /* a text command's argument; "%t" a text id or a string */
+    int id, h, xx, yy, k, t;
     short pw;
     char *text, *start, *end, *p, *q;
     D2OBJ *o;

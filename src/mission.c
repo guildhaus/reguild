@@ -197,7 +197,7 @@ void d2_CentreViewWindows(int view);                                            
 void d2_CloseView(int view);                                                     /* 0x4758f0 */
 int d2_SetForm(int view, int n);                                                 /* 0x475f70 */
 extern int d2_ClickedId;                /* 0xf8a668 */
-int io_PrintText(char *fmt, ...);                                                /* 0x515960, defined elsewhere */
+int io_PrintText(intptr_t fmt, ...);                                                /* 0x515960, defined elsewhere */
 int sv_RunFrame(void (*cb)(), unsigned mask);                                      /* 0x5309a0, defined elsewhere */
 int snd_PlayVoice(int id, int bank, char *text, int var);                             /* 0x4c2760, plays a speech sample */
 int sb_IsPlaying(struct SBSAMPLE *s);                                                       /* 0x426f20 */
@@ -218,11 +218,11 @@ int ai_MissionOfferDialog(int type, int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)(t->text + 1));
-    io_PrintText("$N");
-    io_PrintText((char *)0x7d);
-    io_PrintText("$N");
-    io_PrintText((char *)0x7e);
+    io_PrintText(t->text + 1);
+    io_PrintText((intptr_t)"$N");
+    io_PrintText(0x7d);
+    io_PrintText((intptr_t)"$N");
+    io_PrintText(0x7e);
     sprintf(name, "_AUFTRAEGE_VERGABE_HS_%.2d", t->offerSpeech);
     snd = snd_PlayVoice(-7, 0, name, -1);
     while (sv_RunFrame(ai_MissionOfferDialog, id)) {
@@ -272,7 +272,7 @@ int ai_ChooseMissionType(int kind)
     view = d2_OpenForm(0, 0, "special\\CHOOSE_MISSION");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1ace);
+    io_PrintText(0x1ace);
     d2_SetForm(view, 2);
     win = d2_LastWindow;
     d2_SetForm(view, 0);
@@ -280,7 +280,7 @@ int ai_ChooseMissionType(int kind)
     d2_SetForm(view, 2);
     g = d2_CreateRadioGroup(0);
     for (t = ai_FindMissionType(kind, 0); t != 0; t = ai_FindMissionType(kind, t)) {
-        o = d2_GetWinObj(view, 2, io_PrintText("%ia[%s]$N", t->text));
+        o = d2_GetWinObj(view, 2, io_PrintText((intptr_t)"%ia[%s]$N", t->text));
         d2_Objs[o].user = t;
         d2_RadioAdd(g, o);
     }
@@ -333,7 +333,7 @@ int ai_ChooseMission(void)
     view = d2_OpenForm(0, 0, "Menu\\CHOOSEHISTORY");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 0);
-    first = io_PrintText((char *)0x1ac5, 0x1ac7, 0x1ac8, 0x1ac9, 0x1aca, 0x1acb, 0x1acc);
+    first = io_PrintText(0x1ac5, 0x1ac7, 0x1ac8, 0x1ac9, 0x1aca, 0x1acb, 0x1acc);
     o0 = d2_GetWinObj(view, 0, first);
     o1 = d2_GetWinObj(view, 0, first + 1);
     o2 = d2_GetWinObj(view, 0, first + 2);
@@ -341,10 +341,10 @@ int ai_ChooseMission(void)
     o4 = d2_GetWinObj(view, 0, first + 4);
     o5 = d2_GetWinObj(view, 0, first + 5);
     if (ai_NumPlayers > 1)
-        o6 = d2_GetWinObj(view, 0, io_PrintText("%it[%s]", 0, 0x1acd));
+        o6 = d2_GetWinObj(view, 0, io_PrintText((intptr_t)"%it[%s]", 0, 0x1acd));
     g = d2_CreateRadioGroup(6, o0, o1, o2, o3, o4, o5);
     d2_RadioSelect(g, 0);
-    d2_RadioAdd(g, d2_GetWinObj(view, 0, io_PrintText((char *)0x7e)));
+    d2_RadioAdd(g, d2_GetWinObj(view, 0, io_PrintText(0x7e)));
     while (sv_RunFrame(ai_ChooseMission, sv_FrameMask)) {
         d2_MenuNavigate(g);
         if (dm_L.rup != 0 || kb_Last == 1 || d2_ClickedId == 1) {
@@ -394,7 +394,7 @@ int ai_ChooseMissionFrom(int n)
     view = d2_OpenForm(0, 0, "Menu\\CHOOSEHISTORY");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 0);
-    first = io_PrintText((char *)0x1b9f);
+    first = io_PrintText(0x1b9f);
     o0 = d2_GetWinObj(view, 0, first);
     o1 = d2_GetWinObj(view, 0, first + 1);
     o2 = d2_GetWinObj(view, 0, first + 2);
@@ -1013,9 +1013,9 @@ void ai_MissionInfoDialog(int type, int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)(t->text + 1));
-    io_PrintText("$N");
-    io_PrintText((char *)0x7d);
+    io_PrintText(t->text + 1);
+    io_PrintText((intptr_t)"$N");
+    io_PrintText(0x7d);
     sprintf(name, "_AUFTRAEGE_VERGABE_HS_%.2d", t->offerSpeech);
     snd = snd_PlayVoice(-7, 0, name, -1);
     while (sv_RunFrame(ai_MissionInfoDialog, id)) {
@@ -1068,33 +1068,33 @@ void ai_MissionSuccessDialog(G13TYPE *t, int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b9b);
+    io_PrintText(0x1b9b);
     d2_SetForm(view, 2);
-    io_PrintText("$C");
-    ok = d2_GetWinObj(view, 2, io_PrintText((char *)0x7d));
+    io_PrintText((intptr_t)"$C");
+    ok = d2_GetWinObj(view, 2, io_PrintText(0x7d));
     if (sb_IsInit()) {
         snd = snd_PlayVoice(-8, 0, "AUFTRAEGE_ALLGEMEIN", 0);
         G13_PLAY(snd, ok, id);
     } else
         G13_WAIT(ok, id);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b9c);
+    io_PrintText(0x1b9c);
     if (sb_IsInit()) {
         snd = snd_PlayVoice(-8, 0, "AUFTRAEGE_ALLGEMEIN", 1);
         G13_PLAY(snd, ok, id);
     } else
         G13_WAIT(ok, id);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b9d);
+    io_PrintText(0x1b9d);
     if (sb_IsInit()) {
         snd = snd_PlayVoice(-8, 0, "AUFTRAEGE_ALLGEMEIN", 2);
         G13_PLAY(snd, ok, id);
     } else
         G13_WAIT(ok, id);
     d2_SetForm(view, 1);
-    io_PrintText("$C");
-    io_PrintText((char *)0x1b9e);
-    io_PrintText((char *)(int)(t->text + 2));
+    io_PrintText((intptr_t)"$C");
+    io_PrintText((intptr_t)0x1b9e);
+    io_PrintText(t->text + 2);
     if (sb_IsInit()) {
         sprintf(name, "_AUFTRAEGE_ERFOLG_HS_%.2d", t->speech);
         snd = snd_PlayVoice(-7, 0, name, -1);
@@ -1114,10 +1114,10 @@ void ai_MissionEndDialog(int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b99);
-    io_PrintText("$N");
+    io_PrintText(0x1b99);
+    io_PrintText((intptr_t)"$N");
     d2_SetForm(view, 2);
-    io_PrintText((char *)0x7d);
+    io_PrintText(0x7d);
     id |= 0x80;
     while (sv_RunFrame(ai_MissionEndDialog, id)) {
         if (dm_L.rup != 0)
@@ -1170,10 +1170,10 @@ void ai_MissionCompleteDialog(int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b95, c->id);
-    o1 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b98));
-    o2 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b99));
-    o3 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b9a));
+    io_PrintText(0x1b95, c->id);
+    o1 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b98));
+    o2 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b99));
+    o3 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b9a));
     d2_ClickedId = -1;
     do {
         if (d2_ClickedId != -1) {
@@ -1249,11 +1249,11 @@ void ai_MissionNextDialog(int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b94, c->id);
+    io_PrintText(0x1b94, c->id);
     if (next > -1 && next < 4)
-        o1 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b98));
-    o2 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b99));
-    o3 = d2_GetWinObj(view, 1, io_PrintText((char *)0x1b96, 0x1b9a));
+        o1 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b98));
+    o2 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b99));
+    o3 = d2_GetWinObj(view, 1, io_PrintText(0x1b96, 0x1b9a));
     d2_ClickedId = -1;
     flags = id | 0x80;
     do {
@@ -1323,7 +1323,7 @@ void ai_MissionResultDialog(int id)
     id = (id & ~9) | 0x100;
     ai_MissionSuccessDialog(t, id);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b95, c->id);
+    io_PrintText(0x1b95, c->id);
     d2_ClickedId = -1;
     do {
         if (ai_MissionPartner == -1) {
@@ -1355,7 +1355,7 @@ void ai_MissionPartnerDialog(int id)
     view = d2_OpenForm(0, 0, "special\\mission");
     d2_CentreViewWindows(view);
     d2_SetForm(view, 1);
-    io_PrintText((char *)0x1b97, c->id, c->id);
+    io_PrintText(0x1b97, c->id, c->id);
     d2_ClickedId = -1;
     do {
         if (ai_MissionPartner == -1) {

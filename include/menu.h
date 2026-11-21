@@ -1,6 +1,7 @@
 /* menu.h -- the screen / front-end module (unnamed), see src/game/unk_5d33b0.c */
 #ifndef MENU_H
 #define MENU_H
+#include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct D3SM;
 
@@ -164,7 +165,7 @@ void sv_BuildScreenLayout(int s);   /* 0x521e70, sv.c: builds the main screen la
 /* The gypsy windows' callees (the special-amount list of lc.c, the money / relation messages). */
 int cm_SendRelations(int a, int b, int c, int d);   /* 0x4c4b00, cm.c: message 0x1b, the relation of a to b changes by c */
 float gm_Mix(int a, int b, int c);                   /* 0x504e20, f3gm.c: the mix of two relation values */
-int sv_MessageBoxGreen(int a, int b, unsigned flags); /* 0x521410, sv.c: the green message box with the title text a and the text b */
+int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); /* 0x521410, sv.c: the green message box with the title text a and the text b */
 struct AIBLD;
 struct AICHAR;
 int gm_BathObjectCount(struct AIBLD *b);             /* 0x50cf60, f3gm.c: 1 + the kitchen / bath objects of the building (as poker.h) */
@@ -342,7 +343,7 @@ void sv_PopTo(void (*v)());                       /* 0x52fb50, sv.c: pops the sc
 int cm_SendPlayerId(void);                  /* 0x4c3f90, cm.c: sends message 0x13 with the local player's
                                        id, returns the message slot handle (-1: none) */
 void main_GameLoop(int ctl);                /* 0x53bb20, main.c: the main game loop / dialog callback */
-void txt_Format(char *out, int id0, ...);   /* 0x5176d0, io_text.c: formats a text id into out */
+void txt_Format(char *out, intptr_t id0, ...);   /* 0x5176d0, io_text.c: formats a text id into out */
 
 /* declared in other units' headers before (moved to the owner) */
 int ai_InitShot(SHOTREC *shot, D3VECTOR *pos, D3VECTOR *dir, float charge, float size, float density);  /* 0x5dc240 */

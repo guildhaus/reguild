@@ -680,7 +680,7 @@ int main_OpenEngine(void)
     d2_PlaceWindow(d2_Views[f].wins[0], 3);
     d2_MoveObj(0, d2_ScreenH - d2_Wins[d2_Views[f].wins[1]].h - 0x30, d2_Wins[d2_Views[f].wins[1]].parent);
     d2_PlaceWindow(d2_Views[f].wins[1], 1);
-    io_PrintText("$ADie Gilde - Gold Edition - Version 2.05$X");
+    io_PrintText((intptr_t)"$ADie Gilde - Gold Edition - Version 2.05$X");
     net_Connect(0, 0);
     ai_InitStates();
     ai_ClearTurnTable();
@@ -852,7 +852,7 @@ int main_PlayerCountDialog(void)
     d2_SetForm(form, 1);
     io_PrintText(0x1ab5);
     d2_SetForm(form, 2);
-    io_PrintText("%s$A%s", 0x7d, 0x7e);
+    io_PrintText((intptr_t)"%s$A%s", 0x7d, 0x7e);
     run = sv_RunFrame(main_PlayerCountDialog, 0x24087);
     while (run != 0) {
         if (dm_L.rup != 0)
@@ -1289,7 +1289,7 @@ void main_MoneyDialog(void)
     d2_DirtyRect.top = 1;
     d2_DirtyRect.bottom = 2;
     dlg = d2_CreateWindow(0x20, 0x60, 0x26c, 400, 0x15);
-    ed = d2_GetWinObj(-1, dlg, io_PrintText("$3ABetrag:%m"));
+    ed = d2_GetWinObj(-1, dlg, io_PrintText((intptr_t)"$3ABetrag:%m"));
     d2_SetObjValue(ed, 0, 10000, 0);
     run = sv_RunFrame(main_MoneyDialog, 0x24087);
     while (run != 0) {
@@ -1711,11 +1711,11 @@ int main_ChooseTalents(void)
                 sv_PopRequest = 1;
             if (again) {
                 d2_SetForm(f, 1);
-                io_PrintText("$C$A");
+                io_PrintText((intptr_t)"$C$A");
                 i = 0;
                 w = 0x1c;
                 do {
-                    io_PrintText("%s:$N", i + 0x16b7);
+                    io_PrintText((intptr_t)"%s:$N", i + 0x16b7);
                     sv_ValueBar(0xd2, w, fam.talent[i], 0x4d9);
                     btn[i * 2] = d2_WinOpenPic(d2_LastWindowPtr->w - 0x2c, i * 0x25 + 0x1c, 0x519, d2_LastWindow);
                     d2_Objs[btn[i * 2]].interactive = 1;
@@ -1966,7 +1966,7 @@ int main_ChooseFamily(int unused)
                     if (main_Family.group[k] == -1) {
                         if (k < 6) {
                             d2_SetForm(f, 0);
-                            io_PrintText("$C");
+                            io_PrintText((intptr_t)"$C");
                             io_PrintText(0x1ae6, k + 0x1aea);
                             if (k % 2 != 0) {
                                 camPos.x = d3_Camera->views[4].pos.x;
@@ -2029,7 +2029,7 @@ lskip:
             }
             if (k >= 6) {
                 d2_SetForm(f, 0);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 d2_SetViewEnabled(f, 0);
                 d3anim_FreePath(d3_Camera);
                 d3t_CamMoving = 0;
@@ -2640,7 +2640,7 @@ int main_ChooseCity(int unused, int host)
                 rot.y = 0;
                 rot.z = 0;
                 d2_SetForm(f2, 1);
-                io_PrintText("$C");
+                io_PrintText((intptr_t)"$C");
                 pos.x = pos.x + sel->pos.x;
                 pos.y = pos.y + sel->pos.y;
                 pos.z = pos.z + sel->pos.z;
@@ -2657,7 +2657,7 @@ int main_ChooseCity(int unused, int host)
                             if (k != -1) {
                                 d2_SetForm(f2, 1);
                                 io_PrintText(k);
-                                io_PrintText("$A");
+                                io_PrintText((intptr_t)"$A");
                                 io_PrintText(k + 1);
                             }
                             d3if_Show(sel, 0);
@@ -3063,7 +3063,7 @@ void main_RundenBeginn(void)
             }
             gm_CollectCarried(ch->id, (int *)&carry);
             if (ch->bld2 != 0 && (k = gm_BuildingSkill(ch->bld2, 3, 1)) != 0) {
-                txt_Format(b5, 0x2053, (int)ch->bld2);
+                txt_Format(b5, 0x2053, ch->bld2);
                 e = (char *)he_AddApEvent(ch->id, b5, k, 0);
                 if (e != 0)
                     *e = *e - 1;
@@ -3072,7 +3072,7 @@ void main_RundenBeginn(void)
             while (r != 0) {
                 k = gm_BuildingSkill(r, 3, 1);
                 if (k != 0) {
-                    txt_Format(b6, 0x3fd7, (int)r);
+                    txt_Format(b6, 0x3fd7, r);
                     e = (char *)he_AddApEvent(ch->id, b6, k, 0);
                     if (e != 0)
                         *e = *e - 1;
@@ -3596,7 +3596,7 @@ void main_RoundReport(void)
         d2_LastWindowPtr->font = 0x55;
         io_PrintText(0x2005);
         d2_SetForm(win, 1);
-        io_PrintText("$N");
+        io_PrintText((intptr_t)"$N");
         /* the buildings the player owns or masters */
         b = gm_BuildQuery(1, 6);
         while (b != 0) {
@@ -3645,7 +3645,7 @@ void main_RoundReport(void)
             do {
                 if (inc.kind[i] == 0)
                     break;
-                io_PrintText("$L%s %i%%:$R-%T$A", inc.kind[i] + 0x1f64, inc.rate[i], inc.amount[i]);
+                io_PrintText((intptr_t)"$L%s %i%%:$R-%T$A", inc.kind[i] + 0x1f64, inc.rate[i], inc.amount[i]);
                 t = inc.amount[i];
                 net -= t;
                 costs += t;
@@ -3829,7 +3829,7 @@ void main_UpdateFigures(void)
     }
 }
 void ord_InitMessageRecord(int a, float b, float c, float d);
-int sv_MessageBox();
+int sv_MessageBox(intptr_t text, unsigned flags);
 
 #define MAIN_ME ai_PlayerChar  /* the player's character (ai_PlayerChar: unsigned short *) */
 
@@ -4184,7 +4184,7 @@ void main_BeginPlayerRound(void)
             d2_CutsceneActive = 0;
             sv_FrameMask = 0x24087;
             txt_Format(buf, 0x79);
-            if (sv_MessageBox((int)buf, 1) == 0) {
+            if (sv_MessageBox((intptr_t)buf, 1) == 0) {
                 ai_GameOver = 1;
                 sv_PopTo(main_GameLoop);
                 return;
@@ -4437,7 +4437,7 @@ void main_GameLoop(int ctl)
                 while (1) {
                     sv_FrameMask = 0x24087;
                     txt_Format(m.text, 0x79);
-                    iv = sv_MessageBox((int)m.text, 1);
+                    iv = sv_MessageBox((intptr_t)m.text, 1);
                     if (iv == 0)
                         break;
                     d2_DrawAll();
@@ -4450,7 +4450,7 @@ void main_GameLoop(int ctl)
             ls_SavePath.netLib = (int)LoadLibraryA(ai_NetLibName);
             if (ls_SavePath.netLib == 0) {
                 sv_FrameMask = 0x66087;
-                sv_MessageBox((int)txt_Ptrs[0x1cab], 0x100);
+                sv_MessageBox((intptr_t)txt_Ptrs[0x1cab], 0x100);
                 ai_GameOver = 1;
                 ai_LeaveGame = 0;
                 return;
@@ -4465,7 +4465,7 @@ void main_GameLoop(int ctl)
                 ls_SavePath.netLib = 0;
                 sv_FrameMask = 0x66087;
                 d2_CloseView(w);
-                sv_MessageBox((int)txt_Ptrs[0x1cab], 0x100);
+                sv_MessageBox((intptr_t)txt_Ptrs[0x1cab], 0x100);
                 ai_GameOver = 1;
                 ai_LeaveGame = 0;
                 return;
@@ -4476,7 +4476,7 @@ void main_GameLoop(int ctl)
                 ls_SavePath.netLib = 0;
                 sv_FrameMask = 0x66087;
                 d2_CloseView(w);
-                sv_MessageBox((int)txt_Ptrs[0x1cab], 0x100);
+                sv_MessageBox((intptr_t)txt_Ptrs[0x1cab], 0x100);
                 ai_GameOver = 1;
                 ai_LeaveGame = 0;
                 return;
@@ -4495,7 +4495,7 @@ void main_GameLoop(int ctl)
                 d2_CutsceneActive = 0;
                 sv_FrameMask = 0x24087;
                 txt_Format(m.text, 0x79);
-                iv = sv_MessageBox((int)m.text, 1);
+                iv = sv_MessageBox((intptr_t)m.text, 1);
                 if (iv == 0)
                     break;
                 d2_CutsceneActive = 1;
@@ -4559,7 +4559,7 @@ void main_GameLoop(int ctl)
                 ai_Difficulty = 2;
             }
         } else {
-            sv_MessageBox((int)txt_Ptrs[0x1cac], 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[0x1cac], 0);
             main_EndGame();
             main_CloseLoadingScreen();
             return;
@@ -4569,7 +4569,7 @@ void main_GameLoop(int ctl)
         if (net_Conn.s != -1)
             init_JoinNetworkGame((int)main_NetSaveName);
         else {
-            sv_MessageBox((int)txt_Ptrs[0x1cac], 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[0x1cac], 0);
             main_EndGame();
             main_CloseLoadingScreen();
             return;
@@ -4578,7 +4578,7 @@ void main_GameLoop(int ctl)
         ai_Difficulty = ai_GamePanel.byte[2];
         if (ls_LoadGame(main_NetSaveName, 1) == 0) {
             sv_FrameMask = 0x46086;
-            sv_MessageBox((int)txt_Ptrs[0x1cc4], 0);
+            sv_MessageBox((intptr_t)txt_Ptrs[0x1cc4], 0);
             ai_GameOver = 1;
             main_EndGame();
             main_CloseLoadingScreen();
@@ -4820,9 +4820,9 @@ void main_GameLoop(int ctl)
     if ((ai_GameFlags & 4) != 0) {
         if (cm_LeftPlayerId != -1) {
             if (cm_LeftPlayerId != ai_Chars[ai_PlayerId].netId)
-                sv_MessageBox((int)"$3AEin Spieler hat die Partie verlassen. Das Spiel wurde beendet...$2A%ia[Okay]", 0);
+                sv_MessageBox((intptr_t)"$3AEin Spieler hat die Partie verlassen. Das Spiel wurde beendet...$2A%ia[Okay]", 0);
         } else
-            sv_MessageBox((int)"$3AEs trat ein Netzwerkfehler auf! Das Spiel wurde beendet...$2A%ia[Okay]", 0);
+            sv_MessageBox((intptr_t)"$3AEs trat ein Netzwerkfehler auf! Das Spiel wurde beendet...$2A%ia[Okay]", 0);
     }
     if ((ai_GameFlags & 0x80) != 0)
         ai_TutorialStop();

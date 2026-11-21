@@ -375,11 +375,11 @@ void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
 struct AICHAR; struct G9REC; struct VFSFILE;
 int sv_RunFrame(void (*cb)(), unsigned mask);
-void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(); void sv_ValueBar();
+void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); void sv_ValueBar();
 struct AICHAR *ahm_OwnerChar();
 int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-int sv_MessageBox();
-void txt_Format(char *out, int id0, ...);
+int sv_MessageBox(intptr_t text, unsigned flags);
+void txt_Format(char *out, intptr_t id0, ...);
 int ahm_SendCreateAlchemist();
 int ahm_ResearchState(); struct AICHAR *ahm_OwnerChar(); AHMGRID * ahm_RandomRecipe();
 typedef struct CANNONSCENE { /* 0x104 bytes (0xe4 cleared), the scene struct of ai_CannonScene (the other cannon functions still address it by byte offset) */
@@ -461,14 +461,14 @@ void d3_DirToWorld();
 int gm_FindById();
 float gv_SalvoCharge(); void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
+void txt_Format(char *out, intptr_t id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 void gv_CannonScatter(struct AIBLD *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
-int he_EventOnBuilding(); int sv_MessageBox();
+int he_EventOnBuilding(); int sv_MessageBox(intptr_t text, unsigned flags);
 int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
-void txt_Format(char *out, int id0, ...); int sv_MessageBox();
+void txt_Format(char *out, intptr_t id0, ...); int sv_MessageBox(intptr_t text, unsigned flags);
 void sv_ReleaseNamePlates(void); int sv_RegisterNamePlate(); void ai_StorageWindow();
 void ai_AlchemistResearchWindow(); void ai_AlchemistWindow();
 void cm_BeginFieldBlock(char *o, int id); int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v); int cm_SendFieldDeltas(void);
@@ -530,7 +530,7 @@ typedef struct GVPICK {
     int id;                     /* 0x10, that dead person's id, -1: none */
 } GVPICK;
 int gv_OrderSetGraveHolder(); int gv_SizeOpen();
-int sv_MessageBoxGreen(); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
+int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(struct AIBLD *o, int *n); int gv_OrderRaiseDead(); int cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
 int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
 void ai_InitProductionTables(void); int ai_UpdateProdGoodsList(); void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4);
@@ -816,7 +816,7 @@ int ai_OpenItemTooltip(int idx)
         amount = item->need[k];
         if (id != 0) {
             d2_WinOpenPicStyled(0, slot * 0x16 + 0x28, id + 0xdf, d2_LastWindow, -2);
-            io_PrintText("%i %s$N", amount, id * 2 + 0x9a8);
+            io_PrintText((intptr_t)"%i %s$N", amount, id * 2 + 0x9a8);
             slot++;
         }
     }
@@ -827,7 +827,7 @@ int ai_OpenItemTooltip(int idx)
         for (k = 0; k < 10; k++) {
             if (gm_BuildingItemGroups[i].items[k] == idx && idx != 0x1cd) {
                 d2_WinOpenPicStyled(6, slot * 0x16 + 0x28, gm_BuildingItemGroups[i].key + 0x427, d2_LastWindow, -2);
-                io_PrintText("%s$N", gm_BuildingItemGroups[i].key * 0xe + 0x48e);
+                io_PrintText((intptr_t)"%s$N", gm_BuildingItemGroups[i].key * 0xe + 0x48e);
                 slot++;
             }
         }
@@ -867,7 +867,7 @@ int ai_OpenItemTooltip(int idx)
     for (k = 0; k < n; k++) {
         id = list[k];
         d2_WinOpenPicStyled(6, slot * 0x16 + 0x28, id + 0x427, d2_LastWindow, -2);
-        io_PrintText("%s$N", id * 0xe + 0x48e);
+        io_PrintText((intptr_t)"%s$N", id * 0xe + 0x48e);
         slot++;
     }
     if (!(idx == 0x1c1 || idx == 0x1c2 || idx == 0x1c3 ||
@@ -875,12 +875,12 @@ int ai_OpenItemTooltip(int idx)
         idx == 0x1c7) {
         if (item->type == 0x17 || item->type == 0x25) {
             d2_WinOpenPicStyled(6, slot * 0x16 + 0x28, 0x444, d2_LastWindow, -2);
-            io_PrintText("%s$N", 0x624);
+            io_PrintText((intptr_t)"%s$N", 0x624);
             slot++;
         }
     }
     if (slot == 0)
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
     return view;
 }
 /* 0x588950, opens the upgrade tooltip view of the goods item idx (-1 for an item of the type 0x1d): the form
@@ -953,11 +953,11 @@ int ai_OpenUpgradeTooltip(int idx)
                 return view;
             io_PrintText(0x24);
             if (cls == 3)
-                io_PrintText("+%a %s$N", value, 0xf9e);
+                io_PrintText((intptr_t)"+%a %s$N", value, 0xf9e);
             else if (cls == 0x24)
-                io_PrintText("+%i %s$N", value, 0xfe0);
+                io_PrintText((intptr_t)"+%i %s$N", value, 0xfe0);
             else
-                io_PrintText("%i%% %s$N", value, cls * 2 + 0xf98);
+                io_PrintText((intptr_t)"%i%% %s$N", value, cls * 2 + 0xf98);
             return view;
         }
     }
@@ -985,7 +985,7 @@ int ai_OpenHelpTooltip(char *s)
     win = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Contact");
     d2_CentreViewWindows(win);
     d2_SetForm(0, 1);
-    io_PrintText("$Z$[%s$]", v);
+    io_PrintText((intptr_t)"$Z$[%s$]", v);
     d2_SetForm(0, 2);
     io_PrintText(v + 1);
     return win;
@@ -1014,7 +1014,7 @@ int ai_OpenCharTooltip(AICHAR *ch)
     view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Personen");
     d2_CentreViewWindows(view);
     d2_SetForm(0, 1);
-    io_PrintText("$Z$[%1N3$]", c->id);
+    io_PrintText((intptr_t)"$Z$[%1N3$]", c->id);
     d2_SetForm(0, 4);
     row[0] = (int)c;
     if (ai_AmountRowStatus(row) != 0)
@@ -1035,8 +1035,8 @@ int ai_OpenCharTooltip(AICHAR *ch)
             else
                 rank = (c->flags1cc & 0x200) ? 0x23 : 0;
             io_PrintText(0x2d);
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + rank);
-            io_PrintText("$A");
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + rank);
+            io_PrintText((intptr_t)"$A");
         } else {
             io_PrintText(0x2c, (c->sex ? 0x18f : 0x130) + c->jobId, gm_TitlesLeft(c->jobId));
         }
@@ -1054,11 +1054,11 @@ int ai_OpenCharTooltip(AICHAR *ch)
         io_PrintText(0x2c, (c->sex ? 0x18f : 0x130) + c->jobId, gm_TitlesLeft(c->jobId));
         io_PrintText(0x2d);
         if (c->flags1cc & 0xe00)
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + rank);
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + rank);
         if (c->officeKind != 0)
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->officeKind);
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + c->officeKind);
         if (c->secondOffice != 0)
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
     }
     if ((c->flags1cc & 0x3000) == 0)
         io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->level);
@@ -1086,16 +1086,16 @@ int ai_OpenCharTooltip(AICHAR *ch)
         for (i = 0; i < 5; i++) {
             p = gm_FindChar(c->relatives[3 + i]);
             if (p != 0) {
-                io_PrintText("$3>%1N1$A", p->id);
+                io_PrintText((intptr_t)"$3>%1N1$A", p->id);
                 any = 1;
             }
         }
         if (any == 0)
-            io_PrintText("$3>%s$A", 0x35);
+            io_PrintText((intptr_t)"$3>%s$A", 0x35);
     }
     d2_SetForm(0, 3);
     for (i = 0; i < 5; i++) {
-        txt_Format(line, (int)"%s:", i + 0x16b7);
+        txt_Format(line, (intptr_t)"%s:", i + 0x16b7);
         d2_CreateWinText(0, i * 15, line, d2_LastWindow);
         sv_DrawBalanceBar(0x64, i * 15 + 2, ch, i, 0x4df);
     }
@@ -1125,7 +1125,7 @@ void ai_CharInfoWindow(AICHAR *ch)
     view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Personen");
     d2_CentreViewWindows(view);
     d2_SetForm(0, 1);
-    io_PrintText("$Z$[%1N3$]", c->id);
+    io_PrintText((intptr_t)"$Z$[%1N3$]", c->id);
     d2_SetForm(0, 4);
     memset(row, 0, sizeof(row));
     row[0] = (int)c;
@@ -1137,12 +1137,12 @@ void ai_CharInfoWindow(AICHAR *ch)
     io_PrintText(0x2c, (c->sex ? 0x18f : 0x130) + c->jobId, gm_TitlesLeft(c->jobId));
     io_PrintText(0x2d);
     if (c->officeKind == 0 && c->secondOffice == 0) {
-        io_PrintText("$3>%s$A", 0x253);
+        io_PrintText((intptr_t)"$3>%s$A", 0x253);
     } else {
         if (c->officeKind != 0)
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->officeKind);
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + c->officeKind);
         if (c->secondOffice != 0)
-            io_PrintText("$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
+            io_PrintText((intptr_t)"$3>%s$A", (c->sex ? 0x27b : 0x253) + c->secondOffice);
     }
     io_PrintText(0x37, (c->sex ? 0x11e : 0x114) + c->level);
     io_PrintText(0x2e, gm_GetWorth(c->id));
@@ -1166,15 +1166,15 @@ void ai_CharInfoWindow(AICHAR *ch)
     for (i = 0; i < 5; i++) {
         p = gm_FindChar(c->relatives[3 + i]);
         if (p != 0) {
-            io_PrintText("$3>%1N1$A", p->id);
+            io_PrintText((intptr_t)"$3>%1N1$A", p->id);
             any = 1;
         }
     }
     if (any == 0)
-        io_PrintText("$3>%s$A", 0x35);
+        io_PrintText((intptr_t)"$3>%s$A", 0x35);
     d2_SetForm(0, 3);
     for (i = 0; i < 5; i++) {
-        txt_Format(line, (int)"%s:", i + 0x16b7);
+        txt_Format(line, (intptr_t)"%s:", i + 0x16b7);
         d2_CreateWinText(0, i * 15, line, d2_LastWindow);
         sv_DrawBalanceBar(0x64, i * 15 + 2, ch, i, 0x4df);
     }
@@ -1299,9 +1299,9 @@ void ai_SetBookmark(int idx)
         ai_Bookmarks[idx].object = -1;
     }
     if (o != 0 && o->id != 0xfd)
-        txt_Format(buf, (int)"%s = %G, %s", idx + 0x205e, a, o->id * 2 + 0x9a8);
+        txt_Format(buf, (intptr_t)"%s = %G, %s", idx + 0x205e, a, o->id * 2 + 0x9a8);
     else
-        txt_Format(buf, (int)"%s = %G", idx + 0x205e, a);
+        txt_Format(buf, (intptr_t)"%s = %G", idx + 0x205e, a);
     sv_SetStatusText(buf);
 }
 
@@ -1372,7 +1372,7 @@ void ai_BookmarkWindow(void)
                     o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (b != 0) {
                     d2_WinOpenPic(0x60, i * 0x38, b->type + 0x427, d2_LastWindow);
-                    txt_Format(line, (int)"%2N8~ %1G", b->owner, b);
+                    txt_Format(line, (intptr_t)"%2N8~ %1G", b->owner, b);
                     t = d2_CreateWinText(0x9c, i * 0x38 + 9, line, d2_LastWindow);
                     d2_Objs[t].w = 0x80;
                     d2_Objs[t].font = 0x54;
@@ -1382,7 +1382,7 @@ void ai_BookmarkWindow(void)
                 }
                 if (o != 0 && o->id != 0xfd) {
                     d2_WinOpenPic(0x128, i * 0x38, o->id + 0xdf, d2_LastWindow);
-                    txt_Format(line, (int)"%1s", o->id * 2 + 0x9a8);
+                    txt_Format(line, (intptr_t)"%1s", o->id * 2 + 0x9a8);
                     t = d2_CreateWinText(0x164, i * 0x38 + 0x12, line, d2_LastWindow);
                     d2_Objs[t].w = 0x80;
                     d2_Objs[t].font = 0x54;

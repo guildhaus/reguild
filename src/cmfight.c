@@ -1258,7 +1258,7 @@ void cm_UpdatePortraits()
             cm_SelectedCount++;
         } else
             d2_SetObjValue(cm_Portraits[i].portrait, 0);
-        txt_Format(buf, (int)"%1N1 %i%", cm_Portraits[i].c->id, (int)(gm_HealthRatio(cm_Portraits[i].c) * 100.0));
+        txt_Format(buf, (intptr_t)"%1N1 %i%", cm_Portraits[i].c->id, (int)(gm_HealthRatio(cm_Portraits[i].c) * 100.0));
         d2_SetObjText(cm_Portraits[i].text, buf);
         w = (AIWEAPON *)cm_CharWeaponAny(cm_Portraits[i].c);
         if (w == 0 || w->id == 0)
@@ -3394,7 +3394,7 @@ int cm_LootList(int x, int y, int mode)
             d2_Objs[t2].font = 0x56;
             d2_Objs[t2].w = 0x50;
             d2_Objs[t2].centred = 1;
-            txt_Format(buf, (int)"%T", (int)gm_GoodsPrice(q->id, ai_OwnPlayer) * q->count);
+            txt_Format(buf, (intptr_t)"%T", (int)gm_GoodsPrice(q->id, ai_OwnPlayer) * q->count);
             d2_SetObjText(t2, buf);
             total = (int)(gm_GoodsPrice(q->id, ai_OwnPlayer) * q->count + total);
             j++;
@@ -3433,7 +3433,7 @@ void cm_FightPortraits(int *ids, int x, int y)
         d2_Objs[t].w = 0x78;
         d2_Objs[t].centred = 1;
         d2_Objs[t].font = 0x56;
-        txt_Format(buf, (int)"%1N1 %i%", c->id, (int)(gm_HealthRatio(c) * 100.0));
+        txt_Format(buf, (intptr_t)"%1N1 %i%", c->id, (int)(gm_HealthRatio(c) * 100.0));
         d2_SetObjText(t, buf);
         o = (AIWEAPON *)cm_CharWeapon(c);
         if (o != 0 && o->id != 0) {
@@ -3547,7 +3547,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
         }
         job = (gm_Query(0, 2, 7, 1, a->carts[0]))->job24;     /* the job the first cart runs */
         d2_SetForm(win, 1);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         if (job != 0) {
             bld = (char *)gm_FindBuildingById(job->cartBld);
             k = 0;
@@ -3579,7 +3579,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
             }
         }
         d2_SetForm(win, 2);
-        io_PrintText("$C");
+        io_PrintText((intptr_t)"$C");
         k = io_PrintText(0x1141, (int)(total * 0.1), (int)(total * 0.5), (int)(total * 0.8));
         b1 = d2_GetWinObj(win, 2, k);
         b2 = d2_GetWinObj(win, 2, k + 1);
@@ -3614,7 +3614,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                 if (util_Random(0x5a) + 10 <= st) {
                     home = gm_BuildQuery(1, 1, a->attackerBldId);
                     txt_Format(tb, 0x1142);
-                    cm_MessageBox(tb, 0);
+                    cm_MessageBox((intptr_t)tb, 0);
                     fv = (float)(st * 0.01);
                     sv_PopRequest = 1;
                     res = 0;
@@ -3622,7 +3622,7 @@ int cm_FightStartDialog(CMFIGHTREC *a)
                     cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, (int)cm_FightDefender, fv);
                 } else {
                     txt_Format(tc, 0x1143);
-                    cm_MessageBox(tc, 0);
+                    cm_MessageBox((intptr_t)tc, 0);
                     sv_PopRequest = 1;
                     res = 1;
                 }
@@ -3764,7 +3764,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             sv_PopRequest = 1;
     }
     d2_SetForm(win, 1);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1191);
     b = gm_BuildQuery(1, 1, a->attackerBldId);
     bt = &ai_BTypes[b->type];
@@ -3787,7 +3787,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             role = 2;
     } else
         role = 0;
-    io_PrintText("$7A");
+    io_PrintText((intptr_t)"$7A");
     io_PrintText(0x1193, cm_FightDefender->id, role + 0x1125);
     cm_FightPortraits(a->defenders, 0, 0x12c);
     while (sv_RunFrame(cm_FightEndDialog, 0x7d6c6)) {
@@ -3795,7 +3795,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             sv_PopRequest = 1;
     }
     d2_SetForm(win, 1);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     io_PrintText(0x1197);
     if (a->flags & 1) {
         /* the carts: the loot list, the goods moved to the attacker's building */
@@ -3847,7 +3847,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
         strcat(ba, bb);
         txt_Format(bb, 0x11a3);
         strcat(ba, bb);
-        n = cm_MessageBox(ba, 0x11);
+        n = cm_MessageBox((intptr_t)ba, 0x11);
         if (ca->type == 0x1e || ca->type == 0x20 || ca->type == 0x1f)
             n++;
         if (n == 1) {
@@ -3857,21 +3857,21 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                 ai_CountMissionEvent((int)cm_FightAttacker, 0x1c);
             cm_SendOwnership(ca->id, cm_FightAttacker->netId, cm_FightAttacker->netId);
             txt_Format(ba, 0x11a4, cm_FightAttacker->id, ca);
-            cm_MessageBox(ba, 0);
+            cm_MessageBox((intptr_t)ba, 0);
         } else if (n == 2) {
             /* a share of the defender's money (5 .. 7 %, at most 0x9c400) and of the goods of the building's store
                (80 .. 99 %) goes to the attacker */
             tc[0] = ch_EmptyName[0];
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a5, cm_FightAttacker->id, ca);
-            cm_MessageBox(tc, 0);
+            cm_MessageBox((intptr_t)tc, 0);
             ob = gm_Query(ca->objList, 2, 6, 0, 0x2a);
             if (ob == 0)
                 ob = gm_Query(ca->objList, 2, 6, 0, 0x116);
             v = gm_GetGoodsValue(cm_FightDefender);
             v = v < 0x9c400 ? v : 0x9c400;
             v = (int)((float)((double)cm_Random(0x32) * 0.001 + 0.07) * (v < 0 ? 0 : v));
-            txt_Format(tc, "$Z%T$A", v);
+            txt_Format(tc, (intptr_t)"$Z%T$A", v);
             cm_SendMoveGoods(cm_FightAttacker->netId, cm_FightDefender->netId, ai_OwnPlayer, v);
             if (ob != 0 && obj != 0) {
                 for (q = gm_Query(ob->list, 1, 5); q != 0; q = gm_QueryNext()) {
@@ -3886,7 +3886,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                 }
             }
             d2_SetForm(win, 1);
-            io_PrintText(tc);
+            io_PrintText((intptr_t)tc);
             rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
@@ -3899,13 +3899,13 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             tc[0] = ch_EmptyName[0];
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a6, cm_FightAttacker->id, ca);
-            cm_MessageBox(tc, 0);
+            cm_MessageBox((intptr_t)tc, 0);
             if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
                 gm_ChangeBuildingState(ca, 0x14 - cm_Random(0x14));
         } else if (n == 0) {
             /* the town guards are called: every guard (title groups 10 .. 12) turns against the attacker */
             txt_Format(ba, 0x11a7, cm_FightAttacker->id, cm_FightAttacker->id);
-            cm_MessageBox(ba, 0);
+            cm_MessageBox((intptr_t)ba, 0);
             for (i = 0; i < 0x300; i++) {
                 ch = &ai_Chars[i];
                 if (ch->id != 0xffff && ch->health != 0 &&
@@ -3943,7 +3943,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                             cm_AddFieldValue(4, 1, (char *)&c->bld - cm_FieldObject, &z);
                             cm_SendFieldDeltas();
                         }
-                        txt_Format(tmp, "%T", h);
+                        txt_Format(tmp, (intptr_t)"%T", h);
                         if (h != 0)
                             d2_CreateWinText(px, py + 0x50, tmp, d2_LastWindow);
                         total += h;
@@ -3968,19 +3968,19 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             k = util_Random(3) + 1;
         if (k == 0) {
             txt_Format(bb, 0x11a4, cm_FightAttacker->id, ca);
-            cm_MessageBox(bb, 0);
+            cm_MessageBox((intptr_t)bb, 0);
         } else if (k == 2) {
             tc[0] = ch_EmptyName[0];
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a5, cm_FightAttacker->id, ca);
-            cm_MessageBox(tc, 0);
+            cm_MessageBox((intptr_t)tc, 0);
             p = gm_Query(ca->objList, 2, 6, 0, 0x2a);
             if (p == 0)
                 p = gm_Query(ca->objList, 2, 6, 0, 0x116);
             v = gm_GetGoodsValue(cm_FightDefender);
             v = v < 0x9c400 ? v : 0x9c400;
             v = (int)((float)((double)cm_Random(0x32) * 0.001 + 0.07) * (v < 0 ? 0 : v));
-            txt_Format(tc, "$Z%T$A", v);
+            txt_Format(tc, (intptr_t)"$Z%T$A", v);
             cm_SendMoveGoods(cm_FightAttacker->netId, cm_FightDefender->netId, ai_OwnPlayer, v);
             if (p != 0 && obj != 0) {
                 for (q = gm_Query(p->list, 1, 5); q != 0; q = gm_QueryNext()) {
@@ -3995,7 +3995,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                 }
             }
             d2_SetForm(win, 1);
-            io_PrintText(tc);
+            io_PrintText((intptr_t)tc);
             rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
@@ -4008,12 +4008,12 @@ void cm_FightEndDialog(CMFIGHTREC *a)
             tc[0] = ch_EmptyName[0];
             memset(tc + 1, 0, 0x3ff);
             txt_Format(tc, 0x11a6, cm_FightAttacker->id, ca);
-            cm_MessageBox(tc, 0);
+            cm_MessageBox((intptr_t)tc, 0);
             if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
                 gm_ChangeBuildingState(ca, 0x14 - cm_Random(0x14));
         } else if (k == 1) {
             txt_Format(bb, 0x11a7, cm_FightAttacker->id, cm_FightAttacker->id);
-            cm_MessageBox(bb, 0);
+            cm_MessageBox((intptr_t)bb, 0);
             for (i = 0; i < 0x300; i++) {
                 ch = &ai_Chars[i];
                 if (ch->id != 0xffff && ch->health != 0 &&
@@ -4188,7 +4188,7 @@ void cm_RunFight(CMFIGHTREC *a)
                     txt_Format(buf, 0x1145, cm_FightLootValue);
             } else
                 txt_Format(buf, 0x1146);
-            cm_MessageBox(buf, 0x10);
+            cm_MessageBox((intptr_t)buf, 0x10);
         }
         cm_EndFightScene(a);
         return;
@@ -4297,7 +4297,7 @@ void cm_BuildFightUI(char *a)
     d2_Objs[t].font = 0x54;
     d2_Objs[d2_Wins[d2_LastWindow].parent].interactive = 1;
     d2_SetForm(cm_TextBox, 0);
-    io_PrintText("$C");
+    io_PrintText((intptr_t)"$C");
     cm_ClosePortraits();
     cm_BuildPortraits();
 }

@@ -149,7 +149,7 @@ void gm_StatisticsScreen(void)
     d2_SetPointerSprite(0, 0);
     d2_SetForm(f, 0);
     for (i = 0; i < 0x11; i++)
-        io_PrintText("Runde %i:   %T$N", ai_Time.year - 0x10 + i, gm_IncomeHistory[0][i]);
+        io_PrintText((intptr_t)"Runde %i:   %T$N", ai_Time.year - 0x10 + i, gm_IncomeHistory[0][i]);
     do {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
@@ -1325,7 +1325,7 @@ int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
-void txt_Format(char *out, int id0, ...);  /* 0x5176d0 */
+void txt_Format(char *out, intptr_t id0, ...);  /* 0x5176d0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
 void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */

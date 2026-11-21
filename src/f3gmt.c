@@ -155,7 +155,7 @@ int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 int cm_SendLongMessage(char *msg);                     /* 0x4c4b70 */
-void txt_Format(char *out, int id0, ...);  /* 0x5176d0 */
+void txt_Format(char *out, intptr_t id0, ...);  /* 0x5176d0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
 void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
@@ -5418,7 +5418,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
                 break;
             }
             if ((blds[i]->flags5a & 1) == 0)
-                txt_Format(t1, "%1G$A", blds[i]);
+                txt_Format(t1, (intptr_t)"%1G$A", blds[i]);
             strcat(t2, t1);
         }
     }
@@ -5587,13 +5587,13 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
     if (best != 0) {
         char buf[0x800];
 
-        txt_Format(buf, "%1G$A", best);   /* 0x61ac98: the pooled format literal */
+        txt_Format(buf, (intptr_t)"%1G$A", best);   /* 0x61ac98: the pooled format literal */
         strcat(out, buf);
     }
     if (own != 0) {
         char buf[0x800];
 
-        txt_Format(buf, "%1G$A", own);
+        txt_Format(buf, (intptr_t)"%1G$A", own);
         strcat(out, buf);
     }
     if (n != 0) {
@@ -5604,7 +5604,7 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
         for (i = 0; i < n; i++) {
             if (i >= 6)
                 break;
-            txt_Format(buf, "%1G$A", heirs[i]);
+            txt_Format(buf, (intptr_t)"%1G$A", heirs[i]);
             strcat(out, buf);
         }
         if (i < n) {
@@ -8000,7 +8000,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 d2_Wins[NODES[i].l[4]].mt = 1;
                 d2_Wins[NODES[i].l[4]].mb = 1;
                 if (NODES[i].id < 0x2dc)
-                    io_PrintText((char *)(NODES[i].id * 2 + 0x9a8));            } else if (state == 2) {
+                    io_PrintText(NODES[i].id * 2 + 0x9a8);            } else if (state == 2) {
                 NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
                 NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x52a, NODES[i].l[0]);
                 if (NODES[i].id < 0x2dc)
@@ -8013,7 +8013,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 d2_Wins[NODES[i].l[4]].mt = 1;
                 d2_Wins[NODES[i].l[4]].mb = 1;
                 if (NODES[i].id < 0x2dc)
-                    io_PrintText((char *)(NODES[i].id * 2 + 0x9a8));            } else {
+                    io_PrintText(NODES[i].id * 2 + 0x9a8);            } else {
                 NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
                 NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x529, NODES[i].l[0]);
                 if (NODES[i].id < 0x2dc)
@@ -8026,7 +8026,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 d2_Wins[NODES[i].l[4]].mt = 1;
                 d2_Wins[NODES[i].l[4]].mb = 1;
                 if (NODES[i].id < 0x2dc)
-                    io_PrintText((char *)(NODES[i].id * 2 + 0x9a8));                D2OBJ_AT(NODES[i].l[2])->hitTestable = 1;
+                    io_PrintText(NODES[i].id * 2 + 0x9a8);                D2OBJ_AT(NODES[i].l[2])->hitTestable = 1;
             }
             d2_LastWindow = saved;
             NODES[i].flag = (unsigned char)state;
@@ -8075,9 +8075,9 @@ int gm_TechTreeWindow(char *form, AIBLD *bld, AIOBJ *item)
     win = &d2_Wins[d2_Views[gm_TechTreeView].wins[3]];
     d2_SetForm(0, 1);
     if (item->type == 0xfd)
-        io_PrintText("$[%s$]", 0x19, bld->type * 0xe + 0x48e);
+        io_PrintText((intptr_t)"$[%s$]", 0x19, bld->type * 0xe + 0x48e);
     else
-        io_PrintText("$[%s$]", 0x19, item->type * 2 + 0x9a8);
+        io_PrintText((intptr_t)"$[%s$]", 0x19, item->type * 2 + 0x9a8);
     d2_SetForm(0, 3);
     if (gm_LayoutTree(bld, item, win->w, win->h) != 0) {
         d2_CloseView(gm_TechTreeView);

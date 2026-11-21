@@ -2420,7 +2420,7 @@ int amt_ExecutePriceMessage(AICHAR *c, int *m)
                                         he_ShowNews(*q, -1, msg, 1, 0x5ec, ch_EmptyName);
                                 }
                                 if (c->kind == 6)
-                                    sv_MessageBox(msg, 0x10);
+                                    sv_MessageBox((intptr_t)msg, 0x10);
                             }
                         }
                     }
@@ -2486,7 +2486,7 @@ int amt_ExecuteShareMessage(AICHAR *c, int *m)
                 } while ((int)q < (int)AMT_CHARS_END);
                 if (((char *)c)[2] == 6) {
                     txt_Format(msg, 0x1661, o->owner, o);
-                    sv_MessageBox(msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                 }
                 return 1;
             }
@@ -2555,7 +2555,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 } while ((int)q < (int)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1680, t->id, t->id);
-                    sv_MessageBox(msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                 }
                 return ret;
             } else {
@@ -2572,7 +2572,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 } while ((int)q < (int)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1681, t->id, t->id);
-                    sv_MessageBox(msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                 }
             }
             return ret;
@@ -2619,7 +2619,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 } while ((int)q < (int)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166e, m[1] + 0x1663);
-                    sv_MessageBox(msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                 }
                 return ret;
             } else {
@@ -2641,7 +2641,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 } while ((int)q < (int)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166f, m[1] + 0x1663);
-                    sv_MessageBox(msg, 0);
+                    sv_MessageBox((intptr_t)msg, 0);
                 }
             }
             return ret;
@@ -2670,7 +2670,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
             } while ((int)q < (int)AMT_CHARS_END);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1678, m[1] + 0x1663);
-                sv_MessageBox(msg, 0);
+                sv_MessageBox((intptr_t)msg, 0);
             }
         } else {
             txt_Format(msg, 0x167b, m[1] + 0x1663);
@@ -2682,7 +2682,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
             } while ((int)q < (int)AMT_CHARS_END);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1679, m[1] + 0x1663);
-                sv_MessageBox(msg, 0);
+                sv_MessageBox((intptr_t)msg, 0);
             }
         }
         return ret;
@@ -2815,7 +2815,7 @@ void amt_TellOpenOffices(AICHAR *c)
         memset(buf, 0, sizeof(buf));
         txt_Format(buf, 0x13ac);
         for (i = 0; i < n; i++)
-            txt_Format(buf + strlen(buf), "%s$A", cand[i].kind + 0x253);
+            txt_Format(buf + strlen(buf), (intptr_t)"%s$A", cand[i].kind + 0x253);
         he_ShowNews(ch->netId, -1, buf, 1, 0x5ec, 0);
     }
 }
