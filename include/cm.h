@@ -353,7 +353,7 @@ void ord_AdvanceRatingBase(void);  /* 0x4f9c00, ord.c */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
 char * he_NextEvent(void);  /* 0x53e300 */
 void he_RunEvents();  /* 0x53ed70 */
-void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec);  /* 0x5a9170 */
+void ai_NotifyPlayerOfChar(struct AICHAR *cRec, struct AICHAR *pRec);  /* 0x5a9170 */
 void lc_UpdateGoodsReserves(void);  /* 0x5ba750 */
 void ai_ApplyOptions(void);  /* 0x5d5e90 */
 extern const int cm_SpeedTicks[];  /* 0x5edc10 */
@@ -448,7 +448,7 @@ extern char cm_ChatLog[];  /* 0x75fba0 */
 
 void cm_PlaceFighter(struct AICHAR *c, struct D3VECTOR *pos, struct D3VECTOR *rot, int v);                              /* 0x4cc720 */
 void he_StammtischCommand();  /* 0x541b40 */
-void ai_ShowPurchaseNews(unsigned short *param_1, char *param_2, int param_3, int param_4);  /* 0x5a8c50 */
+void ai_ShowPurchaseNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4);  /* 0x5a8c50 */
 
 int ch_Delete();  /* 0x4028a0 */
 void cm_FighterAct(CMFIGHTSLOT *f);  /* 0x4d6ba0, the action of one fighter (message 0x55) */

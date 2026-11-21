@@ -1951,12 +1951,12 @@ int ai_LoadSettings(int f)
    ai_Time.year > 0x74) with the buyer's id, the building, the amount and the owner's share into ai_NewsText, shown
    to the owner's netId (he_ShowNews, kind 0x5ff); nothing for another owner kind */
 
-void ai_ShowIndulgenceNews(unsigned short *buyer, char *ownerRec, int bld, int share, int amount)
+void ai_ShowIndulgenceNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int share, int amount)
 {
     AICHAR *owner;
     int text;
 
-    owner = (AICHAR *)ownerRec;
+    owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         if (owner->faith == 0)
             text = 0x20b7;
@@ -1971,11 +1971,11 @@ void ai_ShowIndulgenceNews(unsigned short *buyer, char *ownerRec, int bld, int s
    kind 0x5ec); nothing for another owner kind. Both callers pay money to the building's owner
    (ai_ExecuteBuyIndulgence 0x49cb60 on taking over the rooms, ai_ConfessionWindow 0x5a2b60 at the church) */
 
-void ai_ShowPaymentNews(unsigned short *buyer, char *ownerRec, int bld)
+void ai_ShowPaymentNews(unsigned short *buyer, AICHAR *ownerRec, int bld)
 {
     AICHAR *owner;
 
-    owner = (AICHAR *)ownerRec;
+    owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20ba, *buyer, bld);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
@@ -1985,11 +1985,11 @@ void ai_ShowPaymentNews(unsigned short *buyer, char *ownerRec, int bld)
    0x20bc with the buyer's id, the building and the paid value into ai_NewsText, shown to the owner's netId
    (he_ShowNews, kind 0x5ff); nothing for another owner kind */
 
-void ai_ShowPurchaseNews(unsigned short *buyer, char *ownerRec, int bld, int value)
+void ai_ShowPurchaseNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int value)
 {
     AICHAR *owner;
 
-    owner = (AICHAR *)ownerRec;
+    owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20bc, *buyer, bld, value);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ff, ch_EmptyName);
@@ -2000,11 +2000,11 @@ void ai_ShowPurchaseNews(unsigned short *buyer, char *ownerRec, int bld, int val
    (he_ShowNews, kind 0x5fd); nothing for another kind. The only caller is the office message
    amt_ExecuteOfficeMessage (0x4e67a0), which announces its x14 character to the new office owner */
 
-void ai_ShowOfficeNews(unsigned short *holder, char *ownerRec)
+void ai_ShowOfficeNews(unsigned short *holder, AICHAR *ownerRec)
 {
     AICHAR *owner;
 
-    owner = (AICHAR *)ownerRec;
+    owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20bb, *holder);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fd, ch_EmptyName);
@@ -2015,11 +2015,11 @@ void ai_ShowOfficeNews(unsigned short *holder, char *ownerRec)
    ai_NewsText, shown to its netId (he_ShowNews, kind 0x5ec); nothing for another kind. Its only caller is the
    tribute / levy event's init when more than 4 of its events already run and the event is posted again */
 
-void ai_ShowTributeDelayedNews(int rec)
+void ai_ShowTributeDelayedNews(AICHAR *rec)
 {
     AICHAR *c;
 
-    c = (AICHAR *)rec;
+    c = rec;
     if (c->kind == 6 || c->kind == 7) {
         txt_Format(ai_NewsText, 0x20bd);
         he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
@@ -2030,11 +2030,11 @@ void ai_ShowTributeDelayedNews(int rec)
    nothing for another kind. Its only caller is the tribute / levy event's init (0x544070), for the collector when
    it lacks the 0x15c item */
 
-void ai_ShowTributeCollectNews(int rec)
+void ai_ShowTributeCollectNews(AICHAR *rec)
 {
     AICHAR *c;
 
-    c = (AICHAR *)rec;
+    c = rec;
     if (c->kind == 6 || c->kind == 7) {
         txt_Format(ai_NewsText, 0x20be);
         he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2045,13 +2045,13 @@ void ai_ShowTributeCollectNews(int rec)
    `== 6 || != 7`, needed for the bytes; the text 0x20bf (no values) to the collector's netId, then the text
    0x20c0 with the collector's id to the event character's netId (both kind 0x5fb) */
 
-void ai_ShowTributeClaimNews(int collectorRec, int payerRec)
+void ai_ShowTributeClaimNews(AICHAR *collectorRec, AICHAR *payerRec)
 {
     AICHAR *collector;
     AICHAR *payer;
 
-    collector = (AICHAR *)collectorRec;
-    payer = (AICHAR *)payerRec;
+    collector = collectorRec;
+    payer = payerRec;
     if (collector->kind == 6 || collector->kind != 7) {
         txt_Format(ai_NewsText, 0x20bf);
         he_ShowNews(collector->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2067,15 +2067,15 @@ void ai_ShowTributeClaimNews(int collectorRec, int payerRec)
    helper's id goes to every other kind 6 / 7 character of the 0x300 ai_Chars records (event 0x5ec). Its only
    caller is the tavern event's run handler (0x542590) when the tavern record's helper figure +0x1e is let go */
 
-void ai_ShowTavernHelperNews(char *ownerRec, char *helperRec, int bld)
+void ai_ShowTavernHelperNews(AICHAR *ownerRec, AICHAR *helperRec, int bld)
 {
     AICHAR *owner;
     AICHAR *helper;
     AICHAR *c;
     char *p;
 
-    owner = (AICHAR *)ownerRec;
-    helper = (AICHAR *)helperRec;
+    owner = ownerRec;
+    helper = helperRec;
     if (helper->kind == 6 || helper->kind == 7) {
         txt_Format(ai_NewsText, 0x20c1, owner->id, bld);
         he_ShowNews(helper->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2095,13 +2095,13 @@ void ai_ShowTavernHelperNews(char *ownerRec, char *helperRec, int bld)
    and the local player's slot ai_PlayerSlots[ai_OwnPlayer], and shown to the second character's netId
    (he_ShowNews 1, 0x5ec). Its only caller is ai_FindPartner (0x47ddf0) on the path that drops the partner */
 
-void ai_ShowPartingNews(unsigned short *cRec, unsigned short *pRec)
+void ai_ShowPartingNews(AICHAR *cRec, AICHAR *pRec)
 {
     AICHAR *c;
     AICHAR *p;
 
-    c = (AICHAR *)cRec;
-    p = (AICHAR *)pRec;
+    c = cRec;
+    p = pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(ai_NewsText, 0x132f, c->id, util_Random(3) + (p->sex != 0 ? 0x1333 : 0x1330), p->id,
                    util_Random(3) + 0x1336, ai_PlayerSlots[ai_OwnPlayer].name);
@@ -2115,14 +2115,14 @@ void ai_ShowPartingNews(unsigned short *cRec, unsigned short *pRec)
    (he_ShowNews 1, 0x5ec). Its only caller is ai_FindPartner (0x47ddf0), on the branch that gives the character
    a hated candidate as its partner */
 
-void ai_ShowFeudNews(unsigned short *cRec, unsigned short *pRec)
+void ai_ShowFeudNews(AICHAR *cRec, AICHAR *pRec)
 {
     AICHAR *c;
     AICHAR *p;
     char local[512];
 
-    c = (AICHAR *)cRec;
-    p = (AICHAR *)pRec;
+    c = cRec;
+    p = pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(local, util_Random(3) + 0x1340, c->id);
         txt_Format(ai_NewsText, 0x1339, c->id, util_Random(3) + (p->sex != 0 ? 0x133d : 0x133a), p->id,
@@ -2134,14 +2134,14 @@ void ai_ShowFeudNews(unsigned short *cRec, unsigned short *pRec)
    with the texts 0x134a + r, 0x1343 and 0x1344 + 3 * sex + r; its only caller is ai_FindPartner (0x47ddf0) on
    the path where the courtship completes and the pair becomes partners */
 
-void ai_ShowPartnerNews(unsigned short *cRec, unsigned short *pRec)
+void ai_ShowPartnerNews(AICHAR *cRec, AICHAR *pRec)
 {
     AICHAR *c;
     AICHAR *p;
     char local[512];
 
-    c = (AICHAR *)cRec;
-    p = (AICHAR *)pRec;
+    c = cRec;
+    p = pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(local, util_Random(3) + 0x134a, c->id);
         txt_Format(ai_NewsText, 0x1343, c->id, util_Random(3) + (p->sex != 0 ? 0x1347 : 0x1344), p->id,
@@ -2153,11 +2153,11 @@ void ai_ShowPartnerNews(unsigned short *cRec, unsigned short *pRec)
    (ai_PlayerId), the text 0x20c5 with the id and the given text is formatted into ai_NewsText and shown to the
    local player's netId (event 0x605) */
 
-void ai_ShowCharacterNews(unsigned short *cRec, char *text)
+void ai_ShowCharacterNews(AICHAR *cRec, char *text)
 {
     AICHAR *c;
 
-    c = (AICHAR *)cRec;
+    c = cRec;
     if (c->id != ai_PlayerId) {
         txt_Format(ai_NewsText, 0x20c5, c->id, text);
         he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x605, ch_EmptyName);
@@ -2167,13 +2167,13 @@ void ai_ShowCharacterNews(unsigned short *cRec, char *text)
    with the other character's id, shown to its netId (event 0x5fa, the second text "_NACHRICHTEN_HS_46"); called by
    cm_ExAddStraftat with the culprit and the character to tell */
 
-void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec)
+void ai_NotifyPlayerOfChar(AICHAR *cRec, AICHAR *pRec)
 {
     AICHAR *c;
     AICHAR *p;
 
-    c = (AICHAR *)cRec;
-    p = (AICHAR *)pRec;
+    c = cRec;
+    p = pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(ai_NewsText, 0x20c6, c->id);
         he_ShowNews(p->netId, -1, ai_NewsText, 0, 0x5fa, "_NACHRICHTEN_HS_46");
@@ -2240,15 +2240,15 @@ void ai_PlagueMessageAll(void)
    character, else the text 0x1dcd with the three ids to the local player's character (0x770b84 + the player *
    0x21c, 0x5fe) */
 
-void ai_SendSwapText(unsigned short *cRec, unsigned short *o1Rec, unsigned short *o2Rec)
+void ai_SendSwapText(AICHAR *cRec, AICHAR *o1Rec, AICHAR *o2Rec)
 {
     AICHAR *c;
     AICHAR *o1;
     AICHAR *o2;
 
-    c = (AICHAR *)cRec;
-    o1 = (AICHAR *)o1Rec;
-    o2 = (AICHAR *)o2Rec;
+    c = cRec;
+    o1 = o1Rec;
+    o2 = o2Rec;
     if (o1->kind == 6) {
         txt_Format(ai_NewsText, 0x1dcc, c->id, o2->id);
         he_ShowNews(o1->netId, -1, ai_NewsText, 0, 0x5fd, ch_EmptyName);
@@ -2267,13 +2267,13 @@ void ai_SendSwapText(unsigned short *cRec, unsigned short *o1Rec, unsigned short
 /* 0x5a9430, tells a character that its evidence against a culprit is void (61 B): the text 0x1747 with the
    culprit's id, shown to the told character's netId (event 0x5fa) */
 
-void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec)
+void ai_ShowEvidenceVoidNews(AICHAR *toldRec, AICHAR *culpritRec)
 {
     AICHAR *told;
     AICHAR *culprit;
 
-    told = (AICHAR *)toldRec;
-    culprit = (AICHAR *)culpritRec;
+    told = toldRec;
+    culprit = culpritRec;
     txt_Format(ai_NewsText, 0x1747, culprit->id);
     he_ShowNews(told->netId, -1, ai_NewsText, 0, 0x5fa, ch_EmptyName);
 }
@@ -2330,11 +2330,11 @@ void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
    character the text 0x4154 with the building, shown to its netId (event 0x5fc); gv_GraveyardTurn sends it when
    the turn lowered the relations */
 
-void ai_TellGraveNeglect(unsigned short *plRec, int bld)
+void ai_TellGraveNeglect(AICHAR *plRec, int bld)
 {
     AICHAR *pl;
 
-    pl = (AICHAR *)plRec;
+    pl = plRec;
     if (pl->kind == 6 || pl->kind == 7) {
         txt_Format(ai_NewsText, 0x4154, bld);
         he_ShowNews(pl->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2364,11 +2364,11 @@ void ai_NotifySale(AICHAR *owner, unsigned short *buyer, int bld, int size, int 
    lease, 0x4153 otherwise) and the owner's total share, shown to its netId (event 0x5fc); its only caller is
    gv_GraveyardTurn, when it paid leases (paid > 0) */
 
-void ai_TellGravesPaid(int plRec, int bld, int paid, int sum)
+void ai_TellGravesPaid(AICHAR *plRec, int bld, int paid, int sum)
 {
     AICHAR *pl;
 
-    pl = (AICHAR *)plRec;
+    pl = plRec;
     if (pl->kind == 6 || pl->kind == 7) {
         txt_Format(ai_NewsText, 0x4151, bld, paid, (paid != 1) + 0x4152, sum);
         he_ShowNews(pl->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2434,12 +2434,12 @@ void ai_HauntingText(unsigned short *chrId, AICHAR *victim, unsigned int end)
    sub-texts 0x40a9 .. 0x40ab (util_Random(3)) into ai_NewsText, shown to its netId (1, event 0x5fb, the sound
    "_NACHRICHTEN_FRIEDHOF_12"); he_RunDecay sends it after he_SetLifeByAge set the second character's value */
 
-void ai_TellGraveWorkSuccess(int chRec)
+void ai_TellGraveWorkSuccess(AICHAR *chRec)
 {
     unsigned int v;
     AICHAR *c;
 
-    c = (AICHAR *)chRec;
+    c = chRec;
     v = util_Random(3);
     txt_Format(ai_NewsText, 0x40a8, (v & 0xffff) + 0x40a9);
     he_ShowNews(c->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_12");
@@ -2448,12 +2448,12 @@ void ai_TellGraveWorkSuccess(int chRec)
    sub-texts 0x40a9 .. 0x40ab (util_Random(3)) into ai_NewsText, shown to its netId (1, event 0x5fb, the sound
    "_NACHRICHTEN_FRIEDHOF_13"); he_RunDecay sends it in the work's other branch (no value set, its +0xbc = 0) */
 
-void ai_TellGraveWorkFailure(int chRec)
+void ai_TellGraveWorkFailure(AICHAR *chRec)
 {
     unsigned int v;
     AICHAR *c;
 
-    c = (AICHAR *)chRec;
+    c = chRec;
     v = util_Random(3);
     txt_Format(ai_NewsText, 0x40ac, (v & 0xffff) + 0x40a9);
     he_ShowNews(c->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_13");
@@ -2478,15 +2478,15 @@ void ai_GraveyardMessage(AICHAR *to, AICHAR *worker, AICHAR *other, int detail)
    to's netId (0, event 0x5fa, the sound "_NACHRICHTEN_FRIEDHOF_00"); he_RunDecay sends it for a work without a
    result (+0xbc = 0), in place of the detailed ai_GraveyardMessage */
 
-void ai_GraveyardMessagePlain(int toRec, unsigned short *workerRec, unsigned short *otherRec)
+void ai_GraveyardMessagePlain(AICHAR *toRec, AICHAR *workerRec, AICHAR *otherRec)
 {
     AICHAR *to;
     AICHAR *worker;
     AICHAR *other;
 
-    to = (AICHAR *)toRec;
-    worker = (AICHAR *)workerRec;
-    other = (AICHAR *)otherRec;
+    to = toRec;
+    worker = workerRec;
+    other = otherRec;
     txt_Format(ai_NewsText, 0x40af, 0x40a3, worker->id, worker->bld, other->id);
     he_ShowNews(to->netId, -1, ai_NewsText, 0, 0x5fa, "_NACHRICHTEN_FRIEDHOF_00");
 }
@@ -2500,16 +2500,16 @@ int gm_Opinion(int a, int b);
    then the quick-jump message 0x5ec to its netId with its building's id (+0x16c, +1), the object's id (+2) and
    the sound "_NACHRICHTEN_DOMIZIL_03"; he_RunTrainShare sends it when the research event 0x97 hands the result over */
 
-void ai_DomizilMessageResearch(int toRec, int cRec, int objRec, int kind)
+void ai_DomizilMessageResearch(AICHAR *toRec, AICHAR *cRec, int objRec, int kind)
 {
     AICHAR *to;
     AICHAR *c;
     AIOBJ *obj;
 
-    to = (AICHAR *)toRec;
+    to = toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (AICHAR *)cRec;
+    c = cRec;
     obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4074, c->name, c->family, kind + 0x4172);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
@@ -2519,16 +2519,16 @@ void ai_DomizilMessageResearch(int toRec, int cRec, int objRec, int kind)
    and the kind text 0x9a8 + 2 * kind in place of the study name; he_LabIncident sends it when the research event
    0x98 sets the kind's place value */
 
-void ai_DomizilMessageResearchKind(int toRec, int cRec, int objRec, int kind)
+void ai_DomizilMessageResearchKind(AICHAR *toRec, AICHAR *cRec, int objRec, int kind)
 {
     AICHAR *to;
     AICHAR *c;
     AIOBJ *obj;
 
-    to = (AICHAR *)toRec;
+    to = toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (AICHAR *)cRec;
+    c = cRec;
     obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4075, c->name, c->family, kind * 2 + 0x9a8);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
@@ -2565,16 +2565,16 @@ void ai_DomizilMessage04(AICHAR *to, AICHAR *c, AIBLD *bld)
    with its building's id (+1) and the sound "_NACHRICHTEN_DOMIZIL_04"; he_LabIncident sends it for the pick that
    sets the character's life by age (he_SetLifeByAge) */
 
-void ai_DomizilMessageAge(int toRec, int cRec, AIBLD *bldRec)
+void ai_DomizilMessageAge(AICHAR *toRec, AICHAR *cRec, AIBLD *bldRec)
 {
     AICHAR *to;
     AICHAR *c;
     AIBLD *bld;
 
-    to = (AICHAR *)toRec;
+    to = toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (AICHAR *)cRec;
+    c = cRec;
     bld = bldRec;
     txt_Format(ai_NewsText, 0x407b, c->name, c->family);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,
@@ -2612,12 +2612,12 @@ void ai_DomizilMessagePlace(AICHAR *to, AICHAR *c, AIBLD *bld, int placeId)
    the sound "_NACHRICHTEN_DOMIZIL_12"; no kind 6 / 7 test like the other Domizil messages (gv_EffectNotifyOwner
    sends it only for a kind 6 character, level 0 / 1 / 2 by the effect's mode and value) */
 
-void ai_DomizilMessage12(char *chRec, AIBLD *bldRec, int level)
+void ai_DomizilMessage12(AICHAR *chRec, AIBLD *bldRec, int level)
 {
     AICHAR *ch;
     AIBLD *bld;
 
-    ch = (AICHAR *)chRec;
+    ch = chRec;
     bld = bldRec;
     txt_Format(ai_NewsText, 0x4070, bld, level + 0x4071);
     he_MessageBoxQuickjump(ch->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,

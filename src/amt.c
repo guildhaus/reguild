@@ -655,7 +655,7 @@ done:
     if (p->state == 3)
         amt_Table[i].cnt = 0;
     if (x != 0 && c != 0 && ((AMTCHARVIEW *)ai_Chars)[ai_PlayerId].netId == ((AMTCHARVIEW *)c)->netId)
-        ai_ShowOfficeNews((unsigned short *)x, c);
+        ai_ShowOfficeNews((unsigned short *)x, (AICHAR *)c);
     return 1;
 }
 /* 0x4e6b40, the office of the kind 0x26 (the historical event's office) gets the owner id */
@@ -759,7 +759,7 @@ int amt_ExecuteSwapMessage(AMTTRADE *m)
     o2 = (char *)gm_FindChar(p2->owner);
     if (o2 == 0)
         return 0;
-    ai_SendSwapText((unsigned short *)c, (unsigned short *)o1, (unsigned short *)o2);
+    ai_SendSwapText((AICHAR *)c, (AICHAR *)o1, (AICHAR *)o2);
     ((AMTCHARVIEW *)o1)->officeKind = p2->kind;
     ((AMTCHARVIEW *)o2)->officeKind = p1->kind;
     t = p1->owner;

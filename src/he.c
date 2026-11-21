@@ -3339,9 +3339,9 @@ void he_AllocStammtisch(int r)
     }
 }
 
-void ai_ShowTributeDelayedNews(int param_1);
-void ai_ShowTributeCollectNews(int param_1);
-void ai_ShowTributeClaimNews(int param_1, int param_2);
+void ai_ShowTributeDelayedNews(struct AICHAR *param_1);
+void ai_ShowTributeCollectNews(struct AICHAR *param_1);
+void ai_ShowTributeClaimNews(struct AICHAR *param_1, struct AICHAR *param_2);
 
 /* 0x541b40, the inn meeting ("Stammtisch", see 0x53f430) hears of a table request (cm_ExTableRequest) or of its
    own run (he_RunStammtisch): `cmd` is a four letter code, inn the inn building, table its table object (kind 0x12d,
@@ -3591,7 +3591,7 @@ void he_AllocTavern(int r)
 }
 
 int ai_ChooseObjectTarget();
-void ai_ShowTavernHelperNews(char *param_1, char *param_2, int param_3);
+void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int param_3);
 
 /* 0x542590, a Ghidra miss (disassembled): the run handler of the tavern event 0x2b of the building `from` (no owner:
    again in a day at 7:00). Stage 0: an AI owner may hire a helper (ai_ChooseObjectTarget on the tavern's object
@@ -3673,7 +3673,7 @@ void he_RunTavern(int r)
             helper = gm_FindChar(t->helperId);
             if (helper != 0) {
                 out[2] = (int)helper;
-                ai_ShowTavernHelperNews((char *)&ai_Chars[bld->owner], (char *)helper, (int)bld);
+                ai_ShowTavernHelperNews(&ai_Chars[bld->owner], helper, (int)bld);
             }
             cm_BeginFieldBlock((char *)t, t->objId);
             cm_AddFieldDelta(1, 1, 0x22, &no);
@@ -4324,7 +4324,7 @@ void he_AllocTribute(int ev)
         if (n > 4) {
             e->end = ai_Time;
             e->exSlot = cm_SendExSetHE(-1, ev);
-            ai_ShowTributeDelayedNews((int)&ai_Chars[e->chr]);
+            ai_ShowTributeDelayedNews(&ai_Chars[e->chr]);
             return;
         }
     }
@@ -4342,10 +4342,10 @@ void he_AllocTribute(int ev)
     if (ai_InventoryHas(coll, 0x15c) != 0) {
         e->end = ai_Time;
         e->exSlot = cm_SendExSetHE(-1, ev);
-        ai_ShowTributeClaimNews((int)coll, (int)&ai_Chars[e->chr]);
+        ai_ShowTributeClaimNews(coll, &ai_Chars[e->chr]);
         return;
     }
-    ai_ShowTributeCollectNews((int)coll);
+    ai_ShowTributeCollectNews(coll);
     e->exSlot = cm_SendExSetHE(0, ev);
 }
 
@@ -19629,11 +19629,11 @@ void he_AllocAlchemistDay();
 void he_RunAlchemistDay();
 void snd_PlayFavourComment(void);
 void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);
-void ai_DomizilMessageResearchKind(int param_1, int param_2, int param_3, int param_4);
-void ai_DomizilMessageResearch(int param_1, int param_2, int param_3, int param_4);
+void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
+void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
 void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, struct AIOBJ *obj);
 void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
-void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
+void ai_DomizilMessageAge(struct AICHAR *param_1, struct AICHAR *param_2, struct AIBLD *param_3);
 void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, int placeId);
 void he_AllocSecretRoom();
 void he_RunSecretRoom();
@@ -19667,10 +19667,10 @@ void he_RunGraveyardWorkers(int ev);          /* 0x572bf0 */
 void he_RunGraveyardTheft(int ev);          /* 0x572fd0 */
 void he_RunGraveLease(int ev);          /* 0x572a50 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
-void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
-void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
+void ai_TellGraveWorkSuccess(struct AICHAR *param_1);                 /* 0x5a9990 */
+void ai_TellGraveWorkFailure(struct AICHAR *param_1);                 /* 0x5a99e0 */
 void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker, struct AICHAR *other, int detail);                 /* 0x5a9a30 */
-void ai_GraveyardMessagePlain(int param_1, unsigned short *param_2, unsigned short *param_3);                 /* 0x5a9af0 */
+void ai_GraveyardMessagePlain(struct AICHAR *param_1, struct AICHAR *param_2, struct AICHAR *param_3);                 /* 0x5a9af0 */
 int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */

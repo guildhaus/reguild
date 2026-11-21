@@ -1052,7 +1052,7 @@ void *ai_ProdSetting(AIBLD *bld);
 void ai_SetSettingWeight(struct AIBLD *bld, int good, unsigned char weight);
 void ai_RefreshProdSetting(AIBLD *b);
 void ai_SetSettingFactor(struct AIBLD *bld, float factor);
-void ai_ShowTributeClaimNews(int collectorRec, int payerRec);
+void ai_ShowTributeClaimNews(struct AICHAR *collectorRec, struct AICHAR *payerRec);
 void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
 void ai_EvidenceBookWindow(AIBLD *bld);
 int ai_BribeAmountCB(AICHAR *ch);
@@ -10299,7 +10299,7 @@ int ai_UseGoodTributeClaim(AICHAR *ch)
     ev = (AIJOB *)he_FindEvent(1, 0, 0x35);
     while (ev != 0) {
         if ((int)ch->netId == ev->idbc) {
-            ai_ShowTributeClaimNews((int)ch, (int)&ai_Chars[ev->chr]);
+            ai_ShowTributeClaimNews(ch, &ai_Chars[ev->chr]);
             ev->end = ai_Time;
             cm_SendExSetHE(-1, (char *)ev);
         }

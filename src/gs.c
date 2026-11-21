@@ -158,7 +158,7 @@ int gv_OnDecisionValue(GVDECMSG *p)
         c = gm_FindChar(p->id);
         if (c != 0) {
             gv_TableRecordText(buf, p->rec);
-            ai_ShowCharacterNews((unsigned short *)c, buf);
+            ai_ShowCharacterNews(c, buf);
         }
     }
     return 1;
@@ -727,7 +727,7 @@ int gv_RetireCrime(int id, int force)
     for (i = 0; i < 0x800; i++) {
         if (id == ai_Evidence[i][1]) {
             if (ai_PlayerId != 0xffff && ai_Evidence[i][0] == ai_Chars[ai_PlayerId].netId && culprit != 0 && force == 0) {
-                ai_ShowEvidenceVoidNews((unsigned short *)&ai_Chars[ai_PlayerId], (unsigned short *)culprit);
+                ai_ShowEvidenceVoidNews(&ai_Chars[ai_PlayerId], culprit);
                         }
             ai_Evidence[i][0] = -1;
             ai_Evidence[i][1] = -1;
@@ -842,7 +842,7 @@ int gv_RetireCrimesOf(int culprit, int n)
     }
     for (j = 0; j < m; j++) {
         if (told[j] != 0)
-            ai_ShowEvidenceVoidNews((unsigned short *)who[j], (unsigned short *)c);
+            ai_ShowEvidenceVoidNews(who[j], c);
     }
     return cnt;
 }
@@ -888,7 +888,7 @@ int gv_RetireCrimeIds(int culprit, int n, int *ids)
     }
     for (i = 0; i < m; i++) {
         if (told[i] != 0)
-            ai_ShowEvidenceVoidNews((unsigned short *)who[i], (unsigned short *)c);
+            ai_ShowEvidenceVoidNews(who[i], c);
     }
     return cnt;
 }

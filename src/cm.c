@@ -4000,7 +4000,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
                 if (s != 0) {
                     c = gm_FindChar(j->id4);
                     if (c != 0)
-                        ai_NotifyPlayerOfChar((unsigned short *)c, (unsigned short *)&ai_Chars[j->chr]);
+                        ai_NotifyPlayerOfChar(c, &ai_Chars[j->chr]);
                 }
             }
         }
@@ -5852,7 +5852,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
             return 1;
         q->recs[i] = -1;
         if (ai_PlayerId == b->owner)
-            ai_ShowPurchaseNews(c, (char *)&ai_Chars[ai_PlayerId], (int)b, m->script.price);
+            ai_ShowPurchaseNews(c, &ai_Chars[ai_PlayerId], (int)b, m->script.price);
     }
     if (s != 0)
         s->state = 1;

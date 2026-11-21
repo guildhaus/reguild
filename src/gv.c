@@ -186,7 +186,7 @@ int gv_EffectNotifyOwner(GVEFFARG *a)
                         m = 1;
                 }
                 if (ch->kind == 6)
-                    ai_DomizilMessage12((char *)ch, b, m);
+                    ai_DomizilMessage12(ch, b, m);
             }
         }
     }

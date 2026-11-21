@@ -1131,11 +1131,11 @@ void mem_Free(void *p);
 void err_Message(char *text);
 int rd_PointsNear();
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
-void ai_ShowTributeDelayedNews(int param_1);
-void ai_ShowTributeCollectNews(int param_1);
-void ai_ShowTributeClaimNews(int param_1, int param_2);
+void ai_ShowTributeDelayedNews(struct AICHAR *param_1);
+void ai_ShowTributeCollectNews(struct AICHAR *param_1);
+void ai_ShowTributeClaimNews(struct AICHAR *param_1, struct AICHAR *param_2);
 int ai_ChooseObjectTarget();
-void ai_ShowTavernHelperNews(char *param_1, char *param_2, int param_3);
+void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int param_3);
 int ai_EvalFest();
 int ai_MasterExamPassed();
 unsigned int ai_MarriageTest(int param_1, int param_2);
@@ -3357,7 +3357,7 @@ void he_AllocResearchRecipe(int ev)
     he_FreeEvent((int *)ev);
 }
 
-void ai_DomizilMessageResearchKind(int param_1, int param_2, int param_3, int param_4);
+void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
 
 /* 0x56d730, the run handler of the alchemist research event 0x96 (alloc he_AllocResearchRecipe): without its character,
    the character's alchemist record or the record's place of the recipe (ahm_SlotOf) the event ends (stage -2, freed);
@@ -3392,7 +3392,7 @@ void he_RunResearchRecipe(int ev)
                 o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
                 to = gm_FindChar(e->netId);
                 if (to != 0)
-                    ai_DomizilMessageResearchKind((int)to, (int)c, (int)o, r->id);
+                    ai_DomizilMessageResearchKind(to, c, (int)o, r->id);
                 ahm_SendSetPlaceValue((char *)c, r->id, r->progress + p->v);
                 sv_MoveToGroup(0, 0, c->id, 0);
                 he_FreeEvent((int *)ev);
@@ -3415,7 +3415,7 @@ void he_RunResearchRecipe(int ev)
     he_FreeEvent((int *)ev);
 }
 
-void ai_DomizilMessageResearch(int param_1, int param_2, int param_3, int param_4);
+void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
 
 /* 0x56d990, the alloc of the alchemist training event 0x97: the character (chr) and the share (id) are looked up
    (gm_FindChar, ahm_ShareProgress into progress, its minutes into start); when that progress is above ai_FloatZero
@@ -3475,7 +3475,7 @@ void he_RunTrainShare(int ev)
             o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
             to = gm_FindChar(e->netId);
             if (to != 0)
-                ai_DomizilMessageResearch((int)to, (int)c, (int)o, r->id);
+                ai_DomizilMessageResearch(to, c, (int)o, r->id);
             ahm_SendSetShare((char *)c, r->id, share + r->progress);
             sv_MoveToGroup(0, 0, c->id, 0);
             he_FreeEvent((int *)ev);
@@ -3605,7 +3605,7 @@ void he_RunAlchemistDay(int ev)
 
 void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, struct AIOBJ *obj);
 void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
-void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
+void ai_DomizilMessageAge(struct AICHAR *param_1, struct AICHAR *param_2, struct AIBLD *param_3);
 void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, int placeId);
 
 /* 0x56e070, the laboratory incident of the alchemist's daily event 0x98 (he_RunAlchemistDay, only for a building
@@ -3693,7 +3693,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
             break;
         case 3:
             he_SetLifeByAge(c, util_Random(3) + 1);
-            ai_DomizilMessageAge((int)&ai_Chars[b->owner], (int)c, b);
+            ai_DomizilMessageAge(&ai_Chars[b->owner], c, b);
             break;
         case 4:
             k = util_Random(6);
@@ -4579,10 +4579,10 @@ void he_AllocDecay(int ev)
     gv_Accuse(0x1b, 1, ai_CharInts[e->chr][0], netId, id);
 }
 
-void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
-void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
+void ai_TellGraveWorkSuccess(struct AICHAR *param_1);                 /* 0x5a9990 */
+void ai_TellGraveWorkFailure(struct AICHAR *param_1);                 /* 0x5a99e0 */
 void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker, struct AICHAR *other, int detail);                 /* 0x5a9a30 */
-void ai_GraveyardMessagePlain(int param_1, unsigned short *param_2, unsigned short *param_3);                 /* 0x5a9af0 */
+void ai_GraveyardMessagePlain(struct AICHAR *param_1, struct AICHAR *param_2, struct AICHAR *param_3);                 /* 0x5a9af0 */
 
 /* 0x5702e0, the run handler of the graveyard owner's "breath of decay" event 0x89 (alloc he_AllocDecay; am.c's
    ai_ExecGraveyardOwner2 / sv_t.c post it): the stages -1 / -2 take the agent out of the event's group and free
@@ -4657,11 +4657,11 @@ void he_RunDecay(int ev)
                 d->aged = 1;
                 age = util_Random(3) + bt->cap247 * 2 + bld->level / 50;
                 he_SetLifeByAge(victim, age);
-                ai_TellGraveWorkSuccess((int)victim);
+                ai_TellGraveWorkSuccess(victim);
                 e->stage++;
                 return;
             }
-            ai_TellGraveWorkFailure((int)victim);
+            ai_TellGraveWorkFailure(victim);
             d->aged = 0;
         }
         e->stage++;
@@ -4699,7 +4699,7 @@ void he_RunDecay(int ev)
                     told = 0;
                 ai_GraveyardMessage(per, agent, victim, told);
             } else
-                ai_GraveyardMessagePlain((int)per, (unsigned short *)agent, (unsigned short *)victim);
+                ai_GraveyardMessagePlain(per, agent, victim);
         }
         e->stage = -1;
         return;

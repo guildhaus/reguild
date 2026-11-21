@@ -322,12 +322,12 @@ struct AICHAR; struct LCORDMSG; int ai_MisappropriationWindow(struct AICHAR *me,
 struct LCORDMSG; int ai_CourtshipWindow(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c6d00, the courtship order's ask (lc.c LCORDMSG: gv.h ORDMSG) */
 int ai_FaithAccusationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ce1a0, the accusation by faith (ai_AccusationWindow's twin) */
 int ai_AccusationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cde90, the accusation order's ask */
-void ai_ShowCharacterNews(unsigned short *cRec, char *text);  /* 0x5a9110 */
-void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec);  /* 0x5a9430 */
-void ai_TellGraveNeglect(unsigned short *plRec, int bld);  /* 0x5a9690 */
+void ai_ShowCharacterNews(struct AICHAR *cRec, char *text);  /* 0x5a9110 */
+void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);  /* 0x5a9430 */
+void ai_TellGraveNeglect(struct AICHAR *plRec, int bld);  /* 0x5a9690 */
 void ai_NotifySale(struct AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
-void ai_TellGravesPaid(int plRec, int bld, int paid, int sum);  /* 0x5a9780 */
-void ai_DomizilMessage12(char *ch, struct AIBLD *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
+void ai_TellGravesPaid(struct AICHAR *plRec, int bld, int paid, int sum);  /* 0x5a9780 */
+void ai_DomizilMessage12(struct AICHAR *ch, struct AIBLD *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
 struct AICHAR; struct LCORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
 int ai_DivorceDialog(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8ef0, the divorce order's ask (ord.c 0x4f5800); m is not read */
 int ai_WorkerDismissalWindow(void *ch, int *m);  /* 0x5ce7f0 */
@@ -374,33 +374,33 @@ int ai_AmountLimit(int param_1, int param_2, int param_3, int *param_4);  /* 0x5
 void ai_FamilyTreeWindow(int netId, unsigned char flags, int caption, int callId);  /* 0x5c4150, the family tree window */
 struct AICHAR;
 void ai_CharInfoPanel(struct AICHAR *chr, int other);  /* 0x5c5310, the character info panel */
-void ai_ShowOfficeNews(unsigned short *param_1, char *param_2);  /* 0x5a8cb0 */
+void ai_ShowOfficeNews(unsigned short *param_1, struct AICHAR *param_2);  /* 0x5a8cb0 */
 struct LCAMOUNTROW;
 int ai_AmountRow(int x, int y, int win, int font, struct LCAMOUNTROW *row, int titled);  /* 0x5be3b0, one row of a special-amount list (lc.c LCAMOUNTROW) */
 int ai_AmountRowStatus(struct LCAMOUNTROW *row);  /* 0x5be1d0, the corner icons of a special-amount row */
 int ai_DrawAmountRow(int x, int y, int win, struct LCAMOUNTROW *row);  /* 0x5be720, a compact special-amount row at (x, y) (lc.c LCAMOUNTROW) */
 void ai_GameFrame(void);  /* 0x591520 */
 void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target);  /* 0x58feb0 */
-void ai_ShowPurchaseNews(unsigned short *param_1, char *param_2, int param_3, int param_4);  /* 0x5a8c50 */
-void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec);  /* 0x5a9170 */
+void ai_ShowPurchaseNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4);  /* 0x5a8c50 */
+void ai_NotifyPlayerOfChar(struct AICHAR *cRec, struct AICHAR *pRec);  /* 0x5a9170 */
 void lc_UpdateGoodsReserves(void);  /* 0x5ba750 */
 int ai_DrawSettingGood(struct AIBLD *param_1);  /* 0x5a8870 */
 float ai_SettingFactor(struct AIBLD *param_1);  /* 0x5a88e0 */
-void ai_ShowPartingNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a8ee0 */
-void ai_ShowFeudNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a8f90 */
-void ai_ShowPartnerNews(unsigned short *param_1, unsigned short *param_2);  /* 0x5a9050 */
+void ai_ShowPartingNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a8ee0 */
+void ai_ShowFeudNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a8f90 */
+void ai_ShowPartnerNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a9050 */
 int ai_GoodFitsBuilding(void *ch, int good);  /* 0x5bb2d0 */
 int ai_FindBauplaetze(char *prefix, int *list);  /* 0x58f7a0 */
 int ai_InventoryHas(void *ch, int id);  /* 0x5ba6b0 */
 void ai_ObjectAngle(void *out_, int plot);  /* 0x58fd90 */
 void ai_ObjectPosition(void *out, int plot);  /* 0x58fd40 */
-void ai_ShowIndulgenceNews(unsigned short *param_1, char *param_2, int param_3, int param_4, int param_5);  /* 0x5a8b80 */
-void ai_ShowPaymentNews(unsigned short *param_1, char *param_2, int param_3);  /* 0x5a8c00 */
+void ai_ShowIndulgenceNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5);  /* 0x5a8b80 */
+void ai_ShowPaymentNews(unsigned short *param_1, struct AICHAR *param_2, int param_3);  /* 0x5a8c00 */
 int ai_FindUsableGood(int param_1);  /* 0x5ba620 */
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, struct AMOUNTCFG *cfg, int unused);  /* 0x5c33c0, whether id passes the amount menu's partner filter cfg for me */
 int ai_PassesBuildingFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c37a0, whether bld passes the amount menu's building filter cfg for me */
 struct G8USEVIEW; int ai_UseGood(struct AICHAR *ch, struct G8USEVIEW *use);  /* 0x5cf8a0, uses a Domizil good: ch the character, use the request (am.h G8USE) */
-void ai_SendSwapText(unsigned short *param_1, unsigned short *param_2, unsigned short *param_3);  /* 0x5a9330 */
+void ai_SendSwapText(struct AICHAR *param_1, struct AICHAR *param_2, struct AICHAR *param_3);  /* 0x5a9330 */
 
 int ai_SaveSettings(void *param_1);  /* 0x5a8940, saves the settings */
 

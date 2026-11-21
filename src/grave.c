@@ -1653,9 +1653,9 @@ void gv_GraveyardTurn(AIBLD *bld)
         gv_OrderNewDead(bld, util_Random(2) + 1);
     if (pl != 0 && (pl->kind == 6 || pl->kind == 7)) {
         if (paid > 0)
-            ai_TellGravesPaid((int)pl, (int)bld, paid, sum);
+            ai_TellGravesPaid(pl, (int)bld, paid, sum);
         if (nrel != 0)
-            ai_TellGraveNeglect((unsigned short *)pl, (int)bld);
+            ai_TellGraveNeglect(pl, (int)bld);
     }
 }
 /* 0x4f22a0, the entry of the list 0xff of the object o (0x4ef7c0 with 0x4ef770) whose byte +0xc is below m and the smallest of them; 0 when the owner is the player or has no item 0x1f8 (list 2, key 4) or none qualifies */
