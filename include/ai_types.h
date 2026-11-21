@@ -588,7 +588,7 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                     unsigned char level;        /* 0x65, the offer's second value (s2->arg2) */
                 } study;
                 struct {                        /* the talent training message 0x60 (lc.c ai_TalentWindow, am.c
-                                                   ai_ExecuteTrainSkill / ai_ExecuteTrainJobSkill as am.h's AIXMSG.skill) */
+                                                   ai_ExecuteTrainSkill / ai_ExecuteTrainJobSkill) */
                     char pad58[2];
                     unsigned char talent;       /* 0x5a, the talent (AICHAR.skills index) the training raises */
                 } training;
@@ -626,8 +626,9 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                                                    (ai_WorkLoad > ai_WorkLimit); the event keeps it at +0xf1 (AIJOB.flags, nonzero defers the posting) */
             unsigned char flag9e;               /* 0x9e, 1 in the guard cart's message 0xf (he_PatrolStep); the meaning is not known */
             char pad9f;
-            int moveArgA0;                      /* 0xa0, -1 in the lost-cart move message 0xf (ai_MeisterCollectTrans), 0 in the
-                                                   patrol's (he_PatrolStep); no reader known */
+            int jobId;                          /* 0xa0, of the move message 0xf the id of the event that posted it (the trade
+                                                   event's, he_AllocTrade); -1 from the lost cart (ai_MeisterCollectTrans), 0 from
+                                                   the patrol (he_PatrolStep) */
             int srcEvent;                       /* 0xa4, of the explosion message 0x4f from a fire (he_RunFire): the fire
                                                    event's id (the burning event 0x4f keeps it at +0xf8) */
             char pada8[8];

@@ -580,12 +580,6 @@ typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's
     char padad;
     unsigned short good;           /* 0xae, the good searched for */
 } LCSEARCHEVENT;
-typedef struct LCSEARCHWORDS {     /* the search message 0x14's words at AIMSG +0x58 (msg.arg) */
-    unsigned char count;           /* 0x58, how many of ids[] are set */
-    char pad59;
-    unsigned short good;           /* 0x5a, the good searched for */
-    int room;                      /* 0x5c, the objId of the room the search starts from */
-} LCSEARCHWORDS;
 #pragma pack(pop)
 
 #pragma pack(push, 1)

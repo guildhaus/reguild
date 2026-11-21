@@ -747,10 +747,6 @@ typedef struct HEHINTEVENT {            /* the tutorial hint event 0x83's words 
     char pad00[0xac];
     int entry;                          /* 0xac, the index into he_Hints the run handler is at */
 } HEHINTEVENT;
-typedef struct HETRADEMSG {             /* the trade message 0xf's words over AIMSG (he_AllocTrade) */
-    char pad00[0xa0];
-    int jobId;                          /* 0xa0, the id of the event that posted it */
-} HETRADEMSG;
 typedef struct HETRADE {                /* the trade event 0xb's words over AIJOB's union (he_AllocTrade / he_RunTrade) */
     char pad00[0xac];
     int cart;                           /* 0xac, the objId of the trading cart (gm_FindObjectInst; its 0x1dd object holds
@@ -2068,7 +2064,7 @@ void he_AllocTrade(AIJOB *ev)
     msg.arg[0] = p->cart;
     msg.arg[1] = ev->from;
     msg.arg[2] = p->bld;
-    ((HETRADEMSG *)&msg)->jobId = ev->id;
+    msg.jobId = ev->id;
     if (gm_FindObjectInst(p->cart) != 0) {
         if (ev->flags != 0)
             gm_AddTime(&ev->end, 1, 0x1e, 0);
@@ -2291,7 +2287,7 @@ void he_RunTrade(AIJOB *ev)
     m.car = cart->objId;
     m.n = bld->id;
     m.ch = t->bld;
-    ((HETRADEMSG *)&m)->jobId = ev->id;
+    m.jobId = ev->id;
     if (m.n == m.ch) {
         gm_AddTime(&ev->end, 0, 5, 0);
         return;

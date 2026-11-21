@@ -24,7 +24,7 @@
    cm_WaitEventOrClick, cm_ClearParty, cm_ResetCutInfos, cm_ShowPartyTexts, cm_AllocParty, cm_AddPartyMember,
    cm_WaitEventFull and cm_CreateChar; cm.h's declaration changes still flip the register tie-breaks of
    ai_TutorialInitChapter2 / ai_TutorialInitChapter3 in sv_t and of ord_CountGridObjects. Types only
-   cm.c uses (CMNOTE, CMCUTTYPEMSG, CMFIELD, CMWALKPATHMSG) stay in its head for that reason. cm.h still
+   cm.c uses (CMCUTTYPEMSG, CMFIELD, CMWALKPATHMSG) stay in its head for that reason. cm.h still
    repeats ord_AddGridAmount, gm_RemoveOwned, gm_BuildingSkill, gm_HealthRatio, rt_FreePoints and rt_CopyPoints
    (the owner headers' prototypes: gv.h, f3gm.h, rt.h; RTPOINT from rt_types.h).
    Open: head: message 0x3f has no record type in cm_types.h (a struct typedef there flips
@@ -114,10 +114,6 @@ typedef struct CMCUTTYPEMSG {      /* 0x7c bytes, the data of the system message
     int party;                      /* 0x00, the party's id (G28REC.id) */
     char text[0x78];                /* 0x04, "cut_type:%i" with the scene kind */
 } CMCUTTYPEMSG;
-typedef struct CMNOTE {             /* 0x8f8 bytes, a long message (AIMSG) with its texts right after it, as cm_SendPartyNote builds it */
-    AIMSG head;                     /* 0x00 */
-    char text[0x800];               /* 0xf8, the text, then the second one (textFlags 0x10) */
-} CMNOTE;
 typedef struct CMFIELD {            /* the head of one field of a field block (G17FIELDS.buf); its values follow at 0x04 */
     signed char size;               /* 0x00, a value's size: 1, 2 or 4 bytes */
     signed char n;                  /* 0x01, the values */

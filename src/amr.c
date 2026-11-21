@@ -1663,15 +1663,15 @@ int ai_DecideTrainSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteTrainSkill(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    AIXMSG m;
+    AIMSG m;
 
     cm_SendMoneyDelta(p->netId, -s1->arg2);
     m.flags = 1;
     m.type = 0x60;
     m.to = p->netId;
     m.fromId = -1;
-    m.skill = (unsigned char)s1->ref;
-    cm_SendLongMessage((AIMSG *)&m);
+    m.training.talent = (unsigned char)s1->ref;
+    cm_SendLongMessage(&m);
     return 4;
 }
 /* 0x496610, decide of action 5: one of the two skills its job rates highest (gm_GetJobTalents), affordable and below 252, to train (o1 kind 0xe, ref the skill, arg2 the price); else the building it needs, or the sub-actions 0xe (no job) / 0xf (none affordable) */
@@ -1842,15 +1842,15 @@ int ai_DecideTrainJobSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteTrainJobSkill(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    AIXMSG m;
+    AIMSG m;
 
     cm_SendMoneyDelta(p->netId, -s1->arg2);
     m.to = p->netId;
     m.fromId = p->netId;
     m.flags = 1;
     m.type = 0x60;
-    m.skill = (unsigned char)s1->ref;
-    cm_SendLongMessage((AIMSG *)&m);
+    m.training.talent = (unsigned char)s1->ref;
+    cm_SendLongMessage(&m);
     return 5;
 }
 /* 0x496b10, evaluate: without an office application, the least liked (gm_Liking) of the three characters +0xb4 / +0xb8 / +0xbc of the character's event 0x2c (no judge at +0xb4) becomes the target (o1 kind 7) and the action's weights count against the moods; no such event or office kind 0xd: the guilt or mood weights */

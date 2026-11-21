@@ -10,8 +10,7 @@
    Open: gm_IsBankrupt calls ai_LiquidateAssets (0x5b92e0: netId, character, amount, message) without a prototype;
    its definition in lc.c is still a one-parameter skeleton.
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
-   AICHAR / AIBLD / AIOBJ, the job record through GMJOB (AIJOB, next to AITIME), the long message through
-   f3gm_types.h's GMMSG (AIMSG), the crime records ai_Crimes (cm_types.h CRIME,
+   AICHAR / AIBLD / AIOBJ, the job record through GMJOB (AIJOB, next to AITIME), the crime records ai_Crimes (cm_types.h CRIME,
    0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
    the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
@@ -1330,7 +1329,7 @@ int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);  
 int cm_SendSetField(int a, int b, int c, int d, int e);                     /* 0x4c4a60 */
 void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
 
-/* sends the message 0x72 (the character c died) in the GMMSG m */
+/* sends the message 0x72 (the character c died) in the AIMSG m */
 #define GM_SENDDEATH(m, c)                                             \
     memset(&(m), 0, sizeof(m));                                        \
     (m).type = 0x72;                                                   \
@@ -1338,8 +1337,8 @@ void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
     (m).fromId = -1;                                                   \
     (m).flags = 2;                                                     \
     (m).time = ai_Time;                                               \
-    (m).arg0 = (m).to;                                                 \
-    cm_SendLongMessage((struct AIMSG *)&(m))
+    (m).arg[0] = (m).to;                                               \
+    cm_SendLongMessage(&(m))
 
 /* 0x4fbe90, the daily step of the character c; returns its new life value (-1 for no step). A free slot and a
    character of kind 0xf take no step (the latter is killed when gm_MayRemoveChar lets it go); a raised dead
@@ -1353,7 +1352,7 @@ void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
 
 float gm_DailyCharacterStep(AICHAR *id)
 {
-    GMMSG m;
+    AIMSG m;
     char buf[512];
     unsigned f, g;
     char b;
@@ -1712,7 +1711,7 @@ void gm_DailyCharacters(void)
 
 float gm_AddHealth(unsigned short id, int d)
 {
-    GMMSG m;
+    AIMSG m;
     unsigned char b;
     AICHAR *c;
     float a, f;

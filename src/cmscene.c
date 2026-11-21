@@ -4789,9 +4789,9 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
     if (extra != 0 && *extra != 0) {
         memcpy(note.text + len, extra, strlen(extra) + 1);
         note.head.textFlags |= 0x10;
-        cm_SendLongMessageText((struct AIMSG *)&note, len + strlen(extra) + 1, note.text);
+        cm_SendLongMessageText(&note.head, len + strlen(extra) + 1, note.text);
     } else
-        cm_SendLongMessageText((struct AIMSG *)&note, strlen(text) + 1, text);
+        cm_SendLongMessageText(&note.head, strlen(text) + 1, text);
 }
 /* 0x4e4a50, "cut_CheckMaster": 1 when the scene party m's host is one of its members; else the first member
    of kind 6 / 7 that still exists (as long as none was found, 16 slots) becomes the new host: the log

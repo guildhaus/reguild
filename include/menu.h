@@ -200,20 +200,6 @@ typedef struct AMOUNTCFG {              /* 0x50 bytes, the config of the special
 } AMOUNTCFG;
 #include "ai_types.h"                /* AITIME */
 
-typedef struct CURSEMSG {               /* 0xf8 bytes, ai.h's AIMSG (the long message cm_SendLongMessage sends) */
-    int unk00;
-    unsigned char type;                 /* +0x04 */
-    char pad05[3];
-    int to;                             /* +0x08, the net id of the sender (the message goes to the player's group) */
-    int fromId;                         /* +0x0c */
-    char pad10[0x18];
-    AITIME time;                     /* +0x28 */
-    unsigned char flags;                /* +0x36 */
-    char pad37;
-    int ids[8];                         /* +0x38 */
-    int arg[11];                        /* +0x58 */
-    char pad84[0x74];
-} CURSEMSG;
 
 #pragma pack(push, 2)
 typedef struct CURSEEVENT {             /* the event 0xa0 ai_FindCurseEvent finds: only the fields the curse target window reads */

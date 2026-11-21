@@ -2830,7 +2830,7 @@ void ai_CurseWindow(AIBLD *building)
             if (d2_PointerObj == ids[0]) {
                 if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], v, ai_OwnPlayer) != 0) {
                     char name[100];
-                    CURSEMSG msg;
+                    AIMSG msg;
 
                     cm_SendSetField(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, 0x1cc, 4, 0x10, 0);
                     if (ai_PlayerId != building->owner)
@@ -2844,7 +2844,7 @@ void ai_CurseWindow(AIBLD *building)
                     msg.to = ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     msg.arg[1] = target->netId;
-                    cm_SendLongMessage((struct AIMSG *)&msg);
+                    cm_SendLongMessage(&msg);
                     txt_Format(text, 0x41da, 0x41c1);
                     sprintf(name, "_WAHRSAGERIN_FLUCH_0%d", v);
                     snd_PlayVoice(-7, 0, name, -1);
@@ -2874,7 +2874,7 @@ void ai_CurseWindow(AIBLD *building)
 
 void ai_CurseTargetWindow(AIBLD *building)
 {
-    CURSEMSG msg;
+    AIMSG msg;
     AITIME when;
     int ids[2];                         /* the two buttons */
     int share, victim, form;
@@ -2955,7 +2955,7 @@ void ai_CurseTargetWindow(AIBLD *building)
                     msg.fromId = building->id;
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     msg.arg[0] = value;
-                    cm_SendLongMessage((struct AIMSG *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 }
             } else if (d2_PointerObj == ids[1]) {
@@ -3054,7 +3054,7 @@ void ai_HomageWindow(AIBLD *building)
 
 void ai_GypsyBeggingWindow(AIBLD *building)
 {
-    CURSEMSG msg;
+    AIMSG msg;
     int chosen[4];                      /* the indices of the collected characters */
     int ids[2];                         /* the two buttons */
     int form, count, i;
@@ -3091,7 +3091,7 @@ void ai_GypsyBeggingWindow(AIBLD *building)
                     memcpy(&msg.time, &ai_Time, sizeof(AITIME));
                     for (i = 0; i < count; i++)
                         msg.ids[i] = ((AICHARVIEW *)&ai_Chars[chosen[i]])->netId;
-                    cm_SendLongMessage((struct AIMSG *)&msg);
+                    cm_SendLongMessage(&msg);
                     sv_PopRequest = 1;
                 } else {
                     sv_MessageBox((intptr_t)txt_Ptrs[0x41ea], 0);

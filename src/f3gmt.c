@@ -5324,7 +5324,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
     AIBLD *blds[0x80];
     char t1[0x800];
     char t2[0x1000];
-    GMMSG m;
+    AIMSG m;
     GVENTRY *e;
     AIBLD *s;                  /* the graves building, then the buildings of dead */
     AICHAR *c;
@@ -5351,9 +5351,9 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
             m.to = ai_PlayerChar->netId;
             m.fromId = -1;
             m.flags = 2;
-            m.arg0 = s->id;
-            m.arg1 = gm_EquipmentValue(s, s->level);
-            cm_SendLongMessage((struct AIMSG *)&m);
+            m.arg[0] = s->id;
+            m.arg[1] = gm_EquipmentValue(s, s->level);
+            cm_SendLongMessage(&m);
             for (i = 0; i < 0x300; i++) {
                 c = &ai_Chars[i];
                 if (c->bld == s && c->netId != dead->netId) {
@@ -5363,8 +5363,8 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
                     m.fromId = s->id;
                     m.flags = 1;
                     m.time = ai_Time;
-                    m.arg0 = c->netId;
-                    cm_SendLongMessage((struct AIMSG *)&m);
+                    m.arg[0] = c->netId;
+                    cm_SendLongMessage(&m);
                 }
             }
             }
@@ -5501,16 +5501,16 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
             h = b;
         }
         if (h != 0) {
-            GMMSG m;
+            AIMSG m;
 
             cm_SendOwnership(h->id, pl->netId, pl->netId);
             m.type = 0x1b;
             m.to = ai_PlayerChar->netId;
             m.fromId = -1;
             m.flags = 2;
-            m.arg0 = h->id;
-            m.arg1 = gm_EquipmentValue(h, h->level);
-            cm_SendLongMessage((struct AIMSG *)&m);
+            m.arg[0] = h->id;
+            m.arg[1] = gm_EquipmentValue(h, h->level);
+            cm_SendLongMessage(&m);
             for (i = 0; i < 0x300; i++) {
                 t = &ai_Chars[i];
                 if (t->bld == h && t->netId != c->netId) {
@@ -5520,8 +5520,8 @@ void gm_ForfeitEstate(AICHAR *c, char *out, int flag)
                     m.fromId = h->id;
                     m.flags = 1;
                     m.time = ai_Time;
-                    m.arg0 = t->netId;
-                    cm_SendLongMessage((struct AIMSG *)&m);
+                    m.arg[0] = t->netId;
+                    cm_SendLongMessage(&m);
                 }
             }
         }

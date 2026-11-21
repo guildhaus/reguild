@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
+exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		byte+readable -> shape+readable at bed4a171: tie-break: the AIMSG copies went (LCSEARCHWORDS from lc.c, AIXMSG from am.h, CURSEMSG from menu.h); dcp's sweep proves the text byte under another declaration set [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		

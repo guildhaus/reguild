@@ -57,7 +57,7 @@
    partner chain still pass that filter as unsigned int *.
    Open: the AIMSG message records are built by raw offsets in most functions (the use callbacks of the Domizil
    table use AIMSG: ai_UseEventGood, the money messenger AIMSG.payment).
-   Open: types: the event / message words LCAMBUSHEVENT, LCSEARCHEVENT, LCSEARCHWORDS, LCKIDNAPEVENT (he.c's
+   Open: types: the event / message words LCAMBUSHEVENT, LCSEARCHEVENT, LCKIDNAPEVENT (he.c's
    HEEV3C), LCRANSOMEVENT (he.c's HEEV3D) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
@@ -686,12 +686,6 @@ typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's
     char padad;
     unsigned short good;           /* 0xae, the good searched for */
 } LCSEARCHEVENT;
-typedef struct LCSEARCHWORDS {     /* the search message 0x14's words at AIMSG +0x58 (msg.arg) */
-    unsigned char count;           /* 0x58, how many of ids[] are set */
-    char pad59;
-    unsigned short good;           /* 0x5a, the good searched for */
-    int room;                      /* 0x5c, the objId of the room the search starts from */
-} LCSEARCHWORDS;
 #pragma pack(pop)
 
 #pragma pack(push, 1)
@@ -5233,15 +5227,15 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
                 msg.to = ai_CharInts[bld->owner][0];
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
-                ((LCSEARCHWORDS *)msg.arg)->good = (unsigned short)goods[sel];
-                ((LCSEARCHWORDS *)msg.arg)->room = room->objId;
+                msg.goodsOrder.item = (unsigned short)goods[sel];
+                msg.arg[1] = room->objId;
                 picked = 0;
                 for (i = 0; i < 0x300 && picked < 6; i++)
                     if (ai_Chars[i].selected != 0)
                         msg.ids[picked++] = ai_CharInts[i][0];
                 for (i = picked; i < 6; i++)
                     msg.ids[i] = -1;
-                ((LCSEARCHWORDS *)msg.arg)->count = (unsigned char)picked;
+                msg.goodsOrder.count = (unsigned char)picked;
                 if (picked != 0) {
                     snd_PlayFavourComment();
                     sv_ClearSelection();
@@ -5263,7 +5257,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
 /* 0x595a00, the second search window of a building (as ai_TradeSearchWindow: "HANDEL\HANDEL_SUCHEN", frame
    texts 0x70f / 0x741, title 0x1806): always the three goods 0x1c1 .. 0x1c3 as picture buttons, captioned with
    the searches running (the search events 0x15 of the building, LCSEARCHEVENT: 1 the text 0x1807, more 0x1808,
-   none the good's name). A click on a good posts the search message 0x15 (LCSEARCHWORDS' count and good, the
+   none the good's name). A click on a good posts the search message 0x15 (AIMSG.goodsOrder's count and good, the
    room object in arg[2] where 0x14 has it in arg[1], up to six selected characters) and waits for its slot; no selected character gives the text 0x1801.
    Nothing when the building's character is busy (sv_CheckCharacterFlag) */
 
@@ -5361,15 +5355,15 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
                 msg.to = ai_CharInts[bld->owner][0];
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
-                ((LCSEARCHWORDS *)msg.arg)->good = (unsigned short)goods[sel];
-                msg.arg[2] = room->objId; /* the message 0x15 carries the room in arg[2], not at LCSEARCHWORDS.room */
+                msg.goodsOrder.item = (unsigned short)goods[sel];
+                msg.arg[2] = room->objId; /* the message 0x15 carries the room in arg[2], not in arg[1] as 0x14 */
                 picked = 0;
                 for (i = 0; i < 0x300 && picked < 6; i++)
                     if (ai_Chars[i].selected != 0)
                         msg.ids[picked++] = ai_CharInts[i][0];
                 for (i = picked; i < 6; i++)
                     msg.ids[i] = -1;
-                ((LCSEARCHWORDS *)msg.arg)->count = (unsigned char)picked;
+                msg.goodsOrder.count = (unsigned char)picked;
                 if (picked != 0) {
                     snd_PlayFavourComment();
                     sv_ClearSelection();

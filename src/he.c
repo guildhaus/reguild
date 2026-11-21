@@ -50,7 +50,7 @@
    mark HEBARDSCRIPT, the job table's proofs / year HEJOBTABLE), HEINN (the inn
    simulation's list), HEFINVIEW (AIFIN's +0x14 .. +0x64; ai.h is not
    included), the tutorial / tip / routine / storm / new-worker / production / trade words in HEHINTEVENT,
-   HETIPEVENT, HEROUTINE, HESTORM, HENEWWORKER, HEPRODUCTION, HETRADE and HETRADEMSG, the search 8 / 9 and
+   HETIPEVENT, HEROUTINE, HESTORM, HENEWWORKER, HEPRODUCTION, HETRADE, the search 8 / 9 and
    new-occurrence 0xa words in HESEARCH / HESEARCH9 / HEVORKOMMEN, the research /
    building / training / plunder / meeting words in HERESEARCH (event 0xc), HEBUILD (0xd), HEAHMRESEARCH (0x96 / 0x97),
    HEPLUNDER (0x8a), HEPLUNDERDEAL (0x8b), HEMASTERWORK (0x8c), HEGRAVECARE (0x8d), HEDEATHDUE (0x8e),
@@ -831,10 +831,6 @@ typedef struct HEHINTEVENT {            /* the tutorial hint event 0x83's words 
     char pad00[0xac];
     int entry;                          /* 0xac, the index into he_Hints the run handler is at */
 } HEHINTEVENT;
-typedef struct HETRADEMSG {             /* the trade message 0xf's words over AIMSG (he_AllocTrade) */
-    char pad00[0xa0];
-    int jobId;                          /* 0xa0, the id of the event that posted it */
-} HETRADEMSG;
 typedef struct HETRADE {                /* the trade event 0xb's words over AIJOB's union (he_AllocTrade / he_RunTrade) */
     char pad00[0xac];
     int cart;                           /* 0xac, the objId of the trading cart (gm_FindObjectInst; its 0x1dd object holds
