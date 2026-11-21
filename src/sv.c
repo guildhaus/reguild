@@ -565,7 +565,7 @@ int sv_OpenMessageBox(int text, unsigned char flags)
 }
 /* 0x521960, selects the object o (of the player or a pause object) for the info panel: stores it in sv_QuickJump.object, its
    scene record of the id b in sv_QuickJump.record (gm_Query of the object id +0x5d; the kind 0x47 uses the record 0xfd), copies
-   the text c into sv_QuickJump.contactName and raises sv_PanelFlag. When the record is the one shown (sv_PanelShown) the redraw counter
+   the text c into sv_QuickJump.contactName and raises sv_QuickJump.panelFlag. When the record is the one shown (sv_PanelShown) the redraw counter
    sv_PopRequest is set to the frame difference (sv_FrameDepth - sv_FrameBase), else the record is taken over and shown
    (init_LoadObjectScene for a scene universe that is still dirty); finally sv_PopTo(0x591520) */
 
@@ -577,7 +577,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
     unsigned short *old;
     int oldv;
 
-    if (sv_PanelFlag != 0)
+    if (sv_QuickJump.panelFlag != 0)
         return;
     if (!(ai_PlayerId == 0xffff || ai_Chars[ai_PlayerId].heldRounds == 0 || (bt = &ai_BTypes[o->type])->kind == 6 || (bt->kind == 4 && o->ownerNetId == ((SVCHARREC *)&ai_Chars[ai_PlayerId])->netId)))
         return;
@@ -590,10 +590,10 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
     if (o->type == 0x47)
         sv_QuickJump.record = (unsigned short *)gm_Query(o->objList, 1, 0, 0xfd);
     strcpy(sv_QuickJump.contactName, c);
-    sv_PanelFlag = 1;
+    sv_QuickJump.panelFlag = 1;
     if (sv_QuickJump.record == 0 || *sv_QuickJump.record == 0) {
         if (cur == o && ai_FallbackBuilding == 0) {
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
             return;
         }
     } else if (sv_QuickJump.record != sv_PanelShown) {
@@ -611,13 +611,13 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
         o->mainRoom = *sv_QuickJump.record;
         if (gm_IsHomeType((unsigned char *)o) == 0 && gm_IsType10((unsigned char *)o) == 0) {
             sv_PanelShown = sv_QuickJump.record;
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
             ai_FrameWait = 0;
             w = init_ObjectSceneUniverse(sv_QuickJump.record);
             if (d3_Scenes[w].dirty != 0)
                 init_LoadObjectScene(*sv_QuickJump.record);
             sv_PanelShown = old;
-            sv_PanelFlag = 1;
+            sv_QuickJump.panelFlag = 1;
             ai_FrameWait = oldv;
         }
     } else {
@@ -625,7 +625,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
             sv_PopRequest = sv_FrameDepth - sv_FrameBase;
             return;
         }
-        sv_PanelFlag = 0;
+        sv_QuickJump.panelFlag = 0;
         return;
     }
     sv_PopTo(ai_GameFrame);
@@ -4420,7 +4420,7 @@ void sv_ClearSelection(void)
     } while ((int)q < (int)((unsigned)&ai_Selected + 0x65400));
     ai_SelectedCount = 0;
 }
-/* 0x52ae70, "sv_HandleObjects": turns a click into the selection. A pending quick jump (sv_PanelFlag) looks up its
+/* 0x52ae70, "sv_HandleObjects": turns a click into the selection. A pending quick jump (sv_QuickJump.panelFlag) looks up its
    contact name (sv_QuickJump.contactName) as an object when the panel shows the current building's remembered room; a left
    click inside the view (or that jump) copies the hover state into the sv_Clicked* state, focuses the camera on a
    zoom target object that is no door / goods / contact (calling its event 2), selects the clicked character when
@@ -4444,7 +4444,7 @@ void sv_HandleObjects(void)
     sv_ClickedContact = 0;
     if (sv_SelectedChar != 0 && ((AICHAR *)sv_SelectedChar)->selected == 0)
         sv_SelectedChar = 0;
-    if (sv_PanelFlag != 0) {
+    if (sv_QuickJump.panelFlag != 0) {
         subj = ai_PlayerBuilding != 0 ? ai_PlayerBuilding : ai_FallbackBuilding;
         if (subj == sv_QuickJump.object
             && (sv_PanelShown == sv_QuickJump.record
@@ -4457,7 +4457,7 @@ void sv_HandleObjects(void)
                 } else
                     sprintf(msg, "sv_HandleObjects(): Could not find QuickJump.ContactName: %s", sv_QuickJump.contactName);
             }
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
         }
         if (subj == sv_QuickJump.object && (sv_QuickJump.record == 0 || *sv_QuickJump.record == 0xfd)) {
             if (sv_QuickJump.contactName[0] != 0) {
@@ -4468,7 +4468,7 @@ void sv_HandleObjects(void)
                 } else
                     sprintf(msg, "sv_HandleObjects(): Could not find QuickJump.ContactName: %s", sv_QuickJump.contactName);
             }
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
         }
     }
     if ((dm_L.lup != 0 && d3t_CamMove == 0 && dm_L.x > sv_ViewRectLeft && dm_L.x < sv_ViewRectRight
@@ -7126,7 +7126,7 @@ l64:
         he_RunQuickList();
         if (net_Conn.s == (unsigned)-1 && (unsigned)d3_Time > (unsigned)cm_NextNetStep && ai_GameState != 0)
             cm_SendTime(&ai_TimeCopy);
-        if ((mask & 0x10000) == 0 && ai_GameState != 0 && sv_PanelFlag == 0 && cm_UpdateParties() != 0 && sv_Advancing != 0)
+        if ((mask & 0x10000) == 0 && ai_GameState != 0 && sv_QuickJump.panelFlag == 0 && cm_UpdateParties() != 0 && sv_Advancing != 0)
             sv_PopRequest = 1;
     }
     if ((mask & 0x20000) != 0 && (unsigned)d3_Time > (unsigned)cm_NextNetStep) {
@@ -7135,7 +7135,7 @@ l64:
         cm_ExecCommands();
         cm_NextNetStep = d3_Time + 7;
     }
-    if (r == 0 || sv_PanelFlag != 0)
+    if (r == 0 || sv_QuickJump.panelFlag != 0)
         ai_FrameWait++;
     if ((mask & 0x200) != 0)
         evt_StepAll();
@@ -7226,7 +7226,7 @@ l2:
             d2_DrawObjects();
         d2_UnlockSurface(d2_ScreenSurf);
         d2_DrawFades();
-    } else if (sv_PanelFlag != 0)
+    } else if (sv_QuickJump.panelFlag != 0)
         d2_FinishFades();
     di_PollMouse();
     if (di_Absolute != 0) {
@@ -7314,7 +7314,7 @@ l2:
     }
     sv_TickFrames++;
     if ((mask & 0x10000) == 0) {
-        if (sv_PopRequest == 0 && sv_PanelFlag == 0 && cm_DayEndRequest != 0 && main_DayEnding == 0) {
+        if (sv_PopRequest == 0 && sv_QuickJump.panelFlag == 0 && cm_DayEndRequest != 0 && main_DayEnding == 0) {
 l3f5:
             if ((ai_GameFlags & 0x80) == 0) {
                 main_DayEnding = 1;
@@ -7603,7 +7603,7 @@ int sv_DisabledCount = 0;  /* 0x6f23ec, the entries of sv_DisabledWidgets */
 unsigned char sv_BookPhase = 0;  /* 0x6f23f0, toggled 0 / 1 each frame by the open book's update: which page of the shown pair is redrawn this frame */
 unsigned char sv_InMissionComplete = 0;  /* 0x6f23f1, 1 while sv_RunFrame plays ai_MissionCompleteSequence (no re-entry); sv's by use, see sv.c's lead comment */
 int sv_UnreadBss8 = 0;  /* 0x6f23f4, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-SVQUICKJUMP sv_QuickJump;  /* 0x75e8c0, the info panel's flag (sv_PanelFlag) and pending quick jump (sv_quickjump.h) */
+SVQUICKJUMP sv_QuickJump;  /* 0x75e8c0, the info panel's flag (sv_QuickJump.panelFlag) and pending quick jump (sv_quickjump.h) */
 unsigned char sv_SelectionFlags[0x300];  /* 0x75e920, the mirror of the character selection flags (byte i per character of ai_Chars) */
 int sv_SkyScene;  /* 0x75ec20 */
 MSG sv_Message;  /* 0x75ec40, the window message sv_PumpMessages reads (PeekMessageA / GetMessageA) */

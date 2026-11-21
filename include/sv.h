@@ -328,7 +328,6 @@ extern int sv_ShownCount;  /* 0x6f23d8 */
 extern unsigned char ai_GameState;                          /* 0x6f25ac */
 typedef struct SVQUICKJUMP SVQUICKJUMP;  /* the info panel's quick jump record: sv_quickjump.h */
 extern SVQUICKJUMP sv_QuickJump;                            /* 0x75e8c0 */
-#define sv_PanelFlag (*(int *)&sv_QuickJump)                 /* 0x75e8c0, 1 while the info panel is up: the first field of SVQUICKJUMP (panelFlag) */
 extern unsigned char sv_SelectionFlags[0x300];               /* 0x75e920, one selection byte per character */
 extern int sv_SkyScene;                                    /* 0x75ec20 */
 extern MSG sv_Message;                                     /* 0x75ec40, the window message sv_PumpMessages reads */

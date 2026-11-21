@@ -362,6 +362,7 @@ extern const float ai_CannonSwitchDist;
 #include "menu.h"
 #include "d2.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 #include "gfx.h"
 
 /* dcp unit split: the declarations of sv_t before the moved functions */
@@ -1504,7 +1505,7 @@ void ai_SlotKeys(void)
 
     if (kb_Last == 0)
         return;
-    if (sv_PanelFlag == 1)
+    if (sv_QuickJump.panelFlag == 1)
         return;
     if (kb_Last == 0x58)
         ai_BookmarkWindow();
@@ -1518,7 +1519,7 @@ void ai_SlotKeys(void)
 void ai_Quicksave(void); void ai_ApplyOptions(); void cm_RaiseSpeedLevel(void); void cm_LowerSpeedLevel(void);
 
 /* 0x589cf0, the speed keys each frame (264 B): the game speed ai_OptionSpeed in steps of 40, v = (int)(speed / 40 +
-   0.5f); kb_Last 0 = none and the panel flag sv_PanelFlag == 1 return at once; the key 0x1f takes a screenshot
+   0.5f); kb_Last 0 = none and the panel flag sv_QuickJump.panelFlag == 1 return at once; the key 0x1f takes a screenshot
    (0x589bc0), the key 0x10 runs ai_Quicksave while d2_FocusedInput is 0 and sv_FrameMask has no 0x10000; then the
    ai_GameFlags byte: bit 2 (the network game) - with bit 0x10 (the host) the keys 0x4e / 0x4a only raise / lower
    cm_SpeedLevel (cm_RaiseSpeedLevel / cm_LowerSpeedLevel), without it they show the status text txt_SpeedHostOnly;
@@ -1534,7 +1535,7 @@ void ai_SpeedKeys(void)
     key = kb_Last;
     if (key == 0)
         return;
-    if (sv_PanelFlag == 1)
+    if (sv_QuickJump.panelFlag == 1)
         return;
     if (key == 0x1f) {
         ai_SaveScreenshot();

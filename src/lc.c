@@ -3190,14 +3190,14 @@ void ai_TradeContactChecks(void)
             sv_FrameBase = sv_FrameDepth;
         }
     }
-    if (sv_PanelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == ai_FallbackBuilding) {
+    if (sv_QuickJump.panelFlag != 0 && sv_QuickJump.record != 0 && sv_QuickJump.object == ai_FallbackBuilding) {
         room = (unsigned short *)gm_Query((void *)ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
         if (sv_QuickJump.record != room) {
             ai_RunObjectRoom((AIOBJ *)sv_QuickJump.record);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
             init_FinishBuildingScene(ai_FallbackBuilding, room);
         } else {
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
             sv_QuickJump.record = 0;
             sv_QuickJump.object = 0;
         }
@@ -3353,13 +3353,13 @@ void ai_GameFrame(void)
         }
         if (ai_MarketBuilding != 0)
             ai_MarketStandListener(ai_MarketBuilding);
-        if (sv_PanelFlag != 0) {
+        if (sv_QuickJump.panelFlag != 0) {
             /* the building the info panel picked */
             b = sv_QuickJump.object;
             if (sv_QuickJump.record != 0) {
                 b->mainRoom = *sv_QuickJump.record;
                 if ((b->flags5a & 1) != 0) {
-                    sv_PanelFlag = 0;
+                    sv_QuickJump.panelFlag = 0;
                 } else {
                     if (b->object != 0 && gm_IsType10((unsigned char *)b) == 0)
                         sv_CameraToObject(b);
@@ -3369,12 +3369,12 @@ void ai_GameFrame(void)
                         ai_EnterBuilding(b, b->mainRoom);
                     } else if (gm_IsType10((unsigned char *)b) != 0) {
                         sv_FlyCameraToObject((int)b);
-                        sv_PanelFlag = 0;
+                        sv_QuickJump.panelFlag = 0;
                     }
                 }
             } else {
                 sv_FlyCameraToObject((int)b);
-                sv_PanelFlag = 0;
+                sv_QuickJump.panelFlag = 0;
             }
         }
     }
@@ -9414,7 +9414,7 @@ int ai_MayEnterBuilding(AIBLD *b)
     }
     txt_Format(hours, 0x2058, open, close);
     strcat(msg, hours);
-    sv_PanelFlag = 0;
+    sv_QuickJump.panelFlag = 0;
     sv_MessageBoxGreen(title, msg, 4);
     return 0;
 }
@@ -9447,7 +9447,7 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
 
     lastEvent = -1;
     if (ai_MayEnterBuilding(b) == 0) {
-        sv_PanelFlag = 0;
+        sv_QuickJump.panelFlag = 0;
         return;
     }
     sv_ResetScreenClip();
@@ -9723,7 +9723,7 @@ void ai_EnterOwnBuilding(AIBLD *b)
 
     lastEvent = -1;
     if (ai_MayEnterBuilding(b) == 0) {
-        sv_PanelFlag = 0;
+        sv_QuickJump.panelFlag = 0;
         return;
     }
     scene = d3_CurrentScene;

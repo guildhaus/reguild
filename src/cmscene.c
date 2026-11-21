@@ -47,6 +47,7 @@ extern GAPDATA full_data_602568[];
 
 #include "f3init.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 #include "ahm.h"
 #include "ai.h"
 #include "ch.h"
@@ -4904,7 +4905,7 @@ int cm_UpdateParties(void)
                 cm_ClearParty(p->id);
         }
         if (gm_CompareTime(&ai_Time, &soon) > 0 && p->done != 0) {
-            sv_PanelFlag = 0;
+            sv_QuickJump.panelFlag = 0;
             cm_ExecCutscene((char *)p);
             cm_ClearParty(p->id);
         }

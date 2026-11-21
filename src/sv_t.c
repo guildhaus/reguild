@@ -380,6 +380,7 @@ SHOTRESULT ai_ShotTable[3];  /* 0x6f9f60, the cannon scene's shot results (the c
 #include "menu.h"
 #include "d2.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 #include "gfx.h"
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 
@@ -398,7 +399,7 @@ int ai_TutorialTick(void)
     if (!ai_Tutorial->host->slot)
         return -4;
     if (he_ActiveSlot == ai_Tutorial->host->slot && ai_Tutorial->state != 2) {
-        if (d3t_CamMoving || sv_PanelFlag) {
+        if (d3t_CamMoving || sv_QuickJump.panelFlag) {
             he_ActivateSlot(0);
             return 0;
         }
@@ -415,7 +416,7 @@ int ai_TutorialTick(void)
     if (!ai_TutorialRunning)
         return 0;
     ai_TutorialProgressSlider();
-    if (d3t_CamMoving || sv_PanelFlag)
+    if (d3t_CamMoving || sv_QuickJump.panelFlag)
         return 0;
     switch (ai_Tutorial->state) {
     case 1:                     /* start the run record */

@@ -365,6 +365,7 @@ const float ai_CannonSwitchDist = 100.0f;  /* 0x5eec98, how far the cannon sinks
 #include "menu.h"
 #include "d2.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 #include "gfx.h"
 
 /* dcp unit split: the declarations of sv_t before the moved functions */
@@ -544,7 +545,7 @@ void ai_CannonScene(char *rec)
     sv_ClearSelection();
     d2_ClearPointerItems();
     sv_ResetScreenClip();
-    sv_PanelFlag = 0;
+    sv_QuickJump.panelFlag = 0;
     d2_CaptionCopy[0] = 0;
     pb = (unsigned char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
     while (!(*pb & 4))

@@ -264,6 +264,7 @@ void main_FreeSoundBanks(void);         /* 0x537db0 */
 
 #include "f3init.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 #include "mem.h"
 #include "d3_d3d.h"
 #include "io_text.h"
@@ -3498,7 +3499,7 @@ void main_RoundReport(void)
     wageCost = 0;
     incomeSum = 0;
     fade = 0;
-    sv_PanelFlag = 0;
+    sv_QuickJump.panelFlag = 0;
     if (main_GfxOn != 0) {
         fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
         while ((fade->flags & 4) == 0)

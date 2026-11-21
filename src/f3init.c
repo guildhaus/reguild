@@ -410,6 +410,7 @@ extern struct AICHAR *ai_SceneChars[32];
 #include "menu.h"
 #include "vfs.h"
 #include "sv.h"
+#include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
 signed char init_BuildingUniverse[0x22];  /* 0x76fa60, the universe of each building class's scene */
 unsigned short * ai_SceneObject;  /* 0x76fa84 */
 signed char init_ObjectUniverse[0x2dc];  /* 0x76faa0, the universe of each object prototype's scene (-1 = not loaded) */
@@ -840,7 +841,7 @@ void init_LoadBuildingScene(int k)
     }
     slot = (char *)init_BuildingUniverse + ai_BTypes[k].kind;
     if (*slot == -1) {
-        if (ai_GameState != 0 && (ai_FrameWait <= 0 || sv_PanelFlag != 0)) {
+        if (ai_GameState != 0 && (ai_FrameWait <= 0 || sv_QuickJump.panelFlag != 0)) {
             fl = sv_FrameMask & 0xfffffff7 | 0x80;
             bx = (char *)d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
             n = (unsigned char)*bx;
