@@ -130,7 +130,8 @@ extern struct VFSDIR *vfs_Root;         /* 0x6333fc, the VFS directory tree (vfs
 struct AIOBJ *gm_Query(void *list, int n, ...);                   /* 0x4ffe90 */
 int gm_RemoveObject(int *list, unsigned item);                     /* 0x4ffff0 */
 int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);                     /* 0x4fbd10 */
-void gm_ChooseHeadIcon(unsigned short *c);                     /* 0x4fb890 */
+struct AICHAR;
+void gm_ChooseHeadIcon(struct AICHAR *c);                     /* 0x4fb890 */
 void gm_RefreshGoodsLists(unsigned p);                     /* 0x4ff190 */
 int gm_AddObjekt(int id, int proto, int n);                     /* 0x500970 */
 void gm_KillSpieler(int c, int mode);                     /* 0x503c60 */

@@ -184,15 +184,15 @@ void he_SaveMessageFilter(void);                                       /* 0x5756
 
 /* declared in other units' headers before (moved to the owner) */
 int he_NoProtectionEvent(int p);  /* 0x553cc0 */
-int he_NoEvent2ePair(int a, int b);  /* 0x553d10 */
-int he_NoEvent4bPair(int a, int b);  /* 0x553d60 */
+int he_NoEvent2ePair(struct AICHAR *a, struct AICHAR *b);  /* 0x553d10 */
+int he_NoEvent4bPair(struct AICHAR *a, struct AICHAR *b);  /* 0x553d60 */
 int he_EventOnBuilding(int owner);  /* 0x56f170 */
 int he_NoEvent88Pair(struct AICHAR *a, struct AICHAR *b);  /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character and a's netId as its victim */
 int he_IsMessageKindFiltered(int id);  /* 0x575640 */
 int he_RandomTransporter(struct D3OBJECT *obj);  /* 0x555210 */
 char *ai_FindCurseEvent(char *a);  /* 0x5741d0 */
 int he_HasGraveWork(struct AIBLD *bld, int size, int index);  /* 0x573200, 1 when a work event 0x8d of bld is pending on the grave (size, index) */
-int he_NoEvent35Pair(unsigned short *a, int b, int *count);  /* 0x553db0 */
+int he_NoEvent35Pair(unsigned short *a, struct AICHAR *b, int *count);  /* 0x553db0 */
 
 extern unsigned char he_FindKind;       /* 0x625708, he_FindEvent's filter on AIJOB.kind (key 0), 0xff = any */
 extern int he_FindId;                   /* 0x62570c, its filter on AIJOB.id (key 1), -1 = any */

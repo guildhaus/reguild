@@ -122,8 +122,8 @@ char * gm_FindGoods(int p, unsigned id);                                        
 extern int *cm_CurrentFight;               /* 0x6f0d90 */
 int gm_SumSlotAmounts(void *list, unsigned char i);                                     /* 0x508660 */
 int gm_FreeCapacity(short *l, int item, int max);                                    /* 0x50ab80 */
-unsigned short * gm_ObjectBuildingOwner(unsigned short *p);                                                     /* 0x50a050 */
-int gm_TakeableCount(char *p, int item, int max);                                    /* 0x50ad70 */
+struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                                                     /* 0x50a050 */
+int gm_TakeableCount(struct AICHAR *p, int item, int max);                                    /* 0x50ad70 */
 struct AIBLD *gm_BuildQuery(int n, ...);                                                  /* 0x501190, ai.h: AIBLD * */
 int amt_CheckApplication(struct AMTAPP *m);                                                       /* 0x4e6360 */
 int amt_CheckOfficeMessage(struct AMTMSG *m);                                                       /* 0x4e6710 */
@@ -136,7 +136,7 @@ char * he_FindEvent(int n, ...);                                                
 extern int ai_NextObjectId;                /* 0x61a654 */
 unsigned char * gm_CreateBuilding(unsigned char kind, unsigned short owner);                    /* 0x501580 */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8); /* 0x507690 */
-short * gm_PlayerRecord(char *ch);                                                    /* 0x506430, ai.h: AIFIN *(AICHAR *) */
+short * gm_PlayerRecord(struct AICHAR *ch);                                                    /* 0x506430, ai.h: AIFIN *(AICHAR *) */
 unsigned gm_TakeOverCharacter(int a, int b);                                                  /* 0x5064d0 */
 int gv_FindHeldEntry(void *a, unsigned char **o, int *e);                                    /* 0x4f2540 */
 int gv_EntryIndex(char *r, int *e);                                       /* 0x4ef6b0 */
@@ -395,7 +395,7 @@ struct G15PLANT * veg_FindPlantAt();  /* 0x4bc5f0 */
 int veg_Fits(struct G15PLANT *p, int x, int z, int size);  /* 0x4bc710 */
 struct G15PLANT * veg_SetPlant();  /* 0x4bc7c0 */
 void veg_LoadModel();  /* 0x4bc940 */
-void gm_SelectModelVariant(char *o);  /* 0x4fb5a0, f3gm.c: the model variant of the object o */
+void gm_SelectModelVariant(struct AICHAR *o);  /* 0x4fb5a0, f3gm.c: the model variant of the object o */
 int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
 int gm_FindObjectInst(int id);  /* 0x4fe980 */
 int gm_RemoveOwned(int *list, int id);  /* 0x5000c0, f3gm.h */
@@ -425,7 +425,7 @@ extern char ai_DataPath[];  /* 0x75dca0 */
 
 void ai_ResetJob(struct AICHAR *c);  /* 0x47e940 */
 int gv_HandOverCrimes();  /* 0x4f3910 */
-void gm_MoveIntoHome(char *c, char *b);  /* 0x4fda10 */
+void gm_MoveIntoHome(struct AICHAR *c, char *b);  /* 0x4fda10 */
 struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
@@ -438,7 +438,7 @@ int amt_AcceptApplication();  /* 0x4e6430 */
 int amt_ExecuteOfficeMessage();  /* 0x4e67a0, amt.h */
 int gv_OnDecisionValue();  /* 0x4f27d0 */
 void ord_LoadStatistics(void *p);  /* 0x4f9020 */
-void gm_ChooseHeadIcon(unsigned short *c);  /* 0x4fb890 */
+void gm_ChooseHeadIcon(struct AICHAR *c);  /* 0x4fb890 */
 void gm_SetJob(int i, unsigned n);  /* 0x504790 */
 extern char ch_EmptyName[];  /* 0x631090, "" (ch.h) */
 
@@ -510,27 +510,27 @@ int cm_LobbyUpdatePlayer(CMLOBBYPLAYER *p);  /* 0x4cd7c0 */
 int cm_LobbyRequestPlayer(int id);  /* 0x4cd820 */
 int cm_ExLobby(G17MSG *m, G17STAT *s);  /* 0x4cd870 */
 char *ai_FindWeaponRecord(int id);  /* 0x4cd9d0 */
-char *cm_CharWeaponAny(char *c);  /* 0x4cda00 */
-char *cm_CharWeapon(char *c);  /* 0x4cda50 */
-char *cm_CharWeaponItem(char *c);  /* 0x4cdac0 */
-void cm_DiscardWeapons(char *c);  /* 0x4cdb20 */
-char cm_FightWeaponLoss(char *c);  /* 0x4cdb80 */
+char *cm_CharWeaponAny(struct AICHAR *c);  /* 0x4cda00 */
+char *cm_CharWeapon(struct AICHAR *c);  /* 0x4cda50 */
+char *cm_CharWeaponItem(struct AICHAR *c);  /* 0x4cdac0 */
+void cm_DiscardWeapons(struct AICHAR *c);  /* 0x4cdb20 */
+char cm_FightWeaponLoss(struct AICHAR *c);  /* 0x4cdb80 */
 float cm_FightStrength(char *c);  /* 0x4cdcf0 */
-void cm_UpdateHandObject(char *c);  /* 0x4cde20 */
-int *cm_CutEntrySlot(char *rec, char *c);  /* 0x4cdf00 */
-int *cm_FightCutEntry(char *c);  /* 0x4cdf80 */
+void cm_UpdateHandObject(struct AICHAR *c);  /* 0x4cde20 */
+int *cm_CutEntrySlot(char *rec, struct AICHAR *c);  /* 0x4cdf00 */
+int *cm_FightCutEntry(struct AICHAR *c);  /* 0x4cdf80 */
 int cm_CellUsable(int x, int y);  /* 0x4cdfe0 */
 int cm_FindNearCell(int a, int b, int *ox, int *oy);  /* 0x4ce040 */
 struct AICHAR *cm_FindFighter(int id);  /* 0x4ce130 */
-int ai_LedSelectBits(int idx, char *c);  /* 0x4ce170 */
-float cm_CharObjDistXZ(char *c, char *o);  /* 0x4ce1b0 */
-float cm_CharCellDistXZ(char *c, int x, int y);  /* 0x4ce200 */
-int cm_OtherBuilding(char *a, char *b);  /* 0x4ce270 */
+int ai_LedSelectBits(int idx, struct AICHAR *c);  /* 0x4ce170 */
+float cm_CharObjDistXZ(struct AICHAR *c, char *o);  /* 0x4ce1b0 */
+float cm_CharCellDistXZ(struct AICHAR *c, int x, int y);  /* 0x4ce200 */
+int cm_OtherBuilding(struct AICHAR *a, struct AICHAR *b);  /* 0x4ce270 */
 struct CMBOMB *cm_LayBomb(struct D3VECTOR *p);  /* 0x4ce290 */
 void ch_SetHandObject();  /* 0x406c60 */
 char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);                              /* 0x45f100, d3_sm.c */
-float gm_HealthRatio(short *c);  /* 0x4fc8e0, f3gm.h */
-float gm_GetSkill(char *c, int skill);  /* 0x504ec0 */
+float gm_HealthRatio(struct AICHAR *c);  /* 0x4fc8e0, f3gm.h */
+float gm_GetSkill(struct AICHAR *c, int skill);  /* 0x504ec0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);  /* 0x53dda0 */
 extern char ai_WeaponRecordData[];  /* 0x60c7c0 */
 extern int cm_LobbyChatCount;  /* 0x6f0cd8 */
@@ -563,7 +563,7 @@ int cm_UpdateGrenades();  /* 0x4ce830 */
 int cm_ObjectOwner(char *c);  /* 0x4ceb70 */
 void cm_WaitEventStop(int id);  /* 0x4ceb80 */
 void cm_CloseCharInfoWins();  /* 0x4cec00 */
-void cm_OpenCharInfoWin(int a, char *c);  /* 0x4cec30 */
+void cm_OpenCharInfoWin(int a, struct AICHAR *c);  /* 0x4cec30 */
 void cm_UpdateCharInfoWins(int a);  /* 0x4ced80 */
 void d3fl_MakeDivide();  /* 0x441300 */
 struct D3OBJECT; struct D3RECT; char d3if_ScreenBox(struct D3OBJECT *obj, struct D3RECT *r);  /* 0x4486e0 */
@@ -576,7 +576,7 @@ extern int d2_LastWindow;  /* 0x6ed938 */
 extern int cm_SkipEvents;  /* 0x6f0d8c */
 extern int cm_CharInfoWins[];  /* 0x935d20 */
 
-void cm_ShowDamage(char *c, int v, int kind);  /* 0x4cedc0 */
+void cm_ShowDamage(struct AICHAR *c, int v, int kind);  /* 0x4cedc0 */
 void cm_UpdateDamagePops();  /* 0x4cee20 */
 void cm_InitDamagePops();  /* 0x4cef80 */
 void cm_ClearDamagePops();  /* 0x4cefa0 */
@@ -634,22 +634,22 @@ extern int ai_ClickedObject;  /* 0x6f22e4 */
 extern int cm_AttackerClickVoices;  /* 0x6f0d24 */
 extern int cm_DefenderClickVoices;  /* 0x6f0d28 */
 
-int cm_OrderAttack(char *rec, char *c, char *tgt, int x, int z);  /* 0x4cffd0 */
+int cm_OrderAttack(char *rec, struct AICHAR *c, struct AICHAR *tgt, int x, int z);  /* 0x4cffd0 */
 char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, float *py);  /* 0x45f170 */
 
 
 
 
-int cm_OrderEscape(char *rec, char *c, char *tgt);  /* 0x4d0200 */
+int cm_OrderEscape(char *rec, struct AICHAR *c, char *tgt);  /* 0x4d0200 */
 
-int cm_OrderConquer(char *rec, char *c, char *tgt);  /* 0x4d02d0 */
-int cm_OrderWare(char *rec, char *c, char *tgt);  /* 0x4d0380 */
+int cm_OrderConquer(char *rec, struct AICHAR *c, char *tgt);  /* 0x4d02d0 */
+int cm_OrderWare(char *rec, struct AICHAR *c, char *tgt);  /* 0x4d0380 */
 
-int cm_OrderToBestCell(char *rec, char *c);  /* 0x4d0460 */
-void cm_OrderWait(char *rec, char *c);  /* 0x4d0520 */
-int cm_BestCellNear(char *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d2170 */
+int cm_OrderToBestCell(char *rec, struct AICHAR *c);  /* 0x4d0460 */
+void cm_OrderWait(char *rec, struct AICHAR *c);  /* 0x4d0520 */
+int cm_BestCellNear(struct AICHAR *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d2170 */
 
-char cm_OrderClick(char *rec, char *c);  /* 0x4d0570 */
+char cm_OrderClick(char *rec, struct AICHAR *c);  /* 0x4d0570 */
 
 
 void cm_FightMouse(char *rec);  /* 0x4d0740 */
@@ -722,11 +722,11 @@ extern int cm_FightAmbient;  /* 0x6f0d4c */
 
 float cm_ThreatAt(struct AICHAR *c, int a, int b, float limit);  /* 0x4d2010, the threat at a height map vertex for the fighter c */
 
-int cm_MostThreatenedCellNear(char *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d22d0 */
+int cm_MostThreatenedCellNear(struct AICHAR *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d22d0 */
 char cm_CollectEscapeObject(char *o, int *list);  /* 0x4d2450 */
-char *cm_NearestEscapeObject(char *c);  /* 0x4d2490 */
-char cm_CollectWareObject(char *o, char *c);  /* 0x4d2550 */
-char *cm_NearestWareObject(char *c);  /* 0x4d25a0 */
+char *cm_NearestEscapeObject(struct AICHAR *c);  /* 0x4d2490 */
+char cm_CollectWareObject(char *o, struct AICHAR *c);  /* 0x4d2550 */
+char *cm_NearestWareObject(struct AICHAR *c);  /* 0x4d25a0 */
 char cm_CollectConquerPoint(char *o);  /* 0x4d2650 */
 struct D3OBJECT *cm_NearestConquerPoint(struct AICHAR *c);  /* 0x4d2680 */
 extern int cm_PointCount;  /* 0x6f0d60 */
@@ -738,11 +738,11 @@ extern float cm_OrderChances[0xb4];  /* 0x9300a0 */
 float *cm_OrderChancesFor(int side);  /* 0x4d2c00 */
 
 float cm_OrderRating(struct AICHAR *c, int order);  /* 0x4d2e30 */
-void cm_GiveFightOrders(int side);  /* 0x4d2f80 */
+void cm_GiveFightOrders(struct AICHAR *side);  /* 0x4d2f80 */
 float util_RandomF();  /* 0x42ec20 */
 double cm_RandomFloat();  /* 0x4e5360 */
 
-void cm_CarryOutOrder(char *rec, char *c);  /* 0x4d3120 */
+void cm_CarryOutOrder(char *rec, struct AICHAR *c);  /* 0x4d3120 */
 void cm_FallDownAction(char *c);  /* 0x4d3300 */
 
 int cm_CheckDeath(struct AICHAR *c);  /* 0x4d3390 */
@@ -805,7 +805,7 @@ extern struct D2WIN *d2_LastWindowPtr;  /* 0x6ed980, window created last (d2.c) 
 
 int cm_LootCarts(struct CMFIGHTREC *a, AIBLD *b, struct AICHAR *d, int unused, float f);  /* 0x4d3ea0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);  /* 0x5089c0, a price */
-int gm_GetGoodsValue(char *ch);  /* 0x509e60 */
+int gm_GetGoodsValue(struct AICHAR *ch);  /* 0x509e60 */
 struct D3HMAP * ch_GetHMap();  /* 0x402140 */
 void ch_SetVisible();  /* 0x402480 */
 
@@ -900,7 +900,7 @@ extern unsigned char cm_DuelRightRollWon;  /* 0x6f0dad, the right duellist won t
 int cm_CutInfoById(int id);  /* 0x4e50e0, the cutscene record cm_CutInfos whose playerId is id; 0 without */
 int cm_WaitTicks(int a);  /* 0x4e3420 */
 void cm_SinkDownAction(struct CHACTION *a);  /* 0x4de4b0 */
-int cm_DuelSinkDown(char *c, int dmg);  /* 0x4de530 */
+int cm_DuelSinkDown(struct AICHAR *c, int dmg);  /* 0x4de530 */
 void cm_DuelRound(struct AICHAR *a, struct AICHAR *b, char *side);  /* 0x4de900 */
 extern int cm_DuelVariantCount;  /* 0x60d370 */
 extern int cm_DuelVariantPos;  /* 0x6f0db0 */
@@ -1052,7 +1052,7 @@ void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);  /* 0x4fe140 *
 
 int cm_FirstPendingParty();  /* 0x4e4f40 */
 char ai_RunPendingParties(int pl);  /* 0x4e4f80, runs the pending parties of the player pl */
-void ai_DebugDumpPerson(char *c);  /* 0x4e5bf0, the debug dump of a person */
+void ai_DebugDumpPerson(struct AICHAR *c);  /* 0x4e5bf0, the debug dump of a person */
 int cm_FindPartyOfKind(int a, int b);  /* 0x4e5050, the used party of the kind a with the thing b: its record, 0 without */
 int cm_FreePartySlot();  /* 0x4e5120 */
 void cm_InitScenes(void);  /* 0x4e5770, clears the party records and registers the 12 scene kinds */

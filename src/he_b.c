@@ -1217,7 +1217,7 @@ int init_BuildingSceneUniverse();
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);
 int sv_IsAtDoor();
-int ord_DispatchOrder(int id, char *c, int *m);
+int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
 int ai_BrawlWin();
 struct SBBANK * sb_FindBank();
 struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
@@ -1324,9 +1324,9 @@ int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
 /* 0x568aa0, ends every started loan event 0x23 (he_EndEventNow) whose partner (HELOAN.partner, the other party's
    netId) is the character c: gm_ReleaseCharacter calls it before the character is released */
 
-void he_EndKind23Events(int rec)
+void he_EndKind23Events(AICHAR *rec)
 {
-    AICHAR *c = (AICHAR *)rec;
+    AICHAR *c = rec;
     AIJOB *e;
 
     for (e = (AIJOB *)he_FindEvent(1, 0, 0x23); e != 0; e = (AIJOB *)he_NextEvent()) {
@@ -1700,9 +1700,9 @@ wait:
                     cm_SendRelations(ai_Chars[bld->owner].netId, ev->ids[i], 2 - bld->workRate, 0);
                 worker = gm_FindChar(ev->ids[i]);
                 if (worker != 0) {
-                    fv = gm_HealthRatio((short *)worker);
+                    fv = gm_HealthRatio(worker);
                     if (worker->title == 0x1b || worker->title == 0x1c) {
-                        fv = (gm_GetSkill((char *)worker, 1) + 0.5) * fv;
+                        fv = (gm_GetSkill(worker, 1) + 0.5) * fv;
                         if (worker->flags1b4 & 1)
                             fv = 0.01f;
                     }
@@ -2217,7 +2217,7 @@ void he_RunTrade(AIJOB *ev)
         }
     } else {
         if (chr != 0 && chr->bld != 0) {
-            left = gm_CharCurrency((char *)&ai_Chars[chr->bld->owner], ai_OwnPlayer);
+            left = gm_CharCurrency(&ai_Chars[chr->bld->owner], ai_OwnPlayer);
             if (left >= chr->budget)
                 left = chr->budget;
         }
@@ -2769,7 +2769,7 @@ void he_RunConstruction(int ev)
                 break;
             }
             c->slot = cm_SendMoveGoods(-1, c->payer, ai_OwnPlayer, c->carry);
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)ch);
+            fin = (HEFINVIEW *)gm_PlayerRecord(ch);
             if (fin != 0)
                 fin->buildPaid += c->carry;
         } else {
@@ -3061,7 +3061,7 @@ void he_RunConstruction(int ev)
                 if (home == 0 || home->type <= bld->type)
                     ai_Chars[bld->owner].bld2 = bld;
             }
-            gm_MoveIntoHome((char *)&ai_Chars[bld->owner], (char *)bld);
+            gm_MoveIntoHome(&ai_Chars[bld->owner], (char *)bld);
             d3if_SelectScene(scene, 1);
             e->text = 0;
             he_FreeEvent((int *)ev);
@@ -4074,8 +4074,8 @@ int he_SecretRoomAccuse(AICHAR *a, AICHAR *b, int c)
     int id;
 
     if (slot >= 0) {
-        fa = gm_GetSkill((char *)a, 4);
-        fb = gm_GetSkill((char *)b, 4);
+        fa = gm_GetSkill(a, 4);
+        fb = gm_GetSkill(b, 4);
         if (fa - fb * 0.5f + util_RandomF() >= 1.0f) {
             if (b->bld2 != 0)
                 id = b->bld2->id;
@@ -4122,8 +4122,8 @@ int he_SecretRoomAttack(AICHAR *a, AICHAR *b, int c)
     float fa, fb;
 
     if (b != 0) {
-        fa = gm_GetSkill((char *)a, 2);
-        fb = gm_GetSkill((char *)b, 2);
+        fa = gm_GetSkill(a, 2);
+        fb = gm_GetSkill(b, 2);
         if (fa - fb * 0.5f + util_RandomF() >= 1.0f) {
             gm_AddHealth(b->id, (-1 - c) * 5);
             return 1;
@@ -4175,13 +4175,13 @@ int he_SecretRoomDomizil(int bldId, AICHAR *victim)
         if (bld != 0) {
             owner = &ai_Chars[bld->owner];
             ok = 1;
-            mine = gm_GetSkill((char *)owner, 2);
-            theirs = gm_GetSkill((char *)victim, 2);
+            mine = gm_GetSkill(owner, 2);
+            theirs = gm_GetSkill(victim, 2);
             if (mine - theirs * 0.5f + util_RandomF() * 0.5 < 0.8)
                 ok = 0;
             else {
-                mine = gm_GetSkill((char *)owner, 3);
-                theirs = gm_GetSkill((char *)victim, 3);
+                mine = gm_GetSkill(owner, 3);
+                theirs = gm_GetSkill(victim, 3);
                 if (mine - theirs * 0.5f + util_RandomF() * 0.5 < 0.7)
                     ok = 0;
             }
@@ -4295,8 +4295,8 @@ int he_SecretRoomCatchSpy(AICHAR *agent, int ev, AIJOB *spy)
         victim = gm_FindChar(sp->victim);
         spyBonus = (sp->days + 1) * 0.5f;
         guard = (s->strength + 1) * 0.5f;
-        skill = gm_GetSkill((char *)employer, 2);
-        if (gm_GetSkill((char *)victim, 2) + guard > skill + spyBonus) {
+        skill = gm_GetSkill(employer, 2);
+        if (gm_GetSkill(victim, 2) + guard > skill + spyBonus) {
             spy->exSlot = cm_SendExSetHE(-1, spy);
             txt_Format(text, 0x4028, victim->id);
             he_ShowNews(employer->netId, -1, text, 1, 0x5fb, "_NACHRICHTEN_DOMIZIL_10");
@@ -4431,7 +4431,7 @@ void he_AllocHaunting(int ev)
     }
 }
 
-void ai_HauntingText(unsigned short *param_1, int param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 
 /* 0x56fda0, the run handler of the graveyard owner's haunting event 0x88 (alloc he_AllocHaunting; am.c's
    ai_ExecGraveyardOwner0 / sv_t.c post it): without the haunter the event is freed; the stages -1 / -2 take the
@@ -4491,7 +4491,7 @@ void he_RunHaunting(int ev)
             victim = gm_FindChar(h->victim);
             if (victim != 0) {
                 gm_AddTime(&e->end, 0x18, 0, 0);
-                ai_HauntingText((unsigned short *)&ai_Chars[e->chr], (int)victim, (unsigned int)&e->end);
+                ai_HauntingText((unsigned short *)&ai_Chars[e->chr], victim, (unsigned int)&e->end);
             }
             e->exSlot = cm_SendExSetHE(3, ev);
             return;
@@ -4692,7 +4692,7 @@ void he_RunDecay(int ev)
         agent = gm_FindChar(d->agent);
         if (victim != 0 && per != 0 && agent != 0) {
             if (d->aged != 0) {
-                chance = 1.0f - gm_GetSkill((char *)agent, 1);
+                chance = 1.0f - gm_GetSkill(agent, 1);
                 if (!(util_RandomF() + chance > 1.0))
                     told = 1;
                 else
@@ -4952,7 +4952,7 @@ void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */
 int sv_UsedGroupSlots();                 /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
-void ai_HauntingText(unsigned short *param_1, int param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 
 /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character (+8) and a's netId as its victim
    (+0xb0); 0 when one does */
@@ -5268,7 +5268,7 @@ void he_RunDeathDue(int ev)
         return;
     ch = gm_FindChar(e->netId);
     if (ch != 0) {
-        money = gm_CharCurrency((char *)ch, ai_OwnPlayer);
+        money = gm_CharCurrency(ch, ai_OwnPlayer);
         if (money > d->price)
             cm_SendMoveGoods(-1, ch->netId, ai_OwnPlayer, d->price);
         else {
@@ -5740,8 +5740,8 @@ void he_AllocPlunderOfferLease(int ev)
     e->stage = 0;
 }
 
-void ai_ShowGraveOrderExtended(int param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
-void ai_ShowGraveOrderCancelled(int param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
+void ai_ShowGraveOrderExtended(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
+void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(int ev);          /* 0x5728d0 */
 void he_ExamCancelled(int ev);          /* 0x5729c0 */
@@ -5770,7 +5770,7 @@ void he_AnswerGraveLease(int ev)
     if (ai_Chars[bld->owner].kind != 6 && ai_Chars[bld->owner].kind != 7)
         return;
     n = (int)((float)l->price * gv_SaleShares[l->size]);
-    ai_ShowGraveOrderExtended((int)&ai_Chars[bld->owner], (unsigned short *)per, (int)bld, l->size, l->price, n);
+    ai_ShowGraveOrderExtended(&ai_Chars[bld->owner], (unsigned short *)per, (int)bld, l->size, l->price, n);
 }
 /* 0x5729c0, the master exam cancelled (the answer "no" of the exam window, its due time over): when the
    answer's building (0x501190 (1, 1, bldId)) is of the kind 0x1d (a graveyard), the grave order is freed
@@ -5865,7 +5865,7 @@ void he_AllocGraveyardWorkers(int ev)
     e->clock60 = e->end;
 }
 
-void ai_EndCharExtra(char *o, int f); /* 0x587c40 */
+void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */
 int ls_GetLanguage();                 /* 0x5190a0 */
 
 /* 0x572bf0, the run handler of the graveyard workers' event 0x93 (alloc 0x572b90, first due at 6:00), a four-stage
@@ -5908,7 +5908,7 @@ void he_RunGraveyardWorkers(int ev)
                         if (r > chance) {
                             ch = chars[i];
                             if (!(ch->flags1b4 & 1) && (ch->jobKind == 4 || ch->jobKind == 0x8c || ch->jobKind == 0x8d))
-                                ai_EndCharExtra((char *)ch, 1);
+                                ai_EndCharExtra(ch, 1);
                         } else if (r > 0.5) {
                             ch = chars[i];
                             if (ch->job == 0) {
@@ -5953,7 +5953,7 @@ void he_RunGraveyardWorkers(int ev)
                 if (master != 0 && master == ch)
                     continue;
                 if (util_RandomF() > 0.75f || (master != 0 && (master->flags1b4 & 1) && ch->model != 0))
-                    ai_EndCharExtra((char *)ch, 0);
+                    ai_EndCharExtra(ch, 0);
             }
         }
         e->end = ai_Time;
@@ -6212,7 +6212,7 @@ void he_AllocGypsyApproach(int ev)
     e->exSlot = cm_SendExSetHE(0, ev);
 }
 
-void he_GypsyApproach(char *pl, char *per, int a);  /* 0x5736d0 */
+void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);  /* 0x5736d0 */
 void he_GypsyFee(AICHAR *pl, int a);           /* 0x573e30 */
 
 /* 0x573580, the run of the event 0x9d: -2 / -1 free; nothing while paused or while the pending handle AIJOB.exSlot is not done
@@ -6244,7 +6244,7 @@ void he_RunGypsyApproach(int ev)
     pl = &ai_Chars[e->chr];
     switch (e->stage) {
     case 0:
-        he_GypsyApproach((char *)pl, (char *)per, g->approach);
+        he_GypsyApproach(pl, per, g->approach);
         gm_AddTime(&e->end, 0x18, 0, 0);
         e->end.hour = 6;
         e->end.min = util_Random(4) * 0xf + 5;
@@ -6265,20 +6265,20 @@ void he_GypsyCurse(AICHAR *pl, AICHAR *per);     /* 0x573c20 */
 void he_GypsySlowdown(AICHAR *pl, AICHAR *per);     /* 0x573d30 */
 
 /* 0x5736d0, dispatches the approach +0xac `a` of the event 0x9d: 0 0x573760, 1 0x573820, 2 0x573970, 3 0x573ae0, 4 0x573c20, else 0x573d30 */
-void he_GypsyApproach(char *pl, char *per, int a)
+void he_GypsyApproach(AICHAR *pl, AICHAR *per, int a)
 {
     if (a == 0)
-        he_GypsyDisease((AICHAR *)pl, (AICHAR *)per);
+        he_GypsyDisease(pl, per);
     else if (a == 1)
-        he_GypsyRumour((AICHAR *)pl, (AICHAR *)per);
+        he_GypsyRumour(pl, per);
     else if (a == 2)
-        he_GypsyWorkerQuits((AICHAR *)pl, (AICHAR *)per);
+        he_GypsyWorkerQuits(pl, per);
     else if (a == 3)
-        he_GypsySwapSkills((AICHAR *)pl, (AICHAR *)per);
+        he_GypsySwapSkills(pl, per);
     else if (a == 4)
-        he_GypsyCurse((AICHAR *)pl, (AICHAR *)per);
+        he_GypsyCurse(pl, per);
     else
-        he_GypsySlowdown((AICHAR *)pl, (AICHAR *)per);
+        he_GypsySlowdown(pl, per);
 }
 /* 0x573760, the approach 0 of the event 0x9d (he_GypsyApproach): the character per catches a disease (gm_CatchDisease
    draws its kind and health; none caught: nothing), and per's player is told (the news 0x5fb, the text 0x41dd when
@@ -6515,7 +6515,7 @@ void he_GypsyFee(AICHAR *pl, int a)
         txt_Format(text, 0x41db, n);
         he_ShowNews(pl->netId, -1, text, 1, 0x5fa, "_NACHRICHTEN_ZIGEUNER_00");
     } else {
-        he_GypsyApproach((char *)pl, (char *)pl, a);
+        he_GypsyApproach(pl, pl, a);
     }
 }
 /* 0x573f20, the alloc of the gypsy curse event 0x9e: stage 0, the start and the due clock AIJOB.start / AIJOB.end = now, the
@@ -7028,7 +7028,7 @@ void he_CircusShowIncome(int ev, int n)
     if (bld == 0)
         return;
     rate = gm_BuildingSkill(bld, 0x1d, 1) * 0.0166666675f + 1.0f;
-    skill = gm_GetSkill((char *)per, 2);
+    skill = gm_GetSkill(per, 2);
     base = skill * skill;
     for (i = n; i > 0; i--)
         m->income += (int)(((util_RandomF() + base) * 75.0 + 25.0) * rate) * 0x20;

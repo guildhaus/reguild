@@ -993,7 +993,7 @@ found:
             return 0;
         }
         sprintf(text, "NPC %s <%i> w\xe4hlt %s", p->name, p->id, name);
-        return (ord_DispatchOrder(in->ref, (char *)p, ctx) & 0x60) == 0;
+        return (ord_DispatchOrder(in->ref, p, ctx) & 0x60) == 0;
     }
     return 0;
 }
@@ -1042,7 +1042,7 @@ int ai_DecideLittleKnownChar(AICHAR *p, AIARG *in, AIARG *m)
             o = gm_FindChar(ids[i]);
             if (o == 0)
                 return 0;
-            if (he_NoEvent2ePair((int)p, (int)o) == 0)
+            if (he_NoEvent2ePair(p, o) == 0)
                 return 0;
             if (gm_Liking(p->id, o->id, 1) < (double)util_Random(0x3d) + 20.0
                 && cnt[i] < util_Random(4) + 2) {
@@ -1315,7 +1315,7 @@ int ai_DecideBuyDunkleEcke(AIPER *p, AIARG *a, AIARG *b)
 
     if ((p->flags1cc & 0x2000000) == 0 && ai_Time.hour >= 21
         && ai_Time.hour % 3 == (unsigned int)p->netId % 3) {
-        money = gm_GetGoodsValue((AICHAR *)p);
+        money = gm_GetGoodsValue(p);
         memset(shops, 0, sizeof(shops));
         n = 0;
         bld = gm_BuildQuery(1, 5, 0x16);

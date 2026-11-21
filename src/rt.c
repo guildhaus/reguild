@@ -1115,7 +1115,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
     if (c->route == 0)
         return;
     q = rt_PointAt(c->route, c->routeIdx);
-    o = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)c);
+    o = gm_ObjectBuildingOwner(c);
     b = gm_FindBuildingById(q->buildingId);
     if (b == 0)
         return;
@@ -1147,7 +1147,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
                         price = (int)(gm_GoodsPrice(*g, ai_OwnPlayer) * b->priceFactor);
                 }
                 if (n > 0) {
-                    if (gm_CharCurrency((char *)o, pl) < n * price) {
+                    if (gm_CharCurrency(o, pl) < n * price) {
                         io_TownDisplayName(ai_PlayerSlots[pl].name, name);
                         txt_Format(buf, 0x42f0, name, 0xc14, name, pl);
                         he_ShowNews(o->netId, -1, buf, 0, 0x5ef, ch_EmptyName);

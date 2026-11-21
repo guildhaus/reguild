@@ -2455,9 +2455,9 @@ int cm_CheckSellObject(G17MSG *m)
                 if (gm_FreeCapacity((short *)o, m->sell.item, m->sell.count) < m->sell.count)
                     return 1;
             }
-            r = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)o);
+            r = gm_ObjectBuildingOwner(o);
         } else {
-            if (gm_TakeableCount((char *)c, m->sell.item, m->sell.count) < m->sell.count)
+            if (gm_TakeableCount(c, m->sell.item, m->sell.count) < m->sell.count)
                 return 1;
             r = c;
         }
@@ -2813,7 +2813,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
     cm_LastCharId = ai_Chars[k].netId;
     strncpy(ai_Chars[k].first, m->named.first, 0x10);
     c = &ai_Chars[k];
-    t = (AIFIN *)gm_PlayerRecord((char *)c);
+    t = (AIFIN *)gm_PlayerRecord(c);
     if (t != 0) {
         t->w00 = ai_Chars[k].w050;
         strncpy(t->family, m->named.family, 0x10);
@@ -2996,7 +2996,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             if (y->type == 0x2a || y->type == 0x1db || y->type == 0x1dc || y->type == 0x116 || y->type == 0x1dd)
                 ys = y;
             p = &y->list;
-            r1 = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)y);
+            r1 = gm_ObjectBuildingOwner(y);
             if (r1 == 0)
                 return 1;
         } else {
@@ -3036,7 +3036,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
                 && gm_FreeCapacity((short *)y, m->sell.item, m->sell.count) < m->sell.count)
                 return 1;
             q = &y->list;
-            r2 = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)y);
+            r2 = gm_ObjectBuildingOwner(y);
         } else {
             q = &z->inventory;
             r2 = z;
@@ -3051,14 +3051,14 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
         }
     }
     if (ys != 0 && r2 != 0) {
-        if ((AICHAR *)gm_ObjectBuildingOwner((unsigned short *)o) != r2 && o->reserve != 0) {
+        if (gm_ObjectBuildingOwner(o) != r2 && o->reserve != 0) {
             if (gm_ListAmount((short *)ys, (char *)o) - ((unsigned int)(gm_ListStock((short *)ys, o->type) * o->reserve) >> 2)
                 < (unsigned int)m->sell.count)
                 return 1;
         }
     }
     if (r2 != 0 && x2 == 0 && y2 == 0 && y == 0) {
-        m->sell.count = gm_TakeableCount((char *)r2, m->sell.item, m->sell.count);
+        m->sell.count = gm_TakeableCount(r2, m->sell.item, m->sell.count);
         if (m->sell.count == 0)
             return 1;
     }
@@ -3173,7 +3173,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
         return 1;
     if (y->type != 0x2a && y->type != 0x116)
         return 1;
-    r = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)y);
+    r = gm_ObjectBuildingOwner(y);
     if (r == 0)
         return 1;
     g = &ai_Goods[m->make.item];
@@ -3236,7 +3236,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     st = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->make.item);
     if (st != 0)
         st->daily[0] += g->batch * n;
-    f = (AIFIN *)gm_PlayerRecord((char *)r);
+    f = (AIFIN *)gm_PlayerRecord(r);
     if (f != 0)
         f->madeValue += v;
     if (s != 0) {
@@ -4428,7 +4428,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
         if (k != 0) {
             c = gm_FindChar(m->place.netId);
             if (c != 0)
-                gm_SelectModelVariant((char *)c);
+                gm_SelectModelVariant(c);
         }
         ch_AddAction(p, 0x38, 0);
         if (k != 0) {
@@ -5180,21 +5180,21 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     }
     title = m->hire.title;
     if (title != 2 && title != 1 && title != 0x10 && title != 0xf && title != 0x14 && title != 0x13) {
-        w = (AIWEAPON *)cm_CharWeapon((char *)c);
+        w = (AIWEAPON *)cm_CharWeapon(c);
         if (w->id != 0) {
             gm_TakeObjekt(c->netId, w->id, 1);
-            cm_UpdateHandObject((char *)c);
+            cm_UpdateHandObject(c);
         }
     } else {
-        w = (AIWEAPON *)cm_CharWeapon((char *)c);
+        w = (AIWEAPON *)cm_CharWeapon(c);
         if (w->id == 0) {
             gm_CreateObject(c->netId, 0x154, 1);
-            cm_UpdateHandObject((char *)c);
+            cm_UpdateHandObject(c);
         }
     }
     c->bld = b;
     if (home != 0)
-        gm_MoveIntoHome((char *)c, (char *)home);
+        gm_MoveIntoHome(c, (char *)home);
     c->jobDays = 0;
     c->flags1c8 &= ~0x2000;
     ai_ResetJob(c);
@@ -5484,7 +5484,7 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
     ai_Chars[id].kind = 0xd;
     if (m->spawn.item != 0) {
         gm_CreateObject(ai_Chars[id].netId, m->spawn.item, 1);
-        cm_UpdateHandObject((char *)&ai_Chars[id]);
+        cm_UpdateHandObject(&ai_Chars[id]);
     }
     cm_LastCharId = ai_Chars[id].netId;
     if (s != 0) {
@@ -5791,7 +5791,7 @@ int cm_ExDamage(G17MSG *m, G17STAT *s)
 
     r = cm_FindFighter(m->damage.netId);
     if (r != 0) {
-        cm_ShowDamage((char *)r, m->damage.damage, 0);
+        cm_ShowDamage(r, m->damage.damage, 0);
         r->v024 -= m->damage.damage;
         r->health = m->damage.health;
     }

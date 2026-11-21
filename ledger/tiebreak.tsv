@@ -2429,7 +2429,7 @@ exe	0x004cee20	cm_UpdateDamagePops	cm	b75a0ca50b800844	no	shape	sweep control=sh
 exe	0x004cef80	cm_InitDamagePops	cm	39152d45e485d07f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefa0	cm_ClearDamagePops	cm	076a1d9edec54d1a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefe0	cm_CloseFightView	cm	29288b8309f63bf8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004cf000	cm_UpdateSceneChars	cmfight	3bc9e0c44fbf34a4	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	069feb0e7a2ceb0b
+exe	0x004cf000	cm_UpdateSceneChars	cmfight	4326954fccea6525	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	e5cec5852370fad5
 exe	0x004cf370	cm_DrawScrollArrows	cm	d210b0104bdcf38c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	653ac214333ac5bd
 exe	0x004cf670	cm_UpdatePointer	cm	41b9acf9329f06ba	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004cf9c0	cm_UpdatePortraits	cmfight	634b69a2ca6d4fc0	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	2f0e77b90f55198a
@@ -2459,8 +2459,8 @@ exe	0x004d1e00	cm_FightIntro	cm	bbcc5c91cf8748ae	no	byte	control=byte p1=byte p2
 exe	0x004d1eb0	cm_FightOutro	cm	45426294b846faaf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004d1f10	cm_NearestEnemy	cm	825a9eeb254499b5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004d2010	cm_ThreatAt	cm	576561423dc3c6d8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004d2170	cm_BestCellNear	cmfight	af375da2f9eca381	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	4c3f46b42d83a9cf
-exe	0x004d22d0	cm_MostThreatenedCellNear	cmfight	32f7280f4ebc1d3b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	4c3f46b42d83a9cf
+exe	0x004d2170	cm_BestCellNear	cmfight	72e1ce71fd697a0a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	e5cec5852370fad5
+exe	0x004d22d0	cm_MostThreatenedCellNear	cmfight	a8f58668f83d7fc0	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	e5cec5852370fad5
 exe	0x004d2450	cm_CollectEscapeObject	cm	d06b07e4e26dec4a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004d2490	cm_NearestEscapeObject	cm	08505ed82c455ae7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	becf1bbdf99775c9
 exe	0x004d2550	cm_CollectWareObject	cm	e1b341b3e6da7d70	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2839,7 +2839,7 @@ exe	0x004f4970	gv_CheckRankUp	gs	f361d400f4e23504	no	shape	sweep control=shape b
 exe	0x004f4d10	gv_CheckRankUps	gv	e4ae1be51466e2bf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4d30	gv_EvidencePrice	gv	d52f98d9c87d00de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4e20	ord_ApplyForOffice	ord	6d186341a080ce23	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	61e57e66adc84a0c
-exe	0x004f4f20	ord_LevelOrder	ord	5f9bb61280911d08	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	dc671bf8ebe636a7
+exe	0x004f4f20	ord_LevelOrder	ord	cd57b1e6e8181073	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	fb12d933139a2a83
 exe	0x004f4ff0	ord_ChangeProfessionOrder	ord	6cdc923adcfdcb8c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f5070	ord_MedicusOrder	ord	2b1a93d4f2cdf521	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f50f0	ord_AccusationOrder	ord	b1da89bb4c93236b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2904,7 +2904,7 @@ exe	0x004f8360	ord_CountGridObjects	ord	1096ad1ef8c7a174	yes	shape	sweep control
 exe	0x004f8460	ord_AddGridAmount	ord	d07b30d499f82e7f	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004f8590	ord_SubGridAmount	ord	85d5b634f645fe8f	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004f86a0	ord_RandomCellPoint	ord	1eb0695657deb1c9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f8700	ord_RandomObjectId	ord	2f8789dd601a7132	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	76dbabffeb953219
+exe	0x004f8700	ord_RandomObjectId	ord	fa421913a55a68dc	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	fb12d933139a2a83
 exe	0x004f8890	ord_GetKindRecord	ord	606dc781d8bd25a8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f88c0	ord_AppendStatisticsRound	ord	4a8bcb6f1f20a5e3	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f8920	ord_RebuildGridSums	ord	1a855290cce0a724	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -3040,7 +3040,7 @@ exe	0x00502fd0	gm_SellBuilding	f3gm	a8b9e7fc79d1f965	no	byte	control=byte p1=byt
 exe	0x005031b0	gm_AllocRaum	f3gm	3b901f4a4526d55e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503480	gm_RemoveObjectFromBuilding	f3gm	4907533e25a8f849	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005034b0	gm_FreeObject	f3gm	d57befa7d1ff8081	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00503530	gm_PermissionBits	f3gmt	9acf6c4bc7be58c1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a5909646d8ddab51
+exe	0x00503530	gm_PermissionBits	f3gmt	38c316b3131fb1d8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7c46da21a8e26235
 exe	0x00503c20	gm_ReleaseCharacter	f3gm	68f6992261634f9d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503c60	gm_KillSpieler	f3gmt	05b77931c03cdff7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	835fb17aeffaabb4
 exe	0x00503e80	gm_ResetCharacters	f3gm	d21a0804f78a3dc8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3475,7 +3475,7 @@ exe	0x00537f40	main_EndGame	main	68671b89ac5fb237	no	byte	control=byte p1=byte p
 exe	0x00538140	main_RundenBeginn	main	503e9d8c2106fe24	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005384e0	main_EndRound	main	466d32884e828536	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=379	62e27ee2a94e9159
 exe	0x00539620	main_ReplaceFigure	main	c35457202d9f562a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	af22ce15de209ae0
-exe	0x00539870	main_RoundReport	main	857734b00d597daf	yes	byte	sweep control=shape best=byte by 3 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	5f4e22ff849a63a3
+exe	0x00539870	main_RoundReport	main	3494df4db5126363	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	eea2731d0227ada3
 exe	0x0053a250	main_UpdateFigure	main	ac7764d6864b4bd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4a8bed7379a4ae73
 exe	0x0053a450	main_UpdateFigures	main	0adcc8f2a3d2c65f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0053a520	main_SettleRound	main	3a13bbd7e2c68953	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

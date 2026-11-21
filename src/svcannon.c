@@ -1076,7 +1076,7 @@ void ai_CannonShotResults(CANNONSCENE *sc)
 
 float gv_SalvoCharge(); void gv_BuildingCannon(char *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, int id0, ...); int gm_CharCurrency(char *c, char p);
+void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 
 /* 0x57f890, the cannon control panel: rec = the building record, sc = the scene, run = its effect slot. The two
    sliders (sc->kindSlider, clamped to the cannon kind of gv_BuildingCannon, and sc->speedSlider) give the salvo's
@@ -1115,7 +1115,7 @@ void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
     d2_Objs[sc->selBtn[0]].checked = sc->selected == 0;
     d2_Objs[sc->selBtn[1]].checked = sc->selected == 1;
     d2_Objs[sc->selBtn[2]].checked = sc->selected == 2;
-    m = gv_CannonCost((char *)&ai_Chars[ai_PlayerId], a, b, sc->selected + 1, &l1, &l2);
+    m = gv_CannonCost(&ai_Chars[ai_PlayerId], a, b, sc->selected + 1, &l1, &l2);
     if (sc->zoom <= 0.01f && m != 0 && run->charge[sc->selected] >= c && (run->flags & 2) == 0)
         w = 1;
     else
@@ -1140,7 +1140,7 @@ void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
     d2_Objs[m].centred = 1;
     d2_Objs[m].w = d2_Wins[d2_LastWindow].w / 2;
     d2_SetObjFont(m, 0x54);
-    txt_Format(buf, (int)"%T %a", gm_CharCurrency((char *)&ai_Chars[ai_PlayerId], ai_OwnPlayer), ai_Chars[ai_PlayerId].money);
+    txt_Format(buf, (int)"%T %a", gm_CharCurrency(&ai_Chars[ai_PlayerId], ai_OwnPlayer), ai_Chars[ai_PlayerId].money);
     m = d2_CreateWinText(d2_Wins[d2_LastWindow].w / 2, 0x23, buf, d2_LastWindow);
     d2_Objs[m].centred = 1;
     d2_Objs[m].w = d2_Wins[d2_LastWindow].w / 2;
@@ -1300,7 +1300,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, char *rec)
 
     a = d2_GetObjValue(sc->kindSlider);
     b = d2_GetObjValue(sc->speedSlider);
-    if (gv_CannonCost((char *)&ai_Chars[ai_PlayerId], a, b, sc->selected + 1, &cost, &x) == 0)
+    if (gv_CannonCost(&ai_Chars[ai_PlayerId], a, b, sc->selected + 1, &cost, &x) == 0)
         return;
     gv_CannonScatter(rec, &spread, &speedSpread);
     charge = (gv_CannonItemFactor(rec) * ai_CannonBalls[a].b - ai_CannonBalls[a].a) * ((float)b * 0.01f) + ai_CannonBalls[a].a;
@@ -1568,7 +1568,7 @@ int ai_CanSpyOn(AIBLD *rec)
     return r == 0;
 }
 
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(char *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 
 /* 0x581020, the cabinet's spy window for the building rec: the form "Locations\Domizil\kabinett_spy" (centred,
@@ -1631,7 +1631,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     AIMSG msg;
                     int pick;
                     LARGE_INTEGER mask;
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += amount;
@@ -1747,7 +1747,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], cost[i], ai_OwnPlayer) != 0 &&
                     sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += cost[i];
@@ -1967,7 +1967,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckGoodAmount((char *)&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0 &&
                     sv_CheckMoney((char *)&ai_Chars[ai_PlayerId], 0x10) == 1 && ai_CanSpyOn(rec) != 0) {
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += price;

@@ -3,6 +3,7 @@
 #ifndef AIP_H
 #define AIP_H
 
+struct AICHAR;
 int ai_DecideOfficePartner(int a, struct AICHAR *p, int *ctx, int d, struct AIARG *m);   /* 0x4a8760 */
 int ai_DecideTableValue(int a, AIPER *p, int *ctx, int d, struct AIARG *m);           /* 0x4a8a50 */
 int ai_DecidePartnerOtherSex(int a, struct AICHAR *p, int c, int d, struct AIARG *m);              /* 0x4a8ad0 */

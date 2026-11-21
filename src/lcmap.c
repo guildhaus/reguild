@@ -707,7 +707,7 @@ char *strupr(char *); int sprintf(char *buf, const char *fmt, ...); char * vfs_G
 struct D3OBJECT * d3_LoadGroup(); void d3t_InflateObjectTree(D3OBJECT *obj); int d3t_DropObject();
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
-int gm_BuildingKindCost(int c, int kind); void txt_Format(char *out, int id0, ...);
+int gm_BuildingKindCost(struct AICHAR *c, int kind); void txt_Format(char *out, int id0, ...);
 char d3sm_GetVertex();  /* 0x45f100: this caller tests the char result (al) */
 char d3sm_Pick();  /* 0x45f2b0, d3_sm.h: the cell under a screen point, 0 = none */
 void sv_SetStatusText(char *s);  /* 0x52e330, sv.h */
@@ -717,9 +717,9 @@ int d2_SetForm(int view, int n); int d2_GetViewWin(); int io_PrintText(char *fmt
 int d2_WinOpenPic(short x, short y, int pic, int win); void d2_SetObjFont(); void d2_SetObjText();  /* d2_CreateWinText: d2.h's prototype; ai_ShowProdSlot's 16-bit calls go through d2_CreateWinTextS */
 void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(char *msg);
 void txt_Format(char *out, int id0, ...);
-int gm_CharCurrency(char *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
+int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -727,7 +727,7 @@ struct AIBLD; int ai_ScriptQuery();
 int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
-void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(char *c);
+void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendLongMessage(char *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_MasterLetterWindow();
@@ -793,7 +793,7 @@ typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout
     int reserved50;                     /* 0x50 */
     int total;                          /* 0x54, the stakes paid so far (AGDUEL.total) */
 } LCDUEL;
-int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(char *c); int ai_DuelStart();
+int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(struct AICHAR *c); int ai_DuelStart();
 int ai_DuelAct(); void ai_DuelNextPhase(); int ai_DuelOpponentAction(); int ai_DuelAcceptAction();
 typedef struct LCFIN {                  /* what gm_PlayerRecord finds for a character (ai.h AIFIN; ai.h cannot be included here yet) */
     char pad00[0x28];
@@ -834,7 +834,7 @@ typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCre
     int index;                      /* 0x10, the offer's slot in the bank's credits[] */
 } CREDITROW;
 struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
-short * gm_PlayerRecord(char *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
+short * gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); void d2_SetObjText(); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, unsigned char i);
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
@@ -853,7 +853,7 @@ void d2_SetObjEnabled(); void d2_EnableViewObjects(); void d2_EnableObject();
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow(); void d2_RemoveObj();
 void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont();
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
-int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
+int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
@@ -971,7 +971,7 @@ typedef struct LCRANSOMEVENT {          /* the ransom event 0x3d's words over AI
     int guild;                          /* 0xb0, the id of the thieves' guild that holds it */
     AITIME since;                       /* 0xb4, the time of the kidnap */
 } LCRANSOMEVENT;
-float gm_GetSkill(char *c, int skill); int cm_SendChrGotoBuilding(); 
+float gm_GetSkill(struct AICHAR *c, int skill); int cm_SendChrGotoBuilding(); 
 int gm_CreateCharModel(); void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s); int ch_Delete();
 
 /* dcp unit split: the definitions of lc the functions of lcmap use */
@@ -1496,7 +1496,7 @@ void ai_UpdateTownMap(LCMAPWIN *m)
                             goto removed;
                         pic = ai_Chars[bld->owner].ref54 - 0x53;
                     } else if (ch->obj->owner != 0 && ch->transport != 0 &&
-                               (rec = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)ch->obj->owner)) != 0 &&
+                               (rec = gm_ObjectBuildingOwner(ch->obj->owner)) != 0 &&
                                (rec->kind == 6 || rec->kind == 7 || rec->kind == 5))
                         pic = rec->ref54 - 0x53;
                     else
@@ -2316,7 +2316,7 @@ void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec
    or more with 0x41bc) and the closing text (0x41be for several, 0x41bd for one), and shown to the sender
    ("_NACHRICHTEN_ZIGEUNER_05") */
 
-void ai_GypsyDeliveryText(void *from, int n, void **to)
+void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
 {
     char line[128];
     int i;
@@ -2325,7 +2325,7 @@ void ai_GypsyDeliveryText(void *from, int n, void **to)
 
     if (n < 1 || n >= 4)
         return;
-    txt_Format(ai_NewsText, 0x41bf, ((AICHAR *)from)->id);
+    txt_Format(ai_NewsText, 0x41bf, from->id);
     for (i = 0; i < n; i++) {
         if (((AICHAR *)to[i])->kind == 6 || ((AICHAR *)to[i])->kind == 7)
             he_ShowNews(((AICHAR *)to[i])->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_06");
@@ -2357,7 +2357,7 @@ void ai_GypsyDeliveryText(void *from, int n, void **to)
         }
         strcat(ai_NewsText, txt_Ptrs[0x41bd]);
     }
-    he_ShowNews(((AICHAR *)from)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_05");
+    he_ShowNews(from->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_05");
 }
 /* 0x5a9690, tells a player character that relatives were angered by neglected graves (69 B): for a kind 6 / 7
    character the text 0x4154 with the building, shown to its netId (event 0x5fc); gv_GraveyardTurn sends it when
@@ -2377,9 +2377,9 @@ void ai_TellGraveNeglect(unsigned short *plRec, int bld)
    0x414e with the buyer's id, the graveyard bld, the grave size's name (ai_GraveNames), the price and the owner's
    share (the language 1 swaps the building and the size name), shown to the owner ("_NACHRICHTEN_FRIEDHOF_08") */
 
-void ai_NotifySale(int owner, unsigned short *buyer, int bld, int size, int price, int share)
+void ai_NotifySale(AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share)
 {
-    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
+    if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2390,7 +2390,7 @@ void ai_NotifySale(int owner, unsigned short *buyer, int bld, int size, int pric
         txt_Format(ai_NewsText, 0x414e, *buyer, ai_GraveNames[size], bld, price, share);
         break;
     }
-    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, "_NACHRICHTEN_FRIEDHOF_08");
+    he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, "_NACHRICHTEN_FRIEDHOF_08");
 }
 /* 0x5a9780, tells a player character that its graves were leased (94 B): for a kind 6 / 7 character the text
    0x4151 with the building, the number of paid leases, the singular / plural text (0x4152 for exactly one paid
@@ -2411,9 +2411,9 @@ void ai_TellGravesPaid(int plRec, int bld, int paid, int sum)
    ai_NotifySale with the text 0x414f: the lessee's id, the graveyard bld, the grave size's name (ai_GraveNames),
    the price and the owner's share (the language 1 swaps the building and the size name), without a news key */
 
-void ai_ShowGraveOrderExtended(int owner, unsigned short *lessee, int bld, int size, int price, int share)
+void ai_ShowGraveOrderExtended(AICHAR *owner, unsigned short *lessee, int bld, int size, int price, int share)
 {
-    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
+    if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2424,15 +2424,15 @@ void ai_ShowGraveOrderExtended(int owner, unsigned short *lessee, int bld, int s
         txt_Format(ai_NewsText, 0x414f, *lessee, ai_GraveNames[size], bld, price, share);
         break;
     }
-    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
+    he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
 }
 /* 0x5a9880, the news of a grave order cancelled, to the graveyard's owner (139 B, he_AnswerGraveLease): as
    ai_ShowGraveOrderExtended with the text 0x4150: the character's id, the graveyard bld and the grave size's
    name (ai_GraveNames), the language 1 swapping the building and the size name */
 
-void ai_ShowGraveOrderCancelled(int owner, unsigned short *lessee, int bld, int size)
+void ai_ShowGraveOrderCancelled(AICHAR *owner, unsigned short *lessee, int bld, int size)
 {
-    if (((AICHAR *)owner)->kind != 6 && ((AICHAR *)owner)->kind != 7)
+    if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
@@ -2443,14 +2443,14 @@ void ai_ShowGraveOrderCancelled(int owner, unsigned short *lessee, int bld, int 
         txt_Format(ai_NewsText, 0x4150, *lessee, ai_GraveNames[size], bld);
         break;
     }
-    he_ShowNews(((AICHAR *)owner)->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
+    he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
 }
 /* 0x5a9910, the haunting text of a grave owner's event 0x88 to its victim (124 B, he_RunHaunting): the
    character's id (twice) and the event's end time around a random variant of the text 0x409c .. 0x409e in
    0x409b, the language 1 putting the end time last; shown to the victim's netId (1, 0x5fb,
    "_NACHRICHTEN_FRIEDHOF_11") */
 
-void ai_HauntingText(unsigned short *chrId, int victim, unsigned int end)
+void ai_HauntingText(unsigned short *chrId, AICHAR *victim, unsigned int end)
 {
     switch (ls_GetLanguage()) {
     case 0:
@@ -2461,7 +2461,7 @@ void ai_HauntingText(unsigned short *chrId, int victim, unsigned int end)
         txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, *chrId, *chrId, end);
         break;
     }
-    he_ShowNews(((AICHAR *)victim)->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_11");
+    he_ShowNews(victim->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_11");
 }
 /* 0x5a9990, tells a character of the graveyard work's outcome (69 B): the text 0x40a8 with one of the three
    sub-texts 0x40a9 .. 0x40ab (util_Random(3)) into ai_NewsText, shown to its netId (1, event 0x5fb, the sound

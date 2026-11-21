@@ -1892,7 +1892,7 @@ int ls_ReadSceneRecords(int f)
             c->model = (AITASK *)ch;
             if (c->job != 0)
                 c->jobKind = c->job->kind;
-            cm_UpdateHandObject((char *)c);
+            cm_UpdateHandObject(c);
         } else if (ch->owner != 0) {
             o = own;
             init_HookObject(ch->obj, own, 1);
@@ -1907,7 +1907,7 @@ int ls_ReadSceneRecords(int f)
             else
                 cart = 0;
             if (cart != 0) {
-                keeper = (AICHAR *)gm_ObjectOwnerChar(own);
+                keeper = gm_ObjectOwnerChar(own);
                 if (keeper != 0 && keeper->ref54 != 0 && (keeper->kind == 5 || keeper->kind == 6 || keeper->kind == 7))
                     colour = (unsigned char)keeper->ref54 + 'g';
                 else

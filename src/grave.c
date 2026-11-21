@@ -248,9 +248,9 @@ int gv_EntryIndex(char *r, int *e)
 }
 /* 0x4ef710, 1 when the entry b is held by the character a (GVENTRY.w08 == AICHAR.w050) and the holder is not 0x7fff */
 
-int gv_EntryHeldBy(char *a, char *b)
+int gv_EntryHeldBy(AICHAR *a, char *b)
 {
-    AICHAR *ch = (AICHAR *)a;
+    AICHAR *ch = a;
     GVENTRY *e = (GVENTRY *)b;
     unsigned short v;
 
@@ -1634,7 +1634,7 @@ void gv_GraveyardTurn(AIBLD *bld)
                 m.lease.price = price;
                 m.lease.years = 10;
                 h = cm_SendLongMessage((char *)&m);
-            } else if ((int)(gm_CharCurrency((char *)c, ai_OwnPlayer) * 0.44f) > price) {
+            } else if ((int)(gm_CharCurrency(c, ai_OwnPlayer) * 0.44f) > price) {
                 h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), 10, price);
                 rounds++;
                 paid++;

@@ -469,11 +469,11 @@ void d3_DirToWorld();
 int gm_FindById();
 float gv_SalvoCharge(); void gv_BuildingCannon(char *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, int id0, ...); int gm_CharCurrency(char *c, char p);
+void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(char *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
@@ -557,15 +557,15 @@ int snd_VoiceVariant(); struct AICHAR *gv_FindAccused(struct AICHAR *c, int max,
 void cm_SendProofExecuted(int a, int b); 
 void ai_FindWantedItems(struct G5CH *p, int n, struct G9REC *rec, int *st);
 void gm_SendMoneyDelta(int a, int b);
-void ai_EndCharExtra(char *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(char *a, int b);
+void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
 void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
 struct AICHAR *ai_AmountMenu(); int sv_CheckMoney();
-float gm_GetSkill(char *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
+float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
 int gm_BuildingJob(); 
 
 /* dcp unit split: the definitions of svgrave the functions of svtip use */
 void ai_GraveDeadName(GVGRAVE *e, char *out);
-void ai_EndCharExtra(char *ch, int f);
+void ai_EndCharExtra(struct AICHAR *ch, int f);
 
 int ai_DragWindow = -1;  /* 0x62a8cc, the tooltip view the right-button tooltip handler 0x587e00 opens (-1 = none; sv.c reads it): the first of the .data block before ai_DragObj */
 int ai_DragObj = -1;  /* 0x62a8d0, the right-held d2 object (d2_RightHeldObj) whose tooltip ai_DragWindow shows, -1 = none */
@@ -661,7 +661,7 @@ void ai_HandleItemDrag(void)
         } else if (sel != 0) {
             ai_DragWindow = ai_OpenHelpTooltip(sel);
         } else if (ch != 0) {
-            ai_DragWindow = ai_OpenCharTooltip((char *)ch);
+            ai_DragWindow = ai_OpenCharTooltip(ch);
         }
         if (ai_DragWindow != -1) {
             ai_DragObj = d2_RightHeldObj;
@@ -688,7 +688,7 @@ tail:
     }
 }
 
-int gm_BuildingKindCost(int c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
+int gm_BuildingKindCost(struct AICHAR *c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
 
 /* 0x588160, opens the tooltip view of the building type idx (ai_BTypes): the form "ToolTip\ToolTip_Gebaeude",
    centred; section 1 the type's name (text idx * 0xe + 0x48e), for a kind other than 0xa through the text 0x27
@@ -715,7 +715,7 @@ int ai_OpenBuildingTooltip(int idx)
     if (bt->kind != 0xa) {
         d2_SetForm(0, 3);
         io_PrintText(0x2a, roman[bt->cap247]);
-        io_PrintText(0x28, gm_BuildingKindCost((int)&ai_Chars[ai_PlayerId], idx));
+        io_PrintText(0x28, gm_BuildingKindCost(&ai_Chars[ai_PlayerId], idx));
         io_PrintText(0x29, bt->v243);
     }
     return view;
@@ -1006,7 +1006,7 @@ int ai_OpenHelpTooltip(char *s)
    relatives[0] alive 0x30, a pair event 0x41 for it 0x31, else 0x32); the worth (0x2e), the byte +0x00c
    (text 0x33), the bits 0x3000 clear: the children relatives[3 .. 7] (text 0x34, none 0x35); section 3 the
    five skill bars (sv_DrawBalanceBar, texts 0x16b7 ..); then ai_CampaignStep (7, ch); returns the view */
-int ai_OpenCharTooltip(char *ch)
+int ai_OpenCharTooltip(AICHAR *ch)
 {
     int view;
     int row[14];                        /* an amount row (menu.c GYPSYROW): row[0] the character */
@@ -1018,7 +1018,7 @@ int ai_OpenCharTooltip(char *ch)
     int any;
     int i;
 
-    c = (AICHAR *)ch;
+    c = ch;
     view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Personen");
     d2_CentreViewWindows(view);
     d2_SetForm(0, 1);
@@ -1116,7 +1116,7 @@ int ai_OpenCharTooltip(char *ch)
    0x253, else officeKind / secondOffice), the line 0x37, the worth, the partner (0x2f .. 0x32), the byte +0x00c
    (0x33) and the children (0x34, none 0x35); section 3 the five skill bars; then the frame pump (the right
    button closes it) and the view closed */
-void ai_CharInfoWindow(char *ch)
+void ai_CharInfoWindow(AICHAR *ch)
 {
     int view;
     int row[14];                        /* an amount row (menu.c GYPSYROW): row[0] the character */
@@ -1127,7 +1127,7 @@ void ai_CharInfoWindow(char *ch)
     int any;
     int i;
 
-    c = (AICHAR *)ch;
+    c = ch;
     if (c->kind >= 0xa)
         return;
     view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Personen");
@@ -1216,7 +1216,7 @@ void ai_InitBookmarks(void)
     }
 }
 
-struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
+struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 
 /* 0x589450, drops the stale bookmarks (113 B): every set one (building not -1) whose building is gone
    (gm_FindBuildingById), whose object is set but gone (gm_FindObjectInst) or whose permission for the own player

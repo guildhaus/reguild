@@ -61,7 +61,7 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 extern int gm_TreeNodeCount;
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);
 void gm_FreeObjectExtra(struct AIOBJ *o);
-unsigned short gm_ObjectOwnerNo(unsigned short *o);
+unsigned short gm_ObjectOwnerNo(struct AIOBJ *o);
 void gm_UpdatePrices(unsigned p, void *t);
 
 struct AITIME;  /* f3gm.h typedef; file-scope tag for the gm_AddTime prototype */
@@ -298,7 +298,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
             o = gm_Query((void *)b->objList, 2, 6, 0, 0x115);
-            if (gm_GetGoodsValue((char *)&ai_Chars[id]) >= n)
+            if (gm_GetGoodsValue(&ai_Chars[id]) >= n)
                 cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[id].netId, ai_OwnPlayer, n);
         }
         if (flags & 2) {
@@ -428,7 +428,7 @@ int gm_CharacterIncomes(unsigned id, GMINCOME *out, unsigned char flags)
 
 struct AMTKIND; int amt_GetKind(int k, struct AMTKIND *out);                   /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
-float gm_GetSkill(char *c, int skill);                     /* 0x504ec0 */
+float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
 float gm_Mix(int a, int b, int c);                     /* 0x504e20 */
 void ai_BeginNeedBlock(struct AICHAR *p);                     /* 0x4c3e70 */
 int ai_AddNeedDelta(int k, float v);                     /* 0x4c3eb0 */
@@ -464,7 +464,7 @@ void gm_CharacterUpkeep(void)
         if (c->id == 0xffff || c->health == 0 || c->kind != 0 || c->bld2 == 0)
             continue;
         b = (char *)ai_BTypes + c->bld2->type * 0x24d;
-        v = gm_GetGoodsValue((char *)c);
+        v = gm_GetGoodsValue(c);
         if (v < 0) {
             if (c->bld == 0 && c->relatives[0] == -1 && abs(v) > rate * 2) {
                 gm_AddHealth(i, -5000);
@@ -763,7 +763,7 @@ int gm_HandOutMoney(AIBLD *b, int *out)
     if (b->owner == 0xffff)
         return 0;
     u = &ai_Chars[b->owner];
-    gm_GetSkill((char *)u, 4);
+    gm_GetSkill(u, 4);
     gv_GetTableRecord(2, (int *)&rec);
     f = (float)gm_BuildingSkill(b, 9, 1) * 0.0125f + 1.0f;
     for (i = 0; i < 0x300; i++) {
@@ -999,7 +999,7 @@ unsigned *gm_CharNameRecord(int id)
    id & 3 when there are 5 or more), unless the model is in the first scene (d3_Scenes[0]); when the model belongs to
    the current group (ch_CurrentGroup) the set is selected on the body at once. */
 
-void gm_SelectModelVariant(char *o)
+void gm_SelectModelVariant(AICHAR *o)
 {
     unsigned v;
     CHARACTER *m;
@@ -1007,14 +1007,14 @@ void gm_SelectModelVariant(char *o)
     D3OPS *ops;
 
     v = 0;
-    if (o != 0 && (m = ((AICHAR *)o)->scene) != 0) {
+    if (o != 0 && (m = o->scene) != 0) {
         surf = (D3SURF *)m->obj->material->animCtl;
         ops = (D3OPS *)surf->info.mesh;
         if (m->scene != d3_Scenes) {
             if ((int)ops->nsets <= 4)
-                v = ((AICHAR *)o)->netId % ops->nsets;
+                v = o->netId % ops->nsets;
             else
-                v = ((AICHAR *)o)->netId & 3;
+                v = o->netId & 3;
             m->texSet = (unsigned char)v;
         }
         if (ch_CurrentGroup == m->group)
@@ -1114,7 +1114,7 @@ unsigned *gm_CharNameRecord(int id);
    record (resolved as gm_ResolveHeadIcons does, "zigeunermeister" without the suffix), picked by its id modulo the
    number of resolved heads. Else the picture 0x639. */
 
-void gm_ChooseHeadIcon(unsigned short *c)
+void gm_ChooseHeadIcon(AICHAR *c)
 {
     char name[128], icon[128], suffix[128];
     char *u, *part;
@@ -1128,7 +1128,7 @@ void gm_ChooseHeadIcon(unsigned short *c)
     i = 0;
     if (c == 0)
         return;
-    m = ((AICHAR *)c)->scene;
+    m = c->scene;
     if (m != 0 && gm_IconNames != 0) {
         if (m->scene == d3_Scenes)
             return;
@@ -1148,7 +1148,7 @@ void gm_ChooseHeadIcon(unsigned short *c)
                             break;
                         if (stricmp(icon, gm_IconNames + j * 0x30) == 0) {
                             found = 1;
-                            ((AICHAR *)c)->picture = j + 0x639;
+                            c->picture = j + 0x639;
                             break;
                         }
                     }
@@ -1159,7 +1159,7 @@ void gm_ChooseHeadIcon(unsigned short *c)
                 return;
         }
     } else {
-        rec = (GMHEAD *)gm_CharNameRecord(*c);
+        rec = (GMHEAD *)gm_CharNameRecord(c->id);
         k = 0;
         if (rec->heads[0] == 0xff) {
             strcpy(name, rec->name);
@@ -1189,11 +1189,11 @@ void gm_ChooseHeadIcon(unsigned short *c)
                 break;
         }
         if (k != 0) {
-            ((AICHAR *)c)->picture = rec->heads[((AICHAR *)c)->netId % k] + 0x639;
+            c->picture = rec->heads[c->netId % k] + 0x639;
             return;
         }
     }
-    ((AICHAR *)c)->picture = 0x639;
+    c->picture = 0x639;
 }
 /* 0x4fbb80, creates the model of the character c (its model, ch_Create with the model name of its head record)
    in the scene scene: at the dummy named dummy of the object group obj when there is one (in world
@@ -1202,7 +1202,7 @@ void gm_ChooseHeadIcon(unsigned short *c)
    the model name to c's own head name and chooses the variant and the head icon. The current scene is selected
    again at the end. Returns the model (0 when scene is negative). */
 
-int gm_CreateCharModel(unsigned short *c, int scene, int *p, int *ori, int obj, char *dummy)
+int gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, int obj, char *dummy)
 {
     int saved;
     D3VECTOR4 zero;
@@ -1235,28 +1235,28 @@ int gm_CreateCharModel(unsigned short *c, int scene, int *p, int *ori, int obj, 
         pos[1] = src[1];
         pos[2] = src[2];
     }
-    rec = (GMHEAD *)gm_CharNameRecord(*c);
+    rec = (GMHEAD *)gm_CharNameRecord(c->id);
     if (rec != 0) {
         name = rec->name;
         m = ch_Create(name, (D3VECTOR *)pos);
-        ((AICHAR *)c)->scene = m;
+        c->scene = m;
         if (m != 0) {
-            sprintf(m->obj->name, "sp_%i", ((AICHAR *)c)->netId);
-            ((AICHAR *)c)->scene->obj->owner = c;
-            ((AICHAR *)c)->scene->obj->pickId = *c | 0x3000000;
+            sprintf(m->obj->name, "sp_%i", c->netId);
+            c->scene->obj->owner = c;
+            c->scene->obj->pickId = c->id | 0x3000000;
             if (ori != 0)
-                d3_SetObjectRot(((AICHAR *)c)->scene->obj, (D3VECTOR *)ori);
+                d3_SetObjectRot(c->scene->obj, (D3VECTOR *)ori);
             s = name;
-            d = ((AICHAR *)c)->ownName;
+            d = c->ownName;
             while ((*d++ = *s++) != 0)
                 ;
-            gm_SelectModelVariant((char *)c);
+            gm_SelectModelVariant(c);
             gm_ChooseHeadIcon(c);
         }
     }
 done:
     d3if_SelectScene(saved, 1);
-    return (int)((AICHAR *)c)->scene;
+    return (int)c->scene;
 }
 /* 0x4fbd10, puts the character id (it must have no model yet) on the stage of its building, the building of
    the query (1, 1, a): with b != -1 at the object of the query (1, 1, b) over the building's object list,
@@ -1296,11 +1296,11 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                 d3if_SelectScene(sc, 1);
                 if (o2 != 0) {
                     if ((d = ch_FindDummy()) != 0)
-                        gm_CreateCharModel((unsigned short *)c, sc, p, ori, 0, d->name);
+                        gm_CreateCharModel(c, sc, p, ori, 0, d->name);
                     else
-                        gm_CreateCharModel((unsigned short *)c, sc, p, ori, 0, "dummy_EINGANG");
+                        gm_CreateCharModel(c, sc, p, ori, 0, "dummy_EINGANG");
                 } else
-                    gm_CreateCharModel((unsigned short *)c, sc, 0, 0, (int)o->object, "dummy_TUER");
+                    gm_CreateCharModel(c, sc, 0, 0, (int)o->object, "dummy_TUER");
                 if (c->scene != 0)
                     ch_PreloadAnims(c->scene, 1, "bewegung/gehen");
                 d3if_SelectScene(saved, 1);
@@ -1351,7 +1351,7 @@ void gm_PartnerStep(AICHAR *c);                 /* 0x4fccc0 */
    0x1c51, or 0x4080 with its name and age for a flags1cc bit 4 one) - unless flags1cc bit 1 saves it (not a
    player): life 100, v024 0, flags1cc 2. A survivor runs gm_PartnerStep and ages by one. */
 
-float gm_DailyCharacterStep(unsigned short *id)
+float gm_DailyCharacterStep(AICHAR *id)
 {
     GMMSG m;
     char buf[512];
@@ -1360,7 +1360,7 @@ float gm_DailyCharacterStep(unsigned short *id)
     float h, lo, t, fl;
     double d;
     short age;
-    AICHAR *c = ((AICHAR *)id);
+    AICHAR *c = id;
     AIBLD *mst;
 
     age = 0;
@@ -1549,20 +1549,20 @@ float gm_DailyCharacterStep(unsigned short *id)
 
 void cm_SendCharModel(int a, const char *s);                     /* 0x4c5690 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
-float gm_CharacterHealth(short *c);
-float gm_CharacterBaseHealth(short *c);
+float gm_CharacterHealth(struct AICHAR *c);
+float gm_CharacterBaseHealth(struct AICHAR *c);
 void gm_PopulationStep(void);
 
 /* 0x4fc6f0, ages the character c to the age: its life f01c becomes f018 when the age is not above its f020,
    else f018 run through v = f014 / v + (v - f014) once per year above f020; the change goes out as a float
    delta of the field 0x1c, the age as the delta of w00a (0xa). */
-void gm_AgeCharacter(char *c, unsigned short age)
+void gm_AgeCharacter(AICHAR *c, unsigned short age)
 {
     AICHAR *ch;
     float a, k, v;
     int n;
 
-    ch = ((AICHAR *)c);
+    ch = c;
     if (ch != 0) {
         a = (float)age;
         if (a <= ch->f020) {
@@ -1590,9 +1590,9 @@ void gm_AgeCharacter(char *c, unsigned short age)
    (v = f014 / v + (v - f014), as gm_AgeCharacter) its life f01c takes to fall to 1.0, plus the years it still
    has below f020 (none when it is older). */
 
-int gm_ExpectedDeathAge(char *c)
+int gm_ExpectedDeathAge(AICHAR *c)
 {
-    AICHAR *ch = ((AICHAR *)c);
+    AICHAR *ch = c;
     float k, v, r, t;
     int n;
 
@@ -1612,9 +1612,9 @@ int gm_ExpectedDeathAge(char *c)
 /* 0x4fc820, the life of the character c now (-1 for a free slot or a dead one): f01c once its age w00a is
    above f020, before that the line from f010 to f01c over the years up to f020; plus v024, not below 0 */
 
-float gm_CharacterHealth(short *c)
+float gm_CharacterHealth(AICHAR *c)
 {
-    AICHAR *ch = ((AICHAR *)c);
+    AICHAR *ch = c;
     float a, f;
 
     if (ch->id == 0xffff)
@@ -1632,9 +1632,9 @@ float gm_CharacterHealth(short *c)
 /* 0x4fc890, the life of the character c by its age alone: gm_CharacterHealth without v024 and the floor (-1 for
    a free slot or a dead one) */
 
-float gm_CharacterBaseHealth(short *c)
+float gm_CharacterBaseHealth(AICHAR *c)
 {
-    AICHAR *ch = ((AICHAR *)c);
+    AICHAR *ch = c;
     float a;
 
     if (ch->id == 0xffff)
@@ -1649,9 +1649,9 @@ float gm_CharacterBaseHealth(short *c)
 /* 0x4fc8e0, the share of its life the character c has now: gm_CharacterHealth / gm_CharacterBaseHealth (0 for a
    free slot or a dead one) */
 
-float gm_HealthRatio(short *c)
+float gm_HealthRatio(AICHAR *c)
 {
-    AICHAR *ch = ((AICHAR *)c);
+    AICHAR *ch = c;
 
     if (ch->id == 0xffff)
         return 0.0f;
@@ -1691,7 +1691,7 @@ void gm_DailyCharacters(void)
             gm_NetMsgCount = 0;
         }
         if ((c->kind < 10 || c->kind == 0x14) && c->health != 0) {
-            gm_DailyCharacterStep((unsigned short *)c);
+            gm_DailyCharacterStep(c);
             v = c->w00a;
             if ((float)v == c->f020 - 1.0f && c->scene != 0) {
                 if (c->sex == 0)
@@ -2173,10 +2173,10 @@ AIBLD *gm_FindHome(int unused, AIBLD *o)
 /* 0x4fda10, makes the building b the home (bld2) of the character c when b still has room for one more
    inhabitant (the kind's capacity, ord_GetKindRecord): b gains an inhabitant, the old home loses one */
 
-void gm_MoveIntoHome(char *c, char *b)
+void gm_MoveIntoHome(AICHAR *c, char *b)
 {
     unsigned short cap[4];
-    AICHAR *ch = ((AICHAR *)c);
+    AICHAR *ch = c;
     AIBLD *bld = (AIBLD *)b;
     AIBLD *old;
 
@@ -2245,9 +2245,9 @@ AIOBJ *gm_HomeObject(AIBLD *bld)
 }
 /* 0x4fdcb0, the home of the character c: its own building bld2 with the object of gm_HomeObject (out3 = its id, -1 without) and out2 = the building id; without one the next building of ai_Blds (round-robin from gm_HomeSearchStart) of kind 3 / 0x16 / 0x0f. Returns the building, 0 when none */
 
-char *gm_CharacterHome(char *c, int *out2, int *out3)
+char *gm_CharacterHome(AICHAR *c, int *out2, int *out3)
 {
-    AICHAR *ch = (AICHAR *)c;
+    AICHAR *ch = c;
     AIOBJ *o;
     char *type;
     int i;
@@ -2374,8 +2374,8 @@ void gm_CountCharacters(void)
             gm_CharacterStatistics.ageCount[k]++;
             if (gm_IsUnderAge(i) != 0)
                 gm_CharacterStatistics.underAge += 1.0f;
-            gm_CharacterStatistics.health[k] += gm_CharacterHealth((short *)c);
-            gm_CharacterStatistics.baseHealth[k] += gm_CharacterBaseHealth((short *)c);
+            gm_CharacterStatistics.health[k] += gm_CharacterHealth(c);
+            gm_CharacterStatistics.baseHealth[k] += gm_CharacterBaseHealth(c);
         }
     }
     for (k = 0; k < 8; k++) {
@@ -2419,7 +2419,7 @@ int gm_GoodsDemand(int p, int i);
 int gm_GoodsStock(int p, int i);
 int gm_FreeList(int *list);
 int gm_ListBuildingsOfType(unsigned t, int *out);
-int gm_CharSumAmounts(char *c);
+int gm_CharSumAmounts(struct AICHAR *c);
 unsigned gm_TreeNodeRank(int p);
 int gm_LayoutTree(struct AIBLD *bld, struct AIOBJ *item, int w, int h);
 /* dcp unit split: the declarations that moved to f3gmt (copies: drop what f3gm does not use) */
@@ -2463,7 +2463,7 @@ extern int gm_NOffers;
 int gm_ListStock(short *l, int id);     /* 0x50ab50 */
 int gm_ListAmount(short *l, char *o);   /* 0x50aaf0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                   /* 0x5089c0 */
-unsigned short * gm_ObjectBuildingOwner(unsigned short *p);                     /* 0x50a050 */
+struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                     /* 0x50a050 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);                     /* 0x50d380 */
 struct CHTRANSPORT * ch_AttachTransport();                     /* 0x4034e0 */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
@@ -2499,8 +2499,8 @@ int d3t_SceneIndex();                     /* 0x411be0 */
 int ch_Delete();                     /* 0x4028a0 */
 int gm_ObjectBuilding(int y);                     /* 0x50a0f0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, char *g);                     /* 0x524260 */
-void he_EndPersonEvents(unsigned short *p);                     /* 0x5538b0 */
-void he_EndKind23Events(int ev);                     /* 0x568aa0 */
+void he_EndPersonEvents(struct AICHAR *p);                     /* 0x5538b0 */
+void he_EndKind23Events(struct AICHAR *ev);                     /* 0x568aa0 */
 void d3io_NoopCallback();                     /* 0x44ee40 */
 int amt_ClearOffices();                     /* 0x4e6d80 */
 void gm_KillSpieler(int c, int mode);                     /* 0x503c60 */
@@ -2517,7 +2517,7 @@ int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec);     /* 0x5a9430 */
 int gm_FreeList(int *list);                     /* 0x500140 */
 int gm_TitlesLeft(int n);                     /* 0x504ce0 */
-float gm_GetSkill(char *c, int skill);                     /* 0x504ec0 */
+float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 int gm_CompareTime();                     /* 0x4fe210 */
 int gm_MinutesBetween();                     /* 0x4fe280 */
@@ -2530,7 +2530,7 @@ extern int gm_AllowAll;                /* 0x6f2448 */
 int gm_BuildingJob();                     /* 0x5048e0 */
 int gm_TitleGroup(int n);                /* 0x504ad0 */
 unsigned char * gm_FirstBuilding(int n);                   /* 0x50b010 */
-short * gm_PlayerRecord(char *c);                     /* 0x506430 */
+short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
@@ -2540,7 +2540,7 @@ float gm_Liking();                     /* 0x50c550 */
 void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
 void he_RecheckPersonEvents();                     /* 0x53ed40 */
 int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
-int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
+int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveObject(int a, int b, int c);                     /* 0x4c5010 */
 extern const unsigned int ai_BuildingTypeMasks[6];  /* 0x5eed70 (ai.h, not includable here): [2..3] the 64-bit mask of the house-owner building kinds */
 int cm_SendFloatDelta(int id, int field, float delta);                     /* 0x4c4ac0 */
@@ -2550,7 +2550,7 @@ float util_RandomSq(void);                  /* 0x42ec40 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
 int gm_BuildingClass();                     /* 0x501d80 */
 int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
-int gm_CharSumAmounts(char *c);                     /* 0x509eb0 */
+int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */

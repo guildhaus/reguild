@@ -519,7 +519,7 @@ int ai_CondWorth(AICHAR *c, G13TYPE *t)
 
 int ai_CondMoney(AICHAR *c, G13TYPE *t)
 {
-    return gm_ConvertMoney(gm_CharCurrency((void *)c, ai_OwnPlayer), ai_OwnPlayer) >= t->goal;
+    return gm_ConvertMoney(gm_CharCurrency(c, ai_OwnPlayer), ai_OwnPlayer) >= t->goal;
 }
 /* 0x4b4670, mission condition (types 4 / 9 / 29): at least t->goal of the character's five skills (bytes
    0x80 .. 0x84, each / 42) reach t->threshold */

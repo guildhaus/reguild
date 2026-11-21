@@ -167,7 +167,7 @@ int ai_DuelStart(AGCH *p, AGDUEL *d, int k)
     double x;
     float old;
 
-    fin = (AGFIN *)gm_PlayerRecord((AICHAR *)p);
+    fin = (AGFIN *)gm_PlayerRecord(p);
     if (p == 0 || p->kind != 6 || d == 0 || (k != 1 && k != 2 && k != 4))
         return 0;
     d->stake = 0;
@@ -2405,7 +2405,7 @@ int ai_ExecuteRepairBuilding(AIPER *p, AIARG *s1, AIARG *s2)
     cm_SendMoveGoods(-1, s2->ref, ai_OwnPlayer, (int)s1->fvalue);
     cm_SendLongMessage(&msg);
     cm_EndGroup("renovieren");
-    fin = (AIFINX *)gm_PlayerRecord((AICHAR *)p);
+    fin = (AIFINX *)gm_PlayerRecord(p);
     if (fin)
         fin->renovationSpent = (int)(fin->renovationSpent + s1->fvalue);
     return 15;
@@ -2622,7 +2622,7 @@ int ai_DecideBuildResidence(int a, AIPER *p, int f, AIARG *o1, AIARG *o2)
        test of i, or a found flag, lays out the shared returns differently) */
     return 0;
 found:
-    money = (int)(gm_CharCurrency((char *)p, ai_OwnPlayer) * 0.66f);
+    money = (int)(gm_CharCurrency(p, ai_OwnPlayer) * 0.66f);
     s2.kind = 0;
     s2.ref = 0;
     s2.arg = 0;
@@ -2645,7 +2645,7 @@ found:
                 s2.arg = 1;
                 if (ai_CanBuildType(a, p, f, &s1, &s2, 0) == 0)
                     return 0;
-                price = gm_BuildingKindCost((int)p, s1.ref);
+                price = gm_BuildingKindCost(p, s1.ref);
                 if (money < price) {
                     if ((float)(price - money) / price < 0.25f) {
                         o1->arg = price - money;
@@ -2665,7 +2665,7 @@ found:
         s1.ref = 6;
         s1.arg = 1;
         if (ai_CanBuildType(a, p, f, &s1, &s2, 1) != 0) {
-            cost = gm_BuildingKindCost((int)p, s1.ref);
+            cost = gm_BuildingKindCost(p, s1.ref);
             if (money < cost) {
                 if ((float)(cost - money) / cost < 0.25f) {
                     o1->arg = cost - money;
@@ -2684,7 +2684,7 @@ found:
         s1.arg = 1;
         if (ai_CanBuildType(a, p, f, &s1, &s2, 1) == 0)
             return 0;
-        cost = gm_BuildingKindCost((int)p, s1.ref);
+        cost = gm_BuildingKindCost(p, s1.ref);
         if (money < cost) {
             if ((float)(cost - money) / cost < 0.25f) {
                 o1->arg = cost - money;
@@ -2734,7 +2734,7 @@ found:
                 return 0;
             if (p->kind != 5)
                 return 0;
-            price = gm_BuildingKindCost((int)p, s1.ref);
+            price = gm_BuildingKindCost(p, s1.ref);
             if (money < price) {
                 if ((float)(price - money) / price < 0.25f) {
                     o1->kind = 0x12;
@@ -6074,7 +6074,7 @@ int ai_DecideChangeProfession(int a, G5CH *p, int f, AIARG *o1, AIARG *o2)
     AIBTYPE *bt;
     int money, k, n, r, c, x, y;
 
-    q = (AIFINX *)gm_PlayerRecord((AICHAR *)p);
+    q = (AIFINX *)gm_PlayerRecord(p);
     if (p->kind != 5 || p->money < 4 || q == 0)
         return 0;
     money = gm_CharCurrency((AIPER *)p, ai_OwnPlayer);
@@ -6992,7 +6992,7 @@ int ai_DecideApprenticeship(int a, G5CH *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     q = util_Random(0xf) + 1;
     if (p->kind == 5) {
-        fin = (AIFINX *)gm_PlayerRecord((AICHAR *)p);
+        fin = (AIFINX *)gm_PlayerRecord(p);
         m = util_Random(0x10);
         for (n = 0x10; n != 0; n--) {
             if (m != 0 && fin->jobByGroup[m] == 0) {

@@ -1667,7 +1667,7 @@ void cm_RunTrial(G28REC *m)
         gv_SentenceText(c1, sentence, buf);
         io_PrintText(buf);
         if (c1->officeKind != 0 && (sentence == 4 || sentence == 6 || sentence == 8)) {
-            AIFIN *fin = (AIFIN *)gm_PlayerRecord((char *)c0);
+            AIFIN *fin = (AIFIN *)gm_PlayerRecord(c0);
 
             if (fin != 0)
                 fin->officeSentences++;
@@ -2022,9 +2022,9 @@ void cm_SinkDownAction(CHACTION *a)
 }
 /* 0x4de530, a fighter whose life (0x4fc8e0) is under 0.2 sinks to the ground ("bewegung/zu_boden_sinken"): 1 */
 
-int cm_DuelSinkDown(char *c, int dmg)
+int cm_DuelSinkDown(AICHAR *c, int dmg)
 {
-    AICHAR *ch = (AICHAR *)c;
+    AICHAR *ch = c;
     CHACTION *o;
 
     if (gm_HealthRatio(c) < 0.2) {
@@ -2075,8 +2075,8 @@ void cm_DuelShotAction(CHACTION *a)
     d2_SetForm(cm_TextBox, 0);
     sh = a->shot.shooter;
     tg = a->shot.target;
-    acc = (float)gm_GetSkill((char *)sh, 3);
-    gm_GetSkill((char *)tg, 3);
+    acc = (float)gm_GetSkill(sh, 3);
+    gm_GetSkill(tg, 3);
     acc = acc * 0.8;
     if (ai_InventoryHas(sh, 0x16f) != 0)
         acc = (float)(acc * 1.5);
@@ -2097,11 +2097,11 @@ void cm_DuelShotAction(CHACTION *a)
             cm_DuelScore[0] += dmg;
         else
             cm_DuelScore[1] += dmg;
-        cm_ShowDamage((char *)tg, (int)((tg->f01c * 0.01) * dmg), 0);
+        cm_ShowDamage(tg, (int)((tg->f01c * 0.01) * dmg), 0);
     } else
         dmg = 0;
     sb_PlaySample(0, "Schuss", 1, 0x3f, 0x7f, 0, 0);
-    if (cm_DuelSinkDown((char *)tg, dmg) == 0) {
+    if (cm_DuelSinkDown(tg, dmg) == 0) {
         if (hit != 0) {
             d3t_CreateBlood(tg->scene->obj, 0x40, 0.25f, 0.1f, 0.14f, 55.0f);
             if (tg->scene->actions == 0)
@@ -2156,7 +2156,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
         break;
     case 3:
         d2_SetForm(cm_TextBox, 0);
-        fa = gm_GetSkill((char *)a, 2);
+        fa = gm_GetSkill(a, 2);
         if ((float)cm_RandomFloat() < fa) {
             if (a->kind == 6 || a->kind == 7)
                 io_PrintText(0x10f6, a->id);
@@ -2183,8 +2183,8 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
         io_PrintText("$N");
         ch_QueueAnim(a->scene, "gestik/abfaellig", 1);
         cm_WaitTicks(2);
-        fa = gm_GetSkill((char *)a, 4);
-        fb = gm_GetSkill((char *)b, 4);
+        fa = gm_GetSkill(a, 4);
+        fb = gm_GetSkill(b, 4);
         fa = (float)(cm_RandomFloat() + fa);
         if ((float)(cm_RandomFloat() + fb) < fa) {
             d2_SetForm(cm_TextBox, 0);
@@ -2226,9 +2226,9 @@ void cm_DuelOutcome(G28REC *m)
     b = gm_FindChar(m->members[1]);
     if (a == 0 || b == 0)
         return;
-    fa = gm_GetSkill((char *)a, 3);
+    fa = gm_GetSkill(a, 3);
     w = b;
-    if (!(gm_GetSkill((char *)b, 3) < fa))
+    if (!(gm_GetSkill(b, 3) < fa))
         w = a;
     if (w->officeKind == 0)
         return;
@@ -2425,8 +2425,8 @@ void cm_RunDuel(G28REC *m)
 
     /* the result: the one with the lower health is down */
     if (cm_DuelOver != 0) {
-        fa = gm_HealthRatio((short *)&ca);
-        if ((float)gm_HealthRatio((short *)&cb) < fa)
+        fa = gm_HealthRatio(&ca);
+        if ((float)gm_HealthRatio(&cb) < fa)
             w = &cb;
         else
             w = &ca;
@@ -2534,13 +2534,13 @@ int cm_DuelAftermath(G28REC *m)
     if (a == 0 || b == 0)
         return 0;
     if (b->heldRounds == 0 && a->heldRounds == 0) {
-        if (gm_HealthRatio((short *)a) <= 0.0f) {
+        if (gm_HealthRatio(a) <= 0.0f) {
             if (b->kind != 6 && b->kind != 7)
                 return 0;
             he_ShowNews(ai_Chars[b->id].netId, -1, txt_DuelDeathNews, 0, 0x5ec, 0);
             return 0;
         }
-        if (gm_HealthRatio((short *)b) <= 0.0f) {
+        if (gm_HealthRatio(b) <= 0.0f) {
             if (a->kind != 6 && a->kind != 7)
                 return 0;
             he_ShowNews(ai_Chars[a->id].netId, -1, txt_DuelDeathNews, 0, 0x5ec, 0);
@@ -3165,7 +3165,7 @@ void cm_RunDeath(G28REC *m)
     }
     sb_PlaySample(0, "GLOCKEN_r", 1, 0x3f, 0x7f, 0, 0);
     d2_CutsceneActive = 0;
-    if (gm_HasAdultRelative((char *)a, &kin) != 0) {
+    if (gm_HasAdultRelative(a, &kin) != 0) {
         revive = 0;
         if ((a->flags1cc & 1) != 0 && (a->flags1cc & 2) == 0) {
             txt_Format(buf, 0x40fb, 0x40f5, a->id);
@@ -3576,7 +3576,7 @@ void cm_AuctionAskPlayer(CMCUTINFO *r, CMAUCTION *m)
     c = gm_FindChar(r->playerId);
     if (c == 0)
         return;
-    worth = gm_GetGoodsValue((char *)c);
+    worth = gm_GetGoodsValue(c);
     ai_AmountLimit(price, worth, 0x20, &lim);
     lo = gm_ConvertMoney(price, ai_OwnPlayer);
     hi = gm_ConvertMoney(lim, ai_OwnPlayer);
@@ -3633,8 +3633,8 @@ void cm_AuctionAskAI(CMCUTINFO *r, CMAUCTION *m)
     if (c == 0)
         return;
     lim = (float)(m->countdown * 32000 + price);
-    v = (int)(gm_GetGoodsValue((char *)c) * ((float)cm_RandomFloat() * 0.16666667f + 0.3f) < lim
-              ? gm_GetGoodsValue((char *)c) * ((float)cm_RandomFloat() * 0.16666667f + 0.3f) : lim);
+    v = (int)(gm_GetGoodsValue(c) * ((float)cm_RandomFloat() * 0.16666667f + 0.3f) < lim
+              ? gm_GetGoodsValue(c) * ((float)cm_RandomFloat() * 0.16666667f + 0.3f) : lim);
     if (v < price)
         return;
     lim = (float)price;

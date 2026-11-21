@@ -945,7 +945,7 @@ struct D2SURF * d2_LoadBmpSurface(char *name);                     /* 0x478b50 *
 void d2_GetPixelColour(int x, int y, struct D2SURF *surf, unsigned char *rgb);                     /* 0x4798f0 */
 struct D2SURF; int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g, unsigned char b, struct D2SURF *surf);  /* 0x4799e0 */
 void ai_SwitchRoom(int index, unsigned room);                                /* 0x59e0a0 */
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);                     /* 0x503530 */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);                     /* 0x503530 */
 int d2_FindPic(char *name);                     /* 0x468890 */
 char *strupr(char *);                     /* 0x5ea986 */
 extern int d2_PicShift;                   /* 0x6ed98c, d2.h (not includable here) */
@@ -1245,7 +1245,7 @@ void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */                     
 void d2_PlaceWindow(int win, unsigned char flags);  /* 0x4756b0 */
 int ahm_HasRecord();                     /* 0x4eaad0 */
 struct D3SKY; struct D3SKYLAYER; struct D3VECTOR; int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
-char * cm_CharWeapon(char *c);                     /* 0x4cda50 */
+char * cm_CharWeapon(struct AICHAR *c);                     /* 0x4cda50 */
 
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: one push, no player slot */
 /* 0x522f10, the city / time panel (the big panel at the top of the screen), only while the player's character
@@ -1950,7 +1950,7 @@ void sv_UpdateMemberList(AIBLD *g)
         }
         d2_SetForm(sv_PlayerBarForm, 1);
         if (sv_MemberRows[n].text != -1) {
-            sprintf(text, "%s %i%%", ((SVCHARREC *)&ai_Chars[sv_MemberRows[n].chr])->name, (int)(gm_HealthRatio((char *)&ai_Chars[sv_MemberRows[n].chr]) * 100.0));
+            sprintf(text, "%s %i%%", ((SVCHARREC *)&ai_Chars[sv_MemberRows[n].chr])->name, (int)(gm_HealthRatio(&ai_Chars[sv_MemberRows[n].chr]) * 100.0));
             d2_SetObjText(sv_MemberRows[n].text, text);
             sv_D2Objs[sv_MemberRows[n].text].w = 0x5f;
         }
@@ -2769,7 +2769,7 @@ extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 extern int sv_SelectedModel;  /* 0x6f2304 */
 extern char sv_CameraEaseOn;
 int d3t_GetHeightRange();                     /* 0x411c70 */
-short * gm_PlayerRecord(char *ch);                   /* 0x506430 */
+short * gm_PlayerRecord(struct AICHAR *ch);                   /* 0x506430 */
 void sv_PlaceCamera(float f);
 void sv_EaseCameraHeight(void);
 int sv_ScrollCamera(void);
@@ -2915,7 +2915,7 @@ go:
             if (d3_VecEqual(&((D3OBJECT *)cam)->pos, (D3VECTOR *)&zpos, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
                 d3_SetObjectPos(d3_Camera, (D3VECTOR *)&zpos);
                 d3_SetObjectRot(d3_Camera, &zrot);
-                rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                 if (rec != 0) {
                     rec->camAngle = sv_CameraAngleFactor;
                     SV_CAMREC(rec);
@@ -2929,7 +2929,7 @@ go:
                 z = z > 1.0 ? 1.0 : z;
                 z = z < 0.0 ? 0.0 : z;
                 sv_PlaceCamera(z);
-                rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                 if (rec != 0) {
                     rec->camAngle = sv_CameraAngleFactor;
                     SV_CAMREC(rec);
@@ -2978,7 +2978,7 @@ go:
                         dst[2] = min(dst[2], lo);
                     }
                     d3_SetObjectPos(d3_Camera, (struct D3VECTOR *)dst);
-                    rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+                    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                     if (rec != 0)
                         SV_CAMREC(rec);
                 }
@@ -3012,7 +3012,7 @@ int sv_UpdateCamera(void)
             if (sv_CameraEaseOn != 0 && kb_Down[0xf] == 0)
                 sv_EaseCameraHeight();
             if (sv_CameraScrolled != 0 && sv_FrameDepth == sv_FrameBase && ai_PlayerBuilding == 0 && ai_FallbackBuilding == 0
-                && (rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId])) != 0) {
+                && (rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId])) != 0) {
                 SV_CAMREC(rec);
                 rec->camAngle = sv_CameraAngleFactor;
             }
@@ -3100,7 +3100,7 @@ void sv_FlyCameraToObject(AIBLD *b)
     sv_ViewPos[0] = pos[0];
     sv_ViewPos[1] = pos[1];
     sv_ViewPos[2] = pos[2];
-    rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
         rec->camPos[0] = pos[0];
         rec->camPos[1] = pos[1];
@@ -3178,7 +3178,7 @@ void sv_CameraToObject(AIBLD *b)
     sv_ViewPos[1] = pos[1];
     d3_SetObjectPos(d3_Camera, pos);
     d3_SetObjectRot(d3_Camera, dir);
-    rec = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
         rec->camPos[0] = pos[0];
         rec->camPos[1] = pos[1];
@@ -3578,7 +3578,7 @@ void sv_OpenItemPanel(AIOBJ *p)
         ((D2OBJ *)d2_Objs)[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, p->type + 0xdf, d2_LastWindow)].interactive = 1;
         g = &ai_Goods[p->type];
         if (b != 0 && (g->type == 2 || g->type == 6)) {
-            owner = gm_ObjectBuildingOwner((unsigned short *)p);
+            owner = gm_ObjectBuildingOwner(p);
             perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
             if (*owner == ai_PlayerId || (perm & 0x10) != 0) {
                 if (gm_ListObjectsAfter(b, p, 0) != 0)
@@ -3601,7 +3601,7 @@ void sv_OpenCartPanel(AIOBJ *c)
 
     if (sv_PanelForm != -1)
         return;
-    owner = gm_ObjectBuildingOwner((unsigned short *)c);
+    owner = gm_ObjectBuildingOwner(c);
     if (owner == 0)
         return;
     sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_transporter");
@@ -4591,13 +4591,13 @@ int sv_ActivityName(AICHAR *c, AIBLD *b, char *out)
 /* 0x52b490, starts the role pose script "sp_<netId>" of the character a from the template b (an .esc name) and
    links it back: the script's character (+0xc94) and the character model's scriptId (+0x28 of the model at +0x184) */
 
-int sv_StartPoseScript(char *a, int b)
+int sv_StartPoseScript(AICHAR *a, int b)
 {
     AICHAR *c;
     EVTSCRIPT *script;
     char buf[0x80];
 
-    c = (AICHAR *)a;
+    c = a;
     sprintf(buf, "sp_%i", c->netId);
     script = evt_Load((char *)b);
     if (script != 0) {
@@ -4963,7 +4963,7 @@ void sv_HandleSelectionMouse(void)
             i = 0;
             for (j = 0; j < 768; j++) {
                 c = &ai_Chars[j];
-                if (ai_Chars[j].selected != 0 && c->health != 0 && (gm_PermissionBits(ai_PlayerId, 0, 0, (int)c) & 0x800) != 0
+                if (ai_Chars[j].selected != 0 && c->health != 0 && (gm_PermissionBits(ai_PlayerId, 0, 0, c) & 0x800) != 0
                     && c->model != 0) {
                     int off[9][2] = { {0, 0}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1} };
                     int cell = 0;
@@ -6047,7 +6047,7 @@ void sv_TabButtonRow(int f, int y, int *out, int n, ...)
     }
 }
 
-int ai_LedSelectBits(int idx, char *c);                     /* 0x4ce170, cm.h (not included: its d2_Objs / d2_LastWindowPtr clash) */
+int ai_LedSelectBits(int idx, struct AICHAR *c);                     /* 0x4ce170, cm.h (not included: its d2_Objs / d2_LastWindowPtr clash) */
 
 /* 0x52e600, on != 0: disables (D2OBJ.disabled) every used d2 object that draws into an active, enabled view (d2_Views)
    and is not disabled yet, remembering it in sv_DisabledWidgets; on == 0: enables the remembered objects again */
@@ -6301,7 +6301,7 @@ void sv_UpdateBand(void)
         c = ai_SceneChars[i];
         if (c == 0 || c->health == 0)
             continue;
-        bits = gm_PermissionBits(ai_PlayerId, 0, 0, (int)c);
+        bits = gm_PermissionBits(ai_PlayerId, 0, 0, c);
         c->selected = 0;
         if ((bits & 0x800) == 0 || c->model == 0 || c->model->scene != d3_DefaultScene || (info = c->model->body->info) == 0)
             continue;
@@ -6354,7 +6354,7 @@ void sv_UpdateBandLed(void)
         c = ai_SceneChars[i];
         if (c == 0 || c->health == 0)
             continue;
-        bits = ai_LedSelectBits(ai_PlayerId, (char *)c);
+        bits = ai_LedSelectBits(ai_PlayerId, c);
         c->selected = 0;
         if ((bits & 0x800) == 0 || c->model == 0 || c->model->scene != d3_DefaultScene || (info = c->model->body->info) == 0)
             continue;

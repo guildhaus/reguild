@@ -358,7 +358,7 @@ int gm_BuildingClass(int type);    /* 0x501d80, the class 0 .. 9 of ai_BTypes[ty
 struct AIBLD *gm_FindBuildingById(int id);                                             /* 0x502020 */
 struct AICHAR *gm_FindChar(int id);                                            /* 0x505df0 */
 int gm_CharLevel(unsigned short id, int again);                              /* 0x505e60, f3gm.c */
-short * gm_PlayerRecord(char *ch);                                         /* 0x506430 */
+short * gm_PlayerRecord(struct AICHAR *ch);                                         /* 0x506430 */
 float gm_ItemPrice(int item, unsigned char n);                           /* 0x5087f0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                           /* 0x5089c0, a price */
 int gm_EquipmentValue(struct AIBLD *b, int level);                                     /* 0x509b10 */

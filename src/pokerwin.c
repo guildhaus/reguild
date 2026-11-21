@@ -480,7 +480,7 @@ int ai_PokerGame(void)
     int d;
 
     lastPhase = -1;
-    rec = (PLAYERRECVIEW *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+    rec = (PLAYERRECVIEW *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec == 0)
         return 0;
     worth = gm_ConvertMoney(gm_GetWorth(ai_PlayerId), ai_OwnPlayer);

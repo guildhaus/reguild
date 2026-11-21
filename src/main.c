@@ -3016,7 +3016,7 @@ void main_RundenBeginn(void)
         ch = &ai_Chars[i];
         if (ch->id != 0xffff && ch->kind >= 1 && ch->kind <= 8 && (net_Conn.s == -1 || (ai_CanAct(ch) != 0 && (net_Conn.s == -1 || ch->kind != 7)))) {
             if (ch->kind == 6 || ch->kind == 5) {
-                rec = (MAINPLREC *)gm_PlayerRecord((char *)ch);
+                rec = (MAINPLREC *)gm_PlayerRecord(ch);
                 k = 0;
                 do {
                     t = gm_TitleJob(ch->id, k);
@@ -3122,7 +3122,7 @@ void main_EndRound(void)
     CHARACTER *scene;
     int weight;
 
-    fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+    fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     fade = 0;
     gm_ClockSeason((unsigned)&ai_Time);
     clk = ai_Time;
@@ -3303,7 +3303,7 @@ void main_EndRound(void)
             int value;
             float cost, budget;
 
-            value = gm_GetGoodsValue((char *)&ai_Chars[k]) * 0x4b;
+            value = gm_GetGoodsValue(&ai_Chars[k]) * 0x4b;
             weight = 0;
             b = gm_BuildQuery(1, 4, k);
             while (b != 0) {
@@ -3335,7 +3335,7 @@ void main_EndRound(void)
                             cm_SendMoveGoods(-1, ai_Chars[k].netId, ai_OwnPlayer, (int)cost);
                             cm_SendLongMessage((char *)&msg);
                             cm_EndGroup("renovieren");
-                            fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[k]);
+                            fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[k]);
                             if (fin != 0)
                                 fin->renovationSpent = (int)(fin->renovationSpent + cost);
                             value = (int)(budget - cost);
@@ -3401,7 +3401,7 @@ void main_EndRound(void)
             cm_SendKillCharacter(ai_Chars[k].netId, 1);
     }
     hst_SeedPending = 1;
-    amt_TellOpenOffices((char *)&ai_Chars[ai_PlayerId]);
+    amt_TellOpenOffices(&ai_Chars[ai_PlayerId]);
     snd_FadeMusic(1.0f, 2000);
 }
 /* 0x539620, replaces a dead / imprisoned player (character slot p, kind 6 and health 0) by a new figure: with no
@@ -3505,7 +3505,7 @@ void main_RoundReport(void)
         while ((fade->flags & 4) == 0)
             sv_RunFrame(0, sv_FrameMask);
     }
-    fin = (AIFIN *)gm_PlayerRecord((char *)&ai_Chars[ai_PlayerId]);
+    fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     fin->missionMoney[4] += ai_Chars[ai_PlayerId].v1a0 + ai_Chars[ai_PlayerId].v1a4;
     d3_SetObjectPos(d3_Camera, (D3VECTOR *)fin->camPos);
     d3_SetObjectRot(d3_Camera, (D3VECTOR *)fin->camRot);
@@ -3677,7 +3677,7 @@ void main_RoundReport(void)
             io_PrintText(0x204d, income);
         else if (income < 0)
             io_PrintText(0x204e, income);
-        t = gm_GetGoodsValue((char *)&ai_Chars[ai_PlayerId]);
+        t = gm_GetGoodsValue(&ai_Chars[ai_PlayerId]);
         io_PrintText(0x2029, ((t - incomeSum) - wageCost) - iv);
         he_ShowEventBar(0xffff);
         d2_ClearSurface(d2_ScreenSurf);
@@ -3724,7 +3724,7 @@ void main_RoundReport(void)
         d2_ReleaseFade(fade);
         fade = 0;
     }
-    if (gm_IsBankrupt((unsigned short *)&ai_Chars[ai_PlayerId], -(incomeSum + wageCost + iv)) != 0) {
+    if (gm_IsBankrupt(&ai_Chars[ai_PlayerId], -(incomeSum + wageCost + iv)) != 0) {
         memset(&msg, 0, sizeof(msg));
         msg.kind = 9;
         msg.flags = 0x60;
@@ -3815,7 +3815,7 @@ void main_UpdateFigures(void)
             if (ch->jobId != 0 || ch->title != 0)
                 main_UpdateFigure(i);
             if (ch->kind == 2 || ch->kind == 5 || ch->kind == 4) {
-                if (gm_IsBankrupt((unsigned short *)ch, 0) != 0) {
+                if (gm_IsBankrupt(ch, 0) != 0) {
                     k = (int)-(ch->f01c + 5.0f);
                     gm_AddHealth(ch->id, k);
                 }
@@ -3897,7 +3897,7 @@ void main_SettleRound(unsigned short pl)
                         cm_AddFieldValue(4, 1, (char *)&c->plants + i * 12 - cm_FieldObject, &zero);
                     cm_SendFieldValues();
                     cnt++;
-                    if (ai_Chars[pl].kind != 6 && ai_Chars[pl].kind != 7 && gm_GetGoodsValue((char *)&ai_Chars[pl]) < 160000) {
+                    if (ai_Chars[pl].kind != 6 && ai_Chars[pl].kind != 7 && gm_GetGoodsValue(&ai_Chars[pl]) < 160000) {
                         cnt++;
                         cm_SendMoveGoods(ai_Chars[pl].netId, -1, ai_OwnPlayer, (unsigned char)bt->level * 16000);
                     }
@@ -4172,7 +4172,7 @@ void main_BeginPlayerRound(void)
 
     ord_CountGridObjects();
     for (i = 0; i < 0x300; i++) {
-        ai_DebugDumpPerson((char *)&ai_Chars[i]);
+        ai_DebugDumpPerson(&ai_Chars[i]);
         ai_Chars[i].flags1c8 &= 0xe0874703;
         ai_Chars[i].flags1cc &= 0x3d31ffc7;
         if (ai_Chars[i].kind == 6)

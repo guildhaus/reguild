@@ -232,7 +232,7 @@ typedef struct INIT_TORCHLIST {
 float gm_JobWage();
 int gm_IsBuildingKind(int n);           /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
 int gm_FindBuildingKind(char *name);    /* 0x502060, f3gm.c: the building kind of the name */
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
 
 
 struct D3SCENE;
@@ -277,7 +277,7 @@ int amt_GetOffice(unsigned char i, struct AMTREC *out);  /* 0x4e6f30, amt.c: cop
 int amt_GetKind(int k, struct AMTKIND *out);              /* 0x4e6f80, amt.c: copies the office kind k to out (an AMTKIND, 0x18 bytes) */
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out);  /* 0x4e6ec0, amt.c: copies the first office of the kind k to out (an AMTREC) */
 int amt_SendOfficeOwner(char a, char *b, unsigned char c); /* 0x4e6650, amt.c */
-void gm_AgeCharacter(char *c, unsigned short age);    /* 0x4fc6f0, f3gm.c: ages the character c to the age */
+void gm_AgeCharacter(struct AICHAR *c, unsigned short age);    /* 0x4fc6f0, f3gm.c: ages the character c to the age */
 int ai_WorksForMaster(struct AICHAR *c);                 /* 0x47dd70, ai.c */
 void hmt_Begin(void);                           /* 0x4ad0a0, hmt.c */
 void ai_ObjectAngle(void *out, int plot);                 /* 0x58fd90, lc.c: the angle of the object plot to out */
@@ -1239,7 +1239,7 @@ int init_CreateStartCharacters(int unused)
             }
         }
         cm_SendFieldDeltas();
-        gm_AgeCharacter((char *)ch, age);
+        gm_AgeCharacter(ch, age);
         j = amt_SendOfficeOwner((unsigned char)ids[k], (char *)ch, 0xff);
         while (j != -1 && cm_GetSlotState(j) == 0)
             sv_PumpNet();
@@ -3460,7 +3460,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
                 if ((t->group == b->id || t->scriptGroup == o->objId) && i < limit) {
                     ch_SetVisible((struct CHARACTER *)t, 1);
                     ch_PlaceOnGround(c->model, 0);
-                    gm_SelectModelVariant((char *)c);
+                    gm_SelectModelVariant(c);
                     gm_ChooseHeadIcon(&c->id);
                     i++;
                 } else
@@ -3645,7 +3645,7 @@ void init_AfterTownLoad(void)
 
     phase = gm_ClockSeason(&ai_Time);
     if (d3_CurrentScene == 0) {
-        cam = (INIT_CAMREC *)gm_PlayerRecord((char *)&ai_Chars[(unsigned short)ai_PlayerId]);
+        cam = (INIT_CAMREC *)gm_PlayerRecord(&ai_Chars[(unsigned short)ai_PlayerId]);
         if (cam == 0 || cam->angle == -1.0f) {
             sv_PlaceCamera(0.33f);
         } else {
@@ -3662,7 +3662,7 @@ void init_AfterTownLoad(void)
                         || (c->model->lowPolyBody != 0 && c->model->lowPolyBody->info == 0))
                         ch_InflateModel((CHARACTER *)c->model);
                     ch_SetVisible((CHARACTER *)c->model, 1);
-                    gm_SelectModelVariant((char *)c);
+                    gm_SelectModelVariant(c);
                 }
             }
             c++;

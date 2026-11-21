@@ -325,7 +325,7 @@ int ai_AccusationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cde90, th
 void ai_ShowCharacterNews(unsigned short *cRec, char *text);  /* 0x5a9110 */
 void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec);  /* 0x5a9430 */
 void ai_TellGraveNeglect(unsigned short *plRec, int bld);  /* 0x5a9690 */
-void ai_NotifySale(int owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
+void ai_NotifySale(struct AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
 void ai_TellGravesPaid(int plRec, int bld, int paid, int sum);  /* 0x5a9780 */
 void ai_DomizilMessage12(char *ch, char *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
 struct AICHAR; struct LCORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
@@ -364,7 +364,7 @@ int ai_OpenTownMap(LCMAPWIN *m);  /* 0x5a78a0, opens the town map window */
 void ai_UpdateTownMap(LCMAPWIN *m);  /* 0x5a7cd0, the town map window's per-frame update */
 void ai_CloseMapWindow(int *m_);  /* 0x5a82f0 */
 unsigned char *ai_FindItemGroup(char *good);  /* 0x5a84d0, the item group (am_types.h G7GRP) of a building's kind byte, 0 when none */
-void ai_GypsyDeliveryText(void *from, int n, void **to);  /* 0x5a9470, the gypsys' delivery news of the sender from (a character) about its n targets to */
+void ai_GypsyDeliveryText(struct AICHAR *from, int n, void **to);  /* 0x5a9470, the gypsys' delivery news of the sender from (a character) about its n targets to */
 struct AICHAR; struct LCORDMSG; int ai_BlackmailBuildingListener(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9550 */
 struct AICHAR; struct LCORDMSG; int ai_BlackmailContact(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9c50 */
 struct AICHAR; struct LCORDMSG; int ai_IntimidateContact(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9ff0 */

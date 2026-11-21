@@ -709,7 +709,7 @@ char *strupr(char *); int sprintf(char *buf, const char *fmt, ...); char * vfs_G
 struct D3OBJECT * d3_LoadGroup(); void d3t_InflateObjectTree(D3OBJECT *obj); int d3t_DropObject();
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
-int gm_BuildingKindCost(int c, int kind); void txt_Format(char *out, int id0, ...);
+int gm_BuildingKindCost(struct AICHAR *c, int kind); void txt_Format(char *out, int id0, ...);
 char d3sm_GetVertex();  /* 0x45f100: this caller tests the char result (al) */
 char d3sm_Pick();  /* 0x45f2b0, d3_sm.h: the cell under a screen point, 0 = none */
 void sv_SetStatusText(char *s);  /* 0x52e330, sv.h */
@@ -719,9 +719,9 @@ int d2_SetForm(int view, int n); int d2_GetViewWin(); int io_PrintText(char *fmt
 int d2_WinOpenPic(short x, short y, int pic, int win); void d2_SetObjFont(); void d2_SetObjText();  /* d2_CreateWinText: d2.h's prototype; ai_ShowProdSlot's 16-bit calls go through d2_CreateWinTextS */
 void d2_SetViewEnabled(); void d2_CloseView(int view); int cm_SendLongMessage(char *msg);
 void txt_Format(char *out, int id0, ...);
-int gm_CharCurrency(char *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
+int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(); int gm_MayTakeJob(int k, int c);
 int gm_IsHomeType();
-unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
+unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
@@ -729,7 +729,7 @@ struct AIBLD; int ai_ScriptQuery();
 int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
-void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(char *c);
+void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendLongMessage(char *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_MasterLetterWindow();
@@ -800,7 +800,7 @@ typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout
     int reserved50;                     /* 0x50 */
     int total;                          /* 0x54, the stakes paid so far (AGDUEL.total) */
 } LCDUEL;
-int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(char *c); int ai_DuelStart();
+int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(struct AICHAR *c); int ai_DuelStart();
 int ai_DuelAct(); void ai_DuelNextPhase(); int ai_DuelOpponentAction(); int ai_DuelAcceptAction();
 typedef struct LCFIN {                  /* what gm_PlayerRecord finds for a character (ai.h AIFIN; ai.h cannot be included here yet) */
     char pad00[0x28];
@@ -841,7 +841,7 @@ typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCre
     int index;                      /* 0x10, the offer's slot in the bank's credits[] */
 } CREDITROW;
 struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, int id0, ...);
-short * gm_PlayerRecord(char *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
+short * gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2); void he_FreeEvent();
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); void d2_SetObjText(); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); void d2_RemoveObj(); int gm_SumSlotAmounts(void *list, unsigned char i);
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
@@ -860,7 +860,7 @@ void d2_SetObjEnabled(); void d2_EnableViewObjects(); void d2_EnableObject();
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow(); void d2_RemoveObj();
 void d2_SetObjText(); void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y, int icon, unsigned char flags, int win); void d2_SetObjFont();
 int gm_SumListAmounts(void *list, unsigned char p); char * he_FindEvent(int n, ...); char * he_NextEvent(void); struct AICHAR *ai_AmountMenu();
-int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
+int gm_BuildingClass(); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 void init_LoadObjectScene();
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(unsigned char *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
@@ -978,7 +978,7 @@ typedef struct LCRANSOMEVENT {          /* the ransom event 0x3d's words over AI
     int guild;                          /* 0xb0, the id of the thieves' guild that holds it */
     AITIME since;                       /* 0xb4, the time of the kidnap */
 } LCRANSOMEVENT;
-float gm_GetSkill(char *c, int skill); int cm_SendChrGotoBuilding(); 
+float gm_GetSkill(struct AICHAR *c, int skill); int cm_SendChrGotoBuilding(); 
 int gm_CreateCharModel(); void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s); int ch_Delete();
 char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, float *py); void d2_RaiseObject(); void d2_ScrollWindow();
 void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
@@ -5165,7 +5165,7 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
     d2_PointerObj = -1;
     do {
         if (giftBtn != -1) {
-            if (gm_GetGoodsValue((char *)&ai_Chars[ai_PlayerId]) <= 0)
+            if (gm_GetGoodsValue(&ai_Chars[ai_PlayerId]) <= 0)
                 d2_SetObjEnabled(giftBtn, 0);
             else
                 d2_SetObjEnabled(giftBtn, 1);
@@ -5223,7 +5223,7 @@ int ai_GiftWindow(AICHAR *giver, AICHAR *chr)
     slider = -1;
     least = max(0x640, (int)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.005f));
     most = max(0xc80, (int)min((float)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.05f),
-                                (float)gm_GetGoodsValue((char *)&ai_Chars[ai_PlayerId])));
+                                (float)gm_GetGoodsValue(&ai_Chars[ai_PlayerId])));
     if (most <= 0)
         return 0;
     used = (giver->flags1c8 >> 5) & 1;
@@ -5373,7 +5373,7 @@ int ai_CourtshipRounds(int idA, int idB)
     score += rate;
     for (i = 0; i < 5; i++)
         score += b->skills[i] * 0.003968254f;
-    if (ord_DispatchOrder(0x10, (char *)a, req) & 2)
+    if (ord_DispatchOrder(0x10, a, req) & 2)
         score *= 0.5f;
     score = min(max(score, 2.0f), 15.0f);
     return (int)score;
@@ -6177,7 +6177,7 @@ void ai_PrivilegesPanel(void)
             else
                 msg.kind = 2;
             for (i = 0; i < 0x3a; i++) {
-                v = ord_DispatchOrder(i, (char *)&ai_Chars[ai_PlayerId], (int *)&msg);
+                v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
                 if (v != answers[i])
                     changed = 1;
                 answers[i] = v;
@@ -6212,7 +6212,7 @@ void ai_PrivilegesPanel(void)
                 msg.kind = (page != 2) + 1;
                 for (i = 0; i < 0x3a; i++) {
                     ids[i] = -1;
-                    v = ord_DispatchOrder(i, (char *)&ai_Chars[ai_PlayerId], (int *)&msg);
+                    v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
                     answers[i] = v;
                     if (v == page) {
                         if (rows != 0)
@@ -6250,7 +6250,7 @@ void ai_PrivilegesPanel(void)
                     if (d2_PointerObj == ids[i]) {
                         d2_SetViewEnabled(win, 0);
                         msg.kind = (page != 2) + 3;
-                        v = ord_DispatchOrder(i, (char *)&ai_Chars[ai_PlayerId], (int *)&msg);
+                        v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
                         if (v & 0x80) {
                             changed = 1;
                             answers[i] = v & 10;
@@ -7363,13 +7363,13 @@ int amt_SendOfficeSwap();
 /* 0x5cb1e0, the counter-espionage office swap (64 B): amt_SendOfficeSwap (0x4e6ba0) sends the requester's
    request for the two characters; -1 returns 0, another requester returns 1; a player (kind 6) waits on the
    message slot 0x4c3ae0 with the pump 0x52fe00 and returns whether the answer's status is not 2. */
-int ai_SwapSeats(char *requester, char *b, char *c)
+int ai_SwapSeats(AICHAR *requester, char *b, char *c)
 {
     int h;
 
     h = amt_SendOfficeSwap(requester, b, c);
     if (h != -1) {
-        if (((AICHAR *)requester)->kind == 6) {
+        if (requester->kind == 6) {
             while (cm_GetSlotState(h) == 0)
                 sv_PumpNet();
             return cm_GetSlotState(h) != 2;
@@ -7437,7 +7437,7 @@ int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
     if (me->kind != 6 && me->kind != 7) {
         if (me->money < 6 || n > 0)
             return 0x20;
-        return ai_SwapSeats((char *)me, (char *)second, (char *)first) ? 0x10 : 0x20;
+        return ai_SwapSeats(me, (char *)second, (char *)first) ? 0x10 : 0x20;
     }
     if (n > 0) {
         txt_Format(text, "$Z%s", 0x1dcb);
@@ -7456,7 +7456,7 @@ int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == ok) {
                 if (sv_CheckMoney(me, 6) != 0) {
-                    if (ai_SwapSeats((char *)me, (char *)second, (char *)first) != 0)
+                    if (ai_SwapSeats(me, (char *)second, (char *)first) != 0)
                         txt_Format(text, 0x1dca);
                     else
                         txt_Format(text, "$Z%s", 0x1dcb);
@@ -9027,18 +9027,18 @@ int ai_DismissalHandler(AICHAR *me, LCORDMSG *m)
    interrogation window variant 1 / 2 (arg[2]); the clock, flags 2; cm_SendLongMessage (0x4c4b70) returns
    its handle. */
 
-int ai_SendInterrogationRefusal(char *ch, char *target, int variant)
+int ai_SendInterrogationRefusal(AICHAR *ch, AICHAR *target, int variant)
 {
     AIMSG msg;
 
     memset(&msg, 0, sizeof msg);
     msg.type = 0x45;
-    msg.to = ((AICHAR *)ch)->netId;
+    msg.to = ch->netId;
     msg.fromId = -1;
     msg.time = ai_Time;
     msg.flags = 2;
-    msg.arg[0] = ((AICHAR *)ch)->netId;
-    msg.arg[1] = ((AICHAR *)target)->netId;
+    msg.arg[0] = ch->netId;
+    msg.arg[1] = target->netId;
     msg.arg[2] = variant;
     return cm_SendLongMessage((char *)&msg);
 }
@@ -9073,7 +9073,7 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
             return 0x60;
         if (ch->officeKind == 0)
             return 0x60;
-        ai_SendInterrogationRefusal((char *)me, (char *)ch, 1);
+        ai_SendInterrogationRefusal(me, ch, 1);
         return 0x10;
     }
     ret = 2;
@@ -9099,7 +9099,7 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes && sv_CheckMoney(me, 4) != 0) {
-                slot = ai_SendInterrogationRefusal((char *)me, (char *)ch, 1);
+                slot = ai_SendInterrogationRefusal(me, ch, 1);
                 while (slot != -1 && cm_GetSlotState(slot) == 0)
                     sv_PumpNet();
                 sv_PopRequest = 1;
@@ -9139,7 +9139,7 @@ int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
             return 0x60;
         if (ch->officeKind == 0)
             return 0x60;
-        ai_SendInterrogationRefusal((char *)me, (char *)ch, 2);
+        ai_SendInterrogationRefusal(me, ch, 2);
         return 0x10;
     }
     ret = 2;
@@ -9165,7 +9165,7 @@ int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes && sv_CheckMoney(me, 4) != 0) {
-                slot = ai_SendInterrogationRefusal((char *)me, (char *)ch, 2);
+                slot = ai_SendInterrogationRefusal(me, ch, 2);
                 while (slot != -1 && cm_GetSlotState(slot) == 0)
                     sv_PumpNet();
                 sv_PopRequest = 1;

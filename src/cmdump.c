@@ -145,12 +145,12 @@ char ai_CharKindNames[10][24] = { "DUMMY_NPC", "MEISTER_NPC", "POLITICIAN_NPC", 
 
 /* 0x4e58e0, the debug dump of a person (log of the cutscenes): one line of tab separated fields (time, +4, id, the name of the kind (0x60eae0, 24 bytes each) ...) */
 
-void ai_DumpPersonHead(char *c, char *buf)
+void ai_DumpPersonHead(AICHAR *c, char *buf)
 {
     AICHAR *p;
     char *name;
 
-    p = (AICHAR *)c;
+    p = c;
     if (p->kind >= 10)
         name = "%i\t%i\t%i\t%s\t%s\t%i\t%s\t%i\t%s\t%s\t%s\t%s\t";
     else
@@ -161,12 +161,12 @@ void ai_DumpPersonHead(char *c, char *buf)
 }
 /* 0x4e5980, the debug dump of the floats +0x10 .. +0x20 (the 6th "%5.2f" gets the int +0x24 as the original does), the word +0x28 and the bit fields of +0x2c */
 
-void ai_DumpPersonStats(char *c, char *buf)
+void ai_DumpPersonStats(AICHAR *c, char *buf)
 {
     AICHAR *p;
     unsigned int v;
 
-    p = (AICHAR *)c;
+    p = c;
     sprintf(buf, "%5.2f\t %5.2f\t %5.2f\t %5.2f\t %5.2f\t %5.2f\t %i\t", p->f010, p->f014, p->f018, p->f01c, p->f020, p->v024, p->w028);
     v = p->ailments;
     sprintf(buf + strlen(buf), "%i\t %i\t %i\t %i\t %i\t %i\t %i\t %i\t %i\t", v & 0xf, (v >> 4) & 0xf, (v >> 8) & 0xf, (v >> 0xc) & 3, (v >> 0xe) & 7, (v >> 0x11) & 7,
@@ -174,42 +174,42 @@ void ai_DumpPersonStats(char *c, char *buf)
 }
 /* 0x4e5a40, the five bytes +0x80 .. +0x84 of a person as a tab separated line */
 
-void ai_DumpPersonSkills(char *c, char *buf)
+void ai_DumpPersonSkills(AICHAR *c, char *buf)
 {
     AICHAR *p;
 
-    p = (AICHAR *)c;
+    p = c;
     sprintf(buf, "%i\t%i\t%i\t%i\t%i\t", p->skills[0], p->skills[1], p->skills[2], p->skills[3], p->skills[4]);
 }
 /* 0x4e5a90, the four names (0x143ab0c) of the bytes +0x166 .. +0x169 of a person */
 
-void ai_DumpPersonOffices(char *c, char *buf)
+void ai_DumpPersonOffices(AICHAR *c, char *buf)
 {
     AICHAR *p;
 
-    p = (AICHAR *)c;
+    p = c;
     sprintf(buf, "%s\t%s\t%s\t%s\t", txt_OfficeNames[p->officeKind], txt_OfficeNames[p->prevOffice], txt_OfficeNames[p->appliedOffice],
             txt_OfficeNames[p->secondOffice]);
 }
 /* 0x4e5af0, the debug dump of a person's money fields (v190, money, spent198, wage, v1a0, v1a4), then its goods value (0x509e60) and its worth (0x50a640) */
 
-void ai_DumpPersonMoney(char *c, char *buf)
+void ai_DumpPersonMoney(AICHAR *c, char *buf)
 {
     AICHAR *p;
 
-    p = (AICHAR *)c;
+    p = c;
     sprintf(buf, "%i\t%i\t%i\t%i\t%i\t%i\t%i\t%i\t", p->v190, p->money, p->spent198, p->wage, p->v1a0, p->v1a4, gm_GetGoodsValue(c), gm_GetWorth(p->id));
 }
 /* 0x4e5b50, the debug dump of the 8 relatives of a person (the ids at +0x5c): "%i\t%s" of each one's netId and name, -1 and 0x143b3f4 (txt_NoRelative) when it does not exist */
 
-void ai_DumpPersonRelatives(char *c, char *buf)
+void ai_DumpPersonRelatives(AICHAR *c, char *buf)
 {
     char tmp[0x100];
     int *p;
     AICHAR *o;
     int i;
 
-    p = ((AICHAR *)c)->relatives;
+    p = c->relatives;
     for (i = 8; i != 0; i--) {
         o = gm_FindChar(*p);
         if (o != 0)
@@ -222,12 +222,12 @@ void ai_DumpPersonRelatives(char *c, char *buf)
 }
 /* 0x4e5bf0, the debug dump of a person (one line made by 0x4e58e0, 0x4e5980, 0x4e5a40, 0x4e5a90, 0x4e5af0 and 0x4e5b50 in a 0x1fb8 byte buffer; the end of the cut_ code) */
 
-void ai_DebugDumpPerson(char *c)
+void ai_DebugDumpPerson(AICHAR *c)
 {
     char buf[0x1fb8];
     AICHAR *p;
 
-    p = (AICHAR *)c;
+    p = c;
     if (p != 0 && p->id != 0xffff) {
         memset(buf, 0, sizeof(buf));
         ai_DumpPersonHead(c, buf + strlen(buf));

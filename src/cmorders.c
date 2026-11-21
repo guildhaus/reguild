@@ -259,7 +259,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             c = gm_FindChar(p->charId);
         else
             c = cm_FindFighter(p->charId);
-        k = (AIWEAPON *)cm_CharWeapon((char *)c);
+        k = (AIWEAPON *)cm_CharWeapon(c);
         if ((c == 0 || c->health == 0) && k != 0) {
             p->charId = -1;
             p->state = 0;
@@ -309,7 +309,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 goto done;
             }
             if (k->kind == 1 || k->kind == 2) {
-                item = (AIOBJ *)cm_CharWeaponItem((char *)c);
+                item = (AIOBJ *)cm_CharWeaponItem(c);
                 if (item != 0 && item->usesLeft <= 0) {
                     m.charId = c->netId;
                     m.state = 0;
@@ -321,20 +321,20 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if (k->id != 0x174) {
                 if (k->id == 0x176) {
                     if (x != 0) {
-                        if (cm_CharObjDistXZ((char *)c, (char *)x->scene->obj) > k->range)
+                        if (cm_CharObjDistXZ(c, (char *)x->scene->obj) > k->range)
                             b = 0;
-                        if (p->b0c == 0 && cm_CharObjDistXZ((char *)c, (char *)x->scene->obj) < k->range * 0.1)
+                        if (p->b0c == 0 && cm_CharObjDistXZ(c, (char *)x->scene->obj) < k->range * 0.1)
                             b = 0;
                     } else {
-                        if (cm_CharCellDistXZ((char *)c, p->x, p->z) > k->range)
+                        if (cm_CharCellDistXZ(c, p->x, p->z) > k->range)
                             b = 0;
-                        if (p->b0c == 0 && cm_CharCellDistXZ((char *)c, p->x, p->z) < k->range * 0.1)
+                        if (p->b0c == 0 && cm_CharCellDistXZ(c, p->x, p->z) < k->range * 0.1)
                             b = 0;
                     }
                 } else if (x != 0) {
-                    if (cm_CharObjDistXZ((char *)c, (char *)x->scene->obj) > k->range)
+                    if (cm_CharObjDistXZ(c, (char *)x->scene->obj) > k->range)
                         b = 0;
-                } else if (cm_CharCellDistXZ((char *)c, p->x, p->z) > k->range)
+                } else if (cm_CharCellDistXZ(c, p->x, p->z) > k->range)
                     b = 0;
             } else {
                 b = 0;
@@ -383,15 +383,15 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                                 break;
                             }
                         }
-                        e = (CMCUTENTRY *)cm_CutEntrySlot((char *)other, (char *)x);
+                        e = (CMCUTENTRY *)cm_CutEntrySlot((char *)other, x);
                         if (e->orderSlot == -1 || cm_GetSlotState(e->orderSlot) != 0) {
                             st = e->state;
                             e->orderSlot = -1;
                             if (st == 0) {
-                                item = (AIOBJ *)cm_CharWeaponItem((char *)x);
+                                item = (AIOBJ *)cm_CharWeaponItem(x);
                                 if (item != 0 && item->usesLeft > 0) {
                                     cm_SendSetField(c->netId, 0x1c8, 4, 0x20000000, 0);
-                                    e->orderSlot = cm_OrderAttack((char *)other, (char *)x, (char *)c, 0, 0);
+                                    e->orderSlot = cm_OrderAttack((char *)other, x, c, 0, 0);
                                 }
                             }
                         }
@@ -417,7 +417,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                         break;
                     if (x != 0 && !d3_GetHeightAt(h, &x->scene->obj->pos, &p->x, &p->z, &py))
                         break;
-                    if (cm_BestCellNear((char *)c, p->x, p->z, (int)(k->range / h->cell.x * 0.9), &ix, &iz) != 0)
+                    if (cm_BestCellNear(c, p->x, p->z, (int)(k->range / h->cell.x * 0.9), &ix, &iz) != 0)
                         p->orderSlot = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                 }
             }
@@ -431,7 +431,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                         m.state = 0;
                         if (!d3_GetHeightAt(h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
                             break;
-                        if (cm_BestCellNear((char *)c, cm_PickCellX, cm_PickCellZ, 0xc, &ix, &iz) != 0)
+                        if (cm_BestCellNear(c, cm_PickCellX, cm_PickCellZ, 0xc, &ix, &iz) != 0)
                             p->orderSlot = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                         p->orderSlot = cm_SendCutEntry(rec->playerId, (int)&m);
                     } else {
@@ -443,7 +443,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if ((k->id == 0x16e || k->id == 0x172) && p->kill != 0) {
                 if (!d3_GetHeightAt(h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
                     break;
-                if (cm_BestCellNear((char *)c, cm_PickCellX, cm_PickCellZ, 0xc, &ix, &iz) != 0)
+                if (cm_BestCellNear(c, cm_PickCellX, cm_PickCellZ, 0xc, &ix, &iz) != 0)
                     p->orderSlot = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                 m.charId = c->netId;
                 m.state = 0;
@@ -534,7 +534,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if (o != 0) {
                 tgt = o->owner;
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
-                if (tgt == 0 || (cm_OtherBuilding((char *)c, (char *)tgt) != 0 &&
+                if (tgt == 0 || (cm_OtherBuilding(c, tgt) != 0 &&
                                  (tgt->health == 0 || !d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)))) {
                     if (p->b0c == 0 && !d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 49.5f) &&
                         cm_FindNearCell(p->cellX, p->cellZ, &ix, &iz) != 0) {
@@ -560,7 +560,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 }
             }
             d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
-            if (cm_OtherBuilding((char *)c, (char *)o->owner) != 0 && tgt->health > 0 &&
+            if (cm_OtherBuilding(c, o->owner) != 0 && tgt->health > 0 &&
                 d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)) {
                 res = cm_Attack(rec, c, o->owner);
                 goto done;
@@ -649,7 +649,7 @@ void cm_FightLoop(char *a, int ctx)
                     if (cm_FightRecord->charIds[i] != -1) {
                         o = gm_FindChar(cm_FightRecord->charIds[i]);
                         if (o != 0 && o->kind != 6 && o->kind != 7)
-                            cm_GiveFightOrders((int)o);
+                            cm_GiveFightOrders(o);
                     }
                 }
                 t = tb_Calls;

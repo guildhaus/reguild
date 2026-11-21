@@ -207,8 +207,9 @@ int ai_AlchemistFundWindow(unsigned char *obj, struct AHMREC *rec);  /* 0x57de60
 int ai_AlchemistRescheduleWindow(unsigned char *obj, struct AHMREC *rec);  /* 0x57e0e0, the dismissal window (rec unread) */
 
 /* declared in other units' headers before (moved to the owner) */
-int ai_PermissionBits1d(char *ch, char *b, char *x);  /* 0x587b70, the permission bits of the character ch in the building b of the type class 0x1d (gm_PermissionBits) */
-void ai_EndCharExtra(char *ch, int f);  /* 0x587c40 */
+struct AICHAR;
+int ai_PermissionBits1d(struct AICHAR *ch, char *b, char *x);  /* 0x587b70, the permission bits of the character ch in the building b of the type class 0x1d (gm_PermissionBits) */
+void ai_EndCharExtra(struct AICHAR *ch, int f);  /* 0x587c40 */
 void ai_SetupTutorialPlayer(void);  /* 0x57bc30, sets up the tutorial player's profile */
 int ai_TutorialWindow(void);  /* 0x57bce0, the tutorial chooser window: 1 starts the tutorial, 0 is the back */
 
@@ -229,7 +230,7 @@ int ai_OpenBuildingTooltip(int idx);  /* 0x588160, opens the tooltip view of the
 int ai_OpenItemTooltip(int idx);  /* 0x588310, opens the item tooltip view of the goods item idx */
 int ai_OpenUpgradeTooltip(int idx);  /* 0x588950, opens the upgrade tooltip view of the goods item idx */
 int ai_OpenHelpTooltip(char *s);  /* 0x588bb0, opens the help tooltip of the record named s */
-int ai_OpenCharTooltip(char *ch);  /* 0x588c60, opens the tooltip view of the character ch */
+int ai_OpenCharTooltip(struct AICHAR *ch);  /* 0x588c60, opens the tooltip view of the character ch */
 
 void ai_InitBookmarks(void);  /* 0x589410, clears the 11 bookmark slots and sets their function keys */
 int ai_SaveBookmarks(int fh);  /* 0x589aa0, writes the slot table 0x6f5ec0 */
@@ -249,6 +250,6 @@ void ai_CannonBuildPanel(struct CANNONSCENE *sc, struct GVEFFECT *run);  /* 0x58
 extern unsigned char ai_TurnTable[0x4000];  /* 0x6f5f60, the 0x4000-byte table ai_ClearTurnTable clears at engine open (nothing else refers to it) */
 void ai_SlotKeys(void);  /* 0x589c90, a bare function key selects its bookmark (ai_SelectBookmark) */
 void ai_SpeedKeys(void);  /* 0x589cf0, the game speed keys (cm_RaiseSpeedLevel / cm_LowerSpeedLevel) */
-void ai_CharInfoWindow(char *ch);  /* 0x5890c0, the modal info window of the character ch */
+void ai_CharInfoWindow(struct AICHAR *ch);  /* 0x5890c0, the modal info window of the character ch */
 void ai_BookmarksPreset(void);  /* 0x589e50, presets the function-key bookmarks */
 #endif

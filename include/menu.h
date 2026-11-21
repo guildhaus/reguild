@@ -137,7 +137,8 @@ unsigned short ai_PokerStep(void);          /* 0x4a74e0, poker.c: one step of th
 void ai_PokerExchange(int k);           /* 0x4a8630, poker.c: the player exchanges card k */
 int gm_PlayerFactor(int a, unsigned char k);   /* 0x5085f0, f3gm.c: a * the factor of the player slot k */
 int gm_GetWorth(unsigned short id);            /* 0x50a640, f3gm.c: the worth of the character id */
-short *gm_PlayerRecord(char *c);               /* 0x506430, f3gm.c: the player record of a character (kinds 5 / 6 / 7), 0 else */
+struct AICHAR;
+short *gm_PlayerRecord(struct AICHAR *c);               /* 0x506430, f3gm.c: the player record of a character (kinds 5 / 6 / 7), 0 else */
 extern POKERUI ai_PokerUi;          /* 0x62dda0 */
 int ai_OpenPokerWindow(void);       /* 0x5d9de0, opens the poker window (1 = opened, 0 = already open / refused) */
 /* Two entries of the run-time text table (the .data slots hold char * into the loaded text file; the

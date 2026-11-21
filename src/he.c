@@ -2456,13 +2456,13 @@ void he_TopUpCharMoney(void)
         n = 0;
         for (i = 0; i < 768; i++) {
             if (ai_Chars[i].kind == 5) {
-                have = gm_GetGoodsValue((char *)&ai_Chars[i]);
+                have = gm_GetGoodsValue(&ai_Chars[i]);
                 if (have < level) {
                     slot = cm_SendMoveGoods(ai_Chars[i].netId, -1, ai_OwnPlayer, level - have);
                     n++;
                 }
             } else if (ai_Chars[i].kind == 4 || (ai_Chars[i].kind == 2 && ai_Time.year % 4 == (int)(ai_Chars[i].netId & 3))) {
-                have = gm_GetGoodsValue((char *)&ai_Chars[i]);
+                have = gm_GetGoodsValue(&ai_Chars[i]);
                 if (have < level) {
                     slot = cm_SendMoveGoods(ai_Chars[i].netId, -1, ai_OwnPlayer, level - have);
                     n++;
@@ -4337,7 +4337,7 @@ void he_AllocTribute(int ev)
     gv_Accuse(3, 1, ai_Chars[e->chr].netId, e->idbc, ai_Chars[e->chr].bld2 != 0 ? ai_Chars[e->chr].bld2->id : -1);
     e->tributeNext = util_Random(0x300);
     e->tributeStride = ai_CharWalkSteps[util_Random(0x10)];
-    e->tributeSkill = gm_GetSkill((char *)&ai_Chars[e->chr], 4);
+    e->tributeSkill = gm_GetSkill(&ai_Chars[e->chr], 4);
     e->tributeLeft = 0x300;
     if (ai_InventoryHas(coll, 0x15c) != 0) {
         e->end = ai_Time;
@@ -4388,7 +4388,7 @@ void he_RunTribute(int ev)
     for (i = 0; left != 0 && i < 0x10; i++, left = --e->tributeLeft, next = (e->tributeStride + next) % 0x300) {
         if (ai_Chars[next].id != 0xffff && ai_Chars[next].netId != e->idbc && ai_Chars[next].kind < 10
             && ai_Chars[next].health > 0) {
-            f = -gm_Mix2(e->tributeSkill, gm_GetSkill((char *)&ai_Chars[next], 4));
+            f = -gm_Mix2(e->tributeSkill, gm_GetSkill(&ai_Chars[next], 4));
             delta = (int)(f * 10.0f + 1.0f) * mul;
             cm_SendRelations(e->idbc, ai_Chars[next].netId, delta, 1);
         }
@@ -6540,7 +6540,7 @@ void he_RunTrialSteps(int ev)
         }
         txt_Format(text, 0x1a9f, c->id);
         he_ShowNews(teacher->netId, teacher->netId, text, 0, 0x5f4, (char *)0);
-        fin = (HEFINVIEW *)gm_PlayerRecord((char *)teacher);
+        fin = (HEFINVIEW *)gm_PlayerRecord(teacher);
         if (fin != 0)
             fin->taught++;
         e->end = ai_Time;
@@ -7096,7 +7096,7 @@ void he_RunGang(int ev)
             cm_SendMoveGoodsUnchecked(leader->netId, -1, ai_OwnPlayer, amt);
             s->roundSums[0] += amt;
             if (leader->kind == 6) {
-                fin = (HEFINVIEW *)gm_PlayerRecord((char *)leader);
+                fin = (HEFINVIEW *)gm_PlayerRecord(leader);
                 if (fin != 0)
                     fin->gangTakings += amt;
                 c = gm_FindCharacterByMaster(s);
@@ -7687,9 +7687,9 @@ int ai_IsLocalWorker();
 
 /* 0x54c510, the test of a character for the accident simulation: alive (id not 0xffff, health not 0), kind 0, with
    a building whose id is the building of its model record (the one it was sent to): then ai_IsLocalWorker, else 0 */
-int he_IsAtWork(int rec)
+int he_IsAtWork(AICHAR *rec)
 {
-    AICHAR *c = (AICHAR *)rec;
+    AICHAR *c = rec;
     int ok = 1;
 
     if (c->id == 0xffff)
@@ -7750,7 +7750,7 @@ void he_RunAccidentSim(int ev)
         return;
     cur = s->cursor;
     for (n = 12; n != 0; n--) {
-        if (he_IsAtWork((int)&ai_Chars[cur]) != 0 && ai_Chars[cur].bld->owner != 0xffff) {
+        if (he_IsAtWork(&ai_Chars[cur]) != 0 && ai_Chars[cur].bld->owner != 0xffff) {
             roll = util_RandomF() * 100.0f;
             skill = gm_BuildingSkill(ai_Chars[cur].bld, 2, 1);
             if (25.0f - 20.0f * (skill * 0.0125f) > roll) {
@@ -8079,9 +8079,9 @@ typedef struct HEINN {                  /* he_RunInnSim's list of the inns (he_F
 
 /* 0x54d1e0, looks a character up in the inn simulation's list: finds the inn whose building id is the building of the
    character's model record and whose building has an owner; stores its index in *out and returns 1, else 0 */
-int he_FindGuestInn(int rec, HEINN *tab, int *out)
+int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
 {
-    AICHAR *c = (AICHAR *)rec;
+    AICHAR *c = rec;
     AIBLD *b;
     int i;
 
@@ -8161,7 +8161,7 @@ void he_RunInnSim(int ev)
     first = s->cursor;
     end = first + 0x180;
     for (i = first; i < end; i++) {
-        if (he_FindGuestInn((int)&ai_Chars[i], inns, &idx) == 0)
+        if (he_FindGuestInn(&ai_Chars[i], inns, &idx) == 0)
             continue;
         price1 = (int)(gm_GoodsPrice(0x179, ai_OwnPlayer) * 1.5);
         price2 = (int)(gm_GoodsPrice(0x17a, ai_OwnPlayer) * 1.5);
@@ -8731,9 +8731,9 @@ void he_RunLover(int ev)
 }
 /* 0x54eb80, a Ghidra miss: the figure record test of the street simulation: alive, kind below 10, and (0x47e840 or 0x47e7f0 non zero) */
 
-int he_IsSimCandidate(int rec)
+int he_IsSimCandidate(AICHAR *rec)
 {
-    AICHAR *c = (AICHAR *)rec;
+    AICHAR *c = rec;
 
     if (c->id == 0xffff)
         return 0;
@@ -8795,7 +8795,7 @@ void he_RunDiseaseSim(int ev)
     cur = s->cursor;
     for (n = 12; n != 0; n--) {
         c = &ai_Chars[cur];
-        if (he_IsSimCandidate((int)c) != 0) {
+        if (he_IsSimCandidate(c) != 0) {
             roll = util_RandomF() * 100.0f;
             risk = 0.0f;
             immunity = 0.0f;
@@ -8991,7 +8991,7 @@ void he_RunDarkCorner(int ev)
             return;
         }
         d->steps--;
-        skill = gm_GetSkill((char *)&ai_Chars[bld->owner], 2);
+        skill = gm_GetSkill(&ai_Chars[bld->owner], 2);
         if (d->loot < 1)
             d->loot++;
         else
@@ -9071,7 +9071,7 @@ void he_RunDarkCorner(int ev)
         }
         d->loot = 0;
         for (k = 3; k != 0; k--) {
-            float s = gm_GetSkill((char *)&ai_Chars[bld->owner], 2);
+            float s = gm_GetSkill(&ai_Chars[bld->owner], 2);
             d->loot += util_RandomF() * 0.66f < s ? 1 : 0;
         }
         if (d->loot != 0) {
@@ -10360,8 +10360,8 @@ void he_RunExamOffer(int ev)
     } else if (e->stage == 1) {
         if (((HEEXAMOFFER *)e)->accepted != 0) {
             c = &ai_Chars[e->chr];
-            if (gm_GetSkill((char *)c, 3) > 0.1f)
-                skill = gm_GetSkill((char *)c, 3);
+            if (gm_GetSkill(c, 3) > 0.1f)
+                skill = gm_GetSkill(c, 3);
             else
                 skill = 0.1f;
             worth = gm_GetWorth(c->id);
@@ -10956,9 +10956,9 @@ int he_RegisterEventTypes22(void)
    more than once (grep_orig). Open: what makes the constant no candidate (a bitfield test? opts typed
    differently?). (2) the 0x2c loop's e->id / who[1] loads in edx / eax swapped (scratch rotation, probably
    follows (1)). */
-void he_EndPersonEvents(unsigned short *p)
+void he_EndPersonEvents(AICHAR *p)
 {
-    AICHAR *c = (AICHAR *)p;
+    AICHAR *c = p;
     AIJOB *e;
     int a, b;
 
@@ -11120,10 +11120,10 @@ int he_NoProtectionEvent(int p)
 /* 0x553d10, 1 unless a quarrel event 0x2e is running between the characters a and b (its partner1 / partner2 are
    their netIds), then 0 */
 
-int he_NoEvent2ePair(int a, int b)
+int he_NoEvent2ePair(AICHAR *a, AICHAR *b)
 {
-    AICHAR *ca = (AICHAR *)a;
-    AICHAR *cb = (AICHAR *)b;
+    AICHAR *ca = a;
+    AICHAR *cb = b;
     AIJOB *e;
 
     for (e = (AIJOB *)he_FindEvent(1, 0, 0x2e); e != 0; e = (AIJOB *)he_NextEvent()) {
@@ -11135,10 +11135,10 @@ int he_NoEvent2ePair(int a, int b)
 /* 0x553d60, 1 unless an insult news event 0x4b is running from the character a to b (its partner1 / partner2 are
    their netIds), then 0 */
 
-int he_NoEvent4bPair(int a, int b)
+int he_NoEvent4bPair(AICHAR *a, AICHAR *b)
 {
-    AICHAR *ca = (AICHAR *)a;
-    AICHAR *cb = (AICHAR *)b;
+    AICHAR *ca = a;
+    AICHAR *cb = b;
     AIJOB *e;
 
     for (e = (AIJOB *)he_FindEvent(1, 0, 0x4b); e != 0; e = (AIJOB *)he_NextEvent()) {
@@ -11150,9 +11150,9 @@ int he_NoEvent4bPair(int a, int b)
 /* 0x553db0, 1 unless a pamphlet event 0x35 of the character *a is running about the character b (AIJOB.idbc is
    that character's netId; ai_PamphletAmountCB), then 0; *count (when given) receives the number of a's pamphlets */
 
-int he_NoEvent35Pair(unsigned short *a, int b, int *count)
+int he_NoEvent35Pair(unsigned short *a, AICHAR *b, int *count)
 {
-    AICHAR *c = (AICHAR *)b;
+    AICHAR *c = b;
     AIJOB *e;
     int n = 0;
 
@@ -13240,7 +13240,7 @@ void he_AllocSabotage(int ev)
     s->slot = cm_SendSpawnCharacter(0, e->from, -1, 0, 1, 0x174, "SABOTAGE");
 }
 
-int ord_DispatchOrder(int id, char *c, int *m);
+int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
 
 /* 0x558f10, the run handler of the sabotage event 25 (HESABOTAGE; allocated by he_AllocSabotage, which asks for the
    saboteur, "SABOTAGE"). Every stage waits while a cm request is pending (HESABOTAGE.slot). Stage 0: the spawned
@@ -13278,7 +13278,7 @@ void he_RunSabotage(int ev)
             return;
         c = (AICHAR *)cm_GetSlotValue(x->slot);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)&ai_Chars[e->chr]);
+            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += x->fee;
             x->saboteur = c->netId;
@@ -13595,7 +13595,7 @@ void he_AllocSpying(int ev)
     me = &ai_Chars[e->chr];
     e->end = ai_Time;
     s->until = ai_Time;
-    if (ord_DispatchOrder(0x26, (char *)me, ord) == 2)
+    if (ord_DispatchOrder(0x26, me, ord) == 2)
         gm_AddTime(&s->until, (s->days + 4) * 24, 0, 0);
     else
         gm_AddTime(&s->until, (s->days + 3) * 24, 0, 0);
@@ -13654,7 +13654,7 @@ void he_RunSpying(int ev)
             return;
         c = (AICHAR *)cm_GetSlotValue(s->spy);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)&ai_Chars[e->chr]);
+            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += s->fee;
             s->spy = c->netId;
@@ -13833,7 +13833,7 @@ void he_RunBrawl(AIJOB *e)
             return;
         c = (AICHAR *)cm_GetSlotValue(br->slot);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)&ai_Chars[e->chr]);
+            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += br->fee;
             br->thug = c->netId;
@@ -14426,7 +14426,7 @@ void he_RunDemolish(int ev)
             if (c->bld == b) {
                 if (c->model != 0)
                     cm_SendCharHalt(c->netId);
-                if (gm_CharacterHome((char *)c, &homeBld, &homeObj) != 0) {
+                if (gm_CharacterHome(c, &homeBld, &homeObj) != 0) {
                     if (homeObj != -1)
                         cm_SendChrGotoBuilding(c->netId, homeBld, homeObj, 0, 0, "GebAbreissen");
                     else
@@ -15249,7 +15249,7 @@ void he_RunDismissal(int ev)
         }
         cm_SendCharClear(c->netId, 0, 0);
         cm_SendCharHalt(c->netId);
-        if (gm_CharacterHome((char *)c, &homeBld, &homeObj) != 0) {
+        if (gm_CharacterHome(c, &homeBld, &homeObj) != 0) {
             if (homeObj != -1)
                 cm_SendChrGotoBuilding(c->netId, homeBld, homeObj, 0, 0, "Entlassen");
             else
@@ -15444,7 +15444,7 @@ void he_RunWorkerQuits(int ev)
         cm_BeginFieldBlock((char *)c, c->netId);
         cm_AddFieldValue(4, 1, (char *)&c->bld - cm_FieldObject, &v);
         cm_SendFieldValues();
-        if (gm_CharacterHome((char *)c, &homeBld, &homeObj) != 0) {
+        if (gm_CharacterHome(c, &homeBld, &homeObj) != 0) {
             if (homeObj != -1)
                 cm_SendChrGotoBuilding(c->netId, homeBld, homeObj, 0, 0, "Entlassen");
             else
@@ -15711,7 +15711,7 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
             return 0;
     }
     if (p->bld2 == 0) {
-        home = (unsigned char *)gm_CharacterHome((char *)p, bldId, objId);
+        home = (unsigned char *)gm_CharacterHome(p, bldId, objId);
         if (home == 0)
             return 0;
         if (scene != 0) {
@@ -15917,7 +15917,7 @@ void he_RunRoutine(AIJOB *ev)
                     && (c->flags1c8 & 0x800) == 0
                     && (ai_Chars[c->bld->owner].kind == 6 || ai_Chars[c->bld->owner].kind == 7)) {
                     cm_SendCharHalt(c->netId);
-                    if (n != 0 && gm_GetGoodsValue((char *)c) > 0xc80 && (short)util_Random(2) != 0) {
+                    if (n != 0 && gm_GetGoodsValue(c) > 0xc80 && (short)util_Random(2) != 0) {
                         if (he_PickNearBuilding(c, n, inns, &place, &obj) != 0)
                             cm_SendChrGotoBuilding(c->netId, place, obj, 0, 0, "Go to wirtshaus");
                     } else if (obj == -1) {
@@ -15943,7 +15943,7 @@ void he_RunRoutine(AIJOB *ev)
                     && (place != c->model->bldId || obj != c->model->scriptGroup)
                     && (c->flags1c8 & 0x800) == 0) {
                     cm_SendCharHalt(c->netId);
-                    if (n != 0 && gm_GetGoodsValue((char *)c) > 0xc80 && (short)util_Random(2) != 0) {
+                    if (n != 0 && gm_GetGoodsValue(c) > 0xc80 && (short)util_Random(2) != 0) {
                         if (he_PickNearBuilding(c, n, inns, &place, &obj) != 0)
                             cm_SendChrGotoBuilding(c->netId, place, obj, 0, 0, "Go to wirtshaus");
                     } else if (obj == -1) {
@@ -15973,7 +15973,7 @@ void he_RunRoutine(AIJOB *ev)
                         && (bld != ai_Chars[i].model->bldId || contact != ai_Chars[i].model->scriptGroup)
                         && (ai_Chars[i].flags1c8 & 0x800) == 0) {
                         cm_SendCharHalt(ai_Chars[i].netId);
-                        if (n != 0 && gm_GetGoodsValue((char *)&ai_Chars[i]) > 0xc80 && (short)util_Random(2) != 0) {
+                        if (n != 0 && gm_GetGoodsValue(&ai_Chars[i]) > 0xc80 && (short)util_Random(2) != 0) {
                             if (he_PickNearBuilding(&ai_Chars[i], n, inns, &bld, &contact) != 0) {
                                 cm_RequestChrMoveToUniverse(ai_Chars[i].netId, bld, contact, "dummy_EINGANG");
                                 cm_RequestChrMove(ai_Chars[i].netId, bld, contact, ch_EmptyName);
@@ -16079,7 +16079,7 @@ void he_RunMarketSupervisor(AIJOB *ev)
     }
 
 
-    if (gm_CharCurrency((char *)ai_PlayerChar, ai_OwnPlayer) < HE_SUPERVISOR_MONEY)
+    if (gm_CharCurrency(ai_PlayerChar, ai_OwnPlayer) < HE_SUPERVISOR_MONEY)
         cm_SendMoveGoods(ai_PlayerChar->netId, -1, ai_OwnPlayer, HE_SUPERVISOR_MONEY);
 
     for (i = 0; i < 0x55; i++) {
@@ -16688,7 +16688,7 @@ void he_RunRansomDemand(AIJOB *ev)
             if (victim->model != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
             if (b != 0) {
-                fin = (HEFINVIEW *)gm_PlayerRecord((char *)master);
+                fin = (HEFINVIEW *)gm_PlayerRecord(master);
                 cm_BeginFieldBlock((char *)b, b->id);
                 cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
                 cm_SendFieldDeltas();
@@ -16730,7 +16730,7 @@ void he_RunRansomDemand(AIJOB *ev)
             cm_BeginFieldBlock((char *)b, b->id);
             cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
             cm_SendFieldDeltas();
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)master);
+            fin = (HEFINVIEW *)gm_PlayerRecord(master);
             if (fin != 0)
                 fin->ransomTakings += x->ransom;
             b->roundSums[0] += x->ransom;
@@ -17023,7 +17023,7 @@ void he_RunBurglary(AIJOB *ev)
                 } else
                     strcpy(loot, txt_Ptrs[0x19ec]);
             }
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)master);
+            fin = (HEFINVIEW *)gm_PlayerRecord(master);
             if (fin != 0)
                 fin->burglaryTakings += money;
             g->roundSums[0] += money;
@@ -18246,7 +18246,7 @@ void he_RunHealing(AIJOB *ev)
         }
         d = gm_MinutesBetween(&ev->clock60, &ai_Time);
         step = 5.0f * ((float)d * 0.1f);
-        v = gm_HealthRatio((short *)c) * 100.0;
+        v = gm_HealthRatio(c) * 100.0;
         if (x->amount > 0 && step + v < 100.0f) {
             gm_AddHealth(c->id, (int)step);
             x->amount = (int)((double)x->amount - step);
@@ -18961,7 +18961,7 @@ void he_RunRobbery(AIJOB *ev)
                     strcpy(loot, "Leider besitzt Ihr keinen Lagerraum und m\xfc\xdft einiges Diebsgut zur\xfc" "cklassen!");
                 }
             }
-            fin = (HEFINVIEW *)gm_PlayerRecord((char *)master);
+            fin = (HEFINVIEW *)gm_PlayerRecord(master);
             if (fin != 0)
                 fin->burglaryTakings += money;
             if (master->kind == 6 || master->kind == 7) {
@@ -19320,7 +19320,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
 
     if (c->job24 != 0)
         return;
-    owner = (AICHAR *)gm_ObjectBuildingOwner((unsigned short *)c);
+    owner = gm_ObjectBuildingOwner(c);
     if (c->fill < util_Random(0x20) + 0x28) {
         memset(&m, 0, sizeof(m));
         m.fromId = m.to = owner->netId;
@@ -19586,7 +19586,7 @@ void he_AllocCouncil(int ev);
 void he_RunCouncil(int ev);
 void he_AllocGypsyApproach(int ev);
 void he_RunGypsyApproach(int ev);
-void he_GypsyApproach(char *pl, char *per, int a);
+void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);
 void he_GypsyDisease(AICHAR *pl, AICHAR *per);
 void he_GypsyRumour(AICHAR *pl, AICHAR *per);
 void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per);
@@ -19666,7 +19666,7 @@ void he_AllocGraveyardWorkers(int ev);          /* 0x572b90 */
 void he_RunGraveyardWorkers(int ev);          /* 0x572bf0 */
 void he_RunGraveyardTheft(int ev);          /* 0x572fd0 */
 void he_RunGraveLease(int ev);          /* 0x572a50 */
-void ai_HauntingText(unsigned short *param_1, int param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
 void ai_GraveyardMessage(int param_1, unsigned short *param_2, unsigned short *param_3, int param_4);                 /* 0x5a9a30 */
@@ -19682,13 +19682,13 @@ void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int he_OpenEventSlot();                 /* 0x53d6f0 */
 int sv_UsedGroupSlots();                 /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
-void ai_HauntingText(unsigned short *param_1, int param_2, unsigned int param_3);                 /* 0x5a9910 */
-void ai_ShowGraveOrderExtended(int param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
-void ai_ShowGraveOrderCancelled(int param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
+void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_ShowGraveOrderExtended(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
+void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(int ev);          /* 0x5728d0 */
 void he_ExamCancelled(int ev);          /* 0x5729c0 */
-void ai_EndCharExtra(char *o, int f); /* 0x587c40 */
+void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */
 int ls_GetLanguage();                 /* 0x5190a0 */
 void he_AllocCouncil(int ev);          /* 0x573280 */
 void he_RunCouncil(int ev);          /* 0x5732d0 */
@@ -19711,7 +19711,7 @@ void he_AllocPettyLoss(int ev);          /* 0x575150 */
 void he_RunPettyLoss(int ev);          /* 0x5751e0 */
 void he_AllocEventGood(int ev);          /* 0x575320 */
 void he_RunEventGood(int ev);          /* 0x5753a0 */
-void he_GypsyApproach(char *pl, char *per, int a);  /* 0x5736d0 */
+void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);  /* 0x5736d0 */
 void he_GypsyFee(AICHAR *pl, int a);           /* 0x573e30 */
 void he_GypsyDisease(AICHAR *pl, AICHAR *per);     /* 0x573760 */
 void he_GypsyRumour(AICHAR *pl, AICHAR *per);     /* 0x573820 */

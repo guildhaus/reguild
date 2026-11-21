@@ -1038,9 +1038,9 @@ void gv_CannonKind(int n, int *out)
    the cost *price = (2 * b + 500) * (a * 0.25 + 1) * d * 32 from the strength b (0 .. 100) and the balls d (1 .. 3);
    1 when o's money reaches *n and its inventory's worth (gm_SumListAmounts) covers the cost */
 
-int gv_CannonCost(char *o, int a, int b, int d, int *n, int *price)
+int gv_CannonCost(AICHAR *o, int a, int b, int d, int *n, int *price)
 {
-    AICHAR *ch = (AICHAR *)o;
+    AICHAR *ch = o;
     int kind, lvl, balls;
     float fl;
 

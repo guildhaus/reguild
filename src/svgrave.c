@@ -470,11 +470,11 @@ void d3_DirToWorld();
 int gm_FindById();
 float gv_SalvoCharge(); void gv_BuildingCannon(char *o, unsigned *a, unsigned *b); int gv_CannonCost(); float ai_GetDefaultEffectScale();
 int _ftol(); float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, int id0, ...); int gm_CharCurrency(char *c, char p);
+void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, char p);
 void gv_CannonScatter(char *o, float *a, float *b); float gv_CannonItemFactor(); void ai_ShotTableReset(); int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density);
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread); int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x); struct SBBANK; struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx, int loops, int pan, int volume, int fade); void ai_CannonBuildPanel();
 int he_EventOnBuilding(); int sv_MessageBox();
-int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(char *c);
+int gm_GetWorth(unsigned short id); int d2_WinOpenSlider(); int sv_CheckGoodAmount(char *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, float lo, float hi, int *out); int snd_PlayVoice(int id, int bank, char *text, int var); void sv_CameraFollow();
 struct AICHAR *ai_AmountMenu(); int amt_GetKindLevel(int k); int sv_CheckMoney(); void cm_SendMoneyDelta(int a, int b);
 void txt_Format(char *out, int id0, ...); int sv_MessageBox();
@@ -2437,7 +2437,7 @@ void ai_GraveSeance(AIBLD *rec)
     }
 }
 
-void ai_EndCharExtra(char *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(char *a, int b);
+void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
 
 /* 0x5867c0, the graveyard "Schlag" action (114 B): when the character under the pointer (ai_PickedChar) exists
    with the at-work flag bit 0 of +0x1b4 and the left button (dm_L.lup) is latched: ends its extra (ai_EndCharExtra,
@@ -2450,7 +2450,7 @@ void ai_GraveyardSchlag(AIBLD *unused)
 
     c = (AICHAR *)ai_PickedChar;
     if (c != 0 && (c->flags1b4 & 1) != 0 && dm_L.lup != 0) {
-        ai_EndCharExtra((char *)c, 0);
+        ai_EndCharExtra(c, 0);
         c = (AICHAR *)ai_PickedChar;
         cm_SendRelations(ai_CharInts[ai_PlayerId][0], c->netId, -5, 0);
         script = (EVTSCRIPT *)sv_StartPoseScript((char *)ai_PickedChar, "locations/friedhof/schlag_FRIEDHOF.esc");
@@ -2974,7 +2974,7 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel)
     return 0;
 }
 
-float gm_GetSkill(char *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
+float gm_GetSkill(struct AICHAR *c, int skill); int gm_ClockSeason(); char * he_FindEvent(int n, ...);
 
 /* 0x587810, the graveyard's worker upgrade window for the graveyard rec (the contact of ai_GraveyardFogContact): nothing
    while sv_CheckCharacterFlag (rec) holds. Outside the season 2 of the game clock (gm_ClockSeason) and without
@@ -3036,15 +3036,15 @@ void ai_UpgradeWorkerWindow(AIBLD *rec)
             }
         }
         if (f != 0) {
-            if (gm_GetSkill((char *)f, 1) >= 1.0)
+            if (gm_GetSkill(f, 1) >= 1.0)
                 d2_SetObjEnabled(btn1, 0);
             else
                 d2_SetObjEnabled(btn1, 1);
-            if (gm_GetSkill((char *)f, 2) >= 1.0)
+            if (gm_GetSkill(f, 2) >= 1.0)
                 d2_SetObjEnabled(btn2, 0);
             else
                 d2_SetObjEnabled(btn2, 1);
-            if (gm_GetSkill((char *)f, 4) >= 1.0)
+            if (gm_GetSkill(f, 4) >= 1.0)
                 d2_SetObjEnabled(btn4, 0);
             else
                 d2_SetObjEnabled(btn4, 1);
@@ -3105,7 +3105,7 @@ int gm_BuildingJob();
    prototypes 0x211 / 0x205 clears bit 0. When the building's owner is the character: 0x4461 set and, when one of
    the six job bytes at bldg + 0x223 is v (a 0 byte ends the scan), 0x2200; x of the prototype 0x21b -> 0x5000.
    gm_AllowAll set: -1 */
-int ai_PermissionBits1d(char *ch, char *b, char *x)
+int ai_PermissionBits1d(AICHAR *ch, char *b, char *x)
 {
     AIBTYPE *bldg;
     int v;
@@ -3113,13 +3113,13 @@ int ai_PermissionBits1d(char *ch, char *b, char *x)
     int i;
 
     bldg = &ai_BTypes[((AIBLD *)b)->type];
-    v = gm_TitleJob(((AICHAR *)ch)->id, gm_BuildingJob((unsigned char)bldg->kind));
+    v = gm_TitleJob(ch->id, gm_BuildingJob((unsigned char)bldg->kind));
     f = 0x81;
-    if (((AIBLD *)b)->masterId == ((AICHAR *)ch)->id)
+    if (((AIBLD *)b)->masterId == ch->id)
         f = 0x10bd;
     if (x != 0 && (((AIOBJ *)x)->type == 0x211 || ((AIOBJ *)x)->type == 0x205))
         f &= ~1;
-    if (((AIBLD *)b)->owner == ((AICHAR *)ch)->id) {
+    if (((AIBLD *)b)->owner == ch->id) {
         f |= 0x4461;
         for (i = 0; i < 6; i++) {
             if ((&bldg->jobBytes)[i] == 0)
@@ -3143,9 +3143,9 @@ int ai_PermissionBits1d(char *ch, char *b, char *x)
    pose) use) */
 
 
-void ai_EndCharExtra(char *ch, int f)
+void ai_EndCharExtra(AICHAR *ch, int f)
 {
-    AICHAR *c = (AICHAR *)ch;
+    AICHAR *c = ch;
     EVTSCRIPT *script;
 
     if (c->model->scriptId != -1) {
@@ -3225,10 +3225,10 @@ void ai_ClearTurnTable(void)
 }
 
 /* dcp unit split: the declarations that moved to svtip (copies: drop what svgrave does not use) */
-int gm_BuildingKindCost(int c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
+int gm_BuildingKindCost(struct AICHAR *c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);
 float gm_GoodsPrice(unsigned id, unsigned char p);
 int ai_AmountRowStatus(); int ai_DrawAmountRow(); struct AICHAR *gm_FindChar(int id); int gm_TitlesLeft();
-struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, int c);
+struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 int sv_CreateScrollButtons(); void d2_RadioClear(int g);
 unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
 int ls_Read();

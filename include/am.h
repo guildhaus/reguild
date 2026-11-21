@@ -145,7 +145,7 @@ int amt_GetOwnedOfficePay(void);                                         /* 0x4e
 unsigned char ord_GetRatingByte(int k);                              /* 0x4f97a0 */
 float ord_BuildingCapacityRatio(void);                                       /* 0x4f97c0 */
 int gm_TitleGroup(int k);                                        /* 0x504ad0 */
-float gm_GetSkill(char *c, int skill);                            /* 0x504ec0 */
+float gm_GetSkill(struct AICHAR *c, int skill);                            /* 0x504ec0 */
 int gm_SumListAmounts(void *list, unsigned char p);                       /* 0x509e30 */
 unsigned char * gm_FirstBuilding(int n);                                     /* 0x50b010 */
 
@@ -223,9 +223,9 @@ int ai_PickPartnerChain(AIPER *p, int a, int *flags, float b, float f, unsigned 
 int cm_SendSetField(int a, int b, int c, int d, int e);                   /* 0x4c4a60 */
 void cm_SendMoneyDelta(int a, int b);                                               /* 0x4c5f60 */
 int amt_GetOfficeApplicants(int k, int n, char **out);                                   /* 0x4e76b0 */
-int ord_DispatchOrder(int id, char *c, int *m);                                     /* 0x4f81c0 */
+int ord_DispatchOrder(int id, struct AICHAR *c, int *m);                                     /* 0x4f81c0 */
 #define gm_FindPer(id) ((AIPER *)gm_FindChar(id))  /* ai.h: returns AICHAR * */
-int gm_CharCurrency(char *c, char p);                                    /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, char p);                                    /* 0x509ee0 */
 int gm_GetWorth(unsigned short id);                                            /* 0x50a640 */
 /* ai.h declares he_FindEvent with five arguments; 0x496b10 calls it with three */
 
@@ -326,9 +326,9 @@ int gm_BuildingJob(int k);                                                      
 int gm_TitlesLeft(int k);                                                        /* 0x504ce0 */
 float gm_Mix(int a, int b, int c);                                  /* 0x504e20 */
 int gm_BuildingKindValue(int k);                                                        /* 0x509d30 */
-int gm_BuildingKindCost(int c, int kind);                                              /* 0x509dc0 */
-int ord_RandomObjectId(char *c);                                                     /* 0x4f8700 */
-unsigned short *gm_ObjectOwnerChar(unsigned short *o);                                                  /* 0x509ff0 */
+int gm_BuildingKindCost(struct AICHAR *c, int kind);                                              /* 0x509dc0 */
+int ord_RandomObjectId(struct AICHAR *c);                                                     /* 0x4f8700 */
+struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);                                                  /* 0x509ff0 */
 
 /* ---- 0x48e070..0x490b90 (was unk_48e070.h) ---- */
 /* unk_490830.h (the AGCH / AGARG views of 0x490830..0x490b90); it calls ai_ExecGraveyardOwner0 .. ai_ExecGraveyardOwner3 and cm_SendMoveGoodsUnchecked through the prototypes below (AIPX / AIBLD, the definitions') */
@@ -419,11 +419,11 @@ void ai_DuelNextPhase(AGDUEL *d);                                   /* 0x493a40 
 int ai_ChooseObjectTarget(AGCH *p, AIOBJ *o);                            /* 0x493be0 */
 AGCH *ai_FindSuccessor(AGCH *p);                                    /* 0x493ea0 */
 
-int gm_CharCurrency(char *c, char p);                     /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, char p);                     /* 0x509ee0 */
 int gm_GetWorth(unsigned short id);                            /* 0x50a640 */
 int gm_ConvertMoney(int a, unsigned char k);                       /* 0x5085b0 */
 int gm_PlayerFactor(int a, unsigned char k);                       /* 0x5085f0 */
-float gm_GetSkill(char *c, int skill);                             /* 0x504ec0 */
+float gm_GetSkill(struct AICHAR *c, int skill);                             /* 0x504ec0 */
 int amt_GetKind(int k, struct AMTKIND *out);                             /* 0x4e6f80 */
 int amt_GetColumnOffices(int col, int max, struct AMTREC *out);             /* 0x4e6fc0 */
 /* ai.h declares these with other types */
@@ -539,7 +539,7 @@ void ai_FindWantedItems(struct G5CH *p, int n, struct G9REC *rec, int *st);     
 /* am.h: id is an int; 0x490690 passes an unsigned short */
 int ai_DecideTakeCredit(int a, struct G5CH *p, int f, struct AIARG *o1, struct AIARG *o2);                  /* 0x49eec0 */
 int gm_BuildingKindValue(int a);                                                        /* 0x509d30 */
-int gm_BuildingKindCost(int c, int kind);                                               /* 0x509dc0 */
+int gm_BuildingKindCost(struct AICHAR *c, int kind);                                               /* 0x509dc0 */
 int ai_FindUsableGood(int param_1);                                         /* 0x5ba620 */
 
 /* ---- 0x494020..0x494e70 (was unk_494020.h) ---- */
@@ -588,7 +588,7 @@ float gm_MapDistance(int a, int b, int c, int d);                 /* 0x4ffc90 */
 float gm_Mix(int a, int b, int c);                    /* 0x504e20 */
 int gm_ConvertMoney(int a, unsigned char b);                       /* 0x5085b0 */
 int gm_GetWorth(unsigned short id);                            /* 0x50a640 */
-int ord_DispatchOrder(int id, char *c, int *m);           /* 0x4f81c0 */
+int ord_DispatchOrder(int id, struct AICHAR *c, int *m);           /* 0x4f81c0 */
 
 int ai_PlanWorth(AIPLAN *q);                                    /* 0x494020 */
 int ai_DecideTorture(AIPLAN *q);                                      /* 0x4941b0 */
@@ -705,7 +705,7 @@ int ai_GetDesireByName(char *s);                                      /* 0x4a47c
 void ai_BeginNeedBlock(struct AICHAR *p);                            /* 0x4c3e70 */
 int ai_AddNeedDelta(int k, float v);                    /* 0x4c3eb0 */
 void ai_SendNeedBlock(void);                                        /* 0x4c4a20 */
-int gm_ExpectedDeathAge(char *c);                                      /* 0x4fc7a0 */
+int gm_ExpectedDeathAge(struct AICHAR *c);                                      /* 0x4fc7a0 */
 int amt_GetOfficeCandidates(char *c, int n, struct AMTCAND *out);                     /* 0x4e7150 */
 extern void *main_Instance;              /* 0x75e140, the module handle */
 int ai_RegisterBuildingActions(int a);                                                        /* 0x48fb70 */
@@ -735,7 +735,7 @@ int ai_DecidePriceManipulation(int a, G5CH *p, int f, AIARG *o1);               
 int amt_MayorBonusStep(char *c);                                                      /* 0x4e94a0 */
 int ai_DecideBuildResidence(int a, struct AIPER *p, int f, struct AIARG *o1, struct AIARG *o2);                 /* 0x4984d0 */
 int ai_CanBuildType(int a, struct AIPER *p, int b, struct AIARG *s1, struct AIARG *s2, int f);           /* 0x4a5140 */
-int gm_BuildingKindCost(int c, int kind);                                               /* 0x509dc0 */
+int gm_BuildingKindCost(struct AICHAR *c, int kind);                                               /* 0x509dc0 */
 int gm_BuildingKindValue(int k);                                                        /* 0x509d30 */
 int ai_DecideTakeCredit(int a, struct G5CH *p, int f, struct AIARG *o1, struct AIARG *o2);                  /* 0x49eec0 */
 int ai_ExecuteBuildResidence(G5CH *p, AIARG *s1, AIARG *s2);                                /* 0x498a80 */
@@ -887,7 +887,7 @@ int ai_ExecuteMasterBuilder(G5CH *p, AIARG *s1, AIARG *s2);                     
 int ai_EvalDarkCorner(float *a, float *b, int i, G5CH *p, int f, AIARG *o1, AIARG *o2); /* 0x49ec10 */
 int ai_DecideDarkCorner(int a, G5CH *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49ed10 */
 extern const int ai_RandomStrides[16];                                                   /* 0x5ed140, random steps */
-int gm_GetCreditOffers(int b, unsigned short *p, unsigned cnt, int *out);                       /* 0x50a250 */
+int gm_GetCreditOffers(int b, struct AICHAR *p, unsigned cnt, int *out);                       /* 0x50a250 */
 int ai_DecideTakeCredit(int a, struct G5CH *p, int f, struct AIARG *o1, struct AIARG *o2);                  /* 0x49eec0 */
 int ai_ExecuteTakeCredit(G5CH *p, AIARG *s1, AIARG *s2);                                /* 0x49f370 */
 int ai_EvalChangeProfession(float *a, float *b, int i, G5CH *p, int f, AIARG *o1, AIARG *o2); /* 0x49f4f0 */
