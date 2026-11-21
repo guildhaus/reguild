@@ -4,8 +4,7 @@
    (-1 at 0x5ffd1c) right after the AI unit's strings; its strings end at 0x5ffdb4 and its literals (0x5ecec0..0x5ecf18)
    precede amr.c's named constants ag_Pairs.. (the AI actions with the am_RegisterMethod tag are amr.c; the name am
    stays here with am.h). Names are ours.
-   Open: am.h keeps the joined parts' character views (AICHAR / AICHAR / AICHAR / AICHAR / AICHAR), message views of ai.h's
-   AIMSG (AIXMSG / G8MSG) and duplicate callee prototypes / cast macros; they need unifying with ai.h's types.
+   Open: am.h keeps the joined parts' character views (AICHAR / AICHAR / AICHAR / AICHAR / AICHAR), and duplicate callee prototypes / cast macros; they need unifying with ai.h's types.
    Open: AIJOBX (am.h) duplicates ai.h's AIJOB (its id / bldId / price fields are named from it); the AIJOB
    union member for the building offer's price flips ai_Unk483a60's byte match by the declaration set.
    Open: the use callers read am_types.h's G9DOMIZIL weight (+0xc) as g[3] through a float view; naming that

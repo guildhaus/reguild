@@ -5315,7 +5315,7 @@ int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteMayor(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
     AIOBJ *c;
 
     c = gm_PlayerSeat(1);
@@ -5328,10 +5328,10 @@ int ai_ExecuteMayor(AICHAR *p, AIARG *s1, AIARG *s2)
         m.fromId = s2->ref;
         m.flags = 1;
         m.time = ai_Time;
-        m.arg = s2->ref;
+        m.arg[0] = s2->ref;
         cm_BeginGroup("upgr_arbeiter_unterk");
         cm_SendMoveGoods(-1, c->objId, ai_OwnPlayer, (int)(gm_BuildingKindValue(s1->ref) * 0.3f));
-        cm_SendLongMessage((AIMSG *)&m);
+        cm_SendLongMessage(&m);
         cm_EndGroup("upgr_arbeiter_unterk");
         return 0x2e;
     }
@@ -5487,7 +5487,7 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteMayorTownHall(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
     AIOBJ *c;
 
     c = gm_PlayerSeat(1);
@@ -5503,10 +5503,10 @@ int ai_ExecuteMayorTownHall(AICHAR *p, AIARG *s1, AIARG *s2)
     m.fromId = s2->ref;
     m.flags = 1;
     m.time = ai_Time;
-    m.arg = s2->ref;
+    m.arg[0] = s2->ref;
     cm_BeginGroup("upgr_rathaus");
     cm_SendMoveGoods(-1, c->objId, ai_OwnPlayer, (int)(gm_BuildingKindValue(s1->ref) * 0.3f));
-    cm_SendLongMessage((AIMSG *)&m);
+    cm_SendLongMessage(&m);
     cm_EndGroup("upgr_rathaus");
     return 0x31;
 }
@@ -5610,7 +5610,7 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteMayorPrison(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
     AIOBJ *c;
 
     c = gm_PlayerSeat(1);
@@ -5626,10 +5626,10 @@ int ai_ExecuteMayorPrison(AICHAR *p, AIARG *s1, AIARG *s2)
     m.fromId = s2->ref;
     m.flags = 1;
     m.time = ai_Time;
-    m.arg = s2->ref;
+    m.arg[0] = s2->ref;
     cm_BeginGroup("upgr_kerker");
     cm_SendMoveGoods(-1, c->objId, ai_OwnPlayer, (int)(gm_BuildingKindValue(s1->ref) * 0.3f));
-    cm_SendLongMessage((AIMSG *)&m);
+    cm_SendLongMessage(&m);
     cm_EndGroup("upgr_kerker");
     return 0x3c;
 }
@@ -5995,7 +5995,7 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
     AIBLD *a;
     AIBLD *b;
     int v;
@@ -6012,15 +6012,15 @@ int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2)
     m.fromId = a->id;
     m.time = ai_Time;
     m.flags = 0x12;
-    m.arg = a->id;
-    m.from = p->netId;
+    m.credit.bld = a->id;
+    m.credit.from = p->netId;
     m.credit.amount = s2->ref;
     m.credit.term = s2->arg;
     m.credit.interest = s2->arg2;
     v = s2->ref;
     cm_BeginGroup("AI Kredit");
     cm_SendMoveGoods(p->netId, a->id, ai_OwnPlayer, s2->ref);
-    cm_SendLongMessage((AIMSG *)&m);
+    cm_SendLongMessage(&m);
     if (b != 0) {
         cm_BeginFieldBlock((AICHAR *)b, b->id);
         cm_AddFieldValues(4, 1, (char *)b - cm_FieldObject + 0x39, &v);
@@ -6879,7 +6879,7 @@ credit:
 
 int ai_ExecuteUpgradeGuild(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
     AIOBJ *o;
     AIBLD *b;
 
@@ -6904,10 +6904,10 @@ int ai_ExecuteUpgradeGuild(AICHAR *p, AIARG *s1, AIARG *s2)
     m.to = p->netId;
     m.flags = 1;
     m.time = ai_Time;
-    m.arg = s1->ref2;
+    m.arg[0] = s1->ref2;
     cm_BeginGroup("upgr_ai_zunfthaus");
     cm_SendMoveGoods(-1, o->objId, ai_OwnPlayer, (int)(gm_BuildingKindValue(s1->ref) * 0.3f));
-    cm_SendLongMessage((AIMSG *)&m);
+    cm_SendLongMessage(&m);
     cm_EndGroup("upgr_ai_zunfthaus");
     return 0x39;
 }
@@ -7018,17 +7018,17 @@ int ai_DecideApprenticeship(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
 int ai_ExecuteApprenticeship(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8MSG m;
+    AIMSG m;
 
     if (s1->kind == 7 && s2->kind == 0x17) {
         m.to = s1->ref;
         m.flags = 0x12;
-        m.arg = p->netId;
+        m.apprenticeship.parent = p->netId;
         m.type = 0x5e;
         m.fromId = -1;
-        m.bldClass = (unsigned char)s2->ref;
-        m.word[0] = s2->arg2;
-        cm_SendLongMessage((AIMSG *)&m);
+        m.apprenticeship.bldClass = (unsigned char)s2->ref;
+        m.apprenticeship.price = s2->arg2;
+        cm_SendLongMessage(&m);
         return 0x3a;
     }
     return 0;

@@ -22,7 +22,7 @@
    walk event 0x551340 .. 0x552920 (its ten slots HEWALKSLOT; the delay 0x80, skill-bonus 0x82 and applicants 0x86
    handlers in HEDELAY / HESKILLBONUS / HEAPPLICANTS), the six-group event 0x7d (AIJOB.groups / grpMode,
    AMTREC / AMTKIND from amt_types.h), the master exam question / offer 0x7e / 0x7f (HEEXAMBOX, HEEXAMOFFER, the
-   message HEEXAMMSG over AIMSG), the conversion event 0x81 (HECONVERT), the applicants event 0x86 (HEAPPLICANTS),
+   message AIMSG.exam), the conversion event 0x81 (HECONVERT), the applicants event 0x86 (HEAPPLICANTS),
    the office award 0xa5 (HEOFFICEAWARD), the watch event 0x43 with the attack's question (HEWATCH / HEDETECT), the
    sale 2 (HESALE, its sys message 4 HESOLDMSG), the customers / hire events 6 / 7 (HECUSTOMERS / HEHIRE), the
    transport event 15 with its four legs (HETRANSPORT; the cart's CHARACTER, the ordering event's HEROUTEREFS),
@@ -43,8 +43,8 @@
    master exam 0x2f: who[] at +0xac, +0xc4 / +0xc5 / +0xd4), HEDUEL (the duel challenge's +0xac and the duel's
    +0xb4 / +0xb6), HEGESELLE / HEEXAMPAY / HEPAYMENT / HEPUNISHMENT / HEOFFSPRING / HETRIAL / HETRIALSTEP / HETRAINING /
    HEPLAGUE / HEGANG (the events 0x4a / 0x55 / 0x56 / 0x5b / 0x5c / 0x5d / 0x5e / 0x5f / 0x60 / 0x59 / 0x61; the fine
-   0x5b and the pillory 0x5c are the trial's sentences of gv_PassSentence), HEFEEMSG / HESKILLMSG /
-   HEPLAGUEMSG (AIMSG's words of the AI messages 0x56 / 0x6a / 0x78), HEPROTECTION / HEAUDIT / HEGATHERING /
+   0x5b and the pillory 0x5c are the trial's sentences of gv_PassSentence), AIMSG.fee / skillLevel /
+   plague (the AI messages 0x56 / 0x6a / 0x78), HEPROTECTION / HEAUDIT / HEGATHERING /
    HESIM / HEAUCTION / HETITLE (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), HESKILLUP /
    HEBARD / HEPOPULATION / HELOVER / HEDARKCORNER (the events 0x6a / 0x6b / 0x6d / 0x6f / 0x74; the bard's script
    mark HEBARDSCRIPT, the job table's proofs / year HEJOBTABLE), HEINN (the inn
@@ -186,7 +186,7 @@ typedef struct HEWALKS {                /* the walk event 0x7a's ten slots over 
     char pad00[0xac];
     HEWALKSLOT slots[10];               /* 0xac, the walking characters */
 } HEWALKS;
-typedef struct HEEXAMBOX {              /* the master exam question 0x7e's words over AIJOB's union (from HEEXAMMSG) */
+typedef struct HEEXAMBOX {              /* the master exam question 0x7e's words over AIJOB's union (from AIMSG.exam) */
     char pad00[0xac];
     int chr;                            /* 0xac, the netId of the character asked */
     int examId;                         /* 0xb0, the id of the exam offer event 0x7f that asks (HEEXAMOFFER) */
@@ -196,15 +196,6 @@ typedef struct HEEXAMOFFER {            /* the exam offer event 0x7f's words ove
     int chr;                            /* 0xac, the netId of the character it is for */
     int accepted;                       /* 0xb0, 0 at the start (he_StartExamOffer), 1 when the player said yes (he_RunExamQuestion) */
 } HEEXAMOFFER;
-typedef union HEEXAMMSG {               /* the message 0x7e he_RunExamOffer posts (AIMSG has no names at +0x58 .. for it) */
-    AIMSG msg;
-    struct {
-        char pad00[0x58];
-        int chr;                        /* 0x58, the netId of the character asked */
-        int examId;                     /* 0x5c, the offer event's id */
-        AITIME due;                     /* 0x60, the answer is due: now + 2 hours */
-    } q;
-} HEEXAMMSG;
 typedef struct HECONVERT {              /* the conversion event 0x81's words over AIJOB's union (he_RunConversion) */
     char pad00[0xac];
     int left;                           /* 0xac, the characters still to turn */
@@ -628,13 +619,6 @@ typedef struct HEGESELLE {              /* the "RndGeselle" (a random journeyman
     int slot;                           /* 0xbc, the cm slot of the journeyman's creation (cm_SendMessage3d); its value
                                            is the new character */
 } HEGESELLE;
-typedef struct HEFEEMSG {               /* the AI message 0x56 he_RunMasterExamPay posts (AIMSG has no names at +0x58 /
-                                           +0x5c for it; a member added to AIMSG can flip other units' matches) */
-    char pad00[0x58];
-    unsigned char what;                 /* 0x58, 4 (reasoned: the kind of payment, its reader is not read yet) */
-    char pad59[3];
-    int amount;                         /* 0x5c, the amount paid */
-} HEFEEMSG;
 typedef struct HEEXAMPAY {              /* the master exam payment event's word over AIJOB's union (he_RunMasterExamPay) */
     char pad00[0xb0];
     int fee;                            /* 0xb0, the fee the message box names (5% of the character's worth), paid on yes */
@@ -700,14 +684,7 @@ typedef struct HETRAINING {             /* the training event 0x60's words over 
     unsigned char range;                /* 0xad, the random amount taken off it (util_Random), 2 * (2 + skill / 42 + 1) */
     unsigned char skill;                /* 0xae, the skill trained (AICHAR.skills index) */
 } HETRAINING;
-typedef struct HESKILLMSG {             /* the AI message 0x6a he_RunTraining posts when a player's skill reaches a new
-                                           level (AIMSG has no names at +0x58 / +0x5c for it) */
-    char pad00[0x58];
-    unsigned char skill;                /* 0x58, the skill (AICHAR.skills index) */
-    char pad59[3];
-    int level;                          /* 0x5c, its new level: the value / 42 */
-} HESKILLMSG;
-typedef struct HESKILLUP {              /* the skill level-up event 0x6a's words over AIJOB's union: HESKILLMSG's words as the
+typedef struct HESKILLUP {              /* the skill level-up event 0x6a's words over AIJOB's union: AIMSG.skillLevel's words as the
                                            event takes them over (+0x58 -> +0xac; its init he_StartSkillUp, run handler
                                            he_RunSkillUp) */
     char pad00[0xac];
@@ -768,16 +745,6 @@ typedef struct HEPLAGUE {               /* the plague event 0x59's words over AI
     int target;                         /* 0xcc, the id of the building the carriers are sent to */
     int home;                           /* 0xd0, the id of the start building, where they go back after each target */
 } HEPLAGUE;
-typedef struct HEPLAGUEMSG {            /* the AI message 0x78 he_BeginPlague posts to every player character (AIMSG
-                                           has no names at +0x58 .. +0x6c for it) */
-    char pad00[0x58];
-    int bld;                            /* 0x58, the start building's id */
-    int target;                         /* 0x5c, the target building's id: the start building */
-    int next;                           /* 0x60, -1 */
-    int walk;                           /* 0x64, the event's walk index */
-    int step;                           /* 0x68, the event's walk step */
-    int left;                           /* 0x6c, the event's countdown */
-} HEPLAGUEMSG;
 typedef struct HEGANG {                 /* the pickpocket gang event 0x61's words over AIJOB's union (its alloc handler
                                            he_StartGang, run handler 0x54a7b0; the gang is AIJOB.ids[0..5]) */
     char pad00[0xac];
@@ -5978,8 +5945,8 @@ void he_RunMasterExamPay(AIJOB *e)
                 m.fromId = -1;
                 m.to = ai_CharInts[e->chr][0];
                 m.flags = 0x11;
-                ((HEFEEMSG *)&m)->what = 4;
-                ((HEFEEMSG *)&m)->amount = fee;
+                m.fee.what = 4;
+                m.fee.amount = fee;
                 cm_SendLongMessage(&m);
                 he_ReleaseSlot(e);
                 he_FreeEvent(e);
@@ -6552,8 +6519,8 @@ void he_RunTraining(AIJOB *e)
                 msg.fromId = -1;
                 msg.time = ai_Time;
                 msg.flags = 9;
-                ((HESKILLMSG *)&msg)->skill = t->skill;
-                ((HESKILLMSG *)&msg)->level = level;
+                msg.skillLevel.skill = t->skill;
+                msg.skillLevel.level = level;
                 cm_SendLongMessage(&msg);
             } else {
                 sprintf(sound, "tal_0%i", skill);
@@ -6575,7 +6542,6 @@ void he_BeginPlague(AIJOB *e)
 {
     HEPLAGUE *p = (HEPLAGUE *)e;
     AIMSG msg;
-    HEPLAGUEMSG *m = (HEPLAGUEMSG *)&msg;
     AIBLD *b;
     int n = 0x100;
     int i;
@@ -6588,12 +6554,12 @@ void he_BeginPlague(AIJOB *e)
             p->walk = util_Random(0x100);
             p->step = ai_RandomStrides[util_Random(0x10)];
             D3_ZERO(&msg, sizeof(msg));
-            m->bld = b->id;
-            m->target = b->id;
-            m->next = -1;
-            m->walk = p->walk;
-            m->step = p->step;
-            m->left = p->left;
+            msg.plague.bld = b->id;
+            msg.plague.target = b->id;
+            msg.plague.next = -1;
+            msg.plague.walk = p->walk;
+            msg.plague.step = p->step;
+            msg.plague.left = p->left;
             msg.fromId = -1;
             msg.type = 0x78;
             msg.flags = 9;
@@ -10213,7 +10179,7 @@ void he_RunExamOffer(AIJOB *e)
 {
     float skill;
     int worth, pay;
-    HEEXAMMSG m;
+    AIMSG m;
     char text[0x800];
     AICHAR *c;
 
@@ -10223,16 +10189,16 @@ void he_RunExamOffer(AIJOB *e)
     }
     if (e->stage == 0) {
         memset(&m, 0, sizeof(m));
-        m.msg.type = 0x7e;
-        m.msg.fromId = -1;
-        m.msg.time = ai_Time;
-        m.msg.to = ((HEEXAMOFFER *)e)->chr;
-        m.q.chr = ((HEEXAMOFFER *)e)->chr;
-        m.msg.flags = 9;
-        m.q.examId = e->id;
-        m.q.due = ai_Time;
-        gm_AddTime(&m.q.due, 2, 0, 0);
-        cm_SendLongMessage((struct AIMSG *)&m);
+        m.type = 0x7e;
+        m.fromId = -1;
+        m.time = ai_Time;
+        m.to = ((HEEXAMOFFER *)e)->chr;
+        m.exam.chr = ((HEEXAMOFFER *)e)->chr;
+        m.flags = 9;
+        m.exam.examId = e->id;
+        m.exam.due = ai_Time;
+        gm_AddTime(&m.exam.due, 2, 0, 0);
+        cm_SendLongMessage(&m);
         e->stage = 1;
         e->end = ai_Time;
         gm_AddTime(&e->end, 8, 0, 0);

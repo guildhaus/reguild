@@ -536,37 +536,6 @@ int amt_GetKind(int k, struct AMTKIND *out);                             /* 0x4e
 int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind, struct AMTREC *office);                                    /* 0x4e6030 */
 
 /* ---- 0x49a0a0..0x4a16f0 (was unk_49a0a0.h) ---- */
-#pragma pack(push, 1)
-typedef struct G8MSG {                  /* 0xf8 bytes, an AIMSG (ai.h) as these callbacks fill it */
-    int unk00;                          /* 0x00 */
-    unsigned char type;                 /* 0x04 */
-    char pad05[3];
-    unsigned int to;                    /* 0x08 */
-    int fromId;                         /* 0x0c, the sending building's id (AIMSG.fromId) */
-    char pad10[0x18];
-    AITIME time;                        /* 0x28 */
-    unsigned char flags;                /* 0x36, the message flags (AIMSG.flags) */
-    char pad37[0x21];
-    int arg;                            /* 0x58, the message kind's first word (AIMSG.arg[0]: a building id or a character's netId) */
-    union {
-        unsigned int from;              /* 0x5c, the second word (AIMSG.arg[1]: the sender's netId in the credit message) */
-        unsigned char bldClass;         /* 0x5c, the apprenticeship message 0x5e: the building class the child gets */
-    };
-    union {                             /* 0x60..0x6f, the kind's words (AIMSG.arg[2..5]) */
-        int word[4];                    /* a callback's own two / three values, in the order it writes them */
-        struct {                        /* the AI credit message 0x23 (a bank's offer, filled by ai_ExecuteTakeCredit) */
-            int amount;                 /* 0x60, the sum lent (ORDCREDIT.amount) */
-            int term;                   /* 0x64, the term in rounds, 2 .. 7 (ORDCREDIT.term) */
-            int pad68;
-            int interest;               /* 0x6c, the rate (ORDCREDIT.interest) */
-        } credit;
-    };
-    char pad70[0x88];
-} G8MSG;
-#pragma pack(pop)
-
-typedef char ai_AssertG8MSG[sizeof(G8MSG) == 0xf8 ? 1 : -1];
-
 typedef struct G8USE {                  /* 20 bytes, given to 0x5cf8a0 (unk_48e070.h: AIUSE) */
     AIOBJ *obj;                         /* 0x00 */
     int target;                         /* 0x04, the target for the good's use callback (the table +0x14): a reference of the action's second argument */
