@@ -899,7 +899,7 @@ int ai_MsgCartFillDropType22(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -952,7 +952,7 @@ int ai_MsgJobTime(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1006,7 +1006,7 @@ int ai_MsgJobEndPlayerType24(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type == 0x47 || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1056,7 +1056,7 @@ int ai_MsgJobEndPayType25(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1109,7 +1109,7 @@ int ai_MsgJobBothEndsType26(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((w != 0 && u != 0 && w->type != 0x47) || u->type != 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1153,7 +1153,7 @@ int ai_MsgJobBothEndsType27(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type != 0x47 || u->type != 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1207,7 +1207,7 @@ int ai_MsgJobEndDateType29(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if ((u != 0 && w != 0 && w->type == 0x47) || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;
@@ -1258,7 +1258,7 @@ int ai_MsgJobEndValueType2a(G14MSG *m)
         if (o != 0 && o->fightSide == c->id) {
             gm_FindById((int *)&u, 0, 0, j->id3);
             gm_FindById((int *)&w, 0, 0, j->id2);
-            if ((u != 0 && gm_IsHomeType((unsigned char *)u)) || (w != 0 && gm_IsHomeType((unsigned char *)w))) {
+            if ((u != 0 && gm_IsHomeType(u)) || (w != 0 && gm_IsHomeType(w))) {
                 if (w->type == 0x47 || u->type == 0x47) {
                     js[n] = j;
                     os[n] = o;

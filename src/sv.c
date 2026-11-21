@@ -594,7 +594,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
             return;
         }
     } else if (sv_QuickJump.record != sv_PanelShown) {
-        if (o == cur && gm_IsHomeType((unsigned char *)cur) != 0) {
+        if (o == cur && gm_IsHomeType(cur) != 0) {
             o->mainRoom = sv_QuickJump.record->type;
             if (sv_PanelShown != 0) {
                 sv_PopRequest = (sv_FrameDepth - sv_FrameBase) + 1;
@@ -606,7 +606,7 @@ void sv_SelectPanelObject(AIBLD *o, int b, char *c)
         old = sv_PanelShown;
         oldv = ai_FrameWait;
         o->mainRoom = sv_QuickJump.record->type;
-        if (gm_IsHomeType((unsigned char *)o) == 0 && gm_IsType10((unsigned char *)o) == 0) {
+        if (gm_IsHomeType(o) == 0 && gm_IsType10(o) == 0) {
             sv_PanelShown = sv_QuickJump.record;
             sv_QuickJump.panelFlag = 0;
             ai_FrameWait = 0;

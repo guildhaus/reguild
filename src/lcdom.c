@@ -827,7 +827,7 @@ int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VEC
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
 struct AIBLD; int ai_ScriptQuery();
-int gm_IsType10(unsigned char *b);
+int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
 void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(char *c);
@@ -3569,7 +3569,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             if (c == 0)
                 continue;
             if (gm_Query((void *)src->objList, 2, 1, c->objId, 3, ai_PlayerId) != 0 && rows[i].job == 0
-                && (gm_IsType10((unsigned char *)bld) == 0 || ai_CartAtBuilding(bld, c) != 0))
+                && (gm_IsType10(bld) == 0 || ai_CartAtBuilding(bld, c) != 0))
                 continue;
             if (rows[i].pic != -1) {
                 rows[i].cart = 0;
@@ -3603,7 +3603,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             if (cart == 0)
                 break;
             d2_SetForm(win, 2);
-            if (gm_IsType10((unsigned char *)bld) == 0 || ai_CartAtBuilding(bld, cart) != 0) {
+            if (gm_IsType10(bld) == 0 || ai_CartAtBuilding(bld, cart) != 0) {
                 for (i = 0; i < 16; i++)
                     if (rows[i].cart != 0 && rows[i].cart->objId == cart->objId)
                         break;

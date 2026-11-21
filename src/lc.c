@@ -3096,7 +3096,7 @@ int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VEC
 void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
 struct AIBLD; int ai_ScriptQuery();
-int gm_IsType10(unsigned char *b);
+int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(int view, int idx, int k); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
 void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(char *c);
@@ -3129,7 +3129,7 @@ void ai_HandleMapKey(void)
         p = (AIBLD *)ai_MapPick(1, msg, 0, 0, 0);
         if (p != 0 && sv_OtherSelected == 0) {
             if (ai_FallbackBuilding != 0) {
-                r = gm_IsHomeType((unsigned char *)p);
+                r = gm_IsHomeType(p);
                 if (r != 0 && p->type == 'G') {
                     sv_SelectPanelObject(p, 0xfd, (void *)(unsigned)&ch_EmptyName);
                     return;
@@ -3137,7 +3137,7 @@ void ai_HandleMapKey(void)
                 sv_SelectPanelObject(p, -1, (void *)(unsigned)&ch_EmptyName);
                 return;
             }
-            r = gm_IsHomeType((unsigned char *)p);
+            r = gm_IsHomeType(p);
             if (r == 0 || p->type != 'G') {
                 if (ai_FallbackBuilding == 0 && ai_PlayerBuilding == 0) {
                     sv_FlyCameraToObject((int)p);
@@ -3338,7 +3338,7 @@ void ai_GameFrame(void)
                 (b->flags5a & 1) == 0) {
                 if (gm_IsHomeType(b) != 0 && ai_ScriptQuery(0x1b, b, 0, 0) == 1)
                     ai_EnterOwnBuilding(b);
-                else if (gm_IsType10((unsigned char *)b) == 0 && ai_ScriptQuery(0x19, b, 0, b->mainRoom) == 1)
+                else if (gm_IsType10(b) == 0 && ai_ScriptQuery(0x19, b, 0, b->mainRoom) == 1)
                     ai_EnterBuilding(b, b->mainRoom);
             }
         }
@@ -3352,13 +3352,13 @@ void ai_GameFrame(void)
                 if ((b->flags5a & 1) != 0) {
                     sv_QuickJump.panelFlag = 0;
                 } else {
-                    if (b->object != 0 && gm_IsType10((unsigned char *)b) == 0)
+                    if (b->object != 0 && gm_IsType10(b) == 0)
                         sv_CameraToObject(b);
                     if (gm_IsHomeType(b) != 0) {
                         ai_EnterOwnBuilding(b);
-                    } else if (gm_IsType10((unsigned char *)b) == 0) {
+                    } else if (gm_IsType10(b) == 0) {
                         ai_EnterBuilding(b, b->mainRoom);
-                    } else if (gm_IsType10((unsigned char *)b) != 0) {
+                    } else if (gm_IsType10(b) != 0) {
                         sv_FlyCameraToObject((int)b);
                         sv_QuickJump.panelFlag = 0;
                     }

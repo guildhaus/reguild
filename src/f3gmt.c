@@ -143,7 +143,7 @@ char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned c
 extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
 struct CHARACTER * ch_Create();                     /* 0x403390 */
-int gm_IsHomeType(unsigned char *b);                     /* 0x502520 */
+int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
 int init_ObjectSceneUniverse();                     /* 0x511dc0 */
 int init_BuildingSceneUniverse();                     /* 0x511e60 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
@@ -1620,11 +1620,11 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         load->lvl1c = (unsigned char)r->type - 0x33;
         home = (unsigned char *)gm_BuildQuery(1, 1, id);
         scene = 0;
-        if (home != 0 && gm_IsHomeType(home) != 0)
+        if (home != 0 && gm_IsHomeType((AIBLD *)home) != 0)
             scene = init_BuildingSceneUniverse((AIBLD *)home);
         saved = d3_CurrentScene;
         d3if_SelectScene(scene, 1);
-        dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : (int)((ORDBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");
+        dummy = d3_FindObject(gm_IsHomeType((AIBLD *)home) != 0 ? 0 : (int)((ORDBLD *)home)->object, 0x100, 0, "dummy_TRANSPORTER");
         if (dummy != 0)
             d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)pos);
         else if (((ORDBLD *)home)->object != 0) {
@@ -1676,11 +1676,11 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
         if (home == 0) {
             model->scriptGroup = -1;
             group = -1;
-        } else if (gm_IsHomeType(home) == 0) {
+        } else if (gm_IsHomeType((AIBLD *)home) == 0) {
             ch_SetVisible(model, 0);
             model->scriptGroup = -1;
             group = -1;
-        } else if (gm_IsHomeType(home) != 0) {
+        } else if (gm_IsHomeType((AIBLD *)home) != 0) {
             group = ((ORDBLD *)home)->id;
             model->scriptGroup = -1;
         } else {
@@ -2156,8 +2156,8 @@ int gm_IsHomeType();                     /* 0x502520 */
 int init_BuildingSceneUniverse();                     /* 0x511e60 */
 
 
-int gm_IsHomeType(unsigned char *b);
-int gm_IsType10(unsigned char *b);
+int gm_IsHomeType(struct AIBLD *b);
+int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
 
 /* 0x501400, stocks a new building b with the objects its building kind needs (gm_BuildingItemGroups: the kind byte and ten object prototypes): the container object 0xff (query (2, 6, 0, 0xff), created by gm_CreateObject when missing) gets each listed object with the amount 2 when it has none */
@@ -2336,7 +2336,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     s = (unsigned short *)gm_GetGebaeudeHauptraum((unsigned char *)b);
     if (s != 0)
         b->mainRoom = *s;
-    if (gm_IsHomeType((unsigned char *)b) != 0)
+    if (gm_IsHomeType((AIBLD *)b) != 0)
         b->v30 = 0x1388;
     switch (k) {
     case 4:
@@ -2430,7 +2430,7 @@ int gm_BuildingMainObject(unsigned char *p)
     if (cls != 1 && cls != 7 && cls != 8) {
         if (cls == 4)
             o = gm_Query((void *)b->objList, 1, 0, 0xf7);
-        else if (gm_IsHomeType((unsigned char *)b) != 0)
+        else if (gm_IsHomeType((AIBLD *)b) != 0)
             o = gm_Query((void *)b->objList, 1, 0, 0xfd);
         else {
             for (i = 0; i < 0x40; i++) {
@@ -2474,7 +2474,7 @@ void *gm_GetGebaeudeHauptraum(unsigned char *p)
 
     gm_BuildingClass(b->type);
     k = (unsigned char *)ai_BTypes + b->type * 0x24d;
-    if (gm_IsHomeType((unsigned char *)b) != 0)
+    if (gm_IsHomeType((AIBLD *)b) != 0)
         return gm_Query((void *)b->objList, 1, 0, 0xfd);
     if (*k == 4)
         return gm_Query((void *)b->objList, 1, 0, 0x54);
@@ -2543,7 +2543,7 @@ unsigned char *gm_NearestBuilding(unsigned char *b, unsigned kind)
         p = (unsigned char *)gm_BuildQuery(1, 6);
         while (p != 0) {
             k = (unsigned char *)ai_BTypes + ((ORDBLD *)p)->type * 0x24d;
-            if (gm_IsHomeType(p) == 0 && gm_IsType10(p) == 0 && (o = ((ORDBLD *)p)->object) != 0 && p != b && *k == kind) {
+            if (gm_IsHomeType((AIBLD *)p) == 0 && gm_IsType10((AIBLD *)p) == 0 && (o = ((ORDBLD *)p)->object) != 0 && p != b && *k == kind) {
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v1);
                 d3_PointToWorld(((ORDBLD *)b)->object, &((ORDBLD *)b)->object->pos, (D3VECTOR *)&v2);
                 dx = v1.x - v2.x;
@@ -2574,7 +2574,7 @@ unsigned char *gm_NearestFreeBuilding(unsigned char *p, unsigned kind)
     r = 0;
     q = (ORDBLD *)gm_BuildQuery(1, 6);
     while (q != 0) {
-        if (gm_IsHomeType((unsigned char *)q) == 0 && gm_IsType10((unsigned char *)q) == 0 && (o = q->object) != 0
+        if (gm_IsHomeType((AIBLD *)q) == 0 && gm_IsType10((AIBLD *)q) == 0 && (o = q->object) != 0
             && q != b && q->type == kind && q->owner == 0xffff) {
             dx = o->pos.x - b->object->pos.x;
             dy = o->pos.y - b->object->pos.y;
@@ -2734,19 +2734,19 @@ int gm_MayTakeJob(int k, int c)
 }
 /* 0x5024f0, 1 when the building b is of the type 10 (the town market) */
 
-int gm_IsType10(unsigned char *b)
+int gm_IsType10(AIBLD *b)
 {
-    return ai_BTypes[*b].kind == 10;
+    return ai_BTypes[b->type].kind == 10;
 }
 /* 0x502520, 1 when the building b is a home (the types 0xb, 0xc, 0xd, 0x10, 0x1c, 0x1d, 0x1f) */
 
-int gm_IsHomeType(unsigned char *b)
+int gm_IsHomeType(AIBLD *b)
 {
     char *k;
 
     if (b == 0)
         return 0;
-    k = (char *)ai_BTypes + *b * 0x24d;
+    k = (char *)ai_BTypes + b->type * 0x24d;
     if (*k == 0x0b || *k == 0x0d || *k == 0x0c || *k == 0x10 || *k == 0x1c || *k == 0x1d || *k == 0x1f)
         return 1;
     return 0;

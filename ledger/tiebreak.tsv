@@ -3803,7 +3803,7 @@ exe	0x00567c00	he_RunTip	he	348d639db6e92e0f	no	draft	control=draft p1=draft p2=
 exe	0x00567d20	he_AllocTutorialBuildingTour	he	14da3e1fac70990a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00567d60	he_RunTutorialBuildingTour	he	f5f914a3823fda68	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00567f00	he_AllocPatrolEvent	he	d1be52fa97ba6228	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00567f50	he_PatrolStep	he	1428f502663ef6ef	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	07d6792f4207e526
+exe	0x00567f50	he_PatrolStep	he	3b3d3684ceb1e171	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	678c969297260fdc
 exe	0x00568220	he_RunPatrolEvent	he	811807481666d386	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00568310	he_RegisterEventTypes02	he	b08a213744e4542b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00568aa0	he_EndKind23Events	he	a77de2841f8dcf4a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

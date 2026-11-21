@@ -160,7 +160,7 @@ void anm_UpdateBird(ANMREC *a)
         return;
     n = 0;
     for (b = (G15BLD *)gm_BuildQuery(1, 6); b != 0; b = (G15BLD *)gm_BuildNext()) {
-        if (!gm_IsHomeType((unsigned char *)b) && !gm_IsType10((unsigned char *)b) && b->object != 0)
+        if (!gm_IsHomeType((struct AIBLD *)b) && !gm_IsType10((struct AIBLD *)b) && b->object != 0)
             bs[n++] = b;
     }
     f = bs[util_Random(n)];
@@ -381,7 +381,7 @@ int rd_DoorPos(float *pos)
     n = 0;
     b = (G15BLD *)gm_BuildQuery(1, 6);
     while (b != 0) {
-        if (gm_IsHomeType((unsigned char *)b) == 0 && gm_IsType10((unsigned char *)b) == 0 && b->object != 0)
+        if (gm_IsHomeType((struct AIBLD *)b) == 0 && gm_IsType10((struct AIBLD *)b) == 0 && b->object != 0)
             bs[(unsigned short)n++] = b;
         b = (G15BLD *)gm_BuildNext();
     }

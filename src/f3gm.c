@@ -1102,7 +1102,7 @@ int gm_HeadIconNumber(char *name)
 extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
 struct CHARACTER * ch_Create();                     /* 0x403390 */
-int gm_IsHomeType(unsigned char *b);                     /* 0x502520 */
+int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
 int init_ObjectSceneUniverse();                     /* 0x511dc0 */
 int init_BuildingSceneUniverse();                     /* 0x511e60 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
@@ -1287,7 +1287,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                 if (o2 == 0)
                     return 0;
             }
-            if (gm_IsHomeType((unsigned char *)o))
+            if (gm_IsHomeType((AIBLD *)o))
                 sc = init_BuildingSceneUniverse((struct AIBLD *)o);
             else if (o2 != 0)
                 sc = init_ObjectSceneUniverse(o2);
@@ -2474,8 +2474,8 @@ void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0
 void ch_SetVisible();                     /* 0x402480 */
 int gm_IsHomeType();                     /* 0x502520 */
 int init_BuildingSceneUniverse();                     /* 0x511e60 */
-int gm_IsHomeType(unsigned char *b);
-int gm_IsType10(unsigned char *b);
+int gm_IsHomeType(struct AIBLD *b);
+int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
 int gv_BuryNewDead();                     /* 0x4ef9c0 */
 void *gm_GetGebaeudeHauptraum(unsigned char *b);                     /* 0x501ce0 */

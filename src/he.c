@@ -11770,17 +11770,17 @@ void he_TransportFromHome(int ev)
         ch = (CHARACTER *)tr->sceneObj;
         if (ch != 0 && ch->actions == 0
             && ((ch->scene == &d3_Scenes[0] && d3_VecEqual(&ch->obj->pos, &t->lastPos, 100.0f) != 0) || t->rounds > 6)) {
-            if (gm_IsType10((unsigned char *)to) == 0) {
+            if (gm_IsType10(to) == 0) {
                 t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
                 cm_SendCartState(tr->objId, 0);
             }
             cm_SendSetField(tr->objId, 0x13, 1, 0, 0x40);
-            if (gm_IsType10((unsigned char *)to) != 0)
+            if (gm_IsType10(to) != 0)
                 txt_Format(text, 0x1c43);
             else {
                 if (bt->kind != 0x1d && bt->kind != 0x1f)
                     txt_Format(text, 0x1c41, 1, 0x1c39, from, to->owner, to);
-                else if (gm_IsType10((unsigned char *)to) != 0)
+                else if (gm_IsType10(to) != 0)
                     txt_Format(text, 0x1c43);
                 else
                     txt_Format(text, 0x1c44, to);
@@ -11788,7 +11788,7 @@ void he_TransportFromHome(int ev)
             if ((ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7)
                 && (sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow
                     || (ai_PlayerBuilding != (AIBLD *)to
-                        && (gm_IsType10((unsigned char *)to) == 0 || sv_PanelShown == 0
+                        && (gm_IsType10(to) == 0 || sv_PanelShown == 0
                             || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)to);
@@ -11838,10 +11838,10 @@ void he_TransportToHome(int ev)
     he_SetCartSpeed(ev, (int)tr);
     if (t->started == 0) {
         cm_SendChrStop(tr->objId);
-        if (gm_IsType10((unsigned char *)from) == 0)
+        if (gm_IsType10(from) == 0)
             cm_SendCartState(tr->objId, 1);
         cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 0, "Trans");
-        if (gm_IsType10((unsigned char *)from) == 0)
+        if (gm_IsType10(from) == 0)
             t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
     } else if (sv_IsCartAtDoor((char *)tr, (unsigned char *)to) != 0) {
@@ -11871,7 +11871,7 @@ void he_TransportToHome(int ev)
                 txt_Format(text, 0x1c3f, 1, 0x1c39, to->owner, to);
             else {
                 icon = 0x608;
-                if (gm_IsType10((unsigned char *)to) != 0)
+                if (gm_IsType10(to) != 0)
                     txt_Format(text, 0x1c43);
                 else
                     txt_Format(text, 0x1c44, to);
@@ -11932,7 +11932,7 @@ void he_TransportStadtStadt(int ev)
             d3_PointToWorld((D3OBJECT *)o, &((D3OBJECT *)o)->pos, (D3VECTOR *)&pos);
         else
             d3_PointToWorld((D3OBJECT *)to->object, &((D3OBJECT *)to->object)->pos, (D3VECTOR *)&pos);
-        if (gm_IsType10((unsigned char *)from) != 0)
+        if (gm_IsType10(from) != 0)
             tr = (AIOBJ *)gm_Query((void *)guards->objList, 1, 1, t->cart);
         else
             tr = (AIOBJ *)gm_Query((void *)from->objList, 1, 1, t->cart);
@@ -11950,7 +11950,7 @@ void he_TransportStadtStadt(int ev)
             t->lastPos.x = pos.x;
             t->lastPos.y = pos.y;
             t->lastPos.z = pos.z;
-            if (gm_IsType10((unsigned char *)from) == 0) {
+            if (gm_IsType10(from) == 0) {
                 if (from->object != 0) {
                     o = (AIOBJ *)he_RandomTransporter(from->object);
                     if (o != 0)
@@ -11965,7 +11965,7 @@ void he_TransportStadtStadt(int ev)
                 cm_SendCartState(tr->objId, 1);
             }
             cm_SendChrWalkTo(tr->objId, px, pz, 0);
-            if (gm_IsType10((unsigned char *)from) == 0)
+            if (gm_IsType10(from) == 0)
                 t->route = cm_SendCartRoute(guards->id, t->start, t->cart);
         } else
             gm_Query(0, 2, 7, 1, t->cart);
@@ -11989,19 +11989,19 @@ void he_TransportStadtStadt(int ev)
         }
         if (ch->actions == 0 && (d3_VecEqual(&ch->obj->pos, &t->lastPos, 300.0f) != 0 || t->rounds > 6)) {
             cm_SendSetField(tr->objId, 0x13, 1, 0, 0x40);
-            if (gm_IsType10((unsigned char *)to) == 0) {
+            if (gm_IsType10(to) == 0) {
                 cm_SendCartState(tr->objId, 0);
                 t->route = cm_SendCartRoute(to->id, guards->id, t->cart);
             }
-            if (gm_IsType10((unsigned char *)to) != 0)
+            if (gm_IsType10(to) != 0)
                 txt_Format(text, 0x1c43);
             else
                 txt_Format(text, 0x1c44, to);
             if ((sv_Frames[sv_FrameDepth].cb != (int)ai_TransportWindow
                  || (ai_PlayerBuilding != (AIBLD *)to
-                     && (gm_IsType10((unsigned char *)to) == 0 || sv_PanelShown == 0
+                     && (gm_IsType10(to) == 0 || sv_PanelShown == 0
                          || (ai_PlayerBuilding != (AIBLD *)to
-                             && (gm_IsType10((unsigned char *)to) == 0
+                             && (gm_IsType10(to) == 0
                                  || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
                 o = (AIOBJ *)gm_BuildingMainObject((unsigned char *)to);
@@ -12094,7 +12094,7 @@ void he_TransportHomeHome(int ev)
                 quick[0] = 0;
             if (bt->kind != 0x1d && bt->kind != 0x1f)
                 txt_Format(text, 0x1c3f, 1, 0x1c39, to->owner, to);
-            else if (gm_IsType10((unsigned char *)to) != 0)
+            else if (gm_IsType10(to) != 0)
                 txt_Format(text, 0x1c43);
             else
                 txt_Format(text, 0x1c44, to);
@@ -14368,7 +14368,7 @@ void he_RunEvent1f(int ev)
                 }
                 he_MessageBoxQuickjump(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, news, b->id, o->objId, 0, "_NACHRICHTEN_HS_53");
             }
-            if (gm_IsHomeType((unsigned char *)b)) {
+            if (gm_IsHomeType(b)) {
                 q = (AIOBJ *)gm_Query((void *)b->objList, 1, 4, 2);
                 msg.due = ai_Time;
                 gm_AddTime(&msg.due, 0, 0, 1);
@@ -17735,7 +17735,7 @@ void he_AllocFire(AIJOB *ev)
 
     for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         t = &ai_BTypes[b->type];
-        if (gm_IsHomeType((unsigned char *)b) == 0 && gm_IsType10((unsigned char *)b) == 0 && b->object != 0
+        if (gm_IsHomeType(b) == 0 && gm_IsType10(b) == 0 && b->object != 0
             && t->kind != 3)
             list[n++] = b;
     }
@@ -18122,7 +18122,7 @@ void he_AllocStorm(AIJOB *ev)
     n = 0;
     k = 1;
     for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
-        if (gm_IsHomeType((unsigned char *)b) == 0 && gm_IsType10((unsigned char *)b) == 0 && b->object != 0)
+        if (gm_IsHomeType(b) == 0 && gm_IsType10(b) == 0 && b->object != 0)
             list[n++ & 0xffff] = b;
     }
     for (i = 1; i < 0x10; i++)
@@ -19351,7 +19351,7 @@ void he_PatrolStep(AIJOB *ev, AIOBJ *c)
             return;
         c->patrolWait = 0;
     }
-    if (sv_IsCartAtDoor(c, at) != 0 && (gm_IsType10((unsigned char *)at) == 0 || c->ownerId == he_PatrolBuilding->id)) {
+    if (sv_IsCartAtDoor(c, at) != 0 && (gm_IsType10(at) == 0 || c->ownerId == he_PatrolBuilding->id)) {
         count = rt_PointCount(c->route);
         n = c->routeIdx + 1;
         if (n >= count)

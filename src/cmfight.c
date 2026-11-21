@@ -1911,7 +1911,7 @@ void cm_SetupFightScene(CMFIGHTREC *rec)
         cm_LoadEventScene("Kampfszenario_BERGPASS.ed3");
     } else {
         b = gm_BuildQuery(1, 1, rec->placeId);
-        if (gm_IsHomeType((unsigned char *)b) != 0) {
+        if (gm_IsHomeType(b) != 0) {
             t = &ai_BTypes[b->type];
             if (t->kind == 0x10) {
                 cm_LoadEventScene("Kampfszenario_RAEUBERLAGER.ed3");

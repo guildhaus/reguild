@@ -3711,7 +3711,7 @@ void cm_ShowObjectScene(char *o, int id)
         return;
     }
     if (gm_Query(b->objList, 1, 0, id) != 0) {
-        if (gm_IsHomeType(o) == 0) {
+        if (gm_IsHomeType((AIBLD *)o) == 0) {
             if (init_ObjectUniverse[id] != (char)0xfe) {
                 if (init_ObjectUniverse[id] == (char)0xff || init_SceneDirty[init_ObjectUniverse[id] * 0x3e0] != 0)
                     init_LoadObjectScene(id);
@@ -4751,7 +4751,7 @@ void cm_SendPartyNote(AICHAR *a, G28REC *b, char *text, char *extra)
     if (party->thing != -1) {
         bld = gm_FindBuildingById(party->thing);
         if (bld != 0) {
-            if (gm_IsHomeType((unsigned char *)bld) == 0) {
+            if (gm_IsHomeType(bld) == 0) {
                 o = (AIOBJ *)gm_GetGebaeudeHauptraum((unsigned char *)bld);
                 if (o != 0)
                     note.head.arg[2] = o->objId;

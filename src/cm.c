@@ -1726,7 +1726,7 @@ int cm_SendChrGotoBuilding(int id, int bld, int c, const char *s, int f, const c
         o = 0;
         b = gm_FindBuildingById(bld);
         if (b != 0) {
-            if (gm_IsHomeType((unsigned char *)b) != 0) {
+            if (gm_IsHomeType(b) != 0) {
                 o = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
                 if (o != 0)
                     m.go.objId = o->objId;
@@ -4414,7 +4414,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
     }
     if (q != 0 && q->id != 0xfd)
         k = init_ObjectSceneUniverse((unsigned short *)q);
-    else if (b != 0 && gm_IsHomeType((unsigned char *)b) != 0) {
+    else if (b != 0 && gm_IsHomeType(b) != 0) {
         k = init_BuildingSceneUniverse(b);
         q = (AIOBJ *)gm_Query((void *)b->objList, 1, 0, 0xfd);
     } else
@@ -4600,7 +4600,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
     if (p->group != -1)
         cb = gm_BuildQuery(1, 1, p->group);
     save = d3_CurrentScene;
-    if (cb != 0 && gm_IsHomeType((unsigned char *)cb) != 0) {
+    if (cb != 0 && gm_IsHomeType(cb) != 0) {
         scene = d3t_SceneIndex(p->scene);
         d3if_SelectScene(scene, 1);
         if (scene < 0)
@@ -4695,7 +4695,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             }
         }
     }
-    if (gm_IsHomeType((unsigned char *)to) == 0) {
+    if (gm_IsHomeType(to) == 0) {
         d3if_SelectScene(0, 1);
         if (m->go.text[0] != 0)
             o = d3_FindObject(0, 0x100, 0, m->go.text);
@@ -5336,7 +5336,7 @@ int cm_ExUpdateSmoke(G17MSG *m, G17STAT *s)
     AIBLD *b;
 
     b = gm_BuildQuery(1, 1, m->smoke.bldId);
-    if (b != 0 && b->object != 0 && gm_IsHomeType((unsigned char *)b) == 0)
+    if (b != 0 && b->object != 0 && gm_IsHomeType(b) == 0)
         sv_UpdateChimneySmoke(b);
     if (s != 0) {
         s->state = 1;

@@ -1666,7 +1666,7 @@ void init_OpenBuilding(INIT_BLD *b)
             r = cm_GetSlotState(h);
         }
         ch = (INIT_CHAR *)cm_GetSlotValue(h);
-        if (gm_IsHomeType((unsigned char *)b) == 0) {
+        if (gm_IsHomeType((AIBLD *)b) == 0) {
             ent = (INIT_OBJ *)gm_BuildingMainObject((unsigned char *)b);
             if (ent != 0)
                 cm_RequestChrMoveToUniverse(ch->netId, b->id, ent->objId, "dummy_EINGANG");
@@ -1794,7 +1794,7 @@ void init_OpenTown(void)
         if (c == 0)
             continue;
         q = gm_BuildQuery(1, 4, ((INIT_CHAR *)c)->id);
-        if (q != 0 && gm_IsHomeType(q) != 0)
+        if (q != 0 && gm_IsHomeType((AIBLD *)q) != 0)
             q = 0;
         if (((INIT_CHAR *)c)->kind != 5 && ((INIT_CHAR *)c)->kind != 4) {
             if (q != 0) {
@@ -1910,7 +1910,7 @@ void init_OpenTown(void)
             if (c == 0)
                 continue;
             q = gm_BuildQuery(1, 4, ((INIT_CHAR *)c)->id);
-            if (q != 0 && gm_IsHomeType(q) == 0) {
+            if (q != 0 && gm_IsHomeType((AIBLD *)q) == 0) {
                 r = gm_NearestFreeBuilding(q, 5);
                 if (r == 0)
                     r = gm_NearestFreeBuilding(q, 4);
@@ -3062,7 +3062,7 @@ void init_LoadShopScript(unsigned char *b, unsigned short *o)
     }
     if (w != 0 && w->health > 1 && (o == 0 || w->model->scriptGroup == ((INIT_OBJ *)o)->objId)) {
         goods = 0;
-        if (gm_IsHomeType(b) != 0)
+        if (gm_IsHomeType((AIBLD *)b) != 0)
             name = (char *)INIT_BTYPE(b);
         else
             goods = (char *)ai_Goods + ((INIT_OBJ *)o)->proto * 0x41;
@@ -3174,7 +3174,7 @@ void init_PlayGraveyardSound(char *b)
     gm_ClockSeason(&ai_Time);
     if (b != 0) {
         bld = (INIT_BLD *)b;
-        if (gm_IsHomeType((unsigned char *)b) != 0 && bld->mainRoom == 0xfd && bld->type == 0x1e)
+        if (gm_IsHomeType((AIBLD *)b) != 0 && bld->mainRoom == 0xfd && bld->type == 0x1e)
             init_PlayTownSound("AesteKnacken_s", 0x50, 8000);
     }
 }
@@ -3465,7 +3465,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         d3_FogByDistance = 0;
         d3o_FogScale = 1.0f;
         d3_LightKeyBudgetVisible = 0x800;
-        if (gm_IsHomeType((unsigned char *)b) != 0) {
+        if (gm_IsHomeType(b) != 0) {
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_PlantTextureSetHook);
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
         }
@@ -3568,7 +3568,7 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o)
         init_LoadShopScript((unsigned char *)b, (unsigned short *)o);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_SoundObjectHook);
     init_PlayGraveyardSound((char *)b);
-    if (gm_IsHomeType((unsigned char *)b) == 0)
+    if (gm_IsHomeType(b) == 0)
         d3_ForEachObject(d3_DefaultScene, 0, 0xc0, init_BuildingTextureSetHook, b);
     init_SetDetailLevel(d3_Terrain, 0);
     init_SetSeasonTextures();
