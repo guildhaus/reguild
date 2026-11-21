@@ -6180,7 +6180,9 @@ the bytes no portable form gives.
   lookups and callees) or the eighth (f3init's SCENEOBJ / INIT_CHAR / INIT_PANELCHAR, sv's SVCHARREC / SVGROUP /
   SVMODEL, the lc units' G8CHARREC, amt.h's AMTCHARVIEW with its four cast macros, the picked / selected character
   globals) or the ninth (f3init's INIT_BTYPEREC / INIT_OFFICE / INIT_KIND / INIT_AIMSG / INIT_TERRAIN, AITASK,
-  ahm.h's AHMCHAR / AHMOBJ, the cannon windows' CANNONREC, the group helpers' `char *g`).
+  ahm.h's AHMCHAR / AHMOBJ, the cannon windows' CANNONREC, the group helpers' `char *g`) or the tenth (the 252
+  event handlers' `int ev`, the HEHANDLER tables, he_FindEvent / he_NextEvent / he_CreateEvent, GMCARRYREC.ref, the
+  save game's `int f` file handles and vfs_Tfopen's `int unk` directory).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6463,7 +6465,34 @@ the bytes no portable form gives.
   (`struct AICHAR *side`), read and stored without casts.
 - **Handlers that take `int ev` with an `AIJOB *e = (AIJOB *)ev` alias** (he.c / he_b.c, 360 of them, the handler
   tables' int): pass the alias to typed callees (sv_MoveToGroup(.., e)), not `(char *)ev`; the same code. The
-  handlers' own `int ev` is one family for a later pass (their tables, he_AllocHandlers / he_RunHandlers).
+  handlers' own `int ev` went in the tenth pass, below.
+- **A handler family held as `int` is retyped with its tables, its dispatch and its aliases** (tenth pass, he.c /
+  he_b.c's 252 event handlers): (1) the definitions and every copy of their prototypes take `AIJOB *` (p7/rtc.py
+  PT=AIJOB per unit, the body's `(AIJOB *)ev` casts go, an alias becomes `AIJOB *e = ev`); (2) the callees they hand
+  the event to follow in the same commit (he_ReleaseSlot, he_FreeEvent, cm_SendExSetHE ..), and the callers'
+  `(int)` / `(int *)` / `(char *)` argument casts strip by warning (p10/argstrip.py, restore by line); (3) the tables
+  get one typedef (`typedef void (*HEHANDLER)(struct AIJOB *ev)` in he.h; he_AllocHandlers / he_RunHandlers
+  HEHANDLER[0xa8]) and the registration takes it (he_SetEventHandlers(int, HEHANDLER, HEHANDLER): the `(void *)fn`
+  casts go); (4) the queries that return the record (he_FindEvent / he_NextEvent / he_CreateEvent) return it typed
+  and the int / char * result locals become AIJOB *; (5) the aliases go last, one commit: every one of 242 compiled
+  to the same code (only he_RunTribute's, reassigned, stays). Every step was the same code; the grade moves were
+  declaration-set tie-breaks of the new typedef / forward declarations.
+- **A K&R declaration of a registered handler in front of a typed registration draws C4113** (`void
+  he_FreeEventNow();` against HEHANDLER): give the forward declaration the prototype; a K&R duplicate after a
+  prototype goes.
+- **A foreign empty function registered through a `(void *)` cast** (d3io_NoopCallback(void *t) as an event handler,
+  `(void *)d3io_NoopCallback`): each registering unit gets its own unlinked empty handler of the table's type at the
+  end of the unit (he_NoHandler, he_NoHandlerB, `/* unlinked: .. LINK folds it (/OPT:ICF) into d3io_NoopCallback,
+  0x44ee40 */`); an address reference to the unlinked twin grades like a call (the registration functions stayed
+  byte).
+- **A pointer field that holds an id while saved** (GMCARRYREC.ref: the event pointer, its AIJOB.id between
+  ls_ReadEventTables and ls_FixupAfterLoad): an anonymous union of the pointer and the id (`struct AIJOB *ref; int
+  refId;`), each phase reads its member; the same code.
+- **A file handle or directory held as `int`** (ls.c's `int f` / `int h`, ls_Read's `(int)(p)` buffer, vfs_Tfopen's
+  `int unk` cast to VFSDIR * inside): `VFSFILE *` / `VFSDIR *` parameters and locals (p10/vf.py finds the int
+  parameters passed to vfs_fwrite / vfs_fread / ls_Read / vfs_fclose); every function the same code, ls.c's VC6
+  warnings 1272 -> 9. A header that names `struct VFSFILE *` in a prototype needs a file-scope `struct VFSFILE;`
+  first (else the prototype's struct is its own type: M6 "conflicting types" at the definition).
 - **Removing a partial view's typedef from a widely included header** (ai_char.h's AITASK, ahm.h's AHMCHAR /
   AHMOBJ) shifts declaration-set tie-breaks in every unit that includes it, up and down (eighteen functions
   across ai, cm, cmscene, f3gmt, ls, lc, main, he, rt, sv, sv_t); accepted as they fall, `dcp debt add` for the
