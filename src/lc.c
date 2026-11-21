@@ -62,13 +62,13 @@
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
    Open: types: the amount-menu config (AMOUNTCFG), the frame stack (SVFRAME, 0x75f780), the remaining character /
-   object record views (G8CHARREC / G8OBJ of the news messages), the use callback's request (G8USEVIEW), the
+   object record views (G8CHARREC / AIOBJ of the news messages), the use callback's request (G8USEVIEW), the
    Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
    the gv record (AIWINDOWROW, AIPOSVIEW), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout), the
    player record (LCFIN, ai.h AIFIN) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
-   settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and G8BLD (a building's good id, ai_bld.h's AIBLD).
+   settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and AIBLD (a building's good id, ai_bld.h's AIBLD).
    The production window's tables are this unit's typed data (lc.h): the goods columns ai_ProdColumns (LCPRODCOL),
    the picked input ai_ProdSelectedInput and the goods grids ai_ProdRows / ai_ProdGoods / ai_ProdRows2 /
    ai_ProdGoods2 and the column slots ai_ProdColumnSlots (LCPRODROW / LCPRODSLOT); the member list rows are sv's SVMEMBERROW (sv_types.h, sv_MemberRows).
@@ -13520,23 +13520,10 @@ char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, floa
 void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
 int d2_SetForm(int view, int n); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_CloseView(int view); void d2_RemoveObj(); void d2_ScrollWindowBy();
-#pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
-                                           fields the production settings read */
-    unsigned char type;                 /* +0x00, the building kind */
-    int id;                             /* +0x01, the building's id (the production settings chain's key) */
-} G8BLD;
-#pragma pack(pop)
 int ls_Read(void *buf, int size, int count, int f); void * mem_Alloc(int size, char *tag);
 unsigned vfs_fwrite();
 int d2_WinOpenPic(short x, short y, int pic, int win); int io_CharacterName(int id, unsigned char c, unsigned char kind, char *out); 
 int gm_Opinion(int a, int b);
-#pragma pack(push, 1)
-typedef struct G8OBJ {                  /* an object record of the ai_ lists (AIOBJ, ai_types.h) */
-    unsigned short id;                  /* +0x00, the object's type id */
-    int objId;                          /* +0x02, the object's own id */
-} G8OBJ;
-#pragma pack(pop)
 
 /* dcp unit split: the functions of lcdom the rest of lc uses */
 int ai_BribeAmountCB(AICHARREC *ch);
@@ -13627,8 +13614,6 @@ int gm_EquipmentValue(); void d2_RadioSelect(int g, int sel);
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg, int unused);
 
 /* dcp unit split: the declarations that moved to lcamt (copies: drop what lc does not use) */
-#pragma pack(push, 1)
-#pragma pack(pop)
 float gm_CharacterHealth(); int amt_HasColumn7Holder(); int d2_WinCreateSlider();
 void d2_SetObjWidth(int obj, short w); int amt_GetColumnOffices(int col, int max, struct AMTREC *out);
 #pragma pack(push, 1)

@@ -1668,13 +1668,6 @@ void ai_CloseMapWindow(int *m_)
     }
     m->view = -1;
 }
-#pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
-                                           fields the production settings read */
-    unsigned char type;                 /* +0x00, the building kind */
-    int id;                             /* +0x01, the building's id (the production settings chain's key) */
-} G8BLD;
-#pragma pack(pop)
 
 /* 0x5a8340, the record's random in [0, 1) (68 B): the LCG at +4 (0x41c64e6d, 0x3039) advanced, then its high
    word modulo 0x7fff scaled by 1 / 0x7fff (0x5eb8f8) */
@@ -1698,7 +1691,7 @@ void ai_FreeSettingChain(G8SETTING *rec)
    14; then the weights of the used slots are stepped by one, slot after slot round the seven, until they sum to
    100 (a weight stays within 0 .. 100) */
 
-void ai_FillSettingWeights(G8BLD *bld, G8SETTING *rec)
+void ai_FillSettingWeights(AIBLD *bld, G8SETTING *rec)
 {
     G7GRP *grp;
     unsigned int sum;
@@ -1817,13 +1810,13 @@ G8SLOT *ai_FindSettingSlots(int bldId)
     }
     return 0;
 }
-/* 0x5a8560, the production setting of the building bld (a G8BLD, ai_bld.h's AIBLD), created on demand (338 B): its
+/* 0x5a8560, the production setting of the building bld, created on demand (338 B): its
    slots when the chain ai_Settings has one for the building's id (ai_FindSettingSlots); else, for a building with an
    item group (ai_FindItemGroup), a zeroed record ("hp_AddProdSetting") keyed by the id with a random seed, the
    factor 1.0 and the weights of its goods (ai_FillSettingWeights) is put at the head of the chain and its slots
    returned; 0 without a group or memory */
 
-void *ai_ProdSetting(void *bld)
+void *ai_ProdSetting(AIBLD *bld)
 {
     G8SETTING *rec;
     G8SLOT *slots;
@@ -1834,16 +1827,16 @@ void *ai_ProdSetting(void *bld)
         rec = (G8SETTING *)mem_Alloc(0x4c, "hp_AddProdSetting");
         if (rec != 0) {
             D3_ZERO_AT(rec, sizeof(G8SETTING));
-            rec->bldId = ((G8BLD *)bld)->id;
+            rec->bldId = bld->id;
             rec->seed = rand();
             rec->factor = 1.0f;
-            ai_FillSettingWeights((G8BLD *)bld, rec);
+            ai_FillSettingWeights(bld, rec);
             ai_Settings = rec;
             return rec->slots;
         }
         return 0;
     }
-    slots = ai_FindSettingSlots(((G8BLD *)bld)->id);
+    slots = ai_FindSettingSlots(bld->id);
     if (slots != 0)
         return slots;
     if (ai_FindItemGroup((char *)bld) == 0)
@@ -1852,10 +1845,10 @@ void *ai_ProdSetting(void *bld)
     if (rec == 0)
         return 0;
     D3_ZERO_AT(rec, sizeof(G8SETTING));
-    rec->bldId = ((G8BLD *)bld)->id;
+    rec->bldId = bld->id;
     rec->seed = rand();
     rec->factor = 1.0f;
-    ai_FillSettingWeights((G8BLD *)bld, rec);
+    ai_FillSettingWeights(bld, rec);
     rec->next = ai_Settings;
     ai_Settings = rec;
     return rec->slots;
@@ -1901,7 +1894,7 @@ void ai_SetSettingWeight(int bld, int good, unsigned char weight)
     int rest;
     int i;
 
-    rec = (G8SETTING *)ai_FindSetting(((G8BLD *)bld)->id);
+    rec = (G8SETTING *)ai_FindSetting(((AIBLD *)bld)->id);
     total = 100;
     if (good == 0)
         return;
@@ -1939,7 +1932,7 @@ void ai_SetSettingWeight(int bld, int good, unsigned char weight)
 /* 0x5a8850, the weights of a building's production setting refreshed (31 B): the setting of the building's id
    (ai_FindSetting, 0x5a84b0) has its slots refilled from the building's goods (ai_FillSettingWeights), if it exists */
 
-void ai_RefreshProdSetting(G8BLD *b)
+void ai_RefreshProdSetting(AIBLD *b)
 {
     G8SETTING *rec;
 
@@ -1955,13 +1948,13 @@ int ai_DrawSettingGood(int bld)
 {
     G8SETTING *rec;
     G8SLOT *p;
-    G8BLD *b;
+    AIBLD *b;
     int i;
     int draw;
     int sum;
     int pick;
 
-    b = (G8BLD *)bld;
+    b = (AIBLD *)bld;
     rec = (G8SETTING *)ai_FindSetting(b->id);
     if (rec == 0)
         return 0;
@@ -1988,9 +1981,9 @@ int ai_DrawSettingGood(int bld)
 float ai_SettingFactor(int bld)
 {
     G8SETTAIL *t;
-    G8BLD *b;
+    AIBLD *b;
 
-    b = (G8BLD *)bld;
+    b = (AIBLD *)bld;
     t = (G8SETTAIL *)ai_FindSettingSlots(b->id);
     if (t != 0)
         return t->factor;
@@ -2002,9 +1995,9 @@ float ai_SettingFactor(int bld)
 void ai_SetSettingFactor(int bld, float factor)
 {
     G8SETTING *rec;
-    G8BLD *b;
+    AIBLD *b;
 
-    b = (G8BLD *)bld;
+    b = (AIBLD *)bld;
     rec = (G8SETTING *)ai_FindSetting(b->id);
     if (rec != 0)
         rec->factor = factor;
@@ -2682,18 +2675,12 @@ void ai_DomizilMessageResearchKind(int toRec, int cRec, int objRec, int kind)
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
                  "_NACHRICHTEN_DOMIZIL_03");
 }
-#pragma pack(push, 1)
-typedef struct G8OBJ {                  /* an object record of the ai_ lists (AIOBJ, ai_types.h) */
-    unsigned short id;                  /* +0x00, the object's type id */
-    int objId;                          /* +0x02, the object's own id */
-} G8OBJ;
-#pragma pack(pop)
 
 /* 0x5a9c30, the Domizil message of the character c to `to` (108 B): for a kind 6 / 7 character the text 0x4077
    (c's name, its family, 0x9a8 + 2 * level) into ai_NewsText, then the quick-jump message 0x5ec to to->netId with
    the id of c's building, the object's id and the sound "_NACHRICHTEN_DOMIZIL_01" */
 
-void ai_DomizilMessage(G8CHARREC *to, G8CHARREC *c, G8OBJ *obj, int level)
+void ai_DomizilMessage(G8CHARREC *to, G8CHARREC *c, AIOBJ *obj, int level)
 {
     if (to->kind != 6 && to->kind != 7)
         return;
@@ -2740,7 +2727,7 @@ void ai_DomizilMessageAge(int toRec, int cRec, int bldRec)
    object's id (+2) and the sound "_NACHRICHTEN_DOMIZIL_04"; he_Unk56e070's pick 1 sets the task's +0x1c /
    +0x20 fields and sends it */
 
-void ai_DomizilMessageTask(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, G8OBJ *obj)
+void ai_DomizilMessageTask(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, AIOBJ *obj)
 {
     if (to->kind != 6 && to->kind != 7)
         return;

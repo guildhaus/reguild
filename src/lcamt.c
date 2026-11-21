@@ -1092,23 +1092,10 @@ char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, floa
 void d2_RaiseWindow(); int io_PrintText(char *fmt, ...);
 int d2_SetForm(int view, int n); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 void d2_CloseView(int view); void d2_RemoveObj(); void d2_ScrollWindowBy();
-#pragma pack(push, 1)
-typedef struct G8BLD {                  /* a local view of ai_bld.h's AIBLD (the old ORDBLD view's head): the
-                                           fields the production settings read */
-    unsigned char type;                 /* +0x00, the building kind */
-    int id;                             /* +0x01, the building's id (the production settings chain's key) */
-} G8BLD;
-#pragma pack(pop)
 int ls_Read(void *buf, int size, int count, int f); void * mem_Alloc(int size, char *tag);
 unsigned vfs_fwrite();
 int d2_WinOpenPic(short x, short y, int pic, int win); int io_CharacterName(int id, unsigned char c, unsigned char kind, char *out); 
 int gm_Opinion(int a, int b);
-#pragma pack(push, 1)
-typedef struct G8OBJ {                  /* an object record of the ai_ lists (AIOBJ, ai_types.h) */
-    unsigned short id;                  /* +0x00, the object's type id */
-    int objId;                          /* +0x02, the object's own id */
-} G8OBJ;
-#pragma pack(pop)
 #pragma pack(push, 1)
 typedef struct G9DOMIZILROW {           /* a row of the Domizil personnel book: 0x5aa0d0 creates its controls,
                                            0x5aa1f0 / 0x5aa520 fill them, ai_DomizilFreeRow frees them */
@@ -1203,9 +1190,9 @@ int ai_SearchResourceWindow(AIBLD *bld);
 int ai_ExtractResourceWindow(AIBLD *bld);
 void ai_Top5Window(void);
 G8SLOT *ai_FindSettingSlots(int bldId);
-void *ai_ProdSetting(void *bld);
+void *ai_ProdSetting(AIBLD *bld);
 void ai_SetSettingWeight(int bld, int good, unsigned char weight);
-void ai_RefreshProdSetting(G8BLD *b);
+void ai_RefreshProdSetting(AIBLD *b);
 void ai_SetSettingFactor(int bld, float factor);
 void ai_ShowTributeClaimNews(int collectorRec, int payerRec);
 void ai_TalentWindow(struct AIBLD *bld, struct AIOBJ *room, int talent);
@@ -3963,7 +3950,7 @@ void ai_MasterLetterSettings(AIBLD *bld, AICHARREC *ch)
         ai_MasterLetterPage = 0;
         hasSetting = 0;
     } else {
-        ai_RefreshProdSetting((G8BLD *)bld);
+        ai_RefreshProdSetting(bld);
     }
     win = d2_OpenForm(0, 0, "berufe\\_meisterbrief_2");
     d2_SetForm(win, 0);

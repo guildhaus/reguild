@@ -121,7 +121,7 @@ int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 #include "mission.h"
 #include "f3gm.h"
 #include "f3gmt.h"
-void *ai_ProdSetting(void *bld);    /* 0x5a8560 */
+void *ai_ProdSetting(AIBLD *bld);    /* 0x5a8560 */
 extern struct D2COLKEY d2_TransparentColour;  /* 0x6f0454, shp.c (the type in shp.h) */
 #define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: unk_LoadIconNames stores the key byte by byte (mov byte [0x6f0455], 0xff; [0x6f0454] and [0x6f0456] = bl), not through the D2COLKEY word gb */
 
@@ -2889,7 +2889,7 @@ void gm_AssignBuilding(unsigned char *b, unsigned master, unsigned own)
             if (o != 0xffff && ORD_CHARS[o].kind == 6)
                 ai_FreeProdSetting(bd->id);
             if (ORD_CHARS[own].kind == 6)
-                ai_ProdSetting(b);
+                ai_ProdSetting((AIBLD *)b);
         }
         o = bd->owner;
         if (o != 0xffff && ORD_CHARS[o].bld2 == bd)
