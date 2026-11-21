@@ -6183,7 +6183,8 @@ the bytes no portable form gives.
   ahm.h's AHMCHAR / AHMOBJ, the cannon windows' CANNONREC, the group helpers' `char *g`) or the tenth (the 252
   event handlers' `int ev`, the HEHANDLER tables, he_FindEvent / he_NextEvent / he_CreateEvent, GMCARRYREC.ref, the
   save game's `int f` file handles and vfs_Tfopen's `int unk` directory) or the eleventh (portability: TUTEVENT, the
-  intptr_t text-id-or-string parameters, the object list heads, gm_FindById's out pointers).
+  intptr_t text-id-or-string parameters, the object list heads, gm_FindById's out pointers) or the twelfth (the text table's index constants, the
+  caption / text parameters, ai_MapPick's callbacks passed uncast to its `void (*cb)()`).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
