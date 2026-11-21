@@ -4063,13 +4063,13 @@ char *gm_ClassTreasury(ORDBLD *b)
 }
 /* 0x504a80, the object 0x115 (player 1) or 0x142 (the others) of the building of the player p */
 
-char *gm_PlayerSeat(int p)
+struct AIOBJ *gm_PlayerSeat(int p)
 {
     ORDBLD *b = (ORDBLD *)gm_FirstBuilding(p);
 
     if (p == 1)
-        return (char *)gm_Query((void *)b->objList, 2, 6, 0, 0x115);
-    return (char *)gm_Query((void *)b->objList, 2, 6, 0, 0x142);
+        return gm_Query((void *)b->objList, 2, 6, 0, 0x115);
+    return gm_Query((void *)b->objList, 2, 6, 0, 0x142);
 }
 /* 0x504ad0, the job group (0 .. 0x10) of a title number n (six numbers per group: 1 .. 6 -> 0xb, 7 .. 12 -> 9, 13 .. 18 -> 7, 19 .. 24 -> 6, 25 .. 30 -> 8, 31 .. 33 -> 0x10, 34 .. 39 -> 5, 40 .. 45 -> 0xc, 46 .. 51 -> 1, 52 .. 57 -> 10, 58 .. 63 -> 2, 64 .. 69 -> 3, 70 .. 75 -> 4, 76 .. 81 -> 0xd, 83 .. 88 -> 0xe, 89 .. 94 -> 0xf), 0 for others */
 

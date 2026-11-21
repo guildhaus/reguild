@@ -1414,7 +1414,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
                 who = ai_OwnPlayer;
             n = gm_SumSlotAmounts((void *)ai_Chars[ai_PlayerId].inventory, who) + sv_PendingMoney;
         } else {
-            n = gm_SumListMoney(((AIOBJ *)gm_PlayerSeat(sv_ResearchClass))->list) + sv_PendingMoney;
+            n = gm_SumListMoney(gm_PlayerSeat(sv_ResearchClass)->list) + sv_PendingMoney;
             who = ai_OwnPlayer;
         }
         if (sv_PanelMoneyText != -1) {
@@ -4042,7 +4042,7 @@ void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /
 int gm_Season(char *d);                     /* 0x4fe330, f3gm.h */
 int gm_ClockSeason(AITIME *c);         /* 0x4fe350, f3gm.c */                     /* 0x4fe350 */
 int ls_GetLanguage();                     /* 0x5190a0 */
-char * gm_PlayerSeat(int p);                     /* 0x504a80 */
+struct AIOBJ *gm_PlayerSeat(int p);                     /* 0x504a80 */
 int gm_SumListAmounts(void *list, unsigned char p);                     /* 0x509e30 */
 int gm_ConvertMoney(int a, unsigned char k);                     /* 0x5085b0 */
 void txt_Format(char *out, int id0, ...);  /* 0x5176d0 */

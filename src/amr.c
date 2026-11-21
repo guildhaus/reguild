@@ -5318,7 +5318,7 @@ int ai_ExecuteMayor(G5CH *p, AIARG *s1, AIARG *s2)
     G8MSG m;
     AIOBJ *c;
 
-    c = (AIOBJ *)gm_PlayerSeat(1);
+    c = gm_PlayerSeat(1);
     if (c == 0 || p->officeKind != 0xf)
         return 0;
     if (s2->kind == 4) {
@@ -5490,7 +5490,7 @@ int ai_ExecuteMayorTownHall(G5CH *p, AIARG *s1, AIARG *s2)
     G8MSG m;
     AIOBJ *c;
 
-    c = (AIOBJ *)gm_PlayerSeat(1);
+    c = gm_PlayerSeat(1);
     if (c == 0)
         return 0;
     if (p->officeKind != 0xf)
@@ -5537,7 +5537,7 @@ int ai_DecideMayorPrison(int a, G5CH *p, int f, AIARG *o1, AIARG *o2)
     gm_FindById((int)&y, 0, 0, x);
     if (y == 0)
         return 0;
-    o = (AIOBJ *)gm_PlayerSeat(1);
+    o = gm_PlayerSeat(1);
     if (o == 0)
         return 0;
     money = gm_SumListAmounts(o->list, ai_OwnPlayer);
@@ -5613,7 +5613,7 @@ int ai_ExecuteMayorPrison(G5CH *p, AIARG *s1, AIARG *s2)
     G8MSG m;
     AIOBJ *c;
 
-    c = (AIOBJ *)gm_PlayerSeat(1);
+    c = gm_PlayerSeat(1);
     if (c == 0)
         return 0;
     if (p->officeKind != 0xf)
@@ -5755,7 +5755,7 @@ int ai_ExecuteMasterBuilder(G5CH *p, AIARG *s1, AIARG *s2)
     AIOBJ *c;
     int n;
 
-    c = (AIOBJ *)gm_PlayerSeat(1);
+    c = gm_PlayerSeat(1);
     if (c == 0 || ((unsigned char *)p)[0x166] != 0xa)
         return 0;
     if (s2->kind == 4) {

@@ -3011,7 +3011,7 @@ void ai_ConstructionWindow(void)
             seat = 0;
             if (ai_BuildGroup == 3) {
                 sv_ResearchClass = 1;
-                seat = (AIOBJ *)gm_PlayerSeat(1);
+                seat = gm_PlayerSeat(1);
             } else {
                 sv_ResearchClass = 0;
             }
