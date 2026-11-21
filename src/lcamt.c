@@ -924,39 +924,6 @@ struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *,
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(push, 1)
-typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHAR, ai_char.h): the fields the
-                                           news messages of this unit read */
-    unsigned short id;                  /* +0x000, the character's id */
-    unsigned char kind;                 /* +0x002, the character kind */
-    char pad03;
-    int netId;                          /* +0x004, the id the news events carry */
-    unsigned char health;               /* +0x008, > 0 = alive */
-    unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
-    char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
-    char pad0d[0x23];                   /* +0x00d .. 0x02f */
-    union {
-        char name[0x58];                /* +0x030, the character's name (AICHAR.name) */
-        struct {
-            char first[0x10];           /* +0x030 */
-            char family[0x10];          /* +0x040 */
-        };
-        struct {
-            char padname5c[0x2c];       /* +0x030 .. 0x05b */
-            int partner;                /* +0x05c, the netId of the character's partner (AICHAR.relatives[0]) */
-            int relatives[7];           /* +0x060 .. 0x07b */
-        };
-    };
-    char pad88[0xdd];                   /* +0x088 .. 0x164 */
-    unsigned char title;                /* +0x165, the title rank */
-    char pad166[6];                     /* +0x166 .. 0x16b */
-    AIBLD *bld;                         /* +0x16c, the building the character is in */
-    char pad170[0x24];                  /* +0x170 .. 0x193 */
-    int money;                          /* +0x194, the character's money (AICHAR.money) */
-    char pad198[0x19];                  /* +0x198 .. 0x1b0 */
-    unsigned char heldRounds;           /* +0x1b1, the rounds the character is held */
-    char pad1b2[0x6a];                  /* +0x1b2 .. 0x21b */
-} G8CHARREC;
 #pragma pack(pop)
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
@@ -1691,7 +1658,7 @@ int ai_DrawAmountRow(int x, int y, int win, LCAMOUNTROW *row)
    zeroed and gets +4 = 0x204, +8 = 0x5eed68, +0xc = 0x5eed6c and +0x10 = 6, then 0x5c0970 (the config, the
    second argument, 0, 0) runs the tabbed list; its result is returned */
 
-struct AICHAR *ai_SpecialAmountList(G8CHARREC *ch, char *text)
+struct AICHAR *ai_SpecialAmountList(AICHAR *ch, char *text)
 {
     AMOUNTCFG cfg;
 
@@ -5281,14 +5248,14 @@ unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl
    candidates of character p (ai_FindCandidates, the filter 0xc0540a, one less for a female character, sex +9);
    the ids are the characters' net ids, ai_CharInts[id][0] (the caller finds them again with gm_FindChar) */
 
-void ai_FindCandidateIds(G8CHARREC *p, int *n, int *out)
+void ai_FindCandidateIds(AICHAR *p, int *n, int *out)
 {
     unsigned short ids[10];
     int i;
 
     unsigned int fl = p->sex != 0 ? AI_CANDIDATE_FLAGS_SEX1 : AI_CANDIDATE_FLAGS_SEX0;
 
-    *n = ai_FindCandidates((struct AICHAR *)p, 9, fl, 0.0f, 100.0f, ids);
+    *n = ai_FindCandidates(p, 9, fl, 0.0f, 100.0f, ids);
     for (i = 0; i < *n; i++)
         out[i] = ai_CharInts[ids[i]][0];
 }
@@ -5299,22 +5266,22 @@ void ai_FindCandidateIds(G8CHARREC *p, int *n, int *out)
 
 unsigned int ai_MarriageTest(int idA, int idB)
 {
-    G8CHARREC *a;
-    G8CHARREC *b;
+    AICHAR *a;
+    AICHAR *b;
     int i;
     int j;
 
-    a = (G8CHARREC *)gm_FindChar(idA);
-    b = (G8CHARREC *)gm_FindChar(idB);
+    a = gm_FindChar(idA);
+    b = gm_FindChar(idB);
     if (a == 0 || b == 0)
         return 0xfffffc00;
     if (a->health <= 0)
         return 0xfffffbff;
     if (b->health <= 0)
         return 0xfffffbfe;
-    if (b->partner != -1 && b->partner != idA)
+    if (b->relatives[0] != -1 && b->relatives[0] != idA)
         return 0xfffffbfd;
-    i = a->partner;
+    i = a->relatives[0];
     if (i != -1 && i != idB)
         return 0xfffffbfc;
     if (a->heldRounds > 0)
@@ -5462,7 +5429,7 @@ typedef struct LCORDMSG {          /* the message record of an order (gv.h ORDMS
    below it. A click on a row opens the confirm ai_CourtshipConfirm (the list's objects disabled meanwhile); a
    confirmed courtship closes the list and returns 0x92, a right click returns 2 */
 
-int ai_CourtshipListWindow(G8CHARREC *ch, LCORDMSG *m)
+int ai_CourtshipListWindow(AICHAR *ch, LCORDMSG *m)
 {
     int n;
     int result;
@@ -5582,7 +5549,7 @@ int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
         return 0x20;
     }
     if (state == 1)
-        return ai_CourtshipListWindow((G8CHARREC *)ch, m);
+        return ai_CourtshipListWindow(ch, m);
     win = d2_OpenForm(0, 0, "privillegien\\werbung2");
     d2_CentreViewWindows(win);
     d2_SetPointerSprite(0, 0);
@@ -9855,20 +9822,20 @@ int ai_ApplyTrialStep(AICHAR *ch, int skill)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 1 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep1(G8CHARREC *ch, G8USEVIEW *use)
+int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use)
 {
     char text[0x100];
-    G8CHARREC *target;
+    AICHAR *target;
 
     if (ch->kind == 6) {
         txt_Format(text, (char *)0x9d);
-        target = (G8CHARREC *)ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList((int)ch, text);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 1);
             return 1;
         }
     } else {
-        target = (G8CHARREC *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 1);
             return 1;
@@ -9880,20 +9847,20 @@ int ai_TrialStep1(G8CHARREC *ch, G8USEVIEW *use)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 3 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep3(G8CHARREC *ch, G8USEVIEW *use)
+int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use)
 {
     char text[0x100];
-    G8CHARREC *target;
+    AICHAR *target;
 
     if (ch->kind == 6) {
         txt_Format(text, (char *)0x9d);
-        target = (G8CHARREC *)ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList((int)ch, text);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 3);
             return 1;
         }
     } else {
-        target = (G8CHARREC *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 3);
             return 1;
@@ -9905,20 +9872,20 @@ int ai_TrialStep3(G8CHARREC *ch, G8USEVIEW *use)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 4 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep4(G8CHARREC *ch, G8USEVIEW *use)
+int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use)
 {
     char text[0x100];
-    G8CHARREC *target;
+    AICHAR *target;
 
     if (ch->kind == 6) {
         txt_Format(text, (char *)0x9d);
-        target = (G8CHARREC *)ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList((int)ch, text);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 4);
             return 1;
         }
     } else {
-        target = (G8CHARREC *)gm_FindChar(use->target);
+        target = gm_FindChar(use->target);
         if (target != 0) {
             ai_ApplyTrialStep((int)target, 4);
             return 1;
@@ -10618,7 +10585,7 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
    character of kind 6 needs sv_CheckMoney (ch, 3) to pass (it shows the text 0x74 "not enough money"), every
    other kind needs 3 money silently; then the money delta -3 (0x50cc50, ch->netId) and 1, 0 otherwise. */
 
-int ai_UsePayGood(G8CHARREC *ch)
+int ai_UsePayGood(AICHAR *ch)
 {
     if (ch->kind == 6) {
         if (sv_CheckMoney((char *)ch, 3) == 0)
@@ -11018,7 +10985,7 @@ int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use)
    sends the message type 0xa4 (the event 0xa4, he.c 0x5753a0) to the character's netId, fromId -1, the
    current clock ai_Time and the flag 1 (0x4c4b70); returns 1. */
 
-int ai_UseEventGood(G8CHARREC *ch)
+int ai_UseEventGood(AICHAR *ch)
 {
     AIMSG msg;
 

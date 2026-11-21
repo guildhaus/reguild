@@ -6692,7 +6692,7 @@ void he_BeginPlague(int ev)
 }
 
 int sv_IsAtDoor();
-void ai_PlagueMessage(struct G8CHARREC *c, void *bld);
+void ai_PlagueMessage(struct AICHAR *c, void *bld);
 float util_RandomF2();
 /* 0x549f70, the alloc handler of the plague event 0x59 ("Pest", he_RunPlague): opts bit 2 leaves it alone; another
    running 0x59 event (skipping itself) ends it at the clock now, posted as failed (cm_SendExSetHE -1, its slot
@@ -6872,7 +6872,7 @@ void he_RunPlague(int ev)
                 if (util_Random(0x100) == 0)
                     gm_CatchPlague(owner);
                 if (any)
-                    ai_PlagueMessage((struct G8CHARREC *)owner, o);
+                    ai_PlagueMessage(owner, o);
                 for (i = 0; i < m; i++) {
                     if (value[i] < 1000.0f)
                         he_CharIllness(e, &ai_Chars[ids[i]], owner, o, 1, value[i]);
@@ -19628,13 +19628,13 @@ void he_RunTrainShare();
 void he_AllocAlchemistDay();
 void he_RunAlchemistDay();
 void snd_PlayFavourComment(void);
-void ai_DomizilMessage(struct G8CHARREC *to, struct G8CHARREC *c, struct G8OBJ *obj, int level);
+void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);
 void ai_DomizilMessageResearchKind(int param_1, int param_2, int param_3, int param_4);
 void ai_DomizilMessageResearch(int param_1, int param_2, int param_3, int param_4);
-void ai_DomizilMessageTask(int param_1, int param_2, int param_3, unsigned short *param_4);
-void ai_DomizilMessage04(int param_1, int param_2, int param_3);
+void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, struct AIOBJ *obj);
+void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
 void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
-void ai_DomizilMessagePlace(int param_1, int param_2, int param_3, int param_4);
+void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, int placeId);
 void he_AllocSecretRoom();
 void he_RunSecretRoom();
 void he_AllocEvent9a();
@@ -19669,7 +19669,7 @@ void he_RunGraveLease(int ev);          /* 0x572a50 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
 void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
-void ai_GraveyardMessage(int param_1, unsigned short *param_2, unsigned short *param_3, int param_4);                 /* 0x5a9a30 */
+void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker, struct AICHAR *other, int detail);                 /* 0x5a9a30 */
 void ai_GraveyardMessagePlain(int param_1, unsigned short *param_2, unsigned short *param_3);                 /* 0x5a9af0 */
 int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */

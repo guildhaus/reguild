@@ -917,39 +917,6 @@ struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *,
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(push, 1)
-typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHAR, ai_char.h): the fields the
-                                           news messages of this unit read */
-    unsigned short id;                  /* +0x000, the character's id */
-    unsigned char kind;                 /* +0x002, the character kind */
-    char pad03;
-    int netId;                          /* +0x004, the id the news events carry */
-    unsigned char health;               /* +0x008, > 0 = alive */
-    unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
-    char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
-    char pad0d[0x23];                   /* +0x00d .. 0x02f */
-    union {
-        char name[0x58];                /* +0x030, the character's name (AICHAR.name) */
-        struct {
-            char first[0x10];           /* +0x030 */
-            char family[0x10];          /* +0x040 */
-        };
-        struct {
-            char padname5c[0x2c];       /* +0x030 .. 0x05b */
-            int partner;                /* +0x05c, the netId of the character's partner (AICHAR.relatives[0]) */
-            int relatives[7];           /* +0x060 .. 0x07b */
-        };
-    };
-    char pad88[0xdd];                   /* +0x088 .. 0x164 */
-    unsigned char title;                /* +0x165, the title rank */
-    char pad166[6];                     /* +0x166 .. 0x16b */
-    AIBLD *bld;                         /* +0x16c, the building the character is in */
-    char pad170[0x24];                  /* +0x170 .. 0x193 */
-    int money;                          /* +0x194, the character's money (AICHAR.money) */
-    char pad198[0x19];                  /* +0x198 .. 0x1b0 */
-    unsigned char heldRounds;           /* +0x1b1, the rounds the character is held */
-    char pad1b2[0x6a];                  /* +0x1b2 .. 0x21b */
-} G8CHARREC;
 #pragma pack(pop)
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
@@ -1986,12 +1953,12 @@ int ai_LoadSettings(int f)
 
 void ai_ShowIndulgenceNews(unsigned short *buyer, char *ownerRec, int bld, int share, int amount)
 {
-    G8CHARREC *owner;
+    AICHAR *owner;
     int text;
 
-    owner = (G8CHARREC *)ownerRec;
+    owner = (AICHAR *)ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
-        if (owner->b00c == 0)
+        if (owner->faith == 0)
             text = 0x20b7;
         else
             text = (0x75 <= ai_Time.year) + 0x20b8;
@@ -2006,9 +1973,9 @@ void ai_ShowIndulgenceNews(unsigned short *buyer, char *ownerRec, int bld, int s
 
 void ai_ShowPaymentNews(unsigned short *buyer, char *ownerRec, int bld)
 {
-    G8CHARREC *owner;
+    AICHAR *owner;
 
-    owner = (G8CHARREC *)ownerRec;
+    owner = (AICHAR *)ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20ba, *buyer, bld);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
@@ -2020,9 +1987,9 @@ void ai_ShowPaymentNews(unsigned short *buyer, char *ownerRec, int bld)
 
 void ai_ShowPurchaseNews(unsigned short *buyer, char *ownerRec, int bld, int value)
 {
-    G8CHARREC *owner;
+    AICHAR *owner;
 
-    owner = (G8CHARREC *)ownerRec;
+    owner = (AICHAR *)ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20bc, *buyer, bld, value);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ff, ch_EmptyName);
@@ -2035,9 +2002,9 @@ void ai_ShowPurchaseNews(unsigned short *buyer, char *ownerRec, int bld, int val
 
 void ai_ShowOfficeNews(unsigned short *holder, char *ownerRec)
 {
-    G8CHARREC *owner;
+    AICHAR *owner;
 
-    owner = (G8CHARREC *)ownerRec;
+    owner = (AICHAR *)ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
         txt_Format(ai_NewsText, 0x20bb, *holder);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fd, ch_EmptyName);
@@ -2050,9 +2017,9 @@ void ai_ShowOfficeNews(unsigned short *holder, char *ownerRec)
 
 void ai_ShowTributeDelayedNews(int rec)
 {
-    G8CHARREC *c;
+    AICHAR *c;
 
-    c = (G8CHARREC *)rec;
+    c = (AICHAR *)rec;
     if (c->kind == 6 || c->kind == 7) {
         txt_Format(ai_NewsText, 0x20bd);
         he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
@@ -2065,9 +2032,9 @@ void ai_ShowTributeDelayedNews(int rec)
 
 void ai_ShowTributeCollectNews(int rec)
 {
-    G8CHARREC *c;
+    AICHAR *c;
 
-    c = (G8CHARREC *)rec;
+    c = (AICHAR *)rec;
     if (c->kind == 6 || c->kind == 7) {
         txt_Format(ai_NewsText, 0x20be);
         he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2080,11 +2047,11 @@ void ai_ShowTributeCollectNews(int rec)
 
 void ai_ShowTributeClaimNews(int collectorRec, int payerRec)
 {
-    G8CHARREC *collector;
-    G8CHARREC *payer;
+    AICHAR *collector;
+    AICHAR *payer;
 
-    collector = (G8CHARREC *)collectorRec;
-    payer = (G8CHARREC *)payerRec;
+    collector = (AICHAR *)collectorRec;
+    payer = (AICHAR *)payerRec;
     if (collector->kind == 6 || collector->kind != 7) {
         txt_Format(ai_NewsText, 0x20bf);
         he_ShowNews(collector->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2102,13 +2069,13 @@ void ai_ShowTributeClaimNews(int collectorRec, int payerRec)
 
 void ai_ShowTavernHelperNews(char *ownerRec, char *helperRec, int bld)
 {
-    G8CHARREC *owner;
-    G8CHARREC *helper;
-    G8CHARREC *c;
+    AICHAR *owner;
+    AICHAR *helper;
+    AICHAR *c;
     char *p;
 
-    owner = (G8CHARREC *)ownerRec;
-    helper = (G8CHARREC *)helperRec;
+    owner = (AICHAR *)ownerRec;
+    helper = (AICHAR *)helperRec;
     if (helper->kind == 6 || helper->kind == 7) {
         txt_Format(ai_NewsText, 0x20c1, owner->id, bld);
         he_ShowNews(helper->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
@@ -2116,7 +2083,7 @@ void ai_ShowTavernHelperNews(char *ownerRec, char *helperRec, int bld)
     txt_Format(ai_NewsText, 0x20c2, bld, owner->id, (owner->sex != 0) + 0x20c3, helper->id);
     p = (char *)((unsigned)&ai_Chars + 0x2);
     do {
-        c = (G8CHARREC *)(p - 2);
+        c = (AICHAR *)(p - 2);
         if (c != owner && c != helper && (c->kind == 6 || c->kind == 7))
             he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
         p += 0x21c;
@@ -2130,11 +2097,11 @@ void ai_ShowTavernHelperNews(char *ownerRec, char *helperRec, int bld)
 
 void ai_ShowPartingNews(unsigned short *cRec, unsigned short *pRec)
 {
-    G8CHARREC *c;
-    G8CHARREC *p;
+    AICHAR *c;
+    AICHAR *p;
 
-    c = (G8CHARREC *)cRec;
-    p = (G8CHARREC *)pRec;
+    c = (AICHAR *)cRec;
+    p = (AICHAR *)pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(ai_NewsText, 0x132f, c->id, util_Random(3) + (p->sex != 0 ? 0x1333 : 0x1330), p->id,
                    util_Random(3) + 0x1336, ai_PlayerSlots[ai_OwnPlayer].name);
@@ -2150,12 +2117,12 @@ void ai_ShowPartingNews(unsigned short *cRec, unsigned short *pRec)
 
 void ai_ShowFeudNews(unsigned short *cRec, unsigned short *pRec)
 {
-    G8CHARREC *c;
-    G8CHARREC *p;
+    AICHAR *c;
+    AICHAR *p;
     char local[512];
 
-    c = (G8CHARREC *)cRec;
-    p = (G8CHARREC *)pRec;
+    c = (AICHAR *)cRec;
+    p = (AICHAR *)pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(local, util_Random(3) + 0x1340, c->id);
         txt_Format(ai_NewsText, 0x1339, c->id, util_Random(3) + (p->sex != 0 ? 0x133d : 0x133a), p->id,
@@ -2169,12 +2136,12 @@ void ai_ShowFeudNews(unsigned short *cRec, unsigned short *pRec)
 
 void ai_ShowPartnerNews(unsigned short *cRec, unsigned short *pRec)
 {
-    G8CHARREC *c;
-    G8CHARREC *p;
+    AICHAR *c;
+    AICHAR *p;
     char local[512];
 
-    c = (G8CHARREC *)cRec;
-    p = (G8CHARREC *)pRec;
+    c = (AICHAR *)cRec;
+    p = (AICHAR *)pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(local, util_Random(3) + 0x134a, c->id);
         txt_Format(ai_NewsText, 0x1343, c->id, util_Random(3) + (p->sex != 0 ? 0x1347 : 0x1344), p->id,
@@ -2188,9 +2155,9 @@ void ai_ShowPartnerNews(unsigned short *cRec, unsigned short *pRec)
 
 void ai_ShowCharacterNews(unsigned short *cRec, char *text)
 {
-    G8CHARREC *c;
+    AICHAR *c;
 
-    c = (G8CHARREC *)cRec;
+    c = (AICHAR *)cRec;
     if (c->id != ai_PlayerId) {
         txt_Format(ai_NewsText, 0x20c5, c->id, text);
         he_ShowNews(ai_Chars[ai_PlayerId].netId, -1, ai_NewsText, 0, 0x605, ch_EmptyName);
@@ -2202,11 +2169,11 @@ void ai_ShowCharacterNews(unsigned short *cRec, char *text)
 
 void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec)
 {
-    G8CHARREC *c;
-    G8CHARREC *p;
+    AICHAR *c;
+    AICHAR *p;
 
-    c = (G8CHARREC *)cRec;
-    p = (G8CHARREC *)pRec;
+    c = (AICHAR *)cRec;
+    p = (AICHAR *)pRec;
     if (p->kind == 6 || p->kind == 7) {
         txt_Format(ai_NewsText, 0x20c6, c->id);
         he_ShowNews(p->netId, -1, ai_NewsText, 0, 0x5fa, "_NACHRICHTEN_HS_46");
@@ -2220,13 +2187,13 @@ void ai_NotifyPlayerOfChar(unsigned short *cRec, unsigned short *pRec)
 void ai_PlagueNews(void)
 {
     char local[256];
-    G8CHARREC *c;
+    AICHAR *c;
     int v;
 
     v = util_Random(3);
     sprintf(local, "_KATASTROPHE_PEST_HS_0%i", v);
     txt_Format(ai_NewsText, v + 0x20c7);
-    c = (G8CHARREC *)ai_Chars;
+    c = ai_Chars;
     do {
         if (c->kind == 6 || c->kind == 7)
             he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x600, local);
@@ -2237,7 +2204,7 @@ void ai_PlagueNews(void)
    text 0x20ca + the value; a character of the kind 6 / 7 sends the text and the sound with the news 0x600 to its
    netId */
 
-void ai_PlagueMessage(G8CHARREC *c, void *bld)
+void ai_PlagueMessage(AICHAR *c, void *bld)
 {
     char local[64];
     int v;
@@ -2275,13 +2242,13 @@ void ai_PlagueMessageAll(void)
 
 void ai_SendSwapText(unsigned short *cRec, unsigned short *o1Rec, unsigned short *o2Rec)
 {
-    G8CHARREC *c;
-    G8CHARREC *o1;
-    G8CHARREC *o2;
+    AICHAR *c;
+    AICHAR *o1;
+    AICHAR *o2;
 
-    c = (G8CHARREC *)cRec;
-    o1 = (G8CHARREC *)o1Rec;
-    o2 = (G8CHARREC *)o2Rec;
+    c = (AICHAR *)cRec;
+    o1 = (AICHAR *)o1Rec;
+    o2 = (AICHAR *)o2Rec;
     if (o1->kind == 6) {
         txt_Format(ai_NewsText, 0x1dcc, c->id, o2->id);
         he_ShowNews(o1->netId, -1, ai_NewsText, 0, 0x5fd, ch_EmptyName);
@@ -2302,11 +2269,11 @@ void ai_SendSwapText(unsigned short *cRec, unsigned short *o1Rec, unsigned short
 
 void ai_ShowEvidenceVoidNews(unsigned short *toldRec, unsigned short *culpritRec)
 {
-    G8CHARREC *told;
-    G8CHARREC *culprit;
+    AICHAR *told;
+    AICHAR *culprit;
 
-    told = (G8CHARREC *)toldRec;
-    culprit = (G8CHARREC *)culpritRec;
+    told = (AICHAR *)toldRec;
+    culprit = (AICHAR *)culpritRec;
     txt_Format(ai_NewsText, 0x1747, culprit->id);
     he_ShowNews(told->netId, -1, ai_NewsText, 0, 0x5fa, ch_EmptyName);
 }
@@ -2365,9 +2332,9 @@ void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
 
 void ai_TellGraveNeglect(unsigned short *plRec, int bld)
 {
-    G8CHARREC *pl;
+    AICHAR *pl;
 
-    pl = (G8CHARREC *)plRec;
+    pl = (AICHAR *)plRec;
     if (pl->kind == 6 || pl->kind == 7) {
         txt_Format(ai_NewsText, 0x4154, bld);
         he_ShowNews(pl->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2399,9 +2366,9 @@ void ai_NotifySale(AICHAR *owner, unsigned short *buyer, int bld, int size, int 
 
 void ai_TellGravesPaid(int plRec, int bld, int paid, int sum)
 {
-    G8CHARREC *pl;
+    AICHAR *pl;
 
-    pl = (G8CHARREC *)plRec;
+    pl = (AICHAR *)plRec;
     if (pl->kind == 6 || pl->kind == 7) {
         txt_Format(ai_NewsText, 0x4151, bld, paid, (paid != 1) + 0x4152, sum);
         he_ShowNews(pl->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2470,9 +2437,9 @@ void ai_HauntingText(unsigned short *chrId, AICHAR *victim, unsigned int end)
 void ai_TellGraveWorkSuccess(int chRec)
 {
     unsigned int v;
-    G8CHARREC *c;
+    AICHAR *c;
 
-    c = (G8CHARREC *)chRec;
+    c = (AICHAR *)chRec;
     v = util_Random(3);
     txt_Format(ai_NewsText, 0x40a8, (v & 0xffff) + 0x40a9);
     he_ShowNews(c->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_12");
@@ -2484,9 +2451,9 @@ void ai_TellGraveWorkSuccess(int chRec)
 void ai_TellGraveWorkFailure(int chRec)
 {
     unsigned int v;
-    G8CHARREC *c;
+    AICHAR *c;
 
-    c = (G8CHARREC *)chRec;
+    c = (AICHAR *)chRec;
     v = util_Random(3);
     txt_Format(ai_NewsText, 0x40ac, (v & 0xffff) + 0x40a9);
     he_ShowNews(c->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_13");
@@ -2496,7 +2463,7 @@ void ai_TellGraveWorkFailure(int chRec)
    + its title +0x165) is formatted into ai_NewsSecond and appended; the news 0x5fa goes to to->netId with the
    sound "_NACHRICHTEN_FRIEDHOF_00" */
 
-void ai_GraveyardMessage(G8CHARREC *to, G8CHARREC *worker, G8CHARREC *other, int detail)
+void ai_GraveyardMessage(AICHAR *to, AICHAR *worker, AICHAR *other, int detail)
 {
     txt_Format(ai_NewsText, 0x40ad, 0x40a3, worker->id, worker->bld, other->id);
     if (detail != 0) {
@@ -2513,13 +2480,13 @@ void ai_GraveyardMessage(G8CHARREC *to, G8CHARREC *worker, G8CHARREC *other, int
 
 void ai_GraveyardMessagePlain(int toRec, unsigned short *workerRec, unsigned short *otherRec)
 {
-    G8CHARREC *to;
-    G8CHARREC *worker;
-    G8CHARREC *other;
+    AICHAR *to;
+    AICHAR *worker;
+    AICHAR *other;
 
-    to = (G8CHARREC *)toRec;
-    worker = (G8CHARREC *)workerRec;
-    other = (G8CHARREC *)otherRec;
+    to = (AICHAR *)toRec;
+    worker = (AICHAR *)workerRec;
+    other = (AICHAR *)otherRec;
     txt_Format(ai_NewsText, 0x40af, 0x40a3, worker->id, worker->bld, other->id);
     he_ShowNews(to->netId, -1, ai_NewsText, 0, 0x5fa, "_NACHRICHTEN_FRIEDHOF_00");
 }
@@ -2535,14 +2502,14 @@ int gm_Opinion(int a, int b);
 
 void ai_DomizilMessageResearch(int toRec, int cRec, int objRec, int kind)
 {
-    G8CHARREC *to;
-    G8CHARREC *c;
+    AICHAR *to;
+    AICHAR *c;
     AIOBJ *obj;
 
-    to = (G8CHARREC *)toRec;
+    to = (AICHAR *)toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (G8CHARREC *)cRec;
+    c = (AICHAR *)cRec;
     obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4074, c->name, c->family, kind + 0x4172);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
@@ -2554,14 +2521,14 @@ void ai_DomizilMessageResearch(int toRec, int cRec, int objRec, int kind)
 
 void ai_DomizilMessageResearchKind(int toRec, int cRec, int objRec, int kind)
 {
-    G8CHARREC *to;
-    G8CHARREC *c;
+    AICHAR *to;
+    AICHAR *c;
     AIOBJ *obj;
 
-    to = (G8CHARREC *)toRec;
+    to = (AICHAR *)toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (G8CHARREC *)cRec;
+    c = (AICHAR *)cRec;
     obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4075, c->name, c->family, kind * 2 + 0x9a8);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
@@ -2572,7 +2539,7 @@ void ai_DomizilMessageResearchKind(int toRec, int cRec, int objRec, int kind)
    (c's name, its family, 0x9a8 + 2 * level) into ai_NewsText, then the quick-jump message 0x5ec to to->netId with
    the id of c's building, the object's id and the sound "_NACHRICHTEN_DOMIZIL_01" */
 
-void ai_DomizilMessage(G8CHARREC *to, G8CHARREC *c, AIOBJ *obj, int level)
+void ai_DomizilMessage(AICHAR *to, AICHAR *c, AIOBJ *obj, int level)
 {
     if (to->kind != 6 && to->kind != 7)
         return;
@@ -2585,7 +2552,7 @@ void ai_DomizilMessage(G8CHARREC *to, G8CHARREC *c, AIOBJ *obj, int level)
    (the original pushes the record pointer), then the quick-jump message 0x5ec with the building's id
    (he_LabIncident case 2 sends it after the building's level +0x5c fell) */
 
-void ai_DomizilMessage04(G8CHARREC *to, G8CHARREC *c, AIBLD *bld)
+void ai_DomizilMessage04(AICHAR *to, AICHAR *c, AIBLD *bld)
 {
     if (to->kind != 6 && to->kind != 7)
         return;
@@ -2600,14 +2567,14 @@ void ai_DomizilMessage04(G8CHARREC *to, G8CHARREC *c, AIBLD *bld)
 
 void ai_DomizilMessageAge(int toRec, int cRec, AIBLD *bldRec)
 {
-    G8CHARREC *to;
-    G8CHARREC *c;
+    AICHAR *to;
+    AICHAR *c;
     AIBLD *bld;
 
-    to = (G8CHARREC *)toRec;
+    to = (AICHAR *)toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
-    c = (G8CHARREC *)cRec;
+    c = (AICHAR *)cRec;
     bld = bldRec;
     txt_Format(ai_NewsText, 0x407b, c->name, c->family);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,
@@ -2619,7 +2586,7 @@ void ai_DomizilMessageAge(int toRec, int cRec, AIBLD *bldRec)
    object's id (+2) and the sound "_NACHRICHTEN_DOMIZIL_04"; he_Unk56e070's pick 1 sets the task's +0x1c /
    +0x20 fields and sends it */
 
-void ai_DomizilMessageTask(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, AIOBJ *obj)
+void ai_DomizilMessageTask(AICHAR *to, AICHAR *c, AIBLD *bld, AIOBJ *obj)
 {
     if (to->kind != 6 && to->kind != 7)
         return;
@@ -2632,7 +2599,7 @@ void ai_DomizilMessageTask(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, AIOBJ *obj)
    ai_NewsText, then the quick-jump message 0x5ec to its netId with the building's id (+1) and the sound
    "_NACHRICHTEN_DOMIZIL_04"; he_LabIncident's pick 4 sends it after ahm_SendSetPlaceValue lowered the place's value */
 
-void ai_DomizilMessagePlace(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, int placeId)
+void ai_DomizilMessagePlace(AICHAR *to, AICHAR *c, AIBLD *bld, int placeId)
 {
     if (to->kind != 6 && to->kind != 7)
         return;
@@ -2647,10 +2614,10 @@ void ai_DomizilMessagePlace(G8CHARREC *to, G8CHARREC *c, AIBLD *bld, int placeId
 
 void ai_DomizilMessage12(char *chRec, AIBLD *bldRec, int level)
 {
-    G8CHARREC *ch;
+    AICHAR *ch;
     AIBLD *bld;
 
-    ch = (G8CHARREC *)chRec;
+    ch = (AICHAR *)chRec;
     bld = bldRec;
     txt_Format(ai_NewsText, 0x4070, bld, level + 0x4071);
     he_MessageBoxQuickjump(ch->netId, -1, ai_NewsText, 1, 0x5ec, bld->id, -1, 0,

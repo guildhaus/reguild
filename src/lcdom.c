@@ -912,39 +912,6 @@ struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *,
 void ai_StorageWindow(); int ai_ProductionWindow();
 int ai_OpenTransport(); void ai_MasterLetterWindow();
 #pragma pack(push, 1)
-typedef struct G8CHARREC {              /* a character record of ai_Chars (AICHAR, ai_char.h): the fields the
-                                           news messages of this unit read */
-    unsigned short id;                  /* +0x000, the character's id */
-    unsigned char kind;                 /* +0x002, the character kind */
-    char pad03;
-    int netId;                          /* +0x004, the id the news events carry */
-    unsigned char health;               /* +0x008, > 0 = alive */
-    unsigned char sex;                  /* +0x009, 0 / 1 (the text's feminine form) */
-    char pad0a[2];                      /* +0x00a .. 0x00b */
-    unsigned char b00c;                 /* +0x00c, a kind the person tooltip names (AICHAR.faith); picks the news text */
-    char pad0d[0x23];                   /* +0x00d .. 0x02f */
-    union {
-        char name[0x58];                /* +0x030, the character's name (AICHAR.name) */
-        struct {
-            char first[0x10];           /* +0x030 */
-            char family[0x10];          /* +0x040 */
-        };
-        struct {
-            char padname5c[0x2c];       /* +0x030 .. 0x05b */
-            int partner;                /* +0x05c, the netId of the character's partner (AICHAR.relatives[0]) */
-            int relatives[7];           /* +0x060 .. 0x07b */
-        };
-    };
-    char pad88[0xdd];                   /* +0x088 .. 0x164 */
-    unsigned char title;                /* +0x165, the title rank */
-    char pad166[6];                     /* +0x166 .. 0x16b */
-    AIBLD *bld;                         /* +0x16c, the building the character is in */
-    char pad170[0x24];                  /* +0x170 .. 0x193 */
-    int money;                          /* +0x194, the character's money (AICHAR.money) */
-    char pad198[0x19];                  /* +0x198 .. 0x1b0 */
-    unsigned char heldRounds;           /* +0x1b1, the rounds the character is held */
-    char pad1b2[0x6a];                  /* +0x1b2 .. 0x21b */
-} G8CHARREC;
 #pragma pack(pop)
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out); void cm_BeginGroup(const char *s); int cm_EndGroup(const char *s);
 int he_NoProtectionEvent(); void snd_PlayFavourComment(void); 
@@ -8295,11 +8262,11 @@ int ai_UpdateEquipRows(int view, int form)
 
 int ai_GoodFitsBuilding(void *ch, int good)
 {
-    G8CHARREC *chrec;
+    AICHAR *chrec;
     AIBTYPE *type;
     AIBLD *bld;
 
-    if (ch != 0 && (bld = (chrec = (G8CHARREC *)ch)->bld) != 0) {
+    if (ch != 0 && (bld = (chrec = ch)->bld) != 0) {
         type = &ai_BTypes[bld->type];
         if (((good == 0x172 || good == 0x174) && type->kind != 4) ||
             ((good == 0x158 || good == 0x160) && type->kind != 0x13) ||
@@ -9157,9 +9124,9 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodCureAilment(AICHAR *ch);
 int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use);
-int ai_TrialStep1(G8CHARREC *ch, G8USEVIEW *use);
-int ai_TrialStep3(G8CHARREC *ch, G8USEVIEW *use);
-int ai_TrialStep4(G8CHARREC *ch, G8USEVIEW *use);
+int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use);
+int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use);
+int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use);
 int ai_QuarrelCallback(AICHAR *ch, int *req);
 int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use);
@@ -9173,7 +9140,7 @@ int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use);
-int ai_UsePayGood(G8CHARREC *ch);
+int ai_UsePayGood(AICHAR *ch);
 int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use);
@@ -9181,7 +9148,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use);
-int ai_UseEventGood(G8CHARREC *ch);
+int ai_UseEventGood(AICHAR *ch);
 int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodSkillBonus(AICHAR *ch);

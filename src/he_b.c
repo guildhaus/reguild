@@ -1147,7 +1147,7 @@ void ai_PlagueNews(void);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out);
 void amt_ChangeDistrictOpinion();
 int sv_IsAtDoor();
-void ai_PlagueMessage(struct G8CHARREC *c, void *bld);
+void ai_PlagueMessage(struct AICHAR *c, void *bld);
 float util_RandomF2();
 int ls_GetLanguage();
 int ai_IsLocalWorker();
@@ -3268,7 +3268,7 @@ void he_AllocRecipeResearch(int ev)
     he_FreeEvent((int *)ev);
 }
 
-void ai_DomizilMessage(struct G8CHARREC *to, struct G8CHARREC *c, struct G8OBJ *obj, int level);
+void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);
 
 /* 0x56d3d0, the run handler of the research event 0x95 (alloc he_AllocRecipeResearch): without its character or the
    character's alchemist record the event ends (stage -2); stages -2 / -1 free it; outside the day hours of the season
@@ -3282,7 +3282,7 @@ void he_RunRecipeResearch(int ev)
     HERECIPESEARCH *r = (HERECIPESEARCH *)ev;
     AICHAR *c;
     AICHAR *to;
-    char *o;
+    AIOBJ *o;
     int season;
 
     season = gm_ClockSeason(&ai_Time);
@@ -3295,10 +3295,10 @@ void he_RunRecipeResearch(int ev)
     }
     if (!((float)ai_Time.hour >= gm_DayEndHours[season] || (float)ai_Time.hour < gm_DayStartHours[season])) {
         if (e->stage == 1) {
-            o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
+            o = gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
             to = gm_FindChar(e->netId);
             if (to != 0)
-                ai_DomizilMessage((struct G8CHARREC *)to, (struct G8CHARREC *)c, (struct G8OBJ *)o, r->recipe);
+                ai_DomizilMessage(to, c, o, r->recipe);
             ahm_SendAddPlace((char *)c, r->recipe);
             sv_MoveToGroup(0, 0, c->id, 0);
             he_FreeEvent((int *)ev);
@@ -3603,10 +3603,10 @@ void he_RunAlchemistDay(int ev)
     cm_SendExSetHE(0, ev);
 }
 
-void ai_DomizilMessageTask(int param_1, int param_2, int param_3, unsigned short *param_4);
-void ai_DomizilMessage04(int param_1, int param_2, int param_3);
+void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, struct AIOBJ *obj);
+void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
 void ai_DomizilMessageAge(int param_1, int param_2, struct AIBLD *param_3);
-void ai_DomizilMessagePlace(int param_1, int param_2, int param_3, int param_4);
+void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, int placeId);
 
 /* 0x56e070, the laboratory incident of the alchemist's daily event 0x98 (he_RunAlchemistDay, only for a building
    type of kind 0x1e): of four mishaps it picks the first possible one from a random start (1 .. 4, in turn):
@@ -3673,7 +3673,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
                     cm_AddFieldDelta(4, 1, 0x1c, &one);
                     cm_AddFieldDelta(4, 1, 0x20, &step);
                     cm_SendFieldDeltas();
-                    ai_DomizilMessageTask((int)&ai_Chars[b->owner], (int)c, (int)b, (unsigned short *)task[k]);
+                    ai_DomizilMessageTask(&ai_Chars[b->owner], c, b, task[k]);
                     break;
                 }
                 k = (k + 1) % 3;
@@ -3689,7 +3689,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
             cm_BeginFieldBlock((char *)b, b->id);
             cm_AddFieldValues(1, 1, 0x5c, &drop);
             cm_SendFieldDeltas();
-            ai_DomizilMessage04((int)&ai_Chars[b->owner], (int)c, (int)b);
+            ai_DomizilMessage04(&ai_Chars[b->owner], c, b);
             break;
         case 3:
             he_SetLifeByAge(c, util_Random(3) + 1);
@@ -3701,7 +3701,7 @@ void he_LabIncident(AICHAR *c, int ev, AIBLD *b, int state)
                 if (rec->slots[k].id != 0 && rec->slots[k].v > 0.2f) {
                     v = rec->slots[k].v - (util_RandomF() * 0.1f + 0.05f);
                     ahm_SendSetPlaceValue((char *)c, rec->slots[k].id, v);
-                    ai_DomizilMessagePlace((int)&ai_Chars[b->owner], (int)c, (int)b, rec->slots[k].id);
+                    ai_DomizilMessagePlace(&ai_Chars[b->owner], c, b, rec->slots[k].id);
                     break;
                 }
                 k = (k + 1) % 6;
@@ -4581,7 +4581,7 @@ void he_AllocDecay(int ev)
 
 void ai_TellGraveWorkSuccess(int param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(int param_1);                 /* 0x5a99e0 */
-void ai_GraveyardMessage(int param_1, unsigned short *param_2, unsigned short *param_3, int param_4);                 /* 0x5a9a30 */
+void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker, struct AICHAR *other, int detail);                 /* 0x5a9a30 */
 void ai_GraveyardMessagePlain(int param_1, unsigned short *param_2, unsigned short *param_3);                 /* 0x5a9af0 */
 
 /* 0x5702e0, the run handler of the graveyard owner's "breath of decay" event 0x89 (alloc he_AllocDecay; am.c's
@@ -4697,7 +4697,7 @@ void he_RunDecay(int ev)
                     told = 1;
                 else
                     told = 0;
-                ai_GraveyardMessage((int)per, (unsigned short *)agent, (unsigned short *)victim, told);
+                ai_GraveyardMessage(per, agent, victim, told);
             } else
                 ai_GraveyardMessagePlain((int)per, (unsigned short *)agent, (unsigned short *)victim);
         }
