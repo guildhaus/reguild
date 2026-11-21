@@ -402,15 +402,6 @@ int ai_ShotTableStore(SHOTRESULT *src)
     return 1;
 }
 
-#pragma pack(push, 1)
-typedef struct CANNONREC {   /* the tutorial's cannon record (ai_CannonScene's argument), read at its byte offsets */
-    char pad0;
-    int id;                  /* +0x01, the effect id gv_FindEffect takes (GVCANNON.bld) */
-    char pad5[0x5c];
-    D3OBJECT *obj;           /* +0x61, the cannon object the scene is built around */
-} CANNONREC;
-#pragma pack(pop)
-#define CR ((CANNONREC *)rec)
 typedef struct CANNONSCENE { /* 0x104 bytes (0xe4 cleared), the scene struct of ai_CannonScene (the other cannon functions still address it by byte offset) */
     D3VECTOR pos;            /* +0x00, d3_PointToWorld of the cannon object; pos.y gets the height of its bounds * 0.8 */
     float pad0c;
@@ -476,7 +467,7 @@ struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);                 /* 0x447190, d3_interface.h */
 char d3if_Show(struct D3OBJECT *obj, char show);        /* 0x4471b0, d3_interface.h */
 void he_ShowObjectInfos(); void ai_CannonAxes(CANNONSCENE *sc); void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
+void ai_CannonShotResults(CANNONSCENE *sc); void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask); int ai_CannonFireCheck(CANNONSCENE *sc); void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void sv_SetStatusText(char *s); void sv_RedrawScreen();
 void d3if_Prerender(char map); 
 
@@ -496,7 +487,7 @@ extern TUTSTATE ai_TutorialState;
    on the quit control sets sv_PopRequest. The teardown fades out again, closes the three windows, removes the two
    objects, deletes the 3D objects, re-enables the listed objects, restores viewport, clip rectangle, scene, sky and
    camera and releases the callback of the run record */
-void ai_CannonScene(char *rec)
+void ai_CannonScene(AIBLD *rec)
 {
     GVEFFECT *run;
     CANNONSCENE sc;
@@ -517,18 +508,18 @@ void ai_CannonScene(char *rec)
     memset(&sc, 0, 0xe4);
     sc.last = d3_Time;
     mask = sv_FrameMask | 0x80;
-    if (!CR->obj)
+    if (!rec->object)
         return;
-    run = (GVEFFECT *)gv_FindEffect(CR->id);
+    run = (GVEFFECT *)gv_FindEffect(rec->id);
     if (!run) {
         m = gv_RequestEffectLoad(rec);
         while (m != -1 && cm_GetSlotState(m) == 0)
             sv_RunFrame(0, 0x20007);
-        run = (GVEFFECT *)gv_FindEffect(CR->id);
+        run = (GVEFFECT *)gv_FindEffect(rec->id);
         if (!run)
             return;
     }
-    gv_SetEffectCallback(CR->id, ai_ShotTableStore, ai_ShotCallbackArg);
+    gv_SetEffectCallback(rec->id, ai_ShotTableStore, ai_ShotCallbackArg);
     mask = (mask & 0xffffdef7) | 0x10000;
     cam3.x = d3_Camera->pos.x;
     cam3.y = d3_Camera->pos.y;
@@ -583,15 +574,15 @@ void ai_CannonScene(char *rec)
     d3if_SelectScene(0, 0);
     if (d3_Sky)
         d3sky_Init(d3_Sky, 1);
-    d3t_GetObjectBounds(&sc.bmin, &sc.bmax, CR->obj);
-    if (gv_Cannon.bld != CR->id) {
-        gv_Cannon.bld = CR->id;
+    d3t_GetObjectBounds(&sc.bmin, &sc.bmax, rec->object);
+    if (gv_Cannon.bld != rec->id) {
+        gv_Cannon.bld = rec->id;
         gv_Cannon.sliderA = 0;
         gv_Cannon.sliderB = 0;
         gv_Cannon.selected = 0;
         memcpy(gv_Cannon.camTarget, &save3, sizeof(gv_Cannon.camTarget));
     }
-    d3_PointToWorld(CR->obj, &CR->obj->pos, &sc.pos);
+    d3_PointToWorld(rec->object, &rec->object->pos, &sc.pos);
     memcpy(&sc.rot, gv_Cannon.camTarget, sizeof(sc.rot));
     sc.pos.y = (sc.bmax.y - sc.bmin.y) * 0.8f + sc.pos.y;
     {
@@ -626,8 +617,8 @@ void ai_CannonScene(char *rec)
     for (m = 0; m < 3; m++)
         d3if_Show(sc.obj8c[m], 0);
     d3if_Show(sc.obj8c[sc.selected], 1);
-    d3if_ShowTree(CR->obj, 0);
-    he_ShowObjectInfos((int)CR->obj, 0);
+    d3if_ShowTree(rec->object, 0);
+    he_ShowObjectInfos((int)rec->object, 0);
     d2_ClickedId = -1;
     ai_CannonAxes(&sc);
     ai_ShotTable[2].id = -1;
@@ -654,7 +645,7 @@ void ai_CannonScene(char *rec)
                         ai_CannonSwitchAnim(rec, &sc, run, 2, 0x2656c7);
                 }
                 if (run->flags == 0 && ai_CannonFireCheck(&sc) != 0) {
-                    ai_CannonExplosion(&sc, (AIBLD *)rec);
+                    ai_CannonExplosion(&sc, rec);
                     ai_ShotTable[2].id = -1;
                     ai_ShotTable[1].id = -1;
                     ai_ShotTable[0].id = -1;
@@ -682,8 +673,8 @@ void ai_CannonScene(char *rec)
         d3if_Delete(sc.obj9c);
     if (sc.obj98)
         d3if_Delete(sc.obj98);
-    d3if_ShowTree(CR->obj, 1);
-    he_ShowObjectInfos((int)CR->obj, 1);
+    d3if_ShowTree(rec->object, 1);
+    he_ShowObjectInfos((int)rec->object, 1);
     for (m = 0; m < n; m++)
         d2_Objs[list[m]].disabled = 0;
     d3_SetViewport((float)(sv_ViewRectRight - sv_ViewRectLeft), (float)(sv_ViewRectBottom - sv_ViewRectTop), (float)sv_ViewRectLeft, (float)sv_ViewRectTop, d3_ZNear, d3_ZFar, d3_ScaleX, d2_ScreenW, d2_ScreenH);
@@ -702,7 +693,7 @@ void ai_CannonScene(char *rec)
     d3if_Prerender(1);
     d2_ReleaseFade(pb);
     d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 10);
-    gv_SetEffectCallback(CR->id, 0, 0);
+    gv_SetEffectCallback(rec->id, 0, 0);
 }
 
 double _CIfmod();
@@ -1087,7 +1078,7 @@ void txt_Format(char *out, int id0, ...); int gm_CharCurrency(struct AICHAR *c, 
    pitch (ai_CannonPitchRatio) and the run's charge (* 100); the window sc->win_c0 gets the texts 0x4068 / 0x4069 with
    the count and price and the character's currency and money ("%T %a"), each centred at half the window's width
    in font 0x54; the slider values, the barrel and the aim go back to gv_Cannon */
-void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
+void ai_CannonPanel(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run)
 {
     char buf[0x40];
     int a;
@@ -1102,7 +1093,7 @@ void ai_CannonPanel(char *rec, CANNONSCENE *sc, GVEFFECT *run)
     a = d2_GetObjValue(sc->kindSlider);
     b = d2_GetObjValue(sc->speedSlider);
     c = gv_SalvoCharge(a, b, 1);
-    gv_BuildingCannon((AIBLD *)rec, (unsigned *)&sc->maxSel, (unsigned *)&sc->kind);
+    gv_BuildingCannon(rec, (unsigned *)&sc->maxSel, (unsigned *)&sc->kind);
     n = sc->kind;
     if (n < a)
         a = n;
@@ -1168,7 +1159,7 @@ float ai_CannonPitchRatio(CANNONSCENE *sc)
    sc->selected = sel; at the end sc->now = the clock. The half's time and the sink distance are the const data
    ai_CannonSwitchMs / ai_CannonSwitchDist (the original divides by the time: a literal would be a multiply);
    v and w are padded D3VECTOR4s (the original's frame) */
-void ai_CannonSwitchAnim(char *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask)
+void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, int mask)
 {
     D3VECTOR4 v;
     D3VECTOR4 w;
@@ -2153,7 +2144,7 @@ void ai_CannonContact(AIBLD *rec, AIOBJ *room)
         if (room->locked != 0)
             ai_UnlockRoomWindow(rec, room);
         else if (ai_ClickedObject == cannon)
-            ai_CannonScene((char *)rec);
+            ai_CannonScene(rec);
     }
 }
 /* 0x582600, the contacts of the cabinet (kabinett, the room kind 0x266 of the enter-building driver ai_EnterBuilding):

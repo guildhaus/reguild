@@ -245,7 +245,7 @@ extern const struct D3VECTOR4 ai_WimpelPos;  /* 0x5eec80, the wimpel's place on 
 extern const float ai_CannonSwitchMs;    /* 0x5eec94, the length of each half of the barrel switch (ms) */
 extern const float ai_CannonSwitchDist;  /* 0x5eec98, how far the cannon sinks back while the barrel switches */
 void ai_CannonCamera(struct CANNONSCENE *sc);  /* 0x57f0e0, the cannon camera update */
-void ai_CannonPanel(char *rec, struct CANNONSCENE *sc, struct GVEFFECT *run);  /* 0x57f890, the cannon control panel */
+void ai_CannonPanel(struct AIBLD *rec, struct CANNONSCENE *sc, struct GVEFFECT *run);  /* 0x57f890, the cannon control panel */
 void ai_CannonBuildPanel(struct CANNONSCENE *sc, struct GVEFFECT *run);  /* 0x580a90, builds the cannon control panel */
 extern unsigned char ai_TurnTable[0x4000];  /* 0x6f5f60, the 0x4000-byte table ai_ClearTurnTable clears at engine open (nothing else refers to it) */
 void ai_SlotKeys(void);  /* 0x589c90, a bare function key selects its bookmark (ai_SelectBookmark) */
