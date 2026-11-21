@@ -1425,7 +1425,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
     } else if (w->id == 0x15e || w->id == 0x160) {
         item = (AIOBJ *)cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
-            sv_SetStatusText((char *)txt_WeaponEmpty15e);
+            sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_15E]);
             return -1;
         }
         order.charId = ch->netId;
@@ -1436,7 +1436,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
     } else if (w->id == 0x174) {
         item = (AIOBJ *)cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
-            sv_SetStatusText((char *)txt_WeaponEmpty174);
+            sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_174]);
             return -1;
         }
         order.charId = ch->netId;
@@ -1447,7 +1447,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
     } else if (w->id == 0x176) {
         item = (AIOBJ *)cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
-            sv_SetStatusText((char *)txt_WeaponEmpty176);
+            sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_176]);
             return -1;
         }
         order.stateArg = 0;
@@ -1589,7 +1589,7 @@ void cm_OrderWait(char *rec, AICHAR *c)
 /* 0x4d0570, the order of a mouse click (dm_L.lup) for the character c of the cutscene record rec (CMCUTINFO): on a
    character's body (D3OBJECT.kind 2) an attack (cm_OrderAttack) when it is not in c's building or shift is down; on
    "sp_ESCAPE" cm_OrderEscape, on "sp_CONQUER.." cm_OrderConquer, on "WARE.." cm_OrderWare; with nothing picked the ground
-   cell under the pointer (d3sm_Pick) is sent in state 1 (stateArg / x), else txt_ClickNoGround is shown. Returns 1 when
+   cell under the pointer (d3sm_Pick) is sent in state 1 (stateArg / x), else TXT_CLICK_NO_GROUND is shown. Returns 1 when
    an order was given */
 char cm_OrderClick(char *rec, AICHAR *c)
 {
@@ -1633,7 +1633,7 @@ char cm_OrderClick(char *rec, AICHAR *c)
                 cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
                 ret = 1;
             } else
-                sv_SetStatusText((char *)txt_ClickNoGround);
+                sv_SetStatusText(txt_Ptrs[TXT_CLICK_NO_GROUND]);
         }
     }
     return ret;
@@ -3388,7 +3388,7 @@ int cm_LootList(int x, int y, int mode)
             d2_Objs[t].w = 0x50;
             d2_Objs[t].centred = 1;
             sprintf(buf, "%i ", q->count);
-            strcat(buf, txt_AmountUnit);
+            strcat(buf, txt_Ptrs[TXT_AMOUNT_UNIT]);
             d2_SetObjText(t, buf);
             t2 = d2_CreateWinText(px - 0x10, py + 0x34, &ch_EmptyName, d2_LastWindow);
             d2_Objs[t2].font = 0x56;
@@ -3878,7 +3878,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                     cnt = (int)(((double)(cm_Random(0x14) + 0x50) * 0.01) * q->count);
                     if (cnt < 1)
                         cnt = 1;
-                    sprintf(tmp, "%i %s$A", cnt, (char *)txt_ObjectNames[q->id][0]);
+                    sprintf(tmp, "%i %s$A", cnt, txt_Ptrs[TXT_OBJECT_NAMES + 2 * q->id]);
                     strcat(tc, tmp);
                     if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
                         cm_SendExSellObject(obj->objId, ob->objId, q->id, cnt, ai_OwnPlayer, 0);
@@ -3987,7 +3987,7 @@ void cm_FightEndDialog(CMFIGHTREC *a)
                     n = (int)(((double)(cm_Random(0x14) + 0x50) * 0.01) * q->count);
                     if (n < 1)
                         n = 1;
-                    sprintf(tmp, "%i %s$A", n, (char *)txt_ObjectNames[q->id][0]);
+                    sprintf(tmp, "%i %s$A", n, txt_Ptrs[TXT_OBJECT_NAMES + 2 * q->id]);
                     strcat(tc, tmp);
                     if (ai_Chars[ai_PlayerId].netId == cm_FightOwner)
                         cm_SendExSellObject(obj->objId, p->objId, q->id, n, ai_OwnPlayer, 0);
@@ -4278,7 +4278,7 @@ void cm_FightFrame(char *r)
         sv_PopRequest = 1;
 }
 /* 0x4d6a50, builds the fight UI: the form "cutscenes\combat" (cm_FightForm), the button cm_FightButton (text
-   cm_FightButtonText) and the bar cm_FightTimeBar at the bottom, then the portrait boxes (0x4cfe70 / 0x4cfc10) */
+   TXT_FIGHT_BUTTON) and the bar cm_FightTimeBar at the bottom, then the portrait boxes (0x4cfe70 / 0x4cfc10) */
 
 void cm_BuildFightUI(char *a)
 {
@@ -4288,7 +4288,7 @@ void cm_BuildFightUI(char *a)
     cm_FightForm = v;
     d2_PlaceMainWindow(v, 3);
     d2_SetForm(v, 0);
-    t = d2_WinCreateSlider(0x10, 0xc, 0xbf, cm_FightButtonText, d2_LastWindow);
+    t = d2_WinCreateSlider(0x10, 0xc, 0xbf, (intptr_t)txt_Ptrs[TXT_FIGHT_BUTTON], d2_LastWindow);
     cm_FightButton = t;
     d2_Objs[t].centred = 1;
     d2_CenterObj(cm_FightButton);

@@ -2517,8 +2517,8 @@ void cm_RunDuel(G28REC *m)
 }
 /* 0x4dfa20, the duel's aftermath (the fourth callback of the duel event, cm_RegisterSceneKind kind 4) for the duellists
    m->members[0] / [1]: when one of them is held (heldRounds) the players' characters (kinds 6 / 7) among them get the news
-   txt_DuelHeldNews; else when one is dead (gm_HealthRatio <= 0) the other's player gets txt_DuelDeathNews; else each
-   player's character among them sends a note naming the other (text 0x11ca + txt_DuelNoteTail, cm_SendPartyNote) and the
+   TXT_DUEL_HELD_NEWS; else when one is dead (gm_HealthRatio <= 0) the other's player gets TXT_DUEL_DEATH_NEWS; else each
+   player's character among them sends a note naming the other (text 0x11ca + TXT_DUEL_NOTE_TAIL, cm_SendPartyNote) and the
    duel is accused (gv_Accuse 0x14, by the building of a, else of b). Returns 1 when a note went out */
 
 int cm_DuelAftermath(G28REC *m)
@@ -2537,24 +2537,24 @@ int cm_DuelAftermath(G28REC *m)
         if (gm_HealthRatio(a) <= 0.0f) {
             if (b->kind != 6 && b->kind != 7)
                 return 0;
-            he_ShowNews(ai_Chars[b->id].netId, -1, txt_DuelDeathNews, 0, 0x5ec, 0);
+            he_ShowNews(ai_Chars[b->id].netId, -1, txt_Ptrs[TXT_DUEL_DEATH_NEWS], 0, 0x5ec, 0);
             return 0;
         }
         if (gm_HealthRatio(b) <= 0.0f) {
             if (a->kind != 6 && a->kind != 7)
                 return 0;
-            he_ShowNews(ai_Chars[a->id].netId, -1, txt_DuelDeathNews, 0, 0x5ec, 0);
+            he_ShowNews(ai_Chars[a->id].netId, -1, txt_Ptrs[TXT_DUEL_DEATH_NEWS], 0, 0x5ec, 0);
             return 0;
         }
         if (a->kind == 6 || a->kind == 7) {
             txt_Format(buf, 0x11ca, b->id);
-            strcat(buf, txt_DuelNoteTail);
+            strcat(buf, txt_Ptrs[TXT_DUEL_NOTE_TAIL]);
             cm_SendPartyNote(a, m, buf, &ch_EmptyName);
             flag = 1;
         }
         if (b->kind == 6 || b->kind == 7) {
             txt_Format(buf, 0x11ca, a->id);
-            strcat(buf, txt_DuelNoteTail);
+            strcat(buf, txt_Ptrs[TXT_DUEL_NOTE_TAIL]);
             cm_SendPartyNote(b, m, buf, &ch_EmptyName);
             flag = 1;
         }
@@ -2569,9 +2569,9 @@ int cm_DuelAftermath(G28REC *m)
         return flag;
     }
     if (b->kind == 6 || b->kind == 7)
-        he_ShowNews(ai_Chars[b->id].netId, -1, txt_DuelHeldNews, 0, 0x5ec, 0);
+        he_ShowNews(ai_Chars[b->id].netId, -1, txt_Ptrs[TXT_DUEL_HELD_NEWS], 0, 0x5ec, 0);
     if (a->kind == 6 || a->kind == 7)
-        he_ShowNews(ai_Chars[a->id].netId, -1, txt_DuelHeldNews, 0, 0x5ec, 0);
+        he_ShowNews(ai_Chars[a->id].netId, -1, txt_Ptrs[TXT_DUEL_HELD_NEWS], 0, 0x5ec, 0);
     return 0;
 }
 /* 0x4dfcb0, the player's choice of the duel round as a dialog ("cutscenes\\duell", text 0x10de with cm_CutChar's
@@ -2688,7 +2688,7 @@ void cm_RunPictureShow(G28REC *m)
 }
 /* 0x4e0040, the execution's aftermath (the fourth callback of the execution event, cm_RegisterSceneKind kind 5 with the scene
    0x4e01e0) for the delinquent m->members[0]: unless m->quiet is set, the delinquent's player (kinds 6 / 7) gets the note
-   text 0x11c5 + txt_ExecNoteTail; then every player's character among the other members gets the note text 0x11c8 with
+   text 0x11c5 + TXT_EXEC_NOTE_TAIL; then every player's character among the other members gets the note text 0x11c8 with
    the delinquent's name (cm_SendPartyNote). The loop is written in both branches, as the original has it twice.
    Returns 0 when the delinquent is not found, else 1 */
 
@@ -2704,7 +2704,7 @@ int cm_ExecutionAftermath(G28REC *m)
             return 0;
         if (c->kind == 6 || c->kind == 7) {
             txt_Format(buf, 0x11c5);
-            strcat(buf, txt_ExecNoteTail);
+            strcat(buf, txt_Ptrs[TXT_EXEC_NOTE_TAIL]);
             cm_SendPartyNote(c, m, buf, &ch_EmptyName);
         }
         txt_Format(buf, 0x11c8, c->id);
@@ -2991,7 +2991,7 @@ int cm_RunWedding(G28REC *m)
 }
 /* 0x4e0e90, the check function of the birth (scene kind 7, run function 0x4e0f70) for its party m: the mother
    m->members[0] and the father m->members[1]; when the mother's partner (her relatives[0]) exists and is not dead
-   (kind 0xf) she gets the note text 0x11c1 with txt_BirthNoteTail (cm_SendPartyNote) and 1 is returned (the birth runs);
+   (kind 0xf) she gets the note text 0x11c1 with TXT_BIRTH_NOTE_TAIL (cm_SendPartyNote) and 1 is returned (the birth runs);
    else the father is killed (cm_SendKillCharacter) and 0 */
 
 int cm_CheckBirth(G28REC *m)
@@ -3006,7 +3006,7 @@ int cm_CheckBirth(G28REC *m)
         if (p != 0 && p->kind != 0xf) {
             if (a->kind == 6 || a->kind == 7) {
                 txt_Format(buf, 0x11c1);
-                strcat(buf, txt_BirthNoteTail);
+                strcat(buf, txt_Ptrs[TXT_BIRTH_NOTE_TAIL]);
                 cm_SendPartyNote(a, m, buf, &ch_EmptyName);
             }
             return 1;
@@ -3113,7 +3113,7 @@ int cm_DeathSceneCheck(G28REC *m)
    a pause: the voices "_TOD_HS" 0, 2 .. 6 queued with their delays, then the fog faded in over 0x339 ticks; the bells
    "GLOCKEN_r". Then: with an adult relative (gm_HasAdultRelative) the player whose person (flags +0x1cc: 1 without 2) may
    play on is asked (text 0x40fb): yes revives the person (f01c 100, v024 0, the flag 2), no (or another person) opens the
-   family tree with txt_DeathTreeCaption; without one such a person is told (0x40fc) and revived all the same; else in a
+   family tree with TXT_DEATH_TREE_CAPTION; without one such a person is told (0x40fc) and revived all the same; else in a
    game of the flag 8 the game is over (text 0x1ab4 with relatives, 0x1ab3 without, back to main_GameLoop); else the
    estate is forfeited (gm_ForfeitEstate) and its text shown */
 
@@ -3172,7 +3172,7 @@ void cm_RunDeath(G28REC *m)
             revive = cm_MessageBox((intptr_t)buf, 0x10);
         }
         if (revive == 0)
-            ai_FamilyTreeWindow(ai_CharInts[ai_PlayerId][0], 0xa, txt_DeathTreeCaption, cm_DialogFrameFlags);
+            ai_FamilyTreeWindow(ai_CharInts[ai_PlayerId][0], 0xa, (intptr_t)txt_Ptrs[TXT_DEATH_TREE_CAPTION], cm_DialogFrameFlags);
         else {
             float life;
             int zero;
@@ -3294,7 +3294,7 @@ void cm_RunBankruptcy(G28REC *m)
 }
 /* 0x4e19a0, the check function of the auction (scene kind 10, run function 0x4e1a80) for its party m: the auctioned
    building m->auction.building and its start price m->auction.price go into the text 0x3fd9, joined with
-   txt_AuctionNoteNet in the net run (ai_GameFlags & 4) or txt_AuctionNoteLocal; every member of the kinds 6 / 7 gets
+   TXT_AUCTION_NOTE_NET in the net run (ai_GameFlags & 4) or TXT_AUCTION_NOTE_LOCAL; every member of the kinds 6 / 7 gets
    it as a note (cm_SendPartyNote). 0 when the building is gone (the auction is cancelled), else 1 */
 
 int cm_CheckAuction(G28REC *m)
@@ -3309,9 +3309,9 @@ int cm_CheckAuction(G28REC *m)
         return 0;
     txt_Format(buf, 0x3fd9, o, m->auction.price);
     if ((ai_GameFlags & 4) != 0)
-        strcat(buf, txt_AuctionNoteNet);
+        strcat(buf, txt_Ptrs[TXT_AUCTION_NOTE_NET]);
     else
-        strcat(buf, txt_AuctionNoteLocal);
+        strcat(buf, txt_Ptrs[TXT_AUCTION_NOTE_LOCAL]);
     for (i = 0; i < m->used; i++) {
         p = gm_FindChar(m->members[i]);
         if (p != 0 && (p->kind == 6 || p->kind == 7))
@@ -4330,7 +4330,7 @@ void cm_RunSceneParty(char *m, int ctx)
             cm_SendExSysMessage(0x11, &msg);
         }
         if (cm_SkipEvents == 0)
-            sv_SyncText(txt_ScenePartySync);
+            sv_SyncText(txt_Ptrs[TXT_SCENE_PARTY_SYNC]);
     }
     sv_SetStatusText(&ch_EmptyName);
     if (ai_GameFlags & 8) {
@@ -4403,7 +4403,7 @@ void cm_RunSceneParty(char *m, int ctx)
             }
             while (cm_PartyAnswered(m) == 0) {
                 cm_ShowPartyTexts(m);
-                sv_SetStatusText(txt_ScenePartyWait);
+                sv_SetStatusText(txt_Ptrs[TXT_SCENE_PARTY_WAIT]);
                 sv_RunFrame(0, cm_DialogFrameFlags | 0x8000);
             }
         } else if (cm_Kinds[party->kind].allAtOnce == 0) {

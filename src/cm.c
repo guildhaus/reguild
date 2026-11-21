@@ -3907,7 +3907,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
                 k = 4;
             cm_SpeedLevel = k;
             cm_SpeedTick = cm_SpeedTicks[k];
-            sv_SetStatusText(txt_SpeedNames[k]);
+            sv_SetStatusText(txt_Ptrs[TXT_SPEED_NAMES + k]);
             ai_ApplyOptions();
             break;
         case 19:

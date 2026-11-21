@@ -639,7 +639,7 @@ void cm_FightLoop(char *a, int ctx)
             sv_SetStatusText(&ch_EmptyName);
         }
         if (cm_FightPaused != 0)
-            sv_SetStatusText(txt_FightPaused);
+            sv_SetStatusText(txt_Ptrs[TXT_FIGHT_PAUSED]);
         else
             cm_FightFrame(a);
         if (cm_FightWinner == 0 && cm_FightSettled == 0 && cm_FightPaused == 0) {
