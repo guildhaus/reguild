@@ -140,8 +140,6 @@ typedef struct D2DISSOLVE {         /* 0x20 bytes, a picture being copied to the
     int step;                       /* 0x1c */
 } D2DISSOLVE;
 
-#define D2VOP(o) ((D2VIEW *)((char *)d2_Views + (o)))
-
 typedef struct D2FRCT { int id, amount, unk; } D2FRCT;
 
 

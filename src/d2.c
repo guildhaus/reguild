@@ -3650,8 +3650,11 @@ void d2_DrawWindowBackground(D2WIN *w, void *surf)
         d2_BlitPartMode(0, 0, w->surf2->w, w->surf2->h, w->surf2, w->x, w->y, surf, 1);
 }
 
-#define D2WOP(o) ((D2WIN *)((char *)d2_Wins + (o)))   /* window at byte offset o (win * 0x3c4); a pointer, so
-                                                         the original's offset-in-a-register addressing stays */
+/* @original why: d2_CreateScrollButtons computes the window's byte offset once, before its first test, and
+   addresses every field as [o + d2_Wins.field]; the index form d2_Wins[win] sinks the offset into the branch and
+   recomputes it (draft), a D2WIN * at the top adds the base (shape). o is win * sizeof(D2WIN), so the macro is
+   the window, not a layout offset. */
+#define D2WOP(o) ((D2WIN *)((char *)d2_Wins + (o)))
 
 /* 0x471a90, draws a window: its objects, scroll buttons, background and frame */
 void d2_DrawWindow(win, surf)
@@ -3806,9 +3809,8 @@ int win;
     }
 }
 /* 0x472270, creates the two scroll buttons of a window. The body reaches the window through D2WOP(o), the
-   window at the byte offset o = win * 0x3c4: the original computes the address as lea/shl from the byte
-   offset, so the offset form is what the bytes need (the index form d2_Wins[win] loses the match:
-   238/304 bytes differ). */
+   window at the byte offset o = win * sizeof(D2WIN) computed once at the top (see D2WOP; the index form
+   d2_Wins[win] is draft, a D2WIN * shape). */
 
 void d2_CreateScrollButtons(x, y, win, obj, pic)
 int x;
@@ -3818,7 +3820,7 @@ int obj;
 int pic;
 {
     int i;
-    int o = win * 0x3c4;
+    int o = win * sizeof(D2WIN);
 
     if (x == -1 && y == -1) {
         x = D2WOP(o)->w - 0x20;
@@ -3976,31 +3978,30 @@ unsigned int flags;
     d2_LastWindow = i;
     return i;
 }
-/* 0x472760, scrolls the content of a window. The body reads/writes the window through D2WOP(o), the window
-   at the byte offset o = win * 0x3c4, eleven times - that form is what the bytes need (the index form
-   D2WOP(o) -> d2_Wins[win] costs 19/160 bytes); one access, d2_Wins[win].scrollRemY += t, is the index form
-   and is kept for the same reason (comment in the body). */
+/* 0x472760, scrolls the content of a window. The body reads/writes the window through w = &d2_Wins[win] (the
+   index form d2_Wins[win] everywhere is shape); one access, d2_Wins[win].scrollRemY += t, is the index form
+   (comment in the body). */
 
 void d2_ScrollWindowBy(a, b, win)
 int a;
 int b;
 int win;
 {
-    int o = win * 0x3c4;
+    D2WIN *w = &d2_Wins[win];
     int t;
 
-    if (D2WOP(o)->scrollY + D2WOP(o)->scrollRemY > 0 && b < 0) {
-        t = -(D2WOP(o)->scrollY + D2WOP(o)->scrollRemY);
+    if (w->scrollY + w->scrollRemY > 0 && b < 0) {
+        t = -(w->scrollY + w->scrollRemY);
         if (b > t)
             t = b;
-        D2WOP(o)->scrollRemY = t;
-    } else if (D2WOP(o)->h + D2WOP(o)->scrollY + D2WOP(o)->scrollRemY < D2WOP(o)->contentHeight && b > 0) {
-        t = D2WOP(o)->contentHeight - D2WOP(o)->h - D2WOP(o)->scrollY - D2WOP(o)->scrollRemY;
+        w->scrollRemY = t;
+    } else if (w->h + w->scrollY + w->scrollRemY < w->contentHeight && b > 0) {
+        t = w->contentHeight - w->h - w->scrollY - w->scrollRemY;
         if (b < t)
             t = b;
         d2_Wins[win].scrollRemY += t;     /* the index form: no reuse of the loaded scrollRemY, add [mem] */
     }
-    D2WOP(o)->scrollRemX += a;
+    w->scrollRemX += a;
 }
 /* 0x472800, resizes a window (grows in height so that all objects fit) */
 
@@ -5230,8 +5231,8 @@ void d2_PlaceViewWindows(int view, unsigned char flags)
             d2_PlaceWindow(v->wins[i], flags);
     }
 }
-/* 0x4758f0, closes a view. The view is reached through D2VOP(view * 0x2ac), the original's byte-offset
-   form: the typed index access d2_Views[view] loses the byte match (the offset stays in a register). */
+/* 0x4758f0, closes a view. The active / nwins tests read d2_Views[view] by index, the rest through v (all
+   through v is shape). */
 
 void d2_CloseView(int view)
 {
@@ -5239,9 +5240,9 @@ void d2_CloseView(int view)
     int i;
 
     if (view <= 0x30 || view >= 1) {
-        v = D2VOP(view * 0x2ac);
-        if (D2VOP(view * 0x2ac)->active) {
-            for (i = D2VOP(view * 0x2ac)->nwins - 1; i >= 0; i--)
+        v = &d2_Views[view];
+        if (d2_Views[view].active) {
+            for (i = d2_Views[view].nwins - 1; i >= 0; i--)
                 d2_RemoveWindow(d2_Views[view].wins[i]);
             if (v->viewSurf)
                 d2_FreeSurface((void *)v->viewSurf);
