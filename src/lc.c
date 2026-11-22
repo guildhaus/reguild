@@ -900,9 +900,9 @@ int ai_ProductionWindow(AIBLD *bld)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 4;
                     if (bld->owner != 0xffff)
-                        msg.to = ai_CharInts[bld->owner][0];
+                        msg.to = ai_Chars[bld->owner].netId;
                     else
-                        msg.to = ai_CharInts[ai_PlayerId][0];
+                        msg.to = ai_Chars[ai_PlayerId].netId;
                     msg.fromId = bld->id;
                     msg.time = ai_Time;
                     msg.itemId = (unsigned short)ai_ProdColumns[c].good;
@@ -2859,7 +2859,7 @@ void ai_ConstructionWindow(void)
                 if (site != 0) {
                     msg.type = 0xd;
                     msg.flags = 2;
-                    msg.fromId = msg.to = ai_CharInts[ai_PlayerId][0];
+                    msg.fromId = msg.to = ai_Chars[ai_PlayerId].netId;
                     msg.time = ai_Time;
                     if (ai_BuildGroup == 3)
                         msg.arg[0] = ai_PlayerChar->netId;
@@ -3192,14 +3192,14 @@ void lc_PlayerInJail(void)
 
     b = he_FindEvent(1, 0, 0x3d);
     while (b != 0) {
-        if (b->burnBld == ai_CharInts[ai_PlayerId][0])
+        if (b->burnBld == ai_Chars[ai_PlayerId].netId)
             break;
         b = he_NextEvent();
     }
     if (b != 0) {
         it = gm_BuildQuery(1, 5, 4);
         while (it != 0) {
-            if (it->victimId == ai_CharInts[ai_PlayerId][0])
+            if (it->victimId == ai_Chars[ai_PlayerId].netId)
                 break;
             it = gm_BuildNext();
         }
@@ -3316,7 +3316,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             msg.flags = 1;
                             msg.type = 0xc;
                             msg.fromId = b->id;
-                            msg.to = ai_CharInts[b->masterId][0];
+                            msg.to = ai_Chars[b->masterId].netId;
                             msg.time = ai_Time;
                             msg.arg[0] = b->id;
                             msg.arg[2] = i;
@@ -3324,7 +3324,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                         } else {
                             msg.flags = 1;
                             msg.type = 2;
-                            msg.to = ai_CharInts[b->masterId][0];
+                            msg.to = ai_Chars[b->masterId].netId;
                             msg.fromId = b->id;
                             msg.time = ai_Time;
                             msg.arg[1] = rec->objId;
@@ -3351,7 +3351,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             ai_CampaignStep(0x2b, bld, 0, i);
                             cm_BeginGroup("upgrade");
                             if (b->owner != ai_PlayerChar->id) {
-                                cm_SendMoveGoods(-1, ai_CharInts[b->owner][0], ai_OwnPlayer, cost);
+                                cm_SendMoveGoods(-1, ai_Chars[b->owner].netId, ai_OwnPlayer, cost);
                                 prec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                                 if (prec != 0)
                                     prec->upgradeSpent += cost;
@@ -3561,7 +3561,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                     if (job == 0) {
                         memset(&msg, 0, sizeof(msg));
                         msg.type = 9;
-                        msg.to = ai_CharInts[ai_PlayerId][0];
+                        msg.to = ai_Chars[ai_PlayerId].netId;
                         msg.fromId = bld->id;
                         msg.nIds = 0;
                         msg.reserved14 = 0;
@@ -3583,7 +3583,7 @@ int ai_SearchResourceWindow(AIBLD *bld)
                     if (job == 0) {
                         memset(&msg, 0, sizeof(msg));
                         msg.type = 8;
-                        msg.to = ai_CharInts[ai_PlayerId][0];
+                        msg.to = ai_Chars[ai_PlayerId].netId;
                         msg.fromId = bld->id;
                         msg.nIds = 0;
                         msg.reserved14 = 0;
@@ -3759,7 +3759,7 @@ int ai_ExtractResourceWindow(AIBLD *bld)
                     msg.nIds = 0;
                     msg.reserved14 = 0;
                     msg.flags = 1;
-                    msg.to = ai_CharInts[bld->owner][0];
+                    msg.to = ai_Chars[bld->owner].netId;
                     msg.fromId = bld->id;
                     msg.time = ai_Time;
                     msg.itemId = (unsigned short)ai_ProdColumns[c].good;
@@ -3926,9 +3926,9 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                             memset(&msg, 0, sizeof(msg));
                             msg.type = 4;
                             if (bld->owner != 0xffff)
-                                msg.to = ai_CharInts[bld->owner][0];
+                                msg.to = ai_Chars[bld->owner].netId;
                             else
-                                msg.to = ai_CharInts[ai_PlayerId][0];
+                                msg.to = ai_Chars[ai_PlayerId].netId;
                             msg.fromId = bld->id;
                             msg.nIds = 0;
                             msg.reserved14 = 0;
@@ -4323,7 +4323,7 @@ int ai_BreakInCallback(char *place)
             if (ev == 0) {
                 bld = ai_FallbackBuilding;
                 msg.type = 0x48;
-                msg.to = ai_CharInts[bld->owner][0];
+                msg.to = ai_Chars[bld->owner].netId;
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.flags = 2;
@@ -4404,7 +4404,7 @@ int ai_PickpocketWindow(AIBLD *place, AIBLD *target)
             if (ev == 0) {
                 bld = ai_FallbackBuilding;
                 msg.type = 0x49;
-                msg.to = ai_CharInts[bld->owner][0];
+                msg.to = ai_Chars[bld->owner].netId;
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.flags = 1;
@@ -4520,7 +4520,7 @@ int ai_BribeCallback(AIBLD *place, AIBLD *target)
         if (d2_PointerObj == ok) {
             snd_PlayFavourComment();
             msg.type = 0x62;
-            msg.to = ai_CharInts[ai_PlayerId][0];
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.fromId = ai_PlayerBuilding != 0 ? ai_PlayerBuilding->id : ai_FallbackBuilding->id;
             msg.time = ai_Time;
             msg.flags = 2;
@@ -4641,14 +4641,14 @@ void ai_BriberyWindow(AIBLD *place, AIBLD *target)
         if (d2_PointerObj == ok) {
             memset(msg.ids, 0xff, sizeof(msg.ids));
             msg.type = 0x40;
-            msg.to = ai_CharInts[ai_PlayerId][0];
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.flags = 1;
             msg.arg[0] = target->id;
             msg.arg[1] = ai_FallbackBuilding->id;
             n = 0;
             for (i = 0; i < 0x300 && n < 8; i++)
                 if (ai_Chars[i].selected != 0)
-                    msg.ids[n++] = ai_CharInts[i][0];
+                    msg.ids[n++] = ai_Chars[i].netId;
             if (n != 0) {
                 cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
@@ -4732,16 +4732,16 @@ void ai_RaidWindow(AIBLD *place, AIBLD *target)
             n = 0;
             msg.type = 0x75;
             msg.flags = 1;
-            msg.to = ai_CharInts[ai_PlayerId][0];
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.arg[0] = target->id;
             msg.arg[1] = ai_FallbackBuilding->id;
             memset(msg.ids, 0xff, sizeof(msg.ids));
             for (i = 0; i < 0x300; i++)
                 if (ai_Chars[i].selected != 0)
-                    msg.ids[n++] = ai_CharInts[i][0];
+                    msg.ids[n++] = ai_Chars[i].netId;
             if (n != 0) {
                 cm_SendLongMessage(&msg);
-                gm_SendMoneyDelta(ai_CharInts[ai_PlayerId][0], -1);
+                gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -1);
                 snd_PlayFavourComment();
             } else
                 sv_MessageBox((intptr_t)txt_Ptrs[0x1a79], 0);
@@ -5130,7 +5130,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
                 memset(&msg, 0, sizeof(msg));
                 msg.type = 0x14;
                 msg.flags = 1;
-                msg.to = ai_CharInts[bld->owner][0];
+                msg.to = ai_Chars[bld->owner].netId;
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.goodsOrder.item = (unsigned short)goods[sel];
@@ -5138,7 +5138,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
                 picked = 0;
                 for (i = 0; i < 0x300 && picked < 6; i++)
                     if (ai_Chars[i].selected != 0)
-                        msg.ids[picked++] = ai_CharInts[i][0];
+                        msg.ids[picked++] = ai_Chars[i].netId;
                 for (i = picked; i < 6; i++)
                     msg.ids[i] = -1;
                 msg.goodsOrder.count = (unsigned char)picked;
@@ -5258,7 +5258,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
                 memset(&msg, 0, sizeof(msg));
                 msg.type = 0x15;
                 msg.flags = 1;
-                msg.to = ai_CharInts[bld->owner][0];
+                msg.to = ai_Chars[bld->owner].netId;
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.goodsOrder.item = (unsigned short)goods[sel];
@@ -5266,7 +5266,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
                 picked = 0;
                 for (i = 0; i < 0x300 && picked < 6; i++)
                     if (ai_Chars[i].selected != 0)
-                        msg.ids[picked++] = ai_CharInts[i][0];
+                        msg.ids[picked++] = ai_Chars[i].netId;
                 for (i = picked; i < 6; i++)
                     msg.ids[i] = -1;
                 msg.goodsOrder.count = (unsigned char)picked;
@@ -5767,7 +5767,7 @@ void ai_MistressWindow(AIBLD *bld)
         memset(charIds, 0xff, sizeof(charIds));
         memset(evIds, 0xff, sizeof(evIds));
         for (ev = he_FindEvent(1, 0, 0x6f); ev != 0 && n < 4; ev = he_NextEvent()) {
-            if (ev->partner1 == ai_CharInts[ai_PlayerId][0]) {
+            if (ev->partner1 == ai_Chars[ai_PlayerId].netId) {
                 evIds[n] = ev->id;
                 if (ev->stage == 0)
                     enabled[n] = 1;
@@ -5816,10 +5816,10 @@ void ai_MistressWindow(AIBLD *bld)
                         memset(&msg, 0, sizeof(msg));
                         msg.type = 0x6f;
                         msg.flags = 2;
-                        msg.to = ai_CharInts[ai_PlayerId][0];
+                        msg.to = ai_Chars[ai_PlayerId].netId;
                         msg.fromId = bld->id;
                         msg.arg[1] = pick->netId;
-                        msg.arg[0] = ai_CharInts[ai_PlayerId][0];
+                        msg.arg[0] = ai_Chars[ai_PlayerId].netId;
                         cm_SendLongMessage(&msg);
                     }
                 }
@@ -11902,13 +11902,13 @@ int ai_GuildSpyWindow(AIBLD *place, AIBLD *target)
             memset(msg.ids, 0xff, sizeof(msg.ids));
             msg.type = 0x40;
             msg.flags = 1;
-            msg.to = ai_CharInts[ai_PlayerId][0];
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.arg[0] = target->id;
             msg.arg[1] = ai_PlayerBuilding->id;
             n = 0;
             for (i = 0; i < 0x300 && n < 8; i++)
                 if (ai_Chars[i].selected != 0)
-                    msg.ids[n++] = ai_CharInts[i][0];
+                    msg.ids[n++] = ai_Chars[i].netId;
             if (n != 0) {
                 cm_SendLongMessage(&msg);
                 done = 1;
@@ -12101,7 +12101,7 @@ int ai_AttackWindow(AIBLD *place, AIBLD *target)
                     break;
             if (ev == 0) {
                 msg.type = 0x49;
-                msg.to = ai_CharInts[ai_PlayerBuilding->owner][0];
+                msg.to = ai_Chars[ai_PlayerBuilding->owner].netId;
                 msg.fromId = ai_PlayerBuilding->id;
                 msg.time = ai_Time;
                 msg.flags = 1;
@@ -12197,7 +12197,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
             }
             if (n != 0) {
                 msg.type = 0x61;
-                msg.to = ai_CharInts[bld->owner][0];
+                msg.to = ai_Chars[bld->owner].netId;
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.arg[10] = msg.to;  /* 0x80: the gang's leader (the event's AIJOB.gangLeader, 0x54 further on) */
@@ -12417,7 +12417,7 @@ int ai_KidnapWindow(AICHAR *victim, int unused)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x3c;
                     msg.flags = 1;
-                    msg.to = ai_CharInts[ai_PlayerId][0];
+                    msg.to = ai_Chars[ai_PlayerId].netId;
                     msg.arg[0] = victim->netId;
                     msg.arg[1] = bld->id;
                     msg.arg[2] = ai_PlayerBuilding->id;
@@ -12430,8 +12430,8 @@ int ai_KidnapWindow(AICHAR *victim, int unused)
                         d2_ClickedId = -1;
                     } else {
                         cm_SendLongMessage(&msg);
-                        cm_SendMoneyDelta(ai_CharInts[ai_PlayerId][0], -3);
-                        gv_Accuse(0x1a, 1, ai_CharInts[ai_PlayerId][0], victim->netId, -1);
+                        cm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -3);
+                        gv_Accuse(0x1a, 1, ai_Chars[ai_PlayerId].netId, victim->netId, -1);
                         snd_PlayFavourComment();
                         sv_ClearSelection();
                         done = 1;
@@ -12578,7 +12578,7 @@ void ai_RansomWindow(AIBLD *bld)
             msg.type = 0x3e;
             msg.flags = 9;
             msg.arg[2] = ransom;
-            msg.arg[1] = ai_CharInts[ai_PlayerId][0];
+            msg.arg[1] = ai_Chars[ai_PlayerId].netId;
             cm_SendLongMessage(&msg);
             txt_Format(demandText, 0x19c5, ransom, victim->id);
             sv_MessageBox((intptr_t)demandText, 0);
@@ -12694,7 +12694,7 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
             entfuehren = sv_RegisterNamePlate("contact_ENTFUEHREN", txt_Ptrs[TXT_CONTACT_KIDNAP], 0x16);
             loesegeld = sv_RegisterNamePlate("contact_LOESEGELD", txt_Ptrs[TXT_CONTACT_RANSOM], 0x16);
         }
-        if (ch != 0 && ai_CharInts[ai_PlayerId][0] == ch->netId && ch->heldRounds > 0)
+        if (ch != 0 && ai_Chars[ai_PlayerId].netId == ch->netId && ch->heldRounds > 0)
             ausbrechen = sv_RegisterNamePlate("contact_AUSBRECHEN", txt_Ptrs[TXT_CONTACT_BREAK_OUT], 0x16);
         if (ai_ClickedObject != 0) {
             if (ai_ClickedObject == entfuehren)
@@ -12760,7 +12760,7 @@ int ai_CityWatchWindow(AIBLD *place, AIBLD *target)
             if (n != 0) {
                 msg.type = 0x43;
                 msg.flags = 2;
-                msg.to = ai_CharInts[ai_PlayerId][0];
+                msg.to = ai_Chars[ai_PlayerId].netId;
                 msg.arg[0] = target->id;
                 msg.arg[1] = ai_PlayerBuilding->id;
                 for (i = n; i < 4; i++)
@@ -12855,7 +12855,7 @@ int ai_CityWatchCrewWindow(AIBLD *place, AIBLD *target)
                 selected = 0;
                 msg.type = 0x44;
                 msg.flags = 2;
-                msg.to = ai_CharInts[ai_PlayerId][0];
+                msg.to = ai_Chars[ai_PlayerId].netId;
                 msg.arg[0] = target->id;
                 msg.arg[1] = ai_PlayerBuilding->id;
                 cm_SendLongMessage(&msg);
@@ -12945,7 +12945,7 @@ int ai_WatchPlanWindow(char *spot, char *place)
         if (d2_PointerObj == ok) {
             bld = ai_PlayerBuilding;
             msg.type = 0x65;
-            msg.to = ai_CharInts[ai_PlayerId][0];
+            msg.to = ai_Chars[ai_PlayerId].netId;
             msg.fromId = bld->id;
             msg.time = ai_Time;
             msg.flags = 2;

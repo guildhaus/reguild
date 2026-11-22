@@ -863,7 +863,6 @@ int ai_TokenRandomNpcInhabitant(int mode, G12ROW *row, int k, char *fmt, char *o
     unsigned int sex = 0;
     unsigned int filt;
     AICHAR *c = 0;
-    int *q;
 
     AI_ZERO_BUF(n1, buf, 0x200);
     ai_SplitTokenFormat(fmt, buf, &n1, &n2);
@@ -882,17 +881,15 @@ int ai_TokenRandomNpcInhabitant(int mode, G12ROW *row, int k, char *fmt, char *o
                 if (c->health <= 0)
                     return 0;
             } else {
-                i = 0;
-                for (q = ai_CharInts[0]; (intptr_t)q < (intptr_t)ai_CharInts[768]; q += 0x87) {
-                    if (ai_NotInLists(*q)) {
-                        c = (AICHAR *)(q - 1);
-                        if (filt == 0 || ((unsigned char *)q)[5] == sex) {
+                for (i = 0; i < 768; i++) {
+                    if (ai_NotInLists(ai_Chars[i].netId)) {
+                        c = &ai_Chars[i];
+                        if (filt == 0 || c->sex == sex) {
                             if (ai_IsLivingInhabitant((unsigned short)i))
                                 break;
                             c = 0;
                         }
                     }
-                    i++;
                 }
                 if (c == 0)
                     return 0;

@@ -3516,7 +3516,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 7;
                     msg.flags = 1;
-                    msg.to = ai_CharInts[ai_PlayerId][0];
+                    msg.to = ai_Chars[ai_PlayerId].netId;
                     msg.fromId = bld->id;
                     msg.time = ai_Time;
                     msg.hireMaster = 1;
@@ -5051,7 +5051,7 @@ unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl
 #define AI_CANDIDATE_FLAGS_SEX1 0xc05409    /* ditto for sex != 0 */
 /* 0x5c64c0, collects the candidate net ids of a kind 9 search into out[] and their count into *n: up to 10
    candidates of character p (ai_FindCandidates, the filter 0xc0540a, one less for a female character, sex +9);
-   the ids are the characters' net ids, ai_CharInts[id][0] (the caller finds them again with gm_FindChar) */
+   the ids are the characters' net ids, ai_Chars[id].netId (the caller finds them again with gm_FindChar) */
 
 void ai_FindCandidateIds(AICHAR *p, int *n, int *out)
 {
@@ -5062,7 +5062,7 @@ void ai_FindCandidateIds(AICHAR *p, int *n, int *out)
 
     *n = ai_FindCandidates(p, 9, fl, 0.0f, 100.0f, ids);
     for (i = 0; i < *n; i++)
-        out[i] = ai_CharInts[ids[i]][0];
+        out[i] = ai_Chars[ids[i]].netId;
 }
 /* 0x5c6530, the marriage test of two characters, idA / idB their net ids: gm_FindChar resolves both;
    the codes 0xfffffc00 (no record), 0xfffffbff / 0xfffffbfe (health 0), 0xfffffbfd / 0xfffffbfc (the partner
@@ -5154,7 +5154,7 @@ int ai_CourtshipRounds(int idA, int idB)
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 
 /* 0x5c6910, the confirm dialog of the courtship (advertising) list 0x5c6aa0: the rating 0x5c6620 of the own
-   character (ai_CharInts[ai_PlayerId][0]) and the partner ch->netId; the window "privillegien\werbung2"
+   character (ai_Chars[ai_PlayerId].netId) and the partner ch->netId; the window "privillegien\werbung2"
    "privillegien\werbung2" with the text 0x1ce5 (ch->id, the rating); the frame loop 0x5309a0 (this, 0x657c7): a click 0
    sends the marriage proposal message 0x41 (the own netId as to / fromId / arg[0], the partner's as arg[1], the
    clock, flags 2) through 0x4c4b70 and waits for its slot (0x4c3ae0 / 0x52fe00), the result 1; click 1 only
@@ -5167,7 +5167,7 @@ int ai_CourtshipConfirm(AICHAR *ch)
     int v;
     int slot;
 
-    v = ai_CourtshipRounds(ai_CharInts[ai_PlayerId][0], ch->netId);
+    v = ai_CourtshipRounds(ai_Chars[ai_PlayerId].netId, ch->netId);
     win = d2_OpenForm(0, 0, "privillegien\\werbung2");
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
@@ -5182,11 +5182,11 @@ int ai_CourtshipConfirm(AICHAR *ch)
                 memset(&msg, 0, sizeof(msg));
                 msg.type = 0x41;
                 msg.flags = 2;
-                msg.to = ai_CharInts[ai_PlayerId][0];
+                msg.to = ai_Chars[ai_PlayerId].netId;
                 msg.time = ai_Time;
                 msg.arg[1] = ch->netId;
-                msg.fromId = ai_CharInts[ai_PlayerId][0];
-                msg.arg[0] = ai_CharInts[ai_PlayerId][0];
+                msg.fromId = ai_Chars[ai_PlayerId].netId;
+                msg.arg[0] = ai_Chars[ai_PlayerId].netId;
                 slot = cm_SendLongMessage(&msg);
                 while (cm_GetSlotState(slot) == 0)
                     sv_PumpNet();

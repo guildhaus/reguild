@@ -2058,7 +2058,7 @@ void ai_PlagueMessageAll(void)
     txt_Format(ai_NewsText, v + 0x20cd);
     for (i = 0; i < 0x300; i++) {
         if (ai_Chars[i].kind == 6)
-            he_ShowNews(ai_CharInts[i][0], -1, ai_NewsText, 0, 0x600, local);
+            he_ShowNews(ai_Chars[i].netId, -1, ai_NewsText, 0, 0x600, local);
     }
 }
 /* 0x5a9330, the swap text of an office swap (253 B; its only caller is amt.c amt_ExecuteSwapMessage 0x4e6c50,

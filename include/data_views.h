@@ -8,9 +8,6 @@
 #ifndef DATA_VIEWS_H
 #define DATA_VIEWS_H
 
-/* ai_Chars */
-#define ai_CharInts              (*(int (*)[768][0x87])((char *)&ai_Chars + 0x4))  /* 0x770b84 */
-
 /* d3_Scenes */
 #define ai_MapRefs               (d3_Scenes[0].map)  /* 0xfd7c4c, the town scene's terrain map */
 

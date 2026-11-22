@@ -1321,7 +1321,7 @@ void ai_HookChapter4Step(int arg)
 
     if (arg)
         return;
-    id = ai_CharInts[ai_PlayerId][0];
+    id = ai_Chars[ai_PlayerId].netId;
     cm_SendMoveGoodsUnchecked(id, -1, 0, 0x2bc0);
 }
 /* 0x5770e0, a transition callback (0x30 B; a start the ret+nop scan missed: it follows 0x5770a0's nop fill and
@@ -1395,7 +1395,7 @@ void ai_HookChapter5Step2(int arg)
     if (arg)
         return;
     r = gm_FindMarketObject(0x155);
-    id = ai_CharInts[ai_PlayerId][0];
+    id = ai_Chars[ai_PlayerId].netId;
     cm_SendMoveGoodsUnchecked(id, -1, 0, 0x2bc0);
     cm_SendExSellObject(r->objId, -1, 0x155, 3, ai_OwnPlayer, 0);
 }
@@ -4224,7 +4224,7 @@ int ai_AlchemistHire(AIBLD *obj, AHMSTEP *step, int value)
                     sv_RunFrame(0, 0x20007);
                 if (cm_GetSlotState(slot) == 1) {
                     ahm_ClearStep(step);
-                    cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, value);
+                    cm_SendMoveGoods(-1, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, value);
                     return 1;
                 }
             }
@@ -4809,7 +4809,7 @@ int ai_AlchemistFundWindow(AIBLD *obj, AHMREC *rec)
                     ahm_SendAddValue(owner, (float)v / (float)points * share * 0.75f);
                     done = 1;
                     sv_PopRequest = 1;
-                    cm_SendMoveGoods(owner->netId, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, v);
+                    cm_SendMoveGoods(owner->netId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, v);
                 }
             } else if (d2_PointerObj == cancel) {
                 sv_PopRequest = 1;

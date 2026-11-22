@@ -2436,7 +2436,7 @@ void ai_GraveyardSchlag(AIBLD *unused)
     if (c != 0 && (c->flags1b4 & 1) != 0 && dm_L.lup != 0) {
         ai_EndCharExtra(c, 0);
         c = ai_PickedChar;
-        cm_SendRelations(ai_CharInts[ai_PlayerId][0], c->netId, -5, 0);
+        cm_SendRelations(ai_Chars[ai_PlayerId].netId, c->netId, -5, 0);
         script = sv_StartPoseScript(ai_PickedChar, "locations/friedhof/schlag_FRIEDHOF.esc");
         if (script != 0)
             script->ownScene = 1;

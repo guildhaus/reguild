@@ -134,7 +134,7 @@ typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) 
     char pad1c[0x1c];
     HESPYREPORT report;
 } CMSPYREPORT;
-#define G20_ME (ai_CharInts[ai_PlayerId][0])
+#define G20_ME (ai_Chars[ai_PlayerId].netId)
 
 int cm_DialogFrameFlags = 464838;  /* 0x60d360, the frame wait of the dialogs ( */
 int cm_SceneDuration = 10;  /* 0x60d364 */
@@ -2758,7 +2758,7 @@ void cm_RunExecution(G28REC *m)
     sprintf(end, "%s", CUT_NAMEREC(p3) + 4);
     cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-create.esc", buf);
     cm_WaitEvent(cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-intro.esc", ch_EmptyName));
-    if (m->host == ai_CharInts[ai_PlayerId][0])
+    if (m->host == ai_Chars[ai_PlayerId].netId)
         gm_AddHealth(v->id, (int)-(v->f01c + 5.0f));
     switch (m->variant) {
     case 0:
@@ -3170,7 +3170,7 @@ void cm_RunDeath(G28REC *m)
             revive = cm_MessageBox((intptr_t)buf, 0x10);
         }
         if (revive == 0)
-            ai_FamilyTreeWindow(ai_CharInts[ai_PlayerId][0], 0xa, (intptr_t)txt_Ptrs[TXT_DEATH_TREE_CAPTION], cm_DialogFrameFlags);
+            ai_FamilyTreeWindow(ai_Chars[ai_PlayerId].netId, 0xa, (intptr_t)txt_Ptrs[TXT_DEATH_TREE_CAPTION], cm_DialogFrameFlags);
         else {
             float life;
             int zero;

@@ -83,7 +83,6 @@ struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIP
 
 
 
-#define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
 
 /* one of the ten 16-byte slots of the walk event 0x7a at AIJOB +0xac (he_StartWalk clears them) */
 typedef struct HEDETECT {               /* he_DetectAttack's question and answer (he_RunRobbery builds it on its stack) */
@@ -2741,7 +2740,7 @@ void he_AllocSecretRoom(AIJOB *e)
     return;
 taken:
     txt_Format(text, 0x3ff7, e->chr);
-    he_ShowNews(ai_CharInts[e->chr][0], -1, text, 0, 0x5fa, 0);
+    he_ShowNews(ai_Chars[e->chr].netId, -1, text, 0, 0x5fa, 0);
     e->exSlot = cm_SendExSetHE(-1, e);
     he_FreeEvent(e);
 }
@@ -3402,7 +3401,7 @@ void he_AllocHaunting(AIJOB *e)
     if (r != 0) {
         e->exSlot = cm_SendExSetHE(-1, e);
         txt_Format(text, 0x4096, h->hauntVictim);
-        he_ShowNews(ai_CharInts[e->chr][0], -1, text, 0, 0x5fa, 0);
+        he_ShowNews(ai_Chars[e->chr].netId, -1, text, 0, 0x5fa, 0);
         return;
     }
     e->end = ai_Time;
@@ -3411,7 +3410,7 @@ void he_AllocHaunting(AIJOB *e)
         e->exSlot = cm_SendExSetHE(-1, e);
     else {
         e->exSlot = cm_SendExSetHE(0, e);
-        gm_SendMoneyDelta(ai_CharInts[e->chr][0], -h->hauntPaid);
+        gm_SendMoneyDelta(ai_Chars[e->chr].netId, -h->hauntPaid);
     }
 }
 
@@ -3535,7 +3534,7 @@ void he_AllocDecay(AIJOB *e)
     if (r != 0) {
         if (per != 0) {
             txt_Format(text, 0x40a2, per->id);
-            he_ShowNews(ai_CharInts[e->chr][0], -1, text, 0, 0x5fa, 0);
+            he_ShowNews(ai_Chars[e->chr].netId, -1, text, 0, 0x5fa, 0);
         }
         e->exSlot = cm_SendExSetHE(-1, e);
         he_FreeEvent(e);
@@ -3548,7 +3547,7 @@ void he_AllocDecay(AIJOB *e)
     d->decayAged = 0;
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 1, 0);
-    gm_SendMoneyDelta(ai_CharInts[e->chr][0], -d->decayPaid);
+    gm_SendMoneyDelta(ai_Chars[e->chr].netId, -d->decayPaid);
     e->stage = 0;
     if (per != 0 && per->bld2 != 0)
         id = per->bld2->id;
@@ -3558,7 +3557,7 @@ void he_AllocDecay(AIJOB *e)
         netId = (int)per->netId;
     else
         netId = -1;
-    gv_Accuse(0x1b, 1, ai_CharInts[e->chr][0], netId, id);
+    gv_Accuse(0x1b, 1, ai_Chars[e->chr].netId, netId, id);
 }
 
 void ai_TellGraveWorkSuccess(struct AICHAR *param_1);                 /* 0x5a9990 */
@@ -4398,7 +4397,7 @@ void he_AllocMeeting(AIJOB *e)
         m->meetingKind = 2;
     if (m->meetingRadius > 2)
         m->meetingRadius = 2;
-    gm_SendMoneyDelta(ai_CharInts[e->chr][0], -((m->meetingKind + 2) * (m->meetingRadius + 2)));
+    gm_SendMoneyDelta(ai_Chars[e->chr].netId, -((m->meetingKind + 2) * (m->meetingRadius + 2)));
     gm_AddTime(&e->end, 0, 5, 0);
     cm_SendExSetHE(0, e);
 }
@@ -4994,7 +4993,7 @@ void he_RunGraveyardTheft(AIJOB *ev)
         txt_Format(text, 0x414b, 0x229, obj->id * 2 + 0x9a8, per->bld);
         break;
     }
-    he_MessageBoxQuickjump(ai_CharInts[ev->chr][0], -1, text, 0, 0x5f2, bld->id, main->objId, 0, "_NACHRICHTEN_FRIEDHOF_06");
+    he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, -1, text, 0, 0x5f2, bld->id, main->objId, 0, "_NACHRICHTEN_FRIEDHOF_06");
 done:
     he_FreeEvent(ev);
 }

@@ -2339,7 +2339,6 @@ int amt_ExecutePriceMessage(AICHAR *c, G8REQ *m)
     float f;
     GMSTOCK rec;
     GMSTOCK *p;
-    int *q;
     char buf[512], msg[2048];
 
     best = 0;
@@ -2413,9 +2412,8 @@ int amt_ExecutePriceMessage(AICHAR *c, G8REQ *m)
                                     txt_Format(msg, 0x1659, buf, id * 2 + 0x9a8, id2 * 2 + 0x9a8);
                                 }
                                 for (i = 0; i < 768; i++) {
-                                    q = ai_CharInts[i];
-                                    if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && c->netId != *q)
-                                        he_ShowNews(*q, -1, msg, 1, 0x5ec, ch_EmptyName);
+                                    if ((ai_Chars[i].kind == 7 || ai_Chars[i].kind == 6) && c->netId != ai_Chars[i].netId)
+                                        he_ShowNews(ai_Chars[i].netId, -1, msg, 1, 0x5ec, ch_EmptyName);
                                 }
                                 if (c->kind == 6)
                                     sv_MessageBox((intptr_t)msg, 0x10);
@@ -2440,7 +2438,6 @@ int amt_ExecuteShareMessage(AICHAR *c, G8REQ *m)
     AIBLD *o;
     int loss, cnt, i;
     float f;
-    int *q;
     char msg[1024];
 
     if (m->kind == 2) {
@@ -2455,7 +2452,7 @@ int amt_ExecuteShareMessage(AICHAR *c, G8REQ *m)
                 cnt = 0;
                 do {
                     if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == o && o->owner != i) {
-                        cm_SendRelations(ai_CharInts[o->owner][0], ai_Chars[i].netId, -loss, 1);
+                        cm_SendRelations(ai_Chars[o->owner].netId, ai_Chars[i].netId, -loss, 1);
                         cnt++;
                     }
                     i++;
@@ -2471,17 +2468,16 @@ int amt_ExecuteShareMessage(AICHAR *c, G8REQ *m)
                 cm_SendSetField(c->netId, 0x1c8, 4, 0x8000000, 0);
                 if (ai_Chars[o->owner].kind == 7 || ai_Chars[o->owner].kind == 6) {
                     txt_Format(msg, 0x1663, o);
-                    he_MessageBoxQuickjump(ai_CharInts[o->owner][0], -1, msg, 0, 0x5fb, o->id, -1, 0, ch_EmptyName);
+                    he_MessageBoxQuickjump(ai_Chars[o->owner].netId, -1, msg, 0, 0x5fb, o->id, -1, 0, ch_EmptyName);
                 }
                 txt_Format(msg, 0x1662, o->owner, o);
-                q = ai_CharInts[0];
+                i = 0;
                 do {
-                    if (((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) {
-                        if (c->netId != *q && *q != ai_CharInts[o->owner][0])
-                            he_ShowNews(*q, -1, msg, 0, 0x5fd, ch_EmptyName);
+                    if (ai_Chars[i].kind == 7 || ai_Chars[i].kind == 6) {
+                        if (c->netId != ai_Chars[i].netId && ai_Chars[i].netId != ai_Chars[o->owner].netId)
+                            he_ShowNews(ai_Chars[i].netId, -1, msg, 0, 0x5fd, ch_EmptyName);
                     }
-                    q += 0x87;
-                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                } while (++i < 768);
                 if (((char *)c)[2] == 6) {
                     txt_Format(msg, 0x1661, o->owner, o);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2517,10 +2513,9 @@ int amt_ExecuteShareMessage(AICHAR *c, G8REQ *m)
 int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
 {
     float rf, f;
-    int ret, n, dmg, i, j, id;
+    int ret, n, dmg, i, j, ci, id;
     char kind;
     AICHAR *t;
-    int *q;
     AMTREC o;
     AMTREC list[6];
     AMTKIND k;
@@ -2545,12 +2540,11 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
                     he_ShowNews(t->netId, -1, msg, 0, 0x5fb, ch_EmptyName);
                 }
                 txt_Format(msg, 0x1682, t->id, t->id);
-                q = ai_CharInts[0];
+                ci = 0;
                 do {
-                    if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != t->netId && *q != c->netId)
-                        he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
-                    q += 0x87;
-                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                    if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != t->netId && ai_Chars[ci].netId != c->netId)
+                        he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fe, ch_EmptyName);
+                } while (++ci < 768);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1680, t->id, t->id);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2562,12 +2556,11 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
                     he_ShowNews(t->netId, -1, msg, 0, 0x5fb, ch_EmptyName);
                 }
                 txt_Format(msg, 0x1683, t->id, t->id);
-                q = ai_CharInts[0];
+                ci = 0;
                 do {
-                    if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != t->netId && *q != c->netId)
-                        he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
-                    q += 0x87;
-                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                    if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != t->netId && ai_Chars[ci].netId != c->netId)
+                        he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fe, ch_EmptyName);
+                } while (++ci < 768);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1681, t->id, t->id);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2601,20 +2594,19 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
             if (rf > 0.3f) {
                 txt_Format(msg, 0x1672, m->a + 0x1663);
                 txt_Format(msg2, 0x1670, m->a + 0x1663);
-                q = ai_CharInts[0];
+                ci = 0;
                 do {
-                    if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId) {
+                    if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != c->netId) {
                         for (i = 0; i < n; i++) {
-                            if (list[i].owner == *q)
+                            if (list[i].owner == ai_Chars[ci].netId)
                                 break;
                         }
                         if (i < n)
-                            he_ShowNews(*q, -1, msg, 0, 0x5fb, ch_EmptyName);
+                            he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fb, ch_EmptyName);
                         else
-                            he_ShowNews(*q, -1, msg2, 0, 0x5fe, ch_EmptyName);
+                            he_ShowNews(ai_Chars[ci].netId, -1, msg2, 0, 0x5fe, ch_EmptyName);
                     }
-                    q += 0x87;
-                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                } while (++ci < 768);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166e, m->a + 0x1663);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2623,20 +2615,19 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
             } else {
                 txt_Format(msg, 0x1673, m->a + 0x1663);
                 txt_Format(msg2, 0x1671, m->a + 0x1663);
-                q = ai_CharInts[0];
+                ci = 0;
                 do {
-                    if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId) {
+                    if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != c->netId) {
                         for (i = 0; i < n; i++) {
-                            if (list[i].owner == *q)
+                            if (list[i].owner == ai_Chars[ci].netId)
                                 break;
                         }
                         if (i < n)
-                            he_ShowNews(*q, -1, msg, 0, 0x5fb, ch_EmptyName);
+                            he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fb, ch_EmptyName);
                         else
-                            he_ShowNews(*q, -1, msg2, 0, 0x5fe, ch_EmptyName);
+                            he_ShowNews(ai_Chars[ci].netId, -1, msg2, 0, 0x5fe, ch_EmptyName);
                     }
-                    q += 0x87;
-                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                } while (++ci < 768);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166f, m->a + 0x1663);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2660,24 +2651,22 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, G8REQ *m)
         cm_SendSetField(c->netId, 0x1c8, 4, 0x10000000, 0);
         if (rf > 0.3f) {
             txt_Format(msg, 0x167a, m->a + 0x1663);
-            q = ai_CharInts[0];
+            ci = 0;
             do {
-                if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId)
-                    he_ShowNews(*q, -1, msg, 0, 0x5fd, ch_EmptyName);
-                q += 0x87;
-            } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != c->netId)
+                    he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fd, ch_EmptyName);
+            } while (++ci < 768);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1678, m->a + 0x1663);
                 sv_MessageBox((intptr_t)msg, 0);
             }
         } else {
             txt_Format(msg, 0x167b, m->a + 0x1663);
-            q = ai_CharInts[0];
+            ci = 0;
             do {
-                if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId)
-                    he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
-                q += 0x87;
-            } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
+                if ((ai_Chars[ci].kind == 7 || ai_Chars[ci].kind == 6) && ai_Chars[ci].netId != c->netId)
+                    he_ShowNews(ai_Chars[ci].netId, -1, msg, 0, 0x5fe, ch_EmptyName);
+            } while (++ci < 768);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1679, m->a + 0x1663);
                 sv_MessageBox((intptr_t)msg, 0);

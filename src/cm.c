@@ -906,7 +906,7 @@ int cm_SendPlayerId(void)
 {
     int buf[31];
 
-    buf[0] = ai_CharInts[ai_PlayerId][0];
+    buf[0] = ai_Chars[ai_PlayerId].netId;
     cm_SendExSysMessage(0x13, buf);
 }
 /* 0x4c3fd0, receives the waiting messages into the receive list; 1: no free record */
@@ -4115,7 +4115,7 @@ int cm_ExNewParty(G17MSG *m, G17STAT *s)
         }
     }
     if (o->kind == 5) {
-        if (ai_CharInts[ai_PlayerId][0] != o->members[0] && !(ai_GameFlags & 4))
+        if (ai_Chars[ai_PlayerId].netId != o->members[0] && !(ai_GameFlags & 4))
             o->flags &= 0x7f;
     }
     ai_NextPartyId++;
