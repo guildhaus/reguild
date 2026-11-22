@@ -52,8 +52,6 @@ extern AMTKIND amt_Kinds[40];           /* 0x60ed58 */
 extern const float amt_Pay[];                 /* 0x5edfbc */
 extern float amt_Rates[];               /* 0x60ec90, 7 floats per row */
 /* views of the records as amt_Rating reads them (type debt) */
-typedef union AMTFLOATBITS { float f; int i; } AMTFLOATBITS;    /* a float read as its bit pattern */
-#define AMT_BITS(p) (((AMTFLOATBITS *)(p))->i)
 typedef struct AMTKINDF {               /* an AMTKIND's +0x14 dword read as a float */
     char pad014[0x14];
     float value;
@@ -62,8 +60,14 @@ int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind, struct AMTREC *office
 int amt_GetOfficeRate(struct AICHAR *c, int x, float *out);  /* 0x4e60b0 */
 
 void amt_InitTable(void);               /* 0x4e5cd0 */
-extern const float amt_TabA[];                /* 0x5edc90, 15 rows of 10 floats (id, 9 columns by the rank) */
-extern const float amt_TabB[];                /* 0x5edef0, 5 rows of 10 */
+typedef struct AMTRATEROW {             /* 0x28 bytes, a row of amt_TabA / amt_TabB */
+    int id;                             /* 0x00, the job title group (amt_TabA) or the status key (amt_TabB) */
+    float col[9];                       /* 0x04, by the office kind's column (amt_KindColumn) */
+} AMTRATEROW;
+extern const AMTRATEROW amt_TabA[15];         /* 0x5edc90 */
+extern const int amt_TabARows;                /* 0x5edee8 */
+extern const AMTRATEROW amt_TabB[5];          /* 0x5edef0 */
+extern const int amt_TabBRows;                /* 0x5edfb8 */
 float amt_Rating(struct AICHAR *a, struct AICHAR *b, int mode, int flag);  /* 0x4e5e50 */
 
 typedef struct AMTRANGE {               /* 0x1c bytes, the ranges of 0x4e78f0 */

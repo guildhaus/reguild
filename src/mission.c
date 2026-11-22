@@ -6,7 +6,6 @@
    G13TYPE.offerSpeech, G13MIS.progress / fulfilled stand on their users (the _AUFTRAEGE_VERGABE speech,
    ai_CountMissionEvent and the completion flag of he.c 0x56ce40). AIFIN.missionMoney (ai.h) holds the five saved
    money statistics of the player record the money conditions read (no writer in the build).
-   Open: the mission conditions read AICHAR / AIBLD bytes through the G13_B view and casts of gm_BuildQuery (type debt).
    Open: not included yet (dcp headers conflicts mission HEADER): d2.h; held by own declarations that differ
    from the owner's: d2_Radios.
    unit of rea 8cef7d5b (src/game/unk_4b39f0.c); boundaries in decl/text.dcl */
@@ -458,8 +457,6 @@ int ai_ChooseMissionFrom(int n)
     return r;
 }
 
-#define G13_B(c, off) (((unsigned char *)(c))[off])
-
 int ai_TimedCondition(int x, int ok, int y);                                          /* 0x4b5160 */
 
 /* 0x4b44e0, counts event ev (11, 19, 23, 28, 40) for the running mission of the character c when it is of that type */
@@ -494,18 +491,18 @@ int ai_CondMissionMoney3(AICHAR *c, G13TYPE *t)
     return gm_ConvertMoney(f->missionMoney[3], ai_OwnPlayer) > t->goal;
 }
 /* 0x4b4590, mission condition (types 2 / 7): the titles left in the job title group of c's title number
-   (byte 0x164, gm_TitlesLeft) reach t->goal */
+   (AICHAR.jobId, gm_TitlesLeft) reach t->goal */
 
 int ai_CondTitlesLeft(AICHAR *c, G13TYPE *t)
 {
-    return gm_TitlesLeft(G13_B(c, 0x164)) >= t->goal;
+    return gm_TitlesLeft(c->jobId) >= t->goal;
 }
-/* 0x4b45c0, mission condition (types 3 / 10 / 24): the character's rank (byte 0x0d, AICHAR.level) reaches
+/* 0x4b45c0, mission condition (types 3 / 10 / 24): the character's rank (AICHAR.level) reaches
    t->goal, held for t->threshold minutes */
 
 int ai_CondRankTimed(AICHAR *c, int x, G13TYPE *t)
 {
-    return ai_TimedCondition(x, G13_B(c, 0x0d) >= t->goal, t->threshold);
+    return ai_TimedCondition(x, c->level >= t->goal, t->threshold);
 }
 /* 0x4b45f0, mission condition (types 5 / 13 / 21 / 30): the worth of the character (gm_GetWorth, its objects
    and buildings in player money) reaches t->goal */
@@ -521,25 +518,24 @@ int ai_CondMoney(AICHAR *c, G13TYPE *t)
 {
     return gm_ConvertMoney(gm_CharCurrency(c, ai_OwnPlayer), ai_OwnPlayer) >= t->goal;
 }
-/* 0x4b4670, mission condition (types 4 / 9 / 29): at least t->goal of the character's five skills (bytes
-   0x80 .. 0x84, each / 42) reach t->threshold */
+/* 0x4b4670, mission condition (types 4 / 9 / 29): at least t->goal of the character's five skills (AICHAR.skills,
+   each / 42) reach t->threshold */
 
 int ai_CondSkills(AICHAR *c, G13TYPE *t)
 {
     int i, n;
 
     for (i = 0, n = 0; i < 5; i++) {
-        if (G13_B(c, 0x80 + i) * 0.023809524f >= t->threshold)
+        if (c->skills[i] * 0.023809524f >= t->threshold)
             n++;
     }
     return n >= t->goal;
 }
-/* 0x4b46c0, mission condition (types 15 .. 18 / 34 / 35): the character's office kind (byte 0x166,
-   AICHAR.officeKind) equals t->goal, held for t->threshold minutes */
+/* 0x4b46c0, mission condition (types 15 .. 18 / 34 / 35): the character's office kind (AICHAR.officeKind) equals t->goal, held for t->threshold minutes */
 
 int ai_CondOfficeTimed(AICHAR *c, int x, G13TYPE *t)
 {
-    return ai_TimedCondition(x, G13_B(c, 0x166) == t->goal, t->threshold);
+    return ai_TimedCondition(x, c->officeKind == t->goal, t->threshold);
 }
 
 int gm_BuildingTypeOfJob(int k);                                                         /* 0x503fa0, defined elsewhere */
@@ -628,8 +624,8 @@ typedef struct G13STAT {                /* 0x0c bytes, filled by 0x4b51f0 */
 
 void ai_CharBuildingShare(AICHAR *c, int k, G13STAT *s);                                 /* 0x4b51f0 */
 
-/* 0x4b48f0, mission condition: the share (in percent) of the characters (kind < 10) with c's byte 0x0c
-   reaches t->goal */
+/* 0x4b48f0, mission condition: the share (in percent) of the characters (kind < 10) of c's faith
+   (AICHAR.faith) reaches t->goal */
 int ai_CondCharShare(AICHAR *c, G13TYPE *t)
 {
     int i, n, same;
@@ -639,7 +635,7 @@ int ai_CondCharShare(AICHAR *c, G13TYPE *t)
     for (i = 0; i < 0x300; i++) {
         if (ai_Chars[i].kind < 10) {
             n++;
-            if (G13_B(&ai_Chars[i], 0x0c) == G13_B(c, 0x0c))
+            if (ai_Chars[i].faith == c->faith)
                 same++;
         }
     }

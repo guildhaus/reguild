@@ -221,7 +221,6 @@ extern unsigned int d3_ClipIn;              /* 0x633458, vertices in the polygon
 extern D3VERTEX *d3_ClipList[2][0x80];       /* 0xfc4c60, polygon vertex lists (ping-pong) */
 extern D3VERTEX d3_ClipPool[];               /* 0xfc5360, vertices made by the clipper */
 D3VERTEX **d3_ClipPoly(D3CLIPINFO *info);                                               /* 0x439c90 */
-#define D3_TEXB(t, off) (((unsigned char *)(t))[off])  /* TSTEXTURE bytes: 0x68 bit 0 wrap, 0x6c alpha, 0x6e bit 0 */
 typedef void (*D3TRIFUNC)(D3TRI *t);
 extern D3TRIFUNC d3_TriFuncs[];             /* 0xfe75e0, software triangle fillers by mode */
 extern int d3_TextureSwitches;                    /* 0xfe75b4 */

@@ -2316,11 +2316,11 @@ void ch_SetHandObject(CHARACTER *ch, int hand, char *name)
     D3VECTOR rot = {0.0f, 0.0f, 0.0f};
 
     if (hand == 1)
-        slot = CH_HAND(ch, 0x68);
+        slot = &ch->leftHand;
     else if (hand == 2)
-        slot = CH_HAND(ch, 0x64);
+        slot = &ch->rightHand;
     else if (hand == 3)
-        slot = CH_HAND(ch, 0x6c);
+        slot = &ch->headObject;
     if (name) {
         cur = d3_CurrentScene;
         d3if_SelectScene(d3t_SceneIndex(ch->scene), 1);

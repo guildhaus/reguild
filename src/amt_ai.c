@@ -352,7 +352,7 @@ int ai_EvalMoodWeights(float *a, float *b, int i, AICHAR *p, int f, void *x, voi
     *a = 0.0f;
     *b = 0.0f;
     act = &ai_Actions[i];
-    if (act->flags & G7_MASK(p)) {
+    if (act->flags & p->mask) {
         d1 = 40.0f;
         d2 = 50.0f;
         found = 1;
@@ -390,7 +390,7 @@ int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, voi
     *a = 0.0f;
     *b = 0.0f;
     act = &ai_Actions[i];
-    if (act->flags & G7_MASK(p)) {
+    if (act->flags & p->mask) {
         d1 = 40.0f;
         found = 1;
     } else {
@@ -432,7 +432,7 @@ int ai_EvalGuiltWeights(float *a, float *b, int i, AICHAR *p, AIDEC *dec)
     *a = 0.0f;
     *b = 0.0f;
     act = &ai_Actions[i];
-    if (act->flags & G7_MASK(p)) {
+    if (act->flags & p->mask) {
         d1 = 40.0f;
         d2 = 50.0f;
         found = 1;

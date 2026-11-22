@@ -1045,9 +1045,9 @@ void d3_DrawSortedSW(void)
         clip = t->clip;
         uv = t->uv;
         if (tex) {
-            if (D3_TEXB(tex, 0x6c) - (D3_TEXB(tex, 0x6e) & 1) < 0xff)
+            if (tex->flags.b[0] - (tex->flags.b[2] & 1) < 0xff)     /* tex_Load's flags: b[0] the alpha */
                 mode = 3;
-            wrap = D3_TEXB(tex, 0x68) & 1;
+            wrap = tex->wrap;
         }
         p = t->v[0];
         if (!((p->flags | t->v[1]->flags | t->v[2]->flags) & 0x3f) && !clip->mirror) {

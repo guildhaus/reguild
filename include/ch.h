@@ -37,7 +37,8 @@ typedef struct CHARACTER {         /* 0x244 bytes */
     D3VECTOR offset;                /* 0x54, added to the body position */
     char pad060[0x4];
     D3OBJECT *rightHand;            /* 0x64, the object in the right hand (ch_SetHandObject hand 2, ch_SetVisible) */
-    char pad068[0x8];
+    D3OBJECT *leftHand;             /* 0x68, the object in the left hand (ch_SetHandObject hand 1) */
+    D3OBJECT *headObject;           /* 0x6c, the object on the head (ch_SetHandObject hand 3) */
     struct D3ANIMSLOT *slot;        /* 0x70, current animation */
     struct D3ANIMSLOT *sitSlot;     /* 0x74, the sitting animation (ch_SetSitAnim), 0: none */
     D3PATH *turnAnim;               /* 0x78, the path animation a turn action created (CH_ANIM078) */
@@ -465,7 +466,6 @@ typedef struct CHWALKDEF {
 int ch_ThinPath(CHARACTER *ch, struct PATHOUT *path, CHPATHPT *out, CHWALKDEF *w);              /* 0x406bc0 */
 void ch_SetHandObject(CHARACTER *ch, int hand, char *name);                             /* 0x406c60, 1 left, 2 right, 3 head */
 
-#define CH_HAND(ch, off) ((D3OBJECT **)((char *)(ch) + (off)))                     /* 0x64 right, 0x68 left, 0x6c head */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                       /* 0x446f30 */
 char d3_AttachToBone(D3OBJECT *obj, char *name);                                           /* 0x43d6c0 */
 

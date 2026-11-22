@@ -635,8 +635,6 @@ extern int d3_CurrentScene;             /* 0x633444 */
 char d3if_SelectScene(int index, char keep);                                        /* 0x4478e0 */
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);                              /* 0x458a20 */                                                     /* 0x4a4680 */
 
-#define G7_MASK(p) (((AICHAR *)(p))->mask)
-
 int amt_GetKindLevel(int k);                                              /* 0x4e7c40 */
 extern const int ai_RingStrides[11];          /* 0x5ed180, the strides of the near ring cursor */
 int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y);                          /* 0x4a4ae0 */
