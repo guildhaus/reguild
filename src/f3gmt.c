@@ -1279,7 +1279,6 @@ extern unsigned gm_TitleHeadsFemale[];
 extern unsigned gm_JobHeadsMale[];
 extern unsigned gm_JobHeadsFemale[];
 extern unsigned gm_SpyHeads[];
-extern char ord_KindTable[];
 extern int gm_RichestYear;
 extern int gm_RichestWorth;
 extern float gm_BirthChance[6];

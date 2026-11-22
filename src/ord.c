@@ -1746,13 +1746,6 @@ void ord_CountGridObjects(void)
     }
 }
 
-/* the kind table 0x617468: one 8-byte record per kind (ORD_KIND reads the same pair as four shorts) */
-typedef struct ORDKIND {
-    int value;                      /* 0x0, the kind's value */
-    int flags;                      /* 0x4, the kind's flags */
-} ORDKIND;
-#define ORD_KINDS ((ORDKIND *)ord_KindTable)
-
 /* 0x4f8460, adds the guilt weight (+0x0c, AIDEC.guilt) of the decision record kind (gv_GetTableRecord) to the sums (+2, a short) of the cell of the 8 x 8 grid 0x91ae60 at the position of an object (gm_FindById gives the object of who; ord_GetGridCell the cell x, y of its +0x61 record's +0x4c), and to the +0 sums of its 3 x 3 neighbourhood, clamped to the grid; x, y start as random cells (util_Random(8)) for when ord_GetGridCell fails; the cell x, y go to *px / *py */
 
 void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
@@ -1900,12 +1893,12 @@ int ord_RandomObjectId(AICHAR *c)
     return list[util_Random(n)];
 }
 /* 0x4f8890, copies the kind record i (below 0x58) of ord_KindTable to out; 0 for a bad i */
-int ord_GetKindRecord(int i, int *out)
+int ord_GetKindRecord(int i, ORDKIND *out)
 {
     if (i >= 0x58)
         return 0;
-    out[0] = ORD_KINDS[i].value;
-    out[1] = ORD_KINDS[i].flags;
+    out->pair[0] = ord_KindTable[i].pair[0];
+    out->pair[1] = ord_KindTable[i].pair[1];
     return 1;
 }
 /* 0x4f88c0, shifts the 15 rounds of ord_StatisticsHistory down by one (the oldest drops out) and fills the last one from ord_Statistics (out[1] .. out[3] and the score out[9]) and ai_RatingBase truncated */
@@ -1984,7 +1977,6 @@ void ord_RebuildGridSums(void)
     }
 }
 
-#define ORD_KIND(k) ((unsigned short *)(ord_KindTable + (k) * 8))
 float gm_IncomeRating();                       /* 0x4f9ec0 */
 void cm_SendMessage41(void *p);                         /* 0x4c5800 */
 
@@ -2009,7 +2001,7 @@ void ord_ComputeStatistics(float *out)
     AIBLD *p;
     unsigned char *b;
     unsigned char *bt;
-    unsigned short *t;
+    ORDKIND *t;
     int rec[12];
 
     cnt = 0;
@@ -2053,21 +2045,21 @@ void ord_ComputeStatistics(float *out)
     for (i = 0; i < 0x100; i++, p++) {
         if (p->type == 0 || p->type >= 0x44 || p->owner == 0xffff)
             continue;
-        t = ORD_KIND(p->type);
+        t = &ord_KindTable[p->type];
         b = (unsigned char *)ai_BTypes + p->type * 0x24d;
-        sumA += t[0];
-        sumC += t[2];
-        sumD += t[1];
-        if (t[1] > 0) {
+        sumA += t->residents;
+        sumC += t->w4;
+        sumD += t->w2;
+        if (t->w2 > 0) {
             s58 += b[0x247];
             s54 += b[0x248];
         }
-        if (t[3] != 0) {
+        if (t->w6 != 0) {
             s50 += b[0x247];
             s4c += b[0x248];
         }
     }
-    k = (unsigned short)ORD_KINDS[1].value * 2;
+    k = ord_KindTable[1].residents * 2;
     if (sumA <= k)
         sumA = k;
     cntf = (float)cnt;

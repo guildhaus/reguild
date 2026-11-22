@@ -423,9 +423,18 @@ int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b
 void ord_CountGridObjects(void);               /* 0x4f8360 */
 
 char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);                              /* 0x45f100, d3_sm.c */
-extern char ord_KindTable[];            /* 0x617468, 0x58 pairs of ints */
+typedef union ORDKIND {             /* 8 bytes, a building kind's record in ord_KindTable */
+    struct {
+        unsigned short residents;   /* 0x0, the inhabitants a home of the kind holds (kinds 1 .. 3: 8, 12, 20) */
+        unsigned short w2;          /* 0x2, ord_ComputeStatistics: summed (sumD); > 0 adds the kind's bytes 0x247 / 0x248 */
+        unsigned short w4;          /* 0x4, ord_ComputeStatistics: summed (sumC, out[7]) */
+        unsigned short w6;          /* 0x6, ord_ComputeStatistics: != 0 adds the kind's bytes 0x247 / 0x248 */
+    };
+    int pair[2];                    /* the two dwords ord_GetKindRecord copies and gm_FindHome reads (mov edi, dword) */
+} ORDKIND;
+extern ORDKIND ord_KindTable[0x58];     /* 0x617468 */
 char ord_RandomCellPoint(int x, int y, struct D3VECTOR *out);  /* 0x4f86a0, ord.c */
-int ord_GetKindRecord(int i, int *out);     /* 0x4f8890 */
+int ord_GetKindRecord(int i, ORDKIND *out);     /* 0x4f8890 */
 
 void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py);  /* 0x4f8460, kind: a law record (CRIME.law; the caller cm_ExAddCrime pushes the byte unwidened) */
 void ord_SubGridAmount(int who, unsigned char kind);  /* 0x4f8590 */

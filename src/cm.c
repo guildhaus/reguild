@@ -4904,7 +4904,7 @@ int cm_ExOwnership(G17MSG *m, G17STAT *s)
    (fails when full), the former home counts one down */
 int cm_ExSetHome(G17MSG *m, G17STAT *s)
 {
-    int kind[2];
+    ORDKIND kind;
     AIBLD *b, *o;
     AICHAR *c;
 
@@ -4915,8 +4915,8 @@ int cm_ExSetHome(G17MSG *m, G17STAT *s)
     if (c == 0 && m->home.charId != -1)
         return 1;
     if (ai_BTypes[b->type].kind == 1) {
-        ord_GetKindRecord(b->type, kind);
-        if (b->residents >= (unsigned short)kind[0])
+        ord_GetKindRecord(b->type, &kind);
+        if (b->residents >= kind.residents)
             return 1;
         b->residents++;
     }

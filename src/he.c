@@ -7429,7 +7429,7 @@ void he_RunPopulation(AIJOB *e)
     AIBLD *b;
     AICHAR *c;
     int found, zero, id, n, i, j;
-    int kind[2];
+    ORDKIND kind;
     ORDSTATS st;
     float x;
 
@@ -7516,8 +7516,8 @@ void he_RunPopulation(AIJOB *e)
         i = util_Random(0x100);
         while (found == 0 && n != 0) {
             b = &ai_Blds[i];
-            if (ai_BTypes[b->type].kind == 1 && ord_GetKindRecord(b->type, kind) != 0
-                && (unsigned short)b->residents < (unsigned short)kind[0])
+            if (ai_BTypes[b->type].kind == 1 && ord_GetKindRecord(b->type, &kind) != 0
+                && (unsigned short)b->residents < kind.residents)
                 found = 1;
             n--;
             i = (i + 1) % 0x100;
@@ -7584,8 +7584,8 @@ void he_RunPopulation(AIJOB *e)
             j = util_Random(0x100);
             while (found == 0 && n != 0) {
                 b = &ai_Blds[j];
-                if (ai_BTypes[b->type].kind == 1 && ord_GetKindRecord(b->type, kind) != 0
-                    && (unsigned short)b->residents < (unsigned short)kind[0])
+                if (ai_BTypes[b->type].kind == 1 && ord_GetKindRecord(b->type, &kind) != 0
+                    && (unsigned short)b->residents < kind.residents)
                     found = 1;
                 n--;
                 j = (j + 1) % 0x100;
