@@ -1393,7 +1393,15 @@ void d2_DrawButton(int id, D2SURF *surf)
 
 void d2_CenterObj(int obj)
 {
-    void d2_MoveObj();  /* @original: no prototype here: d2_MoveObj (short x, y) is defined below; the call pushes promoted ints (movsx) */
+#ifdef _MSC_VER
+    void d2_MoveObj();  /* @original: no prototype here: d2_MoveObj (short x, y) is defined below; the call pushes promoted ints (movsx).
+       Not standard C (an empty-parentheses declaration is not compatible with short parameters), and no conforming
+       spelling keeps the bytes: an old-style definition makes the game units' and d2.c's other calls (16-bit sums
+       under the short prototype) push promoted ints too (17 functions fell), and under the short prototype VC6 loads
+       o->y as a word (`mov dx,word`) however the argument is spelled (a cast, an int local). */
+#else
+    void d2_MoveObj(short x, short y, int obj);
+#endif
     D2OBJ *o = &d2_Objs[obj];
     int x;
 
@@ -1745,7 +1753,8 @@ int d2_CreatePicObj(short x, short y, int pic)
 void d2_MoveObj(short x, short y, int obj);
 
 /* 0x46cda0, moves an object (and, for a window, the objects on it) to x, y and recomputes its clip rectangle. d2.h
-   does not declare it (d2_CenterObj above and gfx.c call it unprototyped, pushing ints); cm.h does, for the game units */
+   does not declare it (d2_CenterObj above calls it unprototyped under VC6, gfx.c with int parameters, both pushing
+   ints); cm.h does, for the game units */
 void d2_MoveObj(short x, short y, int obj)
 {
     D2OBJ *o;
