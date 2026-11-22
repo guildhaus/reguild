@@ -320,13 +320,6 @@ typedef struct AIRECX {                  /* 16 bytes, filled by 0x4a5760 */
     int entry;                          /* 0xc, the inventory entry */
 } AIRECX;
 
-typedef struct AIUSE {                  /* 20 bytes, given to 0x5cf8a0 */
-    AIOBJ *obj;                         /* 0x00 */
-    int target;                         /* 0x04, the target for the good's use callback (the table +0x14): a reference of the action's second argument */
-    int arg;                            /* 0x08, a value for the use callback, -1 none */
-    int effect;                         /* 0x0c, set by the callee: 1 the use took effect (0x175 only one time in three), 0 not; the use callback may set -1 (backfired) */
-    int handled;                        /* 0x10, 0 by the callee, set by a use callback that reported the use itself (no text then) */
-} AIUSE;
 #pragma pack(pop)
 
 
@@ -513,13 +506,7 @@ int amt_GetKind(int k, struct AMTKIND *out);                             /* 0x4e
 int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind, struct AMTREC *office);                                    /* 0x4e6030 */
 
 /* ---- 0x49a0a0..0x4a16f0 (was unk_49a0a0.h) ---- */
-typedef struct G8USE {                  /* 20 bytes, given to 0x5cf8a0 (unk_48e070.h: AIUSE) */
-    AIOBJ *obj;                         /* 0x00 */
-    int target;                         /* 0x04, the target for the good's use callback (the table +0x14): a reference of the action's second argument */
-    int arg;                            /* 0x08, a value for the use callback, -1 none */
-    int effect;                         /* 0x0c, set by the callee: 1 the use took effect (0x175 only one time in three), 0 not; the use callback may set -1 (backfired) */
-    int handled;                        /* 0x10, 0 by the callee, set by a use callback that reported the use itself (no text then) */
-} G8USE;
+/* G8USE (20 bytes, ai_UseGood's request) is in am_types.h */
 
 typedef struct G8OFFER {                /* 12 bytes, filled by 0x50a250 */
     int a;                              /* 0x0 */

@@ -9,7 +9,7 @@ struct VFSFILE;
 #include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 
 struct AIBLD;
-struct G8INVOBJ;
+struct AIOBJ;
 struct D2SURF;
 struct AIOBJ;
 struct D3SCENE;
@@ -207,7 +207,7 @@ typedef struct LCEXCHROW {              /* 0x1c bytes, a row of the money lender
 } LCEXCHROW;
 typedef struct LCINVSLOT {              /* 8 bytes, a row of the inventory child window (ai_OpenInventoryWindow clears them: -1, 0) */
     int ctl;                            /* 0x0, its amount control */
-    struct G8INVOBJ *obj;               /* 0x4, the inventory object (its id the goods), 0: empty */
+    struct AIOBJ *obj;                  /* 0x4, the inventory object (its id the goods), 0: empty */
 } LCINVSLOT;
 extern LCEXCHROW ai_StatsMoneyRows[16];  /* 0x6f3680, the currency rows of the stats panel's money page */
 extern LCINVSLOT ai_InvSlots[6];         /* 0x6f3840, the six rows of the inventory child window */
@@ -289,7 +289,7 @@ extern unsigned short ai_PlayerId;
 
 
 /* 0x5ba6b0, the view of ai_InventoryHas: the character's inventory (AICHAR +0x178, ai.h); the object found in
-   it is lc.c's G8INVOBJ */
+   it is an AIOBJ */
 #pragma pack(push, 1)
 typedef struct G8INVCHAR {
     char pad00[0x178];
@@ -421,7 +421,7 @@ void ai_ShowPaymentNews(unsigned short *param_1, struct AICHAR *param_2, int par
 struct G9DOMIZIL *ai_FindUsableGood(int id);  /* 0x5ba620 */
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, struct AMOUNTCFG *cfg, int unused);  /* 0x5c33c0, whether id passes the amount menu's partner filter cfg for me */
 int ai_PassesBuildingFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c37a0, whether bld passes the amount menu's building filter cfg for me */
-struct G8USEVIEW; int ai_UseGood(struct AICHAR *ch, struct G8USEVIEW *use);  /* 0x5cf8a0, uses a Domizil good: ch the character, use the request (am.h G8USE) */
+struct G8USE; int ai_UseGood(struct AICHAR *ch, struct G8USE *use);  /* 0x5cf8a0, uses a Domizil good: ch the character, use the request (am.h G8USE) */
 void ai_SendSwapText(struct AICHAR *param_1, struct AICHAR *param_2, struct AICHAR *param_3);  /* 0x5a9330 */
 
 int ai_SaveSettings(void *param_1);  /* 0x5a8940, saves the settings */

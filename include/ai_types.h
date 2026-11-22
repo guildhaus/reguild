@@ -379,87 +379,105 @@ typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind a
         unsigned short *items;          /* 0x14, the same as the item ids it points to (ahm_CreateAlchemist removes the first until none is left) */
     };
     struct D3OBJECT *obj;               /* 0x18, the scene object that shows it (sv_DrawItemNames draws its name above it) */
-    union {
+    union {                             /* 0x1c..0x3a, per kind */
         struct {
             union {
-                int unk1c;                      /* 0x1c, a building id / a state / a count */
-                int reportStamp;                /* 0x1c, of a spy report: the start of the record its text 0x19fc shows (the
-                                                   reports window passes its address; reasoned: when it was made) */
-                int bldId;                      /* 0x1c, of a cart (gm_Query kind 0x1d): the id of its building (main_EndRound looks it up with gm_BuildQuery(1, 1, id)) */
-                int cnt;                        /* 0x1c */
-                unsigned int reserve;           /* 0x1c, of goods in a store: the quarters of the store's stock (gm_ListStock)
-                                                   kept from buyers other than its owner (cm.c 0x4c70b0); 4 when created
-                                                   there for a character of kind 6 / 7 */
                 struct {
-                    unsigned char lvl1c;        /* 0x1c, a workshop's levels, compared with AIENTRY need1c / need20 */
-                    unsigned char lvl1d;        /* 0x1d */
+                    union {
+                        int unk1c;                      /* 0x1c, a building id / a state / a count */
+                        int reportStamp;                /* 0x1c, of a spy report: the start of the record its text 0x19fc shows (the
+                                                           reports window passes its address; reasoned: when it was made) */
+                        int bldId;                      /* 0x1c, of a cart (gm_Query kind 0x1d): the id of its building (main_EndRound looks it up with gm_BuildQuery(1, 1, id)) */
+                        int cnt;                        /* 0x1c */
+                        unsigned int reserve;           /* 0x1c, of goods in a store: the quarters of the store's stock (gm_ListStock)
+                                                           kept from buyers other than its owner (cm.c 0x4c70b0); 4 when created
+                                                           there for a character of kind 6 / 7 */
+                        struct {
+                            unsigned char lvl1c;        /* 0x1c, a workshop's levels, compared with AIENTRY need1c / need20 */
+                            unsigned char lvl1d;        /* 0x1d */
+                        };
+                        unsigned char cap[2];           /* 0x1c, of the objects 0x2a / 0x116: two capacities from the building
+                                                           kind (gm_SetCapacities) */
+                        unsigned char kindData;         /* 0x1c, the first byte of the per-kind data 0x1c .. 0x3a that
+                                                           gm_CreateObject clears (0x1f bytes) before it sets them by kind */
+                        struct {
+                            int pad1c20;
+                            unsigned int flags20;       /* 0x20, of a cart (kind 0x1d): bit 1 (2) is cleared for the carts of the current building when the selection resets (sv_ResetSelection) */
+                        };
+                        struct {
+                            int pad1c20w;
+                            int usesLeft;               /* 0x20, of a weapon item (kind 5 in a character's inventory): the uses left of
+                                                           a kind 1 / 2 weapon (cm_CharWeapon refuses it at 0; the portrait box shows it) */
+                        };
+                        struct {
+                            int pad1c24[2];
+                            struct AIJOB *job24;        /* 0x24, of a cart: a job whose cartBld names a building (sv_RefreshPanel prints that building's kind; reasoned: the job the cart runs) */
+                        };
+                        int recs[3];                    /* 0x1c..0x27, of a gm_Query kind 300 object in a shop: three record ids for gv_EvidencePrice (0x4ab080 tries them in turn) */
+                        struct {                        /* of a room of a building (the objects of AIBLD.objList the enter-building driver walks) */
+                            int locked;                 /* 0x1c, nonzero: the room's contacts open ai_UnlockRoomWindow, which clears it when paid */
+                            int unlockPrice;            /* 0x20, the money ai_UnlockRoomWindow asks; cleared with locked */
+                        };
+                        struct {                        /* of an alchemist's laboratory device (kinds 0x24b / 0x256 / 0x266 in the
+                                                           building's objList, he_LabIncident) */
+                            int broken;                 /* 0x1c, 0 while it works; the laboratory incident adds 1 (reasoned name) */
+                            int repair;                 /* 0x20, the incident adds 3 .. 6 (reasoned guess: the repair time) */
+                        } lab;
+                        AISERMON sermon;                /* 0x1c..0x22, of a church's sermon object (gm_Query kind 0x1b5 in its
+                                                           objList; cm_SendObject1b5 makes it) */
+                    };
+                    char escort;                        /* 0x28, of a cart: its escort kind 0 .. 2 (he_AllocTransport picks it by the goods'
+                                                           value, gm_LevelPayout prices it) */
+                    char pad29;
+                    int reportBld;                      /* 0x2a, of a spy report (gm_Query kind 0xca in a building): the id of the
+                                                           building it reports on (ai.c 0x4817a0, he.c's raid 0x5461c0) */
                 };
-                unsigned char cap[2];           /* 0x1c, of the objects 0x2a / 0x116: two capacities from the building
-                                                   kind (gm_SetCapacities) */
-                unsigned char kindData;         /* 0x1c, the first byte of the per-kind data 0x1c .. 0x3a that
-                                                   gm_CreateObject clears (0x1f bytes) before it sets them by kind */
                 struct {
-                    int pad1c20;
-                    unsigned int flags20;       /* 0x20, of a cart (kind 0x1d): bit 1 (2) is cleared for the carts of the current building when the selection resets (sv_ResetSelection) */
+                    char pad1c29[0xd];
+                    struct RTPOINT *route;              /* 0x29, of a cart: its route, a list of rt.c's RTPOINT (rt_CopyPoints; message 0x68 sets it) */
+                    int routeIdx;                       /* 0x2d, of a cart: the index of its current point in that route (rt_PointAt; he_RunTransport, rt.c) */
                 };
-                struct {
-                    int pad1c20w;
-                    int usesLeft;               /* 0x20, of a weapon item (kind 5 in a character's inventory): the uses left of
-                                                   a kind 1 / 2 weapon (cm_CharWeapon refuses it at 0; the portrait box shows it) */
+                int seats[4];                   /* 0x1c..0x2b, of a table (kind 0x12d in a building): the ids of the characters at its
+                                                   four seats, -1 free (message 0x54 'join' / 'leav' / 'cler', cm_SendTableRequest) */
+                struct {                        /* of a dark corner (kind 300 in a tavern room; its recs[] are the three evidence offers) */
+                    int pad1c28[3];
+                    int cornerYear;             /* 0x28, the dark-corner menu offers its order 0x74 (0x18a7) only while this is below
+                                                   ai_Time.year (ai_DarkCornerMenu; reasoned: the year of the last order) */
                 };
-                struct {
-                    int pad1c24[2];
-                    struct AIJOB *job24;        /* 0x24, of a cart: a job whose cartBld names a building (sv_RefreshPanel prints that building's kind; reasoned: the job the cart runs) */
+                struct {                        /* of a feast table object (gm_Query kind 0x17 in a building, he.c 0x5437c0) */
+                    int festGuests[4];          /* 0x1c..0x2b, the guests' netIds (gm_FindChar; ai_FeastWindow writes them), -1: none */
+                    unsigned char festEssen;    /* 0x2c, the menu pick (AIGRP.essen) */
+                    unsigned char festMusik;    /* 0x2d, the musician pick (AIGRP.musik) */
                 };
-                int recs[3];                    /* 0x1c..0x27, of a gm_Query kind 300 object in a shop: three record ids for gv_EvidencePrice (0x4ab080 tries them in turn) */
-                struct {                        /* of a room of a building (the objects of AIBLD.objList the enter-building driver walks) */
-                    int locked;                 /* 0x1c, nonzero: the room's contacts open ai_UnlockRoomWindow, which clears it when paid */
-                    int unlockPrice;            /* 0x20, the money ai_UnlockRoomWindow asks; cleared with locked */
-                };
-                struct {                        /* of an alchemist's laboratory device (kinds 0x24b / 0x256 / 0x266 in the
-                                                   building's objList, he_LabIncident) */
-                    int broken;                 /* 0x1c, 0 while it works; the laboratory incident adds 1 (reasoned name) */
-                    int repair;                 /* 0x20, the incident adds 3 .. 6 (reasoned guess: the repair time) */
-                } lab;
-                AISERMON sermon;                /* 0x1c..0x22, of a church's sermon object (gm_Query kind 0x1b5 in its
-                                                   objList; cm_SendObject1b5 makes it) */
             };
-            char escort;                        /* 0x28, of a cart: its escort kind 0 .. 2 (he_AllocTransport picks it by the goods'
-                                                   value, gm_LevelPayout prices it) */
-            char pad29;
-            int reportBld;                      /* 0x2a, of a spy report (gm_Query kind 0xca in a building): the id of the
-                                                   building it reports on (ai.c 0x4817a0, he.c's raid 0x5461c0) */
+            unsigned char patrolLevel;          /* 0x31, of a guard cart: picks the steps it waits at its route's start, 12, 8, 4, 2, 0
+                                                   for 0 .. 4 (he_PatrolStep; reasoned: a level) */
+            unsigned char patrolWait;           /* 0x32, of a guard cart: the steps waited so far at its route's start (he_PatrolStep) */
+            unsigned char patrolOn;             /* 0x33, of a guard cart: nonzero for the carts the patrol event 0xa6 steps (he_RunPatrolEvent) */
+            char pad34[2];
+            unsigned char reportGuard;          /* 0x36, of a spy report: (reasoned) the guard level it found: the AI burgles only
+                                                   when reportKnow reaches util_Random(20) + twice it (ai.c 0x481ef0); the reports
+                                                   window shows it after reportKnow (text 0x19fc) */
+            unsigned char reportKnow;           /* 0x37, of a spy report: how much it knows, in percent (ai.c spies again below a
+                                                   random 50 .. 99; the round settlement lowers it by twice the building's rank and
+                                                   drops the report at 5 or less, main.c; the raid adds it to its chance) */
+            char pad38[3];
         };
-        struct {
-            char pad1c29[0xd];
-            struct RTPOINT *route;              /* 0x29, of a cart: its route, a list of rt.c's RTPOINT (rt_CopyPoints; message 0x68 sets it) */
-            int routeIdx;                       /* 0x2d, of a cart: the index of its current point in that route (rt_PointAt; he_RunTransport, rt.c) */
-        };
-        int seats[4];                   /* 0x1c..0x2b, of a table (kind 0x12d in a building): the ids of the characters at its
-                                           four seats, -1 free (message 0x54 'join' / 'leav' / 'cler', cm_SendTableRequest) */
-        struct {                        /* of a dark corner (kind 300 in a tavern room; its recs[] are the three evidence offers) */
-            int pad1c28[3];
-            int cornerYear;             /* 0x28, the dark-corner menu offers its order 0x74 (0x18a7) only while this is below
-                                           ai_Time.year (ai_DarkCornerMenu; reasoned: the year of the last order) */
-        };
-        struct {                        /* of a feast table object (gm_Query kind 0x17 in a building, he.c 0x5437c0) */
-            int festGuests[4];          /* 0x1c..0x2b, the guests' netIds (gm_FindChar; ai_FeastWindow writes them), -1: none */
-            unsigned char festEssen;    /* 0x2c, the menu pick (AIGRP.essen) */
-            unsigned char festMusik;    /* 0x2d, the musician pick (AIGRP.musik) */
+        struct {                        /* of a good held in a character's inventory (ai_InventoryHas, ai_BuildingHasItem,
+                                           the inventory window, the Domizil goods' clock lc_UpdateGoodsReserves) */
+            int minutesLeft;            /* 0x1c, of a Domizil good in use: the minutes its effect still runs
+                                           (lc_UpdateGoodsReserves counts it down from G9DOMIZIL.minutes) */
+            char inUse;                 /* 0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
+                                           a reasoned guess) */
+            int active;                 /* 0x21, nonzero when the object counts as held, of a Domizil good while its
+                                           effect runs (ai_InventoryHas tests it; lc_UpdateGoodsReserves clears it
+                                           when minutesLeft runs out; the name is a reasoned guess) */
+            int placeBldId;             /* 0x25, the id of the building the object stands in (reasoned guess:
+                                           ai_BuildingHasItem compares it with AIBLD.id) */
+            char pad29g[4];
+            AITIME since;               /* 0x2d, of a Domizil good in use: when minutesLeft was last counted down */
         };
     };
-    unsigned char patrolLevel;          /* 0x31, of a guard cart: picks the steps it waits at its route's start, 12, 8, 4, 2, 0
-                                           for 0 .. 4 (he_PatrolStep; reasoned: a level) */
-    unsigned char patrolWait;           /* 0x32, of a guard cart: the steps waited so far at its route's start (he_PatrolStep) */
-    unsigned char patrolOn;             /* 0x33, of a guard cart: nonzero for the carts the patrol event 0xa6 steps (he_RunPatrolEvent) */
-    char pad34[2];
-    unsigned char reportGuard;          /* 0x36, of a spy report: (reasoned) the guard level it found: the AI burgles only
-                                           when reportKnow reaches util_Random(20) + twice it (ai.c 0x481ef0); the reports
-                                           window shows it after reportKnow (text 0x19fc) */
-    unsigned char reportKnow;           /* 0x37, of a spy report: how much it knows, in percent (ai.c spies again below a
-                                           random 50 .. 99; the round settlement lowers it by twice the building's rank and
-                                           drops the report at 5 or less, main.c; the raid adds it to its chance) */
-    char pad38[3];
     struct CHARACTER *sceneObj;         /* 0x3b, the scene character (ch.h CHARACTER) that shows a cart (gm_CreateObject
                                            creates the cart man or the horse, ch_Create) */
     struct AIOBJ *next;                 /* 0x3f, the next object of its list (an inventory, a store) */

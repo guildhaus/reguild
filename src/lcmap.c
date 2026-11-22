@@ -425,30 +425,6 @@ extern int sv_FrameMask;
 extern unsigned char ai_OwnPlayer;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
-#pragma pack(push, 1)
-typedef struct G8INVOBJ {               /* an object of a character's inventory (AIOBJ, ai_types.h, read as a held good:
-                                           ai_InventoryHas, ai_BuildingHasItem, the inventory window, the Domizil
-                                           goods' clock lc_UpdateGoodsReserves); AIOBJ's union does not reach +0x2d */
-    unsigned short id;                  /* +0x00, the object's type id (AIOBJ.id) */
-    int objId;                          /* +0x02, AIOBJ.objId */
-    int ownerId;                        /* +0x06, the id of the character holding it (AIOBJ.ownerId; the Domizil clock
-                                           sells the used-up good from it) */
-    char pad0a[4];
-    int count;                          /* +0x0e, how many (AIOBJ.count; the inventory window's amount control) */
-    char pad12[0xa];
-    int minutesLeft;                    /* +0x1c, of a Domizil good in use: the minutes its effect still runs
-                                           (lc_UpdateGoodsReserves counts it down from G9DOMIZIL.minutes) */
-    char inUse;                         /* +0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
-                                           a reasoned guess) */
-    int active;                         /* +0x21, nonzero when the object counts as held, of a Domizil good while its
-                                           effect runs (ai_InventoryHas tests it; lc_UpdateGoodsReserves clears it
-                                           when minutesLeft runs out; the name is a reasoned guess) */
-    int bldId;                          /* +0x25, the id of the building the object stands in (reasoned guess:
-                                           ai_BuildingHasItem compares it with AIBLD.id) */
-    char pad29[4];
-    AITIME since;                       /* +0x2d, of a Domizil good in use: when minutesLeft was last counted down */
-} G8INVOBJ;
-#pragma pack(pop)
 extern struct AIBTYPE *ai_BTypes;
 extern GAPDATA full_data_60c28c[];
 extern int ai_MapSize;
@@ -568,16 +544,6 @@ typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's
 } LCSEARCHEVENT;
 #pragma pack(pop)
 
-#pragma pack(push, 1)
-typedef struct G8USEVIEW {              /* a local view of am.h's G8USE (am.h cannot be included here yet): the
-                                           record ai_UseGood hands to a Domizil record's use callback (+0x14) */
-    G8INVOBJ *obj;                      /* 0x00, the inventory object used (G8USE.obj; its +0 id) */
-    int target;                         /* 0x04, the target reference (G8USE.target) */
-    int arg;                            /* 0x08 */
-    int effect;                         /* 0x0c, 1 the use took effect, 0 not, -1 backfired (G8USE.effect) */
-    int handled;                        /* 0x10, set by a callback that reported the use itself (G8USE.handled) */
-} G8USEVIEW;
-#pragma pack(pop)
 
 
 #include "ls.h"

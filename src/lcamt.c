@@ -427,30 +427,6 @@ extern int sv_FrameMask;
 extern unsigned char ai_OwnPlayer;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
-#pragma pack(push, 1)
-typedef struct G8INVOBJ {               /* an object of a character's inventory (AIOBJ, ai_types.h, read as a held good:
-                                           ai_InventoryHas, ai_BuildingHasItem, the inventory window, the Domizil
-                                           goods' clock lc_UpdateGoodsReserves); AIOBJ's union does not reach +0x2d */
-    unsigned short id;                  /* +0x00, the object's type id (AIOBJ.id) */
-    int objId;                          /* +0x02, AIOBJ.objId */
-    int ownerId;                        /* +0x06, the id of the character holding it (AIOBJ.ownerId; the Domizil clock
-                                           sells the used-up good from it) */
-    char pad0a[4];
-    int count;                          /* +0x0e, how many (AIOBJ.count; the inventory window's amount control) */
-    char pad12[0xa];
-    int minutesLeft;                    /* +0x1c, of a Domizil good in use: the minutes its effect still runs
-                                           (lc_UpdateGoodsReserves counts it down from G9DOMIZIL.minutes) */
-    char inUse;                         /* +0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
-                                           a reasoned guess) */
-    int active;                         /* +0x21, nonzero when the object counts as held, of a Domizil good while its
-                                           effect runs (ai_InventoryHas tests it; lc_UpdateGoodsReserves clears it
-                                           when minutesLeft runs out; the name is a reasoned guess) */
-    int bldId;                          /* +0x25, the id of the building the object stands in (reasoned guess:
-                                           ai_BuildingHasItem compares it with AIBLD.id) */
-    char pad29[4];
-    AITIME since;                       /* +0x2d, of a Domizil good in use: when minutesLeft was last counted down */
-} G8INVOBJ;
-#pragma pack(pop)
 extern struct AIBTYPE *ai_BTypes;
 extern GAPDATA full_data_60c28c[];
 extern int ai_MapSize;
@@ -570,16 +546,6 @@ typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's
 } LCSEARCHEVENT;
 #pragma pack(pop)
 
-#pragma pack(push, 1)
-typedef struct G8USEVIEW {              /* a local view of am.h's G8USE (am.h cannot be included here yet): the
-                                           record ai_UseGood hands to a Domizil record's use callback (+0x14) */
-    G8INVOBJ *obj;                      /* 0x00, the inventory object used (G8USE.obj; its +0 id) */
-    int target;                         /* 0x04, the target reference (G8USE.target) */
-    int arg;                            /* 0x08 */
-    int effect;                         /* 0x0c, 1 the use took effect, 0 not, -1 backfired (G8USE.effect) */
-    int handled;                        /* 0x10, set by a callback that reported the use itself (G8USE.handled) */
-} G8USEVIEW;
-#pragma pack(pop)
 
 
 #include "ls.h"
@@ -9227,7 +9193,7 @@ void ai_UseObjPanel(char *text)
    (kind 6) whose callback did not report the use sees the panel, with the text 0xfe8 (rank + 1) on effect.
    Returns the callback's result (1 without one). */
 
-int ai_UseGood(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGood(AICHAR *ch, G8USE *use)
 {
     char text[0x800];
     int minutes;
@@ -9305,7 +9271,7 @@ int ai_UseGoodAddMoney(AICHAR *ch)
    (AICHAR.f01c) with cm_SendFloatDelta (0x4c4ac0); effect 0 for a player (kind 6) sets use->handled and
    shows the text 0xff0 (ai_UseObjPanel); returns 1. */
 
-int ai_UseGoodHeal(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodHeal(AICHAR *ch, G8USE *use)
 {
     char text[0x800];
 
@@ -9326,7 +9292,7 @@ int ai_UseGoodHeal(AICHAR *ch, G8USEVIEW *use)
    0x2c4 and util_RandomF() <= 0.75. A player owner (kind 6 / 7) gets the news 0xff1 (key 0x5fb). Returns 1.
    Both paths are written out in full, as the original's code has them. */
 
-int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodInfectOwner(AICHAR *ch, G8USE *use)
 {
     AIBLD *bld;
     int *id;
@@ -9356,7 +9322,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             msg.effect.good = 0x177;
             cm_SendLongMessage(&msg);
             cm_BeginFieldBlock(use->obj, use->obj->objId);
-            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
+            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->placeBldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
             gm_CatchDisease(&ai_Chars[bld->owner], 0, 0);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
@@ -9382,7 +9348,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
             msg.effect.good = 0x177;
             cm_SendLongMessage(&msg);
             cm_BeginFieldBlock(use->obj, use->obj->objId);
-            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
+            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->placeBldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
             if (ai_InventoryHas(&ai_Chars[bld->owner], 0x2c4) == 0 || util_RandomF() > 0.75f)
                 gm_CatchDisease(&ai_Chars[bld->owner], 0, 0);
@@ -9408,7 +9374,7 @@ int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use)
    out in full with the 0x77 message and the rest, as the original has them: VC6 cross-jumps the first copy
    into the second, and the first copy's temporaries set the second path's scratch registers. */
 
-int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodSendHome(AICHAR *ch, G8USE *use)
 {
     AIBLD *bld;
     int *id;
@@ -9458,7 +9424,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
                 cm_SendLongMessage(&msg);
             }
             cm_BeginFieldBlock(use->obj, use->obj->objId);
-            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
+            cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->placeBldId - cm_FieldObject), id);
             cm_SendFieldDeltas();
             cm_SendSetField(*id, 0x5a, 2, 0x20, 0);
             if (bld->owner != 0xffff && (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7)) {
@@ -9503,7 +9469,7 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
             cm_SendLongMessage(&msg);
         }
         cm_BeginFieldBlock(use->obj, use->obj->objId);
-        cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->bldId - cm_FieldObject), id);
+        cm_AddFieldDelta(4, 1, (unsigned short)((char *)&use->obj->placeBldId - cm_FieldObject), id);
         cm_SendFieldDeltas();
         cm_SendSetField(*id, 0x5a, 2, 0x20, 0);
         if (bld->owner != 0xffff && (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7)) {
@@ -9523,7 +9489,7 @@ done:
    the skills 3 and 2 lose 1/6 each for 24 hours (flags 2). A player target (kind 6 / 7) gets the news 0xff8 (key
    0x5fb). Returns 1. Both paths are written out in full, as the original's code has them. */
 
-int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodWeakenSkills(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -9587,7 +9553,7 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
    2); for any other user the target is use->target (gm_FindChar) and no message is sent. A player target (kind
    6 / 7) gets the news 0xff6 (key 0x5fb). Returns 1, 0 without a target. */
 
-int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -9675,7 +9641,7 @@ int ai_UseGoodCureAilment(AICHAR *ch)
    b1c5 halved, rounded up, sent as a field delta. Returns 1. (am.c's AI uses the good where the workers' b1c5
    averages at least 6; what b1c5 means is not known.) */
 
-int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -9742,7 +9708,7 @@ int ai_ApplyTrialStep(AICHAR *ch, int skill)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 1 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use)
+int ai_TrialStep1(AICHAR *ch, G8USE *use)
 {
     char text[0x100];
     AICHAR *target;
@@ -9767,7 +9733,7 @@ int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 3 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use)
+int ai_TrialStep3(AICHAR *ch, G8USE *use)
 {
     char text[0x100];
     AICHAR *target;
@@ -9792,7 +9758,7 @@ int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use)
    the target in the special-amount list 0x5bea00 (the text 0x5176d0 0x9d), every other kind takes the use's
    target 0x505df0; the target's trial step 4 (0x5d08c0) runs and 1, 0 without a target. */
 
-int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use)
+int ai_TrialStep4(AICHAR *ch, G8USE *use)
 {
     char text[0x100];
     AICHAR *target;
@@ -9838,7 +9804,7 @@ int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use)
    load order (regs 32, order 6). Tried: the inventory call inside the argument list (12 ins but its pops
    split, the original's merge), ret = 1 after the send. */
 
-int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -9946,7 +9912,7 @@ done:
    remembered. A kind 6 character: 0x4c5870 (ch->netId) and the text 0x5176d0 (0xfe8, the used object's
    id * 2 + 0xd71, the pick + 0x16b7) through the use-object panel 0x5cf820. Returns 1. */
 
-int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodTrialStep(AICHAR *ch, G8USE *use)
 {
     int pick[5];
     char text[0x800];
@@ -9979,7 +9945,7 @@ int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use)
    each player pick the news 0xfed naming the target (key 0x5fb); a player user sees the text 0xfe8 (the good's
    rank + 1 and the three) in the use-object panel. Returns 1. */
 
-int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USE *use)
 {
     AICHAR *pick[3];
     int index;
@@ -10069,7 +10035,7 @@ int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
    and the text 0xfe8 (the used object's id * 2 + 0xd71, the second and the first pick + 0x16b7) through the
    use-object panel. Returns 1. */
 
-int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USE *use)
 {
     int first;
     int pick[5];
@@ -10106,7 +10072,7 @@ int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use)
    0xfef naming the user (key 0x5ec); a player user sees the text 0xfe8 (the good's rank + 1 and the three) in
    the use-object panel. Returns 1. */
 
-int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USE *use)
 {
     AICHAR *pick[3];
     int index;
@@ -10163,7 +10129,7 @@ int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use)
    ways (cm_SendRelations); each player of the two (kind 6 / 7) gets the news 0xfee naming the other (key
    0x5fb). Returns 1. */
 
-int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodSowDiscord(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -10237,7 +10203,7 @@ int ai_UseGoodTributeClaim(AICHAR *ch)
    target's flags1cc (cm_SendSetField): the next round start (main_RundenBeginn) charges it 3 action points
    (the AP event 0xf18) unless it holds the good 0x2c4, and clears the bit. Returns 1. */
 
-int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -10269,7 +10235,7 @@ int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use)
    0x5fb), and a player user sees the text 0x1099 (the target, the skill) inside 0xfe8 in the use-object
    panel. Marks the use handled and returns 1. */
 
-int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodDrainSkill(AICHAR *ch, G8USE *use)
 {
     int pick[5];
     AMOUNTCFG cfg;
@@ -10323,7 +10289,7 @@ int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use)
    text 0x109b (the character, the owner, the building) inside 0xfe8 in the use-object panel. Marks the use
    handled and returns 1. */
 
-int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodHarmBuilding(AICHAR *ch, G8USE *use)
 {
     AIBLD *bld;
     AMOUNTCFG cfg;
@@ -10385,7 +10351,7 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
    naming the building (key 0x5fb), a player user sees the text 0x109d (the owner, the building) inside 0xfe8
    in the use-object panel. Marks the use handled and returns 1. */
 
-int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodSpoilStock(AICHAR *ch, G8USE *use)
 {
     AIBLD *bld;
     AMOUNTCFG cfg;
@@ -10447,7 +10413,7 @@ extern const int ai_CharWalkSteps[16];  /* 0x5ed100, the random walk steps (am.h
    each player office holder 0x100e / 0x100f (key 0x5fb); marks the use handled, and a player user sees the
    text 0x10a1 (the target, the three) inside 0xfe8 in the use-object panel. Returns 1. */
 
-int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodCharmOfficials(AICHAR *ch, G8USE *use)
 {
     AICHAR *pick[3];
     AMOUNTCFG cfg;
@@ -10533,7 +10499,7 @@ int ai_UsePayGood(AICHAR *ch)
    unless it holds the good 0x2c4, and clears the bit. Marks the use handled; a player user sees the text 0x10a7
    (the target) inside 0xfe8 in the use-object panel. Returns 1. */
 
-int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x200];
@@ -10570,7 +10536,7 @@ int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use)
    0.75, it is held one round more (cm_SendMessage5b, heldRounds + 1). Marks the use handled; a player user sees
    the text 0x10a9 (the target) inside 0xfe8 in the use-object panel. Returns 1. */
 
-int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodHoldRound(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     char text[0x200];
@@ -10625,7 +10591,7 @@ int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use)
    relations(ret) (no change), ret = 1 placement in both paths and a goto done tail (worse, 15 / 36 ins),
    the mode / filter store order (fixed: 39 -> 12). */
 
-int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodCharmPartner(AICHAR *ch, G8USE *use)
 {
     int index;
     AMOUNTCFG cfg;
@@ -10677,7 +10643,7 @@ int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
    text 0xfe8 (the good's rank + 1, the target) in the use-object panel and the use is marked handled. Returns 1.
    Both paths are written out in full, as the original's code has them. */
 
-int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USE *use)
 {
     int index;
     AMOUNTCFG cfg;
@@ -10749,7 +10715,7 @@ extern AIDEC gv_Decisions[];  /* 0x611258, the 0x1d AI decision (law) records (g
    0xffe (key 0x5fb); a player user sees the text 0xfe8 (the good's rank + 1, the target) in the use-object panel
    and the use is marked handled. Returns 1. */
 
-int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodFrameChar(AICHAR *ch, G8USE *use)
 {
     int ret;
     int index;
@@ -10820,7 +10786,7 @@ done:
    A player target (kind 6 / 7) gets the news 0xfff (key 0x5fb); a player user sees the text 0xfe8 (the good's
    rank + 1, the target) in the use-object panel and the use is marked handled. Returns 1. */
 
-int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodFrameChar2(AICHAR *ch, G8USE *use)
 {
     int ret;
     int index;
@@ -10894,7 +10860,7 @@ done:
    (0x502020). Then the building's flags5aw bit 0x2000 (the heating, cleared at the round settlement) is set
    with 0x4c4a60 (id, 0x5a, 2, 0x2000, 0). Returns 1 (0 without a building). */
 
-int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodHeatBuilding(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     int i;
@@ -10939,7 +10905,7 @@ int ai_UseEventGood(AICHAR *ch)
    gm_StaffFactor, cleared at the round settlement) is set with 0x4c4a60 (id, 0x5a, 2, 0x1000, 0). Returns
    1 (0 without a building). */
 
-int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodStaffBonus(AICHAR *ch, G8USE *use)
 {
     AMOUNTCFG cfg;
     int i;
@@ -10970,7 +10936,7 @@ int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use)
    sees, inside 0xfe8, the text whose id is the good's rank + 1 (formatted with the target) in the use-object
    panel. Marks the use handled and returns 1. */
 
-int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodPettyLoss(AICHAR *ch, G8USE *use)
 {
     int index;
     AMOUNTCFG cfg;
@@ -11064,7 +11030,7 @@ int ai_UseGoodSkillBonus(AICHAR *ch)
    the text whose id is the good's rank + 1 (formatted with the target) in the use-object panel. Marks the use
    handled and returns 1. */
 
-int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodDistrust(AICHAR *ch, G8USE *use)
 {
     int index;
     AMOUNTCFG cfg;

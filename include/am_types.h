@@ -7,6 +7,15 @@
 
 struct AICHAR;
 struct AIARG;
+struct AIOBJ;
+
+typedef struct G8USE {                  /* 20 bytes, ai_UseGood's request (0x5cf8a0), handed on to the good's use callback */
+    struct AIOBJ *obj;                  /* 0x00, the inventory object used */
+    int target;                         /* 0x04, the target for the good's use callback (the table +0x14): a reference of the action's second argument */
+    int arg;                            /* 0x08, a value for the use callback, -1 none */
+    int effect;                         /* 0x0c, set by the callee: 1 the use took effect (0x175 only one time in three), 0 not; the use callback may set -1 (backfired) */
+    int handled;                        /* 0x10, 0 by the callee, set by a use callback that reported the use itself (no text then) */
+} G8USE;
 
 typedef struct G9DOMIZIL {              /* 0x1c bytes, an entry of the Domizil table 0x62c420 (ai_FindUsableGood returns it) */
     int id;                             /* 0x00, the good, 0 ends the table */

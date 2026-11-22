@@ -811,7 +811,7 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2)
     AIBLD *bl;
     AIOBJ *o, *q;
     G9DOMIZIL *g;
-    AIUSE u;
+    G8USE u;
 
     if (s1->kind == 2) {
         if (s1->arg2 == 1) {

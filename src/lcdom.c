@@ -420,30 +420,6 @@ extern int sv_FrameMask;
 extern unsigned char ai_OwnPlayer;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
-#pragma pack(push, 1)
-typedef struct G8INVOBJ {               /* an object of a character's inventory (AIOBJ, ai_types.h, read as a held good:
-                                           ai_InventoryHas, ai_BuildingHasItem, the inventory window, the Domizil
-                                           goods' clock lc_UpdateGoodsReserves); AIOBJ's union does not reach +0x2d */
-    unsigned short id;                  /* +0x00, the object's type id (AIOBJ.id) */
-    int objId;                          /* +0x02, AIOBJ.objId */
-    int ownerId;                        /* +0x06, the id of the character holding it (AIOBJ.ownerId; the Domizil clock
-                                           sells the used-up good from it) */
-    char pad0a[4];
-    int count;                          /* +0x0e, how many (AIOBJ.count; the inventory window's amount control) */
-    char pad12[0xa];
-    int minutesLeft;                    /* +0x1c, of a Domizil good in use: the minutes its effect still runs
-                                           (lc_UpdateGoodsReserves counts it down from G9DOMIZIL.minutes) */
-    char inUse;                         /* +0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
-                                           a reasoned guess) */
-    int active;                         /* +0x21, nonzero when the object counts as held, of a Domizil good while its
-                                           effect runs (ai_InventoryHas tests it; lc_UpdateGoodsReserves clears it
-                                           when minutesLeft runs out; the name is a reasoned guess) */
-    int bldId;                          /* +0x25, the id of the building the object stands in (reasoned guess:
-                                           ai_BuildingHasItem compares it with AIBLD.id) */
-    char pad29[4];
-    AITIME since;                       /* +0x2d, of a Domizil good in use: when minutesLeft was last counted down */
-} G8INVOBJ;
-#pragma pack(pop)
 extern struct AIBTYPE *ai_BTypes;
 extern GAPDATA full_data_60c28c[];
 extern int ai_MapSize;
@@ -563,16 +539,6 @@ typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's
 } LCSEARCHEVENT;
 #pragma pack(pop)
 
-#pragma pack(push, 1)
-typedef struct G8USEVIEW {              /* a local view of am.h's G8USE (am.h cannot be included here yet): the
-                                           record ai_UseGood hands to a Domizil record's use callback (+0x14) */
-    G8INVOBJ *obj;                      /* 0x00, the inventory object used (G8USE.obj; its +0 id) */
-    int target;                         /* 0x04, the target reference (G8USE.target) */
-    int arg;                            /* 0x08 */
-    int effect;                         /* 0x0c, 1 the use took effect, 0 not, -1 backfired (G8USE.effect) */
-    int handled;                        /* 0x10, set by a callback that reported the use itself (G8USE.handled) */
-} G8USEVIEW;
-#pragma pack(pop)
 
 
 #include "ls.h"
@@ -7693,7 +7659,7 @@ void ai_OpenInventoryWindow(int win, int x, int y, unsigned short charId, int te
 int ai_UpdateInventoryWindow(void)
 {
     AICHAR *ch;
-    G8INVOBJ *o;
+    AIOBJ *o;
     G9DOMIZIL *use;
     int picked;
     int value;
@@ -7734,7 +7700,7 @@ int ai_UpdateInventoryWindow(void)
             picked = 1;
         }
     }
-    for (o = (G8INVOBJ *)gm_Query(ch->inventory, 1, 5); o != 0; o = (G8INVOBJ *)gm_QueryNext()) {
+    for (o = gm_Query(ch->inventory, 1, 5); o != 0; o = gm_QueryNext()) {
         if (ai_Goods[o->id].type == 9)
             continue;
         for (k = 0; k < 6; k++)
@@ -7812,9 +7778,9 @@ G9DOMIZIL *ai_FindUsableGoodIndex(int id, int *index)
 
 int ai_InventoryHas(void *ch, int id)
 {
-    G8INVOBJ *o;
+    AIOBJ *o;
 
-    o = (G8INVOBJ *)gm_Query((void *)((G8INVCHAR *)ch)->inventory, 1, 0, id);
+    o = gm_Query((void *)((G8INVCHAR *)ch)->inventory, 1, 0, id);
     if (o != 0 && ai_FindUsableGood(o->id) != 0 && o->active != 0)
         return 1;
     return 0;
@@ -7826,10 +7792,10 @@ int ai_InventoryHas(void *ch, int id)
 
 int ai_BuildingHasItem(AIBLD *bld, int id)
 {
-    G8INVOBJ *o;
+    AIOBJ *o;
 
-    o = (G8INVOBJ *)gm_Query(0, 2, 7, 0, id);
-    if (o != 0 && ai_FindUsableGood(o->id) != 0 && o->active != 0 && o->bldId == bld->id)
+    o = gm_Query(0, 2, 7, 0, id);
+    if (o != 0 && ai_FindUsableGood(o->id) != 0 && o->active != 0 && o->placeBldId == bld->id)
         return 1;
     return 0;
 }
@@ -7869,7 +7835,7 @@ int ai_BuildingHasItem(AIBLD *bld, int id)
 void lc_UpdateGoodsReserves(void)
 {
     char text[0x400];
-    G8INVOBJ *o;
+    AIOBJ *o;
     G9DOMIZIL *use;
     AIBLD *bld;
     int i;
@@ -7880,7 +7846,7 @@ void lc_UpdateGoodsReserves(void)
     for (i = lc_Settings.reserveCursor; i < lc_Settings.reserveCursor + 0x20 && i < 0x300; i++) {
         if (ai_Chars[i].id == 0xffff)
             continue;
-        o = (G8INVOBJ *)gm_Query(ai_Chars[i].inventory, 1, 5);
+        o = gm_Query(ai_Chars[i].inventory, 1, 5);
         if (o != 0) {
             do {
                 use = ai_FindUsableGood(o->id);
@@ -7900,7 +7866,7 @@ void lc_UpdateGoodsReserves(void)
                         he_ShowNews(ai_CharInts[i][0], -1, text, 0, 0x5ec, "_NACHRICHTEN_HS_37");
                     }
                     if (o->id == 0x178) {
-                        bld = gm_BuildQuery(1, 1, o->bldId);
+                        bld = gm_BuildQuery(1, 1, o->placeBldId);
                         if (bld != 0)
                             cm_SendSetField(bld->id, 0x5a, 2, 0, 0x20);
                     }
@@ -7909,7 +7875,7 @@ void lc_UpdateGoodsReserves(void)
                 } else if (o->active != 0) {
                     o->active = 0;
                 }
-            } while ((o = (G8INVOBJ *)gm_QueryNext()) != 0);
+            } while ((o = gm_QueryNext()) != 0);
         }
     }
     lc_Settings.reserveTime = ai_Time;
@@ -7922,10 +7888,10 @@ void lc_UpdateGoodsReserves(void)
    inventory rows (cm_SendExSellObject) unless ai_GameFlags has 0x80; a right release closes it. Returns 0 when
    nothing was used */
 
-int ai_UseGoodWindow(G8INVOBJ *o)
+int ai_UseGoodWindow(AIOBJ *o)
 {
     char text[0x400];
-    G8USEVIEW use = {0};
+    G8USE use = {0};
     int index;
     G9DOMIZIL *rec;
     int win;
@@ -7982,7 +7948,7 @@ int ai_UseGoodWindow(G8INVOBJ *o)
         use.arg = -1;
         use.effect = 0;
         use.handled = 0;
-        ai_UseGood(&ai_Chars[ai_PlayerId], (int *)&use);
+        ai_UseGood(&ai_Chars[ai_PlayerId], &use);
     }
     return use.effect;
 }
@@ -9059,45 +9025,45 @@ void ai_PlayerStatsPanel(void)
 }
 
 /* the use callbacks of the Domizil table (lcamt.c defines them; prototypes here until lcamt.h can carry the
-   AICHAR / G8USEVIEW views) */
+   AICHAR / G8USE views) */
 int ai_UseGoodAddMoney(AICHAR *ch);
-int ai_UseGoodHeal(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodInfectOwner(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodHeal(AICHAR *ch, G8USE *use);
+int ai_UseGoodInfectOwner(AICHAR *ch, G8USE *use);
+int ai_UseGoodSendHome(AICHAR *ch, G8USE *use);
+int ai_UseGoodWeakenSkills(AICHAR *ch, G8USE *use);
+int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USE *use);
 int ai_UseGoodCureAilment(AICHAR *ch);
-int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use);
-int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use);
-int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use);
-int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USE *use);
+int ai_TrialStep1(AICHAR *ch, G8USE *use);
+int ai_TrialStep3(AICHAR *ch, G8USE *use);
+int ai_TrialStep4(AICHAR *ch, G8USE *use);
+int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use);
 int ai_QuarrelCallback(AICHAR *ch, int *req);
-int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodTrialStep(AICHAR *ch, G8USE *use);
+int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USE *use);
+int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USE *use);
+int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USE *use);
+int ai_UseGoodSowDiscord(AICHAR *ch, G8USE *use);
 int ai_UseGoodTributeClaim(AICHAR *ch);
-int ai_UseGoodNoEffect(AICHAR *ch, G8USEVIEW *use);  /* the unlinked use callback of good 0x17c at the end (ai_AlwaysTrue in the exe) */
-int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodNoEffect(AICHAR *ch, G8USE *use);  /* the unlinked use callback of good 0x17c at the end (ai_AlwaysTrue in the exe) */
+int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USE *use);
+int ai_UseGoodDrainSkill(AICHAR *ch, G8USE *use);
+int ai_UseGoodHarmBuilding(AICHAR *ch, G8USE *use);
+int ai_UseGoodSpoilStock(AICHAR *ch, G8USE *use);
+int ai_UseGoodCharmOfficials(AICHAR *ch, G8USE *use);
 int ai_UsePayGood(AICHAR *ch);
-int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USE *use);
+int ai_UseGoodHoldRound(AICHAR *ch, G8USE *use);
+int ai_UseGoodCharmPartner(AICHAR *ch, G8USE *use);
+int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USE *use);
+int ai_UseGoodFrameChar(AICHAR *ch, G8USE *use);
+int ai_UseGoodFrameChar2(AICHAR *ch, G8USE *use);
+int ai_UseGoodHeatBuilding(AICHAR *ch, G8USE *use);
 int ai_UseEventGood(AICHAR *ch);
-int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use);
-int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodStaffBonus(AICHAR *ch, G8USE *use);
+int ai_UseGoodPettyLoss(AICHAR *ch, G8USE *use);
 int ai_UseGoodSkillBonus(AICHAR *ch);
-int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use);
+int ai_UseGoodDistrust(AICHAR *ch, G8USE *use);
 /* the unit's data in the original's order: .rdata gm_SpecialItemGroups 0x5eed94 and its count (this object's named
    constants, after lc.c's literals 52.0f / 0.435f / 0.48f; its literal 128.0 follows), .data ai_ChildWindowId 0x62c418
    (the first of the block, after lc.c's strings) .. "panel\useobj", .bss 0x6f2f60 .. 0x6f2f84 and the common rows */
@@ -9192,7 +9158,7 @@ int ai_MapSize;  /* 0x6f4ee8 */
 
 /* unlinked: the use callback of the good 0x17c, which has no effect of its own and returns 1; LINK folds it (/OPT:ICF)
    into ai_AlwaysTrue, 0x4a8c10, where the original's ai_DomizilTable entry points */
-int ai_UseGoodNoEffect(AICHAR *ch, G8USEVIEW *use)
+int ai_UseGoodNoEffect(AICHAR *ch, G8USE *use)
 {
     return 1;
 }
