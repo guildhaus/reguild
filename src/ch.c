@@ -2459,7 +2459,7 @@ void ch_ActTurn(CHACTION *a)
         }
         return;
     }
-    if (ch->turnAnim && ch->turnAnim->flags2d & 0x20) {
+    if (ch->turnAnim && ch->turnAnim->flags.b[1] & 0x20) {
         d3anim_FreePath(ch->obj);
         ch->turnAnim = 0;
         if (!ch->slot) {

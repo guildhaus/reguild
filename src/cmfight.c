@@ -121,7 +121,7 @@ typedef struct CMPOSMSG {           /* 0x10 bytes read, the data of message 0x32
 } CMPOSMSG;
 typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of cm_Grenades */
     D3OBJECT *obj;                  /* the object "ob_BOMBE", 0 = a free slot */
-    D3ANIM *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
+    D3PATH *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
     int x, y;                       /* 0x08, the target cell */
 } CMGRENADE;
 
@@ -687,7 +687,7 @@ CMGRENADE *cm_ThrowGrenade(D3VECTOR *p, int x, int y)
     }
     return 0;
 }
-/* 0x4ce830, updates the thrown bombs of cm_Grenades: one whose path has ended (flag 0x20 of D3ANIM.flags2d) explodes
+/* 0x4ce830, updates the thrown bombs of cm_Grenades: one whose path has ended (flag 0x20 of D3PATH.flags.b[1]) explodes
    (smoke, earth and explosion effects at its position), lowers the terrain at its cell by 5 and clears the cell's
    type there (the map rebuilt), sounds "Explosion_s" and hurts every scene character within 100.0 of the cell's
    vertex by a random weapon damage (0x176) scaled by its life value and the distance; returns the number of used
@@ -714,7 +714,7 @@ int cm_UpdateGrenades()
         if (rec->obj == 0)
             continue;
         cnt++;
-        if (!(rec->anim->flags2d & 0x20))
+        if (!(rec->anim->flags.b[1] & 0x20))
             continue;
         a.x = -243.0f;
         a.y = -90.0f;

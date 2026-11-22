@@ -49,38 +49,7 @@ int d3anim_NextFrame(D3ANIMFLAGS f, int frame, int a, int b, int c);            
 char d3anim_MapBones(D3OBJECT *obj);                                                       /* 0x4319e0 */
 void d3anim_PoseBones(D3OBJECT *obj);                                                       /* 0x431ae0 */
 
-/* Object path animations (d3anim_CreatePath; D3ANIM in d3.h is the same struct, D3ANIMKEY the same key). */
-typedef struct D3PATHKEY {          /* 0x58 bytes */
-    int time;                       /* frames; multiplied by 3 when the path is created */
-    D3VECTOR pos;                   /* 0x04 */
-    float unk10;
-    D3VECTOR rot;                   /* 0x14 */
-    D3VECTOR posin;                 /* 0x20, spline tangents (d3path_Tangents) */
-    float unk2c;
-    D3VECTOR posout;                /* 0x30 */
-    float timeout;
-    D3VECTOR rotin;                 /* 0x40 */
-    D3VECTOR rotout;                /* 0x4c */
-} D3PATHKEY;
-
-typedef struct D3PATH {             /* 0x44 bytes, at D3OBJECT + 0x1d0 */
-    int nkeys;
-    int key;                        /* 0x04 */
-    int next;                       /* 0x08 */
-    int time;                       /* 0x0c */
-    int maxStep;                    /* 0x10, the largest update step (ms) the path interpolates: a longer one
-                                       relights the object instead of moving it (d3_anim.c:759), 100 at creation */
-    D3VECTOR pos;                   /* 0x14, the object's position and angles at the start */
-    D3VECTOR rot;                   /* 0x20 */
-    D3ANIMFLAGS flags;              /* 0x2c */
-    float fadeEnd;
-    float frameTime;                /* 0x3c, sub-frame time accumulator (d3anim_StepObject's
-                                       `acc - (int)acc`; d3path_Init clears it) */
-    D3PATHKEY *keys;                /* 0x40 */
-} D3PATH;
-
-#define D3_OBJPATH(obj) (*(D3PATH **)((char *)(obj) + 0x1d0))
-
+/* Object path animations: D3PATH / D3PATHKEY in d3.h (D3ANIMKEY there is the same key as d3anim_CreatePath takes it). */
 /* Inline-asm copy as D3_COPY (d3.h), with the destination temp declared (and stored) first. */
 #define D3PATH_COPY(dst, src, size) {                               \
     void *_cd = (dst); int _cn = (size);                            \

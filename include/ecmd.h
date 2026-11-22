@@ -135,7 +135,7 @@ extern D3EMITTERCFG d3_EmitterCfg;      /* 0x1468620 */
 D3PARTSYS *par_CreateEmitter(int count, const D3VECTOR *pos, int parent, char *tex, OCMDTEXFLAGS flags, float size,
                              D3EMITTERCFG *cfg);                                     /* 0x457b30 */
 struct D3OBJECT * d3t_FindObject(char *name, char flags);                                    /* 0x411900 */
-D3ANIM *d3t_MoveObjectPath(D3OBJECT *obj, int time, int n, D3OBJECT **path);         /* 0x413960 */
+D3PATH *d3t_MoveObjectPath(D3OBJECT *obj, int time, int n, D3OBJECT **path);         /* 0x413960 */
 struct D3TRAIN;
 struct D3TRAIN *d3t_CreateRain(int count);                                           /* 0x413b30 */
 

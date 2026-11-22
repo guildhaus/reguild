@@ -4,8 +4,6 @@
 #ifndef D3_H
 #define D3_H
 
-struct D3IOPATH;                   /* d3_io_t.h: the return of d3_LoadObjectAnim */
-struct D3IOOBJ;
 typedef struct D3SURF D3SURF;      /* below: a surface of a mesh (D3MESH.surf), what D3OBJECT.info points to */
 struct D3ANIMSLOT;
 
@@ -77,7 +75,7 @@ struct D3OBJECT {
     } views[10];
     D3MATRIX matrix;                /* 0x18c */
     struct D3SURF *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]) */
-    struct D3PATH *path;            /* 0x1d0, the path animation it follows (d3_anim.h D3PATH, D3_OBJPATH), 0: none */
+    struct D3PATH *path;            /* 0x1d0, the path animation it follows, 0: none */
     union {
         float radius;               /* 0x1d4, the mesh driver's radius (D3BGF.radius); read as obj->info->mesh->radius */
         D3EVENT *events;            /* 0x1d4, the object's D3E_NEVENTS event handlers (d3e_RegisterEvent: D3OBJX.events), 0 = none */
@@ -313,14 +311,54 @@ void d3_UpdateObject(D3OBJECT *obj, unsigned char full);                        
 void d3_InflateObject(D3OBJECT *obj);                                                       /* 0x43dbc0 */
 void d3_MatFromAngles(D3VECTOR4 *v, D3MATRIX *m);                                           /* 0x4545c0 */
 char d3if_SelectScene(int index, char keep);                                                /* 0x4478e0 */
-typedef struct D3ANIM {             /* returned by d3anim_CreatePath */
-    char pad00[0x2d];
-    unsigned char flags2d;          /* 0x20 = finished */
-} D3ANIM;
-
-typedef struct D3ANIMFLAGS {        /* passed by value to d3anim_CreatePath */
-    unsigned char b[12];
+typedef struct D3ANIMFLAGS {        /* 12 bytes passed by value to d3anim_CreatePath / d3anim_NextFrame / d3anim_StartAnim */
+    union {
+        unsigned char b[12];
+        struct {                    /* the bits the path loader names (d3_LoadObjectAnim) */
+            unsigned char b0;
+            unsigned char c0 : 1;   /* b[1], D3PATH +0x2d: 0x20 = finished, 0x10 = loop, 0x08, 0x04 */
+            unsigned char rev : 1;  /* b[1] bit 1: play backwards, starts at the last key */
+            unsigned char c2 : 3;
+            unsigned char c5 : 1;   /* b[1] bit 5, cleared after loading */
+            unsigned char c6 : 2;
+            unsigned char b2, b3, b4, b5, b6, b7;
+            unsigned char d0 : 1;   /* b[8], D3PATH +0x34 */
+            unsigned char d1 : 1;   /* set from d3_LoadObjectAnim's reload argument */
+            unsigned char d2 : 6;
+            unsigned char b9, b10, b11;
+        };
+    };
 } D3ANIMFLAGS;
+
+typedef struct D3PATHKEY {          /* 0x58 bytes */
+    int time;                       /* frames; multiplied by 3 when the path is created */
+    D3VECTOR pos;                   /* 0x04 */
+    float unk10;
+    D3VECTOR rot;                   /* 0x14 */
+    D3VECTOR posin;                 /* 0x20, spline tangents (d3path_Tangents) */
+    float unk2c;
+    D3VECTOR posout;                /* 0x30 */
+    float timeout;
+    D3VECTOR rotin;                 /* 0x40 */
+    D3VECTOR rotout;                /* 0x4c */
+} D3PATHKEY;
+
+typedef struct D3PATH {             /* 0x44 bytes, D3OBJECT.path: a path animation (d3anim_CreatePath, d3_LoadObjectAnim) */
+    int nkeys;
+    int key;                        /* 0x04 */
+    int next;                       /* 0x08 */
+    int time;                       /* 0x0c */
+    int maxStep;                    /* 0x10, the largest update step (ms) the path interpolates: a longer one
+                                       relights the object instead of moving it (d3_anim.c:759), 100 at creation */
+    D3VECTOR pos;                   /* 0x14, the object's position and angles at the start */
+    D3VECTOR rot;                   /* 0x20 */
+    D3ANIMFLAGS flags;              /* 0x2c */
+    float fadeEnd;
+    float frameTime;                /* 0x3c, sub-frame time accumulator (d3anim_StepObject's
+                                       `acc - (int)acc`; d3path_Init clears it) */
+    D3PATHKEY *keys;                /* 0x40 */
+} D3PATH;
+
 
 struct D3ANIMDATA;                  /* d3_anim.h: a cached vertex animation */
 typedef struct D3ANIMSLOT {         /* 0x7c bytes */
@@ -513,11 +551,11 @@ typedef struct D3ANIMKEY {          /* 0x58 bytes */
     char pad24[0x34];
 } D3ANIMKEY;
 
-D3ANIM *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys);          /* 0x433d70 */
+D3PATH *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys);          /* 0x433d70 */
 void d3_UnwrapAngles(const struct D3VECTOR *a, const struct D3VECTOR *b, struct D3VECTOR *ra, struct D3VECTOR *rb);                            /* 0x453d60, angles mod 2pi */
 int d3_FindAnim(char *name);                                                           /* 0x433f40, anim loaded? */
 struct D3ANIMSLOT *d3anim_StartAnim(struct D3SURF *ctl, char *name, D3ANIMFLAGS f);                          /* 0x435550, @original: this typedef spelling (not struct D3ANIMFLAGS) keeps the /O2 operand order of the byte-matched d3_LoadScene44be60 (d3_int_io.c, 0x27f) */
-struct D3IOPATH *d3_LoadObjectAnim(char *file, struct D3IOOBJ *obj, char reload);                                 /* 0x44e2e0 */
+struct D3PATH *d3_LoadObjectAnim(char *file, struct D3OBJECT *obj, char reload);                                 /* 0x44e2e0 */
 extern struct VFSDIR *d3io_StockDir;          /* 0xfba940, the stock object directory (d3io_SetStockDir, d3_int_io.c) */
 char *util_BaseName(char *path);            /* 0x401040, strips the extension in place, returns the file name */
 extern D3VECTOR d3t_PlaceTarget;             /* 0x1466620, camera target position */

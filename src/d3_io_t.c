@@ -767,24 +767,24 @@ void d3io_ReleaseObject(D3BGF *obj)
 }
 /* 0x44e2e0, loads the animation file (name + ".oam") of an object: keys of a path */
 
-D3IOPATH *d3_LoadObjectAnim(char *file, D3IOOBJ *obj, char reload)
+D3PATH *d3_LoadObjectAnim(char *file, D3OBJECT *obj, char reload)
 {
-    D3IOPATH *p = 0;
+    D3PATH *p = 0;
     char *path;
     void *f;
     int magic;
-    D3IOKEY **keys;
+    D3PATHKEY **keys;
     int i;
     int n;
 
     if (obj->path != 0)
-        d3anim_FreePath((D3OBJECT *)obj);
+        d3anim_FreePath(obj);
     path = d3io_StockFile(file, ".oam");
     if ((path != 0 && obj->type == 4) || obj->type == 3) {
         f = vfs_Tfopen(path, "rb", vfs_Root);
         bio_rd_i(f, &magic);
         if (magic == 0x3a610001) {
-            p = (D3IOPATH *)mem_Alloc(0x44, "d3_io:ObjAnim");
+            p = mem_Alloc(0x44, "d3_io:ObjAnim");
             bio_rd_i(f, &p->nkeys);
             bio_rd_i(f, &p->flags);
             p->flags.c5 = 0;
@@ -794,19 +794,19 @@ D3IOPATH *d3_LoadObjectAnim(char *file, D3IOOBJ *obj, char reload)
             if (n != p->nkeys)
                 err_Message("d3_LoadObjectAnim: Wrong number of KeyFrames in saved array!");
             (*keys)[p->nkeys - 1].time = (*keys)[p->nkeys - 2].time;
-            p->pos[0] = obj->pos[0];
-            p->pos[1] = obj->pos[1];
-            p->pos[2] = obj->pos[2];
-            p->rot[0] = obj->rot[0];
-            p->rot[1] = obj->rot[1];
-            p->rot[2] = obj->rot[2];
+            p->pos.x = obj->pos.x;
+            p->pos.y = obj->pos.y;
+            p->pos.z = obj->pos.z;
+            p->rot.x = obj->rotation.x;
+            p->rot.y = obj->rotation.y;
+            p->rot.z = obj->rotation.z;
             for (i = 0; i < p->nkeys; i++)
                 (*keys)[i].time *= 3;
             if (p->flags.rev) {
                 n = p->nkeys - 1;
                 p->key = n;
                 p->time = p->keys[n].time - 1;
-                p->next = d3anim_NextFrame(p->animFlags, n, 0, n, p->nkeys);
+                p->next = d3anim_NextFrame(p->flags, n, 0, n, p->nkeys);
             } else {
                 p->next = 1;
                 p->key = 0;
@@ -816,7 +816,7 @@ D3IOPATH *d3_LoadObjectAnim(char *file, D3IOOBJ *obj, char reload)
         vfs_fclose(f);
     }
     obj->path = p;
-    obj->time = d3_Time;
+    obj->animTime = d3_Time;
     return p;
 }
 /* 0x44e4a0, loads an animation stream "animations/" + name and links it into the animation list, before its

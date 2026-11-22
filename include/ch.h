@@ -1,4 +1,4 @@
-struct D3ANIM;
+struct D3PATH;
 struct D3FLMAP;
 struct SBSAMPLE;
 struct SBBANK;
@@ -11,7 +11,7 @@ struct D3SURF;
    byte offsets whose meaning is not known yet. Names are ours. */
 #ifndef UNK_402140_H
 #define UNK_402140_H
-#include "d3.h"                       /* D3VECTOR / D3OBJECT / D3ANIM / D3SCENE: the character record embeds them */
+#include "d3.h"                       /* D3VECTOR / D3OBJECT / D3PATH / D3SCENE: the character record embeds them */
 struct D3OBJECT;
 struct PATHOUT;
 
@@ -40,7 +40,7 @@ typedef struct CHARACTER {         /* 0x244 bytes */
     char pad068[0x8];
     struct D3ANIMSLOT *slot;        /* 0x70, current animation */
     struct D3ANIMSLOT *sitSlot;     /* 0x74, the sitting animation (ch_SetSitAnim), 0: none */
-    D3ANIM *turnAnim;               /* 0x78, the path animation a turn action created (CH_ANIM078) */
+    D3PATH *turnAnim;               /* 0x78, the path animation a turn action created (CH_ANIM078) */
     struct D3ANIMSLOT *morph;       /* 0x7c, blend between two animations ("morph_%i") */
     struct D3ANIMDATA *next;        /* 0x80, animation to start next */
     signed char nextloops;          /* 0x84 */
@@ -384,7 +384,7 @@ extern int ch_DirtyZ0;                      /* 0x5f12ac */
 extern int ch_DirtyX1;                      /* 0x63107c */
 extern int ch_DirtyZ1;                      /* 0x631080 */
 extern int d3t_CamMoving;                   /* 0x6310e4 */
-extern struct D3ANIM *d3t_CamMove;       /* 0x6310e8, the running camera animation (d3_tools.c) */
+extern struct D3PATH *d3t_CamMove;       /* 0x6310e8, the running camera animation (d3_tools.c) */
 
 char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);                              /* 0x45f100 */
 char map_Pick(struct D3FLMAP *map, struct D3VECTOR *pos, char lod, int *x, int *y, float *h);             /* 0x4463b0 */

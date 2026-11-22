@@ -3,8 +3,7 @@
    up to three animation slots per animated object, root motion, bone posing and object path animations.
    Extent in GildeGold.exe: 0x4315c0 (after vfs_Exit) .. 0x4359f0, where d3_d3d.c starts.
    Functions are kept in their original order. Names are ours.
-   The animation slots are the surfaces' (D3MESH.surf[k].slots, d3.h). D3OBJECT.path (0x1d0) is typed in d3.h and d3anim_CreatePath and d3anim_FreePath use it,
-   the other path users still go through the D3_OBJPATH raw cast.
+   The animation slots are the surfaces' (D3MESH.surf[k].slots, d3.h). D3OBJECT.path (0x1d0) is a D3PATH (d3.h).
    unit of rea 8cef7d5b (src/game/d3_anim.c); boundaries in decl/text.dcl */
 #include <stdio.h>
 #include <stdlib.h>
@@ -998,7 +997,7 @@ void d3path_Init(D3PATH *p)
 }
 /* 0x433d70, gives the object a path animation through nkeys keys (copied; times in frames). */
 
-D3ANIM *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys)
+D3PATH *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys)
 {
     D3PATH *p = 0;
     int i;
@@ -1038,7 +1037,7 @@ D3ANIM *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *ke
     }
     obj->path = p;
     obj->animTime = d3_Time;
-    return (D3ANIM *)p;
+    return p;
 }
 /* 0x433f40, the cached animation with this name, 0 if not loaded. */
 

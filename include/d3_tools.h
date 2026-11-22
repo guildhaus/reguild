@@ -9,7 +9,7 @@ struct D3VECTOR;
 struct D3SCENE;
 struct D3TMAP;
 struct D3HQUERY;
-struct D3ANIM;
+struct D3PATH;
 struct D3TRAIN;
 struct D3PARTSYS;
 struct D3COLOR;
@@ -92,7 +92,7 @@ void d3t_SetGrey(struct D3OBJECT *obj, int on);                                 
 void d3t_SetColor(struct D3OBJECT *obj, unsigned char r, unsigned char g, unsigned char b); /* 0x413550, sets every vertex color of obj to r/g/b */
 void d3t_SetTreeColor(struct D3OBJECT *obj, unsigned char r, unsigned char g, unsigned char b); /* 0x413640, d3t_SetColor on obj and its subtree */
 int d3t_MoveCameraPath(int time, int n, ...);                                    /* 0x4136d0, moves the camera along the n objects named in the varargs (an empty */
-struct D3ANIM *d3t_MoveObjectPath(struct D3OBJECT *obj, int time, int n, struct D3OBJECT **path);     /* 0x413960, moves obj along the n objects in path (null entries are skipped) */
+struct D3PATH *d3t_MoveObjectPath(struct D3OBJECT *obj, int time, int n, struct D3OBJECT **path);     /* 0x413960, moves obj along the n objects in path (null entries are skipped) */
 void d3t_InflateObjectTree(struct D3OBJECT *obj);                                       /* 0x413b00, inflates obj's geometry (d3_InflateObject) and then every object of */
 struct D3TRAIN *d3t_CreateRain(int count);                                              /* 0x413b30, allocates and initialises the rain system for count drops: the */
 void d3t_DeleteRain(struct D3TRAIN *rain);                                              /* 0x413d00, frees the rain system: its drop list (D3TRAIN.drops) and the struct D3TRAIN */
@@ -119,6 +119,6 @@ void d3t_FreeSnowMipmaps(void);                                                 
 
 extern int d3t_SunFadeStart;                                 /* 0x5f345c */
 extern int d3t_CamMoving;                                    /* 0x6310e4 */
-extern struct D3ANIM * d3t_CamMove;                                 /* 0x6310e8 */
+extern struct D3PATH * d3t_CamMove;                                 /* 0x6310e8 */
 extern struct D3OBJECT * d3t_SunRays;                               /* 0x631120 */
 #endif

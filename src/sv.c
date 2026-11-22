@@ -1951,7 +1951,7 @@ extern int sv_SkyPhase;  /* 0x760464 */
 extern int sv_ThunderFog;  /* 0x6f2370 */
 extern struct D3SKYLAYER *d3_SkyLayers[6];  /* 0x760620 */
 extern int sv_SkyScene;  /* 0x75ec20 */
-extern struct D3ANIM *d3t_CamMove;  /* 0x6310e8 */
+extern struct D3PATH *d3t_CamMove;  /* 0x6310e8 */
 extern int sv_LampPhase;  /* 0x623e80 */
 extern int sv_DayPhase;  /* 0x6f236c */
 extern char sv_LampSwitches;
@@ -2317,7 +2317,7 @@ extern int sv_BorderMoved;  /* 0x6f2378 */
 extern int sv_BorderViewX;  /* 0x6f22cc */
 extern int sv_BorderViewY;  /* 0x6f22d0 */
 extern int d3t_CamMoving;  /* 0x6310e4 */
-extern struct D3ANIM *d3t_CamMove;  /* 0x6310e8 */
+extern struct D3PATH *d3t_CamMove;  /* 0x6310e8 */
 extern int sv_ScrollTime;  /* 0x6f2394 */
 extern D3VECTOR4 sv_ScrollLastMove;
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
