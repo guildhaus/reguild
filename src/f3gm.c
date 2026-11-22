@@ -2235,11 +2235,11 @@ AIOBJ *gm_HomeObject(AIBLD *bld)
 }
 /* 0x4fdcb0, the home of the character c: its own building bld2 with the object of gm_HomeObject (out3 = its id, -1 without) and out2 = the building id; without one the next building of ai_Blds (round-robin from gm_HomeSearchStart) of kind 3 / 0x16 / 0x0f. Returns the building, 0 when none */
 
-char *gm_CharacterHome(AICHAR *c, int *out2, int *out3)
+AIBLD *gm_CharacterHome(AICHAR *c, int *out2, int *out3)
 {
     AICHAR *ch = c;
     AIOBJ *o;
-    char *type;
+    AIBTYPE *type;
     int i;
     int n;
 
@@ -2251,17 +2251,17 @@ char *gm_CharacterHome(AICHAR *c, int *out2, int *out3)
         else
             *out3 = -1;
         *out2 = ch->bld2->id;
-        return (char *)ch->bld2;
+        return ch->bld2;
     }
     i = gm_HomeSearchStart;
     for (; n != 0; n--) {
-        if (((AIBLD *)ai_Blds)[i].type != 0) {
-            type = (char *)ai_BTypes + ((AIBLD *)ai_Blds)[i].type * 0x24d;
-            if (*type == 3 || *type == 0x16 || *type == 0x0f) {
+        if (ai_Blds[i].type != 0) {
+            type = &ai_BTypes[ai_Blds[i].type];
+            if (type->kind == 3 || type->kind == 0x16 || type->kind == 0x0f) {
                 gm_HomeSearchStart = i + 1;
                 *out3 = -1;
-                *out2 = ((AIBLD *)ai_Blds)[i].id;
-                return (char *)&((AIBLD *)ai_Blds)[i];
+                *out2 = ai_Blds[i].id;
+                return &ai_Blds[i];
             }
         }
         i = (i + 1) % 256;

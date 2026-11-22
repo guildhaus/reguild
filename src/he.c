@@ -15451,7 +15451,7 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
     AIBLD *b = 0;
     int id = -1;
     unsigned char k;
-    unsigned char *home;
+    AIBLD *home;
     AIBTYPE *bt;
 
     if (p->kind == 0xd || p->kind == 0xe)
@@ -15468,13 +15468,13 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
             return 0;
     }
     if (p->bld2 == 0) {
-        home = (unsigned char *)gm_CharacterHome(p, bldId, objId);
+        home = gm_CharacterHome(p, bldId, objId);
         if (home == 0)
             return 0;
         if (scene != 0) {
             o = gm_FindObjectInst(*objId);
             if (gm_IsHomeType(home) != 0) {
-                *scene = init_BuildingSceneUniverse((AIBLD *)home);
+                *scene = init_BuildingSceneUniverse(home);
                 return 1;
             }
             if (o != 0) {
