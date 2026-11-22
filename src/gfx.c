@@ -31,6 +31,7 @@
 #include "sblib.h"
 #include "sv.h"
 #include "d2.h"
+void d2_ScrolledNotify(int win);  /* unlinked, defined at the end of the unit (an empty body above its caller would let VC6 drop the call) */
 void d2_MoveObj(int x, int y, int obj);  /* 0x46cda0, @original: d2.c defines it with short x, y (d2.h does not declare it, cm.h is not included); this unit pushes int coordinates (movsx) */
 
 /* 0x476b90, adds amount to the item list drawn next to the pointer: the entry of picture id (first match, else
@@ -892,7 +893,7 @@ void d2_MouseUpdate(void)
             w->firstline = line;
             w->textPos = w->linePos[line];
             if (w->scrollY != w->appliedScrollY)
-                d3io_NoopCallback(win);
+                d2_ScrolledNotify(win);
         }
     }
 }
@@ -1727,3 +1728,9 @@ int d2_HoverY = -1;  /* 0x5febe0 */
 int d2_LimitsChanged = -1;  /* 0x5febe4 */
 int d2_TextCursorSprite = -1;  /* 0x5febe8, sprite of the text cursor, -1: none */
 int d2_DragSlider = -1;  /* 0x5febec */
+
+/* unlinked: an empty function; LINK folds it (/OPT:ICF) into d3io_NoopCallback, 0x44ee40, where the original's call
+   of it in d2_MouseUpdate (a dragged scroll bar moved the window's text: the window index pushed) points */
+void d2_ScrolledNotify(int win)
+{
+}
