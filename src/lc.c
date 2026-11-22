@@ -227,7 +227,6 @@ extern struct D2OBJ *d2_Objs;
 
 
 extern int ai_SabotageCallback();
-extern int ai_BeatingCallback();
 
 
 
@@ -574,7 +573,6 @@ extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
 extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
-extern int ai_BeatingCallback();
 extern char * ai_PickedObject;
 extern char * cm_FieldObject;
 extern struct D2OBJ *d2_Objs;
@@ -2961,7 +2959,7 @@ void ai_ConstructionWindow(void)
 int gm_IsHomeType();
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
-void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
+void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
 struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
@@ -10630,19 +10628,13 @@ void ai_GuildLevel1Window(AIBLD *building)
 
 int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
 
-typedef struct AMTPICK {           /* the row record the special-amount list hands its callback (8 bytes): the
-                                      office index and the owner (0x5bea50 compares the word with 0xffff) */
-    unsigned short office;         /* 0x00, the office index, 0xffff = an empty row */
-    unsigned short pad02;
-    int charId;                    /* 0x04, the office owner's character id (amt_ExecuteMayorPowerMessage's m[1]) */
-} AMTPICK;
-
-/* 0x5a13f0, the callback of the guild level 3 request (313 B, Ghidra-missed start: the callback of 0x5a17b0):
+/* 0x5a13f0, the callback of the guild level 3 request (313 B, Ghidra-missed start: the callback of 0x5a17b0), the
+   amount menu's pick callback (the character the list row shows; n unread) and its own frame key:
    the window "LOCATIONS\ZUNFTHAUS\LEVEL3" 0x4741f0, the text 0x167c, the text 0x167f (the office name from the
-   player's second office and sex, 8, pick->office) and the pump 0x5309a0 (0x5a13f0, 0x677c7); a click
-   (0xf8a668 == 0) sends the request 0x4e9ce0 (the player, {1, pick->charId}) and 0x6f22a0 = 3 (returns 1);
+   player's second office and sex, 8, the picked character pick->id) and the pump 0x5309a0 (0x5a13f0, 0x677c7); a click
+   (0xf8a668 == 0) sends the request 0x4e9ce0 (the player, {1, pick->netId}) and 0x6f22a0 = 3 (returns 1);
    0xf8a668 == 1 only raises 0x6f22a0; 0x4758f0 at the end, returns whether the request went through */
-int ai_GuildLevel3RequestCB(AMTPICK *pick)
+int ai_GuildLevel3RequestCB(AICHAR *pick, int n)
 {
     int req[5];                 /* the request record of amt_ExecuteMayorPowerMessage (am.h G8REQ, 20 bytes): kind, id */
     int win;
@@ -10662,13 +10654,13 @@ int ai_GuildLevel3RequestCB(AMTPICK *pick)
         id = ai_Chars[ai_PlayerId].secondOffice + 0x253;
     else
         id = ai_Chars[ai_PlayerId].secondOffice + 0x27b;
-    io_PrintText(0x167f, id, 8, pick->office);
+    io_PrintText(0x167f, id, 8, pick->id);
     for (;;) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;
         if (d2_ClickedId == 0) {
             req[0] = 1;
-            req[1] = pick->charId;
+            req[1] = pick->netId;
             amt_ExecuteMayorPowerMessage(&ai_Chars[ai_PlayerId], req);
             sv_PopRequest = 3;
             ok = 1;

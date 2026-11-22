@@ -66,6 +66,7 @@ void ai_GelageWindow(struct AIBLD *bld);                 /* 0x5b9f30, the "speci
 void ai_TrainingWindow(struct AIBLD *bld);              /* 0x5bba00, the "special\training" window (regeneration / target / straw-dummy plates) */
 void ai_EquipWindow(struct AIBLD *bld);                 /* 0x5bb350, the equip window of the AUSRUESTEN / weapon-stand plates */
 void ai_BuildingWindow(struct AIBLD *bld);              /* 0x5b84f0, the options window of a building (sell, renovate, upgrade, ...) */
+int ai_BeatingCallback(struct AICHAR *ch, int n);       /* 0x5b3f30, the beating window (lcdom.c), the amount menu's pick callback */
 void ai_ManagedBuildingWindow(struct AIBLD *bld);       /* 0x5b8fc0, its variant for the classes 3 / 5 with the permission 0x10 */
 struct AMOUNTCFG; struct AICHAR;
 void ai_AmountInfoWindow(int kind, struct AICHAR *ch);  /* 0x5c1a80, the info box of an amount kind (ch is not read) */

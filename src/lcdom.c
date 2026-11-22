@@ -117,7 +117,6 @@ extern struct D2OBJ *d2_Objs;
 
 
 extern int ai_SabotageCallback();
-extern int ai_BeatingCallback();
 
 
 
@@ -463,7 +462,6 @@ extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
 extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
-extern int ai_BeatingCallback();
 extern char * ai_PickedObject;
 extern char * cm_FieldObject;
 extern struct D2OBJ *d2_Objs;
@@ -699,7 +697,7 @@ int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(); int gm_Ma
 int gm_IsHomeType();
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c); void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags); int gm_ClockSeason(); void init_AfterTownLoad(void); void d3fl_MakeDivide();
-void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); int tb_SetFunctionOff(); void snd_StopMarketAmbience(void);
+void ai_ChooseCoatOfArms(void); void snd_StartMarketAmbience(void); void snd_StopMarketAmbience(void);
 void d2_CopyCaption(char *caption);
 struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
@@ -866,12 +864,6 @@ int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
 int amt_MayorBonusStep(); int amt_CanUseMayorPower3(); int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
 int amt_GetOfficeCandidatesFull(); int amt_GetOfficeCandidates();
 int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
-typedef struct AMTPICK {           /* the row record the special-amount list hands its callback (8 bytes): the
-                                      office index and the owner (0x5bea50 compares the word with 0xffff) */
-    unsigned short office;         /* 0x00, the office index, 0xffff = an empty row */
-    unsigned short pad02;
-    int charId;                    /* 0x04, the office owner's character id (amt_ExecuteMayorPowerMessage's m[1]) */
-} AMTPICK;
 struct AIOBJ *gm_Query(void *list, int n, ...); int gm_GetWorth(unsigned short id); int gm_GetGoodsValue(); int ai_AmountLimit();
 void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 int io_PrintText(intptr_t fmt, ...); int d2_GetWinObj(); int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);

@@ -4007,7 +4007,7 @@ void cm_LeaveEventScene(void)
 }
 /* 0x4e3210, the scene's tick counter 0x6f0d80: 0x6f0d88 tells whether it was past 0x6f0d84 */
 
-int cm_SceneTick(void)
+void cm_SceneTick(void)
 {
     cm_SceneTimedOut = cm_SceneTicks > cm_SceneDeadline;
     cm_SceneTicks++;

@@ -383,8 +383,6 @@ extern int cm_DayEndRequest;  /* 0xf31144 */
 extern int hst_SeedPending;  /* 0xf83650 */
 struct D3SM; struct D3TERRAIN; void d3sm_Build(struct D3SM *h, struct D3TERRAIN *t);  /* 0x45e620, d3_sm.c: void d3sm_Build(D3SM *, D3TERRAIN *) */
 void hmt_SetPendingElection(int v);  /* 0x4ad1b0 */
-int tb_IsFunctionOff();
-int tb_SetFunctionOff();
 
 struct CHARACTER * ch_FindByName();  /* 0x402a70 */
 int ch_StopActions();  /* 0x405610 */
@@ -993,7 +991,6 @@ void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l, float speed);  /
 void d3sky_FadeLayer(struct D3SKY *s, struct D3SKYLAYER *l, unsigned char alpha, float time);  /* 0x45d9a0 */
 void cm_CreateSceneSky(char *tex);  /* 0x4e32f0 */
 extern char *cm_SceneFade;  /* 0x6f0da0, the fade 0x4e3060 started */
-int tb_SetFunctionOff();  /* 0x42ea10 */
 int cm_PauseSceneChars();  /* 0x4e3fe0 */
 int cm_ResumeSceneChars();  /* 0x4e4020 */
 extern int cm_SceneDepth;  /* 0x6f0d9c, the scene nesting depth */
@@ -1002,7 +999,6 @@ extern int evt_LastId;  /* 0x5f8438 */
 extern int d3t_CamMoving;  /* 0x6310e4 */
 void d3sm_Destroy();  /* 0x45ef60 */
 void d3if_Reset();  /* 0x4473f0 */
-int cm_SceneTick();  /* 0x4e3210 */
 struct CHARACTER * ch_Create();  /* 0x403390 */
 struct CHARACTER *cm_CreateChar(char *name, struct D3VECTOR *pos);  /* 0x4e3230 */
 void cm_RunBankruptcy(G28REC *m);  /* 0x4e1700 */
@@ -1094,8 +1090,6 @@ extern char cm_SceneState[];  /* 0x92c600, 0x480 bytes of scene state */
 extern unsigned char d3_FogByDistance;  /* 0x6334a5 */
 extern char d2_CaptionCopy[0x80];  /* 0xf8aae0, the d2 caption / status text buffer */
 extern unsigned short cm_DisabledObjs[];  /* 0x92bee0 */
-int tb_OpenFunction();  /* 0x42e970 */
-int tb_CloseFunction();  /* 0x42e9d0 */
 void d2_SetPointerSprite(int a, int pic);  /* 0x476f80 */
 
 /* copy of am.h's AI_ZERO (the headers do not compile together) */
