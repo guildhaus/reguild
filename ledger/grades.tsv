@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		byte+readable -> shape+readable at f6a2d073: declaration-set tie-break: AIJOB's 101 kind records (twenty-fifth pass); the text is unchanged [waits for: the unit's declaration set]
+exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -3312,7 +3312,7 @@ exe	0x00522040	sv_PanelImage	sv	byte	readable
 exe	0x00522100	sv_SetPanelEnabled	sv	byte	readable		
 exe	0x00522280	sv_ClosePanelWidgets	sv	byte	readable		
 exe	0x005223c0	sv_DestroyScreen	sv	byte	readable		
-exe	0x005224a0	sv_LoadGroundplan	sv	byte	readable		
+exe	0x005224a0	sv_LoadGroundplan	sv	shape	readable		
 exe	0x005229b0	sv_UpdateGroundplan	sv	byte	readable		
 exe	0x00522ec0	sv_SetResearchClass	sv	byte	readable		
 exe	0x00522f10	sv_UpdateCityPanel	sv	byte	readable		
@@ -3476,7 +3476,7 @@ exe	0x00537f40	main_EndGame	main	byte	readable
 exe	0x00538140	main_RundenBeginn	main	byte	readable		
 exe	0x005384e0	main_EndRound	main	byte	readable		
 exe	0x00539620	main_ReplaceFigure	main	byte	readable		
-exe	0x00539870	main_RoundReport	main	shape	readable		byte+readable -> shape+readable at 8d38f6fb: declaration-set tie-break: proven byte under a swept set; fell with D3PATH's move into d3.h (c1c95d2c) [waits for: the unit's declaration set]
+exe	0x00539870	main_RoundReport	main	byte	readable		
 exe	0x0053a250	main_UpdateFigure	main	byte	readable		
 exe	0x0053a450	main_UpdateFigures	main	byte	readable		
 exe	0x0053a520	main_SettleRound	main	byte	readable		
@@ -4003,7 +4003,7 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
 exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at f6a2d073: declaration-set tie-break: AIJOB's 101 kind records (twenty-fifth pass); the text is unchanged [waits for: the unit's declaration set]
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		byte+readable -> shape+readable at f6a2d073: declaration-set tie-break: AIJOB's kind records (twenty-fifth pass); the text changed only LCSEARCHEVENT's names to AIJOB.search14Good / search14Count (same offsets), the diff is two swapped loads [waits for: lc.c's declaration set]
+exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
