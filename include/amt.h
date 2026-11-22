@@ -51,11 +51,6 @@ extern AMTREC amt_Table[42];            /* 0x925120 */
 extern AMTKIND amt_Kinds[40];           /* 0x60ed58 */
 extern const float amt_Pay[];                 /* 0x5edfbc */
 extern float amt_Rates[];               /* 0x60ec90, 7 floats per row */
-/* views of the records as amt_Rating reads them (type debt) */
-typedef struct AMTKINDF {               /* an AMTKIND's +0x14 dword read as a float */
-    char pad014[0x14];
-    float value;
-} AMTKINDF;
 int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind, struct AMTREC *office);  /* 0x4e6030 */
 int amt_GetOfficeRate(struct AICHAR *c, int x, float *out);  /* 0x4e60b0 */
 
