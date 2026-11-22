@@ -120,7 +120,7 @@ float gm_GoodsValue(int p, unsigned id);  /* 0x4ffbf0 */
 void gm_Shuffled(unsigned char n, int *out);  /* 0x505ca0 */
 int gm_BuildingKindCost(struct AICHAR *c, int kind);  /* 0x509dc0 */
 int gm_SumListAmounts(void *list, unsigned char p);  /* 0x509e30 */
-int gm_CharCurrency(struct AICHAR *c, char p);  /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, signed char p);  /* 0x509ee0 */
 struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);  /* 0x509ff0 */
 struct ORDCREDIT; int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt, struct ORDCREDIT *out);  /* 0x50a250 */
 int gm_ExpectedDeathAge(struct AICHAR *c);  /* 0x4fc7a0 */

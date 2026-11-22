@@ -6893,7 +6893,7 @@ int gm_CharSumAmounts(AICHAR *c)
 }
 /* 0x509ee0, the amount (count) of the character c's currency: the object of its inventory whose prototype is the city id of the player p (each city has its own money) */
 
-int gm_CharCurrency(AICHAR *c, char p)
+int gm_CharCurrency(AICHAR *c, signed char p)
 {
     AIOBJ *o;
     int v;
@@ -8261,8 +8261,8 @@ void gm_ChangeObjektZustand(int id, int d)
 
 void gm_ChangeBuildingState(AIBLD *bld, int d)
 {
-    char k;
-    char v;
+    signed char k;
+    signed char v;
     GMBTYPE *bt;
     int i;
     AICHAR *c;

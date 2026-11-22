@@ -2216,13 +2216,13 @@ void sv_UpdateSkyColors(void)
 void sv_FillDayPhases(struct AITIME *t)
 {
     int season, i;
-    char h, m;
+    signed char h, m;
 
     season = gm_ClockSeason(t);
     for (i = 0; i < 6; i++) {
-        h = (char)(sv_PhaseMinutes[season * 6 + i] / 60);
+        h = (signed char)(sv_PhaseMinutes[season * 6 + i] / 60);
         sv_DayPhases[i].hour = h;
-        m = (char)sv_PhaseMinutes[season * 6 + i] - sv_DayPhases[i].hour * 60;
+        m = (signed char)sv_PhaseMinutes[season * 6 + i] - sv_DayPhases[i].hour * 60;
         sv_DayPhases[i].min = m;
         sv_DayPhases[i].sec = (m + sv_DayPhases[i].hour * 60) * 60;
     }
@@ -6338,7 +6338,7 @@ void sv_BookKeys(SVBOOK *bk)
    first pair disabled; the w-buffer is switched off while the book is open; plays "Aufklappen_s". Returns the
    record, 0 when the model or a view is missing. */
 
-SVBOOK *sv_OpenBook(char *model, char *at, char n, ...)
+SVBOOK *sv_OpenBook(char *model, char *at, signed char n, ...)
 {
     SVBOOK *bk;
     int i, count;
@@ -6454,7 +6454,7 @@ void sv_UpdateBook(SVBOOK *bk)
    "_unten_ns_nm", n = page % 4 + 1, the others emptied and disabled), plays the turn animation, moves the page,
    runs sv_BookKeys and plays "Umblaettern_s". Returns 1 when turned. */
 
-int sv_TurnBook(SVBOOK *bk, char dir)
+int sv_TurnBook(SVBOOK *bk, signed char dir)
 {
     char top[0x40], bottom[0x40], path[0x200];
     char *name;

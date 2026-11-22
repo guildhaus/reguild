@@ -2732,7 +2732,7 @@ int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_CloseView(int view); int cm_SendLongMessage(struct AIMSG *msg);
 void txt_Format(char *out, intptr_t id0, ...);
-int gm_CharCurrency(struct AICHAR *c, char p); int gm_BuildingClass(int kind); int gm_MayTakeJob(int k, int c);
+int gm_CharCurrency(struct AICHAR *c, signed char p); int gm_BuildingClass(int kind); int gm_MayTakeJob(int k, int c);
 
 
 /* 0x5909a0, the construction window "BAUEN\GEB_BAUEN" (1988 B): run by ai_RunAllows (0x40) between the campaign

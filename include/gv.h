@@ -337,7 +337,7 @@ float util_RandomF(void);               /* 0x42ec20 */
 void gv_GraveyardTurn(struct AIBLD *o);            /* 0x4f1de0 */
 int gv_LeasePrice(struct AICHAR *c, unsigned char care, int kind, int flag, int *out);  /* 0x4f2330 */
 int cm_SendRelations(int a, int b, int c, int d);                     /* 0x4c4b00 */
-int gm_CharCurrency(struct AICHAR *c, char p);                   /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, signed char p);                   /* 0x509ee0 */
 
 int ord_MedicusOrder(struct AICHAR *c, ORDMSG *m);     /* 0x4f5070 */
 

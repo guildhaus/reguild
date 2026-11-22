@@ -147,7 +147,7 @@ int cm_SendSetField(int a, int b, int c, int d, int e);                   /* 0x4
 void cm_SendMoneyDelta(int a, int b);                                               /* 0x4c5f60 */
 int amt_GetOfficeApplicants(int k, int n, struct AICHAR **out);                                   /* 0x4e76b0 */
 struct ORDMSG; int ord_DispatchOrder(int id, struct AICHAR *c, struct ORDMSG *m);                                     /* 0x4f81c0 */
-int gm_CharCurrency(struct AICHAR *c, char p);                                    /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, signed char p);                                    /* 0x509ee0 */
 int gm_GetWorth(unsigned short id);                                            /* 0x50a640 */
 /* ai.h declares he_FindEvent with five arguments; 0x496b10 calls it with three */
 
@@ -273,7 +273,7 @@ void ai_DuelNextPhase(AGDUEL *d);                                   /* 0x493a40 
 int ai_ChooseObjectTarget(AICHAR *p, AIOBJ *o);                            /* 0x493be0 */
 AICHAR *ai_FindSuccessor(AICHAR *p);                                    /* 0x493ea0 */
 
-int gm_CharCurrency(struct AICHAR *c, char p);                     /* 0x509ee0 */
+int gm_CharCurrency(struct AICHAR *c, signed char p);                     /* 0x509ee0 */
 int gm_GetWorth(unsigned short id);                            /* 0x50a640 */
 int gm_ConvertMoney(int a, unsigned char k);                       /* 0x5085b0 */
 int gm_PlayerFactor(int a, unsigned char k);                       /* 0x5085f0 */
