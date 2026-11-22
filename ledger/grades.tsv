@@ -1014,7 +1014,7 @@ exe	0x00454890	d3_MirCreateOutline	d3_mir	shape	readable	deep
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	byte	readable		
 exe	0x00454ec0	d3_MirTransform	d3_mir	byte	readable		
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	byte	readable		
-exe	0x004550e0	d3_MirDrawObject	d3_mir	byte	readable		
+exe	0x004550e0	d3_MirDrawObject	d3_mir	shape	readable		
 exe	0x004554b0	d3_MirBeginFrame	d3_mir	byte	readable		
 exe	0x00455630	par_Init	d3_par	byte	readable		
 exe	0x004556b0	par_DeleteAll	d3_par	byte	readable		
@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
@@ -2901,7 +2901,7 @@ exe	0x004f81c0	ord_DispatchOrder	ord	byte	readable
 exe	0x004f8200	ord_PrivilegeDialog	ord	byte	readable		
 exe	0x004f82a0	ord_ResetStatistics	ord	byte	readable		
 exe	0x004f8300	ord_GetGridCell	ord	byte	readable		
-exe	0x004f8360	ord_CountGridObjects	ord	draft	readable	deep	
+exe	0x004f8360	ord_CountGridObjects	ord	shape	readable	deep	
 exe	0x004f8460	ord_AddGridAmount	ord	byte	readable		
 exe	0x004f8590	ord_SubGridAmount	ord	byte	readable		
 exe	0x004f86a0	ord_RandomCellPoint	ord	byte	readable		
@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
+exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -3771,7 +3771,7 @@ exe	0x00561190	he_RunRansom	he	byte	readable
 exe	0x00561470	he_AllocEvent39_3e	he	byte	readable		
 exe	0x005614c0	he_RunRansomDemand	he	byte	readable		
 exe	0x005619a0	he_AllocBurglary	he	byte	readable		
-exe	0x00561a20	he_RunBurglary	he	shape	readable		byte+readable -> shape+readable at 6f14325a: declaration-set tie-break: HEFINVIEW *fin became AIFIN *fin (the unit-local view went); the text is byte under a declaration set (3 unused typedefs at he.c's start) [waits for: he.c's declaration set (G.tiebreak)]
+exe	0x00561a20	he_RunBurglary	he	byte	readable		
 exe	0x005628e0	he_RunBuildingSpying	he	shape	readable	deep	
 exe	0x00563070	he_AllocAmbush	he	byte	readable		
 exe	0x005630f0	he_RunAmbush	he	byte	readable		
@@ -4004,7 +4004,7 @@ exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
 exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		
@@ -4445,7 +4445,7 @@ exe	0x005bc0f0	ai_FreePicture	lcdom	byte	readable
 exe	0x005bc110	ai_ChooseCoatOfArms	lcdom	byte	readable		
 exe	0x005bc420	ai_OpenMoneyInfoPage	lcdom	byte	readable		
 exe	0x005bc6d0	ai_OpenBuildingListPage	lcdom	byte	readable		
-exe	0x005bc790	ai_BuildingDetailWindow	lcdom	shape	readable		
+exe	0x005bc790	ai_BuildingDetailWindow	lcdom	byte	readable		
 exe	0x005bc9c0	ai_OpenMasterListPage	lcdom	byte	readable		
 exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	shape	readable	deep	
 exe	0x005bd060	ai_AmountLimit	lcamt	byte	readable		
