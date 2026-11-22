@@ -273,8 +273,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 res = cm_SendObjCell(name1, ix, iz, 0);
                 goto done;
             }
-            d3sm_GetVertex(h, p->stateArg, p->x, (D3VECTOR *)&q);
-            if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 30.0f))
+            d3sm_GetVertex(h, p->stateArg, p->x, &q.v);
+            if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 30.0f))
                 break;
             m.charId = c->netId;
             m.state = 0;
@@ -331,8 +331,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     }
                     p->b0c = 1;
                 } else if (c->scene->actions == 0 && p->b0c != 0) {
-                    d3sm_GetVertex(h, p->x, p->z, (D3VECTOR *)&q);
-                    b = d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 120.0f) != 0;
+                    d3sm_GetVertex(h, p->x, p->z, &q.v);
+                    b = d3_VecEqual(&q.v, &c->scene->obj->pos, 120.0f) != 0;
                 }
             }
             if (b != p->turn || c->scene->actions == 0) {
@@ -440,15 +440,15 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
                 break;
             p->orderSlot = -1;
-            if (p->b0c == 0 && !d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 50.0f) &&
+            if (p->b0c == 0 && !d3_VecEqual(&q.v, &c->scene->obj->pos, 50.0f) &&
                 cm_FindNearCell(p->stateArg, p->x, &ix, &iz) != 0) {
                 sprintf(name3, "cmb_%i", c->netId);
                 p->b0c = 1;
                 p->orderSlot = cm_SendFightCommand(c, 6, (CMFIGHTSLOT *)&m);
                 p->orderSlot = cm_SendObjCell(name3, ix, iz, 0);
             }
-            d3sm_GetVertex(h, p->stateArg, p->x, (D3VECTOR *)&q);
-            if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 50.0f))
+            d3sm_GetVertex(h, p->stateArg, p->x, &q.v);
+            if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 50.0f))
                 break;
             cm_SendFightCommand(c, 1, (CMFIGHTSLOT *)&m);
             m.state = 0;
@@ -474,8 +474,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     res = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                     goto done;
                 }
-                d3sm_GetVertex(h, p->storeX, p->storeZ, (D3VECTOR *)&q);
-                if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 50.0f))
+                d3sm_GetVertex(h, p->storeX, p->storeZ, &q.v);
+                if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 50.0f))
                     break;
                 cm_SendFightCommand(c, 4, (CMFIGHTSLOT *)&m);
                 m.storeStep = 1;
@@ -489,8 +489,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 else
                     nm = "dummy_sp_DEF_WARENSAVE";
                 o = d3_FindObject(0, 0x100, 0, nm);
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
-                if (!d3_GetHeightAt(h, (D3VECTOR *)&q, &ix, &iz, &py))
+                d3_PointToWorld(o, &o->pos, &q.v);
+                if (!d3_GetHeightAt(h, &q.v, &ix, &iz, &py))
                     break;
                 if (cm_FindNearCell(ix, iz, &ix, &iz) == 0)
                     break;
@@ -501,8 +501,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 res = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                 goto done;
             } else if (p->storeStep == 2) {
-                d3sm_GetVertex(h, p->storeX, p->storeZ, (D3VECTOR *)&q);
-                if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 50.0f))
+                d3sm_GetVertex(h, p->storeX, p->storeZ, &q.v);
+                if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 50.0f))
                     break;
                 cm_SendFightCommand(c, 5, (CMFIGHTSLOT *)&m);
                 m.charId = c->netId;
@@ -518,10 +518,10 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             o = d3_FindObject(0, 0x40, 0, p->dummy);
             if (o != 0) {
                 tgt = o->owner;
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
+                d3_PointToWorld(o, &o->pos, &q.v);
                 if (tgt == 0 || (cm_OtherBuilding(c, tgt) != 0 &&
-                                 (tgt->health == 0 || !d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)))) {
-                    if (p->b0c == 0 && !d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 49.5f) &&
+                                 (tgt->health == 0 || !d3_VecEqual(&q.v, &tgt->scene->obj->pos, 49.5f)))) {
+                    if (p->b0c == 0 && !d3_VecEqual(&q.v, &c->scene->obj->pos, 49.5f) &&
                         cm_FindNearCell(p->cellX, p->cellZ, &ix, &iz) != 0) {
                         p->b0c = 1;
                         p->cellX = ix;
@@ -531,11 +531,11 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                         goto done;
                     }
                     if (p->b0c == 1 && c->scene->actions == 0 &&
-                        !d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 49.5f)) {
+                        !d3_VecEqual(&q.v, &c->scene->obj->pos, 49.5f)) {
                         p->b0c = 0;
                         break;
                     }
-                    if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 49.5f))
+                    if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 49.5f))
                         break;
                     cm_SendFightCommand(c, 3, (CMFIGHTSLOT *)&m);
                     m.state = 0;
@@ -544,9 +544,9 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     goto done;
                 }
             }
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&q);
+            d3_PointToWorld(o, &o->pos, &q.v);
             if (cm_OtherBuilding(c, o->owner) != 0 && tgt->health > 0 &&
-                d3_VecEqual((D3VECTOR *)&q, &tgt->scene->obj->pos, 49.5f)) {
+                d3_VecEqual(&q.v, &tgt->scene->obj->pos, 49.5f)) {
                 res = cm_Attack(rec, c, o->owner);
                 goto done;
             }
@@ -569,8 +569,8 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 res = cm_SendObjCell(name7, ix, iz, 0);
                 goto done;
             }
-            d3sm_GetVertex(h, p->stateArg, p->x, (D3VECTOR *)&q);
-            if (!d3_VecEqual((D3VECTOR *)&q, &c->scene->obj->pos, 30.0f))
+            d3sm_GetVertex(h, p->stateArg, p->x, &q.v);
+            if (!d3_VecEqual(&q.v, &c->scene->obj->pos, 30.0f))
                 break;
             m.charId = c->netId;
             m.state = 0;

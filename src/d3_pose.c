@@ -42,7 +42,7 @@ void d3_DirToRef(D3OBJECT *obj, D3OBJECT *ref, const D3VECTOR *in, D3VECTOR *out
     D3VECTOR4 t;
 
     if (!(obj->state & 0x80) && ref) {
-        d3_DirToWorld(obj, in, (D3VECTOR *)&t);
+        d3_DirToWorld(obj, in, &t.v);
         out->x = t.x * ref->matrix._11 + t.y * ref->matrix._21 + t.z * ref->matrix._31;
         out->y = t.x * ref->matrix._12 + t.y * ref->matrix._22 + t.z * ref->matrix._32;
         out->z = t.x * ref->matrix._13 + t.y * ref->matrix._23 + t.z * ref->matrix._33;
@@ -85,7 +85,7 @@ void d3_PointToRef(D3OBJECT *obj, D3OBJECT *ref, D3VECTOR *in, D3VECTOR *out)
     D3VECTOR4 t;
 
     if (!(obj->state & 0x80) && ref) {
-        d3_PointToWorld(obj, in, (D3VECTOR *)&t);
+        d3_PointToWorld(obj, in, &t.v);
         t.x = t.x - ref->pos.x;
         t.y = t.y - ref->pos.y;
         t.z = t.z - ref->pos.z;
@@ -117,7 +117,7 @@ void d3_LocalToWorld(D3OBJECT *obj, const D3VECTOR *in, D3VECTOR *out)
     t.x = t.x + obj->pos.x;
     t.y = t.y + obj->pos.y;
     t.z = t.z + obj->pos.z;
-    d3_PointToWorld(obj, (D3VECTOR *)&t, out);
+    d3_PointToWorld(obj, &t.v, out);
 }
 /* 0x458ce0, a matrix in the object's space in world space: the object's matrix, and then those of its
    parents, multiplied onto m. Side effects: rewrites the translation row of obj->matrix; with orientOnly 0 it

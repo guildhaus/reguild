@@ -2525,8 +2525,8 @@ AIBLD *gm_NearestBuilding(AIBLD *b, unsigned kind)
         while (p != 0) {
             k = (unsigned char *)ai_BTypes + p->type * 0x24d;
             if (gm_IsHomeType(p) == 0 && gm_IsType10(p) == 0 && (o = p->object) != 0 && p != b && *k == kind) {
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v1);
-                d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v2);
+                d3_PointToWorld(o, &o->pos, &v1.v);
+                d3_PointToWorld(b->object, &b->object->pos, &v2.v);
                 dx = v1.x - v2.x;
                 dy = v1.y - v2.y;
                 dz = v1.z - v2.z;

@@ -584,16 +584,16 @@ void ai_CannonScene(AIBLD *rec)
         rotv.y = sc.rot.y;
         rotv.z = sc.rot.z;
         rotv.x = 0.0f;
-        sc.obj98 = d3_CreateObject(0, &d3_Origin, &rotv, "KANONE_UNTERBAU_Aa");
+        sc.obj98 = d3_CreateObject(0, &d3_Origin.v, &rotv, "KANONE_UNTERBAU_Aa");
     }
-    sc.obj8c[0] = d3_CreateObject(sc.obj98, &d3_Origin, &d3_ZeroRot, "KANONE_ROHR_Aa");
-    sc.obj8c[1] = d3_CreateObject(sc.obj98, &d3_Origin, &d3_ZeroRot, "KANONE_DOPPEL_ROHR_Aa");
-    sc.obj8c[2] = d3_CreateObject(sc.obj98, &d3_Origin, &d3_ZeroRot, "KANONE_DREIFACH_ROHR_Aa");
+    sc.obj8c[0] = d3_CreateObject(sc.obj98, &d3_Origin.v, &d3_ZeroRot, "KANONE_ROHR_Aa");
+    sc.obj8c[1] = d3_CreateObject(sc.obj98, &d3_Origin.v, &d3_ZeroRot, "KANONE_DOPPEL_ROHR_Aa");
+    sc.obj8c[2] = d3_CreateObject(sc.obj98, &d3_Origin.v, &d3_ZeroRot, "KANONE_DREIFACH_ROHR_Aa");
     sc.selected = gv_Cannon.selected;
     sc.zoom = 0.0f;
     d3_SetObjectPos(sc.obj98, &sc.pos);
     d3_SetObjectRot(sc.obj98, (D3VECTOR *)&sc.rot);
-    sc.obj9c = d3_CreateObject(sc.obj98, (D3VECTOR *)&ai_WimpelPos, &d3_ZeroRot, "AO_KANONE_WIMPEL_Aa");
+    sc.obj9c = d3_CreateObject(sc.obj98, &ai_WimpelPos.v, &d3_ZeroRot, "AO_KANONE_WIMPEL_Aa");
     d3t_PlayAnim(sc.obj9c, "_ADDON\\AO_KANONE_WIMPEL_Aa.baf", 1);
     sc.obj9c->stateFlags = (sc.obj9c->stateFlags & 0xf7) | 4;
     sc.obj9c->stateFlags |= 0x40;
@@ -680,8 +680,8 @@ void ai_CannonScene(AIBLD *rec)
     d3if_SelectScene(saved.scene, 0);
     if (d3_Sky)
         d3sky_Init(d3_Sky, 1);
-    d3_SetObjectPos(d3_Camera, (D3VECTOR *)&cam3);
-    d3_SetObjectRot(d3_Camera, (D3VECTOR *)&save3);
+    d3_SetObjectPos(d3_Camera, &cam3.v);
+    d3_SetObjectRot(d3_Camera, &save3.v);
     init_SetDetailLevel(d3_Terrain, 0);
     d3if_Prerender(1);
     d2_ReleaseFade(pb);
@@ -1306,7 +1306,7 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec)
         p1.x = t.x + sc->pos.x;
         p1.y = t.y + sc->pos.y;
         p1.z = t.z + sc->pos.z;
-        ai_InitShot(&shotA, &p1, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotA, &p1.v, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
         h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotA, 0, 0, gv_SalvoCharge(a, b, 1), cost, x);
         x1 = 0;
@@ -1334,8 +1334,8 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec)
         p2.x = t.x + p2.x;
         p2.y = t.y + p2.y;
         p2.z = t.z + p2.z;
-        ai_InitShot(&shotB, &p1, &sc->dir, charge, size, ai_IronDensity);
-        ai_InitShot(&shotA, &p2, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotB, &p1.v, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotA, &p2.v, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
         h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotB, &shotA, 0, gv_SalvoCharge(a, b, 1), cost, x);
@@ -1382,9 +1382,9 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec)
         p2.x = t.x + p2.x;
         p2.y = t.y + p2.y;
         p2.z = t.z + p2.z;
-        ai_InitShot(&shotC, &p1, &sc->dir, charge, size, ai_IronDensity);
-        ai_InitShot(&shotA, &p2, &sc->dir, charge, size, ai_IronDensity);
-        ai_InitShot(&shotB, &p3, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotC, &p1.v, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotA, &p2.v, &sc->dir, charge, size, ai_IronDensity);
+        ai_InitShot(&shotB, &p3.v, &sc->dir, charge, size, ai_IronDensity);
         ai_ScatterShot(&shotC, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
         ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);

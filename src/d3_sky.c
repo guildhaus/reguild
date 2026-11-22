@@ -83,7 +83,7 @@ void d3sky_Build(D3SKY *s)
     dir.x = d3_ZAxis.x * d3_Camera->matrix._11 + d3_ZAxis.y * d3_Camera->matrix._21 + d3_ZAxis.z * d3_Camera->matrix._31;
     dir.y = d3_ZAxis.x * d3_Camera->matrix._12 + d3_ZAxis.y * d3_Camera->matrix._22 + d3_ZAxis.z * d3_Camera->matrix._32;
     dir.z = d3_ZAxis.x * d3_Camera->matrix._13 + d3_ZAxis.y * d3_Camera->matrix._23 + d3_ZAxis.z * d3_Camera->matrix._33;
-    s->rot = (float)fmod(d3_VecAngle(&d3_ZAxis, (D3VECTOR *)&dir), 6.2831855f);
+    s->rot = (float)fmod(d3_VecAngle(&d3_ZAxis.v, &dir.v), 6.2831855f);
     s->num_buffer = D3SKY_ROWS * D3SKY_COLS;
     d3_MatTranspose(&d3_Camera->matrix, &m);
     corner[0].x = d3_Frustum[3].x * m._11 + d3_Frustum[3].y * m._21 + d3_Frustum[3].z * m._31;

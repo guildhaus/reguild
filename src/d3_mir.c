@@ -129,8 +129,8 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
                     nd.x = -d.x;
                     nd.y = -d.y;
                     nd.z = -d.z;
-                    if (d3_VecEqual((D3VECTOR *)&dir, (D3VECTOR *)&d, 0.001f)
-                        || d3_VecEqual((D3VECTOR *)&dir, (D3VECTOR *)&nd, 0.001f)) {
+                    if (d3_VecEqual(&dir.v, &d.v, 0.001f)
+                        || d3_VecEqual(&dir.v, &nd.v, 0.001f)) {
                         used[i] = 1;
                         mark[tail] = 1;
                         tail = i;
@@ -147,8 +147,8 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
                     nd.x = -d.x;
                     nd.y = -d.y;
                     nd.z = -d.z;
-                    if (d3_VecEqual((D3VECTOR *)&dir, (D3VECTOR *)&d, 0.001f)
-                        || d3_VecEqual((D3VECTOR *)&dir, (D3VECTOR *)&nd, 0.001f)) {
+                    if (d3_VecEqual(&dir.v, &d.v, 0.001f)
+                        || d3_VecEqual(&dir.v, &nd.v, 0.001f)) {
                         used[i] = 1;
                         /* used[nedge + head], not mark[head]: the form that gives VC6's operand order */
                         used[nedge + head] = 1;
@@ -467,7 +467,7 @@ found:
                 m->planes = 0;
             }
             if (m->flags.visible) {
-                d3_DirToRef(obj, d3_Camera, &((D3SRCPOLY *)m->tri->src)->normal, &m->plane);
+                d3_DirToRef(obj, d3_Camera, &((D3SRCPOLY *)m->tri->src)->normal, &m->plane.v);
                 m->plane.w = m->plane.x * m->tri->v[0]->x + m->plane.y * m->tri->v[0]->y + m->plane.z * m->tri->v[0]->z;
                 m->planes = d3_MirCreatePlanes(m->obj, m->tex);
             }

@@ -2947,7 +2947,7 @@ void he_RunConstruction(AIJOB *e)
             if (bld->object->info == 0)
                 d3_InflateObject(bld->object);
             if (bld->object->material != 0
-                && d3t_GetBoundingSphere(bld->object, d3_Camera, (D3VECTOR *)&center, &radius) != 0) {
+                && d3t_GetBoundingSphere(bld->object, d3_Camera, &center.v, &radius) != 0) {
                 size = (int)(radius * 1.8);
                 sc = evt_Load("Effekte/geb_bauen.esc");
                 if (sc != 0) {
@@ -5596,7 +5596,7 @@ void he_RunMeetingScene(AIJOB *e)
         scene = d3_CurrentScene;
         d3if_SelectScene(0, 1);
         o = bld->object;
-        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p);
+        d3_PointToWorld(o, &o->pos, &p.v);
         p.y += 500.0f;
         evt_RunScriptArgs(obj, 3, (int)p.x, (int)p.y, (int)p.z);
         obj->group = 0;

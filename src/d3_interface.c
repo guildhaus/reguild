@@ -755,7 +755,7 @@ char d3if_PickCB(D3OBJECT *obj, D3IFPICK *p)
         return 1;
     if (obj->type == 4 && !D3_MESH(obj))
         return 1;
-    if (!d3_GetBounds(obj, p->cam, (D3VECTOR *)&pos, &r))
+    if (!d3_GetBounds(obj, p->cam, &pos.v, &r))
         return 1;
     f = 1.0f / pos.z;
     r = d3_ScaleX * f * r;
@@ -809,7 +809,7 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
 
     if (r && obj) {
         if (obj->type == 0) {
-            d3_PointToRef(obj, d3_Camera, &obj->pos, &v);
+            d3_PointToRef(obj, d3_Camera, &obj->pos, &v.v);
             f = 1.0f / v.z;
             x = d3_ScaleX * v.x * f + d3_CenterX;
             y = d3_ScaleY * v.y * f + d3_CenterY;
@@ -900,8 +900,8 @@ float d3_YawTo(D3OBJECT *obj, float *p)
     float d, e, ang;
     float sn, cs;
 
-    d3_LocalToWorld(obj, &d3_ZAxis, (D3VECTOR *)&a);
-    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
+    d3_LocalToWorld(obj, &d3_ZAxis.v, &a.v);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     a.x = a.x - pos.x;
     a.y = 0;
     b.y = 0;
@@ -1262,8 +1262,8 @@ void d3_SetWorldPosRot(D3OBJECT *obj, float *pos, D3MATRIX *rot)
     D3VECTOR4 v;
     D3VECTOR a;
 
-    d3_WorldToParent(obj, pos, rot, (D3VECTOR *)&v, &a);
-    d3_SetObjectPos(obj, (D3VECTOR *)&v);
+    d3_WorldToParent(obj, pos, rot, &v.v, &a);
+    d3_SetObjectPos(obj, &v.v);
     d3_SetObjectRot(obj, &a);
 }
 
@@ -1294,13 +1294,13 @@ char d3_SetParent(D3OBJECT *obj, D3OBJECT *parent)
         rot.y = D3_X(obj)->rot.y;
         rot.z = D3_X(obj)->rot.z;
         for (i = 0; i < 7; i++) {
-            d3_PointToWorld(obj, &D3O_LIGHT(obj)->k[i].pos, (D3VECTOR *)&kpos[i]);
+            d3_PointToWorld(obj, &D3O_LIGHT(obj)->k[i].pos, &kpos[i].v);
             d3_SetObjectRot(obj, &D3O_LIGHT(obj)->k[i].rot);
             d3_WorldMatrix(obj, 0, 1, &km[i]);
         }
         d3_SetObjectRot(obj, &rot);
     }
-    d3_PointToWorld(obj, &D3_X(obj)->pos, (D3VECTOR *)&pos);
+    d3_PointToWorld(obj, &D3_X(obj)->pos, &pos.v);
     d3_WorldMatrix(obj, 0, 1, &m);
     d3_Unlink(obj);
     if (!parent)

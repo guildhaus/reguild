@@ -1653,8 +1653,8 @@ CHARACTER *main_PlaceFamilyModel(char *dummy, char *model, int k)
         dir[0] = 0;
         dir[1] = 0.0f;
         dir[2] = 0;
-        d3_DirToWorld(o, &d3_ZAxis, (D3VECTOR *)loc);
-        dir[1] = d3_VecAngle((D3VECTOR *)&d3_ZAxis, (D3VECTOR *)loc);
+        d3_DirToWorld(o, &d3_ZAxis.v, (D3VECTOR *)loc);
+        dir[1] = d3_VecAngle(&d3_ZAxis.v, (D3VECTOR *)loc);
         d3_SetObjectRot(ch->obj, (D3VECTOR *)dir);
         ch_PlaceOnGround(ch, 0);
         ch->obj->owner = ch;
@@ -1823,7 +1823,7 @@ int main_ChooseModel(int job)
     idx = gm_TitleGroup(job);
     dummy = d3_FindObject(0, 0x100, 0, "dummy_SPIELER");
     if (dummy != 0)
-        d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)&pos);
+        d3_PointToWorld(dummy, &dummy->pos, &pos.v);
     bnext = d2_CreatePicObj((int)((float)(d2_ScreenScale * 150.0f) + d2_ScreenScale * 330.0f), (int)(d2_ScreenScale * 370.0f), 0x1a);
     d2_Objs[bnext].interactive = 1;
     d2_Objs[bnext].style = 3;
@@ -1888,7 +1888,7 @@ int main_ChooseModel(int job)
                 }
                 strcpy(init_PlayerProfile.model, cur);
                 init_PlayerProfile.modelId = gm_HeadIconNumber(cur) + 0x639;
-                obj = ch_Create(cur, (D3VECTOR *)&pos);
+                obj = ch_Create(cur, &pos.v);
                 ch_PlaceAtObject(obj, dummy);
                 ch_SetVisible(obj, 0);
                 obj->obj->objectFlags &= ~4;
@@ -1983,7 +1983,7 @@ int main_ChooseFamily(int unused)
                             d3anim_FreePath(d3_Camera);
                             d3t_CamMoving = 0;
                             d3t_CamMove = 0;
-                            d3t_PlaceObjectV(d3_Camera, (D3VECTOR *)&camPos, &camDir, 0x50, 8);
+                            d3t_PlaceObjectV(d3_Camera, &camPos.v, &camDir, 0x50, 8);
                         }
                         break;
                     }
@@ -2588,7 +2588,7 @@ int main_ChooseCity(int unused, int host)
         rot.y = 0;
         rot.z = 0;
         pos.z = sel->pos.z;
-        tower = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, "sp_STADTTURM");
+        tower = d3_CreateObject(0, &pos.v, &rot, "sp_STADTTURM");
         tower->objectFlags |= 4;
         tower->stateFlags = (tower->stateFlags & 0xf7) | 4;
         d3_RelightObject(tower);
@@ -2641,7 +2641,7 @@ int main_ChooseCity(int unused, int host)
                 pos.x = pos.x + sel->pos.x;
                 pos.y = pos.y + sel->pos.y;
                 pos.z = pos.z + sel->pos.z;
-                d3t_PlaceObjectV(tower, (D3VECTOR *)&pos, &rot, 0x28, 0x20);
+                d3t_PlaceObjectV(tower, &pos.v, &rot, 0x28, 0x20);
                 for (i = 0; i < n; i++) {
                     if (sel == cityobj[i]) {
                         if (cityobj[i] != 0) {

@@ -284,7 +284,7 @@ char d3_LightAddObject(D3OBJECT *obj, D3LCTX2 *ctx)
     int n, i, idx;
 
     if (info) {
-        d3_PointToRef(obj, d3_Camera, &obj->pos, (D3VECTOR4 *)&D3_L(obj)->cam);
+        d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
         D3_L(obj)->radius2 = (d3_LightRadiusMargin + info->ops->radius) * (d3_LightRadiusMargin + info->ops->radius);
         n = 0;
         light = ctx->light;
@@ -393,7 +393,7 @@ char d3_LightAttach(D3OBJECT *light, D3OBJECT *obj)
     ctx.normals = (obj->state >> 5) & 1;
     d3_LightRemoveRecords(light, obj);
     if (D3_L(light)->power != 0.0) {
-        d3_PointToRef(light, d3_Camera, &light->pos, (D3VECTOR4 *)&D3_L(light)->cam);
+        d3_PointToRef(light, d3_Camera, &light->pos, &D3_L(light)->cam);
         D3_L(light)->radius2 = D3_L(light)->range * D3_L(light)->range;
         d3_LightAddObject(obj, &ctx);
     }
@@ -450,7 +450,7 @@ void d3_LightPrepare(D3OBJECT *obj)
         if (!obj->info)
             return;
     }
-    d3_PointToRef(obj, d3_Camera, &obj->pos, (D3VECTOR4 *)&D3_L(obj)->cam);
+    d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
     if (D3_L(obj)->info->ops)
         r = D3_L(obj)->info->ops->Radius(obj, obj->info);
     D3_L(obj)->radius2 = r * r;
@@ -518,10 +518,10 @@ char d3_LightCollectCB(D3OBJECT *obj, D3LCTX *ctx)
 {
     if (!ctx->list) {
         D3_L(obj)->light->on = 0;
-        d3_PointToRef(obj, d3_Camera, &obj->pos, (D3VECTOR4 *)&D3_L(obj)->cam);
+        d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
         if (obj->type == 7) {
             if (D3_L(obj)->power != 0.0 && !(obj->objectFlags & 0x10)) {
-                d3_DirToRef(obj, d3_Camera, &d3_ZAxis, (D3VECTOR4 *)&D3_L(obj)->light->dir);
+                d3_DirToRef(obj, d3_Camera, &d3_ZAxis.v, &D3_L(obj)->light->dir);
                 ctx->count++;
                 D3_L(obj)->light->on = 1;
             }
@@ -655,7 +655,7 @@ void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *frame)
         }
         info = D3_L(obj)->info;
         d3_Busy++;
-        d3_PointToRef(obj, d3_Camera, &obj->pos, (D3VECTOR4 *)&D3_L(obj)->cam);
+        d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
         if (frame)
             d3_LightRadiusMargin = ((D3LFRAME *)frame)->radius;
         else

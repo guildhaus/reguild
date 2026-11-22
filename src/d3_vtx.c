@@ -178,7 +178,7 @@ typedef struct D3MVEC2 {
    products, z by integer mov): that spelling without any volatile (D3VECTOR4 s1, b1, s2, b2, q1, q2; s1.x
    = f1->scale.x ... s1.x *= sl->weight) gives frame 0x74 = the original's but 211 ins / 1232 bytes (the
    original reloads [esi] per product with fld [esi]; fmul st,st(2); ours fxch; fmul [esi]); 'sl->weight *
-   f->scale.x' direct: 231; D3VECTOR struct copy: 568 (frame 0x5c); *(D3VECTOR *)& copy: 496. z tracking
+   f->scale.x' direct: 231; D3VECTOR struct copy: 568 (frame 0x5c); *&copy.v: 496. z tracking
    (flagged loops): the original stores v->z with fst, compares MinZ with z on the FPU (pops it into MinZ
    or fstp st(0)), then re-reads v->z for MaxZ and copies it with fld/fstp. Tried with dcp try: v->z
    instead of z in both ifs (A+B: 173 ins / 1084), z local for MinZ + ternary for MaxZ in both loops (159 /

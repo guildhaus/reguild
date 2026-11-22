@@ -2377,8 +2377,8 @@ void ai_ObjectAngle(void *out_, D3OBJECT *plot)
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
-    d3_DirToWorld(plot, &d3_ZAxis, (struct D3VECTOR *)v);
-    out[1] = d3_VecAngle((struct D3VECTOR *)&d3_ZAxis, (struct D3VECTOR *)v);
+    d3_DirToWorld(plot, &d3_ZAxis.v, (struct D3VECTOR *)v);
+    out[1] = d3_VecAngle(&d3_ZAxis.v, (struct D3VECTOR *)v);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fe10, the nearest object of a 0x100-entry list within 100.0 (157 B): the horizontal distance of the
@@ -2421,7 +2421,7 @@ void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target)
 
     d3_SetObjectPos(obj, target);
     d3t_DropObject(obj, 1, 0);
-    d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)&p);
+    d3_PointToWorld(obj, &obj->pos, &p.v);
     if (p.y < target->y)
         d3_SetObjectPos(obj, target);
 }
@@ -2567,11 +2567,11 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
     ai_PlacementSites = sites;
     for (i = 0; i < count; i++) {
         if (sites[i] != 0) {
-            d3_PointToWorld(sites[i], &sites[i]->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(sites[i], &sites[i]->pos, &pos.v);
             sprintf(flagPath, "%s*sp_BAU_WIMPEL.ogr", ai_DataPath);
             flags[i] = d3_LoadGroup(flagPath, 0, 0);
             d3t_InflateObjectTree(flags[i]);
-            d3_SetObjectPos(flags[i], (D3VECTOR *)&pos);
+            d3_SetObjectPos(flags[i], &pos.v);
             flags[i]->objectFlags &= ~2;
             tf.all = 0;
             tf.b[2] = 1;
@@ -2620,7 +2620,7 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
                     return 0;
                 }
                 model->objectFlags &= ~2;
-                d3_SetObjectPos(model, (D3VECTOR *)&pos);
+                d3_SetObjectPos(model, &pos.v);
                 d3t_DropObject(model, 1, 0);
                 cur = ai_FindNearestObject((float *)&pos, sites);
                 if (cur != 0) {
@@ -2645,7 +2645,7 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
                 model->pos.x = 0;
                 model->pos.y = 0;
                 model->pos.z = 0;
-                d3t_GetObjectBounds(&bmin, &bmax, model);
+                d3t_GetObjectBounds(&bmin.v, &bmax.v, model);
                 model->pos.x = pos.x;
                 model->pos.y = pos.y;
                 model->pos.z = pos.z;
@@ -2658,8 +2658,8 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
                 picked = ai_MapPick(8, 0, txt_Ptrs[0x17ec], 0, 0);
                 if (picked != 0) {
                     sv_FlyCameraToModel(picked);
-                    d3_PointToWorld(picked, &picked->pos, (D3VECTOR *)&pos);
-                    ai_DropObjectAt(model, (D3VECTOR *)&pos);
+                    d3_PointToWorld(picked, &picked->pos, &pos.v);
+                    ai_DropObjectAt(model, &pos.v);
                 } else if (firstPick) {
                     sv_PopRequest = 1;
                 }
@@ -2669,8 +2669,8 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
             if (hit != 0) {
                 if (hit != cur) {
                     cur = hit;
-                    d3_PointToWorld(hit, &hit->pos, (D3VECTOR *)&pos);
-                    d3_SetObjectPos(model, (D3VECTOR *)&pos);
+                    d3_PointToWorld(hit, &hit->pos, &pos.v);
+                    d3_SetObjectPos(model, &pos.v);
                     ai_ObjectAngle(&ang, hit);
                     d3_SetObjectRot(model, &ang);
                 }
@@ -2718,8 +2718,8 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
                 int px;
                 int pz;
 
-                if (d3sm_Pick(hmap, dm_L.x, dm_L.y, &px, &pz) && d3sm_GetVertex(hmap, px, pz, (D3VECTOR *)&pos)) {
-                    d3_SetObjectPos(model, (D3VECTOR *)&pos);
+                if (d3sm_Pick(hmap, dm_L.x, dm_L.y, &px, &pz) && d3sm_GetVertex(hmap, px, pz, &pos.v)) {
+                    d3_SetObjectPos(model, &pos.v);
                     d3t_DropObject(model, 1, 0);
                 }
                 d3_RelightObject(model);
@@ -7462,8 +7462,8 @@ D3OBJECT *ai_CreateCityPoint(char *city)
     obj = d3_FindObject(0, 0x140, 0, name);
     if (obj == 0)
         return 0;
-    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&v);
-    obj = d3_CreateObject(0, (D3VECTOR *)&v, (D3VECTOR *)&d3_Origin, "sp_STADTPUNKT_K");
+    d3_PointToWorld(obj, &obj->pos, &v.v);
+    obj = d3_CreateObject(0, &v.v, (D3VECTOR *)&d3_Origin, "sp_STADTPUNKT_K");
     obj->kind = 4;
     obj->mask = 1;
     obj->objectFlags |= 4;
@@ -9347,8 +9347,8 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                 if (b->owner != ai_PlayerId) {
                     cls = gm_BuildingClass(b->type);
                     if ((cls == 1 || cls == 8) &&
-                        d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin, 0.1f) == 0 &&
-                        d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin, 0.1f) == 0) {
+                        d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin.v, 0.1f) == 0 &&
+                        d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin.v, 0.1f) == 0) {
                         d3_SetObjectPos(d3_Camera, &d3_Camera->views[5].pos);
                         d3_SetObjectRot(d3_Camera, &d3_Camera->views[5].dir);
                     }
@@ -9615,16 +9615,16 @@ void ai_EnterOwnBuilding(AIBLD *b)
             cls = gm_BuildingClass(b->type);
             type = &ai_BTypes[b->type];
             if (cls == 2) {
-                if (d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin, 0.1f) == 0 &&
-                    d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin, 0.1f) == 0) {
+                if (d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin.v, 0.1f) == 0 &&
+                    d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin.v, 0.1f) == 0) {
                     d3_SetObjectPos(d3_Camera, &d3_Camera->views[5].pos);
                     d3_SetObjectRot(d3_Camera, &d3_Camera->views[5].dir);
                 }
             } else if (type->kind == 0x1c) {
                 d3_SetObjectPos(d3_Camera, &d3_Camera->savedPos);
                 d3_SetObjectRot(d3_Camera, &d3_Camera->savedRot);
-            } else if (d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin, 0.1f) == 0 &&
-                       d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin, 0.1f) == 0) {
+            } else if (d3_VecEqual(&d3_Camera->views[5].pos, &d3_Origin.v, 0.1f) == 0 &&
+                       d3_VecEqual(&d3_Camera->views[5].dir, &d3_Origin.v, 0.1f) == 0) {
                 d3_SetObjectPos(d3_Camera, &d3_Camera->views[5].pos);
                 d3_SetObjectRot(d3_Camera, &d3_Camera->views[5].dir);
             }

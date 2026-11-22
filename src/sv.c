@@ -2345,7 +2345,7 @@ void sv_PlaceCamera(float f)
     pos.y = d3_Camera->pos.y;
     pos.z = d3_Camera->pos.z;
     pos.y = (float)((sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + h);
-    d3_SetObjectPos(d3_Camera, (D3VECTOR *)&pos);
+    d3_SetObjectPos(d3_Camera, &pos.v);
     rot.x = d3_Camera->rotation.x;
     rot.y = d3_Camera->rotation.y;
     rot.z = d3_Camera->rotation.z;
@@ -2382,7 +2382,7 @@ void sv_EaseCameraHeight(void)
         pos.z = d3_Camera->pos.z;
         pos.y = pos.y + step;
         if (d3t_CamMove == 0)
-            d3_SetObjectPos(d3_Camera, (D3VECTOR *)&pos);
+            d3_SetObjectPos(d3_Camera, &pos.v);
         sv_CameraHeightStep = step;
         return;
     }
@@ -2440,7 +2440,7 @@ void sv_BorderCameraView(void)
         sv_BorderViewX = 0;
     }
     if (sv_BorderViewX == -1) {
-        if (d3_VecEqual(&d3_Camera->views[3].pos, (D3VECTOR *)&none, 0.2f) != 0)
+        if (d3_VecEqual(&d3_Camera->views[3].pos, &none.v, 0.2f) != 0)
             return;
         pos.x = d3_Camera->views[3].pos.x;
         pos.y = d3_Camera->views[3].pos.y;
@@ -2456,7 +2456,7 @@ void sv_BorderCameraView(void)
         dir.y = d3_Camera->savedRot.y;
         dir.z = d3_Camera->savedRot.z;
     } else if (sv_BorderViewX == 1) {
-        if (d3_VecEqual(&d3_Camera->views[4].pos, (D3VECTOR *)&none, 0.2f) != 0)
+        if (d3_VecEqual(&d3_Camera->views[4].pos, &none.v, 0.2f) != 0)
             return;
         pos.x = d3_Camera->views[4].pos.x;
         pos.y = d3_Camera->views[4].pos.y;
@@ -2465,7 +2465,7 @@ void sv_BorderCameraView(void)
         dir.y = d3_Camera->views[4].dir.y;
         dir.z = d3_Camera->views[4].dir.z;
     } else if (sv_BorderViewY == -1) {
-        if (d3_VecEqual(&d3_Camera->views[1].pos, (D3VECTOR *)&none, 0.2f) != 0)
+        if (d3_VecEqual(&d3_Camera->views[1].pos, &none.v, 0.2f) != 0)
             return;
         pos.x = d3_Camera->views[1].pos.x;
         pos.y = d3_Camera->views[1].pos.y;
@@ -2474,7 +2474,7 @@ void sv_BorderCameraView(void)
         dir.y = d3_Camera->views[1].dir.y;
         dir.z = d3_Camera->views[1].dir.z;
     } else if (sv_BorderViewY == 1) {
-        if (d3_VecEqual(&d3_Camera->views[2].pos, (D3VECTOR *)&none, 0.2f) != 0)
+        if (d3_VecEqual(&d3_Camera->views[2].pos, &none.v, 0.2f) != 0)
             return;
         pos.x = d3_Camera->views[2].pos.x;
         pos.y = d3_Camera->views[2].pos.y;
@@ -2492,7 +2492,7 @@ void sv_BorderCameraView(void)
     d3anim_FreePath(d3_Camera);
     d3t_CamMoving = 0;
     d3t_CamMove = 0;
-    d3t_PlaceObjectV(d3_Camera, (D3VECTOR *)&pos, (D3VECTOR *)&dir, ai_CameraStep, 8);
+    d3t_PlaceObjectV(d3_Camera, &pos.v, &dir.v, ai_CameraStep, 8);
     sv_BorderMoved = 1;
 }
 /* 0x5263a0, one frame of the camera scroll by the screen border (a 0x40-pixel zone of the mouse window) or the
@@ -2841,8 +2841,8 @@ go:
             zrot.z = ((D3OBJECT *)cam)->rotation.z;
             zrot.x = (sv_CameraAngleFar - sv_CameraAngleNear) * sv_CameraAngleFactor + sv_CameraAngleNear;
             zrot.y = sv_ZoomStartTurn - (dm_P.x - sv_ZoomStartX) * 0.0035f;
-            if (d3_VecEqual(&((D3OBJECT *)cam)->pos, (D3VECTOR *)&zpos, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
-                d3_SetObjectPos(d3_Camera, (D3VECTOR *)&zpos);
+            if (d3_VecEqual(&((D3OBJECT *)cam)->pos, &zpos.v, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
+                d3_SetObjectPos(d3_Camera, &zpos.v);
                 d3_SetObjectRot(d3_Camera, &zrot);
                 rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                 if (rec != 0) {
@@ -3191,8 +3191,8 @@ char sv_CreateBannerCB(D3OBJECT *part, AIBLD *b)
         rot.x = 0;
         rot.y = 0;
         rot.z = 0;
-        d3_PointToWorld(part, &part->pos, (D3VECTOR *)&pos);
-        o = d3_CreateObject((int)b->object, (D3VECTOR *)&pos, &rot, "sp_WIMPEL");
+        d3_PointToWorld(part, &part->pos, &pos.v);
+        o = d3_CreateObject((int)b->object, &pos.v, &rot, "sp_WIMPEL");
         rot.x = 0;
         rot.y = 3.1415927f;
         rot.z = 0;
@@ -3307,7 +3307,7 @@ void sv_UpdateChimneySmoke(AIBLD *b)
                     d3if_SelectScene(0, 1);
                     d = d3_FindObject((int)b->object, 0x100, 0, "dummy_RAUCH_0");
                     if (d != 0 && (e = evt_Load("effekte\\Schornstein_dunkel.esc")) != 0) {
-                        d3_PointToWorld(d, &d->pos, (D3VECTOR *)&pos);
+                        d3_PointToWorld(d, &d->pos, &pos.v);
                         if (evt_RunScriptArgs(e, 3, (int)pos.x, (int)pos.y, (int)pos.z) != 0)
                             b->smokeEffect = e->id;
                         e->group = 0;
@@ -5450,30 +5450,30 @@ void sv_DrawBorderArrows(void)
     pic = d2_GetPic(0x52c);
     if (sv_BorderViewX == -1) {
         right = 1;
-        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin.v, 0.2f) == 0)
             right = 2;
     } else if (sv_BorderViewX == 1) {
         left = 1;
-        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin.v, 0.2f) == 0)
             left = 2;
     } else if (sv_BorderViewX == 0) {
-        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin.v, 0.2f) == 0)
             left = 1;
-        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin.v, 0.2f) == 0)
             right = 1;
     }
     if (sv_BorderViewY == -1) {
         bottom = 1;
-        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin.v, 0.2f) == 0)
             bottom = 2;
     } else if (sv_BorderViewY == 1) {
         top = 1;
-        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             top = 2;
     } else if (sv_BorderViewY == 0) {
-        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin.v, 0.2f) == 0)
             bottom = 1;
-        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             top = 1;
     }
     d2_SetClipRect(0, 0, ((int *)d2_ScreenSurf)[1], ((int *)d2_ScreenSurf)[2]);

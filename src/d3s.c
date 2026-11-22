@@ -1087,7 +1087,7 @@ float d3s_GetGround(D3OBJECT *obj, D3OBJINFO *info, D3OBJECT *light)
 
     y = 0.0f;
     found = 0;
-    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     if (obj->parent) {
         p = obj->parent;
         while (p) {
@@ -1364,18 +1364,18 @@ found:
     info = mesh;
     if (D3_MESH(obj)->surf[3].info.ntris > 0 && D3_MESH(obj)->surf[3].info.nkeys > 0)
         mesh = &D3_MESH(obj)->surf[3].info;
-    d3_PointToWorld(light, &light->pos, (D3VECTOR *)&lpos);
+    d3_PointToWorld(light, &light->pos, &lpos.v);
     if (light->objectFlags & 0x10) {
         eps = 0.01f;
-        d3_DirToWorld(light, &d3_ZAxis, (D3VECTOR *)&ldir);
+        d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
     } else {
         eps = 1.0f;
-        d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&opos);
+        d3_PointToWorld(obj, &obj->pos, &opos.v);
         ldir.x = opos.x - lpos.x;
         ldir.y = opos.y - lpos.y;
         ldir.z = opos.z - lpos.z;
     }
-    redo = !d3_VecEqual((D3VECTOR *)&ldir, &slot->dir, eps) || ((D3SURF *)info)->alwaysDraw ? 1 : 0;
+    redo = !d3_VecEqual(&ldir.v, &slot->dir, eps) || ((D3SURF *)info)->alwaysDraw ? 1 : 0;
     if (t) {
         if (!redo) {
             j = slot->bz0;
@@ -1392,7 +1392,7 @@ found:
         }
     }
     if (redo)
-        d3s_Project(obj, info, mesh, t, (D3VECTOR *)&ldir, (D3VECTOR *)&lpos, light, slot);
+        d3s_Project(obj, info, mesh, t, &ldir.v, &lpos.v, light, slot);
     if (d3s_AddShadow(slot, d3_Terrain))
         d3s_Object->state |= 4;
     return 0;
@@ -1447,8 +1447,8 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         light = d3s_Lights[i];
         if (!info)
             return;
-        d3_PointToWorld(light, &light->pos, (D3VECTOR *)&lpos);
-        d3_DirToWorld(light, &d3_ZAxis, (D3VECTOR *)&ldir);
+        d3_PointToWorld(light, &light->pos, &lpos.v);
+        d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
         verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, obj->material->meshData);
         for (k = 8, box = verts; k; k--, box++) {

@@ -36,12 +36,12 @@ float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b)
     vb.z = b->z;
     d3_Normalize(&va);
     d3_Normalize(&vb);
-    if (d3_VecEqual((D3VECTOR *)&va, (D3VECTOR *)&vb, 1e-7f))
+    if (d3_VecEqual(&va.v, &vb.v, 1e-7f))
         return 0.0f;
     nb.x = -vb.x;
     nb.y = -vb.y;
     nb.z = -vb.z;
-    if (d3_VecEqual((D3VECTOR *)&va, &nb, 1e-7f))
+    if (d3_VecEqual(&va.v, &nb.v, 1e-7f))
         return -3.1415927f;
     c[0] = vb.z * va.y - va.z * vb.y;
     c[1] = vb.x * va.z - vb.z * va.x;

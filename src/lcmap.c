@@ -1004,8 +1004,8 @@ void ai_BuildTownMap(LCMAPWIN *m)
     for (i = 0; i < m->nMarks; i++) {
         if (m->marks[i].bld->object != 0) {
             bld = m->marks[i].bld;
-            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
-            d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
+            d3_PointToWorld(bld->object, &bld->object->pos, &pos.v);
+            d3_GetHeightAt(hm, &pos.v, &x, &y, &py);
             m->marks[i].cellX = x;
             m->marks[i].cellZ = y;
             ai_MapCellToScreen(&m->marks[i], originX, originY);
@@ -1103,8 +1103,8 @@ void ai_BuildTownMap(LCMAPWIN *m)
         for (spot = ai_AmbushSpots[0]; (int)spot < (int)ai_AmbushSpots[8]; spot += sizeof(ai_AmbushSpots[0])) {  /* a signed compare (jl) */
             obj = d3_FindObject(0, 0x100, 0, spot);
             if (obj != 0) {
-                d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
-                d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
+                d3_PointToWorld(obj, &obj->pos, &pos.v);
+                d3_GetHeightAt(hm, &pos.v, &x, &y, &py);
                 tmp.cellX = x;
                 tmp.cellZ = y;
                 ai_MapCellToScreen(&tmp, originX, originY);
@@ -1128,8 +1128,8 @@ void ai_BuildTownMap(LCMAPWIN *m)
         for (i = 0; i < 0x100; i++, ctl++) {
             obj = ai_PlacementSites[i];
             if (obj != 0) {
-                d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
-                d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
+                d3_PointToWorld(obj, &obj->pos, &pos.v);
+                d3_GetHeightAt(hm, &pos.v, &x, &y, &py);
                 tmp.cellX = x;
                 tmp.cellZ = y;
                 ai_MapCellToScreen(&tmp, originX, originY);
@@ -1147,10 +1147,10 @@ void ai_BuildTownMap(LCMAPWIN *m)
     if ((bld = ai_PlayerBuilding) == 0 && (bld = ai_FallbackBuilding) == 0 && obj == 0)
         return;
     if (bld != 0 && bld->object != 0)
-        d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
+        d3_PointToWorld(bld->object, &bld->object->pos, &pos.v);
     else
-        d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
-    d3_GetHeightAt(hm, (D3VECTOR *)&pos, &x, &y, &py);
+        d3_PointToWorld(obj, &obj->pos, &pos.v);
+    d3_GetHeightAt(hm, &pos.v, &x, &y, &py);
     tmp.cellX = x;
     tmp.cellZ = y;
     ai_MapCellToScreen(&tmp, originX, originY);
@@ -1378,7 +1378,7 @@ void ai_UpdateTownMap(LCMAPWIN *m)
         if (ch == 0)
             continue;
         if (ch->scene == &d3_Scenes[0]) {
-            d3_PointToWorld(ch->obj, &ch->obj->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(ch->obj, &ch->obj->pos, &pos.v);
             half = ((struct D3SM *)d3_Scenes[0].hmap)->size * 0.5;
             x = ((pos.x - hm->origin.x) / hm->cell.x - half) * ai_MapCellScale;
             y = ((pos.z - hm->origin.z) / hm->cell.z - (double)half) * ai_MapCellScale;   /* @original y alone in double (half popped by fsubrp) */

@@ -751,7 +751,7 @@ int ai_StepShot(SHOTREC *shot)
         next.x += m.x;
         next.y += m.y;
         next.z += m.z;
-        if (ai_ShotHitsGround(map, &shot->pos, (D3VECTOR *)&next, px, pz, &npx, &npz) && shot->steps > 50) {
+        if (ai_ShotHitsGround(map, &shot->pos, &next.v, px, pz, &npx, &npz) && shot->steps > 50) {
             shot->pos.x = next.x;
             shot->state = 2;
             shot->pos.y = next.y;
@@ -840,7 +840,7 @@ int ai_StepShotSlow(SHOTREC *shot)
         next.x += m.x;
         next.y += m.y;
         next.z += m.z;
-        if (ai_ShotHitsGround(map, &shot->pos, (D3VECTOR *)&next, px, pz, &npx, &npz) && shot->steps > 50) {
+        if (ai_ShotHitsGround(map, &shot->pos, &next.v, px, pz, &npx, &npz) && shot->steps > 50) {
             shot->pos.x = next.x;
             shot->state = 2;
             shot->pos.y = next.y;
@@ -896,7 +896,7 @@ int ai_ShotHitsGround(D3SM *map, D3VECTOR *from, D3VECTOR *to, int px, int pz, i
         p.x += d.x;
         p.y += d.y;
         p.z += d.z;
-        d3_GetHeightAt(map, (D3VECTOR *)&p, &cx, &cz, &height);
+        d3_GetHeightAt(map, &p.v, &cx, &cz, &height);
         if (ai_ShotHitHeight + height > p.y) {
             to->x = p.x;
             to->y = p.y;
@@ -964,7 +964,7 @@ int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, floa
     horiz = (float)sqrt(dir.x * dir.x + dir.z * dir.z);
     d3_Normalize(&dir);
     d3_Normalize(&hdir);
-    *outYaw = d3_VecAngle2((D3VECTOR *)&d3_ZAxis, (D3VECTOR *)&dir);
+    *outYaw = d3_VecAngle2(&d3_ZAxis.v, &dir.v);
     drop = (float)fabs(to[1] - from[1]) * ai_MeterPerInch;
     horiz = ai_MeterPerInch * horiz;
     if (from[1] > to[1])

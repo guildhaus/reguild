@@ -2127,8 +2127,8 @@ AIBLD *gm_FindHome(int unused, AIBLD *o)
             ord_GetKindRecord(b->type, kind);
             if ((unsigned short)b->residents < (unsigned short)kind[0] && (b->flags5a & 1) == 0) {
                 if (o != 0 && o->object != 0 && b->object != 0) {
-                    d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v1);
-                    d3_PointToWorld(o->object, &o->object->pos, (D3VECTOR *)&v2);
+                    d3_PointToWorld(b->object, &b->object->pos, &v1.v);
+                    d3_PointToWorld(o->object, &o->object->pos, &v2.v);
                     v1.x -= v2.x;
                     v1.y -= v2.y;
                     v1.z -= v2.z;

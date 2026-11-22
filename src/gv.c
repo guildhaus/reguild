@@ -548,7 +548,7 @@ void gv_UpdateEffects(void)
             } else if (gv_Effects[i].parts[j].state == 1) {
                 if (gv_Effects[i].f14 == 0 ? ai_StepShot((SHOTREC *)&gv_Effects[i].parts[j]) : ai_StepShotSlow((SHOTREC *)&gv_Effects[i].parts[j])) {
                     if (gv_Effects[i].objs[j] == 0) {
-                        gv_Effects[i].objs[j] = d3_CreateObject(0, &d3_Origin, &d3_ZeroRot, "kugel");
+                        gv_Effects[i].objs[j] = d3_CreateObject(0, &d3_Origin.v, &d3_ZeroRot, "kugel");
                         gv_Effects[i].objs[j]->objectFlags |= 4;
                         gv_Effects[i].objs[j]->stateFlags |= 0xc;
                         gv_Effects[i].objs[j]->objectFlags &= ~8;
@@ -648,7 +648,7 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
         bld = &ai_Blds[i];
         if (bld->id == -1 || bld->type == 0 || bld->object == 0)
             continue;
-        d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&pos);
+        d3_PointToWorld(bld->object, &bld->object->pos, &pos.v);
         dx = c.x - pos.x;
         dy = c.y - pos.y;
         dz = c.z - pos.z;

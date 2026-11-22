@@ -586,7 +586,7 @@ void init_LoadObjectScene(int n)
             for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
                 o = *q;
                 if (o != 0 && o->scene == &d3_Scenes[uni]) {
-                    if (d3_VecEqual(&o->pos, &d3_Origin, 0.5f) != 0) {
+                    if (d3_VecEqual(&o->pos, &d3_Origin.v, 0.5f) != 0) {
                         if ((o->transport != 0 && (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER")) != 0) || (d = ch_FindDummy()) != 0 ||
                             ((d = d3_FindObject(0, 0x100, 0, "dummy_EINGANG")) != 0 || (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY")) != 0)) {
                             d3_PointToWorld(d, &d->pos, &tmp.vec);
@@ -740,7 +740,7 @@ void init_LoadBuildingScene(int k)
             for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
                 co = *q;
                 if (co != 0 && co->scene == &d3_Scenes[cls]) {
-                    if (d3_VecEqual(&co->pos, &d3_Origin, 0.5f) != 0) {
+                    if (d3_VecEqual(&co->pos, &d3_Origin.v, 0.5f) != 0) {
                         if ((co->transport != 0 && (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER")) != 0) || (d = ch_FindDummy()) != 0 ||
                             ((d = d3_FindObject(0, 0x100, 0, "dummy_EINGANG")) != 0 || (d = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY")) != 0)) {
                             /* d + 0x4c: D3OBJECT.pos, the dummy's position */

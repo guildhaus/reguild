@@ -7470,7 +7470,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
             pos.x += d3_Camera->pos.x;
             pos.y += d3_Camera->pos.y;
             pos.z += d3_Camera->pos.z;
-            d3_SetObjectPos(model, (D3VECTOR *)&pos);
+            d3_SetObjectPos(model, &pos.v);
             if (((G15MAP *)d3_Terrain)->cells[((G15MAP *)d3_Terrain)->w * z + x] == ground
                 && veg_Fits(plants, x, z, type->size))
                 ok = 1;
@@ -7499,8 +7499,8 @@ void ob_HandleBepflanzung(AIBLD *bld)
                     above.x = pos.x;
                     above.y = pos.y - 60.0;
                     above.z = pos.z;
-                    d3_SetObjectPos(obj, (D3VECTOR *)&above);
-                    d3t_PlaceObjectV(obj, (D3VECTOR *)&pos, &obj->rotation, 0x32, 0x20);
+                    d3_SetObjectPos(obj, &above.v);
+                    d3t_PlaceObjectV(obj, &pos.v, &obj->rotation, 0x32, 0x20);
                     d3_RelightObject(obj);
                 }
             }

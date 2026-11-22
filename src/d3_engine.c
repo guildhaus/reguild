@@ -1228,7 +1228,7 @@ void d3_SetObjectPosXYZ(D3OBJECT *obj, float x, float y, float z)
     v.x = x;
     v.y = y;
     v.z = z;
-    d3_SetObjectPos(obj, (D3VECTOR *)&v);
+    d3_SetObjectPos(obj, &v.v);
 }
 /* 0x43b820, sets the object position offset (D3OBJECT.posOffset, added to pos by the update). */
 
@@ -2202,7 +2202,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
 
     if (obj && (center || radius)) {
         if (!obj->type) {
-            d3_PointToRef(obj, camera, &obj->pos, &c);
+            d3_PointToRef(obj, camera, &obj->pos, &c.v);
             r = D3_X(obj)->radius;
             ok = 1;
         } else {

@@ -2111,7 +2111,7 @@ void amt_CalcZuenfte(unsigned int kind)
             i++;
         }
         if (plot != 0) {
-            d3_PointToWorld(plot, &plot->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(plot, &plot->pos, &pos.v);
             ai_ObjectAngle(&rot, plot);
             d3if_SelectScene(scene, 1);
             strcpy(gb, "gb_");

@@ -9,8 +9,14 @@ typedef struct D3VECTOR {
     float x, y, z;
 } D3VECTOR;
 
-typedef struct D3VECTOR4 {         /* the engine pads most vectors to 16 bytes */
-    float x, y, z, w;
+typedef struct D3VECTOR4 {         /* the engine pads most vectors to 16 bytes: a D3VECTOR and a fourth float */
+    union {
+        struct {
+            float x, y, z;
+        };
+        D3VECTOR v;                 /* the vector itself, for the D3VECTOR parameters */
+    };
+    float w;
 } D3VECTOR4;
 
 typedef struct D3TEXFLAGS {         /* passed by value to tex_Load (TSFLAGS in ts_texture.h) */

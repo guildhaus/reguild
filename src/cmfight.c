@@ -511,7 +511,7 @@ float cm_CharCellDistXZ(AICHAR *c, int x, int y)
     D3VECTOR4 v, d;
     D3VECTOR b;
 
-    d3sm_GetVertex((struct D3SM *)d3_DefaultScene->hmap, x, y, (D3VECTOR *)&v);
+    d3sm_GetVertex((struct D3SM *)d3_DefaultScene->hmap, x, y, &v.v);
     v.y = 0;
     b.x = c->scene->obj->pos.x;
     b.z = c->scene->obj->pos.z;
@@ -644,9 +644,9 @@ CMGRENADE *cm_ThrowGrenade(D3VECTOR *p, int x, int y)
         pos.x = p->x;
         pos.y = p->y + 60.0;
         pos.z = p->z;
-        cm_Grenades[i].obj = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, "ob_BOMBE");
+        cm_Grenades[i].obj = d3_CreateObject(0, &pos.v, &rot, "ob_BOMBE");
         cm_Grenades[i].obj->objectFlags |= 4;
-        d3sm_GetVertex(g, x, y, (D3VECTOR *)&d);
+        d3sm_GetVertex(g, x, y, &d.v);
         d.x -= p->x;
         d.y -= p->y;
         d.z -= p->z;
@@ -1082,30 +1082,30 @@ void cm_DrawScrollArrows()
     t = d2_GetPic(0x52c);
     if (sv_BorderViewX == -1) {
         up = 1;
-        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin.v, 0.2f) == 0)
             up = 2;
     } else if (sv_BorderViewX == 1) {
         e = 1;
-        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin.v, 0.2f) == 0)
             e = 2;
     } else if (sv_BorderViewX == 0) {
-        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[3].pos, &d3_Origin.v, 0.2f) == 0)
             e = 1;
-        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[4].pos, &d3_Origin.v, 0.2f) == 0)
             up = 1;
     }
     if (sv_BorderViewY == -1) {
         a = 1;
-        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin.v, 0.2f) == 0)
             a = 2;
     } else if (sv_BorderViewY == 1) {
         b = 1;
-        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             b = 2;
     } else if (sv_BorderViewY == 0) {
-        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[1].pos, &d3_Origin.v, 0.2f) == 0)
             a = 1;
-        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin, 0.2f) == 0)
+        if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             b = 1;
     }
     d2_SetClipRect(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h);
@@ -1149,7 +1149,7 @@ void cm_UpdatePointer()
         ai_PickedObject = d3if_Pick((float)dm_L.x, (float)dm_L.y, 0x40, 1);
         if (ai_PickedObject == 0 && cm_SelectedCount != 0) {
             if ((d3sm_PickK(map, dm_L.x + 0x1a, dm_L.y + 0x1a, &x, &z) & 0xff) != -1) {
-                d3sm_GetVertex(map, x, z, (D3VECTOR *)&v);
+                d3sm_GetVertex(map, x, z, &v.v);
                 v.y += 10.0f;
                 d2_PointerLook = 0;
             }
@@ -2054,7 +2054,7 @@ void cm_SetupFightScene(G28REC *rec)
                 n = 0;
                 for (w = gm_Query(load->list, 1, 5); n < 3 && w != 0; w = gm_QueryNext())
                     goods[n++] = w;
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
+                d3_PointToWorld(o, &o->pos, &pos.v);
                 if (obj->type == 0x134)
                     sprintf(name, "%s*ob_KARREN_KLEIN_KAMPF.ogr", ai_DataPath);
                 else if (obj->type == 0x135)
@@ -2062,7 +2062,7 @@ void cm_SetupFightScene(G28REC *rec)
                 else if (obj->type == 0x136)
                     sprintf(name, "%s*ob_KARREN_GROSS_KAMPF.ogr", ai_DataPath);
                 o = d3_LoadGroup(name, 0, 0);
-                d3_SetObjectPos(o, (D3VECTOR *)&pos);
+                d3_SetObjectPos(o, &pos.v);
                 o->owner = obj;
                 for (k = 0, p = order; k < 3; k++) {
                     sprintf(name, "WARE_0%i", *p++ + 1);       /* the shuffled goods places */
@@ -2190,20 +2190,20 @@ void cm_PlaceFighters(int *ids, char *side)
         o = d3_FindObject(0, 0x100, 0, name);
         if (o == 0)
             continue;
-        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
-        if (d3_GetHeightAt(sc, (D3VECTOR *)&pos, &x, &z, &h) == 0)
+        d3_PointToWorld(o, &o->pos, &pos.v);
+        if (d3_GetHeightAt(sc, &pos.v, &x, &z, &h) == 0)
             return;
         ch_FindFreeCell(sc, &c->scene->obj->pos, &c->scene->obj->pos, x, z, &cx, &cz, 2, 0);
-        d3sm_GetVertex(sc, cx, cz, (D3VECTOR *)&pos);
-        ch_SetPos(c->scene, (D3VECTOR *)&pos, 1);
+        d3sm_GetVertex(sc, cx, cz, &pos.v);
+        ch_SetPos(c->scene, &pos.v, 1);
         {
             D3VECTOR rot;
 
             rot.x = 0;
             rot.y = 0;
             rot.z = 0;
-            d3_DirToWorld(o, &d3_ZAxis, &dir);
-            rot.y = d3_VecAngle((D3VECTOR *)&d3_ZAxis, &dir);
+            d3_DirToWorld(o, &d3_ZAxis.v, &dir);
+            rot.y = d3_VecAngle(&d3_ZAxis.v, &dir);
             d3_SetObjectRot(c->scene->obj, &rot);
         }
     }
@@ -2318,7 +2318,7 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
         own = cm_FightRecord->fight.defenders;
         enemies = cm_FightRecord->fight.attackers;
     }
-    d3sm_GetVertex(sc, a, b, (D3VECTOR *)&v);
+    d3sm_GetVertex(sc, a, b, &v.v);
     for (i = 0; i < 16; i++) {
         if (enemies[i] != -1) {
             o = cm_FindFighter(enemies[i]);
@@ -2462,7 +2462,7 @@ char *cm_NearestEscapeObject(AICHAR *c)
     cm_PointCount = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0xc0, cm_CollectEscapeObject, list);
     m = c->scene->obj;
-    d3_PointToWorld(m, &m->pos, (D3VECTOR *)&v);
+    d3_PointToWorld(m, &m->pos, &v.v);
     for (i = 0; i < cm_PointCount; i++) {
         o = (D3OBJECT *)list[i];
         dx = v.x - o->pos.x;
@@ -2502,7 +2502,7 @@ char *cm_NearestWareObject(AICHAR *c)
     cm_PointCount = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x40, cm_CollectWareObject, c);
     m = c->scene->obj;
-    d3_PointToWorld(m, &m->pos, (D3VECTOR *)&v);
+    d3_PointToWorld(m, &m->pos, &v.v);
     n = cm_PointCount;
     for (i = 0; i < n; i++) {
         o = cm_PointList[i];
@@ -2544,7 +2544,7 @@ D3OBJECT *cm_NearestConquerPoint(AICHAR *c)
     cm_PointCount = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x40, cm_CollectConquerPoint, c);
     body = c->scene->obj;
-    d3_PointToWorld(body, &body->pos, (D3VECTOR *)&v);
+    d3_PointToWorld(body, &body->pos, &v.v);
     for (i = 0; i < cm_PointCount; i++) {
         o = cm_PointList[i];
         dx = v.x - o->pos.x;
@@ -2761,7 +2761,7 @@ float *cm_OrderChancesFor(int side)
     cnt = 0;
     for (i = 0; i < cm_FlagObjectCount; i++) {
         if (strstr(cm_FlagObjects[i]->name, "sp_CONQUER") != 0) {
-            d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, (D3VECTOR *)&v);
+            d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, &v.v);
             o = cm_FlagObjects[i]->owner;
             if (o != 0 && ((AICHAR *)o)->side == cm_FightAttacker)
                 cnt++;
@@ -3234,7 +3234,7 @@ AICHAR *cm_CheckFightWinner(G28REC *rec)
         winner = cm_FightDefender;
     for (i = 0; i < cm_FlagObjectCount; i++) {
         if (strstr(cm_FlagObjects[i]->name, "sp_CONQUER") != 0) {
-            d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, (D3VECTOR *)&v);
+            d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, &v.v);
             flags++;
             c = cm_FlagObjects[i]->owner;
             if (c != 0 && c->side == cm_FightAttacker)
@@ -4506,9 +4506,9 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
                 rot.x = 0;
                 rot.y = 0;
                 rot.z = 0;
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
-                r = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, "ub_FLUCHTFLAGGE");
-                cm_FlagObjects[cm_FlagObjectCount] = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, ch_EmptyName);
+                d3_PointToWorld(o, &o->pos, &pos.v);
+                r = d3_CreateObject(0, &pos.v, &rot, "ub_FLUCHTFLAGGE");
+                cm_FlagObjects[cm_FlagObjectCount] = d3_CreateObject(0, &pos.v, &rot, ch_EmptyName);
                 d3t_PlayAnim(r, "sonstiges/anim_FLUCHTFLAGGE.baf", 1);
                 side = c->side;  /* in a fight: the leader of the fighter's side */
                 if (side != 0 && side->ref54 != 0 && (side->kind == 5 || side->kind == 6 || side->kind == 7))

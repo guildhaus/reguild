@@ -3993,7 +3993,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
         ord_AddGridAmount(place, m->crime.law, &x, &y);
         gm_FindById(&b, 0, 0, place);
         if (b == 0)
-            ord_RandomCellPoint(x, y, &pos);
+            ord_RandomCellPoint(x, y, &pos.v);
         else if (b->object != 0) {
             pos.x = b->object->pos.x;
             pos.y = b->object->pos.y;
@@ -4634,8 +4634,8 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             o = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY");
             if (o != 0) {
                 hm = (D3SM *)d3_Scenes[k].hmap;
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
-                if (d3_GetHeightAt(hm, (D3VECTOR *)&v, &x, &z, &y) != 0) {
+                d3_PointToWorld(o, &o->pos, &v.v);
+                if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                     r = ch_AddAction(p, 0x2d, x, z, k);
                     if (r != 0)
                         strcpy(r->why, m->go.reason);
@@ -4655,9 +4655,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 if (o == 0)
                     o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
                 if (o != 0)
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(o, &o->pos, &v.v);
                 else
-                    d3_PointToWorld(cb->object, &cb->object->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(cb->object, &cb->object->pos, &v.v);
                 r->move.pos.x = v.x;
                 r->move.pos.y = v.y;
                 r->move.pos.z = v.z;
@@ -4673,8 +4673,8 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         o = d3_FindObject(0, 0x100, 0, "dummy_EINGANG");
         if (o != 0) {
             hm = (D3SM *)d3_Scenes[scene].hmap;
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
-            if (d3_GetHeightAt(hm, (D3VECTOR *)&v, &x, &z, &y) != 0) {
+            d3_PointToWorld(o, &o->pos, &v.v);
+            if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                 r = ch_AddAction(p, 0x2d, x, z, scene);
                 if (r != 0)
                     strcpy(r->why, m->go.reason);
@@ -4689,9 +4689,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             if (cb != 0) {
                 o = d3_FindObject((int)cb->object, 0x100, 0, "dummy_TUER");
                 if (o != 0)
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(o, &o->pos, &v.v);
                 else if (cb->object != 0)
-                    d3_PointToWorld(cb->object, &cb->object->pos, (D3VECTOR *)&v);
+                    d3_PointToWorld(cb->object, &cb->object->pos, &v.v);
                 else
                     err_Message("cm_ExChrGotoBuilding(): start->D3Object is NULL!");
                 r->move.hasPos = 1;
@@ -4718,8 +4718,8 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         }
         if (o != 0) {
             hm = (D3SM *)d3_Scenes[0].hmap;
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
-            if (d3_GetHeightAt(hm, (D3VECTOR *)&v, &x, &z, &y) != 0) {
+            d3_PointToWorld(o, &o->pos, &v.v);
+            if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                 r = ch_AddAction(p, 0x2d, x, z, 0);
                 if (r != 0)
                     strcpy(r->why, m->go.reason);
@@ -4754,8 +4754,8 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
             if (o != 0) {
                 hm = (D3SM *)d3_Scenes[0].hmap;
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
-                if (d3_GetHeightAt(hm, (D3VECTOR *)&v, &x, &z, &y) != 0) {
+                d3_PointToWorld(o, &o->pos, &v.v);
+                if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                     r = ch_AddAction(p, 0x2d, x, z, 0);
                     if (r != 0)
                         strcpy(r->why, m->go.reason);
@@ -4796,8 +4796,8 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                         o = d3_FindObject(0, 0x100, 0, "dummy_EINGANG");
                     if (o != 0) {
                         hm = (D3SM *)d3_Scenes[k].hmap;
-                        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&v);
-                        if (d3_GetHeightAt(hm, (D3VECTOR *)&v, &x, &z, &y) != 0) {
+                        d3_PointToWorld(o, &o->pos, &v.v);
+                        if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                             r = ch_AddAction(p, 0x2d, x, z, k);
                             if (r != 0)
                                 strcpy(r->why, m->go.reason);
@@ -4997,7 +4997,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
         if (vfs_GetPath(path, vfs_Root, vfs_Root, found) != 0) {
             save = d3_CurrentScene;
             d3if_SelectScene(0, 1);
-            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&v);
+            d3_PointToWorld(b->object, &b->object->pos, &v.v);
             o = d3_LoadGroup(path, 0, 0);
             if (o == 0) {
                 sprintf(name, "cm_ExGebUpgrade(): Could not load 3D-Object-Group '%s'...", path);
@@ -5005,21 +5005,21 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
             } else {
                 float radius, key;
 
-                d3_DirToWorld(b->object, &d3_ZAxis, &dir);
+                d3_DirToWorld(b->object, &d3_ZAxis.v, &dir);
                 rot.x = 0;
                 rot.y = 0;
                 rot.z = 0;
-                rot.y = d3_VecAngle(&d3_ZAxis, &dir);
-                d3_SetObjectPos(o, (D3VECTOR *)&v);
+                rot.y = d3_VecAngle(&d3_ZAxis.v, &dir);
+                d3_SetObjectPos(o, &v.v);
                 d3_SetObjectRot(o, &rot);
-                ai_DropObjectAt(o, (D3VECTOR *)&v);
+                ai_DropObjectAt(o, &v.v);
                 if (d3_QuadTree != 0)
                     d3q_RemoveObject(b->object, (D3QNODE *)d3_QuadTree);
                 d3if_Delete(b->object);
                 if (o->info == 0)
                     d3_InflateObject(o);
                 if (o->material != 0) {
-                    if (d3t_GetBoundingSphere(o, d3_Camera, (D3VECTOR *)&v, &radius) != 0) {
+                    if (d3t_GetBoundingSphere(o, d3_Camera, &v.v, &radius) != 0) {
                         size = (int)(radius * 1.8);
                         sc = evt_Load("Effekte/geb_upgrade.esc");
                         if (sc != 0) {
@@ -5245,7 +5245,7 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
     rot.y = ch->obj->rotation.y;
     rot.z = ch->obj->rotation.z;
     owner = ch->obj->owner;
-    t = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, m->model.name);
+    t = d3_CreateObject(0, &pos.v, &rot, m->model.name);
     if (t != 0) {
         strcpy(t->name, c->scene->obj->name);
         strcpy(c->scene->name, m->model.name);
@@ -5606,9 +5606,9 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
                     sprintf(name, "cm_ExCreateGeb(): Could not load 3D-Object-Group '%s'...", path);
                 } else {
                     memset(&site, 0, sizeof(site));
-                    d3_SetObjectPos(o, (D3VECTOR *)&pos);
+                    d3_SetObjectPos(o, &pos.v);
                     d3_SetObjectRot(o, m->geb.rot);
-                    ai_DropObjectAt(o, (D3VECTOR *)&pos);
+                    ai_DropObjectAt(o, &pos.v);
                     init_HookObject(o, b, 2);
                     ai_BuildingName(b->type, tmp);
                     strcpy(site.name, tmp);

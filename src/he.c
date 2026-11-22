@@ -1826,7 +1826,7 @@ void he_SpreadGfxInfos(D3OBJECT *obj)
     rad = 0.0f;
     if (cnt != 1)
         rad = 100.0f;
-    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     d3t_GetHeightRange(obj, &lo, &hi);
     pos.y = hi;
     for (i = 0; i < cnt; i++) {
@@ -1835,7 +1835,7 @@ void he_SpreadGfxInfos(D3OBJECT *obj)
         at.x = (float)(sin(ang) * rad + pos.x);
         at.y = (float)((hi - lo) * 0.5 + pos.y);
         at.z = (float)(cos(ang) * rad + pos.z);
-        d3_SetObjectPos(list[i]->obj, (D3VECTOR *)&at);
+        d3_SetObjectPos(list[i]->obj, &at.v);
     }
 }
 /* 0x53e5f0, creates the model object `name` of the gfx info `e` at the top of `obj` (its world position, at its
@@ -1851,10 +1851,10 @@ D3OBJECT *he_CreateGfxObject(HEGFXINFO *e, char *name, D3OBJECT *obj)
     D3OBJECT *o;
     D3ANIMKEY keys[2];
 
-    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     d3t_GetHeightRange(obj, &lo, &hi);
     pos.y = hi;
-    o = d3_CreateObject(0, (D3VECTOR *)&pos, (D3VECTOR *)&d3_Origin, name);
+    o = d3_CreateObject(0, &pos.v, (D3VECTOR *)&d3_Origin, name);
     e->obj = o;
     e->parent = obj;
     if (o != 0) {
@@ -7495,7 +7495,7 @@ void he_RunGathering(AIJOB *e)
         }
         gm_AddTime(&e->end, 0, 10, 0);
         if (d3_CurrentScene == 0 && (o = d3_FindObject(0, 0x140, 0, g->place)) != 0) {
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(o, &o->pos, &pos.v);
             he_CharacterBehavior(e, (float *)&pos);
         }
         e->exSlot = cm_SendExSetHE(2, e);
@@ -9158,9 +9158,9 @@ int he_CreateReaper(AIJOB *e)
         if (bld != 0 && bld->object != 0 && bld->object->info != 0 && bld->object->info->mesh != 0) {
             to = bld;
             if (e->reaperPlaced == 0) {
-                d3_PointToWorld(from->object, &from->object->pos, (D3VECTOR *)&pos);
+                d3_PointToWorld(from->object, &from->object->pos, &pos.v);
                 pos.y = pos.y + from->object->info->mesh->radius + 80.0f;
-                d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&target);
+                d3_PointToWorld(to->object, &to->object->pos, &target.v);
                 target.y = target.y + to->object->info->mesh->radius + 80.0f;
                 rot.x = 0.0f;
                 rot.y = 0.0f;
@@ -9168,7 +9168,7 @@ int he_CreateReaper(AIJOB *e)
                 dir.x = target.x - pos.x;
                 dir.y = target.y - pos.y;
                 dir.z = target.z - pos.z;
-                rot.y = d3_VecAngle2(&d3_ZAxis, (D3VECTOR *)&dir);
+                rot.y = d3_VecAngle2(&d3_ZAxis.v, &dir.v);
             } else {
                 rot.x = e->reaperRot.x;
                 rot.y = e->reaperRot.y;
@@ -9176,13 +9176,13 @@ int he_CreateReaper(AIJOB *e)
                 pos.x = e->reaperPos.x;
                 pos.y = e->reaperPos.y;
                 pos.z = e->reaperPos.z;
-                d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&target);
+                d3_PointToWorld(to->object, &to->object->pos, &target.v);
                 target.y = target.y + to->object->info->mesh->radius + 80.0f;
                 dir.x = target.x - pos.x;
                 dir.y = target.y - pos.y;
                 dir.z = target.z - pos.z;
             }
-            obj = d3_CreateObject(0, (D3VECTOR *)&pos, (D3VECTOR *)&rot, "Sensenmann");
+            obj = d3_CreateObject(0, &pos.v, &rot.v, "Sensenmann");
             e->reaper = obj;
             if (obj != 0) {
                 e->reaperPlaced = 1;
@@ -9248,8 +9248,8 @@ int he_MoveReaper(AIJOB *e)
                 d3if_SelectScene(scene, 1);
                 return 1;
             }
-            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
-            d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
+            d3_PointToWorld(bld->object, &bld->object->pos, &target.v);
+            d3_PointToWorld(e->reaper, &e->reaper->pos, &at.v);
             dir.x = target.x - at.x;
             dir.y = 0.0f;
             dir.z = target.z - at.z;
@@ -9258,7 +9258,7 @@ int he_MoveReaper(AIJOB *e)
                 int x, z;
                 float ground;
 
-                d3_GetHeightAt((D3SM *)d3_Scenes[0].hmap, (D3VECTOR *)&target, &x, &z, &ground);
+                d3_GetHeightAt((D3SM *)d3_Scenes[0].hmap, &target.v, &x, &z, &ground);
                 target.y = ground + 80.0f;
             }
             dir.x = target.x - at.x;
@@ -9283,7 +9283,7 @@ int he_MoveReaper(AIJOB *e)
                 target.x = dir.x + at.x;
                 target.y = dir.y + at.y;
                 target.z = dir.z + at.z;
-                d3_GetHeightAt(hm, (D3VECTOR *)&target, &x, &z, &h);
+                d3_GetHeightAt(hm, &target.v, &x, &z, &h);
                 if (h + 80.0f > target.y) {
                     target.y = step * 0.978 + target.y;
                     target.x = step * dir.x * 0.1f + at.x;
@@ -9295,7 +9295,7 @@ int he_MoveReaper(AIJOB *e)
                 e->reaperPos.x = target.x;
                 e->reaperPos.y = target.y;
                 e->reaperPos.z = target.z;
-                d3_SetObjectPos(e->reaper, (D3VECTOR *)&target);
+                d3_SetObjectPos(e->reaper, &target.v);
             }
             d3if_SelectScene(scene, 1);
             return ret;
@@ -9319,13 +9319,13 @@ int he_AimReaper(AIJOB *e)
         gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0
             && bld->object->info->mesh != 0) {
-            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
+            d3_PointToWorld(bld->object, &bld->object->pos, &target.v);
             target.y = target.y + bld->object->info->mesh->radius + 80.0f;
-            d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
+            d3_PointToWorld(e->reaper, &e->reaper->pos, &at.v);
             dir.x = target.x - at.x;
             dir.y = target.y - at.y;
             dir.z = target.z - at.z;
-            d3_VecAngle2((D3VECTOR *)&dir, &e->reaper->rotation);
+            d3_VecAngle2(&dir.v, &e->reaper->rotation);
             e->reaperRot.x = e->reaper->rotation.x;
             e->reaperRot.y = e->reaper->rotation.y;
             e->reaperRot.z = e->reaper->rotation.z;
@@ -9358,14 +9358,14 @@ int he_TurnReaper(AIJOB *e)
         gm_FindById(&bld, 0, 0, e->reaperTo);
         if (bld != 0 && bld->object != 0 && bld->object->info != 0
             && bld->object->info->mesh != 0) {
-            d3_PointToWorld(bld->object, &bld->object->pos, (D3VECTOR *)&target);
+            d3_PointToWorld(bld->object, &bld->object->pos, &target.v);
             target.y = target.y + bld->object->info->mesh->radius + 80.0f;
-            d3_PointToWorld(e->reaper, &e->reaper->pos, (D3VECTOR *)&at);
+            d3_PointToWorld(e->reaper, &e->reaper->pos, &at.v);
             dir.x = target.x - at.x;
             dir.y = target.y - at.y;
             dir.z = target.z - at.z;
-            d3_DirToWorld(e->reaper, &d3_ZAxis, &rot);
-            angle = d3_VecAngle2((D3VECTOR *)&rot, (D3VECTOR *)&dir);
+            d3_DirToWorld(e->reaper, &d3_ZAxis.v, &rot.v);
+            angle = d3_VecAngle2(&rot.v, &dir.v);
             if (e->reaper == 0) {
                 d3if_SelectScene(scene, 1);
                 return 0;
@@ -9374,7 +9374,7 @@ int he_TurnReaper(AIJOB *e)
             rot.y = e->reaper->rotation.y;
             rot.z = e->reaper->rotation.z;
             rot.y = rot.y + angle;
-            d3t_PlaceObjectV(e->reaper, (D3VECTOR *)&at, (D3VECTOR *)&rot, 0x78, 8);
+            d3t_PlaceObjectV(e->reaper, &at.v, &rot.v, 0x78, 8);
             d3if_SelectScene(scene, 1);
             return 1;
         }
@@ -11398,9 +11398,9 @@ void he_AllocTransport(AIJOB *e)
     if (ai_BTypes[to->type].kind == 0xa && o != 0 && (o->flags20 & 1) != 0) {
         best = to;
         mind = 1e8f;
-        d3_PointToWorld(from->object, &from->object->pos, (D3VECTOR *)&p1);
+        d3_PointToWorld(from->object, &from->object->pos, &p1.v);
         for (b = gm_BuildQuery(1, 5, 0xa); b != 0; b = gm_BuildNext()) {
-            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p2);
+            d3_PointToWorld(b->object, &b->object->pos, &p2.v);
             dx = p2.x - p1.x;
             dy = p2.y - p1.y;
             dz = p2.z - p1.z;
@@ -11750,9 +11750,9 @@ void he_TransportStadtStadt(AIJOB *ev)
         d3if_SelectScene(0, 1);
         o = he_RandomTransporter(to->object);
         if (o != 0)
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(o, &o->pos, &pos.v);
         else
-            d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(to->object, &to->object->pos, &pos.v);
         if (gm_IsType10(from) != 0)
             tr = gm_Query(guards->objList, 1, 1, t->cart);
         else
@@ -11767,7 +11767,7 @@ void he_TransportStadtStadt(AIJOB *ev)
             he_SetCartSpeed(ev, tr);
             hmap = (D3SM *)ch_GetHMap(ch);
             t->started = 1;
-            d3_GetHeightAt(hmap, (D3VECTOR *)&pos, &px, &pz, &py);
+            d3_GetHeightAt(hmap, &pos.v, &px, &pz, &py);
             t->lastPos.x = pos.x;
             t->lastPos.y = pos.y;
             t->lastPos.z = pos.z;
@@ -11775,7 +11775,7 @@ void he_TransportStadtStadt(AIJOB *ev)
                 if (from->object != 0) {
                     o = he_RandomTransporter(from->object);
                     if (o != 0)
-                        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&back);
+                        d3_PointToWorld(o, &o->pos, &back.v);
                     else {
                         bo = to->object;
                         back.x = bo->pos.x;
@@ -11889,7 +11889,7 @@ void he_TransportHomeHome(AIJOB *e)
         u = init_BuildingSceneUniverse(to);
         d3if_SelectScene(u, 1);
         if (he_RandomTransporter(0) != 0 && d3_Scenes[u].hmap != 0
-            && d3_GetHeightAt((D3SM *)d3_Scenes[u].hmap, (D3VECTOR *)&pos, &px, &pz, &py) != 0)
+            && d3_GetHeightAt((D3SM *)d3_Scenes[u].hmap, &pos.v, &px, &pz, &py) != 0)
             cm_SendChrWalkTo(tr->objId, px, pz, u);
         cm_SendSetField(tr->objId, 0x13, 1, 0, 0x40);
         if (to->type == 0x47) {
@@ -12641,10 +12641,10 @@ void he_RunHerbGathering(AIJOB *e)
                 if (b != 0) {
                     best = 1e8f;
                     obj = b->object;
-                    d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&at);
+                    d3_PointToWorld(obj, &obj->pos, &at.v);
                     for (f = gm_BuildQuery(1, 5, 0xb); f != 0; f = gm_BuildNext()) {
                         obj = f->object;
-                        d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)&pos);
+                        d3_PointToWorld(obj, &obj->pos, &pos.v);
                         dx = pos.x - at.x;
                         dy = pos.y - at.y;
                         dz = pos.z - at.z;
@@ -15620,8 +15620,8 @@ void he_RunRoutine(AIJOB *ev)
                         b = gm_FindBuildingById(c->scene->group);
                         dist = 0.0f;
                         if (b != 0 && b->object != 0) {
-                            d3_PointToWorld(c->bld->object, &c->bld->object->pos, (D3VECTOR *)&from);
-                            d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&to);
+                            d3_PointToWorld(c->bld->object, &c->bld->object->pos, &from.v);
+                            d3_PointToWorld(b->object, &b->object->pos, &to.v);
                             dx = from.x - to.x;
                             dy = from.y - to.y;
                             dz = from.z - to.z;
@@ -17145,10 +17145,10 @@ void he_RunAmbush(AIJOB *ev)
             d3if_SelectScene(0, 1);
             o = d3_FindObject(0, 0x100, 0, x->place);
             if (o != 0)
-                d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
+                d3_PointToWorld(o, &o->pos, &pos.v);
             for (k = 0; k < 8; k++) {
                 if (ev->ids[k] != -1 && (c = gm_FindChar(ev->ids[k])) != 0
-                    && d3_VecEqual(&c->scene->obj->pos, (D3VECTOR *)&pos, 25000.0f) == 0) {
+                    && d3_VecEqual(&c->scene->obj->pos, &pos.v, 25000.0f) == 0) {
                     all = 0;
                     break;
                 }
@@ -17168,7 +17168,7 @@ void he_RunAmbush(AIJOB *ev)
                 if (cart == 0)
                     continue;
                 task = cart->sceneObj;
-                if (d3_VecEqual(&task->obj->pos, (D3VECTOR *)&pos, 1500.0f) != 0)
+                if (d3_VecEqual(&task->obj->pos, &pos.v, 1500.0f) != 0)
                     nearby = 1;
                 gm_StallGoodsList((char *)cart, goods);
                 value = goods[0x2c];
@@ -17523,10 +17523,10 @@ void he_AllocFire(AIJOB *ev)
     for (i = 0; i < n && k < 0x10; i++) {
         b = list[i];
         o = b->object;
-        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p1);
+        d3_PointToWorld(o, &o->pos, &p1.v);
         o = c->object;
-        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p2);
-        if (b != c && d3_VecEqual((D3VECTOR *)&p1, (D3VECTOR *)&p2, (float)x->radius) != 0)
+        d3_PointToWorld(o, &o->pos, &p2.v);
+        if (b != c && d3_VecEqual(&p1.v, &p2.v, (float)x->radius) != 0)
             x->blds[k++] = b->id;
     }
     x->center = c->id;
@@ -17581,8 +17581,8 @@ void he_RunFire(AIJOB *ev)
         for (k = 0; k < 16; k++) {
             if (c != 0 && x->blds[k] != -1 && x->blds[k] != c->id
                 && (b = gm_BuildQuery(1, 1, x->blds[k])) != 0) {
-                d3_PointToWorld(c->object, &c->object->pos, (D3VECTOR *)&p1);
-                d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p2);
+                d3_PointToWorld(c->object, &c->object->pos, &p1.v);
+                d3_PointToWorld(b->object, &b->object->pos, &p2.v);
                 dx = p1.x - p2.x;
                 dy = p1.y - p2.y;
                 dz = p1.z - p2.z;
@@ -17667,8 +17667,8 @@ void he_AllocBurn(AIJOB *ev)
     }
     n = gm_NearestBuilding(b, 3);
     if (n != 0) {
-        d3_PointToWorld(b->object, &b->object->pos, (D3VECTOR *)&p1);
-        d3_PointToWorld(n->object, &n->object->pos, (D3VECTOR *)&p2);
+        d3_PointToWorld(b->object, &b->object->pos, &p1.v);
+        d3_PointToWorld(n->object, &n->object->pos, &p2.v);
         dx = p1.x - p2.x;
         dy = p1.y - p2.y;
         dz = p1.z - p2.z;
@@ -17749,11 +17749,11 @@ void he_RunBurn(AIJOB *ev)
                 }
                 o = d3_FindObject((int)b->object, 0x100, 0, names[x->state]);
                 if (o != 0)
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p);
+                    d3_PointToWorld(o, &o->pos, &p.v);
                 else
                     o = d3_FindObject((int)b->object, 0x100, 0, "dummy_FAHNE");
                 if (o != 0) {
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p);
+                    d3_PointToWorld(o, &o->pos, &p.v);
                     p.x = p.x + util_Random(0x40) - 32.0f;
                     p.z = p.z + util_Random(0x40) - 32.0f;
                     p.y -= 20.0;
@@ -17844,8 +17844,8 @@ void he_RunBurn(AIJOB *ev)
                     if (c != 0 && c->scene != 0 && c->scene->group == -1 && CH_ACTIONS(c->scene) == 0) {
                         o = d3_FindObject((int)b->object, 0x100, 0, "dummy_TUER");
                         if (o != 0) {
-                            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&p);
-                            if (d3_VecEqual(&c->scene->obj->pos, (D3VECTOR *)&p, 80.0f) == 0)
+                            d3_PointToWorld(o, &o->pos, &p.v);
+                            if (d3_VecEqual(&c->scene->obj->pos, &p.v, 80.0f) == 0)
                                 cm_SendChrGotoBuilding(x->helpers[k], b->id, -1, 0, 1, "Brand");
                             else if (n != 0)
                                 cm_SendChrGotoBuilding(x->helpers[k], n->id, -1, 0, 1, "Brand");
