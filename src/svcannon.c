@@ -890,7 +890,7 @@ void ai_CannonCamera(CANNONSCENE *sc)
     v.x = d3_ZAxis.x * sc->obj98->matrix._11 + d3_ZAxis.y * sc->obj98->matrix._21 + d3_ZAxis.z * sc->obj98->matrix._31;
     v.y = d3_ZAxis.x * sc->obj98->matrix._12 + d3_ZAxis.y * sc->obj98->matrix._22 + d3_ZAxis.z * sc->obj98->matrix._32;
     v.z = d3_ZAxis.x * sc->obj98->matrix._13 + d3_ZAxis.y * sc->obj98->matrix._23 + d3_ZAxis.z * sc->obj98->matrix._33;
-    d3_Normalize((char *)&v);
+    d3_Normalize(&v);
     pos.x = v.x * 30.0f;
     pos.y = v.y * 30.0f;
     pos.z = v.z * 30.0f;
@@ -937,7 +937,7 @@ void ai_CannonCamera(CANNONSCENE *sc)
             v.x = sc->dirX;
             v.y = 0;
             v.z = sc->dirZ;
-            d3_Normalize((char *)&v);
+            d3_Normalize(&v);
             k = 1.0f;
             if (sc->rot.x > 0.0f)
                 k = 1.0f - sc->rot.x / ai_CameraPitchMax;
@@ -1176,7 +1176,7 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             v.x = sc->dirX;
             v.z = sc->dirZ;
             v.y = 0;
-            d3_Normalize(&v);
+            d3_Normalize(&v.v);
             v.x = (ai_CannonSwitchDist * f) * v.x;
             v.y = (ai_CannonSwitchDist * f) * v.y;
             v.z = (ai_CannonSwitchDist * f) * v.z;
@@ -1212,7 +1212,7 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             v.z = sc->dirZ;
             v.y = 0;
             f = 1.0f - f;
-            d3_Normalize(&v);
+            d3_Normalize(&v.v);
             v.x = (ai_CannonSwitchDist * f) * v.x;
             v.y = (ai_CannonSwitchDist * f) * v.y;
             v.z = (ai_CannonSwitchDist * f) * v.z;

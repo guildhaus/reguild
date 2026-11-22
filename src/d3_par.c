@@ -391,7 +391,7 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
                 r.x = PAR_RND() - 0.5f;
                 r.y = PAR_RND() - 0.5f;
                 r.z = PAR_RND() - 0.5f;
-                d3_Normalize(&r);
+                d3_Normalize(&r.v);
                 if (!e->initfill && !e->rebirthfill) {
                     p->birth = time;
                     p->base[0] = (e->size[0]) * r.x;
@@ -541,7 +541,7 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                 r.x = PAR_RND() - 0.5f;
                 r.y = (float)rand() / RAND_MAX - 0.5f;
                 r.z = 0.0f;
-                d3_Normalize(&r);
+                d3_Normalize(&r.v);
                 if (!e->initfill && !e->rebirthfill) {
                     p->birth = time;
                     rad = PAR_RND() * e->size[0];
@@ -562,7 +562,7 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                     r.x -= p->base[0];
                     r.y -= p->base[1];
                     r.z -= p->base[2];
-                    d3_Normalize(&r);
+                    d3_Normalize(&r.v);
                     p->vel.x = r.x * speed;
                     p->vel.y = r.y * speed;
                     p->vel.z = r.z * speed;
@@ -586,7 +586,7 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                     r.x -= p->base[0];
                     r.y -= p->base[1];
                     r.z -= p->base[2];
-                    d3_Normalize(&r);
+                    d3_Normalize(&r.v);
                     f = PAR_RND();
                     p->birth = (unsigned long)(time - e->alpha[2] * f);
                     f *= e->size[2];

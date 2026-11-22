@@ -117,7 +117,7 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
         dir.x = end->x - start->x;
         dir.y = end->y - start->y;
         dir.z = end->z - start->z;
-        d3_Normalize(&dir);
+        d3_Normalize(&dir.v);
         do {
             for (i = 0; i < nedge; i += 2) {
                 if (!used[i] && (p = edges[i]) == end) {
@@ -125,7 +125,7 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
                     d.x = p->x - q->x;
                     d.y = p->y - q->y;
                     d.z = p->z - q->z;
-                    d3_Normalize(&d);
+                    d3_Normalize(&d.v);
                     nd.x = -d.x;
                     nd.y = -d.y;
                     nd.z = -d.z;
@@ -143,7 +143,7 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
                     d.x = p->x - q->x;
                     d.y = p->y - q->y;
                     d.z = p->z - q->z;
-                    d3_Normalize(&d);
+                    d3_Normalize(&d.v);
                     nd.x = -d.x;
                     nd.y = -d.y;
                     nd.z = -d.z;
@@ -182,7 +182,7 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
                         dir.x = end->x - start->x;
                         dir.y = end->y - start->y;
                         dir.z = end->z - start->z;
-                        d3_Normalize(&dir);
+                        d3_Normalize(&dir.v);
                         break;
                     }
                 }

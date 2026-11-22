@@ -1799,7 +1799,7 @@ char d3t_EmitterCB(D3PARTSYS *ps, unsigned long time)
                 n.x = x;
                 n.y = y;
                 n.z = z;
-                d3_Normalize(&n);
+                d3_Normalize(&n.v);
                 if (n.y < 0.0f) {
                     p->flags &= ~1;
                 } else {

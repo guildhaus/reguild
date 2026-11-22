@@ -103,7 +103,7 @@ void d3sky_Build(D3SKY *s)
         d3_Lerp3(&corner[1].v, &corner[3].v, y * 0.2f, &edge[1].v);
         for (x = 0; x < D3SKY_COLS; x++) {
             d3_Lerp3(&edge[0].v, &edge[1].v, x * 0.14285715f, &s->dir[y * D3SKY_COLS + x].v);
-            d3_Normalize(&s->dir[y * D3SKY_COLS + x]);
+            d3_Normalize(&s->dir[y * D3SKY_COLS + x].v);
             s->buffer[y * D3SKY_COLS + x].visible = s->dir[y * D3SKY_COLS + x].y > s->horizon;
             s->buffer[y * D3SKY_COLS + x].fog = (unsigned char)min(255.0f, max(0.0f, (s->dir[y * D3SKY_COLS + x].y - s->fogstart) * s->fogscale));
         }
@@ -189,7 +189,7 @@ void d3sky_Init(D3SKY *s, char build)
         sx = (float)d3_Viewport.left;
         for (x = 0; x < D3SKY_COLS; x++) {
             d3_Lerp3(&edge[0].v, &edge[1].v, x * 0.14285715f, &dir.v);
-            d3_Normalize(&dir);
+            d3_Normalize(&dir.v);
             s->dir[y * D3SKY_COLS + x].w = (float)atan2(dir.x, dir.z);
             s->buffer[y * D3SKY_COLS + x].sx = sx;
             s->buffer[y * D3SKY_COLS + x].sy = sy;

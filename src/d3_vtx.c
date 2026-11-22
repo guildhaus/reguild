@@ -66,7 +66,7 @@ void d3_EnvMapCoords(D3OBJECT *obj, XPART *part)
                         b.x = d * nv.x + v->x;
                         b.y = d * nv.y + v->y;
                         b.z = nv.z * d + v->z;
-                        d3_Normalize(&b);
+                        d3_Normalize(&b.v);
                         v->u = (b.x + 1.0f) * 0.5f;
                         v->v = (b.y + 1.0f) * 0.5f;
                     }
@@ -85,7 +85,7 @@ void d3_EnvMapCoords(D3OBJECT *obj, XPART *part)
                     b.x = d * nv.x + v->x;
                     b.y = d * nv.y + v->y;
                     b.z = nv.z * d + v->z;
-                    d3_Normalize(&b);
+                    d3_Normalize(&b.v);
                     v->u = (b.x + 1.0f) * 0.5f;
                     v->v = (b.y + 1.0f) * 0.5f;
                 }

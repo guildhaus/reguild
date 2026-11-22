@@ -165,7 +165,7 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
                         d.z = v->z - D3_L(l)->cam.z;
                         dist = d.x * d.x + d.y * d.y + d.z * d.z;
                         if (dist < r2) {
-                            d3_Normalize(&d);
+                            d3_Normalize(&d.v);
                             f = d.x * v->nx + d.y * v->ny + d.z * v->nz;
                             if (f < 0.0) {
                                 d3l_FtoI2(f * -1023.0f, &iv);
@@ -222,7 +222,7 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
                             c.x = m._11 * d.x + m._21 * d.y + m._31 * d.z;
                             c.y = m._12 * d.x + m._22 * d.y + m._32 * d.z;
                             c.z = m._13 * d.x + m._23 * d.y + m._33 * d.z;
-                            d3_Normalize(&c);
+                            d3_Normalize(&c.v);
                             f = nrm.x * c.x + nrm.y * c.y + nrm.z * c.z;
                             if (f < 0.0) {
                                 d3l_FtoI2(f * -1023.0f, &iv);
@@ -305,7 +305,7 @@ char d3_LightAddObject(D3OBJECT *obj, D3LCTX2 *ctx)
                     d.z = v->z - D3_L(light)->cam.z;
                     s = d.x * d.x + d.y * d.y + d.z * d.z;   /* s, not dd: the original reuses s (scale below) */
                     if (s < rr) {
-                        d3_Normalize((D3VECTOR4 *)&d);
+                        d3_Normalize(&d.v);
                         f = d.x * v->nx + d.y * v->ny + d.z * v->nz;
                         if (f < 0.0) {
                             f = f * -1023.0f;

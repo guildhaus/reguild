@@ -893,8 +893,8 @@ int ai_SolveCannonAim(const D3VECTOR *from, const D3VECTOR *to, float *range, fl
     hdir.y = 0.0f;
     hdir.z = dir.z;
     horiz = (float)sqrt(dir.x * dir.x + dir.z * dir.z);
-    d3_Normalize(&dir);
-    d3_Normalize(&hdir);
+    d3_Normalize(&dir.v);
+    d3_Normalize(&hdir.v);
     *outYaw = d3_VecAngle2(&d3_ZAxis.v, &dir.v);
     drop = (float)fabs(to->y - from->y) * ai_MeterPerInch;
     horiz = ai_MeterPerInch * horiz;

@@ -1895,7 +1895,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
         sun.x = d3fl_AxisY.x;
         sun.y = d3fl_AxisY.y;
         sun.z = d3fl_AxisY.z;
-        d3_Normalize(&sun);
+        d3_Normalize(&sun.v);
         size = map->size;
         mask = map->mask;
         water = map->water;

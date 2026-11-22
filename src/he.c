@@ -9259,7 +9259,7 @@ int he_MoveReaper(AIJOB *e)
                 step = (float)d3_Time - e->reaperClock;
                 step = ((float)cm_GetSpeedLevel() * 0.25f + 0.5f) * step;
                 e->reaperClock = d3_Time;
-                d3_Normalize(&dir);
+                d3_Normalize(&dir.v);
                 dir.x = step * dir.x;
                 dir.y = step * dir.y;
                 dir.z = step * dir.z;

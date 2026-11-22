@@ -576,7 +576,7 @@ void d3sndw_Update(void)
     dir.x = d3_ZAxis.x * m._11 + d3_ZAxis.y * m._21 + d3_ZAxis.z * m._31;
     dir.z = d3_ZAxis.x * m._13 + d3_ZAxis.y * m._23 + d3_ZAxis.z * m._33;
     dir.y = 0.0f;
-    d3_Normalize(&dir);
+    d3_Normalize(&dir.v);
     idx = map_Region(d3_Terrain, gx, gy);
     if (idx < 0 || (type = ((D3MAP *)d3_Terrain)->regions[idx].water) > 3 || type == 0) {
         for (i = 0; i < d3sndw_N; i++)

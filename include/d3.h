@@ -356,7 +356,7 @@ struct D3PARTSYS {                  /* 0x31c bytes */
 D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *parent, D3PARTCB cb); /* 0x455830 */
 void par_SetPos(D3PARTSYS *ps, const D3VECTOR *pos);                                          /* 0x455a20 */
 extern const D3VECTOR4 d3_Origin;           /* 0x5ebba4, (0, 0, 0), d3_vec.c */
-void d3_Normalize(D3VECTOR4 *v);                                                        /* 0x454560 */
+void d3_Normalize(D3VECTOR *v);                                                         /* 0x454560 */
 
 void *mem_Alloc(int size, char *tag);                                                  /* 0x4223c0 */
 void mem_Free(void *p);                                                                 /* 0x422620 */

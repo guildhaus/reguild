@@ -908,8 +908,8 @@ float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p)
     a.z = a.z - pos.z;
     b.x = p->x - pos.x;
     b.z = p->z - pos.z;
-    d3_Normalize(&b);
-    d3_Normalize(&a);
+    d3_Normalize(&b.v);
+    d3_Normalize(&a.v);
     d = a.x * b.x + a.y * b.y + a.z * b.z;
     e = min(max(-1.0f, d), 1.0f);
     ang = (float)acos(e);

@@ -34,8 +34,8 @@ float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b)
     va.y = 0.0f;
     vb.x = b->x;
     vb.z = b->z;
-    d3_Normalize(&va);
-    d3_Normalize(&vb);
+    d3_Normalize(&va.v);
+    d3_Normalize(&vb.v);
     if (d3_VecEqual(&va.v, &vb.v, 1e-7f))
         return 0.0f;
     nb.x = -vb.x;
@@ -76,7 +76,7 @@ void d3_MakeBasis(D3VECTOR *dir, float roll, D3MATRIX *m)
     m->_31 = dir->x;
     m->_32 = dir->y;
     m->_33 = dir->z;
-    d3_Normalize((D3VECTOR4 *)&m->_31);
+    d3_Normalize((D3VECTOR *)&m->_31);
     d = -(u.x * m->_31 + u.z * m->_33 + u.y * m->_32);
     m->_21 = d * m->_31 + u.x;
     m->_22 = d * m->_32 + u.y;
@@ -97,7 +97,7 @@ void d3_MakeBasis(D3VECTOR *dir, float roll, D3MATRIX *m)
             }
         }
     }
-    d3_Normalize((D3VECTOR4 *)&m->_21);
+    d3_Normalize((D3VECTOR *)&m->_21);
     m->_34 = 0.0f;
     m->_24 = 0.0f;
     m->_14 = 0.0f;
@@ -226,7 +226,7 @@ void d3_MatIdentity(D3MATRIX *m)
 }
 /* 0x454560, scales v to unit length in place; a zero vector is left as the zero vector */
 
-void d3_Normalize(D3VECTOR4 *v)
+void d3_Normalize(D3VECTOR *v)
 {
     float l = (float)sqrt(v->z * v->z + v->y * v->y + v->x * v->x);
 
@@ -293,7 +293,7 @@ void d3_TriNormal(const D3VECTOR *a, const D3VECTOR *b, const D3VECTOR *c, D3VEC
     n->x = v.z * u.y - v.y * u.z;
     n->y = v.x * u.z - v.z * u.x;
     n->z = v.y * u.x - v.x * u.y;
-    d3_Normalize(n);
+    d3_Normalize(&n->v);
 }
 
 /* the engine's axes and origin, read-only (.rdata): 4-float vectors (D3VECTOR4, w = 0), 16 bytes each as the

@@ -1398,7 +1398,7 @@ void d3anim_CalculateAnimNormals(D3ANIMDATA *a, D3ANIMMESH *mesh)
                     n.z += normals[k].z;
                 }
             }
-            d3_Normalize(&n);
+            d3_Normalize(&n.v);
             n.x += 1.0f;
             n.y += 1.0f;
             n.z += 1.0f;

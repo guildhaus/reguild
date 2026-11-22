@@ -171,7 +171,7 @@ void d3_CalcNormals(D3BGF *m)
                 s.z += p[j].n.z;
             }
         }
-        d3_Normalize(&s);
+        d3_Normalize(&s.v);
         vt->nx = s.x;
         vt->ny = s.y;
         vt->nz = s.z;
