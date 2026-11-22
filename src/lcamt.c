@@ -1951,16 +1951,6 @@ unsigned int ai_FillLoversTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, A
     }
     return n;
 }
-#pragma pack(push, 1)
-typedef struct LCOFFEREVENT {           /* the wedding offer event 0x2c's words over AIJOB's union (he.c HEOFFER, same
-                                           layout) */
-    char pad00[0xac];
-    int who[6];                         /* 0xac, the characters of the wedding: the suitor, the partner, then four
-                                           guests (the last -1 for none) */
-    char kind;                          /* 0xc4, the offer kind */
-    AITIME clock;                       /* 0xc5, when the wedding takes place */
-} LCOFFEREVENT;
-#pragma pack(pop)
 /* 0x5bf7c0, the fill of the special-amount window's wedding tab (tab 4, 717 B): the weddings (the offer events 0x2c)
    me takes part in whose six characters exist (the last guest may be missing). With max 0 it counts their
    characters (5 or 6 per wedding); else it fills rows with the characters of the soonest such wedding at most 200
@@ -1972,7 +1962,7 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
 {
     AICHAR *guests[6];
     int roles[6];
-    LCOFFEREVENT *ev;
+    AIJOB *ev;
     AICHAR *c;
     unsigned int n;
     int j;
@@ -1983,35 +1973,35 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
     soonest = 200;
     n = 0;
     if (max == 0) {
-        for (ev = (LCOFFEREVENT *)he_FindEvent(1, 0, 0x2c); ev != 0; ev = (LCOFFEREVENT *)he_NextEvent()) {
+        for (ev = he_FindEvent(1, 0, 0x2c); ev != 0; ev = he_NextEvent()) {
             mine = 0;
-            c = gm_FindChar(ev->who[0]);
+            c = gm_FindChar(ev->offerWho[0]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = gm_FindChar(ev->who[1]);
+            c = gm_FindChar(ev->offerWho[1]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = gm_FindChar(ev->who[2]);
+            c = gm_FindChar(ev->offerWho[2]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = gm_FindChar(ev->who[3]);
+            c = gm_FindChar(ev->offerWho[3]);
             if (c == 0)
                 continue;
             if (c == me)
                 mine = 1;
-            c = gm_FindChar(ev->who[4]);
+            c = gm_FindChar(ev->offerWho[4]);
             if (c == 0)
                 continue;
             k = 5;
             if (c == me)
                 mine = 1;
-            c = gm_FindChar(ev->who[5]);
+            c = gm_FindChar(ev->offerWho[5]);
             if (c != 0) {
                 k = 6;
                 if (c == me)
@@ -2022,41 +2012,41 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
         }
         return n;
     }
-    for (ev = (LCOFFEREVENT *)he_FindEvent(1, 0, 0x2c); ev != 0; ev = (LCOFFEREVENT *)he_NextEvent()) {
+    for (ev = he_FindEvent(1, 0, 0x2c); ev != 0; ev = he_NextEvent()) {
         mine = 0;
-        if (ev->clock.year - ai_Time.year > soonest)
+        if (ev->offerAt.clock.year - ai_Time.year > soonest)
             continue;
-        guests[0] = gm_FindChar(ev->who[0]);
+        guests[0] = gm_FindChar(ev->offerWho[0]);
         if (guests[0] == 0)
             continue;
         roles[0] = 0;
         if (guests[0] == me)
             mine = 1;
-        guests[1] = gm_FindChar(ev->who[1]);
+        guests[1] = gm_FindChar(ev->offerWho[1]);
         if (guests[1] == 0)
             continue;
         roles[1] = 1;
         if (guests[1] == me)
             mine = 1;
-        guests[2] = gm_FindChar(ev->who[2]);
+        guests[2] = gm_FindChar(ev->offerWho[2]);
         if (guests[2] == 0)
             continue;
         roles[2] = 2;
         if (guests[2] == me)
             mine = 1;
-        guests[3] = gm_FindChar(ev->who[3]);
+        guests[3] = gm_FindChar(ev->offerWho[3]);
         if (guests[3] == 0)
             continue;
         roles[3] = 3;
         if (guests[3] == me)
             mine = 1;
-        guests[4] = gm_FindChar(ev->who[4]);
+        guests[4] = gm_FindChar(ev->offerWho[4]);
         if (guests[4] == 0)
             continue;
         roles[4] = 3;
         if (guests[4] == me)
             mine = 1;
-        guests[5] = gm_FindChar(ev->who[5]);
+        guests[5] = gm_FindChar(ev->offerWho[5]);
         if (guests[5] != 0) {
             roles[5] = 4;
             if (guests[5] == me)
@@ -2064,7 +2054,7 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
         }
         if (!mine)
             continue;
-        soonest = ev->clock.year - ai_Time.year;
+        soonest = ev->offerAt.clock.year - ai_Time.year;
         for (j = 0, k = 0; j < 6 && j < max; j++) {
             if (guests[j] != 0) {
                 rows[k].rec = guests[j];

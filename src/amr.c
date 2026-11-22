@@ -1881,18 +1881,18 @@ int ai_EvalLeastLikedOfEvent(float *a, float *b, int i, AICHAR *p, int f, AIARG 
     x = ai_JudgeCatholic ? ai_JudgeCatholic->netId : -1;
     y = ai_JudgeProtestant ? ai_JudgeProtestant->netId : -1;
     for (job = he_FindEvent(1, 0, 0x2c); job; job = he_NextEvent())
-        if (job->partner2 == p->netId)
+        if (job->offerWho[1] == p->netId)
             break;
-    if (!job || job->guests[0] == x || job->guests[0] == y)
+    if (!job || job->offerWho[2] == x || job->offerWho[2] == y)
         goto fallback;
     dist[0] = 100.0f;
     dist[1] = 100.0f;
     dist[2] = 100.0f;
     best = 100.0f;
     bi = -1;
-    c[0] = gm_FindChar(job->guests[0]);
-    c[1] = gm_FindChar(job->guests[1]);
-    c[2] = gm_FindChar(job->guests[2]);
+    c[0] = gm_FindChar(job->offerWho[2]);
+    c[1] = gm_FindChar(job->offerWho[3]);
+    c[2] = gm_FindChar(job->offerWho[4]);
     if (c[0] && c[0] != ai_Partner)
         dist[0] = gm_Liking(p->id, c[0]->id, 1);
     if (c[1] && c[1] != ai_Partner)

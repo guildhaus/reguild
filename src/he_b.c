@@ -216,18 +216,6 @@ typedef struct HESTORM {                /* the storm event 0x50's words after AI
     int w104;                           /* 0x104, 0 at the allocation (no reader known) */
 } HESTORM;
 #pragma pack(push, 1)
-typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJOB's union (AIJOB has no names at these
-                                           odd offsets): the kind, the offer clock and the offer handle */
-    char pad00[0xac];
-    int who[6];                         /* 0xac, the character ids of the wedding offer (he_RunWeddingOffer, the party's members):
-                                           the suitor, the partner, then four guests, the last -1 for none (reasoned
-                                           from the news: 0x1bc0 to the partner names the suitor, 0x1bbf the other way);
-                                           the master exam event 0x2f keeps its three characters here too (he_RunMasterExam) */
-    char kind;                          /* 0xc4, the offer kind compared between the pending offers */
-    AITIME clock;                       /* 0xc5, the offer's clock: now + 0x18 units, its hour 0xa and minute 0 */
-    char pad_d3;
-    int offer;                          /* 0xd4, the offer handle cm_SendHandOverCrimes gave (cm_GetSlotState asks it) */
-} HEOFFER;
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */
 #define MEETING_KINDS_HI 1             /* the same for the kinds from 0x20 on: 0x20 */

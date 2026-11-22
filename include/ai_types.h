@@ -11,6 +11,14 @@ typedef struct AITIME {                 /* 14 bytes: the game clock ai_Time, the
     int min;                            /* 0x6, the minute */
     int sec;                            /* 0xa, the second */
 } AITIME;
+#pragma pack(push, 1)
+typedef struct AIOFFERAT {              /* 15 bytes at AIJOB + 0xc4 of the offer event 0x2c (AIJOB.offerAt): the clock
+                                           follows the kind byte unaligned, at 0xc5 (the original's pack(1) words) */
+    signed char kind;                   /* +0x0, the offer kind compared between the pending offers */
+    AITIME clock;                       /* +0x1, the offer's clock: now + 0x18 units, its hour 0xa and minute 0 (the
+                                           wedding's day, ai_FillWeddingTab) */
+} AIOFFERAT;
+#pragma pack(pop)
 #pragma pack(pop)
 
 typedef struct G14MSG {                 /* an AI message, the argument of rmsg.c's callbacks (ai_RunMessage) */
@@ -115,8 +123,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                         int graveSize;                  /* 0xb0, of the graveyard order events 0x92 / 0x93 (the master exam at
                                                            a graveyard): the size of the grave the order names, an index into
                                                            ai_GraveNames (he.c 0x5729c0 passes it as the order's size) */
-                        int partner2;                   /* 0xb0, of a pair event the second partner's netId; of the offer event 0x2c
-                                                           the partner's (ai_EvalLeastLikedOfEvent) */
+                        int partner2;                   /* 0xb0, of a pair event the second partner's netId */
                         int orderObj;                   /* 0xb0, of an order (event kind 2): the AIOBJ.objId of the workshop it is for */
                         int id2;                        /* 0xb0, a second id: a building (kind 100) or a character (kind 0x89) as
                                                            sv_SpeakPicked looks them up */
@@ -158,8 +165,6 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                         };
                         AITIME end6c;                   /* 0xb4, of a job kind 0x6c: the end time */
                         int research;                   /* 0xb4, of a research job (event kind 0xc): the goods researched (gm_UpdateTechTree) */
-                        int guests[3];                  /* 0xb4, of the offer event 0x2c the first three guests' netIds:
-                                                           ai_EvalLeastLikedOfEvent weighs them for the character whose event it is */
                         int cartBld;                    /* 0xb4, of the job a cart runs (AIOBJ.job24): the building (sv_RefreshPanel prints its kind) */
                         int id3;                        /* 0xb4, a third id: of a kind 0x1a the character sv_SpeakPicked looks up */
                         struct { char padid4[0x10]; int id4; };       /* 0xc4, of a kind 0x18: the character sv_SpeakPicked looks up */
@@ -436,6 +441,17 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int customersTarget;            /* 0xe0, the objId the customer walks to, -1: the building's main object */
             int customersSlot;              /* 0xe4, the spawn's send slot, -1 none */
             int customersPerson;            /* 0xe8, the netId of the spawned customer */
+        };
+        struct {                        /* of the offer event 0x2c (the wedding offer: he_AllocOffer / he_RunWeddingOffer,
+                                           ai_FillWeddingTab) and the master exam event 0x2f (he_RunMasterExam keeps its
+                                           three characters in offerWho) */
+            int offerWho[6];                /* 0xac, the netIds of the wedding: the suitor, the partner, then four guests, the
+                                           last -1 for none (reasoned from the news: 0x1bc0 to the partner names the
+                                           suitor, 0x1bbf the other way); ai_EvalLeastLikedOfEvent weighs the first three
+                                           guests for the partner */
+            AIOFFERAT offerAt;              /* 0xc4, the offer kind and the offer clock (0xc5) */
+            char offerPadd3;
+            int offerHandle;                /* 0xd4, the offer handle cm_SendHandOverCrimes gave (cm_GetSlotState asks it) */
         };
         struct {                        /* of the hire event 7 (he_AllocCustomersHire / he_RunHire); the building
                                            is AIJOB.from */

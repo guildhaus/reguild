@@ -866,7 +866,7 @@ typedef struct G28REC {
     int members[16];                    /* 0x34, the members' netIds (-1 for one removed, cm_RemovePartyMember); of a fight
                                            the leading characters, [0] the attacker (cm_FightAttacker), [1] the defender
                                            (cm_FightDefender); cm_CutInfos[i] is the cutscene record of members[i] */
-    unsigned char offerKind;            /* 0x74, of a wedding party (he.c's offer event): the offer's kind (HEOFFER.kind) */
+    unsigned char offerKind;            /* 0x74, of a wedding party (he.c's offer event): the offer's kind (AIJOB.offerAt.kind) */
     char pad75[3];
     unsigned int seed;                  /* 0x78, the random seed the scene runs with (cut_RandSeed) */
     union {

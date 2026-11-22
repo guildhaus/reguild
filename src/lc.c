@@ -58,7 +58,7 @@
    Open: the AIMSG message records are built by raw offsets in most functions (the use callbacks of the Domizil
    table use AIMSG: ai_UseEventGood, the money messenger AIMSG.payment).
    Open: types: the event / message words AIJOB.ambush*, AIJOB.groupSize / groupGood, AIJOB.kidnap* (he.c's
-   AIJOB.kidnap*) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
+   AIJOB.kidnap*) and AIJOB.offer* (the wedding offer 0x2c) are views over AIJOB / AIMSG.arg (the gang leader, the group members and
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
    Open: types: the amount-menu config (AMOUNTCFG), the frame stack (SVFRAME, 0x75f780), the remaining character /
@@ -13299,16 +13299,6 @@ int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg,
 /* dcp unit split: the declarations that moved to lcamt (copies: drop what lc does not use) */
 int amt_HasColumn7Holder();
 void d2_SetObjWidth(int obj, short w); int amt_GetColumnOffices(int col, int max, struct AMTREC *out);
-#pragma pack(push, 1)
-typedef struct LCOFFEREVENT {           /* the wedding offer event 0x2c's words over AIJOB's union (he.c HEOFFER, same
-                                           layout) */
-    char pad00[0xac];
-    int who[6];                         /* 0xac, the characters of the wedding: the suitor, the partner, then four
-                                           guests (the last -1 for none) */
-    char kind;                          /* 0xc4, the offer kind */
-    AITIME clock;                       /* 0xc5, when the wedding takes place */
-} LCOFFEREVENT;
-#pragma pack(pop)
 typedef struct AIAMOUNTTAB {            /* 0x14 bytes, one tab of the special-amount list window's tab table:
                                            {id, count, control, fill function of the page, row builder} */
     int id;                             /* +0x00, 0 .. 7 */

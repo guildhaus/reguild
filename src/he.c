@@ -39,8 +39,8 @@
    rt.h and d3_tools.h / d3_snd.h / sblib.h.
    The event and message words are read typed, except the kind-specific words over AIJOB's union the
    local views name: HEJOBTABLE (the job table
-   0x12c at +0x28), AIJOB.inn* (the meeting event 0x2a at +0xac .. +0xc0), HEOFFER (the offer event 0x2c and the
-   master exam 0x2f: who[] at +0xac, +0xc4 / +0xc5 / +0xd4), AIJOB.duel* (the duel challenge's +0xac and the duel's
+   0x12c at +0x28), AIJOB.inn* (the meeting event 0x2a at +0xac .. +0xc0), AIJOB.offer* (the offer event 0x2c and the
+   master exam 0x2f: offerWho[] at +0xac, offerAt at +0xc4 / +0xc5, offerHandle at +0xd4), AIJOB.duel* (the duel challenge's +0xac and the duel's
    +0xb4 / +0xb6), AIJOB.geselle* / AIJOB.examPay* / AIJOB.payment* / HEPUNISHMENT / AIJOB.offspring* / AIJOB.trial* / AIJOB.trialStep* / AIJOB.train* /
    AIJOB.plague* / AIJOB.gang* (the events 0x4a / 0x55 / 0x56 / 0x5b / 0x5c / 0x5d / 0x5e / 0x5f / 0x60 / 0x59 / 0x61; the fine
    0x5b and the pillory 0x5c are the trial's sentences of gv_PassSentence), AIMSG.fee / skillLevel /
@@ -299,18 +299,6 @@ typedef struct HESTORM {                /* the storm event 0x50's words after AI
     int w104;                           /* 0x104, 0 at the allocation (no reader known) */
 } HESTORM;
 #pragma pack(push, 1)
-typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJOB's union (AIJOB has no names at these
-                                           odd offsets): the kind, the offer clock and the offer handle */
-    char pad00[0xac];
-    int who[6];                         /* 0xac, the character ids of the wedding offer (he_RunWeddingOffer, the party's members):
-                                           the suitor, the partner, then four guests, the last -1 for none (reasoned
-                                           from the news: 0x1bc0 to the partner names the suitor, 0x1bbf the other way);
-                                           the master exam event 0x2f keeps its three characters here too (he_RunMasterExam) */
-    char kind;                          /* 0xc4, the offer kind compared between the pending offers */
-    AITIME clock;                       /* 0xc5, the offer's clock: now + 0x18 units, its hour 0xa and minute 0 */
-    char pad_d3;
-    int offer;                          /* 0xd4, the offer handle cm_SendHandOverCrimes gave (cm_GetSlotState asks it) */
-} HEOFFER;
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */
 #define MEETING_KINDS_HI 1             /* the same for the kinds from 0x20 on: 0x20 */
@@ -2811,49 +2799,46 @@ void he_RunTavern(AIJOB *e)
    time; at the end the offer is created (cm_SendHandOverCrimes, +0xd4) and the event posted */
 void he_AllocOffer(AIJOB *e)
 {
-    HEOFFER *o = (HEOFFER *)e;
     AIJOB *o2;
-    HEOFFER *f2;
     AICHAR *q, *p;
     AIJOB *r;
     unsigned char fl;
     char buf[0x100];
 
-    q = gm_FindChar(e->partner2);
-    p = gm_FindChar(e->partner1);
-    o->clock = ai_Time;
-    gm_AddTime(&o->clock, 0x18, 0, 0);
-    o->clock.hour = 0xa;
-    o->clock.min = 0;
+    q = gm_FindChar(e->offerWho[1]);
+    p = gm_FindChar(e->offerWho[0]);
+    e->offerAt.clock = ai_Time;
+    gm_AddTime(&e->offerAt.clock, 0x18, 0, 0);
+    e->offerAt.clock.hour = 0xa;
+    e->offerAt.clock.min = 0;
     e->end = ai_Time;
     fl = e->opts;
     if ((fl & 2) != 0) {
         r = he_FindEvent(1, 0, 0x2c);
         while (r != 0) {
             o2 = r;
-            f2 = (HEOFFER *)r;
-            if (o2->id != e->id && f2->kind == o->kind) {
-                if (o2->partner1 == e->partner1) {
+            if (o2->id != e->id && o2->offerAt.kind == e->offerAt.kind) {
+                if (o2->offerWho[0] == e->offerWho[0]) {
                     txt_Format(buf, 0x1bbe, p->id, q->id);
                     he_ShowNews(p->netId, p->netId, buf, 0, 0x5f5, (char *)0);
                     e->end = ai_Time;
                     e->exSlot = cm_SendExSetHE(-1, e);
                     return;
                 }
-                if (o->clock.year <= f2->clock.year) {
-                    o->clock = f2->clock;
-                    gm_AddTime(&o->clock, 0x18, 0, 0);
-                    o->clock.hour = 0xa;
-                    o->clock.min = 0;
+                if (e->offerAt.clock.year <= o2->offerAt.clock.year) {
+                    e->offerAt.clock = o2->offerAt.clock;
+                    gm_AddTime(&e->offerAt.clock, 0x18, 0, 0);
+                    e->offerAt.clock.hour = 0xa;
+                    e->offerAt.clock.min = 0;
                 }
             }
             r = he_NextEvent();
         }
-        o->offer = cm_SendHandOverCrimes(e->partner1, e->partner2, e->id, 1);
+        e->offerHandle = cm_SendHandOverCrimes(e->offerWho[0], e->offerWho[1], e->id, 1);
         e->exSlot = cm_SendExSetHE(0, e);
     }
 }
-/* 0x542b60, a Ghidra miss (disassembled): the run handler of the wedding offer event (see 0x542960; HEOFFER). Stage 0
+/* 0x542b60, a Ghidra miss (disassembled): the run handler of the wedding offer event (see 0x542960; AIJOB.offer*). Stage 0
    waits for the answer to the offer (cm_GetSlotState of the offer handle: 1 accepted, 2 refused). Accepted: the end
    clock becomes the offer's clock, the partner and the suitor get the news 0x1bc0 / 0x1bbf ("_NACHRICHTEN_HS_16" /
    "_NACHRICHTEN_HS_15"), the guests who[3] / who[4] the news 0x1bc1 (HS_11) and who[2] / who[5] the news 0x1bc2
@@ -2862,7 +2847,6 @@ void he_AllocOffer(AIJOB *e)
    minutes from now, hosted by the player) and posts the event again */
 void he_RunWeddingOffer(AIJOB *e)
 {
-    HEOFFER *o = (HEOFFER *)e;
     AICHAR *partner, *suitor, *g2, *g3, *g4, *g5;
     char ok;
     G28REC m;
@@ -2879,17 +2863,17 @@ void he_RunWeddingOffer(AIJOB *e)
     e->exSlot = -1;
     switch (e->stage) {
     case 0:
-        ok = cm_GetSlotState(o->offer);
+        ok = cm_GetSlotState(e->offerHandle);
         if (ok == 0)
             return;
-        partner = gm_FindChar(o->who[1]);
-        suitor = gm_FindChar(o->who[0]);
-        g2 = gm_FindChar(o->who[2]);
-        g3 = gm_FindChar(o->who[3]);
-        g4 = gm_FindChar(o->who[4]);
-        g5 = gm_FindChar(o->who[5]);
+        partner = gm_FindChar(e->offerWho[1]);
+        suitor = gm_FindChar(e->offerWho[0]);
+        g2 = gm_FindChar(e->offerWho[2]);
+        g3 = gm_FindChar(e->offerWho[3]);
+        g4 = gm_FindChar(e->offerWho[4]);
+        g5 = gm_FindChar(e->offerWho[5]);
         if (ok == 1) {
-            e->end = o->clock;
+            e->end = e->offerAt.clock;
             if (partner->kind == 6 || partner->kind == 7) {
                 txt_Format(buf, 0x1bc0, suitor->id, &e->end, e->end.hour, g2->id, g3->id, g4->id);
                 he_ShowNews(partner->netId, partner->netId, buf, 0, 0x5f5, "_NACHRICHTEN_HS_16");
@@ -2923,15 +2907,15 @@ void he_RunWeddingOffer(AIJOB *e)
         return;
     case 1:
         memset(&m, 0, sizeof(m));
-        m.offerKind = o->kind;
+        m.offerKind = e->offerAt.kind;
         m.eventId = e->id;
-        m.members[0] = o->who[0];
-        m.members[1] = o->who[1];
-        m.members[2] = o->who[2];
-        m.members[3] = o->who[3];
-        m.members[4] = o->who[4];
-        m.members[5] = o->who[5];
-        m.used = (o->who[5] != -1) + 5;
+        m.members[0] = e->offerWho[0];
+        m.members[1] = e->offerWho[1];
+        m.members[2] = e->offerWho[2];
+        m.members[3] = e->offerWho[3];
+        m.members[4] = e->offerWho[4];
+        m.members[5] = e->offerWho[5];
+        m.used = (e->offerWho[5] != -1) + 5;
         m.kind = 2;
         m.flags = 0xa2;
         m.thing = -1;
@@ -3029,14 +3013,13 @@ void he_RunQuarrel(AIJOB *e)
    relation to the candidate drops by 20; failed: 0x1765 and who[1] and the candidate drop by 15 each way */
 void he_RunMasterExam(AIJOB *e)
 {
-    HEOFFER *o = (HEOFFER *)e;
     AICHAR *p, *q, *r;
     float f;
     char buf[0x100];
 
-    p = gm_FindChar(o->who[0]);
-    q = gm_FindChar(o->who[1]);
-    r = gm_FindChar(o->who[2]);
+    p = gm_FindChar(e->offerWho[0]);
+    q = gm_FindChar(e->offerWho[1]);
+    r = gm_FindChar(e->offerWho[2]);
     if (e->stage == -2 || p == 0 || q == 0 || r == 0) {
         he_FreeEvent(e);
         if (e->slot != 0)
@@ -9983,15 +9966,13 @@ void he_EndPersonEvents(AICHAR *p)
         }
     }
     for (e = he_FindEvent(1, 0, 0x2c); e != 0; e = he_NextEvent()) {
-        HEOFFER *o = (HEOFFER *)e;
-
         if ((e->opts & 3) == 0)
             continue;
-        a = o->who[0];
-        if (a == c->netId || o->who[2] == c->netId || o->who[5] == c->netId) {
-            cm_SendHandOverCrimes(a, o->who[1], e->id, 0);
+        a = e->offerWho[0];
+        if (a == c->netId || e->offerWho[2] == c->netId || e->offerWho[5] == c->netId) {
+            cm_SendHandOverCrimes(a, e->offerWho[1], e->id, 0);
             he_EndEventNow(e);
-        } else if (o->who[1] == c->netId) {
+        } else if (e->offerWho[1] == c->netId) {
             he_EndEventNow(e);
         }
     }
