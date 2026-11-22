@@ -109,10 +109,10 @@ exe	0x004076b0	ch_MapFree	ch	46d5ce1fa835a471	no	byte	control=byte p1=byte p2=by
 exe	0x004076c0	ch_CopyVec	ch	ee54c896b801bb76	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004076e0	ch_PosToCell	ch	c1e37bfa1dff80e6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00407740	ch_CellToCell	ch	c3d32bb49966197d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00407790	ch_GetWaypoints	ch	08626f70c949ec82	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	4af52efb84b5e3c6
+exe	0x00407790	ch_GetWaypoints	ch	1877c53f3070b30d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	7cf82cf5adf927f2
 exe	0x004079b0	ch_GetNewPath	ch	d737d5bd4329f293	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00408490	ch_PathToTarget	ch	b69a76b6f5c10af8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
-exe	0x00408690	ch_InitWalk	ch	5c4eadd15e4b76b6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	4af52efb84b5e3c6
+exe	0x00408690	ch_InitWalk	ch	445c48650619b780	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	7cf82cf5adf927f2
 exe	0x00408ab0	ch_WalkSound	ch	1d2c5fd3dee4d9b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408cb0	ch_StartWalkAnim	ch	8d90320b4a982588	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408e60	ch_NextWaypoint	ch	9ea9800cfef1c641	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2384,7 +2384,7 @@ exe	0x004cd3c0	cm_LobbyAddChat	cm	430100f50ed22920	no	byte	control=byte p1=byte 
 exe	0x004cd480	cm_LobbyChatFirst	cm	7acc2243f3901c6a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	becf1bbdf99775c9
 exe	0x004cd4c0	cm_LobbyChatNextLine	cm	f1e88ab84bab50da	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cd500	cm_LobbyClearChat	cm	1c9e3c474b080950	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004cd510	cm_LobbyAllReady	cm	d1c3b5864fcfec4f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	becf1bbdf99775c9
+exe	0x004cd510	cm_LobbyAllReady	cm	68bd51f1e13cfdaa	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	72b8dbcca948fb97
 exe	0x004cd580	cm_LobbyStart	cm	744ade9c48416d16	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cd5d0	cm_LobbyPlayerList	cm	6b742f53c11cfab9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cd5e0	cm_LobbyFindPlayer	cm	cca664414177010e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4108,10 +4108,10 @@ exe	0x00589c90	ai_SlotKeys	sv_t	b7f604e8b1a4443e	no	byte	control=byte p1=byte p2
 exe	0x00589cf0	ai_SpeedKeys	sv_t	3ef2081db5399fa7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00589e00	ai_BookmarkSetBuilding	sv_t	7fd81ccb48201ca1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00589e50	ai_BookmarksPreset	sv_t	309a431b83ed0b5d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00589f10	lobby_Screen	lobby	7952864e4f09df98	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
-exe	0x0058a940	lobby_AddButtons	unk_589f10	034ff8c649c3297e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
+exe	0x00589f10	lobby_Screen	lobby	85510da0ab2d362d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	8d5157d9866f6722
+exe	0x0058a940	lobby_AddButtons	lobby	3a829857bf25e415	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	8d5157d9866f6722
 exe	0x0058a9d0	lobby_AddChatScroll	unk_589f10	bc9a2359565534a2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0058aa30	lobby_ShowCity	unk_589f10	b9ae5034de5cdf58	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
+exe	0x0058aa30	lobby_ShowCity	lobby	10c45c13d623ec3f	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	8d5157d9866f6722
 exe	0x0058aba0	lobby_ShowMyPlayer	lobby	b5d26f426ce125ba	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a47a30c77b7801d1
 exe	0x0058ad20	lobby_FetchPlayers	unk_589f10	c1e2419f1f6315b8	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x0058ada0	lobby_ShowPlayers	lobby	fbb5f7de57754772	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
