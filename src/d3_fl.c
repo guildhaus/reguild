@@ -1294,9 +1294,9 @@ char d3fl_LightCB(D3OBJECT *obj, void *ctx)
             ((D3FLLIGHTCTX *)ctx)->light = obj;
             return 1;
         }
-    } else if (D3_L(obj)->power > 0.0 && D3_L(obj)->range > 0.0) {
+    } else if (obj->power > 0.0 && obj->range > 0.0) {
         map = ((D3FLLIGHTCTX *)ctx)->map;
-        r = D3_L(obj)->range;
+        r = obj->range;
         d3_PointToWorld(obj, &obj->pos, &pos.v);
         if (map_Pick(map, &pos.v, 0, &x, &y, &h)) {
             d = pos.y - h;
@@ -1373,10 +1373,10 @@ void d3fl_MakeLight(D3FLMAP *map)
             if (ctx.light) {
                 D3VECTOR4 dir;
 
-                half = D3_L(ctx.light)->power * 0.5f;
-                map->ambient[0] = D3_L(ctx.light)->color.x * (1.0f / 255.0f);
-                map->ambient[1] = D3_L(ctx.light)->color.y * (1.0f / 255.0f);
-                map->ambient[2] = D3_L(ctx.light)->color.z * (1.0f / 255.0f);
+                half = ctx.light->power * 0.5f;
+                map->ambient[0] = ctx.light->lightColor.x * (1.0f / 255.0f);
+                map->ambient[1] = ctx.light->lightColor.y * (1.0f / 255.0f);
+                map->ambient[2] = ctx.light->lightColor.z * (1.0f / 255.0f);
                 d3_DirToWorld(ctx.light, &d3_ZAxis.v, &dir.v);
                 lp = map->light;
                 h = map->height;

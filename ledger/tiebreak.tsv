@@ -769,7 +769,7 @@ exe	0x0043cc10	d3_AllocObjectPolys	d3_engine	51ff9a3b2bb6825d	no	byte	control=by
 exe	0x0043cc90	d3_FreeSurf	d3_engine	d4cd2583fbc89093	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043cd80	d3_FreeMesh	d3_engine	e214c59397f4c570	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043ce10	d3_InitSurf	d3_engine	d5928c3fcd382762	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	d3a073935bbbeede
-exe	0x0043ce60	d3_InitObject	d3_engine	7997609736730fdb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2e71c15c3cd6e6ad
+exe	0x0043ce60	d3_InitObject	d3_engine	d27a6b6813317965	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f3c8302fdf95f4b2
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	3219bcdfb9dc266b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d0e0	d3_Unlink	d3_engine	0c158890ea19999e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d180	d3_CloneObject	d3_engine	980ca5b65a67d9f0	yes	byte	sweep control=shape best=byte by 2 unused typedefs at the unit's start; codegens=3 compiled=12 (stopped at the goal)	e8f1605c78923983

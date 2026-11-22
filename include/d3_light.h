@@ -2,8 +2,8 @@ struct D3ANIMFRAME;
 struct D3VECTOR4;
 struct D3SURF;
 /* d3_light.c -- dynamic lighting of mesh objects ("d3_light:cache", "d3_light:rlight_object"), original file
-   name unknown: 0x451e80..0x4538a0. One view of the objects for the whole TU: D3OBJECT with D3_L() for the
-   fields d3.h does not name (rounds 11 mesh / d3x had two, unified in round 12 by worker geo). Names are ours. */
+   name unknown: 0x451e80..0x4538a0. The objects are D3OBJECT with its light fields (lightTime, flickerStart /
+   flickerEnd, lightColor, range / power / atten, cam, radius2) and D3LIGHTINFO (d3.h). Names are ours. */
 #ifndef UNK_451E80_H
 #define UNK_451E80_H
 #include "d3.h"                       /* the D3 records and typedefs this header names */
@@ -21,48 +21,6 @@ struct D3LREC {                     /* "d3_light:rlight_object": the vertices on
     D3LHIT v[1];                    /* 0x0c, n of them */
 };
 
-typedef struct D3LKEY {             /* 0x38 bytes */
-    char pad00[0x18];
-    float rgb[3];                   /* 0x18, the key's colour (sv_SetSkyLightColors copies the sky tables into the first 6 keys with val) */
-    float val;                      /* 0x24 */
-    char pad28[0x10];
-} D3LKEY;
-
-typedef struct D3LDATA {            /* D3_L(o)->light, D3LIGHTINFO in d3_engine.h */
-    D3LKEY keys[7];                 /* 0x000 */
-    D3VECTOR dir;                   /* 0x188, direction in camera space (type 7) */
-    unsigned long time;             /* 0x194, last flicker step (d3_Time) */
-    D3LREC *list;                   /* 0x198 */
-    float flicker;                  /* 0x19c */
-    unsigned int interval;          /* 0x1a0 */
-    union {
-        int unk1a4;                 /* 0x1a4 */
-        float ramp;                 /* 0x1a4, the random 0.3 .. 0.9 brightness ramp sv_SetLampRamp sets */
-    };
-    unsigned char on;               /* 0x1a8, the light reaches the object being lit */
-    char pad1a9[0x3];
-} D3LDATA;
-
-typedef struct D3LOBJ {             /* D3OBJECT fields the light code uses that d3.h does not name */
-    char pad000[0x44];
-    unsigned long time;             /* 0x044, d3_Time of the last lighting */
-    char pad048[0x10];
-    float flickerEnd;               /* 0x058, flicker factor the current interval runs to */
-    D3VECTOR color;                 /* 0x05c */
-    float flickerStart;             /* 0x068, flicker factor the current interval started from */
-    char pad06c[0x24];
-    float range;                    /* 0x090 */
-    float power;                    /* 0x094, 0: off */
-    float atten;                    /* 0x098 */
-    char pad09c[0x130];
-    D3SURF *info;                  /* 0x1cc */
-    char pad1d0[0x8];
-    D3VECTOR cam;                   /* 0x1d8, position in camera space */
-    float radius2;                  /* 0x1e4, squared radius */
-    D3LDATA *light;                 /* 0x1e8 */
-    struct D3MESH *mesh;            /* 0x1ec, D3MESH (d3_engine.h) */
-} D3LOBJ;
-#define D3_L(o) ((D3LOBJ *)(o))
 
 typedef struct D3LCTX {             /* the lights that reach an object (d3_LightCollectCB collects, d3_LightApply adds) */
     D3OBJECT *obj;                  /* 0x00, the lit object */

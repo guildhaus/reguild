@@ -2041,7 +2041,7 @@ int sv_ClockSeason(void *t)
 {
     return gm_ClockSeason(t);
 }
-typedef struct SVSKYKEY {               /* 0x10 bytes, a light key's colour in the sky tables (D3LKEY.rgb / val) */
+typedef struct SVSKYKEY {               /* 0x10 bytes, a light key's colour in the sky tables (D3LIGHTKEY.color / intensity) */
     float rgb[3];
     float val;
 } SVSKYKEY;
@@ -2062,10 +2062,10 @@ char sv_SetSkyLightColors(D3OBJECT *o, void *ctx)
     else
         t = (o->objectFlags & 0x10) ? sv_SkyKeysWinterAlt : sv_SkyKeysWinter;
     for (i = 0; i < 6; i++) {
-        D3_L(o)->light->keys[i].rgb[0] = t[i].rgb[0];
-        D3_L(o)->light->keys[i].rgb[1] = t[i].rgb[1];
-        D3_L(o)->light->keys[i].rgb[2] = t[i].rgb[2];
-        D3_L(o)->light->keys[i].val = t[i].val;
+        o->light->keys[i].color.x = t[i].rgb[0];
+        o->light->keys[i].color.y = t[i].rgb[1];
+        o->light->keys[i].color.z = t[i].rgb[2];
+        o->light->keys[i].intensity = t[i].val;
     }
     return 1;
 }
@@ -2227,7 +2227,7 @@ void sv_FillDayPhases(struct AITIME *t)
     }
 }
 /* 0x525a80, a d3_ForEachObject callback (the object o, the flag f): sets the brightness ramp of the object's light
-   (0x1e8, a D3LDATA) to a random 0.3 .. 0.6 + 0.3 (f = 0) or -0.3 - 0.6 * random (f != 0); returns 1 */
+   (D3OBJECT.light, its phase) to a random 0.3 .. 0.6 + 0.3 (f = 0) or -0.3 - 0.6 * random (f != 0); returns 1 */
 
 char sv_SetLampRamp(D3OBJECT *o, void *f)
 {
@@ -2237,8 +2237,8 @@ char sv_SetLampRamp(D3OBJECT *o, void *f)
         v = util_RandomF() * 0.6 + 0.3;
     else
         v = -0.3 - util_RandomF() * 0.6;
-    if (D3_L(o)->light != 0)
-        D3_L(o)->light->ramp = (float)v;
+    if (o->light != 0)
+        o->light->phase = (float)v;
     return 1;
 }
 /* 0x525ad0, applies the sky phase of the clock t: the second of the day is mapped through the day phases to the sky phase k

@@ -40,16 +40,6 @@ struct D3OBJECT;
 #include "d3_vtx.h"
 #include "ch.h"
 
-/* the pose a camera / zoom target stores in D3OBJECT 0x5c and 0x90 (serialized for object types 2/3;
-   objectFlags bit 0 marks a key). For a light the same bytes are D3LOBJ.color and D3LOBJ.range/power/atten;
-   a union view in D3OBJECT flips other units' code, so this is a local cast view (type debt). */
-typedef struct D3OBJPOSE {
-    char pad000[0x5c];
-    D3VECTOR pos;                   /* 0x5c */
-    char pad068[0x28];
-    D3VECTOR rot;                   /* 0x90, the camera angles in degrees */
-} D3OBJPOSE;
-#define D3_POSE(o) ((D3OBJPOSE *)(o))
 
 
 int d3t_CamMoving = 0;                   /* 0x6310e4 */
@@ -135,7 +125,7 @@ int d3t_PlaceObjectV(D3OBJECT *camera, D3VECTOR *pos, D3VECTOR *dir, int unk, ch
 
 int d3t_PlaceAtObject(D3OBJECT *obj, int unk)
 {
-    return d3t_PlaceObjectV(d3_Camera, &D3_POSE(obj)->pos, &D3_POSE(obj)->rot, unk, 8);
+    return d3t_PlaceObjectV(d3_Camera, &obj->savedPos, &obj->savedRot, unk, 8);
 }
 /* 0x4118d0, d3_FindObject callback: keeps the object whose name matches (case-insensitive) and stops the search */
 
@@ -967,12 +957,12 @@ int d3t_MoveCameraPath(int time, int n, ...)
     for (i = 0; i < count; i++) {
         if (o = objs[i]) {
             if (o->objectFlags & 1) {
-                keys[k].pos.x = D3_POSE(o)->pos.x;
-                keys[k].pos.y = D3_POSE(o)->pos.y;
-                keys[k].pos.z = D3_POSE(o)->pos.z;
-                keys[k].rot.x = D3_POSE(o)->rot.x;
-                keys[k].rot.y = D3_POSE(o)->rot.y;
-                keys[k].rot.z = D3_POSE(o)->rot.z;
+                keys[k].pos.x = o->savedPos.x;
+                keys[k].pos.y = o->savedPos.y;
+                keys[k].pos.z = o->savedPos.z;
+                keys[k].rot.x = o->savedRot.x;
+                keys[k].rot.y = o->savedRot.y;
+                keys[k].rot.z = o->savedRot.z;
                 keys[k].pos.x -= d3_Camera->pos.x;
                 keys[k].pos.y -= d3_Camera->pos.y;
                 keys[k].pos.z -= d3_Camera->pos.z;

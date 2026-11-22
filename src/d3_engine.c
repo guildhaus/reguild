@@ -180,12 +180,6 @@ char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*
     return 1;
 }
 
-/* D3OBJECT 0x5c of the object types that use it as a color (5..7); d3_light.h's D3LOBJ view names
-   the same field color. A field (or anonymous union) in D3OBJECT itself flips d3_MirDrawObject. */
-typedef struct D3OBJCOLOR {
-    char pad000[0x5c];
-    D3VECTOR color;
-} D3OBJCOLOR;
 
 /* 0x438f60, projects the visible vertices of a mesh to the screen, sets fog and flat colors, and
 culls back faces. */
@@ -228,9 +222,9 @@ void d3_ProjectMesh(D3OBJECT *obj)
             if (obj->type == 8)
                 col = 0x1f1fff;
             else
-                col = RGB_MAKE((unsigned char)((D3OBJCOLOR *)obj)->color.x,
-                               (unsigned char)((D3OBJCOLOR *)obj)->color.y,
-                               (unsigned char)((D3OBJCOLOR *)obj)->color.z);
+                col = RGB_MAKE((unsigned char)obj->lightColor.x,
+                               (unsigned char)obj->lightColor.y,
+                               (unsigned char)obj->lightColor.z);
             for (i = 0, v = obj->info->keys; i < n; i++, v++)
                 v->color = col;
         }
@@ -1420,7 +1414,7 @@ char d3_Init(D3INITCFG *cfg, HWND wnd, int unk)
     d3_InitShadows(d3_Cfg.shadowSize, 0x80, 0x40, 0x20, 0, 0x40, 0x20);
     d3sky_InitColors();
     d3s_Object = d3_SpawnObject(4, "shadow_fake");
-    D3_X(d3s_Object)->meshMode = 3;
+    d3s_Object->meshMode = 3;
     d3s_Object->objectFlags |= 0x20;
     d3_AddObjectDrawData(d3s_Object);
     d3s_Object->material->nsurf = 1;
@@ -1557,14 +1551,14 @@ void d3_ApplyGraphicsOptions(unsigned char a, unsigned char b, unsigned char c, 
 /* 0x43c570, allocates an object; types >= 5 are lights, the kind taken from the name's first letter. d3_EditorMode
    (0x633438) is a reasoned guess: its only uses are editor-like (the ortho Oben/Vorne/Seite cameras, type-6 "r"
    objects as type 5 here, the on=0 relight of d3_LightInvalidate) and this build only ever stores 0. The other
-   identifier unk194 is D3LIGHTINFO.time now (D3LDATA.time in d3_light.h). */
+   identifier unk194 is D3LIGHTINFO.time now (d3.h). */
 
 D3OBJECT *d3_SpawnObject(int type, char *name)
 {
     D3OBJECT *obj = mem_Alloc(0x228, "d3:SpawnObject");
 
     if (type >= 5)
-        D3_X(obj)->light = mem_Alloc(0x1ac, "d3:SpawnObject(lightinfo)");
+        obj->light = mem_Alloc(0x1ac, "d3:SpawnObject(lightinfo)");
     d3_InitObject(obj);
     if (type >= 5) {
         switch (name[0]) {
@@ -1587,13 +1581,13 @@ D3OBJECT *d3_SpawnObject(int type, char *name)
         obj->type = type;
     switch (obj->type) {
     case 6:
-        D3_X(obj)->light->time = 0;
+        obj->light->time = 0;
         break;
     case 8:
         obj->objectFlags |= 4;
         break;
     }
-    D3_X(obj)->type0 = obj->type;
+    obj->type0 = obj->type;
     strncpy(obj->name, name, 0x40);
     obj->scene = d3_DefaultScene;
     return obj;
@@ -1615,8 +1609,8 @@ void d3_FreeObjectData(D3OBJECT *obj)
             d3_Mirror.obj = 0;
             d3_Mirror.info = 0;
         }
-        if (obj->type == 1 && D3_X(obj)->type0 != 1)
-            obj->type = D3_X(obj)->type0;
+        if (obj->type == 1 && obj->type0 != 1)
+            obj->type = obj->type0;
         if (obj->material && obj->material->mirrorSource) {
             if (obj->material->mirrorPoints) {
                 mem_Free(obj->material->mirrorPoints);
@@ -1658,12 +1652,12 @@ void d3_DisposeObject(D3OBJECT *obj)
         }
         if (obj->material && obj->material->freeCallback)
             obj->material->freeCallback(obj);
-        if (D3_X(obj)->events) {
-            mem_Free(D3_X(obj)->events);
-            D3_X(obj)->events = 0;
+        if (obj->events) {
+            mem_Free(obj->events);
+            obj->events = 0;
         }
-        if (obj->type == 1 && D3_X(obj)->type0 != 1)
-            obj->type = D3_X(obj)->type0;
+        if (obj->type == 1 && obj->type0 != 1)
+            obj->type = obj->type0;
         if (d3_Mirror.obj == obj) {
             if (d3_Mirror.planes) {
                 mem_Free(d3_Mirror.planes);
@@ -1677,7 +1671,7 @@ void d3_DisposeObject(D3OBJECT *obj)
             if (ps->parent == obj)
                 par_Delete(ps);
         }
-        if (D3_X(obj)->path)
+        if (obj->path)
             d3anim_FreePath(obj);
         if (obj->state & 2)
             d3_UnlinkTop(obj);
@@ -1698,9 +1692,9 @@ void d3_DisposeObject(D3OBJECT *obj)
             d3_ForEachObject(scene, 0, 0xc0, (D3OBJECTCB)d3s_FreeLightCB, obj);
         if (obj->objectFlags & 4)
             d3s_FreeShadows(obj);
-        if (D3_X(obj)->light) {
-            mem_Free(D3_X(obj)->light);
-            D3_X(obj)->light = 0;
+        if (obj->light) {
+            mem_Free(obj->light);
+            obj->light = 0;
         }
         if (obj->child)
             d3_DisposeObject(obj->child);
@@ -1910,16 +1904,16 @@ void d3_InitObject(D3OBJECT *obj)
     unsigned int i;
 
     for (i = 0; i < 10; i++) {
-        D3_X(obj)->views[i].pos.x = 0;
-        D3_X(obj)->views[i].pos.y = 0;
-        D3_X(obj)->views[i].pos.z = 0;
-        D3_X(obj)->views[i].dir.x = 0;
-        D3_X(obj)->views[i].dir.y = 0;
-        D3_X(obj)->views[i].dir.z = 0;
+        obj->views[i].pos.x = 0;
+        obj->views[i].pos.y = 0;
+        obj->views[i].pos.z = 0;
+        obj->views[i].dir.x = 0;
+        obj->views[i].dir.y = 0;
+        obj->views[i].dir.z = 0;
     }
     obj->stateFlags &= 0xc1;
     obj->objectFlags = obj->objectFlags & 0xa2 | 2;
-    D3_X(obj)->meshMode = 0;
+    obj->meshMode = 0;
     obj->prev = 0;
     obj->next = 0;
     obj->child = 0;
@@ -1930,26 +1924,26 @@ void d3_InitObject(D3OBJECT *obj)
     obj->type = 1;
     obj->kind = 0;
     obj->mask = 0;
-    D3_X(obj)->time = 0;
-    D3_X(obj)->path = 0;
-    D3_X(obj)->events = 0;
-    D3_X(obj)->lightTime = 0;
-    if (D3_X(obj)->light) {
-        D3_X(obj)->light->list = 0;
-        D3_X(obj)->light->interval = 15;
-        D3_X(obj)->light->flicker = 0.3f;
-        D3_X(obj)->light->ramp = 0;
+    obj->animTime = 0;
+    obj->path = 0;
+    obj->events = 0;
+    obj->lightTime = 0;
+    if (obj->light) {
+        obj->light->list = 0;
+        obj->light->interval = 15;
+        obj->light->flicker = 0.3f;
+        obj->light->phase = 0;
         for (i = 0; i < 7; i++) {
-            D3_X(obj)->light->e[i].interval = 15;
-            D3_X(obj)->light->e[i].flicker = 0.3f;
+            obj->light->keys[i].interval = 15;
+            obj->light->keys[i].flicker = 0.3f;
         }
     }
-    D3_X(obj)->pivot.x = 0;
-    D3_X(obj)->pivot.y = 0;
-    D3_X(obj)->pivot.z = 0;
-    D3_X(obj)->posOffset.x = 0;
-    D3_X(obj)->posOffset.y = 0;
-    D3_X(obj)->posOffset.z = 0;
+    obj->pivot.x = 0;
+    obj->pivot.y = 0;
+    obj->pivot.z = 0;
+    obj->posOffset.x = 0;
+    obj->posOffset.y = 0;
+    obj->posOffset.z = 0;
     d3_SetObjectRotXYZ(obj, 0, 0, 0);
     d3_SetObjectPosXYZ(obj, 0, 0, 0);
 }
@@ -2014,35 +2008,35 @@ D3OBJECT *d3_CloneObject(D3OBJECT *src)
     if (src) {
         obj = mem_Alloc(0x228, "d3:CloneObject");
         if (src->type >= 5)
-            D3_X(obj)->light = mem_Alloc(0x1ac, "d3:CloneObject(lightinfo)");
+            obj->light = mem_Alloc(0x1ac, "d3:CloneObject(lightinfo)");
         d3_InitObject(obj);
         strcpy(obj->name, src->name);
         strcat(obj->name, "_");
-        D3_X(obj)->pos.x = D3_X(src)->pos.x;
-        D3_X(obj)->pos.y = D3_X(src)->pos.y;
-        D3_X(obj)->pos.z = D3_X(src)->pos.z;
-        D3_X(obj)->flickerEnd = D3_X(src)->flickerEnd;
-        D3_X(obj)->savedPos.x = D3_X(src)->savedPos.x;
-        D3_X(obj)->savedPos.y = D3_X(src)->savedPos.y;
-        D3_X(obj)->savedPos.z = D3_X(src)->savedPos.z;
-        D3_X(obj)->radius = D3_X(src)->radius;
-        D3_X(obj)->rot.x = D3_X(src)->rot.x;
-        D3_X(obj)->rot.y = D3_X(src)->rot.y;
-        D3_X(obj)->rot.z = D3_X(src)->rot.z;
-        D3_X(obj)->savedRot.x = D3_X(src)->savedRot.x;
-        D3_X(obj)->savedRot.y = D3_X(src)->savedRot.y;
-        D3_X(obj)->savedRot.z = D3_X(src)->savedRot.z;
-        D3_X(obj)->pivot.x = D3_X(src)->pivot.x;
-        D3_X(obj)->pivot.y = D3_X(src)->pivot.y;
-        D3_X(obj)->pivot.z = D3_X(src)->pivot.z;
-        D3_X(obj)->posOffset.x = D3_X(src)->posOffset.x;
-        D3_X(obj)->posOffset.y = D3_X(src)->posOffset.y;
-        D3_X(obj)->posOffset.z = D3_X(src)->posOffset.z;
-        D3_X(obj)->path = 0;
-        D3_X(obj)->info = 0;
-        if (D3_X(src)->light)
-            D3E_COPY3(D3_X(obj)->light, D3_X(src)->light, 0x188);
-        D3E_COPY3(D3_X(obj)->views, D3_X(src)->views, 0xf0);
+        obj->pos.x = src->pos.x;
+        obj->pos.y = src->pos.y;
+        obj->pos.z = src->pos.z;
+        obj->flickerEnd = src->flickerEnd;
+        obj->savedPos.x = src->savedPos.x;
+        obj->savedPos.y = src->savedPos.y;
+        obj->savedPos.z = src->savedPos.z;
+        obj->radius = src->radius;
+        obj->rotation.x = src->rotation.x;
+        obj->rotation.y = src->rotation.y;
+        obj->rotation.z = src->rotation.z;
+        obj->savedRot.x = src->savedRot.x;
+        obj->savedRot.y = src->savedRot.y;
+        obj->savedRot.z = src->savedRot.z;
+        obj->pivot.x = src->pivot.x;
+        obj->pivot.y = src->pivot.y;
+        obj->pivot.z = src->pivot.z;
+        obj->posOffset.x = src->posOffset.x;
+        obj->posOffset.y = src->posOffset.y;
+        obj->posOffset.z = src->posOffset.z;
+        obj->path = 0;
+        obj->info = 0;
+        if (src->light)
+            D3E_COPY3(obj->light, src->light, 0x188);
+        D3E_COPY3(obj->views, src->views, 0xf0);
         D3E_COPY3(&obj->state, &src->state, 0x18);
         if (src->material) {
             d3_AddObjectDrawData(obj);
@@ -2053,8 +2047,8 @@ D3OBJECT *d3_CloneObject(D3OBJECT *src)
         }
         obj->objectFlags &= 0x9f;
         obj->state = obj->state & 0xfc | 4;
-        d3_SetObjectPos(obj, &D3_X(obj)->pos);
-        d3_SetObjectRot(obj, &D3_X(obj)->rot);
+        d3_SetObjectPos(obj, &obj->pos);
+        d3_SetObjectRot(obj, &obj->rotation);
     }
     return obj;
 }
@@ -2203,7 +2197,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
     if (obj && (center || radius)) {
         if (!obj->type) {
             d3_PointToRef(obj, camera, &obj->pos, &c.v);
-            r = D3_X(obj)->radius;
+            r = obj->radius;
             ok = 1;
         } else {
             info = obj->info;
@@ -2477,14 +2471,14 @@ void d3_ReloadMeshes(unsigned int mask, int type, void (*progress)(int a, int i,
 }
 /* 0x43e110, d3_ForEachObject callback (Ghidra missed it): switches the type 5 lights named "r..." to type 6
    (on) and the type 6 ones back to type 5; the light is updated either way and a switched-off one gets
-   D3OBJX.time = d3_Time, a switched-on one loses its light records. */
+   animTime = d3_Time, a switched-on one loses its light records. */
 
 char d3_ToggleRLightCB(D3OBJECT *obj, char on)
 {
     if (on) {
         if (obj->type == 5 && obj->name[0] == 'r') {
             obj->type = 6;
-            D3_X(obj)->time = d3_Time;
+            obj->animTime = d3_Time;
             d3_UpdateObject(obj, 0);
         }
     } else if (obj->type == 6) {
@@ -2539,7 +2533,7 @@ void d3_Render(unsigned int mask, char flag)
         d3s_Object->material->surf[0].nkeys = 0;
         if (d3_Terrain) {
             if (d3_FogOn && d3_FogByDistance) {
-                d = d3fl_FarDist(d3_Terrain, &D3_X(d3_Camera)->pos, &d3_Camera->matrix);
+                d = d3fl_FarDist(d3_Terrain, &d3_Camera->pos, &d3_Camera->matrix);
                 if (d < d3_FogEnd2)
                     d3_SetFogRange((1.0f - (d3_FogEnd2 - d) / d3_FogEnd2) * d3_FogStart1, d);
                 else

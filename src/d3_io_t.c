@@ -145,7 +145,7 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
         mesh = obj->material;
         if (surf != &mesh->surf[3]) {
             mesh->nsurf++;
-            D3IO_214(obj) = 4;
+            obj->meshMode = 4;
             if (!obj->info) {
                 obj->info = d3_SelectSurf(obj);
                 if (!obj->info) {

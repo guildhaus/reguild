@@ -487,7 +487,7 @@ struct D3ANIMSLOT * d3anim_GetMainSlot(struct D3SURF *ctl);                     
    them and the 1074 code / 492 slots hunks are the same instructions reading other stack slots (e.g. the
    fade fraction temporaries at [esp+0x3c]/[esp+0x9c], the key pointer at [esp+0x18] vs [esp+0x70], the
    attach vector at [esp+0x64..] vs [esp+0x30..]). Q4 is settled from the reconstructed body: D3OBJECT+0x44
-   is D3_L(o)->time (the light view, d3_light.h), the D3ANIMSLOT float slots are the attach position 0x20
+   is o->lightTime (d3.h), the D3ANIMSLOT float slots are the attach position 0x20
    and the stop position 0x4c / radius 0x5c, the 2-bit field at 0x70 is the s... */
 char d3anim_StepObject(D3OBJECT *obj, void *ctx)
 {
@@ -519,7 +519,7 @@ char d3anim_StepObject(D3OBJECT *obj, void *ctx)
                 data = s->data;
                 if (!data || !(s->flags.b[8] & 2))
                     continue;
-                if (now - D3_L(obj)->time > (unsigned int)s->timeout)
+                if (now - obj->lightTime > (unsigned int)s->timeout)
                     over = 1;
                 last = data->first;
                 if (s->flags.b[1] & 0x10) {
@@ -788,7 +788,7 @@ normalize:
             P->keys[P->nkeys - 2].rotout.y = 0;
             P->keys[P->nkeys - 2].rotout.z = 0;
         }
-        if (now - D3_L(obj)->time > (unsigned int)P->maxStep)
+        if (now - obj->lightTime > (unsigned int)P->maxStep)
             over2 = 1;
         acc = ((P->flags.b[8] >> 1) & 1) * P->fadeEnd * dt + P->frameTime;
         P->frameTime = acc;

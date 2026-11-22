@@ -165,8 +165,8 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             }
         case 2:
         case 3:
-            bio_rd_v3(f, &D3_X(obj)->pos);
-            bio_rd_v3(f, &D3_X(obj)->rot);
+            bio_rd_v3(f, &obj->pos);
+            bio_rd_v3(f, &obj->rotation);
             bio_rd_c(f, &c);
             D3IO_FL(obj)->b0 = c;
             if (c) {
@@ -185,8 +185,8 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             D3IO_FL(obj)->b0 = c;
             if (version < 0x3a6c00a0)
                 D3IO_FL(obj)->b0 = 1;
-            bio_rd_i(f, &D3_X(obj)->radius);
-            bio_rd_v3(f, &D3_X(obj)->pos);
+            bio_rd_i(f, &obj->radius);
+            bio_rd_v3(f, &obj->pos);
             bio_rd_v3(f, &obj->savedPos);
             bio_rd_v3(f, &obj->savedRot);
             break;
@@ -206,84 +206,84 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
                 bio_rd_i(f, &obj->lightParams.y);
                 bio_rd_i(f, &obj->lightParams.z);
                 bio_rd_v3(f, &obj->lightColor);
-                bio_rd_v3(f, &D3_X(obj)->pos);
-                bio_rd_v3(f, &D3_X(obj)->rot);
+                bio_rd_v3(f, &obj->pos);
+                bio_rd_v3(f, &obj->rotation);
                 if (version >= 0x3a6c00ac) {
-                    bio_rd_i(f, &D3_X(obj)->light->flicker);
-                    bio_rd_i(f, &D3_X(obj)->light->interval);
+                    bio_rd_i(f, &obj->light->flicker);
+                    bio_rd_i(f, &obj->light->interval);
                 }
                 for (i = 0; i < cnt; i++) {
-                    bio_rd_i(f, &D3IO_KEYS(obj)[i].f28);
-                    bio_rd_i(f, &D3IO_KEYS(obj)[i].f24);
-                    bio_rd_i(f, &D3IO_KEYS(obj)[i].f2c);
-                    bio_rd_v3(f, &D3IO_KEYS(obj)[i].v18);
-                    bio_rd_v3(f, &D3IO_KEYS(obj)[i].v00);
-                    bio_rd_v3(f, &D3IO_KEYS(obj)[i].v0c);
+                    bio_rd_i(f, &obj->light->keys[i].range);
+                    bio_rd_i(f, &obj->light->keys[i].intensity);
+                    bio_rd_i(f, &obj->light->keys[i].atten);
+                    bio_rd_v3(f, &obj->light->keys[i].color);
+                    bio_rd_v3(f, &obj->light->keys[i].pos);
+                    bio_rd_v3(f, &obj->light->keys[i].rot);
                     if (version >= 0x3a6c00ac) {
-                        bio_rd_i(f, &D3IO_KEYS(obj)[i].f30);
-                        bio_rd_i(f, &D3IO_KEYS(obj)[i].f34);
+                        bio_rd_i(f, &obj->light->keys[i].flicker);
+                        bio_rd_i(f, &obj->light->keys[i].interval);
                     }
                 }
                 for (; i < 7; i++) {
-                    D3IO_KEYS(obj)[i].f28 = D3IO_KEYS(obj)[cnt - 1].f28;
-                    D3IO_KEYS(obj)[i].f24 = D3IO_KEYS(obj)[cnt - 1].f24;
-                    D3IO_KEYS(obj)[i].f2c = D3IO_KEYS(obj)[cnt - 1].f2c;
-                    D3IO_KEYS(obj)[i].v18.x = D3IO_KEYS(obj)[cnt - 1].v18.x;
-                    D3IO_KEYS(obj)[i].v18.y = D3IO_KEYS(obj)[cnt - 1].v18.y;
-                    D3IO_KEYS(obj)[i].v18.z = D3IO_KEYS(obj)[cnt - 1].v18.z;
-                    D3IO_KEYS(obj)[i].v00.x = D3IO_KEYS(obj)[cnt - 1].v00.x;
-                    D3IO_KEYS(obj)[i].v00.y = D3IO_KEYS(obj)[cnt - 1].v00.y;
-                    D3IO_KEYS(obj)[i].v00.z = D3IO_KEYS(obj)[cnt - 1].v00.z;
+                    obj->light->keys[i].range = obj->light->keys[cnt - 1].range;
+                    obj->light->keys[i].intensity = obj->light->keys[cnt - 1].intensity;
+                    obj->light->keys[i].atten = obj->light->keys[cnt - 1].atten;
+                    obj->light->keys[i].color.x = obj->light->keys[cnt - 1].color.x;
+                    obj->light->keys[i].color.y = obj->light->keys[cnt - 1].color.y;
+                    obj->light->keys[i].color.z = obj->light->keys[cnt - 1].color.z;
+                    obj->light->keys[i].pos.x = obj->light->keys[cnt - 1].pos.x;
+                    obj->light->keys[i].pos.y = obj->light->keys[cnt - 1].pos.y;
+                    obj->light->keys[i].pos.z = obj->light->keys[cnt - 1].pos.z;
                 }
             } else {
-                bio_rd_i(f, &D3_X(obj)->rot.x);
-                bio_rd_i(f, &D3_X(obj)->rot.y);
+                bio_rd_i(f, &obj->rotation.x);
+                bio_rd_i(f, &obj->rotation.y);
                 if (version >= 0x3a6c000c)
-                    bio_rd_i(f, &D3_X(obj)->rot.z);
+                    bio_rd_i(f, &obj->rotation.z);
                 else
-                    D3_X(obj)->rot.z = 1.0f;
-                obj->lightParams.x = D3_X(obj)->rot.x;
-                obj->lightParams.y = D3_X(obj)->rot.y;
-                obj->lightParams.z = D3_X(obj)->rot.z;
-                D3_X(obj)->rot.x = 0.0f;
-                D3_X(obj)->rot.y = 0.0f;
-                D3_X(obj)->rot.z = 0.0f;
+                    obj->rotation.z = 1.0f;
+                obj->lightParams.x = obj->rotation.x;
+                obj->lightParams.y = obj->rotation.y;
+                obj->lightParams.z = obj->rotation.z;
+                obj->rotation.x = 0.0f;
+                obj->rotation.y = 0.0f;
+                obj->rotation.z = 0.0f;
                 bio_rd_v3(f, &obj->lightColor);
-                bio_rd_v3(f, &D3_X(obj)->pos);
+                bio_rd_v3(f, &obj->pos);
                 if (version >= 0x3a6c00a1) {
                     cnt = d3_SceneVersion(version);
                     for (i = 0; i < cnt; i++) {
-                        bio_rd_i(f, &D3IO_KEYS(obj)[i].f28);
-                        bio_rd_i(f, &D3IO_KEYS(obj)[i].f24);
-                        bio_rd_i(f, &D3IO_KEYS(obj)[i].f2c);
-                        bio_rd_v3(f, &D3IO_KEYS(obj)[i].v18);
-                        bio_rd_v3(f, &D3IO_KEYS(obj)[i].v00);
+                        bio_rd_i(f, &obj->light->keys[i].range);
+                        bio_rd_i(f, &obj->light->keys[i].intensity);
+                        bio_rd_i(f, &obj->light->keys[i].atten);
+                        bio_rd_v3(f, &obj->light->keys[i].color);
+                        bio_rd_v3(f, &obj->light->keys[i].pos);
                     }
                     for (; i < 7; i++) {
-                        D3IO_KEYS(obj)[i].f28 = D3IO_KEYS(obj)[cnt - 1].f28;
-                        D3IO_KEYS(obj)[i].f24 = D3IO_KEYS(obj)[cnt - 1].f24;
-                        D3IO_KEYS(obj)[i].f2c = D3IO_KEYS(obj)[cnt - 1].f2c;
-                        D3IO_KEYS(obj)[i].v18.x = D3IO_KEYS(obj)[cnt - 1].v18.x;
-                        D3IO_KEYS(obj)[i].v18.y = D3IO_KEYS(obj)[cnt - 1].v18.y;
-                        D3IO_KEYS(obj)[i].v18.z = D3IO_KEYS(obj)[cnt - 1].v18.z;
-                        D3IO_KEYS(obj)[i].v00.x = D3IO_KEYS(obj)[cnt - 1].v00.x;
-                        D3IO_KEYS(obj)[i].v00.y = D3IO_KEYS(obj)[cnt - 1].v00.y;
-                        D3IO_KEYS(obj)[i].v00.z = D3IO_KEYS(obj)[cnt - 1].v00.z;
+                        obj->light->keys[i].range = obj->light->keys[cnt - 1].range;
+                        obj->light->keys[i].intensity = obj->light->keys[cnt - 1].intensity;
+                        obj->light->keys[i].atten = obj->light->keys[cnt - 1].atten;
+                        obj->light->keys[i].color.x = obj->light->keys[cnt - 1].color.x;
+                        obj->light->keys[i].color.y = obj->light->keys[cnt - 1].color.y;
+                        obj->light->keys[i].color.z = obj->light->keys[cnt - 1].color.z;
+                        obj->light->keys[i].pos.x = obj->light->keys[cnt - 1].pos.x;
+                        obj->light->keys[i].pos.y = obj->light->keys[cnt - 1].pos.y;
+                        obj->light->keys[i].pos.z = obj->light->keys[cnt - 1].pos.z;
                     }
                 } else {
                     for (i = 0; i < 7; i++) {
-                        D3IO_KEYS(obj)[i].f28 = obj->lightParams.x;
-                        D3IO_KEYS(obj)[i].f24 = obj->lightParams.y;
-                        D3IO_KEYS(obj)[i].f2c = obj->lightParams.z;
-                        D3IO_KEYS(obj)[i].v00.x = D3_X(obj)->pos.x;
-                        D3IO_KEYS(obj)[i].v00.y = D3_X(obj)->pos.y;
-                        D3IO_KEYS(obj)[i].v00.z = D3_X(obj)->pos.z;
-                        D3IO_KEYS(obj)[i].v18.x = obj->lightColor.x;
-                        D3IO_KEYS(obj)[i].v18.y = obj->lightColor.y;
-                        D3IO_KEYS(obj)[i].v18.z = obj->lightColor.z;
-                        D3IO_KEYS(obj)[i].v0c.x = obj->lightParams.x;
-                        D3IO_KEYS(obj)[i].v0c.y = obj->lightParams.y;
-                        D3IO_KEYS(obj)[i].v0c.z = obj->lightParams.z;
+                        obj->light->keys[i].range = obj->lightParams.x;
+                        obj->light->keys[i].intensity = obj->lightParams.y;
+                        obj->light->keys[i].atten = obj->lightParams.z;
+                        obj->light->keys[i].pos.x = obj->pos.x;
+                        obj->light->keys[i].pos.y = obj->pos.y;
+                        obj->light->keys[i].pos.z = obj->pos.z;
+                        obj->light->keys[i].color.x = obj->lightColor.x;
+                        obj->light->keys[i].color.y = obj->lightColor.y;
+                        obj->light->keys[i].color.z = obj->lightColor.z;
+                        obj->light->keys[i].rot.x = obj->lightParams.x;
+                        obj->light->keys[i].rot.y = obj->lightParams.y;
+                        obj->light->keys[i].rot.z = obj->lightParams.z;
                     }
                 }
             }
@@ -292,8 +292,8 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             err_Message("Unkown Object-Type in rd_object()!");
             break;
         }
-        d3_SetObjectRot(obj, &D3_X(obj)->rot);
-        d3_SetObjectPos(obj, &D3_X(obj)->pos);
+        d3_SetObjectRot(obj, &obj->rotation);
+        d3_SetObjectPos(obj, &obj->pos);
         if (obj->kind == 1)
             D3IO_FL(obj)->a5 = 0;
         D3IO_FL(obj)->b1 = 1;
@@ -329,10 +329,10 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
     if (version >= 0x3a6c00a7)
         d3e_LoadEvents(f, obj);
     if (obj) {
-        if (!obj->type || (k = D3_X(obj)->kind) == 4 || k == 3 || k == 2)
-            D3_X(obj)->mask = -1;
+        if (!obj->type || (k = obj->kind) == 4 || k == 3 || k == 2)
+            obj->mask = -1;
         else
-            D3_X(obj)->mask = 0;
+            obj->mask = 0;
         if (reload && obj->material) {
             for (i = 0; i < 3; i++) {
                 if ((ops = obj->material->surf[i].mesh) && (tex = (void **)obj->material->surf[i].texHandles)) {

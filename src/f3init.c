@@ -477,10 +477,10 @@ void init_AdjustSceneLights(D3OBJECT *o)
 
     if (o->type == 6) {
         for (i = 0; i < 7; i++) {
-            if (D3_L(o)->light->keys[i].rgb[2] == 0.0f) {
-                D3_L(o)->light->keys[i].rgb[2] = (D3_L(o)->light->keys[i].rgb[1] + D3_L(o)->light->keys[i].rgb[0]) * 0.05f;
-                D3_L(o)->light->keys[i].rgb[1] *= 0.8f;
-                D3_L(o)->light->keys[i].val *= 0.5f;
+            if (o->light->keys[i].color.z == 0.0f) {
+                o->light->keys[i].color.z = (o->light->keys[i].color.y + o->light->keys[i].color.x) * 0.05f;
+                o->light->keys[i].color.y *= 0.8f;
+                o->light->keys[i].intensity *= 0.5f;
             }
         }
         if (o->lightColor.z == 0.0f) {

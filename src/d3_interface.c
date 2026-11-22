@@ -807,7 +807,7 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
             f = 1.0f / v.z;
             x = d3_ScaleX * v.x * f + d3_CenterX;
             y = d3_ScaleY * v.y * f + d3_CenterY;
-            s = d3_ScaleX * D3IF_OBJ068(obj) * f * 0.5f;
+            s = d3_ScaleX * obj->radius * f * 0.5f;
             r->left = (int)(x - s);
             r->right = (int)(x + s);
             r->top = (int)(y - s);
@@ -1285,18 +1285,18 @@ char d3_SetParent(D3OBJECT *obj, D3OBJECT *parent)
         if (d3_FindObject(obj, 0x1ff, parent, 0))
             return 0;
     }
-    if (D3_X(obj)->type >= 5 && D3_X(obj)->light) {
-        rot.x = D3_X(obj)->rot.x;
-        rot.y = D3_X(obj)->rot.y;
-        rot.z = D3_X(obj)->rot.z;
+    if (obj->type >= 5 && obj->light) {
+        rot.x = obj->rotation.x;
+        rot.y = obj->rotation.y;
+        rot.z = obj->rotation.z;
         for (i = 0; i < 7; i++) {
-            d3_PointToWorld(obj, &D3O_LIGHT(obj)->k[i].pos, &kpos[i].v);
-            d3_SetObjectRot(obj, &D3O_LIGHT(obj)->k[i].rot);
+            d3_PointToWorld(obj, &obj->light->keys[i].pos, &kpos[i].v);
+            d3_SetObjectRot(obj, &obj->light->keys[i].rot);
             d3_WorldMatrix(obj, 0, 1, &km[i]);
         }
         d3_SetObjectRot(obj, &rot);
     }
-    d3_PointToWorld(obj, &D3_X(obj)->pos, &pos.v);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     d3_WorldMatrix(obj, 0, 1, &m);
     d3_Unlink(obj);
     if (!parent)
@@ -1304,9 +1304,9 @@ char d3_SetParent(D3OBJECT *obj, D3OBJECT *parent)
     else
         d3_AddChild(parent, obj);
     d3_SetWorldPosRot(obj, &pos.v, &m);
-    if (D3_X(obj)->type >= 5 && D3_X(obj)->light) {
+    if (obj->type >= 5 && obj->light) {
         for (i = 0; i < 7; i++)
-            d3_WorldToParent(obj, &kpos[i].v, &km[i], &D3O_LIGHT(obj)->k[i].pos, &D3O_LIGHT(obj)->k[i].rot);
+            d3_WorldToParent(obj, &kpos[i].v, &km[i], &obj->light->keys[i].pos, &obj->light->keys[i].rot);
     }
     return 1;
 }
@@ -1315,13 +1315,13 @@ char d3_SetParent(D3OBJECT *obj, D3OBJECT *parent)
 
 char d3_SetLightKey(D3OBJECT *obj, unsigned int key, float t)
 {
-    float pos[4], rot[4];
-    D3LIGHTKEYS *l;
+    D3VECTOR4 pos, rot;
+    D3LIGHTINFO *l;
     D3LIGHTKEY *c, *nk;
     unsigned int i, n, p;
     int pon, con, non;
 
-    if (obj && key < 7 && t >= 0.0f && t <= 1.0f && D3_X(obj)->type >= 5 && (l = D3O_LIGHT(obj))) {
+    if (obj && key < 7 && t >= 0.0f && t <= 1.0f && obj->type >= 5 && (l = obj->light)) {
         t += l->phase;
         if (t > 1.0f) {
             t -= 1.0f;
@@ -1332,28 +1332,28 @@ char d3_SetLightKey(D3OBJECT *obj, unsigned int key, float t)
         }
         n = (key + 1) % 7;
         p = (key - 1) % 7;
-        pon = l->k[p].intensity != 0.0f || D3_X(obj)->type == 8;
-        c = &l->k[key];
-        con = c->intensity != 0.0f || D3_X(obj)->type == 8;
-        nk = &l->k[n];
-        non = nk->intensity != 0.0f || D3_X(obj)->type == 8;
+        pon = l->keys[p].intensity != 0.0f || obj->type == 8;
+        c = &l->keys[key];
+        con = c->intensity != 0.0f || obj->type == 8;
+        nk = &l->keys[n];
+        non = nk->intensity != 0.0f || obj->type == 8;
         if (pon && con && non)
-            D3IF_LIGHT(obj)->power = (nk->intensity - c->intensity) * t + c->intensity;
+            obj->power = (nk->intensity - c->intensity) * t + c->intensity;
         else if (con && t < 0.5f)
-            D3IF_LIGHT(obj)->power = c->intensity;
+            obj->power = c->intensity;
         else if (non && t >= 0.5f)
-            D3IF_LIGHT(obj)->power = nk->intensity;
+            obj->power = nk->intensity;
         else
-            D3IF_LIGHT(obj)->power = 0.0f;
-        D3IF_LIGHT(obj)->range = (nk->range - c->range) * t + c->range;
-        D3IF_LIGHT(obj)->atten = (nk->atten - c->atten) * t + c->atten;
+            obj->power = 0.0f;
+        obj->range = (nk->range - c->range) * t + c->range;
+        obj->atten = (nk->atten - c->atten) * t + c->atten;
         for (i = 0; i < 3; i++) {
-            pos[i] = (((float *)&l->k[n].pos)[i] - ((float *)&l->k[key].pos)[i]) * t + ((float *)&l->k[key].pos)[i];
-            ((float *)&D3IF_LIGHT(obj)->color)[i] = (((float *)&l->k[n].color)[i] - ((float *)&l->k[key].color)[i]) * t + ((float *)&l->k[key].color)[i];
-            rot[i] = (((float *)&l->k[n].rot)[i] - ((float *)&l->k[key].rot)[i]) * t + ((float *)&l->k[key].rot)[i];
+            pos.v.e[i] = (l->keys[n].pos.e[i] - l->keys[key].pos.e[i]) * t + l->keys[key].pos.e[i];
+            obj->lightColor.e[i] = (l->keys[n].color.e[i] - l->keys[key].color.e[i]) * t + l->keys[key].color.e[i];
+            rot.v.e[i] = (l->keys[n].rot.e[i] - l->keys[key].rot.e[i]) * t + l->keys[key].rot.e[i];
         }
-        d3_SetObjectPos(obj, (D3VECTOR *)pos);
-        d3_SetObjectRot(obj, (D3VECTOR *)rot);
+        d3_SetObjectPos(obj, &pos.v);
+        d3_SetObjectRot(obj, &rot.v);
         return 1;
     }
     return 0;
@@ -1362,7 +1362,7 @@ char d3_SetLightKey(D3OBJECT *obj, unsigned int key, float t)
 
 char d3_ScaleLightCB(D3OBJECT *obj, float *scale)
 {
-    D3IF_LIGHT(obj)->power *= *scale;
+    obj->power *= *scale;
     return 1;
 }
 /* 0x449da0, d3_ForEachObject callback: sets a light to the day time *time (key + fraction) */
@@ -1459,15 +1459,15 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
 
     bio_wr_c(f, obj->objectFlags >> 1 & 1);
     if (obj->objectFlags & 2) {
-        type = D3_X(obj)->type;
-        if (type == 1 && (type = D3_X(obj)->type0, obj->name[0] == '!'))
+        type = obj->type;
+        if (type == 1 && (type = obj->type0, obj->name[0] == '!'))
             bio_wr_s(f, obj->name + 1);
         else
             bio_wr_s(f, obj->name);
         bio_wr_i(f, (int)obj->owner);
         bio_wr_i(f, obj->kind);
         bio_wr_i(f, type);
-        bio_wr_c(f, D3_X(obj)->type == 1);
+        bio_wr_c(f, obj->type == 1);
         switch (type) {
         case 1:
         case 4:
@@ -1478,11 +1478,11 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
             bio_wr_c(f, obj->stateFlags >> 4 & 1);
             bio_wr_c(f, obj->stateFlags >> 5 & 1);
             bio_wr_c(f, obj->stateFlags >> 6 & 1);
-            bio_wr_i(f, D3_X(obj)->meshMode);
-            if (D3_X(obj)->mesh) {
-                bio_wr_i(f, D3_X(obj)->mesh->nsurf);
-                if (D3_X(obj)->mesh->nsurf > 0) {
-                    strcpy(buf, D3_X(obj)->mesh->surf[0].mesh->name);
+            bio_wr_i(f, obj->meshMode);
+            if (obj->material) {
+                bio_wr_i(f, obj->material->nsurf);
+                if (obj->material->nsurf > 0) {
+                    strcpy(buf, obj->material->surf[0].mesh->name);
                     p = strrchr(buf, '_');
                     if (p && strlen(p) == 2 && isdigit(p[1]))
                         *p = 0;
@@ -1492,22 +1492,22 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
                 bio_wr_i(f, 0);
         case 2:
         case 3:
-            bio_wr_v3(f, &D3_X(obj)->pos);
-            bio_wr_v3(f, &D3_X(obj)->rot);
+            bio_wr_v3(f, &obj->pos);
+            bio_wr_v3(f, &obj->rotation);
             bio_wr_c(f, obj->objectFlags & 1);
             if (obj->objectFlags & 1) {
                 bio_wr_v3(f, &obj->savedPos);
                 bio_wr_v3(f, &obj->savedRot);
             }
             for (i = 0; i < 10; i++) {
-                bio_wr_v3(f, &D3_X(obj)->views[i].pos);
-                bio_wr_v3(f, &D3_X(obj)->views[i].dir);
+                bio_wr_v3(f, &obj->views[i].pos);
+                bio_wr_v3(f, &obj->views[i].dir);
             }
             break;
         case 0:
             bio_wr_c(f, obj->objectFlags & 1);
-            bio_wr_i(f, D3_X(obj)->radiusBits);
-            bio_wr_v3(f, &D3_X(obj)->pos);
+            bio_wr_i(f, obj->radiusBits);
+            bio_wr_v3(f, &obj->pos);
             bio_wr_v3(f, &obj->savedPos);
             bio_wr_v3(f, &obj->savedRot);
             break;
@@ -1517,23 +1517,23 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
         case 8:
             bio_wr_c(f, obj->state >> 5 & 1);
             bio_wr_c(f, obj->objectFlags >> 4 & 1);
-            bio_wr_i(f, D3IF_LIGHT(obj)->rangeBits);
-            bio_wr_i(f, D3IF_LIGHT(obj)->powerBits);
-            bio_wr_i(f, D3IF_LIGHT(obj)->attenBits);
+            bio_wr_i(f, obj->rangeBits);
+            bio_wr_i(f, obj->powerBits);
+            bio_wr_i(f, obj->attenBits);
             bio_wr_v3(f, &obj->lightColor);
-            bio_wr_v3(f, &D3_X(obj)->pos);
-            bio_wr_v3(f, &D3_X(obj)->rot);
-            bio_wr_i(f, D3O_LIGHT(obj)->flickerBits);
-            bio_wr_i(f, D3O_LIGHT(obj)->interval);
+            bio_wr_v3(f, &obj->pos);
+            bio_wr_v3(f, &obj->rotation);
+            bio_wr_i(f, obj->light->flickerBits);
+            bio_wr_i(f, obj->light->interval);
             for (i = 0; i < 7; i++) {
-                bio_wr_i(f, D3O_LIGHT(obj)->k[i].rangeBits);
-                bio_wr_i(f, D3O_LIGHT(obj)->k[i].intensityBits);
-                bio_wr_i(f, D3O_LIGHT(obj)->k[i].attenBits);
-                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].color);
-                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].pos);
-                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].rot);
-                bio_wr_i(f, D3O_LIGHT(obj)->k[i].flickerBits);
-                bio_wr_i(f, D3O_LIGHT(obj)->k[i].interval);
+                bio_wr_i(f, obj->light->keys[i].rangeBits);
+                bio_wr_i(f, obj->light->keys[i].intensityBits);
+                bio_wr_i(f, obj->light->keys[i].attenBits);
+                bio_wr_v3(f, &obj->light->keys[i].color);
+                bio_wr_v3(f, &obj->light->keys[i].pos);
+                bio_wr_v3(f, &obj->light->keys[i].rot);
+                bio_wr_i(f, obj->light->keys[i].flickerBits);
+                bio_wr_i(f, obj->light->keys[i].interval);
             }
             break;
         default:
@@ -1552,7 +1552,7 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
     bio_wr_c(f, c != 0);
     if (c)
         d3_WriteObject(f, c);
-    d3e_SaveEvents(f, (D3EVENT *)D3_X(obj)->events);
+    d3e_SaveEvents(f, (D3EVENT *)obj->events);
 }
 /* 0x44a770, writes the terrain map of the scene */
 

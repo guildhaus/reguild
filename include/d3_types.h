@@ -36,7 +36,7 @@ typedef struct D3TEXFLAGS {         /* passed by value to tex_Load (TSFLAGS in t
 typedef int (*D3EVHANDLER)(void *obj, int id, char *name, int arg);   /* obj: the object or scene, id: the event
                                        (sv fires 2 at an object's camera focus, 3 at its release, 6 at a scene),
                                        name: the handler's D3EVENT.name, arg: 0 at every known call */
-typedef struct D3EVENT {            /* 0x84 bytes, D3E_NEVENTS of them in D3OBJX::unk1d4 / D3_SCENE3C8 */
+typedef struct D3EVENT {            /* 0x84 bytes, D3E_NEVENTS of them in D3OBJECT.events / D3_SCENE3C8 */
     D3EVHANDLER fn;
     char name[0x80];                /* 0x04, name of the handler */
 } D3EVENT;

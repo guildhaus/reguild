@@ -47,7 +47,6 @@ typedef char d3if_chk_levels[offsetof(D3SCENE, levels) == 0x128 ? 1 : -1];
 typedef char d3if_chk_sceneFlags[offsetof(D3SCENE, sceneFlags) == 0x3d8 ? 1 : -1];
 
 /* --- 0x447e60..0x448910 (worker d3if2) --- */
-#define D3IF_OBJ068(o) ((float *)(o))[0x68 / 4]     /* size of a type-0 object on screen */
 #define D3IF_RGB_MASK 0xffffff      /* the r/g/b bits of an ARGB colour (sprite vertex colour) */
 
 typedef struct D3IFMOVE {           /* context of d3if_MoveCB */
@@ -106,65 +105,6 @@ D3OBJECT *d3_FindObjectNoCase(D3OBJECT *a, int flags, D3OBJECT *c, char *name); 
 void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTOR *outpos, D3VECTOR *outrot);  /* 0x4497f0 */
 void d3_SetWorldPosRot(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot);        /* 0x449920 */
 
-typedef struct D3LIGHTKEY {         /* 0x38 bytes, D3LIGHTENTRY: one of the 7 day-time keys of a light */
-    D3VECTOR pos;                   /* 0x00, relative to the light's parent */
-    D3VECTOR rot;                   /* 0x0c */
-    D3VECTOR color;                 /* 0x18, -> obj lightView color (0x5c) */
-    union {
-        float intensity;            /* 0x24, -> obj lightView power (0x94); 0 = off */
-        int intensityBits;          /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
-    };
-    union {
-        float range;                /* 0x28, -> obj lightView range (0x90) */
-        int rangeBits;
-    };
-    union {
-        float atten;                /* 0x2c, -> obj lightView atten (0x98) */
-        int attenBits;
-    };
-    union {
-        float flicker;              /* 0x30, the key's flicker factor (D3LIGHTENTRY.flicker, d3_engine.h) */
-        int flickerBits;
-    };
-    int interval;                   /* 0x34, its flicker interval (D3LIGHTENTRY.interval) */
-} D3LIGHTKEY;
-
-typedef struct D3LIGHTKEYS {        /* 0x1ac bytes, D3LIGHTINFO */
-    D3LIGHTKEY k[7];
-    char pad188[0xc];
-    int time;                       /* 0x194, D3LIGHTINFO.time (d3_engine.h): the last flicker step */
-    void *list;                     /* 0x198, D3LIGHTINFO.list: the lit vertex records */
-    union {
-        float flicker;              /* 0x19c, D3LIGHTINFO.flicker */
-        int flickerBits;            /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
-    };
-    int interval;                   /* 0x1a0, D3LIGHTINFO.interval */
-    float phase;                    /* 0x1a4, added to the day time */
-    char pad1a8[0x4];
-} D3LIGHTKEYS;
-#define D3O_LIGHT(o) ((D3LIGHTKEYS *)D3_X(o)->light)
-
-/* D3OBJECT as the light code of this unit reads the light fields (object types 5..8; the same bytes are
-   the stored position / rotation of a camera dummy, types 0/2/3 with objectFlags bit 0). The names are
-   d3_light.h's D3LOBJ view; a union in D3OBJECT itself (d3.h) is type debt. */
-typedef struct D3IFLIGHT {
-    char pad000[0x5c];
-    D3VECTOR color;                 /* 0x5c, light colour (r, g, b) */
-    char pad068[0x28];
-    union {
-        float range;                /* 0x90 */
-        int rangeBits;              /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
-    };
-    union {
-        float power;                /* 0x94, 0 = off */
-        int powerBits;
-    };
-    union {
-        float atten;                /* 0x98 */
-        int attenBits;
-    };
-} D3IFLIGHT;
-#define D3IF_LIGHT(o) ((D3IFLIGHT *)(o))
 
 /* d3_SaveScene writes float globals as their bit pattern through this view (d3_WriteMap's floats are int
    members of D3FLMAP's / D3FLREGION's unions, d3_fl.h) */

@@ -34,12 +34,54 @@ typedef struct D3OBJBITS {          /* D3OBJECT::state as bitfields (D3OBJECT.bi
     unsigned char reclip : 1;       /* 0x40, d3_DrawObjectCB clips the object anew and sets its info */
     unsigned char b7 : 1;
 } D3OBJBITS;
+typedef struct D3LIGHTKEY {         /* 0x38 bytes, one of the 7 day-time keys of a light (d3_SetLightKey blends two) */
+    D3VECTOR pos;                   /* 0x00, relative to the light's parent */
+    D3VECTOR rot;                   /* 0x0c */
+    D3VECTOR color;                 /* 0x18, -> the object's lightColor (sv_SetSkyLightColors copies the sky tables in) */
+    union {
+        float intensity;            /* 0x24, -> the object's power; 0 = off */
+        int intensityBits;          /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
+    };
+    union {
+        float range;                /* 0x28, -> the object's range */
+        int rangeBits;
+    };
+    union {
+        float atten;                /* 0x2c, -> the object's atten */
+        int attenBits;
+    };
+    union {
+        float flicker;              /* 0x30, the key's flicker factor; 0.3 from d3_InitObject, else the scene file's */
+        int flickerBits;
+    };
+    int interval;                   /* 0x34, its flicker interval; 15 from d3_InitObject, else the scene file's */
+} D3LIGHTKEY;
+
+typedef struct D3LIGHTINFO {        /* 0x1ac bytes, "d3:SpawnObject(lightinfo)": D3OBJECT.light of the object types >= 5 */
+    D3LIGHTKEY keys[7];             /* 0x000 */
+    D3VECTOR dir;                   /* 0x188, direction in camera space (type 7) */
+    unsigned long time;             /* 0x194, last flicker step (d3_Time) */
+    struct D3LREC *list;            /* 0x198, the lit vertex records (d3_light.h); cleared in d3_InitObject */
+    union {
+        float flicker;              /* 0x19c, 0.3 from d3_InitObject, else the scene file's */
+        int flickerBits;            /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
+    };
+    unsigned int interval;          /* 0x1a0, 15 from d3_InitObject, else the scene file's */
+    float phase;                    /* 0x1a4, added to the day time by d3_SetLightKey: the random -0.9 .. 0.9 a lamp
+                                       gets from sv_SetLampRamp */
+    unsigned char on;               /* 0x1a8, the light reaches the object being lit (d3_light.c) */
+    char pad1a9[0x3];
+} D3LIGHTINFO;
+
 struct D3OBJECT {
     union {
         char name[0x4c];            /* compared with _strcmpi by name lookups; real length unknown */
         struct {
             char padtime[0x40];
-            unsigned long animTime; /* 0x40, d3_Time of the object's last vertex animation step (d3anim_StepObject) */
+            unsigned long animTime; /* 0x40, d3_Time of the object's last vertex animation step (d3anim_StepObject; set
+                                       by d3anim_CreatePath and by d3_ToggleRLightCB when it switches an "r" light) */
+            unsigned long lightTime;    /* 0x44, d3_Time of the last lighting (d3_light.c); d3_anim.c compares it
+                                       with a timeout */
         };
         struct {
             char padname[0x48];
@@ -52,22 +94,41 @@ struct D3OBJECT {
             };
         };
     };
-    D3VECTOR pos;
-    char pad058[0x4];
+    D3VECTOR pos;                   /* 0x4c */
+    float flickerEnd;               /* 0x58, a light's flicker factor the current interval runs to (d3_light.c) */
     union {
         D3VECTOR savedPos;          /* 0x5c, a camera's saved position (objectFlags & 1: applied on load, d3_int_io.c), its
                                        default view (sv_BorderCameraView) */
-        D3VECTOR lightColor;        /* a light's colour (D3LOBJ.color, d3_light.h) */
+        D3VECTOR lightColor;        /* a light's colour */
     };
-    float soundRange;               /* 0x68, an "sfx_" object's sound radius (init_SoundObjectHook: + 50 = the range) */
+    union {
+        float radius;               /* 0x68, a type-0 object's radius (read from the scene file; d3if's screen size) */
+        int radiusBits;             /* the same bits as an int: the scene file writes it with bio_wr_i (d3_WriteObject) */
+        float soundRange;           /* an "sfx_" object's sound radius (init_SoundObjectHook: + 50 = the range) */
+        float flickerStart;         /* a light's flicker factor the current interval started from (d3_light.c) */
+    };
     D3VECTOR pivot;                 /* 0x6c, the point the object's rotation turns about (d3_pose.c) */
     D3VECTOR posOffset;               /* 0x78 */
     D3VECTOR rotation;                /* 0x84, rotation angles in degrees; d3_SetObjectRot writes them */
     union {
         D3VECTOR savedRot;          /* 0x90, a camera's saved angles, with savedPos */
-        D3VECTOR lightParams;       /* a light's range / power / attenuation (D3LOBJ, d3_light.h) */
+        D3VECTOR lightParams;       /* a light's range / power / attenuation, as the scene reader copies them */
+        struct {
+            union {
+                float range;        /* 0x90, a light's range */
+                int rangeBits;      /* the same bits as an int (the scene file's bio_wr_i, d3_WriteObject) */
+            };
+            union {
+                float power;        /* 0x94, a light's power, 0: off */
+                int powerBits;
+            };
+            union {
+                float atten;        /* 0x98, a light's attenuation */
+                int attenBits;
+            };
+        };
     };
-    struct D3CAMVIEW {              /* 0x9c, 10 position + direction pairs: the camera's preset views (D3OBJX.unk09c);
+    struct D3CAMVIEW {              /* 0x9c, 10 position + direction pairs: the camera's preset views;
                                        sv_BorderCameraMove moves the camera to 1 / 2 (above / below the window) and
                                        3 / 4 (left / right), an all-zero position meaning the view is not set */
         D3VECTOR pos;
@@ -76,11 +137,10 @@ struct D3OBJECT {
     D3MATRIX matrix;                /* 0x18c */
     struct D3SURF *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]) */
     struct D3PATH *path;            /* 0x1d0, the path animation it follows, 0: none */
-    union {
-        float radius;               /* 0x1d4, the mesh driver's radius (D3BGF.radius); read as obj->info->mesh->radius */
-        D3EVENT *events;            /* 0x1d4, the object's D3E_NEVENTS event handlers (d3e_RegisterEvent: D3OBJX.events), 0 = none */
-    };
-    char pad1d8[0x14];
+    D3EVENT *events;                /* 0x1d4, the object's D3E_NEVENTS event handlers (d3e_RegisterEvent), 0 = none */
+    D3VECTOR cam;                   /* 0x1d8, a light's position in camera space (d3_light.c) */
+    float radius2;                  /* 0x1e4, a light's squared radius */
+    D3LIGHTINFO *light;             /* 0x1e8, the light record of the object types >= 5 */
     struct D3MESH *material;        /* 0x1ec, the mesh: its surfaces (levels of detail) and their animations */
     D3OBJECT *next;                 /* 0x1f0, sibling list */
     D3OBJECT *prev;                 /* 0x1f4 */
@@ -111,7 +171,7 @@ struct D3OBJECT {
                                        d3_WriteObject); no reader in the original's code besides the writer */
     int type;                       /* 0x218, 4 = mesh */
     int type0;                      /* 0x21c, the object's real type: d3if_Show saves it there while it hides
-                                       the object as type 1, and the spawn sets it (D3OBJX.type0, d3_engine.h) */
+                                       the object as type 1, and the spawn sets it */
     int kind;                       /* 0x220, object kind from the file: 1 = per-vertex lit (d3_LightApply), 2 = character, 5 = hand object / sun rays; d3_ReloadMeshes selects one kind */
     int mask;                       /* 0x224, the object's mask bits, tested against the pick mask
                                        (d3if_PickCB: p->mask && !(obj->mask & p->mask)); 1 for the sun rays,

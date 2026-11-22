@@ -974,10 +974,10 @@ char d3s_AddShadow(D3SSLOT *slot, D3FLMAP *grid)
 
     buf = (D3SBUF *)&d3s_Object->material->surf[0];
     tex = (slot->tex);
-    col.c.r = (unsigned char)D3_L(slot->light)->color.x;
-    col.c.g = (unsigned char)D3_L(slot->light)->color.y;
-    col.c.b = (unsigned char)D3_L(slot->light)->color.z;
-    col.c.a = (unsigned char)(D3_L(slot->light)->power * 0.5f);
+    col.c.r = (unsigned char)slot->light->lightColor.x;
+    col.c.g = (unsigned char)slot->light->lightColor.y;
+    col.c.b = (unsigned char)slot->light->lightColor.z;
+    col.c.a = (unsigned char)(slot->light->power * 0.5f);
     if (d3s_Enabled && slot->map && slot->size && !slot->simple) {
         if (slot->ix0 >= slot->size || slot->ix1 < 0 || slot->iz0 >= slot->size || slot->iz1 < 0
             || slot->ix1 - slot->ix0 <= 0 || slot->iz1 - slot->iz0 <= 0)

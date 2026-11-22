@@ -48,17 +48,6 @@ typedef struct D3IOOBJFLAGS {      /* D3OBJECT::state..stateFlags as the reader 
 } D3IOOBJFLAGS;
 #define D3IO_FL(o) ((D3IOOBJFLAGS *)&(o)->state)
 
-typedef struct D3IOLIGHTKEY {       /* D3LIGHTENTRY (0x38 bytes) as the reader fills it (d3.h's D3PATHKEY is the animation key) */
-    D3VECTOR v00;
-    D3VECTOR v0c;
-    D3VECTOR v18;
-    float f24;
-    float f28;
-    float f2c;
-    float f30;
-    int f34;
-} D3IOLIGHTKEY;
-#define D3IO_KEYS(o) ((D3IOLIGHTKEY *)D3_X(o)->light)
 
 
 #ifndef UNK_401000_H                /* bio.h's, for the includers without it (the bio.h / d3_fl.h clash is gone) */
@@ -92,7 +81,6 @@ typedef union D3IOLOD {             /* 0x5fbf78 (initialized to 2): which stock 
 extern D3IOLOD d3io_Lod;                    /* 0x5fbf78, which stock object LODs are loaded (d3_io_t.c and main.c include this header) */
 char d3io_LodName(char *name, char *name2, int lod, char *out, char *out2);            /* 0x44c9d0 */
 
-#define D3IO_214(o) (D3_X(o)->meshMode)
 void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name);                        /* 0x44c610 */
 typedef void (*D3IOPROGRESS)(int a, int i, int n);
 
