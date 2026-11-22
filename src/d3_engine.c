@@ -1538,9 +1538,9 @@ void d3_Shutdown(void)
 }
 /* 0x43c4e0, applies the graphics options: the mip mode (a), the texture detail (b), the texture shift (c)
    and the shadow mode; a changed mode resets the object shadows, a changed shift flushes and reloads the
-   textures (e = reload flag). */
+   textures (with the progress callback, 0 from the options menu). */
 
-void d3_ApplyGraphicsOptions(unsigned char a, unsigned char b, unsigned char c, unsigned char mode, int e)
+void d3_ApplyGraphicsOptions(unsigned char a, unsigned char b, unsigned char c, unsigned char mode, void (*progress)(int, int, int))
 {
     if (d3d_Config.shadows != mode || d3_MipSkip != c) {
         d3d_Config.shadows = mode;
@@ -1551,7 +1551,7 @@ void d3_ApplyGraphicsOptions(unsigned char a, unsigned char b, unsigned char c, 
     if (d3_MipSkip != c) {
         d3fl_Flush();
         d3_MipSkip = c;
-        tex_ReloadAll(1, e);
+        tex_ReloadAll(1, progress);
     }
 }
 /* 0x43c570, allocates an object; types >= 5 are lights, the kind taken from the name's first letter. d3_EditorMode
@@ -2472,7 +2472,7 @@ void d3_ReloadMeshes(unsigned int mask, int type, void (*progress)(int a, int i,
     d3_ForEachObject(d3_DefaultScene, 0, mask, (D3OBJECTCB)d3_ReloadMeshCB, &ctx);
     ctx.count = 0;
     d3_ForEachObject(d3_DefaultScene, 0, mask, (D3OBJECTCB)d3_ReloadMeshCB, &ctx);
-    tex_ReloadAll(0, (int)progress);
+    tex_ReloadAll(0, progress);
     d3_LightInvalidate(1);
 }
 /* 0x43e110, d3_ForEachObject callback (Ghidra missed it): switches the type 5 lights named "r..." to type 6

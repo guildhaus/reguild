@@ -96,7 +96,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
     TSTEXTURE *old;
     struct TSTEXTURE *tex;
     char *name;
-    int opts, fmt;
+    unsigned char opts, fmt;
     char buf1[256], buf2[256];
     int j, replaced;
     D3BGF *ops;

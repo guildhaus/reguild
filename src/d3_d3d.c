@@ -835,7 +835,7 @@ void d3d_LoadTexture(char *name, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, 
 }
 /* 0x438180, gives a palettized surface and its mip levels the palette and the color key. */
 
-void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWORD n, BYTE *pal)
+void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWORD n, const BYTE *pal)
 {
     PALETTEENTRY adw[256];
     DDSURFACEDESC2 ddsd_back;
@@ -891,7 +891,7 @@ void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWOR
 /* 0x4383d0, creates a (dynamic) texture surface of size x size with mip levels down to 1 >> mips. */
 
 void d3d_CreateTexture(DWORD size, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, LPDIRECT3DTEXTURE2 *surftext,
-                       DWORD n, BYTE *pal, unsigned char mips)
+                       DWORD n, const BYTE *pal, unsigned char mips)
 {
     DDSURFACEDESC2 ddsd;
     int levels;

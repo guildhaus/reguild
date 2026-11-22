@@ -27,7 +27,7 @@
 extern unsigned char d3_MipSkip;
 
 struct TSTEXTURE; struct TSTEXTURE *tex_Create(char *name, int size, char hicol, D3TEXFLAGS flags, unsigned char f0, unsigned char f6a,
-                 int npal, unsigned char *pal, char mips);                              /* 0x461230 */
+                 int npal, const unsigned char *pal, char mips);                              /* 0x461230 */
 
 extern int d3s_EdgeX[4];
 extern int d3s_EdgeY[4];
@@ -814,7 +814,7 @@ char dd_FillSurface(LPDIRECTDRAWSURFACE4 surf, RECT *rect, DWORD color);        
 void * dd_LockSurfaceFlags(LPDIRECTDRAWSURFACE4 surf, DWORD flags);                               /* 0x41de30 */
 void dd_UnlockSurface(LPDIRECTDRAWSURFACE4 surf);                                       /* 0x41e740 */
 void d3d_BuildMipmaps(LPDIRECTDRAWSURFACE4 tex, DDSURFACEDESC2 *ddsd);                                /* 0x4371d0 */
-struct TSTEXTURE; void ts_CacheFetch(struct TSTEXTURE *tex, int npal, unsigned char *pal);                                     /* 0x45f8d0 */
+struct TSTEXTURE; void ts_CacheFetch(struct TSTEXTURE *tex, int npal, const unsigned char *pal);                                     /* 0x45f8d0 */
 
 const float d3s_Dist[2] = { 60.0f, 200.0f };  /* 0x5ebbd8 */
 const unsigned char d3s_Palette[] = { 0, 0, 0, 0xff, 0xff, 0xff, 0, 0 };  /* 0x5ebbe0, palette */
@@ -1288,7 +1288,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
             v->tv = (v->z - z0) * sz;
         }
         if (!tex->surf && d3_Hardware)
-            ts_CacheFetch(tex, 2, (int)d3s_Palette);
+            ts_CacheFetch(tex, 2, d3s_Palette);
         if (tex->surf) {
             dd_FillSurface(tex->surf, 0, 0);
             dd_Surface = dd_LockSurfaceFlags(tex->surf, 0x20);

@@ -63,8 +63,8 @@ const unsigned int d3_AnimDiv[11] = { 15, 13, 11, 9, 8, 7, 5, 3, 2, 1, 0 };  /* 
                                                   (d3_AnimDiv[speed - 1]; the 0 ends the table) */
 
 
-void d3d_CreateTexture(DWORD size, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, LPDIRECT3DTEXTURE2 *surftext, DWORD n, BYTE *pal, unsigned char mips);           /* 0x4383d0 */
-void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWORD n, BYTE *pal);                        /* 0x438180 */
+void d3d_CreateTexture(DWORD size, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, LPDIRECT3DTEXTURE2 *surftext, DWORD n, const BYTE *pal, unsigned char mips);           /* 0x4383d0 */
+void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWORD n, const BYTE *pal);                        /* 0x438180 */
 char file_Exists(char *path);                                                               /* 0x401090, @original: the callers here read the result as a char (byte-matched ts_LoadAnim: test al, al), against bio.h's int view */
 unsigned int util_Hash(unsigned char *buf, unsigned int len);                                                /* 0x401000 */
 
@@ -204,7 +204,7 @@ void ts_CacheRelease(TSTEXTURE *tex)
 /* 0x45f860, creates tex's D3D texture: the 16-bit format when hicolor, else the 8-bit one with npal, pal passed
    through, and mips from ts_Mips unless tex->nomip */
 
-void ts_CreateSurface(TSTEXTURE *tex, int npal, unsigned char *pal)
+void ts_CreateSurface(TSTEXTURE *tex, int npal, const unsigned char *pal)
 {
     unsigned char mips = tex->nomip ? 0 : ts_Mips;
 
@@ -216,7 +216,7 @@ void ts_CreateSurface(TSTEXTURE *tex, int npal, unsigned char *pal)
 /* 0x45f8d0, gives tex the surfaces of a cache entry of the same size, palettization and mip setting (the entry
    freed, its palette applied), the 8-bit palette set on it; with no such entry, creates a new surface */
 
-void ts_CacheFetch(TSTEXTURE *tex, int npal, unsigned char *pal)
+void ts_CacheFetch(TSTEXTURE *tex, int npal, const unsigned char *pal)
 {
     TSCACHE *sce;
     unsigned int i;
@@ -422,10 +422,10 @@ unsigned char ts_AddColor(unsigned char r, unsigned char g, unsigned char b, TSH
 }
 /* 0x45ff70, finds or creates a colour table holding the n colours of pal; map receives their indices */
 
-unsigned short *ts_GetHiColTab(unsigned char *pal, unsigned int n, unsigned char *map)
+unsigned short *ts_GetHiColTab(const unsigned char *pal, unsigned int n, unsigned char *map)
 {
     TSHICOL *h = 0;
-    unsigned char *p;
+    const unsigned char *p;
     unsigned int i, j, k, found;
 
     if (ts_HiColCount > 0) {
@@ -950,7 +950,7 @@ char tex_SetHiColor(TSTEXTURE *tex, unsigned char hicolor)
    and 16-bit colour table); the field stores are in this order for VC6's bitfield / zero-register code (see tex_CreateHi) */
 
 TSTEXTURE *tex_Create(char *name, int size, char hicol, TSFLAGS flags, unsigned char f0, unsigned char f6a,
-                      int npal, unsigned char *pal, char mips)
+                      int npal, const unsigned char *pal, char mips)
 {
     unsigned char map[0x100];
     TSTEXTURE *tex;
