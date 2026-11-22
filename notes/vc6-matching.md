@@ -6282,7 +6282,9 @@ the bytes no portable form gives.
   AIJOB.msg, gm_NameRecord's GMHEAD *) or the twenty-fourth (the one mesh vertex / triangle / surface / driver /
   path records, AIJOB's loan and ransom members, AIGOOD for GMGOOD / AIGOODX, D2SURF.bytes / D2OBJ.text, ORDINITMSG in
   G17MSG, const .rdata lookups, the unused pun macros) or the twenty-fifth (GVSHOTMSG in G17MSG, the town map
-  D3FLMAP and d3_Scenes[k].map, the byte-offset walk ends, AIJOB's 101 event-kind members; HEOFFER stays a pack(1) view).
+  D3FLMAP and d3_Scenes[k].map, the byte-offset walk ends, AIJOB's 101 event-kind members) or the twenty-sixth
+  (the plain char numbers and code bytes as signed char, AIJOB's kind bytes named twice, the offer event's pack(1)
+  AIOFFERAT member, GVEFFECT.parts as SHOTREC).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6996,12 +6998,46 @@ the bytes no portable form gives.
   and generate one prefixed struct per view (scratchpad p25/vgen.py / vapply.py: parse the view, compute every field's
   offset under natural alignment and compare it with the field comment, rename per function). Name a field that
   AIJOB already has at the same offset for the same kind with that name (HESALE.good = orderGood, HEWATCH = patrol*).
-  A view laid out under `#pragma pack(1)` with an AITIME at an odd offset (HEOFFER's clock at 0xc5) cannot be an
-  AIJOB member at natural alignment: it stays local. Before stripping `(V *)` casts, find the casts of call results
-  (`((HEEXAMOFFER *)he_FindEvent(..))->accepted`): without the cast the field resolves against AIJOB, and a name the
-  record has at another offset compiles silently. Check the draft functions' code before and after (scratchpad
+  A view laid out under `#pragma pack(1)` with an AITIME at an odd offset (HEOFFER's clock at 0xc5): a pack(1)
+  sub-record member (twenty-sixth pass, AIOFFERAT below). Before stripping `(V *)` casts, find the casts of call
+  results (`((HEEXAMOFFER *)he_FindEvent(..))->accepted`): without the cast the field resolves against AIJOB, and a
+  name the record has at another offset compiles silently. Check the draft functions' code before and after (scratchpad
   p25/ours.sh / oursdiff.sh: `dcp disasm --ours` of every non-byte function, VC6's `$L` label numbers masked).
-
+- **Plain char after the /J sweep: numbers, code bytes and text** (twenty-sixth pass, p21/jdiff.sh 59 -> 32 named
+  functions): a byte that is a number (an index base added to an index, a kind byte of a pick id, a level, a player
+  slot, a scan code, a light-table step, a mode with `mode < 0`) is `signed char` in its global, field, local, cast
+  and prototype (definition and every declaration together); a flag byte read through a sign-extending cast is
+  `(signed char)f & 8`. A code or data byte whose test depends on the sign is made explicit with a comment where
+  the meaning shows: err_CheckCall's FF opcode tests `(signed char)p[k] == -1` (never true under unsigned char),
+  vfs_fgetc's `signed char c` (a 0xff byte reads as -1, the end of the file). `va_arg(ap, char)` (a promoted
+  argument read as char) is `(signed char)va_arg(ap, int)`, the same code. What stays plain char: text bytes in
+  switches on characters, digit range tests, `c - '0'` after a digit test, `%c` arguments, zlib / minizip's own
+  code; their /J differences are code, not results. ctype calls on plain char text (`isdigit(*p)`, `toupper(*p)`)
+  stay too, but a negative char indexes VC6's `_pctype` below its table: the original's behaviour, port-side
+  `(unsigned char)`. The functions left on the list after this are text, label or allocation noise.
+- **One kind's bytes under two names in AIJOB** (twenty-sixth pass): a base-union member that only one event kind
+  uses (AIJOB.constructBld, rounds, steps, meetStart, the training.talent / guests[3] / groupSize views) moves into
+  that kind's struct, in place of its `/* 0x..: AIJOB.name */` pad, and the readers of the other name read the
+  kind's (hireJob for the hire event 7's job index where the master windows read hireTitle == 0; offerWho[0..4]
+  where he_AllocOffer / ai_EvalLeastLikedOfEvent read partner1 / partner2 / guests[]). A reader that indexes past a
+  member array as the original does (he_FindMeetingRoom's n % 4 + 1 reaching the fifth word, circusObjs[0]) gets
+  a union member spanning both with `@original`, not an out-of-bounds index of the four-word array. Every reader
+  stayed the same code; the removed and added members move declaration-set tie-breaks in every unit that includes
+  ai_types.h (both ways: two debts cleared and fell again within the pass).
+- **A view laid out under pack(1) with an unaligned field inside a naturally aligned record** (HEOFFER /
+  LCOFFEREVENT: the offer kind at AIJOB+0xc4, its AITIME clock at 0xc5): define the unaligned pair as its own
+  pack(1) record in the types header (AIOFFERAT { signed char kind; AITIME clock; }, 15 bytes, alignment 1) and
+  make it a member of the kind's struct (`AIOFFERAT offerAt;` at 0xc4: the clock lands at 0xc5 under the record's
+  natural alignment). A named member, not an anonymous one (a typedef'd anonymous member is an MS extension). When
+  the removed view opened the unit's `#pragma pack(push, 1)` and the pop comes after other records (he.c /
+  he_b.c's HEMEETNAME ..), keep the push. The handlers' `HEOFFER *o = (HEOFFER *)e` aliases and a second alias of
+  the loop record went (the same code).
+- **A unit's field-by-field save of a record whose 16-byte writes span a member and its pad** (gv_WriteEffects /
+  gv_ReadEffects over GVEFFPART = SHOTREC: `p->v2` 16 bytes = posStart and pad2c): write the member's address
+  with the original's size (`&p->posStart, 16`); the float[4] view went.
+- Commit-message slips of the twenty-sixth pass: e10b74cd says "eleven locals or casts" (twelve are listed) and
+  that the text bytes left on the /J list give "the same result for every byte either way" (true for the
+  switches, digit tests and %c; not for ctype calls, see above).
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
