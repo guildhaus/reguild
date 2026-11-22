@@ -61,7 +61,8 @@ measure` marks two observations that disagree: try both. Some notes name scripts
 - **Method and tools** (48 rules): dcp commands: what they do and do not do; Big diffs and function boundaries; The
   c2dag tools; Sweeps and twins; Functions given up on that were not allocation problems; A byte sibling, twin or
   published source is the source; Variant rounds; Base pass
-- **This code base** (7 rules)
+- **This code base** (7 rules): Portable spellings first; Portability status (what is clean, kept, not done, and what
+  a 64-bit port must handle)
 - **Open cases and rounds without result** (35 rules): A constant or flag in the wrong register; Register races
   between named values; Load and operand order; Hoisting, scheduling and strength reduction; Branch layout and
   shared epilogues; Frame slots and register homes
@@ -6284,7 +6285,9 @@ the bytes no portable form gives.
   G17MSG, const .rdata lookups, the unused pun macros) or the twenty-fifth (GVSHOTMSG in G17MSG, the town map
   D3FLMAP and d3_Scenes[k].map, the byte-offset walk ends, AIJOB's 101 event-kind members) or the twenty-sixth
   (the plain char numbers and code bytes as signed char, AIJOB's kind bytes named twice, the offer event's pack(1)
-  AIOFFERAT member, GVEFFECT.parts as SHOTREC).
+  AIOFFERAT member, GVEFFECT.parts as SHOTREC) or the twenty-seventh (the terrain views D3TERRAIN / D3STERR / D3MAP /
+  D3TMAP / D3IFMAP as D3FLMAP with d3_Terrain typed, d3_DefaultD3DConfig as D3DCONFIG and d3if_SceneState0, the
+  particle list's head node, D3SCENE.dirty, ai_CharInts as AICHAR fields, the unused view macros).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -7038,6 +7041,125 @@ the bytes no portable form gives.
 - Commit-message slips of the twenty-sixth pass: e10b74cd says "eleven locals or casts" (twelve are listed) and
   that the text bytes left on the /J list give "the same result for every byte either way" (true for the
   switches, digit tests and %c; not for ctype calls, see above).
+- **Views of one engine record whose field names the record has at other offsets** (twenty-seventh pass, the terrain
+  map: d3_sm.h's D3TERRAIN, d3s.h's D3STERR, d3_tools.c's D3TMAP, d3_snd.c's D3MAP, d3_interface.h's D3IFMAP over
+  D3FLMAP): D3TMAP.scale (0xc4) is D3FLMAP.hscale while D3FLMAP.scale is at 0xa0, and the block view's lod (tile
+  +0x5e) is D3FLTILE.lodLevel while D3FLTILE.lod is +0x5f: rename the colliding name first (`map->scale` ->
+  `hscale`, then `cellx` -> `scale`), and rename a sub-record array together with its fields (blocks[][].lod ->
+  tiles[][].lodLevel, never `.lod` alone). A view's vector members over the owner's floats (origin / axisx / axisz /
+  axisy as D3VECTOR4 over orgx .. yAxisZ) are the owner's floats when no code takes a vector's address or copies it.
+- **A view's array that overlaps two of the owner's members** (D3STERR.mip[8] at 0x24 over D3FLMAP.divide[3] and
+  src[]): read the index range from the writers before choosing a union. d3s_TerrainShadowMesh's mip[step >> 1]
+  takes a tile's lodLevel, which d3fl_UpdateTiles sets to 1, 2 or 4 (d3fl_TileLod, the detail shift 0 / 1 of
+  cmscene / f3init), so only divide[0..2] are read: the view's eight entries were a guess, the field is divide.
+- **A record-pointer walk the original bases at a field of the record** (d3sm_Build: `lea eax,[t+0x13c]` =
+  &tiles[0][0].hmin, reads [eax] / [eax+1], `add eax,0x64`; a `D3FLTILE *` walk bases at the tile, [+0x5c] / [+0x5d],
+  4 ins): the walk is an `unsigned char *` at the field stepping `sizeof(D3FLTILE)` with `@original` (the original's
+  unit had its own block view there). Try the index form first: amt's int * walks based at AICHAR.netId (`q +=
+  0x87`, `((char *)q)[-2]` the kind) are index do-whiles over `ai_Chars[i].kind / .netId` (VC6 bases the pointer at
+  netId, byte); where the index form based it at the record (ai_TokenRandomNpcInhabitant: `c = &ai_Chars[i]` and
+  `ai_Chars[i].sex`), reading the third field through the record pointer (`c->sex`) moved it back (byte; dcp try).
+- **A float field that a writer emits as its bits with bio_wr_i** (d3_WriteMap's scale / hscale and the regions'
+  scroll speeds / f14 through D3IFMAP / D3IFREGION views): an int member in an anonymous union with the float
+  (`scaleBits`, `hscaleBits`, `scrollSpeedUBits` ..), as D3OBJECT.radiusBits; the same code.
+- **A `char x[16]` data block that holds a record and the next datum** (d3_DefaultD3DConfig: the 12-byte D3DCONFIG
+  and d3if_SceneState0 behind it, read through a data_views.h int view): the record with a positional initialiser of
+  its bitfields (`{ 0, 1, 1, 1, 1, 0, 1, 0, 1, {0}, 3, 2 }`, the same bytes) and the datum as its own int in the
+  owner's data (dcp why names the unit). A byte read-modify-write of the record (`(b & 0xf9) | 1` on byte 1) was the
+  3-bit field store `.shadows = 1`: VC6 compiles it to the same `and al,0xf9; or al,1` (main_OpenScreen byte).
+- **A list head node typed `char [0x31c]` with its link fields as data_views.h views** (d3if_ParList, d3_ParHead =
+  +0x314, d3_ParTail = d3_ParEnd + 0x318): the node is the record (`D3PARTSYS d3if_ParList`), the link pointers are
+  field macros `#define d3_ParHead (d3if_ParList.next)` / `d3_ParTail (d3_ParEnd.prev)`, as d3_TopFirst / d3_TopLast;
+  the `#define` / `#undef` dance around a header's void * declarations goes. The scene's saved copies (D3SCENE.parHead
+  / parTail) take the record pointer type.
+- **An int-array view of a record table at a field offset** (data_views.h's ai_CharInts = `int [768][0x87]` at
+  ai_Chars + 4, read as `[k][0]`, `[k][0x71]`, `(unsigned char)[k][0x58]`): each index is a field (netId, flags1c8,
+  jobId); the 183 `[k][0]` reads were rewritten by one regex with nested brackets (`ai_CharInts[list[i]][0]`).
+- **count.py's categories do not see record view macros or inline views** (`#define D3_X(o) ((D3OBJX *)(o))`,
+  `((D3IFBITS *)&g)->bits`, `((unsigned char *)&m.arg[0])[1]`): they are listed in "Portability status" below. A
+  function-like macro with a cast in its body that no code uses goes (CH, OPROTO, WIDGET, HE_JUMP, ORD_GRID,
+  CHC_SCRIPT: each name occurring only in its #define).
+- A script that replaces `((T *)x)` with `x` takes a call's own parenthesis when the cast is the whole argument
+  (`d3fl_MakeDivide((D3FLMAP *)d3_Terrain)` became `d3fl_MakeDivided3_Terrain`): replace `(T *)x` inside calls, or
+  grep `[A-Za-z0-9_]NAME` after the replace.
+- Commit-message slips of the twenty-seventh pass: e2936252 lacks the Co-Authored-By / Claude-Session trailer
+  lines.
+
+### Portability status
+Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
+the twenty-seventh portability pass (the passes since eb11a8b9). VC6 still compiles
+every unit to the same grades; nothing below changes a record layout.
+
+Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
+- Type warnings: C4133, C4022, C4113, C4028, C4090 none (C4047 / C4024 seven each, below). Warnings in all: 175 (from
+  9305), of which 119 C4731 (inline asm that writes ebp) and the rest listed below.
+- Function casts: no `(int)fn` / `(void *)fn` / `(char *)fn`; callbacks have their slot's prototype except the
+  cases below.
+- Integer views of data: no `*(T *)&x` pun inline; data_views.h holds one field alias (ai_MapRefs =
+  d3_Scenes[0].map), no pun; three pun macros left, all (c) (below). Address integers are `intptr_t` /
+  `uintptr_t` (include/portable.h): 110 `(intptr_t)&` sites, every one a signed address compare (the original's jl
+  / jge on a walk end) or he_DetectAttack's int context, none truncates on 64-bit.
+- Plain char: every byte that is a number is `signed char`; /J changes the code of 32 named functions, all text
+  (ctype calls, switches on characters, digit tests, %c), zlib / minizip, or label / allocation noise
+  (ai_DecideBuildSculpture's fidiv, he_SpawnFounders, d3_WriteObject ..).
+- Declarations are compatible in standard C within each unit, except the two `#ifdef _MSC_VER` ones below.
+
+Kept deliberately (each with `@original` in the source):
+- The (c) cases (no declaration arrangement compiles the original's code): util_Random's int result in
+  he_RunInnSim, d3sm_Pick's int result in cmfight.c, hst_ListModeSet / hst_ListModeUse (an int compared with the
+  first four bytes of a 5-byte string, one at an odd address), ai_NumPlayersW in main.c (a byte global read as an
+  int).
+- sv_RunFrame's record-returning frame keys: C4047 + C4024 at seven calls (lc 1, lcamt 5, lcdom 1); the key is
+  compared, never called.
+- Function pointers passed through a cast as callbacks: d3_ForEachObject2's callbacks, qsort, ai_GraveWindow,
+  ai_VgFilter, sndc's evt_CurCall->fn test, cmscene's cm_Kinds[].check, main.c's GetProcAddress result, and
+  ai_GetDefaultEffectScale's call of ai_NormalizeEffectScale through an int K&R cast (returns the callee's st(0)
+  without a return statement).
+- Two declarations under `#ifdef _MSC_VER` with the conforming form in the `#else`: d2.c's block-scope `void
+  d2_MoveObj();` (short parameters) and d3s.c's unsigned char d3s_ShadowPoly prototype over an int old-style
+  definition.
+- Header drift spelled as unit-local declarations with `@original` (gfx.c's d2_MoveObj, d3_engine.c /
+  d3_interface.c's dd_Clear, he.c's ai_PickActionBuilding, main.c's gm_CharacterIncomes, util_Random's 16-bit
+  declaration in the game units): legal C in each unit, a cross-unit type difference a linker does not see.
+- Walks based at a field (`@original`): d3_InitSurf (nextFrame), d3sm_Build (the tiles' hmin).
+- Missing returns the original has: C4716 x16 / C4715 x3 (cm_SendPlayerId, cm_SendLongMessage, cm_WaitEvent .. in
+  cmscene, ord_PrivilegeDialog, cm_OrderAttack / cm_OrderEscape / cm_StopScript, ai_GetDefaultEffectScale), C4098 x5
+  (menu.c's void functions that return a call), C4700 x2 (ai.c's `found`, menu.c's `dflt`: the original reads the
+  uninitialised slot; see their @original). The other warnings: C4005 x13 (D3_COPY_AT / D3FL_COPY defined twice,
+  differently, in d3_d3d.h / ts_texture.h / d3_io_fl), C4405 x2 (amt.c's parameter `out`), C4550 x1 (evt.c).
+- Inline asm: 790 `__asm` lines in 37 files (fixed-point helpers, D3_ZERO / copy macros, the span fillers, shp.c's
+  drawers), `__int64`, `__cdecl` / `__stdcall` on Win32 / DirectX callbacks, 118 `#pragma pack` lines.
+
+Not done (views that count.py does not count; the next passes' work):
+- Record view macros over a pointer, by uses (about): D3_MESH 159, D3_X 159, D3_L 158, CH_XSLOT 73, GM_BLOCK 43,
+  D3_CV 42, PAR_VF 28, CH_ACTOBJ 25, GM_BTYPE 21, D3IO_FL 19, D3Q_MAT 18, D3PAR_INV 17, CH_TRANSPORT 17, G12_B 12,
+  D3IF_LIGHT 11, D3_POSE 9, D2OBJ_AT 8, D3PAR_TIME 7, CH_MODEL / CH_MODEL2 9, ORD_KIND 5, PAR_OBJ / PAR_EMITTER /
+  PAR_E / PAR_TF 13, d2.c's WIN 3, D3IF_OBJ068 1. Most are a second record type for one object (D3OBJX / D3LOBJ for
+  D3OBJECT, GMBTYPE for AIBTYPE, D3EMITTER / D3PARINV for D3PARTSYS: merges as the earlier passes did), some a
+  pointer field read as another record than its declared type (D3_MESH = obj->material, CH_XSLOT, CH_TRANSPORT,
+  PAR_OBJ).
+- Inline cast views (39 lines): float element views of vectors / colours (d3_interface.c's light keys), byte
+  views of ints (`((unsigned char *)&msg.arg[0])[1]` in ai.c / hst.c, `((unsigned char *)&r->kind[k])[1]` in d2.c:
+  little-endian), int views of records (d2.c's d2_Views, ch.c's `((int *)&slot->flags)[1]`, net.c's net_Stats),
+  the float-bits views D3IFBITS (d3_SaveScene's float globals) / D2WINF.alpha / D3TEXPACK, the bit views
+  D3TRIBITS / D3BITS / OCMDOBJBITS, AMTKINDF / AMTRANGEW, G12EVENTMSG.
+- Field offsets as byte arithmetic: 35 `cm_AddField*` calls send `(char *)p - cm_FieldObject + 0x..` (the network
+  field-sync protocol addresses a field by its 32-bit layout offset), ch.h's CH_MODEL `(char *)ch + 0x130`.
+
+What a 64-bit (or big-endian) port has to handle, beyond the above:
+- Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
+  AIJOB.offerAt is a pack(1) member at 0xc4), G17STAT.value and GMCARRYREC.ref (the id while saved, the pointer at
+  run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only); ai_JudgeCatholic /
+  ai_JudgeProtestant are read from the save as 4-byte ids. The save and the network formats are the 32-bit layouts:
+  a port writes them field by field (LSHDR already is) or keeps 4-byte ids.
+- Ints that hold pointers by design: the script VM's values (chc / ecmd / evtc `return (int)obj;`: the evt VM's
+  int values hold object pointers), the text API's `intptr_t` id-or-string parameters (txt_Format, io_PrintText,
+  sv_MessageBox ..: already pointer-sized), D2WIN.args (intptr_t).
+- The network field offsets above (cm_FieldObject) and the message records in G17MSG are wire formats.
+- ctype on plain char text (`isdigit(*p)`, `toupper(*p)`): VC6 indexes _pctype below its table for bytes >= 0x80
+  (the original's behaviour); a port passes `(unsigned char)`.
+- `#pragma pack(1)` records (AIOFFERAT, the save / message records) and the byte views above assume little-endian.
+- Float bits written as ints (radiusBits, scaleBits .., D3IFBITS) assume 32-bit IEEE floats.
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
