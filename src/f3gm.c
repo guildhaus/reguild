@@ -1003,12 +1003,12 @@ void gm_SelectModelVariant(AICHAR *o)
     unsigned v;
     CHARACTER *m;
     D3SURF *surf;
-    D3OPS *ops;
+    D3BGF *ops;
 
     v = 0;
     if (o != 0 && (m = o->scene) != 0) {
         surf = &m->obj->material->surf[0];
-        ops = (D3OPS *)surf->mesh;
+        ops = surf->mesh;
         if (m->scene != d3_Scenes) {
             if ((int)ops->nsets <= 4)
                 v = o->netId % ops->nsets;
@@ -1116,7 +1116,7 @@ void gm_ChooseHeadIcon(AICHAR *c)
     GMHEAD *rec;
     CHARACTER *m;
     D3SURF *surf;
-    D3OPS *ops;
+    D3BGF *ops;
     int i, j, h, k, found, set;
 
     found = 0;
@@ -1128,13 +1128,13 @@ void gm_ChooseHeadIcon(AICHAR *c)
         if (m->scene == d3_Scenes)
             return;
         surf = &m->obj->material->surf[0];
-        ops = (D3OPS *)surf->mesh;
+        ops = surf->mesh;
         set = surf->texSet;
-        if (ops->count > 0) {
+        if (ops->ntex > 0) {
             do {
                 if (found != 0)
                     return;
-                part = ops->texnames + (ops->count * set + i) * 0x40;
+                part = ops->texnames + (ops->ntex * set + i) * 0x40;
                 if (*part != 0 && (strstr(part, "kopf") != 0 || strstr(part, "KOPF") != 0
                                    || strstr(part, "HEAD") != 0 || strstr(part, "head") != 0)) {
                     sprintf(icon, "%s_ICON.bmp", part);
@@ -1149,7 +1149,7 @@ void gm_ChooseHeadIcon(AICHAR *c)
                     }
                 }
                 i++;
-            } while (i < ops->count);
+            } while (i < ops->ntex);
             if (found != 0)
                 return;
         }

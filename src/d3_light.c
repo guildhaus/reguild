@@ -137,7 +137,7 @@ void d3_LightFlicker(D3OBJECT *obj)
 
 char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
 {
-    D3LINFO *info = D3_L(obj)->info;
+    D3SURF *info = D3_L(obj)->info;
     D3OBJECT *l;
     D3VERTEX *v;
     D3TRI *t;
@@ -204,8 +204,8 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
         if (i < set->count) {
             if (obj->kind == 1) {
                 d3_WorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 1, &m);
-                sc = 20.0f / info->ops->radius;
-                acc.y = info->ops->originY;
+                sc = 20.0f / info->mesh->radius;
+                acc.y = info->mesh->cy;
                 for (j = i; j < set->count; j++) {
                     l = set->list[j];
                     if (l->type == 7) {
@@ -275,7 +275,7 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
 
 char d3_LightAddObject(D3OBJECT *obj, D3LCTX2 *ctx)
 {
-    D3LINFO *info = D3_L(obj)->info;
+    D3SURF *info = D3_L(obj)->info;
     D3OBJECT *light;
     D3VERTEX *v;
     D3LREC *rec, *p;
@@ -286,7 +286,7 @@ char d3_LightAddObject(D3OBJECT *obj, D3LCTX2 *ctx)
 
     if (info) {
         d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
-        D3_L(obj)->radius2 = (d3_LightRadiusMargin + info->ops->radius) * (d3_LightRadiusMargin + info->ops->radius);
+        D3_L(obj)->radius2 = (d3_LightRadiusMargin + info->mesh->radius) * (d3_LightRadiusMargin + info->mesh->radius);
         n = 0;
         light = ctx->light;
         d.x = D3_L(obj)->cam.x - D3_L(light)->cam.x;
@@ -452,14 +452,14 @@ void d3_LightPrepare(D3OBJECT *obj)
             return;
     }
     d3_PointToRef(obj, d3_Camera, &obj->pos, &D3_L(obj)->cam);
-    if (D3_L(obj)->info->ops)
-        r = D3_L(obj)->info->ops->Radius(obj, obj->info);
+    if (D3_L(obj)->info->mesh)
+        r = D3_L(obj)->info->mesh->GetRadius(obj, obj->info);
     D3_L(obj)->radius2 = r * r;
     if (obj->state & 4)
         d3_TransformSurf(obj);
     if (obj->state & 0x20)
-        if (D3_L(obj)->info->ops)
-            D3_L(obj)->info->ops->fn1ec(obj, obj->info);
+        if (D3_L(obj)->info->mesh)
+            D3_L(obj)->info->mesh->TransformNormals(obj, obj->info);
 }
 /* 0x452fa0, sets the colours (c and s) of the vertices of the triangles of surface s from the texture's
    flags: the grey of the accumulated light scaled by the texture's two flag bytes, or the alpha byte alone.
@@ -545,7 +545,7 @@ char d3_LightCollectCB(D3OBJECT *obj, D3LCTX *ctx)
 
 char d3_RelightObject(D3OBJECT *obj)
 {
-    D3LINFO *info;
+    D3SURF *info;
     D3LCTX ctx;
     D3TEXFLAGS f;
     D3VECTOR4 c;
@@ -617,7 +617,7 @@ char d3_RelightObject(D3OBJECT *obj)
                 k[i].color = k[i].specular;
             }
         }
-        d3_SetVertexColors(obj, (D3SURF *)info, 0, f);
+        d3_SetVertexColors(obj, info, 0, f);
         d3_ForEachObject(obj->scene, 0, 4, (D3OBJECTCB)d3_LightAttach, obj);
         d3_LightRadiusMargin = 0.0f;
         obj->state |= 4;
@@ -641,7 +641,7 @@ void d3_RelightObjects(D3OBJECT *obj)
 
 void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *frame)
 {
-    D3LINFO *info;
+    D3SURF *info;
     D3LCTX ctx;
     D3VECTOR4 c;
     int i, g;
@@ -661,9 +661,9 @@ void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *frame)
             d3_LightRadiusMargin = ((D3LFRAME *)frame)->radius;
         else
             d3_LightRadiusMargin = 0.0f;
-        s = d3_LightRadiusMargin + info->ops->radius;
+        s = d3_LightRadiusMargin + info->mesh->radius;
         D3_L(obj)->radius2 = s * s;
-        d3_FrameNormals(obj, (D3SURF *)info, frame);
+        d3_FrameNormals(obj, info, frame);
         k = info->keys;
         for (i = 0; i < info->nkeys; i++) {
             k[i].light.x = d3_AmbientColor.x;

@@ -739,21 +739,21 @@ char tex_Animate(D3OBJECT *obj, unsigned int time)
 {
     TSTEXTURE **texs;
     TSTEXTURE *tex, *f;
-    TSTRI *tri;
+    D3TRI *tri;
     unsigned int seed;
     int i, k, n, ntris, group;
 
-    if (obj->info && ((TSMESH *)obj->info)->ops && ((TSMESH *)obj->info)->nkeys > 0) {
-        texs = ((TSMESH *)obj->info)->texs;
+    if (obj->info && obj->info->mesh && obj->info->nkeys > 0) {
+        texs = obj->info->texHandles;
         seed = util_Hash((unsigned char *)&obj, sizeof(obj));
-        ntris = ((TSMESH *)obj->info)->ntris;
-        n = ((TSMESH *)obj->info)->ops->count;
+        ntris = obj->info->ntris;
+        n = obj->info->mesh->ntex;
         for (i = 0; i < n; i++) {
             tex = texs[i];
             if (tex && tex->frames > 0 && !tex->frame && tex->speed > 0 && tex->refs > 0) {
                 group = tex->group;
                 f = tex_GetFrame(tex - d3_Textures, (time / d3_AnimDiv[tex->speed - 1] + seed) % tex->frames);
-                for (k = ntris, tri = ((TSMESH *)obj->info)->tris; k > 0; k--, tri++) {
+                for (k = ntris, tri = obj->info->tris; k > 0; k--, tri++) {
                     if (tri->tex && tri->tex->group == group)
                         tri->tex = f;
                 }

@@ -4,23 +4,6 @@
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct D3SURF;
 
-typedef struct XPART {              /* a mesh part, what D3SURF has before its ops */
-    struct D3VERTEX *keys;             /* 0x00, stride 0x50 */
-    void *tris;
-    int nkeys;                      /* 0x08 */
-    int ntris;
-    struct XOPS *ops;               /* 0x10 */
-    struct XTEX **tex;              /* 0x14 */
-} XPART;
-typedef struct XOPS {
-    char pad000[0x1e0];
-    int count;                      /* 0x1e0 */
-} XOPS;
-typedef struct XTEX {
-    char pad00[0x68];
-    unsigned char flags;            /* 0x68 */
-} XTEX;
-
 struct D3ANIMSLOT * d3anim_GetMainSlot(struct D3SURF *ctl);                                         /* 0x435900 */
 void d3_MatMul43(D3MATRIX *a, D3MATRIX *b, D3MATRIX *out);                  /* 0x453ee0 */
 void d3_MatToAngles(const D3MATRIX *m, D3VECTOR *angles);                         /* 0x454690 */

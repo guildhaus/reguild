@@ -28,13 +28,6 @@ typedef struct D3TERRAIN {          /* the terrain a height map is sampled from 
 
 #define D3TERRAIN_NAMES(t) ((char (*)[0x40])((char *)(t) + 0x1a64))    /* 8 material names, overlaps blocks */
 
-typedef struct D3SMMESH {           /* D3OBJECT.info */
-    D3VERTEX *keys;
-    D3TRI *tris;                  /* 0x04 */
-    int nkeys;                      /* 0x08 */
-    int ntris;                      /* 0x0c */
-} D3SMMESH;
-
 char d3sm_FindGround(D3SM *h, int x, int z, int *ox, int *oz);           /* 0x45efc0, the cell nearest to
                                                                             (x, z) with a real ground type */
 char d3_GetHeightAt(D3SM *h, D3VECTOR *pos, int *px, int *pz, float *py);        /* 0x45f170, the cell of pos and

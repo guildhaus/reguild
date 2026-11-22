@@ -64,7 +64,7 @@ void d3iot_CalcBounds(D3BGF *m);                                                
 void d3iot_Finish(D3BGF *m, char bounds);                                               /* 0x44d1c0 */
 void d3iot_LoadTexSet(char *name, char **out, int *w, int *h);                          /* 0x44d1f0 */
 D3BGF *d3iot_LoadBGF(char *path, char *name, char *texnames, int ntexsets, int ntex);     /* 0x44d330 */
-float d3iot_GetRadius(int unused, D3SURF *info);                                     /* 0x44df20 */
+float d3iot_GetRadius(D3OBJECT *obj, D3SURF *info);                                     /* 0x44df20 */
 
 /* 0x44df40..0x44e570 (worker d3io3, joined at the round-10 close) */
 
@@ -126,7 +126,7 @@ typedef struct D3IOPATH {           /* 0x44 bytes, the animation of an object (o
     D3IOKEY *keys;                  /* 0x40 */
 } D3IOPATH;
 
-struct D3OBJECT; struct D3LINFO; void d3_TransformNormals(struct D3OBJECT *obj, struct D3LINFO *info);                                                        /* 0x4598d0, stock object callback */
+struct D3OBJECT; struct D3SURF; void d3_TransformNormals(struct D3OBJECT *obj, struct D3SURF *info);                                                        /* 0x4598d0, stock object callback */
 extern char d3_AnimDir[];                                                       /* 0x5fbf80, "animations/" */
 extern volatile unsigned long d3_Time;                                          /* 0x6333cc, milliseconds (tb.c) */
 

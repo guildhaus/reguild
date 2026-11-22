@@ -46,13 +46,13 @@ char *d3io_StockFile(char *name, char *ext)
 }
 /* 0x44c5d0, the loaded stock object of that name */
 
-int d3io_FindStock(char *name)
+D3BGF *d3io_FindStock(char *name)
 {
     D3BGF *s;
 
     for (s = d3_StockListStart.next; s != &d3_StockListEnd; s = s->next)
         if (!strnicmp(name, s->name, 0x3f))
-            return (int)s;
+            return s;
     return 0;
 }
 /* 0x44c610, builds surf from the stock object `name`: vertices and triangles, vertex colours from the colour
@@ -61,26 +61,26 @@ int d3io_FindStock(char *name)
 void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
 {
     D3COLORU col;
-    D3IOSTOCK *stock;
-    D3IOSURF *s;
+    D3BGF *stock;
+    D3SURF *s;
     D3TRI *tri;
     TSTEXTURE *tex;
     D3MESH *mesh;
     char buf[0x100];
     int i, k;
 
-    stock = (D3IOSTOCK *)d3io_FindStock(name);
+    stock = d3io_FindStock(name);
     if (stock) {
-        s = (D3IOSURF *)surf;
-        s->nkeys = stock->npoints;
+        s = surf;
+        s->nkeys = stock->nverts;
         s->ntris = stock->npolys;
-        s->stock = stock;
-        s->f194 = 0;
-        d3_AllocObjectPolys((D3SURF *)s);
+        s->mesh = stock;
+        s->active = 0;
+        d3_AllocObjectPolys(s);
         col.col = 0xffffffff;
         if (s->nkeys > 0)
             for (i = 0; i < s->nkeys + 8; i++) {
-                s->keys[i].src = &stock->points[i];
+                s->keys[i].src = &stock->vtx[i];
                 s->keys[i].rawFlags = 0;
                 s->keys[i].color = 0xffffffff;
                 s->keys[i].specular = 0xffffffff;
@@ -124,19 +124,19 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
                 tri->tex = 0;
         }
         s->texSet = 0;
-        s->texset = mem_Alloc(stock->ntex * sizeof(*s->texset), "d3_io:CurTexSet");
+        s->texHandles = mem_Alloc(stock->ntex * sizeof(*s->texHandles), "d3_io:CurTexSet");
         for (i = 0; i < stock->ntex; i++)
             for (k = 0; k < s->ntris; k++)
                 if (s->tris[k].src && s->tris[k].src->mat == i) {
                     if (s->tris[k].tex) {
-                        s->texset[i] = s->tris[k].tex;
-                        tex_AddRef(s->texset[i], 1);
+                        s->texHandles[i] = s->tris[k].tex;
+                        tex_AddRef(s->texHandles[i], 1);
                     } else
-                        sprintf(buf, "stock object %s, texture %s not found", stock, stock->texnames[i]);
+                        sprintf(buf, "stock object %s, texture %s not found", stock->name, stock->texnames + i * 0x40);
                     break;
                 }
         for (i = 0; i < stock->ntex; i++)
-            if (!s->texset[i]) {
+            if (!s->texHandles[i]) {
                 strcpy(buf, "Error attaching Stock-Object \"");
                 strcat(buf, stock->name);
                 strcat(buf, "\": Not all Textures used/found!");
@@ -652,10 +652,10 @@ D3BGF *d3iot_LoadBGF(char *path, char *name, char *texnames, int ntexsets, int n
 }
 /* 0x44df20, radius of the mesh behind an object info (the first argument is not used) */
 
-float d3iot_GetRadius(int unused, D3SURF *info)
+float d3iot_GetRadius(D3OBJECT *obj, D3SURF *info)
 {
     if (info && info->mesh)
-        return ((D3BGF *)info->mesh)->radius;
+        return info->mesh->radius;
     return 0.0f;
 }
 /* 0x44df40, loads an object file (name + ".bgf") and links it into the stock list */
@@ -708,7 +708,7 @@ D3BGF *d3io_LoadObject(char *a, char *b)
     char x[256];
     char y[256];
     D3BGF *ret;
-    int t;
+    D3BGF *t;
     int i;
 
     d3io_LodName(a, b, 0, y, x);
@@ -726,7 +726,7 @@ D3BGF *d3io_LoadObject(char *a, char *b)
         }
         return ret;
     }
-    return (D3BGF *)t;
+    return t;
 }
 /* 0x44e190, the same, counting a reference on every object loaded */
 
@@ -736,7 +736,7 @@ D3BGF *d3io_LoadObjectRef(char *a, char *b)
     char y[256];
     D3BGF *ret;
     D3BGF *o;
-    int t;
+    D3BGF *t;
     int i;
 
     d3io_LodName(a, b, 0, y, x);
@@ -756,7 +756,7 @@ D3BGF *d3io_LoadObjectRef(char *a, char *b)
         }
         return ret;
     }
-    return (D3BGF *)t;
+    return t;
 }
 /* 0x44e2c0, frees a stock object that still has references */
 

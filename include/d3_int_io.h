@@ -75,22 +75,6 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
 struct D3FLMAP *d3io_ReadFloor(void *f, unsigned int version);                           /* 0x44b920 */
 
 /* --- 0x44be60..0x44cd40 (worker d3io): scene / group loading, stock objects --- */
-typedef struct D3IOSTOCK D3IOSTOCK;
-struct D3IOSTOCK {                  /* a loaded stock object (mesh driver, D3OPS view) */
-    char name[0x40];                /* 0x000 */
-    D3BGFVERT *points;              /* 0x040 */
-    int npoints;                    /* 0x044 */
-    D3BGFPOLY *polys;               /* 0x048 */
-    int npolys;                     /* 0x04c */
-    char pad050[0x18c];
-    int refs;                       /* 0x1dc */
-    int ntex;                       /* 0x1e0 */
-    char pad1e4[0x18];
-    D3IOSTOCK *next;                /* 0x1fc */
-    int unk200;
-    char (*texnames)[0x40];         /* 0x204 */
-};
-
 extern char d3io_StockPath[];               /* 0x633a00 */
 struct VFSDIR * vfs_FindDir(char *path, struct VFSDIR *d);                                                 /* 0x42f7e0, vfs.c */
 char * vfs_GetPath(char *name, struct VFSDIR *d, struct VFSDIR *stop, char *out);                          /* 0x42fca0, vfs.c */
@@ -108,19 +92,6 @@ typedef union D3IOLOD {             /* 0x5fbf78 (initialized to 2): which stock 
 extern D3IOLOD d3io_Lod;                    /* 0x5fbf78, which stock object LODs are loaded (d3_io_t.c and main.c include this header) */
 char d3io_LodName(char *name, char *name2, int lod, char *out, char *out2);            /* 0x44c9d0 */
 
-typedef struct D3IOSURF {           /* 0x198 bytes, D3SURF as the stock attach fills it */
-    D3VERTEX *keys;
-    D3TRI *tris;                  /* 0x04 */
-    int nkeys;                      /* 0x08 */
-    int ntris;                      /* 0x0c */
-    D3IOSTOCK *stock;               /* 0x10 */
-    struct TSTEXTURE **texset;      /* 0x14 */
-    char pad18[0x17c];
-    unsigned char f194;             /* 0x194 */
-    unsigned char texSet;           /* 0x195, current texture set (D3SURF.texSet, d3_engine.h) */
-    char pad196[0x2];
-} D3IOSURF;
-
 #define D3IO_214(o) (D3_X(o)->meshMode)
 void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name);                        /* 0x44c610 */
 #define D3IO_SCENEB4(s) (*(int *)((char *)(s) + 0xb4))
@@ -137,6 +108,6 @@ D3OBJECT *d3_LoadGroup(char *name, void *f, D3OBJECT *parent);                  
 
 /* declared in other units' headers before (moved to the owner) */
 void d3_AttachMesh(D3OBJECT *obj, struct D3SURF *surf, char *name);  /* 0x44cbb0 */
-int d3io_FindStock(char *name);  /* 0x44c5d0 */
+struct D3BGF *d3io_FindStock(char *name);  /* 0x44c5d0 */
 
 #endif

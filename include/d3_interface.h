@@ -26,7 +26,7 @@ extern unsigned int d3if_SceneSwitches;     /* 0x6339dc, counts the scene switch
 extern int d3if_LastMegaCam;          /* 0xfba944 */
 
 void d3_AddChild(D3OBJECT *parent, D3OBJECT *obj);                                      /* 0x43cb80, d3_engine.c */
-int d3io_FindStock(char *name);                                                           /* 0x44c5d0 */
+struct D3BGF *d3io_FindStock(char *name);                                                           /* 0x44c5d0 */
 void d3if_CreateCameras(void);                                                                /* 0x448910 */
 void d3_SetFog(float start, float end, D3COLOR color);                    /* 0x43a6f0, d3_engine.c */
 struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                                /* 0x45eeb0 */

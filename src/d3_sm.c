@@ -139,12 +139,12 @@ void d3sm_Sample(D3TERRAIN *t, D3SM *h)
 
 char d3sm_BoundsCB(D3OBJECT *obj, D3VECTOR4 *box)
 {
-    D3SMMESH *m = (D3SMMESH *)obj->info;
+    D3SURF *m = obj->info;
     D3VERTEX *v;
     int i, k;
 
     if (m && (!(obj->stateFlags & 0xc) || (obj->stateFlags & 0x10))) {
-        for (i = 0, v = m->keys; i < ((D3SMMESH *)obj->info)->nkeys; i++, v++) {
+        for (i = 0, v = m->keys; i < obj->info->nkeys; i++, v++) {
             for (k = 0; k < 3; k++) {
                 (&box[0].x)[k] = min((&box[0].x)[k], (&v->x)[k]);
                 (&box[1].x)[k] = max((&box[1].x)[k], (&v->x)[k]);
@@ -161,7 +161,7 @@ char d3sm_BoundsCB(D3OBJECT *obj, D3VECTOR4 *box)
 
 char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
 {
-    D3SMMESH *m;
+    D3SURF *m;
     D3TRI *tri;
     D3VERTEX *v, *a, *b, *c;
     float inv[3];
@@ -170,13 +170,13 @@ char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
     if (obj->info && !((h->mask & (obj->stateFlags >> 2 & 3)) && !(obj->stateFlags & 0x10))) {
         for (i = 0; i < 3; i++)
             inv[i] = 1.0f / (&h->cell.x)[i];
-        for (i = 0, v = ((D3SMMESH *)obj->info)->keys; i < ((D3SMMESH *)obj->info)->nkeys; i++, v++) {
+        for (i = 0, v = obj->info->keys; i < obj->info->nkeys; i++, v++) {
             v->gx = (v->x - h->origin.x) * inv[0] + 0.875f;
             v->gz = (v->z - h->origin.z) * inv[2] + 0.875f;
             v->hmHeight = (unsigned char)min(254.0f, max(1.0f, (v->y - h->origin.y) * inv[1]));
             v->hmFlags = (!(h->mask & (obj->stateFlags >> 2 & 3)) | ((obj->stateFlags & 0x20) == 0x20) << 1) << 1 | (obj->stateFlags & 0x10) == 0x10;
         }
-        m = (D3SMMESH *)obj->info;
+        m = obj->info;
         n = min(m->ntris, d3_Cfg.maxpolys - (int)d3_SortCount);
         for (tri = m->tris; n > 0; n--, tri++) {
             D3VECTOR4 nrm;

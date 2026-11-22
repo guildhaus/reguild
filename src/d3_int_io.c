@@ -42,7 +42,7 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
     char name[0x100];
     char buf[0x100];
     int type, cnt;
-    D3OPS *ops;
+    D3BGF *ops;
     void **tex;
 
     if (version >= 0x3a6c000b) {
@@ -335,8 +335,8 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             D3_X(obj)->mask = 0;
         if (reload && obj->material) {
             for (i = 0; i < 3; i++) {
-                if ((ops = D3_OPS(&D3_MESH(obj)->surf[i])) && (tex = (void **)D3_MESH(obj)->surf[i].texHandles)) {
-                    cnt = ops->count;
+                if ((ops = D3_MESH(obj)->surf[i].mesh) && (tex = (void **)D3_MESH(obj)->surf[i].texHandles)) {
+                    cnt = ops->ntex;
                     for (n = 0; n < cnt; n++)
                         if (tex[n])
                             tex_Reload(tex[n], 0);

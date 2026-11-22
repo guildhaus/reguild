@@ -489,7 +489,7 @@ unsigned char d3_ClipObject(D3OBJECT *obj, D3SURF *info, D3OBJECT *camera)
     }
     box = 0;
     if (info && info->mesh)
-        box = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
+        box = info->mesh->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
     if (!box) {
         clip |= 0x40;
         return clip;
@@ -717,7 +717,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
             if (dirty || s->active) {
     draw:
                 if (s->mesh)
-                    D3_OPS(s)->Transform(obj, s, &m->cameraMatrix);
+                    s->mesh->Transform(obj, s, &m->cameraMatrix);
                 else
                     d3_TransformVerts(obj, s, &m->cameraMatrix);
                 d3_ClipMesh(clip, s->keys, s->nkeys, s->tris, s->ntris);
@@ -1840,14 +1840,14 @@ void d3_FreeSurf(D3SURF *s)
     }
     if (s->texHandles) {
         if (s->mesh)
-            for (i = 0; i < D3_OPS(s)->count; i++)
+            for (i = 0; i < s->mesh->ntex; i++)
                 if (((void **)s->texHandles)[i])
                     tex_Release(((void **)s->texHandles)[i]);
         mem_Free((void *)s->texHandles);
         s->texHandles = 0;
     }
     if (s->mesh) {
-        D3_OPS(s)->Release((D3OPS *)s->mesh);
+        s->mesh->Release(s->mesh);
         s->mesh = 0;
     }
     for (i = 0, t = s->slots; i < 3; i++, t++)
@@ -2058,7 +2058,7 @@ D3OBJECT *d3_CloneObject(D3OBJECT *src)
     }
     return obj;
 }
-/* 0x43d430, sets the alpha of a surface: textures are swapped for alpha aliases (or back). @deep deep s26: climb round 1 (87 mutants): nothing. Toy compiles (scratch, 10 spellings of the tris[i].tex load / store: index, &tris[i]->, i * sizeof byte offsets, raw +0x14 int arithmetic, unsigned / short i, != 0 test, continue): VC6 always emits [tris + off] (the reloaded pointer first, the strength-reduced offset second) as ours; the original's [off + tris] comes from none of them. Same class as ai_AlchemistWindow's function-wide SIB order (s25). Left: the 4 base / index swaps. prior: B3 draft: after the reading fixes (the three raw *(int*)((char*)s->mesh+0x1e0) are now D3_OPS(s)->count, the function is readable) only the address encoding of the two tris[i].tex accesses per loop remains, 4 hunks / 4 of 512 B: ours [edx+ecx+0x14] and [eax+ecx+0x14], original [ecx+edx+0x14] and [ecx+eax+0x14] - the same instructions with base and index swapped. Tried in this state: the store through the local tris[i].tex (469/528 B, reverted); earlier attempts: tris[i] directly, (tris + i)->, i[tris], 0x28 byte offsets, integer arithmetic i*0x28+(int)tris, unsigned i, a pointer IV. */
+/* 0x43d430, sets the alpha of a surface: textures are swapped for alpha aliases (or back). @deep deep s26: climb round 1 (87 mutants): nothing. Toy compiles (scratch, 10 spellings of the tris[i].tex load / store: index, &tris[i]->, i * sizeof byte offsets, raw +0x14 int arithmetic, unsigned / short i, != 0 test, continue): VC6 always emits [tris + off] (the reloaded pointer first, the strength-reduced offset second) as ours; the original's [off + tris] comes from none of them. Same class as ai_AlchemistWindow's function-wide SIB order (s25). Left: the 4 base / index swaps. prior: B3 draft: after the reading fixes (the three raw *(int*)((char*)s->mesh+0x1e0) are now s->mesh->ntex, the function is readable) only the address encoding of the two tris[i].tex accesses per loop remains, 4 hunks / 4 of 512 B: ours [edx+ecx+0x14] and [eax+ecx+0x14], original [ecx+edx+0x14] and [ecx+eax+0x14] - the same instructions with base and index swapped. Tried in this state: the store through the local tris[i].tex (469/528 B, reverted); earlier attempts: tris[i] directly, (tris + i)->, i[tris], 0x28 byte offsets, integer arithmetic i*0x28+(int)tris, unsigned i, a pointer IV. */
 
 void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
 {
@@ -2068,9 +2068,9 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
     TSTEXTURE *t;
     int i, j, n;
 
-    if (obj && s && D3_OPS(s)->count >= 0) {
+    if (obj && s && s->mesh->ntex >= 0) {
         if (f.b[0] >= 0xff && !(f.b[2] & 1)) {
-            map = mem_Alloc(D3_OPS(s)->count * 8, "!d3:ChangeObjectTransparency()");
+            map = mem_Alloc(s->mesh->ntex * 8, "!d3:ChangeObjectTransparency()");
             obj->objectFlags &= 0x7f;
             s->flags.i = 0;
             s->flags.f.b[2] &= 0xfe;
@@ -2096,7 +2096,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
         }
         if (s->flags.f.b[0] == 0xff && !(s->flags.f.b[2] & 1)) {
             obj->objectFlags |= 0x80;
-            map = mem_Alloc(D3_OPS(s)->count << 3, "!d3:ChangeObjectTransparency()");
+            map = mem_Alloc(s->mesh->ntex << 3, "!d3:ChangeObjectTransparency()");
             n = 0;
             for (i = 0; i < s->ntris; i++) {
                 tris = s->tris;
@@ -2178,7 +2178,7 @@ void d3_TransformSurf(D3OBJECT *obj)
         if (info != obj->info)
             obj->info = info;
         d3_WorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0, &buf);
-        D3_OPS(info)->Transform(obj, info, &buf);
+        info->mesh->Transform(obj, info, &buf);
         obj->state |= 4;
     }
 }
@@ -2209,7 +2209,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
             info = obj->info;
             if (info && info->mesh) {
                 d3_UpdateWorldMatrix(obj, camera, 0);
-                box = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
+                box = info->mesh->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
                 if (box) {
                     c.x = box->x;
                     c.y = box->y;

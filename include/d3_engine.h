@@ -42,21 +42,6 @@ __inline D3OBJBITS *d3_ObjBits(D3OBJECT *obj)
 }
 #define D3_OBJBITS(o) (*d3_ObjBits(o))
 
-typedef struct D3OPS D3OPS;
-struct D3OPS {                      /* D3SURF.mesh, the mesh driver: D3BGF (d3.h) as this unit reads it (not merged yet) */
-    char pad000[0x1d8];
-    float diagonal;                 /* 0x1d8, the diagonal of the bounding box (D3BGF.diagonal); picks the shadow size */
-    int pad1dc;
-    int count;                      /* 0x1e0, number of textures */
-    int nsets;                      /* 0x1e4, texture sets in the name table (D3BGF.nsets, d3_io_t.h) */
-    void (*Release)(D3OPS *ops);    /* 0x1e8 */
-    int unk1ec;
-    void (*Transform)(D3OBJECT *obj, D3SURF *info, void *ctx);       /* 0x1f0 */
-    void *(*GetBox)(D3OBJECT *obj, D3SURF *info, void *unk);         /* 0x1f4 */
-    char pad1f8[0xc];               /* 0x1f8, the driver's other callbacks and stock list links (D3BGF, d3_io_t.h) */
-    char *texnames;                 /* 0x204, nsets * count texture names of 0x40 bytes, set-major (D3BGF.texnames) */
-};
-#define D3_OPS(info) ((D3OPS *)(info)->mesh)
 
 #define D3_MESH(o) ((D3MESH *)(o)->material)
 
@@ -279,7 +264,7 @@ extern unsigned int d3s_Count;     /* 0x633dc0, d3s.c: the shadow triangles d3s_
 extern char d3_ClipInfo[64][0x68];          /* 0xfc3020 */
 void d3s_UpdateObject(D3OBJECT *obj);       /* 0x45ca20, d3s.c */
 void d3s_UpdateObjectAt(D3OBJECT *obj);     /* 0x45ca60, d3s.c */
-struct D3OBJECT; struct D3LINFO; struct D3MATRIX; void d3_TransformVerts(struct D3OBJECT *obj, struct D3LINFO *info, struct D3MATRIX *m);                             /* 0x459300 */
+struct D3OBJECT; struct D3SURF; struct D3MATRIX; void d3_TransformVerts(struct D3OBJECT *obj, struct D3SURF *info, struct D3MATRIX *m);                             /* 0x459300 */
 void d3_MirBeginFrame(D3OBJECT *obj, struct D3MIRROR *m);                                   /* 0x4554b0, d3_mir.h */
 void d3_ProjectMesh(D3OBJECT *obj);                                                     /* 0x438f60 */
 

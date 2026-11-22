@@ -72,22 +72,6 @@ typedef struct TSTEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Tex
     char pad7e[0x2];
 } TSTEXTURE;
 
-/* Mesh data as far as used here (D3OBJECT.info; d3.h: D3SURF). */
-typedef struct TSTRI {              /* 0x28 bytes */
-    char pad00[0x14];
-    TSTEXTURE *tex;                 /* 0x14 */
-    char pad18[0x10];
-} TSTRI;
-
-typedef struct TSMESH {
-    void *keys;
-    TSTRI *tris;                    /* 0x04 */
-    int nkeys;                      /* 0x08 */
-    int ntris;                      /* 0x0c */
-    struct D3OPS *ops;              /* 0x10, the mesh driver (d3_engine.h: D3OPS); ops->count texture names */
-    TSTEXTURE **texs;               /* 0x14, ntex entries */
-} TSMESH;
-
 /* Inline-asm copy in the style of D3_ZERO (d3.h), both pointers named directly in the asm. */
 #define D3_COPY_AT(dst, src, size) {                                \
     int _cn = (size);                                               \

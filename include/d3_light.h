@@ -8,25 +8,6 @@ struct D3SURF;
 #define UNK_451E80_H
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
-typedef struct D3LOPS {             /* the mesh driver (D3SURF::unk10) as the light code uses it */
-    char pad000[0x6c];
-    float originY;                  /* 0x06c, y of the mesh origin in its vertex data (d3_LightApply subtracts it before the directional-light normals) */
-    char pad070[0x164];
-    float radius;                   /* 0x1d4 */
-    char pad1d8[0x14];
-    void (*fn1ec)(D3OBJECT *obj, D3SURF *info);          /* 0x1ec, transforms the normals of a mesh without key frames */
-    char pad1f0[0x8];
-    float (*Radius)(D3OBJECT *obj, D3SURF *info);        /* 0x1f8 */
-} D3LOPS;
-
-typedef struct D3LINFO {            /* D3SURF */
-    D3VERTEX *keys;                  /* 0x00 */
-    D3TRI *tris;                   /* 0x04 */
-    int nkeys;                      /* 0x08 */
-    int ntris;                      /* 0x0c */
-    D3LOPS *ops;                    /* 0x10 */
-} D3LINFO;
-
 typedef struct D3LHIT {             /* 8 bytes: a lit vertex and the light's contribution (only c.r in grey mode) */
     D3VERTEX *v;
     D3COLOR c;
@@ -74,7 +55,7 @@ typedef struct D3LOBJ {             /* D3OBJECT fields the light code uses that 
     float power;                    /* 0x094, 0: off */
     float atten;                    /* 0x098 */
     char pad09c[0x130];
-    D3LINFO *info;                  /* 0x1cc */
+    D3SURF *info;                  /* 0x1cc */
     char pad1d0[0x8];
     D3VECTOR cam;                   /* 0x1d8, position in camera space */
     float radius2;                  /* 0x1e4, squared radius */
@@ -137,7 +118,7 @@ void d3_SetVertexColors(D3OBJECT *obj, struct D3SURF *s, char on, D3TEXFLAGS fl)
 char d3_RelightObject(D3OBJECT *obj);           /* 0x453280 */
 void d3_RelightObjects(D3OBJECT *obj);          /* 0x453580, recomputes the vertex colours of the selected objects */
 void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *f); /* 0x4535b0 */
-void d3_FrameNormals(D3OBJECT *obj, D3LINFO *info, struct D3ANIMFRAME *f);              /* 0x459980, f: key frame (d3_anim.h) */
+void d3_FrameNormals(D3OBJECT *obj, D3SURF *info, struct D3ANIMFRAME *f);              /* 0x459980, f: key frame (d3_anim.h) */
 char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*cb)(D3OBJECT *obj)); /* 0x438e60 */
 struct D3FLMAP;
 void d3fl_MakeLight(struct D3FLMAP *map);   /* 0x441860 (d3_fl.c; d3_light.c passes d3_Terrain, a void *) */

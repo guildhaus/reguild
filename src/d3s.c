@@ -1138,7 +1138,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
    rebuilt: branch order (simple first, directional light first, terrain before d3sm_Shadow), 1/-ldir->y
    hoisted via inv = -ldir->y, one D3VECTOR for the position and the light vector (stored like the
    original), clamped cells into locals before the divisions by the new D3TERRAIN.bs, iz0 from z1 and iz1
-   from z0 as the original does, sx/sz scale hoisted, D3_OPS(mesh)->Transform, typed d3sm_Shadow (D3SM) and
+   from z0 as the original does, sx/sz scale hoisted, mesh->mesh->Transform, typed d3sm_Shadow (D3SM) and
    D3SVERT tu/tv. ours=609 original=609 instructions. Left: allocation - the original keeps obj in ebp,
    mesh in ebx, ldir in edi and 0 in ebp for the compares (cmp edi, ebp at +0x27c), y at [esp+0x10] in its
    own frame (frame 0x1c vs ours 0x18, ours puts it in a param slot), so the five slot->x0..y stores at
@@ -1173,7 +1173,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
         z0 = pos.z - 16.0f;
         z1 = pos.z + 16.0f;
     } else {
-        D3_OPS(mesh)->Transform(obj, mesh, &obj->material->worldMatrix);
+        mesh->mesh->Transform(obj, mesh, &obj->material->worldMatrix);
         obj->state |= 0x10;
         v = (D3SVERT *)mesh->keys;
         if (light->objectFlags & 0x10) {
@@ -1351,7 +1351,7 @@ found:
         } else {
             size = d3s_TexSize;
             if (obj->info->mesh && d3s_LodTexSize) {
-                dist = D3_OPS(obj->info)->diagonal;
+                dist = obj->info->mesh->diagonal;
                 for (n = 0; n < 2 && !(dist < d3s_Dist[n]); n++)
                     size *= 2;
                 size = min(size, d3s_MaxTexSize);
@@ -1453,7 +1453,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         d3_PointToWorld(light, &light->pos, &lpos.v);
         d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
-        verts = (D3VERTEX *)D3_OPS(info)->GetBox(obj, info, &obj->material->worldMatrix);
+        verts = (D3VERTEX *)info->mesh->GetBox(obj, info, &obj->material->worldMatrix);
         for (k = 8, box = verts; k; k--, box++) {
             if (light->objectFlags & 0x10) {
                 f = -((box->y - y) / ldir.y);

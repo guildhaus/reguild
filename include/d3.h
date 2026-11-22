@@ -76,10 +76,10 @@ struct D3OBJECT {
         D3VECTOR dir;
     } views[10];
     D3MATRIX matrix;                /* 0x18c */
-    struct D3SURF *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]; D3SMMESH view) */
+    struct D3SURF *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]) */
     struct D3PATH *path;            /* 0x1d0, the path animation it follows (d3_anim.h D3PATH, D3_OBJPATH), 0: none */
     union {
-        float radius;               /* 0x1d4, the mesh driver's radius (D3LOPS::radius, d3_light.h); read as obj->info->mesh->radius */
+        float radius;               /* 0x1d4, the mesh driver's radius (D3BGF.radius); read as obj->info->mesh->radius */
         D3EVENT *events;            /* 0x1d4, the object's D3E_NEVENTS event handlers (d3e_RegisterEvent: D3OBJX.events), 0 = none */
     };
     char pad1d8[0x14];
@@ -412,7 +412,7 @@ typedef struct D3BGFATTACH {        /* 0x58 bytes, an attachment point; an anima
 
 typedef struct D3BGF D3BGF;
 struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAGI_obj"): a stock object, the mesh driver
-                                       of the surfaces that show it (D3SURF.mesh, read as D3OPS in d3_engine.h);
+                                       of the surfaces that show it (D3SURF.mesh);
                                        the loaded ones are linked between the sentinels d3_StockListStart and d3_StockListEnd */
     char name[0x40];
     union {
@@ -426,7 +426,8 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     D3VECTOR pos;                   /* 0x50, the root position and angles (d3anim_CreateMorphAnim: the move and
                                        turn between two meshes) */
     D3VECTOR rot;                   /* 0x5c */
-    float cx, cy, cz;               /* 0x68, centre of the box */
+    float cx, cy, cz;               /* 0x68, centre of the box (d3_LightApply subtracts cy from the points
+                                       before the directional-light normals) */
     D3BGFATTACH attach[4];          /* 0x74 */
     union {
         float radius;               /* 0x1d4 */
@@ -435,12 +436,12 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     float diagonal;                 /* 0x1d8 */
     int refs;                       /* 0x1dc */
     int ntex;                       /* 0x1e0 */
-    int nsets;                      /* 0x1e4, texture sets of the name table (D3OPS.nsets, d3_engine.h) */
+    int nsets;                      /* 0x1e4, texture sets of the name table */
     void (*Release)(D3BGF *m);      /* 0x1e8, the stock object's callbacks (d3io_LoadObjectFile): d3iot_DeleteStockObject */
-    void (*TransformNormals)(struct D3OBJECT *obj, struct D3LINFO *info);                       /* 0x1ec */
-    void (*Transform)(struct D3OBJECT *obj, struct D3LINFO *info, struct D3MATRIX *m);          /* 0x1f0 */
+    void (*TransformNormals)(struct D3OBJECT *obj, struct D3SURF *info);                        /* 0x1ec, the normals of a mesh without key frames */
+    void (*Transform)(struct D3OBJECT *obj, struct D3SURF *info, struct D3MATRIX *m);           /* 0x1f0 */
     struct D3VERTEX *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, void *unk);       /* 0x1f4 */
-    float (*GetRadius)(int unused, struct D3SURF *info);                                     /* 0x1f8 */
+    float (*GetRadius)(struct D3OBJECT *obj, struct D3SURF *info);                                     /* 0x1f8 */
     D3BGF *next;                    /* 0x1fc, the stock object list: towards d3_StockListEnd */
     D3BGF *prev;                    /* 0x200, towards the head sentinel d3_StockListStart */
     char *texnames;                 /* 0x204, ntex names of 0x40 bytes */
@@ -463,7 +464,7 @@ struct D3SURF {                     /* 0x198 bytes, a surface of a mesh (one lev
     } flags;                        /* 0x190 */
     signed char active;             /* 0x194, a vertex animation runs (d3anim_StartAnim sets it, d3_ReleaseTexture clears it
                                        with the last slot): the surf is transformed and drawn even when nothing else changed */
-    unsigned char texSet;           /* 0x195, current texture set: index into the ops' name table (D3IOSURF.texSet) */
+    unsigned char texSet;           /* 0x195, current texture set: index into the ops' name table */
     char pad196[0x2];
 };
 

@@ -69,7 +69,7 @@ D3OBJECT *d3_CreateObject(D3OBJECT *a, const D3VECTOR *pos, const D3VECTOR *rot,
         if (D3_MESH(obj) && D3_MESH(obj)->surf[0].mesh) {
             for (i = 0; i < D3_MESH(obj)->nsurf; i++) {
                 if (D3_MESH(obj)->surf[i].mesh) {
-                    n = D3_OPS(&D3_MESH(obj)->surf[i])->count;
+                    n = D3_MESH(obj)->surf[i].mesh->ntex;
                     tex = (struct TSTEXTURE **)D3_MESH(obj)->surf[i].texHandles;
                     for (; n > 0; n--, tex++)
                         if (*tex)
@@ -99,7 +99,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
     int opts, fmt;
     char buf1[256], buf2[256];
     int j, replaced;
-    D3OPS *ops;
+    D3BGF *ops;
 
     if (!obj || !D3_MESH(obj) || !surf)
         return 0;
@@ -115,11 +115,11 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
         mem_Free(D3_MESH(obj)->mirrorPolys);
         D3_MESH(obj)->mirrorPolys = 0;
     }
-    ops = D3_OPS(surf);
+    ops = surf->mesh;
     if (set < ops->nsets) {
-        for (i = 0; i < ops->count; i++) {
+        for (i = 0; i < ops->ntex; i++) {
             surf->texSet = set;
-            name = ops->texnames + (ops->count * set + i) * 0x40;
+            name = ops->texnames + (ops->ntex * set + i) * 0x40;
             if (*name && (old = ((TSTEXTURE **)surf->texHandles)[i]) != 0) {
                 tex_GetParams(old, &opts, &fmt);
                 tex = tex_Load(name, old->flags, opts, fmt);
@@ -391,8 +391,8 @@ void d3if_PrecacheCB(D3OBJECT *obj)
 
     info = obj->info;
     if (info && info->mesh) {
-        n = D3_OPS(info)->count;
-        tex = ((TSMESH *)info)->texs;
+        n = info->mesh->ntex;
+        tex = info->texHandles;
         for (i = 0; i < n; i++)
             if (tex[i] && tex[i]->d3dtex && !tex[i]->precached) {
                 d3d_PrecacheTexture(tex[i]->d3dtex);
@@ -816,7 +816,7 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
         }
         if (D3_MESH(obj) && !(D3_MESH(obj)->flags & 0x40) && (info = obj->info) && info->mesh) {
             d3_UpdateWorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0);
-            b = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
+            b = info->mesh->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
             r->top = 0x10000;
             r->left = 0x10000;
             r->bottom = -0x10000;
@@ -930,7 +930,7 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
     int i, n, np, x, y;
 
     if (s) {
-        n = D3_OPS(s)->count;
+        n = s->mesh->ntex;
         tex = (void **)s->texHandles;
         want = c->tex;
         for (i = 0; i < n; i++)
