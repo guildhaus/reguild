@@ -6606,7 +6606,8 @@ void he_RunPlague(AIJOB *e)
     AICHAR *c, *owner, *other;
     int *carrier;
     unsigned lo, hi;
-    int i, n, k, cnt, m, any, r;
+    int i, n, k, cnt, m, any;
+    AICHAR *r;
     float a, otherValue;
     float value[16];
     int ids[16];
@@ -6638,7 +6639,7 @@ void he_RunPlague(AIJOB *e)
         carrier = p->carriers;
         for (i = 4; i != 0; i--) {
             if (cm_GetSlotState(*carrier) == 1 && (r = cm_GetSlotValue(*carrier)) != 0)
-                *carrier = ((AICHAR *)r)->netId;
+                *carrier = r->netId;
             else
                 *carrier = -1;
             carrier++;
@@ -12311,7 +12312,7 @@ void he_RunMessageBox(AIJOB *e)
         return;
     case 1:
         if ((m->flags & 4) != 0) {
-            p = (G28REC *)cm_PartyById(m->party);
+            p = cm_PartyById(m->party);
             if (p == 0)
                 e->stage = -1;
             else if (gm_CompareTime(&ai_Time, &p->time) > 0) {
@@ -12342,7 +12343,7 @@ void he_RunMessageBox(AIJOB *e)
         if (d2_ClickedId != -1 || (he_SlotConfirmed != 0 && he_ActiveSlot == e->slot)) {
             if (d2_ClickedId != 0) {
                 if (d2_ClickedId == 1 || he_SlotConfirmed != 0) {
-                    if ((m->flags & 4) != 0 && (p = (G28REC *)cm_PartyById(m->party)) != 0) {
+                    if ((m->flags & 4) != 0 && (p = cm_PartyById(m->party)) != 0) {
                         if ((p->flags & 0x80) != 0) {
                             if ((m->flags & 2) == 0 || m->bld == -1 || (p->flags & 0x10) == 0)
                                 p->done = 1;
@@ -12367,7 +12368,7 @@ void he_RunMessageBox(AIJOB *e)
                 he_SlotConfirmed = 0;
             } else {
                 if ((m->flags & 4) != 0) {
-                    p = (G28REC *)cm_PartyById(m->party);
+                    p = cm_PartyById(m->party);
                     if ((m->flags & 2) == 0 || m->bld == -1 || (p->flags & 0x10) == 0)
                         p->done = 1;
                 }

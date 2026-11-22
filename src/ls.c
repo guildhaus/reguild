@@ -309,15 +309,15 @@ void ls_RefsToIds(void)
     }
     d3if_SelectScene(saved, 1);
     for (p = cm_SendStates; (intptr_t)&p->value < (intptr_t)&cm_SendStates[0x8000].value; p++) {
-        if (p->value != 0) {
+        if (p->ref != 0) {
             if (p->kind == 1)
-                p->value = ((AICHAR *)p->value)->netId;
+                p->value = ((AICHAR *)p->ref)->netId;
             if (p->kind == 3)
-                p->value = ((AIOBJ *)p->value)->objId;
+                p->value = ((AIOBJ *)p->ref)->objId;
             if (p->kind == 2)
-                p->value = ((AIBLD *)p->value)->id;
+                p->value = ((AIBLD *)p->ref)->id;
             if (p->kind == 9)
-                p->value = ((G28REC *)p->value)->id;
+                p->value = ((G28REC *)p->ref)->id;
         }
     }
 }
@@ -343,13 +343,13 @@ void ls_IdsToRefs(void)
     for (p = cm_SendStates; (intptr_t)&p->value < (intptr_t)&cm_SendStates[0x8000].value; p++) {
         if (p->value != 0) {
             if (p->kind == 1)
-                p->value = (int)gm_FindChar(p->value);
+                p->ref = gm_FindChar(p->value);
             if (p->kind == 3)
-                p->value = (int)gm_FindObjectInst(p->value);
+                p->ref = gm_FindObjectInst(p->value);
             if (p->kind == 2)
-                p->value = gm_FindBuildingById(p->value);
+                p->ref = gm_FindBuildingById(p->value);
             if (p->kind == 9)
-                p->value = cm_PartyById(p->value);
+                p->ref = cm_PartyById(p->value);
         }
     }
 }
@@ -1294,8 +1294,10 @@ int ls_LoadGame(char *name, int kind)
     init_RecreateQuadTree();
     if (ls_ReadSceneRecords(h) == 0)
         LS_LOADFAIL
-    ai_JudgeCatholic = gm_FindChar(ai_JudgeCatholic);
-    ai_JudgeProtestant = gm_FindChar(ai_JudgeProtestant);
+    /* the judges hold the netIds ls_ReadCharacters read into them (4 bytes each; port-side: the low half of a
+       64-bit pointer) until they are looked up here */
+    ai_JudgeCatholic = gm_FindChar((int)(intptr_t)ai_JudgeCatholic);
+    ai_JudgeProtestant = gm_FindChar((int)(intptr_t)ai_JudgeProtestant);
     if (ai_LoadMissions(h) == 0)
         LS_LOADFAIL
     if (ls_Version >= 0x10029 && ai_LoadBookmarks(h) == 0)
@@ -2510,13 +2512,13 @@ int ls_FixupAfterLoad(void)
     for (i = 0; i < 0x8000; i++) {
         if (cm_SendStates[i].value != 0) {
             if (cm_SendStates[i].kind == 1)
-                cm_SendStates[i].value = (int)gm_FindChar(cm_SendStates[i].value);
+                cm_SendStates[i].ref = gm_FindChar(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 3)
-                cm_SendStates[i].value = (int)gm_FindObjectInst(cm_SendStates[i].value);
+                cm_SendStates[i].ref = gm_FindObjectInst(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 2)
-                cm_SendStates[i].value = (int)gm_FindBuildingById(cm_SendStates[i].value);
+                cm_SendStates[i].ref = gm_FindBuildingById(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 9)
-                cm_SendStates[i].value = cm_PartyById(cm_SendStates[i].value);
+                cm_SendStates[i].ref = cm_PartyById(cm_SendStates[i].value);
         }
     }
     gm_ResetStock();

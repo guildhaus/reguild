@@ -805,7 +805,11 @@ typedef struct G17STAT {                /* 10 bytes, cm_SendStates[]: the state 
     unsigned char state;                /* 0x00, 0 sent, 1 free, 2 failed */
     unsigned char kind;                 /* 0x01, what value holds: 0 nothing, 1 a character, 2 a building */
     int idx;                            /* 0x02 */
-    int value;                          /* 0x06 */
+    union {                             /* 0x06, what the message made (kind): */
+        void *ref;                      /* its record at run time (cm_GetSlotValue) */
+        int value;                      /* the record's id while saved (ls_RefsToIds / ls_IdsToRefs,
+                                           ls_FixupAfterLoad; port-side: 4 bytes in the save game) */
+    };
 } G17STAT;
 #pragma pack(pop)
 
@@ -851,7 +855,8 @@ typedef struct G28REC {
                                            no other reader known, the name a reasoned guess) */
     int window;                         /* 0x2c, the form the local run prints the members' texts in (d2_SetForm) */
     unsigned char used;                 /* 0x30, the number of members[] (cm_AddPartyMember: at most 16) */
-    char pad31[3];
+    unsigned char b31;                  /* 0x31, 8 when the party copied in left it 0 (cm_AllocParty) */
+    char pad32[2];
     int members[16];                    /* 0x34, the members' netIds (-1 for one removed, cm_RemovePartyMember); of a fight
                                            the leading characters, [0] the attacker (cm_FightAttacker), [1] the defender
                                            (cm_FightDefender); cm_CutInfos[i] is the cutscene record of members[i] */

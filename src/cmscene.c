@@ -2124,7 +2124,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
 
     if (cm_DuelOver != 0)
         return;
-    rec = (CMCUTINFO *)cm_CutInfoById(a->netId);
+    rec = cm_CutInfoById(a->netId);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     switch (rec->duel.round) {
@@ -2346,7 +2346,7 @@ void cm_RunDuel(G28REC *m)
     cm_RunSceneParty(m, 0);
 
     /* a cheater (round 1) walks to his cheat mark, and his second shoots at the other */
-    rec = (CMCUTINFO *)cm_CutInfoById(ca.netId);
+    rec = cm_CutInfoById(ca.netId);
     if (rec->duel.round == 1)
         mark = d3_FindObject(0, 0x100, 0, "dummy_DUELL_BETRUG_A");
     else
@@ -2365,7 +2365,7 @@ void cm_RunDuel(G28REC *m)
         strcpy(act->u.name, "kampf/schiessen_pistole");
         hita = 1;
     }
-    rec = (CMCUTINFO *)cm_CutInfoById(cb.netId);
+    rec = cm_CutInfoById(cb.netId);
     if (rec->duel.round == 1)
         mark = d3_FindObject(0, 0x100, 0, "dummy_DUELL_BETRUG_B");
     else
@@ -2389,7 +2389,7 @@ void cm_RunDuel(G28REC *m)
     cm_DuelOver = 0;
     for (i = 0; i < 3 && cm_DuelOver == 0; i++) {
         cm_RunSceneParty(m, m);
-        rec = (CMCUTINFO *)cm_CutInfoById(cb.netId);
+        rec = cm_CutInfoById(cb.netId);
         cm_DuelLeftInsultWon = 0;
         cm_DuelRightInsultWon = 0;
         cm_DuelLeftRollWon = 0;
@@ -4907,7 +4907,7 @@ int cm_UpdateParties(void)
 }
 /* 0x4e4f40, the pending scene party with the smallest id (used, id not -1, flags 1): its record (cm_PartyById), 0 without */
 
-int cm_FirstPendingParty(void)
+G28REC *cm_FirstPendingParty(void)
 {
     int i;
     unsigned int best;
@@ -4933,7 +4933,7 @@ char ai_RunPendingParties(int pl)
 
     ret = 0;
     save = ai_Chars[pl].partyId;
-    p = (G28REC *)cm_FirstPendingParty();
+    p = cm_FirstPendingParty();
     while (p != 0) {
         if (cm_IsPartyMember(ai_Chars[pl].netId, p) != 0) {
             ai_Chars[pl].partyId = p->id;
@@ -4942,7 +4942,7 @@ char ai_RunPendingParties(int pl)
             ret = 1;
         }
         cm_ClearParty(p->id);
-        p = (G28REC *)cm_FirstPendingParty();
+        p = cm_FirstPendingParty();
     }
     cm_BeginFieldBlock(&ai_Chars[pl], ai_Chars[pl].netId);
     cm_AddFieldValue(4, 1, (unsigned short)((int)&ai_Chars[pl].partyId - (int)cm_FieldObject), &save);
@@ -4951,67 +4951,67 @@ char ai_RunPendingParties(int pl)
 }
 /* 0x4e5050, the used party of the kind a with the thing b: its record, 0 without */
 
-int cm_FindPartyOfKind(int a, int b)
+G28REC *cm_FindPartyOfKind(int a, int b)
 {
     int i;
 
     for (i = 0; i < 96; i++) {
         if (cm_Parties[i].used != 0 && cm_Parties[i].kind == a && cm_Parties[i].thing == b)
-            return (int)&cm_Parties[i];
+            return &cm_Parties[i];
     }
     return 0;
 }
 /* 0x4e50a0, the used party with the id: its record, 0 without */
 
-int cm_PartyById(int id)
+G28REC *cm_PartyById(int id)
 {
     int i;
 
     for (i = 0; i < 96; i++) {
         if (cm_Parties[i].used != 0 && cm_Parties[i].id == id)
-            return (int)&cm_Parties[i];
+            return &cm_Parties[i];
     }
     return 0;
 }
 /* 0x4e50e0, the cutscene record cm_CutInfos whose playerId is id; 0 without */
 
-int cm_CutInfoById(int id)
+CMCUTINFO *cm_CutInfoById(int id)
 {
     int i;
 
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == id)
-            return (int)&cm_CutInfos[i];
+            return &cm_CutInfos[i];
     }
     return 0;
 }
 /* 0x4e5120, the first free scene party record of cm_Parties (id -1), 0 without; cm_AllocParty stores a
    new party there */
 
-int cm_FreePartySlot(void)
+G28REC *cm_FreePartySlot(void)
 {
     int i;
 
     for (i = 0; i < 96; i++) {
         if (cm_Parties[i].id == -1)
-            return (int)&cm_Parties[i];
+            return &cm_Parties[i];
     }
     return 0;
 }
 /* 0x4e5150, stores a copy of the party src (0x114 bytes) in a free record, with the next id 0x61a658; the byte +0x31 defaults to 8; the record */
 
-int cm_AllocParty(int *src)
+G28REC *cm_AllocParty(void *src)
 {
     G28REC *r;
 
-    r = (G28REC *)cm_FreePartySlot();
+    r = cm_FreePartySlot();
     if (r != 0) {
         memcpy(r, src, 0x114);
         r->id = ai_NextPartyId;
-        if (((unsigned char *)r)[0x31] == 0)
-            ((unsigned char *)r)[0x31] = 8;
+        if (r->b31 == 0)
+            r->b31 = 8;
     }
-    return (int)r;
+    return r;
 }
 /* 0x4e5180, clears the party record of the id (id -1 afterwards) */
 
@@ -5019,7 +5019,7 @@ void cm_ClearParty(int id)
 {
     G28REC *r;
 
-    r = (G28REC *)cm_PartyById(id);
+    r = cm_PartyById(id);
     if (r != 0) {
         memset(r, 0, 0x114);
         r->id = -1;
@@ -5032,7 +5032,7 @@ int cm_AddPartyMember(int id, int who)
     G28REC *r;
     int i, n;
 
-    r = (G28REC *)cm_PartyById(id);
+    r = cm_PartyById(id);
     if (r != 0) {
         i = 0;
         n = r->used;
@@ -5056,7 +5056,7 @@ int cm_RemovePartyMember(int id, int who)
     G28REC *r;
     int i;
 
-    r = (G28REC *)cm_PartyById(id);
+    r = cm_PartyById(id);
     if (r == 0)
         return 0;
     for (i = 0; i < r->used; i++) {

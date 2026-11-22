@@ -1261,7 +1261,7 @@ done:
    script group, and is hidden when the shown building (ai_PlayerBuilding / ai_FallbackBuilding) is another.
    Returns the model or 0. */
 
-int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
+CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
 {
     int saved;
     AICHAR *c;
@@ -1305,7 +1305,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                     if ((ai_PlayerBuilding != 0 && ai_PlayerBuilding != o)
                         || (ai_FallbackBuilding != 0 && ai_FallbackBuilding != o))
                         ch_SetVisible(c->scene, 0);
-                    return (int)c->scene;
+                    return c->scene;
                 }
             }
         }
@@ -1753,7 +1753,7 @@ float gm_AddHealth(unsigned short id, int d)
 extern float gm_BirthChance[6];
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 int cm_SendCreateCharacter(unsigned char a, int b, int c, unsigned short d, int e, unsigned char f, unsigned char g, unsigned char h);                     /* 0x4c4650 */
-int cm_GetSlotValue(int h);                     /* 0x4c3b10 */
+void *cm_GetSlotValue(int h);                   /* 0x4c3b10 */
 int cm_SendNewParty(void *p);                     /* 0x4c4fa0 */
 int gm_TitleNumber(int group, int rank);                     /* 0x5043d0 */
 int ai_WorksForMaster(struct AICHAR *c);                     /* 0x47dd70 */

@@ -6980,7 +6980,7 @@ int sv_RunFrame(void (*cb)(), unsigned mask)
             di_ClearButtons();
         if (ai_PlayerId != 0xffff) {
             if ((ai_Chars[ai_PlayerId].kind == 6 || ai_Chars[ai_PlayerId].kind == 7) && ai_Chars[ai_PlayerId].health == 0 && sv_FrameDepth > sv_FrameBase
-                && (party = (G28REC *)cm_PartyById(ai_Chars[ai_PlayerId].partyId)) != 0 && party->kind == 8 && (mask & 0x10000) == 0) {
+                && (party = cm_PartyById(ai_Chars[ai_PlayerId].partyId)) != 0 && party->kind == 8 && (mask & 0x10000) == 0) {
                 sv_PopRequest = sv_FrameDepth - sv_FrameBase;
                 sv_SetStatusText(txt_Ptrs[0x89]);
             }

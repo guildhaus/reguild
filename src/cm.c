@@ -665,10 +665,10 @@ int cm_GetSlotState(int h)
 }
 /* 0x4c3b10, the value of slot h */
 
-int cm_GetSlotValue(int h)
+void *cm_GetSlotValue(int h)
 {
     if (h >= 0 && h < 0x8000)
-        return cm_SendStates[h].value;
+        return cm_SendStates[h].ref;
     return 0;
 }
 /* 0x4c3b30, marks the start of a group of messages */
@@ -1007,7 +1007,7 @@ int cm_ExecCommands(void)
                 s = &cm_SendStates[m->idx & 0x7fff];
                 s->state = 2;
                 s->kind = 0;
-                s->value = 0;
+                s->ref = 0;
             }
             cm_FreeReceived(m);
         }
@@ -1054,7 +1054,7 @@ int cm_ExecCommands(void)
                     s = &cm_SendStates[t->idx & 0x7fff];
                     s->state = 2;
                     s->kind = 0;
-                    s->value = 0;
+                    s->ref = 0;
                     if (t->seq != cm_LastRequCount + 1) {
                         if (t->seq == (unsigned int)cm_LastSyncCount) {
                             char buf[0x100];
@@ -2735,7 +2735,7 @@ int cm_ExCreateBuilding(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 2;
-        s->value = (int)b;
+        s->ref = b;
     }
     return 0;
 }
@@ -2767,7 +2767,7 @@ int cm_ExCreateCharacter(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)&ai_Chars[k];
+        s->ref = &ai_Chars[k];
     }
     return 0;
 }
@@ -2813,7 +2813,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)c;
+        s->ref = c;
     }
     return 0;
 }
@@ -2836,10 +2836,10 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
             if (gv_FindHeldEntry(c, (unsigned char **)&y, (int *)&x) != 0)     /* y the graveyard building, x the entry (gv.h GVENTRY, its size first) */
                 gv_OrderBury((int *)c, y, *x, (unsigned char)gv_EntryIndex((char *)y->yard, x));
             s->kind = 1;
-            s->value = (int)&ai_Chars[k];
+            s->ref = &ai_Chars[k];
         } else {
             s->kind = 0;
-            s->value = 0;
+            s->ref = 0;
         }
     }
     return 0;
@@ -3126,7 +3126,7 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
         s->state = 1;
         if (m->sell.buyer != -1) {
             s->kind = 3;
-            s->value = (int)o2;
+            s->ref = o2;
         }
     }
     return 0;
@@ -3228,7 +3228,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
         s->state = 1;
         if (m->make.objId != -1) {
             s->kind = 3;
-            s->value = (int)o;
+            s->ref = o;
         }
     }
     return 0;
@@ -3682,7 +3682,7 @@ int cm_ExLongMessage(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 4;
-        s->value = (int)ev;
+        s->ref = ev;
     }
     return 0;
 }
@@ -3697,7 +3697,7 @@ int cm_ExSetHE(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 4;
-        s->value = 0;
+        s->ref = 0;
     }
     ev = he_FindEvent(1, 1, m->setHE.id);
     if (ev == 0) {
@@ -3712,7 +3712,7 @@ int cm_ExSetHE(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 4;
-        s->value = (int)ev;
+        s->ref = ev;
     }
     return 0;
 }
@@ -3909,7 +3909,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->kind = 0;
         s->state = ret;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4002,7 +4002,7 @@ int cm_ExAddStraftat(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 1;
             s->kind = 6;
-            s->value = (int)rec;
+            s->ref = rec;
         }
         return 0;
     }
@@ -4085,7 +4085,7 @@ int cm_ExSendCutInfo(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 8;
-        s->value = (int)&cm_CutInfos[i];
+        s->ref = &cm_CutInfos[i];
     }
     return 0;
 }
@@ -4103,7 +4103,7 @@ int cm_ExNewParty(G17MSG *m, G17STAT *s)
     d = (CMNEWPARTYMSG *)m->data;
     if (net_Conn.s != -1)
         ai_NextPartyId = d->partyId;
-    o = (G28REC *)cm_AllocParty(buf);
+    o = cm_AllocParty(buf);
     if (o != 0) {
         if (ai_GameFlags & 4)
             o->flags |= 0x80;
@@ -4114,7 +4114,7 @@ int cm_ExNewParty(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 1;
             s->kind = 9;
-            s->value = (int)o;
+            s->ref = o;
         }
     }
     if (o->kind == 5) {
@@ -4129,7 +4129,7 @@ int cm_ExNewParty(G17MSG *m, G17STAT *s)
 int cm_ExAllocCutscene(G17MSG *m, G17STAT *s)
 {
     char buf[0x114];
-    char *o;
+    G28REC *o;
 
     memcpy(buf, cm_LongMsg, 0x114);
     o = cm_AllocParty(buf);
@@ -4138,11 +4138,11 @@ int cm_ExAllocCutscene(G17MSG *m, G17STAT *s)
         return 1;
     }
     if (ai_GameFlags & 4)
-        o[0x26] |= 0x80;
+        o->flags |= 0x80;
     if (s != 0) {
         s->state = 1;
         s->kind = 9;
-        s->value = (int)o;
+        s->ref = o;
     }
     return 0;
 }
@@ -4254,7 +4254,7 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
                 d3if_SelectScene(save, 1);
             }
             if (s != 0) {
-                s->value = (int)o;
+                s->ref = o;
                 s->state = 1;
                 s->kind = 5;
             }
@@ -4275,7 +4275,7 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = r;
         s->kind = 5;
-        s->value = (int)o;
+        s->ref = o;
     }
     return 0;
 }
@@ -4301,7 +4301,7 @@ int cm_ExCreateSermon(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 3;
-        s->value = (int)o;
+        s->ref = o;
     }
     return 0;
 }
@@ -4320,7 +4320,7 @@ int cm_ExChrWalkTo(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 2;
             s->kind = 0;
-            s->value = 0;
+            s->ref = 0;
         }
     }
     return 0;
@@ -4375,7 +4375,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4450,7 +4450,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4469,7 +4469,7 @@ int cm_ExChrStop(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4490,7 +4490,7 @@ int cm_ExChrSetPos(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4509,7 +4509,7 @@ int cm_ExCartState(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4518,7 +4518,7 @@ int cm_ExCartState(G17MSG *m, G17STAT *s)
 
 int cm_ExPlaceOnStage(G17MSG *m, G17STAT *s)
 {
-    int o;
+    CHARACTER *o;
 
     o = gm_PlaceOnStage(m->stage.charId, m->stage.bldId, m->stage.objId, 0, 0);
     if (o == 0)
@@ -4526,7 +4526,7 @@ int cm_ExPlaceOnStage(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 7;
-        s->value = o;
+        s->ref = o;
     }
     return 0;
 }
@@ -4810,7 +4810,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 7;
-        s->value = (int)p;
+        s->ref = p;
     }
     return 0;
 }
@@ -4853,7 +4853,7 @@ int cm_ExChrUseGates(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4873,7 +4873,7 @@ int cm_ExChrAnim(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4898,7 +4898,7 @@ int cm_ExOwnership(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -4932,7 +4932,7 @@ int cm_ExSetHome(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5052,7 +5052,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5098,7 +5098,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5114,7 +5114,7 @@ int cm_ExHandOverCrimes(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = r;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5152,7 +5152,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 2;
             s->kind = 1;
-            s->value = 0;
+            s->ref = 0;
         }
         return 2;
     }
@@ -5200,7 +5200,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)c;
+        s->ref = c;
     }
     return 0;
 }
@@ -5262,7 +5262,7 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 2;
             s->kind = 1;
-            s->value = (int)c;
+            s->ref = c;
         }
         return 0;
     }
@@ -5283,7 +5283,7 @@ int cm_ExGoodsRecord(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5307,7 +5307,7 @@ int cm_ExGoodsDelta(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5319,7 +5319,7 @@ int cm_ExLoadStatistics(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5336,7 +5336,7 @@ int cm_ExUpdateSmoke(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5353,7 +5353,7 @@ int cm_ExSkillsChanged(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5368,7 +5368,7 @@ int cm_ExApplication(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->kind = 0;
         s->state = (r == 0) + 1;
-        s->value = 0;
+        s->ref = 0;
     }
     return r == 0;
 }
@@ -5383,7 +5383,7 @@ int cm_ExOfficeMessage(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->kind = 0;
         s->state = (r == 0) + 1;
-        s->value = 0;
+        s->ref = 0;
     }
     return r == 0;
 }
@@ -5398,7 +5398,7 @@ int cm_ExDecisionValue(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = (r == 0) + 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5417,7 +5417,7 @@ int cm_ExChangePlayerHe(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5436,7 +5436,7 @@ int cm_ExSetJob(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5456,7 +5456,7 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 1;
-        s->value = 0;
+        s->ref = 0;
     }
     util_Seed(m->spawn.seed);
     if (m->spawn.bldId == -1)
@@ -5485,7 +5485,7 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)&ai_Chars[id];
+        s->ref = &ai_Chars[id];
     }
     return 0;
 }
@@ -5503,7 +5503,7 @@ int cm_ExFreeObject(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5539,7 +5539,7 @@ int cm_ExChat(G17MSG *m, G17STAT *s)
         if (s != 0) {
             s->state = 1;
             s->kind = 0;
-            s->value = 0;
+            s->ref = 0;
         }
     }
     return 0;
@@ -5627,7 +5627,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 2;
-        s->value = (int)b;
+        s->ref = b;
     }
     return 0;
 }
@@ -5648,7 +5648,7 @@ int cm_ExCharHalt(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5675,7 +5675,7 @@ int cm_ExObjCell(G17MSG *m, G17STAT *s)
         }
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
         return 0;
     }
     ch_AddAction(p, 0x3a, m->objCell.x, m->objCell.z, d3t_SceneIndex(p->scene));
@@ -5709,7 +5709,7 @@ int cm_ExWalkPath(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5745,7 +5745,7 @@ int cm_ExCutEntry(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 8;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5773,7 +5773,7 @@ int cm_ExCutEntryUpdate(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 8;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5793,7 +5793,7 @@ int cm_ExDamage(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 8;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -5812,7 +5812,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (m->script.op == 0x636c6572) {               /* 'cler' */
         b = gm_BuildQuery(1, 1, m->script.bldId);
@@ -5869,7 +5869,7 @@ int cm_ExTableRequest(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (m->table.op == 0x6a6f696e) {               /* 'join' */
         b = gm_BuildQuery(1, 1, m->table.bldId);
@@ -6001,7 +6001,7 @@ int cm_ExFightCommand(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 8;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -6013,7 +6013,7 @@ int cm_ExMessageRecord(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (ord_HandleMessageRecord(&m->data[0]) == 0)
         return 1;
@@ -6032,7 +6032,7 @@ int cm_ExChrDelete(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     c = gm_FindChar(m->chrDelete.charId);
     if (c != 0 && c->scene != 0) {
@@ -6053,7 +6053,7 @@ int cm_ExCancelParty(G17MSG *m, G17STAT *s)
     AICHAR *c;
     int i, id;
 
-    q = (G28REC *)cm_PartyById(m->cancelParty.partyId);
+    q = cm_PartyById(m->cancelParty.partyId);
     if (q == 0)
         return 1;
     for (i = 0; i < q->used; i++) {
@@ -6068,7 +6068,7 @@ int cm_ExCancelParty(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -6088,7 +6088,7 @@ int cm_ExCutsceneReady(G17MSG *m, G17STAT *s)
     }
     if (s != 0)
         s->state = 2;
-    q = (G28REC *)cm_PartyById(m->ready.partyId);
+    q = cm_PartyById(m->ready.partyId);
     if (q != 0)
         q->state = 1;
     for (i = 0; i < 16; i++) {
@@ -6099,7 +6099,7 @@ int cm_ExCutsceneReady(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     return 0;
 }
@@ -6115,7 +6115,7 @@ int cm_ExMoneyDelta(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (c == 0)
         return 1;
@@ -6141,7 +6141,7 @@ int cm_ExHeldRounds(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (c == 0)
         return 1;
@@ -6167,7 +6167,7 @@ int cm_ExOfficeSwap(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     r = amt_ExecuteSwapMessage(&m->trade);
     if (s != 0 && r != 0)
@@ -6188,7 +6188,7 @@ int cm_ExAddSkill(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     c = gm_FindChar(m->skill.charId);
     if (c == 0)
@@ -6228,7 +6228,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     a = gm_FindBuildingById(m->spy.rep.bld);
     if (a == 0)
@@ -6280,7 +6280,7 @@ int cm_ExGraveOrder(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (net_Conn.s != -1)
         ai_NextObjectId = ((GVORDER *)m->data)->objId;
@@ -6325,7 +6325,7 @@ int cm_ExGraveMove(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     r = gv_MoveGrave(&m->data[0]);
     if (s != 0 && r == 0)
@@ -6344,7 +6344,7 @@ int cm_ExRaiseDead(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (net_Conn.s != -1)
         ai_NextObjectId = ((GVRAISE *)m->data)->objId;
@@ -6357,7 +6357,7 @@ int cm_ExRaiseDead(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)&ai_Chars[id];
+        s->ref = &ai_Chars[id];
     }
     return 0;
 }
@@ -6373,7 +6373,7 @@ int cm_ExCreateAlchemist(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (net_Conn.s != -1)
         ai_NextObjectId = ((AHMCREATEMSG *)m->data)->charId;
@@ -6386,7 +6386,7 @@ int cm_ExCreateAlchemist(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 1;
         s->kind = 1;
-        s->value = (int)&ai_Chars[id];
+        s->ref = &ai_Chars[id];
     }
     return 0;
 }
@@ -6405,7 +6405,7 @@ int cm_ExAlchemistOrder(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     c = gm_FindChar(((AHMORDER *)m->data)->charId);
     if (c == 0)
@@ -6452,9 +6452,9 @@ int cm_ExMasterChange(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
-    q = (G28REC *)cm_PartyById(m->master.partyId);
+    q = cm_PartyById(m->master.partyId);
     if (q == 0)
         return 1;
     q->host = m->master.masterId;
@@ -6472,7 +6472,7 @@ int cm_ExEffect(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     if (m->effect.tag == 0x6154436e)
         r = gv_ReserveEffect(m->effect.effectId);
@@ -6496,7 +6496,7 @@ int cm_ExShots(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     r = gv_StartShot((struct GVSHOTMSG *)&m->data[0], s);
     if (s != 0 && r != 0)
@@ -6518,7 +6518,7 @@ int cm_ExSetRoute(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     cart = gm_FindObjectInst(m->route.objId);
     if (cart == 0)
@@ -6551,7 +6551,7 @@ int cm_ExClearRoute(G17MSG *m, G17STAT *s)
     if (s != 0) {
         s->state = 2;
         s->kind = 0;
-        s->value = 0;
+        s->ref = 0;
     }
     q = gm_FindObjectInst(m->route.objId);
     if (q == 0)

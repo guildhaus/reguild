@@ -176,7 +176,7 @@ int cm_SplitComplete(G17MSG *m);                                                
 unsigned int cm_JoinSplit(G17MSG *m);                                            /* 0x4c38e0 */
 int cm_QueueSend(G17MSG *src);                                                   /* 0x4c39c0 */
 int cm_GetSlotState(int h);                                                         /* 0x4c3ae0 */
-int cm_GetSlotValue(int h);                                                         /* 0x4c3b10 */
+void *cm_GetSlotValue(int h);                                                       /* 0x4c3b10 */
 void cm_BeginSendGroup(void);                                                         /* 0x4c3b30 */
 void cm_EndSendGroup(void);                                                         /* 0x4c3b40 */
 int cm_SendGroupState(void);                                                          /* 0x4c3b50 */
@@ -337,9 +337,9 @@ void ai_UpdateNeeds(void);  /* 0x47da80 */
 void ai_UpdateCharacters(void);  /* 0x47e560 */
 void ai_RunMasterEvaluation(struct AICHAR *c);  /* 0x47e990 */
 void ai_SetFirstMission(int owner, int type);  /* 0x4b3bd0 */
-int cm_PartyById(int id);  /* 0x4e50a0, the used party with the id: its record, 0 without */
+struct G28REC *cm_PartyById(int id);  /* 0x4e50a0, the used party with the id: its record, 0 without */
 extern G28REC cm_Parties[96];  /* 0x925520, the scene party records (cm.c) */
-int cm_AllocParty(int *src);  /* 0x4e5150 */
+struct G28REC *cm_AllocParty(void *src);  /* 0x4e5150 */
 int cm_AddPartyMember(int id, int who);  /* 0x4e51b0 */
 int cm_RemovePartyMember(int id, int who);  /* 0x4e5210 */
 void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py);  /* 0x4f8460, gv.h (ord.c) */
@@ -380,7 +380,7 @@ struct CHACTION * ch_AddAction(struct CHARACTER *ch, unsigned int type, ...);  /
 struct G15TREE * veg_FindType(int type);  /* 0x4bc5a0 */
 int veg_Fits(struct G15PLANT *p, int x, int z, int size);  /* 0x4bc710 */
 void gm_SelectModelVariant(struct AICHAR *o);  /* 0x4fb5a0, f3gm.c: the model variant of the object o */
-int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
+struct CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
 struct AIOBJ *gm_FindObjectInst(int id);  /* 0x4fe980 */
 int gm_RemoveOwned(struct AIOBJ **list, int id);  /* 0x5000c0, f3gm.h */
 extern int veg_NextId;  /* 0x6f0748 */
@@ -796,7 +796,7 @@ extern unsigned char cm_DuelLeftInsultWon;  /* 0x6f0daa, the left duellist won t
 extern unsigned char cm_DuelRightInsultWon;  /* 0x6f0dab, the right duellist won the insult round */
 extern unsigned char cm_DuelLeftRollWon;  /* 0x6f0dac, the left duellist won the roll round */
 extern unsigned char cm_DuelRightRollWon;  /* 0x6f0dad, the right duellist won the roll round */
-int cm_CutInfoById(int id);  /* 0x4e50e0, the cutscene record cm_CutInfos whose playerId is id; 0 without */
+struct CMCUTINFO *cm_CutInfoById(int id);  /* 0x4e50e0, the cutscene record cm_CutInfos whose playerId is id; 0 without */
 int cm_WaitTicks(int a);  /* 0x4e3420 */
 void cm_SinkDownAction(struct CHACTION *a);  /* 0x4de4b0 */
 int cm_DuelSinkDown(struct AICHAR *c, int dmg);  /* 0x4de530 */
@@ -914,7 +914,7 @@ void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);  /* 0x4fe140 *
 
 char ai_RunPendingParties(int pl);  /* 0x4e4f80, runs the pending parties of the player pl */
 void ai_DebugDumpPerson(struct AICHAR *c);  /* 0x4e5bf0, the debug dump of a person */
-int cm_FindPartyOfKind(int a, int b);  /* 0x4e5050, the used party of the kind a with the thing b: its record, 0 without */
+struct G28REC *cm_FindPartyOfKind(int a, int b);  /* 0x4e5050, the used party of the kind a with the thing b: its record, 0 without */
 void cm_InitScenes(void);  /* 0x4e5770, clears the party records and registers the 12 scene kinds */
 
 

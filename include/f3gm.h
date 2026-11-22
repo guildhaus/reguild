@@ -186,7 +186,7 @@ extern int ai_CharCount;  /* 0x6f1bc0 */
 extern int ai_NextObjectId;  /* 0x61a654 */
 int gm_AddObjekt(int id, int proto, int n);  /* 0x500970 */
 void gm_ChooseHeadIcon(struct AICHAR *c);  /* 0x4fb890 */
-int gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
+struct CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
 struct AIOBJ *gm_Query(void *list, int n, ...);  /* 0x4ffe90 */
 void gm_RefreshGoodsLists(unsigned p);  /* 0x4ff190 */
 JOBTALENTS gm_GetJobTalents(int job);  /* 0x503ee0, the record of the job (0x5f and above: the first) */

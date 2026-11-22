@@ -127,7 +127,7 @@ int cm_SendCreateCharacter(unsigned char a, int b, int c, unsigned short d, int 
 int cm_FlushSendQueue();                     /* 0x4c3680 */
 int cm_ReceiveMessages();                     /* 0x4c3fd0 */
 int cm_ExecCommands();                     /* 0x4c4190 */
-int cm_GetSlotValue(int h);                     /* 0x4c3b10 */
+void *cm_GetSlotValue(int h);                   /* 0x4c3b10 */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3c00 */
 int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f);                     /* 0x4c4880 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
@@ -1543,6 +1543,8 @@ void init_OpenTown(void)
     int ncl, i, j, k;
     AIBLD *r, *q;
     int h, n, nch, m, ok;
+    AIBLD *geb;
+    AICHAR *hc;
     AIBLD *b;
     AICHAR *c;
     AIBTYPE *cl;                       /* the type record of the building b */
@@ -1605,9 +1607,9 @@ void init_OpenTown(void)
                 h = cm_RequestCreateGeb(c->netId, proto, (D3VECTOR4 *)vecA, (int *)vecB);
                 while (h != -1 && cm_GetSlotState(h) == 0)
                     sv_PumpNet();
-                h = cm_GetSlotValue(h);
-                if (h != 0)
-                    init_OpenBuilding((AIBLD *)h);
+                geb = cm_GetSlotValue(h);
+                if (geb != 0)
+                    init_OpenBuilding(geb);
             }
         }
     }
@@ -1672,8 +1674,8 @@ void init_OpenTown(void)
         h = cm_SendMessage3d(b, 2, ai_BTypes[b->type].title2, 0x2d);
         while (cm_GetSlotState(h) == 0)
             sv_PumpNet();
-        h = cm_GetSlotValue(h);
-        cm_SendOwnership(b->id, ((AICHAR *)h)->netId, ((AICHAR *)h)->netId);
+        hc = cm_GetSlotValue(h);
+        cm_SendOwnership(b->id, hc->netId, hc->netId);
         cm_SendMessage3d(b, 0, ai_BTypes[b->type].title, 0);
         cm_SendMessage3d(b, 0, ai_BTypes[b->type].title2, 0);
         cm_SendExSellObject(b->id, -1, 0x135, 1, ai_OwnPlayer, 0);
@@ -1699,11 +1701,11 @@ void init_OpenTown(void)
                     h = cm_SendMessage3d(b, 2, ai_BTypes[b->type].title2, w);
                     while (cm_GetSlotState(h) == 0)
                         sv_PumpNet();
-                    h = cm_GetSlotValue(h);
-                    cm_SendOwnership(b->id, ((AICHAR *)h)->netId, ((AICHAR *)h)->netId);
-                    cm_SendMoveGoods(((AICHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(3000, ai_OwnPlayer));
+                    hc = cm_GetSlotValue(h);
+                    cm_SendOwnership(b->id, hc->netId, hc->netId);
+                    cm_SendMoveGoods(hc->netId, -1, ai_OwnPlayer, gm_PlayerFactor(3000, ai_OwnPlayer));
                     if (nch < 0x10) {
-                        ch2[nch] = (AICHAR *)h;
+                        ch2[nch] = hc;
                         nch++;
                     }
                     if (cl->kind != 9 && cl->kind != 5) {
@@ -1716,7 +1718,7 @@ void init_OpenTown(void)
                     }
                     cm_SendExSellObject(b->id, -1, 0x135, 1, ai_OwnPlayer, 0);
                     if (cl->kind == 5)
-                        cm_SendMoveGoods(((AICHAR *)h)->netId, -1, ai_OwnPlayer, gm_PlayerFactor(6000, ai_OwnPlayer));
+                        cm_SendMoveGoods(hc->netId, -1, ai_OwnPlayer, gm_PlayerFactor(6000, ai_OwnPlayer));
                     init_Betrieb(b);
                     cm_EndSendGroup();
                     cnt[bk]++;
