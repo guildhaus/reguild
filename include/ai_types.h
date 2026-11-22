@@ -13,6 +13,11 @@ typedef struct AITIME {                 /* 14 bytes: the game clock ai_Time, the
 } AITIME;
 #pragma pack(pop)
 
+typedef struct G14MSG {                 /* an AI message, the argument of rmsg.c's callbacks (ai_RunMessage) */
+    int id;                             /* 0x00, a character id */
+    unsigned short type;                /* 0x04, 0..0x44, the table index; text 0x12e7 + type */
+} G14MSG;
+
 typedef struct AISTORE {                /* 24 bytes, a stock list per building, gm_Offers[] */
     struct AIBLD *bld;                  /* 0x00 */
     int market;                         /* 0x04, the market / stall object holding the goods (f3gm.c gm_CollectOffers) */
@@ -311,6 +316,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             float tributeSkill;         /* 0xd0, the event character's skill 4 (gm_GetSkill), mixed with each visited
                                            character's to the relation change */
         };
+        G14MSG msg;                     /* 0xac, of the random-message event 0x42: the message it runs (he_RunRandomMessage) */
     };
     union {
         unsigned char stormDue;         /* 0xec, of a storm event 0x50: set by its alloc handler 0x5652b0, the run handler

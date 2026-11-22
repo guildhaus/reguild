@@ -4634,7 +4634,7 @@ void he_RunRandomMessage(AIJOB *e)
 {
 
     if (e->stage != -2)
-        ai_RunMessage(&e->u.id);
+        ai_RunMessage(&e->msg);
     he_FreeEvent(e);
 }
 /* 0x545670, a Ghidra miss (disassembled): the alloc handler of the patrol event 0x43, once it is started (opts bit
@@ -7292,9 +7292,9 @@ void he_RunAudit(AIJOB *e)
         }
         if (!(shortfall > 0.2) && found == 0) {
             txt_Format(text, 0x1a76, b->owner, b);
-            he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, found, 0x5f0, "_NACHRICHTEN_HS_88");
+            he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0, 0x5f0, "_NACHRICHTEN_HS_88");
             txt_Format(text, 0x1a78, e->chr, b);
-            he_MessageBoxQuickjump(ai_Chars[b->owner].netId, ai_Chars[b->owner].netId, text, found, 0x5f0, b->id, -1, found, "_NACHRICHTEN_HS_86");
+            he_MessageBoxQuickjump(ai_Chars[b->owner].netId, ai_Chars[b->owner].netId, text, 0, 0x5f0, b->id, -1, 0, "_NACHRICHTEN_HS_86");
             e->stage = 2;
             return;
         }

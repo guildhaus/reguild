@@ -5,10 +5,7 @@
 
 #include "am.h"
 
-typedef struct G14MSG {                 /* the argument of the callbacks */
-    int id;                             /* 0x00, a character id */
-    unsigned short type;                /* 0x04, 0..0x44, the table index; text 0x12e7 + type */
-} G14MSG;
+/* G14MSG, the argument of the callbacks: ai_types.h (the random-message event 0x42 holds one, AIJOB.msg) */
 
 
 
