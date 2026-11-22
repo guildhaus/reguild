@@ -678,7 +678,6 @@ void par_Draw(D3PARTSYS *ps);                                                   
 struct D3SKY; char d3sky_Draw(struct D3SKY *s);                                                             /* 0x45d500 */
 void d3_DrawSorted(void);                                                                /* 0x43b600 */
 void ts_UpdateScroll(unsigned long now);                                                   /* 0x460cb0 */
-int ai_AlwaysTrue(void);                                                                /* 0x4a8c10 */
 
 #include "d3_event.h"                       /* the event tables ("d3e:"), d3_event.c */
 void bio_rd_s(struct VFSFILE *f, char *s);      /* 0x4011a0 */

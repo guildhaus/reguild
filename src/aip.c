@@ -41,7 +41,7 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 /* 0x4a8760, decide callback: character p (or the one of the ctx record, kind 2) picks a partner in its district
    (a character with flag 1 within 33 units, else one of a higher rank within 40..71), into m (kind 7) */
 
-int ai_DecideOfficePartner(int a, AICHAR *p, int *ctx, int d, AIARG *m)
+int ai_DecideOfficePartner(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     G10DIST info, info2;
     G10DREC rec[6];
@@ -128,7 +128,7 @@ int ai_DecideOfficePartner(int a, AICHAR *p, int *ctx, int d, AIARG *m)
 /* 0x4a8a50, decide callback: the decision record ctx[1] proposes a value (its fn) within min..max, into m
    (kind 0x11) */
 
-int ai_DecideTableValue(int a, AICHAR *p, int *ctx, int d, AIARG *m)
+int ai_DecideTableValue(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     AIDEC dec;
     int v;
@@ -147,7 +147,7 @@ int ai_DecideTableValue(int a, AICHAR *p, int *ctx, int d, AIARG *m)
 /* 0x4a8ad0, decide callback: p (money >= 3) picks a character of the other sex (ai_PickPartnerChain), into m
    (kind 7) with a random count 1..5 */
 
-int ai_DecidePartnerOtherSex(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecidePartnerOtherSex(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -165,20 +165,20 @@ int ai_DecidePartnerOtherSex(int a, AICHAR *p, int c, int d, AIARG *m)
 }
 /* 0x4a8bf0, eval callback: one in four */
 
-int ai_EvalOneInFour(void)
+int ai_EvalOneInFour(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     return util_Random(4) == 0;
 }
 /* 0x4a8c10, eval callback: always */
 
-int ai_AlwaysTrue(void)
+int ai_AlwaysTrue(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     return 1;
 }
 /* 0x4a8c20, eval callback: true one time in four when it is p's slot (netId & 3 = year % 4 and netId & 7 =
    hour % 8), so each character gets its turn spread over the years and hours */
 
-int ai_EvalOwnTimeSlot(int a, AICHAR *p)
+int ai_EvalOwnTimeSlot(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int id;
 
@@ -189,7 +189,7 @@ int ai_EvalOwnTimeSlot(int a, AICHAR *p)
 }
 /* 0x4a8c80, decide callback: two characters near p (0x4a58d0), into m (kind 7) */
 
-int ai_DecideTwoNearChars(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideTwoNearChars(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags[2];
     unsigned short id[2];
@@ -205,7 +205,7 @@ int ai_DecideTwoNearChars(int a, AICHAR *p, int c, int d, AIARG *m)
 }
 /* 0x4a8d20, decide callback: p (money >= 3) picks a character within 32..49 units, into m (kind 7) */
 
-int ai_DecideNearChar(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideNearChar(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -222,7 +222,7 @@ int ai_DecideNearChar(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a8db0, decide callback: a building for action 4 of ai_Partner (or action 6 of p, rated 32..63), then from a
    random start the first living character of kind 0 whose building (bld) it is, into m (kind 7, netId, building) */
 
-int ai_DecideBuildingResident(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideBuildingResident(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int k, i, n;
     AIBLD *b;
@@ -261,7 +261,7 @@ int ai_DecideBuildingResident(int a, AICHAR *p, int c, int d, AIARG *m)
 }
 /* 0x4a8ee0, eval callback: two in three if p's jobId is of kind 7, else one in four */
 
-int ai_EvalTitleGroup7(int a, AICHAR *p)
+int ai_EvalTitleGroup7(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     if (gm_TitleGroup(p->jobId) == 7 && util_Random(3) != 0)
         return 1;
@@ -270,7 +270,7 @@ int ai_EvalTitleGroup7(int a, AICHAR *p)
 /* 0x4a8f20, decide callback: a chain of two characters p rates in 33..77+roll (ai_PickPartnerChain, either sex)
    that do not both like each other above 60, into m (kind 7, both netIds) */
 
-int ai_DecideUnfriendlyPair(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideUnfriendlyPair(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags[2];
     unsigned short id[2];
@@ -292,7 +292,7 @@ int ai_DecideUnfriendlyPair(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a9030, eval callback: a character p with money >= 2 that owns graves in use (gv_CountOwnedGraves):
    their count, at most money / 2, into m->unk10 */
 
-int ai_EvalGraveCount(int a, AICHAR *p, int c, AIARG *m)
+int ai_EvalGraveCount(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int n, k;
 
@@ -304,14 +304,14 @@ int ai_EvalGraveCount(int a, AICHAR *p, int c, AIARG *m)
     k = p->money / 2;
     if (k >= n)
         k = n;
-    m->arg2 = k;
+    in->arg2 = k;
     return 1;
 }
 /* 0x4a9080, decide callback: one of the owners p counts most often (gv_RankCulprits, at least 2..5 times),
    walked from the first, that is a living character (not of kind 15) and holds none of the office kinds
    13 / 27 / 15 / 21, into m (kind 7, its netId); none when p itself holds office kind 13 */
 
-int ai_DecideAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideAcquaintance(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int cnt[32];
     int ids[32];
@@ -346,7 +346,7 @@ int ai_DecideAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
 }
 /* 0x4a9150, eval callback: p with money >= 8 in its year of four (netId % 4 = the year % 4), one in four */
 
-int ai_EvalOwnYearTurn(int a, AICHAR *p)
+int ai_EvalOwnYearTurn(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     if (p->money >= 8 && p->netId % 4 == ai_Time.year % 4 && util_Random(4) == 0)
         return 1;
@@ -356,7 +356,7 @@ int ai_EvalOwnYearTurn(int a, AICHAR *p)
    character) that is in no event 0x41 (he_FindEvent, either side +0xac / +0xb0) picks one of up to 12
    characters of the other sex 30..100 units away (ai_FindCandidates), into m (kind 7) */
 
-int ai_DecideSuitor(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideSuitor(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     unsigned short ids[12];
     AIJOB *r;
@@ -382,7 +382,7 @@ int ai_DecideSuitor(int a, AICHAR *p, int c, int d, AIARG *m)
 }
 /* 0x4a9280, decide callback: as ai_DecideAcquaintance with an owner counted more often (at least 5..12 times) */
 
-int ai_DecideCloseAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideCloseAcquaintance(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int cnt[32];
     int ids[32];
@@ -418,7 +418,7 @@ int ai_DecideCloseAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a9350, decide callback: p (money >= 2, not flagged 0x100) picks an owner it counts at least 4 times
    (gv_RankCulprits) not flagged 0x200 whose office kind has a level of 4 or more, into m (kind 7) */
 
-int ai_DecideOfficeAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideOfficeAcquaintance(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     AMTKIND kind;
     int cnt[32];
@@ -452,7 +452,7 @@ int ai_DecideOfficeAcquaintance(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a9420, decide callback: p (money >= 2) picks a character within 40..71 units that 0x553d60 accepts, into
    m (kind 7) */
 
-int ai_DecideAcceptedChar(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideAcceptedChar(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -471,7 +471,7 @@ int ai_DecideAcceptedChar(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a94e0, decide callback: p (money > 2, not flagged 0x400) picks a character within 18..49 units, not flagged
    0x400, by chance after 0x504e20, into m (kind 7) */
 
-int ai_DecideUnflaggedChar(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideUnflaggedChar(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -491,7 +491,7 @@ int ai_DecideUnflaggedChar(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a95d0, decide callback: p (not flagged 0x80000) picks a character 20..63 units away who holds an office,
    into m (kind 7) */
 
-int ai_DecideFarChar(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideFarChar(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -508,7 +508,7 @@ int ai_DecideFarChar(int a, AICHAR *p, int c, int d, AIARG *m)
 /* 0x4a9660, decide callback: p (not flagged 0x40000, money >= 8) picks a character within 18..33 units who
    holds an office, into m (kind 7) */
 
-int ai_DecideCloseChar(int a, AICHAR *p, int c, int d, AIARG *m)
+int ai_DecideCloseChar(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     int flags;
     unsigned short id;
@@ -529,7 +529,7 @@ int ai_DecideCloseChar(int a, AICHAR *p, int c, int d, AIARG *m)
    for ctx kind 1, the one at ctx + 0x21c for kind 2) and that p likes less than 16..31, nor p's spouse
    (relatives[0]), into m (kind 7); 0x20 when p cannot */
 
-int ai_DecideColumn4Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
+int ai_DecideColumn4Officer(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     AMTREC rec[6];
     AICHAR *who[6];
@@ -576,7 +576,7 @@ int ai_DecideColumn4Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
 }
 /* 0x4a9880, decide callback: as ai_DecideColumn4Officer for the holders of the offices of column 5 */
 
-int ai_DecideColumn5Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
+int ai_DecideColumn5Officer(int a, AICHAR *p, int *ctx, AIARG *in, AIARG *m)
 {
     AMTREC rec[6];
     AICHAR *who[6];
@@ -622,8 +622,6 @@ int ai_DecideColumn5Officer(int a, AICHAR *p, int *ctx, int d, AIARG *m)
     return 0;
 }
 
-/* the callbacks above as 0x4a9a00 calls them */
-#define G10_CB(fn) ((int (*)(int, AICHAR *, int *, AIARG *, AIARG *))(fn))
 
 
 /* 0x4a9a00, decide callback of the leisure actions: picks one of the actions of the table 0x600e10 that p (ctx 1)
@@ -705,59 +703,59 @@ int ai_DecideLeisureAction(int a, AICHAR *p, int c, AIARG *in, AIARG *m)
     r = 0;
     switch (k) {
     case 0x12:
-        r = G10_CB(ai_DecideOfficePartner)(a, p, ctx, in, m);
+        r = ai_DecideOfficePartner(a, p, ctx, in, m);
         break;
     case 0x13:
     case 0x14:
-        r = G10_CB(ai_DecideTableValue)(a, p, ctx, in, m);
+        r = ai_DecideTableValue(a, p, ctx, in, m);
         break;
     case 0x1c:
-        r = G10_CB(ai_DecidePartnerOtherSex)(a, p, ctx, in, m);
+        r = ai_DecidePartnerOtherSex(a, p, ctx, in, m);
         break;
     case 0x1d:
-        r = G10_CB(ai_EvalOneInFour)(a, p, ctx, in, m);
+        r = ai_EvalOneInFour(a, p, ctx, in, m);
         break;
     case 0x21:
-        r = G10_CB(ai_AlwaysTrue)(a, p, ctx, in, m);
+        r = ai_AlwaysTrue(a, p, ctx, in, m);
         break;
     case 0x24:
-        r = G10_CB(ai_EvalOwnTimeSlot)(a, p, ctx, in, m);
+        r = ai_EvalOwnTimeSlot(a, p, ctx, in, m);
         break;
     case 0x25:
-        r = G10_CB(ai_DecideTwoNearChars)(a, p, ctx, in, m);
+        r = ai_DecideTwoNearChars(a, p, ctx, in, m);
         break;
     case 0x27:
-        r = G10_CB(ai_DecideNearChar)(a, p, ctx, in, m);
+        r = ai_DecideNearChar(a, p, ctx, in, m);
         break;
     case 0x28:
-        r = G10_CB(ai_DecideBuildingResident)(a, p, ctx, in, m);
+        r = ai_DecideBuildingResident(a, p, ctx, in, m);
         break;
     case 0x29:
-        r = G10_CB(ai_EvalTitleGroup7)(a, p, ctx, in, m);
+        r = ai_EvalTitleGroup7(a, p, ctx, in, m);
         break;
     case 0x2a:
-        r = G10_CB(ai_DecideUnfriendlyPair)(a, p, ctx, in, m);
+        r = ai_DecideUnfriendlyPair(a, p, ctx, in, m);
         break;
     case 0x2b:
-        r = G10_CB(ai_EvalGraveCount)(a, p, ctx, in, m);
+        r = ai_EvalGraveCount(a, p, ctx, in, m);
         break;
     case 0x2c:
-        r = G10_CB(ai_DecideAcquaintance)(a, p, ctx, in, m);
+        r = ai_DecideAcquaintance(a, p, ctx, in, m);
         break;
     case 0x2d:
-        r = G10_CB(ai_EvalOwnYearTurn)(a, p, ctx, in, m);
+        r = ai_EvalOwnYearTurn(a, p, ctx, in, m);
         break;
     case 0x31:
-        r = G10_CB(ai_DecideFarChar)(a, p, ctx, in, m);
+        r = ai_DecideFarChar(a, p, ctx, in, m);
         break;
     case 0x32:
-        r = G10_CB(ai_DecideCloseChar)(a, p, ctx, in, m);
+        r = ai_DecideCloseChar(a, p, ctx, in, m);
         break;
     case 0x35:
-        r = G10_CB(ai_DecideColumn4Officer)(a, p, ctx, in, m);
+        r = ai_DecideColumn4Officer(a, p, ctx, in, m);
         break;
     case 0x37:
-        r = G10_CB(ai_DecideColumn5Officer)(a, p, ctx, in, m);
+        r = ai_DecideColumn5Officer(a, p, ctx, in, m);
         break;
     }
     return r;
@@ -927,19 +925,19 @@ int ai_DecideVisitAction(int a, AICHAR *p, int c, AIARG *in, AIARG *m)
     r = 0;
     switch (k) {
     case 0:
-        r = G10_CB(ai_DecideSuitor)(a, p, ctx, in, m);
+        r = ai_DecideSuitor(a, p, ctx, in, m);
         break;
     case 3:
-        r = G10_CB(ai_DecideCloseAcquaintance)(a, p, ctx, in, m);
+        r = ai_DecideCloseAcquaintance(a, p, ctx, in, m);
         break;
     case 4:
-        r = G10_CB(ai_DecideOfficeAcquaintance)(a, p, ctx, in, m);
+        r = ai_DecideOfficeAcquaintance(a, p, ctx, in, m);
         break;
     case 7:
-        r = G10_CB(ai_DecideAcceptedChar)(a, p, ctx, in, m);
+        r = ai_DecideAcceptedChar(a, p, ctx, in, m);
         break;
     case 8:
-        r = G10_CB(ai_DecideUnflaggedChar)(a, p, ctx, in, m);
+        r = ai_DecideUnflaggedChar(a, p, ctx, in, m);
         break;
     }
     return r;

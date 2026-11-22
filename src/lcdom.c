@@ -9123,6 +9123,7 @@ int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodTributeClaim(AICHAR *ch);
+int ai_UseGoodNoEffect(AICHAR *ch, G8USEVIEW *use);  /* the unlinked use callback of good 0x17c at the end (ai_AlwaysTrue in the exe) */
 int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use);
 int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use);
@@ -9177,7 +9178,7 @@ G9DOMIZIL ai_DomizilTable[0x42] = {  /* 0x62c420, the 0x42 entries of 0x1c: id +
     { 0x177, 180, 24, 1.2f, 0x00001000, ai_UseGoodInfectOwner, 0x105e, { 3, 0 } },
     { 0x178, 180, 24, 1.9f, 0x00002000, ai_UseGoodSendHome, 0x1060, { 3, 0 } },
     { 0x17b, 1440, 18, 1.5f, 0x00004000, ai_UseGoodWeakenSkills, 0x1066, { 2, 0 } },
-    { 0x17c, 1400, 18, 1.5f, 0x00000000, ai_AlwaysTrue, 0x1068, { 2, 0 } },
+    { 0x17c, 1400, 18, 1.5f, 0x00000000, ai_UseGoodNoEffect, 0x1068, { 2, 0 } },
     { 0x17d, 1440, 18, 1.5f, 0x00010000, ai_UseGoodWeakenSkills2, 0x106a, { 3, 0 } },
     { 0x17e, 0, 18, 1.5f, 0x00020000, ai_UseGoodCureAilment, 0x106c, { 3, 0 } },
     { 0x229, 0, -1, 1.5f, 0x00080000, ai_UseGoodCharmPartner, 0x106e, { 1, 0 } },
@@ -9232,3 +9233,10 @@ int ai_StatsBldRows[0x80];  /* 0x6f4ce0, the control of each row of the stats pa
 int ai_MasterBar;  /* 0x6f4ee0, the master list page's scroll bar (ai_PlayerStatsPanel passes it to sv_CreateScrollButtons and compares d2_PointerObj with it) */
 int ai_MapHeight;  /* 0x6f4ee4, the height of the town map bitmap (ai_MapSize its width), set by the map loader 0x5b2090; owner by place: the commons between lcdom's group and lc's (lcdom or lcmap, both before lc) */
 int ai_MapSize;  /* 0x6f4ee8 */
+
+/* unlinked: the use callback of the good 0x17c, which has no effect of its own and returns 1; LINK folds it (/OPT:ICF)
+   into ai_AlwaysTrue, 0x4a8c10, where the original's ai_DomizilTable entry points */
+int ai_UseGoodNoEffect(AICHAR *ch, G8USEVIEW *use)
+{
+    return 1;
+}
