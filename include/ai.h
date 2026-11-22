@@ -123,12 +123,6 @@ typedef struct AIMAPREF {               /* 0x3e0 bytes */
     char pad04[0x3dc];
 } AIMAPREF;
 
-typedef struct AIPLANT {                /* a partial G15TREE (rd.h), what veg_FindType returns */
-    unsigned short id;                  /* 0x00, G15TREE.id (the plant type, 0 ends the table) */
-    char pad02[0x40];
-    unsigned char size;                 /* 0x42, G15TREE.size (its size in cells) */
-} AIPLANT;
-
 typedef struct AIWATCH {                /* 0xb00 bytes at 0xf895a0, what the watched building's masters did */
     AIBLD *bld;                         /* 0x000 */
     AIBLD *target;                      /* 0x004 */

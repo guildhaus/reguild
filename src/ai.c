@@ -1064,7 +1064,7 @@ void ai_EvaluateProductionCategory2(AICHAR *ch)
     AIJOB *job;
     AIGOOD *g;
     AIMAP *map;
-    AIPLANT *plant;
+    G15TREE *plant;
     void *x;
     AIINFO info;
     int i, j, k, n, id, found;
