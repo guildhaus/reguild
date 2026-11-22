@@ -171,12 +171,6 @@ int he_RegisterEventTypeA2();
 #include "amt.h"
 #include "mission.h"
 #include "rmsg.h"
-typedef struct HEJOBTABLE {             /* the job table (object 0x12c) of a building's object list as he.c reads it: AIOBJ's
-                                           +0x28 is an AIOBJ view of its own only here (adding a member to AIOBJ flips 8 matches) */
-    char pad00[0x1c];
-    int proofs[3];                      /* 0x1c, the crime ids (CRIME.id) the last robbery took from it, -1: none (he_RunDarkCorner) */
-    int year;                           /* 0x28, the year the job was started (he_StartDarkCorner copies ai_Time's year into it) */
-} HEJOBTABLE;
 typedef struct HEPUNISHMENT {            /* the trial-punishment events 0x5b (fine, he_RunFinePayment) and 0x5c (pillory,
                                            he_RunPilloryPunishment)'s words over AIJOB's union (their shared alloc handler
                                            he_AllocPunishment): the amount of each payment and the payments left */
@@ -206,14 +200,6 @@ typedef struct HECHILDLIST {            /* the children of a scene object, colle
     D3OBJECT *items[0x40];              /* 0x004 */
     int count;                          /* 0x104 */
 } HECHILDLIST;
-typedef struct HESTORM {                /* the storm event 0x50's words after AIJOB.stormBlds (its alloc handler 0x5652b0) */
-    char pad00[0xf0];
-    int radius;                         /* 0xf0, the distance a follower building must be within (the message's value,
-                                           1000: AIMSG.word9c of the WIRBELSTURM command) */
-    char padf4[0xc];
-    int w100;                           /* 0x100, 0 at the allocation (no reader known) */
-    int w104;                           /* 0x104, 0 at the allocation (no reader known) */
-} HESTORM;
 #pragma pack(push, 1)
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */

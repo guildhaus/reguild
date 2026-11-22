@@ -38,8 +38,7 @@
    (AIJOB.protection*, AIJOB.audit*). The head includes
    rt.h and d3_tools.h / d3_snd.h / sblib.h.
    The event and message words are read typed, except the kind-specific words over AIJOB's union the
-   local views name: HEJOBTABLE (the job table
-   0x12c at +0x28), AIJOB.inn* (the meeting event 0x2a at +0xac .. +0xc0), AIJOB.offer* (the offer event 0x2c and the
+   local views name: AIJOB.inn* (the meeting event 0x2a at +0xac .. +0xc0), AIJOB.offer* (the offer event 0x2c and the
    master exam 0x2f: offerWho[] at +0xac, offerAt at +0xc4 / +0xc5, offerHandle at +0xd4), AIJOB.duel* (the duel challenge's +0xac and the duel's
    +0xb4 / +0xb6), AIJOB.geselle* / AIJOB.examPay* / AIJOB.payment* / HEPUNISHMENT / AIJOB.offspring* / AIJOB.trial* / AIJOB.trialStep* / AIJOB.train* /
    AIJOB.plague* / AIJOB.gang* (the events 0x4a / 0x55 / 0x56 / 0x5b / 0x5c / 0x5d / 0x5e / 0x5f / 0x60 / 0x59 / 0x61; the fine
@@ -47,9 +46,9 @@
    plague (the AI messages 0x56 / 0x6a / 0x78), AIJOB.protection* / AIJOB.audit* / AIJOB.gathering* /
    HESIM / AIJOB.auction* / AIJOB.title* (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), AIJOB.skillUp* /
    AIJOB.bard* / AIJOB.population* / AIJOB.lover* / AIJOB.darkCorner* (the events 0x6a / 0x6b / 0x6d / 0x6f / 0x74; the bard's script
-   mark HEBARDSCRIPT, the job table's proofs / year HEJOBTABLE), HEINN (the inn
+   mark HEBARDSCRIPT; the dark corner's proofs / year are AIOBJ.recs / cornerYear), HEINN (the inn
    simulation's list), the tutorial / tip / routine / storm / new-worker / production / trade words in AIJOB.hint*,
-   AIJOB.tip*, AIJOB.routine*, HESTORM, AIJOB.newWorker*, AIJOB.production*, AIJOB.trade*, the search 8 / 9 and
+   AIJOB.tip*, AIJOB.routine*, AIJOB.storm*, AIJOB.newWorker*, AIJOB.production*, AIJOB.trade*, the search 8 / 9 and
    new-occurrence 0xa words in AIJOB.search* / AIJOB.search9* / AIJOB.occurrence*, the research /
    building / training / plunder / meeting words in AIJOB.research* (event 0xc), AIJOB.build* (0xd), AIJOB.ahmResearch* (0x96 / 0x97),
    AIJOB.plunder* (0x8a), AIJOB.plunderDeal* (0x8b), AIJOB.masterwork* (0x8c), AIJOB.graveCare* (0x8d), AIJOB.deathDue* (0x8e),
@@ -254,12 +253,6 @@ int he_RegisterEventTypeA2();
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 #define util_RandomInt ((int (*)(unsigned short))util_Random)  /* 0x42ec00 as tr.c defines it (the headers declare it unsigned short): @original he_RunInnSim reads the full int result (util_Random(4) + 3, no 16-bit mask); every other caller of this unit reads 16 bits */
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: he_AllocTheft pushes only the list */
-typedef struct HEJOBTABLE {             /* the job table (object 0x12c) of a building's object list as he.c reads it: AIOBJ's
-                                           +0x28 is an AIOBJ view of its own only here (adding a member to AIOBJ flips 8 matches) */
-    char pad00[0x1c];
-    int proofs[3];                      /* 0x1c, the crime ids (CRIME.id) the last robbery took from it, -1: none (he_RunDarkCorner) */
-    int year;                           /* 0x28, the year the job was started (he_StartDarkCorner copies ai_Time's year into it) */
-} HEJOBTABLE;
 typedef struct HEPUNISHMENT {            /* the trial-punishment events 0x5b (fine, he_RunFinePayment) and 0x5c (pillory,
                                            he_RunPilloryPunishment)'s words over AIJOB's union (their shared alloc handler
                                            he_AllocPunishment): the amount of each payment and the payments left */
@@ -289,14 +282,6 @@ typedef struct HECHILDLIST {            /* the children of a scene object, colle
     D3OBJECT *items[0x40];              /* 0x004 */
     int count;                          /* 0x104 */
 } HECHILDLIST;
-typedef struct HESTORM {                /* the storm event 0x50's words after AIJOB.stormBlds (its alloc handler 0x5652b0) */
-    char pad00[0xf0];
-    int radius;                         /* 0xf0, the distance a follower building must be within (the message's value,
-                                           1000: AIMSG.word9c of the WIRBELSTURM command) */
-    char padf4[0xc];
-    int w100;                           /* 0x100, 0 at the allocation (no reader known) */
-    int w104;                           /* 0x104, 0 at the allocation (no reader known) */
-} HESTORM;
 #pragma pack(push, 1)
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */
@@ -1530,7 +1515,7 @@ void he_ClearInnDarkCorner(void)
     while (f != 0) {
         r = gm_Query(f->objList, 1, 0, 0x120);
         if (r != 0 && (r = gm_Query(r->list, 1, 0, 300)) != 0
-                && ai_Time.year - ((HEJOBTABLE *)r)->year > 1) {
+                && ai_Time.year - r->cornerYear > 1) {
             int arg[5];         /* the 0x14-byte record cm_SendScriptMessage copies; arg[4] left unset */
 
             arg[0] = 0x636c6572;
@@ -7874,7 +7859,7 @@ void he_StartDarkCorner(AIJOB *e)
 
         year = ai_Time.year;
         cm_BeginFieldBlock(jt, jt->objId);
-        cm_AddFieldDelta(4, 1, (char *)&((HEJOBTABLE *)jt)->year - cm_FieldObject, &year);
+        cm_AddFieldDelta(4, 1, (char *)&jt->cornerYear - cm_FieldObject, &year);
         cm_SendFieldDeltas();
     }
     cm_BeginGroup("Dunkle Ecke");
@@ -8046,7 +8031,7 @@ void he_RunDarkCorner(AIJOB *e)
             if (jt != 0) {
                 cm_BeginFieldBlock(jt, jt->objId);
                 for (k = 0; k < 3; k++)
-                    cm_AddFieldDelta(4, 1, (char *)&((HEJOBTABLE *)jt)->proofs[k] - cm_FieldObject, &loot[k]);
+                    cm_AddFieldDelta(4, 1, (char *)&jt->recs[k] - cm_FieldObject, &loot[k]);
                 cm_SendFieldDeltas();
             }
         }
@@ -8094,7 +8079,7 @@ void he_RunDarkCorner(AIJOB *e)
             if (jt != 0) {
                 cm_BeginFieldBlock(jt, jt->objId);
                 for (k = 0; k < 3; k++)
-                    cm_AddFieldDelta(4, 1, (char *)&((HEJOBTABLE *)jt)->proofs[k] - cm_FieldObject, &loot[k]);
+                    cm_AddFieldDelta(4, 1, (char *)&jt->recs[k] - cm_FieldObject, &loot[k]);
                 cm_SendFieldDeltas();
             }
         }
@@ -16980,11 +16965,11 @@ void he_AllocStorm(AIJOB *ev)
     }
     for (i = 0; i < (n & 0xffff) && k < 0x10; i++) {
         b = list[i];
-        if (b != c && d3_VecEqual(&b->object->pos, &c->object->pos, (float)((HESTORM *)ev)->radius) != 0)
+        if (b != c && d3_VecEqual(&b->object->pos, &c->object->pos, (float)ev->stormRadius) != 0)
             ev->stormBlds[k++] = b->id;
     }
-    ((HESTORM *)ev)->w100 = 0;
-    ((HESTORM *)ev)->w104 = 0;
+    ev->stormW100 = 0;
+    ev->stormW104 = 0;
     ev->end = ai_Time;
 }
 /* 0x565410, the run handler of the storm event (type 0x50, its alloc handler 0x5652b0): state 0 writes the storm forecast into

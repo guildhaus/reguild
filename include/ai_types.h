@@ -206,8 +206,6 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                     char padreaperdc[4];
                     D3VECTOR reaperRot;         /* 0xe0, its rotation angles (D3OBJECT.rotation) */
                 };
-                int stormBlds[16];              /* 0xac, of a storm event 0x50 the ids of the 16 buildings its alloc handler 0x5652b0
-                                                   collected, -1: none */
                 struct {                        /* 0xac, of the kind 6 sales-tour event (its run handler 0x554320, the
                                                    single-ware variant 0x554860); the personnel book posts 6 / 7 as its
                                                    hire requests (AIMSG.hireTitle / hireRows, ai_PersonnelBook) */
@@ -334,11 +332,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                 };
                 G14MSG msg;                     /* 0xac, of the random-message event 0x42: the message it runs (he_RunRandomMessage) */
             };
-            union {
-                unsigned char stormDue;         /* 0xec, of a storm event 0x50: set by its alloc handler 0x5652b0, the run handler
-                                                   damages the buildings once, then clears it */
-                unsigned long reaperClock;      /* 0xec, of the reaper event: d3_Time when its object was placed / last moved */
-            };
+            unsigned long reaperClock;          /* 0xec, of the reaper event: d3_Time when its object was placed / last moved */
             unsigned char modes;                /* 0xf0, of a kind 0x11 bit 0x40: the game pauses while its event window is active (he_PickActiveEvent) */
             signed char flags;                  /* 0xf1, a flags byte (nonzero defers the trade message posting; the bits are unknown) */
             char padf2[0x5a];                   /* up to 0x14c: the rest of the message's words from +0x58 (0xac..0x14c) */
@@ -1088,11 +1082,22 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             unsigned int ambushSkill;       /* 0xe4, the gang's mean skills[2] */
         };
         struct {                        /* of the fire event 0x4e (he_AllocFire / the run handler
-                                           0x5644e0), laid out as the storm event's (AIJOB.stormBlds, HESTORM) */
+                                           0x5644e0), laid out as the storm event's (AIJOB.stormBlds) */
             int fireBlds[16];               /* 0xac, [0] the burning building's id (the message's, else a random pick),
                                            [1 ..] the buildings within radius of it, -1: none */
             int fireCenter;                 /* 0xec, the id of the building of blds[0] */
             int fireRadius;                 /* 0xf0, the distance a neighbour building must be within (the message's value) */
+        };
+        struct {                        /* of the storm (WIRBELSTURM) event 0x50 (he_AllocStorm / he_RunStormEvent) */
+            int stormBlds[16];              /* 0xac, the ids of the 16 buildings its alloc handler collected, [0] the target,
+                                           -1: none */
+            unsigned char stormDue;         /* 0xec, nonzero: the run handler damages the buildings once, then clears it */
+            char stormPaded[3];
+            int stormRadius;                /* 0xf0, the distance a follower building must be within (the message's value,
+                                           1000: AIMSG.word9c of the WIRBELSTURM command) */
+            char stormPadf4[0xc];
+            int stormW100;                  /* 0x100, 0 at the allocation (no reader known) */
+            int stormW104;                  /* 0x104, 0 at the allocation (no reader known) */
         };
         struct {                        /* of the burning event 0x4f (its alloc handler he_AllocBurn,
                                            its run handler 0x5649b0) */
@@ -1559,7 +1564,7 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                 };
                 int word9c;                     /* 0x9c, 1000 in the timed messages 0x4e / 0x50 (ord_UpdateMessageEvent, a
                                                    dword store; hst.c's BRAND / WIRBELSTURM commands); the event keeps it at
-                                                   +0xf0 (AIJOB.modes / flags; the storm event's HESTORM.radius) */
+                                                   +0xf0 (AIJOB.modes / flags; the storm event's stormRadius) */
             };
             int jobId;                          /* 0xa0, of the move message 0xf the id of the event that posted it (the trade
                                                    event's, he_AllocTrade); -1 from the lost cart (ai_MeisterCollectTrans), 0 from
