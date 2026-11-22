@@ -1649,7 +1649,8 @@ struct AICHAR *ai_SpecialAmountList(AICHAR *ch, char *text)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x204;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     return ai_SpecialAmountWindow((unsigned int *)&cfg, text, 0, 0);
 }
 /* 0x5bea50, the special-amount list window "special\amt2" (1655 B): the caption (the kind's name 0x12b2 + kind, or
@@ -6710,7 +6711,8 @@ int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
         memset(&cfg, 0, sizeof(cfg));
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         txt_Format(text, 0x1d66);
         pick = ai_AmountMenu(&cfg, text, 0, ai_BlackmailContactWindow);
         if (pick != 0 && (pick->flags1c8 & 0x400) != 0)
@@ -6815,7 +6817,8 @@ int ai_IntimidateContact(AICHAR *me, LCORDMSG *m)
         memset(&cfg, 0, sizeof(cfg));
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         txt_Format(text, 0x1d61);
         if (ai_AmountMenu(&cfg, text, 0, ai_IntimidateWindow) != 0)
             ret = 1;
@@ -7023,7 +7026,8 @@ int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
         cfg.kind = 6;
         cfg.option14 = 3;
         cfg.mode = 0x400;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         txt_Format(caption, 0x1d98);
         txt_Format(caption2, 0x1d99);
         ch = ai_SpecialAmountListWindow(ownerKind.col, (unsigned int *)&cfg, caption, caption2, 0);
@@ -7195,7 +7199,8 @@ int ai_BewitchOrder(AICHAR *me, LCORDMSG *m)
         memset(&cfg, 0, sizeof(cfg));
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         if (me->sex == 0)
             txt_Format(text, 0x1dae, 0x1daf);
         else
@@ -7484,7 +7489,8 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x1dcf);
     a = ai_AmountMenu(&cfg, text, 0, 0);
     if (a == 0)
@@ -7586,7 +7592,8 @@ int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
     }
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x1dd7);
     target = ai_AmountMenu(&cfg, text, 0, 0);
     if (target == 0)
@@ -7705,7 +7712,8 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
     ret = 0;
     cfg.mode = 0x410;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.flags = 0;
     txt_Format(text, 0x1ddc);
     bld = ai_MapPick(1, &cfg, text, 0, 0);
@@ -7812,7 +7820,8 @@ int ai_PeaceWindow(AICHAR *me, LCORDMSG *m)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x1de4);
     a = ai_AmountMenu(&cfg, text, 0, 0);
     if (a == 0)
@@ -8800,7 +8809,8 @@ int ai_InterrogationWindow(AICHAR *me, LCORDMSG *m)
         return 0x81;
     }
     cfg.mode = 0xc00;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.kind = 6;
     ch = ai_AmountMenu(&cfg, txt_Ptrs[0x1e08], 0, 0);
     if (ch == 0)
@@ -8934,7 +8944,8 @@ int ai_DismissalHandler(AICHAR *me, LCORDMSG *m)
     }
     cfg.mode = 0xc00;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     ch = ai_AmountMenu(&cfg, txt_Ptrs[0x1e0e], 0, 0);
     if (ch == 0)
         return 2;
@@ -9033,7 +9044,8 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
         return 0x81;
     }
     cfg.mode = 0xc00;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.kind = 6;
     ch = ai_SpecialAmountListWindow(4, (unsigned int *)&cfg, txt_Ptrs[0x1e16], ch_EmptyName, 0);
     if (ch == 0)
@@ -9099,7 +9111,8 @@ int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
         return 0x81;
     }
     cfg.mode = 0xc00;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.kind = 6;
     ch = ai_SpecialAmountListWindow(5, (unsigned int *)&cfg, txt_Ptrs[0x1e1d], ch_EmptyName, 0);
     if (ch == 0)
@@ -9492,7 +9505,8 @@ int ai_UseGoodSendHome(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = -1;
         cfg.kind = 6;
-        cfg.filter = 0x1a0744300;
+        cfg.classMask[0] = 0xa0744300;
+        cfg.classMask[1] = 0x1;
         bld = ai_MapPick(1, &cfg, text, 0, 0);
         if (bld != 0) {
             {
@@ -9603,7 +9617,8 @@ int ai_UseGoodWeakenSkills(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
@@ -9666,7 +9681,8 @@ int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
@@ -9756,7 +9772,8 @@ int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = -1;
         cfg.kind = 4;
-        cfg.filter = 0x90010;
+        cfg.classMask[0] = 0x90010;
+        cfg.classMask[1] = 0x0;
         bld = ai_MapPick(1, &cfg, text, 0, 0);
         if (bld == 0)
             goto done;
@@ -9918,7 +9935,8 @@ int ai_UseGoodRaiseRelation(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = 0x400 | (ai_Chars[ai_PlayerId].sex != 0 ? 1 : 2);
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             return 0;
@@ -9967,7 +9985,8 @@ int ai_QuarrelCallback(AICHAR *ch, int *req)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         a = ai_AmountMenu((int)&cfg, text, 0, 0);
         if (a == 0)
             goto done;
@@ -10065,7 +10084,8 @@ int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -10240,7 +10260,8 @@ int ai_UseGoodSowDiscord(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         a = ai_AmountMenu(&cfg, text, 0, 0);
         if (a == 0)
             goto done;
@@ -10309,7 +10330,8 @@ int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -10343,7 +10365,8 @@ int ai_UseGoodDrainSkill(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -10395,7 +10418,8 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = -1;
         cfg.kind = 6;
-        cfg.filter = 0x1a0744300;
+        cfg.classMask[0] = 0xa0744300;
+        cfg.classMask[1] = 0x1;
         bld = ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
         if (bld == 0)
             return 0;
@@ -10403,7 +10427,8 @@ int ai_UseGoodHarmBuilding(AICHAR *ch, G8USEVIEW *use)
         cfg.ids[0] = bld->owner;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
         if (target == 0)
             return 0;
@@ -10457,7 +10482,8 @@ int ai_UseGoodSpoilStock(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = -1;
         cfg.kind = 6;
-        cfg.filter = 0x1a0744300;
+        cfg.classMask[0] = 0xa0744300;
+        cfg.classMask[1] = 0x1;
         bld = ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
         if (bld == 0)
             return 0;
@@ -10519,7 +10545,8 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USEVIEW *use)
         cfg.option14 = 3;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, txt_Ptrs[0x9c], 0, 0);
         if (target == 0)
             return 0;
@@ -10600,7 +10627,8 @@ int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -10636,7 +10664,8 @@ int ai_UseGoodHoldRound(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -10695,7 +10724,8 @@ int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.kind = 6;
         cfg.mode = ((ai_Chars[ai_PlayerId].sex != 0) + 1) | 0x400;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             return 0;
@@ -10743,7 +10773,8 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 0;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target != 0) {
             AIMSG msg;
@@ -10820,7 +10851,8 @@ int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             goto done;
@@ -10891,7 +10923,8 @@ int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
         if (target == 0)
             goto done;
@@ -11036,7 +11069,8 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);
@@ -11129,7 +11163,8 @@ int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use)
         cfg.flags = 1;
         cfg.mode = 0x400;
         cfg.kind = 6;
-        cfg.filter = gypsyFilter;
+        cfg.classMask[0] = (unsigned int)gypsyFilter;
+        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         target = ai_AmountMenu(&cfg, text, 0, 0);
     } else {
         target = gm_FindChar(use->target);

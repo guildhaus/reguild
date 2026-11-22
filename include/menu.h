@@ -182,10 +182,10 @@ void d2_SetObjValue(int obj, ...);                                     /* 0x475c
 typedef struct AMOUNTCFG {              /* 0x50 bytes, the config of the special-amount menu ai_AmountMenu (lc.c) */
     int flags;                          /* +0x00, 1 / 0x20400 / 0x2040a .. (the gypsy windows: 1) */
     int mode;                           /* +0x04, 0x400: the partner filter bits (lc.c ai_PassesPartnerFilter) */
-    union {
-        unsigned __int64 filter;        /* +0x08, 0x1a7fdfbb6 (the gypsy windows), 0x1a07c43a0 (the sabotage) */
-        unsigned int classMask[2];      /* +0x08, the building classes 0 .. 63 (lc.c ai_PassesBuildingFilter) */
-    };
+    unsigned int classMask[2];          /* +0x08, the building classes 0 .. 63 (lc.c ai_PassesBuildingFilter) as two
+                                           words: 0x1a7fdfbb6 (the gypsy windows, gypsyFilter's halves), 0x1a07c43a0 (the
+                                           sabotage); the map pick's callers write the halves in any order, so the
+                                           record has no __int64 (it sits at +0xc in LCMAPWIN) */
     int kind;                           /* +0x10, 6 */
     int option14;                       /* +0x14, 2 in the blood revenge window (meaning not derived) */
     int lockSecond;                     /* +0x18, nonzero: ai_AmountMenu leaves its second button (picture 0x599)

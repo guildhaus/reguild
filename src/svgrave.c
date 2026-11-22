@@ -1887,7 +1887,8 @@ void ai_GraveFogWindow(AIBLD *rec)
     cfg.flags = 1;
     cfg.mode = -1;
     cfg.kind = 6;
-    cfg.filter = 0x1a07c43b4;
+    cfg.classMask[0] = 0xa07c43b4;
+    cfg.classMask[1] = 0x1;
     cfg.option4c = 0x727;
     target = ai_MapPick(1, &cfg, txt_Ptrs[0x40b6], 0, 0);
     if (target == 0) {

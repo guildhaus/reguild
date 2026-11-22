@@ -3995,7 +3995,8 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             memset(&cfg, 0, sizeof(cfg));
             cfg.mode = 0x400;
             cfg.kind = 0;
-            cfg.filter = 0x40000001f07d7fb0;
+            cfg.classMask[0] = 0xf07d7fb0;
+            cfg.classMask[1] = 0x40000001;
             d2_SetViewEnabled(win, 0);
             n = 0;
             for (i = 0; i < 16; i++)
@@ -5424,7 +5425,8 @@ int ai_DrohbriefWindow(AIBLD *bld)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     return (int)ai_AmountMenu(&cfg, txt_Ptrs[0x1758], 0, (void *)ai_DrohbriefAmountCB);
 }
 /* 0x5b5010, the denounce window "misc\perga_rolle" (the ANSCHWAERZEN plate of ai_FeastContact; nothing for no
@@ -5454,7 +5456,8 @@ void ai_DenounceWindow(AIBLD *bld)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(title, 0x175f);
     culprit = ai_AmountMenu(&cfg, title, 0, 0);
     if (culprit == 0)
@@ -5602,7 +5605,8 @@ void ai_PamphletWindow(AIBLD *bld)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x190d);
     ai_AmountMenu(&cfg, text, 0, (void *)ai_PamphletAmountCB);
     sv_CameraFollow();
@@ -5887,7 +5891,8 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table)
     cfg.kind = 6;
     musik = 5;
     cfg.mode = 0x400;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     gm_AddTime(&when, 0x18, 0, 0);
     when.hour = 0x14;
     when.min = 0;

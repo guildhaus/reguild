@@ -5593,7 +5593,8 @@ void ai_RobberContact(AIBLD *bld, AIOBJ *room)
             pick.flags = 1;
             pick.mode = -1;
             pick.kind = 6;
-            pick.filter = 0x3e07c43b4;
+            pick.classMask[0] = 0xe07c43b4;
+            pick.classMask[1] = 0x3;
             pick.option4c = 0x727;
             txt_Format(pickText, 0x16ff);
             ai_MapPick(1, &pick, pickText, ai_SabotageCallback, 0);
@@ -5601,7 +5602,8 @@ void ai_RobberContact(AIBLD *bld, AIOBJ *room)
             memset(&beat, 0, sizeof(beat));
             beat.mode = 0x400;
             beat.kind = 6;
-            beat.filter = gypsyFilter;
+            beat.classMask[0] = (unsigned int)gypsyFilter;
+            beat.classMask[1] = (unsigned int)(gypsyFilter >> 32);
             beat.option4c = 0x727;
             txt_Format(beatText, 0x1707);
             ai_AmountMenu(&beat, beatText, 0, ai_BeatingCallback);
@@ -5784,7 +5786,8 @@ void ai_MistressAffairWindow(AICHAR *player, AICHAR *ch, AIJOB *ev)
                     memset(&cfg, 0, sizeof(cfg));
                     cfg.mode = 0x20400;
                     cfg.kind = 6;
-                    cfg.filter = gypsyFilter;
+                    cfg.classMask[0] = (unsigned int)gypsyFilter;
+                    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
                     txt_Format(title, 0x1a53);
                     txt_Format(prompt, 0x1a54);
                     pick = ai_AmountMenu(&cfg, txt_Ptrs[0x1a5a], 0, 0);
@@ -5886,7 +5889,8 @@ void ai_MistressWindow(AIBLD *bld)
                 memset(&cfg, 0, sizeof(cfg));
                 cfg.kind = 6;
                 cfg.mode = ai_Chars[ai_PlayerId].sex != 0 ? 0x20409 : 0x2040a;
-                cfg.filter = gypsyFilter;
+                cfg.classMask[0] = (unsigned int)gypsyFilter;
+                cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
                 txt_Format(title, 0x1a53);
                 txt_Format(prompt, 0x1a54);
                 pick = ai_AmountMenu(&cfg, title, prompt, 0);
@@ -6054,7 +6058,8 @@ void ai_EspionageAmountMenu(AIBLD *bld)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x16f9);
     ai_AmountMenu(&cfg, text, 0, (void *)ai_EspionageAmountCB);
     sv_CameraFollow();
@@ -9131,7 +9136,8 @@ void ai_FortuneOverview(AIBLD *bld)
     memset(&cfg, 0, sizeof(cfg));
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x18ec);
     ai_AmountMenu(&cfg, text, 0, (void *)ai_MoneyLenderInfoWindow);
     sv_CameraFollow();
@@ -10520,7 +10526,8 @@ void ai_GuildGiftEntry(AIBLD *building)
     pick.flags = 1;
     pick.mode = -1;
     pick.kind = 6;
-    pick.filter = 0x1007d4190;
+    pick.classMask[0] = (unsigned int)0x1007d4190;  /* the classes 0x1007d4190 as two words */
+    pick.classMask[1] = 0x1;
     pick.option4c = 0x727;
     ai_MapPick(1, &pick, txt_Ptrs[TXT_GUILD_POWER_PICK], ai_GuildGiftCallback, 0);
 }
@@ -11363,7 +11370,7 @@ struct AICHAR *ai_AmountMenu(); void d2_SetObjEnabled(); char *itoa(int, char *,
    @deep Read whole against the original and reconstructed (614 = 614 instructions, all calls and stores in
    order). Left: at +0x60d the original hoists the gypsyFilter high dword load (mov edx, [0x5eed6c]) above
    the AMOUNTCFG memset (rep stosd) and pushes 0x19a2 after it; ours loads both halves after the memset and
-   pushes 0x19a2 before it (scheduling; ai_RobberContact byte-matches the same cfg.filter = gypsyFilter
+   pushes 0x19a2 before it (scheduling; ai_RobberContact byte-matches the same cfg.classMask = gypsyFilter halves
    with a hoisted low dword). Tried: filter assigned first (worse, code 26). The rest is slots / order (the
    G17B7 init, the clear-button bytes). The prover stops at the 4-byte store of AISERMON.priest across two
    cells of the G17B7 block (+0x60), the same on both sides. */
@@ -11534,7 +11541,8 @@ void ai_SermonWindow(AIBLD *bld)
                 memset(&cfg, 0, sizeof(cfg));
                 cfg.mode = 0x400;
                 cfg.kind = 6;
-                cfg.filter = gypsyFilter;
+                cfg.classMask[0] = (unsigned int)gypsyFilter;
+                cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
                 txt_Format(title, 0x19a2);
                 priest = ai_AmountMenu(&cfg, title, 0, 0);
                 sermon = gm_Query(bld->objList, 1, 0, 0x1b5);
@@ -12635,7 +12643,8 @@ void ai_KidnapStart(AIBLD *bld)
     cfg.flags = 0;
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(buf, 0x19b8);
     sv_OpenPlayerBar(bld, 0);
     ai_AmountMenu(&cfg, buf, 0, ai_KidnapWindow);

@@ -2730,7 +2730,8 @@ void ai_BloodRevengeWindow(AIBLD *building)
                                 idp++;
                             }
                         }
-                        cfg.filter = gypsyFilter;
+                        cfg.classMask[0] = (unsigned int)gypsyFilter;
+                        cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
                         cfg.option14 = 2;
                         cfg.flags = 1;
                         cfg.mode = 0x400;
@@ -2792,7 +2793,8 @@ void ai_CurseWindow(AIBLD *building)
     cfg.flags = 1;
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     target = (AICHARVIEW *)ai_AmountMenu((int)&cfg, (int)txt_Ptrs[0x41c3], 0, 0);
     if (target == 0) {
         sv_CameraFollow();
@@ -2999,7 +3001,8 @@ void ai_HomageWindow(AIBLD *building)
     cfg.flags = 1;
     cfg.mode = 0x400;
     cfg.kind = 6;
-    cfg.filter = gypsyFilter;
+    cfg.classMask[0] = (unsigned int)gypsyFilter;
+    cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     target = (AICHARVIEW *)ai_AmountMenu((int)&cfg, (int)txt_Ptrs[0x4209], 0, 0);
     if (target == 0) {
         sv_CameraFollow();
