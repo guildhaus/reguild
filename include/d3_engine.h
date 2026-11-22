@@ -540,7 +540,7 @@ void d3io_NoopCallback(void *t);               /* 0x44ee40 */
 char dd_Init(int mode, int bpp, HWND parent, int unk);                                  /* 0x41cfb0, dd_vesa.c */
 void dd_SetClipRect(int left, int top, int right, int bottom);                          /* 0x41d190, dd_vesa.c */
 char dd_SetMode(int xres, int yres, int bpp, int mode, HWND wnd, int notused, char triple); /* 0x41d2e0, dd_vesa.c */
-char d3d_Init(int bitplanes, int a, int b);                                             /* 0x435d70, d3_d3d.c */
+char d3d_Init(int bitplanes, HWND wnd, int unk);                                        /* 0x435d70, d3_d3d.c */
 char d3d_CreateDevice(DWORD texbpp, DWORD fourcc, DWORD texbpp2, DWORD zbpp);           /* 0x436160, d3_d3d.c */
 struct D3DCONFIG; void d3d_SetConfig(struct D3DCONFIG *c);                                                            /* 0x436560, d3_d3d.c */
 void d3d_SetWBuffer(char w);                                                            /* 0x437060, d3_d3d.c */

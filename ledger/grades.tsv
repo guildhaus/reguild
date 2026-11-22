@@ -690,7 +690,7 @@ exe	0x00432530	d3path_Tangents	d3_anim	byte	readable
 exe	0x00432750	d3anim_StepObject	d3_anim	draft	readable	deep	
 exe	0x00433b10	d3anim_FreePath	d3_anim	byte	readable		
 exe	0x00433b50	d3path_Init	d3_anim	shape	readable	deep	
-exe	0x00433d70	d3anim_CreatePath	d3_anim	byte	readable		
+exe	0x00433d70	d3anim_CreatePath	d3_anim	shape	readable		byte+readable -> shape+readable at 7e671978: declaration-set tie-break: proven byte under a swept set; fell with the texture views' removal (ef77190a) [waits for: the unit's declaration set]
 exe	0x00433f40	d3_FindAnim	d3_anim	byte	readable		
 exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	shape	readable	deep	
 exe	0x00434a80	d3anim_GetSize	d3_anim	byte	readable		
@@ -4004,7 +4004,7 @@ exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
 exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at 7e671978: declaration-set tie-break: proven byte under a swept set; fell with the texture views' removal (ef77190a) [waits for: the unit's declaration set]
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		

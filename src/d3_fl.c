@@ -566,7 +566,7 @@ D3FLCACHE *d3fl_Find(unsigned char *map, int mapsize, int x, int y, unsigned int
     for (j = 0; j < n; j++)
         for (i = 0; i < n; i++)
             tiles[j][i] = map[((x + i) & mask) + ((j + y) & mask) * mapsize];
-    hash = util_Hash(tiles, 25) + d3_CurrentScene;
+    hash = util_Hash(tiles[0], sizeof(tiles)) + d3_CurrentScene;
     if (phash)
         *phash = hash;
     for (i = 0, c = d3fl_Cache; i < d3fl_Count; i++, c++)

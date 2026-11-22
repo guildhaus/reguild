@@ -745,7 +745,7 @@ char tex_Animate(D3OBJECT *obj, unsigned int time)
 
     if (obj->info && ((TSMESH *)obj->info)->ops && ((TSMESH *)obj->info)->nkeys > 0) {
         texs = ((TSMESH *)obj->info)->texs;
-        seed = util_Hash(&obj, 4);
+        seed = util_Hash((unsigned char *)&obj, sizeof(obj));
         ntris = ((TSMESH *)obj->info)->ntris;
         n = ((TSMESH *)obj->info)->ops->count;
         for (i = 0; i < n; i++) {

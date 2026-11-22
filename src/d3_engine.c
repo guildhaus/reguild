@@ -1364,7 +1364,7 @@ char d3_Init(D3INITCFG *cfg, HWND wnd, int unk)
         if (!dd_Init(d3_Cfg.mode, d3_Cfg.bpp, wnd, unk))
             return 0;
         if (d3_Cfg.d3d)
-            d3_D3DActive = d3d_Init(d3_Cfg.bpp, (int)wnd, unk);
+            d3_D3DActive = d3d_Init(d3_Cfg.bpp, wnd, unk);
         else
             d3_D3DActive = 0;
     }

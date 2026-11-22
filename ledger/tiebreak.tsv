@@ -1010,7 +1010,7 @@ exe	0x004545c0	d3_MatFromAngles	d3_vec	3e2bb4c0c85ecc18	no	byte	control=byte p1=
 exe	0x00454690	d3_MatToAngles	d3_vec	11e7632295668a95	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454700	d3_TriNormal	d3_vec	0a2b6d9467c6f1ba	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454780	d3_MirBoundaryEdges	d3_mir	ef5d5e04479dcd93	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00454890	d3_MirCreateOutline	d3_mir	8bc150fa754234fd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	482180c69a6511ab
+exe	0x00454890	d3_MirCreateOutline	d3_mir	d5bf4863c747a710	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	fcb0696cd34c0466
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	9927e34c70dfd5eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454ec0	d3_MirTransform	d3_mir	3198ef7b7c8c1553	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	e0878350ea5c8bad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1047,7 +1047,7 @@ exe	0x00458b20	d3_PointToRef	unk_458810	c18afc63a5e3cdfa	no	byte	control=byte p1
 exe	0x00458c10	d3_LocalToWorld	unk_458810	7b9436ea32b62205	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00458ce0	d3_MatToWorld	unk_458810	aac71bbcbd9c728e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00458da0	d3_WorldMatrix	unk_458810	e9205fe1e72cbb58	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00458e70	d3_EnvMapCoords	d3_vtx	60675f1d464b7ca4	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f60881c6d2adee40
+exe	0x00458e70	d3_EnvMapCoords	d3_vtx	d6812f97b346c3db	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4dcdd161cf07f72d
 exe	0x004591a0	d3_AnimBlendWeights	unk_4591a0	f1a14e930c55c886	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00459300	d3_TransformVerts	d3_vtx	09bc0972dca9c589	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004598d0	d3_TransformNormals	unk_4591a0	88aafe0ff71f0e6a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3652,7 +3652,7 @@ exe	0x0054fce0	he_RunEffectEvent	he	ee2a93928e24efa9	no	shape	control=shape p1=s
 exe	0x0054fe80	he_StartSendHomeEvent	he	586753ea234a7102	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0054ff20	he_RunSendHomeEvent	he	15ff3a1a7dba3bc6	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00550070	he_CreateReaper	he	94e941fa40e5d03b	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	7e3cc8a80867a479
-exe	0x00550370	he_MoveReaper	he	e61f63823027da04	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7f0fee64fed4aac3
+exe	0x00550370	he_MoveReaper	he	0952edd93ab99f5a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	30cbc975b583e5e2
 exe	0x005506c0	he_AimReaper	he	e9200a4e074ebb1e	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00550850	he_TurnReaper	he	94188416a266ea93	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005509f0	he_StartReaper	he	e0d59237f14f7cce	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4661,6 +4661,6 @@ exe	0x005dc4a0	ai_StepShot	shot	a0970735dc7b1f2a	no	draft	sweep control=draft be
 exe	0x005dc9d0	ai_StepShotSlow	shot	f80f4370fca5e90f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	ca4fdfaecd1a8133
 exe	0x005dcf00	ai_ShotHitsGround	menu	d5ee153d3ba42fac	no	shape	sample n=32 seed=1 compiled=32 codegens=1 best=shape	
 exe	0x005dd090	ai_NormalizeEffectScale	unk_5d33b0	f4fb3ee3506f24fa	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x005dd100	ai_SolveCannonAim	shot	0188cc13b9cdb843	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	663a4a522566718c
+exe	0x005dd100	ai_SolveCannonAim	shot	69aaec0365df14b9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d438851f61b22e30
 exe	0x005de460	MSS_auto_cleanup	mss32lib	c42d3dca4fab99e2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005de470	mss_AutoCleanupExit	mss32lib	47db3aa67c7b30ae	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
