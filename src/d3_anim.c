@@ -150,7 +150,10 @@ typedef struct D3BONEACC {          /* 0xa4 bytes, a bone blended over the runni
     int n;                          /* 0x40, animations added */
     D3VECTOR4 pos;                  /* 0x44 */
     D3VECTOR4 base;                 /* 0x54, rest position */
-    D3VECTOR4 m[4];                 /* 0x64, rotation matrix (rows) */
+    union {                         /* 0x64, rotation matrix */
+        D3VECTOR4 m[4];             /* its rows */
+        D3MATRIX mat;
+    };
 } D3BONEACC;
 
 /* 0x431ae0, poses the child objects (bones) from the skeleton animations of the object's slots, weighted;
@@ -269,7 +272,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
                     acc[i].m[r].y *= s;
                     acc[i].m[r].z *= s;
                 }
-                d3_MatToAngles(acc[i].m, (D3VECTOR4 *)&rot);
+                d3_MatToAngles(&acc[i].mat, &rot);
                 for (c = obj->child; c; c = c->next) {
                     if (c->material && !strcmp(acc[i].name, D3_MESH(c)->boneName)) {
                         d3_SetObjectPos(c, &acc[i].pos.v);
@@ -663,7 +666,7 @@ normalize:
                             w.x = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.x - v.x;
                             w.y = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.y - v.y;
                             w.z = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.z - v.z;
-                            d3_DirToWorld(obj, (float *)&w, (float *)&v);
+                            d3_DirToWorld(obj, &w.v, &v.v);
                             out.x = v.z * att->matrix._31 + v.y * att->matrix._21 + v.x * att->matrix._11;
                             out.y = v.z * att->matrix._32 + v.y * att->matrix._22 + v.x * att->matrix._12;
                             out.z = v.z * att->matrix._33 + v.y * att->matrix._23 + v.x * att->matrix._13;

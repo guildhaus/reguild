@@ -1237,7 +1237,7 @@ void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTO
         outpos->x = pos->x;
         outpos->y = pos->y;
         outpos->z = pos->z;
-        d3_MatToAngles((D3VECTOR4 *)rot, (D3VECTOR4 *)outrot);
+        d3_MatToAngles(rot, outrot);
         return;
     }
     d3_WorldMatrix(parent, 0, 0, &m);
@@ -1248,7 +1248,7 @@ void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTO
     d3_WorldMatrix(parent, 0, 1, &m);
     d3_MatTranspose(&m, &w);
     d3_MatMul43(rot, &w, &m);
-    d3_MatToAngles((D3VECTOR4 *)&m, (D3VECTOR4 *)outrot);
+    d3_MatToAngles(&m, outrot);
 }
 /* 0x449920, sets an object's local position and rotation from a world-space position and rotation (converted
    into the space of the object's parent) */

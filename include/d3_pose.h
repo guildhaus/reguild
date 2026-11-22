@@ -38,10 +38,10 @@ typedef struct XTEX {
 
 struct D3ANIMSLOT * d3anim_GetMainSlot(struct D3SURF *ctl);                                         /* 0x435900 */
 void d3_MatMul43(D3MATRIX *a, D3MATRIX *b, D3MATRIX *out);                  /* 0x453ee0 */
-void d3_MatToAngles(D3VECTOR4 *m, D3VECTOR4 *angles);                         /* 0x454690 */
+void d3_MatToAngles(const D3MATRIX *m, D3VECTOR *angles);                         /* 0x454690 */
 
 void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                        /* 0x458810 */
-void d3_WorldAngles(struct D3OBJECT *obj, D3VECTOR4 *angles);                            /* 0x458910 */
+void d3_WorldAngles(struct D3OBJECT *obj, D3VECTOR *angles);                            /* 0x458910 */
 void d3_DirToRef(struct D3OBJECT *obj, struct D3OBJECT *ref, const struct D3VECTOR *in, struct D3VECTOR *out);             /* 0x458950 */
 /* d3_PointToWorld is declared in d3.h: (D3OBJECT *obj, D3VECTOR *v, D3VECTOR *out) */
 void d3_PointToRef(struct D3OBJECT *obj, struct D3OBJECT *ref, struct D3VECTOR *in, struct D3VECTOR *out);             /* 0x458b20 */
