@@ -2158,7 +2158,7 @@ int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
 }
 /* 0x4c5e80, message 0x56 (0x28 bytes of p) */
 
-void cm_SendMessage56(void *p)
+void cm_SendMessage56(ORDINITMSG *p)
 {
     G17MSG m;
 
@@ -6014,7 +6014,7 @@ int cm_ExMessageRecord(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->ref = 0;
     }
-    if (ord_HandleMessageRecord(&m->data[0]) == 0)
+    if (ord_HandleMessageRecord(&m->record) == 0)
         return 1;
     if (s != 0)
         s->state = 1;

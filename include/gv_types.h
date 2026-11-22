@@ -58,6 +58,10 @@ typedef struct ORDMSGREC {              /* 0x24 bytes at 0x91b480 (ord_MessageRe
     int phase;                          /* 0x1c, 0 idle, 1 / 2 / 3 running */
     int stage;                          /* 0x20, 0 .. 3, picked on every message */
 } ORDMSGREC;
+typedef struct ORDINITMSG {             /* 0x28 bytes, the payload of message 0x56 (cm_SendMessage56): the record and its tag */
+    ORDMSGREC record;                   /* 0x00 */
+    int tag;                            /* 0x24, 'init' / 'set ' */
+} ORDINITMSG;
 
 typedef struct AIDEC {                  /* 0x24 bytes, a record of the AI decision table 0x611258 (29 records, gv_GetTableRecord copies one) */
     unsigned char id;                   /* 0x00, the record's own index 0 .. 0x1c (CRIME.law of a crime against it) */

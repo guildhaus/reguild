@@ -2203,13 +2203,8 @@ void ord_LoadStatistics(void *p)
     ord_ReportStatistics();
 }
 
-typedef struct ORDINITMSG {             /* the message 0x4c5e80 payload: the record and its tag at +0x24 */
-    ORDMSGREC record;                   /* 0x00 */
-    int tag;                            /* 0x24, 'init' / 'set ' */
-} ORDINITMSG;
-
 /* 0x4f9170, copies the 9 ints of the record 0x91b480 (the clear-able table of 0x4f82a0) to out */
-void ord_GetMessageRecord(int *out)
+void ord_GetMessageRecord(ORDMSGREC *out)
 {
     memcpy(out, &ord_MessageRecord, 0x24);
 }
@@ -2338,9 +2333,9 @@ void ord_UpdateMessageEvent(void)
    byte-swapped, as the message carries it) copies the 9 ints to the record 0x91b480 (1); 'dsbl' / 'enbl' clear /
    set its first int (1); anything else 0 */
 
-int ord_HandleMessageRecord(int *m)
+int ord_HandleMessageRecord(ORDINITMSG *m)
 {
-    switch ((unsigned)m[9]) {
+    switch ((unsigned)m->tag) {
     case 0x656e626c:                    /* 'enbl' */
         ord_MessageRecord.enabled = 1;
         break;

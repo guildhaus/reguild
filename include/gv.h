@@ -177,7 +177,7 @@ int gv_ReserveEffect(int id);              /* 0x4eeaa0 */
 int gv_StopEffect(int id);              /* 0x4eeb00 */
 int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x);  /* 0x4eeb70 */
 char *gv_GetEffect(int id);            /* 0x4eedd0 */
-int gv_StartShot(struct GVSHOTMSG *m, int w);       /* 0x4eee00 */
+int gv_StartShot(struct GVSHOTMSG *m, G17STAT *st);       /* 0x4eee00 */
 void gv_SetEffectCallback(int id, void *cb, void *arg);  /* 0x4eeee0 */
 float gv_SalvoCharge(int a, int b, int c);  /* 0x4eef50 */
 struct G9KIND; void gv_CannonKind(int n, struct G9KIND *out);  /* 0x4ef000, am.h's record */
@@ -448,7 +448,7 @@ void ord_AppendStatisticsRound(void);               /* 0x4f88c0 */
 extern CRIME ai_Crimes[0x200];  /* 0x91f700, 0x200 records of 0x2d bytes (to 0x925100) */
 void ord_RebuildGridSums(void);               /* 0x4f8920 */
 
-void ord_GetMessageRecord(int *out);           /* 0x4f9170 */
+void ord_GetMessageRecord(ORDMSGREC *out);           /* 0x4f9170 */
 void ord_InitMessageRecord(int a, float b, float c, float d);  /* 0x4f9190 */
 
 extern char ord_RatingBytes[];            /* 0x91b460, 5 + 1 bytes */
@@ -458,7 +458,7 @@ void ord_UpdateStatistics(void);               /* 0x4f8ed0 */
 void ord_LoadStatistics(void *p);       /* 0x4f9020 */
 void ord_UpdateMessageEvent(void);               /* 0x4f9220 */
 void ord_ReportStatistics(void);        /* 0x4f9850 */
-int ord_HandleMessageRecord(int *m);              /* 0x4f9710 */
+int ord_HandleMessageRecord(ORDINITMSG *m);              /* 0x4f9710 */
 unsigned char ord_GetRatingByte(int i);              /* 0x4f97a0 */
 float ord_BuildingCapacityRatio(void);              /* 0x4f97c0 */
 

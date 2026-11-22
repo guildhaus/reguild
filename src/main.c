@@ -4159,7 +4159,7 @@ void main_BeginPlayerRound(void)
     AIBLD *b;
     AIBTYPE *bt;
     char date[12];
-    int rec[9];
+    ORDMSGREC rec;
     char buf[256];
 
     ord_CountGridObjects();
@@ -4266,8 +4266,8 @@ void main_BeginPlayerRound(void)
         sv_PumpNet();
         Sleep(100);
         ord_UpdateStatistics();
-        ord_GetMessageRecord(rec);
-        if (rec[0] == -1)
+        ord_GetMessageRecord(&rec);
+        if (rec.enabled == -1)
             ord_InitMessageRecord(1, 1.0f, 0.5f, (float)(10.0 - (4 - ai_Difficulty) * 2.5));
         else
             ord_UpdateMessageEvent();

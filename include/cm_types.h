@@ -748,6 +748,7 @@ typedef struct G17MSG {                 /* 0x99 bytes, a game message (its head 
         AMTTRADE trade;                 /* 0x10, message 0x5c */
         GVDECMSG decision;              /* 0x10, message 0x46 */
         GVMOVE graveMove;               /* 0x10, message 0x61 (cm_SendGraveMove) */
+        ORDINITMSG record;              /* 0x10, message 0x56 (cm_SendMessage56): ord.c's message record */
         G17CHARCLEARMSG clear;          /* 0x10, message 0x47 */
         G17SETJOBMSG setJob;            /* 0x10, message 0x48 */
         G17OBJIDMSG freeObject;         /* 0x10, message 0x4a */

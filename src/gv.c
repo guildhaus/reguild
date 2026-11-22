@@ -942,9 +942,9 @@ char *gv_GetEffect(int id)
 }
 /* 0x4eee00, starts a received cannon ball (message 0x67, GVSHOTMSG) in the effect slot of m->id: the first free part (tail 0)
    takes it (tail 1, the SHOTREC copied, state 1 in flight, time d3_Time, steps 0), m->v is taken off the slot's charge of
-   m->mode (not below 0), the slot gets flag 2 (and 1 when w); 1 when started, 0 without a slot or a free part */
+   m->mode (not below 0), the slot gets flag 2 (and 1 when the handler has a status record st); 1 when started, 0 without a slot or a free part */
 
-int gv_StartShot(GVSHOTMSG *m, int w)
+int gv_StartShot(GVSHOTMSG *m, G17STAT *st)
 {
     float v, f;
     int mode, j;
@@ -971,7 +971,7 @@ found:
     e->parts[j].time = d3_Time;
     e->parts[j].state = 1;
     e->parts[j].steps = 0;
-    if (w != 0)
+    if (st != 0)
         e->flags |= 1;
     return 1;
 }
