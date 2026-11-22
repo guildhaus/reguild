@@ -2678,8 +2678,6 @@ unsigned int d3_Fps60Frames = 0;  /* 0x6334ac */
 unsigned int d3_Fps10Time = 0;  /* 0x6334b0 */
 unsigned int d3_Fps10Frames = 0;  /* 0x6334b4 */
 extern D3PARTSYS d3_ParEnd;
-/* d3_ParTail: view of d3_ParEnd (tools/data_views.py) */
-/* d3_ParHead: view of d3if_ParList (the head node's next field) */
 extern struct VFSDIR *d3io_StockDir;
 float d3_ZFar;  /* 0xfc2564 */
 D3ANIMDATA d3anim_Head; /* 0xfc2580, the head sentinel of the animation cache list (d3_anim.c): its next is the first animation */

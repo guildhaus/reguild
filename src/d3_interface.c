@@ -271,8 +271,8 @@ void d3if_Reset(void)
 
     while (d3_TopFirst != &d3_ObjEnd)
         d3_DisposeObject(d3_TopFirst);
-    while ((D3PARTSYS *)d3_ParHead != &d3_ParEnd)
-        par_Delete((D3PARTSYS *)d3_ParHead);
+    while (d3_ParHead != &d3_ParEnd)
+        par_Delete(d3_ParHead);
     if (d3_Terrain) {
         d3fl_FreeMap(d3_Terrain);
         d3_Terrain = 0;
@@ -345,7 +345,7 @@ char d3if_InitScene(D3SCENE *s)
         cam->state |= 3;
         s->first = s->last = s->cam = cam;
         s->parHead = &d3_ParEnd;
-        s->parTail = d3if_ParList;
+        s->parTail = &d3if_ParList;
         s->hardware = d3_Hardware;
         s->sceneFlags = 0;
         s->amb.x = 200.0f;
@@ -541,8 +541,8 @@ char d3if_ClearScene(int index)
         d3if_SelectScene(index, 1);
         while (d3_TopFirst != &d3_ObjEnd)
             d3_DisposeObject(d3_TopFirst);
-        while ((D3PARTSYS *)d3_ParHead != &d3_ParEnd)
-            par_Delete((D3PARTSYS *)d3_ParHead);
+        while (d3_ParHead != &d3_ParEnd)
+            par_Delete(d3_ParHead);
         if (d3_Terrain) {
             d3fl_FreeMap(d3_Terrain);
             d3_Terrain = 0;
@@ -1659,7 +1659,6 @@ void d3_SaveScene(char *name, VFSFILE *f)
     }
 }
 
-extern char d3if_ParList[0x31c];
 /* d3if_SceneState0 / d3if_SceneState1 are defined in d3_engine.c, after d3_DefaultD3DConfig (0x5fb5c0 /
    0x5fb5c4, that unit's data) */
 int d3o_LightSet = -1;  /* 0x5fbcfc, the current light set */
@@ -1678,7 +1677,7 @@ unsigned char d3if_UnreadMid[275] = {0};  /* 0x6338c8, the unread bytes between 
 unsigned char d3if_TexturesEvicted = 0;  /* 0x6339db */
 unsigned int d3if_SceneSwitches = 0;  /* 0x6339dc, counts the scene switches (an object of its own: 4-aligned after the byte d3if_TexturesEvicted) */
 int d3if_UnreadTail = 0;  /* 0x6339e0, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-char d3if_ParList[0x31c];  /* 0xfb95e0, the default scene's particle list head node (a D3PARTSYS, 0x31c bytes: d3_ParHead is its next field, +0x318 its prev) */
+D3PARTSYS d3if_ParList;  /* 0xfb95e0, the default scene's particle list head node (d3_ParHead is its next field) */
 int d3if_LastMegaCam;  /* 0xfba944 (own object: d3io_StockDir is a 4-byte pointer) */
 D3FOGSET d3if_Fog[6]; /* 0xfba960 */
 D3LIGHTSET d3if_Levels[7]; /* 0xfba9c0 */

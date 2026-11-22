@@ -7,14 +7,10 @@
 /* The list of particle systems is bracketed by two fake nodes whose link fields are plain globals:
    the end marker d3_ParEnd (0xfb9280), whose prev field (+0x318) is the tail pointer at 0xfb9598, and the head
    node (0xfb95e0), whose next field (+0x314) is the head pointer at 0xfb98f4. */
-#define D3PAR_HEADNODE ((D3PARTSYS *)d3if_ParList)
-extern char d3if_ParList[];         /* 0xfb95e0, d3_interface.c */
-#ifndef DATA_VIEWS_H
-extern D3PARTSYS *d3_ParHead;       /* 0xfb98f4, head of the default scene's list */
-#endif
-#ifndef DATA_VIEWS_H
-extern D3PARTSYS *d3_ParTail;       /* 0xfb9598, tail of the default scene's list */
-#endif
+extern D3PARTSYS d3if_ParList;      /* 0xfb95e0, d3_interface.c */
+extern D3PARTSYS d3_ParEnd;         /* 0xfb9280 */
+#define d3_ParHead (d3if_ParList.next)     /* 0xfb98f4, head of the default scene's list (as d3_engine.h) */
+#define d3_ParTail (d3_ParEnd.prev)        /* 0xfb9598, tail of the default scene's list */
 
 /* the system's callback time marker at 0x24 (a D3PARTSYS view; the union there holds effect parameters
    otherwise: a per-call spawn cap in d3_tools.c's d3t_EmitterCB, color24 for Erdbrocken (d3_mir.c)) */

@@ -12,12 +12,7 @@
 #include <d3d.h>
 #include "d3.h"
 #include "d3_vec.h"
-/* d3_engine.h declares the list head / tail pointers as void *; d3_par.h has the real types */
-#define d3_ParHead d3_ParHead_engine
-#define d3_ParTail d3_ParTail_engine
 #include "d3_engine.h"
-#undef d3_ParHead
-#undef d3_ParTail
 #include "mem.h"
 #include "ecmd.h"
 #include "d3_par.h"
@@ -32,8 +27,8 @@ void par_Init(void)
 {
     d3_ParHead = &d3_ParEnd;
     d3_ParEnd.next = 0;
-    D3PAR_HEADNODE->prev = 0;
-    d3_ParTail = D3PAR_HEADNODE;
+    d3if_ParList.prev = 0;
+    d3_ParTail = &d3if_ParList;
     d3_ParUV0[0] = 0.0f;
     d3_ParUV0[1] = 0.0f;
     d3_ParUV0[2] = 1.0f;
@@ -61,7 +56,7 @@ void par_Unlink(D3PARTSYS *ps)
 {
     D3SCENE *s = ps->scene;
 
-    if (ps->prev == D3PAR_HEADNODE)
+    if (ps->prev == &d3if_ParList)
         s->parHead = ps->next;
     else
         ps->prev->next = ps->next;

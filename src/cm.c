@@ -4353,7 +4353,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
         i = 0;
     if (i == -1)
         return 2;
-    if (init_SceneDirty[i * 0x3e0] != 0)
+    if (d3_Scenes[i].dirty != 0)
         return 3;
     if (m->place.name[0] != 0) {
         d3if_SelectScene(i, 1);

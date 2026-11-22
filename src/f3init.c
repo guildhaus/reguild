@@ -93,7 +93,6 @@ unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct
 
 
 struct D3SCENE;
-/* init_SceneDirty: view of d3_Scenes (tools/data_views.py) */
 extern int sv_FrameMask;           /* 0x760638 */
 extern short d2_ScreenW;  /* 0xfb9072 */
 extern short d2_ScreenH;  /* 0xfb9070 */
@@ -2630,7 +2629,7 @@ int init_ObjectSceneUniverse(AIOBJ *p)
         if (uni == -1)
             return -1;
         init_ObjectUniverse[p->type] = uni;
-        init_SceneDirty[uni * 0x3e0] = 1;
+        d3_Scenes[uni].dirty = 1;
         strcpy(d3_Scenes[uni].name, (char *)ai_Goods + p->type * 0x41 + 1);
     }
     return init_ObjectUniverse[p->type];
@@ -2650,7 +2649,7 @@ int init_BuildingSceneUniverse(AIBLD *b)
             if (uni == -1)
                 return -1;
             init_BuildingUniverse[k] = uni;
-            init_SceneDirty[uni * 0x3e0] = 1;
+            d3_Scenes[uni].dirty = 1;
             strcpy(d3_Scenes[uni].name, (char *)ai_BTypes + b->type * 0x24d + 1);
         } else
             init_LoadBuildingScene(b->type);

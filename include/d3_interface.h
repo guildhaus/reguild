@@ -41,7 +41,7 @@ char d3if_ShowTree(D3OBJECT *obj, char show);                                   
 D3OBJECT *d3if_Pick(float x, float y, int flags, int mask);                       /* 0x448630, the object under a screen position, 0 if none */
 
 
-extern char d3if_ParList[];         /* 0xfb95e0 */
+extern D3PARTSYS d3if_ParList;      /* 0xfb95e0, the particle list head node */
 typedef char d3if_chk_size[sizeof(D3SCENE) == 0x3e0 ? 1 : -1];
 typedef char d3if_chk_levels[offsetof(D3SCENE, levels) == 0x128 ? 1 : -1];
 typedef char d3if_chk_sceneFlags[offsetof(D3SCENE, sceneFlags) == 0x3d8 ? 1 : -1];

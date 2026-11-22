@@ -15,12 +15,10 @@ extern D3OBJECT d3_ObjEnd;                  /* 0xfc2700, list end marker */
    Both spellings are one object, which d3_LinkTop / d3_UnlinkTop require. */
 #define d3_TopFirst (d3_TopHead.next)      /* 0xfc52f0, first top-level object */
 #define d3_TopLast (d3_ObjEnd.prev)        /* 0xfc28f4, last top-level object */
-#ifndef DATA_VIEWS_H
-extern struct D3PARTSYS *d3_ParHead;                    /* 0xfb98f4, particle list head (D3PARTSYS * in d3_par.h) */
-#endif
-#ifndef DATA_VIEWS_H
-extern struct D3PARTSYS *d3_ParTail;                    /* 0xfb9598, particle list tail (D3PARTSYS * in d3_par.h) */
-#endif
+/* The particle list likewise: its head pointer is the next field of the head node d3if_ParList (d3_interface.c),
+   its tail pointer the prev field of the end marker d3_ParEnd (d3_par.c). */
+#define d3_ParHead (d3if_ParList.next)     /* 0xfb98f4, first particle system of the default scene */
+#define d3_ParTail (d3_ParEnd.prev)        /* 0xfb9598, last particle system of the default scene */
 
 extern unsigned char d3_Hardware;          /* 0x633450 */
 extern char d3_FogOn;                       /* 0x6334a4 */
@@ -216,6 +214,7 @@ struct TSTEXTURE; struct TSTEXTURE *tex_ReleaseAlias(struct TSTEXTURE *tex, char
 struct TSTEXTURE; struct TSTEXTURE *tex_AliasForFlags(struct TSTEXTURE *tex, D3TEXFLAGS flags, char group);  /* 0x4616a0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
 
 extern D3PARTSYS d3_ParEnd;                 /* 0xfb9280, particle system list end marker */
+extern D3PARTSYS d3if_ParList;              /* 0xfb95e0, particle system list head node (d3_interface.c) */
 void par_Delete(D3PARTSYS *ps);                                                         /* 0x455760 */
 void d3snd_Free(struct D3SOUND *s);                                                     /* 0x4179d0, d3_snd.c */
 void d3_DisposeObject(D3OBJECT *obj);                                                   /* 0x43c7a0 */

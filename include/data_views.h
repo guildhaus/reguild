@@ -11,14 +11,7 @@
 /* ai_Chars */
 #define ai_CharInts              (*(int (*)[768][0x87])((char *)&ai_Chars + 0x4))  /* 0x770b84 */
 
-/* d3_ParEnd */
-#define d3_ParTail               (*(struct D3PARTSYS **)((char *)&d3_ParEnd + 0x318))  /* 0xfb9598 */
-
-/* d3if_ParList (the head node: its next field) */
-#define d3_ParHead               (*(struct D3PARTSYS **)((char *)&d3if_ParList + 0x314))  /* 0xfb98f4 */
-
 /* d3_Scenes */
 #define ai_MapRefs               (d3_Scenes[0].map)  /* 0xfd7c4c, the town scene's terrain map */
-#define init_SceneDirty          (*(char (*)[3])((char *)&d3_Scenes + 0x3d5))  /* 0xfd7f75 */
 
 #endif

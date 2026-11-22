@@ -3715,7 +3715,7 @@ void cm_ShowObjectScene(AIBLD *o, int id)
     if (gm_Query(b->objList, 1, 0, id) != 0) {
         if (gm_IsHomeType(o) == 0) {
             if (init_ObjectUniverse[id] != -2) {
-                if (init_ObjectUniverse[id] == -1 || init_SceneDirty[init_ObjectUniverse[id] * 0x3e0] != 0)
+                if (init_ObjectUniverse[id] == -1 || d3_Scenes[init_ObjectUniverse[id]].dirty != 0)
                     init_LoadObjectScene(id);
                 d3if_SelectScene(init_ObjectUniverse[id], 0);
                 init_ShowBuildingScene(b, id);
@@ -3723,7 +3723,7 @@ void cm_ShowObjectScene(AIBLD *o, int id)
         } else {
             k = (unsigned char)ai_BTypes[b->type].kind;
             if (init_BuildingUniverse[k] != 0) {
-                if (init_BuildingUniverse[k] == -1 || init_SceneDirty[init_BuildingUniverse[k] * 0x3e0] != 0)
+                if (init_BuildingUniverse[k] == -1 || d3_Scenes[init_BuildingUniverse[k]].dirty != 0)
                     init_LoadBuildingScene(k);
                 k = (unsigned char)ai_BTypes[b->type].kind;
                 d3if_SelectScene(init_BuildingUniverse[k], 0);
