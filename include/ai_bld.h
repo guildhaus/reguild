@@ -124,12 +124,12 @@ typedef struct AIBTYPE {                /* 0x24d bytes, ai_BTypes[] */
                                            amt_ExecGebaeudeBauen), its ground plan "riss_<name>.bmp" (sv.c) */
     unsigned char extensions;           /* 0x021, how many room upgrades a building of the type takes (lc.c
                                            ai_RoomUpgradeWindow: the built and running ones count against it) */
-    unsigned char nslots;               /* 0x022 */
+    unsigned char nslots;               /* 0x022, the entries of objs used (gm_LayoutTree) */
     union {
         unsigned short slot[0x100];     /* 0x023, needed goods (bit 15 = flag) */
         struct {
             unsigned short objs[0x40];  /* 0x023, the objects the type can hold, goods ids (bit 15 = flag; f3gm.c 0x509300) */
-            char pad0a3[0x100];
+            unsigned short parents[0x40][2];    /* 0x0a3, the two goods each of objs needs first (gm_LayoutTree's tree) */
             unsigned char objClass[0x40];   /* 0x1a3, per object its effect class (0x509300 sums by it) */
             unsigned char objValue[0x40];   /* 0x1e3, per object its effect value */
         };
@@ -158,7 +158,8 @@ typedef struct AIBTYPE {                /* 0x24d bytes, ai_BTypes[] */
         unsigned char cap247;           /* 0x247, read as unsigned (0x489cb0) */
     };
     unsigned char maxLevel;             /* 0x248, the highest level of the type's line (reasoned: ai_DecideUpgradeGuild builds the next type only while cap247 is below it) */
-    char pad249[4];
+    int baseValue;                      /* 0x249, the type's own value, x 0xf00 the base of gm_EquipmentValue (reasoned: the
+                                           worth before the equipment) */
 } AIBTYPE;
 #pragma pack(pop)
 #endif

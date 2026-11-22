@@ -32,12 +32,8 @@ struct AICHAR;
 #include "amt.h"
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 #define GAPDATA __declspec(align(1)) unsigned char
-#define GM_BLOCK(p) ((GMBLOCK *)gm_StockBlocks + (p))  /* the stock block of the player p */
 #define GM_TABLE_A(p) (ai_PlayerSlots[p].inhabitants)  /* the player slot's first yearly table */
 #define GM_TABLE_B(p) (ai_PlayerSlots[p].splendour)  /* its second yearly table */
-/* the building type i's byte +0x21 (ai.h AIBTYPE.extensions, the room upgrades it takes): GMBTYPE keeps it in its pad,
-   because naming the field in f3gm_types.h moves sv_t's ai_TutorialInitChapter3 off byte (declaration-set tie-break) */
-#define GM_BTYPE_EXTENSIONS(i) (((unsigned char *)GM_BTYPE(i))[0x21])
 #define GM_OBJ_PROTO_MASK 0xffffff  /* the prototype reference's index bits of a scene object's pickId (D3OBJECT +0x48) */
 
 #include "am_types.h"
@@ -282,7 +278,7 @@ int gm_ClockSeason(AITIME *c)
 }
 /* 0x4fe370, builds the building lookup tables: gm_ClassBuilding (the first building type of the goods classes 6 .. 16, fixed numbers) and gm_GoodBuilding (for every good in a building type's slot list: the first building type of its class plus the class run length * the position of this building type in its run of equal kinds / that run's length, the smallest such); goods in no slot list get the first building type of their class
    @deep 119 -> 66 ins, frame now equal: the decompiled pointer walks (p += 0x24d, q walks, the slots
-   pointer) as plain index loops over GM_BTYPE(i) with a GMBTYPE pointer bt and kind / kind2 locals (VC6
+   pointer) as plain index loops over ai_BTypes[i] with an AIBTYPE pointer bt and kind / kind2 locals (VC6
    makes the bt IV and the objs pointer itself: 119 -> 76), the init order memset, len, cur, fill, class
    entries, run (360 orders: 76 -> 74), the class run as base += cnt * run / len (the original adds into
    base's register: 74 -> 66). headers sample: insensitive. Read: the original keeps the zero in edx (run /
@@ -306,7 +302,7 @@ void gm_InitBuildingTables(void)
 {
     int run, len, i, j, k, u, base, cnt;
     int cur, kind, kind2;
-    GMBTYPE *bt;
+    AIBTYPE *bt;
 
     memset(gm_ClassBuilding, 0, 0x64);
     len = 0;
@@ -325,24 +321,24 @@ void gm_InitBuildingTables(void)
     gm_ClassBuilding[9] = 0x14;
     run = 0;
     for (i = 0; i < 0x58; i++) {
-        bt = GM_BTYPE(i);
+        bt = &ai_BTypes[i];
         kind = bt->kind;
         if (kind != cur) {
             run = 0;
             cur = kind;
             len = 0;
-            for (j = i; j < 0x58 && GM_BTYPE(j)->kind == kind; j++)
+            for (j = i; j < 0x58 && ai_BTypes[j].kind == kind; j++)
                 len++;
         } else {
             run++;
         }
-        for (k = 0; k < bt->objCount; k++) {
+        for (k = 0; k < bt->nslots; k++) {
             if (bt->objs[k] != 0xffff) {
                 u = bt->objs[k] & 0x7fff;
                 base = gm_ClassBuilding[ai_Goods[u].cls];
-                kind2 = GM_BTYPE(base)->kind;
+                kind2 = ai_BTypes[base].kind;
                 cnt = 0;
-                for (j = base; j < 0x58 && GM_BTYPE(j)->kind == kind2; j++)
+                for (j = base; j < 0x58 && ai_BTypes[j].kind == kind2; j++)
                     cnt++;
                 base += cnt * run / len;
                 if (base < gm_GoodBuilding[u])
@@ -404,7 +400,7 @@ int gm_LoadTables(char *root)
     for (i = 0; i < 0x58; i++) {
         cnt = 0;
         for (n = 0; n < 0x40; n++) {
-            u = GM_BTYPE(i)->objs[n];
+            u = ai_BTypes[i].objs[n];
             if (u != 0xffff) {
                 id = u & 0x7fff;
                 g = (&ai_Goods[id]);
@@ -412,7 +408,7 @@ int gm_LoadTables(char *root)
                     cnt++;
             }
         }
-        GM_BTYPE_EXTENSIONS(i) += cnt;
+        ai_BTypes[i].extensions += cnt;
     }
     util_Randomize();
     return 0;
@@ -872,8 +868,8 @@ void gm_RandomMarketShake(int unused)
     }
 }
 /* 0x4ff550, the daily price update of the player p at the clock t: the date's year and month are interpolated in the player slot's two yearly tables (GMPOINT, at +0x64 and +0xb4) into the block's two indices, each scaled by its factor / 1000; then for the 0x55 goods records the demand moves halfway to gm_GoodsDemand (not for the kinds 0x17 / 0x25), the stock is gm_GoodsStock for the own player and the base stock for the others, the price is gm_StockPrice, a record with the byte +0x40 set takes its stock as demand, and the four counters +0x10 .. +0x1c are cleared; without a network game the market syncs (gm_SyncMarket) and shakes (gm_RandomMarketShake)
-   @deep s42: the hoisted p*17 (GM_BLOCK(p)'s index) above cmp ebx,edi is common code of the three inner
-   table-A arms (all store to GM_BLOCK(p)->demandIndex): VC6 hoisted it in the original, ours computes it
+   @deep s42: the hoisted p*17 (&gm_StockBlocks[p]'s index) above cmp ebx,edi is common code of the three inner
+   table-A arms (all store to gm_StockBlocks[p].demandIndex): VC6 hoisted it in the original, ours computes it
    per arm. The inner arms as one ternary (year == A[k].year ? .. : k > 0 ? .. : A[0].value) or only the
    last two as a ternary: 244 / 266 ins, frame 0xc (the whole function's allocation moves). Earlier rounds
    (see prior) stand. Next: c2dag / flip on what makes the destination address anticipated in the k > 0
@@ -907,14 +903,14 @@ void gm_UpdatePrices(unsigned p, void *t)
         if (GM_TABLE_A(p)[k].year >= year)
             break;
     if (k >= n - 1)
-        GM_BLOCK(p)->demandIndex = GM_TABLE_A(p)[n - 1].value;
+        gm_StockBlocks[p].demandIndex = GM_TABLE_A(p)[n - 1].value;
     else if (year == GM_TABLE_A(p)[k].year)
-        GM_BLOCK(p)->demandIndex = (d.month + (year - GM_TABLE_A(p)[k].year) * 12) * (GM_TABLE_A(p)[k + 1].value - GM_TABLE_A(p)[k].value) / ((GM_TABLE_A(p)[k + 1].year - GM_TABLE_A(p)[k].year) * 12) + GM_TABLE_A(p)[k].value;
+        gm_StockBlocks[p].demandIndex = (d.month + (year - GM_TABLE_A(p)[k].year) * 12) * (GM_TABLE_A(p)[k + 1].value - GM_TABLE_A(p)[k].value) / ((GM_TABLE_A(p)[k + 1].year - GM_TABLE_A(p)[k].year) * 12) + GM_TABLE_A(p)[k].value;
     else if (k > 0)
-        GM_BLOCK(p)->demandIndex = (d.month + (year - GM_TABLE_A(p)[k - 1].year) * 12) * (GM_TABLE_A(p)[k].value - GM_TABLE_A(p)[k - 1].value) / ((GM_TABLE_A(p)[k].year - GM_TABLE_A(p)[k - 1].year) * 12) + GM_TABLE_A(p)[k - 1].value;
+        gm_StockBlocks[p].demandIndex = (d.month + (year - GM_TABLE_A(p)[k - 1].year) * 12) * (GM_TABLE_A(p)[k].value - GM_TABLE_A(p)[k - 1].value) / ((GM_TABLE_A(p)[k].year - GM_TABLE_A(p)[k - 1].year) * 12) + GM_TABLE_A(p)[k - 1].value;
     else
-        GM_BLOCK(p)->demandIndex = GM_TABLE_A(p)[0].value;
-    GM_BLOCK(p)->demandIndex = GM_BLOCK(p)->demandFactor * GM_BLOCK(p)->demandIndex / 1000;
+        gm_StockBlocks[p].demandIndex = GM_TABLE_A(p)[0].value;
+    gm_StockBlocks[p].demandIndex = gm_StockBlocks[p].demandFactor * gm_StockBlocks[p].demandIndex / 1000;
     for (n = 0; n < 9; n++)
         if (GM_TABLE_B(p)[n].year >= GM_TABLE_B(p)[n + 1].year)
             break;
@@ -924,7 +920,7 @@ void gm_UpdatePrices(unsigned p, void *t)
         if (GM_TABLE_B(p)[k].year >= year)
             break;
     if (k >= n - 1)
-        GM_BLOCK(p)->indexB = GM_TABLE_B(p)[n - 1].value;
+        gm_StockBlocks[p].indexB = GM_TABLE_B(p)[n - 1].value;
     else {
         if (year == GM_TABLE_B(p)[k].year)
             a = (d.month + (year - GM_TABLE_B(p)[k].year) * 12) * (GM_TABLE_B(p)[k + 1].value - GM_TABLE_B(p)[k].value) / ((GM_TABLE_B(p)[k + 1].year - GM_TABLE_B(p)[k].year) * 12) + GM_TABLE_B(p)[k].value;
@@ -932,26 +928,26 @@ void gm_UpdatePrices(unsigned p, void *t)
             a = (d.month + (year - GM_TABLE_B(p)[k - 1].year) * 12) * (GM_TABLE_B(p)[k].value - GM_TABLE_B(p)[k - 1].value) / ((GM_TABLE_B(p)[k].year - GM_TABLE_B(p)[k - 1].year) * 12) + GM_TABLE_B(p)[k - 1].value;
         else
             a = GM_TABLE_B(p)[0].value;
-        GM_BLOCK(p)->indexB = a;
+        gm_StockBlocks[p].indexB = a;
     }
-    GM_BLOCK(p)->indexB = GM_BLOCK(p)->factorB * GM_BLOCK(p)->indexB / 1000;
+    gm_StockBlocks[p].indexB = gm_StockBlocks[p].factorB * gm_StockBlocks[p].indexB / 1000;
     for (i = 0; i < 0x55; i++) {
-        g = (&ai_Goods[GM_BLOCK(p)->goods[i].item]);
+        g = (&ai_Goods[gm_StockBlocks[p].goods[i].item]);
         if (g->type != 0x17 && g->type != 0x25) {
             a = gm_GoodsDemand(p, i);
-            GM_BLOCK(p)->goods[i].demand = (float)(((float)a - GM_BLOCK(p)->goods[i].demand) * 0.5 + GM_BLOCK(p)->goods[i].demand);
+            gm_StockBlocks[p].goods[i].demand = (float)(((float)a - gm_StockBlocks[p].goods[i].demand) * 0.5 + gm_StockBlocks[p].goods[i].demand);
         }
         if (p == ai_OwnPlayer)
-            GM_BLOCK(p)->goods[i].stock = gm_GoodsStock(p, i);
+            gm_StockBlocks[p].goods[i].stock = gm_GoodsStock(p, i);
         else
-            GM_BLOCK(p)->goods[i].stock = GM_BLOCK(p)->goods[i].baseStock;
-        GM_BLOCK(p)->goods[i].price = gm_StockPrice(p, i);
-        if (GM_BLOCK(p)->goods[i].demandIsStock != 0)
-            GM_BLOCK(p)->goods[i].demand = (float)GM_BLOCK(p)->goods[i].stock;
-        GM_BLOCK(p)->goods[i].daily[0] = 0;
-        GM_BLOCK(p)->goods[i].daily[1] = 0;
-        GM_BLOCK(p)->goods[i].daily[3] = 0;
-        GM_BLOCK(p)->goods[i].daily[2] = 0;
+            gm_StockBlocks[p].goods[i].stock = gm_StockBlocks[p].goods[i].baseStock;
+        gm_StockBlocks[p].goods[i].price = gm_StockPrice(p, i);
+        if (gm_StockBlocks[p].goods[i].demandIsStock != 0)
+            gm_StockBlocks[p].goods[i].demand = (float)gm_StockBlocks[p].goods[i].stock;
+        gm_StockBlocks[p].goods[i].daily[0] = 0;
+        gm_StockBlocks[p].goods[i].daily[1] = 0;
+        gm_StockBlocks[p].goods[i].daily[3] = 0;
+        gm_StockBlocks[p].goods[i].daily[2] = 0;
     }
     if ((int)net_Conn.s == -1) {
         gm_SyncMarket(p);
@@ -964,11 +960,11 @@ int gm_GoodsDemand(int p, int i)
 {
     char *good;
 
-    good = (char *)ai_Goods + GM_BLOCK(p)->goods[i].item * 0x41;
+    good = (char *)ai_Goods + gm_StockBlocks[p].goods[i].item * 0x41;
     if (*good != 0x17 && *good != 0x25) {
         if (p == 0)
-            return (int)(ai_RatingBase * GM_BLOCK(0)->goods[i].rate * 0.0025 + 0.5);
-        return (int)(GM_BLOCK(p)->demandIndex * GM_BLOCK(p)->goods[i].rate * 0.0005);
+            return (int)(ai_RatingBase * gm_StockBlocks[0].goods[i].rate * 0.0025 + 0.5);
+        return (int)(gm_StockBlocks[p].demandIndex * gm_StockBlocks[p].goods[i].rate * 0.0005);
     }
     return 0;
 }
@@ -984,7 +980,7 @@ int gm_GoodsStock(int p, int i)
     int k; AIBLD *o;
 
     sum = 0;
-    g = &GM_BLOCK(p)->goods[i];
+    g = &gm_StockBlocks[p].goods[i];
     s = g->groups;
     if (s->group == 0)
         return 0;
@@ -1030,7 +1026,7 @@ float gm_StockPrice(int p, int n)
     float count, cur, ratio, r;
     double f, t;
 
-    id = GM_BLOCK(p)->goods[n].item;
+    id = gm_StockBlocks[p].goods[n].item;
     good = (char *)ai_Goods + id * 0x41;
     mk = gm_FindMarketObject(id);
     if (mk == 0 && p != ai_OwnPlayer && (b = gm_FindPlayerBuilding(p)) != 0)
@@ -1041,13 +1037,13 @@ float gm_StockPrice(int p, int n)
     o = gm_Query(mk->list, 1, 0, id);
     if (o != 0)
         count = (float)o->count;
-    ratio = GM_BLOCK(p)->goods[n].mean / GM_BLOCK(p)->goods[n].demand;
-    cur = GM_BLOCK(p)->goods[n].price;
-    t = ratio * (count > GM_BLOCK(p)->goods[n].demand && *good != 0x17 ? (float)(GM_BLOCK(p)->goods[n].demand / (count < 1.0 ? 1.0 : count)) : 1.0f);
+    ratio = gm_StockBlocks[p].goods[n].mean / gm_StockBlocks[p].goods[n].demand;
+    cur = gm_StockBlocks[p].goods[n].price;
+    t = ratio * (count > gm_StockBlocks[p].goods[n].demand && *good != 0x17 ? (float)(gm_StockBlocks[p].goods[n].demand / (count < 1.0 ? 1.0 : count)) : 1.0f);
     t = t > 0.25 ? t : 0.25;
     f = t < 5.0 ? t : 5.0;
-    r = ((float)f * gm_ItemPrice(id, 100) - cur) * 0.4f + GM_BLOCK(p)->goods[n].price;
-    if (GM_BLOCK(p)->goods[n].price <= 0.0f) {
+    r = ((float)f * gm_ItemPrice(id, 100) - cur) * 0.4f + gm_StockBlocks[p].goods[n].price;
+    if (gm_StockBlocks[p].goods[n].price <= 0.0f) {
         if (gm_ItemPrice(id, 100) < 512.0f)
             return 512.0f;
         return gm_ItemPrice(id, 100);
@@ -2177,7 +2173,7 @@ void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
 
 /* 0x501580, creates a building of the kind k for the owner own (a character slot, 0xffff none) in the next free instance (gm_FindFreeBuilding): a new id (ai_NextObjectId), the owner and master words, the start values (budget 0x7d00, wage rate 100, level 100, price factor 1.0, no smoke effect), a player's production setting (ai_ProdSetting), a name picked at random from the up to 12 names of its kind that no building has yet (the kind's own name when none is free; "Building name too long: %s" is the unused error text), the objects of its prototype (the rooms of the kinds 2 / 6 by gm_AllocRaum, the others while no room came before), its main room and the per-kind extras: the creation time and the owner's netId for the kinds 4 .. 7, -1 for 0xb .. 0xd, 10 / 3 / 5 for 0xe .. 0x10, the object 0x1b5 for 0x14 .. 0x16, the "f3_gm:PlantMap" of 0x1e, the price factor 0.8 of 0x1e .. 0x20, the graveyard of 0x48 .. 0x4a, the "AHM_INFO" block of 0x4b .. 0x4d; then the capacities and the kind's stock (gm_SetCapacities, gm_StockBuildingObjects). Returns the building, 0 when there are no tables or no free instance
-   @deep 145 -> 103 ins (bytes 1147 -> 552): bt = (GMBTYPE *)base + k computed BEFORE b->type = k (the
+   @deep 145 -> 103 ins (bytes 1147 -> 552): bt = (AIBTYPE *)base + k computed BEFORE b->type = k (the
    move-line round: base now in edi, k in edx, the whole prologue and early returns equal), g = (&ai_Goods[id])
    read at both type tests (the materialized address), u = bt->objs[i] index loop. Left: (1) the objs loop:
    the original keeps any in edi (loaded from its top slot before the loop) and the objs[i] IV in the slot
@@ -2202,7 +2198,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 {
     AIBLD *b;
     char *base;
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     char *name;
     int *info;
     char dbg[0x100];
@@ -2220,7 +2216,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     b = (AIBLD *)gm_FindFreeBuilding();
     if (b == 0)
         return 0;
-    bt = (GMBTYPE *)base + k;
+    bt = (AIBTYPE *)base + k;
     b->type = k;
     sprintf(dbg, "----->GebID= %i GebProt= %i", ai_NextObjectId, k);
     b->id = ai_NextObjectId;
@@ -2383,7 +2379,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 /* 0x501b50, the main object of the building b, chosen by its building class (gm_BuildingClass): the classes 1 / 7 / 8 look by kind for the object 0x205 (kind 0x1d), 0x12e (0x16), 0x54 (4) or 0xfd (0x1f); class 4 takes the object 0xf7, a home (gm_IsHomeType) the 0xfd; otherwise (or when that object is missing) the first room of the kind's prototype list (an object of goods class 2 other than 0xfd). Returns the object, 0 when there is none */
 AIOBJ *gm_BuildingMainObject(AIBLD *b)
 {
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     AIGOOD *g;
     AIOBJ *o;
     int cls, i;
@@ -2391,7 +2387,7 @@ AIOBJ *gm_BuildingMainObject(AIBLD *b)
 
     o = 0;
     cls = gm_BuildingClass(b->type);
-    bt = GM_BTYPE(b->type);
+    bt = &ai_BTypes[b->type];
     if (cls != 1 && cls != 7 && cls != 8) {
         if (cls == 4)
             o = gm_Query(b->objList, 1, 0, 0xf7);
@@ -2577,7 +2573,7 @@ int gm_FindBuildingKind(char *name)
     int n;
 
     for (n = 0; n < 0x58; n++) {
-        if (stricmp(name, GM_BTYPE(n)->name) == 0)
+        if (stricmp(name, ai_BTypes[n].name) == 0)
             return n;
     }
     return 0;
@@ -2590,7 +2586,7 @@ int gm_ListBuildingsOfType(unsigned t, int *out)
 
     n = 0;
     for (k = 0; k < 0x58; k++) {
-        if (GM_BTYPE(k)->kind == t) {
+        if (ai_BTypes[k].kind == t) {
             out[n] = k;
             n++;
         }
@@ -3038,10 +3034,10 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
     o = (AIOBJ *)gm_CreateObject(b->id, n, 1);
     bp = (unsigned char *)ai_BTypes + b->type * 0x24d;
     i = 0;
-    for (q = ((GMBTYPE *)bp)->objs; (*q & 0x7fff) != n; q++)
+    for (q = ((AIBTYPE *)bp)->objs; (*q & 0x7fff) != n; q++)
         i++;
     for (i++; i < 0x40; i++) {
-        w = ((GMBTYPE *)bp)->objs[i];
+        w = ((AIBTYPE *)bp)->objs[i];
         if (w == 0)
             break;
         if (w != 0xffff) {
@@ -6264,17 +6260,17 @@ void gm_FormatAmount(int v, unsigned char k, char *out)
    listed */
 int gm_ListObjectsAfter(AIBLD *b, AIOBJ *proto, int *out)
 {
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     AIGOOD *g;
     int n, i;
     unsigned id;
 
     n = 0;
-    bt = GM_BTYPE(b->type);
-    for (i = 0; i < bt->objCount; i++)
+    bt = &ai_BTypes[b->type];
+    for (i = 0; i < bt->nslots; i++)
         if ((unsigned short)(bt->objs[i] & 0x7fff) == proto->type)
             break;
-    if (i >= bt->objCount)
+    if (i >= bt->nslots)
         return 0;
     for (i++; i < 0x40; i++) {
         if (bt->objs[i] == 0)
@@ -6414,7 +6410,7 @@ int gm_BuildingCarts(AIBLD *b, AIOBJ **out)
    @deep deep s43: the original's table is [0] = 2/5/7 -> body ecx (0x5090e9), [1] = the 4 group and [2] =
    default -> body edx (0x5090f4, cross-jumped): A ecx, B edx, default edx. Ours: A ecx, B edx, default ecx
    (merged with A), so only the default body's scratch register is one rotation step off. All 6 orders of
-   the three groups, break + one return r, GM_BTYPE(*b)->kind / ->level, a GMBTYPE *bt, an int i = *b: all
+   the three groups, break + one return r, ai_BTypes[*b].kind / .level, an AIBTYPE *bt, an int i = *b: all
    = control (VC6 builds the arms in its own order). Open: what gives the default body one temp step more
    (or the B body one fewer). prior: near-byte sweep s22: left the two return bodies' registers (the
    original's first body uses ecx, the second edx). = control: the case groups swapped, the default return
@@ -6510,19 +6506,19 @@ int gm_BuildingValues(AIBLD *b, int *out)
    with flag the sum is scaled by the building's level in percent (rounded) */
 int gm_BuildingSkill(AIBLD *b, unsigned k, int flag)
 {
-    unsigned char *kind;
+    AIBTYPE *kind;
     int i, s, proto;
     unsigned short *slot;
 
     s = 0;
-    kind = (unsigned char *)ai_BTypes + b->type * 0x24d;
+    kind = &ai_BTypes[b->type];
     i = 0;
-    slot = ((GMBTYPE *)kind)->objs;
+    slot = kind->objs;
     do {
         proto = *slot & 0x7fff;
-        if (proto != 0 && kind[i + 0x1a3] == k) {
+        if (proto != 0 && kind->objClass[i] == k) {
             if (gm_Query(b->objList, 2, 6, 0, proto))
-                s += kind[i + 0x1e3];
+                s += kind->objValue[i];
         }
         i++;
         slot++;
@@ -6537,17 +6533,17 @@ int gm_BuildingSkill(AIBLD *b, unsigned k, int flag)
 
 int gm_BuildingKindSkill(int kind, unsigned k)
 {
-    unsigned char *p;
+    AIBTYPE *p;
     int i, s;
     unsigned short *slot;
 
     i = 0;
-    p = (unsigned char *)ai_BTypes + kind * 0x24d;
+    p = &ai_BTypes[kind];
     s = 0;
-    slot = ((GMBTYPE *)p)->objs;
+    slot = p->objs;
     do {
-        if ((*slot & 0x7fff) != 0 && p[s + 0x1a3] == k)
-            i += p[s + 0x1e3];
+        if ((*slot & 0x7fff) != 0 && p->objClass[s] == k)
+            i += p->objValue[s];
         s++;
         slot++;
     } while (s < 0x40);
@@ -6721,13 +6717,13 @@ int gm_EquipmentValue(AIBLD *b, int level)
     unsigned id;
     AIOBJ *holder, *o;
     unsigned short *w;
-    GMBTYPE *t;
+    AIBTYPE *t;
     AIGOOD *g;
     int value;
 
     holder = 0;
     found = 0;
-    t = GM_BTYPE(b->type);
+    t = &ai_BTypes[b->type];
     value = t->baseValue * 0xf00;
     i = 0;
     w = &t->objs[1];
@@ -6786,11 +6782,11 @@ int gm_BuildingKindValue(int kind)
     unsigned short w;
     unsigned short *p;
     int i;
-    GMBTYPE *t;
+    AIBTYPE *t;
     AIGOOD *g;
     int value;
 
-    t = GM_BTYPE(kind);
+    t = &ai_BTypes[kind];
     value = t->baseValue * 0xf00;
     p = t->objs;
     i = 0;
@@ -7547,7 +7543,7 @@ int gm_ResearchClass(int k, int *out)
     int r;
 
     r = 1;
-    switch ((unsigned char)GM_BTYPE(k)->kind) {
+    switch ((unsigned char)ai_BTypes[k].kind) {
     case 0xf:
         *out = 1;
         break;
@@ -7678,21 +7674,21 @@ extern unsigned short gm_TreeRankStart[64];
 /* 0x50b3a0, lays out the goods tree of the building bld's type from the item *item on (the entries of its objs list that follow it, up to one of goods type 2 / 6) in the w x h area: the nodes go into gm_TreeNodes (id, the two parents, rank = gm_TreeNodeRank) sorted by rank, the first node of each rank into gm_TreeRankStart; the first rank is spread evenly, each further one under the mean x of its parents (equal x spread apart, neighbours 0x50 apart), the whole scaled back into the width when it leaves it, and the ranks spread over the height (0x60 apart at most). 1 when there is nothing to lay out, else 0 */
 int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
 {
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     int n, cnt, i, j, u, lv, rmax, again;
     int first, step, sum, num, lo, hi, d, m, off;
     float scale;
     AIGOOD *g;
     RTNODE tmp;
 
-    bt = GM_BTYPE(bld->type);
-    for (n = 0; n < bt->objCount; n++)
+    bt = &ai_BTypes[bld->type];
+    for (n = 0; n < bt->nslots; n++)
         if ((bt->objs[n] & 0x7fff) == item->type)
             break;
-    if (n >= bt->objCount)
+    if (n >= bt->nslots)
         return 1;
     gm_TreeNodeCount = 0;
-    for (n++; n < bt->objCount; n++) {
+    for (n++; n < bt->nslots; n++) {
         g = (&ai_Goods[bt->objs[n] & 0x7fff]);
         if (g->type == 2 || g->type == 6)
             break;
@@ -8094,7 +8090,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
     unsigned flags, n;
     float rel;
     AIBLD *bp;
-    GMBTYPE *t;
+    AIBTYPE *t;
     AMTKIND kind;
 
     if (a == b)
@@ -8138,7 +8134,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
     best = 0;
     for (; i < 0x100; i++, bp++) {
         if (bp->type != 0 && bp->owner == ai_Chars[a].id) {
-            t = GM_BTYPE(bp->type);
+            t = &ai_BTypes[bp->type];
             if (t->kind == '!' && t->level > best)
                 best = t->level;
             if (best >= 3)
@@ -8254,7 +8250,7 @@ void gm_ChangeBuildingState(AIBLD *bld, int d)
 {
     signed char k;
     signed char v;
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     int i;
     AICHAR *c;
     char other[0x400], own[0x400];
@@ -8268,7 +8264,7 @@ void gm_ChangeBuildingState(AIBLD *bld, int d)
     cm_BeginFieldBlock(bld, bld->id);
     cm_AddFieldValues(1, 1, 0x5c, &v);
     cm_SendFieldDeltas();
-    if (bld->type != 0 && v + bld->level <= 0 && (bt = GM_BTYPE(bld->type))->kind != 0xf && bt->kind != 0x1c
+    if (bld->type != 0 && v + bld->level <= 0 && (bt = &ai_BTypes[bld->type])->kind != 0xf && bt->kind != 0x1c
         && bt->kind != 0x1b && bt->kind != 10 && bt->kind != 6 && bt->kind < 0x17 && bt->kind != 0x10) {
         for (i = 0; i < 768; i++) {
             c = &ai_Chars[i];
@@ -8349,7 +8345,7 @@ float gm_JobCost(AICHAR *c, int k, int a, int b)
 float gm_StaffFactor(AIBLD *b, int n, int *ids)
 {
     AIBLD *bld = b;
-    GMBTYPE *t;
+    AIBTYPE *t;
     AICHAR *c;
     int i, cnt, id;
     float sum, health, fit, f, inv;
@@ -8360,7 +8356,7 @@ float gm_StaffFactor(AIBLD *b, int n, int *ids)
     cnt = 0;
     sum = 0.0f;
     fit = 0.0f;
-    t = GM_BTYPE(bld->type);
+    t = &ai_BTypes[bld->type];
     skill = gm_BuildingSkill(b, 1, 1) * 0.01 + 1.0;
     c = gm_FindCharacterByMaster(b);
     if (c == 0)

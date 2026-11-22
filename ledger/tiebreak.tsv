@@ -2990,10 +2990,10 @@ exe	0x004feb60	gm_InitPlayerRecord	f3gm	9fae68b98adba9d5	no	byte	control=byte p1
 exe	0x004fec10	gm_SyncMarket	f3gmt	10d6a4d7a44a4209	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	67971f23bb41af6a
 exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	f36632c965848504	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=316	9face4bea92fc9a5
 exe	0x004ff450	gm_RandomMarketShake	f3gm	6404493593e4e5da	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
-exe	0x004ff550	gm_UpdatePrices	f3gmt	c99a5e4da2f8db88	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
+exe	0x004ff550	gm_UpdatePrices	f3gmt	2b3abc3e13588fc0	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	9d735134a35596f3
 exe	0x004ff8c0	gm_GoodsDemand	f3gm	747d1674d7782fc0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ff950	gm_GoodsStock	f3gm	a3d1bd1cdfdb2f2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004ffa10	gm_StockPrice	f3gmt	fdc8afb1f186ebe7	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	cd6bb53a0d3ed8c5
+exe	0x004ffa10	gm_StockPrice	f3gmt	be20570edc969d8d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	9d735134a35596f3
 exe	0x004ffbf0	gm_GoodsValue	f3gm	3836209e5c5f8f3d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc40	gm_FindGoods	f3gm	ef3306d28a47d032	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc90	gm_MapDistance	f3gm	cda55d663378db8b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

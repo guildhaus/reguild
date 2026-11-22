@@ -23,25 +23,7 @@ typedef struct GMINCOME {               /* 0x38 bytes, a character's incomes (0x
 
 #include "ai_types.h"
 
-#pragma pack(push, 1)
-/* a building type (ai.h AIBTYPE, 0x24d bytes, ai_BTypes) as this unit reads it: ai.h is not includable here */
-typedef struct GMBTYPE {
-    unsigned char kind;                 /* 0x000 */
-    char name[0x20];                    /* 0x001, the type's name (gm_FindBuildingKind; ai.h AIBTYPE.name) */
-    unsigned char extensions;           /* 0x021, ai.h AIBTYPE.extensions */
-    unsigned char objCount;             /* 0x022, the entries of objs used (gm_LayoutTree) */
-    unsigned short objs[0x40];          /* 0x023, the objects the type can hold, goods ids (bit 15 = flag) */
-    unsigned short parents[0x40][2];    /* 0x0a3, the two goods each of objs needs first (gm_LayoutTree's tree) */
-    char pad1a3[0x8c];
-    unsigned char title;                       /* 0x22f, the title rank that suits the type's workers (AICHAR.title: +0.3 each, gm_StaffFactor) */
-    char pad230[0x17];
-    unsigned char level;                /* 0x247, the type's level 1 .. 3 (ai.h AIBTYPE.level / cap247) */
-    unsigned char maxLevel;             /* 0x248, the highest level of the type's line (ai.h AIBTYPE.maxLevel) */
-    int baseValue;                      /* 0x249, the type's own value, x 0xf00 the base of gm_EquipmentValue (reasoned: the worth before the equipment) */
-} GMBTYPE;
-#pragma pack(pop)
-typedef char gm_AssertGMBTYPE[sizeof(GMBTYPE) == 0x24d ? 1 : -1];
-#define GM_BTYPE(i) ((GMBTYPE *)ai_BTypes + (i))  /* the building type i of ai_BTypes (char *) */
+#include "ai_bld.h"                  /* AIBTYPE (ai_BTypes) */
 
 /* an event of the kind 0x23 (he_FindEvent(1, 0, 0x23)) as gm_BuildingEvents / gm_CreditEvents read it */
 

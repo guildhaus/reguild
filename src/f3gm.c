@@ -12,8 +12,8 @@
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
    AICHAR / AIBLD / AIOBJ, the job record as ai_types.h's AIJOB, the crime records ai_Crimes (cm_types.h CRIME,
    0x200 of them), the goods prototypes through AIGOOD (AIGOOD, GM_GOOD), the goods records of the
-   stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
-   the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
+   stock blocks as gm_StockBlocks[p] (GMBLOCK / GMSTOCK, f3gm_types.h; f3init.c / hst.c / ls.c use them too),
+   the building types as ai_BTypes[k] (AIBTYPE, ai_bld.h; older functions still by
    byte offset), the kind 0x23 (loan) events as AIJOB, or by byte offset (the rest, GM_GOODS).
    Open: gm_QueryNext returns unsigned short * in every header though the cursor is an AIOBJ *.
    Open: the head tables (gm_BoyHead .. gm_SpyHeads, gm_OwnNameHeads) are GMHEAD records but still defined as
@@ -43,12 +43,8 @@ struct AICHAR;
 #include "amt.h"
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 #define GAPDATA __declspec(align(1)) unsigned char
-#define GM_BLOCK(p) ((GMBLOCK *)gm_StockBlocks + (p))  /* the stock block of the player p */
 #define GM_TABLE_A(p) (ai_PlayerSlots[p].inhabitants)  /* the player slot's first yearly table */
 #define GM_TABLE_B(p) (ai_PlayerSlots[p].splendour)  /* its second yearly table */
-/* the building type i's byte +0x21 (ai.h AIBTYPE.extensions, the room upgrades it takes): GMBTYPE keeps it in its pad,
-   because naming the field in f3gm_types.h moves sv_t's ai_TutorialInitChapter3 off byte (declaration-set tie-break) */
-#define GM_BTYPE_EXTENSIONS(i) (((unsigned char *)GM_BTYPE(i))[0x21])
 #define GM_OBJ_PROTO_MASK 0xffffff  /* the prototype reference's index bits of a scene object's pickId (D3OBJECT +0x48) */
 
 #include "am_types.h"
@@ -647,7 +643,7 @@ void gm_EndDayIncomes(unsigned flags)
 {
     AIBLD *b;
     int i, n;
-    GMBTYPE *bt;
+    AIBTYPE *bt;
     unsigned levels[8];
     union {                     /* one buffer: the original's frame holds the list where the incomes were */
         GMINCOME inc;
@@ -681,7 +677,7 @@ void gm_EndDayIncomes(unsigned flags)
         n = 0;
         while (b != 0 && n < 8) {
             if (b->owner != 0xffff) {
-                bt = GM_BTYPE(b->type);
+                bt = &ai_BTypes[b->type];
                 levels[n] = bt->level;
                 /* @original the level is stored twice: VC6 drops the repeated store after allocation and
                    leaves its address (a dead lea ecx,[ebx+ecx*4]) behind, as the original has it */
