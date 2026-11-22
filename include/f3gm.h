@@ -215,7 +215,7 @@ struct AITIME; void gm_ClockToDate(struct AITIME *c, unsigned char *out);  /* 0x
 char *gm_ClassTreasury(struct AIBLD *b);  /* 0x5049e0, the treasury text of a building */
 int gm_CurrencyFactor(int a, int i);  /* 0x508620 */
 int gm_CurrencyDivide(int a, int i);  /* 0x508640 */
-int gm_BuildingCarts(struct AIBLD *b, int *out);  /* 0x509060 */
+int gm_BuildingCarts(struct AIBLD *b, struct AIOBJ **out);  /* 0x509060 */
 int gm_BuildingRankGate(struct AIBLD *b, struct AIBLD *c);  /* 0x509120 */
 int gm_CharMoney(int c);  /* 0x509f20 */
 int gm_GoodPicture(struct AIOBJ *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */

@@ -6519,7 +6519,7 @@ void ai_BuyBuildingOfferWindow(AIBLD *bld)
     int win;
     int slider;
     AIBLD *found;
-    char *text;
+    int text;
 
     bldId = bld->id;
     if (gm_MayTakeJob(bld->type, ai_PlayerId) != 1) {

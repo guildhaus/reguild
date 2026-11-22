@@ -6393,7 +6393,7 @@ int gm_BuildingBalance(AIBLD *b, unsigned id, int *out)
 }
 /* 0x509060, up to three carts of the building b: the instance table's objects of the goods kind 0x1d whose cartBld (+0x1c) is the building's id; returns the count and stores the objects in out */
 
-int gm_BuildingCarts(AIBLD *b, int *out)
+int gm_BuildingCarts(AIBLD *b, AIOBJ **out)
 {
     int n;
     AIOBJ *o;
@@ -6403,7 +6403,7 @@ int gm_BuildingCarts(AIBLD *b, int *out)
     while (o && n < 3) {
         if (o->bldId == b->id) {
             if (out)
-                out[n] = (int)o;
+                out[n] = o;
             n++;
         }
         o = gm_QueryNext();
