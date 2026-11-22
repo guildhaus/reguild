@@ -3454,7 +3454,7 @@ void main_ReplaceFigure(unsigned p)
         memset(ch->clear, 0xff, sizeof(ch->clear));
         ai_NextCharNumber = ai_NextCharNumber + 1;
         /* the original walks the records by their kind byte, 8 bytes into each */
-        for (pt = cm_Parties; (int)&pt->kind < (int)((unsigned)cm_Parties + 0x6788); pt++) {
+        for (pt = cm_Parties; (intptr_t)&pt->kind < (intptr_t)&cm_Parties[96].kind; pt++) {
             if (pt->used != 0) {
                 if (cm_IsPartyMember(ch->netId, pt) != 0 && (pt->kind == 3 || pt->kind == 5 || pt->kind == 4 || pt->kind == 6 || pt->kind == 9 || pt->kind == 7))
                     cm_ClearParty(pt->id);

@@ -19392,7 +19392,7 @@ int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned 
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
-int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
+struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
 void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);                 /* 0x5a9880 */

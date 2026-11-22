@@ -175,7 +175,7 @@ int gv_SizeOpen(GVYARD *g, int i)
    (gv_SizeOpen) and n is below the size's entry count for the record's kind (list 0: 8 / 12 / 16, list 1: 4 / 6 / 8,
    list 2: - / 2 / 4, list 3: - / - / 2 for kind 1 / 2 / 3); 0 when r->kind is not 1 .. 3 or n is out of range */
 
-int gv_ListEntry(GVYARD *r, int i, unsigned char n)
+GVENTRY *gv_ListEntry(GVYARD *r, int i, unsigned char n)
 {
     GVYARD *g = r;                      /* the original reads the yard through a local copy (r read directly: 20 bytes shorter, draft) */
     int kind;
@@ -192,7 +192,7 @@ int gv_ListEntry(GVYARD *r, int i, unsigned char n)
             return 0;
         if (kind == 3 && n >= 0x10)
             return 0;
-        return (int)&g->lists[0][n];
+        return &g->lists[0][n];
     }
     if (i == 1) {
         if (gv_SizeOpen(r, i) == 0)
@@ -203,7 +203,7 @@ int gv_ListEntry(GVYARD *r, int i, unsigned char n)
             return 0;
         if (kind == 3 && n >= 8)
             return 0;
-        return (int)&g->lists[1][n];
+        return &g->lists[1][n];
     }
     if (i == 2) {
         if (gv_SizeOpen(r, i) == 0)
@@ -214,7 +214,7 @@ int gv_ListEntry(GVYARD *r, int i, unsigned char n)
             return 0;
         if (kind == 3 && n >= 4)
             return 0;
-        return (int)&g->lists[2][n];
+        return &g->lists[2][n];
     }
     if (i == 3) {
         if (gv_SizeOpen(r, i) == 0)
@@ -225,7 +225,7 @@ int gv_ListEntry(GVYARD *r, int i, unsigned char n)
             return 0;
         if (kind == 3 && n >= 2)
             return 0;
-        return (int)&g->lists[3][n];
+        return &g->lists[3][n];
     }
     return 0;
 }
@@ -676,7 +676,7 @@ int gv_BuryCharacter(int *p)
     if (c == 0)
         return -6;
     list = p[3];
-    e = (GVENTRY *)gv_ListEntry(g, list, (unsigned char)p[4]);
+    e = gv_ListEntry(g, list, (unsigned char)p[4]);
     if (e == 0 || e->w08 != c->w050)
         return -7;
     lst = e->grave;
@@ -826,7 +826,7 @@ int gv_ExtendGrave(GVORDER *m)
     gm_FindById(0, 0, &c, m->chr);
     if (c == 0)
         return -6;
-    e = (GVENTRY *)gv_ListEntry(g, m->size, m->entry);
+    e = gv_ListEntry(g, m->size, m->entry);
     if (e == 0)
         return -7;
     e->until += m->years;
@@ -892,7 +892,7 @@ int gv_SetGraveHolder(GVORDER *m)
         id = m->chr;
         key = c->w050;
     }
-    e = (GVENTRY *)gv_ListEntry(g, m->size, m->entry);
+    e = gv_ListEntry(g, m->size, m->entry);
     if (e == 0)
         return -7;
     e->w08 = key;
@@ -1002,7 +1002,7 @@ int gv_AdjustEntry(GVORDER *m)
     size = m->size;
     if (gv_SizeOpen(bld->yard, size) == 0)
         return -4;
-    e = (GVENTRY *)gv_ListEntry(bld->yard, size, m->entry);
+    e = gv_ListEntry(bld->yard, size, m->entry);
     if (e == 0)
         return -7;
     v = e->b0c + m->price;
@@ -1093,7 +1093,7 @@ int gv_MoveGrave(GVMOVE *m)
     from = m->from;
     if (gv_SizeOpen(bld->yard, from) == 0)
         return -4;
-    src = (GVENTRY *)gv_ListEntry(bld->yard, from, m->entry);
+    src = gv_ListEntry(bld->yard, from, m->entry);
     if (src == 0 || src->w08 != c->w050)
         return -7;
     s = src->grave;
@@ -1187,7 +1187,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
     size = m->size;
     if (gv_SizeOpen(bld->yard, size) == 0)
         return (unsigned)-4;
-    e = (GVENTRY *)gv_ListEntry(bld->yard, size, m->entry);
+    e = gv_ListEntry(bld->yard, size, m->entry);
     if (e == 0)
         return 0xffff;
     i = 0;

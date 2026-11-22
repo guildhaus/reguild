@@ -790,7 +790,7 @@ int cm_AskElectVote(unsigned char office, struct AICHAR *b, int *ids, int *click
 void cm_SessionAskPlayer(CMCUTINFO *r, CMSESSIONREQ *m);  /* 0x4dada0 */
 
 extern int cm_DuelOver;  /* 0x6f0d94 */
-extern int cm_DuelLeft;  /* 0x92bca4 */
+extern struct AICHAR *cm_DuelLeft;  /* 0x92bca4 */
 extern unsigned char cm_DuelScore[2];  /* 0x6f0da8, the damage taken by the left / right duellist */
 extern unsigned char cm_DuelLeftInsultWon;  /* 0x6f0daa, the left duellist won the insult round */
 extern unsigned char cm_DuelRightInsultWon;  /* 0x6f0dab, the right duellist won the insult round */
@@ -808,7 +808,7 @@ void gm_Shuffled(unsigned char n, int *out);  /* 0x505ca0 */
 void cm_DuelInitVariants(int n);  /* 0x4de5e0 */
 int cm_DuelVariant(int n);  /* 0x4de610 */
 void cm_DuelShotAction(struct CHACTION *a);  /* 0x4de640 */
-extern int cm_DuelRight;  /* 0x92bca0 */
+extern struct AICHAR *cm_DuelRight;  /* 0x92bca0 */
 void cm_DuelOutcome(G28REC *m);  /* 0x4debe0 */
 int cm_ResetCutInfos(G28REC *party);  /* 0x4e36a0 */
 char d3_SetFogSet(unsigned int a, unsigned int b, float t);  /* 0x44a170 */

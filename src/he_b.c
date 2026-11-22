@@ -4821,7 +4821,7 @@ int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned 
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
-int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
+struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
 void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 
 /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character (+8) and a's netId as its victim
@@ -5074,7 +5074,7 @@ void he_RunGraveCare(AIJOB *e)
     bld = gm_BuildQuery(1, 1, e->from);
     if (bld == 0)
         e->stage = -1;
-    entry = (GVENTRY *)gv_ListEntry(bld->yard, g->size, g->entry);
+    entry = gv_ListEntry(bld->yard, g->size, g->entry);
     if (entry == 0)
         e->stage = -1;
     if (e->stage == 0) {

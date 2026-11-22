@@ -83,7 +83,7 @@ typedef struct INIT_TORCHLIST {
                                           it at 0x6d0448 (build/link/exe/exe.map), which made the mask 0x6e8607
                                           and every id / parent lookup miss */
 #define INIT_CHARACTER_COUNT 0x300      /* ch.h's CH_MAX: the slots of the character list ch_List (0x1468ae0) */
-#define INIT_START_CHARACTERS_END ((int)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
+#define INIT_START_CHARACTERS_END ((intptr_t)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
 #define INIT_CHARACTERS_END ((unsigned)ai_Chars + 0x300 * 0x21c)  /* one past the character table ai_Chars (0x770b80 + 0x300 * 0x21c = 0x7d5f80; the original's gm_PlayerRecords follows it there, not in our link) */
 #define INIT_LAST_CHARACTER ((uintptr_t)&ai_Unk770d8c + 0x64fd8)  /* the last character record of ai_Chars (INIT_CHARACTERS_END - 0x21c; the greeting loop walks up to its +2) */
 #define INIT_FIELD_MONEY 0x1ac          /* the character's money field (the field block of the start purse) */
@@ -781,7 +781,7 @@ void init_StartNewGame(int unused)
             cm_SendFieldDeltas();
         }
         c++;
-    } while ((int)c < INIT_START_CHARACTERS_END);
+    } while ((intptr_t)c < INIT_START_CHARACTERS_END);
     cm_BeginSendGroup();
     w1 = cm_SendCreateCharacter(0xc, -1, -1, 0x12, -1, 0, 0, 0);
     w2 = cm_SendCreateCharacter(0xc, -1, -1, 0x12, -1, 0, 0, 0);

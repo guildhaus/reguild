@@ -146,8 +146,8 @@ int cm_DuelVariantCount = 1;  /* 0x60d370, the number of duel variants in cm_Due
 int cm_DialogLength = 1;  /* 0x60d374 */
 int cm_SavedScene;  /* 0x925510 */
 G28REC cm_Parties[96];  /* 0x925520 */
-int cm_DuelRight;  /* 0x92bca0 */
-int cm_DuelLeft;  /* 0x92bca4 */
+AICHAR *cm_DuelRight;  /* 0x92bca0, the right duellist: cm_RunDuel's copy of its character record */
+AICHAR *cm_DuelLeft;  /* 0x92bca4, the left duellist (the copy) */
 int cm_DuelVariants[128];  /* 0x92bcc0, the shuffled order of the duel variants (gm_Shuffled fills it) */
 int cm_OrderTicks;  /* 0x92bec0 */
 unsigned short cm_DisabledObjs[768];  /* 0x92bee0 */
@@ -2065,20 +2065,20 @@ void cm_DuelShotAction(CHACTION *a)
     acc = acc * 0.8;
     if (ai_InventoryHas(sh, 0x16f) != 0)
         acc = (float)(acc * 1.5);
-    if (((int)sh == cm_DuelLeft && cm_DuelRightInsultWon != 0) || ((int)sh == cm_DuelRight && cm_DuelLeftInsultWon != 0))
+    if ((sh == cm_DuelLeft && cm_DuelRightInsultWon != 0) || (sh == cm_DuelRight && cm_DuelLeftInsultWon != 0))
         acc = (float)(acc * 0.66);
     if ((float)cm_RandomFloat() < acc)
         hit = 1;
     else
         hit = 0;
     if (hit) {
-        if (((int)sh == cm_DuelLeft && cm_DuelRightRollWon != 0) || ((int)sh == cm_DuelRight && cm_DuelLeftRollWon != 0))
+        if ((sh == cm_DuelLeft && cm_DuelRightRollWon != 0) || (sh == cm_DuelRight && cm_DuelLeftRollWon != 0))
             dmg = cm_Random(0xf) + 5;
         else
             dmg = cm_Random(0x1e) + 0xf;
         if (ai_InventoryHas(tg, 0x2b5) != 0)
             dmg = (int)(dmg * 0.75f);
-        if ((int)tg == cm_DuelLeft)
+        if (tg == cm_DuelLeft)
             cm_DuelScore[0] += dmg;
         else
             cm_DuelScore[1] += dmg;
@@ -2147,7 +2147,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
                 io_PrintText(0x10f6, a->id);
             else
                 io_PrintText(0x10f7, a->id);
-            if ((int)a == cm_DuelLeft)
+            if (a == cm_DuelLeft)
                 cm_DuelLeftRollWon = 1;
             else
                 cm_DuelRightRollWon = 1;
@@ -2177,7 +2177,7 @@ void cm_DuelRound(AICHAR *a, AICHAR *b, char *side)
                 io_PrintText(0x10f2, b->id);
             else
                 io_PrintText(0x10f3, b->id);
-            if ((int)a == cm_DuelLeft)
+            if (a == cm_DuelLeft)
                 cm_DuelLeftInsultWon = 1;
             else
                 cm_DuelRightInsultWon = 1;
@@ -2307,8 +2307,8 @@ void cm_RunDuel(G28REC *m)
     b = gm_FindChar(m->members[1]);
     ca = *a;
     cb = *b;
-    cm_DuelLeft = (int)&ca;
-    cm_DuelRight = (int)&cb;
+    cm_DuelLeft = &ca;
+    cm_DuelRight = &cb;
     cm_DuelScore[0] = 0;
     cm_DuelScore[1] = 0;
     gm_CreateCharModel(&ca, d3_CurrentScene, 0, 0, 0, "dummy_DUELLANT_A_ENTRY");
