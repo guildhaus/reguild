@@ -5191,7 +5191,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
 {
     int goods[3];
     int searches[3];
-    int store;
+    AIOBJ *store;
     int win;
     int buttons[3];
     AIMSG msg;
@@ -5208,7 +5208,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
     goods[0] = 0x1c1;
     goods[1] = 0x1c2;
     goods[2] = 0x1c3;
-    store = (int)gm_Query(bld->objList, 2, 6, 0, 0x2a);
+    store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
     for (i = 0; i < 3; i++)
