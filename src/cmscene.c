@@ -4944,7 +4944,7 @@ char ai_RunPendingParties(int pl)
         p = cm_FirstPendingParty();
     }
     cm_BeginFieldBlock(&ai_Chars[pl], ai_Chars[pl].netId);
-    cm_AddFieldValue(4, 1, (unsigned short)((int)&ai_Chars[pl].partyId - (int)cm_FieldObject), &save);
+    cm_AddFieldValue(4, 1, (char *)&ai_Chars[pl].partyId - cm_FieldObject, &save);
     cm_SendFieldValues();
     return ret;
 }

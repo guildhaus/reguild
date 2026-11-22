@@ -3246,11 +3246,11 @@ void he_AllocResearchRecipe(AIJOB *e)
 {
     HEAHMRESEARCH *r = (HEAHMRESEARCH *)e;
     AICHAR *c;
-    char *p;
+    AHMGRID *p;
 
     c = gm_FindChar(r->chr);
     if (c != 0) {
-        p = (char *)ahm_FindRecipe(r->id);
+        p = ahm_FindRecipe(r->id);
         if (p != 0) {
             r->progress = ahm_ResearchProgress(c, p, &r->start);
             if (!(r->progress <= 0.0f)) {
@@ -5256,7 +5256,7 @@ void he_RunGraveTraining(AIJOB *e)
         if ((float)(gain + *skill) > 252.0f)
             gain = (unsigned char)(252.0f - *skill);
         cm_BeginFieldBlock(ch, ch->netId);
-        cm_AddFieldValues(1, 1, (char *)ch->skills + (t->skill - (int)cm_FieldObject), &gain);
+        cm_AddFieldValues(1, 1, (char *)&ch->skills[t->skill] - cm_FieldObject, &gain);
         cm_SendFieldDeltas();
         e->end = ai_Time;
         e->clock60 = ai_Time;
