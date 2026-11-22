@@ -2224,7 +2224,7 @@ int ls_ReadEventTables(VFSFILE *f)
                 LS_R(&rec->u, size2)
                 rec->idbc = -1;
                 if (rec->stage == 6)
-                    ((char *)rec)[0xd0] = 0;
+                    rec->constructPlacing = 0;
             } else {
                 LS_R(&rec->u, size2)
             }

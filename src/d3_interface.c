@@ -1420,9 +1420,9 @@ char d3_SetLightSet(unsigned int set, float t, float scale, char calc)
         d3_LightInvalidate(calc);
         d3o_LightSet = set;
         if (d3_Sky) {
-            ((unsigned char *)d3_Sky)[0xaa6] = (int)(d3sky_Colors[n].c.r * t + d3sky_Colors[set].c.r * u);
-            ((unsigned char *)d3_Sky)[0xaa5] = (int)(d3sky_Colors[n].c.g * t + d3sky_Colors[set].c.g * u);
-            ((unsigned char *)d3_Sky)[0xaa4] = (int)(d3sky_Colors[n].c.b * t + d3sky_Colors[set].c.b * u);
+            d3_Sky->color.c.r = (int)(d3sky_Colors[n].c.r * t + d3sky_Colors[set].c.r * u);
+            d3_Sky->color.c.g = (int)(d3sky_Colors[n].c.g * t + d3sky_Colors[set].c.g * u);
+            d3_Sky->color.c.b = (int)(d3sky_Colors[n].c.b * t + d3sky_Colors[set].c.b * u);
         }
         return 1;
     }
