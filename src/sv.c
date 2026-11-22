@@ -6311,7 +6311,6 @@ void d2_RedrawView(int view);                     /* 0x474e80 */
 int d2_SetViewTextures(int view, char *tex1, char *tex2);  /* 0x474ca0 */
 void d2_ClearViewTextures(int view);                      /* 0x474d10 */
 void d3d_SetWBuffer(char w);                     /* 0x437060 */
-#define SV_ANIMCTL(o) ((D3ANIMCTL *)(o)->material->animCtl)  /* the animation control of an object's material (D3MATERIAL.animCtl at 0xf4) */
 
 /* 0x52f2c0, draws the rubber band rectangle (four dd_Line in colour -1) between the corners of sv_Band while
    sv_BandActive is set */
@@ -6452,7 +6451,7 @@ void sv_UpdateBook(SVBOOK *bk)
     sv_BookPhase ^= 1;
 }
 /* 0x52f710, turns the book bk by dir pages (2 forward / -2 backward): within the pages, and only when the page
-   animations of the book model (the three slots of its material's D3ANIMCTL) have finished (a finished turn
+   animations of the book model (the three slots of its material's D3SURF) have finished (a finished turn
    animation is released); sets the page textures of the views around the new pair ("Buch_Seite<n>_oben_ns_nm" /
    "_unten_ns_nm", n = page % 4 + 1, the others emptied and disabled), plays the turn animation, moves the page,
    runs sv_BookKeys and plays "Umblaettern_s". Returns 1 when turned. */
@@ -6475,22 +6474,22 @@ int sv_TurnBook(SVBOOK *bk, char dir)
     for (i = 0; i < 3; i++) {
         strcpy(path, "buch\\Buch_vorblaettern.baf");
         name = util_BaseName(path);
-        slot = &SV_ANIMCTL(bk->obj)->slots[i];
+        slot = &bk->obj->material->surf[0].slots[i];
         if (slot->data != 0 && strcmpi(slot->data->name, name) == 0 && dir > 0) {
             if ((slot->flags.b[1] & 0x20) == 0)
                 return 0;
-            d3_ReleaseTexture(SV_ANIMCTL(bk->obj), SV_ANIMCTL(bk->obj)->slots[i].data->name);
+            d3_ReleaseTexture(&bk->obj->material->surf[0], bk->obj->material->surf[0].slots[i].data->name);
         }
         strcpy(path, "buch\\Buch_zurueckblaettern.baf");
         name = util_BaseName(path);
         if (slot->data != 0 && strcmpi(slot->data->name, name) == 0) {
             if ((slot->flags.b[1] & 0x20) == 0 && dir > 0)
                 return 0;
-            d3_ReleaseTexture(SV_ANIMCTL(bk->obj), SV_ANIMCTL(bk->obj)->slots[i].data->name);
+            d3_ReleaseTexture(&bk->obj->material->surf[0], bk->obj->material->surf[0].slots[i].data->name);
         }
     }
     for (i = 0; i < 3; i++) {
-        slot = &SV_ANIMCTL(bk->obj)->slots[i];
+        slot = &bk->obj->material->surf[0].slots[i];
         if (slot->data != 0 && (slot->flags.b[1] & 0x20) == 0)
             return 0;
     }

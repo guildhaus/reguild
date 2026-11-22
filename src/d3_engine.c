@@ -714,7 +714,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                 if (d3s_Count > 0)
                     goto draw;
             }
-            if (dirty || s->alwaysDraw) {
+            if (dirty || s->active) {
     draw:
                 if (s->info.mesh)
                     D3_OPS(&s->info)->Transform(obj, &s->info, m->cameraMatrix);
@@ -1820,7 +1820,7 @@ void d3_FreeSurf(D3SURF *s)
         D3TEXFLAGS f;
     } flags;
     int i;
-    D3SURFTEX *t;
+    D3ANIMSLOT *t;
 
     if (s->flags.f.b[0] < 0xff || (s->flags.f.b[2] & 1)) {
         flags.i = 0;
@@ -1890,13 +1890,15 @@ void d3_InitSurf(D3SURF *s, D3OBJECT *owner)
     s->info.ntris = 0;
     s->info.mesh = 0;
     s->owner = owner;
-    for (i = 0, t = &s->slots[0].nextFrame; i < 3; i++, t += 0x1f) {
-        ((D3SURFTEX *)(t - 1))->playFlags &= 0xfd;
-        ((D3SURFTEX *)(t - 1))->data = 0;
-        ((D3SURFTEX *)(t - 1))->nextFrame = 0;
-        ((D3SURFTEX *)(t - 1))->subFrame = 0;
-        ((D3SURFTEX *)(t - 1))->frame = 0;
-        ((D3SURFTEX *)(t - 1))->flags = 0;
+    /* @original: the walk's pointer is at nextFrame (add eax,0x20; frame stored at [eax-4]); a D3ANIMSLOT *
+       walk, its countdown / do-while / end-compare forms and an index loop all base at frame (draft) */
+    for (i = 0, t = &s->slots[0].nextFrame; i < 3; i++, t += sizeof(D3ANIMSLOT) / sizeof(int)) {
+        ((D3ANIMSLOT *)(t - 1))->flags.b[8] &= 0xfd;
+        ((D3ANIMSLOT *)(t - 1))->data = 0;
+        ((D3ANIMSLOT *)(t - 1))->nextFrame = 0;
+        ((D3ANIMSLOT *)(t - 1))->subFrame = 0;
+        ((D3ANIMSLOT *)(t - 1))->frame = 0;
+        ((D3ANIMSLOT *)(t - 1))->flagWord = 0;
     }
 }
 /* 0x43ce60, initialises an object: clears the ten preset camera views and the pivot / posOffset, unlinks it
@@ -1975,7 +1977,7 @@ void d3_AddObjectDrawData(D3OBJECT *obj)
         D3_MESH(obj)->mirrorPoints = 0;
         D3_MESH(obj)->mirrorPolys = 0;
         D3_MESH(obj)->mirrorSource = 0;
-        D3_MESH(obj)->groundOffsetRaw = 0;
+        D3_MESH(obj)->groundOffset = 0;
         D3_MESH(obj)->lightScale = 1.0f;
         D3_MESH(obj)->lightGeneration = 0;
         D3_MESH(obj)->frameStamp = -1;
@@ -2044,7 +2046,7 @@ D3OBJECT *d3_CloneObject(D3OBJECT *src)
         D3E_COPY3(&obj->state, &src->state, 0x18);
         if (src->material) {
             d3_AddObjectDrawData(obj);
-            D3_MESH(obj)->groundOffsetRaw = D3_MESH(src)->groundOffsetRaw;
+            D3_MESH(obj)->groundOffset = D3_MESH(src)->groundOffset;
             D3_MESH(obj)->lightScale = D3_MESH(src)->lightScale;
             if (D3_MESH(src)->nsurf > 0)
                 d3_AttachMesh(obj, 0, (char *)D3_MESH(src)->surf[0].info.mesh);
@@ -2136,7 +2138,7 @@ void d3_SetAlpha(D3OBJECT *obj, D3TEXFLAGS *f)
         d3_ForEachObject(d3_DefaultScene, obj, 0x240, (D3OBJECTCB)d3_SetAlphaCB, f);
 }
 /* 0x43d6c0, attaches obj to the bone `name` of its parent's animated mesh: the driver's bone table
-   (D3ANIMMESH bones at +0x74, 0x58 bytes each, nbones at +0x208) is searched by name, the name is stored
+   (D3BGF.attach, nattach of them) is searched by name, the name is stored
    in the object's mesh at +0xb4 (the field d3anim_MapBones matches its children by) and the parent is
    re-mapped and posed. Returns 1 when the bone was found, 0 otherwise. */
 

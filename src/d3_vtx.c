@@ -199,7 +199,7 @@ typedef struct D3MVEC2 {
    store difference pairs ours' q2 store with th... */
 void d3_TransformVerts(D3OBJECT *obj, D3LINFO *info, D3MATRIX *m)
 {
-    D3ANIMCTL *ctl = (D3ANIMCTL *)info;
+    D3SURF *ctl = (D3SURF *)info;
     D3LVERT *v;
     D3VECTOR *sp;
     D3ANIMSLOT *sl;
@@ -406,7 +406,7 @@ void d3_FrameNormals(D3OBJECT *obj, D3LINFO *info, D3ANIMFRAME *f)
 }
 /* 0x459ab0, transforms the 8 corners of the bounding box that follow the vertices of the mesh by the matrix m,
    from the corners of the source (no animation) or of the union of the boxes of the key frames in use.
-   Returns the corners (0 if the mesh has no vertices). info is a D3ANIMCTL (d3_anim.h) here. */
+   Returns the corners (0 if the mesh has no vertices). info is a D3SURF (d3_anim.h) here. */
 
 D3BOXVERT *d3_GetBoxVerts(D3OBJECT *obj, D3OBJINFO *info, void *unk)
 {
@@ -414,7 +414,7 @@ D3BOXVERT *d3_GetBoxVerts(D3OBJECT *obj, D3OBJINFO *info, void *unk)
 #define XFORM(d, s, m) ((d)->x = ((s)->x) * (m)->_11 + ((s)->y) * (m)->_21 + ((s)->z) * (m)->_31 + (m)->_41, \
                         (d)->y = ((s)->x) * (m)->_12 + ((s)->y) * (m)->_22 + ((s)->z) * (m)->_32 + (m)->_42, \
                         (d)->z = ((s)->x) * (m)->_13 + ((s)->y) * (m)->_23 + ((s)->z) * (m)->_33 + (m)->_43)
-    D3ANIMCTL *ctl = (D3ANIMCTL *)info;
+    D3SURF *ctl = (D3SURF *)info;
     D3MATRIX *m = (D3MATRIX *)unk;
     D3LVERT *v;
     D3VECTOR4 mn, mx;

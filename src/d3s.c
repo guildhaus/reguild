@@ -4,8 +4,7 @@
    the object shadows. The start at 0x459d80 follows the mesh code of d3_vtx.c (d3_GetBoxVerts ends at
    0x459d80); the end is proven by d3_sky.c, whose first D3DCHECK is at line 38 of that file.
    Functions are kept in their original order. Names are ours.
-   Open: d3s.h's D3STERR / D3STBLOCK / D3SMESH are local views of D3TERRAIN / D3SMBLOCK (d3_sm.h) and D3MESH
-   (d3_engine.h); D3TERRAIN lacks mip and D3MESH the float at 0x954; a union in D3MESH moves d3_Unk4550e0 by 8 bytes.
+   Open: d3s.h's D3STERR / D3STBLOCK are local views of D3TERRAIN / D3SMBLOCK (d3_sm.h); D3TERRAIN lacks mip.
    unit of rea 8cef7d5b (src/game/d3s.c); boundaries in decl/text.dcl */
 #include <stdio.h>
 #include <stdlib.h>
@@ -1107,12 +1106,12 @@ float d3s_GetGround(D3OBJECT *obj, D3OBJINFO *info, D3OBJECT *light)
     }
     if (!found && obj->material) {
         if (obj->objectFlags & 0x20)
-            return pos.y - info->mesh->radius + D3S_MESH(obj->material)->groundOffset;
+            return pos.y - info->mesh->radius + obj->material->groundOffset;
         box = ((D3MESHOPS *)info->mesh)->GetBox(obj, info, D3_MESH(obj)->worldMatrix);
         y = 1e10f;
         for (i = 8; i; i--, box++)
             y = min(y, box->y);
-        y += D3S_MESH(obj->material)->groundOffset;
+        y += obj->material->groundOffset;
     }
     return y;
 }
@@ -1170,7 +1169,7 @@ void d3s_Project(D3OBJECT *obj, D3OBJINFO *info, D3OBJINFO *mesh, D3TERRAIN *t, 
         z0 = pos.z - 16.0f;
         z1 = pos.z + 16.0f;
     } else {
-        D3_OPS(mesh)->Transform(obj, mesh, obj->material->meshData);
+        D3_OPS(mesh)->Transform(obj, mesh, obj->material->worldMatrix);
         obj->state |= 0x10;
         v = (D3SVERT *)mesh->keys;
         if (light->objectFlags & 0x10) {
@@ -1375,7 +1374,7 @@ found:
         ldir.y = opos.y - lpos.y;
         ldir.z = opos.z - lpos.z;
     }
-    redo = !d3_VecEqual(&ldir.v, &slot->dir, eps) || ((D3SURF *)info)->alwaysDraw ? 1 : 0;
+    redo = !d3_VecEqual(&ldir.v, &slot->dir, eps) || ((D3SURF *)info)->active ? 1 : 0;
     if (t) {
         if (!redo) {
             j = slot->bz0;
@@ -1450,7 +1449,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         d3_PointToWorld(light, &light->pos, &lpos.v);
         d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
-        verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, obj->material->meshData);
+        verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, obj->material->worldMatrix);
         for (k = 8, box = verts; k; k--, box++) {
             if (light->objectFlags & 0x10) {
                 f = -((box->y - y) / ldir.y);

@@ -2837,7 +2837,7 @@ void init_SyncSceneObjects(D3OBJECT *o)
         if (o->info != 0)
             d3if_SelectTextureSet(o, (struct D3SURF *)o->info, init_TextureSet, 1);
         else
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->material->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, &o->material->surf[0], init_TextureSet, 1);
     }
 }
 /* 0x5124d0, the first building of the type 0xb: 0x511e60 */
@@ -3165,9 +3165,9 @@ char init_TextureSetHook(D3OBJECT *o)
         /* @original: the kind 3 had its own arm, the same call; VC6 merged the two calls and left the
            dead cmp ecx,3 in the argument setup */
         if (s == 3)
-            d3if_SelectTextureSet(o, o->material->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, &o->material->surf[0], init_TextureSet, 1);
         else
-            d3if_SelectTextureSet(o, o->material->animCtl, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, &o->material->surf[0], init_TextureSet, 1);
     }
     return 1;
 }

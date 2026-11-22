@@ -101,7 +101,7 @@ exe	0x00406a70	ch_FollowGround	ch	6746e710b9222470	no	byte	control=byte p1=byte 
 exe	0x00406bc0	ch_ThinPath	ch	c3b4f9712f70073a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00406c60	ch_SetHandObject	ch	3442a0ff3d89f5a0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00406e40	ch_ActAnimOnce	ch	1de1955a658551c8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00406e60	ch_ActTurn	ch	5e30cbec7bafe56f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	5ab402fa54347f4b
+exe	0x00406e60	ch_ActTurn	ch	e6002aae0dd6d35b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	b8de194ba1be0420
 exe	0x00407200	ch_FindNear300	ch	e9af7926725126e1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004072a0	ch_FindFreeCell	ch	35baec6c46b3652b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	5ab402fa54347f4b
 exe	0x00407690	ch_MapAlloc	ch	60f90278b754107b	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
@@ -112,7 +112,7 @@ exe	0x00407740	ch_CellToCell	ch	c3d32bb49966197d	no	byte	control=byte p1=byte p2
 exe	0x00407790	ch_GetWaypoints	ch	84cab87e7987d792	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	fe60b82b736b204d
 exe	0x004079b0	ch_GetNewPath	ch	d737d5bd4329f293	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00408490	ch_PathToTarget	ch	b69a76b6f5c10af8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
-exe	0x00408690	ch_InitWalk	ch	daba7060a51c9b78	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	68bb9763aeddf8a1
+exe	0x00408690	ch_InitWalk	ch	1a793aa36953bb7c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	b8de194ba1be0420
 exe	0x00408ab0	ch_WalkSound	ch	1d2c5fd3dee4d9b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408cb0	ch_StartWalkAnim	ch	8d90320b4a982588	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408e60	ch_NextWaypoint	ch	9ea9800cfef1c641	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -690,9 +690,9 @@ exe	0x00432530	d3path_Tangents	d3_anim	ca9915da1c38a901	no	byte	control=byte p1=
 exe	0x00432750	d3anim_StepObject	d3_anim	683d0b9d11e3c59f	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00433b10	d3anim_FreePath	d3_anim	6c5eab432df9ec77	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00433b50	d3path_Init	d3_anim	22bf468b16360139	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	83fa6b8b16b867c4
-exe	0x00433d70	d3anim_CreatePath	d3_anim	b3a9ca9aad6f1f6c	yes	byte	sweep control=shape best=byte by 8 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	f476cfa223db482d
+exe	0x00433d70	d3anim_CreatePath	d3_anim	81366c0ec5696baa	yes	byte	sweep control=shape best=byte by 19 unused typedefs at the unit's start; codegens=2 compiled=190	a96488d5bb500e2b
 exe	0x00433f40	d3_FindAnim	d3_anim	56fda47470114d16	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	c27fa5e29595ceda	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=4 compiled=127	83fa6b8b16b867c4
+exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	2918bedb500fac8a	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=4 compiled=190	a96488d5bb500e2b
 exe	0x00434a80	d3anim_GetSize	d3_anim	96cc3ad290254d6c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00434af0	d3anim_Purge	d3_anim	79078f9dff9dd60d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00434b70	d3anim_Release	d3_anim	b291415acbc17257	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -768,7 +768,7 @@ exe	0x0043cbe0	d3_SetCamera	d3_engine	308f52b67dc5c8aa	no	byte	control=byte p1=b
 exe	0x0043cc10	d3_AllocObjectPolys	d3_engine	51ff9a3b2bb6825d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043cc90	d3_FreeSurf	d3_engine	d4cd2583fbc89093	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043cd80	d3_FreeMesh	d3_engine	e214c59397f4c570	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0043ce10	d3_InitSurf	d3_engine	63bd44aebeb4d7cf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
+exe	0x0043ce10	d3_InitSurf	d3_engine	d5928c3fcd382762	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	d3a073935bbbeede
 exe	0x0043ce60	d3_InitObject	d3_engine	7997609736730fdb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2e71c15c3cd6e6ad
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	3219bcdfb9dc266b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d0e0	d3_Unlink	d3_engine	0c158890ea19999e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

@@ -2,7 +2,7 @@
 #ifndef D3_POSE_H
 #define D3_POSE_H
 #include "d3.h"                       /* the D3 records and typedefs this header names */
-struct D3ANIMCTL;
+struct D3SURF;
 
 typedef struct XSRC {               /* source point of a vertex */
     char pad00[0xc];
@@ -36,7 +36,7 @@ typedef struct XTEX {
     unsigned char flags;            /* 0x68 */
 } XTEX;
 
-struct D3ANIMSLOT * d3anim_GetMainSlot(struct D3ANIMCTL *ctl);                                         /* 0x435900 */
+struct D3ANIMSLOT * d3anim_GetMainSlot(struct D3SURF *ctl);                                         /* 0x435900 */
 void d3_MatMul43(D3MATRIX *a, D3MATRIX *b, D3MATRIX *out);                  /* 0x453ee0 */
 void d3_MatToAngles(D3VECTOR4 *m, D3VECTOR4 *angles);                         /* 0x454690 */
 
