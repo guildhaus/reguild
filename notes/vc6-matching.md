@@ -6208,7 +6208,10 @@ the bytes no portable form gives.
   / D3IOTEX as TSTEXTURE, the save header LSHDR, the weapon records AIWEAPON, the aip callbacks' AIARG, ORDSTATS, the
   `(unsigned)&` address casts) or the twenty-first (bio's void * helpers, the job views AIJOBX / GMJOB, d3_Normalize's
   D3VECTOR *, the texture views D3TEXV / D3TEXVIEW / D3IFTEX, the d3_ForEachObject collectors, HKEY / HWND, the grave
-  entries, gm_FindGoods' GMSTOCK *, the scene height maps, the signed char fields).
+  entries, gm_FindGoods' GMSTOCK *, the scene height maps, the signed char fields) or the twenty-second (the mesh
+  records D3MESH / D3SURF / D3ANIMSLOT / D3BGF in d3.h, D3OBJINFO as D3SURF, the mesh matrices, d2_SetColour's pixel
+  bytes, the unread out slots, gm_CreateCharModel's vectors, AIJOB.effectObj, gm_CharacterHome, sv_IsCartAtDoor's cart,
+  the groundplan D2SURF, AMTSET as AMTMSG, GVMOVE in G17MSG, the plain char numbers of amr / cm / sv / rmsg / f3gmt / he).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6864,6 +6867,41 @@ the bytes no portable form gives.
   unit's view reads a byte signed and the owner declares it unsigned (d3_fl.h's floor polygon flags against
   D3PTRI.flags), the unsigned spelling changes that unit's code (d3fl_Draw): keep the view's `signed char`. Text
   characters stay plain `char`.
+- **A record's sub-block declared as `char x[n]` and read through another header's view** (d3.h's D3MATERIAL with
+  `char animCtl[0x10]` / `meshData[0xec]` / `D3TEXSLOT tex[3]` / `name` over d3_engine.h's D3MESH, d3_anim.h's D3ANIMCTL /
+  D3BONESLOT / D3ANIMMATV, d3_engine.h's D3SURFTEX; twenty-second pass): move the owner records into the header every
+  view's user includes (D3MESH, D3SURF, D3ANIMSLOT and the driver D3BGF into d3.h) and spell each view field as the
+  member it overlays: `animCtl` is `&m->surf[0]`, `meshData` `&m->worldMatrix`, `tex[i].name` the slot's `data` (its
+  name is the first field: `slots[i].data->name`), a shifted view's `anim` / `mapAll` the slot's `data` / a `map`
+  union, a model name read as `material->name` the driver's `surf[0].mesh->name`. A function that takes `void *list`
+  with a `T *ctl = list;` alias and `return (int)s;` takes and returns the record pointers (d3anim_StartAnim(D3SURF *)
+  returns D3ANIMSLOT *; the callers' casts go). Every function the same code; VC6 moved tie-breaks only.
+- **A head record every pointer of whose type points at the head of one container** (D3OBJINFO, the first member of
+  D3SURF; obj->info = &s->info, d3_SelectSurf returning &m->surf[k], callers casting obj->info back to D3SURF *): the
+  head's fields are the container's own. Fold them into it (`s->info.keys` -> `s->keys`, `&s->info` -> `s`), type the
+  pointers and parameters as the container and drop the casts. The views that read the head with their own vertex types
+  (D3LINFO, D3IOSURF, D3SMMESH, XPART) stay until the vertex records are merged.
+- **A pointer walk based at a record's second field** (d3_InitSurf: `int *t = &s->slots[0].nextFrame`, `t += 0x1f`,
+  `((T *)(t - 1))->f`; the original's `add eax,0x20` and frame stored at `[eax-4]`): a `T *` walk, its countdown /
+  do-while / end-compare forms and an index loop all base at the first field (draft); the walk stays with an
+  `@original` naming that.
+- **A `char buf[4]` / `char a[4]` passed to a callee's `int *` / `float *` out parameter and never read** (amt's vote
+  outs, ai_GraveList's button outs, d3_snd's map_Pick height, d2.c's `char sd0[0x7c]` for a DDSURFACEDESC2): a local
+  of the parameter's type with `&`; the same frame. An `int tab[16]` that a callee takes as its record (D2SURF) is the
+  record, its pointer-walk clear `memset(&r, 0, sizeof(r))` (rep stosd, byte).
+- **Floats copied through `int pos[4]` / `int *p` parameters** (gm_CreateCharModel, gm_PlaceOnStage): `D3VECTOR *`
+  parameters and a D3VECTOR4 local (`pos.x = src->x`): VC6 copies float variables with integer moves, the same code.
+- **Two views of one message payload** (amt.h's AMTSET for amt_ExecuteOfficeMessage, amt_types.h's AMTMSG in G17MSG):
+  keep the one the message union holds, give it the better names, keep the signedness its byte-matched compares need
+  (`code != 0xff` stays unsigned); handlers pass the union member (`&m->office`, `&m->decision`, `&m->graveMove`), not
+  `&m->data[0]` (a payload type the union lacks moves to the types header the message header includes).
+- **Plain char numbers in locals, parameters and casts** (twenty-second pass, p21/jdiff.sh): a level, count, direction,
+  slot index or delta held in a plain char local / parameter is `signed char` (amr's `lvl`, sv_TurnBook's `dir`,
+  sv_OpenBook's `n`, gm_CharCurrency's `p` in every prototype copy); a byte read widened through `(char)` is
+  `(signed char)` (cm's field block size / count, rmsg's skill deltas, `(signed char)f & 2`). A field whose test the
+  sign makes impossible (HEWALKSLOT.holdHour == 0xff after sign extension) is `signed char` with `@original`: the plain
+  char spelling would give the test the other meaning where char is unsigned. A `%c` argument stays `(char)` (text).
+  Some /J differences are allocation noise of the changed code size (he_SpawnFounders' fidiv), not sign dependences.
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
