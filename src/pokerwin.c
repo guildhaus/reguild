@@ -252,7 +252,7 @@ struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 unsigned short ai_PokerStep(); float ai_NormalizeEffectScale(float x);
 
-POKERGAME ai_PokerState;  /* 0x6f3500 .. 0x6f35c0, the poker game state (poker.c steps it) */
+G10GAME ai_PokerState;  /* 0x6f3500 .. 0x6f35c0, the poker game state (poker.c steps it) */
 POKERUI ai_PokerUi = { -1 };  /* 0x62dda0, the poker window state (window -1 when closed, the rest zero) */
 
 /* 0x5d9de0, opens the poker table window "Locations\zigeuner\poker" 0x62de10 (273 B): returns 0 when a window is open
@@ -292,8 +292,8 @@ int ai_OpenPokerWindow(void)
 /* 0x5d9f50, shows the poker bet slider (159 B): arg on, nothing happens for 0. The slider is made once, on the first
    call, in the form 5 of the poker window (ai_PokerUi.window): d2_WinOpenSlider, as wide as the window less 0xb4, 0x7b
    picture, flags 2, scale 0 .. 100) and stored in ai_PokerUi.betSlider; its range is the bet limits converted to the
-   player's money (gm_ConvertMoney of ai_PokerState.minBet, ai_PokerState.maxBet and ai_PokerState.minBet again as the start value, step 1).
-   Later calls enable / disable the slider (d2_EnableObject). The limits are the poker game's POKERGAME.minBet / maxBet (0x6f35a4 / 0x6f35a8). */
+   player's money (gm_ConvertMoney of ai_PokerState.stake, ai_PokerState.money and ai_PokerState.stake again as the start value, step 1).
+   Later calls enable / disable the slider (d2_EnableObject). The limits are the poker game's G10GAME.stake / money (0x6f35a4 / 0x6f35a8). */
 
 void ai_PokerBetControl(int on)
 {
@@ -304,7 +304,7 @@ void ai_PokerBetControl(int on)
             d2_SetForm(ai_PokerUi.window, 5);
             slider = d2_WinOpenSlider(0, 0, d2_Wins[d2_LastWindow].w - 0xb4, 0, 100, 0x7b, 2, d2_LastWindow);
             ai_PokerUi.betSlider = slider;
-            d2_SetObjValue(ai_PokerUi.betSlider, gm_ConvertMoney(ai_PokerState.minBet, ai_OwnPlayer), gm_ConvertMoney(ai_PokerState.maxBet, ai_OwnPlayer), gm_ConvertMoney(ai_PokerState.minBet, ai_OwnPlayer), 1);
+            d2_SetObjValue(ai_PokerUi.betSlider, gm_ConvertMoney(ai_PokerState.stake, ai_OwnPlayer), gm_ConvertMoney(ai_PokerState.money, ai_OwnPlayer), gm_ConvertMoney(ai_PokerState.stake, ai_OwnPlayer), 1);
         } else {
             d2_EnableObject(ai_PokerUi.betSlider, on);
         }
@@ -359,7 +359,7 @@ int ai_PokerGame(void)
         kb_Down[0x1e] = 0;
         if (ai_OpenPokerWindow() == 0)
             return 0;
-        if (ai_PokerStart((struct AICHAR *)((char *)&ai_Chars[ai_PlayerId]), (struct G10GAME *)&ai_PokerState) == 0) {
+        if (ai_PokerStart(&ai_Chars[ai_PlayerId], &ai_PokerState) == 0) {
             ai_ClosePokerWindow();
             return 0;
         }
@@ -393,7 +393,7 @@ int ai_PokerGame(void)
                     ai_PokerSeatPanel(0, 0, 0);
                 }
                 d2_SetForm(ai_PokerUi.window, 4);
-                if (ai_PokerState.actor == 0) {
+                if (ai_PokerState.turn == 0) {
                     d = text - (s = txt_Ptrs[0x4250]);
                     do {
                         c = *s;
@@ -402,13 +402,13 @@ int ai_PokerGame(void)
                     } while (c != 0);
                     io_PrintText((intptr_t)text);
                     if (d2_ClickedId != -1 && ai_PokerUi.buttons[0] == d2_PointerObj) {
-                        ai_PokerState.bet = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
+                        ai_PokerState.stake2 = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
                         mask = ai_PokerStep();
                     }
                 } else {
-                    sprintf(text, txt_Ptrs[0x424f], ai_PokerState.seat[ai_PokerState.actor].who->vname, ai_PokerState.seat[ai_PokerState.actor].who->nname);
+                    sprintf(text, txt_Ptrs[0x424f], ai_PokerState.seat[ai_PokerState.turn].who->first, ai_PokerState.seat[ai_PokerState.turn].who->family);
                     io_PrintText((intptr_t)text);
-                    txt_Format(text, 0x4251, ai_PokerState.minBet);
+                    txt_Format(text, 0x4251, ai_PokerState.stake);
                     io_PrintText((intptr_t)text);
                     if (d2_ClickedId != -1 && ai_PokerUi.buttons[3] == d2_PointerObj)
                         mask = ai_PokerStep();
@@ -420,8 +420,8 @@ int ai_PokerGame(void)
                 io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4256);
                 io_PrintText((intptr_t)text);
-                if (ai_PokerState.actor != 0) {
-                    txt_Format(text, 0x425a, ai_PokerState.bet);
+                if (ai_PokerState.turn != 0) {
+                    txt_Format(text, 0x425a, ai_PokerState.stake2);
                     io_PrintText((intptr_t)text);
                 } else {
                     io_PrintText((intptr_t)txt_Ptrs[0x4259]);
@@ -434,8 +434,8 @@ int ai_PokerGame(void)
             case 3:
                 if (d2_ClickedId != -1) {
                     if (ai_PokerUi.buttons[0] == d2_PointerObj) {
-                        if (ai_PokerState.actor == 0)
-                            ai_PokerState.bet = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
+                        if (ai_PokerState.turn == 0)
+                            ai_PokerState.stake2 = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
                         mask = ai_PokerStep();
                         ai_PokerSeatPanel(0, 4, ai_PokerState.seat[0].card);
                         ai_PokerSeatPanel(1, 4, ai_PokerState.seat[1].card);
@@ -451,8 +451,8 @@ int ai_PokerGame(void)
                 io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4257);
                 io_PrintText((intptr_t)text);
-                if (ai_PokerState.actor != 0) {
-                    txt_Format(text, 0x425a, ai_PokerState.bet);
+                if (ai_PokerState.turn != 0) {
+                    txt_Format(text, 0x425a, ai_PokerState.stake2);
                     io_PrintText((intptr_t)text);
                 } else {
                     io_PrintText((intptr_t)txt_Ptrs[0x4259]);
@@ -468,8 +468,8 @@ int ai_PokerGame(void)
             case 5:
                 if (d2_ClickedId != -1) {
                     if (ai_PokerUi.buttons[0] == d2_PointerObj) {
-                        if (ai_PokerState.actor == 0)
-                            ai_PokerState.bet = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
+                        if (ai_PokerState.turn == 0)
+                            ai_PokerState.stake2 = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
                         mask = ai_PokerStep();
                         ai_PokerSeatPanel(0, 4, ai_PokerState.seat[0].card);
                         ai_PokerSeatPanel(1, 4, ai_PokerState.seat[1].card);
@@ -540,18 +540,18 @@ int ai_PokerGame(void)
                 d2_SetForm(ai_PokerUi.window, 4);
                 txt_Format(text, 0x4252, ai_PokerState.pot);
                 io_PrintText((intptr_t)text);
-                if (ai_PokerState.seat[1].dropped != -1) {
-                    sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[1].who->vname, ai_PokerState.seat[1].who->nname);
+                if (ai_PokerState.seat[1].swapped != -1) {
+                    sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[1].who->first, ai_PokerState.seat[1].who->family);
                     io_PrintText((intptr_t)text);
                 } else {
-                    sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[1].who->vname, ai_PokerState.seat[1].who->nname);
+                    sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[1].who->first, ai_PokerState.seat[1].who->family);
                     io_PrintText((intptr_t)text);
                 }
-                if (ai_PokerState.seat[2].dropped != -1) {
-                    sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[2].who->vname, ai_PokerState.seat[2].who->nname);
+                if (ai_PokerState.seat[2].swapped != -1) {
+                    sprintf(text, txt_Ptrs[0x425c], ai_PokerState.seat[2].who->first, ai_PokerState.seat[2].who->family);
                     io_PrintText((intptr_t)text);
                 } else {
-                    sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[2].who->vname, ai_PokerState.seat[2].who->nname);
+                    sprintf(text, txt_Ptrs[0x425d], ai_PokerState.seat[2].who->first, ai_PokerState.seat[2].who->family);
                     io_PrintText((intptr_t)text);
                 }
                 if (d2_ClickedId != -1 && ai_PokerUi.buttons[3] == d2_PointerObj)
@@ -563,8 +563,8 @@ int ai_PokerGame(void)
                 io_PrintText((intptr_t)text);
                 txt_Format(text, util_Random(3) + 0x4253, 0x4258);
                 io_PrintText((intptr_t)text);
-                if (ai_PokerState.actor != 0) {
-                    txt_Format(text, 0x425a, ai_PokerState.bet);
+                if (ai_PokerState.turn != 0) {
+                    txt_Format(text, 0x425a, ai_PokerState.stake2);
                     io_PrintText((intptr_t)text);
                 } else {
                     io_PrintText((intptr_t)txt_Ptrs[0x4259]);
@@ -577,8 +577,8 @@ int ai_PokerGame(void)
             case 9:
                 if (d2_ClickedId != -1) {
                     if (ai_PokerUi.buttons[0] == d2_PointerObj) {
-                        if (ai_PokerState.actor == 0)
-                            ai_PokerState.bet = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
+                        if (ai_PokerState.turn == 0)
+                            ai_PokerState.stake2 = gm_PlayerFactor(d2_GetObjValue(ai_PokerUi.betSlider), ai_OwnPlayer);
                         mask = ai_PokerStep();
                         ai_PokerSeatPanel(0, 5, ai_PokerState.seat[0].card);
                         ai_PokerSeatPanel(1, 5, ai_PokerState.seat[1].card);
@@ -595,9 +595,9 @@ int ai_PokerGame(void)
                 ai_PokerSeatPanel(2, 5, ai_PokerState.seat[2].card);
                 d2_SetForm(ai_PokerUi.window, 4);
                 if (ai_PokerState.winner == 0)
-                    txt_Format(text, 0x4265, ai_PokerState.winRank + 0x4266, ai_PokerState.pot);
+                    txt_Format(text, 0x4265, ai_PokerState.winHand + 0x4266, ai_PokerState.pot);
                 else
-                    txt_Format(text, 0x4264, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->vname, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->nname, ai_PokerState.winRank + 0x4266, ai_PokerState.pot);
+                    txt_Format(text, 0x4264, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->first, ai_PokerState.seat[(unsigned short)ai_PokerState.winner].who->family, ai_PokerState.winHand + 0x4266, ai_PokerState.pot);
                 io_PrintText((intptr_t)text);
                 break;
             case 11:
@@ -631,7 +631,7 @@ int ai_PokerGame(void)
    with "%s %s %s" (the title text txt_Ptrs[0x114 + 10 * female + title], the first and the family name) into a centred
    label (font 0x54) at the window's top; the character's picture (the player's own, or the seat's model) is placed left
    of the cards. Then each of the n cards becomes a picture object 0x20 apart, stored in the panel's slot i: the card
-   back (picture 0x775 + ai_CardBack) when the seat has folded (foldPhase >= 0), or while an opponent's first two
+   back (picture 0x775 + ai_CardBack) when the seat has folded (foldedAt >= 0), or while an opponent's first two
    cards are shown at the end of the game (winner 4); else the card's face (0x775 + the card index), and the player's
    first two cards are greyed (they are chosen for the exchange in phase 6). Void. Reasoned: the picture and text
    roles follow from the offsets (0x775 + index into d2_Pics, the label with the centred flag). */
@@ -639,7 +639,7 @@ int ai_PokerGame(void)
 void ai_PokerSeatPanel(int seat, int n, int *cards)
 {
     char text[0x100];
-    POKERWHO *who;
+    AICHAR *who;
     int o, pic, x, w, h, i;
 
     d2_LastWindow = ai_PokerUi.panel[seat].win;
@@ -648,7 +648,7 @@ void ai_PokerSeatPanel(int seat, int n, int *cards)
     h = d2_Wins[d2_LastWindow].h;
     x = (w - 0xc4) / 2;
     who = ai_PokerState.seat[seat].who;
-    sprintf(text, "%s %s %s", txt_Ptrs[(who->female != 0 ? 0x11e : 0x114) + who->title], who->vname, who->nname);
+    sprintf(text, "%s %s %s", txt_Ptrs[(who->sex != 0 ? 0x11e : 0x114) + who->level], who->first, who->family);
     o = d2_CreateWinText(0, 5, text, ai_PokerUi.panel[seat].win);
     d2_Objs[o].w = w;
     d2_Objs[o].centred = 1;
@@ -661,7 +661,7 @@ void ai_PokerSeatPanel(int seat, int n, int *cards)
         d2_WinOpenPic(x - 0x37, h / 2 - d2_Pics[pic].h / 2, pic, ai_PokerUi.panel[0].win);
     }
     for (i = 0; i < n; i++, x += 0x20) {
-        if (ai_PokerState.seat[seat].foldPhase >= 0) {
+        if (ai_PokerState.seat[seat].foldedAt >= 0) {
             ai_PokerUi.panel[seat].slot[i] = d2_WinOpenPic(x, h / 2 - d2_Pics[ai_CardBack + 0x775].h / 2, ai_CardBack + 0x775, ai_PokerUi.panel[seat].win);
         } else if (seat != 0 && i < 2 && ai_PokerState.winner == 4) {
             ai_PokerUi.panel[seat].slot[i] = d2_WinOpenPic(x, h / 2 - d2_Pics[ai_CardBack + 0x775].h / 2, ai_CardBack + 0x775, ai_PokerUi.panel[seat].win);

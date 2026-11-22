@@ -72,41 +72,7 @@ typedef struct POKERUI {                /* 0x70 bytes at 0x62dda0: the poker win
     int betSlider;                      /* +0x18, the bet slider (made by ai_PokerBetControl), -1 until then */
     POKERPANEL panel[3];                /* +0x1c, the panels of the forms 3, 1 and 2, in memory order */
 } POKERUI;
-typedef struct POKERWHO {               /* a seat's character record, the two names the game prints (G10NPC / AICHAR: +0x30 / +0x40) */
-    char pad00[9];
-    unsigned char female;               /* +0x09, G10NPC.female: picks the title text row (+ 10) */
-    char pad0a[3];
-    unsigned char title;                /* +0x0d, G10NPC.unk0d (1 .. 4): the title text (txt_Ptrs[0x114 + 10 * female + title]) */
-    char pad0e[0x22];
-    char vname[16];                     /* +0x30, the first name */
-    char nname[16];                     /* +0x40, the family name */
-} POKERWHO;
-typedef struct POKERSEAT {              /* 0x34 bytes, poker.h's G10SEAT; seat 0 is the player, 1 and 2 the two opponents */
-    POKERWHO *who;                      /* +0x00 */
-    int model;                          /* +0x04 */
-    int card[5];                        /* +0x08, indices into the deck, -1 = none (what ai_PokerSeatPanel shows) */
-    int unk1c, unk20;                   /* +0x1c */
-    int dropped;                        /* +0x24, the deck index of the card the seat put away in the exchange (ai_PokerSwapCard sets it), -1 = none */
-    int foldPhase;                      /* +0x28, the phase the seat folded in (ai_PokerNpcFold), -1 = still in */
-    int unk2c, unk30;                   /* +0x2c */
-} POKERSEAT;
-typedef struct POKERGAME {              /* 0xc0 bytes at 0x6f3500, poker.h's G10GAME (ai_PokerStart fills it, ai_PokerStep steps it) */
-    int phase;                          /* +0x00, 1 .. 11: the step ai_PokerGame shows */
-    POKERSEAT seat[3];                  /* +0x04 */
-    int pot;                            /* +0xa0, G10GAME.unka0: the number printed with the text 0x4252 in every phase (reasoned: the pot) */
-    int minBet;                         /* +0xa4, G10GAME.stake: the opening stake (money / (random 3 + 7)); printed with the text 0x4251 */
-    int maxBet;                         /* +0xa8, G10GAME.money: the upper limit of the bet slider */
-    int bet;                            /* +0xac, G10GAME.stake2: the bet chosen with the slider (starts as minBet) */
-    int actor;                          /* +0xb0, G10GAME.unkb0: 0 = the player acts, 1 / 2 an opponent (reasoned) */
-    unsigned char left;                 /* +0xb4, cards left in the deck */
-    unsigned char unkb5;                /* +0xb5 */
-    short pad;
-    short winner;                       /* +0xb8, G10GAME.unkb8: the seat that won (0 = the player; 4 at the start) (reasoned) */
-    short padba;
-    int winRank;                        /* +0xbc, G10GAME.unkbc: the hand rank of the win, the text 0x4266 + rank names it (reasoned) */
-} POKERGAME;
 int gm_ConvertMoney(int a, unsigned char k);   /* 0x5085b0, f3gm.c: a / the divisor of the player slot k, rounded */
-extern POKERGAME ai_PokerState;     /* 0x6f3500 */
 void ai_PokerSeatPanel(int seat, int mode, int *cards);  /* 0x5dadf0, builds the seat panel (the three-string message) */
 void ai_PokerWindow2(void);            /* 0x5db110, the second poker window "Locations\zigeuner\poker2" */
 struct AICHAR;
