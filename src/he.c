@@ -5313,8 +5313,8 @@ void amt_ChangeDistrictOpinion(struct AICHAR *c, int d, int v);  /* 0x4ea550, am
 void he_DuelDeclined(AIJOB *ev, AICHAR *p, AICHAR *q)
 {
     char text[0x400];
-    int office[6];
-    int seat[6];
+    AMTKIND office;
+    AMTREC seat;
     int district = 0, txt;
 
     if (p->kind == 6 || p->kind == 7) {
@@ -5328,8 +5328,8 @@ void he_DuelDeclined(AIJOB *ev, AICHAR *p, AICHAR *q)
         cm_SendSetField(q->netId, 0x1c8, 4, 0, 0x400);
     }
     if (q->officeKind != 0) {
-        if (amt_FindOffice(q, office, seat) != 0)
-            district = office[1];
+        if (amt_FindOffice(q, &office, &seat) != 0)
+            district = office.col;
         else
             district = util_Random(3) + 1;
     }
@@ -5425,8 +5425,8 @@ void he_RunDuelChallenge(AIJOB *e)
 void he_AllocInsult(AIJOB *e)
 {
     AICHAR *a, *b;
-    int office[6];
-    int seat[6];
+    AMTKIND office;
+    AMTREC seat;
     int place, district, amt;
 
     e->exSlot = -1;
@@ -5501,8 +5501,8 @@ void he_AllocInsult(AIJOB *e)
         he_ShowNews(a->netId, a->netId, text, 0, 0x5fa, (char *)0);
     }
     if (b->officeKind != 0) {
-        if (amt_FindOffice(b, office, seat) != 0)
-            district = office[1];
+        if (amt_FindOffice(b, &office, &seat) != 0)
+            district = office.col;
         else
             district = util_Random(3) + 1;
     }

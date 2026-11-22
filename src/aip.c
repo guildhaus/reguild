@@ -43,8 +43,8 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 
 int ai_DecideOfficePartner(int a, AICHAR *p, ORDMSG *ctx, AIARG *in, AIARG *m)
 {
-    G10DIST info, info2;
-    G10DREC rec[6];
+    AMTKIND info, info2;
+    AMTREC rec[6];
     AICHAR *who[6];
     AICHAR *o, *c;
     int k, id, n, cnt, i, j, r;
@@ -66,14 +66,14 @@ int ai_DecideOfficePartner(int a, AICHAR *p, ORDMSG *ctx, AIARG *in, AIARG *m)
     }
     if (amt_GetKind(k, &info) == 0)
         return 0;
-    n = amt_GetColumnOffices(info.id, 6, rec);
+    n = amt_GetColumnOffices(info.col, 6, rec);
     i = 0;
     cnt = 0;
     if (n > 0) {
         for (; i < n; i++) {
-            if (rec[i].k == 2) {
+            if (rec[i].state == 2) {
                 cnt++;
-                if (rec[i].id == id)
+                if (rec[i].owner == id)
                     return 0;
             }
         }
@@ -81,14 +81,14 @@ int ai_DecideOfficePartner(int a, AICHAR *p, ORDMSG *ctx, AIARG *in, AIARG *m)
             return 0;
     }
     for (i = 0; i < n; i++)
-        who[i] = gm_FindChar(rec[i].id);
+        who[i] = gm_FindChar(rec[i].owner);
     for (i = n; i < 6; i++)
         who[i] = 0;
     r = util_Random(6);
     j = 6;
     while (j != 0) {
         if (who[r] != 0 && id != who[r]->netId
-            && gm_Liking(who[r]->id, p->id, 1) < 33.0f && rec[r].k == 1) {
+            && gm_Liking(who[r]->id, p->id, 1) < 33.0f && rec[r].state == 1) {
             o = who[r];
             if (o != 0 && p->relatives[0] != o->netId) {
                 m->kind = 7;
@@ -100,7 +100,7 @@ int ai_DecideOfficePartner(int a, AICHAR *p, ORDMSG *ctx, AIARG *in, AIARG *m)
         j--;
         r = (r + 1) % 6;
     }
-    if (info.lvl == 3 || info.lvl == 6 || info.lvl == 9 || p->sel != 7)
+    if (info.level == 3 || info.level == 6 || info.level == 9 || p->sel != 7)
         return 0;
     r = util_Random(6);
     j = 6;
@@ -109,7 +109,7 @@ int ai_DecideOfficePartner(int a, AICHAR *p, ORDMSG *ctx, AIARG *in, AIARG *m)
         if (c != 0 && id != c->netId) {
             if (amt_GetKind(c->officeKind, &info2) == 0)
                 return 0;
-            if (info2.lvl > info.lvl && rec[r].k == 1
+            if (info2.level > info.level && rec[r].state == 1
                 && gm_Liking(c->id, p->id, 1) < (float)util_Random(0x20) + 40.0f) {
                 o = who[r];
                 break;

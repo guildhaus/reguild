@@ -8689,7 +8689,7 @@ int ai_InterrogationWindow(AICHAR *me, ORDMSG *m)
 int ai_WorkerDismissalWindow(void *chp, ORDMSG *m)
 {
     AICHAR *ch;
-    int out[6];
+    AMTREC out;
     int win;
     int text;
     int click1;
@@ -8701,7 +8701,7 @@ int ai_WorkerDismissalWindow(void *chp, ORDMSG *m)
     ret = 0x22;
     if (ch->kind != 6 && ch->kind != 7)
         return 0x20;
-    i = amt_GetFirstOffice(ch->officeKind, out);
+    i = amt_GetFirstOffice(ch->officeKind, &out);
     if (i == 0)
         return 0x40;
     win = d2_OpenForm(0, 0, "privillegien\\arbeiter_ausweisen");
@@ -8718,7 +8718,7 @@ int ai_WorkerDismissalWindow(void *chp, ORDMSG *m)
             sv_PopRequest = 1;
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == click1) {
-                amt_SendOfficeMessage(out[0], 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
+                amt_SendOfficeMessage(out.idx, 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
                 ret = 0x90;
                 sv_PopRequest = 1;
             } else if (d2_PointerObj == click2) {
@@ -8746,7 +8746,7 @@ int ai_DismissalHandler(AICHAR *me, ORDMSG *m)
 {
     AICHAR *ch;
     AMOUNTCFG cfg;
-    int office[6];
+    AMTREC office;
     char text[0x200];
     int win;
     int t;
@@ -8765,9 +8765,9 @@ int ai_DismissalHandler(AICHAR *me, ORDMSG *m)
             return 0x60;
         if (ch->officeKind == 0)
             return 0x60;
-        if (amt_GetFirstOffice(ch->officeKind, office) == 0)
+        if (amt_GetFirstOffice(ch->officeKind, &office) == 0)
             return 0x40;
-        amt_SendOfficeMessage(office[0], 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
+        amt_SendOfficeMessage(office.idx, 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
         gm_SendMoneyDelta(me->netId, -8);
         cm_SendSetField(me->netId, 0x1cc, 4, 0x40000, 0);
         if (ch->kind == 6 || ch->kind == 7) {
@@ -8789,7 +8789,7 @@ int ai_DismissalHandler(AICHAR *me, ORDMSG *m)
     ch = ai_AmountMenu(&cfg, txt_Ptrs[0x1e0e], 0, 0);
     if (ch == 0)
         return 2;
-    if (amt_GetFirstOffice(ch->officeKind, office) == 0)
+    if (amt_GetFirstOffice(ch->officeKind, &office) == 0)
         return 0x40;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
     d2_SetPointerSprite(0, 0);
@@ -8802,7 +8802,7 @@ int ai_DismissalHandler(AICHAR *me, ORDMSG *m)
     do {
         if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes && sv_CheckMoney(me, 8) != 0) {
-                amt_SendOfficeMessage(office[0], 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
+                amt_SendOfficeMessage(office.idx, 0, 0, (ai_Time.hour > 0xd ? 0xff : 3), 0xff);
                 gm_SendMoneyDelta(me->netId, -8);
                 slot = cm_SendSetField(me->netId, 0x1cc, 4, 0x40000, 0);
                 while (slot != -1 && cm_GetSlotState(slot) == 0)
