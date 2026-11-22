@@ -35,19 +35,11 @@ typedef struct D3FLUV {             /* a texture coordinate of d3fl_Jitter, 3 pe
 typedef void (*D3FLBLEND)(unsigned short *dst, unsigned long *w, unsigned char **src, unsigned int n);
 
 /* ---- terrain map (d3_Terrain, D3SCENE.map); layout as far as this file uses it ---- */
-typedef struct D3FLPOINT {          /* 0x50 bytes, a tile vertex (D3VERTEX as the floor code builds it) */
-    char pad00[0x40];
-    unsigned long color;            /* 0x40, D3VERTEX.color (D3COLOR b,g,r,a packed) */
-    unsigned long specular;         /* 0x44, D3VERTEX.specular */
-    void *src;                      /* 0x48, D3VERTEX.src: source point (D3SRCPOINT) */
-    signed char flags;                   /* 0x4c, D3VERTEX.flags: bit 7 = visible */
-    char pad4d[0x3];
-} D3FLPOINT;
 
-#define D3FL_WHITE 0xffffffL        /* a D3FLPOINT color: r = g = b = 255, alpha 0 */
+#define D3FL_WHITE 0xffffffL        /* a tile vertex's (D3VERTEX) color: r = g = b = 255, alpha 0 */
 
 typedef struct D3FLPOLY {           /* 0x28 bytes, a triangle (D3TRI as the floor code sees it) */
-    D3FLPOINT *v[3];
+    D3VERTEX *v[3];
     void *clip;                     /* 0x0c, D3TRI.clip: &d3_ClipInfo[clip code] */
     float *uv;                      /* 0x10, d3fl_UV[0] or [1] */
     struct TSTEXTURE *tex;                   /* 0x14, D3TRI.tex: d3fl_GetTexture / D3FLREGION.tex2 */
@@ -72,8 +64,8 @@ typedef struct D3FLTILE {           /* 0x64 bytes, 8 x 8 of them in D3FLMAP */
     D3VECTOR4 center;               /* 0x00, of the world bounding box */
     int npoints;                    /* 0x10, points of this tile used by d3fl_Draw (nwpoints: water) */
     int nwpoints;                   /* 0x14 */
-    D3FLPOINT *points;              /* 0x18 */
-    D3FLPOINT *wpoints;             /* 0x1c */
+    D3VERTEX *points;              /* 0x18 */
+    D3VERTEX *wpoints;             /* 0x1c */
     int npolys;                     /* 0x20, triangles of this tile used by d3fl_Draw (nwpolys: water) */
     int nwpolys;                    /* 0x24 */
     D3FLPOLY *polys;                /* 0x28 */
@@ -337,7 +329,7 @@ struct TSTEXTURE; struct TSTEXTURE *tex_Prepare(struct TSTEXTURE *tex);         
 
 /* ---- 0x4439e0 (worker d3fl4) ---- */
 typedef struct D3FLSPLIT {          /* 12 bytes, D3FLTILE.split: a vertex added on a tile edge next to a finer tile */
-    D3FLPOINT *p;
+    D3VERTEX *p;
     int x, y;                       /* map position */
 } D3FLSPLIT;
 typedef struct D3FLTRIUV {          /* the texture coordinates of one triangle (D3FLPOLY.uv, D3FLTILE.bp) */
