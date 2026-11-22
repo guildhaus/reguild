@@ -244,22 +244,22 @@ struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);                             
 /* ---- was unk_490830.h ---- */
 #pragma pack(push, 1)
 
+typedef struct AGDUELSIDE {             /* one side of a dice duel (AGDUEL.side1 at +0x0c, side2 at +0x30) */
+    AICHAR *ch;                         /* 0x00, the character throwing */
+    unsigned char n;                    /* 0x04, the dice thrown */
+    char pad05[3];
+    unsigned int stats;                 /* 0x08, an AI opponent's classes (ai_MakeDuelOpponent: second << 8 | first), 0xffff for a player's side */
+    unsigned char t[0x10];              /* 0x0c, the thrown values 1 .. 6 */
+} AGDUELSIDE;
+
 typedef struct AGDUEL {                 /* a dice duel between two characters (ai_DuelStart, 0x493200) */
     int stake;                          /* 0x00, the first throw's stake: gm_PlayerFactor of the player's worth (gm_GetWorth / gm_ConvertMoney, halved per k), paid to the player on a throw of kind 1 and shown as the result (ai_TavernDiceWindow state[0]) */
     int raiseAmount;                    /* 0x04, a tenth of the stake, paid on the throws of kind 2 / 3 */
-    int phase;                          /* 0x08 */
-    AICHAR *side1;                        /* 0x0c */
-    unsigned char n1;                   /* 0x10 */
-    char pad11[3];
-    unsigned int stats1;                /* 0x14, an AI opponent's classes (ai_MakeDuelOpponent: second << 8 | first), 0xffff for a player's side */
-    unsigned char t1[0x10];             /* 0x18 */
+    int phase;                          /* 0x08, 5 / 6 at the end: side1 / side2 won */
+    AGDUELSIDE side1;                   /* 0x0c */
     int kind1;                          /* 0x28, the action the side chose: 1 throw, 2 another die, 3 stop, 4 answer */
     int reserved2c;                     /* 0x2c, only ever zeroed by ai_DuelStart; no reader in the exe */
-    AICHAR *side2;                        /* 0x30 */
-    unsigned char n2;                   /* 0x34 */
-    char pad35[3];
-    unsigned int stats2;                /* 0x38, as stats1 for side2 */
-    unsigned char t2[0x10];             /* 0x3c */
+    AGDUELSIDE side2;                   /* 0x30 */
     int kind2;                          /* 0x4c, as kind1 */
     int reserved50;                     /* 0x50, as reserved2c */
     int total;                          /* 0x54, the stakes paid so far; the winner is paid it (ai_TavernDiceWindow) */

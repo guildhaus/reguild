@@ -699,26 +699,6 @@ float gm_TitlePeriodServed(int n, int *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 float gm_AddHealth(unsigned short id, int d); int ai_TutorialOff(); void ai_EvidenceBookWindow(struct AIBLD *bld);
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();
-typedef struct LCDUELSIDE {             /* one side of a dice duel: am.h AGDUEL's side1 (+0x0c) or side2 (+0x30) block
-                                           (am.h cannot be included here yet) */
-    AICHAR *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
-    unsigned char n;                    /* 0x04, the dice thrown (AGDUEL.n1) */
-    char pad05[3];
-    unsigned int stats;                 /* 0x08 (AGDUEL.stats1) */
-    unsigned char t[0x10];              /* 0x0c, the thrown values 1 .. 6 (AGDUEL.t1) */
-} LCDUELSIDE;
-typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout; am.h cannot be included here yet) */
-    int stake;                          /* 0x00, the first throw's stake (AGDUEL.stake) */
-    int raiseAmount;                    /* 0x04, a tenth of the stake, paid on the throws of kind 2 / 3 (AGDUEL.raiseAmount) */
-    int phase;                          /* 0x08, 5 / 6 at the end: side1 / side2 won (AGDUEL.phase) */
-    LCDUELSIDE side1;                   /* 0x0c (AGDUEL.side1 .. t1) */
-    int kind1;                          /* 0x28, the action side1 chose, 4 answer (AGDUEL.kind1) */
-    int reserved2c;                     /* 0x2c */
-    LCDUELSIDE side2;                   /* 0x30 (AGDUEL.side2 .. t2) */
-    int kind2;                          /* 0x4c (AGDUEL.kind2) */
-    int reserved50;                     /* 0x50 */
-    int total;                          /* 0x54, the stakes paid so far (AGDUEL.total) */
-} LCDUEL;
 int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 typedef struct LCDUELBTN {              /* an action button of the dice game window */
     int obj;                            /* 0x000, its window object, -1 while the action is not allowed (ai_DuelAcceptAction) */

@@ -185,16 +185,16 @@ int ai_DuelStart(AICHAR *p, AGDUEL *d, int k)
     d->kind2 = 0;
     d->reserved50 = 0;
     if (fin->duelBias < util_RandomF()) {
-        d->side1 = p;
-        d->stats1 = 0xffff;
-        d->side2 = &ai_DuelOpponent;
-        d->stats2 = stats;
+        d->side1.ch = p;
+        d->side1.stats = 0xffff;
+        d->side2.ch = &ai_DuelOpponent;
+        d->side2.stats = stats;
         fin->duelBias = util_RandomF() * 0.11f + fin->duelBias + 0.2f;
     } else {
-    d->side2 = p;
-    d->stats2 = 0xffff;
-    d->side1 = &ai_DuelOpponent;
-    d->stats1 = stats;
+    d->side2.ch = p;
+    d->side2.stats = 0xffff;
+    d->side1.ch = &ai_DuelOpponent;
+    d->side1.stats = stats;
     old = fin->duelBias;
     fin->duelBias = (old - 0.2f) - util_RandomF() * 0.11f;
     }
@@ -208,9 +208,9 @@ int ai_DuelAcceptAction(AGDUEL *d, AICHAR *c, int k)
     int v;
     const int *q;
 
-    if (c == d->side1)
+    if (c == d->side1.ch)
         v = d->kind1;
-    else if (c == d->side2)
+    else if (c == d->side2.ch)
         v = d->kind2;
     else
         return 0;
@@ -229,9 +229,9 @@ int ai_DuelSetAction(AGDUEL *d, AICHAR *c, int k)
     int *q;
     int i;
 
-    if (c == d->side1)
+    if (c == d->side1.ch)
         q = &d->kind1;
-    else if (c == d->side2)
+    else if (c == d->side2.ch)
         q = &d->kind2;
     else
         return 0;
@@ -254,12 +254,12 @@ void ai_DuelThrow(AGDUEL *d, AICHAR *c, int k)
     int i, j, sum, w, m, best, a, b, g, extra, h;
     short sv;
 
-    if (c == d->side1) {
-        t = d->t1;
-        n = &d->n1;
-    } else if (c == d->side2) {
-        t = d->t2;
-        n = &d->n2;
+    if (c == d->side1.ch) {
+        t = d->side1.t;
+        n = &d->side1.n;
+    } else if (c == d->side2.ch) {
+        t = d->side2.t;
+        n = &d->side2.n;
     }
     f = gm_GetSkill(c, 2);
     lvl = (int)(f * 100.0f) / 20;
@@ -416,21 +416,21 @@ int ai_DuelOpponentAction(AGDUEL *d, AICHAR *c)
     float f;
 
     if (c->kind == 10) {
-        if (c == d->side1) {
+        if (c == d->side1.ch) {
             s = d->kind1;
-            u = d->stats1 & 0xff;
-            b1 = d->n1;
-            t = d->t1;
-            b2 = d->n2;
+            u = d->side1.stats & 0xff;
+            b1 = d->side1.n;
+            t = d->side1.t;
+            b2 = d->side2.n;
             me = 0;
         } else {
-            if (c != d->side2)
+            if (c != d->side2.ch)
                 return 0;
             s = d->kind2;
-            u = d->stats2 & 0xff;
-            b1 = d->n2;
-            t = d->t2;
-            b2 = d->n1;
+            u = d->side2.stats & 0xff;
+            b1 = d->side2.n;
+            t = d->side2.t;
+            b2 = d->side1.n;
             me = 1;
         }
         for (i = 0, sum = 0; i < b1; i++)
@@ -480,10 +480,10 @@ void ai_DuelNextPhase(AGDUEL *d)
         return;
     }
     if (ph == 2) {
-        if (d->t1[0] == d->t1[1] && d->t1[0] == d->t1[2])
-            s1 = d->t1[2] + d->t1[1] + d->t1[0];
-        if (d->t2[0] == d->t2[1] && d->t2[0] == d->t2[2])
-            s2 = d->t2[2] + d->t2[1] + d->t2[0];
+        if (d->side1.t[0] == d->side1.t[1] && d->side1.t[0] == d->side1.t[2])
+            s1 = d->side1.t[2] + d->side1.t[1] + d->side1.t[0];
+        if (d->side2.t[0] == d->side2.t[1] && d->side2.t[0] == d->side2.t[2])
+            s2 = d->side2.t[2] + d->side2.t[1] + d->side2.t[0];
         if (s1 > s2) {
             d->phase = 5;
             return;
@@ -499,10 +499,10 @@ void ai_DuelNextPhase(AGDUEL *d)
         d->phase = d->kind2 == 4 ? 5 : 3;
         return;
     } else {
-        for (i = 0; i < d->n1; i++)
-            sum1 += d->t1[i];
-        for (i = 0; i < d->n2; i++)
-            sum2 += d->t2[i];
+        for (i = 0; i < d->side1.n; i++)
+            sum1 += d->side1.t[i];
+        for (i = 0; i < d->side2.n; i++)
+            sum2 += d->side2.t[i];
         if (ph == 3) {
             if (sum1 > 17 || d->kind1 == 4) {
                 d->phase = 6;

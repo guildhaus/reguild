@@ -65,7 +65,7 @@
    object record views (AICHAR / AIOBJ of the news messages), the
    Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
-   the gv record (AIWINDOWROW, gv_types.h AIDEC), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
+   the gv record (AIWINDOWROW, gv_types.h AIDEC) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
    settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and AIBLD (a building's good id, ai_bld.h's AIBLD).
    The production window's tables are this unit's typed data (lc.h): the goods columns ai_ProdColumns (LCPRODCOL),
@@ -6157,20 +6157,12 @@ void ai_DrawDice(char *caption)
         y = i > 7 ? 0x46 : 0x1d;
     } while (i < 3);
 }
-typedef struct LCDUELSIDE {             /* one side of a dice duel: am.h AGDUEL's side1 (+0x0c) or side2 (+0x30) block
-                                           (am.h cannot be included here yet) */
-    AICHAR *ch;                      /* 0x00, the character throwing (AGDUEL.side1) */
-    unsigned char n;                    /* 0x04, the dice thrown (AGDUEL.n1) */
-    char pad05[3];
-    unsigned int stats;                 /* 0x08 (AGDUEL.stats1) */
-    unsigned char t[0x10];              /* 0x0c, the thrown values 1 .. 6 (AGDUEL.t1) */
-} LCDUELSIDE;
 /* 0x597810, draws one side of a dice duel into the last window: the window's objects are removed, the caption
    printed ("$C$Z%s"), then the side's dice in rows of eight from (0x1c, 0x1d), 0x3a apart (the second row at
    y 0x46): the thrown values (the pictures 0x75b .. 0x760) for the player's character (kind 6), the hidden die
    0x761 for an opponent; then, in each branch, one more random die cell 0x75b + util_Random(6) */
 
-void ai_DrawDuelDice(char *caption, LCDUELSIDE *side)
+void ai_DrawDuelDice(char *caption, AGDUELSIDE *side)
 {
     int i;
     int x;
@@ -6211,7 +6203,7 @@ void ai_DrawDuelDice(char *caption, LCDUELSIDE *side)
    window's objects removed, the caption, then the thrown values (0x75b .. 0x760) for the player's character
    (kind 6) or the hidden die 0x761, in rows of eight */
 
-void ai_DrawDuelThrow(char *caption, LCDUELSIDE *side)
+void ai_DrawDuelThrow(char *caption, AGDUELSIDE *side)
 {
     int i;
     int x;
@@ -6245,18 +6237,6 @@ void ai_DrawDuelThrow(char *caption, LCDUELSIDE *side)
         }
     }
 }
-typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout; am.h cannot be included here yet) */
-    int stake;                          /* 0x00, the first throw's stake (AGDUEL.stake) */
-    int raiseAmount;                    /* 0x04, a tenth of the stake, paid on the throws of kind 2 / 3 (AGDUEL.raiseAmount) */
-    int phase;                          /* 0x08, 5 / 6 at the end: side1 / side2 won (AGDUEL.phase) */
-    LCDUELSIDE side1;                   /* 0x0c (AGDUEL.side1 .. t1) */
-    int kind1;                          /* 0x28, the action side1 chose, 4 answer (AGDUEL.kind1) */
-    int reserved2c;                     /* 0x2c */
-    LCDUELSIDE side2;                   /* 0x30 (AGDUEL.side2 .. t2) */
-    int kind2;                          /* 0x4c (AGDUEL.kind2) */
-    int reserved50;                     /* 0x50 */
-    int total;                          /* 0x54, the stakes paid so far (AGDUEL.total) */
-} LCDUEL;
 /* 0x597a10, shows a duel side's throw in the frame `frame` of the window win: the caption (by mode: 0x1883 the
    name, 0x1884 / 0x1885 / 0x1886 the name and the raise amount). Without `fast`, modes 1 and 2 roll for `wait`
    ms, redrawing the rolling dice (ai_DrawDice, ai_DrawDuelDice) at growing steps (2 ms, then half again each
@@ -6265,7 +6245,7 @@ typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout
    character is dead (health 0). Every mode reads the clock into start and last; the throw modes never use last
    (the original's unused second read) */
 
-void ai_DuelDiceAnimation(LCDUEL *duel, LCDUELSIDE *side, int mode, int win, int frame, int wait, int fast)
+void ai_DuelDiceAnimation(AGDUEL *duel, AGDUELSIDE *side, int mode, int win, int frame, int wait, int fast)
 {
     char text[0x100];
     int step;
@@ -6365,7 +6345,7 @@ void ai_DuelDiceAnimation(LCDUEL *duel, LCDUELSIDE *side, int mode, int win, int
    frame 4 cleared and the result: 0x1887 with the total when the player's side won (phase 5 side1, 6 side2),
    else 0x1888 with half the total */
 
-void ai_DrawDuelEnd(LCDUEL *duel, int win)
+void ai_DrawDuelEnd(AGDUEL *duel, int win)
 {
     int i;
     int x;
@@ -6474,8 +6454,8 @@ void ai_TavernDiceWindow(AIBLD *bld)
 {
     AICHAR *pc = &ai_Chars[ai_PlayerId];
     AIFIN *fin;
-    LCDUELSIDE *mine;
-    LCDUELSIDE *other;
+    AGDUELSIDE *mine;
+    AGDUELSIDE *other;
     int money;
     int win;
     int leave;
@@ -6487,7 +6467,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
     int refresh;
     int k;
     int i;
-    LCDUEL duel = {0};
+    AGDUEL duel = {0};
 
     leave = 1;
     ctlPlay = -1;
