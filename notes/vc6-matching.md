@@ -6200,7 +6200,10 @@ the bytes no portable form gives.
   G8USE, the character callees, the cm.h / gv.h K&R sweep, the signed address compares as intptr_t) or the eighteenth
   (the goods lists AIRECIPE, the player record AIFIN, the dice duel AGDUEL, the amount row LCAMOUNTROW, the menu
   units' AICHAR, the office out-record AMTREC, the bank lists, the mission owner, the height map D3SM, the cut record
-  CMCUTINFO, the Domizil use prototype, the camera matrices, the vertex positions).
+  CMCUTINFO, the Domizil use prototype, the camera matrices, the vertex positions) or the nineteenth (the characters held
+  as char * / unsigned short * at AICHAR * callees, the fight's D3OBJECT targets, the engine handles held as int, the sprite
+  and fade views of TSTEXTURE / D2FADE, d3_FindObject's objects, the send slot's value union, the party lookups, cm.h's
+  (void) prototypes, the action frame callback, the wind record, the office records, two object walk callbacks).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6753,6 +6756,44 @@ the bytes no portable form gives.
   is not classed as a tie-break by dcp check even when it is byte under a swept declaration set: `dcp debt add`
   (he_RunBurglary). A function with unchanged text that fell under an earlier commit's headers can turn from a
   tie-break into an M1 error on the next commit when no swept set gives it back any more: debt too (rt_EditPointDialog).
+- **A callee that reads a character's id word through `unsigned short *c` (`gm_GetWorth(*c)`) and callers passing
+  `&c->id` or `(unsigned short *)&ai_Chars[k]`** (gv_LeasePrice / gv_MovePrice / gv_ProtectionPrice / gv_SentenceText,
+  he_NoEvent35Pair, the grave news ai_NotifySale / ai_ShowGraveOrderExtended / ai_ShowGraveOrderCancelled /
+  ai_HauntingText; nineteenth pass): the parameter is `AICHAR *c` and the read `c->id` (the same `movzx` of word 0); the
+  callers pass the character. A query that returns the holder as `char *` (amt_GetOfficeHolder) returns `AICHAR *`.
+- **One local holding a character in one switch arm and a scene object in the others** (cm_CarryOutOrder's `char *o`:
+  cm_NearestEnemy, then cm_NearestEscapeObject / WareObject / ConquerPoint): two typed locals (`AICHAR *e; D3OBJECT *o;`)
+  compiled byte, as did cm_RunFight's `AIOBJ *box` for a `char *e1` reused for a stock object, and init_OpenTown's
+  `AIBLD *geb` / `AICHAR *hc` for the send-slot value kept in the int slot handle h.
+- **A walk's context that is a flag, not a pointer** (sv_SetLampRamp, d3_ForEachObject(.., sv_SetLampRamp, 1)): the
+  callback takes `void *f` and tests `f == 0`, the caller passes `(void *)1`; the same code. A context array of objects,
+  keys and a count (gm_CollectSlotObject's `int list[0x81]`) is a struct of the three (GMSLOTOBJS) when the caller
+  clears it with memset; a caller that clears it in an index loop (sv_CollectBannerCB's `list[i] = 0` for 0x21) is left.
+- **Views of TSTEXTURE in d2 / d3_interface** (d2_types.h's D2TEX, d2.h's D2TEXX, d3_interface.h's D3IFSPRITE): the
+  sprite handles are `struct TSTEXTURE *` (d2_types.h forward-declares it), and the view's names are TSTEXTURE's:
+  D3IFSPRITE.frames (+0x40) is refs, colorkey (+0x6c) flags.b[0], flags (+0x6e) flags.b[2]; the same code.
+- **A field the view read as a byte that the owner declares `unsigned int`** (D2FADE.flags tested `& 4` through menu /
+  pokerwin / shot's D2FADEVIEW `unsigned char flags`, `*fade & 4` through `unsigned char *` fades): VC6 narrows the test
+  of the dword to `test byte ptr [..],4`; the owner's record serves (moved to d2_types.h for the units without d2.h).
+- **A record slot that holds the id while saved and the pointer at run time** (G17STAT.value, cm_SendStates; as
+  GMCARRYREC.ref): `union { void *ref; int value; }`; the handlers store `s->ref`, cm_GetSlotValue returns `void *`,
+  ls_RefsToIds / ls_IdsToRefs read and write the member of their phase. Port-side: the record is saved whole, so a
+  64-bit port saves the id word. A global pointer read from the save as a 4-byte id (ai_JudgeCatholic) is looked up as
+  `gm_FindChar((int)(intptr_t)g)` with that note.
+- **Lookups that `return (int)&table[i]`** (cm_PartyById / cm_FindPartyOfKind / cm_FreePartySlot / cm_FirstPendingParty
+  / cm_AllocParty, cm_CutInfoById, gm_PlaceOnStage / gm_CreateCharModel's `(int)c->scene`, ai_GetDefaultEffect): return
+  the record pointer; the callers' casts go. A function pointer cast kept as `@original` for an indirect call (ai_InitShot's
+  get) keeps the pointer without the cast.
+- **`T f();` declarations of functions without parameters in cm.h** (24, kept for calls above the definition): `T
+  f(void);` there and at the definitions; every function the same code, the declaration set moved five tie-breaks
+  (swept).
+- **A callback slot whose result is never read** (CHACTION.func2, called by ch_UpdateAction, set by ch_AddActionCB; all
+  its callbacks void): a `void (*)(CHACTION *)` typedef of its own (CHACTCB), not the int CHACTFUNC with casts.
+- **A float vector a message copies as int bits** (G17GEBMSG.rot: cm_RequestCreateGeb's `rot[i] = rot[i]` from an `int *`
+  is a dword copy, a float one would go through the FPU): a union of `int bits[3]` and `D3VECTOR v`; the handler passes
+  `&m->geb.rot.v`.
+- **A typedef between a function's address comment and its definition hides the function from dcp** (gm_CollectSlotObject
+  had no grade and its neighbour fell): put new typedefs above the comment.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
