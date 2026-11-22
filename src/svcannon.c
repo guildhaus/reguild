@@ -2020,7 +2020,7 @@ void ai_AlchemistLabContact(AIBLD *rec, AIOBJ *room)
     D3OBJECT *recipeBook;
     int r;
     int a;
-    int b;
+    float b;
 
     contract = 0;
     storage = 0;

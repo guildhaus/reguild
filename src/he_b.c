@@ -6148,7 +6148,8 @@ void he_GypsyApproach(AICHAR *pl, AICHAR *per, int a)
    voice "_NACHRICHTEN_ZIGEUNER_02" (pl) or "_NACHRICHTEN_ZIGEUNER_01" (another) */
 void he_GypsyDisease(AICHAR *pl, AICHAR *per)
 {
-    int kind, health;
+    int kind;
+    float health;
     char voice[100];
     char what[0x400];
     char text[0x400];
