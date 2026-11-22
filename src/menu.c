@@ -2329,15 +2329,6 @@ void ai_MessageFilterScreen(void)
     d2_CloseView(wnd);
 }
 
-/* The request record of the screen callbacks (0x5c bytes, opened by 0x5c1130): the id word, the
-   kind byte (6 / 7 = a player character) and the player handle. */
-typedef struct AIREQ {
-    unsigned short id;                  /* +0x00 */
-    unsigned char kind;                 /* +0x02 */
-    char pad03;
-    int handle;                         /* +0x04 */
-    char pad08[0x54];
-} AIREQ;
 
 
 /* 0x5d8080, the tailor chat request window "locations\schneider\plausch" 0x62dbf8 (733 B, a
@@ -2350,9 +2341,8 @@ typedef struct AIREQ {
    found character only the request handle is cleared. The mouse event 0x14673a0 / the answer
    0xf8a668 == 1 sets sv_PopRequest 1, a click on the control (d2_PointerObj == obj) 3. The pump
    0x5309a0 (this function, 0x67fff) ends with 0x4758f0 (wnd). Void. */
-void ai_TailorChatWindow(int request)
+void ai_TailorChatWindow(AICHAR *req, int n)
 {
-    AIREQ *req;
     AICHARVIEW *rec;
     int count;
     int obj;
@@ -2364,7 +2354,6 @@ void ai_TailorChatWindow(int request)
     int pump;
     int i;
 
-    req = (AIREQ *)request;
     rec = (AICHARVIEW *)&ai_Chars[ai_PlayerId];
     wnd = d2_OpenForm(0, 0, "locations\\schneider\\plausch");
     found = gv_FindAccused(&ai_Chars[ai_PlayerId], 4, ids, &count);
@@ -2394,18 +2383,18 @@ void ai_TailorChatWindow(int request)
                 for (i = 0; i < count; i++)
                     cm_SendProofExecuted(ids[i], ((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId);
                 cm_SendMoneyDelta(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, -1);
-                cm_SendMoneyDelta(req->handle, -1);
+                cm_SendMoneyDelta(req->netId, -1);
                 cm_SendSetField(rec->netId, 0x1cc, 4, 0x20000, 0);
                 txt_Format(buf, 0x422f, req->id);
                 he_ShowNews(((AICHARVIEW *)&ai_Chars[ai_PlayerId])->netId, -1, buf, 0, 0x5ec,
                             0);
                 if (req->kind == 6 || req->kind == 7) {
                     txt_Format(buf, 0x4230, ai_PlayerId, 1);
-                    he_ShowNews(req->handle, -1, buf, 0, 0x5ec, "_NACHRICHTEN_NEU_15");
+                    he_ShowNews(req->netId, -1, buf, 0, 0x5ec, "_NACHRICHTEN_NEU_15");
                 }
                 sv_PopRequest = 3;
             } else {
-                cm_SendMoneyDelta(req->handle, -1);
+                cm_SendMoneyDelta(req->netId, -1);
                 sv_PopRequest = 3;
             }
         }
@@ -2414,15 +2403,6 @@ void ai_TailorChatWindow(int request)
     d2_CloseView(wnd);
 }
 
-/* The 0x50-byte request record 0x5c1130 sends: the kind at +0, the flags / id at +4 and the event
-   kind at +0x10. */
-typedef struct CONTACTREQ {
-    int type;                           /* +0x00 */
-    int a;                              /* +0x04 */
-    char pad08[8];
-    int b;                              /* +0x10 */
-    char pad14[0x3c];
-} CONTACTREQ;
 
 /* 0x5d8360, the tailor contact prompt (198 B), reached from the production-building contact
    listener 0x5d8420 (its contact_PLAUSCH branch): when the character's flags1cc (+0x1cc of
@@ -2434,7 +2414,7 @@ typedef struct CONTACTREQ {
    sv_CameraFollow. Void; the two arguments the contact dispatch passes are not read. */
 void ai_TailorContact(AIBLD *building, AIOBJ *arg)
 {
-    CONTACTREQ req;
+    AMOUNTCFG req;
 
     if ((((AICHARVIEW *)&ai_Chars[ai_PlayerId])->flags1cc & 0x20000) != 0) {
         sv_MessageBox((intptr_t)txt_Ptrs[TXT_TAILOR_BLOCKED], 4);
@@ -2442,10 +2422,10 @@ void ai_TailorContact(AIBLD *building, AIOBJ *arg)
     }
     if (sv_CheckMoney(&ai_Chars[ai_PlayerId], 1) != 0) {
         D3_ZERO(&req, sizeof(req));
-        req.type = 1;
-        req.a = 0x400;
-        req.b = 6;
-        ai_AmountMenu((int)&req, (int)txt_Ptrs[TXT_TAILOR_AMOUNT], (int)ch_EmptyName, (int)ai_TailorChatWindow);
+        req.flags = 1;
+        req.mode = 0x400;
+        req.kind = 6;
+        ai_AmountMenu(&req, txt_Ptrs[TXT_TAILOR_AMOUNT], ch_EmptyName, ai_TailorChatWindow);
     }
     sv_CameraFollow();
 }
@@ -2736,7 +2716,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
                         cfg.flags = 1;
                         cfg.mode = 0x400;
                         cfg.kind = 6;
-                        rows[i].rec = (AICHARVIEW *)ai_AmountMenu((int)&cfg, (int)txt_Ptrs[0x41b4 + (i != 0)], 0, 0);
+                        rows[i].rec = (AICHARVIEW *)ai_AmountMenu(&cfg, txt_Ptrs[0x41b4 + (i != 0)], 0, 0);
                         sel[i] = rows[i].rec != 0 ? rows[i].rec->netId : -1;
                         refresh = 1;
                         break;
@@ -2795,7 +2775,7 @@ void ai_CurseWindow(AIBLD *building)
     cfg.kind = 6;
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
-    target = (AICHARVIEW *)ai_AmountMenu((int)&cfg, (int)txt_Ptrs[0x41c3], 0, 0);
+    target = (AICHARVIEW *)ai_AmountMenu(&cfg, txt_Ptrs[0x41c3], 0, 0);
     if (target == 0) {
         sv_CameraFollow();
         return;
@@ -3003,7 +2983,7 @@ void ai_HomageWindow(AIBLD *building)
     cfg.kind = 6;
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
-    target = (AICHARVIEW *)ai_AmountMenu((int)&cfg, (int)txt_Ptrs[0x4209], 0, 0);
+    target = (AICHARVIEW *)ai_AmountMenu(&cfg, txt_Ptrs[0x4209], 0, 0);
     if (target == 0) {
         sv_CameraFollow();
         return;

@@ -2928,7 +2928,7 @@ next:;
    chosen there closes the menu too unless pick decides or cfg->option14 has bit 4; a right release closes it.
    Returns the chosen character record (0: none); prompt is not read */
 
-struct AICHAR *ai_AmountMenu(AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(AICHAR *, int))
+struct AICHAR *ai_AmountMenu(AMOUNTCFG *cfg, char *caption, char *prompt, int (*pick)(AICHAR *, int))
 {
     int ctrl;
     int btn[9];
@@ -9987,13 +9987,13 @@ int ai_QuarrelCallback(AICHAR *ch, int *req)
         cfg.kind = 6;
         cfg.classMask[0] = (unsigned int)gypsyFilter;
         cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
-        a = ai_AmountMenu((int)&cfg, text, 0, 0);
+        a = ai_AmountMenu(&cfg, text, 0, 0);
         if (a == 0)
             goto done;
         cfg.option14 = 3;
         cfg.ids[0] = a->id;
         txt_Format(text, 0x9e);
-        b = ai_AmountMenu((int)&cfg, text, 0, 0);
+        b = ai_AmountMenu(&cfg, text, 0, 0);
         if (b == 0)
             goto done;
     } else {

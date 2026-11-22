@@ -3583,6 +3583,7 @@ int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 int sv_ReturnZero(void);
+int sv_PickNothing(AICHAR *c, int n);  /* the unlinked pick callback at the end (sv_ReturnZero in the exe) */
 void sv_OpenDefaultPanel(void);
 void sv_OpenPersonPanel(AICHAR *c);
 void sv_RefreshPanel(void);
@@ -4008,7 +4009,7 @@ void sv_UpdatePanel(void)
     AIBLD *b, *sel;
     AIBTYPE *bt;
     int cls, i, perms, room;
-    int st[0x14];
+    AMOUNTCFG st;
 
     b = 0;
     if (sv_PlayerBarForm != -1)
@@ -4065,12 +4066,11 @@ void sv_UpdatePanel(void)
                 }
             }
         } else if (sv_PanelItemBtn != -1 && d2_PointerObj == sv_PanelItemBtn && (sv_FrameMask & 0x2000) != 0 && ai_RunAllows(0x80) == 1) {
-            for (i = 0; i < 0x14; i++)
-                st[i] = 0;
-            st[1] = 0;
-            st[5] = 4;
+            memset(&st, 0, sizeof(st));
+            st.mode = 0;
+            st.option14 = 4;
             ai_CampaignStep(0xf, 0, 0, 0);
-            ai_AmountMenu((int)st, (int)ch_EmptyName, (int)ch_EmptyName, (int)sv_ReturnZero);
+            ai_AmountMenu(&st, ch_EmptyName, ch_EmptyName, sv_PickNothing);
             ai_CampaignStep(0xf, 0, 1, 0);
         }
     }
@@ -7574,3 +7574,9 @@ struct D3TRAIN *d3t_Rain;  /* 0x760618, the rain system (d3t_CreateRain; its cou
 int sv_FrameMask;  /* 0x760638 */
 extern int d2_HitWindow;
 extern struct D3RECT d2_DirtyRect;
+/* unlinked: the item button's amount-menu pick callback (sv_UpdatePanel), which picks nothing (returns 0); LINK
+   folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040, where the original's reference in sv_UpdatePanel points */
+int sv_PickNothing(AICHAR *c, int n)
+{
+    return 0;
+}

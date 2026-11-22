@@ -73,7 +73,7 @@ void ai_AmountKindMenu(void (*pick)(int kind), char *caption, int withKind8);  /
 void ai_AgendaOfficeList(int kind);  /* 0x5c1e10, the agenda of one office column (ai_AmountKindMenu's callback) */
 void ai_OpenLawBook(int book);  /* 0x5c2160, the law book 0x111 / 0x112 / 0x113 */
 void ai_LawBookInfoWindow(int textId, int lawText);  /* 0x5c2410, the info box of one law */
-struct AICHAR *ai_AmountMenu(struct AMOUNTCFG *cfg, char *caption, int prompt, int (*pick)(struct AICHAR *, int));  /* 0x5c1130, the special-amount menu: returns the chosen character record (0: none) */
+struct AICHAR *ai_AmountMenu(struct AMOUNTCFG *cfg, char *caption, char *prompt, int (*pick)(struct AICHAR *, int));  /* 0x5c1130, the special-amount menu: returns the chosen character record (0: none) */
 void ai_PersonnelBook(struct AIBLD *bld, char *model);  /* 0x5aab80, the personnel book of a building (ob_PERSONALBUCH) */
 void ai_MercenaryBook(struct AIBLD *bld, char *model);  /* 0x5ac110, the mercenary book of a building (ob_SOELDNERBUCH) */
 void ai_HelperBook(struct AIBLD *bld, char *model);     /* 0x5ad150, the helpers' book of a building (ob_GEHILFENBUCH) */
