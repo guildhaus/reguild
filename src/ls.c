@@ -1031,7 +1031,7 @@ int ls_WriteEventTables(VFSFILE *f)
       zero = 0;
       LS_W(&zero, 4)
     }
-    LS_W(&job->u, 0xa0)
+    LS_W(job->tail, 0xa0)
   }
 
   n = 0;

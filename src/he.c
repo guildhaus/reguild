@@ -771,7 +771,7 @@ AIJOB *he_CreateEvent(AIMSG *msg)
     ev->exSlot = -1;
     for (k = 0; k < 8; k++)
         ev->ids[k] = msg->ids[k];
-    memcpy(&ev->u.id, msg->arg, 0xa0);  /* the arguments 0x58..0xf8 */
+    memcpy(ev->tail, msg->arg, 0xa0);  /* the arguments 0x58..0xf8 */
     he_AllocHandlers[msg->type](ev);
     he_EventCount++;
     return ev;

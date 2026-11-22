@@ -81,10 +81,6 @@ typedef struct CMFIELD {            /* the head of one field of a field block (G
     unsigned short offset;          /* 0x02, the field's offset in the record */
     int values[1];                  /* 0x04, the values */
 } CMFIELD;
-typedef struct AIJOBTAIL {          /* AIJOB as message 0x1d sends and takes its data block: the record from 0xac */
-    char pad00[0xac];
-    char data[0xa0];                /* 0xac, the long message (cm_SetLongMsg 0xa0, cm_LongMsg) */
-} AIJOBTAIL;
 typedef struct CMNEWPARTYMSG {      /* 8 bytes, the data of message 0x27 (its handler cm_ExNewParty) */
     int partyId;                    /* 0x00, the id the new scene party gets (ai_NextPartyId) */
     int seed;                       /* 0x04, the party's random seed (G28REC.seed) */

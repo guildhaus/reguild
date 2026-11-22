@@ -115,10 +115,6 @@ typedef struct CMFIELD {            /* the head of one field of a field block (G
     unsigned short offset;          /* 0x02, the field's offset in the record */
     int values[1];                  /* 0x04, the values */
 } CMFIELD;
-typedef struct AIJOBTAIL {          /* AIJOB as message 0x1d sends and takes its data block: the record from 0xac */
-    char pad00[0xac];
-    char data[0xa0];                /* 0xac, the long message (cm_SetLongMsg 0xa0, cm_LongMsg) */
-} AIJOBTAIL;
 typedef struct CMNEWPARTYMSG {      /* 8 bytes, the data of message 0x27 (its handler cm_ExNewParty) */
     int partyId;                    /* 0x00, the id the new scene party gets (ai_NextPartyId) */
     int seed;                       /* 0x04, the party's random seed (G28REC.seed) */
@@ -1439,7 +1435,7 @@ int cm_SendExSetHE(int k, AIJOB *p)
     m.setHE.clock60 = ev->clock60;
     m.setHE.kind = k;
     strcpy(m.setHE.name, cm_EventNames[(unsigned char)ev->kind]);
-    cm_SetLongMsg(0xa0, ((AIJOBTAIL *)ev)->data);
+    cm_SetLongMsg(0xa0, ev->tail);
     return cm_QueueSend(&m);
 }
 /* 0x4c4d40, message 0x1e with the time t; -1: t is not valid (0x4fe210) */
@@ -3705,7 +3701,7 @@ int cm_ExSetHE(G17MSG *m, G17STAT *s)
     ev->end = m->setHE.end;
     ev->clock60 = m->setHE.clock60;
     ev->stage = (signed char)m->setHE.kind;
-    memcpy(&ev->u, cm_LongMsg, 0xa0);
+    memcpy(ev->tail, cm_LongMsg, 0xa0);
     if (s != 0) {
         s->state = 1;
         s->kind = 4;

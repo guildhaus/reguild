@@ -1143,6 +1143,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             char groupPadad;
             unsigned short groupGood;       /* 0xae, the good searched for */
         };
+        char tail[0xa0];                /* 0xac..0x14b whole: the message's words from +0x58 as the event takes them
+                                           (he_CreateEvent) and message 0x1d sends and takes them (cm_SendExSetHE / cm_ExSetHE),
+                                           as the save writes them (ls.c) */
     };
 } AIJOB;
 
