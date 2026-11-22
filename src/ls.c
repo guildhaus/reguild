@@ -1855,7 +1855,7 @@ int ls_ReadSceneRecords(VFSFILE *f)
         if (vfs_GetPath(file, vfs_Root, vfs_Root, path) == 0) {
             c = ch->owner;
             c->ownName[0] = 0;
-            strcpy(ch->fullname, (char *)gm_CharNameRecord(c->id) + 4);
+            strcpy(ch->fullname, gm_CharNameRecord(c->id)->name);
             u = strrchr(ch->fullname, '_');
             if (u != 0) {
                 strcpy(ch->body, u + 1);

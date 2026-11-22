@@ -143,7 +143,7 @@ extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
 int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-unsigned *gm_CharNameRecord(int id);
+GMHEAD *gm_CharNameRecord(int id);
 extern char ch_EmptyName[];             /* 0x631090 */
 int gm_MayRemoveChar(AICHAR *c);                     /* 0x5075c0 */
 void cm_SendKillCharacter(int a, int b);                     /* 0x4c4e00 */
@@ -5159,7 +5159,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     unsigned i, k;
     short j;
     AIFIN *rec;
-    unsigned *head;
+    GMHEAD *head;
     AIBLD *bl;
     AIOBJ *o;
 
@@ -5213,8 +5213,8 @@ unsigned gm_TakeOverCharacter(int a, int b)
         newA.ownName[0] = 0;
         head = gm_NameRecord(newA.sex, newA.jobId);
         if (head != 0) {
-            strcpy(newA.ownName, ((GMHEAD *)head)->name);
-            newA.picture = ((GMHEAD *)head)->heads[0] + 0x639;
+            strcpy(newA.ownName, head->name);
+            newA.picture = head->heads[0] + 0x639;
         }
     }
     oldA = *ca;

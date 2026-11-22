@@ -4084,7 +4084,7 @@ void ai_AlchemistCandidates(AIBLD *obj)
     int t;
     int i;
     int n;
-    unsigned *rec;
+    GMHEAD *rec;
     int buttons[2];
     AHMSTEP *step;
     AHMSTEP *steps[3];
@@ -4135,7 +4135,7 @@ void ai_AlchemistCandidates(AIBLD *obj)
     for (i = 0; i < n; i++) {
         y = i * 0x64 + 0x31;
         portraits[i] = d2_WinOpenPic(5, y - 0x19, 0x6c7, win2);
-        portraits[i] = d2_WinOpenPic(7, y - 0x17, rec[0xd + i % 2] + 0x639, win2);
+        portraits[i] = d2_WinOpenPic(7, y - 0x17, rec->heads[i % 2] + 0x639, win2);
         d2_Objs[portraits[i]].interactive = 1;
         d2_RadioAdd(group, portraits[i]);
         step = steps[i];

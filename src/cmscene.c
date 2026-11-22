@@ -367,7 +367,7 @@ void cm_RunCouncilSession(G28REC *a)
             if (sound == 0)
                 sound = msx_PlayAmbient("Athmos\\Athmo_sitzung.mp3", 0x40);
             for (i = 0; i < nh; i++) {
-                head = (GMHEAD *)gm_CharNameRecord(holders[i]->id);
+                head = gm_CharNameRecord(holders[i]->id);
                 if (head != 0)
                     sprintf(name, "%i %s", holderIdx[i], head->name);
                 else
@@ -550,7 +550,7 @@ void cm_RunCouncilSession(G28REC *a)
             if (sound == 0)
                 sound = msx_PlayAmbient("Athmos\\Athmo_sitzung.mp3", 0x40);
             for (i = 0; i < nh; i++) {
-                head = (GMHEAD *)gm_CharNameRecord(holders[i]->id);
+                head = gm_CharNameRecord(holders[i]->id);
                 if (head != 0)
                     sprintf(name2, "%i %s", holderIdx[i], head->name);
                 else
@@ -1246,15 +1246,15 @@ void cm_RunTrial(G28REC *m)
     plan.rating2c = ai_WealthRating(c0, c1);
 
     /* the figures of the court */
-    sprintf(names, "%s ", ((GMHEAD *)gm_CharNameRecord(c2->id))->name);
+    sprintf(names, "%s ", (gm_CharNameRecord(c2->id))->name);
     end = names + strlen(names);
-    sprintf(end, "%s ", ((GMHEAD *)gm_CharNameRecord(c0->id))->name);
+    sprintf(end, "%s ", (gm_CharNameRecord(c0->id))->name);
     end = names + strlen(names);
-    sprintf(end, "%s ", ((GMHEAD *)gm_CharNameRecord(c1->id))->name);
+    sprintf(end, "%s ", (gm_CharNameRecord(c1->id))->name);
     end = names + strlen(names);
-    sprintf(end, "%s ", ((GMHEAD *)gm_CharNameRecord(c3->id))->name);
+    sprintf(end, "%s ", (gm_CharNameRecord(c3->id))->name);
     end = names + strlen(names);
-    sprintf(end, "%s", ((GMHEAD *)gm_CharNameRecord(c4->id))->name);
+    sprintf(end, "%s", (gm_CharNameRecord(c4->id))->name);
     cm_StartEventArg("cutscenes\\prozess\\prozess-create2.esc", names);
     cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", "2");
     cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "2");
@@ -1461,7 +1461,7 @@ void cm_RunTrial(G28REC *m)
                 ;
             plan.answer = cm_CutInfos[i].session.answer;
             end = names + strlen(names);
-            head = (GMHEAD *)gm_CharNameRecord(p->id);
+            head = gm_CharNameRecord(p->id);
             if (head != 0)
                 sprintf(end, " %s", head->name);
             else
@@ -2905,8 +2905,8 @@ int cm_RunWedding(G28REC *m)
     d2_CutsceneActive = 1;
     cm_SendSetField(a->netId, 0x1c8, 4, 0, 0x40000);
     cm_SendSetField(b->netId, 0x1c8, 4, 0, 0x40000);
-    ha = (GMHEAD *)gm_CharNameRecord(a->id);
-    hb = (GMHEAD *)gm_CharNameRecord(b->id);
+    ha = gm_CharNameRecord(a->id);
+    hb = gm_CharNameRecord(b->id);
     if (a->sex == 0)
         sprintf(buf, "%s %s %i", ha->name, hb->name, 1);
     else {
@@ -3430,7 +3430,7 @@ void cm_RunAuction(G28REC *m)
         if (o != 0)
             d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
         w = chars[i];
-        if (w != 0 && (rec = (GMHEAD *)gm_CharNameRecord(w->id)) != 0)
+        if (w != 0 && (rec = gm_CharNameRecord(w->id)) != 0)
             sprintf(buf, "%s", rec->name);
         else {
             k = cm_Random(3);

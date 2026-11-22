@@ -2037,8 +2037,8 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     char text[0x100];
     int variants[8];
     int ids[8];
-    char *name1;
-    char *name2;
+    GMHEAD *name1;
+    GMHEAD *name2;
     int script;
     int win;
     int i;
@@ -2054,13 +2054,13 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     script = (int)evt_Load("LOCATIONS\\KRYPTA\\SEANCE_KRYPTA.esc");
     if (script != 0) {
         GVGRAVE *g = &ev->grave;
-        name1 = (char *)gm_NameRecord(ai_Chars[ai_PlayerId].sex, ai_Chars[ai_PlayerId].jobId);
+        name1 = gm_NameRecord(ai_Chars[ai_PlayerId].sex, ai_Chars[ai_PlayerId].jobId);
         if (name1 == 0)
             gm_NameRecord(ai_Chars[ai_PlayerId].sex, 0);   /* @original drops the result: name1 stays 0 */
-        name2 = (char *)gm_NameRecord(g->sex, g->nameId);
+        name2 = gm_NameRecord(g->sex, g->nameId);
         if (name2 == 0)
-            name2 = (char *)gm_NameRecord(g->sex, 0);
-        sprintf(buf, "%s %s", name1 + 4, name2 + 4);
+            name2 = gm_NameRecord(g->sex, 0);
+        sprintf(buf, "%s %s", name1->name, name2->name);
         evt_RunCommand((EVTSCRIPT *)script, buf);
     }
     i = 0;

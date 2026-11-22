@@ -881,28 +881,28 @@ void gm_ResolveHeadIcons(GMHEAD *rec);
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
 
 /* 0x4fb330, the record of the table kind (0: 0x612bd8, 1: 0x614518) with the id: prepared by 0x4fb620 (the head numbers); the first free record when the id is not found (0x5f records of 0x44 bytes); 0 for another kind */
-unsigned *gm_NameRecord(int kind, int id)
+GMHEAD *gm_NameRecord(int kind, int id)
 {
-    unsigned *t;
+    GMHEAD *t;
     int i;
 
     i = 0;
     if (kind == 0)
-        t = gm_JobHeadsMale;
+        t = (GMHEAD *)gm_JobHeadsMale;
     else if (kind == 1)
-        t = gm_JobHeadsFemale;
+        t = (GMHEAD *)gm_JobHeadsFemale;
     else
         return 0;
     do {
-        if (t[i * 0x11] == 0)
+        if (t[i].key == 0)
             break;
-        if (t[i * 0x11] == (unsigned)id) {
-            gm_ResolveHeadIcons(t + i * 0x11);
-            return t + i * 0x11;
+        if ((unsigned)t[i].key == (unsigned)id) {
+            gm_ResolveHeadIcons(&t[i]);
+            return &t[i];
         }
         i++;
     } while (i < 0x5f);
-    return t + i * 0x11;
+    return &t[i];
 }
 /* 0x4fb390, the head record of the character id: a child (jobId 0, w00a below f020) gets the boy / girl head; a
    character with its own name and a picture gets a copy in the next record of the ring gm_OwnNameHeads (the four
@@ -929,7 +929,7 @@ unsigned *gm_NameRecord(int kind, int id)
    unsigned char), p = 0 / i = 0 / k orders (one code), the child arm returning both heads directly
    (108-135), the fallback returning the tables d... */
 
-unsigned *gm_CharNameRecord(int id)
+GMHEAD *gm_CharNameRecord(int id)
 {
     GMHEAD *p;
     unsigned char k;
@@ -947,10 +947,10 @@ unsigned *gm_CharNameRecord(int id)
             ((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast].heads[1] = v;
             ((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast].heads[2] = v;
             ((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast].heads[3] = v;
-            return (unsigned *)&((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast];
+            return &((GMHEAD *)gm_OwnNameHeads)[gm_OwnNameHeadLast];
         }
         if (ai_Chars[id].kind == 0x11)
-            return (unsigned *)((GMHEAD *)gm_SpyHeads + util_Random(3));
+            return (GMHEAD *)gm_SpyHeads + util_Random(3);
         if (k != 0) {
             if (ai_Chars[id].sex == 0)
                 p = (GMHEAD *)gm_JobHeadsMale;
@@ -961,10 +961,10 @@ unsigned *gm_CharNameRecord(int id)
                     break;
                 if (p[i].key == k) {
                     gm_ResolveHeadIcons(&p[i]);
-                    return (unsigned *)&p[i];
+                    return &p[i];
                 }
             }
-            return (unsigned *)&p[i];
+            return &p[i];
         }
         k = ai_Chars[id].title;
         if (k != 0) {
@@ -977,11 +977,11 @@ unsigned *gm_CharNameRecord(int id)
                     break;
                 if (p[i].key == k) {
                     gm_ResolveHeadIcons(&p[i]);
-                    return (unsigned *)&p[i];
+                    return &p[i];
                 }
             }
             if (i < 0x23)
-                return (unsigned *)&p[i];
+                return &p[i];
         }
         if (ai_Chars[id].sex == 0)
             p = (GMHEAD *)gm_TitleHeadsMale;
@@ -990,9 +990,9 @@ unsigned *gm_CharNameRecord(int id)
     } else {
         p = (GMHEAD *)gm_BoyHead;
         if (ai_Chars[id].sex != 0)
-            return gm_GirlHead;
+            return (GMHEAD *)gm_GirlHead;
     }
-    return (unsigned *)p;
+    return p;
 }
 /* 0x4fb5a0, picks the texture set of the character o's model: its id modulo the set count of the body mesh (or
    id & 3 when there are 5 or more), unless the model is in the first scene (d3_Scenes[0]); when the model belongs to
@@ -1101,7 +1101,7 @@ extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
 int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-unsigned *gm_CharNameRecord(int id);
+GMHEAD *gm_CharNameRecord(int id);
 
 /* 0x4fb890, chooses the portrait of the character c (its picture = the icon index + 0x639). With a model outside the
    first scene and the icon names loaded: the first texture name of the body's current texture set containing
@@ -1154,7 +1154,7 @@ void gm_ChooseHeadIcon(AICHAR *c)
                 return;
         }
     } else {
-        rec = (GMHEAD *)gm_CharNameRecord(c->id);
+        rec = gm_CharNameRecord(c->id);
         k = 0;
         if (rec->heads[0] == 0xff) {
             strcpy(name, rec->name);
@@ -1230,7 +1230,7 @@ CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, D3VECTOR *p, D3VECTOR *ori, 
         pos.y = src->y;
         pos.z = src->z;
     }
-    rec = (GMHEAD *)gm_CharNameRecord(c->id);
+    rec = gm_CharNameRecord(c->id);
     if (rec != 0) {
         name = rec->name;
         m = ch_Create(name, &pos.v);
