@@ -1130,7 +1130,7 @@ int ls_WriteHistory(VFSFILE *f)
     LS_W(&hst_Lists[i].inUse, 4)
     for (j = 0; j < 8; j++) {
       LS_W(&hst_Lists[i].e[j].id, 4)
-      LS_W(&hst_Lists[i].e[j].v, 4)
+      LS_W(&hst_Lists[i].e[j].token, 4)
     }
   }
   return 1;
@@ -2325,7 +2325,7 @@ int ls_ReadHistory(VFSFILE *f)
         LS_R(&hst_Lists[i].inUse, 4)
         for (j = 0; j < 8; j++) {
             LS_R(&hst_Lists[i].e[j].id, 4)
-            LS_R(&hst_Lists[i].e[j].v, 4)
+            LS_R(&hst_Lists[i].e[j].token, 4)
         }
     }
     return 1;
