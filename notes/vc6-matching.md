@@ -6190,7 +6190,9 @@ the bytes no portable form gives.
   AIRECIPE.stall, cm_BeginFieldBlock's void *) or the fourteenth (gm_FindPlayerBuilding's AIBLD *, the AIMSG copies
   and kind views, CMFIGHTREC / CMGUARDREC as G28REC, the party functions' G28REC *, AIOBJVIEW as D3OBJECT, D3IFSCENE /
   D3SCENELISTS / D3SCENEPAR as D3SCENE, AMOUNTCFG's two-word class mask and the map pick's request, ai_AmountMenu's
-  callers, AIDEC.fn / G9DOMIZIL.use).
+  callers, AIDEC.fn / G9DOMIZIL.use) or the fifteenth (hst's G12ARG as G12ROW, the folded stubs' unit twins, AIACT's
+  typed callbacks with G5ACT / AGARG, the leisure callbacks, AMTPICK as AICHAR, evt's resolver, the d3_ForEachObject2
+  casts, the transporter list, the K&R sweep).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6604,6 +6606,35 @@ the bytes no portable form gives.
   pointer field; the prototype one when every entry has the same parameter list (AIDEC: `int (*fn)(struct AICHAR *,
   int, int *)`), old-style (`int (*use)()`) when they differ; the entries' `(void *)` casts and the callers' casts back
   go (the same code).
+- **A dispatch table's entries read through a view shifted into the record** (hst's G12ARG {token, id} over G12ROW
+  {inUse, e[8] {id, token}} four bytes in: args[k].id = row->e[k].id, args[k + 1].token = row->e[k].token,
+  args[0].token = row->inUse): the callbacks take the record the table hands them and index its slots; give every
+  entry of the table the table's parameter list (unread parameters for the void / short ones). The same code.
+- **A foreign stub (ai_AlwaysTrue, sv_ReturnZero) in a table or callback slot of another type** (cm_Handlers /
+  cm_Checks, AIACT.exec, the Domizil table, rmsg's callbacks, d3e's default handler, evt script commands): each unit gets
+  its own unlinked stub of the slot's type at its end (`/* unlinked: .. LINK folds it (/OPT:ICF) into NAME, 0xADDR */`;
+  a data table that names it is still reproduced: dcp data map). Script commands take their arguments' pointers
+  (`char **s`, `int *n`, `float *f`, `CHARACTER **ch`). VC6 warns C4550 on `return f;` of a function designator; write
+  `return &f;`.
+- **A record whose function pointer fields are `void *` while one unit reads it through a typed copy** (AIACT / G5ACT):
+  the record takes the copy's field types (forward `struct T;` at file scope in the types header) and the copy goes;
+  the registrations that then warn C4113 name the callbacks to give their unread parameters.
+- **Callbacks called through a cast macro at a switch** (aip's G10_CB): one prototype for all of them, the dispatch's;
+  a parameter that the old prototype named by another position (ai_EvalGraveCount's 4th `m`) takes the caller's name
+  (`in`). The function at the stub's address may itself be one of them (ai_AlwaysTrue is the leisure callback 0x21).
+- **A callback's record view whose offsets are another record's** (AMTPICK {office word, charId} over the amount
+  menu's AICHAR rows: id at 0, netId at 4): read the rows' type to learn what the callback gets.
+- **Callbacks of one walker that differ only in their return type** (d3_ForEachObject2: void ones and char / int ones
+  returning 1 for other callers): VC6 accepts both silently, clang 16 / gcc 14 reject the implicit conversion; pass the
+  odd ones as an explicit function pointer cast (`(void (*)(D3OBJECT *))fn`), never through an integer
+  (`(void *)(unsigned)&fn` truncates on 64-bit). Likewise a void window the amount menu calls as its int pick:
+  `(int (*)(AICHAR *, int))fn` with `@original` (the original's menu tests whatever eax holds).
+- **A callback context that stores pointers in an int array** (he_CollectTransporter's `int list[0x21]`): a struct of
+  the pointer array and its count, the same 0x84 bytes; the walker that returns one of them returns the pointer type.
+- **Redundant K&R copies in units** (`T f();` with a prototype already in scope; 995 after the unit split): drop them
+  per unit with p15/kr.py (drop, compile, restore every name a new diagnostic names, drop the removed declarations'
+  address comments with them: dcp binds a left-over `/* 0xADDR */` to the next line, L13 / C.name.alias). Two
+  declaration-set tie-breaks moved for 995 declarations.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
