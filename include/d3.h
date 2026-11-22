@@ -200,6 +200,8 @@ typedef struct D3TRIBITS {          /* D3TRI.drawFlags as bitfields */
     unsigned char b47 : 4;
 } D3TRIBITS;
 
+typedef struct D3UV { float u, v; } D3UV;
+
 typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.keys, then the 8 corners of the bounding
                                        box), of a particle's quad or of a mirror copy: position, screen position, normal,
                                        colours */
@@ -209,7 +211,7 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
         };
         D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
     };
-    float pad0c;
+    float u;                        /* 0x0c, a texture coordinate while clipping (d3_ClipPoly) */
     union {
         struct {
             float sx, sy;           /* 0x10, screen position */
@@ -225,10 +227,12 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
             float nx, ny, nz;       /* 0x20, normal (d3_vtx.c, d3_light.c) */
         };
         struct {
-            float tu, tv;           /* 0x20, environment map coordinates (d3_EnvMapCoords) */
+            float tu, tv;           /* 0x20, environment map coordinates (d3_EnvMapCoords), the texture
+                                       coordinates of the clipper's and the draw loops' points */
         };
+        D3UV uv;                    /* the same two floats as a texture coordinate */
     };
-    float pad2c;
+    float v;                        /* 0x2c, the other texture coordinate while clipping */
     union {
         D3VECTOR light;             /* 0x30, sum of the lights that reach the vertex (d3_light.c) */
         struct {
@@ -238,6 +242,7 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
     float pad3c;
     union {
         unsigned long color;        /* 0x40, the current colour: the static lights plus the dynamic ones */
+        unsigned char col[4];       /* the same by byte (the clipper interpolates them) */
         D3COLOR c;
         D3COLOR lit;
         struct {

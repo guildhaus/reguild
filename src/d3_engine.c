@@ -540,11 +540,11 @@ __inline void d3_FtoI2(float f, int *dst)
 
 /* 0x439c90, clips the polygon in d3_ClipList[0] (d3_ClipIn vertices) at the planes of info
 (Sutherland-Hodgman); returns the vertex list of the result, d3_ClipOut vertices. @deep deep s44: 12 -> 6 ins. The fog / &c order hunk was the 81-instruction region cut of the intersection block (c2dag block 163 ended at the col[3] delta): parenthesised products in the four pool stores, pool->x = (d.x * t) + a->x .. pool->u (m15 of the 127 subsets of the pool / t / d1 parens), move the cut so the lea &c and the fild of the fog delta fall as in the original. Left: (1) one fstp [esp+0x44] (d.w) one instruction later than the original (parens on the FtoI2 arguments / df / pool->v on top: = this); (2) the d1 sum: the original computes plane.x * b->x first and then loads b->z (fld [edx+8]; fmul [ebx+4]); ours computes the parenthesised (b->z * plane.z) first with plane.z loaded first. 144 spellings of d1 (product order x operand order x grouping) give 7 codes, none the original's; operand order inside a product never changes the code; (px*bx + bz*pz) + by*py moves the strength-reduced plane pointer's base from .y to .x (the s43 last-field finding). Also tried: (float) casts on the deltas (= control), d3_FtoI(&c, f) (slot swap), the 120 orders of the delta lines, colour deltas in their own vector / array, df / c block-scoped; climb 3 rounds before the parens: nothing. prior: deep s23: left the d1 plane sum's first product (the original multiplies plane.z by b->z after the x product: fld [edx+8]; fmul [ebx+4]) and the fild of b->fog - a->fog scheduled before the byte loads. climb round 1 (241 mutants): nothing. */
-D3CVERT **d3_ClipPoly(D3CLIPINFO *info)
+D3VERTEX **d3_ClipPoly(D3CLIPINFO *info)
 {
-    D3CVERT **in, **out;
-    D3CVERT *a, *b;
-    D3CVERT *pool;
+    D3VERTEX **in, **out;
+    D3VERTEX *a, *b;
+    D3VERTEX *pool;
     unsigned int i, j;
     int ins, ins1;
     float d0, d1, t;
@@ -885,8 +885,8 @@ void d3_DrawSortedD3D(void)
     int i;
     struct IDirect3DTexture2 *oldtext;
     D3CLIPINFO *clip;
-    D3CVERT **vl;
-    D3CVERT *q;
+    D3VERTEX **vl;
+    D3VERTEX *q;
     unsigned int k;
     float rhw;
     D3DTLVERTEX *a, *b;
@@ -940,11 +940,11 @@ void d3_DrawSortedD3D(void)
             d3_UOfs = 0.0f;
         }
         d3_ZOfs = t->zofs - zmin;
-        if (((D3_CV(t->v[0])->flags | D3_CV(t->v[1])->flags | D3_CV(t->v[2])->flags) & 0x3f) + clip->mirror == 0) {
+        if (((t->v[0]->flags | t->v[1]->flags | t->v[2]->flags) & 0x3f) + clip->mirror == 0) {
             if (wrap) {
-                D3E_TLV(p++, t->v[0], &D3_CV(t->v[0])->tu);
-                D3E_TLV(p++, t->v[1], &D3_CV(t->v[1])->tu);
-                D3E_TLV(p++, t->v[2], &D3_CV(t->v[2])->tu);
+                D3E_TLV(p++, t->v[0], &t->v[0]->tu);
+                D3E_TLV(p++, t->v[1], &t->v[1]->tu);
+                D3E_TLV(p++, t->v[2], &t->v[2]->tu);
                 n += 3;
             } else {
                 D3E_TLV(p++, t->v[0], uv);
@@ -953,23 +953,23 @@ void d3_DrawSortedD3D(void)
                 n += 3;
             }
         } else {
-            d3_ClipList[0][0] = D3_CV(t->v[0]);
-            d3_ClipList[0][1] = D3_CV(t->v[1]);
-            d3_ClipList[0][2] = D3_CV(t->v[2]);
+            d3_ClipList[0][0] = t->v[0];
+            d3_ClipList[0][1] = t->v[1];
+            d3_ClipList[0][2] = t->v[2];
             if (wrap) {
-                D3_CV(t->v[0])->u = d3_UOfs + D3_CV(t->v[0])->tu;
-                D3_CV(t->v[0])->v = d3_VOfs + D3_CV(t->v[0])->tv;
-                D3_CV(t->v[1])->u = d3_UOfs + D3_CV(t->v[1])->tu;
-                D3_CV(t->v[1])->v = d3_VOfs + D3_CV(t->v[1])->tv;
-                D3_CV(t->v[2])->u = d3_UOfs + D3_CV(t->v[2])->tu;
-                D3_CV(t->v[2])->v = d3_VOfs + D3_CV(t->v[2])->tv;
+                t->v[0]->u = d3_UOfs + t->v[0]->tu;
+                t->v[0]->v = d3_VOfs + t->v[0]->tv;
+                t->v[1]->u = d3_UOfs + t->v[1]->tu;
+                t->v[1]->v = d3_VOfs + t->v[1]->tv;
+                t->v[2]->u = d3_UOfs + t->v[2]->tu;
+                t->v[2]->v = d3_VOfs + t->v[2]->tv;
             } else {
-                D3_CV(t->v[0])->u = d3_UOfs + uv[0];
-                D3_CV(t->v[0])->v = d3_VOfs + uv[1];
-                D3_CV(t->v[1])->u = d3_UOfs + uv[2];
-                D3_CV(t->v[1])->v = d3_VOfs + uv[3];
-                D3_CV(t->v[2])->u = d3_UOfs + uv[4];
-                D3_CV(t->v[2])->v = d3_VOfs + uv[5];
+                t->v[0]->u = d3_UOfs + uv[0];
+                t->v[0]->v = d3_VOfs + uv[1];
+                t->v[1]->u = d3_UOfs + uv[2];
+                t->v[1]->v = d3_VOfs + uv[3];
+                t->v[2]->u = d3_UOfs + uv[4];
+                t->v[2]->v = d3_VOfs + uv[5];
             }
             d3_ClipIn = 3;
             vl = d3_ClipPoly(clip);
@@ -1028,12 +1028,12 @@ void d3_DrawSortedSW(void)
     float *uv;
     TSTEXTURE *tex;
     unsigned char wrap;
-    D3CVERT **v;
+    D3VERTEX **v;
     unsigned int k;
     float rhw;
     D3TRI tri;
     float tuv[14];
-    D3CVERT *p;
+    D3VERTEX *p;
 
     d3_TextureSwitches = 0;
     dd_LockNoWait();
@@ -1049,38 +1049,38 @@ void d3_DrawSortedSW(void)
                 mode = 3;
             wrap = D3_TEXB(tex, 0x68) & 1;
         }
-        p = D3_CV(t->v[0]);
-        if (!((p->flags | D3_CV(t->v[1])->flags | D3_CV(t->v[2])->flags) & 0x3f) && !clip->mirror) {
+        p = t->v[0];
+        if (!((p->flags | t->v[1]->flags | t->v[2]->flags) & 0x3f) && !clip->mirror) {
             if (wrap) {
-                ((D3UV *)uv)[0] = D3_CV(t->v[0])->uv;
-                ((D3UV *)uv)[1] = D3_CV(t->v[1])->uv;
-                p = D3_CV(t->v[2]);
+                ((D3UV *)uv)[0] = t->v[0]->uv;
+                ((D3UV *)uv)[1] = t->v[1]->uv;
+                p = t->v[2];
                 uv[4] = p->tu;
                 uv[5] = p->tv;
             }
             d3_TriFuncs[mode](t);
         } else {
-            d3_ClipList[0][0] = D3_CV(t->v[0]);
-            d3_ClipList[0][1] = D3_CV(t->v[1]);
-            d3_ClipList[0][2] = D3_CV(t->v[2]);
+            d3_ClipList[0][0] = t->v[0];
+            d3_ClipList[0][1] = t->v[1];
+            d3_ClipList[0][2] = t->v[2];
             if (wrap) {
-                p = D3_CV(t->v[0]);
+                p = t->v[0];
                 p->u = p->tu;
                 p->v = p->tv;
-                p = D3_CV(t->v[1]);
+                p = t->v[1];
                 p->u = p->tu;
                 p->v = p->tv;
-                p = D3_CV(t->v[2]);
+                p = t->v[2];
                 p->u = p->tu;
                 p->v = p->tv;
             } else {
-                p = D3_CV(t->v[0]);
+                p = t->v[0];
                 p->u = uv[0];
                 p->v = uv[1];
-                p = D3_CV(t->v[1]);
+                p = t->v[1];
                 p->u = uv[2];
                 p->v = uv[3];
-                p = D3_CV(t->v[2]);
+                p = t->v[2];
                 p->u = uv[4];
                 p->v = uv[5];
             }
@@ -2703,7 +2703,7 @@ char d3_ClipInfo[64][0x68];  /* 0xfc3020 */
 float d3_FovX;  /* 0xfc4a20 */
 D3BGF d3_StockListEnd;  /* 0xfc4a40, the end sentinel of the stock object list (D3BGF, d3_io_t.h): d3io_LoadObjectFile links new ones in before it */
 float d3_FovY;  /* 0xfc4c4c, half the vertical view angle (d3_FovX the horizontal one) */
-D3CVERT * d3_ClipList[2][0x80];  /* 0xfc4c60, polygon vertex lists (ping-pong) */
+D3VERTEX * d3_ClipList[2][0x80];  /* 0xfc4c60, polygon vertex lists (ping-pong) */
 D3CLIPSTATE d3_ClipState;  /* 0xfc5060, d3_ClipNone, d3_ClipFlagA / B and the frustum planes d3_Planes (d3_engine.h) */
 D3SORTENT * d3_RadixDst;  /* 0xfc50c8 */
 int d3s_EdgeX[4];  /* 0xfc50d0; d3s.c's edge table (d3s.c declares it extern), placed with d3_engine's commons */
@@ -2717,7 +2717,7 @@ float d3_MaxZ;  /* 0xfc5338 */
 float d3_FogEnd2; /* 0xfc5340 */
 float d3_MinZ;  /* 0xfc5344 */
 float d3_ScaleX;  /* 0xfc5348, projection */
-D3CVERT d3_ClipPool[128];  /* 0xfc5360, vertices made by the clipper */
+D3VERTEX d3_ClipPool[128];  /* 0xfc5360, vertices made by the clipper */
 int d3_TriCount;  /* 0xfc7b60 */
 float d3_ZOfs;  /* 0xfc7b64 */
 unsigned char d3_Noise[256][256];  /* 0xfc7b80 */

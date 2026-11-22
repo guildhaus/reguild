@@ -216,33 +216,11 @@ typedef struct D3CLIPINFO {         /* 0x68 bytes, d3_ClipInfo[clip code]: the p
     char pad05[0x3];
     D3VECTOR4 plane[6];             /* 0x08, normal and distance */
 } D3CLIPINFO;
-typedef struct D3UV { float u, v; } D3UV;
-typedef struct D3CVERT {            /* D3VERTEX as the polygon clipper and the draw loops see it */
-    float x, y, z;                  /* camera space */
-    float u;                        /* 0x0c, texture coordinates while clipping */
-    float sx, sy, sz;               /* 0x10, screen position */
-    float rhw;                      /* 0x1c */
-    union {
-        struct { float tu, tv; };   /* 0x20, texture coordinates */
-        D3UV uv;                    /* the same two floats as a texture coordinate */
-    };
-    float pad28;
-    float v;                        /* 0x2c */
-    char pad30[0x10];
-    unsigned char col[4];           /* 0x40 */
-    unsigned long specular;         /* 0x44 */
-    void *src;                      /* 0x48 */
-    signed char flags;              /* 0x4c, clip code, bit 7 = visible */
-    unsigned char wrap;             /* 0x4d, the triangle's texture wraps (its flags bit 0, d3_InflateObject) */
-    char pad4e[0x1];
-    unsigned char fog;              /* 0x4f */
-} D3CVERT;
 extern unsigned int d3_ClipOut;            /* 0x633454, vertices in the clipped polygon */
 extern unsigned int d3_ClipIn;              /* 0x633458, vertices in the polygon to clip */
-extern D3CVERT *d3_ClipList[2][0x80];       /* 0xfc4c60, polygon vertex lists (ping-pong) */
-extern D3CVERT d3_ClipPool[];               /* 0xfc5360, vertices made by the clipper */
-D3CVERT **d3_ClipPoly(D3CLIPINFO *info);                                               /* 0x439c90 */
-#define D3_CV(p) ((D3CVERT *)(p))
+extern D3VERTEX *d3_ClipList[2][0x80];       /* 0xfc4c60, polygon vertex lists (ping-pong) */
+extern D3VERTEX d3_ClipPool[];               /* 0xfc5360, vertices made by the clipper */
+D3VERTEX **d3_ClipPoly(D3CLIPINFO *info);                                               /* 0x439c90 */
 #define D3_TEXB(t, off) (((unsigned char *)(t))[off])  /* TSTEXTURE bytes: 0x68 bit 0 wrap, 0x6c alpha, 0x6e bit 0 */
 typedef void (*D3TRIFUNC)(D3TRI *t);
 extern D3TRIFUNC d3_TriFuncs[];             /* 0xfe75e0, software triangle fillers by mode */

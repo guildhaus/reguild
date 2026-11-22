@@ -2978,7 +2978,7 @@ exe	0x004fe310	gm_AddTime2	f3gmt	byte	readable
 exe	0x004fe330	gm_Season	f3gmt	byte	readable		
 exe	0x004fe350	gm_ClockSeason	f3gmt	byte	readable		
 exe	0x004fe370	gm_InitBuildingTables	f3gmt	draft	readable	deep	
-exe	0x004fe570	gm_LoadTables	f3gmt	byte	readable		
+exe	0x004fe570	gm_LoadTables	f3gmt	shape	readable		byte+readable -> shape+readable at b43eec67: declaration-set tie-break: proven byte under a swept set (1 unused typedef before it); fell with D3CVERT merged into D3VERTEX (d3.h), the text is unchanged [waits for: f3gmt.c's declaration set (G.tiebreak)]
 exe	0x004fe7f0	gm_ClearBuildings	f3gmt	byte	readable		
 exe	0x004fe830	gm_ClearObjects	f3gmt	byte	readable		
 exe	0x004fe900	gm_FindObjectProto	f3gmt	byte	readable		
