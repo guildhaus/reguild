@@ -1489,14 +1489,14 @@ unsigned char *ai_FindItemGroup(char *good)
     c = *good;
     if (c == ' ' || c == 0x1e || c == 0x1f) {
         i = 0;
-        for (q = (unsigned char *)(uintptr_t)&gm_SpecialItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_SpecialItemGroups + 0x3f); q += 0x15, i++)
+        for (q = (unsigned char *)&gm_SpecialItemGroups[0].key; (intptr_t)q < (intptr_t)&gm_SpecialItemGroups[3].key; q += 0x15, i++)
             if ((char)*q == c)
-                return (unsigned char *)(uintptr_t)&gm_SpecialItemGroups + i * 0x15;
+                return (unsigned char *)&gm_SpecialItemGroups[i];
     }
     i = 0;
-    for (q = (unsigned char *)(uintptr_t)&gm_BuildingItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_BuildingItemGroups + 0x309); q += 0x15, i++)
+    for (q = (unsigned char *)&gm_BuildingItemGroups[0].key; (intptr_t)q < (intptr_t)&gm_BuildingItemGroups[37].key; q += 0x15, i++)
         if ((char)*q == c)
-            return (unsigned char *)(uintptr_t)&gm_BuildingItemGroups + i * 0x15;
+            return (unsigned char *)&gm_BuildingItemGroups[i];
     return 0;
 }
 
@@ -1934,13 +1934,13 @@ void ai_ShowTavernHelperNews(AICHAR *ownerRec, AICHAR *helperRec, int bld)
         he_ShowNews(helper->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
     }
     txt_Format(ai_NewsText, 0x20c2, bld, owner->id, (owner->sex != 0) + 0x20c3, helper->id);
-    p = (char *)((uintptr_t)&ai_Chars + 0x2);
+    p = (char *)&ai_Chars[0].kind;
     do {
         c = (AICHAR *)(p - 2);
         if (c != owner && c != helper && (c->kind == 6 || c->kind == 7))
             he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
         p += 0x21c;
-    } while ((intptr_t)p < (intptr_t)((uintptr_t)&ai_Chars + 0x65402));
+    } while ((intptr_t)p < (intptr_t)&ai_Chars[0x300].kind);
 }
 /* 0x5a8ee0, the parting news of a character pair (162 B, a reasoned guess at the texts' meaning): for a kind
    6 / 7 second character the text 0x132f is formatted with the first character's id, the text 0x1330 + 3 * (the

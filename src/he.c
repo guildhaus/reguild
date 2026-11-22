@@ -164,7 +164,6 @@ struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIP
 
 
 #define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
-#define SLOT(i) ((int *)((uintptr_t)&he_EventSlots + (i) * 12))
 
 /* one of the ten 16-byte slots of the walk event 0x7a at AIJOB +0xac (he_StartWalk clears them) */
 typedef struct HEWALKSLOT {

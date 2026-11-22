@@ -6,6 +6,7 @@ struct VFSFILE;
    __FILE__ string "D:\develop\Units\d3\d3_interface.c" at 0x5fbd94. Names are ours. */
 #ifndef D3_INTERFACE_H
 #define D3_INTERFACE_H
+#include <stddef.h>                    /* offsetof, for the layout checks */
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
 extern float d3if_Gray;             /* 0x5fcc74, 0.3 r + 0.59 g + 0.11 b of the ambient colour */
@@ -42,8 +43,8 @@ D3OBJECT *d3if_Pick(float x, float y, int flags, int mask);                     
 
 extern char d3if_ParList[];         /* 0xfb95e0 */
 typedef char d3if_chk_size[sizeof(D3SCENE) == 0x3e0 ? 1 : -1];
-typedef char d3if_chk_levels[(int)&((D3SCENE *)0)->levels == 0x128 ? 1 : -1];
-typedef char d3if_chk_sceneFlags[(int)&((D3SCENE *)0)->sceneFlags == 0x3d8 ? 1 : -1];
+typedef char d3if_chk_levels[offsetof(D3SCENE, levels) == 0x128 ? 1 : -1];
+typedef char d3if_chk_sceneFlags[offsetof(D3SCENE, sceneFlags) == 0x3d8 ? 1 : -1];
 
 /* --- 0x447e60..0x448910 (worker d3if2) --- */
 #define D3IF_OBJ068(o) ((float *)(o))[0x68 / 4]     /* size of a type-0 object on screen */

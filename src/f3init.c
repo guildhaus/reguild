@@ -84,8 +84,6 @@ typedef struct INIT_TORCHLIST {
                                           and every id / parent lookup miss */
 #define INIT_CHARACTER_COUNT 0x300      /* ch.h's CH_MAX: the slots of the character list ch_List (0x1468ae0) */
 #define INIT_START_CHARACTERS_END ((intptr_t)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
-#define INIT_CHARACTERS_END ((unsigned)ai_Chars + 0x300 * 0x21c)  /* one past the character table ai_Chars (0x770b80 + 0x300 * 0x21c = 0x7d5f80; the original's gm_PlayerRecords follows it there, not in our link) */
-#define INIT_LAST_CHARACTER ((uintptr_t)&ai_Unk770d8c + 0x64fd8)  /* the last character record of ai_Chars (INIT_CHARACTERS_END - 0x21c; the greeting loop walks up to its +2) */
 #define INIT_FIELD_MONEY 0x1ac          /* the character's money field (the field block of the start purse) */
 #define INIT_FIELD_RELIGION 0x0c        /* the character's religion field: 0 catholic / 1 protestant (the two judges) */
 
@@ -204,7 +202,6 @@ extern int init_StatusForm;
 #include "f3init_types.h"
 extern INIT_PLAYER init_PlayerProfile;
 extern struct AICHAR *ai_SceneChars[32];
-#define INIT_WINDOWS_END (uintptr_t)&sv_SkyScale       /* one past the scene window table 0x7603a0 (0x20 ints) */
 #include "rd_types.h"                 /* G15BK, the building sites ai_Bauplaetze (rd.h cannot be included here) */
 #include "ls.h"
 #include "f3init.h"
@@ -1038,7 +1035,7 @@ int init_CreateStartCharacters(int unused)
             n++;
         }
         p++;
-    } while ((intptr_t)p < (intptr_t)INIT_CHARACTERS_END);
+    } while ((intptr_t)p < (intptr_t)&ai_Chars[0x300]);
     for (i = 0; i < 30; i++)
         ids[i] = i;
     gm_Shuffle(4, ids);
@@ -2264,7 +2261,7 @@ int init_SetupNewGame(int n)
     init_StartNewGame(0);   /* the original call pushes one argument (0x511422), which the callee does not read */
     if (main_StartHouseCheat != 0) {
         i = 0;
-        p = (char *)&ai_Chars[0] + 2;
+        p = (char *)&ai_Chars[0].kind;
         do {
             if (*p == 6) {
                 main_GiveStartBuildings(i);
@@ -2272,7 +2269,7 @@ int init_SetupNewGame(int n)
             }
             p += 0x21c;
             i++;
-        } while ((int)p < (int)(INIT_CHARACTERS_END + 2));
+        } while ((intptr_t)p < (intptr_t)&ai_Chars[0x300].kind);
     }
     if ((int)ai_PlayerSlots[n].maxPlayers - ai_NumPlayers > 0) {
         tab[0] = 0x18;
@@ -2287,7 +2284,7 @@ int init_SetupNewGame(int n)
             D3_ZERO(tab, sizeof(tab));
             tab[0] = 0x12;
         } else {
-            p = (char *)&ai_Chars[0] + 2;
+            p = (char *)&ai_Chars[0].kind;
             do {
                 if (*p == 6 || *p == 7) {
                     i = 0;
@@ -2300,7 +2297,7 @@ int init_SetupNewGame(int n)
                     } while (i < 8);
                 }
                 p += 0x21c;
-            } while ((int)p < (int)(INIT_CHARACTERS_END + 2));
+            } while ((intptr_t)p < (intptr_t)&ai_Chars[0x300].kind);
         }
         init_CreateOpponents((int)ai_PlayerSlots[n].maxPlayers - ai_NumPlayers, 8, tab);
     }

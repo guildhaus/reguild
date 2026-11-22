@@ -6953,7 +6953,7 @@ extern unsigned int ai_MissionSeed;
 extern struct AIBLD *sv_SelectedObject;
 extern char cm_ChatLog[2048];
 extern int cm_SaveAcks[8][2];
-/* ai_Unk770d8c: view of ai_Chars (tools/data_views.py) */
+/* ai_Unk770d8c (0x770d8c): inside ai_Chars[0] (+0x20c), no reader left (data_views.h has no view of it) */
 G18LOG cm_LobbyChat[15];  /* 0x935da0 */
 int cm_LobbyChatNext;  /* 0x9363f4 */
 CMLOBBYSTATE cm_LobbyStateFlags;  /* 0x936400, the lobby state cm_LobbyState hands out (open, changed, closed): one object of

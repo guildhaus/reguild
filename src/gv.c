@@ -927,7 +927,7 @@ char *gv_GetEffect(int id)
             return (char *)&gv_Effects[i];
         p += 0x5c;
         i++;
-    } while ((intptr_t)p < (intptr_t)((uintptr_t)&gv_Effects + 0xb80));
+    } while ((intptr_t)p < (intptr_t)&gv_Effects[8]);
     return 0;
 }
 /* 0x4eee00, starts a received cannon ball (message 0x67, GVSHOTMSG) in the effect slot of m->id: the first free part (tail 0)

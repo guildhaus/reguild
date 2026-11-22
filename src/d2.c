@@ -262,7 +262,7 @@ void d2_Exit(void)
             d2_RemoveWindow(i);
         w += sizeof(D2WIN) / 4;
         i++;
-    } while ((intptr_t)w < (intptr_t)((uintptr_t)&d2_Wins + 0x16c00));
+    } while ((intptr_t)w < (intptr_t)&d2_Wins[0x60].active);
     i = 0;
     do {
         d2_RemoveObj(i);

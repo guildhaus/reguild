@@ -10,8 +10,6 @@
 
 /* ai_Chars */
 #define ai_CharInts              (*(int (*)[768][0x87])((char *)&ai_Chars + 0x4))  /* 0x770b84 */
-#define ai_Selected              (*(char (*)[132])((char *)&ai_Chars + 0x188))  /* 0x770d08 */
-#define ai_Unk770d8c             (*(char (*)[414196])((char *)&ai_Chars + 0x20c))  /* 0x770d8c */
 
 /* d3_ParEnd */
 #define d3_ParTail               (*(struct D3PARTSYS **)((char *)&d3_ParEnd + 0x318))  /* 0xfb9598 */
