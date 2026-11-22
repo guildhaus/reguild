@@ -34,17 +34,6 @@ typedef struct D3LCTX2 {            /* context of d3_LightAddObject: the light a
     unsigned char normals;
 } D3LCTX2;
 
-/* Views of the bytes d3_SetVertexColors reads bit by bit. A union member in D3TRI / TSTEXTURE (d3.h,
-   ts_texture.h) would be the typed-field form, but adding one flips VC6's instruction order in d3_CloneObject
-   (0x43d180) and d3_MirDrawObject (0x4550e0), which are byte; the casts are byte-identical to the original's
-   bitfield accesses. Type debt (see the lead comment of src/d3_light.c). */
-typedef struct D3BITS {             /* a byte as bit fields */
-    unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
-} D3BITS;
-typedef union D3TEXPACK {           /* D3TEXFLAGS as the dword d3_RelightObject zeroes at once */
-    int i;
-    D3TEXFLAGS f;
-} D3TEXPACK;
 typedef struct D3LFRAME {           /* the animation frame d3_RelightObjectFrame is called with (D3ANIMFRAME) */
     char pad00[0x38];
     float radius;                   /* 0x38, the frame's mesh radius (D3ANIMFRAME.radius, d3_anim.h) */

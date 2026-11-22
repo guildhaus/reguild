@@ -2362,7 +2362,7 @@ void d3_InflateObject(D3OBJECT *obj)
                 D3E_FILL(mat, -1, d3_TexCount * 4);
                 for (k = 0, j = 0, t = s->tris; k < s->ntris; k++, t++) {
                     t->vofs = 0.0f;
-                    ((D3TRIBITS *)&t->drawFlags)->b0 = 0;
+                    t->bits.b0 = 0;
                     t->uofs = 0.0f;
                     t->zofs = 0.0f;
                     t->src = p = &src->polys[k];
@@ -2392,7 +2392,7 @@ void d3_InflateObject(D3OBJECT *obj)
                                 t->v[m]->specular = col.l;
                             }
                         }
-                        ((D3TRIBITS *)&t->drawFlags)->b3 = tex->bits;
+                        t->bits.b3 = tex->wrap;
                         for (m = 0; m < 3; m++)
                             t->v[m]->wrap = tex->bits & 1;
                     } else

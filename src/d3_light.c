@@ -2,8 +2,6 @@
    name unknown: 0x451e80..0x4539b0 (the end: d3_ShadeInit's two literals 0x5ebb6c / 0x5ebb70 close this unit's
    .rdata, right before d3_vec.c's named constants d3_ZAxis.., which VC6 puts first in an object). The objects are D3OBJECT
    with its light fields (d3.h). Names are ours.
-   Open: the bits d3_SetVertexColors / d3_RelightObject read (D3TRI 0x26, TSTEXTURE 0x68 / 0x6c) go through
-   d3_light.h's cast views; the typed fields flip d3_CloneObject / d3_MirDrawObject.
    Open: d3.h keeps its own char d3_RelightObject declaration; dropping it (or including d3_light.h there)
    flips d3_MirDrawObject, which needs re-matching first.
    unit of rea 8cef7d5b (src/game/d3_light.c); boundaries in decl/text.dcl */
@@ -484,7 +482,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
             tex = tri->tex;
             if (tex) {
                 if (keep)
-                    ((D3BITS *)&tri->drawFlags)->b2 = ((D3BITS *)&tex->bits)->b4;
+                    tri->bits.b2 = tex->nocull;
                 if (pos)
                     f = tex->flags;
                 else
@@ -557,7 +555,7 @@ char d3_RelightObject(D3OBJECT *obj)
         obj->info = d3_SelectSurf(obj);
     info = obj->info;
     if (info && !(obj->stateFlags & 2)) {
-        ((D3TEXPACK *)&f)->i = 0;
+        f.all = 0;
         f.b[0] = 0xff;
         d3_Busy++;
         d3_LightPrepare(obj);
