@@ -148,7 +148,11 @@ typedef struct AIBTYPE {                /* 0x24d bytes, ai_BTypes[] */
     };
     unsigned char k231;                 /* 0x231 */
     unsigned char k232;                 /* 0x232 */
-    char pad233[0xd];
+    char pad233[0xa];
+    unsigned char roomCap0;             /* 0x23d, the room's first capacity: of its object 0x2a cap[0], of 0x116 too (at least 2 / 6;
+                                           f3gmt.c gm_AllocRaum, gm_SetCapacities) */
+    unsigned char roomCap1;             /* 0x23e, the second capacity (cap[1]) */
+    unsigned char roomCapOnly;          /* 0x23f, the one capacity (cap[0]) when roomCap0 and roomCap1 are 0 */
     unsigned char min0;                 /* 0x240 */
     unsigned char min1;                 /* 0x241 */
     unsigned char max116;               /* 0x242, the limit of both slot levels for an object of type 0x116 (he_RunSlotOrder) */

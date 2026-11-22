@@ -2148,22 +2148,22 @@ void gm_StockBuildingObjects(AIBLD *b)
 
 void gm_SetCapacities(AIBLD *b)
 {
-    unsigned char *k;
+    AIBTYPE *k;
     AIOBJ *o;
 
-    k = (unsigned char *)ai_BTypes + b->type * 0x24d;
+    k = &ai_BTypes[b->type];
     o = gm_Query(b->objList, 2, 0, 0x2a, 6);
     if (o != 0) {
-        if (k[0x23d] == 0 && k[0x23e] == 0 && k[0x23f] != 0) {
-            o->cap[0] = k[0x23f];
+        if (k->roomCap0 == 0 && k->roomCap1 == 0 && k->roomCapOnly != 0) {
+            o->cap[0] = k->roomCapOnly;
         } else {
-            o->cap[0] = k[0x23d] < 2 ? 2 : k[0x23d];
-            o->cap[1] = k[0x23e] < 2 ? 2 : k[0x23e];
+            o->cap[0] = k->roomCap0 < 2 ? 2 : k->roomCap0;
+            o->cap[1] = k->roomCap1 < 2 ? 2 : k->roomCap1;
         }
     }
     o = gm_Query(b->objList, 2, 0, 0x116, 6);
-    if (o != 0 && k[0x23d] == 0 && k[0x23e] == 0 && k[0x23f] != 0)
-        o->cap[0] = k[0x23f];
+    if (o != 0 && k->roomCap0 == 0 && k->roomCap1 == 0 && k->roomCapOnly != 0)
+        o->cap[0] = k->roomCapOnly;
 }
 
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
@@ -3021,7 +3021,7 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
 {
     AIOBJ *o, *g;
     unsigned short *bi;
-    unsigned char *bp;
+    AIBTYPE *bp;
     unsigned short *q;
     char *k;
     unsigned short w;
@@ -3031,12 +3031,12 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
     if (ai_Goods == 0 || ai_BTypes == 0 || f3gm_ObjectCount + 0x40 >= 0x5008)
         return 0;
     o = (AIOBJ *)gm_CreateObject(b->id, n, 1);
-    bp = (unsigned char *)ai_BTypes + b->type * 0x24d;
+    bp = &ai_BTypes[b->type];
     i = 0;
-    for (q = ((AIBTYPE *)bp)->objs; (*q & 0x7fff) != n; q++)
+    for (q = bp->objs; (*q & 0x7fff) != n; q++)
         i++;
     for (i++; i < 0x40; i++) {
-        w = ((AIBTYPE *)bp)->objs[i];
+        w = bp->objs[i];
         if (w == 0)
             break;
         if (w != 0xffff) {
@@ -3051,22 +3051,22 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
     if (g != 0) {
         g->ownerId = b->id;
         g->count = 2;
-        if (bp[0x23d] == 0 && bp[0x23e] == 0 && bp[0x23f] != 0)
-            g->cap[0] = bp[0x23f];
+        if (bp->roomCap0 == 0 && bp->roomCap1 == 0 && bp->roomCapOnly != 0)
+            g->cap[0] = bp->roomCapOnly;
         else {
-            g->cap[0] = bp[0x23d] < 2 ? 2 : bp[0x23d];
-            g->cap[1] = bp[0x23e] < 2 ? 2 : bp[0x23e];
+            g->cap[0] = bp->roomCap0 < 2 ? 2 : bp->roomCap0;
+            g->cap[1] = bp->roomCap1 < 2 ? 2 : bp->roomCap1;
         }
     }
     g = gm_Query(o->list, 2, 0, 0x116, 6);
     if (g != 0) {
         g->ownerId = o->objId;
         g->count = 2;
-        if (bp[0x23d] == 0 && bp[0x23e] == 0 && bp[0x23f] != 0)
-            g->cap[0] = bp[0x23f] < 6 ? 6 : bp[0x23f];
+        if (bp->roomCap0 == 0 && bp->roomCap1 == 0 && bp->roomCapOnly != 0)
+            g->cap[0] = bp->roomCapOnly < 6 ? 6 : bp->roomCapOnly;
         else {
-            g->cap[0] = bp[0x23d] < 6 ? 6 : bp[0x23d];
-            g->cap[1] = bp[0x23e] < 6 ? 6 : bp[0x23e];
+            g->cap[0] = bp->roomCap0 < 6 ? 6 : bp->roomCap0;
+            g->cap[1] = bp->roomCap1 < 6 ? 6 : bp->roomCap1;
         }
     }
     if ((o->type >= 0x92 && o->type <= 0x97) || o->type == 0x2db) {
