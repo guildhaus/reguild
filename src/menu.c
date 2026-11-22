@@ -6,9 +6,8 @@
    0x62d6bc and the subject changes from the action records of the table 0x62c420 to the screens. End: the
    end of the game code (the last function 0x5dd100 returns at 0x5dd3d6, nop fill to 0x5dd3e0); dinput.lib's
    c_dfDIKeyboard / c_dfDIMouse object tables follow, library data (config/symbols/game_range.toml).
-   Open: d2.h is not included yet: the unit's own declarations of d2_ScreenSurf / d2_Inputs / d2_LockSurface /
-   d2_UnlockSurface disagree with d2.h's, so the unit reads the d2 records through local views (D2INPUTVIEW,
-   D2SURFVIEW ...); the fades are d2_types.h's D2FADE.
+   Open: d2.h is not included yet: the unit declares d2_ScreenSurf / d2_Inputs / d2_LockSurface / d2_UnlockSurface
+   itself with d2.h's types (D2SURF, D2INPUT from d2_types.h); the fades are d2_types.h's D2FADE.
    Open: not included yet (dcp headers conflicts menu HEADER): ch.h cm.h d2.h d3_int_io.h gfx.h; held by
    own declarations that differ from the owner's: d2_ScreenSurf,
    d2_Inputs, d2_LockSurface, d2_UnlockSurface, ch_List, d3io_Lod.
@@ -316,12 +315,6 @@ int ai_MessageBox(intptr_t text, int flags)
 /* the two records 0x5d3ab0 builds: the request (a file entry of ai_ListFiles, or an empty slot) and one slot
    of the save / load window, which ai_RegisterSaveSlot (0x5d3a00) fills with a copy of the request */
 #pragma pack(push, 1)
-typedef struct SAVEREQUEST {                /* 0x210, a save file entry (ai_ListFiles) or an empty slot's request */
-    char pad00[9];
-    char name[0x80];                        /* +0x09, the slot caption (the file name without ".SAV") */
-    char title[0x80];                       /* +0x89, the save's title */
-    char path[0x107];                       /* +0x109, the file path (ai_FillSaveSlots opens it) */
-} SAVEREQUEST;                              /* 0x210 */
 typedef struct SAVESLOTVIEW {               /* 0x220, one slot of the save / load window */
     unsigned char kind;                     /* +0x00, the slot kind (ls_SaveSlot for a registered save) */
     char pad01[3];
@@ -329,14 +322,8 @@ typedef struct SAVESLOTVIEW {               /* 0x220, one slot of the save / loa
     int win;                                /* +0x08, the slot's child window, -1 = free */
     unsigned char used;                     /* +0x0c, 1: a filled slot, 0: an empty one */
     char pad0d[3];
-    union {
-        SAVEREQUEST req;                    /* +0x10, the request ai_RegisterSaveSlot copied */
-        struct {
-            char reqpad[9];
-            char name[0x80];                /* +0x19, the caption (the request's name) */
-            char title[0x80];               /* +0x99, the save's title (the header's +0x9c) */
-        };
-    };
+    FILEREC req;                            /* +0x10, the request ai_RegisterSaveSlot copied: req.name the caption,
+                                               req.title the save's title (the header's +0x9c) */
 } SAVESLOTVIEW;                             /* 0x220 */
 #pragma pack(pop)
 
@@ -368,7 +355,7 @@ typedef struct SAVESLOTVIEW {               /* 0x220, one slot of the save / loa
    condition: 18; goto-structured layouts (autosave label after the chain, fail label inside arm 0): 18.
    The previous want-local form (17) is gone. (tiebreak: insensitive) */
 
-int ai_RegisterSaveSlot(int count, SAVESLOTVIEW *slots, int slot, SAVEREQUEST *req)
+int ai_RegisterSaveSlot(int count, SAVESLOTVIEW *slots, int slot, FILEREC *req)
 {
     char *name;
     SAVESLOTVIEW *s;
@@ -402,9 +389,8 @@ done:
 
 /* views of d2.h's D2OBJ / D2INPUT (d2.h is not included yet: the unit's own d2_* declarations disagree with
    d2.h's, see the lead comment) */
-typedef struct D2INPUTVIEW { char pad0[0x10]; int w; char pad1[0x148]; int maxw; } D2INPUTVIEW;
 
-extern D2INPUTVIEW d2_Inputs[];         /* 0xfa6020, d2.h: D2INPUT [0x80] */
+extern D2INPUT d2_Inputs[0x80];         /* 0xfa6020, d2.h */
 extern int d2_FontHeight;               /* 0xf8f084, d2.h */
 extern struct D2INPUT *d2_FocusedInput;           /* 0x6ed9dc, d2.h: D2INPUT * */
 extern unsigned char kb_Last;           /* 0x1468410, d2.h */
@@ -483,8 +469,8 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
 {
     LSHDR hdr;
     char timebuf[0x40];
-    SAVEREQUEST req;
-    SAVEREQUEST *rec;
+    FILEREC req;
+    FILEREC *rec;
     int n;
     int i;
     int slot;
@@ -501,7 +487,7 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
     if (n > 0x10)
         n = 0x10;
     for (k = 0; k < n; k++) {
-        rec = (SAVEREQUEST *)files + k;
+        rec = (FILEREC *)files + k;
         file = vfs_Tfopen(rec->path, "rb", vfs_Root);
         if (file == 0)
             continue;
@@ -521,7 +507,7 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
         d2_SetObjFont(slots[slot].obj, 0x53);
         {
             char *src = hdr.title;
-            char *dst = slots[slot].title;
+            char *dst = slots[slot].req.title;
 
             while ((*dst++ = *src++))
                 ;
@@ -568,7 +554,7 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
         slots[slot].win = d2_CreateChildWindow(0, slot * 0x82, d2_LastWindowPtr->w - 0x10, 0x78, 0x10,
                                               d2_LastWindow);
         d2_Wins[slots[slot].win].font = 0x54;
-        slots[slot].obj = d2_CreateWinText(0xa8, 0, slots[slot].name, d2_LastWindow);
+        slots[slot].obj = d2_CreateWinText(0xa8, 0, slots[slot].req.name, d2_LastWindow);
         d2_SetObjFont(slots[slot].obj, 0x53);
         d2_WinOpenRaw(0, 0, 0xa0, 0x78, ai_ScreenImage, d2_LastWindow);
         d2_WinOpenPic(0x3c, 0x20, 0x4fb, d2_LastWindow);
@@ -627,7 +613,7 @@ int ai_LoadGameWindow(void)
                         || (d2_HitWindow != -1
                             && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win]))) {
                     if (ai_GameState == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
-                        sprintf(path, "Gamedata\\Saves\\%s.SAV", slots[i].name);
+                        sprintf(path, "Gamedata\\Saves\\%s.SAV", slots[i].req.name);
                         strcpy(main_NetSaveName, path);
                         ai_GameFlags = 10;
                         sv_PopRequest = 1;
@@ -684,7 +670,7 @@ int ai_JoinGameWindow(void)
                         || (d2_HitWindow != -1
                             && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win]))) {
                     if (ai_GameState == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
-                        strcpy(main_NetSaveName, slots[i].name);
+                        strcpy(main_NetSaveName, slots[i].req.name);
                         sv_PopRequest = 1;
                         ret = 1;
                     }
@@ -1128,15 +1114,9 @@ void ai_ApplyVolumes(void)
 
 /* d2.h's D2SURF (the 0x40-byte screen surface): the two fields the screen shot reads. Type debt: d2.c
    defines d2_ScreenSurf as void * (D2SURF itself is in d2_types.h). */
-typedef struct D2SURFVIEW {
-    char pad0[0x10];
-    int pitch;                          /* +0x10, in pixels */
-    char pad1[8];
-    unsigned short *bits;               /* +0x1c, pixels (system memory, or while locked) */
-} D2SURFVIEW;
-extern D2SURFVIEW *d2_ScreenSurf;       /* 0x6ed924, d2.h: D2SURF * */
-int d2_LockSurface(D2SURFVIEW *surf);   /* 0x479020, d2.h: D2SURF *, locks the surface (pixels in bits) */
-int d2_UnlockSurface(D2SURFVIEW *surf); /* 0x4790e0, d2.h: D2SURF * */
+extern D2SURF *d2_ScreenSurf;       /* 0x6ed924, d2.h */
+int d2_LockSurface(D2SURF *surf);   /* 0x479020, d2.h: locks the surface (pixels in bits) */
+int d2_UnlockSurface(D2SURF *surf); /* 0x4790e0, d2.h */
 void *mem_Alloc(int size, char *tag);   /* 0x4223c0, d3.h */
 void mem_Free(void *p);                 /* 0x422620, d3.h */
 extern unsigned int dd_RMask;           /* 0x1464fa4, dd_vesa.h: the red channel mask of the display */
@@ -1672,12 +1652,12 @@ int ai_SaveOptionWindow(int *image)
                     || (d2_HitWindow != -1
                         && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win])) {
                     exists = 0;
-                    sprintf(path, "Gamedata\\Saves\\%s.SAV", slots[i].name);
+                    sprintf(path, "Gamedata\\Saves\\%s.SAV", slots[i].req.name);
                     if (vfs_FindFile(path, vfs_Root, &found) != 0)
                         exists = 1;
                     d2_EnableObject(slots[i].obj, 0);
                     if (ai_EditText(d2_Objs[slots[i].obj].x, d2_Objs[slots[i].obj].y,
-                                    slots[i].title) == 0) {
+                                    slots[i].req.title) == 0) {
                         d2_EnableObject(slots[i].obj, 1);
                         break;
                     }
@@ -1686,7 +1666,7 @@ int ai_SaveOptionWindow(int *image)
                         memcpy(ai_ScreenImage, image, 0x9600);
                         ls_SaveSlot = i;
                         view = sv_OpenMessageBox((intptr_t)txt_Ptrs[TXT_SAVE_PROGRESS], 0);
-                        ls_SaveGame(name, slots[i].title, 1);
+                        ls_SaveGame(name, slots[i].req.title, 1);
                         d2_CloseView(view);
                         sv_PopRequest = 1;
                     }
@@ -1746,12 +1726,12 @@ int ai_SaveNameWindow(int *image)
                     || (d2_HitWindow != -1
                         && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win])) {
                     exists = 0;
-                    sprintf(path, "Gamedata\\network\\%s.SAV", slots[i].name);
+                    sprintf(path, "Gamedata\\network\\%s.SAV", slots[i].req.name);
                     if (vfs_FindFile(path, vfs_Root, &found) != 0)
                         exists = 1;
                     d2_EnableObject(slots[i].obj, 0);
                     if (ai_EditText(d2_Objs[slots[i].obj].x, d2_Objs[slots[i].obj].y,
-                                    slots[i].title) == 0) {
+                                    slots[i].req.title) == 0) {
                         d2_EnableObject(slots[i].obj, 1);
                         break;
                     }
@@ -1761,7 +1741,7 @@ int ai_SaveNameWindow(int *image)
                         } else {
                             memset(&rec, 0, sizeof rec);
                             rec.slot = i;
-                            strcpy(rec.name, slots[i].title);
+                            strcpy(rec.name, slots[i].req.title);
                             cm_SendExSysMessage(0xf, &rec);
                         }
                         sv_PopRequest = 1;

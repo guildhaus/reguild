@@ -442,7 +442,7 @@ void d2_DrawAll(void);                    /* 0x46e150 */
 void d2_DrawWindow(int win, void *surf);                    /* 0x471a90, draws a window (d2.h) */
 int d2_RemoveWindowObjects(int win, int all);         /* 0x472d20, removes the objects of a window (d2.h) */
 void d2_RedrawView(int view);                    /* 0x474e80 */
-extern void *d2_ScreenSurf;              /* 0x6ed924, the screen surface (d2.c) */
+extern struct D2SURF *d2_ScreenSurf;              /* 0x6ed924, the screen surface (d2.c) */
 void err_Message(char *text);                    /* 0x4222b0 */
 void gm_FormatAmount(int v, unsigned char k, char *out);                   /* 0x508a80 */
 int ls_GetLanguage();                     /* 0x5190a0, the language number */

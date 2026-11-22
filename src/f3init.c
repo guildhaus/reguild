@@ -2067,7 +2067,7 @@ void init_ShowStatus(intptr_t t)
 extern void * main_Instance;          /* 0x75e140 */
 extern unsigned ai_MissionSeed;           /* 0x75e120 */
 extern signed char ai_MissionMode;        /* 0x624580 */
-extern void *d2_ScreenSurf;                /* 0x6ed924 */
+extern struct D2SURF *d2_ScreenSurf;                /* 0x6ed924 */
 
 /* 0x510e50, starts a network game: waits for the session flags (cm_NetFlags), the host sends the city file
    (gamedata/cities/AUGSBURG.NET unless name holds one) and every side receives it, stores the player's names in
@@ -2118,7 +2118,7 @@ int init_StartNetworkGame(char *name)
     d2_SetViewEnabled(init_StatusForm, 1);
     WritePrivateProfileStringA("Network", "Name", init_PlayerProfile.firstName, ini);
     WritePrivateProfileStringA("Network", "Familienname", init_PlayerProfile.familyName, ini);
-    d2_ClearSurface((struct D2SURF *)d2_ScreenSurf);
+    d2_ClearSurface(d2_ScreenSurf);
     s = util_Random(2);
     d2_ShowPicture((s != 1 ? 3 : 0) + 0x78e);
     d2_DrawAll();

@@ -1101,7 +1101,7 @@ void cm_DrawScrollArrows(void)
         if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             b = 1;
     }
-    d2_SetClipRect(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h);
+    d2_SetClipRect(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h);
     if (a == 2)
         d2_DrawShape(d2_ScreenW / 2 - 0x14, (int)(d2_ScreenScale * 525.0f - 30.0f), d2_ScreenSurf, t, 0);
     else if (a == 1)

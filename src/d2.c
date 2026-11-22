@@ -78,9 +78,9 @@ D2FORM2 d2_Forms2[96] = {0};  /* 0x68ce98 */
 D2PIC *d2_Pics = 0;                 /* 0x6ed918 */
 int d2_NPics = 0;                   /* 0x6ed91c */
 int d2_PicBytes = 0;                /* 0x6ed920 */
-void *d2_ScreenSurf = 0;               /* 0x6ed924 */
+D2SURF *d2_ScreenSurf = 0;               /* 0x6ed924 */
 void *d2_FrontSurf = 0;               /* 0x6ed928 */
-void *d2_BackSurf = 0;               /* 0x6ed92c, offscreen surface the layer draws into; blitted to d2_ScreenSurf */
+D2SURF *d2_BackSurf = 0;               /* 0x6ed92c, offscreen surface the layer draws into; blitted to d2_ScreenSurf */
 D2SURF *d2_BackgroundTile = 0;          /* 0x6ed930 */
 signed char d2_PicBase = 0;         /* 0x6ed934 */
 int d2_LastWindow = 0;  /* 0x6ed938, window created last */
@@ -1819,10 +1819,10 @@ void d2_MoveObj(short x, short y, int obj)
 void d2_ShowPicture(int pic)
 {
     d2_DrawPic(0, 0, pic, d2_ScreenSurf);
-    d2_BlitPart(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
+    d2_BlitPart(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
     d2_DrawFades();
     dd_Flip();
-    d2_BlitPart(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
+    d2_BlitPart(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
 }
 /* 0x46d040, draws a picture (or a frame of one) at x, y on a surface
    @deep deep s34: the only hunk class is the x / y register pair (original x esi, y edi; ours y esi, x
@@ -5557,11 +5557,11 @@ void d2_DissolveStep(D2DISSOLVE *d)
                         d->x, d->y, dd_PitchPixels));
 #endif
         if (d->step <= 0xff) {
-            d2_SetBlitParams(((D2SURF *)d2_ScreenSurf)->bits + d->y * dd_PitchPixels + d->x, d->src, d->mask,
+            d2_SetBlitParams(d2_ScreenSurf->bits + d->y * dd_PitchPixels + d->x, d->src, d->mask,
                          (short)d->w, (short)d->h, (short)d->step);
         } else {
             for (i = 0; i < d->h; i++) {
-                dst = ((D2SURF *)d2_ScreenSurf)->bits + (d->y + i) * dd_PitchPixels + d->x;
+                dst = d2_ScreenSurf->bits + (d->y + i) * dd_PitchPixels + d->x;
                 memcpy(dst, (unsigned short *)d->src + d->w * i, d->w * 2);
             }
         }

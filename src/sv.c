@@ -609,12 +609,12 @@ void sv_SceneLoadProgress(int kind, int cur, int total)
         h = d2_OpenSlider((int)(d3_ViewW * 0.5f + d3_ViewX - 205.0f), d2_ScreenH - 0x40, 0x190, 0, 0x190, 0x83, 0x42);
         sv_LoadSlider = h;
         d2_SetObjValue(h, 0, 0x190, 0);
-        d2_BlitPart(0, 0, ((D2SURF *)d2_BackSurf)->w, ((D2SURF *)d2_BackSurf)->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
+        d2_BlitPart(0, 0, d2_BackSurf->w, d2_BackSurf->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
         if (sv_LoadSlider == -1)
             goto lend;
     }
     if (kind == 0 || sv_LoadFrame % 10 == 0)
-        d2_BlitPart(0, 0, ((D2SURF *)d2_BackSurf)->w, ((D2SURF *)d2_BackSurf)->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
+        d2_BlitPart(0, 0, d2_BackSurf->w, d2_BackSurf->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
     if (kind == 0) {
         d2_SetObjValue(sv_LoadSlider, 0, 0x190, cur * 200 / total);
     } else if (kind == 1) {
@@ -629,7 +629,7 @@ void sv_SceneLoadProgress(int kind, int cur, int total)
                 d2_LockSurface(d2_ScreenSurf);
                 sv_UpdateCityPanel(1, 0);
                 d2_UnlockSurface(d2_ScreenSurf);
-                d2_BlitPart(0, 0, ((D2SURF *)d2_BackSurf)->w, ((D2SURF *)d2_BackSurf)->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
+                d2_BlitPart(0, 0, d2_BackSurf->w, d2_BackSurf->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
             }
             ai_FrameWait = 1;
         }
@@ -1214,7 +1214,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
        d2_ShpBlit with esi = 1); the original pushes sv_ViewRectLeft, sv_ViewRectTop, d2_ScreenSurf,
        sv_ViewShape. */
     if (sv_ViewShape != 0)
-        d2_ShpBlit(sv_ViewRectLeft, sv_ViewRectTop, (struct D2SURF *)d2_ScreenSurf, sv_ViewShape);
+        d2_ShpBlit(sv_ViewRectLeft, sv_ViewRectTop, d2_ScreenSurf, sv_ViewShape);
     if (a & 1) {
         if (sv_ButtonFamilyTree != -1) { d2_RemoveObj(sv_ButtonFamilyTree); sv_ButtonFamilyTree = -1; }
         if (sv_ButtonCompare != -1) { d2_RemoveObj(sv_ButtonCompare); sv_ButtonCompare = -1; }
@@ -1416,7 +1416,7 @@ void sv_RedrawScreen(void)
         sv_UpdateCityPanel(1, 0);
         d2_UnlockSurface(d2_ScreenSurf);
     }
-    d2_BlitPart(0, 0, ((D2SURF *)d2_BackSurf)->w, ((D2SURF *)d2_BackSurf)->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
+    d2_BlitPart(0, 0, d2_BackSurf->w, d2_BackSurf->h, d2_ScreenSurf, 0, 0, d2_BackSurf);
     r = d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0, 1);
     sv_RunFrame(0, 0x1c6);
     d2_ReleaseFade(r);
@@ -5473,7 +5473,7 @@ void sv_DrawBorderArrows(void)
         if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             top = 1;
     }
-    d2_SetClipRect(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h);
+    d2_SetClipRect(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h);
     if (bottom == 2)
         d2_DrawShape(d2_HalfScreenW - 0x10, d2_ScreenH - 0x20, d2_ScreenSurf, pic, 0);
     else if (bottom == 1)

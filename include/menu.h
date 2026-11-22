@@ -11,7 +11,13 @@ struct D3SM;
 typedef struct FILEREC {            /* 0x210 bytes, a file of ai_ListFiles's list */
     int ctrl;                       /* 0x00, the caller's slot header: ai_FilePickWindow keeps the file's text control here */
     char pad04[5];
-    char name[0x100];               /* 0x09, the file name without its extension */
+    union {
+        char name[0x100];           /* 0x09, the file name without its extension */
+        struct {
+            char saveName[0x80];    /* 0x09, of a save slot's request (menu.c ai_FillSaveSlots): the name, its caption */
+            char title[0x80];       /* 0x89, of a save slot's copy: the save's title (LSHDR.title, ai_FillSaveSlots) */
+        };
+    };
     char path[0x107];               /* 0x109, "<dir>/<file name>" */
 } FILEREC;
 

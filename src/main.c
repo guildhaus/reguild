@@ -355,8 +355,6 @@ void main_Exit(void)
         main_SetScreenSaver(1);
 }
 
-#define SCREEN ((struct D2SURF *)d2_ScreenSurf)
-#define BACK ((struct D2SURF *)d2_BackSurf)
 
 /* 0x531780, the window procedure of "Die Gilde": WM_DESTROY / WM_CLOSE post the quit message, WM_PAINT / WM_MOUSEWHEEL validate the window, WM_SYSCOLORCHANGE revalidates and repaints the screen
    (d2_BlitPart copies the back surface 0x6ed92c onto the screen surface 0x6ed924) when both surfaces are set, WM_ACTIVATEAPP restores the screen and reacquires the sound on activation (after
@@ -374,8 +372,8 @@ LRESULT CALLBACK main_WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
         return 0;
     case 0x14:
         ValidateRect(hwnd, 0);
-        if (SCREEN != 0 && BACK != 0)
-            d2_BlitPart(0, 0, SCREEN->w, SCREEN->h, BACK, 0, 0, SCREEN);
+        if (d2_ScreenSurf != 0 && d2_BackSurf != 0)
+            d2_BlitPart(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
         return 1;
     case 0x1c:
         if (wparam != 0) {
@@ -386,12 +384,12 @@ LRESULT CALLBACK main_WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
                     while (d3_Hardware != 0 && d3d_Restore() == 0)
                         ;
                     d2_FlushDirty();
-                    if (d2_LockSurface(SCREEN) != 0) {
-                        d2_BlitPart(0, 0, SCREEN->w, SCREEN->h, BACK, 0, 0, SCREEN);
+                    if (d2_LockSurface(d2_ScreenSurf) != 0) {
+                        d2_BlitPart(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
                         d2_DrawObjects();
-                        d2_UnlockSurface(SCREEN);
+                        d2_UnlockSurface(d2_ScreenSurf);
                         dd_Flip();
-                        d2_BlitPart(0, 0, SCREEN->w, SCREEN->h, BACK, 0, 0, SCREEN);
+                        d2_BlitPart(0, 0, d2_ScreenSurf->w, d2_ScreenSurf->h, d2_BackSurf, 0, 0, d2_ScreenSurf);
                     }
                     tb_Paused = 0;
                     sfx_ReacquireAll(hwnd, 0x7e7);

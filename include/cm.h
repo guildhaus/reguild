@@ -533,7 +533,7 @@ int d2_DrawShape(int x, int y, void *surf, void *pic, unsigned char i);  /* 0x47
 void d2_SetClipRect(int x0, int y0, int x1, int y1);  /* 0x47cb40 */
 extern const struct D3VECTOR4 d3_Origin;  /* 0x5ebba4, (0, 0, 0), d3_vec.c */
 extern float d2_ScreenScale;  /* 0x5fe708 */
-extern void *d2_ScreenSurf;  /* 0x6ed924, the screen surface (d2.c defines it) */
+extern struct D2SURF *d2_ScreenSurf;  /* 0x6ed924, the screen surface (d2.c defines it) */
 extern short d2_ScreenH;  /* 0xfb9070 */
 extern short d2_ScreenW;  /* 0xfb9072 */
 
@@ -894,7 +894,7 @@ void d2_BlitPart(int sx, int sy, int w, int h, struct D2SURF *src, int x, int y,
 void d2_ReleaseFade(struct D2FADE *f);  /* 0x476860 */
 struct D2FADE * d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags);  /* 0x4767d0 */
 char d3_InflateScene(unsigned int flags);  /* 0x43deb0 */
-extern void *d2_BackSurf;  /* 0x6ed92c */
+extern struct D2SURF *d2_BackSurf;  /* 0x6ed92c */
 extern unsigned int d3_SceneFlags;  /* 0x63349c */
 extern unsigned int cm_SceneInflateFlags;  /* 0x6f0d98 */
 

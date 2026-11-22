@@ -125,7 +125,7 @@ typedef struct D2FRCT { int id, amount, unk; } D2FRCT;
 extern D2PIC *d2_Pics;              /* 0x6ed918 */
 extern int d2_NPics;                /* 0x6ed91c */
 extern int d2_PicBytes;             /* 0x6ed920 */
-extern void *d2_ScreenSurf;         /* 0x6ed924, the screen surface the widgets are drawn on */
+extern D2SURF *d2_ScreenSurf;       /* 0x6ed924, the screen surface the widgets are drawn on */
 extern int d2_PicShift;             /* 0x6ed98c */
 extern D2OBJ *d2_Objs;              /* 0xf8f080 */
 extern int d2_FontHeight;            /* 0xf8f084, font height */
@@ -161,7 +161,7 @@ extern D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests
 extern D2PICHDR *d2_FontPic;      /* 0x6ed948, the font "_FONT" */
 extern struct TSTEXTURE *d2_CaptionTex; /* 0x6ed960, sprite behind captions / texts */
 extern D2OBJ **d2_DrawOrder;        /* 0x6ed964, objects in drawing order (0x300) */
-extern void *d2_BackSurf;          /* 0x6ed92c */
+extern D2SURF *d2_BackSurf;        /* 0x6ed92c */
 extern signed char d2_PicBase;      /* 0x6ed934 */
 extern int d2_FrameCounter;            /* 0x6ed940, frame counter */
 extern int d2_HighestObj;            /* 0x6ed94c, highest object index in use */
