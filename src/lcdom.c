@@ -4700,8 +4700,12 @@ typedef struct AIWINDOWROW {            /* the row record the window page functi
 
 void ai_ShowWindowRow(AIWINDOWROW *row);
 
-/* 0x5b3630, the sabotage window "misc\perga_rolle" (ai_RobberContact's map pick callback, with the picked mark's
-   character ch and building target; nothing for none or an ownerless one). The price is 2 % of the player's worth
+/* 0x5b3630, the sabotage window "misc\perga_rolle" (ai_RobberContact's map pick callback, with the picked
+   building target; nothing for none or an ownerless one). @original: the body reads its first parameter as a
+   character (he_NoEvent4bPair / 2ePair / 88Pair with it, its id word at +0 for the texts 0x1704 / 0x409f), the
+   (character, building) call of ai_MapPick's flags 2 (ai_LawSelectionEntry), but ai_RobberContact registers it
+   with flags 1 (push 1 at 0x596510), whose call passes the picked building as both arguments (0x5b23b5,
+   0x5b248f): the game's own mismatch, kept (byte). The price is 2 % of the player's worth
    plus 5 % of the building's equipment value (gm_EquipmentValue 100), halved when the order 0x1b reports the flag
    2; the player must have it (sv_CheckGoodAmount). A running sabotage event 0x19 of the player on the building
    gives the text 0x1702, an insult running from ch to the player (he_NoEvent4bPair) 0x1703, a quarrel between
