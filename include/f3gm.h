@@ -125,7 +125,7 @@ struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);  /* 0x509ff0 */
 struct ORDCREDIT; int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt, struct ORDCREDIT *out);  /* 0x50a250 */
 int gm_ExpectedDeathAge(struct AICHAR *c);  /* 0x4fc7a0 */
 int gm_MayTakeJob(int k, int c);  /* 0x5020e0 */
-void gm_SellBuilding(int a, int b, int c, int d, int e);  /* 0x502fd0 */
+void gm_SellBuilding(int a, int b, int c, struct AIJOB *d, int e);  /* 0x502fd0 */
 struct AIOBJ *gm_PlayerSeat(int p);  /* 0x504a80 */
 void gm_SendMoneyDelta(int a, int b);  /* 0x50cc50 */
 int gm_JobBuildingType(int x);  /* 0x504050 */

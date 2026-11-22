@@ -2215,7 +2215,7 @@ int ls_ReadEventTables(VFSFILE *f)
             if (rec->textSize != 0) {
                 tb = (char *)mem_Alloc(0x400, "messagebox");
                 rec->text = tb;
-                if (ls_Read((int)tb, rec->textSize, 1, f) == 0)
+                if (ls_Read(tb, rec->textSize, 1, f) == 0)
                     return 0;
             }
             if (rec->kind == 0xc) {
@@ -2280,10 +2280,10 @@ int ls_ReadParties(VFSFILE *f)
         LS_R(&r->flags, 1)
         LS_R(&r->used, 1)
         if (ls_Version >= 0x10059) {
-            if (ls_Read((int)r->members, 4, 0x10, f) == 0)
+            if (ls_Read(r->members, 4, 0x10, f) == 0)
                 return 0;
         } else {
-            if (ls_Read((int)tmp, 0x40, 0x10, f) == 0)
+            if (ls_Read(tmp, 0x40, 0x10, f) == 0)
                 return 0;
             for (k = 0; k < 16; k++)
                 r->members[k] = tmp[k];
@@ -2379,7 +2379,7 @@ int ls_ReadEnvironment(VFSFILE *f)
 {
   int i;
 
-  if (ls_Read((int)(unsigned)&sv_WinterWeather, 4, 1, f) == 0)
+  if (ls_Read(&sv_WinterWeather, 4, 1, f) == 0)
     return 0;
   for (i = 0; i < 24; i++) {
     LS_R(&sv_Weather.clouds[i], 4)

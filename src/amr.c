@@ -2570,7 +2570,7 @@ int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
     }
     if (j == 0)
         return 0;
-    gm_SellBuilding(s1->ref, p->netId, ((AIJOBX *)j)->price, (AIJOBX *)j, 1);
+    gm_SellBuilding(s1->ref, p->netId, ((AIJOBX *)j)->price, (struct AIJOB *)j, 1);
     return 0x10;
 }
 /* 0x4984d0, decide callback: buy or upgrade the character's house (a building of kind 2) when it owns a building
@@ -2983,7 +2983,7 @@ int ai_ExecuteBuildBusiness(AICHAR *p, AIARG *s1, AIARG *s2)
         j = (AIJOBX *)he_FindEvent(1, 1, s2->ref);
         if (!j)
             return 0;
-        gm_SellBuilding(s1->ref, p->netId, j->price, j, 1);
+        gm_SellBuilding(s1->ref, p->netId, j->price, (struct AIJOB *)j, 1);
         return 0x13;
     }
     if (s2->kind == 4) {
@@ -5167,7 +5167,7 @@ int ai_ExecuteUsePrivileges(AICHAR *p, AIARG *s1, AIARG *s2)
 
 int ai_EvalMayor(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
-    float d[10];
+    ORDSTATS d;
 
     if (p->officeKind != 0xf) {
         *a = -1e30f;
@@ -5176,8 +5176,8 @@ int ai_EvalMayor(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *
     }
     *a = 0.0f;
     *b = 0.0f;
-    ord_GetStatistics(d);
-    if (d[3] > (float)((p->mood[10][0] - 2.0) * 0.4f)) {
+    ord_GetStatistics(&d);
+    if (d.col[3] > (float)((p->mood[10][0] - 2.0) * 0.4f)) {
         ai_EvalCurrentNeed(a, b, i, p, f, o1, o2);
         *a *= 3.0f;
         *b *= 3.0f;
@@ -5202,7 +5202,7 @@ int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     char lvl;
     int count[3];        /* per building type 1..3: how many */
     int n, money, v;
-    float d[10];
+    ORDSTATS d;
 
     best = 0;
     spare[0] = 0;
@@ -5216,7 +5216,7 @@ int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     o = gm_Query(b->objList, 2, 6, 0, 0x115);
     money = gm_SumListAmounts(o->list, ai_OwnPlayer);
-    ord_GetStatistics(d);
+    ord_GetStatistics(&d);
     rec = ai_Blds;
     for (n = 0x100; n != 0; n--, rec++) {
         k = rec->type;
@@ -5240,7 +5240,7 @@ int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
                 spare[0] = rec;
         }
     }
-    if (d[3] > (float)((p->mood[10][0] - 2.0) * 0.4f)) {
+    if (d.col[3] > (float)((p->mood[10][0] - 2.0) * 0.4f)) {
         if (count[0] != 0 && spare[0] != 0) {
             o1->kind = 4;
             o1->ref = 2;
@@ -5401,7 +5401,7 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     AIBLD *y;
     AIOBJ *o;
     LARGE_INTEGER m;
-    float d[10];
+    ORDSTATS d;
     int x, w, z, r, money, act, v;
     char lvl;
 
@@ -5460,14 +5460,14 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     }
     if (y->flags5a & 0x41)
         return 0;
-    ord_GetStatistics(d);
+    ord_GetStatistics(&d);
     if (y->type == 0x24) {
         act = 0x25;
-        if (util_Random(0x200) + d[6] < 1250.0f)
+        if (util_Random(0x200) + d.base < 1250.0f)
             return 0;
     } else if (y->type == 0x25) {
         act = 0x26;
-        if (util_Random(0x400) + d[6] < 5000.0f)
+        if (util_Random(0x400) + d.base < 5000.0f)
             return 0;
     } else
         return 0;
@@ -5521,7 +5521,7 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     AIBLD *y;
     AIOBJ *o;
     LARGE_INTEGER m;
-    float d[10];
+    ORDSTATS d;
     int x, w, z, r, money, act;
     char lvl;
 
@@ -5583,14 +5583,14 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     }
     if (y->flags5a & 0x41)
         return 0;
-    ord_GetStatistics(d);
+    ord_GetStatistics(&d);
     if (y->type == 0x11) {
         act = 0x12;
-        if (util_Random(0x200) + d[6] < 1250.0f)
+        if (util_Random(0x200) + d.base < 1250.0f)
             return 0;
     } else if (y->type == 0x12) {
         act = 0x13;
-        if (util_Random(0x400) + d[6] < 5000.0f)
+        if (util_Random(0x400) + d.base < 5000.0f)
             return 0;
     } else
         return 0;

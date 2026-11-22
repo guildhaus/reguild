@@ -1335,7 +1335,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     bonusButton = d2_GetWinObj(book->views[0], 3, io_PrintText(0x1a20));
     if (bt->kind != 5 && bt->kind != 9) {
         d2_SetForm(book->views[0], 3);
-        ai_CreatePersonnelRow(d2_LastWindowPtr->w / 2 - 0x18, 0x20, (int *)&masterRow);
+        ai_CreatePersonnelRow(d2_LastWindowPtr->w / 2 - 0x18, 0x20, &masterRow);
         v = d2_CreateWinText(masterRow.x - 0x38, masterRow.y - 0x20, txt_Ptrs[0x1a2d], d2_LastWindow);
         d2_Objs[v].centred = 1;
         d2_Objs[v].w = 0xa0;
@@ -1380,7 +1380,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         }
         d2_SetForm(*vp, 3);
         rows[i].view = *vp;
-        ai_CreatePersonnelRow(j % 2 * halfW + 0x28, r * halfH + 0x11, (int *)&rows[i]);
+        ai_CreatePersonnelRow(j % 2 * halfW + 0x28, r * halfH + 0x11, &rows[i]);
         if (i == 0 && radio == -1) {
             radio = d2_CreateRadioGroup(0);
             if (masterRow.pic != -1)
@@ -2274,7 +2274,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     }
     n = i;
     d2_SetForm(book->views[0], 3);
-    ai_CreatePersonnelRow(d2_LastWindowPtr->w / 2 - 0x18, 0x20, (int *)&masterRow);
+    ai_CreatePersonnelRow(d2_LastWindowPtr->w / 2 - 0x18, 0x20, &masterRow);
     i = d2_CreateWinText(masterRow.x, masterRow.y - 0x20, txt_Ptrs[0x1a2d], d2_LastWindow);
     d2_Objs[i].centred = 1;
     d2_Objs[i].w = 0x64;
@@ -7016,7 +7016,7 @@ void ai_BuildingWindow(AIBLD *bld)
             if (gm_GetGoodsValue(&ai_Chars[ai_PlayerId]) > price) {
                 txt_Format(buyText, 0x17db, bld->masterId, bld, price);
                 if (sv_MessageBox((intptr_t)buyText, 1) != 0)
-                    gm_SellBuilding(bld->id, ai_CharInts[ai_PlayerId][0], saleEv->salePrice, (int)saleEv, 0);
+                    gm_SellBuilding(bld->id, ai_CharInts[ai_PlayerId][0], saleEv->salePrice, (struct AIJOB *)saleEv, 0);
             }
             d2_SetViewEnabled(win, 1);
             redraw = 1;

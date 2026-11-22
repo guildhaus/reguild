@@ -5100,7 +5100,7 @@ void sv_SpeakPicked(void)
     id = -1;
     {
         char text[0x200] = "";
-        float st[10];
+        ORDSTATS st;
 
         if (ai_PickedChar != 0) {
             c = ai_PickedChar;
@@ -5220,10 +5220,10 @@ void sv_SpeakPicked(void)
             id = kind * 15 + 0x11e9;
         if (util_Random(2) == 0 && he_FindEvent(1, 0, 0x52) != 0)
             kind = 5;
-        ord_GetStatistics((int *)st);
+        ord_GetStatistics(&st);
         switch (kind) {
         case 1:
-            id = (int)(3.0 * (st[1] * 5.0) + id);
+            id = (int)(3.0 * (st.col[1] * 5.0) + id);
             id += util_Random(3);
             break;
         case 2:
@@ -5231,11 +5231,11 @@ void sv_SpeakPicked(void)
             id += util_Random(3);
             break;
         case 3:
-            id = (int)(3.0 * (st[2] * 5.0) + id);
+            id = (int)(3.0 * (st.col[2] * 5.0) + id);
             id += util_Random(3);
             break;
         case 4:
-            id = (int)(3.0 * (st[0] * 5.0) + id);
+            id = (int)(3.0 * (st.col[0] * 5.0) + id);
             id += util_Random(3);
             break;
         case 5:

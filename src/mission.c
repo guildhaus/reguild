@@ -774,7 +774,7 @@ int ai_CondDecisionSumZero(AICHAR *c, G13TYPE *t)
     return 0;
 }
 
-struct VFSFILE; float ord_GetStatistics(int *o);                                                /* 0x4f9e00, defined elsewhere */
+struct VFSFILE; struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);                                                /* 0x4f9e00, defined elsewhere */
 
 /* 0x4b4dc0, mission condition (type 46, from year 10): the order statistics' rating base (ai_RatingBase,
    ORDSTATS.base) is at or above t->goal, held for t->threshold minutes (ai_TimedCondition) */
@@ -784,7 +784,7 @@ int ai_CondRatingBaseTimed(AICHAR *c, int x, G13TYPE *t)
 
     if (ai_Time.year < 10)
         return 0;
-    ord_GetStatistics((int *)&e);
+    ord_GetStatistics(&e);
     if (t->goal < e.base)
         return ai_TimedCondition(x, 0, t->threshold);
     return ai_TimedCondition(x, 1, t->threshold);
@@ -797,7 +797,7 @@ int ai_CondTownDecline(AICHAR *c, G13TYPE *t)
 {
     ORDSTATS e;
 
-    if (ord_GetStatistics((int *)&e) > 0.1)
+    if (ord_GetStatistics(&e) > 0.1)
         return 0;
     if (e.col[3] < 0.3f)
         return 0;

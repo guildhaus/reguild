@@ -227,7 +227,7 @@ int ai_RepairCost(struct AIBLD *b, int k);                                      
 int ai_CanBuildType(int a, struct AICHAR *p, int b, struct AIARG *s1, struct AIARG *s2, int f);         /* 0x4a5140 */
 int ai_ExecBuildBuilding(struct AICHAR *p, struct AIARG *s1, struct AIARG *s2);                               /* 0x4a5320 */
 int ai_FindGoodToMake(int *item, int *obj, AIBLD *bld, int f);                       /* 0x4a5540 */
-void gm_SellBuilding(int a, int b, int c, int d, int e);                     /* 0x502fd0 */
+void gm_SellBuilding(int a, int b, int c, struct AIJOB *d, int e);                     /* 0x502fd0 */
 int gm_JobBuildingType(int k);                                                        /* 0x504050 */
 int gm_FirstTitleNumber(int k);                                                        /* 0x504290 */
 /* 0x5044b0 */
@@ -584,7 +584,7 @@ int ai_DecideBlackmail(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);          
 int ai_ExecuteBlackmail(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49d730 */
 int ai_DecideUsePrivileges(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49d750 */
 int ai_ExecuteUsePrivileges(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49d7d0 */
-float ord_GetStatistics(int *o);                                                   /* 0x4f9e00 */
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);                                                   /* 0x4f9e00 */
 int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y);                          /* 0x4a4ae0, as in unk_4a3af0.h */
 int ai_EvalMayor(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x49d7f0 */
 int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49d8d0 */

@@ -5744,7 +5744,7 @@ void ai_DrawStatisticsCharts(unsigned short flags, ORDSTATS stats, int win)
     d2_PenSize = old;
 }
 
-float ord_GetStatistics(int *o);
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);
 
 /* 0x5c7f00, the statistics panel "panel_statistik_stadt" (995 B): when the run allows it (ai_RunAllows 0x10) and
    between the campaign steps 0xc, it opens the form and prints the town's name with the date (0x1f0e), the running
@@ -5790,7 +5790,7 @@ void ai_CityStatsPanel(void)
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
     io_PrintText(0x1f0e, ai_PlayerSlots[ai_OwnPlayer].townName, &ai_Time);
-    ord_GetStatistics((int *)&stats);
+    ord_GetStatistics(&stats);
     d2_SetForm(win, 2);
     io_PrintText(0x1f14, (int)ai_RatingBase);
     io_PrintText(0x1f15, min(4, (int)((stats.score + 1.0) * 2.5)) + 0x1f16);

@@ -2556,11 +2556,11 @@ float ord_WeightedRecordSum(int *out)
 /* 0x4f9e00, copies the last statistics record (ord_Statistics, ten floats) to o, overwrites out[6] with the float
    bits of ord_Statistics's base field's live value (ai_RatingBase) and returns out[9] (the score); 0 for no o */
 
-float ord_GetStatistics(int *o)
+float ord_GetStatistics(ORDSTATS *o)
 {
     if (o == 0)
         return 0.0f;
-    memcpy(o, &ord_Statistics, 0x28);
-    ((ORDSTATS *)o)->base = ai_RatingBase;
-    return ((ORDSTATS *)o)->score;
+    memcpy(o, &ord_Statistics, sizeof(*o));
+    o->base = ai_RatingBase;
+    return o->score;
 }

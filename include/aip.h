@@ -33,12 +33,12 @@ int ai_CheckLeisureAction(struct AICHAR *p, struct AIARG *in, struct AIARG *out)
 extern int ai_VisitActions[3];                                                      /* 0x600e5c */
 int ai_DecideVisitAction(int a, struct AICHAR *p, int c, struct AIARG *in, struct AIARG *m);  /* 0x4aa120 */
 int ai_CheckVisitAction(struct AICHAR *p, struct AIARG *in, struct AIARG *out);              /* 0x4aa430 */
-int ai_PickPamphletTarget(struct AICHAR *p, int c, struct AIARG *m);                             /* 0x4aa580 */
+int ai_PickPamphletTarget(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                             /* 0x4aa580 */
 int ai_DecideLittleKnownChar(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                 /* 0x4aa6a0 */
-int ai_DecideCharPair(struct AICHAR *p, int c, struct AIARG *m);                             /* 0x4aa800 */
-int aip_ExecPamphlet(struct AICHAR *p, int c, struct AIARG *m);                             /* 0x4aa940 */
-int aip_ExecDrohen(struct AICHAR *p, int c, struct AIARG *m);                             /* 0x4aaa10 */
-int aip_ExecAnschwaerzen(struct AICHAR *p, int c, struct AIARG *m);                             /* 0x4aaae0 */
+int ai_DecideCharPair(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                             /* 0x4aa800 */
+int aip_ExecPamphlet(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                             /* 0x4aa940 */
+int aip_ExecDrohen(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                             /* 0x4aaa10 */
+int aip_ExecAnschwaerzen(struct AICHAR *p, struct AIARG *in, struct AIARG *m);                             /* 0x4aaae0 */
 int ai_TrustedOfTwo(AICHAR *p, AICHAR *b, AICHAR *c, int *k);                          /* 0x4aab90 */
 int ai_TrustedOfFour(unsigned char k, AICHAR *p, int *ids, int *out);                           /* 0x4aad30 */
 int ai_FindDarkCornerTarget(struct AICHAR *p, struct AIARG *a, struct AIARG *b);                  /* 0x4aaef0 */

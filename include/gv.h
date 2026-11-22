@@ -473,7 +473,7 @@ float ord_BuildingCapacityRatio(void);              /* 0x4f97c0 */
 
 float ord_StatisticsRating(int *rec);              /* 0x4f9ce0 */
 float ord_WeightedRecordSum(int *out);          /* 0x4f9d40 */
-float ord_GetStatistics(int *o);            /* 0x4f9e00 */
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);            /* 0x4f9e00 */
 
 extern AITIME ord_StatisticsClock;      /* 0x91b470, the clock of the last rating step (ord_AdvanceRatingBase) */
 void ord_AdvanceRatingBase(void);               /* 0x4f9c00 */

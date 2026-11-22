@@ -3003,7 +3003,7 @@ int gm_ListWorkers(AIBLD *b, int *out)
     return n;
 }
 /* 0x502fd0, the sale of the building with the id id to the character with the netId buyer for price (the job record job, the building offer, may be 0; boss: also make the buyer the boss of a home): in the message group "buy_building" the buyer pays the master of the building (a message 0x17e6 "_NACHRICHTEN_HS_30" to the master, cm_SendMoveGoodsUnchecked) or, without a master, the bank (cm_SendMoveGoods), the ownership goes to the buyer (cm_SendOwnership) and for a home (type 2) with boss set the boss too (cm_SendBoss); the job's end is stamped now + 1 second and its HE message sent (cm_SendExSetHE, the slot kept in the job), and the building's field 0x5a set (cm_SendSetField (id, 0x5a, 2, 0, 2)) */
-void gm_SellBuilding(int id, int buyer, int price, int job, int boss)
+void gm_SellBuilding(int id, int buyer, int price, AIJOB *job, int boss)
 {
     AIBLD *bl;
     AICHAR *ch;
@@ -3032,7 +3032,7 @@ void gm_SellBuilding(int id, int buyer, int price, int job, int boss)
     if (j != 0) {
         j->end = ai_Time;
         gm_AddTime(&j->end, 0, 0, 1);
-        j->msgSlot = cm_SendExSetHE(-1, (struct AIJOB *)job);
+        j->msgSlot = cm_SendExSetHE(-1, job);
     }
     cm_SendSetField(bl->id, 0x5a, 2, 0, 2);
     cm_EndGroup("buy_building");

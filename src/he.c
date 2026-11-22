@@ -8240,7 +8240,7 @@ void he_RunBard(AIJOB *e)
     }
 }
 
-float ord_GetStatistics(int *o);
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);
 
 /* 0x54de60, a Ghidra miss: the init of the population event 0x6d (its run handler he_RunPopulation): the due clock
    is the clock now, the round's count and the newcomer chance are cleared and the event is posted in state 0; it
@@ -8288,7 +8288,7 @@ void he_RunPopulation(AIJOB *e)
         e->exSlot = cm_SendExSetHE(1, e);
         break;
     case 1:
-        ord_GetStatistics((int *)&st);
+        ord_GetStatistics(&st);
         x = (float)(st.sumA - st.chars) / st.sumA;
         p->chance = 1.0f - x;
         p->step = x / (p->count + 2);

@@ -998,7 +998,7 @@ found:
 /* 0x4aa580, decide callback: p (money >= 1) picks a character within 0..63 units that he_NoEvent35Pair /
    he_NoEvent88Pair accept, with fewer than 4 pamphlets spread (by chance), into m (kind 7) */
 
-int ai_PickPamphletTarget(AICHAR *p, int c, AIARG *m)
+int ai_PickPamphletTarget(AICHAR *p, AIARG *in, AIARG *m)
 {
     int k;
     int flags;
@@ -1060,7 +1060,7 @@ int ai_DecideLittleKnownChar(AICHAR *p, AIARG *in, AIARG *m)
 /* 0x4aa800, decide callback: p (money >= 3) picks a character within 33..48 units and a second one 50..100 units
    from both, by chance after 0x504e20, into m (kind 7) */
 
-int ai_DecideCharPair(AICHAR *p, int c, AIARG *m)
+int ai_DecideCharPair(AICHAR *p, AIARG *in, AIARG *m)
 {
     unsigned short ids[4];
     unsigned short id, id2;
@@ -1088,7 +1088,7 @@ int ai_DecideCharPair(AICHAR *p, int c, AIARG *m)
 }
 /* 0x4aa940, execute callback "aip_ExecPamphlet": p spreads a pamphlet about the character of m (message 0x35) */
 
-int aip_ExecPamphlet(AICHAR *p, int c, AIARG *m)
+int aip_ExecPamphlet(AICHAR *p, AIARG *in, AIARG *m)
 {
     AIMSG msg;
     AICHAR *o;
@@ -1114,7 +1114,7 @@ int aip_ExecPamphlet(AICHAR *p, int c, AIARG *m)
 /* 0x4aaa10, execute callback "aip_ExecDrohen": p threatens the character of m (message 0x2e, by chance after
    0x504e20) */
 
-int aip_ExecDrohen(AICHAR *p, int c, AIARG *m)
+int aip_ExecDrohen(AICHAR *p, AIARG *in, AIARG *m)
 {
     AIMSG msg;
     AICHAR *o;
@@ -1141,7 +1141,7 @@ int aip_ExecDrohen(AICHAR *p, int c, AIARG *m)
 /* 0x4aaae0, execute callback "aip_ExecAnschwaerzen": p denounces the character of m to the one at m + 8
    (message 0x2f) */
 
-int aip_ExecAnschwaerzen(AICHAR *p, int c, AIARG *m)
+int aip_ExecAnschwaerzen(AICHAR *p, AIARG *in, AIARG *m)
 {
     AIMSG msg;
 

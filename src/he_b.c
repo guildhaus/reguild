@@ -1094,7 +1094,7 @@ unsigned short hmt_RecordCount(void);
 unsigned short hmt_RandomRecord(short k);
 unsigned short hmt_RandomTextOffset(unsigned short k);
 struct G11REC *hmt_GetRecord(unsigned short k);
-float ord_GetStatistics(int *o);
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags);
 void ai_PlagueMessageAll(void);
 void udp_Send(char *buf, int len);
@@ -3174,7 +3174,7 @@ void he_AllocRecipeResearch(AIJOB *e)
             gm_AddTime(&e->end, 0, 5, 0);
             e->stage = 0;
             sv_MoveToGroup(c->bld, gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
-                           (char *)e);
+                           e);
             snd_PlayFavourComment();
             return;
         }
@@ -3260,7 +3260,7 @@ void he_AllocResearchRecipe(AIJOB *e)
                 gm_AddTime(&e->end, 0, 5, 0);
                 e->stage = 0;
                 sv_MoveToGroup(c->bld, gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
-                               (char *)e);
+                               e);
                 snd_PlayFavourComment();
                 return;
             }
@@ -3347,7 +3347,7 @@ void he_AllocTrainShare(AIJOB *e)
             gm_AddTime(&e->end, 0, 5, 0);
             e->stage = 0;
             sv_MoveToGroup(c->bld, gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b), c->id,
-                           (char *)e);
+                           e);
             snd_PlayFavourComment();
             return;
         }

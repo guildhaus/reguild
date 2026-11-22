@@ -13377,7 +13377,7 @@ struct AICHAR;
 int gm_CharLevel(unsigned short id, int again);
 unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
-float ord_GetStatistics(int *o);
+struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);
 int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
 int gv_SetTableRecord(struct AICHAR *c, int i, int v);   /* 0x4f2750 */
 int ai_FindPartnersRandomWalk(struct AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id); /* 0x4a5b50 (am.h, not included) */
