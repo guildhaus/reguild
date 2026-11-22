@@ -2077,7 +2077,7 @@ int cm_SendObjCell(const char *s, int a, int b, const char *s2)
    loads behind it; cm_RunCutOrders orders three stores to m the same way), which a pointer parameter of this body
    does not give (VC6 knows a function defined above does not let p escape) */
 
-int cm_SendCutEntry(int a, int p)
+int cm_SendCutEntry(int a, CMCUTENTRY *p)
 {
     G17MSG m;
 
@@ -2087,12 +2087,12 @@ int cm_SendCutEntry(int a, int p)
         m.cutEntry.fightId = cm_CurrentFight->id;
     else
         m.cutEntry.fightId = -1;
-    memcpy(&m.cutEntry.entry, (void *)p, sizeof(m.cutEntry.entry));
+    memcpy(&m.cutEntry.entry, p, sizeof(m.cutEntry.entry));
     return cm_QueueSend(&m);
 }
 /* 0x4c5ca0, message 0x51, as 0x4c5c40 */
 
-int cm_SendCutEntryUpdate(int a, int p)
+int cm_SendCutEntryUpdate(int a, CMCUTENTRY *p)
 {
     G17MSG m;
 
@@ -2102,7 +2102,7 @@ int cm_SendCutEntryUpdate(int a, int p)
         m.cutEntry.fightId = cm_CurrentFight->id;
     else
         m.cutEntry.fightId = -1;
-    memcpy(&m.cutEntry.entry, (void *)p, sizeof(m.cutEntry.entry));
+    memcpy(&m.cutEntry.entry, p, sizeof(m.cutEntry.entry));
     return cm_QueueSend(&m);
 }
 /* 0x4c5d00, message 0x52 */

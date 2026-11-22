@@ -3120,7 +3120,7 @@ void main_EndRound(void)
 
     fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     fade = 0;
-    gm_ClockSeason((unsigned)&ai_Time);
+    gm_ClockSeason(&ai_Time);
     clk = ai_Time;
     if ((ai_GameFlags & 4) != 0 && 1 < main_Round)
         clk.year++;

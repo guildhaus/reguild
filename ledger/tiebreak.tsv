@@ -3770,7 +3770,7 @@ exe	0x00561190	he_RunRansom	he	e829b1f4896ff578	no	shape	sweep control=shape bes
 exe	0x00561470	he_AllocEvent39_3e	he	8751adc3b4d056b4	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005614c0	he_RunRansomDemand	he	7b398cebf45b153d	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x005619a0	he_AllocBurglary	he	5c9615a02655ad1b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00561a20	he_RunBurglary	he	f5675b84530f0624	yes	byte	sweep control=shape best=byte by 1 unused typedef at the unit's start; codegens=2 compiled=190	6cc30d7a72cf975f
+exe	0x00561a20	he_RunBurglary	he	d948e421bb58695c	yes	draft	sweep control=draft best=draft by the build's declarations; codegens=2 compiled=190	e685e0f18467664a
 exe	0x005628e0	he_RunBuildingSpying	he	6f17b10c2d3cdd9f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=505	d6c38d44aab7c681
 exe	0x00563070	he_AllocAmbush	he	4e9b1b1b12883099	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005630f0	he_RunAmbush	he	2250ce36866269d9	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	093505b2b35f78cf
@@ -3792,7 +3792,7 @@ exe	0x00565d10	he_AllocKillPlayer	he	91acf4f40b2baad6	no	byte	control=byte p1=by
 exe	0x00565db0	he_RunKillPlayer	he	6f1ec98e440b63a7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	73487e1e271ee495
 exe	0x005662d0	he_AllocNightWatch	he	13bf338452c19224	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00566370	he_RunNightWatch	he	f0c3d619440cfc9d	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x00566830	he_RunRobbery	he	aed22c4302572f46	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	0b5c45ddd585f546
+exe	0x00566830	he_RunRobbery	he	da0c9e140087c380	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	e685e0f18467664a
 exe	0x00567620	he_AllocTitleDue	he	9875077499e9fb70	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00567660	he_RunTitleDue	he	2c12cf32e64c33cd	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00567810	he_OpenHelpEvents	he	3cc7e57adff69949	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

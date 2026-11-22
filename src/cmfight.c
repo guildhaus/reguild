@@ -1454,7 +1454,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
     }
     if (ch->formation == 1 || ch->formation == 2 || ch->formation == 3)
         order.held = 1;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
 }
 /* 0x4d0200, orders the character c of the cutscene record rec (CMCUTINFO) to flee to the escape object tgt
    ("sp_ESCAPE"): its entry (cm_CutEntrySlot, b0c cleared there) is copied with state 3 and the ground cell of tgt's
@@ -1485,7 +1485,7 @@ int cm_OrderEscape(char *rec, AICHAR *c, char *tgt)
     order.stateArg = x;
     order.state = 3;
     order.x = z;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
 }
 /* 0x4d02d0, an order kind 4 (the walk to a named dummy) for the character c with the name of the object tgt
    (CMCUTENTRY.dummy) and its ground cell (cellX, cellZ); returns 1, 0 when the point is not on the ground. */
@@ -1537,7 +1537,7 @@ int cm_OrderWare(char *rec, AICHAR *c, char *tgt)
     strcpy(order.dummy, tgt);
     order.storeX = (unsigned char)x;
     order.storeZ = (unsigned char)z;
-    return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+    return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
 }
 /* 0x4d0460, orders the character c of the cutscene record rec (CMCUTINFO) to the best ground cell within 8 rings of
    its own (cm_BestCellNear, formation type 4): its entry (cm_CutEntrySlot, b0c cleared there) is copied with state 7 and
@@ -1561,7 +1561,7 @@ int cm_OrderToBestCell(char *rec, AICHAR *c)
         order.stateArg = x;
         order.state = 7;
         order.x = z;
-        return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+        return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
     }
     return -1;
 }
@@ -1579,7 +1579,7 @@ void cm_OrderWait(char *rec, AICHAR *c)
     memcpy(&order, q, sizeof(order));
     order.charId = c->netId;
     order.state = 8;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
 }
 
 /* 0x4d0570, the order of a mouse click (dm_L.lup) for the character c of the cutscene record rec (CMCUTINFO): on a
@@ -1626,7 +1626,7 @@ char cm_OrderClick(char *rec, AICHAR *c)
                 order.stateArg = x;
                 order.state = 1;
                 order.x = z;
-                cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, (int)&order);
+                cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
                 ret = 1;
             } else
                 sv_SetStatusText(txt_Ptrs[TXT_CLICK_NO_GROUND]);
@@ -3251,7 +3251,7 @@ AICHAR *cm_CheckFightWinner(G28REC *rec)
         entry = *slot;
         entry.charId = winner->netId;
         entry.state = 5;
-        cm_SendCutEntry(cm_CutInfos[i].playerId, (int)&entry);
+        cm_SendCutEntry(cm_CutInfos[i].playerId, &entry);
     }
     return winner;
 }
@@ -4258,7 +4258,7 @@ void cm_FightFrame(char *r)
             memcpy(&sl, q, sizeof(CMCUTENTRY));
             sl.charId = cm_CutChar->netId;
             sl.state = 5;
-            cm_SendCutEntry(((CMCUTINFO *)r)->playerId, (int)&sl);
+            cm_SendCutEntry(((CMCUTINFO *)r)->playerId, &sl);
         }
     } else
         sv_PopRequest = 1;

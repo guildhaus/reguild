@@ -212,9 +212,8 @@ char d3io_LodName(char *name, char *name2, int lod, char *out, char *out2)
 /* 0x44cbb0, attaches the stock object `name` to obj: into surf, or (surf 0) its LODs into the mesh's
    surfaces 0..2 and the "_s" variant into surface 3 */
 
-void d3_AttachMesh(D3OBJECT *obj, int unk, char *name)
+void d3_AttachMesh(D3OBJECT *obj, D3SURF *surf, char *name)
 {
-    D3SURF *surf = (D3SURF *)unk;
     char buf[0x100];
     int i, n;
 

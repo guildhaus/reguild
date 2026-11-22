@@ -147,20 +147,20 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
                 for (k = 0; k < n; k++) {
                     bio_rd_s(f, name);
                     d3io_LoadObject(name, name);
-                    d3_AttachMesh(obj, (int)&D3_MESH(obj)->surf[k], name);
+                    d3_AttachMesh(obj, &D3_MESH(obj)->surf[k], name);
                 }
                 if (version >= 0x3a6c00a3) {
                     bio_rd_c(f, &c);
                     if (c) {
                         bio_rd_s(f, name);
                         d3io_LoadObject(name, name);
-                        d3_AttachMesh(obj, (int)&D3_MESH(obj)->surf[3], name);
+                        d3_AttachMesh(obj, &D3_MESH(obj)->surf[3], name);
                     }
                 } else if (D3_OPS(&D3_MESH(obj)->surf[0].info)) {
                     strcpy(name, (char *)D3_OPS(&D3_MESH(obj)->surf[0].info));
                     strcat(name, "_s");
                     if (d3io_LoadObject(name, name))
-                        d3_AttachMesh(obj, (int)&D3_MESH(obj)->surf[3], name);
+                        d3_AttachMesh(obj, &D3_MESH(obj)->surf[3], name);
                 }
             }
         case 2:

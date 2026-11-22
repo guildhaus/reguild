@@ -258,7 +258,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             m.state = 0;
             m.charId = c->netId;
             cm_SendFightCommand(c, 7, (CMFIGHTSLOT *)&m);
-            res = cm_SendCutEntry(rec->playerId, (int)&m);
+            res = cm_SendCutEntry(rec->playerId, &m);
             goto done;
         case 1:
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
@@ -279,7 +279,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             m.charId = c->netId;
             m.state = 0;
             cm_SendFightCommand(c, 6, (CMFIGHTSLOT *)&m);
-            res = cm_SendCutEntry(rec->playerId, (int)&m);
+            res = cm_SendCutEntry(rec->playerId, &m);
             goto done;
         case 2:
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
@@ -290,7 +290,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 m.state = 0;
                 m.charId = c->netId;
                 cm_SendFightCommand(c, 6, (CMFIGHTSLOT *)&m);
-                res = cm_SendCutEntry(rec->playerId, (int)&m);
+                res = cm_SendCutEntry(rec->playerId, &m);
                 goto done;
             }
             if (k->kind == 1 || k->kind == 2) {
@@ -298,7 +298,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 if (item != 0 && item->usesLeft <= 0) {
                     m.charId = c->netId;
                     m.state = 0;
-                    res = cm_SendCutEntry(rec->playerId, (int)&m);
+                    res = cm_SendCutEntry(rec->playerId, &m);
                     goto done;
                 }
             }
@@ -418,7 +418,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                             break;
                         if (cm_BestCellNear(c, cm_PickCellX, cm_PickCellZ, 0xc, &ix, &iz) != 0)
                             p->orderSlot = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
-                        p->orderSlot = cm_SendCutEntry(rec->playerId, (int)&m);
+                        p->orderSlot = cm_SendCutEntry(rec->playerId, &m);
                     } else {
                         cm_SendSetField(c->netId, 0x1c8, 4, 0x20000000, 0);
                         p->orderSlot = cm_SendFightCommand(c, 2, (CMFIGHTSLOT *)p);
@@ -432,7 +432,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     p->orderSlot = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                 m.charId = c->netId;
                 m.state = 0;
-                res = cm_SendCutEntry(rec->playerId, (int)&m);
+                res = cm_SendCutEntry(rec->playerId, &m);
                 goto done;
             }
             break;
@@ -453,7 +453,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             cm_SendFightCommand(c, 1, (CMFIGHTSLOT *)&m);
             m.state = 0;
             m.charId = c->netId;
-            res = cm_SendCutEntry(rec->playerId, (int)&m);
+            res = cm_SendCutEntry(rec->playerId, &m);
             goto done;
         case 6:
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
@@ -463,7 +463,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 cm_SendFightCommand(c, 6, (CMFIGHTSLOT *)&m);
                 m.charId = c->netId;
                 m.state = 0;
-                p->orderSlot = cm_SendCutEntry(rec->playerId, (int)&m);
+                p->orderSlot = cm_SendCutEntry(rec->playerId, &m);
             }
             if (p->storeStep == 0) {
                 if (c->scene->actions == 0) {
@@ -479,7 +479,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     break;
                 cm_SendFightCommand(c, 4, (CMFIGHTSLOT *)&m);
                 m.storeStep = 1;
-                res = cm_SendCutEntryUpdate(rec->playerId, (int)&m);
+                res = cm_SendCutEntryUpdate(rec->playerId, &m);
                 goto done;
             } else if (p->storeStep == 1) {
                 if (c->scene->actions != 0)
@@ -497,7 +497,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 m.storeX = ix;
                 m.storeZ = iz;
                 m.storeStep = 2;
-                cm_SendCutEntryUpdate(rec->playerId, (int)&m);
+                cm_SendCutEntryUpdate(rec->playerId, &m);
                 res = cm_SendObjCell(c->scene->obj->name, ix, iz, 0);
                 goto done;
             } else if (p->storeStep == 2) {
@@ -507,7 +507,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 cm_SendFightCommand(c, 5, (CMFIGHTSLOT *)&m);
                 m.charId = c->netId;
                 m.state = 0;
-                res = cm_SendCutEntry(rec->playerId, (int)&m);
+                res = cm_SendCutEntry(rec->playerId, &m);
                 goto done;
             }
             break;
@@ -540,7 +540,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     cm_SendFightCommand(c, 3, (CMFIGHTSLOT *)&m);
                     m.state = 0;
                     m.charId = c->netId;
-                    res = cm_SendCutEntry(rec->playerId, (int)&m);
+                    res = cm_SendCutEntry(rec->playerId, &m);
                     goto done;
                 }
             }
@@ -554,7 +554,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 break;
             m.charId = c->netId;
             m.state = 0;
-            res = cm_SendCutEntry(rec->playerId, (int)&m);
+            res = cm_SendCutEntry(rec->playerId, &m);
             goto done;
         case 7:
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)
@@ -575,7 +575,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             m.charId = c->netId;
             m.state = 0;
             cm_SendFightCommand(c, 6, (CMFIGHTSLOT *)&m);
-            res = cm_SendCutEntry(rec->playerId, (int)&m);
+            res = cm_SendCutEntry(rec->playerId, &m);
             goto done;
         case 8:
             if (p->orderSlot != 1 && cm_GetSlotState(p->orderSlot) == 0)

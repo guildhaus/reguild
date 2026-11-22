@@ -10857,9 +10857,11 @@ void he_EndPersonEvents(AICHAR *p)
    building's object). Found: the event goes to d->found, its characters are stopped, the one that saw it beckons
    ("gestik/herranwinken"), all are sent to the building ("Detected") with a scornful gesture
    ("gestik/abfaellig" 1 .. 2), the event is bound to the attack (attackId), due 8 minutes from now and posted
-   again (cm_SendExSetHE 0x400); 1. Nothing found (or no building object): 0. The question comes as an int: the
-   callers treat their HEDETECT as escaped (he_RunBurglary keeps d.found loaded across gv_Accuse) */
-int he_DetectAttack(int p)
+   again (cm_SendExSetHE 0x400); 1. Nothing found (or no building object): 0. The question comes as an integer
+   (intptr_t): the callers treat their HEDETECT as escaped (he_RunBurglary keeps d.found loaded across gv_Accuse;
+   @original: a HEDETECT * parameter frees d for the allocator, he_RunRobbery byte -> draft, he_RunBurglary 10 bytes
+   shorter) */
+int he_DetectAttack(intptr_t p)
 {
     HEDETECT *d = (HEDETECT *)p;
     AIJOB *e, *best;
@@ -13128,7 +13130,7 @@ void he_RunSabotage(AIJOB *e)
         d.range = 4000.0f;
         d.ev = e;
         d.found = 0;
-        if (he_DetectAttack((int)&d) != 0) {
+        if (he_DetectAttack((intptr_t)&d) != 0) {
             x->slot = gv_Accuse(0x18, 1, ai_Chars[e->chr].netId, ai_Chars[b->owner].netId, x->target);
             x->watch = d.found->id;
             e->stage = 7;
@@ -13678,7 +13680,7 @@ void he_RunBrawl(AIJOB *e)
             d.range = 4000.0f;
             d.ev = e;
             d.found = 0;
-            if (he_DetectAttack((int)&d) != 0) {
+            if (he_DetectAttack((intptr_t)&d) != 0) {
                 br->slot = gv_Accuse(0x15, 1, ai_Chars[e->chr].netId, victim->netId, b->id);
                 br->watch = d.found->id;
                 e->stage = 8;
@@ -15404,7 +15406,7 @@ void he_AllocRoutine(AIJOB *ev)
 
     r->step = 3;
     r->chrIdx = 0;
-    gm_ClockSeason((unsigned)&ai_Time);
+    gm_ClockSeason(&ai_Time);
     ev->end = ai_Time;
     ev->start = ai_Time;
     gm_SetTime(&ev->end, 6, 0xf, 0);
@@ -16632,7 +16634,7 @@ void he_RunBurglary(AIJOB *ev)
             d.range = 5000.0f;
             d.ev = ev;
             d.found = 0;
-            if (he_DetectAttack((int)&d) != 0) {
+            if (he_DetectAttack((intptr_t)&d) != 0) {
                 patrol = d.found;
                 x->slot = gv_Accuse(0x17, 1, ai_CharInts[ev->chr][0], owner->netId, b->id);
                 x->watch = patrol->id;
@@ -18586,7 +18588,7 @@ void he_RunRobbery(AIJOB *ev)
             d.range = 2500.0f;
             d.ev = ev;
             d.found = 0;
-            if (he_DetectAttack((int)&d) != 0) {
+            if (he_DetectAttack((intptr_t)&d) != 0) {
                 patrol = d.found;
                 x->slot = gv_Accuse(0x17, 1, ai_CharInts[ev->chr][0], owner->netId, b->id);
                 x->watch = patrol->id;
