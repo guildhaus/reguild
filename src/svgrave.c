@@ -711,7 +711,7 @@ void ai_GraveDetail(AIBLD *rec, int *w, int clicked, int flag)
         d2_Objs[item->btn].interactive = flag == 0;
         d2_Objs[item->btn].style = 3;
         ai_GraveDeadName(item->grave, buf);
-        ai_GraveDeadDescription((char *)item->grave, line2);
+        ai_GraveDeadDescription(item->grave, line2);
         y = d2_Wins[w[3]].h * i + 0x38;
         k = d2_CreateWinText(0, y, buf, w[3]);
         d2_Objs[k].centred = 1;
