@@ -399,7 +399,7 @@ int ai_DecideSentence(AICHAR *ch, AIPLAN *q);                          /* 0x4946
 int ai_WealthRating(AICHAR *a, AICHAR *b);                             /* 0x4947a0 */
 int ai_WealthRatingHalf(AICHAR *a, AICHAR *b);                             /* 0x494830 */
 AIREC10 *ai_FindInstrumentRecord(int key);                                 /* 0x4948c0 */
-void ai_RollStudyOffers(struct AICHAR *ch, int *out);                          /* 0x4948f0 */
+struct AISTUDYOFFER; void ai_RollStudyOffers(struct AICHAR *ch, struct AISTUDYOFFER *out);                          /* 0x4948f0 */
 int ai_MasterExamPassed(AICHAR *a, AICHAR *b);                             /* 0x494a30 */
 int ai_EvalFest(AIGRP *g, int send);                           /* 0x494ac0 */
 int ai_RelationGain(AICHAR *payer, AICHAR *target, int n);                      /* 0x494d40 */
@@ -483,6 +483,12 @@ typedef struct G8OFFER {                /* 12 bytes, filled by 0x50a250 */
     int b;                              /* 0x4 */
     int c;                              /* 0x8 */
 } G8OFFER;
+
+typedef struct AISTUDYOFFER {           /* 12 bytes, a university's study offer (ai_RollStudyOffers) */
+    int price;                          /* 0x0 */
+    int subject;                        /* 0x4, the fixed subject (4, 3, 2 by the offer) */
+    int level;                          /* 0x8, the second subject index */
+} AISTUDYOFFER;
 
 typedef struct G8TABLE {                /* 12 bytes, a regulars' table request (0x4c5d80) */
     unsigned int tag;                   /* 0x0, 'join' / 'leav' */
@@ -596,7 +602,7 @@ int ai_ExecuteUpgradeGuild(AICHAR *p, AIARG *s1, AIARG *s2);                    
 int ai_EvalApprenticeship(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x4a1000 */
 int ai_DecideApprenticeship(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a1170 */
 int ai_ExecuteApprenticeship(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a1360 */
-void ai_RollStudyOffers(struct AICHAR *ch, int *out);                                         /* 0x4948f0, unk_494020.h: AICHAR * */
+void ai_RollStudyOffers(struct AICHAR *ch, struct AISTUDYOFFER *out);                                         /* 0x4948f0, unk_494020.h: AICHAR * */
 int ai_DecideStudy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a13e0 */
 int ai_ExecuteStudy(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a1640 */
 int ai_SeanceDecide(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);    /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */

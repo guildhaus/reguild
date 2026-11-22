@@ -963,7 +963,7 @@ AIREC10 *ai_FindInstrumentRecord(int key)
    is its worth * 0.025 split by the map distance from player slot 0's place to slots 1 .. 3, whose offer it is;
    the first subject is fixed (4, 3, 2) and the second one of three (0 / 3 / 1, 1 / 2 / 0, 0 / 4 / 1) */
 
-void ai_RollStudyOffers(AICHAR *ch, int *out)
+void ai_RollStudyOffers(AICHAR *ch, AISTUDYOFFER *out)
 {
     int t[3][4] = {{4, 0, 3, 1}, {3, 1, 2, 0}, {2, 0, 4, 1}};
     float f[3];
@@ -978,12 +978,12 @@ void ai_RollStudyOffers(AICHAR *ch, int *out)
                               ai_PlayerSlots[i + 1].mapY);
         if (f[i] > m)
             m = f[i];
-        out[i * 3 + 1] = t[i][0];
-        out[i * 3 + 2] = t[i][util_Random(3) + 1];
+        out[i].subject = t[i][0];
+        out[i].level = t[i][util_Random(3) + 1];
     }
     for (i = 0; i < 3; i++) {
         f[i] = 1.0f / m * f[i];
-        out[i * 3] = (int)(k * f[i]);
+        out[i].price = (int)(k * f[i]);
     }
 }
 /* 0x494a30, whether the examinee b passes the guild master a's master exam (the event he_RunFeastExam): no when
@@ -7056,7 +7056,7 @@ int ai_DecideStudy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     JOBTALENTS x;
     float s[3];
-    G8OFFER rec[3];
+    AISTUDYOFFER rec[3];
     AICHAR *c, *best;
     unsigned char k;
     int m, n;
@@ -7087,13 +7087,13 @@ int ai_DecideStudy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     }
     if (best == 0)
         return 0;
-    ai_RollStudyOffers(p, (int *)rec);
+    ai_RollStudyOffers(p, rec);
     x = gm_GetJobTalents(best->jobId);
     for (n = 0; n < 3; n++) {
-        va = max((float)x.skills[rec[n].b], 1.0f);
-        sk = rec[n].c;
+        va = max((float)x.skills[rec[n].subject], 1.0f);
+        sk = rec[n].level;
         vb = max((float)x.skills[sk], 1.0f);
-        s[n] = best->skills[rec[n].b] / va + best->skills[sk] / vb;
+        s[n] = best->skills[rec[n].subject] / va + best->skills[sk] / vb;
     }
     if (util_Random(2) != 0) {
         m = s[0] > s[1] ? 0 : 1;
@@ -7104,14 +7104,14 @@ int ai_DecideStudy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         if (!(s[m] < s[2]))
             m = 2;
     }
-    if (gm_CharCurrency(p, ai_OwnPlayer) < rec[m].a * 10)
+    if (gm_CharCurrency(p, ai_OwnPlayer) < rec[m].price * 10)
         return 0;
     o1->kind = 7;
     o1->ref = best->netId;
-    o1->arg2 = rec[m].a;
+    o1->arg2 = rec[m].price;
     o2->kind = 0xe;
-    o2->ref = rec[m].b;
-    o2->arg2 = rec[m].c;
+    o2->ref = rec[m].subject;
+    o2->arg2 = rec[m].level;
     return 0x3b;
 }
 /* 0x4a1640, execute callback of "Studium" (0x3b): sends the study message 0x5f (AIMSG.study: the offer s2,

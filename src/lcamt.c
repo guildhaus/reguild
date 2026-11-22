@@ -9057,7 +9057,7 @@ int ai_UniversityWindow(AICHAR *parent, AICHAR *child)
 {
     int win;
     int ctrl[4];
-    int offers[3][3];
+    AISTUDYOFFER offers[3];
     AIMSG msg;
     char text[0x100];
     int i;
@@ -9075,11 +9075,11 @@ int ai_UniversityWindow(AICHAR *parent, AICHAR *child)
         d2_Objs[ctrl[i]].style = 3;
         txt_Format(text, (intptr_t)"%s", ai_PlayerSlots[i + 1].name);
         d2_CreateWinText(0xbe, i * 0x5a + 10, text, d2_LastWindow);
-        txt_Format(text, (intptr_t)"%s", offers[i][1] + 0x16b7);
+        txt_Format(text, (intptr_t)"%s", offers[i].subject + 0x16b7);
         d2_CreateWinText(0xbe, i * 0x5a + 0x1e, text, d2_LastWindow);
-        txt_Format(text, (intptr_t)"%s", offers[i][2] + 0x16b7);
+        txt_Format(text, (intptr_t)"%s", offers[i].level + 0x16b7);
         d2_CreateWinText(0xbe, i * 0x5a + 0x32, text, d2_LastWindow);
-        txt_Format(text, (intptr_t)"%T", offers[i][0]);
+        txt_Format(text, (intptr_t)"%T", offers[i].price);
         d2_CreateWinText(0xbe, i * 0x5a + 0x46, text, d2_LastWindow);
     }
     d2_SetForm(win, 3);
@@ -9101,9 +9101,9 @@ int ai_UniversityWindow(AICHAR *parent, AICHAR *child)
                         msg.to = child->netId;
                         msg.fromId = -1;
                         msg.study.ch = ai_Chars[ai_PlayerId].netId;
-                        msg.study.subject = offers[i][1];
-                        msg.study.level = offers[i][2];
-                        msg.study.child = offers[i][0];
+                        msg.study.subject = offers[i].subject;
+                        msg.study.level = offers[i].level;
+                        msg.study.child = offers[i].price;
                         cm_SendLongMessage(&msg);
                         cm_SendSetField(child->netId, 0x1c8, 4, 0x10000, 0);
                         ret = 1;
