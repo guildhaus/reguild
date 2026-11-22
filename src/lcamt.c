@@ -10976,19 +10976,18 @@ done:
 
 int ai_UseGoodHeatBuilding(AICHAR *ch, G8USEVIEW *use)
 {
-    int cfg[20];
+    AMOUNTCFG cfg;
     int i;
     AIBLD *bld;
 
     if (ch->kind == 6) {
-        for (i = 0; i < 20; i++)
-            cfg[i] = 0;
-        cfg[1] = 0x410;
-        cfg[4] = 4;
-        cfg[2] = 0xa0400300;
-        cfg[3] = 1;
-        cfg[0] = 0;
-        bld = ai_MapPick(1, cfg, txt_Ptrs[0x9b], 0, 0);
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.mode = 0x410;
+        cfg.kind = 4;
+        cfg.classMask[0] = 0xa0400300;
+        cfg.classMask[1] = 1;
+        cfg.flags = 0;
+        bld = ai_MapPick(1, &cfg, txt_Ptrs[0x9b], 0, 0);
     } else {
         bld = gm_FindBuildingById(use->target);
     }
@@ -11022,19 +11021,18 @@ int ai_UseEventGood(AICHAR *ch)
 
 int ai_UseGoodStaffBonus(AICHAR *ch, G8USEVIEW *use)
 {
-    int cfg[20];
+    AMOUNTCFG cfg;
     int i;
     AIBLD *bld;
 
     if (ch->kind == 6) {
-        for (i = 0; i < 20; i++)
-            cfg[i] = 0;
-        cfg[1] = 0x410;
-        cfg[4] = 4;
-        cfg[2] = 0xa0747980;
-        cfg[3] = 1;
-        cfg[0] = 0;
-        bld = ai_MapPick(1, cfg, ch_EmptyName, 0, 0);
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.mode = 0x410;
+        cfg.kind = 4;
+        cfg.classMask[0] = 0xa0747980;
+        cfg.classMask[1] = 1;
+        cfg.flags = 0;
+        bld = ai_MapPick(1, &cfg, ch_EmptyName, 0, 0);
         if (bld == 0)
             return 0;
     } else {

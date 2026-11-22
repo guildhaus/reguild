@@ -4198,16 +4198,16 @@ void ai_LoadTownMap(void)
    and ai_CloseMapWindow. The record is 0x27ac bytes in the original's 0x27b0-byte frame (ai_OpenTownMap stores
    the background tile at +0x27a8). The fifth argument is not read */
 
-void *ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused)
+void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), int unused)
 {
     LCMAPWIN map;
     void *picked;
     int i;
 
     picked = 0;
-    memset(map.req, 0, sizeof(map.req));
+    memset(&map.req, 0, sizeof(map.req));
     if (req != 0)
-        memcpy(map.req, req, sizeof(map.req));
+        memcpy(&map.req, req, sizeof(map.req));
     map.flags = flags;
     if (name != 0)
         strcpy(map.name, name);

@@ -333,6 +333,25 @@ void ai_DomizilMessage12(struct AICHAR *ch, struct AIBLD *b, int n);  /* 0x5a9e4
 struct AICHAR; struct LCORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
 int ai_DivorceDialog(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8ef0, the divorce order's ask (ord.c 0x4f5800); m is not read */
 int ai_WorkerDismissalWindow(void *ch, int *m);  /* 0x5ce7f0 */
+typedef struct AMOUNTCFG {              /* 0x50 bytes, the config of the special-amount menu ai_AmountMenu (lc.c) */
+    int flags;                          /* +0x00, 1 / 0x20400 / 0x2040a .. (the gypsy windows: 1) */
+    int mode;                           /* +0x04, 0x400: the partner filter bits (lc.c ai_PassesPartnerFilter) */
+    unsigned int classMask[2];          /* +0x08, the building classes 0 .. 63 (lc.c ai_PassesBuildingFilter) as two
+                                           words: 0x1a7fdfbb6 (the gypsy windows, gypsyFilter's halves), 0x1a07c43a0 (the
+                                           sabotage); the map pick's callers write the halves in any order, so the
+                                           record has no __int64 (it sits at +0xc in LCMAPWIN) */
+    int kind;                           /* +0x10, 6 */
+    int option14;                       /* +0x14, 2 in the blood revenge window (meaning not derived) */
+    int lockSecond;                     /* +0x18, nonzero: ai_AmountMenu leaves its second button (picture 0x599)
+                                           without input (ai_GuildLevel3Entry sets it) */
+    unsigned short ids[16];             /* +0x1c, the character ids the menu leaves out / lists, 0xffff = none */
+    char pad3c[4];
+    int liking;                         /* +0x40, nonzero: ai_PassesPartnerFilter wants the liking in [likingMin, likingMax] */
+    float likingMin;                    /* +0x44 */
+    float likingMax;                    /* +0x48 */
+    int option4c;                       /* +0x4c, 0x727 (the sabotage menu, the graveyard's fog target pick), 0x71f
+                                           (ai_HandleMapKey's pick; meaning not derived) */
+} AMOUNTCFG;
 typedef struct LCMAPMARK {         /* 0x18 bytes, a mark of the town map (LCMAPWIN.marks, rt's building marks) */
     int ctrl;                      /* 0x00, its picture control, -1: not placed yet */
     struct AIBLD *bld;             /* 0x04, the building it marks */
@@ -345,8 +364,8 @@ typedef struct LCMAPWIN {          /* 0x27ac bytes, the town map window's record
     int view;                      /* 0x000 */
     unsigned int flags;            /* 0x004, 4: show the ambush spots, 8: the building placement sites */
     int screen;                    /* 0x008, the map window */
-    int req[0x14];                 /* 0x00c, the request record: its filter greys the buildings out
-                                      (ai_PassesMapPickFilter) */
+    AMOUNTCFG req;                 /* 0x00c, the request record (ai_MapPick's req): its filter greys the buildings
+                                      out (ai_PassesMapPickFilter) */
     char name[0x68];               /* 0x05c, the title */
     char pad0c4[0x18];
     LCMAPMARK marks[0x100];        /* 0x0dc, the buildings, sorted by their scene row */
@@ -446,7 +465,7 @@ int ai_OpenTransport(struct AIBLD *building);  /* 0x5af1a0, the transport list o
 struct D3OBJECT *ai_CreateCityPoint(char *city);  /* 0x59a2c0, creates the city point object of a town, 0 when its dummy is missing */
 void ai_LoadTownMap(void);  /* 0x5b2090, loads the town map picture of the own player */
 int ai_OpenTransportBuy(struct AIBLD *building);  /* 0x5af1c0 */
-void *ai_MapPick(unsigned int flags, int *req, char *name, void (*cb)(), int unused);  /* 0x5b2180 */
+void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), int unused);  /* 0x5b2180 */
 void ai_OpenRobberBribe(struct AIBLD *bld);  /* 0x5b4bf0 */
 int ai_DrohbriefWindow(struct AIBLD *bld);  /* 0x5b4fb0 */
 void ai_LeftAlignedText(char *text, int x, int y, int w, int font);  /* 0x5bd1f0 */

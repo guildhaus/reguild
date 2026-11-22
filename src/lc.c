@@ -2982,7 +2982,7 @@ void lc_PlayerInJail(void);
    (the record's +0x29 text) */
 void ai_HandleMapKey(void)
 {
-    int msg[0x14];
+    AMOUNTCFG msg;
     AIBLD *p;
     int r;
     int u;
@@ -2990,11 +2990,11 @@ void ai_HandleMapKey(void)
     if (kb_Last == '2' ||
         (dm_L.lclick != 0 &&
          (d2_PointerObj == sv_PanelBuildingIcon || d2_PointerObj == sv_PanelCompass))) {
-        memset(msg, 0, 0x50);
-        msg[4] = 0;
-        msg[2] = 0;
-        msg[0x13] = 0x71f;
-        p = ai_MapPick(1, msg, 0, 0, 0);
+        memset(&msg, 0, sizeof(msg));
+        msg.kind = 0;
+        msg.classMask[0] = 0;
+        msg.option4c = 0x71f;
+        p = ai_MapPick(1, &msg, 0, 0, 0);
         if (p != 0 && sv_OtherSelected == 0) {
             if (ai_FallbackBuilding != 0) {
                 r = gm_IsHomeType(p);
@@ -4527,15 +4527,15 @@ int he_NoProtectionEvent();
    selection is cleared (0x52ae40) */
 void ai_OpenPickpocket(AIBLD *building)
 {
-    int cfg[0x14];
+    AMOUNTCFG cfg;
 
-    memset(cfg, 0, 0x50);
-    cfg[3] = 0;
-    cfg[1] = 0x400;
-    cfg[4] = 7;
-    cfg[2] = 0x93810;
+    memset(&cfg, 0, sizeof(cfg));
+    cfg.classMask[1] = 0;
+    cfg.mode = 0x400;
+    cfg.kind = 7;
+    cfg.classMask[0] = 0x93810;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, cfg, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_PickpocketWindow, 0);
+    ai_MapPick(1, &cfg, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_PickpocketWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -4624,17 +4624,17 @@ int ai_BribeCallback(char *place, AIBLD *target)
 
 void ai_OpenBribe(AIBLD *building)
 {
-    int cfg[0x14];
+    AMOUNTCFG cfg;
 
     if (sv_CheckCharacterFlag(building) == 0 && building != 0) {
-        memset(cfg, 0, 0x50);
-        cfg[0] = 1;
-        cfg[1] = -1;
-        cfg[4] = 6;
-        cfg[2] = 0xa07c43a0;
-        cfg[3] = 1;
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.flags = 1;
+        cfg.mode = -1;
+        cfg.kind = 6;
+        cfg.classMask[0] = 0xa07c43a0;
+        cfg.classMask[1] = 1;
         sv_OpenPlayerBar(building, 0);
-        ai_MapPick(1, cfg, txt_Ptrs[TXT_BRIBE_PICK], ai_BribeCallback, 0);
+        ai_MapPick(1, &cfg, txt_Ptrs[TXT_BRIBE_PICK], ai_BribeCallback, 0);
         sv_ClosePlayerBar();
         sv_ClearSelection();
     }
@@ -4744,19 +4744,19 @@ void ai_BriberyWindow(char *place, AIBLD *target)
 
 void ai_OpenSpying(AIBLD *building)
 {
-    int cfg[0x14];
+    AMOUNTCFG cfg;
     char text[0x400];
 
     if (sv_CheckCharacterFlag(building) == 0) {
-        memset(cfg, 0, 0x50);
-        cfg[1] = 0x400;
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.mode = 0x400;
         if (building != 0) {
             sv_OpenPlayerBar(building, 0);
-            cfg[0x13] = 0x727;
-            cfg[4] = 6;
-            cfg[2] = 0;
+            cfg.option4c = 0x727;
+            cfg.kind = 6;
+            cfg.classMask[0] = 0;
             txt_Format(text, 0x19f6);
-            ai_MapPick(1, cfg, text, ai_BriberyWindow, 0);
+            ai_MapPick(1, &cfg, text, ai_BriberyWindow, 0);
             sv_ClosePlayerBar();
             sv_ClearSelection();
         }
@@ -4834,20 +4834,20 @@ void ai_RaidWindow(char *place, AIBLD *target)
 
 void ai_OpenRaid(AIBLD *building)
 {
-    int cfg[0x14];
+    AMOUNTCFG cfg;
     char text[0x400];
 
     if (sv_CheckCharacterFlag(building) == 0) {
-        memset(cfg, 0, 0x50);
-        cfg[1] = 0x400;
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.mode = 0x400;
         if (building != 0) {
             sv_OpenPlayerBar(building, 0);
-            cfg[0x13] = 0x727;
-            cfg[4] = 6;
-            cfg[2] = 0xa07443a0;
-            cfg[3] = 1;
+            cfg.option4c = 0x727;
+            cfg.kind = 6;
+            cfg.classMask[0] = 0xa07443a0;
+            cfg.classMask[1] = 1;
             txt_Format(text, 0x1a83);
-            ai_MapPick(1, cfg, text, ai_RaidWindow, 0);
+            ai_MapPick(1, &cfg, text, ai_RaidWindow, 0);
             sv_ClosePlayerBar();
             sv_ClearSelection();
         }
@@ -11940,24 +11940,23 @@ int ai_BurglaryWindow(int ctx, AIBLD *bld)
 
 void ai_BurglaryStart(AIBLD *building)
 {
-    int req[20];
+    AMOUNTCFG req;
     char buf[0x80];
     int i;
 
     if (sv_CheckCharacterFlag(building) != 0)
         return;
-    for (i = 0; i < 20; i++)
-        req[i] = 0;
-    req[1] = 0x400;
+    memset(&req, 0, sizeof(req));
+    req.mode = 0x400;
     if (building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
     txt_Format(buf, 0x19e2);
-    req[19] = 0x727;
-    req[4] = 7;
-    req[2] = 0xa07443b4;
-    req[3] = 1;
-    ai_MapPick(1, req, buf, ai_BurglaryWindow, 0);
+    req.option4c = 0x727;
+    req.kind = 7;
+    req.classMask[0] = 0xa07443b4;
+    req.classMask[1] = 1;
+    ai_MapPick(1, &req, buf, ai_BurglaryWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12072,29 +12071,28 @@ int ai_GuildSpyWindow(int ctx, AIBLD *target)
 
 void ai_EspionageStart(AIBLD *bld)
 {
-    int req[20];
+    AMOUNTCFG req;
     int i;
     char buf[0x400];
 
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
-    for (i = 0; i < 20; i++)
-        req[i] = 0;
-    req[1] = 0x400;
+    memset(&req, 0, sizeof(req));
+    req.mode = 0x400;
     if (bld == 0)
         return;
     sv_OpenPlayerBar(bld, 0);
-    req[19] = 0x727;
-    req[4] = 7;
+    req.option4c = 0x727;
+    req.kind = 7;
     if (ai_BTypes[bld->type].kind == 0x13) {
-        req[2] = 0x90010;
-        req[3] = 0;
+        req.classMask[0] = 0x90010;
+        req.classMask[1] = 0;
     } else {
-        req[2] = 0xa7fd43b4;
-        req[3] = 1;
+        req.classMask[0] = 0xa7fd43b4;
+        req.classMask[1] = 1;
     }
     txt_Format(buf, 0x19f6);
-    ai_MapPick(1, req, buf, ai_GuildSpyWindow, 0);
+    ai_MapPick(1, &req, buf, ai_GuildSpyWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12287,16 +12285,15 @@ int ai_AttackWindow(int ctx, AIBLD *target)
 
 void ai_AttackStart(AIBLD *building)
 {
-    int req[20];
+    AMOUNTCFG req;
     int i;
 
-    for (i = 0; i < 20; i++)
-        req[i] = 0;
-    req[1] = 0x400;
-    req[4] = 7;
-    req[2] = 0x90010;
+    memset(&req, 0, sizeof(req));
+    req.mode = 0x400;
+    req.kind = 7;
+    req.classMask[0] = 0x90010;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_AttackWindow, 0);
+    ai_MapPick(1, &req, txt_Ptrs[TXT_MAP_PICK_PROMPT], ai_AttackWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -12942,22 +12939,21 @@ int ai_CityWatchWindow(int ctx, AIBLD *target)
 
 void ai_PatrolStart(AIBLD *building)
 {
-    int req[20];
+    AMOUNTCFG req;
     int i;
     int r;
 
     r = sv_CheckCharacterFlag(building);
     if (r != 0)
         return;
-    for (i = 0; i < 0x14; i++)
-        req[i] = 0;
-    req[1] = 0x400;
-    req[4] = 2;
-    req[2] = r;
+    memset(&req, 0, sizeof(req));
+    req.mode = 0x400;
+    req.kind = 2;
+    req.classMask[0] = r;
     if (building == 0)
         return;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_PATROL_PICK_PROMPT], ai_CityWatchWindow, 0);
+    ai_MapPick(1, &req, txt_Ptrs[TXT_PATROL_PICK_PROMPT], ai_CityWatchWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13042,21 +13038,20 @@ int ai_CityWatchCrewWindow(int ctx, AIBLD *target)
 
 void ai_RaidStart(AIBLD *building)
 {
-    int req[20];
+    AMOUNTCFG req;
     int i;
 
     if (sv_CheckCharacterFlag(building) != 0)
         return;
-    for (i = 0; i < 0x14; i++)
-        req[i] = 0;
-    req[1] = 0x400;
-    req[4] = 7;
-    req[2] = 0x90010;
+    memset(&req, 0, sizeof(req));
+    req.mode = 0x400;
+    req.kind = 7;
+    req.classMask[0] = 0x90010;
     if (building == 0)
         return;
-    req[19] = 0x727;
+    req.option4c = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_RAID_PICK_PROMPT], ai_CityWatchCrewWindow, 0);
+    ai_MapPick(1, &req, txt_Ptrs[TXT_RAID_PICK_PROMPT], ai_CityWatchCrewWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }
@@ -13230,18 +13225,18 @@ int ai_ArrestWindow(int unused, AIBLD *bld)
 
 void ai_ArrestStart(AIBLD *building)
 {
-    int req[20];
+    AMOUNTCFG req;
 
     if (sv_CheckCharacterFlag(building) != 0 || building == 0)
         return;
-    req[0] = 1;
-    req[1] = -1;
-    req[4] = 6;
-    req[2] = 0xa0744300;
-    req[3] = 1;
-    req[19] = 0x727;
+    req.flags = 1;
+    req.mode = -1;
+    req.kind = 6;
+    req.classMask[0] = 0xa0744300;
+    req.classMask[1] = 1;
+    req.option4c = 0x727;
     sv_OpenPlayerBar(building, 0);
-    ai_MapPick(1, req, txt_Ptrs[TXT_ARREST_PICK_PROMPT], ai_ArrestWindow, 0);
+    ai_MapPick(1, &req, txt_Ptrs[TXT_ARREST_PICK_PROMPT], ai_ArrestWindow, 0);
     sv_ClosePlayerBar();
     sv_ClearSelection();
 }

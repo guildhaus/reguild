@@ -1116,7 +1116,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
             m->marks[i].cellX = x;
             m->marks[i].cellZ = y;
             d2_MoveObj(d2_LastWindowPtr->x + x, d2_LastWindowPtr->y + y, m->marks[i].ctrl);
-            if (ai_PassesMapPickFilter(&ai_Chars[ai_PlayerId], m->req, m->marks[i].bld) == 0) {
+            if (ai_PassesMapPickFilter(&ai_Chars[ai_PlayerId], &m->req, m->marks[i].bld) == 0) {
                 d2_Objs[m->marks[i].ctrl].interactive = 0;
                 d2_Objs[m->marks[i].ctrl].style = 0;
             }
@@ -1229,7 +1229,7 @@ int ai_OpenTownMap(LCMAPWIN *m)
     d2_LastWindow = m->screen;
     d2_LastWindowPtr->tileBackground = 1;
     d2_SetForm(m->view, 0);
-    if (m->req[0x13] == 0) {
+    if (m->req.option4c == 0) {
         if (m->flags & 4)
             ai_PlaceMapControls(d2_LastWindow, 0x727);
         else if (m->flags & 2)
@@ -1241,7 +1241,7 @@ int ai_OpenTownMap(LCMAPWIN *m)
         else
             ai_PlaceMapControls(d2_LastWindow, 0x71f);
     } else {
-        ai_PlaceMapControls(d2_LastWindow, m->req[0x13]);
+        ai_PlaceMapControls(d2_LastWindow, m->req.option4c);
     }
     if (m->name != 0) {
         d2_SetForm(m->view, 1);

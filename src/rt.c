@@ -908,13 +908,13 @@ void rt_EditCartRoute(AIOBJ *c)
     if (c == 0)
         return;
     rt_EditRoute = rt_CopyPoints(c->route);
-    memset(m.req, 0, sizeof(m.req));
-    m.req[1] = 0x400;
-    m.req[4] = 0;
-    m.req[3] = 0x40000001;
-    m.req[2] = 0xb07d7fb0;
+    memset(&m.req, 0, sizeof(m.req));
+    m.req.mode = 0x400;
+    m.req.kind = 0;
+    m.req.classMask[1] = 0x40000001;
+    m.req.classMask[0] = 0xb07d7fb0;
     m.flags = 0x10;
-    m.req[0x13] = 0x723;
+    m.req.option4c = 0x723;
     strcpy(m.name, txt_Ptrs[TXT_PANEL_BTN_CART]);
     ai_OpenTownMap(&m);
     ai_BuildTownMap(&m);
