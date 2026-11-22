@@ -6179,6 +6179,22 @@ the bytes no portable form gives.
   every argument spelling), keep VC6's form under `#ifdef _MSC_VER` with the conforming form in the `#else`
   (`@original` on the declaration line). Cross-unit differences (header drift: gfx.c's int d2_MoveObj, dd_Clear,
   he.c's ai_PickActionBuilding, main.c's gm_CharacterIncomes) are no compile error and stay `@original`.
+- **A unit's view record of an object another header already types** (amr's G8SEAT and rmsg's G14REC = amt_types.h's
+  AMTREC; am.h's AIRECX / G8REC = G9REC; he's HETAVERNOBJ = AIOBJ.sermon, the 0x1b5 object's 7-byte block, and
+  HEOBJ1B5VALUE = G17B7.sermon): compare the offsets with the owner's record and use it; rename the view's fields to
+  the owner's (`.id` at +4 is AMTREC.owner). Every function stayed byte.
+- **A callee that takes `int *out` / `int *m` and indexes it in strides** (amt_Execute*Message's m[0..4],
+  ai_RollStudyOffers' out[i * 3 + k], gv_CannonKind's out[1 + i] / out[4 + i], ai_SphereVolume's out[0..4],
+  gm_GetDisease's three ints): the record it fills is the parameter type (G8REQ, AISTUDYOFFER, G9KIND with lo[3] / hi[3]
+  arrays for the indexed runs, SPHEREVOLUME, GMDISEASE); `out[i * 3 + k]` and `out[i].field` compile the same, and the
+  callers' int arrays become the record (byte everywhere). A data table of ints holding float bits
+  (gm_Diseases) is the record array with float literals (same bytes).
+- **A decompiled variable passed where the original only reused a zeroed register** (he_RunAudit's `found` as the text
+  flags and the char * contact, in the arm where found == 0): write the constant 0 (byte).
+- **A field offset spelled `(char *)p + (k - (int)cm_FieldObject)` (a pointer for an unsigned short parameter)**: the
+  pointer difference `(char *)&p->field[k] - cm_FieldObject` (byte; he_RunGraveTraining, ai_RunPendingParties).
+- **An int * parameter's address passed as a float out** (ord_GetGridCell's `&y`): the out value is an unread local
+  VC6 packed into the dead parameter slot; `float h; .. &h` is byte.
 - **(c) cases left** (the cast stays @original; no declaration arrangement compiles): util_Random in
   he_RunInnSim (he.c reads the 16-bit result in 18 other functions and the int one here; one unit cannot declare
   both return types: C2371 at file and at block scope, an undeclared call is implicit int and conflicts the
@@ -6231,7 +6247,10 @@ the bytes no portable form gives.
   entries, gm_FindGoods' GMSTOCK *, the scene height maps, the signed char fields) or the twenty-second (the mesh
   records D3MESH / D3SURF / D3ANIMSLOT / D3BGF in d3.h, D3OBJINFO as D3SURF, the mesh matrices, d2_SetColour's pixel
   bytes, the unread out slots, gm_CreateCharModel's vectors, AIJOB.effectObj, gm_CharacterHome, sv_IsCartAtDoor's cart,
-  the groundplan D2SURF, AMTSET as AMTMSG, GVMOVE in G17MSG, the plain char numbers of amr / cm / sv / rmsg / f3gmt / he).
+  the groundplan D2SURF, AMTSET as AMTMSG, GVMOVE in G17MSG, the plain char numbers of amr / cm / sv / rmsg / f3gmt / he) or the twenty-third (d2_MoveObj's / d3s_ShadowPoly's
+  declarations under `#ifdef _MSC_VER`, CHACTION.why, the script handles, d3_MatToAngles' D3MATRIX, G8REQ / AISTUDYOFFER /
+  G9KIND / SPHEREVOLUME / GMDISEASE for int * callees, the duplicate views G8SEAT / G14REC / AIRECX / G8REC / HETAVERNOBJ,
+  AIJOB.msg, gm_NameRecord's GMHEAD *).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
