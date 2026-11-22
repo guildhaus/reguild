@@ -4685,7 +4685,7 @@ void cm_ExecCutscene(G28REC *m)
                 int v = -1;
 
                 cm_BeginFieldBlock(c, c->netId);
-                cm_AddFieldValue(4, 1, (char *)c - cm_FieldObject + 0x20c, &v);
+                cm_AddFieldValue(4, 1, (char *)&c->partyId - cm_FieldObject, &v);
                 cm_SendFieldValues();
             }
         }
@@ -4695,7 +4695,7 @@ void cm_ExecCutscene(G28REC *m)
 
         if ((c = gm_FindChar(party->host)) != 0) {
             cm_BeginFieldBlock(c, c->netId);
-            cm_AddFieldValue(4, 1, (char *)c - cm_FieldObject + 0x20c, &v);
+            cm_AddFieldValue(4, 1, (char *)&c->partyId - cm_FieldObject, &v);
             cm_SendFieldValues();
         }
     }
