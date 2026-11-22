@@ -2,7 +2,7 @@
    name unknown: 0x451e80..0x4539b0 (the end: d3_ShadeInit's two literals 0x5ebb6c / 0x5ebb70 close this unit's
    .rdata, right before d3_vec.c's named constants d3_ZAxis.., which VC6 puts first in an object). One object view (D3OBJECT +
    D3_L, d3_light.h). Names are ours.
-   Open: the bits d3_SetVertexColors / d3_RelightObject read (D3PTRI 0x26, D3TEXTURE 0x68 / 0x6c) go through
+   Open: the bits d3_SetVertexColors / d3_RelightObject read (D3PTRI 0x26, TSTEXTURE 0x68 / 0x6c) go through
    d3_light.h's cast views; the typed fields flip d3_CloneObject / d3_MirDrawObject.
    Open: d3.h keeps its own char d3_RelightObject declaration; dropping it (or including d3_light.h there)
    flips d3_MirDrawObject, which needs re-matching first.
@@ -22,6 +22,7 @@
 #include "txt.h"
 #include "d3_pose.h"
 #include "d3_vtx.h"
+#include "ts_texture.h"
 
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 
@@ -468,7 +469,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
 {
     int i, k, g;
     D3PTRI *tri;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
     D3TEXFLAGS f;
     D3PVERT *v;
     D3COLOR c;
@@ -483,7 +484,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
             tex = tri->tex;
             if (tex) {
                 if (keep)
-                    ((D3BITS *)&tri->drawFlags)->b2 = ((D3BITS *)&tex->flags)->b4;
+                    ((D3BITS *)&tri->drawFlags)->b2 = ((D3BITS *)&tex->bits)->b4;
                 if (pos)
                     f = ((D3TEXVIEW *)tex)->flags;
                 else

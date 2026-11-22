@@ -5,27 +5,6 @@
 #include "d3_engine.h"                /* D3CLIP / D3SRCPOLY / D3PTRI */
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
-typedef struct D3FLTEX {            /* view of the texture slot (TSTEXTURE in ts_texture.h) */
-    char name[0x40];                /* "*fltx1/2/4" for cache textures */
-    int refs;                       /* 0x40 */
-    char pad44[0x8];
-    struct D3FLCACHE *cache;        /* 0x4c */
-    char pad50[0x4];
-    unsigned long stamp;            /* 0x54, d3_FrameCount of the last use */
-    int reserved;                   /* 0x58, TSTEXTURE.reserved (ts_texture.h): only ever cleared - when the slot is
-                                       created, evicted, re-rendered or unloaded; no reader, role unknown */
-    char pad5c[0x4];
-    void *surf;                     /* 0x60, IDirectDrawSurface4 */
-    void *d3dtex;                   /* 0x64, IDirect3DTexture2 */
-    signed char state;              /* 0x68, bit 7: precached */
-    char pad69[0x3];
-    D3TEXFLAGS flags;               /* 0x6c, the flags tex_Load was called with */
-    unsigned char frames;           /* 0x70, animation frames */
-    unsigned char frame;
-    unsigned char speed : 4;        /* 0x72, index into d3_AnimDiv */
-    unsigned char : 4;
-    char pad73[0xd];
-} D3FLTEX;
 
 typedef unsigned char *D3FLSRC[8];   /* source textures of the 8 tile types, 64x64 pixels of 4 bytes */
 
@@ -39,7 +18,7 @@ typedef struct D3FLTILES {         /* 0x30 bytes, the input of d3fl_Render */
 } D3FLTILES;
 
 typedef struct D3FLCACHE {          /* 0x44 bytes, one cached terrain texture */
-    D3FLTEX *tex;
+    struct TSTEXTURE *tex;
     unsigned int stamp;             /* 0x04, d3_FrameCount (frame) of the last use */
     unsigned int size;              /* 0x08, tiles per side (1, 2 or 4) */
     int hash;                       /* 0x0c, of the tile indices, + d3_CurrentScene */
@@ -71,7 +50,7 @@ typedef struct D3FLPOLY {           /* 0x28 bytes, a triangle (D3PTRI as the flo
     D3FLPOINT *v[3];
     void *clip;                     /* 0x0c, D3PTRI.clip: &d3_ClipInfo[clip code] */
     float *uv;                      /* 0x10, d3fl_UV[0] or [1] */
-    D3FLTEX *tex;                   /* 0x14, D3PTRI.tex: d3fl_GetTexture / D3FLREGION.tex2 */
+    struct TSTEXTURE *tex;                   /* 0x14, D3PTRI.tex: d3fl_GetTexture / D3FLREGION.tex2 */
     float zOfs;                     /* 0x18, depth offset added to the vertices (engine d3_ZOfs) */
     float uOfs;                     /* 0x1c, texture offset u (D3FLREGION.uOfs, mod 1) */
     float vOfs;                     /* 0x20, texture offset v (D3FLREGION.vOfs, mod 1) */
@@ -123,8 +102,8 @@ typedef struct D3FLTILE {           /* 0x64 bytes, 8 x 8 of them in D3FLMAP */
 } D3FLTILE;
 
 typedef struct D3FLREGION {         /* 0x158 bytes, a water region */
-    D3FLTEX *tex;
-    D3FLTEX *tex2;                  /* 0x04 */
+    struct TSTEXTURE *tex;
+    struct TSTEXTURE *tex2;                  /* 0x04 */
     D3TEXFLAGS flags;               /* 0x08 */
     float scrollSpeedU;             /* 0x0c, speed of the texture offset uOfs */
     float scrollSpeedV;             /* 0x10, speed of the texture offset vOfs */
@@ -208,7 +187,7 @@ __inline void d3fl_FtoI2(float f, int *dst)
     __asm mov edx, dst
     __asm fistp dword ptr [edx]
 }
-struct TSTEXTURE *tex_Find(char *name);                                                 /* 0x45f980, ts_texture.c (d3_fl.c reads it through its D3FLTEX view tex_FindF) */
+struct TSTEXTURE *tex_Find(char *name);                                                 /* 0x45f980, ts_texture.c  */
 struct TSTEXTURE; void tex_AddRef(struct TSTEXTURE *tex, char all);                                                   /* 0x4601b0, ts_texture.c */
 /* Inline-asm fill in the style of D3_ZERO (d3.h): size and value through temps (declared in this order),
    the destination named directly in the asm (as D3E_FILL in d3_engine.h). */

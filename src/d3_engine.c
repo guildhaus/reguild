@@ -7,7 +7,7 @@
    d3_interface.h, d3_int_io.h; K&R aliases in f3init.c); their callers must include d3_engine.h first.
    Open: d3_CloneObject (and d3_mir.c's d3_MirDrawObject) flip with TU-global changes - definitions added
    above them, declarations added to or removed from d3_engine.h / d3.h - so header moves need both rechecked.
-   Open: D3TEXTURE's tex_Load flag bytes 0x6c (alpha) / 0x6e (blend) are read through the D3TEXV view: the same
+   Open: TSTEXTURE's tex_Load flag bytes 0x6c (alpha) / 0x6e (blend) are read through the D3TEXV view: the same
    fields split out of d3.h's pad69 move he_PostEvent67 and ai_TutorialInitChapter2/3 off byte (struct text alone).
    unit of rea 8cef7d5b (src/game/d3_engine.c); boundaries in decl/text.dcl */
 #include <stdio.h>
@@ -675,7 +675,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
     int base;
     int n;
     D3PTRI *t;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
     float z;
 
     d3_ObjectsTested++;
@@ -739,7 +739,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                         tex = (t->tex);
                         d3_SortPtr->item = t;
                         if (tex) {
-                            d3_SortPtr->key = (tex - (D3TEXTURE *)d3_Textures) + base;
+                            d3_SortPtr->key = (tex - d3_Textures) + base;
                             tex->stamp = d3_FrameCount;
                         } else
                             d3_SortPtr->key = 0;
@@ -1034,7 +1034,7 @@ void d3_DrawSortedSW(void)
     D3PTRI *t;
     D3CLIPINFO *clip;
     float *uv;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
     unsigned char wrap;
     D3CVERT **v;
     unsigned int k;
@@ -2065,7 +2065,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3OBJINFO *info, D3TEXFLAGS f)
     D3SURF *s = (D3SURF *)info;
     D3TEXMAP *map;
     D3PTRI *tris;
-    D3TEXTURE *t;
+    TSTEXTURE *t;
     int i, j, n;
 
     if (obj && s && D3_OPS(&s->info)->count >= 0) {
@@ -2106,7 +2106,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3OBJINFO *info, D3TEXFLAGS f)
                             break;
                     if (j == n) {
                         map[j].from = t;
-                        map[j].to = (D3TEXTURE *)tex_AliasForFlags((struct TSTEXTURE *)t, f, 1);
+                        map[j].to = tex_AliasForFlags(t, f, 1);
                         n++;
                     }
                     ((D3PTRI *)s->info.tris)[i].tex = map[j].to;
@@ -2333,7 +2333,7 @@ void d3_InflateObject(D3OBJECT *obj)
     D3PVERT *v;
     D3PTRI *t;
     D3SRCPOLY *p;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
     int *mat;
     int i, k, m, j;
     char made;
@@ -2380,8 +2380,8 @@ void d3_InflateObject(D3OBJECT *obj)
                     if (((D3SRCPOLY *)t->src)->mat >= 0) {
                         m = mat[((D3SRCPOLY *)t->src)->mat];
                         if (m < 0)
-                            mat[((D3SRCPOLY *)t->src)->mat] = m = ((D3TEXTURE **)s->texHandles)[j++] - (D3TEXTURE *)d3_Textures;
-                        t->tex = tex = &((D3TEXTURE *)d3_Textures)[m];
+                            mat[((D3SRCPOLY *)t->src)->mat] = m = ((TSTEXTURE **)s->texHandles)[j++] - d3_Textures;
+                        t->tex = tex = &d3_Textures[m];
                         if (((D3TEXV *)tex)->alpha < 0xff || (((D3TEXV *)tex)->blend & 3)) {
                             col.c.a = ((D3TEXV *)tex)->alpha;
                             if (((D3TEXV *)tex)->blend & 1) {
@@ -2398,9 +2398,9 @@ void d3_InflateObject(D3OBJECT *obj)
                                 t->v[m]->specular = col.l;
                             }
                         }
-                        ((D3TRIBITS *)&t->drawFlags)->b3 = tex->flags;
+                        ((D3TRIBITS *)&t->drawFlags)->b3 = tex->bits;
                         for (m = 0; m < 3; m++)
-                            t->v[m]->wrap = tex->flags & 1;
+                            t->v[m]->wrap = tex->bits & 1;
                     } else
                         t->tex = 0;
                 }

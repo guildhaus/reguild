@@ -58,7 +58,7 @@ typedef struct D3PTRI {             /* 0x28 bytes (D3TRI) */
     D3PVERT *v[3];
     void *clip;                     /* 0x0c, &d3_ClipInfo[clip code] */
     void *src;                      /* 0x10, source polygon (D3SRCPOLY); a particle tri's static UV table */
-    D3TEXTURE *tex;                 /* 0x14 */
+    struct TSTEXTURE *tex;                 /* 0x14 */
     float zofs;                     /* 0x18, depth offset: d3_DrawSortedD3D adds it (less the frame's
                                        nearest z) to every vertex's z */
     float uofs, vofs;               /* 0x1c, texture offsets added to u and v (with the texture's scroll) */
@@ -348,8 +348,8 @@ void d3_UpdateWorldMatrix(struct D3OBJECT *obj, struct D3OBJECT *camera, char fo
 void d3_PointToRef(struct D3OBJECT *obj, struct D3OBJECT *ref, struct D3VECTOR *in, struct D3VECTOR *out);             /* 0x458b20 */
 
 typedef struct D3TEXMAP {           /* d3_SetObjectAlpha: a texture and its replacement */
-    D3TEXTURE *from;
-    D3TEXTURE *to;
+    struct TSTEXTURE *from;
+    struct TSTEXTURE *to;
 } D3TEXMAP;
 struct TSTEXTURE; struct TSTEXTURE *tex_ReleaseAlias(struct TSTEXTURE *tex, char group);                                /* 0x461610, ts_texture.c */
 struct TSTEXTURE; struct TSTEXTURE *tex_AliasForFlags(struct TSTEXTURE *tex, D3TEXFLAGS flags, char group);  /* 0x4616a0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
@@ -478,7 +478,7 @@ extern D3CVERT *d3_ClipList[2][0x80];       /* 0xfc4c60, polygon vertex lists (p
 extern D3CVERT d3_ClipPool[];               /* 0xfc5360, vertices made by the clipper */
 D3CVERT **d3_ClipPoly(D3CLIPINFO *info);                                               /* 0x439c90 */
 #define D3_CV(p) ((D3CVERT *)(p))
-#define D3_TEXB(t, off) (((unsigned char *)(t))[off])  /* D3TEXTURE bytes: 0x68 bit 0 wrap, 0x6c alpha, 0x6e bit 0 */
+#define D3_TEXB(t, off) (((unsigned char *)(t))[off])  /* TSTEXTURE bytes: 0x68 bit 0 wrap, 0x6c alpha, 0x6e bit 0 */
 typedef void (*D3TRIFUNC)(D3PTRI *t);
 extern D3TRIFUNC d3_TriFuncs[];             /* 0xfe75e0, software triangle fillers by mode */
 extern int d3_TextureSwitches;                    /* 0xfe75b4 */

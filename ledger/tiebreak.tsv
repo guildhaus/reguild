@@ -773,7 +773,7 @@ exe	0x0043ce60	d3_InitObject	d3_engine	7997609736730fdb	no	shape	sweep control=s
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	3219bcdfb9dc266b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d0e0	d3_Unlink	d3_engine	0c158890ea19999e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d180	d3_CloneObject	d3_engine	46928a82a14b5f36	yes	byte	control=shape p1=shape p2=shape* p3=byte* p4=shape	
-exe	0x0043d430	d3_SetObjectAlpha	d3_engine	bd55abbae38271c9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cd7ec9ed5ef4b6d7
+exe	0x0043d430	d3_SetObjectAlpha	d3_engine	9432e3bc46af72c6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	6ce4989eb7f6feaa
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	270d4f88a8a1b203	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d690	d3_SetAlpha	d3_engine	5bcfac075a6c5061	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d6c0	d3_AttachToBone	d3_engine	cd237e8ae383ef87	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -840,7 +840,7 @@ exe	0x00442ed0	d3fl_UpdateWater	d3_fl	fed26643eeaef8e8	no	shape	sweep control=sh
 exe	0x004430c0	d3fl_DrawWater	d3_fl	8a027b3ef686a5c8	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004437f0	d3fl_UpdateTiles	d3_fl	23d97fd044ae6973	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e4f04bcbabe1c256
 exe	0x004439e0	d3fl_Draw	d3_fl	c85bfbeec420ee9e	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x00446180	d3fl_Prerender	d3_fl	b9bdb858f36796d3	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e33501afa1742fa5
+exe	0x00446180	d3fl_Prerender	d3_fl	c8a0c8a4f4a19735	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	fd046159282b191a
 exe	0x004463b0	map_Pick	d3_fl	55473037550506e1	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00446750	map_PickScreen	d3_fl	f8e9bb9b2bd9560d	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00446910	map_Region	d3_fl	6adcb6d683f48040	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1014,7 +1014,7 @@ exe	0x00454890	d3_MirCreateOutline	d3_mir	8bc150fa754234fd	no	shape	sweep contro
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	9927e34c70dfd5eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454ec0	d3_MirTransform	d3_mir	3198ef7b7c8c1553	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	e0878350ea5c8bad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004550e0	d3_MirDrawObject	d3_mir	449a81205dd9b04f	yes	byte	sweep control=shape best=byte by 15 unused typedefs at the unit's start; codegens=2 compiled=36 (stopped at the goal)	034f5dce74579e84
+exe	0x004550e0	d3_MirDrawObject	d3_mir	2cd9ddc37c4fff19	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	8ef8a0ba906660e6
 exe	0x004554b0	d3_MirBeginFrame	d3_mir	e3f37a27644c6d83	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00455630	par_Init	d3_par	0d01db92964af2c6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004556b0	par_DeleteAll	d3_par	ac85705f84179f9a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

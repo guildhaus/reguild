@@ -93,7 +93,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
 {
     char ok = 1;
     int i;
-    D3FLTEX *old;
+    TSTEXTURE *old;
     struct TSTEXTURE *tex;
     char *name;
     int opts, fmt;
@@ -120,7 +120,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
         for (i = 0; i < ops->count; i++) {
             surf->texSet = set;
             name = ops->texnames + (ops->count * set + i) * 0x40;
-            if (*name && (old = ((D3FLTEX **)surf->texHandles)[i]) != 0) {
+            if (*name && (old = ((TSTEXTURE **)surf->texHandles)[i]) != 0) {
                 tex_GetParams(old, &opts, &fmt);
                 tex = tex_Load(name, old->flags, opts, fmt);
                 if (tex) {
@@ -133,7 +133,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
                     t = (D3PTRI *)surf->info.tris;
                     for (j = 0; j < surf->info.ntris; j++, t++)
                         if (((D3SRCPOLY *)t->src)->slot == i) {
-                            t->tex = (D3TEXTURE *)tex;
+                            t->tex = (TSTEXTURE *)tex;
                             replaced++;
                         }
                     if (!replaced)
@@ -382,7 +382,7 @@ char d3if_InitScene(D3SCENE *s)
     return 0;
 }
 
-typedef struct D3IFTEX {          /* view of a texture slot: D3TEXTURE with the flags as unsigned char */
+typedef struct D3IFTEX {          /* view of a texture slot: TSTEXTURE with the flags as unsigned char */
     char pad00[0x64];
     void *d3dtex;                   /* 0x64 */
     unsigned char state;            /* 0x68, bit 7 = precached */
@@ -413,7 +413,7 @@ void d3if_Prerender(char map)
     unsigned int i;
 
     for (i = 0; i < d3_TexCount; i++)
-        ((D3TEXTURE *)d3_Textures)[i].flags &= 0x7f;
+        d3_Textures[i].bits &= 0x7f;
     d3d_Device->lpVtbl->BeginScene(d3d_Device);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x40, d3if_PrecacheCB);
     if (d3_Terrain && map)
@@ -1581,7 +1581,7 @@ void d3_WriteMap(VFSFILE *f, D3FLMAP *map)
                     bio_wr_s(f, map->regions[i].tex->name);
                     bio_wr_c(f, 0);
                     bio_wr_c(f, ((unsigned char *)map->regions[i].tex)[0x72] & 0xf);
-                    bio_wr_c(f, map->regions[i].tex->state & 1);
+                    bio_wr_c(f, map->regions[i].tex->bits & 1);
                 } else {
                     bio_wr_s(f, ch_EmptyName);
                     bio_wr_c(f, 0);

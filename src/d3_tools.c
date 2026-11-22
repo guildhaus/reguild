@@ -1485,7 +1485,7 @@ void d3t_FreeSnow(D3TSNOW *snow)
 {
     unsigned int i;
     int s;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
 
     if (snow) {
         tex_Release(snow->Texture);
@@ -1493,9 +1493,9 @@ void d3t_FreeSnow(D3TSNOW *snow)
             mem_Free(snow->flakes);
             snow->flakes = 0;
         }
-        tex = (D3TEXTURE *)d3_Textures;
+        tex = d3_Textures;
         for (i = 0; i < d3_TexCount; tex++, i++) {
-            if (tex->refs > 0 && strnicmp("DC_", tex->name, 3) == 0 && !(tex->flags & 2)) {
+            if (tex->refs > 0 && strnicmp("DC_", tex->name, 3) == 0 && !(tex->bits & 2)) {
                 if (!tex_SetHiColor(tex, !d3d_UsedTexFormat.fourcc && tex->filebpp > 8 ? 1 : 0))
                     tex_Unload(tex);
                 tex->reserved = 0;
@@ -2263,7 +2263,7 @@ void d3t_CreateSnowMipmaps(void)
     snow_tex = tex_Load("snow_256_ns", flags, 0, 0);
     lppal = 0;
     if (snow_tex) {
-        tex_SetHiColor((D3TEXTURE *)snow_tex, 1);
+        tex_SetHiColor(snow_tex, 1);
         tex_Reload(snow_tex, 0);
         if (snow_tex->surf) {
             D3_ZERO(&snow_ddsd, sizeof(snow_ddsd));

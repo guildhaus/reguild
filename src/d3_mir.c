@@ -198,7 +198,7 @@ char d3_MirCreateOutline(D3PVERT **pts, unsigned int n, unsigned int *nout, D3PV
 /* 0x454be0: the clipping planes of the mirror: one per outline edge of the visible polygons with tex (through
    the eye point), followed by the view clip planes those polygons touch */
 
-D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, D3TEXTURE *tex)
+D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
 {
     D3OBJINFO *info;
     D3PTRI *t;
@@ -340,7 +340,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
     D3MIRSURF *s;
     D3MESH *mesh;
     D3PTRI *t;
-    D3TEXTURE *tex, *tt;
+    TSTEXTURE *tex, *tt;
     D3PVERT *a, *b, *c;
     D3MIRBITS *bits;
     char redo;
@@ -406,7 +406,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
                 && ((t->drawFlags & 4) || ((a->sx - b->sx)) * (a->sy - c->sy) < ((a->sy - b->sy)) * (a->sx - c->sx))) {
                 d3_SortPtr->item = t;
                 if (tt) {
-                    d3_SortPtr->key = (tt - (D3TEXTURE *)d3_Textures) + 1;
+                    d3_SortPtr->key = (tt - d3_Textures) + 1;
                     ((TSTEXTURE *)tt)->stamp = d3_FrameCount;
                 } else
                     d3_SortPtr->key = 0;
@@ -424,8 +424,8 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
 void d3_MirBeginFrame(D3OBJECT *obj, D3MIRROR *m)
 {
     D3MIRSURF *s;
-    D3TEXTURE **tp;
-    D3TEXTURE *tex;
+    TSTEXTURE **tp;
+    TSTEXTURE *tex;
     D3PTRI *t;
     unsigned int i, n;
     int k, ntris;
@@ -436,7 +436,7 @@ void d3_MirBeginFrame(D3OBJECT *obj, D3MIRROR *m)
         tp = s->tex;
         for (i = 0; i < n; i++) {
             tex = *tp++;
-            if (tex && (tex->flags & 0x20))
+            if (tex && (tex->bits & 0x20))
                 goto found;
         }
         return;

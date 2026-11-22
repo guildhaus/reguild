@@ -400,8 +400,8 @@ D3FLMAP *d3io_ReadFloor(void *f, unsigned int version)
                         fl.s.c0 = c;
                         bio_rd_c(f, &c);
                         fl.s.c1 = c;
-                        desc.regions[i].tex2 = (D3FLTEX *)tex;
-                        desc.regions[i].tex = (D3FLTEX *)tex;
+                        desc.regions[i].tex2 = tex;
+                        desc.regions[i].tex = tex;
                         desc.regions[i].flags = fl.f;
                         if (version >= 0x3a6c00b6)
                             bio_rd_i(f, (int *)&desc.regions[i].f14);

@@ -578,7 +578,7 @@ D3FLCACHE *d3fl_Find(unsigned char *map, int mapsize, int x, int y, unsigned int
 }
 /* 0x43fc10, the cache texture for the tiles at x, y (created if needed) */
 
-D3FLTEX *d3fl_GetTexture(unsigned char *map, int mapsize, int x, int y, unsigned int size, D3FLSRC *src)
+TSTEXTURE *d3fl_GetTexture(unsigned char *map, int mapsize, int x, int y, unsigned int size, D3FLSRC *src)
 {
     D3FLCACHE *c;
     int hash;
@@ -609,7 +609,7 @@ D3FLTEX *d3fl_GetTexture(unsigned char *map, int mapsize, int x, int y, unsigned
             c->t.texsize = min((0x40 >> d3fl_DetailShift) * size, d3fl_DetailScale << d3fl_DetailSizeShift);
             u.i = 0;
             u.f.b[0] = 0xff;
-            c->tex = (D3FLTEX *)tex_CreateHi(names[size], c->t.texsize, u.f, 0, 0, d3fl_Mips);
+            c->tex = tex_CreateHi(names[size], c->t.texsize, u.f, 0, 0, d3fl_Mips);
             c->tex->reserved = 0;
         } else
             strcpy(c->tex->name, names[size]);
@@ -837,7 +837,7 @@ void d3fl_PrepareWater(D3FLMAP *map)
     char buf[64];
     unsigned char *mask, *cmask, *c, *w, *w2;
     D3FLREGION *regs;
-    D3FLTEX *tex;
+    TSTEXTURE *tex;
     D3FLTILE *t;
     D3FLWREG *r;
     D3FLPOLY *p;
@@ -978,10 +978,10 @@ void d3fl_PrepareWater(D3FLMAP *map)
                         D3FL_COPY_TO(regs, map->regions, oldn * sizeof(D3FLREGION));
                         first = oldn;
                     }
-                    if (!(tex = (D3FLTEX *)tex_Find("EF_WASS_06A_2T_W_AN0"))) {
+                    if (!(tex = tex_Find("EF_WASS_06A_2T_W_AN0"))) {
                         f.all = 0;
                         f.b[0] = 0xac;
-                        if (tex = (D3FLTEX *)tex_Load("EF_WASS_06A_2T_W_AN0", f, 0, 0))
+                        if (tex = tex_Load("EF_WASS_06A_2T_W_AN0", f, 0, 0))
                             tex_Reload((struct TSTEXTURE *)tex, 0);
                     }
                     for (i = first; i < map->nregions; i++) {
@@ -1815,7 +1815,7 @@ void d3fl_UpdateWater(unsigned long time, unsigned int n, D3FLREGION *r)
 
     for (k = 0; k < n; k++, r++) {
         if (r->tex && r->tex->frames > 0 && r->tex->speed > 0)
-            r->tex2 = (D3FLTEX *)tex_GetFrame((D3TEXTURE *)r->tex - (D3TEXTURE *)d3_Textures,
+            r->tex2 = tex_GetFrame(r->tex - d3_Textures,
                                    time / d3_AnimDiv[r->tex->speed - 1] % r->tex->frames);
         dt = time - r->time;
         if (dt > 0) {
@@ -1884,7 +1884,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
     D3PVERT *v;
     D3FLPOLY *poly;
     D3CLIPINFO *clip;
-    D3FLTEX *tex;
+    TSTEXTURE *tex;
     float k, fy, h, f;
     unsigned int mask;
     int size, row, ym, x, idx, iv, npoints, npolys, i;
@@ -1990,7 +1990,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
                 tex = reg->tex2;
                 d3_SortPtr->item = poly;
                 if (tex) {
-                    d3_SortPtr->key = ((D3TEXTURE *)tex - (D3TEXTURE *)d3_Textures) + 1;
+                    d3_SortPtr->key = (tex - d3_Textures) + 1;
                     tex->stamp = d3_FrameCount;
                 } else
                     d3_SortPtr->key = 0;
@@ -2131,7 +2131,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
     D3PVERT *v, *v0, *v1, *v2;
     D3FLPOLY *poly, *np, *pp;
     D3FLSPLIT *sp;
-    D3FLTEX *tex;
+    TSTEXTURE *tex;
     D3FLCACHE *c;
     D3CLIPINFO *clip;
     D3VECTOR4 a, q, r, p, dx, dz;
@@ -2704,7 +2704,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             }
                             d3_SortPtr->item = poly;
                             if (tex) {
-                                d3_SortPtr->key = ((D3TEXTURE *)tex - (D3TEXTURE *)d3_Textures) + 1;
+                                d3_SortPtr->key = (tex - d3_Textures) + 1;
                                 tex->stamp = d3_FrameCount;
                             } else
                                 d3_SortPtr->key = 0;
@@ -2739,7 +2739,7 @@ int d3fl_Prerender(D3FLMAP *map)
     unsigned int n, s, nx, ny, i, j, x, y, tx, ty, mx, my;
     int size;
     unsigned char *types;
-    D3FLTEX *tex;
+    TSTEXTURE *tex;
     D3FLCACHE *c;
     D3FLTILE *t;
     void *p;
@@ -2783,9 +2783,9 @@ int d3fl_Prerender(D3FLMAP *map)
                                     count++;
                                 }
                             }
-                            if (!(tex->state & 0x80)) {
+                            if (!(tex->bits & 0x80)) {
                                 d3d_PrecacheTexture(tex->d3dtex);
-                                tex->state |= 0x80;
+                                tex->bits |= 0x80;
                             }
                         }
                     }

@@ -4942,7 +4942,7 @@ void d2_FillViewTextures(int view, char *tex1, char *tex2)
         } while (c != 0);
         t1 = tex_Find(tex1);
         if (t1 != 0) {
-            tex_SetHiColor((D3TEXTURE *)t1, 1);
+            tex_SetHiColor(t1, 1);
             d2_BlitPartFromDD(0, 0, t1->size, t1->size, t1->surf, 0, 0, (void *)v->texSurf);
         }
     }
@@ -4956,7 +4956,7 @@ void d2_FillViewTextures(int view, char *tex1, char *tex2)
         } while (c != 0);
         t2 = tex_Find(tex2);
         if (t2 != 0) {
-            tex_SetHiColor((D3TEXTURE *)t2, 1);
+            tex_SetHiColor(t2, 1);
             d2_BlitPartFromDD(0, 0, t2->size, ((D2SURF *)v->texSurf)->h - t1->size, t2->surf, 0, t1->size,
                          (void *)v->texSurf);
         }

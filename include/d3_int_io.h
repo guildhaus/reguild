@@ -140,21 +140,12 @@ typedef struct D3IOTRIFL {
     unsigned char b4 : 4;
 } D3IOTRIFL;
 
-typedef struct D3IOTEX {            /* D3TEXTURE (0x80 bytes) as the stock attach reads it */
-    char pad00[0x68];
-    unsigned char f68;              /* 0x68 */
-    char pad69[0x3];
-    unsigned char colorkey;         /* 0x6c, 0xff = none */
-    char pad6d;
-    unsigned char flags;            /* 0x6e */
-    char pad6f[0x11];
-} D3IOTEX;
 
 typedef struct D3IOTRI {            /* 0x28 bytes, D3TRI */
     D3IOVERT *v[3];
     int pad0c;
     D3IOPOLY *src;                  /* 0x10 */
-    D3IOTEX *tex;                   /* 0x14 */
+    struct TSTEXTURE *tex;          /* 0x14 */
     int f18, f1c, f20;              /* 0x18 */
     unsigned char f24;              /* 0x24 */
     char pad25;
@@ -168,7 +159,7 @@ typedef struct D3IOSURF {           /* 0x198 bytes, D3SURF as the stock attach f
     int nkeys;                      /* 0x08 */
     int ntris;                      /* 0x0c */
     D3IOSTOCK *stock;               /* 0x10 */
-    D3IOTEX **texset;               /* 0x14 */
+    struct TSTEXTURE **texset;      /* 0x14 */
     char pad18[0x17c];
     unsigned char f194;             /* 0x194 */
     unsigned char texSet;           /* 0x195, current texture set (D3SURF.texSet, d3_engine.h) */

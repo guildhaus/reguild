@@ -199,7 +199,7 @@ void par_Draw(D3PARTSYS *ps)
     D3PARTICLE *p;
     D3PVERT *v, *v1, *v2, *v3;
     D3PTRI *t;
-    D3TEXTURE *tex;
+    TSTEXTURE *tex;
     PARCOL col;
     D3VECTOR4 c;
     float rz, half, sx, sy, hw, hh;
@@ -250,7 +250,7 @@ void par_Draw(D3PARTSYS *ps)
                 if (p->frame > 0)
                     tex = tex_GetFrame(ps->texindex, p->frame);
                 else
-                    tex = (D3TEXTURE *)ps->tex;
+                    tex = (TSTEXTURE *)ps->tex;
                 t[0].v[0] = v;
                 t[0].v[1] = v1;
                 t[0].v[2] = v2;
@@ -310,10 +310,10 @@ void par_Draw(D3PARTSYS *ps)
         if (d3_Hardware) {
             for (t = PAR_TRIS(ps); n > 0; n--, t++) {
                 if (t->flags & 0x80) {
-                    D3TEXTURE *tt = t->tex;
+                    TSTEXTURE *tt = t->tex;
                     d3_SortPtr->item = t;
                     if (tt) {
-                        d3_SortPtr->key = (tt - (D3TEXTURE *)d3_Textures) + 0x8000;
+                        d3_SortPtr->key = (tt - d3_Textures) + 0x8000;
                         D3PAR_TEXSTAMP(tt) = d3_FrameCount;
                     } else
                         d3_SortPtr->key = 0;

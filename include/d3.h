@@ -183,19 +183,6 @@ void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR 
 
 #define D3_MAX_SCENES 64
 
-typedef struct D3TEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Textures */
-    char name[0x40];
-    int refs;                       /* 0x40, 0 = free slot (TSTEXTURE.refs, ts_texture.h) */
-    char pad44[0x10];
-    int stamp;                      /* 0x54, d3_FrameCount of the last use (TSTEXTURE.stamp; d3_DrawObjectCB sets it) */
-    int reserved;                   /* 0x58, TSTEXTURE.reserved (ts_texture.h): only ever cleared, no reader (D3FLTEX) */
-    char pad5c[0xc];
-    unsigned char flags;            /* 0x68, bit 0 wrap, bit 3 compressed (size / 8); bit 4: no culling for
-                                       the triangles using the texture (d3_SetVertexColors copies it) */
-    char pad69[0x14];               /* 0x6c: the tex_Load flags (D3_TEXVIEW in d3_light.h) */
-    unsigned char filebpp;          /* 0x7d, bit depth of the file (TSTEXTURE.filebpp) */
-    char pad7e[0x2];
-} D3TEXTURE;
 
 struct TSTEXTURE;                   /* a texture slot (ts_texture.h), what tex_Load returns */
 
@@ -301,11 +288,11 @@ void d3_BeginScene(unsigned char fog, unsigned long fogcol, unsigned char zbuffe
 void d3_SetBlendState(unsigned char balpha, unsigned char glow, unsigned char colorkey);   /* 0x4387b0, d3_d3d.c */
 void d3_EndScene(void);                                                                /* 0x438780 */
 
-struct TSTEXTURE; extern struct TSTEXTURE *d3_Textures;  /* 0xfb9074, the texture slots (ts_texture.h's TSTEXTURE; this header's D3TEXTURE is a view of one) */
+struct TSTEXTURE; extern struct TSTEXTURE *d3_Textures;  /* 0xfb9074, the texture slots (ts_texture.h's TSTEXTURE) */
 extern unsigned int d3_TexCount;            /* 0xfb9084 */
 extern void *d3_Terrain;                  /* 0x633738 */
 
-struct TSTEXTURE; struct TSTEXTURE *tex_Load(char *name, D3TEXFLAGS flags, unsigned char opts, unsigned char fmt);  /* 0x4605c0, ts_texture.c (TSFLAGS is D3TEXFLAGS); the D3FLTEX callers keep their view of the slot */
+struct TSTEXTURE; struct TSTEXTURE *tex_Load(char *name, D3TEXFLAGS flags, unsigned char opts, unsigned char fmt);  /* 0x4605c0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
 void d3_SetObjectAlpha(D3OBJECT *obj, struct D3OBJINFO *info, D3TEXFLAGS f);           /* 0x43d430, f.b[0] = alpha */
 struct TSTEXTURE; void tex_Reload(struct TSTEXTURE *tex, char keep);                                               /* 0x460e50 */  /* @original: ts_texture.c defines (TSTEXTURE *, char); the d3 callers were compiled against this */
 struct TSTEXTURE; void tex_Release(struct TSTEXTURE *tex);                                                          /* 0x45fbc0 */
