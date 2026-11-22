@@ -116,11 +116,9 @@ extern int d3_CurrentScene;                /* 0x633444 */
 
 struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
-int gm_MinutesBetween();                     /* 0x4fe280 */
 struct D3PARTSYS *d3t_CreateExplosion(void *parent, struct D3VECTOR *pos, int count, float radius, float height, float z, float size, unsigned int duration); /* 0x416040, d3_tools.c */
 struct SBSAMPLE; struct SBBANK;
 struct SBSAMPLE * sb_GetSample(struct SBBANK *bank, char *name);   /* 0x426030 */
-int gm_FindById();                     /* 0x4fea50 */
 struct AIMSG; int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
 void cm_BeginFieldBlock(void *o, int id);                     /* 0x4c3ba0 */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
@@ -238,7 +236,6 @@ int gv_ExtendGrave(GVORDER *m);           /* 0x4f0770 */
 int gv_OrderSetGraveHolder(int *c, struct AIBLD *o, int size, int entry);  /* 0x4f0900 */
 int gv_SetGraveHolder(GVORDER *m);         /* 0x4f0970 */
 int gv_OrderOpenSize(int *c, struct AIBLD *o, int size);  /* 0x4f0a90 */
-int gm_AddNegative();                     /* 0x500ae0 */
 int gm_AddObjekt(int id, int proto, int n);                     /* 0x500970 */
 int gv_OpenSize(GVORDER *m);           /* 0x4f0af0 */
 int gv_OrderAdjustEntry(struct AIBLD *o, int v, int b, int x);  /* 0x4f0c20 */
@@ -297,14 +294,11 @@ void gv_CheckRankUps(void);               /* 0x4f4d10 */
 int gv_EvidencePrice(int id, struct AICHAR *seller, int *price, short *culprit, unsigned *law);  /* 0x4f4d30 */
 void gv_CheckRankUp(unsigned i);              /* 0x4f4970 */
 int gm_CharLevel(unsigned short id, int again);                     /* 0x505e60 */
-float gm_Liking();                   /* 0x50c550 */
 
 void gv_SendCrimes(void);               /* 0x4f3700 */
 int gv_RetireCrime(int id, int m);       /* 0x4f37e0 */
 void gv_SortCrimesByLaw(int n, CRIME *r);     /* 0x4f4390 */
 struct AIJOB *he_FindEvent(int n, ...);         /* 0x53e400, as he.h */
-int cm_GetSlotState();                     /* 0x4c3ae0 */
-void sv_PumpNet();                    /* 0x52fe00 */
 extern unsigned short ai_PlayerId;     /* 0x6f25b8 */
 
 int gv_RetireCrimesOf(int p, int n);        /* 0x4f3a30 */
@@ -351,9 +345,6 @@ float util_RandomF(void);               /* 0x42ec20 */
 
 void gv_GraveyardTurn(struct AIBLD *o);            /* 0x4f1de0 */
 int gv_LeasePrice(unsigned short *c, unsigned char care, int kind, int flag, int *out);  /* 0x4f2330 */
-int cm_FlushSendQueue();                     /* 0x4c3680 */
-int cm_ReceiveMessages();                     /* 0x4c3fd0 */
-int cm_ExecCommands();                     /* 0x4c4190 */
 int cm_SendRelations(int a, int b, int c, int d);                     /* 0x4c4b00 */
 int gm_CharCurrency(struct AICHAR *c, char p);                   /* 0x509ee0 */
 
@@ -485,7 +476,6 @@ float ord_WeightedRecordSum(int *out);          /* 0x4f9d40 */
 float ord_GetStatistics(int *o);            /* 0x4f9e00 */
 
 extern AITIME ord_StatisticsClock;      /* 0x91b470, the clock of the last rating step (ord_AdvanceRatingBase) */
-int gm_MinutesBetween();                     /* 0x4fe280 */
 void ord_AdvanceRatingBase(void);               /* 0x4f9c00 */
 
 /* declared in other units' headers before (moved to the owner) */
