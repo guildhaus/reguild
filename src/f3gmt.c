@@ -141,17 +141,12 @@ void gm_ResolveHeadIcons(GMHEAD *rec);
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
 extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
-struct CHARACTER * ch_Create();                     /* 0x403390 */
 int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
-int init_ObjectSceneUniverse();                     /* 0x511dc0 */
-int init_BuildingSceneUniverse();                     /* 0x511e60 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-void ch_SetVisible();                     /* 0x402480 */
 unsigned *gm_CharNameRecord(int id);
 extern char ch_EmptyName[];             /* 0x631090 */
 int gm_MayRemoveChar(AICHAR *c);                     /* 0x5075c0 */
 void cm_SendKillCharacter(int a, int b);                     /* 0x4c4e00 */
-int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
@@ -167,7 +162,6 @@ void gm_PopulationStep(void);
 extern float gm_BirthChance[6];
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 int cm_SendCreateCharacter(unsigned char a, int b, int c, unsigned short d, int e, unsigned char f, unsigned char g, unsigned char h);                     /* 0x4c4650 */
-int cm_GetSlotState();                     /* 0x4c3ae0 */
 int cm_GetSlotValue(int h);                     /* 0x4c3b10 */
 int cm_SendNewParty(void *p);                     /* 0x4c4fa0 */
 int gm_TitleNumber(int group, int rank);                     /* 0x5043d0 */
@@ -442,7 +436,6 @@ int gm_LoadTables(char *root)
 }
 
 extern int f3gm_ObjectCount;
-int gm_RemoveObject();                     /* 0x4ffff0 */
 int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);
 int gm_GoodsStock(int p, int i);                   /* 0x4ff950 */
 int gm_GoodsDemand(int p, int i);                   /* 0x4ff8c0 */
@@ -2147,13 +2140,8 @@ int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);   /* 0x50aaf0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                   /* 0x5089c0 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                     /* 0x50a050 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);                     /* 0x50d380 */
-struct CHTRANSPORT * ch_AttachTransport();                     /* 0x4034e0 */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
-struct CHARACTER * ch_Create();                     /* 0x403390 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-void ch_SetVisible();                     /* 0x402480 */
-int gm_IsHomeType();                     /* 0x502520 */
-int init_BuildingSceneUniverse();                     /* 0x511e60 */
 
 
 int gm_IsHomeType(struct AIBLD *b);
@@ -2200,9 +2188,7 @@ void gm_SetCapacities(AIBLD *b)
         o->cap[0] = k[0x23f];
 }
 
-int gv_BuryNewDead();                     /* 0x4ef9c0 */
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
-int gm_BuildingClass();                     /* 0x501d80 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
@@ -2630,7 +2616,6 @@ int gm_ListBuildingsOfType(unsigned t, int *out)
 }
 
 int gm_BuildingJob(int t);                   /* 0x5048e0 */
-int gm_ListBuildingsOfType();                     /* 0x5020a0 */
 extern int gm_AllowAll;
 
 /* the job list of a building kind record (the six job numbers at +0x223, 0-terminated): returns code from the
@@ -2758,14 +2743,10 @@ int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 void cm_SendBoss(int a, int b);                     /* 0x4c5540 */
 int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);                     /* 0x53dee0 */
-int d3t_SceneIndex();                     /* 0x411be0 */
-int ch_Delete();                     /* 0x4028a0 */
 struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);                     /* 0x50a0f0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);                     /* 0x524260 */
 void he_EndPersonEvents(struct AICHAR *p);                     /* 0x5538b0 */
 void he_EndKind23Events(struct AICHAR *ev);                     /* 0x568aa0 */
-void d3io_NoopCallback();                     /* 0x44ee40 */
-int amt_ClearOffices();                     /* 0x4e6d80 */
 void gm_KillSpieler(int c, int mode);                     /* 0x503c60 */
 extern struct D3SCENE *d3_DefaultScene;  /* 0x5fb5b0 (as d3.h / anm.h) */
 
@@ -2848,16 +2829,11 @@ extern int ai_Unk770ae0_day;            /* the clock's day (0x770ae0) */
 extern char ai_Unk770ce4[];             /* 0x770ce4: the field +0x164 of the character records (stride 0x21c) */
 void sv_RemoveBanners(struct AIBLD *b);                     /* 0x5286a0 */
 void sv_CreateBanners(struct AIBLD *b);                     /* 0x5282f0 */
-void ch_InflateModel();                     /* 0x402540 */
-int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);     /* 0x5a9430 */
 int gm_FreeList(struct AIOBJ **list);                     /* 0x500140 */
 int gm_TitlesLeft(int n);                     /* 0x504ce0 */
 float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
-int gm_CompareTime();                     /* 0x4fe210 */
-int gm_MinutesBetween();                     /* 0x4fe280 */
-int d3t_SceneIndex();                     /* 0x411be0 */
 double _CIfmod();                     /* 0x5de73a: a CRT call */
 extern int ai_CharCount;  /* 0x6f1bc0 */
 extern int f3gm_ObjectCount;  /* 0x6f1bdc */
@@ -3164,9 +3140,7 @@ void gm_FreeObject(AIOBJ *obj)
         gm_RemoveOwned(&bld->objList, obj->objId);
 }
 
-int ai_PermissionBits1d();                     /* 0x587b70 */
 extern int gm_AllowAll;                /* 0x6f2448 */
-int gm_BuildingJob();                     /* 0x5048e0 */
 int gm_TitleGroup(int n);                /* 0x504ad0 */
 
 /* 0x503530, the permission bits of the character p in the building b (or, without a building, for the object o or the character c): what he may do there, by the class byte of the building's type record (a case per class: the master (+0x25) and the owner (+0x27) compared with p, the six job bytes at +0x223 of the type record searched for the job of p in the type (gm_TitleJob); class 0x1d is ai_PermissionBits1d). Bits seen: 0x1 enter, 0x800 led by p (c's building is owned by p), 0x4000 / 0x5000 / 0x2200 granted per object and job; the exact meaning of each bit is open. With gm_AllowAll everything is allowed (-1, -2 for the classes 3 / 0x21); a building without owner (0xffff) allows nothing
@@ -5062,9 +5036,7 @@ int gm_DeathDate(AICHAR *c, GMDATE *out)
 /* the bit fields of the word +0x2c of a character (the skill levels): field k starts at the bit FIELD_SHIFT[k] with the mask FIELD_MASK[k] (4, 4, 2, 3, 3, 3, 2, 4 bits) */
 
 
-float gm_Liking();                     /* 0x50c550 */
 void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
-void he_RecheckPersonEvents();                     /* 0x53ed40 */
 
 /* 0x506180, the ranking of the players: the up to 8 characters of the kinds 5 / 6 / 7 into out (*count of them),
    each with its talents, title, office, reputation and worth (see GMRANK), the weighted sum 0.15 * (title + office +
@@ -5300,7 +5272,6 @@ int gm_PlayerFactor(int a, unsigned char k);                     /* 0x5085f0 */
 float util_RandomSq(void);                  /* 0x42ec40 */
 
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
-int gm_BuildingClass();                     /* 0x501d80 */
 int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
@@ -5664,12 +5635,6 @@ int gm_MayRemoveChar(AICHAR *c)
 extern int ai_Difficulty;
 extern int ai_GameFlags;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-struct AICHAR *ahm_OwnerChar();                     /* 0x4eaa50 */
-int ahm_ObjectValue();                     /* 0x4ec3d0 */
-int gm_ListAmount();                     /* 0x50aaf0 */
-int gm_ListStock();                     /* 0x50ab50 */
-int gm_ClockSeason();                     /* 0x4fe350 */
-int gm_CompareTime();                     /* 0x4fe210 */
 int gv_GetTableRecord(int i, int *out);                     /* 0x4f2720 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_SumListAmounts(void *list, unsigned char p);
@@ -7525,9 +7490,6 @@ extern char gm_TreeNodes[3328];
 extern int gm_TechTreeView;
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
-float gm_Liking();
-int gm_LayoutTree();
-void gm_UpdateTechTree();
 
 /* 0x50af00, collects what the person id carries into out (a GMCARRY, cleared first): 0xe units and capacity when the person is the special worker (gm_ListWorkers' last slot) of a building of key 4 = id, then an entry for each used carried-goods record of gm_CarryRecs it owns (count, valueSum minus the values). Returns 0 */
 int gm_CollectCarried(int id, int *out)
@@ -7733,7 +7695,6 @@ unsigned gm_TreeNodeRank(int p)
 
 extern int gm_TreeRanks;
 extern unsigned short gm_TreeRankStart[64];
-unsigned gm_TreeNodeRank();                /* 0x50b2f0 */
 
 /* 0x50b3a0, lays out the goods tree of the building bld's type from the item *item on (the entries of its objs list that follow it, up to one of goods type 2 / 6) in the w x h area: the nodes go into gm_TreeNodes (id, the two parents, rank = gm_TreeNodeRank) sorted by rank, the first node of each rank into gm_TreeRankStart; the first rank is spread evenly, each further one under the mean x of its parents (equal x spread apart, neighbours 0x50 apart), the whole scaled back into the width when it leaves it, and the ranks spread over the height (0x60 apart at most). 1 when there is nothing to lay out, else 0 */
 int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)

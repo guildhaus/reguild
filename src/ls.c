@@ -32,11 +32,9 @@ int ls_Version = 65626;  /* 0x623650 */
 const char ls_LanguageNames[][0x40] = { "GERMAN", "ENGLISH", "FRENCH", "ITALIAN", "SPANISH" };  /* 0x5ee978, the language names (5 of */
 unsigned char ls_SaveSlot = 0;  /* 0x6f1c38, the slot the save header records */
 extern int ai_NextCharNumber, ai_NextPlayerNumber;   /* 0x6f1bb8, 0x6f1bbc, 0x6f1bc0 */
-int gv_WriteCrimes();                     /* 0x4f28d0 */
 
 #define LS_W(p, sz) if (vfs_fwrite((p), (sz), 1, f) <= 0) return 0;
 #include "rd_types.h"                 /* G15BK */
-int gv_WriteGraveyard();                     /* 0x4f17f0 */
 
 #define LS_R(p, sz) if (ls_Read((p), (sz), 1, f) == 0) return 0;
 
@@ -72,7 +70,6 @@ extern char hst_Key[];                 /* 0xf83520, the history key ("G12", 0x20
 #include "dd_vesa.h"
 #include "hmt.h"
 #include "d3_anim.h"
-int gv_ReadEffects();                     /* 0x4ed910 */
 
 /* he_EventTop: view of ai_NextEventId (tools/data_views.py) */
 extern AIJOB he_Events[0x400];  /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */

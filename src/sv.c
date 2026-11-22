@@ -1185,12 +1185,10 @@ void sv_SetResearchClass(AIBLD *o)
 }
 
 /* 0x46d040 */
-void d2_BlitPart();                     /* 0x479480 */
 struct D2FADE;
 struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */                     /* 0x4767d0 */
 void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */                     /* 0x476860 */
 void d2_PlaceWindow(int win, unsigned char flags);  /* 0x4756b0 */
-int ahm_HasRecord();                     /* 0x4eaad0 */
 struct D3SKY; struct D3SKYLAYER; struct D3VECTOR; int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
 char * cm_CharWeapon(struct AICHAR *c);                     /* 0x4cda50 */
 
@@ -1519,12 +1517,9 @@ void sv_CountGroupMembers(AIJOB *g)
 }
 
 extern float gm_DayStartHours[], gm_DayEndHours[];   /* 0x617830 / 0x617840 */
-int init_BuildingSceneUniverse();                     /* 0x511e60 */
-int init_ObjectSceneUniverse();                     /* 0x511dc0 */
 int gm_ClockSeason(AITIME *c);         /* 0x4fe350, f3gm.c */                     /* 0x4fe350 */
 char *strstr();                   /* 0x5de6b0, strstr (LIBC; as ls.c) */
 int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
-void he_FreeEvent();                     /* 0x53e1f0 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 
@@ -1757,11 +1752,8 @@ extern struct AICHAR *sv_SelectedChar;
 extern char sv_PlayerBarKind;
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);                     /* 0x472aa0 */
 int d2_CreateWinText(short x, short y, char *text, int win);                     /* 0x473650 */
-void d2_SetObjText();                     /* 0x4734d0 */
 void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c70 */
-void d2_SetObjEnabled();                     /* 0x475e40 */
 void d2_AddPointerItem(int id, int amount);                     /* 0x476b90 */
-float gm_HealthRatio();                     /* 0x4fc8e0 */
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
 
 /* 0x524990, rebuilds the member list of the player bar for the building g: rows of characters that are gone
@@ -1973,17 +1965,12 @@ extern float sv_DayPhaseFrac;  /* 0x623e94 */
 /* ai_MapRefs: view of d3_Scenes (tools/data_views.py) */
 const int sv_PhaseMinutes[24] = { 390, 510, 630, 1050, 1170, 1290, 300, 420, 540, 1140, 1260, 1380, 420, 540, 660, 1020, 1140, 1260, 480, 600, 690, 960, 1020, 1140 };  /* 0x5eeab8 */
 
-int d2_GetWinObj();                     /* 0x475b80 */
 void d2_SetViewEnabled(int view, int on);  /* 0x475590 */
 void d2_ClearPointerItems(void);                     /* 0x476c70 */
 void sv_UpdatePanel(void);                     /* 0x52a050 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 void ai_InitWind(int type, int id, float *from, float *to);                     /* 0x5dbc30 */
-void d3t_FreeSnow();                     /* 0x414b50 */
-struct D3TRAIN * d3t_CreateRain();                     /* 0x413b30 */
 struct D3TRAIN; void d3t_SetRain(struct D3TRAIN *rain, int n, ...);                     /* 0x413d30 */
-void d3t_DeleteRain();                     /* 0x413d00 */
-struct D3TSNOW *d3t_CreateSnow();                     /* 0x4148f0 */
 struct D3TSNOW; void d3t_SetSnow(struct D3TSNOW *snow, int n, ...);                     /* 0x414c60 */
 struct D3SKY; struct D3SKY *d3sky_Create(float horizon, float fogstart, float fogscale);                     /* 0x45da30 */
 struct D3SKY; struct D3SKYLAYER; void d3sky_DeleteLayer(struct D3SKY *s, struct D3SKYLAYER *l);                     /* 0x45d800 */
@@ -2338,10 +2325,7 @@ extern int d3t_CamMoving;  /* 0x6310e4 */
 extern struct D3ANIM *d3t_CamMove;  /* 0x6310e8 */
 extern int sv_ScrollTime;  /* 0x6f2394 */
 extern float sv_ScrollLastMove[4];
-float d3t_GetMeanHeight();                   /* 0x412550 */
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
-void d3_MatTranspose();                     /* 0x454040 */
-float d3_VecAngle2();                   /* 0x453b40 */
 
 /* 0x525dd0, in scene 0 sets both camera blend factors to f and places the camera: its height is the near / far height blended by
    f over the terrain's mean height under it, its x angle the near / far angle blended by f; stores the camera's rotation and
@@ -2714,7 +2698,6 @@ extern int sv_FrameBase;  /* 0x6f22a4 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 extern int sv_SelectedModel;  /* 0x6f2304 */
 extern char sv_CameraEaseOn;
-int d3t_GetHeightRange();                     /* 0x411c70 */
 short * gm_PlayerRecord(struct AICHAR *ch);                   /* 0x506430 */
 void sv_PlaceCamera(float f);
 void sv_EaseCameraHeight(void);
@@ -3064,9 +3047,6 @@ int stricmp();                     /* 0x5eaa30 (_strcmpi) */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
 struct AIBLD *gm_BuildQuery(int n, ...);                     /* 0x501190 */
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
-int d3t_SceneIndex();                     /* 0x411be0 */
-void d3_SetWorldPosRot();                     /* 0x449920 */
-int d3t_PlayAnim();                     /* 0x411960 */
 
 /* 0x527bb0, puts the camera directly 600 units back along its view from the building b's 3D object (its centre,
    the terrain's mean height plus the zoom height, pulled in by the object's height range): the stored view
@@ -3360,8 +3340,6 @@ char sv_CollectBannerCB(char *o, int *p)
 extern int d3_QuadTree, sv_PanelBldPic, sv_PanelHealthBar, sv_PanelCartWin, sv_PanelItemBtn, sv_PanelTransportBtn, sv_PanelCartBtn, sv_PanelActionBtn, sv_PanelCartChar;  /* 0x6f1c28, 0x623864, 0x623868, 0x62387c, 0x623888, 0x62388c, 0x623890, 0x623894, 0x631078 */
 extern int sv_PanelWidgets[4];  /* 0x62386c */
 
-int d2_WinCreateSlider();                     /* 0x46bf10 */
-void d2_SetObjFont();                     /* 0x4760b0 */
 int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int flags, int win);                     /* 0x46a960 */
 int sv_AddPanelButton(int x, int y, char *text);
 
@@ -3575,11 +3553,8 @@ extern char *ai_Unk7662c0p;
 extern unsigned short * sv_SelectedItem;
 extern int ai_BuildingPerms;  /* 0x6f231c */
 int gm_Opinion(int a, int b);                     /* 0x50c520 */
-int gm_MinutesBetween();                     /* 0x4fe280 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 int d2_RemoveWindowObjects();                     /* 0x472d20 */
-int gm_ListAmount();                     /* 0x50aaf0 */
-int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 int sv_ReturnZero(void);
@@ -3978,8 +3953,6 @@ int d2_CreateScreenText(short x, short y, char *text);                     /* 0x
 void d2_MoveObj(short x, short y, int obj);                     /* 0x46cda0 */
 void d2_DrawText(int x, int y, void *surf, char *text, unsigned char flags);                     /* 0x46f000 */
 void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned int flags);                     /* 0x46f1a0 */
-void d2_AddDirty();                     /* 0x468eb0 */
-int d2_ShpBlit();                     /* 0x47bd70 */
 void d2_SetClipRect(int x0, int y0, int x1, int y1);                     /* 0x47cb40 */
 void * d2_SetFont(int font);                     /* 0x476030 */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */
@@ -4554,13 +4527,10 @@ int sv_StartPoseScript(AICHAR *a, int b)
     return (int)script;
 }
 
-void d2_SetObjEnabled();                     /* 0x475e40 */
-int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 int gm_BuildingClass(int kind);                /* 0x501d80, f3gm.c, the class of a building kind */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 void d2_FreeAnim(int n);                     /* 0x47ce30 */
-int d3t_PlaceAtObject();                     /* 0x4118a0 */
 void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c70 */
 
 
@@ -5775,8 +5745,6 @@ extern unsigned char d3_MipSkip;
 extern char d3d_ZEnabled;
 
 struct D3OBJECT * d3t_FindObject(char *name, char flags);                     /* 0x411900 */
-int d2_TextWidth();                     /* 0x46ea10 */
-int d2_WinCreateSlider();                     /* 0x46bf10 */
 
 /* 0x52e050, draws the hint text (d2_CaptionCopy) at the mouse position when it is not empty and the option
    ai_GameSwitches byte 2 (show_cursor_txt) is set */
@@ -6325,19 +6293,14 @@ void sv_UpdateBandLed(void)
     }
 }
 
-void dd_Line();                     /* 0x41e8f0 */
 void * mem_Alloc(int size, char *tag);                      /* 0x4223c0 */
 void mem_Free(void *p);                     /* 0x422620 */
-int d3t_ReleaseObjectTextures();                     /* 0x411b70 */
 char d3if_Show(struct D3OBJECT *obj, char show);                     /* 0x4471b0 */
-int d2_LoadView();                     /* 0x474b30 */
 void d2_FillViewTextures(int view, char *tex1, char *tex2); /* 0x474d90 */
 void d2_RedrawView(int view);                     /* 0x474e80 */
 int d2_SetViewTextures(int view, char *tex1, char *tex2);  /* 0x474ca0 */
 void d2_ClearViewTextures(int view);                      /* 0x474d10 */
-void d2_EnableViewObjects();                     /* 0x4754d0 */
 void d3d_SetWBuffer(char w);                     /* 0x437060 */
-char *util_BaseName();                   /* 0x401040 */
 #define SV_ANIMCTL(o) ((D3ANIMCTL *)(o)->material->animCtl)  /* the animation control of an object's material (D3MATERIAL.animCtl at 0xf4) */
 
 /* 0x52f2c0, draws the rubber band rectangle (four dd_Line in colour -1) between the corners of sv_Band while
@@ -6635,18 +6598,12 @@ extern unsigned sv_ChatTime;  /* 0x623ec4 */
 extern int sv_QuickChatForm;  /* 0x623ec8 */
 extern int cm_DialogFrameFlags;  /* 0x60d360 */
 int cm_SendExSysMessage(unsigned char id, void *msg);                     /* 0x4c4db0 */
-int cm_GetSlotState();                     /* 0x4c3ae0 */
 void d2_SetViewEnabled(int view, int on);  /* 0x475590 */
 int cm_FlushSendQueue();                     /* 0x4c3680 */
 int cm_ReceiveMessages();                     /* 0x4c3fd0 */
 int cm_ExecCommands();                     /* 0x4c4190 */
 void d2_SetObjValue(int obj, ...);                     /* 0x475cb0 */
-void d2_SetObjFont();                     /* 0x4760b0 */
 int io_PrintText(intptr_t fmt, ...);                     /* 0x515960 */
-int d2_GetWinObj();                     /* 0x475b80 */
-void d2_SetObjMax();                     /* 0x475f40 */
-int d2_GetObjValue();                     /* 0x475980 */
-void d2_FocusInput();                     /* 0x478320 */
 void cm_SendChat(void *p);                     /* 0x4c5aa0 */
 void sv_ChatConsole(void);
 
@@ -6808,11 +6765,7 @@ struct D3TRAIN; void d3t_SetRain(struct D3TRAIN *rain, int n, ...);             
 struct D3SKYLAYER; void d3sky_SetLayerTex(struct D3SKYLAYER *l, char *name);                     /* 0x45d9f0 */
 void d3sky_FadeLayer(struct D3SKY *s, struct D3SKYLAYER *l, unsigned char alpha, float time);   /* 0x45d9a0 */
 void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l, float speed);        /* 0x45d960 */
-void d3t_DrawRain();                     /* 0x414590 */
-void d3t_DrawSnow();                     /* 0x415380 */
 struct D3OBJECT *d3t_CreateSunRays();                     /* 0x417190 */
-void d3t_FadeOutSunRays();                     /* 0x417150 */
-int ai_RunAllows();                     /* 0x5763c0 */
 void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */
 extern int sv_SunRaysHour;  /* 0x623ecc */
 
@@ -6995,7 +6948,6 @@ void sv_SetScreenCenter(unsigned fl)
     d2_HalfScreenH = d2_ScreenH >> 1;
 }
 
-int cm_PartyById();                     /* 0x4e50a0 */
 void main_GameLoop(int ctl);                     /* 0x53bb20 */
 void sv_UpdateClock(void);
 

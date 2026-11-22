@@ -1548,7 +1548,6 @@ int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when th
 int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
 int d2_RemoveWindow(); int io_PrintText(intptr_t fmt, ...);
-int d2_GetObjValue();
 
 /* 0x5d7770, the options menu screen (1112 B): param none, void. The game screen 0x5d7160 is copied
    into the local 0x2580-dword image, the screen fades black (0x5d6fa0), the window "menu\options"
@@ -2741,8 +2740,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
-int ai_PokerStart();
-unsigned short ai_PokerStep(); int gm_BuildingSkill(); float ai_NormalizeEffectScale(float x);
+unsigned short ai_PokerStep(); float ai_NormalizeEffectScale(float x);
 
 /* 0x5d8c90, the "Fluch wirken" (curse) window "Locations\zigeuner\blutrache" 0x62dc68 (905 B): the building is the
    gypsy house. When the player's status bit 0x10 (+0x1cc of its record) is set the voice "RAUSWURF" is played and the green

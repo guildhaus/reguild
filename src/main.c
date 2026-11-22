@@ -1010,8 +1010,6 @@ void sv_ButtonRow(int f, int y, int *out, int n, ...);
 int d2_RemoveWindowObjects();
 void d2_RadioAdd(int g, int obj);
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
-void d2_SetObjFont();
-int d2_FindPic();
 int sv_OpenMessageBox(intptr_t text, unsigned char flags);
 int ls_ReadSaveHeader(struct VFSFILE *f, int *h);
 
@@ -1311,7 +1309,6 @@ int main_MenuButton(int n, char *text, int form)
     return b;
 }
 
-float d3_VecAngle();
 int sv_RegisterNamePlate(char *name, char *text, int look);
 
 /* 0x533850, "main_Menue": the main menu ("MENU\MAIN_MENU"): fades to black, loads the city scene

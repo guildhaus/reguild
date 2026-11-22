@@ -1099,12 +1099,8 @@ int gm_HeadIconNumber(char *name)
 
 extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;  /* 0x6f230c */
-struct CHARACTER * ch_Create();                     /* 0x403390 */
 int gm_IsHomeType(struct AIBLD *b);                     /* 0x502520 */
-int init_ObjectSceneUniverse();                     /* 0x511dc0 */
-int init_BuildingSceneUniverse();                     /* 0x511e60 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-void ch_SetVisible();                     /* 0x402480 */
 unsigned *gm_CharNameRecord(int id);
 
 /* 0x4fb890, chooses the portrait of the character c (its picture = the icon index + 0x639). With a model outside the
@@ -1320,7 +1316,6 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
 extern char ch_EmptyName[];             /* 0x631090 */
 int gm_MayRemoveChar(AICHAR *c);                     /* 0x5075c0 */
 void cm_SendKillCharacter(int a, int b);                     /* 0x4c4e00 */
-int gv_DecayRaisedDead();                     /* 0x4f1660 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int cm_SendFieldValues(void);                     /* 0x4c49e0 */
 int cm_SendLongMessage(struct AIMSG *msg);                     /* 0x4c4b70 */
@@ -1758,7 +1753,6 @@ float gm_AddHealth(unsigned short id, int d)
 extern float gm_BirthChance[6];
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 int cm_SendCreateCharacter(unsigned char a, int b, int c, unsigned short d, int e, unsigned char f, unsigned char g, unsigned char h);                     /* 0x4c4650 */
-int cm_GetSlotState();                     /* 0x4c3ae0 */
 int cm_GetSlotValue(int h);                     /* 0x4c3b10 */
 int cm_SendNewParty(void *p);                     /* 0x4c4fa0 */
 int gm_TitleNumber(int group, int rank);                     /* 0x5043d0 */
@@ -2420,7 +2414,6 @@ unsigned gm_TreeNodeRank(int p);
 int gm_LayoutTree(struct AIBLD *bld, struct AIOBJ *item, int w, int h);
 /* dcp unit split: the declarations that moved to f3gmt (copies: drop what f3gm does not use) */
 extern int f3gm_ObjectCount;
-int gm_RemoveObject();                     /* 0x4ffff0 */
 int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);
 int gm_GoodsStock(int p, int i);                   /* 0x4ff950 */
 int gm_GoodsDemand(int p, int i);                   /* 0x4ff8c0 */
@@ -2461,24 +2454,16 @@ int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);   /* 0x50aaf0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                   /* 0x5089c0 */
 struct AICHAR *gm_ObjectBuildingOwner(struct AIOBJ *o);                     /* 0x50a050 */
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);                     /* 0x50d380 */
-struct CHTRANSPORT * ch_AttachTransport();                     /* 0x4034e0 */
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
-struct CHARACTER * ch_Create();                     /* 0x403390 */
 void ch_PreloadAnims(struct CHARACTER *ch, int n, ...);                     /* 0x404200 */
-void ch_SetVisible();                     /* 0x402480 */
-int gm_IsHomeType();                     /* 0x502520 */
-int init_BuildingSceneUniverse();                     /* 0x511e60 */
 int gm_IsHomeType(struct AIBLD *b);
 int gm_IsType10(struct AIBLD *b);
 int gm_BuildingClass(int kind);
-int gv_BuryNewDead();                     /* 0x4ef9c0 */
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
-int gm_BuildingClass();                     /* 0x501d80 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
 int gm_BuildingJob(int t);                   /* 0x5048e0 */
-int gm_ListBuildingsOfType();                     /* 0x5020a0 */
 extern int gm_AllowAll;
 int gm_JobBuildingType(int x);
 extern struct AIOBJ *sv_PanelShown;                   /* 0x6f2310 */
@@ -2491,14 +2476,10 @@ int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 void cm_SendBoss(int a, int b);                     /* 0x4c5540 */
 int cm_SendExSetHE(int k, struct AIJOB *p);                     /* 0x4c4c60 */
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);                     /* 0x53dee0 */
-int d3t_SceneIndex();                     /* 0x411be0 */
-int ch_Delete();                     /* 0x4028a0 */
 struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);                     /* 0x50a0f0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);                     /* 0x524260 */
 void he_EndPersonEvents(struct AICHAR *p);                     /* 0x5538b0 */
 void he_EndKind23Events(struct AICHAR *ev);                     /* 0x568aa0 */
-void d3io_NoopCallback();                     /* 0x44ee40 */
-int amt_ClearOffices();                     /* 0x4e6d80 */
 void gm_KillSpieler(int c, int mode);                     /* 0x503c60 */
 extern struct D3SCENE *d3_DefaultScene;  /* 0x5fb5b0 (as d3.h / anm.h) */
 extern int ai_Evidence[0x800][2];              /* 0x91b6e0 .. 0x91f6e0: pairs of ints */
@@ -2508,22 +2489,15 @@ extern int ai_Unk770ae0_day;            /* the clock's day (0x770ae0) */
 extern char ai_Unk770ce4[];             /* 0x770ce4: the field +0x164 of the character records (stride 0x21c) */
 void sv_RemoveBanners(struct AIBLD *b);                     /* 0x5286a0 */
 void sv_CreateBanners(struct AIBLD *b);                     /* 0x5282f0 */
-void ch_InflateModel();                     /* 0x402540 */
-int ch_Delete();                     /* 0x4028a0 */
 void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);     /* 0x5a9430 */
 int gm_FreeList(struct AIOBJ **list);                     /* 0x500140 */
 int gm_TitlesLeft(int n);                     /* 0x504ce0 */
 float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
-int gm_CompareTime();                     /* 0x4fe210 */
-int gm_MinutesBetween();                     /* 0x4fe280 */
-int d3t_SceneIndex();                     /* 0x411be0 */
 double _CIfmod();                     /* 0x5de73a: a CRT call */
 extern int ai_CharCount;  /* 0x6f1bc0 */
 extern int f3gm_ObjectCount;  /* 0x6f1bdc */
-int ai_PermissionBits1d();                     /* 0x587b70 */
 extern int gm_AllowAll;                /* 0x6f2448 */
-int gm_BuildingJob();                     /* 0x5048e0 */
 int gm_TitleGroup(int n);                /* 0x504ad0 */
 unsigned char * gm_FirstBuilding(int n);                   /* 0x50b010 */
 short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
@@ -2532,9 +2506,7 @@ int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 int ai_InventoryHas(void *ch, int id);                     /* 0x5ba6b0 */
-float gm_Liking();                     /* 0x50c550 */
 void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
-void he_RecheckPersonEvents();                     /* 0x53ed40 */
 int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveObject(int a, int b, int c);                     /* 0x4c5010 */
@@ -2544,7 +2516,6 @@ int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     
 int gm_PlayerFactor(int a, unsigned char k);                     /* 0x5085f0 */
 float util_RandomSq(void);                  /* 0x42ec40 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);                     /* 0x53dda0 */
-int gm_BuildingClass();                     /* 0x501d80 */
 int cm_SendOwnership(int a, int b, int c);                     /* 0x4c54a0 */
 int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d);                     /* 0x4c47e0 */
@@ -2552,12 +2523,6 @@ int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field,
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 extern int ai_Difficulty;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-struct AICHAR *ahm_OwnerChar();                     /* 0x4eaa50 */
-int ahm_ObjectValue();                     /* 0x4ec3d0 */
-int gm_ListAmount();                     /* 0x50aaf0 */
-int gm_ListStock();                     /* 0x50ab50 */
-int gm_ClockSeason();                     /* 0x4fe350 */
-int gm_CompareTime();                     /* 0x4fe210 */
 int gv_GetTableRecord(int i, int *out);                     /* 0x4f2720 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_SumListAmounts(void *list, unsigned char p);
@@ -2571,9 +2536,6 @@ int gm_GetWorth(unsigned short id);
 int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
-float gm_Liking();
-int gm_LayoutTree();
-void gm_UpdateTechTree();
 typedef struct {
     int id, p1, p2;
     unsigned short rank, pad;
@@ -2582,7 +2544,6 @@ typedef struct {
     unsigned char flag;
 } RTNODE;       /* 0x34 bytes, the nodes of the research tree layout 0x76fde0 */
 extern int gm_TreeRanks;
-unsigned gm_TreeNodeRank();                /* 0x50b2f0 */
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
 unsigned gm_BoyHead[] = { 0, 1735292266, 1430937445, 4540238, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0 };  /* 0x6118a8 */
 unsigned gm_GirlHead[] = { 0, 1684365677, 1852139619, 1161907551, 1162363716, 78, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0 };  /* 0x6118f0 */

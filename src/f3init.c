@@ -99,7 +99,6 @@ typedef struct INIT_TORCHLIST {
 #define INIT_FIELD_RELIGION 0x0c        /* the character's religion field: 0 catholic / 1 protestant (the two judges) */
 
 /* the functions of f3gm.c this unit calls (declared by their addresses there) */
-float gm_JobWage();
 int gm_IsBuildingKind(int n);           /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
 int gm_FindBuildingKind(char *name);    /* 0x502060, f3gm.c: the building kind of the name */
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);  /* 0x503530, f3gm.c: the permission bits of the character p in the building b (or the object o) */
@@ -157,7 +156,6 @@ struct AIBLD *gm_NearestFreeBuilding(struct AIBLD *b, unsigned kind); /* 0x501f6
 void main_SetLoadProgress(int unused, int pct);          /* 0x537af0, main.c: the loading progress bar */
 int cm_SendMessage3d(struct AIBLD *p, unsigned char b, int c, int d);                     /* 0x4c55d0 */
 int gv_SendGrave(struct AIBLD *o);                     /* 0x4f15e0 */
-int cm_GetSlotState();                     /* 0x4c3ae0 */
 void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s);                     /* 0x4c51b0 */
 void d2_DrawAll(void);                      /* 0x46e150, d2.c */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */

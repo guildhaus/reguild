@@ -60,8 +60,7 @@ extern int main_ChoosePlayer(int mask, int flag);
 
 
 
-void d2_FocusInput(); int sprintf(char *buf, const char *fmt, ...);
-int lobby_ChoosePlayer(); int lobby_ChooseProfession();
+int sprintf(char *buf, const char *fmt, ...);
 
 int lobby_Buttons[2] = { -1 };  /* 0x62aa7c, the controls of the lobby form's button row 4 (sv_ButtonRow): [0] ready, [1] the character (the player and profession pickers) */
 int lobby_LeaveButton = -1;  /* 0x62aa84, the control of the button row 8: leave the lobby */

@@ -322,7 +322,6 @@ int sv_CheckMoney(struct AICHAR *o, int n);         /* 0x520f90, sv.c: 1 when th
 int sv_MessageBox(intptr_t text, unsigned flags); /* 0x521150, sv.c: the modal message box */
 void sv_CameraFollow(void);                /* 0x52d7a0, sv.c: the per-frame camera follow */
 int d2_RemoveWindow(); int io_PrintText(intptr_t fmt, ...);
-int d2_GetObjValue();
 int he_IsMessageKindFiltered(int kind); /* 0x575640, he.c: nonzero when the kind is filtered */
 void he_SetMessageKindFiltered(int kind, int filtered); /* 0x575710, he.c: sets / clears the kind's bit */
 int cm_SendSetField(int a, int b, int c, int d, int e); /* 0x4c4a60, cm.c: message 0x19 (the field block) */
@@ -359,8 +358,7 @@ extern struct D2PIC *d2_Pics;              /* 0x6ed918, d2.h: D2PIC * */
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
-int ai_PokerStart();
-unsigned short ai_PokerStep(); int gm_BuildingSkill(); float ai_NormalizeEffectScale(float x);
+unsigned short ai_PokerStep(); float ai_NormalizeEffectScale(float x);
 
 POKERGAME ai_PokerState;  /* 0x6f3500 .. 0x6f35c0, the poker game state (poker.c steps it) */
 POKERUI ai_PokerUi = { -1 };  /* 0x62dda0, the poker window state (window -1 when closed, the rest zero) */

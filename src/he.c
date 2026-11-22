@@ -118,7 +118,6 @@ void he_NoHandler(struct AIJOB *ev);  /* unlinked, defined at the end of the uni
 #define GAPDATA __declspec(align(1)) unsigned char
 
 
-extern int ai_TransportWindow();
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 extern const unsigned __int64 gypsyFilter;  /* 0x5eed68, lcmap.c */
 #include "menu_types.h"
@@ -1576,7 +1575,6 @@ void he_SetLifeByAge(AICHAR *c, unsigned short num);
 void d3t_SetColor(D3OBJECT *obj, unsigned char r, unsigned char g, unsigned char b);
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
-int d3t_GetHeightRange();
 void sv_PumpNet();
 int sprintf(char *buf, const char *fmt, ...);
 void mem_Free(void *p);
@@ -3098,7 +3096,6 @@ void he_SetEventChar(AIJOB *e, int pl)
     e->netId = -1;
 }
 
-int rd_PointsNear();
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 
 /* 0x541280, the idle behaviour of the event's characters (ids[], 8 of them) in the default scene: each one whose scene
@@ -3541,7 +3538,6 @@ void he_AllocTavern(AIJOB *e)
     cm_SendExSetHE(0, e);
 }
 
-int ai_ChooseObjectTarget();
 void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int param_3);
 
 /* 0x542590, a Ghidra miss (disassembled): the run handler of the tavern event 0x2b of the building `from` (no owner:
@@ -3982,7 +3978,6 @@ void he_AllocFeast(AIJOB *e)
     }
 }
 
-int ai_EvalFest();
 
 /* 0x5437c0, the run handler of the feast event: the host is the event's character, the guests and the menu /
    musician picks come from the feast table object (gm_Query kind 0x17) of the building e->from, or from the event's
@@ -4057,7 +4052,6 @@ void he_RunFeast(AIJOB *e)
     }
 }
 
-int ai_MasterExamPassed();
 
 /* 0x543ac0, a Ghidra miss (disassembled): the run handler of the master exam at a feast (kind 0x36). The examiner is
    the owner of the building e->from, the guests read from its feast table object (gm_Query kind 0x17), or (examAt 1)
@@ -5327,7 +5321,6 @@ void he_DuelAccepted(AIJOB *e, AICHAR *p2, AICHAR *p3)
 }
 
 void amt_ChangeDistrictOpinion(struct AICHAR *c, int d, int v);  /* 0x4ea550, amt.c */
-int ai_DrawAmountRow();
 
 /* 0x5472d0, a Ghidra miss (disassembled): the challenge of the insult event ("Special\Beleidigung") is declined
    (the second choice, or no choice in time) by q, challenged by p (the characters partner1 / partner2 of the
@@ -5701,7 +5694,6 @@ void he_AllocInsultNews(AIJOB *e)
 void gm_ChangeRelationToJobs(unsigned short a, int b);
 void ai_PlagueNews(void);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);  /* 0x4a63f0, @original: amt_ai.c defines lo as a float; this unit passes it as an int, he_AllocBrawl its (null) home building through a register (push edi) */
-void amt_ChangeDistrictOpinion();
 
 
 /* 0x548230, the run handler of the insult news event (type 0x4b, whose start handler is 0x548110): a pending cm
@@ -6586,7 +6578,6 @@ void he_BeginPlague(AIJOB *e)
     e->exSlot = cm_SendExSetHE(-1, e);
 }
 
-int sv_IsAtDoor();
 void ai_PlagueMessage(struct AICHAR *c, void *bld);
 float util_RandomF2();
 /* 0x549f70, the alloc handler of the plague event 0x59 ("Pest", he_RunPlague): opts bit 2 leaves it alone; another
@@ -7565,7 +7556,6 @@ void he_AllocSim(AIJOB *e)
     s->done = 0;
 }
 
-int ai_IsLocalWorker();
 
 /* 0x54c510, the test of a character for the accident simulation: alive (id not 0xffff, health not 0), kind 0, with
    a building whose id is the building of its model record (the one it was sent to): then ai_IsLocalWorker, else 0 */
@@ -7945,7 +7935,6 @@ void he_StartInnSim(AIJOB *e)
     s->step = 0;
 }
 
-int ai_CanAct();
 
 typedef struct HEINN {                  /* he_RunInnSim's list of the inns (he_FindGuestInn walks it, 12 bytes each) */
     AIBLD *inn;                         /* 0x0, the inn (a building of kind 0x16), 0: the end of the list */
@@ -8980,7 +8969,6 @@ void he_RunDarkCorner(AIJOB *e)
 }
 
 int mem_IsValid(void *p);
-void par_Delete();
 
 /* 0x54fb50, a Ghidra miss: the init of the effect event: the object +0xac (0x4fea50) must have a scene record (+0x61) and the effect word +0xc2 a table record (0x5ba620) with a duration (+4): +0xb4 = now + that duration (0x4fe140), +0xb0 = 0, state 0; else the event is freed */
 void he_StartEffectEvent(AIJOB *e)
@@ -9149,8 +9137,6 @@ void he_RunSendHomeEvent(AIJOB *e)
         he_FreeEvent(e);
 }
 
-int d3t_PlayAnim();
-float d3_VecAngle2();
 
 /* 0x550070, creates the reaper object ("Sensenmann", in scene 0) of the reaper event: both buildings reaperFrom and
    reaperTo must have a 3D object with a mesh driver; the first time it stands above reaperFrom's object (its height
@@ -9688,7 +9674,6 @@ void he_StartWalk(AIJOB *e)
     }
 }
 
-int sv_IsAtDoor();
 
 /* 0x551340, steps one slot of the walk event 0x5512c0: a free slot gives 0; the character (gm_FindChar) walks to
    its building (gm_FindById): while it is not at the door yet (sv_IsAtDoor) and the hour is before 22 the result is
@@ -10453,7 +10438,6 @@ void he_RunApplicants(AIJOB *e)
     e->exSlot = cm_SendExSetHE(1, e);
 }
 
-int ai_TutorialSetHost();
 int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
@@ -11640,7 +11624,6 @@ void he_TransportFromHome(AIJOB *e)
     d3if_SelectScene(sc, 1);
 }
 
-int sv_IsCartAtDoor();
 
 /* 0x555690, the leg of the transport event 15 (HETRANSPORT) of mode 1 (only the goal a home), called by its run
    handler 0x556600 each round: the cart (gm_FindObjectInst; none: nothing) gets its speed (he_SetCartSpeed). The
@@ -11859,7 +11842,6 @@ void he_TransportStadtStadt(AIJOB *ev)
     }
 }
 
-int init_BuildingSceneUniverse();
 
 /* 0x556080, the leg of the transport event 15 (HETRANSPORT) of mode 4 (both buildings homes), called by its run
    handler 0x556600 each round: the cart (gm_FindObjectInst; none: nothing) gets its speed (he_SetCartSpeed). The
@@ -12623,7 +12605,6 @@ void he_AllocHerbGathering(AIJOB *e)
     gm_AddTime(&e->end, 0, 5, 0);
 }
 
-int sv_IsAtDoor();
 
 /* 0x557e20, the run handler of the herb gathering event 20 (HEHERBS; allocated by he_AllocHerbGathering, which gathers the
    group). Outside the day hours of the season (gm_DayStartHours .. gm_DayEndHours) it waits 5 minutes, except when
@@ -13582,7 +13563,6 @@ void he_RunSpying(AIJOB *e)
     }
 }
 
-int ai_BrawlWin();
 
 /* 0x55a5f0, the allocation handler of the brawl event 26 (HEBRAWL, "PRUEGEL"; run handler he_RunBrawl): due now;
    without a hiring building (AIJOB.from -1) the first building of the kind 0x16, else 0xf, is taken; the thug is
@@ -14580,7 +14560,6 @@ void he_RunEvent24(AIJOB *e)
     }
 }
 
-struct SBBANK * sb_FindBank();
 
 /* 0x55cc10, the run handler of the master exam announcement, event 0x25 (its init he_RunDueNow), once due. Stage 0
    opens the event box "Berufe\Messagebox_Meisterpruefung" (picture 0x5fd; none: the event is freed); for the
@@ -15417,7 +15396,6 @@ void he_RunEvent39(AIJOB *e)
     }
 }
 
-int init_ObjectSceneUniverse();
 
 /* 0x55e9d0, the allocation handler of the daily routine event 0x3a (he_PostEvent3a posts it at the start of the day): its words +0xb0 = 3 and +0xac = 0, the start and end clocks are now, the end clock set to 6:15 (gm_SetTime) */
 void he_AllocRoutine(AIJOB *ev)
@@ -19407,7 +19385,6 @@ float gm_MeanLiking(int c, int n, int *ids);
 void sv_CountGroupMembers(struct AIJOB *g);
 int he_HasEvent9f(AICHAR *a);
 void init_HookObject(struct D3OBJECT *o, void *p, int kind);
-int ai_FindBauplaetze();
 struct D3OBJECT *ai_FindNearestObject(float *ref, struct D3OBJECT **list);  /* 0x58fe10 (lc.c) */
 void sv_CreateBanners(struct AIBLD *b);
 void snd_PlayFavourComment(void);
@@ -19453,11 +19430,9 @@ int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo, floa
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
-int he_OpenEventSlot();                 /* 0x53d6f0 */
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
-int he_OpenEventSlot();                 /* 0x53d6f0 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
@@ -19498,7 +19473,6 @@ void he_GypsySwapSkills(AICHAR *pl, AICHAR *per);     /* 0x573ae0 */
 void he_GypsyCurse(AICHAR *pl, AICHAR *per);     /* 0x573c20 */
 void he_GypsySlowdown(AICHAR *pl, AICHAR *per);     /* 0x573d30 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g); /* 0x524260, the group register */
-int sv_IsAtDoor();                 /* 0x524770 */
 void he_CircusShowIncome(struct AIJOB *ev, int n);   /* 0x575030 */
 unsigned short ai_RandomDomizilGoodNotIn(int param_1, unsigned short *param_2);                 /* 0x5a9e90 */
 void he_GiveDomizilGood(AICHAR *per);     /* 0x575430 */

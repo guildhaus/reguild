@@ -38,7 +38,6 @@ void he_NoHandlerB(struct AIJOB *ev);  /* unlinked, defined at the end of the un
 #define GAPDATA __declspec(align(1)) unsigned char
 
 
-extern int ai_TransportWindow();
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 extern const unsigned __int64 gypsyFilter;  /* 0x5eed68, lcmap.c */
 #include "menu_types.h"
@@ -1086,34 +1085,23 @@ void he_SetLifeByAge(AICHAR *c, unsigned short num);
 void d3t_SetColor(D3OBJECT *obj, unsigned char r, unsigned char g, unsigned char b);
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);  /* 0x447190, d3_interface.h */
-int d3t_GetHeightRange();
 void sv_PumpNet();
 int sprintf(char *buf, const char *fmt, ...);
 void mem_Free(void *p);
 void err_Message(char *text);
-int rd_PointsNear();
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 void ai_ShowTributeDelayedNews(struct AICHAR *param_1);
 void ai_ShowTributeCollectNews(struct AICHAR *param_1);
 void ai_ShowTributeClaimNews(struct AICHAR *param_1, struct AICHAR *param_2);
-int ai_ChooseObjectTarget();
 void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int param_3);
-int ai_EvalFest();
-int ai_MasterExamPassed();
 unsigned int ai_MarriageTest(int param_1, int param_2);
 int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
-void amt_ChangeDistrictOpinion();
-int ai_DrawAmountRow();
 void gm_ChangeRelationToJobs(unsigned short a, int b);
 void ai_PlagueNews(void);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out);
-void amt_ChangeDistrictOpinion();
-int sv_IsAtDoor();
 void ai_PlagueMessage(struct AICHAR *c, void *bld);
 float util_RandomF2();
 int ls_GetLanguage();
-int ai_IsLocalWorker();
-int ai_CanAct();
 typedef struct HEINN {                  /* he_RunInnSim's list of the inns (he_FindGuestInn walks it, 12 bytes each) */
     AIBLD *inn;                         /* 0x0, the inn (a building of kind 0x16), 0: the end of the list */
     AIOBJ *drink1;                      /* 0x4, its bar's good 0x179, 0: none */
@@ -1124,10 +1112,6 @@ unsigned short hmt_RandomRecord(short k);
 unsigned short hmt_RandomTextOffset(unsigned short k);
 struct G11REC *hmt_GetRecord(unsigned short k);
 float ord_GetStatistics(int *o);
-int mem_IsValid();
-void par_Delete();
-int d3t_PlayAnim();
-float d3_VecAngle2();
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags);
 void ai_PlagueMessageAll(void);
 void udp_Send(char *buf, int len);
@@ -1159,12 +1143,10 @@ typedef struct HERANKLINE {             /* 0xb9 bytes, one ranked player's packe
     char office2[0x24];                 /* 0x95, the second office (the same texts, + secondOffice) */
 } HERANKLINE;
 #pragma pack(pop)
-int sv_IsAtDoor();
 int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
 int amt_InitApplicant(struct AICHAR *c, int k);
 int amt_GetOpenOffice(int k);
 int amt_CreateApplicant(int k);
-int ai_TutorialSetHost();
 int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
@@ -1174,16 +1156,10 @@ void he_FreeEventNow(AIJOB *r);
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 int gm_LevelPayout(int v, int kind);
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
-int sv_IsCartAtDoor();
-int init_BuildingSceneUniverse();
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
-int sv_IsAtDoor();
 int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
-int ai_BrawlWin();
-struct SBBANK * sb_FindBank();
 struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
-int init_ObjectSceneUniverse();
 float gm_StockPrice(int p, int n);  /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
 typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AIJOB's union (he_AllocRansom / he_RunRansom;
                                            he_RunKidnap's ransom message 0x3d posts it: victim, guild) */
@@ -2342,7 +2318,6 @@ done:
     he_FreeEvent(e);
 }
 
-int ai_FindBauplaetze();
 struct D3OBJECT *ai_FindNearestObject(float *ref, struct D3OBJECT **list);  /* 0x58fe10 (lc.c) */
 
 /* 0x56b570, "he_AllocGebaeudeBauen", the alloc of an event of the type 0xd (when another one of the type is still
@@ -4816,7 +4791,6 @@ void he_PlunderFailNews(int *a, AICHAR *c)
     he_ShowNews(a[0], -1, text, 1, 0x5f4, 0);
 }
 
-int he_OpenEventSlot();                 /* 0x53d6f0 */
 
 /* 0x570cc0, the run handler of the plunder offer 0x8b (he_RunPlunder sends it to a player victim; its words over
    AIJOB's union are the plunder deal HEPLUNDERDEAL): a missing client (the deal's netId) or a player whose
@@ -4889,7 +4863,6 @@ void he_RunPlunderOffer(AIJOB *e)
 int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
-int he_OpenEventSlot();                 /* 0x53d6f0 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
 void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
@@ -6763,7 +6736,6 @@ void he_CircusShowPayout(AIJOB *e)
 }
 
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g); /* 0x524260, the group register */
-int sv_IsAtDoor();                 /* 0x524770 */
 void he_CircusShowIncome(struct AIJOB *ev, int n);   /* 0x575030 */
 
 /* 0x5748d0, the run of the event 0xa1, a circus show of up to four figures (AIJOB.ids, the ones gm_FindChar finds):

@@ -445,7 +445,6 @@ void d2_RedrawView(int view);                    /* 0x474e80 */
 extern void *d2_ScreenSurf;              /* 0x6ed924, the screen surface (d2.c) */
 void err_Message(char *text);                    /* 0x4222b0 */
 void gm_FormatAmount(int v, unsigned char k, char *out);                   /* 0x508a80 */
-int io_TrailingDigits();                /* 0x514360 */
 int ls_GetLanguage();                     /* 0x5190a0, the language number */
 
 /* 0x515960, the text engine: prints the text fmt (a literal or an id of txt_Ptrs below 0x4800) with the arguments of its tokens ("%" "$" "{" + an optional digit + a letter) appended to the text of the current window d2_LastWindow and redraws the window (or its view; "%X" redraws all). Returns the window's object count (nobjs: the index the object of this text's "%ia" gets, the redraw has created it before the caller's d2_GetWinObj), -1 when the texts are not loaded, the window is not active, or the text is missing / too long.
