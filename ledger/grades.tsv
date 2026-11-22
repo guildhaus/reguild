@@ -772,7 +772,7 @@ exe	0x0043ce10	d3_InitSurf	d3_engine	byte	readable
 exe	0x0043ce60	d3_InitObject	d3_engine	shape	readable	deep	
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	byte	readable		
 exe	0x0043d0e0	d3_Unlink	d3_engine	byte	readable		
-exe	0x0043d180	d3_CloneObject	d3_engine	shape	readable		byte+readable -> shape+readable at 9d44d5eb: declaration-set tie-break: proven byte under a swept set (2 unused typedefs at d3_engine's start); fell with the D3_MESH casts (D3OBJECT.material is already D3MESH *), the text is unchanged [waits for: d3_engine.c's declaration set (G.tiebreak)]
+exe	0x0043d180	d3_CloneObject	d3_engine	byte	readable		
 exe	0x0043d430	d3_SetObjectAlpha	d3_engine	shape	readable	deep	
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	byte	readable		
 exe	0x0043d690	d3_SetAlpha	d3_engine	byte	readable		
@@ -3476,7 +3476,7 @@ exe	0x00537f40	main_EndGame	main	byte	readable
 exe	0x00538140	main_RundenBeginn	main	byte	readable		
 exe	0x005384e0	main_EndRound	main	byte	readable		
 exe	0x00539620	main_ReplaceFigure	main	byte	readable		
-exe	0x00539870	main_RoundReport	main	byte	readable		
+exe	0x00539870	main_RoundReport	main	shape	readable		
 exe	0x0053a250	main_UpdateFigure	main	byte	readable		
 exe	0x0053a450	main_UpdateFigures	main	byte	readable		
 exe	0x0053a520	main_SettleRound	main	byte	readable		
@@ -4004,7 +4004,7 @@ exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
 exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at f6a2d073: declaration-set tie-break: AIJOB's 101 kind records (twenty-fifth pass); the text is unchanged [waits for: the unit's declaration set]
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		
@@ -4505,7 +4505,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
-exe	0x005c5310	ai_CharInfoPanel	lcamt	shape	readable		byte+readable -> shape+readable at 6720e9d5: declaration-set tie-break: proven byte under a swept set; fell with the mesh records' move into d3.h (1328b89b) [waits for: the unit's declaration set]
+exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
 exe	0x005c6530	ai_MarriageTest	lcamt	byte	readable		
