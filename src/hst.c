@@ -5,7 +5,6 @@
    Names are ours except the hst_* ones.
    Open: the ai_Token* searches matched with AI_ZERO_BUF (size temp stored before n1 = buf); the functions still on
    AI_ZERO((char *)n1, ..) keep its _zp slot and may want AI_ZERO_BUF / AI_ZERO_AT.
-   Open: G12OBJ repeats hmt.h's HMTOBJ (0x4e6ec0 / 0x4e6680 declared in both files); G12_B reads AICHAR bytes.
    Open: hst_KeyFirst / hst_KeyLast are only ever set -1 (0x520200 reads hst_KeyFirst for hst_KeyNext = hst_KeyFirst + n),
    so ai_CommandComments returns 0 at every call: is the key list ever filled?
    unit of rea 8cef7d5b (src/game/hst.c); boundaries in decl/text.dcl */
@@ -1622,11 +1621,6 @@ int ai_CommandRiot(G12ROW *row, int slot, char *fmt)
     return 1;
 }
 
-typedef struct G12OBJ {                 /* 0x18 bytes, filled by 0x4e6ec0 (hmt.h: HMTOBJ) */
-    int obj;                            /* 0x00 */
-    int id;                             /* 0x04, a character id or -1 */
-    char pad08[0x10];
-} G12OBJ;
 
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out);                                         /* 0x4e6ec0, defined elsewhere */
 int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e);                /* 0x4e6680, defined elsewhere */
@@ -1635,19 +1629,19 @@ int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, i
    0x1e..0x21 (0x4e6680) and sends message 0x80 (arg 4), today 8:00 */
 int ai_CommandBreakGuildSeats(G12ROW *row, int slot, char *fmt)
 {
-    G12OBJ o;
+    AMTREC o;
     AIMSG msg;
 
     if (*fmt != '-')
         return 0;
-    if (amt_GetFirstOffice(0x1e, &o) && o.id != -1)
-        amt_SendOfficeMessage(o.obj, 0, 0, 4, 0xff);
-    if (amt_GetFirstOffice(0x1f, &o) && o.id != -1)
-        amt_SendOfficeMessage(o.obj, 0, 0, 4, 0xff);
-    if (amt_GetFirstOffice(0x20, &o) && o.id != -1)
-        amt_SendOfficeMessage(o.obj, 0, 0, 4, 0xff);
-    if (amt_GetFirstOffice(0x21, &o) && o.id != -1)
-        amt_SendOfficeMessage(o.obj, 0, 0, 4, 0xff);
+    if (amt_GetFirstOffice(0x1e, &o) && o.owner != -1)
+        amt_SendOfficeMessage(o.idx, 0, 0, 4, 0xff);
+    if (amt_GetFirstOffice(0x1f, &o) && o.owner != -1)
+        amt_SendOfficeMessage(o.idx, 0, 0, 4, 0xff);
+    if (amt_GetFirstOffice(0x20, &o) && o.owner != -1)
+        amt_SendOfficeMessage(o.idx, 0, 0, 4, 0xff);
+    if (amt_GetFirstOffice(0x21, &o) && o.owner != -1)
+        amt_SendOfficeMessage(o.idx, 0, 0, 4, 0xff);
     atoi(fmt + 1);
     memset(&msg, 0, sizeof(msg));
     msg.type = 0x80;
