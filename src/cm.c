@@ -5734,7 +5734,7 @@ int cm_ExCutEntry(G17MSG *m, G17STAT *s)
             if (c == 0)
                 c = (char *)gm_FindChar(m->cutEntry.entry.charId);
             if (c != 0) {
-                r = (CMCUTENTRY *)cm_CutEntrySlot((char *)rec, c);
+                r = cm_CutEntrySlot(rec, c);
                 *r = m->cutEntry.entry;
                 if (r->state == 0)
                     r->charId = -1;
@@ -5762,7 +5762,7 @@ int cm_ExCutEntryUpdate(G17MSG *m, G17STAT *s)
         return 1;
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == m->cutEntry.playerId) {
-            r = (CMCUTENTRY *)cm_CutEntrySlot((char *)&cm_CutInfos[i], (char *)cm_FindFighter(m->cutEntry.entry.charId));
+            r = cm_CutEntrySlot(&cm_CutInfos[i], cm_FindFighter(m->cutEntry.entry.charId));
             if (r->state == m->cutEntry.entry.state) {
                 if (r->state != 2 || r->stateArg == m->cutEntry.entry.stateArg)
                     *r = m->cutEntry.entry;

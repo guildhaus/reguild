@@ -357,7 +357,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                                 break;
                             }
                         }
-                        e = (CMCUTENTRY *)cm_CutEntrySlot((char *)other, x);
+                        e = cm_CutEntrySlot(other, x);
                         if (e->orderSlot == -1 || cm_GetSlotState(e->orderSlot) != 0) {
                             st = e->state;
                             e->orderSlot = -1;
@@ -365,7 +365,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                                 item = (AIOBJ *)cm_CharWeaponItem(x);
                                 if (item != 0 && item->usesLeft > 0) {
                                     cm_SendSetField(c->netId, 0x1c8, 4, 0x20000000, 0);
-                                    e->orderSlot = cm_OrderAttack((char *)other, x, c, 0, 0);
+                                    e->orderSlot = cm_OrderAttack(other, x, c, 0, 0);
                                 }
                             }
                         }
@@ -587,7 +587,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
    toggle (key 0x39 = space) with the character animations and the "pause" text, the frame of the UI, and every 0x15e timer calls
    the characters' fight-AI (0x4d2f80) and the fighters' commands (0x4d76a0). Ends with the end-of-fight code 0x4d6b70. */
 
-void cm_FightLoop(char *a, int ctx)
+void cm_FightLoop(CMCUTINFO *a, int ctx)
 {
     unsigned int t;
     int i, r;
@@ -646,7 +646,7 @@ void cm_FightLoop(char *a, int ctx)
    fight loop, which gets the callback's two arguments (VC6 tail-jumps to it; the one-argument cm_FightResult
    call is not a tail call because the callee's argument count differs from the caller's) */
 
-void cm_FightMember(char *a, int ctx)
+void cm_FightMember(CMCUTINFO *a, int ctx)
 {
     if (cm_ScenePartyRuns == 0) {
         cm_FightResult(a);

@@ -368,22 +368,22 @@ void cm_UpdateHandObject(AICHAR *ch)
 /* 0x4cdf00, the record of the character c in the 16 records (0x2c bytes, id at +0) of rec + 0x94, else a free one
    (id -1), 0: none */
 
-int *cm_CutEntrySlot(char *rec, AICHAR *c)
+CMCUTENTRY *cm_CutEntrySlot(CMCUTINFO *rec, AICHAR *c)
 {
-    CMCUTINFO *r = (CMCUTINFO *)rec;
+    CMCUTINFO *r = rec;
     int id = c->netId;
     int i;
 
     for (i = 0; i < 16; i++) {
         if (r->entries[i].charId == id)
-            return &r->entries[i].charId;
+            return &r->entries[i];
     }
     for (i = 0; i < 16; i++) {
         if (r->entries[i].charId == -1) {
             memset(&r->entries[i], 0, sizeof(CMCUTENTRY));
             r->entries[i].charId = c->netId;
             r->entries[i].state = 0;
-            return &r->entries[i].charId;
+            return &r->entries[i];
         }
     }
     return 0;
@@ -391,7 +391,7 @@ int *cm_CutEntrySlot(char *rec, AICHAR *c)
 /* 0x4cdf80, the entry (CMCUTENTRY) of the character c in the first cm_FightRecord[0x30] cutscene records
    (cm_CutInfos), 0: none */
 
-int *cm_FightCutEntry(AICHAR *c)
+CMCUTENTRY *cm_FightCutEntry(AICHAR *c)
 {
     int n = cm_FightRecord->used;
     CMCUTINFO *r;
@@ -401,7 +401,7 @@ int *cm_FightCutEntry(AICHAR *c)
         r = &cm_CutInfos[i];
         for (j = 0; j < 16; j++) {
             if (r->entries[j].charId == c->netId)
-                return &r->entries[j].charId;
+                return &r->entries[j];
         }
     }
     return 0;
@@ -806,7 +806,7 @@ void cm_CloseCharInfoWins()
    wide; pictures 0x7b0 / 0x7b1 in its corners) with the value bar of skill 3 and the health slider (0..100), in a free
    slot of cm_CharInfoWins; first the record of c in a (cm_CutEntrySlot) is looked up or taken */
 
-void cm_OpenCharInfoWin(int a, AICHAR *c)
+void cm_OpenCharInfoWin(CMCUTINFO *a, AICHAR *c)
 {
     D3RECT r;
     int x0, y0, w, h, i, hp, bar;
@@ -822,7 +822,7 @@ void cm_OpenCharInfoWin(int a, AICHAR *c)
     for (i = 0; i < 0x20; i++) {
         if (cm_CharInfoWins[i] != -1)
             continue;
-        cm_CutEntrySlot((char *)a, c);
+        cm_CutEntrySlot(a, c);
         cm_CharInfoWins[i] = d2_CreateWindow(x0, y0, w, h, 0x10);
         d2_WinOpenPic(0, 0, 0x7b0, d2_LastWindow);
         d2_WinOpenPic(w - 0x18, 0, 0x7b1, d2_LastWindow);
@@ -837,7 +837,7 @@ void cm_OpenCharInfoWin(int a, AICHAR *c)
 /* 0x4ced80, refreshes the character info windows: closes them, then opens one for every selected fighter (a: the
    fight record the cut entries go to) */
 
-void cm_UpdateCharInfoWins(int a)
+void cm_UpdateCharInfoWins(CMCUTINFO *a)
 {
     AICHAR *p;
 
@@ -1038,7 +1038,7 @@ void cm_UpdateSceneChars()
                 }
             }
         }
-        e = (CMCUTENTRY *)cm_FightCutEntry(c);
+        e = cm_FightCutEntry(c);
         if (e != 0 && e->state == 2 && e->turn != 0) {
             o = cm_FindFighter(e->stateArg);
             if (o != 0) {
@@ -1378,7 +1378,7 @@ void cm_ClickSceneChar()
    formation types 1 .. 3. A weapon of those kinds with no uses left shows its txt_WeaponEmpty text instead. -1 when c,
    tgt, its body or the entry is missing; else the original returns nothing (eax as the last call left it) */
 
-int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
+int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
     AICHAR *ch = c;
@@ -1396,7 +1396,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
         return -1;
     if (d3_GetHeightAt(hmap, &t->scene->obj->pos, &x, &z, &y) == 0)
         return -1;
-    e = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+    e = cm_CutEntrySlot(rec, c);
     if (e == 0)
         return -1;
     e->held = 0;
@@ -1450,7 +1450,7 @@ int cm_OrderAttack(char *rec, AICHAR *c, AICHAR *tgt, int x, int z)
    world position in stateArg / x, and sent as message 0x50 (cm_SendCutEntry). -1 when tgt, c or rec is missing or the
    position has no cell; else the original returns nothing (VC6 keeps x, z, y in the dead parameters' slots) */
 
-int cm_OrderEscape(char *rec, AICHAR *c, char *tgt)
+int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, char *tgt)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
     D3OBJECT *o = (D3OBJECT *)tgt;
@@ -1465,7 +1465,7 @@ int cm_OrderEscape(char *rec, AICHAR *c, char *tgt)
     d3_PointToWorld(o, &o->pos, (D3VECTOR *)v);
     if (d3_GetHeightAt(hmap, (D3VECTOR *)v, &x, &z, &y) == 0)
         return -1;
-    e = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+    e = cm_CutEntrySlot(rec, c);
     if (e == 0)
         return -1;
     e->b0c = 0;
@@ -1479,7 +1479,7 @@ int cm_OrderEscape(char *rec, AICHAR *c, char *tgt)
 /* 0x4d02d0, an order kind 4 (the walk to a named dummy) for the character c with the name of the object tgt
    (CMCUTENTRY.dummy) and its ground cell (cellX, cellZ); returns 1, 0 when the point is not on the ground. */
 
-int cm_OrderConquer(char *rec, AICHAR *c, char *tgt)
+int cm_OrderConquer(CMCUTINFO *rec, AICHAR *c, char *tgt)
 {
     char *sc = (char *)d3_DefaultScene->hmap;
     CMCUTENTRY *q;
@@ -1490,7 +1490,7 @@ int cm_OrderConquer(char *rec, AICHAR *c, char *tgt)
     d3_PointToWorld(tgt, tgt + 0x4c, &v.v);
     if ((char)d3_GetHeightAt(sc, &v.v, &x, &z, &h) == 0)
         return 0;
-    q = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+    q = cm_CutEntrySlot(rec, c);
     q->b0c = 0;
     strcpy(q->dummy, tgt);
     q->charId = c->netId;
@@ -1504,7 +1504,7 @@ int cm_OrderConquer(char *rec, AICHAR *c, char *tgt)
    as storeX / storeZ, and sent as message 0x50 (cm_SendCutEntry, whose result it returns). -1 when the point is not on
    the ground or the character c is in a job (AICHAR.v1ac). */
 
-int cm_OrderWare(char *rec, AICHAR *c, char *tgt)
+int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, char *tgt)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
     D3OBJECT *o = (D3OBJECT *)tgt;
@@ -1518,7 +1518,7 @@ int cm_OrderWare(char *rec, AICHAR *c, char *tgt)
     d3_PointToWorld(o, &o->pos, (D3VECTOR *)v);
     if (d3_GetHeightAt(hmap, (D3VECTOR *)v, &x, &z, &y) == 0 || c->v1ac != 0)
         return -1;
-    q = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+    q = cm_CutEntrySlot(rec, c);
     q->b0c = 0;
     memcpy(&order, q, sizeof(order));
     order.charId = c->netId;
@@ -1533,7 +1533,7 @@ int cm_OrderWare(char *rec, AICHAR *c, char *tgt)
    that cell in stateArg / x, and sent as message 0x50 (cm_SendCutEntry). -1 when c's body is not on the ground or no
    cell is found; else cm_SendCutEntry's result (VC6 keeps x in c's dead parameter slot) */
 
-int cm_OrderToBestCell(char *rec, AICHAR *c)
+int cm_OrderToBestCell(CMCUTINFO *rec, AICHAR *c)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
     AICHAR *ch = c;
@@ -1543,7 +1543,7 @@ int cm_OrderToBestCell(char *rec, AICHAR *c)
     float y;
 
     if (d3_GetHeightAt(hmap, &ch->scene->obj->pos, &x, &z, &y) != 0 && cm_BestCellNear(c, x, z, 8, &x, &z) != 0) {
-        e = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+        e = cm_CutEntrySlot(rec, c);
         e->b0c = 0;
         memcpy(&order, e, sizeof(order));
         order.charId = ch->netId;
@@ -1558,12 +1558,12 @@ int cm_OrderToBestCell(char *rec, AICHAR *c)
    with state 8 and no target and sent as message 0x50 (cm_SendCutEntry); case 8 of cm_RunCutOrders then sends fight
    command 6 once the previous order slot is done (the character waits). */
 
-void cm_OrderWait(char *rec, AICHAR *c)
+void cm_OrderWait(CMCUTINFO *rec, AICHAR *c)
 {
     CMCUTENTRY *q;
     CMCUTENTRY order;
 
-    q = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+    q = cm_CutEntrySlot(rec, c);
     q->b0c = 0;
     memcpy(&order, q, sizeof(order));
     order.charId = c->netId;
@@ -1576,7 +1576,7 @@ void cm_OrderWait(char *rec, AICHAR *c)
    "sp_ESCAPE" cm_OrderEscape, on "sp_CONQUER.." cm_OrderConquer, on "WARE.." cm_OrderWare; with nothing picked the ground
    cell under the pointer (d3sm_Pick) is sent in state 1 (stateArg / x), else TXT_CLICK_NO_GROUND is shown. Returns 1 when
    an order was given */
-char cm_OrderClick(char *rec, AICHAR *c)
+char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
 {
     char ret = 0;
     D3OBJECT *sel;
@@ -1608,7 +1608,7 @@ char cm_OrderClick(char *rec, AICHAR *c)
         } else {
             map = (D3SM *)d3_DefaultScene->hmap;
             if (d3sm_Pick(map, dm_L.x + 0x1a, dm_L.y + 0x1a, &x, &z)) {
-                e = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
+                e = cm_CutEntrySlot(rec, c);
                 e->b0c = 0;
                 memcpy(&order, e, sizeof(order));
                 order.charId = c->netId;
@@ -1630,7 +1630,7 @@ char cm_OrderClick(char *rec, AICHAR *c)
    are greyed (d3t_SetGrey, D3OBJECT.stateFlags bit 2) and the unmarked ones restored, unless the body is fading; a
    right click clears every mark (cm_ClearMarks) */
 
-void cm_FightMouse(char *rec)
+void cm_FightMouse(CMCUTINFO *rec)
 {
     AICHAR **pp;
     AICHAR *c;
@@ -2846,7 +2846,7 @@ void cm_GiveFightOrders(AICHAR *side)
     AICHAR *c[16];
     int *ids;
     float *row;
-    char *cut;
+    CMCUTINFO *cut;
     AICHAR *sel;
     float r, best, w;
     int i, j, order, n, left, selidx;
@@ -2858,7 +2858,7 @@ void cm_GiveFightOrders(AICHAR *side)
     row = cm_OrderChancesFor(side);
     for (i = 0; i < cm_FightRecord->used; i++) {
         if (cm_FightRecord->members[i] == side->netId) {
-            cut = (char *)&cm_CutInfos[i];
+            cut = &cm_CutInfos[i];
             break;
         }
     }
@@ -2899,7 +2899,7 @@ void cm_GiveFightOrders(AICHAR *side)
     }
     for (i = 0; i < 16; i++) {
         if (ids[i] != -1)
-            cm_CarryOutOrder(cut, (char *)cm_FindFighter(ids[i]));
+            cm_CarryOutOrder(cut, cm_FindFighter(ids[i]));
     }
 }
 /* 0x4d3120, the formation order for the character c of the fight record rec by its formation type (AICHAR.formation):
@@ -2908,7 +2908,7 @@ void cm_GiveFightOrders(AICHAR *side)
    2 the closest "sp_CONQUER" point (cm_NearestConquerPoint) -> cm_OrderConquer; 3 cm_OrderWait; 4 cm_OrderToBestCell;
    5 the closest "sp_ESCAPE" object (cm_NearestEscapeObject) -> cm_OrderEscape */
 
-void cm_CarryOutOrder(char *rec, AICHAR *c)
+void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
 {
     D3SM *sc;
     AIWEAPON *k;
@@ -3236,7 +3236,7 @@ AICHAR *cm_CheckFightWinner(G28REC *rec)
         n = cm_FightRecord->used;
         for (i = 0; i < n && cm_FightRecord->members[i] == -1; i++)
             ;
-        slot = (CMCUTENTRY *)cm_CutEntrySlot((char *)&cm_CutInfos[i], winner);
+        slot = cm_CutEntrySlot(&cm_CutInfos[i], winner);
         entry = *slot;
         entry.charId = winner->netId;
         entry.state = 5;
@@ -4219,19 +4219,19 @@ void cm_RunFight(G28REC *a)
 }
 /* 0x4d6930, the result of the fight in the record r (+0x354 / +0x358): 0x6f0cf8 set -> 0 and the ransom 0x6f0cfc, else 1 */
 
-void cm_FightResult(char *r)
+void cm_FightResult(CMCUTINFO *r)
 {
     if (cm_FightSettled != 0) {
-        ((CMCUTINFO *)r)->result = 0;
-        ((CMCUTINFO *)r)->lootValue = cm_FightLootValue;
+        r->result = 0;
+        r->lootValue = cm_FightLootValue;
     } else
-        ((CMCUTINFO *)r)->result = 1;
+        r->result = 1;
 }
 /* 0x4d6970, one frame of the fight UI (r: the fight record): the countdown bar cm_FightTimeBar sized to the fight area,
    the redraws 0x525ff0 .. 0x4ce830, and the click on the button cm_FightButton (while 0x6f0d88 / 0x6f0cf4 are clear) sends
    message 0x50 with the cut entry of the player's character (0x4cdf00) in state 5, else the dialog is closed (0x6f22a0) */
 
-void cm_FightFrame(char *r)
+void cm_FightFrame(CMCUTINFO *r)
 {
     CMCUTENTRY sl;
     CMCUTENTRY *q;
@@ -4248,7 +4248,7 @@ void cm_FightFrame(char *r)
     cm_UpdateGrenades();
     if (cm_SceneTimedOut == 0 && cm_FightWinner == 0) {
         if (d2_ClickedId != -1 && d2_PointerObj == cm_FightButton) {
-            q = (CMCUTENTRY *)cm_CutEntrySlot(r, cm_CutChar);
+            q = cm_CutEntrySlot(r, cm_CutChar);
             memcpy(&sl, q, sizeof(CMCUTENTRY));
             sl.charId = cm_CutChar->netId;
             sl.state = 5;
@@ -4260,7 +4260,7 @@ void cm_FightFrame(char *r)
 /* 0x4d6a50, builds the fight UI: the form "cutscenes\combat" (cm_FightForm), the button cm_FightButton (text
    TXT_FIGHT_BUTTON) and the bar cm_FightTimeBar at the bottom, then the portrait boxes (0x4cfe70 / 0x4cfc10) */
 
-void cm_BuildFightUI(char *a)
+void cm_BuildFightUI(CMCUTINFO *a)
 {
     int v, t;
 
@@ -4583,14 +4583,14 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
                     break;
                 }
             }
-            e = (CMCUTENTRY *)cm_CutEntrySlot((char *)other, g);
+            e = cm_CutEntrySlot(other, g);
             if (e->orderSlot == -1 || cm_GetSlotState(e->orderSlot) != 0) {
                 state = e->state;
                 e->orderSlot = -1;
                 if (state == 0) {
                     item = (AIOBJ *)cm_CharWeaponItem(g);
                     if (item != 0 && item->usesLeft > 0)
-                        e->orderSlot = cm_OrderAttack((char *)other, g, c, 0, 0);
+                        e->orderSlot = cm_OrderAttack(other, g, c, 0, 0);
                 }
             }
         }
