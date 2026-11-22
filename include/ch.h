@@ -459,11 +459,7 @@ D3OBJECT *ch_FindDummy(void);                                                   
 void ch_ActMove2Universe(CHACTION *a);                                                  /* 0x4067f0 */
 int ch_FollowGround(CHACTION *a);                                                       /* 0x406a70 */
 
-typedef struct CHWALKDEF {
-    char pad00[0x10];
-    float speed;                    /* 0x10 */
-} CHWALKDEF;
-int ch_ThinPath(CHARACTER *ch, struct PATHOUT *path, CHPATHPT *out, CHWALKDEF *w);              /* 0x406bc0 */
+int ch_ThinPath(CHARACTER *ch, struct PATHOUT *path, CHPATHPT *out, struct D3SM *map);              /* 0x406bc0 */
 void ch_SetHandObject(CHARACTER *ch, int hand, char *name);                             /* 0x406c60, 1 left, 2 right, 3 head */
 
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                       /* 0x446f30 */

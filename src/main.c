@@ -893,8 +893,8 @@ int main_HostNetworkGame(void)
                 ls_SavePath.net.name[i] = c;
                 i++;
             } while (c != 0);
-            memcpy(&cm_NetGame.hdr, &ls_SavePath.net, sizeof(NETHDR));
-            cm_NetGame.mode = 0x3f;
+            memcpy(&cm_NetGame.info.game, &ls_SavePath.net, sizeof(NETHDR));
+            cm_NetGame.flags = 0x3f;
             d3_SetViewport((float)(sv_ViewRectRight - sv_ViewRectLeft), (float)(sv_ViewRectBottom - sv_ViewRectTop), (float)sv_ViewRectLeft, (float)sv_ViewRectTop, d3_ZNear, d3_ZFar, d3_ScaleX, d2_ScreenW, d2_ScreenH);
             return 1;
         }
@@ -929,10 +929,10 @@ int main_JoinNetworkGame(void)
             strcpy(ls_SavePath.net.name, hdr.player);
             strcpy(ls_SavePath.net.save, main_NetSaveName);
             memcpy(ls_SavePath.net.party, hdr.party, sizeof(hdr.party));
-            memcpy(&cm_NetGame.hdr, &ls_SavePath.net, sizeof(NETHDR));
+            memcpy(&cm_NetGame.info.game, &ls_SavePath.net, sizeof(NETHDR));
             memset(&cm_JoinChar, 0, sizeof(CMJOIN));
             cm_JoinChar.char164 = hdr.char164;
-            cm_NetGame.mode = 0x7f;
+            cm_NetGame.flags = 0x7f;
             cm_JoinChar.char09 = hdr.char09;
             strcpy(cm_JoinChar.text1, hdr.charText1);
             if (hdr.version >= 0x10054) {
@@ -1116,7 +1116,7 @@ int main_SearchNetworkGame(int saved)
                         WritePrivateProfileStringA("Network", "Host", main_NetHost, ai_OptionsFile);
                         sv_PopRequest = 1;
                         ret = 1;
-                        memcpy(&cm_NetGame, &recs[sel], sizeof(CMNETGAME));
+                        memcpy(&cm_NetGame, &recs[sel], sizeof(cm_NetGame));
                         if (saved != 0 && recs[sel].flags == 0x7f) {
                             strcpy(ai_CityName, recs[sel].info.game.name);
                             strcpy(main_NetSaveName, recs[sel].info.game.save);

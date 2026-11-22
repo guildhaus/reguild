@@ -492,7 +492,7 @@ typedef struct CMLOBBYSTATE {
 } CMLOBBYSTATE;
 extern CMLOBBYSTATE cm_LobbyStateFlags;  /* 0x936400 */
 extern unsigned int cm_LobbyList[];  /* 0x936420, the count then the eight player states (0x24 bytes) */
-extern CMNETGAME cm_NetGame;  /* 0x936460, the network game */
+extern UDPSERVER cm_NetGame;  /* 0x936460, the network game */
 extern CMLOBBYPLAYER cm_LobbyPlayers[8];  /* 0x9364e0, the eight lobby player records */
 extern CMJOIN cm_JoinChar;  /* 0x9367a0, the joined character of a saved game (main_JoinNetworkGame) */
 extern int cm_LobbyPlayerId;  /* 0x9367d0, this player's lobby id (G17HELLOMSG.lobbyId) */

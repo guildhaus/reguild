@@ -2278,7 +2278,7 @@ int ch_FollowGround(CHACTION *a)
 }
 /* 0x406bc0, every step-th point of path (always the first and the last) into out; returns the count */
 
-int ch_ThinPath(CHARACTER *ch, PATHOUT *path, CHPATHPT *out, CHWALKDEF *w)
+int ch_ThinPath(CHARACTER *ch, PATHOUT *path, CHPATHPT *out, D3SM *map)
 {
     int n = 0;
     int i = 1;
@@ -2288,7 +2288,7 @@ int ch_ThinPath(CHARACTER *ch, PATHOUT *path, CHPATHPT *out, CHWALKDEF *w)
     if (ch && (ch->kind & 0x10))
         step = 2;
     else {
-        step = (int)(12.0f / w->speed + 0.5f);
+        step = (int)(12.0f / map->cell.x + 0.5f);
         if (step < 1)
             step = 1;
     }
@@ -2957,7 +2957,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                     a->u.walk.path = 0;
                 }
                 a->u.walk.path = mem_Alloc((cnt + nrest) * 2, "ch:GetNewPath");
-                len = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
+                len = ch_ThinPath(ch, &ch_Path, a->u.walk.path, h);
                 for (k = 0; k < nrest; k++) {
                     a->u.walk.path[len + k].x = rest[k * 2];
                     a->u.walk.path[len + k].z = rest[k * 2 + 1];
@@ -3026,7 +3026,7 @@ int ch_PathToTarget(CHACTION *a)
     a->u.walk.path = mem_Alloc(ch_Path.count * 2, "ch_t:waypoints");
     if (!a->u.walk.path)
         __asm int 3
-    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
+    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, h);
     t = a->u.walk.target;
     a->u.walk.cur = 0;
     a->u.walk.prevCell = -1;
@@ -3120,7 +3120,7 @@ int ch_InitWalk(CHACTION *a, D3SM *h)
         return 0;
     }
     a->u.walk.path = mem_Alloc(ch_Path.count * 2, "ch_t:waypoints");
-    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
+    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, h);
     a->u.walk.cur = 0;
     a->u.walk.prevCell = -1;
     d3sm_GetVertex(h, a->u.walk.path[0].x, a->u.walk.path[0].z, &a->u.walk.end);

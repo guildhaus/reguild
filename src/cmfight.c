@@ -120,11 +120,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
 } CMGRENADE;
 
 /* dcp unit split: the declarations of cm before the moved functions */
-typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
-                                           0x1c .. 0x37 (HESPYREPORT) after the object's head */
-    char pad1c[0x1c];
-    HESPYREPORT report;
-} CMSPYREPORT;
 
 AIWEAPON ai_WeaponRecords[10] = {  /* 0x60c7c0, the ten records ai_FindWeaponRecord searches; the last has id 0, the fallback */
     { 0x154, 120, 5, 20, 0, 1, 4, 1, 0, 80.0f, 2, "kampf/stich", 0x1163, 0 },

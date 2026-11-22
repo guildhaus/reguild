@@ -125,11 +125,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
 } CMGRENADE;
 
 /* dcp unit split: the declarations of cm before the moved functions */
-typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
-                                           0x1c .. 0x37 (HESPYREPORT) after the object's head */
-    char pad1c[0x1c];
-    HESPYREPORT report;
-} CMSPYREPORT;
 #define G20_ME (ai_Chars[ai_PlayerId].netId)
 
 int cm_DialogFrameFlags = 464838;  /* 0x60d360, the frame wait of the dialogs ( */

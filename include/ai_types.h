@@ -1256,6 +1256,15 @@ typedef struct AISERMON {               /* 7 bytes, a church's sermon settings: 
     unsigned char enabled;              /* 0x06, nonzero once the owner paid for the sermons (reasoned name) */
 } AISERMON;
 
+typedef struct HESPYREPORT {            /* 0x1c bytes, the words 0x1c .. 0x37 of a spy report (AIOBJ kind 0xca, AIOBJ.report) that message
+                                           0x5e (cm_SendSpyReport) sends for a building (he.c's report) */
+    AITIME when;                        /* 0x00 (0x1c), the time of the report */
+    int bld;                            /* 0x0e (0x2a, AIOBJ.reportBld), the building it reports on */
+    int worth;                          /* 0x12 (0x2e), a tenth of the owner's worth (at most 1.6 million) */
+    int goods;                          /* 0x16 (0x32), the price of the goods of the building's stall */
+    unsigned char skill;                /* 0x1a (0x36), the building's skill 7 */
+    unsigned char know;                 /* 0x1b (0x37, AIOBJ.reportKnow), how much it knows, 2 .. 100 percent */
+} HESPYREPORT;
 typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind ai_Objects): carts, stores, the
                                            goods in a store, a workshop's level object; what gm_Query finds */
     union {
@@ -1382,6 +1391,9 @@ typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind a
             char pad29g[4];
             AITIME since;               /* 0x2d, of a Domizil good in use: when minutesLeft was last counted down */
         };
+        HESPYREPORT report;             /* 0x1c..0x37, of a spy report (kind 0xca) its record as message 0x5e sends it (the
+                                           cm_ExSpyReport handler writes it; reportBld / reportGuard / reportKnow above)
+                                           name some of its words */
     };
     struct CHARACTER *sceneObj;         /* 0x3b, the scene character (ch.h CHARACTER) that shows a cart (gm_CreateObject
                                            creates the cart man or the horse, ch_Create) */

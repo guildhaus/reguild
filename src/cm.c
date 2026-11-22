@@ -14,7 +14,7 @@
    callbacks registered by cm_InitScenes (cm_RunDuel, cm_RunExecution, cm_RunWedding, cm_RunBirth, cm_RunDeath,
    cm_RunBankruptcy, cm_RunAuction, their checks and member callbacks) read the party record G28REC; the auction's
    member callbacks (cm_AuctionAskPlayer / cm_AuctionAskAI) read its state CMAUCTION. The spy report objects (AIOBJ
-   kind 0xca) are read as CMSPYREPORT (defined above cm_ExSpyReport: the report's words 0x1c .. 0x37, HESPYREPORT).
+   kind 0xca) are read as AIOBJ.report (the report's words 0x1c .. 0x37, HESPYREPORT).
    Open: not included yet (dcp headers conflicts cm HEADER): anm.h hmt.h hst.h rt.h menu.h;
    held by calls whose argument count differs from the definition (read the original's pushes):
    gv_PassSentence takes five arguments here (gv_PassSentenceK).
@@ -6198,11 +6198,6 @@ int cm_ExAddSkill(G17MSG *m, G17STAT *s)
         s->state = 1;
     return 0;
 }
-typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
-                                           0x1c .. 0x37 (HESPYREPORT) after the object's head */
-    char pad1c[0x1c];
-    HESPYREPORT report;
-} CMSPYREPORT;
 
 /* 0x4ccce0, handler of message 0x5e, the spy report m->spy (a HESPYREPORT, sent by cm_SendSpyReport) on the building
    m->spy.bldId: stores it in the report object 0xca of that building (a new one when it has none yet, m->spy.objId
@@ -6213,7 +6208,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
 {
     AIBLD *a, *b;
     AIOBJ *q;
-    CMSPYREPORT *r;
+    AIOBJ *r;
     int v;
 
     if (net_Conn.s != -1)
@@ -6231,7 +6226,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
         return 1;
     q = gm_Query(b->objList, 1, 0, 0xca);
     while (q != 0) {
-        if (((CMSPYREPORT *)q)->report.bld == a->id)
+        if (q->report.bld == a->id)
             goto found;
         q = gm_QueryNext();
     }
@@ -6240,7 +6235,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
         return 1;
     cm_LastObjectId = q->objId;
 found:
-    r = (CMSPYREPORT *)q;
+    r = q;
     r->report.when = m->spy.rep.when;
     r->report.bld = m->spy.rep.bld;
     r->report.goods = m->spy.rep.goods;
@@ -6662,10 +6657,10 @@ int cm_LobbyAllReady(void)
     int cnt, i;
     CMLOBBYPLAYER *q;
 
-    if (cm_NetGame.mode == 0x3f)
-        n = cm_NetGame.hdr.players;
+    if (cm_NetGame.flags == 0x3f)
+        n = cm_NetGame.info.game.players;
     else
-        n = cm_NetGame.hdr.players;
+        n = cm_NetGame.info.game.players;
     if (cm_LobbyList[0] < n)
         return 0;
     cnt = 0;
@@ -6899,7 +6894,7 @@ extern int cm_CharInfoWins[32];
 extern G18LOG cm_LobbyChat[15];
 extern int cm_LobbyChatNext;
 extern unsigned int cm_LobbyList[9];
-extern CMNETGAME cm_NetGame;
+extern UDPSERVER cm_NetGame;
 extern CMLOBBYPLAYER cm_LobbyPlayers[8];
 extern int cm_LobbyPlayerId;
 extern int cm_LobbyHelloValue;
@@ -6956,7 +6951,7 @@ CMLOBBYSTATE cm_LobbyStateFlags;  /* 0x936400, the lobby state cm_LobbyState han
                                     17..32 bytes, LINK's common pad puts it at 0x936400 after cm_LobbyChatNext's end 0x9363f8
                                     (tools/exe/commongaps.py); 20 taken */
 unsigned int cm_LobbyList[9];  /* 0x936420, the count then the eight player states (0x24 bytes) */
-CMNETGAME cm_NetGame;  /* 0x936460, the network game (hdr.players 0x936496, mode 0x9364dc) */
+UDPSERVER cm_NetGame;  /* 0x936460, the network game (info.game.players 0x936496, flags 0x9364dc) */
 CMLOBBYPLAYER cm_LobbyPlayers[8];  /* 0x9364e0, the eight lobby player records */
 CMJOIN cm_JoinChar;  /* 0x9367a0, the joined character (main_JoinNetworkGame) */
 int cm_LobbyPlayerId;  /* 0x9367d0, this player's lobby id */

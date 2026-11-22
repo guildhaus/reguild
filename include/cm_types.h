@@ -1,5 +1,5 @@
 /* The message records of cm's rings cm_SendRing / cm_RecvPool (G17MSG) and cm_SendStates (G17STAT) and the
-   network game record cm_NetGame (CMNETGAME) and the crime record CRIME (ai_Crimes), for the units that declare them without the rest of cm.h:
+   network game record cm_NetGame (udp_types.h's UDPSERVER) and the crime record CRIME (ai_Crimes), for the units that declare them without the rest of cm.h:
    types only. cm.h includes it. */
 #ifndef CM_TYPES_H
 #define CM_TYPES_H
@@ -8,6 +8,7 @@
 #include "amt_types.h"               /* AMTAPP, AMTMSG, for messages 0x44 / 0x45 */
 #include "gv_types.h"                /* GVDECMSG, GVMOVE, GVSHOTMSG, for messages 0x46 / 0x61 / 0x67 */
 #include "cm_bomb.h"                 /* CMBOMB, cm_Bombs */
+#include "udp_types.h"               /* UDPSERVER: cm_NetGame (outside the pack(1) region below) */
 
 #pragma pack(push, 1)
 typedef struct G17B7 {                  /* blocks copied as one */
@@ -330,15 +331,6 @@ typedef struct G17SKILLMSG {            /* 12 bytes, the data of message 0x5d (c
     int delta;                          /* 0x08, added to the skill (the sum clamped to 0 .. 252) */
 } G17SKILLMSG;
 
-typedef struct HESPYREPORT {            /* 0x1c bytes, the words 0x1c .. 0x37 of a spy report (AIOBJ kind 0xca) that message
-                                           0x5e (cm_SendSpyReport) sends for a building (he.c's report) */
-    AITIME when;                        /* 0x00 (0x1c), the time of the report */
-    int bld;                            /* 0x0e (0x2a, AIOBJ.reportBld), the building it reports on */
-    int worth;                          /* 0x12 (0x2e), a tenth of the owner's worth (at most 1.6 million) */
-    int goods;                          /* 0x16 (0x32), the price of the goods of the building's stall */
-    unsigned char skill;                /* 0x1a (0x36), the building's skill 7 */
-    unsigned char know;                 /* 0x1b (0x37, AIOBJ.reportKnow), how much it knows, 2 .. 100 percent */
-} HESPYREPORT;
 
 typedef struct G17SPYMSG {              /* 0x24 bytes, the data of message 0x5e (cm_SendSpyReport, its handler
                                            0x4ccce0 sets the job record 0xca of building bldId from rep) */
@@ -819,16 +811,6 @@ typedef struct G17STAT {                /* 10 bytes, cm_SendStates[]: the state 
 } G17STAT;
 #pragma pack(pop)
 
-#include "ls_types.h"                     /* NETHDR */
-typedef struct CMNETGAME {              /* 0x80 bytes at 0x936460: the network game hosted or joined (main_SearchNetworkGame
-                                           copies a game list entry over it as 0x20 dwords) */
-    char pad00[0x10];
-    NETHDR hdr;                         /* 0x10, the game record (main_HostNetworkGame copies ls_SavePath.net here);
-                                           hdr.name at 0x16, hdr.players at 0x36 */
-    char pad7a[2];
-    int mode;                           /* 0x7c, 0x3f a new game, 0x7f a saved one (was ai_ModeMask) */
-} CMNETGAME;
-typedef char cm_AssertCMNETGAME[sizeof(CMNETGAME) == 0x80 ? 1 : -1];
 
 typedef struct CMJOIN {                 /* 0x30 bytes at 0x9367a0 (cm_JoinChar, after the 8 records of
                                            cm_LobbyPlayers): the character of a joined saved game, from its LSHDR
