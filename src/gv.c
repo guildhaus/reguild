@@ -20,8 +20,7 @@
    Open: some functions index ai_PlayerSlots with the stride 0x5e8 where gv_ReserveGrave shows 0x2f4 (GMPLAYERSLOT).
    Open: head: cm.h redeclares gv functions (gv_GrowGraveyard as struct GVYARD *); cm.c cannot include gv.h yet (two
    calls conflict: gv_CrimeText, gv_PassSentence).
-   Open: GVEFFPART duplicates SHOTREC and UNKHITS-style copies remain (am.h G9KIND / G9CANNON view gv's records); both
-   records are in gv_types.h now (SHOTREC through shot_types.h), the parts are still cast to SHOTREC.
+   The effect slots' parts are SHOTREC (shot_types.h), the cannon balls gv_StartShot takes from GVSHOTMSG.shot.
    unit of rea 8cef7d5b (src/game/gv.c); boundaries in decl/text.dcl */
 #include "txt_views.h"
 #include <windows.h>
@@ -200,7 +199,7 @@ int gv_WriteEffects(void *f)
 {
     int i;
     GVEFFECT *e;
-    GVEFFPART *p;
+    SHOTREC *p;
 
     if (vfs_fwrite(&gv_LastTime.year, 4, 1, (struct VFSFILE *)f) <= 0)
         return 0;
@@ -235,57 +234,57 @@ int gv_WriteEffects(void *f)
         if (vfs_fwrite(&e->f14, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         p = &e->parts[0];
-        if (vfs_fwrite(p->v0, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v1, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v2, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v4, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->a, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->b, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->c, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         if (vfs_fwrite(&p->steps, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         p = &e->parts[1];
-        if (vfs_fwrite(p->v0, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v1, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v2, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v4, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->a, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->b, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->c, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         if (vfs_fwrite(&p->steps, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         p = &e->parts[2];
-        if (vfs_fwrite(p->v0, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v1, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v2, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(p->v4, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->a, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->b, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->c, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
         if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
             return 0;
@@ -305,7 +304,7 @@ int gv_ReadEffects(void *f, int v)
     int i;
     GVEFFECT *e;
     GVEFFARG *q;
-    GVEFFPART *p;
+    SHOTREC *p;
 
     if (ls_Read(&gv_LastTime.year, 4, 1, f) == 0)
         return 0;
@@ -346,19 +345,19 @@ int gv_ReadEffects(void *f, int v)
         if (ls_Read(&e->f14, 4, 1, f) == 0)
             return 0;
         p = &e->parts[0];
-        if (ls_Read(p->v0, 16, 1, f) == 0)
+        if (ls_Read(&p->velStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, f) == 0)
+        if (ls_Read(&p->vel, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, f) == 0)
+        if (ls_Read(&p->posStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, f) == 0)
+        if (ls_Read(&p->wind, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, f) == 0)
+        if (ls_Read(&p->area, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, f) == 0)
+        if (ls_Read(&p->mass, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, f) == 0)
+        if (ls_Read(&p->energy, 4, 1, f) == 0)
             return 0;
         if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
@@ -366,19 +365,19 @@ int gv_ReadEffects(void *f, int v)
             return 0;
         p->time = d3_Time;
         p = &e->parts[1];
-        if (ls_Read(p->v0, 16, 1, f) == 0)
+        if (ls_Read(&p->velStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, f) == 0)
+        if (ls_Read(&p->vel, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, f) == 0)
+        if (ls_Read(&p->posStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, f) == 0)
+        if (ls_Read(&p->wind, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, f) == 0)
+        if (ls_Read(&p->area, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, f) == 0)
+        if (ls_Read(&p->mass, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, f) == 0)
+        if (ls_Read(&p->energy, 4, 1, f) == 0)
             return 0;
         if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
@@ -386,19 +385,19 @@ int gv_ReadEffects(void *f, int v)
             return 0;
         p->time = d3_Time;
         p = &e->parts[2];
-        if (ls_Read(p->v0, 16, 1, f) == 0)
+        if (ls_Read(&p->velStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v1, 16, 1, f) == 0)
+        if (ls_Read(&p->vel, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v2, 16, 1, f) == 0)
+        if (ls_Read(&p->posStart, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(p->v4, 16, 1, f) == 0)
+        if (ls_Read(&p->wind, 16, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->a, 4, 1, f) == 0)
+        if (ls_Read(&p->area, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->b, 4, 1, f) == 0)
+        if (ls_Read(&p->mass, 4, 1, f) == 0)
             return 0;
-        if (ls_Read(&p->c, 4, 1, f) == 0)
+        if (ls_Read(&p->energy, 4, 1, f) == 0)
             return 0;
         if (ls_Read(&p->state, 4, 1, f) == 0)
             return 0;
@@ -546,14 +545,14 @@ void gv_UpdateEffects(void)
                         gv_ReleaseEffect(gv_Effects[i].id);
                 }
             } else if (gv_Effects[i].parts[j].state == 1) {
-                if (gv_Effects[i].f14 == 0 ? ai_StepShot((SHOTREC *)&gv_Effects[i].parts[j]) : ai_StepShotSlow((SHOTREC *)&gv_Effects[i].parts[j])) {
+                if (gv_Effects[i].f14 == 0 ? ai_StepShot(&gv_Effects[i].parts[j]) : ai_StepShotSlow(&gv_Effects[i].parts[j])) {
                     if (gv_Effects[i].objs[j] == 0) {
                         gv_Effects[i].objs[j] = d3_CreateObject(0, &d3_Origin.v, &d3_ZeroRot, "kugel");
                         gv_Effects[i].objs[j]->objectFlags |= 4;
                         gv_Effects[i].objs[j]->stateFlags |= 0xc;
                         gv_Effects[i].objs[j]->objectFlags &= ~8;
                     }
-                    d3_SetObjectPos(gv_Effects[i].objs[j], (D3VECTOR *)gv_Effects[i].parts[j].v3);
+                    d3_SetObjectPos(gv_Effects[i].objs[j], &gv_Effects[i].parts[j].pos);
                 }
                 if (gv_Effects[i].parts[j].state == 3) {
                     if (gv_Effects[i].objs[j] != 0) {
@@ -573,7 +572,7 @@ void gv_UpdateEffects(void)
                         d3if_Delete(gv_Effects[i].objs[j]);
                         gv_Effects[i].objs[j] = 0;
                     }
-                    gv_ExplodeShot(gv_Effects[i].flags & 1, gv_Effects[i].id, (SHOTREC *)&gv_Effects[i].parts[j], gv_Effects[i].arg);
+                    gv_ExplodeShot(gv_Effects[i].flags & 1, gv_Effects[i].id, &gv_Effects[i].parts[j], gv_Effects[i].arg);
                     if (gv_Effects[i].arg != 0)
                         gv_Effects[i].arg->cur = j;
                     if (gv_Effects[i].cb != 0)
@@ -939,11 +938,11 @@ int gv_StartShot(GVSHOTMSG *m, G17STAT *st)
     float v, f;
     int mode, j;
     GVEFFECT *e;
-    GVEFFPART part;
+    SHOTREC part;
 
     v = m->v;
     mode = m->mode;
-    part = m->part;
+    part = m->shot;
     e = (GVEFFECT *)gv_GetEffect(m->id);
     if (e == 0)
         return 0;

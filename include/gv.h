@@ -143,7 +143,7 @@ typedef struct GVEFFECT {               /* 0x170 bytes, an effect slot of gv_Eff
         float charge[3];                /* 0x008, by the salvo's mode (0 .. 2): a received salvo takes its value off (0x4eee00, not below 0) */
     };
     int f14;                            /* 0x014 */
-    GVEFFPART parts[3];                 /* 0x018 */
+    SHOTREC parts[3];                   /* 0x018, the balls in flight (saved field by field: not time, not pos) */
     int tail[3];                        /* 0x150, 0: the part is free (gv_UpdateEffects clears it when the part ends) */
     struct D3OBJECT *objs[3];           /* 0x15c, the parts' "kugel" objects (gv_UpdateEffects creates them, gv_FreeEffectObjects frees them) */
     int (*cb)(GVEFFARG *arg);           /* 0x168, the slot's callback (gv_EffectNotifyOwner by default), called when a part ends */
