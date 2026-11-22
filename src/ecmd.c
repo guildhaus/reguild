@@ -766,7 +766,7 @@ int ocmd_SetBlocked(D3OBJECT **obj, int *on)
         evt_Error(evt_Cur, evt_Cur->pc, "SetBlocked: Illegal object...");
         return 0;
     }
-    ((OCMDOBJBITS *)&(*obj)->stateFlags)->blocked = *on;
+    (*obj)->stateBits.blocked = *on;
     return 1;
 }
 /* 0x40ef40, sets the two transient bits of *obj's stateFlags from *mode; a script error (0) for a NULL object,
@@ -778,7 +778,7 @@ int ocmd_SetTransient(D3OBJECT **obj, int *mode)
         evt_Error(evt_Cur, evt_Cur->pc, "SetTransient: Illegal object...");
         return 0;
     }
-    ((OCMDOBJBITS *)&(*obj)->stateFlags)->transient = *mode;
+    (*obj)->stateBits.transient = *mode;
     return 1;
 }
 

@@ -180,8 +180,8 @@ struct D3OBJECT {
         struct D3OBJSTATEBITS {     /* the same bits by name (the scene reader rd_object) */
             unsigned char s0 : 1;
             unsigned char vertexColors : 1; /* 2 */
-            unsigned char shadowMask : 2;   /* 0xc */
-            unsigned char castShadow : 1;   /* 0x10 */
+            unsigned char transient : 2;    /* 0xc, the shadow mask bits (the script's SetTransient) */
+            unsigned char blocked : 1;      /* 0x10, casts shadows despite the mask (the script's SetBlocked) */
             unsigned char s5 : 1;
             unsigned char s6 : 1;
             unsigned char worldCurrent : 1; /* 0x80 */

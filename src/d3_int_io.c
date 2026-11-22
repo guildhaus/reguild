@@ -113,11 +113,11 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
                 obj->flagBits.shadowCaster = c;
                 if (version >= 0x3a6c00a6) {
                     bio_rd_c(f, &c);
-                    obj->stateBits.shadowMask = c;
+                    obj->stateBits.transient = c;
                     if (version <= 0x3a6c00b8)
-                        obj->stateBits.shadowMask |= (obj->stateBits.shadowMask & 1) << 1;
+                        obj->stateBits.transient |= (obj->stateBits.transient & 1) << 1;
                     bio_rd_c(f, &c);
-                    obj->stateBits.castShadow = c;
+                    obj->stateBits.blocked = c;
                     if (version >= 0x3a6c00b4) {
                         bio_rd_c(f, &c);
                         obj->stateBits.s5 = c;

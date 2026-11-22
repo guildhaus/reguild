@@ -66,10 +66,6 @@ typedef struct OCMDTEXSEL {
     unsigned char set;              /* 0xc8, texture set to select */
 } OCMDTEXSEL;
 
-/* the bits of D3OBJECT.stateFlags the commands set */
-typedef struct OCMDOBJBITS {
-    unsigned char b0 : 1, b1 : 1, transient : 2, blocked : 1, b5 : 3;
-} OCMDOBJBITS;
 
 
 
