@@ -1074,7 +1074,7 @@ typedef struct HEINN {                  /* he_RunInnSim's list of the inns (he_F
 unsigned short hmt_RecordCount(void);
 unsigned short hmt_RandomRecord(short k);
 unsigned short hmt_RandomTextOffset(unsigned short k);
-struct G11REC *hmt_GetRecord(unsigned short k);
+const struct G11REC *hmt_GetRecord(unsigned short k);
 struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos, struct D3VECTOR *dir, int unk, char flags);
 void ai_PlagueMessageAll(void);

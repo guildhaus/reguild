@@ -53,7 +53,7 @@ unsigned short hmt_RandomRecord(short k)
 unsigned short hmt_RandomTextOffset(unsigned short k)
 {
     unsigned short ret;
-    G11REC *e;
+    const G11REC *e;
 
     ret = 0x1e2b;
     e = hmt_GetRecord(k);
@@ -85,7 +85,7 @@ unsigned short hmt_RandomTextOffset(unsigned short k)
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n)
 {
     unsigned short m;
-    G11REC *e;
+    const G11REC *e;
 
     m = n;
     if (m >= 9)
@@ -100,7 +100,7 @@ unsigned short hmt_RecordTextId(unsigned short k, unsigned short n)
 }
 /* 0x4ac1e0, record k, 0 if out of range */
 
-G11REC *hmt_GetRecord(unsigned short k)
+const G11REC *hmt_GetRecord(unsigned short k)
 {
     if (k >= 0x33)
         return 0;
@@ -128,7 +128,7 @@ int hmt_GetPrice(AICHAR *p)
 
 void hmt_ApplyRecord(AICHAR *p, int d, unsigned short k)
 {
-    G11REC *e;
+    const G11REC *e;
     int i;
     unsigned char v;
 

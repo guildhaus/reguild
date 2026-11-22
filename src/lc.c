@@ -13309,7 +13309,7 @@ int gv_RankCulpritsAll(int *ids, int *open, int *total, unsigned short t);  /* 0
 void ai_RightAlignedText(char *text, int x, int y, int w, int font);
 int ai_BribeAmountCB(AICHAR *ch, int n);
 int gv_HeldCrimeCount(int culprit, unsigned short t);  /* 0x4f4130, gv.h's prototype (gv.h is not included yet: Open: head) */
-G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
+const G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n); /* 0x4ac1a0 */
 int hmt_GetPrice(struct AICHAR *p);                         /* 0x4ac200 */
 void hmt_ApplyRecord(struct AICHAR *p, int d, unsigned short k); /* 0x4ac2f0 */

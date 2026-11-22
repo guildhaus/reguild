@@ -8027,7 +8027,7 @@ void he_RunInnSim(AIJOB *e)
 unsigned short hmt_RecordCount(void);
 unsigned short hmt_RandomRecord(short k);
 unsigned short hmt_RandomTextOffset(unsigned short k);
-struct G11REC *hmt_GetRecord(unsigned short k);
+const struct G11REC *hmt_GetRecord(unsigned short k);
 
 /* 0x54d790, the allocation handler of the skill level-up event 0x6a: the due clock copies the start clock and the
    variant is a random 0 .. 5 (one of six texts per skill) */
@@ -8133,7 +8133,7 @@ void he_RunBard(AIJOB *e)
     HEBARD *b = (HEBARD *)e;
     int i;
     EVTSCRIPT *sc;
-    struct G11REC *rec;
+    const struct G11REC *rec;
     int scene;
 
     if (e->stage == -1 || e->stage == -2) {

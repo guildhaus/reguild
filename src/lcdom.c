@@ -5580,7 +5580,7 @@ void ai_NoticeBoardWindow(void)
     d2_CloseView(win);
     sv_CameraFollow();
 }
-G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
+const G11REC *hmt_GetRecord(unsigned short k);                    /* 0x4ac1e0, hmt.h's prototypes (hmt.h is not included yet: Open: head) */
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n); /* 0x4ac1a0 */
 int hmt_GetPrice(struct AICHAR *p);                         /* 0x4ac200 */
 void hmt_ApplyRecord(struct AICHAR *p, int d, unsigned short k); /* 0x4ac2f0 */
@@ -5603,7 +5603,7 @@ void ai_BardWindow(void)
     int bought;
     AIJOB *ev;
     AIJOB *wait;
-    G11REC *rec;
+    const G11REC *rec;
     char path[0x100];
 
     ev = he_FindEvent(1, 0, 0x6b);

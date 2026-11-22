@@ -753,7 +753,7 @@ int ai_PlanLevel(AIPLAN *q)
 
 int ai_PlanRollTries(AIPLAN *q)
 {
-    AIREC10 *t;
+    const AIREC10 *t;
     float f, lim, scale, acc, v, sum;
     int i;
 
@@ -950,7 +950,7 @@ int ai_WealthRatingHalf(AICHAR *a, AICHAR *b)
 }
 /* 0x4948c0, the record of the torture-instrument table ai_TortureInstruments with this key */
 
-AIREC10 *ai_FindInstrumentRecord(int key)
+const AIREC10 *ai_FindInstrumentRecord(int key)
 {
     int i;
 

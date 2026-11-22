@@ -391,7 +391,7 @@ int ai_PlanRank(AIPLAN *q);                                    /* 0x4945c0 */
 int ai_DecideSentence(AICHAR *ch, AIPLAN *q);                          /* 0x4946c0 */
 int ai_WealthRating(AICHAR *a, AICHAR *b);                             /* 0x4947a0 */
 int ai_WealthRatingHalf(AICHAR *a, AICHAR *b);                             /* 0x494830 */
-AIREC10 *ai_FindInstrumentRecord(int key);                                 /* 0x4948c0 */
+const AIREC10 *ai_FindInstrumentRecord(int key);                                 /* 0x4948c0 */
 struct AISTUDYOFFER; void ai_RollStudyOffers(struct AICHAR *ch, struct AISTUDYOFFER *out);                          /* 0x4948f0 */
 int ai_MasterExamPassed(AICHAR *a, AICHAR *b);                             /* 0x494a30 */
 int ai_EvalFest(AIGRP *g, int send);                           /* 0x494ac0 */
