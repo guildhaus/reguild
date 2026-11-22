@@ -1812,7 +1812,7 @@ int ai_LoadSettings(VFSFILE *f)
    ai_Time.year > 0x74) with the buyer's id, the building, the amount and the owner's share into ai_NewsText, shown
    to the owner's netId (he_ShowNews, kind 0x5ff); nothing for another owner kind */
 
-void ai_ShowIndulgenceNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int share, int amount)
+void ai_ShowIndulgenceNews(AICHAR *buyer, AICHAR *ownerRec, AIBLD *bld, int share, int amount)
 {
     AICHAR *owner;
     int text;
@@ -1823,7 +1823,7 @@ void ai_ShowIndulgenceNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int
             text = 0x20b7;
         else
             text = (0x75 <= ai_Time.year) + 0x20b8;
-        txt_Format(ai_NewsText, 0x20b6, *buyer, bld, amount, share, text);
+        txt_Format(ai_NewsText, 0x20b6, buyer->id, bld, amount, share, text);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ff, ch_EmptyName);
     }
 }
@@ -1832,13 +1832,13 @@ void ai_ShowIndulgenceNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int
    kind 0x5ec); nothing for another owner kind. Both callers pay money to the building's owner
    (ai_ExecuteBuyIndulgence 0x49cb60 on taking over the rooms, ai_ConfessionWindow 0x5a2b60 at the church) */
 
-void ai_ShowPaymentNews(unsigned short *buyer, AICHAR *ownerRec, int bld)
+void ai_ShowPaymentNews(AICHAR *buyer, AICHAR *ownerRec, AIBLD *bld)
 {
     AICHAR *owner;
 
     owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
-        txt_Format(ai_NewsText, 0x20ba, *buyer, bld);
+        txt_Format(ai_NewsText, 0x20ba, buyer->id, bld);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
     }
 }
@@ -1846,13 +1846,13 @@ void ai_ShowPaymentNews(unsigned short *buyer, AICHAR *ownerRec, int bld)
    0x20bc with the buyer's id, the building and the paid value into ai_NewsText, shown to the owner's netId
    (he_ShowNews, kind 0x5ff); nothing for another owner kind */
 
-void ai_ShowPurchaseNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int value)
+void ai_ShowPurchaseNews(AICHAR *buyer, AICHAR *ownerRec, AIBLD *bld, int value)
 {
     AICHAR *owner;
 
     owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
-        txt_Format(ai_NewsText, 0x20bc, *buyer, bld, value);
+        txt_Format(ai_NewsText, 0x20bc, buyer->id, bld, value);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5ff, ch_EmptyName);
     }
 }
@@ -1861,13 +1861,13 @@ void ai_ShowPurchaseNews(unsigned short *buyer, AICHAR *ownerRec, int bld, int v
    (he_ShowNews, kind 0x5fd); nothing for another kind. The only caller is the office message
    amt_ExecuteOfficeMessage (0x4e67a0), which announces its x14 character to the new office owner */
 
-void ai_ShowOfficeNews(unsigned short *holder, AICHAR *ownerRec)
+void ai_ShowOfficeNews(AICHAR *holder, AICHAR *ownerRec)
 {
     AICHAR *owner;
 
     owner = ownerRec;
     if (owner->kind == 6 || owner->kind == 7) {
-        txt_Format(ai_NewsText, 0x20bb, *holder);
+        txt_Format(ai_NewsText, 0x20bb, holder->id);
         he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fd, ch_EmptyName);
     }
 }

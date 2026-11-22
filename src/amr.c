@@ -4762,7 +4762,7 @@ int ai_ExecuteBuyIndulgence(AICHAR *p, AIARG *s1, AIARG *s2)
         cm_SendMoveGoodsUnchecked(-1, p->netId, ai_OwnPlayer, s1->arg2);
         cm_SendMoveGoodsUnchecked(ai_Chars[b->owner].netId, -1, ai_OwnPlayer, d);
         gv_RetireCrimesOf(p->netId, (int)s1->fvalue);
-        ai_ShowIndulgenceNews(p, &ai_Chars[b->owner], (int)b, d, s1->arg2);
+        ai_ShowIndulgenceNews(p, &ai_Chars[b->owner], b, d, s1->arg2);
         ai_Actions[0x26].w3[0].w = ai_Actions[0x26].w1[0].w * s1->fvalue;
         ai_Actions[0x26].w3[1].w = ai_Actions[0x26].w1[1].w * s1->fvalue;
         ai_Actions[0x26].w3[2].w = ai_Actions[0x26].w1[2].w * s1->fvalue;
@@ -4772,7 +4772,7 @@ int ai_ExecuteBuyIndulgence(AICHAR *p, AIARG *s1, AIARG *s2)
         gv_RetireCrimesOf(p->netId, (int)s1->fvalue);
         gm_SendMoneyDelta(p->netId, -s1->arg2);
         gm_SendMoneyDelta(ai_Chars[b->owner].netId, 1);
-        ai_ShowPaymentNews(p, &ai_Chars[b->owner], (int)b);
+        ai_ShowPaymentNews(p, &ai_Chars[b->owner], b);
         return 0x26;
     }
     return 0;

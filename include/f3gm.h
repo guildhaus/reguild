@@ -195,7 +195,7 @@ struct AITIME; int gm_CompareTime(struct AITIME *a, struct AITIME *b);  /* 0x4fe
 struct AITIME; int gm_MinutesBetween(struct AITIME *a, struct AITIME *b);  /* 0x4fe280, the minutes from clock a to clock b */
 struct AITIME; int gm_ClockSeason(struct AITIME *c);  /* 0x4fe350 */
 struct AITIME; void gm_AddTime2(struct AITIME *c, int unused, int hours, int mins, int secs);  /* 0x4fe310 */
-struct AITIME; int gm_WorkMinutesBetween(struct AITIME *a, struct AITIME *b, unsigned char *bld);  /* 0x509400 */
+struct AITIME; int gm_WorkMinutesBetween(struct AITIME *a, struct AITIME *b, struct AIBLD *bld);  /* 0x509400 */
 struct AITIME; int gm_FixedWorkMinutesBetween(struct AITIME *a, struct AITIME *b);  /* 0x5096a0 */
 int gm_BuildingValues(struct AIBLD *b, int *out);  /* 0x5091a0 */
 struct AICHAR; float gm_CatchPlague(struct AICHAR *c);  /* 0x505440 */

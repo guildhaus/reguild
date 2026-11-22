@@ -1301,7 +1301,7 @@ int ai_ExecHandleGrave(AICHAR *p, AIARG *s1, AIARG *s2)
             return 0x3e;
         }
         if (a->arg2 == 5) {
-            gv_OrderMoveGrave((int *)p, a->ref, (AIBLD *)s1, s2->ref, s2->arg2, a->arg);
+            gv_OrderMoveGrave(p, a->ref, (AIBLD *)s1, s2->ref, s2->arg2, a->arg);
             return 0x3e;
         }
     }

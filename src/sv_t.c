@@ -1599,7 +1599,7 @@ void ai_HookChapter5Step5(int end)
     for (i = 0; i < 768; i++) {
         if (ai_Chars[i].kind == 5) {
             chr = &ai_Chars[i];
-            if (amt_GetOfficeCandidates((char *)chr, 1, &cand) > 0)
+            if (amt_GetOfficeCandidates(chr, 1, &cand) > 0)
                 amt_ApplyForOffice(chr, cand.kind);
             return;
         }

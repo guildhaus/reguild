@@ -456,7 +456,7 @@ void ai_BeginNeedBlock(struct AICHAR *p);                            /* 0x4c3e70
 int ai_AddNeedDelta(int k, float v);                    /* 0x4c3eb0 */
 void ai_SendNeedBlock(void);                                        /* 0x4c4a20 */
 int gm_ExpectedDeathAge(struct AICHAR *c);                                      /* 0x4fc7a0 */
-int amt_GetOfficeCandidates(char *c, int n, struct AMTCAND *out);                     /* 0x4e7150 */
+int amt_GetOfficeCandidates(struct AICHAR *c, int n, struct AMTCAND *out);                     /* 0x4e7150 */
 extern void *main_Instance;              /* 0x75e140, the module handle */
 int ai_RegisterBuildingActions(int a);                                                        /* 0x48fb70 */
 int ai_RegisterBaseActions(int a);                                                        /* 0x4a16f0 */

@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	byte	readable
 exe	0x004be790	rt_OpenSlotControls	rt	byte	readable		
 exe	0x004be8e0	rt_RemoveControls	rt	byte	readable		
 exe	0x004be930	rt_InitControls	rt	byte	readable		
-exe	0x004be940	rt_EditPointDialog	rt	byte	readable		
+exe	0x004be940	rt_EditPointDialog	rt	shape	readable		byte+readable -> shape+readable at 3afdfe76: declaration-set tie-break: its text is unchanged; the headers rt.c includes (cm.h / f3gm.h / lc.h / gv.h ..) lost or changed declarations in the portability pass (D3HMAP -> D3SM, the typed callee prototypes) [waits for: rt.c's declaration set (G.tiebreak)]
 exe	0x004bf080	rt_CartSettingsDialog	rt	byte	readable		
 exe	0x004bf360	rt_SetMarkPic	rt	byte	readable		
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	byte	readable		

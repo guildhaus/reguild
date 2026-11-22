@@ -717,15 +717,15 @@ int gv_BuryCharacter(int *p)
     return 0;
 }
 /* 0x4f0430, sends graveyard order type 1 (GVORDER, cm_SendGraveOrder): reserve a grave of the size `size` of the graveyard
-   building o for the living character c (c[1]: its AICHAR.netId; the entry is left to the handler, 0xff) for `years` years at
+   building o for the living character c (its AICHAR.netId; the entry is left to the handler, 0xff) for `years` years at
    the price `price`; returns the sender's result, -1 when c or o is 0 */
 
-int gv_OrderReserveGrave(int *c, AIBLD *o, int size, short years, int price)
+int gv_OrderReserveGrave(AICHAR *c, AIBLD *o, int size, short years, int price)
 {
     GVORDER m;
 
     if (c != 0 && o != 0) {
-        m.chr = c[1];
+        m.chr = c->netId;
         m.bld = o->id;
         m.size = size;
         m.type = 1;
@@ -841,16 +841,16 @@ int gv_ExtendGrave(GVORDER *m)
     return 0;
 }
 /* 0x4f0900, sends graveyard order type 3 (GVORDER, cm_SendGraveOrder): sets the holder of the entry `entry` of the size
-   `size` of the graveyard building o to the character c (c[1]: its AICHAR.netId), or frees the entry when c is 0 (netId
+   `size` of the graveyard building o to the character c (its AICHAR.netId), or frees the entry when c is 0 (netId
    -1); returns the sender's result, -1 when o is 0 or entry is -1 */
 
-int gv_OrderSetGraveHolder(int *c, AIBLD *o, int size, int entry)
+int gv_OrderSetGraveHolder(AICHAR *c, AIBLD *o, int size, int entry)
 {
     GVORDER m;
     int chr;
 
     if (o != 0 && entry != -1) {
-        chr = c == 0 ? -1 : c[1];
+        chr = c == 0 ? -1 : c->netId;
         m.chr = chr;
         m.bld = o->id;
         m.type = 3;
@@ -903,16 +903,16 @@ int gv_SetGraveHolder(GVORDER *m)
     return 0;
 }
 /* 0x4f0a90, sends graveyard order type 4 (GVORDER, cm_SendGraveOrder): opens the grave sizes up to `size` of the graveyard
-   building o for the character c (c[1]: its AICHAR.netId, -1 when c is 0); returns the sender's result, -1 when o is 0 */
+   building o for the character c (its AICHAR.netId, -1 when c is 0); returns the sender's result, -1 when o is 0 */
 
-int gv_OrderOpenSize(int *c, AIBLD *o, int size)
+int gv_OrderOpenSize(AICHAR *c, AIBLD *o, int size)
 {
     GVORDER m;
     int chr;
 
     if (o == 0)
         return -1;
-    chr = c == 0 ? -1 : c[1];
+    chr = c == 0 ? -1 : c->netId;
     m.chr = chr;
     m.bld = o->id;
     m.type = 4;
@@ -1048,14 +1048,14 @@ int gv_AddNewDead(unsigned char *p)
     n = gv_BuryNewDead(bld, m->price);
     return (n > 0) - 1 & 0xfffffffc;
 }
-/* 0x4f0e80, sends a grave move (GVMOVE, message 0x61, cm_SendGraveMove): the character c (c[1]: its AICHAR.netId) moves the
+/* 0x4f0e80, sends a grave move (GVMOVE, message 0x61, cm_SendGraveMove): the character c (its AICHAR.netId) moves the
    entry `entry` of the size `from` of the graveyard building o to a free entry of the size `to` for the price `price`; returns the message's slot handle (cm_GetSlotState), -1 when it was not sent */
 
-int gv_OrderMoveGrave(int *c, int to, AIBLD *o, int from, int entry, int price)
+int gv_OrderMoveGrave(AICHAR *c, int to, AIBLD *o, int from, int entry, int price)
 {
     GVMOVE m;
 
-    m.chr = c[1];
+    m.chr = c->netId;
     m.bld = o->id;
     m.from = from;
     m.entry = (unsigned char)entry;

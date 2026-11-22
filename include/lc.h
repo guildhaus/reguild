@@ -396,7 +396,7 @@ int ai_AmountLimit(int param_1, int param_2, int param_3, int *param_4);  /* 0x5
 void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption, int callId);  /* 0x5c4150, the family tree window */
 struct AICHAR;
 void ai_CharInfoPanel(struct AICHAR *chr, int other);  /* 0x5c5310, the character info panel */
-void ai_ShowOfficeNews(unsigned short *param_1, struct AICHAR *param_2);  /* 0x5a8cb0 */
+void ai_ShowOfficeNews(struct AICHAR *holder, struct AICHAR *ownerRec);  /* 0x5a8cb0 */
 typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
                                            ai_AmountRow / ai_DrawAmountRow; the lists of lc / cmscene / menu / he / svtip) */
     struct AICHAR *rec;                 /* 0x00, the character the row shows (0 = empty) */
@@ -415,7 +415,7 @@ int ai_AmountRowStatus(struct LCAMOUNTROW *row);  /* 0x5be1d0, the corner icons 
 int ai_DrawAmountRow(int x, int y, int win, struct LCAMOUNTROW *row);  /* 0x5be720, a compact special-amount row at (x, y) */
 void ai_GameFrame(void);  /* 0x591520 */
 void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target);  /* 0x58feb0 */
-void ai_ShowPurchaseNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4);  /* 0x5a8c50 */
+void ai_ShowPurchaseNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld, int value);  /* 0x5a8c50 */
 void ai_NotifyPlayerOfChar(struct AICHAR *cRec, struct AICHAR *pRec);  /* 0x5a9170 */
 void lc_UpdateGoodsReserves(void);  /* 0x5ba750 */
 int ai_DrawSettingGood(struct AIBLD *param_1);  /* 0x5a8870 */
@@ -428,8 +428,8 @@ int ai_FindBauplaetze(char *prefix, struct D3OBJECT **list);  /* 0x58f7a0 */
 int ai_InventoryHas(void *ch, int id);  /* 0x5ba6b0 */
 void ai_ObjectAngle(void *out_, struct D3OBJECT *plot);  /* 0x58fd90 */
 void ai_ObjectPosition(void *out, struct D3OBJECT *plot);  /* 0x58fd40 */
-void ai_ShowIndulgenceNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5);  /* 0x5a8b80 */
-void ai_ShowPaymentNews(unsigned short *param_1, struct AICHAR *param_2, int param_3);  /* 0x5a8c00 */
+void ai_ShowIndulgenceNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld, int share, int amount);  /* 0x5a8b80 */
+void ai_ShowPaymentNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld);  /* 0x5a8c00 */
 struct G9DOMIZIL *ai_FindUsableGood(int id);  /* 0x5ba620 */
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, struct AMOUNTCFG *cfg, int unused);  /* 0x5c33c0, whether id passes the amount menu's partner filter cfg for me */
 int ai_PassesBuildingFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c37a0, whether bld passes the amount menu's building filter cfg for me */

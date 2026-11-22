@@ -5306,7 +5306,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
     if (gv_FindHeldEntry(dead, (unsigned char **)&s, (int *)&e) != 0) {
         gv_OrderBury((int *)dead, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
         if (heir != 0 && heir != ai_PlayerChar && e->id == dead->netId)
-            gv_OrderSetGraveHolder((int *)heir, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
+            gv_OrderSetGraveHolder(heir, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
     }
     s = gm_BuildQuery(1, 4, dead->id);
     while (s != 0) {
@@ -6577,7 +6577,7 @@ int gm_BuildingKindSkill(int kind, unsigned k)
    into it; the rest of a's day, the whole working days between, and b's day up to its clock. The full minutes
    (gm_MinutesBetween) with the game flag bit 7 set or for a building of class 0x1d; 0 when b is before a. x and y
    hold a clock's minutes first and are then clamped into the working day in place */
-int gm_WorkMinutesBetween(AITIME *a, AITIME *b, unsigned char *bld)
+int gm_WorkMinutesBetween(AITIME *a, AITIME *b, AIBLD *bld)
 {
     float lo, hi;
     int season, acc, x, y, day, end;
@@ -6588,7 +6588,7 @@ int gm_WorkMinutesBetween(AITIME *a, AITIME *b, unsigned char *bld)
     hi = gm_DayEndHours[season];
     if (ai_GameFlags & 0x80)
         return gm_MinutesBetween(a, b);
-    if (bld != 0 && ai_BTypes[*bld].kind == 0x1d)
+    if (bld != 0 && ai_BTypes[bld->type].kind == 0x1d)
         return gm_MinutesBetween(a, b);
     if (gm_CompareTime(a, b) > 0)
         return 0;

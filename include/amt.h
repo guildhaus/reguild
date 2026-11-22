@@ -133,7 +133,7 @@ int amt_GetColumnOffices(int col, int max, AMTREC *out);  /* 0x4e6fc0 */
 
 int amt_GetColumnOfficesOwned(int col, int max, struct AMTREC *out);  /* 0x4e7040 */
 int amt_GetColumn7Offices(int all, int max, AMTREC *out);  /* 0x4e70f0 */
-int amt_GetOfficeCandidates(char *c, int n, struct AMTCAND *out);   /* 0x4e7150 */
+int amt_GetOfficeCandidates(struct AICHAR *c, int n, struct AMTCAND *out);   /* 0x4e7150 */
 int amt_GetOfficeCandidatesFull(char *c, int n, AMTCAND *out, int *full);  /* 0x4e7320 */
 char *amt_GetOfficeHolder(int k);       /* 0x4e7510 */
 char *amt_GetSuperiorOfficeHolder(int k);             /* 0x4e7550 */

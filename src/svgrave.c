@@ -1280,7 +1280,7 @@ int ai_GraveMoveConfirm(AIBLD *rec, int from, unsigned char entry, int to)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
                 if (cost == 0 || sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
-                    h = gv_OrderMoveGrave((int *)&ai_Chars[ai_PlayerId], to, rec, from, entry, cost);
+                    h = gv_OrderMoveGrave(&ai_Chars[ai_PlayerId], to, rec, from, entry, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;
@@ -1440,7 +1440,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == yes) {
                 if (cost == 0 || sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer)) {
-                    h = gv_OrderReserveGrave((int *)&ai_Chars[ai_PlayerId], rec, size, 10, cost);
+                    h = gv_OrderReserveGrave(&ai_Chars[ai_PlayerId], rec, size, 10, cost);
                     while (h != -1 && cm_GetSlotState(h) == 0)
                         sv_RunFrame(0, 0x20007);
                     sv_FrameMask = 0x677c7;

@@ -655,7 +655,7 @@ done:
     if (p->state == 3)
         amt_Table[i].cnt = 0;
     if (x != 0 && c != 0 && ai_Chars[ai_PlayerId].netId == c->netId)
-        ai_ShowOfficeNews((unsigned short *)x, c);
+        ai_ShowOfficeNews(x, c);
     return 1;
 }
 /* 0x4e6b40, the office of the kind 0x26 (the historical event's office) gets the owner id */
@@ -966,7 +966,7 @@ int amt_GetColumn7Offices(int all, int max, AMTREC *out)
    level 0). Writes up to n entries to out (n * 4 bytes of it are cleared first), returns their number capped at n; the callers are the application list 0x4ea8e0 and the
    AI decision 0x497490 (am.c), which applies for a random candidate */
 
-int amt_GetOfficeCandidates(char *c, int n, AMTCAND *out)
+int amt_GetOfficeCandidates(AICHAR *c, int n, AMTCAND *out)
 {
     int cnt, i, j, k, kind, found, stop;
     float rate;

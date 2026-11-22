@@ -5806,7 +5806,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
 {
     AIBLD *b;
     AIOBJ *q;
-    unsigned short *c;
+    AICHAR *c;
     int i, k;
 
     if (s != 0) {
@@ -5829,7 +5829,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
         } else
             return 1;
     } else if (m->script.op == 0x62757920) {        /* 'buy ' */
-        c = (unsigned short *)gm_FindChar(m->script.netId);
+        c = gm_FindChar(m->script.netId);
         if (c == 0)
             return 1;
         b = gm_BuildQuery(1, 1, m->script.bldId);
@@ -5847,7 +5847,7 @@ int cm_ExDarkCorner(G17MSG *m, G17STAT *s)
             return 1;
         q->recs[i] = -1;
         if (ai_PlayerId == b->owner)
-            ai_ShowPurchaseNews(c, &ai_Chars[ai_PlayerId], (int)b, m->script.price);
+            ai_ShowPurchaseNews(c, &ai_Chars[ai_PlayerId], b, m->script.price);
     }
     if (s != 0)
         s->state = 1;

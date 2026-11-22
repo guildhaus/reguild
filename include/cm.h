@@ -417,7 +417,7 @@ extern char ch_EmptyName[];  /* 0x631090, "" (ch.h) */
 extern char cm_ChatLog[];  /* 0x75fba0 */
 
 void cm_PlaceFighter(struct AICHAR *c, struct D3VECTOR *pos, struct D3VECTOR *rot, int v);                              /* 0x4cc720 */
-void ai_ShowPurchaseNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4);  /* 0x5a8c50 */
+void ai_ShowPurchaseNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld, int value);  /* 0x5a8c50 */
 
 void cm_FighterAct(CMFIGHTSLOT *f);  /* 0x4d6ba0, the action of one fighter (message 0x55) */
 void cm_FightSlotStop(CMFIGHTSLOT *f);  /* 0x4d6f60 */

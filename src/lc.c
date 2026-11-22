@@ -11202,8 +11202,8 @@ void ai_ConfessionWindow(AIBLD *bld)
                     gm_SendMoneyDelta(me->netId, -amount);
                     if (bld->owner != 0xffff && bld->owner != ai_PlayerId) {
                         gm_SendMoneyDelta(ai_Chars[bld->owner].netId, 1);
-                        ai_ShowPaymentNews((unsigned short *)&ai_Chars[ai_PlayerId],
-                                           &ai_Chars[bld->owner], (int)bld);
+                        ai_ShowPaymentNews(&ai_Chars[ai_PlayerId],
+                                           &ai_Chars[bld->owner], bld);
                     }
                     gv_RetireCrimesOf(me->netId, amount / 2);
                     sv_MessageBox((intptr_t)txt_Ptrs[0x1984], 0);
