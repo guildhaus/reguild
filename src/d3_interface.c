@@ -1498,24 +1498,24 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
                 bio_wr_i(f, 0);
         case 2:
         case 3:
-            bio_wr_v3(f, (int *)&D3_X(obj)->pos);
-            bio_wr_v3(f, (int *)&D3_X(obj)->rot);
+            bio_wr_v3(f, &D3_X(obj)->pos);
+            bio_wr_v3(f, &D3_X(obj)->rot);
             bio_wr_c(f, obj->objectFlags & 1);
             if (obj->objectFlags & 1) {
-                bio_wr_v3(f, (int *)&obj->savedPos);
-                bio_wr_v3(f, (int *)&obj->savedRot);
+                bio_wr_v3(f, &obj->savedPos);
+                bio_wr_v3(f, &obj->savedRot);
             }
             for (i = 0; i < 10; i++) {
-                bio_wr_v3(f, (int *)&D3_X(obj)->views[i].pos);
-                bio_wr_v3(f, (int *)&D3_X(obj)->views[i].dir);
+                bio_wr_v3(f, &D3_X(obj)->views[i].pos);
+                bio_wr_v3(f, &D3_X(obj)->views[i].dir);
             }
             break;
         case 0:
             bio_wr_c(f, obj->objectFlags & 1);
             bio_wr_i(f, D3_X(obj)->radiusBits);
-            bio_wr_v3(f, (int *)&D3_X(obj)->pos);
-            bio_wr_v3(f, (int *)&obj->savedPos);
-            bio_wr_v3(f, (int *)&obj->savedRot);
+            bio_wr_v3(f, &D3_X(obj)->pos);
+            bio_wr_v3(f, &obj->savedPos);
+            bio_wr_v3(f, &obj->savedRot);
             break;
         case 5:
         case 6:
@@ -1526,18 +1526,18 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
             bio_wr_i(f, D3IF_LIGHT(obj)->rangeBits);
             bio_wr_i(f, D3IF_LIGHT(obj)->powerBits);
             bio_wr_i(f, D3IF_LIGHT(obj)->attenBits);
-            bio_wr_v3(f, (int *)&obj->lightColor);
-            bio_wr_v3(f, (int *)&D3_X(obj)->pos);
-            bio_wr_v3(f, (int *)&D3_X(obj)->rot);
+            bio_wr_v3(f, &obj->lightColor);
+            bio_wr_v3(f, &D3_X(obj)->pos);
+            bio_wr_v3(f, &D3_X(obj)->rot);
             bio_wr_i(f, D3O_LIGHT(obj)->flickerBits);
             bio_wr_i(f, D3O_LIGHT(obj)->interval);
             for (i = 0; i < 7; i++) {
                 bio_wr_i(f, D3O_LIGHT(obj)->k[i].rangeBits);
                 bio_wr_i(f, D3O_LIGHT(obj)->k[i].intensityBits);
                 bio_wr_i(f, D3O_LIGHT(obj)->k[i].attenBits);
-                bio_wr_v3(f, (int *)&D3O_LIGHT(obj)->k[i].color);
-                bio_wr_v3(f, (int *)&D3O_LIGHT(obj)->k[i].pos);
-                bio_wr_v3(f, (int *)&D3O_LIGHT(obj)->k[i].rot);
+                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].color);
+                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].pos);
+                bio_wr_v3(f, &D3O_LIGHT(obj)->k[i].rot);
                 bio_wr_i(f, D3O_LIGHT(obj)->k[i].flickerBits);
                 bio_wr_i(f, D3O_LIGHT(obj)->k[i].interval);
             }
@@ -1595,8 +1595,8 @@ void d3_WriteMap(VFSFILE *f, D3FLMAP *map)
                 bio_wr_i(f, ((D3IFREGION *)map->regions)[i].f14.bits);
                 bio_wr_i(f, ((D3IFREGION *)map->regions)[i].scrollSpeedU.bits);
                 bio_wr_i(f, ((D3IFREGION *)map->regions)[i].scrollSpeedV.bits);
-                bio_wr_v4(f, (int *)map->regions[i].speed);
-                bio_wr_v4(f, (int *)map->regions[i].amp);
+                bio_wr_v4(f, map->regions[i].speed);
+                bio_wr_v4(f, map->regions[i].amp);
                 bio_wr_i(f, map->regions[i].water);
             }
         }
@@ -1609,7 +1609,7 @@ void d3_WriteMap(VFSFILE *f, D3FLMAP *map)
         bio_wr_s(f, map->typenames[i]);
     bio_wr_i(f, ((D3IFMAP *)map)->scale.bits);
     bio_wr_i(f, ((D3IFMAP *)map)->hscale.bits);
-    bio_wr_v3(f, (int *)&map->orgx);
+    bio_wr_v3(f, &map->orgx);
 }
 /* 0x44a9e0, maps a scene file version (d3_SaveScene writes 0x3a6c00bb) to a format level 0 / 4 / 6 / 7;
    presumably used by the scene loader after this range */
@@ -1635,15 +1635,15 @@ void d3_SaveScene(char *name, VFSFILE *f)
         bio_wr_i(out, 0x3a6c00bb);
         bio_wr_s(out, (char *)d3if_MegaCam);
         bio_wr_i(out, ((D3IFBITS *)&d3if_Gray)->bits);
-        bio_wr_v3(out, (int *)&d3_AmbientColor);
-        bio_wr_v3(out, (int *)&d3_SunColor);
+        bio_wr_v3(out, &d3_AmbientColor);
+        bio_wr_v3(out, &d3_SunColor);
         bio_wr_i(out, d3_DefaultScene->mapSize);
         bio_wr_i(out, d3_fog_color.col);
         bio_wr_i(out, ((D3IFBITS *)&d3_FogStart1)->bits);
         bio_wr_i(out, ((D3IFBITS *)&d3_FogEnd2)->bits);
         for (k = 0; k < 7; k++) {
-            bio_wr_v3(out, (int *)&d3if_Levels[k].amb);
-            bio_wr_v3(out, (int *)&d3if_Levels[k].sun);
+            bio_wr_v3(out, &d3if_Levels[k].amb);
+            bio_wr_v3(out, &d3if_Levels[k].sun);
             for (i = 0; i < 6; i++) {
                 bio_wr_i(out, d3if_Levels[k].fog[i].col.col);
                 bio_wr_i(out, ((D3IFBITS *)&d3if_Levels[k].fog[i].start)->bits);

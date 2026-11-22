@@ -63,8 +63,8 @@ typedef struct D3IOLIGHTKEY {       /* D3LIGHTENTRY (0x38 bytes) as the reader f
 
 #ifndef UNK_401000_H                /* bio.h's, for the includers without it (the bio.h / d3_fl.h clash is gone) */
 void bio_rd_c(struct VFSFILE *f, char *c);                                                        /* 0x401180 */
-void bio_rd_v3(struct VFSFILE *f, int *v);                                                        /* 0x401260 */
-struct VFSFILE; void bio_rd_v4(struct VFSFILE *f, int *v);                                                        /* 0x401290 */
+void bio_rd_v3(struct VFSFILE *f, void *v);                                                       /* 0x401260 */
+struct VFSFILE; void bio_rd_v4(struct VFSFILE *f, void *v);                                                       /* 0x401290 */
 int bio_rd_array_quick(struct VFSFILE *f, int size, void **out);                                  /* 0x401380 */
 #endif
 

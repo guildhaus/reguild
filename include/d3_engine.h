@@ -686,7 +686,7 @@ void ts_UpdateScroll(unsigned long now);                                        
 
 #include "d3_event.h"                       /* the event tables ("d3e:"), d3_event.c */
 void bio_rd_s(struct VFSFILE *f, char *s);      /* 0x4011a0 */
-void bio_rd_i(struct VFSFILE *f, int *i);         /* 0x4011d0 */
+void bio_rd_i(struct VFSFILE *f, void *i);        /* 0x4011d0 */
 void bio_wr_s(struct VFSFILE *f, char *s);       /* 0x401210 */
 void bio_wr_i(struct VFSFILE *f, int i);         /* 0x401240 */
 

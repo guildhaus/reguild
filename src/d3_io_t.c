@@ -786,7 +786,7 @@ D3IOPATH *d3_LoadObjectAnim(char *file, D3IOOBJ *obj, char reload)
         if (magic == 0x3a610001) {
             p = (D3IOPATH *)mem_Alloc(0x44, "d3_io:ObjAnim");
             bio_rd_i(f, &p->nkeys);
-            bio_rd_i(f, (int *)&p->flags);
+            bio_rd_i(f, &p->flags);
             p->flags.c5 = 0;
             keys = &p->keys;
             p->flags.d1 = reload;
