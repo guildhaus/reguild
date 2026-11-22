@@ -1170,18 +1170,18 @@ int he_InitEvents(void)
 
 void he_FreeEvents(void)
 {
-    char *p;
+    AIJOB *p;
     int i = 0;
 
     if (he_EventTop >= 0) {
-        p = (char *)(uintptr_t)&he_Events;
+        p = he_Events;
         do {
-            if ((intptr_t)p >= (intptr_t)((uintptr_t)&he_Events + 0x53000))
+            if ((intptr_t)p >= (intptr_t)&he_Events[0x400])
                 return;
-            if (*p != 0)
+            if (p->kind != 0)
                 he_FreeEvent(p);
             i++;
-            p += 0x14c;
+            p++;
         } while (i <= he_EventTop);
     }
 }
