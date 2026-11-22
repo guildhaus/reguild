@@ -13,7 +13,9 @@ typedef struct G9DOMIZIL {              /* 0x1c bytes, an entry of the Domizil t
                                            -1: none */
     float weight;                       /* 0x0c, 1.0 .. 6.0: am.c's AI scales the use action's weight by it */
     unsigned int mask;                 /* 0x10, tested against the character's goodsMask (0x1ec) */
-    void *use;                          /* 0x14, the use callback ai_UseGood calls (the character, the G8USE request), 0: none */
+    int (*use)();                       /* 0x14, the use callback ai_UseGood calls (the character, the G8USE request), 0: none;
+                                           old-style: the callbacks take (AICHAR *, G8USE *), (AICHAR *), (void) or the
+                                           quarrel's (AICHAR *, int *) */
     unsigned short rank;                /* 0x18, the rank the good asks for (the use window prints it with text 0xfe3;
                                            lc's range lookup tests it; the name is a reasoned guess) */
     char pad1a[2];

@@ -132,7 +132,7 @@ extern int d2_LastWindow;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
 extern GAPDATA full_data_602568[];
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 
 
 
@@ -462,7 +462,7 @@ extern int ai_MapSize;
 extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 extern int ai_BeatingCallback();
 extern char * ai_PickedObject;
 extern char * cm_FieldObject;
@@ -4858,7 +4858,7 @@ int ai_SabotageCallback(AICHAR *ch, AIBLD *target)
    the player has the price, tells it with the text 0x42bf and closes; the second button (0x42ba), a right click or
    an empty pick close it. Returns 1 once the espionage was ordered, else 0 */
 
-int ai_EspionageAmountCB(AICHAR *ch)
+int ai_EspionageAmountCB(AICHAR *ch, int unused)
 {
     int ordered;
     int running;
@@ -5326,7 +5326,7 @@ void ai_OpenRobberBribe(AIBLD *bld)
    0x175b), else tells the letter failed (0x175c); the second button or a right click close it. Returns 1 once
    the letter went out, else 0 */
 
-int ai_DrohbriefAmountCB(AICHAR *ch)
+int ai_DrohbriefAmountCB(AICHAR *ch, int unused)
 {
     int sent;
     int n;
@@ -5427,7 +5427,7 @@ int ai_DrohbriefWindow(AIBLD *bld)
     cfg.kind = 6;
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
-    return (int)ai_AmountMenu(&cfg, txt_Ptrs[0x1758], 0, (void *)ai_DrohbriefAmountCB);
+    return (int)ai_AmountMenu(&cfg, txt_Ptrs[0x1758], 0, ai_DrohbriefAmountCB);
 }
 /* 0x5b5010, the denounce window "misc\perga_rolle" (the ANSCHWAERZEN plate of ai_FeastContact; nothing for no
    building or a player without 2 money): the amount menu (mode 0x400, kind 6, the gypsy filter) picks the
@@ -5520,7 +5520,7 @@ void ai_DenounceWindow(AIBLD *bld)
    (from and to the player, flags 2, the game time, ch's netId and a random text variant 0..0x1c), the second
    button or a right click close it. Returns 1 once the pamphlet went out, else 0 */
 
-int ai_PamphletAmountCB(AICHAR *ch)
+int ai_PamphletAmountCB(AICHAR *ch, int unused)
 {
     int sent;
     int count;
@@ -5608,7 +5608,7 @@ void ai_PamphletWindow(AIBLD *bld)
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x190d);
-    ai_AmountMenu(&cfg, text, 0, (void *)ai_PamphletAmountCB);
+    ai_AmountMenu(&cfg, text, 0, ai_PamphletAmountCB);
     sv_CameraFollow();
 }
 /* 0x5b5690, the notice board window "misc\pamphlet_brett" (the SCHWARZES_BRETT plate of the market,
@@ -9153,63 +9153,63 @@ G9DOMIZIL ai_DomizilTable[0x42] = {  /* 0x62c420, the 0x42 entries of 0x1c: id +
     { 0x159, 4320, -1, 4.0f, 0x00000000, 0, 0x1022, { 3, 0 } },
     { 0x15a, 4320, -1, 4.0f, 0x00000000, 0, 0x1024, { 3, 0 } },
     { 0x15b, 5760, -1, 3.0f, 0x00000000, 0, 0x1026, { 1, 0 } },
-    { 0x15c, 4320, -1, 2.5f, 0x00000000, (void *)ai_UseGoodTributeClaim, 0x1028, { 1, 0 } },
+    { 0x15c, 4320, -1, 2.5f, 0x00000000, ai_UseGoodTributeClaim, 0x1028, { 1, 0 } },
     { 0x15d, 7200, -1, 2.5f, 0x00000000, 0, 0x102a, { 2, 0 } },
     { 0x15f, 5760, -1, 2.5f, 0x00000000, 0, 0x102e, { 3, 0 } },
-    { 0x161, 0, -1, 2.0f, 0x00000001, (void *)ai_UseGoodHalveWorkerValue, 0x1032, { 1, 0 } },
-    { 0x162, 0, -1, 1.0f, 0x00000002, (void *)ai_TrialStep1, 0x1034, { 1, 0 } },
-    { 0x163, 0, -1, 1.0f, 0x00000004, (void *)ai_TrialStep3, 0x1036, { 2, 0 } },
-    { 0x164, 0, -1, 1.0f, 0x00000008, (void *)ai_TrialStep4, 0x1038, { 2, 0 } },
+    { 0x161, 0, -1, 2.0f, 0x00000001, ai_UseGoodHalveWorkerValue, 0x1032, { 1, 0 } },
+    { 0x162, 0, -1, 1.0f, 0x00000002, ai_TrialStep1, 0x1034, { 1, 0 } },
+    { 0x163, 0, -1, 1.0f, 0x00000004, ai_TrialStep3, 0x1036, { 2, 0 } },
+    { 0x164, 0, -1, 1.0f, 0x00000008, ai_TrialStep4, 0x1038, { 2, 0 } },
     { 0x165, 4320, -1, 5.0f, 0x00000000, 0, 0x103a, { 3, 0 } },
     { 0x166, 1440, -1, 1.0f, 0x00000000, 0, 0x103c, { 3, 0 } },
-    { 0x167, 0, -1, 2.0f, 0x00000010, (void *)ai_UseGoodRaiseRelation, 0x103e, { 1, 0 } },
-    { 0x169, 0, 3, 6.0f, 0x00000020, (void *)ai_QuarrelCallback, 0x1042, { 2, 0 } },
-    { 0x168, 0, -1, 2.5f, 0x00000040, (void *)ai_UseGoodTrialStep, 0x1040, { 1, 0 } },
-    { 0x16a, 0, 3, 3.5f, 0x00000080, (void *)ai_UseGoodLowerOfficialRelations, 0x1044, { 2, 0 } },
+    { 0x167, 0, -1, 2.0f, 0x00000010, ai_UseGoodRaiseRelation, 0x103e, { 1, 0 } },
+    { 0x169, 0, 3, 6.0f, 0x00000020, ai_QuarrelCallback, 0x1042, { 2, 0 } },
+    { 0x168, 0, -1, 2.5f, 0x00000040, ai_UseGoodTrialStep, 0x1040, { 1, 0 } },
+    { 0x16a, 0, 3, 3.5f, 0x00000080, ai_UseGoodLowerOfficialRelations, 0x1044, { 2, 0 } },
     { 0x16b, 4320, -1, 3.0f, 0x00000000, 0, 0x1046, { 3, 0 } },
-    { 0x16c, 0, -1, 3.8f, 0x00000100, (void *)ai_UseGoodTwoTrialSteps, 0x1048, { 3, 0 } },
+    { 0x16c, 0, -1, 3.8f, 0x00000100, ai_UseGoodTwoTrialSteps, 0x1048, { 3, 0 } },
     { 0x16f, 1440, 17, 1.5f, 0x00000000, 0, 0x104e, { 2, 0 } },
-    { 0x16d, 0, 17, 2.0f, 0x00040000, (void *)ai_UseGoodSowDiscord, 0x104a, { 1, 0 } },
-    { 0x170, 0, 17, 1.5f, 0x00000200, (void *)ai_UseGoodCharmOtherSex, 0x1050, { 2, 0 } },
+    { 0x16d, 0, 17, 2.0f, 0x00040000, ai_UseGoodSowDiscord, 0x104a, { 1, 0 } },
+    { 0x170, 0, 17, 1.5f, 0x00000200, ai_UseGoodCharmOtherSex, 0x1050, { 2, 0 } },
     { 0x171, 1440, 17, 1.5f, 0x00000000, 0, 0x1052, { 3, 0 } },
-    { 0x173, 0, 18, 1.0f, 0x00000400, (void *)ai_UseGoodAddMoney, 0x1056, { 1, 0 } },
-    { 0x175, 0, 18, 4.0f, 0x00000800, (void *)ai_UseGoodHeal, 0x105a, { 2, 0 } },
-    { 0x177, 180, 24, 1.2f, 0x00001000, (void *)ai_UseGoodInfectOwner, 0x105e, { 3, 0 } },
-    { 0x178, 180, 24, 1.9f, 0x00002000, (void *)ai_UseGoodSendHome, 0x1060, { 3, 0 } },
-    { 0x17b, 1440, 18, 1.5f, 0x00004000, (void *)ai_UseGoodWeakenSkills, 0x1066, { 2, 0 } },
-    { 0x17c, 1400, 18, 1.5f, 0x00000000, (void *)ai_AlwaysTrue, 0x1068, { 2, 0 } },
-    { 0x17d, 1440, 18, 1.5f, 0x00010000, (void *)ai_UseGoodWeakenSkills2, 0x106a, { 3, 0 } },
-    { 0x17e, 0, 18, 1.5f, 0x00020000, (void *)ai_UseGoodCureAilment, 0x106c, { 3, 0 } },
-    { 0x229, 0, -1, 1.5f, 0x00080000, (void *)ai_UseGoodCharmPartner, 0x106e, { 1, 0 } },
+    { 0x173, 0, 18, 1.0f, 0x00000400, ai_UseGoodAddMoney, 0x1056, { 1, 0 } },
+    { 0x175, 0, 18, 4.0f, 0x00000800, ai_UseGoodHeal, 0x105a, { 2, 0 } },
+    { 0x177, 180, 24, 1.2f, 0x00001000, ai_UseGoodInfectOwner, 0x105e, { 3, 0 } },
+    { 0x178, 180, 24, 1.9f, 0x00002000, ai_UseGoodSendHome, 0x1060, { 3, 0 } },
+    { 0x17b, 1440, 18, 1.5f, 0x00004000, ai_UseGoodWeakenSkills, 0x1066, { 2, 0 } },
+    { 0x17c, 1400, 18, 1.5f, 0x00000000, ai_AlwaysTrue, 0x1068, { 2, 0 } },
+    { 0x17d, 1440, 18, 1.5f, 0x00010000, ai_UseGoodWeakenSkills2, 0x106a, { 3, 0 } },
+    { 0x17e, 0, 18, 1.5f, 0x00020000, ai_UseGoodCureAilment, 0x106c, { 3, 0 } },
+    { 0x229, 0, -1, 1.5f, 0x00080000, ai_UseGoodCharmPartner, 0x106e, { 1, 0 } },
     { 0x22a, 2880, -1, 1.5f, 0x00000000, 0, 0x1070, { 1, 0 } },
-    { 0x22c, 2880, -1, 1.5f, 0x00000000, (void *)ai_UseGoodWeakenSkills3, 0x1074, { 2, 0 } },
+    { 0x22c, 2880, -1, 1.5f, 0x00000000, ai_UseGoodWeakenSkills3, 0x1074, { 2, 0 } },
     { 0x22e, 1440, -1, 1.5f, 0x00000000, 0, 0x1078, { 3, 0 } },
-    { 0x22b, 0, -1, 1.5f, 0x00100000, (void *)ai_UseGoodFrameChar, 0x1072, { 2, 0 } },
-    { 0x22d, 0, -1, 1.5f, 0x00200000, (void *)ai_UseGoodFrameChar2, 0x1076, { 3, 0 } },
-    { 0x297, 1440, -1, 1.5f, 0x00000000, (void *)ai_UseGoodSkillBonus, 0x107a, { 1, 0 } },
-    { 0x298, 0, -1, 1.5f, 0x00400000, (void *)ai_UseGoodStaffBonus, 0x107c, { 1, 0 } },
+    { 0x22b, 0, -1, 1.5f, 0x00100000, ai_UseGoodFrameChar, 0x1072, { 2, 0 } },
+    { 0x22d, 0, -1, 1.5f, 0x00200000, ai_UseGoodFrameChar2, 0x1076, { 3, 0 } },
+    { 0x297, 1440, -1, 1.5f, 0x00000000, ai_UseGoodSkillBonus, 0x107a, { 1, 0 } },
+    { 0x298, 0, -1, 1.5f, 0x00400000, ai_UseGoodStaffBonus, 0x107c, { 1, 0 } },
     { 0x299, 90, -1, 1.5f, 0x00000000, 0, 0x107e, { 2, 0 } },
-    { 0x29a, 1440, -1, 1.5f, 0x00000000, (void *)ai_UseGoodDistrust, 0x1080, { 2, 0 } },
+    { 0x29a, 1440, -1, 1.5f, 0x00000000, ai_UseGoodDistrust, 0x1080, { 2, 0 } },
     { 0x29b, 4320, -1, 1.5f, 0x00000000, 0, 0x1082, { 3, 0 } },
-    { 0x29c, 1440, 28, 1.5f, 0x00000000, (void *)ai_UseGoodPettyLoss, 0x1084, { 3, 0 } },
-    { 0x2b2, 0, -1, 1.5f, 0x01000000, (void *)ai_UseGoodHeatBuilding, 0x1086, { 1, 0 } },
+    { 0x29c, 1440, 28, 1.5f, 0x00000000, ai_UseGoodPettyLoss, 0x1084, { 3, 0 } },
+    { 0x2b2, 0, -1, 1.5f, 0x01000000, ai_UseGoodHeatBuilding, 0x1086, { 1, 0 } },
     { 0x2b3, 2880, -1, 1.5f, 0x00000000, 0, 0x1088, { 1, 0 } },
     { 0x2b4, 7200, -1, 1.5f, 0x00000000, 0, 0x108a, { 2, 0 } },
     { 0x2b5, 8640, -1, 1.5f, 0x00000000, 0, 0x108c, { 2, 0 } },
     { 0x2b6, 4320, -1, 1.5f, 0x00000000, 0, 0x108e, { 3, 0 } },
-    { 0x2b7, 4320, -1, 1.5f, 0x00000000, (void *)ai_UseEventGood, 0x1090, { 3, 0 } },
-    { 0x2b8, 0, -1, 1.5f, 0x00800000, (void *)ai_UseGoodDrainActionPoints, 0x1092, { 4, 0 } },
+    { 0x2b7, 4320, -1, 1.5f, 0x00000000, ai_UseEventGood, 0x1090, { 3, 0 } },
+    { 0x2b8, 0, -1, 1.5f, 0x00800000, ai_UseGoodDrainActionPoints, 0x1092, { 4, 0 } },
     { 0x2b9, 1440, -1, 1.5f, 0x00000000, 0, 0x1094, { 4, 0 } },
     { 0x2ba, 1440, 18, 1.5f, 0x00000000, 0, 0x1096, { 4, 0 } },
-    { 0x2bb, 0, -1, 1.5f, 0x04000000, (void *)ai_UseGoodDrainSkill, 0x1098, { 4, 0 } },
-    { 0x2bc, 0, -1, 1.5f, 0x08000000, (void *)ai_UseGoodHarmBuilding, 0x109a, { 4, 0 } },
-    { 0x2bd, 0, -1, 1.5f, 0x10000000, (void *)ai_UseGoodSpoilStock, 0x109c, { 5, 0 } },
+    { 0x2bb, 0, -1, 1.5f, 0x04000000, ai_UseGoodDrainSkill, 0x1098, { 4, 0 } },
+    { 0x2bc, 0, -1, 1.5f, 0x08000000, ai_UseGoodHarmBuilding, 0x109a, { 4, 0 } },
+    { 0x2bd, 0, -1, 1.5f, 0x10000000, ai_UseGoodSpoilStock, 0x109c, { 5, 0 } },
     { 0x2be, 1440, 17, 1.5f, 0x00000000, 0, 0x109e, { 5, 0 } },
-    { 0x2bf, 0, 17, 1.5f, 0x20000000, (void *)ai_UseGoodCharmOfficials, 0x10a0, { 5, 0 } },
+    { 0x2bf, 0, 17, 1.5f, 0x20000000, ai_UseGoodCharmOfficials, 0x10a0, { 5, 0 } },
     { 0x2c0, 2880, 17, 1.5f, 0x00000000, 0, 0x10a2, { 5, 0 } },
-    { 0x2c1, 1440, 18, 1.5f, 0x00000000, (void *)ai_UsePayGood, 0x10a4, { 5, 0 } },
-    { 0x2c2, 0, -1, 1.5f, 0x40000000, (void *)ai_UseGoodDrainActionPoints8, 0x10a6, { 6, 0 } },
-    { 0x2c3, 0, -1, 1.5f, 0x80000000, (void *)ai_UseGoodHoldRound, 0x10a8, { 6, 0 } },
+    { 0x2c1, 1440, 18, 1.5f, 0x00000000, ai_UsePayGood, 0x10a4, { 5, 0 } },
+    { 0x2c2, 0, -1, 1.5f, 0x40000000, ai_UseGoodDrainActionPoints8, 0x10a6, { 6, 0 } },
+    { 0x2c3, 0, -1, 1.5f, 0x80000000, ai_UseGoodHoldRound, 0x10a8, { 6, 0 } },
     { 0x2c4, 2880, -1, 1.5f, 0x00000000, 0, 0x10aa, { 6, 0 } },
     { 0x2c5, 2880, -1, 1.5f, 0x00000000, 0, 0x10ac, { 6, 0 } },
     { 0x2c6, 1440, 18, 1.5f, 0x00000000, 0, 0x10ae, { 6, 0 } },

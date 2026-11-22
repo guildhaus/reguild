@@ -134,7 +134,7 @@ int ai_DecideTableValue(int a, AICHAR *p, int *ctx, int d, AIARG *m)
     int v;
 
     if (gv_GetTableRecord(ctx[1], &dec) != 0) {
-        if (((int (*)(AICHAR *, int, int *))dec.fn)(p, (unsigned char)dec.id, &v) != 0 && v != dec.cur
+        if (dec.fn(p, (unsigned char)dec.id, &v) != 0 && v != dec.cur
             && v >= dec.min && v <= dec.max) {
             m->kind = 0x11;
             m->ref = (unsigned char)dec.id;

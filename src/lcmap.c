@@ -136,7 +136,7 @@ extern int d2_LastWindow;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
 extern GAPDATA full_data_602568[];
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 
 
 
@@ -467,7 +467,7 @@ extern int ai_MapSize;
 extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 extern int ai_BeatingCallback();
 extern char * ai_PickedObject;
 extern char * cm_FieldObject;

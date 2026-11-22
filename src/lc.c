@@ -242,7 +242,7 @@ extern int d2_LastWindow;
 extern int d2_ClickedId;
 extern int d2_LastWindow;
 extern GAPDATA full_data_602568[];
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 
 
 
@@ -573,7 +573,7 @@ extern int ai_MapSize;
 extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
-extern int ai_EspionageAmountCB();
+extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
 extern int ai_BeatingCallback();
 extern char * ai_PickedObject;
 extern char * cm_FieldObject;
@@ -6061,7 +6061,7 @@ void ai_EspionageAmountMenu(AIBLD *bld)
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x16f9);
-    ai_AmountMenu(&cfg, text, 0, (void *)ai_EspionageAmountCB);
+    ai_AmountMenu(&cfg, text, 0, ai_EspionageAmountCB);
     sv_CameraFollow();
 }
 
