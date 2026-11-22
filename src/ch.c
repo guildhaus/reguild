@@ -3989,7 +3989,7 @@ void ch_ActWalk2RndDummy(CHACTION *a)
                 w->u.walk.dest.x = pos.x;
                 w->u.walk.dest.y = pos.y;
                 w->u.walk.dest.z = pos.z;
-                strcpy(CHACT_NAME70(w), "Walk2RndDummy");
+                strcpy(w->why, "Walk2RndDummy");
             }
         }
         ch_RemoveAction(a);

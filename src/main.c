@@ -3386,7 +3386,7 @@ void main_EndRound(void)
                     evt_Stop(evt_FindById(fig->scriptId));
                 ch_StopActions(ai_Chars[k].scene);
                 if (y != -1 && (act = ch_AddAction(ai_Chars[k].scene, 0x33, place, x, y)) != 0)
-                    strcpy(CHACT_NAME70(act), "Beamed home");
+                    strcpy(act->why, "Beamed home");
             }
         }
         if ((ai_GameFlags & 8) != 0 && ai_Chars[k].scene != 0 && ai_Chars[k].kind == 0xd && ai_Chars[k].job == 0)
