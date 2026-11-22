@@ -6242,6 +6242,10 @@ the bytes no portable form gives.
   PAR_VF / PAR_TF in d3_par.h (twenty-eighth pass: par_Draw's chained clip / visible bit stores into a
   particle quad's D3VERTEX.flags / D3TRI.flags bytes; through any union member, D3VERTEX.clip included, its
   register allocation moves, see "record view macros" below).
+  AMTRANGEW in amt.c (twenty-ninth pass: amt_CreateApplicant rolls the age from AMTRANGE's two shorts read as the
+  overlapping dwords at +0 and +2, `mov esi,[esp+0xc]; mov edx,[esp+0xe]`; no field of one record lies at both).
+  Not (c) but kept for the code (portable): D2WOP in d2_CreateScrollButtons and PAR_AT in par_Create, byte-offset
+  views over `win * sizeof(D2WIN)` / `j += sizeof(D3PARTICLE)` (see "byte-offset view macros" below).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
   G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
@@ -6294,7 +6298,10 @@ the bytes no portable form gives.
   twenty-eighth (the record view macros: D3OBJECT's D3OBJX / D3LOBJ / D3IFLIGHT / D3OBJPOSE with the light records
   D3LIGHTINFO / D3LIGHTKEY, CHSLOT as D3ANIMSLOT, CHTRANSPORT / CHACTOBJ, GMBTYPE as AIBTYPE, D3CVERT as D3VERTEX,
   the particle system's D3EMITTER / D3PARINV / PARPART, D3OBJECT's flag bytes, D3QMAT as D3MESH, G12_B, D2PAINTWIN;
-  only PAR_VF / PAR_TF above).
+  only PAR_VF / PAR_TF above) or the twenty-ninth (the byte-offset view macros D3S_SLOTS as D3MESH.sub, D2VOP /
+  most of D2WOP, FRAME_AT, G13_B / HMT_B, G7_MASK, CH_HAND, D3_TEXB, AMT_BITS with amt_TabA / amt_TabB as row records,
+  ORD_KIND / ORD_KINDS with ORDKIND, the AIMSG / D2WIN / D2FORMH / NETSTAT / AMTKIND / bit views, bio_wr_f, the
+  field offsets of the cm_AddField* calls; only AMTRANGEW above).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -7121,9 +7128,57 @@ the bytes no portable form gives.
   function, gm_UpdateTechTree; eda745a1 calls the 0xc / 0x10 state bits shadowMask / castShadow (7eb62235 named
   them transient / blocked).
 
+- **Byte-offset view macros** (twenty-ninth pass, `#define D3S_SLOTS(mat) ((D3SSLOT *)((char *)(mat) + 0x754))`,
+  `G13_B(c, off)`, `CH_HAND(ch, off)`): check for a no-op first (FRAME_AT stepped `(char *)d->frames + i * 0xc0` over
+  a D3ANIMFRAME * of size 0xc0, G7_MASK cast an AICHAR * to AICHAR *); otherwise the offset is a field of the record:
+  a record the view duplicates merges into the owner's (D3SSLOT into D3MESH's D3MESHSUB), a pad that holds the bytes
+  gets their names (CHARACTER.leftHand / headObject, AIBTYPE.roomCap0 / roomCap1 / roomCapOnly, D2WIN.keyidx,
+  AMTKIND.friendship as the float its initialiser held as bits). Every reader stayed the same code.
+- **An offset the code needs** (d2_CreateScrollButtons computes the window's byte offset once, before its first
+  test, and addresses `[o + d2_Wins + field]`: d2_Wins[win] is draft, a D2WIN * shape; par_Create's init loop
+  addresses `[particles + j + field]`, base first, which no index or pointer spelling gives): keep the macro with an
+  `@original why`, but scale the offset by `sizeof(T)` (`o = win * sizeof(D2WIN)`, `j += sizeof(D3PARTICLE)`): the
+  same code, and the view is portable. Try the neighbours: d2_ScrollWindowBy was byte with `D2WIN *w = &d2_Wins[win]`,
+  d2_CloseView with d2_Views[view] by index.
+- **A float table whose rows start with an int id stored as float bits** (amt_TabA / amt_TabB, 1.54e-44f = 11, read
+  through a float/int union): the row record `{ int id; float col[9]; }`; the data map's extent showed one dword more
+  per table (the row count, 15 / 5, no reader) and, for amt_TabA, a pad dword before the 16-aligned next table:
+  the counts are their own const ints after the tables (amt_TabARows / amt_TabBRows).
+- **A table the original's units read at two widths** (ord_KindTable: ord.c's ord_ComputeStatistics four shorts,
+  ord_GetKindRecord and f3gm's gm_FindHome two dwords, `mov edi,[esp+0x24]; cmp cx,di`): a union of both readings
+  (ORDKIND: residents / w2 / w4 / w6 and int pair[2]), the callers' int[2] / unsigned short[4] locals become it. An
+  extent four bytes longer than the records is the next datum (gm_Unk617728), not part of the table.
+- **A float pushed as its bits to an int writer** (d3_SaveScene's `bio_wr_i(out, ((D3IFBITS *)&g)->bits)`): the source
+  called a float writer whose code is the int writer's; /OPT:ICF folded them. Define the twin unlinked next to the
+  int one (bio.c's `void bio_wr_f(VFSFILE *f, float x)`, "LINK folds it (/OPT:ICF) into bio_wr_i, 0x401240" on one
+  line, no blank line before the function) and call it with the float (VC6 pushes a float variable with integer
+  moves). dcp grade reports the call's M8 as open, as for the other unlinked twins.
+- **Byte and int views of a message's words** (`((unsigned char *)&msg.arg[0])[1]`, hst.c's G12EVENTMSG at 0x9c):
+  the kind's AIMSG member (hireTitle / hireFlag / hireRows[0] as the personnel book writes the hire request; a new
+  countdown member for message 0x51; word9c); an AIDEC byte `((unsigned char *)&d)[1]` is d.valueText.
+- **Single bit stores through a union member** (d3_SetVertexColors' `tri->bits.b2 = tex->nocull`, d3_InflateObject's
+  `t->bits.b0 = 0` / `t->bits.b3 = tex->wrap`, d3_RelightObject's `f.all = 0`): the same code, unlike par_Draw's chained
+  stores; d3_CloneObject / d3_MirDrawObject, which d3_light.h said a typed field flips, did not move (the members
+  existed by then). Measure each (dcp try: `= control`).
+- **The network field offsets** (cm_AddFieldDelta / Values / Value's field argument): `(char *)&p->field -
+  cm_FieldObject`, the form most senders had; `(char *)p - cm_FieldObject + 0x65`, `(short)p - (short)cm_FieldObject +
+  0x65` (a pointer truncated to short) and `k * 4 + 0x1c - (int)cm_FieldObject + (int)jt` compile to the same code
+  (37 sites, every function unchanged). A field of a unit-local view keeps its cast
+  (`(char *)&((HEJOBTABLE *)jt)->year`).
+- **Raw byte reads of a record pointer** (`((unsigned char *)p)[0x166]`, `((int *)old)[1]` of a D2SURF,
+  `((char *)rec)[0xd0]` of an AIJOB, `((unsigned char *)d3_Sky)[0xaa6]`): the fields (AICHAR.officeKind / sel / kind /
+  secondOffice / jobId / sex, D2SURF.w / h, AIJOB.constructPlacing, D3SKY.color.c.r); an out parameter written as
+  `((int *)out)[7]` is the record it fills (ord_ComputeStatistics' ORDSTATS *). Every function the same code.
+- **`dcp debt add` re-bases dcp check**: after it rewrites ledger/grades.tsv, check compares with HEAD and the
+  proven tie-break falls of earlier uncommitted-to-ledger commits come back as errors. When a group's own unit
+  shows a proven fall (cm_RunCouncilSession in cmscene.c), commit the other groups, `dcp promote`, commit the
+  ledger, then commit that group: the promote takes the proven falls as they fell.
+- Commit-message slips of the twenty-ninth pass: 617fa84e counts G13_B as 6 uses (7); e4e2671d names
+  ai_DecideBuildSculpture shape -> byte, which did not hold at that commit (it stayed shape).
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the twenty-eighth portability pass (the passes since eb11a8b9). VC6 still compiles
+the twenty-ninth portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7145,7 +7200,12 @@ Kept deliberately (each with `@original` in the source):
   he_RunInnSim, d3sm_Pick's int result in cmfight.c, hst_ListModeSet / hst_ListModeUse (an int compared with the
   first four bytes of a 5-byte string, one at an odd address), ai_NumPlayersW in main.c (a byte global read as an
   int), PAR_VF / PAR_TF in d3_par.h (par_Draw's bit stores through a plain bitfield struct cast of the
-  D3VERTEX.flags / D3TRI.flags bytes; every union member spelling moves its code).
+  D3VERTEX.flags / D3TRI.flags bytes; every union member spelling moves its code), AMTRANGEW in amt.c
+  (amt_CreateApplicant reads AMTRANGE's shorts as the overlapping dwords at +0 / +2).
+- Byte-offset views the code needs, portable (the offset is `index * sizeof(T)`): D2WOP in d2_CreateScrollButtons,
+  PAR_AT in par_Create.
+- Unlinked twins LINK folds (/OPT:ICF): bio.c's bio_wr_f (d3_SaveScene's float writes) besides the callbacks and
+  stubs listed in "Portable spellings first".
 - sv_RunFrame's record-returning frame keys: C4047 + C4024 at seven calls (lc 1, lcamt 5, lcdom 1); the key is
   compared, never called.
 - Function pointers passed through a cast as callbacks: d3_ForEachObject2's callbacks, qsort, ai_GraveWindow,
@@ -7167,22 +7227,25 @@ Kept deliberately (each with `@original` in the source):
 - Inline asm: 790 `__asm` lines in 37 files (fixed-point helpers, D3_ZERO / copy macros, the span fillers, shp.c's
   drawers), `__int64`, `__cdecl` / `__stdcall` on Win32 / DirectX callbacks, 118 `#pragma pack` lines.
 
-Not done (views that count.py does not count; the next passes' work):
-- Record view macros: after the twenty-eighth pass only ORD_KIND (1 use: ord_ComputeStatistics reads
-  ord_KindTable's 8-byte records as four shorts; the table is a char placeholder that ord_GetKindRecord copies as
-  two ints and its callers read as int[2] / short[4]: type the data and the callers together) and the kept PAR_VF /
-  PAR_TF. Byte-offset view macros (another form, not in the record view count): D3S_SLOTS 31 (= D3MESH.sub, D3SSLOT
-  is D3MESHSUB), D2WOP 24 / D2VOP 4 (a window / view at a byte offset), FRAME_AT 14 (D3ANIMDATA.frames at i * 0xc0),
-  PAR_AT 11 (a particle at a byte offset), G13_B 7 / HMT_B 3 (AICHAR bytes in mission.c / hmt.c), CH_HAND 3, D3_TEXB 3,
-  G7_MASK 3, AMT_BITS 2.
-- Inline cast views (31 lines; p28/views1.txt): byte views of ints (`((unsigned char *)&msg.arg[0])[1]` in ai.c /
-  hst.c, `((unsigned char *)&r->kind[k])[1]` in d2.c: little-endian), int views of records (d2.c's d2_Views,
-  ch.c's `((int *)&slot->flags)[1]`, net.c's net_Stats), the float-bits views D3IFBITS (d3_SaveScene's float
-  globals) / D2WINF.alpha / D3TEXPACK, the bit views D3TRIBITS / D3BITS, AMTKINDF / AMTRANGEW, G12EVENTMSG; byte
-  pointers into the records cast to the record (f3gmt.c's gm_AllocRaum / gm_CreateBuilding `(AIBTYPE *)bp`, with
-  raw +0x23d..0x23f reads).
-- Field offsets as byte arithmetic: 35 `cm_AddField*` calls send `(char *)p - cm_FieldObject + 0x..` (the network
-  field-sync protocol addresses a field by its 32-bit layout offset).
+Done in the twenty-ninth pass (counted by hand, scratchpad p29): the byte-offset view macros 105 uses -> 18 (the
+kept D2WOP 7 and PAR_AT 11), the record view macros 31 -> 30 (ORD_KIND went; PAR_VF 28 / PAR_TF 2 kept), the inline
+cast view lines of p28/views1.txt 31 -> 1 (AMTRANGEW, kept; ecmd.c's two had gone in pass 28), the cm_AddField* byte
+offsets 37 -> 0 (all `(char *)&p->field - cm_FieldObject`), and 33 more raw reads (AICHAR bytes in am / amr / amt / rmsg,
+D2SURF w / h, D3SKY.color, AIJOB.constructPlacing, ord_ComputeStatistics' three int views). VC6 warnings 175 -> 175.
+
+Not done (the next pass's work, if any; none of it is a view count.py or the earlier inventories counted):
+- Unit-local partial record views reached through a pointer cast (about 40 typedefs that start with a pad, listed in
+  scratchpad p29/partialviews.txt, a heuristic list: he.c's HEJOBTABLE / HESTORM over AIOBJ / AIJOB, the D2INPUTVIEW /
+  D2SURFVIEW / AIBLDVIEW / SAVEREQUEST copies in menu.c / pokerwin.c / shot.c, the lc units' LCTREENODE / G8SCENECHAR,
+  the cm units' AIJOBTAIL, TSTEXSIZE, G8INVCHAR, POKERWHO ..): each is a reading of an owner record's bytes; merge it
+  into the owner as the earlier passes
+  did (HEJOBTABLE's note says an AIOBJ member flipped 8 matches: tie-breaks, accepted now).
+- Raw byte reads left on purpose or for later: amt_SendOfficeNews / amt_SendOfficeLost read a character through
+  `unsigned short *p` (`((char *)p)[2]` / `[9]`: the callee's parameter is the debt, AICHAR *); amt_ExecuteOfficeMessage's
+  walk based at AMTREC.owner (`((unsigned char *)r)[4]` = kind, a walk based at a field); the walk paths of ch.c / cm.c
+  read as byte pairs through the void * CHACTION.u.walk.path (CHPATHPT x / z: portable bytes, the type is the debt);
+  d3t_SetColorCB's `void *rgb` context and vfs_fread's gzip magic test (byte buffers by design).
+- d2_ScreenSurf is `void *` (sv_DrawBorderArrows casts it to D2SURF * at the read).
 
 What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
@@ -7193,7 +7256,10 @@ What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Ints that hold pointers by design: the script VM's values (chc / ecmd / evtc `return (int)obj;`: the evt VM's
   int values hold object pointers), the text API's `intptr_t` id-or-string parameters (txt_Format, io_PrintText,
   sv_MessageBox ..: already pointer-sized), D2WIN.args (intptr_t).
-- The network field offsets above (cm_FieldObject) and the message records in G17MSG are wire formats.
+- The network field offsets (cm_FieldObject, `(char *)&p->field - cm_FieldObject`) and the message records in
+  G17MSG / AIMSG are wire formats: the field-sync protocol addresses a field by its offset in the 32-bit layout, so a
+  port that changes a sent record's layout (pointers in AIBLD / AIOBJ / AICHAR on 64-bit) changes the protocol and
+  must map the offsets, or keep the 32-bit layouts for the records it syncs.
 - ctype on plain char text (`isdigit(*p)`, `toupper(*p)`): VC6 indexes _pctype below its table for bytes >= 0x80
   (the original's behaviour); a port passes `(unsigned char)`.
 - `#pragma pack(1)` records (AIOFFERAT, the save / message records) and the byte views above assume little-endian.
