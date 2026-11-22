@@ -393,22 +393,8 @@ char d3t_GetBoundingSphere(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, fl
     return ok;
 }
 
-typedef struct D3TMAP {             /* square 8-bit height map */
-    int size;
-    char pad04[0xc];
-    unsigned char *data;            /* 0x10 */
-    char pad14[0x7c];
-    D3VECTOR org;                   /* 0x90, world position of cell 0 */
-    char pad9c[0x4];
-    float cellx;                    /* 0xa0 */
-    char pada4[0x14];
-    float cellz;                    /* 0xb8 */
-    char padbc[0x8];
-    float scale;                    /* 0xc4, height per unit */
-} D3TMAP;
-
 /* 0x412000, value range of row y between columns x0 and x1 */
-int d3t_GetRowRange(D3TMAP *map, int *lo, int *hi, int x0, int x1, int y)
+int d3t_GetRowRange(D3FLMAP *map, int *lo, int *hi, int x0, int x1, int y)
 {
     unsigned char *p;
     int t;
@@ -422,7 +408,7 @@ int d3t_GetRowRange(D3TMAP *map, int *lo, int *hi, int x0, int x1, int y)
         if (x0 < map->size && x1 >= 0) {
             x0 = max(0, x0);
             x1 = min(x1, map->size - 1);
-            p = map->data + map->size * y + x0;
+            p = map->height + map->size * y + x0;
             for (; x0 <= x1; x0++, p++) {
                 *lo = min(*lo, *p);
                 *hi = max(*hi, *p);
@@ -434,7 +420,7 @@ int d3t_GetRowRange(D3TMAP *map, int *lo, int *hi, int x0, int x1, int y)
 }
 /* 0x412090, height range of the map under the triangle a, b, c (x/z in world units) */
 
-int d3t_GetTriRange(D3TMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b, D3VECTOR *c)
+int d3t_GetTriRange(D3FLMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b, D3VECTOR *c)
 {
     float sx, sz;
     int x[3], z[3];
@@ -442,14 +428,14 @@ int d3t_GetTriRange(D3TMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b,
     int mn, mx, ret;
     float xl, xr, dl, dr;
 
-    sx = 1.0f / map->cellx;
-    x[0] = (int)((a->x - map->org.x) * sx);
-    sz = 1.0f / map->cellz;
-    z[0] = (int)((a->z - map->org.z) * sz);
-    x[1] = (int)((b->x - map->org.x) * sx);
-    z[1] = (int)((b->z - map->org.z) * sz);
-    x[2] = (int)((c->x - map->org.x) * sx);
-    z[2] = (int)((c->z - map->org.z) * sz);
+    sx = 1.0f / map->scale;
+    x[0] = (int)((a->x - map->orgx) * sx);
+    sz = 1.0f / map->negScale;
+    z[0] = (int)((a->z - map->orgz) * sz);
+    x[1] = (int)((b->x - map->orgx) * sx);
+    z[1] = (int)((b->z - map->orgz) * sz);
+    x[2] = (int)((c->x - map->orgx) * sx);
+    z[2] = (int)((c->z - map->orgz) * sz);
     if (z[0] > z[1]) {
         t = x[0]; x[0] = x[1]; x[1] = t;
         t = z[0]; z[0] = z[1]; z[1] = t;
@@ -505,8 +491,8 @@ int d3t_GetTriRange(D3TMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b,
             }
         }
         if (!ret) {
-            *lo = mn * map->scale + map->org.y;
-            *hi = mx * map->scale + map->org.y;
+            *lo = mn * map->hscale + map->orgy;
+            *hi = mx * map->hscale + map->orgy;
         }
         return ret;
     }
@@ -514,7 +500,7 @@ int d3t_GetTriRange(D3TMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b,
 }
 /* 0x412480, height range of the map under the quad a, b, c, d */
 
-int d3t_GetQuadRange(D3TMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b, D3VECTOR *c, D3VECTOR *d)
+int d3t_GetQuadRange(D3FLMAP *map, float *lo, float *hi, D3VECTOR *a, D3VECTOR *b, D3VECTOR *c, D3VECTOR *d)
 {
     float lo1, hi1, lo2, hi2;
     int r1, r2;

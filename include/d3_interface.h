@@ -1,5 +1,5 @@
 struct D3SM;
-struct D3TERRAIN;
+struct D3FLMAP;
 struct D3OBJECT;
 struct VFSFILE;
 /* d3_interface.c types and globals: object creation / deletion API of the d3 engine and the scene switch.
@@ -30,7 +30,7 @@ void d3_AddChild(D3OBJECT *parent, D3OBJECT *obj);                              
 struct D3BGF *d3io_FindStock(char *name);                                                           /* 0x44c5d0 */
 void d3if_CreateCameras(void);                                                                /* 0x448910 */
 void d3_SetFog(float start, float end, D3COLOR color);                    /* 0x43a6f0, d3_engine.c */
-struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                                /* 0x45eeb0 */
+struct D3SM * d3sm_Create(struct D3FLMAP *t, int size, int mask);                                /* 0x45eeb0 */
 void d3sm_Destroy(struct D3SM *h);                                                          /* 0x45ef60 */
 struct TSTEXTURE; void tex_GetParams(struct TSTEXTURE *tex, unsigned char *opts, unsigned char *fmt);                                   /* 0x460aa0, ts_texture.c */
 
@@ -166,22 +166,9 @@ typedef struct D3IFLIGHT {
 } D3IFLIGHT;
 #define D3IF_LIGHT(o) ((D3IFLIGHT *)(o))
 
-/* d3_WriteMap writes these float fields as their bit pattern (the typed views are local to this unit: a union
-   in d3_fl.h's D3FLMAP / D3FLREGION, which d3_fl.c's byte functions use, is type debt). */
+/* d3_SaveScene writes float globals as their bit pattern through this view (d3_WriteMap's floats are int
+   members of D3FLMAP's / D3FLREGION's unions, d3_fl.h) */
 typedef union D3IFBITS { float f; int bits; } D3IFBITS;
-typedef struct D3IFREGION {         /* D3FLREGION, 0x158 bytes */
-    char pad000[0x0c];
-    D3IFBITS scrollSpeedU;          /* 0x0c */
-    D3IFBITS scrollSpeedV;          /* 0x10 */
-    D3IFBITS f14;                   /* 0x14 */
-    char pad018[0x140];
-} D3IFREGION;
-typedef struct D3IFMAP {            /* D3FLMAP, the fields the map writer serializes */
-    char pad000[0xa0];
-    D3IFBITS scale;                 /* 0xa0 */
-    char pad0a4[0x20];
-    D3IFBITS hscale;                /* 0xc4 */
-} D3IFMAP;
 
 extern int d3o_LightSet;            /* 0x5fbcfc, the current light set */
 extern int d3o_FogSet;              /* 0x5fbd00, the current fog set */

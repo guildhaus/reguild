@@ -1,7 +1,7 @@
 struct PATHOUT;
 struct PMAP;
 struct D3SCENE;
-struct D3TERRAIN;
+struct D3FLMAP;
 struct D3SM;
 /* Declarations of rd.c (0x4bc2e0..): places for animals (door dummies, free cells, dummy lookup), the
    vegetation map, roads. Names are ours. */
@@ -70,10 +70,10 @@ extern G15ROAD rd_Road;            /* 0xf81300 */
 extern G15TREE veg_Types[];          /* 0x602860 */
 extern int veg_NextId;                /* 0x6f0748, the next plant id */
 extern char ai_DataPath[];             /* 0x75dca0, the data path */
-extern void *d3_Terrain;              /* 0x633738, a height map with a transform at 0x90 (as d3.h / f3snd.h) */
+extern struct D3FLMAP *d3_Terrain;    /* 0x633738, d3_fl.c: the current terrain map */
 
 /* views of other units */
-struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                         /* 0x45eeb0 */
+struct D3SM * d3sm_Create(struct D3FLMAP *t, int size, int mask);                         /* 0x45eeb0 */
 struct D3FLMAP; void d3fl_MakeDivide(struct D3FLMAP *map);                                                 /* 0x441300, d3_fl.c */
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);                                          /* 0x447190, d3_interface.h */

@@ -11,6 +11,7 @@
 #include <d3d.h>
 #include "d3.h"
 #include "d3_sm.h"
+#include "d3_fl.h"
 #include "data_views.h"
 #include "d3_engine.h"
 #include "d3_vec.h"
@@ -25,9 +26,9 @@ char d3sm_GroundNames[15][9] = { "_ill*", "_unk*", "SAND", "ERDE", "WIESE", "MOO
 
 int d3sm_Ground[8] = {0};                   /* 0x633dd8, ground type per terrain material */
 D3SM *d3sm_Shadow = 0;                      /* 0x633df8 */
-D3TERRAIN *d3sm_Last = 0;                   /* 0x633dfc, terrain d3sm_Ground was built for */
+D3FLMAP *d3sm_Last = 0;                   /* 0x633dfc, terrain d3sm_Ground was built for */
 /* 0x45db40, ground type at (x, z) of the terrain */
-int d3sm_GetGround(unsigned int x, unsigned int z, D3TERRAIN *t)
+int d3sm_GetGround(unsigned int x, unsigned int z, D3FLMAP *t)
 {
     int idx, i, k;
 
@@ -37,9 +38,9 @@ int d3sm_GetGround(unsigned int x, unsigned int z, D3TERRAIN *t)
     if (d3sm_Last != t) {
         for (i = 0; i < 8; i++) {
             d3sm_Ground[i] = 1;
-            if (D3TERRAIN_NAMES(t)[i][0]) {
+            if (t->typenames[i][0]) {
                 for (k = 0; k < 15; k++) {
-                    if (strstr(strupr(D3TERRAIN_NAMES(t)[i]), d3sm_GroundNames[k])) {
+                    if (strstr(strupr(t->typenames[i]), d3sm_GroundNames[k])) {
                         d3sm_Ground[i] = k;
                         break;
                     }
@@ -57,9 +58,9 @@ int d3sm_GetGround(unsigned int x, unsigned int z, D3TERRAIN *t)
    the second), the average is int (cdq/sar) and the /5 unsigned (mul 0xcccccccd): kept in the unsigned
    sum; the halving loop is for (; step > 1; step >>= 1) (step = half was 34 ins worse). The step == 0
    branch now matches. Left: the init loop's heights / data address order (order 6 + regs 18 at 0x45de8a:
-   ours loads t->heights before the index, the original after) and the midpoint loop's strength-reduction
+   ours loads t->height before the index, the original after) and the midpoint loop's strength-reduction
    temps (slots and the IV update order at its end, code 61 at 0x45df90, 54 at 0x45e10d). Tried: 19
-   spellings of the init loop's heights / data index (t->heights[x + z * ts], pointer forms, step * (..)):
+   spellings of the init loop's heights / data index (t->height[x + z * ts], pointer forms, step * (..)):
    all = control; half = step / 2, while forms (= control or = the for form), (x + 1) * step instead of x *
    step + step (= control), all 720 orders of the three data stores and three type copies (the current
    order is best; p012354 166 ins) (tiebreak: insensitive, 32 samples) prior (its "allocation only" was wrong for the a/b/c/d locals):
@@ -70,7 +71,7 @@ int d3sm_GetGround(unsigned int x, unsigned int z, D3TERRAIN *t)
    by __ftol, count[15] ground-type vote, step-halving midpoint fill) are the same as the Ghidra
    pseudocode, readability already readable; restoring the original's allocation is byte work */
 
-void d3sm_Sample(D3TERRAIN *t, D3SM *h)
+void d3sm_Sample(D3FLMAP *t, D3SM *h)
 {
     unsigned int count[15];
     unsigned int n, ts, step, half, f, x, z, xx, zz, k, best, max, sum;
@@ -88,7 +89,7 @@ void d3sm_Sample(D3TERRAIN *t, D3SM *h)
                 sum = 0;
                 for (zz = z * f; zz < z * f + f; zz++) {
                     for (xx = x * f; xx < x * f + f; xx++)
-                        sum += (int)((t->heights[zz * ts + xx] * t->axisy.y + t->origin.y - h->origin.y) * inv);
+                        sum += (int)((t->height[zz * ts + xx] * t->hscale + t->orgy - h->origin.y) * inv);
                 }
                 h->data[z * n + x] = sum / (f * f);
                 D3_ZERO(count, sizeof(count));
@@ -114,7 +115,7 @@ void d3sm_Sample(D3TERRAIN *t, D3SM *h)
     }
     for (z = 0; z < ts; z++) {
         for (x = 0; x < ts; x++) {
-            h->data[(z * n + x) * step] = (int)((t->heights[z * ts + x] * t->axisy.y + t->origin.y - h->origin.y) * inv);
+            h->data[(z * n + x) * step] = (int)((t->height[z * ts + x] * t->hscale + t->orgy - h->origin.y) * inv);
             h->entries[(z * n + x) * step].type = d3sm_GetGround(x, z, t);
         }
     }
@@ -246,7 +247,7 @@ void d3sm_Replace(D3SM *h, int from, int to)
    frame 0x114, worse). Next: the mn/mx reference counts (the original packs mx with nrm densest, mn below
    box: something references mx more or mn less than our min/max macros do) (tiebreak: insensitive) */
 
-void d3sm_Build(D3SM *h, D3TERRAIN *t)
+void d3sm_Build(D3SM *h, D3FLMAP *t)
 {
     D3VECTOR pos, rot;
     D3VECTOR4 box[2];
@@ -254,7 +255,9 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
     int top, bot;
     int i, j, k, radius, last;
     D3TRI *tri;
-    D3SMBLOCK *blk;
+    unsigned char *hm;              /* @original: the walk is based at the tiles' height range (lea [t+0x13c], the
+                                       hmin of tiles[0][0], hmax at [+1], += 0x64); a D3FLTILE * walk bases at
+                                       the tile and reads [+0x5c] / [+0x5d] (4 ins more) */
     D3SMENTRY *e;
 
     if (!h || h->size <= 0 || !h->data || !d3_Camera)
@@ -288,34 +291,34 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
 
         top = 0;
         bot = 0xff;
-        blk = &t->blocks[0][0];
+        hm = &t->tiles[0][0].hmin;
         for (i = 8; i; i--) {
-            for (j = 8; j; j--, blk++) {
-                top = max(top, blk->hi);
-                bot = min(bot, blk->lo);
+            for (j = 8; j; j--, hm += sizeof(D3FLTILE)) {
+                top = max(top, hm[1]);
+                bot = min(bot, hm[0]);
             }
         }
-        x0 = bot * t->axisy.x + t->origin.x;
-        y0 = bot * t->axisy.y + t->origin.y;
-        z0 = bot * t->axisy.z + t->origin.z;
+        x0 = bot * t->yAxisX + t->orgx;
+        y0 = bot * t->hscale + t->orgy;
+        z0 = bot * t->yAxisZ + t->orgz;
         corner[0].x = x0;
         corner[0].y = y0;
         corner[0].z = z0;
         f = (float)t->size;
-        corner[1].x = (ax = f * t->axisx.x) + x0;
-        corner[1].y = (ay = f * t->axisx.y) + y0;
-        corner[1].z = (az = f * t->axisx.z) + z0;
-        corner[2].x = f * t->axisz.x + x0;
-        corner[2].y = f * t->axisz.y + y0;
-        corner[2].z = f * t->axisz.z + z0;
+        corner[1].x = (ax = f * t->scale) + x0;
+        corner[1].y = (ay = f * t->xAxisY) + y0;
+        corner[1].z = (az = f * t->xAxisZ) + z0;
+        corner[2].x = f * t->zAxisX + x0;
+        corner[2].y = f * t->zAxisY + y0;
+        corner[2].z = f * t->negScale + z0;
         corner[3].x = corner[2].x + ax;
         corner[3].y = corner[2].y + ay;
         corner[3].z = corner[2].z + az;
         f = (float)(top - bot);
         for (i = 0; i < 4; i++) {
-            corner[i + 4].x = f * t->axisy.x + corner[i].x;
-            corner[i + 4].y = f * t->axisy.y + corner[i].y;
-            corner[i + 4].z = f * t->axisy.z + corner[i].z;
+            corner[i + 4].x = f * t->yAxisX + corner[i].x;
+            corner[i + 4].y = f * t->hscale + corner[i].y;
+            corner[i + 4].z = f * t->yAxisZ + corner[i].z;
         }
         mn.x = 1e10f;
         mn.y = 1e10f;
@@ -426,7 +429,7 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
 }
 /* 0x45eeb0, size < 0: shadow map (no ground types) */
 
-D3SM *d3sm_Create(D3TERRAIN *t, int size, int mask)
+D3SM *d3sm_Create(D3FLMAP *t, int size, int mask)
 {
     D3SM *h, *ret = 0;
 

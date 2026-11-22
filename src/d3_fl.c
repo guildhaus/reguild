@@ -3019,7 +3019,7 @@ void d3fl_SetShift(D3FLMAP *map, unsigned char shift, char light)
 }
 
 D3VERTEX d3fl_Box[8] = {0};  /* 0x6334b8, result of d3fl_TileBox */
-void *d3_Terrain = 0;  /* 0x633738, the current scene's terrain map (a D3FLMAP; d3_sm.c / d3s.c read it as D3TERRAIN) */
+D3FLMAP *d3_Terrain = 0;  /* 0x633738, the current scene's terrain map */
 char d3fl_Mips = 0;  /* 0x63373c */
 char d3fl_MapShift = 0;  /* 0x63373d, texture shift copied into D3FLMAP.shift (d3fl_Init argument) */
 float d3fl_LightMargin = 0;  /* 0x633740, world units added to map->scale when a light's

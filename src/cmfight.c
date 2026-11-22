@@ -734,11 +734,11 @@ int cm_UpdateGrenades()
         d3t_CreateExplosion(0, (D3VECTOR *)&a, 0x1e, 70.0f, 50.0f, 20.0f, 60.0f, 0x3c);
         /* @original the cell index reads x through the table and y through rec: written this way VC6 keeps the
            index as one value for both arrays */
-        if (((D3FLMAP *)d3_Terrain)->types[cm_Grenades[i].x + rec->y * ((D3FLMAP *)d3_Terrain)->size] != 0) {
-            ((D3FLMAP *)d3_Terrain)->height[cm_Grenades[i].x + rec->y * ((D3FLMAP *)d3_Terrain)->size] -= 5;
-            ((D3FLMAP *)d3_Terrain)->types[rec->x + rec->y * ((D3FLMAP *)d3_Terrain)->size] = 0;
-            d3fl_MakeDivide((D3FLMAP *)d3_Terrain);
-            d3fl_MakeLight((D3FLMAP *)d3_Terrain);
+        if (d3_Terrain->types[cm_Grenades[i].x + rec->y * d3_Terrain->size] != 0) {
+            d3_Terrain->height[cm_Grenades[i].x + rec->y * d3_Terrain->size] -= 5;
+            d3_Terrain->types[rec->x + rec->y * d3_Terrain->size] = 0;
+            d3fl_MakeDivide(d3_Terrain);
+            d3fl_MakeLight(d3_Terrain);
         }
         sb_PlaySample(cm_BombSounds, "Explosion_s", 1, 0x3f, 0x7f, 0, 0);
         for (j = 0; j < 32; j++) {
@@ -1975,7 +1975,7 @@ void cm_SetupFightScene(G28REC *rec)
     }
     cm_BootsObject = d3io_LoadObjectRef("ub_STIEFEL", "ub_STIEFEL");
     if (sc == 0) {
-        d3_DefaultScene->hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain,
+        d3_DefaultScene->hmap = d3sm_Create(d3_Terrain,
                                                              d3_DefaultScene->mapSize, 2);
         sc = (D3SM *)d3_DefaultScene->hmap;
     }
@@ -2076,7 +2076,7 @@ void cm_SetupFightScene(G28REC *rec)
                 d3if_ShowTree(o, 0);
         }
     }
-    d3sm_Build((struct D3SM *)d3_DefaultScene->hmap, (struct D3TERRAIN *)d3_Terrain);
+    d3sm_Build((struct D3SM *)d3_DefaultScene->hmap, d3_Terrain);
     for (i = 0; i < border; i++) {
         for (k = i; k < sc->size; k++) {
             sc->entries[(sc->size - 1) * i + k].type = 0xd;

@@ -1,7 +1,7 @@
 struct GVRAISE;
 struct D3PARTSYS;
 struct D3COLOR;
-struct D3TERRAIN;
+struct D3FLMAP;
 struct D3SM;
 struct AMTAPP;
 struct AMTMSG;
@@ -359,7 +359,7 @@ extern signed char ai_MissionMode;  /* 0x624580 */
 extern unsigned char ai_NumPlayers;  /* 0x62489c */
 extern int ai_MissionPartner;  /* 0x6248a0, the netId of the other player in a network mission (-1 none; set by message 8, cleared by 10) */
 extern struct D3SCENE *ch_Saved0;  /* 0x631084 */
-extern void *d3_Terrain;  /* 0x633738, d3_fl.c: the current terrain map */
+extern struct D3FLMAP *d3_Terrain;  /* 0x633738, d3_fl.c: the current terrain map */
 extern int ai_TradeMsgCount;  /* 0x6f046c */
 extern int cm_NoticeCount;  /* 0x6f0cd4 */
 extern int ai_GameFlags;  /* 0x6f23f8 */
@@ -373,7 +373,7 @@ extern CRIME ai_Crimes[0x200];  /* 0x91f700, the crime records */
 extern CMCUTINFO cm_CutInfos[16];  /* 0x92cae0, the cutscene (fight) records */
 extern int cm_DayEndRequest;  /* 0xf31144 */
 extern int hst_SeedPending;  /* 0xf83650 */
-struct D3SM; struct D3TERRAIN; void d3sm_Build(struct D3SM *h, struct D3TERRAIN *t);  /* 0x45e620, d3_sm.c: void d3sm_Build(D3SM *, D3TERRAIN *) */
+struct D3SM; struct D3FLMAP; void d3sm_Build(struct D3SM *h, struct D3FLMAP *t);  /* 0x45e620, d3_sm.c: void d3sm_Build(D3SM *, D3FLMAP *) */
 void hmt_SetPendingElection(int v);  /* 0x4ad1b0 */
 
 struct CHACTION * ch_AddAction(struct CHARACTER *ch, unsigned int type, ...);  /* 0x40b2f0, ch.h ch_AddAction */
@@ -603,7 +603,7 @@ struct SBBANK *snd_LoadVoiceBank(char *name, int a);  /* 0x4c2830 */
 void cm_LoadEventScene(char *name);  /* 0x4e2e60, loads the scene file name into a free scene and fades it in */
 void cm_ApplySeason(void);  /* 0x4e3650 */
 void d3sky_Init(struct D3SKY *s, char build);  /* 0x45d690 */
-struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);  /* 0x45eeb0, d3_sm.h */
+struct D3SM * d3sm_Create(struct D3FLMAP *t, int size, int mask);  /* 0x45eeb0, d3_sm.h */
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
 int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0, f3gm.h (not includable here, cm.c lead comment) */
 extern struct AICHAR *cm_FightDefender;  /* 0x6f0ce8, the defending side's leader */

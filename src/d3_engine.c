@@ -68,7 +68,7 @@ void dd_Clear(D3RECT *rect, unsigned char r, unsigned char g, unsigned char b); 
    into one address while the readers start from another. */
 extern D3INITCFG d3_Cfg;
 extern D3PARTSYS d3_ParEnd;
-void d3fl_FreeMap(struct D3FLMAP *map);     /* 0x43ff90, d3_fl.c (d3.h types d3_Terrain as void *) */
+void d3fl_FreeMap(struct D3FLMAP *map);     /* 0x43ff90, d3_fl.c */
 /* 0x438c30, the next sibling that starts a new group (state bit 0), for top-level objects. */
 D3OBJECT *d3_NextGroup(D3OBJECT *obj)
 {
@@ -1194,7 +1194,7 @@ void d3_UpdateAll(unsigned char full)
     if (d3_Sky)
         d3sky_Init(d3_Sky, 0);
     if (d3_Terrain)
-        ((unsigned char *)d3_Terrain)[0x1c70] |= 1;
+        d3_Terrain->dirty = 1;
     if (d3s_Object && d3s_Object->material) {
         D3_MESH(d3s_Object)->surf[0].ntris = 0;
         D3_MESH(d3s_Object)->surf[0].nkeys = 0;

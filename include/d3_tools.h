@@ -7,7 +7,7 @@
 struct D3OBJECT;
 struct D3VECTOR;
 struct D3SCENE;
-struct D3TMAP;
+struct D3FLMAP;
 struct D3HQUERY;
 struct D3PATH;
 struct D3TRAIN;
@@ -78,9 +78,9 @@ void d3t_UpdateCamera(void);                                                    
 int d3t_GetHeightRange(struct D3OBJECT *obj, float *lo, float *hi);                     /* 0x411c70, height range of a mesh's bounding box */
 int d3t_GetFootprint(struct D3OBJECT *obj, float t, struct D3VECTOR *c0, struct D3VECTOR *c1, struct D3VECTOR *c2, struct D3VECTOR *c3); /* 0x411d10, the four lower corners of the box around the mesh keys up to time t */
 char d3t_GetBoundingSphere(struct D3OBJECT *obj, struct D3OBJECT *camera, struct D3VECTOR *center, float *radius); /* 0x411eb0, center and radius of a mesh's 8-corner box as seen from the camera */
-int d3t_GetRowRange(struct D3TMAP *map, int *lo, int *hi, int x0, int x1, int y);       /* 0x412000, value range of row y between columns x0 and x1 */
-int d3t_GetTriRange(struct D3TMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c); /* 0x412090, height range of the map under the triangle a, b, c (x/z in world */
-int d3t_GetQuadRange(struct D3TMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c, struct D3VECTOR *d); /* 0x412480, height range of the map under the quad a, b, c, d */
+int d3t_GetRowRange(struct D3FLMAP *map, int *lo, int *hi, int x0, int x1, int y);       /* 0x412000, value range of row y between columns x0 and x1 */
+int d3t_GetTriRange(struct D3FLMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c); /* 0x412090, height range of the map under the triangle a, b, c (x/z in world */
+int d3t_GetQuadRange(struct D3FLMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c, struct D3VECTOR *d); /* 0x412480, height range of the map under the quad a, b, c, d */
 float d3t_GetMeanHeight(struct D3VECTOR *pos);                                          /* 0x412550, mean terrain height over the 8x8 cells around pos */
 int d3t_InTriBox(struct D3VERTEX **tri, struct D3VECTOR *a, struct D3VECTOR *b);                      /* 0x412640, does the triangle's bounding box overlap the box a..b in x/z and */
 int d3t_QueryHeight(struct D3HQUERY *q, struct D3OBJECT *obj);                                 /* 0x412800, widens q->lo/hi by the triangles of obj and its children that lie in */

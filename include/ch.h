@@ -3,7 +3,7 @@ struct D3FLMAP;
 struct SBSAMPLE;
 struct SBBANK;
 struct D3VECTOR;
-struct D3TERRAIN;
+struct D3FLMAP;
 struct D3SM;
 struct D3SURF;
 /* ch.c -- characters ("ch_SetVisible(): invalid character", "ch_Create:Too many characters!"),
@@ -142,7 +142,7 @@ char d3if_ShowTree(D3OBJECT *obj, char show);                                   
 void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                           /* 0x458810 */
 float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b);                                            /* 0x4539f0 */
 extern const D3VECTOR4 d3_ZAxis;             /* 0x5ebb74, (0, 0, 1) */
-struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                          /* 0x45eeb0 */
+struct D3SM * d3sm_Create(struct D3FLMAP *t, int size, int mask);                          /* 0x45eeb0 */
 void err_Message(char *msg);                                                            /* 0x4222b0 */
 int d3t_ReleaseObjectTextures(D3OBJECT *obj);                                           /* 0x411b70 */
 int sv_ReturnZero(void);                                                       /* 0x52a040 */

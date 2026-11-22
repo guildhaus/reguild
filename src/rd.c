@@ -216,7 +216,7 @@ void veg_LoadModel(G15PLANT *q, int fall)
     G15TREE *t;
     int n;
     D3OBJECT *o;
-    D3TERRAIN *tr;
+    D3FLMAP *tr;
     D3VECTOR pos;
     char path[0x100];
     char buf[0x100];
@@ -245,18 +245,18 @@ void veg_LoadModel(G15PLANT *q, int fall)
     o->mask = 1;
     tr = d3_Terrain;
     if (tr != 0) {
-        pos.x = tr->origin.x;
-        pos.y = tr->origin.y;
-        pos.z = tr->origin.z;
-        pos.x += q->x * tr->axisx.x;
-        pos.y += q->x * tr->axisx.y;
-        pos.z += q->x * tr->axisx.z;
-        pos.x += q->z * tr->axisz.x;
-        pos.y += q->z * tr->axisz.y;
-        pos.z += q->z * tr->axisz.z;
-        pos.x += tr->heights[q->z * tr->size + q->x] * tr->axisy.x;
-        pos.y += tr->heights[q->z * tr->size + q->x] * tr->axisy.y;
-        pos.z += tr->heights[q->z * tr->size + q->x] * tr->axisy.z;
+        pos.x = tr->orgx;
+        pos.y = tr->orgy;
+        pos.z = tr->orgz;
+        pos.x += q->x * tr->scale;
+        pos.y += q->x * tr->xAxisY;
+        pos.z += q->x * tr->xAxisZ;
+        pos.x += q->z * tr->zAxisX;
+        pos.y += q->z * tr->zAxisY;
+        pos.z += q->z * tr->negScale;
+        pos.x += tr->height[q->z * tr->size + q->x] * tr->yAxisX;
+        pos.y += tr->height[q->z * tr->size + q->x] * tr->hscale;
+        pos.z += tr->height[q->z * tr->size + q->x] * tr->yAxisZ;
         d3_SetObjectPos(o, &pos);
     }
     d3_RelightObjects(o);
@@ -334,7 +334,7 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
     rd_Road.map = ai_MapRefs;
     if (ai_MapRefs == 0)
         return 0;
-    rd_Road.grid = d3sm_Create((struct D3TERRAIN *)ai_MapRefs, ai_MapRefs->size, 2);
+    rd_Road.grid = d3sm_Create(ai_MapRefs, ai_MapRefs->size, 2);
     if (rd_Road.grid == 0)
         return 0;
     rd_Road.prunk = -1;

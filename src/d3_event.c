@@ -67,7 +67,7 @@
    into one address while the readers start from another. */
 extern D3INITCFG d3_Cfg;
 extern D3PARTSYS d3_ParEnd;
-void d3fl_FreeMap(struct D3FLMAP *map);     /* 0x43ff90, d3_fl.c (d3.h types d3_Terrain as void *) */
+void d3fl_FreeMap(struct D3FLMAP *map);     /* 0x43ff90, d3_fl.c */
 
 int d3e_NoHandler(void *obj, int id, char *name, int arg);  /* the unlinked handler at the end (ai_AlwaysTrue in the exe) */
 

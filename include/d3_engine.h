@@ -113,7 +113,7 @@ void d3_SetFogRange(float start, float end);                                    
 void d3_SetViewport(float w, float h, float x, float y, float zn, float zf, float scale, int a, int b); /* 0x43b950 */
 void d3_FreeObjectData(D3OBJECT *obj);                                                  /* 0x43c670 */
 void d3fl_Inflate(struct D3FLMAP *map);                                                 /* 0x441ea0, d3_fl.c */
-struct D3SM; struct D3TERRAIN; void d3sm_Build(struct D3SM *h, struct D3TERRAIN *t);                                                    /* 0x45e620, d3_sm.c: void d3sm_Build(D3SM *, D3TERRAIN *) */
+struct D3SM; struct D3FLMAP; void d3sm_Build(struct D3SM *h, struct D3FLMAP *t);                                                    /* 0x45e620, d3_sm.c: void d3sm_Build(D3SM *, D3FLMAP *) */
 void d3_AttachMesh(D3OBJECT *obj, struct D3SURF *surf, char *name);                                  /* 0x44cbb0 */
 struct D3BGF *d3io_LoadObject(char *a, char *b);                                         /* 0x44e080, d3_io_t.c (d3io_LoadObject; d3_io_t.h declares it too) */
 

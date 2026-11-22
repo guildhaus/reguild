@@ -1586,9 +1586,9 @@ void d3_WriteMap(VFSFILE *f, D3FLMAP *map)
                 bio_wr_c(f, map->regions[i].flags.b[1]);
                 bio_wr_c(f, map->regions[i].flags.b[2] & 1);
                 bio_wr_c(f, map->regions[i].flags.b[2] >> 1 & 1);
-                bio_wr_i(f, ((D3IFREGION *)map->regions)[i].f14.bits);
-                bio_wr_i(f, ((D3IFREGION *)map->regions)[i].scrollSpeedU.bits);
-                bio_wr_i(f, ((D3IFREGION *)map->regions)[i].scrollSpeedV.bits);
+                bio_wr_i(f, map->regions[i].f14Bits);
+                bio_wr_i(f, map->regions[i].scrollSpeedUBits);
+                bio_wr_i(f, map->regions[i].scrollSpeedVBits);
                 bio_wr_v4(f, map->regions[i].speed);
                 bio_wr_v4(f, map->regions[i].amp);
                 bio_wr_i(f, map->regions[i].water);
@@ -1601,8 +1601,8 @@ void d3_WriteMap(VFSFILE *f, D3FLMAP *map)
         bio_wr_array(f, map->size, map->size, map->types);
     for (i = 0; i < 8; i++)
         bio_wr_s(f, map->typenames[i]);
-    bio_wr_i(f, ((D3IFMAP *)map)->scale.bits);
-    bio_wr_i(f, ((D3IFMAP *)map)->hscale.bits);
+    bio_wr_i(f, map->scaleBits);
+    bio_wr_i(f, map->hscaleBits);
     bio_wr_v3(f, &map->orgx);
 }
 /* 0x44a9e0, maps a scene file version (d3_SaveScene writes 0x3a6c00bb) to a format level 0 / 4 / 6 / 7;

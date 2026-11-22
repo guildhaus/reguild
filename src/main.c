@@ -1927,7 +1927,7 @@ int main_ChooseFamily(int unused)
         d3_DefaultScene->events[4].fn(d3_DefaultScene, 4, d3_DefaultScene->events[4].name, 0);
     scene = evt_LastId;
     if (d3_Terrain != 0)
-        ((D3FLMAP *)d3_Terrain)->lod = 2;
+        d3_Terrain->lod = 2;
     o1 = main_PlaceFamilyModel("dummy_NACHT_UND_NEBEL_MANN", "dieb_MANN2", 0);
     o2 = main_PlaceFamilyModel("dummy_NACHT_UND_NEBEL_FRAU", "zigeunerin_FRAU", 8);
     o3 = main_PlaceFamilyModel("dummy_HANDWERKSKUNST_MANN", "handwerker_MANN", 1);

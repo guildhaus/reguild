@@ -1,7 +1,6 @@
 /* ls.c -- the save game (0x519010 ..): the tag "ls_" ("ls:tmp" 0x623654, "ls_LoadCharacter(): invalid next or prev-action pointer ...", "ls_SendGame"), the language number of a name (0x519010: the table "GERMAN" .. 0x5ee978), the save game writer 0x5190b0 (header 0x5194c0: "SCENARIO", the player, the party records and the screen shot of 0xe100 bytes, then one writer per subsystem), the pointer <-> index conversions before / after a save (0x519a00 / 0x519aa0 / 0x519b50) and the other writers (0x519bf0 ..), the readers (0x51c950 ..) and the network send / receive of a save game (0x520a30 / 0x520b80). The unit starts at its first global 0x62364c (the language number, -1); its strings run to "ls_SendGame" 0x62376c / "rbn" 0x623778, and it ends at 0x520ec0, sv.c's first function. Names are ours.
    unit of rea 8cef7d5b (src/game/ls.c); boundaries in decl/text.dcl */
 struct D3SM;
-struct D3TERRAIN;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1402,14 +1401,14 @@ int ls_LoadScene(VFSFILE *f)
     d3_LoadScene(0, f, main_LoadProgressCallback);
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
-    if (((D3FLMAP *)d3_Terrain)->size == 0x80 || ((D3FLMAP *)d3_Terrain)->size != 0x40)
-        d3_Scenes[0].hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x100, 2);
+    if (d3_Terrain->size == 0x80 || d3_Terrain->size != 0x40)
+        d3_Scenes[0].hmap = d3sm_Create(d3_Terrain, 0x100, 2);
     else
-        d3_Scenes[0].hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x80, 2);
+        d3_Scenes[0].hmap = d3sm_Create(d3_Terrain, 0x80, 2);
     saved = d3_CurrentScene;
     d3if_SelectScene(0, 0);
     if (d3_Terrain != 0) {
-        ((D3FLMAP *)d3_Terrain)->lod = init_Detail;
+        d3_Terrain->lod = init_Detail;
         d3fl_SetDetail(0x80);
     }
     d3_ForEachObject2(d3_DefaultScene, 0, 0x1c0, (void (*)(D3OBJECT *))ls_HookBuildingCB);

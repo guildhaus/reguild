@@ -121,7 +121,7 @@ void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *f); /* 0x4535b0 */
 void d3_FrameNormals(D3OBJECT *obj, D3SURF *info, struct D3ANIMFRAME *f);              /* 0x459980, f: key frame (d3_anim.h) */
 char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*cb)(D3OBJECT *obj)); /* 0x438e60 */
 struct D3FLMAP;
-void d3fl_MakeLight(struct D3FLMAP *map);   /* 0x441860 (d3_fl.c; d3_light.c passes d3_Terrain, a void *) */
+void d3fl_MakeLight(struct D3FLMAP *map);   /* 0x441860 (d3_fl.c) */
 void d3_LightInvalidate(unsigned char on);  /* 0x4538a0 (d3_engine.h: d3_LightInvalidate(int)) */
 
 #endif

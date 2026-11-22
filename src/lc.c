@@ -9498,10 +9498,10 @@ void ai_EnterOwnBuilding(AIBLD *b)
         d3_InflateScene(3);
         if (d3_Terrain != 0) {
             if (ai_GfxFloorLod == 2) {
-                ((D3FLMAP *)d3_Terrain)->lod = 1;
+                d3_Terrain->lod = 1;
                 d3fl_SetDetail(0x40);
             } else {
-                ((D3FLMAP *)d3_Terrain)->lod = 2;
+                d3_Terrain->lod = 2;
                 d3fl_SetDetail(0x40);
             }
         }

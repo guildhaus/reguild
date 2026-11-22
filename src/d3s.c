@@ -4,7 +4,6 @@
    the object shadows. The start at 0x459d80 follows the mesh code of d3_vtx.c (d3_GetBoxVerts ends at
    0x459d80); the end is proven by d3_sky.c, whose first D3DCHECK is at line 38 of that file.
    Functions are kept in their original order. Names are ours.
-   Open: d3s.h's D3STERR / D3STBLOCK are local views of D3TERRAIN / D3SMBLOCK (d3_sm.h); D3TERRAIN lacks mip.
    unit of rea 8cef7d5b (src/game/d3s.c); boundaries in decl/text.dcl */
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +14,7 @@
 #include "d3.h"
 #include "d3_d3d.h"
 #include "d3_sm.h"
+#include "d3_fl.h"
 #include "d3s.h"
 #include "data_views.h"
 #include "d3_light.h"
@@ -646,7 +646,7 @@ void d3_ExitShadows(void)
    or call found in the hunks read; the original's slot map (rect in ebp, buf in ebx, uv reloaded from
    memory, the hoisted products in float slots) is what a deep round needs */
 
-char d3s_TerrainShadowMesh(D3STERR *g, int *rect, float *uv, D3SBUF *buf, struct TSTEXTURE *tex, unsigned long color)
+char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct TSTEXTURE *tex, unsigned long color)
 {
     D3VECTOR4 o, p;
     float d[4];
@@ -662,34 +662,34 @@ char d3s_TerrainShadowMesh(D3STERR *g, int *rect, float *uv, D3SBUF *buf, struct
     char drew;
     unsigned char lod;
 
-    o.x = g->origin.x;
-    o.y = g->origin.y;
-    o.z = g->origin.z;
-    cx = g->axisx.x;
-    cy = g->axisy.y;
-    heights = g->heights;
-    cz = g->axisz.z;
+    o.x = g->orgx;
+    o.y = g->orgy;
+    o.z = g->orgz;
+    cx = g->scale;
+    cy = g->hscale;
+    heights = g->height;
+    cz = g->negScale;
     stride = g->size;
-    bz1 = rect[3] / (int)g->bs;
+    bz1 = rect[3] / g->n;
     drew = 0;
-    bx1 = rect[1] / (int)g->bs;
-    bx0 = rect[0] / (int)g->bs;
+    bx1 = rect[1] / g->n;
+    bx0 = rect[0] / g->n;
     vcur = uv[2];
     z = rect[2];
-    for (bz = z / (int)g->bs, nz = bz + 1; bz <= bz1; bz++, nz++) {
+    for (bz = z / g->n, nz = bz + 1; bz <= bz1; bz++, nz++) {
         if (bz == bz1)
             zend = rect[3];
         else
-            zend = nz * g->bs;
+            zend = nz * g->n;
         x = rect[0];
         ucur = uv[0];
         for (bx = bx0; bx <= bx1; ) {
-            if (bz >= 0 && bz < 8 && bx >= 0 && bx < 8 && (lod = g->blocks[bz][bx].lod) > 0) {
+            if (bz >= 0 && bz < 8 && bx >= 0 && bx < 8 && (lod = g->tiles[bz][bx].lodLevel) > 0) {
                 step = lod;
                 rowskip = stride / step;
                 fstep = (float)step;
                 drew = 1;
-                mip = g->mip[step >> 1];
+                mip = g->divide[step >> 1];
                 d[1] = fstep * uv[1];
                 d[3] = fstep * uv[3];
                 cxs = cx * fstep;
@@ -697,7 +697,7 @@ char d3s_TerrainShadowMesh(D3STERR *g, int *rect, float *uv, D3SBUF *buf, struct
                 if (bx == bx1)
                     xend = rect[1];
                 else
-                    xend = (bx + 1) * g->bs;
+                    xend = (bx + 1) * g->n;
                 p.x = (float)x * cx + o.x;
                 poly = buf->polys + buf->npolys;
                 pos = d3s_Verts + d3s_NumVerts * 6;
@@ -786,11 +786,11 @@ char d3s_TerrainShadowMesh(D3STERR *g, int *rect, float *uv, D3SBUF *buf, struct
                 }
             }
             bx++;
-            ucur = (float)(bx * (int)g->bs - x) * uv[1] + ucur;
-            x = (x + (int)g->bs) / (int)g->bs * g->bs;
+            ucur = (float)(bx * g->n - x) * uv[1] + ucur;
+            x = (x + g->n) / g->n * g->n;
         }
-        vcur = (float)(nz * (int)g->bs - z) * uv[3] + vcur;
-        z = (z + (int)g->bs) / (int)g->bs * g->bs;
+        vcur = (float)(nz * g->n - z) * uv[3] + vcur;
+        z = (z + g->n) / g->n * g->n;
     }
     return drew;
 }
@@ -958,7 +958,7 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
    floats through the FPU as the original does (likely a macro's parentheses); v0, du and dv start from the shared
    ai_FloatZero / ai_FloatOne objects as in the original */
 
-char d3s_AddShadow(D3SSLOT *slot, D3STERR *grid)
+char d3s_AddShadow(D3SSLOT *slot, D3FLMAP *grid)
 {
     D3SBUF *buf;
     D3SPOLY *p;
@@ -1016,7 +1016,7 @@ char d3s_AddShadow(D3SSLOT *slot, D3STERR *grid)
                 rect[2] = z0;
                 rect[3] = z1;
                 if (grid) {
-                    if (buf->nverts + (w / (int)grid->bs + 1) * h + (h / (int)grid->bs + 1) * w + n
+                    if (buf->nverts + (w / grid->n + 1) * h + (h / grid->n + 1) * w + n
                         < (d3s_MaxPolys >> 4) * 25)
                         ok = d3s_TerrainShadowMesh(grid, rect, uv, buf, tex, col.d);
                 } else
@@ -1137,7 +1137,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
    (tiebreak: not measured (dcp headers sample d3s_Project)) prior: Read whole against the original and
    rebuilt: branch order (simple first, directional light first, terrain before d3sm_Shadow), 1/-ldir->y
    hoisted via inv = -ldir->y, one D3VECTOR for the position and the light vector (stored like the
-   original), clamped cells into locals before the divisions by the new D3TERRAIN.bs, iz0 from z1 and iz1
+   original), clamped cells into locals before the divisions by the new D3FLMAP.n, iz0 from z1 and iz1
    from z0 as the original does, sx/sz scale hoisted, mesh->mesh->Transform, typed d3sm_Shadow (D3SM) and
    D3SVERT tu/tv. ours=609 original=609 instructions. Left: allocation - the original keeps obj in ebp,
    mesh in ebx, ldir in edi and 0 in ebp for the compares (cmp edi, ebp at +0x27c), y at [esp+0x10] in its
@@ -1145,7 +1145,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
    +0x6d3 load in another order; mh in ebp at +0x3f6 where ours keeps [esp+0x4c]; the head schedule
    (d3s_Count++ before the dir copy). */
 
-void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECTOR *ldir,
+void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR *ldir,
                  D3VECTOR *lpos, D3OBJECT *light, D3SSLOT *slot)
 {
     struct TSTEXTURE *tex = slot->tex;
@@ -1212,10 +1212,10 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
     slot->size = 0;
     if (d3s_Enabled) {
         if (t && !slot->simple) {
-            slot->ix0 = (int)((x0 - t->origin.x) / t->axisx.x);
-            slot->ix1 = (int)((x1 - t->origin.x) / t->axisx.x + 1.0);
-            slot->iz0 = (int)((z1 - t->origin.z) / t->axisz.z);
-            slot->iz1 = (int)((z0 - t->origin.z) / t->axisz.z + 1.0);
+            slot->ix0 = (int)((x0 - t->orgx) / t->scale);
+            slot->ix1 = (int)((x1 - t->orgx) / t->scale + 1.0);
+            slot->iz0 = (int)((z1 - t->orgz) / t->negScale);
+            slot->iz1 = (int)((z0 - t->orgz) / t->negScale + 1.0);
             size = t->size;
             if (slot->ix0 < size && slot->ix1 > 0 && slot->iz0 < size && slot->iz1 > 0) {
                 mh = 0;
@@ -1223,13 +1223,13 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
                 cx1 = min(size - 1, slot->ix1);
                 cz0 = max(0, slot->iz0);
                 cz1 = min(size - 1, slot->iz1);
-                slot->bx0 = cx0 / t->bs;
-                slot->bx1 = cx1 / t->bs;
-                slot->bz0 = cz0 / t->bs;
-                slot->bz1 = cz1 / t->bs;
+                slot->bx0 = cx0 / t->n;
+                slot->bx1 = cx1 / t->n;
+                slot->bz0 = cz0 / t->n;
+                slot->bz1 = cz1 / t->n;
                 for (k = slot->bz0; k <= slot->bz1; k++)
                     for (i = slot->bx0; i <= slot->bx1; i++)
-                        mh = max(mh, t->blocks[k][i].lod);
+                        mh = max(mh, t->tiles[k][i].lodLevel);
                 slot->maxh = mh;
                 if (mh > 1) {
                     m = ~(mh - 1);
@@ -1240,18 +1240,18 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
                     if (slot->iz1 & mh - 1)
                         slot->iz1 = slot->iz1 + mh & m;
                 }
-                slot->map = t->heights;
+                slot->map = t->height;
                 slot->size = t->size;
-                slot->cell.x = t->axisx.x;
-                slot->cell.y = t->axisy.y;
-                slot->cell.z = t->axisz.z;
-                slot->origin.x = t->origin.x;
-                slot->origin.y = t->origin.y;
-                slot->origin.z = t->origin.z;
-                x0 = slot->ix0 * t->axisx.x + t->origin.x;
-                x1 = slot->ix1 * t->axisx.x + t->origin.x;
-                z0 = slot->iz0 * t->axisz.z + t->origin.z;
-                z1 = slot->iz1 * t->axisz.z + t->origin.z;
+                slot->cell.x = t->scale;
+                slot->cell.y = t->hscale;
+                slot->cell.z = t->negScale;
+                slot->origin.x = t->orgx;
+                slot->origin.y = t->orgy;
+                slot->origin.z = t->orgz;
+                x0 = slot->ix0 * t->scale + t->orgx;
+                x1 = slot->ix1 * t->scale + t->orgx;
+                z0 = slot->iz0 * t->negScale + t->orgz;
+                z1 = slot->iz1 * t->negScale + t->orgz;
             }
         } else if (d3sm_Shadow && !slot->simple) {
             slot->ix0 = (int)((x0 - d3sm_Shadow->origin.x) / d3sm_Shadow->cell.x);
@@ -1303,7 +1303,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
 }
 /* 0x45c620, updates the shadow of obj cast by light */
 
-char d3s_Update(D3OBJECT *obj, D3OBJECT *light, D3TERRAIN *t)
+char d3s_Update(D3OBJECT *obj, D3OBJECT *light, D3FLMAP *t)
 {
     D3SSLOT *slot = 0;
     D3SURF *info, *mesh;
@@ -1386,7 +1386,7 @@ found:
                 mh = 0;
                 for (; j <= slot->bz1; j++)
                     for (i = slot->bx0; i <= slot->bx1; i++)
-                        mh = max(mh, t->blocks[j][i].lod);
+                        mh = max(mh, t->tiles[j][i].lodLevel);
                 if (!mh)
                     return 0;
                 if (mh != slot->maxh)
@@ -1424,7 +1424,7 @@ void d3s_UpdateObject(D3OBJECT *obj)
 
     if (obj->objectFlags & 4) {
         for (i = 0; i < d3s_NumLights; i++)
-            d3s_Update(obj, d3s_Lights[i], (D3TERRAIN *)d3_Terrain);
+            d3s_Update(obj, d3s_Lights[i], d3_Terrain);
     }
 }
 /* 0x45ca60, makes the shadows of obj: projects its box along each shadow light onto the ground, and updates
@@ -1478,7 +1478,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         }
         if (!(d3_ClipBox(verts, 0, 0) & 0x40)) {
             obj->flags |= 2;
-            d3s_Update(obj, light, (D3TERRAIN *)d3_Terrain);
+            d3s_Update(obj, light, d3_Terrain);
         }
     }
 }

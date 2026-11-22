@@ -95,7 +95,7 @@ extern struct AIOBJ *sv_PanelShown;                /* 0x6f2310, its room */
 extern void *snd_AtmoTrack;              /* 0x6f0ba0, the atmosphere mp3 (MSXTRACK *) */
 extern int d3_CurrentScene;             /* 0x633444 */        /* 0x602ba8 */
 extern char snd_GustNames[3][0x32];     /* 0x602b10, "Boehe_Leicht_s", "Boehe_Mittel_s", "Boehe_Stark_s" */
-extern void *d3_Terrain;                /* 0x633738 */
+extern struct D3FLMAP *d3_Terrain;      /* 0x633738, d3_fl.c: the current terrain map */
 extern unsigned char snd_AmbientOn;     /* 0x6f0b60, 1: ambient sounds on */
 extern int snd_Season;                  /* 0x6f0b8c, the season */
 extern unsigned int snd_LastGust;       /* 0x6f0b90, time of the last gust */

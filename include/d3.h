@@ -577,7 +577,7 @@ void d3_EndScene(void);                                                         
 
 struct TSTEXTURE; extern struct TSTEXTURE *d3_Textures;  /* 0xfb9074, the texture slots (ts_texture.h's TSTEXTURE) */
 extern unsigned int d3_TexCount;            /* 0xfb9084 */
-extern void *d3_Terrain;                  /* 0x633738 */
+extern struct D3FLMAP *d3_Terrain;        /* 0x633738, d3_fl.c: the current terrain map */
 
 struct TSTEXTURE; struct TSTEXTURE *tex_Load(char *name, D3TEXFLAGS flags, unsigned char opts, unsigned char fmt);  /* 0x4605c0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
 void d3_SetObjectAlpha(D3OBJECT *obj, struct D3SURF *info, D3TEXFLAGS f);           /* 0x43d430, f.b[0] = alpha */

@@ -65,29 +65,6 @@ typedef struct D3SBUF {             /* the shadow mesh being built: the shadow o
     int npolys;                     /* 0x0c (0x100) */
 } D3SBUF;
 
-typedef struct D3STBLOCK {          /* 0x64 bytes, 8x8 of them in a terrain (d3_sm.h: D3SMBLOCK, which lacks lod) */
-    unsigned char lo, hi;           /* height range */
-    unsigned char lod;              /* 0x02, sample step of the block (1, 2, 4, 8); 0 = not drawn */
-    char pad03[0x61];
-} D3STBLOCK;
-
-typedef struct D3STERR {            /* the parts of a terrain (d3_sm.h: D3TERRAIN, which lacks bs / mip / lod) used by
-                                       the shadow mesh builder */
-    unsigned int size;              /* 0x00 */
-    unsigned int bs;                /* 0x04, block size in cells */
-    char pad08[8];
-    unsigned char *heights;         /* 0x10 */
-    char pad14[0x10];
-    unsigned char *mip[8];          /* 0x24, heights at lod 1, 2, 4, 8 live at mip[lod >> 1] */
-    char pad44[0x4c];
-    D3VECTOR4 origin;               /* 0x90 */
-    D3VECTOR4 axisx;                /* 0xa0 */
-    D3VECTOR4 axisz;                /* 0xb0 */
-    D3VECTOR4 axisy;                /* 0xc0 */
-    char pad0d0[0x6c];
-    D3STBLOCK blocks[8][8];         /* 0x13c */
-} D3STERR;
-
 /* declared in other units' headers before (moved to the owner) */
 void d3_ExitShadows(void);  /* 0x45aee0 */
 void d3_InitShadows(unsigned int size, unsigned int maxsize, int ncache, int age, char mips, int polys, int mapsize);  /* 0x45ad80 */

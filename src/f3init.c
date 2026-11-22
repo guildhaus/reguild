@@ -11,7 +11,6 @@ struct D3OBJECT;
 struct D3SURF;
 struct VFSDIR;
 struct D3SM;
-struct D3TERRAIN;
 #include "txt_views.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -2040,9 +2039,9 @@ int init_InitTown(char *city)
     }
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
-    if (((D3TERRAIN *)d3_Terrain)->size == 0x80)
+    if (d3_Terrain->size == 0x80)
         d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x100, 2);
-    else if (((D3TERRAIN *)d3_Terrain)->size == 0x40)
+    else if (d3_Terrain->size == 0x40)
         d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x80, 2);
     else
         d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x100, 2);
@@ -3033,7 +3032,7 @@ void init_SetSeasonTextures(void)
         while (!found) {
             if (i >= 8)
                 break;
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0 && strstr(nm, "_SNOW") != 0)
                 found = 1;
             i++;
@@ -3041,16 +3040,16 @@ void init_SetSeasonTextures(void)
         if (found)
             return;
         for (i = 0; i < 8; i++) {
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0) {
                 strcpy(a, nm);
                 if ((u = strstr(a, "_FRUEHLING")) != 0 || (u = strstr(a, "_HERBST")) != 0 || (u = strstr(a, "_SNOW")) != 0)
                     *u = 0;
                 sprintf(b, "%s_SNOW", a);
                 if (tex_FindFile(b) != 0)
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, b, i);
+                    d3fl_ReplaceTexture(d3_Terrain, b, i);
                 else
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, a, i);
+                    d3fl_ReplaceTexture(d3_Terrain, a, i);
             }
         }
         return;
@@ -3061,7 +3060,7 @@ void init_SetSeasonTextures(void)
         while (!found) {
             if (i >= 8)
                 break;
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0 && strstr(nm, "_HERBST") != 0)
                 found = 1;
             i++;
@@ -3069,16 +3068,16 @@ void init_SetSeasonTextures(void)
         if (found)
             return;
         for (i = 0; i < 8; i++) {
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0) {
                 strcpy(a, nm);
                 if ((u = strstr(a, "_FRUEHLING")) != 0 || (u = strstr(a, "_HERBST")) != 0 || (u = strstr(a, "_SNOW")) != 0)
                     *u = 0;
                 sprintf(b, "%s_HERBST", a);
                 if (tex_FindFile(b) != 0)
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, b, i);
+                    d3fl_ReplaceTexture(d3_Terrain, b, i);
                 else
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, a, i);
+                    d3fl_ReplaceTexture(d3_Terrain, a, i);
             }
         }
         return;
@@ -3089,7 +3088,7 @@ void init_SetSeasonTextures(void)
         while (!found) {
             if (i >= 8)
                 break;
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0 && strstr(nm, "_FRUEHLING") != 0)
                 found = 1;
             i++;
@@ -3097,16 +3096,16 @@ void init_SetSeasonTextures(void)
         if (found)
             return;
         for (i = 0; i < 8; i++) {
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0) {
                 strcpy(a, nm);
                 if ((u = strstr(a, "_FRUEHLING")) != 0 || (u = strstr(a, "_HERBST")) != 0 || (u = strstr(a, "_SNOW")) != 0)
                     *u = 0;
                 sprintf(b, "%s_FRUEHLING", a);
                 if (tex_FindFile(b) != 0)
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, b, i);
+                    d3fl_ReplaceTexture(d3_Terrain, b, i);
                 else
-                    d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, a, i);
+                    d3fl_ReplaceTexture(d3_Terrain, a, i);
             }
         }
         return;
@@ -3117,23 +3116,23 @@ void init_SetSeasonTextures(void)
         while (!found) {
             if (i >= 8)
                 break;
-            if (((D3FLMAP *)d3_Terrain)->typenames[i][0] != 0
-                && (strstr(((D3FLMAP *)d3_Terrain)->typenames[i], "_FRUEHLING") != 0
-                    || strstr(((D3FLMAP *)d3_Terrain)->typenames[i], "_HERBST") != 0
-                    || strstr(((D3FLMAP *)d3_Terrain)->typenames[i], "_SNOW") != 0))
+            if (d3_Terrain->typenames[i][0] != 0
+                && (strstr(d3_Terrain->typenames[i], "_FRUEHLING") != 0
+                    || strstr(d3_Terrain->typenames[i], "_HERBST") != 0
+                    || strstr(d3_Terrain->typenames[i], "_SNOW") != 0))
                 found = 1;
             i++;
         }
         if (!found)
             return;
         for (i = 0; i < 8; i++) {
-            nm = ((D3FLMAP *)d3_Terrain)->typenames[i];
+            nm = d3_Terrain->typenames[i];
             if (*nm != 0) {
                 strcpy(a, nm);
                 if ((u = strstr(a, "_FRUEHLING")) != 0 || (u = strstr(a, "_HERBST")) != 0 || (u = strstr(a, "_SNOW")) != 0) {
                     *u = 0;
                     if (tex_FindFile(a) != 0)
-                        d3fl_ReplaceTexture((struct D3FLMAP *)d3_Terrain, a, i);
+                        d3fl_ReplaceTexture(d3_Terrain, a, i);
                 }
             }
         }
