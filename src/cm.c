@@ -6618,7 +6618,7 @@ void cm_LobbyAddChat(int id, int to, char *text)
    cm_LobbyChatNext - cm_LobbyChatCount (to cm_LobbyChatNext + 1 when that is negative) and returns that
    line of the ring cm_LobbyChat; 0 when the ring is empty */
 
-G18LOG *cm_LobbyChatFirst()
+G18LOG *cm_LobbyChatFirst(void)
 {
     int i;
 
@@ -6637,7 +6637,7 @@ G18LOG *cm_LobbyChatFirst()
    cm_LobbyChatPos (15 wraps to 0) and returns that line; 0 when the cursor reaches the write index
    cm_LobbyChatNext */
 
-G18LOG *cm_LobbyChatNextLine()
+G18LOG *cm_LobbyChatNextLine(void)
 {
     int i = cm_LobbyChatPos;
 
@@ -6656,14 +6656,14 @@ G18LOG *cm_LobbyChatNextLine()
 /* 0x4cd500, empties the lobby chat ring: the write index cm_LobbyChatNext and the line count
    cm_LobbyChatCount go to 0 */
 
-void cm_LobbyClearChat()
+void cm_LobbyClearChat(void)
 {
     cm_LobbyChatNext = 0;
     cm_LobbyChatCount = 0;
 }
 /* 0x4cd510, all players of the list (cm_LobbyList[1 .. 8]) have state 1 and their number is the one asked for */
 
-int cm_LobbyAllReady()
+int cm_LobbyAllReady(void)
 {
     unsigned int n;
     int cnt, i;
@@ -6701,7 +6701,7 @@ void cm_LobbyStart(int lobbyId, int value)
 }
 /* 0x4cd5d0, the lobby's player list cm_LobbyList (the count, then the eight player ids) */
 
-unsigned int *cm_LobbyPlayerList()
+unsigned int *cm_LobbyPlayerList(void)
 {
     return cm_LobbyList;
 }
@@ -6713,19 +6713,19 @@ CMLOBBYPLAYER *cm_LobbyFindPlayer(int id)
 }
 /* 0x4cd5f0, this player's lobby record (the one of the id cm_LobbyPlayerId) */
 
-CMLOBBYPLAYER *cm_LobbyMyPlayer()
+CMLOBBYPLAYER *cm_LobbyMyPlayer(void)
 {
     return (CMLOBBYPLAYER *)cm_LobbyRecord(cm_LobbyPlayerId);
 }
 /* 0x4cd600, the lobby state: [0] the lobby is open (cm_LobbyStart), [1] a lobby message came in (cm_ExLobby) */
 
-int *cm_LobbyState()
+int *cm_LobbyState(void)
 {
     return &cm_LobbyStateFlags.open;
 }
 /* 0x4cd610, sends the lobby message 0x5f kind 0 (asks for the player list); returns the send slot (cm_GetSlotState) */
 
-int cm_LobbyRequestList()
+int cm_LobbyRequestList(void)
 {
     G17MSG m;
 
@@ -6751,7 +6751,7 @@ int cm_LobbySetReady(int v)
 }
 /* 0x4cd6a0, kind 3: this player leaves the lobby; returns the send slot */
 
-int cm_LobbyLeave()
+int cm_LobbyLeave(void)
 {
     G17MSG m;
 

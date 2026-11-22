@@ -870,7 +870,7 @@ void cm_ShowDamage(AICHAR *c, int v, int kind)
    @deep near-byte sweep s22: left the ScreenBox call's two temps swapped (original: c chain in eax, &box
    in ecx). climb round 1: nothing; the body under if (v != 0) instead of continue = control. */
 
-void cm_UpdateDamagePops()
+void cm_UpdateDamagePops(void)
 {
     char buf[0x40];
     D3RECT box;
@@ -909,7 +909,7 @@ void cm_UpdateDamagePops()
 }
 /* 0x4cef80, clears the 16 damage numbers of cm_DamagePops (no screen text, no value, no character) */
 
-void cm_InitDamagePops()
+void cm_InitDamagePops(void)
 {
     int i;
 
@@ -921,7 +921,7 @@ void cm_InitDamagePops()
 }
 /* 0x4cefa0, removes all damage numbers of cm_DamagePops (their screen texts too) */
 
-void cm_ClearDamagePops()
+void cm_ClearDamagePops(void)
 {
     int i;
 
@@ -1063,7 +1063,7 @@ void cm_UpdateSceneChars()
    pressed (2) or the free (1) look; the top and bottom arrows sit 75 screen units in from the edge (the top one's
    sprite 30 units tall) */
 
-void cm_DrawScrollArrows()
+void cm_DrawScrollArrows(void)
 {
     int up = 0, e = 0, a = 0, b = 0;
     void *t;
@@ -1673,7 +1673,7 @@ void cm_FightMouse(CMCUTINFO *rec)
    (D3OBJECT.stateFlags bit 2: d3t_SetColor black), then the pointer items, the character info windows and the fight
    view */
 
-void cm_ClearMarks()
+void cm_ClearMarks(void)
 {
     AICHAR *r;
     D3OBJECT *body;
@@ -1731,7 +1731,7 @@ struct AICHAR *cm_AddFighter(int id, char *dummy)
 /* 0x4d0a30, fills ai_SceneChars (32 pointers, cleared first) with the cm_Fighters whose scene character is in the scene
    d3_DefaultScene, in record order; at most 31 are taken */
 
-void cm_CollectSceneChars()
+void cm_CollectSceneChars(void)
 {
     AICHAR **p;
     AICHAR *r;
@@ -2560,7 +2560,7 @@ D3OBJECT *cm_NearestConquerPoint(AICHAR *c)
    percentages stored one by one, then each row made cumulative (v[k] = v[k] * 0.01 + v[k - 1]), and in each row
    a value equal to an earlier one cleared (an order that adds no chance is never drawn) */
 
-void cm_InitOrderChances()
+void cm_InitOrderChances(void)
 {
     int k, b, i, j;
 
@@ -4283,7 +4283,7 @@ void cm_BuildFightUI(CMCUTINFO *a)
 }
 /* 0x4d6b70, closes the fight UI: the form cm_FightForm, the marks (0x4d08c0), the portrait boxes */
 
-void cm_CloseFightUI()
+void cm_CloseFightUI(void)
 {
     d2_CloseView(cm_FightForm);
     cm_FightForm = 0;

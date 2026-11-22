@@ -2425,7 +2425,7 @@ exe	0x004cec00	cm_CloseCharInfoWins	cm	96fcdbdb74d48f31	no	byte	control=byte p1=
 exe	0x004cec30	cm_OpenCharInfoWin	cm	b3706925bf0b70d9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	becf1bbdf99775c9
 exe	0x004ced80	cm_UpdateCharInfoWins	cm	baebbdca7d02dd5d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cedc0	cm_ShowDamage	cm	3663ee0317ca9225	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004cee20	cm_UpdateDamagePops	cm	b75a0ca50b800844	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	becf1bbdf99775c9
+exe	0x004cee20	cm_UpdateDamagePops	cmfight	58bf59ac2745c753	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ccfce77bf85b495f
 exe	0x004cef80	cm_InitDamagePops	cm	39152d45e485d07f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefa0	cm_ClearDamagePops	cm	076a1d9edec54d1a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefe0	cm_CloseFightView	cm	29288b8309f63bf8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

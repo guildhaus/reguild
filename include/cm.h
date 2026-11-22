@@ -438,18 +438,18 @@ RTPOINT *rt_CopyPoints(RTPOINT *p);  /* 0x4bda00, rt.h */
 
 char *cm_LobbyRecord(int id);  /* 0x4cd380 */
 void cm_LobbyAddChat(int id, int to, char *text);  /* 0x4cd3c0 */
-G18LOG *cm_LobbyChatFirst();  /* 0x4cd480 */
-G18LOG *cm_LobbyChatNextLine();  /* 0x4cd4c0 */
-void cm_LobbyClearChat();  /* 0x4cd500 */
-int cm_LobbyAllReady();  /* 0x4cd510 */
+G18LOG *cm_LobbyChatFirst(void);  /* 0x4cd480 */
+G18LOG *cm_LobbyChatNextLine(void);  /* 0x4cd4c0 */
+void cm_LobbyClearChat(void);  /* 0x4cd500 */
+int cm_LobbyAllReady(void);  /* 0x4cd510 */
 void cm_LobbyStart(int lobbyId, int value);  /* 0x4cd580, opens the lobby from the hello answer */
-unsigned int *cm_LobbyPlayerList();  /* 0x4cd5d0 */
+unsigned int *cm_LobbyPlayerList(void);  /* 0x4cd5d0 */
 CMLOBBYPLAYER *cm_LobbyFindPlayer(int id);  /* 0x4cd5e0, the lobby record of the player id, else a free one; 0 for id 0 */
-CMLOBBYPLAYER *cm_LobbyMyPlayer();  /* 0x4cd5f0 */
-int *cm_LobbyState();  /* 0x4cd600 */
-int cm_LobbyRequestList();  /* 0x4cd610 */
+CMLOBBYPLAYER *cm_LobbyMyPlayer(void);  /* 0x4cd5f0 */
+int *cm_LobbyState(void);  /* 0x4cd600 */
+int cm_LobbyRequestList(void);  /* 0x4cd610 */
 int cm_LobbySetReady(int v);  /* 0x4cd650 */
-int cm_LobbyLeave();  /* 0x4cd6a0 */
+int cm_LobbyLeave(void);  /* 0x4cd6a0 */
 int cm_LobbySendChat(int to, char *text);  /* 0x4cd6e0 */
 int cm_LobbyJoin(CMLOBBYPLAYER *p);  /* 0x4cd760 */
 int cm_LobbyUpdatePlayer(CMLOBBYPLAYER *p);  /* 0x4cd7c0 */
@@ -515,9 +515,9 @@ extern int cm_SkipEvents;  /* 0x6f0d8c */
 extern int cm_CharInfoWins[];  /* 0x935d20 */
 
 void cm_ShowDamage(struct AICHAR *c, int v, int kind);  /* 0x4cedc0 */
-void cm_UpdateDamagePops();  /* 0x4cee20 */
-void cm_InitDamagePops();  /* 0x4cef80 */
-void cm_ClearDamagePops();  /* 0x4cefa0 */
+void cm_UpdateDamagePops(void);  /* 0x4cee20 */
+void cm_InitDamagePops(void);  /* 0x4cef80 */
+void cm_ClearDamagePops(void);  /* 0x4cefa0 */
 void d2_MoveObj(short x, short y, int obj);  /* 0x46cda0 */
 int d2_CreateScreenText(short x, short y, char *text);  /* 0x473860 */
 void d2_CloseView(int view);  /* 0x4758f0 */
@@ -528,7 +528,7 @@ char d3if_ShowTree(struct D3OBJECT *obj, char show);  /* 0x447300 */
 extern int cm_FightOwner;  /* 0x60cb5c */
 extern struct AICHAR *cm_CutChar;  /* 0x6f0d74, the character the player commands in the running cut scene */
 
-void cm_DrawScrollArrows();  /* 0x4cf370 */
+void cm_DrawScrollArrows(void);  /* 0x4cf370 */
 int d2_DrawShape(int x, int y, void *surf, void *pic, unsigned char i);  /* 0x47c6f0 */
 void d2_SetClipRect(int x0, int y0, int x1, int y1);  /* 0x47cb40 */
 extern const struct D3VECTOR4 d3_Origin;  /* 0x5ebba4, (0, 0, 0), d3_vec.c */
@@ -585,10 +585,10 @@ char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned c
 extern struct SBBANK *cm_AttackerOrderVoices;  /* 0x6f0d34 */
 extern struct SBBANK *cm_DefenderOrderVoices;  /* 0x6f0d38 */
 
-void cm_ClearMarks();  /* 0x4d08c0 */
+void cm_ClearMarks(void);  /* 0x4d08c0 */
 struct AICHAR *cm_AddFighter(int id, char *dummy);  /* 0x4d0920 */
 
-void cm_CollectSceneChars();  /* 0x4d0a30 */
+void cm_CollectSceneChars(void);  /* 0x4d0a30 */
 char cm_CreateDummyFlag(struct D3OBJECT *obj, void *ctx);  /* 0x4d0a80 */
 extern int cm_FlagObjectCount;  /* 0x6f0d58 */
 extern struct D3OBJECT *cm_FlagObjects[32];  /* 0x935980, the conquest flag objects of the fight scene */
@@ -627,7 +627,7 @@ extern float cm_DefenseFactor;  /* 0x60cb58 */
 
 void cm_EndFightScene(G28REC *rec);  /* 0x4d1a10, ends the fight scene of a fight record (cm_SetupFightScene its counterpart) */
 void cm_PlaceFighters(int *ids, char *side);  /* 0x4d1c20, places the fighters of one side of the fight at their dummies */
-int cm_FadeToBlack();  /* 0x4e3060 */
+int cm_FadeToBlack(void);  /* 0x4e3060 */
 void cm_LeaveEventScene(void);  /* 0x4e30c0 */
 void d2_CopyCaption(char *caption);  /* 0x478870 */
 char ch_FindFreeCell(struct D3SM *h, struct D3VECTOR *from, struct D3VECTOR *to, int x, int z, int *px, int *pz, int max, int flags); /* 0x4072a0, ch.h */
@@ -652,7 +652,7 @@ struct D3OBJECT *cm_NearestConquerPoint(struct AICHAR *c);  /* 0x4d2680 */
 extern int cm_PointCount;  /* 0x6f0d60 */
 extern struct D3OBJECT *cm_PointList[];  /* 0x930380 */
 
-void cm_InitOrderChances();  /* 0x4d27a0 */
+void cm_InitOrderChances(void);  /* 0x4d27a0 */
 extern float cm_OrderChances[0xb4];  /* 0x9300a0 */
 
 float *cm_OrderChancesFor(struct AICHAR *side);  /* 0x4d2c00 */
@@ -682,7 +682,7 @@ int cm_CheckFight(G28REC *a);  /* 0x4d60b0 */
 void cm_FightResult(struct CMCUTINFO *r);  /* 0x4d6930 */
 void cm_FightFrame(struct CMCUTINFO *r);  /* 0x4d6970 */
 void cm_BuildFightUI(struct CMCUTINFO *a);  /* 0x4d6a50, a: the member record, unused */
-void cm_CloseFightUI();  /* 0x4d6b70 */
+void cm_CloseFightUI(void);  /* 0x4d6b70 */
 extern int cm_PickCellX;  /* 0xfa5f00 */
 extern int cm_PickCellZ;  /* 0xfa5f04 */
 extern int cm_SceneDeadline;  /* 0x6f0d84 */
@@ -694,7 +694,7 @@ extern int cm_FightForm;  /* 0x6f0d64 */
 
 extern int cm_TextBox;  /* 0x60d368 */
 void cm_RunFight(G28REC *a);  /* 0x4d63e0, runs a fight record */
-unsigned int cut_GetRandSeed();  /* 0x4e52c0 */
+unsigned int cut_GetRandSeed(void);  /* 0x4e52c0 */
 void cut_RandSeed(unsigned int seed);  /* 0x4e52a0 */
 void cm_RunSceneParty(G28REC *party, void *ctx);  /* 0x4e3830 */
 char d3_SetLightSet(unsigned int set, float t, float scale, char calc);  /* 0x449de0 */
@@ -737,8 +737,8 @@ void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned
 void d2_AddDirty(int x, int y, int w, int h);  /* 0x468eb0 */
 extern int d2_TextDrawnW;  /* 0x6ed968 */
 extern int d2_TextDrawnH;  /* 0x6ed96c */
-void cm_ClearSceneChars();  /* 0x4d8b30 */
-void cm_DrawFightTime();  /* 0x4d8b50 */
+void cm_ClearSceneChars(void);  /* 0x4d8b30 */
+void cm_DrawFightTime(void);  /* 0x4d8b50 */
 
 int cm_DeleteChar(int a);  /* 0x4e3250 */
 
@@ -775,7 +775,7 @@ int cm_StartEventArg(char *name, char *cmd);  /* 0x4e2c30 */
 int cm_WaitEvent(int a);  /* 0x4e2c70 */
 int cm_UnloadVoiceBank(struct SBBANK *a);  /* 0x4e3290, drops the reference of the voice bank a (0 in the replay mode) */
 int cm_WaitEventFull(int a);  /* 0x4e2d40 */
-void cm_EndSpecialTrack();  /* 0x4e3640 */
+void cm_EndSpecialTrack(void);  /* 0x4e3640 */
 void ai_CampaignStep(int a, void *b, int c, int d);  /* 0x576040 */
 void cm_RunCouncilSession(G28REC *a);  /* 0x4d8e20 */
 extern int cm_DialogFrameFlags;  /* 0x60d360, the frame wait of the dialogs (0x5309a0) */
@@ -830,8 +830,8 @@ int cm_ExecutionAftermath(G28REC *m);  /* 0x4e0040 */
 
 void cm_CreateSceneSky(char *tex);  /* 0x4e32f0 */
 int cm_StartSceneRain(int a);  /* 0x4e33d0, remembers the result of 0x413b30(a) in 0x6f0dbc */
-int cm_StopSceneRain();  /* 0x4e33f0 */
-int cm_DestroySceneSky();  /* 0x4e3390 */
+int cm_StopSceneRain(void);  /* 0x4e33f0 */
+int cm_DestroySceneSky(void);  /* 0x4e3390 */
 void cm_RunExecution(G28REC *m);  /* 0x4e01e0 */
 int cm_CheckWedding(G28REC *m);  /* 0x4e0580 */
 int cm_EndWedding(void *arg);  /* 0x4e06d0 */

@@ -189,7 +189,7 @@ char cm_MessageBoxOpen = 0;  /* 0x6f0dc4 */
 
 /* 0x4d8b50, shows the fight time (d3_Time minus the start 0x6f0da4, 14 ms per tick) as "mm : ss : ms ms" in a box at the top */
 
-void cm_DrawFightTime()
+void cm_DrawFightTime(void)
 {
     char buf[128];
 

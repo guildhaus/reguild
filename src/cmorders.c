@@ -656,7 +656,7 @@ void cm_FightMember(CMCUTINFO *a, int ctx)
 }
 /* 0x4d8b30, clears the 16 ints at 0x92ca80 */
 
-void cm_ClearSceneChars()
+void cm_ClearSceneChars(void)
 {
     memset(cm_SceneChars, 0, 0x40);
 }
