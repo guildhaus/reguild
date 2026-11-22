@@ -9215,7 +9215,7 @@ int ai_UseGood(AICHAR *ch, G8USE *use)
 /* 0x5cfb60, the use callback of the Domizil good 0x173 (the +0x14 pointer of the table entry 0x62c6c0):
    pays the character ch 2 money with gm_SendMoneyDelta (message 0x5a, the netId at +4); returns 1. */
 
-int ai_UseGoodAddMoney(AICHAR *ch)
+int ai_UseGoodAddMoney(AICHAR *ch, G8USE *use)
 {
     gm_SendMoneyDelta(ch->netId, 2);
     return 1;
@@ -9559,7 +9559,7 @@ int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USE *use)
    low bits of the first set ailment field of ch->ailments (the mask of its field: 7, 0x30, 0x300, 0x1000,
    0xc000, 0x20000, 0x100000, 0x800000, 0x6000000) with cm_SendSetField; returns 1. */
 
-int ai_UseGoodCureAilment(AICHAR *ch)
+int ai_UseGoodCureAilment(AICHAR *ch, G8USE *use)
 {
     unsigned int f;
     int mask;
@@ -9807,7 +9807,7 @@ int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use)
    0x53dda0 (the first + 4, -1, 1, 0x5fb); when the second's is, the text 0x5176d0 (0xfeb, the first
    word twice) goes through 0x53dda0 (the second + 4, -1, 1, 0x5fb). Returns 1 (0 without records). */
 
-int ai_QuarrelCallback(AICHAR *ch, int *req)
+int ai_QuarrelCallback(AICHAR *ch, G8USE *req)
 {
     AMOUNTCFG cfg;
     char text[0x100];
@@ -9840,8 +9840,8 @@ int ai_QuarrelCallback(AICHAR *ch, int *req)
         /* @original ret set to 0 again in this arm (already 0): its reference in the else block
            ranks req above ch, so ch takes ebx and ret's kind-6 piece esi */
         ret = 0;
-        a = gm_FindChar(req[1]);
-        b = gm_FindChar(req[2]);
+        a = gm_FindChar(req->target);
+        b = gm_FindChar(req->arg);
         if (a == 0 || b == 0)
             goto done;
     }
@@ -10136,7 +10136,7 @@ done:
    ev->idbc is ch->netId, shows the tribute claim news 0x5a8d80 (ch, the payer record ai_Chars[ev->chr]),
    sets the event's end time to ai_Time and gives it its slot (0x4c4c60, -1). Returns 1. */
 
-int ai_UseGoodTributeClaim(AICHAR *ch)
+int ai_UseGoodTributeClaim(AICHAR *ch, G8USE *use)
 {
     AIJOB *ev;
 
@@ -10435,7 +10435,7 @@ int ai_UseGoodCharmOfficials(AICHAR *ch, G8USE *use)
    character of kind 6 needs sv_CheckMoney (ch, 3) to pass (it shows the text 0x74 "not enough money"), every
    other kind needs 3 money silently; then the money delta -3 (0x50cc50, ch->netId) and 1, 0 otherwise. */
 
-int ai_UsePayGood(AICHAR *ch)
+int ai_UsePayGood(AICHAR *ch, G8USE *use)
 {
     if (ch->kind == 6) {
         if (sv_CheckMoney(ch, 3) == 0)
@@ -10840,7 +10840,7 @@ int ai_UseGoodHeatBuilding(AICHAR *ch, G8USE *use)
    sends the message type 0xa4 (the event 0xa4, he.c 0x5753a0) to the character's netId, fromId -1, the
    current clock ai_Time and the flag 1 (0x4c4b70); returns 1. */
 
-int ai_UseEventGood(AICHAR *ch)
+int ai_UseEventGood(AICHAR *ch, G8USE *use)
 {
     AIMSG msg;
 
@@ -10939,7 +10939,7 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USE *use)
    (0x4c4b70, an AIMSG) to ch->netId, one raising skills 0 and 4 by 1/6, one lowering skills 3 and 2 by
    1/6, each lasting 24 hours. Returns 1. */
 
-int ai_UseGoodSkillBonus(AICHAR *ch)
+int ai_UseGoodSkillBonus(AICHAR *ch, G8USE *use)
 {
     union {
         AIMSG msg;

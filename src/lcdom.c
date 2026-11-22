@@ -8980,32 +8980,32 @@ void ai_PlayerStatsPanel(void)
 
 /* the use callbacks of the Domizil table (lcamt.c defines them; prototypes here until lcamt.h can carry the
    AICHAR / G8USE views) */
-int ai_UseGoodAddMoney(AICHAR *ch);
+int ai_UseGoodAddMoney(AICHAR *ch, G8USE *use);
 int ai_UseGoodHeal(AICHAR *ch, G8USE *use);
 int ai_UseGoodInfectOwner(AICHAR *ch, G8USE *use);
 int ai_UseGoodSendHome(AICHAR *ch, G8USE *use);
 int ai_UseGoodWeakenSkills(AICHAR *ch, G8USE *use);
 int ai_UseGoodWeakenSkills2(AICHAR *ch, G8USE *use);
-int ai_UseGoodCureAilment(AICHAR *ch);
+int ai_UseGoodCureAilment(AICHAR *ch, G8USE *use);
 int ai_UseGoodHalveWorkerValue(AICHAR *ch, G8USE *use);
 int ai_TrialStep1(AICHAR *ch, G8USE *use);
 int ai_TrialStep3(AICHAR *ch, G8USE *use);
 int ai_TrialStep4(AICHAR *ch, G8USE *use);
 int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use);
-int ai_QuarrelCallback(AICHAR *ch, int *req);
+int ai_QuarrelCallback(AICHAR *ch, G8USE *req);
 int ai_UseGoodTrialStep(AICHAR *ch, G8USE *use);
 int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USE *use);
 int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USE *use);
 int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USE *use);
 int ai_UseGoodSowDiscord(AICHAR *ch, G8USE *use);
-int ai_UseGoodTributeClaim(AICHAR *ch);
+int ai_UseGoodTributeClaim(AICHAR *ch, G8USE *use);
 int ai_UseGoodNoEffect(AICHAR *ch, G8USE *use);  /* the unlinked use callback of good 0x17c at the end (ai_AlwaysTrue in the exe) */
 int ai_UseGoodDrainActionPoints(AICHAR *ch, G8USE *use);
 int ai_UseGoodDrainSkill(AICHAR *ch, G8USE *use);
 int ai_UseGoodHarmBuilding(AICHAR *ch, G8USE *use);
 int ai_UseGoodSpoilStock(AICHAR *ch, G8USE *use);
 int ai_UseGoodCharmOfficials(AICHAR *ch, G8USE *use);
-int ai_UsePayGood(AICHAR *ch);
+int ai_UsePayGood(AICHAR *ch, G8USE *use);
 int ai_UseGoodDrainActionPoints8(AICHAR *ch, G8USE *use);
 int ai_UseGoodHoldRound(AICHAR *ch, G8USE *use);
 int ai_UseGoodCharmPartner(AICHAR *ch, G8USE *use);
@@ -9013,10 +9013,10 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USE *use);
 int ai_UseGoodFrameChar(AICHAR *ch, G8USE *use);
 int ai_UseGoodFrameChar2(AICHAR *ch, G8USE *use);
 int ai_UseGoodHeatBuilding(AICHAR *ch, G8USE *use);
-int ai_UseEventGood(AICHAR *ch);
+int ai_UseEventGood(AICHAR *ch, G8USE *use);
 int ai_UseGoodStaffBonus(AICHAR *ch, G8USE *use);
 int ai_UseGoodPettyLoss(AICHAR *ch, G8USE *use);
-int ai_UseGoodSkillBonus(AICHAR *ch);
+int ai_UseGoodSkillBonus(AICHAR *ch, G8USE *use);
 int ai_UseGoodDistrust(AICHAR *ch, G8USE *use);
 /* the unit's data in the original's order: .rdata gm_SpecialItemGroups 0x5eed94 and its count (this object's named
    constants, after lc.c's literals 52.0f / 0.435f / 0.48f; its literal 128.0 follows), .data ai_ChildWindowId 0x62c418
