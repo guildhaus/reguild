@@ -19,6 +19,7 @@ void bio_rd_i(struct VFSFILE *f, void *i);                                      
 void bio_wr_c(VFSFILE *f, unsigned char c);                                                   /* 0x4011f0 */
 void bio_wr_s(struct VFSFILE *f, char *s);                                                     /* 0x401210 */
 void bio_wr_i(struct VFSFILE *f, int i);                                                       /* 0x401240 */
+void bio_wr_f(VFSFILE *f, float x);                                                     /* unlinked: LINK folds it (/OPT:ICF) into bio_wr_i */
 void bio_rd_v3(VFSFILE *f, void *v);                                                    /* 0x401260 */
 void bio_rd_v4(VFSFILE *f, void *v);                                                    /* 0x401290 */
 void bio_wr_v3(VFSFILE *f, const void *v);                                               /* 0x4012d0 */

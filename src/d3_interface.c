@@ -1628,20 +1628,20 @@ void d3_SaveScene(char *name, VFSFILE *f)
     if (f || (out = vfs_Tfopen(name, "wb", vfs_Root))) {
         bio_wr_i(out, 0x3a6c00bb);
         bio_wr_s(out, (char *)d3if_MegaCam);
-        bio_wr_i(out, ((D3IFBITS *)&d3if_Gray)->bits);
+        bio_wr_f(out, d3if_Gray);
         bio_wr_v3(out, &d3_AmbientColor);
         bio_wr_v3(out, &d3_SunColor);
         bio_wr_i(out, d3_DefaultScene->mapSize);
         bio_wr_i(out, d3_fog_color.col);
-        bio_wr_i(out, ((D3IFBITS *)&d3_FogStart1)->bits);
-        bio_wr_i(out, ((D3IFBITS *)&d3_FogEnd2)->bits);
+        bio_wr_f(out, d3_FogStart1);
+        bio_wr_f(out, d3_FogEnd2);
         for (k = 0; k < 7; k++) {
             bio_wr_v3(out, &d3if_Levels[k].amb);
             bio_wr_v3(out, &d3if_Levels[k].sun);
             for (i = 0; i < 6; i++) {
                 bio_wr_i(out, d3if_Levels[k].fog[i].col.col);
-                bio_wr_i(out, ((D3IFBITS *)&d3if_Levels[k].fog[i].start)->bits);
-                bio_wr_i(out, ((D3IFBITS *)&d3if_Levels[k].fog[i].end)->bits);
+                bio_wr_f(out, d3if_Levels[k].fog[i].start);
+                bio_wr_f(out, d3if_Levels[k].fog[i].end);
             }
         }
         n = 0;

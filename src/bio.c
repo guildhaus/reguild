@@ -118,6 +118,12 @@ void bio_wr_i(VFSFILE *f, int i)
 {
     vfs_fwrite(&i, 4, 1, f);
 }
+/* unlinked: writes a float's 4 bytes; the same code as bio_wr_i, so LINK folds it (/OPT:ICF) into bio_wr_i, 0x401240,
+   which is where the original's calls of it point (d3_SaveScene pushes the float globals with integer moves) */
+void bio_wr_f(VFSFILE *f, float x)
+{
+    vfs_fwrite(&x, 4, 1, f);
+}
 /* 0x401260, reads three 4-byte values (a vector, as raw bits) */
 
 void bio_rd_v3(VFSFILE *f, void *v)

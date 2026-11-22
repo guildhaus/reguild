@@ -106,10 +106,6 @@ void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTO
 void d3_SetWorldPosRot(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot);        /* 0x449920 */
 
 
-/* d3_SaveScene writes float globals as their bit pattern through this view (d3_WriteMap's floats are int
-   members of D3FLMAP's / D3FLREGION's unions, d3_fl.h) */
-typedef union D3IFBITS { float f; int bits; } D3IFBITS;
-
 extern int d3o_LightSet;            /* 0x5fbcfc, the current light set */
 extern int d3o_FogSet;              /* 0x5fbd00, the current fog set */
 extern float d3o_FogScale;          /* 0x5fbd04, the factor of the fog distances (1 - the fog option %) */
