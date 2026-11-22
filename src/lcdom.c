@@ -11,7 +11,6 @@
    the unit uses once lc.h / lcdom.h carry the shared ones. */
 #define GAPDATA __declspec(align(1)) unsigned char
 
-#define ai_MapPickCb(cb) ((void (*)(void *, void *))(cb))  /* @original: ai_MapPick's cb is void (*)() (lc.h, its callbacks take differing pointer types); both indirect calls push two dwords and read no result (0x5b22f6/0x5b22f7 push ebp twice; 0x5b248f/0x5b2490 push the picked building and picked) */
 struct SBSAMPLE;
 struct D3SM;
 #include "txt_views.h"
@@ -4154,7 +4153,9 @@ void ai_LoadTownMap(void)
    itself); with flags 1 the picked building goes to cb (with the window disabled meanwhile), without a cb the
    pick ends the window. The right button closes it. Returns the pick (0: none) after the campaign step 0xd
    and ai_CloseMapWindow. The record is 0x27ac bytes in the original's 0x27b0-byte frame (ai_OpenTownMap stores
-   the background tile at +0x27a8). The fifth argument is not read */
+   the background tile at +0x27a8). The fifth argument is not read. cb is old-style: its callbacks take (the picked
+   building, the building) for flags 1 (lc.c's windows: AIBLD *place, AIBLD *target) and (the spot, the spot) for
+   flags 4 (char *); both calls push two dwords and read no result (0x5b22f6 / 0x5b248f) */
 
 void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), int unused)
 {
@@ -4186,7 +4187,7 @@ void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), i
                         if (picked != 0 && cb != 0) {
                             d2_SetViewEnabled(map.view, 0);
                             d2_EnableObject(d2_Wins[map.screen].parent, 0);
-                            ai_MapPickCb(cb)(picked, picked);
+                            cb(picked, picked);
                             d2_SetViewEnabled(map.view, 1);
                             d2_EnableObject(d2_Wins[map.screen].parent, 1);
                         } else {
@@ -4214,7 +4215,7 @@ void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), i
             } else if (flags & 2) {
                 d2_SetViewEnabled(map.view, 0);
                 d2_EnableObject(d2_Wins[map.screen].parent, 0);
-                picked = ai_LawSelectionEntry(map.marks[i].bld, req, name, cb);
+                picked = ai_LawSelectionEntry(map.marks[i].bld, req, name, (void (*)(AICHAR *, AIBLD *))cb);  /* @original: flags 2 (no caller in this build) hands the old-style callback to the law selection, which calls it with the character and the building */
                 d2_EnableObject(d2_Wins[map.screen].parent, 1);
                 d2_SetViewEnabled(map.view, 1);
             } else {
@@ -4230,7 +4231,7 @@ void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), i
                 continue;
             d2_SetViewEnabled(map.view, 0);
             d2_EnableObject(d2_Wins[map.screen].parent, 0);
-            ai_MapPickCb(cb)(picked, map.marks[i].bld);
+            cb(picked, map.marks[i].bld);
             d2_SetViewEnabled(map.view, 1);
             d2_EnableObject(d2_Wins[map.screen].parent, 1);
             break;

@@ -94,7 +94,6 @@
    unit of rea 8cef7d5b (src/game/unk_58bbd0.c); boundaries in decl/text.dcl */
 #define GAPDATA __declspec(align(1)) unsigned char
 
-#define ai_MapPickCb(cb) ((void (*)(void *, void *))(cb))  /* @original: ai_MapPick's cb is void (*)() (lc.h, its callbacks take differing pointer types); both indirect calls push two dwords and read no result (0x5b22f6/0x5b22f7 push ebp twice; 0x5b248f/0x5b2490 push the picked building and picked) */
 /* lc.c --the production / trade windows and the tavern / location / money lender / Rathaus windows
    (0x58bbd0 .. 0x5d33b0): the
    "Handel\Handel_PRODUKTION" screen of a building (0x58bd60) and its helpers (the table init 0x58bbd0, the
@@ -4423,7 +4422,7 @@ void ai_BreakInWindow(AIBLD *building)
    nobody is selected and 0x19ef when more than six are; the second button and a right click close it. Returns 1
    once the figures were sent, else 0 */
 
-int ai_PickpocketWindow(char *place, AIBLD *target)
+int ai_PickpocketWindow(AIBLD *place, AIBLD *target)
 {
     AIMSG msg;
     char text[0x400];
@@ -4527,7 +4526,7 @@ void ai_OpenPickpocket(AIBLD *building)
    building, the shown room object or -1, the first selected scene character, flags 2) and clears the selection,
    the second button and a right click close it. Returns 0 */
 
-int ai_BribeCallback(char *place, AIBLD *target)
+int ai_BribeCallback(AIBLD *place, AIBLD *target)
 {
     AIMSG msg;
     char text[0x200];
@@ -4631,7 +4630,7 @@ struct AIOBJ *gm_QueryNext(void); void txt_Format(char *out, intptr_t id0, ...);
    first button posts the spy message 0x40 (the target, the guild building, up to eight selected characters as
    ids, flags 1; the text 0x19e3 when nobody is selected), the second button and a right click close it */
 
-void ai_BriberyWindow(char *place, AIBLD *target)
+void ai_BriberyWindow(AIBLD *place, AIBLD *target)
 {
     AIMSG msg;
     AIOBJ *reports[0x10];
@@ -4753,7 +4752,7 @@ void gm_SendMoneyDelta(int a, int b);
    flags 1) and takes 1 off the player's money (gm_SendMoneyDelta), or shows the text 0x1a79 when nobody is
    selected; the second button and a right click close it. Clears the selection at the end */
 
-void ai_RaidWindow(char *place, AIBLD *target)
+void ai_RaidWindow(AIBLD *place, AIBLD *target)
 {
     AIMSG msg;
     char text[0x400];
@@ -10428,7 +10427,7 @@ int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
    when the player can still pay, and closes the window with sv_PopRequest 2 (else the click falls to the cancel
    test). Returns 1 after the window */
 
-int ai_GuildGiftCallback(char *place, AIBLD *bld)
+int ai_GuildGiftCallback(AIBLD *place, AIBLD *bld)
 {
     int cancelBtn;
     int req[5];
@@ -11828,7 +11827,7 @@ void snd_PlayFavourComment(void);
    owner, bld) and the buttons: the first sends the burglary message 0x3f (to the player, arg: bld's id, the guild
    building's id; ids: the selected characters, AICHAR.selected) with snd_PlayFavourComment, or shows the text
    0x19e3 when none is selected, and clears the selection. Returns 1 when the first button was clicked */
-int ai_BurglaryWindow(int ctx, AIBLD *bld)
+int ai_BurglaryWindow(AIBLD *place, AIBLD *bld)
 {
     int done;
     int burgleBtn;
@@ -11935,7 +11934,7 @@ struct AIJOB *he_NextEvent(void);
    (the target, the guild building, up to eight selected characters as ids, flags 1; the text 0x1a5e when nobody
    is selected), the second and a right click close it. The selection is cleared after the window; returns 1 once
    the spying was ordered */
-int ai_GuildSpyWindow(int ctx, AIBLD *target)
+int ai_GuildSpyWindow(AIBLD *place, AIBLD *target)
 {
     int done;
     int uncovered;
@@ -12170,7 +12169,7 @@ void ai_SpyReportsWindow(AIBLD *bld)
    join it (sv_MoveToGroup); else the attack message 0x49 (from the guild, flags 1, arg[0] the target, arg[1] the
    guild, up to eight selected scene characters as ids) is sent, or with nobody selected the text 0x1a49.
    Returns 1 once the attack was ordered */
-int ai_AttackWindow(int ctx, AIBLD *target)
+int ai_AttackWindow(AIBLD *place, AIBLD *target)
 {
     int done;
     int ok;
@@ -12834,7 +12833,7 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
    arg[0] the target, arg[1] the player's building, the netIds of up to four selected characters as the group's
    members at 0x70, -1 for the rest; nothing with none), clears the selection and closes; the second and a right
    click close it. The camera follows again after; returns 1 */
-int ai_CityWatchWindow(int ctx, AIBLD *target)
+int ai_CityWatchWindow(AIBLD *place, AIBLD *target)
 {
     int ok;
     AIMSG msg;
@@ -12926,7 +12925,7 @@ void ai_PatrolStart(AIBLD *building)
    2, arg[0] the target, arg[1] the player's building, up to six selected characters as ids; nothing with none) and
    with more than six selected tells so (the text 0x19ef, 6), then closes; the second and a right click close it.
    Returns 1 once the message was sent */
-int ai_CityWatchCrewWindow(int ctx, AIBLD *target)
+int ai_CityWatchCrewWindow(AIBLD *place, AIBLD *target)
 {
     int done;
     int cancel;
@@ -13024,7 +13023,7 @@ void ai_RaidStart(AIBLD *building)
    player's building, now, flags 2, the place's name at arg[0], arg[8] the player's building, arg[9] the object of
    the room the panel shows, up to six selected scene characters as ids; nothing with none), then closes; the
    second and a right click close it. Returns 0 */
-int ai_WatchPlanWindow(int ctx, char *place)
+int ai_WatchPlanWindow(char *spot, char *place)
 {
     int cancel;
     int ok;
@@ -13108,7 +13107,7 @@ void ai_WatchPlanStart(AIBLD *building)
    building and the room shown, for the first selected character of the scene) and plays the favour comment,
    says the text 0x1a74 when more than one scene character is selected, and closes; cancel or the right button
    close too. Returns 0. */
-int ai_ArrestWindow(int unused, AIBLD *bld)
+int ai_ArrestWindow(AIBLD *place, AIBLD *bld)
 {
     int win;
     int arrestBtn;

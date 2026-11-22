@@ -18,7 +18,6 @@
    the unit uses once lc.h / lcamt.h carry the shared ones. */
 #define GAPDATA __declspec(align(1)) unsigned char
 
-#define ai_MapPickCb(cb) ((void (*)(void *, void *))(cb))  /* @original: ai_MapPick's cb is void (*)() (lc.h, its callbacks take differing pointer types); both indirect calls push two dwords and read no result (0x5b22f6/0x5b22f7 push ebp twice; 0x5b248f/0x5b2490 push the picked building and picked) */
 struct SBSAMPLE;
 struct D3SM;
 #include "txt_views.h"
