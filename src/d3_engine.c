@@ -1410,7 +1410,7 @@ char d3_Init(D3INITCFG *cfg, HWND wnd, int unk)
     if (d3_D3DActive) {
         d3_D3DActive = d3d_CreateDevice(8, d3_Cfg.texbpp, dd_RBits + dd_GBits + dd_BBits, d3_Cfg.zbpp);
         if (d3_D3DActive) {
-            d3d_SetConfig(d3_DefaultD3DConfig);
+            d3d_SetConfig(&d3_DefaultD3DConfig);
             d3d_SetWBuffer(1);
             d3_fog_color.col = 0;
             d3_MipSkip = d3_Cfg.texShift;
@@ -2637,9 +2637,10 @@ void d3_Frame(unsigned int mask, char flag, char tick)
 const int d3_TriEdge[3][2] = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
 
 D3SCENE *d3_DefaultScene = d3_Scenes;  /* 0x5fb5b0, the current scene (d3.h) */
-/* the initial D3D mode: bpp / mode / device flags, then d3if_SceneState0 (the last dword is that global,
-   which the interface's scene select saves and restores; d3d_SetConfig reads only the first three) */
-char d3_DefaultD3DConfig[] = { 94, 1, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 4, 0, 0, 0 };  /* 0x5fb5b4 */
+/* the initial render options (d3_Init hands them to d3d_SetConfig): filter, dither, perspective,
+   subpixel and mirrors on, object shadows (main_OpenScreen sets them again), fill mode 3, mip filter 2 */
+D3DCONFIG d3_DefaultD3DConfig = { 0, 1, 1, 1, 1, 0, 1, 0, 1, {0}, 3, 2 };  /* 0x5fb5b4 */
+int d3if_SceneState0 = 4;  /* 0x5fb5c0, the scene pair's first dword: d3_interface's scene select saves and restores it */
 int d3if_SceneState1 = 15;  /* 0x5fb5c4, the scene pair's second dword (d3_interface.c's write-only state) */
 char d3_EditorMode = 0;  /* 0x633438, editor / tool mode (reasoned guess: the ortho view cameras, the type-6 lights
                             and the on=0 relight; only ever set 0 in this build) */

@@ -1660,8 +1660,8 @@ void d3_SaveScene(char *name, VFSFILE *f)
 }
 
 extern char d3if_ParList[0x31c];
-/* d3if_SceneState0: view of d3_DefaultD3DConfig (tools/data_views.py) */
-/* d3if_SceneState1 is defined in d3_engine.c, right after that block (0x5fb5c4, the same unit) */
+/* d3if_SceneState0 / d3if_SceneState1 are defined in d3_engine.c, after d3_DefaultD3DConfig (0x5fb5c0 /
+   0x5fb5c4, that unit's data) */
 int d3o_LightSet = -1;  /* 0x5fbcfc, the current light set */
 int d3o_FogSet = -1;  /* 0x5fbd00, the current fog set */
 float d3o_FogScale = 1.0f;  /* 0x5fbd04, the factor d3_SetFogSet scales the fog distances by (1 - the fog option %; f3init, cm, menu set it) */

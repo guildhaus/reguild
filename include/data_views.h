@@ -17,9 +17,6 @@
 /* d3if_ParList (the head node: its next field) */
 #define d3_ParHead               (*(struct D3PARTSYS **)((char *)&d3if_ParList + 0x314))  /* 0xfb98f4 */
 
-/* d3_DefaultD3DConfig */
-#define d3if_SceneState0           (*(int *)((char *)&d3_DefaultD3DConfig + 0xc))  /* 0x5fb5c0 */
-
 /* d3_Scenes */
 #define ai_MapRefs               (d3_Scenes[0].map)  /* 0xfd7c4c, the town scene's terrain map */
 #define init_SceneDirty          (*(char (*)[3])((char *)&d3_Scenes + 0x3d5))  /* 0xfd7f75 */

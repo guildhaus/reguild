@@ -612,7 +612,7 @@ int main_OpenScreen(int m)
     cfg.zf = 12000.0f;
     d3io_Lod.all = 2;
     cfg.scale = (float)(512.0 / (640.0 / (double)cfg.w));
-    d3_DefaultD3DConfig[1] = (d3_DefaultD3DConfig[1] & 0xf9) | 1;
+    d3_DefaultD3DConfig.shadows = 1;
     if (d3_Init(&cfg, main_Window, (int)main_Instance) != 0) {
         d3if_CreateCameras();
         while (ShowCursor(0) > 0)

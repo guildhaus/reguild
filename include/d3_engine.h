@@ -367,7 +367,7 @@ extern D3CLIPSTATE d3_ClipState;           /* 0xfc5060 */
 #define d3_ClipFlagB (d3_ClipState.flagB)
 #define d3_Planes (d3_ClipState.planes)
 extern D3OBJECT d3_TopHead;               /* 0xfc5100, list start marker */
-extern char d3_DefaultD3DConfig[];          /* 0x5fb5b4 */
+extern struct D3DCONFIG d3_DefaultD3DConfig;  /* 0x5fb5b4 */
 extern unsigned char dd_BBits, dd_GBits, dd_RBits;  /* 0x1464fbd, 0x1463580, 0x1463570 */
 extern float d3_HalfAngleX;              /* 0xfe7600, atan2(d3_HalfW, d3_ScaleX) (d3_Init), no reader */
 extern float d3_HalfAngleY;              /* 0xfe75bc, atan2(d3_HalfH, d3_ScaleY) (d3_Init), no reader */
