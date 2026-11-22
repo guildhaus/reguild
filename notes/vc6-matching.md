@@ -6192,7 +6192,10 @@ the bytes no portable form gives.
   D3SCENELISTS / D3SCENEPAR as D3SCENE, AMOUNTCFG's two-word class mask and the map pick's request, ai_AmountMenu's
   callers, AIDEC.fn / G9DOMIZIL.use) or the fifteenth (hst's G12ARG as G12ROW, the folded stubs' unit twins, AIACT's
   typed callbacks with G5ACT / AGARG, the leisure callbacks, AMTPICK as AICHAR, evt's resolver, the d3_ForEachObject2
-  casts, the transporter list, the K&R sweep).
+  casts, the transporter list, the K&R sweep) or the sixteenth (the order message ORDMSG, gv_GetTableRecord's AIDEC,
+  gm_Mix's characters, cm_StartEventArg's command, the amount filter AMOUNTCFG, the sound library handles, the Domizil
+  lookups, ai_MapPick's callback, the const read-only parameters; he_DetectAttack's intptr_t is a portable spelling,
+  not (c)).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6635,6 +6638,38 @@ the bytes no portable form gives.
   per unit with p15/kr.py (drop, compile, restore every name a new diagnostic names, drop the removed declarations'
   address comments with them: dcp binds a left-over `/* 0xADDR */` to the next line, L13 / C.name.alias). Two
   declaration-set tie-breaks moved for 995 declarations.
+- **A record kept as `int X[N]` on the callers' stacks and passed as `int *m`** (the order message: 0x220 bytes as
+  `int ctx[0x88]` in 18 callers, `m[0]` / `m + 5` / `m[0x87]` in 58 handlers, lc's LCORDMSG copy; sixteenth pass): the
+  record goes into the types header with the copies' names merged (ORDMSG in gv_types.h), the handlers, the dispatch
+  and the table take `ORDMSG *`, the locals become the record (`memset(&x, 0, sizeof(x))`, `x.kind`, `x.partner =
+  gm_FindChar(..)` without the `(int)`). The same code; the moved typedef shifts tie-breaks only.
+- **A query that fills a record through `int *out` with a cast alias inside** (gv_GetTableRecord): the parameter is the
+  record pointer and the alias goes (`*out = gv_Decisions[i]`, byte); callers' `int rec[9]` read rec[6] / rec[1] are the
+  record's fields, and a unit view naming two of its offsets (AIPOSVIEW "pics" / "texts") is the record (guilt / cur).
+- **An int parameter that carries a local record's address may be load-bearing**: he_DetectAttack(int p) with the
+  callers' `(int)&d`; a `HEDETECT *` parameter freed d for the allocator in two callers (he_RunRobbery byte -> draft).
+  Spell the integer portably: `intptr_t p` and `(intptr_t)&d` (int under VC6, the same code), `@original` in the
+  comment. Other such parameters (cm_SendCutEntry's entry, d3_AttachMesh's surface) took the pointer type unchanged.
+- **A library's handles held as `int` in units whose headers cannot include the library header** (msx_Driver /
+  sb_Driver, MSXTRACK.stream, SBSAMPLE.handle for sfx.h's SFXDRIVER * / HSTREAM / HSAMPLE): `struct SFXDRIVER *` with
+  a file-scope forward declaration, `void *` for the void * typedefs; an out-parameter address of a record whose first
+  field is the handle is written as the field (`&sb_Samples[i].handle`). msx / sblib 92 warnings -> 0, same code.
+- **A lookup returning `(int)&table[i]`** (ai_FindUsableGood): return the record pointer; callers that cast it to
+  `float *g` and read g[3] read the field (g->weight).
+- **A callback slot called with two shapes of arguments** (ai_MapPick: (building, building) for flags 1, (spot, spot) for
+  flags 4): keep the old-style `void (*cb)()` and call it directly (`cb(a, b)`: the same two pushes; dcp lint counts it
+  M7 as cmscene's CMKIND calls); a hand-over to a prototyped parameter is an explicit function pointer cast
+  (`(void (*)(AICHAR *, AIBLD *))cb`, VC6's C4113 otherwise); the callbacks' unread first parameters take what the slot
+  passes (`AIBLD *place`, not `int ctx`).
+- **`(int)` casts in front of pointer arguments to pointer parameters, and of string literals to `char *` parameters**:
+  scratchpad p16/strip.py strips them where VC6 reports C4047 + C4024 at the call, compiles, and restores every line
+  with a new diagnostic (the restored ones are int parameters, the callee's debt).
+- **C4090 (const qualifiers) at calls with const data** (d3_Origin, const tables): make the callee's read-only
+  parameter const in every copy (p16/constp.py); a callee that passes it on needs its callee's parameter const too
+  (d3_SetObjectPos), or leave that chain (tex_Create's palette). Removing the qualifier mismatch can surface the type
+  mismatch VC6 reported under it (D3VECTOR4 -> D3VECTOR as C4133).
+- **Passing a `char []` global as `&g`** (`&ch_EmptyName`: `char (*)[]`, C4047 at every char * parameter) or through
+  `(char *)(unsigned)&g` (truncates on 64-bit): pass `g`, the same address.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
