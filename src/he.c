@@ -165,7 +165,7 @@ struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIP
 
 
 #define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
-#define SLOT(i) ((int *)((unsigned)&he_EventSlots + (i) * 12))
+#define SLOT(i) ((int *)((uintptr_t)&he_EventSlots + (i) * 12))
 
 /* one of the ten 16-byte slots of the walk event 0x7a at AIJOB +0xac (he_StartWalk clears them) */
 typedef struct HEWALKSLOT {
@@ -1193,7 +1193,7 @@ void he_FreeEvents(void)
     int i = 0;
 
     if (he_EventTop >= 0) {
-        p = (char *)(unsigned)&he_Events;
+        p = (char *)(uintptr_t)&he_Events;
         do {
             if ((intptr_t)p >= (intptr_t)((uintptr_t)&he_Events + 0x53000))
                 return;
@@ -1563,7 +1563,7 @@ void mem_Free(void *p);
 void err_Message(char *text);
 
 /* HE_SET_CLOCK: the game clock (0x770ae0 ..) into a message at +0x28 .. +0x34, flag byte 2 at +0x36 */
-#define HE_CLK(m) do { HM_I(m, 0x28) = U_I((unsigned)&ai_Time); HM_I(m, 0x2c) = U_I((unsigned)&ai_Time.hour); HM_I(m, 0x30) = U_I(((unsigned)&ai_Time + 0x8)); *(short *)((m) + 0x34) = *(short *)((unsigned)&ai_Time + 0xc); HM_B(m, 0x36) = 2; } while (0)
+#define HE_CLK(m) do { HM_I(m, 0x28) = U_I((uintptr_t)&ai_Time); HM_I(m, 0x2c) = U_I((uintptr_t)&ai_Time.hour); HM_I(m, 0x30) = U_I(((uintptr_t)&ai_Time + 0x8)); *(short *)((m) + 0x34) = *(short *)((uintptr_t)&ai_Time + 0xc); HM_B(m, 0x36) = 2; } while (0)
 
 
 /* 0x53e040, creates the event record of the message `m`: its type needs both an alloc and a run handler (< 0xa7) and its
@@ -9193,7 +9193,7 @@ int he_CreateReaper(AIJOB *e)
 }
 
 
-#define HE_REC(id) ((unsigned)&ai_Chars + (id) * 0x21c)
+#define HE_REC(id) ((uintptr_t)&ai_Chars + (id) * 0x21c)
 
 
 /* 0x550370, one step of the reaper's flight to the building reaperTo (in scene 0): while the object follows a path

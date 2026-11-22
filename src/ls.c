@@ -1187,7 +1187,7 @@ int ls_WriteEnvironment(VFSFILE *f)
 {
     int i;
 
-    LS_W((char *)(unsigned)&sv_WinterWeather, 4)
+    LS_W((char *)(uintptr_t)&sv_WinterWeather, 4)
     for (i = 0; i < 24; i++) {
         LS_W(&sv_Weather.clouds[i], 4)
         LS_W(&sv_Weather.storm[i], 4)

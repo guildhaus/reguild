@@ -486,9 +486,9 @@ int main_Init(void)
     err_Init(main_Exit, d3io_NoopCallback, main_Window, 0x10);
     mem_Init(48000);
     tr_startup(0x80);
-    sprintf(dir, "%sgamedata\\Screenshots", (char *)(unsigned)&main_GfxPath);
+    sprintf(dir, "%sgamedata\\Screenshots", (char *)main_GfxPath);
     CreateDirectoryA(dir, 0);
-    vfs_Init((char *)(unsigned)&main_GfxPath, 0);
+    vfs_Init((char *)main_GfxPath, 0);
     tb_Init(0xe, 0);
     return 1;
 }
@@ -1628,7 +1628,7 @@ void main_GiveStartBuildings(int p)
     }
 }
 
-#define SV_WI2(i, o) (*(int *)(U_I((unsigned)&d2_Objs) + (i) * 0x2ec + (o)))
+#define SV_WI2(i, o) (*(int *)(U_I((uintptr_t)&d2_Objs) + (i) * 0x2ec + (o)))
 
 /* 0x5344f0, puts a person (the template model name n of the list TXT_FAMILY_MODEL_NAMES, index k) at the dummy "a" of the scene: the dummy position (0x458a20), a character object (0x403390 (b, pos)) that
    looks along the dummy's heading (0x458810 / 0x4539f0, 0x43b860), walks ("bewegung/gehen", walkSpeed 0.7), is registered as a status text plate (0x52e1c0); returns the new object or 0 */
@@ -3733,7 +3733,7 @@ void main_RoundReport(void)
     }
 }
 
-#define PL(i) ((unsigned)&ai_Chars + (i) * 0x21c)
+#define PL(i) ((uintptr_t)&ai_Chars + (i) * 0x21c)
 float gm_TitlePeriodServed(int n, int *out);
 
 /* 0x53a250, the daily update of the figure i by its kind: kinds 6 / 7 get the field delta 0x174 (AICHAR.jobDays, the

@@ -1725,13 +1725,13 @@ int sv_CharStateIcons(AICHAR *c, int *out)
     n = 0;
     if (job != 0 && job->kind != 0) {
         i = 0;
-        p = (int *)(unsigned)&sv_Activities[0].icon;
+        p = (int *)(uintptr_t)&sv_Activities[0].icon;
         for (; (intptr_t)p < (intptr_t)((uintptr_t)&sv_Activities[0].icon + 0x600); p += 8, i++) {
             if (p[-6] == job->kind) {
                 out[n++] = *p;
                 if (p[1] != -1) {
                     /* the entry's valueOff: the offset of a short of the job record (0xac / 0xae / 0xbc) */
-                    word = (unsigned short *)((char *)job + ((int *)(unsigned)&sv_Activities[0].valueOff)[i * 8]);
+                    word = (unsigned short *)((char *)job + ((int *)(uintptr_t)&sv_Activities[0].valueOff)[i * 8]);
                     out[n++] = *word + 0xdf;
                     break;
                 }
@@ -4331,7 +4331,7 @@ void sv_ClearSelection(void)
 {
     char *q;
 
-    q = (char *)(unsigned)&ai_Selected;
+    q = (char *)(uintptr_t)&ai_Selected;
     sv_SelectedChar = 0;
     sv_SelectedModel = 0;
     do {
@@ -7041,7 +7041,7 @@ l64:
         evt_StepAll();
     if (ai_FrameWait == 0 && ((mask & 0x80) == 0 || (d2_FlushDirty(), ai_FrameWait == 0)) && (mask & 0x40) != 0 && sv_WorldOn != 0) {
         if ((mask & 0x10000) == 0 && (mask & 0x40000) != 0)
-            sv_UpdateSkyPhase((unsigned)&ai_Time);
+            sv_UpdateSkyPhase(&ai_Time);
         if (d3_CurrentScene == 0)
             d3q_Mark(d3_QuadTree, d3_Camera, d3_FrameCount);
         d3t_UpdateCamera();

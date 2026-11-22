@@ -1497,14 +1497,14 @@ unsigned char *ai_FindItemGroup(char *good)
     c = *good;
     if (c == ' ' || c == 0x1e || c == 0x1f) {
         i = 0;
-        for (q = (unsigned char *)(unsigned)&gm_SpecialItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_SpecialItemGroups + 0x3f); q += 0x15, i++)
+        for (q = (unsigned char *)(uintptr_t)&gm_SpecialItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_SpecialItemGroups + 0x3f); q += 0x15, i++)
             if ((char)*q == c)
-                return (unsigned char *)(unsigned)&gm_SpecialItemGroups + i * 0x15;
+                return (unsigned char *)(uintptr_t)&gm_SpecialItemGroups + i * 0x15;
     }
     i = 0;
-    for (q = (unsigned char *)(unsigned)&gm_BuildingItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_BuildingItemGroups + 0x309); q += 0x15, i++)
+    for (q = (unsigned char *)(uintptr_t)&gm_BuildingItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_BuildingItemGroups + 0x309); q += 0x15, i++)
         if ((char)*q == c)
-            return (unsigned char *)(unsigned)&gm_BuildingItemGroups + i * 0x15;
+            return (unsigned char *)(uintptr_t)&gm_BuildingItemGroups + i * 0x15;
     return 0;
 }
 
@@ -1942,7 +1942,7 @@ void ai_ShowTavernHelperNews(AICHAR *ownerRec, AICHAR *helperRec, int bld)
         he_ShowNews(helper->netId, -1, ai_NewsText, 0, 0x5fb, ch_EmptyName);
     }
     txt_Format(ai_NewsText, 0x20c2, bld, owner->id, (owner->sex != 0) + 0x20c3, helper->id);
-    p = (char *)((unsigned)&ai_Chars + 0x2);
+    p = (char *)((uintptr_t)&ai_Chars + 0x2);
     do {
         c = (AICHAR *)(p - 2);
         if (c != owner && c != helper && (c->kind == 6 || c->kind == 7))

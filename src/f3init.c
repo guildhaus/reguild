@@ -86,7 +86,7 @@ typedef struct INIT_TORCHLIST {
 #define INIT_CHARACTER_COUNT 0x300      /* ch.h's CH_MAX: the slots of the character list ch_List (0x1468ae0) */
 #define INIT_START_CHARACTERS_END ((int)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
 #define INIT_CHARACTERS_END ((unsigned)ai_Chars + 0x300 * 0x21c)  /* one past the character table ai_Chars (0x770b80 + 0x300 * 0x21c = 0x7d5f80; the original's gm_PlayerRecords follows it there, not in our link) */
-#define INIT_LAST_CHARACTER ((unsigned)&ai_Unk770d8c + 0x64fd8)  /* the last character record of ai_Chars (INIT_CHARACTERS_END - 0x21c; the greeting loop walks up to its +2) */
+#define INIT_LAST_CHARACTER ((uintptr_t)&ai_Unk770d8c + 0x64fd8)  /* the last character record of ai_Chars (INIT_CHARACTERS_END - 0x21c; the greeting loop walks up to its +2) */
 #define INIT_FIELD_MONEY 0x1ac          /* the character's money field (the field block of the start purse) */
 #define INIT_FIELD_RELIGION 0x0c        /* the character's religion field: 0 catholic / 1 protestant (the two judges) */
 
@@ -205,7 +205,7 @@ extern int init_StatusForm;
 #include "f3init_types.h"
 extern INIT_PLAYER init_PlayerProfile;
 extern struct AICHAR *ai_SceneChars[32];
-#define INIT_WINDOWS_END (unsigned)&sv_SkyScale       /* one past the scene window table 0x7603a0 (0x20 ints) */
+#define INIT_WINDOWS_END (uintptr_t)&sv_SkyScale       /* one past the scene window table 0x7603a0 (0x20 ints) */
 #include "rd_types.h"                 /* G15BK, the building sites ai_Bauplaetze (rd.h cannot be included here) */
 #include "ls.h"
 #include "f3init.h"
