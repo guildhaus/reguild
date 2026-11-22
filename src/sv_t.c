@@ -5035,7 +5035,7 @@ struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt); fl
 void cm_SendProofExecuted(int a, int b); 
 void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
 void gm_SendMoneyDelta(int a, int b);
-void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
+void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); struct EVTSCRIPT *sv_StartPoseScript(struct AICHAR *a, char *name);
 void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
 float gm_GetSkill(struct AICHAR *c, int skill); struct AIJOB *he_FindEvent(int n, ...);
 int gm_BuildingKindCost(struct AICHAR *c, int kind); char *strupr(char *); int sprintf(char *buf, const char *fmt, ...);

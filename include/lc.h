@@ -328,7 +328,7 @@ int ai_AccusationWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cde90, the 
 void ai_ShowCharacterNews(struct AICHAR *cRec, char *text);  /* 0x5a9110 */
 void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);  /* 0x5a9430 */
 void ai_TellGraveNeglect(struct AICHAR *plRec, int bld);  /* 0x5a9690 */
-void ai_NotifySale(struct AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
+void ai_NotifySale(struct AICHAR *owner, struct AICHAR *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
 void ai_TellGravesPaid(struct AICHAR *plRec, int bld, int paid, int sum);  /* 0x5a9780 */
 void ai_DomizilMessage12(struct AICHAR *ch, struct AIBLD *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
 struct AICHAR; struct ORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct ORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */

@@ -1028,7 +1028,7 @@ int amt_GetOfficeCandidates(AICHAR *c, int n, AMTCAND *out)
    *full to 1 (when full is not 0). Returns the number of candidates, capped at n; the town hall window 0x5a0590 uses *full to tell "all offices full" from "no
    office open" */
 
-int amt_GetOfficeCandidatesFull(char *c, int n, AMTCAND *out, int *full)
+int amt_GetOfficeCandidatesFull(AICHAR *c, int n, AMTCAND *out, int *full)
 {
     int cnt, i, j, k, kind, f, found, stop;
     float rate;
@@ -1095,28 +1095,28 @@ int amt_GetOfficeCandidatesFull(char *c, int n, AMTCAND *out, int *full)
 /* 0x4e7510, the character who holds the first office of the kind k (the AI decision 0x490e00 asks for the kind 0x11 holder); 0 when no record has the kind or the
    owner does not exist (gm_FindChar) */
 
-char *amt_GetOfficeHolder(int k)
+AICHAR *amt_GetOfficeHolder(int k)
 {
     int i;
 
     for (i = 0; i < 42; i++)
         if (amt_Table[i].kind == k)
-            return (char *)gm_FindChar(amt_Table[i].owner);
+            return gm_FindChar(amt_Table[i].owner);
     return 0;
 }
 /* 0x4e7550, the character who holds the office the kind k is the deputy of (0x24 -> kind 0x27, the person's office; 0x23 / 0x25 -> kind 0x26, the historical
    event's office); 0 when there is none. The election hmt_Election uses it as the reference object (hmt_Score) of the year's office type */
 
-char *amt_GetSuperiorOfficeHolder(int k)
+AICHAR *amt_GetSuperiorOfficeHolder(int k)
 {
     AMTREC o;
 
     if (k == 0x24) {
         if (amt_GetFirstOffice(0x27, &o) != 0)
-            return (char *)gm_FindChar(o.owner);
+            return gm_FindChar(o.owner);
     } else if (k == 0x25 || k == 0x23) {
         if (amt_GetFirstOffice(0x26, &o) != 0)
-            return (char *)gm_FindChar(o.owner);
+            return gm_FindChar(o.owner);
     }
     return 0;
 }
@@ -1145,7 +1145,7 @@ int amt_CanTakeOffice(AICHAR *c, int k)
 /* 0x4e76b0, the applicants for the office of the kind k: the characters (up to n, at most 6 offices looked at) holding an office of the column of the kind k whom
    amt_CanTakeOffice accepts for k, into out[]; returns their number. The AI partner choice (0x4a0240, 0x4a3af0) and the vote dialog (cm.c 0x4dab50) use it */
 
-int amt_GetOfficeApplicants(int k, int n, char **out)
+int amt_GetOfficeApplicants(int k, int n, AICHAR **out)
 {
     AMTKIND a;
     AMTREC list[6];
@@ -1166,7 +1166,7 @@ int amt_GetOfficeApplicants(int k, int n, char **out)
     for (i = 0; i < m; i++) {
         c = gm_FindChar(list[i].owner);
         if (c != 0 && amt_CanTakeOffice(c, k) != 0)
-            out[cnt++] = (char *)c;
+            out[cnt++] = c;
     }
     return cnt;
 }
@@ -2448,7 +2448,7 @@ int amt_ExecuteShareMessage(AICHAR *c, int *m)
         gm_FindById(&o, 0, 0, m[1]);
         if (o != 0) {
             if (o->owner != c->id && o->owner != 0xffff) {
-                f = gm_GetSkill((char *)c, 4);
+                f = gm_GetSkill(c, 4);
                 f = (util_RandomF() + 1.0f) * f * 15.0f;
                 loss = (int)((f + 5.0) * 2.55f);
                 cm_SendMoveGoodsUnchecked(-1, c->netId, ai_OwnPlayer, m[2]);

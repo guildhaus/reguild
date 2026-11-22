@@ -1384,7 +1384,7 @@ int ai_DecideLawSeverity(AICHAR *p, int a, int *out)
 int ai_DecideLaw1(AICHAR *p, int a, int *out)
 {
     AIDEC d;
-    unsigned short *o;
+    AICHAR *o;
     float f, x, u, v, w, g;
     int t, n, r;
 
@@ -1416,7 +1416,7 @@ int ai_DecideLaw1(AICHAR *p, int a, int *out)
     } else {
         o = amt_GetOfficeHolder(0x11);
         if (o) {
-            g = gm_Liking(*o, p->id, 1);
+            g = gm_Liking(o->id, p->id, 1);
             if (d.cur == 1) {
                 if (g > 0.75f) {
                     *out = 0;

@@ -320,15 +320,15 @@ struct AITIME;  /* f3gm.h typedef (gm_AddTime); file-scope so the gm_AddTime pro
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
 
 int gv_CannonCost(struct AICHAR *o, int a, int b, int d, int *n, int *price);  /* 0x4ef090 */
-int gv_MovePrice(unsigned short *c, int k1, int k2, int *out);  /* 0x4f2440 */
-int gv_ProtectionPrice(unsigned short *c);  /* 0x4f24a0, returns gm_PlayerFactor's value (0x4f2532 ret after the 0x5085f0 call) */
+int gv_MovePrice(struct AICHAR *c, int k1, int k2, int *out);  /* 0x4f2440 */
+int gv_ProtectionPrice(struct AICHAR *c);  /* 0x4f24a0, returns gm_PlayerFactor's value (0x4f2532 ret after the 0x5085f0 call) */
 int gv_CrimeTextLaw2to8(char *out, CRIME r, int mode);  /* 0x4f30a0 */
 int gv_CrimeTextLaw9to16(char *out, CRIME r, int mode);  /* 0x4f31d0 */
 int gv_CrimeTextLaw17to28(char *out, CRIME r, int mode);  /* 0x4f3270 */
 int gv_CrimeText(char *out, CRIME r, int mode);  /* 0x4f3580 */
 struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);  /* 0x4f41b0 */
 void gv_PassSentence(struct AICHAR *c, int a, struct AICHAR *judge, struct AICHAR *assessor1, struct AICHAR *assessor2);  /* 0x4f4460 */
-void gv_SentenceText(unsigned short *c, int a, char *out);  /* 0x4f48f0 */
+void gv_SentenceText(struct AICHAR *c, int a, char *out);  /* 0x4f48f0 */
 
 unsigned ord_ApplyForOffice(struct AICHAR *c, ORDMSG *m);  /* 0x4f4e20 */
 struct AIJOB *he_NextEvent(void);                   /* 0x53e300 */
@@ -344,7 +344,7 @@ int gv_Accuse(int i, int v, int a, int b, int obj);  /* 0x4f2e30 */
 float util_RandomF(void);               /* 0x42ec20 */
 
 void gv_GraveyardTurn(struct AIBLD *o);            /* 0x4f1de0 */
-int gv_LeasePrice(unsigned short *c, unsigned char care, int kind, int flag, int *out);  /* 0x4f2330 */
+int gv_LeasePrice(struct AICHAR *c, unsigned char care, int kind, int flag, int *out);  /* 0x4f2330 */
 int cm_SendRelations(int a, int b, int c, int d);                     /* 0x4c4b00 */
 int gm_CharCurrency(struct AICHAR *c, char p);                   /* 0x509ee0 */
 

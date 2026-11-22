@@ -824,7 +824,7 @@ int cm_AskElectVote(unsigned char office, AICHAR *b, int *ids, int *click)
         return -1;
     if (amt_GetKind(rec.kind, &kind) == 0)
         return -1;
-    k = amt_GetOfficeApplicants(rec.kind, 2, (char **)cand);
+    k = amt_GetOfficeApplicants(rec.kind, 2, cand);
     for (i = 0, n = 0; i < 4; i++) {
         c = gm_FindChar(ids[i]);
         if (c != 0)
@@ -3102,7 +3102,7 @@ void cm_RunBirth(G28REC *m)
 
 int cm_DeathSceneCheck(G28REC *m)
 {
-    if (gm_CharacterHealth((short *)gm_FindChar(m->members[0])) > 0.0f)
+    if (gm_CharacterHealth(gm_FindChar(m->members[0])) > 0.0f)
         return 0;
     return 1;
 }

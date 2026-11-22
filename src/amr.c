@@ -6482,7 +6482,7 @@ AICHAR *ai_PickLeastLikedRival(AICHAR *p)
         }
         return best;
     }
-    if (p->appliedOffice != 0 && (n = amt_GetOfficeApplicants(p->appliedOffice, 5, (char **)list)) != 0) {
+    if (p->appliedOffice != 0 && (n = amt_GetOfficeApplicants(p->appliedOffice, 5, list)) != 0) {
         for (i = 0; i < n; i++) {
             if (list[i] != p) {
                 if (best == 0) {

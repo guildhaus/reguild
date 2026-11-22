@@ -197,7 +197,7 @@ int he_IsMessageKindFiltered(int id);  /* 0x575640 */
 struct D3OBJECT *he_RandomTransporter(struct D3OBJECT *obj);  /* 0x555210 */
 struct AIJOB *ai_FindCurseEvent(struct AIBLD *a);  /* 0x5741d0 */
 int he_HasGraveWork(struct AIBLD *bld, int size, int index);  /* 0x573200, 1 when a work event 0x8d of bld is pending on the grave (size, index) */
-int he_NoEvent35Pair(unsigned short *a, struct AICHAR *b, int *count);  /* 0x553db0 */
+int he_NoEvent35Pair(struct AICHAR *a, struct AICHAR *b, int *count);  /* 0x553db0 */
 
 extern unsigned char he_FindKind;       /* 0x625708, he_FindEvent's filter on AIJOB.kind (key 0), 0xff = any */
 extern int he_FindId;                   /* 0x62570c, its filter on AIJOB.id (key 1), -1 = any */

@@ -304,7 +304,7 @@ char cm_FightWeaponLoss(AICHAR *ch)
    weapon it carries (cm_CharWeapon's item: 0x158 1.0, 0x154 0.5, 0x156 / 0x16e / 0x172 0.8, 0x174 / 0x176 0.9,
    0x15e / 0x160 0.7, another 0.3; none 0.5) */
 
-float cm_FightStrength(char *c)
+float cm_FightStrength(AICHAR *c)
 {
     float f = 0.5f;
     float skill;
@@ -471,7 +471,7 @@ int ai_LedSelectBits(int idx, AICHAR *c)
 {
     int r = 0;
 
-    if (c->bld == &ai_Chars[idx])
+    if (c->side == &ai_Chars[idx])
         r = 0x800;
     if (gm_AllowAll != 0)
         r = 0x800;
@@ -1190,7 +1190,7 @@ void cm_UpdatePointer()
         else if (strncmp(ai_PickedObject, "WARE", 4) == 0 && n != 0)
             d2_PointerLook = 0xe;
         else if (((D3OBJECT *)ai_PickedObject)->kind == 2 && n != 0) {
-            if (!(ai_LedSelectBits(cm_CutChar->id, (char *)((D3OBJECT *)ai_PickedObject)->owner) & 0x800) ||
+            if (!(ai_LedSelectBits(cm_CutChar->id, ((D3OBJECT *)ai_PickedObject)->owner) & 0x800) ||
                 kb_Down[0x36] != 0)
                 d2_PointerLook = cur;
         } else
@@ -1450,20 +1450,19 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
    world position in stateArg / x, and sent as message 0x50 (cm_SendCutEntry). -1 when tgt, c or rec is missing or the
    position has no cell; else the original returns nothing (VC6 keeps x, z, y in the dead parameters' slots) */
 
-int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, char *tgt)
+int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
-    D3OBJECT *o = (D3OBJECT *)tgt;
     CMCUTENTRY *e;
     CMCUTENTRY order;
-    float v[4];                         /* d3_PointToWorld writes the point and the angle after it */
+    D3VECTOR4 v;                        /* d3_PointToWorld writes the point and the angle after it */
     int x, z;
     float y;
 
-    if (o == 0 || c == 0 || rec == 0)
+    if (tgt == 0 || c == 0 || rec == 0)
         return -1;
-    d3_PointToWorld(o, &o->pos, (D3VECTOR *)v);
-    if (d3_GetHeightAt(hmap, (D3VECTOR *)v, &x, &z, &y) == 0)
+    d3_PointToWorld(tgt, &tgt->pos, &v.v);
+    if (d3_GetHeightAt(hmap, &v.v, &x, &z, &y) == 0)
         return -1;
     e = cm_CutEntrySlot(rec, c);
     if (e == 0)
@@ -1479,20 +1478,21 @@ int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, char *tgt)
 /* 0x4d02d0, an order kind 4 (the walk to a named dummy) for the character c with the name of the object tgt
    (CMCUTENTRY.dummy) and its ground cell (cellX, cellZ); returns 1, 0 when the point is not on the ground. */
 
-int cm_OrderConquer(CMCUTINFO *rec, AICHAR *c, char *tgt)
+int cm_OrderConquer(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 {
-    char *sc = (char *)d3_DefaultScene->hmap;
+    D3SM *sc = d3_DefaultScene->hmap;
     CMCUTENTRY *q;
     D3VECTOR4 v;
-    int x, z, h;
+    int x, z;
+    float h;
 
     cm_CharWeapon(c);
-    d3_PointToWorld(tgt, tgt + 0x4c, &v.v);
+    d3_PointToWorld(tgt, &tgt->pos, &v.v);
     if ((char)d3_GetHeightAt(sc, &v.v, &x, &z, &h) == 0)
         return 0;
     q = cm_CutEntrySlot(rec, c);
     q->b0c = 0;
-    strcpy(q->dummy, tgt);
+    strcpy(q->dummy, tgt->name);
     q->charId = c->netId;
     q->state = 4;
     q->cellX = x;
@@ -1504,26 +1504,25 @@ int cm_OrderConquer(CMCUTINFO *rec, AICHAR *c, char *tgt)
    as storeX / storeZ, and sent as message 0x50 (cm_SendCutEntry, whose result it returns). -1 when the point is not on
    the ground or the character c is in a job (AICHAR.v1ac). */
 
-int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, char *tgt)
+int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 {
     D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
-    D3OBJECT *o = (D3OBJECT *)tgt;
     CMCUTENTRY *q;
     CMCUTENTRY order;
-    float v[4];
+    D3VECTOR4 v;
     int x, z;
     float y;
 
     cm_CharWeapon(c);
-    d3_PointToWorld(o, &o->pos, (D3VECTOR *)v);
-    if (d3_GetHeightAt(hmap, (D3VECTOR *)v, &x, &z, &y) == 0 || c->v1ac != 0)
+    d3_PointToWorld(tgt, &tgt->pos, &v.v);
+    if (d3_GetHeightAt(hmap, &v.v, &x, &z, &y) == 0 || c->v1ac != 0)
         return -1;
     q = cm_CutEntrySlot(rec, c);
     q->b0c = 0;
     memcpy(&order, q, sizeof(order));
     order.charId = c->netId;
     order.state = 6;
-    strcpy(order.dummy, tgt);
+    strcpy(order.dummy, tgt->name);
     order.storeX = (unsigned char)x;
     order.storeZ = (unsigned char)z;
     return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
@@ -1580,7 +1579,7 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
 {
     char ret = 0;
     D3OBJECT *sel;
-    char *o;
+    AICHAR *o;
     CMCUTENTRY *e;
     CMCUTENTRY order;
     int x, z;
@@ -1590,19 +1589,19 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
         sel = (D3OBJECT *)ai_ClickedObject;
         if (sel != 0) {
             if (sel->kind == 2) {
-                o = (char *)sel->owner;
+                o = sel->owner;
                 if (cm_OtherBuilding(c, o) != 0 || kb_Down[DIK_RSHIFT] != 0) {
                     if (cm_OrderAttack(rec, c, o, 0, 0) != -1)
                         ret = 1;
                 }
             } else if (strcmp(sel->name, "sp_ESCAPE") == 0) {
-                cm_OrderEscape(rec, c, (char *)sel);
+                cm_OrderEscape(rec, c, sel);
                 ret = 1;
             } else if (strncmp(sel->name, "sp_CONQUER", 10) == 0) {
-                cm_OrderConquer(rec, c, (char *)ai_ClickedObject);
+                cm_OrderConquer(rec, c, (D3OBJECT *)ai_ClickedObject);
                 ret = 1;
             } else if (strncmp((char *)ai_ClickedObject, "WARE", 4) == 0) {
-                cm_OrderWare(rec, c, (char *)ai_ClickedObject);
+                cm_OrderWare(rec, c, (D3OBJECT *)ai_ClickedObject);
                 ret = 1;
             }
         } else {
@@ -2428,23 +2427,25 @@ int cm_MostThreatenedCellNear(AICHAR *c, int cx, int cy, int r, int *ox, int *oy
 }
 /* 0x4d2450, a callback of the object walk: collects the objects named "sp_ESCAPE" into list[cm_PointCount++] */
 
-char cm_CollectEscapeObject(char *o, int *list)
+char cm_CollectEscapeObject(D3OBJECT *o, void *ctx)
 {
-    if (stricmp(o, "sp_ESCAPE") == 0) {
-        list[cm_PointCount] = (int)o;
+    D3OBJECT **list = ctx;
+
+    if (stricmp(o->name, "sp_ESCAPE") == 0) {
+        list[cm_PointCount] = o;
         cm_PointCount++;
     }
     return 1;
 }
 /* 0x4d2490, the closest "sp_ESCAPE" object (0x4d2450) to the character c, or 0 (limit 1e6) */
 
-char *cm_NearestEscapeObject(AICHAR *c)
+D3OBJECT *cm_NearestEscapeObject(AICHAR *c)
 {
-    int list[0x20];
+    D3OBJECT *list[0x20];
     D3VECTOR4 v;
     float best = 1000000.0f;
     float d, dx, dy, dz;
-    char *res = 0;
+    D3OBJECT *res = 0;
     D3OBJECT *m, *o;
     int i;
 
@@ -2453,14 +2454,14 @@ char *cm_NearestEscapeObject(AICHAR *c)
     m = c->scene->obj;
     d3_PointToWorld(m, &m->pos, &v.v);
     for (i = 0; i < cm_PointCount; i++) {
-        o = (D3OBJECT *)list[i];
+        o = list[i];
         dx = v.x - o->pos.x;
         dy = v.y - o->pos.y;
         dz = v.z - o->pos.z;
         d = (float)sqrt(dx * dx + dy * dy + dz * dz);
         if (d < best) {
             best = d;
-            res = (char *)o;
+            res = o;
         }
     }
     return res;
@@ -2471,7 +2472,7 @@ char *cm_NearestEscapeObject(AICHAR *c)
 char cm_CollectWareObject(D3OBJECT *o, void *ctx)
 {
     AICHAR *c = ctx;
-    AICHAR *side = c->bld;    /* in a fight bld is the side's leader (cm_AddFighter) */
+    AICHAR *side = c->side;
 
     if (strncmp(o->name, "WARE_", 5) == 0 && ((AIOBJ *)o->owner)->fightSide != side->id)
         cm_PointList[cm_PointCount++] = o;
@@ -2479,12 +2480,12 @@ char cm_CollectWareObject(D3OBJECT *o, void *ctx)
 }
 /* 0x4d25a0, the closest object of 0x4d2550 to the character c, or 0 */
 
-char *cm_NearestWareObject(AICHAR *c)
+D3OBJECT *cm_NearestWareObject(AICHAR *c)
 {
     D3VECTOR4 v;
     float best = 1000000.0f;
     float d, dx, dy, dz;
-    char *res = 0;
+    D3OBJECT *res = 0;
     D3OBJECT *m, *o;
     int i, n;
 
@@ -2501,7 +2502,7 @@ char *cm_NearestWareObject(AICHAR *c)
         d = (float)sqrt(dx * dx + dy * dy + dz * dz);
         if (d < best) {
             best = d;
-            res = (char *)o;
+            res = o;
         }
     }
     return res;
@@ -2710,40 +2711,40 @@ void cm_InitOrderChances()
    standing, health neither 0 nor 4) against 1.75 / 1.25 / 0.75 / 0.5; the defender holding against the attacker's
    "sp_CONQUER" flags gets level 1 for one taken, 0 for two or three */
 
-float *cm_OrderChancesFor(int side)
+float *cm_OrderChancesFor(AICHAR *side)
 {
     int kind;
     float def, att, r;
     D3VECTOR4 v;
-    char *o;
+    AICHAR *o;
     int i, cnt, lvl;
 
     kind = 6;
-    if ((cm_FightRecord->fight.flags & 1) && (int)cm_FightAttacker == side)
+    if ((cm_FightRecord->fight.flags & 1) && cm_FightAttacker == side)
         kind = 0;
-    else if ((cm_FightRecord->fight.flags & 1) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 1) && cm_FightDefender == side)
         kind = 1;
-    else if ((cm_FightRecord->fight.flags & 2) && (int)cm_FightAttacker == side)
+    else if ((cm_FightRecord->fight.flags & 2) && cm_FightAttacker == side)
         kind = 2;
-    else if ((cm_FightRecord->fight.flags & 2) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 2) && cm_FightDefender == side)
         kind = 3;
-    else if ((cm_FightRecord->fight.flags & 4) && (int)cm_FightAttacker == side)
+    else if ((cm_FightRecord->fight.flags & 4) && cm_FightAttacker == side)
         kind = 4;
-    else if ((cm_FightRecord->fight.flags & 4) && (int)cm_FightDefender == side)
+    else if ((cm_FightRecord->fight.flags & 4) && cm_FightDefender == side)
         kind = 5;
     def = 0.0f;
     for (i = 0; i < 16; i++) {
         if (cm_FightRecord->fight.defenders[i] != -1) {
-            o = (char *)cm_FindFighter(cm_FightRecord->fight.defenders[i]);
-            if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
+            o = cm_FindFighter(cm_FightRecord->fight.defenders[i]);
+            if (o->health != 0 && o->health != 4)
                 def = cm_FightStrength(o) + def;
         }
     }
     att = 0.0f;
     for (i = 0; i < 16; i++) {
         if (cm_FightRecord->fight.attackers[i] != -1) {
-            o = (char *)cm_FindFighter(cm_FightRecord->fight.attackers[i]);
-            if (((AICHAR *)o)->health != 0 && ((AICHAR *)o)->health != 4)
+            o = cm_FindFighter(cm_FightRecord->fight.attackers[i]);
+            if (o->health != 0 && o->health != 4)
                 att = cm_FightStrength(o) + att;
         }
     }
@@ -2752,11 +2753,11 @@ float *cm_OrderChancesFor(int side)
         if (strstr(cm_FlagObjects[i]->name, "sp_CONQUER") != 0) {
             d3_PointToWorld(cm_FlagObjects[i], &cm_FlagObjects[i]->pos, &v.v);
             o = cm_FlagObjects[i]->owner;
-            if (o != 0 && ((AICHAR *)o)->side == cm_FightAttacker)
+            if (o != 0 && o->side == cm_FightAttacker)
                 cnt++;
         }
     }
-    if (side == (int)cm_FightAttacker)
+    if (side == cm_FightAttacker)
         r = att / def;
     else
         r = def / att;
@@ -2770,7 +2771,7 @@ float *cm_OrderChancesFor(int side)
         lvl = 1;
     else
         lvl = 0;
-    if (side == (int)cm_FightDefender) {
+    if (side == cm_FightDefender) {
         if (cnt == 1)
             lvl = cnt;
         else if (cnt == 2 || cnt == 3)
@@ -2800,7 +2801,7 @@ float cm_OrderRating(AICHAR *c, int order)
         kind = ((AIWEAPON *)cm_CharWeapon(c))->kind;
         if ((kind == 1 || kind == 2) && ((AIOBJ *)cm_CharWeaponItem(c))->usesLeft <= 0)
             f = 0.2f;
-        r = cm_FightStrength((char *)c) * f;
+        r = cm_FightStrength(c) * f;
         break;
     case 1:
         cur = c->formation;
@@ -2814,7 +2815,7 @@ float cm_OrderRating(AICHAR *c, int order)
         kind = ((AIWEAPON *)cm_CharWeapon(c))->kind;
         if ((kind == 1 || kind == 2) && ((AIOBJ *)cm_CharWeaponItem(c))->usesLeft <= 0)
             f = 1.0f;
-        r = f / cm_FightStrength((char *)c);
+        r = f / cm_FightStrength(c);
         break;
     case 2:
         if (c->formation != 2)
@@ -2862,7 +2863,7 @@ void cm_GiveFightOrders(AICHAR *side)
             break;
         }
     }
-    if (side == (int)cm_FightAttacker)
+    if (side == cm_FightAttacker)
         ids = cm_FightRecord->fight.attackers;
     else
         ids = cm_FightRecord->fight.defenders;
@@ -2912,8 +2913,10 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
 {
     D3SM *sc;
     AIWEAPON *k;
-    char *o;
-    int x, y, h;
+    AICHAR *e;
+    D3OBJECT *o;
+    int x, y;
+    float h;
     float v[4];
 
     if (c != 0 && c->scene != 0) {
@@ -2936,10 +2939,10 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
             cm_OrderAttack(rec, c, 0, x, y);
             return;
         }
-        o = (char *)cm_NearestEnemy(c);
-        if (o == 0)
+        e = cm_NearestEnemy(c);
+        if (e == 0)
             return;
-        cm_OrderAttack(rec, c, o, 0, 0);
+        cm_OrderAttack(rec, c, e, 0, 0);
         return;
     case 5:
         o = cm_NearestEscapeObject(c);
@@ -2954,7 +2957,7 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
         cm_OrderWare(rec, c, o);
         return;
     case 2:
-        o = (char *)cm_NearestConquerPoint(c);
+        o = cm_NearestConquerPoint(c);
         if (o == 0)
             return;
         cm_OrderConquer(rec, c, o);
@@ -3024,7 +3027,7 @@ int cm_CheckDeath(AICHAR *c)
 }
 
 #define G19_FIGHTER_SYNC(ch)                                                          \
-    r = (AIOBJ *)cm_CharWeaponItem((char *)(ch));                                          \
+    r = (AIOBJ *)cm_CharWeaponItem(ch);                                                    \
     if (r != 0) {                                                                     \
         int vv = -1;                                                                  \
         cm_BeginFieldBlock(r, r->objId);                                            \
@@ -3281,7 +3284,7 @@ int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
    cart (0x4ffe90 chains) go to the winner (0x4c4880, at least 1, f of the count; a free pick-up with b == 0) and their
    price is added; with no winner record half of the value goes to the money message 0x4c47e0; the value goes to the
    record of the attacker side (0x506430, AIFIN.lootTakings) */
-int cm_LootCarts(G28REC *a, AIBLD *b, AICHAR *d, int unused, float f)
+int cm_LootCarts(G28REC *a, AIBLD *b, AICHAR *d, AICHAR *t, float f)
 {
     AIOBJ *ob, *q, *p;
     AIFIN *fin;
@@ -3596,7 +3599,7 @@ int cm_FightStartDialog(G28REC *a)
                     sv_PopRequest = 1;
                     res = 0;
                     cm_FightSettled = 1;
-                    cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, (int)cm_FightDefender, fv);
+                    cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, cm_FightDefender, fv);
                 } else {
                     txt_Format(tc, 0x1143);
                     cm_MessageBox((intptr_t)tc, 0);
@@ -3625,7 +3628,7 @@ int cm_FightStartDialog(G28REC *a)
                 fv = (float)(st * 0.01);
                 res = 0;
                 cm_FightSettled = 1;
-                cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, (int)cm_FightDefender, fv);
+                cm_FightLootValue = cm_LootCarts(cm_FightRecord, home, cm_FightAttacker, cm_FightDefender, fv);
             } else {
                 cm_FightLootValue = -1;
                 res = 1;
@@ -3637,10 +3640,6 @@ int cm_FightStartDialog(G28REC *a)
     return res;
 }
 
-#define G20_US(p) (*(unsigned short *)(p))
-#define G20_ME (ai_CharInts[ai_PlayerId][0])
-#define G20_ATT ((char *)cm_FightDefender)
-#define G20_DEF ((char *)cm_FightAttacker)
 /* 0x4d4d70, the end of a fight (a: the fight record, its flags say how it was fought): the weapons the fighters lose
    (cm_FightWeaponLoss, by the fight's owner), the side picked (side: by cm_FightWinner, else the side with more
    fighters standing), the dialog "cutscenes\combat_end" with that side's text (0x1189 .. 0x118f), the portrait rows of
@@ -4082,9 +4081,10 @@ void cm_RunFight(G28REC *a)
     char buf[0x800];
     AIRECIPE rc;
     int bad = 0, nb, seed, i, id, sa, sb, w, n, r;
-    char *c;
-    AIOBJ *p;
-    char *win, *e1, *e2;
+    AIBLD *c;
+    AIOBJ *p, *box;
+    AICHAR *win;
+    AIBLD *e1, *e2;
     AICHAR *ch;
     AIBLD *bld;
     int *e;
@@ -4157,12 +4157,12 @@ void cm_RunFight(G28REC *a)
             cm_FightEndDialog(a);
             cm_FightOutro((char *)a);
         } else if (cm_FightLootValue != 0 && cm_FightAttacker->kind == 6) {
-            e1 = 0;
+            box = 0;
             bld = gm_BuildQuery(1, 1, cm_FightRecord->fight.attackerBld);
             if (bld != 0)
-                e1 = (char *)gm_Query(bld->objList, 2, 6, 0, 0x116);
+                box = gm_Query(bld->objList, 2, 6, 0, 0x116);
             if (cm_FightLootValue > 0) {
-                if (e1 == 0)
+                if (box == 0)
                     txt_Format(buf, 0x1144, cm_FightLootValue);
                 else
                     txt_Format(buf, 0x1145, cm_FightLootValue);
@@ -4180,7 +4180,7 @@ void cm_RunFight(G28REC *a)
     for (i = 0; i < 16; i++) {
         id = a->fight.defenders[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
-            sa = (int)(cm_FightStrength((char *)ch) + sa);
+            sa = (int)(cm_FightStrength(ch) + sa);
             r = util_Random(10);
             gm_AddHealth(ch->id, -r * 20);
         }
@@ -4188,15 +4188,15 @@ void cm_RunFight(G28REC *a)
     for (i = 0; i < 16; i++) {
         id = a->fight.attackers[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0 && ch->health != 0 && ch->health != 4) {
-            sb = (int)(cm_FightStrength((char *)ch) + sb);
+            sb = (int)(cm_FightStrength(ch) + sb);
             r = util_Random(10);
             gm_AddHealth(ch->id, -r * 20);
         }
     }
     if (util_Random(30) + sb > util_Random(30) + sa)
-        win = G20_DEF;
+        win = cm_FightAttacker;
     else
-        win = G20_ATT;
+        win = cm_FightDefender;
     for (i = 0; i < 16; i++) {
         id = a->fight.defenders[i];
         if (id != -1 && (ch = gm_FindChar(id)) != 0)
@@ -4207,14 +4207,14 @@ void cm_RunFight(G28REC *a)
             cm_FightWeaponLoss(ch);
     }
     if (a->fight.flags & 2) {
-        if (win == G20_DEF) {
-            e1 = (char *)gm_BuildQuery(1, 1, a->fight.attackerBld);
-            e2 = (char *)gm_BuildQuery(1, 1, a->thing);
-            cm_LootStock(e2, e1, G20_DEF, G20_ATT);
+        if (win == cm_FightAttacker) {
+            e1 = gm_BuildQuery(1, 1, a->fight.attackerBld);
+            e2 = gm_BuildQuery(1, 1, a->thing);
+            cm_LootStock(e2, e1, cm_FightAttacker, cm_FightDefender);
         }
-    } else if (!(a->fight.flags & 4) && (a->fight.flags & 1) && win == G20_DEF) {
-        c = (char *)gm_BuildQuery(1, 1, a->fight.attackerBld);
-        cm_LootCarts(a, c, G20_DEF, (int)cm_FightDefender, 100.0f);
+    } else if (!(a->fight.flags & 4) && (a->fight.flags & 1) && win == cm_FightAttacker) {
+        c = gm_BuildQuery(1, 1, a->fight.attackerBld);
+        cm_LootCarts(a, c, cm_FightAttacker, cm_FightDefender, 100.0f);
     }
 }
 /* 0x4d6930, the result of the fight in the record r (+0x354 / +0x358): 0x6f0cf8 set -> 0 and the ransom 0x6f0cfc, else 1 */

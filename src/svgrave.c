@@ -1418,7 +1418,7 @@ int ai_GraveRentConfirm(AIBLD *rec, int size)
     if (rec->owner == ai_PlayerId)
         cost = 0;
     else
-        cost = gv_LeasePrice((unsigned short *)&ai_Chars[ai_PlayerId], 0xff, size, 1, &share);
+        cost = gv_LeasePrice(&ai_Chars[ai_PlayerId], 0xff, size, 1, &share);
     win = d2_OpenForm(0, 0, "Locations\\Friedhof\\Friedhof");
     d2_SetPointerSprite(0, 0);
     d2_CentreViewWindows(win);
@@ -2422,7 +2422,7 @@ void ai_GraveSeance(AIBLD *rec)
     }
 }
 
-void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); int sv_StartPoseScript(struct AICHAR *a, int b);
+void ai_EndCharExtra(struct AICHAR *ch, int f); int cm_SendRelations(int a, int b, int c, int d); struct EVTSCRIPT *sv_StartPoseScript(struct AICHAR *a, char *name);
 
 /* 0x5867c0, the graveyard "Schlag" action (114 B): when the character under the pointer (ai_PickedChar) exists
    with the at-work flag bit 0 of +0x1b4 and the left button (dm_L.lup) is latched: ends its extra (ai_EndCharExtra,
@@ -2438,7 +2438,7 @@ void ai_GraveyardSchlag(AIBLD *unused)
         ai_EndCharExtra(c, 0);
         c = ai_PickedChar;
         cm_SendRelations(ai_CharInts[ai_PlayerId][0], c->netId, -5, 0);
-        script = (EVTSCRIPT *)sv_StartPoseScript((char *)ai_PickedChar, "locations/friedhof/schlag_FRIEDHOF.esc");
+        script = sv_StartPoseScript(ai_PickedChar, "locations/friedhof/schlag_FRIEDHOF.esc");
         if (script != 0)
             script->ownScene = 1;
     }

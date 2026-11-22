@@ -192,15 +192,15 @@ void ai_FillNearRing(AICHAR *c)
         }
     }
     if (p->appliedOffice != 0) {
-        char *rivals[6];
+        AICHAR *rivals[6];
         int nrivals;
 
         nrivals = amt_GetOfficeApplicants(p->appliedOffice, 6, rivals);
         for (j = 0; j < nrivals; j++) {
-            if ((AICHAR *)rivals[j] == p)
+            if (rivals[j] == p)
                 continue;
             for (i = 0; i < cnt; i++) {
-                if ((AICHAR *)rivals[j] == ai_NearRing[i].who) {
+                if (rivals[j] == ai_NearRing[i].who) {
                     ai_NearRing[i].flags |= 2;
                     break;
                 }
@@ -211,7 +211,7 @@ void ai_FillNearRing(AICHAR *c)
                 ai_NearRing[cnt].flags = 2;
                 /* the original reads o, the last holder found above, not the applicant */
                 ai_NearRing[cnt].dist = gm_Liking(o->id, p->id, 1);
-                ai_NearRing[cnt].who = (AICHAR *)rivals[j];
+                ai_NearRing[cnt].who = rivals[j];
                 cnt++;
             }
         }

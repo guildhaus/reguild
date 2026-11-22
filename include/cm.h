@@ -461,7 +461,7 @@ char *cm_CharWeapon(struct AICHAR *c);  /* 0x4cda50 */
 char *cm_CharWeaponItem(struct AICHAR *c);  /* 0x4cdac0 */
 void cm_DiscardWeapons(struct AICHAR *c);  /* 0x4cdb20 */
 char cm_FightWeaponLoss(struct AICHAR *c);  /* 0x4cdb80 */
-float cm_FightStrength(char *c);  /* 0x4cdcf0 */
+float cm_FightStrength(struct AICHAR *c);  /* 0x4cdcf0 */
 void cm_UpdateHandObject(struct AICHAR *c);  /* 0x4cde20 */
 struct CMCUTINFO; struct CMCUTENTRY; struct CMCUTENTRY *cm_CutEntrySlot(struct CMCUTINFO *rec, struct AICHAR *c);  /* 0x4cdf00 */
 struct CMCUTENTRY *cm_FightCutEntry(struct AICHAR *c);  /* 0x4cdf80 */
@@ -567,10 +567,10 @@ char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, floa
 
 
 
-int cm_OrderEscape(struct CMCUTINFO *rec, struct AICHAR *c, char *tgt);  /* 0x4d0200 */
+int cm_OrderEscape(struct CMCUTINFO *rec, struct AICHAR *c, struct D3OBJECT *tgt);  /* 0x4d0200 */
 
-int cm_OrderConquer(struct CMCUTINFO *rec, struct AICHAR *c, char *tgt);  /* 0x4d02d0 */
-int cm_OrderWare(struct CMCUTINFO *rec, struct AICHAR *c, char *tgt);  /* 0x4d0380 */
+int cm_OrderConquer(struct CMCUTINFO *rec, struct AICHAR *c, struct D3OBJECT *tgt);  /* 0x4d02d0 */
+int cm_OrderWare(struct CMCUTINFO *rec, struct AICHAR *c, struct D3OBJECT *tgt);  /* 0x4d0380 */
 
 int cm_OrderToBestCell(struct CMCUTINFO *rec, struct AICHAR *c);  /* 0x4d0460 */
 void cm_OrderWait(struct CMCUTINFO *rec, struct AICHAR *c);  /* 0x4d0520 */
@@ -643,10 +643,10 @@ extern int cm_FightAmbient;  /* 0x6f0d4c */
 float cm_ThreatAt(struct AICHAR *c, int a, int b, float limit);  /* 0x4d2010, the threat at a height map vertex for the fighter c */
 
 int cm_MostThreatenedCellNear(struct AICHAR *c, int cx, int cy, int r, int *ox, int *oy);  /* 0x4d22d0 */
-char cm_CollectEscapeObject(char *o, int *list);  /* 0x4d2450 */
-char *cm_NearestEscapeObject(struct AICHAR *c);  /* 0x4d2490 */
+char cm_CollectEscapeObject(struct D3OBJECT *o, void *ctx);  /* 0x4d2450 */
+struct D3OBJECT *cm_NearestEscapeObject(struct AICHAR *c);  /* 0x4d2490 */
 char cm_CollectWareObject(struct D3OBJECT *o, void *ctx);  /* 0x4d2550 */
-char *cm_NearestWareObject(struct AICHAR *c);  /* 0x4d25a0 */
+struct D3OBJECT *cm_NearestWareObject(struct AICHAR *c);  /* 0x4d25a0 */
 char cm_CollectConquerPoint(struct D3OBJECT *o, void *ctx);  /* 0x4d2650 */
 struct D3OBJECT *cm_NearestConquerPoint(struct AICHAR *c);  /* 0x4d2680 */
 extern int cm_PointCount;  /* 0x6f0d60 */
@@ -655,7 +655,7 @@ extern struct D3OBJECT *cm_PointList[];  /* 0x930380 */
 void cm_InitOrderChances();  /* 0x4d27a0 */
 extern float cm_OrderChances[0xb4];  /* 0x9300a0 */
 
-float *cm_OrderChancesFor(int side);  /* 0x4d2c00 */
+float *cm_OrderChancesFor(struct AICHAR *side);  /* 0x4d2c00 */
 
 float cm_OrderRating(struct AICHAR *c, int order);  /* 0x4d2e30 */
 void cm_GiveFightOrders(struct AICHAR *side);  /* 0x4d2f80 */
@@ -716,7 +716,7 @@ extern int cm_FightSettled;  /* 0x6f0cf8 */
 extern int cm_FightLootValue;  /* 0x6f0cfc */
 extern struct D2WIN *d2_LastWindowPtr;  /* 0x6ed980, window created last (d2.c) */
 
-int cm_LootCarts(G28REC *a, AIBLD *b, struct AICHAR *d, int unused, float f);  /* 0x4d3ea0 */
+int cm_LootCarts(G28REC *a, AIBLD *b, struct AICHAR *d, struct AICHAR *t, float f);  /* 0x4d3ea0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);  /* 0x5089c0, a price */
 int gm_GetGoodsValue(struct AICHAR *ch);  /* 0x509e60 */
 

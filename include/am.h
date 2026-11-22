@@ -102,7 +102,7 @@ int ai_DecideLaw28(AICHAR *p, int a, int *out);                    /* 0x492e90, 
 
 int am_RegisterMethod(AIACT *act, int a);                            /* 0x495520, registers an action */
 int ai_EvalMoodWeights(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y);  /* 0x4a49a0 */
-char * amt_GetOfficeHolder(int k);                            /* 0x4e7510 */
+struct AICHAR *amt_GetOfficeHolder(int k);                            /* 0x4e7510 */
 int amt_GetOwnedOfficePay(void);                                         /* 0x4ea990 */
 unsigned char ord_GetRatingByte(int k);                              /* 0x4f97a0 */
 float ord_BuildingCapacityRatio(void);                                       /* 0x4f97c0 */
@@ -157,7 +157,7 @@ int ai_EvalGuiltWeights(float *a, float *b, int i, AICHAR *p, struct AIDEC *d); 
 int ai_PickPartnerChain(AICHAR *p, int a, int *flags, float b, float f, unsigned short *id); /* 0x4a58d0 */
 int cm_SendSetField(int a, int b, int c, int d, int e);                   /* 0x4c4a60 */
 void cm_SendMoneyDelta(int a, int b);                                               /* 0x4c5f60 */
-int amt_GetOfficeApplicants(int k, int n, char **out);                                   /* 0x4e76b0 */
+int amt_GetOfficeApplicants(int k, int n, struct AICHAR **out);                                   /* 0x4e76b0 */
 struct ORDMSG; int ord_DispatchOrder(int id, struct AICHAR *c, struct ORDMSG *m);                                     /* 0x4f81c0 */
 int gm_CharCurrency(struct AICHAR *c, char p);                                    /* 0x509ee0 */
 int gm_GetWorth(unsigned short id);                                            /* 0x50a640 */

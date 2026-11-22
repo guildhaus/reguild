@@ -5432,7 +5432,7 @@ int cm_ExSetJob(G17MSG *m, G17STAT *s)
     if (c == 0)
         return 1;
     gm_SetJob(c->id, m->setJob.job);
-    gm_ChooseHeadIcon(&c->id);
+    gm_ChooseHeadIcon(c);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
@@ -5722,7 +5722,7 @@ int cm_ExCutEntry(G17MSG *m, G17STAT *s)
 {
     CMCUTINFO *rec;
     CMCUTENTRY *r;
-    char *c;
+    AICHAR *c;
     int i;
 
     if (m->cutEntry.fightId != ai_Chars[ai_PlayerId].partyId)
@@ -5730,9 +5730,9 @@ int cm_ExCutEntry(G17MSG *m, G17STAT *s)
     for (i = 0; i < 16; i++) {
         if (cm_CutInfos[i].playerId == m->cutEntry.playerId) {
             rec = &cm_CutInfos[i];
-            c = (char *)cm_FindFighter(m->cutEntry.entry.charId);
+            c = cm_FindFighter(m->cutEntry.entry.charId);
             if (c == 0)
-                c = (char *)gm_FindChar(m->cutEntry.entry.charId);
+                c = gm_FindChar(m->cutEntry.entry.charId);
             if (c != 0) {
                 r = cm_CutEntrySlot(rec, c);
                 *r = m->cutEntry.entry;

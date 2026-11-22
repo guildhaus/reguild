@@ -2759,7 +2759,7 @@ int ai_CartAtBuilding(AIBLD *bld, AIOBJ *cart)
    the price over factor), a changed price shows the text 0xec with the difference and plays
    "RollenKurz_s_01", and the slot's control drops by n. The moves are one send group, waited for; 1 */
 
-int ai_TransportFromLager(int lagerId, AIOBJ *cart, AIBLD *bld, int priced, char *source, float factor,
+int ai_TransportFromLager(int lagerId, AIOBJ *cart, AIBLD *bld, int priced, AICHAR *source, float factor,
                           unsigned char player, unsigned int mode)
 {
     float total;
@@ -3624,9 +3624,9 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 } else {
                     d2_EndInputEdit();
                     if (util_RandomF() < 0.25f)
-                        ai_TransportFromLager(ai_InvChar->netId, stall, b, canTrade, (char *)&ai_Chars[ai_PlayerId], factor, owner, mode);
+                        ai_TransportFromLager(ai_InvChar->netId, stall, b, canTrade, &ai_Chars[ai_PlayerId], factor, owner, mode);
                     else
-                        ai_TransportFromLager(ai_InvChar->netId, stall, b, canTrade, (char *)&ai_Chars[ai_PlayerId], 1.0f, owner, mode);
+                        ai_TransportFromLager(ai_InvChar->netId, stall, b, canTrade, &ai_Chars[ai_PlayerId], 1.0f, owner, mode);
                     for (k = 0; k < 6; k++)
                         if (ai_InvSlots[k].obj != 0)
                             d2_SetObjValue(ai_InvSlots[k].ctl, 0, 0, 0);
@@ -5412,7 +5412,7 @@ int ai_PamphletAmountCB(AICHAR *ch, int unused)
         return 0;
     if (ch->id == ai_PlayerId)
         return 0;
-    if (he_NoEvent35Pair((unsigned short *)&ai_Chars[ai_PlayerId], ch, &count) == 0) {
+    if (he_NoEvent35Pair(&ai_Chars[ai_PlayerId], ch, &count) == 0) {
         txt_Format(note, 0x190f, ch->id);
         sv_MessageBox((intptr_t)note, 0);
         return 0;

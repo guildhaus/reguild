@@ -3399,7 +3399,7 @@ void gm_ReleaseCharacter(AICHAR *c)
 {
     if (c != 0 && c->id != 0xffff) {
         sv_MoveToGroup(0, 0, c->id, 0);
-        he_EndPersonEvents(&c->id);
+        he_EndPersonEvents(c);
         he_EndKind23Events(c);
         d3io_NoopCallback(c);
         amt_ClearOffices(c);
@@ -5193,8 +5193,8 @@ unsigned gm_TakeOverCharacter(int a, int b)
     if (cb == 0)
         return -2;
     he_RecheckPersonEvents(&ca->id);
-    he_EndPersonEvents(&ca->id);
-    he_EndPersonEvents(&cb->id);
+    he_EndPersonEvents(ca);
+    he_EndPersonEvents(cb);
     sb = cb->id;
     if (ca->w050 != cb->w050)
         cb->w050 = ca->w050;

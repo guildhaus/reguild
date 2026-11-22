@@ -3486,7 +3486,7 @@ void sv_OpenBuildingPanel(AIBLD *b)
 void sv_OpenItemPanel(AIOBJ *p)
 {
     AIBLD *b;
-    unsigned short *owner;
+    AICHAR *owner;
     unsigned perm;
     AIGOOD *g;
 
@@ -3511,7 +3511,7 @@ void sv_OpenItemPanel(AIOBJ *p)
         if (b != 0 && (g->type == 2 || g->type == 6)) {
             owner = gm_ObjectBuildingOwner(p);
             perm = gm_PermissionBits(ai_PlayerId, b, 0, 0);
-            if (*owner == ai_PlayerId || (perm & 0x10) != 0) {
+            if (owner->id == ai_PlayerId || (perm & 0x10) != 0) {
                 if (gm_ListObjectsAfter(b, p, 0) != 0)
                     sv_PanelActionBtn = sv_AddPanelButton(0, 0x8c, txt_Ptrs[TXT_PANEL_BTN_ITEM_OWN]);
                 sv_PanelItemBtn = sv_AddPanelButton(0, 0xa6, txt_Ptrs[TXT_PANEL_BTN_ITEM]);
@@ -3527,7 +3527,7 @@ void sv_OpenItemPanel(AIOBJ *p)
    character that shows the cart (sv_PanelCartChar) */
 void sv_OpenCartPanel(AIOBJ *c)
 {
-    unsigned short *owner;
+    AICHAR *owner;
     int x;
 
     if (sv_PanelForm != -1)
@@ -3537,11 +3537,11 @@ void sv_OpenCartPanel(AIOBJ *c)
         return;
     sv_PanelForm = d2_OpenForm(d2_ScreenW - 0x68, 0x106, "panel\\infopanel_transporter");
     d2_SetForm(sv_PanelForm, 1);
-    io_PrintText((intptr_t)"$Z%2N1$A%s", *owner, c->id * 2 + 0x9a8);
+    io_PrintText((intptr_t)"$Z%2N1$A%s", owner->id, c->id * 2 + 0x9a8);
     d2_SetForm(sv_PanelForm, 0);
     x = ((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1;
     ((D2OBJ *)d2_Objs)[d2_WinOpenPic(x, 0x30, c->id + 0xdf, d2_LastWindow)].interactive = 1;
-    if (*owner == ai_PlayerId)
+    if (owner->id == ai_PlayerId)
         sv_PanelCartBtn = sv_AddPanelButton(x, 0xac, txt_Ptrs[TXT_PANEL_BTN_CART]);
     sv_PanelHealthBar = d2_WinOpenSlider(0x18, 0x66, 0x30, 0, 100, 0x75, 0x442, d2_LastWindow);
     d2_SetObjValue(sv_PanelHealthBar, 0, 100, c->fill);
@@ -4514,10 +4514,10 @@ int sv_ActivityName(AICHAR *c, AIBLD *b, char *out)
     }
     return 0;
 }
-/* 0x52b490, starts the role pose script "sp_<netId>" of the character a from the template b (an .esc name) and
+/* 0x52b490, starts the role pose script "sp_<netId>" of the character a from the template name (an .esc name) and
    links it back: the script's character (+0xc94) and the character model's scriptId (+0x28 of the model at +0x184) */
 
-int sv_StartPoseScript(AICHAR *a, int b)
+EVTSCRIPT *sv_StartPoseScript(AICHAR *a, char *name)
 {
     AICHAR *c;
     EVTSCRIPT *script;
@@ -4525,13 +4525,13 @@ int sv_StartPoseScript(AICHAR *a, int b)
 
     c = a;
     sprintf(buf, "sp_%i", c->netId);
-    script = evt_Load((char *)b);
+    script = evt_Load(name);
     if (script != 0) {
         evt_RunScriptArgs(script, 1, buf);
         script->character = c->scene;
         c->scene->scriptId = script->id;
     }
-    return (int)script;
+    return script;
 }
 
 void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576040 */

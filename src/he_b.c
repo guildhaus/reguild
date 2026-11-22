@@ -4335,7 +4335,7 @@ void he_AllocHaunting(AIJOB *e)
     }
 }
 
-void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 
 /* 0x56fda0, the run handler of the graveyard owner's haunting event 0x88 (alloc he_AllocHaunting; am.c's
    ai_ExecGraveyardOwner0 / sv_t.c post it): without the haunter the event is freed; the stages -1 / -2 take the
@@ -4394,7 +4394,7 @@ void he_RunHaunting(AIJOB *e)
             victim = gm_FindChar(h->victim);
             if (victim != 0) {
                 gm_AddTime(&e->end, 0x18, 0, 0);
-                ai_HauntingText((unsigned short *)&ai_Chars[e->chr], victim, (unsigned int)&e->end);
+                ai_HauntingText(&ai_Chars[e->chr], victim, &e->end);
             }
             e->exSlot = cm_SendExSetHE(3, e);
             return;
@@ -4695,7 +4695,7 @@ void he_RunPlunder(AIJOB *e)
             return;
         }
         if (ai_PickPartnerRandomWalk(&ai_Chars[e->chr], PLUNDER_PARTNER_FLAGS, 4, p->victims, 0, 100.0f, &idx) != 0) {
-            price = gv_ProtectionPrice((unsigned short *)&ai_Chars[idx]);
+            price = gv_ProtectionPrice(&ai_Chars[idx]);
             worth = gm_ConvertMoney(gm_GetWorth(idx), ai_OwnPlayer);
             p->victims[p->at] = idx;
             if (worth > price && !(ai_Chars[idx].flags1cc & 1)) {
@@ -4848,7 +4848,7 @@ void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
-void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 
 /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character (+8) and a's netId as its victim
    (+0xb0); 0 when one does */
@@ -5612,8 +5612,8 @@ void he_AllocPlunderOfferLease(AIJOB *e)
     e->stage = 0;
 }
 
-void ai_ShowGraveOrderExtended(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
-void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
+void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
+void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);                 /* 0x5a9880 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(struct AIJOB *ev);          /* 0x5728d0 */
 void he_ExamCancelled(struct AIJOB *ev);          /* 0x5729c0 */
@@ -5641,7 +5641,7 @@ void he_AnswerGraveLease(AIJOB *e)
     if (ai_Chars[bld->owner].kind != 6 && ai_Chars[bld->owner].kind != 7)
         return;
     n = (int)((float)l->price * gv_SaleShares[l->size]);
-    ai_ShowGraveOrderExtended(&ai_Chars[bld->owner], (unsigned short *)per, (int)bld, l->size, l->price, n);
+    ai_ShowGraveOrderExtended(&ai_Chars[bld->owner], per, (int)bld, l->size, l->price, n);
 }
 /* 0x5729c0, the master exam cancelled (the answer "no" of the exam window, its due time over): when the
    answer's building (0x501190 (1, 1, bldId)) is of the kind 0x1d (a graveyard), the grave order is freed
@@ -5658,7 +5658,7 @@ void he_ExamCancelled(AIJOB *e)
     gv_OrderSetGraveHolder(0, bld, e->graveSize, e->graveEntry);
     per = gm_FindChar(e->netId);
     if (per != 0)
-        ai_ShowGraveOrderCancelled((int *)&ai_Chars[bld->owner], (unsigned short *)per, (int)bld, e->graveSize);
+        ai_ShowGraveOrderCancelled(&ai_Chars[bld->owner], per, (int)bld, e->graveSize);
 }
 /* 0x572a50, the run handler of the grave lease offer 0x92 (gv_GraveyardTurn posts it to the player whose grave lease
    runs out; its words over AIJOB's union are HEGRAVELEASE): stage -2 releases the event bar slot and frees the

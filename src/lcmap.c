@@ -2205,17 +2205,17 @@ void ai_TellGraveNeglect(AICHAR *plRec, int bld)
    0x414e with the buyer's id, the graveyard bld, the grave size's name (ai_GraveNames), the price and the owner's
    share (the language 1 swaps the building and the size name), shown to the owner ("_NACHRICHTEN_FRIEDHOF_08") */
 
-void ai_NotifySale(AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share)
+void ai_NotifySale(AICHAR *owner, AICHAR *buyer, int bld, int size, int price, int share)
 {
     if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
     case 2:
-        txt_Format(ai_NewsText, 0x414e, *buyer, bld, ai_GraveNames[size], price, share);
+        txt_Format(ai_NewsText, 0x414e, buyer->id, bld, ai_GraveNames[size], price, share);
         break;
     case 1:
-        txt_Format(ai_NewsText, 0x414e, *buyer, ai_GraveNames[size], bld, price, share);
+        txt_Format(ai_NewsText, 0x414e, buyer->id, ai_GraveNames[size], bld, price, share);
         break;
     }
     he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, "_NACHRICHTEN_FRIEDHOF_08");
@@ -2239,17 +2239,17 @@ void ai_TellGravesPaid(AICHAR *plRec, int bld, int paid, int sum)
    ai_NotifySale with the text 0x414f: the lessee's id, the graveyard bld, the grave size's name (ai_GraveNames),
    the price and the owner's share (the language 1 swaps the building and the size name), without a news key */
 
-void ai_ShowGraveOrderExtended(AICHAR *owner, unsigned short *lessee, int bld, int size, int price, int share)
+void ai_ShowGraveOrderExtended(AICHAR *owner, AICHAR *lessee, int bld, int size, int price, int share)
 {
     if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
     case 2:
-        txt_Format(ai_NewsText, 0x414f, *lessee, bld, ai_GraveNames[size], price, share);
+        txt_Format(ai_NewsText, 0x414f, lessee->id, bld, ai_GraveNames[size], price, share);
         break;
     case 1:
-        txt_Format(ai_NewsText, 0x414f, *lessee, ai_GraveNames[size], bld, price, share);
+        txt_Format(ai_NewsText, 0x414f, lessee->id, ai_GraveNames[size], bld, price, share);
         break;
     }
     he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2258,17 +2258,17 @@ void ai_ShowGraveOrderExtended(AICHAR *owner, unsigned short *lessee, int bld, i
    ai_ShowGraveOrderExtended with the text 0x4150: the character's id, the graveyard bld and the grave size's
    name (ai_GraveNames), the language 1 swapping the building and the size name */
 
-void ai_ShowGraveOrderCancelled(AICHAR *owner, unsigned short *lessee, int bld, int size)
+void ai_ShowGraveOrderCancelled(AICHAR *owner, AICHAR *lessee, int bld, int size)
 {
     if (owner->kind != 6 && owner->kind != 7)
         return;
     switch (ls_GetLanguage()) {
     case 0:
     case 2:
-        txt_Format(ai_NewsText, 0x4150, *lessee, bld, ai_GraveNames[size]);
+        txt_Format(ai_NewsText, 0x4150, lessee->id, bld, ai_GraveNames[size]);
         break;
     case 1:
-        txt_Format(ai_NewsText, 0x4150, *lessee, ai_GraveNames[size], bld);
+        txt_Format(ai_NewsText, 0x4150, lessee->id, ai_GraveNames[size], bld);
         break;
     }
     he_ShowNews(owner->netId, -1, ai_NewsText, 0, 0x5fc, ch_EmptyName);
@@ -2278,15 +2278,15 @@ void ai_ShowGraveOrderCancelled(AICHAR *owner, unsigned short *lessee, int bld, 
    0x409b, the language 1 putting the end time last; shown to the victim's netId (1, 0x5fb,
    "_NACHRICHTEN_FRIEDHOF_11") */
 
-void ai_HauntingText(unsigned short *chrId, AICHAR *victim, unsigned int end)
+void ai_HauntingText(AICHAR *chr, AICHAR *victim, AITIME *end)
 {
     switch (ls_GetLanguage()) {
     case 0:
     case 2:
-        txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, *chrId, end, *chrId);
+        txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, chr->id, end, chr->id);
         break;
     case 1:
-        txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, *chrId, *chrId, end);
+        txt_Format(ai_NewsText, 0x409b, util_Random(3) + 0x409c, chr->id, chr->id, end);
         break;
     }
     he_ShowNews(victim->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_FRIEDHOF_11");

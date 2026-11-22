@@ -10337,7 +10337,7 @@ void he_RunApplicants(AIJOB *e)
 {
     HEAPPLICANTS *ap = (HEAPPLICANTS *)e;
     int done, r;
-    char *c;
+    AICHAR *c;
 
     if (e->stage == -1 || e->stage == -2) {
         he_FreeEvent(e);
@@ -10384,7 +10384,7 @@ void he_RunApplicants(AIJOB *e)
             r = cm_GetSlotState(ap->applicant[0]);
             if (r == 1) {
                 done = r;
-                c = (char *)cm_GetSlotValue(ap->applicant[0]);
+                c = (AICHAR *)cm_GetSlotValue(ap->applicant[0]);
                 amt_InitApplicant(c, ap->office);
                 ap->applicant[0] = -1;
             } else if (r == 2) {
@@ -10398,7 +10398,7 @@ void he_RunApplicants(AIJOB *e)
             r = cm_GetSlotState(ap->applicant[1]);
             if (r == 1) {
                 done++;
-                c = (char *)cm_GetSlotValue(ap->applicant[1]);
+                c = (AICHAR *)cm_GetSlotValue(ap->applicant[1]);
                 amt_InitApplicant(c, ap->office);
                 ap->applicant[1] = -1;
             } else if (r == 2) {
@@ -10954,13 +10954,13 @@ int he_NoEvent4bPair(AICHAR *a, AICHAR *b)
 /* 0x553db0, 1 unless a pamphlet event 0x35 of the character *a is running about the character b (AIJOB.idbc is
    that character's netId; ai_PamphletAmountCB), then 0; *count (when given) receives the number of a's pamphlets */
 
-int he_NoEvent35Pair(unsigned short *a, AICHAR *b, int *count)
+int he_NoEvent35Pair(AICHAR *a, AICHAR *b, int *count)
 {
     AICHAR *c = b;
     AIJOB *e;
     int n = 0;
 
-    e = he_FindEvent(2, 2, *a, 0, 0x35);
+    e = he_FindEvent(2, 2, a->id, 0, 0x35);
     while (e != 0) {
         if (c->netId == e->idbc)
             return 0;
@@ -19405,7 +19405,7 @@ void he_AllocGraveyardWorkers(struct AIJOB *ev);          /* 0x572b90 */
 void he_RunGraveyardWorkers(struct AIJOB *ev);          /* 0x572bf0 */
 void he_RunGraveyardTheft(struct AIJOB *ev);          /* 0x572fd0 */
 void he_RunGraveLease(struct AIJOB *ev);          /* 0x572a50 */
-void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
+void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 void ai_TellGraveWorkSuccess(struct AICHAR *param_1);                 /* 0x5a9990 */
 void ai_TellGraveWorkFailure(struct AICHAR *param_1);                 /* 0x5a99e0 */
 void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker, struct AICHAR *other, int detail);                 /* 0x5a9a30 */
@@ -19419,9 +19419,9 @@ void he_PlunderTakePrice(int *a, AICHAR *c);   /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);   /* 0x570c70 */
 int sv_UsedGroupSlots(struct AIJOB *g);   /* 0x5241b0 */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);                 /* 0x4ef570 */
-void ai_HauntingText(unsigned short *param_1, struct AICHAR *param_2, unsigned int param_3);                 /* 0x5a9910 */
-void ai_ShowGraveOrderExtended(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
-void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, unsigned short *param_2, int param_3, int param_4);                 /* 0x5a9880 */
+void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
+void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
+void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);                 /* 0x5a9880 */
 int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(struct AIJOB *ev);          /* 0x5728d0 */
 void he_ExamCancelled(struct AIJOB *ev);          /* 0x5729c0 */

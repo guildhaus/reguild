@@ -2194,7 +2194,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
 
 unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
-    char *applicants[6];
+    AICHAR *applicants[6];
     AICHAR *rivals[3];
     AICHAR *c;
     int nApplicants;
@@ -2216,7 +2216,7 @@ unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows
         return nRivals + nApplicants;
     rows[0].x34 = me->appliedOffice;
     for (i = 0; i < (max < (unsigned int)nApplicants ? max : nApplicants); i++) {
-        rows[i].rec = (AICHAR *)applicants[i];
+        rows[i].rec = applicants[i];
         rows[i].x2c = 0;
         ai_AmountRowStatus(&rows[i]);
         rows[i].pickable = ai_PassesPartnerFilter(me->id, rows[i].rec->id, filter, 0);
@@ -5000,13 +5000,13 @@ void ai_CharInfoPanel(AICHAR *chr, int other)
                     sv_PopRequest = 2;
                 }
             } else if (d2_PointerObj == giftBtn) {
-                if (ai_GiftWindow((char *)&ai_Chars[ai_PlayerId], chr) != 0)
+                if (ai_GiftWindow(&ai_Chars[ai_PlayerId], chr) != 0)
                     d2_SetObjEnabled(giftBtn, 0);
             } else if (d2_PointerObj == professionBtn) {
-                if (ai_ChooseProfessionWindow((char *)&ai_Chars[ai_PlayerId], chr) != 0)
+                if (ai_ChooseProfessionWindow(&ai_Chars[ai_PlayerId], chr) != 0)
                     d2_SetObjEnabled(professionBtn, 0);
             } else if (d2_PointerObj == universityBtn) {
-                if (ai_UniversityWindow((char *)&ai_Chars[ai_PlayerId], chr) != 0)
+                if (ai_UniversityWindow(&ai_Chars[ai_PlayerId], chr) != 0)
                     d2_SetObjEnabled(universityBtn, 0);
             } else if (d2_PointerObj == missionBtn) {
                 ai_ShowMissions(chr->netId);
@@ -6095,7 +6095,7 @@ int ai_MedicusHandler(AICHAR *ch, ORDMSG *m)
         if ((short)util_Random(2) != 0) {
             cm_SendMoveGoods(-1, ch->netId, ai_OwnPlayer, price);
             gm_AddHealth(ch->id, heal);
-            gm_CureDisease((char *)ch);
+            gm_CureDisease(ch);
         }
         return 0x11;
     }
@@ -6118,7 +6118,7 @@ int ai_MedicusHandler(AICHAR *ch, ORDMSG *m)
                         txt_Format(note, (intptr_t)"%s", 0x1d3d);
                         strcat(text, note);
                         cm_SendMoveGoods(-1, ch->netId, ai_OwnPlayer, price);
-                        gm_CureDisease((char *)ch);
+                        gm_CureDisease(ch);
                     } else {
                         txt_Format(note, (intptr_t)"%s", 0x1d3e);
                         strcat(text, note);
@@ -7002,7 +7002,7 @@ int ai_BewitchWindow(AICHAR *ch, int n)
             if (d2_ClickedId == 0) {
                 amount = d2_GetObjValue(slider);
                 if (sv_CheckMoney(&ai_Chars[ai_PlayerId], amount) != 0) {
-                    gain = ai_RelationGain((char *)&ai_Chars[ai_PlayerId], ch, amount);
+                    gain = ai_RelationGain(&ai_Chars[ai_PlayerId], ch, amount);
                     cm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -amount);
                     cm_SendRelations(ai_Chars[ai_PlayerId].netId, ch->netId, gain, 1);
                     txt_Format(text, 0x1db5, ch->id, ch->id);

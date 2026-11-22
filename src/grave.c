@@ -778,7 +778,7 @@ int gv_ReserveGrave(GVORDER *m)
                          (int)(m->price * gv_SaleShares[m->size]));
             owner = &ai_Chars[bld->owner];
             if (c != owner && ai_Chars[bld->owner].kind == 6)
-                ai_NotifySale((int)owner, (unsigned short *)c, (int)bld, m->size, m->price,
+                ai_NotifySale(owner, c, (int)bld, m->size, m->price,
                               (int)(m->price * gv_SaleShares[m->size]));
         }
         return 0;
@@ -1267,7 +1267,7 @@ unsigned gv_RaiseDead(GVRAISE *m)
                 ai_RelationMemory[c->id][j] = 0;
             }
             gm_PlaceOnStage(c->netId, bld->id, -1, 0, 0);
-            gm_ChooseHeadIcon(&c->id);
+            gm_ChooseHeadIcon(c);
             if (q->id == e->id) {
                 n = 0;
                 if (gv_EntryCounts[m->size] > 0) {
@@ -1618,7 +1618,7 @@ void gv_GraveyardTurn(AIBLD *bld)
             }
             if (e->until != ai_Time.year)
                 goto next;
-            h = price = gv_LeasePrice(&c->id, e->b0c, e->size, 0, &share);
+            h = price = gv_LeasePrice(c, e->b0c, e->size, 0, &share);
             if (c == pl) {
                 h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), 10, 0);
             } else if (c->kind == 6 || c->kind == 7) {
@@ -1682,12 +1682,12 @@ GVENTRY *gv_FindWornEntry(AIBLD *bld, unsigned char m)
    sizes 0 .. 2; unless flag, also times (0.3 + 0.7 * care / 255) * 0.75 with care the entry's GVENTRY.b0c. Returns the price
    in the player's terms (gm_PlayerFactor) and stores the owner's share of it (gv_SaleShares[kind]) in *out */
 
-int gv_LeasePrice(unsigned short *c, unsigned char care, int kind, int flag, int *out)
+int gv_LeasePrice(AICHAR *c, unsigned char care, int kind, int flag, int *out)
 {
     double x, v;
     int r;
 
-    x = (double)gm_ConvertMoney(gm_GetWorth(*c), ai_OwnPlayer);
+    x = (double)gm_ConvertMoney(gm_GetWorth(c->id), ai_OwnPlayer);
     x = max(min(1000000.0, x), 10000.0);
     v = log10(x);
     v = v * v * 100.0;
@@ -1705,7 +1705,7 @@ int gv_LeasePrice(unsigned short *c, unsigned char care, int kind, int flag, int
 }
 /* 0x4f2440, the cost difference of two kinds: 0x4f2330 (c, 100, k1, 1) minus half of the one of k2; *out the difference times the factor of k2 */
 
-int gv_MovePrice(unsigned short *c, int k1, int k2, int *out)
+int gv_MovePrice(AICHAR *c, int k1, int k2, int *out)
 {
     int a, b, d;
 
@@ -1719,11 +1719,11 @@ int gv_MovePrice(unsigned short *c, int k1, int k2, int *out)
    money (gm_GetWorth, gm_ConvertMoney) clamped to 10000 .. 100000, x / (log10 x + 1) * 0.1, in the player's terms
    (gm_PlayerFactor) */
 
-int gv_ProtectionPrice(unsigned short *c)
+int gv_ProtectionPrice(AICHAR *c)
 {
     double x;
 
-    x = (double)gm_ConvertMoney(gm_GetWorth(*c), ai_OwnPlayer);
+    x = (double)gm_ConvertMoney(gm_GetWorth(c->id), ai_OwnPlayer);
     x = max(min(100000.0, x), 10000.0);
     return gm_PlayerFactor((int)(x / (log10(x) + 1.0) * 0.1f), ai_OwnPlayer);
 }
