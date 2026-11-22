@@ -4520,8 +4520,8 @@ int d2_Open(int hwnd, int w, int h, char *dir, char *file)
 {
     D2SURF desc;
     char path[256];
-    char sd0[0x7c];
-    char sd1[0x7c];
+    DDSURFACEDESC2 sd0;
+    DDSURFACEDESC2 sd1;
     int i;
     char *p;
 
@@ -4609,8 +4609,8 @@ int d2_Open(int hwnd, int w, int h, char *dir, char *file)
     d2_FrontSurf = d2_MakeSurface(&desc, 6);
     if (!d2_FrontSurf)
         return 0;
-    d2_GetSurfaceDesc(d2_ScreenSurf, sd0);
-    d2_GetSurfaceDesc(d2_BackSurf, sd1);
+    d2_GetSurfaceDesc(d2_ScreenSurf, &sd0);
+    d2_GetSurfaceDesc(d2_BackSurf, &sd1);
     if (d2_LockSurface(d2_ScreenSurf)) {
         d2_ClearSurface(d2_ScreenSurf);
         d2_UnlockSurface(d2_ScreenSurf);
