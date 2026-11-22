@@ -1064,7 +1064,7 @@ D2SURF *d2_LoadBmpSurface(char *name)
     s = d2_MakeSurface(&d, 0);
     if (s == 0)
         return 0;
-    d2_ReadBmpPixels(name, (unsigned char *)s->bits);
+    d2_ReadBmpPixels(name, s->bytes);
     return s;
 }
 /* 0x478bd0, rgb bytes (w x h) to the 16 bit pixels of surface s */
@@ -1332,8 +1332,8 @@ int d2_BlitPartMode(int sx, int sy, int w, int h, D2SURF *src, int x, int y, D2S
         {
             for (i = 0; i < h; i++) {
                 len = (src->bpp >> 3) * w;
-                bs = (unsigned char *)src->bits + src->rowbytes * i + so;
-                bd = (unsigned char *)dst->bits + dst->rowbytes * i + d;
+                bs = src->bytes + src->rowbytes * i + so;
+                bd = dst->bytes + dst->rowbytes * i + d;
                 memcpy(bd, bs, len);
             }
         }
@@ -1363,8 +1363,8 @@ int d2_BlitPartMode(int sx, int sy, int w, int h, D2SURF *src, int x, int y, D2S
             {
                 for (i = 0; i < h; i++) {
                     len = (src->bpp >> 3) * w;
-                    bs = (unsigned char *)src->bits + src->rowbytes * i + so;
-                    bd = (unsigned char *)dst->bits + dst->rowbytes * i + d;
+                    bs = src->bytes + src->rowbytes * i + so;
+                    bd = dst->bytes + dst->rowbytes * i + d;
                     memcpy(bd, bs, len);
                 }
             }
@@ -1588,9 +1588,9 @@ void d2_GetPixelColour(int x, int y, D2SURF *surf, unsigned char *rgb)
         dd_SplitRGB(surf->bits[surf->pitch * y + x], &r, &g, &b);
         break;
     case 0x18:
-        r = ((unsigned char *)surf->bits)[(surf->pitch * y + x) * bytes];
-        g = ((unsigned char *)surf->bits)[(surf->pitch * y + x) * bytes + 1];
-        b = ((unsigned char *)surf->bits)[(surf->pitch * y + x) * bytes + 2];
+        r = surf->bytes[(surf->pitch * y + x) * bytes];
+        g = surf->bytes[(surf->pitch * y + x) * bytes + 1];
+        b = surf->bytes[(surf->pitch * y + x) * bytes + 2];
         break;
     case 0x20:
         r = (unsigned char)((DWORD *)surf->bits)[surf->pitch * y + x];
@@ -1616,7 +1616,7 @@ int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g, unsigned char
         c = dd_RGB((unsigned char)r, (unsigned char)g, (unsigned char)b);
         switch (surf->bpp) {
         case 8:
-            ((unsigned char *)surf->bits)[surf->pitch * y + x] =
+            surf->bytes[surf->pitch * y + x] =
                 (unsigned char)((int)((r & 0xff) + (g & 0xff) + (b & 0xff)) / 3);
             break;
         case 0xf:
@@ -1625,9 +1625,9 @@ int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g, unsigned char
             break;
         case 0x18:
             x = bpp * x;
-            ((unsigned char *)surf->bits)[surf->pitch * y + x] = (unsigned char)r;
-            ((unsigned char *)surf->bits)[surf->pitch * y + x + 1] = (unsigned char)g;
-            ((unsigned char *)surf->bits)[surf->pitch * y + x + 2] = (unsigned char)b;
+            surf->bytes[surf->pitch * y + x] = (unsigned char)r;
+            surf->bytes[surf->pitch * y + x + 1] = (unsigned char)g;
+            surf->bytes[surf->pitch * y + x + 2] = (unsigned char)b;
             break;
         case 0x20:
             ((DWORD *)surf->bits)[surf->pitch * y + x] = c;

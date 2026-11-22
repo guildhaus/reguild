@@ -31,7 +31,10 @@ typedef struct D2SURF {             /* 0x40 bytes, a GFX.C surface (made by d2_M
     unsigned char bpp;              /* 0x14, bits per pixel */
     char pad15[3];
     int unk18;
-    unsigned short *bits;           /* 0x1c, pixels (system memory, or while locked) */
+    union {
+        unsigned short *bits;       /* 0x1c, pixels (system memory, or while locked) */
+        unsigned char *bytes;       /* the same pixels by byte (8 / 24-bit surfaces, row offsets in rowbytes) */
+    };
     struct IDirectDrawSurface4 *DDSurface;  /* 0x20 */
     int left;                       /* 0x24, clip rectangle */
     int top;                        /* 0x28 */

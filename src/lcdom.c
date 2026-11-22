@@ -4048,7 +4048,7 @@ void ai_LoadTownMap(void)
         desc.h = bmp->h;
         rt_MapSurface = d2_MakeSurface(&desc, 0xb);
         d2_LockSurface(rt_MapSurface);
-        d2_ConvertRgbTo16(0, 0, bmp->w, bmp->h, (unsigned char *)bmp->bits, 0, 0, rt_MapSurface);
+        d2_ConvertRgbTo16(0, 0, bmp->w, bmp->h, bmp->bytes, 0, 0, rt_MapSurface);
         ai_MapSize = bmp->w;
         ai_MapHeight = bmp->h;
         if (ai_MapSize >= 0x780)

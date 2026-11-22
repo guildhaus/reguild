@@ -686,7 +686,7 @@ D2SHP *d2_GrabShape(int x, int y, int w, int h, D2SURF *surf, unsigned char mode
     if (grab8 != 0) {
         switch ((char)surf->bpp) {
         case 8:
-            r = d2_GrabShape8Runs(x, y, w, h, (unsigned char *)surf->bits, mode, (unsigned short)surf->w);
+            r = d2_GrabShape8Runs(x, y, w, h, surf->bytes, mode, (unsigned short)surf->w);
             type = 0;
             break;
         case 16:
@@ -694,7 +694,7 @@ D2SHP *d2_GrabShape(int x, int y, int w, int h, D2SURF *surf, unsigned char mode
             type = 1;
             break;
         case 24:
-            r = d2_GrabShape24Runs(x, y, w, h, surf->bits, mode, (unsigned short)surf->w);
+            r = d2_GrabShape24Runs(x, y, w, h, surf->bytes, mode, (unsigned short)surf->w);
             type = 2;
             break;
         default:
@@ -707,7 +707,7 @@ D2SHP *d2_GrabShape(int x, int y, int w, int h, D2SURF *surf, unsigned char mode
             type = 1;
             break;
         case 24:
-            r = d2_GrabShape24NoRuns(x, y, w, h, surf->bits, mode, (unsigned short)surf->w);
+            r = d2_GrabShape24NoRuns(x, y, w, h, surf->bytes, mode, (unsigned short)surf->w);
             type = 2;
             break;
         default:
