@@ -142,7 +142,7 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
                 strcat(buf, "\": Not all Textures used/found!");
                 break;
             }
-        mesh = D3_MESH(obj);
+        mesh = obj->material;
         if (surf != &mesh->surf[3]) {
             mesh->nsurf++;
             D3IO_214(obj) = 4;
@@ -153,9 +153,9 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
                     do {
                         if (k >= 3)
                             break;
-                        if (D3_MESH(obj)->surf[k].ntris > 0 && D3_MESH(obj)->surf[k].nkeys > 0 &&
-                            D3_MESH(obj)->surf[k].mesh)
-                            obj->info = &D3_MESH(obj)->surf[k];
+                        if (obj->material->surf[k].ntris > 0 && obj->material->surf[k].nkeys > 0 &&
+                            obj->material->surf[k].mesh)
+                            obj->info = &obj->material->surf[k];
                         k++;
                     } while (!obj->info);
                 }
@@ -228,15 +228,15 @@ void d3_AttachMesh(D3OBJECT *obj, D3SURF *surf, char *name)
         if (d3io_FindStock(buf)) {
             if (!obj->material)
                 d3_AddObjectDrawData(obj);
-            d3io_AttachStock(obj, &D3_MESH(obj)->surf[0], buf);
+            d3io_AttachStock(obj, &obj->material->surf[0], buf);
             if (d3io_LodName(name, 0, -1, buf, 0) && d3io_FindStock(buf))
-                d3io_AttachStock(obj, &D3_MESH(obj)->surf[3], buf);
+                d3io_AttachStock(obj, &obj->material->surf[3], buf);
             if (d3io_Lod.mode == 1) {
                 for (i = 1, n = 1; i < 3; i++) {
                     if (n >= 3)
                         break;
                     if (d3io_LodName(name, 0, i, buf, 0) && d3io_FindStock(buf)) {
-                        d3io_AttachStock(obj, &D3_MESH(obj)->surf[n], buf);
+                        d3io_AttachStock(obj, &obj->material->surf[n], buf);
                         n++;
                     }
                 }

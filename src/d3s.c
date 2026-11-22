@@ -972,7 +972,7 @@ char d3s_AddShadow(D3SSLOT *slot, D3FLMAP *grid)
     char ok = 0;
     struct TSTEXTURE *tex;
 
-    buf = (D3SBUF *)&D3_MESH(d3s_Object)->surf[0];
+    buf = (D3SBUF *)&d3s_Object->material->surf[0];
     tex = (slot->tex);
     col.c.r = (unsigned char)D3_L(slot->light)->color.x;
     col.c.g = (unsigned char)D3_L(slot->light)->color.y;
@@ -1111,7 +1111,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
     if (!found && obj->material) {
         if (obj->objectFlags & 0x20)
             return pos.y - info->mesh->radius + obj->material->groundOffset;
-        box = info->mesh->GetBox(obj, info, &D3_MESH(obj)->worldMatrix);
+        box = info->mesh->GetBox(obj, info, &obj->material->worldMatrix);
         y = 1e10f;
         for (i = 8; i; i--, box++)
             y = min(y, box->y);
@@ -1316,7 +1316,7 @@ char d3s_Update(D3OBJECT *obj, D3OBJECT *light, D3FLMAP *t)
     unsigned char mh;
 
     if (!d3s_TexSize || obj->type >= 5 || !(obj->objectFlags & 4) || !obj->material || !(light->objectFlags & 4)
-        || D3_MESH(d3s_Object)->surf[0].ntris >= d3s_MaxPolys * 2 - 2
+        || d3s_Object->material->surf[0].ntris >= d3s_MaxPolys * 2 - 2
         || light->lightParams.y == 0.0)
         return 0;
     for (k = 0; k < 4; k++) {
@@ -1365,8 +1365,8 @@ found:
         slot->cache->time = d3_FrameCount;
     mesh = obj->info;
     info = mesh;
-    if (D3_MESH(obj)->surf[3].ntris > 0 && D3_MESH(obj)->surf[3].nkeys > 0)
-        mesh = &D3_MESH(obj)->surf[3];
+    if (obj->material->surf[3].ntris > 0 && obj->material->surf[3].nkeys > 0)
+        mesh = &obj->material->surf[3];
     d3_PointToWorld(light, &light->pos, &lpos.v);
     if (light->objectFlags & 0x10) {
         eps = 0.01f;

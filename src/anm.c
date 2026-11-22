@@ -5,7 +5,7 @@
    rd_RandomNamedObject) are this obj's: "dummy_TUER" (0x602854) closes this unit's string run, right before rd.c's
    plain block veg_Types (0x602860), so its first user rd_DoorPos is here; the other three use no data, the bound
    is veg_FindType (0x4bc5a0, the first reader of rd.c's data). bprobe: no code evidence either way.
-   An animal's obj is its CHARACTER (ch.h), reached as CHARACTER.obj / D3_MESH; the buildings it walks between
+   An animal's obj is its CHARACTER (ch.h), reached as CHARACTER.obj / D3OBJECT.material; the buildings it walks between
    are AIBLD (ai_bld.h). Names are ours.
    unit of rea 8cef7d5b (src/game/anm.c); boundaries in decl/text.dcl */
 #include <stdio.h>
@@ -111,7 +111,7 @@ void anm_Update(void)
                 anm_Animals[anm_NextAnimal].remove = 1;
         }
         if (anm_Animals[anm_NextAnimal].remove
-            && ((D3_MESH(((CHARACTER *)anm_Animals[anm_NextAnimal].obj)->obj)->flags & 0x40)
+            && (((((CHARACTER *)anm_Animals[anm_NextAnimal].obj)->obj)->material->flags & 0x40)
                 || s == 3 || anm_NAnimals > m))
             anm_RemoveAnimal(&anm_Animals[anm_NextAnimal]);
     }

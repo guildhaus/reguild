@@ -308,7 +308,7 @@ char d3_MirBoxInPlanes(D3OBJECT *obj, D3MIRROR *m)
 
     if (obj && (info = obj->info) && info->mesh && m && (pl = m->planes)) {
         if (obj->state & 0x10)
-            box = info->mesh->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
+            box = info->mesh->GetBox(obj, info, &obj->material->cameraMatrix);
         else
             box = &info->keys[info->nkeys];
         for (i = 0; i < 8; i++, box++) {
@@ -357,38 +357,38 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
             redo = 1;
         else
             redo = 0;
-        if (s != D3_MESH(obj)->mirrorSource) {
-            if (D3_MESH(obj)->mirrorSource) {
-                mem_Free(D3M_PTS(D3_MESH(obj)));
-                D3M_PTS(D3_MESH(obj)) = 0;
-                mem_Free(D3M_TRIS(D3_MESH(obj)));
-                D3M_TRIS(D3_MESH(obj)) = 0;
+        if (s != obj->material->mirrorSource) {
+            if (obj->material->mirrorSource) {
+                mem_Free(D3M_PTS(obj->material));
+                D3M_PTS(obj->material) = 0;
+                mem_Free(D3M_TRIS(obj->material));
+                D3M_TRIS(obj->material) = 0;
             }
-            D3_MESH(obj)->mirrorSource = s;
-            D3M_PTS(D3_MESH(obj)) = mem_Alloc(s->nkeys * 0x50, "d3_mir:MirroredPoints");
-            D3M_TRIS(D3_MESH(obj)) = mem_Alloc(s->ntris * 0x28, "d3_mir:MirroredPolys");
-            D3M_COPY(D3M_TRIS(D3_MESH(obj)), s->tris, s->ntris * 0x28);
-            for (i = 0, t = D3M_TRIS(D3_MESH(obj)); i < s->ntris; i++, t++) {
+            obj->material->mirrorSource = s;
+            D3M_PTS(obj->material) = mem_Alloc(s->nkeys * 0x50, "d3_mir:MirroredPoints");
+            D3M_TRIS(obj->material) = mem_Alloc(s->ntris * 0x28, "d3_mir:MirroredPolys");
+            D3M_COPY(D3M_TRIS(obj->material), s->tris, s->ntris * 0x28);
+            for (i = 0, t = D3M_TRIS(obj->material); i < s->ntris; i++, t++) {
                 k = 0;
                 /* do-while: the original's loop is the bottom-tested pointer walk (`dec edi / jne`) */
                 do {
-                    t->v[k] = &D3M_PTS(D3_MESH(obj))[t->src->v[k]];
+                    t->v[k] = &D3M_PTS(obj->material)[t->src->v[k]];
                 } while (++k < 3);
             }
             redo = 1;
         }
-        if ((obj->state & 0x10) || (D3_MESH(obj)->flags & 0x40)) {
-            s->mesh->Transform(obj, s, &D3_MESH(obj)->cameraMatrix);
+        if ((obj->state & 0x10) || (obj->material->flags & 0x40)) {
+            s->mesh->Transform(obj, s, &obj->material->cameraMatrix);
             obj->state &= 0xef;
             redo = 1;
         }
         if (redo) {
-            D3M_COPY(D3M_PTS(D3_MESH(obj)), s->keys, s->nkeys * 0x50);
-            m->Transform(D3M_PTS(D3_MESH(obj)), s->nkeys, 0);
+            D3M_COPY(D3M_PTS(obj->material), s->keys, s->nkeys * 0x50);
+            m->Transform(D3M_PTS(obj->material), s->nkeys, 0);
         } else {
             n = s->nkeys;
             b = s->keys;
-            a = D3M_PTS(D3_MESH(obj));
+            a = D3M_PTS(obj->material);
             for (i = 0; i < n; i++, b++, a++) {
                 a->color = b->color;
                 d3_MaxZ = max(d3_MaxZ, a->z);
@@ -396,7 +396,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
         }
         n = min(s->ntris, d3_Cfg.maxpolys - (int)d3_SortCount);
         tex = m->tex;
-        for (t = D3M_TRIS(D3_MESH(obj)); n > 0; n--, t++) {
+        for (t = D3M_TRIS(obj->material); n > 0; n--, t++) {
             tt = t->tex;
             a = t->v[0];
             b = t->v[1];

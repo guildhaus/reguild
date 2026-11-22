@@ -135,7 +135,7 @@ char d3anim_MapBones(D3OBJECT *obj)
                 n = 0;
                 for (k = 0; n < 4 && k < anim->nbones; k++) {
                     for (c = obj->child; c; c = c->next)
-                        if (!strcmp(D3_MESH(c)->boneName, D3ANIM_BONENAME(anim, k)))
+                        if (!strcmp(c->material->boneName, D3ANIM_BONENAME(anim, k)))
                             bs->map[n++] = k;
                 }
             }
@@ -250,9 +250,9 @@ void d3anim_PoseBones(D3OBJECT *obj)
         if (!n) {
             mesh = obj->material->surf[0].mesh;
             for (c = obj->child; c; c = c->next) {
-                if (c->material && D3_MESH(c)->boneName[0]) {
+                if (c->material && c->material->boneName[0]) {
                     for (i = 0; i < mesh->nattach; i++)
-                        if (!strcmp(mesh->attach[i].name, D3_MESH(c)->boneName))
+                        if (!strcmp(mesh->attach[i].name, c->material->boneName))
                             break;
                     if (i < mesh->nattach) {
                         d3_SetObjectPos(c, &mesh->attach[i].pos);
@@ -273,7 +273,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
                 }
                 d3_MatToAngles(&acc[i].mat, &rot);
                 for (c = obj->child; c; c = c->next) {
-                    if (c->material && !strcmp(acc[i].name, D3_MESH(c)->boneName)) {
+                    if (c->material && !strcmp(acc[i].name, c->material->boneName)) {
                         d3_SetObjectPos(c, &acc[i].pos.v);
                         d3_SetObjectRot(c, &rot);
                     }

@@ -772,7 +772,7 @@ exe	0x0043ce10	d3_InitSurf	d3_engine	byte	readable
 exe	0x0043ce60	d3_InitObject	d3_engine	shape	readable	deep	
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	byte	readable		
 exe	0x0043d0e0	d3_Unlink	d3_engine	byte	readable		
-exe	0x0043d180	d3_CloneObject	d3_engine	byte	readable		
+exe	0x0043d180	d3_CloneObject	d3_engine	shape	readable		byte+readable -> shape+readable at 9d44d5eb: declaration-set tie-break: proven byte under a swept set (2 unused typedefs at d3_engine's start); fell with the D3_MESH casts (D3OBJECT.material is already D3MESH *), the text is unchanged [waits for: d3_engine.c's declaration set (G.tiebreak)]
 exe	0x0043d430	d3_SetObjectAlpha	d3_engine	shape	readable	deep	
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	byte	readable		
 exe	0x0043d690	d3_SetAlpha	d3_engine	byte	readable		

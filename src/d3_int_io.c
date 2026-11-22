@@ -147,20 +147,20 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
                 for (k = 0; k < n; k++) {
                     bio_rd_s(f, name);
                     d3io_LoadObject(name, name);
-                    d3_AttachMesh(obj, &D3_MESH(obj)->surf[k], name);
+                    d3_AttachMesh(obj, &obj->material->surf[k], name);
                 }
                 if (version >= 0x3a6c00a3) {
                     bio_rd_c(f, &c);
                     if (c) {
                         bio_rd_s(f, name);
                         d3io_LoadObject(name, name);
-                        d3_AttachMesh(obj, &D3_MESH(obj)->surf[3], name);
+                        d3_AttachMesh(obj, &obj->material->surf[3], name);
                     }
-                } else if (D3_MESH(obj)->surf[0].mesh) {
-                    strcpy(name, D3_MESH(obj)->surf[0].mesh->name);
+                } else if (obj->material->surf[0].mesh) {
+                    strcpy(name, obj->material->surf[0].mesh->name);
                     strcat(name, "_s");
                     if (d3io_LoadObject(name, name))
-                        d3_AttachMesh(obj, &D3_MESH(obj)->surf[3], name);
+                        d3_AttachMesh(obj, &obj->material->surf[3], name);
                 }
             }
         case 2:
@@ -335,7 +335,7 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             D3_X(obj)->mask = 0;
         if (reload && obj->material) {
             for (i = 0; i < 3; i++) {
-                if ((ops = D3_MESH(obj)->surf[i].mesh) && (tex = (void **)D3_MESH(obj)->surf[i].texHandles)) {
+                if ((ops = obj->material->surf[i].mesh) && (tex = (void **)obj->material->surf[i].texHandles)) {
                     cnt = ops->ntex;
                     for (n = 0; n < cnt; n++)
                         if (tex[n])

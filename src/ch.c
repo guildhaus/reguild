@@ -596,7 +596,7 @@ int ch_CreateMesh(CHARACTER *ch, char *name, D3VECTOR *pos)
     ch->obj->kind = 2;
     ch->obj->mask = 1;
     ch->obj->flags &= ~4;
-    D3_MESH(ch->obj)->lightScale = 1.8f;
+    ch->obj->material->lightScale = 1.8f;
     ch->walkSpeed = 1.0f;
     ch->group = -1;
     ch->scriptGroup = -1;
@@ -1613,7 +1613,7 @@ int ch_Update(void)
                 ch_UpdateLowPoly(ch_List[i]);
             if (!act && d3_DefaultScene == ch_List[i]->scene && d3_CurrentScene && !ch_List[i]->slot
                 && (ch_List[i]->flags.all & 0x1000) && !(ch_List[i]->flags.all & 2)
-                && !(D3_MESH(ch_List[i]->obj)->flags & 0x40)) {
+                && !(ch_List[i]->obj->material->flags & 0x40)) {
                 if (ch_List[i]->flags.all & 0x10) {
                     ch_AttachAni(ch_List[i], "sitzend/sitz_newnoise", 0);
                     if (ch_List[i]->slot) {

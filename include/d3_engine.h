@@ -41,7 +41,6 @@ __inline D3OBJBITS *d3_ObjBits(D3OBJECT *obj)
 #define D3_OBJBITS(o) (*d3_ObjBits(o))
 
 
-#define D3_MESH(o) ((D3MESH *)(o)->material)
 
 extern const int d3_TriEdge[3][2];        /* 0x5eba80, per triangle vertex: [0] the next one, [1] the previous one */
 extern D3OBJECT *d3s_Object;              /* 0x633448 */

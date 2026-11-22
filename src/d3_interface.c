@@ -66,11 +66,11 @@ D3OBJECT *d3_CreateObject(D3OBJECT *a, const D3VECTOR *pos, const D3VECTOR *rot,
         if (!d3io_FindStock(name))
             d3io_LoadObject(name, name);
         d3_AttachMesh(obj, 0, name);
-        if (D3_MESH(obj) && D3_MESH(obj)->surf[0].mesh) {
-            for (i = 0; i < D3_MESH(obj)->nsurf; i++) {
-                if (D3_MESH(obj)->surf[i].mesh) {
-                    n = D3_MESH(obj)->surf[i].mesh->ntex;
-                    tex = (struct TSTEXTURE **)D3_MESH(obj)->surf[i].texHandles;
+        if (obj->material && obj->material->surf[0].mesh) {
+            for (i = 0; i < obj->material->nsurf; i++) {
+                if (obj->material->surf[i].mesh) {
+                    n = obj->material->surf[i].mesh->ntex;
+                    tex = (struct TSTEXTURE **)obj->material->surf[i].texHandles;
                     for (; n > 0; n--, tex++)
                         if (*tex)
                             tex_Reload(*tex, 0);
@@ -101,19 +101,19 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
     int j, replaced;
     D3BGF *ops;
 
-    if (!obj || !D3_MESH(obj) || !surf)
+    if (!obj || !obj->material || !surf)
         return 0;
     if (set == surf->texSet)
         return 1;
     obj->state |= 4;
-    D3_MESH(obj)->mirrorSource = 0;
-    if (D3_MESH(obj)->mirrorPoints) {
-        mem_Free(D3_MESH(obj)->mirrorPoints);
-        D3_MESH(obj)->mirrorPoints = 0;
+    obj->material->mirrorSource = 0;
+    if (obj->material->mirrorPoints) {
+        mem_Free(obj->material->mirrorPoints);
+        obj->material->mirrorPoints = 0;
     }
-    if (D3_MESH(obj)->mirrorPolys) {
-        mem_Free(D3_MESH(obj)->mirrorPolys);
-        D3_MESH(obj)->mirrorPolys = 0;
+    if (obj->material->mirrorPolys) {
+        mem_Free(obj->material->mirrorPolys);
+        obj->material->mirrorPolys = 0;
     }
     ops = surf->mesh;
     if (set < ops->nsets) {
@@ -254,7 +254,7 @@ char d3if_Reload(D3OBJECT *obj, char *name)
         d3io_LoadObject(name, name);
         d3_AttachMesh(obj, 0, name);
         tex_ReloadAll(0, 0);
-        if (D3_MESH(obj) && D3_MESH(obj)->surf[0].mesh) {
+        if (obj->material && obj->material->surf[0].mesh) {
             d3_RelightObject(obj);
             return 1;
         }
@@ -745,9 +745,9 @@ char d3if_PickCB(D3OBJECT *obj, D3IFPICK *p)
 
     if (p->mask && !(obj->mask & p->mask))
         return 1;
-    if (D3_MESH(obj) && (D3_MESH(obj)->flags & 0x40) && D3_MESH(obj)->camera == p->cam)
+    if (obj->material && (obj->material->flags & 0x40) && obj->material->camera == p->cam)
         return 1;
-    if (obj->type == 4 && !D3_MESH(obj))
+    if (obj->type == 4 && !obj->material)
         return 1;
     if (!d3_GetBounds(obj, p->cam, &pos.v, &r))
         return 1;
@@ -814,9 +814,9 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
             r->bottom = (int)(y + s);
             return 1;
         }
-        if (D3_MESH(obj) && !(D3_MESH(obj)->flags & 0x40) && (info = obj->info) && info->mesh) {
+        if (obj->material && !(obj->material->flags & 0x40) && (info = obj->info) && info->mesh) {
             d3_UpdateWorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0);
-            b = info->mesh->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
+            b = info->mesh->GetBox(obj, info, &obj->material->cameraMatrix);
             r->top = 0x10000;
             r->left = 0x10000;
             r->bottom = -0x10000;

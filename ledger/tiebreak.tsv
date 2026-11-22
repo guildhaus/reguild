@@ -772,7 +772,7 @@ exe	0x0043ce10	d3_InitSurf	d3_engine	d5928c3fcd382762	no	draft	sweep control=dra
 exe	0x0043ce60	d3_InitObject	d3_engine	7997609736730fdb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2e71c15c3cd6e6ad
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	3219bcdfb9dc266b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d0e0	d3_Unlink	d3_engine	0c158890ea19999e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0043d180	d3_CloneObject	d3_engine	e6df497992104345	yes	byte	sweep control=shape best=byte by 3 unused typedefs at the unit's start; codegens=3 compiled=190	dfd14c1f71ff3bfc
+exe	0x0043d180	d3_CloneObject	d3_engine	980ca5b65a67d9f0	yes	byte	sweep control=shape best=byte by 2 unused typedefs at the unit's start; codegens=3 compiled=12 (stopped at the goal)	e8f1605c78923983
 exe	0x0043d430	d3_SetObjectAlpha	d3_engine	34bf10e29031c08c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3629886aa9e1283c
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	270d4f88a8a1b203	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d690	d3_SetAlpha	d3_engine	5bcfac075a6c5061	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1014,7 +1014,7 @@ exe	0x00454890	d3_MirCreateOutline	d3_mir	5bda66a13849f9ef	no	shape	sweep contro
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	9927e34c70dfd5eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454ec0	d3_MirTransform	d3_mir	3198ef7b7c8c1553	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	e0878350ea5c8bad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004550e0	d3_MirDrawObject	d3_mir	fc91da1e8d7aa81a	yes	byte	sweep control=shape best=byte by 13 unused typedefs at the unit's start; codegens=2 compiled=36 (stopped at the goal)	7b9f3452d7ca6b2d
+exe	0x004550e0	d3_MirDrawObject	d3_mir	f416818c3b57dbc3	yes	byte	sweep control=shape best=byte by 13 unused typedefs at the unit's start; codegens=2 compiled=36 (stopped at the goal)	6e1a3ddd8e59e062
 exe	0x004554b0	d3_MirBeginFrame	d3_mir	e3f37a27644c6d83	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00455630	par_Init	d3_par	0d01db92964af2c6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004556b0	par_DeleteAll	d3_par	ac85705f84179f9a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
