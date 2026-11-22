@@ -8974,7 +8974,7 @@ void he_StartEffectEvent(AIJOB *e)
 /* 0x54fc00, the smoke emitter of the effect event: creates the effect 0x177 ("Rauch", the colour 0x64ffa0, a
    30 / 2 / 7.5 / 0.4 / 1 emitter) on the scene record (AIBLD.object) of the building o and returns its handle */
 
-int he_CreateSmokeEffect(AIBLD *o)
+D3PARTSYS *he_CreateSmokeEffect(AIBLD *o)
 {
     AIBLD *bld = o;
     unsigned char col[4];
@@ -8993,7 +8993,7 @@ int he_CreateSmokeEffect(AIBLD *o)
    size): creates the effect 0x178 ("punkte_nm_2", a 50 / 1 / 2 / 0.5 / 0.5 emitter) on the scene record
    (AIBLD.object) of the building o and returns its handle */
 
-int he_CreatePointsEffect(AIBLD *o)
+D3PARTSYS *he_CreatePointsEffect(AIBLD *o)
 {
     AIBLD *bld = o;
     unsigned char col[4];
@@ -9037,7 +9037,7 @@ void he_RunEffectEvent(AIJOB *e)
     case 1:
         if (gm_CompareTime(&ai_Time, &e->end6c) == 1) {
             if (e->effectObj != 0 && mem_IsValid(e->effectObj) != 0)
-                ((D3PARTSYS *)e->effectObj)->spawnCount = 0;
+                e->effectObj->spawnCount = 0;
             e->stage = 2;
             return;
         }
@@ -9045,7 +9045,7 @@ void he_RunEffectEvent(AIJOB *e)
             e->stage = 0;
         return;
     case 2:
-        if (e->effectObj == 0 || (((D3PARTSYS *)e->effectObj)->flags & 2) != 0)
+        if (e->effectObj == 0 || (e->effectObj->flags & 2) != 0)
             e->stage = -1;
         return;
     case -2:

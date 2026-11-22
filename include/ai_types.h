@@ -107,8 +107,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                 int orderObj;                   /* 0xb0, of an order (event kind 2): the AIOBJ.objId of the workshop it is for */
                 int id2;                        /* 0xb0, a second id: a building (kind 100) or a character (kind 0x89) as
                                                    sv_SpeakPicked looks them up */
-                int effectObj;                  /* 0xb0, of an effect event 0x76 the effect object's handle, 0: none yet (its
-                                                   alloc handler 0x54fb50 clears it) */
+                struct D3PARTSYS *effectObj;    /* 0xb0, of an effect event 0x76 the effect's particle system, 0: none yet
+                                                   (its alloc handler 0x54fb50 clears it; ls.c clears it on load) */
                 int dropSlot;                   /* 0xb0, of a promotion event 0x32 the cm slot handle gm_DropRank leaves, -1: none
                                                    (its alloc handler 0x55dd70 sets -1) */
                 int slotOrder1c;                /* 0xb0, of a kind 0x12 slot order event (the type 0x12 message
