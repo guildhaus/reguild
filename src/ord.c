@@ -1984,7 +1984,6 @@ void ord_RebuildGridSums(void)
     }
 }
 
-#define ORD_GRID(c) ((char *)ai_Grid + (c) * 0x18)
 #define ORD_KIND(k) ((unsigned short *)(ord_KindTable + (k) * 8))
 float gm_IncomeRating();                       /* 0x4f9ec0 */
 void cm_SendMessage41(void *p);                         /* 0x4c5800 */

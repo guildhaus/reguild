@@ -89,7 +89,6 @@ typedef char gm_AssertGMCARRY[sizeof(GMCARRY) == 0x21d ? 1 : -1];
 
 int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 
-#define CH(i) ((char *)&ai_Chars[(unsigned short)(i)])
 #define REC_RATE(rec) ((rec)[6])
 
 #include "io_text.h"
@@ -5625,7 +5624,6 @@ float gm_ItemPrice(int item, unsigned char n);
 int gm_SumListAmounts(void *list, unsigned char p);
 
 #define PLW54(k) (ai_PlayerSlots[(unsigned char)(k)].moneyGood)  /* the city id of the player slot k */
-#define OPROTO(i) ((char *)ai_Goods + (unsigned)(i) * 0x41)
 
 extern int ai_CharCount, ai_NextCharNumber, ai_NextPlayerNumber, gm_AllowAll, ai_NextObjectId;  /* 0x6f1bc0, 0x6f1bb8, 0x6f1bbc, 0x6f2448, 0x61a654 */
 
@@ -7834,7 +7832,6 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
 }
 
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
-#define WIDGET(i) ((char *)d2_Objs + (i) * 0x2ec)
 #define D2OBJ_AT(i) ((D2OBJ *)d2_Objs + (i))  /* the object i of d2_Objs (char * here) as its D2OBJ record */
 
 /* 0x50b9f0, (re)builds the widgets of the tech tree nodes gm_LayoutTree laid out for the building bld and the
