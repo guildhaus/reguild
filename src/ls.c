@@ -1908,7 +1908,7 @@ int ls_ReadSceneRecords(VFSFILE *f)
                     colour = (unsigned char)keeper->ref54 + 'g';
                 else
                     colour = 0;
-                d3if_SelectTextureSet(cart, (struct D3SURF *)cart->info, colour, 1);
+                d3if_SelectTextureSet(cart, cart->info, colour, 1);
                 ch_AttachTransport(ch, cart);
                 cart->mask = 1;
                 init_HookObject(cart, own, 1);

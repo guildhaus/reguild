@@ -772,7 +772,7 @@ exe	0x0043ce10	d3_InitSurf	d3_engine	byte	readable
 exe	0x0043ce60	d3_InitObject	d3_engine	shape	readable	deep	
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	byte	readable		
 exe	0x0043d0e0	d3_Unlink	d3_engine	byte	readable		
-exe	0x0043d180	d3_CloneObject	d3_engine	byte	readable		
+exe	0x0043d180	d3_CloneObject	d3_engine	shape	readable		byte+readable -> shape+readable at 1328b89b: declaration set: byte under 3 unused typedefs at the unit's start; its text changed only in field spelling (surf[0].info.mesh -> surf[0].mesh->name) when D3OBJINFO became D3SURF [waits for: the unit's declaration set]
 exe	0x0043d430	d3_SetObjectAlpha	d3_engine	shape	readable	deep	
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	byte	readable		
 exe	0x0043d690	d3_SetAlpha	d3_engine	byte	readable		

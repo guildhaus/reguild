@@ -1646,7 +1646,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
             if (owner != 0 && owner->ref54 != 0 && (owner->kind == 5 || owner->kind == 6 || owner->kind == 7)) {
                 set = (unsigned char)owner->ref54 + 0x67;
                 if (set != 0)
-                    d3if_SelectTextureSet(cart, (struct D3SURF *)cart->info, set, 1);
+                    d3if_SelectTextureSet(cart, cart->info, set, 1);
             }
             cart->mask = 1;
             init_HookObject(cart, r, 1);
@@ -2892,7 +2892,7 @@ void gm_AssignBuilding(AIBLD *b, unsigned master, unsigned own)
                 d3if_SelectScene(d3t_SceneIndex(ob->scene), 1);
                 if (ob->obj->info == 0)
                     ch_InflateModel(ob);
-                d3if_SelectTextureSet(*ob->transport, (struct D3SURF *)(*ob->transport)->info, owid, 1);
+                d3if_SelectTextureSet(*ob->transport, (*ob->transport)->info, owid, 1);
                 d3if_SelectScene(scn, 1);
             }
             w++;

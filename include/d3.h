@@ -6,7 +6,7 @@
 
 struct D3IOPATH;                   /* d3_io_t.h: the return of d3_LoadObjectAnim */
 struct D3IOOBJ;
-struct D3SURF;                     /* below: a surface of a mesh (D3MESH.surf) */
+typedef struct D3SURF D3SURF;      /* below: a surface of a mesh (D3MESH.surf), what D3OBJECT.info points to */
 struct D3ANIMSLOT;
 
 #include "d3_types.h"                /* D3VECTOR, D3VECTOR4, D3SCENE, D3TEXFLAGS */
@@ -81,7 +81,7 @@ struct D3OBJECT {
         D3VECTOR dir;
     } views[10];
     D3MATRIX matrix;                /* 0x18c */
-    struct D3OBJINFO *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]; D3SMMESH view) */
+    struct D3SURF *info;         /* 0x1cc, the current surface of the mesh (material->surf[k]; D3SMMESH view) */
     struct D3PATH *path;            /* 0x1d0, the path animation it follows (d3_anim.h D3PATH, D3_OBJPATH), 0: none */
     union {
         float radius;               /* 0x1d4, the mesh driver's radius (D3LOPS::radius, d3_light.h); read as obj->info->mesh->radius */
@@ -137,7 +137,7 @@ typedef struct D3VERTEX {          /* 0x50 bytes, what D3TRI::v points to */
     char pad48[0x8];
 } D3VERTEX;
 
-D3BOXVERT *d3_GetBoxVerts(D3OBJECT *obj, struct D3OBJINFO *info, void *unk);           /* 0x459ab0 */
+D3BOXVERT *d3_GetBoxVerts(D3OBJECT *obj, struct D3SURF *info, void *unk);           /* 0x459ab0 */
 
 typedef struct D3MESHKEY {          /* 0x50 bytes */
     int unk00;
@@ -151,14 +151,6 @@ typedef struct D3TRI {              /* 0x28 bytes */
     D3VECTOR *v[3];
     char pad0c[0x1c];
 } D3TRI;
-
-typedef struct D3OBJINFO {
-    D3MESHKEY *keys;                /* followed by the 8 bounding box corners */
-    D3TRI *tris;                    /* 0x04 */
-    int nkeys;                      /* 0x08 */
-    int ntris;                      /* 0x0c */
-    struct D3BGF *mesh;             /* 0x10, the mesh driver: the loaded stock object the surface shows */
-} D3OBJINFO;
 
 void d3_TransformSurf(D3OBJECT *obj);                                                       /* 0x43d7c0 */
 char d3_RelightObject(struct D3OBJECT *obj);                                                       /* 0x453280 */
@@ -320,7 +312,7 @@ typedef struct D3BGFATTACH {        /* 0x58 bytes, an attachment point; an anima
 
 typedef struct D3BGF D3BGF;
 struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAGI_obj"): a stock object, the mesh driver
-                                       of the surfaces that show it (D3OBJINFO.mesh, read as D3OPS in d3_engine.h);
+                                       of the surfaces that show it (D3SURF.mesh, read as D3OPS in d3_engine.h);
                                        the loaded ones are linked between the sentinels d3_StockListStart and d3_StockListEnd */
     char name[0x40];
     union {
@@ -347,8 +339,8 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     void (*Release)(D3BGF *m);      /* 0x1e8, the stock object's callbacks (d3io_LoadObjectFile): d3iot_DeleteStockObject */
     void (*TransformNormals)(struct D3OBJECT *obj, struct D3LINFO *info);                       /* 0x1ec */
     void (*Transform)(struct D3OBJECT *obj, struct D3LINFO *info, struct D3MATRIX *m);          /* 0x1f0 */
-    struct D3BOXVERT *(*GetBox)(struct D3OBJECT *obj, struct D3OBJINFO *info, void *unk);       /* 0x1f4 */
-    float (*GetRadius)(int unused, struct D3OBJINFO *info);                                     /* 0x1f8 */
+    struct D3BOXVERT *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, void *unk);       /* 0x1f4 */
+    float (*GetRadius)(int unused, struct D3SURF *info);                                     /* 0x1f8 */
     D3BGF *next;                    /* 0x1fc, the stock object list: towards d3_StockListEnd */
     D3BGF *prev;                    /* 0x200, towards the head sentinel d3_StockListStart */
     char *texnames;                 /* 0x204, ntex names of 0x40 bytes */
@@ -356,8 +348,12 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     char pad209[3];
 };
 
-typedef struct D3SURF {             /* 0x198 bytes, a mesh part with its own geometry */
-    D3OBJINFO info;                 /* points, polys, counts, ops */
+struct D3SURF {                     /* 0x198 bytes, a surface of a mesh (one level of detail) with its own geometry */
+    D3MESHKEY *keys;                /* 0x00, the points, followed by the 8 bounding box corners */
+    D3TRI *tris;                    /* 0x04 */
+    int nkeys;                      /* 0x08 */
+    int ntris;                      /* 0x0c */
+    struct D3BGF *mesh;             /* 0x10, the mesh driver: the loaded stock object the surface shows */
     struct TSTEXTURE **texHandles;  /* 0x14, the surf's textures (mesh->ntex of them) */
     D3OBJECT *owner;                /* 0x18, the object whose mesh this surf belongs to (set by d3_InitSurf) */
     D3ANIMSLOT slots[3];            /* 0x1c, the three vertex animation slots (d3anim_StartAnim) */
@@ -369,7 +365,7 @@ typedef struct D3SURF {             /* 0x198 bytes, a mesh part with its own geo
                                        with the last slot): the surf is transformed and drawn even when nothing else changed */
     unsigned char texSet;           /* 0x195, current texture set: index into the ops' name table (D3IOSURF.texSet) */
     char pad196[0x2];
-} D3SURF;
+};
 
 typedef struct D3MESHSUB {          /* 0x80 bytes, D3SSLOT (d3s.h): the shadow of one light, 4 per mesh at
                                        D3S_SLOTS; only cleared here */
@@ -445,7 +441,7 @@ extern unsigned int d3_TexCount;            /* 0xfb9084 */
 extern void *d3_Terrain;                  /* 0x633738 */
 
 struct TSTEXTURE; struct TSTEXTURE *tex_Load(char *name, D3TEXFLAGS flags, unsigned char opts, unsigned char fmt);  /* 0x4605c0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
-void d3_SetObjectAlpha(D3OBJECT *obj, struct D3OBJINFO *info, D3TEXFLAGS f);           /* 0x43d430, f.b[0] = alpha */
+void d3_SetObjectAlpha(D3OBJECT *obj, struct D3SURF *info, D3TEXFLAGS f);           /* 0x43d430, f.b[0] = alpha */
 struct TSTEXTURE; void tex_Reload(struct TSTEXTURE *tex, char keep);                                               /* 0x460e50 */  /* @original: ts_texture.c defines (TSTEXTURE *, char); the d3 callers were compiled against this */
 struct TSTEXTURE; void tex_Release(struct TSTEXTURE *tex);                                                          /* 0x45fbc0 */
 struct TSTEXTURE; char tex_SetHiColor(struct TSTEXTURE *tex, unsigned char hicolor);                                            /* 0x4611b0 */

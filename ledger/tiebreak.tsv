@@ -772,8 +772,8 @@ exe	0x0043ce10	d3_InitSurf	d3_engine	d5928c3fcd382762	no	draft	sweep control=dra
 exe	0x0043ce60	d3_InitObject	d3_engine	7997609736730fdb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2e71c15c3cd6e6ad
 exe	0x0043cfb0	d3_AddObjectDrawData	d3_engine	3219bcdfb9dc266b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d0e0	d3_Unlink	d3_engine	0c158890ea19999e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0043d180	d3_CloneObject	d3_engine	46928a82a14b5f36	yes	byte	control=shape p1=shape p2=shape* p3=byte* p4=shape	
-exe	0x0043d430	d3_SetObjectAlpha	d3_engine	9432e3bc46af72c6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	6ce4989eb7f6feaa
+exe	0x0043d180	d3_CloneObject	d3_engine	e6df497992104345	yes	byte	sweep control=shape best=byte by 3 unused typedefs at the unit's start; codegens=3 compiled=190	dfd14c1f71ff3bfc
+exe	0x0043d430	d3_SetObjectAlpha	d3_engine	12d5958994d3da2b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	289813946928573e
 exe	0x0043d630	d3_SetAlphaCB	d3_engine	270d4f88a8a1b203	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d690	d3_SetAlpha	d3_engine	5bcfac075a6c5061	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0043d6c0	d3_AttachToBone	d3_engine	cd237e8ae383ef87	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -870,7 +870,7 @@ exe	0x004486e0	d3if_ScreenBox	d3_interface	a9d4c4fbdcc7cc2d	no	shape	sweep contr
 exe	0x00448910	d3if_CreateCameras	d3_interface	ea8c37187df136f0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00448a50	d3if_ClearView	d3_interface	d9903c1d453aec0a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00448ac0	d3_YawTo	d3_interface	46a6b13ec1093be1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ac7be0bf90775364
-exe	0x00448c20	d3_CornerCB	d3_interface	a528799b5b6114d8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	49e6e93647db464c
+exe	0x00448c20	d3_CornerCB	d3_interface	166f7185f8f58820	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	64121c2cfcba0fb6
 exe	0x00448e60	d3_ScreenToUV	d3_interface	a24ecbf04431e874	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004495f0	d3_FindObjectCB	d3_interface	08674e4ad385bda9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00449690	d3_FindObject	d3_interface	7c50cee03e4239e6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1014,7 +1014,7 @@ exe	0x00454890	d3_MirCreateOutline	d3_mir	d5bf4863c747a710	no	shape	sweep contro
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	9927e34c70dfd5eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454ec0	d3_MirTransform	d3_mir	3198ef7b7c8c1553	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	e0878350ea5c8bad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004550e0	d3_MirDrawObject	d3_mir	2cd9ddc37c4fff19	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	8ef8a0ba906660e6
+exe	0x004550e0	d3_MirDrawObject	d3_mir	8bdae03dde98f059	yes	byte	sweep control=shape best=byte by 6 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	55fad80ad1350135
 exe	0x004554b0	d3_MirBeginFrame	d3_mir	e3f37a27644c6d83	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00455630	par_Init	d3_par	0d01db92964af2c6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004556b0	par_DeleteAll	d3_par	ac85705f84179f9a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

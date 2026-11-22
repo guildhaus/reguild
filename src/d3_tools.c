@@ -353,10 +353,10 @@ char d3t_GetBoundingSphere(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, fl
     D3BOXVERT *w;
     int i;
 
-    if (obj && (center || radius) && obj->material->surf[0].info.mesh) {
+    if (obj && (center || radius) && obj->material->surf[0].mesh) {
         list = &obj->material->surf[0];
         d3_UpdateWorldMatrix(obj, camera, 0);
-        v = list->info.mesh->GetBox(obj, &list->info, obj->material->worldMatrix);
+        v = list->mesh->GetBox(obj, list, obj->material->worldMatrix);
         if (v) {
             c.x = v[0].x;
             c.y = v[0].y;

@@ -2835,7 +2835,7 @@ void init_SyncSceneObjects(D3OBJECT *o)
     }
     if (strncmp(o->name, "pfl_", 4) == 0 || strncmp(o->name, "vg_", 3) == 0) {
         if (o->info != 0)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, init_TextureSet, 1);
+            d3if_SelectTextureSet(o, o->info, init_TextureSet, 1);
         else
             d3if_SelectTextureSet(o, &o->material->surf[0], init_TextureSet, 1);
     }
@@ -3150,7 +3150,7 @@ void init_PlantTextureSetHook(D3OBJECT *o)
 {
     if (strncmp(o->name, "pfl_", 4) != 0 && strncmp(o->name, "vg_", 3) != 0 && strncmp(o->name, "!vg_", 4) != 0)
         return;
-    d3if_SelectTextureSet(o, (struct D3SURF *)o->info, init_TextureSet, 1);
+    d3if_SelectTextureSet(o, o->info, init_TextureSet, 1);
 }
 /* 0x512e40, the scene object callback: unless the object is of the kind 2 / 4 it switches the textures of the
    object's mesh (D3OBJECT.material, the set list at +0xf4) to the current set (init_TextureSet, 0x446f30) */
@@ -3190,7 +3190,7 @@ char init_BuildingTextureSetHook(D3OBJECT *o, void *ctx)
         return 1;
     if (strncmp(o->name, "pfl_", 4) != 0 && strncmp(o->name, "vg_", 3) != 0 && strncmp(o->name, "!vg_", 4) != 0) {
         for (i = 0; i <= n; i++)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, i, 1);
+            d3if_SelectTextureSet(o, o->info, i, 1);
     }
     return 1;
 }

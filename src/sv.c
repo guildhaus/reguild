@@ -3203,7 +3203,7 @@ char sv_CreateBannerCB(D3OBJECT *part, AIBLD *b)
         d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
         d3_SetWorldPosRot(o, &pos.v, &m);
         if (b->owner != 0xffff) {
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, (unsigned char)((char)ai_Chars[b->owner].ref54 + 'f'), 1);
+            d3if_SelectTextureSet(o, o->info, (unsigned char)((char)ai_Chars[b->owner].ref54 + 'f'), 1);
             o->kind = 4;
         }
         d3t_PlayAnim(o, "sonstiges\\sp_WIMPEL.baf", 1);
@@ -3220,7 +3220,7 @@ char sv_ColourBannerCB(D3OBJECT *o, AIBLD *b)
 {
     if (stricmp(o->name, "sp_WIMPEL") == 0) {
         if (b->owner != 0xffff)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, (unsigned char)((char)ai_Chars[b->owner].ref54 + 'f'), 1);
+            d3if_SelectTextureSet(o, o->info, (unsigned char)((char)ai_Chars[b->owner].ref54 + 'f'), 1);
     }
     return 1;
 }
@@ -3277,7 +3277,7 @@ void sv_ColourBanners(int c)
             if (ch != 0 && ch->ref54 != 0 && (ch->kind == 5 || ch->kind == 6 || ch->kind == 7)) {
                 set = ch->ref54 - 0x599;
                 if (set != 0)
-                    d3if_SelectTextureSet(*m->transport, (struct D3SURF *)(*m->transport)->info, set, 1);
+                    d3if_SelectTextureSet(*m->transport, (*m->transport)->info, set, 1);
             }
         }
     }
@@ -6212,7 +6212,7 @@ void sv_UpdateBand(void)
     D3VECTOR4 p;
     AICHAR *c;
     D3PVERT *v;
-    D3OBJINFO *info;
+    D3SURF *info;
 
     if (sv_BandActive == 0)
         return;
@@ -6265,7 +6265,7 @@ void sv_UpdateBandLed(void)
     D3VECTOR4 p;
     AICHAR *c;
     D3PVERT *v;
-    D3OBJINFO *info;
+    D3SURF *info;
 
     if (sv_BandActive == 0)
         return;

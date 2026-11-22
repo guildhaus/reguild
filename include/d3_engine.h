@@ -102,7 +102,7 @@ __inline D3OBJBITS *d3_ObjBits(D3OBJECT *obj)
 #define D3_OBJBITS(o) (*d3_ObjBits(o))
 
 typedef struct D3OPS D3OPS;
-struct D3OPS {                      /* the "driver" behind D3OBJINFO::unk10: a stock object, the same records as D3BGF (d3_io_t.h; not merged yet) */
+struct D3OPS {                      /* D3SURF.mesh, the mesh driver: D3BGF (d3.h) as this unit reads it (not merged yet) */
     char pad000[0x1d8];
     float diagonal;                 /* 0x1d8, the diagonal of the bounding box (D3BGF.diagonal); picks the shadow size */
     int pad1dc;
@@ -110,8 +110,8 @@ struct D3OPS {                      /* the "driver" behind D3OBJINFO::unk10: a s
     int nsets;                      /* 0x1e4, texture sets in the name table (D3BGF.nsets, d3_io_t.h) */
     void (*Release)(D3OPS *ops);    /* 0x1e8 */
     int unk1ec;
-    void (*Transform)(D3OBJECT *obj, D3OBJINFO *info, void *ctx);       /* 0x1f0 */
-    void *(*GetBox)(D3OBJECT *obj, D3OBJINFO *info, void *unk);         /* 0x1f4 */
+    void (*Transform)(D3OBJECT *obj, D3SURF *info, void *ctx);       /* 0x1f0 */
+    void *(*GetBox)(D3OBJECT *obj, D3SURF *info, void *unk);         /* 0x1f4 */
     char pad1f8[0xc];               /* 0x1f8, the driver's other callbacks and stock list links (D3BGF, d3_io_t.h) */
     char *texnames;                 /* 0x204, nsets * count texture names of 0x40 bytes, set-major (D3BGF.texnames) */
 };
@@ -147,7 +147,7 @@ void tex_ReloadAll(char keep, void (*cb)(int, int, int));       /* 0x461090, ts_
 void d3fl_FreeTiles(struct D3FLMAP *map);   /* 0x441db0, d3_fl.c */
 
 /* d3_engine.c functions referenced before their definition */
-D3OBJINFO *d3_SelectSurf(D3OBJECT *obj);                                                 /* 0x43a000 */
+D3SURF *d3_SelectSurf(D3OBJECT *obj);                                                 /* 0x43a000 */
 void d3_DrawSortedD3D(void);                                                                /* 0x43a7d0 */
 void d3_DrawSortedSW(void);                                                                /* 0x43b080 */
 void d3_RadixSort(unsigned int n, unsigned char twobytes);                              /* 0x43b300 */
@@ -236,7 +236,7 @@ typedef struct D3OBJX {             /* 0x228 bytes, the whole D3OBJECT as far as
     };
     struct { D3VECTOR pos; D3VECTOR dir; } views[10];   /* 0x09c, D3OBJECT.views (d3.h): the preset camera views */
     D3MATRIX matrix;                /* 0x18c */
-    D3OBJINFO *info;                /* 0x1cc */
+    D3SURF *info;                /* 0x1cc */
     void *path;                     /* 0x1d0, the object path animation (d3anim_FreePath) */
     void *events;                   /* 0x1d4, D3E_NEVENTS event handlers (d3e:RegisterEvent(eventtable)) */
     char pad1d8[0x10];
@@ -552,7 +552,7 @@ void d3d_DrawTriangles(void *unk, struct _D3DTLVERTEX *buf, DWORD num);         
     __asm fstp dword ptr [edi+0x8]                                  \
 }
 D3OBJECT *d3_SpawnObject(int type, char *name);                                         /* 0x43c570 */
-void d3_AllocObjectPolys(D3OBJINFO *info);                                              /* 0x43cc10 */
+void d3_AllocObjectPolys(D3SURF *info);                                              /* 0x43cc10 */
 void d3_AddObjectDrawData(D3OBJECT *obj);                                               /* 0x43cfb0 */
 /* Inline-asm copy with both operands named directly in the asm (D3_COPY_AT in d3_d3d.h). */
 #define D3E_COPY_AT(dvar, svar, size) {                             \

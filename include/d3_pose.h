@@ -19,7 +19,7 @@ typedef struct XVERT {              /* 0x50 bytes */
     char pad4e[0x2];
 } XVERT;
 
-typedef struct XPART {              /* a mesh part, what D3OBJINFO has before its ops */
+typedef struct XPART {              /* a mesh part, what D3SURF has before its ops */
     struct XVERT *keys;             /* 0x00, stride 0x50 */
     void *tris;
     int nkeys;                      /* 0x08 */

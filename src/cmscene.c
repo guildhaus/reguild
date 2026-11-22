@@ -3394,11 +3394,11 @@ void cm_RunAuction(G28REC *m)
     o = d3_FindObject(0, 0x40, 0, "ub_STAFELEI");
     if (o != 0) {
         if (t->kind == 0xb)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, 0, 1);
+            d3if_SelectTextureSet(o, o->info, 0, 1);
         else if (t->kind == 0xc)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, 1, 1);
+            d3if_SelectTextureSet(o, o->info, 1, 1);
         else if (t->kind == 0xd)
-            d3if_SelectTextureSet(o, (struct D3SURF *)o->info, 2, 1);
+            d3if_SelectTextureSet(o, o->info, 2, 1);
     }
     /* the auctioneer */
     if (speaker == 0) {

@@ -172,7 +172,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
     float t;
     int n, i, k, b, bone, r;
 
-    if (obj && obj->material && obj->material->surf[0].info.mesh) {
+    if (obj && obj->material && obj->material->surf[0].mesh) {
         n = 0;
         if (obj->material->surf[0].active) {
             D3_ZERO(acc, sizeof(acc));
@@ -190,7 +190,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                     break;
                             if (i >= n) {
                                 if (n < 4) {
-                                    D3BGF *skel = obj->material->surf[0].info.mesh;
+                                    D3BGF *skel = obj->material->surf[0].mesh;
 
                                     strcpy(acc[n].name, name);
                                     for (i = 0; i < skel->nattach; i++) {
@@ -246,7 +246,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
             }
         }
         if (!n) {
-            mesh = obj->material->surf[0].info.mesh;
+            mesh = obj->material->surf[0].mesh;
             for (c = obj->child; c; c = c->next) {
                 if (c->material && D3_MESH(c)->boneName[0]) {
                     for (i = 0; i < mesh->nattach; i++)
@@ -895,7 +895,7 @@ stepped:
             D3ANIMFRAME *f = shown;
 
             if (f) {
-                D3ANIMSLOT *main = d3anim_GetMainSlot((D3SURF *)obj->info);
+                D3ANIMSLOT *main = d3anim_GetMainSlot(obj->info);
 
                 if (main)
                     f = FRAME_AT(main->data, main->frame);
@@ -1459,7 +1459,7 @@ D3ANIMSLOT *d3anim_StartAnim(D3SURF *ctl, char *name, D3ANIMFLAGS f)
         for (i = 0; i < 3; i++)
             if (!ctl->slots[i].data)
                 break;
-        if (data && data->nverts == ctl->info.nkeys && i < 3) {
+        if (data && data->nverts == ctl->nkeys && i < 3) {
             d3_Busy++;
             s = &ctl->slots[i];
             obj = ctl->owner;
@@ -1471,8 +1471,8 @@ D3ANIMSLOT *d3anim_StartAnim(D3SURF *ctl, char *name, D3ANIMFLAGS f)
             s->timeout = 100;
             data->refs++;
             data->lastuse = d3_FrameCount;
-            if (!data->normals && ctl->info.mesh) {
-                d3anim_CalculateAnimNormals(data, ctl->info.mesh);
+            if (!data->normals && ctl->mesh) {
+                d3anim_CalculateAnimNormals(data, ctl->mesh);
                 data->normals = 1;
             }
             s->flags = f;

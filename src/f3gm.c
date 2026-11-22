@@ -1008,7 +1008,7 @@ void gm_SelectModelVariant(AICHAR *o)
     v = 0;
     if (o != 0 && (m = o->scene) != 0) {
         surf = &m->obj->material->surf[0];
-        ops = (D3OPS *)surf->info.mesh;
+        ops = (D3OPS *)surf->mesh;
         if (m->scene != d3_Scenes) {
             if ((int)ops->nsets <= 4)
                 v = o->netId % ops->nsets;
@@ -1128,7 +1128,7 @@ void gm_ChooseHeadIcon(AICHAR *c)
         if (m->scene == d3_Scenes)
             return;
         surf = &m->obj->material->surf[0];
-        ops = (D3OPS *)surf->info.mesh;
+        ops = (D3OPS *)surf->mesh;
         set = surf->texSet;
         if (ops->count > 0) {
             do {

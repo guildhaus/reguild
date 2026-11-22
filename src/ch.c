@@ -512,7 +512,7 @@ void ch_UpdateLowPoly(CHARACTER *ch)
                 if (ch->lowPolyBody->type != 1)
                     d3if_Show(ch->lowPolyBody, 0);
             }
-            anim = D3OBJ_ANIM(ch->lowPolyBody);
+            anim = ch->lowPolyBody->info;
             if (!anim || ch->flags.lowPolyAnimFailed)
                 return;
             s = ch->slot;
@@ -537,7 +537,7 @@ void ch_UpdateLowPoly(CHARACTER *ch)
                     ch->flags.lowPolyAnimFailed = 1;
                     return;
                 }
-                D3OBJ_ANIM(ch->lowPolyBody)->slots[0].frame = ch->slot->frame;
+                ch->lowPolyBody->info->slots[0].frame = ch->slot->frame;
                 s->timeout = -1;
                 return;
             }
@@ -863,9 +863,9 @@ void ch_StopAnim(CHARACTER *ch)
     if (ch->slot) {
         sprintf(name, "morph_%i", ch);
         if (!d3_FindAnim(name)) {
-            if (obj->info && d3anim_CreateMorphAnim(D3OBJ_ANIM(obj)->info.mesh, ch->slot->data,
+            if (obj->info && d3anim_CreateMorphAnim(obj->info->mesh, ch->slot->data,
                                                       &ch->slot->data->frames[ch->slot->frame], 0, 0,
-                                                      D3OBJ_ANIM(obj)->info.mesh, name, 4)) {
+                                                      obj->info->mesh, name, 4)) {
                 f.u.all = 0;
                 f.b8 = 1;
                 f.u.c.b1 = 0x18;
@@ -945,7 +945,7 @@ void ch_CheckAniMorph(CHARACTER *ch)
         n = (n + a->frames[a->nframes - 1].time) / 2;
         n = (int)(n + 0.5f);
         if (obj->info) {
-            if (d3anim_CreateMorphAnim(D3OBJ_ANIM(obj)->info.mesh, a, &a->frames[ch->slot->frame], ch->next, &ch->next->frames[i], 0, name, n)) {
+            if (d3anim_CreateMorphAnim(obj->info->mesh, a, &a->frames[ch->slot->frame], ch->next, &ch->next->frames[i], 0, name, n)) {
                 f.u.all = 0;
                 f.b8 = 1;
                 f.u.c.b1 = 0x18;
@@ -964,7 +964,7 @@ void ch_CheckAniMorph(CHARACTER *ch)
         if (!s->data->relative && (s->flags.b[4] & 3))
             d3anim_ApplyRootMotion(obj, s, 0, s->frame, 3);
         d3_ReleaseTexture(&obj->material->surf[0], s->data->name);
-        if (D3OBJ_ANIM(obj) && D3OBJ_ANIM(obj)->slots[0].data && D3OBJ_ANIM(obj)->slots[1].data)
+        if (obj->info && obj->info->slots[0].data && obj->info->slots[1].data)
             err_Message("ch_CheckAniMorph(): huston we got a problem...");
         ch->slot = 0;
         return;
@@ -1745,7 +1745,7 @@ void ch_ActSitDown(CHACTION *a)
     int cur;
 
     if (!a->count) {
-        if (a->u.name[0] && !D3OBJ_ANIM(ch->obj)->slots[0].data) {
+        if (a->u.name[0] && !ch->obj->info->slots[0].data) {
             ch->flags.all |= 2;
             if (a->scriptAction.flags & 1) {
                 ch->sitSlot = ch->slot = (D3ANIMSLOT *)ch_AttachAni(a->ch, a->u.name, 1);
@@ -1961,8 +1961,8 @@ int ch_TakeObject(CHARACTER *ch, char *name, D3OBJECT *obj, int frame)
         a->args[1] = 0;
         a->args[2] = 2;
         strcpy(a->u.name, name);
-        if (obj && obj->material && obj->material->surf[0].info.mesh) {
-            strcpy(CH_ACTOBJ(a)->name2, obj->material->surf[0].info.mesh->name);
+        if (obj && obj->material && obj->material->surf[0].mesh) {
+            strcpy(CH_ACTOBJ(a)->name2, obj->material->surf[0].mesh->name);
             return 1;
         }
         ch_RemoveAction(a);
@@ -1986,8 +1986,8 @@ int ch_TakeObject1(CHARACTER *ch, char *name, D3OBJECT *obj, int frame)
         a->args[1] = 0;
         a->args[2] = 1;
         strcpy(a->u.name, name);
-        if (obj && obj->material && obj->material->surf[0].info.mesh) {
-            strcpy(CH_ACTOBJ(a)->name2, obj->material->surf[0].info.mesh->name);
+        if (obj && obj->material && obj->material->surf[0].mesh) {
+            strcpy(CH_ACTOBJ(a)->name2, obj->material->surf[0].mesh->name);
             return 1;
         }
         ch_RemoveAction(a);

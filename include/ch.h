@@ -171,8 +171,6 @@ typedef struct CHOBJBITS {
 } CHOBJBITS;
 #define D3OBJ_BITS(obj, off) ((CHOBJBITS *)((char *)(obj) + (off)))
 float d3_YawTo(struct D3OBJECT *obj, const struct D3VECTOR *p);                                     /* 0x448ac0, angle towards target */
-/* D3OBJECT.info is the D3SURF of animated objects */
-#define D3OBJ_ANIM(obj) ((D3SURF *)(obj)->info)
 
 extern char ch_ShadowEnabled;           /* 0x5f122c */
 extern char ch_StepSample[0x60];        /* 0x5f1230, the step sound sample name ("normal_s"; chc.c SetCharacterStepSample, lc.c reset it) */

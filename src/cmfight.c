@@ -1788,7 +1788,7 @@ char cm_CreateDummyFlag(D3OBJECT *obj, void *ctx)
         d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)pos);
         r = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ub_CONQUER");
         cm_FlagObjects[cm_FlagObjectCount] = r;
-        d3if_SelectTextureSet(r, (D3SURF *)r->info, 1, 1);
+        d3if_SelectTextureSet(r, r->info, 1, 1);
         sprintf(cm_FlagObjects[cm_FlagObjectCount]->name, "sp_CONQUER_%i", cm_FlagObjectCount);
         cm_FlagObjects[cm_FlagObjectCount]->owner = 0;
         cm_FlagObjects[cm_FlagObjectCount]->kind = 4;
@@ -2007,7 +2007,7 @@ void cm_SetupFightScene(G28REC *rec)
             r = cm_AddFighter(rec->fight.attackers[i], "dummy_OFFENSE_ENTRY");
             r->side = cm_FightAttacker;     /* in a fight: the side's leader */
             if (r->scene != 0)
-                d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 5, 1);
+                d3if_SelectTextureSet(r->scene->obj, r->scene->obj->info, 5, 1);
         }
     }
     for (i = 0; i < 16; i++) {
@@ -2016,7 +2016,7 @@ void cm_SetupFightScene(G28REC *rec)
             r->side = cm_FightDefender;
             r->scene->walkSpeed *= 1.2;
             if (r->scene != 0)
-                d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 4, 1);
+                d3if_SelectTextureSet(r->scene->obj, r->scene->obj->info, 4, 1);
         }
     }
     d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))cm_ClearKind3MaskCB);
@@ -4520,7 +4520,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
                 else
                     k = 0;
                 if (k != 0)
-                    d3if_SelectTextureSet(r, (struct D3SURF *)r->info, k, 1);
+                    d3if_SelectTextureSet(r, r->info, k, 1);
                 sprintf(r->name, "CONQUER_FLAG");
                 r->owner = 0;
                 r->kind = 4;
