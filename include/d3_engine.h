@@ -690,7 +690,8 @@ void d3_Unlink(D3OBJECT *obj);  /* 0x43d0e0 */
 extern int d3if_SceneState1;  /* 0x5fb5c4 */
 char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radius);  /* 0x43d860 */
 D3OBJECT *d3_NextGroup(D3OBJECT *obj);  /* 0x438c30 */
-char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*cb)(D3OBJECT *obj));  /* 0x438e60 */
+char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*cb)(D3OBJECT *obj));  /* 0x438e60; cb's result is not read: the callers pass
+   their char / int returning callbacks (ls_HookBuildingCB, init_TextureSetHook ..) cast to void (*)(D3OBJECT *) */
 void d3_ClipMesh(D3CLIP mask, D3PVERT *v, int nverts, D3PTRI *t, int ntris);  /* 0x439a60 */
 void d3_AppendSibling(D3OBJECT *first, D3OBJECT *obj);  /* 0x43cb20 */
 void d3_SetAlpha(D3OBJECT *obj, D3TEXFLAGS *f);  /* 0x43d690, the alpha flags f on obj and its group */

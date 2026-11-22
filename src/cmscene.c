@@ -4197,7 +4197,7 @@ void cm_ApplySeason(void)
 {
     gm_ClockSeason(&ai_Time);
     d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_PlantTextureSetHook);
-    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))init_TextureSetHook);
     init_SetSeasonTextures();
 }
 /* 0x4e36a0, resets the 16 cutscene records cm_CutInfos for the party m: each one fresh 1, ready / valid 0, recvFlag 1, no

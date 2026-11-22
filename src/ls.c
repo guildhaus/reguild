@@ -1414,8 +1414,8 @@ int ls_LoadScene(VFSFILE *f)
         ((D3FLMAP *)d3_Terrain)->lod = init_Detail;
         d3fl_SetDetail(0x80);
     }
-    d3_ForEachObject2(d3_DefaultScene, 0, 0x1c0, (void *)(unsigned)&ls_HookBuildingCB);
-    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void *)(unsigned)&ls_ClearObjectFlag);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0x1c0, (void (*)(D3OBJECT *))ls_HookBuildingCB);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))ls_ClearObjectFlag);
     d3if_SelectScene(saved, 0);
     return 1;
 }
@@ -1459,11 +1459,11 @@ char ls_HookBuildingCB(D3OBJECT *o)
     }
     return 1;
 }
-/* 0x51d530, scene callback: clears the flag 4 in +0x213 of the object */
+/* 0x51d530, scene callback: clears the flag 4 of the object's flags (D3OBJECT 0x213); returns 1 */
 
-char ls_ClearObjectFlag(char *o)
+char ls_ClearObjectFlag(D3OBJECT *o)
 {
-    o[0x213] &= ~4;
+    o->flags &= ~4;
     return 1;
 }
 /* 0x51d550, reads the buildings ai_Blds from the save file f (the counterpart of ls_WriteBuildings): for each of n

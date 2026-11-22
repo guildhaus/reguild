@@ -563,7 +563,7 @@ void init_LoadObjectScene(int n)
         strupr(buf);
         if (d3_LoadScene(buf, 0, cb) != 0) {
             d3if_SelectScene(d3_CurrentScene, 0);
-            d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SceneNameToPrototype);
+            d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, (void (*)(D3OBJECT *))init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
             init_ObjectUniverse[n] = uni;
             d3if_SelectScene(save, 0);
@@ -582,7 +582,7 @@ void init_LoadObjectScene(int n)
             d3_DefaultScene->hmap = 0;
             ch_GetSceneHMap(d3_DefaultScene);
             d3sm_Build(d3_DefaultScene->hmap, d3_Terrain);
-            d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, init_SceneNameToPrototype);
+            d3_ForEachObject2(d3_DefaultScene, 0, 0x1e0, (void (*)(D3OBJECT *))init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
             /* the original compares the walk pointer as an int (jl): a plain pointer compare would be jb */
             for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
@@ -696,7 +696,7 @@ void init_LoadBuildingScene(int k)
             if (d3_Terrain != 0)
                 init_SetDetailLevel(d3_Terrain, 1);
             d3if_SelectScene(d3_CurrentScene, 0);
-            d3_ForEachObject2(d3_DefaultScene, 0, 0x160, init_SceneNameToPrototype);
+            d3_ForEachObject2(d3_DefaultScene, 0, 0x160, (void (*)(D3OBJECT *))init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
             *slot = uni;
             d3if_SelectScene(save, 0);
@@ -737,7 +737,7 @@ void init_LoadBuildingScene(int k)
             d3_DefaultScene->hmap = 0;
             ch_GetSceneHMap(d3_DefaultScene);
             d3sm_Build(d3_DefaultScene->hmap, d3_Terrain);
-            d3_ForEachObject2(d3_DefaultScene, 0, 0x160, init_SceneNameToPrototype);
+            d3_ForEachObject2(d3_DefaultScene, 0, 0x160, (void (*)(D3OBJECT *))init_SceneNameToPrototype);
             d3_ForEachObject2(d3_DefaultScene, 0, 6, init_AdjustSceneLights);
             for (q = ch_List; (int)q < (int)(ch_List + INIT_CHARACTER_COUNT); q++) {
                 co = *q;
@@ -1966,7 +1966,7 @@ int init_InitTown(char *city)
     amt_InitTable();
     gv_ClearCrimes();
     d3_ForEachObject2(d3_DefaultScene, 0, 0x140, init_AllocSceneBuilding);
-    d3_ForEachObject2(d3_DefaultScene, 0, 0x40, init_SceneNameToPrototype);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0x40, (void (*)(D3OBJECT *))init_SceneNameToPrototype);
     d3_ForEachObject2(d3_DefaultScene, 0, 0x20, init_InheritOwner);
     init_LoadSiteScene("bk_BRUNNEN");
     init_LoadSiteScene("bk_GEFAENGNIS");
@@ -2443,7 +2443,7 @@ void init_RecreateQuadTree(void)
         d3q_FreeNode((D3QNODE *)d3_QuadTree);
         d3_QuadTree = 0;
     }
-    d3_ForEachObject2(d3_DefaultScene, 0, 0x40, init_FlagTreeObject);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0x40, (void (*)(D3OBJECT *))init_FlagTreeObject);
     d3_QuadTree = (int)d3q_Create(0, 0x40, 8, 7);
 }
 /* 0x511890, gives every building of the class 6 (not the type 0x1c) a name: the names of its kind (the 0xc names at 0x143b400 + 0x38 per kind) that no building uses yet, up to 0x20 characters ("Building name too long: %s" is the error text), one picked at random into the building's name field (+5). The original returns nothing (no eax at the end; init_LocalData ignores it)
@@ -3291,7 +3291,7 @@ void init_ShowBuildingScene(AIBLD *b, int slot)
         d3_LightKeyBudgetVisible = 0x800;
         if (gm_IsHomeType(b) != 0) {
             d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_PlantTextureSetHook);
-            d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
+            d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))init_TextureSetHook);
         }
         if (b->type == 0x1e && slot == 0xfd)
             veg_ShowPlants(b->plants);
@@ -3540,7 +3540,7 @@ void init_AfterTownLoad(void)
         else if (phase == 3)
             init_TextureSet = 3;
         d3_ForEachObject2(d3_DefaultScene, 0, 0xe0, init_PlantTextureSetHook);
-        d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_TextureSetHook);
+        d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))init_TextureSetHook);
         if (d3_DefaultScene != 0) {
             events = d3_DefaultScene->events;
 

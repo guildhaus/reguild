@@ -1846,12 +1846,10 @@ void ai_ArmGateGuards(G28REC *rec, unsigned char kind)
 }
 /* 0x4d0f80, the object walk's callback: an object of kind 3 gets its mask (D3OBJECT.mask) cleared; returns 1 */
 
-char cm_ClearKind3MaskCB(char *o)
+char cm_ClearKind3MaskCB(D3OBJECT *o)
 {
-    D3OBJECT *obj = (D3OBJECT *)o;
-
-    if (obj->kind == 3)
-        obj->mask = 0;
+    if (o->kind == 3)
+        o->mask = 0;
     return 1;
 }
 
@@ -2023,7 +2021,7 @@ void cm_SetupFightScene(G28REC *rec)
                 d3if_SelectTextureSet(r->scene->obj, (struct D3SURF *)r->scene->obj->info, 4, 1);
         }
     }
-    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, cm_ClearKind3MaskCB);
+    d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, (void (*)(D3OBJECT *))cm_ClearKind3MaskCB);
     memset(ai_SceneChars, 0, sizeof(ai_SceneChars));
     n = 0;
     for (i = 0; i < 32; i++) {

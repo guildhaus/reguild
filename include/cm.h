@@ -669,7 +669,7 @@ extern struct D3OBJECT *cm_FlagObjects[32];  /* 0x935980, the conquest flag obje
 void cm_PlaceFlagObjects();  /* 0x4d0ca0 */
 int cm_FreeNetIdSlot(int *a);  /* 0x4d0cd0 */
 void ai_ArmGateGuards(G28REC *rec, unsigned char kind);  /* 0x4d0cf0, arms the guards of the town gate event (the kind 0xb characters ai_KindBChars) */
-char cm_ClearKind3MaskCB(char *o);  /* 0x4d0f80 */
+char cm_ClearKind3MaskCB(struct D3OBJECT *o);  /* 0x4d0f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 
 void cm_SetupFightScene(G28REC *rec);  /* 0x4d0fa0, sets up the fight scene of a fight record */
