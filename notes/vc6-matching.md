@@ -6203,7 +6203,10 @@ the bytes no portable form gives.
   CMCUTINFO, the Domizil use prototype, the camera matrices, the vertex positions) or the nineteenth (the characters held
   as char * / unsigned short * at AICHAR * callees, the fight's D3OBJECT targets, the engine handles held as int, the sprite
   and fade views of TSTEXTURE / D2FADE, d3_FindObject's objects, the send slot's value union, the party lookups, cm.h's
-  (void) prototypes, the action frame callback, the wind record, the office records, two object walk callbacks).
+  (void) prototypes, the action frame callback, the wind record, the office records, two object walk callbacks) or the
+  twentieth (the picked / clicked objects and the name plates as D3OBJECT *, the texture slot views D3TEXTURE / D3FLTEX
+  / D3IOTEX as TSTEXTURE, the save header LSHDR, the weapon records AIWEAPON, the aip callbacks' AIARG, ORDSTATS, the
+  `(unsigned)&` address casts).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6796,6 +6799,34 @@ the bytes no portable form gives.
   had no grade and its neighbour fell): put new typedefs above the comment.
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
+- **Handles compared with a global that holds an object** (twentieth pass: ai_ClickedObject `int` against ~200 contact
+  plate locals from sv_RegisterNamePlate): type the global, the creator's return and every holder in one commit.
+  The holders are found per function by three shapes (`x = creator(..)`, `global == x` / `x == global`, `x =
+  global`); a scratch script retypes single, `= 0` and all-holder multi-name declarations (scratchpad p20/plates.py)
+  and the rest are named by VC6's C4047 lines. String reads of the object become `->name` (the name is its first
+  field: `strcmp(o, ..)`, `o + 0x10`), a byte at an offset its field (`o[0x4b]` -> pickBytes[3]). Every function
+  the same code.
+- **A regex that removes `((T *)x)` parentheses takes a call's own parenthesis** (`ch_FindByObject((D3OBJECT *)x)`
+  became `ch_FindByObjectx`): grep the result for `[A-Za-z_]x` before compiling, or replace `((T *)x)->` only.
+- **Views of a record that name its flag byte otherwise** (D3TEXTURE.flags / D3FLTEX.state / D3IOTEX.f68 at
+  TSTEXTURE 0x68): name the bits in the owner from what the views' readers do (f0 wrap, f4 nocull, f5 mirror, bit 7
+  precached) and add the byte as an anonymous union member (`bits`) for the readers that copy or mask it whole;
+  rename the view's field to the union name first (C2039 names the users), then switch the type. A union of the
+  bitfields with the byte keeps the layout (the next bitfield still starts at +1). Every function the same code.
+- **One record that three units describe** (the save header: ls_types.h's LSHDR, ls.h's LSHEADER, the save list's
+  SAVEHEADERVIEW copies): keep the one the writer uses, give it the readers' names (a clock as the AITIME the list
+  reads year / hour / min from: the types header includes ai_types.h), retype the reader's parameter and drop the
+  copies and their empty `#pragma pack` pairs. A `char hdr[0xfc]` buffer becomes the record (`(unsigned char
+  *)&hdr` for a byte hash). The new include moved declaration-set tie-breaks only.
+- **A byte-initialised record table read through a view macro** (ai_WeaponRecordData char[920] / ai_WeaponRecords):
+  generate field initialisers from the bytes; "padding" the view skipped can be data (AIWEAPON 0x07 / 0x08 / 0x0a /
+  0x10 held 0 / 1 / 2 / 5 / 10): name it (`ranged`, by the ids a reader tests) or `unkNN`. To give the datum the view's
+  name, remove the macros and use the datum's old name first, then `dcp rename` (a macro of the new name breaks the
+  rename's compile; dcp rename also refuses while unpromoted tie-break M1s are open: `dcp promote` first).
+- **`(unsigned)&g + k` address arithmetic** (25 sites: macros in f3init / he / he_b / main, walks in lcmap / sv):
+  `(uintptr_t)&g + k` (unsigned int under VC6, the same code); a pointer parameter takes `&g` (sv_UpdateSkyPhase),
+  an array `(char *)g`. `(int)&g` in a signed compare is `(intptr_t)`; the `(int)&x` left (138) are mostly
+  arguments of int parameters (the callees' debt).
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
