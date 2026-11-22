@@ -76,7 +76,7 @@ int ai_MsgOfficeApplicantPayment(G14MSG *m)
     AICHAR *c, *p;
     int i, j, n, v;
     double k;
-    G14REC r[6];
+    AMTREC r[6];
     char buf[0x100];
 
     c = gm_FindChar(m->id);
