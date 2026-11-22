@@ -246,7 +246,10 @@ typedef struct D2OBJ {              /* 0x2ec bytes, d2_Objs has 0x2ff: pictures,
     int picScale;                   /* 0x70, picture scale: 0 / 1 / -1 draw unscaled, > 1 larger, < -1 smaller (d2_ScaleObject) */
     short font;                     /* 0x74 */
     short pad76;
-    int input;                      /* 0x78, input index / picture shift */
+    union {
+        int input;                  /* 0x78, input index / picture shift / animation / window */
+        char *text;                 /* 0x78, of a text object (type 0x43): its 0x101-byte text (mem_Alloc, "d2:ShowTxt") */
+    };
     union {
         char text[0x20];            /* 0x7c, button caption */
         unsigned short *raw;        /* 0x7c, 16-bit pixels of a raw object (d2_OpenRaw) */

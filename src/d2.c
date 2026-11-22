@@ -2195,9 +2195,9 @@ void d2_DrawObjects(void)
                         mode |= 4;
                     if (o->u.text[0]) {
                         d2_SetTextColour(o->u.text[1], o->u.text[2], o->u.text[3]);
-                        d2_DrawTextBox(o->x, o->y, o->w, o->h, d2_ScreenSurf, (char *)o->input, mode | 0x40);
+                        d2_DrawTextBox(o->x, o->y, o->w, o->h, d2_ScreenSurf, o->text, mode | 0x40);
                     } else
-                        d2_DrawTextBox(o->x, o->y, o->w, o->h, d2_ScreenSurf, (char *)o->input, mode);
+                        d2_DrawTextBox(o->x, o->y, o->w, o->h, d2_ScreenSurf, o->text, mode);
                     o->h = (short)d2_TextDrawnH;
                     if (!o->win)
                         d2_AddDirty(o->x, o->y, o->w, o->h);
@@ -2422,8 +2422,8 @@ void d2_RemoveObj(int obj)
         return;
     switch (o->type) {
     case 0x43:
-        if (o->input)
-            mem_Free(o->input);
+        if (o->text)
+            mem_Free(o->text);
         break;
     case 4:
         d2_FreeAnim(o->input);
@@ -4365,7 +4365,7 @@ int d2_WinOpenPicStyled(short x, short y, int pic, int win, int a)
 void d2_SetObjText(int obj, char *text)
 {
 
-    strcpy((char *)d2_Objs[obj].input, text);
+    strcpy(d2_Objs[obj].text, text);
     if (d2_Objs[obj].centred == 0 && d2_Objs[obj].rightAligned == 0)
         d2_Objs[obj].w = d2_TextWidth(text, d2_Objs[obj].font);
 }
@@ -4410,10 +4410,10 @@ int d2_CreateWinText(short x, short y, char *text, int win)
         return -1;
     }
     obj = d2_NewObject();
-    d2_Objs[obj].input = (int)mem_Alloc(0x101, "d2:ShowTxt");
-    if ((char *)d2_Objs[obj].input == 0)
+    d2_Objs[obj].text = mem_Alloc(0x101, "d2:ShowTxt");
+    if (d2_Objs[obj].text == 0)
         return -1;
-    strcpy((char *)d2_Objs[obj].input, text);
+    strcpy(d2_Objs[obj].text, text);
     if (w->font != 0)
         d2_Objs[obj].font = w->font;
     else
@@ -4445,10 +4445,10 @@ int d2_CreateScreenText(short x, short y, char *text)
     short tw;
 
     obj = d2_NewObject();
-    d2_Objs[obj].input = (int)mem_Alloc(0x101, "d2:ShowTxt");
-    if ((char *)d2_Objs[obj].input == 0)
+    d2_Objs[obj].text = mem_Alloc(0x101, "d2:ShowTxt");
+    if (d2_Objs[obj].text == 0)
         return -1;
-    strcpy((char *)d2_Objs[obj].input, text);
+    strcpy(d2_Objs[obj].text, text);
     d2_Objs[obj].font = d2_DefaultFont;
     d2_Objs[obj].type = 0x43;
     d2_Objs[obj].x = x;
@@ -5085,7 +5085,7 @@ void d2_RedrawView(int view)
                                 mode = 1;
                             if (o->centred != 0)
                                 mode |= 8;
-                            d2_DrawTextBox(o->x, o->y, o->w, o->h, surf, (char *)o->input, mode);
+                            d2_DrawTextBox(o->x, o->y, o->w, o->h, surf, o->text, mode);
                             d2_SetFont(font);
                         }
                         break;
