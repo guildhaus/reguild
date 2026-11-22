@@ -119,17 +119,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
     D3ANIM *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
     int x, y;                       /* 0x08, the target cell */
 } CMGRENADE;
-typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus / ai_AmountRow read it
-                                       as ints; menu.c GYPSYROW) */
-    AICHAR *rec;                    /* 0x00, the character the row shows */
-    int ctl;                        /* 0x04, the row's control object (d2_Objs index, ai_AmountRow) */
-    int pad08[3];
-    int y;                          /* 0x14 */
-    int pad18[5];
-    int x2c;                        /* 0x2c */
-    int x30;                        /* 0x30 */
-    int pad34;
-} CMAMOUNTROW;
 
 /* dcp unit split: the declarations of cm before the moved functions */
 typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words

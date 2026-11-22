@@ -689,19 +689,6 @@ void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b);
-typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
-                                           ai_AmountRow; cm.c CMAMOUNTROW) */
-    AICHAR *rec;                     /* 0x00, the character the row shows */
-    int ctl[2];                         /* 0x04, the row's controls (ai_AmountRow): the frame picture, the liking slider */
-    int office;                         /* 0x0c, of a vacant seat: its office, the text 0x253 + it (ai_ShowOfficeRows) */
-    int x;                              /* 0x10 */
-    int y;                              /* 0x14 */
-    int portrait;                       /* 0x18, the portrait picture (ai_ShowAmountRows) */
-    int icons[4];                       /* 0x1c, the icons in the frame's corners (ai_ShowAmountRows) */
-    int x2c;                            /* 0x2c, a value the row's text shows (the evidence book: the evidence count) */
-    int pickable;                       /* 0x30, nonzero: the row's frame takes clicks (ai_AmountRow) */
-    int x34;                            /* 0x34, a second value (the evidence book: the open evidence) */
-} LCAMOUNTROW;
 float gm_TitlePeriodServed(int n, int *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 float gm_AddHealth(unsigned short id, int d); int ai_TutorialOff(); void ai_EvidenceBookWindow(struct AIBLD *bld);

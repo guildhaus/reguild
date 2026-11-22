@@ -752,7 +752,7 @@ void d2_SetObjFont(int obj, int font);  /* 0x4760b0 */
 extern int cm_TallyYes;  /* 0x6f0d6c, the "yes" pictures of the deposition tally */
 extern int cm_TallyNo;  /* 0x6f0d68, the "no" pictures of the deposition tally */
 extern int cm_TallyAbstain;  /* 0x6f0d70, the abstentions of the deposition tally */
-struct CMAMOUNTROW; void cm_StackPicture(int unused, struct CMAMOUNTROW *o);  /* 0x4d8c70 */
+struct LCAMOUNTROW; void cm_StackPicture(int unused, struct LCAMOUNTROW *o);  /* 0x4d8c70 */
 void cm_TallyStack(int a, int b, int c);  /* 0x4d8cb0 */
 
 typedef struct G22ENT {                 /* 0x18 bytes, one participant of a session (amt_GetColumnOffices) */

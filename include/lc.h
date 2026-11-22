@@ -397,10 +397,22 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption, int c
 struct AICHAR;
 void ai_CharInfoPanel(struct AICHAR *chr, int other);  /* 0x5c5310, the character info panel */
 void ai_ShowOfficeNews(unsigned short *param_1, struct AICHAR *param_2);  /* 0x5a8cb0 */
-struct LCAMOUNTROW;
-int ai_AmountRow(int x, int y, int win, int font, struct LCAMOUNTROW *row, int titled);  /* 0x5be3b0, one row of a special-amount list (lc.c LCAMOUNTROW) */
+typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
+                                           ai_AmountRow / ai_DrawAmountRow; the lists of lc / cmscene / menu / he / svtip) */
+    struct AICHAR *rec;                 /* 0x00, the character the row shows (0 = empty) */
+    int ctl[2];                         /* 0x04, the row's controls (ai_AmountRow): the frame picture, the liking slider */
+    int office;                         /* 0x0c, of a vacant seat: its office, the text 0x253 + it (ai_ShowOfficeRows) */
+    int x;                              /* 0x10 */
+    int y;                              /* 0x14 */
+    int portrait;                       /* 0x18, the portrait picture (ai_ShowAmountRows) */
+    int icons[4];                       /* 0x1c, the icons in the frame's corners (ai_ShowAmountRows) */
+    int x2c;                            /* 0x2c, a value the row's text shows (the evidence book: the evidence count) */
+    int pickable;                       /* 0x30, nonzero: the row's frame takes clicks (ai_AmountRow) */
+    int x34;                            /* 0x34, a second value (the evidence book: the open evidence) */
+} LCAMOUNTROW;
+int ai_AmountRow(int x, int y, int win, int font, struct LCAMOUNTROW *row, int titled);  /* 0x5be3b0, one row of a special-amount list */
 int ai_AmountRowStatus(struct LCAMOUNTROW *row);  /* 0x5be1d0, the corner icons of a special-amount row */
-int ai_DrawAmountRow(int x, int y, int win, struct LCAMOUNTROW *row);  /* 0x5be720, a compact special-amount row at (x, y) (lc.c LCAMOUNTROW) */
+int ai_DrawAmountRow(int x, int y, int win, struct LCAMOUNTROW *row);  /* 0x5be720, a compact special-amount row at (x, y) */
 void ai_GameFrame(void);  /* 0x591520 */
 void ai_DropObjectAt(struct D3OBJECT *obj, struct D3VECTOR *target);  /* 0x58feb0 */
 void ai_ShowPurchaseNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4);  /* 0x5a8c50 */

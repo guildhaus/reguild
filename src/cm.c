@@ -146,17 +146,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
     D3ANIM *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
     int x, y;                       /* 0x08, the target cell */
 } CMGRENADE;
-typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus / ai_AmountRow read it
-                                       as ints; menu.c GYPSYROW) */
-    AICHAR *rec;                    /* 0x00, the character the row shows */
-    int ctl;                        /* 0x04, the row's control object (d2_Objs index, ai_AmountRow) */
-    int pad08[3];
-    int y;                          /* 0x14 */
-    int pad18[5];
-    int x2c;                        /* 0x2c */
-    int x30;                        /* 0x30 */
-    int pad34;
-} CMAMOUNTROW;
 /* 0x4c3180, the size in bytes of the game message m by its type: fixed per type, the lists 0x16 / 0x17 a 0x15-byte
    head and data[4] records of w * h + 4 bytes, 0x18 a head and data[4] records of 5, 0x20 by its kind byte data[0];
    0x91 (the whole G17MSG body) for any other type. One return per type, as the original: its jump table has an

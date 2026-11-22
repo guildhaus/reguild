@@ -988,7 +988,7 @@ int ai_OpenHelpTooltip(char *s)
 int ai_OpenCharTooltip(AICHAR *ch)
 {
     int view;
-    int row[14];                        /* an amount row (menu.c GYPSYROW): row[0] the character */
+    LCAMOUNTROW row;                    /* c's amount row */
     char line[0x100];
     AICHAR *c;
     AICHAR *p;
@@ -1003,9 +1003,9 @@ int ai_OpenCharTooltip(AICHAR *ch)
     d2_SetForm(0, 1);
     io_PrintText((intptr_t)"$Z$[%1N3$]", c->id);
     d2_SetForm(0, 4);
-    row[0] = (int)c;
-    if (ai_AmountRowStatus(row) != 0)
-        ai_DrawAmountRow(0xa6, 5, d2_LastWindow, row);
+    row.rec = c;
+    if (ai_AmountRowStatus(&row) != 0)
+        ai_DrawAmountRow(0xa6, 5, d2_LastWindow, &row);
     d2_SetForm(0, 2);
     if (c->kind != 0x14)
         io_PrintText(0x2b, (int)gm_CharAge(c->id));
@@ -1098,7 +1098,7 @@ int ai_OpenCharTooltip(AICHAR *ch)
 void ai_CharInfoWindow(AICHAR *ch)
 {
     int view;
-    int row[14];                        /* an amount row (menu.c GYPSYROW): row[0] the character */
+    LCAMOUNTROW row;                    /* c's amount row */
     char line[0x100];
     AICHAR *c;
     AICHAR *p;
@@ -1114,10 +1114,10 @@ void ai_CharInfoWindow(AICHAR *ch)
     d2_SetForm(0, 1);
     io_PrintText((intptr_t)"$Z$[%1N3$]", c->id);
     d2_SetForm(0, 4);
-    memset(row, 0, sizeof(row));
-    row[0] = (int)c;
-    if (ai_AmountRowStatus(row) != 0)
-        ai_DrawAmountRow(0xa6, 5, d2_LastWindow, row);
+    memset(&row, 0, sizeof(row));
+    row.rec = c;
+    if (ai_AmountRowStatus(&row) != 0)
+        ai_DrawAmountRow(0xa6, 5, d2_LastWindow, &row);
     d2_SetForm(0, 2);
     if (c->kind != 0x14)
         io_PrintText(0x2b, (int)gm_CharAge(c->id));

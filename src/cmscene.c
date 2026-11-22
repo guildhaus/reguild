@@ -130,17 +130,6 @@ typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of
     D3ANIM *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
     int x, y;                       /* 0x08, the target cell */
 } CMGRENADE;
-typedef struct CMAMOUNTROW {        /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus / ai_AmountRow read it
-                                       as ints; menu.c GYPSYROW) */
-    AICHAR *rec;                    /* 0x00, the character the row shows */
-    int ctl;                        /* 0x04, the row's control object (d2_Objs index, ai_AmountRow) */
-    int pad08[3];
-    int y;                          /* 0x14 */
-    int pad18[5];
-    int x2c;                        /* 0x2c */
-    int x30;                        /* 0x30 */
-    int pad34;
-} CMAMOUNTROW;
 
 /* dcp unit split: the declarations of cm before the moved functions */
 typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) as this unit reads it: the report's words
@@ -225,7 +214,7 @@ void cm_DeleteSceneChars()
 /* ---- cut.c (joined) ---- */
 
 /* 0x4d8c70, draws the next picture 0x4df of a stack (o + 0x2c counts them, 10 up each) on the window 0x6ed938 */
-void cm_StackPicture(int unused, CMAMOUNTROW *o)
+void cm_StackPicture(int unused, LCAMOUNTROW *o)
 {
     d2_WinOpenPic(0x8c, (short)(0x44 - (short)o->x2c * 10), 0x4df, d2_LastWindow);
     o->x2c++;
@@ -292,7 +281,7 @@ void cm_RunCouncilSession(G28REC *a)
     AICHAR *holders[6];                 /* the column's office holders who are not held: the voters */
     int holderIdx[6];                   /* their office's index in offices[] */
     AICHAR *applicants[4];
-    CMAMOUNTROW holderRows[6], applicantRows[4], row;
+    LCAMOUNTROW holderRows[6], applicantRows[4], row;
     CMSESSIONREQ depose, elect;
     char name[0x100], name2[0x100];
     int tally[3];                       /* the deposition answers: yes, no, abstain */
@@ -414,7 +403,7 @@ void cm_RunCouncilSession(G28REC *a)
             d2_SetForm(viewTop, 1);
             row.rec = holder;
             row.y = 0;
-            row.x30 = 0;
+            row.pickable = 0;
             ai_AmountRowStatus(&row);
             ai_AmountRow(0x28, 0, d2_LastWindow, 0x54, &row, 1);
             d2_SetForm(viewTop, 2);
@@ -436,7 +425,7 @@ void cm_RunCouncilSession(G28REC *a)
                     if (holders[i]->officeKind != 0) {
                         holderRows[i].rec = holders[i];
                         holderRows[i].y = 0;
-                        holderRows[i].x30 = 0;
+                        holderRows[i].pickable = 0;
                         ai_AmountRowStatus(&holderRows[i]);
                         ai_AmountRow((shown + 1) * step + d2_Pics[0x5da].w * shown, 0, d2_LastWindow, 0x54, &holderRows[i], 0);
                         shown++;
@@ -461,7 +450,7 @@ void cm_RunCouncilSession(G28REC *a)
                 c = gm_FindChar(s->playerId);
                 tally[s->session.answer]++;
                 d2_SetForm(view, 0);
-                d2_Objs[holderRows[i].ctl].highlighted = 1;
+                d2_Objs[holderRows[i].ctl[0]].highlighted = 1;
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12c7, c->id);
                 cm_RunSceneTicks(0x3e8);
@@ -491,7 +480,7 @@ void cm_RunCouncilSession(G28REC *a)
                     cm_TallyStack(d2_LastWindow, 0, 2);
                 }
                 cm_RunSceneTicks(0xfa0);
-                d2_Objs[holderRows[i].ctl].highlighted = 0;
+                d2_Objs[holderRows[i].ctl[0]].highlighted = 0;
                 cm_RunSceneTicks(0x3e8);
             }
             if (tally[0] > tally[1]) {
@@ -607,7 +596,7 @@ void cm_RunCouncilSession(G28REC *a)
                     applicantRows[napp].rec = c;
                     applicantRows[napp].y = 0;
                     applicantRows[napp].x2c = 0;
-                    applicantRows[napp].x30 = 0;
+                    applicantRows[napp].pickable = 0;
                     ai_AmountRowStatus(&applicantRows[napp]);
                     ai_AmountRow((0xa0 - d2_Pics[0x5da].w) / 2, 0, d2_LastWindow, 0x54, &applicantRows[napp], 1);
                     elect.ids[napp] = c->netId;
@@ -641,7 +630,7 @@ void cm_RunCouncilSession(G28REC *a)
                     if (amt_CanTakeOffice(holders[i], elect.kind) != 0) {
                         holderRows[i].rec = holders[i];
                         holderRows[i].y = 0;
-                        holderRows[i].x30 = 0;
+                        holderRows[i].pickable = 0;
                         ai_AmountRowStatus(&holderRows[i]);
                         ai_AmountRow((shown + 1) * step + d2_Pics[0x5da].w * shown, 0, d2_LastWindow, 0x54, &holderRows[i], 0);
                         shown++;
@@ -652,7 +641,7 @@ void cm_RunCouncilSession(G28REC *a)
             if (napp == 1) {
                 /* a single applicant takes the office */
                 cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 0, 100);
-                d2_Objs[applicantRows[0].ctl].highlighted = 1;
+                d2_Objs[applicantRows[0].ctl[0]].highlighted = 1;
                 d2_SetForm(view, 0);
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12e0, applicants[0]->id, offices[j].kind + 0x253);
@@ -670,7 +659,7 @@ void cm_RunCouncilSession(G28REC *a)
                 io_PrintText((intptr_t)"$C");
                 io_PrintText(0x12e1);
                 cm_RunSceneTicks(0x3e8);
-                d2_Objs[applicantRows[r].ctl].highlighted = 1;
+                d2_Objs[applicantRows[r].ctl[0]].highlighted = 1;
                 io_PrintText(0x12e2, applicants[r]->id);
                 cm_RunSceneTicks(0xfa0);
                 if (a->host == ai_Chars[ai_PlayerId].netId) {
@@ -689,20 +678,20 @@ void cm_RunCouncilSession(G28REC *a)
                     if (s->session.answer != -1) {
                         for (e = 0; e < napp; e++) {
                             if (elect.ids[e] == s->session.answer) {
-                                d2_Objs[holderRows[i].ctl].highlighted = 1;
+                                d2_Objs[holderRows[i].ctl[0]].highlighted = 1;
                                 d2_SetForm(view, 0);
                                 io_PrintText((intptr_t)"$C");
                                 io_PrintText(0x12de, holders[i]->id);
                                 votes[e]++;
                                 cm_RunSceneTicks(0x3e8);
-                                d2_Objs[applicantRows[e].ctl].highlighted = 1;
+                                d2_Objs[applicantRows[e].ctl[0]].highlighted = 1;
                                 d2_SetForm(viewLeft, e + 1);
                                 cm_StackPicture(e + 1, &applicantRows[e]);
                                 d2_SetForm(view, 0);
                                 io_PrintText(0x12df, applicants[e]->id);
                                 cm_RunSceneTicks(0xfa0);
-                                d2_Objs[holderRows[i].ctl].highlighted = 0;
-                                d2_Objs[applicantRows[e].ctl].highlighted = 0;
+                                d2_Objs[holderRows[i].ctl[0]].highlighted = 0;
+                                d2_Objs[applicantRows[e].ctl[0]].highlighted = 0;
                                 break;
                             }
                         }
@@ -722,7 +711,7 @@ void cm_RunCouncilSession(G28REC *a)
                 }
                 if (tie == 0) {
                     if (win != -1) {
-                        d2_Objs[applicantRows[win].ctl].highlighted = 1;
+                        d2_Objs[applicantRows[win].ctl[0]].highlighted = 1;
                         cm_QueueVoice(-8, bankElect, "_ERGEBNIS", 3, 100);
                         d2_SetForm(view, 0);
                         io_PrintText((intptr_t)"$C");
@@ -747,7 +736,7 @@ void cm_RunCouncilSession(G28REC *a)
                     io_PrintText((intptr_t)"$C");
                     io_PrintText(0x12e3);
                     cm_RunSceneTicks(0x3e8);
-                    d2_Objs[applicantRows[win].ctl].highlighted = 1;
+                    d2_Objs[applicantRows[win].ctl[0]].highlighted = 1;
                     io_PrintText(0x12e4, applicants[win]->id);
                     cm_RunSceneTicks(0xfa0);
                     if (a->host == ai_Chars[ai_PlayerId].netId) {

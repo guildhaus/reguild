@@ -5350,7 +5350,7 @@ void he_RunDuelChallenge(AIJOB *e)
 {
     AIJOB *duel;
     AICHAR *q = 0, *p = 0;
-    int row[14];                        /* a special-amount row, cm.c's CMAMOUNTROW: [0] the character, [1] its control */
+    LCAMOUNTROW row;                    /* p's special-amount row */
 
     duel = he_FindEvent(1, 1, ((HEDUEL *)e)->duelId);
     if (duel != 0) {
@@ -5379,12 +5379,12 @@ void he_RunDuelChallenge(AIJOB *e)
         d2_SetForm(e->slot->win, 1);
         io_PrintText(0x1d6c);
         d2_SetForm(e->slot->win, 2);
-        row[0] = (int)p;
-        if (ai_AmountRowStatus(row) != 0) {
-            ai_DrawAmountRow(d2_LastWindowPtr->w / 2 - 0x28, 0, d2_LastWindow, row);
-            d2_Objs[row[1]].interactive = 1;
-            d2_Objs[row[1]].style = 3;
-            d2_Objs[row[1]].user = (void *)row[0];
+        row.rec = p;
+        if (ai_AmountRowStatus(&row) != 0) {
+            ai_DrawAmountRow(d2_LastWindowPtr->w / 2 - 0x28, 0, d2_LastWindow, &row);
+            d2_Objs[row.ctl[0]].interactive = 1;
+            d2_Objs[row.ctl[0]].style = 3;
+            d2_Objs[row.ctl[0]].user = row.rec;
         }
         d2_SetForm(e->slot->win, 3);
         io_PrintText(0x1d6b, ((HEDUEL *)duel)->newsArg1, p->id, ((HEDUEL *)duel)->newsArg2, p->id);

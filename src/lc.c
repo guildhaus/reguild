@@ -65,7 +65,7 @@
    object record views (AICHAR / AIOBJ of the news messages), the
    Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
-   the gv record (AIWINDOWROW, gv_types.h AIDEC) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
+   the gv record (AIWINDOWROW, gv_types.h AIDEC) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
    settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and AIBLD (a building's good id, ai_bld.h's AIBLD).
    The production window's tables are this unit's typed data (lc.h): the goods columns ai_ProdColumns (LCPRODCOL),
@@ -5633,19 +5633,6 @@ void ai_FeastContact(AIBLD *bld, AIOBJ *room)
         r = sv_RunFrame(ai_FeastContact, 0x67fff);
     }
 }
-typedef struct LCAMOUNTROW {            /* 0x38 bytes, one row of the special-amount list (ai_AmountRowStatus /
-                                           ai_AmountRow; cm.c CMAMOUNTROW) */
-    AICHAR *rec;                     /* 0x00, the character the row shows */
-    int ctl[2];                         /* 0x04, the row's controls (ai_AmountRow): the frame picture, the liking slider */
-    int office;                         /* 0x0c, of a vacant seat: its office, the text 0x253 + it (ai_ShowOfficeRows) */
-    int x;                              /* 0x10 */
-    int y;                              /* 0x14 */
-    int portrait;                       /* 0x18, the portrait picture (ai_ShowAmountRows) */
-    int icons[4];                       /* 0x1c, the icons in the frame's corners (ai_ShowAmountRows) */
-    int x2c;                            /* 0x2c, a value the row's text shows (the evidence book: the evidence count) */
-    int pickable;                       /* 0x30, nonzero: the row's frame takes clicks (ai_AmountRow) */
-    int x34;                            /* 0x34, a second value (the evidence book: the open evidence) */
-} LCAMOUNTROW;
 /* 0x5967c0, the window of one of the player's mistresses "locations\wohnsitz\geliebte2" (from ai_MistressWindow,
    with her character record and her pair event 0x6f): her name and her amount row, two buttons (the texts
    txt_Ptrs[0x1a5c] / [0x1a5d]). The window closes (sv_PopRequest) once she or her event is gone or on a right click.
