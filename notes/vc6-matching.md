@@ -6195,7 +6195,9 @@ the bytes no portable form gives.
   casts, the transporter list, the K&R sweep) or the sixteenth (the order message ORDMSG, gv_GetTableRecord's AIDEC,
   gm_Mix's characters, cm_StartEventArg's command, the amount filter AMOUNTCFG, the sound library handles, the Domizil
   lookups, ai_MapPick's callback, the const read-only parameters; he_DetectAttack's intptr_t is a portable spelling,
-  not (c)).
+  not (c)) or the seventeenth (the padded vectors D3VECTOR4 with their D3VECTOR member, D3VECTOR's index view, the
+  3-float callees, the cannon shot, the surface descriptors, D3TEXHANDLE as TSTEXTURE, the held good in AIOBJ and
+  G8USE, the character callees, the cm.h / gv.h K&R sweep, the signed address compares as intptr_t).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6670,6 +6672,38 @@ the bytes no portable form gives.
   mismatch VC6 reported under it (D3VECTOR4 -> D3VECTOR as C4133).
 - **Passing a `char []` global as `&g`** (`&ch_EmptyName`: `char (*)[]`, C4047 at every char * parameter) or through
   `(char *)(unsigned)&g` (truncates on 64-bit): pass `g`, the same address.
+- **A 16-byte vector handed to a 12-byte vector parameter** (D3VECTOR4 for D3VECTOR: d3_Origin / d3_ZAxis, the
+  shot and camera locals; seventeenth pass): D3VECTOR4 is `{ union { struct { float x, y, z; }; D3VECTOR v; }; float w;
+  }` (d3_types.h; the same layout and initialisers, every `.x` unchanged) and the call passes `&x.v`, never
+  `(D3VECTOR *)&x`. D3VECTOR has an index view `{ union { struct { float x, y, z; }; float e[3]; }; }` for the loops
+  over its components (d3_UnwrapAngles: `a->e[i]`). A callee that reads or writes three floats of a vector takes
+  `const D3VECTOR *` / `D3VECTOR *` (d3_Lerp3, d3_YawTo, d3_SetWorldPosRot, ai_SolveCannonAim), not `float *`;
+  vectors kept as `float v[4]` (globals, locals, record fields: sv_ViewPos, G9SHOT.a ..) are D3VECTOR4 (`v[0]` ->
+  `v.x`), `float v[3]` D3VECTOR, `float pts[8][4]` `D3VECTOR4 pts[8]`. Split multi-name declarations keep their
+  order. Every function the same code (scratchpad p17/vfix.py finds the arguments by trial compile, p17/vret.py
+  retypes a function's locals).
+- **A callback that reads its first argument as another record than its registration passes** (ai_SabotageCallback:
+  ai_MapPick flags 1 calls cb(building, building), the body reads the first as a character: he_NoEvent4bPair and its
+  id word, the shape of flags 2's (character, building) call): read the registration's push and the call in the
+  original; when ours reads what the original reads, it is the game's mismatch: keep it, byte, with `@original` in
+  the comment (not a data bug).
+- **One record described twice in a widely included header** (d3.h's D3TEXHANDLE = ts_texture.h's TSTEXTURE):
+  replace the view's name by `struct T` in every pointer declaration (a forward declaration serves units that only
+  hold the pointer), give the record the view's original names as anonymous union aliases (TSTEXTURE.surftext beside
+  d3dtex, the D3DCHECK texts' name), strip the casts the view needed by warning (p17/cstrip.py).
+- **A view whose fields run past a union's end** (lc's G8INVOBJ over AIOBJ: the held good's words 0x1c .. 0x3a cross
+  the 0x1c union into the patrol / report bytes): an outer union over the whole range, the existing union and its
+  neighbours as one member struct, the view's fields as another; check the layout with offsetof array typedefs in a
+  scratch file (size, every boundary field) before compiling the units. Rename a view field whose name the record
+  has at another offset first (G8INVOBJ.bldId 0x25 against AIOBJ.bldId 0x1c: placeBldId) and let C2039 name its users.
+- **Removing K&R declarations from a shared header** (cm.h 135, gv.h 10): VC6 at /W1 does not report a call without
+  a declaration (C4013 is level 3), so a unit that calls a function defined further down compiles silently: take
+  dcp lint's M7 `(undeclared)` lines as the restore list (scratchpad p17/krh.py restores what the compiler names).
+- **A signed compare of addresses** (`(int)&p->f < (int)&tab[N].f`, `(int)p >= (int)&tab[N]`, the walk ends the
+  original compares with jl / jge): cast both sides `(intptr_t)` (int under VC6, the same code; a byte end
+  `(intptr_t)((uintptr_t)&g + k)`).
+- **Stripping casts by "no new diagnostic"**: never inside a `#define` (`#define CH(i) ((char *)&ai_Chars[i])` without
+  its cast compiles silently and rescales every `CH(i)[k]`), never before `+ - [` (only a whole argument).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
