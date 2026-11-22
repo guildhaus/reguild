@@ -1387,7 +1387,7 @@ void amt_ElectOffices(int unused, int n, AMTREC *recs)
     int tie;
     AICHAR *o, *x, *c;
     AMTREC *p;
-    char buf[4];
+    int why;                        /* the out values (what decided the vote), unread */
 
     pending = 0;
     for (i = 0; i < n; i++) {
@@ -1413,7 +1413,7 @@ void amt_ElectOffices(int unused, int n, AMTREC *recs)
             votes[j] = 3;
             c = gm_FindChar(recs[j].owner);
             if (c != 0 && c->officeKind != 0 && c->heldRounds == 0) {
-                s = ai_TrustedOfTwo(c, o, x, buf);
+                s = ai_TrustedOfTwo(c, o, x, &why);
                 votes[j] = s;
                 tally[s]++;
             }
@@ -1499,7 +1499,7 @@ void amt_ElectOffices(int unused, int n, AMTREC *recs)
             votes[j] = -1;
             c = gm_FindChar(recs[j].owner);
             if (c != 0 && amt_CanTakeOffice(c, recs[i].kind) != 0 && !(c->heldRounds > 0))
-                votes[j] = ai_TrustedOfFour(recs[i].idx, c, ids, buf);
+                votes[j] = ai_TrustedOfFour(recs[i].idx, c, ids, &why);
         }
         for (j = 0; j < n; j++) {
             v = votes[j];

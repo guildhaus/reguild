@@ -566,8 +566,8 @@ typedef struct GVDETAILWIN {
    window scrolled */
 void ai_GraveList(AIBLD *rec, int *w, int sel)
 {
-    char a[4];
-    char b[4];
+    int up;
+    int down;
     GVENTRY *e;
     GVROW *row;
     int saved;
@@ -581,7 +581,7 @@ void ai_GraveList(AIBLD *rec, int *w, int sel)
     io_PrintText((intptr_t)"$C");
     d2_SetForm(w[0], 4);
     io_PrintText((intptr_t)"$C");
-    sv_CreateScrollButtons(0, 0, w[5], w[2], 0x35, a, b, &sel);
+    sv_CreateScrollButtons(0, 0, w[5], w[2], 0x35, &up, &down, &sel);
     e = gv_FindEntry(0, rec, 0, 0, w[0xc]);
     n = 0;
     if (e) {
