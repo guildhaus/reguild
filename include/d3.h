@@ -627,8 +627,10 @@ typedef struct D3MESH {             /* 0x970 bytes, what D3OBJECT::material poin
                                        GetBox / Transform take it to put the box / the verts in camera space */
     float zMin;                     /* 0x088, nearest z of the box in camera space (d3_ClipBox writes it) */
     float zMax;                     /* 0x08c, farthest z of the box in camera space */
-    char pad090[0x20];
-    int frameStamp;                 /* 0x0b0, the frame the mesh was last transformed/clipped in (d3_FrameCount);
+    D3VECTOR4 boundsMin;            /* 0x090, the object's world box, as the quad tree keeps it (d3q_GetBounds) */
+    D3VECTOR4 boundsMax;            /* 0x0a0 */
+    int frameStamp;                 /* 0x0b0, the frame the mesh was last transformed/clipped in (d3_FrameCount; d3q_Mark
+                                       stamps the objects the camera box touches, d3q_Create resets them to -1);
                                        equal to the current frame: already current, only flag 0x40 is set;
                                        -1 = never (d3_AddObjectDrawData) */
     char boneName[0x40];            /* 0x0b4, the parent's bone the object is attached to (d3_AttachToBone writes it,

@@ -21,18 +21,6 @@ typedef struct D3QNODE {            /* 0x48 bytes, pool 0x633db0 (64 per block) 
     unsigned int mask;              /* 0x44, object mask the tree was made for */
 } D3QNODE;
 
-/* the object bounds in D3OBJECT::material (also used by the bounding helpers elsewhere) */
-typedef struct D3QMAT {
-    char pad00[0x8];
-    char box[0x88];                 /* 0x08, passed to d3_GetBoxVerts */
-    D3VECTOR4 min;                  /* 0x90 */
-    D3VECTOR4 max;                  /* 0xa0 */
-    int zone;                       /* 0xb0, id of the zone the object is in */
-    char padb4[0x40];
-    char list[0x10];                /* 0xf4 */
-    void *ops;                      /* 0x104 */
-} D3QMAT;
-#define D3Q_MAT(o) ((D3QMAT *)(o)->material)
 
 struct MPOOL;
 extern struct MPOOL *d3_QItemPool;  /* 0x633db4 */
