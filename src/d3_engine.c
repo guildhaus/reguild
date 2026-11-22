@@ -454,21 +454,21 @@ void d3_UpdateWorldMatrix(D3OBJECT *obj, D3OBJECT *camera, char force)
     D3MATRIX m;
 
     if (!(obj->stateFlags & 0x80) || force) {
-        d3_WorldMatrix(obj, 0, 0, D3_MESH(obj)->worldMatrix);
+        d3_WorldMatrix(obj, 0, 0, &D3_MESH(obj)->worldMatrix);
         obj->stateFlags |= 0x80;
     }
     if (!(obj->flags & 1) || force || D3_MESH(obj)->camera != camera) {
         if (camera && !(obj->state & 0x80)) {
-            D3E_COPY3(&m, D3_MESH(obj)->worldMatrix, 0x40);
+            D3E_COPY3(&m, &D3_MESH(obj)->worldMatrix, 0x40);
             m._41 -= camera->pos.x;
             m._42 -= camera->pos.y;
             m._43 -= camera->pos.z;
             m._41 -= camera->posOffset.x;
             m._42 -= camera->posOffset.y;
             m._43 -= camera->posOffset.z;
-            d3_MatMul43(&m, &camera->matrix, (D3MATRIX *)D3_MESH(obj)->cameraMatrix);
+            d3_MatMul43(&m, &camera->matrix, &D3_MESH(obj)->cameraMatrix);
         } else
-            D3E_COPY3(D3_MESH(obj)->cameraMatrix, D3_MESH(obj)->worldMatrix, 0x40);
+            D3E_COPY3(&D3_MESH(obj)->cameraMatrix, &D3_MESH(obj)->worldMatrix, 0x40);
         D3_MESH(obj)->camera = camera;
         obj->flags |= 1;
     }
@@ -489,7 +489,7 @@ unsigned char d3_ClipObject(D3OBJECT *obj, D3SURF *info, D3OBJECT *camera)
     }
     box = 0;
     if (info && info->mesh)
-        box = D3_OPS(info)->GetBox(obj, info, D3_MESH(obj)->cameraMatrix);
+        box = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
     if (!box) {
         clip |= 0x40;
         return clip;
@@ -717,9 +717,9 @@ char d3_DrawObjectCB(D3OBJECT *obj)
             if (dirty || s->active) {
     draw:
                 if (s->mesh)
-                    D3_OPS(s)->Transform(obj, s, m->cameraMatrix);
+                    D3_OPS(s)->Transform(obj, s, &m->cameraMatrix);
                 else
-                    d3_TransformVerts(obj, s, m->cameraMatrix);
+                    d3_TransformVerts(obj, s, &m->cameraMatrix);
                 d3_ClipMesh(clip, (D3PVERT *)s->keys, s->nkeys, (D3PTRI *)s->tris, s->ntris);
                 d3_ProjectMesh(obj);
             }
@@ -2171,14 +2171,14 @@ char d3_AttachToBone(D3OBJECT *obj, char *name)
 void d3_TransformSurf(D3OBJECT *obj)
 {
     D3SURF *info;
-    char buf[0x40];
+    D3MATRIX buf;
 
     info = d3_SelectSurf(obj);
     if (info) {
         if (info != obj->info)
             obj->info = info;
-        d3_WorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0, buf);
-        D3_OPS(info)->Transform(obj, info, buf);
+        d3_WorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0, &buf);
+        D3_OPS(info)->Transform(obj, info, &buf);
         obj->state |= 4;
     }
 }
@@ -2209,7 +2209,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
             info = obj->info;
             if (info && info->mesh) {
                 d3_UpdateWorldMatrix(obj, camera, 0);
-                box = D3_OPS(info)->GetBox(obj, info, D3_MESH(obj)->cameraMatrix);
+                box = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
                 if (box) {
                     c.x = box->x;
                     c.y = box->y;

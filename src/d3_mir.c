@@ -308,7 +308,7 @@ char d3_MirBoxInPlanes(D3OBJECT *obj, D3MIRROR *m)
 
     if (obj && (info = obj->info) && info->mesh && m && (pl = m->planes)) {
         if (obj->state & 0x10)
-            box = D3_OPS(info)->GetBox(obj, info, D3_MESH(obj)->cameraMatrix);
+            box = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
         else
             box = (D3BOXVERT *)&info->keys[info->nkeys];
         for (i = 0; i < 8; i++, box++) {
@@ -378,7 +378,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
             redo = 1;
         }
         if ((obj->state & 0x10) || (D3_MESH(obj)->flags & 0x40)) {
-            D3_OPS(s)->Transform(obj, s, D3_MESH(obj)->cameraMatrix);
+            D3_OPS(s)->Transform(obj, s, &D3_MESH(obj)->cameraMatrix);
             obj->state &= 0xef;
             redo = 1;
         }

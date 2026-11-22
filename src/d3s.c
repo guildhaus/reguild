@@ -1107,7 +1107,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
     if (!found && obj->material) {
         if (obj->objectFlags & 0x20)
             return pos.y - info->mesh->radius + obj->material->groundOffset;
-        box = ((D3MESHOPS *)info->mesh)->GetBox(obj, info, D3_MESH(obj)->worldMatrix);
+        box = info->mesh->GetBox(obj, info, &D3_MESH(obj)->worldMatrix);
         y = 1e10f;
         for (i = 8; i; i--, box++)
             y = min(y, box->y);
@@ -1169,7 +1169,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3TERRAIN *t, D3VECT
         z0 = pos.z - 16.0f;
         z1 = pos.z + 16.0f;
     } else {
-        D3_OPS(mesh)->Transform(obj, mesh, obj->material->worldMatrix);
+        D3_OPS(mesh)->Transform(obj, mesh, &obj->material->worldMatrix);
         obj->state |= 0x10;
         v = (D3SVERT *)mesh->keys;
         if (light->objectFlags & 0x10) {
@@ -1449,7 +1449,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         d3_PointToWorld(light, &light->pos, &lpos.v);
         d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
-        verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, obj->material->worldMatrix);
+        verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, &obj->material->worldMatrix);
         for (k = 8, box = verts; k; k--, box++) {
             if (light->objectFlags & 0x10) {
                 f = -((box->y - y) / ldir.y);

@@ -23,11 +23,6 @@ typedef struct D3RECT {
 } D3RECT;
 
 struct D3OBJECT;
-typedef struct D3MESHOPS {          /* function table of a mesh driver */
-    char pad000[0x1f4];
-    struct D3BOXVERT *(*GetBox)(struct D3OBJECT *obj, void *list, void *unk);   /* 0x1f4 */
-} D3MESHOPS;
-
 struct D3OBJECT;
 
 typedef struct D3OBJECT D3OBJECT;
@@ -380,8 +375,8 @@ typedef struct D3MESH {             /* 0x970 bytes, what D3OBJECT::material poin
     void (*freeCallback)(D3OBJECT *obj);    /* 0x000, optional object callback, called before the mesh is freed
                                        (d3_DisposeObject); only cleared in the drafted code */
     D3OBJECT *camera;               /* 0x004, the camera cameraMatrix was transformed for */
-    char worldMatrix[0x40];         /* 0x008, the object's world matrix (D3MATRIX, d3_WorldMatrix writes it) */
-    char cameraMatrix[0x40];        /* 0x048, worldMatrix with the camera transform applied (D3MATRIX);
+    D3MATRIX worldMatrix;           /* 0x008, the object's world matrix (d3_WorldMatrix writes it) */
+    D3MATRIX cameraMatrix;          /* 0x048, worldMatrix with the camera transform applied;
                                        GetBox / Transform take it to put the box / the verts in camera space */
     float zMin;                     /* 0x088, nearest z of the box in camera space (d3_ClipBox writes it) */
     float zMax;                     /* 0x08c, farthest z of the box in camera space */

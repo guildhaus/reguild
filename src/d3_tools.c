@@ -276,7 +276,7 @@ int d3t_GetHeightRange(D3OBJECT *obj, float *lo, float *hi)
     *lo = 0.0f;
     if (obj->type == 4) {
         d3_UpdateWorldMatrix(obj, d3_Camera, 0);
-        v = d3_GetBoxVerts(obj, obj->info, obj->material->worldMatrix);
+        v = d3_GetBoxVerts(obj, obj->info, &obj->material->worldMatrix);
         if (v) {
             *lo = v->y;
             *hi = v->y;
@@ -356,7 +356,7 @@ char d3t_GetBoundingSphere(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, fl
     if (obj && (center || radius) && obj->material->surf[0].mesh) {
         list = &obj->material->surf[0];
         d3_UpdateWorldMatrix(obj, camera, 0);
-        v = list->mesh->GetBox(obj, list, obj->material->worldMatrix);
+        v = list->mesh->GetBox(obj, list, &obj->material->worldMatrix);
         if (v) {
             c.x = v[0].x;
             c.y = v[0].y;

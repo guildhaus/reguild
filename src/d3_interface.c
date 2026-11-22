@@ -816,7 +816,7 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
         }
         if (D3_MESH(obj) && !(D3_MESH(obj)->flags & 0x40) && (info = obj->info) && info->mesh) {
             d3_UpdateWorldMatrix(obj, (obj->state & 0x80) ? 0 : d3_Camera, 0);
-            b = D3_OPS(info)->GetBox(obj, info, D3_MESH(obj)->cameraMatrix);
+            b = D3_OPS(info)->GetBox(obj, info, &D3_MESH(obj)->cameraMatrix);
             r->top = 0x10000;
             r->left = 0x10000;
             r->bottom = -0x10000;

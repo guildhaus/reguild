@@ -1889,7 +1889,7 @@ void init_LoadSiteScene(char *name)
             }
             if (i >= ai_NBauplaetze) {
                 d3_MatIdentity(&cam);
-                box = ((D3MESHOPS *)o->info->mesh)->GetBox(o, o->info, &cam);
+                box = o->info->mesh->GetBox(o, o->info, &cam);
                 ai_Bauplaetze = (G15BK *)realloc(ai_Bauplaetze, (ai_NBauplaetze * 3 + 3) * 0x20);
                 strcpy(ai_Bauplaetze[ai_NBauplaetze].name, name);
                 ai_Bauplaetze[ai_NBauplaetze].x0 = box[0].x;
