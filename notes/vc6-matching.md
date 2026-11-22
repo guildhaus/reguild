@@ -6187,7 +6187,10 @@ the bytes no portable form gives.
   caption / text parameters, ai_MapPick's callbacks passed uncast to its `void (*cb)()`) or the thirteenth (the voice banks
   and samples, the building sites as D3OBJECT *, ai_MapPick's void * pick, CMKIND's function pointers, err_Init /
   tb_SetFunctionOff, the callbacks' unread parameters, cm_SendLongMessage's AIMSG, the stock callees' AIOBJ *,
-  AIRECIPE.stall, cm_BeginFieldBlock's void *).
+  AIRECIPE.stall, cm_BeginFieldBlock's void *) or the fourteenth (gm_FindPlayerBuilding's AIBLD *, the AIMSG copies
+  and kind views, CMFIGHTREC / CMGUARDREC as G28REC, the party functions' G28REC *, AIOBJVIEW as D3OBJECT, D3IFSCENE /
+  D3SCENELISTS / D3SCENEPAR as D3SCENE, AMOUNTCFG's two-word class mask and the map pick's request, ai_AmountMenu's
+  callers, AIDEC.fn / G9DOMIZIL.use).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6564,14 +6567,41 @@ the bytes no portable form gives.
   text scales by the record size and compiles silently.
 - **A callee typed `char *` / `short *` for a record its callers pass** (cm_SendLongMessage's AIMSG, gm_ListStock /
   gm_ListAmount / gm_FreeCapacity's AIOBJ, cm_BeginFieldBlock's any-record `void *`): type the callee and strip the
-  `(char *)` casts at the calls; a caller that sends through its own view of the record (GMMSG, CMNOTE, HEEXAMMSG,
-  CURSEMSG, ORDLONGMSG for AIMSG) casts to the record at the call until the view goes (one record described twice).
+  `(char *)` casts at the calls; a caller that sent through its own view of the record (GMMSG, HEEXAMMSG, CURSEMSG,
+  ORDLONGMSG for AIMSG) fills the record itself (one record described twice, see "One record described in several
+  units' views"; CMNOTE, an AIMSG head with its texts, passes `&note.head`).
 - **A record's int slot that holds a pointer** (AIRECIPE.pada8[3]: the stall object; AIARG.ref of kind 0xc: the site
   object): the pointer field in its slot (`struct AIOBJ *stall`, an anonymous `union { int ref; struct D3OBJECT *plot;
   }`); the same layout under VC6, the record is a port-side note when it is saved or sent.
-- **A record with an `__int64` member embedded in another record** (AMOUNTCFG in LCMAPWIN.req at +0xc): VC6 would
-  8-align it and move every later field; keep the embedding record's `int req[0x14]` and the callers' `int cfg[0x14]`
-  request arrays until the record question is settled.
+- **A record with an `__int64` member that another record embeds at a 4-aligned offset** (AMOUNTCFG at LCMAPWIN.req
+  +0xc): the original's type had no 8-byte member. Check how the writers store the word pair: the map pick's callers
+  wrote the class mask's halves as two statements in either order (ai_OpenPickpocket: +0xc before +8), lcmap's
+  ai_BuildingTypeMasks keeps such masks as `unsigned int` pairs, so the field is `unsigned int classMask[2]`. An
+  `x.filter = g;` copy of an `__int64` global becomes `x.classMask[0] = (unsigned int)g; x.classMask[1] =
+  (unsigned int)(g >> 32);` (= control; the reversed order is draft), a 64-bit constant store its two halves. A half
+  whose value lies in the image's address range (0x7d4190) is dcp's Q3 (readable -> draft), also in decimal: write it
+  `(unsigned int)0x1007d4190`. Then the embedding record takes the type (`AMOUNTCFG req;`) and the callers' `int
+  cfg[0x14]` arrays become the record: a `for (i = 0; i < 20; i++) req[i] = 0;` clear is `memset(&req, 0,
+  sizeof(req))` (VC6 had made the loop the same rep stosd).
+- **One record described in several units' views** (the long message AIMSG as GMMSG / CURSEMSG / AIXMSG / G8MSG /
+  ORDLONGMSG / LCSEARCHWORDS / HETRADEMSG / HEEXAMMSG / HEFEEMSG / HESKILLMSG / HEPLAGUEMSG; the party G28REC as
+  CMFIGHTREC / CMGUARDREC; D3OBJECT as AIOBJVIEW; D3SCENE as D3IFSCENE / D3SCENELISTS / D3SCENEPAR): compare the
+  offsets field by field; a view that only names offsets the record names goes for the record's fields; a view of a
+  message kind's own words becomes a named member of the record's kind union (AIMSG.exam / fee / skillLevel / plague
+  / credit) or an anonymous union over the bytes it reuses (AIMSG.word9c over textFlags .. pad9f); a copy of a record
+  that is a better-documented layout gives the record its fields and names (D3SCENE took D3IFSCENE's list, G28REC.raid
+  became G28REC.fight with the fight code's names). When one view's field shares a name with another field of the
+  record at another offset (CMFIGHTREC.flags 0x7c against G28REC.flags 0x26), rename the view's field first and let
+  VC6's C2039 lines name its users, then retype: a silent rebinding to the wrong field compiles. Unused copies of a
+  typedef in units (CMNOTE x4, CMGUARDREC x3, AIOBJVIEW x3) go; each removal moves declaration-set tie-breaks
+  (accepted). Files with `#line` directives report C2039 under the original's file name (d3_interface.c).
+- **A record passed as `char *m` with a `T *p = (T *)m;` alias** (the scene party functions): the parameter takes the
+  type; where the alias was load-bearing for the allocator, keep a plain copy `G28REC *party = m;` (cm_ExecCutscene:
+  the parameter used directly swapped two address registers, 6 ins, under every declaration set; the copy is byte).
+- **A table of callbacks held as `void *`** (gv_Decisions' AIDEC.fn, the Domizil table's G9DOMIZIL.use): a function
+  pointer field; the prototype one when every entry has the same parameter list (AIDEC: `int (*fn)(struct AICHAR *,
+  int, int *)`), old-style (`int (*use)()`) when they differ; the entries' `(void *)` casts and the callers' casts back
+  go (the same code).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
