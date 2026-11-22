@@ -782,7 +782,7 @@ int cm_ObjectOwner(char *c)
 
 void cm_WaitEventStop(int id)
 {
-    char *e;
+    EVTSCRIPT *e;
 
     if (cm_SkipEvents != 0)
         return;
@@ -794,7 +794,7 @@ void cm_WaitEventStop(int id)
                 return;
         } while (sv_RunFrame(0, 0x7d6c6) != 0);
     }
-    e = (char *)evt_FindById(id);
+    e = evt_FindById(id);
     if (e != 0)
         evt_Stop(e);
     di_ClearButtons();

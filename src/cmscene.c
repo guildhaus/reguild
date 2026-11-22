@@ -3842,12 +3842,12 @@ int cm_WaitEventFull(int a)
 
 int cm_StopScript(int a)
 {
-    int r;
+    EVTSCRIPT *r;
 
     if (cm_SkipEvents == 0) {
-        r = (char *)evt_FindById(a);
+        r = evt_FindById(a);
         if (r != 0)
-            return evt_Stop((EVTSCRIPT *)r);
+            return evt_Stop(r);
     }
 }
 /* 0x4e2dc0, evt_Stop of every used script of evt_Scripts (128) that runs (flags bit 1) for the group -2 */
