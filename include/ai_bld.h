@@ -34,7 +34,7 @@ typedef struct AIBLD {                  /* 0xa9 bytes, ai_Blds[256] */
     int saved2b;                        /* 0x2b, saved and loaded whole (ls_WriteBuildings); no reader read yet */
     unsigned char saved2f;              /* 0x2f, saved and loaded (ls_WriteBuildings); no reader read yet */
     int travel30;                       /* 0x30, he_AllocTransport sums it over the start and the goal building into
-                                           HETRANSPORT.travel (reasoned guess: a travel weight; no other reader read yet) */
+                                           AIJOB.transportTravel (reasoned guess: a travel weight; no other reader read yet) */
     unsigned char side;                 /* 0x34, of a foreign city (kind 'G') the side of the town map it lies at,
                                            0 .. 7 (lc.c ai_BuildTownMap's direction table: north, then clockwise) */
     int saved35;                        /* 0x35, saved and loaded (ls_WriteBuildings); no reader read yet */

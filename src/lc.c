@@ -57,8 +57,8 @@
    partner chain still pass that filter as unsigned int *.
    Open: the AIMSG message records are built by raw offsets in most functions (the use callbacks of the Domizil
    table use AIMSG: ai_UseEventGood, the money messenger AIMSG.payment).
-   Open: types: the event / message words LCAMBUSHEVENT, LCSEARCHEVENT, LCKIDNAPEVENT (he.c's
-   HEEV3C) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
+   Open: types: the event / message words AIJOB.ambush*, AIJOB.search14*, AIJOB.kidnap* (he.c's
+   AIJOB.kidnap*) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
    Open: types: the amount-menu config (AMOUNTCFG), the frame stack (SVFRAME, 0x75f780), the remaining character /
@@ -630,24 +630,6 @@ struct AITIME;  /* f3gm.h typedef; file-scope tag for the gm_AddTime prototype *
 
 
 
-#pragma pack(push, 1)
-typedef struct LCFIREEVENT {       /* the fire event 0x3d's word over AIJOB's union (its alloc 0x564860; the jail check
-                                      0x591ad0 reads the burning building here) */
-    char pad00[0xac];
-    int bld;                       /* 0xac, the building that burns, -1 / 0: none */
-} LCFIREEVENT;
-typedef struct LCAMBUSHEVENT {     /* the ambush event 0x48's word over AIJOB's union (he.c HEAMBUSH; ai_BreakInCallback
-                                      looks for one at a place) */
-    char pad00[0xac];
-    char place[0x20];              /* 0xac, the name of the scene object the gang lies in wait at */
-} LCAMBUSHEVENT;
-typedef struct LCSEARCHEVENT {     /* the search event 0x14's words over AIJOB's union (ai_TradeSearchWindow counts them) */
-    char pad00[0xac];
-    unsigned char count;           /* 0xac, how many characters search */
-    char padad;
-    unsigned short good;           /* 0xae, the good searched for */
-} LCSEARCHEVENT;
-#pragma pack(pop)
 
 
 
@@ -3210,7 +3192,7 @@ void lc_PlayerInJail(void)
 
     b = he_FindEvent(1, 0, 0x3d);
     while (b != 0) {
-        if (((LCFIREEVENT *)b)->bld == ai_CharInts[ai_PlayerId][0])
+        if (b->burnBld == ai_CharInts[ai_PlayerId][0])
             break;
         b = he_NextEvent();
     }
@@ -4313,7 +4295,7 @@ int ai_BreakInCallback(char *place)
     AICHAR **ch;
     int *dst;
     int base;
-    LCAMBUSHEVENT *ev;
+    AIJOB *ev;
     AIBLD *bld;
 
     ev = 0;
@@ -4334,9 +4316,9 @@ int ai_BreakInCallback(char *place)
             continue;
         if (d2_PointerObj == order) {
             bld = ai_FallbackBuilding;
-            for (ev = (LCAMBUSHEVENT *)he_FindEvent(3, 0, 0x48, 2, bld->owner, 3, bld->id); ev != 0;
-                 ev = (LCAMBUSHEVENT *)he_NextEvent())
-                if (strcmp(ev->place, place) == 0)
+            for (ev = he_FindEvent(3, 0, 0x48, 2, bld->owner, 3, bld->id); ev != 0;
+                 ev = he_NextEvent())
+                if (strcmp(ev->ambushPlace, place) == 0)
                     break;
             if (ev == 0) {
                 bld = ai_FallbackBuilding;
@@ -4355,7 +4337,7 @@ int ai_BreakInCallback(char *place)
                 cm_SendLongMessage(&msg);
             }
             sv_ClearSelection();
-            ev = (LCAMBUSHEVENT *)1;  /* the result: the ambush was ordered */
+            ev = (AIJOB *)1;  /* the result: the ambush was ordered */
             sv_PopRequest = 1;
         } else if (d2_PointerObj == cancel)
             sv_PopRequest = 1;
@@ -5030,7 +5012,7 @@ void d2_SetObjEnabled(int obj, int on); int d2_WinOpenPic(short x, short y, int 
 /* 0x595480, the search window of a building ("HANDEL\HANDEL_SUCHEN", frame texts 0x70f / 0x741, title 0x17fe):
    the goods the building's people can search for (0x1c4 .. 0x1c6; type class 0x20: 0x2af, with level 2 also
    0x2b0; class 0x1f: 0x293 .. 0x295; class 8 or level 1: the first two) as picture buttons, each captioned
-   with the searches running (the search events 0x14 of the building, LCSEARCHEVENT: 1 the text 0x17ff, more
+   with the searches running (the search events 0x14 of the building, AIJOB.search14*: 1 the text 0x17ff, more
    0x1800, none the good's name), next to the store's goods list. A click on a good posts the search message
    0x14 (the good, the room object, up to six selected characters) and waits for its slot; no selected
    character gives the text 0x1801. Nothing when the building's character is busy (sv_CheckCharacterFlag) */
@@ -5053,7 +5035,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
     int id;
     int picked;
     AIBTYPE *type;
-    LCSEARCHEVENT *ev;
+    AIJOB *ev;
 
     goods[0] = 0x1c4;
     goods[1] = 0x1c5;
@@ -5083,10 +5065,10 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
         return;
     for (i = 0; i < 3; i++)
         searches[i] = 0;
-    for (ev = (LCSEARCHEVENT *)he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = (LCSEARCHEVENT *)he_NextEvent())
+    for (ev = he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = he_NextEvent())
         for (i = 0; i < 3; i++)
-            if (ev->good == goods[i]) {
-                searches[i] += ev->count;
+            if (ev->search14Good == goods[i]) {
+                searches[i] += ev->search14Count;
                 break;
             }
     win = d2_OpenForm(0, 0, "HANDEL\\HANDEL_SUCHEN");
@@ -5120,10 +5102,10 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
         ai_LayoutProdGoodsList(win, 1, 0, bld);
         for (i = 0; i < 3; i++)
             searches[i] = 0;
-        for (ev = (LCSEARCHEVENT *)he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = (LCSEARCHEVENT *)he_NextEvent())
+        for (ev = he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = he_NextEvent())
             for (i = 0; i < 3; i++)
-                if (ev->good == goods[i]) {
-                    searches[i] += ev->count;
+                if (ev->search14Good == goods[i]) {
+                    searches[i] += ev->search14Count;
                     break;
                 }
         d2_SetForm(win, 2);
@@ -5180,7 +5162,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
 }
 /* 0x595a00, the second search window of a building (as ai_TradeSearchWindow: "HANDEL\HANDEL_SUCHEN", frame
    texts 0x70f / 0x741, title 0x1806): always the three goods 0x1c1 .. 0x1c3 as picture buttons, captioned with
-   the searches running (the search events 0x15 of the building, LCSEARCHEVENT: 1 the text 0x1807, more 0x1808,
+   the searches running (the search events 0x15 of the building, AIJOB.search14*: 1 the text 0x1807, more 0x1808,
    none the good's name). A click on a good posts the search message 0x15 (AIMSG.goodsOrder's count and good, the
    room object in arg[2] where 0x14 has it in arg[1], up to six selected characters) and waits for its slot; no selected character gives the text 0x1801.
    Nothing when the building's character is busy (sv_CheckCharacterFlag) */
@@ -5201,7 +5183,7 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
     int slot;
     int id;
     int picked;
-    LCSEARCHEVENT *ev;
+    AIJOB *ev;
 
     goods[0] = 0x1c1;
     goods[1] = 0x1c2;
@@ -5211,10 +5193,10 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
         return;
     for (i = 0; i < 3; i++)
         searches[i] = 0;
-    for (ev = (LCSEARCHEVENT *)he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = (LCSEARCHEVENT *)he_NextEvent())
+    for (ev = he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = he_NextEvent())
         for (i = 0; i < 3; i++)
-            if (ev->good == goods[i]) {
-                searches[i] += ev->count;
+            if (ev->search14Good == goods[i]) {
+                searches[i] += ev->search14Count;
                 break;
             }
     win = d2_OpenForm(0, 0, "HANDEL\\HANDEL_SUCHEN");
@@ -5248,10 +5230,10 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
         ai_LayoutProdGoodsList(win, 1, 0, bld);
         for (i = 0; i < 3; i++)
             searches[i] = 0;
-        for (ev = (LCSEARCHEVENT *)he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = (LCSEARCHEVENT *)he_NextEvent())
+        for (ev = he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = he_NextEvent())
             for (i = 0; i < 3; i++)
-                if (ev->good == goods[i]) {
-                    searches[i] += ev->count;
+                if (ev->search14Good == goods[i]) {
+                    searches[i] += ev->search14Count;
                     break;
                 }
         d2_SetForm(win, 2);
@@ -11588,8 +11570,6 @@ void ai_ChurchContact(AIBLD *building, AIOBJ *arg)
 }
 
 
-#pragma pack(push, 1)
-#pragma pack(pop)
 
 /* 0x5a3a40, the dungeon plan window "locations\kerker\kerkerplan" (219 B): the room 0x4ffe90 (bld->objList,
    1, 0, 0xba); the window 0x4741f0 / 0x475600 / 0x475f70 (1) with the text 0x19ad, then every character
@@ -12201,7 +12181,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
     d2_SetForm(win, 1);
     io_PrintText(0x19f0);
     d2_ClickedId = -1;
-    memset(msg.ids, 0xff, 6 * sizeof(int));  /* the gang's six members (HEGANG: AIJOB.ids[0..5]) */
+    memset(msg.ids, 0xff, 6 * sizeof(int));  /* the gang's six members (AIJOB.gang*: AIJOB.ids[0..5]) */
     n = 0;
     do {
         sv_UpdateMemberList(bld);
@@ -12220,7 +12200,7 @@ void ai_PickpocketGangWindow(AIBLD *bld)
                 msg.to = ai_CharInts[bld->owner][0];
                 msg.fromId = bld->id;
                 msg.time = ai_Time;
-                msg.arg[10] = msg.to;  /* 0x80: the gang's leader (the event's HEGANG.leader, 0x54 further on) */
+                msg.arg[10] = msg.to;  /* 0x80: the gang's leader (the event's AIJOB.gangLeader, 0x54 further on) */
                 msg.flags = 1;
                 cm_SendLongMessage(&msg);
                 snd_PlayFavourComment();
@@ -12468,12 +12448,6 @@ int ai_KidnapWindow(AICHAR *victim, int unused)
 }
 void cm_SendMessage5b(int a, int b, int c);
 
-typedef struct LCKIDNAPEVENT {          /* the kidnap event 0x3c's words over AIJOB's union (he.c HEEV3C, same layout) */
-    char pad00[0xac];
-    int victim;                         /* 0xac, the netId of the victim */
-    int target;                         /* 0xb0, the id of the building the gang goes to for the victim */
-    int guild;                          /* 0xb4, the thieves' guild's id */
-} LCKIDNAPEVENT;
 /* 0x5a53e0, starts the kidnapping by the building bld (0x90 frame): 0x520fe0 (bld); the first kidnap event 0x3c
    (0x53e400 (1, 0, 0x3c) / 0x53e300) of the guild bld->id shows the message TXT_KIDNAP_MESSAGE and returns;
    else the ransom events 0x3d: one of bld (its guild) with a live character (0x505df0, its victim) whose
@@ -12492,7 +12466,7 @@ void ai_KidnapStart(AIBLD *bld)
     if (sv_CheckCharacterFlag(bld) != 0)
         return;
     for (rec = he_FindEvent(1, 0, 0x3c); rec != 0; rec = he_NextEvent()) {
-        if (((LCKIDNAPEVENT *)rec)->guild == bld->id) {
+        if (rec->kidnapGuild == bld->id) {
             sv_MessageBox((intptr_t)txt_Ptrs[TXT_KIDNAP_MESSAGE], 0);
             return;
         }
