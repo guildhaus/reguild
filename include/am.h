@@ -289,12 +289,6 @@ typedef struct AIGDX {                  /* what 0x5ba620 returns */
     float unk0c;                        /* 0x0c */
 } AIGDX;
 
-typedef struct AIRECX {                  /* 16 bytes, filled by 0x4a5760 */
-    int item;                           /* 0x0, the wanted item */
-    int value;                          /* 0x4, the inventory entry's value when usable, -1 unusable, 0 not found */
-    int id;                             /* 0x8, the inventory entry's id, -1 not found */
-    int entry;                          /* 0xc, the inventory entry */
-} AIRECX;
 
 #pragma pack(pop)
 
@@ -505,19 +499,12 @@ typedef struct G8REQ {                  /* 20 bytes, the request of amt_ExecuteP
 } G8REQ;
 
 
-typedef struct G8REC {                  /* 16 bytes, filled by 0x4a5760 (unk_48e070.h: AIRECX) */
-    int item;                           /* 0x0 */
-    int unk04;                          /* 0x4 */
-    int unk08;                          /* 0x8 */
-    int unk0c;                          /* 0xc */
-} G8REC;
 
 
 int ai_ExecuteCitizenship(AICHAR *p, AIARG *s1, AIARG *s2);                                                      /* 0x49a0a0 */
 int ai_DecideSaveAps(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49a290 */
 int ai_ExecuteSaveAps(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49a380 */
 int ai_DecideUseMilitaryObject(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49a390 */
-/* unk_48e070.h declares ai_FindWantedItems with its AICHAR / AIRECX views (unify at the join) */
 void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);                           /* 0x4a5760 */
 int ai_ExecuteUseMilitaryObject(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49a5b0 */
 /* 0x5ba620 with an int id (the callers here zero-extend; unk_48e070.h: unsigned short) */
@@ -659,11 +646,11 @@ int gm_MayTakeJob(int k, int c);                                      /* 0x5020e
 /* 0x4a5140 ai_CanBuildType is declared in am.h */
 extern char ai_DataPath[];                                                      /* 0x75dca0, the data path */
 /* 0x4a5320 ai_ExecBuildBuilding is declared in am.h */
-typedef struct G9REC {                  /* 16 bytes, filled by 0x4a5760 (unk_49a0a0.h G8REC, unk_48e070.h AIRECX) */
+typedef struct G9REC {                  /* 16 bytes, a wanted item, filled by ai_FindWantedItems */
     int item;                           /* 0x0, the wanted item */
-    int value;                          /* 0x4, the inventory entry's value at +0x0e when usable, else -1 */
-    int entryId;                        /* 0x8, the inventory entry's id (+0x02), -1 none */
-    int entry;                          /* 0xc, the inventory entry itself */
+    int value;                          /* 0x4, the inventory entry's count when usable, -1 unusable, 0 not found */
+    int entryId;                        /* 0x8, the inventory entry's objId, -1 none */
+    struct AIOBJ *entry;                /* 0xc, the inventory entry itself, 0 none */
 } G9REC;
 void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);                          /* 0x4a5760, declared int elsewhere */
 /* 0x4a58d0 ai_PickPartnerChain is declared in am.h */

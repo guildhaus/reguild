@@ -772,12 +772,12 @@ void ai_FindWantedItems(AICHAR *p, int n, G9REC *rec, int *st)
                 st[2]++;
                 rec[i].value = e->count;
                 rec[i].entryId = e->objId;
-                rec[i].entry = (int)e;
+                rec[i].entry = e;
             } else {
                 rec[i].value = -1;
                 st[1]++;
                 rec[i].entryId = e->objId;
-                rec[i].entry = (int)e;
+                rec[i].entry = e;
             }
             break;
         }

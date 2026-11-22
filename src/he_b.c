@@ -6664,13 +6664,13 @@ void he_CircusShowPayout(AIJOB *e)
     AIBLD *bld;
     int st[3];                          /* ai_FindWantedItems: st[0] the inventory's entries */
     int given[4];
-    int want[4][4];                     /* ai_FindWantedItems' records: [0] the object, [3] the inventory entry (AIOBJ) */
+    G9REC want[4];                      /* ai_FindWantedItems' records */
     char text[0x100];
     char text2[0x200];
     AICHAR *per;
     AIOBJ *entry;
     unsigned short *obj;
-    int (*row)[4];
+    G9REC *row;
     int n, i, ngiven;
 
     per = gm_FindChar(e->netId);
@@ -6683,7 +6683,7 @@ void he_CircusShowPayout(AIJOB *e)
     n = 0;
     for (i = 0; i < 4; i++) {
         if (m->objs[i] != 0)
-            want[n++][0] = m->objs[i];
+            want[n++].item = m->objs[i];
     }
     if (n != 0) {
         ai_FindWantedItems(per, n, want, st);
@@ -6693,7 +6693,7 @@ void he_CircusShowPayout(AIJOB *e)
         for (i = 0; i < n; i++, obj++, row++) {
             if (*obj == 0)
                 continue;
-            entry = (AIOBJ *)(*row)[3];
+            entry = row->entry;
             if (entry != 0) {
                 if (entry->count >= 3) {
                     m->income += (int)gm_GoodsPrice(*obj, ai_OwnPlayer);
@@ -6982,23 +6982,23 @@ void he_RunEventGood(AIJOB *e)
 void he_GiveDomizilGood(AICHAR *per)
 {
     int st[3];                          /* ai_FindWantedItems: st[0] the inventory's entries */
-    int want[4];                        /* ai_FindWantedItems' record: [0] the good, [3] the inventory entry (AIOBJ) */
+    G9REC want;                         /* ai_FindWantedItems' record */
     AIOBJ *entry;
 
-    memset(want, 0, sizeof(want));
-    want[0] = ai_DomizilGoodInRange(3, 6) & 0xffff;
-    ai_FindWantedItems(per, 1, want, st);
-    entry = (AIOBJ *)want[3];
+    memset(&want, 0, sizeof(want));
+    want.item = ai_DomizilGoodInRange(3, 6) & 0xffff;
+    ai_FindWantedItems(per, 1, &want, st);
+    entry = want.entry;
     if (entry != 0) {
         if (entry->count >= 3)
             cm_SendMoveGoodsUnchecked(per->netId, -1, ai_OwnPlayer,
-                                      (int)gm_GoodsPrice((unsigned short)want[0], ai_OwnPlayer));
+                                      (int)gm_GoodsPrice((unsigned short)want.item, ai_OwnPlayer));
         else
-            cm_SendExSellObject(per->netId, -1, want[0], 1, ai_OwnPlayer, 0);
+            cm_SendExSellObject(per->netId, -1, want.item, 1, ai_OwnPlayer, 0);
     } else if (st[0] >= 6) {
-        cm_SendMoveGoodsUnchecked(per->netId, -1, ai_OwnPlayer, (int)gm_GoodsPrice(want[0], ai_OwnPlayer));
+        cm_SendMoveGoodsUnchecked(per->netId, -1, ai_OwnPlayer, (int)gm_GoodsPrice(want.item, ai_OwnPlayer));
     } else {
-        cm_SendExSellObject(per->netId, -1, want[0], 1, ai_OwnPlayer, 0);
+        cm_SendExSellObject(per->netId, -1, want.item, 1, ai_OwnPlayer, 0);
     }
 }
 /* 0x575540, the middle outcome of the event 0xa4: the character +4 is credited 3 + random (4) money (gm_SendMoneyDelta) */
