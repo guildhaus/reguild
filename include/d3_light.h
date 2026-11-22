@@ -137,10 +137,6 @@ typedef struct D3LCTX2 {            /* context of d3_LightAddObject: the light a
 typedef struct D3BITS {             /* a byte as bit fields */
     unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
 } D3BITS;
-typedef struct D3TEXVIEW {          /* TSTEXTURE as d3_SetVertexColors reads it */
-    char pad00[0x6c];
-    D3TEXFLAGS flags;               /* 0x6c, the flags tex_Load was called with (TSTEXTURE.flags, ts_texture.h) */
-} D3TEXVIEW;
 typedef union D3TEXPACK {           /* D3TEXFLAGS as the dword d3_RelightObject zeroes at once */
     int i;
     D3TEXFLAGS f;

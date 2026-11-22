@@ -7,8 +7,6 @@
    d3_interface.h, d3_int_io.h; K&R aliases in f3init.c); their callers must include d3_engine.h first.
    Open: d3_CloneObject (and d3_mir.c's d3_MirDrawObject) flip with TU-global changes - definitions added
    above them, declarations added to or removed from d3_engine.h / d3.h - so header moves need both rechecked.
-   Open: TSTEXTURE's tex_Load flag bytes 0x6c (alpha) / 0x6e (blend) are read through the D3TEXV view: the same
-   fields split out of d3.h's pad69 move he_PostEvent67 and ai_TutorialInitChapter2/3 off byte (struct text alone).
    unit of rea 8cef7d5b (src/game/d3_engine.c); boundaries in decl/text.dcl */
 #include <stdio.h>
 #include <stdlib.h>
@@ -871,10 +869,10 @@ void d3_SetFog(float start, float end, D3COLOR color)
    507 or with the negated test 509. Left: allocation throughout (code 484, slots 82, regs 22, fpu 15),
    ours 678 vs 673 instructions, the 4-byte body shift from the late push esi. (tiebreak: insensitive)
    prior: read the whole function against the original 0x43a7d0..0x43b073 and fixed the meaning: the
-   texture size estimate (D3TEXV.w unsigned: shr and the fild qword of an unsigned product; the factor
+   texture size estimate (TSTEXTURE.size unsigned: shr and the fild qword of an unsigned product; the factor
    0.16666667f, not 1.3333334f), d3_SetBlendState called with its unsigned char prototype (the original's
    setb al / shr dl,1 byte forms; the int view macro is gone), D3PTRI 0x18/0x1c/0x20 typed as the float
-   zofs/uofs/vofs (no *(float *) casts), D3TEXV.blend, renamed d3_NoTexturesByte / d3_TextureBytes. Every
+   zofs/uofs/vofs (no *(float *) casts), TSTEXTURE.flags.b[2] (blend), renamed d3_NoTexturesByte / d3_TextureBytes. Every
    statement lines up (the texture switch, the scroll offsets, the 3 unclipped TLV paths, the clip list,
    the projection loop, the fan with its winding test, the flush); ours 678 vs 673. */
 
@@ -885,7 +883,7 @@ void d3_DrawSortedD3D(void)
     D3TLV *vb;
     unsigned int n;
     D3TLV *p;
-    D3TEXV *cur;
+    TSTEXTURE *cur;
     float *uv;
     int h;
     float zmin;
@@ -918,31 +916,31 @@ void d3_DrawSortedD3D(void)
         t = d3_SortBuf[i].item;
         uv = t->src;
         clip = t->clip;
-        if ((D3TEXV *)t->tex != cur) {
+        if (t->tex != cur) {
             d3d_DrawTriangles((void *)h, vb, n);
             h = d3d_GetVertexBuffer(&vb, &max);
             max -= 0x80;
             p = vb;
             n = 0;
-            cur = (D3TEXV *)t->tex;
+            cur = t->tex;
             if (!d3_NoTextures && cur && cur->d3dtex != oldtext) {
                 oldtext = cur->d3dtex;
 #line 1219 "D:\\develop\\Units\\d3\\d3_engine.c"
                 D3DCHECK(d3d_Device->lpVtbl->SetTexture(d3d_Device, 0, oldtext));
                 d3_TextureSwitches++;
-                if (cur->flags & 8)
-                    d3_TextureBytes += (cur->bytes * cur->w * cur->w) >> 3;
+                if (cur->bits & 8)            /* nomip: the bit field test compiles otherwise here */
+                    d3_TextureBytes += (cur->bpp * cur->size * cur->size) >> 3;
                 else
-                    d3_TextureBytes += (int)(cur->bytes * cur->w * cur->w * 0.16666667f);
+                    d3_TextureBytes += (int)(cur->bpp * cur->size * cur->size * 0.16666667f);
             }
             if (cur) {
-                wrap = cur->flags & 1;
-                d3_SetBlendState(cur->alpha < 0xff, cur->blend & 1, (cur->blend >> 1) & 1);
+                wrap = cur->wrap;
+                d3_SetBlendState(cur->flags.b[0] < 0xff, cur->flags.b[2] & 1, (cur->flags.b[2] >> 1) & 1);
             }
         }
         if (cur) {
-            d3_UOfs = ts_ScrollV[cur->uofs & 0x1f] + t->uofs;
-            d3_VOfs = ts_ScrollU[cur->vofs & 0x1f] + t->vofs;
+            d3_UOfs = ts_ScrollV[cur->f69] + t->uofs;
+            d3_VOfs = ts_ScrollU[cur->f6a] + t->vofs;
         } else {
             d3_VOfs = 0.0f;
             d3_UOfs = 0.0f;
@@ -2382,12 +2380,12 @@ void d3_InflateObject(D3OBJECT *obj)
                         if (m < 0)
                             mat[((D3SRCPOLY *)t->src)->mat] = m = ((TSTEXTURE **)s->texHandles)[j++] - d3_Textures;
                         t->tex = tex = &d3_Textures[m];
-                        if (((D3TEXV *)tex)->alpha < 0xff || (((D3TEXV *)tex)->blend & 3)) {
-                            col.c.a = ((D3TEXV *)tex)->alpha;
-                            if (((D3TEXV *)tex)->blend & 1) {
-                                col.c.b = ((D3TEXV *)tex)->alpha;
-                                col.c.g = ((D3TEXV *)tex)->alpha;
-                                col.c.r = ((D3TEXV *)tex)->alpha;
+                        if (tex->flags.b[0] < 0xff || (tex->flags.b[2] & 3)) {
+                            col.c.a = tex->flags.b[0];
+                            if (tex->flags.b[2] & 1) {
+                                col.c.b = tex->flags.b[0];
+                                col.c.g = tex->flags.b[0];
+                                col.c.r = tex->flags.b[0];
                             } else {
                                 col.c.b = 0xff;
                                 col.c.g = 0xff;

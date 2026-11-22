@@ -549,21 +549,6 @@ void d3sky_InitColors(void);                                                    
 void d3fl_Init(unsigned int n, unsigned int detail, char mips, char b);                 /* 0x43fe00, d3_fl.c */
 void d3_InitShadows(unsigned int size, unsigned int maxsize, int ncache, int age, char mips, int polys, int mapsize);                     /* 0x45ad80 */
 void par_Init(void);                                                                    /* 0x455630, d3_par.c */
-typedef struct D3TEXV {             /* D3PTRI::tex as the draw loop sees it */
-    char pad00[0x64];
-    struct IDirect3DTexture2 *d3dtex;   /* 0x64 */
-    unsigned char flags;            /* 0x68, bit 0 wrap, bit 3 compressed (size / 8) */
-    unsigned char uofs, vofs;       /* 0x69, 0x6a: low 5 bits index d3_UOfs/d3_VOfs */
-    char pad6b[0x1];
-    unsigned char alpha;            /* 0x6c */
-    char pad6d[0x1];
-    unsigned char blend;            /* 0x6e, bit 0 glow (additive), bit 1 colour key: d3_SetBlendState's
-                                       2nd and 3rd arguments */
-    char pad6f[0x5];
-    unsigned int w;                 /* 0x74, width in pixels (the size estimate shifts it unsigned) */
-    char pad78[0x4];
-    unsigned char bytes;            /* 0x7c, bytes per pixel */
-} D3TEXV;
 typedef struct D3TLV {              /* D3DTLVERTEX as filled by the draw macros */
     float sx, sy, sz, rhw;
     unsigned long color, specular;

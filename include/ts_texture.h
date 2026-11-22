@@ -53,8 +53,8 @@ typedef struct TSTEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Tex
         };
         unsigned char bits;         /* the byte, copied whole into the triangles' draw flags */
     };
-    unsigned char f69 : 5;          /* 0x69 */
-    unsigned char f6a : 5;          /* 0x6a */
+    unsigned char f69 : 5;          /* 0x69, the u scroll: index into ts_ScrollV (d3_DrawSortedD3D) */
+    unsigned char f6a : 5;          /* 0x6a, the v scroll: index into ts_ScrollU */
     unsigned char pad6b;
     TSFLAGS flags;                  /* 0x6c, the flags tex_Load was called with */
     union {                         /* 0x70 */

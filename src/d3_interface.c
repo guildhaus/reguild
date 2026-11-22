@@ -382,27 +382,21 @@ char d3if_InitScene(D3SCENE *s)
     return 0;
 }
 
-typedef struct D3IFTEX {          /* view of a texture slot: TSTEXTURE with the flags as unsigned char */
-    char pad00[0x64];
-    void *d3dtex;                   /* 0x64 */
-    unsigned char state;            /* 0x68, bit 7 = precached */
-} D3IFTEX;
-
 /* 0x447800, d3_ForEachObject2 callback: precaches the textures of the object's mesh */
 void d3if_PrecacheCB(D3OBJECT *obj)
 {
     D3OBJINFO *info;
-    D3IFTEX **tex;
+    TSTEXTURE **tex;
     int i, n;
 
     info = obj->info;
     if (info && info->mesh) {
         n = D3_OPS(info)->count;
-        tex = (D3IFTEX **)((int *)info)[5];
+        tex = ((TSMESH *)info)->texs;
         for (i = 0; i < n; i++)
-            if (tex[i] && tex[i]->d3dtex && !(tex[i]->state & 0x80)) {
+            if (tex[i] && tex[i]->d3dtex && !tex[i]->precached) {
                 d3d_PrecacheTexture(tex[i]->d3dtex);
-                tex[i]->state |= 0x80;
+                tex[i]->precached = 1;
             }
     }
 }

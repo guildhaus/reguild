@@ -486,7 +486,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
                 if (keep)
                     ((D3BITS *)&tri->drawFlags)->b2 = ((D3BITS *)&tex->bits)->b4;
                 if (pos)
-                    f = ((D3TEXVIEW *)tex)->flags;
+                    f = tex->flags;
                 else
                     f = s->flags.f;
                 if (f.b[2] & 1) {
