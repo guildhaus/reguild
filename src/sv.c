@@ -2236,7 +2236,7 @@ void sv_FillDayPhases(struct AITIME *t)
 /* 0x525a80, a d3_ForEachObject callback (the object o, the flag f): sets the brightness ramp of the object's light
    (0x1e8, a D3LDATA) to a random 0.3 .. 0.6 + 0.3 (f = 0) or -0.3 - 0.6 * random (f != 0); returns 1 */
 
-char sv_SetLampRamp(char *o, int f)
+char sv_SetLampRamp(D3OBJECT *o, void *f)
 {
     double v;
 
@@ -2306,7 +2306,7 @@ void sv_UpdateSkyPhase(AITIME *t)
             d3_ForEachObject(d3_DefaultScene, 0, 6, sv_SetLampRamp, 0);
             sv_LampSwitches++;
         } else if (d >= 3 && sv_LampSwitches == 1) {
-            d3_ForEachObject(d3_DefaultScene, 0, 6, sv_SetLampRamp, 1);
+            d3_ForEachObject(d3_DefaultScene, 0, 6, sv_SetLampRamp, (void *)1);
             sv_LampSwitches++;
         }
         sv_LampPhase = d;

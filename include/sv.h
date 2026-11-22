@@ -76,7 +76,7 @@ char sv_SetSkyLightColors(struct D3OBJECT *o, void *ctx);                       
 struct AITIME; void sv_SetupWeather(struct AITIME *t, int reroll);/* 0x525510 */
 void sv_UpdateSkyColors(void);                                          /* 0x525940 */
 struct AITIME; void sv_FillDayPhases(struct AITIME *t);                                             /* 0x525a00 */
-char sv_SetLampRamp(char *o, int f);                                      /* 0x525a80 */
+char sv_SetLampRamp(struct D3OBJECT *o, void *f);                               /* 0x525a80 */
 struct AITIME; void sv_UpdateSkyPhase(struct AITIME *t);                    /* 0x525ad0 */
 void sv_PlaceCamera(float f);                                           /* 0x525dd0 */
 void sv_EaseCameraHeight(void);                                                /* 0x525ee0 */

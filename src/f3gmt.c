@@ -2779,26 +2779,33 @@ int gm_GoodPicture(AIOBJ *o)
     }
     return -1;
 }
+typedef struct GMSLOTOBJS {             /* the context of gm_CollectSlotObject (0x204 bytes) */
+    D3OBJECT *obj[0x40];                /* 0x000, the objects */
+    int key[0x40];                      /* 0x100, their prototype keys */
+    int n;                              /* 0x200, the count */
+} GMSLOTOBJS;
+
 /* 0x5029f0, callback of 0x438d40 for 0x502a60: collects the objects whose prototype (low 24 bits of +0x48) is of the kind 0x21 and has
    its top byte 1 into list (0x40 objects, then their keys, then the count); true while there is room */
 
-char gm_CollectSlotObject(char *o, int *list)
+char gm_CollectSlotObject(D3OBJECT *o, void *ctx)
 {
+    GMSLOTOBJS *list = ctx;
     int key;
 
-    key = ((D3OBJECT *)o)->pickId & GM_OBJ_PROTO_MASK;
-    if (o[0x4b] == 1 && ((char *)ai_Goods)[key * 0x40 + key] == 0x21) {
-        list[list[0x80] + 0x40] = key;
-        list[list[0x80]] = (int)o;
-        list[0x80]++;
+    key = o->pickId & GM_OBJ_PROTO_MASK;
+    if (o->pickBytes[3] == 1 && ai_Goods[key].type == 0x21) {
+        list->key[list->n] = key;
+        list->obj[list->n] = o;
+        list->n++;
     }
-    return list[0x80] < 0x40;
+    return list->n < 0x40;
 }
 /* 0x502a60, when the panel shown (sv_PanelShown) is the scene: the five slot bytes of the character c (+0x80 of its record) give the wanted keys 0x17f + 6 k + (int)(slot / 42 - 0.5), 0 for an empty slot; the default scene's objects of goods kind 0x21 (gm_CollectSlotObject) are switched off (d3if_ShowTree (obj, 0)) and those whose key is wanted on again */
 void gm_ShowSlotObjects(int unused, int scene, int c)
 {
     int want[5];
-    int list[0x40 * 2 + 1];
+    GMSLOTOBJS list;
     int i, k, v;
     unsigned char *s;
 
@@ -2810,13 +2817,13 @@ void gm_ShowSlotObjects(int unused, int scene, int c)
                 v = 0;
             want[i] = v;
         }
-        memset(list, 0, sizeof(list));
-        d3_ForEachObject(d3_DefaultScene, 0, 0xc0, gm_CollectSlotObject, list);
-        for (i = 0; i < list[0x40 * 2]; i++) {
-            d3if_ShowTree(list[i], 0);
+        memset(&list, 0, sizeof(list));
+        d3_ForEachObject(d3_DefaultScene, 0, 0xc0, gm_CollectSlotObject, &list);
+        for (i = 0; i < list.n; i++) {
+            d3if_ShowTree(list.obj[i], 0);
             for (k = 0; k < 5; k++)
-                if (list[i + 0x40] == want[k])
-                    d3if_ShowTree(list[i], 1);
+                if (list.key[i] == want[k])
+                    d3if_ShowTree(list.obj[i], 1);
         }
     }
 }
