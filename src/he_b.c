@@ -4596,7 +4596,7 @@ void he_AllocPlunder(AIJOB *e)
         return;
     mask.LowPart = 4;
     mask.HighPart = 0;
-    r = ai_PickActionBuildings((struct AICHAR *)((uintptr_t)&ai_Chars + e->chr * 0x21c), 5, mask.QuadPart, 0, 0, 5, p->bld);
+    r = ai_PickActionBuildings(&ai_Chars[e->chr], 5, mask.QuadPart, 0, 0, 5, p->bld);
     if (r == 0) {
         he_FreeEvent(e);
         return;

@@ -3733,7 +3733,6 @@ void main_RoundReport(void)
     }
 }
 
-#define PL(i) ((uintptr_t)&ai_Chars + (i) * 0x21c)
 float gm_TitlePeriodServed(int n, int *out);
 
 /* 0x53a250, the daily update of the figure i by its kind: kinds 6 / 7 get the field delta 0x174 (AICHAR.jobDays, the

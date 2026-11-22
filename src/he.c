@@ -9174,7 +9174,6 @@ int he_CreateReaper(AIJOB *e)
 }
 
 
-#define HE_REC(id) ((uintptr_t)&ai_Chars + (id) * 0x21c)
 
 
 /* 0x550370, one step of the reaper's flight to the building reaperTo (in scene 0): while the object follows a path
