@@ -654,7 +654,7 @@ void sv_BuildScreenLayout(int s)
 {
     void *t;
     int i;
-    int tab[16];
+    D2SURF desc;
     int *q;
 
     d2_SetClipRect(0, 0, (int)d2_ScreenW, (int)d2_ScreenH);
@@ -682,14 +682,12 @@ void sv_BuildScreenLayout(int s)
     d2_DirtyRect.right = sv_ViewRectRight;
     d2_DirtyRect.left = sv_ViewRectLeft;
     d2_DirtyRect.top = sv_ViewRectTop;
-    q = tab;
-    for (i = 0x10; i != 0; i--)
-        *q++ = 0;
+    memset(&desc, 0, sizeof(desc));
     sv_PanelPic = s;
     d2_DirtyRect.bottom = sv_ViewRectBottom;
-    tab[1] = 0x68;
-    tab[2] = 0x6e;
-    sv_GroundplanView = d2_MakeSurface(tab, 3);
+    desc.w = 0x68;
+    desc.h = 0x6e;
+    sv_GroundplanView = d2_MakeSurface(&desc, 3);
     d2_ClearSurface(sv_GroundplanView);
     sv_BarToggle = d2_CreatePicObj(0x286, 0x23c, 0x544);
     ((D2OBJ *)d2_Objs)[sv_BarToggle].interactive = 1;
