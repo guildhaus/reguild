@@ -2673,7 +2673,7 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out)
     CHWAYPT *start = out;
     CHWAYPT *p;
     int x, z, i, n;
-    unsigned char *c;
+    CHPATHPT *c;
 
     a = CH_ACTIONS(ch);
     if (ch->transport) {
@@ -2688,8 +2688,8 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out)
     out++;
     if (a && a->type == '-' && a->u.walk.path && a->u.walk.retryAt == -1) {
         for (i = a->u.walk.cur, n = i + (ch->transport ? 2 : 1); i < n && i < a->u.walk.pathLen; i++) {
-            c = (unsigned char *)a->u.walk.path + i * 2;
-            ch_CellToCell(h, c[0], c[1], ch_PathMap, &out->x, &out->z);
+            c = &a->u.walk.path[i];
+            ch_CellToCell(h, c->x, c->z, ch_PathMap, &out->x, &out->z);
             out->flags = 2;
             out++;
         }
@@ -2771,7 +2771,8 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
     float y, d, dx, dy, dz;
     CHACTION *oa;
     CHWAYPT wp[32];
-    unsigned char *p, *q;
+    CHPATHPT *p;
+    unsigned char *q;
     unsigned char rest[0x800];
 
     if (a->type != '-')
@@ -2786,8 +2787,8 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
         ch_PathMap->cell.x = 60.0f;
     else
         ch_PathMap->cell.x = 60.0f;
-    p = (unsigned char *)a->u.walk.path + k * 2;
-    ch_CellToCell(h, p[0], p[1], ch_PathMap, &cx, &cz);
+    p = &a->u.walk.path[k];
+    ch_CellToCell(h, p->x, p->z, ch_PathMap, &cx, &cz);
     if (ch->transport)
         ch_PosToCell(ch_PathMap, &ch->transport->obj->pos, &tx, &tz);
     ch_PosToCell(ch_PathMap, &ch->obj->pos, &bx, &bz);
@@ -2887,8 +2888,8 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                     else
                         e = max(1, oa->u.walk.cur);
                     for (k = e; k < e + 2 && k < oa->u.walk.pathLen; k++) {
-                        gx = ((unsigned char *)oa->u.walk.path)[k * 2];
-                        gz = ((unsigned char *)oa->u.walk.path)[k * 2 + 1];
+                        gx = oa->u.walk.path[k].x;
+                        gz = oa->u.walk.path[k].z;
                         if (k == oa->u.walk.pathLen - 1)
                             ch_SetGroundDiamond(gx, gz, scene, 0xd, r);
                         else
@@ -2921,13 +2922,13 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                 nrest = 0;
                 q = rest + 1;
                 for (k = last + 1; k < a->u.walk.pathLen; k++) {
-                    q[-1] = ((unsigned char *)a->u.walk.path)[k * 2];
-                    q[0] = ((unsigned char *)a->u.walk.path)[k * 2 + 1];
+                    q[-1] = a->u.walk.path[k].x;
+                    q[0] = a->u.walk.path[k].z;
                     nrest++;
                     q += 2;
                 }
-                gx = ((unsigned char *)a->u.walk.path)[last * 2];
-                gz = ((unsigned char *)a->u.walk.path)[last * 2 + 1];
+                gx = a->u.walk.path[last].x;
+                gz = a->u.walk.path[last].z;
                 m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
                 if (!ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, gx, gz, &cz, &fz, steps * m,
                                      a->u.walk.flags | 1)) {
@@ -2956,25 +2957,25 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                     a->u.walk.path = 0;
                 }
                 a->u.walk.path = mem_Alloc((cnt + nrest) * 2, "ch:GetNewPath");
-                len = ch_ThinPath(ch, &ch_Path, (CHPATHPT *)a->u.walk.path, (CHWALKDEF *)h);
+                len = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
                 for (k = 0; k < nrest; k++) {
-                    ((unsigned char *)a->u.walk.path)[(len + k) * 2] = rest[k * 2];
-                    ((unsigned char *)a->u.walk.path)[(len + k) * 2 + 1] = rest[k * 2 + 1];
+                    a->u.walk.path[len + k].x = rest[k * 2];
+                    a->u.walk.path[len + k].z = rest[k * 2 + 1];
                 }
                 a->u.walk.pathLen = len + nrest;
                 a->u.walk.cur = 0;
                 a->u.walk.prevCell = -1;
-                gx = ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 2];
-                gz = ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 1];
+                gx = a->u.walk.path[a->u.walk.pathLen - 1].x;
+                gz = a->u.walk.path[a->u.walk.pathLen - 1].z;
                 d3sm_GetVertex(h, gx, gz, &a->u.walk.end);
                 a->u.walk.end.x += ch_PathOffset.x;
                 a->u.walk.end.y += ch_PathOffset.y;
                 a->u.walk.end.z += ch_PathOffset.z;
                 if (a->u.walk.pathLen >= 2
-                    && ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 2]
-                       == ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 4]
-                    && ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 1]
-                       == ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 3])
+                    && a->u.walk.path[a->u.walk.pathLen - 1].x
+                       == a->u.walk.path[a->u.walk.pathLen - 2].x
+                    && a->u.walk.path[a->u.walk.pathLen - 1].z
+                       == a->u.walk.path[a->u.walk.pathLen - 2].z)
                     a->u.walk.pathLen--;
                 ch_RestoreGround(h);
                 ch->contactSteps = 4;
@@ -3025,7 +3026,7 @@ int ch_PathToTarget(CHACTION *a)
     a->u.walk.path = mem_Alloc(ch_Path.count * 2, "ch_t:waypoints");
     if (!a->u.walk.path)
         __asm int 3
-    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, (CHPATHPT *)a->u.walk.path, (CHWALKDEF *)h);
+    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
     t = a->u.walk.target;
     a->u.walk.cur = 0;
     a->u.walk.prevCell = -1;
@@ -3119,10 +3120,10 @@ int ch_InitWalk(CHACTION *a, D3SM *h)
         return 0;
     }
     a->u.walk.path = mem_Alloc(ch_Path.count * 2, "ch_t:waypoints");
-    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, (CHPATHPT *)a->u.walk.path, (CHWALKDEF *)h);
+    a->u.walk.pathLen = ch_ThinPath(ch, &ch_Path, a->u.walk.path, (CHWALKDEF *)h);
     a->u.walk.cur = 0;
     a->u.walk.prevCell = -1;
-    d3sm_GetVertex(h, ((unsigned char *)a->u.walk.path)[0], ((unsigned char *)a->u.walk.path)[1], &a->u.walk.end);
+    d3sm_GetVertex(h, a->u.walk.path[0].x, a->u.walk.path[0].z, &a->u.walk.end);
     a->u.walk.end.x += ch_PathOffset.x;
     a->u.walk.end.y += ch_PathOffset.y;
     a->u.walk.end.z += ch_PathOffset.z;
@@ -3336,8 +3337,8 @@ int ch_NextWaypoint(CHACTION *a, D3SM *h)
             ch_RemoveAction(a);
             return 0;
         }
-        d3sm_GetVertex(h, ((unsigned char *)a->u.walk.path)[a->u.walk.cur * 2],
-                       ((unsigned char *)a->u.walk.path)[a->u.walk.cur * 2 + 1], &a->u.walk.end);
+        d3sm_GetVertex(h, a->u.walk.path[a->u.walk.cur].x,
+                       a->u.walk.path[a->u.walk.cur].z, &a->u.walk.end);
         a->u.walk.end.x += ch_PathOffset.x;
         a->u.walk.end.y += ch_PathOffset.y;
         a->u.walk.end.z += ch_PathOffset.z;
@@ -3646,10 +3647,10 @@ void ch_ActWalkCells(CHACTION *a)
         a->u.walk.cur = 0;
         a->u.walk.prevCell = -1;
         for (i = 0; i < 0x100; i++) {
-            ((CHPATHPT *)a->u.walk.path)[i].x = 0;
-            ((CHPATHPT *)a->u.walk.path)[i].z = 0;
+            a->u.walk.path[i].x = 0;
+            a->u.walk.path[i].z = 0;
         }
-        d3sm_GetVertex(h, ((unsigned char *)a->u.walk.path)[0], ((unsigned char *)a->u.walk.path)[1], &a->u.walk.end);
+        d3sm_GetVertex(h, a->u.walk.path[0].x, a->u.walk.path[0].z, &a->u.walk.end);
         d3sm_GetVertex(h, x, z, &a->u.walk.end);
         a->u.walk.started = 0;
         return;
@@ -3768,7 +3769,7 @@ void ch_ActWalkCells(CHACTION *a)
     if (ch->speedScale < 1.0)
         ch->speedScale += 0.01f;
     if (!a->u.walk.cur || (ch->slot && ch->slot->stopped)) {
-        pts = (CHPATHPT *)a->u.walk.path;
+        pts = a->u.walk.path;
         n = a->u.walk.cur + 1;
         if (!pts[n].x && !pts[n].z && n < a->u.walk.pathLen) {
             for (i = n, pt = &pts[n]; i < min(0x100, n + 32); i++, pt++) {
@@ -4159,7 +4160,7 @@ void ch_Close(void)
     if (ch_Queue) {
         for (i = 0; i < CH_QUEUE; i++) {
             if (ch_Queue[i].type == '-' && ch_Queue[i].u.walk.path) {
-                void **p = &ch_Queue[i].u.walk.path;
+                CHPATHPT **p = &ch_Queue[i].u.walk.path;
 
                 mem_Free(*p);
                 *p = 0;

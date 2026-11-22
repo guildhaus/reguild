@@ -5695,8 +5695,8 @@ int cm_ExWalkPath(G17MSG *m, G17STAT *s)
         a->u.walk.pathLen = ((CMWALKPATHMSG *)m->data)->to;
         idx = ((CMWALKPATHMSG *)m->data)->from;
         for (; i < 2 && idx < a->u.walk.pathLen; i++, idx++) {
-            ((unsigned char *)a->u.walk.path)[idx * 2] = ((CMWALKPATHMSG *)m->data)->cells[i * 2];
-            ((unsigned char *)a->u.walk.path)[idx * 2 + 1] = ((CMWALKPATHMSG *)m->data)->cells[i * 2 + 1];
+            a->u.walk.path[idx].x = ((CMWALKPATHMSG *)m->data)->cells[i * 2];
+            a->u.walk.path[idx].z = ((CMWALKPATHMSG *)m->data)->cells[i * 2 + 1];
         }
     }
     if (s != 0) {

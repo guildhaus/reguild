@@ -134,8 +134,8 @@ int amt_IsColumnDecided(int col);       /* 0x4e83b0 */
 int amt_HasDeposalVote(int col, AMTREC *r);  /* 0x4e8530 */
 void amt_UpdateOffices(void);           /* 0x4e85d0 */
 int amt_HasColumn7Holder(void);         /* 0x4e86e0 */
-void amt_SendOfficeNews(unsigned short *p, int v);  /* 0x4e8730 */
-void amt_SendOfficeLost(unsigned short *p, int v);  /* 0x4e87e0 */
+void amt_SendOfficeNews(struct AICHAR *p, int v);  /* 0x4e8730 */
+void amt_SendOfficeLost(struct AICHAR *p, int v);  /* 0x4e87e0 */
 void amt_ElectDeputies(void);            /* 0x4e88a0 */
 void amt_ElectKind22(void);            /* 0x4e8c20 */
 

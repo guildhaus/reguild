@@ -230,6 +230,7 @@ typedef void (*CHACTCB)(CHACTION *a);  /* func2: its result is not read (ch_Upda
 #define CH_WALK_STOPANIM 0x40   /* release the walk animation before moving on */
 #define CH_WALK_ARRIVED  0x80   /* the dest was reached: the action removes itself */
 
+typedef struct CHPATHPT { unsigned char x, z; } CHPATHPT;   /* a cell of a walk path (CHACTION.u.walk.path) */
 struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; func == 0: free */
     CHACTFUNC func;                 /* 0x00, called every update */
     CHACTCB func2;                  /* 0x04, called when the animation reaches frame func2Frame */
@@ -273,7 +274,7 @@ struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; fu
         } scene;
         struct {
             int pathLen;            /* 0xf0, number of cells in path (2 bytes each) */
-            void *path;             /* 0xf4, walk actions: allocated path */
+            CHPATHPT *path;         /* 0xf4, walk actions: the allocated path, pathLen cells */
             int cur;                /* 0xf8, next path cell (from here: worker ch4) */
             int prevCell;           /* 0xfc, reasoned: set to -1 with cur at every new path (the cell walked from, -1
                                        before the first); no reader in the image */
@@ -458,7 +459,6 @@ D3OBJECT *ch_FindDummy(void);                                                   
 void ch_ActMove2Universe(CHACTION *a);                                                  /* 0x4067f0 */
 int ch_FollowGround(CHACTION *a);                                                       /* 0x406a70 */
 
-typedef struct CHPATHPT { unsigned char x, z; } CHPATHPT;
 typedef struct CHWALKDEF {
     char pad00[0x10];
     float speed;                    /* 0x10 */

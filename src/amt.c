@@ -537,7 +537,6 @@ int amt_ExecuteOfficeMessage(AMTMSG *p)
     unsigned int m, f;
     unsigned char k;
     AMTREC *q;
-    int *r;
 
     i = 0;
     owner = -1;
@@ -624,13 +623,10 @@ next:
         }
     } else if (k >= 0x1c && k <= 0x22) {
         if (c->secondOffice != 0) {
-            r = &amt_Table[30].owner;
-            do {
-                if (((unsigned char *)r)[4] == c->secondOffice &&
-                    *r == c->netId)
-                    *r = -1;
-                r += sizeof(AMTREC) / sizeof(int);
-            } while ((intptr_t)r < (intptr_t)&amt_Table[37].owner);
+            for (j = 30; j < 37; j++) {
+                if (amt_Table[j].kind == c->secondOffice && amt_Table[j].owner == c->netId)
+                    amt_Table[j].owner = -1;
+            }
         }
         c->secondOffice = amt_Table[i].kind;
     } else {
@@ -1752,18 +1748,18 @@ int amt_HasColumn7Holder(void)
     }
     return 0;
 }
-/* 0x4e8730, sends the office news 0x1c19 about the office p (+0 the index as an unsigned short, +2 the kind 5 .. 7, +9 a flag) with the number
-   v + 0x253, or v + 0x27b (0x28 more) when the flag is set, to the characters of the kinds 6 and 7 (the text channels 0x5fd / 0x5fe) */
+/* 0x4e8730, sends the office news 0x1c19 about the character p (its id; only of the kinds 5 .. 7) with the office title
+   v + 0x253, or v + 0x27b (0x28 more: the female titles) when p->sex is set, to the characters of the kinds 6 and 7 (the text channels 0x5fd / 0x5fe) */
 
-void amt_SendOfficeNews(unsigned short *p, int v)
+void amt_SendOfficeNews(AICHAR *p, int v)
 {
     char buf[512];
     int i;
     char k;
 
-    k = ((char *)p)[2];
+    k = p->kind;
     if (k == 6 || k == 7 || k == 5) {
-        txt_Format(buf, 0x1c19, *p, 0x1c1b, (((char *)p)[9] != 0 ? 0x27b : 0x253) + v);
+        txt_Format(buf, 0x1c19, p->id, 0x1c1b, (p->sex != 0 ? 0x27b : 0x253) + v);
         i = 0;
         do {
             if (ai_Chars[i].kind == 6)
@@ -1777,14 +1773,14 @@ void amt_SendOfficeNews(unsigned short *p, int v)
 /* 0x4e87e0, amt_SendOfficeNews with the text 0x1c21 (no second text): the character p lost the office v (the election replaces it, or it no longer
    fits the kind, 0x4e9260); nothing when p is 0 */
 
-void amt_SendOfficeLost(unsigned short *p, int v)
+void amt_SendOfficeLost(AICHAR *p, int v)
 {
     char buf[512];
     int i;
     char k;
 
-    if (p != 0 && ((k = ((char *)p)[2]) == 6 || k == 7 || k == 5)) {
-        txt_Format(buf, 0x1c21, *p, (((char *)p)[9] != 0 ? 0x27b : 0x253) + v);
+    if (p != 0 && ((k = p->kind) == 6 || k == 7 || k == 5)) {
+        txt_Format(buf, 0x1c21, p->id, (p->sex != 0 ? 0x27b : 0x253) + v);
         i = 0;
         do {
             if (ai_Chars[i].kind == 6)
@@ -1913,8 +1909,8 @@ void amt_ElectDeputies(void)
         if (pick != 0 && pick != cur) {
             if (cur != 0) {
                 if (abs(cur->jobId - pick->jobId) < 6) {
-                    amt_SendOfficeLost((unsigned short *)cur, cur->secondOffice);
-                    amt_SendOfficeNews((unsigned short *)pick, cur->secondOffice);
+                    amt_SendOfficeLost(cur, cur->secondOffice);
+                    amt_SendOfficeNews(pick, cur->secondOffice);
                     if (pick->jobId >= 1 && pick->jobId <= 6) {
                         amt_SendOfficeMessage((char)b.idx, pick, 0, 1, 0xff);
                         return;
@@ -1931,8 +1927,8 @@ void amt_ElectDeputies(void)
                     amt_SendOfficeMessage((char)a.idx, pick, 0, 1, 0xff);
                     v = 0x1d;
                 }
-                amt_SendOfficeLost((unsigned short *)cur, cur->secondOffice);
-                amt_SendOfficeNews((unsigned short *)pick, v);
+                amt_SendOfficeLost(cur, cur->secondOffice);
+                amt_SendOfficeNews(pick, v);
                 return;
             }
             if (pick->jobId >= 1 && pick->jobId <= 6) {
@@ -1942,7 +1938,7 @@ void amt_ElectDeputies(void)
                 amt_SendOfficeMessage((char)a.idx, pick, 0, 1, 0xff);
                 v = 0x1d;
             }
-            amt_SendOfficeNews((unsigned short *)pick, v);
+            amt_SendOfficeNews(pick, v);
         }
     }
 }
@@ -2022,12 +2018,12 @@ void amt_ElectKind22(void)
     if (pick != 0 && pick != cur) {
         if (cur != 0) {
             amt_SendOfficeMessage((char)a.idx, pick, 0, 1, 0xff);
-            amt_SendOfficeLost((unsigned short *)cur, 0x22);
-            amt_SendOfficeNews((unsigned short *)pick, 0x22);
+            amt_SendOfficeLost(cur, 0x22);
+            amt_SendOfficeNews(pick, 0x22);
             return;
         }
         amt_SendOfficeMessage((char)a.idx, pick, 0, 1, 0xff);
-        amt_SendOfficeNews((unsigned short *)pick, 0x22);
+        amt_SendOfficeNews(pick, 0x22);
     }
 }
 /* 0x4e8dc0, fills the office of the kind `kind` (0x1e .. 0x21, the mayors of the four towns) from the owners of the buildings of the matching kind whose
@@ -2173,12 +2169,12 @@ void amt_CalcZuenfte(unsigned int kind)
         return;
     if (cur != 0) {
         amt_SendOfficeMessage(a.idx, pick, 0, 1, 0xff);
-        amt_SendOfficeLost((unsigned short *)cur, kind);
-        amt_SendOfficeNews((unsigned short *)pick, kind);
+        amt_SendOfficeLost(cur, kind);
+        amt_SendOfficeNews(pick, kind);
         return;
     }
     amt_SendOfficeMessage(a.idx, pick, 0, 1, 0xff);
-    amt_SendOfficeNews((unsigned short *)pick, kind);
+    amt_SendOfficeNews(pick, kind);
 }
 /* 0x4e9260, the office check run at the start of a round (main 0x53b2e0): every holder of a column-7 office (0x4e70f0: the deputies 0x1c / 0x1d,
    the town offices 0x1e .. 0x21, 0x22) whose character is gone, dead, holds another kind (+0x169) or is outside the kind's rank range
@@ -2210,7 +2206,7 @@ void amt_CheckOffices(void)
             if (c != 0 && c->health != 0 && (char)c->secondOffice == (char)p->kind &&
                 c->jobId >= lo && c->jobId <= hi)
                 continue;
-            amt_SendOfficeLost((unsigned short *)c, p->kind);
+            amt_SendOfficeLost(c, p->kind);
             r = amt_SendOfficeMessage((char)p->idx, 0, 0, 4, 0xff);
             while (r != -1 && cm_GetSlotState(r) == 0)
                 sv_PumpNet();
