@@ -793,31 +793,31 @@ void ai_FindWantedItems(AICHAR *p, int n, G9REC *rec, int *st)
 
 int ai_PickPartnerChain(AICHAR *p, int a, int *flags, float b, float f, unsigned short *id)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     G6RING *e;
     unsigned int i, n;
     int found;
 
     if ((unsigned int)a > 3)
         return 0;
-    memset(q, 0, sizeof(q));
-    memset(&q[7], 0xff, 8 * 4);
-    q[5] = 2;
+    memset(&q, 0, sizeof(q));
+    memset(q.ids, 0xff, sizeof(q.ids));
+    q.option14 = 2;
     i = 0;
-    if (ai_Partner != 0 && !(q[1] & 0x10000000)) {
-        q[16] = 0;
-        q[1] = flags[0];
-        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+    if (ai_Partner != 0 && !(q.mode & 0x10000000)) {
+        q.liking = 0;
+        q.mode = flags[0];
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, &q, 0) != 0) {
             i = 1;
             id[0] = ai_Partner->id;
         }
     }
     for (; i < (unsigned int)a; i++) {
-        q[1] = flags[i];
+        q.mode = flags[i];
         if (i != 0)
-            ((unsigned short *)&q[7])[i] = id[i - 1];
+            q.ids[i] = id[i - 1];
         else
-            ((unsigned short *)&q[7])[0] = p->id;
+            q.ids[0] = p->id;
         found = 0;
         n = ai_NearRingCount;
         for (e = ai_NextNearRingEntry(); !found; n--, e = ai_NextNearRingEntry()) {
@@ -829,7 +829,7 @@ int ai_PickPartnerChain(AICHAR *p, int a, int *flags, float b, float f, unsigned
             if (e->who == 0)
                 return 0;
             if (!(e->dist < b) && !(e->dist > f)
-                && ai_PassesPartnerFilter(p->id, e->who->id, q, 0) != 0) {
+                && ai_PassesPartnerFilter(p->id, e->who->id, &q, 0) != 0) {
                 found = 1;
                 id[i] = e->who->id;
             }
@@ -842,33 +842,33 @@ int ai_PickPartnerChain(AICHAR *p, int a, int *flags, float b, float f, unsigned
 
 int ai_PickPartnerInRange(AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     G6RING *e;
     unsigned int len;
     int k;
 
-    memset(q, 0, sizeof(q));
+    memset(&q, 0, sizeof(q));
     len = n * 2;
     if (len > 0x20)
         len = 0x20;
-    memcpy(&q[7], ids, len);
-    q[5] = 2;
-    if (ai_Partner != 0 && !(q[1] & 0x10000000)) {
-        q[16] = 0;
-        q[1] = fl;
-        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+    memcpy(q.ids, ids, len);
+    q.option14 = 2;
+    if (ai_Partner != 0 && !(q.mode & 0x10000000)) {
+        q.liking = 0;
+        q.mode = fl;
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, &q, 0) != 0) {
             *id = ai_Partner->id;
             return 1;
         }
     }
-    q[16] = 0;
+    q.liking = 0;
     k = ai_NearRingCount;
     do {
         e = ai_NextNearRingEntry();
         if (k == 0 || e->who == 0)
             return 0;
         if (!(e->dist < lo) && !(e->dist > hi)
-            && ai_PassesPartnerFilter(p->id, e->who->id, q, 0) != 0) {
+            && ai_PassesPartnerFilter(p->id, e->who->id, &q, 0) != 0) {
             *id = e->who->id;
             return 1;
         }
@@ -880,21 +880,21 @@ int ai_PickPartnerInRange(AICHAR *p, unsigned int fl, int n, unsigned short *ids
 
 int ai_FindPartnersRandomWalk(AICHAR *p, unsigned int a, int *flags, float lo, float hi, unsigned short *id)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     unsigned int i, c;
     int step, n, found, win;
     float r;
 
     step = ai_CharWalkSteps[util_Random(0x10)];
     i = 0;
-    memset(q, 0, sizeof(q));
+    memset(&q, 0, sizeof(q));
     win = 0;
-    memset(&q[7], 0xff, 8 * 4);
-    q[5] = 2;
+    memset(q.ids, 0xff, sizeof(q.ids));
+    q.option14 = 2;
     if (ai_Partner != 0) {
-        q[16] = 0;
-        q[1] = flags[0];
-        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+        q.liking = 0;
+        q.mode = flags[0];
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, &q, 0) != 0) {
             i = 1;
             id[0] = ai_Partner->id;
         }
@@ -902,11 +902,11 @@ int ai_FindPartnersRandomWalk(AICHAR *p, unsigned int a, int *flags, float lo, f
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
         win = 1;
     for (; i < a; i++) {
-        q[1] = flags[i];
+        q.mode = flags[i];
         if (i != 0)
-            ((unsigned short *)&q[7])[i] = id[i - 1];
+            q.ids[i] = id[i - 1];
         else
-            ((unsigned short *)&q[7])[0] = p->id;
+            q.ids[0] = p->id;
         n = 0x300;
         found = 0;
         c = util_Random(0x300);
@@ -916,7 +916,7 @@ int ai_FindPartnersRandomWalk(AICHAR *p, unsigned int a, int *flags, float lo, f
                     return 0;
                 break;
             }
-            if (ai_PassesPartnerFilter(p->id, (unsigned short)c, q, 0) != 0) {
+            if (ai_PassesPartnerFilter(p->id, (unsigned short)c, &q, 0) != 0) {
                 if (!win || (r = gm_Liking(c, p->id, 1), !(r < lo) && !(r > hi))) {
                     found = 1;
                     id[i] = (unsigned short)c;
@@ -933,26 +933,26 @@ int ai_FindPartnersRandomWalk(AICHAR *p, unsigned int a, int *flags, float lo, f
 
 int ai_PickPartnerRandomWalk(AICHAR *p, unsigned int fl, int n, unsigned short *ids, float lo, float hi, unsigned short *id)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     unsigned int len, c;
     int step, k, found, win;
     float r;
 
     step = ai_CharWalkSteps[util_Random(0x10)];
-    memset(q, 0, sizeof(q));
+    memset(&q, 0, sizeof(q));
     win = 0;
     len = n * 2;
-    memcpy(&q[7], ids, len > 0x20 ? 0x20 : len);
-    q[5] = 2;
+    memcpy(q.ids, ids, len > 0x20 ? 0x20 : len);
+    q.option14 = 2;
     if (ai_Partner != 0) {
-        q[16] = 0;
-        q[1] = fl;
-        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+        q.liking = 0;
+        q.mode = fl;
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, &q, 0) != 0) {
             *id = ai_Partner->id;
             return 1;
         }
     }
-    q[1] = fl;
+    q.mode = fl;
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
         win = 1;
     found = 0;
@@ -964,7 +964,7 @@ int ai_PickPartnerRandomWalk(AICHAR *p, unsigned int fl, int n, unsigned short *
                 return 0;
             break;
         }
-        if (ai_PassesPartnerFilter(p->id, (unsigned short)c, q, 0) != 0) {
+        if (ai_PassesPartnerFilter(p->id, (unsigned short)c, &q, 0) != 0) {
             if (!win || (r = gm_Liking(c, p->id, 1), !(r < lo) && !(r > hi))) {
                 found = 1;
                 *id = (unsigned short)c;
@@ -982,7 +982,7 @@ int ai_PickPartnerRandomWalk(AICHAR *p, unsigned int fl, int n, unsigned short *
 
 unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     unsigned int cnt;
     int i, step, k, rank, win;
     unsigned char t;
@@ -990,12 +990,12 @@ unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float
 
     step = ai_CharWalkSteps[util_Random(0x10)];
     win = 0;
-    memset(q, 0, sizeof(q));
-    memset(&q[7], 0xff, 8 * 4);
+    memset(&q, 0, sizeof(q));
+    memset(q.ids, 0xff, sizeof(q.ids));
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
         win = 1;
-    q[5] = 2;
-    q[1] = fl;
+    q.option14 = 2;
+    q.mode = fl;
     rank = gm_CharPrevLevel(p->id, 0);
     cnt = 0;
     k = 0x300;
@@ -1003,7 +1003,7 @@ unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float
     while (cnt < n && k != 0) {
         t = ai_Chars[i].kind;
         if (t != 8 && t != 7 && t != 5 && t != 9 && t != 0x14 && ai_Chars[i].jobId != 0 && ai_Chars[i].jobId != 'R'
-            && ai_PassesPartnerFilter(p->id, (unsigned short)i, q, 0) != 0
+            && ai_PassesPartnerFilter(p->id, (unsigned short)i, &q, 0) != 0
             && abs(rank - gm_CharPrevLevel((unsigned short)i, 0)) < 6
             && (!win || (r = gm_Liking(i, p->id, 1), !(r < lo) && !(r > hi)))) {
             out[cnt++] = (unsigned short)i;
@@ -1016,7 +1016,7 @@ unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float
     while (cnt < n && k != 0) {
         t = ai_Chars[i].kind;
         if (t != 8 && t != 7 && t != 5 && t != 9 && t != 0x14 && ai_Chars[i].jobId == 0
-            && ai_PassesPartnerFilter(p->id, (unsigned short)i, q, 0) != 0
+            && ai_PassesPartnerFilter(p->id, (unsigned short)i, &q, 0) != 0
             && abs(rank - gm_CharPrevLevel((unsigned short)i, 0)) < 6
             && (!win || (r = gm_Liking(i, p->id, 1), !(r < lo) && !(r > hi)))) {
             out[cnt++] = (unsigned short)i;
@@ -1033,21 +1033,21 @@ unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl, float
 
 unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a, unsigned int fl, float lo, float hi, int d, unsigned short *id)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     unsigned int i, c;
     int step, n, found, win, home;
     float r;
 
     step = ai_CharWalkSteps[util_Random(0x10)];
     i = 0;
-    memset(q, 0, sizeof(q));
+    memset(&q, 0, sizeof(q));
     win = 0;
-    memset(&q[7], 0xff, 8 * 4);
-    q[5] = 2;
+    memset(q.ids, 0xff, sizeof(q.ids));
+    q.option14 = 2;
     if (ai_Partner != 0) {
-        q[1] = fl;
-        q[16] = 0;
-        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, q, 0) != 0) {
+        q.mode = fl;
+        q.liking = 0;
+        if (ai_PassesPartnerFilter(p->id, ai_Partner->id, &q, 0) != 0) {
             i = 1;
             id[0] = ai_Partner->id;
         }
@@ -1056,11 +1056,11 @@ unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a, unsigned int fl
         win = 1;
     home = amt_GetKindLevel(p->officeKind);
     for (; i < a; i++) {
-        q[1] = fl;
+        q.mode = fl;
         if (i != 0)
-            ((unsigned short *)&q[7])[i] = id[i - 1];
+            q.ids[i] = id[i - 1];
         else
-            ((unsigned short *)&q[7])[0] = p->id;
+            q.ids[0] = p->id;
         n = 0x300;
         found = 0;
         c = util_Random(0x300);
@@ -1070,7 +1070,7 @@ unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a, unsigned int fl
                     return i;
                 break;
             }
-            if (ai_PassesPartnerFilter(p->id, (unsigned short)c, q, 0) != 0
+            if (ai_PassesPartnerFilter(p->id, (unsigned short)c, &q, 0) != 0
                 && (!win || (r = gm_Liking(c, p->id, 1), !(r < lo) && !(r > hi)))
                 && abs(home - amt_GetKindLevel(ai_Chars[c].officeKind)) <= d) {
                 found = 1;
@@ -1090,18 +1090,18 @@ unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a, unsigned int fl
 
 int ai_PickActionBuilding(AICHAR *p, int a, __int64 mask, float lo, float hi, int *out)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     AIBLD *b;
     int step, n, found, win, j;
     float r;
 
     step = ai_RandomStrides[util_Random(0x10)];
     win = 0;
-    q[2] = (unsigned int)mask;
+    q.classMask[0] = (unsigned int)mask;
     found = 0;
-    q[5] = 0;
-    q[3] = (unsigned int)((unsigned __int64)mask >> 32) | 0x80000000;
-    q[4] = a;
+    q.option14 = 0;
+    q.classMask[1] = (unsigned int)((unsigned __int64)mask >> 32) | 0x80000000;
+    q.kind = a;
     *out = -1;
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
         win = 1;
@@ -1114,8 +1114,8 @@ int ai_PickActionBuilding(AICHAR *p, int a, __int64 mask, float lo, float hi, in
             break;
         }
         b = &ai_Blds[j];
-        if (b->type != 0 && ai_PassesBuildingFilter(p, q, b) != 0
-            && (!win || (r = gm_Liking(b->owner, p->id, 1), !(r < ((float *)q)[0x11]) && !(r > ((float *)q)[0x11])))) {
+        if (b->type != 0 && ai_PassesBuildingFilter(p, &q, b) != 0
+            && (!win || (r = gm_Liking(b->owner, p->id, 1), !(r < q.likingMin) && !(r > q.likingMin)))) {
             found = 1;
             *out = b->id;
         }
@@ -1131,7 +1131,7 @@ int ai_PickActionBuilding(AICHAR *p, int a, __int64 mask, float lo, float hi, in
 
 int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out)
 {
-    unsigned int q[0x14];
+    AMOUNTCFG q;
     AIBLD *b;
     int step, k, cnt, win, j, max;
     float r;
@@ -1139,10 +1139,10 @@ int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi, u
     step = ai_RandomStrides[util_Random(0x10)];
     cnt = 0;
     win = 0;
-    q[5] = 0;
-    q[2] = (unsigned int)mask;
-    q[3] = (unsigned int)((unsigned __int64)mask >> 32) | 0x80000000;
-    q[4] = a;
+    q.option14 = 0;
+    q.classMask[0] = (unsigned int)mask;
+    q.classMask[1] = (unsigned int)((unsigned __int64)mask >> 32) | 0x80000000;
+    q.kind = a;
     if ((lo > 0.0 || hi < 100.0) && lo < hi)
         win = 1;
     k = 0x100;
@@ -1150,8 +1150,8 @@ int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi, u
     max = n;
     while (cnt < max && k != 0) {
         b = &ai_Blds[j];
-        if (b->type != 0 && ai_PassesBuildingFilter(p, q, b) != 0
-            && (!win || (r = gm_Liking(b->owner, p->id, 1), !(r < ((float *)q)[0x11]) && !(r > ((float *)q)[0x11])))) {
+        if (b->type != 0 && ai_PassesBuildingFilter(p, &q, b) != 0
+            && (!win || (r = gm_Liking(b->owner, p->id, 1), !(r < q.likingMin) && !(r > q.likingMin)))) {
             out[cnt] = b->id;
             cnt++;
         }

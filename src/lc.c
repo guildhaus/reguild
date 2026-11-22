@@ -13431,7 +13431,7 @@ typedef struct AIAMOUNTTAB {            /* 0x14 bytes, one tab of the special-am
     int id;                             /* +0x00, 0 .. 7 */
     unsigned int count;                 /* +0x04, the rows of the page */
     int control;                        /* +0x08, the tab's button (ai_SpecialAmountWindow), -1: none yet */
-    unsigned int (*fill)(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter);
+    unsigned int (*fill)(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter);
     int (*show)(int view, int page, int scrollPage, unsigned int n, LCAMOUNTROW *rows);
 } AIAMOUNTTAB;
 extern AIAMOUNTTAB ai_AmountTabs[];     /* 0x62d148, the eight tabs */

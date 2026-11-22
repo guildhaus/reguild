@@ -470,9 +470,9 @@ void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), i
 void ai_OpenRobberBribe(struct AIBLD *bld);  /* 0x5b4bf0 */
 int ai_DrohbriefWindow(struct AIBLD *bld);  /* 0x5b4fb0 */
 void ai_LeftAlignedText(char *text, int x, int y, int w, int font);  /* 0x5bd1f0 */
-struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
+struct AICHAR *ai_SpecialAmountListWindow(int kind, struct AMOUNTCFG *filter, char *caption, char *caption2,
                                int (*pick)(struct AICHAR *, int));  /* 0x5bea50 */
-struct AICHAR *ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(struct AICHAR *, int));  /* 0x5c0970 */
+struct AICHAR *ai_SpecialAmountWindow(struct AMOUNTCFG *filter, char *caption, int tab, int (*pick)(struct AICHAR *, int));  /* 0x5c0970 */
 int ai_PassesMapPickFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c39a0 */
 struct AICHAR *ai_LawSelectionEntry(struct AIBLD *bld, struct AMOUNTCFG *filter, char *text, void (*cb)(struct AICHAR *, struct AIBLD *));  /* 0x5c4100 */
 int ai_GiftWindow(struct AICHAR *giver, struct AICHAR *chr);  /* 0x5c6050 */

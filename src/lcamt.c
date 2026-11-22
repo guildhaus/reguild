@@ -1175,7 +1175,7 @@ int ai_ShowBuildingRows(AICHAR *ch, int max, int *ctrls)
    name ("%1N5"); a character other than viewer and not of kind 6 gets the liking slider (gm_Liking of the viewer,
    0 for kind 7); a viewer of kind 6 marks its partner with the picture 0x6d3; returns 0 */
 
-int ai_ShowAmountRows(int win, int kind, unsigned int *filter, int n, LCAMOUNTROW *rows, AICHAR *viewer)
+int ai_ShowAmountRows(int win, int kind, AMOUNTCFG *filter, int n, LCAMOUNTROW *rows, AICHAR *viewer)
 {
     int cols[3];
     int col;
@@ -1312,7 +1312,7 @@ int ai_ShowAmountRows(int win, int kind, unsigned int *filter, int n, LCAMOUNTRO
    0x400: 0x24, 0x200: 0x23); a vacant row shows the picture 0x4fb and the text 0x253 + its office, its frame
    disabled; returns 0 */
 
-int ai_ShowOfficeRows(int win, int kind, unsigned int *filter, int n, LCAMOUNTROW *rows, AICHAR *viewer)
+int ai_ShowOfficeRows(int win, int kind, AMOUNTCFG *filter, int n, LCAMOUNTROW *rows, AICHAR *viewer)
 {
     int valid;
     int left;
@@ -1602,7 +1602,7 @@ struct AICHAR *ai_SpecialAmountList(AICHAR *ch, char *text)
     cfg.kind = 6;
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
-    return ai_SpecialAmountWindow((unsigned int *)&cfg, text, 0, 0);
+    return ai_SpecialAmountWindow(&cfg, text, 0, 0);
 }
 /* 0x5bea50, the special-amount list window "special\amt2" (1655 B): the caption (the kind's name 0x12b2 + kind, or
    the text 0xa0 with the viewing character), the subcaption caption or caption2, and up to 8 rows: the kind 0 the
@@ -1614,7 +1614,7 @@ struct AICHAR *ai_SpecialAmountList(AICHAR *ch, char *text)
    with it, else pick (character, 0) decides (the window disabled meanwhile); a vacant seat ends the viewing. Returns
    the chosen character record (0: none) */
 
-struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *caption, char *caption2,
+struct AICHAR *ai_SpecialAmountListWindow(int kind, AMOUNTCFG *filter, char *caption, char *caption2,
                                int (*pick)(AICHAR *, int))
 {
     int viewing;
@@ -1810,7 +1810,7 @@ struct AICHAR *ai_SpecialAmountListWindow(int kind, unsigned int *filter, char *
    its corner icons (ai_AmountRowStatus) and makes it pickable when it passes the partner filter filter
    (ai_PassesPartnerFilter); returns the count */
 
-unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     AICHAR *c;
     AIJOB *ev;
@@ -1908,7 +1908,7 @@ unsigned int ai_FillFamilyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, u
    corner icons (ai_AmountRowStatus) and the partner filter filter (ai_PassesPartnerFilter, pickable); returns the
    count */
 
-unsigned int ai_FillFriendsTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillFriendsTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     unsigned int n;
     AICHAR *c;
@@ -1964,7 +1964,7 @@ unsigned int ai_FillFriendsTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
    count (at most max) gets the corner icons (ai_AmountRowStatus) and the partner filter filter
    (ai_PassesPartnerFilter, pickable); returns the count */
 
-unsigned int ai_FillEnemiesTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillEnemiesTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     unsigned int n;
     AICHAR *c;
@@ -2043,7 +2043,7 @@ unsigned int ai_FillEnemiesTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
    test (no c) 26 but the store order is wrong, split n++ / nested if = control; climb --base rowp 2
    rounds: nothing. Next: what raises n above max (an n reference the original has, or max's memset refs). */
 
-unsigned int ai_FillLoversTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillLoversTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     int n;
     unsigned int i;
@@ -2086,7 +2086,7 @@ typedef struct LCOFFEREVENT {           /* the wedding offer event 0x2c's words 
    id), up to max of them, each with the corner icons (ai_AmountRowStatus) and the partner filter filter
    (ai_PassesPartnerFilter, pickable); returns the count */
 
-unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     AICHAR *guests[6];
     int roles[6];
@@ -2203,7 +2203,7 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
    x2c the role; the crimes up to max rows) and gives each the corner icons (ai_AmountRowStatus) and the partner
    filter filter (ai_PassesPartnerFilter, pickable); returns the count */
 
-unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     AIJOB *ev;
     AICHAR *c;
@@ -2273,7 +2273,7 @@ unsigned int ai_FillQuarrelTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
    each with the corner icons (ai_AmountRowStatus) and the partner filter filter (ai_PassesPartnerFilter, pickable);
    returns the rows filled */
 
-unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     char *applicants[6];
     AICHAR *rivals[3];
@@ -2319,7 +2319,7 @@ unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows
    with them, office by office (LCAMOUNTROW.rec, x34 the office), each with the corner icons (ai_AmountRowStatus)
    and the partner filter filter (ai_PassesPartnerFilter, pickable); returns the count */
 
-unsigned int ai_FillOfficeTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter)
+unsigned int ai_FillOfficeTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter)
 {
     int offices[4];
     AICHAR *c;
@@ -2655,7 +2655,7 @@ typedef struct AIAMOUNTTAB {            /* 0x14 bytes, one tab of the special-am
     int id;                             /* +0x00, 0 .. 7 */
     unsigned int count;                 /* +0x04, the rows of the page */
     int control;                        /* +0x08, the tab's button (ai_SpecialAmountWindow), -1: none yet */
-    unsigned int (*fill)(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, unsigned int *filter);
+    unsigned int (*fill)(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, AMOUNTCFG *filter);
                                         /* +0x0c, the page fill (ai_FillFamilyTab .. ai_FillOfficeTab) */
     int (*show)(int view, int page, int scrollPage, unsigned int n, LCAMOUNTROW *rows);
                                         /* +0x10, the page's rows (ai_ShowFamilyTab .. ai_ShowOfficeTab) */
@@ -2707,7 +2707,7 @@ void ai_AmountLikingRows(AICHAR *me, unsigned count, int *rows)
    ticks while the page is not scrolled the tabs are counted and the open one refilled again (state 3). Returns
    the chosen character record (0: none) */
 
-struct AICHAR *ai_SpecialAmountWindow(unsigned int *filter, char *caption, int tab, int (*pick)(AICHAR *, int))
+struct AICHAR *ai_SpecialAmountWindow(AMOUNTCFG *filter, char *caption, int tab, int (*pick)(AICHAR *, int))
 {
     LCAMOUNTROW rows[16];
     int page;
@@ -2950,11 +2950,11 @@ struct AICHAR *ai_AmountMenu(AMOUNTCFG *cfg, char *caption, char *prompt, int (*
             }
             if (hit > -1 && hit < 9) {
                 d2_SetViewEnabled(win, 0);
-                r = ai_SpecialAmountListWindow(order[hit], (unsigned int *)cfg, caption, 0, pick);
+                r = ai_SpecialAmountListWindow(order[hit], cfg, caption, 0, pick);
                 d2_SetViewEnabled(win, 1);
             } else if (d2_PointerObj == ctrl) {
                 d2_SetViewEnabled(win, 0);
-                r = ai_SpecialAmountWindow((unsigned int *)cfg, caption, -1, pick);
+                r = ai_SpecialAmountWindow(cfg, caption, -1, pick);
                 d2_SetViewEnabled(win, 1);
             }
             if (r != 0 && pick == 0 && (cfg->option14 & 4) == 0)
@@ -6952,7 +6952,7 @@ int ai_DismissOfficeAsk(AICHAR *me, ORDMSG *m)
         cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
         txt_Format(caption, 0x1d98);
         txt_Format(caption2, 0x1d99);
-        ch = ai_SpecialAmountListWindow(ownerKind.col, (unsigned int *)&cfg, caption, caption2, 0);
+        ch = ai_SpecialAmountListWindow(ownerKind.col, &cfg, caption, caption2, 0);
         if (ch != 0) {
             if (amt_FindOffice(ch, &kind, &office) == 0)
                 return 0x60;
@@ -8968,7 +8968,7 @@ int ai_InterrogationWindow1(AICHAR *me, ORDMSG *m)
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.kind = 6;
-    ch = ai_SpecialAmountListWindow(4, (unsigned int *)&cfg, txt_Ptrs[0x1e16], ch_EmptyName, 0);
+    ch = ai_SpecialAmountListWindow(4, &cfg, txt_Ptrs[0x1e16], ch_EmptyName, 0);
     if (ch == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
@@ -9035,7 +9035,7 @@ int ai_InterrogationWindow2(AICHAR *me, ORDMSG *m)
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     cfg.kind = 6;
-    ch = ai_SpecialAmountListWindow(5, (unsigned int *)&cfg, txt_Ptrs[0x1e1d], ch_EmptyName, 0);
+    ch = ai_SpecialAmountListWindow(5, &cfg, txt_Ptrs[0x1e1d], ch_EmptyName, 0);
     if (ch == 0)
         return 2;
     win = d2_OpenForm(0, 0, "privillegien\\verhoer");
