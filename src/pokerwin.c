@@ -427,10 +427,6 @@ void ai_ClosePokerWindow(void)
     ai_PokerUi.window = -1;
 }
 
-typedef struct PLAYERRECVIEW {          /* f3gm.h's player record (gm_PlayerRecord, 0x56 words): only the float the poker game reads */
-    char pad00[0x60];
-    float luck;                         /* +0x60, the chance that the player sits down to play (decays by * 0.66 - 0.1 per game; reasoned) */
-} PLAYERRECVIEW;
 
 /* 0x5da030, the poker game (the card game against two opponents) of the gypsy poker table (2752 B). The player's record
    (gm_PlayerRecord) decides whether he plays: the record's float at +0x60 must exceed a random number, it must be past
@@ -456,18 +452,18 @@ int ai_PokerGame(void)
     char text[0x100];
     int lastPhase;
     unsigned short mask;
-    PLAYERRECVIEW *rec;
+    AIFIN *rec;
     int worth, form;
     char *s, c;
     int d;
 
     lastPhase = -1;
-    rec = (PLAYERRECVIEW *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+    rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec == 0)
         return 0;
     worth = gm_ConvertMoney(gm_GetWorth(ai_PlayerId), ai_OwnPlayer);
-    if (util_RandomF() < rec->luck && ai_Time.hour > 11 && worth >= 10000) {
-        rec->luck = rec->luck * 0.66f - 0.1f;
+    if (util_RandomF() < rec->pokerChance && ai_Time.hour > 11 && worth >= 10000) {
+        rec->pokerChance = rec->pokerChance * 0.66f - 0.1f;
         kb_Down[0x1e] = 0;
         if (ai_OpenPokerWindow() == 0)
             return 0;

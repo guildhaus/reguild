@@ -157,46 +157,6 @@ typedef struct AIGRID {                 /* 24 bytes, a cell of the statistics gr
     float buildingCount;                /* 0x14, 0x4f8ae0 adds 1.0 per building object of the cell */
 } AIGRID;
 
-typedef struct AIFIN {                  /* what gm_PlayerRecord finds for a character */
-    unsigned short w00;                 /* 0x00, the character's AICHAR.w050 (cm.c 0x4c6cd0 copies it) */
-    char family[0x10];                  /* 0x02, the family name (cm.c 0x4c6cd0 sets it with the character's) */
-    char pad12[2];                      /* 0x12 */
-    int incomeA;                        /* 0x14, a round income part (the round report prints it with text 0x200d, then adds it
-                                           with incomeB to missionMoney[0] and clears it; the kind is a reasoned guess open) */
-    int incomeB;                        /* 0x18, a round income part (text 0x200c, rolled into missionMoney[0]) */
-    int lootTakings;                    /* 0x1c, the loot value a won fight / raid took from the loser's goods
-                                           (cm_LootStock and cm_LootCarts add it to the winner's record) */
-    int incomeC;                        /* 0x20, a round income part (text 0x2010, rolled into missionMoney[2]) */
-    int madeValue;                      /* 0x24, the price value of the goods its workshops made (cm.c 0x4c78c0 adds it
-                                           with the building's AIBLD.roundSums[0]) */
-    int spyPaid;                        /* 0x28, the money the player paid to the cabinet's spies (ai_CabinetSpyWindow adds each payment) */
-    int missionMoney[5];                /* 0x2c .. 0x3f, the money statistics: the round report (main_RoundReport) adds the
-                                           round parts in ([0] incomeA + incomeB, [1] lootTakings, [2] incomeC, [3]
-                                           madeValue, [4] the character's AICHAR.v1a4 + v1a0); read by the mission conditions, converted with
-                                           gm_ConvertMoney: 0x38 by the types 1 / 6 / 14 / 22 / 32, 0x2c + 0x34 by
-                                           20 / 25 / 36, 0x30 by 26 / 37, 0x3c by 27 */
-    int upgradeSpent;                   /* 0x40, the money the record has paid for workshop upgrades (ai_BuyUpgrade) */
-    int renovationSpent;                /* 0x44, the money it has paid for renovations (ai_BuyUpgrade, am.c 0x497ee0) */
-    int loansRepaid;                    /* 0x48, the loan sums the character has paid back at a money lender (ai_RepayLoan adds each) */
-    int costA;                          /* 0x4c, a round cost part (the round report prints it with text 0x201a and clears it) */
-    int cartSpent;                      /* 0x50, the money the character has paid for new carts (lc.c ai_BuyCartWindow adds each price) */
-    int costB;                          /* 0x54, a round cost part (text 0x2015, cleared by the round report) */
-    float roundFactors[3];              /* 0x58, set to 0.5, 1, 1 at every round change (main.c 0x5384e0); [0] the bias for who starts a dice duel
-                                           (ai_DuelStart, am.h AGFIN.firstBias), [1] the chance of a tavern dice invitation (ai_TavernDiceWindow) */
-    int saved64[2];                     /* 0x64, two ints the save game keeps (ls_ReadPlayerRecords from version 0x10014);
-                                           no other reader known */
-    int officeSentences;                /* 0x6c, the sentences 4 / 6 / 8 its character passed as the judge of a trial on an
-                                           office holder (cm.c 0x4db700) */
-    int saved70;                        /* 0x70, an int the save game keeps (from version 0x10018); no other reader known */
-    unsigned char jobByGroup[0x11];     /* 0x74, one job id per title group (am.h AIFINX.jobByGroup; gm_SetJob fills it) */
-    char pad85[3];
-    float camAngle;                     /* 0x88, the player's camera angle factor (sv_CameraAngleFactor; sv.c) */
-    float camPos[3];                    /* 0x8c, the player's camera position, restored with the view (sv.c) */
-    char pad98[4];
-    float camRot[3];                    /* 0x9c, its rotation (D3OBJECT.rotation) */
-    int savedA8;                        /* 0xa8, an int the save game keeps; no other reader known */
-} AIFIN;                                /* 0xac bytes, the 16 records of gm_PlayerRecords */
-
 extern AIFIN gm_PlayerRecords[16];     /* 0x7d5f80, the player records (gm_PlayerRecord finds a character's) */
 
 typedef struct AIMAPENT {               /* 24 bytes, the AI's view of the vegetation records at AIBLD.plants (rd.h
@@ -351,7 +311,7 @@ int gm_BuildingClass(int type);    /* 0x501d80, the class 0 .. 9 of ai_BTypes[ty
 struct AIBLD *gm_FindBuildingById(int id);                                             /* 0x502020 */
 struct AICHAR *gm_FindChar(int id);                                            /* 0x505df0 */
 int gm_CharLevel(unsigned short id, int again);                              /* 0x505e60, f3gm.c */
-short * gm_PlayerRecord(struct AICHAR *ch);                                         /* 0x506430 */
+struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                                         /* 0x506430 */
 float gm_ItemPrice(int item, unsigned char n);                           /* 0x5087f0 */
 float gm_GoodsPrice(unsigned id, unsigned char p);                           /* 0x5089c0, a price */
 int gm_EquipmentValue(struct AIBLD *b, int level);                                     /* 0x509b10 */

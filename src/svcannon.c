@@ -1550,7 +1550,7 @@ int ai_CanSpyOn(AIBLD *rec)
     return r == 0;
 }
 
-int gm_GetWorth(unsigned short id); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); short * gm_PlayerRecord(struct AICHAR *c);
+int gm_GetWorth(unsigned short id); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo, float hi, int *out); struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text, int var); void sv_CameraFollow();
 
 /* 0x581020, the cabinet's spy window for the building rec: the form "Locations\Domizil\kabinett_spy" (centred,
@@ -1613,7 +1613,7 @@ void ai_CabinetSpyWindow(AIBLD *rec)
                     AIMSG msg;
                     int pick;
                     LARGE_INTEGER mask;
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += amount;
@@ -1729,7 +1729,7 @@ void ai_CabinetSpyOnCharacter(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost[i], ai_OwnPlayer) != 0 &&
                     sv_CheckMoney(&ai_Chars[ai_PlayerId], amt[i]) == 1 && ai_CanSpyOn(rec) != 0) {
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += cost[i];
@@ -1949,7 +1949,7 @@ void ai_CabinetIntrigueWindow(AIBLD *rec)
             if (d2_PointerObj == btnPay) {
                 if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) != 0 &&
                     sv_CheckMoney(&ai_Chars[ai_PlayerId], 0x10) == 1 && ai_CanSpyOn(rec) != 0) {
-                    AIFIN *fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    AIFIN *fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
 
                     if (fin != 0)
                         fin->spyPaid += price;

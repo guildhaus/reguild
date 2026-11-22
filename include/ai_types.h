@@ -330,6 +330,59 @@ typedef struct HELOAN {                 /* the loan event 0x23's words over AIJO
     AITIME due;                         /* 0xc4, the payback date, at 8:00 */
 } HELOAN;
 
+typedef struct AIFIN {                  /* what gm_PlayerRecord finds for a character */
+    unsigned short w00;                 /* 0x00, the character's AICHAR.w050 (cm.c 0x4c6cd0 copies it) */
+    char family[0x10];                  /* 0x02, the family name (cm.c 0x4c6cd0 sets it with the character's) */
+    char pad12[2];                      /* 0x12 */
+    int burglaryTakings;                /* 0x14, the money its character's burglaries took (he_RunBurglary adds it; the round
+                                           report prints it with text 0x200d, then adds it with gangTakings to missionMoney[0]
+                                           and clears it) */
+    int gangTakings;                    /* 0x18, the money the pickpocket gangs brought its character (he_RunGang adds it;
+                                           text 0x200c, rolled into missionMoney[0]) */
+    int lootTakings;                    /* 0x1c, the loot value a won fight / raid took from the loser's goods
+                                           (cm_LootStock and cm_LootCarts add it to the winner's record) */
+    int ransomTakings;                  /* 0x20, the ransoms its character took as a thieves' guild master (he_RunRansomDemand
+                                           adds them; text 0x2010, rolled into missionMoney[2]) */
+    int madeValue;                      /* 0x24, the price value of the goods its workshops made (cm.c 0x4c78c0 adds it
+                                           with the building's AIBLD.roundSums[0]) */
+    int spyPaid;                        /* 0x28, the money the player paid to the cabinet's spies (ai_CabinetSpyWindow adds each payment) */
+    int missionMoney[5];                /* 0x2c .. 0x3f, the money statistics: the round report (main_RoundReport) adds the
+                                           round parts in ([0] burglaryTakings + gangTakings, [1] lootTakings, [2] ransomTakings, [3]
+                                           madeValue, [4] the character's AICHAR.v1a4 + v1a0); read by the mission conditions, converted with
+                                           gm_ConvertMoney: 0x38 by the types 1 / 6 / 14 / 22 / 32, 0x2c + 0x34 by
+                                           20 / 25 / 36, 0x30 by 26 / 37, 0x3c by 27 */
+    int upgradeSpent;                   /* 0x40, the money the record has paid for workshop upgrades (ai_BuyUpgrade) */
+    int renovationSpent;                /* 0x44, the money it has paid for renovations (ai_BuyUpgrade, am.c 0x497ee0) */
+    int loansRepaid;                    /* 0x48, the loan sums the character has paid back at a money lender (ai_RepayLoan adds each) */
+    int customerPaid;                   /* 0x4c, the money its character's customers events cost (he_RunCustomers adds the
+                                           cost; the round report prints it with text 0x201a as a cost and clears it) */
+    int cartSpent;                      /* 0x50, the money the character has paid for new carts (lc.c ai_BuyCartWindow adds each price) */
+    int buildPaid;                      /* 0x54, the money its character paid for new buildings (he_RunConstruction adds the
+                                           price; text 0x2015, a cost cleared by the round report) */
+    float duelBias;                     /* 0x58, the bias for who starts a dice duel (ai_DuelStart: below the random draw the
+                                           player starts and it rises by 0.2 + 0..0.11, else it falls by the same); 0.5 at
+                                           every round change (main.c 0x5384e0) */
+    float tavernChance;                 /* 0x5c, the chance of being invited to the tavern dice game (ai_TavernDiceWindow);
+                                           each visit takes it to * 0.66 - 0.1 (invited) or * 0.66 - 0.02 (not invited,
+                                           after 11 o'clock); 1 at every round change */
+    float pokerChance;                  /* 0x60, the chance of sitting down to the gypsy poker game (ai_PokerGame: above a random
+                                           draw after 11 o'clock, then * 0.66 - 0.1); 1 at every round change and at a load
+                                           before version 0x10018 */
+    int taught;                         /* 0x64, the trial step courses its character finished as the teacher (he_RunTrialSteps
+                                           counts it; the save game keeps it from version 0x10014) */
+    int saved68;                        /* 0x68, an int the save game keeps (from version 0x10014); no other reader known */
+    int officeSentences;                /* 0x6c, the sentences 4 / 6 / 8 its character passed as the judge of a trial on an
+                                           office holder (cm.c 0x4db700) */
+    int saved70;                        /* 0x70, an int the save game keeps (from version 0x10018); no other reader known */
+    unsigned char jobByGroup[0x11];     /* 0x74, one job id per title group (gm_TitleGroup): 0 = none (gm_SetJob fills it; ai_DecideApprenticeship takes a free group) */
+    char pad85[3];
+    float camAngle;                     /* 0x88, the player's camera angle factor (sv_CameraAngleFactor; sv.c) */
+    D3VECTOR4 camPos;                   /* 0x8c, the player's camera position, restored with the view (sv.c; the save game
+                                           keeps all 16 bytes) */
+    D3VECTOR camRot;                    /* 0x9c, its rotation (D3OBJECT.rotation; f3init restores .y) */
+    int savedA8;                        /* 0xa8, an int the save game keeps; no other reader known */
+} AIFIN;                                /* 0xac bytes, the 16 records of gm_PlayerRecords */
+
 typedef struct AIRECIPE {               /* 0xb8 bytes, a goods list: filled by gm_StallGoodsList / gm_BuildingGoodsList
                                            / gm_BuildingGoodsList17 (f3gm.c, which clear and fill it as 0x2e ints) */
     int n;                              /* 0x00, the capacity of the stall (its cap / lvl1c); ai.c walks the entries up to it */

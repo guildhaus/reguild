@@ -65,8 +65,7 @@
    object record views (AICHAR / AIOBJ of the news messages), the
    Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
-   the gv record (AIWINDOWROW, gv_types.h AIDEC), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout), the
-   player record (LCFIN, ai.h AIFIN) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
+   the gv record (AIWINDOWROW, gv_types.h AIDEC), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
    settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and AIBLD (a building's good id, ai_bld.h's AIBLD).
    The production window's tables are this unit's typed data (lc.h): the goods columns ai_ProdColumns (LCPRODCOL),
@@ -2915,7 +2914,7 @@ struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
 int d2_GetWinObj(int view, int idx, int k); void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
-void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
+void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); int cm_GetSlotState(int h); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 
@@ -3273,7 +3272,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
     AIOBJ *treasury;
     AIGOOD *good;
     AICHAR *me;
-    int *prec;
+    AIFIN *prec;
     int win;
     int button;
     AIOBJ *found;
@@ -3373,9 +3372,9 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             cm_BeginGroup("upgrade");
                             if (b->owner != ai_PlayerChar->id) {
                                 cm_SendMoveGoods(-1, ai_CharInts[b->owner][0], ai_OwnPlayer, cost);
-                                prec = (int *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                                prec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                                 if (prec != 0)
-                                    prec[0x10] += cost;
+                                    prec->upgradeSpent += cost;
                             } else {
                                 treasury = (AIOBJ *)gm_ClassTreasury(b);
                                 if (treasury != 0)
@@ -6452,21 +6451,8 @@ void ai_DrawDuelEnd(LCDUEL *duel, int win)
         io_PrintText(0x1888, duel->total / 2);
 }
 
-int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(struct AICHAR *c);
+int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 
-typedef struct LCFIN {                  /* what gm_PlayerRecord finds for a character (ai.h AIFIN; ai.h cannot be included here yet) */
-    char pad00[0x28];
-    int spyPaid;                        /* 0x28, AIFIN.spyPaid: the money paid to spies and bribed characters (ai_BribeAmountCB) */
-    char pad2c[0x18];
-    int renovationSpent;                /* 0x44, AIFIN.renovationSpent: the money paid for renovations (ai_RenovationWindow) */
-    int loansRepaid;                    /* 0x48, AIFIN.loansRepaid: the loan sums paid back at a money lender (ai_RepayLoan) */
-    char pad4c[4];
-    int cartSpent;                      /* 0x50, AIFIN.cartSpent: the money paid for new carts (ai_BuyCartWindow) */
-    char pad54[4];
-    float duelBias;                     /* 0x58, AIFIN.roundFactors[0]: the bias for who starts a dice duel (am.h AGFIN.firstBias) */
-    float tavernChance;                 /* 0x5c, AIFIN.roundFactors[1]: the chance of being invited to the dice game; each visit
-                                           takes it to * 0.66 - 0.1 (invited) or * 0.66 - 0.02 (not invited, after 11 o'clock) */
-} LCFIN;
 typedef struct LCDUELBTN {              /* an action button of the dice game window */
     int obj;                            /* 0x000, its window object, -1 while the action is not allowed (ai_DuelAcceptAction) */
     int kind;                           /* 0x004, the action: 2 another die, 3 stop, 4 answer (AGDUEL.kind1) */
@@ -6474,7 +6460,7 @@ typedef struct LCDUELBTN {              /* an action button of the dice game win
     char text[0x100];                   /* 0x00c, its caption (0x1880 / 0x1881 with the raise amount, 0x1882) */
 } LCDUELBTN;
 /* 0x598170, the tavern dice game window: the intro window "locations\wirtshaus\WSIntro" invites the player when
-   util_RandomF() is below the character's LCFIN.tavernChance, after 11 o'clock and with a worth of at least 10000
+   util_RandomF() is below the character's AIFIN.tavernChance, after 11 o'clock and with a worth of at least 10000
    (0x1876, the buttons rules 0x1877 / play 0x1878 / leave 0x1879; else 0x1875), lowering the chance each visit;
    playing picks the stake (0x187a / 0x187b / 0x187c: 1, 2, 4, ai_DuelStart) and shows it (0x187e when the player
    throws first, else 0x187d), then the game window "locations\wirtshaus\WS": both sides throw (ai_DuelAct,
@@ -6487,7 +6473,7 @@ typedef struct LCDUELBTN {              /* an action button of the dice game win
 void ai_TavernDiceWindow(AIBLD *bld)
 {
     AICHAR *pc = &ai_Chars[ai_PlayerId];
-    LCFIN *fin;
+    AIFIN *fin;
     LCDUELSIDE *mine;
     LCDUELSIDE *other;
     int money;
@@ -6508,7 +6494,7 @@ void ai_TavernDiceWindow(AIBLD *bld)
     ctlLeave = -1;
     ctlRules = -1;
     money = gm_ConvertMoney(gm_GetWorth(ai_PlayerId), ai_OwnPlayer);
-    fin = (LCFIN *)gm_PlayerRecord(pc);
+    fin = gm_PlayerRecord(pc);
     win = d2_OpenForm(0, 0, "locations\\wirtshaus\\WSIntro");
     d2_SetForm(win, 0);
     sv_FitForm(d2_LastWindow);
@@ -7801,7 +7787,7 @@ void ai_NewCreditWindow(AIBLD *bank)
 }
 
 struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, intptr_t id0, ...);
-short * gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
+struct AIFIN *gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); int gm_SumSlotAmounts(void *list, unsigned char i);
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
@@ -7814,7 +7800,7 @@ int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f); int
 /* 0x59b030, pays back the loan loan of the bank bank (300 B): the borrower (gm_FindChar of the loan's partner) is
    asked with the text 0x18d5 (the amount); when the bank is given, the borrower has the amount in the own player
    slot's money and the player confirms, the amount moves between the bank and the borrower (cm_SendMoveGoods),
-   the borrower's record counts it as repaid (LCFIN.loansRepaid), the bank's owner gets the news 0x18d8 unless it
+   the borrower's record counts it as repaid (AIFIN.loansRepaid), the bank's owner gets the news 0x18d8 unless it
    is of kind 5, and the loan event is freed */
 void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
 {
@@ -7822,7 +7808,7 @@ void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
     char text[0x400];
     AICHAR *borrower;
     AICHAR *owner;
-    LCFIN *fin;
+    AIFIN *fin;
 
     borrower = gm_FindChar(loan->partner);
     txt_Format(text, 0x18d5, loan->amount);
@@ -7834,7 +7820,7 @@ void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
         return;
     owner = &ai_Chars[bank->owner];
     cm_SendMoveGoods(bank->id, loan->partner, ai_OwnPlayer, loan->amount);
-    fin = (LCFIN *)gm_PlayerRecord(borrower);
+    fin = gm_PlayerRecord(borrower);
     if (fin != 0)
         fin->loansRepaid += loan->amount;
     if (owner->kind != 5) {

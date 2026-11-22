@@ -2500,7 +2500,7 @@ extern int f3gm_ObjectCount;  /* 0x6f1bdc */
 extern int gm_AllowAll;                /* 0x6f2448 */
 int gm_TitleGroup(int n);                /* 0x504ad0 */
 struct AIBLD *gm_FirstBuilding(int n);                   /* 0x50b010 */
-short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
+struct AIFIN *gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */

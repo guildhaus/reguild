@@ -1664,7 +1664,7 @@ void cm_RunTrial(G28REC *m)
         gv_SentenceText(c1, sentence, buf);
         io_PrintText((intptr_t)buf);
         if (c1->officeKind != 0 && (sentence == 4 || sentence == 6 || sentence == 8)) {
-            AIFIN *fin = (AIFIN *)gm_PlayerRecord(c0);
+            AIFIN *fin = gm_PlayerRecord(c0);
 
             if (fin != 0)
                 fin->officeSentences++;

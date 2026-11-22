@@ -2809,7 +2809,7 @@ int cm_ExCreateNamedCharacter(G17MSG *m, G17STAT *s)
     cm_LastCharId = ai_Chars[k].netId;
     strncpy(ai_Chars[k].first, m->named.first, 0x10);
     c = &ai_Chars[k];
-    t = (AIFIN *)gm_PlayerRecord(c);
+    t = gm_PlayerRecord(c);
     if (t != 0) {
         t->w00 = ai_Chars[k].w050;
         strncpy(t->family, m->named.family, 0x10);
@@ -3232,7 +3232,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     st = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->make.item);
     if (st != 0)
         st->daily[0] += g->batch * n;
-    f = (AIFIN *)gm_PlayerRecord(r);
+    f = gm_PlayerRecord(r);
     if (f != 0)
         f->madeValue += v;
     if (s != 0) {

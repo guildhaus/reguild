@@ -2702,7 +2702,7 @@ extern int sv_FrameBase;  /* 0x6f22a4 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
 extern int sv_SelectedModel;  /* 0x6f2304 */
 extern char sv_CameraEaseOn;
-short * gm_PlayerRecord(struct AICHAR *ch);                   /* 0x506430 */
+struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                   /* 0x506430 */
 void sv_PlaceCamera(float f);
 void sv_EaseCameraHeight(void);
 int sv_ScrollCamera(void);
@@ -2710,12 +2710,12 @@ int sv_MouseCamera(void);
 
 /* the player's camera record gets the camera's position and rotation */
 #define SV_CAMREC(r) do { \
-        (r)->camPos[0] = d3_Camera->pos.x; \
-        (r)->camPos[1] = d3_Camera->pos.y; \
-        (r)->camPos[2] = d3_Camera->pos.z; \
-        (r)->camRot[0] = d3_Camera->rotation.x; \
-        (r)->camRot[1] = d3_Camera->rotation.y; \
-        (r)->camRot[2] = d3_Camera->rotation.z; \
+        (r)->camPos.x = d3_Camera->pos.x; \
+        (r)->camPos.y = d3_Camera->pos.y; \
+        (r)->camPos.z = d3_Camera->pos.z; \
+        (r)->camRot.x = d3_Camera->rotation.x; \
+        (r)->camRot.y = d3_Camera->rotation.y; \
+        (r)->camRot.z = d3_Camera->rotation.z; \
     } while (0)
 
 static const float sv_ZoomPixelsPerUnit = -666.6667f;  /* 0x5eeb78, .rdata: -1 / 0.0015, the mouse y pixels per unit of the zoom / angle factor (the original loads it from memory, it is not folded) */
@@ -2851,7 +2851,7 @@ go:
             if (d3_VecEqual(&((D3OBJECT *)cam)->pos, &zpos.v, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
                 d3_SetObjectPos(d3_Camera, &zpos.v);
                 d3_SetObjectRot(d3_Camera, &zrot);
-                rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                 if (rec != 0) {
                     rec->camAngle = sv_CameraAngleFactor;
                     SV_CAMREC(rec);
@@ -2865,7 +2865,7 @@ go:
                 z = z > 1.0 ? 1.0 : z;
                 z = z < 0.0 ? 0.0 : z;
                 sv_PlaceCamera(z);
-                rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                 if (rec != 0) {
                     rec->camAngle = sv_CameraAngleFactor;
                     SV_CAMREC(rec);
@@ -2914,7 +2914,7 @@ go:
                         dst.z = min(dst.z, lo);
                     }
                     d3_SetObjectPos(d3_Camera, &dst.v);
-                    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                     if (rec != 0)
                         SV_CAMREC(rec);
                 }
@@ -2948,7 +2948,7 @@ int sv_UpdateCamera(void)
             if (sv_CameraEaseOn != 0 && kb_Down[0xf] == 0)
                 sv_EaseCameraHeight();
             if (sv_CameraScrolled != 0 && sv_FrameDepth == sv_FrameBase && ai_PlayerBuilding == 0 && ai_FallbackBuilding == 0
-                && (rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId])) != 0) {
+                && (rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId])) != 0) {
                 SV_CAMREC(rec);
                 rec->camAngle = sv_CameraAngleFactor;
             }
@@ -3036,14 +3036,14 @@ void sv_FlyCameraToObject(AIBLD *b)
     sv_ViewPos.x = pos.x;
     sv_ViewPos.y = pos.y;
     sv_ViewPos.z = pos.z;
-    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+    rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
-        rec->camPos[0] = pos.x;
-        rec->camPos[1] = pos.y;
-        rec->camPos[2] = pos.z;
-        rec->camRot[0] = dir.x;
-        rec->camRot[1] = dir.y;
-        rec->camRot[2] = dir.z;
+        rec->camPos.x = pos.x;
+        rec->camPos.y = pos.y;
+        rec->camPos.z = pos.z;
+        rec->camRot.x = dir.x;
+        rec->camRot.y = dir.y;
+        rec->camRot.z = dir.z;
     }
     sv_SelectedObject = b;
     sv_SelectedModel = (int)b->object;
@@ -3111,14 +3111,14 @@ void sv_CameraToObject(AIBLD *b)
     sv_ViewPos.y = pos.y;
     d3_SetObjectPos(d3_Camera, &pos.v);
     d3_SetObjectRot(d3_Camera, &dir);
-    rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+    rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
-        rec->camPos[0] = pos.x;
-        rec->camPos[1] = pos.y;
-        rec->camPos[2] = pos.z;
-        rec->camRot[0] = dir.x;
-        rec->camRot[1] = dir.y;
-        rec->camRot[2] = dir.z;
+        rec->camPos.x = pos.x;
+        rec->camPos.y = pos.y;
+        rec->camPos.z = pos.z;
+        rec->camRot.x = dir.x;
+        rec->camRot.y = dir.y;
+        rec->camRot.z = dir.z;
     }
     sv_SelectedObject = b;
     sv_SelectedModel = (int)b->object;

@@ -48,8 +48,7 @@
    HESIM / HEAUCTION / HETITLE (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), HESKILLUP /
    HEBARD / HEPOPULATION / HELOVER / HEDARKCORNER (the events 0x6a / 0x6b / 0x6d / 0x6f / 0x74; the bard's script
    mark HEBARDSCRIPT, the job table's proofs / year HEJOBTABLE), HEINN (the inn
-   simulation's list), HEFINVIEW (AIFIN's +0x14 .. +0x64; ai.h is not
-   included), the tutorial / tip / routine / storm / new-worker / production / trade words in HEHINTEVENT,
+   simulation's list), the tutorial / tip / routine / storm / new-worker / production / trade words in HEHINTEVENT,
    HETIPEVENT, HEROUTINE, HESTORM, HENEWWORKER, HEPRODUCTION, HETRADE, the search 8 / 9 and
    new-occurrence 0xa words in HESEARCH / HESEARCH9 / HEVORKOMMEN, the research /
    building / training / plunder / meeting words in HERESEARCH (event 0xc), HEBUILD (0xd), HEAHMRESEARCH (0x96 / 0x97),
@@ -978,23 +977,6 @@ typedef struct HETITLE {                /* the title ceremony event 0x69's words
     int ch;                             /* 0xb0, the netId of the character who gets it */
     int sent;                           /* 0xb4, 1 once the title was sent as the character's field 0xd, 0 at the start */
 } HETITLE;
-typedef struct HEFINVIEW {              /* the player record gm_PlayerRecord finds (ai.h AIFIN, not included here) at +0x18 / +0x64 */
-    char pad00[0x14];
-    int burglaryTakings;                /* 0x14, the money its character's burglaries took (he_RunBurglary adds it) */
-    int gangTakings;                    /* 0x18, the money the pickpocket gangs brought its character (he_RunGang adds it) */
-    char pad1c[4];
-    int ransomTakings;                  /* 0x20, the ransoms its character took as a thieves' guild master (he_RunRansomDemand adds them) */
-    char pad24[4];
-    int spyPaid;                        /* 0x28, the money paid for spies and saboteurs (ai.h AIFIN.spyPaid; he_RunSabotage adds the fee) */
-    char pad2c[0x20];
-    int customerTakings;                /* 0x4c, the money its character's customers paid (he_RunCustomers adds it) */
-    char pad50[4];
-    int buildPaid;                      /* 0x54, the money its character paid for new buildings (the construction event's
-                                           run handler he_RunConstruction adds the price) */
-    char pad58[0xc];
-    int taught;                         /* 0x64, the trial step courses its character finished as the teacher (he_RunTrialSteps
-                                           counts it; reasoned, its reader is not read yet) */
-} HEFINVIEW;
 #pragma pack(push, 1)
 typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJOB's union (AIJOB has no names at these
                                            odd offsets): the kind, the offer clock and the offer handle */
@@ -6393,7 +6375,7 @@ void he_RunTrialSteps(AIJOB *e)
     HETRIALSTEP *t = (HETRIALSTEP *)e;
     char text[0x100];
     AICHAR *c, *teacher;
-    HEFINVIEW *fin;
+    AIFIN *fin;
 
     if (e->stage == -2 || e->stage == -1) {
         he_FreeEvent(e);
@@ -6431,7 +6413,7 @@ void he_RunTrialSteps(AIJOB *e)
         }
         txt_Format(text, 0x1a9f, c->id);
         he_ShowNews(teacher->netId, teacher->netId, text, 0, 0x5f4, (char *)0);
-        fin = (HEFINVIEW *)gm_PlayerRecord(teacher);
+        fin = gm_PlayerRecord(teacher);
         if (fin != 0)
             fin->taught++;
         e->end = ai_Time;
@@ -6856,7 +6838,7 @@ void he_RunGang(AIJOB *e)
     AIBLD *s, *b, *o;
     AIBTYPE *bt;
     AIOBJ *room;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     int dt, idx, i, k, n, r, lvl, loot, sum, v, amt, tries, kind, diff;
     int pick[5];                        /* the building kinds to pick from, then the buildings of the kind */
     char text[0x400];
@@ -6978,7 +6960,7 @@ void he_RunGang(AIJOB *e)
             cm_SendMoveGoodsUnchecked(leader->netId, -1, ai_OwnPlayer, amt);
             s->roundSums[0] += amt;
             if (leader->kind == 6) {
-                fin = (HEFINVIEW *)gm_PlayerRecord(leader);
+                fin = gm_PlayerRecord(leader);
                 if (fin != 0)
                     fin->gangTakings += amt;
                 c = gm_FindCharacterByMaster(s);
@@ -11124,7 +11106,7 @@ void he_RunSale(AIJOB *e)
    waits for the spawn: none ("Einwohnerlimit erreicht!", the population limit) frees the event; else the customer
    (person) walks to the target object's entrance ("dummy_EINGANG"; the building's main object when target is -1),
    stage 3 an hour later. Stage 3 serves one: the customer pays the job cost (cm_SendMoveGoodsUnchecked) to the
-   event's character, whose player record counts it (HEFINVIEW.customerTakings), a player character (kind 6 / 7)
+   event's character, whose player record counts it (AIFIN.customerPaid), a player character (kind 6 / 7)
    gets the news 0x1bab (0x60c when the building's master is a character with flags1b4 bit 0, else 0x5f2); with
    customers left stage 1 again after 30 .. 39 minutes, else the event is freed */
 void he_RunCustomers(AIJOB *e)
@@ -11133,7 +11115,7 @@ void he_RunCustomers(AIJOB *e)
     AIBLD *b;
     AICHAR *p, *m, *owner;
     AIOBJ *o;
-    HEFINVIEW *f;
+    AIFIN *f;
     int i, cost;
     char text[0x400];
 
@@ -11212,9 +11194,9 @@ void he_RunCustomers(AIJOB *e)
                         he_MessageBoxQuickjump(ai_Chars[e->chr].netId, b->id, text, 0, 0x5f2, b->id, c->target, 0, "_NACHRICHTEN_HS_00");
                 }
                 cm_SendMoveGoodsUnchecked(p->netId, ai_Chars[e->chr].netId, ai_OwnPlayer, cost);
-                f = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
+                f = gm_PlayerRecord(&ai_Chars[e->chr]);
                 if (f != 0)
-                    f->customerTakings += cost;
+                    f->customerPaid += cost;
                 break;
             }
         }
@@ -13074,13 +13056,13 @@ void he_RunSabotage(AIJOB *e)
         return;
     switch (e->stage) {
     case 0: {
-        HEFINVIEW *fin;
+        AIFIN *fin;
 
         if (x->slot != -1 && cm_GetSlotState(x->slot) == 0)
             return;
         c = (AICHAR *)cm_GetSlotValue(x->slot);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
+            fin = gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += x->fee;
             x->saboteur = c->netId;
@@ -13428,7 +13410,7 @@ void he_RunSpying(AIJOB *e)
     HESPYING *s = (HESPYING *)e;
     AIBLD *bld = 0;
     AICHAR *c;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     unsigned lo, hi;
     int n, idx;
     AIBTYPE *bt;
@@ -13454,7 +13436,7 @@ void he_RunSpying(AIJOB *e)
             return;
         c = (AICHAR *)cm_GetSlotValue(s->spy);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
+            fin = gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += s->fee;
             s->spy = c->netId;
@@ -13626,13 +13608,13 @@ void he_RunBrawl(AIJOB *e)
         e->stage = -2;
     switch (e->stage) {
     case 0: {
-        HEFINVIEW *fin;
+        AIFIN *fin;
 
         if (br->slot != -1 && cm_GetSlotState(br->slot) == 0)
             return;
         c = (AICHAR *)cm_GetSlotValue(br->slot);
         if (c != 0) {
-            fin = (HEFINVIEW *)gm_PlayerRecord(&ai_Chars[e->chr]);
+            fin = gm_PlayerRecord(&ai_Chars[e->chr]);
             if (fin != 0)
                 fin->spyPaid += br->fee;
             br->thug = c->netId;
@@ -16416,7 +16398,7 @@ void he_RunRansomDemand(AIJOB *ev)
     HEEV3D *r;
     AICHAR *victim, *master;
     AIBLD *b;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     char text[0x200];
 
     victim = gm_FindChar(x->victim);
@@ -16461,7 +16443,7 @@ void he_RunRansomDemand(AIJOB *ev)
             if (victim->scene != 0 && he_FindFigurePlace(victim, &bld, &obj, 0) != 0)
                 cm_SendChrGotoBuilding(victim->netId, bld, obj, 0, 0, "L\366segeld");
             if (b != 0) {
-                fin = (HEFINVIEW *)gm_PlayerRecord(master);
+                fin = gm_PlayerRecord(master);
                 cm_BeginFieldBlock(b, b->id);
                 cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
                 cm_SendFieldDeltas();
@@ -16503,7 +16485,7 @@ void he_RunRansomDemand(AIJOB *ev)
             cm_BeginFieldBlock(b, b->id);
             cm_AddFieldValues(4, 1, 0x69, &x->ransom);  /* 0x69: AIBLD.daySum */
             cm_SendFieldDeltas();
-            fin = (HEFINVIEW *)gm_PlayerRecord(master);
+            fin = gm_PlayerRecord(master);
             if (fin != 0)
                 fin->ransomTakings += x->ransom;
             b->roundSums[0] += x->ransom;
@@ -16579,7 +16561,7 @@ void he_RunBurglary(AIJOB *ev)
     AICHAR *c, *owner, *master = 0, *guard;
     HEWATCH *w;
     AIJOB *patrol;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     CRIME *cr;
     char text[0x200];
     char line[0x100];
@@ -16796,7 +16778,7 @@ void he_RunBurglary(AIJOB *ev)
                 } else
                     strcpy(loot, txt_Ptrs[0x19ec]);
             }
-            fin = (HEFINVIEW *)gm_PlayerRecord(master);
+            fin = gm_PlayerRecord(master);
             if (fin != 0)
                 fin->burglaryTakings += money;
             g->roundSums[0] += money;
@@ -18539,7 +18521,7 @@ void he_RunRobbery(AIJOB *ev)
     int n = 0;
     HEWATCH *w;
     AIJOB *patrol;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     CRIME *cr;
 
     char names[3][64] = { "gestik/mit_faust_droh", "gestikg/herranwinken", "spezial/meckern" };
@@ -18733,7 +18715,7 @@ void he_RunRobbery(AIJOB *ev)
                     strcpy(loot, "Leider besitzt Ihr keinen Lagerraum und m\xfc\xdft einiges Diebsgut zur\xfc" "cklassen!");
                 }
             }
-            fin = (HEFINVIEW *)gm_PlayerRecord(master);
+            fin = gm_PlayerRecord(master);
             if (fin != 0)
                 fin->burglaryTakings += money;
             if (master->kind == 6 || master->kind == 7) {

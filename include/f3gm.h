@@ -149,7 +149,7 @@ struct GMRANK; void gm_RankPlayers(int *count, struct GMRANK *out);  /* 0x506180
 float gm_JobCost(struct AICHAR *c, int k, int a, int b);  /* 0x50cd40 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 int gm_OwnerWorth(struct AIBLD *b, int flag);  /* 0x509c80 */
-short *gm_PlayerRecord(struct AICHAR *c);  /* 0x506430 */
+struct AIFIN *gm_PlayerRecord(struct AICHAR *c);  /* 0x506430 */
 int gm_Opinion(int a, int b);  /* 0x50c520 */
 extern int gm_NOffers;  /* 0x7e3f3c */
 float gm_ObjectValue(int n);  /* 0x5086b0 */

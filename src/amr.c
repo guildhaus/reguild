@@ -161,13 +161,13 @@ unsigned int ai_MakeDuelOpponent(unsigned int k)
 
 int ai_DuelStart(AICHAR *p, AGDUEL *d, int k)
 {
-    AGFIN *fin;
+    AIFIN *fin;
     unsigned int stats;
     int m, r;
     double x;
     float old;
 
-    fin = (AGFIN *)gm_PlayerRecord(p);
+    fin = gm_PlayerRecord(p);
     if (p == 0 || p->kind != 6 || d == 0 || (k != 1 && k != 2 && k != 4))
         return 0;
     d->stake = 0;
@@ -184,19 +184,19 @@ int ai_DuelStart(AICHAR *p, AGDUEL *d, int k)
     d->reserved2c = 0;
     d->kind2 = 0;
     d->reserved50 = 0;
-    if (fin->firstBias < util_RandomF()) {
+    if (fin->duelBias < util_RandomF()) {
         d->side1 = p;
         d->stats1 = 0xffff;
         d->side2 = &ai_DuelOpponent;
         d->stats2 = stats;
-        fin->firstBias = util_RandomF() * 0.11f + fin->firstBias + 0.2f;
+        fin->duelBias = util_RandomF() * 0.11f + fin->duelBias + 0.2f;
     } else {
     d->side2 = p;
     d->stats2 = 0xffff;
     d->side1 = &ai_DuelOpponent;
     d->stats1 = stats;
-    old = fin->firstBias;
-    fin->firstBias = (old - 0.2f) - util_RandomF() * 0.11f;
+    old = fin->duelBias;
+    fin->duelBias = (old - 0.2f) - util_RandomF() * 0.11f;
     }
     d->phase = 1;
     return 1;
@@ -2392,7 +2392,7 @@ int ai_DecideRepairBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 int ai_ExecuteRepairBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIMSG msg;
-    AIFINX *fin;
+    AIFIN *fin;
 
     memset(&msg, 0, sizeof(msg));
     msg.type = 0x1c;
@@ -2405,7 +2405,7 @@ int ai_ExecuteRepairBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
     cm_SendMoveGoods(-1, s2->ref, ai_OwnPlayer, (int)s1->fvalue);
     cm_SendLongMessage(&msg);
     cm_EndGroup("renovieren");
-    fin = (AIFINX *)gm_PlayerRecord(p);
+    fin = gm_PlayerRecord(p);
     if (fin)
         fin->renovationSpent = (int)(fin->renovationSpent + s1->fvalue);
     return 15;
@@ -6069,12 +6069,12 @@ int ai_DecideChangeProfession(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     AIARG s2;
     int cnt[17];
     int own[17];
-    AIFINX *q;
+    AIFIN *q;
     AIJOB *j;
     AIBTYPE *bt;
     int money, k, n, r, c, x, y;
 
-    q = (AIFINX *)gm_PlayerRecord(p);
+    q = gm_PlayerRecord(p);
     if (p->kind != 5 || p->money < 4 || q == 0)
         return 0;
     money = gm_CharCurrency(p, ai_OwnPlayer);
@@ -6960,7 +6960,7 @@ int ai_EvalApprenticeship(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1
 int ai_DecideApprenticeship(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     AICHAR *c, *best;
-    AIFINX *fin;
+    AIFIN *fin;
     unsigned char k;
     int m, price, q, n;             /* m: the relatives' index, then the random title group */
 
@@ -6994,7 +6994,7 @@ int ai_DecideApprenticeship(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     q = util_Random(0xf) + 1;
     if (p->kind == 5) {
-        fin = (AIFINX *)gm_PlayerRecord(p);
+        fin = gm_PlayerRecord(p);
         m = util_Random(0x10);
         for (n = 0x10; n != 0; n--) {
             if (m != 0 && fin->jobByGroup[m] == 0) {

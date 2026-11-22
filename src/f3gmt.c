@@ -3653,7 +3653,7 @@ int gm_JobBuildingType(int x)
 extern AIOBJ *gm_QueryCursor;
 extern int ai_PermsDirty;
 struct AIBLD *gm_FirstBuilding(int n);                   /* 0x50b010 */
-short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
+struct AIFIN *gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 
 
@@ -3845,14 +3845,14 @@ int gm_TitleNumber(int a, int r)
 
 int gm_TitleJob(int i, int p)
 {
-    unsigned char *rec;     /* the job record: a job byte per group from +0x74 */
+    AIFIN *rec;             /* the job record: a job byte per group (jobByGroup) */
 
     if (gm_TitleGroup((unsigned char)ai_Chars[i].jobId) == p)
         return (unsigned char)ai_Chars[i].jobId;
-    rec = (unsigned char *)gm_PlayerRecord(&ai_Chars[i]);
+    rec = gm_PlayerRecord(&ai_Chars[i]);
     if (rec == 0)
         return 0;
-    return rec[0x74 + p];
+    return rec->jobByGroup[p];
 }
 /* 0x504510, the share of its title period the character n has served in its job: the period is (16 * the titles
    left (gm_TitlesLeft, 1 .. 5) + 72) hours over (1 + the skill of its job group, at least 0.25: group 11 -> skill 2,
@@ -3916,17 +3916,17 @@ float gm_TitlePeriodServed(int n, int *out)
 
 void gm_SetJob(int i, unsigned n)
 {
-    unsigned char *rec;     /* the job record: a job byte per group from +0x74 */
+    AIFIN *rec;             /* the job record: a job byte per group (jobByGroup) */
     int k;
 
     if (n != ai_Chars[i].jobId)
         ai_Chars[i].jobDays = 0;
-    rec = (unsigned char *)gm_PlayerRecord(&ai_Chars[i]);
+    rec = gm_PlayerRecord(&ai_Chars[i]);
     if (rec != 0 && (ai_Chars[i].kind == 6 || ai_Chars[i].kind == 7 || ai_Chars[i].kind == 5)) {
-        rec[0x74 + gm_TitleGroup(ai_Chars[i].jobId)] = ai_Chars[i].jobId;
+        rec->jobByGroup[gm_TitleGroup(ai_Chars[i].jobId)] = ai_Chars[i].jobId;
         k = gm_TitleGroup(n);
-        if ((int)n < rec[0x74 + k] || rec[0x74 + k] == 0)
-            rec[0x74 + k] = (unsigned char)n;
+        if ((int)n < rec->jobByGroup[k] || rec->jobByGroup[k] == 0)
+            rec->jobByGroup[k] = (unsigned char)n;
         ai_PermsDirty = 1;
     }
     ai_Chars[i].jobId = (unsigned char)n;
@@ -5121,7 +5121,7 @@ void gm_RankPlayers(int *count, GMRANK *out)
 /* 0x506430, the player record (gm_PlayerRecords, AIFIN) of the character c: for the kinds 5 / 6 / 7 whose
    w050 has the top bit set its low 4 bits are the slot; 0 for any other character */
 
-short *gm_PlayerRecord(AICHAR *c)
+AIFIN *gm_PlayerRecord(AICHAR *c)
 {
     AICHAR *ch = c;
     int slot;
@@ -5131,7 +5131,7 @@ short *gm_PlayerRecord(AICHAR *c)
     else
         slot = -1;
     if (slot >= 0 && slot < 0x10)
-        return (short *)&gm_PlayerRecords[slot];
+        return &gm_PlayerRecords[slot];
     return 0;
 }
 /* 0x506480, counts the character c's five active relatives (relatives[3] .. relatives[7] at +0x68: gm_FindChar
@@ -5173,7 +5173,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     int worth, group, job, left;
     unsigned i, k;
     short j;
-    unsigned char *rec;
+    AIFIN *rec;
     unsigned *head;
     AIBLD *bl;
     AIOBJ *o;
@@ -5207,13 +5207,13 @@ unsigned gm_TakeOverCharacter(int a, int b)
     newA.bld2 = ca->bld2;
     group = gm_TitleGroup(cb->jobId);
     if (group != 0) {
-        rec = (unsigned char *)gm_PlayerRecord(ca);
+        rec = gm_PlayerRecord(ca);
         if (rec != 0) {
             job = gm_TitleJob(ca->id, group);
             if (job != 0) {
                 left = gm_TitlesLeft(cb->jobId);
                 if (gm_TitlesLeft(job) < left)
-                    rec[0x74 + group] = cb->jobId;      /* the player record's title byte of the group */
+                    rec->jobByGroup[group] = cb->jobId;      /* the player record's title byte of the group */
                 else
                     newA.jobId = ca->jobId;
             }
@@ -5702,7 +5702,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
     AICHAR *p1;
     AICHAR *p2;
     GVAVATAR *av;
-    short *rec;
+    AIFIN *rec;
     float f, a, l, life, rr, x;
     unsigned char *t;
     char buf[0x400];
@@ -6009,8 +6009,8 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
             c->w050 = (unsigned short)ai_NextPlayerNumber | 0x8000;
             rec = gm_PlayerRecord(c);
             if (rec != 0) {
-                ((float *)rec)[0x22] = -1.0f;   /* +0x88 */
-                rec[0] = c->w050;
+                rec->camAngle = -1.0f;
+                rec->w00 = c->w050;
             }
             if (type == 7 || type == 5) {
                 /* the first cart texture set 0x59a .. 0x5a1 no character uses */

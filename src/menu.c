@@ -3151,10 +3151,6 @@ void ai_GypsyProductionContact(AIBLD *building)
 }
 
 /* dcp unit split: the declarations that moved to pokerwin (copies: drop what menu does not use) */
-typedef struct PLAYERRECVIEW {          /* f3gm.h's player record (gm_PlayerRecord, 0x56 words): only the float the poker game reads */
-    char pad00[0x60];
-    float luck;                         /* +0x60, the chance that the player sits down to play (decays by * 0.66 - 0.1 per game; reasoned) */
-} PLAYERRECVIEW;
 
 /* dcp unit split: the declarations that moved to shot (copies: drop what menu does not use) */
 #include <math.h>

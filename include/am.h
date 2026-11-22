@@ -183,12 +183,6 @@ typedef struct AIBTX {                  /* 0x24d bytes, an AIBTYPE (ai.h) as the
 } AIBTX;
 
 
-typedef struct AIFINX {                 /* what gm_PlayerRecord finds for a character (ai.h AIFIN) */
-    char pad00[0x44];
-    int renovationSpent;                /* 0x44 */
-    char pad48[0x2c];
-    unsigned char jobByGroup[0x11];     /* 0x74, one job id per title group (ai.h AIFIN +0x74, gm_TitleGroup): 0 = none (gm_SetJob fills it; ai_DecideApprenticeship takes a free group) */
-} AIFINX;
 
 typedef struct AIGOODX {                /* 0x41 bytes, an AIGOOD (ai.h) as these callbacks read it */
     char type;                          /* 0x00 */
@@ -272,10 +266,6 @@ typedef struct AGDUEL {                 /* a dice duel between two characters (a
 } AGDUEL;
 #pragma pack(pop)
 
-typedef struct AGFIN {                  /* what 0x506430 finds for a character */
-    char pad00[0x58];
-    float firstBias;                    /* 0x58, the bias for who starts the next duel (ai_DuelStart): below the random draw the player starts and it rises by 0.2 + 0..0.11, else the opponent starts and it falls by the same */
-} AGFIN;
 
 typedef char ai_AssertAGDUEL[sizeof(AGDUEL) == 0x58 ? 1 : -1];
 

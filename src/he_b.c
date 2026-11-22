@@ -894,23 +894,6 @@ typedef struct HETITLE {                /* the title ceremony event 0x69's words
     int ch;                             /* 0xb0, the netId of the character who gets it */
     int sent;                           /* 0xb4, 1 once the title was sent as the character's field 0xd, 0 at the start */
 } HETITLE;
-typedef struct HEFINVIEW {              /* the player record gm_PlayerRecord finds (ai.h AIFIN, not included here) at +0x18 / +0x64 */
-    char pad00[0x14];
-    int burglaryTakings;                /* 0x14, the money its character's burglaries took (he_RunBurglary adds it) */
-    int gangTakings;                    /* 0x18, the money the pickpocket gangs brought its character (he_RunGang adds it) */
-    char pad1c[4];
-    int ransomTakings;                  /* 0x20, the ransoms its character took as a thieves' guild master (he_RunRansomDemand adds them) */
-    char pad24[4];
-    int spyPaid;                        /* 0x28, the money paid for spies and saboteurs (ai.h AIFIN.spyPaid; he_RunSabotage adds the fee) */
-    char pad2c[0x20];
-    int customerTakings;                /* 0x4c, the money its character's customers paid (he_RunCustomers adds it) */
-    char pad50[4];
-    int buildPaid;                      /* 0x54, the money its character paid for new buildings (the construction event's
-                                           run handler he_RunConstruction adds the price) */
-    char pad58[0xc];
-    int taught;                         /* 0x64, the trial step courses its character finished as the teacher (he_RunTrialSteps
-                                           counts it; reasoned, its reader is not read yet) */
-} HEFINVIEW;
 #pragma pack(push, 1)
 typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJOB's union (AIJOB has no names at these
                                            odd offsets): the kind, the offer clock and the offer handle */
@@ -2680,7 +2663,7 @@ void he_RunConstruction(AIJOB *e)
     EVTSCRIPT *sc;
     AICHAR *ch;
     AIBLD *home;
-    HEFINVIEW *fin;
+    AIFIN *fin;
     AIBTYPE *bt;
     int i, size, season;
 
@@ -2702,7 +2685,7 @@ void he_RunConstruction(AIJOB *e)
                 break;
             }
             c->slot = cm_SendMoveGoods(-1, c->payer, ai_OwnPlayer, c->carry);
-            fin = (HEFINVIEW *)gm_PlayerRecord(ch);
+            fin = gm_PlayerRecord(ch);
             if (fin != 0)
                 fin->buildPaid += c->carry;
         } else {

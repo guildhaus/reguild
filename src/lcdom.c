@@ -651,7 +651,7 @@ struct AIBLD;
 int gm_IsType10(struct AIBLD *b);
 void ai_TechEffectsWindow(AIBLD *bld);
 float gm_ItemPrice(int item, unsigned char n);
-void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); short * gm_PlayerRecord(struct AICHAR *c);
+void cm_BeginGroup(const char *s); int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d); int cm_SendMoveGoods(int a, int b, unsigned char c, int d); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); void cm_SendMoneyDelta(int a, int b);
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_GameFrame(void);
@@ -714,20 +714,7 @@ typedef struct LCDUEL {                 /* a dice duel (am.h AGDUEL, same layout
     int reserved50;                     /* 0x50 */
     int total;                          /* 0x54, the stakes paid so far (AGDUEL.total) */
 } LCDUEL;
-int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); short * gm_PlayerRecord(struct AICHAR *c);
-typedef struct LCFIN {                  /* what gm_PlayerRecord finds for a character (ai.h AIFIN; ai.h cannot be included here yet) */
-    char pad00[0x28];
-    int spyPaid;                        /* 0x28, AIFIN.spyPaid: the money paid to spies and bribed characters (ai_BribeAmountCB) */
-    char pad2c[0x18];
-    int renovationSpent;                /* 0x44, AIFIN.renovationSpent: the money paid for renovations (ai_RenovationWindow) */
-    int loansRepaid;                    /* 0x48, AIFIN.loansRepaid: the loan sums paid back at a money lender (ai_RepayLoan) */
-    char pad4c[4];
-    int cartSpent;                      /* 0x50, AIFIN.cartSpent: the money paid for new carts (ai_BuyCartWindow) */
-    char pad54[4];
-    float duelBias;                     /* 0x58, AIFIN.roundFactors[0]: the bias for who starts a dice duel (am.h AGFIN.firstBias) */
-    float tavernChance;                 /* 0x5c, AIFIN.roundFactors[1]: the chance of being invited to the dice game; each visit
-                                           takes it to * 0.66 - 0.1 (invited) or * 0.66 - 0.02 (not invited, after 11 o'clock) */
-} LCFIN;
+int gm_GetWorth(unsigned short id); int gm_ConvertMoney(int a, unsigned char k); struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
 typedef struct LCDUELBTN {              /* an action button of the dice game window */
     int obj;                            /* 0x000, its window object, -1 while the action is not allowed (ai_DuelAcceptAction) */
     int kind;                           /* 0x004, the action: 2 another die, 3 stop, 4 answer (AGDUEL.kind1) */
@@ -752,7 +739,7 @@ typedef struct CREDITROW {          /* a row of the new credit window (ai_NewCre
     int index;                      /* 0x10, the offer's slot in the bank's credits[] */
 } CREDITROW;
 struct AICHAR *gm_FindChar(int id); void txt_Format(char *out, intptr_t id0, ...);
-short * gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
+struct AIFIN *gm_PlayerRecord(struct AICHAR *c); void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 void d2_RadioClear(int g); int d2_CreateRadioGroup(int n, ...); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int d2_RemoveWindow(); int gm_SumSlotAmounts(void *list, unsigned char i);
 void gm_SortCharsByName(int n, int *ids, int flag); void d2_AddPointerItem(int id, int amount); void d2_ClearPointerItems(void); int d2_CountPointerItems();
@@ -2568,7 +2555,7 @@ void gm_FreeObject(struct AIOBJ *obj); int gm_LevelPayout(int v, int kind);
    cart kinds as a radio group (the texts 0xd8, the frame 0x70b / 0x741) and the buy button 0xdb, captioned 0xda
    with the chosen kind's name (0xc10 + 2 * kind) and price (gm_ItemPrice of the item 0x134 + kind). Buying asks
    0xd9 (the price and the name in the order of the language), pays the price (cm_SendMoveGoodsUnchecked), counts
-   it in the player's record (LCFIN.cartSpent) and moves the item to the building (cm_SendExSellObject), then
+   it in the player's record (AIFIN.cartSpent) and moves the item to the building (cm_SendExSellObject), then
    closes; the frame pump is sv_RunFrame (this, 0x677c7) */
 
 void ai_BuyCartWindow(AIBLD *bld)
@@ -2583,7 +2570,7 @@ void ai_BuyCartWindow(AIBLD *bld)
     int item;
     int kind;
     int k;
-    LCFIN *fin;
+    AIFIN *fin;
 
     kind = 0;
     if (gm_BuildingCarts(bld, 0) >= 3) {
@@ -2623,7 +2610,7 @@ void ai_BuyCartWindow(AIBLD *bld)
                 }
                 if (sv_MessageBox((intptr_t)text2, 0x101) != 0) {
                     cm_SendMoveGoodsUnchecked(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, price);
-                    fin = (LCFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                     if (fin != 0)
                         fin->cartSpent += price;
                     cm_SendExSellObject(bld->id, -1, item, 1, ai_OwnPlayer, 0);
@@ -4294,7 +4281,7 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
     AIJOB *slots2;
     AIJOB *upgrade;
     AIJOB *ev;
-    int *prec;
+    AIFIN *prec;
     int btns[8];
     int btn0, btn1;
     int win;
@@ -4383,9 +4370,9 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
-                            prec = (int *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                            prec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                             if (prec != 0)
-                                prec[0x14] += 0x1f40;
+                                prec->cartSpent += 0x1f40;
                             if (slots1 != 0) {
                                 slots1->slotOrder1c++;
                             } else {
@@ -4408,9 +4395,9 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
-                            prec = (int *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                            prec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                             if (prec != 0)
-                                prec[0x14] += 0x1f40;
+                                prec->cartSpent += 0x1f40;
                             if (slots2 != 0) {
                                 slots2->slotOrder1d++;
                             } else {
@@ -4440,9 +4427,9 @@ void ai_StorageWindow(AIBLD *bld, AIOBJ *list)
                         while (cm_GetSlotState(slot) == 0)
                             sv_PumpNet();
                         if (cm_GetSlotState(slot) == 1) {
-                            prec = (int *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                            prec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                             if (prec != 0)
-                                prec[0x14] += 0x3200;
+                                prec->cartSpent += 0x3200;
                             if (upgrade != 0) {
                                 upgrade->capacityOrder++;
                             } else {
@@ -5106,7 +5093,7 @@ int ai_BribeAmountCB(AICHAR *ch, int n);
    character ch): the text 0x174d (ch, the player's currency) with a money slider (up to 0.078 % of the two
    characters' worth together, ai_AmountLimit against the player's goods value, in the player's currency) and the
    give button, the text 0x174e with the cancel button, the row of the player's talent 2. Give, when the player
-   has the amount: it goes on the player's record (LCFIN.spyPaid) and to ch (cm_SendMoveGoods), the relation of ch
+   has the amount: it goes on the player's record (AIFIN.spyPaid) and to ch (cm_SendMoveGoods), the relation of ch
    to the player rises by amount * (6 with the flag 0x800 of the player's flags1cc, else 4) * 500 / the two worths
    (cm_SendRelations, the slot waited for), a player character ch (kind 6 / 7) gets the news 0x1751, and the
    bribe is a crime (gv_Accuse law 0x10). Returns 1 once the bribe was given, else 0
@@ -5156,7 +5143,7 @@ int ai_BribeAmountCB(AICHAR *ch, int n)
     int slot;
     int relation;
     int worth;
-    LCFIN *rec;
+    AIFIN *rec;
     AIWINDOWROW row;
     char news[0x400];
 
@@ -5196,7 +5183,7 @@ int ai_BribeAmountCB(AICHAR *ch, int n)
             amount = gm_PlayerFactor(value, ai_OwnPlayer);
             if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], amount, ai_OwnPlayer) == 0)
                 continue;
-            rec = (LCFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+            rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
             if (rec != 0)
                 rec->spyPaid += amount;
             cm_SendMoveGoods(ch->netId, ai_Chars[ai_PlayerId].netId, ai_OwnPlayer, amount);
@@ -6142,7 +6129,7 @@ void ai_RenovationWindow(AIBLD *bld)
     int points;
     AIBLD *found;
     AIOBJ *treasury;
-    LCFIN *fin;
+    AIFIN *fin;
     AIMSG msg;
 
     bldId = bld->id;
@@ -6207,7 +6194,7 @@ void ai_RenovationWindow(AIBLD *bld)
                 } else {
                     if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) == 0)
                         continue;
-                    fin = (LCFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+                    fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                     if (fin != 0)
                         fin->renovationSpent += cost;
                     msg.arg[1] = points;

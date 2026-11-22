@@ -482,7 +482,7 @@ int ls_WriteBuildings(VFSFILE *f)
     return 1;
 }
 /* 0x51a1a0, writes the 16 player records gm_PlayerRecords (AIFIN, 0xac bytes each; the counterpart of the reader
-   0x51db00): each record's fields, costB .. officeSentences only when ls_Version is 0x10014 or later. Returns 1,
+   0x51db00): each record's fields, buildPaid .. officeSentences only when ls_Version is 0x10014 or later. Returns 1,
    0 when a write fails. */
 
 
@@ -493,10 +493,10 @@ int ls_WritePlayerRecords(VFSFILE *f)
     for (k = 0; k < 0x10; k++) {
         LS_W(&gm_PlayerRecords[k].w00, 2)
         LS_W(gm_PlayerRecords[k].family, 0x10)
-        LS_W(&gm_PlayerRecords[k].incomeA, 4)
+        LS_W(&gm_PlayerRecords[k].burglaryTakings, 4)
         LS_W(&gm_PlayerRecords[k].spyPaid, 4)
         LS_W(&gm_PlayerRecords[k].lootTakings, 4)
-        LS_W(&gm_PlayerRecords[k].incomeC, 4)
+        LS_W(&gm_PlayerRecords[k].ransomTakings, 4)
         LS_W(&gm_PlayerRecords[k].missionMoney[0], 4)
         LS_W(&gm_PlayerRecords[k].missionMoney[1], 4)
         LS_W(&gm_PlayerRecords[k].missionMoney[2], 4)
@@ -504,22 +504,22 @@ int ls_WritePlayerRecords(VFSFILE *f)
         LS_W(&gm_PlayerRecords[k].upgradeSpent, 4)
         LS_W(&gm_PlayerRecords[k].renovationSpent, 4)
         LS_W(&gm_PlayerRecords[k].loansRepaid, 4)
-        LS_W(&gm_PlayerRecords[k].costA, 4)
+        LS_W(&gm_PlayerRecords[k].customerPaid, 4)
         LS_W(&gm_PlayerRecords[k].cartSpent, 4)
         if (ls_Version >= 0x10014) {
-            LS_W(&gm_PlayerRecords[k].costB, 4)
-            LS_W(&gm_PlayerRecords[k].roundFactors[0], 4)
-            LS_W(&gm_PlayerRecords[k].roundFactors[1], 4)
+            LS_W(&gm_PlayerRecords[k].buildPaid, 4)
+            LS_W(&gm_PlayerRecords[k].duelBias, 4)
+            LS_W(&gm_PlayerRecords[k].tavernChance, 4)
             LS_W(&gm_PlayerRecords[k].missionMoney[4], 4)
-            LS_W(&gm_PlayerRecords[k].saved64[0], 4)
-            LS_W(&gm_PlayerRecords[k].saved64[1], 4)
+            LS_W(&gm_PlayerRecords[k].taught, 4)
+            LS_W(&gm_PlayerRecords[k].saved68, 4)
             LS_W(&gm_PlayerRecords[k].officeSentences, 4)
         }
-        LS_W(&gm_PlayerRecords[k].roundFactors[2], 4)
+        LS_W(&gm_PlayerRecords[k].pokerChance, 4)
         LS_W(gm_PlayerRecords[k].jobByGroup, 0x11)
         LS_W(&gm_PlayerRecords[k].camAngle, 4)
-        LS_W(gm_PlayerRecords[k].camPos, 0x10)
-        LS_W(gm_PlayerRecords[k].camRot, 0xc)
+        LS_W(&gm_PlayerRecords[k].camPos, 0x10)
+        LS_W(&gm_PlayerRecords[k].camRot, 0xc)
         LS_W(&gm_PlayerRecords[k].savedA8, 4)
         LS_W(&gm_PlayerRecords[k].saved70, 4)
     }
@@ -1562,7 +1562,7 @@ int ls_ReadBuildings(VFSFILE *f)
     }
     return 1;
 }
-/* 0x51db00, reads the 16 player records gm_PlayerRecords (AIFIN, 0xac bytes each; the counterpart of the writer 0x51a1a0): the fields, each version gated (spyPaid from 0x1002c, costB .. officeSentences from 0x10014, roundFactors[2] = 1.0 below 0x10056, the 0x11 (0x0e below 0x10046) jobByGroup bytes from 0x10015, saved70 from 0x10018). Returns 1, 0 when a read fails. */
+/* 0x51db00, reads the 16 player records gm_PlayerRecords (AIFIN, 0xac bytes each; the counterpart of the writer 0x51a1a0): the fields, each version gated (spyPaid from 0x1002c, buildPaid .. officeSentences from 0x10014, pokerChance = 1.0 below 0x10056, the 0x11 (0x0e below 0x10046) jobByGroup bytes from 0x10015, saved70 from 0x10018). Returns 1, 0 when a read fails. */
 
 
 int ls_ReadPlayerRecords(VFSFILE *f)
@@ -1572,11 +1572,11 @@ int ls_ReadPlayerRecords(VFSFILE *f)
     for (k = 0; k < 0x10; k++) {
         LS_R(&gm_PlayerRecords[k].w00, 2)
         LS_R(gm_PlayerRecords[k].family, 0x10)
-        LS_R(&gm_PlayerRecords[k].incomeA, 4)
+        LS_R(&gm_PlayerRecords[k].burglaryTakings, 4)
         if (ls_Version >= 0x1002c)
             LS_R(&gm_PlayerRecords[k].spyPaid, 4)
         LS_R(&gm_PlayerRecords[k].lootTakings, 4)
-        LS_R(&gm_PlayerRecords[k].incomeC, 4)
+        LS_R(&gm_PlayerRecords[k].ransomTakings, 4)
         LS_R(&gm_PlayerRecords[k].missionMoney[0], 4)
         LS_R(&gm_PlayerRecords[k].missionMoney[1], 4)
         LS_R(&gm_PlayerRecords[k].missionMoney[2], 4)
@@ -1584,21 +1584,21 @@ int ls_ReadPlayerRecords(VFSFILE *f)
         LS_R(&gm_PlayerRecords[k].upgradeSpent, 4)
         LS_R(&gm_PlayerRecords[k].renovationSpent, 4)
         LS_R(&gm_PlayerRecords[k].loansRepaid, 4)
-        LS_R(&gm_PlayerRecords[k].costA, 4)
+        LS_R(&gm_PlayerRecords[k].customerPaid, 4)
         LS_R(&gm_PlayerRecords[k].cartSpent, 4)
         if (ls_Version >= 0x10014) {
-            LS_R(&gm_PlayerRecords[k].costB, 4)
-            LS_R(&gm_PlayerRecords[k].roundFactors[0], 4)
-            LS_R(&gm_PlayerRecords[k].roundFactors[1], 4)
+            LS_R(&gm_PlayerRecords[k].buildPaid, 4)
+            LS_R(&gm_PlayerRecords[k].duelBias, 4)
+            LS_R(&gm_PlayerRecords[k].tavernChance, 4)
             LS_R(&gm_PlayerRecords[k].missionMoney[4], 4)
-            LS_R(&gm_PlayerRecords[k].saved64[0], 4)
-            LS_R(&gm_PlayerRecords[k].saved64[1], 4)
+            LS_R(&gm_PlayerRecords[k].taught, 4)
+            LS_R(&gm_PlayerRecords[k].saved68, 4)
             LS_R(&gm_PlayerRecords[k].officeSentences, 4)
         }
         if (ls_Version >= 0x10056) {
-            LS_R(&gm_PlayerRecords[k].roundFactors[2], 4)
+            LS_R(&gm_PlayerRecords[k].pokerChance, 4)
         } else {
-            gm_PlayerRecords[k].roundFactors[2] = 1.0f;
+            gm_PlayerRecords[k].pokerChance = 1.0f;
         }
         if (ls_Version >= 0x10015) {
             n = (((ls_Version >= 0x10046) - 1) & 0xfffffffd) + 0x11;
@@ -1606,8 +1606,8 @@ int ls_ReadPlayerRecords(VFSFILE *f)
                 LS_R(&gm_PlayerRecords[k].jobByGroup[i], 1)
         }
         LS_R(&gm_PlayerRecords[k].camAngle, 4)
-        LS_R(gm_PlayerRecords[k].camPos, 0x10)
-        LS_R(gm_PlayerRecords[k].camRot, 0xc)
+        LS_R(&gm_PlayerRecords[k].camPos, 0x10)
+        LS_R(&gm_PlayerRecords[k].camRot, 0xc)
         LS_R(&gm_PlayerRecords[k].savedA8, 4)
         if (ls_Version >= 0x10018)
             LS_R(&gm_PlayerRecords[k].saved70, 4)

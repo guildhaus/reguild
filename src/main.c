@@ -137,10 +137,6 @@ typedef struct MAINCARRY {          /* 0x21d bytes (+0x219 the entry count), wha
     char rest[0x1e8];
 } MAINCARRY;
 #pragma pack(pop)
-typedef struct MAINPLREC {          /* gm_PlayerRecord's record, the part gm_TitleJob and the round start read */
-    char pad00[0x74];
-    unsigned char job[0x11];        /* 0x74, the job byte of each title group */
-} MAINPLREC;
 typedef struct MAINCHARNEW {        /* the AICHAR fields the character replacement writes (ai.h AICHAR: name is shorter than its 0x58 union) */
     unsigned short id;              /* 0x00 */
     unsigned char kind;             /* 0x02 */
@@ -3000,7 +2996,7 @@ void main_RundenBeginn(void)
     char b1[0x100], b2[0x100], b3[0x100], b0[0x100];
     char hdr[0x100] = "";
     AICHAR *ch;
-    MAINPLREC *rec;
+    AIFIN *rec;
     AIBLD *r;
     char *e;
     int i, k, m, t;
@@ -3012,12 +3008,12 @@ void main_RundenBeginn(void)
         ch = &ai_Chars[i];
         if (ch->id != 0xffff && ch->kind >= 1 && ch->kind <= 8 && (net_Conn.s == -1 || (ai_CanAct(ch) != 0 && (net_Conn.s == -1 || ch->kind != 7)))) {
             if (ch->kind == 6 || ch->kind == 5) {
-                rec = (MAINPLREC *)gm_PlayerRecord(ch);
+                rec = gm_PlayerRecord(ch);
                 k = 0;
                 do {
                     t = gm_TitleJob(ch->id, k);
                     if (gm_TitlesLeft(t) == 6) {
-                        txt_Format(b4, 0x15c5, rec->job[k] + 0x130);
+                        txt_Format(b4, 0x15c5, rec->jobByGroup[k] + 0x130);
                         e = (char *)he_AddApEvent(ch->id, b4, 1, 0);
                         if (e != 0)
                             *e = *e - 1;
@@ -3118,7 +3114,7 @@ void main_EndRound(void)
     CHARACTER *scene;
     int weight;
 
-    fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+    fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     fade = 0;
     gm_ClockSeason(&ai_Time);
     clk = ai_Time;
@@ -3126,9 +3122,9 @@ void main_EndRound(void)
         clk.year++;
     season = sv_ClockSeason(&clk);
     ahm_FillSteps();
-    fin->roundFactors[0] = 0.5f;
-    fin->roundFactors[1] = 1.0f;
-    fin->roundFactors[2] = 1.0f;
+    fin->duelBias = 0.5f;
+    fin->tavernChance = 1.0f;
+    fin->pokerChance = 1.0f;
     if (main_GfxOn != 0) {
         d2_DirtyRect.right = 0;
         d2_DirtyRect.left = d2_ScreenW;
@@ -3331,7 +3327,7 @@ void main_EndRound(void)
                             cm_SendMoveGoods(-1, ai_Chars[k].netId, ai_OwnPlayer, (int)cost);
                             cm_SendLongMessage(&msg);
                             cm_EndGroup("renovieren");
-                            fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[k]);
+                            fin = gm_PlayerRecord(&ai_Chars[k]);
                             if (fin != 0)
                                 fin->renovationSpent = (int)(fin->renovationSpent + cost);
                             value = (int)(budget - cost);
@@ -3501,10 +3497,10 @@ void main_RoundReport(void)
         while ((fade->flags & 4) == 0)
             sv_RunFrame(0, sv_FrameMask);
     }
-    fin = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
+    fin = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     fin->missionMoney[4] += ai_Chars[ai_PlayerId].v1a0 + ai_Chars[ai_PlayerId].v1a4;
-    d3_SetObjectPos(d3_Camera, (D3VECTOR *)fin->camPos);
-    d3_SetObjectRot(d3_Camera, (D3VECTOR *)fin->camRot);
+    d3_SetObjectPos(d3_Camera, &fin->camPos.v);
+    d3_SetObjectRot(d3_Camera, &fin->camRot);
     if (main_GfxOn != 0) {
         net = 0;
         d2_SetPointerSprite(0, 0);
@@ -3545,40 +3541,40 @@ void main_RoundReport(void)
             cash -= fin->loansRepaid;
             costs += fin->loansRepaid;
         }
-        if (fin->costA != 0) {
-            io_PrintText(0x201a, fin->costA);
-            cash -= fin->costA;
-            costs += fin->costA;
+        if (fin->customerPaid != 0) {
+            io_PrintText(0x201a, fin->customerPaid);
+            cash -= fin->customerPaid;
+            costs += fin->customerPaid;
         }
-        if (fin->costB != 0) {
-            io_PrintText(0x2015, fin->costB);
-            cash -= fin->costB;
-            costs += fin->costB;
+        if (fin->buildPaid != 0) {
+            io_PrintText(0x2015, fin->buildPaid);
+            cash -= fin->buildPaid;
+            costs += fin->buildPaid;
         }
         if (fin->spyPaid != 0) {
             io_PrintText(0x201c, fin->spyPaid);
             cash -= fin->spyPaid;
             costs += fin->spyPaid;
         }
-        if (fin->incomeA != 0) {
-            io_PrintText(0x200d, fin->incomeA);
-            cash += fin->incomeA;
-            income += fin->incomeA;
+        if (fin->burglaryTakings != 0) {
+            io_PrintText(0x200d, fin->burglaryTakings);
+            cash += fin->burglaryTakings;
+            income += fin->burglaryTakings;
         }
-        if (fin->incomeB != 0) {
-            io_PrintText(0x200c, fin->incomeB);
-            cash += fin->incomeB;
-            income += fin->incomeB;
+        if (fin->gangTakings != 0) {
+            io_PrintText(0x200c, fin->gangTakings);
+            cash += fin->gangTakings;
+            income += fin->gangTakings;
         }
         if (fin->lootTakings != 0) {
             io_PrintText(0x200b, fin->lootTakings);
             cash += fin->lootTakings;
             income += fin->lootTakings;
         }
-        if (fin->incomeC != 0) {
-            io_PrintText(0x2010, fin->incomeC);
-            cash += fin->incomeC;
-            income += fin->incomeC;
+        if (fin->ransomTakings != 0) {
+            io_PrintText(0x2010, fin->ransomTakings);
+            cash += fin->ransomTakings;
+            income += fin->ransomTakings;
         }
         if (fin->cartSpent != 0) {
             io_PrintText(0x201d, fin->cartSpent);
@@ -3700,22 +3696,22 @@ void main_RoundReport(void)
         sv_DestroyScrollForm();
     }
     /* the round's parts go into the totals and are cleared */
-    fin->missionMoney[0] += fin->incomeB + fin->incomeA;
-    fin->incomeA = 0;
+    fin->missionMoney[0] += fin->gangTakings + fin->burglaryTakings;
+    fin->burglaryTakings = 0;
     fin->missionMoney[1] += fin->lootTakings;
-    fin->incomeB = 0;
-    fin->missionMoney[2] += fin->incomeC;
+    fin->gangTakings = 0;
+    fin->missionMoney[2] += fin->ransomTakings;
     fin->lootTakings = 0;
     fin->missionMoney[3] += fin->madeValue;
-    fin->incomeC = 0;
+    fin->ransomTakings = 0;
     fin->madeValue = 0;
     fin->spyPaid = 0;
     fin->upgradeSpent = 0;
     fin->renovationSpent = 0;
     fin->loansRepaid = 0;
-    fin->costA = 0;
+    fin->customerPaid = 0;
     fin->cartSpent = 0;
-    fin->costB = 0;
+    fin->buildPaid = 0;
     if (fade != 0) {
         d2_ReleaseFade(fade);
         fade = 0;

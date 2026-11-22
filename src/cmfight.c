@@ -3264,6 +3264,7 @@ AICHAR *cm_CheckFightWinner(G28REC *rec)
 int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
 {
     AIOBJ *oa, *ob, *q;
+    AIFIN *fin;
     int cnt, v;
 
     oa = gm_Query(b->objList, 2, 6, 0, 0x116);
@@ -3282,9 +3283,9 @@ int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
             v = (int)(gm_GoodsPrice(q->id, ai_OwnPlayer) * cnt + v);
         }
     }
-    q = (AIOBJ *)gm_PlayerRecord(d);
-    if (q != 0)
-        ((AIFIN *)q)->lootTakings += v;
+    fin = gm_PlayerRecord(d);
+    if (fin != 0)
+        fin->lootTakings += v;
     return v;
 }
 /* 0x4d3ea0, the loot of the carts of a won fight: for each of the 3 cart ids (G28REC.carts), the goods of the
@@ -3294,6 +3295,7 @@ int cm_LootStock(AIBLD *a, AIBLD *b, AICHAR *d, AICHAR *t)
 int cm_LootCarts(G28REC *a, AIBLD *b, AICHAR *d, int unused, float f)
 {
     AIOBJ *ob, *q, *p;
+    AIFIN *fin;
     int cnt, i;
     int dmg = 0;
     float x;
@@ -3322,9 +3324,9 @@ int cm_LootCarts(G28REC *a, AIBLD *b, AICHAR *d, int unused, float f)
                     dmg = (int)(dmg * 0.5);
                     cm_SendMoveGoods(d->netId, -1, ai_OwnPlayer, dmg);
                 }
-                q = (AIOBJ *)gm_PlayerRecord(cm_FightAttacker);
-                if (q != 0)
-                    ((AIFIN *)q)->lootTakings += dmg;
+                fin = gm_PlayerRecord(cm_FightAttacker);
+                if (fin != 0)
+                    fin->lootTakings += dmg;
             }
         }
     }
@@ -3792,7 +3794,7 @@ void cm_FightEndDialog(G28REC *a)
                 v = cm_LootList(0x24, 0x32, 0);
             else
                 v = cm_LootList(0x24, 0x32, 1);
-            rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
+            rec = gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->fight.attackerBld != -1) {
@@ -3873,7 +3875,7 @@ void cm_FightEndDialog(G28REC *a)
             }
             d2_SetForm(win, 1);
             io_PrintText((intptr_t)tc);
-            rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
+            rec = gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->fight.attackerBld != -1) {
@@ -3982,7 +3984,7 @@ void cm_FightEndDialog(G28REC *a)
             }
             d2_SetForm(win, 1);
             io_PrintText((intptr_t)tc);
-            rec = (AIFIN *)gm_PlayerRecord(cm_FightAttacker);
+            rec = gm_PlayerRecord(cm_FightAttacker);
             if (rec != 0)
                 rec->lootTakings += v;
             if (a->fight.attackerBld != -1) {

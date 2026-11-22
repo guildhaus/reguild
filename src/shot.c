@@ -362,10 +362,6 @@ void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(st
 struct AITIME;
 int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 unsigned short ai_PokerStep(); float ai_NormalizeEffectScale(float x);
-typedef struct PLAYERRECVIEW {          /* f3gm.h's player record (gm_PlayerRecord, 0x56 words): only the float the poker game reads */
-    char pad00[0x60];
-    float luck;                         /* +0x60, the chance that the player sits down to play (decays by * 0.66 - 0.1 per game; reasoned) */
-} PLAYERRECVIEW;
 /* the cannon constants, read-only, in the original's order (named .rdata 0x5eedf4..0x5eee1c, the unit's first
    .rdata; read from memory, not folded; 0.0254, 0.1, 4/3 pi and -2.5 are these objects at the sites that read them,
    the same values elsewhere are pooled literals) */

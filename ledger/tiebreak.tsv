@@ -3475,7 +3475,7 @@ exe	0x00537f40	main_EndGame	main	68671b89ac5fb237	no	byte	control=byte p1=byte p
 exe	0x00538140	main_RundenBeginn	main	503e9d8c2106fe24	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005384e0	main_EndRound	main	466d32884e828536	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=379	62e27ee2a94e9159
 exe	0x00539620	main_ReplaceFigure	main	c35457202d9f562a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	af22ce15de209ae0
-exe	0x00539870	main_RoundReport	main	dbd5349575bfa9dc	yes	byte	sweep control=shape best=byte by 11 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	d46d69c878d6049a
+exe	0x00539870	main_RoundReport	main	ce3ad463ccccf11f	yes	byte	sweep control=shape best=byte by 24 unused typedefs at the unit's start; codegens=2 compiled=48 (stopped at the goal)	82c60e7e0c195645
 exe	0x0053a250	main_UpdateFigure	main	ac7764d6864b4bd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4a8bed7379a4ae73
 exe	0x0053a450	main_UpdateFigures	main	0adcc8f2a3d2c65f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0053a520	main_SettleRound	main	3a13bbd7e2c68953	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3770,7 +3770,7 @@ exe	0x00561190	he_RunRansom	he	e829b1f4896ff578	no	shape	sweep control=shape bes
 exe	0x00561470	he_AllocEvent39_3e	he	8751adc3b4d056b4	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005614c0	he_RunRansomDemand	he	7b398cebf45b153d	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x005619a0	he_AllocBurglary	he	5c9615a02655ad1b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00561a20	he_RunBurglary	he	d948e421bb58695c	yes	draft	sweep control=draft best=draft by the build's declarations; codegens=2 compiled=190	e685e0f18467664a
+exe	0x00561a20	he_RunBurglary	he	92f146077d527ab6	yes	byte	sweep control=shape best=byte by 3 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	2e54676502915e8e
 exe	0x005628e0	he_RunBuildingSpying	he	a463adf9b95d31d9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	530e50a10d20e56d
 exe	0x00563070	he_AllocAmbush	he	4e9b1b1b12883099	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005630f0	he_RunAmbush	he	2250ce36866269d9	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	093505b2b35f78cf
@@ -3826,7 +3826,7 @@ exe	0x0056b750	he_CollectChild	he	9bcd403a75aa6246	no	byte	control=byte p1=byte 
 exe	0x0056b780	he_ShowConstruction	he	cb15dc8aacd8bfd8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bac0	he_ConstructionStage	he	35deb30781de00a1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bc50	he_CreateConstruction	he	85436a6f90088bca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0056be30	he_RunConstruction	he_b	43bcc1ba75e2c781	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	808f881fcf7858b5
+exe	0x0056be30	he_RunConstruction	he_b	6f444f155fc3c186	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cb0ddf854bdbcb0d
 exe	0x0056cdd0	he_AllocMissionCheck	he	91266650b9870904	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056ce40	he_RunMissionCheck	he	0935945f54bdf6e8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056d050	he_RegisterEventTypes03	he	16ede35742be5a19	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
