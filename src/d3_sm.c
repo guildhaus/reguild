@@ -407,7 +407,7 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
                 hs[i] = tri->v[i]->hmHeight;
             }
         }
-        d3s_ShadowTriangle(&uv[0][0], hs, h->data, h->size, tri->v[0]->flags, h->entries, radius);
+        d3s_ShadowTriangle(&uv[0][0], hs, h->data, h->size, tri->v[0]->hmFlags, h->entries, radius);
     }
     d3_SortCount = 0;
     d3_SortPtr = d3_SortBuf;

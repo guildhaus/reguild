@@ -48,7 +48,7 @@ typedef struct D3IOOBJFLAGS {      /* D3OBJECT::state..stateFlags as the reader 
 } D3IOOBJFLAGS;
 #define D3IO_FL(o) ((D3IOOBJFLAGS *)&(o)->state)
 
-typedef struct D3IOLIGHTKEY {       /* D3LIGHTENTRY (0x38 bytes) as the reader fills it (d3_io_t.h's D3PATHKEY is the animation key) */
+typedef struct D3IOLIGHTKEY {       /* D3LIGHTENTRY (0x38 bytes) as the reader fills it (d3.h's D3PATHKEY is the animation key) */
     D3VECTOR v00;
     D3VECTOR v0c;
     D3VECTOR v18;
