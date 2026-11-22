@@ -622,7 +622,7 @@ void cm_FightLoop(char *a, int ctx)
                 if (o != 0 && o->scene->scene == d3_DefaultScene)
                     ch_PauseAnim(o->scene, cm_FightPaused);
             }
-            sv_SetStatusText(&ch_EmptyName);
+            sv_SetStatusText(ch_EmptyName);
         }
         if (cm_FightPaused != 0)
             sv_SetStatusText(txt_Ptrs[TXT_FIGHT_PAUSED]);

@@ -2981,10 +2981,10 @@ void ai_HandleMapKey(void)
             if (ai_FallbackBuilding != 0) {
                 r = gm_IsHomeType(p);
                 if (r != 0 && p->type == 'G') {
-                    sv_SelectPanelObject(p, 0xfd, (void *)(unsigned)&ch_EmptyName);
+                    sv_SelectPanelObject(p, 0xfd, ch_EmptyName);
                     return;
                 }
-                sv_SelectPanelObject(p, -1, (void *)(unsigned)&ch_EmptyName);
+                sv_SelectPanelObject(p, -1, ch_EmptyName);
                 return;
             }
             r = gm_IsHomeType(p);
@@ -2993,11 +2993,11 @@ void ai_HandleMapKey(void)
                     sv_FlyCameraToObject(p);
                     return;
                 }
-                sv_SelectPanelObject(p, p->mainRoom, (void *)(unsigned)&ch_EmptyName);
+                sv_SelectPanelObject(p, p->mainRoom, ch_EmptyName);
             } else {
                 u = gm_PermissionBits(ai_PlayerId, p, 0, 0);
                 if (u & 1) {
-                    sv_SelectPanelObject(p, 0xfd, (void *)(unsigned)&ch_EmptyName);
+                    sv_SelectPanelObject(p, 0xfd, ch_EmptyName);
                     return;
                 }
             }
@@ -3266,7 +3266,7 @@ void lc_PlayerInJail(void)
         r = gm_Query(it->objList, 1, 0, 0x65);
         if (r == 0 || sv_PanelShown == r)
             return;
-        sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
+        sv_SelectPanelObject(it, r->objId, ch_EmptyName);
         return;
     }
     it = gm_BuildQuery(1, 5, 6);
@@ -3277,7 +3277,7 @@ void lc_PlayerInJail(void)
     r = gm_Query(it->objList, 1, 0, 0xba);
     if (r == 0 || sv_PanelShown == r)
         return;
-    sv_SelectPanelObject(it, r->objId, (void *)(unsigned)&ch_EmptyName);
+    sv_SelectPanelObject(it, r->objId, ch_EmptyName);
 }
 typedef struct LCTREENODE {        /* a node of f3gm's research tree layout gm_TreeNodes (f3gm.c RTNODE, 0x34 bytes) */
     char pad00[0x24];

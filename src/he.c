@@ -3811,7 +3811,7 @@ void he_AllocQuarrel(AIJOB *e)
         cm_SendRelations(b->netId, a->netId, -20, 1);
         if (a->kind == 6 || a->kind == 7) {
             txt_Format(buf, 0x175a, b->id, b->id);
-            he_ShowNews(a->netId, -1, buf, 0, 0x5fb, (char *)(unsigned)&ch_EmptyName);
+            he_ShowNews(a->netId, -1, buf, 0, 0x5fb, ch_EmptyName);
         }
         t = b->bld2;
         id = -1;

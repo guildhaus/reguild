@@ -329,7 +329,7 @@ void cm_RunCouncilSession(G28REC *a)
                 nh++;
             }
         }
-        sv_SyncText(&ch_EmptyName);
+        sv_SyncText(ch_EmptyName);
         if (amt_IsColumnDecided(kind) == 0) {
             if (a->host == ai_Chars[ai_PlayerId].netId)
                 amt_ElectOffices(kind, n, offices);
@@ -363,7 +363,7 @@ void cm_RunCouncilSession(G28REC *a)
             a->members[m] = -1;
             cm_CutInfos[m].playerId = -1;
         }
-        sv_SyncText(&ch_EmptyName);
+        sv_SyncText(ch_EmptyName);
         view = d2_OpenForm(0, 0, "cutscenes\\sitzung_main");
         d2_SetViewEnabled(view, 0);
         d2_PlaceMainWindow(view, 3);
@@ -384,16 +384,16 @@ void cm_RunCouncilSession(G28REC *a)
                     sprintf(name, "%i %s", holderIdx[i], head->name);
                 else
                     sprintf(name, "%i stallbursche_MANN", holderIdx[i]);
-                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create.esc", (int)name);
+                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create.esc", name);
             }
             for (i = 0; i < nh; i++) {
                 sprintf(name, "%i", holderIdx[i]);
-                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", (int)name);
+                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", name);
             }
             txt_Format(name, (intptr_t)"cutscenes\\sitzungen\\%s", fly[k]);
-            cm_WaitEvent(cm_StartEventArg(name, (int)&ch_EmptyName));
+            cm_WaitEvent(cm_StartEventArg(name, ch_EmptyName));
             loaded = 1;
-            sv_SyncText(&ch_EmptyName);
+            sv_SyncText(ch_EmptyName);
         }
         for (j = 0; j < n && left != 0; j++) {
             tally[0] = 0;
@@ -549,7 +549,7 @@ void cm_RunCouncilSession(G28REC *a)
             d2_CloseView(viewTop);
             d2_CloseView(viewBottom);
             cm_RunSceneTicks(0x3e8);
-            sv_SyncText(&ch_EmptyName);
+            sv_SyncText(ch_EmptyName);
         }
 
         /* the elections */
@@ -567,16 +567,16 @@ void cm_RunCouncilSession(G28REC *a)
                     sprintf(name2, "%i %s", holderIdx[i], head->name);
                 else
                     sprintf(name2, "%i stallbursche_MANN", holderIdx[i]);
-                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create.esc", (int)name2);
+                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create.esc", name2);
             }
             for (i = 0; i < nh; i++) {
                 sprintf(name2, "%i", holderIdx[i]);
-                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", (int)name2);
+                cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_create_2.esc", name2);
             }
             txt_Format(name2, (intptr_t)"cutscenes\\sitzungen\\%s", fly[k]);
-            cm_WaitEvent(cm_StartEventArg(name2, (int)&ch_EmptyName));
+            cm_WaitEvent(cm_StartEventArg(name2, ch_EmptyName));
             loaded = 1;
-            sv_SyncText(&ch_EmptyName);
+            sv_SyncText(ch_EmptyName);
         }
         for (j = 0; j < n && left != 0; j++) {
             votes[0] = 0;
@@ -763,12 +763,12 @@ void cm_RunCouncilSession(G28REC *a)
             d2_CloseView(viewLeft);
             d2_CloseView(viewBottom);
             cm_RunSceneTicks(0x3e8);
-            sv_SyncText(&ch_EmptyName);
+            sv_SyncText(ch_EmptyName);
         }
         if (loaded != 0) {
             cm_FadeToBlack();
             cm_RunSceneTicks(0x3e8);
-            cm_WaitEventFull(cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_exit.esc", (int)&ch_EmptyName));
+            cm_WaitEventFull(cm_StartEventArg("cutscenes\\sitzungen\\sitzungen_exit.esc", ch_EmptyName));
             cm_LeaveEventScene();
         }
         d2_CloseView(view);
@@ -1267,14 +1267,14 @@ void cm_RunTrial(G28REC *m)
     sprintf(end, "%s ", ((GMHEAD *)gm_CharNameRecord(c3->id))->name);
     end = names + strlen(names);
     sprintf(end, "%s", ((GMHEAD *)gm_CharNameRecord(c4->id))->name);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-create2.esc", (int)names);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"2");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"2");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"2");
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-intro.esc", (int)ch_EmptyName));
+    cm_StartEventArg("cutscenes\\prozess\\prozess-create2.esc", names);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", "2");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "2");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "2");
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-intro.esc", ch_EmptyName));
 
     /* the judge opens the session */
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", ch_EmptyName);
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText(0x1491);
@@ -1286,7 +1286,7 @@ void cm_RunTrial(G28REC *m)
     cm_WaitTicks(4);
 
     /* the accuser states the charge */
-    ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"1");
+    ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", "1");
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     io_PrintText(0x1499, c1->id);
@@ -1325,7 +1325,7 @@ void cm_RunTrial(G28REC *m)
         sum += dec.guilt * severity;
         if (k == -1)
             continue;
-        ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"1");
+        ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", "1");
         gv_CrimeText(text, crime, k);
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C$Z");
@@ -1340,18 +1340,18 @@ void cm_RunTrial(G28REC *m)
     bankV = 0;
 
     /* the plea of the accused */
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", ch_EmptyName);
     io_PrintText(0x14ba, c1->id, ncrimes);
     h = cm_PlayVoice(c2->id, bankTrial, "_PROZESS_NEU", (c1->sex != 0) + 2);
     CM_WAIT_VOICE(h);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", (int)"0");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", "0");
     cm_SetViewEnabled(cm_TextBox, 0);
     cm_RunSceneParty(m, &plan);
     if (m->host == ai_Chars[ai_PlayerId].netId)
         gv_RetireCrimeIds(c1->netId, nlist, list);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", (int)"1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-angeklagter.esc", "1");
     for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[1]; i++)
         ;
     plan.amount = cm_CutInfos[i].session.amount;
@@ -1375,10 +1375,10 @@ void cm_RunTrial(G28REC *m)
             plan.mode = 1;
     }
     cm_WaitTicks(2);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)ch_EmptyName);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", ch_EmptyName);
 
     /* the torture */
     if (plan.mode == 1) {
@@ -1387,7 +1387,7 @@ void cm_RunTrial(G28REC *m)
         io_PrintText((intptr_t)"$C");
         io_PrintText(0x14ca, c0->id, c1->id, plan.rating30);
         cm_WaitTicks(4);
-        ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-1.esc", (int)ch_EmptyName);
+        ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-1.esc", ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C");
         cm_SetViewEnabled(cm_TextBox, 0);
@@ -1409,10 +1409,10 @@ void cm_RunTrial(G28REC *m)
             io_PrintText(0x14d9);
             cm_WaitTicks(1);
             io_PrintText((intptr_t)"$C");
-            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-3.esc", (int)ch_EmptyName);
+            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-3.esc", ch_EmptyName);
             plan.tortured = 1;
         } else {
-            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-2.esc", (int)ch_EmptyName);
+            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-folter-2.esc", ch_EmptyName);
             io_PrintText(0x14d8);
             plan.tortured = 0;
         }
@@ -1439,13 +1439,13 @@ void cm_RunTrial(G28REC *m)
             d2_SetForm(cm_TextBox, 0);
             io_PrintText((intptr_t)"$C");
             plan.mode = 2;
-            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"0");
+            ev = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", "0");
             cm_SetViewEnabled(cm_TextBox, 0);
             cm_RunSceneParty(m, &plan);
             for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[0]; i++)
                 ;
             cm_WaitEvent(ev);
-            ev2 = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", (int)"1");
+            ev2 = cm_StartEventArg("cutscenes\\prozess\\prozess-klaeger.esc", "1");
             sel = cm_CutInfos[i].session.answer & 0xf;
             plan.instrument = max(min(sel, 6), 0);
             plan.tries = ai_PlanLevel(&plan);
@@ -1480,7 +1480,7 @@ void cm_RunTrial(G28REC *m)
                 sprintf(end, " handwerker_MANN");
             scene = d3_CurrentScene;
             cm_LoadEventScene("ob_GEFAENGNIS_FOLTERKAMMER.ed3");
-            cm_StartEventArg("cutscenes\\prozess\\folter-create.esc", (int)names);
+            cm_StartEventArg("cutscenes\\prozess\\folter-create.esc", names);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
             io_PrintText((intptr_t)"$C");
@@ -1491,7 +1491,7 @@ void cm_RunTrial(G28REC *m)
             cm_SetViewEnabled(cm_TextBox, 0);
             d2_SetForm(cm_TextBox, 0);
             io_PrintText((intptr_t)"$C");
-            ev = cm_StartEventArg(path, (int)ch_EmptyName);
+            ev = cm_StartEventArg(path, ch_EmptyName);
             cm_WaitTicks(5);
             cm_SetViewEnabled(cm_TextBox, 1);
             d2_SetForm(cm_TextBox, 0);
@@ -1542,21 +1542,21 @@ void cm_RunTrial(G28REC *m)
             plan.score *= 1.1f;
         }
         cm_WaitTicks(4);
-        ev = cm_StartEventArg("cutscenes\\prozess\\folterexit.esc", (int)ch_EmptyName);
+        ev = cm_StartEventArg("cutscenes\\prozess\\folterexit.esc", ch_EmptyName);
         if (ev != 0)
             cm_WaitEvent(ev);
         if (cm_SkipEvents == 0 && scene != -1)
             d3if_SelectScene(scene, 0);
     }
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "1");
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     if (plan.tortured != 0) {
         bankV = cm_LoadVoiceBank("PROZESS_6_FOLTERERGEBNIS.sbf", 0);
-        cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", ch_EmptyName);
         if (confessed != 0) {
             cm_QueueVoice(c2->id, bankV, "_PROZESS_6_FOLTERERGEBNIS", 0, 100);
             io_PrintText(0x1520, c1->id, 0x1521);
@@ -1570,21 +1570,21 @@ void cm_RunTrial(G28REC *m)
     /* the vote of the judge and the assessors */
     bank6 = cm_LoadVoiceBank("PROZESS_6_ANKUENDIGUNG.sbf", 0);
     cm_QueueVoice(c2->id, bank6, "_PROZESS_6_ANKUENDIGUNG", 0, 0);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", ch_EmptyName);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
     io_PrintText(0x1523);
     cm_WaitTicks(4);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "1");
     cm_SetViewEnabled(cm_TextBox, 0);
     cm_RunSceneParty(m, &plan);
     cm_UnloadVoiceBank(bank6);
     for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[2]; i++)
         ;
     bankE = cm_LoadVoiceBank("PROZESS_6_ABSTIMMUNG_ERGEBNISSE.sbf", 0);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
+    cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", ch_EmptyName);
     cm_SetViewEnabled(cm_TextBox, 1);
     d2_SetForm(cm_TextBox, 0);
     io_PrintText((intptr_t)"$C");
@@ -1594,15 +1594,15 @@ void cm_RunTrial(G28REC *m)
     cm_QueueVoice(c2->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i].session.answer * 3, 100);
     io_PrintText(0x152c + votes);
     cm_WaitTicks(2);
-    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"1");
-    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-richter.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "1");
+    cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "1");
     if (plan.ids[3] != -1) {
         AICHAR *assessor;
         int vote;
 
         vote = cm_CutInfos[i + 1].session.answer;
-        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-1.esc", (int)ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-1.esc", ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
         assessor = gm_FindChar(plan.ids[3]);
         io_PrintText((intptr_t)"$N");
@@ -1612,14 +1612,14 @@ void cm_RunTrial(G28REC *m)
         cm_QueueVoice(c3->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 1].session.answer * 3, 100);
         cm_WaitTicks(2);
         votes += cm_CutInfos[i + 1].session.answer;
-        cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", (int)"2");
+        cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer1.esc", "2");
     }
     if (plan.ids[4] != -1) {
         AICHAR *assessor;
         int vote;
 
         vote = cm_CutInfos[i + 2].session.answer;
-        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-2.esc", (int)ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-2.esc", ch_EmptyName);
         d2_SetForm(cm_TextBox, 0);
         assessor = gm_FindChar(plan.ids[4]);
         io_PrintText((intptr_t)"$N");
@@ -1629,7 +1629,7 @@ void cm_RunTrial(G28REC *m)
         cm_QueueVoice(c4->id, bankE, "_PROZESS_6_ABSTIMMUNG_ERGEBNISSE", cm_Random(3) + cm_CutInfos[i + 2].session.answer * 3, 100);
         cm_WaitTicks(2);
         votes += cm_CutInfos[i + 2].session.answer;
-        cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", (int)"2");
+        cm_StartEventArg("cutscenes\\prozess\\prozess-beisitzer2.esc", "2");
     }
     cm_UnloadVoiceBank(bankE);
     cm_UnloadVoiceBank(bankV);
@@ -1640,8 +1640,8 @@ void cm_RunTrial(G28REC *m)
         bankVerdict = cm_LoadVoiceBank("PROZESS_7_SCHULDIG.sbf", 0);
         bankV = cm_LoadVoiceBank("PROZESS_7_STRAFEN.sbf", 0);
         plan.mode = 5;
-        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
-        cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", (int)ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-richter-reden.esc", ch_EmptyName);
         cm_SetViewEnabled(cm_TextBox, 0);
         cm_RunSceneParty(m, &plan);
         for (i = 0; i < m->used && cm_CutInfos[i].playerId != plan.ids[2]; i++)
@@ -1688,7 +1688,7 @@ void cm_RunTrial(G28REC *m)
         bankVerdict = cm_LoadVoiceBank("PROZESS_7_NICHT_SCHULDIG.sbf", 0);
         cm_QueueVoice(c2->id, bankVerdict, "_PROZESS_7_NICHT_SCHULDIG", c1->sex == 1, 100);
         cm_QueueVoice(c2->id, bank8, "_PROZESS_8", ((c0->sex == 1) & 1) + 2, 200);
-        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", (int)ch_EmptyName);
+        cm_StartEventArg("cutscenes\\prozess\\prozess-abstimmen-3.esc", ch_EmptyName);
         cm_SetViewEnabled(cm_TextBox, 1);
         d2_SetForm(cm_TextBox, 0);
         io_PrintText((intptr_t)"$C");
@@ -1717,8 +1717,8 @@ void cm_RunTrial(G28REC *m)
         }
     }
     cm_FadeToBlack();
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-ende.esc", (int)ch_EmptyName));
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-exit.esc", (int)ch_EmptyName));
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-ende.esc", ch_EmptyName));
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\prozess\\prozess-exit.esc", ch_EmptyName));
     if (sound != 0)
         msx_StopAmbient(sound);
     cm_EndSpecialTrack();
@@ -2242,7 +2242,7 @@ void cm_DuelOutcome(G28REC *m)
             else
                 txt = 0x10c8;
             txt_Format(buf, 0x10c7, w->id, txt);
-            he_ShowNews(c->netId, -1, buf, 0, 0x5fe, &ch_EmptyName);
+            he_ShowNews(c->netId, -1, buf, 0, 0x5fe, ch_EmptyName);
         }
     }
 }
@@ -2488,7 +2488,7 @@ void cm_RunDuel(G28REC *m)
                         else
                             txt = 0x10c8;
                         txt_Format(text, 0x10c7, w->id, txt);
-                        he_ShowNews(c->netId, -1, text, 0, 0x5fe, &ch_EmptyName);
+                        he_ShowNews(c->netId, -1, text, 0, 0x5fe, ch_EmptyName);
                     }
                 }
             }
@@ -2549,13 +2549,13 @@ int cm_DuelAftermath(G28REC *m)
         if (a->kind == 6 || a->kind == 7) {
             txt_Format(buf, 0x11ca, b->id);
             strcat(buf, txt_Ptrs[TXT_DUEL_NOTE_TAIL]);
-            cm_SendPartyNote(a, m, buf, &ch_EmptyName);
+            cm_SendPartyNote(a, m, buf, ch_EmptyName);
             flag = 1;
         }
         if (b->kind == 6 || b->kind == 7) {
             txt_Format(buf, 0x11ca, a->id);
             strcat(buf, txt_Ptrs[TXT_DUEL_NOTE_TAIL]);
-            cm_SendPartyNote(b, m, buf, &ch_EmptyName);
+            cm_SendPartyNote(b, m, buf, ch_EmptyName);
             flag = 1;
         }
         if (flag != 0) {
@@ -2705,13 +2705,13 @@ int cm_ExecutionAftermath(G28REC *m)
         if (c->kind == 6 || c->kind == 7) {
             txt_Format(buf, 0x11c5);
             strcat(buf, txt_Ptrs[TXT_EXEC_NOTE_TAIL]);
-            cm_SendPartyNote(c, m, buf, &ch_EmptyName);
+            cm_SendPartyNote(c, m, buf, ch_EmptyName);
         }
         txt_Format(buf, 0x11c8, c->id);
         for (i = 1; i < m->used; i++) {
             o = gm_FindChar(m->members[i]);
             if (o != 0 && (o->kind == 6 || o->kind == 7))
-                cm_SendPartyNote(o, m, buf, &ch_EmptyName);
+                cm_SendPartyNote(o, m, buf, ch_EmptyName);
         }
     } else {
         c = gm_FindChar(m->members[0]);
@@ -2721,7 +2721,7 @@ int cm_ExecutionAftermath(G28REC *m)
         for (i = 1; i < m->used; i++) {
             o = gm_FindChar(m->members[i]);
             if (o != 0 && (o->kind == 6 || o->kind == 7))
-                cm_SendPartyNote(o, m, buf, &ch_EmptyName);
+                cm_SendPartyNote(o, m, buf, ch_EmptyName);
         }
     }
     return 1;
@@ -2771,27 +2771,27 @@ void cm_RunExecution(G28REC *m)
     end = buf + strlen(buf);
     sprintf(end, "%s", CUT_NAMEREC(p3) + 4);
     cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-create.esc", buf);
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-intro.esc", &ch_EmptyName));
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-intro.esc", ch_EmptyName));
     if (m->host == ai_CharInts[ai_PlayerId][0])
         gm_AddHealth(v->id, (int)-(v->f01c + 5.0f));
     switch (m->variant) {
     case 0:
-        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-kopf.esc", &ch_EmptyName);
+        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-kopf.esc", ch_EmptyName);
         break;
     case 1:
     case 2:
-        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-galgen.esc", &ch_EmptyName);
+        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-galgen.esc", ch_EmptyName);
         break;
     case 3:
-        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-shaufen.esc", &ch_EmptyName);
+        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-shaufen.esc", ch_EmptyName);
         break;
     case 4:
-        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-kanone.esc", &ch_EmptyName);
+        cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-kanone.esc", ch_EmptyName);
         break;
     }
     cm_RunSceneTicks(dur[m->variant]);
     cm_FadeToBlack();
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-exit.esc", &ch_EmptyName));
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\hinrichtung\\hinrichtung-exit.esc", ch_EmptyName));
     if (w != 0)
         cm_StopSceneRain();
     cm_DestroySceneSky();
@@ -2863,7 +2863,7 @@ int cm_EndWedding(void *arg)
         d2_CloseView(s->view);
     if (s->scene != -1)
         cm_StopScript(s->scene);
-    s->scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-exit.esc", &ch_EmptyName);
+    s->scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-exit.esc", ch_EmptyName);
     cm_WaitEvent(s->scene);
     s->scene = -1;
     s->view = -1;
@@ -2934,8 +2934,8 @@ int cm_RunWedding(G28REC *m)
     d2_PlaceMainWindow(st.view, 3);
     d2_SetViewEnabled(st.view, 0);
     st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-create.esc", buf);
-    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-intro.esc", &ch_EmptyName);
-    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden1.esc", &ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-intro.esc", ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden1.esc", ch_EmptyName);
     WED_STEP(0x5dc);
     d2_SetViewEnabled(st.view, 1);
     d2_SetForm(st.view, 0);
@@ -2948,7 +2948,7 @@ int cm_RunWedding(G28REC *m)
     WED_WAIT();
     WED_STEP(0x3e8);
 
-    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden2.esc", &ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden2.esc", ch_EmptyName);
     d2_SetForm(st.view, 0);
     d2_SetViewEnabled(st.view, 1);
     io_PrintText(0x1aac, a->id, b->id);
@@ -2965,7 +2965,7 @@ int cm_RunWedding(G28REC *m)
     WED_STEP(0x3e8);
     WED_WAIT();
 
-    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden3.esc", &ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden3.esc", ch_EmptyName);
     d2_SetViewEnabled(st.view, 0);
     d2_SetForm(st.view, 0);
     io_PrintText((intptr_t)"$C");
@@ -2986,7 +2986,7 @@ int cm_RunWedding(G28REC *m)
     WED_STEP(0x1f4);
     WED_WAIT();
 
-    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden4.esc", &ch_EmptyName);
+    st.scene = cm_StartEventArg("cutscenes\\hochzeit\\hochzeit-reden4.esc", ch_EmptyName);
     d2_SetForm(st.view, 0);
     io_PrintText(0x1aad);
     WED_VOICE("_HOCHZEIT_NEU_MAIN_04");
@@ -3016,7 +3016,7 @@ int cm_CheckBirth(G28REC *m)
             if (a->kind == 6 || a->kind == 7) {
                 txt_Format(buf, 0x11c1);
                 strcat(buf, txt_Ptrs[TXT_BIRTH_NOTE_TAIL]);
-                cm_SendPartyNote(a, m, buf, &ch_EmptyName);
+                cm_SendPartyNote(a, m, buf, ch_EmptyName);
             }
             return 1;
         }
@@ -3153,7 +3153,7 @@ void cm_RunDeath(G28REC *m)
     cm_CreateSceneSky("Sky_Schoen_02");
     d3_SetLightSet(stage, 0, 1.0f, 1);
     d3_SetFogSet(0, 0, 0);
-    sc = cm_StartEventArg("cutscenes\\tod\\enter_TOD.esc", &ch_EmptyName);
+    sc = cm_StartEventArg("cutscenes\\tod\\enter_TOD.esc", ch_EmptyName);
     rc = cm_RunSceneTicksOrClick(0xbb8, 0, 0);
     if (rc == 0) {
         cm_QueueVoice(-8, bank, "_TOD_HS", 0, 0);
@@ -3328,7 +3328,7 @@ int cm_CheckAuction(G28REC *m)
     for (i = 0; i < m->used; i++) {
         p = gm_FindChar(m->members[i]);
         if (p != 0 && (p->kind == 6 || p->kind == 7))
-            cm_SendPartyNote(p, m, buf, &ch_EmptyName);
+            cm_SendPartyNote(p, m, buf, ch_EmptyName);
     }
     return 1;
 }
@@ -3459,8 +3459,8 @@ void cm_RunAuction(G28REC *m)
         } else
             persons[i] = 0;
     }
-    behavior = cm_StartEventArg("cutscenes\\auktion\\behavior_auktionator.esc", &ch_EmptyName);
-    enter = cm_StartEventArg("cutscenes\\auktion\\Enterfly_auktion.esc", &ch_EmptyName);
+    behavior = cm_StartEventArg("cutscenes\\auktion\\behavior_auktionator.esc", ch_EmptyName);
+    enter = cm_StartEventArg("cutscenes\\auktion\\Enterfly_auktion.esc", ch_EmptyName);
     sprintf(buf, "_VERSTEIGERUNG_INTRO_%s_00", voice);
     cm_QueueVoice(-7, bankIntro, buf, -1, 0);
     sprintf(buf, "_VERSTEIGERUNG_INTRO_%s", kindName);
@@ -3551,7 +3551,7 @@ void cm_RunAuction(G28REC *m)
             cm_SendOwnership(b->id, ai_PlayerChar->netId, ai_PlayerChar->netId);
     }
     cm_QueueVoice(speaker, bankBids, "_VERSTEIGERUNG_GEBOTE", 8, 0x1f4);
-    cm_WaitEvent(cm_StartEventArg("cutscenes\\auktion\\Auktion_Outro.esc", &ch_EmptyName));
+    cm_WaitEvent(cm_StartEventArg("cutscenes\\auktion\\Auktion_Outro.esc", ch_EmptyName));
     d2_CloseView(form);
     cm_FadeToBlack();
     cm_StopScript(behavior);
@@ -3794,14 +3794,14 @@ int cm_StartScript(char *name)
 }
 /* 0x4e2c30, the same with a second argument for 0x429c40 */
 
-int cm_StartEventArg(char *name, int arg)
+int cm_StartEventArg(char *name, char *cmd)
 {
     EVTSCRIPT *p;
 
     if (cm_SkipEvents == 0) {
         p = evt_Load(name);
         if (p != 0) {
-            evt_RunCommand(p, arg);
+            evt_RunCommand(p, cmd);
             return p->id;
         }
     }
@@ -4342,7 +4342,7 @@ void cm_RunSceneParty(G28REC *party, void *ctx)
         if (cm_SkipEvents == 0)
             sv_SyncText(txt_Ptrs[TXT_SCENE_PARTY_SYNC]);
     }
-    sv_SetStatusText(&ch_EmptyName);
+    sv_SetStatusText(ch_EmptyName);
     if (ai_GameFlags & 8) {
         for (i = 0; i < party->used; i++) {
             cm_PartyTurn = i;

@@ -866,7 +866,7 @@ struct SBSAMPLE *cm_QueueVoice(int id, struct SBBANK *bank, char *text, int var,
 int cm_RunSceneTicks(int a);  /* 0x4e3570 */
 int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, int d, unsigned char e);  /* 0x4e6680 */
 unsigned * gm_CharNameRecord();  /* 0x4fb390 */
-int cm_StartEventArg(char *name, int arg);  /* 0x4e2c30 */
+int cm_StartEventArg(char *name, char *cmd);  /* 0x4e2c30 */
 int cm_WaitEvent(int a);  /* 0x4e2c70 */
 int cm_UnloadVoiceBank(struct SBBANK *a);  /* 0x4e3290, drops the reference of the voice bank a (0 in the replay mode) */
 int cm_WaitEventFull(int a);  /* 0x4e2d40 */

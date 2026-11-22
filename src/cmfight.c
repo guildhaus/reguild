@@ -1272,9 +1272,9 @@ void cm_UpdatePortraits()
                 sprintf(buf, "%i", item->usesLeft);
                 d2_SetObjText(cm_Portraits[i].countText, buf);
             } else if (cm_Portraits[i].countText != -1)
-                d2_SetObjText(cm_Portraits[i].countText, &ch_EmptyName);
+                d2_SetObjText(cm_Portraits[i].countText, ch_EmptyName);
         } else if (cm_Portraits[i].countText != -1)
-            d2_SetObjText(cm_Portraits[i].countText, &ch_EmptyName);
+            d2_SetObjText(cm_Portraits[i].countText, ch_EmptyName);
     }
 }
 
@@ -1311,7 +1311,7 @@ void cm_BuildPortraits()
         if (w != 0 && w->id != 0) {
             cm_Portraits[n].weaponPic = d2_WinOpenPic(0x54, 0xf, w->id + 0xdf, d2_LastWindow);
             d2_ScaleObject(cm_Portraits[n].weaponPic, -2);
-            cm_Portraits[n].countText = d2_CreateWinText(0x54, 0x26, &ch_EmptyName, d2_LastWindow);
+            cm_Portraits[n].countText = d2_CreateWinText(0x54, 0x26, ch_EmptyName, d2_LastWindow);
             d2_Objs[cm_Portraits[n].countText].font = 0x54;
             d2_Objs[cm_Portraits[n].countText].w = 0x18;
             d2_Objs[cm_Portraits[n].countText].centred = 1;
@@ -1321,7 +1321,7 @@ void cm_BuildPortraits()
         d2_Wins[cm_Portraits[n].win].font = 0x54;
         cm_Portraits[n].portrait = d2_WinOpenPic(0x28, 0x11, c->picture, d2_LastWindow);
         d2_Objs[cm_Portraits[n].portrait].checkable = 1;
-        cm_Portraits[n].text = d2_CreateWinText(0, 0, &ch_EmptyName, d2_LastWindow);
+        cm_Portraits[n].text = d2_CreateWinText(0, 0, ch_EmptyName, d2_LastWindow);
         d2_Objs[cm_Portraits[n].text].font = 0x54;
         d2_Objs[cm_Portraits[n].text].w = 0x80;
         d2_Objs[cm_Portraits[n].text].centred = 1;
@@ -2154,7 +2154,7 @@ void cm_EndFightScene(G28REC *rec)
     cm_LeaveEventScene();
     snd_EndSpecialTrack();
     sv_CameraEaseOn = 1;
-    d2_CopyCaption((char *)&ch_EmptyName);
+    d2_CopyCaption(ch_EmptyName);
 }
 /* 0x4d1c20, places the fighters ids[16] (-1 = none) of one side of the fight (side "OFF" / "DEF") on the ground of the
    scene: a fighter with a ranged weapon (the goods 0x174 0x176 0x15e 0x160) at the next dummy "dummy_<side>_FERN_%02i",
@@ -3369,14 +3369,14 @@ int cm_LootList(int x, int y, int mode)
             py = y + (j / 5) * 96;
             d2_WinOpenPic(px, py, 0x525, d2_LastWindow);
             d2_WinOpenPic(px, py, q->id + 0xdf, d2_LastWindow);
-            t = d2_CreateWinText(px - 0x10, py - 0xf, &ch_EmptyName, d2_LastWindow);
+            t = d2_CreateWinText(px - 0x10, py - 0xf, ch_EmptyName, d2_LastWindow);
             d2_Objs[t].font = 0x56;
             d2_Objs[t].w = 0x50;
             d2_Objs[t].centred = 1;
             sprintf(buf, "%i ", q->count);
             strcat(buf, txt_Ptrs[TXT_AMOUNT_UNIT]);
             d2_SetObjText(t, buf);
-            t2 = d2_CreateWinText(px - 0x10, py + 0x34, &ch_EmptyName, d2_LastWindow);
+            t2 = d2_CreateWinText(px - 0x10, py + 0x34, ch_EmptyName, d2_LastWindow);
             d2_Objs[t2].font = 0x56;
             d2_Objs[t2].w = 0x50;
             d2_Objs[t2].centred = 1;
@@ -3415,7 +3415,7 @@ void cm_FightPortraits(int *ids, int x, int y)
         d2_WinOpenPic(px - 4, py, c->picture, d2_LastWindow);
         v = gm_SkillPoints(c, 3);
         sv_ValueBar(px, py + 0x3c, (int)(double)(float)v, 0x4eb);
-        t = d2_CreateWinText(px - 0x24, py - 0x11, &ch_EmptyName, d2_LastWindow);
+        t = d2_CreateWinText(px - 0x24, py - 0x11, ch_EmptyName, d2_LastWindow);
         d2_Objs[t].w = 0x78;
         d2_Objs[t].centred = 1;
         d2_Objs[t].font = 0x56;
@@ -3676,8 +3676,8 @@ void cm_FightEndDialog(G28REC *a)
 
     obj = 0;
     role = 0;
-    d2_CopyCaption(&ch_EmptyName);
-    sv_SetStatusText(&ch_EmptyName);
+    d2_CopyCaption(ch_EmptyName);
+    sv_SetStatusText(ch_EmptyName);
     if (a->fight.attackerBld != -1) {
         b = gm_BuildQuery(1, 1, a->fight.attackerBld);
         obj = gm_Query(b->objList, 2, 6, 0, 0x116);
@@ -4508,7 +4508,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
                 rot.z = 0;
                 d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
                 r = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, "ub_FLUCHTFLAGGE");
-                cm_FlagObjects[cm_FlagObjectCount] = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, &ch_EmptyName);
+                cm_FlagObjects[cm_FlagObjectCount] = d3_CreateObject(0, (D3VECTOR *)&pos, &rot, ch_EmptyName);
                 d3t_PlayAnim(r, "sonstiges/anim_FLUCHTFLAGGE.baf", 1);
                 side = c->side;  /* in a fight: the leader of the fighter's side */
                 if (side != 0 && side->ref54 != 0 && (side->kind == 5 || side->kind == 6 || side->kind == 7))

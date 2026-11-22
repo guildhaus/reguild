@@ -1085,7 +1085,7 @@ void ai_HookChapter2Step5(int arg)
         return;
     r = gm_BuildQuery(1, 5, 0xa);
     if (r)
-        sv_SelectPanelObject(r, -1, (char *)(unsigned)&ch_EmptyName);
+        sv_SelectPanelObject(r, -1, ch_EmptyName);
 }
 /* 0x576ab0, the kinds 0x19 / 0x1a with a record whose word is 0x13: the kind 0x19 only in the pending state 4
    (state 0xa), the kind 0x1a in any state (state 0xb); else 3 */
@@ -1357,7 +1357,7 @@ void ai_HookChapter3Step2(int end)
             if (!he_FigureContact(chr, &x, &y))
                 return;
             cm_RequestChrMoveToUniverse(chr->netId, x, y, "dummy_EINGANG");
-            cm_RequestChrMove(chr->netId, x, y, (char *)(unsigned)&ch_EmptyName);
+            cm_RequestChrMove(chr->netId, x, y, ch_EmptyName);
             return;
         }
     }
