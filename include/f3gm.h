@@ -204,7 +204,7 @@ float gm_CharacterBaseHealth(struct AICHAR *c);  /* 0x4fc890 */
 struct AIBLD *gm_CharacterHome(struct AICHAR *c, int *out2, int *out3);  /* 0x4fdcb0 */
 struct AICHAR; int gm_DropRank(struct AICHAR *c);  /* 0x504840 */
 struct AIBLD *gm_FindPlayerBuilding(int p);  /* 0x501000 */
-int gm_GetDisease(int n, int *out);  /* 0x5051d0 */
+struct GMDISEASE; int gm_GetDisease(int n, struct GMDISEASE *out);  /* 0x5051d0 */
 struct AIBLD; int gm_HandOutMoney(struct AIBLD *b, int *out);  /* 0x4fae50 */
 int gm_JobSlots(int job, int *a, int *b);  /* 0x504100 */
 int gm_LikingChance(int a, int b, int c, int d);  /* 0x50b290 */
