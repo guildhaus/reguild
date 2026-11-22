@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	byte	readable
 exe	0x004be790	rt_OpenSlotControls	rt	byte	readable		
 exe	0x004be8e0	rt_RemoveControls	rt	byte	readable		
 exe	0x004be930	rt_InitControls	rt	byte	readable		
-exe	0x004be940	rt_EditPointDialog	rt	byte	readable		
+exe	0x004be940	rt_EditPointDialog	rt	shape	readable		byte+readable -> shape+readable at 970644e5: declaration-set tie-break: proven byte under a swept set (14 unused typedefs at rt's start); fell with AIJOB's kind-byte merges (e4c70893), the text is unchanged [waits for: rt.c's declaration set (G.tiebreak)]
 exe	0x004bf080	rt_CartSettingsDialog	rt	byte	readable		
 exe	0x004bf360	rt_SetMarkPic	rt	byte	readable		
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	byte	readable		
@@ -2509,7 +2509,7 @@ exe	0x004d8b50	cm_DrawFightTime	cmscene	byte	readable
 exe	0x004d8c40	cm_DeleteSceneChars	cmscene	byte	readable		
 exe	0x004d8c70	cm_StackPicture	cmscene	byte	readable		
 exe	0x004d8cb0	cm_TallyStack	cmscene	byte	readable		
-exe	0x004d8e20	cm_RunCouncilSession	cmscene	draft	readable		byte+readable -> draft+readable at e7470138: declaration-set tie-break: proven byte under a swept set; moves with the typedefs of ai_types.h / gv_types.h / f3gm_types.h (this pass: byte <-> draft several times) [waits for: the unit's declaration set]
+exe	0x004d8e20	cm_RunCouncilSession	cmscene	byte	readable		
 exe	0x004da9e0	cm_AskDeposeVote	cmscene	byte	readable		
 exe	0x004dab50	cm_AskElectVote	cmscene	byte	readable		
 exe	0x004dada0	cm_SessionAskPlayer	cmscene	byte	readable		
@@ -4003,7 +4003,7 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		byte+readable -> shape+readable at 1bf99b1f: declaration-set tie-break: proven byte under a swept set (sv_t's tutorial chapters); fell with D2SURF's bits / bytes union (1bf99b1f) [waits for: the unit's declaration set]
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
 exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		shape+readable -> draft+readable at f6a2d073: declaration-set tie-break: AIJOB's 101 kind records (twenty-fifth pass); the text is unchanged [waits for: the unit's declaration set]
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
