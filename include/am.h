@@ -698,19 +698,16 @@ typedef struct G9BALL {                 /* 12 bytes, the table at 0x5edfe0 (3 ca
     float b;                            /* 0x4, 3000 / 3850 / 5950 */
     float c;                            /* 0x8, 0.06 / 0.065 / 0.075 */
 } G9BALL;
-typedef struct G9CANNON {               /* what 0x4eded0 finds for a building */
-    char pad00[8];
-    float charge[4];                    /* 0x08 */
-} G9CANNON;
-typedef struct G9KIND {                 /* filled by 0x4ef000 */
-    int unk00;                          /* 0x0 */
-    int level;                          /* 0x4 */
-    int unk08[6];
+typedef struct G9KIND {                 /* 0x20 bytes, a cannon kind's stats (gv_CannonKind) */
+    int kind;                           /* 0x00, 0 .. 4 */
+    int level;                          /* 0x04, the level the building needs */
+    int lo[3];                          /* 0x08, the salvos of 1 .. 3 balls: 500 * 32 * balls * (kind / 4 + 1) */
+    int hi[3];                          /* 0x14, 700 * 32 * balls * (kind / 4 + 1) */
 } G9KIND;
 extern G9SHOT ai_CannonShot;                                                      /* 0x6f0698 */
 extern const G9BALL ai_CannonBalls[5];                                                   /* 0x5edfe0 */
 extern const float ai_IronDensity;                                                       /* 0x5eee08, 7874 */
-int ai_SphereVolume(float radius, float size, float *out);                                   /* 0x5dc1a0 */
+struct SPHEREVOLUME; int ai_SphereVolume(float radius, float size, struct SPHEREVOLUME *out);                                   /* 0x5dc1a0 */
 struct SPHEREVOLUME; void ai_PositionShare(float a, float b, struct SPHEREVOLUME *rec, float *out);                        /* 0x5dc210 */
 int ai_SolveCannonAim(const struct D3VECTOR *a, const struct D3VECTOR *b, float *rng, float *x, float *y, float *ang, struct D3VECTOR *vb, struct D3VECTOR *vc, struct D3VECTOR *vd); /* 0x5dd100 */
 int ai_AimCannon(struct AICHAR *p, struct AIBLD *b, struct AIBLD *t);                                  /* 0x4a67a0 */

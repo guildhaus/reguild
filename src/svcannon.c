@@ -452,7 +452,7 @@ typedef struct CANNONSCENE { /* 0x104 bytes (0xe4 cleared), the scene struct of 
     D3VECTOR bmin;           /* +0xf4 */
     float pad100;            /* +0x100, bmin's fourth float: the original's frame keeps 4 bytes behind it */
 } CANNONSCENE;
-char * gv_FindEffect(int id); int gv_RequestEffectLoad(struct AIBLD *bld);
+struct GVEFFECT *gv_FindEffect(int id); int gv_RequestEffectLoad(struct AIBLD *bld);
 struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */
 void d3_SetViewport(float w, float h, float x, float y, float zn, float zf, float scale, int a, int b); void d3sky_Init(struct D3SKY *s, char build);
 char d3if_ShowTree(struct D3OBJECT *obj, char show);
@@ -503,12 +503,12 @@ void ai_CannonScene(AIBLD *rec)
     mask = sv_FrameMask | 0x80;
     if (!rec->object)
         return;
-    run = (GVEFFECT *)gv_FindEffect(rec->id);
+    run = gv_FindEffect(rec->id);
     if (!run) {
         m = gv_RequestEffectLoad(rec);
         while (m != -1 && cm_GetSlotState(m) == 0)
             sv_RunFrame(0, 0x20007);
-        run = (GVEFFECT *)gv_FindEffect(rec->id);
+        run = gv_FindEffect(rec->id);
         if (!run)
             return;
     }

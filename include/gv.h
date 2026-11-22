@@ -168,7 +168,7 @@ int gv_WriteEffects(void *f);             /* 0x4ed480 */
 int gv_ReadEffects(void *f, int v);      /* 0x4ed910 */
 void unk_ResetEffectSlots(void);               /* 0x4eddf0 */
 void gv_FreeEffectObjects(void);               /* 0x4ede70 */
-char *gv_FindEffect(int id);            /* 0x4eded0 */
+GVEFFECT *gv_FindEffect(int id);        /* 0x4eded0 */
 void gv_ReleaseEffect(int id);             /* 0x4edf10 */
 void gv_ExplodeShot(int damage, int effectId, struct SHOTREC *shot, GVEFFARG *out);  /* 0x4ee360 */
 void gv_UpdateEffects(void);               /* 0x4edf80 */
@@ -180,7 +180,7 @@ char *gv_GetEffect(int id);            /* 0x4eedd0 */
 int gv_StartShot(struct GVSHOTMSG *m, int w);       /* 0x4eee00 */
 void gv_SetEffectCallback(int id, void *cb, void *arg);  /* 0x4eeee0 */
 float gv_SalvoCharge(int a, int b, int c);  /* 0x4eef50 */
-void gv_CannonKind(int n, int *out);    /* 0x4ef000 */
+struct G9KIND; void gv_CannonKind(int n, struct G9KIND *out);  /* 0x4ef000, am.h's record */
 void cm_SendMoneyDelta(int a, int b);                     /* 0x4c5f60 */
 extern unsigned char ai_OwnPlayer;      /* 0x6f1bc5 */
 void gv_BuildingCannon(struct AIBLD *o, unsigned *balls, unsigned *kind);  /* 0x4ef170 */

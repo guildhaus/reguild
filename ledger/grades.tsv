@@ -2989,7 +2989,7 @@ exe	0x004fea50	gm_FindById	f3gmt	byte	readable
 exe	0x004feb30	gm_UpdatePlayers	f3gmt	byte	readable		
 exe	0x004feb60	gm_InitPlayerRecord	f3gmt	byte	readable		
 exe	0x004fec10	gm_SyncMarket	f3gmt	byte	readable		
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	byte	readable		
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	shape	readable		byte+readable -> shape+readable at 6b5857d7: declaration-set tie-break: proven byte under a swept set; fell with G9CANNON's removal / G9KIND's fields and gv.h's struct G9KIND (the cannon stats) [waits for: the unit's declaration set]
 exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable		
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		
