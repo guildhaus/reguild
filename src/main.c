@@ -3864,7 +3864,7 @@ void main_SettleRound(unsigned short pl)
                             AIBLD *t = gm_FindBuildingById(o->reportBld);
 
                             if (t != 0) {
-                                char age = o->reportKnow - (char)gm_BuildingRank(t) * 2;
+                                signed char age = o->reportKnow - (signed char)gm_BuildingRank(t) * 2;
 
                                 age = age < 0 ? 0 : age;
                                 cm_BeginFieldBlock(o, o->objId);
@@ -3996,7 +3996,7 @@ void main_SettleRound(unsigned short pl)
 
                         if (workers[1 + pass * 12 + j] != 0xffff) {
                             AICHAR *q = &ai_Chars[workers[1 + pass * 12 + j]];
-                            char rel = 0;
+                            signed char rel = 0;
                             int m;
 
                             if (q->scene == 0) {
@@ -4022,23 +4022,23 @@ void main_SettleRound(unsigned short pl)
                                 m = (100 - p->wageRate) / 3;
                                 if (m < 1)
                                     m = 1;
-                                rel = -(char)m;
+                                rel = -(signed char)m;
                             } else if (p->wageRate > 100 && gm_Opinion(pl, q->id) < 100) {
                                 rel = 1;
                                 m = (p->wageRate - 100) / 3;
                                 if (m >= 1)
-                                    rel = (char)m;
+                                    rel = (signed char)m;
                             }
                             if (p->workRate < 100 && gm_Opinion(pl, q->id) > -0x78) {
                                 m = (p->workRate - 100) / 5;
                                 if (m < 1)
                                     m = 1;
-                                rel += (char)m;
+                                rel += (signed char)m;
                             } else if (p->workRate > 100 && gm_Opinion(pl, q->id) < 100) {
                                 m = (100 - p->workRate) / 5;
                                 if (m < 1)
                                     m = 1;
-                                rel -= (char)m;
+                                rel -= (signed char)m;
                             }
                             if (rel != 0) {
                                 cnt++;

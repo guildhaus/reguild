@@ -194,7 +194,7 @@ extern D2PICHDR *d2_FontPic;      /* 0x6ed948, the font "_FONT" */
 extern struct TSTEXTURE *d2_CaptionTex; /* 0x6ed960, sprite behind captions / texts */
 extern D2OBJ **d2_DrawOrder;        /* 0x6ed964, objects in drawing order (0x300) */
 extern void *d2_BackSurf;          /* 0x6ed92c */
-extern char d2_PicBase;             /* 0x6ed934 */
+extern signed char d2_PicBase;      /* 0x6ed934 */
 extern int d2_FrameCounter;            /* 0x6ed940, frame counter */
 extern int d2_HighestObj;            /* 0x6ed94c, highest object index in use */
 extern int d2_TextSegCount;            /* 0x6ed954, number of text pieces */

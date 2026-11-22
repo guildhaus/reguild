@@ -138,7 +138,7 @@ void hmt_ApplyRecord(AICHAR *p, int d, unsigned short k)
     if (e != 0) {
         if (e->kind == 0 && e->id <= 4) {
             v = util_Random(8) + 8;
-            v = (unsigned char)min((float)(char)v, 252.0f - ((unsigned char *)p)[e->id + 0x80]);
+            v = (unsigned char)min((float)(signed char)v, 252.0f - ((unsigned char *)p)[e->id + 0x80]);
             cm_BeginFieldBlock(p, p->netId);
             cm_AddFieldValues(1, 1, e->id + 0x80, &v);
             cm_SendFieldDeltas();

@@ -7928,7 +7928,7 @@ void ai_Miracle(AICHAR *me, int which)
         }
         return;
     } else if (which == 2) {
-        char level;
+        signed char level;
         LARGE_INTEGER kinds;
 
         kinds.LowPart = 0xa07c43b0;

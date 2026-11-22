@@ -28,7 +28,7 @@
 int bgi_ReadId(void *f)
 {
     int id;
-    char c;
+    signed char c;
 
     if (!vfs_fread(&c, 1, 1, f))
         return 0x2b;

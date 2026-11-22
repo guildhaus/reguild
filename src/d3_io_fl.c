@@ -72,7 +72,7 @@ D3BGF *d3_FindBGF(char *path, char *name, char *texnames, int ntexsets, int ntex
                 bio_rd_i(f, &m->polys[a].mat);
             } else {
                 bio_rd_c(f, (char *)&cb);
-                if ((char)cb == -1)
+                if ((signed char)cb == -1)
                     m->polys[a].mat = -1;
                 else
                     m->polys[a].mat = cb & 0xff;

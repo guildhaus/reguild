@@ -1073,7 +1073,7 @@ int evt_RunScriptArgs(EVTSCRIPT *sc, int n, ...)
             else if (f->argtype[i] == 1)
                 evt_Args[i] = va_arg(ap, int);
             else if (f->argtype[i] == 2)
-                evt_Args[i] = va_arg(ap, char);
+                evt_Args[i] = (signed char)va_arg(ap, int);
         }
     }
     evt_EnterFunction(sc, f);

@@ -914,7 +914,7 @@ void ch_CheckAniMorph(CHARACTER *ch)
     char msg[0x200];
     D3ANIMDATA *a;
     int n, i;
-    char loops;
+    signed char loops;
 
     s = ch->slot;
     obj = ch->obj;

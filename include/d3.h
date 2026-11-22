@@ -48,7 +48,7 @@ struct D3OBJECT {
                                            prototype (ai_Goods), 0x2000000 | a building type (ai_BTypes; f3init's
                                            init_SceneNameToPrototype), a character's body its AICHAR id | 0x3000000
                                            (ls_ReadSceneRecords) */
-                char pickBytes[4];      /* the same word by byte: [3] its kind (1 object, 2 building, 3 character) */
+                signed char pickBytes[4]; /* the same word by byte: [3] its kind (1 object, 2 building, 3 character) */
             };
         };
     };

@@ -652,10 +652,10 @@ void d3fl_Exit(void)
 }
 /* 0x43fee0, detail level (1, 2 or 4) of a tile, by its distance */
 
-char d3fl_TileLod(D3FLMAP *map, D3FLTILE *t, float unused, int detail)
+signed char d3fl_TileLod(D3FLMAP *map, D3FLTILE *t, float unused, int detail)
 {
-    char lod;
-    char old;
+    signed char lod;
+    signed char old;
     float d, k;
 
     if (!(lod = map->lod)) {
@@ -2140,7 +2140,8 @@ void d3fl_Draw(D3FLMAP *map, char water)
     unsigned int n, size, mask, x, y, i, j, s, half, nx, ny, mx, my, lx, ly, idx, npts, npolys;
     unsigned char *light, *types, *height, *div;
     int iv, jit;
-    char changed, d, fl;
+    char changed;
+    signed char d, fl;
     void *surf;
 
     if (d3_Hardware && d3_Camera) {

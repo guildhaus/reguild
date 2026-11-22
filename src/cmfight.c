@@ -1868,7 +1868,7 @@ void cm_SetupFightScene(G28REC *rec)
 {
     char name[0x100];
     D3VECTOR4 pos;
-    char order[9];
+    signed char order[9];
     AIOBJ *goods[3];
     int k, n, border, i;
     int *cart;
@@ -1878,7 +1878,7 @@ void cm_SetupFightScene(G28REC *rec)
     AICHAR *r;
     D3SM *sc;
     AIBTYPE *t;
-    char *p;
+    signed char *p;
 
     border = 10;
     if (rec->fight.flags & 1) {

@@ -1079,7 +1079,7 @@ void rt_UnloadAtPoint(AIOBJ *c, char pl)
    goods price at a warehouse or market) when the building is not the cart owner's, with a news to the owner when pl
    cannot afford it */
 
-void rt_LoadAtPoint(AIOBJ *c, char pl)
+void rt_LoadAtPoint(AIOBJ *c, signed char pl)
 {
     RTPOINT *q;
     AICHAR *o;

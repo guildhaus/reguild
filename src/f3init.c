@@ -635,7 +635,7 @@ void init_LoadBuildingScene(int k)
     struct D3OBJECT *d;
     int changed;
     D2FADE *bx;
-    char *slot;
+    signed char *slot;
     void (*cb)(int, int, int);
     unsigned fl;
     char buf[0x104], name[0x200], name2[0x80];
@@ -653,7 +653,7 @@ void init_LoadBuildingScene(int k)
         tb_SetFunctionOff(sv_UpdateClock, 1);
         changed = 1;
     }
-    slot = (char *)init_BuildingUniverse + ai_BTypes[k].kind;
+    slot = init_BuildingUniverse + ai_BTypes[k].kind;
     if (*slot == -1) {
         if (ai_GameState != 0 && (ai_FrameWait <= 0 || sv_QuickJump.panelFlag != 0)) {
             fl = sv_FrameMask & 0xfffffff7 | 0x80;

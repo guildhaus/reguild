@@ -519,7 +519,7 @@ void d3s_CacheFree(void)
 }
 /* 0x45abc0, gives the cache entry c to slot, (re)creating its texture if size or flag differ */
 
-struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3SSLOT *slot, char flag, int size, unsigned int time)
+struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3SSLOT *slot, signed char flag, int size, unsigned int time)
 {
     D3TEXFLAGS f;
 
@@ -542,7 +542,7 @@ struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3SSLOT *slot, char flag, int size, 
 }
 /* 0x45ac60, a texture of size for slot: a free entry, the oldest of the same kind, or any other of the flag */
 
-struct TSTEXTURE *d3s_CacheTexture(D3SSLOT *slot, char flag, int size, unsigned int time, D3SCENT **unused)
+struct TSTEXTURE *d3s_CacheTexture(D3SSLOT *slot, signed char flag, int size, unsigned int time, D3SCENT **unused)
 {
     D3SCENT *c, *best;
     unsigned int i, oldest;

@@ -1136,7 +1136,7 @@ D2SURF *d2_MakeSurface(D2SURF *desc, int flags)
         if (flags & 1) {
             dd_BackBuffer->lpVtbl->GetSurfaceDesc(dd_BackBuffer, &ddsd);
             ddsd.dwFlags = 0x1007;
-            if ((char)flags & 8)
+            if ((signed char)flags & 8)
                 ddsd.ddsCaps.dwCaps = 0x840;
             else
                 ddsd.ddsCaps.dwCaps = 0x40;
@@ -1144,7 +1144,7 @@ D2SURF *d2_MakeSurface(D2SURF *desc, int flags)
             ddsd.dwWidth = s->w;
         } else {
             ddsd.dwFlags = 0x1007;
-            if ((char)flags & 8)
+            if ((signed char)flags & 8)
                 ddsd.ddsCaps.dwCaps = 0x840;
             else
                 ddsd.ddsCaps.dwCaps = 0x40;

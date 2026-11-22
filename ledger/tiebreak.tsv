@@ -1403,7 +1403,7 @@ exe	0x00479b60	d2_PutPixel	gfx	72b07c82d8f24447	no	byte	control=byte p1=byte p2=
 exe	0x00479b90	d2_PutPixelClipped	gfx	55133d69c68fb981	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00479bf0	d2_DrawRectOutline	gfx	d3e6800ce4265d87	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3e57dcfd2b757386
 exe	0x00479cd0	d2_SetSurfaceClip	gfx	5aed3991918f44ca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00479d00	d2_MakeLightTable	shp	078584a9a84b07c9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f3bb5b47253793f2
+exe	0x00479d00	d2_MakeLightTable	shp	02f190d8124b124d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3a97a583ace5403d
 exe	0x00479df0	d2_SetColourFormat	shp	ffc94c9a23dfe2bf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00479ee0	d2_FreeLightTable	shp	0fd0f11f4726a1eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00479f10	d2_SetLineTable	shp	af7f91e23ab4804e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

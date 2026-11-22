@@ -59,7 +59,7 @@ extern unsigned int d2_HighBitMask32;
    0xffff, pointer temp for the alloc, early return 0, return-flag. flip.py (want inc esi): deleting the r
    compare gives the right registers (2 ins), i.e. the temp has one block reference too many or i one too
    few; no meaning-keeping spelling found (tiebreak: not measured (dcp headers sample d2_MakeLightTable)) */
-int d2_MakeLightTable(char add)
+int d2_MakeLightTable(signed char add)
 {
     int i;
     unsigned char r = 0, g = 0, b = 0;
@@ -1468,7 +1468,7 @@ int d2_DrawShapeHalfDark(int x, int y, void *surf, void *pic, char i)
 }
 /* 0x47c830, draws shape i of a bank scaled down (mode < 0) */
 
-int d2_DrawShapeScaled(int x, int y, void *surf, void *pic, char i, char mode, int on)
+int d2_DrawShapeScaled(int x, int y, void *surf, void *pic, char i, signed char mode, int on)
 {
     D2BANK *bank = (D2BANK *)pic;
     D2SHP *s;

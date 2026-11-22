@@ -92,7 +92,7 @@ void *d2_ShpConvertTo16(D2SHP *s, int p);
 /* views of gfx.c functions (unk_479610.h until layout 2026-10-22; gfx.h declares 0x478930 / 0x478960 with
    char * / D2RGB * parameters) */
 struct D2SURF * d2_CopySurface(struct D2SURF *surf);                         /* 0x479780 */
-int d2_MakeLightTable(char add);                                 /* 0x479d00 */
+int d2_MakeLightTable(signed char add);                          /* 0x479d00 */
 
 /* declared in other units' headers before (moved to the owner) */
 extern unsigned char d2_BlitN;  /* 0xf8a648 */
@@ -117,7 +117,7 @@ int d2_DrawShapeHalfDark(int x, int y, void *surf, void *pic, char i);  /* 0x47c
 int d2_DrawShapeMode2(int x, int y, void *surf, void *pic, unsigned char i);  /* 0x47c970 */
 int d2_DrawShapeMode3(int x, int y, void *surf, void *pic, char i);  /* 0x47cae0 */
 int d2_DrawShapeMode5(int x, int y, void *surf, void *pic, unsigned char i);  /* 0x47ca40 */
-int d2_DrawShapeScaled(int x, int y, void *surf, void *pic, char i, char mode, int on);  /* 0x47c830 */
+int d2_DrawShapeScaled(int x, int y, void *surf, void *pic, char i, signed char mode, int on); /* 0x47c830 */
 void d2_FillRect(int x, int y, int w, int h, void *surf);  /* 0x47ce60 */
 void d2_FreeAnim(int n);  /* 0x47ce30 */
 void d2_FreeLightTable(void);  /* 0x479ee0 */

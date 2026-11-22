@@ -1172,7 +1172,7 @@ struct AIOBJ *gm_QueryNext(void)
                 m = 1;
         }
         if (ok && gm_QueryKind != 0xff)
-            m = ai_Goods[gm_QueryCursor->type].type == (char)gm_QueryKind;
+            m = ai_Goods[gm_QueryCursor->type].type == (signed char)gm_QueryKind;
         if (!ok)
             m = 0;
         if (gm_QueryScanAll != 0) {
