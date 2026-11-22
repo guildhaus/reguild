@@ -1112,12 +1112,12 @@ int ai_LoadActionTable(void)
 {
     unsigned int n;
     int hdr[2];
-    G5ACT r;
+    AIACT r;
     unsigned int i;
     int k;
 
     n = 0x49;
-    memset(ai_Actions, 0, 0x49 * sizeof(G5ACT));
+    memset(ai_Actions, 0, 0x49 * sizeof(AIACT));
     hdr[0] = 0x6144466e;
     if (ai_WriteActionTable != 0) {
         void *f;
@@ -1140,24 +1140,24 @@ int ai_LoadActionTable(void)
         AM_WRITE(&hdr[0], 4);
         AM_WRITE(&hdr[1], 4);
         for (k = 0; k < 0x49; k++) {
-            AM_WRITE(&G5_ACTS[k].id, 1);
-            AM_WRITE(G5_ACTS[k].name, 0x20);
-            AM_WRITE(&G5_ACTS[k].w1[0].k, 1);
-            AM_WRITE(&G5_ACTS[k].w1[0].w, 4);
-            AM_WRITE(&G5_ACTS[k].w1[1].k, 1);
-            AM_WRITE(&G5_ACTS[k].w1[1].w, 4);
-            AM_WRITE(&G5_ACTS[k].w1[2].k, 1);
-            AM_WRITE(&G5_ACTS[k].w1[2].w, 4);
-            AM_WRITE(&G5_ACTS[k].w1[3].k, 1);
-            AM_WRITE(&G5_ACTS[k].w1[3].w, 4);
-            AM_WRITE(&G5_ACTS[k].w2[0].k, 1);
-            AM_WRITE(&G5_ACTS[k].w2[0].w, 4);
-            AM_WRITE(&G5_ACTS[k].w2[1].k, 1);
-            AM_WRITE(&G5_ACTS[k].w2[1].w, 4);
-            AM_WRITE(&G5_ACTS[k].w2[2].k, 1);
-            AM_WRITE(&G5_ACTS[k].w2[2].w, 4);
-            AM_WRITE(&G5_ACTS[k].w2[3].k, 1);
-            AM_WRITE(&G5_ACTS[k].w2[3].w, 4);
+            AM_WRITE(&ai_Actions[k].id, 1);
+            AM_WRITE(ai_Actions[k].name, 0x20);
+            AM_WRITE(&ai_Actions[k].w1[0].k, 1);
+            AM_WRITE(&ai_Actions[k].w1[0].w, 4);
+            AM_WRITE(&ai_Actions[k].w1[1].k, 1);
+            AM_WRITE(&ai_Actions[k].w1[1].w, 4);
+            AM_WRITE(&ai_Actions[k].w1[2].k, 1);
+            AM_WRITE(&ai_Actions[k].w1[2].w, 4);
+            AM_WRITE(&ai_Actions[k].w1[3].k, 1);
+            AM_WRITE(&ai_Actions[k].w1[3].w, 4);
+            AM_WRITE(&ai_Actions[k].w2[0].k, 1);
+            AM_WRITE(&ai_Actions[k].w2[0].w, 4);
+            AM_WRITE(&ai_Actions[k].w2[1].k, 1);
+            AM_WRITE(&ai_Actions[k].w2[1].w, 4);
+            AM_WRITE(&ai_Actions[k].w2[2].k, 1);
+            AM_WRITE(&ai_Actions[k].w2[2].w, 4);
+            AM_WRITE(&ai_Actions[k].w2[3].k, 1);
+            AM_WRITE(&ai_Actions[k].w2[3].w, 4);
         }
         vfs_fclose(f);
         return 1;
@@ -1197,11 +1197,11 @@ int ai_LoadActionTable(void)
             AM_READ(&r.w2[3].w, 4);
             memmove(r.w3, r.w1, 0x20);
             if (r.id < 0x49) {
-                G5_ACTS[r.id].id = r.id;
-                strcpy(G5_ACTS[r.id].name, r.name);
-                memcpy(G5_ACTS[r.id].w1, r.w1, 0x20);
-                memcpy(G5_ACTS[r.id].w2, r.w2, 0x20);
-                memcpy(G5_ACTS[r.id].w3, r.w3, 0x20);
+                ai_Actions[r.id].id = r.id;
+                strcpy(ai_Actions[r.id].name, r.name);
+                memcpy(ai_Actions[r.id].w1, r.w1, 0x20);
+                memcpy(ai_Actions[r.id].w2, r.w2, 0x20);
+                memcpy(ai_Actions[r.id].w3, r.w3, 0x20);
             }
         }
         vfs_fclose(f);
@@ -1214,7 +1214,7 @@ int ai_LoadActionTable(void)
 
 int am_RegisterMethod(AIACT *a, int ini)
 {
-    G5ACT *act = (G5ACT *)a;
+    AIACT *act = (AIACT *)a;
     char key[64];
     char val[128];
     int i, found;
@@ -1264,7 +1264,7 @@ int am_RegisterMethod(AIACT *a, int ini)
                 act->w3[i].w = 0.0f;
             }
         }
-        G5_ACTS[act->id] = *act;
+        ai_Actions[act->id] = *act;
     }
     return 1;
 }
@@ -1302,7 +1302,7 @@ int ai_ChooseAction(int i)
     unsigned int id2, id1;
     int r1, r2, r;
     AIARG s2, s1, b2s1, b1s2, b1s1, b2s2;
-    G5ACT *act;
+    AIACT *act;
     AICHAR *p;
 
     p = &ai_Chars[i];
@@ -1317,7 +1317,7 @@ int ai_ChooseAction(int i)
     b1s2.kind = 0;
     b2s2.kind = 0;
     for (k = 0; k < 0x49; k++) {
-        act = &G5_ACTS[k];
+        act = &ai_Actions[k];
         if (act->id != 0 && act->id != p->act && (p->mask & act->flags) != 0) {
             s1.kind = 0;
             s1.ref = 0;
@@ -1371,15 +1371,15 @@ int ai_ExecuteAction(int i)
     unsigned char msg;
     int k;
 
-    if (p->act != 0 && G5_ACTS[p->act].exec != 0 && G5_ACTS[p->act].exec(p, &p->arg1, &p->arg2) != 0) {
+    if (p->act != 0 && ai_Actions[p->act].exec != 0 && ai_Actions[p->act].exec(p, &p->arg1, &p->arg2) != 0) {
         ai_BeginNeedBlock(p);
         for (k = 0; k < 4; k++) {
-            if (G5_ACTS[p->prev].w1[k].k < 14)
-                ai_AddNeedDelta(G5_ACTS[p->prev].w1[k].k, G5_ACTS[p->prev].w1[k].w * -0.5f);
+            if (ai_Actions[p->prev].w1[k].k < 14)
+                ai_AddNeedDelta(ai_Actions[p->prev].w1[k].k, ai_Actions[p->prev].w1[k].w * -0.5f);
         }
         for (k = 0; k < 4; k++) {
-            if (G5_ACTS[p->act].w1[k].k < 14)
-                ai_AddNeedDelta(G5_ACTS[p->act].w3[k].k, G5_ACTS[p->act].w3[k].w * -0.5f);
+            if (ai_Actions[p->act].w1[k].k < 14)
+                ai_AddNeedDelta(ai_Actions[p->act].w3[k].k, ai_Actions[p->act].w3[k].w * -0.5f);
         }
         if (p->prev == p->act) {
             ai_AddNeedDelta(13, 500.0f);
@@ -1399,7 +1399,7 @@ int ai_ExecuteAction(int i)
             }
         }
         ai_SendNeedBlock();
-        memmove(G5_ACTS[p->act].w3, G5_ACTS[p->act].w1, 0x20);
+        memmove(ai_Actions[p->act].w3, ai_Actions[p->act].w1, 0x20);
         return 1;
     }
     if (ai_Partner != 0 && ai_Partner->netId == (unsigned int)p->partner) {
@@ -2140,7 +2140,7 @@ int ai_DecideApplyForOffice(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 }
 /* 0x497630, execute callback of 0x497490's kind 10 */
 
-int ai_ExecuteApplyForOffice(AICHAR *p, AIARG *s1)
+int ai_ExecuteApplyForOffice(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     if (s1->kind != 10)
         return 0;
@@ -2558,7 +2558,7 @@ found:
 }
 /* 0x498470, execute of action 16 (ai_DecideBuyBuilding): buys the building s1->ref at the price of its offer (event 0x1b) through gm_SellBuilding, 16; 0 without an offer */
 
-int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1)
+int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIJOB *j;
 
@@ -3394,7 +3394,7 @@ int ai_DecideCitizenship(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
    raises the character to rank 2 (field 0xd) with flag 0x4000, and a character of kind 5 tells every councillor
    (kind 6 / 7) about it with a rank message 0x69 dated 1..4 hours (and 0..49 minutes) ahead */
 
-int ai_ExecuteCitizenship(AICHAR *p)
+int ai_ExecuteCitizenship(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIMSG m;
     AIBLD *b;
@@ -3446,7 +3446,7 @@ int ai_DecideSaveAps(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     AIARG s1;
     AIARG s2;
-    G5ACT *act;
+    AIACT *act;
     int r, k;
 
     if (f != 0)
@@ -3460,7 +3460,7 @@ int ai_DecideSaveAps(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     r = ai_ChooseSubAction(0x1a, p->id, 0, &s1, &s2);
     if (r == 0)
         goto refuse;
-    act = &G5_ACTS[r];
+    act = &ai_Actions[r];
     for (k = 0; k < 4; k++) {
         if (act->w1[k].k == 0 && act->w1[k].w < 0.0f)
             goto refuse;
@@ -3580,11 +3580,11 @@ int ai_ExecuteUseMilitaryObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x1b].w3[0].w = G5_ACTS[0x1b].w1[0].w * g[3];
+                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g[3];
                 return 0x1b;
             }
             if (u.effect == -1)
-                G5_ACTS[0x1b].w3[0].w = G5_ACTS[0x1b].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g[3] * -0.5f;
             return 0x1b;
         }
     }
@@ -3717,11 +3717,11 @@ int ai_ExecuteUseReputationObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x1c].w3[0].w = G5_ACTS[0x1c].w1[0].w * g[3];
+                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g[3];
                 return 0x1c;
             }
             if (u.effect == -1)
-                G5_ACTS[0x1c].w3[0].w = G5_ACTS[0x1c].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g[3] * -0.5f;
             return 0x1c;
         }
     }
@@ -3815,11 +3815,11 @@ int ai_ExecuteUseApsObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x1d].w3[0].w = G5_ACTS[0x1d].w1[0].w * g[3];
+                ai_Actions[0x1d].w3[0].w = ai_Actions[0x1d].w1[0].w * g[3];
                 return 0x1d;
             }
             if (u.effect == -1)
-                G5_ACTS[0x1d].w3[0].w = -(G5_ACTS[0x1d].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x1d].w3[0].w = -(ai_Actions[0x1d].w1[0].w * g[3] * 0.5f);
             return 0x1d;
         }
     }
@@ -3907,11 +3907,11 @@ int ai_ExecuteUseEducationObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x1e].w3[0].w = G5_ACTS[0x1e].w1[0].w * g[3];
+                ai_Actions[0x1e].w3[0].w = ai_Actions[0x1e].w1[0].w * g[3];
                 return 0x1e;
             }
             if (u.effect == -1)
-                G5_ACTS[0x1e].w3[0].w = -(G5_ACTS[0x1e].w1[0].w * g[3]);
+                ai_Actions[0x1e].w3[0].w = -(ai_Actions[0x1e].w1[0].w * g[3]);
             return 0x1e;
         }
     }
@@ -3999,11 +3999,11 @@ int ai_ExecuteUseHealthObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x1f].w3[0].w = G5_ACTS[0x1f].w1[0].w * g[3];
+                ai_Actions[0x1f].w3[0].w = ai_Actions[0x1f].w1[0].w * g[3];
                 return 0x1f;
             }
             if (u.effect == -1)
-                G5_ACTS[0x1f].w3[0].w = -(G5_ACTS[0x1f].w1[0].w * g[3]);
+                ai_Actions[0x1f].w3[0].w = -(ai_Actions[0x1f].w1[0].w * g[3]);
             return 0x1f;
         }
     }
@@ -4156,11 +4156,11 @@ int ai_ExecuteUseDynastyObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = -1;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x20].w3[0].w = G5_ACTS[0x20].w1[0].w * g[3];
+                ai_Actions[0x20].w3[0].w = ai_Actions[0x20].w1[0].w * g[3];
                 return 0x20;
             }
             if (u.effect == -1)
-                G5_ACTS[0x20].w3[0].w = -(G5_ACTS[0x20].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x20].w3[0].w = -(ai_Actions[0x20].w1[0].w * g[3] * 0.5f);
             return 0x20;
         }
     }
@@ -4328,17 +4328,17 @@ int ai_ExecuteUseMeanObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x21].w3[0].w = G5_ACTS[0x21].w1[0].w * g[3];
-                G5_ACTS[0x21].w3[1].w = G5_ACTS[0x21].w1[1].w * g[3];
-                G5_ACTS[0x21].w3[2].w = G5_ACTS[0x21].w1[2].w * g[3];
-                G5_ACTS[0x21].w3[3].w = G5_ACTS[0x21].w1[3].w * g[3];
+                ai_Actions[0x21].w3[0].w = ai_Actions[0x21].w1[0].w * g[3];
+                ai_Actions[0x21].w3[1].w = ai_Actions[0x21].w1[1].w * g[3];
+                ai_Actions[0x21].w3[2].w = ai_Actions[0x21].w1[2].w * g[3];
+                ai_Actions[0x21].w3[3].w = ai_Actions[0x21].w1[3].w * g[3];
                 return 0x21;
             }
             if (u.effect == -1) {
-                G5_ACTS[0x21].w3[0].w = -(G5_ACTS[0x21].w1[0].w * g[3] * 0.5f);
-                G5_ACTS[0x21].w3[1].w = -(G5_ACTS[0x21].w1[1].w * g[3] * 0.5f);
-                G5_ACTS[0x21].w3[2].w = -(G5_ACTS[0x21].w1[2].w * g[3] * 0.5f);
-                G5_ACTS[0x21].w3[3].w = -(G5_ACTS[0x21].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x21].w3[0].w = -(ai_Actions[0x21].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x21].w3[1].w = -(ai_Actions[0x21].w1[1].w * g[3] * 0.5f);
+                ai_Actions[0x21].w3[2].w = -(ai_Actions[0x21].w1[2].w * g[3] * 0.5f);
+                ai_Actions[0x21].w3[3].w = -(ai_Actions[0x21].w1[3].w * g[3] * 0.5f);
             }
             return 0x21;
         }
@@ -4451,11 +4451,11 @@ int ai_ExecuteUseSafetyObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x22].w3[0].w = G5_ACTS[0x22].w1[0].w * g[3];
+                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g[3];
                 return 0x22;
             }
             if (u.effect == -1)
-                G5_ACTS[0x22].w3[0].w = G5_ACTS[0x22].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g[3] * -0.5f;
             return 0x22;
         }
     }
@@ -4503,17 +4503,17 @@ int ai_ExecuteUsePerfume(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x23].w3[0].w = G5_ACTS[s2->arg2].w1[0].w * g[3];
-                G5_ACTS[0x23].w3[1].w = G5_ACTS[s2->arg2].w1[1].w * g[3];
-                G5_ACTS[0x23].w3[2].w = G5_ACTS[s2->arg2].w1[2].w * g[3];
-                G5_ACTS[0x23].w3[3].w = G5_ACTS[s2->arg2].w1[3].w * g[3];
+                ai_Actions[0x23].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g[3];
+                ai_Actions[0x23].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g[3];
+                ai_Actions[0x23].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g[3];
+                ai_Actions[0x23].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g[3];
                 return 0x23;
             }
             if (u.effect == -1) {
-                G5_ACTS[0x23].w3[0].w = -(G5_ACTS[s2->arg2].w1[0].w * g[3] * 0.5f);
-                G5_ACTS[0x23].w3[1].w = -(G5_ACTS[s2->arg2].w1[1].w * g[3] * 0.5f);
-                G5_ACTS[0x23].w3[2].w = -(G5_ACTS[s2->arg2].w1[2].w * g[3] * 0.5f);
-                G5_ACTS[0x23].w3[3].w = -(G5_ACTS[s2->arg2].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x23].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x23].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g[3] * 0.5f);
+                ai_Actions[0x23].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g[3] * 0.5f);
+                ai_Actions[0x23].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g[3] * 0.5f);
             }
             return 0x23;
         }
@@ -4562,17 +4562,17 @@ int ai_ExecuteUseTrank(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                G5_ACTS[0x24].w3[0].w = G5_ACTS[s2->arg2].w1[0].w * g[3];
-                G5_ACTS[0x24].w3[1].w = G5_ACTS[s2->arg2].w1[1].w * g[3];
-                G5_ACTS[0x24].w3[2].w = G5_ACTS[s2->arg2].w1[2].w * g[3];
-                G5_ACTS[0x24].w3[3].w = G5_ACTS[s2->arg2].w1[3].w * g[3];
+                ai_Actions[0x24].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g[3];
+                ai_Actions[0x24].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g[3];
+                ai_Actions[0x24].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g[3];
+                ai_Actions[0x24].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g[3];
                 return 0x24;
             }
             if (u.effect == -1) {
-                G5_ACTS[0x24].w3[0].w = -(G5_ACTS[s2->arg2].w1[0].w * g[3] * 0.5f);
-                G5_ACTS[0x24].w3[1].w = -(G5_ACTS[s2->arg2].w1[1].w * g[3] * 0.5f);
-                G5_ACTS[0x24].w3[2].w = -(G5_ACTS[s2->arg2].w1[2].w * g[3] * 0.5f);
-                G5_ACTS[0x24].w3[3].w = -(G5_ACTS[s2->arg2].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x24].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x24].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g[3] * 0.5f);
+                ai_Actions[0x24].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g[3] * 0.5f);
+                ai_Actions[0x24].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g[3] * 0.5f);
             }
             return 0x24;
         }
@@ -4616,7 +4616,7 @@ int ai_DecideSpy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 }
 /* 0x49c700, execute callback 0x25: sends the "spionage" message */
 
-int ai_ExecuteSpy(AICHAR *p, AIARG *s1)
+int ai_ExecuteSpy(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIMSG m;
 
@@ -4763,9 +4763,9 @@ int ai_ExecuteBuyIndulgence(AICHAR *p, AIARG *s1, AIARG *s2)
         cm_SendMoveGoodsUnchecked(ai_Chars[b->owner].netId, -1, ai_OwnPlayer, d);
         gv_RetireCrimesOf(p->netId, (int)s1->fvalue);
         ai_ShowIndulgenceNews(p, &ai_Chars[b->owner], (int)b, d, s1->arg2);
-        G5_ACTS[0x26].w3[0].w = G5_ACTS[0x26].w1[0].w * s1->fvalue;
-        G5_ACTS[0x26].w3[1].w = G5_ACTS[0x26].w1[1].w * s1->fvalue;
-        G5_ACTS[0x26].w3[2].w = G5_ACTS[0x26].w1[2].w * s1->fvalue;
+        ai_Actions[0x26].w3[0].w = ai_Actions[0x26].w1[0].w * s1->fvalue;
+        ai_Actions[0x26].w3[1].w = ai_Actions[0x26].w1[1].w * s1->fvalue;
+        ai_Actions[0x26].w3[2].w = ai_Actions[0x26].w1[2].w * s1->fvalue;
         return 0x26;
     }
     if (s2->kind == 0xf && o != 0) {
@@ -5782,7 +5782,7 @@ int ai_ExecuteMasterBuilder(AICHAR *p, AIARG *s1, AIARG *s2)
     }
     n = s1->arg2;
     if (n > 0 && n < 4)
-        G5_ACTS[0x2f].w3[n].w = G5_ACTS[0x2f].w1[0].w * 2.0f;
+        ai_Actions[0x2f].w3[n].w = ai_Actions[0x2f].w1[0].w * 2.0f;
     return 0x2f;
 }
 /* 0x49ec10, eval callback of "Dunkle Ecke" (0x32): with a title job 4 (gm_TitleJob) that has more than two
@@ -6288,7 +6288,7 @@ int ai_ExecuteStammtisch(AICHAR *p, AIARG *s1, AIARG *s2)
    each group by its prices (ai_GroupPrices) and its share, then pushes the prices of the lowest-scored group
    (o1->ref = group, o1->arg2 = -1 down / +1 up) */
 
-int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1)
+int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     G7MKT m[7];
     float score[7];
@@ -7152,7 +7152,7 @@ int ai_RegisterBaseActions(int a)
     strcpy(act.name, "DummyUnversehrtheit");
     act.eval = ai_EvalMoodWeights;
     act.decide = ai_DecideDummyHealth;
-    act.exec = ai_AlwaysTrue;
+    act.exec = ai_DummyHealthExec;
     act.flags = 0x1;
     if (!am_RegisterMethod(&act, a))
         return 0;
@@ -7296,7 +7296,7 @@ int ai_RegisterBaseActions(int a)
     strcpy(act.name, "Wohnsitz upgraden (Credits)");
     act.eval = ai_EvalMoodWeights;
     act.decide = ai_DecideUpgradeResidence;
-    act.exec = sv_ReturnZero;
+    act.exec = ai_UpgradeResidenceExec;
     act.flags = 0x3;
     if (!am_RegisterMethod(&act, a))
         return 0;
@@ -7323,7 +7323,7 @@ int ai_RegisterBaseActions(int a)
     strcpy(act.name, "Betrieb upgraden (Credits)");
     act.eval = ai_EvalMoodWeights;
     act.decide = ai_DecideUpgradeBusiness;
-    act.exec = sv_ReturnZero;
+    act.exec = ai_UpgradeBusinessExec;
     act.flags = 0x3;
     if (!am_RegisterMethod(&act, a))
         return 0;
@@ -7575,7 +7575,7 @@ int ai_RegisterBaseActions(int a)
     strcpy(act.name, "Buergermeister upgrade");
     act.eval = ai_EvalMoodWeights;
     act.decide = ai_DecideMayorUpgrade;
-    act.exec = sv_ReturnZero;
+    act.exec = ai_MayorUpgradeExec;
     act.flags = 0x39;
     if (!am_RegisterMethod(&act, a))
         return 0;
@@ -7698,7 +7698,7 @@ int ai_ChooseSubAction(int kind, int id, int c, AIARG *o1, AIARG *o2)
     float best1, best2, a, b;
     int k, r, r1, r2;
     AIARG s1, s2, b1s1, b2s1, b1s2, b2s2;
-    G5ACT *act;
+    AIACT *act;
     AICHAR *p;
 
     best1 = -1e30f;
@@ -7715,9 +7715,9 @@ int ai_ChooseSubAction(int kind, int id, int c, AIARG *o1, AIARG *o2)
     if (p->mask == 0)
         p->mask = 1;
     for (k = 0; k < 0x49; k++) {
-        act = &G5_ACTS[k];
+        act = &ai_Actions[k];
         if (act->id != 0 && act->id != p->act && ai_ActionOnStack(act->id) == 0) {
-            ai_PushAction(G5_ACTS[k].id);
+            ai_PushAction(ai_Actions[k].id);
             s1 = *o1;
             s2 = *o2;
             if (act->eval != 0)
@@ -7750,4 +7750,32 @@ int ai_ChooseSubAction(int kind, int id, int c, AIARG *o1, AIARG *o2)
     *o1 = b2s1;
     *o2 = b2s2;
     return r2;
+}
+
+/* unlinked: the "DummyUnversehrtheit" execute callback returns 1; LINK folds it (/OPT:ICF) into ai_AlwaysTrue, 0x4a8c10,
+   which is where the original's reference in ai_RegisterBaseActions points */
+int ai_DummyHealthExec(AICHAR *p, AIARG *s1, AIARG *s2)
+{
+    return 1;
+}
+
+/* unlinked: the "Wohnsitz upgraden (Credits)" execute callback returns 0; LINK folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040,
+   which is where the original's reference in ai_RegisterBaseActions points */
+int ai_UpgradeResidenceExec(AICHAR *p, AIARG *s1, AIARG *s2)
+{
+    return 0;
+}
+
+/* unlinked: the "Betrieb upgraden (Credits)" execute callback returns 0; LINK folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040,
+   which is where the original's reference in ai_RegisterBaseActions points */
+int ai_UpgradeBusinessExec(AICHAR *p, AIARG *s1, AIARG *s2)
+{
+    return 0;
+}
+
+/* unlinked: the "Buergermeister upgrade" execute callback returns 0; LINK folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040,
+   which is where the original's reference in ai_RegisterBaseActions points */
+int ai_MayorUpgradeExec(AICHAR *p, AIARG *s1, AIARG *s2)
+{
+    return 0;
 }

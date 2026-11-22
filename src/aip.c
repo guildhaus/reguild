@@ -1526,7 +1526,7 @@ int ai_ExecBlutrache(AICHAR *p, AIARG *m, AIARG *m2)
    building of kind 0x1f holding object 0x28a curses a character within 25..57 units with a strength it can
    afford (32000 per level from a quarter of its money), into m (kind 7) */
 
-int ai_DecideVerfluchen(int a, AICHAR *p, int c, AIARG *m)
+int ai_DecideVerfluchen(int a, AICHAR *p, int c, AIARG *m, AIARG *o2)
 {
     int v, i, k, r, money;
     int bestv, n;
@@ -1585,7 +1585,7 @@ int ai_DecideVerfluchen(int a, AICHAR *p, int c, AIARG *m)
 /* 0x4ab9f0, execute callback of action 0x45 "Verfluchen": p is flagged (0x1cc bit 4), pays, and the curse goes
    out (message 0x9d: strength, victim) */
 
-int ai_ExecVerfluchen(AICHAR *p, AIARG *m)
+int ai_ExecVerfluchen(AICHAR *p, AIARG *m, AIARG *s2)
 {
     AIMSG msg;
 
@@ -1607,7 +1607,7 @@ int ai_ExecVerfluchen(AICHAR *p, AIARG *m)
    size capped by its money (2: 4, 3: 7, 4 and more: 10) and from r a play length (below 4: 2, below 7: 3, else
    4), into m (kind 7: the building, r, the length) */
 
-int ai_DecideTheater(int a, AICHAR *p, int c, AIARG *m)
+int ai_DecideTheater(int a, AICHAR *p, int c, AIARG *m, AIARG *o2)
 {
     int v, k, n, i;
     int r;
@@ -1664,7 +1664,7 @@ int ai_DecideTheater(int a, AICHAR *p, int c, AIARG *m)
 /* 0x4abc60, execute callback of action 0x46 "Theater": p pays m->arg2 and puts on the play in building m->ref
    (message 0xa0, length m->ref2) */
 
-int ai_ExecTheater(AICHAR *p, AIARG *m)
+int ai_ExecTheater(AICHAR *p, AIARG *m, AIARG *s2)
 {
     AIMSG msg;
 
@@ -1683,7 +1683,7 @@ int ai_ExecTheater(AICHAR *p, AIARG *m)
    building of kind 0x1f holding object 0x276 picks a character within 25..57 units to honour, into m (kind 7, a
    cost 2..7); returns 0x45 (sic) */
 
-int ai_DecideEhrerbietung(int a, AICHAR *p, int c, AIARG *m)
+int ai_DecideEhrerbietung(int a, AICHAR *p, int c, AIARG *m, AIARG *o2)
 {
     int v, i, n;
     unsigned int flags;
@@ -1720,7 +1720,7 @@ int ai_DecideEhrerbietung(int a, AICHAR *p, int c, AIARG *m)
 /* 0x4abe60, execute callback of action 0x47 "Ehrerbietung": p is flagged (0x1cc bit 5), pays m->arg2 and wins
    five times that in standing with the character of m->ref */
 
-int ai_ExecEhrerbietung(AICHAR *p, AIARG *m)
+int ai_ExecEhrerbietung(AICHAR *p, AIARG *m, AIARG *s2)
 {
     AICHAR *o;
 

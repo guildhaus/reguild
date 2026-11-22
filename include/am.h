@@ -246,17 +246,9 @@ int ord_RandomObjectId(struct AICHAR *c);                                       
 struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);                                                  /* 0x509ff0 */
 
 /* ---- 0x48e070..0x490b90 (was unk_48e070.h) ---- */
-/* unk_490830.h (the AICHAR / AGARG views of 0x490830..0x490b90); it calls ai_ExecGraveyardOwner0 .. ai_ExecGraveyardOwner3 and cm_SendMoveGoodsUnchecked through the prototypes below (AICHAR / AIBLD, the definitions') */
+/* unk_490830.h (the AICHAR / AIARG views of 0x490830..0x490b90); it calls ai_ExecGraveyardOwner0 .. ai_ExecGraveyardOwner3 and cm_SendMoveGoodsUnchecked through the prototypes below (AICHAR / AIBLD, the definitions') */
 /* ---- was unk_490830.h ---- */
 #pragma pack(push, 1)
-
-typedef struct AGARG {                  /* what a decide callback fills for the execute callback */
-    int unk00;                          /* 0x00 */
-    int entry;                          /* 0x04, a grave entry number (gv_FindEntry's result) */
-    int price;                          /* 0x08, the move / lease price the decision checked */
-    int bldId;                          /* 0x0c, the building's id, found again with gm_FindById (ai_ExecGraveyardOwner, ai_ExecHandleGrave) */
-    int kind;                           /* 0x10 */
-} AGARG;
 
 typedef struct AGDUEL {                 /* a dice duel between two characters (ai_DuelStart, 0x493200) */
     int stake;                          /* 0x00, the first throw's stake: gm_PlayerFactor of the player's worth (gm_GetWorth / gm_ConvertMoney, halved per k), paid to the player on a throw of kind 1 and shown as the result (ai_TavernDiceWindow state[0]) */
@@ -291,9 +283,9 @@ extern AICHAR ai_DuelOpponent;               /* 0x6f0478 */
 
 
 
-int ai_ExecGraveyardOwner(AICHAR *p, AGARG *s1, AGARG *s2);                /* 0x490830 */
-int ai_DecideHandleGrave(int a, AICHAR *p, int b, AGARG *o1, AGARG *o2);  /* 0x4908d0 */
-int ai_ExecHandleGrave(AICHAR *p, AGARG *s1, AGARG *s2);                /* 0x490b90 */
+int ai_ExecGraveyardOwner(AICHAR *p, AIARG *s1, AIARG *s2);                /* 0x490830 */
+int ai_DecideHandleGrave(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2);  /* 0x4908d0 */
+int ai_ExecHandleGrave(AICHAR *p, AIARG *s1, AIARG *s2);                /* 0x490b90 */
 unsigned int ai_MakeDuelOpponent(unsigned int k);                      /* 0x492fd0 */
 int ai_DuelStart(AICHAR *p, AGDUEL *d, int k);                    /* 0x493200 */
 int ai_DuelAcceptAction(AGDUEL *d, AICHAR *c, int k);                    /* 0x493390 */
@@ -383,13 +375,13 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2);                    
 int ai_RegisterBuildingActions(int a);                                                        /* 0x48fb70 */
 AICHAR *ai_PickRandomBuildingChar(AIBLD *b);                                                   /* 0x48feb0 */
 int ai_DecideGraveyardOwner0(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x48ff50 */
-int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4900c0 */
+int ai_ExecGraveyardOwner0(AICHAR *p, AIBLD *b, AIARG *unused, AIARG *o);                      /* 0x4900c0 */
 int ai_DecideGraveyardOwner1(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490170 */
-int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4902b0 */
+int ai_ExecGraveyardOwner1(AICHAR *p, AIBLD *b, AIARG *unused, AIARG *o);                      /* 0x4902b0 */
 int ai_DecideGraveyardOwner2(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490350 */
-int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x4904c0 */
+int ai_ExecGraveyardOwner2(AICHAR *p, AIBLD *b, AIARG *unused, AIARG *o);                      /* 0x4904c0 */
 int ai_DecideGraveyardOwner3(AICHAR *p, AIBLD *b, AIARG *o1, AIARG *o2);                      /* 0x490570 */
-int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, AGARG *unused, AIARG *o);                      /* 0x490600 */
+int ai_ExecGraveyardOwner3(AICHAR *p, AIBLD *b, AIARG *unused, AIARG *o);                      /* 0x490600 */
 int ai_DecideGraveyardOwner(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2);                  /* 0x490690 */
 
 /* callees outside this file */
@@ -457,23 +449,8 @@ typedef struct G5STAMM {                /* the regulars' table, the object 0x12d
     char pad00[0x1c];
     int member[4];                      /* 0x1c, the members' netIds, -1 = a free seat */
 } G5STAMM;
-
-typedef struct G5ACT {                  /* 0x94 bytes, am.h's AIACT with the third weight block */
-    unsigned char id;                   /* 0x00 */
-    char name[0x23];                    /* 0x01 */
-    int (*eval)(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2);  /* 0x24 */
-    int (*decide)(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                    /* 0x28 */
-    int (*exec)(AICHAR *p, AIARG *s1, AIARG *s2);                                    /* 0x2c */
-    AIACTW w1[4];                       /* 0x30, short-term needs */
-    AIACTW w3[4];                       /* 0x50, a copy of w1 */
-    AIACTW w2[4];                       /* 0x70, long-term needs */
-    unsigned int flags;                 /* 0x90, the action's groups (an int as in AIACT: ai_ChooseAction's mask test reads it so) */
-} G5ACT;
 #pragma pack(pop)
 
-typedef char ai_AssertG5ACT[sizeof(G5ACT) == 0x94 ? 1 : -1];
-
-#define G5_ACTS ((G5ACT *)ai_Actions)
 
 extern int ai_EvalDepth;                /* 0xf83ea4, the depth of the evaluation stack */
 extern int ai_EvalStack[];              /* 0xf86900, the action ids on the evaluation stack */
@@ -487,9 +464,9 @@ void ai_PopAction(void);                                        /* 0x495790 */
 int ai_ActionOnStack(int k);                                        /* 0x4957a0 */
 /* ai_ExecuteAction: ai.h */                                         /* 0x495ce0 */
 int ai_DecideApplyForOffice(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);  /* 0x497490 */
-int ai_ExecuteApplyForOffice(AICHAR *p, AIARG *s1);                            /* 0x497630 */
+int ai_ExecuteApplyForOffice(AICHAR *p, AIARG *s1, AIARG *s2);                            /* 0x497630 */
 int amt_ApplyForOffice(struct AICHAR *c, unsigned int kind);                                /* 0x4e6180 */
-int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1);                            /* 0x498470 */
+int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1, AIARG *s2);                            /* 0x498470 */
 
 int ai_GetDesireByName(char *s);                                      /* 0x4a47c0, a need name -> index */
 void ai_BeginNeedBlock(struct AICHAR *p);                            /* 0x4c3e70 */
@@ -521,7 +498,7 @@ int ai_ExecuteDarkCorner(AICHAR *p, AIARG *s1, AIARG *s2);                      
 AICHAR *ai_PickLeastLikedRival(AICHAR *p);                                                    /* 0x4a0240 */
 G6RING *ai_NextNearRingEntry(void);                                                     /* 0x4a3a90 */
 int ai_PickDislikedColumn(AICHAR *p);                                                      /* 0x4a0410 */
-int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1);                             /* 0x49fc90 */
+int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                             /* 0x49fc90 */
 int amt_MayorBonusStep(struct AICHAR *c);                                                      /* 0x4e94a0 */
 int ai_DecideBuildResidence(int a, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);                 /* 0x4984d0 */
 int ai_CanBuildType(int a, struct AICHAR *p, int b, struct AIARG *s1, struct AIARG *s2, int f);           /* 0x4a5140 */
@@ -578,7 +555,7 @@ typedef struct G8REC {                  /* 16 bytes, filled by 0x4a5760 (unk_48e
 } G8REC;
 
 
-int ai_ExecuteCitizenship(AICHAR *p);                                                      /* 0x49a0a0 */
+int ai_ExecuteCitizenship(AICHAR *p, AIARG *s1, AIARG *s2);                                                      /* 0x49a0a0 */
 int ai_DecideSaveAps(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49a290 */
 int ai_ExecuteSaveAps(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49a380 */
 int ai_DecideUseMilitaryObject(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49a390 */
@@ -605,7 +582,7 @@ int ai_ExecuteUseSafetyObject(AICHAR *p, AIARG *s1, AIARG *s2);                 
 int ai_EvalUsePerfume(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x49c0d0 */
 int ai_EvalUseTrank(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x49c320 */
 int ai_DecideSpy(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49c570 */
-int ai_ExecuteSpy(AICHAR *p, AIARG *s1);                                            /* 0x49c700 */
+int ai_ExecuteSpy(AICHAR *p, AIARG *s1, AIARG *s2);                                            /* 0x49c700 */
 int ai_ExecuteUsePerfume(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49c190 */
 int ai_ExecuteUseTrank(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49c3e0 */
 int ai_DecideBuyMarketObject(int a, AICHAR *p, int f, AIARG *s1, AIARG *o);                   /* 0x49c790 */
@@ -683,6 +660,10 @@ int ai_BuyObjectApDecide(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);  /* unl
 int ai_BuyObjectApExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
 int ai_UpgradeBusinessApDecide(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
 int ai_UpgradeBusinessApExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
+int ai_DummyHealthExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into ai_AlwaysTrue */
+int ai_UpgradeResidenceExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
+int ai_UpgradeBusinessExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
+int ai_MayorUpgradeExec(AICHAR *p, AIARG *s1, AIARG *s2);  /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
 int ai_RegisterBaseActions(int a);                                                        /* 0x4a16f0 */
 /* 0x4c4830 with an int c (unk_48e070.h: unsigned char) */
 

@@ -47,11 +47,11 @@ int ai_DecideBuyDunkleEcke(struct AICHAR *p, struct AIARG *a, struct AIARG *b); 
 int ai_ExecBuyDunkleEcke(struct AICHAR *p, struct AIARG *a, struct AIARG *b);                               /* 0x4ab2c0 */
 int ai_DecideBlutrache(int a, AICHAR *p, int c, struct AIARG *m, struct AIARG *m2);  /* 0x4ab3e0 */
 int ai_ExecBlutrache(AICHAR *p, struct AIARG *m, struct AIARG *m2);                 /* 0x4ab6b0 */
-int ai_DecideVerfluchen(int a, AICHAR *p, int c, struct AIARG *m);                     /* 0x4ab7f0 */
-int ai_ExecVerfluchen(AICHAR *p, struct AIARG *m);                                    /* 0x4ab9f0 */
-int ai_DecideTheater(int a, AICHAR *p, int c, struct AIARG *m);                     /* 0x4abac0 */
-int ai_ExecTheater(struct AICHAR *p, struct AIARG *m);                                    /* 0x4abc60 */
-int ai_DecideEhrerbietung(int a, struct AICHAR *p, int c, struct AIARG *m);                     /* 0x4abd00 */
-int ai_ExecEhrerbietung(struct AICHAR *p, struct AIARG *m);                                    /* 0x4abe60 */
+int ai_DecideVerfluchen(int a, AICHAR *p, int c, struct AIARG *m, struct AIARG *o2);                     /* 0x4ab7f0 */
+int ai_ExecVerfluchen(AICHAR *p, struct AIARG *m, struct AIARG *s2);                                    /* 0x4ab9f0 */
+int ai_DecideTheater(int a, AICHAR *p, int c, struct AIARG *m, struct AIARG *o2);                     /* 0x4abac0 */
+int ai_ExecTheater(struct AICHAR *p, struct AIARG *m, struct AIARG *s2);                                    /* 0x4abc60 */
+int ai_DecideEhrerbietung(int a, struct AICHAR *p, int c, struct AIARG *m, struct AIARG *o2);                     /* 0x4abd00 */
+int ai_ExecEhrerbietung(struct AICHAR *p, struct AIARG *m, struct AIARG *s2);                                    /* 0x4abe60 */
 int ai_RegisterSocialActions(int a);                                                         /* 0x4abed0 */
 #endif

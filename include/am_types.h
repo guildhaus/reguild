@@ -5,6 +5,9 @@
 #ifndef AM_TYPES_H
 #define AM_TYPES_H
 
+struct AICHAR;
+struct AIARG;
+
 typedef struct G9DOMIZIL {              /* 0x1c bytes, an entry of the Domizil table 0x62c420 (ai_FindUsableGood returns it) */
     int id;                             /* 0x00, the good, 0 ends the table */
     int minutes;                        /* 0x04, the duration of its effect in minutes (he.c 0x54fb50 adds it to the clock
@@ -36,9 +39,9 @@ typedef struct AIACTW {                 /* 8 bytes */
 typedef struct AIACT {                  /* 0x94 bytes, an AI action (table at 0xf83ec0) */
     unsigned char id;                   /* 0x00 */
     char name[0x23];                    /* 0x01 */
-    void *eval;                         /* 0x24 */
-    void *decide;                       /* 0x28 */
-    void *exec;                         /* 0x2c */
+    int (*eval)(float *a, float *b, int i, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);  /* 0x24 */
+    int (*decide)(int a, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);                    /* 0x28 */
+    int (*exec)(struct AICHAR *p, struct AIARG *s1, struct AIARG *s2);                                    /* 0x2c */
     AIACTW w1[4];                       /* 0x30 */
     AIACTW w3[4];                       /* 0x50, a copy of w1 (the short-term needs; ai_Actions[0x48] uses w3[0]) */
     AIACTW w2[4];                       /* 0x70 */

@@ -345,13 +345,13 @@ int ai_GetDesireByName(char *s)
 
 int ai_EvalMoodWeights(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y)
 {
-    G5ACT *act;
+    AIACT *act;
     float d1, d2;
     int k, found;
 
     *a = 0.0f;
     *b = 0.0f;
-    act = &G5_ACTS[i];
+    act = &ai_Actions[i];
     if (act->flags & G7_MASK(p)) {
         d1 = 40.0f;
         d2 = 50.0f;
@@ -383,13 +383,13 @@ int ai_EvalMoodWeights(float *a, float *b, int i, AICHAR *p, int f, void *x, voi
 
 int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, void *y)
 {
-    G5ACT *act;
+    AIACT *act;
     float d1;
     int k, found;
 
     *a = 0.0f;
     *b = 0.0f;
-    act = &G5_ACTS[i];
+    act = &ai_Actions[i];
     if (act->flags & G7_MASK(p)) {
         d1 = 40.0f;
         found = 1;
@@ -419,7 +419,7 @@ int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x, voi
 
 int ai_EvalGuiltWeights(float *a, float *b, int i, AICHAR *p, AIDEC *dec)
 {
-    G5ACT *act;
+    AIACT *act;
     float v, rank, d1, d2;
     int n, k, found;
 
@@ -431,7 +431,7 @@ int ai_EvalGuiltWeights(float *a, float *b, int i, AICHAR *p, AIDEC *dec)
     rank = ((float)n + v) * (p->mood[11][0] - 2.0f);
     *a = 0.0f;
     *b = 0.0f;
-    act = &G5_ACTS[i];
+    act = &ai_Actions[i];
     if (act->flags & G7_MASK(p)) {
         d1 = 40.0f;
         d2 = 50.0f;
