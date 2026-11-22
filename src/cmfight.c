@@ -3453,7 +3453,7 @@ int cm_FightStartDialog(G28REC *a)
     AIBLD *place, *home;
     float fv;
     AIJOB *job;
-    char *bld;
+    void *bld;
     char tb[0x400];
     char tc[0x400];
 
@@ -3535,7 +3535,7 @@ int cm_FightStartDialog(G28REC *a)
         d2_SetForm(win, 1);
         io_PrintText((intptr_t)"$C");
         if (job != 0) {
-            bld = (char *)gm_FindBuildingById(job->cartBld);
+            bld = gm_FindBuildingById(job->cartBld);
             k = 0;
             for (i = 0; i < 16; i++) {
                 if (a->fight.attackers[i] != -1)
@@ -3556,7 +3556,7 @@ int cm_FightStartDialog(G28REC *a)
         for (i = 0; i < 3; i++) {
             n = a->fight.carts[i];
             if (n != -1) {
-                bld = (char *)gm_FindObjectInst(n);
+                bld = gm_FindObjectInst(n);
                 if (bld != 0) {
                     gm_StallGoodsList(bld, &rc);
                     for (k = 0; k < rc.count; k++)
@@ -4024,7 +4024,8 @@ int cm_CheckFight(G28REC *a)
 {
     char buf[0x400];
     AIRECIPE rc;
-    int i, cart, role;
+    int i, role;
+    AIOBJ *cart;
     AICHAR *ca, *cb;
     char *place;
 
@@ -4090,7 +4091,9 @@ void cm_RunFight(G28REC *a)
     char buf[0x800];
     AIRECIPE rc;
     int bad = 0, nb, seed, i, id, sa, sb, w, n, r;
-    char *c, *p, *win, *e1, *e2;
+    char *c;
+    AIOBJ *p;
+    char *win, *e1, *e2;
     AICHAR *ch;
     AIBLD *bld;
     int *e;
@@ -4118,7 +4121,7 @@ void cm_RunFight(G28REC *a)
         for (i = 0; i < 3; i++) {
             id = a->fight.carts[i];
             if (id != -1) {
-                p = (char *)gm_FindObjectInst(id);
+                p = gm_FindObjectInst(id);
                 if (p != 0) {
                     gm_StallGoodsList(p, &rc);
                     if (rc.value > 0)

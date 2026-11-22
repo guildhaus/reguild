@@ -340,7 +340,7 @@ int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y);                        
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                       /* 0x4fe140 */
 void gm_SetTime(struct AITIME *c, unsigned char hour, unsigned char min, unsigned char sec);                   /* 0x4fe1e0, f3gm.c: sets the time of day of the clock c */
 int gm_MinutesBetween(AITIME *a, AITIME *b);                                  /* 0x4fe280, minutes between two times */
-int gm_FindObjectInst(int id);                                              /* 0x4fe980 */
+struct AIOBJ *gm_FindObjectInst(int id);                                              /* 0x4fe980 */
 int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);           /* 0x4fea50 */
 struct AIOBJ *gm_QueryNext(void);                                               /* 0x4ffcc0, next of gm_Query */
 struct AIOBJ *gm_Query(void *list, int n, ...);                               /* 0x4ffe90, n (key, value) pairs */

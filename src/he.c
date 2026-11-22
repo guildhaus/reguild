@@ -11580,7 +11580,7 @@ void he_TransportFromHome(AIJOB *e)
     bt = &ai_BTypes[from->type];
     to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
-    tr = (AIOBJ *)gm_FindObjectInst(t->cart);
+    tr = gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
     he_SetCartSpeed(e, tr);
@@ -11653,7 +11653,7 @@ void he_TransportToHome(AIJOB *e)
     from = gm_BuildQuery(1, 1, t->start);
     to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
-    tr = (AIOBJ *)gm_FindObjectInst(t->cart);
+    tr = gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
     he_SetCartSpeed(e, tr);
@@ -11758,7 +11758,7 @@ void he_TransportStadtStadt(AIJOB *ev)
         else
             tr = gm_Query(from->objList, 1, 1, t->cart);
         if (tr == 0)
-            tr = (AIOBJ *)gm_FindObjectInst(t->cart);
+            tr = gm_FindObjectInst(t->cart);
         if (tr != 0) {
             int px, pz;
             float py;
@@ -11874,7 +11874,7 @@ void he_TransportHomeHome(AIJOB *e)
     from = gm_BuildQuery(1, 1, t->start);
     to = gm_BuildQuery(1, 1, t->goal);
     sc = d3_CurrentScene;
-    tr = (AIOBJ *)gm_FindObjectInst(t->cart);
+    tr = gm_FindObjectInst(t->cart);
     if (tr == 0)
         return;
     he_SetCartSpeed(e, tr);
@@ -11979,7 +11979,7 @@ void he_RunTransport(AIJOB *e)
     to = gm_BuildQuery(1, 1, t->goal);
     if (guards == 0 || from == 0 || to == 0 || market == 0)
         e->stage = -1;
-    tr = (AIOBJ *)gm_FindObjectInst(t->cart);
+    tr = gm_FindObjectInst(t->cart);
     if (tr == 0) {
         he_FreeEvent(e);
         return;
@@ -15489,7 +15489,7 @@ int he_FindFigurePlace(AICHAR *p, int *bldId, int *objId, int *scene)
         if (home == 0)
             return 0;
         if (scene != 0) {
-            o = (AIOBJ *)gm_FindObjectInst(*objId);
+            o = gm_FindObjectInst(*objId);
             if (gm_IsHomeType(home) != 0) {
                 *scene = init_BuildingSceneUniverse((AIBLD *)home);
                 return 1;
@@ -17164,7 +17164,7 @@ void he_RunAmbush(AIJOB *ev)
                     continue;
                 nearby = 0;
                 rich = 0;
-                cart = (AIOBJ *)gm_FindObjectInst(((HETRANSPORT *)t)->cart);
+                cart = gm_FindObjectInst(((HETRANSPORT *)t)->cart);
                 if (cart == 0)
                     continue;
                 task = cart->sceneObj;
@@ -17975,7 +17975,7 @@ void he_AllocHealing(AIJOB *ev)
 {
     HEHEAL *x = (HEHEAL *)ev;
     AICHAR *c;
-    AIBLD *b; int f;
+    AIBLD *b; AIOBJ *f;
 
     f = 0;
     c = gm_FindChar(x->charId);

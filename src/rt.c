@@ -583,7 +583,7 @@ void rt_EditPointDialog(RTPOINT *p, int *win)
     sel = 0;
     selc = 0;
     bld = gm_FindBuildingById(p->buildingId);
-    cart = (AIOBJ *)gm_FindObjectInst(p->cartId);
+    cart = gm_FindObjectInst(p->cartId);
     if (cart == 0 || bld == 0)
         return;
     d2_EnableViewObjects(*win, 0);
@@ -1219,7 +1219,7 @@ int rt_LoadRoutes(void *f)
             return 0;
     }
     for (i = 0; i < n; ) {
-        c = (AIOBJ *)gm_FindObjectInst(buf[i].cartId);
+        c = gm_FindObjectInst(buf[i].cartId);
         c->route = 0;
         do {
             q = rt_AddPoint(c->route);

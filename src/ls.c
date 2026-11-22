@@ -345,7 +345,7 @@ void ls_IdsToRefs(void)
             if (p->kind == 1)
                 p->value = (int)gm_FindChar(p->value);
             if (p->kind == 3)
-                p->value = gm_FindObjectInst(p->value);
+                p->value = (int)gm_FindObjectInst(p->value);
             if (p->kind == 2)
                 p->value = gm_FindBuildingById(p->value);
             if (p->kind == 9)
@@ -2489,7 +2489,7 @@ int ls_FixupAfterLoad(void)
             if (bld != 0)
                 he_ShowConstruction(j);
         } else if (j->kind == 0xf) {
-            o = (AIOBJ *)gm_FindObjectInst(j->from);
+            o = gm_FindObjectInst(j->from);
             if (o != 0)
                 o->job24 = j;
         } else if (j->kind == 0x78) {
@@ -2512,7 +2512,7 @@ int ls_FixupAfterLoad(void)
             if (cm_SendStates[i].kind == 1)
                 cm_SendStates[i].value = (int)gm_FindChar(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 3)
-                cm_SendStates[i].value = gm_FindObjectInst(cm_SendStates[i].value);
+                cm_SendStates[i].value = (int)gm_FindObjectInst(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 2)
                 cm_SendStates[i].value = (int)gm_FindBuildingById(cm_SendStates[i].value);
             if (cm_SendStates[i].kind == 9)

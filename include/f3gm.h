@@ -14,7 +14,7 @@ struct AIOBJ *gm_BuildingMainObject(struct AIBLD *bld);  /* 0x501b50, the main o
 struct AICHAR *gm_FindChar(int id);                     /* 0x505df0, the character with the id, 0 when none */
 int gm_FindById(struct AIBLD **bld, struct AIOBJ **obj, struct AICHAR **chr, int id);  /* 0x4fea50, what has the id: 1 building, 2 object, 3 character */
 int gm_FindObjectProto(char *name);             /* 0x4fe900, the number of the object prototype with the given name (case-insensitive), 0 when none */
-int gm_FindObjectInst(int id);                  /* 0x4fe980, the object instance with the id (int +2) */
+struct AIOBJ *gm_FindObjectInst(int id);                  /* 0x4fe980, the object instance with the id (int +2) */
 struct AIBLD *gm_FindBuildingById(int id);              /* 0x502020, the building with the id (+1) */
 void gm_ResetStock(void);                       /* 0x50cc60, the stock of the type 0x1e buildings' stalls to 2 */
 int gm_TitleNumber(int group, int rank);        /* 0x5043d0, the title number of the rank in the group */

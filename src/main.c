@@ -4627,7 +4627,7 @@ void main_GameLoop(int ctl)
     /* a loaded game: the weather, and the view at the building / object the save was made at */
     if ((ai_GameFlags & 2) != 0 && (sv_SetupWeather(&ai_Time, 0), ls_LoadedHeader.startBuilding != -1)) {
         bld = gm_FindBuildingById(ls_LoadedHeader.startBuilding);
-        inst = (AIOBJ *)gm_FindObjectInst(ls_LoadedHeader.startObject);
+        inst = gm_FindObjectInst(ls_LoadedHeader.startObject);
         ai_FrameWait = 2;
         if (bld != 0 && inst != 0) {
             init_LoadObjectScene(inst->type);

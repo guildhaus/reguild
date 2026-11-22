@@ -511,7 +511,7 @@ int gm_IsBuildingKind(int n)
 }
 /* 0x4fe980, the object instance with the id (int at +2) in the instance table, 0 when none */
 
-int gm_FindObjectInst(int id)
+AIOBJ *gm_FindObjectInst(int id)
 {
     int i;
     AIOBJ *o;
@@ -524,7 +524,7 @@ int gm_FindObjectInst(int id)
         if (i >= 0x5008)
             return 0;
     }
-    return (int)ai_Objects + i * 0x43;
+    return &ai_Objects[i];
 }
 /* 0x4fe9c0, frees the buildings of the group (1, 6) and the four tables (building prototypes, building instances, object prototypes, object instances) */
 

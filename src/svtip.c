@@ -1195,7 +1195,7 @@ void ai_InitBookmarks(void)
     }
 }
 
-struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
+struct AIBLD *gm_FindBuildingById(int id); struct AIOBJ *gm_FindObjectInst(int id); unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 
 /* 0x589450, drops the stale bookmarks (113 B): every set one (building not -1) whose building is gone
    (gm_FindBuildingById), whose object is set but gone (gm_FindObjectInst) or whose permission for the own player
@@ -1203,7 +1203,7 @@ struct AIBLD *gm_FindBuildingById(int id); int gm_FindObjectInst(int id); unsign
 void ai_ValidateBookmarks(void)
 {
     AIBLD *b;
-    int e;
+    AIOBJ *e;
     int i;
 
     for (i = 0; i < 11; i++) {
@@ -1216,7 +1216,7 @@ void ai_ValidateBookmarks(void)
             e = gm_FindObjectInst(ai_Bookmarks[i].object);
             if (e == 0 && ai_Bookmarks[i].object != -1)
                 ai_ClearBookmark(&ai_Bookmarks[i]);
-            else if ((gm_PermissionBits(ai_PlayerId, b, (struct AIOBJ *)e, 0) & 1) == 0)
+            else if ((gm_PermissionBits(ai_PlayerId, b, e, 0) & 1) == 0)
                 ai_ClearBookmark(&ai_Bookmarks[i]);
         }
     }
@@ -1238,7 +1238,7 @@ void ai_SelectBookmark(void)
             ai_ValidateBookmarks();
             if (ai_Bookmarks[i].building != -1) {
                 b = gm_FindBuildingById(ai_Bookmarks[i].building);
-                o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
+                o = gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (o != 0)
                     sv_SelectPanelObject(b, o->objId, ch_EmptyName);
                 else
@@ -1356,7 +1356,7 @@ void ai_BookmarkWindow(void)
                 if (ai_Bookmarks[i].building != -1)
                     b = gm_FindBuildingById(ai_Bookmarks[i].building);
                 if (ai_Bookmarks[i].object != -1)
-                    o = (AIOBJ *)gm_FindObjectInst(ai_Bookmarks[i].object);
+                    o = gm_FindObjectInst(ai_Bookmarks[i].object);
                 if (b != 0) {
                     d2_WinOpenPic(0x60, i * 0x38, b->type + 0x427, d2_LastWindow);
                     txt_Format(line, (intptr_t)"%2N8~ %1G", b->owner, b);

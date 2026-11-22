@@ -4346,6 +4346,7 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     D3OBJECT *o;
     CHACTION *r;
     int i = 0;
+    AIOBJ *obj = 0;
     AIBLD *b = 0;
     int save;
 
@@ -4354,12 +4355,12 @@ int cm_ExChrWalkToDummy(G17MSG *m, G17STAT *s)
     if (p == 0)
         return 1;
     if (m->place.objId != -1)
-        i = gm_FindObjectInst(m->place.objId);
+        obj = gm_FindObjectInst(m->place.objId);
     else
         b = gm_FindBuildingById(m->place.bldId);
     save = d3_CurrentScene;
     if (m->place.objId != -1)
-        i = init_ObjectSceneUniverse((struct AIOBJ *)i);
+        i = init_ObjectSceneUniverse(obj);
     else if (m->place.bldId != -1)
         i = init_BuildingSceneUniverse(b);
     else
@@ -5481,7 +5482,7 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
     id = gm_CreateCharacter(m->spawn.kind, -1, -1, 0x14, 0, m->spawn.job, m->spawn.title, 0);
     if (id == 0xffff)
         return 1;
-    if (m->spawn.objId != -1 && (t = (AIOBJ *)gm_FindObjectInst(m->spawn.objId)) != 0)
+    if (m->spawn.objId != -1 && (t = gm_FindObjectInst(m->spawn.objId)) != 0)
         gm_PlaceOnStage(ai_Chars[id].netId, b->id, t->objId, 0, 0);
     else
         gm_PlaceOnStage(ai_Chars[id].netId, b->id, -1, 0, 0);
@@ -5504,12 +5505,12 @@ int cm_ExSpawnCharacter(G17MSG *m, G17STAT *s)
 
 int cm_ExFreeObject(G17MSG *m, G17STAT *s)
 {
-    char *t;
+    AIOBJ *t;
 
     t = gm_FindObjectInst(m->freeObject.objId);
     if (t == 0)
         return 1;
-    gm_FreeObject((AIOBJ *)t);
+    gm_FreeObject(t);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;
@@ -6530,7 +6531,7 @@ int cm_ExSetRoute(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    cart = (AIOBJ *)gm_FindObjectInst(m->route.objId);
+    cart = gm_FindObjectInst(m->route.objId);
     if (cart == 0)
         return -1;
     if (cart->route != 0) {
@@ -6563,7 +6564,7 @@ int cm_ExClearRoute(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->value = 0;
     }
-    q = (AIOBJ *)gm_FindObjectInst(m->route.objId);
+    q = gm_FindObjectInst(m->route.objId);
     if (q == 0)
         return -1;
     if (q->route != 0) {

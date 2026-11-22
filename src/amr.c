@@ -2164,7 +2164,7 @@ int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     bld = 0;
     c = 0;
     if (o2->kind == 1) {
-        obj = (AIOBJ *)gm_FindObjectInst(o2->ref);
+        obj = gm_FindObjectInst(o2->ref);
         if (!obj)
             return 0;
         g = &AI_GOODX[obj->id];
@@ -2245,7 +2245,7 @@ int ai_ExecuteProduceGood(AICHAR *p, AIARG *s1, AIARG *s2)
     int id, price;
 
     if (s2->kind == 1) {
-        o = (AIOBJ *)gm_FindObjectInst(s2->ref);
+        o = gm_FindObjectInst(s2->ref);
         if (!o)
             return 0;
         id = o->objId;
