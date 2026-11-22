@@ -122,17 +122,6 @@ extern const struct D3VECTOR d3_ZeroRot;      /* 0x5ebbb4, (0, 0, 0), d3_vec.c *
 char *gv_AllocAvatar(void);              /* 0x4ed170 */
 int gv_WriteAvatars(void *f);             /* 0x4ed1e0 */
 int gv_ReadAvatars(void *f);             /* 0x4ed270 */
-typedef struct GVEFFPART {              /* 0x68 bytes, one of an effect slot's three parts (saved field by field) */
-    float v0[4];                        /* 0x00 */
-    float v1[4];                        /* 0x10 */
-    float v2[4];                        /* 0x20 */
-    float v3[4];                        /* 0x30, not saved */
-    float v4[4];                        /* 0x40 */
-    int a, b, c;                        /* 0x50 */
-    int state;                          /* 0x5c, the part is a SHOTREC (menu.h): this is its state, 0 idle, 1 in flight, 2 landed, 3 left the map (gv_UpdateEffects) */
-    int time;                           /* 0x60, not saved: the reader sets it to d3_Time */
-    int steps;                          /* 0x64, the flight steps made (SHOTREC.steps) */
-} GVEFFPART;
 typedef struct GVEFFREC {               /* 16 bytes, a record of an effect slot's argument */
     int bldId;                          /* 0x00, a building id (gm_BuildQuery(1, 1, id)), -1: none */
     float dist;                         /* 0x04, the building's distance from the explosion (gv_ExplodeShot) */

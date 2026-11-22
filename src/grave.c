@@ -54,16 +54,6 @@ extern const float gv_GraveWear[];
 #define gv_FindEntryCb(cb) ((int (*)(void *, void *))(cb))  /* @original: gv_FindEntry's callback is int (*)() (gv.h, its callbacks take differing pointer types); the call pushes two pointers (0x4ef8df push esi, 0x4ef8e0 push ebx) and reads an int (0x4ef8e6 test eax) */
 
 /* dcp unit split: the declarations of gv before the moved functions */
-typedef struct GVSHOTMSG {              /* 0x80 bytes, the data of message 0x67 (cm_SendShots): a cannon ball fired at a building; the receiver (0x4eee00) starts it as a part of the effect slot */
-    int id;                             /* 0x00, the building's id, the effect slot's id */
-    float v;                            /* 0x04, taken off the slot's fade value of the mode (only the first ball of a salvo carries it, then 0) */
-    int mode;                           /* 0x08, 0 one ball, 1 two, 2 three */
-    union {
-        SHOTREC shot;                   /* 0x0c, the ball as sent (gv_FireShots) */
-        GVEFFPART part;                 /* the same record as the slot's part it becomes (0x4eee00) */
-    };
-    int pad74[3];
-} GVSHOTMSG;
 
 /* 0x4ef3c0, the number of small (0x44-byte) graves of the graveyard building o by its type's level (AIBTYPE +0x247) and the
    sizes in use (GVYARD.open): level 1: 8, 16 with open[1]; level 2: 12 / 24 with open[1], + 8 with open[2]; else 16 / 32 with

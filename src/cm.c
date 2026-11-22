@@ -6495,7 +6495,7 @@ int cm_ExShots(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->ref = 0;
     }
-    r = gv_StartShot((struct GVSHOTMSG *)&m->data[0], s);
+    r = gv_StartShot(&m->shots, s);
     if (s != 0 && r != 0)
         s->state = 1;
     if (r != 0)

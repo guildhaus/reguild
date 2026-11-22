@@ -6,7 +6,7 @@
 #include "ai_types.h"                /* AITIME, for CRIME */
 #include "d3_types.h"                /* D3VECTOR, D3VECTOR4 */
 #include "amt_types.h"               /* AMTAPP, AMTMSG, for messages 0x44 / 0x45 */
-#include "gv_types.h"                /* GVDECMSG, GVMOVE, for messages 0x46 / 0x61 */
+#include "gv_types.h"                /* GVDECMSG, GVMOVE, GVSHOTMSG, for messages 0x46 / 0x61 / 0x67 */
 #include "cm_bomb.h"                 /* CMBOMB, cm_Bombs */
 
 #pragma pack(push, 1)
@@ -748,6 +748,7 @@ typedef struct G17MSG {                 /* 0x99 bytes, a game message (its head 
         AMTTRADE trade;                 /* 0x10, message 0x5c */
         GVDECMSG decision;              /* 0x10, message 0x46 */
         GVMOVE graveMove;               /* 0x10, message 0x61 (cm_SendGraveMove) */
+        GVSHOTMSG shots;                /* 0x10, message 0x67 (cm_SendShots; cm_ExShots starts it) */
         ORDINITMSG record;              /* 0x10, message 0x56 (cm_SendMessage56): ord.c's message record */
         G17CHARCLEARMSG clear;          /* 0x10, message 0x47 */
         G17SETJOBMSG setJob;            /* 0x10, message 0x48 */

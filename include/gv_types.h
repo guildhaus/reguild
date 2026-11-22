@@ -2,6 +2,7 @@
    decision record AIDEC (gv_GetTableRecord) and a graveyard's list entry GVENTRY (gv_ListEntry, he.c's graveyard work), for the units that declare them without the rest of gv.h: types only. gv.h includes it. */
 #ifndef GV_TYPES_H
 #define GV_TYPES_H
+#include "shot_types.h"                /* SHOTREC, for GVSHOTMSG */
 
 /* the wage record of gm_CharacterWages (0x4fa700): the two profession ids, the wage kind and the three amounts */
 typedef struct ORDWAGES {
@@ -124,5 +125,27 @@ typedef struct ORDMSG {
     struct AICHAR *partner;         /* 0x21c, the partner character of an answer (the privileges panel sets it to the
                                        player's partner of the pair event 0x45) */
 } ORDMSG;
+
+typedef struct GVEFFPART {              /* 0x68 bytes, one of an effect slot's three parts (saved field by field) */
+    float v0[4];                        /* 0x00 */
+    float v1[4];                        /* 0x10 */
+    float v2[4];                        /* 0x20 */
+    float v3[4];                        /* 0x30, not saved */
+    float v4[4];                        /* 0x40 */
+    int a, b, c;                        /* 0x50 */
+    int state;                          /* 0x5c, the part is a SHOTREC (menu.h): this is its state, 0 idle, 1 in flight, 2 landed, 3 left the map (gv_UpdateEffects) */
+    int time;                           /* 0x60, not saved: the reader sets it to d3_Time */
+    int steps;                          /* 0x64, the flight steps made (SHOTREC.steps) */
+} GVEFFPART;
+typedef struct GVSHOTMSG {              /* 0x80 bytes, the data of message 0x67 (cm_SendShots): a cannon ball fired at a building; the receiver (0x4eee00) starts it as a part of the effect slot */
+    int id;                             /* 0x00, the building's id, the effect slot's id */
+    float v;                            /* 0x04, taken off the slot's fade value of the mode (only the first ball of a salvo carries it, then 0) */
+    int mode;                           /* 0x08, 0 one ball, 1 two, 2 three */
+    union {
+        SHOTREC shot;                   /* 0x0c, the ball as sent (gv_FireShots) */
+        GVEFFPART part;                 /* the same record as the slot's part it becomes (0x4eee00) */
+    };
+    int pad74[3];
+} GVSHOTMSG;
 
 #endif

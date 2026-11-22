@@ -20,8 +20,8 @@
    Open: some functions index ai_PlayerSlots with the stride 0x5e8 where gv_ReserveGrave shows 0x2f4 (GMPLAYERSLOT).
    Open: head: cm.h redeclares gv functions (gv_GrowGraveyard as struct GVYARD *); cm.c cannot include gv.h yet (two
    calls conflict: gv_CrimeText, gv_PassSentence).
-   Open: GVEFFPART duplicates SHOTREC and UNKHITS-style copies remain (am.h G9KIND / G9CANNON view gv's records); gv.h
-   does not include menu.h, so the parts are cast to SHOTREC.
+   Open: GVEFFPART duplicates SHOTREC and UNKHITS-style copies remain (am.h G9KIND / G9CANNON view gv's records); both
+   records are in gv_types.h now (SHOTREC through shot_types.h), the parts are still cast to SHOTREC.
    unit of rea 8cef7d5b (src/game/gv.c); boundaries in decl/text.dcl */
 #include "txt_views.h"
 #include <windows.h>
@@ -828,16 +828,6 @@ found:
     gv_Effects[i].flags = 0;
     return 1;
 }
-typedef struct GVSHOTMSG {              /* 0x80 bytes, the data of message 0x67 (cm_SendShots): a cannon ball fired at a building; the receiver (0x4eee00) starts it as a part of the effect slot */
-    int id;                             /* 0x00, the building's id, the effect slot's id */
-    float v;                            /* 0x04, taken off the slot's fade value of the mode (only the first ball of a salvo carries it, then 0) */
-    int mode;                           /* 0x08, 0 one ball, 1 two, 2 three */
-    union {
-        SHOTREC shot;                   /* 0x0c, the ball as sent (gv_FireShots) */
-        GVEFFPART part;                 /* the same record as the slot's part it becomes (0x4eee00) */
-    };
-    int pad74[3];
-} GVSHOTMSG;
 
 /* 0x4eeb70, fires up to three cannon balls (a, b, d: SHOTREC, b and d may be 0) of the character ch at the building bld: unless the
    building's effect slot is busy (flag 2), the first ball pays (gm_SendMoneyDelta(-cost), cm_SendMoveGoodsUnchecked of x; the ball a
