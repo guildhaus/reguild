@@ -1521,16 +1521,16 @@ void main_GiveStartBuildings(int p)
 {
     AIBLD *b;
     AIOBJ *o;
-    char *l;
+    AIOBJ *l;
     int i;
 
     b = gm_BuildQuery(1, 0, 6);
     if (b != 0) {
         strcpy(b->name, "Home-Sweet-Home");
         gm_AssignBuilding(b, p, p);
-        l = (char *)gm_Query(b->objList, 1, 0, 0x13);
+        l = gm_Query(b->objList, 1, 0, 0x13);
         if (l != 0)
-            gm_ShowSlotObjects((int)b, (int)l, p);
+            gm_ShowSlotObjects(b, l, p);
         cm_SendExSellObject(b->id, -1, 0x15, 1, ai_OwnPlayer, 0);
         cm_SendExSellObject(b->id, -1, 0x17, 1, ai_OwnPlayer, 0);
         cm_SendExSellObject(b->id, -1, 0x18, 1, ai_OwnPlayer, 0);

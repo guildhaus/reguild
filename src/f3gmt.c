@@ -2786,7 +2786,7 @@ char gm_CollectSlotObject(D3OBJECT *o, void *ctx)
     return list->n < 0x40;
 }
 /* 0x502a60, when the panel shown (sv_PanelShown) is the scene: the five slot bytes of the character c (+0x80 of its record) give the wanted keys 0x17f + 6 k + (int)(slot / 42 - 0.5), 0 for an empty slot; the default scene's objects of goods kind 0x21 (gm_CollectSlotObject) are switched off (d3if_ShowTree (obj, 0)) and those whose key is wanted on again */
-void gm_ShowSlotObjects(int unused, int scene, int c)
+void gm_ShowSlotObjects(AIBLD *unused, AIOBJ *scene, int c)
 {
     int want[5];
     GMSLOTOBJS list;
@@ -2918,19 +2918,20 @@ void gm_AssignBuilding(AIBLD *b, unsigned master, unsigned own)
 
 void gm_ShowBuildingObjects(AIBLD *b)
 {
-    int l[32];
-    int n, i, o;
+    AIOBJ *l[32];
+    AIOBJ *o;
+    int n, i;
 
     n = 0;
     if (ai_BTypes[b->type].kind == 2) {
-        o = (int)gm_Query(b->objList, 1, 4, 2);
+        o = gm_Query(b->objList, 1, 4, 2);
         while (o != 0) {
             l[n] = o;
             n++;
-            o = (int)gm_QueryNext();
+            o = gm_QueryNext();
         }
         for (i = 0; i < n; i++)
-            gm_ShowSlotObjects((int)b, l[i], b->owner);
+            gm_ShowSlotObjects(b, l[i], b->owner);
     }
 }
 /* 0x502eb0, lists the characters working in the building b (their building, bld, is b) into out and returns their number (also out[0]): out[1 ..] (0xc) those with the title of the kind's first job rank (+0x22f), out[0xd ..] (0xc) of the second (+0x230), out[0x19 ..] (0xc) the others, out[0x25] the one whose job is one of the kind's two jobs (+0x223 / +0x224, both set); the lists are filled with 0xffff
