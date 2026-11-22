@@ -77,7 +77,7 @@ typedef struct D2WIN {              /* 0x3c4 bytes, d2_Wins[0..0x60] */
     };
     int firstline;                  /* 0x238 */
     int nlines;                     /* 0x23c */
-    int pad240;
+    int keyidx;                     /* 0x240 */
     int contentHeight;              /* 0x244, height of the content */
     union {
         int scrollY;                /* 0x248, scroll offset y */

@@ -79,7 +79,12 @@ typedef struct D2FORMH {            /* start of one window of a form file, both 
     short pad0ce;
     int type[0x30];                 /* 0xd0, kind of an item: < 0x40 picture, 0x41 input, 0x43 text, 0x45 slider */
     char name[0x30][0x40];          /* 0x190, picture / text key of an item */
-    int kind[0x30];                 /* 0xd90, byte 0: flags, 1: w, 2: h of an input; 0x12 / 8: picture kinds */
+    union {
+        int kind[0x30];             /* 0xd90, 0x12 / 8: picture kinds */
+        struct {
+            unsigned char flags, w, h, pad;
+        } input[0x30];              /* 0xd90, of an input item (d2_WinOpenInput) */
+    };
     char key[0x40];                 /* 0xe50, text key of the window text */
 } D2FORMH;
 
@@ -100,36 +105,10 @@ typedef struct D2FORM2 {            /* 0x101c bytes, version 2 */
     short m[4];                     /* 0xf14, text margins */
     unsigned char slen[0x30];       /* 0xf1c, length of a slider item */
     char bg[0x40];                  /* 0xf4c, background picture of the window */
-    union {
-        float alpha;                /* 0xf8c */
-        int alphaBits;              /* 0xf8c, the same bytes as an int (stored into D2WINF.alpha) */
-    };
+    float alpha;                    /* 0xf8c, the window's D2WIN.alpha (0: 0.65 for a sprite window) */
     char frame[0x40];               /* 0xf90, frame picture */
     char pad0fd0[0x4c];
 } D2FORM2;
-
-typedef struct D2WINF {             /* full view of D2WIN (0x3c4 bytes, d2_Wins) */
-    int unk00;
-    short x, y, w, h;               /* 0x04 */
-    unsigned int flags;             /* 0x0c */
-    short m[4];                     /* 0x10, text margins */
-    int *objs;                      /* 0x18 */
-    short nobjs;                    /* 0x1c */
-    char pad1e[0xe];
-    char *text;                     /* 0x2c */
-    char pad30[0x210];
-    int keyidx;                     /* 0x240 */
-    char pad244[0x28];
-    int parent;                     /* 0x26c */
-    char pad270[8];
-    int frame;                      /* 0x278 */
-    short font;                     /* 0x27c */
-    char pad27e[0x10a];
-    int pic;                        /* 0x388 */
-    char pad38c[8];
-    int alpha;                      /* 0x394 */
-    char pad398[0x2c];
-} D2WINF;
 
 typedef struct D2DISSOLVE {         /* 0x20 bytes, a picture being copied to the screen in steps (d2_DissolveStep) */
     void *mask;                     /* 0x00 */

@@ -1755,7 +1755,7 @@ void ch_ActSitDown(CHACTION *a)
         }
         if (ch->slot) {
             ch->slot->flags.b[0] = 1;
-            ((int *)&ch->slot->flags)[1] &= ~3;
+            ch->slot->rootFlags &= ~3;
             ch->slot->flags.b[1] |= 0x10;
         }
     } else if (ch_ActAnim(a) == -1) {
@@ -1821,7 +1821,7 @@ void ch_ActStandUp(CHACTION *a)
             return;
         }
         ch->slot->flags.b[0] = 1;
-        ((int *)&ch->slot->flags)[1] &= ~3;
+        ch->slot->rootFlags &= ~3;
         ch->slot->flags.b[1] |= 0x10;
     } else if (ch_ActAnim(a) == -1) {
         ch_ReleaseSit(ch);
@@ -2120,7 +2120,7 @@ void ch_ActPlayOnce(CHACTION *a)
         if (ch->slot) {
             ch->flags.all |= 2;
             ch->slot->flags.b[0] = 1;
-            ((int *)&ch->slot->flags)[1] &= ~3;
+            ch->slot->rootFlags &= ~3;
             ch->slot->flags.b[1] |= 0x10;
         } else
             ch_RemoveAction(a);

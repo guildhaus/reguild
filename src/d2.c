@@ -7,7 +7,6 @@
    Open: 0x476b70 (d2_ClearInput) may belong to gfx.c instead; the evidence does not decide, codegen neutral.
    Open: d2.h is not yet the only declaration of d2's functions (K&R copies in menu.c, sv_t.c, cm.h, rt.h and
    others), and it declares vfs_ / err_ functions itself.
-   Open: d2.h's view D2WINF (of D2WIN) is still to be folded into its type.
    unit of rea 8cef7d5b (src/game/d2.c); boundaries in decl/text.dcl */
 #include "txt_views.h"
 #include <stdio.h>
@@ -4689,7 +4688,7 @@ int d2_OpenForm(short x, short y, char *name)
     unsigned char fl;
     void *f;
     int n, ver, view, i, k, win, pw, o, pic, idx, parent;
-    D2WINF *ww, *pww;
+    D2WIN *ww, *pww;
     D2FORMH *r;
 
     strcpy(buf, name);
@@ -4728,8 +4727,8 @@ int d2_OpenForm(short x, short y, char *name)
             r = &d2_Forms0[i].h;
             parent = d2_Forms0[i].parent;
             if (parent != 0) {
-                pw = ((int *)&d2_Views[view])[parent];
-                pww = (D2WINF *)&d2_Wins[pw];
+                pw = d2_Views[view].wins[parent - 1];
+                pww = &d2_Wins[pw];
             }
             if (parent != 0)
                 win = d2_CreateChildWindow(r->x - pww->x, r->y - pww->y, r->w, r->h, r->flags, pw);
@@ -4738,8 +4737,8 @@ int d2_OpenForm(short x, short y, char *name)
             d2_Views[view].wins[i] = win;
         } else if (ver == 2) {
             if (d2_Forms2[i].parent != 0) {
-                pw = ((int *)&d2_Views[view])[d2_Forms2[i].parent];
-                pww = (D2WINF *)&d2_Wins[pw];
+                pw = d2_Views[view].wins[d2_Forms2[i].parent - 1];
+                pww = &d2_Wins[pw];
                 win = d2_CreateChildWindow(r->x - pww->x, r->y - pww->y, r->w, r->h, r->flags, pw);
             } else
                 win = d2_CreateWindow(r->x, r->y, r->w, r->h, r->flags);
@@ -4747,11 +4746,11 @@ int d2_OpenForm(short x, short y, char *name)
             if (d2_Forms2[i].bg[0] != 0)
                 d2_SetBackgroundTexture(d2_Forms2[i].bg, d2_LastWindow);
             if ((d2_Wins[d2_LastWindow].flags & 1) && d2_Forms2[i].alpha == 0.0f)
-                ((D2WINF *)&d2_Wins[d2_LastWindow])->alpha = 0x3f266666;
+                d2_Wins[d2_LastWindow].alpha = 0.65f;
             else
-                ((D2WINF *)&d2_Wins[d2_LastWindow])->alpha = d2_Forms2[i].alphaBits;
+                d2_Wins[d2_LastWindow].alpha = d2_Forms2[i].alpha;
         }
-        ww = (D2WINF *)&d2_Wins[d2_Views[view].wins[i]];
+        ww = &d2_Wins[d2_Views[view].wins[i]];
         if (ver == 2) {
             char *fn = d2_Forms2[i].font;
 
@@ -4759,13 +4758,13 @@ int d2_OpenForm(short x, short y, char *name)
                 fn = "_FONT";
             ww->font = d2_FindPic(fn);
             if (d2_Forms2[i].pic[0] != 0) {
-                ww->pic = d2_FindPic(d2_Forms2[i].pic);
-                d2_AddRefcount(ww->pic);
+                ww->bgpic = d2_FindPic(d2_Forms2[i].pic);
+                d2_AddRefcount(ww->bgpic);
             }
-            ww->m[0] = d2_Forms2[i].m[0];
-            ww->m[1] = d2_Forms2[i].m[1];
-            ww->m[3] = d2_Forms2[i].m[3];
-            ww->m[2] = d2_Forms2[i].m[2];
+            ww->ml = d2_Forms2[i].m[0];
+            ww->mr = d2_Forms2[i].m[1];
+            ww->mb = d2_Forms2[i].m[3];
+            ww->mt = d2_Forms2[i].m[2];
             if (ww->flags & 4) {
                 idx = d2_FindPic(d2_Forms2[i].frame);
                 ww->frame = idx;
@@ -4803,8 +4802,8 @@ int d2_OpenForm(short x, short y, char *name)
             }
             if (r->type[k] == 0x41) {
                 fl = (unsigned char)r->kind[k];
-                o = d2_WinOpenInput(r->ix[k], r->iy[k], ((unsigned char *)&r->kind[k])[1],
-                                    ((unsigned char *)&r->kind[k])[2], fl, win);
+                o = d2_WinOpenInput(r->ix[k], r->iy[k], r->input[k].w,
+                                    r->input[k].h, fl, win);
             } else if (r->type[k] == 0x45) {
                 fl = (unsigned char)r->kind[k];
                 o = d2_WinOpenSlider(r->ix[k], r->iy[k], d2_Forms2[i].slen[k], 0, 100, d2_FindPic(r->name[k]), fl, win);
@@ -4813,26 +4812,26 @@ int d2_OpenForm(short x, short y, char *name)
             d2_Objs[o].buf = (D2CTRL *)&d2_Views[view];
         }
         if (r->key[0] == 0)
-            ((int *)ww)[0x90] = -1;
+            ww->keyidx = -1;
         else {
             idx = txt_FindKey(r->key);
             if (idx != -1)
                 strcpy(ww->text, txt_Ptrs[idx]);
-            ((int *)ww)[0x90] = idx;
+            ww->keyidx = idx;
         }
         if (ver == 0) {
             short fnt;
 
-            ww->m[1] = d2_Forms0[i].m[1];
-            ww->m[0] = d2_Forms0[i].m[0];
-            ww->m[2] = d2_Forms0[i].m[2];
+            ww->mr = d2_Forms0[i].m[1];
+            ww->ml = d2_Forms0[i].m[0];
+            ww->mt = d2_Forms0[i].m[2];
             fnt = (short)d2_Forms0[i].font;
-            ww->m[3] = d2_Forms0[i].m[3];
+            ww->mb = d2_Forms0[i].m[3];
             if (fnt == 0)
                 fnt = d2_FindPic("_FONT");
             ww->font = fnt;
             if (d2_Forms0[i].bgpic > 0)
-                ww->pic = d2_Forms0[i].bgpic;
+                ww->bgpic = d2_Forms0[i].bgpic;
         }
     }
     d2_Views[view].active = 1;
@@ -4842,7 +4841,7 @@ int d2_OpenForm(short x, short y, char *name)
     d2_CurrentView = view;
     d2_FullFormPath = 0;
     strcpy(d2_Views[view].pad22c, name);
-    ww = (D2WINF *)&d2_Wins[d2_Views[view].wins[0]];
+    ww = &d2_Wins[d2_Views[view].wins[0]];
     if (x != 0 && y != 0)
         d2_MoveObj(x, y, ww->parent);
     if (d2_ScreenW < ww->x + ww->w)
