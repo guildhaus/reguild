@@ -1158,7 +1158,7 @@ int gm_LevelPayout(int v, int kind);
 int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
-int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
+int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
 struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
 float gm_StockPrice(int p, int n);  /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
 typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AIJOB's union (he_AllocRansom / he_RunRansom;

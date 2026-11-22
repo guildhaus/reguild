@@ -303,37 +303,37 @@ int ai_LoadSettings(struct VFSFILE *f);  /* 0x5a8a20, reads the production setti
 void ai_FreePicture(void);                                         /* 0x5bc0f0 */
 
 /* declared in other units' headers before (moved to the owner) */
-struct AICHAR; struct LCORDMSG; int ai_DismissalHandler(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ce950, the dismissal order's ask */
-struct AICHAR; struct LCORDMSG; int ai_BewitchOrder(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cacd0, the bewitch order's ask */
-struct AICHAR; struct LCORDMSG; int ai_DismissOfficeAsk(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ca560 */
-int ai_PenanceWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cca40, the penance order's ask */
-struct AICHAR; struct LCORDMSG; int ai_ExpelWorkerWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cbe00, the expel-worker order's ask */
-int ai_MiracleWindow(void *ch, int *m);  /* 0x5cd2e0 */
-struct AICHAR; struct LCORDMSG; int ai_HearingWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cba90, the hearing order's ask */
-int ai_ConvertWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cc700, the conversion order's ask */
-struct AICHAR; struct LCORDMSG; int ai_PeaceWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cc2b0, the peace order's ask */
-int ai_ChangeProfessionWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cd400, the profession change */
-struct AICHAR; struct LCORDMSG; int ai_HatredWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cb4f0, the hatred order's ask */
+struct AICHAR; struct ORDMSG; int ai_DismissalHandler(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ce950, the dismissal order's ask */
+struct AICHAR; struct ORDMSG; int ai_BewitchOrder(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cacd0, the bewitch order's ask */
+struct AICHAR; struct ORDMSG; int ai_DismissOfficeAsk(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ca560 */
+int ai_PenanceWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cca40, the penance order's ask */
+struct AICHAR; struct ORDMSG; int ai_ExpelWorkerWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cbe00, the expel-worker order's ask */
+int ai_MiracleWindow(void *ch, struct ORDMSG *m);  /* 0x5cd2e0 */
+struct AICHAR; struct ORDMSG; int ai_HearingWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cba90, the hearing order's ask */
+int ai_ConvertWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cc700, the conversion order's ask */
+struct AICHAR; struct ORDMSG; int ai_PeaceWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cc2b0, the peace order's ask */
+int ai_ChangeProfessionWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cd400, the profession change */
+struct AICHAR; struct ORDMSG; int ai_HatredWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cb4f0, the hatred order's ask */
 void ai_Interrogate(struct AICHAR *me, struct AICHAR *ch);  /* 0x5ce4b0, carries out the interrogation */
-int ai_InterrogationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ce610, the interrogation order's ask */
-int ai_InterrogationWindow1(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cede0, the interrogation order's ask, variant 1 */
-int ai_InterrogationWindow2(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cf020, the interrogation order's ask, variant 2 */
+int ai_InterrogationWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ce610, the interrogation order's ask */
+int ai_InterrogationWindow1(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cede0, the interrogation order's ask, variant 1 */
+int ai_InterrogationWindow2(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cf020, the interrogation order's ask, variant 2 */
 int ai_ChooseProfessionWindow(struct AICHAR *parent, struct AICHAR *child);  /* 0x5cf260, the profession chooser: parent apprentices child */
 int ai_UniversityWindow(struct AICHAR *parent, struct AICHAR *child);  /* 0x5cf4f0, the university window: the player sends child to study */
-struct AICHAR; struct LCORDMSG; int ai_LawPrivilegeWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ca150 */
-struct AICHAR; struct LCORDMSG; int ai_MisappropriationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ca860 */
-struct LCORDMSG; int ai_CourtshipWindow(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c6d00, the courtship order's ask (lc.c LCORDMSG: gv.h ORDMSG) */
-int ai_FaithAccusationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5ce1a0, the accusation by faith (ai_AccusationWindow's twin) */
-int ai_AccusationWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cde90, the accusation order's ask */
+struct AICHAR; struct ORDMSG; int ai_LawPrivilegeWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ca150 */
+struct AICHAR; struct ORDMSG; int ai_MisappropriationWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ca860 */
+struct ORDMSG; int ai_CourtshipWindow(struct AICHAR *ch, struct ORDMSG *m);  /* 0x5c6d00, the courtship order's ask */
+int ai_FaithAccusationWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5ce1a0, the accusation by faith (ai_AccusationWindow's twin) */
+int ai_AccusationWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cde90, the accusation order's ask */
 void ai_ShowCharacterNews(struct AICHAR *cRec, char *text);  /* 0x5a9110 */
 void ai_ShowEvidenceVoidNews(struct AICHAR *toldRec, struct AICHAR *culpritRec);  /* 0x5a9430 */
 void ai_TellGraveNeglect(struct AICHAR *plRec, int bld);  /* 0x5a9690 */
 void ai_NotifySale(struct AICHAR *owner, unsigned short *buyer, int bld, int size, int price, int share);  /* 0x5a96e0, the grave sale news to the graveyard's owner */
 void ai_TellGravesPaid(struct AICHAR *plRec, int bld, int paid, int sum);  /* 0x5a9780 */
 void ai_DomizilMessage12(struct AICHAR *ch, struct AIBLD *b, int n);  /* 0x5a9e40, posts the Domizil message 12 (text 0x4071 + n) about the building b to the character ch */
-struct AICHAR; struct LCORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
-int ai_DivorceDialog(struct AICHAR *ch, struct LCORDMSG *m);  /* 0x5c8ef0, the divorce order's ask (ord.c 0x4f5800); m is not read */
-int ai_WorkerDismissalWindow(void *ch, int *m);  /* 0x5ce7f0 */
+struct AICHAR; struct ORDMSG; int ai_MedicusHandler(struct AICHAR *ch, struct ORDMSG *m);  /* 0x5c8bc0, the medicus order's ask (ord_MedicusOrder); m is not read */
+int ai_DivorceDialog(struct AICHAR *ch, struct ORDMSG *m);  /* 0x5c8ef0, the divorce order's ask (ord.c 0x4f5800); m is not read */
+int ai_WorkerDismissalWindow(void *ch, struct ORDMSG *m);  /* 0x5ce7f0 */
 typedef struct AMOUNTCFG {              /* 0x50 bytes, the config of the special-amount menu ai_AmountMenu (lc.c) */
     int flags;                          /* +0x00, 1 / 0x20400 / 0x2040a .. (the gypsy windows: 1) */
     int mode;                           /* +0x04, 0x400: the partner filter bits (lc.c ai_PassesPartnerFilter) */
@@ -387,11 +387,11 @@ void ai_UpdateTownMap(LCMAPWIN *m);  /* 0x5a7cd0, the town map window's per-fram
 void ai_CloseMapWindow(int *m_);  /* 0x5a82f0 */
 unsigned char *ai_FindItemGroup(char *good);  /* 0x5a84d0, the item group (am_types.h G7GRP) of a building's kind byte, 0 when none */
 void ai_GypsyDeliveryText(struct AICHAR *from, int n, void **to);  /* 0x5a9470, the gypsys' delivery news of the sender from (a character) about its n targets to */
-struct AICHAR; struct LCORDMSG; int ai_BlackmailBuildingListener(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9550 */
-struct AICHAR; struct LCORDMSG; int ai_BlackmailContact(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9c50 */
-struct AICHAR; struct LCORDMSG; int ai_IntimidateContact(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5c9ff0 */
-int ai_CounterEspionage(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cae00, the counter-espionage order's ask */
-int ai_SeatSwapWindow(struct AICHAR *me, struct LCORDMSG *m);  /* 0x5cb250, the seat swap order's ask */
+struct AICHAR; struct ORDMSG; int ai_BlackmailBuildingListener(struct AICHAR *me, struct ORDMSG *m);  /* 0x5c9550 */
+struct AICHAR; struct ORDMSG; int ai_BlackmailContact(struct AICHAR *me, struct ORDMSG *m);  /* 0x5c9c50 */
+struct AICHAR; struct ORDMSG; int ai_IntimidateContact(struct AICHAR *me, struct ORDMSG *m);  /* 0x5c9ff0 */
+int ai_CounterEspionage(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cae00, the counter-espionage order's ask */
+int ai_SeatSwapWindow(struct AICHAR *me, struct ORDMSG *m);  /* 0x5cb250, the seat swap order's ask */
 int ai_AmountLimit(int param_1, int param_2, int param_3, int *param_4);  /* 0x5bd060 */
 void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption, int callId);  /* 0x5c4150, the family tree window */
 struct AICHAR;

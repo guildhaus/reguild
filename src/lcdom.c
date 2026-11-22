@@ -4576,7 +4576,7 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
     float level;
     float total;
     AIJOB *ev;
-    int arg[0x88];
+    ORDMSG arg;
 
     pics[0] = 0x25e;
     pics[1] = 0x264;
@@ -4585,16 +4585,16 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
     pics[4] = 0x276;
     ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x60);
     canTrain = 0;
-    memset(arg, 0, sizeof(arg));
+    memset(&arg, 0, sizeof(arg));
     orders[0] = 0x3a;
     orders[1] = 0x1a;
     orders[2] = 0x17;
     orders[3] = 0x18;
     orders[4] = 0x19;
-    arg[0] = 1;
+    arg.kind = 1;
     if (talent >= 5)
         return;
-    discount = (ord_DispatchOrder(orders[talent], &ai_Chars[ai_PlayerId], arg) & 2) ? -1 : 0;
+    discount = (ord_DispatchOrder(orders[talent], &ai_Chars[ai_PlayerId], &arg) & 2) ? -1 : 0;
     if (ai_Chars[ai_PlayerId].skills[talent] < 0x2a)
         price = 1;
     else if (ai_Chars[ai_PlayerId].skills[talent] < 0x54)
@@ -4731,16 +4731,16 @@ int ai_SabotageCallback(AICHAR *ch, AIBLD *target)
     } buf;
     char note[0x80];
     char text[0x400];
-    int arg[0x88];
+    ORDMSG arg;
 
     ordered = 0;
     if (target == 0 || target->owner == 0xffff)
         return 0;
-    memset(arg, 0, sizeof(arg));
-    arg[0] = 1;
+    memset(&arg, 0, sizeof(arg));
+    arg.kind = 1;
     price = (int)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.02f +
                   gm_EquipmentValue(target, 100) * 0.05f);
-    if (ord_DispatchOrder(0x1b, &ai_Chars[ai_PlayerId], arg) & 2)
+    if (ord_DispatchOrder(0x1b, &ai_Chars[ai_PlayerId], &arg) & 2)
         price /= 2;
     if (sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], price, ai_OwnPlayer) == 0)
         return 0;
@@ -4927,14 +4927,14 @@ int ai_BeatingCallback(AICHAR *ch, int n)
         char text[0x100];               /* the short notes reuse the message's buffer */
     } buf;
     char text[0x400];
-    int arg[0x88];
+    ORDMSG arg;
 
     ok = -1;
     ordered = 0;
-    memset(arg, 0, sizeof(arg));
-    arg[0] = 1;
+    memset(&arg, 0, sizeof(arg));
+    arg.kind = 1;
     price = (int)(gm_GetWorth(ai_Chars[ai_PlayerId].id) * 0.0085f);
-    if (ord_DispatchOrder(0x1b, &ai_Chars[ai_PlayerId], arg) & 2)
+    if (ord_DispatchOrder(0x1b, &ai_Chars[ai_PlayerId], &arg) & 2)
         price /= 2;
     for (ev = he_FindEvent(2, 2, ai_PlayerId, 0, 0x1a); ev != 0; ev = he_NextEvent()) {
         if (ev->id3 == ch->netId) {
@@ -5018,7 +5018,7 @@ void ai_EvidenceDetailsWindow(AICHAR *me, AICHAR *culprit)
     int list;
     AIPOSVIEW pos;
     int ids[0x20];
-    int arg[0x88];
+    ORDMSG arg;
     CRIME crimes[0x20];
 
     if (culprit->id == 0xffff)
@@ -5045,10 +5045,10 @@ void ai_EvidenceDetailsWindow(AICHAR *me, AICHAR *culprit)
             for (k = 0; k < pos.pics; k++)
                 d2_WinOpenPic(k * 0x10 + 0x154, i * 0x28 + 10, 0x526, d2_LastWindow);
     }
-    memset(arg, 0, sizeof(arg));
-    arg[0] = 1;
+    memset(&arg, 0, sizeof(arg));
+    arg.kind = 1;
     d2_SetForm(win, 3);
-    if (ord_DispatchOrder(0x16, culprit, arg) & 2)
+    if (ord_DispatchOrder(0x16, culprit, &arg) & 2)
         io_PrintText(0x174a);
     d2_ClickedId = -1;
     do {

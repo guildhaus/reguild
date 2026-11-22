@@ -575,13 +575,13 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name)
 
 int ai_CanBuildType(int a, AICHAR *p, int b, AIARG *s1, AIARG *s2, int f)
 {
-    int q[0x88];
+    ORDMSG q;
     AIBLD *h;
     int k, r;
     D3OBJECT *site;
 
-    memset(q, 0, sizeof(q));
-    q[0] = 1;
+    memset(&q, 0, sizeof(q));
+    q.kind = 1;
     if (s1->kind != 5)
         return 0;
     k = s1->ref;
@@ -590,19 +590,19 @@ int ai_CanBuildType(int a, AICHAR *p, int b, AIARG *s1, AIARG *s2, int f)
         if (h != 0 && ai_BTypes[h->type].cap247 >= ai_BTypes[k].cap247 && ai_BTypes[h->type].kind == 2)
             return 0;
         if (k == 4) {
-            r = ord_DispatchOrder(1, p, q);
+            r = ord_DispatchOrder(1, p, &q);
             if (r != 2 && r != 4)
                 return 0;
         } else if (k == 5) {
-            r = ord_DispatchOrder(5, p, q);
+            r = ord_DispatchOrder(5, p, &q);
             if (r != 2 && r != 4)
                 return 0;
         } else if (k == 6) {
-            r = ord_DispatchOrder(9, p, q);
+            r = ord_DispatchOrder(9, p, &q);
             if (r != 2 && r != 4)
                 return 0;
         } else if (k == 7) {
-            r = ord_DispatchOrder(0xc, p, q);
+            r = ord_DispatchOrder(0xc, p, &q);
             if (r != 2 && r != 4)
                 return 0;
         }

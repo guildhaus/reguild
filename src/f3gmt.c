@@ -7093,7 +7093,7 @@ int gm_GetCreditOffers(AIBLD *b, AICHAR *p, unsigned cnt, int *out)
     unsigned k;
     float f, add, rate, lim;
     int events[9];
-    int orders[0x88];
+    ORDMSG orders;
 
     if (p == 0 || b == 0 || bank->owner == 0xffff || cnt == 0)
         return 0;
@@ -7131,12 +7131,12 @@ int gm_GetCreditOffers(AIBLD *b, AICHAR *p, unsigned cnt, int *out)
         return 0;
     memset(out, 0, cnt * sizeof(ORDCREDIT));
     worth = gm_GetWorth(p->id);
-    memset(orders, 0, sizeof(orders));
+    memset(&orders, 0, sizeof(orders));
     rate = 0.3f;
-    orders[0] = 1;
-    if (ord_DispatchOrder(0xf, p, orders) & 2)
+    orders.kind = 1;
+    if (ord_DispatchOrder(0xf, p, &orders) & 2)
         rate *= 2.0f;
-    else if (ord_DispatchOrder(0xb, p, orders) & 2)
+    else if (ord_DispatchOrder(0xb, p, &orders) & 2)
         rate *= 1.5f;
     lim = worth * rate;
     maxAmount = (int)GM_MIN(lim, budget * 0.5);

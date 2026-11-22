@@ -2838,8 +2838,8 @@ exe	0x004f48f0	gv_SentenceText	gv	bf011dcf4f1ae0dd	no	byte	control=byte p1=byte 
 exe	0x004f4970	gv_CheckRankUp	gs	f361d400f4e23504	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	2e3deb9ff84c76e5
 exe	0x004f4d10	gv_CheckRankUps	gv	e4ae1be51466e2bf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4d30	gv_EvidencePrice	gv	d52f98d9c87d00de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004f4e20	ord_ApplyForOffice	ord	58858bb6c2745aed	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a14273abacfcb483
-exe	0x004f4f20	ord_LevelOrder	ord	add86827a506433e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a14273abacfcb483
+exe	0x004f4e20	ord_ApplyForOffice	ord	f2377b6323c100fa	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	dbc21a2c23b4ffa7
+exe	0x004f4f20	ord_LevelOrder	ord	f5a8f66ef76cd123	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	dbc21a2c23b4ffa7
 exe	0x004f4ff0	ord_ChangeProfessionOrder	ord	6cdc923adcfdcb8c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f5070	ord_MedicusOrder	ord	2b1a93d4f2cdf521	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f50f0	ord_AccusationOrder	ord	b1da89bb4c93236b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3134,7 +3134,7 @@ exe	0x0050a0b0	gm_ObjectOwnerNo	f3gm	3b8d14d0ae3ae758	no	byte	control=byte p1=by
 exe	0x0050a0f0	gm_ObjectBuilding	f3gm	18e9adf46b4a24ac	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a150	gm_CreditEvents	f3gm	c0c1b045fd1994ec	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a1c0	gm_BuildingEvents	f3gm	c04027a0f325ce1f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050a250	gm_GetCreditOffers	f3gmt	eb2a440ae0b76030	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	e9f8c3d5718ab84c
+exe	0x0050a250	gm_GetCreditOffers	f3gmt	4a8c03eb5a1b57fd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ba4062ce501b6947
 exe	0x0050a640	gm_GetWorth	f3gm	90f6cd642319e4a9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4850f870d40ae10b
 exe	0x0050a6c0	gm_IsBankrupt	f3gm	ff162d644e3ed16d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x0050a810	gm_FindCharacterByMaster	f3gm	8c122a9f06b2203d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4526,9 +4526,9 @@ exe	0x005c8ef0	ai_DivorceDialog	lc	fe6dc3fab0f35dd4	no	draft	control=draft p1=dr
 exe	0x005c9290	ai_BlackmailWindow	lc	e4e1b92314271e01	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005c9550	ai_BlackmailBuildingListener	lc	4beaca527217eed4	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x005c9990	ai_BlackmailContactWindow	lc	f102d2542347f2ed	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005c9c50	ai_BlackmailContact	lcamt	08e10ffa2e464b57	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24daf1bd5981d24f
+exe	0x005c9c50	ai_BlackmailContact	lcamt	2de5aa7c4a6b93c9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	42c033ab3a9ddf2e
 exe	0x005c9df0	ai_IntimidateWindow	lc	a4fb4b693df3d999	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005c9ff0	ai_IntimidateContact	lcamt	180f735b41177677	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24daf1bd5981d24f
+exe	0x005c9ff0	ai_IntimidateContact	lcamt	cdbca01d0b10b6fe	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	42c033ab3a9ddf2e
 exe	0x005ca150	ai_LawPrivilegeWindow	lc	ed9f0b9994c8e565	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e8239d145522bd75
 exe	0x005ca560	ai_DismissOfficeAsk	lc	bbf3db204bfdd533	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	65f3805095278c82
 exe	0x005ca860	ai_MisappropriationWindow	lc	d6bd0b1e31736e27	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4545,7 +4545,7 @@ exe	0x005cc700	ai_ConvertWindow	lcamt	e7b0fa893b528788	no	draft	sweep control=dr
 exe	0x005cca40	ai_PenanceWindow	lc	e81985c5ef0852f7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005ccc10	ai_Miracle	lc	8cf458c2b4045883	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005cd2e0	ai_MiracleWindow	lcamt	2be2fffe7c387690	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	f63a298b1e02a23a
-exe	0x005cd400	ai_ChangeProfessionWindow	lcamt	7653c761f9b90e61	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	8cc20dda6b4dcce4
+exe	0x005cd400	ai_ChangeProfessionWindow	lcamt	595d0ec1fc2d2a48	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=253	42c033ab3a9ddf2e
 exe	0x005cd8c0	ai_OpenTrial	lc	3be40c2f3c0c9fb2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005cdb90	ai_AccuseWindow	lc	fc1b95fd523b6218	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005cde90	ai_AccusationWindow	lc	169d7b141dcf6038	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	65f3805095278c82

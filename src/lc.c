@@ -38,13 +38,13 @@
    production setting's goods (ai_ShowSettingGoods). The partner, building and map-pick filters
    (ai_PassesPartnerFilter / ai_PassesBuildingFilter / ai_PassesMapPickFilter) read AMOUNTCFG: mode (the partner
    bits), classMask (the building classes), kind (the owner test), option14, ids and the liking range.
-   The courtship order's ask (ai_CourtshipWindow, from ord.c with the order message as LCORDMSG, gv.h ORDMSG) reads
+   The courtship order's ask (ai_CourtshipWindow, from ord.c with the order message, gv_types.h ORDMSG) reads
    the courtship event 0x41 as AIJOB.partner1 / pair*, lists the candidates (ai_CourtshipListWindow) and rates them
    (ai_CourtshipRounds); the statistics panel (ai_CityStatsPanel, its flags ai_StatsChartFlags) draws its five charts
    (ai_DrawStatisticsCharts: ai_PlotRatingBaseChart .. ai_PlotNoSecondChart) from the current ORDSTATS by value and
    ord_StatisticsHistory. The order asks (the medicus, the divorce, the blackmail and its contact letter, the
    intimidation, the law change, the dismissal, the embezzlement: ai_MedicusHandler .. ai_MisappropriationWindow)
-   take the character and the order message (LCORDMSG: law, value, target / answerFlag, partner) as ord.c passes
+   take the character and the order message (ORDMSG: law, value, target / answerFlag, partner) as ord.c passes
    them, their AI path sending what the player's window sends (AIMSG.letter of 0x47, arg[] of 0x45 / 0x4b); the
    privileges panel lists the orders. The privilege asks of the "privillegien" forms (the hatred, the peace, the
    conversion, the penance, the miracle with its six outcomes ai_Miracle, the profession change) and the accusation
@@ -13466,29 +13466,6 @@ struct AICHAR;
 int gm_CharLevel(unsigned short id, int again);
 unsigned int ai_FindCandidates(struct AICHAR *p, unsigned int n, unsigned int fl, float lo, float hi, unsigned short *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
-typedef struct LCORDMSG {          /* the message record of an order (gv.h ORDMSG, which this unit cannot include): the
-                                      order handlers get it with the character (ord_DispatchOrder) */
-    int kind;                      /* 0x000, 1 do / 2 answer / 3 ask / 4 answer */
-    union {
-        int law;                   /* 0x004, of the law orders: the decision record (AIDEC.id) the office may change
-                                      (gv.h ORDMSG.law) */
-        int amount;                /* 0x004, of the bewitch order asked of the AI: what it pays, 1 .. 5 (ai_BewitchOrder);
-                                      of the penance order: the crimes it buys off, 1 .. 9 (ai_PenanceWindow) */
-    };
-    int value;                     /* 0x008, of the law orders asked of the AI: the value it wants (ai_LawPrivilegeWindow) */
-    char pad00c[8];
-    char text[0x200];              /* 0x014, the text the handlers fill */
-    union {
-        int target;                /* 0x214, of an ask that names a character (the courtship): its netId (gv.h
-                                      ORDMSG.target) */
-        int answerFlag;            /* 0x214, of the law orders: which of the office's decisions, 1 / 2 (gv.h
-                                      ORDMSG.answerFlag) */
-    };
-    int target2;                   /* 0x218, of the hatred order asked of the AI: the second character's netId
-                                      (ai_HatredWindow; the first is target) */
-    struct AICHAR *partner;     /* 0x21c, the partner character (gv.h ORDMSG.partner; the privileges panel sets it
-                                      to the player's partner of the pair event 0x45) */
-} LCORDMSG;
 float ord_GetStatistics(int *o);
 int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
 int gv_SetTableRecord(struct AICHAR *c, int i, int v);   /* 0x4f2750 */

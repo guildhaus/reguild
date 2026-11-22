@@ -13041,7 +13041,7 @@ void he_AllocSabotage(AIJOB *e)
     s->slot = cm_SendSpawnCharacter(0, e->from, -1, 0, 1, 0x174, "SABOTAGE");
 }
 
-int ord_DispatchOrder(int id, struct AICHAR *c, int *m);
+int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
 
 /* 0x558f10, the run handler of the sabotage event 25 (HESABOTAGE; allocated by he_AllocSabotage, which asks for the
    saboteur, "SABOTAGE"). Every stage waits while a cm request is pending (HESABOTAGE.slot). Stage 0: the spawned
@@ -13356,7 +13356,7 @@ void he_AllocSpying(AIJOB *e)
     int spawn = 0, spies = 0;
     AICHAR *victim, *me;
     AIJOB *o;
-    int ord[0x88];
+    ORDMSG ord;
 
     if ((e->opts & 4) != 0)
         return;
@@ -13389,12 +13389,12 @@ void he_AllocSpying(AIJOB *e)
             return;
         }
     }
-    memset(ord, 0, sizeof(ord));
-    ord[0] = 1;
+    memset(&ord, 0, sizeof(ord));
+    ord.kind = 1;
     me = &ai_Chars[e->chr];
     e->end = ai_Time;
     s->until = ai_Time;
-    if (ord_DispatchOrder(0x26, me, ord) == 2)
+    if (ord_DispatchOrder(0x26, me, &ord) == 2)
         gm_AddTime(&s->until, (s->days + 4) * 24, 0, 0);
     else
         gm_AddTime(&s->until, (s->days + 3) * 24, 0, 0);

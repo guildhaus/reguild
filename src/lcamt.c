@@ -5244,7 +5244,7 @@ int ai_CourtshipRounds(int idA, int idB)
     float parentB;
     float standing;
     float parentA;
-    int req[0x88];
+    ORDMSG req;
     AICHAR *a;
     AICHAR *b;
     AICHAR *p;
@@ -5255,8 +5255,8 @@ int ai_CourtshipRounds(int idA, int idB)
     int i;
 
     parentA = parentB = 0.0f;
-    memset(req, 0, sizeof(req));
-    req[0] = 1;
+    memset(&req, 0, sizeof(req));
+    req.kind = 1;
     a = gm_FindChar(idA);
     b = gm_FindChar(idB);
     if (a == 0 || b == 0)
@@ -5280,7 +5280,7 @@ int ai_CourtshipRounds(int idA, int idB)
     score += rate;
     for (i = 0; i < 5; i++)
         score += b->skills[i] * 0.003968254f;
-    if (ord_DispatchOrder(0x10, a, req) & 2)
+    if (ord_DispatchOrder(0x10, a, &req) & 2)
         score *= 0.5f;
     score = min(max(score, 2.0f), 15.0f);
     return (int)score;
@@ -5339,36 +5339,13 @@ int ai_CourtshipConfirm(AICHAR *ch)
     di_ClearEvents(0x11);
     return v;
 }
-typedef struct LCORDMSG {          /* the message record of an order (gv.h ORDMSG, which this unit cannot include): the
-                                      order handlers get it with the character (ord_DispatchOrder) */
-    int kind;                      /* 0x000, 1 do / 2 answer / 3 ask / 4 answer */
-    union {
-        int law;                   /* 0x004, of the law orders: the decision record (AIDEC.id) the office may change
-                                      (gv.h ORDMSG.law) */
-        int amount;                /* 0x004, of the bewitch order asked of the AI: what it pays, 1 .. 5 (ai_BewitchOrder);
-                                      of the penance order: the crimes it buys off, 1 .. 9 (ai_PenanceWindow) */
-    };
-    int value;                     /* 0x008, of the law orders asked of the AI: the value it wants (ai_LawPrivilegeWindow) */
-    char pad00c[8];
-    char text[0x200];              /* 0x014, the text the handlers fill */
-    union {
-        int target;                /* 0x214, of an ask that names a character (the courtship): its netId (gv.h
-                                      ORDMSG.target) */
-        int answerFlag;            /* 0x214, of the law orders: which of the office's decisions, 1 / 2 (gv.h
-                                      ORDMSG.answerFlag) */
-    };
-    int target2;                   /* 0x218, of the hatred order asked of the AI: the second character's netId
-                                      (ai_HatredWindow; the first is target) */
-    struct AICHAR *partner;     /* 0x21c, the partner character (gv.h ORDMSG.partner; the privileges panel sets it
-                                      to the player's partner of the pair event 0x45) */
-} LCORDMSG;
 /* 0x5c6aa0, the courtship list "privillegien\werbung1" (604 B): the caption 0x1ce3 and up to nine candidates of ch
    (ai_FindCandidateIds) as amount rows in a grid of three columns spread over the list part's width (the frame
    picture 0x5da), each with the text 0x1ce4 of the courtship rounds the player needs for them (ai_CourtshipRounds)
    below it. A click on a row opens the confirm ai_CourtshipConfirm (the list's objects disabled meanwhile); a
    confirmed courtship closes the list and returns 0x92, a right click returns 2 */
 
-int ai_CourtshipListWindow(AICHAR *ch, LCORDMSG *m)
+int ai_CourtshipListWindow(AICHAR *ch, ORDMSG *m)
 {
     int n;
     int result;
@@ -5433,7 +5410,7 @@ int ai_CourtshipListWindow(AICHAR *ch, LCORDMSG *m)
    posts the event again (cm_SendExSetHE), pays pairPrice (cm_SendMoveGoods) and tells the partner's answer 0x1cf9
    (text 0x1d02 + a random pick by the gain); the close button tells 0x1cfa and posts the event. Returns 2 */
 
-int ai_CourtshipWindow(AICHAR *ch, LCORDMSG *m)
+int ai_CourtshipWindow(AICHAR *ch, ORDMSG *m)
 {
     int state;
     int partner;
@@ -6025,7 +6002,7 @@ void ai_PrivilegesPanel(void)
     int button;
     unsigned int next;
     char fmt[8] = "%ia[%s]";
-    LCORDMSG msg;
+    ORDMSG msg;
     int answers[0x3a];
     int ids[0x3a];
     AICHAR *old;
@@ -6081,7 +6058,7 @@ void ai_PrivilegesPanel(void)
             else
                 msg.kind = 2;
             for (i = 0; i < 0x3a; i++) {
-                v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
+                v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], &msg);
                 if (v != answers[i])
                     changed = 1;
                 answers[i] = v;
@@ -6116,7 +6093,7 @@ void ai_PrivilegesPanel(void)
                 msg.kind = (page != 2) + 1;
                 for (i = 0; i < 0x3a; i++) {
                     ids[i] = -1;
-                    v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
+                    v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], &msg);
                     answers[i] = v;
                     if (v == page) {
                         if (rows != 0)
@@ -6154,7 +6131,7 @@ void ai_PrivilegesPanel(void)
                     if (d2_PointerObj == ids[i]) {
                         d2_SetViewEnabled(win, 0);
                         msg.kind = (page != 2) + 3;
-                        v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], (int *)&msg);
+                        v = ord_DispatchOrder(i, &ai_Chars[ai_PlayerId], &msg);
                         if (v & 0x80) {
                             changed = 1;
                             answers[i] = v & 10;
@@ -6183,7 +6160,7 @@ void ai_PrivilegesPanel(void)
    the price 2 % of the worth) and its two buttons: yes pays 2 (sv_CheckMoney / sv_CheckGoodAmount), and in one of
    two cases cures a disease and pays the price to the player (the texts 0x1d3c + 0x1d3d / 0x1d3e), waits for the
    flag 0x40 to be set and shows the text: 0x81; no or the right button closes the window: 2 */
-int ai_MedicusHandler(AICHAR *ch, LCORDMSG *m)
+int ai_MedicusHandler(AICHAR *ch, ORDMSG *m)
 {
     int price;
     int ret;
@@ -6260,7 +6237,7 @@ int ai_MedicusHandler(AICHAR *ch, LCORDMSG *m)
    (0x1d8f: the text 0x114 + b00d (+ 10 for sex), 8, the price 8 % of the worth plus 4 %, the spouse's id); its
    first button pays 8 and the price (sv_CheckMoney / sv_CheckGoodAmount), sends the same fields and the money,
    each waited for, and prints 0x1d90: 0x81; the second button or the right button close it: 2, else 0 */
-int ai_DivorceDialog(AICHAR *ch, LCORDMSG *m)
+int ai_DivorceDialog(AICHAR *ch, ORDMSG *m)
 {
     int win;
     int text;
@@ -6434,7 +6411,7 @@ int ai_BlackmailWindow(AICHAR *me, AICHAR *victim)
    culprit with powerFlags 0x200 gives the text 0x1d52, fewer than 3 open evidences the text 0x1d51, else the
    blackmail window ai_BlackmailWindow (closing this one once it sent) and the result 0x92; else 0x20 */
 
-int ai_BlackmailBuildingListener(AICHAR *me, LCORDMSG *m)
+int ai_BlackmailBuildingListener(AICHAR *me, ORDMSG *m)
 {
     int win;
     int list;
@@ -6627,7 +6604,7 @@ int ai_BlackmailContactWindow(AICHAR *ch, int n)
    63 bytes); climb 2 rounds: 10 ins / 71 bytes (victim, flags, text2 last; the same order 30 hunks, bytes
    worse, not kept). */
 
-int ai_BlackmailContact(AICHAR *me, LCORDMSG *m)
+int ai_BlackmailContact(AICHAR *me, ORDMSG *m)
 {
     int ret;
     AICHAR *victim;
@@ -6740,7 +6717,7 @@ int ai_IntimidateWindow(AICHAR *ch, int n)
    bytes), msg at function scope (= control), the money call after the fill and arg[0] before arg[1] (far
    worse): no lever found. he_AllocMeeting's fill is scheduled the original's way with the same statements. */
 
-int ai_IntimidateContact(AICHAR *me, LCORDMSG *m)
+int ai_IntimidateContact(AICHAR *me, ORDMSG *m)
 {
     int ret;
     AICHAR *victim;
@@ -6791,7 +6768,7 @@ int gv_SetTableRecord(struct AICHAR *c, int i, int v);   /* 0x4f2750 */
    is enabled once the value differs. Button 0, me paying 2 (sv_CheckMoney): the new value (a switch: 1 - cur), the
    set waited for, me pays 2 and the flag is set: 0x80; button 1 or the right button close it */
 
-int ai_LawPrivilegeWindow(AICHAR *me, LCORDMSG *m)
+int ai_LawPrivilegeWindow(AICHAR *me, ORDMSG *m)
 {
     int flag;
     AICHAR *owner;
@@ -6925,7 +6902,7 @@ int ai_LawPrivilegeWindow(AICHAR *me, LCORDMSG *m)
    @original the refusal block is shared by the state test and the failed group (goto refused): written out at
    both or nested under if (office.state == 1) VC6 lays it out otherwise (42 / 40 instructions off) */
 
-int ai_DismissOfficeAsk(AICHAR *me, LCORDMSG *m)
+int ai_DismissOfficeAsk(AICHAR *me, ORDMSG *m)
 {
     AICHAR *owner;
     AICHAR *ch;
@@ -7019,7 +6996,7 @@ refused:
    window with the offer 0x1dc2 (me's id); button 0, me paying 4 (sv_CheckMoney), does the same, waits for the flag's
    send and shows the text 0x1dc3 with the sum: 0x90; button 1 or the right button close it */
 
-int ai_MisappropriationWindow(AICHAR *me, LCORDMSG *m)
+int ai_MisappropriationWindow(AICHAR *me, ORDMSG *m)
 {
     ORDWAGES wages = {0};
     char text[0x100];
@@ -7137,7 +7114,7 @@ int ai_BewitchWindow(AICHAR *ch, int n)
    above its money) for the relation with the character m->target (ai_RelationGain), sends the payment and the
    relation change: 0x10; a wrong amount or an unknown target: 0x60 */
 
-int ai_BewitchOrder(AICHAR *me, LCORDMSG *m)
+int ai_BewitchOrder(AICHAR *me, ORDMSG *m)
 {
     AMOUNTCFG cfg;
     char text[0x40];
@@ -7180,7 +7157,7 @@ int ai_BewitchOrder(AICHAR *me, LCORDMSG *m)
    names (0x1db8, then 0x1db9 per spy, or 0x1dba when there were none); either button or a right click close it,
    then 2 */
 
-int ai_CounterEspionage(AICHAR *me, LCORDMSG *m)
+int ai_CounterEspionage(AICHAR *me, ORDMSG *m)
 {
     AIMSG msg;
     char text[0x200];
@@ -7292,7 +7269,7 @@ int ai_SwapSeats(AICHAR *requester, AICHAR *b, AICHAR *c)
    player has the 6 (sv_CheckMoney), swaps them and tells 0x1dca (or 0x1dcb when it failed); either button or a right
    click close it, then 1 */
 
-int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
+int ai_SeatSwapWindow(AICHAR *me, ORDMSG *m)
 {
     char text[0x200];
     AICHAR *first;
@@ -7389,7 +7366,7 @@ int ai_SeatSwapWindow(AICHAR *me, LCORDMSG *m)
    button, when the player has the 4 (sv_CheckMoney) and the price (sv_CheckGoodAmount), does it and tells 0x1dd2;
    either button or a right click close it. Returns 1 once it was done, else 0 */
 
-int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
+int ai_HatredWindow(AICHAR *me, ORDMSG *m)
 {
     int done;
     int ok;
@@ -7505,7 +7482,7 @@ int ai_HatredWindow(AICHAR *me, LCORDMSG *m)
    2), then the window (0x1dd8) whose first button, when the player has the 2 (sv_CheckMoney), does it, waits for the
    field message, tells 0x1dd9 and returns 0x81; the second button or a right click close it with 2 */
 
-int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
+int ai_HearingWindow(AICHAR *me, ORDMSG *m)
 {
     int ret;
     int cancel;
@@ -7598,7 +7575,7 @@ int ai_HearingWindow(AICHAR *me, LCORDMSG *m)
    in that building from a random start (none: only the payment) and tells 0x1dde: 0x81; the second button or a
    right click close it with 0 */
 
-int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
+int ai_ExpelWorkerWindow(AICHAR *me, ORDMSG *m)
 {
     AICHAR *holder;
     int cancel;
@@ -7729,7 +7706,7 @@ int ai_ExpelWorkerWindow(AICHAR *me, LCORDMSG *m)
    whose first button, when the player has the 3 (sv_CheckMoney), does it and tells 0x1de7; either button or a right
    click close it. Returns 1 once it was done, else 0 */
 
-int ai_PeaceWindow(AICHAR *me, LCORDMSG *m)
+int ai_PeaceWindow(AICHAR *me, ORDMSG *m)
 {
     int done;
     int ok;
@@ -7830,7 +7807,7 @@ int ai_PeaceWindow(AICHAR *me, LCORDMSG *m)
    price (sv_CheckGoodAmount), does it and tells 0x1de2 (the number converted); either button or a right click
    close it. Returns 1 once it was done, else 0 */
 
-int ai_ConvertWindow(AICHAR *me, LCORDMSG *m)
+int ai_ConvertWindow(AICHAR *me, ORDMSG *m)
 {
     int price;
     int done;
@@ -7924,7 +7901,7 @@ int ai_ConvertWindow(AICHAR *me, LCORDMSG *m)
    the money (sv_CheckMoney), does it and tells 0x1deb (the number retired); either button or a right click close
    it. Returns 1 once it was done, else 0 */
 
-int ai_PenanceWindow(AICHAR *me, LCORDMSG *m)
+int ai_PenanceWindow(AICHAR *me, ORDMSG *m)
 {
     char text[0x100];
     int win;
@@ -8187,7 +8164,7 @@ void ai_Miracle(AICHAR *me, int which)
    click 1 sets 0x6f22a0; the pump 0x5309a0 (this, 0x657c7) and the end 0x4758f0. The second argument m is not
    read */
 
-int ai_MiracleWindow(void *chp, int *m)
+int ai_MiracleWindow(void *chp, ORDMSG *m)
 {
     AICHAR *ch;
     int win;
@@ -8250,7 +8227,7 @@ void cm_SendSetJob(int id, int job);  /* 0x4c59b0 (cm.h, not included) */
    the original's registers but stores base and moves two slots (17 ins, draft); win for it: 1 ins (its
    store), but win is read after the loop. ai_MasterExamWindow (lc.c) has the same arm left with a note. */
 
-int ai_ChangeProfessionWindow(AICHAR *me, LCORDMSG *m)
+int ai_ChangeProfessionWindow(AICHAR *me, ORDMSG *m)
 {
     int win;
     char **name;
@@ -8452,7 +8429,7 @@ int ai_AccuseWindow(AICHAR *me, AICHAR *culprit)
     int open;
     AIPOSVIEW pos;
     int ids[0x20];
-    int arg[0x88];
+    ORDMSG arg;
     CRIME crimes[0x20];
 
     open = 0;
@@ -8485,10 +8462,10 @@ int ai_AccuseWindow(AICHAR *me, AICHAR *culprit)
             for (k = 0; k < pos.pics; k++)
                 d2_WinOpenPic(k * 0x10 + 0x154, i * 0x28 + 10, 0x526, d2_LastWindow);
     }
-    memset(arg, 0, sizeof(arg));
-    arg[0] = 1;
+    memset(&arg, 0, sizeof(arg));
+    arg.kind = 1;
     d2_SetForm(win, 3);
-    if (ord_DispatchOrder(0x16, culprit, arg) & 2) {
+    if (ord_DispatchOrder(0x16, culprit, &arg) & 2) {
         io_PrintText(0x174a);
     } else {
         accuse = d2_GetWinObj(win, 3, io_PrintText(0x1745));
@@ -8514,7 +8491,7 @@ int ai_AccuseWindow(AICHAR *me, AICHAR *culprit)
    clicked row opens its accusation window (ai_AccuseWindow), whose result it returns (0x20 when none was opened);
    a right click closes it */
 
-int ai_AccusationWindow(AICHAR *me, LCORDMSG *m)
+int ai_AccusationWindow(AICHAR *me, ORDMSG *m)
 {
     int n;
     int count;
@@ -8602,7 +8579,7 @@ int ai_AccusationWindow(AICHAR *me, LCORDMSG *m)
    returns (0x20 when none was opened); a right click closes it. The frame pump names ai_AccusationWindow as its
    owner (the original's copy) */
 
-int ai_FaithAccusationWindow(AICHAR *me, LCORDMSG *m)
+int ai_FaithAccusationWindow(AICHAR *me, ORDMSG *m)
 {
     int n;
     int count;
@@ -8732,7 +8709,7 @@ int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c, i
    2) and confirms in the window "privillegien\verhoer" (the text 0x1e09 with the character's id, its two buttons):
    the first runs ai_Interrogate (0x91), the second or a right click closes it (2) */
 
-int ai_InterrogationWindow(AICHAR *me, LCORDMSG *m)
+int ai_InterrogationWindow(AICHAR *me, ORDMSG *m)
 {
     AMOUNTCFG cfg;
     AICHAR *ch;
@@ -8797,7 +8774,7 @@ int ai_InterrogationWindow(AICHAR *me, LCORDMSG *m)
    and 0x90; click 1 closes; the pump 0x5309a0 (0x657c7) and the exit 0x4758f0. The return is 0x22 when nothing
    was clicked, 0x20 for another kind, 0x40 when the office has no list. The second argument m is not read */
 
-int ai_WorkerDismissalWindow(void *chp, int *m)
+int ai_WorkerDismissalWindow(void *chp, ORDMSG *m)
 {
     AICHAR *ch;
     int out[6];
@@ -8853,7 +8830,7 @@ int ai_WorkerDismissalWindow(void *chp, int *m)
    the window "privillegien\verhoer" (the text 0x1e0f with the holder's id): the first button, when me can pay 8
    (sv_CheckMoney), dismisses him and waits for the flag's slot (0x91); the second or a right click closes it (2) */
 
-int ai_DismissalHandler(AICHAR *me, LCORDMSG *m)
+int ai_DismissalHandler(AICHAR *me, ORDMSG *m)
 {
     AICHAR *ch;
     AMOUNTCFG cfg;
@@ -8964,7 +8941,7 @@ int ai_SendInterrogationRefusal(AICHAR *ch, AICHAR *target, int variant)
    pay 4 (sv_CheckMoney), sends the message and waits for its slot (0x91); the second or a right click closes it
    (2) */
 
-int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
+int ai_InterrogationWindow1(AICHAR *me, ORDMSG *m)
 {
     AICHAR *ch;
     AMOUNTCFG cfg;
@@ -9031,7 +9008,7 @@ int ai_InterrogationWindow1(AICHAR *me, LCORDMSG *m)
    of ai_InterrogationWindow1 with the message 0x45 of variant 2, the office list of kind 5, the caption
    txt_Ptrs[0x1e1d] and the text 0x1e1e (the holder's id, the price 4) */
 
-int ai_InterrogationWindow2(AICHAR *me, LCORDMSG *m)
+int ai_InterrogationWindow2(AICHAR *me, ORDMSG *m)
 {
     AICHAR *ch;
     AMOUNTCFG cfg;

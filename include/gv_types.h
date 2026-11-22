@@ -86,4 +86,30 @@ typedef struct GVDECMSG {               /* 9 bytes, the data of message 0x46 (cm
 } GVDECMSG;
 #pragma pack(pop)
 
+/* the message record of an order (ord_DispatchOrder hands it to the order handlers with the character; the callers
+   keep it as a stack local, 0x220 bytes): the handlers write their text at +0x14 */
+typedef struct ORDMSG {
+    int kind;                       /* 0x000, 1 do / 2 answer / 3 ask / 4 answer */
+    union {
+        int law;                    /* 0x004, of the law orders: the decision record (AIDEC.id) the office may change */
+        int amount;                 /* 0x004, of the bewitch order asked of the AI: what it pays, 1 .. 5 (lcamt.c
+                                       ai_BewitchOrder); of the penance order: the crimes it buys off, 1 .. 9
+                                       (ai_PenanceWindow) */
+    };
+    int value;                      /* 0x008, of the law orders asked of the AI: the value it wants (lcamt.c
+                                       ai_LawPrivilegeWindow) */
+    char pad00c[8];
+    char text[0x200];               /* 0x014, the text the handlers fill */
+    union {
+        int answerFlag;             /* 0x214, of the law orders: which of the office's decisions, 1 / 2; 1 = the
+                                       answer handler picked this order */
+        int target;                 /* 0x214, of an ask that names a character (the courtship, lcamt.c
+                                       ai_CourtshipWindow): its netId */
+    };
+    int target2;                    /* 0x218, of the hatred order asked of the AI: the second character's netId
+                                       (ai_HatredWindow; the first is target) */
+    struct AICHAR *partner;         /* 0x21c, the partner character of an answer (the privileges panel sets it to the
+                                       player's partner of the pair event 0x45) */
+} ORDMSG;
+
 #endif

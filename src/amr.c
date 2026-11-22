@@ -1082,17 +1082,17 @@ int ai_BrawlWin(AICHAR *attacker, AICHAR *defender, int *out)
 {
     float sum, modifier;
     int appliedOrder;
-    int msg[0x88];
+    ORDMSG msg;
 
     sum = gm_Mix(attacker, defender, 3) + util_RandomF();
     modifier = 0.0f;
     appliedOrder = 0x3b;
-    memset(msg, 0, sizeof(msg));
-    msg[0] = 1;
-    if (ord_DispatchOrder(0xd, defender, msg) & 2) {
+    memset(&msg, 0, sizeof(msg));
+    msg.kind = 1;
+    if (ord_DispatchOrder(0xd, defender, &msg) & 2) {
         modifier = -0.25f;
         appliedOrder = 0xd;
-    } else if (ord_DispatchOrder(10, defender, msg) & 2) {
+    } else if (ord_DispatchOrder(10, defender, &msg) & 2) {
         modifier = 0.1f;
         appliedOrder = 10;
     }
@@ -1524,7 +1524,7 @@ int ai_ExecuteDummyPleasure(AICHAR *p, AIARG *s1, AIARG *s2)
 
 int ai_DecideTrainSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
-    int q[0x88];
+    ORDMSG q;
     float w[5];
     unsigned int cnt[5], n[5];
     int ids[5], valid[5];
@@ -1560,10 +1560,10 @@ int ai_DecideTrainSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     if (he_FindEvent(2, 2, p->id, 0, 0x60))
         return 0;
     if (o1->kind == 0xe) {
-        memset(q, 0, sizeof(q));
+        memset(&q, 0, sizeof(q));
         k = o1->ref;
-        q[0] = 1;
-        f = (ord_DispatchOrder(ids[k], p, q) & 2) ? -1.0f : 0.0f;
+        q.kind = 1;
+        f = (ord_DispatchOrder(ids[k], p, &q) & 2) ? -1.0f : 0.0f;
         if (p->skills[k] < 42)
             v = 1;
         else if (p->skills[k] < 84)
@@ -1585,13 +1585,13 @@ int ai_DecideTrainSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         return 4;
     }
     for (i = 0; i < 5; i++) {
-        memset(q, 0, sizeof(q));
-        q[0] = 1;
+        memset(&q, 0, sizeof(q));
+        q.kind = 1;
         valid[i] = 1;
         cnt[i] = ord_GetRatingByte(i);
         if (!cnt[i])
             cnt[i] = 252;
-        f = (ord_DispatchOrder(ids[i], p, q) & 2) ? -1.0f : 0.0f;
+        f = (ord_DispatchOrder(ids[i], p, &q) & 2) ? -1.0f : 0.0f;
         if (p->skills[i] < 42)
             n[i] = 1;
         else if (p->skills[i] < 84)
@@ -1679,7 +1679,7 @@ int ai_ExecuteTrainSkill(AICHAR *p, AIARG *s1, AIARG *s2)
 int ai_DecideTrainJobSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
     JOBTALENTS jt;
-    int q[0x88];
+    ORDMSG q;
     float w[5];
     unsigned int cnt[5], n[5];
     int ids[5], valid[5];
@@ -1736,9 +1736,9 @@ int ai_DecideTrainJobSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     ka = util_Random(5);
     kb = util_Random(5);
     for (i = 0; i < 5; i++) {
-        memset(q, 0, sizeof(q));
+        memset(&q, 0, sizeof(q));
         v = jt.skills[i];
-        q[0] = 1;
+        q.kind = 1;
         if (v > best) {
             if (best > 0) {
                 kb = ka;
@@ -1754,7 +1754,7 @@ int ai_DecideTrainJobSkill(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         cnt[i] = ord_GetRatingByte(i);
         if (!cnt[i])
             cnt[i] = 252;
-        f = (ord_DispatchOrder(ids[i], p, q) & 2) ? -1.0f : 0.0f;
+        f = (ord_DispatchOrder(ids[i], p, &q) & 2) ? -1.0f : 0.0f;
         if (p->skills[i] < 42)
             n[i] = 1;
         else if (p->skills[i] < 84)
@@ -2427,7 +2427,7 @@ int ai_ExecuteRepairBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
 
 int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
-    int buf[0x88];
+    ORDMSG buf;
     int ok[4];
     AIBLD *bl;
     AIJOB *j;
@@ -2437,8 +2437,8 @@ int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 
     if (p->kind == 3)
         return 0;
-    memset(buf, 0, sizeof(buf));
-    buf[0] = 1;
+    memset(&buf, 0, sizeof(buf));
+    buf.kind = 1;
     if (b == 0) {
         if (o1->kind != 0)
             return 0;
@@ -2465,22 +2465,22 @@ int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     return 0;
 found:
     lim = (int)(gm_CharCurrency(p, ai_OwnPlayer) * 0.66f);
-    r = ord_DispatchOrder(1, p, buf);
+    r = ord_DispatchOrder(1, p, &buf);
     if (r == 2 || r == 4)
         ok[0] = 1;
     else
         ok[0] = 0;
-    r = ord_DispatchOrder(5, p, buf);
+    r = ord_DispatchOrder(5, p, &buf);
     if (r == 2 || r == 4)
         ok[1] = 1;
     else
         ok[1] = 0;
-    r = ord_DispatchOrder(9, p, buf);
+    r = ord_DispatchOrder(9, p, &buf);
     if (r == 2 || r == 4)
         ok[2] = 1;
     else
         ok[2] = 0;
-    r = ord_DispatchOrder(0xc, p, buf);
+    r = ord_DispatchOrder(0xc, p, &buf);
     if (r == 2 || r == 4)
         ok[3] = 1;
     else
@@ -3061,23 +3061,23 @@ int ai_DecideUpgradeBusiness(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 
 int ai_DecideVisitMedicus(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
-    int buf[0x88];
+    ORDMSG buf;
 
     if (a)
         return 0;
-    memset(buf, 0, sizeof(buf));
-    buf[0] = 1;
-    return ord_DispatchOrder(2, p, buf) == 2 ? 0x16 : 0;
+    memset(&buf, 0, sizeof(buf));
+    buf.kind = 1;
+    return ord_DispatchOrder(2, p, &buf) == 2 ? 0x16 : 0;
 }
 /* 0x499580, execute of 0x499520 */
 
 int ai_ExecuteVisitMedicus(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    int buf[0x88];
+    ORDMSG buf;
 
-    memset(buf, 0, sizeof(buf));
-    buf[0] = 1;
-    return ord_DispatchOrder(2, p, buf) == 2 ? 0x16 : 0;
+    memset(&buf, 0, sizeof(buf));
+    buf.kind = 1;
+    return ord_DispatchOrder(2, p, &buf) == 2 ? 0x16 : 0;
 }
 /* 0x4995d0, evaluate: decision record 0x18, the default rating without it */
 
@@ -3096,7 +3096,7 @@ int ai_EvalSabotage(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIAR
 
 int ai_DecideSabotage(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
-    int buf[0x88];
+    ORDMSG buf;
     AIDEC d;
     AIARG s1, s2;
     AIBLD *y;
@@ -3150,11 +3150,11 @@ int ai_DecideSabotage(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
                 || ai_PickActionBuilding(p, 6, mask.QuadPart, 0, util_Random(0x20) + 19.0f, &x)) {
                 gm_FindById(&y, 0, 0, x);
                 if (y && y->owner != 0xffff && he_NoEvent88Pair(&ai_Chars[y->owner], p)) {
-                    memset(buf, 0, sizeof(buf));
-                    buf[0] = 1;
+                    memset(&buf, 0, sizeof(buf));
+                    buf.kind = 1;
                     v = (int)(gm_EquipmentValue(y, 100) * 0.05f + gm_GetWorth(p->id) * 0.02f);
                     ch = &ai_Chars[y->owner];
-                    if (ord_DispatchOrder(0x1b, p, buf) & 2)
+                    if (ord_DispatchOrder(0x1b, p, &buf) & 2)
                         v /= 2;
                     if (!(m * 0.44f < v)) {
                         g = gm_Mix(p, ch, 2);
@@ -3241,7 +3241,7 @@ int ai_EvalBeatUp(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG 
 
 int ai_DecideBeatUp(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 {
-    int buf[0x88];
+    ORDMSG buf;
     AIDEC d;
     AIARG s1, s2;
     AICHAR *c;
@@ -3250,10 +3250,10 @@ int ai_DecideBeatUp(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 
     m = gm_CharCurrency(p, ai_OwnPlayer);
     if (!b) {
-        memset(buf, 0, sizeof(buf));
-        buf[0] = 1;
+        memset(&buf, 0, sizeof(buf));
+        buf.kind = 1;
         v = (int)(gm_GetWorth(p->id) * 0.0085f);
-        if (ord_DispatchOrder(0x1b, p, buf) & 2)
+        if (ord_DispatchOrder(0x1b, p, &buf) & 2)
             v /= 2;
         if (!(m * 0.22f < v)) {
             if (p->bld2 == 0 && p->kind != 3) {
