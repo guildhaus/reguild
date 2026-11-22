@@ -425,7 +425,7 @@ LRESULT CALLBACK main_WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
             return 0x424d5144;
         break;
     case 0x7e7:
-        sfx_Reacquire(wparam, hwnd, 0x7e7);
+        sfx_Reacquire((SFXDRIVER *)wparam, hwnd, 0x7e7);
         return 0;
     }
     return DefWindowProcA(hwnd, msg, wparam, lparam);
@@ -2744,7 +2744,7 @@ void main_LoadingScreen(void)
     d2_SetForm(init_StatusForm, 1);
     d2_WinOpenSlider(0, 0, 0x246, 0, 0x246, 0x83, 0x42, d2_LastWindow);
     d2_DrawAll();
-    tb_OpenFunction(d3io_NoopCallback, 7);
+    tb_OpenFunction(main_Nothing, 7);
 }
 /* 0x537af0, sets the loading progress bar to pct percent (the bar 0x246 wide) */
 
@@ -2787,7 +2787,7 @@ void main_CloseLoadingScreen(void)
     mask = 0x24087;
     if (net_Conn.s == -1)
         mask = 0x24086;
-    tb_CloseFunction(d3io_NoopCallback);
+    tb_CloseFunction(main_Nothing);
     fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
     while ((fade->flags & 4) == 0)
         sv_RunFrame(0, mask);
@@ -5217,7 +5217,7 @@ char ai_DataPath[608];  /* 0x75dca0, the data path */
 LSSAVE ls_SavePath;  /* 0x75e640 */
 
 /* unlinked: an empty function; LINK folds it (/OPT:ICF) into d3io_NoopCallback, 0x44ee40, where the original's
-   calls of it in main_RunTitle .. main_GameLoop (no push) point */
+   calls of it in main_RunTitle .. main_GameLoop (no push) point; the loading form registers it with tb_OpenFunction */
 void main_Nothing(void)
 {
 }
