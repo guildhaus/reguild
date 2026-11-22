@@ -448,7 +448,7 @@ int ai_TutorialTick(void)
         ai_Tutorial->markerObj = -1;
         if (ai_Tutorial->run->hook)
             ai_Tutorial->run->hook(0);
-        he_ActivateSlot((int *)ai_Tutorial->host->slot);
+        he_ActivateSlot(ai_Tutorial->host->slot);
         d2_SetPointerSprite(0, 0);
         return 0;
     case 2:                     /* the intro window is answered: continue with the clocks reset */
@@ -1642,14 +1642,14 @@ void ai_HookChapter5Step6(int end)
    run record, else 0. The host -> slot -> window chain is reloaded before every call as in the original */
 int ai_TutorialOpenIntro(void)
 {
-    TUTHOST *host;
+    AIJOB *host;
 
     host = ai_Tutorial->host;
     if (!host)
         return -4;
     if (host->slot)
         return -4;
-    he_OpenEventSlot((struct AIJOB *)host, 0, 0, "tutorial\\main", 0x5ec);
+    he_OpenEventSlot(host, 0, 0, "tutorial\\main", 0x5ec);
     if (!ai_Tutorial->host->slot)
         return -1;
     d2_PlaceMainWindow(ai_Tutorial->host->slot->win, 3);
@@ -1666,7 +1666,7 @@ int ai_TutorialOpenIntro(void)
 
 int ai_TutorialCloseIntro(void)
 {
-    TUTHOST *host;
+    AIJOB *host;
 
     host = ai_Tutorial->host;
     if (!host)
@@ -1681,7 +1681,7 @@ int ai_TutorialCloseIntro(void)
 
 int ai_TutorialClearRunWindow(void)
 {
-    TUTHOST *host;
+    AIJOB *host;
 
     host = ai_Tutorial->host;
     if (!host)
@@ -1959,11 +1959,11 @@ int ai_TutorialStepClicked(void)
 /* 0x578120, attaches the tutorial's event record (host, the tutorial intro event 0x87's record) and resets the
    intro window's control object (continueObj) to -1 (43 B): -4 without the gate 0x6f265c, else 0 */
 
-int ai_TutorialSetHost(char *per)
+int ai_TutorialSetHost(AIJOB *per)
 {
     if (!ai_TutorialOn)
         return -4;
-    ai_Tutorial->host = (TUTHOST *)per;
+    ai_Tutorial->host = per;
     ai_Tutorial->continueObj = -1;
     return 0;
 }

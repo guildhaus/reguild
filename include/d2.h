@@ -36,23 +36,11 @@ typedef struct D2PICHDR11 {         /* start of the data of a type 0x11 picture 
 
 typedef struct D2RECT { int x, y, w, h; } D2RECT;
 
-struct D2BUF;
-
 typedef struct D2SHAPE {            /* 0x14 bytes, a rectangle that belongs to an object */
     int x, y;
-    struct D2BUF *owner;            /* 0x08 */
+    struct D2VIEW *owner;           /* 0x08, the view the shape was drawn into */
     int w, h;
 } D2SHAPE;
-
-typedef struct D2BUF {              /* a drawing surface with its picture buffers (the D2VIEW offsets) */
-    char pad000[0x190];
-    int active;                     /* 0x190, nonzero: the buffer takes shapes (D2VIEW.active) */
-    char pad194[4];
-    int loaded;                     /* 0x198, nonzero: its two surfaces exist (D2VIEW.loaded) */
-    char pad19c[8];
-    D2SURF *dstSurf;                /* 0x1a4, where the saved background is restored to */
-    D2SURF *srcSurf;                /* 0x1a8, the surface the shapes were drawn on */
-} D2BUF;
 
 typedef struct D2RGB { unsigned char r, g, b; } D2RGB;
 
@@ -261,11 +249,11 @@ int d2_FindFreeObj(void);                                   /* 0x468860 */
 int d2_FindPic(char *name);                                 /* 0x468890 */
 int d2_LoadPic(int idx, char *path);                        /* 0x468900 */
 void d2_Exit(void);                                         /* 0x468a90 */
-void d2_RestoreShapes(D2BUF *buf);                          /* 0x468c70 */
+void d2_RestoreShapes(D2VIEW *buf);                          /* 0x468c70 */
 int d2_AddToWin(int obj, int win);                          /* 0x468cf0 */
 void d2_FlushDirty(void);                                   /* 0x468e30 */
 void d2_AddDirty(int x, int y, int w, int h);               /* 0x468eb0 */
-void d2_AddShape(int x, int y, int w, int h, D2BUF *buf);   /* 0x468fb0 */
+void d2_AddShape(int x, int y, int w, int h, D2VIEW *buf);   /* 0x468fb0 */
 void *d2_GetPic(int idx);                                   /* 0x4690b0 */
 int d2_GetPicEx(int idx, void **pic, int *real);            /* 0x469180 */
 void d2_SetObjPic(int obj, int pic);                        /* 0x469250 */

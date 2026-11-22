@@ -5976,7 +5976,7 @@ void sv_DisableVisibleWidgets(int on)
                 v = &d2_Views[k];
                 for (i = 0; i < 0x300; i++) {
                     o = &((D2OBJ *)d2_Objs)[i];
-                    if (o->type != 0 && o->buf == (D2CTRL *)v && o->disabled == 0) {
+                    if (o->type != 0 && o->buf == v && o->disabled == 0) {
                         sv_DisabledWidgets[sv_DisabledCount++] = i;
                         o->disabled = 1;
                     }

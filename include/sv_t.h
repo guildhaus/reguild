@@ -5,6 +5,7 @@
 struct VFSFILE;
 
 struct HEEVSLOT;
+struct AIJOB;
 struct SBSAMPLE;
 struct AHMSTEP;
 struct AIBLD;
@@ -70,10 +71,6 @@ typedef struct TUTRUN {                 /* 0x74 bytes, a run (chapter) record of
     struct TUTRUN *next;                /* 0x70, the next run record */
 } TUTRUN;
 
-typedef struct TUTHOST {                /* the record at TUTSTATE.host; only its event slot is known */
-    char pad00[0x74];
-    struct HEEVSLOT *slot;              /* 0x74, the event bar slot of the tutorial's window */
-} TUTHOST;
 
 typedef struct TUTSTATE {               /* the tutorial state record (0x6fa060, ai_Tutorial points to it) */
     int state;                          /* 0x00, 1 .. 0xc (ai_TutorialTick) */
@@ -83,7 +80,8 @@ typedef struct TUTSTATE {               /* the tutorial state record (0x6fa060, 
     int campaignSteps;                  /* 0x10, counts ai_CampaignStep's handled steps, 0 when a run starts */
     struct SBSAMPLE *voice;             /* 0x14, the playing voice */
     TUTRUN *run;                        /* 0x18, the current run record */
-    TUTHOST *host;                      /* 0x1c */
+    struct AIJOB *host;                 /* 0x1c, the tutorial intro event 0x87's record (ai_TutorialSetHost): its
+                                           event bar slot holds the tutorial's window */
     int continueObj;                    /* 0x20, the intro window's control 3 text object (0x577740; text 0x7d): a click on it answers the intro (ai_TutorialIntroAnswered), -1 = none */
     int text1Win;                       /* 0x24, the first text window */
     int text1Shown;                     /* 0x28 */
@@ -192,7 +190,7 @@ void ai_TutorialCloseProgress(void);                /* 0x577d60, releases the pr
 void ai_TutorialProgressSlider(void);                /* 0x577d90, the progress slider (state 0xa) */
 int ai_TutorialStepForm(void);                 /* 0x577e50, the tutorial chapter form */
 int ai_TutorialStepClicked(void);                 /* 0x5780e0, the control predicate on S+0x4c */
-int ai_TutorialSetHost(char *per);            /* 0x578120, attaches the tutorial's event record (host) */
+int ai_TutorialSetHost(struct AIJOB *per);            /* 0x578120, attaches the tutorial's event record (host) */
 void ai_TutorialClearHost(void);                /* 0x578150, detaches the tutorial's event record (host) */
 int ai_TutorialOff(void);                 /* 0x578170, 1 while the tutorial does not run */
 int ai_TutorialStart(void);                 /* 0x578180, the tutorial start / record reset */

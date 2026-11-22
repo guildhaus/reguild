@@ -1298,7 +1298,7 @@ void ai_UpdateTownMap(LCMAPWIN *m)
                     d2_Objs[m->controls[i]].clipx1 = d2_LastWindowPtr->w + d2_LastWindowPtr->x;
                     d2_Objs[m->controls[i]].clipy0 = d2_LastWindowPtr->y;
                     d2_Objs[m->controls[i]].clipy1 = d2_LastWindowPtr->h + d2_LastWindowPtr->y;
-                    d2_Objs[m->controls[i]].buf = (D2CTRL *)&d2_Views[m->view];
+                    d2_Objs[m->controls[i]].buf = &d2_Views[m->view];
                 }
             } else if (ch->obj->type != 1 || ch->transport != 0) {
                 d2_MoveObj(d2_LastWindowPtr->x - d2_LastWindowPtr->scrollx + px,

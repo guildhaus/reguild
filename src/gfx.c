@@ -799,7 +799,7 @@ void d2_FocusInput(int obj)
 void d2_MouseUpdate(void)
 {
     D2OBJ *o;
-    D2CTRL *c;
+    D2VIEW *c;
     D2HIT *h;
     D2WIN *w;
     int i, j, m, found, win, line;
@@ -828,7 +828,7 @@ void d2_MouseUpdate(void)
             c = o->buf;
             if (c != 0) {
                 if (c->shown != 0 && c->loaded == 0)
-                    d2_ClickedForm = c->view;
+                    d2_ClickedForm = c->id;
             } else {
                 d2_ClickedForm = -1;
             }

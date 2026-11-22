@@ -599,9 +599,9 @@ void he_PickActiveEvent(void)
 }
 /* 0x53dcb0, makes the slot `sl` the active event window (0x6f262c), closing the previous one */
 
-void he_ActivateSlot(int *sl)
+void he_ActivateSlot(HEEVSLOT *sl)
 {
-    HEEVSLOT *s = (HEEVSLOT *)sl;
+    HEEVSLOT *s = sl;
 
     if (he_BarShown != -1) {
         if (he_ActiveSlot != 0) {
@@ -9575,7 +9575,7 @@ void sv_PopTo(void (*v)());
    when the tutorial is not running the record is freed, else it starts in stage 0 */
 void he_AllocTutorialIntro(AIJOB *ev)
 {
-    if (ai_TutorialSetHost((char *)ev) != 0) {
+    if (ai_TutorialSetHost(ev) != 0) {
         he_FreeEvent(ev);
         return;
     }
@@ -11434,7 +11434,7 @@ void he_RunMessageBox(AIJOB *e)
         if (ai_GameState != 2)
             sb_PlaySample(snd_SystemBank, "NeueMessage_s_01", 1, 0x3f, 0x7f, 0, 0);
         if ((m->msgBoxFlags & 8) != 0)
-            he_ActivateSlot((int *)e->slot);
+            he_ActivateSlot(e->slot);
         if ((m->msgBoxFlags & 0x10) != 0) {
             char *s = e->text + strlen(e->text) + 1;
 

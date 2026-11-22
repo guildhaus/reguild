@@ -462,7 +462,7 @@ int ls_GetLanguage();                     /* 0x5190a0, the language number */
    '$S' ten blanks, the F fallthrough, the '%i' dot grouping both ways, '%I', '%f' with _itoa formats, '%W'
    flush + d2_SetForm(dig, n), u/U/b/B/e/E removals, '%N' (case dig, kind digit), '%a' '%i%c' 0x14, '{r}'
    random group search + atoi + util_Random, '%D' season txt_Ptrs[0x4c + gm_Season], '%G' good name + '>%s<'
-   variant, '%%' 0x16, the end redraw (ctrl->loaded / view). ours 2238 vs 2244 instructions, switch tables in
+   variant, '%%' 0x16, the end redraw (ctrl->loaded / id). ours 2238 vs 2244 instructions, switch tables in
    the same case order. Left: (1) window addressing: the original keeps the window's byte offset
    d2_LastWindow*0x3c4 in [esp+0x20] and addresses [esi + d2_Wins+field] (asmdiff head: '- mov
    ecx,[eax*4+d2_Wins+0x280] / - lea eax,[eax*4+d2_Wins] / - mov [esp+0x24],eax' vs '+ shl eax,2 / + mov
@@ -496,7 +496,7 @@ int io_PrintText(intptr_t fmt, ...)
     char code, c;
     char *s, *art, *p;
     unsigned char *good;
-    D2CTRL *ctrl;                       /* the drawing buffer of the window's object (a view) */
+    D2VIEW *ctrl;                       /* the drawing buffer of the window's object (a view) */
     int saved, ret;
 
     redraw = 0;
@@ -1027,7 +1027,7 @@ int io_PrintText(intptr_t fmt, ...)
         ctrl = D2_OBJS[d2_Wins[d2_LastWindow].parent].buf;
         if (ctrl != 0) {
             if (ctrl->loaded != 0)
-                d2_RedrawView(ctrl->view);
+                d2_RedrawView(ctrl->id);
             else
                 d2_DrawWindow(d2_LastWindow, d2_ScreenSurf);
         } else {
