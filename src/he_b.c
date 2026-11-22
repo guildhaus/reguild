@@ -479,7 +479,7 @@ int he_RegisterEventTypeA2();
 #include "ai_bld.h"
 #include "f3gm_carry.h"
 #include "ai_char.h"
-#include "f3gm_types.h"              /* GMGOOD / GM_GOOD (the goods prototypes) */
+#include "f3gm_types.h"              /* AIGOOD / GM_GOOD (the goods prototypes) */
 #include "gv_types.h"
 #include "ch.h"
 #include "am_types.h"
@@ -737,7 +737,7 @@ typedef struct HEPRODUCTION {           /* the production event's words over AIJ
     char padg[2];
     char padb0[4];
     float amount;                       /* 0xb4, the work left on the current unit: starts at the good's work time
-                                           (GMGOOD.workTime), worn down by the work minutes, one unit made per work time */
+                                           (AIGOOD.workTime), worn down by the work minutes, one unit made per work time */
     float amount2;                      /* 0xb8, the same, set when a unit starts */
     int bld;                            /* 0xbc, the producing building's id */
     int store;                          /* 0xc0, the id of the object the goods are made in (kind 0x2a / 0x116: its list
@@ -1244,7 +1244,7 @@ void he_AllocIncomeEvent(AIJOB *e)
     double d;
     int v;
 
-    v = (int)GM_GOOD(e->incomeGood)->workTime;
+    v = (int)(&ai_Goods[e->incomeGood])->workTime;
     e->incomeAmount = v;
     e->end = e->start;
     e->incomeAmountF = (float)v;
@@ -1280,7 +1280,7 @@ void he_RunIncomeEvent(AIJOB *ev)
     AIOBJ *to;
     char text[0x100];
     AICHAR *owner;
-    GMGOOD *good;
+    AIGOOD *good;
     AIOBJ *stock;
     int i;
     int n;
@@ -1322,7 +1322,7 @@ void he_RunIncomeEvent(AIJOB *ev)
             ev->incomeCounter += n;
         factor += ev->incomeRate;
         while (gm_CompareTime(&ev->end, &ai_Time) < 0) {
-            good = GM_GOOD(ev->incomeGood);
+            good = (&ai_Goods[ev->incomeGood]);
             amount = (float)ev->incomeAmount;
             n = gm_WorkMinutesBetween(&ev->clock60, &ev->end, 0) * (ev->words14[0] * 2 + ev->words14[1]);
             ev->incomeAmount = (int)(amount - n * factor);
@@ -1387,7 +1387,7 @@ void he_AllocProduktion(AIJOB *ev)
     HEPRODUCTION *p = (HEPRODUCTION *)ev;
     char buf[0x200];
     AIBLD *b;
-    GMGOOD *g;
+    AIGOOD *g;
     int o, id, rec;
     float v;
 
@@ -1397,7 +1397,7 @@ void he_AllocProduktion(AIJOB *ev)
             txt_Format(buf, (intptr_t)"he_AllocProduktion(): geb:%G", o);
     }
     b = gm_FindBuildingById(p->bld);
-    g = (GMGOOD *)ai_Goods;
+    g = (AIGOOD *)ai_Goods;
     id = p->good;
     v = (float)g[id].workTime;
     ev->end = ev->start;
@@ -1429,7 +1429,7 @@ int he_HasEvent9f(AICHAR *a);
    sk81 / 1008 for an owner of kind 6 / 7, halved with flag 0x20 and the item 0x178; every 60 minutes the owner sends
    his relations to the workers ids[], their mean factor (health, skill for the titles 0x1b / 0x1c, the place factor,
    x 1.25 with the item 0x2ba; x 0.9 with an event 0x9f) and the liking rate are taken anew. While the due clock is
-   past and the store (kind 0x2a / 0x116) has the inputs (GMGOOD.in / need) and room, the work minutes times
+   past and the store (kind 0x2a / 0x116) has the inputs (AIGOOD.in / need) and room, the work minutes times
    (1.3 * +0x14 + +0x18) times the rate wear the amount down; every work time used up makes one unit
    (cm_SendMakeGoods); without units and the good no longer in the store, the good is ordered (cm_SendExSellObject).
    A shortage reports as above (once), stops the smoke and waits 5 minutes. Stage 2 goes back to 1 while workers are
@@ -1472,7 +1472,7 @@ void he_RunProduktion(AIJOB *ev)
     AIOBJ *mainObj;
     AIOBJ *o;
     AIJOB *box;
-    GMGOOD *g;
+    AIGOOD *g;
     int news;
     int n;
     int i;
@@ -1630,7 +1630,7 @@ wait:
             txt_Format(text, 0x1bb4, bld, p->good * 2 + 0x9a8);
             strcpy(name, "_NACHRICHTEN_HS_05");
         } else {
-            g = GM_GOOD(p->good);
+            g = (&ai_Goods[p->good]);
             for (i = 0; i < 4; i++) {
                 if (g->in[i] != 0) {
                     o = gm_Query(store->list, 1, 0, g->in[i]);
@@ -1650,7 +1650,7 @@ wait:
                 ev->clock60 = ev->end;
             }
             while (gm_CompareTime(&ev->end, &ai_Time) < 0) {
-                g = GM_GOOD(p->good);
+                g = (&ai_Goods[p->good]);
                 p->amount = p->amount - gm_WorkMinutesBetween(&ev->clock60, &ev->end, 0)
                                         * (ev->words14[0] * 1.3f + ev->words14[1]) * f;
                 units = 0;
@@ -1758,7 +1758,7 @@ void he_AllocSearchEvent(AIJOB *e)
 }
 /* 0x56a170, the run handler of the search event 8 ("Suchen", he_AllocSearchEvent): stage 0 goes to 1; stage 1 frees
    the event when no workers are left (the words +0x14 / +0x18), else waits for the due clock; then, with its building
-   (else stage -1), the workers find (random(batch * 40) + batch * 40) times their number of the good (GMGOOD.batch),
+   (else stage -1), the workers find (random(batch * 40) + batch * 40) times their number of the good (AIGOOD.batch),
    handed to the event's store (cm_SendExSellObject from nobody), the building's owner gets the news 0x1bb8
    ("_NACHRICHTEN_HS_08"), the workers join the building's group and the event is freed; -1 / -2 send the workers off
    and free it */
@@ -1767,7 +1767,7 @@ void he_RunSearchEvent(AIJOB *ev)
     HESEARCH *s = (HESEARCH *)ev;
     AIBLD *bld;
     char text[0x200];
-    GMGOOD *g;
+    AIGOOD *g;
     AICHAR *rec;
     int amount;
 
@@ -1785,7 +1785,7 @@ void he_RunSearchEvent(AIJOB *ev)
             ev->stage = -1;
             return;
         }
-        g = GM_GOOD(s->good);
+        g = (&ai_Goods[s->good]);
         amount = (util_Random(g->batch * 40) + g->batch * 40) * (ev->words14[0] + ev->words14[1]);
         cm_SendExSellObject(s->store, -1, s->good, amount, ai_OwnPlayer, 0);
         txt_Format(text, 0x1bb8, s->good * 2 + 0x9a8, bld, amount);
@@ -1836,7 +1836,7 @@ void he_RunSearch9(AIJOB *ev)
     char text[0x200];
     AIOBJ *found;
     AIOBJ *o;
-    GMGOOD *g;
+    AIGOOD *g;
     AICHAR *rec;
     int j;
     int ok;
@@ -1866,7 +1866,7 @@ void he_RunSearch9(AIJOB *ev)
             cm_SendExSellObject(src->objId, -1, found->id, 1, ai_OwnPlayer, 0);
             gm_BuildKindObjects(bld);
             for (i = 0; i < gm_KindObjCount; i++) {
-                g = GM_GOOD(gm_KindObjs[i]);
+                g = (&ai_Goods[gm_KindObjs[i]]);
                 if (g->type == 0x17)
                     continue;
                 ok = 1;
@@ -1880,7 +1880,7 @@ void he_RunSearch9(AIJOB *ev)
                 if (ok)
                     cm_SendExSellObject(src->objId, -1, gm_KindObjs[i], 3, ai_OwnPlayer, 0);
             }
-            g = GM_GOOD(found->id);
+            g = (&ai_Goods[found->id]);
             amount = (util_Random(g->batch * 30) + g->batch * 30) * (ev->words14[0] + ev->words14[1]);
             cm_SendExSellObject(s->store, -1, found->id, amount, ai_OwnPlayer, 0);
             txt_Format(text, 0x1bb8, found->id * 2 + 0x9a8, bld, amount);
@@ -2135,7 +2135,7 @@ void he_RunTrade(AIJOB *ev)
                         t->moveSlot = cm_SendExSellObject(cargo->objId, store->objId, g->id, n, ai_OwnPlayer, price);
                     if (chr != 0 && chr->bld != 0)
                         sprintf(buf, "Meister %s (%s) kauft f\xfcr %li Credits (hat %li) %li Einheiten %s", chr->name,
-                                chr->bld->name, price * n, left, n, GM_GOOD(g->id)->name);
+                                chr->bld->name, price * n, left, n, (&ai_Goods[g->id])->name);
                     left -= price * n;
                     if (chr != 0)
                         chr->budget -= price * n;

@@ -11,7 +11,7 @@
    its definition in lc.c is still a one-parameter skeleton.
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
    AICHAR / AIBLD / AIOBJ, the job record as ai_types.h's AIJOB, the crime records ai_Crimes (cm_types.h CRIME,
-   0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
+   0x200 of them), the goods prototypes through AIGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
    the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
    byte offset), the kind 0x23 (loan) events as AIJOB, or by byte offset (the rest, GM_GOODS).

@@ -813,7 +813,7 @@ typedef struct AIGOOD {                 /* 0x41 bytes, ai_Goods[] */
         char name[0x25];                /* 0x01 */
         struct {
             char padname[0x20];
-            unsigned char cls;          /* 0x21, the goods class (gm_ClassBuilding's index; f3gm_types.h GMGOOD.cls) */
+            unsigned char cls;          /* 0x21, the goods class (gm_ClassBuilding's index) */
             unsigned int workTime;      /* 0x22, reasoned: the production time of one unit (the item tooltip shows it, in a building divided by the staff factor; ai_CalcEntryCost divides the margin by it) */
         };
     };
@@ -821,8 +821,10 @@ typedef struct AIGOOD {                 /* 0x41 bytes, ai_Goods[] */
     unsigned short in[4];               /* 0x2e, the goods it is made of */
     unsigned short batch;               /* 0x36, the amount one production run makes (the store needs room for
                                            it and the market that much plus the stock; he.c 0x5690c0 hands it out) */
-    char pad38[8];
-    unsigned char b40;                  /* 0x40, nonzero: shown in the item tooltip instead of the price (text 0x21, ai_OpenItemTooltip) */
+    int price;                          /* 0x38, the cached price of 100 pieces / 32 (gm_ItemPrice), 0: not computed yet */
+    char pad3c[4];
+    unsigned char noSale;               /* 0x40, nonzero: shown in the item tooltip instead of the price (text 0x21,
+                                           ai_OpenItemTooltip; reasoned: not for sale, ai_DecideProduceGood never produces such a good) */
 } AIGOOD;
 #pragma pack(pop)
 

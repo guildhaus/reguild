@@ -172,19 +172,12 @@ typedef struct AIBTX {                  /* 0x24d bytes, an AIBTYPE (ai.h) as the
 
 
 
-typedef struct AIGOODX {                /* 0x41 bytes, an AIGOOD (ai.h) as these callbacks read it */
-    signed char type;                   /* 0x00 */
-    char pad01[0x3f];
-    unsigned char noSale;               /* 0x40, AIGOOD.b40: nonzero, the tooltip shows a text instead of the price (reasoned: not for sale; ai_DecideProduceGood never produces such a good) */
-} AIGOODX;
 #pragma pack(pop)
 
 typedef char ai_AssertAIBTX[sizeof(AIBTX) == 0x24d ? 1 : -1];
-typedef char ai_AssertAIGOODX[sizeof(AIGOODX) == 0x41 ? 1 : -1];
 
 
 #define AI_BTX ((AIBTX *)ai_BTypes)
-#define AI_GOODX ((AIGOODX *)ai_Goods)
 /* ai.h declares gm_BuildQuery with two arguments, am.h above with three */
 
 int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2);                 /* 0x497660 */

@@ -768,8 +768,8 @@ int ai_OpenItemTooltip(int idx)
     d2_SetForm(0, 1);
     io_PrintText(idx * 2 + 0x9a8);
     d2_SetForm(0, 3);
-    if (item->b40 != 0)
-        io_PrintText(0x21, item->b40);
+    if (item->noSale != 0)
+        io_PrintText(0x21, item->noSale);
     else
         io_PrintText(0x1f, (int)gm_GoodsPrice(idx, ai_OwnPlayer), (int)gm_ItemPrice(idx, 0x64));
     bld = ai_PlayerBuilding;
@@ -913,8 +913,8 @@ int ai_OpenUpgradeTooltip(int idx)
     io_PrintText(idx * 2 + 0x9a8);
     item = ai_Goods + idx;
     d2_SetForm(0, 3);
-    if (item->b40 != 0)
-        io_PrintText(0x21, item->b40);
+    if (item->noSale != 0)
+        io_PrintText(0x21, item->noSale);
     else {
         f = ai_Difficulty * 0.25 + 0.5;
         io_PrintText(0x23, (int)(gm_ItemPrice(idx, 0x64) * f));

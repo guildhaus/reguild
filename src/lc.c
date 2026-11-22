@@ -3256,7 +3256,7 @@ extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h
    (gm_Query (objList, 1, 0, room), else (1, 4, 2)) opens "techtree\TechTree" (gm_TechTreeWindow; a failure shows
    the text txt_Ptrs[0x1e]) with its effects button (text 0x17e2: ai_TechEffectsWindow). A click on a tree node
    (ids 0xdf .. 0x3bb, a node of gm_TreeNodes) researches the goods id - 0xdf when the script query 0x2b allows it:
-   not yet held (the room's list, or the building's rooms (2, 6, 0)) it costs either AIGOOD.b40 of the character's
+   not yet held (the room's list, or the building's rooms (2, 6, 0)) it costs either AIGOOD.noSale of the character's
    money (text 0x1b / 0x74, cm_SendMoneyDelta) or the price gm_ItemPrice * (difficulty / 4 + 0.5) from the master's
    goods or the treasury (text 0x1a / 0x1c, cm_SendMoveGoods); the research message (type 0xc for a building
    upgrade, goods kind 6, else 2) goes out in the group "upgrade" and its slot is waited for; an object already
@@ -3350,7 +3350,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                             msg.arg[1] = rec->objId;
                             msg.itemId = (unsigned short)i;
                         }
-                        cost = good->b40;
+                        cost = good->noSale;
                         if (cost == 0) {
                             /* paid in goods: the price by the difficulty */
                             ok = 0;

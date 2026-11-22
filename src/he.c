@@ -9,7 +9,7 @@
    (no @bytes: the block after he_TransportStadtStadt's ret at 0x556055 is its int 3 error path, reached by the je at 0x555dd7)
    The event record is AIJOB (0x14c bytes, he_Events over he_Events), the message record AIMSG (both in ai_types.h,
    readable without ai.h); the buildings and characters are AIBLD / AICHAR (ai_bld.h / ai_char.h, ai_PlayerChar), the
-   carts AIOBJ (ai_types.h), the carried-goods records GMCARRYREC (f3gm_carry.h), the goods prototypes GMGOOD
+   carts AIOBJ (ai_types.h), the carried-goods records GMCARRYREC (f3gm_carry.h), the goods prototypes AIGOOD
    (f3gm_types.h), the AP events HEAPEVENT (he.h, he_ApEvents). The event bar, the event create / free / search, the
    gfx info, AP event and the event posting functions up to 0x53f370 read them typed.
    The handlers up to 0x547ba0 (the feast 0x37 / feast exam 0x36, tribute 0x35, courtship 0x41, patrol 0x43,
@@ -559,7 +559,7 @@ int he_RegisterEventTypeA2();
 #include "ai_bld.h"
 #include "f3gm_carry.h"
 #include "ai_char.h"
-#include "f3gm_types.h"              /* GMGOOD / GM_GOOD (the goods prototypes) */
+#include "f3gm_types.h"              /* AIGOOD / GM_GOOD (the goods prototypes) */
 #include "gv_types.h"
 #include "ch.h"
 #include "am_types.h"
@@ -820,7 +820,7 @@ typedef struct HEPRODUCTION {           /* the production event's words over AIJ
     char padg[2];
     char padb0[4];
     float amount;                       /* 0xb4, the work left on the current unit: starts at the good's work time
-                                           (GMGOOD.workTime), worn down by the work minutes, one unit made per work time */
+                                           (AIGOOD.workTime), worn down by the work minutes, one unit made per work time */
     float amount2;                      /* 0xb8, the same, set when a unit starts */
     int bld;                            /* 0xbc, the producing building's id */
     int store;                          /* 0xc0, the id of the object the goods are made in (kind 0x2a / 0x116: its list
@@ -10954,14 +10954,14 @@ int he_NoEvent35Pair(AICHAR *a, AICHAR *b, int *count)
     return 1;
 }
 /* 0x553e10, the alloc handler of the sale event 2: the due clock (AIJOB.end) is now, one second later with
-   gm_AllowAll set, else after the production time (GMGOOD.workTime) of the good sold (HESALE.good) */
+   gm_AllowAll set, else after the production time (AIGOOD.workTime) of the good sold (HESALE.good) */
 
 void he_AllocSale(AIJOB *e)
 {
     HESALE *s = (HESALE *)e;
-    GMGOOD *good;
+    AIGOOD *good;
 
-    good = GM_GOOD(s->good);
+    good = (&ai_Goods[s->good]);
     e->end = ai_Time;
     if (gm_AllowAll != 0)
         gm_AddTime(&e->end, 0, 0, 1);
@@ -10986,7 +10986,7 @@ void he_RunSale(AIJOB *e)
     AIOBJ *p, *q;
     AIBLD *b;
     unsigned short ty;
-    GMGOOD *g;
+    AIGOOD *g;
     int tid;
 
     switch (e->stage) {
@@ -11038,7 +11038,7 @@ void he_RunSale(AIJOB *e)
             char name[0x80];
 
             q = gm_Query(b->objList, 1, 1, s->obj);
-            g = GM_GOOD(s->good);
+            g = (&ai_Goods[s->good]);
             if (q != 0 && q->type != 0xfd) {
                 tid = 0x606;
                 if (ai_BTypes[b->type].kind != 6) {
@@ -14844,7 +14844,7 @@ void he_RunHarvest(AIJOB *e)
     AIBTYPE *bt;
     EVTSCRIPT *sc;
     AIOBJ *store;
-    GMGOOD *g;
+    AIGOOD *g;
     struct CHARACTER *ch;
 
     int i, size;
@@ -14895,7 +14895,7 @@ void he_RunHarvest(AIJOB *e)
         break;
     case 1:
         e->harvestSlot = -1;
-        g = GM_GOOD(pl->type);
+        g = (&ai_Goods[pl->type]);
         e->end = ai_Time;
         gm_AddTime(&e->end, 0, (int)(pl->state * g->workTime * 0.25), 0);
         e->stage++;

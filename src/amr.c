@@ -2156,9 +2156,9 @@ int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     AIBTX *t;
     int i, v;
     unsigned short k;
-    AIGOODX *g;
+    AIGOOD *g;
 
-    if (b != 1 || o1->kind != 2 || AI_GOODX[o1->ref].noSale || AI_GOODX[o1->ref].type == 2)
+    if (b != 1 || o1->kind != 2 || ai_Goods[o1->ref].noSale || ai_Goods[o1->ref].type == 2)
         return 0;
     obj = 0;
     bld = 0;
@@ -2167,7 +2167,7 @@ int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         obj = gm_FindObjectInst(o2->ref);
         if (!obj)
             return 0;
-        g = &AI_GOODX[obj->id];
+        g = &ai_Goods[obj->id];
         if (g->type == 2 || g->type == 6) {
             if (gm_Query(obj->list, 1, 0, o1->ref))
                 return 0;
@@ -2294,7 +2294,7 @@ int ai_DecideBuyRoom(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         return 0;
     if (o1->kind != 2)
         return 0;
-    if (AI_GOODX[o1->ref].type != 2)
+    if (ai_Goods[o1->ref].type != 2)
         return 0;
     if (o2->kind != 4)
         return 0;
