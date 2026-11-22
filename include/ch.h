@@ -136,11 +136,11 @@ extern unsigned int d3_SceneFlags;   /* 0x63349c */
 int d3t_SceneIndex(D3SCENE *scene);                                                     /* 0x411be0 */
 char d3_DeflateScene(unsigned int flags);                                                  /* 0x43db30 */
 char d3_InflateScene(unsigned int flags);                                                  /* 0x43deb0 */
-void d3_SetObject078(D3OBJECT *obj, D3VECTOR *v);                                       /* 0x43b820 */
+void d3_SetObject078(D3OBJECT *obj, const D3VECTOR *v);                                       /* 0x43b820 */
 char d3if_Show(struct D3OBJECT *obj, char show);                                               /* 0x4471b0 */
 char d3if_ShowTree(D3OBJECT *obj, char show);                                             /* 0x447300 */
-void d3_DirToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);                           /* 0x458810 */
-float d3_VecAngle(D3VECTOR *a, D3VECTOR *b);                                            /* 0x4539f0 */
+void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                           /* 0x458810 */
+float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b);                                            /* 0x4539f0 */
 extern const D3VECTOR4 d3_ZAxis;             /* 0x5ebb74, (0, 0, 1) */
 struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                          /* 0x45eeb0 */
 void err_Message(char *msg);                                                            /* 0x4222b0 */

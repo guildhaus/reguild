@@ -1189,7 +1189,7 @@ struct D2FADE;
 struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */                     /* 0x4767d0 */
 void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */                     /* 0x476860 */
 void d2_PlaceWindow(int win, unsigned char flags);  /* 0x4756b0 */
-struct D3SKY; struct D3SKYLAYER; struct D3VECTOR; int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
+struct D3SKY; struct D3SKYLAYER; struct D3VECTOR; int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
 char * cm_CharWeapon(struct AICHAR *c);                     /* 0x4cda50 */
 
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: one push, no player slot */
@@ -2325,7 +2325,7 @@ extern int d3t_CamMoving;  /* 0x6310e4 */
 extern struct D3ANIM *d3t_CamMove;  /* 0x6310e8 */
 extern int sv_ScrollTime;  /* 0x6f2394 */
 extern float sv_ScrollLastMove[4];
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
 
 /* 0x525dd0, in scene 0 sets both camera blend factors to f and places the camera: its height is the near / far height blended by
    f over the terrain's mean height under it, its x angle the near / far angle blended by f; stores the camera's rotation and

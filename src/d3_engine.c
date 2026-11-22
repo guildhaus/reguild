@@ -1208,7 +1208,7 @@ void d3_UpdateAll(unsigned char full)
 }
 /* 0x43b790, moves an object to pos, redoing its transform (the whole scene for the camera) and its shadows */
 
-void d3_SetObjectPos(D3OBJECT *obj, D3VECTOR *pos)
+void d3_SetObjectPos(D3OBJECT *obj, const D3VECTOR *pos)
 {
     if (obj == d3_Camera)
         d3_UpdateAll(1);
@@ -1232,7 +1232,7 @@ void d3_SetObjectPosXYZ(D3OBJECT *obj, float x, float y, float z)
 }
 /* 0x43b820, sets the object position offset (D3OBJECT.posOffset, added to pos by the update). */
 
-void d3_SetObject078(D3OBJECT *obj, D3VECTOR *v)
+void d3_SetObject078(D3OBJECT *obj, const D3VECTOR *v)
 {
     d3_UpdateObject(obj, 1);
     d3_ForEachObject2(d3_DefaultScene, obj, 0xc0, d3s_ResetShadows);

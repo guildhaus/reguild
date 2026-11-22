@@ -53,7 +53,7 @@ void d3fl_FreeMap(D3FLMAP *map);  /* 0x43ff90, d3_fl.c; declared here because a 
 int d3fl_Prerender(D3FLMAP *map);  /* 0x446180, d3_fl.c; declared here for the same reason (a d3_fl.h prototype perturbs d3_tools.c) */
 /* 0x446e10, creates a mesh object named `name` (loading its mesh data), optionally as a child of `a`,
    at pos / rot; returns the object or 0 when the mesh could not be loaded */
-D3OBJECT *d3_CreateObject(int a, D3VECTOR *pos, D3VECTOR *rot, char *name)
+D3OBJECT *d3_CreateObject(int a, const D3VECTOR *pos, D3VECTOR *rot, char *name)
 {
     D3OBJECT *obj;
     unsigned int i, n;

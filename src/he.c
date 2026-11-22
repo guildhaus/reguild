@@ -11551,7 +11551,7 @@ void he_SetCartSpeed(AIJOB *ev, AIOBJ *cart)
         ch->walkSpeed = (float)(ch->walkSpeed * 0.8);
 }
 
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 
 /* 0x555350, the leg of the transport event 15 (HETRANSPORT) of mode 2 (only the start a home), called by its run
    handler 0x556600 each round: the cart (gm_FindObjectInst; none: nothing) gets its speed (he_SetCartSpeed). The
@@ -16297,7 +16297,7 @@ void he_AllocRansom(AIJOB *ev)
 }
 
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 
 /* 0x561190, the run handler of the ransom event 0x3d (HEEV3D, its alloc handler he_AllocRansom): stage 0 (no guild or
    victim: cancelled) makes the victim the guild's hostage when it holds none. A victim no longer held

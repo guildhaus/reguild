@@ -22,7 +22,7 @@ void d3_Lerp3(float *a, float *b, float t, float *out)
 }
 /* 0x4539f0, signed angle around the y axis from a to b (xz plane) */
 
-float d3_VecAngle(D3VECTOR *a, D3VECTOR *b)
+float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b)
 {
     D3VECTOR4 va, vb, nb;
     float c[3];
@@ -53,7 +53,7 @@ float d3_VecAngle(D3VECTOR *a, D3VECTOR *b)
 }
 /* 0x453b40, d3_VecAngle wrapped to [-pi, pi) */
 
-float d3_VecAngle2(D3VECTOR *a, D3VECTOR *b)
+float d3_VecAngle2(const D3VECTOR *a, D3VECTOR *b)
 {
     float r = d3_VecAngle(a, b);
 
@@ -140,7 +140,7 @@ float d3_Hermite(float p0, float p1, float m0, float m1, float t)
 }
 /* 0x453e80, all components within eps */
 
-int d3_VecEqual(D3VECTOR *a, D3VECTOR *b, float eps)
+int d3_VecEqual(const D3VECTOR *a, const D3VECTOR *b, float eps)
 {
     if (fabs(b->x - a->x) <= eps && fabs(b->y - a->y) <= eps && fabs(b->z - a->z) <= eps)
         return 1;

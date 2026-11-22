@@ -698,6 +698,6 @@ void d3_SetAlpha(D3OBJECT *obj, D3TEXFLAGS *f);  /* 0x43d690, the alpha flags f 
 char d3_AttachToBone(D3OBJECT *obj, char *name);  /* 0x43d6c0 */
 char d3_DeflateScene(unsigned int flags);  /* 0x43db30 */
 char d3_InflateScene(unsigned int flags);  /* 0x43deb0 */
-void d3_SetObject078(D3OBJECT *obj, D3VECTOR *v);  /* 0x43b820 */
+void d3_SetObject078(D3OBJECT *obj, const D3VECTOR *v);  /* 0x43b820 */
 
 #endif

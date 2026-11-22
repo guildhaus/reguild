@@ -172,7 +172,7 @@ D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *
 }
 /* 0x455a20, moves the position of the system's embedded object (the particles are placed relative to it) */
 
-void par_SetPos(D3PARTSYS *ps, D3VECTOR *pos)
+void par_SetPos(D3PARTSYS *ps, const D3VECTOR *pos)
 {
     if (ps)
         d3_SetObjectPos((D3OBJECT *)ps->obj, pos);
@@ -804,7 +804,7 @@ char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
 }
 /* 0x457b30. The first parameter is the parent (ecmd.h names it count), the third the particle count. */
 
-D3PARTSYS *par_CreateEmitter(int parent, D3VECTOR *pos, int count, char *tex, OCMDTEXFLAGS flags, float size,
+D3PARTSYS *par_CreateEmitter(int parent, const D3VECTOR *pos, int count, char *tex, OCMDTEXFLAGS flags, float size,
                              D3EMITTERCFG *cfg)
 {
     D3PARTSYS *ps = 0;

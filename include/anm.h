@@ -34,7 +34,7 @@ struct CHARACTER *ch_Create(char *name, struct D3VECTOR *pos);                  
 struct CHACTION *ch_AddAction(struct CHARACTER *ch, unsigned int type, ...);                            /* 0x40b2f0, ch.c */
 int ch_Delete(struct CHARACTER *ch);                                                         /* 0x4028a0, ch.c: CHARACTER * */
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);                               /* 0x458a20, d3.h: D3 types */
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);                                  /* 0x453e80, d3.h: D3VECTOR */
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);                                  /* 0x453e80, d3.h: D3VECTOR */
 struct AIBLD *gm_BuildQuery(int n, ...);                                                  /* 0x501190, ai.h: AIBLD * */
 struct AIBLD *gm_BuildNext(void);                                                        /* 0x501030 */
 int gm_IsHomeType(struct AIBLD *b);                                                       /* 0x502520 */

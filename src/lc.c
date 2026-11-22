@@ -815,7 +815,7 @@ void ai_InitProductionTables(void)
     }
 }
 
-struct D3VECTOR; int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); void d2_CentreViewWindows(int view);
+struct D3VECTOR; int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps); void d2_CentreViewWindows(int view);
 float gm_GoodsPrice(unsigned id, unsigned char p);   /* 0x5089c0, the price (ai.h / cm.h / rt.h: float) */
 void gm_FormatAmount(int v, unsigned char k, char *out);  /* 0x508a80, above its first call (line 1119) */
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
@@ -2083,7 +2083,7 @@ struct D3VECTOR;
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out); /* 0x458a20 (d3_pose.c) */
 struct AIBLD *gm_BuildQuery(int n, ...);                  /* 0x501190 (f3gm.c) */
 struct AIBLD *gm_BuildNext(void);                         /* 0x501030 (f3gm.c) */
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps); /* 0x453e80 (d3_vec.c) */
 
 /* 0x58f6a0, the placement-candidate filter (250 B, a d3_ForEachObject callback found through the pointer in
    0x58f7a0): obj passes when its name (or its name + 1) starts with the prefix (case-insensitive; "bk_" when the
@@ -2119,7 +2119,7 @@ char ai_BauplatzFilter(D3OBJECT *obj, void *ctx)
     return 1;
 }
 
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);  /* 0x453e80 */
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
 
 /* 0x58f7a0, collects the build sites of a building kind: d3_ForEachObject (the default scene, mask 0x180) with the
    filter ai_BauplatzFilter puts the objects named with prefix into list (ai_BauplatzList, count ai_BauplatzCount);
@@ -2338,9 +2338,9 @@ int lc_GetGebaeudeBauplatz(AIBUILDSITE *out, AIBLD *b)
 }
 
 
-void d3_LocalToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);  /* 0x458c10 (d3_pose.c) */
-void d3_DirToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);    /* 0x458810 (d3_pose.c) */
-float d3_VecAngle(struct D3VECTOR *a, struct D3VECTOR *b);      /* 0x4539f0 (d3_vec.c) */
+void d3_LocalToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);  /* 0x458c10 (d3_pose.c) */
+void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);    /* 0x458810 (d3_pose.c) */
+float d3_VecAngle(const struct D3VECTOR *a, struct D3VECTOR *b);      /* 0x4539f0 (d3_vec.c) */
 extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0, 0, 1) */
 
 /* 0x58fd40, the world position of a plot record's origin, written to out (79 B): d3if_SelectScene (0, 1) brackets
@@ -8821,7 +8821,7 @@ int gm_SumListAmounts(void *list, unsigned char p); struct AIJOB *he_FindEvent(i
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o, struct AICHAR *c);
 char d3_DeflateScene(unsigned int flags); char d3_InflateScene(unsigned int flags); void init_SetCharacterAnimations(struct AIBLD *b);
 void init_ShowBuildingScene(struct AIBLD *b, int slot); void init_FinishBuildingScene(struct AIBLD *b, struct AIOBJ *o); 
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 void snd_UnloadBuildingVoices(void); void init_AfterTownLoad(void); 
 void ai_AlchemistLabContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CannonContact(struct AIBLD *rec, struct AIOBJ *room); void ai_CabinetContact(struct AIBLD *rec, struct AIOBJ *room); void ai_ProductionContact(struct AIBLD *building, struct AIOBJ *arg);
 

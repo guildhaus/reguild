@@ -8,7 +8,7 @@
 #include "d3_vec.h"
 
 /* 0x458810, rotates a direction by the object's matrix and then by those of its parents */
-void d3_DirToWorld(D3OBJECT *obj, D3VECTOR *in, D3VECTOR *out)
+void d3_DirToWorld(D3OBJECT *obj, const D3VECTOR *in, D3VECTOR *out)
 {
     D3OBJECT *p;
     struct { float x, y; volatile float z; float w; } t;
@@ -37,7 +37,7 @@ void d3_WorldAngles(D3OBJECT *obj, D3VECTOR4 *angles)
 }
 /* 0x458950, a direction in the object's space, relative to ref unless the object is in world space */
 
-void d3_DirToRef(D3OBJECT *obj, D3OBJECT *ref, D3VECTOR *in, D3VECTOR *out)
+void d3_DirToRef(D3OBJECT *obj, D3OBJECT *ref, const D3VECTOR *in, D3VECTOR *out)
 {
     D3VECTOR4 t;
 
@@ -101,7 +101,7 @@ void d3_PointToRef(D3OBJECT *obj, D3OBJECT *ref, D3VECTOR *in, D3VECTOR *out)
 }
 /* 0x458c10, a point local to the object (before its own matrix) in world space: applies the object matrix and then the parent chain */
 
-void d3_LocalToWorld(D3OBJECT *obj, D3VECTOR *in, D3VECTOR *out)
+void d3_LocalToWorld(D3OBJECT *obj, const D3VECTOR *in, D3VECTOR *out)
 {
     D3VECTOR4 t;
     float x = in->x + obj->pivot.x;

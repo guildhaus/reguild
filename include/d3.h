@@ -178,7 +178,7 @@ typedef struct D3OBJINFO {
 
 void d3_TransformSurf(D3OBJECT *obj);                                                       /* 0x43d7c0 */
 char d3_RelightObject(struct D3OBJECT *obj);                                                       /* 0x453280 */
-void d3_LocalToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);                             /* 0x458c10 */
+void d3_LocalToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                             /* 0x458c10 */
 void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in, struct D3VECTOR *out);                          /* 0x458a20, writes out and the angles after it */
 
 #define D3_MAX_SCENES 64
@@ -298,9 +298,9 @@ extern D3VECTOR d3t_PlaceAngles;              /* 0x1466630, camera target angles
 void d3anim_FreePath(D3OBJECT *obj);                                                       /* 0x433b10 */
 char d3if_Delete(D3OBJECT *obj);                                                       /* 0x447190, d3_interface.h */
 struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name);                     /* 0x449690 */
-D3OBJECT *d3_CreateObject(int a, D3VECTOR *pos, D3VECTOR *rot, char *name);       /* 0x446e10 */
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);                                   /* 0x453e80 */
-void d3_SetObjectPos(struct D3OBJECT *obj, struct D3VECTOR *pos);                                     /* 0x43b790 */
+D3OBJECT *d3_CreateObject(int a, const D3VECTOR *pos, D3VECTOR *rot, char *name);       /* 0x446e10 */
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);                                   /* 0x453e80 */
+void d3_SetObjectPos(struct D3OBJECT *obj, const struct D3VECTOR *pos);                                     /* 0x43b790 */
 void d3_SetObjectRot(D3OBJECT *obj, D3VECTOR *rot);                                     /* 0x43b860 */
 void d3_SetObjectPosXYZ(D3OBJECT *obj, float x, float y, float z);                      /* 0x43b7f0 */
 void d3_SetObjectRotXYZ(D3OBJECT *obj, float x, float y, float z);                      /* 0x43b920 */
@@ -376,7 +376,7 @@ struct D3PARTSYS {                  /* 0x31c bytes */
 };
 
 D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *parent, D3PARTCB cb); /* 0x455830 */
-void par_SetPos(D3PARTSYS *ps, D3VECTOR *pos);                                          /* 0x455a20 */
+void par_SetPos(D3PARTSYS *ps, const D3VECTOR *pos);                                          /* 0x455a20 */
 extern const D3VECTOR4 d3_Origin;           /* 0x5ebba4, (0, 0, 0), d3_vec.c */
 void d3_Normalize(D3VECTOR4 *v);                                                        /* 0x454560 */
 

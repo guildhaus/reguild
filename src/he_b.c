@@ -1155,7 +1155,7 @@ void sv_PopTo(void (*v)());
 void he_FreeEventNow(AIJOB *r);
 void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6, int a7, char *jump, char *text2);
 int gm_LevelPayout(int v, int kind);
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
@@ -1169,7 +1169,7 @@ typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AI
     AITIME since;                       /* 0xb4, the time of the kidnap (he_AllocRansom: now), shown by the news 0x19c2 */
 } HEEV3D;
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
-int d3_VecEqual(struct D3VECTOR *a, struct D3VECTOR *b, float eps);
+int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 typedef struct HEEV3E {                 /* the ransom demand event 0x3e's words over AIJOB's union (he_RunRansom's message 0x3e) */
     char pad00[0xac];
     int victim;                         /* 0xac, the netId of the kidnapped character (gm_FindChar), who is asked to pay */
