@@ -78,7 +78,7 @@ typedef struct D3SCENE {            /* 0x3e0 bytes, 64 of them in d3_Scenes: a s
     void *parHead;                  /* 0x0a4, first of the particle list (d3_ParHead, D3PARTSYS * in d3_par.h) */
     void *parTail;                  /* 0x0a8, last of the particle list (d3_ParTail) */
     void *map;                      /* 0x0ac, the scene's terrain map (D3FLMAP, d3_Terrain; d3fl_ReloadTextures) */
-    struct D3HMAP *hmap;            /* 0x0b0, terrain height map */
+    struct D3SM *hmap;            /* 0x0b0, terrain height map */
     int mapSize;                    /* 0x0b4, height map size: 0x80 with terrain, 0x40 without, from the file */
     struct D3SKY *sky;              /* 0x0b8, d3_Sky */
     D3VECTOR amb;                   /* 0x0bc, d3_AmbientColor */

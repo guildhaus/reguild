@@ -2454,7 +2454,7 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
     D3VECTOR rot;
     D3VECTOR4 pos;                  /* the engine's padded vector */
     D3TEXFLAGS tf;
-    struct D3HMAP *hmap;
+    struct D3SM *hmap;
     D3OBJECT *model;
     AIBTYPE *type;
     unsigned char *b;

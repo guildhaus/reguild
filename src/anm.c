@@ -304,7 +304,7 @@ void anm_CreateAnimal(ANMREC *a, int k)
 void anm_UpdateCat(ANMREC *a)
 {
     int px;
-    G15GRID *h;
+    D3SM *h;
     int pz;
     float py;
     int n;
@@ -324,7 +324,7 @@ void anm_UpdateCat(ANMREC *a)
             ch_QueueAnim(a->obj, "bewegung/stehen", util_Random(3) + 1);
         return;
     }
-    h = ((G15SCENE *)d3_DefaultScene)->hmap;
+    h = d3_DefaultScene->hmap;
     n = util_Random(3) + 1;
     n = rd_PointsNear(&a->pos, n, pts);
     if (n > 0) {
@@ -342,7 +342,7 @@ void anm_UpdateCat(ANMREC *a)
 void anm_UpdateSheep(ANMREC *a)
 {
     int px;
-    G15GRID *h;
+    D3SM *h;
     int pz;
     float py;
     int n;
@@ -359,7 +359,7 @@ void anm_UpdateSheep(ANMREC *a)
             ch_QueueAnim(a->obj, "bewegung/fressen", util_Random(3) + 1);
         return;
     }
-    h = ((G15SCENE *)d3_DefaultScene)->hmap;
+    h = d3_DefaultScene->hmap;
     n = util_Random(3) + 1;
     n = rd_PointsNear(&a->pos, n, pts);
     if (n > 0) {
@@ -398,13 +398,13 @@ int rd_DoorPos(D3VECTOR *pos)
 
 int rd_PointsNear(D3VECTOR *pos, int n, D3VECTOR4 *pts)
 {
-    G15GRID *h;
+    D3SM *h;
     int px, pz;
     float py;
     int x, z;
     int i;
 
-    h = ((G15SCENE *)d3_DefaultScene)->hmap;
+    h = d3_DefaultScene->hmap;
     d3_GetHeightAt(h, pos, &px, &pz, &py);
     for (i = 0; i < n; i++) {
         x = util_Random(10) - 4 + px;

@@ -403,7 +403,7 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
             rd_Road.path2[rd_Road.n2][0] = (unsigned char)(int)x;
             rd_Road.path2[rd_Road.n2][1] = (unsigned char)(int)z;
             rd_Road.n2++;
-            rd_Road.grid->cells[((int)z * rd_Road.map->w + (int)x) * 7] = 6;
+            rd_Road.grid->entries[(int)z * rd_Road.map->w + (int)x].type = 6;
             x += step;
             z += dz;
         }
@@ -416,7 +416,7 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
             rd_Road.path2[rd_Road.n2][0] = (unsigned char)(int)x;
             rd_Road.path2[rd_Road.n2][1] = (unsigned char)(int)z;
             rd_Road.n2++;
-            rd_Road.grid->cells[(rd_Road.map->w * (int)z + (int)x) * 7] = 6;
+            rd_Road.grid->entries[rd_Road.map->w * (int)z + (int)x].type = 6;
             x += dx;
             z += step;
         }
@@ -426,7 +426,7 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
         o = obj;
     d3_PointToWorld(o, &o->pos, &v.v);
     ok = 0;
-    if (d3_GetHeightAt((char *)rd_Road.grid, &v.v, &px, &pz, 0)) {
+    if (d3_GetHeightAt(rd_Road.grid, &v.v, &px, &pz, 0)) {
         if (rd_PathToRoad(&rd_Road, px, pz, -1, -1)) {
             ok = 1;
         }
@@ -490,10 +490,10 @@ int rd_PathToRoad(G15ROAD *r, int x, int z, int tx, int tz)
 {
     int n;
     int i, j;
-    int *c;
+    D3SMENTRY *c;
     float d, best;
     int row;
-    G15GRID *g;
+    D3SM *g;
 
     if (tx < 0 || tz < 0) {
         g = r->grid;
@@ -503,15 +503,15 @@ int rd_PathToRoad(G15ROAD *r, int x, int z, int tx, int tz)
         tz = -1;
         row = 0;
         for (i = 0; i < n; i++) {
-            c = (int *)((char *)g->cells + row);
+            c = (D3SMENTRY *)((char *)g->entries + row);
             for (j = 0; j < n; j++) {
-                if ((*c == 6 || *c == 0xb)
+                if ((c->type == 6 || c->type == 0xb)
                     && (d = (float)((i - z) * (i - z) + (j - x) * (j - x))) < best) {
                     tx = j;
                     tz = i;
                     best = d;
                 }
-                c += 7;
+                c++;
             }
             row += n * 0x1c;
         }
@@ -656,7 +656,7 @@ void rd_FillQuad(G15ROAD *r, float *c, unsigned char v, int t)
             if (v != 0xff)
                 r->map->cells[(int)z * r->map->w + (int)x] = v;
             if (t != 0xff)
-                r->grid->cells[(r->map->w * (int)z + (int)x) * 7] = t;
+                r->grid->entries[r->map->w * (int)z + (int)x].type = t;
             x += fx;
             z += fz;
         }

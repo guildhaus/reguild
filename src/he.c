@@ -89,7 +89,7 @@
    Open: types: SVFRAME / the frame stack view is declared in sv.c, lc.c and here (it belongs in sv_types.h).
    unit of rea 8cef7d5b (src/game/he.c); boundaries in decl/text.dcl */
 struct AHMSLOT;
-struct D3HMAP;
+struct D3SM;
 struct SBBANK;
 struct SBSAMPLE;
 union AHMGRID;

@@ -10,7 +10,7 @@
    Open: head: the prototypes of this unit's functions still sit in he.h (scattered among he's).
    split from he (rea 8cef7d5b, src/game/he.c); boundaries in decl/text.dcl */
 struct AHMSLOT;
-struct D3HMAP;
+struct D3SM;
 struct SBBANK;
 struct SBSAMPLE;
 union AHMGRID;

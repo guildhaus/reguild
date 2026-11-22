@@ -2042,11 +2042,11 @@ int init_InitTown(char *city)
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
     if (((D3TERRAIN *)d3_Terrain)->size == 0x80)
-        d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x100, 2);
+        d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x100, 2);
     else if (((D3TERRAIN *)d3_Terrain)->size == 0x40)
-        d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x80, 2);
+        d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x80, 2);
     else
-        d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create(d3_Terrain, 0x100, 2);
+        d3_DefaultScene->hmap = d3sm_Create(d3_Terrain, 0x100, 2);
     return 0;
 }
 /* 0x510e20, prints the title ("$C") and the text t in the form 0x75df00 */

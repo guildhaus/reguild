@@ -1126,7 +1126,7 @@ void cm_UpdatePointer()
     int i, n = 0, cur = 0x23;
     AICHAR *c;
     AIWEAPON *w;
-    struct D3HMAP *map;
+    struct D3SM *map;
     int z, x;
     D3VECTOR4 v;
 
@@ -1969,7 +1969,7 @@ void cm_SetupFightScene(G28REC *rec)
     }
     cm_BootsObject = d3io_LoadObjectRef("ub_STIEFEL", "ub_STIEFEL");
     if (sc == 0) {
-        d3_DefaultScene->hmap = (struct D3HMAP *)d3sm_Create((struct D3TERRAIN *)d3_Terrain,
+        d3_DefaultScene->hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain,
                                                              d3_DefaultScene->mapSize, 2);
         sc = (D3SM *)d3_DefaultScene->hmap;
     }
@@ -4299,7 +4299,7 @@ void cm_CloseFightUI()
 
 void cm_FighterAct(CMFIGHTSLOT *f)
 {
-    struct D3HMAP *h = d3_DefaultScene->hmap;
+    struct D3SM *h = d3_DefaultScene->hmap;
     AICHAR *c, *tgt, *side;
     AIWEAPON *k;
     CHACTION *x, *ev;
@@ -4533,7 +4533,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
 
 int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
 {
-    struct D3HMAP *h = d3_DefaultScene->hmap;
+    struct D3SM *h = d3_DefaultScene->hmap;
     CMFIGHTSLOT s;
     AIWEAPON *k;
     AIOBJ *item;

@@ -1402,9 +1402,9 @@ int ls_LoadScene(VFSFILE *f)
     d3if_SelectScene(1, 0);
     d3if_SelectScene(0, 0);
     if (((D3FLMAP *)d3_Terrain)->size == 0x80 || ((D3FLMAP *)d3_Terrain)->size != 0x40)
-        d3_Scenes[0].hmap = (struct D3HMAP *)d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x100, 2);
+        d3_Scenes[0].hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x100, 2);
     else
-        d3_Scenes[0].hmap = (struct D3HMAP *)d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x80, 2);
+        d3_Scenes[0].hmap = d3sm_Create((struct D3TERRAIN *)d3_Terrain, 0x80, 2);
     saved = d3_CurrentScene;
     d3if_SelectScene(0, 0);
     if (d3_Terrain != 0) {

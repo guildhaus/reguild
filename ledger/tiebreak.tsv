@@ -112,7 +112,7 @@ exe	0x00407740	ch_CellToCell	ch	c3d32bb49966197d	no	byte	control=byte p1=byte p2
 exe	0x00407790	ch_GetWaypoints	ch	84cab87e7987d792	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	fe60b82b736b204d
 exe	0x004079b0	ch_GetNewPath	ch	d737d5bd4329f293	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x00408490	ch_PathToTarget	ch	b69a76b6f5c10af8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
-exe	0x00408690	ch_InitWalk	ch	5b60fbca416de7b9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
+exe	0x00408690	ch_InitWalk	ch	daba7060a51c9b78	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	68bb9763aeddf8a1
 exe	0x00408ab0	ch_WalkSound	ch	1d2c5fd3dee4d9b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408cb0	ch_StartWalkAnim	ch	8d90320b4a982588	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00408e60	ch_NextWaypoint	ch	9ea9800cfef1c641	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4144,7 +4144,7 @@ exe	0x0058fd40	ai_ObjectPosition	lc	fb5fda7d28e164cd	no	byte	control=byte p1=byt
 exe	0x0058fd90	ai_ObjectAngle	lc	d2c0e4913d76054c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0058fe10	ai_FindNearestObject	lc	bf12077186893be1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	00c0340c10423233
 exe	0x0058feb0	ai_DropObjectAt	lc	47b414236081b5de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0058ff00	lc_GebaeudeAusrichten	lc	4643228c4804e713	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8197ae448068254e
+exe	0x0058ff00	lc_GebaeudeAusrichten	lc	f83aada26c2014bc	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	89501b66f8a2a8c9
 exe	0x005909a0	ai_ConstructionWindow	lc	2aeb20776467d245	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	777bfb8092e457c6
 exe	0x00591170	ai_HandleMapKey	lc	1a5b26711de846ea	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005912c0	ai_TradeContactChecks	lc	4f7c372f959fefbf	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	34089eb3891287bb

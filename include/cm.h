@@ -7,7 +7,6 @@ struct AMTAPP;
 struct AMTMSG;
 struct CHACTION;
 struct CHARACTER;
-struct D3HMAP;
 struct GMSTOCK;
 struct D3BGF;
 struct D3TRAIN;

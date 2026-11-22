@@ -59,21 +59,12 @@ typedef struct G15OBJ {                 /* a 3D object (d3.h: D3OBJECT) as rd re
     int mask;                           /* 0x224, the object's mask bits */
 } G15OBJ;
 
-typedef struct G15SCENE {               /* a scene of d3_Scenes (d3.h: D3SCENE) as rd reads it */
-    char pad00[0xb0];
-    struct G15GRID *hmap;               /* 0xb0, the terrain height map (d3.h: struct D3HMAP *) */
-} G15SCENE;
 
-typedef struct G15GRID {                /* d3sm_Create's grid (D3HMAP, d3_sm.c) */
-    char pad00[0x20];
-    int size;                           /* 0x20 */
-    int *cells;                         /* 0x24, 0x1c bytes per cell, the first int its type (6 / 0xb: road) */
-} G15GRID;
 
 
 typedef struct G15ROAD {                /* 0x1020 bytes, rd_Road */
     G15MAP *map;                        /* 0x00 */
-    G15GRID *grid;                      /* 0x04 */
+    struct D3SM *grid;                  /* 0x04, d3sm_Create's grid: its entries' type 6 / 0xb is a road */
     int simple;                         /* 0x08, the ground type "EINFACHER_WEG" (2 if none) */
     int prunk;                          /* 0x0c, the ground type "PRUNK_WEG" (1 if none) */
     unsigned char path[0x400][2];       /* 0x10, path_Find's cells */
@@ -102,7 +93,7 @@ extern char ai_DataPath[];             /* 0x75dca0, the data path */
 extern void *d3_Terrain;              /* 0x633738, a height map with a transform at 0x90 (as d3.h / f3snd.h) */
 
 /* views of other units */
-struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                         /* 0x45eeb0, d3_sm.h: D3HMAP * */
+struct D3SM * d3sm_Create(struct D3TERRAIN *t, int size, int mask);                         /* 0x45eeb0 */
 struct D3FLMAP; void d3fl_MakeDivide(struct D3FLMAP *map);                                                 /* 0x441300, d3_fl.c */
 struct D3OBJECT;
 char d3if_Delete(struct D3OBJECT *obj);                                          /* 0x447190, d3_interface.h */

@@ -182,8 +182,8 @@ extern int ch_CurrentScriptGroup;   /* 0x5f1298, the script group that goes with
 extern int ch_MorphTimeout;         /* 0x5f129c (-1), the D3ANIMSLOT.timeout of morphs in scene != 0 */
 extern int ch_MotionTimeout;        /* 0x5f12a0 (2), the same for motions */
 
-struct D3HMAP *ch_GetHMap(CHARACTER *ch);                                               /* 0x402140 */
-struct D3HMAP *ch_GetSceneHMap(D3SCENE *scene);                                         /* 0x402220 */
+struct D3SM *ch_GetHMap(CHARACTER *ch);                                               /* 0x402140 */
+struct D3SM *ch_GetSceneHMap(D3SCENE *scene);                                         /* 0x402220 */
 void ch_UpdateFades(void);                                                              /* 0x4022e0 */
 void ch_SetVisible(CHARACTER *ch, int show);                                            /* 0x402480 */
 void ch_InflateModel(CHARACTER *ch);                                                       /* 0x402540 */
@@ -217,7 +217,7 @@ int ch_PlaceOnGround(CHARACTER *ch, int force);                                /
                                                                                   ground (force: also when the ground
                                                                                   type is 0 or 0xd); returns the ground
                                                                                   type (0: none) */
-void ch_SaveGround(struct D3HMAP *hmap);                                                 /* 0x404e60 */
+void ch_SaveGround(struct D3SM *hmap);                                                 /* 0x404e60 */
 
 
 /* ---- 0x404360..0x405810 (worker ch2): action queue, camera presets, ground map ---- */
@@ -406,7 +406,7 @@ void ch_GetCamera(CHARACTER *ch, int view, D3VECTOR4 *pos, D3VECTOR *rot);      
 void ch_SetCamera(CHARACTER *ch, int view);                                             /* 0x404d80 */
 void ch_MoveCamera(CHARACTER *ch, int view, int time);                                  /* 0x404dd0 */
 int ch_Random(unsigned short n);                                                        /* 0x404e40 */
-void ch_RestoreGround(struct D3HMAP *hmap);                                                 /* 0x404ed0 */
+void ch_RestoreGround(struct D3SM *hmap);                                                 /* 0x404ed0 */
 int ch_SetGroundDiamond(int x, int z, unsigned char scene, int type, int r);                   /* 0x404fc0 */
 int ch_RandomNear(D3VECTOR *pos, D3VECTOR *out);                                        /* 0x405160 */
 int ch_FindNear(CHARACTER *ch, CHARACTER **out, float dist);                            /* 0x405260 */

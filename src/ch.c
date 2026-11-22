@@ -86,12 +86,12 @@ int ch_Ground1[65536];  /* 0x14aaa20, ground types of the default scene */
 CHFADE ch_Fades[16];                /* 0x14eaa20 */
 
 /* 0x402140, creates the height map of the character's scene on first use */
-struct D3HMAP *ch_GetHMap(CHARACTER *ch)
+struct D3SM *ch_GetHMap(CHARACTER *ch)
 {
     int cur = d3_CurrentScene;
     unsigned int flags = 0;
     unsigned int df;
-    struct D3HMAP *h;
+    struct D3SM *h;
 
     if (!(h = ch->scene->hmap)) {
         df = d3_SceneFlags;
@@ -115,12 +115,12 @@ struct D3HMAP *ch_GetHMap(CHARACTER *ch)
 }
 /* 0x402220, the same for a scene */
 
-struct D3HMAP *ch_GetSceneHMap(D3SCENE *scene)
+struct D3SM *ch_GetSceneHMap(D3SCENE *scene)
 {
     int cur = d3_CurrentScene;
     unsigned int flags = 0;
     unsigned int df;
-    struct D3HMAP *h;
+    struct D3SM *h;
 
     if (!(h = scene->hmap)) {
         df = d3_SceneFlags;
@@ -1434,7 +1434,7 @@ int ch_Random(unsigned short n)
 }
 /* 0x404e60, saves the ground types of a scene's height map */
 
-void ch_SaveGround(struct D3HMAP *hmap)
+void ch_SaveGround(struct D3SM *hmap)
 {
     D3SM *h = (D3SM *)hmap;
     int *buf;
@@ -1452,7 +1452,7 @@ void ch_SaveGround(struct D3HMAP *hmap)
 }
 /* 0x404ed0, writes the saved ground types of the changed rectangle back into the height map */
 
-void ch_RestoreGround(struct D3HMAP *hmap)
+void ch_RestoreGround(struct D3SM *hmap)
 {
     D3SM *h = (D3SM *)hmap;
     int *buf;
@@ -1487,7 +1487,7 @@ int ch_SetGroundDiamond(int x, int z, unsigned char scene, int type, int r)
     int d, xx, zz, x1, z1;
 
     h = (D3SM *)d3_Scenes[scene].hmap;
-    if (d3_Scenes[0].hmap != (struct D3HMAP *)h && d3_DefaultScene->hmap != (struct D3HMAP *)h)
+    if (d3_Scenes[0].hmap != h && d3_DefaultScene->hmap != h)
         return 0;
     if (!h)
         return 0;
@@ -1856,7 +1856,7 @@ void ch_ActUsingGate(CHACTION *a)
     CHACTION *b;
     int cur, scene;
     D3OBJECT *obj;
-    struct D3HMAP *h;
+    struct D3SM *h;
     int x, z;
     float y;
     D3VECTOR4 pos;
@@ -2931,7 +2931,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                 m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
                 if (!ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, gx, gz, &cz, &fz, steps * m,
                                      a->u.walk.flags | 1)) {
-                    ch_RestoreGround((struct D3HMAP *)h);
+                    ch_RestoreGround(h);
                     return -1;
                 }
                 gx = cz;
@@ -2946,8 +2946,8 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                         cx = fz;
                     }
                 }
-                if (path_Find(&ch_Path, (PMAP *)h, sx, cx, gx, gz, ch->pathType) == 0xffff) {
-                    ch_RestoreGround((struct D3HMAP *)h);
+                if (path_Find(&ch_Path, h, sx, cx, gx, gz, ch->pathType) == 0xffff) {
+                    ch_RestoreGround(h);
                     return -1;
                 }
                 cnt = ch_Path.count;
@@ -2976,7 +2976,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
                     && ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 1]
                        == ((unsigned char *)a->u.walk.path)[a->u.walk.pathLen * 2 - 3])
                     a->u.walk.pathLen--;
-                ch_RestoreGround((struct D3HMAP *)h);
+                ch_RestoreGround(h);
                 ch->contactSteps = 4;
                 if (sx == gx && cx == gz)
                     return -2;
@@ -3016,7 +3016,7 @@ int ch_PathToTarget(CHACTION *a)
     gz = oz;
     ch_Path.xy = ch_PathBuf;
     ch_Path.max = 0x200;
-    if (path_Find(&ch_Path, (PMAP *)h, cx, cz, gx, gz, ch->pathType) == 0xffff)
+    if (path_Find(&ch_Path, h, cx, cz, gx, gz, ch->pathType) == 0xffff)
         return 0;
     if (a->u.walk.path) {
         mem_Free(a->u.walk.path);
@@ -3105,7 +3105,7 @@ int ch_InitWalk(CHACTION *a, D3SM *h)
         ch_FindFreeCell(h, &ch->obj->pos, &ch->obj->pos, t[0], t[1], &t[1], &t[0], 8, a->u.walk.flags);
     ch_Path.xy = ch_PathBuf;
     ch_Path.max = 0x200;
-    if (path_Find(&ch_Path, (PMAP *)h, x, z, t[1], t[0], ch->pathType) == 0xffff) {
+    if (path_Find(&ch_Path, h, x, z, t[1], t[0], ch->pathType) == 0xffff) {
         a->ch->pathState = 0;
         if (ch_MarkWalkErrors)
             a->ch->flags.bytes.lo |= 8;
@@ -3939,7 +3939,7 @@ next:
 CHACTION *ch_WalkToObject(CHARACTER *ch, D3OBJECT *obj)
 {
     CHACTION *a = 0;
-    struct D3HMAP *h;
+    struct D3SM *h;
     int x, z;
     float y;
     D3VECTOR4 pos;
@@ -3963,7 +3963,7 @@ CHACTION *ch_WalkToObject(CHARACTER *ch, D3OBJECT *obj)
 
 void ch_ActWalk2RndDummy(CHACTION *a)
 {
-    struct D3HMAP *h;
+    struct D3SM *h;
     int cur, scene;
     D3OBJECT *obj;
     CHACTION *w;
@@ -4000,7 +4000,7 @@ void ch_ActWalk2RndDummy(CHACTION *a)
 
 void ch_WalkToObjectTurn(CHARACTER *ch, D3OBJECT *obj)
 {
-    struct D3HMAP *h;
+    struct D3SM *h;
     CHACTION *a;
     int x, z;
     float y, ang;
