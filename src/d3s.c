@@ -40,7 +40,7 @@ extern int d3s_XR;
 extern int d3s_CL;
 extern int d3s_Area;
 extern unsigned char * d3s_Dst;
-extern D3SPANPIX * d3s_SpanRow;
+extern D3SMENTRY * d3s_SpanRow;
 extern int d3s_ShadowRadius;
 extern char d3s_Byte;
 extern unsigned short * d3s_Dst16;
@@ -144,11 +144,11 @@ void d3s_LeftEdgeColor(int a, int b)
 }
 /* 0x459f90, writes v into the first dword of n consecutive 0x1c byte entries */
 
-void d3s_MarkSpan(int v, int n, int *p)
+void d3s_MarkSpan(int v, int n, D3SMENTRY *p)
 {
     for (; n > 0; n--) {
-        *p = v;
-        p += 7;
+        p->type = v;
+        p++;
     }
 }
 
@@ -178,7 +178,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
 {
     int x0, row, j, t, span, k;
     int fill2, fill1, lastx;
-    D3SPANPIX *base;
+    D3SMENTRY *base;
     char drawn, marked;
 
     fill2 = 0;
@@ -201,7 +201,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
                 if (marked) {
                     if ((k = d3s_ShadowRadius) > 0) {
                         d3s_MarkSpan(fill1, min(d3s_SpanLen + k * 2, w - x0),
-                                      (int *)(d3s_SpanRow + max(x0 - k, 0)));
+                                      d3s_SpanRow + max(x0 - k, 0));
                         if (top && !drawn) {
                             j = d3s_ShadowRadius;
                             if (j > 0) {
@@ -209,7 +209,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
                                     if (row - j + y0 > 0) {
                                         t = d3s_ShadowRadius - j;
                                         d3s_MarkSpan(fill1, min(d3s_SpanLen + t * 2, w - x0),
-                                                      (int *)(d3s_SpanRow + (max(x0 - t, 0) - j * w)));
+                                                      d3s_SpanRow + (max(x0 - t, 0) - j * w));
                                     }
                                     j--;
                                 } while (j > 0);
@@ -217,7 +217,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
                             drawn = 1;
                         }
                     }
-                    d3s_MarkSpan(fill2, d3s_SpanLen, (int *)(d3s_SpanRow + x0));
+                    d3s_MarkSpan(fill2, d3s_SpanLen, d3s_SpanRow + x0);
                 }
             }
             d3s_XL += d3s_SlopeL;
@@ -233,7 +233,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
                 do {
                     if (j + rows + y0 <= w) {
                         t = d3s_ShadowRadius - j;
-                        d3s_MarkSpan(fill1, min(span + t * 2, w - lastx), (int *)(base + (max(lastx - t, 0) + j * w)));
+                        d3s_MarkSpan(fill1, min(span + t * 2, w - lastx), base + (max(lastx - t, 0) + j * w));
                     }
                     j--;
                 } while (j > 0);
@@ -263,7 +263,7 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0)
    over b (region-based spill?), e.g. with toyasm.py on a reduced edge-choice + two-call tail (tiebreak:
    insensitive) */
 
-void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst, int pitch, unsigned char flags, char *base, int radius)
+void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst, int pitch, unsigned char flags, D3SMENTRY *base, int radius)
 {
     int i, t, b, d, e, y, n, l;
     int minY;
@@ -327,7 +327,7 @@ void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst, int pitc
                     d3s_RightEdge(d, e);
                     y = minY + 0xffff >> 16;
                     d3s_Dst = dst + y * pitch;
-                    d3s_SpanRow = (D3SPANPIX *)(base + y * pitch * 0x1c);
+                    d3s_SpanRow = base + y * pitch;
                     d3s_ShadowRadius = radius;
                     left = d3s_EdgeY[b] < d3s_EdgeY[e];
                     n = ((left ? d3s_EdgeY[b] : d3s_EdgeY[e]) + 0xffff >> 16) - y;
@@ -828,7 +828,7 @@ unsigned int d3s_TexSize;  /* 0xfb9260 */
 unsigned int d3s_NumLights;                 /* 0xfb9264 */
 char d3s_Byte;  /* 0xfb9268 */
 int d3s_ShadowRadius;  /* 0xfb926c, rows / pixels the marked span widens around the shadow */
-D3SPANPIX * d3s_SpanRow;  /* 0xfb9270, current row of the span buffer */
+D3SMENTRY * d3s_SpanRow;  /* 0xfb9270, current row of the span buffer */
 extern unsigned char * d3s_Dst;
 extern int d3s_EdgeC[3];
 extern int d3s_SlopeC;
