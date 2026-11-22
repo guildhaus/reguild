@@ -170,7 +170,7 @@ typedef struct CHOBJBITS {
     unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
 } CHOBJBITS;
 #define D3OBJ_BITS(obj, off) ((CHOBJBITS *)((char *)(obj) + (off)))
-float d3_YawTo(struct D3OBJECT *obj, float *p);                                     /* 0x448ac0, angle towards target */
+float d3_YawTo(struct D3OBJECT *obj, const struct D3VECTOR *p);                                     /* 0x448ac0, angle towards target */
 /* D3OBJECT.info is the D3ANIMCTL of animated objects */
 #define D3OBJ_ANIM(obj) ((D3ANIMCTL *)(obj)->info)
 

@@ -14,11 +14,11 @@
 
 /* 0x4539b0, out = a + (b - a) * t */
 
-void d3_Lerp3(float *a, float *b, float t, float *out)
+void d3_Lerp3(const D3VECTOR *a, const D3VECTOR *b, float t, D3VECTOR *out)
 {
-    out[0] = (b[0] - a[0]) * t + a[0];
-    out[1] = (b[1] - a[1]) * t + a[1];
-    out[2] = (b[2] - a[2]) * t + a[2];
+    out->x = (b->x - a->x) * t + a->x;
+    out->y = (b->y - a->y) * t + a->y;
+    out->z = (b->z - a->z) * t + a->z;
 }
 /* 0x4539f0, signed angle around the y axis from a to b (xz plane) */
 
@@ -108,21 +108,21 @@ void d3_MakeBasis(D3VECTOR *dir, float roll, D3MATRIX *m)
 }
 /* 0x453d60, ra = a mod 2pi, rb = b mod 2pi, then ra shifted by +-2pi to be the nearest to rb */
 
-void d3_UnwrapAngles(float *a, float *b, float *ra, float *rb)
+void d3_UnwrapAngles(const D3VECTOR *a, const D3VECTOR *b, D3VECTOR *ra, D3VECTOR *rb)
 {
     int i;
     float x;
     float d;
 
     for (i = 0; i < 3; i++) {
-        ra[i] = (float)fmod(a[i], 6.2831855f);
-        x = (float)fmod(b[i], 6.2831855f);
-        rb[i] = x;
-        d = (float)fabs(x - ra[i]);
-        if (d > fabs(x - (ra[i] + 6.2831855f))) {
-            ra[i] = ra[i] + 6.2831855f;
-        } else if (d > fabs(x - (ra[i] - 6.2831855f))) {
-            ra[i] = ra[i] - 6.2831855f;
+        ra->e[i] = (float)fmod(a->e[i], 6.2831855f);
+        x = (float)fmod(b->e[i], 6.2831855f);
+        rb->e[i] = x;
+        d = (float)fabs(x - ra->e[i]);
+        if (d > fabs(x - (ra->e[i] + 6.2831855f))) {
+            ra->e[i] = ra->e[i] + 6.2831855f;
+        } else if (d > fabs(x - (ra->e[i] - 6.2831855f))) {
+            ra->e[i] = ra->e[i] - 6.2831855f;
         }
     }
 }

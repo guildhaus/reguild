@@ -6,7 +6,12 @@
 #define D3_TYPES_H
 
 typedef struct D3VECTOR {
-    float x, y, z;
+    union {
+        struct {
+            float x, y, z;
+        };
+        float e[3];                 /* the components by index (x, y, z) */
+    };
 } D3VECTOR;
 
 typedef struct D3VECTOR4 {         /* the engine pads most vectors to 16 bytes: a D3VECTOR and a fourth float */

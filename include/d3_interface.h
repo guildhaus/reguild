@@ -130,11 +130,11 @@ typedef struct D3CORNERTRI {        /* D3TRI as the corner search reads it */
     char pad27;
 } D3CORNERTRI;
 
-float d3_YawTo(D3OBJECT *obj, float *p);                          /* 0x448ac0 */
+float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p);                          /* 0x448ac0 */
 char d3_ScreenToUV(float sx, float sy, D3OBJECT *obj, void *tex, float *outu, float *outv);   /* 0x448e60 */
 D3OBJECT *d3_FindObjectNoCase(int a, int flags, int c, char *name);  /* 0x449770, case-insensitive */
-void d3_WorldToParent(D3OBJECT *obj, float *pos, D3MATRIX *rot, D3VECTOR *outpos, D3VECTOR *outrot);  /* 0x4497f0 */
-void d3_SetWorldPosRot(D3OBJECT *obj, float *pos, D3MATRIX *rot);        /* 0x449920 */
+void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTOR *outpos, D3VECTOR *outrot);  /* 0x4497f0 */
+void d3_SetWorldPosRot(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot);        /* 0x449920 */
 
 typedef struct D3LIGHTKEY {         /* 0x38 bytes, D3LIGHTENTRY: one of the 7 day-time keys of a light */
     D3VECTOR pos;                   /* 0x00, relative to the light's parent */

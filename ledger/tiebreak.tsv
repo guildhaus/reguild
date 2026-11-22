@@ -101,9 +101,9 @@ exe	0x00406a70	ch_FollowGround	ch	6746e710b9222470	no	byte	control=byte p1=byte 
 exe	0x00406bc0	ch_ThinPath	ch	c3b4f9712f70073a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00406c60	ch_SetHandObject	ch	3442a0ff3d89f5a0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00406e40	ch_ActAnimOnce	ch	1de1955a658551c8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00406e60	ch_ActTurn	ch	9772c221340976ca	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	6bc9113807e5866d
+exe	0x00406e60	ch_ActTurn	ch	5e30cbec7bafe56f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	5ab402fa54347f4b
 exe	0x00407200	ch_FindNear300	ch	e9af7926725126e1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004072a0	ch_FindFreeCell	ch	3495975e29c3206f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
+exe	0x004072a0	ch_FindFreeCell	ch	35baec6c46b3652b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	5ab402fa54347f4b
 exe	0x00407690	ch_MapAlloc	ch	60f90278b754107b	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004076b0	ch_MapFree	ch	46d5ce1fa835a471	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004076c0	ch_CopyVec	ch	ee54c896b801bb76	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1010,7 +1010,7 @@ exe	0x004545c0	d3_MatFromAngles	d3_vec	3e2bb4c0c85ecc18	no	byte	control=byte p1=
 exe	0x00454690	d3_MatToAngles	d3_vec	11e7632295668a95	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454700	d3_TriNormal	d3_vec	0a2b6d9467c6f1ba	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454780	d3_MirBoundaryEdges	d3_mir	ef5d5e04479dcd93	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00454890	d3_MirCreateOutline	d3_mir	e48da6838ce4ea7e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	c032509c79eb7ca1
+exe	0x00454890	d3_MirCreateOutline	d3_mir	8bc150fa754234fd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	482180c69a6511ab
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	9927e34c70dfd5eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454ec0	d3_MirTransform	d3_mir	3198ef7b7c8c1553	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	e0878350ea5c8bad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2429,7 +2429,7 @@ exe	0x004cee20	cm_UpdateDamagePops	cm	b75a0ca50b800844	no	shape	sweep control=sh
 exe	0x004cef80	cm_InitDamagePops	cm	39152d45e485d07f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefa0	cm_ClearDamagePops	cm	076a1d9edec54d1a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004cefe0	cm_CloseFightView	cm	29288b8309f63bf8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004cf000	cm_UpdateSceneChars	cmfight	4326954fccea6525	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	e5cec5852370fad5
+exe	0x004cf000	cm_UpdateSceneChars	cmfight	f18e97bd618b9bb5	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	999122b660bbec50
 exe	0x004cf370	cm_DrawScrollArrows	cm	d210b0104bdcf38c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	653ac214333ac5bd
 exe	0x004cf670	cm_UpdatePointer	cm	41b9acf9329f06ba	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004cf9c0	cm_UpdatePortraits	cmfight	634b69a2ca6d4fc0	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	2f0e77b90f55198a
@@ -3652,7 +3652,7 @@ exe	0x0054fce0	he_RunEffectEvent	he	ee2a93928e24efa9	no	shape	control=shape p1=s
 exe	0x0054fe80	he_StartSendHomeEvent	he	586753ea234a7102	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0054ff20	he_RunSendHomeEvent	he	15ff3a1a7dba3bc6	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00550070	he_CreateReaper	he	94e941fa40e5d03b	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	7e3cc8a80867a479
-exe	0x00550370	he_MoveReaper	he	a58c9a3c75ed7d88	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	b190bf658dafc705
+exe	0x00550370	he_MoveReaper	he	e61f63823027da04	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7f0fee64fed4aac3
 exe	0x005506c0	he_AimReaper	he	e9200a4e074ebb1e	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00550850	he_TurnReaper	he	94188416a266ea93	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005509f0	he_StartReaper	he	e0d59237f14f7cce	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3826,7 +3826,7 @@ exe	0x0056b750	he_CollectChild	he	9bcd403a75aa6246	no	byte	control=byte p1=byte 
 exe	0x0056b780	he_ShowConstruction	he	cb15dc8aacd8bfd8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bac0	he_ConstructionStage	he	35deb30781de00a1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bc50	he_CreateConstruction	he	85436a6f90088bca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0056be30	he_RunConstruction	he_b	00a6d53a35b942b7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7d9b67fb3209fb46
+exe	0x0056be30	he_RunConstruction	he_b	ce10b93c0a459f1b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	71c24b8ac3981136
 exe	0x0056cdd0	he_AllocMissionCheck	he	91266650b9870904	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056ce40	he_RunMissionCheck	he	0935945f54bdf6e8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056d050	he_RegisterEventTypes03	he	16ede35742be5a19	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4144,7 +4144,7 @@ exe	0x0058fd40	ai_ObjectPosition	lc	fb5fda7d28e164cd	no	byte	control=byte p1=byt
 exe	0x0058fd90	ai_ObjectAngle	lc	d2c0e4913d76054c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0058fe10	ai_FindNearestObject	lc	bf12077186893be1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	00c0340c10423233
 exe	0x0058feb0	ai_DropObjectAt	lc	47b414236081b5de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0058ff00	lc_GebaeudeAusrichten	lc	c9e9f6242c754e9b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	96621b4fc7c61d83
+exe	0x0058ff00	lc_GebaeudeAusrichten	lc	4643228c4804e713	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8197ae448068254e
 exe	0x005909a0	ai_ConstructionWindow	lc	2aeb20776467d245	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	777bfb8092e457c6
 exe	0x00591170	ai_HandleMapKey	lc	1a5b26711de846ea	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005912c0	ai_TradeContactChecks	lc	4f7c372f959fefbf	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	34089eb3891287bb
@@ -4661,6 +4661,6 @@ exe	0x005dc4a0	ai_StepShot	shot	a0970735dc7b1f2a	no	draft	sweep control=draft be
 exe	0x005dc9d0	ai_StepShotSlow	shot	f80f4370fca5e90f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	ca4fdfaecd1a8133
 exe	0x005dcf00	ai_ShotHitsGround	menu	d5ee153d3ba42fac	no	shape	sample n=32 seed=1 compiled=32 codegens=1 best=shape	
 exe	0x005dd090	ai_NormalizeEffectScale	unk_5d33b0	f4fb3ee3506f24fa	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x005dd100	ai_SolveCannonAim	shot	a22e899eeb6cdbab	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	af413b0212af464a
+exe	0x005dd100	ai_SolveCannonAim	shot	8248593c3d7bfa37	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	a534bbee0615f02c
 exe	0x005de460	MSS_auto_cleanup	mss32lib	c42d3dca4fab99e2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005de470	mss_AutoCleanupExit	mss32lib	47db3aa67c7b30ae	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

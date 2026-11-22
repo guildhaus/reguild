@@ -14,11 +14,11 @@ extern const D3VECTOR d3_ZeroRot;         /* 0x5ebbb4, (0, 0, 0), the zero rotat
 
 void d3_ShadeInit(unsigned int visible_budget, unsigned int culled_budget); /* 0x453920 */
 void d3_ShadeReset(void);                                              /* 0x453990 */
-void d3_Lerp3(float *a, float *b, float t, float *out);                /* 0x4539b0 */
+void d3_Lerp3(const D3VECTOR *a, const D3VECTOR *b, float t, D3VECTOR *out);                /* 0x4539b0 */
 float d3_VecAngle(const D3VECTOR *a, D3VECTOR *b);                           /* 0x4539f0 */
 float d3_VecAngle2(const D3VECTOR *a, D3VECTOR *b);                          /* 0x453b40 */
 void d3_MakeBasis(D3VECTOR *dir, float roll, D3MATRIX *m);             /* 0x453b70 */
-void d3_UnwrapAngles(float *a, float *b, float *ra, float *rb);        /* 0x453d60 */
+void d3_UnwrapAngles(const D3VECTOR *a, const D3VECTOR *b, D3VECTOR *ra, D3VECTOR *rb);        /* 0x453d60 */
 float d3_Hermite(float p0, float p1, float m0, float m1, float t);     /* 0x453e20 */
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);                  /* 0x453e80 */
 void d3_MatMul43(D3MATRIX *a, D3MATRIX *b, D3MATRIX *out);             /* 0x453ee0 */

@@ -203,8 +203,8 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                         }
                                     }
                                     t = (float)s->subFrame / data->frames[s->frame].count;
-                                    d3_Lerp3((D3VECTOR4 *)&data->frames[s->frame].bone[bone].pos,
-                                                 (D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].pos, t, &v);
+                                    d3_Lerp3(&data->frames[s->frame].bone[bone].pos,
+                                                 &data->frames[s->nextFrame].bone[bone].pos, t, &v.v);
                                     v.x -= acc[n].base.x;
                                     v.y -= acc[n].base.y;
                                     v.z -= acc[n].base.z;
@@ -217,14 +217,14 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                     d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
                                     d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
                                     for (r = 0; r < 3; r++)
-                                        d3_Lerp3(&m0[r], &m1[r], t, &acc[n].m[r]);
+                                        d3_Lerp3(&m0[r].v, &m1[r].v, t, &acc[n].m[r].v);
                                     acc[n].n = 1;
                                     n++;
                                 }
                             } else {
                                 t = (float)s->subFrame / data->frames[s->frame].count;
-                                d3_Lerp3((D3VECTOR4 *)&data->frames[s->frame].bone[bone].pos,
-                                             (D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].pos, t, &v);
+                                d3_Lerp3(&data->frames[s->frame].bone[bone].pos,
+                                             &data->frames[s->nextFrame].bone[bone].pos, t, &v.v);
                                 v.x -= acc[i].pos.x;
                                 v.y -= acc[i].pos.y;
                                 v.z -= acc[i].pos.z;
@@ -234,7 +234,7 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                 d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
                                 d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
                                 for (r = 0; r < 3; r++) {
-                                    d3_Lerp3(&m0[r], &m1[r], t, &v);
+                                    d3_Lerp3(&m0[r].v, &m1[r].v, t, &v.v);
                                     acc[i].m[r].x += v.x;
                                     acc[i].m[r].y += v.y;
                                     acc[i].m[r].z += v.z;
@@ -668,8 +668,8 @@ normalize:
                                 s->attachPos.z = att->pos.z;
                             }
                             t = (float)s->subFrame / FRAME_AT(data, s->frame)->count;
-                            d3_Lerp3((D3VECTOR4 *)&FRAME_AT(data, s->frame)->bone[s->attachBone].pos,
-                                         (D3VECTOR4 *)&FRAME_AT(data, s->nextFrame)->bone[s->attachBone].pos, t, (D3VECTOR4 *)&v);
+                            d3_Lerp3(&FRAME_AT(data, s->frame)->bone[s->attachBone].pos,
+                                         &FRAME_AT(data, s->nextFrame)->bone[s->attachBone].pos, t, &v.v);
                             w.x = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.x - v.x;
                             w.y = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.y - v.y;
                             w.z = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.z - v.z;

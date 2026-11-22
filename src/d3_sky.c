@@ -99,10 +99,10 @@ void d3sky_Build(D3SKY *s)
     corner[3].y = d3_Frustum[0].x * m._12 + d3_Frustum[0].y * m._22 + d3_Frustum[0].z * m._32;
     corner[3].z = d3_Frustum[0].x * m._13 + d3_Frustum[0].y * m._23 + d3_Frustum[0].z * m._33;
     for (y = 0; y < D3SKY_ROWS; y++) {
-        d3_Lerp3(&corner[0], &corner[2], y * 0.2f, &edge[0]);
-        d3_Lerp3(&corner[1], &corner[3], y * 0.2f, &edge[1]);
+        d3_Lerp3(&corner[0].v, &corner[2].v, y * 0.2f, &edge[0].v);
+        d3_Lerp3(&corner[1].v, &corner[3].v, y * 0.2f, &edge[1].v);
         for (x = 0; x < D3SKY_COLS; x++) {
-            d3_Lerp3(&edge[0], &edge[1], x * 0.14285715f, &s->dir[y * D3SKY_COLS + x]);
+            d3_Lerp3(&edge[0].v, &edge[1].v, x * 0.14285715f, &s->dir[y * D3SKY_COLS + x].v);
             d3_Normalize(&s->dir[y * D3SKY_COLS + x]);
             s->buffer[y * D3SKY_COLS + x].visible = s->dir[y * D3SKY_COLS + x].y > s->horizon;
             s->buffer[y * D3SKY_COLS + x].fog = (unsigned char)min(255.0f, max(0.0f, (s->dir[y * D3SKY_COLS + x].y - s->fogstart) * s->fogscale));
@@ -184,11 +184,11 @@ void d3sky_Init(D3SKY *s, char build)
     dy = (d3_Viewport.bottom - d3_Viewport.top) * 0.2f;
     sy = (float)d3_Viewport.top;
     for (y = 0; y < D3SKY_ROWS; y++) {
-        d3_Lerp3(&d3_Frustum[3], &d3_Frustum[1], y * 0.2f, &edge[0]);
-        d3_Lerp3(&d3_Frustum[2], &d3_Frustum[0], y * 0.2f, &edge[1]);
+        d3_Lerp3(&d3_Frustum[3].v, &d3_Frustum[1].v, y * 0.2f, &edge[0].v);
+        d3_Lerp3(&d3_Frustum[2].v, &d3_Frustum[0].v, y * 0.2f, &edge[1].v);
         sx = (float)d3_Viewport.left;
         for (x = 0; x < D3SKY_COLS; x++) {
-            d3_Lerp3(&edge[0], &edge[1], x * 0.14285715f, &dir);
+            d3_Lerp3(&edge[0].v, &edge[1].v, x * 0.14285715f, &dir.v);
             d3_Normalize(&dir);
             s->dir[y * D3SKY_COLS + x].w = (float)atan2(dir.x, dir.z);
             s->buffer[y * D3SKY_COLS + x].sx = sx;

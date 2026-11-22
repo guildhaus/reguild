@@ -287,7 +287,7 @@ typedef struct D3ANIMKEY {          /* 0x58 bytes */
 } D3ANIMKEY;
 
 D3ANIM *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys);          /* 0x433d70 */
-void d3_UnwrapAngles(float *a, float *b, float *ra, float *rb);                            /* 0x453d60, angles mod 2pi */
+void d3_UnwrapAngles(const struct D3VECTOR *a, const struct D3VECTOR *b, struct D3VECTOR *ra, struct D3VECTOR *rb);                            /* 0x453d60, angles mod 2pi */
 int d3_FindAnim(char *name);                                                           /* 0x433f40, anim loaded? */
 int d3anim_StartAnim(void *list, char *name, D3ANIMFLAGS f);                                /* 0x435550, @original: this typedef spelling (not struct D3ANIMFLAGS) keeps the /O2 operand order of the byte-matched d3_LoadScene44be60 (d3_int_io.c, 0x27f) */
 struct D3IOPATH *d3_LoadObjectAnim(char *file, struct D3IOOBJ *obj, char reload);                                 /* 0x44e2e0 */

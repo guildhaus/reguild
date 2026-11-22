@@ -1054,7 +1054,7 @@ void cm_UpdateSceneChars()
             o = cm_FindFighter(e->stateArg);
             if (o != 0) {
                 if (d3_VecEqual(&c->scene->obj->pos, &o->scene->obj->pos, 10.0f) == 0) {
-                    ang = d3_YawTo(c->scene->obj, &o->scene->obj->pos.x);
+                    ang = d3_YawTo(c->scene->obj, &o->scene->obj->pos);
                     g = c->scene;
                     if (g->actions == 0 || (g->actions->type != 0x2d && g->actions->type != 0x3a)) {
                         if (fabs(ang) > 0.08) {
@@ -3023,7 +3023,7 @@ int cm_CheckDeath(AICHAR *c)
         }
         ware = (D3OBJECT *)c->v1ac;
         if (ware != 0) {
-            d3_SetWorldPosRot(ware, (float *)&c->scene->obj->pos, &c->scene->obj->matrix);
+            d3_SetWorldPosRot(ware, &c->scene->obj->pos, &c->scene->obj->matrix);
             d3if_Show(ware, 1);
             c->v1ac = 0;
             ((AIOBJ *)cm_ObjectOwner((char *)ware))->fightSide = cm_FightDefender->id;
@@ -4454,7 +4454,7 @@ void cm_FightSlotPutDown(CMFIGHTSLOT *f)
         o = (D3OBJECT *)c->v1ac;
         if (o != 0) {
             body = c->scene->obj;
-            d3_SetWorldPosRot(o, (float *)&body->pos, &body->matrix);
+            d3_SetWorldPosRot(o, &body->pos, &body->matrix);
             d3if_Show(o, 1);
             c->v1ac = 0;
         }
