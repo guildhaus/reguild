@@ -37,7 +37,7 @@
    0x62, its ask 0x63 and the audit 0x64 handlers (0x54ae20 .. 0x54b9b0) read AIJOB and their words typed too
    (HEPROTECTION, HEAUDIT). The head includes
    rt.h and d3_tools.h / d3_snd.h / sblib.h.
-   The event and message words are read typed (HM_I / U_I), except the kind-specific words over AIJOB's union the
+   The event and message words are read typed, except the kind-specific words over AIJOB's union the
    local views name: HEJOBTABLE (the job table
    0x12c at +0x28), HESTAMMTISCH (the meeting event 0x2a at +0xac .. +0xc0), HEOFFER (the offer event 0x2c and the
    master exam 0x2f: who[] at +0xac, +0xc4 / +0xc5 / +0xd4), HEDUEL (the duel challenge's +0xac and the duel's
@@ -161,7 +161,6 @@ extern const float gv_SaleShares[];
 struct AICHAR; struct AMTREC; struct CHARACTER; struct CHACTION; struct EVTSCRIPT; struct G15PLANT; struct G11REC; struct AITIME;
 
 
-#define U_I(a) (*(int *)(a))
 
 
 #define AICHAR_FLAGS1C8 0x71  /* the ai_CharInts index of AICHAR.flags1c8 (ai.h, +0x1c8; ai_CharInts starts at +4) */
@@ -1452,8 +1451,6 @@ void he_ActivateSlot(int *sl)
     }
 }
 
-#define HM_B(m, o) (*(unsigned char *)((m) + (o)))
-#define HM_I(m, o) (*(int *)((m) + (o)))
 
 void err_Message(char *text);
 
@@ -1544,7 +1541,6 @@ void mem_Free(void *p);
 void err_Message(char *text);
 
 /* HE_SET_CLOCK: the game clock (0x770ae0 ..) into a message at +0x28 .. +0x34, flag byte 2 at +0x36 */
-#define HE_CLK(m) do { HM_I(m, 0x28) = U_I((uintptr_t)&ai_Time); HM_I(m, 0x2c) = U_I((uintptr_t)&ai_Time.hour); HM_I(m, 0x30) = U_I(((uintptr_t)&ai_Time + 0x8)); *(short *)((m) + 0x34) = *(short *)((uintptr_t)&ai_Time + 0xc); HM_B(m, 0x36) = 2; } while (0)
 
 
 /* 0x53e040, creates the event record of the message `m`: its type needs both an alloc and a run handler (< 0xa7) and its

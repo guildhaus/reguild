@@ -91,8 +91,6 @@ extern struct D2OBJ *d2_Objs;              /* 0xf8f080, d2.h: D2OBJ * */
 extern int sv_PopRequest;               /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
 extern int sv_PopRequest;               /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
 
-#define U_I(a) (*(int *)(a))
-#define U_B(a) (*(unsigned char *)(a))
 
 int sprintf(char *buf, const char *fmt, ...); /* 0x5de652, the CRT's sprintf (no CRT symbol available) */
 

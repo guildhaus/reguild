@@ -96,8 +96,6 @@ extern struct D2OBJ *d2_Objs;              /* 0xf8f080, d2.h: D2OBJ * */
 extern int sv_PopRequest;               /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
 extern int sv_PopRequest;               /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
 
-#define U_I(a) (*(int *)(a))
-#define U_B(a) (*(unsigned char *)(a))
 
 int sprintf(char *buf, const char *fmt, ...); /* 0x5de652, the CRT's sprintf (no CRT symbol available) */
 /* 0x5d33b0, the file list of a directory (256 B): lists the files of dirPath whose extension equals ext
@@ -1127,7 +1125,6 @@ void ai_ApplyVolumes(void)
     snd_MusicVolume = (float)(ai_SoundOptions.msxFreq & 0xff) * 0.25f;
 }
 
-#define U_W(a) (*(unsigned short *)(a))
 
 /* d2.h's D2SURF (the 0x40-byte screen surface): the two fields the screen shot reads. Type debt: d2.c
    defines d2_ScreenSurf as void * (D2SURF itself is in d2_types.h). */
@@ -1472,7 +1469,6 @@ void ai_SaveNetworkGame(char *saveName, char *name)
     ls_SaveGame(path, name, 5);
     sv_SetStatusText(ch_EmptyName);
 }
-#define U_F(a) (*(float *)(a))
 
 /* the callees of the front-end stretch (their units' headers are not included here, so their
    prototypes are repeated as the definitions spell them; the building pointers are this TU's ints) */

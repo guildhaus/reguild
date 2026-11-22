@@ -119,7 +119,7 @@ struct CHARACTER;                   /* ch.h, the character a script was started 
 typedef struct EVTSCRIPT {          /* 0xc98 bytes, 128 at evt_Scripts */
     char name[0x100];
     int id;                         /* 0x100, 0 = free */
-    int group;                      /* 0x104, the group the script runs for (CHC_GROUP); evt_NoGroup = none */
+    int group;                      /* 0x104, the group the script runs for; evt_NoGroup = none */
     EVTVAR *vars;                   /* 0x108 */
     EVTFUNC *funcs;                 /* 0x10c */
     int nfuncs;                     /* 0x110 */

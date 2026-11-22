@@ -523,8 +523,6 @@ struct AMTREC;  /* file-scope tag for the prototypes below */
 struct AITIME;  /* f3gm.h typedef; file-scope tag for the gm_AddTime prototype */
 
 
-#define U_I(a) (*(int *)(a))
-#define U_W(a) (*(unsigned short *)(a))
 
 
 #pragma pack(push, 1)

@@ -97,7 +97,6 @@ void d3_EnvMapCoords(D3OBJECT *obj, D3SURF *part)
 
 
 /* 0x4591a0, blend weights of the two key frames around the current time of an animation slot */
-#define UNK64(s) (*(float *)&(s)->time)
 
 /* 0x4591a0, the blend weights of the two key frames around the current sub-frame time of a vertex animation
    slot s: *a the weight of its frame, *b of its nextFrame (flags bit 1 blends backwards and swaps them; at the

@@ -274,7 +274,6 @@ extern unsigned char kb_Last;
 extern int sv_FrameMask;
 
 
-#define U_I(a) (*(int *)(a))
 
 
 void ai_TutorialHideText2();

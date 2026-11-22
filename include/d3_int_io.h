@@ -94,9 +94,6 @@ char d3io_LodName(char *name, char *name2, int lod, char *out, char *out2);     
 
 #define D3IO_214(o) (D3_X(o)->meshMode)
 void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name);                        /* 0x44c610 */
-#define D3IO_SCENEB4(s) (*(int *)((char *)(s) + 0xb4))
-#define D3IO_SCENEAC(s) (*(void **)((char *)(s) + 0xac))
-#define D3IO_SCENE3D8(s) (*(int *)((char *)(s) + 0x3d8))
 typedef void (*D3IOPROGRESS)(int a, int i, int n);
 
 D3OBJECT *d3_CloneObject(D3OBJECT *src);                                                /* 0x43d180, d3_engine.c */

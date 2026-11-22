@@ -2,7 +2,7 @@
    "misc\\MessageBoxGreen" 0x623ed0), the groundplan bitmaps, the city / time panels, the pause / player bar, the book. Starts at 0x520ec0 (a tick callback, registered by 0x520ee0); ends before
    0x531670, main.c's program level code. Names are ours.
    Open: the start and the end rest on the .data order only.
-   Open: head: d2.h is included (the d2 records through the SV* views, the SV_I / SV_W address macros with their
+   Open: head: d2.h is included (the d2 records through the SV* views with their
    byte offsets and sv_D2Objs = d2_Objs as D2OBJ *), with gfx.h, cm.h, rt.h, lc.h (the ai_ panels), anm.h, f3snd.h, sblib.h, menu.h (the option / save screens,
    the wind update), sv_t.h and mission.h.
    Calls whose argument count differs from the definition (read the original's pushes): sb_PlaySample (sblib.h:
@@ -593,7 +593,6 @@ void sv_DrawPanelPointer(void)
     d2_DrawMousePointer(x, y);
 }
 
-#define SV_I(a) (*(int *)(a))
 
 /* 0x521c10, the progress callback of the scene load (a Ghidra miss inside the span of 0x521ba0): kind is the load
    stage, cur / total the step. The first call creates the progress slider sv_LoadSlider (d2_OpenSlider, 0x190 long,
@@ -3944,16 +3943,6 @@ int sv_ReturnZero(void)
 }
 
 /* ---- layout 2026-10-23 (session 5): drafts of the functions after 0x52a050 (ROUGH: absolute-address macros for the globals not declared above) ---- */
-#define SV_I(a) (*(int *)(a))
-#define SV_U(a) (*(unsigned *)(a))
-#define SV_S(a) (*(short *)(a))
-#define SV_US(a) (*(unsigned short *)(a))
-#define SV_B(a) (*(unsigned char *)(a))
-#define SV_C(a) (*(char **)(a))
-#define SV_W(i) ((char *)d2_Objs + (i) * 0x2ec)            /* widget i */
-#define SV_WI(i, o) (*(int *)(SV_W(i) + (o)))
-#define SV_WS(i, o) (*(short *)(SV_W(i) + (o)))
-#define SV_WB(i, o) (*(char *)(SV_W(i) + (o)))
 
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
 int d2_CreateWinText(short x, short y, char *text, int win);                     /* 0x473650 */

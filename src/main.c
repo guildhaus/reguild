@@ -231,7 +231,6 @@ extern int main_MoneyCheat;
 extern int sv_FrameDepth;
 extern int sv_PopRequest;
 
-#define U_I(a) (*(int *)(a))
 
 extern HWND main_Window;
 
@@ -1628,7 +1627,6 @@ void main_GiveStartBuildings(int p)
     }
 }
 
-#define SV_WI2(i, o) (*(int *)(U_I((uintptr_t)&d2_Objs) + (i) * 0x2ec + (o)))
 
 /* 0x5344f0, puts a person (the template model name n of the list TXT_FAMILY_MODEL_NAMES, index k) at the dummy "a" of the scene: the dummy position (0x458a20), a character object (0x403390 (b, pos)) that
    looks along the dummy's heading (0x458810 / 0x4539f0, 0x43b860), walks ("bewegung/gehen", walkSpeed 0.7), is registered as a status text plate (0x52e1c0); returns the new object or 0 */
@@ -3080,8 +3078,6 @@ void main_RundenBeginn(void)
 }
 
 /* message record (0xf8 bytes) of 0x4c4b70 / 0x4e4060: kind byte +4, owner id +8, target +0xc, time stamp (the 0x770ae0 clock, 14 bytes) +0x28 .. +0x36, flag +0x36 = 1 */
-#define MSG_B(m, o) (*(unsigned char *)((m) + (o)))
-#define MSG_I(m, o) (*(int *)((m) + (o)))
 int gm_CharacterIncomes(unsigned short id, GMINCOME *out, unsigned char flags);  /* 0x4fa4b0, @original why: f3gm.c
    defines `unsigned id` (it masks the id itself); main_RoundReport pushes ai_PlayerId as an unmasked dword (byte-matched), the
    code of a call through an unsigned short parameter (an unsigned / int one gives movzx); no header declares it */
