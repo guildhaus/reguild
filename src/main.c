@@ -3784,7 +3784,7 @@ void main_UpdateFigure(int i)
                 msg.arg[2] = 1;
                 msg.arg[0] = msg.to;
                 cm_SendLongMessage(&msg);
-                sprintf(txt, "MeisterPrü" "fung started: player_id:%i beruf:%i grad:%i", c->netId, c->jobId, left + 1);
+                sprintf(txt, "MeisterPr\xfc" "fung started: player_id:%i beruf:%i grad:%i", c->netId, c->jobId, left + 1);
                 gm_SendMoneyDelta(c->netId, -4);
             }
         }

@@ -6382,6 +6382,8 @@ the bytes no portable form gives.
   undefined behaviour in principle, fine in each unit, as in the original. he_LabIncident's `he_SetLifeByAge(c,
   util_Random(3) + 1)` pushed without mask: he_SetLifeByAge takes `unsigned short num` (its body read
   `(unsigned short)num`).
+- **Non-ASCII bytes in string literals** (the sources are UTF-8): write them as `\x` escapes, the literal split
+  before a following hex digit (`"MeisterPr\xfc" "fung .."`, main_UpdateFigure); a raw cp1252 byte is invalid UTF-8.
 - **Identifiers that a Windows SDK header defines as macros**: mingw's windows.h includes dlgs.h, which
   defines `ctl1` (0x04A0) and the `cmb*` / `lst*` / `stc*` / `scr*` .. control ids (VC98's DLGS.H has no ctl1).
   Do not name locals after them; lc.c / rt.c's ctl1 / ctl2 locals are exchangeCtl / feeCtl and loadCtls /
