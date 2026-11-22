@@ -10,7 +10,7 @@
    guild-hall windows are the guild master's powers (amt_CanUseMayorPower2 / 3, amt_MayorBonusStep): the price
    message (level 1), the gift message through a map pick (level 2), and by the second office the character request
    (0x1e) or the amount-kind menus (0x1f / 0x21, 0x20) that send the district request {4, column} (level 3). The money
-   lender windows read a bank's offers as AIBLD.credits (gv_types.h ORDCREDIT), its loans as HELOAN (ai_types.h) and
+   lender windows read a bank's offers as AIBLD.credits (gv_types.h ORDCREDIT), its loans as AIJOB loan events (ai_types.h) and
    its fees as AIBLD.messengerFee / exchangeFee; the exchange windows keep their currency rows as LCEXCHROW (16 per
    list), the money messenger sends AIMSG.payment and finds the running payment event by AIJOB.bldId / payer.
    The town map window (ai_OpenTownMap, ai_BuildTownMap, its per-frame ai_UpdateTownMap with the drag / key scroll, and
@@ -58,7 +58,7 @@
    Open: the AIMSG message records are built by raw offsets in most functions (the use callbacks of the Domizil
    table use AIMSG: ai_UseEventGood, the money messenger AIMSG.payment).
    Open: types: the event / message words LCAMBUSHEVENT, LCSEARCHEVENT, LCKIDNAPEVENT (he.c's
-   HEEV3C), LCRANSOMEVENT (he.c's HEEV3D) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
+   HEEV3C) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
    Open: types: the amount-menu config (AMOUNTCFG), the frame stack (SVFRAME, 0x75f780), the remaining character /
@@ -7769,7 +7769,7 @@ int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f); int
    slot's money and the player confirms, the amount moves between the bank and the borrower (cm_SendMoveGoods),
    the borrower's record counts it as repaid (AIFIN.loansRepaid), the bank's owner gets the news 0x18d8 unless it
    is of kind 5, and the loan event is freed */
-void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
+void ai_RepayLoan(AIBLD *bank, AIJOB *loan)
 {
     char news[0x200];
     char text[0x400];
@@ -7777,21 +7777,21 @@ void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
     AICHAR *owner;
     AIFIN *fin;
 
-    borrower = gm_FindChar(loan->partner);
-    txt_Format(text, 0x18d5, loan->amount);
+    borrower = gm_FindChar(loan->loanPartner);
+    txt_Format(text, 0x18d5, loan->loanAmount);
     if (bank == 0)
         return;
-    if (sv_CheckGoodAmount(borrower, loan->amount, ai_OwnPlayer) == 0)
+    if (sv_CheckGoodAmount(borrower, loan->loanAmount, ai_OwnPlayer) == 0)
         return;
     if (sv_MessageBox((intptr_t)text, 1) == 0)
         return;
     owner = &ai_Chars[bank->owner];
-    cm_SendMoveGoods(bank->id, loan->partner, ai_OwnPlayer, loan->amount);
+    cm_SendMoveGoods(bank->id, loan->loanPartner, ai_OwnPlayer, loan->loanAmount);
     fin = gm_PlayerRecord(borrower);
     if (fin != 0)
-        fin->loansRepaid += loan->amount;
+        fin->loansRepaid += loan->loanAmount;
     if (owner->kind != 5) {
-        txt_Format(news, 0x18d8, borrower->id, bank, loan->amount);
+        txt_Format(news, 0x18d8, borrower->id, bank, loan->loanAmount);
         he_MessageBoxQuickjump(owner->netId, -1, news, 0, 0x5ec, bank->id, -1, 0, 0);
     }
     he_FreeEvent(loan);
@@ -7799,7 +7799,7 @@ void ai_RepayLoan(AIBLD *bank, HELOAN *loan)
 typedef struct CREDITLISTROW {      /* a row of the credit list window (ai_CreditListWindow) */
     int child;                      /* 0x0, the row's child window (d2_CreateChildWindow), -1: none */
     int pic;                        /* 0x4, its frame picture 0x75a (d2_WinOpenPic), -1: none; the radio group selects it */
-    HELOAN *loan;                   /* 0x8, the loan it shows (gm_CreditEvents) */
+    AIJOB *loan;                   /* 0x8, the loan it shows (gm_CreditEvents) */
 } CREDITLISTROW;
 /* 0x59b160, the money lender's credit list "locations\geldleihe\geldleihe_Kreditaufnehmen" of the bank bank
    (1224 B): the form with the paddings 0x18, the text 0x18c9 (the object name of the own player slot's money good);
@@ -7821,7 +7821,7 @@ void ai_CreditListWindow(AIBLD *bank)
     int repayCtl;
     int out[4];
     CREDITLISTROW rows[9];
-    HELOAN *loans[9];
+    AIJOB *loans[9];
     int rebuild;
     int full;
     int rowW;
@@ -7896,7 +7896,7 @@ void ai_CreditListWindow(AIBLD *bank)
                 rows[i].loan = loans[i];
                 d2_Wins[rows[i].child].font = 0x56;
                 d2_Wins[rows[i].child].ml = 0x10;
-                io_PrintText(0x18d6, loans[i]->amount, loans[i]->interest, &loans[i]->due);
+                io_PrintText(0x18d6, loans[i]->loanAmount, loans[i]->loanInterest, &loans[i]->loanDue);
             }
             if (radio != -1) {
                 d2_RadioClear(radio);
@@ -7953,7 +7953,7 @@ void ai_BorrowerLoansWindow(AIBLD *bank, int borrower)
     int rowH;
     int win;
     int rowW;
-    HELOAN *loans[9];
+    AIJOB *loans[9];
     CREDITLISTROW rows[9];
     int rebuild;
     int n;
@@ -7996,9 +7996,9 @@ void ai_BorrowerLoansWindow(AIBLD *bank, int borrower)
                 rows[i].loan = loans[i];
                 d2_Wins[rows[i].child].font = 0x56;
                 d2_Wins[rows[i].child].ml = 0x10;
-                io_PrintText(0x18e0, rows[i].loan->amount);
-                io_PrintText(0x18e1, &rows[i].loan->due);
-                io_PrintText(0x18e2, rows[i].loan->interest);
+                io_PrintText(0x18e0, rows[i].loan->loanAmount);
+                io_PrintText(0x18e1, &rows[i].loan->loanDue);
+                io_PrintText(0x18e2, rows[i].loan->loanInterest);
             }
             rebuild = 0;
         }
@@ -8074,7 +8074,7 @@ void d2_MoveObj(short x, short y, int obj); int d2_WinOpenInputIcon(int x, int y
 void ai_CreditGiverWindow(AIBLD *bank)
 {
     CREDITLISTROW rows[16];
-    HELOAN *loans[16];
+    AIJOB *loans[16];
     int buttons[8];
     int borrowers[16];
     int bar;
@@ -8133,10 +8133,10 @@ void ai_CreditGiverWindow(AIBLD *bank)
             count = 0;
             for (i = 0; i < n; i++) {
                 for (j = 0; j < count + 1; j++) {
-                    if (ai_Chars[borrowers[j]].netId == loans[i]->partner)
+                    if (ai_Chars[borrowers[j]].netId == loans[i]->loanPartner)
                         break;
                     if (borrowers[j] == -1) {
-                        ch = gm_FindChar(loans[i]->partner);
+                        ch = gm_FindChar(loans[i]->loanPartner);
                         if (ch != 0) {
                             borrowers[j] = ch->id;
                             count++;
@@ -8154,7 +8154,7 @@ void ai_CreditGiverWindow(AIBLD *bank)
                 n = gm_BuildingEvents(bank->owner, bank, borrowers[i], loans);
                 sum = 0;
                 for (j = 0; j < n; j++)
-                    sum += loans[j]->amount;
+                    sum += loans[j]->loanAmount;
                 rows[i].pic = d2_GetWinObj(win, 2, io_PrintText(0x18df, borrowers[i], n, sum));
             }
             rebuild = 0;
@@ -12476,13 +12476,6 @@ typedef struct LCKIDNAPEVENT {          /* the kidnap event 0x3c's words over AI
     int target;                         /* 0xb0, the id of the building the gang goes to for the victim */
     int guild;                          /* 0xb4, the thieves' guild's id */
 } LCKIDNAPEVENT;
-typedef struct LCRANSOMEVENT {          /* the ransom event 0x3d's words over AIJOB's union (he.c HEEV3D, same layout) */
-    char pad00[0xac];
-    int victim;                         /* 0xac, the netId of the kidnapped character */
-    int guild;                          /* 0xb0, the id of the thieves' guild that holds it */
-    AITIME since;                       /* 0xb4, the time of the kidnap */
-} LCRANSOMEVENT;
-
 /* 0x5a53e0, starts the kidnapping by the building bld (0x90 frame): 0x520fe0 (bld); the first kidnap event 0x3c
    (0x53e400 (1, 0, 0x3c) / 0x53e300) of the guild bld->id shows the message TXT_KIDNAP_MESSAGE and returns;
    else the ransom events 0x3d: one of bld (its guild) with a live character (0x505df0, its victim) whose
@@ -12507,8 +12500,8 @@ void ai_KidnapStart(AIBLD *bld)
         }
     }
     for (rec = he_FindEvent(1, 0, 0x3d); rec != 0; rec = he_NextEvent()) {
-        if (((LCRANSOMEVENT *)rec)->guild == bld->id) {
-            ch = gm_FindChar(((LCRANSOMEVENT *)rec)->victim);
+        if (rec->ransomGuild == bld->id) {
+            ch = gm_FindChar(rec->ransomVictim);
             if (ch != 0 && ch->heldRounds > 0) {
                 sv_MessageBox((intptr_t)txt_Ptrs[TXT_KIDNAP_MESSAGE], 0);
                 return;
@@ -12553,7 +12546,7 @@ void ai_RansomWindow(AIBLD *bld)
     char releaseText[0x200];
     char text[0x400];
     AICHAR *victim;
-    LCRANSOMEVENT *ev;
+    AIJOB *ev;
     AIJOB *demand;
     int ransom;
     int win;
@@ -12568,13 +12561,13 @@ void ai_RansomWindow(AIBLD *bld)
         return;
     }
     for (demand = he_FindEvent(1, 0, 0x3e); demand != 0; demand = he_NextEvent())
-        if (((LCRANSOMEVENT *)demand)->victim == victim->netId) {
+        if (demand->ransomVictim == victim->netId) {
             txt_Format(text, 0x19c9, victim->id);
             sv_MessageBox((intptr_t)text, 0);
             return;
         }
-    for (ev = (LCRANSOMEVENT *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (LCRANSOMEVENT *)he_NextEvent())
-        if (ev->victim == victim->netId)
+    for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
+        if (ev->ransomVictim == victim->netId)
             break;
     if (ev == 0) {
         sv_MessageBox((intptr_t)txt_Ptrs[0x19ca], 0);
@@ -12597,7 +12590,7 @@ void ai_RansomWindow(AIBLD *bld)
     d2_SetPointerSprite(0, 0);
     d2_CentreViewWindows(win);
     d2_SetForm(win, 1);
-    base = io_PrintText(0x19c4, victim->id, &ev->since, 2, ransom, victim->id, victim->id);
+    base = io_PrintText(0x19c4, victim->id, &ev->ransomSince, 2, ransom, victim->id, victim->id);
     ok = d2_GetWinObj(win, 1, base);
     release = d2_GetWinObj(win, 1, base + 1);
     keep = d2_GetWinObj(win, 1, base + 2);
@@ -12654,7 +12647,7 @@ void ai_HostageEscape(AIBLD *bld)
     char text[0x400];
     AICHAR *ch;
     AICHAR *owner;
-    LCRANSOMEVENT *ev;
+    AIJOB *ev;
 
     ch = &ai_Chars[ai_PlayerId];
     owner = &ai_Chars[bld->owner];
@@ -12674,9 +12667,9 @@ void ai_HostageEscape(AIBLD *bld)
             cm_SendMessage5b(ch->netId, -ch->heldRounds, 0);
             if (ch->scene != 0 && he_FindFigurePlace(ch, &placeBld, &placeObj, 0) != 0)
                 cm_SendChrGotoBuilding(ch->netId, placeBld, placeObj, 0, 0, "L\366segeld");
-            for (ev = (LCRANSOMEVENT *)he_FindEvent(1, 0, 0x3d); ev != 0; ev = (LCRANSOMEVENT *)he_NextEvent())
-                if (ev->guild == bld->id && ch->netId == ev->victim) {
-                    ((AIJOB *)ev)->exSlot = cm_SendExSetHE(-1, ev);
+            for (ev = he_FindEvent(1, 0, 0x3d); ev != 0; ev = he_NextEvent())
+                if (ev->ransomGuild == bld->id && ch->netId == ev->ransomVictim) {
+                    (ev)->exSlot = cm_SendExSetHE(-1, ev);
                     break;
                 }
             txt_Format(text, 0x3feb);

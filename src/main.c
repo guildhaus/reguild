@@ -3466,7 +3466,7 @@ void main_ReplaceFigure(unsigned p)
    sv_CreateScrollForm, the loop 0x5309a0 until a click or Enter): the character's wage and goods bought, the
    round record's (AIFIN, gm_PlayerRecord) costs and incomes (texts 0x2005 .. 0x204e), the balance of every
    building the player owns or masters (gm_BuildingBalance), the interest of the loans its banks gave and of its
-   own loans (HELOAN events, interest * 0.01 * amount, truncated per step), the office wages and the other
+   own loans (the loan events, interest * 0.01 * amount, truncated per step), the office wages and the other
    incomes (GMINCOME); then the round parts are rolled into AIFIN.missionMoney and cleared. When the balance goes
    negative (gm_IsBankrupt) a bankruptcy scene party (kind 9) runs and, with main_ReplaceFigureOn set, the
    figure is replaced (main_ReplaceFigure) */
@@ -3477,12 +3477,12 @@ void main_RoundReport(void)
     int bal[0x15];                  /* gm_BuildingBalance's summary: [3] / [0x10] costs, [0x11] income, [0x14] net */
     GMINCOME inc;
     GMDATE date;
-    HELOAN *loans[9];
+    AIJOB *loans[9];
     ORDWAGES wages;
     D2FADE *fade;
     AIFIN *fin;
     AIBLD *b;
-    HELOAN *o;
+    AIJOB *o;
     int iv, cash, v, t, win, nrow, i, j, k;
     int costs, net, income, wageCost, incomeSum;
 
@@ -3612,9 +3612,9 @@ void main_RoundReport(void)
         if (nrow > 0) {
             do {
                 o = loans[j];
-                income = (int)(income + (o->interest * 0.01) * o->amount);
-                v = (int)(v + (o->interest * 0.01) * o->amount);
-                net = (int)(net + (o->interest * 0.01) * o->amount);
+                income = (int)(income + (o->loanInterest * 0.01) * o->loanAmount);
+                v = (int)(v + (o->loanInterest * 0.01) * o->loanAmount);
+                net = (int)(net + (o->loanInterest * 0.01) * o->loanAmount);
                 j++;
             } while (j < nrow);
             if (v != 0)
@@ -3655,9 +3655,9 @@ void main_RoundReport(void)
         if (0 < j) {
             do {
                 o = loans[k];
-                costs = (int)(costs + (o->interest * 0.01) * o->amount);
-                iv = (int)(iv + (o->interest * 0.01) * o->amount);
-                net = (int)(net - (o->interest * 0.01) * o->amount);
+                costs = (int)(costs + (o->loanInterest * 0.01) * o->loanAmount);
+                iv = (int)(iv + (o->loanInterest * 0.01) * o->loanAmount);
+                net = (int)(net - (o->loanInterest * 0.01) * o->loanAmount);
                 k++;
             } while (k < j);
         }

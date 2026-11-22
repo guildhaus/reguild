@@ -730,7 +730,7 @@ int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e, int f); int
 typedef struct CREDITLISTROW {      /* a row of the credit list window (ai_CreditListWindow) */
     int child;                      /* 0x0, the row's child window (d2_CreateChildWindow), -1: none */
     int pic;                        /* 0x4, its frame picture 0x75a (d2_WinOpenPic), -1: none; the radio group selects it */
-    HELOAN *loan;                   /* 0x8, the loan it shows (gm_CreditEvents) */
+    AIJOB *loan;                   /* 0x8, the loan it shows (gm_CreditEvents) */
 } CREDITLISTROW;
 int gm_SumSlotAmounts(void *list, unsigned char i); int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);
 void gm_SortCharsByName(int n, int *ids, int flag); int d2_RemoveWindow();
@@ -801,12 +801,6 @@ typedef struct LCKIDNAPEVENT {          /* the kidnap event 0x3c's words over AI
     int target;                         /* 0xb0, the id of the building the gang goes to for the victim */
     int guild;                          /* 0xb4, the thieves' guild's id */
 } LCKIDNAPEVENT;
-typedef struct LCRANSOMEVENT {          /* the ransom event 0x3d's words over AIJOB's union (he.c HEEV3D, same layout) */
-    char pad00[0xac];
-    int victim;                         /* 0xac, the netId of the kidnapped character */
-    int guild;                          /* 0xb0, the id of the thieves' guild that holds it */
-    AITIME since;                       /* 0xb4, the time of the kidnap */
-} LCRANSOMEVENT;
 float gm_GetSkill(struct AICHAR *c, int skill);
 void cm_RequestChrMoveToUniverse(int a, int b, int c, const char *s);
 char d3_GetHeightAt(struct D3SM *h, struct D3VECTOR *pos, int *px, int *pz, float *py);
@@ -1016,7 +1010,7 @@ void ai_ShowWindowRow(AIWINDOWROW *row)
 
 int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form)
 {
-    HELOAN *loans[9];
+    AIJOB *loans[9];
     int n;
     int w;
     int i;
@@ -1038,7 +1032,7 @@ int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form)
         d2_Wins[rows[i].child].ml = 0x10;
         bank = (int)gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
         if (bank != 0)
-            io_PrintText(0x1f41, bank, rows[i].loan->amount, rows[i].loan->interest, &rows[i].loan->due);
+            io_PrintText(0x1f41, bank, rows[i].loan->loanAmount, rows[i].loan->loanInterest, &rows[i].loan->loanDue);
     }
     return n;
 }

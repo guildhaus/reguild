@@ -62,12 +62,6 @@ typedef char gm_AssertGMBTYPE[sizeof(GMBTYPE) == 0x24d ? 1 : -1];
 #define GM_BTYPE(i) ((GMBTYPE *)ai_BTypes + (i))  /* the building type i of ai_BTypes (char *) */
 
 /* an event of the kind 0x23 (he_FindEvent(1, 0, 0x23)) as gm_BuildingEvents / gm_CreditEvents read it */
-typedef struct GMEVENT23 {
-    char pad000[0xac];
-    int bldId;                          /* 0x0ac, the building's id (AIBLD.id) */
-    int charId;                         /* 0x0b0, the character's netId (AICHAR.netId) */
-} GMEVENT23;
-
 
 /* the character statistics gm_CharacterStatistics (0x91b500, 0x68 bytes) as gm_CountCharacters (0x4fdfd0) fills
    them: per age bucket (gm_CharAge / 10, clamped to 0 .. 7) the count and the average health / base health */

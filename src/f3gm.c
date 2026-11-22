@@ -14,7 +14,7 @@
    0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
    the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
-   byte offset), the kind 0x23 events through GMEVENT23, or by byte offset (the rest, GM_GOODS).
+   byte offset), the kind 0x23 (loan) events as AIJOB, or by byte offset (the rest, GM_GOODS).
    Open: gm_QueryNext returns unsigned short * in every header though the cursor is an AIOBJ *.
    Open: the head tables (gm_BoyHead .. gm_SpyHeads, gm_OwnNameHeads) are GMHEAD records but still defined as
    unsigned arrays; their readers cast them.

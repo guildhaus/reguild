@@ -221,8 +221,8 @@ int gm_CharMoney(int c);  /* 0x509f20 */
 int gm_GoodPicture(struct AIOBJ *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
 int gm_ResearchClass(int k, int *out);  /* 0x50b090 */
 int gm_DonationRank(int c, int d);  /* 0x50b170 */
-struct HELOAN; int gm_CreditEvents(int c, struct AIBLD *bld, struct HELOAN **out);  /* 0x50a150 */
-int gm_BuildingEvents(unsigned owner, struct AIBLD *b, int c, struct HELOAN **out);  /* 0x50a1c0 */
+struct AIJOB; int gm_CreditEvents(int c, struct AIBLD *bld, struct AIJOB **out);  /* 0x50a150 */
+int gm_BuildingEvents(unsigned owner, struct AIBLD *b, int c, struct AIJOB **out);  /* 0x50a1c0 */
 void gm_UpdateTechTree(struct AIBLD *bld, struct AIOBJ *item);  /* 0x50b9f0 */
 int gm_TechTreeWindow(char *form, struct AIBLD *bld, struct AIOBJ *item);  /* 0x50c340 */
 int gm_Homeless(struct AICHAR *c);  /* 0x50ccd0 */

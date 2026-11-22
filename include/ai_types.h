@@ -316,6 +316,23 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             float tributeSkill;         /* 0xd0, the event character's skill 4 (gm_GetSkill), mixed with each visited
                                            character's to the relation change */
         };
+        struct {                        /* 0xac, of the loan event 0x23 (he.c he_AllocKredit / he_RunKredit, lc.c ai_RepayLoan;
+                                           its building is bldId) */
+            int padloan;
+            int loanPartner;            /* 0xb0, the netId of the other party (gm_FindChar; the loan's money moves between
+                                           it and the event character, cm_SendMoveGoodsUnchecked) */
+            int loanAmount;             /* 0xb4, the sum (reasoned: the news 0x18d7 names it before the interest) */
+            int loanDays;               /* 0xb8, the term in days (the payback date is days * 24 hours ahead) */
+            int loanDaysLeft;           /* 0xbc, days at the start */
+            int loanInterest;           /* 0xc0, the interest (the value gv_Accuse checks against the law 0xe) */
+            AITIME loanDue;             /* 0xc4, the payback date, at 8:00 */
+        };
+        struct {                        /* 0xac, of the ransom event 0x3d (he.c he_AllocRansom / he_RunRansom; he_RunKidnap's
+                                           ransom message 0x3d posts it) */
+            int ransomVictim;           /* 0xac, the netId of the kidnapped character (gm_FindChar) */
+            int ransomGuild;            /* 0xb0, the id of the thieves' guild that holds it (gm_BuildQuery(1, 1, id)) */
+            AITIME ransomSince;         /* 0xb4, the time of the kidnap (he_AllocRansom: now), shown by the news 0x19c2 */
+        };
         G14MSG msg;                     /* 0xac, of the random-message event 0x42: the message it runs (he_RunRandomMessage) */
     };
     union {
@@ -329,18 +346,6 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
 } AIJOB;
 
 typedef char ai_AssertAIJOB[sizeof(AIJOB) == 0x14c ? 1 : -1];
-
-typedef struct HELOAN {                 /* the loan event 0x23's words over AIJOB's union (he.c he_AllocKredit / he_RunKredit, lc.c ai_RepayLoan);
-                                           the building is AIJOB.bldId */
-    char pad00[0xb0];
-    int partner;                        /* 0xb0, the netId of the other party (gm_FindChar; the loan's money moves
-                                           between it and the event character, cm_SendMoveGoodsUnchecked) */
-    int amount;                         /* 0xb4, the sum (reasoned: the news 0x18d7 names it before the interest) */
-    int days;                           /* 0xb8, the term in days (the payback date is days * 24 hours ahead) */
-    int daysLeft;                       /* 0xbc, days at the start */
-    int interest;                       /* 0xc0, the interest (the value gv_Accuse checks against the law 0xe) */
-    AITIME due;                         /* 0xc4, the payback date, at 8:00 */
-} HELOAN;
 
 typedef struct AIFIN {                  /* what gm_PlayerRecord finds for a character */
     unsigned short w00;                 /* 0x00, the character's AICHAR.w050 (cm.c 0x4c6cd0 copies it) */

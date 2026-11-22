@@ -7013,39 +7013,39 @@ AIBLD *gm_ObjectBuilding(AIOBJ *o)
    charId +0xb0 is its netId), only of the building bld when it is not 0 (their bldId +0xac is its id);
    returns their number */
 
-int gm_CreditEvents(int c, AIBLD *bld, HELOAN **out)
+int gm_CreditEvents(int c, AIBLD *bld, AIJOB **out)
 {
     int n;
-    GMEVENT23 *ev;
+    AIJOB *ev;
 
     n = 0;
-    ev = (GMEVENT23 *)he_FindEvent(1, 0, 0x23);
+    ev = he_FindEvent(1, 0, 0x23);
     while (ev != 0 && n < 9) {
-        if (ev->charId == ai_Chars[c].netId && (bld == 0 || ev->bldId == bld->id)) {
-            out[n] = (HELOAN *)ev;
+        if (ev->loanPartner == ai_Chars[c].netId && (bld == 0 || ev->bldId == bld->id)) {
+            out[n] = ev;
             n++;
         }
-        ev = (GMEVENT23 *)he_NextEvent();
+        ev = he_NextEvent();
     }
     return n;
 }
 /* 0x50a1c0, collects into out (up to 9) the events of the kind 0x23 whose building belongs to the owner (AIBLD.owner), only of the building b when b is not 0 and of the character slot c when c is not 0xffff; returns their number */
 
-int gm_BuildingEvents(unsigned owner, AIBLD *b, int c, HELOAN **out)
+int gm_BuildingEvents(unsigned owner, AIBLD *b, int c, AIJOB **out)
 {
     int n;
-    GMEVENT23 *ev;
+    AIJOB *ev;
     AIBLD *bl;
 
     n = 0;
-    ev = (GMEVENT23 *)he_FindEvent(1, n, 0x23);
+    ev = he_FindEvent(1, n, 0x23);
     while (ev != 0 && n < 9) {
         bl = gm_BuildQuery(1, 1, ev->bldId);
         if (bl != 0 && bl->owner == owner && (b == 0 || b == bl) &&
-            (c == 0xffff || ai_Chars[c].netId == ev->charId)) {
-            out[n++] = (HELOAN *)ev;
+            (c == 0xffff || ai_Chars[c].netId == ev->loanPartner)) {
+            out[n++] = ev;
         }
-        ev = (GMEVENT23 *)he_NextEvent();
+        ev = he_NextEvent();
     }
     return n;
 }
@@ -7075,7 +7075,7 @@ int gm_GetCreditOffers(AIBLD *b, AICHAR *p, unsigned cnt, ORDCREDIT *out)
     int budget, worth, maxAmount, i, all, amount, term, interest;
     unsigned k;
     float f, add, rate, lim;
-    HELOAN *events[9];
+    AIJOB *events[9];
     ORDMSG orders;
 
     if (p == 0 || b == 0 || bank->owner == 0xffff || cnt == 0)

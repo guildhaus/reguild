@@ -1125,13 +1125,6 @@ void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
 struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
 float gm_StockPrice(int p, int n);  /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
-typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AIJOB's union (he_AllocRansom / he_RunRansom;
-                                           he_RunKidnap's ransom message 0x3d posts it: victim, guild) */
-    char pad00[0xac];
-    int victim;                         /* 0xac, the netId of the kidnapped character (gm_FindChar) */
-    int guild;                          /* 0xb0, the id of the thieves' guild that holds it (gm_BuildQuery(1, 1, id)) */
-    AITIME since;                       /* 0xb4, the time of the kidnap (he_AllocRansom: now), shown by the news 0x19c2 */
-} HEEV3D;
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 typedef struct HEEV3E {                 /* the ransom demand event 0x3e's words over AIJOB's union (he_RunRansom's message 0x3e) */
@@ -1223,7 +1216,7 @@ float gm_TitlePeriodServed(int n, int *out);
 void he_AllocDueIsStart(AIJOB *ev);
 int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
 
-/* 0x568aa0, ends every started loan event 0x23 (he_EndEventNow) whose partner (HELOAN.partner, the other party's
+/* 0x568aa0, ends every started loan event 0x23 (he_EndEventNow) whose partner (AIJOB.loanPartner, the other party's
    netId) is the character c: gm_ReleaseCharacter calls it before the character is released */
 
 void he_EndKind23Events(AICHAR *rec)
@@ -1232,7 +1225,7 @@ void he_EndKind23Events(AICHAR *rec)
     AIJOB *e;
 
     for (e = he_FindEvent(1, 0, 0x23); e != 0; e = he_NextEvent()) {
-        if ((e->opts & 3) != 0 && ((HELOAN *)e)->partner == c->netId)
+        if ((e->opts & 3) != 0 && e->loanPartner == c->netId)
             he_EndEventNow(e);
     }
 }

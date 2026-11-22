@@ -30,7 +30,7 @@
    (HESLOTORDER), and the events 19 .. 25 that follow: the store extension (HESTOREEXT), herb gathering (HEHERBS),
    animal hunt (HEHUNT), study (HESTUDY), the event 0x17 (HEEV17), spying (HESPYING) and sabotage (HESABOTAGE), and the brawl 26
    (HEBRAWL), theft 27 (HETHEFT), repair 28 (HEREPAIR) and upgrade 0x1e events, and the events 0x1f .. 0x26 up to
-   0x55e730: 0x1f (HEEV1F), the demolition 0x20, the building purchase 0x21 (HEBUYBLD), the loan 0x23 (HELOAN), 0x24
+   0x55e730: 0x1f (HEEV1F), the demolition 0x20, the building purchase 0x21 (HEBUYBLD), the loan 0x23 (AIJOB.loan*), 0x24
    (HEEV24), the master exam notice / pass 0x25 / 0x26 (HEEXAMPASS), the payment 0x27 (HEEV27), the harvest 0x28 (AIJOB's
    harvest* words), the dismissal 0x31 (HEDISMISS), the promotion 0x32, the worker's quitting / theft 0x33 / 0x34 and
    the event 0x38 (HEEV38). The protection money
@@ -61,7 +61,7 @@
    0x14 and 0xac are named only as the message's words; a member added to AIJOB / AIMSG / G28REC can flip other
    units' matches by declaration set (ai_CalcMeisterFernhaendler, ord_CountGridObjects are debt for it; ai_TutorialInitChapter3
    is a tie-break for it).
-   The ransom 0x3d / 0x3e (HEEV3D / HEEV3E), burglary 0x3f (HEBURGLARY), building spying 0x40 (HEBLDSPY, its report
+   The ransom 0x3d / 0x3e (AIJOB.ransom* / HEEV3E), burglary 0x3f (HEBURGLARY), building spying 0x40 (HEBLDSPY, its report
    HESPYREPORT), ambush 0x48 (HEAMBUSH), attack 0x49 (AIJOB's raid* words) and fire 0x4e (HEFIRE; the burning event's
    HEBURN) handlers read their records typed, and so do the handlers up to 0x567990: the burning 0x4f (HEBURN), the
    new worker 0x6e (HENEWWORKER), the kill-player run handler 0x72 (HEKILL, its funeral party G28REC), the night
@@ -14354,7 +14354,7 @@ void he_RunBuyBuilding(AIJOB *ev)
         return;
     }
 }
-/* 0x55c540, the allocation handler of the loan event 0x23 (HELOAN; run handler he_RunKredit): the
+/* 0x55c540, the allocation handler of the loan event 0x23 (AIJOB.loan*; run handler he_RunKredit): the
    due clock is now, the payback date is days days from now at 8:00, daysLeft = days. A posted event (opts 2) whose
    building has a player owner (kind 6 / 7) gives the owner the news 0x18d7 (the partner, the building, amount,
    interest, days, the building's money: its object of the player's moneyGood) and reports the owner for the law
@@ -14362,7 +14362,7 @@ void he_RunBuyBuilding(AIJOB *ev)
 
 void he_AllocKredit(AIJOB *e)
 {
-    HELOAN *l = (HELOAN *)e;
+    AIJOB *l = e;
     AIBLD *b;
     AICHAR *owner, *partner;
     AIOBJ *o;
@@ -14370,28 +14370,28 @@ void he_AllocKredit(AIJOB *e)
     char text[0x200];
 
     e->end = ai_Time;
-    l->due = ai_Time;
-    gm_AddTime(&l->due, l->days * 24, 0, 0);
-    l->due.hour = 8;
-    l->due.min = 0;
-    l->due.sec = 0;
-    l->daysLeft = l->days;
+    l->loanDue = ai_Time;
+    gm_AddTime(&l->loanDue, l->loanDays * 24, 0, 0);
+    l->loanDue.hour = 8;
+    l->loanDue.min = 0;
+    l->loanDue.sec = 0;
+    l->loanDaysLeft = l->loanDays;
     b = gm_BuildQuery(1, 1, e->bldId);
     if (b == 0 || (e->opts & 2) == 0)
         return;
     owner = &ai_Chars[b->owner];
-    partner = gm_FindChar(l->partner);
+    partner = gm_FindChar(l->loanPartner);
     if (owner->kind == 6 || owner->kind == 7) {
         cash = 0;
         o = gm_Query(b->objList, 1, 0, ai_PlayerSlots[ai_OwnPlayer].moneyGood);
         if (o != 0)
             cash = o->count;
-        txt_Format(text, 0x18d7, partner->id, b, l->amount, l->interest, l->days, 0x5d, cash);
+        txt_Format(text, 0x18d7, partner->id, b, l->loanAmount, l->loanInterest, l->loanDays, 0x5d, cash);
         he_MessageBoxQuickjump(owner->netId, -1, text, 0, 0x5ec, b->id, -1, 0, 0);
-        gv_Accuse(0xe, l->interest, owner->netId, l->partner, b->id);
+        gv_Accuse(0xe, l->loanInterest, owner->netId, l->loanPartner, b->id);
     }
 }
-/* 0x55c700, the run handler of the loan event 0x23 (HELOAN), daily while the send slot exSlot is free. Stage 0: a
+/* 0x55c700, the run handler of the loan event 0x23 (AIJOB.loan*), daily while the send slot exSlot is free. Stage 0: a
    posted event (opts 2) charges the interest (interest % of amount): without the partner the building's owner gets
    the news 0x18e7 and the event goes to the cm (cm_SendExSetHE); a partner short of goods value pays by
    ai_LiquidateAssets (the news 0x18e8, shown to the partner when the owner is a player), else by
@@ -14403,7 +14403,7 @@ void he_AllocKredit(AIJOB *e)
 
 void he_RunKredit(AIJOB *e)
 {
-    HELOAN *l = (HELOAN *)e;
+    AIJOB *l = e;
     AIBLD *b;
     AICHAR *owner, *partner;
     float due;
@@ -14420,15 +14420,15 @@ void he_RunKredit(AIJOB *e)
         if (e->opts & 2) {
             b = gm_BuildQuery(1, 1, e->bldId);
             if (b != 0) {
-                partner = gm_FindChar(l->partner);
+                partner = gm_FindChar(l->loanPartner);
                 owner = &ai_Chars[b->owner];
                 if (partner == 0) {
-                    txt_Format(text, 0x18e7, l->amount);
+                    txt_Format(text, 0x18e7, l->loanAmount);
                     he_ShowNews(owner->netId, -1, text, 0, 0x5ff, 0);
                     e->exSlot = cm_SendExSetHE(-1, e);
                     return;
                 }
-                due = l->amount * (l->interest * 0.01);
+                due = l->loanAmount * (l->loanInterest * 0.01);
                 value = gm_GetGoodsValue(partner);
                 if (value < due) {
                     n = (int)due;
@@ -14436,9 +14436,9 @@ void he_RunKredit(AIJOB *e)
                     paid = ai_LiquidateAssets(b->id, partner, n, text2);
                     b->roundSums[2] += paid;
                     if (owner->kind == 6 || owner->kind == 7)
-                        he_ShowNews(l->partner, -1, text2, 0, 0x5ff, 0);
+                        he_ShowNews(l->loanPartner, -1, text2, 0, 0x5ff, 0);
                 } else {
-                    cm_SendMoveGoodsUnchecked(b->id, l->partner, ai_OwnPlayer, (int)due);
+                    cm_SendMoveGoodsUnchecked(b->id, l->loanPartner, ai_OwnPlayer, (int)due);
                     b->roundSums[2] += due;
                 }
             } else {
@@ -14447,27 +14447,27 @@ void he_RunKredit(AIJOB *e)
                 return;
             }
         }
-        if (--l->daysLeft >= 0)
+        if (--l->loanDaysLeft >= 0)
             return;
         b = gm_BuildQuery(1, 1, e->bldId);
         if (b == 0)
             break;
         owner = &ai_Chars[b->owner];
-        partner = gm_FindChar(l->partner);
+        partner = gm_FindChar(l->loanPartner);
         if ((e->opts & 2) == 0)
             break;
         value = gm_GetGoodsValue(partner);
-        if (value < l->amount)
-            txt_Format(text, 0x18ea, l->amount);
+        if (value < l->loanAmount)
+            txt_Format(text, 0x18ea, l->loanAmount);
         else
-            txt_Format(text, 0x18e9, l->amount);
-        ai_LiquidateAssets(b->id, partner, l->amount, text);
-        if (value < l->amount)
-            he_ShowNews(l->partner, -1, text, 0, 0x5ff, "_NACHRICHTEN_HS_69");
+            txt_Format(text, 0x18e9, l->loanAmount);
+        ai_LiquidateAssets(b->id, partner, l->loanAmount, text);
+        if (value < l->loanAmount)
+            he_ShowNews(l->loanPartner, -1, text, 0, 0x5ff, "_NACHRICHTEN_HS_69");
         else
-            he_ShowNews(l->partner, -1, text, 0, 0x5ff, ch_EmptyName);
+            he_ShowNews(l->loanPartner, -1, text, 0, 0x5ff, ch_EmptyName);
         if (owner->kind == 6 || owner->kind == 7) {
-            txt_Format(text2, 0x18d8, partner->id, b, l->amount);
+            txt_Format(text2, 0x18d8, partner->id, b, l->loanAmount);
             he_ShowNews(owner->netId, -1, text2, 0, 0x5ff, 0);
         }
         he_FreeEvent(e);
@@ -14476,10 +14476,10 @@ void he_RunKredit(AIJOB *e)
     case -1:
         b = gm_BuildQuery(1, 1, e->bldId);
         if (b != 0) {
-            partner = gm_FindChar(l->partner);
+            partner = gm_FindChar(l->loanPartner);
             owner = &ai_Chars[b->owner];
             if (partner == 0) {
-                txt_Format(text2, 0x18e7, l->amount);
+                txt_Format(text2, 0x18e7, l->loanAmount);
                 he_ShowNews(owner->netId, -1, text2, 0, 0x5ff, 0);
             }
         }
@@ -16242,28 +16242,20 @@ void he_RunKidnap(AIJOB *ev)
         return;
     }
 }
-typedef struct HEEV3D {                 /* the ransom event 0x3d's words over AIJOB's union (he_AllocRansom / he_RunRansom;
-                                           he_RunKidnap's ransom message 0x3d posts it: victim, guild) */
-    char pad00[0xac];
-    int victim;                         /* 0xac, the netId of the kidnapped character (gm_FindChar) */
-    int guild;                          /* 0xb0, the id of the thieves' guild that holds it (gm_BuildQuery(1, 1, id)) */
-    AITIME since;                       /* 0xb4, the time of the kidnap (he_AllocRansom: now), shown by the news 0x19c2 */
-} HEEV3D;
-
 /* 0x561130, the allocation handler of the ransom event 0x3d (he_RunRansom): the due clock and the kidnap time are now */
 
 void he_AllocRansom(AIJOB *ev)
 {
-    HEEV3D *x = (HEEV3D *)ev;
+    AIJOB *x = ev;
 
     ev->end = ai_Time;
-    x->since = ai_Time;
+    x->ransomSince = ai_Time;
 }
 
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 
-/* 0x561190, the run handler of the ransom event 0x3d (HEEV3D, its alloc handler he_AllocRansom): stage 0 (no guild or
+/* 0x561190, the run handler of the ransom event 0x3d (AIJOB.ransom*, its alloc handler he_AllocRansom): stage 0 (no guild or
    victim: cancelled) makes the victim the guild's hostage when it holds none. A victim no longer held
    (AICHAR.heldRounds 0) is told 0x19da, walks back to where its figure stands ("Lösegeld") and the guild's hostage
    field is sent -1; the record is freed. A victim still held is told 0x19c2 (the kidnap time), the guild owner gets the
@@ -16273,7 +16265,7 @@ int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
    victim (heldRounds 0) and free the record */
 void he_RunRansom(AIJOB *ev)
 {
-    HEEV3D *x = (HEEV3D *)ev;
+    AIJOB *x = ev;
     AICHAR *victim, *owner, *payer;
     AIBLD *b;
     char text[0x200];
@@ -16282,8 +16274,8 @@ void he_RunRansom(AIJOB *ev)
 
     switch (ev->stage) {
     case 0:
-        victim = gm_FindChar(x->victim);
-        b = gm_BuildQuery(1, 1, x->guild);
+        victim = gm_FindChar(x->ransomVictim);
+        b = gm_BuildQuery(1, 1, x->ransomGuild);
         if (b == 0 || victim == 0) {
             ev->stage = -1;
             return;
@@ -16312,7 +16304,7 @@ void he_RunRansom(AIJOB *ev)
         if (!(ev->opts & 2))
             return;
         he_AddApEvent(owner->id, txt_Ptrs[0x3fd8], -2, 0);
-        txt_Format(text, 0x19c2, &x->since);
+        txt_Format(text, 0x19c2, &x->ransomSince);
         he_ShowNews(victim->netId, victim->netId, text, 0, 0x5f0, 0);
         if (payer == 0 || !(payer->flags1b4 & 1))
             return;
@@ -16341,7 +16333,7 @@ void he_RunRansom(AIJOB *ev)
         return;
     case -2:
     case -1:
-        victim = gm_FindChar(x->victim);
+        victim = gm_FindChar(x->ransomVictim);
         if (victim != 0)
             victim->heldRounds = 0;
         he_FreeEvent(ev);
@@ -16377,7 +16369,7 @@ typedef struct HEEV3E {                 /* the ransom demand event 0x3e's words 
 void he_RunRansomDemand(AIJOB *ev)
 {
     HEEV3E *x = (HEEV3E *)ev;
-    HEEV3D *r;
+    AIJOB *r;
     AICHAR *victim, *master;
     AIBLD *b;
     AIFIN *fin;
@@ -16479,8 +16471,8 @@ void he_RunRansomDemand(AIJOB *ev)
         he_FreeEvent(ev);
         return;
     case 3:
-        for (r = (HEEV3D *)he_FindEvent(1, 0, 0x3d); r != 0; r = (HEEV3D *)he_NextEvent()) {
-            if (r->victim == x->victim) {
+        for (r = he_FindEvent(1, 0, 0x3d); r != 0; r = he_NextEvent()) {
+            if (r->ransomVictim == x->victim) {
                 ev->exSlot = cm_SendExSetHE(-1, ev);
                 break;
             }
