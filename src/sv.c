@@ -3274,7 +3274,7 @@ void sv_ColourBanners(int c)
             if (ch != 0 && ch->ref54 != 0 && (ch->kind == 5 || ch->kind == 6 || ch->kind == 7)) {
                 set = ch->ref54 - 0x599;
                 if (set != 0)
-                    d3if_SelectTextureSet(*m->transport, (*m->transport)->info, set, 1);
+                    d3if_SelectTextureSet(m->transport->obj, m->transport->obj->info, set, 1);
             }
         }
     }

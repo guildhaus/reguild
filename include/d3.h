@@ -442,7 +442,7 @@ typedef struct D3ANIMSLOT {         /* 0x7c bytes */
     float fadeTo;                   /* 0x48, weight at fadeEnd */
     D3VECTOR4 stopPos;              /* 0x4c, the root position the motion stops at (d3anim_StepObject
                                        compares x/z with stopRadius) */
-    float stopRadius;               /* 0x5c */
+    float stopRadius;               /* 0x5c, the walk code's 15 / 30 / 60 (a person, a horse, a cart) scaled by the cell size */
     float speed;                    /* 0x60, animation speed, frames per ms */
     float frameTime;                /* 0x64, sub-frame time accumulator (d3_AnimBlendWeights) */
     struct D3ANIMDATA *data;        /* 0x68, the animation (d3_anim.h); its name and bone names come first */
@@ -453,6 +453,16 @@ typedef struct D3ANIMSLOT {         /* 0x7c bytes */
             unsigned char pad6c[8];
             unsigned char unk74_0 : 1;
             unsigned char play : 1; /* 0x74 bit 1 */
+            unsigned char stopAtPos : 1;    /* 0x74 bit 2: d3anim_StepObject stops the root motion within
+                                               stopRadius of stopPos (the walk code sets it) */
+            unsigned char stopped : 1;      /* 0x74 bit 3: set when it did */
+        };
+        struct {                    /* D3ANIMFLAGS.b[1] by bit, as the walk code (ch.c) writes them */
+            unsigned char pad6c1;
+            unsigned char unk6d_0 : 4;
+            unsigned char unk6d_4 : 1;      /* 0x6d bit 4 (0x10) */
+            unsigned char finished : 1;     /* 0x6d bit 5 (0x20): the animation ran out (d3anim_StepObject) */
+            unsigned char unk6d_6 : 2;
         };
         struct {                    /* D3ANIMFLAGS.b[4..7] as the dword the flag bitfields live in */
             unsigned char pad6c4[4];
@@ -464,6 +474,11 @@ typedef struct D3ANIMSLOT {         /* 0x7c bytes */
                                        follows (d3anim_StepObject passes it to d3anim_ApplyRootMotion /
                                        d3anim_ApplyMotionTo) */
                     unsigned int turnPad : 30;
+                };
+                struct {            /* the same two bits one by one (the walk code: turnLo = 1, turnHi = 0) */
+                    unsigned int turnLo : 1;
+                    unsigned int turnHi : 1;
+                    unsigned int turnPad2 : 30;
                 };
             };
         };

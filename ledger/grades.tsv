@@ -690,7 +690,7 @@ exe	0x00432530	d3path_Tangents	d3_anim	byte	readable
 exe	0x00432750	d3anim_StepObject	d3_anim	draft	readable	deep	
 exe	0x00433b10	d3anim_FreePath	d3_anim	byte	readable		
 exe	0x00433b50	d3path_Init	d3_anim	shape	readable	deep	
-exe	0x00433d70	d3anim_CreatePath	d3_anim	byte	readable		
+exe	0x00433d70	d3anim_CreatePath	d3_anim	shape	readable		byte+readable -> shape+readable at 8dec04c1: declaration-set tie-break: proven byte under a swept set; fell with D3OBJECT's / D3ANIMSLOT's / CHACTION's merged view members (d3.h, ch.h), the text is unchanged [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x00433f40	d3_FindAnim	d3_anim	byte	readable		
 exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	shape	readable	deep	
 exe	0x00434a80	d3anim_GetSize	d3_anim	byte	readable		
@@ -1467,7 +1467,7 @@ exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		byte+readable -> shape+readable at 8dec04c1: declaration-set tie-break: proven byte under a swept set; fell with D3OBJECT's / D3ANIMSLOT's / CHACTION's merged view members (d3.h, ch.h), the text is unchanged [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
@@ -4120,7 +4120,7 @@ exe	0x0058af50	lobby_ChoosePlayer	lobby	byte	readable
 exe	0x0058b880	lobby_ChooseProfession	lobby	byte	readable		
 exe	0x0058ba70	lobby_ShowChat	lobby	byte	readable		
 exe	0x0058bbd0	ai_InitProductionTables	lc	byte	readable		
-exe	0x0058bd60	ai_ProductionWindow	lc	byte	readable		
+exe	0x0058bd60	ai_ProductionWindow	lc	shape	readable		byte+readable -> shape+readable at 8dec04c1: declaration-set tie-break: proven byte under a swept set; fell with D3OBJECT's / D3ANIMSLOT's / CHACTION's merged view members (d3.h, ch.h), the text is unchanged [waits for: the unit's declaration set (G.tiebreak)]
 exe	0x0058c680	ai_UpdateResourceColumns	lc	byte	readable		
 exe	0x0058cc10	ai_UpdateProdColumns	lc	byte	readable		
 exe	0x0058d720	ai_UpdateProdGoodsList	lc	byte	readable		

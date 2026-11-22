@@ -2891,7 +2891,7 @@ void gm_AssignBuilding(AIBLD *b, unsigned master, unsigned own)
                 d3if_SelectScene(d3t_SceneIndex(ob->scene), 1);
                 if (ob->obj->info == 0)
                     ch_InflateModel(ob);
-                d3if_SelectTextureSet(*ob->transport, (*ob->transport)->info, owid, 1);
+                d3if_SelectTextureSet(ob->transport->obj, ob->transport->obj->info, owid, 1);
                 d3if_SelectScene(scn, 1);
             }
             w++;
