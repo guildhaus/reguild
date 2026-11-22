@@ -6021,7 +6021,7 @@ the bytes no portable form gives.
   on (see "Other call-site shapes", d2_PlaceMainWindow); its callers then call the true two-parameter prototype.
 - **A float pushed as its raw dword (`mov ecx,[esp+x]; push ecx`, no fld / fstp)**: a `float` variable passed
   to a float parameter: VC6 copies float variables to the stack with integer moves. Read the file's floats into
-  `float` locals (`bio_rd_i(in, (int *)&start)`, as `bio_rd_v3(in, (int *)&v)`), call the true float
+  `float` locals (`bio_rd_i(in, &start)`, as `bio_rd_v3(in, &v)`: the bio helpers take `void *`), call the true float
   prototype; never an `unsigned long` prototype for a float parameter (d3_LoadScene byte). A 4-byte struct
   argument likewise: d3_SetFog takes `D3COLOR color` (d3_SetFogSet passes the struct, d3if_SelectScene the
   union's `.c`, the definition stores `d3_fog_color.c = color`), no cast macro to another prototype.
@@ -6206,7 +6206,9 @@ the bytes no portable form gives.
   (void) prototypes, the action frame callback, the wind record, the office records, two object walk callbacks) or the
   twentieth (the picked / clicked objects and the name plates as D3OBJECT *, the texture slot views D3TEXTURE / D3FLTEX
   / D3IOTEX as TSTEXTURE, the save header LSHDR, the weapon records AIWEAPON, the aip callbacks' AIARG, ORDSTATS, the
-  `(unsigned)&` address casts).
+  `(unsigned)&` address casts) or the twenty-first (bio's void * helpers, the job views AIJOBX / GMJOB, d3_Normalize's
+  D3VECTOR *, the texture views D3TEXV / D3TEXVIEW / D3IFTEX, the d3_ForEachObject collectors, HKEY / HWND, the grave
+  entries, gm_FindGoods' GMSTOCK *, the scene height maps, the signed char fields).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6827,6 +6829,41 @@ the bytes no portable form gives.
   `(uintptr_t)&g + k` (unsigned int under VC6, the same code); a pointer parameter takes `&g` (sv_UpdateSkyPhase),
   an array `(char *)g`. `(int)&g` in a signed compare is `(intptr_t)`; the `(int)&x` left (138) are mostly
   arguments of int parameters (the callees' debt).
+- **A helper that reads or writes raw 4-byte words for any caller's object** (bio_rd_i, bio_rd_v3 / v4, bio_wr_v3 /
+  v4: D3VECTOR fields, colours, float arrays, ints; twenty-first pass): the parameter is `void *` (`const void *` for
+  the writers) and the body indexes an `int *` local (`int *w = v;`, dcp try: the same code); the callers' 107 `(int
+  *)` casts went. A byte hash (util_Hash) is different: a `const void *` parameter with an `unsigned char *` local is
+  2 ins of other code, so its callers pass bytes (`tiles[0]`, `(unsigned char *)&obj, sizeof(obj)`).
+- **A 3-float callee whose parameter is the padded vector** (d3_Normalize(D3VECTOR4 *), its 12-byte callers casting
+  `(char *)&v` / `(D3VECTOR4 *)&d`): it takes `D3VECTOR *` and the D3VECTOR4 callers pass `&x.v` (29 sites); a matrix
+  row keeps `(D3VECTOR *)&m->_31`.
+- **A one-bit field test against the byte mask** (TSTEXTURE.nomip in d3_DrawSortedD3D): `if (cur->nomip)` compiled to
+  other code than the view's `cur->flags & 8` (500 against 485 ins); test the union byte `cur->bits & 8` there. A
+  bit field assignment `precached = 1` and the byte's `|= 0x80` compiled the same (d3if_PrecacheCB).
+- **A d3_ForEachObject collector with its own parameter types** (`char sv_CollectBannerCB(char *o, int *p)` storing
+  the objects as ints, `rd_FindSiteCB(char *obj, G15BKFIND *f)`, `int rd_CollectNamed(..)`): the callback is
+  D3OBJECTCB's `char (D3OBJECT *o, void *ctx)` with `T *p = ctx;` (the same code); an int list of pointers is a
+  struct of its count and a `D3OBJECT *` array, and the caller's `for (i = 0; i < 0x21; i++) list[i] = 0;` is
+  `memset(&list, 0, sizeof(list))` (sv_RemoveBanners byte). A function that took an object's name and used it as
+  the object (rd_AllBauplatzToSupermap(r, list[i]->name) -> rd_WorldToCell(.., name, ..)) takes the object (the
+  same address) and reads `->name` for the name.
+- **A registry key or window handle held as int** (d3d_Init's `int h` compared with -1, its `int a` handed to
+  dd_DeviceDialog's HWND): `HKEY h` tested `!= (HKEY)-1` (reg_OpenKey's failure value), `HWND wnd`; the same code.
+- **A query returning a record address as `unsigned` with an `unsigned after` cursor** (gv_FindEntry,
+  gv_LoadGraveyard: a 64-bit truncation): return and take the record pointer (`after++`, `after < end`: the same
+  code as `+= sizeof(GVENTRY)` and the unsigned compare); the out-parameter helpers around it take `AIBLD **` /
+  `GVENTRY **`, the callers' `*r` (the entry's first field) is `r->size`.
+- **A view macro of a record field in a table of records** (data_views.h `init_SceneHeightMaps` = d3_Scenes + 0xb0,
+  walked as `int *p; p += 0xf8`): the field (`d3_Scenes[i].hmap`) in an index loop compiled the same; a `D3SCENE *p`
+  walk ending at `p < &d3_Scenes[64]` is draft (5 ins), `(intptr_t)&p->hmap < (intptr_t)&d3_Scenes[64].hmap` byte.
+- **Plain char numbers are signed char** (twenty-first pass): VC6 compiles plain char as signed; a field that holds a
+  number (levels, counts, states with -1 free, a flag byte tested `< 0`) is written `signed char`, the same code
+  under VC6 and the original's meaning where char is unsigned (ARM). Find what depends on it by compiling every unit
+  with and without VC6's `/J` (plain char unsigned) and listing the functions whose code differs (scratchpad
+  p21/jdiff.sh); a field whose readers are byte-matched and change under /J is proven sign-extended. Where one
+  unit's view reads a byte signed and the owner declares it unsigned (d3_fl.h's floor polygon flags against
+  D3PTRI.flags), the unsigned spelling changes that unit's code (d3fl_Draw): keep the view's `signed char`. Text
+  characters stay plain `char`.
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
