@@ -6088,7 +6088,13 @@ the bytes no portable form gives.
   declaration followed by the short prototype compiles without a warning; VC6 merges them, so the calls after
   the definition push shorts. The two d2_MoveObjI cast macros went (byte); dcp lint counts d2_CenterObj's call
   as M7. A differing prototype in a unit that also sees the owner's compiles too (C4028, the later one wins), but
-  is not legal C within the unit: take the owner's prototype out of that unit's view first.
+  is not legal C within the unit: take the owner's prototype out of that unit's view first. The block-scope `void
+  d2_MoveObj();` itself is not standard C either (short parameters), and no conforming spelling keeps the bytes (an
+  old-style `short x, y` definition with `(int, int, int)` prototypes, which standard C accepts, moved 17 functions to
+  draft: the game units and d2.c's later calls compute 16-bit sums under the short prototype; under the short
+  prototype VC6 loads d2_CenterObj's o->y as a word whatever the argument spelling), so it sits under `#ifdef
+  _MSC_VER` with the short prototype in the `#else` (the `@original` on the declaration's own line: dcp check's
+  declaration checker takes the _MSC_VER branch and exempts only that line).
 - **Calls of an empty function that LINK folded with others (d3io_NoopCallback 0x44ee40, ai_MsgNoOp)**: each
   calling unit gets its own unlinked empty function with the call's own prototype (main_Nothing,
   d2_DrawNothing(x, y, surf, data) ..), defined at the END of the unit with a prototype at the top: an empty
@@ -6140,8 +6146,11 @@ the bytes no portable form gives.
   reads that slot as a whole int (d3s_ShadowPoly's `top = bpp`, `mov ebx,[esp+0x1c]`) and its low byte
   elsewhere**: an old-style definition with `int bpp` and a later prototype with `unsigned char bpp` that the
   caller below sees. VC6 compiles both without a warning (the K&R definition makes no prototype, the later one
-  wins at the call); d3s_Project byte, the d3s_ShadowPolyB cast went. Not compatible types by the standard, so
-  each side carries `@original`.
+  wins at the call); d3s_Project byte, the d3s_ShadowPolyB cast went. Not compatible types by the standard, and no
+  conforming spelling keeps the bytes (an int prototype widens the byte at the call, 127 -> 146 ins, whatever the
+  argument spelling; an unsigned char definition reads the slot with movzx, 141 -> 205 ins; `top = *(int *)&bpp`
+  under an unsigned char definition compiles the control's code but reads past a char), so the unsigned char
+  prototype sits under `#ifdef _MSC_VER` and the int one in the `#else`.
 - **A pointer register pushed into a float parameter's slot (he_AllocBrawl: `push edi`, home == 0, as
   ai_PickActionBuilding's `lo`)**: the unit declared that parameter `int`. he.c declares `int
   ai_PickActionBuilding(struct AIPER *p, int a, __int64 mask, int lo, float hi, int *out)` (`@original`) and
@@ -6159,6 +6168,17 @@ the bytes no portable form gives.
   repeat the definition and accepts a differing view in a unit's head with `@original`; dcp lint counts calls
   under a K&R declaration as M7. Only a return-type difference is an error in one unit (C2371); a parameter-type
   redeclaration is C4028, a warning, but not legal C.
+- **A function's declarations and its definition must be compatible in standard C within a unit** (a fork building
+  the source with clang stopped on exactly the two pairs above; MSVC 6 accepts both). An empty-parentheses
+  declaration `T f();` is compatible only with a definition / prototype whose parameter types survive the default
+  promotions (no char, short or float; `char *` is fine); a prototype must match an old-style definition's promoted
+  types (`short x;` in the definition takes `int` in the prototype, `float` takes `double`). Before writing a K&R
+  declaration or an old-style definition to model the original's pushes, check every declaration the unit sees
+  (`dcp refs NAME`): the empty-parentheses form serves only int-width parameters. Where the original's own unit
+  was inconsistent and no conforming spelling keeps the bytes (measure: the K&R definition with int prototypes,
+  every argument spelling), keep VC6's form under `#ifdef _MSC_VER` with the conforming form in the `#else`
+  (`@original` on the declaration line). Cross-unit differences (header drift: gfx.c's int d2_MoveObj, dd_Clear,
+  he.c's ai_PickActionBuilding, main.c's gm_CharacterIncomes) are no compile error and stay `@original`.
 - **(c) cases left** (the cast stays @original; no declaration arrangement compiles): util_Random in
   he_RunInnSim (he.c reads the 16-bit result in 18 other functions and the int one here; one unit cannot declare
   both return types: C2371 at file and at block scope, an undeclared call is implicit int and conflicts the
