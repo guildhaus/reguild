@@ -292,7 +292,7 @@ typedef struct HECHILDLIST {            /* the children of a scene object, colle
 typedef struct HESTORM {                /* the storm event 0x50's words after AIJOB.stormBlds (its alloc handler 0x5652b0) */
     char pad00[0xf0];
     int radius;                         /* 0xf0, the distance a follower building must be within (the message's value,
-                                           1000: G12EVENTMSG.value of the WIRBELSTURM command) */
+                                           1000: AIMSG.word9c of the WIRBELSTURM command) */
     char padf4[0xc];
     int w100;                           /* 0x100, 0 at the allocation (no reader known) */
     int w104;                           /* 0x104, 0 at the allocation (no reader known) */

@@ -1522,6 +1522,12 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                     int step;                   /* 0x68, the event's walk step */
                     int left;                   /* 0x6c, the event's countdown */
                 } plague;
+                struct {                        /* the countdown message 0x51 (hst.c's FERNHANDEL_RAUBRITTER command,
+                                                   ai_CommandRemoteTradeRaider); the event keeps the words 0x54 further on
+                                                   (AIJOB.countdownRuns) */
+                    unsigned char countdownRuns; /* 0x58, the runs the countdown event lasts */
+                    char countdownDir;          /* 0x59, the command's direction letter N / S / O / W / A */
+                };
                 struct {                        /* the AI credit message 0x23 (a bank's offer, ai_ExecuteTakeCredit) */
                     int bld;                    /* 0x58, the bank building's id */
                     int from;                   /* 0x5c, the netId of the character who takes the credit */
@@ -1552,8 +1558,8 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                     char pad9f;
                 };
                 int word9c;                     /* 0x9c, 1000 in the timed messages 0x4e / 0x50 (ord_UpdateMessageEvent, a
-                                                   dword store); the event keeps it at +0xf0 (AIJOB.modes / flags); no
-                                                   reader known */
+                                                   dword store; hst.c's BRAND / WIRBELSTURM commands); the event keeps it at
+                                                   +0xf0 (AIJOB.modes / flags; the storm event's HESTORM.radius) */
             };
             int jobId;                          /* 0xa0, of the move message 0xf the id of the event that posted it (the trade
                                                    event's, he_AllocTrade); -1 from the lost cart (ai_MeisterCollectTrans), 0 from

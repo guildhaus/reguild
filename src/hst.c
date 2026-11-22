@@ -1089,12 +1089,6 @@ int ai_CommandUprising(G12ROW *row, int slot, char *fmt)
 
 /* the 0x4e / 0x50 event messages (the BRAND / WIRBELSTURM commands): an AIMSG (0xf8 bytes) with the event's
    value at 0x9c (1000 in both; the same dword is a name / a flag byte in the other long-message kinds) */
-typedef struct G12EVENTMSG {
-    char pad00[0x9c];
-    int value;                          /* 0x9c */
-    char padA0[0x58];
-} G12EVENTMSG;
-
 /* 0x4affc0, the BRAND text command (callback 0x601b50[3], name 0x601070[3]): sends message 0x4e (value 1000) for
    the character ai_PlayerChar, today 7:00 */
 int ai_CommandFire(G12ROW *row, int slot, char *fmt)
@@ -1107,7 +1101,7 @@ int ai_CommandFire(G12ROW *row, int slot, char *fmt)
     msg.fromId = -1;
     msg.car = -1;
     msg.flags = 1;
-    ((G12EVENTMSG *)&msg)->value = 1000;
+    msg.word9c = 1000;
     msg.time = ai_Time;
     msg.time.hour = 7;
     cm_SendLongMessage(&msg);
@@ -1126,7 +1120,7 @@ int ai_CommandTornado(G12ROW *row, int slot, char *fmt)
     msg.fromId = -1;
     msg.car = -1;
     msg.flags = 2;
-    ((G12EVENTMSG *)&msg)->value = 1000;
+    msg.word9c = 1000;
     msg.time = ai_Time;
     msg.time.hour = 16;
     cm_SendLongMessage(&msg);
@@ -1452,7 +1446,7 @@ int ai_CommandLaw(G12ROW *row, int slot, char *fmt)
         k = kinds[i];
         if (!gv_GetTableRecord(k, &d))
             return 0;
-        if ((n < d.min || n > d.max) && ((unsigned char *)&d)[1] != 0)
+        if ((n < d.min || n > d.max) && d.valueText != 0)
             return 0;
         gv_SetTableRecord(0, k, max(min(d.max, n), d.min));
         return 1;
@@ -1794,7 +1788,7 @@ int ai_CommandMercenariesMaraud(G12ROW *row, int slot, char *fmt)
 }
 /* 0x4b17c0, the FERNHANDEL_RAUBRITTER text command (callback 0x601b50[21], name 0x601070[21]) "-<d>..." (d one of
    N S O W A, the direction): message 0x51 for the player character with n = atoi(fmt + 1) (sic: starts at the letter,
-   so n is 0) in the first byte of arg[0] and d in its second, when n > 0 */
+   so n is 0) in countdownRuns and d in countdownDir, when n > 0 */
 
 int ai_CommandRemoteTradeRaider(G12ROW *row, int slot, char *fmt)
 {
@@ -1818,8 +1812,8 @@ int ai_CommandRemoteTradeRaider(G12ROW *row, int slot, char *fmt)
         msg.to = ai_PlayerChar->netId;
         msg.fromId = -1;
         msg.flags = 0x12;
-        ((unsigned char *)&msg.arg[0])[0] = (unsigned char)n;
-        ((unsigned char *)&msg.arg[0])[1] = d;
+        msg.countdownRuns = (unsigned char)n;
+        msg.countdownDir = d;
         cm_SendLongMessage(&msg);
     }
     return 1;

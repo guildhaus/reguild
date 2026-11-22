@@ -3991,11 +3991,11 @@ void ai_UpdateStaff(AICHAR *ch)
                     msg.fromId = ch->bld->id;
                     msg.flags = 1;
                     msg.time = ai_Time;
-                    msg.arg[1] = 1;
+                    msg.hireRows[0] = 1;
                     gm_IsHomeType(ch->bld);
                     msg.amount[1] = -1;
-                    ((unsigned char *)&msg.arg[0])[1] = 1;
-                    ((unsigned char *)&msg.arg[0])[0] = ai_BTypes[ch->bld->type].k230;
+                    msg.hireFlag = 1;
+                    msg.hireTitle = ai_BTypes[ch->bld->type].k230;
                     cm_SendLongMessage(&msg);
                     ch->budget -= v;
                 }
