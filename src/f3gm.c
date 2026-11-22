@@ -211,7 +211,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rec.cur;
         if (flags & 1) {
-            b = (AIBLD *)gm_FirstBuilding(1);
+            b = gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
@@ -249,7 +249,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rec.cur;
         if (flags & 1) {
-            b = (AIBLD *)gm_FirstBuilding(1);
+            b = gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
@@ -275,7 +275,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
 
     gv_GetTableRecord(0xd, &rec);
     rate = rec.cur;
-    b = (AIBLD *)gm_FirstBuilding(1);
+    b = gm_FirstBuilding(1);
     gm_Query(b->objList, 2, 6, 0, 0x115);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
@@ -295,7 +295,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
         out->amount[k] = n;
         out->rate[k] = rate;
         if (flags & 1) {
-            b = (AIBLD *)gm_FirstBuilding(1);
+            b = gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
             if (gm_GetGoodsValue(&ai_Chars[id]) >= n)
                 cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[id].netId, ai_OwnPlayer, n);
@@ -323,7 +323,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
 
     gv_GetTableRecord(0xc, &rec);
     rate = rec.cur;
-    b = (AIBLD *)gm_FirstBuilding(1);
+    b = gm_FirstBuilding(1);
     gm_Query(b->objList, 2, 6, 0, 0x115);
     id &= 0xffff;
     base = ai_Chars[id].v1a0 + ai_Chars[id].v1a4;
@@ -343,7 +343,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
         out->rate[k] = rate;
         out->amount[k] = n;
         if (flags & 1) {
-            b = (AIBLD *)gm_FirstBuilding(1);
+            b = gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
             cm_SendMoveGoodsUnchecked(o->objId, ai_Chars[id].netId, 0, n);
             gm_NetMsgCount++;
@@ -545,7 +545,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
         out->amount3 = (int)(kind.salary * 32 * pay);
         res = 1;
         if (flag != 0) {
-            b = (AIBLD *)gm_FirstBuilding(1);
+            b = gm_FirstBuilding(1);
             if (b == 0)
                 return 0;
             if (gm_Query(b->objList, 2, 6, 0, 0x115) == 0)
@@ -2499,7 +2499,7 @@ extern int ai_CharCount;  /* 0x6f1bc0 */
 extern int f3gm_ObjectCount;  /* 0x6f1bdc */
 extern int gm_AllowAll;                /* 0x6f2448 */
 int gm_TitleGroup(int n);                /* 0x504ad0 */
-unsigned char * gm_FirstBuilding(int n);                   /* 0x50b010 */
+struct AIBLD *gm_FirstBuilding(int n);                   /* 0x50b010 */
 short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */

@@ -2311,7 +2311,7 @@ int init_SetupNewGame(int n)
         init_CreateOpponents((int)ai_PlayerSlots[n].maxPlayers - ai_NumPlayers, 8, tab);
     }
     init_OpenTown();
-    b = (AIBLD *)gm_FirstBuilding(1);
+    b = gm_FirstBuilding(1);
     if (b != 0) {
         o = gm_Query(b->objList, 2, 6, 0, 0x115);
         if (o != 0)

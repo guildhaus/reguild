@@ -6509,7 +6509,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
        temporaries are what turns the scratch registers on to eax for the second arm's lea (one copy behind
        the if / else: lea ecx, 49 ins) */
     if (cls == 3) {
-        first = (AIBLD *)gm_FirstBuilding(1);
+        first = gm_FirstBuilding(1);
         treasury = gm_Query(first->objList, 2, 6, 0, 0x115);
         if (sv_MessageBox((intptr_t)text, 0x11) == 0)
             return;

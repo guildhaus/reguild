@@ -3533,7 +3533,7 @@ void cm_RunAuction(G28REC *m)
             cm_AddFieldDelta(4, 1, 0x6d, &year);
             cm_SendFieldDeltas();
             cm_SendOwnership(b->id, ai_PlayerChar->netId, w->netId);
-            first = (AIBLD *)gm_FirstBuilding(1);
+            first = gm_FirstBuilding(1);
             q = gm_Query(first->objList, 2, 6, 0, 0x115);
             if (w == holder)
                 cm_SendMoveGoodsUnchecked(q->objId, w->netId, 0, (int)(req.bids[best] * 0.9f));

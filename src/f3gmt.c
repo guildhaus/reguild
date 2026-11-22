@@ -3652,7 +3652,7 @@ int gm_JobBuildingType(int x)
 
 extern AIOBJ *gm_QueryCursor;
 extern int ai_PermsDirty;
-unsigned char * gm_FirstBuilding(int n);                   /* 0x50b010 */
+struct AIBLD *gm_FirstBuilding(int n);                   /* 0x50b010 */
 short * gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430 */
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 
@@ -4012,19 +4012,19 @@ char *gm_ClassTreasury(AIBLD *b)
     cls = gm_BuildingClass(b->type);
     if (cls == 5) {
         if (ai_Chars[ai_PlayerId].secondOffice == 0x1e)
-            h = (AIBLD *)gm_FirstBuilding(2);
+            h = gm_FirstBuilding(2);
         else if (ai_Chars[ai_PlayerId].secondOffice == 0x1f)
-            h = (AIBLD *)gm_FirstBuilding(3);
+            h = gm_FirstBuilding(3);
         else if (ai_Chars[ai_PlayerId].secondOffice == 0x20)
-            h = (AIBLD *)gm_FirstBuilding(4);
+            h = gm_FirstBuilding(4);
         else if (ai_Chars[ai_PlayerId].secondOffice == 0x21)
-            h = (AIBLD *)gm_FirstBuilding(5);
+            h = gm_FirstBuilding(5);
         else
             h = 0;
         if (h != 0)
             r = (char *)gm_Query(h->objList, 2, 6, 0, 0x142);
     } else if (cls == 3) {
-        h = (AIBLD *)gm_FirstBuilding(1);
+        h = gm_FirstBuilding(1);
         r = (char *)gm_Query(h->objList, 2, 6, 0, 0x115);
     }
     return r;
@@ -4033,7 +4033,7 @@ char *gm_ClassTreasury(AIBLD *b)
 
 struct AIOBJ *gm_PlayerSeat(int p)
 {
-    AIBLD *b = (AIBLD *)gm_FirstBuilding(p);
+    AIBLD *b = gm_FirstBuilding(p);
 
     if (p == 1)
         return gm_Query(b->objList, 2, 6, 0, 0x115);
@@ -7534,29 +7534,29 @@ int gm_CollectCarried(int id, int *out)
 /* 0x50b010, the first building of the class n (1 .. 5: the types 0xf, 0x17 .. 0x1a); 0 for 6 / 7 */
 
 
-unsigned char *gm_FirstBuilding(int n)
+AIBLD *gm_FirstBuilding(int n)
 {
-    unsigned char *r;
+    AIBLD *r;
 
     r = 0;
     switch (n) {
     case 1:
-        r = (unsigned char *)gm_BuildQuery(1, 5, 0xf);
+        r = gm_BuildQuery(1, 5, 0xf);
         break;
     case 6:
     case 7:
         return 0;
     case 2:
-        r = (unsigned char *)gm_BuildQuery(1, 5, 0x17);
+        r = gm_BuildQuery(1, 5, 0x17);
         break;
     case 3:
-        r = (unsigned char *)gm_BuildQuery(1, 5, 0x18);
+        r = gm_BuildQuery(1, 5, 0x18);
         break;
     case 4:
-        r = (unsigned char *)gm_BuildQuery(1, 5, 0x19);
+        r = gm_BuildQuery(1, 5, 0x19);
         break;
     case 5:
-        r = (unsigned char *)gm_BuildQuery(1, 5, 0x1a);
+        r = gm_BuildQuery(1, 5, 0x1a);
         break;
     }
     return r;
@@ -8070,7 +8070,7 @@ int gm_AddToTreasury(int a)
     AIBLD *b;
     AIOBJ *o;
 
-    b = (AIBLD *)gm_FirstBuilding(1);
+    b = gm_FirstBuilding(1);
     o = gm_Query(b->objList, 2, 6, 0, 0x115);
     return cm_SendMoveGoodsUnchecked(-1, o->objId, ai_OwnPlayer, a);
 }
@@ -8128,7 +8128,7 @@ float gm_Liking(unsigned a, unsigned b, int c)
     if (ai_Chars[a].officeKind != 0) {
         amt_GetKind(ai_Chars[a].officeKind, &kind);
         if (kind.col == 4) {
-            bp = (AIBLD *)gm_FirstBuilding(1);
+            bp = gm_FirstBuilding(1);
             if (bp != 0)
                 sum += (float)gm_BuildingSkill(bp, 4, 1);
         }

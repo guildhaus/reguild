@@ -109,7 +109,7 @@ float ord_BuildingCapacityRatio(void);                                       /* 
 int gm_TitleGroup(int k);                                        /* 0x504ad0 */
 float gm_GetSkill(struct AICHAR *c, int skill);                            /* 0x504ec0 */
 int gm_SumListAmounts(void *list, unsigned char p);                       /* 0x509e30 */
-unsigned char * gm_FirstBuilding(int n);                                     /* 0x50b010 */
+struct AIBLD *gm_FirstBuilding(int n);                                     /* 0x50b010 */
 
 
 /* 0x495ee0..0x497490 (was unk_495ee0.h) */
