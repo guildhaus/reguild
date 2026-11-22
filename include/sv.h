@@ -66,7 +66,7 @@ int sv_UsedGroupSlots(struct AIJOB *g);                                         
 void sv_CountGroupMembers(struct AIJOB *g);                                     /* 0x5241d0 */
 void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);       /* 0x524260 */
 int sv_IsAtDoor(struct AICHAR *g, struct AIBLD *o);                                     /* 0x524770 */
-int sv_IsCartAtDoor(char *g, struct AIBLD *o);                            /* 0x524810 */
+int sv_IsCartAtDoor(struct AIOBJ *g, struct AIBLD *o);                          /* 0x524810 */
 int sv_CharStateIcons(struct AICHAR *c, int *out);                                    /* 0x524900 */
 void sv_UpdateMemberList(struct AIBLD *g);                                    /* 0x524990 */
 void sv_OpenPlayerBar(struct AIBLD *a, char k);                                   /* 0x525220 */

@@ -1680,7 +1680,7 @@ int sv_IsAtDoor(AICHAR *g, AIBLD *o)
    first scene: within 650.0 of the building o's door (1950.0 for a building type of kind 10, 3250.0 from the
    building's object when it has no "dummy_TUER"); or when the character's group is the building's id */
 
-int sv_IsCartAtDoor(char *g, AIBLD *o)
+int sv_IsCartAtDoor(AIOBJ *g, AIBLD *o)
 {
     float r;
     CHARACTER *dst;
@@ -1690,7 +1690,7 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
     r = 650.0f;
     if (ai_BTypes[o->type].kind == 10)
         r = 1950.0f;
-    dst = (CHARACTER *)((AIOBJ *)g)->sceneObj;
+    dst = g->sceneObj;
     if (o->object != 0) {
         if (dst == 0)
             return 0;

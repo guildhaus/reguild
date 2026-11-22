@@ -11648,7 +11648,7 @@ void he_TransportToHome(AIJOB *e)
         if (gm_IsType10(from) == 0)
             t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
-    } else if (sv_IsCartAtDoor((char *)tr, to) != 0) {
+    } else if (sv_IsCartAtDoor(tr, to) != 0) {
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         if (to->type == 0x47) {
             txt_Format(text, 0x1c3b, 1, 0x1c39, ai_PlayerSlots[to->playerSlot].name);
@@ -11866,7 +11866,7 @@ void he_TransportHomeHome(AIJOB *e)
         cm_SendChrGotoBuilding(tr->objId, to->id, -1, 0, 1, "Trans");
         t->route = cm_SendCartRoute(guards->id, from->id, tr->objId);
         t->started = 1;
-    } else if (sv_IsCartAtDoor((char *)tr, to) != 0) {
+    } else if (sv_IsCartAtDoor(tr, to) != 0) {
         t->route = cm_SendCartRoute(to->id, guards->id, tr->objId);
         cm_RequestChrMoveToUniverse(tr->objId, to->id, -1, "dummy_TRANSPORTER_ENTRY");
         u = init_BuildingSceneUniverse(to);
