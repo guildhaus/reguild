@@ -11,7 +11,7 @@ struct D3VECTOR;
 
 typedef struct G15FIND {                /* 0xa4 bytes, context of rd_CollectNamed */
     char name[0x20];                    /* 0x00 */
-    char *objs[0x20];                   /* 0x20, the objects named so */
+    struct D3OBJECT *objs[0x20];        /* 0x20, the objects named so */
     int n;                              /* 0xa0 */
 } G15FIND;
 
@@ -115,10 +115,10 @@ char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);        
 char ch_FindFreeCell(struct D3SM *h, struct D3VECTOR *from, struct D3VECTOR *to, int x, int z, int *px, int *pz, int max, int flags); /* 0x4072a0, ch.h */
 char d3_ForEachObject(struct D3SCENE *scene, struct D3OBJECT *obj, unsigned int mask, char (*cb)(struct D3OBJECT *, void *), void *ctx); /* 0x438d40, d3.h: D3OBJECTCB */
 
-int rd_DoorPos(float *pos);
-int rd_PointsNear(float *pos, int n, float (*pts)[4]);
-int rd_CollectNamed(char *obj, G15FIND *f);
-char *rd_RandomNamedObject(char *name);
+int rd_DoorPos(struct D3VECTOR *pos);
+struct D3VECTOR4; int rd_PointsNear(struct D3VECTOR *pos, int n, struct D3VECTOR4 *pts);
+int rd_CollectNamed(struct D3OBJECT *obj, G15FIND *f);
+struct D3OBJECT *rd_RandomNamedObject(char *name);
 G15TREE *veg_FindType(int type);
 G15PLANT *veg_FindPlantAt(G15PLANT *p, int x, int z);
 G15PLANT *veg_FindPlantObject(G15PLANT *p, char *obj);
@@ -136,7 +136,7 @@ void rd_AddBauplaetze(G15ROAD *r);
 void rd_AllBauplatzToSupermap(G15ROAD *r, char *name);
 char rd_FindSiteCB(char *obj, G15BKFIND *f);
 G15BK *rd_GetBKSize(char *name);
-void rd_WorldToCell(float *x, float *z, float *v, char *obj, G15ROAD *r);
+void rd_WorldToCell(float *x, float *z, const struct D3VECTOR *v, char *obj, G15ROAD *r);
 void rd_FillQuad(G15ROAD *r, float *c, unsigned char v, int t);
 
 #endif

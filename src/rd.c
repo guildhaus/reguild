@@ -321,7 +321,7 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
 {
     G15BKFIND f;
     G15BK *bk;
-    float v[4];
+    D3VECTOR4 v;
     float ax, az, bx, bz;
     float dx, dz;
     float x, z, step;
@@ -356,10 +356,10 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
         d3sm_Destroy(rd_Road.grid);
         return 0;
     }
-    v[0] = 0.0f;
-    v[1] = 0.0f;
-    v[2] = 0.0f;
-    d3_LocalToWorld(obj, v, f.pos);
+    v.x = 0.0f;
+    v.y = 0.0f;
+    v.z = 0.0f;
+    d3_LocalToWorld(obj, &v.v, f.pos);
     f.found = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x180, rd_FindSiteCB, &f);
     if (f.found == 0)
@@ -369,14 +369,14 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
         d3sm_Destroy(rd_Road.grid);
         return 0;
     }
-    v[0] = rd_Road.map->cw + bk->x0;
-    v[1] = bk->y0;
-    v[2] = rd_Road.map->ch + bk->z0;
-    rd_WorldToCell(&ax, &az, v, f.found, &rd_Road);
-    v[0] = bk->x1 - rd_Road.map->cw;
-    v[1] = bk->y0;
-    v[2] = rd_Road.map->ch + bk->z0;
-    rd_WorldToCell(&bx, &bz, v, f.found, &rd_Road);
+    v.x = rd_Road.map->cw + bk->x0;
+    v.y = bk->y0;
+    v.z = rd_Road.map->ch + bk->z0;
+    rd_WorldToCell(&ax, &az, &v.v, f.found, &rd_Road);
+    v.x = bk->x1 - rd_Road.map->cw;
+    v.y = bk->y0;
+    v.z = rd_Road.map->ch + bk->z0;
+    rd_WorldToCell(&bx, &bz, &v.v, f.found, &rd_Road);
     if (!rd_PathToRoad(&rd_Road, (int)ax, (int)az, -1, -1)) {
         d3sm_Destroy(rd_Road.grid);
         return 0;
@@ -424,9 +424,9 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
     o = d3_FindObject(obj, 0x100, 0, "dummy_TUER");
     if (o == 0)
         o = obj;
-    d3_PointToWorld(o, &o->pos, v);
+    d3_PointToWorld(o, &o->pos, &v.v);
     ok = 0;
-    if (d3_GetHeightAt((char *)rd_Road.grid, v, &px, &pz, 0)) {
+    if (d3_GetHeightAt((char *)rd_Road.grid, &v.v, &px, &pz, 0)) {
         if (rd_PathToRoad(&rd_Road, px, pz, -1, -1)) {
             ok = 1;
         }
@@ -547,7 +547,7 @@ void rd_AddBauplaetze(G15ROAD *r)
 void rd_AllBauplatzToSupermap(G15ROAD *r, char *name)
 {
     G15BK *bk;
-    float v[4];
+    D3VECTOR4 v;
     float c[8];
     char buf[0x40];
 
@@ -556,22 +556,22 @@ void rd_AllBauplatzToSupermap(G15ROAD *r, char *name)
         sprintf(buf, "rd_AllBauplatzToSupermap(): Unbekannter Bauplatz '%s'", name);
         return;
     }
-    v[0] = (bk->x0);
-    v[1] = (bk->y0);
-    v[2] = (bk->z0);
-    rd_WorldToCell(&c[0], &c[1], v, name, r);
-    v[0] = (bk->x1);
-    v[1] = (bk->y0);
-    v[2] = (bk->z0);
-    rd_WorldToCell(&c[2], &c[3], v, name, r);
-    v[0] = (bk->x1);
-    v[1] = (bk->y0);
-    v[2] = (bk->z1);
-    rd_WorldToCell(&c[4], &c[5], v, name, r);
-    v[0] = (bk->x0);
-    v[1] = (bk->y0);
-    v[2] = (bk->z1);
-    rd_WorldToCell(&c[6], &c[7], v, name, r);
+    v.x = (bk->x0);
+    v.y = (bk->y0);
+    v.z = (bk->z0);
+    rd_WorldToCell(&c[0], &c[1], &v.v, name, r);
+    v.x = (bk->x1);
+    v.y = (bk->y0);
+    v.z = (bk->z0);
+    rd_WorldToCell(&c[2], &c[3], &v.v, name, r);
+    v.x = (bk->x1);
+    v.y = (bk->y0);
+    v.z = (bk->z1);
+    rd_WorldToCell(&c[4], &c[5], &v.v, name, r);
+    v.x = (bk->x0);
+    v.y = (bk->y0);
+    v.z = (bk->z1);
+    rd_WorldToCell(&c[6], &c[7], &v.v, name, r);
     rd_FillQuad(r, c, 0xff, 0);
 }
 /* 0x4bd610, d3_ForEachObject callback: the object named f->name (or with one leading character more) within 100
@@ -579,11 +579,11 @@ void rd_AllBauplatzToSupermap(G15ROAD *r, char *name)
 
 char rd_FindSiteCB(char *obj, G15BKFIND *f)
 {
-    float v[4];
+    D3VECTOR4 v;
 
     if (strnicmp(obj, f->name, strlen(f->name)) == 0 || strnicmp(obj + 1, f->name, strlen(f->name)) == 0) {
-        d3_PointToWorld(obj, obj + 0x4c, v);
-        if (d3_VecEqual(f->pos, v, 100.0f)) {
+        d3_PointToWorld(obj, obj + 0x4c, &v.v);
+        if (d3_VecEqual(f->pos, &v.v, 100.0f)) {
             f->found = obj;
             return 0;
         }
@@ -606,13 +606,13 @@ G15BK *rd_GetBKSize(char *name)
 }
 /* 0x4bd710, the town map cell x / z of v (local to obj) */
 
-void rd_WorldToCell(float *x, float *z, float *v, char *obj, G15ROAD *r)
+void rd_WorldToCell(float *x, float *z, const D3VECTOR *v, char *obj, G15ROAD *r)
 {
-    float w[4];
+    D3VECTOR4 w;
 
-    d3_LocalToWorld(obj, v, w);
-    *x = (w[0] - r->map->x0) / r->map->cw;
-    *z = (w[2] - r->map->z0) / r->map->ch;
+    d3_LocalToWorld(obj, v, &w.v);
+    *x = (w.x - r->map->x0) / r->map->cw;
+    *z = (w.z - r->map->z0) / r->map->ch;
 }
 /* 0x4bd760, fills the quad c (four cells x / z) on the town map with ground type v (0xff: not) and on the grid with
    type t (0xff: not), two steps per cell */

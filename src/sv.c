@@ -1661,7 +1661,7 @@ int sv_IsAtDoor(AICHAR *g, AIBLD *o)
 {
     CHARACTER *dst;
     D3OBJECT *door;
-    float pos[4];
+    D3VECTOR4 pos;
 
     dst = g->scene;
     if (o->object != 0) {
@@ -1669,10 +1669,10 @@ int sv_IsAtDoor(AICHAR *g, AIBLD *o)
             return 0;
         door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
         if (door != 0)
-            d3_PointToWorld(door, &door->pos, (D3VECTOR *)pos);
+            d3_PointToWorld(door, &door->pos, &pos.v);
         else
-            d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, (D3VECTOR *)pos);
-        if (d3_VecEqual(&dst->obj->pos, (D3VECTOR *)pos, 750.0f) != 0 && dst->actions == 0)
+            d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, &pos.v);
+        if (d3_VecEqual(&dst->obj->pos, &pos.v, 750.0f) != 0 && dst->actions == 0)
             return 1;
     }
     if (dst != 0 && dst->group == o->id)
@@ -1688,7 +1688,7 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
     float r;
     CHARACTER *dst;
     D3OBJECT *door;
-    float pos[4];
+    D3VECTOR4 pos;
 
     r = 650.0f;
     if (ai_BTypes[o->type].kind == 10)
@@ -1700,12 +1700,12 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
         if (dst->scene == &d3_Scenes[0]) {
             door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
             if (door != 0)
-                d3_PointToWorld(door, &door->pos, (D3VECTOR *)pos);
+                d3_PointToWorld(door, &door->pos, &pos.v);
             else {
-                d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, (D3VECTOR *)pos);
+                d3_PointToWorld((D3OBJECT *)(o)->object, &((D3OBJECT *)(o)->object)->pos, &pos.v);
                 r = 3250.0f;
             }
-            if (d3_VecEqual(&dst->obj->pos, (D3VECTOR *)pos, r) != 0)
+            if (d3_VecEqual(&dst->obj->pos, &pos.v, r) != 0)
                 return 1;
         }
     }
@@ -2324,7 +2324,7 @@ extern int sv_BorderViewY;  /* 0x6f22d0 */
 extern int d3t_CamMoving;  /* 0x6310e4 */
 extern struct D3ANIM *d3t_CamMove;  /* 0x6310e8 */
 extern int sv_ScrollTime;  /* 0x6f2394 */
-extern float sv_ScrollLastMove[4];
+extern D3VECTOR4 sv_ScrollLastMove;
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
 
 /* 0x525dd0, in scene 0 sets both camera blend factors to f and places the camera: its height is the near / far height blended by
@@ -2351,12 +2351,12 @@ void sv_PlaceCamera(float f)
     rot.z = d3_Camera->rotation.z;
     rot.x = (sv_CameraAngleFar - sv_CameraAngleNear) * sv_CameraAngleFactor + sv_CameraAngleNear;
     d3_SetObjectRot(d3_Camera, &rot);
-    sv_ViewRot[0] = d3_Camera->rotation.x;
-    sv_ViewRot[1] = d3_Camera->rotation.y;
-    sv_ViewRot[2] = d3_Camera->rotation.z;
-    sv_ViewPos[0] = d3_Camera->pos.x;
-    sv_ViewPos[1] = d3_Camera->pos.y;
-    sv_ViewPos[2] = d3_Camera->pos.z;
+    sv_ViewRot.x = d3_Camera->rotation.x;
+    sv_ViewRot.y = d3_Camera->rotation.y;
+    sv_ViewRot.z = d3_Camera->rotation.z;
+    sv_ViewPos.x = d3_Camera->pos.x;
+    sv_ViewPos.y = d3_Camera->pos.y;
+    sv_ViewPos.z = d3_Camera->pos.z;
 }
 /* 0x525ee0, eases the camera's height toward the wanted one (the near / far height blended by sv_CameraHeightFactor over the
    terrain's mean height, against the camera's height with its offset): more than 5 off, a fifteenth of the difference per call,
@@ -2483,12 +2483,12 @@ void sv_BorderCameraView(void)
         dir.y = d3_Camera->views[2].dir.y;
         dir.z = d3_Camera->views[2].dir.z;
     }
-    sv_ViewPos[0] = pos.x;
-    sv_ViewPos[1] = pos.y;
-    sv_ViewPos[2] = pos.z;
-    sv_ViewRot[0] = dir.x;
-    sv_ViewRot[1] = dir.y;
-    sv_ViewRot[2] = dir.z;
+    sv_ViewPos.x = pos.x;
+    sv_ViewPos.y = pos.y;
+    sv_ViewPos.z = pos.z;
+    sv_ViewRot.x = dir.x;
+    sv_ViewRot.y = dir.y;
+    sv_ViewRot.z = dir.z;
     d3anim_FreePath(d3_Camera);
     d3t_CamMoving = 0;
     d3t_CamMove = 0;
@@ -2500,14 +2500,17 @@ void sv_BorderCameraView(void)
    elapsed ms, at most 4) up to +-50, decay to 0 otherwise; d2_PointerLook gets the direction (1 .. 8, 5 .. 8
    the corners). The camera moves by the velocities rotated into the view (by the view's heading, or by the
    matrix rows when it looks straight down), slower inside a building, clamped to the height map 20 cells in,
-   unless the move equals the last one (sv_ScrollLastMove). Returns 1 when the camera moved */
+   unless the move equals the last one (&sv_ScrollLastMove.v). Returns 1 when the camera moved */
 
 int sv_ScrollCamera(void)
 {
     int moved, my;
     float dt;                       /* the frame time factor, at most 4 */
     float k, f;
-    float dst[4], v[4], right[16], fwd[4];   /* right is a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3VECTOR4 dst;
+    D3VECTOR4 v;
+    float right[16];                    /* a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3VECTOR4 fwd;
     float a;
     D3SM *hm;                       /* the scene's height map */
     float lo, hi;
@@ -2635,53 +2638,53 @@ int sv_ScrollCamera(void)
             dt *= 0.25;
         k = (float)(sv_ScrollSpeed * dt * (sv_CameraHeightFactor * 1.5 + 0.6000000238418579));
         d3_MatTranspose(&d3_Camera->matrix, right);
-        v[0] = sv_ScrollVelX * k * 1.1;
-        v[1] = sv_ScrollVelY * k * 1.1;
-        fwd[0] = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
-        fwd[2] = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
-        fwd[1] = 0.0f;
+        v.x = sv_ScrollVelX * k * 1.1;
+        v.y = sv_ScrollVelY * k * 1.1;
+        fwd.x = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
+        fwd.z = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
+        fwd.y = 0.0f;
         /* @original: each arm first sets dst to the move in view space (dead: dst is the target below; the
-           original stores all three, dst[0] in each arm) */
-        if ((float)sqrt(fwd[0] * fwd[0] + fwd[2] * fwd[2]) < 0.1f) {   /* the view looks straight down: the matrix rows (0x526ac2) */
-            dst[0] = v[0];
-            dst[1] = v[1];
-            dst[2] = 0.0f;
-            fwd[0] = 0.0f * right[8] + v[0] * right[0] + v[1] * right[4];
-            fwd[2] = 0.0f * right[10] + v[0] * right[2] + v[1] * right[6];
+           original stores all three, dst.x in each arm) */
+        if ((float)sqrt(fwd.x * fwd.x + fwd.z * fwd.z) < 0.1f) {   /* the view looks straight down: the matrix rows (0x526ac2) */
+            dst.x = v.x;
+            dst.y = v.y;
+            dst.z = 0.0f;
+            fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
+            fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
         } else {                                                /* else rotated by the view's heading */
-            a = -d3_VecAngle2((char *)&d3_ZAxis, fwd);
-            dst[0] = v[0];
-            dst[1] = 0.0f;
-            dst[2] = v[1];
-            fwd[0] = v[0] * cos(a) + v[1] * sin(a);
-            fwd[2] = v[1] * cos(a) - v[0] * sin(a);
+            a = -d3_VecAngle2((char *)&d3_ZAxis, &fwd.v);
+            dst.x = v.x;
+            dst.y = 0.0f;
+            dst.z = v.y;
+            fwd.x = v.x * cos(a) + v.y * sin(a);
+            fwd.z = v.y * cos(a) - v.x * sin(a);
         }
-        fwd[1] = 0.0f;
-        dst[0] = fwd[0] + d3_Camera->pos.x;
-        dst[1] = d3_Camera->pos.y;
-        dst[2] = fwd[2] + d3_Camera->pos.z;
-        if (d3_VecEqual(sv_ScrollLastMove, dst, 0.1f) == 0) {
+        fwd.y = 0.0f;
+        dst.x = fwd.x + d3_Camera->pos.x;
+        dst.y = d3_Camera->pos.y;
+        dst.z = fwd.z + d3_Camera->pos.z;
+        if (d3_VecEqual(&sv_ScrollLastMove.v, &dst.v, 0.1f) == 0) {
             hm = (D3SM *)d3_DefaultScene->hmap;
             if (hm != 0) {                                       /* clamped to the height map, 20 cells in */
                 lo = hm->cell.x * 20.0f + hm->origin.x;
-                if (dst[0] < lo)
-                    dst[0] = lo;
+                if (dst.x < lo)
+                    dst.x = lo;
                 else {
                     hi = (float)(hm->size - 20) * hm->cell.x + hm->origin.x;
-                    if (dst[0] > hi)
-                        dst[0] = hi;
+                    if (dst.x > hi)
+                        dst.x = hi;
                 }
                 lo = hm->cell.z * 20.0f + hm->origin.z;
                 hi = (float)(hm->size - 20) * hm->cell.z + hm->origin.z;
-                dst[2] = max(dst[2], hi);           /* z runs from the far edge (a negative cell): hi is the lower bound */
-                dst[2] = min(dst[2], lo);
+                dst.z = max(dst.z, hi);           /* z runs from the far edge (a negative cell): hi is the lower bound */
+                dst.z = min(dst.z, lo);
             }
-            d3_SetObjectPos(d3_Camera, (struct D3VECTOR *)dst);
+            d3_SetObjectPos(d3_Camera, &dst.v);
             moved = 1;
         }
-        sv_ScrollLastMove[0] = fwd[0];
-        sv_ScrollLastMove[1] = fwd[1];
-        sv_ScrollLastMove[2] = fwd[2];
+        sv_ScrollLastMove.x = fwd.x;
+        sv_ScrollLastMove.y = fwd.y;
+        sv_ScrollLastMove.z = fwd.z;
     }
     sv_ScrollVelXPrev = sv_ScrollVelX;
     sv_ScrollVelYPrev = sv_ScrollVelY;
@@ -2689,7 +2692,8 @@ int sv_ScrollCamera(void)
 }
 
 extern int sv_MouseDragOn, sv_ZoomTurnOn, sv_MouseCamActive, sv_DragStartX, sv_DragStartY, sv_DragLastX, sv_DragLastY, sv_SavedMaxX, sv_SavedMaxY, sv_SavedMinX, sv_SavedMinY, sv_ZoomStartX, sv_ZoomStartY;  /* 0x6f23b8, 0x6f23a0, 0x6f23a4, 0x6f2398, 0x6f239c, 0x6f1c88, 0x6f1c48, 0x6f1c50, 0x6f1c40, 0x6f1c84, 0x6f2298, 0x6f2290, 0x6f1c8c */
-extern float sv_ZoomStartHeight, sv_ZoomStartAngle, sv_ZoomStartTurn, sv_ZoomBaseY, sv_DragLastPos[4];  /* 0x6f23a8, 0x6f23ac, 0x6f23b0, 0x6f23b4, 0x6f1c64 */
+extern float sv_ZoomStartHeight, sv_ZoomStartAngle, sv_ZoomStartTurn, sv_ZoomBaseY;  /* 0x6f23a8, 0x6f23ac, 0x6f23b0, 0x6f23b4 */
+extern D3VECTOR4 sv_DragLastPos;  /* 0x6f1c64 */
 extern int tb_Paused;  /* 0x6333e0 */
 extern int ai_DragWindow;  /* 0x62a8cc */
 extern int sv_CameraScrolled;  /* 0x6f22b4 */
@@ -2760,7 +2764,10 @@ int sv_MouseCamera(void)
     double k;                       /* the drag scale: the scroll speed option / 16.5 */
     D3VECTOR4 zpos;                 /* the camera position of the zoom and turn */
     D3VECTOR zrot;                  /* its rotation */
-    float dst[4], right[16], fwd[4], v[4];   /* right is a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3VECTOR4 dst;
+    float right[16];                    /* a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3VECTOR4 fwd;
+    D3VECTOR4 v;
     D3SM *hm;                       /* the scene's height map */
     const float *ax = (const float *)&d3_ZAxis;
 
@@ -2868,52 +2875,52 @@ go:
             if (cam != 0 && dm_L.rhold != 0 && dm_L.ldown == 0) {    /* the right button alone: drag the map */
                 d3_MatTranspose(&d3_Camera->matrix, right);
                 k = ai_OptionScrollSpeed * (1.0 / 16.5);
-                v[0] = (dm_P.x - sv_DragLastX) * k;
-                v[1] = -(dm_P.y - sv_DragLastY) * k;
-                fwd[0] = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
-                fwd[2] = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
-                fwd[1] = 0.0f;
-                if ((float)sqrt(fwd[0] * fwd[0] + fwd[2] * fwd[2]) < 0.1f) {   /* the view looks straight down: the matrix rows (0x527386) */
-                    dst[1] = v[1];
-                    dst[2] = 0.0f;
-                    fwd[0] = 0.0f * right[8] + v[0] * right[0] + v[1] * right[4];
-                    fwd[2] = 0.0f * right[10] + v[0] * right[2] + v[1] * right[6];
+                v.x = (dm_P.x - sv_DragLastX) * k;
+                v.y = -(dm_P.y - sv_DragLastY) * k;
+                fwd.x = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
+                fwd.z = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
+                fwd.y = 0.0f;
+                if ((float)sqrt(fwd.x * fwd.x + fwd.z * fwd.z) < 0.1f) {   /* the view looks straight down: the matrix rows (0x527386) */
+                    dst.y = v.y;
+                    dst.z = 0.0f;
+                    fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
+                    fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
                 } else {                                                /* else rotated by the view's heading */
-                    ang = -d3_VecAngle2((char *)&d3_ZAxis, fwd);
-                    dst[1] = 0.0f;
-                    dst[2] = v[1];
-                    fwd[0] = v[0] * cos(ang) + v[1] * sin(ang);
-                    fwd[2] = v[1] * cos(ang) - v[0] * sin(ang);
+                    ang = -d3_VecAngle2((char *)&d3_ZAxis, &fwd.v);
+                    dst.y = 0.0f;
+                    dst.z = v.y;
+                    fwd.x = v.x * cos(ang) + v.y * sin(ang);
+                    fwd.z = v.y * cos(ang) - v.x * sin(ang);
                 }
-                dst[0] = v[0];
-                fwd[1] = 0.0f;
-                dst[0] = fwd[0] + d3_Camera->pos.x;
-                dst[1] = d3_Camera->pos.y;
-                dst[2] = fwd[2] + d3_Camera->pos.z;
-                if (d3_VecEqual(sv_DragLastPos, dst, 0.1f) == 0) {
+                dst.x = v.x;
+                fwd.y = 0.0f;
+                dst.x = fwd.x + d3_Camera->pos.x;
+                dst.y = d3_Camera->pos.y;
+                dst.z = fwd.z + d3_Camera->pos.z;
+                if (d3_VecEqual(&sv_DragLastPos.v, &dst.v, 0.1f) == 0) {
                     hm = (D3SM *)d3_DefaultScene->hmap;
                     if (hm != 0) {                                      /* clamped to the height map, 20 cells in */
                         lo = hm->cell.x * 20.0f + hm->origin.x;
-                        if (dst[0] < lo)
-                            dst[0] = lo;
+                        if (dst.x < lo)
+                            dst.x = lo;
                         else {
                             hi = (float)(hm->size - 20) * hm->cell.x + hm->origin.x;
-                            if (dst[0] > hi)
-                                dst[0] = hi;
+                            if (dst.x > hi)
+                                dst.x = hi;
                         }
                         lo = hm->cell.z * 20.0f + hm->origin.z;
                         hi = (float)(hm->size - 20) * hm->cell.z + hm->origin.z;
-                        dst[2] = max(dst[2], hi);           /* z runs from the far edge (a negative cell) */
-                        dst[2] = min(dst[2], lo);
+                        dst.z = max(dst.z, hi);           /* z runs from the far edge (a negative cell) */
+                        dst.z = min(dst.z, lo);
                     }
-                    d3_SetObjectPos(d3_Camera, (struct D3VECTOR *)dst);
+                    d3_SetObjectPos(d3_Camera, &dst.v);
                     rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
                     if (rec != 0)
                         SV_CAMREC(rec);
                 }
-                sv_DragLastPos[0] = dst[0];
-                sv_DragLastPos[1] = dst[1];
-                sv_DragLastPos[2] = dst[2];
+                sv_DragLastPos.x = dst.x;
+                sv_DragLastPos.y = dst.y;
+                sv_DragLastPos.z = dst.z;
                 sv_DragLastX = (int)dm_P.x;
                 sv_DragLastY = (int)dm_P.y;
                 sv_MouseCamActive = 1;
@@ -2945,12 +2952,12 @@ int sv_UpdateCamera(void)
                 SV_CAMREC(rec);
                 rec->camAngle = sv_CameraAngleFactor;
             }
-            sv_ViewRot[0] = d3_Camera->rotation.x;
-            sv_ViewRot[1] = d3_Camera->rotation.y;
-            sv_ViewRot[2] = d3_Camera->rotation.z;
-            sv_ViewPos[0] = d3_Camera->pos.x;
-            sv_ViewPos[1] = d3_Camera->pos.y;
-            sv_ViewPos[2] = d3_Camera->pos.z;
+            sv_ViewRot.x = d3_Camera->rotation.x;
+            sv_ViewRot.y = d3_Camera->rotation.y;
+            sv_ViewRot.z = d3_Camera->rotation.z;
+            sv_ViewPos.x = d3_Camera->pos.x;
+            sv_ViewPos.y = d3_Camera->pos.y;
+            sv_ViewPos.z = d3_Camera->pos.z;
         }
         return sv_CameraScrolled;
     }
@@ -2972,13 +2979,13 @@ int sv_UpdateCamera(void)
 
 void sv_FlyCameraToObject(AIBLD *b)
 {
-    float pos[4];                   /* the target camera position (a padded vector) */
-    float dir[3];                   /* the camera rotation, kept */
+    D3VECTOR4 pos;   /* the target camera position (a padded vector) */
+    D3VECTOR dir;                   /* the camera rotation, kept */
     float lo, hi;                   /* the object's height range */
-    float back[4];                  /* 600 units back along the view */
-    float cen[4];                   /* the object's centre in the world */
+    D3VECTOR4 back;   /* 600 units back along the view */
+    D3VECTOR4 cen;   /* the object's centre in the world */
     float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
-    float up[4];                    /* the camera above the centre (a padded vector, only y used) */
+    D3VECTOR4 up;   /* the camera above the centre (a padded vector, only y used) */
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
     float step, dx, dy, dz, len;
@@ -2994,49 +3001,49 @@ void sv_FlyCameraToObject(AIBLD *b)
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld(obj, &obj->pos, cen);
-    pos[0] = cen[0] + back[0];
-    pos[1] = cen[1] + back[1];
-    pos[2] = cen[2] + back[2];
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
-    pos[1] = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
-    up[1] = pos[1] - cen[1];
+    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
+    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
+    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    d3_PointToWorld(obj, &obj->pos, &cen.v);
+    pos.x = cen.x + back.x;
+    pos.y = cen.y + back.y;
+    pos.z = cen.z + back.z;
+    t = d3t_GetMeanHeight(&pos.v);
+    pos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
+    up.y = pos.y - cen.y;
     d3t_GetHeightRange(obj, &lo, &hi);
-    h = back[1] / ((hi - lo) * 0.5f + up[1]);
-    pos[0] = pos[0] - (h * back[0] - back[0] * 1.8);
-    pos[2] = pos[2] - (h * back[2] - back[2] * 1.8);
-    dir[0] = d3_Camera->rotation.x;
-    dir[1] = d3_Camera->rotation.y;
-    dir[2] = d3_Camera->rotation.z;
+    h = back.y / ((hi - lo) * 0.5f + up.y);
+    pos.x = pos.x - (h * back.x - back.x * 1.8);
+    pos.z = pos.z - (h * back.z - back.z * 1.8);
+    dir.x = d3_Camera->rotation.x;
+    dir.y = d3_Camera->rotation.y;
+    dir.z = d3_Camera->rotation.z;
     d3anim_FreePath(d3_Camera);
     d3t_CamMove = 0;
     d3t_CamMoving = 0;
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
+    t = d3t_GetMeanHeight(&pos.v);
     cam = d3_Camera;
-    pos[1] = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
-    dx = pos[0] - cam->pos.x;
-    dy = pos[1] - cam->pos.y;
-    dz = pos[2] - cam->pos.z;
+    pos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
+    dx = pos.x - cam->pos.x;
+    dy = pos.y - cam->pos.y;
+    dz = pos.z - cam->pos.z;
     step = (float)ai_CameraStep;
     len = (float)sqrt(dz * dz + dy * dy + dx * dx) * step * 0.0005f;   /* the steps for the distance */
-    d3t_PlaceObjectV(cam, (struct D3VECTOR *)pos, (struct D3VECTOR *)dir, (int)min(ai_CameraStep * 3, max(step, len)), 0x68);
-    sv_ViewRot[0] = dir[0];
-    sv_ViewRot[1] = dir[1];
-    sv_ViewRot[2] = dir[2];
-    sv_ViewPos[0] = pos[0];
-    sv_ViewPos[1] = pos[1];
-    sv_ViewPos[2] = pos[2];
+    d3t_PlaceObjectV(cam, &pos.v, &dir, (int)min(ai_CameraStep * 3, max(step, len)), 0x68);
+    sv_ViewRot.x = dir.x;
+    sv_ViewRot.y = dir.y;
+    sv_ViewRot.z = dir.z;
+    sv_ViewPos.x = pos.x;
+    sv_ViewPos.y = pos.y;
+    sv_ViewPos.z = pos.z;
     rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
-        rec->camPos[0] = pos[0];
-        rec->camPos[1] = pos[1];
-        rec->camPos[2] = pos[2];
-        rec->camRot[0] = dir[0];
-        rec->camRot[1] = dir[1];
-        rec->camRot[2] = dir[2];
+        rec->camPos[0] = pos.x;
+        rec->camPos[1] = pos.y;
+        rec->camPos[2] = pos.z;
+        rec->camRot[0] = dir.x;
+        rec->camRot[1] = dir.y;
+        rec->camRot[2] = dir.z;
     }
     sv_SelectedObject = b;
     sv_SelectedModel = (int)b->object;
@@ -3054,13 +3061,13 @@ struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
    sv_FlyCameraToObject does the same with an animated move */
 void sv_CameraToObject(AIBLD *b)
 {
-    float pos[4];                   /* the new camera position (a padded vector) */
-    float dir[3];                   /* the camera rotation, kept */
+    D3VECTOR4 pos;   /* the new camera position (a padded vector) */
+    D3VECTOR dir;                   /* the camera rotation, kept */
     float lo, hi;                   /* the object's height range */
-    float back[4];                  /* 600 units back along the view */
-    float cen[4];                   /* the object's centre in the world */
+    D3VECTOR4 back;   /* 600 units back along the view */
+    D3VECTOR4 cen;   /* the object's centre in the world */
     float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
-    float up[4];                    /* the camera above the centre (a padded vector, only y used) */
+    D3VECTOR4 up;   /* the camera above the centre (a padded vector, only y used) */
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
     D3OBJECT *obj;
@@ -3074,44 +3081,44 @@ void sv_CameraToObject(AIBLD *b)
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld(obj, &obj->pos, cen);
-    pos[0] = cen[0] + back[0];
-    pos[1] = cen[1] + back[1];
-    pos[2] = cen[2] + back[2];
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
-    pos[1] = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
-    up[1] = pos[1] - cen[1];
+    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
+    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
+    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    d3_PointToWorld(obj, &obj->pos, &cen.v);
+    pos.x = cen.x + back.x;
+    pos.y = cen.y + back.y;
+    pos.z = cen.z + back.z;
+    t = d3t_GetMeanHeight(&pos.v);
+    pos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
+    up.y = pos.y - cen.y;
     d3t_GetHeightRange(obj, &lo, &hi);
-    h = back[1] / ((hi - lo) * 0.5f + up[1]);
-    pos[0] = pos[0] - (h * back[0] - back[0] * 1.8);
-    pos[2] = pos[2] - (h * back[2] - back[2] * 1.8);
-    dir[0] = d3_Camera->rotation.x;
-    dir[1] = d3_Camera->rotation.y;
-    dir[2] = d3_Camera->rotation.z;
+    h = back.y / ((hi - lo) * 0.5f + up.y);
+    pos.x = pos.x - (h * back.x - back.x * 1.8);
+    pos.z = pos.z - (h * back.z - back.z * 1.8);
+    dir.x = d3_Camera->rotation.x;
+    dir.y = d3_Camera->rotation.y;
+    dir.z = d3_Camera->rotation.z;
     d3anim_FreePath(d3_Camera);
     d3t_CamMove = 0;
     d3t_CamMoving = 0;
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
-    pos[1] = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
-    sv_ViewRot[0] = dir[0];
-    sv_ViewRot[1] = dir[1];
-    sv_ViewRot[2] = dir[2];
-    sv_ViewPos[0] = pos[0];
-    sv_ViewPos[2] = pos[2];
-    sv_ViewPos[1] = pos[1];
-    d3_SetObjectPos(d3_Camera, pos);
-    d3_SetObjectRot(d3_Camera, dir);
+    t = d3t_GetMeanHeight(&pos.v);
+    pos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
+    sv_ViewRot.x = dir.x;
+    sv_ViewRot.y = dir.y;
+    sv_ViewRot.z = dir.z;
+    sv_ViewPos.x = pos.x;
+    sv_ViewPos.z = pos.z;
+    sv_ViewPos.y = pos.y;
+    d3_SetObjectPos(d3_Camera, &pos.v);
+    d3_SetObjectRot(d3_Camera, &dir);
     rec = (AIFIN *)gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
     if (rec != 0) {
-        rec->camPos[0] = pos[0];
-        rec->camPos[1] = pos[1];
-        rec->camPos[2] = pos[2];
-        rec->camRot[0] = dir[0];
-        rec->camRot[1] = dir[1];
-        rec->camRot[2] = dir[2];
+        rec->camPos[0] = pos.x;
+        rec->camPos[1] = pos.y;
+        rec->camPos[2] = pos.z;
+        rec->camRot[0] = dir.x;
+        rec->camRot[1] = dir.y;
+        rec->camRot[2] = dir.z;
     }
     sv_SelectedObject = b;
     sv_SelectedModel = (int)b->object;
@@ -3123,11 +3130,11 @@ void sv_FlyCameraToModel(D3OBJECT *m)
 {
     float h;                        /* the pull-in factor */
     D3VECTOR4 up;                   /* the camera above the centre (only its height is used) */
-    float pos[4];                   /* the target camera position (a padded vector) */
-    float dir[3];                   /* the camera rotation, kept */
+    D3VECTOR4 pos;   /* the target camera position (a padded vector) */
+    D3VECTOR dir;                   /* the camera rotation, kept */
     float lo, hi;                   /* the object's height range */
-    float back[4];                  /* 600 units back along the view */
-    float cen[4];                   /* the object's centre in the world */
+    D3VECTOR4 back;   /* 600 units back along the view */
+    D3VECTOR4 cen;   /* the object's centre in the world */
     float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
     double t;                       /* the mean terrain height there */
     float step, dx, dy, dz, len;
@@ -3140,41 +3147,41 @@ void sv_FlyCameraToModel(D3OBJECT *m)
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back[0] = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back[1] = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back[2] = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld((char *)m, &m->pos, cen);
-    pos[0] = cen[0] + back[0];
-    pos[1] = cen[1] + back[1];
-    pos[2] = cen[2] + back[2];
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
-    pos[1] = (float)((sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t);
-    up.y = pos[1] - cen[1];
+    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
+    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
+    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    d3_PointToWorld((char *)m, &m->pos, &cen.v);
+    pos.x = cen.x + back.x;
+    pos.y = cen.y + back.y;
+    pos.z = cen.z + back.z;
+    t = d3t_GetMeanHeight(&pos.v);
+    pos.y = (float)((sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t);
+    up.y = pos.y - cen.y;
     d3t_GetHeightRange((char *)m, &lo, &hi);
-    h = back[1] / ((hi - lo) * 0.5f + up.y);
-    pos[0] = pos[0] - (h * back[0] - back[0] * 1.8);
-    pos[2] = pos[2] - (h * back[2] - back[2] * 1.8);
-    dir[0] = d3_Camera->rotation.x;
-    dir[1] = d3_Camera->rotation.y;
-    dir[2] = d3_Camera->rotation.z;
+    h = back.y / ((hi - lo) * 0.5f + up.y);
+    pos.x = pos.x - (h * back.x - back.x * 1.8);
+    pos.z = pos.z - (h * back.z - back.z * 1.8);
+    dir.x = d3_Camera->rotation.x;
+    dir.y = d3_Camera->rotation.y;
+    dir.z = d3_Camera->rotation.z;
     d3anim_FreePath(d3_Camera);
     d3t_CamMove = 0;
     d3t_CamMoving = 0;
-    t = d3t_GetMeanHeight((struct D3VECTOR *)pos);
+    t = d3t_GetMeanHeight(&pos.v);
     cam = d3_Camera;
-    pos[1] = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
-    dx = pos[0] - cam->pos.x;
-    dy = pos[1] - cam->pos.y;
-    dz = pos[2] - cam->pos.z;
+    pos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t;
+    dx = pos.x - cam->pos.x;
+    dy = pos.y - cam->pos.y;
+    dz = pos.z - cam->pos.z;
     step = (float)ai_CameraStep;
     len = (float)sqrt(dz * dz + dy * dy + dx * dx) * step * 0.0005f;   /* the steps for the distance */
-    d3t_PlaceObjectV(cam, (struct D3VECTOR *)pos, (struct D3VECTOR *)dir, (int)min(ai_CameraStep * 3, max(step, len)), 0x68);
+    d3t_PlaceObjectV(cam, &pos.v, &dir, (int)min(ai_CameraStep * 3, max(step, len)), 0x68);
 }
 /* 0x528140, moves the camera (0x411680) to the stored view (sv_ViewPos / sv_ViewRot) with the step ai_CameraStep / 8 */
 
 void sv_MoveCameraToView(void)
 {
-    d3t_PlaceObject(d3_Camera, sv_ViewPos[0], sv_ViewPos[1], sv_ViewPos[2], sv_ViewRot[0], sv_ViewRot[1], sv_ViewRot[2], ai_CameraStep, 8);
+    d3t_PlaceObject(d3_Camera, sv_ViewPos.x, sv_ViewPos.y, sv_ViewPos.z, sv_ViewRot.x, sv_ViewRot.y, sv_ViewRot.z, ai_CameraStep, 8);
 }
 /* 0x528180, the d3_ForEachObject callback of 0x5282f0 over the model parts of the building b: for the part named
    "dummy_FAHNE" it creates the banner object "sp_WIMPEL" in b's model scene at the dummy's world position, turned by pi
@@ -5507,13 +5514,13 @@ void sv_CameraFollow(void)
 
     placed = 0;
     if (d3t_CamMove != 0) {
-        if (d3_VecEqual(&d3t_PlaceTarget, (D3VECTOR *)sv_ViewPos, 0.1f) != 0) {
+        if (d3_VecEqual(&d3t_PlaceTarget, &sv_ViewPos.v, 0.1f) != 0) {
             d3anim_FreePath(d3_Camera);
             d3t_CamMove = 0;
             d3t_CamMoving = 0;
             placed = 1;
-            d3_SetObjectPos(d3_Camera, (D3VECTOR *)sv_ViewPos);
-            d3_SetObjectRot(d3_Camera, (D3VECTOR *)sv_ViewRot);
+            d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+            d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
         } else {
             d3anim_FreePath(d3_Camera);
             d3t_CamMove = 0;
@@ -5521,7 +5528,7 @@ void sv_CameraFollow(void)
         }
     }
     if (sv_FrameDepth <= sv_FrameBase || placed) {
-        if ((d3_VecEqual(&d3_Camera->rotation, (D3VECTOR *)sv_ViewRot, 0.1f) == 0 || d3_VecEqual(&d3_Camera->pos, (D3VECTOR *)sv_ViewPos, 0.1f) == 0)
+        if ((d3_VecEqual(&d3_Camera->rotation, &sv_ViewRot.v, 0.1f) == 0 || d3_VecEqual(&d3_Camera->pos, &sv_ViewPos.v, 0.1f) == 0)
             && !placed) {
             sv_MoveCameraToView();
             if (sv_FocusObject != 0) {
@@ -5611,15 +5618,15 @@ void sv_HandleRightClick(unsigned fl)
                 sb_PlaySample(snd_RoomBank, "RaumWechseln_s", 1, 0x3f, 0x7f, 0, 0);
                 ai_PlayerBuilding->mainRoom = ((AIOBJ *)sv_ClickedContact)->id;
                 sv_PopRequest = sv_FrameDepth - sv_FrameBase + 1;
-                d3_SetObjectPos(d3_Camera, (D3VECTOR *)sv_ViewPos);
-                d3_SetObjectRot(d3_Camera, (D3VECTOR *)sv_ViewRot);
+                d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+                d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
                 sv_BorderViewX = 0;
                 sv_BorderViewY = 0;
             }
         } else if (ai_FallbackBuilding != 0 && sv_PanelShown != 0 && sv_ClickedContact != 0 && ai_SelectedCount == 0 && sv_OtherSelected == 0) {
             sv_PopRequest = sv_FrameDepth - sv_FrameBase + 1;
-            d3_SetObjectPos(d3_Camera, (D3VECTOR *)sv_ViewPos);
-            d3_SetObjectRot(d3_Camera, (D3VECTOR *)sv_ViewRot);
+            d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+            d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
             sv_BorderViewX = 0;
             sv_BorderViewY = 0;
         }
@@ -5636,13 +5643,13 @@ void sv_HandleRightClick(unsigned fl)
         if (d3t_CamMove != 0) {
             if (ai_PlayerBuilding == 0 && ai_FallbackBuilding == 0)
                 goto done;
-            if (d3_VecEqual(&d3t_PlaceTarget, (D3VECTOR *)sv_ViewPos, 0.1f) != 0) {
+            if (d3_VecEqual(&d3t_PlaceTarget, &sv_ViewPos.v, 0.1f) != 0) {
                 d3anim_FreePath(d3_Camera);
                 d3t_CamMove = 0;
                 d3t_CamMoving = 0;
                 placed = 1;
-                d3_SetObjectPos(d3_Camera, (D3VECTOR *)sv_ViewPos);
-                d3_SetObjectRot(d3_Camera, (D3VECTOR *)sv_ViewRot);
+                d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+                d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
             } else {
                 d3anim_FreePath(d3_Camera);
                 d3t_CamMove = 0;
@@ -5664,7 +5671,7 @@ void sv_HandleRightClick(unsigned fl)
                 sv_FocusObject = 0;
             }
             sv_ResetSelection();
-        } else if (d3_VecEqual(&d3_Camera->rotation, (D3VECTOR *)sv_ViewRot, 0.1f) == 0 && d3_VecEqual(&d3_Camera->pos, (D3VECTOR *)sv_ViewPos, 0.1f) == 0 && !placed) {
+        } else if (d3_VecEqual(&d3_Camera->rotation, &sv_ViewRot.v, 0.1f) == 0 && d3_VecEqual(&d3_Camera->pos, &sv_ViewPos.v, 0.1f) == 0 && !placed) {
             /* the camera is off the stored view: back to it */
             if (ai_PlayerBuilding != 0 || ai_FallbackBuilding != 0)
                 sv_MoveCameraToView();
@@ -5706,8 +5713,8 @@ void sv_HandleRightClick(unsigned fl)
             sv_PopRequest = 1;
             if (ai_PlayerBuilding != 0 && sv_PanelShown == 0)
                 ai_PlayerBuilding = 0;
-            d3_SetObjectPos(d3_Camera, (D3VECTOR *)sv_ViewPos);
-            d3_SetObjectRot(d3_Camera, (D3VECTOR *)sv_ViewRot);
+            d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+            d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
             sv_BorderViewX = 0;
             sv_BorderViewY = 0;
         }
@@ -7396,8 +7403,8 @@ int sv_DragLastY = 0;  /* 0x6f1c48 */
 int sv_HoverLast = 0;  /* 0x6f1c4c, the scene object sv_HoverPick picked last (0: none) */
 int sv_SavedMaxX = 0;  /* 0x6f1c50 */
 int sv_UnreadBss1[4] = {0};  /* 0x6f1c54, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-float sv_DragLastPos[4] = {0};  /* 0x6f1c64, a 16-byte (D3VECTOR4-padded) vector: x, y, z read, the fourth float unread */
-float sv_ScrollLastMove[4] = {0};  /* 0x6f1c74, a 16-byte vector like sv_DragLastPos */
+D3VECTOR4 sv_DragLastPos = {0};  /* 0x6f1c64, a 16-byte (D3VECTOR4-padded) vector: x, y, z read, the fourth float unread */
+D3VECTOR4 sv_ScrollLastMove = {0};  /* 0x6f1c74, a 16-byte vector like sv_DragLastPos */
 int sv_SavedMinX = 0;  /* 0x6f1c84 */
 int sv_DragLastX = 0;  /* 0x6f1c88 */
 int sv_ZoomStartY = 0;  /* 0x6f1c8c */
@@ -7499,8 +7506,8 @@ unsigned short * sv_SelectedItem;  /* 0x75ec5c */
 SVACTIVITY sv_Activities[0x30];  /* 0x75ec80, the character activities the he.c scripts register (sv_RegisterActivity) */
 SVMEMBERROW sv_MemberRows[0x20];  /* 0x75f280, the member panel: the member list rows */
 SVFRAME sv_Frames[0x80];  /* 0x75f780, the frame stack, indexed by sv_FrameDepth (sv_RunFrame pushes and pops it) */
-float sv_ViewPos[4];  /* 0x75fb80, the stored camera position (a padded vector): set by the camera moves, restored when the player leaves a building */
-float sv_ViewRot[4];  /* 0x75fb90, its rotation (D3OBJECT.rotation) */
+D3VECTOR4 sv_ViewPos;  /* 0x75fb80, the stored camera position (a padded vector): set by the camera moves, restored when the player leaves a building */
+D3VECTOR4 sv_ViewRot;  /* 0x75fb90, its rotation (D3OBJECT.rotation) */
 float sv_SkyScale;  /* 0x760420 */
 SVBAND sv_Band;  /* 0x760440, the rubber band: sv_BandActive and its corners */
 int sv_Season;  /* 0x760454, the season of the game clock (sv_ClockSeason's result), stored by main_EndRound / main_GameLoop (sv.c itself never reads it) */

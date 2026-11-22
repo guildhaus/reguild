@@ -1494,12 +1494,12 @@ int cm_OrderConquer(char *rec, AICHAR *c, char *tgt)
 {
     char *sc = (char *)d3_DefaultScene->hmap;
     CMCUTENTRY *q;
-    float v[4];
+    D3VECTOR4 v;
     int x, z, h;
 
     cm_CharWeapon(c);
-    d3_PointToWorld(tgt, tgt + 0x4c, v);
-    if ((char)d3_GetHeightAt(sc, v, &x, &z, &h) == 0)
+    d3_PointToWorld(tgt, tgt + 0x4c, &v.v);
+    if ((char)d3_GetHeightAt(sc, &v.v, &x, &z, &h) == 0)
         return 0;
     q = (CMCUTENTRY *)cm_CutEntrySlot(rec, c);
     q->b0c = 0;

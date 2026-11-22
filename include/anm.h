@@ -4,6 +4,7 @@ struct D3VECTOR;
 /* Declarations of anm.c (0x4bb810..): animals (module tag "anm:animals", "DOG", "CAT", ..). Names are ours. */
 #ifndef ANM_H
 #define ANM_H
+#include "d3_types.h"                /* D3VECTOR */
 
 typedef struct ANMREC {                 /* 0x124 bytes, anm_Animals[32], an animal */
     void *obj;                          /* 0x00, its 3D object (->0x34->0x1ec, flags byte 0x96d) */
@@ -11,7 +12,7 @@ typedef struct ANMREC {                 /* 0x124 bytes, anm_Animals[32], an anim
     int nPoints;                        /* 0x08, kind 2: collected coordinates, 3 per building; -1 = not yet */
     unsigned char remove;               /* 0x0c, 1: to be removed (anm_RemoveAnimal) */
     char pad0d[3];
-    float pos[3];                       /* 0x10, where it was created */
+    D3VECTOR pos;                       /* 0x10, where it was created */
     char pad1c[4];
     unsigned int birth;                 /* 0x20, d3_Time of its anm_NewAnimal */
     char pad24[0x100];

@@ -4583,12 +4583,12 @@ void cm_ExecCutscene(G28REC *m)
         cm_SceneFade = (char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
         while ((*cm_SceneFade & 4) == 0)
             sv_RunFrame(0, fl);
-        pos[0] = sv_ViewPos[0];
-        pos[1] = sv_ViewPos[1];
-        pos[2] = sv_ViewPos[2];
-        rot[0] = sv_ViewRot[0];
-        rot[1] = sv_ViewRot[1];
-        rot[2] = sv_ViewRot[2];
+        pos[0] = sv_ViewPos.x;
+        pos[1] = sv_ViewPos.y;
+        pos[2] = sv_ViewPos.z;
+        rot[0] = sv_ViewRot.x;
+        rot[1] = sv_ViewRot.y;
+        rot[2] = sv_ViewRot.z;
         if (ai_GameFlags & 8)
             cm_PauseSceneChars();
         tb_OpenFunction(cm_SceneTick, 0x46);
@@ -4670,12 +4670,12 @@ void cm_ExecCutscene(G28REC *m)
         d3if_SelectScene(cm_SavedScene, 0);
         if (d3_Sky != 0)
             d3sky_Init(d3_Sky, 1);
-        sv_ViewPos[0] = pos[0];
-        sv_ViewPos[1] = pos[1];
-        sv_ViewPos[2] = pos[2];
-        sv_ViewRot[0] = rot[0];
-        sv_ViewRot[1] = rot[1];
-        sv_ViewRot[2] = rot[2];
+        sv_ViewPos.x = pos[0];
+        sv_ViewPos.y = pos[1];
+        sv_ViewPos.z = pos[2];
+        sv_ViewRot.x = rot[0];
+        sv_ViewRot.y = rot[1];
+        sv_ViewRot.z = rot[2];
         d3_SetFogSet(0, 1, 0);
         d3_FogByDistance = savedFog;
         cm_SpeedFactor = savedSpeed;

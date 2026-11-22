@@ -9180,8 +9180,8 @@ void ai_SwitchRoom(int index, unsigned room)
     } else
         ai_PlayerBuilding->mainRoom = room;
     sv_PopRequest = (sv_FrameDepth - sv_FrameBase) + 1;
-    d3_SetObjectPos(d3_Camera, sv_ViewPos);
-    d3_SetObjectRot(d3_Camera, sv_ViewRot);
+    d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
+    d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
     sv_BorderViewX = 0;
     sv_BorderViewY = 0;
     sb_PlaySample(snd_RoomBank, "RaumWechseln_s", 1, 0x3f, 0x7f, 0, 0);
@@ -9297,12 +9297,12 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
     scene = d3_CurrentScene;
     sv_LastRoom = 0;
     b->mainRoom = (unsigned short)mainRoom;
-    view.pos.x = sv_ViewPos[0];
-    view.pos.y = sv_ViewPos[1];
-    view.pos.z = sv_ViewPos[2];
-    view.rot.x = sv_ViewRot[0];
-    view.rot.y = sv_ViewRot[1];
-    view.rot.z = sv_ViewRot[2];
+    view.pos.x = sv_ViewPos.x;
+    view.pos.y = sv_ViewPos.y;
+    view.pos.z = sv_ViewPos.z;
+    view.rot.x = sv_ViewRot.x;
+    view.rot.y = sv_ViewRot.y;
+    view.rot.z = sv_ViewRot.z;
     if (mainRoom == 0)
         ai_PlayerBuilding = 0;
     if (b->owner == ai_PlayerId)
@@ -9353,12 +9353,12 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
                         d3_SetObjectRot(d3_Camera, &d3_Camera->views[5].dir);
                     }
                 }
-                sv_ViewPos[0] = d3_Camera->pos.x;
-                sv_ViewPos[1] = d3_Camera->pos.y;
-                sv_ViewPos[2] = d3_Camera->pos.z;
-                sv_ViewRot[0] = d3_Camera->rotation.x;
-                sv_ViewRot[1] = d3_Camera->rotation.y;
-                sv_ViewRot[2] = d3_Camera->rotation.z;
+                sv_ViewPos.x = d3_Camera->pos.x;
+                sv_ViewPos.y = d3_Camera->pos.y;
+                sv_ViewPos.z = d3_Camera->pos.z;
+                sv_ViewRot.x = d3_Camera->rotation.x;
+                sv_ViewRot.y = d3_Camera->rotation.y;
+                sv_ViewRot.z = d3_Camera->rotation.z;
                 sv_BorderViewX = 0;
                 sv_BorderViewY = 0;
             }
@@ -9527,12 +9527,12 @@ void ai_EnterBuilding(AIBLD *b, int mainRoom)
     ai_PlayerBuilding = 0;
     sv_PanelShown = 0;
     init_AfterTownLoad();
-    sv_ViewPos[0] = view.pos.x;
-    sv_ViewPos[1] = view.pos.y;
-    sv_ViewPos[2] = view.pos.z;
-    sv_ViewRot[0] = view.rot.x;
-    sv_ViewRot[1] = view.rot.y;
-    sv_ViewRot[2] = view.rot.z;
+    sv_ViewPos.x = view.pos.x;
+    sv_ViewPos.y = view.pos.y;
+    sv_ViewPos.z = view.pos.z;
+    sv_ViewRot.x = view.rot.x;
+    sv_ViewRot.y = view.rot.y;
+    sv_ViewRot.z = view.rot.z;
     sb_PlaySample(snd_RoomBank, "GebaeudeVerlassen_s", 1, 0x3f, 0x7f, 0, 0);
 }
 
@@ -9570,12 +9570,12 @@ void ai_EnterOwnBuilding(AIBLD *b)
     sv_SceneEventTime = 0;
     sv_ResetSelection();
     sv_ClearSelection();
-    view.pos.x = sv_ViewPos[0];
-    view.pos.y = sv_ViewPos[1];
-    view.pos.z = sv_ViewPos[2];
-    view.rot.x = sv_ViewRot[0];
-    view.rot.y = sv_ViewRot[1];
-    view.rot.z = sv_ViewRot[2];
+    view.pos.x = sv_ViewPos.x;
+    view.pos.y = sv_ViewPos.y;
+    view.pos.z = sv_ViewPos.z;
+    view.rot.x = sv_ViewRot.x;
+    view.rot.y = sv_ViewRot.y;
+    view.rot.z = sv_ViewRot.z;
     strcpy(ch_StepSample, "normal_s");
     universe = init_BuildingSceneUniverse(b);
     d3_Scenes[universe].sky = d3_Scenes[0].sky;
@@ -9632,12 +9632,12 @@ void ai_EnterOwnBuilding(AIBLD *b)
             d3_SetObjectPos(d3_Camera, &d3_Camera->savedPos);
             d3_SetObjectRot(d3_Camera, &d3_Camera->savedRot);
         }
-        sv_ViewPos[0] = d3_Camera->pos.x;
-        sv_ViewPos[1] = d3_Camera->pos.y;
-        sv_ViewPos[2] = d3_Camera->pos.z;
-        sv_ViewRot[0] = d3_Camera->rotation.x;
-        sv_ViewRot[1] = d3_Camera->rotation.y;
-        sv_ViewRot[2] = d3_Camera->rotation.z;
+        sv_ViewPos.x = d3_Camera->pos.x;
+        sv_ViewPos.y = d3_Camera->pos.y;
+        sv_ViewPos.z = d3_Camera->pos.z;
+        sv_ViewRot.x = d3_Camera->rotation.x;
+        sv_ViewRot.y = d3_Camera->rotation.y;
+        sv_ViewRot.z = d3_Camera->rotation.z;
         sv_BorderViewX = 0;
         sv_BorderViewY = 0;
     }
@@ -9701,12 +9701,12 @@ void ai_EnterOwnBuilding(AIBLD *b)
     ch_CurrentGroup = -1;
     ch_CurrentScriptGroup = -1;
     init_AfterTownLoad();
-    sv_ViewPos[0] = view.pos.x;
-    sv_ViewPos[1] = view.pos.y;
-    sv_ViewPos[2] = view.pos.z;
-    sv_ViewRot[0] = view.rot.x;
-    sv_ViewRot[1] = view.rot.y;
-    sv_ViewRot[2] = view.rot.z;
+    sv_ViewPos.x = view.pos.x;
+    sv_ViewPos.y = view.pos.y;
+    sv_ViewPos.z = view.pos.z;
+    sv_ViewRot.x = view.rot.x;
+    sv_ViewRot.y = view.rot.y;
+    sv_ViewRot.z = view.rot.z;
 }
 /* 0x59f410, runs the room object room of the building the player is in (ai_FallbackBuilding, entered through
    ai_EnterOwnBuilding): the town view and the border scroll are saved; a room with a universe of its own is loaded
@@ -9733,12 +9733,12 @@ void ai_RunObjectRoom(AIOBJ *room)
     ch_CurrentScriptGroup = room->objId;
     sv_FrameBase = sv_FrameDepth + 1;
     sv_SceneEventTime = 0;
-    view.pos.x = sv_ViewPos[0];
-    view.pos.y = sv_ViewPos[1];
-    view.pos.z = sv_ViewPos[2];
-    view.rot.x = sv_ViewRot[0];
-    view.rot.y = sv_ViewRot[1];
-    view.rot.z = sv_ViewRot[2];
+    view.pos.x = sv_ViewPos.x;
+    view.pos.y = sv_ViewPos.y;
+    view.pos.z = sv_ViewPos.z;
+    view.rot.x = sv_ViewRot.x;
+    view.rot.y = sv_ViewRot.y;
+    view.rot.z = sv_ViewRot.z;
     sv_ResetSelection();
     sv_ClearSelection();
     universe = init_ObjectUniverse[room->type];
@@ -9758,12 +9758,12 @@ void ai_RunObjectRoom(AIOBJ *room)
         lastEvent = evt_LastId;
         d3_SetObjectPos(d3_Camera, &d3_Camera->savedPos);
         d3_SetObjectRot(d3_Camera, &d3_Camera->savedRot);
-        sv_ViewPos[0] = d3_Camera->pos.x;
-        sv_ViewPos[1] = d3_Camera->pos.y;
-        sv_ViewPos[2] = d3_Camera->pos.z;
-        sv_ViewRot[0] = d3_Camera->rotation.x;
-        sv_ViewRot[1] = d3_Camera->rotation.y;
-        sv_ViewRot[2] = d3_Camera->rotation.z;
+        sv_ViewPos.x = d3_Camera->pos.x;
+        sv_ViewPos.y = d3_Camera->pos.y;
+        sv_ViewPos.z = d3_Camera->pos.z;
+        sv_ViewRot.x = d3_Camera->rotation.x;
+        sv_ViewRot.y = d3_Camera->rotation.y;
+        sv_ViewRot.z = d3_Camera->rotation.z;
         borderX = sv_BorderViewX;
         borderY = sv_BorderViewY;
         sv_BorderViewX = 0;
@@ -9837,13 +9837,13 @@ void ai_RunObjectRoom(AIOBJ *room)
     ch_CurrentScriptGroup = home->objId;
     sv_FrameBase = sv_FrameDepth;
     sv_BorderViewY = borderY;
-    sv_ViewPos[0] = view.pos.x;
-    sv_ViewPos[1] = view.pos.y;
-    sv_ViewPos[2] = view.pos.z;
+    sv_ViewPos.x = view.pos.x;
+    sv_ViewPos.y = view.pos.y;
+    sv_ViewPos.z = view.pos.z;
     sv_BorderViewX = borderX;
-    sv_ViewRot[0] = view.rot.x;
-    sv_ViewRot[1] = view.rot.y;
-    sv_ViewRot[2] = view.rot.z;
+    sv_ViewRot.x = view.rot.x;
+    sv_ViewRot.y = view.rot.y;
+    sv_ViewRot.z = view.rot.z;
 }
 typedef struct LCSALEROW {          /* a row of ai_BuyBuildingWindow's list: a building offered for sale */
     int control;                    /* 0x0, the row's text control (d2_GetWinObj) */

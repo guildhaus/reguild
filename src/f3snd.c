@@ -303,7 +303,7 @@ void snd_UpdateAnimals(void)
     int n;
     float h;
     float vol;
-    float v[4];
+    D3VECTOR4 v;
     char *name;
     int k;
     AIBTYPE *bt;
@@ -394,8 +394,8 @@ void snd_UpdateAnimals(void)
                     (int)(h * snd_Animals[snd_AnimalSeason][2].vol * 127.0f), 0, 0);
         }
         if (snd_AmbientTrack != 0 && ai_MarketBuilding != 0) {
-            d3_PointToWorld(ai_MarketBuilding->object, &ai_MarketBuilding->object->pos, v);
-            k = ch_CountAt(0, 0, v, 900.0f) * 0x14;
+            d3_PointToWorld(ai_MarketBuilding->object, &ai_MarketBuilding->object->pos, &v.v);
+            k = ch_CountAt(0, 0, &v.v, 900.0f) * 0x14;
             if (k >= 0x7f)
                 k = 0x7f;
             d3snd_SetVolume(snd_AmbientTrack, k);

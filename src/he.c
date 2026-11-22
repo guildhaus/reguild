@@ -3101,7 +3101,7 @@ void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 /* 0x541280, the idle behaviour of the event's characters (ids[], 8 of them) in the default scene: each one whose scene
    character has no queued action either walks to 1 .. 3 points near pos (rd_PointsNear, actions 0x2d tagged
    "he_CharacterBehavior"; 41 of 100) or plays one of three gestures twice, each 1 .. 3 times */
-void he_CharacterBehavior(AIJOB *ev, float *pos)
+void he_CharacterBehavior(AIJOB *ev, D3VECTOR *pos)
 {
     int *id;
     int k, n;
@@ -3109,7 +3109,7 @@ void he_CharacterBehavior(AIJOB *ev, float *pos)
     struct D3SM *h;
     int px, pz;
     float py;
-    float (*p)[4];
+    D3VECTOR4 *p;
     CHACTION *act;
 
     if (d3_CurrentScene == 0) {
@@ -3121,14 +3121,14 @@ void he_CharacterBehavior(AIJOB *ev, float *pos)
                     ch_QueueAnim(c->scene, gest[util_Random(3)], util_Random(3) + 1);
                     ch_QueueAnim(c->scene, gest[util_Random(3)], util_Random(3) + 1);
                 } else {
-                    float pts[8][4];
+                    D3VECTOR4 pts[8];
 
                     h = d3_DefaultScene->hmap;
                     n = util_Random(3) + 1;
                     n = rd_PointsNear(pos, n, pts);
                     if (n > 0) {
                         for (p = pts; n != 0; n--, p++) {
-                            if (d3_GetHeightAt(h, (struct D3VECTOR *)*p, &px, &pz, &py)) {
+                            if (d3_GetHeightAt(h, &p->v, &px, &pz, &py)) {
                                 act = ch_AddAction(c->scene, 0x2d, px, pz, 0);
                                 strcpy(act->why, "he_CharacterBehavior");
                             }
@@ -7496,7 +7496,7 @@ void he_RunGathering(AIJOB *e)
         gm_AddTime(&e->end, 0, 10, 0);
         if (d3_CurrentScene == 0 && (o = d3_FindObject(0, 0x140, 0, g->place)) != 0) {
             d3_PointToWorld(o, &o->pos, &pos.v);
-            he_CharacterBehavior(e, (float *)&pos);
+            he_CharacterBehavior(e, &pos.v);
         }
         e->exSlot = cm_SendExSetHE(2, e);
         return;
@@ -8996,15 +8996,15 @@ int he_CreateSmokeEffect(AIBLD *o)
     AIBLD *bld = o;
     unsigned char col[4];
     int *color = (int *)col;
-    float v[4];
+    D3VECTOR4 v;
 
     col[2] = 0xa0;
     col[1] = 0xff;
     col[0] = 0x64;
-    v[0] = 0.0f;
-    v[1] = 200.0f;
-    v[2] = 0.0f;
-    return d3t_CreateEmitter(bld->object, "Rauch", 1, *color, v, 0x12c, 1, 30.0f, 2.0f, 7.5f, 0.4f, 1.0f);
+    v.x = 0.0f;
+    v.y = 200.0f;
+    v.z = 0.0f;
+    return d3t_CreateEmitter(bld->object, "Rauch", 1, *color, &v.v, 0x12c, 1, 30.0f, 2.0f, 7.5f, 0.4f, 1.0f);
 }
 /* 0x54fc70, the points emitter of the effect event (like he_CreateSmokeEffect, the other colour 0x321e50 and
    size): creates the effect 0x178 ("punkte_nm_2", a 50 / 1 / 2 / 0.5 / 0.5 emitter) on the scene record
@@ -9015,15 +9015,15 @@ int he_CreatePointsEffect(AIBLD *o)
     AIBLD *bld = o;
     unsigned char col[4];
     int *color = (int *)col;
-    float v[4];
+    D3VECTOR4 v;
 
     col[2] = 0x50;
     col[1] = 0x1e;
     col[0] = 0x32;
-    v[0] = 0.0f;
-    v[1] = 50.0f;
-    v[2] = 0.0f;
-    return d3t_CreateEmitter(bld->object, "punkte_nm_2", 1, *color, v, 0x12c, 1, 50.0f, 1.0f, 2.0f, 0.5f, 0.5f);
+    v.x = 0.0f;
+    v.y = 50.0f;
+    v.z = 0.0f;
+    return d3t_CreateEmitter(bld->object, "punkte_nm_2", 1, *color, &v.v, 0x12c, 1, 50.0f, 1.0f, 2.0f, 0.5f, 0.5f);
 }
 /* 0x54fce0, the run handler of the effect event 0x76: stage 0 creates the emitter on the building's scene object
    (he_CreateSmokeEffect for the Domizil good 0x177, he_CreatePointsEffect for 0x178, in scene 0) and goes on to 1
@@ -17153,7 +17153,7 @@ void he_RunAmbush(AIJOB *ev)
                     break;
                 }
             }
-            he_CharacterBehavior(ev, (float *)&pos);
+            he_CharacterBehavior(ev, &pos.v);
             busy = he_FindEvent(1, 0, 0x51);
             t = he_FindEvent(1, 0, 0xf);
             for (; all != 0 && o != 0 && t != 0 && n < 3; t = he_NextEvent()) {

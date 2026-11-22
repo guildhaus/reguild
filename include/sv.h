@@ -6,6 +6,7 @@ struct AIOBJ;
 #include "portable.h"                /* intptr_t: a text id or a string in one parameter */
 
 #include "sv_types.h"
+#include "d3_types.h"                /* D3VECTOR4 (the stored view, the drag and scroll vectors) */
 #include <windows.h>                    /* MSG (sv_Message) */
 
 typedef struct SVSKYREC {               /* 0x4c bytes, a sky layer: the texture and its scale / v scale / v offset (d3sky_CreateLayer) */
@@ -245,8 +246,8 @@ extern int sv_SavedMaxY;                                    /* 0x6f1c40 */
 extern float sv_ScrollVelYPrev;                                  /* 0x6f1c44 */
 extern int sv_DragLastY;                                    /* 0x6f1c48 */
 extern int sv_SavedMaxX;                                    /* 0x6f1c50 */
-extern float sv_DragLastPos[4];                               /* 0x6f1c64 */
-extern float sv_ScrollLastMove[4];                               /* 0x6f1c74 */
+extern D3VECTOR4 sv_DragLastPos;                               /* 0x6f1c64 */
+extern D3VECTOR4 sv_ScrollLastMove;                               /* 0x6f1c74 */
 extern int sv_SavedMinX;                                    /* 0x6f1c84 */
 extern int sv_DragLastX;                                    /* 0x6f1c88 */
 extern int sv_ZoomStartY;                                    /* 0x6f1c8c */
@@ -337,8 +338,8 @@ extern unsigned short * sv_SelectedItem;                       /* 0x75ec5c */
 extern SVACTIVITY sv_Activities[0x30];                          /* 0x75ec80 */
 extern SVMEMBERROW sv_MemberRows[0x20];                     /* 0x75f280, the member list rows */
 extern SVFRAME sv_Frames[0x80];                             /* 0x75f780, the frame stack, indexed by sv_FrameDepth */
-extern float sv_ViewPos[4];                                 /* 0x75fb80, the stored camera position */
-extern float sv_ViewRot[4];                                 /* 0x75fb90, its rotation */
+extern D3VECTOR4 sv_ViewPos;                                 /* 0x75fb80, the stored camera position */
+extern D3VECTOR4 sv_ViewRot;                                 /* 0x75fb90, its rotation */
 extern float sv_SkyScale;                                  /* 0x760420 */
 extern SVBAND sv_Band;                                       /* 0x760440 */
 #define sv_BandActive (sv_Band.active)                          /* 0x760440 */

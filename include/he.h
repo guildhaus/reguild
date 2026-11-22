@@ -3,6 +3,7 @@
 #define HE_H
 
 struct D3OBJECT;
+struct D3VECTOR;
 struct AIJOB;
 struct AIMSG;
 struct AICHAR;
@@ -139,7 +140,7 @@ void he_SetEventChar(struct AIJOB *r, int pl);
 
 
 
-void he_CharacterBehavior(struct AIJOB *ev, float *pos);
+void he_CharacterBehavior(struct AIJOB *ev, struct D3VECTOR *pos);
 void he_CharAccident(struct AIJOB *ev, struct AICHAR *c, struct AICHAR *boss, struct AIBLD *bld, float value, int quiet); /* 0x5414a0, a character's accident: carried away ("Unfall") or dead, with the boss's news */
 void he_CharIllness(struct AIJOB *ev, struct AICHAR *c, struct AICHAR *boss, struct AIBLD *bld, int disease, float value); /* 0x5417d0, a character's illness: carried away ("Unfall") or dead, with the boss's news */
 void he_AllocStammtisch(struct AIJOB *r);
