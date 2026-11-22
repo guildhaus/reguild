@@ -1602,7 +1602,7 @@ check:
             d2_PointerObj = id;
             o = &d2_Objs[id];
             if (o->type == 9)
-                if ((char)o->style & 0x10)
+                if ((signed char)o->style & 0x10)
                     d2_ClickedId = 1;
                 else
                     d2_ClickedId = 0;
@@ -2389,7 +2389,7 @@ int d2_HitTest(short x, short y)
                             d2_PointerWin = o->win->id;
                         if (o->type == 9)
                         {
-                            if ((char)o->style & 0x10)
+                            if ((signed char)o->style & 0x10)
                                 return 1;
                             return 0;
                         }
@@ -2775,7 +2775,7 @@ void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned
             bh = h;
             bw = w;
         }
-        if ((char)flags < 0) {
+        if ((signed char)flags < 0) {
             sw = d2_ScreenW;
             if (bx + bw > sw) {
                 bx = sw - bw;
@@ -2973,7 +2973,7 @@ void d2_ScrollWindow(int win)
     }
     if (w->scrollY != w->appliedScrollY || w->scrollX != w->appliedScrollX) {
         f = w->flags;
-        if ((char)f & 8)
+        if ((signed char)f & 8)
             i = 1;
         else
             i = 0;
@@ -3486,7 +3486,7 @@ void d2_DrawWindowText(void *surf, int win)
                             }
                         }
                         w->nlines = w->firstline + nlines;
-                        for (t = ((int)(char)w->flags & 8U) >> 3; t < w->nobjs; t++) {
+                        for (t = ((int)(signed char)w->flags & 8U) >> 3; t < w->nobjs; t++) {
                             o = &d2_Objs[w->objs[t]];
                             while (!o->hidden && width + cm_PickCellX > o->x) {
                                 id = o->x + o->w;
