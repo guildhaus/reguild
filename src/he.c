@@ -175,8 +175,8 @@ typedef struct HEWALKSLOT {
     unsigned char state;                /* 0x9, flags: 1 counted, 4 done, 0x10 played, 0x20 a character with +0x1f0, 0x40 held */
     unsigned char step;                 /* 0xa, the step through ai_Blds (a random ai_RandomStrides entry) */
     unsigned char bldIndex;             /* 0xb, the ai_Blds index of the building */
-    char holdHour;                      /* 0xc, the hour the character was held at, 0xff none (a char: he_StepWalk's test
-                                           for 0xff never holds) */
+    signed char holdHour;               /* 0xc, the hour the character was held at, 0xff none (@original: signed, so
+                                           he_StepWalk's test of the sign-extended byte for 0xff never holds) */
     unsigned char pad[3];
 } HEWALKSLOT;
 typedef struct HEWALKS {                /* the walk event 0x7a's ten slots over AIJOB's union (its alloc handler
@@ -9837,7 +9837,7 @@ void he_StepWalk(HEWALKSLOT *s)
             s->state |= 0x40;
             held = 1;
             if (hour == 0xff) {
-                s->holdHour = (char)ai_Time.hour;
+                s->holdHour = (signed char)ai_Time.hour;
                 cm_SendSetField(c->netId, 0x1c8, 4, 0, 0x1000);
                 return;
             }

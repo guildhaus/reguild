@@ -1665,7 +1665,7 @@ int amt_IsColumnDecided(int col)
             }
         }
     }
-    if ((char)f & 2)
+    if ((signed char)f & 2)
         return 1;
     return 0;
 }
