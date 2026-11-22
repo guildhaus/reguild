@@ -451,7 +451,7 @@ void ord_InitMessageRecord(int a, float b, float c, float d);  /* 0x4f9190 */
 
 extern char ord_RatingBytes[];            /* 0x91b460, 5 + 1 bytes */
 extern struct AIBLD *ai_Blds;     /* 0x889f74 */
-void ord_ComputeStatistics(float *out);         /* 0x4f8ae0 */
+void ord_ComputeStatistics(ORDSTATS *out);         /* 0x4f8ae0 */
 void ord_UpdateStatistics(void);               /* 0x4f8ed0 */
 void ord_LoadStatistics(void *p);       /* 0x4f9020 */
 void ord_UpdateMessageEvent(void);               /* 0x4f9220 */

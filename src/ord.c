@@ -1991,12 +1991,12 @@ void cm_SendMessage41(void *p);                         /* 0x4c5800 */
    the grid cells and rates the result (ord_WeightedRecordSum, ord_StatisticsRating, gm_IncomeRating). out[0] the
    income rating, out[1] / out[3] the shares without a bld / bld2, out[2] the combined rating, out[4] the number of
 characters, out[5] the rating, out[7] / out[8] the kind sums, out[9] the overall score */
-void ord_ComputeStatistics(float *out)
+void ord_ComputeStatistics(ORDSTATS *out)
 {
     int cnt, n1, n0, i, j, k;
     int sumA, sumC, sumD, s58, s54, s50, s4c;
     float cntf, f, m, sum, w, g;
-    float q3, q1, q2, income;               /* the inverted shares and the income rating of out[9] */
+    float q3, q1, q2, income;               /* the inverted shares and the income rating of out->score */
     AICHAR *c;
     AIBLD *p;
     unsigned char *b;
@@ -2063,15 +2063,15 @@ void ord_ComputeStatistics(float *out)
     if (sumA <= k)
         sumA = k;
     cntf = (float)cnt;
-    out[5] = cntf / sumA * ((float)s50 / s4c * ((float)s58 / s54) + 0.5) * sumD;
-    ((int *)out)[7] = sumC;
-    ((int *)out)[4] = cnt;
-    ((int *)out)[8] = sumA;
-    out[0] = gm_IncomeRating();
+    out->rating = cntf / sumA * ((float)s50 / s4c * ((float)s58 / s54) + 0.5) * sumD;
+    out->sumC = sumC;
+    out->chars = cnt;
+    out->sumA = sumA;
+    out->col[0] = gm_IncomeRating();
     /* @original the shares divide in double: two float divisions by cntf become one shared reciprocal (VC6), the
        original divides twice */
-    out[3] = 1.0f - (float)(n1 / (double)cntf);
-    out[1] = 1.0f - (float)(n0 / (double)cntf);
+    out->col[3] = 1.0f - (float)(n1 / (double)cntf);
+    out->col[1] = 1.0f - (float)(n0 / (double)cntf);
 
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 8; j++) {
@@ -2085,12 +2085,12 @@ void ord_ComputeStatistics(float *out)
     }
     f = ord_WeightedRecordSum(rec);
     f = (float)((1.0 - (f * 0.7f + ord_StatisticsRating(rec) * 0.3)) * sum);
-    out[2] = f;
-    q3 = 1.0f - out[3];
-    q1 = 1.0f - out[1];
-    income = out[0];
+    out->col[2] = f;
+    q3 = 1.0f - out->col[3];
+    q1 = 1.0f - out->col[1];
+    income = out->col[0];
     q2 = 1.0f - f;
-    out[9] = ((q2 + income + q1 + q3) * 0.25f
+    out->score = ((q2 + income + q1 + q3) * 0.25f
               + q2 * income * q1 * q3 * 2) * 0.33333334f;
 }
 /* 0x4f8ed0, recomputes the statistics (ord_ComputeStatistics) into ord_Statistics, smooths the rating out[5] into
@@ -2101,17 +2101,17 @@ void ord_ComputeStatistics(float *out)
 
 void ord_UpdateStatistics(void)
 {
-    float st[10];
+    ORDSTATS st;
     ORDSAVE m;
 
-    ord_ComputeStatistics(st);
+    ord_ComputeStatistics(&st);
     if (ai_RatingBase == 0.0f) {
-        memcpy(&ord_Statistics, st, sizeof ord_Statistics);
-        ai_Rating = st[5];
-        ai_RatingBase = st[5] * 0.95;
+        memcpy(&ord_Statistics, &st, sizeof ord_Statistics);
+        ai_Rating = st.rating;
+        ai_RatingBase = st.rating * 0.95;
     } else {
-        memcpy(&ord_Statistics, st, sizeof ord_Statistics);
-        ai_Rating = (st[5] - ai_Rating) * 0.5f + ai_Rating;
+        memcpy(&ord_Statistics, &st, sizeof ord_Statistics);
+        ai_Rating = (st.rating - ai_Rating) * 0.5f + ai_Rating;
     }
     ord_Statistics.rating = ai_Rating;
     ord_Statistics.base = ai_RatingBase;
