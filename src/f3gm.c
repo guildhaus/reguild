@@ -2506,7 +2506,7 @@ int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 int ai_InventoryHas(void *ch, int id);                     /* 0x5ba6b0 */
-void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
+void ai_RestartMission(struct AICHAR *c);                     /* 0x4b3a90 */
 int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */
 int gm_CharSumAmounts(struct AICHAR *c);                     /* 0x509eb0 */
 int cm_SendMoveObject(int a, int b, int c);                     /* 0x4c5010 */

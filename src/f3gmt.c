@@ -5036,7 +5036,7 @@ int gm_DeathDate(AICHAR *c, GMDATE *out)
 /* the bit fields of the word +0x2c of a character (the skill levels): field k starts at the bit FIELD_SHIFT[k] with the mask FIELD_MASK[k] (4, 4, 2, 3, 3, 3, 2, 4 bits) */
 
 
-void ai_RestartMission(struct G13MIS *m);                     /* 0x4b3a90 */
+void ai_RestartMission(struct AICHAR *c);                     /* 0x4b3a90 */
 
 /* 0x506180, the ranking of the players: the up to 8 characters of the kinds 5 / 6 / 7 into out (*count of them),
    each with its talents, title, office, reputation and worth (see GMRANK), the weighted sum 0.15 * (title + office +
@@ -5181,7 +5181,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
     ca = (AICHAR *)(gm_FindChar(a));
     if (ca == 0)
         return -1;
-    ai_RestartMission((struct G13MIS *)ca);
+    ai_RestartMission(ca);
     for (j = 0; j < 0x100; j++) {
         bl = &((AIBLD *)ai_Blds)[j];
         if (bl->type != 0 && gm_BuildingClass(bl->type) == 2 && bl->owner == ca->id)

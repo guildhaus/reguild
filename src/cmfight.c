@@ -3831,7 +3831,7 @@ void cm_FightEndDialog(G28REC *a)
             /* the building is taken */
             bt = &ai_BTypes[ca->type];
             if (bt->kind == 4 || bt->kind == 0x10)
-                ai_CountMissionEvent((int)cm_FightAttacker, 0x1c);
+                ai_CountMissionEvent(cm_FightAttacker, 0x1c);
             cm_SendOwnership(ca->id, cm_FightAttacker->netId, cm_FightAttacker->netId);
             txt_Format(ba, 0x11a4, cm_FightAttacker->id, ca);
             cm_MessageBox((intptr_t)ba, 0);
