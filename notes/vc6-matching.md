@@ -6239,6 +6239,9 @@ the bytes no portable form gives.
   hst_ListModeSet / hst_ListModeUse in hst.c (a label's 4-byte tag compared with the first four characters of
   the 5-byte strings of `char hst_ListModes[2][5]`, the second at an odd address: no C type puts an int at +5;
   the inline `*(int *)hst_ListModes[k]` compiles the same but is dcp's Q4 raw access, which wants the view).
+  PAR_VF / PAR_TF in d3_par.h (twenty-eighth pass: par_Draw's chained clip / visible bit stores into a
+  particle quad's D3VERTEX.flags / D3TRI.flags bytes; through any union member, D3VERTEX.clip included, its
+  register allocation moves, see "record view macros" below).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
   G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
@@ -6287,7 +6290,11 @@ the bytes no portable form gives.
   (the plain char numbers and code bytes as signed char, AIJOB's kind bytes named twice, the offer event's pack(1)
   AIOFFERAT member, GVEFFECT.parts as SHOTREC) or the twenty-seventh (the terrain views D3TERRAIN / D3STERR / D3MAP /
   D3TMAP / D3IFMAP as D3FLMAP with d3_Terrain typed, d3_DefaultD3DConfig as D3DCONFIG and d3if_SceneState0, the
-  particle list's head node, D3SCENE.dirty, ai_CharInts as AICHAR fields, the unused view macros).
+  particle list's head node, D3SCENE.dirty, ai_CharInts as AICHAR fields, the unused view macros) or the
+  twenty-eighth (the record view macros: D3OBJECT's D3OBJX / D3LOBJ / D3IFLIGHT / D3OBJPOSE with the light records
+  D3LIGHTINFO / D3LIGHTKEY, CHSLOT as D3ANIMSLOT, CHTRANSPORT / CHACTOBJ, GMBTYPE as AIBTYPE, D3CVERT as D3VERTEX,
+  the particle system's D3EMITTER / D3PARINV / PARPART, D3OBJECT's flag bytes, D3QMAT as D3MESH, G12_B, D2PAINTWIN;
+  only PAR_VF / PAR_TF above).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -7084,10 +7091,39 @@ the bytes no portable form gives.
   grep `[A-Za-z0-9_]NAME` after the replace.
 - Commit-message slips of the twenty-seventh pass: e2936252 lacks the Co-Authored-By / Claude-Session trailer
   lines.
+- **Record view macros over a pointer** (twenty-eighth pass, `#define D3_X(o) ((D3OBJX *)(o))`, `D3_MESH(o)
+  ((D3MESH *)(o)->material)`, `GM_BLOCK(p) ((GMBLOCK *)gm_StockBlocks + (p))`): first check whether the cast is a
+  no-op (D3_MESH, GM_BLOCK, D2OBJ_AT: the field / table already has the type; replace `M(x)->f` by `x->material->f`
+  or `t[x].f`). Otherwise merge the view into the record as the earlier passes did: compare every view field's
+  offset with the record (the view's own offset comments, then the build), name the record's pads and add union
+  members for the second readings, rename the colliding names first (D3OBJX.radius 0x68 vs an unread
+  D3OBJECT.radius at 0x1d4: the unread member went; CHSLOT.speed 0x5c = D3ANIMSLOT.stopRadius while
+  D3ANIMSLOT.speed is 0x60 = CHSLOT.playSpeed; D3EMITTER.size[3] 0x60 vs D3PARTSYS.size 0xe4: psize; D3OBJX.time =
+  animTime, D3LOBJ.time = lightTime), then expand each macro use with its field map in one script
+  (scratchpad p28/mac.py: balanced-parenthesis argument, `M(a)->f` -> `a->map[f]`, the argument parenthesised
+  unless it is a postfix expression). A view's whole-record reading can be an embedded record (D3PARTSYS's char
+  obj[0x1f8] + parent / scene placement fields = a D3OBJECT obj member); a view field that lies past its union
+  (CHACTOBJ.data[2] at 0x178, past CHACTION.u) goes into the next union, not into a bigger member (the record size
+  must not change). A pointer returned as int and cast by every caller (ch_AttachAni) returns the record pointer.
+- **The script API names bits**: OCMDOBJBITS' transient / blocked (ocmd_SetTransient / ocmd_SetBlocked) are the
+  original's names for D3OBJECT.stateFlags 0xc / 0x10; prefer them to names inferred from a reader.
+- **A bitfield store through a union member is not the same code as through a cast struct** (par_Draw, 74 ins):
+  `v->clip.left = v2->clip.left = x` (D3CLIP in D3VERTEX's flags union), a bit struct added to D3VERTEX's or
+  D3TRI's flags union, and D3TRI's existing hm bits all move the register allocation of the chained
+  read-modify-write stores; `((PARVFLAGS *)&v->flags)->l` keeps the byte. Adding the bit struct to the union also
+  changed the code where par_Draw only read the plain `flags` member. Measure every bit-view merge on the
+  functions that write the bits (dcp try cannot change headers: build the header change, grade, revert).
+- Header bisects: a header change that drops a function that does not touch the changed fields to draft is not
+  always a declaration-set tie-break (dcp grade says "the difference is in the text" though the text is the
+  same); revert the header pieces one by one (keeping the unit compiling: block-scope typedefs in the function
+  for the old casts) until the grade comes back.
+- Commit-message slips of the twenty-eighth pass: 951babcf names "gm_LayoutTree's tree nodes" for D2OBJ_AT's
+  function, gm_UpdateTechTree; eda745a1 calls the 0xc / 0x10 state bits shadowMask / castShadow (7eb62235 named
+  them transient / blocked).
 
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the twenty-seventh portability pass (the passes since eb11a8b9). VC6 still compiles
+the twenty-eighth portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7108,7 +7144,8 @@ Kept deliberately (each with `@original` in the source):
 - The (c) cases (no declaration arrangement compiles the original's code): util_Random's int result in
   he_RunInnSim, d3sm_Pick's int result in cmfight.c, hst_ListModeSet / hst_ListModeUse (an int compared with the
   first four bytes of a 5-byte string, one at an odd address), ai_NumPlayersW in main.c (a byte global read as an
-  int).
+  int), PAR_VF / PAR_TF in d3_par.h (par_Draw's bit stores through a plain bitfield struct cast of the
+  D3VERTEX.flags / D3TRI.flags bytes; every union member spelling moves its code).
 - sv_RunFrame's record-returning frame keys: C4047 + C4024 at seven calls (lc 1, lcamt 5, lcdom 1); the key is
   compared, never called.
 - Function pointers passed through a cast as callbacks: d3_ForEachObject2's callbacks, qsort, ai_GraveWindow,
@@ -7131,20 +7168,21 @@ Kept deliberately (each with `@original` in the source):
   drawers), `__int64`, `__cdecl` / `__stdcall` on Win32 / DirectX callbacks, 118 `#pragma pack` lines.
 
 Not done (views that count.py does not count; the next passes' work):
-- Record view macros over a pointer, by uses (about): D3_MESH 159, D3_X 159, D3_L 158, CH_XSLOT 73, GM_BLOCK 43,
-  D3_CV 42, PAR_VF 28, CH_ACTOBJ 25, GM_BTYPE 21, D3IO_FL 19, D3Q_MAT 18, D3PAR_INV 17, CH_TRANSPORT 17, G12_B 12,
-  D3IF_LIGHT 11, D3_POSE 9, D2OBJ_AT 8, D3PAR_TIME 7, CH_MODEL / CH_MODEL2 9, ORD_KIND 5, PAR_OBJ / PAR_EMITTER /
-  PAR_E / PAR_TF 13, d2.c's WIN 3, D3IF_OBJ068 1. Most are a second record type for one object (D3OBJX / D3LOBJ for
-  D3OBJECT, GMBTYPE for AIBTYPE, D3EMITTER / D3PARINV for D3PARTSYS: merges as the earlier passes did), some a
-  pointer field read as another record than its declared type (D3_MESH = obj->material, CH_XSLOT, CH_TRANSPORT,
-  PAR_OBJ).
-- Inline cast views (39 lines): float element views of vectors / colours (d3_interface.c's light keys), byte
-  views of ints (`((unsigned char *)&msg.arg[0])[1]` in ai.c / hst.c, `((unsigned char *)&r->kind[k])[1]` in d2.c:
-  little-endian), int views of records (d2.c's d2_Views, ch.c's `((int *)&slot->flags)[1]`, net.c's net_Stats),
-  the float-bits views D3IFBITS (d3_SaveScene's float globals) / D2WINF.alpha / D3TEXPACK, the bit views
-  D3TRIBITS / D3BITS / OCMDOBJBITS, AMTKINDF / AMTRANGEW, G12EVENTMSG.
+- Record view macros: after the twenty-eighth pass only ORD_KIND (1 use: ord_ComputeStatistics reads
+  ord_KindTable's 8-byte records as four shorts; the table is a char placeholder that ord_GetKindRecord copies as
+  two ints and its callers read as int[2] / short[4]: type the data and the callers together) and the kept PAR_VF /
+  PAR_TF. Byte-offset view macros (another form, not in the record view count): D3S_SLOTS 31 (= D3MESH.sub, D3SSLOT
+  is D3MESHSUB), D2WOP 24 / D2VOP 4 (a window / view at a byte offset), FRAME_AT 14 (D3ANIMDATA.frames at i * 0xc0),
+  PAR_AT 11 (a particle at a byte offset), G13_B 7 / HMT_B 3 (AICHAR bytes in mission.c / hmt.c), CH_HAND 3, D3_TEXB 3,
+  G7_MASK 3, AMT_BITS 2.
+- Inline cast views (31 lines; p28/views1.txt): byte views of ints (`((unsigned char *)&msg.arg[0])[1]` in ai.c /
+  hst.c, `((unsigned char *)&r->kind[k])[1]` in d2.c: little-endian), int views of records (d2.c's d2_Views,
+  ch.c's `((int *)&slot->flags)[1]`, net.c's net_Stats), the float-bits views D3IFBITS (d3_SaveScene's float
+  globals) / D2WINF.alpha / D3TEXPACK, the bit views D3TRIBITS / D3BITS, AMTKINDF / AMTRANGEW, G12EVENTMSG; byte
+  pointers into the records cast to the record (f3gmt.c's gm_AllocRaum / gm_CreateBuilding `(AIBTYPE *)bp`, with
+  raw +0x23d..0x23f reads).
 - Field offsets as byte arithmetic: 35 `cm_AddField*` calls send `(char *)p - cm_FieldObject + 0x..` (the network
-  field-sync protocol addresses a field by its 32-bit layout offset), ch.h's CH_MODEL `(char *)ch + 0x130`.
+  field-sync protocol addresses a field by its 32-bit layout offset).
 
 What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
