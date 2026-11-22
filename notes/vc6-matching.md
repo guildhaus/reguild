@@ -6195,6 +6195,35 @@ the bytes no portable form gives.
   pointer difference `(char *)&p->field[k] - cm_FieldObject` (byte; he_RunGraveTraining, ai_RunPendingParties).
 - **An int * parameter's address passed as a float out** (ord_GetGridCell's `&y`): the out value is an unread local
   VC6 packed into the dead parameter slot; `float h; .. &h` is byte.
+- **Several units' views of one record (the mesh vertex D3PVERT / D3LVERT / D3SMVERT / XVERT / D3IOVERT / D3MESHKEY /
+  D3BOXVERT, the triangles, the surface views D3LINFO / D3IOSURF / XPART / TSMESH, the driver views D3OPS / D3LOPS / XOPS /
+  D3IOSTOCK, the path D3ANIM / D3IOPATH)**: one record in the owner header, each unit's use of the same bytes a union
+  member (D3VERTEX: sx / sy or the height map's gx / gz at 0x10, the normal or the environment map's tu / tv at 0x20,
+  the height map's hmFlags / hmHeight in the colour dword; D3TRI.src the D3BGFPOLY * or the uv table), then rename the
+  views to it. Before the rename, compare every field name of each view with the merged record: a name the record
+  has at another offset compiles silently (d3_sm's `tri->v[0]->flags` was D3SMVERT.flags at +0x41 and became
+  D3VERTEX.flags at +0x4c, fixed in 8d38f6fb); give such fields the merged record's distinct name first. Where a
+  view's field was a different reading of the same bytes (D3MESHKEY.time was the point's y, D3MESHKEY.pos the
+  source point's coordinates), write the true field. Every function stayed the same code.
+- **A record view over AIJOB's 0xac union (HELOAN, HEEV3D / LCRANSOMEVENT, GMEVENT23)**: an anonymous struct in the
+  union with prefixed member names (loanPartner .. loanDue, ransomVictim / ransomGuild / ransomSince), as the header's
+  other kinds; then the view variables become AIJOB *. Rewrite the field accesses per function (a variable name such
+  as `x` is a different view in the next function: he.c's HEEV3C), never file-wide, and check that no prefixed name
+  collides (AIJOB already had amount[3] at 0xdc).
+- **An int field or parameter that holds a pointer in one of its uses** (D2OBJ.input as a text object's mem_Alloc'd
+  text, D2SURF.bits read as bytes, cm_DuelLeft / cm_DuelRight holding &ca / &cb, gv_ListEntry's (int)&lists[k][n],
+  evt_DefineFunc's (int)&t.u, the progress callback handed to tex_ReloadAll as an int): a union of the int and the
+  pointer member (D2OBJ.text, D2SURF.bytes), or the pointer type for the global / return / parameter; the same code.
+- **A table in .rdata returned by a lookup (hmt_GetRecord, ai_FindInstrumentRecord; d3s_Palette passed to tex_Create)**:
+  return / take `const T *` down the chain; the readers keep const locals (no C4090 is left).
+- **A message payload read through `&m->data[0]` cast to the record**: add the record to G17MSG's union
+  (G17MSG.record = ORDINITMSG for message 0x56) and give the handler the record pointer.
+- **Pun and byte-offset macros no code uses any more** (57 after the earlier passes typed their sites): delete them
+  (count.py counts definitions, not uses; `grep -w NAME` minus the #define line). Macros are not declarations: no
+  tie-break moved.
+- Commit-message slips of this pass (the code is right): c6809d47 names "gm_CheckProduction / its twin" for the byte
+  walks of gm_SyncMarket / gm_RefreshGoodsLists; 1bf99b1f names "rt_ShowStoreDialog" for rt_ChooseTabGood; 010c2217
+  names "d2_DeleteObj" for d2_RemoveObj.
 - **(c) cases left** (the cast stays @original; no declaration arrangement compiles): util_Random in
   he_RunInnSim (he.c reads the 16-bit result in 18 other functions and the int one here; one unit cannot declare
   both return types: C2371 at file and at block scope, an undeclared call is implicit int and conflicts the
@@ -6250,7 +6279,9 @@ the bytes no portable form gives.
   the groundplan D2SURF, AMTSET as AMTMSG, GVMOVE in G17MSG, the plain char numbers of amr / cm / sv / rmsg / f3gmt / he) or the twenty-third (d2_MoveObj's / d3s_ShadowPoly's
   declarations under `#ifdef _MSC_VER`, CHACTION.why, the script handles, d3_MatToAngles' D3MATRIX, G8REQ / AISTUDYOFFER /
   G9KIND / SPHEREVOLUME / GMDISEASE for int * callees, the duplicate views G8SEAT / G14REC / AIRECX / G8REC / HETAVERNOBJ,
-  AIJOB.msg, gm_NameRecord's GMHEAD *).
+  AIJOB.msg, gm_NameRecord's GMHEAD *) or the twenty-fourth (the one mesh vertex / triangle / surface / driver /
+  path records, AIJOB's loan and ransom members, AIGOOD for GMGOOD / AIGOODX, D2SURF.bytes / D2OBJ.text, ORDINITMSG in
+  G17MSG, const .rdata lookups, the unused pun macros).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
