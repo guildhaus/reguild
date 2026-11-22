@@ -4032,7 +4032,7 @@ void sv_UpdatePanel(void)
                 if ((cls == 1 || cls == 2 || cls == 4 || cls == 7 || cls == 8 || bt->kind == 0x10 || bt->kind == 0x1e) && ai_RunAllows(0x400) == 1) {
                     ai_BuildingPerms = gm_PermissionBits(ai_PlayerId, sel, 0, 0);
                     ai_CampaignStep(0x12, sel, 0, 0);
-                    ai_TransportWindow((int)sel, 1);
+                    ai_TransportWindow(sel, 1);
                     ai_CampaignStep(0x12, sel, 1, 0);
                     sv_SelectedObject = sel;
                     sv_ResetScreenClip();

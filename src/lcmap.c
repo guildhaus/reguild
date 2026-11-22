@@ -1739,7 +1739,7 @@ void ai_RefreshProdSetting(AIBLD *b)
 
     rec = (G8SETTING *)ai_FindSetting(b->id);
     if (rec != 0)
-        ai_FillSettingWeights((int)b, (char *)rec);
+        ai_FillSettingWeights(b, (char *)rec);
 }
 /* 0x5a8870, a good drawn by the weights of a building's setting (111 B): the setting of the building's id
    (ai_FindSetting), the random of 0x5a8340 * 100.0f (0x5ebb40) against the running sum of the slot weights, the

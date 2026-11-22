@@ -9750,15 +9750,15 @@ int ai_TrialStep1(AICHAR *ch, G8USEVIEW *use)
 
     if (ch->kind == 6) {
         txt_Format(text, 0x9d);
-        target = ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList(ch, text);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 1);
+            ai_ApplyTrialStep(target, 1);
             return 1;
         }
     } else {
         target = gm_FindChar(use->target);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 1);
+            ai_ApplyTrialStep(target, 1);
             return 1;
         }
     }
@@ -9775,15 +9775,15 @@ int ai_TrialStep3(AICHAR *ch, G8USEVIEW *use)
 
     if (ch->kind == 6) {
         txt_Format(text, 0x9d);
-        target = ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList(ch, text);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 3);
+            ai_ApplyTrialStep(target, 3);
             return 1;
         }
     } else {
         target = gm_FindChar(use->target);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 3);
+            ai_ApplyTrialStep(target, 3);
             return 1;
         }
     }
@@ -9800,15 +9800,15 @@ int ai_TrialStep4(AICHAR *ch, G8USEVIEW *use)
 
     if (ch->kind == 6) {
         txt_Format(text, 0x9d);
-        target = ai_SpecialAmountList((int)ch, text);
+        target = ai_SpecialAmountList(ch, text);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 4);
+            ai_ApplyTrialStep(target, 4);
             return 1;
         }
     } else {
         target = gm_FindChar(use->target);
         if (target != 0) {
-            ai_ApplyTrialStep((int)target, 4);
+            ai_ApplyTrialStep(target, 4);
             return 1;
         }
     }
@@ -9959,7 +9959,7 @@ int ai_UseGoodTrialStep(AICHAR *ch, G8USEVIEW *use)
     gm_Shuffled(5, pick);
     for (i = 0, n = 0; n < 1 && i < 5; i++) {
         if (ch->skills[pick[i]] < 0xfc) {
-            ai_ApplyTrialStep((int)ch, pick[i]);
+            ai_ApplyTrialStep(ch, pick[i]);
             found = pick[i];
             n++;
         }
@@ -10085,7 +10085,7 @@ int ai_UseGoodTwoTrialSteps(AICHAR *ch, G8USEVIEW *use)
     gm_Shuffled(5, pick);
     for (i = 0, n = 0; n < 2 && i < 5; i++) {
         if (ch->skills[pick[i]] < 0xfc) {
-            ai_ApplyTrialStep((int)ch, pick[i]);
+            ai_ApplyTrialStep(ch, pick[i]);
             n++;
             if (n == 1)
                 first = pick[i];

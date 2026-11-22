@@ -7977,7 +7977,7 @@ int ai_UseGoodWindow(G8INVOBJ *o)
         use.arg = -1;
         use.effect = 0;
         use.handled = 0;
-        ai_UseGood((int)&ai_Chars[ai_PlayerId], (int *)&use);
+        ai_UseGood(&ai_Chars[ai_PlayerId], (int *)&use);
     }
     return use.effect;
 }

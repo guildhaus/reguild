@@ -4171,7 +4171,7 @@ void ai_KontorContact(AIBLD *bld)
             else if (ai_ClickedObject == lager)
                 ai_StorageWindow(bld, 0);
             else if (ai_ClickedObject == metall)
-                ai_ProductionGoodsWindow((int)bld);
+                ai_ProductionGoodsWindow(bld);
             else if (ai_ClickedObject == gelage)
                 ai_GelageWindow(bld);
             else if (ai_ClickedObject == ziel || ai_ClickedObject == stroh)
@@ -4297,7 +4297,7 @@ void ai_StoneKontorContact(AIBLD *bld)
             else if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
             else if (ai_ClickedObject == produktion)
-                ai_ProductionGoodsWindow((int)bld);
+                ai_ProductionGoodsWindow(bld);
             else if (ai_ClickedObject == ziel || ai_ClickedObject == stroh)
                 ai_TrainingWindow(bld);
         }
@@ -7574,7 +7574,7 @@ void ai_MapTableContact(AIBLD *bld, AIOBJ *room)
             if (ai_ClickedObject == (int)lager)
                 ai_StorageWindow(bld, bld->objList);
             else if (ai_ClickedObject == (int)meister)
-                ai_MasterLetterWindow((int)bld);
+                ai_MasterLetterWindow(bld);
             else if (ai_ClickedObject == (int)kartentisch) {
                 kartentisch->mask = 0;
                 ai_MapTableScreen();
@@ -7604,7 +7604,7 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
         ai_CampaignStep(0x17, sv_PanelShown, 0, kind);
         while (sv_PanelShown != 0) {
             ai_PermsDirty = 1;
-            ai_TransportWindow((int)bld, 9);
+            ai_TransportWindow(bld, 9);
         }
     }
     ai_CampaignStep(0x18, sv_PanelShown, 0, kind);
@@ -9150,7 +9150,7 @@ void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
                     else if (ai_ClickedObject == kredite)
                         ai_CreditGiverWindow(bld);
                 } else if (ai_ClickedObject == wechsel) {
-                    ai_ExchangeWindow((int)bld);
+                    ai_ExchangeWindow(bld);
                 } else if (ai_ClickedObject == kredite) {
                     ai_CreditListWindow(bld);
                 }

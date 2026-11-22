@@ -3146,7 +3146,7 @@ void main_EndRound(void)
     if ((ai_GameFlags & 4) != 0)
         sv_NetworkSyncWait(0x24087);
     gm_CollectCarried(ai_PlayerId, (int *)&carry);
-    sv_FillDayPhases((int)&clk);
+    sv_FillDayPhases(&clk);
     sv_Season = sv_ClockSeason(&clk);
     gm_FindRichest(&rid, &k);
     k = 0;
@@ -4581,7 +4581,7 @@ void main_GameLoop(int ctl)
             main_CloseLoadingScreen();
             return;
         }
-        sv_FillDayPhases((int)&ai_Time);
+        sv_FillDayPhases(&ai_Time);
         sv_Season = sv_ClockSeason(&ai_Time);
     }
     init_LoadTypeBScene();

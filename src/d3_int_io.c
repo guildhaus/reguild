@@ -613,7 +613,7 @@ char d3_LoadScene(char *name, void *f, D3IOPROGRESS progress)
                 d3_DefaultScene->mapSize = d3_Terrain ? 0x80 : 0x40;
             if (d3_Terrain)
                 d3_DefaultScene->map = d3_Terrain;
-            tex_ReloadAll(0, (int)progress);
+            tex_ReloadAll(0, progress);
             d3_Busy--;
             if (name)
                 strncpy(d3_DefaultScene->name, name, 0x7f);

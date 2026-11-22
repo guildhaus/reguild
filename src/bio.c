@@ -47,7 +47,7 @@ char *util_BaseName(char *path)
 
 int file_Exists(char *path)
 {
-    return vfs_FindFile(path, (int)vfs_Root, (int *)&path) != 0;
+    return vfs_FindFile(path, vfs_Root, (int *)&path) != 0;
 }
 /* 0x4010b0, the next line that is neither empty nor a ';' comment, trimmed and upper-cased */
 
