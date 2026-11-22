@@ -712,7 +712,7 @@ int d2_SetForm(int view, int n);  /* 0x475f70 */
 int d2_GetWinObj(int view, int idx, int k);  /* 0x475b80 */
 int io_PrintText(intptr_t fmt, ...);  /* 0x515960 */
 int cm_MessageBox(intptr_t id, int flags);  /* 0x4e5470, a message box for the text id with the flags (see cm.c) */
-int gm_StallGoodsList(char *c, unsigned *out);  /* 0x50aa00 */
+int gm_StallGoodsList(struct AIOBJ *c, struct AIRECIPE *out);  /* 0x50aa00 */
 extern int cm_FightSettled;  /* 0x6f0cf8 */
 extern int cm_FightLootValue;  /* 0x6f0cfc */
 extern struct D2WIN *d2_LastWindowPtr;  /* 0x6ed980, window created last (d2.c) */

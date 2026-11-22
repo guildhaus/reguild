@@ -1015,12 +1015,12 @@ void rt_EditCartRoute(AIOBJ *c)
    cart into the building's stock (market 0x1c: its stock 0x1db, warehouse 10: 0x500ec0), bought by player pl at
    the building's price when it is not the cart owner's */
 
-void rt_UnloadAtPoint(char *c, char pl)
+void rt_UnloadAtPoint(AIOBJ *c, char pl)
 {
     RTPOINT *q;
     AIBLD *b;
     char *t;
-    short *o;
+    AICHAR *o;
     AIOBJ *st;
     AIOBJ *g;
     int *s;
@@ -1030,17 +1030,17 @@ void rt_UnloadAtPoint(char *c, char pl)
     AIRECIPE ci;
     AIRECIPE bi;
 
-    if (((AIOBJ *)c)->route == 0)
+    if (c->route == 0)
         return;
-    q = rt_PointAt(((AIOBJ *)c)->route, ((AIOBJ *)c)->routeIdx);
+    q = rt_PointAt(c->route, c->routeIdx);
     b = gm_FindBuildingById(q->buildingId);
     if (b == 0)
         return;
     t = (char *)ai_BTypes + b->type * 0x24d;
-    if (*t != 10 && *t != 0x1c && !gm_BuildingGoodsList(b, (unsigned *)&bi, 0))
+    if (*t != 10 && *t != 0x1c && !gm_BuildingGoodsList(b, &bi, 0))
         return;
     o = gm_ObjectBuildingOwner(c);
-    if (!gm_StallGoodsList(c, (unsigned *)&ci))
+    if (!gm_StallGoodsList(c, &ci))
         return;
     s = q->unloadSlots;
     for (k = 3; k != 0; k--) {
@@ -1059,7 +1059,7 @@ void rt_UnloadAtPoint(char *c, char pl)
                 n = gm_FreeCapacity(st, s[0], n);
                 if (n > 0) {
                     price = 0;
-                    if ((short)(b)->owner != *o) {
+                    if ((short)b->owner != (short)o->id) {
                         if (*t == 10)
                             price = (int)(gm_GoodsPrice(g->id, ai_OwnPlayer) * 1.1f);
                         else
@@ -1104,7 +1104,7 @@ void rt_LoadAtPoint(AIOBJ *c, char pl)
     if (b == 0)
         return;
     t = &ai_BTypes[b->type];
-    if (t->kind != 10 && t->kind != 0x1c && !gm_BuildingGoodsList(b, (unsigned *)&bi, 0) || !gm_StallGoodsList((char *)c, (unsigned *)&ci))
+    if (t->kind != 10 && t->kind != 0x1c && !gm_BuildingGoodsList(b, &bi, 0) || !gm_StallGoodsList(c, &ci))
         return;
     s = q->loadSlots;
     for (k = 3; k != 0; k--) {

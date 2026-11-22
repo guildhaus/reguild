@@ -89,7 +89,7 @@ struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
 unsigned short *gm_AllocRaum(struct AIBLD *b, unsigned n);  /* 0x5031b0 */
-int gm_BuildingGoodsList17(struct AIBLD *b, unsigned *out, int kind);  /* 0x5099e0 */
+int gm_BuildingGoodsList17(struct AIBLD *b, struct AIRECIPE *out, int kind);  /* 0x5099e0 */
 extern GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500 */
 int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4fa700 */
 int gm_TakeObjekt(int id, int proto, int n);  /* 0x500a40 */
@@ -139,7 +139,7 @@ int gm_GetWorth(unsigned short id);  /* 0x50a640 */
 int gm_BuildingKindValue(int kind);  /* 0x509d30 */
 int gm_ConvertMoney(int a, unsigned char k);  /* 0x5085b0 */
 int gm_BuildingJob(int t);  /* 0x5048e0 */
-int gm_StallGoodsList(char *c, unsigned *out);  /* 0x50aa00 */
+int gm_StallGoodsList(struct AIOBJ *c, struct AIRECIPE *out);  /* 0x50aa00 */
 int gm_SumSlotAmounts(void *list, unsigned char p);  /* 0x508660 */
 int gm_CharLevel(unsigned short id, int again);  /* 0x505e60, the level of the character id (its job's kind level + 1, raised to the parent's) */
 int gm_CharPrevLevel(unsigned short id, int again);  /* 0x505f30, gm_CharLevel for the previous office (+0x167) */
@@ -156,7 +156,7 @@ float gm_ObjectValue(int n);  /* 0x5086b0 */
 int gm_ListStock(struct AIOBJ *l, int id);  /* 0x50ab50 */
 int gm_ListAmountById(struct AIOBJ *l, int id);  /* 0x50ab20 */
 int gm_BuildingClass(int kind);  /* 0x501d80 */
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind);  /* 0x5098a0 */
+int gm_BuildingGoodsList(struct AIBLD *b, struct AIRECIPE *out, int kind);  /* 0x5098a0 */
 int gm_BuildingLevel(struct AIBLD *b);  /* 0x508d70 */
 int gm_BuildingRank(struct AIBLD *b);  /* 0x5090b0 */
 int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0 */

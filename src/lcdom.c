@@ -601,7 +601,7 @@ int cm_SendLongMessage(struct AIMSG *msg); int cm_GetSlotValue(int h);
 void snd_PlayFavourComment(void); void d2_CloseView(int view);
 struct AIOBJ *gm_Query(void *list, int n, ...);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3, struct AIBLD *param_4); char *itoa(int, char *, int);
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, struct AIRECIPE *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 int ls_GetLanguage(); int d2_CountPointerItems(); void cm_BeginFieldBlock(void *o, int id);
@@ -2717,8 +2717,8 @@ int ai_SendTransportOrder(unsigned int who, AIOBJ *cart, AIBLD *from, AIBLD *to)
         lc_Settings.escort = (char)msg.dst[5];
         cm_SendLongMessage(&msg);
         if (cart->escort != 0) {
-            gm_StallGoodsList((char *)cart, (unsigned *)&goods);
-            fee = gm_LevelPayout(goods.pada8[2], cart->escort);
+            gm_StallGoodsList(cart, &goods);
+            fee = gm_LevelPayout(goods.value, cart->escort);
             cm_SendMoveGoodsUnchecked(-1, ai_Chars[who].netId, ai_OwnPlayer, fee);
         }
         if (who == ai_PlayerId)
@@ -3412,7 +3412,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             c = rows[i].cart;
             if (c == 0)
                 continue;
-            gm_StallGoodsList((char *)c, (unsigned *)&goods);
+            gm_StallGoodsList(c, &goods);
             for (j = 0; j < goods.n; j++) {
                 if (rows[i].goodsCtl[j] != -1) {
                     if (listShown)
@@ -3428,7 +3428,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             if (rows[i].escortPic != -1) {
                 if (d2_Objs[rows[i].escortPic].pic != c->escort + 0x5e8)
                     d2_SetObjPic(rows[i].escortPic, c->escort + 0x5e8);
-                txt_Format(d2_Objs[rows[i].escortPic].caption, c->escort + 0xe4, gm_LevelPayout(goods.pada8[2], c->escort));
+                txt_Format(d2_Objs[rows[i].escortPic].caption, c->escort + 0xe4, gm_LevelPayout(goods.value, c->escort));
                 if (d2_ClickedId != -1 && d2_PointerObj == rows[i].escortPic) {
                     if ((c->flags20 & 1) == 0) {
                         esc = c->escort = (c->escort + 1) % 3;
@@ -3457,7 +3457,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 d2_Objs[rows[i].pic].highlighted = 1;
             else
                 d2_Objs[rows[i].pic].highlighted = 0;
-            gm_StallGoodsList((char *)c, (unsigned *)&goods);
+            gm_StallGoodsList(c, &goods);
             d2_SetForm(win, 2);
             for (j = 0; j < goods.n; j++) {
                 match = -1;

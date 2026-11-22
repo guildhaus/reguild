@@ -1142,7 +1142,7 @@ void ai_FavourComment(CHARACTER *a)
     g = c->bld;
     level = (int)gm_Liking((unsigned short)ai_PlayerId, g->owner, 1) / 33;
     /* the three building kinds with their own goods list, all others the generic one */
-    if ((g->type == 0x20 || g->type == 0x1f || g->type == 0x1e) ? gm_BuildingGoodsList17(g, (unsigned *)&out, 0) : gm_BuildingGoodsList(g, (unsigned *)&out, 0)) {
+    if ((g->type == 0x20 || g->type == 0x1f || g->type == 0x1e) ? gm_BuildingGoodsList17(g, &out, 0) : gm_BuildingGoodsList(g, &out, 0)) {
         if (out.count == 0)
             x = 1;
     }

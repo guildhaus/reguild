@@ -1024,7 +1024,7 @@ int ai_ProductionWindow(AIBLD *bld)
     return 0;
 }
 
-int gm_BuildingGoodsList(struct AIBLD *b, unsigned *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
+int gm_BuildingGoodsList(struct AIBLD *b, struct AIRECIPE *out, int kind); int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); struct AICHAR; struct D3VECTOR; int d2_WinOpenPic(short x, short y, int pic, int win);
 void d2_RemoveObj(int obj); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void);
 int d2_SetForm(int view, int n); int io_PrintText(intptr_t fmt, ...);
 
@@ -1055,7 +1055,7 @@ void ai_UpdateResourceColumns(int win, int part, int ncols, int unused)
         bld = ai_FallbackBuilding;
     d2_SetForm(win, 0);
     d2_SetForm(win, part);
-    gm_BuildingGoodsList(bld, (unsigned *)&list, 1);
+    gm_BuildingGoodsList(bld, &list, 1);
     for (c = 0; c < ncols; c++) {
         if (ai_ProdColumns[c].win < 0) {
             ai_ProdColumns[c].win = d2_CreateChildWindow(ai_ProdColumns[c].x, ai_ProdColumns[c].y, 0xcd, 0x57, 0x10, d2_LastWindow);
@@ -1182,7 +1182,7 @@ void ai_UpdateProdColumns(int win, int part, int ncols, AIOBJ *store, int mode)
     cls = gm_BuildingClass(bld->type);
     d2_SetForm(win, 0);
     d2_SetForm(win, part);
-    gm_BuildingGoodsList(bld, (unsigned *)&list, 1);
+    gm_BuildingGoodsList(bld, &list, 1);
     for (c = 0; c < ncols; c++) {
         ai_ProdColumns[c].selected = -1;
         if (ai_ProdSelectedInput != 0)

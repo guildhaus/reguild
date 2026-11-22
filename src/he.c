@@ -11376,7 +11376,7 @@ void he_AllocTransport(AIJOB *e)
     int home1, home2, k, skill, pay;
     float mind, dist, dx, dy, dz;
     D3VECTOR4 p1, p2;                   /* d3_PointToWorld writes past the vector */
-    unsigned goods[0x2e];
+    AIRECIPE goods;
     char text[0x100];
 
     home1 = 0;
@@ -11469,16 +11469,16 @@ void he_AllocTransport(AIJOB *e)
         o->job24 = e;
         e->from = o->objId;
         if ((o->flags20 & 1) != 0) {
-            gm_StallGoodsList((char *)o, goods);
-            if ((int)goods[0x2c] > 0) {
-                t->escorts = (int)goods[0x2c] / 16000 + util_Random(2);
+            gm_StallGoodsList(o, &goods);
+            if (goods.value > 0) {
+                t->escorts = goods.value / 16000 + util_Random(2);
             } else
                 t->escorts = 0;
             t->escorts = t->escorts > 2 ? 2 : t->escorts;
             if (t->escorts != 0) {
                 sprintf(text, "he_AllocTransport(): master choose eskorte type %i", t->escorts);
                 o->escort = (char)t->escorts;
-                pay = gm_LevelPayout(goods[0x2c], o->escort);
+                pay = gm_LevelPayout(goods.value, o->escort);
                 if ((e->opts & 2) != 0)
                     cm_SendMoveGoodsUnchecked(-1, ai_Chars[e->chr].netId, ai_OwnPlayer, pay);
             } else
@@ -12085,7 +12085,7 @@ void he_RunTransport(AIJOB *e)
         b = gm_BuildQuery(1, 1, t->goal);
         if (b->type == 0x47)
             pl = (char)b->playerSlot;
-        rt_UnloadAtPoint((char *)tr, pl);
+        rt_UnloadAtPoint(tr, pl);
         e->exSlot = cm_SendExSetHE(5, e);
         return;
     case 5:
@@ -17157,7 +17157,7 @@ void he_RunAmbush(AIJOB *ev)
             busy = he_FindEvent(1, 0, 0x51);
             t = he_FindEvent(1, 0, 0xf);
             for (; all != 0 && o != 0 && t != 0 && n < 3; t = he_NextEvent()) {
-                unsigned goods[0x2e];
+                AIRECIPE goods;
                 CHARACTER *task;
 
                 if (((HETRANSPORT *)t)->ambushed != 0 || t->chr == ev->chr || (owner != -1 && owner != ai_CharInts[t->chr][0]))
@@ -17170,8 +17170,8 @@ void he_RunAmbush(AIJOB *ev)
                 task = cart->sceneObj;
                 if (d3_VecEqual(&task->obj->pos, &pos.v, 1500.0f) != 0)
                     nearby = 1;
-                gm_StallGoodsList((char *)cart, goods);
-                value = goods[0x2c];
+                gm_StallGoodsList(cart, &goods);
+                value = goods.value;
                 if (value <= 0)
                     continue;
                 level = (int)(x->skill * 0.023809524f);

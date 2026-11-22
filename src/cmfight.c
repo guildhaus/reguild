@@ -3558,7 +3558,7 @@ int cm_FightStartDialog(G28REC *a)
             if (n != -1) {
                 bld = (char *)gm_FindObjectInst(n);
                 if (bld != 0) {
-                    gm_StallGoodsList(bld, (unsigned *)&rc);
+                    gm_StallGoodsList(bld, &rc);
                     for (k = 0; k < rc.count; k++)
                         total = (int)(gm_GoodsPrice(rc.item[k], ai_OwnPlayer) * rc.amount[k] + total);
                 }
@@ -4044,8 +4044,8 @@ int cm_CheckFight(G28REC *a)
                 cart = gm_FindObjectInst(a->fight.carts[i]);
                 if (cart == 0)
                     return 0;
-                gm_StallGoodsList((char *)cart, (unsigned *)&rc);
-                if (rc.pada8[2] <= 0)       /* the goods' value */
+                gm_StallGoodsList(cart, &rc);
+                if (rc.value <= 0)
                     return 0;
             }
         }
@@ -4088,7 +4088,7 @@ int cm_CheckFight(G28REC *a)
 void cm_RunFight(G28REC *a)
 {
     char buf[0x800];
-    int rc[0x2e];
+    AIRECIPE rc;
     int bad = 0, nb, seed, i, id, sa, sb, w, n, r;
     char *c, *p, *win, *e1, *e2;
     AICHAR *ch;
@@ -4120,8 +4120,8 @@ void cm_RunFight(G28REC *a)
             if (id != -1) {
                 p = (char *)gm_FindObjectInst(id);
                 if (p != 0) {
-                    gm_StallGoodsList(p, rc);
-                    if (rc[0x2c] > 0)
+                    gm_StallGoodsList(p, &rc);
+                    if (rc.value > 0)
                         continue;
                 }
                 bad = 2;

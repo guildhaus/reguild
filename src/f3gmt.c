@@ -6650,14 +6650,13 @@ int gm_FixedWorkMinutesBetween(AITIME *a, AITIME *b)
    capacity its cap[1] (of a market the larger of both caps); else those goods, the capacity its cap[0], and nothing
    for a market. Every goods of a market counts. 0 when the building has no object 0xfd or no stall */
 
-int gm_BuildingGoodsList(AIBLD *bld, unsigned *out, int kind)
+int gm_BuildingGoodsList(AIBLD *bld, AIRECIPE *out, int kind)
 {
     AIOBJ *stall, *o;
     GMGOOD *g;
-    int i, cap;
+    int cap;
 
-    for (i = 0; i < 0x2e; i++)
-        out[i] = 0;
+    memset(out, 0, sizeof(*out));
     if (gm_Query(bld->objList, 1, 0, 0xfd) == 0)
         return 0;
     stall = gm_Query(bld->objList, 2, 6, 0, 0x2a);
@@ -6666,42 +6665,41 @@ int gm_BuildingGoodsList(AIBLD *bld, unsigned *out, int kind)
     if (kind != 0) {
         if (stall->type == 0x116)
             return 0;
-        out[0] = stall->cap[0];
+        out->n = stall->cap[0];
     } else {
         cap = stall->cap[1];
-        out[0] = cap;
+        out->n = cap;
         if (stall->type == 0x116)
-            out[0] = GM_MAX(cap, (int)stall->cap[0]);
+            out->n = GM_MAX(cap, (int)stall->cap[0]);
     }
     o = gm_Query(stall->list, 1, 5);
     while (o) {
         g = GM_GOOD(o->type);
         if (((g->type == 0x17 || g->type == 0x25) && kind != 0) || ((g->type != 0x17 && g->type != 0x25) && kind == 0)
             || stall->type == 0x116) {
-            out[0x1a + out[1]] = gm_ListAmount(stall, o);
-            out[2 + out[1]] = gm_ListStock(stall, o->type);
-            ((AIRECIPE *)out)->item[out[1]] = o->type;
-            out[1]++;
+            out->amount[out->count] = gm_ListAmount(stall, o);
+            out->max[out->count] = gm_ListStock(stall, o->type);
+            out->item[out->count] = o->type;
+            out->count++;
         }
         o = gm_QueryNext();
     }
-    ((AIRECIPE *)out)->stall = stall;
+    out->stall = stall;
     return 1;
 }
 /* 0x5099e0, the goods list of the building b as gm_BuildingGoodsList (the same out record, stall, capacity and
    market rules), with another goods filter: kind != 0 lists only the goods of type 0x17, kind 0 all others, and a
    market gets no exception (f3snd.c uses it for the building classes 0x1e .. 0x20) */
 
-int gm_BuildingGoodsList17(AIBLD *b, unsigned *out, int kind)
+int gm_BuildingGoodsList17(AIBLD *b, AIRECIPE *out, int kind)
 {
     AIBLD *bld;
     AIOBJ *stall, *o;
     GMGOOD *g;
-    int i, cap;
+    int cap;
 
     bld = b;
-    for (i = 0; i < 0x2e; i++)
-        out[i] = 0;
+    memset(out, 0, sizeof(*out));
     if (gm_Query(bld->objList, 1, 0, 0xfd) == 0)
         return 0;
     stall = gm_Query(bld->objList, 2, 6, 0, 0x2a);
@@ -6710,25 +6708,25 @@ int gm_BuildingGoodsList17(AIBLD *b, unsigned *out, int kind)
     if (kind != 0) {
         if (stall->type == 0x116)
             return 0;
-        out[0] = stall->cap[0];
+        out->n = stall->cap[0];
     } else {
         cap = stall->cap[1];
-        out[0] = cap;
+        out->n = cap;
         if (stall->type == 0x116)
-            out[0] = GM_MAX(cap, (int)stall->cap[0]);
+            out->n = GM_MAX(cap, (int)stall->cap[0]);
     }
     o = gm_Query(stall->list, 1, 5);
     while (o) {
         g = GM_GOOD(o->type);
         if ((g->type == 0x17 && kind != 0) || (g->type != 0x17 && kind == 0)) {
-            out[0x1a + out[1]] = gm_ListAmount(stall, o);
-            out[2 + out[1]] = gm_ListStock(stall, o->type);
-            ((AIRECIPE *)out)->item[out[1]] = o->type;
-            out[1]++;
+            out->amount[out->count] = gm_ListAmount(stall, o);
+            out->max[out->count] = gm_ListStock(stall, o->type);
+            out->item[out->count] = o->type;
+            out->count++;
         }
         o = gm_QueryNext();
     }
-    ((AIRECIPE *)out)->stall = stall;
+    out->stall = stall;
     return 1;
 }
 /* 0x509b10, the value of the building b at the level (percent): its type's base value x 0xf00 plus the price (gm_ItemPrice) of its equipment: each object of the type's list of the kinds 2 / 6 that the building holds, and the objects listed after it (up to the next kind 2 / 6) held inside that one; the sum times level / 100 */
@@ -7282,29 +7280,27 @@ int gm_LevelPayout(int v, int level)
    count sums, out[0x2c] the goods' value (gm_ItemPrice at 100 times the count), out[0x2d] the stall; 0 when c
    holds no stall */
 
-int gm_StallGoodsList(char *c, unsigned *out)
+int gm_StallGoodsList(AIOBJ *c, AIRECIPE *out)
 {
     AIOBJ *stall, *o;
-    int i;
 
-    for (i = 0; i < 0x2e; i++)
-        out[i] = 0;
-    stall = (AIOBJ *)gm_Query(((AIOBJ *)c)->list, 1, 0, 0x1dd);
+    memset(out, 0, sizeof(*out));
+    stall = gm_Query(c->list, 1, 0, 0x1dd);
     if (stall == 0)
         return 0;
     o = gm_Query(stall->list, 1, 5);
-    out[0] = stall->lvl1c;
+    out->n = stall->lvl1c;
     while (o) {
-        out[0x1a + out[1]] = o->count;
-        out[2 + out[1]] = gm_ListStock(stall, o->type);
-        out[0x2a] += out[2 + out[1]];
-        out[0x2b] += o->count;
-        ((AIRECIPE *)out)->item[out[1]] = o->type;
-        out[1]++;
-        out[0x2c] = (int)(gm_ItemPrice(o->type, 100) * o->count + (int)out[0x2c]);
+        out->amount[out->count] = o->count;
+        out->max[out->count] = gm_ListStock(stall, o->type);
+        out->stockSum += out->max[out->count];
+        out->amountSum += o->count;
+        out->item[out->count] = o->type;
+        out->count++;
+        out->value = (int)(gm_ItemPrice(o->type, 100) * o->count + out->value);
         o = gm_QueryNext();
     }
-    ((AIRECIPE *)out)->stall = stall;
+    out->stall = stall;
     return 1;
 }
 /* 0x50aaf0, the amount of the object o in the list object l: minus one for the stall objects 0x2a / 0x116 / 0x1db / 0x1dc (the stall itself) */

@@ -337,8 +337,9 @@ typedef struct AIRECIPE {               /* 0xb8 bytes, a goods list: filled by g
     int max[16];                        /* 0x08, per entry its stock (gm_ListStock): ai.c takes max - amount as the room left */
     unsigned short item[16];            /* 0x48, per entry the goods id */
     int amount[16];                     /* 0x68, per entry its amount (gm_ListAmount; the object's count of a stall) */
-    int pada8[3];                       /* 0xa8, gm_StallGoodsList: the sum of the stocks, the sum of the amounts, the goods'
-                                           value (gm_ItemPrice at 100 times the count) */
+    int stockSum;                       /* 0xa8, gm_StallGoodsList: the sum of the stocks */
+    int amountSum;                      /* 0xac, gm_StallGoodsList: the sum of the amounts */
+    int value;                          /* 0xb0, gm_StallGoodsList: the goods' value (gm_ItemPrice at 100 times the count) */
     struct AIOBJ *stall;                /* 0xb4, all three fillers: the stall object */
 } AIRECIPE;
 
