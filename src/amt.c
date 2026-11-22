@@ -2482,7 +2482,7 @@ int amt_ExecuteShareMessage(AICHAR *c, G8REQ *m)
                             he_ShowNews(ai_Chars[i].netId, -1, msg, 0, 0x5fd, ch_EmptyName);
                     }
                 } while (++i < 768);
-                if (((char *)c)[2] == 6) {
+                if (c->kind == 6) {
                     txt_Format(msg, 0x1661, o->owner, o);
                     sv_MessageBox((intptr_t)msg, 0);
                 }

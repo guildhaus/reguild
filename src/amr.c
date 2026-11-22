@@ -5355,9 +5355,9 @@ int ai_DecideMayorUpgrade(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     LARGE_INTEGER m;
     int n, x, w, z, r;
 
-    if (f != 0 || ((unsigned char *)p)[0x166] != 0xf || o1->kind != 0)
+    if (f != 0 || p->officeKind != 0xf || o1->kind != 0)
         return 0;
-    if (a != 0 && ((unsigned char *)p)[0x130] != 6 && ((unsigned char *)p)[0x130] != 9)
+    if (a != 0 && p->sel != 6 && p->sel != 9)
         return 0;
     for (n = 4; n != 0; n--) {
         m.LowPart = 2;
@@ -5407,9 +5407,9 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 
     m.LowPart = 0x8000;
     m.HighPart = 0;
-    if (f != 0 || ((unsigned char *)p)[0x166] != 0xf || o1->kind != 0)
+    if (f != 0 || p->officeKind != 0xf || o1->kind != 0)
         return 0;
-    if (a != 0 && ((unsigned char *)p)[0x130] != 7 && ((unsigned char *)p)[0x130] != 6)
+    if (a != 0 && p->sel != 7 && p->sel != 6)
         return 0;
     if (!ai_PickActionBuilding(p, 2, m.QuadPart, 0, 100.0f, &x))
         return 0;
@@ -5528,9 +5528,9 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     gm_PlayerSeat(1);
     m.LowPart = 0x40;
     m.HighPart = 0;
-    if (f != 0 || ((unsigned char *)p)[0x166] != 0xf || o1->kind != 0)
+    if (f != 0 || p->officeKind != 0xf || o1->kind != 0)
         return 0;
-    if (a != 0 && ((unsigned char *)p)[0x130] != 7 && ((unsigned char *)p)[0x130] != 6)
+    if (a != 0 && p->sel != 7 && p->sel != 6)
         return 0;
     if (!ai_PickActionBuilding(p, 2, m.QuadPart, 0, 100.0f, &x))
         return 0;
@@ -5649,7 +5649,7 @@ int ai_DecideMasterBuilder(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     best[1] = 0;
     cnt[0] = 0;
     cnt[1] = 0;
-    if (ai_Time.year < 4 || f != 0 || ((unsigned char *)p)[0x166] != 0xa || a != 0)
+    if (ai_Time.year < 4 || f != 0 || p->officeKind != 0xa || a != 0)
         return 0;
     b = gm_FirstBuilding(1);
     if (b == 0)
@@ -5756,7 +5756,7 @@ int ai_ExecuteMasterBuilder(AICHAR *p, AIARG *s1, AIARG *s2)
     int n;
 
     c = gm_PlayerSeat(1);
-    if (c == 0 || ((unsigned char *)p)[0x166] != 0xa)
+    if (c == 0 || p->officeKind != 0xa)
         return 0;
     if (s2->kind == 4) {
         memset(&m, 0, sizeof(m));
@@ -5884,7 +5884,7 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     float m;
 
     lim[0] = ai_RandomStrides[util_Random(0x10)];
-    if (((unsigned char *)p)[2] == 3)
+    if (p->kind == 3)
         return 0;
     if (a != 0x33 && a != 0x13 && a != 0x10 && a != 0x11)
         return 0;
@@ -6043,9 +6043,9 @@ int ai_EvalChangeProfession(float *a, float *b, int i, AICHAR *p, int f, AIARG *
         *b = -1e30f;
         return 0;
     }
-    if (((unsigned char *)p)[2] != 5 || ((unsigned char *)p)[0x169] != 0)
+    if (p->kind != 5 || p->secondOffice != 0)
         return 0;
-    n = gm_TitlesLeft(((unsigned char *)p)[0x164]);
+    n = gm_TitlesLeft(p->jobId);
     if (n < 3)
         return 0;
     if (n < 6) {
@@ -6084,7 +6084,7 @@ int ai_DecideChangeProfession(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         if (j->ownerCh == (int)p->netId)
             return 0;
     }
-    gm_TitlesLeft(((unsigned char *)p)[0x164]);
+    gm_TitlesLeft(p->jobId);
     for (k = 1; k < 16; k++) {
         cnt[k] = 0;
         own[k] = gm_TitlesLeft(q->jobByGroup[k]);
@@ -6656,7 +6656,7 @@ int ai_DecideGuildLevel3(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     if (amt_CanUseMayorPower3(p) != 1)
         return 0;
-    k = ((unsigned char *)p)[0x169];
+    k = p->secondOffice;
     if (k == 0x1e) {
         c = ai_PickLeastLikedRival(p);
         if (c == 0)
@@ -6704,7 +6704,7 @@ int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, 
 
     *a = -100.0f;
     *b = -100.0f;
-    k = ((unsigned char *)p)[0x169];
+    k = p->secondOffice;
     if (k < 0x1e && k > 0x21)
         return 0;
     if (k == 0x1e)
