@@ -54,7 +54,6 @@ extern const unsigned int ai_BuildingTypeMasks[6];
 #include "d3_fl.h"
 #include "dd_vesa.h"
 #include "ch.h"
-#define ai_CharsK ((AICHARKINDVIEW *)((char *)ai_Chars + 2))  /* 0x770b82, the records from their kind byte (ai_HasQuicksavePlayer walks them so) */
 
 extern OPTIONBYTES ai_GfxResolution;
 /* full rebuild: the symbols whose original addresses the code above spells literally */
@@ -288,33 +287,6 @@ extern int cm_SaveAcks[][2];            /* 0x76fa20, cm.h: 8 slots; [0] = the pl
                                            save name hash, -1 when empty (message 0x10 fills the first free) */
 extern unsigned char ai_NumPlayers;     /* 0x62489c, the player count (ai.c / cm.c / main.c) */
 extern unsigned short ai_PlayerId;      /* 0x6f25b8, the local player (cm.h / am.h / gv.h) */
-typedef struct AICHARVIEW {
-    unsigned short id;                  /* +0x000, 0xffff when free */
-    unsigned char kind;                 /* +0x002, 6 / 7 = a player */
-    char pad003;
-    unsigned int netId;                 /* +0x004 */
-    char pad008[0x15e];
-    unsigned char officeKind;           /* +0x166, the kind of the office held (amt.h AMTCHARVIEW.officeKind) */
-    char pad167[0x21];
-    char selected;                      /* +0x188, the group selection flag (sv.c ai_Selected, cleared by sv_ClearSelection) */
-    char pad189[3];
-    int pic;                            /* +0x18c, the picture of the character the poker panel shows (reasoned: the picture index) */
-    char pad190[0x3c];
-    unsigned int flags1cc;             /* +0x1cc, ai.h's flags1cc (bit 0x20000 = the blood revenge) */
-    char pad1d0[0x3c];
-    int partyId;                        /* +0x20c, the scene party the character belongs to, -1 = none (ai_char.h AICHAR.partyId) */
-    char pad210[0xc];
-} AICHARVIEW;
-#pragma pack(push, 1)
-typedef struct AICHARKINDVIEW {
-    unsigned char kind;                 /* +0x000 (record +2), 6 / 7 = a player */
-    char pad001[5];
-    unsigned char health;               /* +0x006 (record +8), > 0 = alive (ai_char.h AICHAR.health) */
-    char pad007[0x203];
-    int partyId;                        /* +0x20a (record +0x20c), -1 = none (ai_char.h AICHAR.partyId) */
-    char pad20e[0xe];
-} AICHARKINDVIEW;
-#pragma pack(pop)
 struct AIBLD; int ai_ProductionWindow(struct AIBLD *bld); /* 0x58bd60, lc.c: "Handel\Handel_PRODUKTION" */
 int ai_OpenTransport(struct AIBLD *rec);             /* 0x5af1a0, lc.c */
 struct AIOBJ; void ai_TradeSearchWindow(struct AIBLD *bld, struct AIOBJ *room); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
@@ -349,14 +321,6 @@ typedef struct AIBLDVIEW {
     int objList;                        /* +0x5d, AIBLD.objList: the objects of the building */
 } AIBLDVIEW;
 #pragma pack(pop)
-typedef struct GYPSYROW {               /* 0x38 bytes: one row of the special-amount list (ai_AmountRowStatus / ai_AmountRow read it as ints) */
-    AICHARVIEW *rec;                    /* +0x00, the character the row shows (0 = empty) */
-    int ctl;                            /* +0x04, the row's control object (d2_Objs index) */
-    int pad08[2];
-    int x;                              /* +0x10, the position of the row */
-    int y;                              /* +0x14 */
-    int pad18[8];
-} GYPSYROW;
 extern struct D2PIC *d2_Pics;              /* 0x6ed918, d2.h: D2PIC * */
 void sv_ButtonRow(int f, int y, int *out, int n, ...); int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
