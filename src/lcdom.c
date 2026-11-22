@@ -636,12 +636,7 @@ int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); void 
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_GameFrame(void);
 void lc_PlayerInJail(void);
-typedef struct LCTREENODE {        /* a node of f3gm's research tree layout gm_TreeNodes (f3gm.c RTNODE, 0x34 bytes) */
-    char pad00[0x24];
-    int obj;                       /* 0x24, the node's button object (RTNODE.l[2]), -1 = none */
-    char pad28[0xc];
-} LCTREENODE;
-extern char gm_TreeNodes[3328];    /* 0x76fde0, LCTREENODE[64] (f3gm.c) */
+extern RTNODE gm_TreeNodes[64];    /* 0x76fde0, f3gmt.c */
 extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h) */
 int gm_BuildKindObjects(struct AIBLD *b);
 char *itoa(int value, char *buf, int radix);
@@ -2666,12 +2661,6 @@ void ai_TransportOrderDue(AIOBJ *cart)
     }
 }
 #pragma pack(push, 1)
-typedef struct G8SCENECHAR {            /* the scene character fields this unit reads (ch.h CHARACTER) */
-    char pad00[0x34];
-    D3OBJECT *body;                     /* 0x34, the body (CHARACTER.obj) */
-    char pad38[0xf0];
-    void *actions;                      /* 0x128, the action queue (CHARACTER.actions) */
-} G8SCENECHAR;
 #pragma pack(pop)
 
 /* 0x5ae8e0, whether a transport cart is at its building (192 B, he_RunTrade / ai_TransportWindow): the cart's
@@ -2681,21 +2670,21 @@ typedef struct G8SCENECHAR {            /* the scene character fields this unit 
 
 int ai_CartAtBuilding(AIBLD *bld, AIOBJ *cart)
 {
-    G8SCENECHAR *rec;
+    CHARACTER *rec;
     D3OBJECT *obj;
-    float v[4];
+    D3VECTOR4 v;
     AIBLD *hitBld;
     AIOBJ *hitObj;
     AICHAR *out;
     int id;
 
-    rec = (G8SCENECHAR *)cart->sceneObj;
+    rec = cart->sceneObj;
     if (rec == 0)
         return 0;
     obj = bld->object;
     if (obj != 0) {
-        d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)v);
-        if (d3_VecEqual(&rec->body->pos, (struct D3VECTOR *)v, 1350.0f) != 0) {
+        d3_PointToWorld(obj, &obj->pos, &v.v);
+        if (d3_VecEqual(&rec->obj->pos, &v.v, 1350.0f) != 0) {
             if (rec->actions == 0)
                 return 1;
         }

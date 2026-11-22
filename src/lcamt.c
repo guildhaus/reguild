@@ -643,12 +643,7 @@ int cm_SendLongMessage(struct AIMSG *msg); int cm_EndGroup(const char *s); void 
 char *strupr(char *); void gm_CloseTechTree(void);
 void ai_GameFrame(void);
 void lc_PlayerInJail(void);
-typedef struct LCTREENODE {        /* a node of f3gm's research tree layout gm_TreeNodes (f3gm.c RTNODE, 0x34 bytes) */
-    char pad00[0x24];
-    int obj;                       /* 0x24, the node's button object (RTNODE.l[2]), -1 = none */
-    char pad28[0xc];
-} LCTREENODE;
-extern char gm_TreeNodes[3328];    /* 0x76fde0, LCTREENODE[64] (f3gm.c) */
+extern RTNODE gm_TreeNodes[64];    /* 0x76fde0, f3gmt.c */
 extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h) */
 int gm_BuildKindObjects(struct AIBLD *b);
 char *itoa(int, char *, int);
@@ -807,12 +802,6 @@ struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);
 void d2_RadioSelect(int g, int sel);
 void gm_FreeObject(struct AIOBJ *obj); int gm_LevelPayout(int v, int kind);
 #pragma pack(push, 1)
-typedef struct G8SCENECHAR {            /* the scene character fields this unit reads (ch.h CHARACTER) */
-    char pad00[0x34];
-    D3OBJECT *body;                     /* 0x34, the body (CHARACTER.obj) */
-    char pad38[0xf0];
-    void *actions;                      /* 0x128, the action queue (CHARACTER.actions) */
-} G8SCENECHAR;
 #pragma pack(pop)
 typedef struct LCCARTROW {              /* 0xf0 bytes, a cart row of the transport window (ai_TransportWindow's 16) */
     AIOBJ *cart;                        /* 0x00, the cart, 0: a free row */

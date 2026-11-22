@@ -63,7 +63,7 @@
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
    Open: types: the amount-menu config (AMOUNTCFG), the frame stack (SVFRAME, 0x75f780), the remaining character /
    object record views (AICHAR / AIOBJ of the news messages), the
-   Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
+   Domizil entry (G9DOMIZILRANGE), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
    the gv record (AIWINDOWROW, gv_types.h AIDEC) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
@@ -3223,12 +3223,7 @@ void lc_PlayerInJail(void)
         return;
     sv_SelectPanelObject(it, r->objId, ch_EmptyName);
 }
-typedef struct LCTREENODE {        /* a node of f3gm's research tree layout gm_TreeNodes (f3gm.c RTNODE, 0x34 bytes) */
-    char pad00[0x24];
-    int obj;                       /* 0x24, the node's button object (RTNODE.l[2]), -1 = none */
-    char pad28[0xc];
-} LCTREENODE;
-extern char gm_TreeNodes[3328];    /* 0x76fde0, LCTREENODE[64] (f3gm.c) */
+extern RTNODE gm_TreeNodes[64];    /* 0x76fde0, f3gmt.c */
 extern int ai_Difficulty;          /* 0x6f23fc, the game difficulty 0 .. 4 (ai.h) */
 
 /* 0x591bf0, the tech tree window of the building bld (1593 B): for the player's building it is run by
@@ -3297,7 +3292,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
             }
             if (id >= 0xdf && id <= 0x3bb) {
                 for (k = 0; k < gm_TreeNodeCount; k++) {
-                    if (((LCTREENODE *)gm_TreeNodes)[k].obj != -1 && d2_PointerObj == ((LCTREENODE *)gm_TreeNodes)[k].obj)
+                    if (gm_TreeNodes[k].l[2] != -1 && d2_PointerObj == gm_TreeNodes[k].l[2])
                         break;
                 }
                 if (k < gm_TreeNodeCount) {
@@ -13244,12 +13239,6 @@ struct AIBLD *gm_ObjectBuilding(struct AIOBJ *o);
 void d2_RadioSelect(int g, int sel);
 void gm_FreeObject(struct AIOBJ *obj); int gm_LevelPayout(int v, int kind);
 #pragma pack(push, 1)
-typedef struct G8SCENECHAR {            /* the scene character fields this unit reads (ch.h CHARACTER) */
-    char pad00[0x34];
-    D3OBJECT *body;                     /* 0x34, the body (CHARACTER.obj) */
-    char pad38[0xf0];
-    void *actions;                      /* 0x128, the action queue (CHARACTER.actions) */
-} G8SCENECHAR;
 #pragma pack(pop)
 typedef struct LCCARTROW {              /* 0xf0 bytes, a cart row of the transport window (ai_TransportWindow's 16) */
     AIOBJ *cart;                        /* 0x00, the cart, 0: a free row */

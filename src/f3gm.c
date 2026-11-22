@@ -2515,13 +2515,6 @@ int gm_GetWorth(unsigned short id);
 int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
-typedef struct {
-    int id, p1, p2;
-    unsigned short rank, pad;
-    int x, y, z;
-    int l[5];
-    unsigned char flag;
-} RTNODE;       /* 0x34 bytes, the nodes of the research tree layout 0x76fde0 */
 extern int gm_TreeRanks;
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
 unsigned gm_BoyHead[] = { 0, 1735292266, 1430937445, 4540238, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 0 };  /* 0x6118a8 */

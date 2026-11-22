@@ -7460,7 +7460,7 @@ extern int gm_AllowAll;
 extern unsigned short gm_KindObjCount;
 extern int gm_TechTreeTime;
 /* ---- layout 2026-10-23: the standing / family helpers 0x50b010 .. 0x50d0b0 (ROUGH drafts) ---- */
-extern char gm_TreeNodes[3328];
+extern RTNODE gm_TreeNodes[64];
 extern int gm_TechTreeView;
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
@@ -7628,14 +7628,6 @@ int gm_LikingChance(int a, int b, int c, int d)
         return 1;
     return 0;
 }
-typedef struct {
-    int id, p1, p2;
-    unsigned short rank, pad;
-    int x, y, z;
-    int l[5];
-    unsigned char flag;
-} RTNODE;       /* 0x34 bytes, the nodes of the research tree layout 0x76fde0 */
-#define NODES ((RTNODE *)gm_TreeNodes)
 
 /* 0x50b2f0, the generation of the family record p: 0 without parents, else one more than the older parent's (cached in the word at +0xc) */
 
@@ -7645,21 +7637,21 @@ unsigned gm_TreeNodeRank(int p)
 
     a = 0;
     b = 0;
-    if (NODES[p].rank != 0xffff)
-        return NODES[p].rank;
-    if (NODES[p].p1 == 0)
+    if (gm_TreeNodes[p].rank != 0xffff)
+        return gm_TreeNodes[p].rank;
+    if (gm_TreeNodes[p].p1 == 0)
         return 0;
     n = gm_TreeNodeCount;
     for (i = 0; i < n; i++) {
-        if (NODES[p].p1 == NODES[i].id) {
+        if (gm_TreeNodes[p].p1 == gm_TreeNodes[i].id) {
             a = gm_TreeNodeRank(i) + 1;
             break;
         }
     }
-    if (NODES[p].p2 == 0)
+    if (gm_TreeNodes[p].p2 == 0)
         return a;
     for (i = 0; i < n; i++) {
-        if (NODES[p].p2 == NODES[i].id) {
+        if (gm_TreeNodes[p].p2 == gm_TreeNodes[i].id) {
             b = gm_TreeNodeRank(i) + 1;
             break;
         }
@@ -7691,18 +7683,18 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
         g = (&ai_Goods[bt->objs[n] & 0x7fff]);
         if (g->type == 2 || g->type == 6)
             break;
-        NODES[gm_TreeNodeCount].id = bt->objs[n] & 0x7fff;
-        NODES[gm_TreeNodeCount].p1 = bt->parents[n][0];
-        NODES[gm_TreeNodeCount].p2 = bt->parents[n][1];
-        NODES[gm_TreeNodeCount].rank = 0xffff;
-        NODES[gm_TreeNodeCount].x = 0;
-        NODES[gm_TreeNodeCount].y = 0;
-        NODES[gm_TreeNodeCount].l[0] = -1;
-        NODES[gm_TreeNodeCount].l[1] = -1;
-        NODES[gm_TreeNodeCount].l[2] = -1;
-        NODES[gm_TreeNodeCount].l[3] = -1;
-        NODES[gm_TreeNodeCount].l[4] = -1;
-        NODES[gm_TreeNodeCount].flag = 0xff;
+        gm_TreeNodes[gm_TreeNodeCount].id = bt->objs[n] & 0x7fff;
+        gm_TreeNodes[gm_TreeNodeCount].p1 = bt->parents[n][0];
+        gm_TreeNodes[gm_TreeNodeCount].p2 = bt->parents[n][1];
+        gm_TreeNodes[gm_TreeNodeCount].rank = 0xffff;
+        gm_TreeNodes[gm_TreeNodeCount].x = 0;
+        gm_TreeNodes[gm_TreeNodeCount].y = 0;
+        gm_TreeNodes[gm_TreeNodeCount].l[0] = -1;
+        gm_TreeNodes[gm_TreeNodeCount].l[1] = -1;
+        gm_TreeNodes[gm_TreeNodeCount].l[2] = -1;
+        gm_TreeNodes[gm_TreeNodeCount].l[3] = -1;
+        gm_TreeNodes[gm_TreeNodeCount].l[4] = -1;
+        gm_TreeNodes[gm_TreeNodeCount].flag = 0xff;
         gm_TreeNodeCount++;
     }
     cnt = gm_TreeNodeCount;
@@ -7712,26 +7704,26 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
     /* the ranks, and the nodes sorted by them */
     rmax = 0;
     for (i = 0; i < cnt; i++) {
-        NODES[i].rank = gm_TreeNodeRank(i);
-        if (rmax <= NODES[i].rank)
-            rmax = NODES[i].rank;
+        gm_TreeNodes[i].rank = gm_TreeNodeRank(i);
+        if (rmax <= gm_TreeNodes[i].rank)
+            rmax = gm_TreeNodes[i].rank;
     }
     gm_TreeRanks = rmax + 1;
     do {
         again = 0;
         for (i = 0; i < cnt; i++)
             for (j = i + 1; j < cnt; j++)
-                if (NODES[j].rank < NODES[i].rank) {
-                    tmp = NODES[i];
-                    NODES[i] = NODES[j];
-                    NODES[j] = tmp;
+                if (gm_TreeNodes[j].rank < gm_TreeNodes[i].rank) {
+                    tmp = gm_TreeNodes[i];
+                    gm_TreeNodes[i] = gm_TreeNodes[j];
+                    gm_TreeNodes[j] = tmp;
                     again = 1;
                 }
     } while (again);
     lv = 0;
     gm_TreeRankStart[0] = 0;
     for (i = 0; i < cnt; i++) {
-        if (NODES[i].rank > lv) {
+        if (gm_TreeNodes[i].rank > lv) {
             lv++;
             gm_TreeRankStart[lv] = i;
         }
@@ -7742,7 +7734,7 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
     first = gm_TreeRankStart[1];
     step = w / (first * 2);
     for (i = 0; i < first; i++)
-        NODES[i].x = (i * 2 + 1) * step - 0x18;
+        gm_TreeNodes[i].x = (i * 2 + 1) * step - 0x18;
 
     /* each further rank under the mean of its parents */
     for (lv = 1; lv < gm_TreeRanks; lv++) {
@@ -7750,50 +7742,50 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
             sum = 0;
             num = 0;
             for (j = 0; j < gm_TreeRankStart[lv]; j++) {
-                if (NODES[j].id == NODES[i].p1) {
-                    sum += NODES[j].x;
+                if (gm_TreeNodes[j].id == gm_TreeNodes[i].p1) {
+                    sum += gm_TreeNodes[j].x;
                     num++;
-                } else if (NODES[j].id == NODES[i].p2) {
-                    sum += NODES[j].x;
+                } else if (gm_TreeNodes[j].id == gm_TreeNodes[i].p2) {
+                    sum += gm_TreeNodes[j].x;
                     num++;
                 }
             }
             if (num != 0)
                 sum /= num;
-            NODES[i].x = sum;
+            gm_TreeNodes[i].x = sum;
         }
         do {
             again = 0;
             for (i = gm_TreeRankStart[lv]; i < gm_TreeRankStart[lv + 1]; i++)
                 for (j = i + 1; j < gm_TreeRankStart[lv + 1]; j++)
-                    if (NODES[j].x < NODES[i].x) {
-                        tmp = NODES[i];
-                        NODES[i] = NODES[j];
-                        NODES[j] = tmp;
+                    if (gm_TreeNodes[j].x < gm_TreeNodes[i].x) {
+                        tmp = gm_TreeNodes[i];
+                        gm_TreeNodes[i] = gm_TreeNodes[j];
+                        gm_TreeNodes[j] = tmp;
                         again = 1;
                     }
         } while (again);
         /* nodes on one x are spread around it */
         for (i = gm_TreeRankStart[lv]; i < gm_TreeRankStart[lv + 1]; i++) {
             for (j = i; j < gm_TreeRankStart[lv + 1]; j++)
-                if (NODES[i].x != NODES[j].x)
+                if (gm_TreeNodes[i].x != gm_TreeNodes[j].x)
                     break;
             if (j > i + 1) {
                 j -= i;
                 d = (w / first >> (lv - 1)) - (j * 3 + 3) * 8;
                 for (u = 0; u < j; u++)
-                    NODES[i + u].x += u * d / (j - 1) - (d >> 1);
+                    gm_TreeNodes[i + u].x += u * d / (j - 1) - (d >> 1);
             }
         }
         /* neighbours at least 0x50 apart */
         for (i = gm_TreeRankStart[lv]; i < gm_TreeRankStart[lv + 1]; i++)
             for (j = i + 1; j < gm_TreeRankStart[lv + 1]; j++) {
-                lo = NODES[i].x;
-                hi = NODES[j].x;
+                lo = gm_TreeNodes[i].x;
+                hi = gm_TreeNodes[j].x;
                 if (hi - lo < 0x50) {
                     d = (lo - hi + 0x50) >> 1;
-                    NODES[i].x = lo - d;
-                    NODES[j].x += d;
+                    gm_TreeNodes[i].x = lo - d;
+                    gm_TreeNodes[j].x += d;
                 }
             }
     }
@@ -7803,10 +7795,10 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
     hi = -1;
     for (lv = 0; lv < gm_TreeRanks; lv++)
         for (i = gm_TreeRankStart[lv]; i < gm_TreeRankStart[lv + 1]; i++) {
-            if (lo >= NODES[i].x)
-                lo = NODES[i].x;
-            if (hi <= NODES[i].x)
-                hi = NODES[i].x;
+            if (lo >= gm_TreeNodes[i].x)
+                lo = gm_TreeNodes[i].x;
+            if (hi <= gm_TreeNodes[i].x)
+                hi = gm_TreeNodes[i].x;
         }
     m = lo - 0x18;
     if (m < 0 || hi + 0x60 >= w) {
@@ -7814,7 +7806,7 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
         off = (int)-(m * scale);
         for (lv = 0; lv < gm_TreeRanks; lv++)
             for (i = gm_TreeRankStart[lv]; i < gm_TreeRankStart[lv + 1]; i++)
-                NODES[i].x = (int)(NODES[i].x * scale) + off;
+                gm_TreeNodes[i].x = (int)(gm_TreeNodes[i].x * scale) + off;
     }
 
     /* the ranks spread over the height, 0x60 apart at most */
@@ -7822,7 +7814,7 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
     if (step >= h - 0x10)
         step = h - 0x10;
     for (i = 0; i < gm_TreeNodeCount; i++)
-        NODES[i].y = NODES[i].rank * step / gm_TreeRanks + 0x10;
+        gm_TreeNodes[i].y = gm_TreeNodes[i].rank * step / gm_TreeRanks + 0x10;
     return 0;
 }
 
@@ -7849,139 +7841,139 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
     parent = d2_Views[gm_TechTreeView].wins[3];
     for (i = 0; i < gm_TreeNodeCount; i++) {
         state = 0;
-        if ((&ai_Goods[NODES[i].id])->type == 6) {
-            if (gm_Query(bl->objList, 1, 0, NODES[i].id) != 0) {
+        if ((&ai_Goods[gm_TreeNodes[i].id])->type == 6) {
+            if (gm_Query(bl->objList, 1, 0, gm_TreeNodes[i].id) != 0) {
                 state = 1;
                 for (o = he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = he_NextEvent())
-                    if (o->research == NODES[i].id) {
+                    if (o->research == gm_TreeNodes[i].id) {
                         state = 3;
                         break;
                     }
             } else {
                 cnt = 0;
                 for (k = 0; k < i; k++) {
-                    q = &NODES[k];
-                    if ((q->id == NODES[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0)
-                        || (q->id == NODES[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0))
+                    q = &gm_TreeNodes[k];
+                    if ((q->id == gm_TreeNodes[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0)
+                        || (q->id == gm_TreeNodes[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0))
                         cnt++;
                 }
                 if (cnt == 0) {
-                    if (NODES[i].p1 == 0)
+                    if (gm_TreeNodes[i].p1 == 0)
                         state = 2;
                 } else if (cnt == 1) {
-                    if (NODES[i].p2 == 0)
+                    if (gm_TreeNodes[i].p2 == 0)
                         state = 2;
                 } else if (cnt == 2)
                     state = 2;
             }
-        } else if (gm_Query(ob->list, 1, 0, NODES[i].id) != 0)
+        } else if (gm_Query(ob->list, 1, 0, gm_TreeNodes[i].id) != 0)
             state = 1;
-        else if (ob->type == 0xfd && gm_Query(bl->objList, 1, 0, NODES[i].id) != 0)
+        else if (ob->type == 0xfd && gm_Query(bl->objList, 1, 0, gm_TreeNodes[i].id) != 0)
             state = 1;
         else {
             cnt = 0;
             for (k = 0; k < i; k++) {
-                q = &NODES[k];
-                if ((q->id == NODES[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0))
-                    || (q->id == NODES[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0)))
+                q = &gm_TreeNodes[k];
+                if ((q->id == gm_TreeNodes[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0))
+                    || (q->id == gm_TreeNodes[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0)))
                     cnt++;
             }
             if (cnt == 0) {
-                if (NODES[i].p1 == 0)
+                if (gm_TreeNodes[i].p1 == 0)
                     state = 2;
             } else if (cnt == 1) {
-                if (NODES[i].p2 == 0)
+                if (gm_TreeNodes[i].p2 == 0)
                     state = 2;
             } else if (cnt == 2)
                 state = 2;
             if (state == 2) {
                 for (o = he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = he_NextEvent())
-                    if (o->orderObj == ob->objId && o->orderGood == NODES[i].id) {
+                    if (o->orderObj == ob->objId && o->orderGood == gm_TreeNodes[i].id) {
                         state = 3;
                         break;
                     }
             }
         }
 
-        if (state != NODES[i].flag) {
-            if (NODES[i].l[0] != -1) {
-                d2_RemoveWindow(NODES[i].l[0]);
-                NODES[i].l[0] = -1;
-                NODES[i].l[1] = -1;
-                NODES[i].l[2] = -1;
-                NODES[i].l[3] = -1;
+        if (state != gm_TreeNodes[i].flag) {
+            if (gm_TreeNodes[i].l[0] != -1) {
+                d2_RemoveWindow(gm_TreeNodes[i].l[0]);
+                gm_TreeNodes[i].l[0] = -1;
+                gm_TreeNodes[i].l[1] = -1;
+                gm_TreeNodes[i].l[2] = -1;
+                gm_TreeNodes[i].l[3] = -1;
             }
-            if (NODES[i].l[4] != -1) {
-                d2_RemoveWindow(NODES[i].l[4]);
-                NODES[i].l[4] = -1;
+            if (gm_TreeNodes[i].l[4] != -1) {
+                d2_RemoveWindow(gm_TreeNodes[i].l[4]);
+                gm_TreeNodes[i].l[4] = -1;
             }
             saved = d2_LastWindow;
             if (state == 0) {
-                NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
-                NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x52b, NODES[i].l[0]);
-                NODES[i].l[2] = d2_WinOpenPic(3, 3, 0x4fb, NODES[i].l[0]);
+                gm_TreeNodes[i].l[0] = d2_CreateChildWindow(gm_TreeNodes[i].x - 4, gm_TreeNodes[i].y - 4, 0x36, 0x36, 0x400, parent);
+                gm_TreeNodes[i].l[1] = d2_WinOpenPic(0, 0, 0x52b, gm_TreeNodes[i].l[0]);
+                gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, 0x4fb, gm_TreeNodes[i].l[0]);
             } else if (state == 1) {
-                NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
-                NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x529, NODES[i].l[0]);
-                if (NODES[i].id < 0x2dc)
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, NODES[i].id + 0xdf, NODES[i].l[0]);
+                gm_TreeNodes[i].l[0] = d2_CreateChildWindow(gm_TreeNodes[i].x - 4, gm_TreeNodes[i].y - 4, 0x36, 0x36, 0x400, parent);
+                gm_TreeNodes[i].l[1] = d2_WinOpenPic(0, 0, 0x529, gm_TreeNodes[i].l[0]);
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, gm_TreeNodes[i].id + 0xdf, gm_TreeNodes[i].l[0]);
                 else
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                d2_Objs[NODES[i].l[2]].hitTestable = 1;
-                d2_Objs[NODES[i].l[2]].interactive = 1;
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, gm_TreeNodes[i].l[0]);                d2_Objs[gm_TreeNodes[i].l[2]].hitTestable = 1;
+                d2_Objs[gm_TreeNodes[i].l[2]].interactive = 1;
                 d2_LastWindow = saved;
-                NODES[i].l[4] = d2_CreateChildWindow(NODES[i].x - 0x18, NODES[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
-                d2_Wins[NODES[i].l[4]].font = 0x54;
-                d2_Wins[NODES[i].l[4]].mt = 1;
-                d2_Wins[NODES[i].l[4]].mb = 1;
-                if (NODES[i].id < 0x2dc)
-                    io_PrintText(NODES[i].id * 2 + 0x9a8);            } else if (state == 2) {
-                NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
-                NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x52a, NODES[i].l[0]);
-                if (NODES[i].id < 0x2dc)
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, NODES[i].id + 0xdf, NODES[i].l[0]);
+                gm_TreeNodes[i].l[4] = d2_CreateChildWindow(gm_TreeNodes[i].x - 0x18, gm_TreeNodes[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
+                d2_Wins[gm_TreeNodes[i].l[4]].font = 0x54;
+                d2_Wins[gm_TreeNodes[i].l[4]].mt = 1;
+                d2_Wins[gm_TreeNodes[i].l[4]].mb = 1;
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    io_PrintText(gm_TreeNodes[i].id * 2 + 0x9a8);            } else if (state == 2) {
+                gm_TreeNodes[i].l[0] = d2_CreateChildWindow(gm_TreeNodes[i].x - 4, gm_TreeNodes[i].y - 4, 0x36, 0x36, 0x400, parent);
+                gm_TreeNodes[i].l[1] = d2_WinOpenPic(0, 0, 0x52a, gm_TreeNodes[i].l[0]);
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, gm_TreeNodes[i].id + 0xdf, gm_TreeNodes[i].l[0]);
                 else
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                d2_Objs[NODES[i].l[2]].interactive = 1;
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, gm_TreeNodes[i].l[0]);                d2_Objs[gm_TreeNodes[i].l[2]].interactive = 1;
                 d2_LastWindow = saved;
-                NODES[i].l[4] = d2_CreateChildWindow(NODES[i].x - 0x18, NODES[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
-                d2_Wins[NODES[i].l[4]].font = 0x54;
-                d2_Wins[NODES[i].l[4]].mt = 1;
-                d2_Wins[NODES[i].l[4]].mb = 1;
-                if (NODES[i].id < 0x2dc)
-                    io_PrintText(NODES[i].id * 2 + 0x9a8);            } else {
-                NODES[i].l[0] = d2_CreateChildWindow(NODES[i].x - 4, NODES[i].y - 4, 0x36, 0x36, 0x400, parent);
-                NODES[i].l[1] = d2_WinOpenPic(0, 0, 0x529, NODES[i].l[0]);
-                if (NODES[i].id < 0x2dc)
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, NODES[i].id + 0xdf, NODES[i].l[0]);
+                gm_TreeNodes[i].l[4] = d2_CreateChildWindow(gm_TreeNodes[i].x - 0x18, gm_TreeNodes[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
+                d2_Wins[gm_TreeNodes[i].l[4]].font = 0x54;
+                d2_Wins[gm_TreeNodes[i].l[4]].mt = 1;
+                d2_Wins[gm_TreeNodes[i].l[4]].mb = 1;
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    io_PrintText(gm_TreeNodes[i].id * 2 + 0x9a8);            } else {
+                gm_TreeNodes[i].l[0] = d2_CreateChildWindow(gm_TreeNodes[i].x - 4, gm_TreeNodes[i].y - 4, 0x36, 0x36, 0x400, parent);
+                gm_TreeNodes[i].l[1] = d2_WinOpenPic(0, 0, 0x529, gm_TreeNodes[i].l[0]);
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, gm_TreeNodes[i].id + 0xdf, gm_TreeNodes[i].l[0]);
                 else
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                NODES[i].l[3] = d2_WinOpenPic(3, 3, 0x4fc, NODES[i].l[0]);
+                    gm_TreeNodes[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, gm_TreeNodes[i].l[0]);                gm_TreeNodes[i].l[3] = d2_WinOpenPic(3, 3, 0x4fc, gm_TreeNodes[i].l[0]);
                 d2_LastWindow = saved;
-                NODES[i].l[4] = d2_CreateChildWindow(NODES[i].x - 0x18, NODES[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
-                d2_Wins[NODES[i].l[4]].font = 0x54;
-                d2_Wins[NODES[i].l[4]].mt = 1;
-                d2_Wins[NODES[i].l[4]].mb = 1;
-                if (NODES[i].id < 0x2dc)
-                    io_PrintText(NODES[i].id * 2 + 0x9a8);                d2_Objs[NODES[i].l[2]].hitTestable = 1;
+                gm_TreeNodes[i].l[4] = d2_CreateChildWindow(gm_TreeNodes[i].x - 0x18, gm_TreeNodes[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
+                d2_Wins[gm_TreeNodes[i].l[4]].font = 0x54;
+                d2_Wins[gm_TreeNodes[i].l[4]].mt = 1;
+                d2_Wins[gm_TreeNodes[i].l[4]].mb = 1;
+                if (gm_TreeNodes[i].id < 0x2dc)
+                    io_PrintText(gm_TreeNodes[i].id * 2 + 0x9a8);                d2_Objs[gm_TreeNodes[i].l[2]].hitTestable = 1;
             }
             d2_LastWindow = saved;
-            NODES[i].flag = (unsigned char)state;
+            gm_TreeNodes[i].flag = (unsigned char)state;
         }
 
-        if (NODES[i].flag == 3) {
+        if (gm_TreeNodes[i].flag == 3) {
             o = 0;
-            if ((&ai_Goods[NODES[i].id])->type == 6) {
-                if (gm_Query(bl->objList, 1, 0, NODES[i].id) != 0)
+            if ((&ai_Goods[gm_TreeNodes[i].id])->type == 6) {
+                if (gm_Query(bl->objList, 1, 0, gm_TreeNodes[i].id) != 0)
                     for (o = he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = he_NextEvent())
-                        if (o->research == NODES[i].id)
+                        if (o->research == gm_TreeNodes[i].id)
                             break;
             } else {
                 for (o = he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = he_NextEvent())
-                    if (o->orderObj == ob->objId && o->orderGood == NODES[i].id)
+                    if (o->orderObj == ob->objId && o->orderGood == gm_TreeNodes[i].id)
                         break;
             }
             if (o != 0)
-                d2_Objs[NODES[i].l[2]].fillFraction = (double)gm_MinutesBetween(&o->start, &ai_Time) / (double)gm_MinutesBetween(&o->start, &o->end);
+                d2_Objs[gm_TreeNodes[i].l[2]].fillFraction = (double)gm_MinutesBetween(&o->start, &ai_Time) / (double)gm_MinutesBetween(&o->start, &o->end);
             else
-                d2_Objs[NODES[i].l[2]].fillFraction = 0;
+                d2_Objs[gm_TreeNodes[i].l[2]].fillFraction = 0;
         }
     }
 }
@@ -8020,10 +8012,10 @@ int gm_TechTreeWindow(char *form, AIBLD *bld, AIOBJ *item)
     gm_UpdateTechTree(bld, item);
     for (i = 0; i < gm_TreeNodeCount; i++) {
         for (j = 0; j < i; j++) {
-            if (NODES[j].id == NODES[i].p1)
-                gm_TreeLine(NODES[j].x + 0x18, NODES[j].y + 0x30, NODES[i].x + 0x18, NODES[i].y + 0x18);
-            else if (NODES[j].id == NODES[i].p2)
-                gm_TreeLine(NODES[j].x + 0x18, NODES[j].y + 0x30, NODES[i].x + 0x18, NODES[i].y + 0x18);
+            if (gm_TreeNodes[j].id == gm_TreeNodes[i].p1)
+                gm_TreeLine(gm_TreeNodes[j].x + 0x18, gm_TreeNodes[j].y + 0x30, gm_TreeNodes[i].x + 0x18, gm_TreeNodes[i].y + 0x18);
+            else if (gm_TreeNodes[j].id == gm_TreeNodes[i].p2)
+                gm_TreeLine(gm_TreeNodes[j].x + 0x18, gm_TreeNodes[j].y + 0x30, gm_TreeNodes[i].x + 0x18, gm_TreeNodes[i].y + 0x18);
         }
     }
     return gm_TechTreeView;
@@ -8509,7 +8501,7 @@ unsigned short gm_KindObjCount;  /* 0x76fdc4, common: tentative as in the origin
                                     .bss; gm_BuildKindObjects keeps it in a word register only when VC6 does not
                                     know its place) */
 int gm_TechTreeTime;  /* 0x76fdc8 */
-char gm_TreeNodes[3328];  /* 0x76fde0, the family records ( */
+RTNODE gm_TreeNodes[64];  /* 0x76fde0, the family records ( */
 int gm_TechTreeView;  /* 0x770af0, the view of the tech tree form (gm_TechTreeWindow) */
 unsigned short gm_TreeRankStart[64];  /* 0x770b00 */
 int gm_TreeNodeCount;  /* 0x7d6a40, the number of family records */

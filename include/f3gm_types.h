@@ -188,4 +188,14 @@ typedef struct GMDATE {
 } GMDATE;
 #pragma pack(pop)
 
+typedef struct RTNODE {                 /* 0x34 bytes, a node of the research tree layout gm_TreeNodes (f3gmt.c,
+                                           0x76fde0; gm_LayoutTree fills it, the tree window draws it) */
+    int id, p1, p2;                     /* 0x00, the item and its two parents */
+    unsigned short rank, pad;           /* 0x0c */
+    int x, y, z;                        /* 0x10 */
+    int l[5];                           /* 0x1c, l[2] (0x24) the node's button object, -1: none (the lc units' tree
+                                           windows find the clicked node by it) */
+    unsigned char flag;                 /* 0x30 */
+} RTNODE;
+
 #endif
