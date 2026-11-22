@@ -609,13 +609,25 @@ struct D3SURF {                     /* 0x198 bytes, a surface of a mesh (one lev
     char pad196[0x2];
 };
 
-typedef struct D3MESHSUB {          /* 0x80 bytes, D3SSLOT (d3s.h): the shadow of one light, 4 per mesh at
-                                       D3S_SLOTS; only cleared here */
-    struct TSTEXTURE *tex;               /* 0x00, D3SSLOT.tex */
-    D3OBJECT *light;                /* 0x04, D3SSLOT.light */
-    char pad08[0x10];
-    D3VECTOR dir;                   /* 0x18, D3SSLOT.dir: light direction the shadow was made for */
-    char pad24[0x5c];
+typedef struct D3MESHSUB {          /* 0x80 bytes, the shadow of one light (d3s.c), 4 per mesh */
+    struct TSTEXTURE *tex;          /* 0x00 */
+    D3OBJECT *light;                /* 0x04 */
+    struct D3SCENT *cache;          /* 0x08, the cached shadow texture (d3s.h) */
+    unsigned char *map;             /* 0x0c, height map data */
+    int size;                       /* 0x10 */
+    unsigned int maxh;              /* 0x14 */
+    D3VECTOR dir;                   /* 0x18, light direction the shadow was made for */
+    int pad24;
+    D3VECTOR cell;                  /* 0x28 */
+    int pad34;
+    D3VECTOR origin;                /* 0x38 */
+    int pad44;
+    float x0, x1, z0, z1;           /* 0x48, shadow rectangle */
+    float y;                        /* 0x58, ground height */
+    int ix0, ix1, iz0, iz1;         /* 0x5c, in map cells */
+    int bz0, bx0, bz1, bx1;         /* 0x6c, in 8x8 blocks; bz0 -1 = none */
+    unsigned char simple;           /* 0x7c */
+    char pad7d[0x3];
 } D3MESHSUB;
 
 typedef struct D3MESH {             /* 0x970 bytes, what D3OBJECT::material points to ("d3:AddObjectDrawData") */

@@ -519,7 +519,7 @@ void d3s_CacheFree(void)
 }
 /* 0x45abc0, gives the cache entry c to slot, (re)creating its texture if size or flag differ */
 
-struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3SSLOT *slot, signed char flag, int size, unsigned int time)
+struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3MESHSUB *slot, signed char flag, int size, unsigned int time)
 {
     D3TEXFLAGS f;
 
@@ -542,7 +542,7 @@ struct TSTEXTURE *d3s_CacheBind(D3SCENT *c, D3SSLOT *slot, signed char flag, int
 }
 /* 0x45ac60, a texture of size for slot: a free entry, the oldest of the same kind, or any other of the flag */
 
-struct TSTEXTURE *d3s_CacheTexture(D3SSLOT *slot, signed char flag, int size, unsigned int time, D3SCENT **unused)
+struct TSTEXTURE *d3s_CacheTexture(D3MESHSUB *slot, signed char flag, int size, unsigned int time, D3SCENT **unused)
 {
     D3SCENT *c, *best;
     unsigned int i, oldest;
@@ -958,7 +958,7 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
    floats through the FPU as the original does (likely a macro's parentheses); v0, du and dv start from the shared
    ai_FloatZero / ai_FloatOne objects as in the original */
 
-char d3s_AddShadow(D3SSLOT *slot, D3FLMAP *grid)
+char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
 {
     D3SBUF *buf;
     D3SPOLY *p;
@@ -1096,11 +1096,11 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
         while (p) {
             if ((p->objectFlags & 4) && p->material) {
                 for (i = 0; i < 4 && !found; i++) {
-                    if (D3S_SLOTS(p->material)[i].tex
-                        && D3S_SLOTS(p->material)[i].dir.x * D3S_SLOTS(p->material)[i].dir.x
-                           + D3S_SLOTS(p->material)[i].dir.y * D3S_SLOTS(p->material)[i].dir.y
-                           + D3S_SLOTS(p->material)[i].dir.z * D3S_SLOTS(p->material)[i].dir.z > 0.0f) {
-                        y = D3S_SLOTS(p->material)[i].y;
+                    if (p->material->sub[i].tex
+                        && p->material->sub[i].dir.x * p->material->sub[i].dir.x
+                           + p->material->sub[i].dir.y * p->material->sub[i].dir.y
+                           + p->material->sub[i].dir.z * p->material->sub[i].dir.z > 0.0f) {
+                        y = p->material->sub[i].y;
                         found = 1;
                     }
                 }
@@ -1146,7 +1146,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
    (d3s_Count++ before the dir copy). */
 
 void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR *ldir,
-                 D3VECTOR *lpos, D3OBJECT *light, D3SSLOT *slot)
+                 D3VECTOR *lpos, D3OBJECT *light, D3MESHSUB *slot)
 {
     struct TSTEXTURE *tex = slot->tex;
     D3VECTOR pos;                   /* the object's position, then the light-to-vertex vector */
@@ -1305,7 +1305,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
 
 char d3s_Update(D3OBJECT *obj, D3OBJECT *light, D3FLMAP *t)
 {
-    D3SSLOT *slot = 0;
+    D3MESHSUB *slot = 0;
     D3SURF *info, *mesh;
     D3VECTOR4 ldir, lpos, opos;
     D3TEXFLAGS f;
@@ -1320,18 +1320,18 @@ char d3s_Update(D3OBJECT *obj, D3OBJECT *light, D3FLMAP *t)
         || light->lightParams.y == 0.0)
         return 0;
     for (k = 0; k < 4; k++) {
-        if (D3S_SLOTS(obj->material)[k].tex && D3S_SLOTS(obj->material)[k].light == light) {
-            slot = &D3S_SLOTS(obj->material)[k];
+        if (obj->material->sub[k].tex && obj->material->sub[k].light == light) {
+            slot = &obj->material->sub[k];
             break;
         }
     }
     if (k == 4) {
         for (k = 0; k < 4; k++)
-            if (!D3S_SLOTS(obj->material)[k].tex)
+            if (!obj->material->sub[k].tex)
                 goto found;
         return 0;
 found:
-        slot = &D3S_SLOTS(obj->material)[k];
+        slot = &obj->material->sub[k];
         slot->light = light;
         slot->map = 0;
         slot->size = 0;
@@ -1484,7 +1484,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
 }
 /* 0x45cc90, frees the texture of slot and clears the cache entry that owned it */
 
-void d3s_FreeSlot(D3SSLOT *slot)
+void d3s_FreeSlot(D3MESHSUB *slot)
 {
     D3SCENT *c;
 
@@ -1507,12 +1507,12 @@ void d3s_FreeShadows(D3OBJECT *obj)
 
     if ((obj->objectFlags & 4) && obj->material) {
         for (i = 0; i < 4; i++) {
-            if (D3S_SLOTS(obj->material)[i].tex) {
-                d3s_FreeSlot(&D3S_SLOTS(obj->material)[i]);
-                D3S_SLOTS(obj->material)[i].light = 0;
-                D3S_SLOTS(obj->material)[i].dir.x = 0;
-                D3S_SLOTS(obj->material)[i].dir.y = 0;
-                D3S_SLOTS(obj->material)[i].dir.z = 0;
+            if (obj->material->sub[i].tex) {
+                d3s_FreeSlot(&obj->material->sub[i]);
+                obj->material->sub[i].light = 0;
+                obj->material->sub[i].dir.x = 0;
+                obj->material->sub[i].dir.y = 0;
+                obj->material->sub[i].dir.z = 0;
             }
         }
     }
@@ -1525,18 +1525,18 @@ char d3s_FreeLightCB(D3OBJECT *obj, D3OBJECT *light)
 
     if ((obj->objectFlags & 4) && obj->material) {
         for (i = 0; i < 4; i++) {
-            if (D3S_SLOTS(obj->material)[i].tex && D3S_SLOTS(obj->material)[i].light == light) {
-                d3s_FreeSlot(&D3S_SLOTS(obj->material)[i]);
-                D3S_SLOTS(obj->material)[i].light = 0;
-                D3S_SLOTS(obj->material)[i].dir.x = 0;
-                D3S_SLOTS(obj->material)[i].dir.y = 0;
-                D3S_SLOTS(obj->material)[i].dir.z = 0;
+            if (obj->material->sub[i].tex && obj->material->sub[i].light == light) {
+                d3s_FreeSlot(&obj->material->sub[i]);
+                obj->material->sub[i].light = 0;
+                obj->material->sub[i].dir.x = 0;
+                obj->material->sub[i].dir.y = 0;
+                obj->material->sub[i].dir.z = 0;
             }
         }
     }
     return 1;
 }
-/* 0x45ce00, drops the light direction of every shadow slot of obj (its mesh's four D3SSLOTs), so no
+/* 0x45ce00, drops the light direction of every shadow slot of obj (its mesh's four D3MESHSUBs (sub)), so no
    shadow is drawn until d3s_Update refills them; only for an object that casts shadows (objectFlags bit 2) */
 
 void d3s_ResetShadows(D3OBJECT *obj)
@@ -1545,10 +1545,10 @@ void d3s_ResetShadows(D3OBJECT *obj)
 
     if ((obj->objectFlags & 4) && obj->material) {
         for (i = 0; i < 4; i++) {
-            if (D3S_SLOTS(obj->material)[i].tex) {
-                D3S_SLOTS(obj->material)[i].dir.x = 0;
-                D3S_SLOTS(obj->material)[i].dir.y = 0;
-                D3S_SLOTS(obj->material)[i].dir.z = 0;
+            if (obj->material->sub[i].tex) {
+                obj->material->sub[i].dir.x = 0;
+                obj->material->sub[i].dir.y = 0;
+                obj->material->sub[i].dir.z = 0;
             }
         }
     }

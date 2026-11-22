@@ -3,7 +3,7 @@
 #define D3S_H
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
-typedef struct D3SCENT {            /* 0x14 bytes, one cached shadow texture (d3s_Cache); D3SSLOT.cache */
+typedef struct D3SCENT {            /* 0x14 bytes, one cached shadow texture (d3s_Cache); D3MESHSUB.cache */
     struct TSTEXTURE *tex;               /* 0x00 */
     void **owner;                   /* 0x04, the slot that uses it (its tex pointer is cleared when taken over) */
     unsigned int time;              /* 0x08, frame of last use */
@@ -11,29 +11,6 @@ typedef struct D3SCENT {            /* 0x14 bytes, one cached shadow texture (d3
     signed char flag;               /* 0x10 */
     char pad11[3];
 } D3SCENT;
-
-typedef struct D3SSLOT {            /* 0x80 bytes, 4 per material at +0x754: the shadow of one light */
-    struct TSTEXTURE *tex;               /* 0x00 */
-    D3OBJECT *light;                /* 0x04 */
-    D3SCENT *cache;                 /* 0x08 */
-    unsigned char *map;             /* 0x0c, height map data */
-    int size;                       /* 0x10 */
-    unsigned int maxh;              /* 0x14 */
-    D3VECTOR dir;                   /* 0x18, light direction the shadow was made for */
-    int pad24;
-    D3VECTOR cell;                  /* 0x28 */
-    int pad34;
-    D3VECTOR origin;                /* 0x38 */
-    int pad44;
-    float x0, x1, z0, z1;           /* 0x48, shadow rectangle */
-    float y;                        /* 0x58, ground height */
-    int ix0, ix1, iz0, iz1;         /* 0x5c, in map cells */
-    int bz0, bx0, bz1, bx1;         /* 0x6c, in 8x8 blocks; bz0 -1 = none */
-    unsigned char simple;           /* 0x7c */
-    char pad7d[0x3];
-} D3SSLOT;
-
-#define D3S_SLOTS(mat) ((D3SSLOT *)((char *)(mat) + 0x754))
 
 typedef struct D3SVERT {            /* 0x50 bytes, like D3VERTEX */
     float x, y, z;                  /* 0x00 */
