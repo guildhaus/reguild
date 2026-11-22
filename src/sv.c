@@ -5473,7 +5473,7 @@ void sv_DrawBorderArrows(void)
         if (d3_VecEqual(&d3_Camera->views[2].pos, &d3_Origin.v, 0.2f) == 0)
             top = 1;
     }
-    d2_SetClipRect(0, 0, ((int *)d2_ScreenSurf)[1], ((int *)d2_ScreenSurf)[2]);
+    d2_SetClipRect(0, 0, ((D2SURF *)d2_ScreenSurf)->w, ((D2SURF *)d2_ScreenSurf)->h);
     if (bottom == 2)
         d2_DrawShape(d2_HalfScreenW - 0x10, d2_ScreenH - 0x20, d2_ScreenSurf, pic, 0);
     else if (bottom == 1)

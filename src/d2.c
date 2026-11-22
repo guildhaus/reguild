@@ -4010,7 +4010,8 @@ void d2_ResizeWindow(short w, short h, int win)
     int delta, dw, i;
     D2SURF desc;
     D2OBJ *o;
-    void *ns, *old;
+    void *ns;
+    D2SURF *old;
 
     if (wn->active) {
         dw = w - wn->w;
@@ -4034,7 +4035,7 @@ void d2_ResizeWindow(short w, short h, int win)
             desc.h = h;
             ns = d2_MakeSurface(&desc, 0xb);
             old = wn->surf2;
-            d2_BlitPart(0, 0, ((int *)old)[1], ((int *)old)[2], old, 0, 0, ns);
+            d2_BlitPart(0, 0, old->w, old->h, old, 0, 0, ns);
             d2_FreeSurface(wn->surf2);
             wn->surf2 = ns;
         }

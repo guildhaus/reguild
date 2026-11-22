@@ -1327,7 +1327,7 @@ int ai_MsgWorkerStop(G14MSG *m)
     if (util_Random(0x32) > f) {
         AIMSG msg;
 
-        txt_Format(buf, m->type + 0x12e7, (((char *)p)[9] ? 0x230 : 0x20d) + (unsigned char)p->title, p->id, b);
+        txt_Format(buf, m->type + 0x12e7, (p->sex ? 0x230 : 0x20d) + (unsigned char)p->title, p->id, b);
         he_ShowNews(c->netId, c->netId, buf, strlen(buf) > 0x100, 0x603, 0);
         memset(&msg, 0, sizeof(msg));
         msg.type = 0x31;
