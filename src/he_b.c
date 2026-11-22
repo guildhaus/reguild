@@ -907,25 +907,6 @@ typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJ
     char pad_d3;
     int offer;                          /* 0xd4, the offer handle cm_SendHandOverCrimes gave (cm_GetSlotState asks it) */
 } HEOFFER;
-typedef union HEOBJ1B5VALUE {           /* the 7 byte value cm_SendObject1b5 copies to the new object's +0x1c, as
-                                           he_AllocTavern fills it (byte, byte, int; their meaning is not read yet) */
-    G17B7 block;
-    struct {
-        char c1c;                       /* +0x1c of the object */
-        char c1d;                       /* +0x1d */
-        int v1e;                        /* +0x1e */
-    } f;
-} HEOBJ1B5VALUE;
-typedef struct HETAVERNOBJ {            /* the tavern's object 0x1b5 (he_AllocTavern creates it) as the tavern run handler
-                                           reads it: an AIOBJ, its kind's words at +0x1c over AIOBJ's union */
-    char pad00[2];
-    int objId;                          /* 0x02, AIOBJ.objId */
-    char pad06[0x16];
-    char c1c;                           /* 0x1c, -1 when no helper (the meaning is not read yet) */
-    char c1d;                           /* 0x1d, -1 when no helper */
-    int helperId;                       /* 0x1e, the character hired as the tavern's helper, -1: none */
-    char hired;                         /* 0x22, nonzero while a helper is hired */
-} HETAVERNOBJ;
 typedef struct HEAHMRESEARCH {          /* the alchemist research event 0x96's words over AIJOB's union (he_AllocResearchRecipe
                                            and its run handler he_RunResearchRecipe); ahm.h's AHMRESEARCH names the same words from ahm.c */
     char pad00[0xac];

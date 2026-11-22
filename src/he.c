@@ -55,7 +55,7 @@
    HEPLUNDER (0x8a), HEPLUNDERDEAL (0x8b), HEMASTERWORK (0x8c), HEGRAVECARE (0x8d), HEDEATHDUE (0x8e),
    HEGRAVETRAINING (0x8f) and HEMEETING (0x90), HEMEETSCENE / HEMEETNAME (the meeting scene object 0x91), HEGRAVELEASE (the grave
     lease answer 0x92), HEGYPSY (the gypsy approach 0x9d), HEGYPSYCURSE (the curse 0x9e), HETRIALCASE (the trial 0xa0) and HEMEET4 (the circus show 0xa1), and over AIOBJ
-   HETAVERNOBJ / HEOBJ1B5VALUE (the tavern's object 0x1b5); the hint table he_Hints (0x6fa260, HEHINT), the tip
+   the tavern's object 0x1b5 (AIOBJ.sermon: text1 / text2 / priest / enabled hold its hired helper); the hint table he_Hints (0x6fa260, HEHINT), the tip
    order he_TipOrder (0x6fa1e0) and the tip texts TXT_TIP_TEXTS (0x1442430) are typed (the scene, voice and activity
    names are string literals of he / he_b, not objects). AIJOB's fields between
    0x14 and 0xac are named only as the message's words; a member added to AIJOB / AIMSG / G28REC can flip other
@@ -990,25 +990,6 @@ typedef struct HEOFFER {                /* the offer event 0x2c's words over AIJ
     char pad_d3;
     int offer;                          /* 0xd4, the offer handle cm_SendHandOverCrimes gave (cm_GetSlotState asks it) */
 } HEOFFER;
-typedef union HEOBJ1B5VALUE {           /* the 7 byte value cm_SendObject1b5 copies to the new object's +0x1c, as
-                                           he_AllocTavern fills it (byte, byte, int; their meaning is not read yet) */
-    G17B7 block;
-    struct {
-        char c1c;                       /* +0x1c of the object */
-        char c1d;                       /* +0x1d */
-        int v1e;                        /* +0x1e */
-    } f;
-} HEOBJ1B5VALUE;
-typedef struct HETAVERNOBJ {            /* the tavern's object 0x1b5 (he_AllocTavern creates it) as the tavern run handler
-                                           reads it: an AIOBJ, its kind's words at +0x1c over AIOBJ's union */
-    char pad00[2];
-    int objId;                          /* 0x02, AIOBJ.objId */
-    char pad06[0x16];
-    char c1c;                           /* 0x1c, -1 when no helper (the meaning is not read yet) */
-    char c1d;                           /* 0x1d, -1 when no helper */
-    int helperId;                       /* 0x1e, the character hired as the tavern's helper, -1: none */
-    char hired;                         /* 0x22, nonzero while a helper is hired */
-} HETAVERNOBJ;
 typedef struct HEAHMRESEARCH {          /* the alchemist research event 0x96's words over AIJOB's union (he_AllocResearchRecipe
                                            and its run handler he_RunResearchRecipe); ahm.h's AHMRESEARCH names the same words from ahm.c */
     char pad00[0xac];
@@ -3497,7 +3478,7 @@ void he_RunStammtisch(AIJOB *e)
 void he_AllocTavern(AIJOB *e)
 {
     AIBLD *bld = 0;
-    HEOBJ1B5VALUE v;
+    G17B7 v;
 
     if ((e->opts & 4) != 0)
         return;
@@ -3511,10 +3492,10 @@ void he_AllocTavern(AIJOB *e)
         return;
     }
     if (gm_Query(bld->objList, 1, 0, 0x1b5) == 0) {
-        v.f.c1c = -1;
-        v.f.c1d = -1;
-        v.f.v1e = -1;
-        cm_SendObject1b5(bld->id, v.block);
+        v.sermon.text1 = -1;
+        v.sermon.text2 = -1;
+        v.sermon.priest = -1;
+        cm_SendObject1b5(bld->id, v);
     }
     e->exSlot = -1;
     cm_SendExSetHE(0, e);
@@ -3531,7 +3512,7 @@ void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2, int
 void he_RunTavern(AIJOB *e)
 {
     AIBLD *bld = 0;
-    HETAVERNOBJ *t;
+    AIOBJ *t;
     AICHAR *helper;
     char buf[0x100];
 
@@ -3555,11 +3536,11 @@ void he_RunTavern(AIJOB *e)
         cm_SendExSetHE(0, e);
         return;
     }
-    t = (HETAVERNOBJ *)gm_Query(bld->objList, 1, 0, 0x1b5);
+    t = gm_Query(bld->objList, 1, 0, 0x1b5);
     switch (e->stage) {
     case 0:
         if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
-            if (t != 0 && t->hired != 0) {
+            if (t != 0 && t->sermon.enabled != 0) {
                 gm_AddTime(&e->end, 1, 0, 0);
                 e->exSlot = cm_SendExSetHE(1, e);
             } else {
@@ -3589,7 +3570,7 @@ void he_RunTavern(AIJOB *e)
         e->exSlot = cm_SendExSetHE(2, e);
         return;
     case 2:
-        if (t != 0 && t->hired != 0) {
+        if (t != 0 && t->sermon.enabled != 0) {
             int out[3];
             unsigned char no, none;
             int noId;
@@ -3598,7 +3579,7 @@ void he_RunTavern(AIJOB *e)
             none = 0xff;
             noId = -1;
             out[2] = 0;
-            helper = gm_FindChar(t->helperId);
+            helper = gm_FindChar(t->sermon.priest);
             if (helper != 0) {
                 out[2] = (int)helper;
                 ai_ShowTavernHelperNews(&ai_Chars[bld->owner], helper, (int)bld);

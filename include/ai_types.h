@@ -404,7 +404,9 @@ typedef struct AIRECIPE {               /* 0xb8 bytes, a goods list: filled by g
 
 #pragma pack(push, 1)
 typedef struct AISERMON {               /* 7 bytes, a church's sermon settings: its sermon object's +0x1c (AIOBJ.sermon),
-                                           sent whole as a G17B7 (cm_SendObject1b5, ai_SermonWindow) */
+                                           sent whole as a G17B7 (cm_SendObject1b5, ai_SermonWindow); a tavern's object
+                                           0x1b5 holds its hired helper here (he_AllocTavern / he_RunTavern: priest = the
+                                           helper, enabled = hired) */
     signed char text1;                  /* 0x00, the sermon's first text 0x1990 + it (0 .. 7), -1: none */
     signed char text2;                  /* 0x01, its second text 0x1998 + it (0 .. 7), -1: none */
     int priest;                         /* 0x02, the netId of the priest who preaches, -1: none */
