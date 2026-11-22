@@ -359,12 +359,12 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name)
     v.x = 0.0f;
     v.y = 0.0f;
     v.z = 0.0f;
-    d3_LocalToWorld(obj, &v.v, f.pos);
+    d3_LocalToWorld(obj, &v.v, &f.pos.v);
     f.found = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x180, rd_FindSiteCB, &f);
     if (f.found == 0)
         goto fail;
-    bk = rd_GetBKSize(f.found);
+    bk = rd_GetBKSize(f.found->name);
     if (bk == 0) {
         d3sm_Destroy(rd_Road.grid);
         return 0;
@@ -536,7 +536,7 @@ void rd_AddBauplaetze(G15ROAD *r)
     if (n != 0) {
         for (i = 0; i < n; i++) {
             if (list[i] != 0)
-                rd_AllBauplatzToSupermap(r, list[i]->name);
+                rd_AllBauplatzToSupermap(r, list[i]);
         }
     }
 }
@@ -544,46 +544,47 @@ void rd_AddBauplaetze(G15ROAD *r)
    corner copies (likely a macro's expansion) are what makes VC6 copy them through the FPU (fld/fstp, the last
    store sunk past the call's pushes); plain `v[0] = bk->x0` copies with integer moves. */
 
-void rd_AllBauplatzToSupermap(G15ROAD *r, char *name)
+void rd_AllBauplatzToSupermap(G15ROAD *r, D3OBJECT *site)
 {
     G15BK *bk;
     D3VECTOR4 v;
     float c[8];
     char buf[0x40];
 
-    bk = rd_GetBKSize(name);
+    bk = rd_GetBKSize(site->name);
     if (bk == 0) {
-        sprintf(buf, "rd_AllBauplatzToSupermap(): Unbekannter Bauplatz '%s'", name);
+        sprintf(buf, "rd_AllBauplatzToSupermap(): Unbekannter Bauplatz '%s'", site->name);
         return;
     }
     v.x = (bk->x0);
     v.y = (bk->y0);
     v.z = (bk->z0);
-    rd_WorldToCell(&c[0], &c[1], &v.v, name, r);
+    rd_WorldToCell(&c[0], &c[1], &v.v, site, r);
     v.x = (bk->x1);
     v.y = (bk->y0);
     v.z = (bk->z0);
-    rd_WorldToCell(&c[2], &c[3], &v.v, name, r);
+    rd_WorldToCell(&c[2], &c[3], &v.v, site, r);
     v.x = (bk->x1);
     v.y = (bk->y0);
     v.z = (bk->z1);
-    rd_WorldToCell(&c[4], &c[5], &v.v, name, r);
+    rd_WorldToCell(&c[4], &c[5], &v.v, site, r);
     v.x = (bk->x0);
     v.y = (bk->y0);
     v.z = (bk->z1);
-    rd_WorldToCell(&c[6], &c[7], &v.v, name, r);
+    rd_WorldToCell(&c[6], &c[7], &v.v, site, r);
     rd_FillQuad(r, c, 0xff, 0);
 }
 /* 0x4bd610, d3_ForEachObject callback: the object named f->name (or with one leading character more) within 100
    of f->pos; stops there */
 
-char rd_FindSiteCB(char *obj, G15BKFIND *f)
+char rd_FindSiteCB(D3OBJECT *obj, void *ctx)
 {
+    G15BKFIND *f = ctx;
     D3VECTOR4 v;
 
-    if (strnicmp(obj, f->name, strlen(f->name)) == 0 || strnicmp(obj + 1, f->name, strlen(f->name)) == 0) {
-        d3_PointToWorld(obj, obj + 0x4c, &v.v);
-        if (d3_VecEqual(f->pos, &v.v, 100.0f)) {
+    if (strnicmp(obj->name, f->name, strlen(f->name)) == 0 || strnicmp(obj->name + 1, f->name, strlen(f->name)) == 0) {
+        d3_PointToWorld(obj, &obj->pos, &v.v);
+        if (d3_VecEqual(&f->pos.v, &v.v, 100.0f)) {
             f->found = obj;
             return 0;
         }
@@ -606,7 +607,7 @@ G15BK *rd_GetBKSize(char *name)
 }
 /* 0x4bd710, the town map cell x / z of v (local to obj) */
 
-void rd_WorldToCell(float *x, float *z, const D3VECTOR *v, char *obj, G15ROAD *r)
+void rd_WorldToCell(float *x, float *z, const D3VECTOR *v, D3OBJECT *obj, G15ROAD *r)
 {
     D3VECTOR4 w;
 

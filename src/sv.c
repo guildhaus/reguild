@@ -3330,15 +3330,22 @@ void sv_UpdateChimneySmoke(AIBLD *b)
         }
     }
 }
-/* 0x528660, a callback collecting the names o that contain "sp_WIMPEL" into the list p (p[0] the count, then the pointers); 1 while below 0x20 */
+typedef struct SVBANNERS {      /* the banner parts sv_CollectBannerCB collects for sv_RemoveBanners */
+    int count;
+    D3OBJECT *objs[0x20];
+} SVBANNERS;
 
-char sv_CollectBannerCB(char *o, int *p)
+/* 0x528660, a callback collecting the objects o whose names contain "sp_WIMPEL" into the list ctx (an SVBANNERS); 1 while below 0x20 */
+
+char sv_CollectBannerCB(D3OBJECT *o, void *ctx)
 {
-    if (strstr(o, "sp_WIMPEL") != 0) {
-        p[p[0] + 1] = (int)o;
-        p[0]++;
+    SVBANNERS *p = ctx;
+
+    if (strstr(o->name, "sp_WIMPEL") != 0) {
+        p->objs[p->count] = o;
+        p->count++;
     }
-    return p[0] < 0x20;
+    return p->count < 0x20;
 }
 
 extern int sv_PanelBldPic, sv_PanelHealthBar, sv_PanelCartWin, sv_PanelItemBtn, sv_PanelTransportBtn, sv_PanelCartBtn, sv_PanelActionBtn, sv_PanelCartChar;  /* 0x623864, 0x623868, 0x62387c, 0x623888, 0x62388c, 0x623890, 0x623894, 0x631078 */
@@ -3351,30 +3358,29 @@ int sv_AddPanelButton(int x, int y, char *text);
    (0x458780 with the colour 0x6f1c28, when set) and updated (0x447190) */
 void sv_RemoveBanners(AIBLD *bld)
 {
-    int list[33];
+    SVBANNERS list;
     int i;
     D3OBJECT *m;
     D3OBJECT *save;
 
     m = bld->object;
     if (m != 0) {
-        for (i = 0; i < 0x21; i++)
-            list[i] = 0;
+        memset(&list, 0, sizeof(list));
         if ((m->state & 1) == 0) {
             save = m->next;
             m->next = 0;
-            d3_ForEachObject(d3_DefaultScene, bld->object, 0x40, sv_CollectBannerCB, list);
+            d3_ForEachObject(d3_DefaultScene, bld->object, 0x40, sv_CollectBannerCB, &list);
             bld->object->next = save;
         } else
-            d3_ForEachObject(d3_DefaultScene, m, 0x40, sv_CollectBannerCB, list);
+            d3_ForEachObject(d3_DefaultScene, m, 0x40, sv_CollectBannerCB, &list);
         i = 0;
-        if (0 < list[0]) {
+        if (0 < list.count) {
             do {
                 if (d3_QuadTree != 0)
-                    d3q_RemoveObject((D3OBJECT *)list[i + 1], d3_QuadTree);
-                d3if_Delete((struct D3OBJECT *)list[i + 1]);
+                    d3q_RemoveObject(list.objs[i], d3_QuadTree);
+                d3if_Delete(list.objs[i]);
                 i++;
-            } while (i < list[0]);
+            } while (i < list.count);
         }
     }
 }

@@ -426,8 +426,10 @@ int rd_PointsNear(D3VECTOR *pos, int n, D3VECTOR4 *pts)
 }
 /* 0x4bc4b0, d3_ForEachObject callback: collects the objects named f->name (at most 32) */
 
-int rd_CollectNamed(struct D3OBJECT *obj, G15FIND *f)
+char rd_CollectNamed(struct D3OBJECT *obj, void *ctx)
 {
+    G15FIND *f = ctx;
+
     if (strcmp(obj->name, f->name) == 0)
         f->objs[f->n++] = obj;
     return f->n < 0x20;

@@ -93,7 +93,7 @@ char sv_ColourBannerCB(struct D3OBJECT *o, struct AIBLD *b);                    
 void sv_CreateBanners(struct AIBLD *b);                                             /* 0x5282f0 */
 void sv_ColourBanners(int c);                                               /* 0x528390 */
 struct AIBLD; void sv_UpdateChimneySmoke(struct AIBLD *b);                                /* 0x528490 */
-char sv_CollectBannerCB(char *o, int *p);                                     /* 0x528660 */
+char sv_CollectBannerCB(struct D3OBJECT *o, void *ctx);                                /* 0x528660 */
 void sv_RemoveBanners(struct AIBLD *b);                                             /* 0x5286a0 */
 void sv_RefreshBanners(void);                                                /* 0x528770 */
 int sv_AddPanelButton(int x, int y, char *text);                               /* 0x528800 */

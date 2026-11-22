@@ -72,11 +72,12 @@ typedef struct G15ROAD {                /* 0x1020 bytes, rd_Road */
 } G15ROAD;
 
 #include "rd_types.h"                 /* G15BK */
+#include "d3_types.h"                 /* D3VECTOR4 */
 
 typedef struct G15BKFIND {              /* context of rd_FindSiteCB */
     char name[0x40];                    /* 0x00 */
-    float pos[4];                       /* 0x40 */
-    char *found;                        /* 0x50 */
+    D3VECTOR4 pos;                      /* 0x40, the site's place (world) */
+    struct D3OBJECT *found;             /* 0x50, the site object found, 0: none */
 } G15BKFIND;
 
 #ifndef DATA_VIEWS_H
@@ -104,7 +105,7 @@ char d3_ForEachObject(struct D3SCENE *scene, struct D3OBJECT *obj, unsigned int 
 
 int rd_DoorPos(struct D3VECTOR *pos);
 struct D3VECTOR4; int rd_PointsNear(struct D3VECTOR *pos, int n, struct D3VECTOR4 *pts);
-int rd_CollectNamed(struct D3OBJECT *obj, G15FIND *f);
+char rd_CollectNamed(struct D3OBJECT *obj, void *ctx);
 struct D3OBJECT *rd_RandomNamedObject(char *name);
 G15TREE *veg_FindType(int type);
 G15PLANT *veg_FindPlantAt(G15PLANT *p, int x, int z);
@@ -120,10 +121,10 @@ void veg_HidePlants(G15PLANT *p);
 int rd_BuildRoad(struct D3OBJECT *obj, int name);
 int rd_PathToRoad(G15ROAD *r, int x, int z, int tx, int tz);
 void rd_AddBauplaetze(G15ROAD *r);
-void rd_AllBauplatzToSupermap(G15ROAD *r, char *name);
-char rd_FindSiteCB(char *obj, G15BKFIND *f);
+void rd_AllBauplatzToSupermap(G15ROAD *r, struct D3OBJECT *site);
+char rd_FindSiteCB(struct D3OBJECT *obj, void *ctx);
 G15BK *rd_GetBKSize(char *name);
-void rd_WorldToCell(float *x, float *z, const struct D3VECTOR *v, char *obj, G15ROAD *r);
+void rd_WorldToCell(float *x, float *z, const struct D3VECTOR *v, struct D3OBJECT *obj, G15ROAD *r);
 void rd_FillQuad(G15ROAD *r, float *c, unsigned char v, int t);
 
 #endif
