@@ -4255,7 +4255,7 @@ int gm_TitlesLeft(int n)
 /* 0x504e00, the 0x504ec0 value of (a, b) times 252, truncated (a tail through __ftol) */
 
 
-int gm_SkillPoints(char *c, int skill)
+int gm_SkillPoints(AICHAR *c, int skill)
 {
     return (int)(gm_GetSkill(c, skill) * 252.0f);
 }
@@ -6122,7 +6122,7 @@ float gm_ObjectValue(int n)
 }
 /* 0x508740, the wage of a job (a) or title (b) of the building kind k for the character c, reduced for the kinds 6 / 7 */
 
-float gm_JobWage(char *c, int k, int a, int b)
+float gm_JobWage(AICHAR *c, int k, int a, int b)
 {
     float f;
     char *p;
@@ -6133,7 +6133,7 @@ float gm_JobWage(char *c, int k, int a, int b)
         f = (unsigned char)p[0x229 + a] * 0x380;
     else if (b != -1)
         f = (unsigned char)p[0x233 + b] * 0x380;
-    if (c[2] == 6 || c[2] == 7)
+    if (c->kind == 6 || c->kind == 7)
         f = (1.0 - (2 - ai_Difficulty) * 0.25) * f;
     return f;
 }
@@ -6325,7 +6325,7 @@ int gm_BuildingBalance(AIBLD *b, unsigned id, int *out)
 {
     AIBLD *bld;
     unsigned char *kind;    /* the kind's ai_BTypes record: +0x223 the job ids, +0x22f the title ranks */
-    char *own;
+    AICHAR *own;
     AICHAR *c;
     int i, j, cost, income, wage, found, sum;
     AIOBJ *o;
@@ -6338,7 +6338,7 @@ int gm_BuildingBalance(AIBLD *b, unsigned id, int *out)
         out[i] = 0;
     kind = (unsigned char *)ai_BTypes + bld->type * 0x24d;
     if (id == bld->owner) {
-        own = (char *)&ai_Chars[id];
+        own = &ai_Chars[id];
         if (*kind == 0x1e) {
             if (ahm_OwnerChar(b) != 0) {
                 out[6] = ahm_ObjectValue(b);
@@ -8171,25 +8171,25 @@ float gm_Liking(unsigned a, unsigned b, int c)
     if (ai_Chars[b].officeKind != 0) {
         amt_GetKind(ai_Chars[b].officeKind, &kind);
         if (kind.level > 0 && kind.level < 4) {
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x155) * 10.0f;
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x15d) * 10.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x155) * 10.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x15d) * 10.0f;
         } else if (kind.level > 3 && kind.level < 8) {
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x157) * 10.0f;
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x15f) * 8.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x157) * 10.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x15f) * 8.0f;
         } else if (kind.level > 7 && kind.level < 10) {
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x159) * 7.0f;
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x165) * 7.0f;
-            sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x166) * 15.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x159) * 7.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x165) * 7.0f;
+            sum += (float)ai_InventoryHas(&ai_Chars[a], 0x166) * 15.0f;
         }
     }
-    if (ai_InventoryHas((char *)&ai_Chars[a], 0x2b6) != 0) {
+    if (ai_InventoryHas(&ai_Chars[a], 0x2b6) != 0) {
         if (ai_Chars[b].officeKind != 0)
             sum += 5.0f;
         if ((ai_Chars[b].flags1cc & 0x3e00) != 0)
             sum += 5.0f;
     }
     if (ai_Chars[b].bld != 0 && ai_Chars[b].bld->owner == a)
-        sum += (float)ai_InventoryHas((char *)&ai_Chars[a], 0x16b) * 7.0f;
+        sum += (float)ai_InventoryHas(&ai_Chars[a], 0x16b) * 7.0f;
     flags = ai_Chars[a].ailments;
     n = flags >> 14 & 7;
     if (n != 0 && ai_Chars[a].sex != ai_Chars[b].sex)
@@ -8354,7 +8354,7 @@ int gm_Homeless(AICHAR *c)
 }
 /* 0x50cd40, the wage of 0x508740 times 3 (9 for the jobs 10 .. 12 of the building kind k) */
 
-float gm_JobCost(char *c, int k, int a, int b)
+float gm_JobCost(AICHAR *c, int k, int a, int b)
 {
     int j;
 

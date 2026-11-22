@@ -1845,9 +1845,9 @@ void sv_UpdateMemberList(AIBLD *g)
             d2_SetForm(sv_PlayerBarForm, 1);
             sv_MemberRows[n].window = d2_CreateChildWindow(6, y + 0x3f, 0x50, 0xf, 0, d2_LastWindow);
             d2_WinOpenPic(4, 1, 0x5df, d2_LastWindow);
-            sv_DrawBalanceBar(0x10, 4, (char *)&ai_Chars[sv_MemberRows[n].chr], 2, 0x4f1);
+            sv_DrawBalanceBar(0x10, 4, &ai_Chars[sv_MemberRows[n].chr], 2, 0x4f1);
             d2_WinOpenPic(0x28, 1, 0x5e0, d2_LastWindow);
-            sv_DrawBalanceBar(0x34, 4, (char *)&ai_Chars[sv_MemberRows[n].chr], 3, 0x4f1);
+            sv_DrawBalanceBar(0x34, 4, &ai_Chars[sv_MemberRows[n].chr], 3, 0x4f1);
         }
         if (ai_Chars[i].selected != 0)
             d2_SetObjValue(sv_MemberRows[n].check, 1);
@@ -2652,7 +2652,7 @@ int sv_ScrollCamera(void)
             fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
             fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
         } else {                                                /* else rotated by the view's heading */
-            a = -d3_VecAngle2((char *)&d3_ZAxis, &fwd.v);
+            a = -d3_VecAngle2(&d3_ZAxis.v, &fwd.v);
             dst.x = v.x;
             dst.y = 0.0f;
             dst.z = v.y;
@@ -2886,7 +2886,7 @@ go:
                     fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
                     fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
                 } else {                                                /* else rotated by the view's heading */
-                    ang = -d3_VecAngle2((char *)&d3_ZAxis, &fwd.v);
+                    ang = -d3_VecAngle2(&d3_ZAxis.v, &fwd.v);
                     dst.y = 0.0f;
                     dst.z = v.y;
                     fwd.x = v.x * cos(ang) + v.y * sin(ang);
@@ -3142,7 +3142,7 @@ void sv_FlyCameraToModel(D3OBJECT *m)
     const float *ax = (const float *)&d3_ZAxis;
     float vx, vy, vz;               /* the view axis (0, 0, 1) scaled to -600 */
 
-    d3t_GetHeightRange((char *)m, &lo, &hi);
+    d3t_GetHeightRange(m, &lo, &hi);
     d3_MatTranspose(&d3_Camera->matrix, rot);
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
@@ -3150,14 +3150,14 @@ void sv_FlyCameraToModel(D3OBJECT *m)
     back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
     back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
     back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
-    d3_PointToWorld((char *)m, &m->pos, &cen.v);
+    d3_PointToWorld(m, &m->pos, &cen.v);
     pos.x = cen.x + back.x;
     pos.y = cen.y + back.y;
     pos.z = cen.z + back.z;
     t = d3t_GetMeanHeight(&pos.v);
     pos.y = (float)((sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_CameraHeightNear + t);
     up.y = pos.y - cen.y;
-    d3t_GetHeightRange((char *)m, &lo, &hi);
+    d3t_GetHeightRange(m, &lo, &hi);
     h = back.y / ((hi - lo) * 0.5f + up.y);
     pos.x = pos.x - (h * back.x - back.x * 1.8);
     pos.z = pos.z - (h * back.z - back.z * 1.8);
@@ -6109,13 +6109,13 @@ void sv_ValueBar(int x, int y, int value, int k)
    k + 2 / k + 3 and the current value over it in k / k + 1; above the base the current value in k + 4 / k + 5 and
    the base over it in k, its half tile in k too (the original pushes k there). */
 
-void sv_DrawBalanceBar(int x, int y, char *c, int skill, int k)
+void sv_DrawBalanceBar(int x, int y, AICHAR *c, int skill, int k)
 {
     int cur, base, top, n, odd, w, i;
 
     w = d2_Pics[k].w + 2;
     cur = gm_SkillPoints(c, skill);
-    base = (unsigned char)c[0x80 + skill];
+    base = c->skills[skill];
     top = cur;
     if (cur <= base)
         top = base;

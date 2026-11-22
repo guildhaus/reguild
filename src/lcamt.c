@@ -1085,7 +1085,7 @@ void ai_ShowWindowRow(AIWINDOWROW *row)
             d2_SetForm(row->win, row->pageB);
             io_PrintText((intptr_t)"$C$Z%s", row->entry + 0x16b7);
             d2_SetForm(row->win, row->pageC);
-            sv_DrawBalanceBar(0, 6, (char *)((unsigned)&ai_Chars + ai_PlayerId * 0x21c), row->entry, 0x4df);
+            sv_DrawBalanceBar(0, 6, &ai_Chars[ai_PlayerId], row->entry, 0x4df);
         }
     }
 }

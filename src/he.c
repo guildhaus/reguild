@@ -9710,7 +9710,7 @@ int he_StepWalkSlot(HEWALKSLOT *s)
         s->bldIndex = 0;
         return 0;
     }
-    if (sv_IsAtDoor(c, (char *)bld) == 0 && ai_Time.hour < 0x16)
+    if (sv_IsAtDoor(c, bld) == 0 && ai_Time.hour < 0x16)
         return 2;
     if (c->scene != 0) {
         cm_SendChrStop(c->netId);
@@ -12096,7 +12096,7 @@ void he_RunTransport(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        if (ai_IsBuildingOpen((unsigned char *)b, 0, 0) != 0) {
+        if (ai_IsBuildingOpen(b, 0, 0) != 0) {
             pl = ai_OwnPlayer;
             if (b->type == 0x47)
                 pl = (char)b->playerSlot;
@@ -17022,7 +17022,7 @@ void he_RunBuildingSpying(AIJOB *ev)
         rec.goods = goods;
         rec.skill = gm_BuildingSkill(b, 7, 1);
         rec.know = know;
-        cm_SendSpyReport((char *)g, &rec);
+        cm_SendSpyReport(g, &rec);
         if (master->kind == 6 || master->kind == 7) {
             p = gm_FindCharacterByMaster(g);
             if (spy != 0 && (p == 0 || (p->flags1b4 & 1) == 0)) {

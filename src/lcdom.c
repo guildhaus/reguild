@@ -1372,7 +1372,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     int cost;
     int v;
     AICHAR *c;
-    char *owner;
+    AICHAR *owner;
     AIJOB *job;
 
     nWorkers = 0;
@@ -1517,7 +1517,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     promoteButton = -1;
                     sel = i;
                     if (masterRow.ch == 0 && masterRow.state != 2) {
-                        cost = (int)gm_JobCost((char *)&ai_Chars[bld->owner], bld->type, 0, -1);
+                        cost = (int)gm_JobCost(&ai_Chars[bld->owner], bld->type, 0, -1);
                         d2_SetForm(masterRow.view, 2);
                         hireMasterButton = d2_GetWinObj(masterRow.view, 2, io_PrintText(0x1a22, cost, bt->jobs[0] + 0x130));
                     } else if (masterRow.state == 1) {
@@ -1674,7 +1674,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 fireMasterButton = -1;
                 sel = i;
                 if (rows[i].ch == 0) {
-                    cost = (int)gm_JobCost((char *)&ai_Chars[bld->owner], bld->type, -1, 1);
+                    cost = (int)gm_JobCost(&ai_Chars[bld->owner], bld->type, -1, 1);
                     d2_SetForm(rows[i].view, 2);
                     hireButton = d2_GetWinObj(rows[i].view, 2, io_PrintText(0x1a22, cost, bt->title2 + 0x20d));
                 } else if (rows[i].state == 1) {
@@ -1737,7 +1737,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 txt_Format(text4, 0x1a27, 4);
                 sv_MessageBox((intptr_t)text4, 4);
             } else {
-                owner = (char *)&ai_Chars[bld->owner];
+                owner = &ai_Chars[bld->owner];
                 a = (int)(gm_JobWage(owner, bld->type, -1, 1) * (bld->wageRate * 0.01));
                 b = (int)(gm_JobWage(owner, bld->type, -1, 0) * (bld->wageRate * 0.01));
                 if (c->sex == 0)
@@ -1863,7 +1863,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
     AICHAR *master;
     AICHAR *c;
     AIJOB *job;
-    char *owner;
+    AICHAR *owner;
 
     nWorkers = 0;
     hireButton = -1;
@@ -2088,7 +2088,7 @@ void ai_MercenaryBook(AIBLD *bld, char *model)
                 fireButton = -1;
                 promoteButton = -1;
                 if (rows[i].ch == 0) {
-                    owner = (char *)&ai_Chars[bld->owner];
+                    owner = &ai_Chars[bld->owner];
                     cost = (int)gm_JobCost(owner, bld->type, -1, 1);
                     d2_SetForm(rows[i].view, 2);
                     hireButton = d2_GetWinObj(rows[i].view, 2, io_PrintText(0x1a22, cost, 0x220));
@@ -2266,7 +2266,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
     AICHAR *master;
     AICHAR *c;
     AIJOB *job;
-    char *owner;
+    AICHAR *owner;
 
     nWorkers = 0;
     dismissButton = -1;
@@ -2407,7 +2407,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                     dismissButton = -1;
                     sel = i;
                     if (masterRow.ch == 0 && masterRow.state != 2) {
-                        owner = (char *)&ai_Chars[bld->owner];
+                        owner = &ai_Chars[bld->owner];
                         cost = (int)gm_JobCost(owner, bld->type, 0, -1);
                         d2_SetForm(masterRow.view, 2);
                         hireMasterButton = d2_GetWinObj(masterRow.view, 2, io_PrintText(0x1a22, cost, bt->jobs[0] + 0x130));
@@ -3324,7 +3324,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
         } else {
             own = 1;
         }
-        if (ai_InventoryHas((char *)&ai_Chars[ai_PlayerId], 0x299) != 0)
+        if (ai_InventoryHas(&ai_Chars[ai_PlayerId], 0x299) != 0)
             canTrade = 1;
         if (mode8 && d2_ClickedId != -1) {
             for (i = 0; i < 7; i++) {
@@ -7904,7 +7904,7 @@ void lc_UpdateGoodsReserves(void)
                         if (bld != 0)
                             cm_SendSetField(bld->id, 0x5a, 2, 0, 0x20);
                     }
-                    if (ai_CanAct((char *)&ai_Chars[i]) && ai_Chars[i].kind != 7)
+                    if (ai_CanAct(&ai_Chars[i]) && ai_Chars[i].kind != 7)
                         cm_SendExSellObject(-1, o->ownerId, o->id, 1, ai_OwnPlayer, 0);
                 } else if (o->active != 0) {
                     o->active = 0;

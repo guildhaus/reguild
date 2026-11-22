@@ -3485,7 +3485,7 @@ int cm_FightStartDialog(G28REC *a)
                     io_PrintText(0x1135);
             }
             if (fv >= 0.75) {
-                v = gm_SkillPoints((int)cm_FightDefender, 3);
+                v = gm_SkillPoints(cm_FightDefender, 3);
                 r = (int)(v * 0.023809524f);
                 if (r > 4)
                     r = 4;
@@ -3544,7 +3544,7 @@ int cm_FightStartDialog(G28REC *a)
             if (bld != 0)
                 io_PrintText(0x113d, st, 0xc10, bld, cm_FightAttacker->id, k);
         }
-        v = gm_SkillPoints((int)cm_FightDefender, 3);
+        v = gm_SkillPoints(cm_FightDefender, 3);
         r = (int)(v * 0.023809524f);
         if (r > 4)
             r = 4;

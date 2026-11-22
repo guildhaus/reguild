@@ -75,7 +75,7 @@ void gm_UpdatePlayers(void);  /* 0x4feb30 */
 void gm_CharacterUpkeep(void);  /* 0x4fa580, the daily upkeep of the characters */
 void gm_PayAllCharacterWages(void);  /* 0x4fa9b0 */
 void gm_UpdateWorthMood(void);  /* 0x4faa00 */
-float gm_JobWage(char *c, int k, int a, int b);  /* 0x508740, the wage of a job (a) or title (b) of the building kind k for the character c */
+float gm_JobWage(struct AICHAR *c, int k, int a, int b);  /* 0x508740, the wage of a job (a) or title (b) of the building kind k for the character c */
 int gm_BuildingBalance(struct AIBLD *b, unsigned id, int *out);  /* 0x508d80, the income / cost summary of the building b for the owner id */
 unsigned *gm_NameRecord(int kind, int id);  /* 0x4fb330, the name record (0x44 bytes, the name at +4) with the id in the table of the sex kind (0 / 1), or the first free one */
 unsigned *gm_CharNameRecord(int id);  /* 0x4fb390 */
@@ -95,7 +95,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4f
 int gm_TakeObjekt(int id, int proto, int n);  /* 0x500a40 */
 unsigned short *gm_CreateObject(int id, int proto, int n);  /* 0x500190, the new object instance of the prototype proto with the amount n in the holder's list (gm_FindById); 0 on failure */
 void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
-int gm_SkillPoints(char *c, int skill);  /* 0x504e00 */
+int gm_SkillPoints(struct AICHAR *c, int skill);  /* 0x504e00 */
 int gm_HasAdultRelative(struct AICHAR *c, int *n);  /* 0x506480 */
 unsigned gm_TakeOverCharacter(int a, int b);  /* 0x5064d0 */
 struct AICHAR; void gm_InheritEstate(struct AICHAR *dead, struct AICHAR *heir);  /* 0x506890, the heir inherits the dead character's estate */
@@ -146,7 +146,7 @@ int gm_CharPrevLevel(unsigned short id, int again);  /* 0x505f30, gm_CharLevel f
 struct AICHAR; struct GMDATE; void gm_BirthDate(struct AICHAR *c, struct GMDATE *out);  /* 0x506000, the birthday of the character c (its birth year, a month and day from its first name) */
 struct AICHAR; struct GMDATE; int gm_DeathDate(struct AICHAR *c, struct GMDATE *out);  /* 0x5060d0, the day of death of the character c; 0 for a living one */
 struct GMRANK; void gm_RankPlayers(int *count, struct GMRANK *out);  /* 0x506180, the ranking of the up to 8 players into out, *count of them */
-float gm_JobCost(char *c, int k, int a, int b);  /* 0x50cd40 */
+float gm_JobCost(struct AICHAR *c, int k, int a, int b);  /* 0x50cd40 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 int gm_OwnerWorth(struct AIBLD *b, int flag);  /* 0x509c80 */
 short *gm_PlayerRecord(struct AICHAR *c);  /* 0x506430 */

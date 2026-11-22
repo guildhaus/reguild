@@ -3383,7 +3383,7 @@ void main_EndRound(void)
 
         x = -1;
         y = -1;
-        if (ai_Chars[k].scene != 0 && he_FindFigurePlace((char *)&ai_Chars[k], &x, &y, &place) != 0) {
+        if (ai_Chars[k].scene != 0 && he_FindFigurePlace(&ai_Chars[k], &x, &y, &place) != 0) {
             fig = ai_Chars[k].scene;
             if (x != fig->group || y != fig->scriptGroup) {
                 if (fig->scriptId != -1)
@@ -4001,7 +4001,7 @@ void main_SettleRound(unsigned short pl)
 
                 for (pass = 0; pass < 2; pass++) {
                     for (j = 0; j < 0xc; j++) {
-                        int wage = (int)(gm_JobWage((char *)ps, p->type, -1, pass) * (p->wageRate * 0.01));
+                        int wage = (int)(gm_JobWage(ps, p->type, -1, pass) * (p->wageRate * 0.01));
 
                         if (workers[1 + pass * 12 + j] != 0xffff) {
                             AICHAR *q = &ai_Chars[workers[1 + pass * 12 + j]];
@@ -4106,7 +4106,7 @@ void main_SettleRound(unsigned short pl)
                 }
                 for (k = 0; k < 0xc; k++) {
                     AICHAR *boss = &ai_Chars[p->owner];
-                    int wage2 = (int)(gm_JobWage((char *)boss, p->type, -1, 0) * (p->wageRate * 0.01));
+                    int wage2 = (int)(gm_JobWage(boss, p->type, -1, 0) * (p->wageRate * 0.01));
                     int w = workers[0x19 + k];
 
                     if (w != 0xffff) {
@@ -4955,7 +4955,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE prev, char *cmd, int show)
         mode = 1;
     if (strstr(cmd, "FULLSCREEN") != 0)
         mode = 3;
-    GetPrivateProfileStringA("General", "GfxPath", "\\project\\gfx\\", (char *)main_GfxPath, 0x104, ai_OptionsFile);
+    GetPrivateProfileStringA("General", "GfxPath", "\\project\\gfx\\", main_GfxPath, 0x104, ai_OptionsFile);
     GetPrivateProfileStringA("General", "GamePath", "\\project\\game\\", main_GamePath, 0x104, ai_OptionsFile);
     GetPrivateProfileStringA("General", "MoviePath", "\\project\\movie\\", main_MoviePath, 0x104, ai_OptionsFile);
     GetPrivateProfileStringA("General", "Language", "german", txt_Language, 0x40, ai_OptionsFile);
