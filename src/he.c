@@ -15068,8 +15068,8 @@ void he_RunPromotion(AIJOB *e)
     EVTSCRIPT *sc;
     char *s, *d;
     int group, scriptGroup;
-    float pos[4];
-    float rot[4];
+    D3VECTOR4 pos;
+    D3VECTOR4 rot;
 
     if (e->exSlot != -1 && cm_GetSlotState(e->exSlot) == 0)
         return;
@@ -15115,12 +15115,12 @@ void he_RunPromotion(AIJOB *e)
 
             d3if_SelectScene(scene, 1);
             ch = c->scene;
-            pos[0] = ch->obj->pos.x;
-            pos[1] = ch->obj->pos.y;
-            pos[2] = ch->obj->pos.z;
-            rot[0] = ch->obj->rotation.x;
-            rot[1] = ch->obj->rotation.y;
-            rot[2] = ch->obj->rotation.z;
+            pos.x = ch->obj->pos.x;
+            pos.y = ch->obj->pos.y;
+            pos.z = ch->obj->pos.z;
+            rot.x = ch->obj->rotation.x;
+            rot.y = ch->obj->rotation.y;
+            rot.z = ch->obj->rotation.z;
             group = ch->group;
             scriptGroup = ch->scriptGroup;
             s = ch->handObject;
@@ -15130,7 +15130,7 @@ void he_RunPromotion(AIJOB *e)
             ch_Delete(ch);
             c->scene = 0;
             c->ownName[0] = 0;
-            c->scene = gm_CreateCharModel(c, scene, pos, rot, 0, 0);
+            c->scene = gm_CreateCharModel(c, scene, &pos.v, &rot.v, 0, 0);
             if (c->scene != 0) {
                 c->scene->group = group;
                 c->scene->scriptGroup = scriptGroup;
@@ -15138,7 +15138,7 @@ void he_RunPromotion(AIJOB *e)
                     ch_SetHandObject(c->scene, 2, hand);
                 sc = evt_Load("Effekte/befoerdern.esc");
                 if (sc != 0) {
-                    evt_RunScriptArgs(sc, 5, (int)pos[0], (int)pos[1], (int)pos[2], 0x28, 0xb4);
+                    evt_RunScriptArgs(sc, 5, (int)pos.x, (int)pos.y, (int)pos.z, 0x28, 0xb4);
                     if (scriptGroup != -1)
                         sc->group = scriptGroup;
                     else

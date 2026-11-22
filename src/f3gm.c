@@ -1197,12 +1197,12 @@ void gm_ChooseHeadIcon(AICHAR *c)
    the model name to c's own head name and chooses the variant and the head icon. The current scene is selected
    again at the end. Returns the model (0 when scene is negative). */
 
-CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, D3OBJECT *obj, char *dummy)
+CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, D3VECTOR *p, D3VECTOR *ori, D3OBJECT *obj, char *dummy)
 {
     int saved;
     D3VECTOR4 zero;
-    int pos[4];
-    int *o, *src;
+    D3VECTOR4 pos;
+    D3VECTOR *o, *src;
     D3OBJECT *it;
     GMHEAD *rec;
     char *name, *s, *d;
@@ -1213,8 +1213,8 @@ CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, D3OBJECT *
     zero.y = 0.0f;
     zero.z = 0.0f;
     zero.w = 0.0f;
-    src = p != 0 ? p : (int *)&zero;
-    o = ori != 0 ? ori : (int *)&zero;
+    src = p != 0 ? p : &zero.v;
+    o = ori != 0 ? ori : &zero.v;
     if (scene < 0)
         return 0;
     d3if_SelectScene(scene, 1);
@@ -1224,23 +1224,23 @@ CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, D3OBJECT *
     if (it == 0 && src == 0 && o == 0)
         goto done;
     if (it != 0)
-        d3_PointToWorld(it, &it->pos, (D3VECTOR *)pos);
+        d3_PointToWorld(it, &it->pos, &pos.v);
     else {
-        pos[0] = src[0];
-        pos[1] = src[1];
-        pos[2] = src[2];
+        pos.x = src->x;
+        pos.y = src->y;
+        pos.z = src->z;
     }
     rec = (GMHEAD *)gm_CharNameRecord(c->id);
     if (rec != 0) {
         name = rec->name;
-        m = ch_Create(name, (D3VECTOR *)pos);
+        m = ch_Create(name, &pos.v);
         c->scene = m;
         if (m != 0) {
             sprintf(m->obj->name, "sp_%i", c->netId);
             c->scene->obj->owner = c;
             c->scene->obj->pickId = c->id | 0x3000000;
             if (ori != 0)
-                d3_SetObjectRot(c->scene->obj, (D3VECTOR *)ori);
+                d3_SetObjectRot(c->scene->obj, ori);
             s = name;
             d = c->ownName;
             while ((*d++ = *s++) != 0)
@@ -1261,7 +1261,7 @@ done:
    script group, and is hidden when the shown building (ai_PlayerBuilding / ai_FallbackBuilding) is another.
    Returns the model or 0. */
 
-CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
+CHARACTER *gm_PlaceOnStage(int id, int a, int b, D3VECTOR *p, D3VECTOR *ori)
 {
     int saved;
     AICHAR *c;

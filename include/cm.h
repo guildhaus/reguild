@@ -380,7 +380,7 @@ struct CHACTION * ch_AddAction(struct CHARACTER *ch, unsigned int type, ...);  /
 struct G15TREE * veg_FindType(int type);  /* 0x4bc5a0 */
 int veg_Fits(struct G15PLANT *p, int x, int z, int size);  /* 0x4bc710 */
 void gm_SelectModelVariant(struct AICHAR *o);  /* 0x4fb5a0, f3gm.c: the model variant of the object o */
-struct CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);  /* 0x4fbd10 */
+struct CHARACTER *gm_PlaceOnStage(int id, int a, int b, struct D3VECTOR *p, struct D3VECTOR *ori);  /* 0x4fbd10 */
 struct AIOBJ *gm_FindObjectInst(int id);  /* 0x4fe980 */
 int gm_RemoveOwned(struct AIOBJ **list, int id);  /* 0x5000c0, f3gm.h */
 extern int veg_NextId;  /* 0x6f0748 */
