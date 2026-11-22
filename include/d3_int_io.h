@@ -21,32 +21,6 @@ typedef union D3IOFLAGS {           /* tex_Load flags as the floor reader builds
     } s;
 } D3IOFLAGS;
 
-typedef struct D3IOOBJFLAGS {      /* D3OBJECT::state..stateFlags as the reader writes them */
-    unsigned char a0 : 1;           /* 0x210 */
-    unsigned char a1 : 1;
-    unsigned char a2 : 1;
-    unsigned char a3 : 1;
-    unsigned char a4 : 1;
-    unsigned char a5 : 1;
-    unsigned char a6 : 1;
-    unsigned char a7 : 1;
-    unsigned char b0 : 1;           /* 0x211 */
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;
-    unsigned char b3 : 1;
-    unsigned char b4 : 1;
-    unsigned char b5 : 1;
-    unsigned char b6 : 1;
-    unsigned char b7 : 1;
-    unsigned char c0 : 1;           /* 0x212 */
-    unsigned char c1 : 1;
-    unsigned char c23 : 2;
-    unsigned char c4 : 1;
-    unsigned char c5 : 1;
-    unsigned char c6 : 1;
-    unsigned char c7 : 1;
-} D3IOOBJFLAGS;
-#define D3IO_FL(o) ((D3IOOBJFLAGS *)&(o)->state)
 
 
 

@@ -155,15 +155,38 @@ struct D3OBJECT {
                                        8 = mirrored, 0x20 = vertex normals, 0x80 = no camera transform */
         struct D3OBJBITS bits;      /* the same bits by name (d3_DrawObjectCB) */
     };
+    union {
     unsigned char objectFlags;      /* 0x211, object flags, read and written bit by bit: 1 = has a saved position
                                        and angle (applied on load; d3t_RecordKeys keys it), 2 = saved with the
                                        scene, 4 = shadow caster (d3s_LightCB), 8 = simple shadow, 0x10 = light
                                        keeps its stored direction (type 7), 0x20 = shadow fake object (no box,
                                        tracks the z range), 0x40 = mirrored (d3_mir.c), 0x80 = alpha alias applied
                                        (d3_SetObjectAlpha) */
+        struct D3OBJFLAGBITS {      /* the same bits by name (the scene reader rd_object, ch.c) */
+            unsigned char savedPose : 1;    /* 1 */
+            unsigned char sceneSaved : 1;   /* 2 */
+            unsigned char shadowCaster : 1; /* 4 */
+            unsigned char simpleShadow : 1; /* 8 */
+            unsigned char keepDir : 1;      /* 0x10 */
+            unsigned char shadowFake : 1;   /* 0x20 */
+            unsigned char mirrored : 1;     /* 0x40 */
+            unsigned char alphaAlias : 1;   /* 0x80 */
+        } flagBits;
+    };
+    union {
     unsigned char stateFlags;       /* 0x212, object flags, read and written bit by bit: 2 = vertex colors set
                                        (d3t_SetColor), 0xc = shadow mask tested against D3SM.mask, 0x10 = cast
                                        shadows despite the mask, 0x80 = world matrix current (d3_UpdateWorldMatrix) */
+        struct D3OBJSTATEBITS {     /* the same bits by name (the scene reader rd_object) */
+            unsigned char s0 : 1;
+            unsigned char vertexColors : 1; /* 2 */
+            unsigned char shadowMask : 2;   /* 0xc */
+            unsigned char castShadow : 1;   /* 0x10 */
+            unsigned char s5 : 1;
+            unsigned char s6 : 1;
+            unsigned char worldCurrent : 1; /* 0x80 */
+        } stateBits;
+    };
     unsigned char flags;            /* 0x213 */
     int meshMode;                   /* 0x214, reasoned guess at the meaning: 0 from d3_InitObject, 3 for the
                                        shadow_fake object (d3_Init), 4 once d3io_AttachStock adds a level-of-detail

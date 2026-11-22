@@ -603,9 +603,9 @@ int ch_CreateMesh(CHARACTER *ch, char *name, D3VECTOR *pos)
     strcpy(ch->name, name);
     ch->obj->objectFlags |= 4;
     if (!d3t_SceneIndex(ch->scene))
-        D3OBJ_BITS(ch->obj, 0x211)->b3 = ch_ShadowEnabled;
+        ch->obj->flagBits.simpleShadow = ch_ShadowEnabled;
     else
-        D3OBJ_BITS(ch->obj, 0x211)->b3 = 0;
+        ch->obj->flagBits.simpleShadow = 0;
     ch->obj->pickId = 0x3000000;
     ch_PlaceOnGround(ch, 0);
     d3_RelightObject(ch->obj);
@@ -615,12 +615,12 @@ int ch_CreateMesh(CHARACTER *ch, char *name, D3VECTOR *pos)
         || strstr(ch->name, "PFERD")) {
         ch->kind = 2;
         if (strstr(ch->name, "RATTE")) {
-            D3OBJ_BITS(ch->obj, 0x211)->b3 = 0;
+            ch->obj->flagBits.simpleShadow = 0;
             ch->obj->objectFlags &= ~4;
         }
         if (strstr(ch->name, "PFERD")) {
             ch->kind |= 8;
-            D3OBJ_BITS(ch->obj, 0x211)->b3 = 0;
+            ch->obj->flagBits.simpleShadow = 0;
         }
     }
     ch_PreloadAnims(ch, 2, "bewegung/gehen", "stehen/stehen_newnoise");
@@ -657,9 +657,9 @@ int ch_MoveToScene(CHARACTER *ch, D3SCENE *scene)
             d3if_MoveObject(ch->lowPolyBody, ch->scene, scene);
         ch->scene = scene;
         if (!d3t_SceneIndex(scene))
-            D3OBJ_BITS(ch->obj, 0x211)->b3 = ch_ShadowEnabled;
+            ch->obj->flagBits.simpleShadow = ch_ShadowEnabled;
         else
-            D3OBJ_BITS(ch->obj, 0x211)->b3 = 0;
+            ch->obj->flagBits.simpleShadow = 0;
         if (scene == d3_DefaultScene && !ch->obj->info) {
             sprintf(msg, "ch_MoveCharacter2Universe(): character deflated, will be inflated:%s", ch->fullname);
             ch_InflateModel(ch);

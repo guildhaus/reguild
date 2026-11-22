@@ -164,11 +164,6 @@ typedef union CHANIMFLAGS {
 } CHANIMFLAGS;
 struct D3ANIMDATA *d3_LoadAnimStream(char *name, char *file, char unk);                                /* 0x44e4a0, loads an animation, d3_io_t.c */
 
-/* bits of the D3OBJECT flag bytes 0x210..0x213 (by offset; d3_engine.h's D3OBJBITS names the bits of 0x210) */
-typedef struct CHOBJBITS {
-    unsigned char b0 : 1, b1 : 1, b2 : 1, b3 : 1, b4 : 1, b5 : 1, b6 : 1, b7 : 1;
-} CHOBJBITS;
-#define D3OBJ_BITS(obj, off) ((CHOBJBITS *)((char *)(obj) + (off)))
 float d3_YawTo(struct D3OBJECT *obj, const struct D3VECTOR *p);                                     /* 0x448ac0, angle towards target */
 
 extern char ch_ShadowEnabled;           /* 0x5f122c */

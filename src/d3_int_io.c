@@ -100,31 +100,31 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
         obj->kind = kind;
         obj->parent = parent;
         if (parent)
-            D3IO_FL(obj)->a0 = 0;
+            obj->bits.top = 0;
         switch (type) {
         case 1:
         case 4:
             bio_rd_c(f, &c);
-            D3IO_FL(obj)->a7 = c;
+            obj->bits.b7 = c;
             bio_rd_c(f, &c);
-            D3IO_FL(obj)->a5 = c;
+            obj->bits.b5 = c;
             if (version >= 0x3a6c000d) {
                 bio_rd_c(f, &c);
-                D3IO_FL(obj)->b2 = c;
+                obj->flagBits.shadowCaster = c;
                 if (version >= 0x3a6c00a6) {
                     bio_rd_c(f, &c);
-                    D3IO_FL(obj)->c23 = c;
+                    obj->stateBits.shadowMask = c;
                     if (version <= 0x3a6c00b8)
-                        D3IO_FL(obj)->c23 |= (D3IO_FL(obj)->c23 & 1) << 1;
+                        obj->stateBits.shadowMask |= (obj->stateBits.shadowMask & 1) << 1;
                     bio_rd_c(f, &c);
-                    D3IO_FL(obj)->c4 = c;
+                    obj->stateBits.castShadow = c;
                     if (version >= 0x3a6c00b4) {
                         bio_rd_c(f, &c);
-                        D3IO_FL(obj)->c5 = c;
+                        obj->stateBits.s5 = c;
                     }
                     if (version >= 0x3a6c00b9) {
                         bio_rd_c(f, &c);
-                        D3IO_FL(obj)->c6 = c;
+                        obj->stateBits.s6 = c;
                     }
                 }
             }
@@ -168,7 +168,7 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             bio_rd_v3(f, &obj->pos);
             bio_rd_v3(f, &obj->rotation);
             bio_rd_c(f, &c);
-            D3IO_FL(obj)->b0 = c;
+            obj->flagBits.savedPose = c;
             if (c) {
                 bio_rd_v3(f, &obj->savedPos);
                 bio_rd_v3(f, &obj->savedRot);
@@ -182,9 +182,9 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
             break;
         case 0:
             bio_rd_c(f, &c);
-            D3IO_FL(obj)->b0 = c;
+            obj->flagBits.savedPose = c;
             if (version < 0x3a6c00a0)
-                D3IO_FL(obj)->b0 = 1;
+                obj->flagBits.savedPose = 1;
             bio_rd_i(f, &obj->radius);
             bio_rd_v3(f, &obj->pos);
             bio_rd_v3(f, &obj->savedPos);
@@ -195,12 +195,12 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
         case 7:
         case 8:
             bio_rd_c(f, &c);
-            D3IO_FL(obj)->a5 = c;
+            obj->bits.b5 = c;
             if (version >= 0x3a6c00a8) {
                 cnt = d3_SceneVersion(version);
                 if (version >= 0x3a6c00a9) {
                     bio_rd_c(f, &c);
-                    D3IO_FL(obj)->b4 = c;
+                    obj->flagBits.keepDir = c;
                 }
                 bio_rd_i(f, &obj->lightParams.x);
                 bio_rd_i(f, &obj->lightParams.y);
@@ -295,8 +295,8 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
         d3_SetObjectRot(obj, &obj->rotation);
         d3_SetObjectPos(obj, &obj->pos);
         if (obj->kind == 1)
-            D3IO_FL(obj)->a5 = 0;
-        D3IO_FL(obj)->b1 = 1;
+            obj->bits.b5 = 0;
+        obj->flagBits.sceneSaved = 1;
         if (bang) {
             d3if_Show(obj, 0);
             if (obj->name[0] != '!') {
@@ -309,9 +309,9 @@ D3OBJECT *rd_object(void *f, D3OBJECT *parent, unsigned int version, char reload
         obj = d3_SpawnObject(1, "STRANGEFUCK");
         obj->parent = parent;
         if (parent)
-            D3IO_FL(obj)->a0 = 0;
+            obj->bits.top = 0;
         dummy = 1;
-        D3IO_FL(obj)->b1 = 0;
+        obj->flagBits.sceneSaved = 0;
     }
     bio_rd_c(f, &c);
     if (c)
