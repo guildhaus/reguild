@@ -719,14 +719,14 @@ extern const int ai_RandomStrides[16];                                          
 /* 0x4a63f0 ai_PickActionBuilding is declared in am.h */
 int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi, unsigned char n, int *out); /* 0x4a6570 */
 void d3t_GetObjectBounds(struct D3VECTOR *mn, struct D3VECTOR *mx, struct D3OBJECT *obj);             /* 0x413150, d3_tools.c */
-int ai_BuildingAimPoints(AIBLD *x, float *a, AIBLD *y, float *b);                        /* 0x4a66f0 */
+int ai_BuildingAimPoints(AIBLD *x, struct D3VECTOR *a, AIBLD *y, struct D3VECTOR *b);                        /* 0x4a66f0 */
 typedef struct G9SHOT {                 /* 0x74 bytes, the AI's cannon shot at 0x6f0698 (0x4a67a0) */
     int who;                            /* 0x00, the shooter's id */
     int bld;                            /* 0x04, the cannon building's id */
-    float a[4];                         /* 0x08, start */
-    float b[4];                         /* 0x18 */
-    float d[4];                         /* 0x28 */
-    float c[4];                         /* 0x38 */
+    D3VECTOR4 a;                        /* 0x08, start */
+    D3VECTOR4 b;                        /* 0x18, the barrel direction */
+    D3VECTOR4 d;                        /* 0x28, the side */
+    D3VECTOR4 c;                        /* 0x38, up */
     float ang;                          /* 0x48, the elevation */
     int charge;                         /* 0x4c */
     int k;                              /* 0x50, the elevation in percent of the range */
@@ -754,7 +754,7 @@ extern const G9BALL ai_CannonBalls[5];                                          
 extern const float ai_IronDensity;                                                       /* 0x5eee08, 7874 */
 int ai_SphereVolume(float radius, float size, float *out);                                   /* 0x5dc1a0 */
 struct SPHEREVOLUME; void ai_PositionShare(float a, float b, struct SPHEREVOLUME *rec, float *out);                        /* 0x5dc210 */
-int ai_SolveCannonAim(float *a, float *b, float *rng, float *x, float *y, float *ang, float *vb, float *vc, float *vd); /* 0x5dd100 */
+int ai_SolveCannonAim(const struct D3VECTOR *a, const struct D3VECTOR *b, float *rng, float *x, float *y, float *ang, struct D3VECTOR *vb, struct D3VECTOR *vc, struct D3VECTOR *vd); /* 0x5dd100 */
 int ai_AimCannon(struct AICHAR *p, struct AIBLD *b, struct AIBLD *t);                                  /* 0x4a67a0 */
 int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos, struct D3VECTOR *dir, float charge, float size, float density); /* 0x5dc240 */
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread, struct D3VECTOR *side, float otherSpread, struct D3VECTOR *other, float speedSpread);    /* 0x5dc3a0 */

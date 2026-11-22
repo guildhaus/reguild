@@ -944,8 +944,8 @@ float ai_NormalizeEffectScale(float value)
    component). No lever for those: all 1023 operand swaps of the five tail lines, 144 declaration orders of
    s / c, d3_YAxis through a pointer / array view / local copies of c and s (one code each); climb round 1
    best 10 ins by inlining err in both tests (another place differs, not kept). */
-int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, float *outYaw, float *outSpeed,
-                      float *outDir, float *outUp, float *outSide)
+int ai_SolveCannonAim(const D3VECTOR *from, const D3VECTOR *to, float *range, float *outElev, float *outYaw, float *outSpeed,
+                      D3VECTOR *outDir, D3VECTOR *outUp, D3VECTOR *outSide)
 {
     float g = ai_Gravity;
     float speedStep = (range[1] - range[0]) * 0.5f;
@@ -955,9 +955,9 @@ int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, floa
     float speed, ang;
     int sign = 0, i;
 
-    dir.x = to[0] - from[0];
-    dir.y = to[1] - from[1];
-    dir.z = to[2] - from[2];
+    dir.x = to->x - from->x;
+    dir.y = to->y - from->y;
+    dir.z = to->z - from->z;
     hdir.x = dir.x;
     hdir.y = 0.0f;
     hdir.z = dir.z;
@@ -965,11 +965,11 @@ int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, floa
     d3_Normalize(&dir);
     d3_Normalize(&hdir);
     *outYaw = d3_VecAngle2(&d3_ZAxis.v, &dir.v);
-    drop = (float)fabs(to[1] - from[1]) * ai_MeterPerInch;
+    drop = (float)fabs(to->y - from->y) * ai_MeterPerInch;
     horiz = ai_MeterPerInch * horiz;
-    if (from[1] > to[1])
+    if (from->y > to->y)
         sign = 1;
-    else if (from[1] < to[1])
+    else if (from->y < to->y)
         sign = -1;
     ang = range[3];
     speed = range[0];
@@ -1007,15 +1007,15 @@ int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, floa
         } else {
             *outSpeed = speed;
             *outElev = ang;
-            outDir[0] = hdir.x;
-            outDir[1] = c * hdir.y - s * hdir.z;
-            outDir[2] = s * hdir.y + c * hdir.z;
-            outUp[0] = d3_YAxis.x;
-            outUp[1] = d3_YAxis.y * c - d3_YAxis.z * s;
-            outUp[2] = d3_YAxis.z * c + d3_YAxis.y * s;
-            outSide[0] = outUp[2] * outDir[1] - outDir[2] * outUp[1];
-            outSide[1] = outDir[2] * outUp[0] - outUp[2] * outDir[0];
-            outSide[2] = outDir[0] * outUp[1] - outDir[1] * outUp[0];
+            outDir->x = hdir.x;
+            outDir->y = c * hdir.y - s * hdir.z;
+            outDir->z = s * hdir.y + c * hdir.z;
+            outUp->x = d3_YAxis.x;
+            outUp->y = d3_YAxis.y * c - d3_YAxis.z * s;
+            outUp->z = d3_YAxis.z * c + d3_YAxis.y * s;
+            outSide->x = outUp->z * outDir->y - outDir->z * outUp->y;
+            outSide->y = outDir->z * outUp->x - outUp->z * outDir->x;
+            outSide->z = outDir->x * outUp->y - outDir->y * outUp->x;
             return 0;
         }
     }

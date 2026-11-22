@@ -315,7 +315,7 @@ void txt_Format(char *out, intptr_t id0, ...);   /* 0x5176d0, io_text.c: formats
 /* declared in other units' headers before (moved to the owner) */
 int ai_InitShot(SHOTREC *shot, D3VECTOR *pos, D3VECTOR *dir, float charge, float size, float density);  /* 0x5dc240 */
 int ai_ScatterShot(SHOTREC *shot, float sideSpread, D3VECTOR *side, float otherSpread, D3VECTOR *other, float speedSpread);  /* 0x5dc3a0 */
-int ai_SolveCannonAim(float *from, float *to, float *range, float *outElev, float *outYaw, float *outSpeed, float *outDir, float *outUp, float *outSide);  /* 0x5dd100 */
+int ai_SolveCannonAim(const D3VECTOR *from, const D3VECTOR *to, float *range, float *outElev, float *outYaw, float *outSpeed, D3VECTOR *outDir, D3VECTOR *outUp, D3VECTOR *outSide);  /* 0x5dd100 */
 int ai_SphereVolume(float radius, float size, float *out);  /* 0x5dc1a0 */
 int ai_StepShot(SHOTREC *shot);  /* 0x5dc4a0 */
 int ai_StepShotSlow(SHOTREC *shot);  /* 0x5dc9d0 */
