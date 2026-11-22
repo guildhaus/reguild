@@ -32,7 +32,7 @@ void par_Delete(D3PARTSYS *ps);                         /* 0x455760, also in d3_
 extern float d3_ParUV0[6];          /* 0xfb95a0, (0,0) (1,1) (0,1) */
 extern float d3_ParUV1[6];          /* 0xfb95c0, (0,0) (1,0) (1,1) */
 
-/* views of the D3PVERT.flags / D3PTRI.flags bytes: bitfields reached through a typed pointer */
+/* views of the D3VERTEX.flags / D3TRI.flags bytes: bitfields reached through a typed pointer */
 typedef struct PARVFLAGS {
     unsigned char l : 1, r : 1, t : 1, b : 1, b4 : 1, b5 : 1, b6 : 1, vis : 1;
 } PARVFLAGS;
@@ -56,8 +56,6 @@ typedef union PARCOL {
 } PARCOL;
 
 /* each particle is a quad of 4 projected vertices (ps->points) and 2 triangles (ps->polys) */
-#define PAR_VERTS(ps) ((D3PVERT *)(ps)->points)
-#define PAR_TRIS(ps) ((D3PTRI *)(ps)->polys)
 #define PAR_OBJ(ps) ((D3OBJECT *)(ps)->obj)
 #define PAR_EMITTER(ps) ((D3EMITTER *)(ps))
 /* TSTEXTURE.flags.b[2] (0x6e): bit 0 = alpha modulates the colour */

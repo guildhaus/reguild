@@ -9,65 +9,6 @@ struct D3FLMAP;                     /* the tag (d3_fl.h spells it out; MS compat
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct D3SOUND;
 
-typedef union D3CLIP {              /* clip code of a point or a box */
-    unsigned char raw;              /* the code as a whole: cleared, and | / & of two codes */
-    struct {
-        unsigned char left : 1;
-        unsigned char right : 1;
-        unsigned char top : 1;
-        unsigned char bottom : 1;
-        unsigned char znear : 1;
-        unsigned char zfar : 1;
-        unsigned char out : 1;      /* all points outside one plane */
-        unsigned char b7 : 1;
-    };
-} D3CLIP;
-
-typedef struct D3PVERT {            /* 0x50 bytes, a mesh vertex after the transformation (D3VERTEX) */
-    union {
-        struct {
-            float x, y, z;          /* 0x00, camera space */
-        };
-        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
-    };
-    float pad0c;
-    float sx, sy;                   /* 0x10, screen position */
-    float sz;
-    float rhw;                      /* 0x1c */
-    char pad20[0x20];
-    union {
-        unsigned long color;        /* 0x40 */
-        D3COLOR c;
-    };
-    union {
-        unsigned long specular;     /* 0x44 */
-        D3COLOR s;
-    };
-    void *src;                      /* 0x48, source point (D3SRCPOINT) */
-    union {
-        signed char flags;          /* 0x4c, bit 7 = visible */
-        D3CLIP clip;                /* the same byte as the clip code d3_ClipMesh computes */
-        unsigned char rawFlags;
-    };
-    unsigned char wrap;             /* 0x4d, the triangle's texture wraps (its flags bit 0, d3_InflateObject) */
-    char pad4e[0x1];
-    unsigned char fog;              /* 0x4f */
-} D3PVERT;
-
-typedef struct D3PTRI {             /* 0x28 bytes (D3TRI) */
-    D3PVERT *v[3];
-    void *clip;                     /* 0x0c, &d3_ClipInfo[clip code] */
-    void *src;                      /* 0x10, source polygon (D3SRCPOLY); a particle tri's static UV table */
-    struct TSTEXTURE *tex;                 /* 0x14 */
-    float zofs;                     /* 0x18, depth offset: d3_DrawSortedD3D adds it (less the frame's
-                                       nearest z) to every vertex's z */
-    float uofs, vofs;               /* 0x1c, texture offsets added to u and v (with the texture's scroll) */
-    unsigned char flags;            /* 0x24, bit 7 = visible, 0x40 = double sided drawn, 0x10 = double sided */
-    unsigned char unk25;
-    unsigned char drawFlags;        /* 0x26, bit 2 (4) = no culling, bit 3 (8) = wrap (D3TRIBITS) */
-    char pad27[0x1];
-} D3PTRI;
-
 extern D3OBJECT d3_ObjEnd;                  /* 0xfc2700, list end marker */
 /* d3_TopFirst and d3_TopLast are not storage of their own: the original's 0xfc52f0 is
    d3_TopHead.next (0xfc5100 + 0x1f0) and 0xfc28f4 is d3_ObjEnd.prev (0xfc2700 + 0x1f4).
@@ -319,31 +260,6 @@ void dd_Exit(void);                         /* 0x41be00, dd_vesa.c */
 extern float d3_MinZ;                   /* 0xfc5344 */
 extern float d3_MaxZ;                   /* 0xfc5338 */
 
-typedef struct D3TRIBITS {          /* D3PTRI::drawFlags as bitfields */
-    unsigned char b0 : 1;
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;           /* 4 = no culling */
-    unsigned char b3 : 1;
-    unsigned char b47 : 4;
-} D3TRIBITS;
-
-typedef struct D3SRCPOLY {          /* 0x38 bytes */
-    char pad00[0x18];
-    int idx[3];                     /* 0x18, point indices */
-    int mat;                        /* 0x24, material index, < 0: none */
-    int slot;                       /* 0x28, texture slot: index into the surf's texture handles (D3IOPOLY.slot) */
-    D3VECTOR normal;                /* 0x2c, the plane normal: d3_MirBeginFrame turns it (a direction) into the
-                                       mirror plane; the name is a reasoned guess from that use */
-} D3SRCPOLY;
-
-typedef struct D3MESHSRC {          /* view of D3OPS: the loaded mesh data */
-    char pad00[0x40];
-    char *points;                   /* 0x40, 0x18 bytes each */
-    int npoints;
-    D3SRCPOLY *polys;               /* 0x48 */
-    int npolys;
-} D3MESHSRC;
-
 /* Inline-asm byte fill: value and size through temps (declared in this order), dst named directly. */
 #define D3E_FILL(dvar, val, size) {                                 int _fv = (val); int _fn = (size);                              __asm mov edi, dvar                                             __asm mov eax, _fv                                              __asm mov ebx, _fn                                              __asm mov ah, al                                                __asm shl eax, 16                                               __asm mov ecx, eax                                              __asm shr ecx, 16                                               __asm add eax, ecx                                              __asm lea ecx, [edi+edi*2]                                      __asm and ecx, 3                                                __asm sub ebx, ecx                                              __asm jle D3_COPY_LABEL(__LINE__)                               __asm rep stosb                                                 __asm mov ecx, ebx                                              __asm and ebx, 3                                                __asm shr ecx, 2                                                __asm rep stosd                                                 __asm D3_COPY_LABEL(__LINE__): add ecx, ebx                     __asm rep stosb                                             }
 
@@ -387,7 +303,7 @@ typedef struct D3CLIPINFO {         /* 0x68 bytes, d3_ClipInfo[clip code]: the p
     D3VECTOR4 plane[6];             /* 0x08, normal and distance */
 } D3CLIPINFO;
 typedef struct D3UV { float u, v; } D3UV;
-typedef struct D3CVERT {            /* D3PVERT as the polygon clipper and the draw loops see it */
+typedef struct D3CVERT {            /* D3VERTEX as the polygon clipper and the draw loops see it */
     float x, y, z;                  /* camera space */
     float u;                        /* 0x0c, texture coordinates while clipping */
     float sx, sy, sz;               /* 0x10, screen position */
@@ -414,7 +330,7 @@ extern D3CVERT d3_ClipPool[];               /* 0xfc5360, vertices made by the cl
 D3CVERT **d3_ClipPoly(D3CLIPINFO *info);                                               /* 0x439c90 */
 #define D3_CV(p) ((D3CVERT *)(p))
 #define D3_TEXB(t, off) (((unsigned char *)(t))[off])  /* TSTEXTURE bytes: 0x68 bit 0 wrap, 0x6c alpha, 0x6e bit 0 */
-typedef void (*D3TRIFUNC)(D3PTRI *t);
+typedef void (*D3TRIFUNC)(D3TRI *t);
 extern D3TRIFUNC d3_TriFuncs[];             /* 0xfe75e0, software triangle fillers by mode */
 extern int d3_TextureSwitches;                    /* 0xfe75b4 */
 char dd_LockNoWait(void);                   /* 0x41df80, dd_vesa.c */
@@ -497,7 +413,7 @@ extern float ts_ScrollV[32], ts_ScrollU[32];    /* 0xfb9120, 0xfb90a0 */
 /* 0x63345d: the first byte of d3_NoTextures (d3.h), read as a byte */
 int d3d_GetVertexBuffer(void **buf, int *n);                                            /* 0x4364f0, d3_d3d.c */
 void d3d_DrawTriangles(void *unk, struct _D3DTLVERTEX *buf, DWORD num);                                /* 0x436510, d3_d3d.c */
-/* Inline asm: one transformed vertex from a D3PVERT and a texture coordinate pair (u, v at uv). */
+/* Inline asm: one transformed vertex from a D3VERTEX and a texture coordinate pair (u, v at uv). */
 #define D3E_TLV(dst, src, uv) {                                     \
     void *_td = (dst); void *_ts = (src); void *_tu = (uv);         \
     __asm mov edi, _td                                              \
@@ -617,7 +533,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
 D3OBJECT *d3_NextGroup(D3OBJECT *obj);  /* 0x438c30 */
 char d3_ForEachObject2(D3SCENE *scene, D3OBJECT *obj, unsigned int mask, void (*cb)(D3OBJECT *obj));  /* 0x438e60; cb's result is not read: the callers pass
    their char / int returning callbacks (ls_HookBuildingCB, init_TextureSetHook ..) cast to void (*)(D3OBJECT *) */
-void d3_ClipMesh(D3CLIP mask, D3PVERT *v, int nverts, D3PTRI *t, int ntris);  /* 0x439a60 */
+void d3_ClipMesh(D3CLIP mask, D3VERTEX *v, int nverts, D3TRI *t, int ntris);  /* 0x439a60 */
 void d3_AppendSibling(D3OBJECT *first, D3OBJECT *obj);  /* 0x43cb20 */
 void d3_SetAlpha(D3OBJECT *obj, D3TEXFLAGS *f);  /* 0x43d690, the alpha flags f on obj and its group */
 char d3_AttachToBone(D3OBJECT *obj, char *name);  /* 0x43d6c0 */

@@ -8,41 +8,6 @@ struct D3SURF;
 #define UNK_451E80_H
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
-typedef struct D3LVERT {            /* 0x50 bytes, a mesh vertex (D3PVERT, D3SURF::keys) as the light code sees it */
-    union {
-        struct {
-            float x, y, z;          /* 0x00, camera space */
-        };
-        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
-    };
-    char pad0c[0x14];
-    float nx, ny, nz;               /* 0x20, normal */
-    char pad2c[0x4];
-    union {
-        D3VECTOR light;             /* 0x30, sum of the lights that reach the vertex */
-        struct {
-            float r, g, b;
-        };
-    };
-    char pad3c[0x4];
-    union {
-        unsigned long color;        /* 0x40 */
-        D3COLOR lit;                /* current colour: base plus the dynamic lights */
-    };
-    union {
-        unsigned long specular;     /* 0x44 */
-        D3COLOR base;               /* colour from the static lights */
-    };
-    D3VECTOR *src;                  /* 0x48, source point */
-    signed char flags;              /* 0x4c, bit 7: reached by the light being processed */
-    char pad4d[0x3];
-} D3LVERT;
-
-typedef struct D3LTRI {             /* 0x28 bytes (D3TRI) */
-    D3LVERT *v[3];
-    char pad0c[0x1c];
-} D3LTRI;
-
 typedef struct D3LOPS {             /* the mesh driver (D3SURF::unk10) as the light code uses it */
     char pad000[0x6c];
     float originY;                  /* 0x06c, y of the mesh origin in its vertex data (d3_LightApply subtracts it before the directional-light normals) */
@@ -55,15 +20,15 @@ typedef struct D3LOPS {             /* the mesh driver (D3SURF::unk10) as the li
 } D3LOPS;
 
 typedef struct D3LINFO {            /* D3SURF */
-    D3LVERT *keys;                  /* 0x00 */
-    D3LTRI *tris;                   /* 0x04 */
+    D3VERTEX *keys;                  /* 0x00 */
+    D3TRI *tris;                   /* 0x04 */
     int nkeys;                      /* 0x08 */
     int ntris;                      /* 0x0c */
     D3LOPS *ops;                    /* 0x10 */
 } D3LINFO;
 
 typedef struct D3LHIT {             /* 8 bytes: a lit vertex and the light's contribution (only c.r in grey mode) */
-    D3LVERT *v;
+    D3VERTEX *v;
     D3COLOR c;
 } D3LHIT;
 
@@ -130,7 +95,7 @@ typedef struct D3LCTX2 {            /* context of d3_LightAddObject: the light a
     unsigned char normals;
 } D3LCTX2;
 
-/* Views of the bytes d3_SetVertexColors reads bit by bit. A union member in D3PTRI / TSTEXTURE (d3_engine.h,
+/* Views of the bytes d3_SetVertexColors reads bit by bit. A union member in D3TRI / TSTEXTURE (d3.h,
    ts_texture.h) would be the typed-field form, but adding one flips VC6's instruction order in d3_CloneObject
    (0x43d180) and d3_MirDrawObject (0x4550e0), which are byte; the casts are byte-identical to the original's
    bitfield accesses. Type debt (see the lead comment of src/d3_light.c). */

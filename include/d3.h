@@ -120,31 +120,125 @@ struct D3OBJECT {
                                        -1 / 0 from the loader */
 };
 
-typedef struct D3BOXVERT {         /* 0x50 bytes, 8 of them: the transformed bounding box */
-    float x, y, z;
-    char pad0c[0x44];
-} D3BOXVERT;
+typedef union D3CLIP {              /* clip code of a point or a box */
+    unsigned char raw;              /* the code as a whole: cleared, and | / & of two codes */
+    struct {
+        unsigned char left : 1;
+        unsigned char right : 1;
+        unsigned char top : 1;
+        unsigned char bottom : 1;
+        unsigned char znear : 1;
+        unsigned char zfar : 1;
+        unsigned char out : 1;      /* all points outside one plane */
+        unsigned char b7 : 1;
+    };
+} D3CLIP;
 
-typedef struct D3VERTEX {          /* 0x50 bytes, what D3TRI::v points to */
-    float x, y, z;
-    char pad0c[0x38];
-    unsigned char b, g, r, a;       /* 0x44, diffuse color */
-    char pad48[0x8];
+typedef struct D3TRIBITS {          /* D3TRI.drawFlags as bitfields */
+    unsigned char b0 : 1;
+    unsigned char b1 : 1;
+    unsigned char b2 : 1;           /* 4 = no culling */
+    unsigned char b3 : 1;           /* 8 = the texture wraps */
+    unsigned char b47 : 4;
+} D3TRIBITS;
+
+typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.keys, then the 8 corners of the bounding
+                                       box), of a particle's quad or of a mirror copy: position, screen position, normal,
+                                       colours */
+    union {
+        struct {
+            float x, y, z;          /* 0x00, camera space */
+        };
+        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
+    };
+    float pad0c;
+    union {
+        struct {
+            float sx, sy;           /* 0x10, screen position */
+        };
+        struct {
+            float gx, gz;           /* 0x10, a height map point (d3_sm.c): the position in map cells */
+        };
+    };
+    float sz;                       /* 0x18 */
+    float rhw;                      /* 0x1c */
+    union {
+        struct {
+            float nx, ny, nz;       /* 0x20, normal (d3_vtx.c, d3_light.c) */
+        };
+        struct {
+            float tu, tv;           /* 0x20, environment map coordinates (d3_EnvMapCoords) */
+        };
+    };
+    float pad2c;
+    union {
+        D3VECTOR light;             /* 0x30, sum of the lights that reach the vertex (d3_light.c) */
+        struct {
+            float r, g, b;
+        };
+    };
+    float pad3c;
+    union {
+        unsigned long color;        /* 0x40, the current colour: the static lights plus the dynamic ones */
+        D3COLOR c;
+        D3COLOR lit;
+        struct {
+            unsigned char pad40;
+            unsigned char hmFlags;  /* 0x41, a height map point's flags (d3_sm.c) */
+            unsigned char hmHeight; /* 0x42, a height map point's height in map units */
+            unsigned char pad43;
+        };
+    };
+    union {
+        unsigned long specular;     /* 0x44 */
+        D3COLOR s;
+        D3COLOR base;               /* the colour from the static lights (d3_light.c) */
+    };
+    struct D3BGFVERT *src;          /* 0x48, the stock object's point (D3BGF.vtx) */
+    union {
+        signed char flags;          /* 0x4c, bit 7 = visible (d3_light.c: reached by the light being processed;
+                                       the stock attach: used by a triangle) */
+        D3CLIP clip;                /* the same byte as the clip code d3_ClipMesh computes */
+        unsigned char rawFlags;
+    };
+    union {
+        unsigned char wrap;         /* 0x4d, the triangle's texture wraps (its flags bit 0, d3_InflateObject) */
+        signed char used;           /* 0x4d, d3_EnvMapCoords: the point gets environment map coordinates */
+    };
+    char pad4e[0x1];
+    unsigned char fog;              /* 0x4f */
 } D3VERTEX;
 
-D3BOXVERT *d3_GetBoxVerts(D3OBJECT *obj, struct D3SURF *info, void *unk);           /* 0x459ab0 */
+D3VERTEX *d3_GetBoxVerts(D3OBJECT *obj, struct D3SURF *info, void *unk);           /* 0x459ab0 */
 
-typedef struct D3MESHKEY {          /* 0x50 bytes */
-    int unk00;
-    float time;
-    char pad08[0x40];
-    float *pos;                     /* 0x48 */
-    char pad4c[0x4];
-} D3MESHKEY;
-
-typedef struct D3TRI {              /* 0x28 bytes */
-    D3VECTOR *v[3];
-    char pad0c[0x1c];
+typedef struct D3TRI {              /* 0x28 bytes, a triangle of a mesh (D3SURF.tris), a particle or a mirror copy */
+    D3VERTEX *v[3];
+    void *clip;                     /* 0x0c, &d3_ClipInfo[clip code] */
+    union {
+        struct D3BGFPOLY *src;      /* 0x10, the stock object's polygon */
+        float *uv;                  /* 0x10, the (u, v) per corner: a particle's static UV table, or the
+                                       polygon's own (D3BGFPOLY starts with them) as the draw loops read it */
+    };
+    struct TSTEXTURE *tex;          /* 0x14 */
+    float zofs;                     /* 0x18, depth offset: d3_DrawSortedD3D adds it (less the frame's
+                                       nearest z) to every vertex's z */
+    float uofs, vofs;               /* 0x1c, texture offsets added to u and v (with the texture's scroll) */
+    union {
+        unsigned char flags;        /* 0x24, bit 7 = visible, 0x40 = double sided drawn, 0x10 = double sided */
+        signed char sflags;         /* 0x24, the same byte where bit 7 is tested as the sign */
+        struct {
+            unsigned char hm0 : 6;
+            unsigned char hmSolid : 1;  /* a height map triangle (d3_sm.c): no shadow test (steep or flagged) */
+            unsigned char hmCast : 1;   /* a height map triangle: casts a shadow */
+        };
+    };
+    unsigned char unk25;
+    union {
+        unsigned char drawFlags;    /* 0x26, bit 2 (4) = no culling, bit 3 (8) = wrap; a height map triangle:
+                                       2 = skip, 4 = always casts */
+        D3TRIBITS bits;
+    };
+    char pad27[0x1];
 } D3TRI;
 
 void d3_TransformSurf(D3OBJECT *obj);                                                       /* 0x43d7c0 */
@@ -286,12 +380,23 @@ typedef struct D3BGFPOLY {          /* 0x38 bytes, D3BGF::polys */
     float uv[3][2];                 /* 0x00 */
     int v[3];                       /* 0x18, vertex indices */
     int tex;                        /* 0x24, index into d3_Textures or -1 */
-    int mat;                        /* 0x28, material index while loading */
-    D3VECTOR n;                     /* 0x2c, the face normal (d3_TriNormal of its three vertices, summed into the vertex normals, d3_io_fl.c) */
+    int mat;                        /* 0x28, material index: the slot in the stock object's texture set (D3SURF.texHandles) */
+    D3VECTOR n;                     /* 0x2c, the face normal (d3_MirBeginFrame turns it into the mirror plane) (d3_TriNormal of its three vertices, summed into the vertex normals, d3_io_fl.c) */
 } D3BGFPOLY;
 
 typedef struct D3BGFVERT {          /* 0x18 bytes, a point of a stock object and its normal */
-    float x, y, z, nx, ny, nz;
+    union {
+        struct {
+            float x, y, z;
+        };
+        D3VECTOR pos;
+    };
+    union {
+        struct {
+            float nx, ny, nz;
+        };
+        D3VECTOR n;
+    };
 } D3BGFVERT;
 
 typedef struct D3BGFATTACH {        /* 0x58 bytes, an attachment point; an animated mesh's bones in their rest pose */
@@ -334,7 +439,7 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     void (*Release)(D3BGF *m);      /* 0x1e8, the stock object's callbacks (d3io_LoadObjectFile): d3iot_DeleteStockObject */
     void (*TransformNormals)(struct D3OBJECT *obj, struct D3LINFO *info);                       /* 0x1ec */
     void (*Transform)(struct D3OBJECT *obj, struct D3LINFO *info, struct D3MATRIX *m);          /* 0x1f0 */
-    struct D3BOXVERT *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, void *unk);       /* 0x1f4 */
+    struct D3VERTEX *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, void *unk);       /* 0x1f4 */
     float (*GetRadius)(int unused, struct D3SURF *info);                                     /* 0x1f8 */
     D3BGF *next;                    /* 0x1fc, the stock object list: towards d3_StockListEnd */
     D3BGF *prev;                    /* 0x200, towards the head sentinel d3_StockListStart */
@@ -344,7 +449,7 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
 };
 
 struct D3SURF {                     /* 0x198 bytes, a surface of a mesh (one level of detail) with its own geometry */
-    D3MESHKEY *keys;                /* 0x00, the points, followed by the 8 bounding box corners */
+    D3VERTEX *keys;                 /* 0x00, the points, followed by the 8 bounding box corners */
     D3TRI *tris;                    /* 0x04 */
     int nkeys;                      /* 0x08 */
     int ntris;                      /* 0x0c */
@@ -392,8 +497,8 @@ typedef struct D3MESH {             /* 0x970 bytes, what D3OBJECT::material poin
     float groundOffset;             /* 0x954, offset added to the mesh's ground height (d3s_GetGround) */
     float lightScale;               /* 0x958, light brightness scale (ch.c: 1.8 for characters) */
     unsigned int lightGeneration;   /* 0x95c */
-    struct D3PVERT *mirrorPoints;          /* 0x960, mirrored point array ("d3_mir:MirroredPoints") */
-    struct D3PTRI *mirrorPolys;             /* 0x964, mirrored polygon array ("d3_mir:MirroredPolys") */
+    struct D3VERTEX *mirrorPoints;          /* 0x960, mirrored point array ("d3_mir:MirroredPoints") */
+    struct D3TRI *mirrorPolys;             /* 0x964, mirrored polygon array ("d3_mir:MirroredPolys") */
     D3SURF *mirrorSource;           /* 0x968, the surf the mirror copy was made from */
     unsigned char nsurf;            /* 0x96c */
     unsigned char flags;            /* 0x96d, 0x40 = no vertex animation (d3anim_StepObject) */
@@ -482,8 +587,8 @@ struct D3PARTSYS {                  /* 0x31c bytes */
     int count;                      /* 0xd0 */
     struct TSTEXTURE *tex;               /* 0xd4 */
     int texindex;                   /* 0xd8, index into d3_Textures */
-    void *points;                   /* 0xdc, 4 D3PVERT per particle ("d3_par:ParticlePoints") */
-    void *polys;                    /* 0xe0, 2 D3PTRI per particle ("d3_par:ParticlePolys") */
+    D3VERTEX *points;               /* 0xdc, 4 D3VERTEX per particle ("d3_par:ParticlePoints") */
+    D3TRI *polys;                   /* 0xe0, 2 D3TRI per particle ("d3_par:ParticlePolys") */
     float size;                     /* 0xe4, initial particle size */
     char obj[0x1f8];                /* 0xe8, embedded object: a whole D3OBJECT (PAR_OBJ, d3_par.h) up to 0x310, its
                                        flags byte at 0x2fb (par_Create), parent and scene below are its fields */

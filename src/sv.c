@@ -6184,7 +6184,7 @@ void sv_EndBand(void)
    centre of the body's first 8 transformed vertices (the bounding box corners, camera space) projected with
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
    @deep deep s26: declaration set measured (dcp headers sample: 32 samples, one codegen, not sensitive).
-   climb round 1: nothing (82 mutants). = control: v = *(D3PVERT **)info, v from the whole chain, n = 8
+   climb round 1: nothing (82 mutants). = control: v = *(D3VERTEX **)info, v from the whole chain, n = 8
    before v, do/while(--n), index loop through info->keys[n], block-scoped walker + counter (for and
    do/while), info via an int local, info assigned through v in its own if, the body nested in if (..) {..}
    instead of continue (one or both tests). Worse: pointer-compare loop v < keys + 8 (18), v[n] index (16),
@@ -6209,7 +6209,7 @@ void sv_UpdateBand(void)
     unsigned bits;
     D3VECTOR4 p;
     AICHAR *c;
-    D3PVERT *v;
+    D3VERTEX *v;
     D3SURF *info;
 
     if (sv_BandActive == 0)
@@ -6231,7 +6231,7 @@ void sv_UpdateBand(void)
         p.x = 0.0f;
         p.y = 0.0f;
         p.z = 0.0f;
-        v = (D3PVERT *)info->keys;
+        v = info->keys;
         for (n = 8; n != 0; n--, v++) {
             p.x += v->x;
             p.y += v->y;
@@ -6262,7 +6262,7 @@ void sv_UpdateBandLed(void)
     unsigned bits;
     D3VECTOR4 p;
     AICHAR *c;
-    D3PVERT *v;
+    D3VERTEX *v;
     D3SURF *info;
 
     if (sv_BandActive == 0)
@@ -6284,7 +6284,7 @@ void sv_UpdateBandLed(void)
         p.x = 0.0f;
         p.y = 0.0f;
         p.z = 0.0f;
-        v = (D3PVERT *)info->keys;
+        v = info->keys;
         for (n = 8; n != 0; n--, v++) {
             p.x += v->x;
             p.y += v->y;

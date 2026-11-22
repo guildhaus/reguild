@@ -124,15 +124,15 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
                 tex_GetParams(old, &opts, &fmt);
                 tex = tex_Load(name, old->flags, opts, fmt);
                 if (tex) {
-                    D3PTRI *t;
+                    D3TRI *t;
 
                     replaced = 0;
                     if (reload)
                         tex_Reload(tex, 0);
                     ((struct TSTEXTURE **)surf->texHandles)[i] = tex;
-                    t = (D3PTRI *)surf->tris;
+                    t = surf->tris;
                     for (j = 0; j < surf->ntris; j++, t++)
-                        if (((D3SRCPOLY *)t->src)->slot == i) {
+                        if (t->src->mat == i) {
                             t->tex = (TSTEXTURE *)tex;
                             replaced++;
                         }
@@ -796,7 +796,7 @@ D3OBJECT *d3if_Pick(float x, float y, int flags, int mask)
 char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
 {
     D3VECTOR4 v;
-    D3BOXVERT *b;
+    D3VERTEX *b;
     D3SURF *info;
     float f, x, y, s;
     int i;
@@ -923,7 +923,7 @@ float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p)
 char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
 {
     D3SURF *s = obj->info;
-    D3CORNERTRI *t;
+    D3TRI *t;
     void **tex;
     void *want;
     char fl;
@@ -938,10 +938,10 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
                 break;
         if (i < n) {
             np = s->ntris;
-            t = (D3CORNERTRI *)s->tris;
+            t = s->tris;
             if (np > 0) {
                 for (; np > 0; np--, t++) {
-                    if ((t->flag24 & 0x80) && !(t->flag26 & 2) && t->tex == want) {
+                    if ((t->flags & 0x80) && !(t->drawFlags & 2) && t->tex == want) {
                         c->found = 1;
                         for (i = 0; i < 3; i++) {
                             x = (int)t->v[i]->sx;
@@ -949,8 +949,8 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
                             if (y + x < c->pt[0].y + c->pt[0].x) {
                                 c->pt[0].x = x;
                                 c->pt[0].y = y;
-                                c->uv[0][0] = t->uv[i * 2];
-                                c->uv[0][1] = t->uv[i * 2 + 1];
+                                c->uv[0][0] = t->src->uv[i][0];
+                                c->uv[0][1] = t->src->uv[i][1];
                                 c->v[0].x = t->v[i]->x;
                                 c->v[0].y = t->v[i]->y;
                                 c->v[0].z = t->v[i]->z;
@@ -958,8 +958,8 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
                             if (dd_Width - x + y - 1 < c->pt[1].y - c->pt[1].x + dd_Width - 1) {
                                 c->pt[1].y = y;
                                 c->pt[1].x = x;
-                                c->uv[1][0] = t->uv[i * 2];
-                                c->uv[1][1] = t->uv[i * 2 + 1];
+                                c->uv[1][0] = t->src->uv[i][0];
+                                c->uv[1][1] = t->src->uv[i][1];
                                 c->v[1].x = t->v[i]->x;
                                 c->v[1].y = t->v[i]->y;
                                 c->v[1].z = t->v[i]->z;
@@ -967,8 +967,8 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
                             if (dd_Height - y + x - 1 < c->pt[2].x - c->pt[2].y + dd_Height - 1) {
                                 c->pt[2].x = x;
                                 c->pt[2].y = y;
-                                c->uv[2][0] = t->uv[i * 2];
-                                c->uv[2][1] = t->uv[i * 2 + 1];
+                                c->uv[2][0] = t->src->uv[i][0];
+                                c->uv[2][1] = t->src->uv[i][1];
                                 c->v[2].x = t->v[i]->x;
                                 c->v[2].y = t->v[i]->y;
                                 c->v[2].z = t->v[i]->z;
@@ -976,8 +976,8 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c)
                             if (dd_Height - y - x + dd_Width - 2 < dd_Height - c->pt[3].y - c->pt[3].x + dd_Width - 2) {
                                 c->pt[3].x = x;
                                 c->pt[3].y = y;
-                                c->uv[3][0] = t->uv[i * 2];
-                                c->uv[3][1] = t->uv[i * 2 + 1];
+                                c->uv[3][0] = t->src->uv[i][0];
+                                c->uv[3][1] = t->src->uv[i][1];
                                 c->v[3].x = t->v[i]->x;
                                 c->v[3].y = t->v[i]->y;
                                 c->v[3].z = t->v[i]->z;

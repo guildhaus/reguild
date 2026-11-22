@@ -41,7 +41,7 @@ typedef struct TSTEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Tex
     };
     union {                         /* 0x68 */
         struct {
-            unsigned char wrap : 1;     /* tex_Load opts bit 0: the triangles wrap their uv (D3PVERT.wrap) */
+            unsigned char wrap : 1;     /* tex_Load opts bit 0: the triangles wrap their uv (D3VERTEX.wrap) */
             unsigned char alias : 1;    /* shares the surfaces of d3_Textures[mask] */
             unsigned char hicolor : 1;  /* 16-bit surface (d3_TexFormat16) */
             unsigned char nomip : 1;    /* name contains "_NM": no mipmaps */

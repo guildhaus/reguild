@@ -193,15 +193,15 @@ void d3_ProjectMesh(D3OBJECT *obj)
 {
     unsigned int n = obj->info->nkeys;
     unsigned int i;
-    D3PVERT *v;
-    D3PTRI *t;
-    D3PVERT *v0, *v1, *v2;
+    D3VERTEX *v;
+    D3TRI *t;
+    D3VERTEX *v0, *v1, *v2;
     float rhw;
     unsigned long col;
 
     if (d3_Hardware) {
         if (d3_FogOn) {
-            for (i = 0, v = (D3PVERT *)obj->info->keys; i < n; i++, v++) {
+            for (i = 0, v = obj->info->keys; i < n; i++, v++) {
                 if (v->flags & 0x80) {
                     rhw = 1.0f / v->z;
                     v->sx = d3_ScaleX * v->x * rhw + d3_CenterX;
@@ -214,7 +214,7 @@ void d3_ProjectMesh(D3OBJECT *obj)
                 }
             }
         } else {
-            for (i = 0, v = (D3PVERT *)obj->info->keys; i < n; i++, v++) {
+            for (i = 0, v = obj->info->keys; i < n; i++, v++) {
                 if (v->flags & 0x80) {
                     rhw = 1.0f / v->z;
                     v->sx = d3_ScaleX * v->x * rhw + d3_CenterX;
@@ -231,11 +231,11 @@ void d3_ProjectMesh(D3OBJECT *obj)
                 col = RGB_MAKE((unsigned char)((D3OBJCOLOR *)obj)->color.x,
                                (unsigned char)((D3OBJCOLOR *)obj)->color.y,
                                (unsigned char)((D3OBJCOLOR *)obj)->color.z);
-            for (i = 0, v = (D3PVERT *)obj->info->keys; i < n; i++, v++)
+            for (i = 0, v = obj->info->keys; i < n; i++, v++)
                 v->color = col;
         }
     } else {
-        for (i = 0, v = (D3PVERT *)obj->info->keys; i < n; i++, v++) {
+        for (i = 0, v = obj->info->keys; i < n; i++, v++) {
             if (v->flags & 0x80) {
                 rhw = 1.0f / v->z;
                 v->c.r = v->s.r >> 2;
@@ -246,7 +246,7 @@ void d3_ProjectMesh(D3OBJECT *obj)
         }
     }
     n = obj->info->ntris;
-    for (i = 0, t = (D3PTRI *)obj->info->tris; i < n; i++, t++) {
+    for (i = 0, t = obj->info->tris; i < n; i++, t++) {
         if (t->flags & 0x80) {
             v0 = t->v[0];
             v1 = t->v[1];
@@ -410,7 +410,7 @@ void d3_SetupFrustum(void)
 unsigned char d3_ClipBox(void *box, float *zmin, float *zmax)
 {
     D3CLIP any, all, c;
-    D3BOXVERT *v;
+    D3VERTEX *v;
     float mn, mx;
     int i;
 
@@ -499,10 +499,10 @@ unsigned char d3_ClipObject(D3OBJECT *obj, D3SURF *info, D3OBJECT *camera)
 /* 0x439a60, clips the vertices of a mesh against the planes selected in mask and marks the triangles
    (and their vertices) that are not completely outside one plane as visible. */
 
-void d3_ClipMesh(D3CLIP mask, D3PVERT *v, int nverts, D3PTRI *t, int ntris)
+void d3_ClipMesh(D3CLIP mask, D3VERTEX *v, int nverts, D3TRI *t, int ntris)
 {
     D3CLIP *c;
-    D3PVERT *v0, *v1, *v2;
+    D3VERTEX *v0, *v1, *v2;
     int i;
 
     for (i = 0; i < nverts; i++) {
@@ -672,7 +672,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
     D3CLIP clip;
     int base;
     int n;
-    D3PTRI *t;
+    D3TRI *t;
     TSTEXTURE *tex;
     float z;
 
@@ -720,7 +720,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                     D3_OPS(s)->Transform(obj, s, &m->cameraMatrix);
                 else
                     d3_TransformVerts(obj, s, &m->cameraMatrix);
-                d3_ClipMesh(clip, (D3PVERT *)s->keys, s->nkeys, (D3PTRI *)s->tris, s->ntris);
+                d3_ClipMesh(clip, s->keys, s->nkeys, s->tris, s->ntris);
                 d3_ProjectMesh(obj);
             }
             if (obj != d3s_Object && obj->type == 4 && m->lightGeneration < d3_LightGeneration && d3_LightKeysVisible < d3_LightKeyBudgetVisible) {
@@ -732,7 +732,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                 base = 0x4000;
             n = min(s->ntris, d3_Cfg.maxpolys - (int)d3_SortCount);
             if (d3_Hardware) {
-                for (t = (D3PTRI *)s->tris; n > 0; n--, t++) {
+                for (t = s->tris; n > 0; n--, t++) {
                     if (t->flags & 0x80) {
                         tex = (t->tex);
                         d3_SortPtr->item = t;
@@ -747,7 +747,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                     }
                 }
             } else {
-                for (t = (D3PTRI *)s->tris; n > 0; n--, t++) {
+                for (t = s->tris; n > 0; n--, t++) {
                     if (t->flags & 0x80) {
                         d3_SortPtr->item = t;
                         z = (t->v[0]->z);
@@ -871,7 +871,7 @@ void d3_SetFog(float start, float end, D3COLOR color)
    prior: read the whole function against the original 0x43a7d0..0x43b073 and fixed the meaning: the
    texture size estimate (TSTEXTURE.size unsigned: shr and the fild qword of an unsigned product; the factor
    0.16666667f, not 1.3333334f), d3_SetBlendState called with its unsigned char prototype (the original's
-   setb al / shr dl,1 byte forms; the int view macro is gone), D3PTRI 0x18/0x1c/0x20 typed as the float
+   setb al / shr dl,1 byte forms; the int view macro is gone), D3TRI 0x18/0x1c/0x20 typed as the float
    zofs/uofs/vofs (no *(float *) casts), TSTEXTURE.flags.b[2] (blend), renamed d3_NoTexturesByte / d3_TextureBytes. Every
    statement lines up (the texture switch, the scroll offsets, the 3 unclipped TLV paths, the clip list,
    the projection loop, the fan with its winding test, the flush); ours 678 vs 673. */
@@ -887,7 +887,7 @@ void d3_DrawSortedD3D(void)
     float *uv;
     int h;
     float zmin;
-    D3PTRI *t;
+    D3TRI *t;
     int i;
     struct IDirect3DTexture2 *oldtext;
     D3CLIPINFO *clip;
@@ -914,7 +914,7 @@ void d3_DrawSortedD3D(void)
     n = 0;
     for (i = 0; i < (int)d3_SortCount; i++) {
         t = d3_SortBuf[i].item;
-        uv = t->src;
+        uv = t->uv;
         clip = t->clip;
         if (t->tex != cur) {
             d3d_DrawTriangles((void *)h, vb, n);
@@ -1029,7 +1029,7 @@ void d3_DrawSortedSW(void)
 {
     int i;
     int mode;
-    D3PTRI *t;
+    D3TRI *t;
     D3CLIPINFO *clip;
     float *uv;
     TSTEXTURE *tex;
@@ -1037,7 +1037,7 @@ void d3_DrawSortedSW(void)
     D3CVERT **v;
     unsigned int k;
     float rhw;
-    D3PTRI tri;
+    D3TRI tri;
     float tuv[14];
     D3CVERT *p;
 
@@ -1049,7 +1049,7 @@ void d3_DrawSortedSW(void)
         wrap = 0;
         tex = t->tex;
         clip = t->clip;
-        uv = t->src;
+        uv = t->uv;
         if (tex) {
             if (D3_TEXB(tex, 0x6c) - (D3_TEXB(tex, 0x6e) & 1) < 0xff)
                 mode = 3;
@@ -1104,17 +1104,17 @@ void d3_DrawSortedSW(void)
                 }
                 D3_COPY(&tri, t, sizeof(tri));
                 p = v[0];
-                tri.v[0] = (D3PVERT *)p;
-                tri.src = tuv;
+                tri.v[0] = (D3VERTEX *)p;
+                tri.uv = tuv;
                 tuv[0] = p->u;
                 tuv[1] = p->v;
                 for (k = 0; k < d3_ClipOut - 2; k++) {
                     p = v[k + 1];
-                    tri.v[1] = (D3PVERT *)p;
+                    tri.v[1] = (D3VERTEX *)p;
                     tuv[2] = p->u;
                     tuv[3] = p->v;
                     p = v[k + 2];
-                    tri.v[2] = (D3PVERT *)p;
+                    tri.v[2] = (D3VERTEX *)p;
                     tuv[4] = p->u;
                     tuv[5] = p->v;
                     d3_TriFuncs[mode](&tri);
@@ -2064,7 +2064,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
 {
     D3SURF *s = info;
     D3TEXMAP *map;
-    D3PTRI *tris;
+    D3TRI *tris;
     TSTEXTURE *t;
     int i, j, n;
 
@@ -2077,7 +2077,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
             s->flags.f.b[0] = 0xff;
             n = 0;
             for (i = 0; i < s->ntris; i++) {
-                tris = (D3PTRI *)s->tris;
+                tris = s->tris;
                 if (t = tris[i].tex) {
                     for (j = 0; j < n; j++)
                         if (map[j].from == t)
@@ -2087,7 +2087,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
                         map[j].to = tex_ReleaseAlias(t, 1);
                         n++;
                     }
-                    ((D3PTRI *)s->tris)[i].tex = map[j].to;
+                    (s->tris)[i].tex = map[j].to;
                 }
             }
             mem_Free(map);
@@ -2099,7 +2099,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
             map = mem_Alloc(D3_OPS(s)->count << 3, "!d3:ChangeObjectTransparency()");
             n = 0;
             for (i = 0; i < s->ntris; i++) {
-                tris = (D3PTRI *)s->tris;
+                tris = s->tris;
                 if (t = tris[i].tex) {
                     for (j = 0; j < n; j++)
                         if (map[j].from == t)
@@ -2109,7 +2109,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f)
                         map[j].to = tex_AliasForFlags(t, f, 1);
                         n++;
                     }
-                    ((D3PTRI *)s->tris)[i].tex = map[j].to;
+                    (s->tris)[i].tex = map[j].to;
                 }
             }
             mem_Free(map);
@@ -2196,7 +2196,7 @@ char d3_GetBounds(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, float *radi
     char ok = 0;
     D3VECTOR4 c;
     D3SURF *info;
-    D3BOXVERT *box, *v;
+    D3VERTEX *box, *v;
     float r, d, dx, dy, dz;
     int i;
 
@@ -2302,7 +2302,7 @@ char d3_DeflateScene(unsigned int flags)
 }
 /* 0x43dbc0, d3_ForEachObject2 callback: builds the drawable points and triangles of all surfaces
    from the loaded mesh data.
-   @deep s47: the triangle loop as a plain index loop (t = &((D3PTRI *)s->tris)[k] per pass, j = 0 in
+   @deep s47: the triangle loop as a plain index loop (t = &(s->tris)[k] per pass, j = 0 in
    the for-init / before the loop / at the surface top, and p = &src->polys[k] named first): all worse,
    131-177 ins and frame 0x24 against 0x20 (the hand t++ walk is the original's: VC6 does not
    strength-reduce t back). What the original's zero is: k, j and the poly offset are stored 0 from ecx
@@ -2329,10 +2329,10 @@ char d3_DeflateScene(unsigned int flags)
 void d3_InflateObject(D3OBJECT *obj)
 {
     D3SURF *s;
-    D3MESHSRC *src;
-    D3PVERT *v;
-    D3PTRI *t;
-    D3SRCPOLY *p;
+    D3BGF *src;
+    D3VERTEX *v;
+    D3TRI *t;
+    D3BGFPOLY *p;
     TSTEXTURE *tex;
     int *mat;
     int i, k, m, j;
@@ -2347,40 +2347,40 @@ void d3_InflateObject(D3OBJECT *obj)
         d3s_ResetShadows(obj);
         for (i = 0; i <= 3; i++) {
             s = &D3_MESH(obj)->surf[i];
-            if (src = (D3MESHSRC *)s->mesh) {
+            if (src = s->mesh) {
                 made = 0;
                 if (!s->tris && src->npolys > 0) {
                     s->tris = mem_Alloc((s->ntris = src->npolys) * 0x28, "d3:InflateObject(allpolys)");
                     made = 1;
                 }
-                if (!s->keys && src->npoints > 0) {
-                    s->keys = mem_Alloc(((s->nkeys = src->npoints) + 8) * 0x50, "d3:InflateObject(allpoints)");
+                if (!s->keys && src->nverts > 0) {
+                    s->keys = mem_Alloc(((s->nkeys = src->nverts) + 8) * 0x50, "d3:InflateObject(allpoints)");
                 } else if (!made)
                     continue;
                 col.l = 0xffffffff;
-                if (src->npoints > 0)
+                if (src->nverts > 0)
                     for (k = 0; k < s->nkeys + 8; k++) {
-                        ((D3PVERT *)s->keys)[k].src = src->points + k * 0x18;
-                        ((D3PVERT *)s->keys)[k].color = 0xffffffff;
-                        ((D3PVERT *)s->keys)[k].specular = 0xffffffff;
+                        (s->keys)[k].src = &src->vtx[k];
+                        (s->keys)[k].color = 0xffffffff;
+                        (s->keys)[k].specular = 0xffffffff;
                     }
                 mat = mem_Alloc(d3_TexCount * 4, "d3:!InflateObject(mat)");
                 D3E_FILL(mat, -1, d3_TexCount * 4);
-                for (k = 0, j = 0, t = (D3PTRI *)s->tris; k < s->ntris; k++, t++) {
+                for (k = 0, j = 0, t = s->tris; k < s->ntris; k++, t++) {
                     t->vofs = 0.0f;
                     ((D3TRIBITS *)&t->drawFlags)->b0 = 0;
                     t->uofs = 0.0f;
                     t->zofs = 0.0f;
                     t->src = p = &src->polys[k];
                     for (m = 0; m < 3; m++) {
-                        t->v[m] = &((D3PVERT *)s->keys)[((D3SRCPOLY *)t->src)->idx[m]];
+                        t->v[m] = &(s->keys)[t->src->v[m]];
                         t->v[m]->rawFlags |= 0x80;
                     }
                     t->flags = 0;
-                    if (((D3SRCPOLY *)t->src)->mat >= 0) {
-                        m = mat[((D3SRCPOLY *)t->src)->mat];
+                    if (t->src->tex >= 0) {
+                        m = mat[t->src->tex];
                         if (m < 0)
-                            mat[((D3SRCPOLY *)t->src)->mat] = m = ((TSTEXTURE **)s->texHandles)[j++] - d3_Textures;
+                            mat[t->src->tex] = m = ((TSTEXTURE **)s->texHandles)[j++] - d3_Textures;
                         t->tex = tex = &d3_Textures[m];
                         if (tex->flags.b[0] < 0xff || (tex->flags.b[2] & 3)) {
                             col.c.a = tex->flags.b[0];

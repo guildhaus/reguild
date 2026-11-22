@@ -82,7 +82,7 @@ int d3t_GetRowRange(struct D3TMAP *map, int *lo, int *hi, int x0, int x1, int y)
 int d3t_GetTriRange(struct D3TMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c); /* 0x412090, height range of the map under the triangle a, b, c (x/z in world */
 int d3t_GetQuadRange(struct D3TMAP *map, float *lo, float *hi, struct D3VECTOR *a, struct D3VECTOR *b, struct D3VECTOR *c, struct D3VECTOR *d); /* 0x412480, height range of the map under the quad a, b, c, d */
 float d3t_GetMeanHeight(struct D3VECTOR *pos);                                          /* 0x412550, mean terrain height over the 8x8 cells around pos */
-int d3t_InTriBox(struct D3VECTOR **tri, struct D3VECTOR *a, struct D3VECTOR *b);                      /* 0x412640, does the triangle's bounding box overlap the box a..b in x/z and */
+int d3t_InTriBox(struct D3VERTEX **tri, struct D3VECTOR *a, struct D3VECTOR *b);                      /* 0x412640, does the triangle's bounding box overlap the box a..b in x/z and */
 int d3t_QueryHeight(struct D3HQUERY *q, struct D3OBJECT *obj);                                 /* 0x412800, widens q->lo/hi by the triangles of obj and its children that lie in */
 int d3t_DropObject(struct D3OBJECT *obj, int maponly, int top);                         /* 0x412a70, sets obj on the ground (the terrain map and all other meshes under */
 void d3t_GetBounds(struct D3VECTOR *mn, struct D3VECTOR *mx, struct D3OBJECT *obj);                   /* 0x413040, widens mn/mx by the bounding boxes of obj and its children */

@@ -28,35 +28,9 @@ typedef struct D3TERRAIN {          /* the terrain a height map is sampled from 
 
 #define D3TERRAIN_NAMES(t) ((char (*)[0x40])((char *)(t) + 0x1a64))    /* 8 material names, overlaps blocks */
 
-typedef struct D3SMVERT {           /* 0x50 bytes, D3SURF.keys */
-    union {
-        struct {
-            float x, y, z;          /* 0x00 */
-        };
-        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
-    };
-    float pad0c;
-    float gx, gz;                   /* 0x10, position in height map cells */
-    char pad18[0x29];
-    unsigned char flags;            /* 0x41 */
-    unsigned char h;                /* 0x42, height in map units */
-    char pad43[0xd];
-} D3SMVERT;
-
-typedef struct D3SMTRI {            /* 0x28 bytes */
-    D3SMVERT *v[3];
-    char pad0c[0x18];
-    unsigned char f0 : 6;           /* 0x24 */
-    unsigned char solid : 1;        /* no shadow test (steep or flagged) */
-    unsigned char cast : 1;         /* casts a shadow */
-    unsigned char pad25;
-    unsigned char f26;              /* 0x26, 2: skip, 4: always */
-    char pad27;
-} D3SMTRI;
-
 typedef struct D3SMMESH {           /* D3OBJECT.info */
-    D3SMVERT *keys;
-    D3SMTRI *tris;                  /* 0x04 */
+    D3VERTEX *keys;
+    D3TRI *tris;                  /* 0x04 */
     int nkeys;                      /* 0x08 */
     int ntris;                      /* 0x0c */
 } D3SMMESH;

@@ -140,7 +140,7 @@ void d3sm_Sample(D3TERRAIN *t, D3SM *h)
 char d3sm_BoundsCB(D3OBJECT *obj, D3VECTOR4 *box)
 {
     D3SMMESH *m = (D3SMMESH *)obj->info;
-    D3SMVERT *v;
+    D3VERTEX *v;
     int i, k;
 
     if (m && (!(obj->stateFlags & 0xc) || (obj->stateFlags & 0x10))) {
@@ -162,8 +162,8 @@ char d3sm_BoundsCB(D3OBJECT *obj, D3VECTOR4 *box)
 char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
 {
     D3SMMESH *m;
-    D3SMTRI *tri;
-    D3SMVERT *v, *a, *b, *c;
+    D3TRI *tri;
+    D3VERTEX *v, *a, *b, *c;
     float inv[3];
     int i, n, hmax;
 
@@ -173,8 +173,8 @@ char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
         for (i = 0, v = ((D3SMMESH *)obj->info)->keys; i < ((D3SMMESH *)obj->info)->nkeys; i++, v++) {
             v->gx = (v->x - h->origin.x) * inv[0] + 0.875f;
             v->gz = (v->z - h->origin.z) * inv[2] + 0.875f;
-            v->h = (unsigned char)min(254.0f, max(1.0f, (v->y - h->origin.y) * inv[1]));
-            v->flags = (!(h->mask & (obj->stateFlags >> 2 & 3)) | ((obj->stateFlags & 0x20) == 0x20) << 1) << 1 | (obj->stateFlags & 0x10) == 0x10;
+            v->hmHeight = (unsigned char)min(254.0f, max(1.0f, (v->y - h->origin.y) * inv[1]));
+            v->hmFlags = (!(h->mask & (obj->stateFlags >> 2 & 3)) | ((obj->stateFlags & 0x20) == 0x20) << 1) << 1 | (obj->stateFlags & 0x10) == 0x10;
         }
         m = (D3SMMESH *)obj->info;
         n = min(m->ntris, d3_Cfg.maxpolys - (int)d3_SortCount);
@@ -186,22 +186,22 @@ char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
             c = tri->v[2];
             d3_TriNormal(&a->pos, &b->pos, &c->pos, &nrm);
             if (fabs(nrm.y) < 0.05f && !(obj->stateFlags & 0x40)) {
-                tri->solid = 1;
-                tri->cast = 1;
+                tri->hmSolid = 1;
+                tri->hmCast = 1;
             } else {
-                tri->cast = (tri->f26 & 4) || b->gz * c->gx - (b->gx) * c->gz + b->gx * a->gz - b->gz * a->gx + c->gz * a->gx - c->gx * a->gz < 0.0f;
-                tri->solid = 0;
+                tri->hmCast = (tri->drawFlags & 4) || b->gz * c->gx - (b->gx) * c->gz + b->gx * a->gz - b->gz * a->gx + c->gz * a->gx - c->gx * a->gz < 0.0f;
+                tri->hmSolid = 0;
             }
-            if (tri->cast && !(tri->f26 & 2)) {
+            if (tri->hmCast && !(tri->drawFlags & 2)) {
                 if (a->gx >= 0.0f && a->gx < h->size && a->gz >= 0.0f && a->gz < h->size
                     && b->gx >= 0.0f && b->gx < h->size && b->gz >= 0.0f && b->gz < h->size
                     && c->gx >= 0.0f && c->gx < h->size && c->gz >= 0.0f && c->gz < h->size) {
                     d3_SortPtr->item = tri;
                     d3_SortCount++;
-                    hmax = a->h;
-                    if (hmax <= b->h)
-                        hmax = b->h;
-                    hmax = max(hmax, c->h);
+                    hmax = a->hmHeight;
+                    if (hmax <= b->hmHeight)
+                        hmax = b->hmHeight;
+                    hmax = max(hmax, c->hmHeight);
                     d3_SortPtr->key = hmax * 0x300;
                     d3_SortPtr++;
                 }
@@ -253,7 +253,7 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
     float f, lo, hi;
     int top, bot;
     int i, j, k, radius, last;
-    D3SMTRI *tri;
+    D3TRI *tri;
     D3SMBLOCK *blk;
     D3SMENTRY *e;
 
@@ -364,14 +364,14 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
         float dx, dz, lim;
 
         tri = d3_SortBuf[k].item;
-        if (tri->solid) {
+        if (tri->hmSolid) {
             lo = 1e10f;
             hi = -1e10f;
             for (i = 0; i < 3; i++) {
                 f = tri->v[i]->y;
                 uv[i][0] = tri->v[i]->gx;
                 uv[i][1] = tri->v[i]->gz;
-                hs[i] = tri->v[i]->h;
+                hs[i] = tri->v[i]->hmHeight;
                 if (f > hi) {
                     hi = f;
                     last = i;
@@ -397,14 +397,14 @@ void d3sm_Build(D3SM *h, D3TERRAIN *t)
                 lim = (float)(h->size - 1);
                 uv[i][0] = max(0.0f, min(lim, uv[i][0]));
                 uv[i][1] = max(0.0f, min(lim, uv[i][1]));
-                hs[i] = tri->v[i]->h;
+                hs[i] = tri->v[i]->hmHeight;
             }
         } else {
             for (i = 0; i < 3; i++) {
                 lim = (float)(h->size - 1);
                 uv[i][0] = max(0.0f, min(lim, tri->v[i]->gx));
                 uv[i][1] = max(0.0f, min(lim, tri->v[i]->gz));
-                hs[i] = tri->v[i]->h;
+                hs[i] = tri->v[i]->hmHeight;
             }
         }
         d3s_ShadowTriangle(&uv[0][0], hs, h->data, h->size, tri->v[0]->flags, h->entries, radius);

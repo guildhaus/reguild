@@ -2,7 +2,7 @@
    name unknown: 0x451e80..0x4539b0 (the end: d3_ShadeInit's two literals 0x5ebb6c / 0x5ebb70 close this unit's
    .rdata, right before d3_vec.c's named constants d3_ZAxis.., which VC6 puts first in an object). One object view (D3OBJECT +
    D3_L, d3_light.h). Names are ours.
-   Open: the bits d3_SetVertexColors / d3_RelightObject read (D3PTRI 0x26, TSTEXTURE 0x68 / 0x6c) go through
+   Open: the bits d3_SetVertexColors / d3_RelightObject read (D3TRI 0x26, TSTEXTURE 0x68 / 0x6c) go through
    d3_light.h's cast views; the typed fields flip d3_CloneObject / d3_MirDrawObject.
    Open: d3.h keeps its own char d3_RelightObject declaration; dropping it (or including d3_light.h there)
    flips d3_MirDrawObject, which needs re-matching first.
@@ -62,7 +62,7 @@ void d3_LightFlicker(D3OBJECT *obj)
     unsigned int iv = D3_L(obj)->light->interval;
     D3LREC *n;
     D3OBJECT *o;
-    D3LVERT *v;
+    D3VERTEX *v;
     D3LHIT *p;
     D3COLOR c;
     unsigned int i, cnt;
@@ -139,11 +139,11 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
 {
     D3LINFO *info = D3_L(obj)->info;
     D3OBJECT *l;
-    D3LVERT *v;
-    D3LTRI *t;
+    D3VERTEX *v;
+    D3TRI *t;
     D3VECTOR4 d, c, nrm, acc;
     D3MATRIX m;
-    D3VECTOR *p;
+    D3BGFVERT *p;
     unsigned int i, j;
     int k, iv;
     float a, s, r, r2, dist, f, sc;
@@ -277,7 +277,7 @@ char d3_LightAddObject(D3OBJECT *obj, D3LCTX2 *ctx)
 {
     D3LINFO *info = D3_L(obj)->info;
     D3OBJECT *light;
-    D3LVERT *v;
+    D3VERTEX *v;
     D3LREC *rec, *p;
     D3LHIT *hit;
     D3VECTOR4 d, c;
@@ -468,10 +468,10 @@ void d3_LightPrepare(D3OBJECT *obj)
 void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
 {
     int i, k, g;
-    D3PTRI *tri;
+    D3TRI *tri;
     TSTEXTURE *tex;
     D3TEXFLAGS f;
-    D3PVERT *v;
+    D3VERTEX *v;
     D3COLOR c;
     float x, b0, b1;
     unsigned char fl212 = obj->stateFlags;
@@ -479,7 +479,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
     char pos = !(obj->objectFlags & 0x80);
 
     if (!(fl212 & 2)) {
-        tri = (D3PTRI *)s->tris;
+        tri = s->tris;
         for (i = 0; i < s->ntris; i++, tri++) {
             tex = tri->tex;
             if (tex) {
@@ -495,7 +495,7 @@ void d3_SetVertexColors(D3OBJECT *obj, D3SURF *s, char on, D3TEXFLAGS fl)
                     b0 = f.b[0];
                     for (; k < 3; k++) {
                         v = tri->v[k];
-                        x = min(255.0f, (float)((((D3LVERT *)v)->light.x * 0.3f + ((D3LVERT *)v)->light.y * 0.59f + ((D3LVERT *)v)->light.z * 0.11f + b1) * 0.00390625f) * b0);
+                        x = min(255.0f, (float)((v->light.x * 0.3f + v->light.y * 0.59f + v->light.z * 0.11f + b1) * 0.00390625f) * b0);
                         d3_FtoI(&g, x);
                         c.r = c.g = c.b = c.a = (unsigned char)g;
                         v->c = c;
@@ -551,7 +551,7 @@ char d3_RelightObject(D3OBJECT *obj)
     D3VECTOR4 c;
     int i, g;
     float m;
-    D3LVERT *k;
+    D3VERTEX *k;
 
     if (!obj->info)
         obj->info = d3_SelectSurf(obj);
@@ -646,7 +646,7 @@ void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *frame)
     D3VECTOR4 c;
     int i, g;
     float s;
-    D3LVERT *k;
+    D3VERTEX *k;
 
     if (!(obj->stateFlags & 2)) {
         if (!obj->info) {

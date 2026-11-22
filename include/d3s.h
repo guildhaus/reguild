@@ -40,7 +40,7 @@ typedef struct D3SSLOT {            /* 0x80 bytes, 4 per material at +0x754: the
 
 #define D3S_SLOTS(mat) ((D3SSLOT *)((char *)(mat) + 0x754))
 
-typedef struct D3SVERT {            /* 0x50 bytes, like D3BOXVERT */
+typedef struct D3SVERT {            /* 0x50 bytes, like D3VERTEX */
     float x, y, z;                  /* 0x00 */
     float w;                        /* 0x0c */
     float tu, tv;                   /* 0x10, position in the shadow texture (texels) */

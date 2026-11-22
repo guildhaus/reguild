@@ -1782,7 +1782,7 @@ D3FLMAP *d3fl_LoadMap(D3FLDESC *desc)
    straight-line body). No lever: a separate top local (= control), its assignment at each position from
    the x0 line to corner 4 (46..241, the early ones grow the frame), (float) casts on either h (= control),
    int h (68), t->hmax for the top (meaning: 259). climb round 1: nothing (the macro body is not mutated). */
-D3BOXVERT *d3fl_TileBox(D3FLMAP *map, D3FLTILE *t, int tx, int ty)
+D3VERTEX *d3fl_TileBox(D3FLMAP *map, D3FLTILE *t, int tx, int ty)
 {
     D3VECTOR4 p, q;
     float x0, x1, z0, z1, h;
@@ -1881,7 +1881,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
     D3VECTOR4 p;
     D3FLWREG *r;
     D3FLREGION *reg;
-    D3PVERT *v;
+    D3VERTEX *v;
     D3FLPOLY *poly;
     D3CLIPINFO *clip;
     TSTEXTURE *tex;
@@ -1900,7 +1900,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
         mask = map->mask;
         water = map->water;
         npoints = t->nwpoints;
-        v = (D3PVERT *)t->wpoints;
+        v = (D3VERTEX *)t->wpoints;
         light = map->light;
         npolys = t->nwpolys;
         k = 0.5f - (float)fabs(d3_ZAxis.x * sun.x + d3_ZAxis.y * sun.y + d3_ZAxis.z * sun.z);
@@ -1958,10 +1958,10 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
                 p.z = d3fl_AxisX.z + p.z;
             }
         }
-        d3_ClipMesh(t->clipCode, (D3PVERT *)t->wpoints, npoints, (D3PTRI *)t->wpolys, npolys);
+        d3_ClipMesh(t->clipCode, (D3VERTEX *)t->wpoints, npoints, (D3TRI *)t->wpolys, npolys);
         clip = (D3CLIPINFO *)d3_ClipInfo[t->clip & 0x3f];
         if (d3_FogOn) {
-            for (i = npoints, v = (D3PVERT *)t->wpoints; i > 0; i--, v++)
+            for (i = npoints, v = (D3VERTEX *)t->wpoints; i > 0; i--, v++)
                 if (v->flags & 0x80) {
                     k = 1.0f / v->z;
                     v->sx = d3_ScaleX * v->x * k + d3_CenterX;
@@ -1972,7 +1972,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
                         ? 255.0 - min(255.0, (sqrt(d3_Dist2) - d3_FogStart) * d3_FogScale) : 255.0);
                 }
         } else {
-            for (i = npoints, v = (D3PVERT *)t->wpoints; i > 0; i--, v++)
+            for (i = npoints, v = (D3VERTEX *)t->wpoints; i > 0; i--, v++)
                 if (v->flags & 0x80) {
                     k = 1.0f / v->z;
                     v->sx = d3_ScaleX * v->x * k + d3_CenterX;
@@ -2049,7 +2049,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
 char d3fl_UpdateTiles(D3FLMAP *map)
 {
     D3FLTILE *t;
-    D3BOXVERT *box;
+    D3VERTEX *box;
     unsigned int x, y, k;
     float sum = 0.0f;
     int i, n = 0;
@@ -2128,7 +2128,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
 {
     D3OBJECT *cam;
     D3FLTILE *t;
-    D3PVERT *v, *v0, *v1, *v2;
+    D3VERTEX *v, *v0, *v1, *v2;
     D3FLPOLY *poly, *np, *pp;
     D3FLSPLIT *sp;
     TSTEXTURE *tex;
@@ -2228,7 +2228,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                         dz.x = d3fl_AxisZ.x * fs;
                         dz.y = d3fl_AxisZ.y * fs;
                         dz.z = d3fl_AxisZ.z * fs;
-                        v = (D3PVERT *)t->points;
+                        v = (D3VERTEX *)t->points;
                         lx = (my * size + mx) & mask;
                         for (j = 0; j < ny; j++) {
                             p.x = r.x;
@@ -2256,7 +2256,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             lx = (lx + s * size) & mask;
                         }
                         if (s > 0 && changed) {
-                            v = (D3PVERT *)t->points;
+                            v = (D3VERTEX *)t->points;
                             poly = t->polys;
                             t->npolys = 0;
                             idx = (my / s * map->size / s + mx / s) & map->idxMask;
@@ -2322,7 +2322,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             /* right edge */
                             lx = mx + n;
                             ly = my + half;
-                            v = (D3PVERT *)T.points + T.npoints;
+                            v = (D3VERTEX *)T.points + T.npoints;
                             np = T.polys + T.npolys;
                             uv = T.bp;
                             poly = T.polys + (nx - 2) * 2;
@@ -2398,7 +2398,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                         if (x && map->tiles[y][x - 1].lodLevel > 0 && map->tiles[y][x - 1].lodLevel < s) {
                             /* left edge */
                             ly = half + my;
-                            v = (D3PVERT *)T.points + T.npoints;
+                            v = (D3VERTEX *)T.points + T.npoints;
                             np = T.polys + T.npolys;
                             uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
                             poly = T.polys;
@@ -2474,7 +2474,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                         if (y && map->tiles[y - 1][x].lodLevel > 0 && map->tiles[y - 1][x].lodLevel < s) {
                             /* top edge */
                             lx = half + mx;
-                            v = (D3PVERT *)T.points + T.npoints;
+                            v = (D3VERTEX *)T.points + T.npoints;
                             np = T.polys + T.npolys;
                             uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
                             poly = T.polys;
@@ -2552,7 +2552,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             /* bottom edge */
                             lx = half + mx;
                             ly = n + my;
-                            v = (D3PVERT *)T.points + T.npoints;
+                            v = (D3VERTEX *)T.points + T.npoints;
                             np = T.polys + T.npolys;
                             D3FL_POS(p, lx, ly)
                             uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
@@ -2624,9 +2624,9 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             q.x = d3fl_AxisZ.x * fy + p.x;
                             q.y = d3fl_AxisZ.y * fy + p.y;
                             q.z = d3fl_AxisZ.z * fy + p.z;
-                            ((D3PVERT *)sp->p)->x = d3fl_AxisY.x * h + q.x;
-                            ((D3PVERT *)sp->p)->y = d3fl_AxisY.y * h + q.y;
-                            ((D3PVERT *)sp->p)->z = d3fl_AxisY.z * h + q.z;
+                            ((D3VERTEX *)sp->p)->x = d3fl_AxisY.x * h + q.x;
+                            ((D3VERTEX *)sp->p)->y = d3fl_AxisY.y * h + q.y;
+                            ((D3VERTEX *)sp->p)->z = d3fl_AxisY.z * h + q.z;
                         }
                     T.lod = T.lodLevel;
                 }
@@ -2636,9 +2636,9 @@ void d3fl_Draw(D3FLMAP *map, char water)
                     if (t->lodLevel) {
                         npts = t->npoints;
                         npolys = t->npolys;
-                        d3_ClipMesh(t->clipCode, (D3PVERT *)t->points, npts, (D3PTRI *)t->polys, npolys);
+                        d3_ClipMesh(t->clipCode, (D3VERTEX *)t->points, npts, (D3TRI *)t->polys, npolys);
                         if (d3_FogOn) {
-                            for (i = 0, v = (D3PVERT *)t->points; i < npts; i++, v++)
+                            for (i = 0, v = (D3VERTEX *)t->points; i < npts; i++, v++)
                                 if (v->flags < 0) {
                                     k = 1.0f / v->z;
                                     v->sx = k * v->x * d3_ScaleX + d3_CenterX;
@@ -2649,7 +2649,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                         ? 255.0 - min(255.0, (sqrt(d3_Dist2) - d3_FogStart) * d3_FogScale) : 255.0);
                                 }
                         } else {
-                            for (i = 0, v = (D3PVERT *)t->points; i < npts; i++, v++)
+                            for (i = 0, v = (D3VERTEX *)t->points; i < npts; i++, v++)
                                 if (v->flags < 0) {
                                     k = 1.0f / v->z;
                                     v->sx = k * v->x * d3_ScaleX + d3_CenterX;
@@ -2659,9 +2659,9 @@ void d3fl_Draw(D3FLMAP *map, char water)
                         }
                         for (i = 0, poly = t->polys; i < npolys; i++, poly++)
                             if ((fl = poly->flags) < 0) {
-                                v2 = (D3PVERT *)poly->v[2];
-                                v1 = (D3PVERT *)poly->v[1];
-                                v0 = (D3PVERT *)poly->v[0];
+                                v2 = (D3VERTEX *)poly->v[2];
+                                v1 = (D3VERTEX *)poly->v[1];
+                                v0 = (D3VERTEX *)poly->v[0];
                                 if ((v2->flags | v1->flags | v0->flags) & 0x10)
                                     fl |= 0x40;
                                 else if ((v0->sx - v1->sx) * (v0->sy - v2->sy) >= (v0->sx - v2->sx) * (v0->sy - v1->sy))
@@ -2864,7 +2864,7 @@ char map_Pick(D3FLMAP *map, D3VECTOR *pos, char lod, int *px, int *py, float *h)
 
 int map_PickScreen(D3FLMAP *map, int x, int y, float r, D3VECTOR *out)
 {
-    D3PVERT *p;
+    D3VERTEX *p;
     int tx, ty, s, nx, ny, n, i, ret;
     float r2, best, dx, dy, d, f;
 
@@ -2887,7 +2887,7 @@ int map_PickScreen(D3FLMAP *map, int x, int y, float r, D3VECTOR *out)
                 else
                     ny = n;
                 n = ny * nx;
-                p = (D3PVERT *)map->tiles[ty][tx].points;
+                p = (D3VERTEX *)map->tiles[ty][tx].points;
                 for (i = 0; i < n; i++, p++)
                     if (p->flags & 0x80) {
                         dx = x - p->sx;
@@ -3017,7 +3017,7 @@ void d3fl_SetShift(D3FLMAP *map, unsigned char shift, char light)
     }
 }
 
-D3BOXVERT d3fl_Box[8] = {0};  /* 0x6334b8, result of d3fl_TileBox */
+D3VERTEX d3fl_Box[8] = {0};  /* 0x6334b8, result of d3fl_TileBox */
 void *d3_Terrain = 0;  /* 0x633738, the current scene's terrain map (a D3FLMAP; d3_sm.c / d3s.c read it as D3TERRAIN) */
 char d3fl_Mips = 0;  /* 0x63373c */
 char d3fl_MapShift = 0;  /* 0x63373d, texture shift copied into D3FLMAP.shift (d3fl_Init argument) */

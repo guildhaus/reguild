@@ -4,23 +4,8 @@
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct D3SURF;
 
-typedef struct XSRC {               /* source point of a vertex */
-    char pad00[0xc];
-    float nx, ny, nz;               /* 0x0c */
-} XSRC;
-typedef struct XVERT {              /* 0x50 bytes */
-    float x, y, z;                  /* 0x00, camera space */
-    char pad0c[0x14];
-    float u, v;                     /* 0x20, environment map coordinates */
-    char pad28[0x20];
-    XSRC *src;                      /* 0x48 */
-    signed char flags;              /* 0x4c */
-    signed char used;               /* 0x4d */
-    char pad4e[0x2];
-} XVERT;
-
 typedef struct XPART {              /* a mesh part, what D3SURF has before its ops */
-    struct XVERT *keys;             /* 0x00, stride 0x50 */
+    struct D3VERTEX *keys;             /* 0x00, stride 0x50 */
     void *tris;
     int nkeys;                      /* 0x08 */
     int ntris;

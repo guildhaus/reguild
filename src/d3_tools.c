@@ -269,7 +269,7 @@ void d3t_UpdateCamera(void)
 
 int d3t_GetHeightRange(D3OBJECT *obj, float *lo, float *hi)
 {
-    D3BOXVERT *v;
+    D3VERTEX *v;
     int i;
 
     *hi = 0.0f;
@@ -296,7 +296,7 @@ int d3t_GetFootprint(D3OBJECT *obj, float t, D3VECTOR *c0, D3VECTOR *c1, D3VECTO
     D3VECTOR4 v;
     float mn[4];
     float mx[4];
-    D3MESHKEY *k;
+    D3VERTEX *k;
     int i, j;
 
     if (obj->type != 4)
@@ -304,21 +304,21 @@ int d3t_GetFootprint(D3OBJECT *obj, float t, D3VECTOR *c0, D3VECTOR *c1, D3VECTO
     d3_TransformSurf(obj);
     k = obj->info->keys;
     for (i = 0; i < obj->info->nkeys; k++, i++) {
-        if (k->time <= t) {
-            mn[0] = k->pos[0];
-            mn[1] = k->pos[1];
-            mn[2] = k->pos[2];
-            mx[0] = k->pos[0];
-            mx[1] = k->pos[1];
-            mx[2] = k->pos[2];
+        if (k->y <= t) {
+            mn[0] = k->src->pos.e[0];
+            mn[1] = k->src->pos.e[1];
+            mn[2] = k->src->pos.e[2];
+            mx[0] = k->src->pos.e[0];
+            mx[1] = k->src->pos.e[1];
+            mx[2] = k->src->pos.e[2];
             break;
         }
     }
     for (; i < obj->info->nkeys; i++, k++) {
-        if (k->time <= t) {
+        if (k->y <= t) {
             for (j = 0; j < 3; j++) {
-                mn[j] = min(mn[j], k->pos[j]);
-                mx[j] = max(mx[j], k->pos[j]);
+                mn[j] = min(mn[j], k->src->pos.e[j]);
+                mx[j] = max(mx[j], k->src->pos.e[j]);
             }
         }
     }
@@ -347,10 +347,10 @@ char d3t_GetBoundingSphere(D3OBJECT *obj, D3OBJECT *camera, D3VECTOR *center, fl
 {
     char ok = 0;
     D3SURF *list;
-    D3BOXVERT *v;
+    D3VERTEX *v;
     D3VECTOR4 c;
     float dx, dy, dz, r, d;
-    D3BOXVERT *w;
+    D3VERTEX *w;
     int i;
 
     if (obj && (center || radius) && obj->material->surf[0].mesh) {
@@ -564,7 +564,7 @@ float d3t_GetMeanHeight(D3VECTOR *pos)
 }
 /* 0x412640, does the triangle's bounding box overlap the box a..b in x/z and reach below b.y? */
 
-int d3t_InTriBox(D3VECTOR **tri, D3VECTOR *a, D3VECTOR *b)
+int d3t_InTriBox(D3VERTEX **tri, D3VECTOR *a, D3VECTOR *b)
 {
     D3VECTOR4 mn, mx;
 
@@ -597,7 +597,7 @@ typedef struct D3HQUERY {           /* height query over a box */
 int d3t_QueryHeight(D3HQUERY *q, D3OBJECT *obj)
 {
     D3VECTOR4 mx, mn;
-    D3BOXVERT *v;
+    D3VERTEX *v;
     D3TRI *tri;
     D3OBJECT *child;
     int i, r = 1;
@@ -607,7 +607,7 @@ int d3t_QueryHeight(D3HQUERY *q, D3OBJECT *obj)
             return r;
         d3_TransformSurf(obj);
         d3_UpdateObject(obj, 1);
-        v = (D3BOXVERT *)(obj->info->keys + obj->info->nkeys);
+        v = obj->info->keys + obj->info->nkeys;
         mn.x = v->x;
         mn.y = v->y;
         mn.z = v->z;
@@ -755,7 +755,7 @@ found:
 
 void d3t_GetBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
 {
-    D3BOXVERT *v;
+    D3VERTEX *v;
     D3OBJECT *child;
     int i;
 
@@ -763,7 +763,7 @@ void d3t_GetBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
         return;
     d3_TransformSurf(obj);
     d3_UpdateObject(obj, 1);
-    v = (D3BOXVERT *)(obj->info->keys + obj->info->nkeys);
+    v = obj->info->keys + obj->info->nkeys;
     for (i = 0; i < 8; i++, v++) {
         mn->x = min(mn->x, v->x);
         mn->y = min(mn->y, v->y);
@@ -781,7 +781,7 @@ void d3t_GetObjectBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
 {
     D3VECTOR rot;
     D3VECTOR4 pos;
-    D3BOXVERT *v;
+    D3VERTEX *v;
     D3OBJECT *child;
     int i;
 
@@ -798,7 +798,7 @@ void d3t_GetObjectBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
     d3_TransformSurf(obj);
     d3_UpdateObject(obj, 1);
     d3_UpdateWorldMatrix(obj, d3_Camera, 1);
-    v = (D3BOXVERT *)(obj->info->keys + obj->info->nkeys);
+    v = obj->info->keys + obj->info->nkeys;
     mn->x = v->x;
     mn->y = v->y;
     mn->z = v->z;
@@ -824,7 +824,7 @@ void d3t_GetMeshBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
 {
     D3VECTOR rot;
     D3VECTOR4 pos;
-    D3BOXVERT *v;
+    D3VERTEX *v;
     int i;
 
     if (!obj->info)
@@ -839,7 +839,7 @@ void d3t_GetMeshBounds(D3VECTOR *mn, D3VECTOR *mx, D3OBJECT *obj)
     d3_SetObjectRotXYZ(d3_Camera, 0, 0, 0);
     d3_TransformSurf(obj);
     d3_UpdateObject(obj, 1);
-    v = (D3BOXVERT *)(obj->info->keys + obj->info->nkeys);
+    v = obj->info->keys + obj->info->nkeys;
     mn->x = v->x;
     mn->y = v->y;
     mn->z = v->z;
@@ -869,9 +869,9 @@ void d3t_SetGrey(D3OBJECT *obj, int on)
             tri = obj->info->tris;
             for (i = 0; i < obj->info->ntris; tri++, i++) {
                 for (j = 0; j < 3; j++) {
-                    ((D3VERTEX *)tri->v[j])->r = 0x80;
-                    ((D3VERTEX *)tri->v[j])->g = 0x80;
-                    ((D3VERTEX *)tri->v[j])->b = 0x80;
+                    tri->v[j]->base.r = 0x80;
+                    tri->v[j]->base.g = 0x80;
+                    tri->v[j]->base.b = 0x80;
                 }
             }
             obj->stateFlags |= 2;
@@ -899,9 +899,9 @@ void d3t_SetColor(D3OBJECT *obj, unsigned char r, unsigned char g, unsigned char
             tri = obj->info->tris;
             for (i = 0; i < obj->info->ntris; tri++, i++) {
                 for (j = 0; j < 3; j++) {
-                    ((D3VERTEX *)tri->v[j])->r = r;
-                    ((D3VERTEX *)tri->v[j])->g = g;
-                    ((D3VERTEX *)tri->v[j])->b = b;
+                    tri->v[j]->base.r = r;
+                    tri->v[j]->base.g = g;
+                    tri->v[j]->base.b = b;
                 }
             }
             obj->stateFlags |= 2;

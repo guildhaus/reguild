@@ -1874,7 +1874,7 @@ void init_LoadSiteScene(char *name)
     INIT_SITELIST list;
     D3MATRIX cam;
     D3OBJECT *o, *p, *next, *id;
-    D3BOXVERT *box;
+    D3VERTEX *box;
     int i;
 
     memset(&list, 0, sizeof list);

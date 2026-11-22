@@ -43,10 +43,10 @@ char d3q_AddObject(D3OBJECT *obj, D3QNODE *n);                              /* 0
 D3QNODE *d3q_MakeChild(D3QNODE *parent, float *min, float *max);           /* 0x457d00 */
 char d3q_GetBounds(D3OBJECT *obj, float *min, float *max);                  /* 0x457db0 */
 void d3q_Build(D3QNODE *n, unsigned int minitems, volatile unsigned int depth, volatile unsigned int maxdepth);   /* 0x457f20 */
-extern D3BOXVERT d3_QBox[8];        /* 0x633b30 */
+extern D3VERTEX d3_QBox[8];        /* 0x633b30 */
 
 D3QNODE *d3q_Create(D3OBJECT *start, unsigned int mask, unsigned int minitems, unsigned int maxdepth);  /* 0x4582d0 */
-D3BOXVERT *d3q_BoxCorners(D3QNODE *n, float *pos, float *m);                /* 0x458360 */
+D3VERTEX *d3q_BoxCorners(D3QNODE *n, float *pos, float *m);                /* 0x458360 */
 void d3q_Mark(D3QNODE *n, D3OBJECT *cam, int zone);                         /* 0x458650 */
 char d3q_Remove(D3OBJECT *obj, D3QNODE *n);                                 /* 0x4586d0 */
 void d3q_RemoveObject(D3OBJECT *obj, D3QNODE *n);                           /* 0x458780 */

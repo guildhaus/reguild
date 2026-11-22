@@ -4,7 +4,7 @@ struct TSTEXTURE;
    except rd_object. */
 #ifndef UNK_44ABB0_H
 #define UNK_44ABB0_H
-#include "d3_engine.h"                /* D3CLIP / D3SRCPOLY / D3PTRI */
+#include "d3_engine.h"                /* D3CLIP / D3BGFPOLY / D3TRI */
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 struct VFSFILE;
 
@@ -76,11 +76,11 @@ struct D3FLMAP *d3io_ReadFloor(void *f, unsigned int version);                  
 
 /* --- 0x44be60..0x44cd40 (worker d3io): scene / group loading, stock objects --- */
 typedef struct D3IOSTOCK D3IOSTOCK;
-struct D3IOSTOCK {                  /* a loaded stock object (mesh driver, D3OPS / D3MESHSRC view) */
+struct D3IOSTOCK {                  /* a loaded stock object (mesh driver, D3OPS view) */
     char name[0x40];                /* 0x000 */
-    char *points;                   /* 0x040, 0x18 bytes each */
+    D3BGFVERT *points;              /* 0x040 */
     int npoints;                    /* 0x044 */
-    D3SRCPOLY *polys;               /* 0x048 */
+    D3BGFPOLY *polys;               /* 0x048 */
     int npolys;                     /* 0x04c */
     char pad050[0x18c];
     int refs;                       /* 0x1dc */
@@ -107,55 +107,10 @@ typedef union D3IOLOD {             /* 0x5fbf78 (initialized to 2): which stock 
 } D3IOLOD;
 extern D3IOLOD d3io_Lod;                    /* 0x5fbf78, which stock object LODs are loaded (d3_io_t.c and main.c include this header) */
 char d3io_LodName(char *name, char *name2, int lod, char *out, char *out2);            /* 0x44c9d0 */
-typedef union D3IOCOL {             /* a vertex colour: the b, g, r, a bytes, or the whole dword (-1 = unset) */
-    int all;
-    struct {
-        unsigned char b, g, r, a;
-    };
-} D3IOCOL;
-
-typedef struct D3IOVERT {           /* 0x50 bytes, D3MESHKEY / D3VERTEX as the stock attach fills it */
-    char pad00[0x40];
-    D3IOCOL col40;                  /* 0x40 */
-    D3IOCOL col44;                  /* 0x44 */
-    char *src;                      /* 0x48, the stock object's point (0x18 bytes) */
-    unsigned char f4c;              /* 0x4c, 0x80: used by a triangle */
-    unsigned char f4d;              /* 0x4d */
-    char pad4e[0x2];
-} D3IOVERT;
-
-typedef struct D3IOPOLY {           /* 0x38 bytes, D3SRCPOLY */
-    char pad00[0x18];
-    int idx[3];                     /* 0x18 */
-    int tex;                        /* 0x24, index into d3_Textures, < 0: none */
-    int slot;                       /* 0x28, index into the stock object's texture set */
-    char pad2c[0xc];
-} D3IOPOLY;
-
-typedef struct D3IOTRIFL {
-    unsigned char b0 : 1;
-    unsigned char b1 : 1;
-    unsigned char b2 : 1;
-    unsigned char b3 : 1;
-    unsigned char b4 : 4;
-} D3IOTRIFL;
-
-
-typedef struct D3IOTRI {            /* 0x28 bytes, D3TRI */
-    D3IOVERT *v[3];
-    int pad0c;
-    D3IOPOLY *src;                  /* 0x10 */
-    struct TSTEXTURE *tex;          /* 0x14 */
-    int f18, f1c, f20;              /* 0x18 */
-    unsigned char f24;              /* 0x24 */
-    char pad25;
-    D3IOTRIFL fl;                   /* 0x26 */
-    char pad27;
-} D3IOTRI;
 
 typedef struct D3IOSURF {           /* 0x198 bytes, D3SURF as the stock attach fills it */
-    D3IOVERT *keys;
-    D3IOTRI *tris;                  /* 0x04 */
+    D3VERTEX *keys;
+    D3TRI *tris;                  /* 0x04 */
     int nkeys;                      /* 0x08 */
     int ntris;                      /* 0x0c */
     D3IOSTOCK *stock;               /* 0x10 */

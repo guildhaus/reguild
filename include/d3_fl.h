@@ -2,7 +2,7 @@
    no path string). Names are ours. */
 #ifndef UNK_43EAB0_H
 #define UNK_43EAB0_H
-#include "d3_engine.h"                /* D3CLIP / D3SRCPOLY / D3PTRI */
+#include "d3_engine.h"                /* D3CLIP / D3BGFPOLY / D3TRI */
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
 
@@ -35,26 +35,26 @@ typedef struct D3FLUV {             /* a texture coordinate of d3fl_Jitter, 3 pe
 typedef void (*D3FLBLEND)(unsigned short *dst, unsigned long *w, unsigned char **src, unsigned int n);
 
 /* ---- terrain map (d3_Terrain, D3SCENE.map); layout as far as this file uses it ---- */
-typedef struct D3FLPOINT {          /* 0x50 bytes, a tile vertex (D3PVERT as the floor code builds it) */
+typedef struct D3FLPOINT {          /* 0x50 bytes, a tile vertex (D3VERTEX as the floor code builds it) */
     char pad00[0x40];
-    unsigned long color;            /* 0x40, D3PVERT.color (D3COLOR b,g,r,a packed) */
-    unsigned long specular;         /* 0x44, D3PVERT.specular */
-    void *src;                      /* 0x48, D3PVERT.src: source point (D3SRCPOINT) */
-    signed char flags;                   /* 0x4c, D3PVERT.flags: bit 7 = visible */
+    unsigned long color;            /* 0x40, D3VERTEX.color (D3COLOR b,g,r,a packed) */
+    unsigned long specular;         /* 0x44, D3VERTEX.specular */
+    void *src;                      /* 0x48, D3VERTEX.src: source point (D3SRCPOINT) */
+    signed char flags;                   /* 0x4c, D3VERTEX.flags: bit 7 = visible */
     char pad4d[0x3];
 } D3FLPOINT;
 
 #define D3FL_WHITE 0xffffffL        /* a D3FLPOINT color: r = g = b = 255, alpha 0 */
 
-typedef struct D3FLPOLY {           /* 0x28 bytes, a triangle (D3PTRI as the floor code sees it) */
+typedef struct D3FLPOLY {           /* 0x28 bytes, a triangle (D3TRI as the floor code sees it) */
     D3FLPOINT *v[3];
-    void *clip;                     /* 0x0c, D3PTRI.clip: &d3_ClipInfo[clip code] */
+    void *clip;                     /* 0x0c, D3TRI.clip: &d3_ClipInfo[clip code] */
     float *uv;                      /* 0x10, d3fl_UV[0] or [1] */
-    struct TSTEXTURE *tex;                   /* 0x14, D3PTRI.tex: d3fl_GetTexture / D3FLREGION.tex2 */
+    struct TSTEXTURE *tex;                   /* 0x14, D3TRI.tex: d3fl_GetTexture / D3FLREGION.tex2 */
     float zOfs;                     /* 0x18, depth offset added to the vertices (engine d3_ZOfs) */
     float uOfs;                     /* 0x1c, texture offset u (D3FLREGION.uOfs, mod 1) */
     float vOfs;                     /* 0x20, texture offset v (D3FLREGION.vOfs, mod 1) */
-    signed char flags;                   /* 0x24, bit 7: visible (read sign-extended here, d3fl_Draw; d3_engine.h D3PTRI.flags is unsigned) */
+    signed char flags;                   /* 0x24, bit 7: visible (read sign-extended here, d3fl_Draw; d3.h D3TRI.flags is unsigned) */
     unsigned char region;           /* 0x25, water region */
     unsigned char flip;             /* 0x26, bit 0: split along the other diagonal (d3fl_Draw) */
     char pad27;
@@ -272,7 +272,7 @@ extern D3VECTOR4 d3fl_Origin;               /* 0xfbbd30, map point (0, 0, 0) in 
 extern D3VECTOR4 d3fl_AxisX;                /* 0xfc0d50, world step per map x */
 extern D3VECTOR4 d3fl_AxisY;                /* 0xfbbd00, world step per height unit */
 extern D3VECTOR4 d3fl_AxisZ;                /* 0xfbb8e0, world step per map y */
-extern D3BOXVERT d3fl_Box[8];               /* 0x6334b8, result of d3fl_TileBox */
+extern D3VERTEX d3fl_Box[8];               /* 0x6334b8, result of d3fl_TileBox */
 typedef struct D3FLDESC {           /* input of d3fl_LoadMap; null pointers / size <= 0 mean load from files */
     char name[0x40];                /* height map "boden/<name>.bmp", water map "boden/<name>_w.bmp" */
     unsigned char *height;          /* 0x40 */

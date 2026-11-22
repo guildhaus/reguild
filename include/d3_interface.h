@@ -99,25 +99,6 @@ typedef struct D3CORNERCTX {        /* 0x88 bytes: context of d3_CornerCB */
     char pad85[3];
 } D3CORNERCTX;
 
-typedef struct D3CORNERVERT {       /* a transformed vertex (D3VERTEX) with its screen position */
-    float x, y, z;
-    float pad0c;
-    float sx, sy;                   /* 0x10 */
-    char pad18[0x38];
-} D3CORNERVERT;
-
-typedef struct D3CORNERTRI {        /* D3TRI as the corner search reads it */
-    D3CORNERVERT *v[3];
-    char pad0c[0x4];
-    float *uv;                      /* 0x10, (u, v) per corner */
-    void *tex;                      /* 0x14 */
-    char pad18[0xc];
-    signed char flag24;             /* 0x24 */
-    char pad25;
-    unsigned char flag26;           /* 0x26 */
-    char pad27;
-} D3CORNERTRI;
-
 float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p);                          /* 0x448ac0 */
 char d3_ScreenToUV(float sx, float sy, D3OBJECT *obj, void *tex, float *outu, float *outv);   /* 0x448e60 */
 D3OBJECT *d3_FindObjectNoCase(D3OBJECT *a, int flags, D3OBJECT *c, char *name);  /* 0x449770, case-insensitive */

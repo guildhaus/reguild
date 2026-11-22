@@ -60,10 +60,10 @@ int d3io_FindStock(char *name)
 
 void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
 {
-    D3IOCOL col;
+    D3COLORU col;
     D3IOSTOCK *stock;
     D3IOSURF *s;
-    D3IOTRI *tri;
+    D3TRI *tri;
     TSTEXTURE *tex;
     D3MESH *mesh;
     char buf[0x100];
@@ -77,49 +77,49 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
         s->stock = stock;
         s->f194 = 0;
         d3_AllocObjectPolys((D3SURF *)s);
-        col.all = -1;
+        col.col = 0xffffffff;
         if (s->nkeys > 0)
             for (i = 0; i < s->nkeys + 8; i++) {
-                s->keys[i].src = stock->points + i * 0x18;
-                s->keys[i].f4c = 0;
-                s->keys[i].col40.all = -1;
-                s->keys[i].col44.all = -1;
+                s->keys[i].src = &stock->points[i];
+                s->keys[i].rawFlags = 0;
+                s->keys[i].color = 0xffffffff;
+                s->keys[i].specular = 0xffffffff;
             }
         tri = s->tris;
         for (i = 0; i < s->ntris; i++, tri++) {
-            tri->f20 = 0;
-            tri->fl.b0 = 0;
-            tri->f1c = 0;
-            tri->f18 = 0;
-            tri->src = (D3IOPOLY *)stock->polys + i;
+            tri->vofs = 0.0f;
+            tri->bits.b0 = 0;
+            tri->uofs = 0.0f;
+            tri->zofs = 0.0f;
+            tri->src = stock->polys + i;
             for (k = 0; k < 3; k++) {
-                D3IOVERT *v = &s->keys[tri->src->idx[k]];
+                D3VERTEX *v = &s->keys[tri->src->v[k]];
                 tri->v[k] = v;
-                v->f4c |= 0x80;
+                v->rawFlags |= 0x80;
             }
-            tri->f24 = 0;
+            tri->flags = 0;
             if (tri->src->tex >= 0) {
                 tex = d3_Textures + tri->src->tex;
                 tri->tex = d3_Textures + tri->src->tex;
                 if (tex->flags.b[0] < 0xff || (tex->flags.b[2] & 3)) {
-                    col.a = tex->flags.b[0];
+                    col.c.a = tex->flags.b[0];
                     if (tex->flags.b[2] & 1) {
-                        col.b = tex->flags.b[0];
-                        col.g = tex->flags.b[0];
-                        col.r = tex->flags.b[0];
+                        col.c.b = tex->flags.b[0];
+                        col.c.g = tex->flags.b[0];
+                        col.c.r = tex->flags.b[0];
                     } else {
-                        col.b = 0xff;
-                        col.g = 0xff;
-                        col.r = 0xff;
+                        col.c.b = 0xff;
+                        col.c.g = 0xff;
+                        col.c.r = 0xff;
                     }
                     for (k = 0; k < 3; k++) {
-                        tri->v[k]->col40 = col;
-                        tri->v[k]->col44 = col;
+                        tri->v[k]->c = col.c;
+                        tri->v[k]->s = col.c;
                     }
                 }
-                tri->fl.b3 = tex->bits;
+                tri->bits.b3 = tex->bits;
                 for (k = 0; k < 3; k++)
-                    tri->v[k]->f4d = tex->bits & 1;
+                    tri->v[k]->wrap = tex->bits & 1;
             } else
                 tri->tex = 0;
         }
@@ -127,7 +127,7 @@ void d3io_AttachStock(D3OBJECT *obj, D3SURF *surf, char *name)
         s->texset = mem_Alloc(stock->ntex * sizeof(*s->texset), "d3_io:CurTexSet");
         for (i = 0; i < stock->ntex; i++)
             for (k = 0; k < s->ntris; k++)
-                if (s->tris[k].src && s->tris[k].src->slot == i) {
+                if (s->tris[k].src && s->tris[k].src->mat == i) {
                     if (s->tris[k].tex) {
                         s->texset[i] = s->tris[k].tex;
                         tex_AddRef(s->texset[i], 1);

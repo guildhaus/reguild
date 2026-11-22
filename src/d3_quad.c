@@ -71,7 +71,7 @@ D3QNODE *d3q_MakeChild(D3QNODE *parent, float *min, float *max)
 
 char d3q_GetBounds(D3OBJECT *obj, float *min, float *max)
 {
-    D3BOXVERT *v;
+    D3VERTEX *v;
     int i;
 
     if (!(obj->stateFlags & 0x80))
@@ -217,7 +217,7 @@ D3QNODE *d3q_Create(D3OBJECT *start, unsigned int mask, unsigned int minitems, u
 }
 /* 0x458360, the 8 corners of the node's box relative to pos, rotated by m (the first one also moved by m's translation) */
 
-D3BOXVERT *d3q_BoxCorners(D3QNODE *n, float *pos, float *m)
+D3VERTEX *d3q_BoxCorners(D3QNODE *n, float *pos, float *m)
 {
     float x0 = n->min.x - pos[0];
     float y0 = n->min.y - pos[1];
@@ -261,7 +261,7 @@ void d3q_Mark(D3QNODE *n, D3OBJECT *cam, int zone)
     unsigned char r;
     unsigned int i;
     D3QITEM *it;
-    D3BOXVERT *box;
+    D3VERTEX *box;
 
     if (n) {
         box = d3q_BoxCorners(n, &cam->pos.x, &cam->matrix._11);
@@ -342,6 +342,6 @@ void d3q_Rebuild(D3OBJECT *start, D3QNODE *n)
     }
 }
 
-D3BOXVERT d3_QBox[8] = {0};  /* 0x633b30 */
+D3VERTEX d3_QBox[8] = {0};  /* 0x633b30 */
 struct MPOOL * d3_QNodePool = 0;  /* 0x633db0 */
 struct MPOOL * d3_QItemPool = 0;  /* 0x633db4 */

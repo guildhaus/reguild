@@ -1084,7 +1084,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
     float y;
     D3VECTOR4 pos;
     D3OBJECT *p;
-    D3BOXVERT *box;
+    D3VERTEX *box;
     int i;
     char found;
 
@@ -1434,7 +1434,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
 {
     D3OBJECT *light;
     D3SURF *info;
-    D3BOXVERT *verts, *box;
+    D3VERTEX *verts, *box;
     D3VECTOR4 d;                        /* the light's ray through a corner, then the point relative to the camera */
     D3VECTOR4 lpos, ldir;
     D3VECTOR4 p;                        /* the corner projected onto the ground */
@@ -1453,7 +1453,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         d3_PointToWorld(light, &light->pos, &lpos.v);
         d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
-        verts = (D3BOXVERT *)D3_OPS(info)->GetBox(obj, info, &obj->material->worldMatrix);
+        verts = (D3VERTEX *)D3_OPS(info)->GetBox(obj, info, &obj->material->worldMatrix);
         for (k = 8, box = verts; k; k--, box++) {
             if (light->objectFlags & 0x10) {
                 f = -((box->y - y) / ldir.y);

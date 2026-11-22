@@ -43,7 +43,7 @@ typedef struct D3EVENT {            /* 0x84 bytes, D3E_NEVENTS of them in D3OBJX
 
 typedef struct D3SORTENT {          /* 8 bytes, sorted by key with a radix sort (d3_RadixSort) */
     unsigned long key;
-    void *item;                     /* a D3PTRI (d3_engine), a D3SMTRI (d3_sm) */
+    void *item;                     /* a D3TRI (d3_engine; d3_sm: a height map triangle) */
 } D3SORTENT;
 
 typedef struct D3COLOR {            /* a B, G, R, A colour (passed by value) */

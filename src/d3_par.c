@@ -197,8 +197,8 @@ void par_Draw(D3PARTSYS *ps)
 {
     D3MATRIX m;
     D3PARTICLE *p;
-    D3PVERT *v, *v1, *v2, *v3;
-    D3PTRI *t;
+    D3VERTEX *v, *v1, *v2, *v3;
+    D3TRI *t;
     TSTEXTURE *tex;
     PARCOL col;
     D3VECTOR4 c;
@@ -206,7 +206,7 @@ void par_Draw(D3PARTSYS *ps)
     unsigned char fog;
     char vis;
     int i, n;
-    D3PTRI *t1;
+    D3TRI *t1;
 
     if (ps->callback && ps->callback(ps, d3_Time)) {
         d3_TriCount += ps->count * 2;
@@ -215,11 +215,11 @@ void par_Draw(D3PARTSYS *ps)
         for (i = 0; i < ps->count; i++) {
             p = &ps->particles[i];
             vis = 0;
-            t = &PAR_TRIS(ps)[i * 2];
+            t = &ps->polys[i * 2];
             if ((p->flags & 1) && p->a > 0) {
                 rz = 0.0f;
                 half = p->size * 0.5f;
-                v = &PAR_VERTS(ps)[i * 4];
+                v = &ps->points[i * 4];
                 c.x = (m._11 * p->pos.x) + m._31 * p->pos.z + m._21 * p->pos.y + m._41;
                 c.y = (m._12 * p->pos.x) + m._32 * p->pos.z + m._22 * p->pos.y + m._42;
                 c.z = (m._13 * p->pos.x) + m._33 * p->pos.z + m._23 * p->pos.y + m._43;
@@ -254,12 +254,12 @@ void par_Draw(D3PARTSYS *ps)
                 t[0].v[0] = v;
                 t[0].v[1] = v1;
                 t[0].v[2] = v2;
-                t[0].src = d3_ParUV0;
+                t[0].uv = d3_ParUV0;
                 t[0].tex = tex;
                 t1->v[0] = v;   /* through t1: needed for VC6's order (the tex test after this store) */
                 t[1].v[1] = v3;
                 t[1].v[2] = v1;
-                t[1].src = d3_ParUV1;
+                t[1].uv = d3_ParUV1;
                 t[1].tex = tex;
                 if (tex && (PAR_TEXBITS(tex) & 1)) {
                     col.c.r = p->r * p->a >> 8;
@@ -308,7 +308,7 @@ void par_Draw(D3PARTSYS *ps)
         }
         n = min(ps->count * 2, d3_Cfg.maxpolys - (int)d3_SortCount);
         if (d3_Hardware) {
-            for (t = PAR_TRIS(ps); n > 0; n--, t++) {
+            for (t = ps->polys; n > 0; n--, t++) {
                 if (t->flags & 0x80) {
                     TSTEXTURE *tt = t->tex;
                     d3_SortPtr->item = t;
@@ -323,12 +323,12 @@ void par_Draw(D3PARTSYS *ps)
                 }
             }
         } else {
-            v = PAR_VERTS(ps);
+            v = ps->points;
             for (i = 0; i < ps->count * 4; i++, v++) {
                 if (v->flags & 0x80)
                     v->c.r = (unsigned char)((v->c.b * 0.11f + v->c.r * 0.3f + v->c.g * 0.59f) * 0.25f);
             }
-            for (t = PAR_TRIS(ps); n > 0; n--, t++) {
+            for (t = ps->polys; n > 0; n--, t++) {
                 if (t->flags & 0x80) {
                     d3_SortPtr->item = t;
                     t->clip = &d3_ClipNone;
