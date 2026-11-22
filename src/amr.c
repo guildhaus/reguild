@@ -5877,7 +5877,7 @@ int ai_ExecuteDarkCorner(AICHAR *p, AIARG *s1, AIARG *s2)
 int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     int lim[4];
-    G8OFFER rec[3];
+    ORDCREDIT rec[3];
     AIDEC d;
     AIBLD *own, *b;
     int i, n, h, j, best;
@@ -5931,7 +5931,7 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
             return 0;
         gv_GetTableRecord(0xe, &d);
         for (i = 0; i < n; i++)
-            ((float *)lim)[i + 1] = (float)(d.cur - 2) / rec[i].c * (rec[i].b * 0.14285715f) * rec[i].a;
+            ((float *)lim)[i + 1] = (float)(d.cur - 2) / rec[i].interest * (rec[i].term * 0.14285715f) * rec[i].amount;
         m = 0.0f;
         best = -1;
         for (i = 0; i < n; i++) {
@@ -5946,9 +5946,9 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         o1->ref = b->id;
         o1->arg = own->id;
         o2->kind = 0x14;
-        o2->ref = rec[best].a;
-        o2->arg = rec[best].b;
-        o2->arg2 = rec[best].c;
+        o2->ref = rec[best].amount;
+        o2->arg = rec[best].term;
+        o2->arg2 = rec[best].interest;
         return 0x33;
     }
     if (o1->kind != 0x12)
@@ -5969,8 +5969,8 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         return 0;
     gv_GetTableRecord(0xe, &d);
     for (i = 0; i < n; i++)
-        ((float *)lim)[i + 1] = (unsigned int)rec[i].a > o1->arg
-            ? (float)(d.cur - 2) / rec[i].c * (rec[i].b * 0.14285715f) * rec[i].a : -1.0f;
+        ((float *)lim)[i + 1] = (unsigned int)rec[i].amount > o1->arg
+            ? (float)(d.cur - 2) / rec[i].interest * (rec[i].term * 0.14285715f) * rec[i].amount : -1.0f;
     m = 0.0f;
     best = -1;
     for (i = 0; i < n; i++) {
@@ -5985,9 +5985,9 @@ int ai_DecideTakeCredit(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     o1->ref = b->id;
     o1->arg = -1;
     o2->kind = 0x14;
-    o2->ref = rec[best].a;
-    o2->arg = rec[best].b;
-    o2->arg2 = rec[best].c;
+    o2->ref = rec[best].amount;
+    o2->arg = rec[best].term;
+    o2->arg2 = rec[best].interest;
     return 0x33;
 }
 /* 0x49f370, execute callback 0x33: the AI credit ("AI Kredit"): message 0x23 from the lender's building s1->unk04

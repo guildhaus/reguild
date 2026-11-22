@@ -7692,7 +7692,7 @@ void ai_NewCreditWindow(AIBLD *bank)
     int handle;
 
     memset(rows, 0, sizeof(rows));
-    gm_GetCreditOffers(bank, &ai_Chars[ai_PlayerId], 3, (int *)offers);
+    gm_GetCreditOffers(bank, &ai_Chars[ai_PlayerId], 3, offers);
     n = 0;
     for (i = 0; i < 3; i++) {
         if (offers[i].amount > 0) {

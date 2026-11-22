@@ -3606,7 +3606,7 @@ void main_RoundReport(void)
             b = gm_BuildNext();
         }
         /* the interest of the loans the player's banks gave */
-        nrow = gm_BuildingEvents(ai_PlayerId, 0, 0xffff, (int *)loans);
+        nrow = gm_BuildingEvents(ai_PlayerId, 0, 0xffff, loans);
         j = 0;
         v = 0;
         if (nrow > 0) {
@@ -3649,7 +3649,7 @@ void main_RoundReport(void)
         if (wageCost != 0)
             io_PrintText(0x204a, wageCost);
         /* the interest of the player's own loans */
-        j = gm_CreditEvents(ai_PlayerId, 0, (int *)loans);
+        j = gm_CreditEvents(ai_PlayerId, 0, loans);
         iv = 0;
         k = 0;
         if (0 < j) {

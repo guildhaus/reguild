@@ -122,7 +122,7 @@ int gm_BuildingKindCost(struct AICHAR *c, int kind);  /* 0x509dc0 */
 int gm_SumListAmounts(void *list, unsigned char p);  /* 0x509e30 */
 int gm_CharCurrency(struct AICHAR *c, char p);  /* 0x509ee0 */
 struct AICHAR *gm_ObjectOwnerChar(struct AIOBJ *o);  /* 0x509ff0 */
-int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt, int *out);  /* 0x50a250 */
+struct ORDCREDIT; int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt, struct ORDCREDIT *out);  /* 0x50a250 */
 int gm_ExpectedDeathAge(struct AICHAR *c);  /* 0x4fc7a0 */
 int gm_MayTakeJob(int k, int c);  /* 0x5020e0 */
 void gm_SellBuilding(int a, int b, int c, int d, int e);  /* 0x502fd0 */
@@ -221,8 +221,8 @@ int gm_CharMoney(int c);  /* 0x509f20 */
 int gm_GoodPicture(struct AIOBJ *o);  /* 0x502570, the string-table number (0x60e + n) of the good's picture, -1 when none */
 int gm_ResearchClass(int k, int *out);  /* 0x50b090 */
 int gm_DonationRank(int c, int d);  /* 0x50b170 */
-int gm_CreditEvents(int c, struct AIBLD *bld, int *out);  /* 0x50a150 */
-int gm_BuildingEvents(unsigned owner, int b, int c, int *out);  /* 0x50a1c0 */
+struct HELOAN; int gm_CreditEvents(int c, struct AIBLD *bld, struct HELOAN **out);  /* 0x50a150 */
+int gm_BuildingEvents(unsigned owner, struct AIBLD *b, int c, struct HELOAN **out);  /* 0x50a1c0 */
 void gm_UpdateTechTree(struct AIBLD *bld, struct AIOBJ *item);  /* 0x50b9f0 */
 int gm_TechTreeWindow(char *form, struct AIBLD *bld, struct AIOBJ *item);  /* 0x50c340 */
 int gm_Homeless(struct AICHAR *c);  /* 0x50ccd0 */

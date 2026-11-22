@@ -3134,7 +3134,7 @@ exe	0x0050a0b0	gm_ObjectOwnerNo	f3gm	3b8d14d0ae3ae758	no	byte	control=byte p1=by
 exe	0x0050a0f0	gm_ObjectBuilding	f3gm	18e9adf46b4a24ac	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a150	gm_CreditEvents	f3gm	c0c1b045fd1994ec	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0050a1c0	gm_BuildingEvents	f3gm	c04027a0f325ce1f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0050a250	gm_GetCreditOffers	f3gmt	4a8c03eb5a1b57fd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ba4062ce501b6947
+exe	0x0050a250	gm_GetCreditOffers	f3gmt	898c59b62f72f8d1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ca5d53d5bf70baf5
 exe	0x0050a640	gm_GetWorth	f3gm	90f6cd642319e4a9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4850f870d40ae10b
 exe	0x0050a6c0	gm_IsBankrupt	f3gm	ff162d644e3ed16d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e0b1e84025becc72
 exe	0x0050a810	gm_FindCharacterByMaster	f3gm	8c122a9f06b2203d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3475,7 +3475,7 @@ exe	0x00537f40	main_EndGame	main	68671b89ac5fb237	no	byte	control=byte p1=byte p
 exe	0x00538140	main_RundenBeginn	main	503e9d8c2106fe24	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005384e0	main_EndRound	main	466d32884e828536	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=379	62e27ee2a94e9159
 exe	0x00539620	main_ReplaceFigure	main	c35457202d9f562a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	af22ce15de209ae0
-exe	0x00539870	main_RoundReport	main	ce3ad463ccccf11f	yes	byte	sweep control=shape best=byte by 24 unused typedefs at the unit's start; codegens=2 compiled=48 (stopped at the goal)	82c60e7e0c195645
+exe	0x00539870	main_RoundReport	main	a52376823fc8c717	yes	byte	sweep control=shape best=byte by 20 unused typedefs at the unit's start; codegens=2 compiled=48 (stopped at the goal)	711ea45376de07c8
 exe	0x0053a250	main_UpdateFigure	main	ac7764d6864b4bd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4a8bed7379a4ae73
 exe	0x0053a450	main_UpdateFigures	main	0adcc8f2a3d2c65f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0053a520	main_SettleRound	main	3a13bbd7e2c68953	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
