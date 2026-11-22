@@ -456,8 +456,6 @@ void d3path_Tangents(D3PATHKEY *k0, D3PATHKEY *k1, D3PATHKEY *k2)
     k0->rotout.z = f * a.z;
 }
 
-#define FRAME_AT(d, i) ((D3ANIMFRAME *)((char *)(d)->frames + (i) * 0xc0))
-
 float d3_Hermite(float p0, float p1, float m0, float m1, float t);                      /* 0x453e20 */
 void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                                /* 0x458810 */
 char tex_Animate(D3OBJECT *obj, unsigned int time);                                     /* 0x460b90 */
@@ -576,17 +574,17 @@ normalize:
                                         s->flags.b[1] |= 0x10;
                                 }
                                 s->frame = limit;
-                                s->subFrame = FRAME_AT(data, limit)->count + n;
+                                s->subFrame = data->frames[limit].count + n;
                                 s->nextFrame = d3anim_NextFrame(s->flags, limit, last, limit, nframes);
                             }
                         } else {
                             s->frame--;
                             s->nextFrame = d3anim_NextFrame(s->flags, s->frame, last, limit, nframes);
-                            s->subFrame = FRAME_AT(data, s->nextFrame)->count + n;
+                            s->subFrame = data->frames[s->nextFrame].count + n;
                         }
                     }
                 } else {
-                    n = FRAME_AT(data, s->frame)->count;
+                    n = data->frames[s->frame].count;
                     if (s->subFrame >= n) {
                         if (s->frame + 1 < limit) {
                             s->frame++;
@@ -620,7 +618,7 @@ normalize:
                 }
                 if (s->flags.b[8] & 4) {
                     D3VECTOR4 out;
-                    n = FRAME_AT(data, s->frame)->count;
+                    n = data->frames[s->frame].count;
                     half = n / 2;
                     if (s->subFrame >= 0 && s->subFrame < n)
                         half = s->subFrame;
@@ -634,9 +632,9 @@ normalize:
                 if (!done) {
                     if (s->subFrame < 0)
                         goto normalize;
-                    if (s->subFrame >= FRAME_AT(data, s->frame)->count && !(s->flags.b[1] & 2))
+                    if (s->subFrame >= data->frames[s->frame].count && !(s->flags.b[1] & 2))
                         goto normalize;
-                    if (s->subFrame >= FRAME_AT(data, s->nextFrame)->count && (s->flags.b[1] & 2))
+                    if (s->subFrame >= data->frames[s->nextFrame].count && (s->flags.b[1] & 2))
                         goto normalize;
                 }
                 if (data->relative)
@@ -659,12 +657,12 @@ normalize:
                                 s->attachPos.y = att->pos.y;
                                 s->attachPos.z = att->pos.z;
                             }
-                            t = (float)s->subFrame / FRAME_AT(data, s->frame)->count;
-                            d3_Lerp3(&FRAME_AT(data, s->frame)->bone[s->attachBone].pos,
-                                         &FRAME_AT(data, s->nextFrame)->bone[s->attachBone].pos, t, &v.v);
-                            w.x = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.x - v.x;
-                            w.y = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.y - v.y;
-                            w.z = FRAME_AT(data, s->attachFirst)->bone[s->attachBone].pos.z - v.z;
+                            t = (float)s->subFrame / data->frames[s->frame].count;
+                            d3_Lerp3(&data->frames[s->frame].bone[s->attachBone].pos,
+                                         &data->frames[s->nextFrame].bone[s->attachBone].pos, t, &v.v);
+                            w.x = data->frames[s->attachFirst].bone[s->attachBone].pos.x - v.x;
+                            w.y = data->frames[s->attachFirst].bone[s->attachBone].pos.y - v.y;
+                            w.z = data->frames[s->attachFirst].bone[s->attachBone].pos.z - v.z;
                             d3_DirToWorld(obj, &w.v, &v.v);
                             out.x = v.z * att->matrix._31 + v.y * att->matrix._21 + v.x * att->matrix._11;
                             out.y = v.z * att->matrix._32 + v.y * att->matrix._22 + v.x * att->matrix._12;
@@ -688,7 +686,7 @@ normalize:
                         s->flags.b[1] |= 0x20;
                 }
                 if (over && !released)
-                    shown = FRAME_AT(s->data, s->frame);
+                    shown = &s->data->frames[s->frame];
             }
         }
     }
@@ -900,7 +898,7 @@ stepped:
                 D3ANIMSLOT *main = d3anim_GetMainSlot(obj->info);
 
                 if (main)
-                    f = FRAME_AT(main->data, main->frame);
+                    f = &main->data->frames[main->frame];
             }
             d3_RelightObjectFrame(obj, f);
         }

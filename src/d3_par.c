@@ -96,7 +96,9 @@ void par_Delete(D3PARTSYS *ps)
     mem_Free(ps);
 }
 
-/* particle at byte offset j (the original walks the array with an explicit offset, do-while loop) */
+/* the particle at byte offset j, j a multiple of sizeof(D3PARTICLE). @original why: par_Create's init loop
+   addresses [particles + j + field] with the base first; ps->particles[i] (any operand order, i or j as the index)
+   gives [j + particles + field] (shape, 22 ins), a D3PARTICLE * walk is draft. */
 #define PAR_AT(ps, j) ((D3PARTICLE *)((char *)(ps)->particles + (j)))
 
 /* 0x455830, allocates a particle system for count particles with texture tex, initializes every particle
@@ -150,7 +152,7 @@ D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *
                     PAR_AT(ps, j)->frame = 0;
                     PAR_AT(ps, j)->color = 0xffffffff;
                     i++;
-                    j += 0x54;
+                    j += sizeof(D3PARTICLE);
                 } while (i < ps->count);
             }
             ps->obj.flags |= 8;
