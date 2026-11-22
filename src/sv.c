@@ -1187,7 +1187,7 @@ struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, uns
 void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */                     /* 0x476860 */
 void d2_PlaceWindow(int win, unsigned char flags);  /* 0x4756b0 */
 struct D3SKY; struct D3SKYLAYER; struct D3VECTOR; int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);  /* 0x453e80 */
-char * cm_CharWeapon(struct AICHAR *c);                     /* 0x4cda50 */
+AIWEAPON *cm_CharWeapon(struct AICHAR *c);                     /* 0x4cda50 */
 
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: one push, no player slot */
 /* 0x522f10, the city / time panel (the big panel at the top of the screen), only while the player's character
@@ -1719,7 +1719,7 @@ int sv_CharStateIcons(AICHAR *c, int *out)
     AIJOB *job;
     unsigned short *word;
     int n, i, *p;
-    int *q;
+    AIWEAPON *w;
 
     job = c->job;
     n = 0;
@@ -1738,9 +1738,9 @@ int sv_CharStateIcons(AICHAR *c, int *out)
             }
         }
     }
-    q = (int *)cm_CharWeapon(c);
-    if (q != 0 && *q != 0)
-        out[n++] = *q + 0xdf;
+    w = cm_CharWeapon(c);
+    if (w != 0 && w->id != 0)
+        out[n++] = w->id + 0xdf;
     return n;
 }
 

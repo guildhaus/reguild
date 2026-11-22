@@ -8214,7 +8214,7 @@ clicked:
                     if (ai_ProdGoods[k].check == -1 || d2_GetObjValue(ai_ProdGoods[k].check) == 0)
                         continue;
                     if (ai_FindWeaponRecord(ai_ProdGoods[k].good) != 0) {
-                        if (((AIWEAPON *)cm_CharWeapon(ch))->id != 0) {
+                        if (cm_CharWeapon(ch)->id != 0) {
                             /* the character holds a weapon already */
                             sv_MessageBox((intptr_t)txt_Ptrs[0x19df], 4);
                             continue;

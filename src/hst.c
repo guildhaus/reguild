@@ -1657,10 +1657,6 @@ int ai_CommandBreakGuildSeats(G12ROW *row, int slot, char *fmt)
 }
 
 
-typedef struct G12REC10 {               /* 0x5c bytes, one of the ten records 0x4cd9d0 searches (ai_WeaponRecordData) */
-    int id;                             /* 0x00, the id 0x4cd9d0 matches */
-    char pad04[0x58];
-} G12REC10;
 void cm_SendGoodsRecord(void *p, unsigned char k);                                /* 0x4c56d0, defined elsewhere */
 
 /* 0x4b11e0, text command "-PLUS_<kind>_n" / "-MINUS_<kind>_n" (kind WAFFEN / BUECHER / ENDPRODUKTE): scales
@@ -1709,7 +1705,7 @@ int ai_CommandDemand(G12ROW *row, int slot, char *fmt)
         for (i = 0; i < 0x55; i++) {
             p = &gm_StockBlocks[ai_OwnPlayer].goods[i];
             if (p->item != 0 && p->amount != 0) {
-                G12REC10 *r = (G12REC10 *)ai_FindWeaponRecord(p->item);
+                AIWEAPON *r = ai_FindWeaponRecord(p->item);
 
                 if (r != 0 && r->id != 0) {
                     e = gm_StockBlocks[ai_OwnPlayer].goods[i];

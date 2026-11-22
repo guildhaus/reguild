@@ -455,10 +455,10 @@ int cm_LobbyJoin(CMLOBBYPLAYER *p);  /* 0x4cd760 */
 int cm_LobbyUpdatePlayer(CMLOBBYPLAYER *p);  /* 0x4cd7c0 */
 int cm_LobbyRequestPlayer(int id);  /* 0x4cd820 */
 int cm_ExLobby(G17MSG *m, G17STAT *s);  /* 0x4cd870 */
-char *ai_FindWeaponRecord(int id);  /* 0x4cd9d0 */
-char *cm_CharWeaponAny(struct AICHAR *c);  /* 0x4cda00 */
-char *cm_CharWeapon(struct AICHAR *c);  /* 0x4cda50 */
-char *cm_CharWeaponItem(struct AICHAR *c);  /* 0x4cdac0 */
+AIWEAPON *ai_FindWeaponRecord(int id);  /* 0x4cd9d0 */
+AIWEAPON *cm_CharWeaponAny(struct AICHAR *c);  /* 0x4cda00 */
+AIWEAPON *cm_CharWeapon(struct AICHAR *c);  /* 0x4cda50 */
+struct AIOBJ *cm_CharWeaponItem(struct AICHAR *c);  /* 0x4cdac0 */
 void cm_DiscardWeapons(struct AICHAR *c);  /* 0x4cdb20 */
 char cm_FightWeaponLoss(struct AICHAR *c);  /* 0x4cdb80 */
 float cm_FightStrength(struct AICHAR *c);  /* 0x4cdcf0 */
@@ -477,7 +477,7 @@ char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);        
 float gm_HealthRatio(struct AICHAR *c);  /* 0x4fc8e0, f3gm.h */
 float gm_GetSkill(struct AICHAR *c, int skill);  /* 0x504ec0 */
 int he_ShowNews(int pid, int fl, char *text, int unused, int ev, char *text2);  /* 0x53dda0 */
-extern char ai_WeaponRecordData[];  /* 0x60c7c0 */
+extern AIWEAPON ai_WeaponRecords[10];  /* 0x60c7c0 */
 extern int cm_LobbyChatCount;  /* 0x6f0cd8 */
 extern int cm_LobbyChatPos;  /* 0x6f0cdc */
 extern G28REC *cm_FightRecord;  /* 0x6f0d04, the fight being run */

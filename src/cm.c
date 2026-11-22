@@ -65,7 +65,6 @@ extern GAPDATA full_data_602568[];
 #define G17_S(m, o) (*(short *)&(m).data[o])
 /* the block at 0x936420 is 0x24 bytes: the count then the eight player states at +4 (one object, so the
    0x24-byte memset / memcpy in 0x4cd580 and 0x4cdxx cannot run over a neighbour that LINK placed there) */
-#define ai_WeaponRecords ((AIWEAPON *)ai_WeaponRecordData)  /* 0x60c7c0, the ten 0x5c-byte weapon records ai_FindWeaponRecord searches (a view) */
 
 #include "f3init.h"
 #include "sv.h"
@@ -5176,13 +5175,13 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     }
     title = m->hire.title;
     if (title != 2 && title != 1 && title != 0x10 && title != 0xf && title != 0x14 && title != 0x13) {
-        w = (AIWEAPON *)cm_CharWeapon(c);
+        w = cm_CharWeapon(c);
         if (w->id != 0) {
             gm_TakeObjekt(c->netId, w->id, 1);
             cm_UpdateHandObject(c);
         }
     } else {
-        w = (AIWEAPON *)cm_CharWeapon(c);
+        w = cm_CharWeapon(c);
         if (w->id == 0) {
             gm_CreateObject(c->netId, 0x154, 1);
             cm_UpdateHandObject(c);

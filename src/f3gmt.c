@@ -6922,7 +6922,7 @@ int gm_CharCurrency(AICHAR *c, char p)
 }
 
 /* ---- layout 2026-10-23: the character / building worth helpers 0x509f20 .. 0x50af00 (ROUGH drafts) ---- */
-char * ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
+AIWEAPON *ai_FindWeaponRecord(int id);                     /* 0x4cd9d0 */
 int gm_EquipmentValue(struct AIBLD *b, int level);
 int gm_GetWorth(unsigned short id);
 int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);

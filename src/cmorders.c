@@ -37,7 +37,6 @@ extern GAPDATA full_data_602568[];
 #define G17_S(m, o) (*(short *)&(m).data[o])
 /* the block at 0x936420 is 0x24 bytes: the count then the eight player states at +4 (one object, so the
    0x24-byte memset / memcpy in 0x4cd580 and 0x4cdxx cannot run over a neighbour that LINK placed there) */
-#define ai_WeaponRecords ((AIWEAPON *)ai_WeaponRecordData)  /* 0x60c7c0, the ten 0x5c-byte weapon records ai_FindWeaponRecord searches (a view) */
 
 #include "f3init.h"
 #include "sv.h"
@@ -127,7 +126,6 @@ typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) 
     HESPYREPORT report;
 } CMSPYREPORT;
 
-extern char ai_WeaponRecordData[920];
 extern float cm_DefenseFactor;
 extern int cm_FightOwner;
 extern int cm_FightView;
@@ -233,7 +231,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             c = gm_FindChar(p->charId);
         else
             c = cm_FindFighter(p->charId);
-        k = (AIWEAPON *)cm_CharWeapon(c);
+        k = cm_CharWeapon(c);
         if ((c == 0 || c->health == 0) && k != 0) {
             p->charId = -1;
             p->state = 0;
@@ -283,7 +281,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                 goto done;
             }
             if (k->kind == 1 || k->kind == 2) {
-                item = (AIOBJ *)cm_CharWeaponItem(c);
+                item = cm_CharWeaponItem(c);
                 if (item != 0 && item->usesLeft <= 0) {
                     m.charId = c->netId;
                     m.state = 0;
@@ -362,7 +360,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                             st = e->state;
                             e->orderSlot = -1;
                             if (st == 0) {
-                                item = (AIOBJ *)cm_CharWeaponItem(x);
+                                item = cm_CharWeaponItem(x);
                                 if (item != 0 && item->usesLeft > 0) {
                                     cm_SendSetField(c->netId, 0x1c8, 4, 0x20000000, 0);
                                     e->orderSlot = cm_OrderAttack(other, x, c, 0, 0);

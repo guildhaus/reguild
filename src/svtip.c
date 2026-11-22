@@ -741,7 +741,7 @@ int ai_OpenItemTooltip(int idx)
     int view;
     AIGOOD *item;
     float factor;
-    char *w;
+    AIWEAPON *w;
     AIBLD *bld;
     AICHAR *c;
     AICHAR *master;
@@ -754,7 +754,7 @@ int ai_OpenItemTooltip(int idx)
 
     w = ai_FindWeaponRecord(idx);
     item = ai_Goods + idx;
-    if (w != 0 && ((AIWEAPON *)w)->id != 0)
+    if (w != 0 && w->id != 0)
         view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Objekte_Waffen");
     else
         view = d2_OpenForm(0, 0, "ToolTip\\ToolTip_Objekte_Handelsgut");

@@ -1,7 +1,7 @@
 /* cmfight.c -- the fight of a raid / brawl scene (0x4cd9d0..0x4d8b50): weapons and their records, bombs and
    grenades, the portraits and character info windows, the orders and the fight AI, the actions (hit, bombs, death),
    the loot and the fight dialogs, the fight loop. Split from cm (data layout s12): its own .data block
-   ai_WeaponRecordData 0x60c7c0 .. cm_FightButton 0x60cb68 after cm's last string ("%s %s" of cm_LobbyAddChat), then its
+   ai_WeaponRecords 0x60c7c0 .. cm_FightButton 0x60cb68 after cm's last string ("%s %s" of cm_LobbyAddChat), then its
    string run (first user ai_FindWeaponRecord); its .bss 0x6f0ce0..0x6f0d68; its common group 0x930380..0x935da0
    (cm_PointList .. cm_CharInfoWins, read only by these functions) between the scene's group and cm's. The sync
    values sent by address are block locals (cm_AddFieldValues in cm stays unknown here; byte both ways).
@@ -42,7 +42,6 @@ extern GAPDATA full_data_602568[];
 #define G17_S(m, o) (*(short *)&(m).data[o])
 /* the block at 0x936420 is 0x24 bytes: the count then the eight player states at +4 (one object, so the
    0x24-byte memset / memcpy in 0x4cd580 and 0x4cdxx cannot run over a neighbour that LINK placed there) */
-#define ai_WeaponRecords ((AIWEAPON *)ai_WeaponRecordData)  /* 0x60c7c0, the ten 0x5c-byte weapon records ai_FindWeaponRecord searches (a view) */
 
 #include "f3init.h"
 #include "sv.h"
@@ -133,7 +132,18 @@ typedef struct CMSPYREPORT {            /* an AIOBJ of kind 0xca (a spy report) 
     HESPYREPORT report;
 } CMSPYREPORT;
 
-char ai_WeaponRecordData[920] = { 84, 1, 0, 0, 120, 5, 20, 0, 1, 4, 1, 0, 0, 0, -96, 66, 2, 107, 97, 109, 112, 102, 47, 115, 116, 105, 99, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 17, 0, 0, 0, 0, 0, 0, 86, 1, 0, 0, 95, 10, 15, 0, 1, 4, 1, 0, 0, 0, -96, 66, 5, 107, 97, 109, 112, 102, 47, 115, 116, 114, 101, 105, 99, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 17, 0, 0, 0, 0, 0, 0, 88, 1, 0, 0, 80, 20, 40, 0, 1, 4, 1, 0, 0, 0, -96, 66, 10, 107, 97, 109, 112, 102, 47, 104, 105, 101, 98, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 101, 17, 0, 0, 0, 0, 0, 0, 114, 1, 0, 0, 110, 5, 10, 0, 1, 5, 0, 0, 0, 0, -96, 66, 10, 107, 97, 109, 112, 102, 47, 115, 116, 105, 99, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 17, 0, 0, 0, 0, 0, 0, 110, 1, 0, 0, 100, 5, 10, 0, 1, 5, 0, 0, 0, 0, -96, 66, 10, 107, 97, 109, 112, 102, 47, 115, 116, 105, 99, 104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 103, 17, 0, 0, 0, 0, 0, 0, 116, 1, 0, 0, 100, 0, 30, 1, 2, 6, 0, 0, 0, 0, 72, 67, 2, 107, 97, 109, 112, 102, 47, 119, 101, 114, 102, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 104, 17, 0, 0, 2, 0, 0, 0, 118, 1, 0, 0, 90, 0, 30, 1, 1, 6, 0, 0, 0, 0, 72, 67, 2, 107, 97, 109, 112, 102, 47, 119, 101, 114, 102, 101, 110, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 105, 17, 0, 0, 2, 0, 0, 0, 94, 1, 0, 0, 60, 5, 20, 1, 1, 3, 0, 0, 0, 0, -56, 67, 5, 107, 97, 109, 112, 102, 47, 115, 99, 104, 105, 101, 115, 115, 101, 110, 95, 112, 105, 115, 116, 111, 108, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 106, 17, 0, 0, 1, 0, 0, 0, 96, 1, 0, 0, 70, 10, 30, 1, 1, 3, 0, 0, 0, 0, 22, 68, 5, 107, 97, 109, 112, 102, 47, 115, 99, 104, 105, 101, 115, 115, 101, 110, 95, 97, 114, 109, 98, 114, 117, 115, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 107, 17, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, -106, 2, 8, 0, 1, 5, 1, 0, 0, 0, -96, 66, 2, 107, 97, 109, 112, 102, 47, 115, 99, 104, 108, 97, 103, 101, 110, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 17, 0, 0, 0, 0, 0, 0 };  /* 0x60c7c0, the ten 0x5c-byte records ai_FindWeaponRecord searches (G12REC10, hst.c); the last has id 0, the fallback */
+AIWEAPON ai_WeaponRecords[10] = {  /* 0x60c7c0, the ten records ai_FindWeaponRecord searches; the last has id 0, the fallback */
+    { 0x154, 120, 5, 20, 0, 1, 4, 1, 0, 80.0f, 2, "kampf/stich", 0x1163, 0 },
+    { 0x156, 95, 10, 15, 0, 1, 4, 1, 0, 80.0f, 5, "kampf/streich", 0x1164, 0 },
+    { 0x158, 80, 20, 40, 0, 1, 4, 1, 0, 80.0f, 10, "kampf/hieb", 0x1165, 0 },
+    { 0x172, 110, 5, 10, 0, 1, 5, 0, 0, 80.0f, 10, "kampf/stich", 0x1166, 0 },
+    { 0x16e, 100, 5, 10, 0, 1, 5, 0, 0, 80.0f, 10, "kampf/stich", 0x1167, 0 },
+    { 0x174, 100, 0, 30, 1, 2, 6, 0, 0, 200.0f, 2, "kampf/werfen", 0x1168, 2 },
+    { 0x176, 90, 0, 30, 1, 1, 6, 0, 0, 200.0f, 2, "kampf/werfen", 0x1169, 2 },
+    { 0x15e, 60, 5, 20, 1, 1, 3, 0, 0, 400.0f, 5, "kampf/schiessen_pistole", 0x116a, 1 },
+    { 0x160, 70, 10, 30, 1, 1, 3, 0, 0, 600.0f, 5, "kampf/schiessen_armbrust", 0x116b, 1 },
+    { 0x0, 150, 2, 8, 0, 1, 5, 1, 0, 80.0f, 2, "kampf/schlagen1", 0x1163, 0 }
+};
 float cm_DefenseFactor = 1.0f;  /* 0x60cb58 */
 int cm_FightOwner = -1;  /* 0x60cb5c */
 int cm_FightView = -1;  /* 0x60cb60 */
@@ -186,24 +196,24 @@ int cm_FightForm = 0;  /* 0x6f0d64 */
 
 /* 0x4cd9d0, the weapon record (AIWEAPON) of the ten at ai_WeaponRecords with the goods item id id, 0: none */
 
-char *ai_FindWeaponRecord(int id)
+AIWEAPON *ai_FindWeaponRecord(int id)
 {
     int i = 0;
     AIWEAPON *p;
 
-    for (p = ai_WeaponRecords; (int)p < (int)(ai_WeaponRecords + 10); p++) {
+    for (p = ai_WeaponRecords; (intptr_t)p < (intptr_t)(ai_WeaponRecords + 10); p++) {
         if (p->id == id)
-            return (char *)(ai_WeaponRecords + i);
+            return ai_WeaponRecords + i;
         i++;
     }
     return 0;
 }
 /* 0x4cda00, the first weapon record (ai_FindWeaponRecord) of the kind 5 items of the character c's inventory */
 
-char *cm_CharWeaponAny(AICHAR *c)
+AIWEAPON *cm_CharWeaponAny(AICHAR *c)
 {
     AIOBJ *q;
-    char *r;
+    AIWEAPON *r;
 
     for (q = gm_Query(c->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
         r = ai_FindWeaponRecord(q->id);
@@ -214,34 +224,34 @@ char *cm_CharWeaponAny(AICHAR *c)
 }
 /* 0x4cda50, as cm_CharWeaponAny; a record of kind 1 / 2 whose item has nothing left (AIOBJ.usesLeft) is not taken */
 
-char *cm_CharWeapon(AICHAR *c)
+AIWEAPON *cm_CharWeapon(AICHAR *c)
 {
     AIOBJ *q;
     AIWEAPON *r;
 
     for (q = gm_Query(c->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
-        r = (AIWEAPON *)ai_FindWeaponRecord(q->id);
+        r = ai_FindWeaponRecord(q->id);
         if (r != 0) {
             if ((r->kind == 1 || r->kind == 2) && q->usesLeft <= 0)
                 return ai_FindWeaponRecord(0);
-            return (char *)r;
+            return r;
         }
     }
     return ai_FindWeaponRecord(0);
 }
 /* 0x4cdac0, the inventory entry (AIOBJ, not its weapon record) of the search cm_CharWeapon does, 0: none */
 
-char *cm_CharWeaponItem(AICHAR *c)
+AIOBJ *cm_CharWeaponItem(AICHAR *c)
 {
     AIOBJ *q;
     AIWEAPON *r;
 
     for (q = gm_Query(c->inventory, 1, 5); q != 0; q = gm_QueryNext()) {
-        r = (AIWEAPON *)ai_FindWeaponRecord(q->id);
+        r = ai_FindWeaponRecord(q->id);
         if (r != 0) {
             if ((r->kind == 1 || r->kind == 2) && q->usesLeft <= 0)
                 return 0;
-            return (char *)q;
+            return q;
         }
     }
     return 0;
@@ -284,7 +294,7 @@ char cm_FightWeaponLoss(AICHAR *ch)
             if (c->bld != 0 && c->bld->owner != 0xffff) {
                 owner = &ai_Chars[c->bld->owner];
                 if (owner->kind == 6 || owner->kind == 7) {
-                    w = (AIWEAPON *)cm_CharWeapon(c);
+                    w = cm_CharWeapon(c);
                     if (w->id != 0) {
                         txt_Format(buf, 0x1bca, w->id * 2 + 0x9a8, c->id, c->bld);
                         he_ShowNews(owner->netId, -1, buf, 0, 0x5f2, 0);
@@ -311,7 +321,7 @@ float cm_FightStrength(AICHAR *c)
     AIWEAPON *w;
 
     skill = gm_GetSkill(c, 3);
-    w = (AIWEAPON *)cm_CharWeapon(c);
+    w = cm_CharWeapon(c);
     if (w != 0) {
         switch (w->id) {
         case 0x158:
@@ -349,7 +359,7 @@ void cm_UpdateHandObject(AICHAR *ch)
     AIWEAPON *w;
     AIGOOD *g;
 
-    w = (AIWEAPON *)cm_CharWeapon(ch);
+    w = cm_CharWeapon(ch);
     if (w != 0 && w->id != 0) {
         g = &ai_Goods[w->id];
         if (c->scene == 0)
@@ -553,7 +563,7 @@ int cm_UpdateBombs()
     int i, j, t, amt;
 
     cnt = 0;
-    w = (AIWEAPON *)ai_FindWeaponRecord(0x174);
+    w = ai_FindWeaponRecord(0x174);
     for (i = 0; i < 32; i++) {
         rec = &cm_Bombs[i];
         if (rec->obj == 0)
@@ -698,7 +708,7 @@ int cm_UpdateGrenades()
 
     g = (struct D3SM *)d3_DefaultScene->hmap;
     cnt = 0;
-    w = (AIWEAPON *)ai_FindWeaponRecord(0x176);
+    w = ai_FindWeaponRecord(0x176);
     for (i = 0; i < 32; i++) {
         rec = &cm_Grenades[i];
         if (rec->obj == 0)
@@ -991,7 +1001,7 @@ void cm_UpdateSceneChars()
                 c->health = 100;
                 continue;
             }
-            w = (AIWEAPON *)ai_FindWeaponRecord(0x16e);
+            w = ai_FindWeaponRecord(0x16e);
             n = cm_Random(w->dmgMax - w->dmgMin) + w->dmgMin;
             cm_SendDamage(c->netId, (int)(n * c->f01c * 0.01), c->health);
         }
@@ -1000,7 +1010,7 @@ void cm_UpdateSceneChars()
         c = ai_SceneChars[i];
         if (c == 0)
             continue;
-        w = (AIWEAPON *)cm_CharWeapon(c);
+        w = cm_CharWeapon(c);
         if (w != 0 && w->id == 0x172) {
             fl = 0;
             if (cm_CutChar != 0)
@@ -1156,7 +1166,7 @@ void cm_UpdatePointer()
         if (c != 0 && c->selected != 0) {
             if (ai_LedSelectBits(cm_CutChar->id, c) & 0x800) {
                 if (kb_Down[0x36] == 0) {
-                    w = (AIWEAPON *)cm_CharWeapon(c);
+                    w = cm_CharWeapon(c);
                     if (w != 0) {
                         if (w->id == 0x160)
                             cur = 0x18;
@@ -1245,7 +1255,7 @@ void cm_UpdatePortraits()
             d2_SetObjValue(cm_Portraits[i].portrait, 0);
         txt_Format(buf, (intptr_t)"%1N1 %i%", cm_Portraits[i].c->id, (int)(gm_HealthRatio(cm_Portraits[i].c) * 100.0));
         d2_SetObjText(cm_Portraits[i].text, buf);
-        w = (AIWEAPON *)cm_CharWeaponAny(cm_Portraits[i].c);
+        w = cm_CharWeaponAny(cm_Portraits[i].c);
         if (w == 0 || w->id == 0)
             continue;
         if (cm_Portraits[i].weaponPic == -1 || d2_Objs[cm_Portraits[i].weaponPic].pic != w->id + 0xdf) {
@@ -1256,7 +1266,7 @@ void cm_UpdatePortraits()
             d2_ScaleObject(cm_Portraits[i].weaponPic, -2);
         }
         if (cm_Portraits[i].countText != -1 && (w->kind == 1 || w->kind == 2)) {
-            item = (AIOBJ *)cm_CharWeaponItem(cm_Portraits[i].c);
+            item = cm_CharWeaponItem(cm_Portraits[i].c);
             if (item != 0) {
                 sprintf(buf, "%i", item->usesLeft);
                 d2_SetObjText(cm_Portraits[i].countText, buf);
@@ -1296,7 +1306,7 @@ void cm_BuildPortraits()
             continue;
         cm_Portraits[n].frame = d2_CreatePicObj(x + 0x18, 0xf, 0x5da);
         cm_Portraits[n].win = d2_CreateWindow(x, 0, 0x80, 0x4b, 0x110);
-        w = (AIWEAPON *)cm_CharWeapon(c);
+        w = cm_CharWeapon(c);
         if (w != 0 && w->id != 0) {
             cm_Portraits[n].weaponPic = d2_WinOpenPic(0x54, 0xf, w->id + 0xdf, d2_LastWindow);
             d2_ScaleObject(cm_Portraits[n].weaponPic, -2);
@@ -1391,7 +1401,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
 
     if (ch == 0)
         return -1;
-    w = (AIWEAPON *)cm_CharWeapon(c);
+    w = cm_CharWeapon(c);
     if (t == 0 || t->scene->obj == 0)
         return -1;
     if (d3_GetHeightAt(hmap, &t->scene->obj->pos, &x, &z, &y) == 0)
@@ -1408,7 +1418,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
         order.stateArg = t->netId;
         order.state = 2;
     } else if (w->id == 0x15e || w->id == 0x160) {
-        item = (AIOBJ *)cm_CharWeaponItem(c);
+        item = cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
             sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_15E]);
             return -1;
@@ -1419,7 +1429,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
         order.z = z;
         order.state = 2;
     } else if (w->id == 0x174) {
-        item = (AIOBJ *)cm_CharWeaponItem(c);
+        item = cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
             sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_174]);
             return -1;
@@ -1430,7 +1440,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
         order.z = z;
         order.state = 2;
     } else if (w->id == 0x176) {
-        item = (AIOBJ *)cm_CharWeaponItem(c);
+        item = cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0) {
             sv_SetStatusText(txt_Ptrs[TXT_WEAPON_EMPTY_176]);
             return -1;
@@ -1713,10 +1723,10 @@ struct AICHAR *cm_AddFighter(int id, char *dummy)
             cm_Fighters[i].scene->pathType = 4;
             cm_Fighters[i].scene->flags.bytes.hi |= 0x80;
             cm_UpdateHandObject(&cm_Fighters[i]);
-            w = (AIWEAPON *)cm_CharWeapon(c);
+            w = cm_CharWeapon(c);
             cm_Fighters[i].scene->walkSpeed = w->speed * 0.2857142857142857;
             sprintf(cm_Fighters[i].scene->obj->name, "cmb_%i", cm_Fighters[i].netId);
-            item = (AIOBJ *)cm_CharWeaponItem(c);
+            item = cm_CharWeaponItem(c);
             if (item != 0) {
                 if (w->kind == 2)
                     item->usesLeft = 6;
@@ -2158,7 +2168,7 @@ void cm_PlaceFighters(int *ids, char *side)
     char name[0x100];
     D3SM *sc;
     AICHAR *c;
-    int *weapon;
+    AIWEAPON *weapon;
     D3OBJECT *o;
 
     ranged = 1;
@@ -2170,8 +2180,8 @@ void cm_PlaceFighters(int *ids, char *side)
         c = cm_FindFighter(ids[i]);
         if (c == 0)
             continue;
-        weapon = (int *)cm_CharWeapon(c);
-        if (weapon != 0 && (*weapon == 0x174 || *weapon == 0x176 || *weapon == 0x15e || *weapon == 0x160))
+        weapon = cm_CharWeapon(c);
+        if (weapon != 0 && (weapon->id == 0x174 || weapon->id == 0x176 || weapon->id == 0x15e || weapon->id == 0x160))
             sprintf(name, "dummy_%s_FERN_%02i", side, ranged++);
         else
             sprintf(name, "dummy_%s_NAHK_%02i", side, melee++);
@@ -2258,7 +2268,7 @@ AICHAR *cm_NearestEnemy(AICHAR *c)
 
     best = 1000000.0f;
     res = 0;
-    if (((AIWEAPON *)cm_CharWeapon(c))->kind != 2) {
+    if (cm_CharWeapon(c)->kind != 2) {
         for (i = 0; i < 32; i++) {
             if (ai_SceneChars[i] != 0 && cm_OtherBuilding(c, ai_SceneChars[i]) != 0 &&
                 ai_SceneChars[i]->health != 0) {
@@ -2798,8 +2808,8 @@ float cm_OrderRating(AICHAR *c, int order)
             f = 1.0f;
         else
             f = 0.5f;
-        kind = ((AIWEAPON *)cm_CharWeapon(c))->kind;
-        if ((kind == 1 || kind == 2) && ((AIOBJ *)cm_CharWeaponItem(c))->usesLeft <= 0)
+        kind = cm_CharWeapon(c)->kind;
+        if ((kind == 1 || kind == 2) && cm_CharWeaponItem(c)->usesLeft <= 0)
             f = 0.2f;
         r = cm_FightStrength(c) * f;
         break;
@@ -2812,8 +2822,8 @@ float cm_OrderRating(AICHAR *c, int order)
             if (cur != 0)
                 f = 0.5f;
         }
-        kind = ((AIWEAPON *)cm_CharWeapon(c))->kind;
-        if ((kind == 1 || kind == 2) && ((AIOBJ *)cm_CharWeaponItem(c))->usesLeft <= 0)
+        kind = cm_CharWeapon(c)->kind;
+        if ((kind == 1 || kind == 2) && cm_CharWeaponItem(c)->usesLeft <= 0)
             f = 1.0f;
         r = f / cm_FightStrength(c);
         break;
@@ -2927,8 +2937,8 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
     }
     switch (c->formation) {
     case 0:
-        k = (AIWEAPON *)cm_CharWeapon(c);
-        if ((k->kind == 1 || k->kind == 2) && ((AIOBJ *)cm_CharWeaponItem(c))->usesLeft <= 0)
+        k = cm_CharWeapon(c);
+        if ((k->kind == 1 || k->kind == 2) && cm_CharWeaponItem(c)->usesLeft <= 0)
             return;
         if (k->kind == 2) {
             sc = (D3SM *)d3_DefaultScene->hmap;
@@ -3027,7 +3037,7 @@ int cm_CheckDeath(AICHAR *c)
 }
 
 #define G19_FIGHTER_SYNC(ch)                                                          \
-    r = (AIOBJ *)cm_CharWeaponItem(ch);                                                    \
+    r = cm_CharWeaponItem(ch);                                                    \
     if (r != 0) {                                                                     \
         int vv = -1;                                                                  \
         cm_BeginFieldBlock(r, r->objId);                                            \
@@ -3057,15 +3067,15 @@ void cm_HitAction(CHACTION *a)
     ok = 1;
     victim = a->hit.victim;
     damage = a->hit.damage;
-    vw = (AIWEAPON *)cm_CharWeapon(victim);
-    hw = (AIWEAPON *)cm_CharWeapon(hitter);
+    vw = cm_CharWeapon(victim);
+    hw = cm_CharWeapon(hitter);
     ch_GetHMap(victim->scene);
     if (hw == 0 || cm_CharObjDistXZ(hitter, (char *)victim->scene->obj) > hw->range) {
         damage = 0;
         ok = 0;
     }
     if (cm_CutChar->netId == cm_FightOwner && (hw->kind == 1 || hw->kind == 2)) {
-        item = (AIOBJ *)cm_CharWeaponItem(hitter);
+        item = cm_CharWeaponItem(hitter);
         if (item != 0) {
             int v = -1;
             cm_BeginFieldBlock(item, item->objId);
@@ -3135,7 +3145,7 @@ void cm_LayBombAction(char *ev)
     AIWEAPON *k;
     AIOBJ *r;
 
-    k = (AIWEAPON *)cm_CharWeapon(att);
+    k = cm_CharWeapon(att);
     cm_LayBomb(&att->scene->obj->pos);
     sb_PlaySample(cm_BombSounds, "ZuendschnurBrennt_l_01", 3, 0x3f, 0x7f, 0, 0);
     if (cm_CutChar->netId == cm_FightOwner && (k->kind == 1 || k->kind == 2)) {
@@ -3415,7 +3425,7 @@ void cm_FightPortraits(int *ids, int x, int y)
         d2_Objs[t].font = 0x56;
         txt_Format(buf, (intptr_t)"%1N1 %i%", c->id, (int)(gm_HealthRatio(c) * 100.0));
         d2_SetObjText(t, buf);
-        o = (AIWEAPON *)cm_CharWeapon(c);
+        o = cm_CharWeapon(c);
         if (o != 0 && o->id != 0) {
             ic = d2_WinOpenPic(px + 0x28, py + 0xf, o->id + 0xdf, d2_LastWindow);
             d2_ScaleObject(ic, -2);
@@ -4310,7 +4320,7 @@ void cm_FighterAct(CMFIGHTSLOT *f)
     if (f->active == 0 || f->id == -1)
         return;
     c = cm_FindFighter(f->id);
-    k = (AIWEAPON *)cm_CharWeapon(c);
+    k = cm_CharWeapon(c);
     side = c->side;  /* in a fight: the leader of the fighter's side */
     tgt = cm_FindFighter(f->target);
     if (tgt != 0)
@@ -4549,9 +4559,9 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
     s.target = g->netId;
     if (c->formation == 1 || c->formation == 2 || c->formation == 3)
         s.held = 1;
-    k = (AIWEAPON *)cm_CharWeapon(c);
+    k = cm_CharWeapon(c);
     if (k->kind == 1 || k->kind == 2) {
-        item = (AIOBJ *)cm_CharWeaponItem(c);
+        item = cm_CharWeaponItem(c);
         if (item != 0 && item->usesLeft <= 0)
             return -1;
     }
@@ -4588,7 +4598,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
                 state = e->state;
                 e->orderSlot = -1;
                 if (state == 0) {
-                    item = (AIOBJ *)cm_CharWeaponItem(g);
+                    item = cm_CharWeaponItem(g);
                     if (item != 0 && item->usesLeft > 0)
                         e->orderSlot = cm_OrderAttack(other, g, c, 0, 0);
                 }
