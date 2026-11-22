@@ -96,9 +96,9 @@ typedef struct D3DTEXFMTCTX {       /* 0x50 bytes, d3d_UsedTexFormat */
     DDPIXELFORMAT pf;               /* 0x08, best format for bpp */
     DWORD bpp2;                     /* 0x28 */
     DDPIXELFORMAT pf2;              /* 0x2c, best format for bpp2 */
-    char exact;                     /* 0x4c, pf2 has the back buffer's channel sizes */
-    char same;                      /* 0x4d, pf and pf2 are the same */
-    char found;                     /* 0x4e, fourcc found */
+    signed char exact;              /* 0x4c, pf2 has the back buffer's channel sizes */
+    signed char same;               /* 0x4d, pf and pf2 are the same */
+    signed char found;              /* 0x4e, fourcc found */
     char pad4f;
 } D3DTEXFMTCTX;
 

@@ -237,7 +237,7 @@ typedef struct D2OBJ {              /* 0x2ec bytes, d2_Objs has 0x2ff: pictures,
     int hidden;                     /* 0x68, nonzero: skipped by the window's text layout and not
                                        drawn by the text-case (an input / link object in the text draws itself) */
     unsigned char shadowX, shadowY; /* 0x6c, shadow offset x / y (drawn at x + shadowX) */
-    char noFrameInset;              /* 0x6e, nonzero: the frame borders of the object's windows (flag 4) are not taken off
+    signed char noFrameInset;       /* 0x6e, nonzero: the frame borders of the object's windows (flag 4) are not taken off
                                        its clip rectangle (d2_DrawObjects) */
     char pad6f;
     int picScale;                   /* 0x70, picture scale: 0 / 1 / -1 draw unscaled, > 1 larger, < -1 smaller (d2_ScaleObject) */
@@ -288,8 +288,8 @@ typedef struct D2OBJ {              /* 0x2ec bytes, d2_Objs has 0x2ff: pictures,
                                        top edge) and the value drawn under the picture is fillFraction * 100
                                        percent */
     char pad1e8[0xf8];
-    char hilo;                      /* 0x2e0 */
-    char hihi;                      /* 0x2e1 */
+    signed char hilo;               /* 0x2e0 */
+    signed char hihi;               /* 0x2e1 */
     short pad2e2;
     int scale;                      /* 0x2e4 */
     void *user;                     /* 0x2e8, unused by d2: a dialog keeps its own record of the object here

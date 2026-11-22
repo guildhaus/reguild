@@ -43,8 +43,8 @@ typedef struct CHARACTER {         /* 0x244 bytes */
     D3ANIM *turnAnim;               /* 0x78, the path animation a turn action created (CH_ANIM078) */
     struct D3ANIMSLOT *morph;       /* 0x7c, blend between two animations ("morph_%i") */
     struct D3ANIMDATA *next;        /* 0x80, animation to start next */
-    char nextloops;                 /* 0x84 */
-    char lastActionFrame;           /* 0x85, the slot flags.b[0] value a->func2 last ran for, -1: not yet */
+    signed char nextloops;          /* 0x84 */
+    signed char lastActionFrame;          /* 0x85, the slot flags.b[0] value a->func2 last ran for, -1: not yet */
     char pad086[0x2];
     D3SCENE *scene;                 /* 0x88 */
     union {                         /* 0x8c */
@@ -125,7 +125,7 @@ typedef struct CHTRANSPORT {        /* 0x18 bytes, what CHARACTER.transport poin
 
 typedef struct CHFADE {             /* 12 bytes, 16 of them in ch_Fades */
     CHARACTER *ch;
-    char in;                        /* 1: fade in, 0: fade out */
+    signed char in;                 /* 1: fade in, 0: fade out */
     int start;                      /* 0x08, ch_Time when the fade started */
 } CHFADE;
 
@@ -271,7 +271,7 @@ struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; fu
     union {                         /* 0xf0 */
         char name[0x88];            /* animation name */
         struct {
-            char started;           /* turn actions (worker ch4) */
+            signed char started;    /* turn actions (worker ch4) */
         } turn;
         struct {                    /* the actions of type '3' (0x33): args[1] / args[2] name a building and its
                                        object, the load puts their scene universe into args[0] and here */
@@ -315,7 +315,7 @@ struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; fu
         } scriptAction;
         struct {                        /* move actions: where to place the character */
             int unk178;
-            char hasPos;                /* 0x17c, 1: pos holds the position */
+            signed char hasPos;         /* 0x17c, 1: pos holds the position */
             char pad17d[0x3];
             D3VECTOR pos;               /* 0x180 */
         } move;
@@ -356,13 +356,13 @@ struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; fu
             struct D3OBJECT *object;    /* 0x180, the object picked up */
         } pickUp;
     };
-    char stop;                      /* 0x190 */
+    signed char stop;               /* 0x190 */
     char pad191[0x3];
 };
 
 typedef struct CHACTDEF {           /* 0x4c bytes, 64 of them in ch_ActDefs */
     CHACTFUNC func;
-    char flags;                     /* 0x04, written 1 for every declared action; no reader in the drafted code
+    signed char flags;              /* 0x04, written 1 for every declared action; no reader in the drafted code
                                        (a guessed name, the original's role is unknown) */
     char name[0x43];                /* 0x05 */
     int nargs;                      /* 0x48 */

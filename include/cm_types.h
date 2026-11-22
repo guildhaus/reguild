@@ -868,7 +868,7 @@ typedef struct G28REC {
     unsigned int seed;                  /* 0x78, the random seed the scene runs with (cut_RandSeed) */
     union {
         struct {
-            char variant;               /* 0x7c, written by gv_PassSentence with a random 0 .. 4; read signed (movsx: cm_RunDuel, cm_RunExecution) */
+            signed char variant;             /* 0x7c, written by gv_PassSentence with a random 0 .. 4; read signed (movsx: cm_RunDuel, cm_RunExecution) */
             unsigned char quiet;        /* 0x7d, of an execution: 1, the aftermath sends no notes (cm_ExecutionAftermath;
                                            ai_CommandExecution sets it, gv_PassSentence clears it) */
         };
@@ -905,7 +905,7 @@ typedef struct CMKIND {
     void (*run)();                      /* 0x00, the scene, called with the party (cm_ExecCutscene) */
     void (*askPlayer)();                /* 0x04, (CMCUTINFO *, the context): asks a player's character (kind 6), cm_RunSceneParty */
     void (*askOther)();                 /* 0x08, (CMCUTINFO *, the context): asks the other members */
-    char allAtOnce;                     /* 0x0c, 1: cm_RunSceneParty asks the members all at once, 0: one after the other */
+    signed char allAtOnce;              /* 0x0c, 1: cm_RunSceneParty asks the members all at once, 0: one after the other */
     char pad0d[3];
     int (*check)();                     /* 0x10, called with the party: 0 cancels it (cm_UpdateParties), 0: none */
 } CMKIND;

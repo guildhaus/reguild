@@ -9,9 +9,9 @@ struct SFXDRIVER;
 typedef struct MSXTRACK {           /* 0x128 bytes, MSX_TRACKS of them at msx_Tracks */
     char name[0x100];               /* file name relative to msx_Path; "" = free slot */
     void *stream;                   /* 0x100, sound library stream handle (sfx.h HSTREAM) */
-    char playing;                   /* 0x104 */
-    char queued;                    /* 0x105, starts when the playing track has faded out */
-    char bAmbient;                  /* 0x106, played on the ambient driver */
+    signed char playing;            /* 0x104 */
+    signed char queued;             /* 0x105, starts when the playing track has faded out */
+    signed char bAmbient;           /* 0x106, played on the ambient driver */
     char pad107;
     int length;                     /* 0x108, ms */
     int pos;                        /* 0x10c, ms */

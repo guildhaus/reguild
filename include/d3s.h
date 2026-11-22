@@ -13,7 +13,7 @@ typedef struct D3SCENT {            /* 0x14 bytes, one cached shadow texture (d3
     void **owner;                   /* 0x04, the slot that uses it (its tex pointer is cleared when taken over) */
     unsigned int time;              /* 0x08, frame of last use */
     unsigned int size;              /* 0x0c, 0 = free */
-    char flag;                      /* 0x10 */
+    signed char flag;               /* 0x10 */
     char pad11[3];
 } D3SCENT;
 

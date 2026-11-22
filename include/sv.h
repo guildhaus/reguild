@@ -19,8 +19,8 @@ typedef struct SVSKYREC {               /* 0x4c bytes, a sky layer: the texture 
 typedef struct SVDAYPHASE {             /* 10 bytes, a phase of the day in sv_DayPhases (sv_FillDayPhases) */
     int unk0;                           /* +0, 0 in every record, no reader known (the table starts at 0x623ba4: six
                                            records end exactly at the sky keys 0x623be0) */
-    char hour;                          /* +4 */
-    char min;                           /* +5 */
+    signed char hour;                   /* +4 */
+    signed char min;                    /* +5 */
     int sec;                            /* +6, the second of the day it starts at */
 } SVDAYPHASE;
 #pragma pack(pop)

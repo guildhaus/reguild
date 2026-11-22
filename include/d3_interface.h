@@ -95,7 +95,7 @@ typedef struct D3CORNERCTX {        /* 0x88 bytes: context of d3_CornerCB */
     D3VECTOR4 v[4];                 /* 0x04, the 3D vertex nearest to each screen corner of the texture's area */
     float uv[4][2];                 /* 0x44, its texture coordinates */
     D3CORNERPT pt[4];               /* 0x64, its screen position: top left, top right, bottom left, bottom right */
-    char found;                     /* 0x84 */
+    signed char found;              /* 0x84 */
     char pad85[3];
 } D3CORNERCTX;
 

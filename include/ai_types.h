@@ -270,8 +270,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
         struct {                        /* 0xac, of the courtship event 0x41 (partner1 / partner2, of different sex; its
                                            alloc handler 0x544630, run handler 0x544840, the picks drawn by 0x544550) */
             char padpair[0xc];
-            char pairRound;             /* 0xb8, the rounds held, 0 at the start (the run handler counts it up) */
-            char pairRounds;            /* 0xb9, the rounds it takes (0x5c6620 of the two partners; the news 0x1cf4
+            signed char pairRound;      /* 0xb8, the rounds held, 0 at the start (the run handler counts it up) */
+            signed char pairRounds;     /* 0xb9, the rounds it takes (0x5c6620 of the two partners; the news 0x1cf4
                                            tells pairRounds - pairRound) */
             unsigned char pairDrawn;    /* 0xba, 1 once a round drew new picks (the run handler), 0 at the start */
             unsigned char pairDone;     /* 0xbb, 1 once the partners are each other's relatives[0] and the party
@@ -318,7 +318,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
         unsigned long reaperClock;      /* 0xec, of the reaper event: d3_Time when its object was placed / last moved */
     };
     unsigned char modes;                /* 0xf0, of a kind 0x11 bit 0x40: the game pauses while its event window is active (he_PickActiveEvent) */
-    char flags;                         /* 0xf1, a flags byte (nonzero defers the trade message posting; the bits are unknown) */
+    signed char flags;                  /* 0xf1, a flags byte (nonzero defers the trade message posting; the bits are unknown) */
     char padf2[0x5a];                   /* up to 0x14c: the rest of the message's words from +0x58 (0xac..0x14c) */
 } AIJOB;
 
@@ -432,7 +432,7 @@ typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind a
         int count;                      /* 0x0e */
     };
     unsigned char fill;                 /* 0x12, how full the cart is in percent (msg.n = 100 - fill; below 0x21 a cart is free for a load, ai_MeisterTrade / ai_UnloadCarts) */
-    char flags13;                       /* 0x13, flags: 0x20 (the guard patrol 0xa6 skips such a cart), 0xa0 set on a sold object (he_RunSale) */
+    signed char flags13;                /* 0x13, flags: 0x20 (the guard patrol 0xa6 skips such a cart), 0xa0 set on a sold object (he_RunSale) */
     union {
         int unk14;                      /* 0x14, the object list it holds */
         struct AIOBJ *list;             /* 0x14, the head of the objects it holds (AIOBJ.next chains them) */
@@ -486,7 +486,7 @@ typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind a
                         AISERMON sermon;                /* 0x1c..0x22, of a church's sermon object (gm_Query kind 0x1b5 in its
                                                            objList; cm_SendObject1b5 makes it) */
                     };
-                    char escort;                        /* 0x28, of a cart: its escort kind 0 .. 2 (he_AllocTransport picks it by the goods'
+                    signed char escort;                 /* 0x28, of a cart: its escort kind 0 .. 2 (he_AllocTransport picks it by the goods'
                                                            value, gm_LevelPayout prices it) */
                     char pad29;
                     int reportBld;                      /* 0x2a, of a spy report (gm_Query kind 0xca in a building): the id of the
@@ -527,7 +527,7 @@ typedef struct AIOBJ {                  /* 0x43 bytes, an object (table behind a
                                            the inventory window, the Domizil goods' clock lc_UpdateGoodsReserves) */
             int minutesLeft;            /* 0x1c, of a Domizil good in use: the minutes its effect still runs
                                            (lc_UpdateGoodsReserves counts it down from G9DOMIZIL.minutes) */
-            char inUse;                 /* 0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
+            signed char inUse;          /* 0x20, of a Domizil good: set to 1 by ai_UseGood with minutesLeft (the name is
                                            a reasoned guess) */
             int active;                 /* 0x21, nonzero when the object counts as held, of a Domizil good while its
                                            effect runs (ai_InventoryHas tests it; lc_UpdateGoodsReserves clears it
@@ -726,7 +726,7 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                 int amount[3];                  /* 0x88, of the bought goods */
                 struct {
                     char pad88;
-                    char patrolRoll;            /* 0x89, of the patrol message 0x43 a random 2 .. 5 (ai_CalcMeisterWache);
+                    signed char patrolRoll;     /* 0x89, of the patrol message 0x43 a random 2 .. 5 (ai_CalcMeisterWache);
                                                    it lands at the event's +0xdd, after patrolRound; no reader known */
                 };
             };
@@ -795,7 +795,7 @@ typedef char ai_AssertAIMSG[sizeof(AIMSG) == 0xf8 ? 1 : -1];
 
 #pragma pack(push, 1)
 typedef struct AIGOOD {                 /* 0x41 bytes, ai_Goods[] */
-    char type;                          /* 0x00 */
+    signed char type;                   /* 0x00 */
     union {
         char name[0x25];                /* 0x01 */
         struct {

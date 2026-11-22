@@ -167,8 +167,8 @@ typedef struct AIMAPENT {               /* 24 bytes, the AI's view of the vegeta
     unsigned char x;                    /* 0x08, cell */
     unsigned char z;                    /* 0x09 */
     unsigned short type;                /* 0x0a, G15PLANT.type, the plant type (0 removes it) */
-    char size;                          /* 0x0c, size in cells */
-    char state;                         /* 0x0d, growth state; -1 free (veg_FindPlantId skips those) */
+    signed char size;                   /* 0x0c, size in cells */
+    signed char state;                       /* 0x0d, growth state; -1 free (veg_FindPlantId skips those) */
     char pad0e[2];
     int fallId;                         /* 0x10, G15PLANT.fallId, -1 for a plain plant (veg_SetPlant) */
     int obj;                            /* 0x14, its 3D object */

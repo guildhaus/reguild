@@ -244,7 +244,7 @@ typedef struct D3RELOADCTX {        /* context of d3_ReloadMeshCB */
     int type;                       /* 0x04, compared with D3OBJECT::kind */
     int n;                          /* 0x08 */
     int i;                          /* 0x0c */
-    char count;                     /* 0x10, only count the objects */
+    signed char count;              /* 0x10, only count the objects */
 } D3RELOADCTX;
 
 unsigned char d3_ClipBox(void *box, float *zmin, float *zmax);                        /* 0x439650 */

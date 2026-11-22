@@ -30,8 +30,8 @@ typedef struct G15PLANT {               /* 0x18 bytes, 64 per vegetation map */
     unsigned char x;                    /* 0x08, cell */
     unsigned char z;                    /* 0x09 */
     unsigned short type;                /* 0x0a, G15TREE.id; 0 removes it */
-    char size;                         /* 0x0c, size in cells */
-    char state;                         /* 0x0d, growth state; -1: free */
+    signed char size;                  /* 0x0c, size in cells */
+    signed char state;                       /* 0x0d, growth state; -1: free */
     char pad0e[2];
     int fallId;                         /* 0x10, the id message 0x2c set the fall model with (veg_SetPlant: -1 for a plain
                                            plant); a later 0x2c without fall and that id puts the plant back */

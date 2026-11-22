@@ -173,7 +173,7 @@ typedef struct AIBTX {                  /* 0x24d bytes, an AIBTYPE (ai.h) as the
 
 
 typedef struct AIGOODX {                /* 0x41 bytes, an AIGOOD (ai.h) as these callbacks read it */
-    char type;                          /* 0x00 */
+    signed char type;                   /* 0x00 */
     char pad01[0x3f];
     unsigned char noSale;               /* 0x40, AIGOOD.b40: nonzero, the tooltip shows a text instead of the price (reasoned: not for sale; ai_DecideProduceGood never produces such a good) */
 } AIGOODX;

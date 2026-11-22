@@ -89,9 +89,9 @@ typedef struct D3SCENE {            /* 0x3e0 bytes, 64 of them in d3_Scenes: a s
     D3EVENT *events;                /* 0x3c8, the scene's D3EVENT table (D3E_NEVENTS entries, allocated by
                                        d3e_RegisterSceneEvent, "d3e:RegisterSceneEvent(eventtable)", freed in d3_Shutdown) */
     int state0, state1;             /* 0x3cc, d3if_SceneState0 and the word after it (0x5fb5c0, 0x5fb5c4) */
-    char loaded;                    /* 0x3d4, set after a scene file was loaded into the slot; a scene slot
+    signed char loaded;             /* 0x3d4, set after a scene file was loaded into the slot; a scene slot
                                        with loaded or dirty set is not free (d3t_FindFreeScene) */
-    char dirty;                     /* 0x3d5, a reserved scene whose file is not loaded yet: the next use
+    signed char dirty;              /* 0x3d5, a reserved scene whose file is not loaded yet: the next use
                                        reloads it and clears the flag (f3init.c "flagged dirty") */
     char pad3d6[0x2];
     unsigned int sceneFlags;        /* 0x3d8, the scene's d3_SceneFlags (d3if_SelectScene saves and restores it) */

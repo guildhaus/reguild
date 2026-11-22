@@ -14,8 +14,8 @@ typedef struct XVERT {              /* 0x50 bytes */
     float u, v;                     /* 0x20, environment map coordinates */
     char pad28[0x20];
     XSRC *src;                      /* 0x48 */
-    char flags;                     /* 0x4c */
-    char used;                      /* 0x4d */
+    signed char flags;              /* 0x4c */
+    signed char used;               /* 0x4d */
     char pad4e[0x2];
 } XVERT;
 

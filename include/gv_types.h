@@ -71,7 +71,7 @@ typedef struct AIDEC {                  /* 0x24 bytes, a record of the AI decisi
     int cur;                            /* 0x18, the current value */
     unsigned char office;               /* 0x1c, the office kind (AICHAR.officeKind) the decision belongs to (gv_FindTableRecord) */
     unsigned char officeNo;             /* 0x1d, the decision's number within that office (1, 2, ..) */
-    char b1e;                           /* 0x1e, -1 or 0 .. 0x11 in the table */
+    signed char b1e;                         /* 0x1e, -1 or 0 .. 0x11 in the table */
     char pad1f;
     int (*fn)(struct AICHAR *p, int id, int *out);  /* 0x20, the AI office holder's decision callback (am.c ai_Decide*):
                                            the holder, the decision's id, the value it proposes; nonzero: it proposes */

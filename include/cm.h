@@ -355,7 +355,7 @@ extern int ai_NextPartyId;  /* 0x61a658 */
 extern int cm_RunCharacters;  /* 0x624570, 1: a later server time also updates the characters (cm_ExTime) */
 extern int cm_RunRating;  /* 0x624574, 1: a later server time also advances the rating base */
 extern int cm_RunEvents;  /* 0x624578, 1: a later server time also runs the event handlers */
-extern char ai_MissionMode;  /* 0x624580 */
+extern signed char ai_MissionMode;  /* 0x624580 */
 extern unsigned char ai_NumPlayers;  /* 0x62489c */
 extern int ai_MissionPartner;  /* 0x6248a0, the netId of the other player in a network mission (-1 none; set by message 8, cleared by 10) */
 extern struct D3SCENE *ch_Saved0;  /* 0x631084 */
@@ -759,7 +759,7 @@ typedef struct G22ENT {                 /* 0x18 bytes, one participant of a sess
     int id;                             /* 0x04, character id */
     int unk08;
     int flag;                           /* 0x0c */
-    char kind;                          /* 0x10, 2 = candidate, 3 = voter */
+    signed char kind;                   /* 0x10, 2 = candidate, 3 = voter */
     char pad[7];
 } G22ENT;
 extern struct D2PIC *d2_Pics;  /* 0x6ed918 */

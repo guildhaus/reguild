@@ -71,7 +71,7 @@ typedef struct AMTSET {                 /* the office message of 0x4e67a0 (12 by
     unsigned char idx;                  /* 0x00, the office (compared with AMTREC.idx as a byte) */
     int owner;                          /* 0x01, the new owner or -1 */
     unsigned char state;                /* 0x05, the new state */
-    char code;                          /* 0x06, unused here */
+    signed char code;                   /* 0x06, unused here */
     int x14;                            /* 0x07, the second character or -1 */
 } AMTSET;
 #pragma pack(pop)

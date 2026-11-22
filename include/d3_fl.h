@@ -23,7 +23,7 @@ typedef struct D3FLCACHE {          /* 0x44 bytes, one cached terrain texture */
     unsigned int size;              /* 0x08, tiles per side (1, 2 or 4) */
     int hash;                       /* 0x0c, of the tile indices, + d3_CurrentScene */
     D3FLTILES t;                    /* 0x10, what d3fl_Render draws */
-    char flag;                      /* 0x40 */
+    signed char flag;               /* 0x40 */
     char pad41[0x3];
 } D3FLCACHE;
 
@@ -40,7 +40,7 @@ typedef struct D3FLPOINT {          /* 0x50 bytes, a tile vertex (D3PVERT as the
     unsigned long color;            /* 0x40, D3PVERT.color (D3COLOR b,g,r,a packed) */
     unsigned long specular;         /* 0x44, D3PVERT.specular */
     void *src;                      /* 0x48, D3PVERT.src: source point (D3SRCPOINT) */
-    char flags;                     /* 0x4c, D3PVERT.flags: bit 7 = visible */
+    signed char flags;                   /* 0x4c, D3PVERT.flags: bit 7 = visible */
     char pad4d[0x3];
 } D3FLPOINT;
 
@@ -54,7 +54,7 @@ typedef struct D3FLPOLY {           /* 0x28 bytes, a triangle (D3PTRI as the flo
     float zOfs;                     /* 0x18, depth offset added to the vertices (engine d3_ZOfs) */
     float uOfs;                     /* 0x1c, texture offset u (D3FLREGION.uOfs, mod 1) */
     float vOfs;                     /* 0x20, texture offset v (D3FLREGION.vOfs, mod 1) */
-    char flags;                     /* 0x24, bit 7: visible */
+    signed char flags;                   /* 0x24, bit 7: visible (read sign-extended here, d3fl_Draw; d3_engine.h D3PTRI.flags is unsigned) */
     unsigned char region;           /* 0x25, water region */
     unsigned char flip;             /* 0x26, bit 0: split along the other diagonal (d3fl_Draw) */
     char pad27;
@@ -64,7 +64,7 @@ typedef struct D3FLWREG {           /* 0x14 bytes, a water row of a tile; the li
     int idx;                        /* first point */
     int y;
     int x0, x1;
-    char flag;                      /* 0x10 */
+    signed char flag;               /* 0x10 */
     char pad11[0x3];
 } D3FLWREG;
 
@@ -91,9 +91,9 @@ typedef struct D3FLTILE {           /* 0x64 bytes, 8 x 8 of them in D3FLMAP */
     unsigned char hmin;             /* 0x5c */
     unsigned char hmax;             /* 0x5d */
     unsigned char lodLevel;         /* 0x5e, detail level chosen this frame (0: culled; d3fl_UpdateTiles) */
-    char lod;                       /* 0x5f, level the current mesh was built at */
-    char water;                     /* 0x60 */
-    char nextLod;                   /* 0x61, level to switch to once lodDelay runs out */
+    signed char lod;                /* 0x5f, level the current mesh was built at */
+    signed char water;              /* 0x60 */
+    signed char nextLod;            /* 0x61, level to switch to once lodDelay runs out */
     union {
         unsigned char clip;         /* 0x62, clip flags of the box (0x40: invisible) */
         D3CLIP clipCode;            /* 0x62, the same byte as the D3CLIP code d3_ClipMesh takes (d3_engine.h) */

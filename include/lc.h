@@ -180,7 +180,7 @@ extern struct AICHAR *ai_InvChar;     /* 0x6f2f60, the character whose inventory
 /* 0x6f2f64: the transport and goods-reserve statics of the unit (one 0x1c-byte record; the fields were the
    ai_TransportEscort / lc_ReserveTime / lc_ReserveCursor / ai_EquipRowCount views of the gap block) */
 typedef struct LCSETTINGS {
-    char escort;                        /* +0x00, the escort kind of the last transport order (ai_TransportWindow clears it, the order sets it to the cart's AIOBJ.escort) */
+    signed char escort;                 /* +0x00, the escort kind of the last transport order (ai_TransportWindow clears it, the order sets it to the cart's AIOBJ.escort) */
     char pad01[3];
     AITIME reserveTime;                 /* +0x04, when lc_UpdateGoodsReserves ran last (set to ai_Time at its end) */
     char pad12[2];

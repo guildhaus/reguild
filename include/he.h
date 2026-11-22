@@ -106,7 +106,7 @@ void he_AgeCarryRecs(void);
 void he_CountDownApEvents(void);
 #pragma pack(push, 1)
 typedef struct HEAPEVENT {              /* 0x50 bytes, an AP event (0x100 of them at 0x758ca0, he_AddApEvent) */
-    char counter;                       /* 0x00, rounds left (he_CountDownApEvents counts it down, 2 at the start) */
+    signed char counter;                /* 0x00, rounds left (he_CountDownApEvents counts it down, 2 at the start) */
     char pad01[3];
     int key;                            /* 0x04, the character it belongs to */
     int income;                         /* 0x08, summed by he_SumApEvents into the round's money (main.c 0x537de0) */

@@ -62,7 +62,7 @@ struct VFSDIR {                     /* 0x11c bytes (vfs_IGetSubDir) */
     VFSDIR *child;                  /* 0x10c */
     VFSDIR *parent;                 /* 0x110 */
     VFSNODE *files;                 /* 0x114, until vfs_FinishedFiles */
-    char sorted;                    /* 0x118, files moved to entries */
+    signed char sorted;             /* 0x118, files moved to entries */
 };
 
 
