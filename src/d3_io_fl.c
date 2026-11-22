@@ -155,8 +155,8 @@ void d3_CalcNormals(D3BGF *m)
     p = m->polys;
     for (i = 0; i < m->npolys; i++) {
         v = m->verts;
-        d3_TriNormal((D3VECTOR4 *)(v + p[i].v[0] * 6), (D3VECTOR4 *)(v + p[i].v[1] * 6),
-                     (D3VECTOR4 *)(v + p[i].v[2] * 6), (D3VECTOR4 *)&p[i].n);
+        d3_TriNormal((D3VECTOR *)(v + p[i].v[0] * 6), (D3VECTOR *)(v + p[i].v[1] * 6),
+                     (D3VECTOR *)(v + p[i].v[2] * 6), (D3VECTOR4 *)&p[i].n);
     }
     vt = (D3BGFVERT *)m->verts;
     for (i = 0; i < m->nverts; i++, vt++) {

@@ -40,7 +40,7 @@ char d3_MirBoundaryEdges(unsigned int n, unsigned char *used, D3PVERT **pts, uns
         row = used + i;
             for (j = 0; j < n; j++, row += n) {
                 if (i != j && used[i * n + j] == 0) {
-                    d3_TriNormal((D3VECTOR4 *)&d3_Origin, (D3VECTOR4 *)pts[i], (D3VECTOR4 *)pts[j], &nrm);
+                    d3_TriNormal(&d3_Origin.v, &pts[i]->pos, &pts[j]->pos, &nrm);
                     for (k = 0; k < n; k++) {
                         if (k != i && k != j) {
                             p = pts[k];
@@ -264,7 +264,7 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, D3TEXTURE *tex)
                 planes->n = ci->n + ne;
                 planes->mirror = 1;
                 for (j = 0; j < ne; j++) {
-                    d3_TriNormal((D3VECTOR4 *)&d3_Origin, (D3VECTOR4 *)uniq[j * 2], (D3VECTOR4 *)uniq[j * 2 + 1], &planes->p[j]);
+                    d3_TriNormal(&d3_Origin.v, &uniq[j * 2]->pos, &uniq[j * 2 + 1]->pos, &planes->p[j]);
                     p = uniq[j * 2];
                     planes->p[j].w = -(p->x * (planes->p[j].x) + p->y * planes->p[j].y + (p->z) * planes->p[j].z);
                 }

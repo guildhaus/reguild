@@ -24,7 +24,12 @@ typedef union D3CLIP {              /* clip code of a point or a box */
 } D3CLIP;
 
 typedef struct D3PVERT {            /* 0x50 bytes, a mesh vertex after the transformation (D3VERTEX) */
-    float x, y, z;                  /* camera space */
+    union {
+        struct {
+            float x, y, z;          /* 0x00, camera space */
+        };
+        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
+    };
     float pad0c;
     float sx, sy;                   /* 0x10, screen position */
     float sz;

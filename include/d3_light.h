@@ -9,7 +9,12 @@ struct D3SURF;
 #include "d3.h"                       /* the D3 records and typedefs this header names */
 
 typedef struct D3LVERT {            /* 0x50 bytes, a mesh vertex (D3PVERT, D3OBJINFO::keys) as the light code sees it */
-    float x, y, z;                  /* 0x00, camera space */
+    union {
+        struct {
+            float x, y, z;          /* 0x00, camera space */
+        };
+        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
+    };
     char pad0c[0x14];
     float nx, ny, nz;               /* 0x20, normal */
     char pad2c[0x4];

@@ -29,7 +29,12 @@ typedef struct D3TERRAIN {          /* the terrain a height map is sampled from 
 #define D3TERRAIN_NAMES(t) ((char (*)[0x40])((char *)(t) + 0x1a64))    /* 8 material names, overlaps blocks */
 
 typedef struct D3SMVERT {           /* 0x50 bytes, D3OBJINFO.keys */
-    float x, y, z;
+    union {
+        struct {
+            float x, y, z;          /* 0x00 */
+        };
+        D3VECTOR pos;               /* 0x00, the same three floats (the 3-float callees: d3_TriNormal) */
+    };
     float pad0c;
     float gx, gz;                   /* 0x10, position in height map cells */
     char pad18[0x29];

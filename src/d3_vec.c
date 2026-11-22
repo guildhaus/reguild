@@ -284,7 +284,7 @@ void d3_MatToAngles(D3VECTOR4 *m, D3VECTOR4 *angles)
 }
 /* 0x454700, normal of the triangle a, b, c */
 
-void d3_TriNormal(D3VECTOR4 *a, D3VECTOR4 *b, D3VECTOR4 *c, D3VECTOR4 *n)
+void d3_TriNormal(const D3VECTOR *a, const D3VECTOR *b, const D3VECTOR *c, D3VECTOR4 *n)
 {
     D3VECTOR4 u, v;
 
