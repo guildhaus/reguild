@@ -397,7 +397,7 @@ void d3s_FillRows(int n)
     }
 }
 /* 0x45a880, draws one polygon of the shadow mesh into the shadow texture (bpp bits per pixel, its low byte; defined old
-   style with int bpp, called through the unsigned char prototype below d3s_Project's TSTEXSIZE)
+   style with int bpp, called through the unsigned char prototype below)
    @deep draft -> shape this session: the running min y is a local (ymin) and the bound is the shifted
    size parameter (size <<= 16; ymin = size): VC6 then hoists size - 1 out of the bounds loop as the
    original does (dec edx before it) and keeps ymin in ebp after the loops; poly->v[i] written at each use
@@ -795,12 +795,6 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
     return drew;
 }
 
-typedef struct TSTEXSIZE {          /* the parts of a texture slot (ts_texture.h: TSTEXTURE) used here */
-    char pad00[0x74];
-    unsigned int size;              /* 0x74 */
-    char pad78[0x4];
-    unsigned char bpp;              /* 0x7c */
-} TSTEXSIZE;
 
 #ifdef _MSC_VER
 void d3s_ShadowPoly(D3SPOLY *poly, unsigned char bpp, int size);  /* 0x45a880, @original: defined above old style with int bpp (it reads the whole slot as its first top index, the low byte for d3s_Byte); d3s_Project calls it through this prototype, pushing the byte unwidened (mov al,[tex+0x7c]; push eax). VC6 takes both without a warning; not standard C (a prototype must match the definition's promoted types), and no conforming spelling keeps the bytes: an int prototype makes d3s_Project widen the byte (127 -> 146 ins; an argument cast or mask changes nothing), an unsigned char definition reads the slot with movzx (d3s_ShadowPoly shape -> draft, 141 -> 205 ins) */
@@ -1280,8 +1274,8 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
     slot->z1 = z1;
     slot->y = y;
     if (!slot->simple) {
-        sx = (float)((TSTEXSIZE *)tex)->size / (x1 - x0);
-        sz = (float)((TSTEXSIZE *)tex)->size / (z1 - z0);
+        sx = (float)tex->size / (x1 - x0);
+        sz = (float)tex->size / (z1 - z0);
         v = (D3SVERT *)mesh->keys;
         for (i = 0; i < mesh->nkeys; i++, v++) {
             v->tu = (v->x - x0) * sx;
@@ -1293,7 +1287,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
             dd_FillSurface(tex->surf, 0, 0);
             dd_Surface = dd_LockSurfaceFlags(tex->surf, 0x20);
             for (i = 0, p = (D3SPOLY *)mesh->tris; i < mesh->ntris; i++, p++)
-                d3s_ShadowPoly(p, ((TSTEXSIZE *)tex)->bpp, ((TSTEXSIZE *)tex)->size);
+                d3s_ShadowPoly(p, tex->bpp, tex->size);
             dd_UnlockSurface(tex->surf);
             dd_Surface = 0;
             if (slot->cache->flag)

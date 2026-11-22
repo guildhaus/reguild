@@ -301,14 +301,14 @@ int gv_ReadCrimes(VFSFILE *f)
 }
 /* 0x4f2da0, the highest level (0x5092e0 (b, 10, 1)) among the school buildings (kind 7) of the character *c's, times 0.01; 0.75 when one has exactly 0x4b */
 
-float gv_SchoolLevelFactor(unsigned short *c)
+float gv_SchoolLevelFactor(AICHAR *c)
 {
     int best, i, v;
     AIBLD *b;
 
     best = 0;
     for (i = 0, b = ai_Blds; i < 0x100; i++, b++) {
-        if (b->type != 0 && b->owner == *c && ai_BTypes[b->type].kind == 7) {
+        if (b->type != 0 && b->owner == c->id && ai_BTypes[b->type].kind == 7) {
             v = gm_BuildingSkill(b, 10, 1);
             if (v == 0x4b)
                 return 0.75f;
@@ -326,14 +326,14 @@ float gv_SchoolLevelFactor(unsigned short *c)
 int gv_Accuse(int i, int v, int a, int b, int obj)
 {
     AIDEC rec;
-    char *culprit;
+    AICHAR *culprit;
     AIBLD *place;
     float escape;
     CRIME m;
 
     if (gv_GetTableRecord(i, &rec) == 0)
         return -1;
-    culprit = (char *)gm_FindChar(a);
+    culprit = gm_FindChar(a);
     gm_FindChar(b);
     gm_FindById(&place, 0, 0, obj);
     switch ((unsigned char)rec.rule) {
@@ -370,7 +370,7 @@ int gv_Accuse(int i, int v, int a, int b, int obj)
     default:
         goto unreported;
     }
-    escape = gv_SchoolLevelFactor((unsigned short *)culprit);
+    escape = gv_SchoolLevelFactor(culprit);
     if (util_RandomF() < escape)
         goto unreported;
     if (ai_InventoryHas(culprit, 0x22a) != 0 && util_RandomF() > 0.5)

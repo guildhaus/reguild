@@ -4272,7 +4272,7 @@ int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
 void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
 
-int ai_InventoryHas(void *ch, int id);                     /* 0x5ba6b0 */
+int ai_InventoryHas(struct AICHAR *ch, int id);                     /* 0x5ba6b0 */
 
 /* 0x504ec0, the skill value (0 .. 1) of the character c for the skill number 0 .. 4 (-1 when there is none): the
    base skill byte (+0x80 + skill) / 252, plus the bonuses of the character's skill events ((2, 2, id, 0, 0x82):

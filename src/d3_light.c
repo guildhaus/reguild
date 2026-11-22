@@ -14,6 +14,7 @@
 #include "d3.h"
 #include "d3_engine.h"
 #include "d3_light.h"
+#include "d3_anim.h"
 #include "d3_fl.h"
 #include "d3_vec.h"
 #include "mem.h"
@@ -656,7 +657,7 @@ void d3_RelightObjectFrame(D3OBJECT *obj, struct D3ANIMFRAME *frame)
         d3_Busy++;
         d3_PointToRef(obj, d3_Camera, &obj->pos, &obj->cam);
         if (frame)
-            d3_LightRadiusMargin = ((D3LFRAME *)frame)->radius;
+            d3_LightRadiusMargin = frame->radius;
         else
             d3_LightRadiusMargin = 0.0f;
         s = d3_LightRadiusMargin + info->mesh->radius;

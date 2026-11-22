@@ -242,7 +242,7 @@ int gv_FindTableRecord(struct AICHAR *c, unsigned b, int *out);  /* 0x4f2870 */
 extern AIDEC gv_Decisions[];           /* 0x611258, 0x1d AIDEC records of 0x24 bytes (the AI decision table) */
 
 int gv_WriteCrimes(void *f);             /* 0x4f28d0 */
-float gv_SchoolLevelFactor(unsigned short *c);          /* 0x4f2da0 */
+float gv_SchoolLevelFactor(struct AICHAR *c);          /* 0x4f2da0 */
 
 int gv_ReadCrimes(struct VFSFILE *f);             /* 0x4f2b30 */
 int gv_TableRecordText(char *out, int i);    /* 0x4f2fe0 */

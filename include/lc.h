@@ -288,15 +288,6 @@ extern unsigned short ai_PlayerId;
 
 
 
-/* 0x5ba6b0, the view of ai_InventoryHas: the character's inventory (AICHAR +0x178, ai.h); the object found in
-   it is an AIOBJ */
-#pragma pack(push, 1)
-typedef struct G8INVCHAR {
-    char pad00[0x178];
-    int inventory;                      /* +0x178, the character's object list (AICHAR.inventory) */
-} G8INVCHAR;
-
-#pragma pack(pop)
 
 void ai_FreeSettings(void);                                        /* 0x5a8920 */
 int ai_LoadSettings(struct VFSFILE *f);  /* 0x5a8a20, reads the production settings chain back from the save f (ls_LoadGame); 0 on an error */
@@ -425,7 +416,7 @@ void ai_ShowFeudNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a8f
 void ai_ShowPartnerNews(struct AICHAR *param_1, struct AICHAR *param_2);  /* 0x5a9050 */
 int ai_GoodFitsBuilding(void *ch, int good);  /* 0x5bb2d0 */
 int ai_FindBauplaetze(char *prefix, struct D3OBJECT **list);  /* 0x58f7a0 */
-int ai_InventoryHas(void *ch, int id);  /* 0x5ba6b0 */
+int ai_InventoryHas(struct AICHAR *ch, int id);  /* 0x5ba6b0 */
 void ai_ObjectAngle(void *out_, struct D3OBJECT *plot);  /* 0x58fd90 */
 void ai_ObjectPosition(void *out, struct D3OBJECT *plot);  /* 0x58fd40 */
 void ai_ShowIndulgenceNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld, int share, int amount);  /* 0x5a8b80 */

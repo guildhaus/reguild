@@ -273,17 +273,6 @@ int gm_PlayerFactor(int a, unsigned char k);                       /* 0x5085f0 *
 float gm_GetSkill(struct AICHAR *c, int skill);                             /* 0x504ec0 */
 int amt_GetKind(int k, struct AMTKIND *out);                             /* 0x4e6f80 */
 int amt_GetColumnOffices(int col, int max, struct AMTREC *out);             /* 0x4e6fc0 */
-/* ai.h declares these with other types */
-
-#pragma pack(push, 1)
-
-typedef struct AIGDX {                  /* what 0x5ba620 returns */
-    char pad00[0xc];
-    float unk0c;                        /* 0x0c */
-} AIGDX;
-
-
-#pragma pack(pop)
 
 
 /* ai.h declares gm_FindById for another use; here it fills an int and takes three more */
@@ -399,13 +388,6 @@ int ai_RelationGain(AICHAR *payer, AICHAR *target, int n);                      
 int ai_BrawlWin(AICHAR *attacker, AICHAR *defender, int *out);                   /* 0x494d90 */
 
 /* ---- 0x494e70..0x4984d0 (was unk_494e70.h) ---- */
-#pragma pack(push, 1)
-
-typedef struct G5STAMM {                /* the regulars' table, the object 0x12d of a kind-0x37 building (ai_DecideStammtisch) */
-    char pad00[0x1c];
-    int member[4];                      /* 0x1c, the members' netIds, -1 = a free seat */
-} G5STAMM;
-#pragma pack(pop)
 
 
 extern int ai_EvalDepth;                /* 0xf83ea4, the depth of the evaluation stack */

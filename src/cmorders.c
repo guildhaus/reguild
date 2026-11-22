@@ -323,7 +323,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                         hit = 1;
                     else {
                         r = util_Random(0xff);
-                        if ((AICHAR *)c->bld == cm_FightDefender)
+                        if (c->side == cm_FightDefender)
                             st = (int)(k->accuracy * 0.01 * c->sk83 * cm_DefenseFactor);
                         else
                             st = (int)(k->accuracy * 0.01 * c->sk83);
@@ -338,7 +338,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                     } else
                         p->damage = 0;
                     p->kill = hit;
-                    if (hit != 0 && c->bld != 0 && ai_InventoryHas(c->bld, 0x2b9) != 0)
+                    if (hit != 0 && c->side != 0 && ai_InventoryHas(c->side, 0x2b9) != 0)
                         p->damage = (int)(p->damage * 1.25f);
                     if (cm_CutChar->netId == cm_FightOwner && k->kind == 0 && x != 0) {
                         other = 0;
@@ -465,7 +465,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             } else if (p->storeStep == 1) {
                 if (c->scene->actions != 0)
                     break;
-                if ((AICHAR *)c->bld == cm_FightAttacker)
+                if (c->side == cm_FightAttacker)
                     nm = "dummy_sp_OFF_WARENSAVE";
                 else
                     nm = "dummy_sp_DEF_WARENSAVE";

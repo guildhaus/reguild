@@ -426,7 +426,7 @@ void cm_FightSlotPickUp(CMFIGHTSLOT *f);  /* 0x4d7000 */
 void cm_FightSlotPutDown(CMFIGHTSLOT *f);  /* 0x4d70a0 */
 void cm_FightSlotWinner(CMFIGHTSLOT *f);  /* 0x4d7150 */
 int cm_Attack(CMCUTINFO *rec, struct AICHAR *c, struct AICHAR *g);  /* 0x4d7360 */
-int ai_InventoryHas(void *ch, int id);  /* 0x5ba6b0 */
+int ai_InventoryHas(struct AICHAR *ch, int id);  /* 0x5ba6b0 */
 void cm_PlantEscapeFlag(CMFIGHTSLOT *f);  /* 0x4d7190 */
 void cm_ClearParty(int id);  /* 0x4e5180 */
 void ai_GameFrame(void);  /* 0x591520 */

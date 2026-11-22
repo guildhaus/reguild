@@ -6140,17 +6140,17 @@ int ai_ExecuteChangeProfession(AICHAR *p, AIARG *s1, AIARG *s2)
     return 0;
 }
 /* 0x49f850, decide callback of "Stammtisch" (0x35), the regulars' table: finds up to four kind-0x37 buildings
-   of other owners with a table object 0x12d (G5STAMM). A member of one ('leav' it): alone there 1 in 4, else
+   of other owners with a table object 0x12d (AIOBJ.seats). A member of one ('leav' it): alone there 1 in 4, else
    when its mean liking of the others / 100 is above 0.666 and a random + 1/6 stays below it; not a member:
    'join' a table with a free seat 1 in 4 (o2 = its owner); 'noop' (kind 0) otherwise */
 
 int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     AIBLD *bl[4];
-    G5STAMM *ob[4];
+    AIOBJ *ob[4];
     int free[4];
     AIBLD *b;
-    G5STAMM *o;
+    AIOBJ *o;
     AICHAR *c;
     int found, step, i, j, n, k, m, v;
     float sum;
@@ -6169,7 +6169,7 @@ int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     while (n < 4 && i != 0) {
         b = &ai_Blds[j];
         if (b->type == 0x37 && b->owner != 0xffff && b->owner != p->id) {
-            o = (G5STAMM *)gm_Query(b->objList, 2, 6, 0, 0x12d);
+            o = gm_Query(b->objList, 2, 6, 0, 0x12d);
             if (o != 0) {
                 bl[n] = b;
                 ob[n] = o;
@@ -6187,7 +6187,7 @@ int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     for (k = 0; k < n; k++) {
         free[k] = 0;
         for (m = 0; m < 4; m++) {
-            v = ob[k]->member[m];
+            v = ob[k]->seats[m];
             free[k] |= v == -1;
             if (found == -1)
                 found = v == (int)p->netId ? k : -1;
@@ -6197,7 +6197,7 @@ int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
         sum = 0.0f;
         k = 0;
         for (m = 0; m < 4; m++) {
-            c = gm_FindChar(ob[found]->member[m]);
+            c = gm_FindChar(ob[found]->seats[m]);
             if (c != 0 && c != p) {
                 k++;
                 sum = gm_Liking(p->id, c->id, 1) + sum;

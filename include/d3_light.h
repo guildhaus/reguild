@@ -34,10 +34,6 @@ typedef struct D3LCTX2 {            /* context of d3_LightAddObject: the light a
     unsigned char normals;
 } D3LCTX2;
 
-typedef struct D3LFRAME {           /* the animation frame d3_RelightObjectFrame is called with (D3ANIMFRAME) */
-    char pad00[0x38];
-    float radius;                   /* 0x38, the frame's mesh radius (D3ANIMFRAME.radius, d3_anim.h) */
-} D3LFRAME;
 
 extern volatile unsigned long d3_Time;      /* 0x6333cc */
 extern D3OBJECT *d3_Camera;                 /* 0xfc2dec */
