@@ -84,8 +84,8 @@ void d3if_ClearView(void);                                                      
 /* 0x448ac0..0x44aa10 (d3_obj.h until layout 2026-10-22) */
 typedef struct D3FINDCTX {          /* context of the name lookups */
     char *name;                     /* compared with the object's name (a leading '!' ignored), may be 0 */
-    char *obj;                      /* when set, only this object matches (compared by address) */
-    char *found;
+    struct D3OBJECT *obj;           /* when set, only this object matches (compared by address) */
+    struct D3OBJECT *found;
 } D3FINDCTX;
 
 extern const D3VECTOR4 d3_ZAxis;             /* 0x5ebb74, (0, 0, 1) */
@@ -120,7 +120,7 @@ typedef struct D3CORNERTRI {        /* D3TRI as the corner search reads it */
 
 float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p);                          /* 0x448ac0 */
 char d3_ScreenToUV(float sx, float sy, D3OBJECT *obj, void *tex, float *outu, float *outv);   /* 0x448e60 */
-D3OBJECT *d3_FindObjectNoCase(int a, int flags, int c, char *name);  /* 0x449770, case-insensitive */
+D3OBJECT *d3_FindObjectNoCase(D3OBJECT *a, int flags, D3OBJECT *c, char *name);  /* 0x449770, case-insensitive */
 void d3_WorldToParent(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot, D3VECTOR *outpos, D3VECTOR *outrot);  /* 0x4497f0 */
 void d3_SetWorldPosRot(D3OBJECT *obj, const D3VECTOR *pos, D3MATRIX *rot);        /* 0x449920 */
 

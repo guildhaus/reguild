@@ -1153,79 +1153,81 @@ char d3_ScreenToUV(float sx, float sy, D3OBJECT *obj, void *tex, float *outu, fl
 }
 /* 0x4495f0, callback of d3_FindObject: sets ctx->found to the first object that matches */
 
-char d3_FindObjectCB(D3OBJECT *obj, D3FINDCTX *ctx)
+char d3_FindObjectCB(D3OBJECT *obj, void *arg)
 {
-    char *s = (char *)obj;
+    D3FINDCTX *ctx = arg;
+    char *s = obj->name;
     char *t;
     if (ctx->name) {
         t = (*s == '!') ? s + 1 : s;
         if (ctx->obj) {
-            if (!strcmp(t, ctx->name) && ctx->obj == s)
-                ctx->found = s;
+            if (!strcmp(t, ctx->name) && ctx->obj == obj)
+                ctx->found = obj;
         } else if (!strcmp(t, ctx->name))
-            ctx->found = s;
-    } else if (ctx->obj == s)
-        ctx->found = s;
-    return ctx->found != s;
+            ctx->found = obj;
+    } else if (ctx->obj == obj)
+        ctx->found = obj;
+    return ctx->found != obj;
 }
 /* 0x449690, finds an object by name (and/or address `c`), case-sensitive, among the objects of the default scene
    selected by `flags`; the siblings after `a` are cut off during the search */
-D3OBJECT *d3_FindObject(int a, int flags, int c, char *name)
+D3OBJECT *d3_FindObject(D3OBJECT *a, int flags, D3OBJECT *c, char *name)
 {
     D3FINDCTX ctx;
     D3OBJECT *next;
 
     if (!c && !name)
         return 0;
-    ctx.obj = (char *)c;
+    ctx.obj = c;
     ctx.name = name;
     ctx.found = 0;
     if (a) {
-        next = ((D3OBJECT *)a)->next;
-        ((D3OBJECT *)a)->next = 0;
+        next = a->next;
+        a->next = 0;
     }
-    d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)a, flags | 0x200, (D3OBJECTCB)d3_FindObjectCB, &ctx);
+    d3_ForEachObject(d3_DefaultScene, a, flags | 0x200, d3_FindObjectCB, &ctx);
     if (a)
-        ((D3OBJECT *)a)->next = next;
-    return (D3OBJECT *)ctx.found;
+        a->next = next;
+    return ctx.found;
 }
 /* 0x449710, like d3_FindObjectCB but case-insensitive */
 
-char d3_FindObjectNoCaseCB(D3OBJECT *obj, D3FINDCTX *ctx)
+char d3_FindObjectNoCaseCB(D3OBJECT *obj, void *arg)
 {
-    char *s = (char *)obj;
+    D3FINDCTX *ctx = arg;
+    char *s = obj->name;
     char *t;
     if (ctx->name) {
         t = (*s == '!') ? s + 1 : s;
         if (ctx->obj) {
-            if (!strcmpi(t, ctx->name) && ctx->obj == s)
-                ctx->found = s;
+            if (!strcmpi(t, ctx->name) && ctx->obj == obj)
+                ctx->found = obj;
         } else if (!strcmpi(t, ctx->name))
-            ctx->found = s;
-    } else if (ctx->obj == s)
-        ctx->found = s;
-    return ctx->found != s;
+            ctx->found = obj;
+    } else if (ctx->obj == obj)
+        ctx->found = obj;
+    return ctx->found != obj;
 }
 /* 0x449770, d3_FindObject with a case-insensitive name compare */
 
-D3OBJECT *d3_FindObjectNoCase(int a, int flags, int c, char *name)
+D3OBJECT *d3_FindObjectNoCase(D3OBJECT *a, int flags, D3OBJECT *c, char *name)
 {
     D3FINDCTX ctx;
     D3OBJECT *next;
 
     if (!c && !name)
         return 0;
-    ctx.obj = (char *)c;
+    ctx.obj = c;
     ctx.name = name;
     ctx.found = 0;
     if (a) {
-        next = ((D3OBJECT *)a)->next;
-        ((D3OBJECT *)a)->next = 0;
+        next = a->next;
+        a->next = 0;
     }
-    d3_ForEachObject(d3_DefaultScene, (D3OBJECT *)a, flags | 0x200, (D3OBJECTCB)d3_FindObjectNoCaseCB, &ctx);
+    d3_ForEachObject(d3_DefaultScene, a, flags | 0x200, d3_FindObjectNoCaseCB, &ctx);
     if (a)
-        ((D3OBJECT *)a)->next = next;
-    return (D3OBJECT *)ctx.found;
+        a->next = next;
+    return ctx.found;
 }
 /* 0x4497f0, converts a world-space position and rotation into the coordinate system of the object's parent
    (the parent's inverse world matrix applied to `pos`, `rot` multiplied by the transposed parent matrix); an
@@ -1286,7 +1288,7 @@ char d3_SetParent(D3OBJECT *obj, D3OBJECT *parent)
         for (c = parent->child; c; c = c->next)
             if (c == obj)
                 return 1;
-        if (d3_FindObject((int)obj, 0x1ff, (int)parent, 0))
+        if (d3_FindObject(obj, 0x1ff, parent, 0))
             return 0;
     }
     if (D3_X(obj)->type >= 5 && D3_X(obj)->light) {

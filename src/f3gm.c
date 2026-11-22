@@ -1197,7 +1197,7 @@ void gm_ChooseHeadIcon(AICHAR *c)
    the model name to c's own head name and chooses the variant and the head icon. The current scene is selected
    again at the end. Returns the model (0 when scene is negative). */
 
-int gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, int obj, char *dummy)
+CHARACTER *gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, D3OBJECT *obj, char *dummy)
 {
     int saved;
     D3VECTOR4 zero;
@@ -1251,7 +1251,7 @@ int gm_CreateCharModel(AICHAR *c, int scene, int *p, int *ori, int obj, char *du
     }
 done:
     d3if_SelectScene(saved, 1);
-    return (int)c->scene;
+    return c->scene;
 }
 /* 0x4fbd10, puts the character id (it must have no model yet) on the stage of its building, the building of
    the query (1, 1, a): with b != -1 at the object of the query (1, 1, b) over the building's object list,
@@ -1295,7 +1295,7 @@ int gm_PlaceOnStage(int id, int a, int b, int *p, int *ori)
                     else
                         gm_CreateCharModel(c, sc, p, ori, 0, "dummy_EINGANG");
                 } else
-                    gm_CreateCharModel(c, sc, 0, 0, (int)o->object, "dummy_TUER");
+                    gm_CreateCharModel(c, sc, 0, 0, o->object, "dummy_TUER");
                 if (c->scene != 0)
                     ch_PreloadAnims(c->scene, 1, "bewegung/gehen");
                 d3if_SelectScene(saved, 1);

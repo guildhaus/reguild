@@ -1892,7 +1892,7 @@ void he_CreateGfxInfo(AIJOB *ev, char *name, D3OBJECT *parent)
         if (i != 0x40) {
             e = &he_GfxInfos[i];
             d3if_SelectScene(0, 1);
-            if (d3_FindObject(0, 0x40, (int)parent, 0) == 0) {
+            if (d3_FindObject(0, 0x40, parent, 0) == 0) {
                 sprintf(buf, "he_CreateGfxInfo(): invalid parent :%s", parent->name);
                 d3if_SelectScene(scene, 1);
             } else {
@@ -1919,7 +1919,7 @@ void he_FreeGfxInfo(int *e)
         g->parent = 0;
         d3if_SelectScene(0, 1);
         if (par != 0) {
-            if (d3_FindObject(0, 0x1c0, (int)par, 0) != 0)
+            if (d3_FindObject(0, 0x1c0, par, 0) != 0)
                 he_SpreadGfxInfos(par);
         }
         d3if_Delete(g->obj);
@@ -13275,11 +13275,11 @@ void he_RunSabotage(AIJOB *e)
                     msg.arg[1] = util_Random(0x10) - bt->cap247 * 3 + 0x14;
                     cm_SendLongMessage(&msg);
                 } else {
-                    o = d3_FindObject((int)b->object, 0x100, 0, dummies[util_Random(3)]);
+                    o = d3_FindObject(b->object, 0x100, 0, dummies[util_Random(3)]);
                     if (o != 0)
                         d3_PointToWorld(o, &o->pos, (D3VECTOR *)&a);
                     else
-                        o = d3_FindObject((int)b->object, 0x100, 0, "dummy_TUER");
+                        o = d3_FindObject(b->object, 0x100, 0, "dummy_TUER");
                 }
                 if (o != 0 && scene == 0) {
                     d3_PointToWorld(o, &o->pos, (D3VECTOR *)&a);
@@ -15129,7 +15129,7 @@ void he_RunPromotion(AIJOB *e)
             ch_Delete(ch);
             c->scene = 0;
             c->ownName[0] = 0;
-            c->scene = (struct CHARACTER *)gm_CreateCharModel(c, scene, pos, rot, 0, 0);
+            c->scene = gm_CreateCharModel(c, scene, pos, rot, 0, 0);
             if (c->scene != 0) {
                 c->scene->group = group;
                 c->scene->scriptGroup = scriptGroup;
@@ -17729,11 +17729,11 @@ void he_RunBurn(AIJOB *ev)
                         }
                     }
                 }
-                o = d3_FindObject((int)b->object, 0x100, 0, names[x->state]);
+                o = d3_FindObject(b->object, 0x100, 0, names[x->state]);
                 if (o != 0)
                     d3_PointToWorld(o, &o->pos, &p.v);
                 else
-                    o = d3_FindObject((int)b->object, 0x100, 0, "dummy_FAHNE");
+                    o = d3_FindObject(b->object, 0x100, 0, "dummy_FAHNE");
                 if (o != 0) {
                     d3_PointToWorld(o, &o->pos, &p.v);
                     p.x = p.x + util_Random(0x40) - 32.0f;
@@ -17824,7 +17824,7 @@ void he_RunBurn(AIJOB *ev)
                     }
                     c = gm_FindChar(x->helpers[k]);
                     if (c != 0 && c->scene != 0 && c->scene->group == -1 && CH_ACTIONS(c->scene) == 0) {
-                        o = d3_FindObject((int)b->object, 0x100, 0, "dummy_TUER");
+                        o = d3_FindObject(b->object, 0x100, 0, "dummy_TUER");
                         if (o != 0) {
                             d3_PointToWorld(o, &o->pos, &p.v);
                             if (d3_VecEqual(&c->scene->obj->pos, &p.v, 80.0f) == 0)

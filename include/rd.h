@@ -101,7 +101,7 @@ char d3if_ShowTree(struct D3OBJECT *obj, char show);                            
 struct D3OBJECT * d3_LoadGroup(char *name, void *f, struct D3OBJECT *parent);                     /* 0x44c3f0, d3_int_io.h: D3OBJECT * */
 void err_Message(char *msg);                                                     /* 0x4222b0 */
 void d3_SetObjectPos(struct D3OBJECT *obj, const struct D3VECTOR *pos);                                     /* 0x43b790, d3.h: D3OBJECT *, D3VECTOR * */
-struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name);                /* 0x449690, d3.h: int a, D3OBJECT * */
+struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name);                /* 0x449690, d3.h */
 char d3sm_GetVertex(struct D3SM *h, int x, int z, struct D3VECTOR *out);                          /* 0x45f100, ch.h: D3SM *, D3VECTOR * */
 char ch_FindFreeCell(struct D3SM *h, struct D3VECTOR *from, struct D3VECTOR *to, int x, int z, int *px, int *pz, int max, int flags); /* 0x4072a0, ch.h */
 char d3_ForEachObject(struct D3SCENE *scene, struct D3OBJECT *obj, unsigned int mask, char (*cb)(struct D3OBJECT *, void *), void *ctx); /* 0x438d40, d3.h: D3OBJECTCB */

@@ -288,7 +288,7 @@ extern D3VECTOR d3t_PlaceTarget;             /* 0x1466620, camera target positio
 extern D3VECTOR d3t_PlaceAngles;              /* 0x1466630, camera target angles */
 void d3anim_FreePath(D3OBJECT *obj);                                                       /* 0x433b10 */
 char d3if_Delete(D3OBJECT *obj);                                                       /* 0x447190, d3_interface.h */
-struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name);                     /* 0x449690 */
+struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name);                     /* 0x449690 */
 D3OBJECT *d3_CreateObject(int a, const D3VECTOR *pos, D3VECTOR *rot, char *name);       /* 0x446e10 */
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);                                   /* 0x453e80 */
 void d3_SetObjectPos(struct D3OBJECT *obj, const struct D3VECTOR *pos);                                     /* 0x43b790 */

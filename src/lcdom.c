@@ -611,7 +611,7 @@ int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned in
 int d2_RemoveWindow(int win);                                   /* 0x472ce0 (d2.h) */
 char * gm_FindGoods(int p, unsigned id);
 struct D3OBJECT;
-struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
+struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 char *strstr(); struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void);

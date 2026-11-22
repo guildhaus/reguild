@@ -2776,7 +2776,7 @@ void he_RunConstruction(AIJOB *e)
                 v.y -= site.pos[1];
                 v.z -= site.pos[2];
                 dist = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-                if (dist < best && d3_FindObject((int)ai_Blds[i].object, 0x100, 0, "dummy_TUER") != 0) {
+                if (dist < best && d3_FindObject(ai_Blds[i].object, 0x100, 0, "dummy_TUER") != 0) {
                     nearest = &ai_Blds[i];
                     best = dist;
                 }
@@ -2792,7 +2792,7 @@ void he_RunConstruction(AIJOB *e)
         c->placing = 0;
         for (i = 0; i < list.count; i++) {
             o = list.objs[i];
-            door = d3_FindObject((int)nearest->object, 0x100, 0, "dummy_TUER");
+            door = d3_FindObject(nearest->object, 0x100, 0, "dummy_TUER");
             if (o != 0 && o->type != 1 && door != 0) {
                 sc = evt_Load("SpecialEvents\\Hausbau.esc");
                 if (sc != 0) {
@@ -2863,7 +2863,7 @@ void he_RunConstruction(AIJOB *e)
                     v.y -= at.y;
                     v.z -= at.z;
                     dist = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-                    if (dist < best && (house = d3_FindObject((int)ai_Blds[i].object, 0x100, 0, "dummy_TUER")) != 0) {
+                    if (dist < best && (house = d3_FindObject(ai_Blds[i].object, 0x100, 0, "dummy_TUER")) != 0) {
                         best = dist;
                         door = house;
                     }

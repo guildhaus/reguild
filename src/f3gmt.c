@@ -1618,7 +1618,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
             scene = init_BuildingSceneUniverse(home);
         saved = d3_CurrentScene;
         d3if_SelectScene(scene, 1);
-        dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : (int)home->object, 0x100, 0, "dummy_TRANSPORTER");
+        dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : home->object, 0x100, 0, "dummy_TRANSPORTER");
         if (dummy != 0)
             d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)pos);
         else if (home->object != 0) {

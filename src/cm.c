@@ -4436,7 +4436,7 @@ int cm_ExChrMoveToUniverse(G17MSG *m, G17STAT *s)
             if (r != 0) {
                 save = d3_CurrentScene;
                 d3if_SelectScene(0, 1);
-                o = d3_FindObject((int)b->object, 0x100, 0, m->place.name);
+                o = d3_FindObject(b->object, 0x100, 0, m->place.name);
                 if (o != 0) {
                     d3_PointToWorld(o, &o->pos, &r->move.pos);
                     r->move.hasPos = 1;
@@ -4641,9 +4641,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             strcpy(r->why, m->go.reason);
             if (cb->object != 0) {
                 d3if_SelectScene(0, 1);
-                o = d3_FindObject((int)cb->object, 0x100, 0, "dummy_TUER");
+                o = d3_FindObject(cb->object, 0x100, 0, "dummy_TUER");
                 if (o == 0)
-                    o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
+                    o = d3_FindObjectNoCase(to->object, 0x100, 0, "dummy_TUER");
                 if (o != 0)
                     d3_PointToWorld(o, &o->pos, &v.v);
                 else
@@ -4677,7 +4677,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             strcpy(r->why, m->go.reason);
             strcpy(r->u.name, "dummy_TUER");
             if (cb != 0) {
-                o = d3_FindObject((int)cb->object, 0x100, 0, "dummy_TUER");
+                o = d3_FindObject(cb->object, 0x100, 0, "dummy_TUER");
                 if (o != 0)
                     d3_PointToWorld(o, &o->pos, &v.v);
                 else if (cb->object != 0)
@@ -4699,9 +4699,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             if (p->transport != 0)
                 o = he_RandomTransporter(to->object);
             else {
-                o = d3_FindObject((int)to->object, 0x100, 0, "dummy_TUER");
+                o = d3_FindObject(to->object, 0x100, 0, "dummy_TUER");
                 if (o == 0)
-                    o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
+                    o = d3_FindObjectNoCase(to->object, 0x100, 0, "dummy_TUER");
             }
             if (o == 0)
                 o = to->object;
@@ -4739,9 +4739,9 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
     } else {
         if (to->id != p->group) {
             d3if_SelectScene(0, 1);
-            o = d3_FindObject((int)to->object, 0x100, 0, "dummy_TUER");
+            o = d3_FindObject(to->object, 0x100, 0, "dummy_TUER");
             if (o == 0)
-                o = d3_FindObjectNoCase((int)to->object, 0x100, 0, "dummy_TUER");
+                o = d3_FindObjectNoCase(to->object, 0x100, 0, "dummy_TUER");
             if (o != 0) {
                 hm = (D3SM *)d3_Scenes[0].hmap;
                 d3_PointToWorld(o, &o->pos, &v.v);

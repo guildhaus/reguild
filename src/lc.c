@@ -1981,7 +1981,7 @@ void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, AIOBJ *obj
 
 
 struct D3OBJECT;
-struct D3OBJECT * d3_FindObject(int a, int flags, int c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
+struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 
@@ -7279,8 +7279,8 @@ int ai_DrawGoodsCell(int x, int y, int win, int goods, int slot)
 void ai_CityInfoWindow(AIBLD *city, int unused)
 {
     char text[0x104];
-    int table;
-    int corner;
+    D3OBJECT *table;
+    D3OBJECT *corner;
     int win;
     int shown;
     unsigned long start = 0;
@@ -12254,7 +12254,7 @@ void ai_ThievesGuildListener(AIBLD *building, AIOBJ *room)
     int taschen = 0;
     int personal = 0;
     int pergament = 0;
-    int obj;
+    D3OBJECT *obj;
     int click;
     AIBLD *bld;
     AIBTYPE *type;
@@ -12710,7 +12710,7 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
     int loesegeld = 0;
     int ausbrechen = 0;
     AICHAR *ch = 0;
-    int cell = 0;
+    CHARACTER *cell = 0;
     int r;
 
     if (bld->victimId != -1) {

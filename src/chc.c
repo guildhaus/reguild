@@ -443,7 +443,7 @@ int chc_DropObject(CHARACTER **ch, char **name, int *frame, char **obj)
         evt_Error(evt_Cur, evt_Cur->pc, "DropObject(): Invalid character");
         return 1;
     }
-    if (*obj && !d3_FindObject(0, 0x40, (int)*obj, 0))
+    if (*obj && !d3_FindObject(0, 0x40, (D3OBJECT *)*obj, 0))
         return 1;
     if (evt_CurCall && evt_CurCall->fn == chc_DropObject) {
         if ((*ch)->actions) {
@@ -465,7 +465,7 @@ int chc_DropObjectLeft(CHARACTER **ch, char **name, int *frame, char **obj)
         evt_Error(evt_Cur, evt_Cur->pc, "DropObjectLeft(): Invalid character");
         return 1;
     }
-    if (*obj && !d3_FindObject(0, 0x40, (int)*obj, 0))
+    if (*obj && !d3_FindObject(0, 0x40, (D3OBJECT *)*obj, 0))
         return 1;
     if (evt_CurCall && evt_CurCall->fn == chc_DropObjectLeft) {
         if ((*ch)->actions) {
@@ -754,7 +754,7 @@ int chc_GetCharacterSubObjectHandle(CHARACTER **ch, char **name)
         evt_Error(evt_Cur, evt_Cur->pc, "GetCharacterSubObjectHandle(): invalid character");
         return 0;
     }
-    return (int)d3_FindObject((int)(*ch)->obj, 0x140, 0, *name);
+    return (int)d3_FindObject((*ch)->obj, 0x140, 0, *name);
 }
 /* 0x40d060, SetCharacterStepSample(name): sets the step sound sample name (ch_StepSample); always 1 */
 

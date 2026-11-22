@@ -1668,7 +1668,7 @@ int sv_IsAtDoor(AICHAR *g, AIBLD *o)
     if (o->object != 0) {
         if (dst == 0)
             return 0;
-        door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
+        door = d3_FindObject((o)->object, 0x100, 0, "dummy_TUER");
         if (door != 0)
             d3_PointToWorld(door, &door->pos, &pos.v);
         else
@@ -1699,7 +1699,7 @@ int sv_IsCartAtDoor(char *g, AIBLD *o)
         if (dst == 0)
             return 0;
         if (dst->scene == &d3_Scenes[0]) {
-            door = d3_FindObject((int)(o)->object, 0x100, 0, "dummy_TUER");
+            door = d3_FindObject((o)->object, 0x100, 0, "dummy_TUER");
             if (door != 0)
                 d3_PointToWorld(door, &door->pos, &pos.v);
             else {
@@ -3313,7 +3313,7 @@ void sv_UpdateChimneySmoke(AIBLD *b)
                         return;
                     scene = d3_CurrentScene;
                     d3if_SelectScene(0, 1);
-                    d = d3_FindObject((int)b->object, 0x100, 0, "dummy_RAUCH_0");
+                    d = d3_FindObject(b->object, 0x100, 0, "dummy_RAUCH_0");
                     if (d != 0 && (e = evt_Load("effekte\\Schornstein_dunkel.esc")) != 0) {
                         d3_PointToWorld(d, &d->pos, &pos.v);
                         if (evt_RunScriptArgs(e, 3, (int)pos.x, (int)pos.y, (int)pos.z) != 0)
