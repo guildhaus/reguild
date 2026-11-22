@@ -4310,7 +4310,7 @@ int cm_ExCreateSermon(G17MSG *m, G17STAT *s)
 int cm_ExChrWalkTo(G17MSG *m, G17STAT *s)
 {
     char buf[0x80];
-    char *p;
+    CHARACTER *p;
 
     sprintf(buf, "sp_%i", m->walk.netId);
     p = ch_FindByName(buf);
@@ -5378,7 +5378,7 @@ int cm_ExOfficeMessage(G17MSG *m, G17STAT *s)
 {
     int r;
 
-    r = amt_ExecuteOfficeMessage(&m->data[0]);
+    r = amt_ExecuteOfficeMessage(&m->office);
     if (s != 0) {
         s->kind = 0;
         s->state = (r == 0) + 1;
@@ -5393,7 +5393,7 @@ int cm_ExDecisionValue(G17MSG *m, G17STAT *s)
 {
     int r;
 
-    r = gv_OnDecisionValue(&m->data[0]);
+    r = gv_OnDecisionValue(&m->decision);
     if (s != 0) {
         s->state = (r == 0) + 1;
         s->kind = 0;
@@ -6326,7 +6326,7 @@ int cm_ExGraveMove(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->ref = 0;
     }
-    r = gv_MoveGrave(&m->data[0]);
+    r = gv_MoveGrave(&m->graveMove);
     if (s != 0 && r == 0)
         s->state = 1;
     return r;

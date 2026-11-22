@@ -52,15 +52,6 @@ typedef struct GVORDER {                /* 0x1f bytes, a graveyard order: the da
     int objId;                          /* 0x17, ai_NextObjectId, filled by the handler when the game is networked */
     int seed;                           /* 0x1b, a rand() the handler fills otherwise */
 } GVORDER;
-typedef struct GVMOVE {                 /* 0x19 bytes, a grave move: the data of message 0x61 (cm_SendGraveMove), run by gv_MoveGrave */
-    int chr;                            /* 0x00, the paying character's netId (AICHAR.netId) */
-    int bld;                            /* 0x04, the graveyard building's id (AIBLD.id) */
-    int from;                           /* 0x08, the source grave size (GVYARD.lists index) */
-    unsigned char entry;                /* 0x0c, the entry of that list */
-    int to;                             /* 0x0d, the target grave size */
-    int price;                          /* 0x11, > 0: the character pays it */
-    int objId;                          /* 0x15, ai_NextObjectId when the game is networked */
-} GVMOVE;
 typedef struct GVRAISE {                /* 0x19 bytes, a raising of a dead person: the data of message 0x62 (cm_SendRaiseDead), run by gv_RaiseDead */
     int seed;                           /* 0x00, a rand() the handler 0x4ccf10 fills (util_Seed) */
     int objId;                          /* 0x04, ai_NextObjectId when the game is networked */

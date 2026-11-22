@@ -479,10 +479,10 @@ int amt_SendOfficeMessage(unsigned char a, AICHAR *b, AICHAR *c, int d, unsigned
     if (i >= 42)
         return -1;
     m.office = a;
-    m.a = netIdB;
-    m.d = d;
-    m.e = e;
-    m.b = netIdC;
+    m.owner = netIdB;
+    m.state = d;
+    m.code = e;
+    m.second = netIdC;
     return cm_SendOfficeRecord(&m);
 }
 /* 0x4e6710, checks the office message m (AMTMSG: +0 the office, +1 / +7 two character ids or -1, +6 the code): with a code (not 0xff) the
@@ -494,7 +494,7 @@ int amt_CheckOfficeMessage(AMTMSG *m)
     AMTREC *q;
     int i;
 
-    if (m->e != 0xff) {
+    if (m->code != 0xff) {
         i = 0;
         q = amt_Table;
         do {
@@ -511,25 +511,25 @@ int amt_CheckOfficeMessage(AMTMSG *m)
             return 0;
         if (amt_Table[i].x14 != -1)
             return 0;
-        if (m->b != -1) {
-            if (gm_FindChar(m->b) == 0)
+        if (m->second != -1) {
+            if (gm_FindChar(m->second) == 0)
                 return 0;
         }
-        if (m->a != -1) {
-            if (gm_FindChar(m->a) == 0)
+        if (m->owner != -1) {
+            if (gm_FindChar(m->owner) == 0)
                 return 0;
         }
     }
     return 1;
 }
-/* 0x4e67a0, executes the office message p (AMTSET: +0 the office, +1 the new owner or -1, +5 the new state, +7 the x14
+/* 0x4e67a0, executes the office message p (AMTMSG: +0 the office, +1 the new owner or -1, +5 the new state, +7 the second
    character; message 0x45, the only caller is cm.c's handler of the type 0x45): the old owner loses the rank / the status
    bit of the office, the new owner takes it (officeKind +0x166, prevOffice +0x167, secondOffice +0x169, status bits
    +0x1cc), the applicants' counts are settled; 0 when a character does not exist
    ai_ShowOfficeNews (the text 0x20bb with the x14 character's id to the new owner, event 0x5fd, only for a player
    character kind 6/7): its name is a reasoned guess from this call (see its address comment). */
 
-int amt_ExecuteOfficeMessage(AMTSET *p)
+int amt_ExecuteOfficeMessage(AMTMSG *p)
 {
     int i, j, owner;
     AICHAR *c, *o, *x;
@@ -541,8 +541,8 @@ int amt_ExecuteOfficeMessage(AMTSET *p)
     i = 0;
     owner = -1;
     x = 0;
-    if (p->x14 != -1) {
-        x = gm_FindChar(p->x14);
+    if (p->second != -1) {
+        x = gm_FindChar(p->second);
         if (x == 0)
             return 0;
     }
@@ -555,7 +555,7 @@ int amt_ExecuteOfficeMessage(AMTSET *p)
     }
     q = amt_Table;
     do {
-        if (q->idx == p->idx)
+        if (q->idx == p->office)
             break;
         q++;
         i++;
@@ -650,7 +650,7 @@ next:
     }
 done:
     amt_Table[i].owner = owner;
-    amt_Table[i].x14 = p->x14;
+    amt_Table[i].x14 = p->second;
     amt_Table[i].state = p->state;
     if (p->state == 3)
         amt_Table[i].cnt = 0;
