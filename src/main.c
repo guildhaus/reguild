@@ -248,7 +248,7 @@ extern unsigned int d3anim_CacheMax;   /* 0x5f927c, d3_anim.h */
 void ai_ClearTurnTable(void);           /* 0x587de0, sv_t.c: not in sv_t.h (adding it there moves sv_t's drafts ai_TutorialInitChapter3 / ai_TutorialInitChapter5) */
 int main_PreloadSound(char *f);         /* 0x537c70 */
 int main_ChooseCity(int unused, int host);  /* 0x537230, the player setup / city choice of a new game ("Menu\CHOOSECITY", the start menu page "Startmenu/A_Stadtwahl.esc"; host = 1 for a network host (the list of ".NET" files, else ".CTY"): lists the city files
-   "gamedata/cities/*" (0x5d33b0: up to 64 records of 0x210 bytes, the path at +0x109), reads each header (0x51cee0, an LSHEADER: +5 the name, from which the city point is created (ai_CreateCityPoint, its dummy "dummy_<NAME>"), +0x30 slotByte the player limit; diff[i] = limit - players (0x62489c)),
+   "gamedata/cities/*" (0x5d33b0: up to 64 records of 0x210 bytes, the path at +0x109), reads each header (0x51cee0, an LSHDR: +5 the name, from which the city point is created (ai_CreateCityPoint, its dummy "dummy_<NAME>"), +0x30 slotByte the player limit; diff[i] = limit - players (0x62489c)),
    creates the name object of the city (0x59a2c0 "stadt_<name>", the text plate 0x52e1c0 from the table 0x143a1c0 by the key "_STADTAUSWAHL_<NAME>_INFO+0" (0x42e770)), puts the city tower "sp_STADTTURM" (0x446e10,
    "sonstiges\wimpel_STADTTURM.baf") over the picked city (the pick object 0x448630 with a name starting with "stadt_" selects: sel; the default is the object of the 5th city) and shows its description
    ("_STADTAUSWAHL_<NAME>_BESCHR+0"); the buttons: ok (or enter / 0x1c) goes on to main_ChooseDifficulty and main_ChooseHistory (host: ends at once), the second button opens the opponent
@@ -920,7 +920,7 @@ int main_JoinNetworkGame(void)
         sprintf(path, "gamedata/network/%s.SAV", main_NetSaveName);
         f = vfs_Tfopen(path, "rb", vfs_Root);
         if (f != 0) {
-            ls_ReadSaveHeader(f, (int *)&hdr);
+            ls_ReadSaveHeader(f, &hdr);
             ai_NumPlayers = hdr.players;
             strcpy(main_NetHost, "127.0.0.1");
             ai_GameFlags |= 0x50;
@@ -1007,7 +1007,7 @@ int d2_RemoveWindowObjects();
 void d2_RadioAdd(int g, int obj);
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);
 int sv_OpenMessageBox(intptr_t text, unsigned char flags);
-int ls_ReadSaveHeader(struct VFSFILE *f, int *h);
+int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);
 
 /* 0x532da0, the network game search window "Menu\SEARCH_NETWORK": every 1.5 s (the clock d3_Time) or on the
    refresh button (btn[1]) it scans the LAN (udp_FindServers, port 12345, 3 s, up to 8 hosts) under the message
@@ -1072,7 +1072,7 @@ int main_SearchNetworkGame(int saved)
                         fp = vfs_Tfopen(path, "rb", vfs_Root);
                         if (fp != 0) {
                             ok = 1;
-                            ls_ReadSaveHeader(fp, (int *)&hdr);
+                            ls_ReadSaveHeader(fp, &hdr);
                             for (k = 0; k < hdr.players; k++) {
                                 if (recs[i].info.game.party[k] != hdr.party[k]) {
                                     ok = 0;
@@ -1129,7 +1129,7 @@ int main_SearchNetworkGame(int saved)
                             memset(&joined, 0, sizeof(LSHDR));
                             fp = vfs_Tfopen(path2, "rb", vfs_Root);
                             if (fp != 0) {
-                                ls_ReadSaveHeader(fp, (int *)&joined);
+                                ls_ReadSaveHeader(fp, &joined);
                                 vfs_fclose(fp);
                             }
                             memset(&cm_JoinChar, 0, sizeof(CMJOIN));
@@ -2513,7 +2513,7 @@ void main_ChooseOpponents(int n)
     d2_CloseView(f);
 }
 /* 0x537230, the player setup / city choice of a new game ("Menu\CHOOSECITY", the start menu page "Startmenu/A_Stadtwahl.esc"; host = 1 for a network host (the list of ".NET" files, else ".CTY"): lists the city files
-   "gamedata/cities/*" (0x5d33b0: up to 64 records of 0x210 bytes, the path at +0x109), reads each header (0x51cee0, an LSHEADER: +5 the name, from which the city point is created (ai_CreateCityPoint, its dummy "dummy_<NAME>"), +0x30 slotByte the player limit; diff[i] = limit - players (0x62489c)),
+   "gamedata/cities/*" (0x5d33b0: up to 64 records of 0x210 bytes, the path at +0x109), reads each header (0x51cee0, an LSHDR: +5 the name, from which the city point is created (ai_CreateCityPoint, its dummy "dummy_<NAME>"), +0x30 slotByte the player limit; diff[i] = limit - players (0x62489c)),
    creates the name object of the city (0x59a2c0 "stadt_<name>", the text plate 0x52e1c0 from the table 0x143a1c0 by the key "_STADTAUSWAHL_<NAME>_INFO+0" (0x42e770)), puts the city tower "sp_STADTTURM" (0x446e10,
    "sonstiges\wimpel_STADTTURM.baf") over the picked city (the pick object 0x448630 with a name starting with "stadt_" selects: sel; the default is the object of the 5th city) and shows its description
    ("_STADTAUSWAHL_<NAME>_BESCHR+0"); the buttons: ok (or enter / 0x1c) goes on to main_ChooseDifficulty and main_ChooseHistory (host: ends at once), the second button opens the opponent
@@ -2527,7 +2527,7 @@ int main_ChooseCity(int unused, int host)
     D3OBJECT *cityobj[64];
     int diff[64];
     char recs[64][0x210], name[0x40], objName[0x100];
-    LSHEADER hdr;
+    LSHDR hdr;
     char *s, *d;
     char c;
 
@@ -2549,25 +2549,25 @@ int main_ChooseCity(int unused, int host)
         f = vfs_Tfopen(recs[i] + 0x109, "rb", vfs_Root);
         if (f == 0)
             return 0;
-        if (ls_ReadSaveHeader(f, (int *)&hdr) == 0) {
+        if (ls_ReadSaveHeader(f, &hdr) == 0) {
             vfs_fclose(f);
             return 0;
         }
         vfs_fclose(f);
-        diff[i] = (signed char)hdr.slotByte - (ai_NumPlayersW & 0xff);
-        h = ai_CreateCityPoint(hdr.name);
+        diff[i] = (signed char)hdr.playerByte - (ai_NumPlayersW & 0xff);
+        h = ai_CreateCityPoint(hdr.player);
         cityobj[i] = h;
         if (h != 0) {
             char key[0x100];
 
-            sprintf(key, "_STADTAUSWAHL_%s_INFO+0", hdr.name);
+            sprintf(key, "_STADTAUSWAHL_%s_INFO+0", hdr.player);
             strupr(key);
             k = txt_FindKey(key);
             if (k != -1)
                 strcpy(name, txt_Ptrs[k]);
             else
-                strcpy(name, hdr.name);
-            sprintf(objName, "stadt_%s", hdr.name);
+                strcpy(name, hdr.player);
+            sprintf(objName, "stadt_%s", hdr.player);
             strcpy(h->name, objName);
             sv_RegisterNamePlate(objName, name, 0);
         }

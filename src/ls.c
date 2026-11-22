@@ -1214,7 +1214,7 @@ int ls_Read(void *buf, int size, int count, VFSFILE *f)
 
 extern LSSAVE ls_SavePath;
 unsigned short ai_ScreenImage[19200];  /* 0x766320, the */
-LSHEADER ls_LoadedHeader;  /* 0x76f920, the 0x100-byte header of the loaded save game (id, flag byte, name, ..; ls_ReadSaveHeader fills it up to +0xfc) */
+LSHDR ls_LoadedHeader;  /* 0x76f920, the 0x100-byte header of the loaded save game (id, flag byte, name, ..; ls_ReadSaveHeader fills it up to +0xfc) */
 int cm_SaveAcks[8][2];  /* 0x76fa20 */
 extern char * cm_LoadBuf;                /* 0xf31140 */
 #define LS_RD(p, sz) ls_Read((p), (sz), 1, h)
@@ -1237,7 +1237,7 @@ int ls_LoadGame(char *name, int kind)
     ai_JudgeCatholic = 0;
     ai_JudgeProtestant = 0;
     init_FreeScenes();
-    if (ls_ReadSaveHeader(h, (int *)&ls_LoadedHeader) == 0 || ls_LoadedHeader.version > 0x1005a || ls_LoadedHeader.version < 0x10026
+    if (ls_ReadSaveHeader(h, &ls_LoadedHeader) == 0 || ls_LoadedHeader.version > 0x1005a || ls_LoadedHeader.version < 0x10026
         || !LS_RD(&ai_NextObjectId, 4) || !LS_RD(&ai_NextEventId, 4) || !LS_RD(&ai_Time, 0xe)
         || !LS_RD(&ai_OwnPlayer, 1) || !LS_RD(&ai_PlayerChar, 4) || !LS_RD(&ai_NextCharNumber, 4)
         || !LS_RD(&ai_NextPlayerNumber, 4) || !LS_RD(&ai_CharCount, 4))
@@ -1321,14 +1321,13 @@ close:
     vfs_fclose(h);
     return 0;
 }
-/* 0x51cee0, reads the header of a save game into h (an LSHEADER), each field from the version it came in
+/* 0x51cee0, reads the header of a save game into h (an LSHDR), each field from the version it came in
    with (the version itself goes to ls_Version); the 160 x 120 screen shot (24 bit, 0xe100 bytes) is converted
    into ai_ScreenImage. Returns 1, 0 when a read fails or the version is below 0x10025 */
 
 
-int ls_ReadSaveHeader(VFSFILE *f, int *h)
+int ls_ReadSaveHeader(VFSFILE *f, LSHDR *hd)
 {
-    LSHEADER *hd = (LSHEADER *)h;
     char *shot;
     int i, j, k = 0;
 
@@ -1336,25 +1335,25 @@ int ls_ReadSaveHeader(VFSFILE *f, int *h)
     LS_R(&hd->version, 4)
     ls_Version = hd->version;
     LS_R(&hd->flags, 1)
-    LS_R(hd->name, 0x20)
-    LS_R(hd->slotPair, 8)
-    LS_R(&hd->slotByte, 1)
+    LS_R(hd->player, 0x20)
+    LS_R(hd->playerWords, 8)
+    LS_R(&hd->playerByte, 1)
     if (ls_Version >= 0x10033)
-        LS_R(&hd->numPlayers, 1)
+        LS_R(&hd->players, 1)
     if (ls_Version >= 0x10028) {
-        LS_R(hd->clock, 0xe)
-        LS_R(hd->charText30, 0x10)
+        LS_R(&hd->time, 0xe)
+        LS_R(hd->charText1, 0x10)
         if (ls_Version >= 0x10054) {
-            LS_R(hd->charText40, 0x10)
-            LS_R(&hd->charByte0c, 1)
-            LS_R(&hd->charRef54, 4)
+            LS_R(hd->charText2, 0x10)
+            LS_R(&hd->char0c, 1)
+            LS_R(&hd->char54, 4)
         }
-        LS_R(&hd->charByte164, 1)
-        LS_R(&hd->charByte166, 1)
-        LS_R(&hd->charByte0d, 1)
+        LS_R(&hd->char164, 1)
+        LS_R(&hd->char166, 1)
+        LS_R(&hd->char0d, 1)
         LS_R(&hd->worth, 4)
-        LS_R(&hd->charByte09, 1)
-        LS_R(&hd->saveSlot, 1)
+        LS_R(&hd->char09, 1)
+        LS_R(&hd->slot, 1)
         if (ls_Version >= 0x1002b) {
             LS_R(&hd->startBuilding, 4)
             LS_R(&hd->startObject, 4)
@@ -2597,7 +2596,7 @@ int ls_ReceiveGame(void)
         return 0;
     }
     ai_PlayerChar = 0;
-    ls_ReadSaveHeader(h, (int *)&hdr);
+    ls_ReadSaveHeader(h, &hdr);
     if ((hdr.flags & 2) == 0 || hdr.version > 0x1005a)
         LS_LOADFAIL
     if (!LS_RD(&ai_NextObjectId, 4) || !LS_RD(&ai_NextEventId, 4) || !LS_RD(&ai_Time, 0xe)

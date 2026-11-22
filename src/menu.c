@@ -446,38 +446,9 @@ extern int d2_CutsceneActive;           /* 0x6ed9d4, cm.h / gfx.h */
 extern unsigned char kb_Last;           /* 0x1468410, d2.h: the last key (di_input.c) */
 void d2_FocusInput(int obj);                                           /* 0x478320 */
 
-#pragma pack(push, 1)
-/* the header ls_ReadSaveHeader (0x51cee0) fills, the file layout of the writer 0x5194c0 (ls.c) */
-typedef struct SAVEHEADERVIEW {             /* 0xfc */
-    int version;                            /* +0x00, the save version (also ls_Version) */
-    unsigned char flags;                    /* +0x04, bit 2: a map only save */
-    char player[0x20];                       /* +0x05, the player's name */
-    char pad25[0x0d];
-    int year;                               /* +0x32, the game clock's year (0x578 + it is the calendar year) */
-    unsigned short hour;                    /* +0x36, its hour */
-    int minute;                             /* +0x38, its minute */
-    char pad3c[4];
-    char scenario[0x10];                    /* +0x40, the character's scenario record */
-    char character[0x0c];                   /* +0x50, the character's saved bytes */
-    char pad5c[4];
-    unsigned char nameTextOffset;           /* +0x60, added to the text id 0x130 (0x18f compact) of the character line */
-    unsigned char officeTextOffset;         /* +0x61, added to the text id 0x253 (0x27b compact) of the character line */
-    unsigned char traitTextOffset;          /* +0x62, added to the text id 0x114 (0x11e compact) of the character line */
-    char pad63[5];
-    int money;                              /* +0x68, the character's money ("%i%c") */
-    unsigned char compactTexts;             /* +0x6c, nonzero: the three text ids shift by +10 / +0x5f / +0x28 */
-    unsigned char slot;                     /* +0x6d, ls_SaveSlot of the save */
-    short pad6e;
-    int playerBuilding;                     /* +0x70, the player's building id, -1 = none */
-    int otherBuilding;                      /* +0x74, the second building id, -1 = none */
-    int party[8];                           /* +0x78, the table 0x76fa24 */
-    int difficulty;                         /* +0x98, ai_Difficulty (2 for a save older than 0x10038) */
-    char title[0x60];                       /* +0x9c, the title shown in the slot */
-} SAVEHEADERVIEW;                           /* 0xfc */
-#pragma pack(pop)
 
 extern int ls_Version;                      /* 0x623650, ls.c: the version of the save read last */
-int ls_ReadSaveHeader(struct VFSFILE *f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
+int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); /* 0x472aa0, d2.h */
 int d2_WinOpenRaw(int x, int y, int w, int h, void *src, int win);  /* 0x46c390, d2.h */
 int d2_WinOpenPic(short x, short y, int pic, int win); /* 0x4731d0, d2.h: creates a picture object */
@@ -512,7 +483,7 @@ char *itoa(int value, char *buf, int base); /* 0x5e56c4, the library's integer t
    image 0x766320 and the text 0x1cc7. Returns nothing. */
 void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char *dir, int reserved)
 {
-    SAVEHEADERVIEW hdr;
+    LSHDR hdr;
     char timebuf[0x40];
     SAVEREQUEST req;
     SAVEREQUEST *rec;
@@ -575,13 +546,13 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
         d2_CreateChildWindow(0xa4, 0x12, d2_LastWindowPtr->w - 0xb0, 0x6e, 0x10, d2_LastWindow);
         d2_Wins[d2_LastWindow].font = 0x54;
         d2_Wins[d2_LastWindow].mt = 0;
-        sprintf(timebuf, "%i%c", hdr.money, 0x11);
-        io_PrintText(0x1cc5, hdr.player, hdr.year + 0x578, hdr.hour, hdr.minute % 0x3c);
+        sprintf(timebuf, "%i%c", hdr.worth, 0x11);
+        io_PrintText(0x1cc5, hdr.player, hdr.time.year + 0x578, hdr.time.hour, hdr.time.min % 0x3c);
         io_PrintText(0x1cc6,
-                     (hdr.compactTexts ? 0x11e : 0x114) + hdr.traitTextOffset,
-                     hdr.scenario,
-                     (hdr.compactTexts ? 0x18f : 0x130) + hdr.nameTextOffset,
-                     (hdr.compactTexts ? 0x27b : 0x253) + hdr.officeTextOffset,
+                     (hdr.char09 ? 0x11e : 0x114) + hdr.char0d,
+                     hdr.charText1,
+                     (hdr.char09 ? 0x18f : 0x130) + hdr.char164,
+                     (hdr.char09 ? 0x27b : 0x253) + hdr.char166,
                      timebuf,
                      txt_Ptrs[TXT_DIFFICULTY_TEXTS + hdr.difficulty]);
     }
@@ -1184,7 +1155,7 @@ void sv_PumpNet(void);                                             /* 0x52fe00, 
 void sv_BroadcastText(unsigned fl, char *t);  /* 0x52fcf0, sv.c: sends t as the network message 0xe and
                                                  shows it until the answer, then clears the status line */
 int ls_WriteSaveHeader(struct VFSFILE *f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
-int ls_ReadSaveHeader(struct VFSFILE *f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
+int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);         /* 0x51cee0, ls.c: reads the save header into h */
 
 /* cm.h's save-request state (the 0x0f the network message carries) and the acknowledgement slots. */
 extern int cm_RequestedSaveSlot;        /* 0x6f25c8, cm.h: the save slot the request asked for */
@@ -1447,7 +1418,7 @@ void ai_Quicksave(void)
 void ai_SaveNetworkGame(char *saveName, char *name)
 {
     char path[MAX_PATH];
-    char hdr[0xfc];
+    LSHDR hdr;
     int rec[0x1f];
     VFSFILE *h;
     unsigned int hash = 0;
@@ -1477,8 +1448,8 @@ void ai_SaveNetworkGame(char *saveName, char *name)
     }
     h = vfs_Tfopen(path, "rb", vfs_Root);
     if (h != 0) {
-        ls_ReadSaveHeader(h, hdr);
-        hash = util_Hash((unsigned char *)hdr, 0x78);
+        ls_ReadSaveHeader(h, &hdr);
+        hash = util_Hash((unsigned char *)&hdr, 0x78);
         vfs_fclose(h);
     }
     memset(rec, 0, sizeof(rec));

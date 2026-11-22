@@ -176,36 +176,8 @@ extern int sv_PopRequest;               /* 0x6f22a0, cm.h / gv.h: the dialog clo
 extern int d2_CutsceneActive;           /* 0x6ed9d4, cm.h / gfx.h */
 extern unsigned char kb_Last;           /* 0x1468410, d2.h: the last key (di_input.c) */
 void d2_FocusInput(int obj);                                           /* 0x478320 */
-#pragma pack(push, 1)
-typedef struct SAVEHEADERVIEW {             /* 0xfc */
-    int version;                            /* +0x00, the save version (also ls_Version) */
-    unsigned char flags;                    /* +0x04, bit 2: a map only save */
-    char player[0x20];                       /* +0x05, the player's name */
-    char pad25[0x0d];
-    int year;                               /* +0x32, the game clock's year (0x578 + it is the calendar year) */
-    unsigned short hour;                    /* +0x36, its hour */
-    int minute;                             /* +0x38, its minute */
-    char pad3c[4];
-    char scenario[0x10];                    /* +0x40, the character's scenario record */
-    char character[0x0c];                   /* +0x50, the character's saved bytes */
-    char pad5c[4];
-    unsigned char nameTextOffset;           /* +0x60, added to the text id 0x130 (0x18f compact) of the character line */
-    unsigned char officeTextOffset;         /* +0x61, added to the text id 0x253 (0x27b compact) of the character line */
-    unsigned char traitTextOffset;          /* +0x62, added to the text id 0x114 (0x11e compact) of the character line */
-    char pad63[5];
-    int money;                              /* +0x68, the character's money ("%i%c") */
-    unsigned char compactTexts;             /* +0x6c, nonzero: the three text ids shift by +10 / +0x5f / +0x28 */
-    unsigned char slot;                     /* +0x6d, ls_SaveSlot of the save */
-    short pad6e;
-    int playerBuilding;                     /* +0x70, the player's building id, -1 = none */
-    int otherBuilding;                      /* +0x74, the second building id, -1 = none */
-    int party[8];                           /* +0x78, the table 0x76fa24 */
-    int difficulty;                         /* +0x98, ai_Difficulty (2 for a save older than 0x10038) */
-    char title[0x60];                       /* +0x9c, the title shown in the slot */
-} SAVEHEADERVIEW;                           /* 0xfc */
-#pragma pack(pop)
 extern int ls_Version;                      /* 0x623650, ls.c: the version of the save read last */
-int ls_ReadSaveHeader(struct VFSFILE *f, int *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
+int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);      /* 0x51cee0, ls.c: reads a save header into h (no header there) */
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win); /* 0x472aa0, d2.h */
 int d2_WinOpenRaw(int x, int y, int w, int h, void *src, int win);  /* 0x46c390, d2.h */
 int d2_WinOpenPic(short x, short y, int pic, int win); /* 0x4731d0, d2.h: creates a picture object */
@@ -279,7 +251,7 @@ void sv_PumpNet(void);                                             /* 0x52fe00, 
 void sv_BroadcastText(unsigned fl, char *t);  /* 0x52fcf0, sv.c: sends t as the network message 0xe and
                                                  shows it until the answer, then clears the status line */
 int ls_WriteSaveHeader(struct VFSFILE *f, unsigned flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
-int ls_ReadSaveHeader(struct VFSFILE *f, int *h);         /* 0x51cee0, ls.c: reads the save header into h */
+int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);         /* 0x51cee0, ls.c: reads the save header into h */
 extern int cm_RequestedSaveSlot;        /* 0x6f25c8, cm.h: the save slot the request asked for */
 extern char cm_RequestedSaveName[];     /* 0x6f25d0, cm.h: the save name the request carried */
 extern int cm_SaveAcks[][2];            /* 0x76fa20, cm.h: 8 slots; [0] = the player's netId, [1] = the
