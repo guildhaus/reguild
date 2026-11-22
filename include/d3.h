@@ -671,12 +671,40 @@ struct D3FLMAP;
 
 /* Particle systems (d3_par, "d3_par:ParticleSystem"). The engine allocates the particles and calls
    the system's callback each frame; the callbacks in d3_tools.c animate them. */
+/* the template par_CreateEmitter reads (global at 0x1468620, 0xa4 bytes) */
+typedef struct D3EMITTERCFG {
+    int type;                       /* 0x00, emitter type: 0/1/2 -> par_EmitterCB0/1/2 */
+    char pad04[0x30];
+    float f34, f38, f3c;
+    D3VECTOR dir;                   /* 0x40, d3_YAxis */
+    char pad4c[0x34];
+    float f80;
+    char pad84[0x8];
+    float f8c;
+    int i90, i94, i98;
+    unsigned char c9c, c9d, c9e, c9f;
+    unsigned char flags;            /* 0xa0 */
+    char pada1[3];
+} D3EMITTERCFG;
+
 typedef struct D3PARTICLE {         /* 0x54 bytes */
-    D3VECTOR4 vel;                  /* meaning depends on the effect */
-    D3VECTOR4 start;                /* start position of the effect; .x is the brightness in the emitter */
-    char pad20[0x10];
+    D3VECTOR4 vel;                  /* meaning depends on the effect; an emitter's: w the phase of the alpha wave */
+    union {
+        D3VECTOR4 start;            /* 0x10, start position of the effect; .x is the brightness in the emitter */
+        float phase[4];             /* an emitter's particle: the phases of the x / y / z / size waves */
+    };
+    union {
+        char pad20[0x10];
+        struct {
+            float base[3];          /* 0x20, an emitter's particle: the position without the waves */
+            float pad2c;
+        };
+    };
     unsigned long time;             /* 0x30, d3_Time of the last update */
-    int pad34;
+    union {
+        int pad34;
+        unsigned long birth;        /* 0x34, an emitter's particle: d3_Time of its birth */
+    };
     D3VECTOR4 pos;                  /* 0x38 */
     float size;                     /* 0x48 */
     union {
@@ -698,23 +726,51 @@ struct D3PARTSYS {                  /* 0x31c bytes */
     union {
         unsigned int spawnCount;    /* particles spawned per frame (d3t_CreateEmitter sets 2) */
         D3COLOR color24;            /* base color + random mask in a (Erdbrocken) */
+        unsigned long lasttime;     /* an emitter's d3_Time of its last callback; a repeated time is skipped */
     };
     D3PARTICLE *particles;          /* 0x28 */
-    char pad2c[0x9c];
-    unsigned long color;            /* 0xc8 */
-    char padcc[0x4];
+    union {                         /* 0x2c..0xd0 */
+        D3EMITTERCFG cfg;           /* an emitter's parameters: the template par_CreateEmitter copies in */
+        struct {                    /* the same bytes by name: the emitter callbacks and the script commands (ecmd.c) */
+            char pade2c[0x4];
+            float inv_alpha0;       /* 0x30, 1 / alpha[0], cached by the emitter callbacks */
+            float inv_alpha_gap;    /* 0x34, 1 / (alpha[2] - alpha[1]) */
+            float inv_size;         /* 0x38, 1 / |psize[1] - psize[0]| (type 0), 1 / psize[2] (type 1) */
+            float size_ratio;       /* 0x3c, psize[1] / psize[0] */
+            float amp[3];           /* 0x40 */
+            float amp3;             /* 0x4c */
+            float phase[3];         /* 0x50 */
+            float phase3;           /* 0x5c */
+            float psize[3];         /* 0x60, the particle sizes (ocmd_SetEmitterSize) */
+            float dir[3];           /* 0x6c */
+            float vel[3];           /* 0x78 */
+            float rnd[3];           /* 0x84 */
+            float acc[3];           /* 0x90 */
+            float plane[3];         /* 0x9c */
+            float plane3;           /* 0xa8 */
+            float maxtrigger;       /* 0xac, also set by SetEmitterFlags */
+            float amp4;             /* 0xb0 */
+            float phase4;           /* 0xb4 */
+            float time;             /* 0xb8 */
+            int alpha[3];           /* 0xbc */
+            unsigned char b, g, r, a;   /* 0xc8 */
+            unsigned char texmode : 5, initfill : 1, rebirthfill : 1, istrigger : 1;   /* 0xcc */
+            unsigned char triggeronce : 1, trigger : 1, bcd : 6;                        /* 0xcd */
+            char padce[0x2];
+        };
+        struct {
+            char padc2c[0x9c];
+            unsigned long color;    /* 0xc8 */
+        };
+    };
     int count;                      /* 0xd0 */
     struct TSTEXTURE *tex;               /* 0xd4 */
     int texindex;                   /* 0xd8, index into d3_Textures */
     D3VERTEX *points;               /* 0xdc, 4 D3VERTEX per particle ("d3_par:ParticlePoints") */
     D3TRI *polys;                   /* 0xe0, 2 D3TRI per particle ("d3_par:ParticlePolys") */
     float size;                     /* 0xe4, initial particle size */
-    char obj[0x1f8];                /* 0xe8, embedded object: a whole D3OBJECT (PAR_OBJ, d3_par.h) up to 0x310, its
-                                       flags byte at 0x2fb (par_Create), parent and scene below are its fields */
-    void *parent;                   /* 0x2e0 */
-    char pad2e4[0xc];
-    D3SCENE *scene;                 /* 0x2f0 */
-    char pad2f4[0x1c];
+    D3OBJECT obj;                   /* 0xe8, the embedded object (0x228 bytes, up to 0x310): par_Create sets its
+                                       flags, parent and scene; par_Draw takes its world matrix */
     D3PARTCB callback;              /* 0x310 */
     D3PARTSYS *next;                /* 0x314 */
     D3PARTSYS *prev;                /* 0x318 */

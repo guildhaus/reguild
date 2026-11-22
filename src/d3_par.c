@@ -54,7 +54,7 @@ void par_DeleteAll(void)
 
 void par_Unlink(D3PARTSYS *ps)
 {
-    D3SCENE *s = ps->scene;
+    D3SCENE *s = ps->obj.scene;
 
     if (ps->prev == &d3if_ParList)
         s->parHead = ps->next;
@@ -74,7 +74,7 @@ void par_Unlink(D3PARTSYS *ps)
 
 void par_Delete(D3PARTSYS *ps)
 {
-    D3SCENE *s = ps->scene;
+    D3SCENE *s = ps->obj.scene;
 
     if (s == d3_DefaultScene) {
         ps->next->prev = ps->prev;
@@ -132,7 +132,7 @@ D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *
             ps->v10.y = 0;
             ps->v10.z = 0;
             ps->v10.w = 0;
-            D3PAR_TIME(ps)->lasttime = 0;
+            ps->lasttime = 0;
             ps->flags = 0;
             now = d3_Time;
             if (i < ps->count) {
@@ -153,10 +153,10 @@ D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *
                     j += 0x54;
                 } while (i < ps->count);
             }
-            PAR_OBJ(ps)->flags |= 8;
-            d3_InitObject((D3OBJECT *)ps->obj);
-            ps->parent = parent;
-            ps->scene = d3_DefaultScene;
+            ps->obj.flags |= 8;
+            d3_InitObject(&ps->obj);
+            ps->obj.parent = parent;
+            ps->obj.scene = d3_DefaultScene;
             ps->prev = d3_ParTail;
             ps->next = &d3_ParEnd;
             d3_ParTail->next = ps;
@@ -170,7 +170,7 @@ D3PARTSYS *par_Create(int count, char *tex, D3TEXFLAGS flags, float size, void *
 void par_SetPos(D3PARTSYS *ps, const D3VECTOR *pos)
 {
     if (ps)
-        d3_SetObjectPos((D3OBJECT *)ps->obj, pos);
+        d3_SetObjectPos(&ps->obj, pos);
 }
 /* 0x455a40, orientation from a direction and a roll angle */
 
@@ -182,7 +182,7 @@ void par_SetDir(D3PARTSYS *ps, D3VECTOR *dir, float roll)
     if (ps) {
         d3_MakeBasis(dir, roll, &m);
         d3_MatToAngles(&m, &rot);
-        d3_SetObjectRot((D3OBJECT *)ps->obj, &rot);
+        d3_SetObjectRot(&ps->obj, &rot);
     }
 }
 /* 0x455a90, per-frame update and draw of a particle system: runs its callback (no callback or a zero return deletes
@@ -206,7 +206,7 @@ void par_Draw(D3PARTSYS *ps)
     if (ps->callback && ps->callback(ps, d3_Time)) {
         d3_TriCount += ps->count * 2;
         d3_VertCount += ps->count * 4;
-        d3_WorldMatrix(PAR_OBJ(ps), (PAR_OBJ(ps)->state & 0x80) ? 0 : d3_Camera, 0, &m);
+        d3_WorldMatrix(&ps->obj, (ps->obj.state & 0x80) ? 0 : d3_Camera, 0, &m);
         for (i = 0; i < ps->count; i++) {
             p = &ps->particles[i];
             vis = 0;
@@ -256,7 +256,7 @@ void par_Draw(D3PARTSYS *ps)
                 t[1].v[2] = v1;
                 t[1].uv = d3_ParUV1;
                 t[1].tex = tex;
-                if (tex && (PAR_TEXBITS(tex) & 1)) {
+                if (tex && (tex->flags.b[2] & 1)) {
                     col.c.r = p->r * p->a >> 8;
                     col.c.g = p->g * p->a >> 8;
                     col.c.b = p->b * p->a >> 8;
@@ -309,7 +309,7 @@ void par_Draw(D3PARTSYS *ps)
                     d3_SortPtr->item = t;
                     if (tt) {
                         d3_SortPtr->key = (tt - d3_Textures) + 0x8000;
-                        D3PAR_TEXSTAMP(tt) = d3_FrameCount;
+                        tt->stamp = d3_FrameCount;
                     } else
                         d3_SortPtr->key = 0;
                     t->clip = &d3_ClipNone;
@@ -342,20 +342,20 @@ void par_Draw(D3PARTSYS *ps)
 char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
 {
     int frames = 1;
-    PARPART *p;
-    D3EMITTER *e;
+    D3PARTICLE *p;
+    D3PARTSYS *e;
     D3VECTOR4 r;
     float dt, s, speed, rad;
     int max, spawned, i, age;
     unsigned char fl;
     float *sz;
 
-    e = PAR_E(ps);
-    if (D3PAR_TIME(ps)->lasttime == time)
+    e = ps;
+    if (ps->lasttime == time)
         return 1;
     s = (float)sqrt(e->dir[0] * e->dir[0] + e->dir[1] * e->dir[1] + e->dir[2] * e->dir[2]);
     speed = s;
-    if (e->size[0] > e->size[1])
+    if (e->psize[0] > e->psize[1])
         speed = -speed;
     if (e->istrigger)
         max = (int)(ps->count * e->maxtrigger);
@@ -363,11 +363,11 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
         max = ps->count;
     if (ps->tex && ps->tex->frames > 0)
         frames = ps->tex->frames;
-    D3PAR_INV(ps)->inv_alpha0 = 1.0f / e->alpha[0];
-    D3PAR_INV(ps)->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
-    D3PAR_INV(ps)->inv_size = 1.0f / (float)fabs(e->size[1] - e->size[0]);
+    ps->inv_alpha0 = 1.0f / e->alpha[0];
+    ps->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
+    ps->inv_size = 1.0f / (float)fabs(e->psize[1] - e->psize[0]);
     spawned = 0;
-    p = (PARPART *)ps->particles;
+    p = ps->particles;
     for (i = 0; i < ps->count; i++, p++) {
         if (!(p->flags & 1)) {
             if (spawned < max && (!e->istrigger || e->trigger)) {
@@ -389,14 +389,14 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
                 d3_Normalize(&r.v);
                 if (!e->initfill && !e->rebirthfill) {
                     p->birth = time;
-                    p->base[0] = (e->size[0]) * r.x;
-                    p->base[1] = (e->size[0]) * r.y;
-                    p->base[2] = (e->size[0]) * r.z;
+                    p->base[0] = (e->psize[0]) * r.x;
+                    p->base[1] = (e->psize[0]) * r.y;
+                    p->base[2] = (e->psize[0]) * r.z;
                 } else {
                     float f = PAR_RND();
                     p->birth = (unsigned long)(time - e->alpha[2] * f);
-                    rad = min(e->size[0], e->size[1]);
-                    rad += (max(e->size[0], e->size[1]) - rad) * f;
+                    rad = min(e->psize[0], e->psize[1]);
+                    rad += (max(e->psize[0], e->psize[1]) - rad) * f;
                     p->base[0] = r.x * rad;
                     p->base[1] = r.y * rad;
                     p->base[2] = r.z * rad;
@@ -471,11 +471,11 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
                 p->vel.z *= e->plane[2];
             }
             if (age < e->alpha[0]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * D3PAR_INV(ps)->inv_alpha0) * p->pos.w));
+                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * ps->inv_alpha0) * p->pos.w));
             } else if (age < e->alpha[1]) {
                 p->a = (unsigned char)max(0.0f, min(255.0f, p->pos.w));
             } else if (age < e->alpha[2]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, ((e->alpha[2] - age) * p->pos.w) * D3PAR_INV(ps)->inv_alpha_gap));
+                p->a = (unsigned char)max(0.0f, min(255.0f, ((e->alpha[2] - age) * p->pos.w) * ps->inv_alpha_gap));
             } else {
                 p->flags &= ~1;
                 ps->flags++;
@@ -486,7 +486,7 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
         e->initfill = 0;
     if (e->trigger)
         e->trigger = 0;
-    D3PAR_TIME(ps)->lasttime = time;
+    ps->lasttime = time;
     return !(e->triggeronce && (int)ps->flags >= max);
 }
 /* 0x456b60, emitter type 1: particles start on a disc of radius size[0] and fly towards the disc of
@@ -495,14 +495,14 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
 char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
 {
     int frames = 1;
-    PARPART *p;
-    D3EMITTER *e;
+    D3PARTICLE *p;
+    D3PARTSYS *e;
     D3VECTOR4 r;
     float dt, s, speed, rad;
     int max, spawned, i, age;
 
-    e = PAR_E(ps);
-    if (D3PAR_TIME(ps)->lasttime == time)
+    e = ps;
+    if (ps->lasttime == time)
         return 1;
     s = (float)sqrt(e->dir[0] * e->dir[0] + e->dir[1] * e->dir[1] + e->dir[2] * e->dir[2]);
     speed = s;
@@ -512,12 +512,12 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
         max = ps->count;
     if (ps->tex && ps->tex->frames > 0)
         frames = ps->tex->frames;
-    D3PAR_INV(ps)->inv_alpha0 = 1.0f / e->alpha[0];
-    D3PAR_INV(ps)->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
-    D3PAR_INV(ps)->inv_size = 1.0f / e->size[2];
-    D3PAR_INV(ps)->size_ratio = e->size[1] / e->size[0];
+    ps->inv_alpha0 = 1.0f / e->alpha[0];
+    ps->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
+    ps->inv_size = 1.0f / e->psize[2];
+    ps->size_ratio = e->psize[1] / e->psize[0];
     spawned = 0;
-    p = (PARPART *)ps->particles;
+    p = ps->particles;
     for (i = 0; i < ps->count; i++, p++) {
         if (!(p->flags & 1)) {
             if (spawned < max && (!e->istrigger || e->trigger)) {
@@ -539,21 +539,21 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                 d3_Normalize(&r.v);
                 if (!e->initfill && !e->rebirthfill) {
                     p->birth = time;
-                    rad = PAR_RND() * e->size[0];
+                    rad = PAR_RND() * e->psize[0];
                     p->base[0] = r.x * rad;
                     p->base[1] = r.y * rad;
                     p->base[2] = r.z * rad;
-                    if (e->size[0] != 0.0f)
-                        rad *= D3PAR_INV(ps)->size_ratio;
+                    if (e->psize[0] != 0.0f)
+                        rad *= ps->size_ratio;
                     else {
                         p->base[0] = 0.0f;
                         p->base[1] = 0.0f;
                         p->base[2] = 0.0f;
-                        rad = PAR_RND() * e->size[1];
+                        rad = PAR_RND() * e->psize[1];
                     }
                     r.x *= rad;
                     r.y *= rad;
-                    r.z = e->size[2];
+                    r.z = e->psize[2];
                     r.x -= p->base[0];
                     r.y -= p->base[1];
                     r.z -= p->base[2];
@@ -563,28 +563,28 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                     p->vel.z = r.z * speed;
                 } else {
                     float f;
-                    if (e->size[0] != 0.0f) {
-                        rad = PAR_RND() * e->size[0];
+                    if (e->psize[0] != 0.0f) {
+                        rad = PAR_RND() * e->psize[0];
                         p->base[0] = r.x * rad;
                         p->base[1] = r.y * rad;
                         p->base[2] = r.z * rad;
-                        rad *= D3PAR_INV(ps)->size_ratio;
+                        rad *= ps->size_ratio;
                     } else {
                         p->base[0] = 0.0f;
                         p->base[1] = 0.0f;
                         p->base[2] = 0.0f;
-                        rad = PAR_RND() * e->size[1];
+                        rad = PAR_RND() * e->psize[1];
                     }
                     r.x *= rad;
                     r.y *= rad;
-                    r.z = e->size[2];
+                    r.z = e->psize[2];
                     r.x -= p->base[0];
                     r.y -= p->base[1];
                     r.z -= p->base[2];
                     d3_Normalize(&r.v);
                     f = PAR_RND();
                     p->birth = (unsigned long)(time - e->alpha[2] * f);
-                    f *= e->size[2];
+                    f *= e->psize[2];
                     p->base[0] += r.x * f;
                     p->base[1] += r.y * f;
                     p->base[2] += f * r.z;
@@ -657,11 +657,11 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
                 p->vel.z *= e->plane[2];
             }
             if (age < e->alpha[0]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * D3PAR_INV(ps)->inv_alpha0) * p->pos.w));
+                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * ps->inv_alpha0) * p->pos.w));
             } else if (age < e->alpha[1]) {
                 p->a = (unsigned char)max(0.0f, min(255.0f, p->pos.w));
             } else if (age < e->alpha[2]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, ((e->alpha[2] - age) * p->pos.w) * D3PAR_INV(ps)->inv_alpha_gap));
+                p->a = (unsigned char)max(0.0f, min(255.0f, ((e->alpha[2] - age) * p->pos.w) * ps->inv_alpha_gap));
             } else {
                 p->flags &= ~1;
                 ps->flags++;
@@ -672,7 +672,7 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
         e->initfill = 0;
     if (e->trigger)
         e->trigger = 0;
-    D3PAR_TIME(ps)->lasttime = time;
+    ps->lasttime = time;
     return !(e->triggeronce && (int)ps->flags >= max);
 }
 /* 0x457460, emitter type 2: particles drift on a sine wave around a moving base position */
@@ -680,15 +680,15 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
 char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
 {
     int frames = 1;
-    PARPART *p;
-    D3EMITTER *e;
+    D3PARTICLE *p;
+    D3PARTSYS *e;
     D3VECTOR4 r;
     float s0, s1, s2, s3;
     float dt;
     int max, spawned, i, age;
 
-    e = PAR_E(ps);
-    if (D3PAR_TIME(ps)->lasttime == time)
+    e = ps;
+    if (ps->lasttime == time)
         return 1;
     if (e->istrigger)
         max = (int)(ps->count * e->maxtrigger);
@@ -696,10 +696,10 @@ char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
         max = ps->count;
     if (ps->tex && ps->tex->frames > 0)
         frames = ps->tex->frames;
-    D3PAR_INV(ps)->inv_alpha0 = 1.0f / e->alpha[0];
-    D3PAR_INV(ps)->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
+    ps->inv_alpha0 = 1.0f / e->alpha[0];
+    ps->inv_alpha_gap = 1.0f / (e->alpha[2] - e->alpha[1]);
     spawned = 0;
-    p = (PARPART *)ps->particles;
+    p = ps->particles;
     for (i = 0; i < ps->count; i++, p++) {
         if (!(p->flags & 1)) {
             if (spawned < max && (!e->istrigger || e->trigger)) {
@@ -718,9 +718,9 @@ char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
                 r.x = PAR_RND() * 2.0f - 1.0f;
                 r.y = PAR_RND() * 2.0f - 1.0f;
                 r.z = PAR_RND() * 2.0f - 1.0f;
-                p->base[0] = r.x * e->size[0];
-                p->base[1] = r.y * e->size[1];
-                p->base[2] = r.z * e->size[2];
+                p->base[0] = r.x * e->psize[0];
+                p->base[1] = r.y * e->psize[1];
+                p->base[2] = r.z * e->psize[2];
                 if (e->rebirthfill) {
                     float f = PAR_RND();
                     p->birth = (unsigned long)(time - e->alpha[2] * f);
@@ -779,11 +779,11 @@ char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
             }
             age = time - p->birth;
             if (age < e->alpha[0]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * D3PAR_INV(ps)->inv_alpha0) * p->pos.w));
+                p->a = (unsigned char)max(0.0f, min(255.0f, (1.0f - (e->alpha[0] - age) * ps->inv_alpha0) * p->pos.w));
             } else if (age < e->alpha[1]) {
                 p->a = (unsigned char)max(0.0f, min(255.0f, p->pos.w));
             } else if (age < e->alpha[2]) {
-                p->a = (unsigned char)max(0.0f, min(255.0f, (e->alpha[2] - age) * D3PAR_INV(ps)->inv_alpha_gap * p->pos.w));
+                p->a = (unsigned char)max(0.0f, min(255.0f, (e->alpha[2] - age) * ps->inv_alpha_gap * p->pos.w));
             } else {
                 p->flags &= ~1;
                 ps->flags++;
@@ -794,7 +794,7 @@ char par_EmitterCB2(D3PARTSYS *ps, unsigned long time)
         e->initfill = 0;
     if (e->trigger)
         e->trigger = 0;
-    D3PAR_TIME(ps)->lasttime = time;
+    ps->lasttime = time;
     return !(e->triggeronce && (int)ps->flags >= max);
 }
 /* 0x457b30. The first parameter is the parent (ecmd.h names it count), the third the particle count. */
@@ -812,11 +812,11 @@ D3PARTSYS *par_CreateEmitter(int parent, const D3VECTOR *pos, int count, char *t
         ps = par_Create(count, tex, flags.tex, size, (void *)parent, par_EmitterCB2);
     if (ps) {
         par_SetPos(ps, pos);
-        D3_COPY(&PAR_EMITTER(ps)->cfg, cfg, sizeof(D3EMITTERCFG));
-        par_SetDir(ps, (D3VECTOR *)PAR_EMITTER(ps)->dir, 0.0f);
-        if (PAR_EMITTER(ps)->triggeronce) {
+        D3_COPY(&ps->cfg, cfg, sizeof(D3EMITTERCFG));
+        par_SetDir(ps, (D3VECTOR *)ps->dir, 0.0f);
+        if (ps->triggeronce) {
             ps->flags = 0;
-            PAR_EMITTER(ps)->trigger = 1;
+            ps->trigger = 1;
         }
     }
     return ps;

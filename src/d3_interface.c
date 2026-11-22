@@ -577,7 +577,7 @@ char d3if_MoveCB(D3OBJECT *obj, D3IFMOVE *m)
     obj->scene = (D3SCENE *)m->to;
     for (p = m->from->parHead; p != &d3_ParEnd; p = next) {
         next = p->next;
-        if (p->parent == obj)
+        if (p->obj.parent == obj)
             par_Delete(p);
     }
     return 1;

@@ -1023,7 +1023,7 @@ exe	0x00455760	par_Delete	d3_par	34ab796211d505ae	no	byte	control=byte p1=byte p
 exe	0x00455830	par_Create	d3_par	442fc9cbf08b3acf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00455a20	par_SetPos	d3_par	a7f2fe7edeefc76d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00455a40	par_SetDir	d3_par	6d4442c5d1f6701f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00455a90	par_Draw	d3_par	e34f0c077621aed8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
+exe	0x00455a90	par_Draw	d3_par	45ada380dead2de7	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	bfb341a14c900866
 exe	0x00456350	par_EmitterCB0	d3_par	de34bb54936f942c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00456b60	par_EmitterCB1	d3_par	2e28a6b7c6fa378a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00457460	par_EmitterCB2	d3_par	b2c46c2b1014a28b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

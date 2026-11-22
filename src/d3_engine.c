@@ -1668,7 +1668,7 @@ void d3_DisposeObject(D3OBJECT *obj)
         }
         for (ps = scene->parHead; ps != &d3_ParEnd; ps = next) {
             next = ps->next;
-            if (ps->parent == obj)
+            if (ps->obj.parent == obj)
                 par_Delete(ps);
         }
         if (obj->path)
