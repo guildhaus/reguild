@@ -96,12 +96,6 @@ extern GVAVATAR gv_Avatars[0x20];     /* 0x60f310, the avatars: the characters t
 
 #pragma pack(pop)
 
-/* a record of the event list (he_FindEvent / he_NextEvent) as the order handlers read it */
-typedef struct ORDEVENT {
-    char pad000[0xac];
-    int ownerId;                    /* 0x0ac, the character the event belongs to */
-    int targetId;                   /* 0x0b0, the event's other character */
-} ORDEVENT;
 extern volatile unsigned long d3_Time;  /* 0x6333cc, milliseconds (tb.c) */
 extern int d3_CurrentScene;                /* 0x633444 */
 

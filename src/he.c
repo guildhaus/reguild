@@ -9413,8 +9413,8 @@ void he_RunConversion(AIJOB *e)
     gm_AddTime(&e->end, 0x18, 0, 0);
     e->exSlot = cm_SendExSetHE(0, e);
 }
-/* 0x5527c0, the stage-0 start handler of the skill-bonus event 0x82 (its run handler 0x552820; GMSKILLEV in
-   f3gm_types.h holds the bonus words): unless its option 4 says it is not started yet, the due clock is now + the
+/* 0x5527c0, the stage-0 start handler of the skill-bonus event 0x82 (its run handler 0x552820; AIJOB.skillBonus*
+   hold the bonus words): unless its option 4 says it is not started yet, the due clock is now + the
    bonus's duration (AIJOB.skillBonusHours) and the event is posted at once (its cm slot kept in exSlot) */
 
 void he_StartSkillBonus(AIJOB *e)

@@ -4284,7 +4284,7 @@ int ai_InventoryHas(void *ch, int id);                     /* 0x5ba6b0 */
 float gm_GetSkill(AICHAR *c, int skill)
 {
     AICHAR *ch;
-    GMSKILLEV *it;
+    AIJOB *it;
     float s, acc, r;
     int v;
 
@@ -4295,13 +4295,13 @@ float gm_GetSkill(AICHAR *c, int skill)
     s = ch->skills[skill] * 0.003968254f;
     if (skill != 1) {
         acc = 0.0f;
-        it = (GMSKILLEV *)he_FindEvent(2, 2, ch->id, 0, 0x82);
+        it = he_FindEvent(2, 2, ch->id, 0, 0x82);
         while (it != 0) {
-            if (it->skill1 == skill)
-                acc = acc + it->bonus1;
-            else if (it->skill2 == skill)
-                acc = acc + it->bonus2;
-            it = (GMSKILLEV *)he_NextEvent();
+            if (it->skillBonusSkill1 == skill)
+                acc = acc + it->skillBonusAdd1;
+            else if (it->skillBonusSkill2 == skill)
+                acc = acc + it->skillBonusAdd2;
+            it = he_NextEvent();
         }
         v = ai_InventoryHas(c, 0x2c4);
         if (v == 1)

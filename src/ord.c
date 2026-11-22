@@ -137,9 +137,9 @@ GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500, the character statistics (gm_C
 
 unsigned ord_ApplyForOffice(AICHAR *c, ORDMSG *m)
 {
-    ORDEVENT *ev;
+    AIJOB *ev;
     AICHAR *ch;
-    unsigned short *p;
+    AICHAR *p;
     int r, found;
 
     if (m->kind == 3 || m->kind == 1) {
@@ -152,15 +152,15 @@ unsigned ord_ApplyForOffice(AICHAR *c, ORDMSG *m)
                 r |= 2;
             } else if (m->kind == 1 && c->kind == 6) {
                 found = 0;
-                ev = (ORDEVENT *)he_FindEvent(1, 0, 0x41);
+                ev = he_FindEvent(1, 0, 0x41);
                 while (ev != 0) {
-                    if (ev->ownerId == ai_Chars[ai_PlayerId].netId) {
-                        p = (unsigned short *)gm_FindChar(ev->targetId);
-                        txt_Format(m->text, 0x1ce2, *p);
+                    if (ev->partner1 == ai_Chars[ai_PlayerId].netId) {
+                        p = gm_FindChar(ev->partner2);
+                        txt_Format(m->text, 0x1ce2, p->id);
                         found = 1;
                         break;
                     }
-                    ev = (ORDEVENT *)he_NextEvent();
+                    ev = he_NextEvent();
                 }
                 if (!found)
                     txt_Format(m->text, (intptr_t)"%s", 0x1ce1);
@@ -241,7 +241,7 @@ int ord_AccusationOrder(AICHAR *c, ORDMSG *m)
     o = he_FindEvent(1, 0, 0x2c);
     if (o != 0) {
         do {
-            if (((ORDEVENT *)o)->ownerId == c->netId)
+            if (o->offerWho[0] == c->netId)
                 return 1;
             o = he_NextEvent();
         } while (o != 0);

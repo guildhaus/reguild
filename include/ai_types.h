@@ -359,8 +359,13 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int delayDays;                  /* 0xac, the days still to wait, one counted off per day, 0 frees the event */
         };
         struct {                        /* of the skill-bonus event 0x82 (he_StartSkillBonus
-                                           starts it, 0x552820 runs it): GMSKILLEV (f3gm_types.h) and the duration */
-            char skillBonusPadac[0xc];
+                                           starts it, 0x552820 runs it; AIMSG.skillBonus's words): gm_GetSkill adds the
+                                           bonuses of a character's events for the two skills */
+            unsigned char skillBonusSkill1; /* 0xac, the first skill number (0 .. 4) */
+            unsigned char skillBonusSkill2; /* 0xad, the second skill number */
+            char skillBonusPadae[2];
+            float skillBonusAdd1;           /* 0xb0, the bonus added for skill1 (negative: a malus) */
+            float skillBonusAdd2;           /* 0xb4, the bonus added for skill2 */
             int skillBonusHours;            /* 0xb8, the hours the bonus lasts (its due clock) */
         };
         struct {                        /* of the applicants event 0x86 (he_RunApplicants) */
@@ -1031,7 +1036,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
         };
         struct {                        /* of the trial event 0xa0 (its alloc he_AllocTrialScene,
                                            run he_RunTrialScene and the trial he_TrialPayment) */
-            unsigned int trialCaseLevel;    /* 0xac, the trial's level (below 4 / 7 raises the payment's bar; compared unsigned) */
+            unsigned int trialCaseLevel;    /* 0xac, the trial's level (below 4 / 7 raises the payment's bar; compared unsigned);
+                                           the message's arg[0], the strength ai_CurseTargetWindow sends, which shows
+                                           the text 0x41fb + it while the event runs */
         };
         struct {                        /* of the circus show event 0xa1 (its alloc he_AllocMeeting4, run
                                            he_RunCircusShow and the room query he_FindMeetingRoom); the four figures are AIJOB.ids */
@@ -1404,9 +1411,9 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
                     char pad58[0xc];
                     unsigned short textId;      /* 0x64, the news text (0x12e7 + the AI message type) */
                 } freeBuilding;
-                struct {                        /* the skill-bonus message 0x82 (its event's words GMSKILLEV, 0x54
+                struct {                        /* the skill-bonus message 0x82 (its event's words AIJOB.skillBonus*, 0x54
                                                    further; he_StartSkillBonus) */
-                    unsigned char skill1;       /* 0x58, the first skill number (GMSKILLEV.skill1) */
+                    unsigned char skill1;       /* 0x58, the first skill number (AIJOB.skillBonusSkill1) */
                     unsigned char skill2;       /* 0x59, the second skill number */
                     char pad5a[2];
                     float bonus1;               /* 0x5c, the bonus for skill1 (negative: a malus) */

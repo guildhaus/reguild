@@ -160,17 +160,6 @@ void d2_SetObjValue(int obj, ...);                                     /* 0x475c
 #include "ai_types.h"                /* AITIME */
 
 
-#pragma pack(push, 2)
-typedef struct CURSEEVENT {             /* the event 0xa0 ai_FindCurseEvent finds: only the fields the curse target window reads */
-    char pad00[0x44];
-    AITIME from;                     /* +0x44, the clock the event started */
-    AITIME due;                      /* +0x52, the clock it is due */
-    char pad60[0x10];
-    int done;                           /* +0x70 */
-    char pad74[0x38];
-    int victim;                         /* +0xac */
-} CURSEEVENT;
-#pragma pack(pop)
 struct AITIME;
 struct AITIME;
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);   /* 0x4fe140, f3gm.c: adds hours / minutes / seconds to the clock */

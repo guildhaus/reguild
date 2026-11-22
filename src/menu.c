@@ -2767,14 +2767,14 @@ void ai_CurseTargetWindow(AIBLD *building)
     int share, victim, form;
     int value, cls;
     unsigned tick;
-    CURSEEVENT *ev;
+    AIJOB *ev;
     int elapsed, total;
 
     tick = 0;
     cls = 2;
     value = 0;
     memcpy(&when, &ai_Time, sizeof(AITIME));
-    gm_AddTime((struct AITIME *)&when, 0x18, 0, 0);
+    gm_AddTime(&when, 0x18, 0, 0);
     when.hour = util_Random(cls) + 0x15;
     when.min = 0;
     form = d2_OpenForm(0, 0, "Locations\\zigeuner\\blutrache");
@@ -2794,16 +2794,16 @@ void ai_CurseTargetWindow(AIBLD *building)
     do {
         if (d3_Time > tick + 0x8c || d2_GetObjValue(victim) != value) {
             tick = d3_Time;
-            ev = (CURSEEVENT *)ai_FindCurseEvent(building);
+            ev = ai_FindCurseEvent(building);
             if (ev != 0) {
-                when = ev->due;
-                when.hour += ev->done ? 0 : 2;
-                elapsed = gm_MinutesBetween((struct AITIME *)&ev->from, (struct AITIME *)&ai_Time);
-                total = gm_MinutesBetween((struct AITIME *)&ev->from, (struct AITIME *)&when);
+                when = ev->end;
+                when.hour += ev->stage ? 0 : 2;
+                elapsed = gm_MinutesBetween(&ev->start, &ai_Time);
+                total = gm_MinutesBetween(&ev->start, &when);
                 d2_SetObjValue(share, 0, 100, (int)(min((float)elapsed / total, 1.0f) * 100.0f));
             } else {
                 memcpy(&when, &ai_Time, sizeof(AITIME));
-                gm_AddTime((struct AITIME *)&when, 0x18, 0, 0);
+                gm_AddTime(&when, 0x18, 0, 0);
                 when.hour = util_Random(2) + 0x15;
                 when.min = 0;
                 d2_SetObjValue(share, 0, 100, 0);
@@ -2811,8 +2811,8 @@ void ai_CurseTargetWindow(AIBLD *building)
             d2_SetForm(form, 1);
             io_PrintText((intptr_t)"$C");
             if (ev != 0) {
-                if (ev->done == 0)
-                    io_PrintText(0x41f8, 0x41f4, ev->victim + 0x41fb, &when);
+                if (ev->stage == 0)
+                    io_PrintText(0x41f8, 0x41f4, ev->trialCaseLevel + 0x41fb, &when);
                 else
                     io_PrintText(0x41f9, 0x41f4);
             } else {
