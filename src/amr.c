@@ -2091,7 +2091,7 @@ int ai_EvalApplyForOffice(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1
 
 int ai_DecideApplyForOffice(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
-    int list[6];
+    AMTCAND list[2];
     int r, k;
 
     if (f == 0) {
@@ -2127,7 +2127,7 @@ int ai_DecideApplyForOffice(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
                     }
                 }
             } else {
-                r = list[util_Random(k) * 3];
+                r = list[util_Random(k)].kind;
                 if (r != 0 && r <= 0x1b) {
                     o1->ref = r;
                     o1->kind = 10;
@@ -6577,7 +6577,7 @@ int ai_PickLikedColumn(AICHAR *p)
 {
     int order[6];
     AMTKIND kind;
-    G8SEAT seat[6];
+    AMTREC seat[6];
     AICHAR *c1, *c2;
     unsigned int k;
     int i, j, n, d, cnt, t, x, y;
@@ -6621,13 +6621,13 @@ int ai_PickLikedColumn(AICHAR *p)
         n = amt_GetColumnOfficesOwned(order[d], 6, seat);
         if (n >= 3) {
             for (i = 0; i < n - 1; i++) {
-                if (seat[i].id == (int)p->netId || seat[i].id == -1)
+                if (seat[i].owner == (int)p->netId || seat[i].owner == -1)
                     continue;
-                c1 = gm_FindChar(seat[i].id);
+                c1 = gm_FindChar(seat[i].owner);
                 for (j = i + 1; j < n && c1 != 0; j++) {
-                    if (seat[j].id == (int)p->netId || seat[j].id == -1)
+                    if (seat[j].owner == (int)p->netId || seat[j].owner == -1)
                         continue;
-                    c2 = gm_FindChar(seat[j].id);
+                    c2 = gm_FindChar(seat[j].owner);
                     if (c2 == 0)
                         continue;
                     sum = gm_Liking(c2->id, c1->id, 1)

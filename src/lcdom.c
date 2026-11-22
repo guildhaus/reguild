@@ -750,9 +750,9 @@ typedef struct LCSALEROW {          /* a row of ai_BuyBuildingWindow's list: a b
 void ai_OpenAmountKindMenu(void);
 void ai_OpenAgendaMenu(void);
 int amt_GetFirstOffice(unsigned int k, struct AMTREC *out);
-int amt_ExecuteShareMessage(struct AICHAR *c, int *m);
-int amt_ExecutePriceMessage(struct AICHAR *c, int *m);
-int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);
+int amt_ExecuteShareMessage(struct AICHAR *c, struct G8REQ *m);
+int amt_ExecutePriceMessage(struct AICHAR *c, struct G8REQ *m);
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, struct G8REQ *m);
 struct AIOBJ *gm_Query(void *list, int n, ...); int gm_GetWorth(unsigned short id);
 void d2_SetPointerSprite(int a, int pic); int d2_SetForm(int view, int n);
 int io_PrintText(intptr_t fmt, ...); int gm_ConvertMoney(int a, unsigned char k); int gm_PlayerFactor(int a, unsigned char k);

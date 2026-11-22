@@ -496,19 +496,14 @@ typedef struct G8TABLE {                /* 12 bytes, a regulars' table request (
     int bld;                            /* 0x8 */
 } G8TABLE;
 
-typedef struct G8REQ {                  /* 20 bytes, given to 0x4e9660 */
+typedef struct G8REQ {                  /* 20 bytes, the request of amt_ExecutePriceMessage / ShareMessage / MayorPowerMessage */
     int kind;                           /* 0x00 */
-    int a;                              /* 0x04 */
-    int b;                              /* 0x08 */
-    int unk0c;                          /* 0x0c */
-    int unk10;                          /* 0x10 */
+    int a;                              /* 0x04, the job number, building, target or district */
+    int b;                              /* 0x08, raise / lower, the fee */
+    int good1;                          /* 0x0c, out: the goods the price message changed (0 none) */
+    int good2;                          /* 0x10 */
 } G8REQ;
 
-typedef struct G8SEAT {                 /* 24 bytes, filled by 0x4e7040 */
-    int unk00;                          /* 0x00 */
-    int id;                             /* 0x04, a character id or -1 */
-    int unk08[4];                       /* 0x08 */
-} G8SEAT;
 
 typedef struct G8REC {                  /* 16 bytes, filled by 0x4a5760 (unk_48e070.h: AIRECX) */
     int item;                           /* 0x0 */
@@ -597,16 +592,16 @@ void gm_SendMoneyDelta(int a, int b);                                      /* 0x
 int ai_ExecuteChangeProfession(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49f7f0 */
 int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x49f850 */
 int ai_ExecuteStammtisch(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x49fb80 */
-int amt_ExecutePriceMessage(struct AICHAR *c, int *m);                                           /* 0x4e9660 */
+int amt_ExecutePriceMessage(struct AICHAR *c, struct G8REQ *m);                                           /* 0x4e9660 */
 int ai_ExecutePriceManipulation(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a0040 */
 int amt_CanUseMayorPower2(struct AICHAR *c);                                                      /* 0x4e94e0 */
 int ai_DecideGuildRiot(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0090 */
-int amt_ExecuteShareMessage(struct AICHAR *c, int *m);                                           /* 0x4e9a00 */
+int amt_ExecuteShareMessage(struct AICHAR *c, struct G8REQ *m);                                           /* 0x4e9a00 */
 int ai_ExecuteGuildRiot(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a01f0 */
 int ai_PickLikedColumn(AICHAR *p);                                                      /* 0x4a05e0 */
 int amt_CanUseMayorPower3(struct AICHAR *c);                                                      /* 0x4e95a0 */
 int ai_DecideGuildLevel3(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0890 */
-int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);                                           /* 0x4e9ce0 */
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, struct G8REQ *m);                                           /* 0x4e9ce0 */
 int ai_ExecuteGuildLevel3(AICHAR *p, AIARG *s1, AIARG *s2);                                /* 0x4a0940 */
 int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG *o2); /* 0x4a0990 */
 int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2);                  /* 0x4a0a70 */

@@ -148,10 +148,11 @@ int amt_MayorBonusStep(struct AICHAR *c);             /* 0x4e94a0 */
 int amt_CanUseMayorPower2(struct AICHAR *c);             /* 0x4e94e0 */
 int amt_CanUseMayorPower3(struct AICHAR *c);             /* 0x4e95a0 */
 
-int amt_ExecutePriceMessage(struct AICHAR *c, int *m);     /* 0x4e9660 */
-int amt_ExecuteShareMessage(struct AICHAR *c, int *m);    /* 0x4e9a00 */
+struct G8REQ;                                            /* am.h */
+int amt_ExecutePriceMessage(struct AICHAR *c, struct G8REQ *m);     /* 0x4e9660 */
+int amt_ExecuteShareMessage(struct AICHAR *c, struct G8REQ *m);    /* 0x4e9a00 */
 
-int amt_ExecuteMayorPowerMessage(struct AICHAR *c, int *m);  /* 0x4e9ce0 */
+int amt_ExecuteMayorPowerMessage(struct AICHAR *c, struct G8REQ *m);  /* 0x4e9ce0 */
 
 void amt_ChangeDistrictOpinion(struct AICHAR *c, int d, int v);  /* 0x4ea550 */
 float amt_GetDistrictLiking(struct AICHAR *c, int d);  /* 0x4ea5c0 */
