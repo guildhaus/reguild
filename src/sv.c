@@ -51,7 +51,7 @@ extern int d2_HitUnderPointer;
 
 
 
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 extern struct AICHAR *ai_PickedChar;
 extern int d2_HitUnderPointer;
 extern struct AICHAR *ai_SceneChars[32];
@@ -70,7 +70,7 @@ extern struct AICHAR *ai_SceneChars[32];
 extern GAPDATA full_data_602568[];
 extern char cm_ChatLog[2048];
 
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 extern int d2_CutsceneActive;
 extern int d2_HitUnderPointer;
 
@@ -93,16 +93,12 @@ extern struct D2SURF *sv_GroundplanSurf, *sv_GroundplanView;  /* 0x6f22c4, 0x6f2
    declarations of ai_Time / ai_Chars / ai_BTypes / ai_Blds clash with gv.h's char views). Views, as gv.h's ORDCHAR was */
 #pragma pack(push, 1)
 typedef struct SVPLATE {                /* 200 bytes, a name plate record: the object it belongs to */
-    char *obj;                          /* +0x00, the object that shows the plate, 0 = free */
+    D3OBJECT *obj;                      /* +0x00, the object that shows the plate, 0 = free */
     char name[0x40];                    /* +0x04, the object's name (sv_RegisterNamePlate finds the plate by it) */
     int look;                           /* +0x44, the pointer look while the object is hovered (sv_HoverPick reads its
                                            low word; sv_RegisterNamePlate stores it whole) */
     char text[0x80];                    /* +0x48, the plate's text, the hover caption (sv_HoverPick) */
 } SVPLATE;
-typedef struct SVPLATEOBJ {             /* the 3D object fields the plate code clears */
-    char pad00[0x224];
-    int plate;                          /* +0x224, the name plate attached to the object */
-} SVPLATEOBJ;
 #pragma pack(pop)
 extern SVPLATE sv_NamePlates[0x20];
 
@@ -2701,7 +2697,7 @@ extern int sv_CameraScrolled;  /* 0x6f22b4 */
 extern int sv_FrameDepth;  /* 0x6f229c */
 extern int sv_FrameBase;  /* 0x6f22a4 */
 extern struct AIBLD *sv_SelectedObject;  /* 0x75ec60 */
-extern int sv_SelectedModel;  /* 0x6f2304 */
+extern D3OBJECT *sv_SelectedModel;  /* 0x6f2304 */
 extern char sv_CameraEaseOn;
 struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                   /* 0x506430 */
 void sv_PlaceCamera(float f);
@@ -3047,7 +3043,7 @@ void sv_FlyCameraToObject(AIBLD *b)
         rec->camRot.z = dir.z;
     }
     sv_SelectedObject = b;
-    sv_SelectedModel = (int)b->object;
+    sv_SelectedModel = b->object;
 }
 
 int d3t_PlaceObject(struct D3OBJECT *camera, float px, float py, float pz, float dx, float dy, float dz, int unk, char flags);                     /* 0x411680 */
@@ -3122,7 +3118,7 @@ void sv_CameraToObject(AIBLD *b)
         rec->camRot.z = dir.z;
     }
     sv_SelectedObject = b;
-    sv_SelectedModel = (int)b->object;
+    sv_SelectedModel = b->object;
 }
 /* 0x527e90, moves the camera (animated, d3t_PlaceObjectV) to 600 units back along its view from the 3D object
    m, like sv_FlyCameraToObject for a bare object: no stored view, no selection */
@@ -4142,7 +4138,7 @@ refresh:
    d2_CaptionCopy and the picked object is kept in sv_HoverLast */
 void sv_HoverPick(void)
 {
-    char *o;
+    D3OBJECT *o;
     AIBLD *b;
     AIOBJ *it;
     AIGOOD *g;
@@ -4189,9 +4185,9 @@ void sv_HoverPick(void)
         sv_HoverBuilding = 0;
         ai_PickedChar = 0;
         sv_HoverContact = 0;
-        switch (ai_PickedObject[0x4b]) {   /* the top byte of D3OBJECT.pickId: the record kind the object stands for */
+        switch (ai_PickedObject->pickBytes[3]) {   /* the top byte of D3OBJECT.pickId: the record kind the object stands for */
         case 1:
-            sv_HoverItem = (int)((D3OBJECT *)ai_PickedObject)->owner;
+            sv_HoverItem = (int)ai_PickedObject->owner;
             if (ai_FallbackBuilding != 0)
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)sv_HoverItem, 0);
         else
@@ -4210,7 +4206,7 @@ void sv_HoverPick(void)
             sv_HoverItemPerms = sv_PanelPerms;
             break;
         case 2:
-            sv_HoverBuilding = ((D3OBJECT *)ai_PickedObject)->owner;
+            sv_HoverBuilding = ai_PickedObject->owner;
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, sv_HoverBuilding, 0, 0);
             b = sv_HoverBuilding;
             if (b != 0 && (b->flags5a & 1) == 0) {
@@ -4222,7 +4218,7 @@ void sv_HoverPick(void)
             sv_HoverBldPerms = sv_PanelPerms;
             break;
         case 3:
-            ai_PickedChar = ((D3OBJECT *)ai_PickedObject)->owner;
+            ai_PickedChar = ai_PickedObject->owner;
             sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, 0, ai_PickedChar);
             if (ai_PickedChar != 0) {
                 io_CharacterName(ai_PickedChar->id, 1, 4, d2_CaptionCopy);
@@ -4241,8 +4237,8 @@ void sv_HoverPick(void)
             && (sv_HoverBuilding->flags5a & 1) == 0)
             d2_PointerLook = 0xb;
         b = ai_FallbackBuilding;
-        if ((b != 0 || (b = ai_PlayerBuilding) != 0) && ai_PickedObject != 0 && strncmp(ai_PickedObject, "contact_gate_", 0xd) == 0) {
-            strcpy(goods, ai_PickedObject + 0x10);
+        if ((b != 0 || (b = ai_PlayerBuilding) != 0) && ai_PickedObject != 0 && strncmp(ai_PickedObject->name, "contact_gate_", 0xd) == 0) {
+            strcpy(goods, ai_PickedObject->name + 0x10);
             if (ai_FallbackBuilding != 0)
                 it = gm_Query(b->objList, 1, 4, 6);
             else
@@ -4272,7 +4268,7 @@ void sv_HoverPick(void)
             }
         }
         o = ai_PickedObject;
-        if (strcmp(o, "tp_TUER") == 0 && (b = (AIBLD *)((D3OBJECT *)o)->owner) != 0) {
+        if (strcmp(o->name, "tp_TUER") == 0 && (b = (AIBLD *)o->owner) != 0) {
             if ((sv_PanelPerms & 1) != 0) {
                 d2_PointerLook = 0xb;
                 if (b->name[0] != 0)
@@ -4295,7 +4291,7 @@ void sv_HoverPick(void)
             d2_PointerSprite = -1;
             sv_PointerSpriteFor = 0;
         }
-        sv_HoverLast = (int)ai_PickedObject;
+        sv_HoverLast = ai_PickedObject;
     }
 }
 /* 0x52adb0, resets the selection (item, object, model, sv_SelectedExtra) and clears the bit 2 of the carts (kind 0x1d) of the building ai_FallbackBuilding; without a player building (ai_PlayerBuilding) and without a fallback it
@@ -4376,7 +4372,7 @@ void sv_HandleObjects(void)
             if (sv_QuickJump.contactName[0] != 0) {
                 o = d3_FindObject(0, 0x60, 0, sv_QuickJump.contactName);
                 if (o != 0) {
-                    ai_PickedObject = (char *)o;
+                    ai_PickedObject = o;
                     found = 1;
                 } else
                     sprintf(msg, "sv_HandleObjects(): Could not find QuickJump.ContactName: %s", sv_QuickJump.contactName);
@@ -4387,7 +4383,7 @@ void sv_HandleObjects(void)
             if (sv_QuickJump.contactName[0] != 0) {
                 o = d3_FindObject(0, 0x60, 0, sv_QuickJump.contactName);
                 if (o != 0) {
-                    ai_PickedObject = (char *)o;
+                    ai_PickedObject = o;
                     found = 1;
                 } else
                     sprintf(msg, "sv_HandleObjects(): Could not find QuickJump.ContactName: %s", sv_QuickJump.contactName);
@@ -4401,18 +4397,18 @@ void sv_HandleObjects(void)
         if (ai_PickedObject != 0) {
             sv_ClickedBuilding = sv_HoverBuilding;
             sv_ClickedItem = sv_HoverItem;
-            ai_ClickedObject = (int)ai_PickedObject;
+            ai_ClickedObject = ai_PickedObject;
             sv_ClickedChar = ai_PickedChar;
             sv_ClickedContact = sv_HoverContact;
             if (sv_HoverItem != 0)
                 cls = &ai_Goods[((AIOBJ *)sv_HoverItem)->id];
-            if (strcmp(ai_PickedObject, "tp_TUER") == 0 || (cls != 0 && cls->type == 6) || sv_HoverContact != 0)
+            if (strcmp(ai_PickedObject->name, "tp_TUER") == 0 || (cls != 0 && cls->type == 6) || sv_HoverContact != 0)
                 door = 1;
-            if ((((D3OBJECT *)ai_PickedObject)->objectFlags & 1) != 0 && door == 0) {
-                d3t_PlaceAtObject((D3OBJECT *)ai_PickedObject, ai_CameraStep);
+            if ((ai_PickedObject->objectFlags & 1) != 0 && door == 0) {
+                d3t_PlaceAtObject(ai_PickedObject, ai_CameraStep);
                 sv_FocusObject = ai_PickedObject;
-                if (ai_PickedObject != 0 && ((D3OBJECT *)ai_PickedObject)->events != 0 && ((D3OBJECT *)ai_PickedObject)->events[2].fn != 0)
-                    ((D3OBJECT *)ai_PickedObject)->events[2].fn((D3OBJECT *)ai_PickedObject, 2, ((D3OBJECT *)ai_PickedObject)->events[2].name, 0);
+                if (ai_PickedObject != 0 && ai_PickedObject->events != 0 && ai_PickedObject->events[2].fn != 0)
+                    ai_PickedObject->events[2].fn(ai_PickedObject, 2, ai_PickedObject->events[2].name, 0);
                 sv_FocusDepth = sv_FrameDepth;
             }
             sv_LastPicked = ai_PickedObject;
@@ -4429,14 +4425,14 @@ void sv_HandleObjects(void)
                 sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].scene;
             }
             if (ai_SelectedCount == 0 && sv_OtherSelected == 0 && sv_HoverBuilding != 0 && sv_SelectedItem == 0)
-                sv_SelectedModel = (int)ai_PickedObject;
+                sv_SelectedModel = ai_PickedObject;
             sv_SelectedObject = sv_HoverBuilding;
             sv_SelectedItem = (unsigned short *)sv_HoverItem;
             if (sv_HoverBuilding != 0)
-                sv_SelectedModel = (int)ai_PickedObject;
+                sv_SelectedModel = ai_PickedObject;
             if (sv_HoverItem != 0) {
                 cls = &ai_Goods[((AIOBJ *)sv_HoverItem)->id];
-                sv_SelectedModel = (int)ai_PickedObject;
+                sv_SelectedModel = ai_PickedObject;
                 if (cls->type == 0x1d)
                     sv_ClearSelection();
             }
@@ -4918,9 +4914,9 @@ void sv_HandleSelectionMouse(void)
             char name[0x80];
 
             t = -1;
-            sprintf(name, "dummy_%s", ((D3OBJECT *)ai_ClickedObject)->name + 8);
+            sprintf(name, "dummy_%s", ai_ClickedObject->name + 8);
             if (d3_FindObject(ai_ClickedObject, 0x100, 0, name) == 0)
-                strcpy(name, ((D3OBJECT *)ai_ClickedObject)->name);
+                strcpy(name, ai_ClickedObject->name);
             for (j = 0; j < 0x20; j++) {
                 c = ai_SceneChars[j];
                 b = 0;
@@ -5075,7 +5071,7 @@ void sv_SpeakPicked(void)
     char plain;
 
     if (ai_PickedChar == 0) {
-        if (ai_PickedObject == 0 || ((D3OBJECT *)ai_PickedObject)->kind != 2 || sv_HoverItem != 0)
+        if (ai_PickedObject == 0 || ai_PickedObject->kind != 2 || sv_HoverItem != 0)
             return;
     }
     if (dm_L.lup == 0)
@@ -5093,7 +5089,7 @@ void sv_SpeakPicked(void)
     if (ai_PickedChar != 0)
         ch = ai_PickedChar->scene;
     else if (ai_PickedObject != 0)
-        ch = ch_FindByObject((D3OBJECT *)ai_PickedObject);
+        ch = ch_FindByObject(ai_PickedObject);
     else
         ch = 0;
     if (ch != 0 && (ch->kind & 1) == 0)
@@ -5260,7 +5256,7 @@ void sv_SpeakPicked(void)
             if (text[0] != 0)
                 sv_ShowBubble(ai_PickedChar->scene, 0, text);
         } else if (ai_PickedObject != 0) {
-            sv_ShowBubble(ch_FindByObject((D3OBJECT *)ai_PickedObject), id, 0);
+            sv_ShowBubble(ch_FindByObject(ai_PickedObject), id, 0);
         }
     }
 }
@@ -5372,7 +5368,7 @@ void sv_DrawNamePlates(void)
 
     d2_SetFont(0x54);
     for (i = 0; i < 0x20; i++) {
-        o = (D3OBJECT *)sv_NamePlates[i].obj;
+        o = sv_NamePlates[i].obj;
         if (sv_NamePlates[i].obj != 0 && (o->info != 0 || o->type == 0) && d3if_ScreenBox(o, &box) != 0) {
             y = box.top;
             x = (box.right - box.left) / 2 - 0x50 + box.left;
@@ -5533,7 +5529,7 @@ void sv_CameraFollow(void)
             && !placed) {
             sv_MoveCameraToView();
             if (sv_FocusObject != 0) {
-                ev = ((D3OBJECT *)sv_FocusObject)->events;
+                ev = sv_FocusObject->events;
                 if (ev != 0 && ev[3].fn != 0)
                     ev[3].fn(sv_FocusObject, 3, ev[3].name, 0);
                 sv_FocusObject = 0;
@@ -5543,7 +5539,7 @@ void sv_CameraFollow(void)
         sv_MoveCameraToView();
         sv_FocusDepth = sv_FrameDepth - sv_PopRequest;
         if (sv_FocusObject != 0) {
-            ev = ((D3OBJECT *)sv_FocusObject)->events;
+            ev = sv_FocusObject->events;
             if (ev != 0 && ev[3].fn != 0)
                 ev[3].fn(sv_FocusObject, 3, ev[3].name, 0);
             sv_FocusObject = 0;
@@ -5666,7 +5662,7 @@ void sv_HandleRightClick(unsigned fl)
                 sv_MoveCameraToView();
             sv_FocusDepth = sv_FrameDepth - sv_PopRequest;
             if (sv_FocusObject != 0) {
-                ev = ((D3OBJECT *)sv_FocusObject)->events;
+                ev = sv_FocusObject->events;
                 if (ev != 0 && ev[3].fn != 0)
                     ev[3].fn(sv_FocusObject, 3, ev[3].name, 0);
                 sv_FocusObject = 0;
@@ -5677,7 +5673,7 @@ void sv_HandleRightClick(unsigned fl)
             if (ai_PlayerBuilding != 0 || ai_FallbackBuilding != 0)
                 sv_MoveCameraToView();
             if (sv_FocusObject != 0) {
-                ev = ((D3OBJECT *)sv_FocusObject)->events;
+                ev = sv_FocusObject->events;
                 if (ev != 0 && ev[3].fn != 0)
                     ev[3].fn(sv_FocusObject, 3, ev[3].name, 0);
                 sv_FocusObject = 0;
@@ -5798,7 +5794,7 @@ void sv_ClearNamePlates(void)
         p++;
     } while ((int)p < (int)(sv_NamePlates + 0x20));
 }
-/* 0x52e190, releases the name plates: the objects lose their plate hook (+0x224), the records are cleared */
+/* 0x52e190, releases the name plates: the objects lose their pick mask (D3OBJECT.mask, which sv_RegisterNamePlate sets to 1), the records are cleared */
 
 void sv_ReleaseNamePlates(void)
 {
@@ -5807,7 +5803,7 @@ void sv_ReleaseNamePlates(void)
     p = sv_NamePlates;
     do {
         if (p->obj != 0)
-            ((SVPLATEOBJ *)p->obj)->plate = 0;
+            p->obj->mask = 0;
         p->obj = 0;
         p++;
     } while ((int)p < (int)(sv_NamePlates + 0x20));
@@ -5817,15 +5813,15 @@ void sv_ReleaseNamePlates(void)
    object becomes pickable (mask 1). Returns the object, 0 when it is not found or all records are used (the
    "RegisterStatusText()" message is formatted but not shown) */
 
-int sv_RegisterNamePlate(char *name, char *text, int look)
+D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int look)
 {
     int i;
     char msg[0x100];
 
     for (i = 0; i < 0x20; i++) {
         if (sv_NamePlates[i].obj != 0 && strcmp(sv_NamePlates[i].name, name) == 0) {
-            ((D3OBJECT *)sv_NamePlates[i].obj)->mask = 1;
-            return (int)sv_NamePlates[i].obj;
+            sv_NamePlates[i].obj->mask = 1;
+            return sv_NamePlates[i].obj;
         }
     }
     for (i = 0; i < 0x20; i++) {
@@ -5836,7 +5832,7 @@ int sv_RegisterNamePlate(char *name, char *text, int look)
         sprintf(msg, "RegisterStatusText(): Too many Objects:%s", name);
         return 0;
     }
-    sv_NamePlates[i].obj = (char *)d3t_FindObject(name, 2);
+    sv_NamePlates[i].obj = d3t_FindObject(name, 2);
     if (sv_NamePlates[i].obj == 0) {
         sprintf(msg, "RegisterStatusText(): Object not found: %s", name);
         return 0;
@@ -5846,8 +5842,8 @@ int sv_RegisterNamePlate(char *name, char *text, int look)
     strncpy(sv_NamePlates[i].name, name, 0x40);
     sv_NamePlates[i].text[0x7f] = 0;
     sv_NamePlates[i].name[0x3f] = 0;
-    ((D3OBJECT *)sv_NamePlates[i].obj)->mask = 1;
-    return (int)sv_NamePlates[i].obj;
+    sv_NamePlates[i].obj->mask = 1;
+    return sv_NamePlates[i].obj;
 }
 /* 0x52e330, sets the status line text sv_StatusText and its time stamp sv_StatusTime (d3_Time) */
 
@@ -7401,7 +7397,7 @@ int sv_SunRaysHour = -1;  /* 0x623ecc, the hour the sun rays started (sv_Weather
 int sv_SavedMaxY = 0;  /* 0x6f1c40 */
 float sv_ScrollVelYPrev = 0;  /* 0x6f1c44 */
 int sv_DragLastY = 0;  /* 0x6f1c48 */
-int sv_HoverLast = 0;  /* 0x6f1c4c, the scene object sv_HoverPick picked last (0: none) */
+D3OBJECT *sv_HoverLast = 0;  /* 0x6f1c4c, the scene object sv_HoverPick picked last (0: none) */
 int sv_SavedMaxX = 0;  /* 0x6f1c50 */
 int sv_UnreadBss1[4] = {0};  /* 0x6f1c54, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 D3VECTOR4 sv_DragLastPos = {0};  /* 0x6f1c64, a 16-byte (D3VECTOR4-padded) vector: x, y, z read, the fourth float unread */
@@ -7411,7 +7407,7 @@ int sv_DragLastX = 0;  /* 0x6f1c88 */
 int sv_ZoomStartY = 0;  /* 0x6f1c8c */
 unsigned short sv_DisabledWidgets[0x300] = {0};  /* 0x6f1c90, the d2 objects sv_DisableVisibleWidgets disabled (one per d2_Objs record at most) */
 int sv_ZoomStartX = 0;  /* 0x6f2290 */
-int sv_ShownModel = 0;  /* 0x6f2294, sv_SelectedModel when sv_UpdatePanel last built the panel */
+D3OBJECT *sv_ShownModel = 0;  /* 0x6f2294, sv_SelectedModel when sv_UpdatePanel last built the panel */
 int sv_SavedMinY = 0;  /* 0x6f2298 */
 int sv_FrameDepth = 0;  /* 0x6f229c, the depth of the frame callback stack */
 int sv_PopRequest = 0;  /* 0x6f22a0 */
@@ -7431,15 +7427,15 @@ float sv_CameraHeightFactor = 0;  /* 0x6f22d4 */
 float sv_CameraAngleFactor = 0;  /* 0x6f22d8 */
 int sv_PendingMoney = 0;  /* 0x6f22dc, the money the money panel adds to the player's (the credit window: the limit minus the amount chosen; the transport window: minus the goods' total); sv's by use */
 int sv_UnreadBss4 = 0;  /* 0x6f22e0, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
-int ai_ClickedObject = 0;  /* 0x6f22e4: the object clicked in the scene (cm.h declares it for the units that include cm.h) */
-char * ai_PickedObject = 0;  /* 0x6f22e8 */
-char * sv_FocusObject = 0;  /* 0x6f22ec, the clicked object the camera was placed at (d3t_PlaceAtObject): its handler (+0x1d4) gets message 2 at the focus (+0x108) and 3 at the release (+0x18c) */
+D3OBJECT *ai_ClickedObject = 0;  /* 0x6f22e4: the object clicked in the scene (cm.h declares it for the units that include cm.h) */
+D3OBJECT *ai_PickedObject = 0;  /* 0x6f22e8 */
+D3OBJECT *sv_FocusObject = 0;  /* 0x6f22ec, the clicked object the camera was placed at (d3t_PlaceAtObject): its handler (+0x1d4) gets message 2 at the focus (+0x108) and 3 at the release (+0x18c) */
 int sv_HoverItem = 0;  /* 0x6f22f0, the item (AIOBJ) under the pointer, from the picked object's +0x200 (kind 1) */
 struct AIBLD *sv_HoverBuilding = 0;  /* 0x6f22f4, the building (AIBLD) under the pointer (kind 2) */
 struct AICHAR *ai_PickedChar = 0;  /* 0x6f22f8 */
 int sv_ClickedContact = 0;  /* 0x6f22fc, sv_HoverContact at the last click (sv_HandleObjects) */
 int sv_HoverContact = 0;  /* 0x6f2300, the goods item a contact gate under the pointer resolves to */
-int sv_SelectedModel = 0;  /* 0x6f2304 */
+D3OBJECT *sv_SelectedModel = 0;  /* 0x6f2304 */
 AIBLD *ai_PlayerBuilding = 0;  /* 0x6f2308 */
 AIBLD *ai_FallbackBuilding = 0;  /* 0x6f230c */
 struct AIOBJ *sv_PanelShown = 0;  /* 0x6f2310, the room object (its type: the scene record) the info panel shows now */
@@ -7492,7 +7488,7 @@ struct AICHAR *sv_ShownChar = 0;  /* 0x6f23d0, sv_SelectedChar when sv_UpdatePan
 int sv_ShownOther = 0;  /* 0x6f23d4, sv_OtherSelected when sv_UpdatePanel last built the panel */
 int sv_ShownCount = 0;  /* 0x6f23d8, ai_SelectedCount when sv_UpdatePanel last built the panel */
 int sv_PointerSpriteFor = 0;  /* 0x6f23dc, reset with the pointer sprite (-1 / 0 when sv_HoverPick frees d2_PointerSprite; reasoned: what the sprite was made for) */
-char * sv_LastPicked = 0;  /* 0x6f23e0, ai_PickedObject at the last click (sv_HandleObjects; nothing reads it) */
+D3OBJECT *sv_LastPicked = 0;  /* 0x6f23e0, ai_PickedObject at the last click (sv_HandleObjects; nothing reads it) */
 AIBLD *sv_PermsBuilding = 0;  /* 0x6f23e4, the building ai_BuildingPerms was last computed for (the right-click handler 0x52d940) */
 struct AIOBJ *sv_PermsRoom = 0;  /* 0x6f23e8, the room (sv_PanelShown) it was computed for */
 int sv_DisabledCount = 0;  /* 0x6f23ec, the entries of sv_DisabledWidgets */

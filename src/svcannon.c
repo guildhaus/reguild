@@ -187,7 +187,7 @@ extern const int sv_PhaseMinutes[24];
 
 extern unsigned short ai_PlayerId;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -231,7 +231,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -239,7 +239,7 @@ extern int ai_ClickedObject;
 
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 extern unsigned short ai_PlayerId;
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -250,7 +250,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 extern int gm_AllowAll;
@@ -2012,12 +2012,12 @@ void sv_ReleaseNamePlates(void);
    (ai_AlchemistResearchWindow), the alchemist contract (ai_AlchemistWindow) or the contract (ai_AlchemistCandidates) */
 void ai_AlchemistLabContact(AIBLD *rec, AIOBJ *room)
 {
-    int contract;
-    int storage;
-    int transport;
-    int alchemistContract;
-    int production;
-    int recipeBook;
+    D3OBJECT *contract;
+    D3OBJECT *storage;
+    D3OBJECT *transport;
+    D3OBJECT *alchemistContract;
+    D3OBJECT *production;
+    D3OBJECT *recipeBook;
     int r;
     int a;
     int b;
@@ -2125,7 +2125,7 @@ void ai_UnlockRoomWindow(AIBLD *rec, AIOBJ *room)
    registered; any click in a locked room opens ai_UnlockRoomWindow, a click on the cannon the cannon scene */
 void ai_CannonContact(AIBLD *rec, AIOBJ *room)
 {
-    int cannon;
+    D3OBJECT *cannon;
 
     cannon = 0;
     sv_ReleaseNamePlates();
@@ -2151,10 +2151,10 @@ void ai_CannonContact(AIBLD *rec, AIOBJ *room)
    ai_CabinetIntrigueWindow / ai_CabinetSpyOnCharacter */
 void ai_CabinetContact(AIBLD *rec, AIOBJ *room)
 {
-    int poison;
-    int removeSpies;
-    int paralysis;
-    int forgeEvidence;
+    D3OBJECT *poison;
+    D3OBJECT *removeSpies;
+    D3OBJECT *paralysis;
+    D3OBJECT *forgeEvidence;
 
     poison = 0;
     removeSpies = 0;

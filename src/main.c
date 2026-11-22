@@ -1305,7 +1305,7 @@ int main_MenuButton(int n, char *text, int form)
     return b;
 }
 
-int sv_RegisterNamePlate(char *name, char *text, int look);
+D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int look);
 
 /* 0x533850, "main_Menue": the main menu ("MENU\MAIN_MENU"): fades to black, loads the city scene
    ("scenes/*ChooseCity.ed3", "..._Europa.ed3" for language 1 and up) and the player selection scene
@@ -1989,7 +1989,7 @@ int main_ChooseFamily(int unused)
             }
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
-            if (ai_ClickedObject != 0 && (sel = (CHARACTER *)((D3OBJECT *)ai_ClickedObject)->owner) != 0) {
+            if (ai_ClickedObject != 0 && (sel = (CHARACTER *)ai_ClickedObject->owner) != 0) {
                 if (sel->familySlot == -1) {
                     v = 0;
                     if (sel == o1 || sel == o2)
@@ -2613,14 +2613,14 @@ int main_ChooseCity(int unused, int host)
         do {
             ai_ClickedObject = 0;
             h = d3if_Pick((float)dm_L.x, (float)dm_L.y, 0x60, 1);
-            ai_PickedObject = (char *)h;
+            ai_PickedObject = h;
             if (dm_L.lup != 0) {
-                ai_ClickedObject = (int)h;
+                ai_ClickedObject = h;
             } else if (dm_L.rup != 0 || kb_Last == 1) {
                 sv_PopRequest = 1;
             }
-            if (ai_ClickedObject != 0 && strncmp((char *)ai_ClickedObject, "stadt_", 6) == 0)
-                sel = (D3OBJECT *)ai_ClickedObject;
+            if (ai_ClickedObject != 0 && strncmp(ai_ClickedObject->name, "stadt_", 6) == 0)
+                sel = ai_ClickedObject;
             if (sel != last) {
                 D3VECTOR4 pos;
                 D3VECTOR rot;

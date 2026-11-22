@@ -184,7 +184,7 @@ extern const int sv_PhaseMinutes[24];
 
 extern unsigned short ai_PlayerId;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -228,7 +228,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -236,7 +236,7 @@ extern int ai_ClickedObject;
 
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 extern unsigned short ai_PlayerId;
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -247,7 +247,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 extern int gm_AllowAll;
@@ -2454,7 +2454,7 @@ void sv_ReleaseNamePlates(void); void ai_TradeContactChecks(void);
    0x19 / 0x16 / 0x11 open the handlers directly (a cheat path, a reasoned guess) */
 void ai_GraveyardContact(AIBLD *rec)
 {
-    int c_altern, c_heim, c_zut, c_graeber, c_gehilfen, c_vers, c_liege, c_trans, c_mieten;
+    D3OBJECT *c_altern, *c_heim, *c_zut, *c_graeber, *c_gehilfen, *c_vers, *c_liege, *c_trans, *c_mieten;
 
     c_altern = 0;
     c_heim = 0;
@@ -2881,7 +2881,7 @@ void ai_GraveInsuranceContact(AIBLD *rec)
    ai_HelperBook (with the plate's name) or ai_StorageWindow (with the building's object list) */
 void ai_GraveyardTradeContact(AIBLD *rec)
 {
-    int c0, c1, c2, c3, c4;
+    D3OBJECT *c0, *c1, *c2, *c3, *c4;
 
     c0 = 0;
     c1 = 0;
@@ -2919,7 +2919,7 @@ void ai_GraveyardTradeContact(AIBLD *rec)
 
 void ai_GraveyardSeanceContact(AIBLD *rec)
 {
-    int c;
+    D3OBJECT *c;
 
     while (sv_RunFrame(ai_GraveyardSeanceContact, 0x67fff) != 0) {
         c = sv_RegisterNamePlate("contact_SEANCE", txt_Ptrs[0x4169], 0x16);
@@ -3061,7 +3061,7 @@ void ai_UpgradeWorkerWindow(AIBLD *rec)
 
 void ai_GraveyardFogContact(AIBLD *rec)
 {
-    int c0, c1;
+    D3OBJECT *c0, *c1;
 
     c0 = 0;
     c1 = 0;

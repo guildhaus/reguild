@@ -2408,9 +2408,9 @@ void ai_TailorContact(AIBLD *building, AIOBJ *arg)
    0x58f510 (param_1). The pump 0x5309a0 (0x5d8420, 0x67fff) runs between 0x52e190 calls. */
 void ai_ProductionContact(AIBLD *building, AIOBJ *arg)
 {
-    int lager, schn, trans, personal, meister, roh, plausch;
+    D3OBJECT *lager, *schn, *trans, *personal, *meister, *roh, *plausch;
     int pump;
-    int click;
+    D3OBJECT *click;
 
     lager = 0;
     schn = 0;
@@ -2470,9 +2470,9 @@ void ai_ProductionContact(AIBLD *building, AIOBJ *arg)
    (this function, 0x67fff). The clicked object (ai_ClickedObject) selects one of the plates. */
 void ai_GypsyContact(AIBLD *building)
 {
-    int blutrache = 0;
-    int ehrerbietung = 0;
-    int clicked;
+    D3OBJECT *blutrache = 0;
+    D3OBJECT *ehrerbietung = 0;
+    D3OBJECT *clicked;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GypsyContact, 0x67fff) != 0) {
@@ -2496,9 +2496,9 @@ void ai_GypsyContact(AIBLD *building)
 
 void ai_CurseContact(AIBLD *buildingArg)
 {
-    int fluch;
+    D3OBJECT *fluch;
     AIBLD *building;
-    int clicked;
+    D3OBJECT *clicked;
 
     /* the original keeps the building in a callee-saved register across the plate call */
     building = buildingArg;
@@ -2519,9 +2519,9 @@ void ai_CurseContact(AIBLD *buildingArg)
 
 void ai_TheatreContact(AIBLD *building)
 {
-    int theater = 0;
-    int karten;
-    int clicked;
+    D3OBJECT *theater = 0;
+    D3OBJECT *karten;
+    D3OBJECT *clicked;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_TheatreContact, 0x67fff) != 0) {
@@ -3060,13 +3060,13 @@ void ai_GypsyBeggingWindow(AIBLD *building)
 
 void ai_GypsyProductionContact(AIBLD *building)
 {
-    int zutaten = 0;
-    int transport = 0;
-    int produktion = 0;
-    int lager = 0;
-    int betteln;
-    int personal;
-    int meister;
+    D3OBJECT *zutaten = 0;
+    D3OBJECT *transport = 0;
+    D3OBJECT *produktion = 0;
+    D3OBJECT *lager = 0;
+    D3OBJECT *betteln;
+    D3OBJECT *personal;
+    D3OBJECT *meister;
     int pump;
 
     personal = 0;

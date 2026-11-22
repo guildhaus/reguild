@@ -133,7 +133,7 @@ void sv_DrawHint(void);                                                /* 0x52e0
 void sv_DrawStatusText(void);                                                /* 0x52e0c0 */
 void sv_ClearNamePlates(void);                                          /* 0x52e170 */
 void sv_ReleaseNamePlates(void);                                        /* 0x52e190 */
-int sv_RegisterNamePlate(char *name, char *text, int b);                /* 0x52e1c0 */
+struct D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int b);                /* 0x52e1c0 */
 void sv_SetStatusText(char *s);                                         /* 0x52e330 */
 void sv_ButtonRow(int f, int y, int *out, int n, ...);                  /* 0x52e350 */
 void sv_TabButtonRow(int f, int y, int *out, int n, ...);                  /* 0x52e4b0 */
@@ -266,8 +266,8 @@ extern int sv_BorderViewX;                                    /* 0x6f22cc */
 extern int sv_BorderViewY;                                    /* 0x6f22d0 */
 extern float sv_CameraHeightFactor;                         /* 0x6f22d4 */
 extern float sv_CameraAngleFactor;                          /* 0x6f22d8 */
-extern char * sv_FocusObject;                               /* 0x6f22ec */
-extern int sv_SelectedModel;                                    /* 0x6f2304 */
+extern struct D3OBJECT *sv_FocusObject;                               /* 0x6f22ec */
+extern struct D3OBJECT *sv_SelectedModel;                                    /* 0x6f2304 */
 extern struct AIBLD *ai_PlayerBuilding;                            /* 0x6f2308 */
 extern struct AIBLD *ai_FallbackBuilding;                          /* 0x6f230c */
 extern struct AIOBJ *sv_PanelShown;                         /* 0x6f2310 */
@@ -300,11 +300,11 @@ extern float sv_ZoomStartAngle;                                  /* 0x6f23ac */
 extern float sv_ZoomStartTurn;                                  /* 0x6f23b0 */
 extern float sv_ZoomBaseY;                                  /* 0x6f23b4 */
 extern int sv_MouseDragOn;                                    /* 0x6f23b8 */
-extern int sv_ShownModel;  /* 0x6f2294 */
+extern struct D3OBJECT *sv_ShownModel;  /* 0x6f2294 */
 extern int sv_PanelPerms;  /* 0x6f2320 */
 extern int sv_PickX;  /* 0x623e98 */
 extern int sv_PickY;  /* 0x623e9c */
-extern int sv_HoverLast;  /* 0x6f1c4c */
+extern struct D3OBJECT *sv_HoverLast;  /* 0x6f1c4c */
 extern int sv_HoverItem;  /* 0x6f22f0 */
 extern struct AIBLD *sv_HoverBuilding;  /* 0x6f22f4 */
 extern int sv_ClickedContact;  /* 0x6f22fc */
@@ -313,7 +313,7 @@ extern int sv_HoverBldPerms;  /* 0x6f2324 */
 extern int sv_HoverItemPerms;  /* 0x6f2328 */
 extern int sv_HoverCharPerms;  /* 0x6f232c */
 extern int sv_PointerSpriteFor;  /* 0x6f23dc */
-extern char * sv_LastPicked;  /* 0x6f23e0 */
+extern struct D3OBJECT *sv_LastPicked;  /* 0x6f23e0 */
 extern struct AIBLD *sv_PermsBuilding;  /* 0x6f23e4, the building ai_BuildingPerms was last computed for */
 extern struct AIOBJ *sv_PermsRoom;    /* 0x6f23e8, its room */
 extern unsigned short sv_DisabledWidgets[0x300];  /* 0x6f1c90 */

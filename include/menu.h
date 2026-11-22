@@ -217,7 +217,7 @@ void ai_LoadScreenImage(char *path); /* 0x5d7320, the loading screen reader */
 int cm_GetSlotState(int h);         /* 0x4c3ae0, cm.c (as include/cm.h): the state of message slot h */
 void sv_ReleaseNamePlates(void);    /* 0x52e190, sv.c: drops the contact plates (the objects lose their
                                        +0x224 hook, the plate table is cleared) */
-int sv_RegisterNamePlate(char *name, char *text, int b); /* 0x52e1c0, sv.c: finds or creates the contact
+struct D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int b); /* 0x52e1c0, sv.c: finds or creates the contact
                                        plate of the object called name (text shown, b the icon), returns
                                        the object or 0 */
 

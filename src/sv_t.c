@@ -209,7 +209,7 @@ extern const int sv_PhaseMinutes[24];
 
 extern unsigned short ai_PlayerId;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -253,7 +253,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -261,7 +261,7 @@ extern int ai_ClickedObject;
 
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 extern unsigned short ai_PlayerId;
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -272,7 +272,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 extern int gm_AllowAll;

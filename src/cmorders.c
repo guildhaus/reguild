@@ -140,7 +140,7 @@ extern AICHAR cm_Fighters[32];
 extern struct D3OBJECT *cm_FlagObjects[32];
 extern float cm_FightCellScale;
 extern int cm_CharInfoWins[32];
-extern char * cm_HoverObject;
+extern D3OBJECT *cm_HoverObject;
 extern int cm_FightPaused;
 extern struct AICHAR *cm_FightDefender;
 extern struct AICHAR *cm_FightAttacker;

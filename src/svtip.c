@@ -177,7 +177,7 @@ extern const int sv_PhaseMinutes[24];
 
 extern unsigned short ai_PlayerId;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -221,7 +221,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 
@@ -229,7 +229,7 @@ extern int ai_ClickedObject;
 
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 extern unsigned short ai_PlayerId;
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
@@ -240,7 +240,7 @@ extern int d2_LastWindow;
 
 extern int sv_PopRequest;
 extern int ai_BuildingPerms;
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 
 
 extern int gm_AllowAll;
@@ -310,7 +310,7 @@ extern TUTRUN *ai_TutorialRuns;
 extern int ai_TutorialOn;
 extern int ai_TutorialRunning;
 extern int ai_ShotDirty;
-extern char *ai_DragPicked;
+extern struct D3OBJECT *ai_DragPicked;
 extern int ai_DragCutscene;
 extern int ai_ScreenshotCount;
 extern AIBOOKMARK ai_Bookmarks[11];
@@ -549,7 +549,7 @@ void ai_EndCharExtra(struct AICHAR *ch, int f);
 int ai_DragWindow = -1;  /* 0x62a8cc, the tooltip view the right-button tooltip handler 0x587e00 opens (-1 = none; sv.c reads it): the first of the .data block before ai_DragObj */
 int ai_DragObj = -1;  /* 0x62a8d0, the right-held d2 object (d2_RightHeldObj) whose tooltip ai_DragWindow shows, -1 = none */
 int ai_DragViewWin = -1;  /* 0x62a8d4, the first window of the tooltip view ai_DragWindow (d2_Views[].wins[0]), -1 = none */
-char *ai_DragPicked = 0;  /* 0x6f266c, the picked object (ai_PickedObject) the tooltip was last opened for, 0 = none */
+struct D3OBJECT *ai_DragPicked = 0;  /* 0x6f266c, the picked object (ai_PickedObject) the tooltip was last opened for, 0 = none */
 int ai_DragCutscene = 0;  /* 0x6f2670, 1 while the tooltip view holds d2_CutsceneActive set */
 int ai_ScreenshotCount = 0;  /* 0x6f2674, the number of the next screenshot (gamedata/screenshots/gilde%04i.bmp, ai_SaveScreenshot) */
 int svg_UnreadBss = 0;  /* 0x6f2678, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
@@ -568,7 +568,7 @@ void ai_HandleItemDrag(void)
 {
     int bkind;
     int item;
-    char *sel;
+    D3OBJECT *sel;
     AICHAR *ch;
     void *user;
     AIGOOD *g;
@@ -638,7 +638,7 @@ void ai_HandleItemDrag(void)
         } else if (bkind != 0) {
             ai_DragWindow = ai_OpenBuildingTooltip(bkind);
         } else if (sel != 0) {
-            ai_DragWindow = ai_OpenHelpTooltip(sel);
+            ai_DragWindow = ai_OpenHelpTooltip(sel->name);
         } else if (ch != 0) {
             ai_DragWindow = ai_OpenCharTooltip(ch);
         }

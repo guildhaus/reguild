@@ -149,7 +149,7 @@ CMGRENADE cm_Grenades[32];  /* 0x935a00, the thrown bombs */
 CMBOMB cm_Bombs[32];  /* 0x935c00, the 32 bomb records (object, time) */
 float cm_FightCellScale;  /* 0x935d00 */
 int cm_CharInfoWins[32];  /* 0x935d20 */
-char * cm_HoverObject = 0;  /* 0x6f0ce0 */
+D3OBJECT *cm_HoverObject = 0;  /* 0x6f0ce0 */
 int cm_FightPaused = 0;  /* 0x6f0ce4, fight paused */
 AICHAR *cm_FightDefender = 0;  /* 0x6f0ce8, the defending side's leader */
 AICHAR *cm_FightAttacker = 0;  /* 0x6f0cec, the attacking side's leader */
@@ -1183,14 +1183,14 @@ void cm_UpdatePointer()
     if (n > 1)
         cur = 0x23;
     if (ai_PickedObject != 0 && d2_PointerObj == -1) {
-        if (strcmp(ai_PickedObject, "sp_ESCAPE") == 0 && n != 0)
+        if (strcmp(ai_PickedObject->name, "sp_ESCAPE") == 0 && n != 0)
             d2_PointerLook = 0x1c;
-        else if (strncmp(ai_PickedObject, "sp_CONQUER", 10) == 0 && n != 0)
+        else if (strncmp(ai_PickedObject->name, "sp_CONQUER", 10) == 0 && n != 0)
             d2_PointerLook = 0x1b;
-        else if (strncmp(ai_PickedObject, "WARE", 4) == 0 && n != 0)
+        else if (strncmp(ai_PickedObject->name, "WARE", 4) == 0 && n != 0)
             d2_PointerLook = 0xe;
-        else if (((D3OBJECT *)ai_PickedObject)->kind == 2 && n != 0) {
-            if (!(ai_LedSelectBits(cm_CutChar->id, ((D3OBJECT *)ai_PickedObject)->owner) & 0x800) ||
+        else if (ai_PickedObject->kind == 2 && n != 0) {
+            if (!(ai_LedSelectBits(cm_CutChar->id, ai_PickedObject->owner) & 0x800) ||
                 kb_Down[0x36] != 0)
                 d2_PointerLook = cur;
         } else
@@ -1355,7 +1355,7 @@ void cm_ClickSceneChar()
             break;
     }
     if (dm_L.lup != 0 && d2_PointerObj == -1) {
-        sel = (D3OBJECT *)ai_PickedObject;
+        sel = ai_PickedObject;
         if (sel != 0 && sel->kind == 2) {
             o = sel->owner;
             if ((ai_LedSelectBits(t->id, o) & 0x800) && kb_Down[0x36] == 0 &&
@@ -1366,10 +1366,10 @@ void cm_ClickSceneChar()
                     snd_QueueVoice(o->id, cm_AttackerClickVoices, "_ARBEITER_KOMMENTARE_KLICK", -1, 0);
                 else
                     snd_QueueVoice(o->id, cm_DefenderClickVoices, "_ARBEITER_KOMMENTARE_KLICK", -1, 0);
-                sel = (D3OBJECT *)ai_PickedObject;
+                sel = ai_PickedObject;
             }
         }
-        ai_ClickedObject = (int)sel;
+        ai_ClickedObject = sel;
     }
 }
 /* 0x4cffd0, orders the character c of the cutscene record rec (CMCUTINFO) to attack: its entry (cm_CutEntrySlot, b0c and
@@ -1586,7 +1586,7 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
     D3SM *map;
 
     if (dm_L.lup != 0) {
-        sel = (D3OBJECT *)ai_ClickedObject;
+        sel = ai_ClickedObject;
         if (sel != 0) {
             if (sel->kind == 2) {
                 o = sel->owner;
@@ -1598,10 +1598,10 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
                 cm_OrderEscape(rec, c, sel);
                 ret = 1;
             } else if (strncmp(sel->name, "sp_CONQUER", 10) == 0) {
-                cm_OrderConquer(rec, c, (D3OBJECT *)ai_ClickedObject);
+                cm_OrderConquer(rec, c, ai_ClickedObject);
                 ret = 1;
-            } else if (strncmp((char *)ai_ClickedObject, "WARE", 4) == 0) {
-                cm_OrderWare(rec, c, (D3OBJECT *)ai_ClickedObject);
+            } else if (strncmp(ai_ClickedObject->name, "WARE", 4) == 0) {
+                cm_OrderWare(rec, c, ai_ClickedObject);
                 ret = 1;
             }
         } else {

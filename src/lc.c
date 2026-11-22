@@ -264,7 +264,7 @@ extern int d2_LastWindow;
 extern struct D2OBJ *d2_Objs;
 extern D2VIEW d2_Views[];
 extern D2WIN d2_Wins[];
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 
 extern struct AIBLD *ai_MarketBuilding;
 extern int ai_PermsDirty;
@@ -538,7 +538,7 @@ extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_SabotageCallback();
 extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 extern char * cm_FieldObject;
 extern struct D2OBJ *d2_Objs;
 
@@ -1982,7 +1982,7 @@ void ai_LayoutStoreGoods(int view, int part, int pointer, AIBLD *bld, AIOBJ *obj
 
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
-int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
+D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 
 /* 0x58f510, the shop-counter contact of a building (264 B): for a building of another player (the owner
@@ -1992,7 +1992,7 @@ int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x
    ai_OpenTransport opens on the building record */
 void ai_MarketContact(AIBLD *b)
 {
-    int plate;
+    D3OBJECT *plate;
 
     plate = 0;
     if (ai_PlayerId != b->owner) {
@@ -3426,7 +3426,7 @@ void ai_UpgradeContact(AIBLD *building)
 
     r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     while (r != 0) {
-        if (ai_ClickedObject != 0 && strcmpi("UPGRADE", (char *)ai_ClickedObject) == 0)
+        if (ai_ClickedObject != 0 && strcmpi("UPGRADE", ai_ClickedObject->name) == 0)
             ai_TechTreeWindow(building, 0x2c);
         r = sv_RunFrame(ai_UpgradeContact, 0x67fff);
     }
@@ -3439,8 +3439,8 @@ void ai_UpgradeContact(AIBLD *building)
 void ai_BookContact(AIBLD *bld)
 {
     int r;
-    int a;
-    int b;
+    D3OBJECT *a;
+    D3OBJECT *b;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_BookContact, 0x67fff);
@@ -3464,8 +3464,8 @@ void ai_BookContact(AIBLD *bld)
 void ai_MercenaryBookContact(AIBLD *bld)
 {
     int r;
-    int a;
-    int b;
+    D3OBJECT *a;
+    D3OBJECT *b;
 
     a = 0;
     b = 0;
@@ -4069,8 +4069,8 @@ int ai_ExtractResourceWindow(AIBLD *bld);
 void ai_MiningContact(AIBLD *bld)
 {
     int r;
-    int a;
-    int b;
+    D3OBJECT *a;
+    D3OBJECT *b;
 
     a = 0;
     b = 0;
@@ -4101,12 +4101,12 @@ void ai_MiningContact(AIBLD *bld)
 void ai_KontorContact(AIBLD *bld)
 {
     int r;
-    int metall;
-    int transport;
-    int lager;
-    int gelage;
-    int stroh;
-    int ziel;
+    D3OBJECT *metall;
+    D3OBJECT *transport;
+    D3OBJECT *lager;
+    D3OBJECT *gelage;
+    D3OBJECT *stroh;
+    D3OBJECT *ziel;
 
     metall = 0;
     lager = 0;
@@ -4158,12 +4158,12 @@ void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
 void ai_WoodKontorContact(AIBLD *bld)
 {
     int r;
-    int lager;
-    int holz;
-    int gelage;
-    int transport;
-    int ziel;
-    int stroh;
+    D3OBJECT *lager;
+    D3OBJECT *holz;
+    D3OBJECT *gelage;
+    D3OBJECT *transport;
+    D3OBJECT *ziel;
+    D3OBJECT *stroh;
     struct G15PLANT *plants;
 
     transport = 0;
@@ -4216,14 +4216,14 @@ void ai_WoodKontorContact(AIBLD *bld)
 void ai_StoneKontorContact(AIBLD *bld)
 {
     int r;
-    int lager;
-    int abbau;
-    int stein;
-    int produktion;
-    int transport;
-    int gelage;
-    int stroh;
-    int ziel;
+    D3OBJECT *lager;
+    D3OBJECT *abbau;
+    D3OBJECT *stein;
+    D3OBJECT *produktion;
+    D3OBJECT *transport;
+    D3OBJECT *gelage;
+    D3OBJECT *stroh;
+    D3OBJECT *ziel;
 
     lager = 0;
     produktion = 0;
@@ -4278,9 +4278,9 @@ void ai_StoneKontorContact(AIBLD *bld)
 void ai_InformationContact(AIBLD *building)
 {
     int r;
-    int inf;
-    int meister;
-    int personal;
+    D3OBJECT *inf;
+    D3OBJECT *meister;
+    D3OBJECT *personal;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_InformationContact, 0x67fff);
@@ -4812,18 +4812,18 @@ void ai_OpenRaid(AIBLD *building)
 void ai_CriminalContact(AIBLD *bld)
 {
     int r;
-    int ausruesten;
-    int lauer;
-    int angriff;
-    int schutzgeld;
-    int spionieren;
-    int raub;
-    int regen;
-    int stroh;
-    int ziel;
-    int lager;
-    int gelage;
-    int transport;
+    D3OBJECT *ausruesten;
+    D3OBJECT *lauer;
+    D3OBJECT *angriff;
+    D3OBJECT *schutzgeld;
+    D3OBJECT *spionieren;
+    D3OBJECT *raub;
+    D3OBJECT *regen;
+    D3OBJECT *stroh;
+    D3OBJECT *ziel;
+    D3OBJECT *lager;
+    D3OBJECT *gelage;
+    D3OBJECT *transport;
 
     transport = 0;
     lager = 0;
@@ -4893,8 +4893,8 @@ void ai_CriminalContact(AIBLD *bld)
 void ai_FarTradeContact(AIBLD *building)
 {
     int r;
-    int buy;
-    int sell;
+    D3OBJECT *buy;
+    D3OBJECT *sell;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_FarTradeContact, 0x67fff);
@@ -4923,11 +4923,11 @@ void ai_FarTradeContact(AIBLD *building)
 void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int schmieden;
-    int meister;
-    int lager;
-    int transport;
-    int personal;
+    D3OBJECT *schmieden;
+    D3OBJECT *meister;
+    D3OBJECT *lager;
+    D3OBJECT *transport;
+    D3OBJECT *personal;
 
     lager = 0;
     schmieden = 0;
@@ -4988,11 +4988,11 @@ void ai_SmithyContact(AIBLD *bld, AIOBJ *room)
 void ai_CarpenterContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int tischler;
-    int lager;
-    int transport;
-    int meister;
-    int personal;
+    D3OBJECT *tischler;
+    D3OBJECT *lager;
+    D3OBJECT *transport;
+    D3OBJECT *meister;
+    D3OBJECT *personal;
 
     meister = 0;
     lager = 0;
@@ -5317,12 +5317,12 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
 void ai_PerfumeryContact(AIBLD *building, AIOBJ *room)
 {
     int r;
-    int sammeln;
-    int parfum;
-    int lager;
-    int transport;
-    int meister;
-    int personal;
+    D3OBJECT *sammeln;
+    D3OBJECT *parfum;
+    D3OBJECT *lager;
+    D3OBJECT *transport;
+    D3OBJECT *meister;
+    D3OBJECT *personal;
 
     lager = 0;
     transport = 0;
@@ -5379,7 +5379,7 @@ void ai_IdleContact(AIBLD *building, AIOBJ *room)
 void ai_AquariumContact(AIBLD *building, AIOBJ *room)
 {
     int r;
-    int teich;
+    D3OBJECT *teich;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_AquariumContact, 0x67fff);
@@ -5405,12 +5405,12 @@ void ai_AquariumContact(AIBLD *building, AIOBJ *room)
 void ai_MixingContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int sammeln;
-    int mischen;
-    int meister;
-    int personal;
-    int lager;
-    int transport;
+    D3OBJECT *sammeln;
+    D3OBJECT *mischen;
+    D3OBJECT *meister;
+    D3OBJECT *personal;
+    D3OBJECT *lager;
+    D3OBJECT *transport;
 
     meister = 0;
     lager = 0;
@@ -5462,11 +5462,11 @@ void ai_PamphletWindow(struct AIBLD *bld);
 void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int steinmetz;
-    int meister;
-    int lager;
-    int transport;
-    int personal;
+    D3OBJECT *steinmetz;
+    D3OBJECT *meister;
+    D3OBJECT *lager;
+    D3OBJECT *transport;
+    D3OBJECT *personal;
 
     lager = 0;
     transport = 0;
@@ -5515,10 +5515,10 @@ void ai_StonecutterContact(AIBLD *bld, AIOBJ *room)
 
 void ai_RobberContact(AIBLD *bld, AIOBJ *room)
 {
-    int sabotage;
-    int beating;
-    int nightFog;
-    int bribe;
+    D3OBJECT *sabotage;
+    D3OBJECT *beating;
+    D3OBJECT *nightFog;
+    D3OBJECT *bribe;
     AMOUNTCFG pick;
     AMOUNTCFG beat;
     char beatText[0x40];
@@ -5567,9 +5567,9 @@ void ai_RobberContact(AIBLD *bld, AIOBJ *room)
 void ai_RhetoricContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int drohbrief;
-    int pamphlet;
-    int rhetorik;
+    D3OBJECT *drohbrief;
+    D3OBJECT *pamphlet;
+    D3OBJECT *rhetorik;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_RhetoricContact, 0x67fff);
@@ -5610,9 +5610,9 @@ int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, 
 void ai_FeastContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int fest;
-    int kampf;
-    int ansch;
+    D3OBJECT *fest;
+    D3OBJECT *kampf;
+    D3OBJECT *ansch;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_FeastContact, 0x67fff);
@@ -5867,7 +5867,7 @@ void ai_MistressWindow(AIBLD *bld)
 void ai_MistressContact(AIBLD *building, AIOBJ *room)
 {
     int r;
-    int geliebte;
+    D3OBJECT *geliebte;
 
     r = sv_RunFrame(ai_MistressContact, 0x67fff);
     while (r != 0) {
@@ -6043,12 +6043,12 @@ void ai_SuicideWindow(AIBLD *bld)
 void ai_StudyContact(AIBLD *bld, AIOBJ *room)
 {
     int r;
-    int verhandeln;
-    int handwerk;
-    int beweis;
-    int spionage;
-    int meister;
-    int selbstmord;
+    D3OBJECT *verhandeln;
+    D3OBJECT *handwerk;
+    D3OBJECT *beweis;
+    D3OBJECT *spionage;
+    D3OBJECT *meister;
+    D3OBJECT *selbstmord;
 
     sv_ReleaseNamePlates();
     r = sv_RunFrame(ai_StudyContact, 0x67fff);
@@ -7163,9 +7163,9 @@ void cm_BeginGroup(const char *s); void cm_SendScriptMessage(void *p); void cm_S
 
 void ai_TavernContact(AIBLD *bld, AIOBJ *room)
 {
-    int dice;
-    int table;
-    int corner;
+    D3OBJECT *dice;
+    D3OBJECT *table;
+    D3OBJECT *corner;
     AIMSG msg;
 
     sv_ReleaseNamePlates();
@@ -7208,11 +7208,11 @@ void ai_TavernContact(AIBLD *bld, AIOBJ *room)
 
 void ai_BreweryContact(AIBLD *bld, AIOBJ *room)
 {
-    int brauen;
-    int personal;
-    int lager;
-    int meister;
-    int transport;
+    D3OBJECT *brauen;
+    D3OBJECT *personal;
+    D3OBJECT *lager;
+    D3OBJECT *meister;
+    D3OBJECT *transport;
 
     brauen = 0;
     lager = 0;
@@ -7421,14 +7421,14 @@ void ai_MapTableScreen(void)
         for (i = 0; i < 3; i++)
             sv_RegisterNamePlate(objs[i]->name, ai_PlayerSlots[i + 1].name, 0);
         r = d3if_Pick((float)dm_L.x, (float)dm_L.y, 0x60, 1);
-        ai_PickedObject = (char *)r;
+        ai_PickedObject = r;
         if (dm_L.lup == 0 || r == 0) {
             if (dm_L.rup != 0)
                 sv_PopRequest = 1;
         } else {
-            ai_ClickedObject = (int)r;
+            ai_ClickedObject = r;
             for (i = 0; i < 3; i++) {
-                if (ai_ClickedObject == (int)objs[i] && (rec = gm_BuildQuery(1, 0, 0x47)) != 0) {
+                if (ai_ClickedObject == objs[i] && (rec = gm_BuildQuery(1, 0, 0x47)) != 0) {
                     do {
                         if (rec->playerSlot == i + 1) {
                             ai_CityInfoWindow(rec, 1);
@@ -7481,19 +7481,19 @@ void ai_MapTableContact(AIBLD *bld, AIOBJ *room)
     while (sv_RunFrame(ai_MapTableContact, 0x67fff) != 0) {
         ai_MarketContact(bld);
         if ((ai_BuildingPerms & 0x200) != 0) {
-            transport = (D3OBJECT *)sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
-            lager = (D3OBJECT *)sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
-            meister = (D3OBJECT *)sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
-            kartentisch = (D3OBJECT *)sv_RegisterNamePlate("ob_KARTENTISCH", txt_Ptrs[TXT_CONTACT_MAP_TABLE], 0x16);
+            transport = sv_RegisterNamePlate("contact_TRANSPORT", txt_Ptrs[TXT_CONTACT_TRANSPORT], 0x15);
+            lager = sv_RegisterNamePlate("contact_LAGER", txt_Ptrs[TXT_CONTACT_STORAGE], 0xe);
+            meister = sv_RegisterNamePlate("ob_MEISTERBRIEF", txt_Ptrs[TXT_CONTACT_MASTER_LETTER], 0x16);
+            kartentisch = sv_RegisterNamePlate("ob_KARTENTISCH", txt_Ptrs[TXT_CONTACT_MAP_TABLE], 0x16);
         }
         if (ai_ClickedObject != 0) {
-            if (ai_ClickedObject == (int)transport)
+            if (ai_ClickedObject == transport)
                 ai_OpenTransport(bld);
-            if (ai_ClickedObject == (int)lager)
+            if (ai_ClickedObject == lager)
                 ai_StorageWindow(bld, bld->objList);
-            else if (ai_ClickedObject == (int)meister)
+            else if (ai_ClickedObject == meister)
                 ai_MasterLetterWindow(bld);
-            else if (ai_ClickedObject == (int)kartentisch) {
+            else if (ai_ClickedObject == kartentisch) {
                 kartentisch->mask = 0;
                 ai_MapTableScreen();
                 kartentisch->mask = 1;
@@ -7541,10 +7541,10 @@ void ai_MarketStandWindow(AIBLD *bld, int kind)
 
 void ai_MarketStandListener(AIBLD *market)
 {
-    char *fleck1 = 0;
-    char *fleck2 = 0;
-    char *fleck3 = 0;
-    char *c;
+    D3OBJECT *fleck1 = 0;
+    D3OBJECT *fleck2 = 0;
+    D3OBJECT *fleck3 = 0;
+    D3OBJECT *c;
     AIBLD *bld;
 
     sv_RegisterNamePlate("ob_MARKTSTAND_TISCHLER_SCHMIEDE", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x92], 0x10);
@@ -7557,46 +7557,46 @@ void ai_MarketStandListener(AIBLD *market)
     sv_RegisterNamePlate("ob_SCHWARZES_BRETT", txt_Ptrs[TXT_OBJECT_NAMES + 2 * 0x98], 0x10);
     sv_RegisterNamePlate("ob_TRIBUENE", txt_Ptrs[TXT_TRIBUNE], 0x10);
     if (strcmp(ai_PlayerSlots[ai_OwnPlayer].name, "Nuernberg") == 0) {
-        fleck1 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_01", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
-        fleck2 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_02", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
-        fleck3 = (char *)sv_RegisterNamePlate("contact_MARKTFLECKEN_03", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
+        fleck1 = sv_RegisterNamePlate("contact_MARKTFLECKEN_01", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
+        fleck2 = sv_RegisterNamePlate("contact_MARKTFLECKEN_02", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
+        fleck3 = sv_RegisterNamePlate("contact_MARKTFLECKEN_03", txt_Ptrs[TXT_BUILDING_NAMES + MARKET_FLECK_NAME], 0x10);
     }
-    c = (char *)ai_ClickedObject;
+    c = ai_ClickedObject;
     if (c == 0)
         return;
-    if (strcmp(c, "ob_MARKTSTAND_TISCHLER_SCHMIEDE") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_TISCHLER_SCHMIEDE") == 0) {
         ai_MarketStandWindow(market, 0x92);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_STEINMETZ_WIRT") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_STEINMETZ_WIRT") == 0) {
         ai_MarketStandWindow(market, 0x93);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_PARFUM_KRAEUTER") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_PARFUM_KRAEUTER") == 0) {
         ai_MarketStandWindow(market, 0x94);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_ROHSTOFFE") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_ROHSTOFFE") == 0) {
         ai_MarketStandWindow(market, 0x95);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_IMPORTEUR") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_IMPORTEUR") == 0) {
         ai_MarketStandWindow(market, 0x96);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_KIRCHE") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_KIRCHE") == 0) {
         ai_MarketStandWindow(market, 0x97);
         return;
     }
-    if (strcmp(c, "ob_MARKTSTAND_OKKULT") == 0) {
+    if (strcmp(c->name, "ob_MARKTSTAND_OKKULT") == 0) {
         ai_MarketStandWindow(market, 0x2db);
         return;
     }
-    if (strcmp(c, "contact_ob_SCHWARZES_BRETT") == 0 || strcmp(c, "ob_SCHWARZES_BRETT") == 0) {
+    if (strcmp(c->name, "contact_ob_SCHWARZES_BRETT") == 0 || strcmp(c->name, "ob_SCHWARZES_BRETT") == 0) {
         ai_NoticeBoardWindow();
         return;
     }
-    if (strcmp(c, "ob_TRIBUENE") == 0) {
+    if (strcmp(c->name, "ob_TRIBUENE") == 0) {
         ai_BardWindow();
         return;
     }
@@ -7659,7 +7659,7 @@ void ai_WineCellarWindow(void)
 
 void ai_WineCellarContact(AIBLD *building, AIOBJ *room)
 {
-    int c;
+    D3OBJECT *c;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_WineCellarContact, 0x67fff) != 0) {
@@ -9043,10 +9043,10 @@ void ai_FortuneOverview(AIBLD *bld)
 
 void ai_MoneyLenderContact(AIBLD *bld, AIOBJ *room)
 {
-    int meister = 0;
-    int overview = 0;
-    int wechsel;
-    int kredite;
+    D3OBJECT *meister = 0;
+    D3OBJECT *overview = 0;
+    D3OBJECT *wechsel;
+    D3OBJECT *kredite;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_MoneyLenderContact, 0x67fff) != 0) {
@@ -9871,7 +9871,7 @@ void ai_GuildCashWindow(AIBLD *bld)
 
 void ai_TownCashContact(AIBLD *bld, AIOBJ *room)
 {
-    int c;
+    D3OBJECT *c;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_TownCashContact, 0x67fff) != 0) {
@@ -9892,10 +9892,10 @@ void ai_OpenAgendaMenu(void);
 
 void ai_TownHallContact(AIBLD *building, AIOBJ *room)
 {
-    int kaufen = 0;
-    int agenda = 0;
-    int amt = 0;
-    int clicked;
+    D3OBJECT *kaufen = 0;
+    D3OBJECT *agenda = 0;
+    D3OBJECT *amt = 0;
+    D3OBJECT *clicked;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_TownHallContact, 0x67fff) != 0) {
@@ -10214,12 +10214,12 @@ void ai_OfficeApplicationWindow(void)
 
 void ai_LawBookContact(AIBLD *bld, AIOBJ *room)
 {
-    int steuern = 0;
-    int strafrecht = 0;
-    int verfassung = 0;
-    int bewerben = 0;
-    int recht = 0;
-    int c;
+    D3OBJECT *steuern = 0;
+    D3OBJECT *strafrecht = 0;
+    D3OBJECT *verfassung = 0;
+    D3OBJECT *bewerben = 0;
+    D3OBJECT *recht = 0;
+    D3OBJECT *c;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_LawBookContact, 0x67fff) != 0) {
@@ -10690,7 +10690,7 @@ void ai_GuildLevel3Entry(void)
 
 void ai_GuildLevel2Listener(AIBLD *building, AIOBJ *room)
 {
-    int c = 0;
+    D3OBJECT *c = 0;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GuildLevel2Listener, 0x67fff) != 0) {
@@ -10708,8 +10708,8 @@ void ai_GuildLevel2Listener(AIBLD *building, AIOBJ *room)
 
 void ai_GuildLevel3Listener(AIBLD *building, AIOBJ *room)
 {
-    int kasse;
-    int level3 = 0;
+    D3OBJECT *kasse;
+    D3OBJECT *level3 = 0;
     int id = 0;
     int r;
     char c;
@@ -10742,7 +10742,7 @@ void ai_GuildLevel3Listener(AIBLD *building, AIOBJ *room)
 
 void ai_GuildLevel1Listener(AIBLD *building, AIOBJ *room)
 {
-    int c = 0;
+    D3OBJECT *c = 0;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_GuildLevel1Listener, 0x67fff) != 0) {
@@ -11225,7 +11225,7 @@ void ai_ConfessionWindow(AIBLD *bld)
 
 void ai_ConfessionListener(AIBLD *building, AIOBJ *room)
 {
-    int c = 0;
+    D3OBJECT *c = 0;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ConfessionListener, 0x67fff) != 0) {
@@ -11483,11 +11483,11 @@ void ai_SermonWindow(AIBLD *bld)
 
 void ai_ProductionWriteContact(AIBLD *building, AIOBJ *room)
 {
-    int meisterbrief = 0;
-    int lager = 0;
-    int schreiben = 0;
-    int personalbuch = 0;
-    int transport = 0;
+    D3OBJECT *meisterbrief = 0;
+    D3OBJECT *lager = 0;
+    D3OBJECT *schreiben = 0;
+    D3OBJECT *personalbuch = 0;
+    D3OBJECT *transport = 0;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ProductionWriteContact, 0x67fff) != 0) {
@@ -11524,10 +11524,10 @@ void ai_ProductionWriteContact(AIBLD *building, AIOBJ *room)
 
 void ai_ChurchListener(AIBLD *building, AIOBJ *room)
 {
-    int beichtstuhl = 0;
-    int spendenkasten = 0;
-    int predigt = 0;
-    int becken = 0;
+    D3OBJECT *beichtstuhl = 0;
+    D3OBJECT *spendenkasten = 0;
+    D3OBJECT *predigt = 0;
+    D3OBJECT *becken = 0;
     AIOBJ *confessionRoom;
 
     sv_ReleaseNamePlates();
@@ -11571,9 +11571,9 @@ void ai_ChurchListener(AIBLD *building, AIOBJ *room)
 
 void ai_ChurchContact(AIBLD *building, AIOBJ *arg)
 {
-    int top5;
-    int ablass;
-    int click;
+    D3OBJECT *top5;
+    D3OBJECT *ablass;
+    D3OBJECT *click;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_ChurchContact, 0x67fff) != 0) {
@@ -11632,7 +11632,7 @@ void ai_DungeonPlanWindow(AIBLD *bld)
 
 void ai_DungeonContact(AIBLD *building, AIOBJ *room)
 {
-    int plan;
+    D3OBJECT *plan;
 
     sv_ReleaseNamePlates();
     while (sv_RunFrame(ai_DungeonContact, 0x67fff) != 0) {
@@ -11714,7 +11714,7 @@ void ai_DungeonBribeWindow(AIBLD *bld)
 
 void ai_DungeonBribeListener(AIBLD *bld, AIOBJ *room)
 {
-    int bribe = 0;
+    D3OBJECT *bribe = 0;
     int mask;
 
     sv_ReleaseNamePlates();
@@ -12247,15 +12247,15 @@ void ai_PickpocketGangWindow(AIBLD *bld)
 
 void ai_ThievesGuildListener(AIBLD *building, AIOBJ *room)
 {
-    int burglary = 0;
-    int espionage = 0;
-    int angriff = 0;
-    int meister = 0;
-    int taschen = 0;
-    int personal = 0;
-    int pergament = 0;
+    D3OBJECT *burglary = 0;
+    D3OBJECT *espionage = 0;
+    D3OBJECT *angriff = 0;
+    D3OBJECT *meister = 0;
+    D3OBJECT *taschen = 0;
+    D3OBJECT *personal = 0;
+    D3OBJECT *pergament = 0;
     D3OBJECT *obj;
-    int click;
+    D3OBJECT *click;
     AIBLD *bld;
     AIBTYPE *type;
 
@@ -12322,11 +12322,11 @@ void ai_ThievesGuildEmptyListener(AIBLD *building, AIOBJ *room)
 
 void ai_StorageContact(AIBLD *building, AIOBJ *room)
 {
-    int lager = 0;
-    int transport = 0;
-    int ausruesten = 0;
-    int regeneration = 0;
-    int click;
+    D3OBJECT *lager = 0;
+    D3OBJECT *transport = 0;
+    D3OBJECT *ausruesten = 0;
+    D3OBJECT *regeneration = 0;
+    D3OBJECT *click;
 
     sv_ReleaseNamePlates();
     if (sv_RunFrame(ai_StorageContact, 0x67fff) == 0)
@@ -12359,8 +12359,8 @@ void ai_StorageContact(AIBLD *building, AIOBJ *room)
 
 void ai_TrainingContact(AIBLD *building, AIOBJ *room)
 {
-    int ziel = 0;
-    int nacht = 0;
+    D3OBJECT *ziel = 0;
+    D3OBJECT *nacht = 0;
 
     sv_ReleaseNamePlates();
     if (sv_RunFrame(ai_TrainingContact, 0x67fff) == 0)
@@ -12706,9 +12706,9 @@ void ai_KidnapContact(AIBLD *building, AIOBJ *room)
 {
     AIBLD *bld = building;
     AIOBJ *rm = room;
-    int entfuehren = 0;
-    int loesegeld = 0;
-    int ausbrechen = 0;
+    D3OBJECT *entfuehren = 0;
+    D3OBJECT *loesegeld = 0;
+    D3OBJECT *ausbrechen = 0;
     AICHAR *ch = 0;
     CHARACTER *cell = 0;
     int r;
@@ -13130,11 +13130,11 @@ void ai_ArrestStart(AIBLD *building)
 
 void ai_CityWatchListener(AIBLD *bld, AIOBJ *room)
 {
-    int patrol = 0;
-    int wachplan = 0;
-    int zoll = 0;
-    int personal = 0;
-    int meister = 0;
+    D3OBJECT *patrol = 0;
+    D3OBJECT *wachplan = 0;
+    D3OBJECT *zoll = 0;
+    D3OBJECT *personal = 0;
+    D3OBJECT *meister = 0;
     int r;
 
     sv_ReleaseNamePlates();
@@ -13174,12 +13174,12 @@ void ai_CityWatchListener(AIBLD *bld, AIOBJ *room)
 
 void ai_GuildHallListener(AIBLD *bld, AIOBJ *room)
 {
-    int lager = 0;
-    int ausruesten = 0;
-    int razzia = 0;
-    int transport = 0;
-    int ausspionieren = 0;
-    int pergament = 0;
+    D3OBJECT *lager = 0;
+    D3OBJECT *ausruesten = 0;
+    D3OBJECT *razzia = 0;
+    D3OBJECT *transport = 0;
+    D3OBJECT *ausspionieren = 0;
+    D3OBJECT *pergament = 0;
     int r;
 
     sv_ReleaseNamePlates();
@@ -13217,9 +13217,9 @@ void ai_GuildHallListener(AIBLD *bld, AIOBJ *room)
 
 void ai_TrainingRoomListener(AIBLD *bld, AIOBJ *room)
 {
-    int ziel = 0;
-    int nacht = 0;
-    int regeneration = 0;
+    D3OBJECT *ziel = 0;
+    D3OBJECT *nacht = 0;
+    D3OBJECT *regeneration = 0;
 
     sv_ReleaseNamePlates();
     if (sv_RunFrame(ai_TrainingRoomListener, 0x67fff) == 0)

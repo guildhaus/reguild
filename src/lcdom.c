@@ -154,7 +154,7 @@ extern int d2_LastWindow;
 extern struct D2OBJ *d2_Objs;
 extern D2VIEW d2_Views[];
 extern D2WIN d2_Wins[];
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 
 extern struct AIBLD *ai_MarketBuilding;
 extern int ai_PermsDirty;
@@ -426,7 +426,7 @@ extern int ai_MapSize;
 extern struct D2SURF *rt_MapSurface;
 extern char ch_EmptyName[1];
 extern int ai_EspionageAmountCB(struct AICHAR *ch, int unused);
-extern char * ai_PickedObject;
+extern D3OBJECT *ai_PickedObject;
 extern char * cm_FieldObject;
 extern struct D2OBJ *d2_Objs;
 
@@ -612,7 +612,7 @@ int d2_RemoveWindow(int win);                                   /* 0x472ce0 (d2.
 char * gm_FindGoods(int p, unsigned id);
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
-int sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
+D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */
 int ai_OpenTransport(struct AIBLD *rec);                                   /* 0x5af1a0, below */
 char *strstr(); struct AIBLD *gm_BuildQuery(int n, ...); struct AIBLD *gm_BuildNext(void);
 struct D3OBJECT;
@@ -7414,7 +7414,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
                     cost = 0x400;
                 cm_SendMoveGoods(-1, ai_CharInts[ai_PlayerId][0], ai_OwnPlayer, cost);
                 veg_LoadModel(plant, 0);
-                obj = (D3OBJECT *)plant->obj;
+                obj = plant->obj;
                 if (obj != 0) {
                     above.x = pos.x;
                     above.y = pos.y - 60.0;

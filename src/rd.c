@@ -51,7 +51,7 @@ G15PLANT *veg_FindPlantAt(G15PLANT *p, int x, int z)
 }
 /* 0x4bc640, the plant with 3D object obj, 0 if none */
 
-G15PLANT *veg_FindPlantObject(G15PLANT *p, char *obj)
+G15PLANT *veg_FindPlantObject(G15PLANT *p, D3OBJECT *obj)
 {
     int i;
 
@@ -148,13 +148,13 @@ found:
         else {
             q->state = -1;
             if (q->obj != 0) {
-                d3if_Delete((struct D3OBJECT *)q->obj);
+                d3if_Delete(q->obj);
                 q->obj = 0;
             }
         }
     } else {
         if (q->obj != 0) {
-            d3if_Delete((struct D3OBJECT *)q->obj);
+            d3if_Delete(q->obj);
             q->obj = 0;
         }
         veg_LoadModel(q, fall);
@@ -177,7 +177,7 @@ void veg_GrowPlants(G15PLANT *p)
     for (i = 0; i < 0x40; i++) {
         if (p[i].state != -1) {
             if (p[i].obj != 0) {
-                d3if_Delete((struct D3OBJECT *)p[i].obj);
+                d3if_Delete(p[i].obj);
                 p[i].obj = 0;
             }
             t = veg_FindType(p[i].type);
@@ -215,7 +215,7 @@ void veg_LoadModel(G15PLANT *q, int fall)
 {
     G15TREE *t;
     int n;
-    char *o;
+    D3OBJECT *o;
     D3TERRAIN *tr;
     float pos[3];
     char path[0x100];
@@ -241,8 +241,8 @@ void veg_LoadModel(G15PLANT *q, int fall)
     }
     q->obj = o;
     sprintf(buf, "_ID%i", q->id);
-    strcat(o, buf);
-    ((G15OBJ *)o)->mask = 1;
+    strcat(o->name, buf);
+    o->mask = 1;
     tr = d3_Terrain;
     if (tr != 0) {
         pos[0] = tr->origin.x;

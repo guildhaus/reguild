@@ -35,7 +35,7 @@ typedef struct G15PLANT {               /* 0x18 bytes, 64 per vegetation map */
     char pad0e[2];
     int fallId;                         /* 0x10, the id message 0x2c set the fall model with (veg_SetPlant: -1 for a plain
                                            plant); a later 0x2c without fall and that id puts the plant back */
-    char *obj;                          /* 0x14, its 3D object */
+    struct D3OBJECT *obj;               /* 0x14, its 3D object */
 } G15PLANT;
 
 typedef struct G15MAP {                 /* the town map ai_MapRefs (am.h: AIMAPREF[]) */
@@ -54,10 +54,6 @@ typedef struct G15MAP {                 /* the town map ai_MapRefs (am.h: AIMAPR
     char ground[8][0x40];               /* 0x1a64, the ground type names ("EINFACHER_WEG", "PRUNK_WEG", ..) */
 } G15MAP;
 
-typedef struct G15OBJ {                 /* a 3D object (d3.h: D3OBJECT) as rd reads it */
-    char pad00[0x224];
-    int mask;                           /* 0x224, the object's mask bits */
-} G15OBJ;
 
 
 
@@ -112,7 +108,7 @@ int rd_CollectNamed(struct D3OBJECT *obj, G15FIND *f);
 struct D3OBJECT *rd_RandomNamedObject(char *name);
 G15TREE *veg_FindType(int type);
 G15PLANT *veg_FindPlantAt(G15PLANT *p, int x, int z);
-G15PLANT *veg_FindPlantObject(G15PLANT *p, char *obj);
+G15PLANT *veg_FindPlantObject(G15PLANT *p, struct D3OBJECT *obj);
 G15PLANT *veg_FindPlantId(G15PLANT *p, int id);
 G15PLANT *veg_FindPlantArea(G15PLANT *p, int x, int z);
 int veg_Fits(G15PLANT *p, int x, int z, int size);

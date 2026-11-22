@@ -259,7 +259,7 @@ extern int ai_ChildWindowId;            /* 0x62c418, the child window ai_OpenInv
 extern G9DOMIZIL ai_DomizilTable[0x42]; /* 0x62c420, the Domizil goods: 66 entries of 0x1c (id +0, minutes +4, law +8, weight +0xc, mask +0x10, use +0x14, rank +0x18) */
 
 /* 0x6f22e4: the object clicked in the scene (cm.h declares it for the units that include cm.h) */
-extern int ai_ClickedObject;
+extern struct D3OBJECT *ai_ClickedObject;
 /* 0x6f231c: the permission bits of the player in the building the scene focus is on (bit 0x200 / 0x400
    offer the building's contact plates) */
 extern int ai_BuildingPerms;
