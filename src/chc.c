@@ -232,7 +232,7 @@ int chc_PlayAnimationSound(CHARACTER **ch, char **name, int *n, int *frame, char
         evt_Error(evt_Cur, evt_Cur->pc, "PlayCharacterAniSound(): invalid character");
         return 1;
     }
-    a = ch_AddActionCB(*ch, (CHACTFUNC)chc_AniSoundCB, *frame, 0x2e, *n);
+    a = ch_AddActionCB(*ch, chc_AniSoundCB, *frame, 0x2e, *n);
     if (a) {
         strcpy(a->u.name, *name);
         strcpy(CH_ACTOBJ(a)->name2, *sound);
@@ -270,7 +270,7 @@ int chc_PlayAnimationScript(CHARACTER **ch, char **name, int *n, int *frame, cha
         evt_Error(evt_Cur, evt_Cur->pc, "PlayCharacterAniScript(): invalid character");
         return 1;
     }
-    a = ch_AddActionCB(*ch, (CHACTFUNC)chc_AniScriptCB, *frame, 0x2e, *n);
+    a = ch_AddActionCB(*ch, chc_AniScriptCB, *frame, 0x2e, *n);
     if (a) {
         if (strlen(*name) >= 0x5f) {
             evt_Error(evt_Cur, evt_Cur->pc, "PlayCharacterAniScript(): script name too long");
@@ -313,7 +313,7 @@ int chc_PlayAnimationScriptInt(CHARACTER **ch, char **name, int *n, int *frame, 
         evt_Error(evt_Cur, evt_Cur->pc, "PlayCharacterAniScriptInt(): invalid character");
         return 1;
     }
-    a = ch_AddActionCB(*ch, (CHACTFUNC)chc_AniScriptIntCB, *frame, 0x2e, *n);
+    a = ch_AddActionCB(*ch, chc_AniScriptIntCB, *frame, 0x2e, *n);
     if (a) {
         if (strlen(*name) >= 0x5f) {
             err_Message("PlayCharacterAniScript(): script name too long");
@@ -414,7 +414,7 @@ int chc_TakeObjectScript(CHARACTER **ch, char **name, int *n, D3OBJECT **obj, in
         evt_Error(evt_Cur, evt_Cur->pc, "TakeObjectScript(): Invalid dummy");
         return 1;
     }
-    a = ch_AddActionCB(*ch, (CHACTFUNC)chc_AniScriptCB, *frame, 0x31, *n);
+    a = ch_AddActionCB(*ch, chc_AniScriptCB, *frame, 0x31, *n);
     if (a) {
         strcpy(a->u.name, *name);
         if (*obj && (*obj)->material && (*obj)->material->name)

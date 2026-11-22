@@ -6893,7 +6893,7 @@ extern unsigned short cm_DisabledObjs[768];
 extern unsigned int cut_RandState;
 extern CMKIND cm_Kinds[12];
 extern char cm_SceneState[1152];
-extern int cm_SceneChars[16];
+extern struct CHARACTER *cm_SceneChars[16];
 extern int cm_SavedNoGroup;
 extern float cm_OrderChances[0xb4];
 extern struct D3OBJECT *cm_PointList[32];

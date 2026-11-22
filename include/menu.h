@@ -251,12 +251,12 @@ int ai_PokerGame(void);                  /* 0x5da030, the poker game window */
 /* The save / load windows and the three option screens of the options menu 0x5d7770. Their bodies are
    also defined below their caller (see the order note in the .c): VC6 drops a call whose result is
    unused to a side-effect-free body it has already seen, so the caller must not see them. */
-int ai_SaveOptionWindow(int image);             /* 0x5d45d0, the save window (the image to restore) */
+int ai_SaveOptionWindow(int *image);             /* 0x5d45d0, the save window (the image to restore) */
 int ai_FilePickWindow(unsigned mask, int flags, char *caption, char *dir, char *ext, char *out); /* 0x5d34b0, the file pick window (main_Menue: the city INI) */
 int ai_LoadGameWindow(void);             /* 0x5d4080, the load game window, 1: a game was loaded */
 void ai_CreditsScreen(void);             /* 0x5d7ba0, the credits */
 int ai_JoinGameWindow(void);             /* 0x5d42b0, the saved network game pick (main_JoinNetworkGame), 1: chosen */
-int ai_SaveNameWindow(int image);             /* 0x5d4920, the load window (the image to restore) */
+int ai_SaveNameWindow(int *image);             /* 0x5d4920, the load window (the image to restore) */
 void ai_OptionsGfxScreen(void);          /* 0x5d5fd0, "menu\options_gfx" */
 void ai_OptionsSfxScreen(void);          /* 0x5d6580, "menu\options_sfx" */
 void ai_OptionsGameScreen(void);         /* 0x5d6950, "menu\options_game" */

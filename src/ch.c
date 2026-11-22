@@ -4254,7 +4254,7 @@ CHACTION *ch_AddAction(CHARACTER *ch, unsigned int type, ...)
 }
 /* 0x40b400, like ch_AddAction, with func2 called at the animation frame "frame"; no queue check */
 
-CHACTION *ch_AddActionCB(CHARACTER *ch, CHACTFUNC func2, unsigned char frame, unsigned int type, ...)
+CHACTION *ch_AddActionCB(CHARACTER *ch, CHACTCB func2, unsigned char frame, unsigned int type, ...)
 {
     CHACTION *a;
     int i;

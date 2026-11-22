@@ -2972,7 +2972,7 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
 }
 /* 0x4d3300, a character falls: the sound "Koerperfaellt" and a blood puddle "ub_Blutlache" (random turn) at its place */
 
-void cm_FallDownAction(char *c)
+void cm_FallDownAction(CHACTION *a)
 {
     D3VECTOR rot;
     D3OBJECT *b;
@@ -2982,7 +2982,7 @@ void cm_FallDownAction(char *c)
     rot.z = 0;
     rot.y = (float)(cm_Random(0x168) * 3.14159274f * 0.005555555555555556);
     sb_PlaySample(0, "Koerperfaellt", 1, 0x3f, 0x7f, 0, 0);
-    b = d3_CreateObject(0, &((CHACTION *)c)->ch->obj->pos, &rot, "ub_Blutlache");
+    b = d3_CreateObject(0, &a->ch->obj->pos, &rot, "ub_Blutlache");
     d3t_PlayAnim(b, "sonstiges\\ub_Blutlache.baf", 0x12);
 }
 /* 0x4d3390, the death of the fighter c once its health ratio (gm_HealthRatio) is below 0.05: blood spray at the body
@@ -3001,7 +3001,7 @@ int cm_CheckDeath(AICHAR *c)
     if (gm_HealthRatio(c) < 0.05) {
         d3t_CreateBlood(c->scene->obj, 0x40, 0.25f, 0.1f, 0.14f, 55.0f);
         ch_StopActions(c->scene);
-        a = ch_AddActionCB(c->scene, (CHACTFUNC)cm_FallDownAction, 0x14, 0x36, 1);
+        a = ch_AddActionCB(c->scene, cm_FallDownAction, 0x14, 0x36, 1);
         strcpy(a->u.name, "kampf/todumfallen");
         c->health = 0;
         c->scene->obj->kind = 0;
@@ -4332,13 +4332,13 @@ void cm_FighterAct(CMFIGHTSLOT *f)
             else {
                 if (k->id == 0) {
                     if (lands != 0)
-                        ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_HitAction, 8, 0x2e, 1);
+                        ev = ch_AddActionCB(c->scene, cm_HitAction, 8, 0x2e, 1);
                     else
-                        ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_HitAction, 2, 0x2e, 1);
+                        ev = ch_AddActionCB(c->scene, cm_HitAction, 2, 0x2e, 1);
                 } else if (lands != 0)
-                    ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_HitAction, 6, 0x2e, 1);
+                    ev = ch_AddActionCB(c->scene, cm_HitAction, 6, 0x2e, 1);
                 else
-                    ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_HitAction, 2, 0x2e, 1);
+                    ev = ch_AddActionCB(c->scene, cm_HitAction, 2, 0x2e, 1);
                 ev->hit.speed = 1.4f;
                 ev->hit.victim = tgt;
                 ev->hit.hitter = c;

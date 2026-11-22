@@ -255,7 +255,7 @@ int d2_CreateRadioGroup(int n, ...); void d2_RadioAdd(int g, int obj); void d2_M
    the windows every frame, 4 closes the box 500 ms after it opened. Every control of the window but the type 0x40
    ones joins a radio group the keys walk; the button 0 answers 1 (yes), the button 1 answers 0, a right click
    closes it. Returns the answer, 0 when another box is open. */
-int ai_MessageBox(int text, int flags)
+int ai_MessageBox(intptr_t text, int flags)
 {
     int win;
     int list;
@@ -657,7 +657,7 @@ int ai_LoadGameWindow(void)
                     && (d2_PointerObj == slots[i].obj || d2_HitWindow == slots[i].win
                         || (d2_HitWindow != -1
                             && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win]))) {
-                    if (ai_GameState == 0 || ai_MessageBox(txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
+                    if (ai_GameState == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
                         sprintf(path, "Gamedata\\Saves\\%s.SAV", slots[i].name);
                         strcpy(main_NetSaveName, path);
                         ai_GameFlags = 10;
@@ -714,7 +714,7 @@ int ai_JoinGameWindow(void)
                     && (d2_PointerObj == slots[i].obj || d2_HitWindow == slots[i].win
                         || (d2_HitWindow != -1
                             && d2_Objs[d2_Wins[d2_HitWindow].parent].win == &d2_Wins[slots[i].win]))) {
-                    if (ai_GameState == 0 || ai_MessageBox(txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
+                    if (ai_GameState == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_LOAD_GAME_CONFIRM], 0x101) != 0) {
                         strcpy(main_NetSaveName, slots[i].name);
                         sv_PopRequest = 1;
                         ret = 1;
@@ -1603,7 +1603,7 @@ void ai_OptionsMenu(void)
             } else if (click == id5) {
                 d2_SetViewEnabled(wnd, 0);
                 txt_Format(text, 0x1ca4);       /* 0x1ca4: the "leave the game?" text of the text table */
-                if (ai_MessageBox((int)text, 1) != 0) {
+                if (ai_MessageBox((intptr_t)text, 1) != 0) {
                     int r = cm_SendPlayerId();
                     if (r != -1) {
                         do {
@@ -1666,7 +1666,7 @@ void ai_OptionsMenu(void)
    saved: the file name "Gamedata/saves/GILDE_SAVEGAME_<i>.SAV", the screen image image (0x9600 bytes)
    into ai_ScreenImage, ls_SaveSlot = i, the message box 0x14414e8, ls_SaveGame (name, title, 1), the
    pop request. The slot object is enabled again. Returns 0. */
-int ai_SaveOptionWindow(int image)
+int ai_SaveOptionWindow(int *image)
 {
     unsigned mask;
     int win;
@@ -1714,9 +1714,9 @@ int ai_SaveOptionWindow(int image)
                         d2_EnableObject(slots[i].obj, 1);
                         break;
                     }
-                    if (exists == 0 || ai_MessageBox(txt_Ptrs[TXT_SAVE_OVERWRITE], 0x101) != 0) {
+                    if (exists == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_SAVE_OVERWRITE], 0x101) != 0) {
                         sprintf(name, "Gamedata/saves/GILDE_SAVEGAME_%i.SAV", i);
-                        memcpy(ai_ScreenImage, (void *)image, 0x9600);
+                        memcpy(ai_ScreenImage, image, 0x9600);
                         ls_SaveSlot = i;
                         view = sv_OpenMessageBox((intptr_t)txt_Ptrs[TXT_SAVE_PROGRESS], 0);
                         ls_SaveGame(name, slots[i].title, 1);
@@ -1741,7 +1741,7 @@ int ai_SaveOptionWindow(int image)
    name) through cm_SendExSysMessage, else the status text 0x14414a4 says there is no player to save.
    The slot object is enabled again. Returns 0. */
 
-int ai_SaveNameWindow(int image)
+int ai_SaveNameWindow(int *image)
 {
     unsigned mask;
     int win;
@@ -1788,7 +1788,7 @@ int ai_SaveNameWindow(int image)
                         d2_EnableObject(slots[i].obj, 1);
                         break;
                     }
-                    if (exists == 0 || ai_MessageBox(txt_Ptrs[TXT_SAVE_OVERWRITE], 0x101) != 0) {
+                    if (exists == 0 || ai_MessageBox((intptr_t)txt_Ptrs[TXT_SAVE_OVERWRITE], 0x101) != 0) {
                         if (ai_HasQuicksavePlayer() == 0) {
                             sv_SetStatusText(txt_Ptrs[TXT_QUICK_SAVE_NO_PLAYER]);
                         } else {

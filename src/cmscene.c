@@ -155,7 +155,7 @@ unsigned short cm_DisabledObjs[768];  /* 0x92bee0 */
 unsigned int cut_RandState;  /* 0x92c4e0, the random seed of the scenes */
 CMKIND cm_Kinds[12];  /* 0x92c500, the scene kind table: run, callbacks, flag, check (cm_RegisterSceneKind) */
 char cm_SceneState[1152];  /* 0x92c600 */
-int cm_SceneChars[16];  /* 0x92ca80 */
+CHARACTER *cm_SceneChars[16];  /* 0x92ca80 */
 int cm_SavedNoGroup;  /* 0x92cac0 */
 CMCUTINFO cm_CutInfos[16];  /* 0x92cae0 */
 float cm_OrderChances[0xb4];  /* 0x9300a0 */
@@ -4011,7 +4011,7 @@ CHARACTER *cm_CreateChar(char *name, D3VECTOR *pos)
 }
 /* 0x4e3250, the scene helpers 0x4e3250 .. 0x4e3640 pass their arguments on to the sound / object calls unless the replay mode (0x6f0d8c) is on */
 
-int cm_DeleteChar(int a)
+int cm_DeleteChar(CHARACTER *a)
 {
     if (cm_SkipEvents != 0)
         return 1;

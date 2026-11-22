@@ -658,5 +658,5 @@ void cm_FightMember(CMCUTINFO *a, int ctx)
 
 void cm_ClearSceneChars(void)
 {
-    memset(cm_SceneChars, 0, 0x40);
+    memset(cm_SceneChars, 0, sizeof(cm_SceneChars));
 }

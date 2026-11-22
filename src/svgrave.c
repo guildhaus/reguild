@@ -1687,7 +1687,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
 {
     AIBTYPE *type;
     AIJOB *job;
-    char *res;
+    AIOBJ *res;
     int win;
     int counts[3];
     int btns[3];
@@ -1702,7 +1702,7 @@ void ai_GypsyHelperWindow(AIBLD *rec)
     int x;
 
     kinds[2] = 0x227;
-    res = (char *)gm_Query(rec->objList, 2, 6, 0, 0x2a);
+    res = gm_Query(rec->objList, 2, 6, 0, 0x2a);
     type = &ai_BTypes[rec->type];
     if (type->kind == 0x1f) {
         kinds[0] = 0x293;

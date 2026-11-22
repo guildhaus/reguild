@@ -661,10 +661,10 @@ float cm_OrderRating(struct AICHAR *c, int order);  /* 0x4d2e30 */
 void cm_GiveFightOrders(struct AICHAR *side);  /* 0x4d2f80 */
 
 void cm_CarryOutOrder(struct CMCUTINFO *rec, struct AICHAR *c);  /* 0x4d3120 */
-void cm_FallDownAction(char *c);  /* 0x4d3300 */
+void cm_FallDownAction(struct CHACTION *a);  /* 0x4d3300 */
 
 int cm_CheckDeath(struct AICHAR *c);  /* 0x4d3390 */
-struct CHACTION * ch_AddActionCB(struct CHARACTER *ch, int (*func2)(struct CHACTION *), unsigned char frame, unsigned int type, ...); /* 0x40b400, ch.h (CHACTFUNC func2; cm.c calls it through ch_AddActionCBK) */
+struct CHACTION * ch_AddActionCB(struct CHARACTER *ch, void (*func2)(struct CHACTION *), unsigned char frame, unsigned int type, ...); /* 0x40b400, ch.h (CHACTFUNC func2; cm.c calls it through ch_AddActionCBK) */
 
 void cm_HitAction(struct CHACTION *a);  /* 0x4d3550 */
 void cm_LayBombAction(char *ev);  /* 0x4d3980 */
@@ -730,7 +730,7 @@ struct MSXTRACK * msx_PlayAmbient(char *name, int vol);  /* 0x4243f0 */
 void cm_FightLoop(struct CMCUTINFO *a, int ctx);  /* 0x4d88c0 */
 void cm_FightMember(struct CMCUTINFO *a, int ctx);  /* 0x4d8b10, the cm_Kinds[].askPlayer callback */
 
-extern int cm_SceneChars[16];  /* 0x92ca80 */
+extern struct CHARACTER *cm_SceneChars[16];  /* 0x92ca80 */
 extern unsigned int cm_FightStart;  /* 0x6f0da4, fight start (d3_Time) */
 void * d2_SetFont(int font);  /* 0x476030 */
 void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned int flags);  /* 0x46f1a0 */
@@ -740,7 +740,7 @@ extern int d2_TextDrawnH;  /* 0x6ed96c */
 void cm_ClearSceneChars(void);  /* 0x4d8b30 */
 void cm_DrawFightTime(void);  /* 0x4d8b50 */
 
-int cm_DeleteChar(int a);  /* 0x4e3250 */
+int cm_DeleteChar(struct CHARACTER *a);  /* 0x4e3250 */
 
 void d2_SetObjFont(int obj, int font);  /* 0x4760b0 */
 

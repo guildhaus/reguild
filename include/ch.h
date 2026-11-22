@@ -228,6 +228,7 @@ struct SBSAMPLE;
 
 typedef struct CHACTION CHACTION;
 typedef int (*CHACTFUNC)(CHACTION *a);
+typedef void (*CHACTCB)(CHACTION *a);  /* func2: its result is not read (ch_UpdateAction) */
 
 /* CHACTION.u.walk.flags */
 #define CH_WALK_TARGET   0x08   /* u.walk.target / u.walk.tname: follow that character */
@@ -238,7 +239,7 @@ typedef int (*CHACTFUNC)(CHACTION *a);
 
 struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; func == 0: free */
     CHACTFUNC func;                 /* 0x00, called every update */
-    CHACTFUNC func2;                /* 0x04, called when the animation reaches frame func2Frame */
+    CHACTCB func2;                  /* 0x04, called when the animation reaches frame func2Frame */
     unsigned char func2Frame;       /* 0x08, the slot frame func2 is called at (ch_AddActionCB) */
     unsigned char type;             /* 0x09, index into ch_ActDefs; '-' (0x2d): walk */
     char pad0a[0x2];
@@ -571,7 +572,7 @@ void ch_Close(void);                                                            
 void ch_DeleteAll(void);                                                                /* 0x40b240 */
 CHACTION *ch_NewAction(CHARACTER *ch);                                                  /* 0x40b270 */
 CHACTION *ch_AddAction(CHARACTER *ch, unsigned int type, ...);                          /* 0x40b2f0 */
-struct CHACTION * ch_AddActionCB(struct CHARACTER *ch, CHACTFUNC func2, unsigned char frame, unsigned int type, ...); /* 0x40b400 */
+struct CHACTION * ch_AddActionCB(struct CHARACTER *ch, CHACTCB func2, unsigned char frame, unsigned int type, ...); /* 0x40b400 */
 void ch_ClearSceneCallbacks(D3SCENE *scene);                                            /* 0x40b4d0 */
 void ch_SetSitAnim(CHARACTER *ch, char *name);                                          /* 0x40b530 */
 /* the ch2 block declares these two under their addresses */

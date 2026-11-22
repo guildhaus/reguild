@@ -5042,7 +5042,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
     int n;
     int goods[3];
     int searches[3];
-    int store;
+    AIOBJ *store;
     int win;
     int buttons[3];
     AIMSG msg;
@@ -5060,7 +5060,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
     goods[0] = 0x1c4;
     goods[1] = 0x1c5;
     goods[2] = 0x1c6;
-    store = (int)gm_Query(bld->objList, 2, 6, 0, 0x2a);
+    store = gm_Query(bld->objList, 2, 6, 0, 0x2a);
     type = &ai_BTypes[bld->type];
     if (type->kind == 0x20) {
         goods[0] = 0x2af;
