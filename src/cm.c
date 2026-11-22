@@ -2482,8 +2482,8 @@ int cm_CheckFieldDeltas(G17MSG *m)
         base = (char *)c;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
-        size = (char)*p.b++;
-        n = (char)*p.b++;
+        size = (signed char)*p.b++;
+        n = (signed char)*p.b++;
         a = base + *p.w++;
         if (c != 0) {
             if (a == (char *)&c->netId)
@@ -3362,8 +3362,8 @@ int cm_ExFieldDeltas(G17MSG *m, G17STAT *s)
         base = (char *)z;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
-        size = (char)*p.b++;
-        n = (char)*p.b++;
+        size = (signed char)*p.b++;
+        n = (signed char)*p.b++;
         d.b = base + *p.w++;
         switch (size) {
         case 1:
@@ -3419,8 +3419,8 @@ int cm_ExFieldValues(G17MSG *m, G17STAT *s)
         base = (char *)z;
     p.b = m->fields.buf;
     for (i = 0; i < m->fields.n; i++) {
-        size = (char)*p.b++;
-        n = (char)*p.b++;
+        size = (signed char)*p.b++;
+        n = (signed char)*p.b++;
         d.b = base + *p.w++;
         switch (size) {
         case 1:
@@ -3706,7 +3706,7 @@ int cm_ExSetHE(G17MSG *m, G17STAT *s)
     ev->start = m->setHE.start;
     ev->end = m->setHE.end;
     ev->clock60 = m->setHE.clock60;
-    ev->stage = (char)m->setHE.kind;
+    ev->stage = (signed char)m->setHE.kind;
     memcpy(&ev->u, cm_LongMsg, 0xa0);
     if (s != 0) {
         s->state = 1;

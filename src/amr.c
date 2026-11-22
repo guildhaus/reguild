@@ -537,7 +537,7 @@ int ai_ChooseObjectTarget(AICHAR *p, AIOBJ *o)
     AMTKIND kind;
     AICHAR *q;
     int r, n, cnt, i;
-    char v;
+    signed char v;
 
     q = 0;
     r = util_Random(3);
@@ -580,9 +580,9 @@ int ai_ChooseObjectTarget(AICHAR *p, AIOBJ *o)
         cm_BeginFieldBlock(o, o->objId);
         cm_AddFieldDelta(4, 1, 0x1e, &q->netId);
         cm_AddFieldDelta(1, 1, 0x22, &v);
-        v = (char)util_Random(8);
+        v = (signed char)util_Random(8);
         cm_AddFieldDelta(1, 1, 0x1c, &v);
-        v = (char)util_Random(8);
+        v = (signed char)util_Random(8);
         cm_AddFieldDelta(1, 1, 0x1d, &v);
         cm_SendFieldDeltas();
         return 1;
@@ -5199,7 +5199,7 @@ int ai_DecideMayor(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     AIOBJ *o;
     unsigned char k;
     unsigned short fl;
-    char lvl;
+    signed char lvl;
     int count[3];        /* per building type 1..3: how many */
     int n, money, v;
     ORDSTATS d;
@@ -5403,7 +5403,7 @@ int ai_DecideMayorTownHall(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     LARGE_INTEGER m;
     ORDSTATS d;
     int x, w, z, r, money, act, v;
-    char lvl;
+    signed char lvl;
 
     m.LowPart = 0x8000;
     m.HighPart = 0;
@@ -5523,7 +5523,7 @@ int ai_DecideMayorPrison(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     LARGE_INTEGER m;
     ORDSTATS d;
     int x, w, z, r, money, act;
-    char lvl;
+    signed char lvl;
 
     gm_PlayerSeat(1);
     m.LowPart = 0x40;
@@ -5641,7 +5641,7 @@ int ai_DecideMasterBuilder(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
 {
     AIBLD *best[3], *b, *rec;           /* best / cnt by type - 8: [0] type 8, [1] type 9 ([2], type 10, unused) */
     AIOBJ *o;
-    char lvl;
+    signed char lvl;
     int cnt[3];
     int i, money, r;
 
@@ -6757,7 +6757,7 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2)
     AIBTYPE *t;
     AIOBJ *o;
     unsigned char k;
-    char lvl;
+    signed char lvl;
     int money, need, amt, n, m;
 
     if (f != 0 || o1->kind != 0 || a != 0)
