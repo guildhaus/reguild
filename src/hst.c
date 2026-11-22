@@ -296,12 +296,11 @@ int ai_TokenRandomGuildMaster(int mode, G12ROW *row, int k, char *fmt, char *out
     return 1;
 }
 
-#define G12_B(i, o) (((unsigned char *)&ai_Chars[i])[o])
 #define G12_TITLED(i) (ai_Chars[i].officeKind > 0 && ai_Chars[i].officeKind != 0x0f && ai_Chars[i].officeKind != 0x1a \
                        && ai_Chars[i].officeKind != 0x15)
 
 /* 0x4ae600, the RND_AMTSTRAEGERIN token of a history text (callback 0x601b10[3], name 0x601730[3]): a character
-   with byte 9 == 1, an ordinary title (G12_TITLED) and in none of the lists of 0x4adfb0; the selection as in
+   with sex == 1, an ordinary title (G12_TITLED) and in none of the lists of 0x4adfb0; the selection as in
    ai_TokenRandomGuildMaster */
 int ai_TokenRandomOfficeHolderFemale(int mode, G12ROW *row, int k, char *fmt, char *out)
 {
@@ -325,7 +324,7 @@ int ai_TokenRandomOfficeHolderFemale(int mode, G12ROW *row, int k, char *fmt, ch
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 1 && ai_IsLivingCharacter((unsigned short)i) && ai_NotInLists(ai_Chars[i].netId)
+                if (ai_Chars[i].sex == 1 && ai_IsLivingCharacter((unsigned short)i) && ai_NotInLists(ai_Chars[i].netId)
                     && G12_TITLED(i)) {
                     c = &ai_Chars[i];
                     break;
@@ -337,7 +336,7 @@ int ai_TokenRandomOfficeHolderFemale(int mode, G12ROW *row, int k, char *fmt, ch
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 1 && ai_IsLivingNonPlayer((unsigned short)i) && ai_NotInLists(ai_Chars[i].netId)
+                if (ai_Chars[i].sex == 1 && ai_IsLivingNonPlayer((unsigned short)i) && ai_NotInLists(ai_Chars[i].netId)
                     && G12_TITLED(i)) {
                     c = &ai_Chars[i];
                     break;
@@ -350,7 +349,7 @@ int ai_TokenRandomOfficeHolderFemale(int mode, G12ROW *row, int k, char *fmt, ch
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 1) {
+                if (ai_Chars[i].sex == 1) {
                     if (pick == 0 && ai_IsLivingNonPlayer((unsigned short)i) && G12_TITLED(i)) {
                         if (ai_NotInLists(ai_Chars[i].netId))
                             pick = &ai_Chars[i];
@@ -374,7 +373,7 @@ int ai_TokenRandomOfficeHolderFemale(int mode, G12ROW *row, int k, char *fmt, ch
     txt_Format(out, (intptr_t)buf, c->id);
     return 1;
 }
-/* 0x4ae900, the same as 0x4ae600 for a man (byte 9 == 0; 0x4ae600, RND_AMTSTRAEGERIN, takes byte 9 == 1)
+/* 0x4ae900, the same as 0x4ae600 for a man (sex == 0; 0x4ae600, RND_AMTSTRAEGERIN, takes sex == 1)
    name: callback 0x601b10[4] = 0x4ae900, token name 0x601730[4] RND_AMTSTRAEGER */
 
 int ai_TokenRandomOfficeHolder(int mode, G12ROW *row, int k, char *fmt, char *out)
@@ -399,7 +398,7 @@ int ai_TokenRandomOfficeHolder(int mode, G12ROW *row, int k, char *fmt, char *ou
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 0 && ai_IsLivingCharacter((unsigned short)i) && G12_TITLED(i)
+                if (ai_Chars[i].sex == 0 && ai_IsLivingCharacter((unsigned short)i) && G12_TITLED(i)
                     && ai_NotInLists(ai_Chars[i].netId)) {
                     c = &ai_Chars[i];
                     break;
@@ -411,7 +410,7 @@ int ai_TokenRandomOfficeHolder(int mode, G12ROW *row, int k, char *fmt, char *ou
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 0 && ai_IsLivingNonPlayer((unsigned short)i) && G12_TITLED(i)
+                if (ai_Chars[i].sex == 0 && ai_IsLivingNonPlayer((unsigned short)i) && G12_TITLED(i)
                     && ai_NotInLists(ai_Chars[i].netId)) {
                     c = &ai_Chars[i];
                     break;
@@ -424,7 +423,7 @@ int ai_TokenRandomOfficeHolder(int mode, G12ROW *row, int k, char *fmt, char *ou
             i = util_Random(0x300);
             n = 0x300;
             while (n != 0) {
-                if (G12_B(i, 9) == 0) {
+                if (ai_Chars[i].sex == 0) {
                     if (pick == 0 && ai_IsLivingNonPlayer((unsigned short)i) && G12_TITLED(i)) {
                         if (ai_NotInLists(ai_Chars[i].netId))
                             pick = &ai_Chars[i];
@@ -526,7 +525,7 @@ int ai_TokenRandomOfficePerson(int mode, G12ROW *row, int k, char *fmt, char *ou
 
 /* 0x4aef10, the REICHSTER_EINWOHNER token of a history text (callback 0x601b10[6], name 0x601730[6]): the
    richest character (0x50a640) who passes 0x4adff0 / 0x4adfb0; fmt "...-n" selects 0 = anybody, 1 = men
-   (byte 9 == 0 .. sic: byte 9 == (n != 1)), 2 = the other sex
+   (sex == 0 .. sic: sex == (n != 1)), 2 = the other sex
    The -10000000 start value is HST_NO_WORTH.
 
 
@@ -569,7 +568,7 @@ int ai_TokenRichestInhabitant(int mode, G12ROW *row, int k, char *fmt, char *out
             return 0;
     } else {
         for (i = 0; i < 0x300; i++) {
-            if (ai_IsLivingCharacter((unsigned short)i) && (filt == 0 || G12_B(i, 9) == sex)
+            if (ai_IsLivingCharacter((unsigned short)i) && (filt == 0 || ai_Chars[i].sex == sex)
                 && (v = gm_GetWorth((unsigned short)i)) > best && ai_NotInLists(ai_Chars[i].netId)) {
                 c = &ai_Chars[i];
                 best = v;
@@ -1270,7 +1269,7 @@ int ai_CommandOfficeStanding(G12ROW *row, int k, char *fmt)
             if (*fmt == '_') {
                 n = atoi(fmt + 1) * sign[i] * 2;
                 for (i = 0; i < 0x300; i++) {
-                    if (ai_IsLivingCharacter((unsigned short)i) && (G12_B(i, 0x166) != 0 || G12_B(i, 0x169) != 0))
+                    if (ai_IsLivingCharacter((unsigned short)i) && (ai_Chars[i].officeKind != 0 || ai_Chars[i].secondOffice != 0))
                         cm_SendRelations(c->netId, ai_Chars[i].netId, n, 1);
                 }
                 return 1;
@@ -1417,7 +1416,7 @@ int ai_CommandOfficeInventoryPlus(G12ROW *row, int slot, char *fmt)
     if (v == 0)
         return 0;
     for (i = 0; i < 0x300; i++) {
-        if (ai_IsLivingCharacter((unsigned short)i) && (G12_B(i, 0x166) != 0 || G12_B(i, 0x169) != 0))
+        if (ai_IsLivingCharacter((unsigned short)i) && (ai_Chars[i].officeKind != 0 || ai_Chars[i].secondOffice != 0))
             cm_SendExSellObject(ai_Chars[i].netId, -1, v, 1, ai_OwnPlayer, 0);
     }
     return 1;
@@ -1577,7 +1576,7 @@ int ai_CommandFaithChange(G12ROW *row, int slot, char *fmt)
         return 0;
     cnt = 0;
     for (i = 0; i < 0x300; i++) {
-        if (ai_Chars[i].id != 0xffff && ai_Chars[i].kind <= 4 && G12_B(i, 0x0c) == rel)
+        if (ai_Chars[i].id != 0xffff && ai_Chars[i].kind <= 4 && ai_Chars[i].faith == rel)
             cnt++;
     }
     n = (int)((float)cnt * p * 0.01f);
