@@ -257,7 +257,7 @@ extern int d2_HalfScreenH;            /* 0xf8f088, half the screen height */
 extern int d2_HalfScreenW;            /* 0xf8f08c, half the screen width */
 
 /* functions of other units */
-void d3if_FreeSprite(D3TEXHANDLE *t);                                                    /* 0x4481e0 */
+void d3if_FreeSprite(struct TSTEXTURE *t);                                                    /* 0x4481e0 */
 int d2_NewObject(void);                                                         /* 0x46c9f0, allocates an object */
 void d2_AddRefcount(int pic);                                                   /* 0x46ca60 */
 void d2_SubRefcount(int pic);                                                   /* 0x46cac0 */
@@ -295,7 +295,7 @@ void d2_EnableObject(int obj, int on);                                          
 void d2_DissolveStep(D2DISSOLVE *d);                                              /* 0x476110, one step of a dissolve */
 void d2_DrawFades(void);                                                        /* 0x476b10 */
 void d2_SetSurfaceClip(int x, int y, int w, int h, D2SURF *surf);                    /* 0x479cd0, sets the clip rectangle */
-D3TEXHANDLE *d3if_LoadSprite(char *name, char glow);                                      /* 0x448200 */
+struct TSTEXTURE *d3if_LoadSprite(char *name, char glow);                                      /* 0x448200 */
 void d2_SetObjEnabled(int obj, int on);                                             /* 0x475e40 */
 void d2_ScaleObject(int obj, int a);                                            /* 0x475e80, scales a picture object; a > 1 larger, a < -1 smaller */
 void d2_ReleaseFade(D2FADE *f);                                             /* 0x476860 */

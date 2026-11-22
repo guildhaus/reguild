@@ -35,7 +35,7 @@ D3BGF *d3_FindBGF(char *path, char *name, char *texnames, int ntexsets, int ntex
     D3VECTOR4 t;
     D3BGFMAT mt;
     D3BGFFLAGS fl;
-    D3TEXHANDLE *tex;
+    struct TSTEXTURE *tex;
 
     f = d3_OpenFastChunk(path);
     if (f) {
@@ -113,11 +113,11 @@ D3BGF *d3_FindBGF(char *path, char *name, char *texnames, int ntexsets, int ntex
                 if (mt.name[2][0]) {
                     if (!kept)
                         strcpy(m->texnames + off2, mt.name[2]);
-                    tex = (D3TEXHANDLE *)tex_Load(m->texnames + off2, fl.f, (((mt.c3 << 4 | mt.c6) * 2 | mt.c5) * 2) | 1, mt.c8 << 4 | mt.c9);
+                    tex = tex_Load(m->texnames + off2, fl.f, (((mt.c3 << 4 | mt.c6) * 2 | mt.c5) * 2) | 1, mt.c8 << 4 | mt.c9);
                 } else if (mt.name[0][0]) {
                     if (!kept)
                         strcpy(m->texnames + off2, mt.name[0]);
-                    tex = (D3TEXHANDLE *)tex_Load(m->texnames + off2, fl.f, ((mt.c3 << 4 | mt.c6) * 2 | mt.c5) * 2, mt.c8 << 4 | mt.c9);
+                    tex = tex_Load(m->texnames + off2, fl.f, ((mt.c3 << 4 | mt.c6) * 2 | mt.c5) * 2, mt.c8 << 4 | mt.c9);
                 } else if (mt.name[1][0]) {
                     if (!kept)
                         strcpy(m->texnames + off2, mt.name[1]);

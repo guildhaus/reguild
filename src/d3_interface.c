@@ -57,7 +57,7 @@ D3OBJECT *d3_CreateObject(int a, const D3VECTOR *pos, D3VECTOR *rot, char *name)
 {
     D3OBJECT *obj;
     unsigned int i, n;
-    D3TEXHANDLE **tex;
+    struct TSTEXTURE **tex;
 
     obj = d3_SpawnObject(4, name);
     if (obj) {
@@ -70,7 +70,7 @@ D3OBJECT *d3_CreateObject(int a, const D3VECTOR *pos, D3VECTOR *rot, char *name)
             for (i = 0; i < D3_MESH(obj)->nsurf; i++) {
                 if (D3_MESH(obj)->surf[i].info.mesh) {
                     n = D3_OPS(&D3_MESH(obj)->surf[i].info)->count;
-                    tex = (D3TEXHANDLE **)D3_MESH(obj)->surf[i].texHandles;
+                    tex = (struct TSTEXTURE **)D3_MESH(obj)->surf[i].texHandles;
                     for (; n > 0; n--, tex++)
                         if (*tex)
                             tex_Reload(*tex, 0);
@@ -94,7 +94,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
     char ok = 1;
     int i;
     D3FLTEX *old;
-    D3TEXHANDLE *tex;
+    struct TSTEXTURE *tex;
     char *name;
     int opts, fmt;
     char buf1[256], buf2[256];
@@ -122,14 +122,14 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
             name = ops->texnames + (ops->count * set + i) * 0x40;
             if (*name && (old = ((D3FLTEX **)surf->texHandles)[i]) != 0) {
                 tex_GetParams(old, &opts, &fmt);
-                tex = (D3TEXHANDLE *)tex_Load(name, old->flags, opts, fmt);
+                tex = tex_Load(name, old->flags, opts, fmt);
                 if (tex) {
                     D3PTRI *t;
 
                     replaced = 0;
                     if (reload)
                         tex_Reload(tex, 0);
-                    ((D3TEXHANDLE **)surf->texHandles)[i] = tex;
+                    ((struct TSTEXTURE **)surf->texHandles)[i] = tex;
                     t = (D3PTRI *)surf->info.tris;
                     for (j = 0; j < surf->info.ntris; j++, t++)
                         if (((D3SRCPOLY *)t->src)->slot == i) {
@@ -138,7 +138,7 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
                         }
                     if (!replaced)
                         sprintf(buf2, "SelectTextureSet: no polys w/ %s found to replace w/ %s in %s", old->name, name, obj->name);
-                    tex_Release((D3TEXHANDLE *)old);
+                    tex_Release((struct TSTEXTURE *)old);
                 } else {
                     sprintf(buf1, "SelectTextureSet: cannot replace %s with %s (new not found) in %s", old->name, name, obj->name);
                     ok = 0;
@@ -650,23 +650,23 @@ char d3if_MoveObject(D3OBJECT *obj, D3SCENE *from, D3SCENE *to)
 }
 /* 0x4481e0, releases a sprite texture */
 
-void d3if_FreeSprite(D3TEXHANDLE *t)
+void d3if_FreeSprite(struct TSTEXTURE *t)
 {
     if (t)
         tex_Release(t);
 }
 /* 0x448200, loads a sprite texture (alpha 0x7f) */
 
-D3TEXHANDLE *d3if_LoadSprite(char *name, char glow)
+struct TSTEXTURE *d3if_LoadSprite(char *name, char glow)
 {
     D3IFTEXFLAGS f;
-    D3TEXHANDLE *t;
+    struct TSTEXTURE *t;
 
     memset(&f, 0, sizeof f);
     f.bits.alpha = 0x7f;
     f.bits.glow = glow;
     if (d3d_Device && (d3d_UsedCard.info.alphablend)) {
-        t = (D3TEXHANDLE *)tex_Load(name, f.raw, 0, 0);
+        t = tex_Load(name, f.raw, 0, 0);
         if (t)
             tex_Reload(t, 0);
         return t;

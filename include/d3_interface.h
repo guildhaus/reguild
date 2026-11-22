@@ -53,7 +53,7 @@ typedef struct D3IFMOVE {           /* context of d3if_MoveCB */
     D3SCENE *from, *to;
 } D3IFMOVE;
 
-typedef struct D3IFSPRITE {         /* a D3TEXHANDLE as d3if_DrawSprite reads it */
+typedef struct D3IFSPRITE {         /* a texture slot (TSTEXTURE) as d3if_DrawSprite reads it */
     char pad00[0x40];
     int frames;                     /* 0x40 */
     char pad44[0x20];
@@ -232,8 +232,8 @@ void d3_SaveScene(char *name, struct VFSFILE *f);                               
 void d3if_Reset(void);                                         /* 0x4473f0 */
 
 /* declared in other units' headers before (moved to the owner) */
-void d3if_FreeSprite(D3TEXHANDLE *t);  /* 0x4481e0 */
-D3TEXHANDLE *d3if_LoadSprite(char *name, char glow);  /* 0x448200 */
+void d3if_FreeSprite(struct TSTEXTURE *t);  /* 0x4481e0 */
+struct TSTEXTURE *d3if_LoadSprite(char *name, char glow);  /* 0x448200 */
 char d3if_Reload(D3OBJECT *obj, char *name);  /* 0x447340 */
 
 #endif

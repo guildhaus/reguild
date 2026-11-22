@@ -128,7 +128,7 @@ typedef struct D3SURFTEX {     /* 0x7c bytes, one of a surface's three animation
 
 typedef struct D3SURF {             /* 0x198 bytes, a mesh part with its own geometry */
     D3OBJINFO info;                 /* points, polys, counts, ops */
-    void *texHandles;               /* 0x14, array of the surf's texture handles (D3TEXHANDLE *, ops->count of them) */
+    void *texHandles;               /* 0x14, array of the surf's texture handles (struct TSTEXTURE *, ops->count of them) */
     D3OBJECT *owner;                /* 0x18, the object whose mesh this surf belongs to (set by d3_InitSurf) */
     D3SURFTEX slots[3];        /* 0x1c, the three animation slots (D3ANIMSLOT) */
     union {
@@ -142,7 +142,7 @@ typedef struct D3SURF {             /* 0x198 bytes, a mesh part with its own geo
 
 typedef struct D3MESHSUB {          /* 0x80 bytes, D3SSLOT (d3s.h): the shadow of one light, 4 per mesh at
                                        D3S_SLOTS; only cleared here */
-    D3TEXHANDLE *tex;               /* 0x00, D3SSLOT.tex */
+    struct TSTEXTURE *tex;               /* 0x00, D3SSLOT.tex */
     D3OBJECT *light;                /* 0x04, D3SSLOT.light */
     char pad08[0x10];
     D3VECTOR dir;                   /* 0x18, D3SSLOT.dir: light direction the shadow was made for */

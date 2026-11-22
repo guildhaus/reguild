@@ -354,7 +354,7 @@ D3FLMAP *d3io_ReadFloor(void *f, unsigned int version)
     D3FLMAP *map = 0;
     D3FLDESC desc;
     char buf[0x100];
-    D3TEXHANDLE *tex;
+    struct TSTEXTURE *tex;
     int i;
 
     if (version >= 0x3a6c0009) {
@@ -387,7 +387,7 @@ D3FLMAP *d3io_ReadFloor(void *f, unsigned int version)
                         if (name[0]) {
                             fl.all = 0;
                             fl.s.b0 = 0x7f;
-                            tex = (D3TEXHANDLE *)tex_Load(name, fl.f, (c2 & 0xf) << 2 | c3 & 1, 0);
+                            tex = tex_Load(name, fl.f, (c2 & 0xf) << 2 | c3 & 1, 0);
                             if (tex)
                                 tex_Reload(tex, 0);
                         }

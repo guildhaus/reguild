@@ -1483,7 +1483,7 @@ D3TSNOW *d3t_CreateSnow(int count)
     }
     D3_ZERO(&flags, sizeof(flags));
     flags.b[2] |= 2;
-    snow->Texture = (D3TEXHANDLE *)tex_Load("Schneeflocke", flags, 0, 0);
+    snow->Texture = tex_Load("Schneeflocke", flags, 0, 0);
     if (snow->Texture)
         tex_Reload(snow->Texture, 0);
     return snow;
@@ -2261,7 +2261,7 @@ DDSURFACEDESC2 d3t_SnowMip32[9];      /* 0x1466f00 */
 j-loop test (mov eax,[ebp-8]; cmp ecx,eax: +3 bytes twice), and mem_Alloc(size * size) for d3t_SnowDither[i] recomputes the product (mov eax,esi; imul eax,esi; push eax: +6) where ours CSEs n into the push (push edx) - so in the original the product is NOT available at the alloc: something between kills it, or the alloc's argument is not the same expression as n. Our n gets edx in pieces because of that extra reference. The blur loop's up/row/down pointers: the original walks edx/edi/eax with add 4 each (strength-reduced, row in [ebp-0x28], down in [ebp-0x2c], up in [ebp-0x18]); ours computes [up+row-?] differences (lea ebx,[edx+edi]; fadd... */
 void d3t_CreateSnowMipmaps(void)
 {
-    D3TEXHANDLE *snow_tex;
+    struct TSTEXTURE *snow_tex;
     DDSURFACEDESC2 snow_ddsd;
     LPDIRECTDRAWPALETTE lppal;
     PALETTEENTRY pal[1024];
@@ -2271,7 +2271,7 @@ void d3t_CreateSnowMipmaps(void)
     int i, j, k, x, y, size, n, cnt;
 
     flags.all = 0;
-    snow_tex = (D3TEXHANDLE *)tex_Load("snow_256_ns", flags, 0, 0);
+    snow_tex = tex_Load("snow_256_ns", flags, 0, 0);
     lppal = 0;
     if (snow_tex) {
         tex_SetHiColor((D3TEXTURE *)snow_tex, 1);

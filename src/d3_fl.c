@@ -310,7 +310,7 @@ void d3fl_FreeCache(void)
         if (d3fl_Cache[i].tex) {
             if (d3fl_Cache[i].tex->name[0] == '*')
                 while (d3fl_Cache[i].tex->refs > 0)
-                    tex_Release((D3TEXHANDLE *)d3fl_Cache[i].tex);
+                    tex_Release((struct TSTEXTURE *)d3fl_Cache[i].tex);
             d3fl_Cache[i].tex = 0;
             d3fl_Cache[i].flag = 0;
         }
@@ -512,7 +512,7 @@ void d3fl_Flush(void)
         if (d3fl_Cache[i].tex) {
             if (d3fl_Cache[i].tex->name[0] == '*')
                 while (d3fl_Cache[i].tex->refs > 0)
-                    tex_Release((D3TEXHANDLE *)d3fl_Cache[i].tex);
+                    tex_Release((struct TSTEXTURE *)d3fl_Cache[i].tex);
             d3fl_Cache[i].tex = 0;
         }
         d3fl_Cache[i].flag = 0;
@@ -734,7 +734,7 @@ void d3fl_FreeMap(D3FLMAP *map)
     }
     if (map->regions) {
         for (i = 0; i < map->nregions; i++)
-            tex_Release((D3TEXHANDLE *)map->regions[i].tex);
+            tex_Release((struct TSTEXTURE *)map->regions[i].tex);
         mem_Free(map->regions);
         map->regions = 0;
     }
@@ -982,7 +982,7 @@ void d3fl_PrepareWater(D3FLMAP *map)
                         f.all = 0;
                         f.b[0] = 0xac;
                         if (tex = (D3FLTEX *)tex_Load("EF_WASS_06A_2T_W_AN0", f, 0, 0))
-                            tex_Reload((D3TEXHANDLE *)tex, 0);
+                            tex_Reload((struct TSTEXTURE *)tex, 0);
                     }
                     for (i = first; i < map->nregions; i++) {
                         regs[i].tex = regs[i].tex2 = tex;
@@ -1159,7 +1159,7 @@ void d3fl_PrepareWater(D3FLMAP *map)
     if (map->watertype == 0xff) {
         if (map->regions) {
             for (i = 0; i < map->nregions; i++)
-                tex_Release((D3TEXHANDLE *)map->regions[i].tex);
+                tex_Release((struct TSTEXTURE *)map->regions[i].tex);
             mem_Free(map->regions);
             map->regions = 0;
         }

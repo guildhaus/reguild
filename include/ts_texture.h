@@ -20,7 +20,7 @@ typedef struct TSCACHE {            /* 0x14 bytes, ts_CacheSize of them at ts_Ca
     char pad12[0x2];
 } TSCACHE;
 
-/* One texture slot (d3.h has two partial views of it: D3TEXTURE and D3TEXHANDLE). */
+/* One texture slot (d3.h has a partial view of it: D3TEXTURE). */
 typedef struct TSTEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Textures */
     char name[0x40];
     int refs;                       /* 0x40, 0 = free slot */
@@ -32,7 +32,10 @@ typedef struct TSTEXTURE {          /* 0x80 bytes, d3_TexCount of them at d3_Tex
     int reserved;                   /* 0x58, no reader in the game: cleared whenever the slot is created, evicted or unloaded (reasoned: unused) */
     struct TSTEXTURE *src;          /* 0x5c */
     IDirectDrawSurface4 *surf;      /* 0x60 */
-    IDirect3DTexture2 *d3dtex;      /* 0x64 */
+    union {                         /* 0x64, the original calls it surftext (D3DCHECK texts) */
+        IDirect3DTexture2 *d3dtex;
+        IDirect3DTexture2 *surftext;
+    };
     unsigned char f0 : 1;           /* 0x68 */
     unsigned char alias : 1;        /* shares the surfaces of d3_Textures[mask] */
     unsigned char hicolor : 1;      /* 16-bit surface (d3_TexFormat16) */

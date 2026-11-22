@@ -240,7 +240,7 @@ D3SKYLAYER *d3sky_CreateLayer(D3SKY *s, int first, char *tex, D3TEXFLAGS flags, 
         l->fade = 1.0f;
         l->fadespeed = 0;
         l->flags = flags;
-        l->t = (D3TEXHANDLE *)tex_Load(tex, flags, 0, 0);
+        l->t = tex_Load(tex, flags, 0, 0);
         if (l->t)
             tex_Reload(l->t, 0);
         if (!first) {
@@ -297,7 +297,7 @@ void d3sky_FadeLayer(D3SKY *s, D3SKYLAYER *l, unsigned char alpha, float time)
 void d3sky_SetLayerTex(D3SKYLAYER *l, char *name)
 {
     tex_Release(l->t);
-    l->t = (D3TEXHANDLE *)tex_Load(name, l->flags, 0, 0);
+    l->t = tex_Load(name, l->flags, 0, 0);
     if (l->t)
         tex_Reload(l->t, 0);
 }

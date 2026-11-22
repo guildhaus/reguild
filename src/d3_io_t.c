@@ -262,7 +262,7 @@ void d3iot_DeleteStockObject(D3BGF *m)
         for (i = z; i < m->npolys; i++) {
             t = m->polys[i].tex;
             if (t != -1 && !used[t]) {
-                tex_Release((D3TEXHANDLE *)&((D3TEXTURE *)d3_Textures)[t]);
+                tex_Release((struct TSTEXTURE *)&((D3TEXTURE *)d3_Textures)[t]);
                 used[m->polys[i].tex] = 1;
             }
         }
@@ -601,7 +601,7 @@ D3BGF *d3iot_LoadBGF(char *path, char *name, char *texnames, int ntexsets, int n
                 for (k = 0; k < m->ntex; k++) {
                     D3BGFFLAGS fl;
                     D3BGFMAT *mt = &desc.mats[k];
-                    D3TEXHANDLE *tex;
+                    struct TSTEXTURE *tex;
                     fl.all = 0;
                     fl.s.b0 = 0xff;
                     if (mt->kind) {
@@ -612,10 +612,10 @@ D3BGF *d3iot_LoadBGF(char *path, char *name, char *texnames, int ntexsets, int n
                     fl.s.b1 = mt->c7;
                     fl.s.c1 = mt->c2;
                     if (mt->name[2][0] == 0)
-                        tex = (D3TEXHANDLE *)tex_Load(m->texnames + k * 0x40, fl.f, ((mt->c3 << 4 | mt->c6) * 2 | mt->c5) * 2, mt->c8 << 4 | mt->c9);
+                        tex = tex_Load(m->texnames + k * 0x40, fl.f, ((mt->c3 << 4 | mt->c6) * 2 | mt->c5) * 2, mt->c8 << 4 | mt->c9);
                     else
-                        tex = (D3TEXHANDLE *)tex_Load(m->texnames + k * 0x40, fl.f, (((mt->c3 << 4 | mt->c6) * 2 | mt->c5) * 2) | 1, mt->c8 << 4 | mt->c9);
-                    mi = tex ? tex - (D3TEXHANDLE *)d3_Textures : -1;
+                        tex = tex_Load(m->texnames + k * 0x40, fl.f, (((mt->c3 << 4 | mt->c6) * 2 | mt->c5) * 2) | 1, mt->c8 << 4 | mt->c9);
+                    mi = tex ? tex - d3_Textures : -1;
                     for (j = 0; j < m->npolys; j++) {
                         if (!used2[j] && m->polys[j].mat == k) {
                             m->polys[j].tex = mi;
