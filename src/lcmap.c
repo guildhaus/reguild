@@ -1472,14 +1472,14 @@ void ai_FillSettingWeights(AIBLD *bld, G8SETTING *rec)
 /* 0x5a84b0, the production setting of an id (27 B): the chain ai_Settings (0x6f26c0) walked by the next at
    +0x48, the record whose id at +0 is the argument, else 0 */
 
-int *ai_FindSetting(int id)
+G8SETTING *ai_FindSetting(int id)
 {
     G8SETTING *s;
 
     s = ai_Settings;
     while (s != 0) {
         if (s->bldId == id)
-            return (int *)s;
+            return s;
         s = s->next;
     }
     return 0;
@@ -1614,7 +1614,7 @@ void ai_SetSettingWeight(AIBLD *bld, int good, unsigned char weight)
     int rest;
     int i;
 
-    rec = (G8SETTING *)ai_FindSetting(bld->id);
+    rec = ai_FindSetting(bld->id);
     total = 100;
     if (good == 0)
         return;
@@ -1656,9 +1656,9 @@ void ai_RefreshProdSetting(AIBLD *b)
 {
     G8SETTING *rec;
 
-    rec = (G8SETTING *)ai_FindSetting(b->id);
+    rec = ai_FindSetting(b->id);
     if (rec != 0)
-        ai_FillSettingWeights(b, (char *)rec);
+        ai_FillSettingWeights(b, rec);
 }
 /* 0x5a8870, a good drawn by the weights of a building's setting (111 B): the setting of the building's id
    (ai_FindSetting), the random of 0x5a8340 * 100.0f (0x5ebb40) against the running sum of the slot weights, the
@@ -1675,7 +1675,7 @@ int ai_DrawSettingGood(AIBLD *bld)
     int pick;
 
     b = bld;
-    rec = (G8SETTING *)ai_FindSetting(b->id);
+    rec = ai_FindSetting(b->id);
     if (rec == 0)
         return 0;
     draw = (int)((float)ai_SettingRandom(rec) * 100.0f);
@@ -1718,7 +1718,7 @@ void ai_SetSettingFactor(AIBLD *bld, float factor)
     AIBLD *b;
 
     b = bld;
-    rec = (G8SETTING *)ai_FindSetting(b->id);
+    rec = ai_FindSetting(b->id);
     if (rec != 0)
         rec->factor = factor;
 }
