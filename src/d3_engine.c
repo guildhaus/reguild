@@ -880,9 +880,9 @@ void d3_DrawSortedD3D(void)
 {
     char wrap;
     int max;
-    D3TLV *vb;
+    D3DTLVERTEX *vb;
     unsigned int n;
-    D3TLV *p;
+    D3DTLVERTEX *p;
     TSTEXTURE *cur;
     float *uv;
     int h;
@@ -895,7 +895,7 @@ void d3_DrawSortedD3D(void)
     D3CVERT *q;
     unsigned int k;
     float rhw;
-    D3TLV *a, *b;
+    D3DTLVERTEX *a, *b;
 
     wrap = 0;
     oldtext = 0;
@@ -917,7 +917,7 @@ void d3_DrawSortedD3D(void)
         uv = t->uv;
         clip = t->clip;
         if (t->tex != cur) {
-            d3d_DrawTriangles((void *)h, vb, n);
+            d3d_DrawTriangles(h, vb, n);
             h = d3d_GetVertexBuffer(&vb, &max);
             max -= 0x80;
             p = vb;
@@ -980,7 +980,7 @@ void d3_DrawSortedD3D(void)
             d3_ClipIn = 3;
             vl = d3_ClipPoly(clip);
             if (d3_ClipOut >= 3) {
-                D3TLV tmp;
+                D3DTLVERTEX tmp;
 
                 d3_ClipExtraTris += d3_ClipOut - 3;
                 for (k = 0; k < d3_ClipOut; k++) {
@@ -1011,14 +1011,14 @@ void d3_DrawSortedD3D(void)
             }
         }
         if (n >= (unsigned int)max) {
-            d3d_DrawTriangles((void *)h, vb, n);
+            d3d_DrawTriangles(h, vb, n);
             h = d3d_GetVertexBuffer(&vb, &max);
             max -= 0x80;
             p = vb;
             n = 0;
         }
     }
-    d3d_DrawTriangles((void *)h, vb, n);
+    d3d_DrawTriangles(h, vb, n);
     d3_EndScene();
 }
 /* 0x43b080, software rendering: draws the sorted triangles back to front, clipping the ones that cross

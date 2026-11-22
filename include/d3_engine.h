@@ -385,19 +385,14 @@ void d3sky_InitColors(void);                                                    
 void d3fl_Init(unsigned int n, unsigned int detail, char mips, char b);                 /* 0x43fe00, d3_fl.c */
 void d3_InitShadows(unsigned int size, unsigned int maxsize, int ncache, int age, char mips, int polys, int mapsize);                     /* 0x45ad80 */
 void par_Init(void);                                                                    /* 0x455630, d3_par.c */
-typedef struct D3TLV {              /* D3DTLVERTEX as filled by the draw macros */
-    float sx, sy, sz, rhw;
-    unsigned long color, specular;
-    float tu, tv;
-} D3TLV;
 extern int d3_TextureBytes;                    /* 0xfc2dc0, texture bytes used this frame */
 extern float d3_ZScale;                     /* 0xfc532c */
 extern float d3_ZOfs;                       /* 0xfc7b64 */
 extern float d3_UOfs, d3_VOfs;              /* 0xfe73ac, 0xfc26ec */
 extern float ts_ScrollV[32], ts_ScrollU[32];    /* 0xfb9120, 0xfb90a0 */
 /* 0x63345d: the first byte of d3_NoTextures (d3.h), read as a byte */
-int d3d_GetVertexBuffer(void **buf, int *n);                                            /* 0x4364f0, d3_d3d.c */
-void d3d_DrawTriangles(void *unk, struct _D3DTLVERTEX *buf, DWORD num);                                /* 0x436510, d3_d3d.c */
+int d3d_GetVertexBuffer(struct _D3DTLVERTEX **buf, int *n);                                            /* 0x4364f0, d3_d3d.c */
+void d3d_DrawTriangles(int vbh, struct _D3DTLVERTEX *buf, DWORD num);                                /* 0x436510, d3_d3d.c */
 /* Inline asm: one transformed vertex from a D3VERTEX and a texture coordinate pair (u, v at uv). */
 #define D3E_TLV(dst, src, uv) {                                     \
     void *_td = (dst); void *_ts = (src); void *_tu = (uv);         \

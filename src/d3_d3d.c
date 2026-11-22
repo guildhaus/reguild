@@ -288,17 +288,17 @@ char d3d_CreateDevice(DWORD texbpp, DWORD fourcc, DWORD texbpp2, DWORD zbpp)
     d3d_FindTextureFormats(texbpp, fourcc, texbpp2);
     return 1;
 }
-/* 0x4364f0, the vertex buffer and its size in vertices. */
+/* 0x4364f0, the vertex buffer and its size in vertices; returns 0 (the handle d3d_DrawTriangles takes). */
 
-int d3d_GetVertexBuffer(void **buf, int *n)
+int d3d_GetVertexBuffer(D3DTLVERTEX **buf, int *n)
 {
     *buf = d3d_VertexBuffer;
     *n = 0x800;
     return 0;
 }
-/* 0x436510, draws a triangle list from the vertex buffer. */
+/* 0x436510, draws a triangle list from the vertex buffer (vbh: d3d_GetVertexBuffer's result, not read). */
 
-void d3d_DrawTriangles(void *unk, D3DTLVERTEX *buf, DWORD num)
+void d3d_DrawTriangles(int vbh, D3DTLVERTEX *buf, DWORD num)
 {
     if (num > 2) {
 #line 496
