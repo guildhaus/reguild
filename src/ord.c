@@ -1769,7 +1769,7 @@ void ord_AddGridAmount(int who, unsigned char kind, int *px, int *py)
     int i;
     int j;
 
-    gv_GetTableRecord(kind, (int *)&rec);
+    gv_GetTableRecord(kind, &rec);
     gm_FindById(&b, 0, 0, who);
     x = util_Random(8);
     y = util_Random(8);
@@ -1803,7 +1803,7 @@ void ord_SubGridAmount(int who, unsigned char kind)
     int i;
     int j;
 
-    gv_GetTableRecord(kind, (int *)&rec);
+    gv_GetTableRecord(kind, &rec);
     gm_FindById(&b, 0, 0, who);
     x = util_Random(8);
     y = util_Random(8);
@@ -1969,7 +1969,7 @@ void ord_RebuildGridSums(void)
             continue;
         if (ord_GetGridCell(&q->pos, &x, &y) == 0)
             continue;
-        gv_GetTableRecord(r.law, (int *)&dec);
+        gv_GetTableRecord(r.law, &dec);
         w = (float)r.count / dec.crimeCount * dec.guilt;
         ai_Grid[x][y].halfWeightSum += w * 0.5f;
         xhi = x + 1 > 8 ? 8 : x + 1;
@@ -2509,12 +2509,12 @@ void ord_AdvanceRatingBase(void)
 
 float ord_StatisticsRating(int *rec)
 {
-    int ra[9];
-    int rb[9];
+    AIDEC ra;
+    AIDEC rb;
 
-    gv_GetTableRecord(0, ra);
-    gv_GetTableRecord(1, rb);
-    return (float)(4 - ra[6]) * 0.25f * 0.75 + (1 - rb[6]) * 0.25;
+    gv_GetTableRecord(0, &ra);
+    gv_GetTableRecord(1, &rb);
+    return (float)(4 - ra.cur) * 0.25f * 0.75 + (1 - rb.cur) * 0.25;
 }
 /* 0x4f9d40, the weighted sum of the +0x18 ints (rec[6]) of the twelve table records 0x11 .. 0x1c of gv_GetTableRecord (0x4f2720) with the weights 0.06 0.05 0.08 0.04 0.13 0.1 0.13 0.12 0.14 0.15 and two zeros (the array is twelve long like the record range); the ints themselves are stored to out[0 .. 11]
    @deep deep s33: rec is the AIDEC record gv_GetTableRecord fills (rec.cur = +0x18; same code). Mechanism
@@ -2546,7 +2546,7 @@ float ord_WeightedRecordSum(int *out)
     float fv;
 
     for (i = 0x11; i < 0x1d; i++) {
-        gv_GetTableRecord(i, (int *)&rec);
+        gv_GetTableRecord(i, &rec);
         fv = (float)rec.cur;
         out[i - 0x11] = rec.cur;
         sum += fv * w[i - 0x11];

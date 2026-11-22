@@ -5635,7 +5635,7 @@ int gm_MayRemoveChar(AICHAR *c)
 extern int ai_Difficulty;
 extern int ai_GameFlags;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-int gv_GetTableRecord(int i, int *out);                     /* 0x4f2720 */
+struct AIDEC; int gv_GetTableRecord(int i, struct AIDEC *out);                     /* 0x4f2720 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_SumListAmounts(void *list, unsigned char p);
 
@@ -6837,7 +6837,7 @@ int gm_BuildingKindCost(AICHAR *c, int kind)
     f = 0.85f;
     if (c->officeKind != 0xe)
         f = 1.0f;
-    gv_GetTableRecord(6, (int *)&rec);
+    gv_GetTableRecord(6, &rec);
     return (int)(((4 - rec.cur) * 0.1f + 0.8f) * v * f);
 }
 /* 0x509e30, the sum of the amounts of the objects in the list (prototype kind 9, group 1) */

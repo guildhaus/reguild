@@ -1004,7 +1004,7 @@ void cm_RunBankruptcy(G28REC *m);  /* 0x4e1700 */
 int cm_CheckAuction(G28REC *m);  /* 0x4e19a0 */
 
 
-int gv_GetTableRecord(int i, int *out);  /* 0x4f2720 */
+struct AIDEC; int gv_GetTableRecord(int i, struct AIDEC *out);  /* 0x4f2720 */
 int gv_CrimeText();  /* 0x4f3580 */
 float gm_Liking();  /* 0x50c550 */
 void gv_SentenceText();  /* 0x4f48f0 */

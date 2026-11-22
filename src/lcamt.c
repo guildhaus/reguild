@@ -951,13 +951,6 @@ typedef struct AIWINDOWROW {            /* the row record the window page functi
     int entry;                          /* 0x10, the page entry index */
     int record;                         /* 0x14, the gv table record id */
 } AIWINDOWROW;
-typedef struct AIPOSVIEW {              /* 0x24 bytes, the record gv_GetTableRecord (0x4f2720) fills (AIPOS, ai.h) */
-    char pad00[0xc];
-    int pics;                           /* 0x0c, the page's picture count */
-    char pad10[8];
-    int texts;                          /* 0x18, the text count (AIPOS.unk18) */
-    char pad1c[8];
-} AIPOSVIEW;
 #pragma pack(pop)
 void ai_ShowWindowRow(AIWINDOWROW *row);
 int gv_HeldCrimesOf(int culprit, int *out, unsigned short t);  /* 0x4f3fe0, gv.h's prototype (gv.h is not included yet: Open: head) */
@@ -1073,20 +1066,20 @@ void ai_LeftAlignedText(char *text, int x, int y, int w, int font)
 #pragma pack(pop)
 
 /* 0x5bd250, the pictures and text block of a window row (192 B): with the window set, the gv record (0x4f2720
-   fills AIPOSVIEW: the picture count at +0xc, the text count at +0x18) fills the picture page of the row with
+   fills the AIDEC: one picture per guilt weight unit (+0xc), shown while cur (+0x18) is set) fills the picture page of the row with
    0x4731d0 (0x526); with an entry at most 4 the text page gets "$C$Z%s" (0x62a578, entry + 0x16b7) and
    0x52eb50 (0, 6, the player's character, the entry, 0x4df) */
 
 void ai_ShowWindowRow(AIWINDOWROW *row)
 {
     int i;
-    AIPOSVIEW pos;
+    AIDEC pos;
 
     if (row->win != -1) {
-        if (gv_GetTableRecord(row->record, (int *)&pos) != 0 &&
-            pos.texts != 0 && pos.pics != 0) {
+        if (gv_GetTableRecord(row->record, &pos) != 0 &&
+            pos.cur != 0 && pos.guilt != 0) {
             d2_SetForm(row->win, row->pageA);
-            for (i = 0; i < pos.pics; i++)
+            for (i = 0; i < pos.guilt; i++)
                 d2_WinOpenPic(i * 0x10 + 5, 5, 0x526, d2_LastWindow);
         }
         if (row->entry <= 4) {
@@ -8427,7 +8420,7 @@ int ai_AccuseWindow(AICHAR *me, AICHAR *culprit)
     int list;
     int accuse;
     int open;
-    AIPOSVIEW pos;
+    AIDEC pos;
     int ids[0x20];
     ORDMSG arg;
     CRIME crimes[0x20];
@@ -8458,8 +8451,8 @@ int ai_AccuseWindow(AICHAR *me, AICHAR *culprit)
     d2_SetForm(win, 2);
     for (i = 0; i < n; i++) {
         ai_LeftAlignedText(txt_Ptrs[crimes[i].law * 5 + 0x13fd], 10, i * 0x28 + 10, 0x13b, 0x55);
-        if (gv_GetTableRecord(crimes[i].law, (int *)&pos) != 0 && pos.pics != 0)
-            for (k = 0; k < pos.pics; k++)
+        if (gv_GetTableRecord(crimes[i].law, &pos) != 0 && pos.guilt != 0)
+            for (k = 0; k < pos.guilt; k++)
                 d2_WinOpenPic(k * 0x10 + 0x154, i * 0x28 + 10, 0x526, d2_LastWindow);
     }
     memset(&arg, 0, sizeof(arg));

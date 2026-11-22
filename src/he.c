@@ -2944,7 +2944,7 @@ void he_PostEvent67(void)
             cand[n++] = c;
         if (n != 0) {
             pick = util_Random(n);
-            gv_GetTableRecord(7, (int *)&dec);
+            gv_GetTableRecord(7, &dec);
             f = cand[pick];
             amt = (int)((f->earnings + f->daySum) * (((5 - dec.cur) * 0.1f + 0.7f) * 0.5f));
             m.type = 0x67;

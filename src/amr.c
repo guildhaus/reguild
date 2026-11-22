@@ -900,7 +900,7 @@ int ai_DecideSentence(AICHAR *ch, AIPLAN *q)
     AICHAR *c;
 
     n = ai_PlanRank(q);
-    gv_GetTableRecord(0, (int *)&dec);
+    gv_GetTableRecord(0, &dec);
     k = (5.0f - (float)dec.cur) * 0.1f + 0.7f;
     c = gm_FindChar(q->c18);
     d = gm_Liking(c->id, ch->id, 1);
@@ -4470,7 +4470,7 @@ int ai_EvalUsePerfume(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AI
     *a = 0.0f;
     *b = 0.0f;
     if (o2->arg2 >= 0x1c && o2->arg2 <= 0x22) {
-        gv_GetTableRecord(0x11, (AIPOS *)&d);
+        gv_GetTableRecord(0x11, &d);
         if (d.cur != 0)
             return ai_EvalGuiltWeights(a, b, i, p, &d);
         return ai_EvalMoodWeights(a, b, i, p, f, o1, o2);
@@ -4529,7 +4529,7 @@ int ai_EvalUseTrank(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIAR
     *a = 0.0f;
     *b = 0.0f;
     if (o2->arg2 >= 0x1c && o2->arg2 <= 0x22) {
-        gv_GetTableRecord(0x12, (AIPOS *)&d);
+        gv_GetTableRecord(0x12, &d);
         if (d.cur != 0)
             return ai_EvalGuiltWeights(a, b, i, p, &d);
         return ai_EvalMoodWeights(a, b, i, p, f, o1, o2);
@@ -4811,7 +4811,7 @@ int ai_EvalThreaten(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIAR
 
     *a = 0.0f;
     *b = 0.0f;
-    gv_GetTableRecord(0x13, (AIPOS *)&d);
+    gv_GetTableRecord(0x13, &d);
     if (d.cur != 0)
         return ai_EvalGuiltWeights(a, b, i, p, &d);
     return ai_EvalMoodWeights(a, b, i, p, f, o1, o2);
@@ -4907,7 +4907,7 @@ int ai_EvalPamphlets(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIA
     }
     *a = 0.0f;
     *b = 0.0f;
-    gv_GetTableRecord(3, (AIPOS *)&d);
+    gv_GetTableRecord(3, &d);
     if (d.cur != 0)
         return ai_EvalGuiltWeights(a, b, i, p, &d);
     return ai_EvalMoodWeights(a, b, i, p, 0, o1, o2);
@@ -5059,7 +5059,7 @@ int ai_EvalInsult(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIARG 
     }
     *a = 0.0f;
     *b = 0.0f;
-    gv_GetTableRecord(4, (AIPOS *)&d);
+    gv_GetTableRecord(4, &d);
     if (d.cur != 0)
         return ai_EvalGuiltWeights(a, b, i, p, &d);
     return ai_EvalMoodWeights(a, b, i, p, 0, o1, o2);
@@ -5104,7 +5104,7 @@ int ai_EvalBlackmail(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1, AIA
     }
     *a = 0.0f;
     *b = 0.0f;
-    gv_GetTableRecord(0x16, (AIPOS *)&d);
+    gv_GetTableRecord(0x16, &d);
     if (d.cur != 0)
         return ai_EvalGuiltWeights(a, b, i, p, &d);
     return ai_EvalMoodWeights(a, b, i, p, 0, o1, o2);

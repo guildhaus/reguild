@@ -157,13 +157,6 @@ typedef struct AIGRID {                 /* 24 bytes, a cell of the statistics gr
     float buildingCount;                /* 0x14, 0x4f8ae0 adds 1.0 per building object of the cell */
 } AIGRID;
 
-typedef struct AIPOS {                  /* filled by gv_GetTableRecord */
-    char pad00[0x18];
-    int unk18;                          /* 0x18, AIDEC.cur (gv_types.h: the full record) */
-    int unk1c;
-    int unk20;
-} AIPOS;
-
 typedef struct AIFIN {                  /* what gm_PlayerRecord finds for a character */
     unsigned short w00;                 /* 0x00, the character's AICHAR.w050 (cm.c 0x4c6cd0 copies it) */
     char family[0x10];                  /* 0x02, the family name (cm.c 0x4c6cd0 sets it with the character's) */

@@ -4027,7 +4027,7 @@ int he_FindMeetingSlot(int c)
         slot = util_Random(0x1d);
         i = 0x1d;
         do {
-            gv_GetTableRecord(slot, (int *)&dec);
+            gv_GetTableRecord(slot, &dec);
             if (dec.cur == 1 && dec.valueText == 2 && dec.guilt == want)
                 return slot;
             i--;

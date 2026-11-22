@@ -164,7 +164,7 @@ float amt_Rating(AICHAR *a, AICHAR *b, int mode, int flag)
     }
     if (flag != 0) {
         amt_GetKind(b->officeKind, &rec.kind);
-        gv_GetTableRecord(2, (int *)&rec.dec);
+        gv_GetTableRecord(2, &rec.dec);
         fl = ((AMTKINDF *)&rec.kind)->value;
         if (rec.dec.cur == 2)
             fl = fl * 0.75f;
@@ -2824,11 +2824,11 @@ void amt_TellOpenOffices(AICHAR *c)
 
 int amt_GetOwnedOfficePay(void)
 {
-    int buf[9];
+    AIDEC buf;
     int pay, sum, i;
 
-    gv_GetTableRecord(0xf, buf);
-    pay = (int)amt_Pay[buf[6]];
+    gv_GetTableRecord(0xf, &buf);
+    pay = (int)amt_Pay[buf.cur];
     sum = 0;
     for (i = 0; i < 42; i++) {
         if (amt_Table[i].owner != -1)

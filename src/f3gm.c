@@ -164,7 +164,7 @@ float gm_IncomeRating(void)
     float w[7];
     float sum;
     float x;
-    int rec[9];
+    AIDEC rec;
     int i;
 
     w[0] = 0.3f;
@@ -176,8 +176,8 @@ float gm_IncomeRating(void)
     w[6] = 0.1f;
     sum = 0.0f;
     for (i = 9; i <= 0xf; i++) {
-        gv_GetTableRecord(i, rec);
-        x = (1.0 - ((double)rec[6] - rec[1]) / ((double)rec[2] - rec[1])) * w[i - 9];
+        gv_GetTableRecord(i, &rec);
+        x = (1.0 - ((double)rec.cur - rec.min) / ((double)rec.max - rec.min)) * w[i - 9];
         sum = sum + x;
     }
     return sum + x;
@@ -187,13 +187,13 @@ float gm_IncomeRating(void)
 
 int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
 {
-    int rec[9];
+    AIDEC rec;
     int k, n, cnt;
     float x;
     AIBLD *b;
     AIOBJ *o;
 
-    gv_GetTableRecord(9, rec);
+    gv_GetTableRecord(9, &rec);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
             break;
@@ -201,7 +201,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
     if (k >= 6)
         return 0;
     cnt = ai_Chars[(unsigned short)id].wage;
-    x = rec[6] * 0.01f;
+    x = rec.cur * 0.01f;
     x = x * cnt;
     if (!(x > 0.0f))
         x = 0.0f;
@@ -209,7 +209,7 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
     if (cnt > 0) {
         out->kind[k] = 1;
         out->amount[k] = n;
-        out->rate[k] = rec[6];
+        out->rate[k] = rec.cur;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
@@ -225,13 +225,13 @@ int gm_IncomeKind1(unsigned id, GMINCOME *out, unsigned char flags)
 
 int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
 {
-    int rec[9];
+    AIDEC rec;
     int k, n, cnt;
     float x;
     AIBLD *b;
     AIOBJ *o;
 
-    gv_GetTableRecord(10, rec);
+    gv_GetTableRecord(10, &rec);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
             break;
@@ -239,7 +239,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
     if (k >= 6)
         return 0;
     cnt = ai_Chars[(unsigned short)id].wage;
-    x = rec[6] * 0.01f;
+    x = rec.cur * 0.01f;
     x = x * cnt;
     if (!(x > 0.0f))
         x = 0.0f;
@@ -247,7 +247,7 @@ int gm_IncomeKind2(unsigned id, GMINCOME *out, unsigned char flags)
     if (cnt > 0) {
         out->kind[k] = 2;
         out->amount[k] = n;
-        out->rate[k] = rec[6];
+        out->rate[k] = rec.cur;
         if (flags & 1) {
             b = (AIBLD *)gm_FirstBuilding(1);
             o = gm_Query(b->objList, 2, 6, 0, 0x115);
@@ -273,7 +273,7 @@ int gm_IncomeKind3(unsigned id, GMINCOME *out, unsigned char flags)
     AIBLD *b;
     AIOBJ *o;
 
-    gv_GetTableRecord(0xd, (int *)&rec);
+    gv_GetTableRecord(0xd, &rec);
     rate = rec.cur;
     b = (AIBLD *)gm_FirstBuilding(1);
     gm_Query(b->objList, 2, 6, 0, 0x115);
@@ -321,7 +321,7 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
     AIBLD *b;
     AIOBJ *o;
 
-    gv_GetTableRecord(0xc, (int *)&rec);
+    gv_GetTableRecord(0xc, &rec);
     rate = rec.cur;
     b = (AIBLD *)gm_FirstBuilding(1);
     gm_Query(b->objList, 2, 6, 0, 0x115);
@@ -359,11 +359,11 @@ int gm_IncomeKind4(unsigned id, GMINCOME *out, unsigned char flags)
 
 int gm_IncomeKind5(unsigned id, GMINCOME *out, unsigned char flags)
 {
-    int rec[9];
+    AIDEC rec;
     int k, n, cnt;
     float x;
 
-    gv_GetTableRecord(0xb, rec);
+    gv_GetTableRecord(0xb, &rec);
     for (k = 0; k < 6; k++) {
         if (out->kind[k] == 0)
             break;
@@ -371,7 +371,7 @@ int gm_IncomeKind5(unsigned id, GMINCOME *out, unsigned char flags)
     if (k >= 6)
         return 0;
     cnt = ai_Chars[(unsigned short)id].wage;
-    x = rec[6] * 0.01f;
+    x = rec.cur * 0.01f;
     x = x * cnt;
     if (!(x > 0.0f))
         x = 0.0f;
@@ -379,7 +379,7 @@ int gm_IncomeKind5(unsigned id, GMINCOME *out, unsigned char flags)
     if (cnt > 0) {
         out->kind[k] = 5;
         out->amount[k] = n;
-        out->rate[k] = rec[6];
+        out->rate[k] = rec.cur;
         if (flags & 1) {
             cm_SendMoveGoodsUnchecked(-1, ai_Chars[(unsigned short)id].netId, 0, n);
             gm_NetMsgCount++;
@@ -450,7 +450,7 @@ void gm_CharacterUpkeep(void)
     int rate, i, v;
 
     seat = gm_PlayerSeat(1);
-    gv_GetTableRecord(5, (int *)&rec);
+    gv_GetTableRecord(5, &rec);
     rate = 0xe - rec.cur;
     rate = gm_PlayerFactor(rate, ai_OwnPlayer);
     gm_NetMsgCount = 0;
@@ -535,7 +535,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
     out->amount2 = 0;
     out->amount3 = 0;
     if (ai_Chars[id].id != 0xffff && ai_Chars[id].kind < 10 && ai_Chars[id].health > 0 && (ai_Chars[id].officeKind != 0 || ai_Chars[id].secondOffice != 0 || (ai_Chars[id].flags1cc & 0xe00) != 0)) {
-        gv_GetTableRecord(0xf, (int *)&rec);
+        gv_GetTableRecord(0xf, &rec);
         pay = amt_Pay[rec.cur];
         amt_GetKind(ai_Chars[id].secondOffice, &kind);
         out->amount2 = (int)(kind.salary * 32 * pay);
@@ -763,7 +763,7 @@ int gm_HandOutMoney(AIBLD *b, int *out)
         return 0;
     u = &ai_Chars[b->owner];
     gm_GetSkill(u, 4);
-    gv_GetTableRecord(2, (int *)&rec);
+    gv_GetTableRecord(2, &rec);
     f = (float)gm_BuildingSkill(b, 9, 1) * 0.0125f + 1.0f;
     for (i = 0; i < 0x300; i++) {
         c = &ai_Chars[i];
@@ -814,7 +814,7 @@ void gm_ShiftLoyalty(void)
 
     if (ai_Time.year % 4 != 0)
         return;
-    gv_GetTableRecord(2, (int *)&rec);
+    gv_GetTableRecord(2, &rec);
     if (rec.cur == 2) {
         gm_NetMsgCount = 0;
         for (i = 0; i < 0x300; i++) {
@@ -2523,7 +2523,7 @@ int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field,
 struct AIBLD *gm_BuildNext(void);                     /* 0x501030 */
 extern int ai_Difficulty;
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 */
-int gv_GetTableRecord(int i, int *out);                     /* 0x4f2720 */
+struct AIDEC; int gv_GetTableRecord(int i, struct AIDEC *out);                     /* 0x4f2720 */
 float gm_ItemPrice(int item, unsigned char n);
 int gm_SumListAmounts(void *list, unsigned char p);
 extern int ai_CharCount, ai_NextCharNumber, ai_NextPlayerNumber, gm_AllowAll, ai_NextObjectId;  /* 0x6f1bc0, 0x6f1bb8, 0x6f1bbc, 0x6f2448, 0x61a654 */

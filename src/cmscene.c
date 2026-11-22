@@ -1201,7 +1201,7 @@ void cm_RunTrial(G28REC *m)
     {
         AIDEC dec;
 
-        gv_GetTableRecord(0, (int *)&dec);
+        gv_GetTableRecord(0, &dec);
         k = max(min(dec.cur, 4), 0);
     }
     severity = factors[k];
@@ -1320,7 +1320,7 @@ void cm_RunTrial(G28REC *m)
         AIDEC dec;
 
         crime = ai_Crimes[crimeIds[i]];
-        gv_GetTableRecord(crime.law, (int *)&dec);
+        gv_GetTableRecord(crime.law, &dec);
         k = groups[i];
         sum += dec.guilt * severity;
         if (k == -1)

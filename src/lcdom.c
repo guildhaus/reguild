@@ -4695,13 +4695,6 @@ typedef struct AIWINDOWROW {            /* the row record the window page functi
     int record;                         /* 0x14, the gv table record id */
 } AIWINDOWROW;
 
-typedef struct AIPOSVIEW {              /* 0x24 bytes, the record gv_GetTableRecord (0x4f2720) fills (AIPOS, ai.h) */
-    char pad00[0xc];
-    int pics;                           /* 0x0c, the page's picture count */
-    char pad10[8];
-    int texts;                          /* 0x18, the text count (AIPOS.unk18) */
-    char pad1c[8];
-} AIPOSVIEW;
 #pragma pack(pop)
 
 void ai_ShowWindowRow(AIWINDOWROW *row);
@@ -5016,7 +5009,7 @@ void ai_EvidenceDetailsWindow(AICHAR *me, AICHAR *culprit)
     int k;
     int win;
     int list;
-    AIPOSVIEW pos;
+    AIDEC pos;
     int ids[0x20];
     ORDMSG arg;
     CRIME crimes[0x20];
@@ -5041,8 +5034,8 @@ void ai_EvidenceDetailsWindow(AICHAR *me, AICHAR *culprit)
     d2_SetForm(win, 2);
     for (i = 0; i < n; i++) {
         ai_LeftAlignedText(txt_Ptrs[crimes[i].law * 5 + 0x13fd], 10, i * 0x28 + 10, 0x13b, 0x55);
-        if (gv_GetTableRecord(crimes[i].law, (int *)&pos) != 0 && pos.pics != 0)
-            for (k = 0; k < pos.pics; k++)
+        if (gv_GetTableRecord(crimes[i].law, &pos) != 0 && pos.guilt != 0)
+            for (k = 0; k < pos.guilt; k++)
                 d2_WinOpenPic(k * 0x10 + 0x154, i * 0x28 + 10, 0x526, d2_LastWindow);
     }
     memset(&arg, 0, sizeof(arg));

@@ -65,7 +65,7 @@
    object record views (AICHAR / AIOBJ of the news messages), the use callback's request (G8USEVIEW), the
    Domizil entry (G9DOMIZILRANGE), the scene character (G8SCENECHAR, ch.h CHARACTER), the equip window's rows
    (AIEQUIPROW / AIEQUIPSLOT), the window row pages and
-   the gv record (AIWINDOWROW, AIPOSVIEW), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout), the
+   the gv record (AIWINDOWROW, gv_types.h AIDEC), the dice duel (LCDUEL / LCDUELSIDE, am.h AGDUEL, full layout), the
    player record (LCFIN, ai.h AIFIN) and the special-amount row (LCAMOUNTROW, cm.c CMAMOUNTROW) are local views here (menu.h / sv.h / ai_char.h / ai_types.h /
    am_types.h / am.h / ai.h hold the owners' types); they settle when those headers can be included. The "hp_" production
    settings are typed the same way: G8SETTING / G8SLOT / G8SETTAIL and AIBLD (a building's good id, ai_bld.h's AIBLD).
@@ -13390,13 +13390,6 @@ typedef struct AIWINDOWROW {            /* the row record the window page functi
     int entry;                          /* 0x10, the page entry index */
     int record;                         /* 0x14, the gv table record id */
 } AIWINDOWROW;
-typedef struct AIPOSVIEW {              /* 0x24 bytes, the record gv_GetTableRecord (0x4f2720) fills (AIPOS, ai.h) */
-    char pad00[0xc];
-    int pics;                           /* 0x0c, the page's picture count */
-    char pad10[8];
-    int texts;                          /* 0x18, the text count (AIPOS.unk18) */
-    char pad1c[8];
-} AIPOSVIEW;
 #pragma pack(pop)
 void ai_ShowWindowRow(AIWINDOWROW *row);
 int gv_HeldCrimesOf(int culprit, int *out, unsigned short t);  /* 0x4f3fe0, gv.h's prototype (gv.h is not included yet: Open: head) */
