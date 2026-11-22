@@ -217,7 +217,7 @@ int ai_DuelAcceptAction(AGDUEL *d, AICHAR *c, int k)
     q = &ag_Pairs[0][1];
     while (q[-1] != v || *q != k) {
         q += 2;
-        if ((int)q >= (int)&ag_Pairs[9][1])
+        if ((intptr_t)q >= (intptr_t)&ag_Pairs[9][1])
             return 0;
     }
     return 1;

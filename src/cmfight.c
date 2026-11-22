@@ -468,7 +468,7 @@ struct AICHAR *cm_FindFighter(int id)
     int i = 0;
     AICHAR *p;
 
-    for (p = cm_Fighters; (int)&p->netId < (int)&cm_Fighters[32].netId; p++) {
+    for (p = cm_Fighters; (intptr_t)&p->netId < (intptr_t)&cm_Fighters[32].netId; p++) {
         if (p->id != 0xffff && p->netId == id)
             return &cm_Fighters[i];
         i++;
@@ -853,7 +853,7 @@ void cm_UpdateCharInfoWins(int a)
     AICHAR *p;
 
     cm_CloseCharInfoWins();
-    for (p = cm_Fighters; (int)p < (int)&cm_Fighters[32]; p++) {
+    for (p = cm_Fighters; (intptr_t)p < (intptr_t)&cm_Fighters[32]; p++) {
         if (p->selected != 0)
             cm_OpenCharInfoWin(a, p);
     }
@@ -1690,7 +1690,7 @@ void cm_ClearMarks()
     AICHAR *r;
     D3OBJECT *body;
 
-    for (r = cm_Fighters; (int)&r->scene < (int)&cm_Fighters[32].scene; r++) {
+    for (r = cm_Fighters; (intptr_t)&r->scene < (intptr_t)&cm_Fighters[32].scene; r++) {
         if (r->selected != 0)
             r->selected = 0;
         if (r->scene != 0) {
@@ -1750,8 +1750,8 @@ void cm_CollectSceneChars()
 
     memset(ai_SceneChars, 0, sizeof(ai_SceneChars));
     p = ai_SceneChars;
-    for (r = cm_Fighters; (int)&r->scene < (int)&cm_Fighters[32].scene; r++) {
-        if ((int)p >= (int)&ai_SceneChars[31])
+    for (r = cm_Fighters; (intptr_t)&r->scene < (intptr_t)&cm_Fighters[32].scene; r++) {
+        if ((intptr_t)p >= (intptr_t)&ai_SceneChars[31])
             break;
         if (r->scene != 0 && r->scene->scene == d3_DefaultScene)
             *p++ = r;

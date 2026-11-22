@@ -472,7 +472,7 @@ char *gv_FindEffect(int id)
                 return (char *)&gv_Effects[i];
             p += 0x5c;
             i++;
-        } while ((int)p < (int)&gv_Effects[8]);
+        } while ((intptr_t)p < (intptr_t)&gv_Effects[8]);
     }
     return 0;
 }
@@ -795,7 +795,7 @@ int gv_ReserveEffect(int id)
                 return 1;
             p += 0x5c;
             i++;
-        } while ((int)p < (int)&gv_Effects[8]);
+        } while ((intptr_t)p < (intptr_t)&gv_Effects[8]);
         if (first >= -1) {
             p = (int *)gv_Effects;
             p[first * 0x5c] = id;
@@ -937,7 +937,7 @@ char *gv_GetEffect(int id)
             return (char *)&gv_Effects[i];
         p += 0x5c;
         i++;
-    } while ((int)p < (int)((unsigned)&gv_Effects + 0xb80));
+    } while ((intptr_t)p < (intptr_t)((uintptr_t)&gv_Effects + 0xb80));
     return 0;
 }
 /* 0x4eee00, starts a received cannon ball (message 0x67, GVSHOTMSG) in the effect slot of m->id: the first free part (tail 0)

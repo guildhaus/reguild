@@ -2252,7 +2252,7 @@ unsigned int ai_FillCandidacyTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows
         return 0;
     nApplicants = amt_GetOfficeApplicants(me->appliedOffice, 6, applicants);
     nRivals = 0;
-    for (c = ai_Chars; (int)c < (int)&ai_Chars[768]; c++) {  /* a signed compare (jl) in the original */
+    for (c = ai_Chars; (intptr_t)c < (intptr_t)&ai_Chars[768]; c++) {  /* a signed compare (jl) in the original */
         if (nRivals >= 3)
             break;
         if (c->id != 0xffff && c->id != me->id && c->appliedOffice == me->appliedOffice)
@@ -2315,7 +2315,7 @@ unsigned int ai_FillOfficeTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, A
     for (k = 0; k < nOffices; k++) {
         if (n >= max)
             break;
-        for (c = ai_Chars; (int)c < (int)&ai_Chars[768]; c++) {
+        for (c = ai_Chars; (intptr_t)c < (intptr_t)&ai_Chars[768]; c++) {
             if (offices[k] == c->appliedOffice) {
                 rows[n].rec = c;
                 rows[n].x34 = offices[k];
@@ -2634,7 +2634,7 @@ void ai_ClearAmountTabs(void)
 {
     int *p;
 
-    for (p = &ai_AmountTabs[0].control; (int)p < (int)&ai_AmountTabs[8].control; p += 5) {
+    for (p = &ai_AmountTabs[0].control; (intptr_t)p < (intptr_t)&ai_AmountTabs[8].control; p += 5) {
         p[-1] = 0;
         p[0] = 0;
     }
@@ -3277,7 +3277,7 @@ void ai_AgendaOfficeList(int kind)
             shown |= 1;
             io_PrintText(0x13a1, seats[i].kind + 0x253);
             count = 0;
-            for (c = ai_Chars; (int)c < (int)&ai_Chars[0x300]; c++) {  /* a signed compare (jl) in the original */
+            for (c = ai_Chars; (intptr_t)c < (intptr_t)&ai_Chars[0x300]; c++) {  /* a signed compare (jl) in the original */
                 if (count >= 4)
                     break;
                 if (c->appliedOffice == seats[i].kind) {
@@ -3304,7 +3304,7 @@ void ai_AgendaOfficeList(int kind)
         }
         m = 0;
         for (c = ai_Chars; m < 4; c++) {
-            if ((int)c >= (int)&ai_Chars[0x300])
+            if ((intptr_t)c >= (intptr_t)&ai_Chars[0x300])
                 break;
             if (c->flags1cc & mask)
                 group[m++] = c;

@@ -8061,7 +8061,7 @@ int ai_UpdateEquipRows(int view, int form)
             continue;
         lc_Settings.equipRowCount++;
         found = 0;
-        for (sc = ai_SceneChars; (int)sc < (int)&ai_SceneChars[0x20]; sc++)
+        for (sc = ai_SceneChars; (intptr_t)sc < (intptr_t)&ai_SceneChars[0x20]; sc++)
             if ((int)ai_EquipRowTab[r].ch == (int)*sc) {
                 found = 1;
                 break;
@@ -8125,7 +8125,7 @@ int ai_UpdateEquipRows(int view, int form)
         }
     }
     /* a scene character of the job groups 10 .. 12 without a row gets the first free one */
-    for (sc = ai_SceneChars; (int)sc < (int)&ai_SceneChars[0x20]; sc++) {
+    for (sc = ai_SceneChars; (intptr_t)sc < (intptr_t)&ai_SceneChars[0x20]; sc++) {
         if (*sc == 0)
             continue;
         group = gm_TitleJobGroup(((AICHAR *)*sc)->title);

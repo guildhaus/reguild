@@ -1066,7 +1066,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
         for (i = 0; i < 0x10; i++)
             m->spotCtrls[i] = -1;
         n = 0;
-        for (spot = ai_AmbushSpots[0]; (int)spot < (int)ai_AmbushSpots[8]; spot += sizeof(ai_AmbushSpots[0])) {  /* a signed compare (jl) */
+        for (spot = ai_AmbushSpots[0]; (intptr_t)spot < (intptr_t)ai_AmbushSpots[8]; spot += sizeof(ai_AmbushSpots[0])) {  /* a signed compare (jl) */
             obj = d3_FindObject(0, 0x100, 0, spot);
             if (obj != 0) {
                 d3_PointToWorld(obj, &obj->pos, &pos.v);
@@ -1543,12 +1543,12 @@ unsigned char *ai_FindItemGroup(char *good)
     c = *good;
     if (c == ' ' || c == 0x1e || c == 0x1f) {
         i = 0;
-        for (q = (unsigned char *)(unsigned)&gm_SpecialItemGroups; (int)q < (int)((unsigned)&gm_SpecialItemGroups + 0x3f); q += 0x15, i++)
+        for (q = (unsigned char *)(unsigned)&gm_SpecialItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_SpecialItemGroups + 0x3f); q += 0x15, i++)
             if ((char)*q == c)
                 return (unsigned char *)(unsigned)&gm_SpecialItemGroups + i * 0x15;
     }
     i = 0;
-    for (q = (unsigned char *)(unsigned)&gm_BuildingItemGroups; (int)q < (int)((unsigned)&gm_BuildingItemGroups + 0x309); q += 0x15, i++)
+    for (q = (unsigned char *)(unsigned)&gm_BuildingItemGroups; (intptr_t)q < (intptr_t)((uintptr_t)&gm_BuildingItemGroups + 0x309); q += 0x15, i++)
         if ((char)*q == c)
             return (unsigned char *)(unsigned)&gm_BuildingItemGroups + i * 0x15;
     return 0;
@@ -1994,7 +1994,7 @@ void ai_ShowTavernHelperNews(AICHAR *ownerRec, AICHAR *helperRec, int bld)
         if (c != owner && c != helper && (c->kind == 6 || c->kind == 7))
             he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x5ec, ch_EmptyName);
         p += 0x21c;
-    } while ((int)p < (int)((unsigned)&ai_Chars + 0x65402));
+    } while ((intptr_t)p < (intptr_t)((uintptr_t)&ai_Chars + 0x65402));
 }
 /* 0x5a8ee0, the parting news of a character pair (162 B, a reasoned guess at the texts' meaning): for a kind
    6 / 7 second character the text 0x132f is formatted with the first character's id, the text 0x1330 + 3 * (the
@@ -2105,7 +2105,7 @@ void ai_PlagueNews(void)
         if (c->kind == 6 || c->kind == 7)
             he_ShowNews(c->netId, -1, ai_NewsText, 0, 0x600, local);
         c++;
-    } while ((int)&c->kind < (int)&ai_Chars[0x300].kind);
+    } while ((intptr_t)&c->kind < (intptr_t)&ai_Chars[0x300].kind);
 }
 /* 0x5a9240, a plague message (112 B; bld, the building he_RunPlague passes, is not read): util_Random (2) picks the sound "_KATASTROPHE_PEST_HS_0<v + 3>" and the
    text 0x20ca + the value; a character of the kind 6 / 7 sends the text and the sound with the news 0x600 to its

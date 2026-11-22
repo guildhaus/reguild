@@ -338,7 +338,7 @@ void ai_MasterUpdate(AICHAR *c)
                     found = 0;
                     p = ai_Chars;
                     while (1) {
-                        if ((int)&p->kind >= (int)&ai_Chars[0x300].kind)
+                        if ((intptr_t)&p->kind >= (intptr_t)&ai_Chars[0x300].kind)
                             break;
                         if (p->id != 0xffff && p->bld == b && (p->kind == 1 || p->kind == 2))
                             found = 1;

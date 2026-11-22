@@ -1531,7 +1531,7 @@ int gv_RoomForRaised(AIBLD *bld, int *n)
         return -1;
     places = t->k232 + t->k231;
     cnt = 0;
-    for (c = ai_Chars; (int)&c->bld < (int)&ai_Chars[768].bld; c++) {
+    for (c = ai_Chars; (intptr_t)&c->bld < (intptr_t)&ai_Chars[768].bld; c++) {
         if (c->id != 0xffff && c->kind == 0x14 && c->bld == bld)
             cnt++;
     }

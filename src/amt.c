@@ -321,7 +321,7 @@ int amt_CheckApplication(AMTAPP *m)
                 break;
             p++;
             i++;
-            if ((int)p >= (int)&amt_Table[30])
+            if ((intptr_t)p >= (intptr_t)&amt_Table[30])
                 return 0;
         } while (1);
         if (i >= 30)
@@ -342,7 +342,7 @@ int amt_CheckApplication(AMTAPP *m)
                     break;
                 p++;
                 j++;
-                if ((int)p >= (int)&amt_Table[30])
+                if ((intptr_t)p >= (intptr_t)&amt_Table[30])
                     return 0;
             } while (1);
             if (j >= 30)
@@ -473,7 +473,7 @@ int amt_SendOfficeMessage(unsigned char a, AICHAR *b, AICHAR *c, int d, unsigned
             break;
         p++;
         i++;
-        if ((int)p >= (int)&amt_Table[42])
+        if ((intptr_t)p >= (intptr_t)&amt_Table[42])
             return -1;
     } while (1);
     if (i >= 42)
@@ -502,7 +502,7 @@ int amt_CheckOfficeMessage(AMTMSG *m)
                 break;
             q++;
             i++;
-            if ((int)q >= (int)&amt_Table[42])
+            if ((intptr_t)q >= (intptr_t)&amt_Table[42])
                 return 0;
         } while (1);
         if (i >= 42)
@@ -559,7 +559,7 @@ int amt_ExecuteOfficeMessage(AMTSET *p)
             break;
         q++;
         i++;
-        if ((int)q >= (int)&amt_Table[42])
+        if ((intptr_t)q >= (intptr_t)&amt_Table[42])
             return 0;
     } while (1);
     if (i >= 42)
@@ -629,7 +629,7 @@ next:
                     *r == c->netId)
                     *r = -1;
                 r += sizeof(AMTREC) / sizeof(int);
-            } while ((int)r < (int)&amt_Table[37].owner);
+            } while ((intptr_t)r < (intptr_t)&amt_Table[37].owner);
         }
         c->secondOffice = amt_Table[i].kind;
     } else {
@@ -734,7 +734,7 @@ int amt_ExecuteSwapMessage(AMTTRADE *m)
             break;
         p++;
         i++;
-        if ((int)p >= (int)&amt_Table[30])
+        if ((intptr_t)p >= (intptr_t)&amt_Table[30])
             return 0;
     } while (1);
     p1 = &amt_Table[i];
@@ -750,7 +750,7 @@ int amt_ExecuteSwapMessage(AMTTRADE *m)
             break;
         p++;
         j++;
-        if ((int)p >= (int)&amt_Table[30])
+        if ((intptr_t)p >= (intptr_t)&amt_Table[30])
             return 0;
     } while (1);
     p2 = &amt_Table[j];
@@ -1719,7 +1719,7 @@ void amt_UpdateOffices(void)
         while (r != -1 && cm_GetSlotState(r) == 0)
             sv_PumpNet();
     }
-    for (c = ai_Chars; (int)&c->appliedOffice < (int)&ai_Chars[768].appliedOffice; c++) {
+    for (c = ai_Chars; (intptr_t)&c->appliedOffice < (intptr_t)&ai_Chars[768].appliedOffice; c++) {
         if (c->appliedOffice != 0) {
             int v = 0;
             cm_BeginFieldBlock(c, c->netId);
@@ -2482,7 +2482,7 @@ int amt_ExecuteShareMessage(AICHAR *c, int *m)
                             he_ShowNews(*q, -1, msg, 0, 0x5fd, ch_EmptyName);
                     }
                     q += 0x87;
-                } while ((int)q < (int)AMT_CHARS_END);
+                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
                 if (((char *)c)[2] == 6) {
                     txt_Format(msg, 0x1661, o->owner, o);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2551,7 +2551,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                     if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != t->netId && *q != c->netId)
                         he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
                     q += 0x87;
-                } while ((int)q < (int)AMT_CHARS_END);
+                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1680, t->id, t->id);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2568,7 +2568,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                     if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != t->netId && *q != c->netId)
                         he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
                     q += 0x87;
-                } while ((int)q < (int)AMT_CHARS_END);
+                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x1681, t->id, t->id);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2615,7 +2615,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                             he_ShowNews(*q, -1, msg2, 0, 0x5fe, ch_EmptyName);
                     }
                     q += 0x87;
-                } while ((int)q < (int)AMT_CHARS_END);
+                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166e, m[1] + 0x1663);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2637,7 +2637,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                             he_ShowNews(*q, -1, msg2, 0, 0x5fe, ch_EmptyName);
                     }
                     q += 0x87;
-                } while ((int)q < (int)AMT_CHARS_END);
+                } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
                 if (c->kind == 6) {
                     txt_Format(msg, 0x166f, m[1] + 0x1663);
                     sv_MessageBox((intptr_t)msg, 0);
@@ -2666,7 +2666,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId)
                     he_ShowNews(*q, -1, msg, 0, 0x5fd, ch_EmptyName);
                 q += 0x87;
-            } while ((int)q < (int)AMT_CHARS_END);
+            } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1678, m[1] + 0x1663);
                 sv_MessageBox((intptr_t)msg, 0);
@@ -2678,7 +2678,7 @@ int amt_ExecuteMayorPowerMessage(AICHAR *c, int *m)
                 if ((((char *)q)[-2] == 7 || ((char *)q)[-2] == 6) && *q != c->netId)
                     he_ShowNews(*q, -1, msg, 0, 0x5fe, ch_EmptyName);
                 q += 0x87;
-            } while ((int)q < (int)AMT_CHARS_END);
+            } while ((intptr_t)q < (intptr_t)AMT_CHARS_END);
             if (c->kind == 6) {
                 txt_Format(msg, 0x1679, m[1] + 0x1663);
                 sv_MessageBox((intptr_t)msg, 0);

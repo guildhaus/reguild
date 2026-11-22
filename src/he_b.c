@@ -1296,7 +1296,7 @@ void he_AllocIncomeEvent(AIJOB *e)
     e->incomeCounter = 0;
     e->incomeRate = (float)(d * 0.25);
     b = gm_FindBuildingById(e->incomeBld);
-    for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+    for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
         if (rec->job == e)
             sv_MoveToGroup(b, 0, rec->id, e);
     }
@@ -1548,7 +1548,7 @@ void he_RunProduktion(AIJOB *ev)
                 worker = 0;
                 name[0] = 0;
                 master = gm_FindCharacterByMaster(bld);
-                for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+                for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
                     if (rec->job == ev)
                         worker = rec;
                 }
@@ -1767,7 +1767,7 @@ lacking:
             ev->stage = -1;
             return;
         }
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(bld, 0, rec->id, 0);
         }
@@ -1780,7 +1780,7 @@ lacking:
         gm_FindById(&bld, 0, 0, p->bld);
         if (bld != 0)
             cm_SendUpdateSmoke(bld->id);
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(0, 0, rec->id, 0);
         }
@@ -1833,7 +1833,7 @@ void he_RunSearchEvent(AIJOB *ev)
         cm_SendExSellObject(s->store, -1, s->good, amount, ai_OwnPlayer, 0);
         txt_Format(text, 0x1bb8, s->good * 2 + 0x9a8, bld, amount);
         he_MessageBoxQuickjump(ai_Chars[bld->owner].netId, -1, text, 0, 0x5f1, bld->id, -1, 0, "_NACHRICHTEN_HS_08");
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(bld, 0, rec->id, 0);
         }
@@ -1841,7 +1841,7 @@ void he_RunSearchEvent(AIJOB *ev)
         return;
     case -2:
     case -1:
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(0, 0, rec->id, 0);
         }
@@ -1929,7 +1929,7 @@ void he_RunSearch9(AIJOB *ev)
             txt_Format(text, 0x1bb8, found->id * 2 + 0x9a8, bld, amount);
             he_MessageBoxQuickjump(ai_Chars[bld->owner].netId, -1, text, 0, 0x5f1, bld->id, -1, 0, "_NACHRICHTEN_HS_08");
         }
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(bld, 0, rec->id, 0);
         }
@@ -1937,7 +1937,7 @@ void he_RunSearch9(AIJOB *ev)
         return;
     case -2:
     case -1:
-        for (rec = ai_Chars; (int)rec < (int)&ai_Chars[768]; rec++) {
+        for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
             if (rec->job == ev)
                 sv_MoveToGroup(0, 0, rec->id, 0);
         }
@@ -2979,7 +2979,7 @@ void he_RunConstruction(AIJOB *e)
                     sb_PlaySample(snd_SystemBank, "NeuesGebaeude_s", 1, 0x3f, 0x7f, 0, 0);
                 }
                 if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 5) {
-                    for (ch = ai_Chars; (int)&ch->netId < (int)&ai_Chars[0x300].netId; ch++) {
+                    for (ch = ai_Chars; (intptr_t)&ch->netId < (intptr_t)&ai_Chars[0x300].netId; ch++) {
                         if ((ch->kind == 6 || ch->kind == 7) && ch->netId != ai_Chars[bld->owner].netId) {
                             txt_Format(text, 0x1c30, bld->owner, bld->type * 14 + 0x48e);
                             he_MessageBoxQuickjump(ch->netId, -1, text, 0, 0x607, bld->id, -1, 0, "_NACHRICHTEN_HS_50");
@@ -5778,7 +5778,7 @@ void he_RunGraveyardWorkers(AIJOB *e)
             if (bld->owner != 0xffff) {
                 chance = (float)gm_BuildingSkill(bld, 0x15, 1) * 0.0025f;
                 n = 0;
-                for (ch = ai_Chars; (int)ch < (int)&ai_Chars[768]; ch++) {
+                for (ch = ai_Chars; (intptr_t)ch < (intptr_t)&ai_Chars[768]; ch++) {
                     if (ch->id != 0xffff && ch->bld == bld)
                         chars[n++] = ch;
                 }
@@ -5823,7 +5823,7 @@ void he_RunGraveyardWorkers(AIJOB *e)
         for (bld = gm_BuildQuery(1, 5, 0x1d); bld != 0; bld = gm_BuildNext()) {
             n = 0;
             master = gm_FindCharacterByMaster(bld);
-            for (ch = ai_Chars; (int)ch < (int)&ai_Chars[768]; ch++) {
+            for (ch = ai_Chars; (intptr_t)ch < (intptr_t)&ai_Chars[768]; ch++) {
                 if (ch->id != 0xffff && ch->bld == bld)
                     chars[n++] = ch;
             }
@@ -6204,7 +6204,7 @@ void he_GypsyRumour(AICHAR *pl, AICHAR *per)
         amt_ChangeDistrictOpinion(per, 1 + util_Random(3), 0x14 + util_Random(0x10));
     } else {
         delta = -0x14 - util_Random(0x10);
-        for (i = 0, ch = ai_Chars; (int)&ch->kind < (int)&ai_Chars[768].kind; ch++, i++) {
+        for (i = 0, ch = ai_Chars; (intptr_t)&ch->kind < (intptr_t)&ai_Chars[768].kind; ch++, i++) {
             if (i == per->id)
                 continue;
             if (ch->kind == 6 || ch->kind == 7 || ch->kind == 5)

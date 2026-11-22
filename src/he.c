@@ -1213,7 +1213,7 @@ void he_FreeEvents(void)
     if (he_EventTop >= 0) {
         p = (char *)(unsigned)&he_Events;
         do {
-            if ((int)p >= (int)((unsigned)&he_Events + 0x53000))
+            if ((intptr_t)p >= (intptr_t)((uintptr_t)&he_Events + 0x53000))
                 return;
             if (*p != 0)
                 he_FreeEvent(p);
@@ -2041,7 +2041,7 @@ void he_RemoveGfxInfos(int obj)
         if ((int)p->parent == obj)
             he_FreeGfxInfo((int *)p);
         p++;
-    } while ((int)p < (int)&he_GfxInfos[0x40]);
+    } while ((intptr_t)p < (intptr_t)&he_GfxInfos[0x40]);
 }
 /* 0x53ec10, calls 0x4471b0 for the gfx infos of the object `obj` */
 
@@ -2053,7 +2053,7 @@ void he_ShowObjectInfos(int obj, int a)
         if ((int)p->parent == obj)
             d3if_Show(p->obj, a);
         p++;
-    } while ((int)&p->obj < (int)&he_GfxInfos[0x40].obj);
+    } while ((intptr_t)&p->obj < (intptr_t)&he_GfxInfos[0x40].obj);
 }
 /* 0x53ec40, makes the event `r` due now (stage -2, end = the game clock) when its character is gone (another netId
    or kind 0xf) or dead (health 0) for the kinds of the list */
@@ -2217,7 +2217,7 @@ int he_SumApEvents(int key)
         if (p->income != 0 && p->key == key)
             sum += p->income;
         p++;
-    } while ((int)&p->income < (int)&he_ApEvents[0x100].income);
+    } while ((intptr_t)&p->income < (intptr_t)&he_ApEvents[0x100].income);
     return sum;
 }
 /* 0x53efb0, the sum of the values (+0xc) of the AP events with key (+4) `key` */
@@ -2231,7 +2231,7 @@ int he_SumApEventCosts(int key)
         if (p->cost != 0 && p->key == key)
             sum += p->cost;
         p++;
-    } while ((int)&p->cost < (int)&he_ApEvents[0x100].cost);
+    } while ((intptr_t)&p->cost < (intptr_t)&he_ApEvents[0x100].cost);
     return sum;
 }
 

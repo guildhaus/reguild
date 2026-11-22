@@ -1408,7 +1408,7 @@ int ai_HasQuicksavePlayer(void)
             if (p->health > 0 && (p->kind == 6 || p->kind == 7) && p->partyId != -1)
                 return 0;
             p++;
-        } while ((int)p < (int)&ai_Chars[0x300].kind);
+        } while ((intptr_t)p < (intptr_t)&ai_Chars[0x300].kind);
     }
     return r;
 }

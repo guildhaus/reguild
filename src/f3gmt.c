@@ -623,7 +623,7 @@ void gm_UpdatePlayers(void)
         gm_UpdatePrices(i, &ai_Time);
         p++;
         i++;
-    } while ((int)p < (int)&ai_PlayerSlots[4]);
+    } while ((intptr_t)p < (intptr_t)&ai_PlayerSlots[4]);
 }
 /* 0x4feb60, resets the 0x55 goods records of the player p from the template gm_DefaultStock: copies v00c and the base stock, sets the stock (gm_GoodsStock) of the goods of the kinds 0x17 / 0x25 or else the demand (gm_GoodsDemand), the price (gm_ItemPrice of the item, 100), and the mean to the demand */
 

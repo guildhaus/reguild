@@ -3748,7 +3748,7 @@ int cm_ExTime(G17MSG *m, G17STAT *s)
         memset(&ai_Watch, 0, 0xb00);
         if (cm_RunCharacters) {
             ai_TradeMsgCount = 0;
-            for (c = ai_Chars; (int)c < (int)&ai_Chars[0x300]; c++) {
+            for (c = ai_Chars; (intptr_t)c < (intptr_t)&ai_Chars[0x300]; c++) {
                 if (c->id != 0xffff)
                     ai_RunMasterEvaluation(c);
             }
@@ -5088,7 +5088,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
             gm_FreeObject(o);
     }
     /* the bld of every character record (the end is the field of the record after the table) */
-    for (bld = &ai_Chars[0].bld; (int)bld < (int)&ai_Chars[0x300].bld;
+    for (bld = &ai_Chars[0].bld; (intptr_t)bld < (intptr_t)&ai_Chars[0x300].bld;
          bld = (AIBLD **)((char *)bld + sizeof(AICHAR))) {
         if (*bld == b)
             *bld = 0;

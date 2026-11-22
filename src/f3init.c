@@ -403,7 +403,7 @@ void init_FreeScenes(void)
             *p = 0;
         }
         p += 0xf8;
-    } while ((int)p < (int)INIT_SCENE_HEIGHTMAP_END);
+    } while ((intptr_t)p < (intptr_t)INIT_SCENE_HEIGHTMAP_END);
 }
 /* 0x50d550, the scene object callback (a function start Ghidra missed) that allocates the building for a "gb_NAME" scene object o (0x50d100 resolved the name to the building type, bits 0x2000000 in +0x48): a new instance of the type without an owner (0x501580), for the KONTOR (type 0x47) the office of the player slot whose name is the part after the last '_' of the object name (the slot number goes to +0x65, its name to +5); the object and the building are linked (+0x61 / +0x200) and "f3_init:Gebaeude des Typs %s allokiert" is the (unused) log text. An object without a state of its own takes its parent's record. */
 
@@ -1047,7 +1047,7 @@ int init_CreateStartCharacters(int unused)
             n++;
         }
         p++;
-    } while ((int)p < (int)INIT_CHARACTERS_END);
+    } while ((intptr_t)p < (intptr_t)INIT_CHARACTERS_END);
     for (i = 0; i < 30; i++)
         ids[i] = i;
     gm_Shuffle(4, ids);
@@ -1568,7 +1568,7 @@ void init_OpenTown(void)
             ncl++;
         }
         c++;
-    } while ((int)&c->kind < (int)&ai_Chars[0x300].kind);
+    } while ((intptr_t)&c->kind < (intptr_t)&ai_Chars[0x300].kind);
     for (i = 0; i < ncl; i++) {
         c = pl[i];
         if (c == 0 || !(c->kind == 6 || c->kind == 7 || c->kind == 5))
@@ -1821,7 +1821,7 @@ void init_OpenTown(void)
                 break;
             c++;
             i++;
-        } while ((int)&c->kind < (int)&ai_Chars[0x300].kind);
+        } while ((intptr_t)&c->kind < (intptr_t)&ai_Chars[0x300].kind);
         memset(&m2, 0, sizeof(m2));
         m2.type = 0x4c;
         m2.to = ai_Chars[i].netId;
@@ -2014,7 +2014,7 @@ int init_InitTown(char *city)
             cm_SendMoveGoods(ai_PlayerChar->netId, -1, i, 200000000);
         p++;
         i++;
-    } while ((int)&p->moneyGood < (int)&ai_PlayerSlots[4].moneyGood);
+    } while ((intptr_t)&p->moneyGood < (intptr_t)&ai_PlayerSlots[4].moneyGood);
     init_CreateOpeningObjects();
     cm_BeginSendGroup();
     init_StockMarketStalls();
@@ -2038,7 +2038,7 @@ int init_InitTown(char *city)
         gm_InitPlayerRecord(i);
         pc++;
         i++;
-    } while ((int)pc < (int)&ai_PlayerSlots[4]);
+    } while ((intptr_t)pc < (intptr_t)&ai_PlayerSlots[4]);
     cm_BeginSendGroup();
     gm_SyncMarket(ai_OwnPlayer);
     cm_EndSendGroup();
@@ -3227,7 +3227,7 @@ void init_SetCharacterAnimations(AIBLD *b)
                             r->names[10], r->names[11], r->names[12], r->names[13], r->names[14], r->names[15]);
         }
         c++;
-    } while ((int)&c->scene < (int)&ai_Chars[INIT_CHARACTER_COUNT].scene);  /* the original walks and compares the model field's address */
+    } while ((intptr_t)&c->scene < (intptr_t)&ai_Chars[INIT_CHARACTER_COUNT].scene);  /* the original walks and compares the model field's address */
 }
 /* 0x513050, enters the scene of the building b (init_ShowBuildingScene): the room object o (the slot of b's object
    list, or 0xfd = the building's own scene) selects the universe (init_ObjectUniverse / init_BuildingUniverse),
@@ -3528,7 +3528,7 @@ void init_AfterTownLoad(void)
                 }
             }
             c++;
-        } while ((int)&c->scene < (int)&ai_Chars[INIT_CHARACTER_COUNT].scene);
+        } while ((intptr_t)&c->scene < (intptr_t)&ai_Chars[INIT_CHARACTER_COUNT].scene);
         if (phase == 1)
             init_TextureSet = 1;
         else if (phase == 0)

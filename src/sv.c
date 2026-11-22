@@ -779,7 +779,7 @@ void sv_SetPanelEnabled(int n)
         if (*q != -1)
             d2_EnableObject(*q, n);
         q++;
-    } while ((int)q < (int)((unsigned)&sv_GroundplanButtons + 0x3c));
+    } while ((intptr_t)q < (intptr_t)((uintptr_t)&sv_GroundplanButtons + 0x3c));
 }
 /* 0x522280, closes the panel widgets (0x46e710, id := -1) and hides the rest */
 
@@ -848,7 +848,7 @@ void sv_DestroyScreen(void)
             *q = -1;
         }
         q++;
-    } while ((int)q < (int)((unsigned)&sv_GroundplanButtons + 0x3c));
+    } while ((intptr_t)q < (intptr_t)((uintptr_t)&sv_GroundplanButtons + 0x3c));
     if (sv_GroundplanSurf != 0) {
         d2_FreeSurface(sv_GroundplanSurf);
         sv_GroundplanSurf = 0;
@@ -1729,7 +1729,7 @@ int sv_CharStateIcons(AICHAR *c, int *out)
     if (job != 0 && job->kind != 0) {
         i = 0;
         p = (int *)(unsigned)&sv_Activities[0].icon;
-        for (; (int)p < (int)((unsigned)&sv_Activities[0].icon + 0x600); p += 8, i++) {
+        for (; (intptr_t)p < (intptr_t)((uintptr_t)&sv_Activities[0].icon + 0x600); p += 8, i++) {
             if (p[-6] == job->kind) {
                 out[n++] = *p;
                 if (p[1] != -1) {
@@ -4340,7 +4340,7 @@ void sv_ClearSelection(void)
     do {
         *q = 0;
         q += 0x21c;
-    } while ((int)q < (int)((unsigned)&ai_Selected + 0x65400));
+    } while ((intptr_t)q < (intptr_t)((uintptr_t)&ai_Selected + 0x65400));
     ai_SelectedCount = 0;
 }
 /* 0x52ae70, "sv_HandleObjects": turns a click into the selection. A pending quick jump (sv_QuickJump.panelFlag) looks up its
@@ -4995,7 +4995,7 @@ void sv_MarkMasterCarts(void)
     for (cart = gm_Query(0, 2, 7, 4, 0x1d); cart != 0; cart = gm_QueryNext()) {
         cart->flags20 = 0;
         /* the original walks the records and ends at the bld field (a signed compare on that address) */
-        for (ch = ai_Chars; (int)&ch->bld < (int)&ai_Chars[768].bld; ch++) {
+        for (ch = ai_Chars; (intptr_t)&ch->bld < (intptr_t)&ai_Chars[768].bld; ch++) {
             if (ch->id != 0xffff && ch->kind == 1 && ch->bld != 0 &&
                 ch->bld->id == cart->bldId && (ch->flags1b4 & 1) != 0)
                 cart->flags20 |= 1;

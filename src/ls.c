@@ -308,7 +308,7 @@ void ls_RefsToIds(void)
             b->object->owner = (void *)b->id;
     }
     d3if_SelectScene(saved, 1);
-    for (p = cm_SendStates; (int)&p->value < (int)&cm_SendStates[0x8000].value; p++) {
+    for (p = cm_SendStates; (intptr_t)&p->value < (intptr_t)&cm_SendStates[0x8000].value; p++) {
         if (p->value != 0) {
             if (p->kind == 1)
                 p->value = ((AICHAR *)p->value)->netId;
@@ -340,7 +340,7 @@ void ls_IdsToRefs(void)
             b->object->owner = b;
     }
     d3if_SelectScene(saved, 1);
-    for (p = cm_SendStates; (int)&p->value < (int)&cm_SendStates[0x8000].value; p++) {
+    for (p = cm_SendStates; (intptr_t)&p->value < (intptr_t)&cm_SendStates[0x8000].value; p++) {
         if (p->value != 0) {
             if (p->kind == 1)
                 p->value = (int)gm_FindChar(p->value);
@@ -2464,7 +2464,7 @@ int ls_FixupAfterLoad(void)
     }
     saved = d3_CurrentScene;
     d3if_SelectScene(0, 0);
-    for (j = he_Events; (int)j < (int)&he_Events[0x400]; j++) {
+    for (j = he_Events; (intptr_t)j < (intptr_t)&he_Events[0x400]; j++) {
         if (j->kind == 0)
             continue;
         if (j->kind == 0x29 || j->kind == 0x2d || j->kind == 0x2f || j->kind == 0x11 || j->kind == 0x25 || j->kind == 5
