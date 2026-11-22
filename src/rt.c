@@ -789,7 +789,7 @@ void rt_CartSettingsDialog(AIOBJ *c, char *win)
 
                 v = c->patrolOn == 0;
                 cm_BeginFieldBlock(c, c->objId);
-                cm_AddFieldValue(1, 1, (char *)c - cm_FieldObject + 0x33, &v);
+                cm_AddFieldValue(1, 1, (char *)&c->patrolOn - cm_FieldObject, &v);
                 cm_SendFieldValues();
             }
         }
@@ -799,7 +799,7 @@ void rt_CartSettingsDialog(AIOBJ *c, char *win)
 
         v = (unsigned char)d2_GetObjValue(sl);
         cm_BeginFieldBlock(c, c->objId);
-        cm_AddFieldValue(1, 1, (char *)c - cm_FieldObject + 0x31, &v);
+        cm_AddFieldValue(1, 1, (char *)&c->patrolLevel - cm_FieldObject, &v);
         cm_SendFieldValues();
     }
     d2_CloseView(w);
@@ -927,7 +927,7 @@ void rt_EditCartRoute(AIOBJ *c)
     if (rt_EditRoute == 0) {
         v = 1;
         cm_BeginFieldBlock(c, c->objId);
-        cm_AddFieldValue(1, 1, (char *)c - cm_FieldObject + 0x33, &v);
+        cm_AddFieldValue(1, 1, (char *)&c->patrolOn - cm_FieldObject, &v);
         cm_SendFieldValues();
         rt_EditRoute = rt_AddPoint(0);
         rt_EditRoute->buildingId = c->bldId;
@@ -996,7 +996,7 @@ void rt_EditCartRoute(AIOBJ *c)
         v = 0;
         cm_SendClearRoute(c);
         cm_BeginFieldBlock(c, c->objId);
-        cm_AddFieldValue(1, 1, (char *)c - cm_FieldObject + 0x33, &v);
+        cm_AddFieldValue(1, 1, (char *)&c->patrolOn - cm_FieldObject, &v);
         cm_SendFieldValues();
     }
     ai_CloseMapWindow((int *)&m);

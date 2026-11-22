@@ -6023,7 +6023,7 @@ int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2)
     cm_SendLongMessage(&m);
     if (b != 0) {
         cm_BeginFieldBlock((AICHAR *)b, b->id);
-        cm_AddFieldValues(4, 1, (char *)b - cm_FieldObject + 0x39, &v);
+        cm_AddFieldValues(4, 1, (char *)&b->budget - cm_FieldObject, &v);
         cm_SendFieldDeltas();
     }
     cm_EndGroup("AI Kredit");

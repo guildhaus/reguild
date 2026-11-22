@@ -287,7 +287,7 @@ char cm_FightWeaponLoss(AICHAR *ch)
             v = -neg;
             cm_DiscardWeapons(c);
             cm_BeginFieldBlock(c, c->netId);
-            cm_AddFieldValues(1, 1, (int)((char *)c - cm_FieldObject) + 0x1c5, &v);
+            cm_AddFieldValues(1, 1, (char *)&c->b1c5 - cm_FieldObject, &v);
             cm_SendFieldDeltas();
             if (c->bld != 0 && c->bld->owner != 0xffff) {
                 owner = &ai_Chars[c->bld->owner];
@@ -302,7 +302,7 @@ char cm_FightWeaponLoss(AICHAR *ch)
             return 1;
         }
         cm_BeginFieldBlock(c, c->netId);
-        cm_AddFieldValues(1, 1, (int)((char *)c - cm_FieldObject) + 0x1c5, &v);
+        cm_AddFieldValues(1, 1, (char *)&c->b1c5 - cm_FieldObject, &v);
         cm_SendFieldDeltas();
         cm_SendSetField(c->netId, 0x1c8, 4, 0, 0x20000000);
     }
@@ -1818,7 +1818,7 @@ int cm_FreeNetIdSlot(int *a)
 /* arms the next guard: takes the first free slot i of rec, the character ai_KindBChars[i] gives up its weapons and
    gets the item ITEM, loses its v024 health and its skill sk83 is set to SKILL (a field delta of the character).
    The original repeats this code inline (the four copies of 0x4d0cf0 reload ai_KindBChars[i] each time) */
-#define CM_ARM_GUARD(ITEM, SKILL)                                                                             i = cm_FreeNetIdSlot(rec->fight.defenders);                                                                           rec->fight.defenders[i] = ai_KindBChars[i]->netId;                                                               cm_DiscardWeapons(ai_KindBChars[i]);                                                            cm_SendExSellObject(ai_KindBChars[i]->netId, -1, ITEM, 1, ai_OwnPlayer, 0);                              gm_AddHealth(ai_KindBChars[i]->id, -ai_KindBChars[i]->v024);                                            skill = SKILL;                                                                                            cm_BeginFieldBlock(ai_KindBChars[i], ai_KindBChars[i]->netId);                                  cm_AddFieldDelta(1, 1, (unsigned short)((char *)ai_KindBChars[i] - cm_FieldObject + 0x83), &skill);      cm_SendFieldDeltas()
+#define CM_ARM_GUARD(ITEM, SKILL)                                                                             i = cm_FreeNetIdSlot(rec->fight.defenders);                                                                           rec->fight.defenders[i] = ai_KindBChars[i]->netId;                                                               cm_DiscardWeapons(ai_KindBChars[i]);                                                            cm_SendExSellObject(ai_KindBChars[i]->netId, -1, ITEM, 1, ai_OwnPlayer, 0);                              gm_AddHealth(ai_KindBChars[i]->id, -ai_KindBChars[i]->v024);                                            skill = SKILL;                                                                                            cm_BeginFieldBlock(ai_KindBChars[i], ai_KindBChars[i]->netId);                                  cm_AddFieldDelta(1, 1, (unsigned short)((char *)&ai_KindBChars[i]->sk83 - cm_FieldObject), &skill);      cm_SendFieldDeltas()
 
 /* 0x4d0cf0, arms the guards of the town gate event: kind 1 two guards with the item 0x156 (sk83 = 0xa8), kinds 2 / 3
    one with 0x158 and one with 0x160 (sk83 = 0xd2); a nonzero kind is kept in rec->fight.escort (the fight party of the ambush,
@@ -3076,7 +3076,7 @@ void cm_HitAction(CHACTION *a)
         if (item != 0) {
             int v = -1;
             cm_BeginFieldBlock(item, item->objId);
-            cm_AddFieldValues(4, 1, (unsigned short)((char *)item - cm_FieldObject + 0x20), &v);
+            cm_AddFieldValues(4, 1, (unsigned short)((char *)&item->usesLeft - cm_FieldObject), &v);
             cm_SendFieldDeltas();
         }
     }

@@ -84,7 +84,6 @@ typedef struct INIT_TORCHLIST {
 #define INIT_CHARACTER_COUNT 0x300      /* ch.h's CH_MAX: the slots of the character list ch_List (0x1468ae0) */
 #define INIT_START_CHARACTERS_END ((intptr_t)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
 #define INIT_FIELD_MONEY 0x1ac          /* the character's money field (the field block of the start purse) */
-#define INIT_FIELD_RELIGION 0x0c        /* the character's religion field: 0 catholic / 1 protestant (the two judges) */
 
 /* the functions of f3gm.c this unit calls (declared by their addresses there) */
 int gm_IsBuildingKind(int n);           /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
@@ -749,7 +748,7 @@ void init_LoadBuildingScene(int k)
    record of the kinds 0 .. 4 gets a start purse (the field INIT_FIELD_MONEY: rand() & 0xffff + 10 through the
    player factor) as a field block of its own. Then the two judges are created (kind 0xc, money 0x12) in one
    send group and fetched back through their send slots as ai_JudgeCatholic / ai_JudgeProtestant, whose
-   religion field INIT_FIELD_RELIGION is set to 0 / 1 in a second group; eight characters of the kind 0
+   religion field (AICHAR.faith) is set to 0 / 1 in a second group; eight characters of the kind 0
    (money rand(8) + 0x10, the 6th argument rand(3) + 4) follow in a third and eight of the kind 0xb (the 7th
    argument 0x13, each one also announced as a trade message from object -2) in a fourth; every group is
    waited for by pumping the queue. The message senders leave their send slot in eax where cm.h's prototypes
@@ -793,11 +792,11 @@ void init_StartNewGame(int unused)
     cm_BeginSendGroup();
     m = 0;
     cm_BeginFieldBlock(ai_JudgeCatholic, ai_JudgeCatholic->netId);
-    cm_AddFieldDelta(1, 1, ((char *)ai_JudgeCatholic - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
+    cm_AddFieldDelta(1, 1, (char *)&ai_JudgeCatholic->faith - cm_FieldObject, &m);
     cm_SendFieldDeltas();
     m = 1;
     cm_BeginFieldBlock(ai_JudgeProtestant, ai_JudgeProtestant->netId);
-    cm_AddFieldDelta(1, 1, ((char *)ai_JudgeProtestant - cm_FieldObject) + INIT_FIELD_RELIGION, &m);
+    cm_AddFieldDelta(1, 1, (char *)&ai_JudgeProtestant->faith - cm_FieldObject, &m);
     cm_SendFieldDeltas();
     cm_EndSendGroup();
     i = cm_SendGroupState();
@@ -1305,9 +1304,9 @@ void init_StockMarketStalls(void)
                     n++;
             }
             cm_BeginFieldBlock(st, st->objId);
-            cm_AddFieldDelta(1, 1, (char *)st - cm_FieldObject + 0x1c, &n);
+            cm_AddFieldDelta(1, 1, (char *)&st->kindData - cm_FieldObject, &n);
             n = 4;
-            cm_AddFieldDelta(4, 1, (char *)st - cm_FieldObject + 0xe, &n);
+            cm_AddFieldDelta(4, 1, (char *)&st->count - cm_FieldObject, &n);
             cm_SendFieldDeltas();
             for (i = 0; i < 0x10; i++) {
                 if (ai_PlayerSlots[owner].import[i] != 0) {
@@ -1324,9 +1323,9 @@ void init_StockMarketStalls(void)
                     n++;
             }
             cm_BeginFieldBlock(st, st->objId);
-            cm_AddFieldDelta(1, 1, (char *)st - cm_FieldObject + 0x1c, &n);
+            cm_AddFieldDelta(1, 1, (char *)&st->kindData - cm_FieldObject, &n);
             n = 4;
-            cm_AddFieldDelta(4, 1, (char *)st - cm_FieldObject + 0xe, &n);
+            cm_AddFieldDelta(4, 1, (char *)&st->count - cm_FieldObject, &n);
             cm_SendFieldDeltas();
             for (i = 0; i < 0x10; i++) {
                 if (ai_PlayerSlots[owner].export[i] != 0) {
@@ -2602,7 +2601,7 @@ void init_GiveFirstPlayerBuildings(void)
             ai_BTypes[b->type].kind != 0xb) {
             int v = 64000;
             cm_BeginFieldBlock(b, b->id);
-            cm_AddFieldDelta(4, 1, (char *)b - cm_FieldObject + 0x39, &v);
+            cm_AddFieldDelta(4, 1, (char *)&b->budget - cm_FieldObject, &v);
             cm_SendFieldDeltas();
             cm_SendOwnership(b->id, c->netId, c->netId);
             cm_SendMessage3d(b, 1, 0, ai_BTypes[b->type].jobs[0]);

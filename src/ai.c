@@ -2240,7 +2240,7 @@ void ai_CalcMeisterBank(AICHAR *ch)
         else
             v = ch->bld->interest + 1;
         cm_BeginFieldBlock(ch->bld, ch->bld->id);
-        cm_AddFieldDelta(4, 1, (short)ch->bld - (short)cm_FieldObject + 0x65, &v);
+        cm_AddFieldDelta(4, 1, (char *)&ch->bld->interest - cm_FieldObject, &v);
         cm_SendFieldDeltas();
     } else if (n == 0) {
         if (ch->bld->interest > rate.cur - 2) {
@@ -2250,7 +2250,7 @@ void ai_CalcMeisterBank(AICHAR *ch)
             if (v < 4)
                 v = 4;
             cm_BeginFieldBlock(ch->bld, ch->bld->id);
-            cm_AddFieldDelta(4, 1, (short)ch->bld - (short)cm_FieldObject + 0x65, &v);
+            cm_AddFieldDelta(4, 1, (char *)&ch->bld->interest - cm_FieldObject, &v);
             cm_SendFieldDeltas();
         }
     } else if (n > 3 && ch->bld->interest < rate.cur) {
@@ -2258,7 +2258,7 @@ void ai_CalcMeisterBank(AICHAR *ch)
         if (v >= rate.cur + 3)
             v = rate.cur + 3;
         cm_BeginFieldBlock(ch->bld, ch->bld->id);
-        cm_AddFieldDelta(4, 1, (short)ch->bld - (short)cm_FieldObject + 0x65, &v);
+        cm_AddFieldDelta(4, 1, (char *)&ch->bld->interest - cm_FieldObject, &v);
         cm_SendFieldDeltas();
     }
     sum = 0;
@@ -5125,7 +5125,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
             v = 4;
             if (o->reserve != v) {
                 cm_BeginFieldBlock(o, o->objId);
-                cm_AddFieldDelta(4, 1, (char *)o - cm_FieldObject + 0x1c, &v);
+                cm_AddFieldDelta(4, 1, (char *)&o->reserve - cm_FieldObject, &v);
                 cm_SendFieldDeltas();
             }
         }
@@ -5137,7 +5137,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                 && o->reserve != 0) {
                 v = 0;
                 cm_BeginFieldBlock(o, o->objId);
-                cm_AddFieldDelta(4, 1, (char *)o - cm_FieldObject + 0x1c, &v);
+                cm_AddFieldDelta(4, 1, (char *)&o->reserve - cm_FieldObject, &v);
                 cm_SendFieldDeltas();
             }
         }
