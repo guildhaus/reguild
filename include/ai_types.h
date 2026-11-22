@@ -1150,6 +1150,27 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             char groupPadad;
             unsigned short groupGood;       /* 0xae, the good searched for */
         };
+        struct {                        /* of the trial-punishment events 0x5b (the fine, he_RunFinePayment) and 0x5c (the
+                                           pillory, he_RunPilloryPunishment; their alloc handler he_AllocPunishment) */
+            int punishAmount;               /* 0xac, the amount of each payment (the message's first argument): taken from
+                                           the character by the fine, the negated income of the pillory's AP event */
+            int punishDays;                 /* 0xb0, the payments left (the message's second argument), counted down */
+        };
+        struct {                        /* of the simulation events 0x66 (he_RunAccidentSim), 0x68 (the inn) and 0x70 (the
+                                           disease twin of 0x66); their alloc handlers clear them */
+            int simCursor;                  /* 0xac, the ai_Chars index the next run starts at */
+            int simStep;                    /* 0xb0, the stride through ai_Chars, one of 16 numbers prime to 0x300; 0: not
+                                           started (the next run picks one and a random cursor) */
+            int simDone;                    /* 0xb4, the characters visited this round */
+        };
+        struct {                        /* of an event that orders a transport (AIJOB.transportOrder): the building ids it
+                                           names, which he_AllocTransport moves to a replaced goal */
+            char orderPadac[4];
+            int orderBld;                   /* 0xb0 */
+            char orderPadb4[4];
+            int orderStopsB8[3];            /* 0xb8 */
+            int orderStopsC4[3];            /* 0xc4 */
+        };
         char tail[0xa0];                /* 0xac..0x14b whole: the message's words from +0x58 as the event takes them
                                            (he_CreateEvent) and message 0x1d sends and takes them (cm_SendExSetHE / cm_ExSetHE),
                                            as the save writes them (ls.c) */

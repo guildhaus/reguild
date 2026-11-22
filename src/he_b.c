@@ -101,14 +101,6 @@ typedef union HESOLDMSG {               /* the data of the sys message 4 he_RunS
     } sold;
     char data[0x7c];                    /* the 0x7c bytes cm_SendExSysMessage copies into its message */
 } HESOLDMSG;
-typedef struct HEROUTEREFS {            /* the building ids an ordering event names (AIJOB.transportOrder): he_AllocTransport
-                                           moves a replaced goal in them */
-    char pad00[0xb0];
-    int bld;                            /* 0xb0 */
-    char padb4[4];
-    int stopsB8[3];                     /* 0xb8 */
-    int stopsC4[3];                     /* 0xc4 */
-} HEROUTEREFS;
 #define HE_WALK_PARTNERS1 0x20a0        /* the two partner masks of he_FillWalkSlot's ai_FindPartnersRandomWalk (bits not read yet) */
 #define HE_WALK_PARTNERS2 0x402c20
 #define HE_WALK_BUILDINGS 0x1a7f4c3a0i64 /* the building kinds of a walk (bit k: ai_BTypes kind k; he_StepWalk tests the same mask) */
@@ -171,27 +163,11 @@ int he_RegisterEventTypeA2();
 #include "amt.h"
 #include "mission.h"
 #include "rmsg.h"
-typedef struct HEPUNISHMENT {            /* the trial-punishment events 0x5b (fine, he_RunFinePayment) and 0x5c (pillory,
-                                           he_RunPilloryPunishment)'s words over AIJOB's union (their shared alloc handler
-                                           he_AllocPunishment): the amount of each payment and the payments left */
-    char pad00[0xac];
-    int amount;                         /* 0xac, the amount of each payment (the message's first argument): taken from the
-                                           character by the fine, the negated income of the pillory's AP event */
-    int days;                           /* 0xb0, the payments left (the message's second argument), counted down */
-} HEPUNISHMENT;
 typedef struct HEBARDSCRIPT {           /* the bard's script as he_RunBard marks it: 'DrBh' over the first bytes of its name */
     unsigned int mark;                  /* 0x00 */
 } HEBARDSCRIPT;
 #define HE_BARD_MARK 0x68427244         /* 'DrBh' */
 #define HE_LOVER_FLAG 0x800000          /* AICHAR.flags1c8: has a keeper (he_StartLover sets it, he_RunLover clears it) */
-typedef struct HESIM {                  /* the words of the simulation events 0x66 (he_RunAccidentSim) and 0x70 over
-                                           AIJOB's union (their alloc handler 0x54c4c0 clears them) */
-    char pad00[0xac];
-    int cursor;                         /* 0xac, the ai_Chars index the next run starts at */
-    int step;                           /* 0xb0, the stride through ai_Chars, one of 16 numbers prime to 0x300; 0: not
-                                           started (the next run picks one and a random cursor) */
-    int done;                           /* 0xb4, the characters visited this round */
-} HESIM;
 typedef struct HEAHMRECIPE {            /* the first word of ahm_RandomRecipe's AHMGRID entry (ahm.h, not included here) */
     int id;                             /* 0x00, RCPID: the recipe's object id */
 } HEAHMRECIPE;

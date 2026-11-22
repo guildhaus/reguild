@@ -25,7 +25,7 @@
    message AIMSG.exam), the conversion event 0x81 (AIJOB.convert*), the applicants event 0x86 (AIJOB.applicants*),
    the office award 0xa5 (AIJOB.award*), the watch event 0x43 with the attack's question (AIJOB.patrolGuards / patrolWait / HEDETECT), the
    sale 2 (AIJOB.sale*, its sys message 4 HESOLDMSG), the customers / hire events 6 / 7 (AIJOB.customers* / AIJOB.hire*), the
-   transport event 15 with its four legs (AIJOB.transport*; the cart's CHARACTER, the ordering event's HEROUTEREFS),
+   transport event 15 with its four legs (AIJOB.transport*; the cart's CHARACTER, the ordering event's AIJOB.orderBld / orderStops*),
    the cart repair 16 (AIJOB.cartRepair*), the message box 17 (AIJOB.msgBox*, the party G28REC) and the slot order 18
    (AIJOB.slotOrder*), and the events 19 .. 25 that follow: the store extension (AIJOB.storeExt*), herb gathering (AIJOB.herbs*),
    animal hunt (AIJOB.hunt*), study (AIJOB.study*), the event 0x17 (AIJOB.ev17*), spying (AIJOB.spying*) and sabotage (AIJOB.sabotage*), and the brawl 26
@@ -40,11 +40,11 @@
    The event and message words are read typed, except the kind-specific words over AIJOB's union the
    local views name: AIJOB.inn* (the meeting event 0x2a at +0xac .. +0xc0), AIJOB.offer* (the offer event 0x2c and the
    master exam 0x2f: offerWho[] at +0xac, offerAt at +0xc4 / +0xc5, offerHandle at +0xd4), AIJOB.duel* (the duel challenge's +0xac and the duel's
-   +0xb4 / +0xb6), AIJOB.geselle* / AIJOB.examPay* / AIJOB.payment* / HEPUNISHMENT / AIJOB.offspring* / AIJOB.trial* / AIJOB.trialStep* / AIJOB.train* /
+   +0xb4 / +0xb6), AIJOB.geselle* / AIJOB.examPay* / AIJOB.payment* / AIJOB.punish* / AIJOB.offspring* / AIJOB.trial* / AIJOB.trialStep* / AIJOB.train* /
    AIJOB.plague* / AIJOB.gang* (the events 0x4a / 0x55 / 0x56 / 0x5b / 0x5c / 0x5d / 0x5e / 0x5f / 0x60 / 0x59 / 0x61; the fine
    0x5b and the pillory 0x5c are the trial's sentences of gv_PassSentence), AIMSG.fee / skillLevel /
    plague (the AI messages 0x56 / 0x6a / 0x78), AIJOB.protection* / AIJOB.audit* / AIJOB.gathering* /
-   HESIM / AIJOB.auction* / AIJOB.title* (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), AIJOB.skillUp* /
+   AIJOB.sim* / AIJOB.auction* / AIJOB.title* (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), AIJOB.skillUp* /
    AIJOB.bard* / AIJOB.population* / AIJOB.lover* / AIJOB.darkCorner* (the events 0x6a / 0x6b / 0x6d / 0x6f / 0x74; the bard's script
    mark HEBARDSCRIPT; the dark corner's proofs / year are AIOBJ.recs / cornerYear), HEINN (the inn
    simulation's list), the tutorial / tip / routine / storm / new-worker / production / trade words in AIJOB.hint*,
@@ -180,14 +180,6 @@ typedef union HESOLDMSG {               /* the data of the sys message 4 he_RunS
     } sold;
     char data[0x7c];                    /* the 0x7c bytes cm_SendExSysMessage copies into its message */
 } HESOLDMSG;
-typedef struct HEROUTEREFS {            /* the building ids an ordering event names (AIJOB.transportOrder): he_AllocTransport
-                                           moves a replaced goal in them */
-    char pad00[0xb0];
-    int bld;                            /* 0xb0 */
-    char padb4[4];
-    int stopsB8[3];                     /* 0xb8 */
-    int stopsC4[3];                     /* 0xc4 */
-} HEROUTEREFS;
 #define HE_WALK_PARTNERS1 0x20a0        /* the two partner masks of he_FillWalkSlot's ai_FindPartnersRandomWalk (bits not read yet) */
 #define HE_WALK_PARTNERS2 0x402c20
 #define HE_WALK_BUILDINGS 0x1a7f4c3a0i64 /* the building kinds of a walk (bit k: ai_BTypes kind k; he_StepWalk tests the same mask) */
@@ -253,27 +245,11 @@ int he_RegisterEventTypeA2();
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 #define util_RandomInt ((int (*)(unsigned short))util_Random)  /* 0x42ec00 as tr.c defines it (the headers declare it unsigned short): @original he_RunInnSim reads the full int result (util_Random(4) + 3, no 16-bit mask); every other caller of this unit reads 16 bits */
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: he_AllocTheft pushes only the list */
-typedef struct HEPUNISHMENT {            /* the trial-punishment events 0x5b (fine, he_RunFinePayment) and 0x5c (pillory,
-                                           he_RunPilloryPunishment)'s words over AIJOB's union (their shared alloc handler
-                                           he_AllocPunishment): the amount of each payment and the payments left */
-    char pad00[0xac];
-    int amount;                         /* 0xac, the amount of each payment (the message's first argument): taken from the
-                                           character by the fine, the negated income of the pillory's AP event */
-    int days;                           /* 0xb0, the payments left (the message's second argument), counted down */
-} HEPUNISHMENT;
 typedef struct HEBARDSCRIPT {           /* the bard's script as he_RunBard marks it: 'DrBh' over the first bytes of its name */
     unsigned int mark;                  /* 0x00 */
 } HEBARDSCRIPT;
 #define HE_BARD_MARK 0x68427244         /* 'DrBh' */
 #define HE_LOVER_FLAG 0x800000          /* AICHAR.flags1c8: has a keeper (he_StartLover sets it, he_RunLover clears it) */
-typedef struct HESIM {                  /* the words of the simulation events 0x66 (he_RunAccidentSim) and 0x70 over
-                                           AIJOB's union (their alloc handler 0x54c4c0 clears them) */
-    char pad00[0xac];
-    int cursor;                         /* 0xac, the ai_Chars index the next run starts at */
-    int step;                           /* 0xb0, the stride through ai_Chars, one of 16 numbers prime to 0x300; 0: not
-                                           started (the next run picks one and a random cursor) */
-    int done;                           /* 0xb4, the characters visited this round */
-} HESIM;
 typedef struct HEAHMRECIPE {            /* the first word of ahm_RandomRecipe's AHMGRID entry (ahm.h, not included here) */
     int id;                             /* 0x00, RCPID: the recipe's object id */
 } HEAHMRECIPE;
@@ -5264,16 +5240,15 @@ void he_RunRepostEvent(AIJOB *e)
 
 void he_RunFinePayment(AIJOB *e)
 {
-    HEPUNISHMENT *p = (HEPUNISHMENT *)e;
     int st = e->stage;
 
     if (st >= -2) {
         if (st >= 0) {
             if (st != 0)
                 return;
-            cm_SendMoveGoods(-1, ai_Chars[e->chr].netId, ai_OwnPlayer, p->amount);
-            p->days = p->days - 1;
-            if (p->days != 0) {
+            cm_SendMoveGoods(-1, ai_Chars[e->chr].netId, ai_OwnPlayer, e->punishAmount);
+            e->punishDays = e->punishDays - 1;
+            if (e->punishDays != 0) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0x18, 0, 0);
                 return;
@@ -5298,16 +5273,15 @@ void he_AllocPunishment(AIJOB *e)
 
 void he_RunPilloryPunishment(AIJOB *e)
 {
-    HEPUNISHMENT *p = (HEPUNISHMENT *)e;
     int st = e->stage;
 
     if (st >= -2) {
         if (st >= 0) {
             if (st != 0)
                 return;
-            he_AddApEvent(e->chr, txt_Ptrs[TXT_PILLORY_PUNISHMENT], -p->amount, 0);
-            p->days = p->days - 1;
-            if (p->days != 0) {
+            he_AddApEvent(e->chr, txt_Ptrs[TXT_PILLORY_PUNISHMENT], -e->punishAmount, 0);
+            e->punishDays = e->punishDays - 1;
+            if (e->punishDays != 0) {
                 e->end = ai_Time;
                 gm_AddTime(&e->end, 0x18, 0, 0);
                 return;
@@ -6669,19 +6643,18 @@ void he_RunGathering(AIJOB *e)
     }
 }
 /* 0x54c4c0, the allocation handler of the simulation events 0x66 (the accident simulation) and 0x70 (the disease
-   simulation): the due clock is now at hour 0xa with its minute and second cleared, and HESIM's cursor, step and
+   simulation): the due clock is now at hour 0xa with its minute and second cleared, and AIJOB.simCursor, simStep and
    done are cleared (the run starts at the first character) */
 void he_AllocSim(AIJOB *e)
 {
-    HESIM *s = (HESIM *)e;
 
     e->end = ai_Time;
     e->end.hour = 0xa;
     e->end.min = 0;
     e->end.sec = 0;
-    s->cursor = 0;
-    s->step = 0;
-    s->done = 0;
+    e->simCursor = 0;
+    e->simStep = 0;
+    e->simDone = 0;
 }
 
 
@@ -6703,7 +6676,7 @@ int he_IsAtWork(AICHAR *rec)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-/* 0x54c570, a Ghidra miss: the run handler of the work accident simulation, event 0x66 (HESIM; the text
+/* 0x54c570, a Ghidra miss: the run handler of the work accident simulation, event 0x66 (AIJOB.sim*; the text
    "RunSimUnfall: calculating at <Day ..>" is formatted and never shown). Freed (stage -2) it frees the event.
    A round starts with a random stride of 16 numbers prime to 0x300 and a random first character; each run (stage
    0) visits the next 12 characters of the round: a worker at its building (he_IsAtWork) whose building has an
@@ -6713,7 +6686,6 @@ int he_IsAtWork(AICHAR *rec)
    30 minutes, the next day at 10:00 once that is 18:00 or later */
 void he_RunAccidentSim(AIJOB *e)
 {
-    HESIM *s = (HESIM *)e;
     AIBLD *b;
     int n, cur, skill;
     float roll, lim, health;
@@ -6725,7 +6697,7 @@ void he_RunAccidentSim(AIJOB *e)
         return;
     }
     txt_Format(text, (intptr_t)"-------> RunSimUnfall: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
-    if (s->step == 0) {
+    if (e->simStep == 0) {
         primes[0] = 1;
         primes[1] = 3;
         primes[2] = 5;
@@ -6742,12 +6714,12 @@ void he_RunAccidentSim(AIJOB *e)
         primes[13] = 0x2fb;
         primes[14] = 0x2fd;
         primes[15] = 0x2ff;
-        s->step = primes[util_Random(0x10)];
-        s->cursor = util_Random(0x300);
+        e->simStep = primes[util_Random(0x10)];
+        e->simCursor = util_Random(0x300);
     }
     if (e->stage != 0)
         return;
-    cur = s->cursor;
+    cur = e->simCursor;
     for (n = 12; n != 0; n--) {
         if (he_IsAtWork(&ai_Chars[cur]) != 0 && ai_Chars[cur].bld->owner != 0xffff) {
             roll = util_RandomF() * 100.0f;
@@ -6759,14 +6731,14 @@ void he_RunAccidentSim(AIJOB *e)
                 he_CharAccident(e, &ai_Chars[cur], &ai_Chars[b->owner], b, health, 0);
             }
         }
-        cur = (s->step + cur) % 0x300;
-        s->done++;
+        cur = (e->simStep + cur) % 0x300;
+        e->simDone++;
     }
-    s->cursor = cur;
-    if (s->done >= 0x300) {
-        s->cursor = 0;
-        s->step = 0;
-        s->done = 0;
+    e->simCursor = cur;
+    if (e->simDone >= 0x300) {
+        e->simCursor = 0;
+        e->simStep = 0;
+        e->simDone = 0;
         e->end.year++;
         e->end.min = 0;
         e->end.hour = 0xa;
@@ -7048,19 +7020,18 @@ void he_RunTitleCeremony(AIJOB *e)
         return;
     }
 }
-/* 0x54d190, the allocation handler of the inn simulation event 0x68 ("SIM_WIRTSHAUS"; HESIM's cursor): the due clock
-   is now at 22:30 with its second cleared, and HESIM's cursor and step are cleared (the round starts at the first
+/* 0x54d190, the allocation handler of the inn simulation event 0x68 ("SIM_WIRTSHAUS"; AIJOB.simCursor): the due clock
+   is now at 22:30 with its second cleared, and AIJOB.simCursor and step are cleared (the round starts at the first
    character) */
 void he_StartInnSim(AIJOB *e)
 {
-    HESIM *s = (HESIM *)e;
 
     e->end = ai_Time;
     e->end.hour = 0x16;
     e->end.min = 0x1e;
     e->end.sec = 0;
-    s->cursor = 0;
-    s->step = 0;
+    e->simCursor = 0;
+    e->simStep = 0;
 }
 
 
@@ -7114,7 +7085,7 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
     cm_EndGroup("SIM_WIRTSHAUS");                                                               \
     HE_INN_GUEST(r);                                                                            \
 }
-/* 0x54d260, a Ghidra miss: the run handler of the inn simulation, event 0x68 ("SIM_WIRTSHAUS"; HESIM's cursor).
+/* 0x54d260, a Ghidra miss: the run handler of the inn simulation, event 0x68 ("SIM_WIRTSHAUS"; AIJOB.simCursor).
    Freed (stage -2) it frees the event. It lists up to 16 inns (buildings of kind 0x16) with their bar object (kind
    0x2a, 6) and its two drinks (the goods 0x179 / 0x17a, 0: none); each run (stage 0) visits the next 0x180
    characters: one sitting in an inn (he_FindGuestInn) whose wealth (gm_GetGoodsValue) is above 0.65 * the dearer
@@ -7127,7 +7098,6 @@ int he_FindGuestInn(AICHAR *rec, HEINN *tab, int *out)
 void he_RunInnSim(AIJOB *e)
 {
     unsigned int first;
-    HESIM *s = (HESIM *)e;
     HEINN inns[16];
     int i, n, end, idx, wealth, price1, price2, lim, guests;
 
@@ -7150,7 +7120,7 @@ void he_RunInnSim(AIJOB *e)
     }
     if (e->stage != 0)
         return;
-    first = s->cursor;
+    first = e->simCursor;
     end = first + 0x180;
     for (i = first; i < end; i++) {
         if (he_FindGuestInn(&ai_Chars[i], inns, &idx) == 0)
@@ -7176,10 +7146,10 @@ void he_RunInnSim(AIJOB *e)
             }
         }
     }
-    s->cursor = end;
+    e->simCursor = end;
     if (end >= 0x300) {
-        s->cursor = 0;
-        s->step = 0;
+        e->simCursor = 0;
+        e->simStep = 0;
         e->end.year++;
         e->end.hour = 0x16;
         e->end.min = 0x1e;
@@ -7729,7 +7699,7 @@ int he_IsSimCandidate(AICHAR *rec)
         return 1;
     return ai_CanAct(rec) != 0;
 }
-/* 0x54ebd0, the run handler of the disease simulation, event 0x70 (HESIM, the twin of he_RunAccidentSim; the text
+/* 0x54ebd0, the run handler of the disease simulation, event 0x70 (AIJOB.sim*, the twin of he_RunAccidentSim; the text
    "RunSimKrankheiten: calculating at <Day ..>" is formatted and never shown). Freed (stage -2) it frees the event.
    A round starts with a random stride of 16 numbers prime to 0x300 and a random first character; each run (stage
    0) visits the next 12 characters of the round: a candidate (he_IsSimCandidate) falls ill when a roll of 0 .. 100
@@ -7740,7 +7710,6 @@ int he_IsSimCandidate(AICHAR *rec)
    minutes, the next day at 10:00 once that is 18:00 or later */
 void he_RunDiseaseSim(AIJOB *e)
 {
-    HESIM *s = (HESIM *)e;
     AICHAR *c;
     AIBLD *b;
     int n, cur, kind;
@@ -7753,7 +7722,7 @@ void he_RunDiseaseSim(AIJOB *e)
         return;
     }
     txt_Format(text, (intptr_t)"-------> RunSimKrankheiten: calculating at <Day = %i Time = %i.2:%i.2>", ai_Time.year, ai_Time.hour, ai_Time.min);
-    if (s->step == 0) {
+    if (e->simStep == 0) {
         primes[0] = 1;
         primes[1] = 3;
         primes[2] = 5;
@@ -7770,12 +7739,12 @@ void he_RunDiseaseSim(AIJOB *e)
         primes[13] = 0x2fb;
         primes[14] = 0x2fd;
         primes[15] = 0x2ff;
-        s->step = primes[util_Random(0x10)];
-        s->cursor = util_Random(0x300);
+        e->simStep = primes[util_Random(0x10)];
+        e->simCursor = util_Random(0x300);
     }
     if (e->stage != 0)
         return;
-    cur = s->cursor;
+    cur = e->simCursor;
     for (n = 12; n != 0; n--) {
         c = &ai_Chars[cur];
         if (he_IsSimCandidate(c) != 0) {
@@ -7801,15 +7770,15 @@ void he_RunDiseaseSim(AIJOB *e)
                 }
             }
         }
-        cur = (s->step + cur) % 0x300;
-        s->done++;
+        cur = (e->simStep + cur) % 0x300;
+        e->simDone++;
     }
-    s->cursor = cur;
-    if (s->done >= 0x300) {
+    e->simCursor = cur;
+    if (e->simDone >= 0x300) {
         e->end.hour = 0xa;
-        s->cursor = 0;
-        s->step = 0;
-        s->done = 0;
+        e->simCursor = 0;
+        e->simStep = 0;
+        e->simDone = 0;
         e->end.year++;
         return;
     }
@@ -10496,7 +10465,7 @@ void he_AllocTransport(AIJOB *e)
     AIJOB *t = e;
     AIOBJ *o;
     AIBLD *from, *to, *b, *best, *drv;
-    HEROUTEREFS *r;
+    AIJOB *r;
     CHARACTER *ch;
     int home1, home2, k, skill, pay;
     float mind, dist, dx, dy, dz;
@@ -10537,16 +10506,16 @@ void he_AllocTransport(AIJOB *e)
         }
         if (best != to) {
             if (t->transportOrder != 0 && t->transportOrder != -1) {
-                r = (HEROUTEREFS *)he_FindEvent(1, 1, t->transportOrder);
+                r = he_FindEvent(1, 1, t->transportOrder);
                 if (r != 0) {
                     for (k = 0; k < 3; k++) {
-                        if (r->stopsC4[k] == to->id)
-                            r->stopsC4[k] = best->id;
-                        if (r->stopsB8[k] == to->id)
-                            r->stopsB8[k] = best->id;
+                        if (r->orderStopsC4[k] == to->id)
+                            r->orderStopsC4[k] = best->id;
+                        if (r->orderStopsB8[k] == to->id)
+                            r->orderStopsB8[k] = best->id;
                     }
-                    if (r->bld == to->id)
-                        r->bld = best->id;
+                    if (r->orderBld == to->id)
+                        r->orderBld = best->id;
                 }
             }
             t->transportGoal = best->id;
