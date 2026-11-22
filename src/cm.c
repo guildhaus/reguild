@@ -4707,7 +4707,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             o = d3_FindObject(0, 0x100, 0, m->go.text);
         else if (to->object != 0) {
             if (p->transport != 0)
-                o = (D3OBJECT *)he_RandomTransporter(to->object);
+                o = he_RandomTransporter(to->object);
             else {
                 o = d3_FindObject((int)to->object, 0x100, 0, "dummy_TUER");
                 if (o == 0)

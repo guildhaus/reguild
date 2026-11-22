@@ -193,7 +193,7 @@ int he_NoEvent4bPair(struct AICHAR *a, struct AICHAR *b);  /* 0x553d60 */
 int he_EventOnBuilding(int owner);  /* 0x56f170 */
 int he_NoEvent88Pair(struct AICHAR *a, struct AICHAR *b);  /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character and a's netId as its victim */
 int he_IsMessageKindFiltered(int id);  /* 0x575640 */
-int he_RandomTransporter(struct D3OBJECT *obj);  /* 0x555210 */
+struct D3OBJECT *he_RandomTransporter(struct D3OBJECT *obj);  /* 0x555210 */
 struct AIJOB *ai_FindCurseEvent(struct AIBLD *a);  /* 0x5741d0 */
 int he_HasGraveWork(struct AIBLD *bld, int size, int index);  /* 0x573200, 1 when a work event 0x8d of bld is pending on the grave (size, index) */
 int he_NoEvent35Pair(unsigned short *a, struct AICHAR *b, int *count);  /* 0x553db0 */

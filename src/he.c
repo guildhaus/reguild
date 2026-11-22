@@ -11505,40 +11505,48 @@ void he_AllocTransport(AIJOB *e)
 fail:
     he_FreeEvent(e);
 }
-/* 0x5551c0, an object callback of 0x438d40: objects whose name contains "dummy_TRANSPORTER" are collected into the context (32 pointers, +0x80 the count); returns 1 while there is room */
+typedef struct HETRANSPORTERS {        /* the transporter dummies he_RandomTransporter collects (0x84 bytes) */
+    struct D3OBJECT *obj[0x20];         /* 0x00 */
+    int n;                              /* 0x80, the count */
+} HETRANSPORTERS;
+
+/* 0x5551c0, an object callback of 0x438d40: objects whose name contains "dummy_TRANSPORTER" are collected into the
+   context (an HETRANSPORTERS); returns 1 while there is room */
 
 
-char he_CollectTransporter(char *name, int *ctx)
+char he_CollectTransporter(D3OBJECT *o, void *ctx)
 {
-    if (strstr(name, "dummy_TRANSPORTER") != 0) {
-        ctx[ctx[0x20]] = (int)name;
-        ctx[0x20] = ctx[0x20] + 1;
+    HETRANSPORTERS *l = ctx;
+
+    if (strstr(o->name, "dummy_TRANSPORTER") != 0) {
+        l->obj[l->n] = o;
+        l->n = l->n + 1;
     }
-    return ctx[0x20] < 0x20;
+    return l->n < 0x20;
 }
 /* 0x555210, collects the transporter dummies of the object obj (d3_ForEachObject (scene 0x5fb5b0, obj, 0x100,
    0x5551c0, list); the object's sibling list is cleared during the walk unless its state bit 1 is set) and
    returns a random one of them, 0 when the list is empty */
 
-int he_RandomTransporter(struct D3OBJECT *obj)
+struct D3OBJECT *he_RandomTransporter(struct D3OBJECT *obj)
 {
-    int list[0x21];
+    HETRANSPORTERS list;
     D3OBJECT *o = obj;
     D3OBJECT *save;
 
-    memset(list, 0, sizeof(list));
-    list[0x20] = 0;
+    memset(&list, 0, sizeof(list));
+    list.n = 0;
     if (o != 0 && (o->state & 1) == 0) {
         save = o->next;
         o->next = 0;
-        d3_ForEachObject(d3_DefaultScene, o, 0x100, (void *)he_CollectTransporter, list);
+        d3_ForEachObject(d3_DefaultScene, o, 0x100, he_CollectTransporter, &list);
         o->next = save;
     } else {
-        d3_ForEachObject(d3_DefaultScene, o, 0x100, (void *)he_CollectTransporter, list);
+        d3_ForEachObject(d3_DefaultScene, o, 0x100, he_CollectTransporter, &list);
     }
-    if (list[0x20] == 0)
+    if (list.n == 0)
         return 0;
-    return list[util_Random(list[0x20])];
+    return list.obj[util_Random(list.n)];
 }
 /* 0x5552c0, sets the speed factor (+0x1a0 of the record at +0x3b of `p`) from the event's value +0xc0: * the first constant when 0x76061c points to a value above 100, else * the second when 0x760618 points above 200, else unchanged; a second stage (+0xf1 == 2) multiplies it once more */
 
@@ -11736,7 +11744,8 @@ void he_TransportStadtStadt(AIJOB *ev)
 {
     HETRANSPORT *t = (HETRANSPORT *)ev;
     AIBLD *guards, *from, *to;
-    AIOBJ *tr, *o;
+    AIOBJ *tr;
+    D3OBJECT *o;
     CHARACTER *ch;
     D3SM *hmap;
     D3OBJECT *bo;
@@ -11754,9 +11763,9 @@ void he_TransportStadtStadt(AIJOB *ev)
 
         sc = d3_CurrentScene;
         d3if_SelectScene(0, 1);
-        o = (AIOBJ *)he_RandomTransporter(to->object);
+        o = he_RandomTransporter(to->object);
         if (o != 0)
-            d3_PointToWorld((D3OBJECT *)o, &((D3OBJECT *)o)->pos, (D3VECTOR *)&pos);
+            d3_PointToWorld(o, &o->pos, (D3VECTOR *)&pos);
         else
             d3_PointToWorld(to->object, &to->object->pos, (D3VECTOR *)&pos);
         if (gm_IsType10(from) != 0)
@@ -11779,9 +11788,9 @@ void he_TransportStadtStadt(AIJOB *ev)
             t->lastPos.z = pos.z;
             if (gm_IsType10(from) == 0) {
                 if (from->object != 0) {
-                    o = (AIOBJ *)he_RandomTransporter(from->object);
+                    o = he_RandomTransporter(from->object);
                     if (o != 0)
-                        d3_PointToWorld((D3OBJECT *)o, &((D3OBJECT *)o)->pos, (D3VECTOR *)&back);
+                        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&back);
                     else {
                         bo = to->object;
                         back.x = bo->pos.x;
@@ -11831,9 +11840,10 @@ void he_TransportStadtStadt(AIJOB *ev)
                              && (gm_IsType10(to) == 0
                                  || ((sv_PanelShown->type < 0x92 || sv_PanelShown->type > 0x97) && sv_PanelShown->type != 0x2db))))))
                 && (tr->flags20 & 1) == 0 && t->quiet == 0) {
-                o = gm_BuildingMainObject(to);
-                if (o != 0)
-                    he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, tr->objId, text, 0, 0x608, to->id, o->objId, 0, 0);
+                AIOBJ *mo = gm_BuildingMainObject(to);
+
+                if (mo != 0)
+                    he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, tr->objId, text, 0, 0x608, to->id, mo->objId, 0, 0);
                 else
                     he_MessageBoxQuickjump(ai_Chars[ev->chr].netId, tr->objId, text, 0, 0x608, to->id, -1, 0, 0);
             }

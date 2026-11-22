@@ -9026,7 +9026,7 @@ int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form)
    change: page 1 the character's buildings (ai_ShowBuildingRows, or 0x18f2 when none), page 2 his loans as up to 9 credit
    rows (ai_ShowLoanRows, or 0x18f3), the loan rows are freed when page 1 is built; a right click closes it, the
    rows are freed at the end */
-void ai_MoneyLenderInfoWindow(AICHAR *ch)
+void ai_MoneyLenderInfoWindow(AICHAR *ch, int n)
 {
     CREDITLISTROW rows[9];
     int down;
@@ -9137,7 +9137,8 @@ void ai_FortuneOverview(AIBLD *bld)
     cfg.classMask[0] = (unsigned int)gypsyFilter;
     cfg.classMask[1] = (unsigned int)(gypsyFilter >> 32);
     txt_Format(text, 0x18ec);
-    ai_AmountMenu(&cfg, text, 0, (void *)ai_MoneyLenderInfoWindow);
+    ai_AmountMenu(&cfg, text, 0, (int (*)(AICHAR *, int))ai_MoneyLenderInfoWindow);  /* @original: a void window as the
+                                           int pick callback; the menu tests whatever eax holds at its return */
     sv_CameraFollow();
 }
 /* 0x59df80, the money lender contact listener (288 B): the pump 0x5309a0 (0x59df80, 0x67fff) and the lookups

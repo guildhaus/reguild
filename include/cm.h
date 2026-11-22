@@ -404,7 +404,6 @@ extern AIBTYPE *ai_BTypes;  /* 0x7e3f30 */
 extern char init_SceneDirty[];  /* 0xfd7f75 */
 #endif
 
-int he_RandomTransporter();  /* 0x555210 */
 
 int ch_QueueAnim();  /* 0x4057a0 */
 char * vfs_GetPath();  /* 0x42fca0 */

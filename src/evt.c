@@ -1440,7 +1440,7 @@ int evt_CallBuiltin(EVTBUILTIN *f)
     }
     if (f->rettype == 7)
         r = evt_FloatResult;
-    if ((evt_Cur->mode == 1 && evt_Cur->waitfn) || evt_Cur->waitfn == (void *)evtc_Wait) {
+    if ((evt_Cur->mode == 1 && evt_Cur->waitfn) || evt_Cur->waitfn == evtc_Wait) {
         for (i = 0; i < f->nargs; i++) {
             evt_Cur->args[i] = args[i];
             if (f->argtype[i] == 6) {

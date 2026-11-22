@@ -119,9 +119,9 @@ void sndc_WaitForSample(struct SBSAMPLE **s)
 
     if (evt_CurCall && evt_CurCall->fn == (int (*)())sndc_WaitForSample) {
         if (sb_IsPlaying(sample))
-            evt_Cur->waitfn = sndc_WaitForSample;
+            evt_Cur->waitfn = (int (*)())sndc_WaitForSample;
     } else if (evt_Cur->mode == 1)
-        evt_Cur->waitfn = sndc_WaitForSample;
+        evt_Cur->waitfn = (int (*)())sndc_WaitForSample;
 }
 /* 0x410220, registers the sound script commands (LoadSampleBank ... WaitForSample) and the SND_* script
    globals with the event system (evt_ImportCommand / evt_AddGlobal) */

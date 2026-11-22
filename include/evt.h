@@ -136,7 +136,8 @@ typedef struct EVTSCRIPT {          /* 0xc98 bytes, 128 at evt_Scripts */
     char *sp;                       /* 0xc38 */
     struct EVTSCRIPT *includes[8];  /* 0xc3c */
     EVTBUILTIN *call;               /* 0xc5c */
-    void *waitfn;                   /* 0xc60, the wait command the script is suspended in (0 = running) */
+    int (*waitfn)();                /* 0xc60, the wait command the script is suspended in (0 = running); old-style as
+                                       EVTBUILTIN.fn (the commands take their argument pointers) */
     int args[8];                    /* 0xc64 */
     int mode;                       /* 0xc84 */
     int waitStart;                  /* 0xc88, d3_Time tick at which the current wait started */

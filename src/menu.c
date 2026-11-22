@@ -2425,7 +2425,8 @@ void ai_TailorContact(AIBLD *building, AIOBJ *arg)
         req.flags = 1;
         req.mode = 0x400;
         req.kind = 6;
-        ai_AmountMenu(&req, txt_Ptrs[TXT_TAILOR_AMOUNT], ch_EmptyName, ai_TailorChatWindow);
+        ai_AmountMenu(&req, txt_Ptrs[TXT_TAILOR_AMOUNT], ch_EmptyName, (int (*)(AICHAR *, int))ai_TailorChatWindow);  /* @original: a
+                                           void window as the int pick callback; the menu tests whatever eax holds */
     }
     sv_CameraFollow();
 }
