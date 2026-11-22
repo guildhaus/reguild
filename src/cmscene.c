@@ -1251,9 +1251,9 @@ void cm_RunTrial(G28REC *m)
     if (cm_SkipEvents == 0)
         sound = msx_PlayAmbient("Athmos\\Athmo_sitzung.mp3", 0x40);
     if (cm_Random(2) != 0)
-        cm_PlaySpecialTrack((int)"cd2\\ArmerDelinquent.mp3");
+        cm_PlaySpecialTrack("cd2\\ArmerDelinquent.mp3");
     else
-        cm_PlaySpecialTrack((int)"cd2\\ImKerker.mp3");
+        cm_PlaySpecialTrack("cd2\\ImKerker.mp3");
     bankTrial = cm_LoadVoiceBank("ADDON\\PROZESS_NEU.sbf", 0);
     plan.rating2c = ai_WealthRating(c0, c1);
 

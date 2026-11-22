@@ -5387,7 +5387,7 @@ void he_RunDuelChallenge(AIJOB *e)
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(e, 0, 0, (int)"Special\\Beleidigung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, "Special\\Beleidigung", 0x5ec);
         if (e->slot == 0) {
             he_FreeEvent(e);
             return;
@@ -7030,7 +7030,7 @@ void he_RunProtectionAsk(AIJOB *e)
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_SCHUTZGELD", 0x5f3);
+        he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_SCHUTZGELD", 0x5f3);
         if (e->slot == 0) {
             he_FreeEvent(e);
             return;
@@ -7806,9 +7806,9 @@ void he_RunTitleCeremony(AIJOB *e)
     case 0:
         if (e->slot == 0) {
             if (c == own)
-                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
+                he_OpenEventSlot(e, 0, 0, "SPECIAL\\TITEL", 0x5fd);
             else
-                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
+                he_OpenEventSlot(e, 0, 0, "SPECIAL\\TITEL_ANDERE", 0x5fe);
         }
         if (e->slot == 0) {
             he_FreeEvent(e);
@@ -8098,7 +8098,7 @@ void he_RunSkillUp(AIJOB *e)
     switch (e->stage) {
     case 0:
         if (e->slot == 0)
-            he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TALENT_STUFE", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, "SPECIAL\\TALENT_STUFE", 0x5ec);
         if (e->slot == 0) {
             he_FreeEvent(e);
             return;
@@ -10104,7 +10104,7 @@ void he_RunExamQuestion(AIJOB *e)
     switch (e->stage) {
     case 0:
         if (e->slot == 0)
-            he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+            he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         if (e->slot == 0) {
             he_FreeEvent(e);
             return;
@@ -10523,9 +10523,9 @@ void he_RunOfficeAward(AIJOB *e)
     case 0:
         if (e->slot == 0) {
             if (c == own)
-                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL", 0x5fd);
+                he_OpenEventSlot(e, 0, 0, "SPECIAL\\TITEL", 0x5fd);
             else
-                he_OpenEventSlot(e, 0, 0, (int)"SPECIAL\\TITEL_ANDERE", 0x5fe);
+                he_OpenEventSlot(e, 0, 0, "SPECIAL\\TITEL_ANDERE", 0x5fe);
         }
         if (e->slot == 0) {
             he_FreeEvent(e);
@@ -15359,7 +15359,7 @@ void he_RunEvent39(AIJOB *e)
     }
     switch (e->stage) {
     case 0:
-        he_OpenEventSlot(e, 0, 0, (int)"Berufe\\Messagebox_Meisterpruefung", 0x5ec);
+        he_OpenEventSlot(e, 0, 0, "Berufe\\Messagebox_Meisterpruefung", 0x5ec);
         d2_SetForm(e->slot->win, 0);
         io_PrintText(0x19b2, held->id, x->amount, held->id, held->id);
         e->stage++;
