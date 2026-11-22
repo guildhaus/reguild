@@ -2509,7 +2509,7 @@ int sv_ScrollCamera(void)
     float k, f;
     D3VECTOR4 dst;
     D3VECTOR4 v;
-    float right[16];                    /* a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3MATRIX right;                   /* the camera matrix, transposed (d3_MatTranspose) */
     D3VECTOR4 fwd;
     float a;
     D3SM *hm;                       /* the scene's height map */
@@ -2637,11 +2637,11 @@ int sv_ScrollCamera(void)
         else if (ai_PlayerBuilding != 0)
             dt *= 0.25;
         k = (float)(sv_ScrollSpeed * dt * (sv_CameraHeightFactor * 1.5 + 0.6000000238418579));
-        d3_MatTranspose(&d3_Camera->matrix, right);
+        d3_MatTranspose(&d3_Camera->matrix, &right);
         v.x = sv_ScrollVelX * k * 1.1;
         v.y = sv_ScrollVelY * k * 1.1;
-        fwd.x = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
-        fwd.z = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
+        fwd.x = right._11 * ax[0] + right._21 * ax[1] + right._31 * ax[2];
+        fwd.z = right._13 * ax[0] + right._23 * ax[1] + right._33 * ax[2];
         fwd.y = 0.0f;
         /* @original: each arm first sets dst to the move in view space (dead: dst is the target below; the
            original stores all three, dst.x in each arm) */
@@ -2649,8 +2649,8 @@ int sv_ScrollCamera(void)
             dst.x = v.x;
             dst.y = v.y;
             dst.z = 0.0f;
-            fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
-            fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
+            fwd.x = 0.0f * right._31 + v.x * right._11 + v.y * right._21;
+            fwd.z = 0.0f * right._33 + v.x * right._13 + v.y * right._23;
         } else {                                                /* else rotated by the view's heading */
             a = -d3_VecAngle2(&d3_ZAxis.v, &fwd.v);
             dst.x = v.x;
@@ -2765,7 +2765,7 @@ int sv_MouseCamera(void)
     D3VECTOR4 zpos;                 /* the camera position of the zoom and turn */
     D3VECTOR zrot;                  /* its rotation */
     D3VECTOR4 dst;
-    float right[16];                    /* a D3MATRIX: d3_MatTranspose writes 0x40 bytes */
+    D3MATRIX right;                   /* the camera matrix, transposed (d3_MatTranspose) */
     D3VECTOR4 fwd;
     D3VECTOR4 v;
     D3SM *hm;                       /* the scene's height map */
@@ -2873,18 +2873,18 @@ go:
             }
             cam = (char *)d3_Camera;
             if (cam != 0 && dm_L.rhold != 0 && dm_L.ldown == 0) {    /* the right button alone: drag the map */
-                d3_MatTranspose(&d3_Camera->matrix, right);
+                d3_MatTranspose(&d3_Camera->matrix, &right);
                 k = ai_OptionScrollSpeed * (1.0 / 16.5);
                 v.x = (dm_P.x - sv_DragLastX) * k;
                 v.y = -(dm_P.y - sv_DragLastY) * k;
-                fwd.x = right[0] * ax[0] + right[4] * ax[1] + right[8] * ax[2];
-                fwd.z = right[2] * ax[0] + right[6] * ax[1] + right[10] * ax[2];
+                fwd.x = right._11 * ax[0] + right._21 * ax[1] + right._31 * ax[2];
+                fwd.z = right._13 * ax[0] + right._23 * ax[1] + right._33 * ax[2];
                 fwd.y = 0.0f;
                 if ((float)sqrt(fwd.x * fwd.x + fwd.z * fwd.z) < 0.1f) {   /* the view looks straight down: the matrix rows (0x527386) */
                     dst.y = v.y;
                     dst.z = 0.0f;
-                    fwd.x = 0.0f * right[8] + v.x * right[0] + v.y * right[4];
-                    fwd.z = 0.0f * right[10] + v.x * right[2] + v.y * right[6];
+                    fwd.x = 0.0f * right._31 + v.x * right._11 + v.y * right._21;
+                    fwd.z = 0.0f * right._33 + v.x * right._13 + v.y * right._23;
                 } else {                                                /* else rotated by the view's heading */
                     ang = -d3_VecAngle2(&d3_ZAxis.v, &fwd.v);
                     dst.y = 0.0f;
@@ -2984,7 +2984,7 @@ void sv_FlyCameraToObject(AIBLD *b)
     float lo, hi;                   /* the object's height range */
     D3VECTOR4 back;   /* 600 units back along the view */
     D3VECTOR4 cen;   /* the object's centre in the world */
-    float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
+    D3MATRIX rot;                 /* the camera matrix, transposed (d3_MatTranspose) */
     D3VECTOR4 up;   /* the camera above the centre (a padded vector, only y used) */
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
@@ -2997,13 +2997,13 @@ void sv_FlyCameraToObject(AIBLD *b)
 
     obj = b->object;
     d3t_GetHeightRange(obj, &lo, &hi);
-    d3_MatTranspose(&d3_Camera->matrix, rot);
+    d3_MatTranspose(&d3_Camera->matrix, &rot);
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    back.x = rot._31 * vz + rot._21 * vy + rot._11 * vx;
+    back.y = rot._32 * vz + rot._22 * vy + rot._12 * vx;
+    back.z = rot._33 * vz + rot._23 * vy + rot._13 * vx;
     d3_PointToWorld(obj, &obj->pos, &cen.v);
     pos.x = cen.x + back.x;
     pos.y = cen.y + back.y;
@@ -3066,7 +3066,7 @@ void sv_CameraToObject(AIBLD *b)
     float lo, hi;                   /* the object's height range */
     D3VECTOR4 back;   /* 600 units back along the view */
     D3VECTOR4 cen;   /* the object's centre in the world */
-    float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
+    D3MATRIX rot;                 /* the camera matrix, transposed (d3_MatTranspose) */
     D3VECTOR4 up;   /* the camera above the centre (a padded vector, only y used) */
     float h;                        /* the pull-in factor */
     double t;                       /* the mean terrain height there */
@@ -3077,13 +3077,13 @@ void sv_CameraToObject(AIBLD *b)
 
     obj = b->object;
     d3t_GetHeightRange(obj, &lo, &hi);
-    d3_MatTranspose(&d3_Camera->matrix, rot);
+    d3_MatTranspose(&d3_Camera->matrix, &rot);
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    back.x = rot._31 * vz + rot._21 * vy + rot._11 * vx;
+    back.y = rot._32 * vz + rot._22 * vy + rot._12 * vx;
+    back.z = rot._33 * vz + rot._23 * vy + rot._13 * vx;
     d3_PointToWorld(obj, &obj->pos, &cen.v);
     pos.x = cen.x + back.x;
     pos.y = cen.y + back.y;
@@ -3135,7 +3135,7 @@ void sv_FlyCameraToModel(D3OBJECT *m)
     float lo, hi;                   /* the object's height range */
     D3VECTOR4 back;   /* 600 units back along the view */
     D3VECTOR4 cen;   /* the object's centre in the world */
-    float rot[16];                  /* the camera matrix, transposed (a 4x4 D3MATRIX) */
+    D3MATRIX rot;                 /* the camera matrix, transposed (d3_MatTranspose) */
     double t;                       /* the mean terrain height there */
     float step, dx, dy, dz, len;
     D3OBJECT *cam;
@@ -3143,13 +3143,13 @@ void sv_FlyCameraToModel(D3OBJECT *m)
     float vx, vy, vz;               /* the view axis (0, 0, 1) scaled to -600 */
 
     d3t_GetHeightRange(m, &lo, &hi);
-    d3_MatTranspose(&d3_Camera->matrix, rot);
+    d3_MatTranspose(&d3_Camera->matrix, &rot);
     vx = ax[0] * -600.0f;
     vy = ax[1] * -600.0f;
     vz = ax[2] * -600.0f;
-    back.x = rot[8] * vz + rot[4] * vy + rot[0] * vx;
-    back.y = rot[9] * vz + rot[5] * vy + rot[1] * vx;
-    back.z = rot[10] * vz + rot[6] * vy + rot[2] * vx;
+    back.x = rot._31 * vz + rot._21 * vy + rot._11 * vx;
+    back.y = rot._32 * vz + rot._22 * vy + rot._12 * vx;
+    back.z = rot._33 * vz + rot._23 * vy + rot._13 * vx;
     d3_PointToWorld(m, &m->pos, &cen.v);
     pos.x = cen.x + back.x;
     pos.y = cen.y + back.y;
