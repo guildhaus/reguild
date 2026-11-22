@@ -702,7 +702,7 @@ void ch_DetachTransport(CHARACTER *ch)
 void ch_PlaceTransport(CHARACTER *ch, char now)
 {
     D3OBJECT *body = ch->obj;
-    D3SM *hmap = (D3SM *)ch_GetHMap(ch);
+    D3SM *hmap = ch_GetHMap(ch);
     D3OBJECT *obj;
     int z, x;
     float h2;
@@ -1292,7 +1292,7 @@ int ch_PlaceOnGround(CHARACTER *ch, int force)
     float y;
     int type;
 
-    h = (D3SM *)ch_GetHMap(ch);
+    h = ch_GetHMap(ch);
     obj = ch->obj;
     type = 0;
     if (h) {
@@ -1436,7 +1436,7 @@ int ch_Random(unsigned short n)
 
 void ch_SaveGround(struct D3SM *hmap)
 {
-    D3SM *h = (D3SM *)hmap;
+    D3SM *h = hmap;
     int *buf;
     int i, j;
 
@@ -1454,7 +1454,7 @@ void ch_SaveGround(struct D3SM *hmap)
 
 void ch_RestoreGround(struct D3SM *hmap)
 {
-    D3SM *h = (D3SM *)hmap;
+    D3SM *h = hmap;
     int *buf;
     int i, j;
 
@@ -1517,7 +1517,7 @@ int ch_SetGroundDiamond(int x, int z, unsigned char scene, int type, int r)
 
 int ch_RandomNear(D3VECTOR *pos, D3VECTOR *out)
 {
-    D3SM *h = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *h = d3_DefaultScene->hmap;
     int x, z;
     float y;
     int nx, nz;
@@ -1600,7 +1600,7 @@ int ch_Update(void)
             } else if (ch_List[i]->scene == d3_DefaultScene && !(ch_List[i]->flags.all & 0x32)
                        && !(ch_List[i]->flags.all & 0x8000) && !ch_List[i]->transport) {
                 if (ch_FindNear(ch_List[i], found, 20.0f)) {
-                    h = (D3SM *)ch_GetHMap(ch_List[i]);
+                    h = ch_GetHMap(ch_List[i]);
                     ch_RandomNear(&ch_List[i]->obj->pos, &pos.v);
                     if (d3_GetHeightAt(h, &pos.v, &x, &z, &y))
                         ch_AddAction(ch_List[i], 0x2d, x, z, d3_CurrentScene);
@@ -2250,7 +2250,7 @@ int ch_FollowGround(CHACTION *a)
     float y, y2;
     D3VECTOR4 pos;
 
-    h = (D3SM *)ch_GetHMap(a->ch);
+    h = ch_GetHMap(a->ch);
     ch = a->ch;
     type = 0;
     obj = ch->obj;
@@ -2777,7 +2777,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
 
     if (a->type != '-')
         return -1;
-    h = (D3SM *)ch_GetHMap(ch);
+    h = ch_GetHMap(ch);
     ch_CopyVec((D3VECTOR *)ch_PathMap, (D3VECTOR *)h);
     steps = (int)(50.0f / h->cell.x + 0.5);
     if (steps > 10)
@@ -2992,7 +2992,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
 int ch_PathToTarget(CHACTION *a)
 {
     CHARACTER *ch = a->ch;
-    D3SM *h = (D3SM *)ch_GetHMap(ch);
+    D3SM *h = ch_GetHMap(ch);
     int cx, cz, gx, gz, ox, oz;
     float y;
     CHARACTER *t;
@@ -3480,7 +3480,7 @@ void ch_WalkRotate(CHACTION *a)
 
 void ch_ActWalk(CHACTION *a)
 {
-    D3SM *h = (D3SM *)ch_GetHMap(a->ch);
+    D3SM *h = ch_GetHMap(a->ch);
     CHARACTER *ch = a->ch;
     int ground;
     float f;
@@ -3597,7 +3597,7 @@ void ch_ActWalk(CHACTION *a)
 
 void ch_ActWalkCells(CHACTION *a)
 {
-    D3SM *h = (D3SM *)ch_GetHMap(a->ch);
+    D3SM *h = ch_GetHMap(a->ch);
     CHARACTER *ch = a->ch;
     int x, z, i, n, ground, restart;
     CHPATHPT *pts, *pt;

@@ -1680,7 +1680,7 @@ int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y)
     int n;
     float h;
 
-    hmap = (D3SM *)d3_Scenes[0].hmap;
+    hmap = d3_Scenes[0].hmap;
     n = hmap->size / 8;
     if (d3_GetHeightAt(hmap, p, x, y, &h) != 0) {
         *x = *x / n;
@@ -1821,7 +1821,7 @@ char ord_RandomCellPoint(int x, int y, D3VECTOR *out)
     unsigned a;
     unsigned b;
 
-    hmap = (D3SM *)d3_Scenes[0].hmap;
+    hmap = d3_Scenes[0].hmap;
     n = hmap->size / 8;
     a = util_Random(n) + n * x;
     b = util_Random(n) + n * y;

@@ -790,7 +790,7 @@ void ai_MapCellToScreen(LCMAPMARK *m, int originX, int originY)
     float edgeX;
     float edgeY;
 
-    half = ((D3SM *)d3_Scenes[0].hmap)->size * 0.5;
+    half = (d3_Scenes[0].hmap)->size * 0.5;
     x = (m->cellX - half) * ai_MapCellScale;
     y = (m->cellZ - (double)half) * ai_MapCellScale;    /* @original y alone is taken in double (half popped by fisubr) */
     edgeX = fabs(x) / (ai_MapSize * 0.5f);
@@ -854,7 +854,7 @@ void ai_BuildTownMap(LCMAPWIN *m)
     int j;
     int n;
 
-    hm = (struct D3SM *)d3_Scenes[0].hmap;
+    hm = d3_Scenes[0].hmap;
     originX = ai_PlayerSlots[ai_OwnPlayer].townX;
     originY = ai_PlayerSlots[ai_OwnPlayer].townY;
     for (i = 0; i < 0x100; i++) {
@@ -1233,7 +1233,7 @@ void ai_UpdateTownMap(LCMAPWIN *m)
     int i;
     unsigned char kind;
 
-    hm = (struct D3SM *)d3_Scenes[0].hmap;
+    hm = d3_Scenes[0].hmap;
     originX = ai_PlayerSlots[ai_OwnPlayer].townX;
     originY = ai_PlayerSlots[ai_OwnPlayer].townY;
     d2_LastWindow = m->screen;
@@ -1260,7 +1260,7 @@ void ai_UpdateTownMap(LCMAPWIN *m)
             continue;
         if (ch->scene == &d3_Scenes[0]) {
             d3_PointToWorld(ch->obj, &ch->obj->pos, &pos.v);
-            half = ((struct D3SM *)d3_Scenes[0].hmap)->size * 0.5;
+            half = (d3_Scenes[0].hmap)->size * 0.5;
             x = ((pos.x - hm->origin.x) / hm->cell.x - half) * ai_MapCellScale;
             y = ((pos.z - hm->origin.z) / hm->cell.z - (double)half) * ai_MapCellScale;   /* @original y alone in double (half popped by fsubrp) */
             edgeX = fabs(x) / (ai_MapSize * 0.5f);

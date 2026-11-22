@@ -189,7 +189,7 @@ extern int cm_FightForm;
    at 0x4d7789 where ours join... */
 void cm_RunCutOrders(CMCUTINFO *rec)
 {
-    D3SM *h = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *h = d3_DefaultScene->hmap;
     CMCUTENTRY m;
     CMCUTENTRY *p;
     AICHAR *c, *x;

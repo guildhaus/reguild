@@ -2071,7 +2071,7 @@ lskip:
         sv_RunFramesUntilStopped(scene);
     }
     if (d3_DefaultScene->hmap != 0) {
-        d3sm_Destroy((D3SM *)d3_DefaultScene->hmap);
+        d3sm_Destroy(d3_DefaultScene->hmap);
         d3_DefaultScene->hmap = 0;
     }
     cm_DestroySceneSky();

@@ -176,7 +176,7 @@ int rt_PutRouteMark(LCMAPWIN *win, int cart, RTPOINT *list, RTPOINT *p)
     int o;
     int index;
 
-    hmap = (D3SM *)d3_Scenes[0].hmap;
+    hmap = d3_Scenes[0].hmap;
     originX = ai_PlayerSlots[ai_OwnPlayer].townX;
     originY = ai_PlayerSlots[ai_OwnPlayer].townY;
     b = gm_FindBuildingById(p->buildingId);

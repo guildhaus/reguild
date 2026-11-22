@@ -2658,7 +2658,7 @@ int sv_ScrollCamera(void)
         dst.y = d3_Camera->pos.y;
         dst.z = fwd.z + d3_Camera->pos.z;
         if (d3_VecEqual(&sv_ScrollLastMove.v, &dst.v, 0.1f) == 0) {
-            hm = (D3SM *)d3_DefaultScene->hmap;
+            hm = d3_DefaultScene->hmap;
             if (hm != 0) {                                       /* clamped to the height map, 20 cells in */
                 lo = hm->cell.x * 20.0f + hm->origin.x;
                 if (dst.x < lo)
@@ -2892,7 +2892,7 @@ go:
                 dst.y = d3_Camera->pos.y;
                 dst.z = fwd.z + d3_Camera->pos.z;
                 if (d3_VecEqual(&sv_DragLastPos.v, &dst.v, 0.1f) == 0) {
-                    hm = (D3SM *)d3_DefaultScene->hmap;
+                    hm = d3_DefaultScene->hmap;
                     if (hm != 0) {                                      /* clamped to the height map, 20 cells in */
                         lo = hm->cell.x * 20.0f + hm->origin.x;
                         if (dst.x < lo)
@@ -4857,7 +4857,7 @@ void sv_HandleSelectionMouse(void)
 
     cx = -1;
     cy = -1;
-    map = (D3SM *)d3_DefaultScene->hmap;
+    map = d3_DefaultScene->hmap;
     b = 0;
     if (ai_PlayerBuilding != 0)
         b = ai_PlayerBuilding;

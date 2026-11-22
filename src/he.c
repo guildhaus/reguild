@@ -8354,7 +8354,7 @@ int he_MoveReaper(AIJOB *e)
                 int x, z;
                 float ground;
 
-                d3_GetHeightAt((D3SM *)d3_Scenes[0].hmap, &target.v, &x, &z, &ground);
+                d3_GetHeightAt(d3_Scenes[0].hmap, &target.v, &x, &z, &ground);
                 target.y = ground + 80.0f;
             }
             dir.x = target.x - at.x;
@@ -8364,7 +8364,7 @@ int he_MoveReaper(AIJOB *e)
                 ret = 2;
                 e->reaperPlaced = 0;
             } else {
-                D3SM *hm = (D3SM *)d3_Scenes[0].hmap;
+                D3SM *hm = d3_Scenes[0].hmap;
                 int x, z;
                 float h;
 
@@ -10859,7 +10859,7 @@ void he_TransportStadtStadt(AIJOB *ev)
 
             ch = tr->sceneObj;
             he_SetCartSpeed(ev, tr);
-            hmap = (D3SM *)ch_GetHMap(ch);
+            hmap = ch_GetHMap(ch);
             t->transportStarted = 1;
             d3_GetHeightAt(hmap, &pos.v, &px, &pz, &py);
             t->transportLastPos.x = pos.x;
@@ -10983,7 +10983,7 @@ void he_TransportHomeHome(AIJOB *e)
         u = init_BuildingSceneUniverse(to);
         d3if_SelectScene(u, 1);
         if (he_RandomTransporter(0) != 0 && d3_Scenes[u].hmap != 0
-            && d3_GetHeightAt((D3SM *)d3_Scenes[u].hmap, &pos.v, &px, &pz, &py) != 0)
+            && d3_GetHeightAt(d3_Scenes[u].hmap, &pos.v, &px, &pz, &py) != 0)
             cm_SendChrWalkTo(tr->objId, px, pz, u);
         cm_SendSetField(tr->objId, 0x13, 1, 0, 0x40);
         if (to->type == 0x47) {

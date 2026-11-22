@@ -3848,7 +3848,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
         case 12:
             save = d3_CurrentScene;
             d3if_SelectScene(0, 1);
-            d3sm_Build((struct D3SM *)d3_DefaultScene->hmap, d3_Terrain);
+            d3sm_Build(d3_DefaultScene->hmap, d3_Terrain);
             d3if_SelectScene(save, 1);
             ch_Saved0 = 0;
             break;

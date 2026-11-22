@@ -409,7 +409,7 @@ CMCUTENTRY *cm_FightCutEntry(AICHAR *c)
 
 int cm_CellUsable(int x, int y)
 {
-    D3SM *g = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *g = d3_DefaultScene->hmap;
     int w = g->size;
     int type;
 
@@ -428,7 +428,7 @@ int cm_CellUsable(int x, int y)
 
 int cm_FindNearCell(int a, int b, int *ox, int *oy)
 {
-    int w = ((D3SM *)d3_DefaultScene->hmap)->size;
+    int w = (d3_DefaultScene->hmap)->size;
     int d, y, x, k, ylo, yhi, xlo, xhi;
 
     for (d = 0; d < 0x40; d++) {
@@ -499,7 +499,7 @@ float cm_CharCellDistXZ(AICHAR *c, int x, int y)
     D3VECTOR4 v, d;
     D3VECTOR b;
 
-    d3sm_GetVertex((struct D3SM *)d3_DefaultScene->hmap, x, y, &v.v);
+    d3sm_GetVertex(d3_DefaultScene->hmap, x, y, &v.v);
     v.y = 0;
     b.x = c->scene->obj->pos.x;
     b.z = c->scene->obj->pos.z;
@@ -625,7 +625,7 @@ CMGRENADE *cm_ThrowGrenade(D3VECTOR *p, int x, int y)
     rot.x = 0;
     rot.y = 0;
     rot.z = 0;
-    g = (struct D3SM *)d3_DefaultScene->hmap;
+    g = d3_DefaultScene->hmap;
     for (i = 0; i < 32; i++) {
         if (cm_Grenades[i].obj != 0)
             continue;
@@ -695,7 +695,7 @@ int cm_UpdateGrenades()
     float dist;
     int i, j, t, amt;
 
-    g = (struct D3SM *)d3_DefaultScene->hmap;
+    g = d3_DefaultScene->hmap;
     cnt = 0;
     w = ai_FindWeaponRecord(0x176);
     for (i = 0; i < 32; i++) {
@@ -1378,7 +1378,7 @@ void cm_ClickSceneChar()
 
 int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
 {
-    D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *hmap = d3_DefaultScene->hmap;
     AICHAR *ch = c;
     AICHAR *t = tgt;
     AIWEAPON *w;
@@ -1450,7 +1450,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
 
 int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 {
-    D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *hmap = d3_DefaultScene->hmap;
     CMCUTENTRY *e;
     CMCUTENTRY order;
     D3VECTOR4 v;                        /* d3_PointToWorld writes the point and the angle after it */
@@ -1504,7 +1504,7 @@ int cm_OrderConquer(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 
 int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 {
-    D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *hmap = d3_DefaultScene->hmap;
     CMCUTENTRY *q;
     CMCUTENTRY order;
     D3VECTOR4 v;
@@ -1532,7 +1532,7 @@ int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
 
 int cm_OrderToBestCell(CMCUTINFO *rec, AICHAR *c)
 {
-    D3SM *hmap = (D3SM *)d3_DefaultScene->hmap;
+    D3SM *hmap = d3_DefaultScene->hmap;
     AICHAR *ch = c;
     CMCUTENTRY *e;
     CMCUTENTRY order;
@@ -1603,7 +1603,7 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
                 ret = 1;
             }
         } else {
-            map = (D3SM *)d3_DefaultScene->hmap;
+            map = d3_DefaultScene->hmap;
             if (d3sm_Pick(map, dm_L.x + 0x1a, dm_L.y + 0x1a, &x, &z)) {
                 e = cm_CutEntrySlot(rec, c);
                 e->b0c = 0;
@@ -1908,7 +1908,7 @@ void cm_SetupFightScene(G28REC *rec)
                 cm_LoadEventScene("Kampfszenario_STADTWACHE_GROSS.ed3");
         }
     }
-    sc = (D3SM *)d3_DefaultScene->hmap;
+    sc = d3_DefaultScene->hmap;
     cm_ApplySeason();
     if (d3_Terrain != 0) {
         d3_Scenes[d3_CurrentScene].sky = d3_Scenes[0].sky;
@@ -1968,7 +1968,7 @@ void cm_SetupFightScene(G28REC *rec)
     if (sc == 0) {
         d3_DefaultScene->hmap = d3sm_Create(d3_Terrain,
                                                              d3_DefaultScene->mapSize, 2);
-        sc = (D3SM *)d3_DefaultScene->hmap;
+        sc = d3_DefaultScene->hmap;
     }
     cm_FightCellScale = sc->cell.x * 1.1;
     sv_ScrollSpeed = 0.15f;
@@ -2067,7 +2067,7 @@ void cm_SetupFightScene(G28REC *rec)
                 d3if_ShowTree(o, 0);
         }
     }
-    d3sm_Build((struct D3SM *)d3_DefaultScene->hmap, d3_Terrain);
+    d3sm_Build(d3_DefaultScene->hmap, d3_Terrain);
     for (i = 0; i < border; i++) {
         for (k = i; k < sc->size; k++) {
             sc->entries[(sc->size - 1) * i + k].type = 0xd;
@@ -2161,7 +2161,7 @@ void cm_PlaceFighters(int *ids, char *side)
 
     ranged = 1;
     melee = 1;
-    sc = (D3SM *)d3_DefaultScene->hmap;
+    sc = d3_DefaultScene->hmap;
     for (i = 0; i < 16; i++) {
         if (ids[i] == -1)
             continue;
@@ -2295,7 +2295,7 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit)
     float d, dx, dy, dz;
     int i;
 
-    sc = (D3SM *)d3_DefaultScene->hmap;
+    sc = d3_DefaultScene->hmap;
     threat = 0.0f;
     if (c->side == cm_FightAttacker) {      /* in a fight: the side's leader */
         own = cm_FightRecord->fight.attackers;
@@ -2352,7 +2352,7 @@ int cm_BestCellNear(AICHAR *c, int cx, int cy, int r, int *ox, int *oy)
     float f;
     int k, row, col, hi, hic, m, type;
 
-    sc = (D3SM *)d3_DefaultScene->hmap;
+    sc = d3_DefaultScene->hmap;
     k = 0;
     best = 1000000000.0f;
     for (; k < r; k++) {
@@ -2398,7 +2398,7 @@ int cm_MostThreatenedCellNear(AICHAR *c, int cx, int cy, int r, int *ox, int *oy
     float f;
     int k, row, col, hi, hic, m, type;
 
-    sc = (D3SM *)d3_DefaultScene->hmap;
+    sc = d3_DefaultScene->hmap;
     k = 0;
     best = 0.0f;
     for (; k < r; k++) {
@@ -2929,7 +2929,7 @@ void cm_CarryOutOrder(CMCUTINFO *rec, AICHAR *c)
         if ((k->kind == 1 || k->kind == 2) && cm_CharWeaponItem(c)->usesLeft <= 0)
             return;
         if (k->kind == 2) {
-            sc = (D3SM *)d3_DefaultScene->hmap;
+            sc = d3_DefaultScene->hmap;
             if ((char)d3_GetHeightAt(sc, &c->scene->obj->pos, &x, &y, &h) == 0)
                 return;
             if (cm_MostThreatenedCellNear(c, x, y, (int)(500.0f / sc->cell.x), &x, &y) == 0)
