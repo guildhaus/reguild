@@ -7341,7 +7341,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
     if (d3_Terrain == 0)
         return;
     for (i = 0; i < 8; i++) {
-        if (strstr(((G15MAP *)d3_Terrain)->ground[i], "PFLANZBAR"))
+        if (strstr(((D3FLMAP *)d3_Terrain)->typenames[i], "PFLANZBAR"))
             ground = i;
     }
     room = (char *)gm_Query(bld->objList, 1, 0, 0xff);
@@ -7383,7 +7383,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
             pos.y += d3_Camera->pos.y;
             pos.z += d3_Camera->pos.z;
             d3_SetObjectPos(model, &pos.v);
-            if (((G15MAP *)d3_Terrain)->cells[((G15MAP *)d3_Terrain)->w * z + x] == ground
+            if (((D3FLMAP *)d3_Terrain)->types[((D3FLMAP *)d3_Terrain)->size * z + x] == ground
                 && veg_Fits(plants, x, z, type->size))
                 ok = 1;
             else

@@ -110,19 +110,6 @@ typedef struct AIINFOP {                /* an AIINFO with the shuffled entry ind
     int perm[32];                       /* 0x24 */
 } AIINFOP;
 
-typedef struct AIMAP {
-    int w;                              /* 0x00, width = height */
-    char pad04[0x10];
-    unsigned char *cells;               /* 0x14 */
-    char pad18[0x1a4c];
-    char names[8][0x40];                /* 0x1a64 */
-} AIMAP;
-
-typedef struct AIMAPREF {               /* 0x3e0 bytes */
-    AIMAP *map;                         /* 0x00 */
-    char pad04[0x3dc];
-} AIMAPREF;
-
 typedef struct AIWATCH {                /* 0xb00 bytes at 0xf895a0, what the watched building's masters did */
     AIBLD *bld;                         /* 0x000 */
     AIBLD *target;                      /* 0x004 */
@@ -179,9 +166,6 @@ extern int ai_NEntries;                 /* 0xf86a2c */
 extern AISLOT ai_Slots[128];            /* 0xf86a40 */
 extern AIENTRY ai_Entries[32];          /* 0xf88a40 */
 extern AIWATCH ai_Watch;                /* 0xf895a0 */
-#ifndef DATA_VIEWS_H
-extern AIMAPREF ai_MapRefs[];         /* 0xfd7c4c, @original: rd.h declares G15MAP * (its rd_BuildRoad 0x4bcc20 loads the first record's map: [0xfd7c4c], then [eax] and [eax+0x1a64]); ai.c indexes the 0x3e0-byte records (ai_MapRefs[bld].map) */
-#endif
 extern const unsigned int ai_BuildingTypeMasks[6];  /* 0x5eed70, lcmap.c: bit masks of building classes (three 64 bit masks) */
 extern float ai_DifficultyValue;              /* 0x5fef04 */
 extern float ai_DifficultyScale;              /* 0x5fef08 */

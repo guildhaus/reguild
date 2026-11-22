@@ -33,6 +33,7 @@ typedef unsigned int SOCKET;
 #include "io_text.h"
 #include "ls.h"
 #include "rd.h"
+#include "d3_fl.h"                   /* D3FLMAP: a scene's terrain map */
 #include "sv.h"
 #include "tr.h"
 #include "mission.h"
@@ -1063,7 +1064,7 @@ void ai_EvaluateProductionCategory2(AICHAR *ch)
     AIOBJ *a, *b, *c, *o, *o2;
     AIJOB *job;
     AIGOOD *g;
-    AIMAP *map;
+    D3FLMAP *map;
     G15TREE *plant;
     void *x;
     AIINFO info;
@@ -1254,12 +1255,12 @@ check:
             if (ai_Time.hour % 2 == 0) {
                 ch->flags1b4 &= ~0x20;
             } else if (!(ch->flags1b4 & 0x20)) {
-                map = ((AIMAPREF *)&ai_MapRefs)[init_BuildingSceneUniverse(ch->bld)].map;
+                map = d3_Scenes[init_BuildingSceneUniverse(ch->bld)].map;
                 if (!map)
                     return;
                 v71 = ch->bld->plants;
                 for (j = 0; j < 8; j++) {
-                    if (strstr(map->names[j], "PFLANZBAR"))
+                    if (strstr(map->typenames[j], "PFLANZBAR"))
                         idx = j;
                 }
                 for (i = 0; i < ai_NEntries * 4; i++) {
@@ -1271,10 +1272,10 @@ check:
                     plant = veg_FindType(ai_Entries[r].item);
                     n = 0;
                     for (y = 0; n < 4; y++) {
-                        if (y >= map->w)
+                        if (y >= map->size)
                             break;
-                        for (i = 0; n < 4 && i < map->w; i++) {
-                            if (map->cells[map->w * y + i] == idx && veg_Fits(v71, i, y, plant->size)) {
+                        for (i = 0; n < 4 && i < map->size; i++) {
+                            if (map->types[map->size * y + i] == idx && veg_Fits(v71, i, y, plant->size)) {
                                 cm_SetPlant(ch->bld->id, i, y, plant->id, 0, -1);
                                 n++;
                             }

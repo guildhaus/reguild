@@ -7,6 +7,7 @@ struct D3SM;
    vegetation map, roads. Names are ours. */
 #ifndef RD_H
 #define RD_H
+#include "path.h"                     /* PATHOUT, for G15ROAD */
 struct D3VECTOR;
 
 typedef struct G15FIND {                /* 0xa4 bytes, context of rd_CollectNamed */
@@ -38,37 +39,19 @@ typedef struct G15PLANT {               /* 0x18 bytes, 64 per vegetation map */
     struct D3OBJECT *obj;               /* 0x14, its 3D object */
 } G15PLANT;
 
-typedef struct G15MAP {                 /* the town map ai_MapRefs (am.h: AIMAPREF[]) */
-    int w;                              /* 0x00, cells per row */
-    char pad04[0x10];
-    unsigned char *cells;               /* 0x14, one byte per cell (the ground type) */
-    char pad18[0x78];
-    float x0;                           /* 0x90 */
-    char pad94[4];
-    float z0;                           /* 0x98 */
-    char pad9c[4];
-    float cw;                           /* 0xa0, cell width */
-    char pada4[0x14];
-    float ch;                           /* 0xb8, cell depth */
-    char padbc[0x19a8];
-    char ground[8][0x40];               /* 0x1a64, the ground type names ("EINFACHER_WEG", "PRUNK_WEG", ..) */
-} G15MAP;
-
 
 
 
 
 typedef struct G15ROAD {                /* 0x1020 bytes, rd_Road */
-    G15MAP *map;                        /* 0x00 */
+    struct D3FLMAP *map;                /* 0x00, the town's terrain map (d3_Scenes[0].map) */
     struct D3SM *grid;                  /* 0x04, d3sm_Create's grid: its entries' type 6 / 0xb is a road */
     int simple;                         /* 0x08, the ground type "EINFACHER_WEG" (2 if none) */
     int prunk;                          /* 0x0c, the ground type "PRUNK_WEG" (1 if none) */
     unsigned char path[0x400][2];       /* 0x10, path_Find's cells */
     int n2;                             /* 0x810 */
     unsigned char path2[0x400][2];      /* 0x814, the road so far */
-    int n;                              /* 0x1014, path_Find's out: count, max, cells */
-    int max;                            /* 0x1018 */
-    void *pts;                          /* 0x101c */
+    PATHOUT out;                        /* 0x1014, path_Find's out: count, max, cells (path) */
 } G15ROAD;
 
 #include "rd_types.h"                 /* G15BK */

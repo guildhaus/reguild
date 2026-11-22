@@ -23,7 +23,7 @@
 #define d3if_SceneState0           (*(int *)((char *)&d3_DefaultD3DConfig + 0xc))  /* 0x5fb5c0 */
 
 /* d3_Scenes */
-#define ai_MapRefs               (*(void **)((char *)&d3_Scenes + 0xac))  /* 0xfd7c4c */
+#define ai_MapRefs               (d3_Scenes[0].map)  /* 0xfd7c4c, the town scene's terrain map */
 #define init_SceneDirty          (*(char (*)[3])((char *)&d3_Scenes + 0x3d5))  /* 0xfd7f75 */
 
 #endif
