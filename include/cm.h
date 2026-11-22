@@ -621,7 +621,7 @@ extern struct SBBANK *cm_AttackerPainVoices;  /* 0x6f0d44 */
 extern struct SBBANK *cm_DefenderPainVoices;  /* 0x6f0d48 */
 extern int cm_AttackerRole;  /* 0x6f0d50 */
 extern int cm_DefenderRole;  /* 0x6f0d54 */
-extern int cm_BootsObject;  /* 0x6f0d5c */
+extern struct D3BGF *cm_BootsObject;  /* 0x6f0d5c */
 extern float cm_FightCellScale;  /* 0x935d00 */
 extern float cm_DefenseFactor;  /* 0x60cb58 */
 
@@ -638,7 +638,7 @@ struct AICHAR *cm_NearestEnemy(struct AICHAR *c);  /* 0x4d1f10, the enemy the fi
 void snd_PlaySpecialTrack(char *name);  /* 0x4c23f0 */
 extern int snd_MusicEnabled;  /* 0x6f2578 */
 extern int sv_FrameMask;  /* 0x760638 */
-extern int cm_FightAmbient;  /* 0x6f0d4c */
+extern struct MSXTRACK *cm_FightAmbient;  /* 0x6f0d4c */
 
 float cm_ThreatAt(struct AICHAR *c, int a, int b, float limit);  /* 0x4d2010, the threat at a height map vertex for the fighter c */
 
@@ -857,7 +857,7 @@ void d2_SetObjEnabled(int obj, int on);  /* 0x475e40 */
 void cm_SetViewEnabled(int view, int on);  /* 0x4e2bd0 */
 void cm_WaitGroupScripts(void);  /* 0x4e2e00 */
 void snd_EndSpecialTrack(void);  /* 0x4c2480 */
-extern int cm_SceneRain;  /* 0x6f0dbc */
+extern struct D3TRAIN *cm_SceneRain;  /* 0x6f0dbc */
 extern struct D3SKYLAYER *cm_SkyLayer;  /* 0x6f0db4, the layer of cm_CreateSceneSky's sky */
 extern struct D3SKY *cm_SceneSky;  /* 0x6f0db8, the scene's sky (cm_CreateSceneSky) */
 struct D3SKY; struct D3SKYLAYER; void d3sky_DeleteLayer(struct D3SKY *s, struct D3SKYLAYER *l);  /* 0x45d800 */
@@ -870,7 +870,7 @@ struct D3SKY; struct D3SKY *d3sky_Create(float horizon, float fogstart, float fo
 void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l, float speed);  /* 0x45d960 */
 void d3sky_FadeLayer(struct D3SKY *s, struct D3SKYLAYER *l, unsigned char alpha, float time);  /* 0x45d9a0 */
 void cm_CreateSceneSky(char *tex);  /* 0x4e32f0 */
-extern char *cm_SceneFade;  /* 0x6f0da0, the fade 0x4e3060 started */
+extern struct D2FADE *cm_SceneFade;  /* 0x6f0da0, the fade 0x4e3060 started */
 extern int cm_SceneDepth;  /* 0x6f0d9c, the scene nesting depth */
 extern int cm_SceneEnterScript;  /* 0x60d36c, -1 or the object waited for (0x4284a0) */
 extern int evt_LastId;  /* 0x5f8438 */

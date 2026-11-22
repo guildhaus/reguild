@@ -6,11 +6,11 @@
    0x62d6bc and the subject changes from the action records of the table 0x62c420 to the screens. End: the
    end of the game code (the last function 0x5dd100 returns at 0x5dd3d6, nop fill to 0x5dd3e0); dinput.lib's
    c_dfDIKeyboard / c_dfDIMouse object tables follow, library data (config/symbols/game_range.toml).
-   Open: d2.h is not included yet: the unit's own declarations of d2_StartFade / d2_ReleaseFade /
-   d2_ScreenSurf / d2_Inputs / d2_LockSurface / d2_UnlockSurface disagree with d2.h's, so the unit reads the d2
-   records through local views (D2INPUTVIEW, D2FADEVIEW, D2SURFVIEW ...).
+   Open: d2.h is not included yet: the unit's own declarations of d2_ScreenSurf / d2_Inputs / d2_LockSurface /
+   d2_UnlockSurface disagree with d2.h's, so the unit reads the d2 records through local views (D2INPUTVIEW,
+   D2SURFVIEW ...); the fades are d2_types.h's D2FADE.
    Open: not included yet (dcp headers conflicts menu HEADER): ch.h cm.h d2.h d3_int_io.h gfx.h; held by
-   own declarations that differ from the owner's: d2_StartFade, d2_ReleaseFade, d2_ScreenSurf,
+   own declarations that differ from the owner's: d2_ScreenSurf,
    d2_Inputs, d2_LockSurface, d2_UnlockSurface, ch_List, d3io_Lod.
    Data: the four floor option bytes 0x6f35c8 .. 0x6f35cb are objects of their own (ai_GfxFloor, ai_GfxCameraLimits,
    ai_GfxFloorLod, ai_GfxCharDetail): ai_ApplyGfxOptions reads 0x6f35c9 as a byte (mov al, byte ptr) where a union gives a dword load.
@@ -419,9 +419,6 @@ void d2_SetObjFont(int obj, int font);                               /* 0x4760b0
 void d2_SetObjValue(int obj, ...);                                               /* 0x475cb0, d2.c (varargs: the call sites pass 1, 3 or 4 values) */
 void d2_SetObjMax(int obj, int v);                                   /* 0x475f40 */
 
-/* d2.h's D2FADE (the fade record of 0x4767d0): only the flags byte is read here (bit 2 = done, the
-   original tests the byte, not the dword); d2.h cannot be included, see the lead comment */
-typedef struct D2FADEVIEW { unsigned char flags; char pad1[0x63]; } D2FADEVIEW;
 /* d2's window records, as d2.c defines them (D2WIN, d2_types.h) */
 extern D2WIN d2_Wins[];             /* 0xf8f120, d2.h: D2WIN d2_Wins[0x61] */
 extern float sv_FramesPerTick;          /* 0x62378c, sv.c: the frames drawn since the last timer tick
@@ -435,8 +432,8 @@ int io_PrintText(intptr_t fmt, ...);          /* 0x515960, io_text.c: prints a t
 extern short d2_ScreenW;                /* 0xfb9072, d2.h */
 extern short d2_ScreenH;                /* 0xfb9070, d2.h */
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-D2FADEVIEW *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */
-void d2_ReleaseFade(D2FADEVIEW *f);        /* 0x476860, d2.h */
+D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */
+void d2_ReleaseFade(D2FADE *f);        /* 0x476860, d2.h */
 void d2_ClearScreen(void);              /* 0x46e990, d2.h */
 void d2_ShowPicture(int pic);           /* 0x46cfd0, d2.h */
 void sv_SetPanelEnabled(int on);        /* 0x522100, sv.c: disables the panel widgets when on is 0 */
@@ -1222,7 +1219,7 @@ int ai_MenuButton(int row, char *text, int win)
 
 void ai_LeaveGameScreen(void)
 {
-    D2FADEVIEW *fade;
+    D2FADE *fade;
     int flags;
     short w, h;
 
@@ -1255,7 +1252,7 @@ void ai_LeaveGameScreen(void)
 
 void ai_ResumeGameScreen(void)
 {
-    D2FADEVIEW *fade;
+    D2FADE *fade;
 
     fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
     while ((fade->flags & 4) == 0) {
@@ -2165,7 +2162,7 @@ void ai_OptionsGameScreen(void)
 
 void ai_CreditsScreen(void)
 {
-    D2FADEVIEW *fade;
+    D2FADE *fade;
     int bar, frames, pump, step;
 
     step = 4;

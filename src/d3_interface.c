@@ -678,7 +678,7 @@ struct TSTEXTURE *d3if_LoadSprite(char *name, char glow)
 
 /* 0x448270, draws sprite `t` centred at screen position x, y, rotated by `angle`, scaled by sx, sy, with
    alpha 0..1, over the whole screen */
-char d3if_DrawSprite(D3IFSPRITE *t, int x, int y, float angle, float sx, float sy, float alpha)
+char d3if_DrawSprite(TSTEXTURE *t, int x, int y, float angle, float sx, float sy, float alpha)
 {
     unsigned char a;
     float w, h, vx, vy;
@@ -689,7 +689,7 @@ char d3if_DrawSprite(D3IFSPRITE *t, int x, int y, float angle, float sx, float s
     int i;
 
     a = alpha * 255.0;
-    if (!t || t->frames <= 0 || !d3d_Device || !d3_Hardware || d3_Busy > 0)
+    if (!t || t->refs <= 0 || !d3d_Device || !d3_Hardware || d3_Busy > 0)
         return 0;
     d3_Busy++;
     w = d3d_ViewW;
@@ -701,7 +701,7 @@ char d3if_DrawSprite(D3IFSPRITE *t, int x, int y, float angle, float sx, float s
     D3_ZERO(TurboBuffer, sizeof TurboBuffer);
 #line 973
     D3DCHECK(d3d_Device->lpVtbl->SetTexture(d3d_Device, 0, t->surftext));
-    d3_SetBlendState(t->colorkey < 0xff, t->flags & 1, (t->flags >> 1) & 1);
+    d3_SetBlendState(t->flags.b[0] < 0xff, t->flags.b[2] & 1, (t->flags.b[2] >> 1) & 1);
     sx *= 0.5f;
     sy *= 0.5f;
     size = (float)t->size;

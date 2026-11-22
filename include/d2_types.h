@@ -1,4 +1,4 @@
-/* The record types of d2.c's tables d2_Wins, d2_Inputs, d2_Radios, d2_Views, d2_Pics, d2_Objs (and D2TEX / D2SURF /
+/* The record types of d2.c's tables d2_Wins, d2_Inputs, d2_Radios, d2_Views, d2_Pics, d2_Objs (and D2SURF /
    D2CTRL they use), for the
    units that declare the tables without the rest of d2.h: types only. d2.h includes it. */
 #ifndef D2_TYPES_H
@@ -7,10 +7,18 @@
 
 struct IDirectDrawSurface4;          /* <ddraw.h> */
 
-typedef struct D2TEX {              /* a sprite texture handle (tex_Find, d3if_DrawSprite) */
-    char pad00[0x74];
-    unsigned int size;              /* 0x74, size of one frame */
-} D2TEX;
+struct TSTEXTURE;                   /* ts_texture.h: a texture slot, the sprites' handle (d3if_LoadSprite) */
+
+typedef struct D2FADE {             /* 100 bytes, d2_fadeinfo (d2_StartFade; the menu units test flags & 4) */
+    unsigned int flags;             /* 0x00, 1 = in, 2 = out, 4 = done, 8 = remove when done */
+    int pad04[0x10];
+    int x, y, w, h;                 /* 0x44 */
+    unsigned int dur;               /* 0x54 */
+    unsigned int start;             /* 0x58 */
+    unsigned int last;              /* 0x5c */
+    struct TSTEXTURE *sprite;       /* 0x60 */
+} D2FADE;
+
 
 typedef struct D2SURF {             /* 0x40 bytes, a GFX.C surface (made by d2_MakeSurface): system memory pixels or a
                                        DirectDraw surface; the widgets are drawn on one */
@@ -101,7 +109,7 @@ typedef struct D2WIN {              /* 0x3c4 bytes, d2_Wins[0..0x60] */
     int nargs;                      /* 0x384, args used */
     int bgpic;                      /* 0x388, tiled background picture, -1 = none */
     int tileBackground;             /* 0x38c, 1: the background is the tiled d2_BackgroundTile */
-    D2TEX *spr;                     /* 0x390, background texture (d3if_LoadSprite) */
+    struct TSTEXTURE *spr;          /* 0x390, background texture (d3if_LoadSprite) */
     float alpha;                    /* 0x394 */
     int padl, padt, padr, padb;     /* 0x398 */
     int btnup;                      /* 0x3a8, scroll buttons / bar, -1: none */

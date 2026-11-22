@@ -493,7 +493,7 @@ void ai_CannonScene(AIBLD *rec)
     } saved;                    /* the clip rectangle and the scene to restore: one 20-byte local in the original's frame */
     unsigned mask;
     float dt;
-    unsigned char *pb;
+    D2FADE *pb;
     D3VECTOR4 cam3;
     D3VECTOR4 save3;
 
@@ -531,8 +531,8 @@ void ai_CannonScene(AIBLD *rec)
     sv_ResetScreenClip();
     sv_QuickJump.panelFlag = 0;
     d2_CaptionCopy[0] = 0;
-    pb = (unsigned char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
-    while (!(*pb & 4))
+    pb = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
+    while (!(pb->flags & 4))
         sv_RunFrame(0, mask | 0x100);
     n = 0;
     {
@@ -648,8 +648,8 @@ void ai_CannonScene(AIBLD *rec)
         sc.last = sc.now;
     }
     sv_SetStatusText(ch_EmptyName);
-    pb = (unsigned char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
-    while (!(*pb & 4))
+    pb = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
+    while (!(pb->flags & 4))
         sv_RunFrame(0, mask);
     d2_CloseView(sc.win_a4);
     d2_CloseView(sc.win_c0);

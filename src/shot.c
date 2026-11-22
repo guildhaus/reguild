@@ -152,7 +152,6 @@ void d2_RemoveObj(int obj);                                          /* 0x46e710
 void d2_SetObjFont(int obj, int font);                               /* 0x4760b0 */
 void d2_SetObjValue(int obj, ...);                                               /* 0x475cb0, d2.c (varargs: the call sites pass 1, 3 or 4 values) */
 void d2_SetObjMax(int obj, int v);                                   /* 0x475f40 */
-typedef struct D2FADEVIEW { unsigned char flags; char pad1[0x63]; } D2FADEVIEW;
 extern D2WIN d2_Wins[];             /* 0xf8f120, d2.h: D2WIN d2_Wins[0x61] */
 extern float sv_FramesPerTick;          /* 0x62378c, sv.c: the frames drawn since the last timer tick
                                            (the frame loop counts them in 0x623790, the tick callback
@@ -164,8 +163,8 @@ int io_PrintText(intptr_t fmt, ...);          /* 0x515960, io_text.c: prints a t
 extern short d2_ScreenW;                /* 0xfb9072, d2.h */
 extern short d2_ScreenH;                /* 0xfb9070, d2.h */
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-D2FADEVIEW *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */
-void d2_ReleaseFade(D2FADEVIEW *f);        /* 0x476860, d2.h */
+D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur, unsigned int flags); /* 0x4767d0, d2.h */
+void d2_ReleaseFade(D2FADE *f);        /* 0x476860, d2.h */
 void d2_ClearScreen(void);              /* 0x46e990, d2.h */
 void d2_ShowPicture(int pic);           /* 0x46cfd0, d2.h */
 void sv_SetPanelEnabled(int on);        /* 0x522100, sv.c: disables the panel widgets when on is 0 */

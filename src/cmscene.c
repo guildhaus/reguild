@@ -173,7 +173,7 @@ G28REC *cm_CurrentFight = 0;  /* 0x6f0d90, the scene party running (cm_ExecCutsc
 int cm_DuelOver = 0;  /* 0x6f0d94 */
 unsigned int cm_SceneInflateFlags = 0;  /* 0x6f0d98 */
 int cm_SceneDepth = 0;  /* 0x6f0d9c, the scene nesting depth */
-char * cm_SceneFade = 0;  /* 0x6f0da0, the fade */
+D2FADE *cm_SceneFade = 0;  /* 0x6f0da0, the fade */
 unsigned int cm_FightStart = 0;  /* 0x6f0da4, fight start (d3_Time) */
 unsigned char cm_DuelScore[2] = {0};  /* 0x6f0da8, the damage taken by the left / right duellist (cm_DuelShotAction adds it, cm_RunDuel heals it back) */
 unsigned char cm_DuelLeftInsultWon = 0;  /* 0x6f0daa, the left duellist won the insult round (cm_DuelRound): the right one shoots worse */
@@ -183,7 +183,7 @@ unsigned char cm_DuelRightRollWon = 0;  /* 0x6f0dad, the right duellist won the 
 int cm_DuelVariantPos = 0;  /* 0x6f0db0, the cursor into cm_DuelVariants (cm_DuelVariant advances it) */
 struct D3SKYLAYER *cm_SkyLayer = 0;  /* 0x6f0db4 */
 struct D3SKY *cm_SceneSky = 0;  /* 0x6f0db8 */
-int cm_SceneRain = 0;  /* 0x6f0dbc */
+struct D3TRAIN *cm_SceneRain = 0;  /* 0x6f0dbc */
 int cm_DialogStart = 0;  /* 0x6f0dc0 */
 char cm_MessageBoxOpen = 0;  /* 0x6f0dc4 */
 
@@ -3941,11 +3941,11 @@ void cm_LoadEventScene(char *name)
 int cm_FadeToBlack(void)
 {
     if (cm_SkipEvents == 0) {
-        cm_SceneFade = (char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
-        if (!(*cm_SceneFade & 4)) {
+        cm_SceneFade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
+        if (!(cm_SceneFade->flags & 4)) {
             do {
                 sv_RunFrame(0, cm_DialogFrameFlags | 0x80);
-            } while (!(*cm_SceneFade & 4));
+            } while (!(cm_SceneFade->flags & 4));
         }
     }
 }
@@ -4569,8 +4569,8 @@ void cm_ExecCutscene(G28REC *m)
     }
     if (cm_SkipEvents == 0) {
         fl = (sv_FrameMask & ~8) | 0x10080;
-        cm_SceneFade = (char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
-        while ((*cm_SceneFade & 4) == 0)
+        cm_SceneFade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 1);
+        while ((cm_SceneFade->flags & 4) == 0)
             sv_RunFrame(0, fl);
         pos[0] = sv_ViewPos.x;
         pos[1] = sv_ViewPos.y;
@@ -4673,7 +4673,7 @@ void cm_ExecCutscene(G28REC *m)
         init_SetDetailLevel(d3_Terrain, 0);
         d3if_Prerender(1);
         if (cm_SceneFade != 0) {
-            d2_ReleaseFade((struct D2FADE *)cm_SceneFade);
+            d2_ReleaseFade(cm_SceneFade);
             cm_SceneFade = 0;
             d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x5a, 10);
         }

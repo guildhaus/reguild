@@ -157,11 +157,11 @@ extern struct SBBANK *cm_BombSounds;
 extern struct SBBANK *cm_DaggerSounds;
 extern struct SBBANK *cm_PistolSounds;
 extern struct SBBANK *cm_SwordSounds;
-extern int cm_FightAmbient;
+extern struct MSXTRACK *cm_FightAmbient;
 extern int cm_AttackerRole;
 extern int cm_DefenderRole;
 extern int cm_FlagObjectCount;
-extern int cm_BootsObject;
+extern struct D3BGF *cm_BootsObject;
 extern int cm_PointCount;
 extern int cm_FightForm;
 

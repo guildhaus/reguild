@@ -5004,7 +5004,7 @@ int cm_ExGebUpgrade(G17MSG *m, G17STAT *s)
                 d3_SetObjectRot(o, &rot);
                 ai_DropObjectAt(o, &v.v);
                 if (d3_QuadTree != 0)
-                    d3q_RemoveObject(b->object, (D3QNODE *)d3_QuadTree);
+                    d3q_RemoveObject(b->object, d3_QuadTree);
                 d3if_Delete(b->object);
                 if (o->info == 0)
                     d3_InflateObject(o);
@@ -5085,7 +5085,7 @@ int cm_ExBuildingDestroyed(G17MSG *m, G17STAT *s)
     }
     d3if_SelectScene(0, 1);
     if (d3_QuadTree != 0)
-        d3q_RemoveObject(b->object, (D3QNODE *)d3_QuadTree);
+        d3q_RemoveObject(b->object, d3_QuadTree);
     d3if_Delete(b->object);
     if (b->smokeEffect != -1) {
         sc = evt_FindById(b->smokeEffect);
@@ -5609,7 +5609,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
                                          ai_VgFilter, &list);
                         for (i = 0; i < list.count; i++) {
                             if (d3_QuadTree != 0)
-                                d3q_RemoveObject(list.objs[i], (D3QNODE *)d3_QuadTree);
+                                d3q_RemoveObject(list.objs[i], d3_QuadTree);
                             sprintf(text, "cm_ExCreateGeb(): killing objectptr: %s", list.objs[i]->name);
                             sprintf(text, "cm_ExCreateGeb(): killing objectname: %s", list.objs[i]->name);
                             d3if_Delete(list.objs[i]);

@@ -175,11 +175,11 @@ typedef struct MAINCHARNEW {        /* the AICHAR fields the character replaceme
 extern struct SBBANK *main_SoundBanks[0x80]; /* 0x75df20 */
 extern char cm_RequestedSaveName[0x40];
 extern int main_LastLoadProgress;  /* 0x6f2610 */
-extern int main_BookObject;  /* 0x6f2614 */
+extern struct D3BGF *main_BookObject;  /* 0x6f2614 */
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 (f3gm.c) */
 extern int main_NoRoundFade;        /* 0x6f25c0, 1 skips the black fade before the round page */
 extern unsigned char main_GameEnded;  /* 0x6f25ad, sv.c: nonzero when the player reached the game's goal */
-extern int main_WindBank;           /* 0x75e630, the wind sound bank */
+extern struct SBBANK *main_WindBank;       /* 0x75e630, the wind sound bank */
 extern int sv_FrameMask;
 extern char ai_MissionMode;
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
@@ -1316,7 +1316,7 @@ int sv_RegisterNamePlate(char *name, char *text, int look);
    out. */
 void main_Menue(void)
 {
-    unsigned char *fade;
+    D2FADE *fade;
     char again;
     int f, grp, win;
     int bnew, bload, btut, bnet, bopt3, bcred, bquit, bopt1, bopt2, bini, bnetsave, bcheck;
@@ -1332,8 +1332,8 @@ void main_Menue(void)
     di_GetMouse();
     kb_Last = 0;
     evt_ResetNoGroup();
-    fade = (unsigned char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0, 1);
-    while ((*fade & 4) == 0)
+    fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0, 1);
+    while ((fade->flags & 4) == 0)
         sv_RunFrame(0, 0x24087);
     d2_CutsceneActive = 1;
     d3if_SelectScene(0, 0);
@@ -2781,15 +2781,15 @@ void main_LoadProgressCallback(int kind, int cur, int total)
 
 void main_CloseLoadingScreen(void)
 {
-    unsigned char *fade;
+    D2FADE *fade;
     unsigned mask;
 
     mask = 0x24087;
     if (net_Conn.s == -1)
         mask = 0x24086;
     tb_CloseFunction(d3io_NoopCallback);
-    fade = (unsigned char *)d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
-    while ((*fade & 4) == 0)
+    fade = d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 1);
+    while ((fade->flags & 4) == 0)
         sv_RunFrame(0, mask);
     d2_CloseView(init_StatusForm);
     main_Nothing();
@@ -5116,8 +5116,8 @@ int ai_GameFlags = 0;  /* 0x6f23f8 */
 int ai_Difficulty = 0;  /* 0x6f23fc */
 struct SBBANK *snd_SystemBank = 0;  /* 0x6f2400, the handle of the system sample bank system.sbf (main_ 0x532160 loads it) */
 struct SBBANK *snd_Bank = 0;  /* 0x6f2404, the sample bank */
-int snd_ThunderBank = 0;  /* 0x6f2408 */
-int snd_BookBank = 0;  /* 0x6f240c */
+struct SBBANK *snd_ThunderBank = 0;  /* 0x6f2408 */
+struct SBBANK *snd_BookBank = 0;  /* 0x6f240c */
 struct SBBANK *snd_RoomBank = 0;  /* 0x6f2410 */
 struct SBBANK *snd_TransportBank = 0;  /* 0x6f2414 */
 struct MSXTRACK *main_MenuSong = 0;  /* 0x6f2418, the main menu's song (main_Menue) */
@@ -5170,7 +5170,7 @@ int main_UdpOpen = 0;  /* 0x6f25c4, the udp socket of the network game is open (
 int cm_RequestedSaveSlot = 0;  /* 0x6f25c8 */
 char cm_RequestedSaveName[0x40] = {0};  /* 0x6f25d0, the save name a save request carried (cm.c copies it, sv_RunFrame saves) */
 int main_LastLoadProgress = 0;  /* 0x6f2610, the last loading progress the load callback drew */
-int main_BookObject = 0;  /* 0x6f2614, the book object "Buch" loaded at the game start (d3io_LoadObjectRef; released at the end) */
+struct D3BGF *main_BookObject = 0;  /* 0x6f2614, the book object "Buch" loaded at the game start (d3io_LoadObjectRef; released at the end) */
 int ai_NextEventId = 0;  /* 0x6f2618 */
 int he_EventTop = 0;  /* 0x6f261c, the highest used index of he_Events (own object: ai_NextEventId is a 4-byte int) */
 int he_QuickTop = 0;  /* 0x6f2620 / */
@@ -5206,7 +5206,7 @@ char main_NetHost[0x80];  /* 0x75e1c0, the network host address ([Network] Host 
 char main_AppDir[288];  /* 0x75e240 */
 char main_NetSaveName[MAX_PATH];  /* 0x75e360, the network game's city / save name (sprintf "%s/%s.net", read for "gamedata/network/%s.SAV"); size: 257..288 bytes, as LINK's pad puts ai_OptionsFile (32-aligned) at 0x75e480 and no code reads past the name (tools/exe/commongaps.py); MAX_PATH taken */
 int main_PlatformNT;  /* 0x75e62c, the OS is NT based (dwPlatformId != VER_PLATFORM_WIN32_WINDOWS) */
-int main_WindBank;  /* 0x75e630, the wind sample bank (sb_LoadSampleBank "natur\wind.sbf" at the game start) */
+struct SBBANK *main_WindBank;  /* 0x75e630, the wind sample bank (sb_LoadSampleBank "natur\wind.sbf" at the game start) */
 unsigned int ai_MissionSeed;  /* 0x75e120, the random seed of the missions (as mission.h) */
 AITIME ai_TimeCopy;  /* 0x75e130, the clock copy 0x75e130..0x75e13e (14 bytes, written whole by cm.c / sv.c) */
 int ai_Opponents[7];  /* 0x75e160 .. */

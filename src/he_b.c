@@ -2407,7 +2407,7 @@ void he_ShowConstruction(AIJOB *ev)
             if (o->kind != 5 || (o->flags & 4)) {
                 o->kind = 5;
                 if ((list.items[i]->flags & 4) && d3_QuadTree != 0)
-                    d3q_RemoveObject(list.items[i], (D3QNODE *)d3_QuadTree);
+                    d3q_RemoveObject(list.items[i], d3_QuadTree);
                 list.items[i]->flags &= ~4;
             }
         }
@@ -2420,7 +2420,7 @@ void he_ShowConstruction(AIJOB *ev)
             o = list.items[i];
             if (o->kind != 5 || (o->flags & 4)) {
                 if ((o->flags & 4) && d3_QuadTree != 0)
-                    d3q_RemoveObject(o, (D3QNODE *)d3_QuadTree);
+                    d3q_RemoveObject(o, d3_QuadTree);
                 list.items[i]->kind = 5;
                 list.items[i]->flags &= ~4;
             }
@@ -2452,7 +2452,7 @@ void he_ShowConstruction(AIJOB *ev)
             d3if_ShowTree(bld->object, 1);
         if (obj != 0) {
             if (d3_QuadTree != 0)
-                d3q_RemoveObject(obj, (D3QNODE *)d3_QuadTree);
+                d3q_RemoveObject(obj, d3_QuadTree);
             d3if_Delete(obj);
         }
     }
@@ -2826,7 +2826,7 @@ void he_RunConstruction(AIJOB *e)
         d3_ForEachObject(d3_DefaultScene, site.object, 0x2c0, ai_VgFilter, &list);
         for (i = 0; i < list.count; i++) {
             if (d3_QuadTree != 0)
-                d3q_RemoveObject(list.objs[i], (D3QNODE *)d3_QuadTree);
+                d3q_RemoveObject(list.objs[i], d3_QuadTree);
             d3if_Delete(list.objs[i]);
         }
         e->clock60 = ai_Time;
@@ -2921,7 +2921,7 @@ void he_RunConstruction(AIJOB *e)
                 init_TextureSetHook(bld->object);
             }
             if (d3_QuadTree != 0)
-                d3q_Rebuild(bld->object, (D3QNODE *)d3_QuadTree);
+                d3q_Rebuild(bld->object, d3_QuadTree);
             if (bld->object != 0 && bld->object->type == 1)
                 d3if_ShowTree(bld->object, 1);
             if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 5 || ai_Chars[bld->owner].kind == 7)

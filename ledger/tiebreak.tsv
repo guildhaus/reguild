@@ -3826,7 +3826,7 @@ exe	0x0056b750	he_CollectChild	he	9bcd403a75aa6246	no	byte	control=byte p1=byte 
 exe	0x0056b780	he_ShowConstruction	he	cb15dc8aacd8bfd8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bac0	he_ConstructionStage	he	35deb30781de00a1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056bc50	he_CreateConstruction	he	85436a6f90088bca	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0056be30	he_RunConstruction	he_b	6f444f155fc3c186	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cb0ddf854bdbcb0d
+exe	0x0056be30	he_RunConstruction	he_b	b7eb73f01812cb9b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	70e8a17014012442
 exe	0x0056cdd0	he_AllocMissionCheck	he	91266650b9870904	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056ce40	he_RunMissionCheck	he	0935945f54bdf6e8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0056d050	he_RegisterEventTypes03	he	16ede35742be5a19	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4504,7 +4504,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lc	65eb0135671435a2	no	draft	control=draft
 exe	0x005c3bb0	ai_PickBuildingChar	lc	6686bd2b4375d6dd	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	e415d6ea4fd0d502	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=568	2eb3e29bb00f55b1
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	f8cf243c25c45def	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	fe598ca2347cec34
-exe	0x005c5310	ai_CharInfoPanel	lcamt	9924361f6ccbfaae	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=4 compiled=24 (stopped at the goal)	bd379bfadd647555
+exe	0x005c5310	ai_CharInfoPanel	lcamt	0d2c6bf5d7f94c7b	yes	byte	sweep control=shape best=byte by 11 unused typedefs at the unit's start; codegens=6 compiled=24 (stopped at the goal)	17bcb4f4205c65e6
 exe	0x005c6050	ai_GiftWindow	lc	994c37b0cffb8ec2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	cdb8650ca52967df
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	8183ba27ce227d37	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	2eb3e29bb00f55b1
 exe	0x005c6530	ai_MarriageTest	lc	cdd796f72d1336ff	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

@@ -159,7 +159,7 @@ struct AICHAR *ai_JudgeProtestant = 0;  /* 0x6f1c00 */
 AICHAR *ai_KindBChars[8] = {0};  /* 0x6f1c04, the characters of the kind 0xb */
 extern int cm_NetFlags;  /* 0x6f2594 */
 unsigned char init_TextureSet = 0;  /* 0x6f1c24 */
-int d3_QuadTree = 0;  /* 0x6f1c28 */
+struct D3QNODE *d3_QuadTree = 0;  /* 0x6f1c28 */
 int init_TerrainDivide = 0;  /* 0x6f1c2c, nonzero: ai_GameFrame divides the terrain (d3fl_MakeDivide) at the game start and clears it */
 int init_UnreadBss = 0;  /* 0x6f1c30, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 int init_TownSoundCount = 0;  /* 0x6f1c34 */
@@ -231,10 +231,11 @@ extern struct AICHAR *ai_SceneChars[32];
 #include "vfs.h"
 #include "sv.h"
 #include "sv_quickjump.h"             /* SVQUICKJUMP: sv_QuickJump.panelFlag */
+#include "d2_types.h"                 /* D2FADE: the black fades of the scene loads */
 signed char init_BuildingUniverse[0x22];  /* 0x76fa60, the universe of each building class's scene */
 struct AIOBJ *ai_SceneObject;  /* 0x76fa84 */
 signed char init_ObjectUniverse[0x2dc];  /* 0x76faa0, the universe of each object prototype's scene (-1 = not loaded) */
-int init_TownSounds[16];  /* 0x76fd80, the handles of the town's sounds (16 at most), stopped by */
+struct SBSAMPLE *init_TownSounds[16];  /* 0x76fd80, the handles of the town's sounds (16 at most), stopped by */
 AIBLD *ai_SceneBuilding;  /* 0x76fdc0 */
 extern int ai_NBauplaetze;
 extern G15BK * ai_Bauplaetze;
@@ -311,7 +312,7 @@ void init_SceneObjectDestroyCB(int o)
 {
     he_RemoveGfxInfos(o);
     if (d3_QuadTree != 0)
-        d3q_RemoveObject((D3OBJECT *)o, (D3QNODE *)d3_QuadTree);
+        d3q_RemoveObject((D3OBJECT *)o, d3_QuadTree);
 }
 /* 0x50d380, names the scene object o after its prototype ("gb_NAME" for kind 2, p a building record; "ob_NAME" for
    kind 1, p an object instance), sets its kind (3 for a building, 0 with no mask for a building type of class 10,
@@ -366,7 +367,7 @@ void init_FreeScenes(void)
 
     d3if_SelectScene(0, 0);
     if (d3_QuadTree != 0) {
-        d3q_FreeNode((D3QNODE *)d3_QuadTree);
+        d3q_FreeNode(d3_QuadTree);
         d3_QuadTree = 0;
     }
     d3if_Reset();
@@ -521,7 +522,7 @@ void init_LoadObjectScene(int n)
     struct D3OBJECT *d;
     void (*cb)(int, int, int);
     unsigned fl;
-    char *bx;
+    D2FADE *bx;
     int changed;
 
     save = d3_CurrentScene;
@@ -530,13 +531,13 @@ void init_LoadObjectScene(int n)
     changed = 0;
     if (ai_GameState != 0 && !(ai_FrameWait > 0)) {
         fl = sv_FrameMask & 0xfffffff7 | 0x100080;
-        bx = (char *)d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
-        k = (unsigned char)*bx;
+        bx = d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
+        k = (unsigned char)bx->flags;
         while ((k & 4) == 0) {
             sv_RunFrame(0, fl);
-            k = (unsigned char)*bx;
+            k = (unsigned char)bx->flags;
         }
-        d2_ReleaseFade((struct D2FADE *)bx);
+        d2_ReleaseFade(bx);
         d2_ClearScreen();
         cb = sv_SceneLoadProgress;
     }
@@ -638,7 +639,7 @@ void init_LoadBuildingScene(int k)
     int save, uni, n, o, cls;
     struct D3OBJECT *d;
     int changed;
-    char *bx;
+    D2FADE *bx;
     char *slot;
     void (*cb)(int, int, int);
     unsigned fl;
@@ -661,14 +662,14 @@ void init_LoadBuildingScene(int k)
     if (*slot == -1) {
         if (ai_GameState != 0 && (ai_FrameWait <= 0 || sv_QuickJump.panelFlag != 0)) {
             fl = sv_FrameMask & 0xfffffff7 | 0x80;
-            bx = (char *)d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
-            n = (unsigned char)*bx;
+            bx = d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
+            n = (unsigned char)bx->flags;
             while ((n & 4) == 0) {
                 sv_RunFrame(0, fl);
-                n = (unsigned char)*bx;
+                n = (unsigned char)bx->flags;
             }
             d2_ClearScreen();
-            d2_ReleaseFade((struct D2FADE *)bx);
+            d2_ReleaseFade(bx);
             cb = sv_SceneLoadProgress;
         }
         uni = d3t_FindFreeScene();
@@ -702,14 +703,14 @@ void init_LoadBuildingScene(int k)
         }
         if (ai_GameState != 0 && !(ai_FrameWait > 0)) {
             fl = sv_FrameMask & 0xfffffff7 | 0x80;
-            bx = (char *)d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
-            n = (unsigned char)*bx;
+            bx = d2_StartFade(0, 0, (int)d2_ScreenW, (int)d2_ScreenH, "BLACK", 0x32, 1);
+            n = (unsigned char)bx->flags;
             while ((n & 4) == 0) {
                 sv_RunFrame(0, fl);
-                n = (unsigned char)*bx;
+                n = (unsigned char)bx->flags;
             }
             d2_ClearScreen();
-            d2_ReleaseFade((struct D2FADE *)bx);
+            d2_ReleaseFade(bx);
             cb = sv_SceneLoadProgress;
         }
         cls = *slot;
@@ -2358,8 +2359,8 @@ void init_RebuildQuadTree(void)
 {
     d3_ForEachObject2(d3_DefaultScene, 0, 0xc0, init_StripTorches);
     if (d3_QuadTree != 0) {
-        d3q_FreeNode((D3QNODE *)d3_QuadTree);
-        d3_QuadTree = (int)d3q_Create(0, 0x40, 8, 7);
+        d3q_FreeNode(d3_QuadTree);
+        d3_QuadTree = d3q_Create(0, 0x40, 8, 7);
     }
     d3_LightInvalidate(1);
 }
@@ -2430,11 +2431,11 @@ int init_FlagTreeObject(D3OBJECT *o)
 void init_RecreateQuadTree(void)
 {
     if (d3_QuadTree != 0) {
-        d3q_FreeNode((D3QNODE *)d3_QuadTree);
+        d3q_FreeNode(d3_QuadTree);
         d3_QuadTree = 0;
     }
     d3_ForEachObject2(d3_DefaultScene, 0, 0x40, (void (*)(D3OBJECT *))init_FlagTreeObject);
-    d3_QuadTree = (int)d3q_Create(0, 0x40, 8, 7);
+    d3_QuadTree = d3q_Create(0, 0x40, 8, 7);
 }
 /* 0x511890, gives every building of the class 6 (not the type 0x1c) a name: the names of its kind (the 0xc names at 0x143b400 + 0x38 per kind) that no building uses yet, up to 0x20 characters ("Building name too long: %s" is the error text), one picked at random into the building's name field (+5). The original returns nothing (no eax at the end; init_LocalData ignores it)
    @deep s15 (size queue, 542 vs 561): c2trace: b#2 (prio -367) wins ebx over i#1 (-370) by 3; the blocks
@@ -2973,7 +2974,7 @@ void init_SoundObjectFreeHook(D3OBJECT *o)
 
 void init_PlayTownSound(char *name, int volume, int delay)
 {
-    int h;
+    struct SBSAMPLE *h;
 
     h = sb_PlaySample(0, name, 0, 0x3f, (int)(volume * init_SoundVolume), 1, delay);
     if (init_TownSoundCount < 0x10) {

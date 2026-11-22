@@ -176,11 +176,11 @@ struct SBBANK *cm_AttackerTauntVoices = 0;  /* 0x6f0d3c */
 struct SBBANK *cm_DefenderTauntVoices = 0;  /* 0x6f0d40 */
 struct SBBANK *cm_AttackerPainVoices = 0;  /* 0x6f0d44 */
 struct SBBANK *cm_DefenderPainVoices = 0;  /* 0x6f0d48 */
-int cm_FightAmbient = 0;  /* 0x6f0d4c */
+struct MSXTRACK *cm_FightAmbient = 0;  /* 0x6f0d4c */
 int cm_AttackerRole = 0;  /* 0x6f0d50 */
 int cm_DefenderRole = 0;  /* 0x6f0d54 */
 int cm_FlagObjectCount = 0;  /* 0x6f0d58 */
-int cm_BootsObject = 0;  /* 0x6f0d5c */
+struct D3BGF *cm_BootsObject = 0;  /* 0x6f0d5c */
 int cm_PointCount = 0;  /* 0x6f0d60 */
 int cm_FightForm = 0;  /* 0x6f0d64 */
 
@@ -1066,7 +1066,7 @@ void cm_UpdateSceneChars()
 void cm_DrawScrollArrows()
 {
     int up = 0, e = 0, a = 0, b = 0;
-    int t;
+    void *t;
 
     t = d2_GetPic(0x52c);
     if (sv_BorderViewX == -1) {

@@ -70,13 +70,6 @@ typedef struct D2SEG {              /* 0x10c bytes, one piece of the text being 
 
 /* data */
 /* views, form files, fades (0x4741f0..0x476c00, round 18) */
-typedef struct D2TEXX {             /* full view of D2TEX */
-    char pad00[0x60];
-    void *surf;                     /* 0x60, the texture's DirectDraw surface (D3FLTEX.surf) */
-    char pad64[0x10];
-    unsigned int size;              /* 0x74 */
-} D2TEXX;
-
 typedef struct D2FORMH {            /* start of one window of a form file, both versions */
     short x, y, w, h;               /* 0x00 */
     unsigned int flags;             /* 0x08 */
@@ -149,16 +142,6 @@ typedef struct D2DISSOLVE {         /* 0x20 bytes, a picture being copied to the
 
 #define D2VOP(o) ((D2VIEW *)((char *)d2_Views + (o)))
 
-typedef struct D2FADE {             /* 100 bytes, d2_fadeinfo */
-    unsigned int flags;             /* 0x00, 1 = in, 2 = out, 4 = done, 8 = remove when done */
-    int pad04[0x10];
-    int x, y, w, h;                 /* 0x44 */
-    unsigned int dur;               /* 0x54 */
-    unsigned int start;             /* 0x58 */
-    unsigned int last;              /* 0x5c */
-    D2TEX *sprite;                  /* 0x60 */
-} D2FADE;
-
 typedef struct D2FRCT { int id, amount, unk; } D2FRCT;
 
 typedef struct D2PAINTWIN {         /* D2WIN as far as the paintbox functions use it */
@@ -208,7 +191,7 @@ extern int d2_ClipLeft;            /* 0x6f0458, clip left */
 extern int d2_ClipTop;            /* 0x6f045c, clip top */
 extern D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern D2PICHDR *d2_FontPic;      /* 0x6ed948, the font "_FONT" */
-extern D2TEX *d2_CaptionTex;         /* 0x6ed960, sprite behind captions / texts */
+extern struct TSTEXTURE *d2_CaptionTex; /* 0x6ed960, sprite behind captions / texts */
 extern D2OBJ **d2_DrawOrder;        /* 0x6ed964, objects in drawing order (0x300) */
 extern void *d2_BackSurf;          /* 0x6ed92c */
 extern char d2_PicBase;             /* 0x6ed934 */
@@ -283,7 +266,7 @@ int d2_ClearSurface(D2SURF *surf);                                              
 int d2_PutPixel(int x, int y, unsigned short color, D2SURF *surf);             /* 0x479b60, plots a pixel */
 int d2_PutPixelClipped(int x, int y, unsigned short color, D2SURF *surf);             /* 0x479b90, the same, clipped */
 
-struct D3IFSPRITE; char d3if_DrawSprite(struct D3IFSPRITE *t, int x, int y, float angle, float sx, float sy, float alpha); /* 0x448270 */
+char d3if_DrawSprite(struct TSTEXTURE *t, int x, int y, float angle, float sx, float sy, float alpha); /* 0x448270 */
 char d3_ScreenToUV(float sx, float sy, struct D3OBJECT *obj, void *tex, float *outu, float *outv); /* 0x448e60 */
 void d3io_NoopCallback(void *t);                                                            /* 0x44ee40, (x, y, surf, pic) */
 struct TSTEXTURE * tex_Find(char *name);                                                    /* 0x45f980 */

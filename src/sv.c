@@ -86,7 +86,7 @@ extern int di_Absolute, di_MinX, di_MinY, di_MaxX, di_MaxY;  /* 0x5f3240, 0x6310
 extern unsigned char kb_Last;  /* 0x1468410 */
 #define sv_D2Objs d2_Objs  /* 0xf8f080, the typed view d2.h gives it (D2OBJ *) */
 
-extern int sv_ViewShape;  /* 0x6f22c0 */
+extern struct D2SHP *sv_ViewShape;  /* 0x6f22c0 */
 extern struct D2SURF *sv_GroundplanSurf, *sv_GroundplanView;  /* 0x6f22c4, 0x6f22c8 */
 #define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: sv_BuildScreenLayout clears the key byte by byte (mov byte [0x6f0454] / [0x6f0455] / [0x6f0456], bl), not through the D2COLKEY word gb */
 /* the object / character record fields sv.c reads (AIBLD / AICHAR in ai.h; ai.h cannot be included here: its
@@ -656,7 +656,8 @@ lend:
 
 void sv_BuildScreenLayout(int s)
 {
-    int t, i;
+    void *t;
+    int i;
     int tab[16];
     int *q;
 
@@ -1220,7 +1221,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
        d2_ShpBlit with esi = 1); the original pushes sv_ViewRectLeft, sv_ViewRectTop, d2_ScreenSurf,
        sv_ViewShape. */
     if (sv_ViewShape != 0)
-        d2_ShpBlit(sv_ViewRectLeft, sv_ViewRectTop, (struct D2SURF *)d2_ScreenSurf, (struct D2SHP *)sv_ViewShape);
+        d2_ShpBlit(sv_ViewRectLeft, sv_ViewRectTop, (struct D2SURF *)d2_ScreenSurf, sv_ViewShape);
     if (a & 1) {
         if (sv_ButtonFamilyTree != -1) { d2_RemoveObj(sv_ButtonFamilyTree); sv_ButtonFamilyTree = -1; }
         if (sv_ButtonCompare != -1) { d2_RemoveObj(sv_ButtonCompare); sv_ButtonCompare = -1; }
@@ -1414,7 +1415,7 @@ void sv_UpdateCityPanel(unsigned char a, int b)
    whole screen shown for one message round (0x5309a0 (0, 0x1c6)), the strip 0x623840 shown (0x4756b0) and the background copied back */
 void sv_RedrawScreen(void)
 {
-    int r;
+    D2FADE *r;
 
     d2_ClearSurface(d2_ScreenSurf);
     d2_DrawPic(0, 0, sv_PanelPic, d2_ScreenSurf);
@@ -3344,7 +3345,7 @@ char sv_CollectBannerCB(char *o, int *p)
     return p[0] < 0x20;
 }
 
-extern int d3_QuadTree, sv_PanelBldPic, sv_PanelHealthBar, sv_PanelCartWin, sv_PanelItemBtn, sv_PanelTransportBtn, sv_PanelCartBtn, sv_PanelActionBtn, sv_PanelCartChar;  /* 0x6f1c28, 0x623864, 0x623868, 0x62387c, 0x623888, 0x62388c, 0x623890, 0x623894, 0x631078 */
+extern int sv_PanelBldPic, sv_PanelHealthBar, sv_PanelCartWin, sv_PanelItemBtn, sv_PanelTransportBtn, sv_PanelCartBtn, sv_PanelActionBtn, sv_PanelCartChar;  /* 0x623864, 0x623868, 0x62387c, 0x623888, 0x62388c, 0x623890, 0x623894, 0x631078 */
 extern int sv_PanelWidgets[4];  /* 0x62386c */
 
 int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int flags, int win);                     /* 0x46a960 */
@@ -3374,7 +3375,7 @@ void sv_RemoveBanners(AIBLD *bld)
         if (0 < list[0]) {
             do {
                 if (d3_QuadTree != 0)
-                    d3q_RemoveObject((D3OBJECT *)list[i + 1], (D3QNODE *)d3_QuadTree);
+                    d3q_RemoveObject((D3OBJECT *)list[i + 1], d3_QuadTree);
                 d3if_Delete((struct D3OBJECT *)list[i + 1]);
                 i++;
             } while (i < list[0]);
@@ -7421,7 +7422,7 @@ int sv_UnreadBss2 = 0;  /* 0x6f22b0, no surviving instruction or pointer refers 
 int sv_CameraScrolled = 0;  /* 0x6f22b4 */
 int sv_UnreadBss3 = 0;  /* 0x6f22b8, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 int ai_FrameWait = 0;  /* 0x6f22bc */
-int sv_ViewShape = 0;  /* 0x6f22c0 */
+struct D2SHP *sv_ViewShape = 0;  /* 0x6f22c0 */
 struct D2SURF *sv_GroundplanSurf = 0;  /* 0x6f22c4, the groundplan bitmap while sv_LoadGroundplan reads it */
 struct D2SURF *sv_GroundplanView = 0;  /* 0x6f22c8, the groundplan copy the panel blits */
 int sv_BorderViewX = 0;  /* 0x6f22cc */

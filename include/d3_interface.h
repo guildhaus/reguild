@@ -53,18 +53,6 @@ typedef struct D3IFMOVE {           /* context of d3if_MoveCB */
     D3SCENE *from, *to;
 } D3IFMOVE;
 
-typedef struct D3IFSPRITE {         /* a texture slot (TSTEXTURE) as d3if_DrawSprite reads it */
-    char pad00[0x40];
-    int frames;                     /* 0x40 */
-    char pad44[0x20];
-    struct IDirect3DTexture2 *surftext; /* 0x64 */
-    char pad68[0x4];
-    unsigned char colorkey;         /* 0x6c, 0xff = none */
-    char pad6d;
-    unsigned char flags;            /* 0x6e, bit 0 alpha, bit 1 glow */
-    char pad6f[0x5];
-    unsigned int size;              /* 0x74 */
-} D3IFSPRITE;
 
 typedef union D3IFTEXFLAGS {        /* D3TEXFLAGS with the bits named */
     D3TEXFLAGS raw;                 /* what tex_Load takes by value */
