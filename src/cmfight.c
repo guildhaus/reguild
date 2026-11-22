@@ -163,7 +163,7 @@ D3OBJECT *cm_HoverObject = 0;  /* 0x6f0ce0 */
 int cm_FightPaused = 0;  /* 0x6f0ce4, fight paused */
 AICHAR *cm_FightDefender = 0;  /* 0x6f0ce8, the defending side's leader */
 AICHAR *cm_FightAttacker = 0;  /* 0x6f0cec, the attacking side's leader */
-char * cm_PickMarker = 0;  /* 0x6f0cf0 */
+D3OBJECT *cm_PickMarker = 0;  /* 0x6f0cf0 */
 int cm_FightWinner = 0;  /* 0x6f0cf4 */
 int cm_FightSettled = 0;  /* 0x6f0cf8 */
 int cm_FightLootValue = 0;  /* 0x6f0cfc */
@@ -2106,7 +2106,7 @@ void cm_EndFightScene(G28REC *rec)
 
     cm_FadeToBlack();
     if (cm_PickMarker != 0) {
-        d3if_Delete((struct D3OBJECT *)cm_PickMarker);
+        d3if_Delete(cm_PickMarker);
         cm_PickMarker = 0;
     }
     sb_UnloadSampleBank(cm_FightSounds);

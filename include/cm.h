@@ -542,7 +542,7 @@ struct D3SM; char d3sm_Pick(struct D3SM *h, int sx, int sy, int *px, int *pz);  
 char d3if_Show(struct D3OBJECT *obj, char show);  /* 0x4471b0 */
 extern int cm_SelectedCount;  /* 0x6f0d08 */
 extern struct D3OBJECT *cm_HoverObject;  /* 0x6f0ce0 */
-extern char *cm_PickMarker;  /* 0x6f0cf0 */
+extern struct D3OBJECT *cm_PickMarker;  /* 0x6f0cf0 */
 extern struct D3OBJECT *ai_PickedObject;  /* 0x6f22e8 */
 extern struct AICHAR *ai_PickedChar;  /* 0x6f22f8 */
 
