@@ -201,14 +201,14 @@ int gv_EntryCount(struct AIBLD *o);    /* 0x4ef470 */
 int gv_SizeOpen(struct GVYARD *r, int i);      /* 0x4ef4f0 */
 extern struct AIBTYPE *ai_BTypes;    /* 0x7e3f30, the building types */
 int gv_ListEntry(struct GVYARD *r, int i, unsigned char n);  /* 0x4ef570 */
-int gv_EntryIndex(char *r, int *e);     /* 0x4ef6b0 */
+int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);     /* 0x4ef6b0 */
 int gv_EntryHeldBy(struct AICHAR *a, char *b);    /* 0x4ef710 */
 int gv_EntrySameId(int *a, int *b);      /* 0x4ef740 */
 int gv_EntryIsFree(int *a, int *b);      /* 0x4ef760 */
 int gv_EntryIsUsed(int *a, int *b);      /* 0x4ef770 */
 int gv_EntryHasId(int *a, int *b);      /* 0x4ef780 */
-unsigned gv_FindEntry(void *a, struct AIBLD *bld, unsigned after, int (*cb)(), int l);  /* 0x4ef7c0 */
-unsigned gv_LoadGraveyard(struct AIBLD *o, int *e);  /* 0x4ef900 */
+struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after, int (*cb)(), int l);  /* 0x4ef7c0 */
+struct GVENTRY *gv_LoadGraveyard(struct AIBLD *o, int *e);  /* 0x4ef900 */
 GVGRAVE *gv_RandomGrave(struct AIBLD *o);/* 0x4ef930 */
 extern const int gv_EntryCounts[];             /* 0x5ee054, entries per kind */
 extern const int gv_ListEntries0[4];         /* 0x5ee084, the entries of list 0 by the building level */
@@ -260,8 +260,8 @@ struct CHARACTER *gm_PlaceOnStage(int id, int a, int b, int *p4, int *p5);      
 void gm_ChooseHeadIcon(struct AICHAR *c);                     /* 0x4fb890 */
 GVENTRY *gv_FindWornEntry(struct AIBLD *bld, unsigned char m);  /* 0x4f22a0 */
 
-int gv_FindHeldEntry(void *a, unsigned char **o, int *e);  /* 0x4f2540 */
-int gv_FindReservedEntry(void *a, unsigned char **o, int *e);  /* 0x4f25d0 */
+int gv_FindHeldEntry(void *a, struct AIBLD **o, struct GVENTRY **e);  /* 0x4f2540 */
+int gv_FindReservedEntry(void *a, struct AIBLD **o, struct GVENTRY **e);  /* 0x4f25d0 */
 float gv_SeanceChance(struct AIBLD *o);           /* 0x4f2660 */
 int gv_GetTableRecord(int i, AIDEC *out);     /* 0x4f2720 */
 int gv_FindTableRecord(struct AICHAR *c, unsigned b, int *out);  /* 0x4f2870 */

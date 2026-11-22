@@ -479,7 +479,7 @@ extern const int ai_GravePicsAlt[4];
 extern const int ai_GraveGoods[4];
 
 /* dcp unit split: the declarations of svgrave before the moved functions */
-unsigned gv_FindEntry(void *a, struct AIBLD *bld, unsigned after, int (*cb)(), int l); int gv_EntryIndex(char *r, int *e);
+struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after, int (*cb)(), int l); int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
 typedef struct GVROW {
     int btn;                    /* 0x00, its button object, -1: an unused row */
     GVENTRY *entry;             /* 0x04, the grave entry, 0: unused */

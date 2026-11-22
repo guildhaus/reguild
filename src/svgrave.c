@@ -515,7 +515,7 @@ void ai_GraveSizeButtons(AIBLD *rec, int *w)
     d2_Objs[w[w[12] + 8]].checked = 1;
 }
 
-unsigned gv_FindEntry(void *a, struct AIBLD *bld, unsigned after, int (*cb)(), int l); int gv_EntryIndex(char *r, int *e);
+struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after, int (*cb)(), int l); int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
 
 /* a row of the graveyard contact window's grave list (w + 0xd, 0x10 rows of 4 dwords; ai_GraveList fills them) */
 typedef struct GVROW {
@@ -582,14 +582,14 @@ void ai_GraveList(AIBLD *rec, int *w, int sel)
     d2_SetForm(w[0], 4);
     io_PrintText((intptr_t)"$C");
     sv_CreateScrollButtons(0, 0, w[5], w[2], 0x35, a, b, &sel);
-    e = (GVENTRY *)gv_FindEntry(0, rec, 0, 0, w[0xc]);
+    e = gv_FindEntry(0, rec, 0, 0, w[0xc]);
     n = 0;
     if (e) {
         row = ((GVWIN *)w)->rows;
         do {
             row->entry = e;
             row->size = e->size;
-            row->index = gv_EntryIndex((char *)rec->yard, (int *)e);
+            row->index = gv_EntryIndex(rec->yard, e);
             if (e->id == -1)
                 row->btn = d2_WinOpenPic(1, n * 0x35 + 2, ai_GravePics[w[0xc]], w[2]);
             else
@@ -598,7 +598,7 @@ void ai_GraveList(AIBLD *rec, int *w, int sel)
                 d2_WinOpenPic(0xf, n * 0x35 + 9, 0x7de, w[2]);
             d2_Objs[row->btn].interactive = 1;
             d2_Objs[row->btn].style = 3;
-            e = (GVENTRY *)gv_FindEntry(0, rec, (unsigned)e, 0, w[0xc]);
+            e = gv_FindEntry(0, rec, e, 0, w[0xc]);
             n++;
             row++;
         } while (e);
@@ -929,14 +929,14 @@ void ai_GraveWindow(GVPICK *out, AIBLD *rec, char *title, int flag, void (*cb)(A
                     if (out) {
                         out->entry = ((GVWIN *)w)->rows[w[0x4d]].entry;
                         out->size = out->entry->size;
-                        out->index = gv_EntryIndex((char *)rec->yard, (int *)out->entry);
+                        out->index = gv_EntryIndex(rec->yard, out->entry);
                         out->grave = ((GVWIN *)w)->items[j].grave;
                         out->id = out->grave->id;
                     }
                     if (cb) {
                         pick.entry = ((GVWIN *)w)->rows[w[0x4d]].entry;
                         pick.size = pick.entry->size;
-                        pick.index = gv_EntryIndex((char *)rec->yard, (int *)pick.entry);
+                        pick.index = gv_EntryIndex(rec->yard, pick.entry);
                         pick.grave = ((GVWIN *)w)->items[j].grave;
                         pick.id = pick.grave->id;
                         d2_SetViewEnabled(w[0], 0);
@@ -950,14 +950,14 @@ void ai_GraveWindow(GVPICK *out, AIBLD *rec, char *title, int flag, void (*cb)(A
                 if (out) {
                     out->entry = ((GVWIN *)w)->rows[w[0x4d]].entry;
                     out->size = out->entry->size;
-                    out->index = gv_EntryIndex((char *)rec->yard, (int *)out->entry);
+                    out->index = gv_EntryIndex(rec->yard, out->entry);
                     out->grave = 0;
                     out->id = -1;
                 }
                 if (cb) {
                     whole.entry = ((GVWIN *)w)->rows[w[0x4d]].entry;
                     whole.size = whole.entry->size;
-                    whole.index = gv_EntryIndex((char *)rec->yard, (int *)whole.entry);
+                    whole.index = gv_EntryIndex(rec->yard, whole.entry);
                     whole.grave = 0;
                     whole.id = -1;
                     d2_SetViewEnabled(w[0], 0);
@@ -2388,11 +2388,11 @@ void ai_GraveSeance(AIBLD *rec)
     char line[0x100];
     GVENTRY *e;
 
-    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
+    e = gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
     if (e != 0) {
         w.entry = e;
         w.size = e->size;
-        w.index = gv_EntryIndex((char *)rec->yard, (int *)e);
+        w.index = gv_EntryIndex(rec->yard, e);
         txt_Format(line, 0x4107, ai_GraveNames[e->size]);
         if (ai_GraveDetailOpen((int *)&w, txt_Ptrs[0x40cc]) == 0) {
             sv_CameraFollow();
@@ -2760,22 +2760,22 @@ void ai_GravePlanContact(AIBLD *rec)
 void ai_GraveRentContact(AIBLD *rec)
 {
     GVENTRY *e;
-    unsigned char *bld;
+    AIBLD *bld;
     GVDETAILWIN w;
     char line[0x100];
 
-    e = (GVENTRY *)gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
+    e = gv_FindEntry((char *)&ai_Chars[ai_PlayerId], rec, 0, gv_EntrySameId, 0xff);
     if (e != 0) {
         w.entry = e;
         w.size = e->size;
-        w.index = gv_EntryIndex((char *)rec->yard, (int *)e);
+        w.index = gv_EntryIndex(rec->yard, e);
         txt_Format(line, 0x4107, ai_GraveNames[e->size]);
         if (ai_GraveDetailOpen((int *)&w, line) == 0)
             return;
         ai_GraveDetailButtons(rec, (int *)&w);
         d2_CloseView(w.win);
         sv_CameraFollow();
-    } else if (gv_FindReservedEntry((char *)&ai_Chars[ai_PlayerId], &bld, (int *)&e) == 0) {
+    } else if (gv_FindReservedEntry((char *)&ai_Chars[ai_PlayerId], &bld, &e) == 0) {
         ai_RentGraveSelect(rec);
         sv_CameraFollow();
     } else {

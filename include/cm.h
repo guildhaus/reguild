@@ -118,7 +118,7 @@ struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *bld);                       
 struct AIOBJ *gm_Query(void *list, int n, ...);                                        /* 0x4ffe90, ai.h: AIOBJ * */
 struct AICHAR; struct AIBLD; struct AICHAR *gm_FindApplicant(struct AIBLD *o, unsigned title, unsigned job);                             /* 0x4fda70 */
 struct AIBLD; struct AIBLD *gm_FindHome(int unused, struct AIBLD *o);                                   /* 0x4fd820 */
-char * gm_FindGoods(int p, unsigned id);                                            /* 0x4ffc40, ai.h: int * */
+struct GMSTOCK *gm_FindGoods(int p, unsigned id);                                   /* 0x4ffc40 */
 extern G28REC *cm_CurrentFight;            /* 0x6f0d90, the scene party running (cm_ExecCutscene) */
 int gm_SumSlotAmounts(void *list, unsigned char i);                                     /* 0x508660 */
 int gm_FreeCapacity(struct AIOBJ *l, int item, int max);                                    /* 0x50ab80 */
@@ -138,8 +138,8 @@ unsigned char * gm_CreateBuilding(unsigned char kind, unsigned short owner);    
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8); /* 0x507690 */
 struct AIFIN; struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                                       /* 0x506430 */
 unsigned gm_TakeOverCharacter(int a, int b);                                                  /* 0x5064d0 */
-int gv_FindHeldEntry(void *a, unsigned char **o, int *e);                                    /* 0x4f2540 */
-int gv_EntryIndex(char *r, int *e);                                       /* 0x4ef6b0 */
+int gv_FindHeldEntry(void *a, struct AIBLD **o, struct GVENTRY **e);                                    /* 0x4f2540 */
+struct GVYARD; struct GVENTRY; int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);                                       /* 0x4ef6b0 */
 int gv_OrderBury(int *g, struct AIBLD *o, int v, int b);                     /* 0x4f01d0 */
 int gm_FreeBuilding(struct AIBLD *b);                                                       /* 0x5012e0 */
 void gm_KillSpieler(int c, int mode);                                     /* 0x503c60 */

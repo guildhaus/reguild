@@ -618,7 +618,7 @@ int ai_StepShot(SHOTREC *shot)
 {
     float fall = ai_Gravity * ai_ShotStep;
     float perMass = ai_ShotStep / shot->mass;
-    D3SM *map = (D3SM *)init_SceneHeightMaps[0];
+    D3SM *map = d3_Scenes[0].hmap;
     int ticks, i, px, pz, npx, npz;
     float height;
     D3VECTOR4 v, next, wind, d, a, b, m;
@@ -707,7 +707,7 @@ int ai_StepShotSlow(SHOTREC *shot)
 {
     float fall = ai_Gravity * ai_ShotHalfStep;
     float perMass = ai_ShotHalfStep / shot->mass;
-    D3SM *map = (D3SM *)init_SceneHeightMaps[0];
+    D3SM *map = d3_Scenes[0].hmap;
     int ticks, i, px, pz, npx, npz;
     float height;
     D3VECTOR4 v, next, wind, d, a, b, m;

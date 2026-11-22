@@ -1871,7 +1871,7 @@ void cm_SendGoodsDelta(GMSTOCK *p, unsigned char k)
     GMSTOCK t;
     GMSTOCK *o;
 
-    o = (GMSTOCK *)gm_FindGoods(k, p->item);
+    o = gm_FindGoods(k, p->item);
     m.type = 0x40;
     t = *p;
     t.demand -= o->demand;
@@ -2829,11 +2829,11 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
         s->state = 1;
         if (k >= 0) {
             AIBLD *y;
-            int *x;
+            GVENTRY *x;
 
             c = gm_FindChar(m->takeover.taken);
-            if (gv_FindHeldEntry(c, (unsigned char **)&y, (int *)&x) != 0)     /* y the graveyard building, x the entry (gv.h GVENTRY, its size first) */
-                gv_OrderBury((int *)c, y, *x, (unsigned char)gv_EntryIndex((char *)y->yard, x));
+            if (gv_FindHeldEntry(c, &y, &x) != 0)     /* y the graveyard building, x the entry (gv.h GVENTRY, its size first) */
+                gv_OrderBury((int *)c, y, x->size, (unsigned char)gv_EntryIndex(y->yard, x));
             s->kind = 1;
             s->ref = &ai_Chars[k];
         } else {
@@ -3050,12 +3050,12 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
         GMSTOCK *g;
 
         if (y2 == 0 && y != 0 && y->type == 0x1dd) {
-            g = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->sell.item);
+            g = gm_FindGoods(ai_OwnPlayer, m->sell.item);
             if (g != 0)
                 g->daily[2] += m->sell.count;
         }
         if (ys != 0 && ys->type == 0x1dd) {
-            g = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->sell.item);
+            g = gm_FindGoods(ai_OwnPlayer, m->sell.item);
             if (g != 0)
                 g->daily[3] += m->sell.count;
         }
@@ -3191,7 +3191,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
                 return 1;
             }
             o->count -= g->need[i] * n;
-            st = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, g->in[i]);
+            st = gm_FindGoods(ai_OwnPlayer, g->in[i]);
             if (st != 0)
                 st->daily[1] += g->batch * n;
             if (o->count == 0)
@@ -3217,7 +3217,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     b = gm_ObjectBuilding(y);
     if (b != 0)
         b->roundSums[0] += v;
-    st = (GMSTOCK *)gm_FindGoods(ai_OwnPlayer, m->make.item);
+    st = gm_FindGoods(ai_OwnPlayer, m->make.item);
     if (st != 0)
         st->daily[0] += g->batch * n;
     f = gm_PlayerRecord(r);
@@ -4622,7 +4622,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             d3if_SelectScene(k, 1);
             o = d3_FindObject(0, 0x100, 0, "dummy_TRANSPORTER_ENTRY");
             if (o != 0) {
-                hm = (D3SM *)d3_Scenes[k].hmap;
+                hm = d3_Scenes[k].hmap;
                 d3_PointToWorld(o, &o->pos, &v.v);
                 if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                     r = ch_AddAction(p, 0x2d, x, z, k);
@@ -4661,7 +4661,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
         ch_StandUp(p, "sitzend/aufstehen");
         o = d3_FindObject(0, 0x100, 0, "dummy_EINGANG");
         if (o != 0) {
-            hm = (D3SM *)d3_Scenes[scene].hmap;
+            hm = d3_Scenes[scene].hmap;
             d3_PointToWorld(o, &o->pos, &v.v);
             if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                 r = ch_AddAction(p, 0x2d, x, z, scene);
@@ -4706,7 +4706,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                 o = to->object;
         }
         if (o != 0) {
-            hm = (D3SM *)d3_Scenes[0].hmap;
+            hm = d3_Scenes[0].hmap;
             d3_PointToWorld(o, &o->pos, &v.v);
             if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                 r = ch_AddAction(p, 0x2d, x, z, 0);
@@ -4742,7 +4742,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
             if (o == 0)
                 o = d3_FindObjectNoCase(to->object, 0x100, 0, "dummy_TUER");
             if (o != 0) {
-                hm = (D3SM *)d3_Scenes[0].hmap;
+                hm = d3_Scenes[0].hmap;
                 d3_PointToWorld(o, &o->pos, &v.v);
                 if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                     r = ch_AddAction(p, 0x2d, x, z, 0);
@@ -4784,7 +4784,7 @@ int cm_ExChrGotoBuilding(G17MSG *m, G17STAT *s)
                     else
                         o = d3_FindObject(0, 0x100, 0, "dummy_EINGANG");
                     if (o != 0) {
-                        hm = (D3SM *)d3_Scenes[k].hmap;
+                        hm = d3_Scenes[k].hmap;
                         d3_PointToWorld(o, &o->pos, &v.v);
                         if (d3_GetHeightAt(hm, &v.v, &x, &z, &y) != 0) {
                             r = ch_AddAction(p, 0x2d, x, z, k);
@@ -5273,7 +5273,7 @@ int cm_ExCharModel(G17MSG *m, G17STAT *s)
 
 int cm_ExGoodsRecord(G17MSG *m, G17STAT *s)
 {
-    char *r;
+    GMSTOCK *r;
 
     r = gm_FindGoods(m->goods.player, m->goods.item);
     if (r == 0)
@@ -5293,7 +5293,7 @@ int cm_ExGoodsDelta(G17MSG *m, G17STAT *s)
 {
     GMSTOCK *g;
 
-    g = (GMSTOCK *)gm_FindGoods(m->goods.player, m->goods.item);
+    g = gm_FindGoods(m->goods.player, m->goods.item);
     if (g == 0)
         return 1;
     g->daily[0] += m->goods.daily[0];

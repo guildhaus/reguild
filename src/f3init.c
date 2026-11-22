@@ -82,7 +82,6 @@ typedef struct INIT_TORCHLIST {
                                           while txt_Keys keeps its original address 0xfe7e40, and our link puts
                                           it at 0x6d0448 (build/link/exe/exe.map), which made the mask 0x6e8607
                                           and every id / parent lookup miss */
-#define INIT_SCENE_HEIGHTMAP_END ((unsigned)init_SceneHeightMaps + 0x40 * 0x3e0) /* one past the height map of the last scene: 0xfd7c50 + 0x40 * 0x3e0 (init_FreeScenes); anchored on the array, not on d3anim_Tail + 0x10 (their linked distance differs from the original's) */
 #define INIT_CHARACTER_COUNT 0x300      /* ch.h's CH_MAX: the slots of the character list ch_List (0x1468ae0) */
 #define INIT_START_CHARACTERS_END ((int)&ai_Chars[16]) /* one past the 16th character record, compared signed (init_StartNewGame) */
 #define INIT_CHARACTERS_END ((unsigned)ai_Chars + 0x300 * 0x21c)  /* one past the character table ai_Chars (0x770b80 + 0x300 * 0x21c = 0x7d5f80; the original's gm_PlayerRecords follows it there, not in our link) */
@@ -363,7 +362,6 @@ char init_ResetSceneUniverses(void)
 void init_FreeScenes(void)
 {
     int i;
-    int *p;
 
     d3if_SelectScene(0, 0);
     if (d3_QuadTree != 0) {
@@ -389,14 +387,14 @@ void init_FreeScenes(void)
         }
         i++;
     } while (i < 0x22);
-    p = (int *)init_SceneHeightMaps;
+    i = 0;
     do {
-        if (*p != 0) {
-            d3sm_Destroy(*p);
-            *p = 0;
+        if (d3_Scenes[i].hmap != 0) {
+            d3sm_Destroy(d3_Scenes[i].hmap);
+            d3_Scenes[i].hmap = 0;
         }
-        p += 0xf8;
-    } while ((intptr_t)p < (intptr_t)INIT_SCENE_HEIGHTMAP_END);
+        i++;
+    } while (i < D3_MAX_SCENES);
 }
 /* 0x50d550, the scene object callback (a function start Ghidra missed) that allocates the building for a "gb_NAME" scene object o (0x50d100 resolved the name to the building type, bits 0x2000000 in +0x48): a new instance of the type without an owner (0x501580), for the KONTOR (type 0x47) the office of the player slot whose name is the part after the last '_' of the object name (the slot number goes to +0x65, its name to +5); the object and the building are linked (+0x61 / +0x200) and "f3_init:Gebaeude des Typs %s allokiert" is the (unused) log text. An object without a state of its own takes its parent's record. */
 
@@ -1944,7 +1942,8 @@ void init_LoadSiteScene(char *name)
 int init_InitTown(char *city)
 {
     char ok;
-    int h, i;
+    AIBLD *h;
+    int i;
     GMPLAYERSLOT *p;
     AICHAR *ch;
     GMPLAYERSLOT *pc;
@@ -2021,7 +2020,7 @@ int init_InitTown(char *city)
     }
     h = gm_BuildQuery(1, 5, 0x1c);
     while (h != 0) {
-        gm_AssignBuilding((AIBLD *)h, ai_PlayerChar->id, ai_PlayerChar->id);
+        gm_AssignBuilding(h, ai_PlayerChar->id, ai_PlayerChar->id);
         h = gm_BuildNext();
     }
     gm_UpdatePlayers();
@@ -2867,7 +2866,8 @@ void init_LoadShopScript(AIBLD *b, AIOBJ *o)
     char *name;
     int id;
     char buf[0x104];
-    char s1[4], s2[0x30];
+    VFSDIR *dir;                 /* the directory vfs_FindFile found the script in (unread) */
+    char s2[0x30];
 
     name = 0;
     w = 0;
@@ -2890,7 +2890,7 @@ void init_LoadShopScript(AIBLD *b, AIOBJ *o)
             sprintf(buf, "%slocations\\%s\\Einkauf_%s.esc", evt_Path, name + 1, name + 1);
         else
             sprintf(buf, "%slocations\\%s\\Einkauf_%s.esc", evt_Path, goods + 1, goods + 1);
-        if (vfs_FindFile(buf, vfs_Root, s1) != 0) {
+        if (vfs_FindFile(buf, vfs_Root, &dir) != 0) {
             sprintf(s2, "sp_%i", c->netId);
             h = evt_LoadScript(buf);
             if (h != 0) {

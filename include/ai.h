@@ -295,7 +295,7 @@ int cm_SendFieldDeltas(void);                                                 /*
 int cm_SendRelations(int a, int b, int c, int d);                  /* 0x4c4b00 */
 struct AIMSG; int cm_SendLongMessage(struct AIMSG *msg);                                           /* 0x4c4b70 */
 struct AIWEAPON; struct AIWEAPON *ai_FindWeaponRecord(int id);                                             /* 0x4cd9d0 */
-int gv_EntryIndex(char *r, int *e);                                        /* 0x4ef6b0 */
+struct GVYARD; struct GVENTRY; int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);                                        /* 0x4ef6b0 */
 int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y);                               /* 0x4f8300 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                       /* 0x4fe140 */
 void gm_SetTime(struct AITIME *c, unsigned char hour, unsigned char min, unsigned char sec);                   /* 0x4fe1e0, f3gm.c: sets the time of day of the clock c */

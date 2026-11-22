@@ -2338,8 +2338,8 @@ int amt_ExecutePriceMessage(AICHAR *c, int *m)
     int i, n, t, pick[10], cands[10];
     unsigned short *row;
     float f;
-    AMTGOODS rec;
-    AMTGOODS *p;
+    GMSTOCK rec;
+    GMSTOCK *p;
     int *q;
     char buf[512], msg[2048];
 
@@ -2388,19 +2388,19 @@ int amt_ExecutePriceMessage(AICHAR *c, int *m)
                                 f = (util_RandomF() + 1.0f) * f * 0.4f + 1.2f;
                             else
                                 f = 1.0 - ((util_RandomF() + 1.0f) * f * 0.3f + 0.2);
-                            p = (AMTGOODS *)gm_FindGoods(ai_OwnPlayer, id);
+                            p = gm_FindGoods(ai_OwnPlayer, id);
                             if (p != 0) {
                                 rec = *p;
-                                rec.mean = rec.amount * f;
+                                rec.mean = rec.demand * f;
                                 rec.price = gm_GoodsValue(ai_OwnPlayer, id);
-                                cm_SendGoodsDelta((struct GMSTOCK *)&rec, ai_OwnPlayer);
+                                cm_SendGoodsDelta(&rec, ai_OwnPlayer);
                                 m[3] = id;
-                                p = (AMTGOODS *)gm_FindGoods(ai_OwnPlayer, id2);
+                                p = gm_FindGoods(ai_OwnPlayer, id2);
                                 if (p != 0) {
                                     rec = *p;
-                                    rec.mean = rec.amount * f;
+                                    rec.mean = rec.demand * f;
                                     rec.price = gm_GoodsValue(ai_OwnPlayer, id2);
-                                    cm_SendGoodsDelta((struct GMSTOCK *)&rec, ai_OwnPlayer);
+                                    cm_SendGoodsDelta(&rec, ai_OwnPlayer);
                                     m[4] = id2;
                                 }
                                 cm_SendSetField(c->netId, 0x1c8, 4, 0x4000000, 0);

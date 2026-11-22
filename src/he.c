@@ -4586,7 +4586,7 @@ void he_RunCourtship(AIJOB *e)
             {
                 AICHAR *who;
                 AIBLD *yard;
-                int *entry;
+                GVENTRY *entry;
                 G28REC party;
 
                 cm_SendRelations(a->netId, b->netId, 0x7f - ai_Relations[a->id][b->id], 1);
@@ -4600,7 +4600,7 @@ void he_RunCourtship(AIJOB *e)
                     cm_SendFloatDelta(who->netId, 0x7c, 1.1f - who->pregnancy);
                 }
                 if (gv_FindReservedEntry(b, &yard, &entry) != 0)
-                    gv_OrderSetGraveHolder(0, yard, *entry, gv_EntryIndex((char *)yard->yard, entry));
+                    gv_OrderSetGraveHolder(0, yard, entry->size, gv_EntryIndex(yard->yard, entry));
                 MEM_ZERO(&party, sizeof(party));
                 party.members[0] = a->netId;
                 party.members[1] = b->netId;

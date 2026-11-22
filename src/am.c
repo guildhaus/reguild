@@ -1212,7 +1212,7 @@ int ai_DecideHandleGrave(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     AIBLD *bld;
     AICHAR *q;
     AIBLD *list[8];
-    int *r, *r2;
+    GVENTRY *r, *r2;
     int n, i, k, v, m, t2;
 
     r = 0;
@@ -1244,21 +1244,21 @@ int ai_DecideHandleGrave(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         }
     }
     if (r != 0) {
-        if (*r == 3)
+        if (r->size == 3)
             return 0;
-        for (k = 3; k > *r; k--) {
+        for (k = 3; k > r->size; k--) {
             r2 = gv_FindEntry(0, bld, 0, gv_EntryIsFree, k);
             if (r2 != 0) {
-                v = gv_MovePrice(p, *r, *r2, &i);
+                v = gv_MovePrice(p, r->size, r2->size, &i);
                 m = gm_CharCurrency(p, ai_OwnPlayer);
                 if ((int)(m * 0.22f) <= v)
                     return 0;
                 o1->arg2 = 5;
                 o1->ref2 = bld->id;
-                o1->ref = *r2;
+                o1->ref = r2->size;
                 o1->arg = v;
-                o2->ref = *r;
-                o2->arg2 = gv_EntryIndex((char *)bld->yard, r);
+                o2->ref = r->size;
+                o2->arg2 = gv_EntryIndex(bld->yard, r);
                 return 0x3e;
             }
         }
@@ -1275,14 +1275,14 @@ int ai_DecideHandleGrave(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     {
         int t3;
 
-        v = gv_LeasePrice(p, 0xff, *r2, 1, &t3);
+        v = gv_LeasePrice(p, 0xff, r2->size, 1, &t3);
         m = gm_CharCurrency(p, ai_OwnPlayer);
     }
     if ((int)(m * 0.22f) < v)
         return 0;
     o1->arg2 = 4;
     o1->ref2 = bld->id;
-    o1->ref = *r2;
+    o1->ref = r2->size;
     o1->arg = v;
     return 0x3e;
 }

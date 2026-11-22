@@ -52,14 +52,6 @@ extern AMTKIND amt_Kinds[40];           /* 0x60ed58 */
 extern const float amt_Pay[];                 /* 0x5edfbc */
 extern float amt_Rates[];               /* 0x60ec90, 7 floats per row */
 /* views of the records as amt_Rating reads them (type debt) */
-typedef struct AMTGOODS {              /* a 0x80-byte goods record (gm_FindGoods / the price table 0x4ffa10) */
-    char pad000[0x20];
-    float amount;                       /* 0x20, the amount (0x4ffa10 weighs it against the mean) */
-    float mean;                         /* 0x24 */
-    char pad028[0x10];
-    float price;                        /* 0x38, the price 0x4ffa10 computes */
-    char pad03c[0x44];
-} AMTGOODS;
 typedef union AMTFLOATBITS { float f; int i; } AMTFLOATBITS;    /* a float read as its bit pattern */
 #define AMT_BITS(p) (((AMTFLOATBITS *)(p))->i)
 typedef struct AMTKINDF {               /* an AMTKIND's +0x14 dword read as a float */

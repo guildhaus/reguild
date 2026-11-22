@@ -166,7 +166,7 @@ float gm_CharAge(unsigned short id);  /* 0x505e30, the age (+0x0a) of the charac
 float gm_StaffFactor(struct AIBLD *b, int n, int *ids);  /* 0x50cdc0, the staff factor of the building b with the persons ids[0 .. n - 1] */
 int gm_CollectOffers(int goods);  /* 0x500c20 */
 int gm_EquipmentValue(struct AIBLD *b, int level);  /* 0x509b10 */
-char *gm_FindGoods(int p, unsigned id);  /* 0x4ffc40 */
+struct GMSTOCK *gm_FindGoods(int p, unsigned id);  /* 0x4ffc40 */
 struct AIOBJ *gm_FindMarketObject(int id);  /* 0x500ec0 */
 int gm_FreeCapacity(struct AIOBJ *l, int id, int n);  /* 0x50ab80 */
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);  /* 0x501ce0 */

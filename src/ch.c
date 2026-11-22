@@ -1486,7 +1486,7 @@ int ch_SetGroundDiamond(int x, int z, unsigned char scene, int type, int r)
     int i = 0;
     int d, xx, zz, x1, z1;
 
-    h = (D3SM *)d3_Scenes[scene].hmap;
+    h = d3_Scenes[scene].hmap;
     if (d3_Scenes[0].hmap != h && d3_DefaultScene->hmap != h)
         return 0;
     if (!h)

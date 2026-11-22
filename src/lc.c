@@ -1834,7 +1834,7 @@ void ai_ShowProdSlot(int view, int part, LCPRODSLOT *slot, int input, unsigned c
     }
 }
 
-char * gm_FindGoods(int p, unsigned id);
+struct GMSTOCK *gm_FindGoods(int p, unsigned id);
 
 /* 0x58ee30, fills the goods grid of the store window from the store store of the building bld: the store's level
    (AIOBJ.lvl1c) opens the slots of the four rows of ai_ProdRows; each goods of the store (gm_Query 1, 5) keeps its
@@ -1867,7 +1867,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
                 if (ai_ProdGoods[i].good == 0)
                     break;
             if (i < 16 && (store->id != 0x1db && store->id != 0x1dc
-                           || (stock = (GMSTOCK *)gm_FindGoods(bld->playerSlot, item->id)) == 0 || stock->amount != 0)) {
+                           || (stock = gm_FindGoods(bld->playerSlot, item->id)) == 0 || stock->amount != 0)) {
                 ai_ProdGoods[i].good = item->id;
                 ai_ProdGoods[i].reserved = 0;
                 ai_ProdGoods[i].amount = 0;
@@ -1884,7 +1884,7 @@ int ai_UpdateStoreGoods(AIBLD *bld, AIOBJ *store)
                 ai_ProdGoods[i].amount = gm_ListAmount(store, item);
                 ai_ProdGoods[i].stock = gm_ListStock(store, item->id);
             } else {
-                stock = (GMSTOCK *)gm_FindGoods(bld->playerSlot, item->id);
+                stock = gm_FindGoods(bld->playerSlot, item->id);
                 if (stock != 0 && stock->amount != 0) {
                     ai_ProdGoods[i].amount = gm_ListAmount(store, item);
                     ai_ProdGoods[i].stock = gm_ListStock(store, item->id);
@@ -7332,7 +7332,7 @@ void ai_CityInfoWindow(AIBLD *city, int unused)
             io_PrintText(0x1a12);
             n = 0;
             for (item = gm_Query(group1->list, 1, 5); item != 0; item = gm_QueryNext()) {
-                stock = (GMSTOCK *)gm_FindGoods(city->playerSlot, item->id);
+                stock = gm_FindGoods(city->playerSlot, item->id);
                 if (stock != 0 && stock->amount != 0) {
                     ai_DrawGoodsCell(n % 4 * 0x3c + 0xe, n / 4 * 0x50 + 0x1e, d2_LastWindow, item->id, city->playerSlot);
                     n++;
@@ -7342,7 +7342,7 @@ void ai_CityInfoWindow(AIBLD *city, int unused)
             d2_SetForm(win, 4);
             io_PrintText(0x1a13);
             for (item = gm_Query(group2->list, 1, 5); item != 0; item = gm_QueryNext()) {
-                stock = (GMSTOCK *)gm_FindGoods(city->playerSlot, item->id);
+                stock = gm_FindGoods(city->playerSlot, item->id);
                 if (stock != 0 && stock->amount != 0) {
                     ai_DrawGoodsCell(n % 4 * 0x3c + 0xe, n / 4 * 0x50 + 0x1e, d2_LastWindow, item->id, city->playerSlot);
                     n++;

@@ -1073,7 +1073,7 @@ float gm_GoodsValue(int p, unsigned id)
 }
 /* 0x4ffc40, the goods record of the player p with the word at +0 equal to id, 0 when none */
 
-char *gm_FindGoods(int p, unsigned id)
+GMSTOCK *gm_FindGoods(int p, unsigned id)
 {
     int i;
     GMSTOCK *q;
@@ -1082,7 +1082,7 @@ char *gm_FindGoods(int p, unsigned id)
     q = gm_StockBlocks[p].goods;
     do {
         if (q->item == id)
-            return (char *)&gm_StockBlocks[p].goods[i];
+            return &gm_StockBlocks[p].goods[i];
         i++;
         q++;
     } while (i < 0x55);
@@ -5294,10 +5294,10 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
 
     n = 0;
     taken = 0;
-    if (gv_FindHeldEntry(dead, (unsigned char **)&s, (int *)&e) != 0) {
-        gv_OrderBury((int *)dead, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
+    if (gv_FindHeldEntry(dead, &s, &e) != 0) {
+        gv_OrderBury((int *)dead, s, e->size, gv_EntryIndex(s->yard, e));
         if (heir != 0 && heir != ai_PlayerChar && e->id == dead->netId)
-            gv_OrderSetGraveHolder(heir, s, e->size, gv_EntryIndex((char *)s->yard, (int *)e));
+            gv_OrderSetGraveHolder(heir, s, e->size, gv_EntryIndex(s->yard, e));
     }
     s = gm_BuildQuery(1, 4, dead->id);
     while (s != 0) {

@@ -231,19 +231,16 @@ int gv_ListEntry(GVYARD *r, int i, unsigned char n)
 }
 /* 0x4ef6b0, the index of the entry e (GVENTRY, its size the list 0 .. 3) within its list of the graveyard record r (GVYARD.lists); -1 for another list */
 
-int gv_EntryIndex(char *r, int *e)
+int gv_EntryIndex(GVYARD *g, GVENTRY *e)
 {
-    GVYARD *g = (GVYARD *)r;
-    GVENTRY *en = (GVENTRY *)e;
-
-    if (en->size == 0)
-        return en - g->lists[0];
-    if (en->size == 1)
-        return en - g->lists[1];
-    if (en->size == 2)
-        return en - g->lists[2];
-    if (en->size == 3)
-        return en - g->lists[3];
+    if (e->size == 0)
+        return e - g->lists[0];
+    if (e->size == 1)
+        return e - g->lists[1];
+    if (e->size == 2)
+        return e - g->lists[2];
+    if (e->size == 3)
+        return e - g->lists[3];
     return -1;
 }
 /* 0x4ef710, 1 when the entry b is held by the character a (GVENTRY.w08 == AICHAR.w050) and the holder is not 0x7fff */
@@ -302,7 +299,7 @@ int gv_EntryHasId(int *a, int *b)
    ends after gv_ListEntries<l>[level] entries (0xff: gv_EntryCount); 0 when none or the size is not open (gv_SizeOpen).
    after walks as the cursor (the original keeps the two in one register) */
 
-unsigned gv_FindEntry(void *a, AIBLD *bld, unsigned after, int (*cb)(), int l)
+GVENTRY *gv_FindEntry(void *a, AIBLD *bld, GVENTRY *after, int (*cb)(), int l)
 {
     char *bt;
     GVYARD *g;
@@ -326,26 +323,26 @@ unsigned gv_FindEntry(void *a, AIBLD *bld, unsigned after, int (*cb)(), int l)
         return 0;
     if (after == 0) {
         if (l == 0)
-            after = (unsigned)g->lists[0];
+            after = g->lists[0];
         else if (l == 1)
-            after = (unsigned)g->lists[1];
+            after = g->lists[1];
         else if (l == 2)
-            after = (unsigned)g->lists[2];
+            after = g->lists[2];
         else if (l == 3)
-            after = (unsigned)g->lists[3];
+            after = g->lists[3];
         else
-            after = (unsigned)g->entries;
+            after = g->entries;
     } else
-        after += sizeof(GVENTRY);
-    for (; after < (unsigned)end; after += sizeof(GVENTRY)) {
-        if (cb == 0 || gv_FindEntryCb(cb)(a, (void *)after) != 0)
+        after++;
+    for (; after < end; after++) {
+        if (cb == 0 || gv_FindEntryCb(cb)(a, after) != 0)
             return after;
     }
     return 0;
 }
 /* 0x4ef900, the first entry of the list 0xff of the object o whose +4 word is the callback's (0x4ef780) match for the entry e; 0 when e is 0 or e[0] is -1 */
 
-unsigned gv_LoadGraveyard(AIBLD *o, int *e)
+GVENTRY *gv_LoadGraveyard(AIBLD *o, int *e)
 {
     if (e != 0 && e[0] != -1)
         return gv_FindEntry(e, o, 0, gv_EntryHasId, 0xff);
@@ -391,7 +388,7 @@ int gv_BuryNewDead(AIBLD *bld, int n)
     bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
     if (bt->kind == 0x1d && bt->cap247 >= 1 && bt->cap247 <= 3) {
         for (i = 0; i < n; i++) {
-            e = (GVENTRY *)gv_FindEntry(0, bld, 0, gv_EntryIsFree, 0);
+            e = gv_FindEntry(0, bld, 0, gv_EntryIsFree, 0);
             if (e == 0)
                 return i;
             e->grave->id = ai_NextObjectId;
@@ -763,7 +760,7 @@ int gv_ReserveGrave(GVORDER *m)
     if (c == 0)
         return -6;
     if (m->size >= 0 && m->size <= 3) {
-        e = (GVENTRY *)gv_FindEntry(c, bld, 0, gv_EntryIsFree, m->size);
+        e = gv_FindEntry(c, bld, 0, gv_EntryIsFree, m->size);
         if (e == 0)
             return -7;
         e->id = c->netId;
@@ -1101,7 +1098,7 @@ int gv_MoveGrave(GVMOVE *m)
         return -7;
     s = src->grave;
     n = gv_EntryCounts[from];
-    dst = (GVENTRY *)gv_FindEntry(c, bld, 0, gv_EntryIsFree, m->to);
+    dst = gv_FindEntry(c, bld, 0, gv_EntryIsFree, m->to);
     if (dst == 0)
         return -7;
     d = dst->grave;
@@ -1305,10 +1302,10 @@ int gv_SendGrave(AIBLD *bld)
     z = gv_RandomGrave(bld);
     if (z == 0)
         return -1;
-    e = (GVENTRY *)gv_LoadGraveyard(bld, (int *)z);
+    e = gv_LoadGraveyard(bld, (int *)z);
     if (e == 0)
         return -1;
-    k = gv_EntryIndex((char *)bld->yard, (int *)e);
+    k = gv_EntryIndex(bld->yard, e);
     if (k == -1)
         return -1;
     return gv_OrderRaiseDead(bld, e->size, k, z->id, 0x1c);
@@ -1570,7 +1567,7 @@ void gv_GraveyardTurn(AIBLD *bld)
     h = -1;
     if (bld->owner != 0xffff && bld->owner != ai_PlayerChar->id)
         pl = &ai_Chars[bld->owner];
-    e = (GVENTRY *)gv_FindEntry(0, bld, 0, gv_EntryIsUsed, 0xff);
+    e = gv_FindEntry(0, bld, 0, gv_EntryIsUsed, 0xff);
     while (e != 0) {
         if (rounds >= 0x40 && h != -1) {
             while (1) {
@@ -1591,21 +1588,21 @@ void gv_GraveyardTurn(AIBLD *bld)
                 if (g->id != -1) {
                     f = (util_RandomF() + 1.0f) * 0.5f;
                     t = (int)(f * (gv_GraveWear[e->size] * ((float)e->b0c / 255.0f)));
-                    if (t <= 0 || ((gv_EntryIndex((char *)bld->yard, (int *)e) ^ ai_Time.year) & 1) != 0)
+                    if (t <= 0 || ((gv_EntryIndex(bld->yard, e) ^ ai_Time.year) & 1) != 0)
                         goto next;
-                    h = gv_OrderAdjustEntry(bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), -t);
+                    h = gv_OrderAdjustEntry(bld, e->size, gv_EntryIndex(bld->yard, e), -t);
                     goto counted;
                 }
             }
-            h = gv_OrderSetGraveHolder(0, bld, size, gv_EntryIndex((char *)bld->yard, (int *)e));
+            h = gv_OrderSetGraveHolder(0, bld, size, gv_EntryIndex(bld->yard, e));
         } else {
             AIMSG m;
 
             f = (util_RandomF() + 1.0f) * 0.5f;
             size = e->size;
             t = (int)(f * (gv_GraveWear[size] * ((float)e->b0c / 255.0f)));
-            if (t > 0 && ((gv_EntryIndex((char *)(yard = bld->yard), (int *)e) ^ ai_Time.year) & 1) == 0) {
-                h = gv_OrderAdjustEntry(bld, size, gv_EntryIndex((char *)yard, (int *)e), -t);
+            if (t > 0 && ((gv_EntryIndex((yard = bld->yard), e) ^ ai_Time.year) & 1) == 0) {
+                h = gv_OrderAdjustEntry(bld, size, gv_EntryIndex(yard, e), -t);
                 rounds++;
             }
             if (pl == 0)
@@ -1620,7 +1617,7 @@ void gv_GraveyardTurn(AIBLD *bld)
                 goto next;
             h = price = gv_LeasePrice(c, e->b0c, e->size, 0, &share);
             if (c == pl) {
-                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), 10, 0);
+                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, 0);
             } else if (c->kind == 6 || c->kind == 7) {
                 memset(&m, 0, sizeof(m));
                 m.to = c->netId;
@@ -1630,24 +1627,24 @@ void gv_GraveyardTurn(AIBLD *bld)
                 m.flags = 9;
                 m.lease.bld = bld->id;
                 m.lease.size = e->size;
-                m.lease.entry = (unsigned char)gv_EntryIndex((char *)bld->yard, (int *)e);
+                m.lease.entry = (unsigned char)gv_EntryIndex(bld->yard, e);
                 m.lease.price = price;
                 m.lease.years = 10;
                 h = cm_SendLongMessage(&m);
             } else if ((int)(gm_CharCurrency(c, ai_OwnPlayer) * 0.44f) > price) {
-                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e), 10, price);
+                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, price);
                 rounds++;
                 paid++;
                 sum += share;
                 goto next;
             } else {
-                h = gv_OrderSetGraveHolder(0, bld, e->size, gv_EntryIndex((char *)bld->yard, (int *)e));
+                h = gv_OrderSetGraveHolder(0, bld, e->size, gv_EntryIndex(bld->yard, e));
             }
         }
     counted:
         rounds++;
     next:
-        e = (GVENTRY *)gv_FindEntry(0, bld, (unsigned)e, gv_EntryIsUsed, 0xff);
+        e = gv_FindEntry(0, bld, e, gv_EntryIsUsed, 0xff);
     }
     if (gv_GravesInUse(bld) < 4)
         gv_OrderNewDead(bld, util_Random(2) + 1);
@@ -1668,8 +1665,8 @@ GVENTRY *gv_FindWornEntry(AIBLD *bld, unsigned char m)
     best = 0;
     if (bld->owner != 0xffff && bld->owner != ai_PlayerChar->id
         && gm_Query(bld->objList, 2, 4, 0x1f8, 6) != 0) {
-        for (e = (GVENTRY *)gv_FindEntry(0, bld, 0, gv_EntryIsUsed, 0xff); e != 0;
-             e = (GVENTRY *)gv_FindEntry(0, bld, (int *)e, gv_EntryIsUsed, 0xff)) {
+        for (e = gv_FindEntry(0, bld, 0, gv_EntryIsUsed, 0xff); e != 0;
+             e = gv_FindEntry(0, bld, e, gv_EntryIsUsed, 0xff)) {
             if (e->b0c < m && (best == 0 || e->b0c < best->b0c))
                 best = e;
         }
@@ -1730,9 +1727,10 @@ int gv_ProtectionPrice(AICHAR *c)
 /* 0x4f2540, finds the grave entry held by the character a (gv_EntryHeldBy, any size) in the first graveyard building
    (kind 0x1d) of the 256 that has one: *o = the building, *e = the entry, 1; 0 (both 0) when none has */
 
-int gv_FindHeldEntry(void *a, unsigned char **o, int *e)
+int gv_FindHeldEntry(void *a, AIBLD **o, GVENTRY **e)
 {
-    int i, r;
+    int i;
+    GVENTRY *r;
     AIBLD *b;
 
     *o = 0;
@@ -1741,7 +1739,7 @@ int gv_FindHeldEntry(void *a, unsigned char **o, int *e)
         if (b->type != 0 && ai_BTypes[b->type].kind == 0x1d) {
             r = gv_FindEntry(a, b, 0, gv_EntryHeldBy, 0xff);
             if (r != 0) {
-                *o = (unsigned char *)b;
+                *o = b;
                 *e = r;
                 return 1;
             }
@@ -1753,9 +1751,10 @@ int gv_FindHeldEntry(void *a, unsigned char **o, int *e)
    first graveyard building (kind 0x1d) of the 256 that has one: *o = the building, *e = the entry, 1; 0 (both 0) when none
    has */
 
-int gv_FindReservedEntry(void *a, unsigned char **o, int *e)
+int gv_FindReservedEntry(void *a, AIBLD **o, GVENTRY **e)
 {
-    int i, r;
+    int i;
+    GVENTRY *r;
     AIBLD *b;
 
     *o = 0;
@@ -1764,7 +1763,7 @@ int gv_FindReservedEntry(void *a, unsigned char **o, int *e)
         if (b->type != 0 && ai_BTypes[b->type].kind == 0x1d) {
             r = gv_FindEntry(a, b, 0, gv_EntrySameId, 0xff);
             if (r != 0) {
-                *o = (unsigned char *)b;
+                *o = b;
                 *e = r;
                 return 1;
             }

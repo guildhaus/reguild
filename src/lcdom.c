@@ -609,7 +609,7 @@ int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, 
 void d2_SetPointerItem(int id, int amount); void d2_ClearPointerItems(void);
 int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int flags, int win);  /* 0x46a960 (d2.h) */
 int d2_RemoveWindow(int win);                                   /* 0x472ce0 (d2.h) */
-char * gm_FindGoods(int p, unsigned id);
+struct GMSTOCK *gm_FindGoods(int p, unsigned id);
 struct D3OBJECT;
 struct D3OBJECT * d3_FindObject(struct D3OBJECT *a, int flags, struct D3OBJECT *c, char *name); /* 0x449690 (d3_interface.c, d3.h) */
 D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int b);         /* 0x52e1c0 (sv.c) */

@@ -4976,7 +4976,7 @@ TUTSTATE ai_TutorialState;  /* 0x6fa060, the tutorial state record ai_Tutorial p
 /* dcp unit split: the functions of svgrave the rest of sv_t uses */
 void ai_GraveDeadName(GVGRAVE *e, char *out);
 /* dcp unit split: the declarations that moved to svgrave (copies: drop what sv_t does not use) */
-unsigned gv_FindEntry(void *a, struct AIBLD *bld, unsigned after, int (*cb)(), int l); int gv_EntryIndex(char *r, int *e);
+struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after, int (*cb)(), int l); int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
 typedef struct GVROW {
     int btn;                    /* 0x00, its button object, -1: an unused row */
     GVENTRY *entry;             /* 0x04, the grave entry, 0: unused */
