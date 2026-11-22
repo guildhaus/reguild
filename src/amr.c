@@ -3566,12 +3566,12 @@ int ai_ExecuteUseMilitaryObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = s2->ref;
@@ -3580,11 +3580,11 @@ int ai_ExecuteUseMilitaryObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g[3];
+                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g->weight;
                 return 0x1b;
             }
             if (u.effect == -1)
-                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x1b].w3[0].w = ai_Actions[0x1b].w1[0].w * g->weight * -0.5f;
             return 0x1b;
         }
     }
@@ -3703,12 +3703,12 @@ int ai_ExecuteUseReputationObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.effect = 0;
@@ -3717,11 +3717,11 @@ int ai_ExecuteUseReputationObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g[3];
+                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g->weight;
                 return 0x1c;
             }
             if (u.effect == -1)
-                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x1c].w3[0].w = ai_Actions[0x1c].w1[0].w * g->weight * -0.5f;
             return 0x1c;
         }
     }
@@ -3801,12 +3801,12 @@ int ai_ExecuteUseApsObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = -1;
@@ -3815,11 +3815,11 @@ int ai_ExecuteUseApsObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x1d].w3[0].w = ai_Actions[0x1d].w1[0].w * g[3];
+                ai_Actions[0x1d].w3[0].w = ai_Actions[0x1d].w1[0].w * g->weight;
                 return 0x1d;
             }
             if (u.effect == -1)
-                ai_Actions[0x1d].w3[0].w = -(ai_Actions[0x1d].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x1d].w3[0].w = -(ai_Actions[0x1d].w1[0].w * g->weight * 0.5f);
             return 0x1d;
         }
     }
@@ -3893,12 +3893,12 @@ int ai_ExecuteUseEducationObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = -1;
@@ -3907,11 +3907,11 @@ int ai_ExecuteUseEducationObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x1e].w3[0].w = ai_Actions[0x1e].w1[0].w * g[3];
+                ai_Actions[0x1e].w3[0].w = ai_Actions[0x1e].w1[0].w * g->weight;
                 return 0x1e;
             }
             if (u.effect == -1)
-                ai_Actions[0x1e].w3[0].w = -(ai_Actions[0x1e].w1[0].w * g[3]);
+                ai_Actions[0x1e].w3[0].w = -(ai_Actions[0x1e].w1[0].w * g->weight);
             return 0x1e;
         }
     }
@@ -3985,12 +3985,12 @@ int ai_ExecuteUseHealthObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = -1;
@@ -3999,11 +3999,11 @@ int ai_ExecuteUseHealthObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x1f].w3[0].w = ai_Actions[0x1f].w1[0].w * g[3];
+                ai_Actions[0x1f].w3[0].w = ai_Actions[0x1f].w1[0].w * g->weight;
                 return 0x1f;
             }
             if (u.effect == -1)
-                ai_Actions[0x1f].w3[0].w = -(ai_Actions[0x1f].w1[0].w * g[3]);
+                ai_Actions[0x1f].w3[0].w = -(ai_Actions[0x1f].w1[0].w * g->weight);
             return 0x1f;
         }
     }
@@ -4144,23 +4144,23 @@ int ai_ExecuteUseDynastyObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = s2->ref;
         u.arg = -1;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x20].w3[0].w = ai_Actions[0x20].w1[0].w * g[3];
+                ai_Actions[0x20].w3[0].w = ai_Actions[0x20].w1[0].w * g->weight;
                 return 0x20;
             }
             if (u.effect == -1)
-                ai_Actions[0x20].w3[0].w = -(ai_Actions[0x20].w1[0].w * g[3] * 0.5f);
+                ai_Actions[0x20].w3[0].w = -(ai_Actions[0x20].w1[0].w * g->weight * 0.5f);
             return 0x20;
         }
     }
@@ -4316,29 +4316,29 @@ int ai_ExecuteUseMeanObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = s2->ref;
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x21].w3[0].w = ai_Actions[0x21].w1[0].w * g[3];
-                ai_Actions[0x21].w3[1].w = ai_Actions[0x21].w1[1].w * g[3];
-                ai_Actions[0x21].w3[2].w = ai_Actions[0x21].w1[2].w * g[3];
-                ai_Actions[0x21].w3[3].w = ai_Actions[0x21].w1[3].w * g[3];
+                ai_Actions[0x21].w3[0].w = ai_Actions[0x21].w1[0].w * g->weight;
+                ai_Actions[0x21].w3[1].w = ai_Actions[0x21].w1[1].w * g->weight;
+                ai_Actions[0x21].w3[2].w = ai_Actions[0x21].w1[2].w * g->weight;
+                ai_Actions[0x21].w3[3].w = ai_Actions[0x21].w1[3].w * g->weight;
                 return 0x21;
             }
             if (u.effect == -1) {
-                ai_Actions[0x21].w3[0].w = -(ai_Actions[0x21].w1[0].w * g[3] * 0.5f);
-                ai_Actions[0x21].w3[1].w = -(ai_Actions[0x21].w1[1].w * g[3] * 0.5f);
-                ai_Actions[0x21].w3[2].w = -(ai_Actions[0x21].w1[2].w * g[3] * 0.5f);
-                ai_Actions[0x21].w3[3].w = -(ai_Actions[0x21].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x21].w3[0].w = -(ai_Actions[0x21].w1[0].w * g->weight * 0.5f);
+                ai_Actions[0x21].w3[1].w = -(ai_Actions[0x21].w1[1].w * g->weight * 0.5f);
+                ai_Actions[0x21].w3[2].w = -(ai_Actions[0x21].w1[2].w * g->weight * 0.5f);
+                ai_Actions[0x21].w3[3].w = -(ai_Actions[0x21].w1[3].w * g->weight * 0.5f);
             }
             return 0x21;
         }
@@ -4437,12 +4437,12 @@ int ai_ExecuteUseSafetyObject(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = -1;
@@ -4451,11 +4451,11 @@ int ai_ExecuteUseSafetyObject(AICHAR *p, AIARG *s1, AIARG *s2)
         u.handled = 0;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g[3];
+                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g->weight;
                 return 0x22;
             }
             if (u.effect == -1)
-                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g[3] * -0.5f;
+                ai_Actions[0x22].w3[0].w = ai_Actions[0x22].w1[0].w * g->weight * -0.5f;
             return 0x22;
         }
     }
@@ -4491,29 +4491,29 @@ int ai_ExecuteUsePerfume(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = s2->ref;
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x23].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g[3];
-                ai_Actions[0x23].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g[3];
-                ai_Actions[0x23].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g[3];
-                ai_Actions[0x23].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g[3];
+                ai_Actions[0x23].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g->weight;
+                ai_Actions[0x23].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g->weight;
+                ai_Actions[0x23].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g->weight;
+                ai_Actions[0x23].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g->weight;
                 return 0x23;
             }
             if (u.effect == -1) {
-                ai_Actions[0x23].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g[3] * 0.5f);
-                ai_Actions[0x23].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g[3] * 0.5f);
-                ai_Actions[0x23].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g[3] * 0.5f);
-                ai_Actions[0x23].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x23].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g->weight * 0.5f);
+                ai_Actions[0x23].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g->weight * 0.5f);
+                ai_Actions[0x23].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g->weight * 0.5f);
+                ai_Actions[0x23].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g->weight * 0.5f);
             }
             return 0x23;
         }
@@ -4550,29 +4550,29 @@ int ai_ExecuteUseTrank(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     G8USE u;
     AIOBJ *o;
-    float *g;
+    G9DOMIZIL *g;
 
     o = gm_Query(p->inventory, 1, 1, s1->ref);
     if (o == 0)
         return 0;
-    g = (float *)ai_FindUsableGood(o->id);
+    g = ai_FindUsableGood(o->id);
     if (g != 0) {
         u.obj = o;
         u.target = s2->ref;
         u.arg = s2->arg;
         if (ai_UseGood(p, &u) == 1) {
             if (u.effect == 1) {
-                ai_Actions[0x24].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g[3];
-                ai_Actions[0x24].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g[3];
-                ai_Actions[0x24].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g[3];
-                ai_Actions[0x24].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g[3];
+                ai_Actions[0x24].w3[0].w = ai_Actions[s2->arg2].w1[0].w * g->weight;
+                ai_Actions[0x24].w3[1].w = ai_Actions[s2->arg2].w1[1].w * g->weight;
+                ai_Actions[0x24].w3[2].w = ai_Actions[s2->arg2].w1[2].w * g->weight;
+                ai_Actions[0x24].w3[3].w = ai_Actions[s2->arg2].w1[3].w * g->weight;
                 return 0x24;
             }
             if (u.effect == -1) {
-                ai_Actions[0x24].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g[3] * 0.5f);
-                ai_Actions[0x24].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g[3] * 0.5f);
-                ai_Actions[0x24].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g[3] * 0.5f);
-                ai_Actions[0x24].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g[3] * 0.5f);
+                ai_Actions[0x24].w3[0].w = -(ai_Actions[s2->arg2].w1[0].w * g->weight * 0.5f);
+                ai_Actions[0x24].w3[1].w = -(ai_Actions[s2->arg2].w1[1].w * g->weight * 0.5f);
+                ai_Actions[0x24].w3[2].w = -(ai_Actions[s2->arg2].w1[2].w * g->weight * 0.5f);
+                ai_Actions[0x24].w3[3].w = -(ai_Actions[s2->arg2].w1[3].w * g->weight * 0.5f);
             }
             return 0x24;
         }

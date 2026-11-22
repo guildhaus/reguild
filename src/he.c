@@ -8977,7 +8977,7 @@ void he_StartEffectEvent(AIJOB *e)
     G9DOMIZIL *d;
 
     gm_FindById(&bld, 0, 0, e->bldId);
-    if (bld != 0 && bld->object != 0 && (d = (G9DOMIZIL *)ai_FindUsableGood(e->effectGood)) != 0) {
+    if (bld != 0 && bld->object != 0 && (d = ai_FindUsableGood(e->effectGood)) != 0) {
         if (d->minutes != 0) {
             e->end6c = ai_Time;
             gm_AddTime(&e->end6c, 0, d->minutes, 0);
@@ -9087,7 +9087,7 @@ void he_StartSendHomeEvent(AIJOB *e)
     G9DOMIZIL *goods;
 
     e->end = ai_Time;
-    goods = (G9DOMIZIL *)ai_FindUsableGood(0x178);
+    goods = ai_FindUsableGood(0x178);
     if (goods != 0 && goods->minutes != 0) {
         e->homeUntil = ai_Time;
         gm_AddTime(&e->homeUntil, 0, goods->minutes, 0);

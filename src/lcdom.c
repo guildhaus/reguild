@@ -7713,7 +7713,7 @@ int ai_UpdateInventoryWindow(void)
         d2_SetObjValue(ai_InvSlots[i].ctl, 0, ai_InvSlots[i].obj->count, value);
         sprintf(d2_Objs[ai_InvSlots[i].ctl].caption, "%s~ %li %s", txt_Ptrs[TXT_OBJECT_NAMES + 2 * ai_InvSlots[i].obj->id],
                 ai_InvSlots[i].obj->count, txt_Ptrs[0x3fe9]);
-        use = (G9DOMIZIL *)ai_FindUsableGood(ai_InvSlots[i].obj->id);
+        use = ai_FindUsableGood(ai_InvSlots[i].obj->id);
         if (use != 0) {
             if (ai_InvSlots[i].obj->active != 0) {
                 d2_SetObjEnabled(ai_InvSlots[i].ctl, 0);
@@ -7748,7 +7748,7 @@ int ai_UpdateInventoryWindow(void)
                 d2_Objs[ai_InvSlots[k].ctl].captionY = 0;
                 sprintf(d2_Objs[ai_InvSlots[k].ctl].caption, "%s~ %li St\xfc" "ck", txt_Ptrs[TXT_OBJECT_NAMES + 2 * ai_InvSlots[k].obj->id],
                         ai_InvSlots[k].obj->count);
-                use = (G9DOMIZIL *)ai_FindUsableGood(ai_InvSlots[k].obj->id);
+                use = ai_FindUsableGood(ai_InvSlots[k].obj->id);
                 if (use != 0) {
                     if (ai_InvSlots[k].obj->active != 0) {
                         d2_SetObjEnabled(ai_InvSlots[k].ctl, 0);
@@ -7776,19 +7776,19 @@ void ai_CloseChildWindow(void)
 /* 0x5ba620, the Domizil table lookup (64 B): walks the 0x1c-byte entries of 0x62c420 while the id at +0 is not
    0; returns the entry of the id, 0 when absent */
 
-int ai_FindUsableGood(int id)
+G9DOMIZIL *ai_FindUsableGood(int id)
 {
     int i;
 
     for (i = 0; ai_DomizilTable[i].id != 0; i++)
         if (ai_DomizilTable[i].id == id)
-            return (int)&ai_DomizilTable[i];
+            return &ai_DomizilTable[i];
     return 0;
 }
 /* 0x5ba660, the Domizil table lookup with the index out (80 B): like 0x5ba620, and the index of the entry is
    stored at *index when that is not 0 */
 
-int ai_FindUsableGoodIndex(int id, int *index)
+G9DOMIZIL *ai_FindUsableGoodIndex(int id, int *index)
 {
     int i;
 
@@ -7796,7 +7796,7 @@ int ai_FindUsableGoodIndex(int id, int *index)
         if (ai_DomizilTable[i].id == id) {
             if (index != 0)
                 *index = i;
-            return (int)&ai_DomizilTable[i];
+            return &ai_DomizilTable[i];
         }
     return 0;
 }
@@ -7878,7 +7878,7 @@ void lc_UpdateGoodsReserves(void)
         o = (G8INVOBJ *)gm_Query(ai_Chars[i].inventory, 1, 5);
         if (o != 0) {
             do {
-                use = (G9DOMIZIL *)ai_FindUsableGood(o->id);
+                use = ai_FindUsableGood(o->id);
                 if (use == 0)
                     continue;
                 if (use->minutes > 0) {
@@ -7929,7 +7929,7 @@ int ai_UseGoodWindow(G8INVOBJ *o)
     int i;
 
     used = 0;
-    rec = (G9DOMIZIL *)ai_FindUsableGoodIndex(o->id, &index);
+    rec = ai_FindUsableGoodIndex(o->id, &index);
     if (rec != 0) {
         win = d2_OpenForm(0, 0, "panel\\useobj");
         d2_CentreViewWindows(win);

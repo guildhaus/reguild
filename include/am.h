@@ -393,7 +393,7 @@ void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);   
 int ai_DecideTakeCredit(int a, struct AICHAR *p, int f, struct AIARG *o1, struct AIARG *o2);                  /* 0x49eec0 */
 int gm_BuildingKindValue(int a);                                                        /* 0x509d30 */
 int gm_BuildingKindCost(struct AICHAR *c, int kind);                                               /* 0x509dc0 */
-int ai_FindUsableGood(int param_1);                                         /* 0x5ba620 */
+struct G9DOMIZIL *ai_FindUsableGood(int id);                                         /* 0x5ba620 */
 
 /* ---- 0x494020..0x494e70 (was unk_494020.h) ---- */
 #pragma pack(push, 1)

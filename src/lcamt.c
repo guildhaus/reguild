@@ -998,7 +998,7 @@ void ai_FeastWindow(AIBLD *bld, AIOBJ *table);
 void ai_TechEffectsWindow(AIBLD *bld);
 void ob_HandleBepflanzung(AIBLD *bld);
 void ai_HandlePickedPlant(AIBLD *bld, struct G15PLANT *plants);
-int ai_FindUsableGoodIndex(int id, int *index);
+G9DOMIZIL *ai_FindUsableGoodIndex(int id, int *index);
 void ai_ChooseCoatOfArms(void);
 
 /* 0x5bd060, the upper limit of an amount box (88 B): with from (the lower end) and steps (of 10000) positive,
@@ -9244,7 +9244,7 @@ int ai_UseGood(AICHAR *ch, G8USEVIEW *use)
     use->handled = 0;
     if (use->obj == 0)
         return -3;
-    entry = (G9DOMIZIL *)ai_FindUsableGood(use->obj->id);
+    entry = ai_FindUsableGood(use->obj->id);
     if (entry == 0)
         return -4;
     if ((entry->mask & ch->goodsMask) != 0)
@@ -9285,7 +9285,7 @@ int ai_UseGood(AICHAR *ch, G8USEVIEW *use)
         if (ch->kind == 6 && use->handled == 0) {
             int index;
 
-            found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+            found = ai_FindUsableGoodIndex(use->obj->id, &index);
             if (use->effect == 1)
                 txt_Format(text, 0xfe8, found->rank + 1);
             ai_UseObjPanel(text);
@@ -10051,7 +10051,7 @@ int ai_UseGoodLowerOfficialRelations(AICHAR *ch, G8USEVIEW *use)
                 he_ShowNews(pick[i]->netId, -1, news, 0, 0x5fb, 0);
         }
         if (ch->kind == 6) {
-            found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+            found = ai_FindUsableGoodIndex(use->obj->id, &index);
             txt_Format(news, 0xfe8, found->rank + 1, pick[0]->id, pick[1]->id, pick[2]->id);
             ai_UseObjPanel(news);
             ret = 1;
@@ -10151,7 +10151,7 @@ int ai_UseGoodCharmOtherSex(AICHAR *ch, G8USEVIEW *use)
             he_ShowNews(pick[i]->netId, -1, news, 0, 0x5ec, 0);
     }
     if (ch->kind == 6) {
-        found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+        found = ai_FindUsableGoodIndex(use->obj->id, &index);
         txt_Format(news, 0xfe8, found->rank + 1, pick[0]->id, pick[1]->id, pick[2]->id);
         ai_UseObjPanel(news);
     }
@@ -10662,7 +10662,7 @@ int ai_UseGoodCharmPartner(AICHAR *ch, G8USEVIEW *use)
             he_ShowNews(target->netId, -1, news, 0, 0x5ec, 0);
         }
         if (ch->kind == 6) {
-            found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+            found = ai_FindUsableGoodIndex(use->obj->id, &index);
             use->handled = 1;
             txt_Format(news, 0xfe8, found->rank + 1, target->id);
             ai_UseObjPanel(news);
@@ -10712,7 +10712,7 @@ int ai_UseGoodWeakenSkills3(AICHAR *ch, G8USEVIEW *use)
                 txt_Format(news, 0xffb);
                 he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
             }
-            found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+            found = ai_FindUsableGoodIndex(use->obj->id, &index);
             use->handled = 1;
             txt_Format(news, 0xfe8, found->rank + 1, target->id);
             ai_UseObjPanel(news);
@@ -10806,7 +10806,7 @@ int ai_UseGoodFrameChar(AICHAR *ch, G8USEVIEW *use)
         he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
     }
     if (ch->kind == 6) {
-        found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+        found = ai_FindUsableGoodIndex(use->obj->id, &index);
         use->handled = 1;
         txt_Format(news, 0xfe8, found->rank + 1, target->id);
         ai_UseObjPanel(news);
@@ -10881,7 +10881,7 @@ int ai_UseGoodFrameChar2(AICHAR *ch, G8USEVIEW *use)
         he_ShowNews(target->netId, -1, news, 0, 0x5fb, 0);
     }
     if (ch->kind == 6) {
-        found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+        found = ai_FindUsableGoodIndex(use->obj->id, &index);
         use->handled = 1;
         txt_Format(news, 0xfe8, found->rank + 1, target->id);
         ai_UseObjPanel(news);
@@ -11007,7 +11007,7 @@ int ai_UseGoodPettyLoss(AICHAR *ch, G8USEVIEW *use)
         cm_SendLongMessage(&msg);
     }
     if (ch->kind == 6) {
-        found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+        found = ai_FindUsableGoodIndex(use->obj->id, &index);
         txt_Format(line, found->rank + 1, target->id);
         txt_Format(news, 0xfe8, line);
         ai_UseObjPanel(news);
@@ -11092,7 +11092,7 @@ int ai_UseGoodDistrust(AICHAR *ch, G8USEVIEW *use)
         return 0;
     cm_SendSetField(target->netId, 0x1cc, 4, LC_F1CC_DISTRUST, 0);
     if (ch->kind == 6) {
-        found = (G9DOMIZIL *)ai_FindUsableGoodIndex(use->obj->id, &index);
+        found = ai_FindUsableGoodIndex(use->obj->id, &index);
         txt_Format(line, found->rank + 1, target->id);
         txt_Format(news, 0xfe8, line);
         ai_UseObjPanel(news);

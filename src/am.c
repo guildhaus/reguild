@@ -7,8 +7,6 @@
    Open: am.h keeps the joined parts' character views (AICHAR / AICHAR / AICHAR / AICHAR / AICHAR), and duplicate callee prototypes / cast macros; they need unifying with ai.h's types.
    Open: AIJOBX (am.h) duplicates ai.h's AIJOB (its id / bldId / price fields are named from it); the AIJOB
    union member for the building offer's price flips ai_Unk483a60's byte match by the declaration set.
-   Open: the use callers read am_types.h's G9DOMIZIL weight (+0xc) as g[3] through a float view; naming that
-   field moved sv_t's ai_TutorialInitChapter3 (shape -> draft, a declaration-set tie-break).
    Open: not included yet (dcp headers conflicts am HEADER): txt.h.
    unit of rea 8cef7d5b (src/game/am.c); boundaries in decl/text.dcl */
 #include "txt_views.h"
@@ -812,7 +810,7 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIBLD *bl;
     AIOBJ *o, *q;
-    float *g;
+    G9DOMIZIL *g;
     AIUSE u;
 
     if (s1->kind == 2) {
@@ -838,7 +836,7 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2)
         o = gm_Query(p->inventory, 1, 1, s1->ref);
         if (!o)
             return 0;
-        g = (float *)ai_FindUsableGood(o->id);
+        g = ai_FindUsableGood(o->id);
         if (g) {
             u.obj = o;
             u.target = s2->ref;
@@ -847,11 +845,11 @@ int ai_ExecUseAlchemyItems(AICHAR *p, AIARG *s1, AIARG *s2)
             u.handled = 0;
             if (ai_UseGood(p, &u) == 1) {
                 if (u.effect == 1) {
-                    ai_Actions[0x48].w3[0].w = ai_Actions[0x48].w1[0].w * g[3];
+                    ai_Actions[0x48].w3[0].w = ai_Actions[0x48].w1[0].w * g->weight;
                     return 0x1c;
                 }
                 if (u.effect == -1)
-                    ai_Actions[0x48].w3[0].w = ai_Actions[0x48].w1[0].w * g[3] * -0.5f;
+                    ai_Actions[0x48].w3[0].w = ai_Actions[0x48].w1[0].w * g->weight * -0.5f;
                 return 0x1c;
             }
         }

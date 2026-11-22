@@ -4589,7 +4589,7 @@ exe	0x005d1fb0	ai_UseGoodCharmOfficials	lc	3d5ae5874dd5b48d	no	shape	control=sha
 exe	0x005d22e0	ai_UsePayGood	lc	56879d4bba69b9ba	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005d2320	ai_UseGoodDrainActionPoints8	lc	e3e1fe8b9ccc2975	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005d2440	ai_UseGoodHoldRound	lc	d26e65c4bc3147bb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005d2580	ai_UseGoodCharmPartner	lcamt	a64b40a8168a686a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	24daf1bd5981d24f
+exe	0x005d2580	ai_UseGoodCharmPartner	lcamt	d0f035d287e0de8e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4c9a934674a93a54
 exe	0x005d2720	ai_UseGoodWeakenSkills3	lc	38ca21aa7f9620ca	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	a8a81ae8260ddcfe
 exe	0x005d2960	ai_UseGoodFrameChar	lc	99be8752c2ac4d88	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x005d2bc0	ai_UseGoodFrameChar2	lc	c7bd9d6f715eba43	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

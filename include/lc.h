@@ -418,7 +418,7 @@ void ai_ObjectAngle(void *out_, struct D3OBJECT *plot);  /* 0x58fd90 */
 void ai_ObjectPosition(void *out, struct D3OBJECT *plot);  /* 0x58fd40 */
 void ai_ShowIndulgenceNews(unsigned short *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5);  /* 0x5a8b80 */
 void ai_ShowPaymentNews(unsigned short *param_1, struct AICHAR *param_2, int param_3);  /* 0x5a8c00 */
-int ai_FindUsableGood(int param_1);  /* 0x5ba620 */
+struct G9DOMIZIL *ai_FindUsableGood(int id);  /* 0x5ba620 */
 int ai_PassesPartnerFilter(unsigned short me, unsigned short id, struct AMOUNTCFG *cfg, int unused);  /* 0x5c33c0, whether id passes the amount menu's partner filter cfg for me */
 int ai_PassesBuildingFilter(struct AICHAR *me, struct AMOUNTCFG *cfg, struct AIBLD *bld);  /* 0x5c37a0, whether bld passes the amount menu's building filter cfg for me */
 struct G8USEVIEW; int ai_UseGood(struct AICHAR *ch, struct G8USEVIEW *use);  /* 0x5cf8a0, uses a Domizil good: ch the character, use the request (am.h G8USE) */
