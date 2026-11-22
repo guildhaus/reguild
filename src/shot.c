@@ -347,9 +347,9 @@ const float ai_AimErrLow = -2.5f;            /* 0x5eee1c, the low bound of ai_So
    empty name, the scale 1.0, the lifetime 25.0, then the entry's ids / callbacks). The twin
    0x5dbc20 returns its scale from the same record. */
 
-int ai_GetDefaultEffect(void)
+EFFECTREC *ai_GetDefaultEffect(void)
 {
-    return (int)&ai_DefaultEffect;
+    return &ai_DefaultEffect;
 }
 /* 0x5dbc20, the default effect scale (13 B): the scale field of the default effect record
    (ai_DefaultEffect.scale 0x62de6c) through the 0 .. 60 -> 0 .. 1 clamp 0x5dd090
@@ -427,9 +427,9 @@ void ai_InitWind(int type, int id, float *from, float *to)
         break;
     }
     ai_EffectState.angle = util_RandomF() * 6.2831855f;
-    ai_DefaultEffect.pos[0] = ai_EffectState.sinTab[6];
-    ai_DefaultEffect.pos[1] = 0;
-    ai_DefaultEffect.pos[2] = ai_EffectState.cosTab[6];
+    ai_DefaultEffect.pos.x = ai_EffectState.sinTab[6];
+    ai_DefaultEffect.pos.y = 0;
+    ai_DefaultEffect.pos.z = ai_EffectState.cosTab[6];
     ai_DefaultEffect.scale = (float)(fabs(sin(ai_EffectState.angle) * ai_EffectState.gust[6]) + ai_EffectState.base[6]);
 }
 /* 0x5dbed0, advances the wind (235 B; sv_RunFrame calls it every frame): the hours since the state's last
@@ -452,10 +452,10 @@ void ai_UpdateWind(void)
     hours = gm_MinutesBetween((struct AITIME *)&last, (struct AITIME *)&ai_Time) * (1.0f / 60.0f);
     if (!(hours < 0.0f)) {
         hour = now->hour;
-        ai_DefaultEffect.pos[1] = 0;
+        ai_DefaultEffect.pos.y = 0;
         ai_EffectState.angle += hours * ai_EffectState.phase[hour];
-        ai_DefaultEffect.pos[0] = ai_EffectState.sinTab[hour];
-        ai_DefaultEffect.pos[2] = ai_EffectState.cosTab[hour];
+        ai_DefaultEffect.pos.x = ai_EffectState.sinTab[hour];
+        ai_DefaultEffect.pos.z = ai_EffectState.cosTab[hour];
         ai_DefaultEffect.scale = ((float)sin(ai_EffectState.angle) + 1.0f) * ai_EffectState.gust[hour] * 0.5f
             + ai_EffectState.base[hour];
         ai_EffectState.year = now->year;
@@ -554,7 +554,7 @@ int ai_InitShot(SHOTREC *shot, D3VECTOR *pos, D3VECTOR *dir, float charge, float
 {
     /* @original the call goes through a pointer: the original calls ai_GetDefaultEffect first and keeps the
        record in edx across ai_SphereVolume; a direct call VC6 sinks to the wind copy (it knows the callee) */
-    EFFECTREC *(*get)(void) = (EFFECTREC *(*)(void))ai_GetDefaultEffect;
+    EFFECTREC *(*get)(void) = ai_GetDefaultEffect;
     EFFECTREC *wind = get();
     SPHEREVOLUME ball;
 
@@ -567,9 +567,9 @@ int ai_InitShot(SHOTREC *shot, D3VECTOR *pos, D3VECTOR *dir, float charge, float
     shot->vel = shot->velStart;
     shot->wind = *wind;
     shot->wind.scale = MAX(MIN(shot->wind.scale, ai_WindGain), 0.0f);
-    shot->wind.pos[0] = shot->wind.scale * shot->wind.pos[0];
-    shot->wind.pos[1] = shot->wind.scale * shot->wind.pos[1];
-    shot->wind.pos[2] = shot->wind.scale * shot->wind.pos[2];
+    shot->wind.pos.x = shot->wind.scale * shot->wind.pos.x;
+    shot->wind.pos.y = shot->wind.scale * shot->wind.pos.y;
+    shot->wind.pos.z = shot->wind.scale * shot->wind.pos.z;
     shot->posStart = *pos;
     shot->pos = *pos;
     shot->mass = ball.reach;
@@ -660,9 +660,9 @@ int ai_StepShot(SHOTREC *shot)
         shot->energy = 0;
         return 0;
     }
-    wind.x = WINDDRAG(shot->wind.pos[0]);
-    wind.y = WINDDRAGY(shot->wind.pos[1]);
-    wind.z = WINDDRAG(shot->wind.pos[2]);
+    wind.x = WINDDRAG(shot->wind.pos.x);
+    wind.y = WINDDRAGY(shot->wind.pos.y);
+    wind.z = WINDDRAG(shot->wind.pos.z);
     for (i = 0; i < ticks; i++) {
         v.x = shot->vel.v.x;
         v.y = shot->vel.v.y;
@@ -749,9 +749,9 @@ int ai_StepShotSlow(SHOTREC *shot)
         shot->energy = 0;
         return 0;
     }
-    wind.x = WINDDRAG(shot->wind.pos[0]);
-    wind.y = WINDDRAGY(shot->wind.pos[1]);
-    wind.z = WINDDRAG(shot->wind.pos[2]);
+    wind.x = WINDDRAG(shot->wind.pos.x);
+    wind.y = WINDDRAGY(shot->wind.pos.y);
+    wind.z = WINDDRAG(shot->wind.pos.z);
     for (i = 0; i < ticks; i++) {
         v.x = shot->vel.v.x;
         v.y = shot->vel.v.y;

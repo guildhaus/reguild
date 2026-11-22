@@ -714,8 +714,8 @@ void gv_ExplodeShot(int damage, int effectId, SHOTREC *shot, GVEFFARG *out)
     scale = shot->wind.scale;
     color.b = color.g = color.r = 0xc0;
     color.a = 0x7f;
-    dir.x = scale * shot->wind.pos[0];
-    dir.z = scale * shot->wind.pos[2];
+    dir.x = scale * shot->wind.pos.x;
+    dir.z = scale * shot->wind.pos.z;
     dir.y = 0.0f;
     c.y = c.y + 10.0f;
     d3t_CreateSmoke(0, &c, 200, 25.0f, 70.0f, m * 0.25f, 900.0f, 100.0f, 70.0f, &dir, 1500, 7, color);

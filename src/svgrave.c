@@ -446,7 +446,7 @@ void d3if_Prerender(char map);
 double _CIfmod();
 #include <math.h>
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
-int ai_GetDefaultEffect();
+struct EFFECTREC *ai_GetDefaultEffect(void);
 typedef struct CANNONROT {  /* ai_CannonCamera's rotation / position vector: three floats and a word cleared as an int */
     float x, y, z;
     int w;

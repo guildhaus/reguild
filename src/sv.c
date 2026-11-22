@@ -3200,7 +3200,7 @@ char sv_CreateBannerCB(D3OBJECT *part, AIBLD *b)
         rot.y = 0;
         rot.z = 0;
         d3_PointToWorld(part, &part->pos, &pos.v);
-        o = d3_CreateObject((int)b->object, &pos.v, &rot, "sp_WIMPEL");
+        o = d3_CreateObject(b->object, &pos.v, &rot, "sp_WIMPEL");
         rot.x = 0;
         rot.y = 3.1415927f;
         rot.z = 0;
@@ -6357,7 +6357,7 @@ SVBOOK *sv_OpenBook(char *model, char *at, char n, ...)
     if (at != 0) {
         d3if_Show(bk->obj, 0);
         bk->hidden = bk->obj;
-        bk->obj = d3_CreateObject((int)bk->obj->parent, &bk->obj->pos, &bk->obj->rotation, at);
+        bk->obj = d3_CreateObject(bk->obj->parent, &bk->obj->pos, &bk->obj->rotation, at);
     } else {
         bk->hidden = 0;
     }

@@ -118,7 +118,10 @@ typedef struct G17GEBMSG {              /* 0x25 bytes, the data of message 0x4c 
     int objectId;                       /* 0x04, the next object id (the server's, read when connected) */
     unsigned char kind;                 /* 0x08, the building kind */
     D3VECTOR4 pos;                      /* 0x09, the position */
-    int rot[3];                         /* 0x19, the rotation (d3_SetObjectRot) */
+    union {                             /* 0x19, the rotation (d3_SetObjectRot) */
+        int bits[3];                    /* cm_RequestCreateGeb copies the three floats as their bits */
+        D3VECTOR v;
+    } rot;
 } G17GEBMSG;
 
 typedef struct CMFIGHTSLOT {            /* 0x2c bytes, a fighter slot of a fight record (16 at its +0x94, cm_RunCutOrders) */

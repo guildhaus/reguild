@@ -30,7 +30,7 @@ extern int ai_CameraStep;           /* 0x623814, the camera move step, 100 - cam
                                        it with fild at the float uses (the original loads an int) */
 
 typedef struct EFFECTREC {              /* 0x10 bytes at 0x62de60: the default effect (the wind): a vector and its scale */
-    float pos[3];                       /* +0x00, 0, 0, 1.0 at the start; ai_InitWind sets (sin, 0, cos) of the wind direction 6 */
+    D3VECTOR pos;                       /* +0x00, 0, 0, 1.0 at the start; ai_InitWind sets (sin, 0, cos) of the wind direction 6 */
     union {
         float scale;                    /* +0x0c, 25.0 at the start */
         int scaleBits;                  /* the same bits as an int: 0x5dbc20 passes them through an int K&R view */

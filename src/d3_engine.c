@@ -1243,7 +1243,7 @@ void d3_SetObject078(D3OBJECT *obj, const D3VECTOR *v)
 /* 0x43b860, sets the rotation angles (degrees) and rebuilds the object matrix; a type-3 object
    (the camera, d3_int_io.c) gets the matrix of the negated angles. */
 
-void d3_SetObjectRot(D3OBJECT *obj, D3VECTOR *rot)
+void d3_SetObjectRot(D3OBJECT *obj, const D3VECTOR *rot)
 {
     D3VECTOR4 v;
 

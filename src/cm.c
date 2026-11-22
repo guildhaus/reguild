@@ -2031,7 +2031,7 @@ int cm_RequestCreateGeb(int owner, int kind, D3VECTOR4 *pos, int *rot)
     m.geb.kind = (unsigned char)kind;
     m.geb.pos = *pos;
     for (i = 0; i < 3; i++)
-        m.geb.rot[i] = rot[i];
+        m.geb.rot.bits[i] = rot[i];
     sprintf(buf, "cm_RequestCreateGeb(): pos %f   %f   %f", pos->x, pos->y, pos->z);
     return cm_QueueSend(&m);
 }
@@ -5597,7 +5597,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
                 } else {
                     memset(&site, 0, sizeof(site));
                     d3_SetObjectPos(o, &pos.v);
-                    d3_SetObjectRot(o, m->geb.rot);
+                    d3_SetObjectRot(o, &m->geb.rot.v);
                     ai_DropObjectAt(o, &pos.v);
                     init_HookObject(o, b, 2);
                     ai_BuildingName(b->type, tmp);

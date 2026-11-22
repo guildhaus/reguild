@@ -809,10 +809,15 @@ void ai_CannonAim(CANNONSCENE *sc, float dt)
     sc->rot.y = (float)fmod(sc->rot.y, 6.2831855f);
 }
 
-int ai_GetDefaultEffect();
+struct EFFECTREC *ai_GetDefaultEffect(void);
 
 typedef struct CANNONROT {  /* ai_CannonCamera's rotation / position vector: three floats and a word cleared as an int */
-    float x, y, z;
+    union {
+        struct {
+            float x, y, z;
+        };
+        D3VECTOR v;             /* the vector, for the D3VECTOR parameters */
+    };
     int w;
 } CANNONROT;
 
@@ -858,28 +863,28 @@ void ai_CannonCamera(CANNONSCENE *sc)
     float speed;
     float fade;
     float k;
-    int def;
+    EFFECTREC *def;
     int i;
 
     pos.x = 0;
     pos.y = sc->rot.y;
     pos.z = 0;
-    d3_SetObjectRot(sc->obj98, (char *)&pos);
+    d3_SetObjectRot(sc->obj98, &pos.v);
     pos.x = sc->rot.x;
     pos.y = 0;
     pos.z = 0;
     for (i = 0; i < 3; i++)
-        d3_SetObjectRot(sc->obj8c[i], (char *)&pos);
+        d3_SetObjectRot(sc->obj8c[i], &pos.v);
     pos.x = 0;
     pos.y = 0;
     pos.z = 0;
     pos.w = 0;
     def = ai_GetDefaultEffect();
     d3_MatTranspose(&sc->obj98->matrix, &t);
-    pos.y = (float)(d3_VecAngle2(&d3_ZAxis.v, def) - 1.5707964f) - sc->rot.y;
+    pos.y = (float)(d3_VecAngle2(&d3_ZAxis.v, &def->pos) - 1.5707964f) - sc->rot.y;
     pos.x = 0;
     pos.z = 0;
-    d3_SetObjectRot(sc->obj9c, (char *)&pos);
+    d3_SetObjectRot(sc->obj9c, &pos.v);
     if (sc->fired == 0)
         ai_CannonAxes(sc);
     v.x = d3_ZAxis.x * sc->obj98->matrix._11 + d3_ZAxis.y * sc->obj98->matrix._21 + d3_ZAxis.z * sc->obj98->matrix._31;
@@ -913,7 +918,7 @@ void ai_CannonCamera(CANNONSCENE *sc)
     pos.x += d.x;
     pos.y += d.y;
     pos.z += d.z;
-    d3_SetObjectPos(d3_Camera, (char *)&pos);
+    d3_SetObjectPos(d3_Camera, &pos.v);
     d3_SetObjectRot(d3_Camera, &v);
     if (sc->fired == 0)
         ai_CannonAxes(sc);
@@ -953,11 +958,11 @@ void ai_CannonCamera(CANNONSCENE *sc)
             pos.x += ai_WimpelPos.x;
             pos.y += ai_WimpelPos.y;
             pos.z += ai_WimpelPos.z;
-            d3_SetObjectPos(sc->obj9c, (char *)&pos);
+            d3_SetObjectPos(sc->obj9c, &pos.v);
             return;
         }
     }
-    d3_SetObjectPos(sc->obj98, (char *)sc);
+    d3_SetObjectPos(sc->obj98, &sc->pos);
 }
 
 

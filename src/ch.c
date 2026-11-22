@@ -2328,7 +2328,7 @@ void ch_SetHandObject(CHARACTER *ch, int hand, char *name)
             d3if_Delete(*slot);
             *slot = 0;
         }
-        *slot = d3_CreateObject((int)ch->obj, &pos.v, &rot, name);
+        *slot = d3_CreateObject(ch->obj, &pos.v, &rot, name);
         if (!*slot) {
             d3if_SelectScene(cur, 1);
             return;
