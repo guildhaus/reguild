@@ -7,7 +7,7 @@
    Open: 0x476b70 (d2_ClearInput) may belong to gfx.c instead; the evidence does not decide, codegen neutral.
    Open: d2.h is not yet the only declaration of d2's functions (K&R copies in menu.c, sv_t.c, cm.h, rt.h and
    others), and it declares vfs_ / err_ functions itself.
-   Open: d2.h views D2WINF / D2PAINTWIN (of D2WIN) are still to be folded into their types.
+   Open: d2.h's view D2WINF (of D2WIN) is still to be folded into its type.
    unit of rea 8cef7d5b (src/game/d2.c); boundaries in decl/text.dcl */
 #include "txt_views.h"
 #include <stdio.h>
@@ -5502,7 +5502,6 @@ int d2_SetForm(int view, int n)
     return 0;
 }
 
-#define WIN(i) ((D2PAINTWIN *)&d2_Wins[i])
 
 /* 0x475ff0, window i of a view, -1 if out of range */
 int d2_GetViewWin(int view, int i)
@@ -5584,47 +5583,47 @@ void d2_DissolveStep(D2DISSOLVE *d)
 
 void d2_Plot(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 {
-    D2PAINTWIN *w = WIN(d2_LastWindow);
+    D2WIN *w = &d2_Wins[d2_LastWindow];
     int pen;
 
     if (w->active == 0)
         return;
-    if (w->paint == 0) {
+    if (w->surf2 == 0) {
         err_Message("d2_Plot:Window is not a paintbox!");
         return;
     }
     pen = d2_PenSize;
     if (x < pen || x > w->w - pen || y < pen || y > w->h - pen)
         return;
-    d2_LockSurface(w->paint);
+    d2_LockSurface(w->surf2);
     switch (d2_PenSize) {
     case 0:
-        d2_PutPixelRGB(x, y, r, g, b, w->paint);
+        d2_PutPixelRGB(x, y, r, g, b, w->surf2);
         break;
     case 1:
-        d2_PutPixelRGB(x - 1, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x + 1, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y + 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y - 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y, r, g, b, w->paint);
+        d2_PutPixelRGB(x - 1, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x + 1, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y + 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y - 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y, r, g, b, w->surf2);
         break;
     case 2:
-        d2_PutPixelRGB(x - 1, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x + 1, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x - 2, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x + 2, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y + 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y - 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y + 2, r, g, b, w->paint);
-        d2_PutPixelRGB(x, y - 2, r, g, b, w->paint);
-        d2_PutPixelRGB(x + 1, y + 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x - 1, y - 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x - 1, y + 1, r, g, b, w->paint);
-        d2_PutPixelRGB(x + 1, y - 1, r, g, b, w->paint);
+        d2_PutPixelRGB(x - 1, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x + 1, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x - 2, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x + 2, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y + 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y - 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y + 2, r, g, b, w->surf2);
+        d2_PutPixelRGB(x, y - 2, r, g, b, w->surf2);
+        d2_PutPixelRGB(x + 1, y + 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x - 1, y - 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x - 1, y + 1, r, g, b, w->surf2);
+        d2_PutPixelRGB(x + 1, y - 1, r, g, b, w->surf2);
         break;
     }
-    d2_UnlockSurface(w->paint);
+    d2_UnlockSurface(w->surf2);
 }
 /* 0x4764f0, line on the paintbox (Bresenham) */
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b)
@@ -5702,33 +5701,33 @@ void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char 
 
 void d2_ClearPaintbox(void)
 {
-    D2PAINTWIN *w = WIN(d2_LastWindow);
+    D2WIN *w = &d2_Wins[d2_LastWindow];
 
     if (w->active == 0) {
         err_Message("d2_ClearPaintbox:Invalidate window!");
         return;
     }
-    if (w->paint == 0) {
+    if (w->surf2 == 0) {
         err_Message("d2_ClearPaintbox:Window has no paintbox!");
         return;
     }
-    d2_ClearSurface(w->paint);
+    d2_ClearSurface(w->surf2);
 }
 /* 0x476760, fills a rectangle of the paintbox of the current window */
 
 void d2_FillPaintbox(int x, int y, int w, int h)
 {
-    D2PAINTWIN *win = WIN(d2_LastWindow);
+    D2WIN *win = &d2_Wins[d2_LastWindow];
 
     if (win->active == 0) {
         err_Message("d2_ClearPaintbox:Invalidate window!");
         return;
     }
-    if (win->paint == 0) {
+    if (win->surf2 == 0) {
         err_Message("d2_ClearPaintbox:Window has no paintbox!");
         return;
     }
-    d2_ClearRect(x, y, w, h, win->paint);
+    d2_ClearRect(x, y, w, h, win->surf2);
 }
 /* 0x4767d0, starts a fade of a sprite over a rectangle; NULL if all 0x20 slots are used */
 

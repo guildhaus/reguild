@@ -144,15 +144,6 @@ typedef struct D2DISSOLVE {         /* 0x20 bytes, a picture being copied to the
 
 typedef struct D2FRCT { int id, amount, unk; } D2FRCT;
 
-typedef struct D2PAINTWIN {         /* D2WIN as far as the paintbox functions use it */
-    int unk00;
-    short x, y, w, h;               /* 0x04 */
-    char pad0c[0x1c];
-    void *paint;                    /* 0x28 */
-    char pad2c[0x254];
-    int active;                     /* 0x280 */
-    char pad284[0x140];
-} D2PAINTWIN;
 
 extern D2PIC *d2_Pics;              /* 0x6ed918 */
 extern int d2_NPics;                /* 0x6ed91c */

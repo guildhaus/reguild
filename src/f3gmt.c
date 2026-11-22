@@ -7828,7 +7828,6 @@ int gm_LayoutTree(AIBLD *bld, AIOBJ *item, int w, int h)
 }
 
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
-#define D2OBJ_AT(i) ((D2OBJ *)d2_Objs + (i))  /* the object i of d2_Objs (char * here) as its D2OBJ record */
 
 /* 0x50b9f0, (re)builds the widgets of the tech tree nodes gm_LayoutTree laid out for the building bld and the
    workshop object item. A node's state: 0 locked, 2 open (its parents are there), 1 done, 3 in progress; a
@@ -7863,8 +7862,8 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 cnt = 0;
                 for (k = 0; k < i; k++) {
                     q = &NODES[k];
-                    if ((q->id == NODES[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && D2OBJ_AT(q->l[2])->greyed == 0)
-                        || (q->id == NODES[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && D2OBJ_AT(q->l[2])->greyed == 0))
+                    if ((q->id == NODES[i].p1 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0)
+                        || (q->id == NODES[i].p2 && (gm_Query(bl->objList, 1, 0, q->id) != 0 || gm_Query(ob->list, 1, 0, q->id) != 0) && d2_Objs[q->l[2]].greyed == 0))
                         cnt++;
                 }
                 if (cnt == 0) {
@@ -7928,8 +7927,8 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 if (NODES[i].id < 0x2dc)
                     NODES[i].l[2] = d2_WinOpenPic(3, 3, NODES[i].id + 0xdf, NODES[i].l[0]);
                 else
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                D2OBJ_AT(NODES[i].l[2])->hitTestable = 1;
-                D2OBJ_AT(NODES[i].l[2])->interactive = 1;
+                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                d2_Objs[NODES[i].l[2]].hitTestable = 1;
+                d2_Objs[NODES[i].l[2]].interactive = 1;
                 d2_LastWindow = saved;
                 NODES[i].l[4] = d2_CreateChildWindow(NODES[i].x - 0x18, NODES[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
                 d2_Wins[NODES[i].l[4]].font = 0x54;
@@ -7942,7 +7941,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 if (NODES[i].id < 0x2dc)
                     NODES[i].l[2] = d2_WinOpenPic(3, 3, NODES[i].id + 0xdf, NODES[i].l[0]);
                 else
-                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                D2OBJ_AT(NODES[i].l[2])->interactive = 1;
+                    NODES[i].l[2] = d2_WinOpenPic(3, 3, 0xdf, NODES[i].l[0]);                d2_Objs[NODES[i].l[2]].interactive = 1;
                 d2_LastWindow = saved;
                 NODES[i].l[4] = d2_CreateChildWindow(NODES[i].x - 0x18, NODES[i].y + 0x32, 0x60, 0x11, 0x4510, parent);
                 d2_Wins[NODES[i].l[4]].font = 0x54;
@@ -7962,7 +7961,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                 d2_Wins[NODES[i].l[4]].mt = 1;
                 d2_Wins[NODES[i].l[4]].mb = 1;
                 if (NODES[i].id < 0x2dc)
-                    io_PrintText(NODES[i].id * 2 + 0x9a8);                D2OBJ_AT(NODES[i].l[2])->hitTestable = 1;
+                    io_PrintText(NODES[i].id * 2 + 0x9a8);                d2_Objs[NODES[i].l[2]].hitTestable = 1;
             }
             d2_LastWindow = saved;
             NODES[i].flag = (unsigned char)state;
@@ -7981,9 +7980,9 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
                         break;
             }
             if (o != 0)
-                D2OBJ_AT(NODES[i].l[2])->fillFraction = (double)gm_MinutesBetween(&o->start, &ai_Time) / (double)gm_MinutesBetween(&o->start, &o->end);
+                d2_Objs[NODES[i].l[2]].fillFraction = (double)gm_MinutesBetween(&o->start, &ai_Time) / (double)gm_MinutesBetween(&o->start, &o->end);
             else
-                D2OBJ_AT(NODES[i].l[2])->fillFraction = 0;
+                d2_Objs[NODES[i].l[2]].fillFraction = 0;
         }
     }
 }
