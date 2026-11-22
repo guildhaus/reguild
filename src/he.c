@@ -5454,7 +5454,7 @@ void he_StartTrialEvent(AIJOB *e)
         } while (found != 0);
     }
     e->stage = 0;
-    e->rounds = 0;
+    e->trialRounds = 0;
     e->exSlot = cm_SendExSetHE(0, e);
 }
 /* 0x549430, a Ghidra miss (disassembled): the run handler of the trial event 0x5e (the character e->chr's trial
@@ -5491,9 +5491,9 @@ void he_RunTrialEvent(AIJOB *e)
             return;
         }
         txt_Format(text, 0x1a9b, c->id);
-        e->rounds++;
+        e->trialRounds++;
         e->end.hour += 0x18;
-        cm_SendExSetHE(e->rounds >= 3, e);
+        cm_SendExSetHE(e->trialRounds >= 3, e);
         he_AddApEvent(teacher->id, text, 0, -t->trialCost);
         return;
     case 1:
@@ -5540,7 +5540,7 @@ void he_StartNextTrialStep(AIJOB *e)
         } while (found != 0);
     }
     e->stage = 0;
-    e->steps = 0;
+    e->trialSteps = 0;
 }
 /* 0x549770, a Ghidra miss (disassembled): the run handler of the next trial step event 0x5f (the character e->chr
    taught by the teacher, a character found by its netId): stage -2 / -1 frees it; nothing while it is not started
@@ -5577,8 +5577,8 @@ void he_RunTrialSteps(AIJOB *e)
         ai_ApplyTrialStep(c, t->trialStepSkill[0]);
         ai_ApplyTrialStep(c, t->trialStepSkill[1]);
         txt_Format(text, 0x1a9e, c->id);
-        e->steps++;
-        e->stage = e->steps >= 5;
+        e->trialSteps++;
+        e->stage = e->trialSteps >= 5;
         e->end.hour += 0x18;
         he_AddApEvent(teacher->id, text, 0, -t->trialStepCost);
         return;

@@ -17,7 +17,7 @@
    its close) keeps its record as LCMAPWIN (lc.h, the marks LCMAPMARK; ai_MapPick and rt hand it in); the family tree window draws its boxes as LCFAMILYBOX
    and opens the character info panel ai_CharInfoPanel. The staff books (ai_PersonnelBook, ai_MercenaryBook,
    ai_HelperBook) keep their rows as G9DOMIZILROW and post the hire requests 6 / 7 as AIMSG.hireTitle / hireRows /
-   hireMaster (the running event's AIJOB.hireTitle); the building's cart list (ai_ShowBldCarts / ai_UpdateBldCarts)
+   hireMaster (the running event's AIJOB.hireJob); the building's cart list (ai_ShowBldCarts / ai_UpdateBldCarts)
    keeps its carts in ai_BldCarts, and the transport window buys and sells carts (ai_BuyCartWindow, ai_SellCarts).
    The building options windows (ai_BuildingWindow, ai_ManagedBuildingWindow) open the sale, renovation, room upgrade
    (AIMSG.roomUpgrade), upgrade (message 0x1e), buy offer (0x21), fire fighting and technique effect windows.
@@ -57,7 +57,7 @@
    partner chain still pass that filter as unsigned int *.
    Open: the AIMSG message records are built by raw offsets in most functions (the use callbacks of the Domizil
    table use AIMSG: ai_UseEventGood, the money messenger AIMSG.payment).
-   Open: types: the event / message words AIJOB.ambush*, AIJOB.search14*, AIJOB.kidnap* (he.c's
+   Open: types: the event / message words AIJOB.ambush*, AIJOB.groupSize / groupGood, AIJOB.kidnap* (he.c's
    AIJOB.kidnap*) and LCOFFEREVENT (he.c's HEOFFER; no header holds these) are local views over AIJOB / AIMSG.arg (the gang leader, the group members and
    the watch plan words are written as AIMSG.arg[n]); a member added to ai_types.h's AIJOB or AIMSG unions moves the declaration-set matches of
    ord_CountGridObjects and ai.c's ai_Unk483a60 (both debt) and of sv_t's tutorial builders (tie-break).
@@ -5012,7 +5012,7 @@ void d2_SetObjEnabled(int obj, int on); int d2_WinOpenPic(short x, short y, int 
 /* 0x595480, the search window of a building ("HANDEL\HANDEL_SUCHEN", frame texts 0x70f / 0x741, title 0x17fe):
    the goods the building's people can search for (0x1c4 .. 0x1c6; type class 0x20: 0x2af, with level 2 also
    0x2b0; class 0x1f: 0x293 .. 0x295; class 8 or level 1: the first two) as picture buttons, each captioned
-   with the searches running (the search events 0x14 of the building, AIJOB.search14*: 1 the text 0x17ff, more
+   with the searches running (the search events 0x14 of the building, AIJOB.groupSize / groupGood: 1 the text 0x17ff, more
    0x1800, none the good's name), next to the store's goods list. A click on a good posts the search message
    0x14 (the good, the room object, up to six selected characters) and waits for its slot; no selected
    character gives the text 0x1801. Nothing when the building's character is busy (sv_CheckCharacterFlag) */
@@ -5067,8 +5067,8 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
         searches[i] = 0;
     for (ev = he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = he_NextEvent())
         for (i = 0; i < 3; i++)
-            if (ev->search14Good == goods[i]) {
-                searches[i] += ev->search14Count;
+            if (ev->groupGood == goods[i]) {
+                searches[i] += ev->groupSize;
                 break;
             }
     win = d2_OpenForm(0, 0, "HANDEL\\HANDEL_SUCHEN");
@@ -5104,8 +5104,8 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
             searches[i] = 0;
         for (ev = he_FindEvent(2, 0, 0x14, 3, bld->id); ev != 0; ev = he_NextEvent())
             for (i = 0; i < 3; i++)
-                if (ev->search14Good == goods[i]) {
-                    searches[i] += ev->search14Count;
+                if (ev->groupGood == goods[i]) {
+                    searches[i] += ev->groupSize;
                     break;
                 }
         d2_SetForm(win, 2);
@@ -5162,7 +5162,7 @@ void ai_TradeSearchWindow(AIBLD *bld, AIOBJ *room)
 }
 /* 0x595a00, the second search window of a building (as ai_TradeSearchWindow: "HANDEL\HANDEL_SUCHEN", frame
    texts 0x70f / 0x741, title 0x1806): always the three goods 0x1c1 .. 0x1c3 as picture buttons, captioned with
-   the searches running (the search events 0x15 of the building, AIJOB.search14*: 1 the text 0x1807, more 0x1808,
+   the searches running (the search events 0x15 of the building, AIJOB.groupSize / groupGood: 1 the text 0x1807, more 0x1808,
    none the good's name). A click on a good posts the search message 0x15 (AIMSG.goodsOrder's count and good, the
    room object in arg[2] where 0x14 has it in arg[1], up to six selected characters) and waits for its slot; no selected character gives the text 0x1801.
    Nothing when the building's character is busy (sv_CheckCharacterFlag) */
@@ -5195,8 +5195,8 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
         searches[i] = 0;
     for (ev = he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = he_NextEvent())
         for (i = 0; i < 3; i++)
-            if (ev->search14Good == goods[i]) {
-                searches[i] += ev->search14Count;
+            if (ev->groupGood == goods[i]) {
+                searches[i] += ev->groupSize;
                 break;
             }
     win = d2_OpenForm(0, 0, "HANDEL\\HANDEL_SUCHEN");
@@ -5232,8 +5232,8 @@ void ai_AquariumSearchWindow(AIBLD *bld, AIOBJ *room)
             searches[i] = 0;
         for (ev = he_FindEvent(2, 0, 0x15, 3, bld->id); ev != 0; ev = he_NextEvent())
             for (i = 0; i < 3; i++)
-                if (ev->search14Good == goods[i]) {
-                    searches[i] += ev->search14Count;
+                if (ev->groupGood == goods[i]) {
+                    searches[i] += ev->groupSize;
                     break;
                 }
         d2_SetForm(win, 2);

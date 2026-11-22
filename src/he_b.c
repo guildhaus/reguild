@@ -5739,7 +5739,7 @@ done:                               /* no contact object: -1 */
     m->circusIncome = 0;
     m->circusRoom = 0xf0;
     m->circusStop = 0xf0;
-    m->meetStart = 0;
+    m->circusStart = 0;
     m->circusBld = -1;
     e->stage = 0;
 }
@@ -5852,7 +5852,7 @@ void he_RunCircusShow(AIJOB *e)
         if (m->circusRoom > 0) {
             bld = he_FindMeetingRoom(e);
             viaRoom = 1;
-            m->meetStart++;
+            m->circusStart++;
         } else {
             gm_FindById(&bld, 0, 0, e->from);
             viaRoom = 0;
@@ -5925,8 +5925,8 @@ void he_RunCircusShow(AIJOB *e)
         e->stage = 0;
     }
 }
-/* 0x574fe0, the meeting room of the event 0xa1: up to three of the event's words meetClasses[meetStart],
-   [meetStart % 4 + 1], ... are looked up as buildings by their class (0x501190 (1, 5, word)); returns the
+/* 0x574fe0, the meeting room of the event 0xa1: up to three of the event's words circusRoomKeys[circusStart],
+   [n % 4 + 1], ... are looked up as buildings by their class (0x501190 (1, 5, word)); returns the
    first hit, 0 when none */
 
 AIBLD *he_FindMeetingRoom(AIJOB *e)
@@ -5934,13 +5934,13 @@ AIBLD *he_FindMeetingRoom(AIJOB *e)
     int i, n;
     AIBLD *r;
 
-    n = e->meetStart;
+    n = e->circusStart;
     r = 0;
     i = 3;
     while (1) {
         if (i == 0)
             break;
-        r = gm_BuildQuery(1, 5, e->meetClasses[n]);
+        r = gm_BuildQuery(1, 5, e->circusRoomKeys[n]);
         i--;
         n = n % 4 + 1;
         if (r != 0)

@@ -3479,7 +3479,7 @@ void ai_MasterLetterKindWindow(AIBLD *bld)
    for the mode 0x10 the texts 0x1949 / 0x194b and the hire button 0x194d, for 0x20 the two buttons of the text
    0x1938 (hire, close); any other mode closes the window at once. The hire button sends the master hire request
    (AIMSG type 7, hireMaster 1, the room the panel shows or -1 at home) unless a master hire event of the building
-   (he_FindEvent 2, 0, 7, 3, its hireTitle 0) already runs, shows the text 0x1939 (the type's first job) and closes
+   (he_FindEvent 2, 0, 7, 3, its hireJob 0) already runs, shows the text 0x1939 (the type's first job) and closes
    the window; the second button and a right click close it too */
 
 void ai_MasterHireWindow(AIBLD *bld, int mode)
@@ -3520,7 +3520,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode)
         } else if (d2_ClickedId != -1) {
             if (d2_PointerObj == hireButton) {
                 for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent())
-                    if (job->hireTitle == 0)
+                    if (job->hireJob == 0)
                         break;
                 if (job == 0) {
                     memset(&msg, 0, sizeof(msg));
@@ -3755,7 +3755,7 @@ void ai_MasterLetterSettings(AIBLD *bld, AICHAR *ch)
    0x30 when the building has a master (gm_FindCharacterByMaster: ai_MasterLetterSettings), else 0x20, or 0x10 when
    the player's own job in the title group of the type's first job is one of the type's six jobs (the player is
    the master: ai_MasterHireWindow with that mode); a running master hire event (he_FindEvent 2, 0, 7, 3, its
-   hireTitle 0) makes it 0x50 (ai_MasterLetterNoticeWindow). sv_CameraFollow after the window */
+   hireJob 0) makes it 0x50 (ai_MasterLetterNoticeWindow). sv_CameraFollow after the window */
 
 void ai_MasterLetterWindow(AIBLD *bld)
 {
@@ -3790,7 +3790,7 @@ void ai_MasterLetterWindow(AIBLD *bld)
         }
     }
     for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent()) {
-        if (job->hireTitle == 0) {
+        if (job->hireJob == 0) {
             mode = 0x50;
             break;
         }

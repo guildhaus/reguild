@@ -1441,7 +1441,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                         if (d2_PointerObj == hireMasterButton && hireMasterButton != -1 && (ai_GameFlags & 0x80) == 0) {
                             if (master == 0 || master->health == 0) {
                                 for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent())
-                                    if (job->hireTitle == 0)
+                                    if (job->hireJob == 0)
                                         break;
                                 if (job == 0) {
                                     memset(&msg, 0, sizeof(msg));
@@ -2305,7 +2305,7 @@ void ai_HelperBook(AIBLD *bld, char *model)
                 }
                 if (d2_ClickedId != -1 && d2_PointerObj == hireMasterButton && master == 0) {
                     for (job = he_FindEvent(2, 0, 7, 3, bld->id); job != 0; job = he_NextEvent())
-                        if (job->hireTitle == 0)
+                        if (job->hireJob == 0)
                             break;
                     if (job == 0) {
                         memset(&msg, 0, sizeof(msg));
@@ -4511,7 +4511,7 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
     sv_ValueBar(w / 2 - 0x23, 0x3c, ai_Chars[ai_PlayerId].skills[talent], 0x4df);
     d2_SetForm(form, 3);
     if (ev != 0) {
-        io_PrintText(0x16b3, ev->training.talent + 0x16b7, text);
+        io_PrintText(0x16b3, ev->trainSkill + 0x16b7, text);
     } else if (ai_Chars[ai_PlayerId].skills[talent] >= 0xfc) {
         io_PrintText(0x16b2);
     } else {

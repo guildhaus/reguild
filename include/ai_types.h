@@ -103,14 +103,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                             } w;
                         } u;
                         unsigned short orderGood;       /* 0xac, of an order (event kind 2): the goods it makes (gm_UpdateTechTree) */
-                        unsigned char groupSize;        /* 0xac, of a group job 0x14 rank1Count + rank2Count (ls_FixupAfterLoad
-                                                           recounts it after a load) */
                         unsigned char thiefClass;       /* 0xac, of the thief event 0x16 (AIMSG.thiefClass, 0x54 further on): 2 / 3,
                                                            the two thief rows of lc.c ai_TrainingWindow */
-                        struct {                        /* 0xac, of the talent training event 0x60 (AIMSG.training, 0x54 further on) */
-                            char padac[2];
-                            unsigned char talent;       /* 0xae, the talent it raises, 0 .. 4 (lc.c ai_TalentWindow names it) */
-                        } training;
                     };
                     union {
                         int unkb0;                      /* 0xb0 */
@@ -148,13 +142,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                                                                    second-kind slots it adds, added to AIOBJ.lvl1d and checked
                                                                    against AIBTYPE.min1 (ai_BuySlots) */
                             };
-                            union {
-                                int unkb8;                      /* 0xb8, a job-kind specific payload word: of a harvest job (0x28) the
+                            int unkb8;                          /* 0xb8, a job-kind specific payload word: of a harvest job (0x28) the
                                                                    plant it works (veg_FindPlantId, ai_SendJobOrders), else a counter / an
                                                                    id / a news id (he.c per kind); no single role name */
-                                int constructBld;               /* 0xb8, of a construction event 0xd the id of the building under
-                                                                   construction (he.c AIJOB.constructBld, he_ShowConstruction) */
-                            };
                             char padbc[8];
                             int workTotal;                      /* 0xc4, of a building job 0xd the total that argc8 counts up to (sv_RefreshPanel: progress argc8 / workTotal) */
                             int argc8;                          /* 0xc8, a job-kind specific word (he.c: a random table entry, a task, an
@@ -178,12 +168,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                         struct { char padt8f[4]; AITIME end8f; };     /* 0xb8, of the kinds 0x8f / 0x16 and the building job 0x1c: the end time */
                         struct { char padt61[0x10]; AITIME start61; }; /* 0xc4, of a job kind 0x61: the start of its eight hours */
                         struct { char padt48[0x18]; AITIME end48; };  /* 0xcc, of a job kind 0x48 (stage 1): the end time */
-                        struct { char padsteps[6]; unsigned char steps; };  /* 0xba, of a next trial step event 0x5f its step count
-                                                                      (its alloc handler 0x5496f0 clears it) */
                         struct { char padeff[0xe]; unsigned short effectGood; };  /* 0xc2, of an effect event 0x76 the Domizil table id
                                                                       (ai_FindUsableGood) whose duration sets its end time end6c */
-                        struct { char padb8[4]; unsigned char rounds; };  /* 0xb8, of a trial event 0x5e the round counter (he.c 0x549430:
-                                                                      1 at the first round, the third one moves the event to the state 1) */
                         struct { char padidbc[8]; int idbc; };      /* 0xbc, a kind-specific id: of a kind 4 a building (shown with an exclamation mark
                                                                        while argc8 is set), of a pamphlet event 0x35 the netId of the character it is about (he_NoEvent35Pair) */
                         struct { char padalwin[8]; void *alwin; };  /* 0xbc, of the kind 0xc event: the 0x58-byte "f3_alwin_t:d"
@@ -196,12 +182,6 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                         unsigned char graveEntry;       /* 0xb4, of the graveyard order events 0x92 / 0x93 (the master exam at a
                                                            graveyard): the grave entry the order names (gv_OrderSetGraveHolder's
                                                            entry, a byte) */
-                        struct { char padidx8[8]; int meetStart; };     /* 0xbc, of the meeting event 0xa1 (0x574550): the index
-                                                                          into meetClasses its room query starts at */
-                        struct { char padmeet[0xc]; unsigned short meetClasses[5]; };  /* 0xc0, of the meeting event 0xa1: the
-                                                                          words its room query 0x574fe0 hands to the building query
-                                                                          0x501190 as its class (key 5), picked by 0x574550 from
-                                                                          7 / 0x16 / 0xf / 0xa */
                     };
                     char pade8[4];
                 };
@@ -226,8 +206,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                 struct {                        /* 0xac, of the kind 6 sales-tour event (its run handler 0x554320, the
                                                    single-ware variant 0x554860); the personnel book posts 6 / 7 as its
                                                    hire requests (AIMSG.hireTitle / hireRows, ai_PersonnelBook) */
-                    unsigned char hireTitle;    /* 0xac, the message's hireTitle: of 7 0 (ai_PersonnelBook looks for the
-                                                   running master hire by it), of 6 the title rank hired */
+                    unsigned char hireTitle;    /* 0xac, the message's hireTitle: the title rank hired (of the hire event 7 the
+                                                   same byte is hireJob) */
                     char padad[3];
                     int tourCounters[12];       /* 0xb0 .. 0xdc, the twelve ware counters it hands over one by one;
                                                    ai_UpdateStaff counts the nonzero ones as staff already busy */
@@ -459,7 +439,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
         };
         struct {                        /* of the hire event 7 (he_AllocCustomersHire / he_RunHire); the building
                                            is AIJOB.from */
-            unsigned char hireJob;          /* 0xac, the index of the job in the building type's jobs[] */
+            unsigned char hireJob;          /* 0xac, the index of the job in the building type's jobs[] (the message's
+                                           hireTitle), 0: the master (ai_PersonnelBook and the master windows look for
+                                           the running master hire by it) */
             char hirePadad[3];
             int hireCount[1];               /* 0xb0, the hires left (he_RunCustomers' loops over one count) */
             int hireTarget;                 /* 0xb4, the objId the hired character walks to; 0: the building's main room, -1: its 0xfd object */
@@ -686,26 +668,30 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             float offspringChance;          /* 0xac, stage 0: the chance built up run by run; stage 1: the runs waited (to 3) */
         };
         struct {                        /* of the trial event 0x5e (its alloc handler he_StartTrialEvent,
-                                           run handler he_RunTrialEvent; rounds is AIJOB's) */
+                                           run handler he_RunTrialEvent) */
             int trialTeacher;               /* 0xac, the netId of the character the trial is held with (gm_FindChar); the
                                            rounds' cost goes to its AP events, the news 0x1a9c to it */
             unsigned char trialJob;         /* 0xb0, the job the character gets at the end (cm_SendSetJob; its title
                                            group picks the two abilities raised, the job title text 0x130 + it) */
             char trialPadb1[3];
             int trialCost;                  /* 0xb4, the cost of a round (he_AddApEvent's cost, negated) */
+            unsigned char trialRounds;      /* 0xb8, the round counter (he_StartTrialEvent clears it; 1 at the first
+                                           round, the third one moves the event to the state 1) */
         };
         struct {                        /* of the next trial step event 0x5f (its alloc handler
-                                           he_StartNextTrialStep, run handler he_RunTrialSteps; steps is AIJOB's) */
+                                           he_StartNextTrialStep, run handler he_RunTrialSteps) */
             int trialStepTeacher;           /* 0xac, the netId of the teaching character (gm_FindChar) */
             char trialStepPadb0[4];
             int trialStepCost;              /* 0xb4, the cost of a step (he_AddApEvent's cost, negated) */
             unsigned char trialStepSkill[2];/* 0xb8, the two skills each step raises (ai_ApplyTrialStep's index 0 .. 4) */
+            unsigned char trialSteps;       /* 0xba, the steps taken (he_StartNextTrialStep clears it; 5 end it) */
         };
         struct {                        /* of the training event 0x60 (its alloc handler
                                            he_StartTraining, run handler 0x549aa0) */
             unsigned char trainBase;        /* 0xac, the most the skill rises: 0x15 */
             unsigned char trainRange;       /* 0xad, the random amount taken off it (util_Random), 2 * (2 + skill / 42 + 1) */
-            unsigned char trainSkill;       /* 0xae, the skill trained (AICHAR.skills index) */
+            unsigned char trainSkill;       /* 0xae, the skill trained (AICHAR.skills index; AIMSG.training.talent, the talent
+                                           lcdom.c ai_TalentWindow names) */
         };
         struct {                        /* of the skill level-up event 0x6a's words: AIMSG.skillLevel's words as the
                                            event takes them over (+0x58 -> +0xac; its init he_StartSkillUp, run handler
@@ -850,7 +836,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int constructBldType;           /* 0xb0, the building kind id (AIJOB.buildBldType), sent with the message 10 */
             int constructCarry;             /* 0xb4, the price paid in stage 0; from stage 6 on the work minutes carried over
                                            to the next stage */
-            char constructPadb8[4];         /* 0xb8: AIJOB.constructBld */
+            int constructBld;               /* 0xb8, the id of the building under construction (he_ShowConstruction) */
             int constructScript;            /* 0xbc, the id of the event script playing (evt_FindById), -1: none */
             int constructMinutes;           /* 0xc0, the work minutes per construction stage */
             int constructStages;            /* 0xc4, the last construction stage (AIJOB.workTotal) */
@@ -1043,9 +1029,18 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int circusRoom;                 /* 0xb0, the show's time left (0xf0, 0x78 less per round); > 0: the room is looked up (he_FindMeetingRoom) */
             int circusStop;                 /* 0xb4, cm_SendChrStop's argument */
             char circusPadb8[4];
-            char circusPadbc[4];            /* 0xbc: AIJOB.meetStart */
-            unsigned short circusClasses[4];/* 0xc0, the building classes the room query hands to gm_BuildQuery */
-            unsigned short circusObjs[4];   /* 0xc8, the meeting object ids (he_CircusShowIncome fills the first free one) */
+            int circusStart;                /* 0xbc, the index into circusClasses the room query starts at (he_AllocMeeting4:
+                                           0, one more per round) */
+            union {
+                struct {
+                    unsigned short circusClasses[4];/* 0xc0, the building classes the room query hands to gm_BuildQuery
+                                                   (key 5), picked by he_AllocMeeting4 from 7 / 0x16 / 0xf / 0xa */
+                    unsigned short circusObjs[4];   /* 0xc8, the meeting object ids (he_CircusShowIncome fills the first free one) */
+                };
+                unsigned short circusRoomKeys[5];   /* 0xc0, the classes as he_FindMeetingRoom reads them: its index (circusStart,
+                                                   then n % 4 + 1) reaches 4, the word after the classes, circusObjs[0]
+                                                   (@original: the bytes of the original's off-by-one) */
+            };
             int circusBld;                  /* 0xd0, the id of the building the show is at (he_RunCircusShow), -1 at the allocation */
         };
         struct {                        /* of the ransom demand event 0x3e (he_RunRansom's message 0x3e) */
@@ -1121,10 +1116,11 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int robberyWatch;               /* 0xb8, the id of the patrol event 0x43 that saw it (HEDETECT.found) */
             int robberyGuardBld;            /* 0xbc, that patrol's start building (patrolStart), which counts the reward */
         };
-        struct {                        /* of the search event 0x14 (ai_TradeSearchWindow counts them) */
-            unsigned char search14Count;    /* 0xac, how many characters search */
-            char search14Padad;
-            unsigned short search14Good;    /* 0xae, the good searched for */
+        struct {                        /* of the search events 0x14 / 0x15 (the two trade search windows count them) */
+            unsigned char groupSize;        /* 0xac, how many characters search: rank1Count + rank2Count (ls_FixupAfterLoad
+                                           recounts it after a load) */
+            char groupPadad;
+            unsigned short groupGood;       /* 0xae, the good searched for */
         };
     };
 } AIJOB;
