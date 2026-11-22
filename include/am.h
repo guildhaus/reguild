@@ -115,18 +115,6 @@ struct AIBLD *gm_FirstBuilding(int n);                                     /* 0x
 /* 0x495ee0..0x497490 (was unk_495ee0.h) */
 
 
-typedef struct AIJOBX {                 /* a job (0x53e400 / 0x53e300 list) */
-    char pad00[4];
-    int id;                             /* 0x04, the event id (ai.h AIJOB.id) */
-    char pad08[0xa4];
-    int bldId;                          /* 0xac, a building id (ai.h AIJOB.bldId); of the offer event 0x2c the suitor (he.c HEOFFER.who[0]) */
-    union {
-        int price;                      /* 0xb0, of a building offer (kind 0x1b, +0xac the building) the asking price (0x497fa0 sets it against two thirds of the buyer's money) */
-        int partner;                    /* 0xb0, of the offer event 0x2c the partner's netId (HEOFFER.who[1]) */
-    };
-    int guests[3];                      /* 0xb4, of the offer event 0x2c the first three guests' netIds (HEOFFER.who[2..4]):
-                                           ai_EvalLeastLikedOfEvent weighs them for the character whose event it is */
-} AIJOBX;
 
 
 extern AIACT ai_Actions[];            /* 0xf83ec0, the registered actions */
@@ -198,8 +186,6 @@ typedef char ai_AssertAIGOODX[sizeof(AIGOODX) == 0x41 ? 1 : -1];
 #define AI_BTX ((AIBTX *)ai_BTypes)
 #define AI_GOODX ((AIGOODX *)ai_Goods)
 /* ai.h declares gm_BuildQuery with two arguments, am.h above with three */
-#define AI_JOBS1B() ((AIJOBX *)he_FindEvent(1, 0, 0x1b))
-#define AI_JOBNEXT() ((AIJOBX *)he_NextEvent())
 
 int ai_DecideProduceGood(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2);                 /* 0x497660 */
 int ai_ExecuteProduceGood(AICHAR *p, AIARG *s1, AIARG *s2);                               /* 0x4979d0 */

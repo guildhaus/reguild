@@ -10,7 +10,7 @@
    Open: gm_IsBankrupt calls ai_LiquidateAssets (0x5b92e0: netId, character, amount, message) without a prototype;
    its definition in lc.c is still a one-parameter skeleton.
    Open: ai.h is not includable here, so the character / building / object records are read through gv.h's views
-   AICHAR / AIBLD / AIOBJ, the job record through GMJOB (AIJOB, next to AITIME), the crime records ai_Crimes (cm_types.h CRIME,
+   AICHAR / AIBLD / AIOBJ, the job record as ai_types.h's AIJOB, the crime records ai_Crimes (cm_types.h CRIME,
    0x200 of them), the goods prototypes through GMGOOD (AIGOOD, GM_GOOD), the goods records of the
    stock blocks through GMBLOCK / GMSTOCK (f3gm_types.h, GM_BLOCK; f3init.c / hst.c / ls.c use them too),
    the building types through GMBTYPE (AIBTYPE, GM_BTYPE; older functions still by
@@ -2377,22 +2377,6 @@ void gm_CountCharacters(void)
 
 
 /* a job record (ai.h AIJOB, he_NextEvent's list) as gm_SellBuilding and gm_FreeObject stamp it */
-#pragma pack(push, 1)
-typedef struct GMJOB {
-    char pad00[0x44];
-    AITIME start;                       /* 0x44, the start time (gm_UpdateTechTree's progress) */
-    AITIME end;                         /* 0x52, the end time (ai.h AIJOB.end) */
-    char pad60[0x18];
-    unsigned char opts;                 /* 0x78, the event's options (ai.h AIJOB.opts); bit 2 = posted when due */
-    char pad79[0xb];
-    int msgSlot;                        /* 0x84, the slot handle of its HE message (cm_SendExSetHE) */
-    char pad88[0x24];
-    unsigned short good;                /* 0xac, of an order (event kind 2): the goods it makes */
-    char padAe[2];
-    int objId;                          /* 0xb0, of an order: the AIOBJ.objId of the workshop it is for */
-    int research;                       /* 0xb4, of a research job (event kind 0xc): the goods researched */
-} GMJOB;
-#pragma pack(pop)
 
 extern int gm_ClassBuilding[32];
 extern int gm_GoodBuilding[732];

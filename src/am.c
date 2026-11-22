@@ -5,8 +5,6 @@
    precede amr.c's named constants ag_Pairs.. (the AI actions with the am_RegisterMethod tag are amr.c; the name am
    stays here with am.h). Names are ours.
    Open: am.h keeps the joined parts' character views (AICHAR / AICHAR / AICHAR / AICHAR / AICHAR), and duplicate callee prototypes / cast macros; they need unifying with ai.h's types.
-   Open: AIJOBX (am.h) duplicates ai.h's AIJOB (its id / bldId / price fields are named from it); the AIJOB
-   union member for the building offer's price flips ai_Unk483a60's byte match by the declaration set.
    Open: not included yet (dcp headers conflicts am HEADER): txt.h.
    unit of rea 8cef7d5b (src/game/am.c); boundaries in decl/text.dcl */
 #include "txt_views.h"

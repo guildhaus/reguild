@@ -83,6 +83,7 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                         unsigned short hi;      /* 0xae */
                     } w;
                 } u;
+                unsigned short orderGood;       /* 0xac, of an order (event kind 2): the goods it makes (gm_UpdateTechTree) */
                 unsigned char groupSize;        /* 0xac, of a group job 0x14 rank1Count + rank2Count (ls_FixupAfterLoad
                                                    recounts it after a load) */
                 unsigned char thiefClass;       /* 0xac, of the thief event 0x16 (AIMSG.thiefClass, 0x54 further on): 2 / 3,
@@ -101,7 +102,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                 int graveSize;                  /* 0xb0, of the graveyard order events 0x92 / 0x93 (the master exam at
                                                    a graveyard): the size of the grave the order names, an index into
                                                    ai_GraveNames (he.c 0x5729c0 passes it as the order's size) */
-                int partner2;                   /* 0xb0, of a pair event the second partner's netId */
+                int partner2;                   /* 0xb0, of a pair event the second partner's netId; of the offer event 0x2c
+                                                   the partner's (ai_EvalLeastLikedOfEvent) */
+                int orderObj;                   /* 0xb0, of an order (event kind 2): the AIOBJ.objId of the workshop it is for */
                 int id2;                        /* 0xb0, a second id: a building (kind 100) or a character (kind 0x89) as
                                                    sv_SpeakPicked looks them up */
                 int effectObj;                  /* 0xb0, of an effect event 0x76 the effect object's handle, 0: none yet (its
@@ -145,6 +148,9 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
                     int amount[3];                      /* 0xdc */
                 };
                 AITIME end6c;                   /* 0xb4, of a job kind 0x6c: the end time */
+                int research;                   /* 0xb4, of a research job (event kind 0xc): the goods researched (gm_UpdateTechTree) */
+                int guests[3];                  /* 0xb4, of the offer event 0x2c the first three guests' netIds:
+                                                   ai_EvalLeastLikedOfEvent weighs them for the character whose event it is */
                 int cartBld;                    /* 0xb4, of the job a cart runs (AIOBJ.job24): the building (sv_RefreshPanel prints its kind) */
                 int id3;                        /* 0xb4, a third id: of a kind 0x1a the character sv_SpeakPicked looks up */
                 struct { char padid4[0x10]; int id4; };       /* 0xc4, of a kind 0x18: the character sv_SpeakPicked looks up */

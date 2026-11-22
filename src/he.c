@@ -336,7 +336,7 @@ typedef struct HERESEARCH {             /* the research event 0xc's words over A
     char pad00[0xac];
     int buyer;                          /* 0xac, the id of the building the good is ordered to (the message's buyer) */
     char padb0[4];
-    int good;                           /* 0xb4, the goods prototype researched (f3gm.c GMJOB.research) */
+    int good;                           /* 0xb4, the goods prototype researched (AIJOB.research) */
     int objId;                          /* 0xb8, the objId of the object the order made (the reply's AIOBJ.objId) */
     int wbc;                            /* 0xbc, 0 at the allocation (no reader known) */
     int limit;                          /* 0xc0, the rounds waited for that object (0x20) */

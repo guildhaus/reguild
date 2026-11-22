@@ -177,22 +177,6 @@ void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 void mem_Free(void *p);                    /* 0x422620 */
 #define GM_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define GM_MAX(a, b) ((a) > (b) ? (a) : (b))
-#pragma pack(push, 1)
-typedef struct GMJOB {
-    char pad00[0x44];
-    AITIME start;                       /* 0x44, the start time (gm_UpdateTechTree's progress) */
-    AITIME end;                         /* 0x52, the end time (ai.h AIJOB.end) */
-    char pad60[0x18];
-    unsigned char opts;                 /* 0x78, the event's options (ai.h AIJOB.opts); bit 2 = posted when due */
-    char pad79[0xb];
-    int msgSlot;                        /* 0x84, the slot handle of its HE message (cm_SendExSetHE) */
-    char pad88[0x24];
-    unsigned short good;                /* 0xac, of an order (event kind 2): the goods it makes */
-    char padAe[2];
-    int objId;                          /* 0xb0, of an order: the AIOBJ.objId of the workshop it is for */
-    int research;                       /* 0xb4, of a research job (event kind 0xc): the goods researched */
-} GMJOB;
-#pragma pack(pop)
 extern int gm_ClassBuilding[32];
 extern int gm_GoodBuilding[732];
 extern struct AIGOOD *ai_Goods;
@@ -3008,7 +2992,7 @@ void gm_SellBuilding(int id, int buyer, int price, AIJOB *job, int boss)
     AIBLD *bl;
     AICHAR *ch;
     unsigned char *k;
-    GMJOB *j;
+    AIJOB *j;
     char buf[256];
 
     bl = gm_BuildQuery(1, 1, id);
@@ -3028,11 +3012,11 @@ void gm_SellBuilding(int id, int buyer, int price, AIJOB *job, int boss)
         if (boss != 0 && *k == 2)
             cm_SendBoss(ch->netId, bl->id);
     }
-    j = (GMJOB *)job;
+    j = job;
     if (j != 0) {
         j->end = ai_Time;
         gm_AddTime(&j->end, 0, 0, 1);
-        j->msgSlot = cm_SendExSetHE(-1, job);
+        j->exSlot = cm_SendExSetHE(-1, job);
     }
     cm_SendSetField(bl->id, 0x5a, 2, 0, 2);
     cm_EndGroup("buy_building");
@@ -3127,15 +3111,15 @@ int gm_RemoveObjectFromBuilding(AIBLD *b, int id)
 
 void gm_FreeObject(AIOBJ *obj)
 {
-    GMJOB *job;
+    AIJOB *job;
     AIBLD *bld;
     struct CHARACTER *model;
     int saved;
 
     saved = d3_CurrentScene;
-    job = (GMJOB *)obj->job24;
+    job = obj->job24;
     if (job != 0 && (job->opts & 2) != 0)
-        job->msgSlot = cm_SendExSetHE(-1, (struct AIJOB *)job);
+        job->exSlot = cm_SendExSetHE(-1, job);
     model = obj->sceneObj;
     if (model != 0) {
         d3if_SelectScene(d3t_SceneIndex(model->scene), 1);
@@ -7872,7 +7856,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
     AIBLD *bl;
     AIOBJ *ob;
     RTNODE *q;
-    GMJOB *o;
+    AIJOB *o;
     int i, k, cnt, state, saved, parent;
 
     bl = bld;
@@ -7883,7 +7867,7 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
         if (GM_GOOD(NODES[i].id)->type == 6) {
             if (gm_Query(bl->objList, 1, 0, NODES[i].id) != 0) {
                 state = 1;
-                for (o = (GMJOB *)he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = (GMJOB *)he_NextEvent())
+                for (o = he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = he_NextEvent())
                     if (o->research == NODES[i].id) {
                         state = 3;
                         break;
@@ -7926,8 +7910,8 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
             } else if (cnt == 2)
                 state = 2;
             if (state == 2) {
-                for (o = (GMJOB *)he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = (GMJOB *)he_NextEvent())
-                    if (o->objId == ob->objId && o->good == NODES[i].id) {
+                for (o = he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = he_NextEvent())
+                    if (o->orderObj == ob->objId && o->orderGood == NODES[i].id) {
                         state = 3;
                         break;
                     }
@@ -8001,12 +7985,12 @@ void gm_UpdateTechTree(AIBLD *bld, AIOBJ *item)
             o = 0;
             if (GM_GOOD(NODES[i].id)->type == 6) {
                 if (gm_Query(bl->objList, 1, 0, NODES[i].id) != 0)
-                    for (o = (GMJOB *)he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = (GMJOB *)he_NextEvent())
+                    for (o = he_FindEvent(2, 0, 0xc, 3, bl->id); o != 0; o = he_NextEvent())
                         if (o->research == NODES[i].id)
                             break;
             } else {
-                for (o = (GMJOB *)he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = (GMJOB *)he_NextEvent())
-                    if (o->objId == ob->objId && o->good == NODES[i].id)
+                for (o = he_FindEvent(2, 0, 2, 3, bl->id); o != 0; o = he_NextEvent())
+                    if (o->orderObj == ob->objId && o->orderGood == NODES[i].id)
                         break;
             }
             if (o != 0)

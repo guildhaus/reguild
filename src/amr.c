@@ -1859,7 +1859,7 @@ int ai_EvalLeastLikedOfEvent(float *a, float *b, int i, AICHAR *p, int f, AIARG 
 {
     AIDEC d;
     AIACT *act;
-    AIJOBX *job;
+    AIJOB *job;
     AICHAR *c[3];
     float dist[3], best;
     int x, y, j, bi;
@@ -1880,8 +1880,8 @@ int ai_EvalLeastLikedOfEvent(float *a, float *b, int i, AICHAR *p, int f, AIARG 
         goto fallback;
     x = ai_JudgeCatholic ? ai_JudgeCatholic->netId : -1;
     y = ai_JudgeProtestant ? ai_JudgeProtestant->netId : -1;
-    for (job = (AIJOBX *)he_FindEvent(1, 0, 0x2c); job; job = (AIJOBX *)he_NextEvent())
-        if (job->partner == p->netId)
+    for (job = he_FindEvent(1, 0, 0x2c); job; job = he_NextEvent())
+        if (job->partner2 == p->netId)
             break;
     if (!job || job->guests[0] == x || job->guests[0] == y)
         goto fallback;
@@ -2497,7 +2497,7 @@ found:
                     || (bl->type == 7 && ok[3]))) {
                 for (j = he_FindEvent(1, 0, 0x1b); j; j = he_NextEvent()) {
                     if (j->u.id == bl->id) {
-                        v = ((AIJOBX *)j)->price;
+                        v = j->salePrice;
                         if (lim < v) {
                             r = gm_EquipmentValue(bl, bl->level);
                             if ((float)(v - lim) / v < (float)((float)(v - r) / r * -0.5f) + 0.25f) {
@@ -2532,7 +2532,7 @@ found:
             if ((unsigned char)ai_BTypes[bl->type].kind == o1->ref) {
                 for (j = he_FindEvent(1, 0, 0x1b); j; j = he_NextEvent()) {
                     if (j->u.id == bl->id) {
-                        v = ((AIJOBX *)j)->price;
+                        v = j->salePrice;
                         if (lim < v) {
                             r = gm_EquipmentValue(bl, bl->level);
                             if ((float)(v - lim) / v < (float)((float)(v - r) / r * -0.5f) + 0.25f) {
@@ -2570,7 +2570,7 @@ int ai_ExecuteBuyBuilding(AICHAR *p, AIARG *s1, AIARG *s2)
     }
     if (j == 0)
         return 0;
-    gm_SellBuilding(s1->ref, p->netId, ((AIJOBX *)j)->price, (struct AIJOB *)j, 1);
+    gm_SellBuilding(s1->ref, p->netId, j->salePrice, j, 1);
     return 0x10;
 }
 /* 0x4984d0, decide callback: buy or upgrade the character's house (a building of kind 2) when it owns a building
@@ -2817,7 +2817,7 @@ int ai_DecideBuildBusiness(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
     AIARG t1, t2, s1, s2;
     AIBTX *bt;
     AIBLD *bl;
-    AIJOBX *j;
+    AIJOB *j;
     int i, tot, cnt, ones, sel, maxn, lim, k, n, v, r, d, h;
 
     tot = 0;
@@ -2942,9 +2942,9 @@ int ai_DecideBuildBusiness(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
         s2.kind = 0;
         for (bl = gm_BuildQuery(1, 5, k); s1.kind == 0 && bl; bl = gm_BuildNext()) {
             if (AI_BTX[bl->type].level <= h && (bl->flags5a & 2)) {
-                for (j = AI_JOBS1B(); j; j = AI_JOBNEXT()) {
+                for (j = he_FindEvent(1, 0, 0x1b); j; j = he_NextEvent()) {
                     if (j->bldId == bl->id) {
-                        v = j->price;
+                        v = j->salePrice;
                         if (lim < v) {
                             r = gm_EquipmentValue(bl, bl->level);
                             lim = v - lim;
@@ -2977,13 +2977,13 @@ int ai_DecideBuildBusiness(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2)
 int ai_ExecuteBuildBusiness(AICHAR *p, AIARG *s1, AIARG *s2)
 {
     AIMSG msg;
-    AIJOBX *j;
+    AIJOB *j;
 
     if (s1->kind == 4 && s2->kind == 8) {
-        j = (AIJOBX *)he_FindEvent(1, 1, s2->ref);
+        j = he_FindEvent(1, 1, s2->ref);
         if (!j)
             return 0;
-        gm_SellBuilding(s1->ref, p->netId, j->price, (struct AIJOB *)j, 1);
+        gm_SellBuilding(s1->ref, p->netId, j->salePrice, j, 1);
         return 0x13;
     }
     if (s2->kind == 4) {
