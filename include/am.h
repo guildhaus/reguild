@@ -239,7 +239,7 @@ int gm_FirstTitleNumber(int k);                                                 
 /* 0x5044b0 */
 int gm_BuildingJob(int k);                                                        /* 0x5048e0 */
 int gm_TitlesLeft(int k);                                                        /* 0x504ce0 */
-float gm_Mix(int a, int b, int c);                                  /* 0x504e20 */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);                                  /* 0x504e20 */
 int gm_BuildingKindValue(int k);                                                        /* 0x509d30 */
 int gm_BuildingKindCost(struct AICHAR *c, int kind);                                              /* 0x509dc0 */
 int ord_RandomObjectId(struct AICHAR *c);                                                     /* 0x4f8700 */
@@ -419,7 +419,7 @@ extern const AIREC10 ai_TortureInstruments[7];         /* 0x5ecfd8 */
 double cm_RandomFloat(void);                                       /* 0x4e5360, a random value */
 unsigned int cm_Random(unsigned int n);                                        /* 0x4e52f0, a random test */
 float gm_MapDistance(int a, int b, int c, int d);                 /* 0x4ffc90 */
-float gm_Mix(int a, int b, int c);                    /* 0x504e20 */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);                    /* 0x504e20 */
 int gm_ConvertMoney(int a, unsigned char b);                       /* 0x5085b0 */
 int gm_GetWorth(unsigned short id);                            /* 0x50a640 */
 struct ORDMSG; int ord_DispatchOrder(int id, struct AICHAR *c, struct ORDMSG *m);           /* 0x4f81c0 */

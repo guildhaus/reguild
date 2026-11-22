@@ -5341,7 +5341,7 @@ int ai_DrohbriefAmountCB(AICHAR *ch, int unused)
             if (d2_PointerObj == ok) {
                 char note[0x400];
                 cm_SendMoneyDelta(me->netId, -2);
-                chance = gm_Mix((int)me, (int)ch, 4);
+                chance = gm_Mix(me, ch, 4);
                 if (util_RandomF() + chance >= 1.0f) {
                     msg.type = 0x2e;
                     msg.to = ch->netId;

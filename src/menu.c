@@ -2685,7 +2685,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
                     k = 0;
                     for (i = 1; i < 5; i++) {
                         if (rows[i].rec != 0) {
-                            r = 0x32 - (int)(gm_Mix((int)((char *)&ai_Chars[ai_PlayerId]), (int)rows[i].rec, 4) * -50.0f);
+                            r = 0x32 - (int)(gm_Mix(&ai_Chars[ai_PlayerId], (AICHAR *)rows[i].rec, 4) * -50.0f);
                             cm_SendRelations(rows[0].rec->id, rows[i].rec->id, -r, 1);
                             sel[5 + k] = (int)rows[i].rec;
                             k++;

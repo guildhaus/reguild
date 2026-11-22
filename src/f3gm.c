@@ -428,7 +428,7 @@ int gm_CharacterIncomes(unsigned id, GMINCOME *out, unsigned char flags)
 struct AMTKIND; int amt_GetKind(int k, struct AMTKIND *out);                   /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
-float gm_Mix(int a, int b, int c);                     /* 0x504e20 */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);                     /* 0x504e20 */
 void ai_BeginNeedBlock(struct AICHAR *p);                     /* 0x4c3e70 */
 int ai_AddNeedDelta(int k, float v);                     /* 0x4c3eb0 */
 void ai_SendNeedBlock(void);                     /* 0x4c4a20 */
@@ -790,7 +790,7 @@ int gm_HandOutMoney(AIBLD *b, int *out)
                 if (c->loyalty < 0.95f && c->loyalty > 0.05f)
                     cm_SendFloatDelta(c->netId, 0x1d0, lo);
                 if (out[2] != 0) {
-                    a = (int)(gm_Mix((int)u, (int)c, 4) * 10.0f + 1.0f);
+                    a = (int)(gm_Mix(u, c, 4) * 10.0f + 1.0f);
                     cm_SendRelations(((AICHAR *)out[2])->netId, c->netId, a, 1);
                 }
             }

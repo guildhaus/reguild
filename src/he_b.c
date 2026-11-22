@@ -4567,7 +4567,7 @@ void he_RunDecay(AIJOB *e)
         gm_AddTime(&e->end, 1, 0, 0);
         victim = gm_FindChar(d->victim);
         agent = gm_FindChar(d->agent);
-        chance = gm_Mix((int)agent, (int)victim, 2);
+        chance = gm_Mix(agent, victim, 2);
         if (victim != 0) {
             if (util_RandomF() + chance > 1.0) {
                 bld = agent->bld;

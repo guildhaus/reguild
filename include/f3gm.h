@@ -130,7 +130,7 @@ struct AIOBJ *gm_PlayerSeat(int p);  /* 0x504a80 */
 void gm_SendMoneyDelta(int a, int b);  /* 0x50cc50 */
 int gm_JobBuildingType(int x);  /* 0x504050 */
 float gm_MapDistance(int a, int b, int c, int d);  /* 0x4ffc90 */
-float gm_Mix(int a, int b, int c);  /* 0x504e20 */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);  /* 0x504e20 */
 int gm_PlayerFactor(int a, unsigned char k);  /* 0x5085f0 */
 unsigned char *gm_FirstBuilding(int n);  /* 0x50b010 */
 int gm_FirstTitleNumber(int x);  /* 0x504290 */

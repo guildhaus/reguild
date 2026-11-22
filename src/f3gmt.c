@@ -129,7 +129,7 @@ extern struct D2COLKEY d2_TransparentColour;  /* 0x6f0454, shp.c (the type in sh
 struct AMTKIND; int amt_GetKind(int k, struct AMTKIND *out);                   /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);  /* 0x4fca40 */
 float gm_GetSkill(struct AICHAR *c, int skill);                     /* 0x504ec0 */
-float gm_Mix(int a, int b, int c);                     /* 0x504e20 */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);                     /* 0x504e20 */
 void ai_BeginNeedBlock(struct AICHAR *p);                     /* 0x4c3e70 */
 int ai_AddNeedDelta(int k, float v);                     /* 0x4c3eb0 */
 void ai_SendNeedBlock(void);                     /* 0x4c4a20 */
@@ -4261,7 +4261,7 @@ int gm_SkillPoints(char *c, int skill)
 }
 /* 0x504e20, mixes the two 0x504ec0 values u = f (a, c) and v = f (b, c): ((u * u - v) * 0.4 + 0.6 + (u - v * v) * 0.6 + 0.4) * 0.5 */
 
-float gm_Mix(int a, int b, int c)
+float gm_Mix(AICHAR *a, AICHAR *b, int c)
 {
     float u, v, x, y;
 

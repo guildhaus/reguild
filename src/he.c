@@ -3921,7 +3921,7 @@ void he_RunMasterExam(AIJOB *e)
         he_FreeEvent(e);
         return;
     case 2:
-        f = gm_Mix((int)q, (int)p, 4);
+        f = gm_Mix(q, p, 4);
         if (util_RandomF() + f >= 1.0f) {
             txt_Format(buf, 0x1764, r->id, p->id);
             he_ShowNews(q->netId, q->netId, buf, 0, 0x5fa, 0);
@@ -13194,7 +13194,7 @@ void he_RunSabotage(AIJOB *e)
         }
         owner = &ai_Chars[b->owner];
         me = &ai_Chars[e->chr];
-        chance = gm_Mix((int)me, (int)owner, 2);
+        chance = gm_Mix(me, owner, 2);
         ok = 0;
         if (util_RandomF() + chance >= 1.0f && ai_InventoryHas(owner, 0x2c0) == 0) {
             ok = 1;

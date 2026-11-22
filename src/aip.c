@@ -1080,7 +1080,7 @@ int ai_DecideCharPair(AICHAR *p, int c, AIARG *m)
         return 0;
     m->kind = 7;
     m->ref = ai_Chars[id].netId;
-    f = gm_Mix((int)p, (int)&ai_Chars[id], 4);
+    f = gm_Mix(p, &ai_Chars[id], 4);
     if (!(util_RandomF() + f >= 1.0f))
         return 0;
     m->arg = ai_Chars[id2].netId;

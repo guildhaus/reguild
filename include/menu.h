@@ -164,7 +164,7 @@ int sv_PanelImage(void);            /* 0x522040, sv.c: the panel image number of
 void sv_BuildScreenLayout(int s);   /* 0x521e70, sv.c: builds the main screen layout for the panel image s */
 /* The gypsy windows' callees (the special-amount list of lc.c, the money / relation messages). */
 int cm_SendRelations(int a, int b, int c, int d);   /* 0x4c4b00, cm.c: message 0x1b, the relation of a to b changes by c */
-float gm_Mix(int a, int b, int c);                   /* 0x504e20, f3gm.c: the mix of two relation values */
+float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c);                   /* 0x504e20, f3gm.c: the mix of two relation values */
 int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); /* 0x521410, sv.c: the green message box with the title text a and the text b */
 struct AIBLD;
 struct AICHAR;
