@@ -6281,7 +6281,8 @@ the bytes no portable form gives.
   G9KIND / SPHEREVOLUME / GMDISEASE for int * callees, the duplicate views G8SEAT / G14REC / AIRECX / G8REC / HETAVERNOBJ,
   AIJOB.msg, gm_NameRecord's GMHEAD *) or the twenty-fourth (the one mesh vertex / triangle / surface / driver /
   path records, AIJOB's loan and ransom members, AIGOOD for GMGOOD / AIGOODX, D2SURF.bytes / D2OBJ.text, ORDINITMSG in
-  G17MSG, const .rdata lookups, the unused pun macros).
+  G17MSG, const .rdata lookups, the unused pun macros) or the twenty-fifth (GVSHOTMSG in G17MSG, the town map
+  D3FLMAP and d3_Scenes[k].map, the byte-offset walk ends, AIJOB's 101 event-kind members; HEOFFER stays a pack(1) view).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6972,6 +6973,35 @@ the bytes no portable form gives.
   sign makes impossible (HEWALKSLOT.holdHour == 0xff after sign extension) is `signed char` with `@original`: the plain
   char spelling would give the test the other meaning where char is unsigned. A `%c` argument stays `(char)` (text).
   Some /J differences are allocation noise of the changed code size (he_SpawnFounders' fidiv), not sign dependences.
+- **A message payload whose record needs types the message header cannot include** (GVSHOTMSG with SHOTREC from
+  menu.h, defined three times in gv.c / grave.c / gs.c and passed as `(struct GVSHOTMSG *)&m->data[0]`; twenty-fifth
+  pass): move the records it needs into a types-only header (shot_types.h: EFFECTREC, SHOTVEL, SHOTREC; menu.h includes
+  it), define the payload once in the types header the message header includes (gv_types.h), add it to G17MSG's union
+  (`shots`) and pass the member. Unused copies of a record in other units go.
+- **A unit's view of an engine record and a placement view of the field that points at it** (rd.h's G15MAP, ai.h's
+  AIMAP with AIMAPREF[] of 0x3e0 bytes, data_views.h's ai_MapRefs at d3_Scenes + 0xac): the record is the engine's
+  (D3FLMAP: w = size, cells = types, x0 / z0 = orgx / orgz, cw = scale, ch = negScale, ground = typenames), the
+  "table" is the scene array read at its field (`d3_Scenes[k].map`, the field typed `struct D3FLMAP *`), and the
+  view macro is the field of the first record. A view that adds fields at other offsets (D3TERRAIN's blocks over the
+  tiles) is a separate merge. Three trailing ints that a callee takes as its out record (G15ROAD's n / max / pts for
+  path_Find) are that record (`PATHOUT out`).
+- **Walk ends and bases written as byte offsets** (`(uintptr_t)&d2_Wins + 0x16c00`, `&sv_Activities[0].icon + 0x600`,
+  `(char *)&ai_Chars + 2`; twenty-fifth pass): divide by the record size and name the field the walk is based at:
+  `&d2_Wins[0x60].active`, `&sv_Activities[0x30].icon`, `&ai_Chars[0].kind`; a strided int read
+  `((int *)&t[0].f)[i * 8]` is `t[i].f`. A placement view of one field of a record table (ai_Selected = AICHAR.selected
+  over ai_Chars) is that field; the view macro goes. Every function stayed byte. Layout checks in headers use
+  offsetof (stddef.h), not `(int)&((T *)0)->f`.
+- **Event views over the whole job record, many of them reaching past the union** (he.c / he_b.c's 102 views, twenty-fifth
+  pass): let AIJOB's union span the record's rest (0xac..0x14b) with the old members as its first anonymous struct,
+  and generate one prefixed struct per view (scratchpad p25/vgen.py / vapply.py: parse the view, compute every field's
+  offset under natural alignment and compare it with the field comment, rename per function). Name a field that
+  AIJOB already has at the same offset for the same kind with that name (HESALE.good = orderGood, HEWATCH = patrol*).
+  A view laid out under `#pragma pack(1)` with an AITIME at an odd offset (HEOFFER's clock at 0xc5) cannot be an
+  AIJOB member at natural alignment: it stays local. Before stripping `(V *)` casts, find the casts of call results
+  (`((HEEXAMOFFER *)he_FindEvent(..))->accepted`): without the cast the field resolves against AIJOB, and a name the
+  record has at another offset compiles silently. Check the draft functions' code before and after (scratchpad
+  p25/ours.sh / oursdiff.sh: `dcp disasm --ours` of every non-byte function, VC6's `$L` label numbers masked).
+
 
 ## Open cases and rounds without result
 Unsolved hunks and what was tried on them. Read before repeating a round on the same function; none of these states a rule.
