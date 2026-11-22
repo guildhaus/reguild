@@ -6197,7 +6197,10 @@ the bytes no portable form gives.
   lookups, ai_MapPick's callback, the const read-only parameters; he_DetectAttack's intptr_t is a portable spelling,
   not (c)) or the seventeenth (the padded vectors D3VECTOR4 with their D3VECTOR member, D3VECTOR's index view, the
   3-float callees, the cannon shot, the surface descriptors, D3TEXHANDLE as TSTEXTURE, the held good in AIOBJ and
-  G8USE, the character callees, the cm.h / gv.h K&R sweep, the signed address compares as intptr_t).
+  G8USE, the character callees, the cm.h / gv.h K&R sweep, the signed address compares as intptr_t) or the eighteenth
+  (the goods lists AIRECIPE, the player record AIFIN, the dice duel AGDUEL, the amount row LCAMOUNTROW, the menu
+  units' AICHAR, the office out-record AMTREC, the bank lists, the mission owner, the height map D3SM, the cut record
+  CMCUTINFO, the Domizil use prototype, the camera matrices, the vertex positions).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -6704,6 +6707,52 @@ the bytes no portable form gives.
   `(intptr_t)((uintptr_t)&g + k)`).
 - **Stripping casts by "no new diagnostic"**: never inside a `#define` (`#define CH(i) ((char *)&ai_Chars[i])` without
   its cast compiles silently and rescales every `CH(i)[k]`), never before `+ - [` (only a whole argument).
+- **A query that fills a record as `unsigned *out` with index writes** (gm_StallGoodsList / gm_BuildingGoodsList:
+  `out[0x1a + out[1]]`, `((AIRECIPE *)out)->item[..]`; eighteenth pass): the parameter is the record and the writes are
+  its fields (`out->amount[out->count]`); the clear loop `for (i = 0; i < 0x2e; i++) out[i] = 0` is `memset(out, 0,
+  sizeof(*out))` (the same `mov ecx,0x2e; rep stosd`, and it covers a 64-bit record). Callers' `int rc[0x2e]` locals
+  become the record (`rc[0x2c]` -> `rc.value`); the frame does not move (same size).
+- **One record described in many unit views** (the player record: AIFINX / AGFIN / HEFINVIEW / LCFIN x4 / INIT_CAMREC /
+  MAINPLREC / PLAYERRECVIEW for ai.h's AIFIN; gm_PlayerRecord returned short *): move the owner's typedef into the
+  types header every user includes (ai_types.h, not ai.h: f3init sees only the former), return the record pointer, and
+  give it the views' names where they say more (incomeA -> burglaryTakings, the third float -> pokerChance), checking
+  each against its readers (he.c's customerTakings is a cost the round report subtracts: customerPaid). A view's size
+  can correct the owner: the save game writes camPos with 16 bytes, so it is a D3VECTOR4 and the pad behind it goes.
+  Raw users read fields (`rec[0x74 + g]` -> `rec->jobByGroup[g]`, `((float *)rec)[0x22]` -> `rec->camAngle`); a local
+  of another type that held the record (cm_LootStock's AIOBJ *q) gets its own `AIFIN *fin` (byte).
+- **A twin that nests what the owner spells flat** (lc's LCDUEL with LCDUELSIDE side1 / side2 for am.h's AGDUEL side1 /
+  n1 / stats1 / t1): adopt the nested form in the owner (AGDUELSIDE) and rewrite the flat users (`d->n1` ->
+  `d->side1.n`): the same offsets, every function unchanged.
+- **A view's int field passed to a char parameter** (hmt.h's HMTOBJ.obj for AMTREC.idx: `amt_SendOfficeMessage(o.obj,
+  ..)` with an unsigned char parameter): the owner's unsigned char field pushes the same; the view goes.
+- **Out-arrays of records stored as int** (`out[n] = (int)ev` in gm_CreditEvents / gm_BuildingEvents, callers'
+  `HELOAN *loans[9]` passed as `(int *)loans`): the parameter is `HELOAN **out` and the store `(HELOAN *)ev` (a pointer
+  conversion between two views of one event); a building compared as `b == (int)bl` is an `AIBLD *b` parameter.
+- **A parameter typed as the callee's own record that every caller fills with another** (ai_CountMissionEvent /
+  ai_FindOwnerMission(G13MIS *m) reading m->owner at +4, the callers passing characters: AICHAR.netId at +4): type
+  the parameter by what the callers pass and read that record's field (`c->netId`).
+- **Three views of one engine record in three headers** (d3_tools.c's D3HMAP, rd.h's G15GRID / G15SCENE, path.h's PMAP /
+  PNODE for d3_sm.h's D3SM and its cells): a types-only header both owners include (d3_sm_types.h) with the union of
+  the fields (the cells carry path.c's node words); `struct D3HMAP *` -> `struct D3SM *` everywhere. A strided int walk
+  over the cells (`int *c; .. c += 7`, `cells[i * 7] = 6`) is `D3SMENTRY *c; .. c++` / `entries[i].type = 6` (the same
+  code; keep the byte-offset row arithmetic `(char *)g->entries + row` where the deep notes rely on it).
+- **A walk from a +2 base through a view macro** (menu.c's `ai_CharsK`, AICHARKINDVIEW from the kind byte):
+  `AICHAR *p = ai_Chars; .. p++; } while ((intptr_t)&p->kind < (intptr_t)&ai_Chars[0x300].kind);` compiles the same
+  (VC6 keeps the +2 base); the view and the macro go.
+- **A callback slot `int (*f)()` whose callbacks take one or two parameters** (G9DOMIZIL.use: (AICHAR *, G8USE *) and
+  six (AICHAR *)): when no callback is called directly elsewhere, give the short ones the unread trailing parameter
+  and the slot the prototype; the callbacks compile the same, the initializer stays warning-free.
+- **`float m[16]` filled by d3_MatTranspose** (sv.c's camera moves): a D3MATRIX local, `m[i]` -> `m._RC` (r = i / 4 + 1,
+  c = i % 4 + 1), `&m` to the callee; the same code.
+- **A 3-float callee called with vertex records** (d3_TriNormal with D3PVERT / D3LVERT / D3SMVERT): the parameters are
+  `const D3VECTOR *` and the vertex records start with `union { struct { float x, y, z; }; D3VECTOR pos; }` (every
+  `.x` unchanged); callers pass `&v->pos`.
+- **Typing a reused int slot that held a pointer** (cm_ExChrWalkToDummy's `int i` = the object, then the universe
+  index): a separate `AIOBJ *obj` local compiled byte; try the split before keeping `(intptr_t)` in the int.
+- **Tie-break debts in a type pass**: a function whose only text change is a type name (`HEFINVIEW *fin` -> `AIFIN *fin`)
+  is not classed as a tie-break by dcp check even when it is byte under a swept declaration set: `dcp debt add`
+  (he_RunBurglary). A function with unchanged text that fell under an earlier commit's headers can turn from a
+  tie-break into an M1 error on the next commit when no swept set gives it back any more: debt too (rt_EditPointDialog).
 - **`__asm` reading the parameters (`mov eax,[ebp+8]`)**: name them (`mov eax,x`); VC6 assembles the name to
   the same frame operand (d2_ShpBlit8, d2_ShpBlit8To16, d2_ShpBlit16ClipY / ClipXY, d2_ShpDarken16 byte).
 
