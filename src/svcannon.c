@@ -875,8 +875,8 @@ void ai_CannonCamera(CANNONSCENE *sc)
     pos.z = 0;
     pos.w = 0;
     def = ai_GetDefaultEffect();
-    d3_MatTranspose(&sc->obj98->matrix, (char *)&t);
-    pos.y = (float)(d3_VecAngle2((char *)&d3_ZAxis, def) - 1.5707964f) - sc->rot.y;
+    d3_MatTranspose(&sc->obj98->matrix, &t);
+    pos.y = (float)(d3_VecAngle2(&d3_ZAxis.v, def) - 1.5707964f) - sc->rot.y;
     pos.x = 0;
     pos.z = 0;
     d3_SetObjectRot(sc->obj9c, (char *)&pos);
@@ -914,14 +914,14 @@ void ai_CannonCamera(CANNONSCENE *sc)
     pos.y += d.y;
     pos.z += d.z;
     d3_SetObjectPos(d3_Camera, (char *)&pos);
-    d3_SetObjectRot(d3_Camera, (char *)&v);
+    d3_SetObjectRot(d3_Camera, &v);
     if (sc->fired == 0)
         ai_CannonAxes(sc);
     if (sc->fired != 0) {
         if (sc->recoilStart + 0x54 <= sc->now) {
             sc->fired = 0;
             sc->recoilStart = 0;
-            d3_SetObjectPos(sc->obj9c, (char *)&ai_WimpelPos);
+            d3_SetObjectPos(sc->obj9c, &ai_WimpelPos.v);
         } else {
             if (sc->recoilStart + 4 > sc->now)
                 fade = (float)(sc->now - sc->recoilStart) * 0.25f;
@@ -943,7 +943,7 @@ void ai_CannonCamera(CANNONSCENE *sc)
             v.x = sc->pos.x - v.x;
             v.y = sc->pos.y - v.y;
             v.z = sc->pos.z - v.z;
-            d3_SetObjectPos(sc->obj98, (char *)&v);
+            d3_SetObjectPos(sc->obj98, &v);
             pos.x = d3_ZAxis.x;
             pos.y = d3_ZAxis.y;
             pos.z = d3_ZAxis.z;
@@ -966,9 +966,9 @@ void ai_CannonCamera(CANNONSCENE *sc)
    vector sc->side */
 void ai_CannonAxes(CANNONSCENE *sc)
 {
-    d3_DirToWorld(sc->obj8c[0], (char *)&d3_ZAxis, (char *)&sc->dir);
-    d3_DirToWorld(sc->obj8c[0], (char *)&d3_YAxis, (char *)&sc->up);
-    d3_DirToWorld(sc->obj8c[0], (char *)&d3_XAxis, (char *)&sc->side);
+    d3_DirToWorld(sc->obj8c[0], &d3_ZAxis.v, &sc->dir);
+    d3_DirToWorld(sc->obj8c[0], &d3_YAxis.v, &sc->up);
+    d3_DirToWorld(sc->obj8c[0], &d3_XAxis.v, &sc->side);
 }
 /* 0x57f620, the fire check: nothing (0) while a shot runs (sc->fired) or the zoom is above 0.01; a click on the
    fire button (sc->fireBtn) or the key kb_Down[0x32] (DIK_M) fires: the key is cleared, the recoil clock starts
@@ -1171,14 +1171,14 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             v.x = sc->dirX;
             v.z = sc->dirZ;
             v.y = 0;
-            d3_Normalize((char *)&v);
+            d3_Normalize(&v);
             v.x = (ai_CannonSwitchDist * f) * v.x;
             v.y = (ai_CannonSwitchDist * f) * v.y;
             v.z = (ai_CannonSwitchDist * f) * v.z;
             v.x = sc->pos.x - v.x;
             v.y = sc->pos.y - v.y;
             v.z = sc->pos.z - v.z;
-            d3_SetObjectPos(sc->obj98, (char *)&v);
+            d3_SetObjectPos(sc->obj98, &v.v);
             w.x = d3_ZAxis.x;
             w.y = d3_ZAxis.y;
             w.z = d3_ZAxis.z;
@@ -1189,7 +1189,7 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             w.x = ai_WimpelPos.x + w.x;
             w.y = ai_WimpelPos.y + w.y;
             w.z = ai_WimpelPos.z + w.z;
-            d3_SetObjectPos(sc->obj9c, (char *)&w);
+            d3_SetObjectPos(sc->obj9c, &w.v);
         }
     }
     for (i = 0; i < 3; i++)
@@ -1207,14 +1207,14 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             v.z = sc->dirZ;
             v.y = 0;
             f = 1.0f - f;
-            d3_Normalize((char *)&v);
+            d3_Normalize(&v);
             v.x = (ai_CannonSwitchDist * f) * v.x;
             v.y = (ai_CannonSwitchDist * f) * v.y;
             v.z = (ai_CannonSwitchDist * f) * v.z;
             v.x = sc->pos.x - v.x;
             v.y = sc->pos.y - v.y;
             v.z = sc->pos.z - v.z;
-            d3_SetObjectPos(sc->obj98, (char *)&v);
+            d3_SetObjectPos(sc->obj98, &v.v);
             w.x = d3_ZAxis.x;
             w.y = d3_ZAxis.y;
             w.z = d3_ZAxis.z;
@@ -1225,7 +1225,7 @@ void ai_CannonSwitchAnim(AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run, int sel, in
             w.x = ai_WimpelPos.x + w.x;
             w.y = ai_WimpelPos.y + w.y;
             w.z = ai_WimpelPos.z + w.z;
-            d3_SetObjectPos(sc->obj9c, (char *)&w);
+            d3_SetObjectPos(sc->obj9c, &w.v);
         }
     }
     sc->now = d3_Time;

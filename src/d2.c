@@ -917,7 +917,7 @@ int d2_OpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int f
     int mw, mh;
     D2PIC *ic0, *ic1, *ic3;
     D2PICHDR *frame;
-    int desc[16];
+    D2SURF desc;
 
     obj = d2_NewObject();
     ic1 = &d2_Pics[pic + 1];
@@ -959,10 +959,10 @@ int d2_OpenSlider(int x, int y, int len, int p4, int p5, int pic, unsigned int f
     d2_Objs[obj].clipy1 = d2_ScreenH;
     d2_Objs[obj].clipx0 = 0;
     d2_Objs[obj].clipx1 = d2_ScreenW;
-    memset(desc, 0, sizeof desc);
-    desc[1] = mw * 3;
-    desc[2] = mh * 3;
-    d2_Objs[obj].u.s.img = d2_MakeSurface(desc, 0xb);
+    memset(&desc, 0, sizeof desc);
+    desc.w = mw * 3;
+    desc.h = mh * 3;
+    d2_Objs[obj].u.s.img = d2_MakeSurface(&desc, 0xb);
     if (!d2_Objs[obj].u.s.img) {
         err_Message("d2_OpenSlider:Could not create surface...");
         return -1;
@@ -3856,7 +3856,7 @@ int d2_CreateWindow(x, y, w, h, flags)
 short x, y, w, h;
 unsigned int flags;
 {
-    int desc[16];
+    D2SURF desc;
     int i, j, ob;
     D2WIN *win;
     void *surf;
@@ -3897,26 +3897,26 @@ unsigned int flags;
     if (flags & 1)
         win->alpha = 0.65f;
     if (flags & 0x1000) {
-        memset(desc, 0, sizeof desc);
-        desc[1] = w;
-        desc[2] = h;
-        win->surf0 = d2_MakeSurface(desc, 0xb);
+        memset(&desc, 0, sizeof desc);
+        desc.w = w;
+        desc.h = h;
+        win->surf0 = d2_MakeSurface(&desc, 0xb);
         if (!win->surf0)
             return 0;
     }
     if ((win->flags & 1) && (win->flags & 0x1000)) {
-        memset(desc, 0, sizeof desc);
-        desc[1] = win->w;
-        desc[2] = win->h;
-        win->surf1 = d2_MakeSurface(desc, 0xb);
+        memset(&desc, 0, sizeof desc);
+        desc.w = win->w;
+        desc.h = win->h;
+        win->surf1 = d2_MakeSurface(&desc, 0xb);
         if (!win->surf1)
             return 0;
     }
     if (win->flags & 0x10000) {
-        memset(desc, 0, sizeof desc);
-        desc[1] = win->w;
-        desc[2] = win->h;
-        surf = d2_MakeSurface(desc, 0xb);
+        memset(&desc, 0, sizeof desc);
+        desc.w = win->w;
+        desc.h = win->h;
+        surf = d2_MakeSurface(&desc, 0xb);
         win->surf2 = surf;
         d2_ClearSurface(surf);
         if (!win->surf2)
@@ -3999,7 +3999,7 @@ void d2_ResizeWindow(short w, short h, int win)
 {
     D2WIN *wn = &d2_Wins[win];
     int delta, dw, i;
-    int desc[16];
+    D2SURF desc;
     D2OBJ *o;
     void *ns, *old;
 
@@ -4020,10 +4020,10 @@ void d2_ResizeWindow(short w, short h, int win)
             wn->surf1 = 0;
         }
         if (wn->surf2) {
-            memset(desc, 0, sizeof desc);
-            desc[1] = w;
-            desc[2] = h;
-            ns = d2_MakeSurface(desc, 0xb);
+            memset(&desc, 0, sizeof desc);
+            desc.w = w;
+            desc.h = h;
+            ns = d2_MakeSurface(&desc, 0xb);
             old = wn->surf2;
             d2_BlitPart(0, 0, ((int *)old)[1], ((int *)old)[2], old, 0, 0, ns);
             d2_FreeSurface(wn->surf2);
@@ -4518,7 +4518,7 @@ void d2_ReplaceInputText(int obj, char *text)
 
 int d2_Open(int hwnd, int w, int h, char *dir, char *file)
 {
-    int desc[16];
+    D2SURF desc;
     char path[256];
     char sd0[0x7c];
     char sd1[0x7c];
@@ -4583,30 +4583,30 @@ int d2_Open(int hwnd, int w, int h, char *dir, char *file)
     d2_SetClipRect(0, 0, w, h);
     d2_HalfScreenW = dd_Width / 2;
     d2_HalfScreenH = dd_Height / 2;
-    memset(desc, 0, sizeof desc);
-    desc[1] = dd_Width;
-    desc[2] = dd_Height;
-    d2_BackSurf = d2_MakeSurface(desc, 0xb);
+    memset(&desc, 0, sizeof desc);
+    desc.w = dd_Width;
+    desc.h = dd_Height;
+    d2_BackSurf = d2_MakeSurface(&desc, 0xb);
     if (!d2_BackSurf)
         return 0;
-    memset(desc, 0, sizeof desc);
-    desc[1] = 0x100;
-    desc[2] = 0x100;
-    d2_BackgroundTile = d2_MakeSurface(desc, 3);
+    memset(&desc, 0, sizeof desc);
+    desc.w = 0x100;
+    desc.h = 0x100;
+    d2_BackgroundTile = d2_MakeSurface(&desc, 3);
     if (!d2_BackgroundTile)
         return 0;
-    memset(desc, 0, sizeof desc);
-    desc[1] = dd_Width;
-    desc[2] = dd_Height;
-    desc[8] = (int)dd_BackBuffer;
-    d2_ScreenSurf = d2_MakeSurface(desc, 4);
+    memset(&desc, 0, sizeof desc);
+    desc.w = dd_Width;
+    desc.h = dd_Height;
+    desc.DDSurface = dd_BackBuffer;
+    d2_ScreenSurf = d2_MakeSurface(&desc, 4);
     if (!d2_ScreenSurf)
         return 0;
-    memset(desc, 0, sizeof desc);
-    desc[1] = dd_Width;
-    desc[2] = dd_Height;
-    desc[8] = (int)dd_FrontBuffer;
-    d2_FrontSurf = d2_MakeSurface(desc, 6);
+    memset(&desc, 0, sizeof desc);
+    desc.w = dd_Width;
+    desc.h = dd_Height;
+    desc.DDSurface = dd_FrontBuffer;
+    d2_FrontSurf = d2_MakeSurface(&desc, 6);
     if (!d2_FrontSurf)
         return 0;
     d2_GetSurfaceDesc(d2_ScreenSurf, sd0);
@@ -4846,7 +4846,7 @@ int d2_LoadView(int x, int y, char *name)
     int view, i, j;
     D2VIEW *v;
     D2WIN *w;
-    int desc[16];
+    D2SURF desc;
 
     view = d2_OpenForm(x, y, name);
     if (view != 0) {
@@ -4859,14 +4859,14 @@ int d2_LoadView(int x, int y, char *name)
     }
     v->loaded = 1;
     w = &d2_Wins[v->wins[0]];
-    memset(desc, 0, sizeof(desc));
-    desc[1] = w->w;
-    desc[2] = w->h;
-    v->viewSurf = (int)d2_MakeSurface(desc, 3);
-    memset(desc, 0, sizeof(desc));
-    desc[1] = w->w;
-    desc[2] = w->h;
-    v->texSurf = (int)d2_MakeSurface(desc, 3);
+    memset(&desc, 0, sizeof(desc));
+    desc.w = w->w;
+    desc.h = w->h;
+    v->viewSurf = (int)d2_MakeSurface(&desc, 3);
+    memset(&desc, 0, sizeof(desc));
+    desc.w = w->w;
+    desc.h = w->h;
+    v->texSurf = (int)d2_MakeSurface(&desc, 3);
     return view;
     }
     return 0;
