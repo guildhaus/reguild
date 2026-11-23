@@ -163,10 +163,7 @@ int he_RegisterEventTypeA2();
 #include "amt.h"
 #include "mission.h"
 #include "rmsg.h"
-typedef struct HEBARDSCRIPT {           /* the bard's script as he_RunBard marks it: 'DrBh' over the first bytes of its name */
-    unsigned int mark;                  /* 0x00 */
-} HEBARDSCRIPT;
-#define HE_BARD_MARK 0x68427244         /* 'DrBh' */
+#define HE_BARD_MARK 0x68427244         /* 'DrBh': he_RunBard's mark of the bard's script (EVTSCRIPT.tag[0]) */
 #define HE_LOVER_FLAG 0x800000          /* AICHAR.flags1c8: has a keeper (he_StartLover sets it, he_RunLover clears it) */
 typedef struct HEAHMRECIPE {            /* the first word of ahm_RandomRecipe's AHMGRID entry (ahm.h, not included here) */
     int id;                             /* 0x00, RCPID: the recipe's object id */
@@ -176,18 +173,12 @@ typedef struct HECHILDLIST {            /* the children of a scene object, colle
     D3OBJECT *items[0x40];              /* 0x004 */
     int count;                          /* 0x104 */
 } HECHILDLIST;
-#pragma pack(push, 1)
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */
 #define MEETING_KINDS_HI 1             /* the same for the kinds from 0x20 on: 0x20 */
 #define PLUNDER_PARTNER_FLAGS 0x700408  /* the partner-chain flags the plunder event's victim search passes
                                            ai_PickPartnerRandomWalk (an immediate, no address; the bits are not read) */
-typedef struct HEMEETNAME {             /* the scene object event 0x91 loads: its name's first two words are the marker
-                                           0x66675073 and the building id (the run handler 0x5726b0) */
-    int tag;                            /* 0x00, 0x66675073 */
-    int bld;                            /* 0x04, the id of the building the meeting is held in */
-} HEMEETNAME;
-#pragma pack(pop)
+#define HE_MEET_MARK 0x66675073         /* the meeting scene's mark (event 0x91: EVTSCRIPT.tag[0], the building id in tag[1]) */
 
 /* dcp unit split: the declarations of he before the moved functions */
 void err_Message(char *text);
@@ -4601,8 +4592,8 @@ void he_RunMeetingScene(AIJOB *e)
         if (m->meetSceneObj != -1) {
             obj = evt_FindById(m->meetSceneObj);
             if (obj != 0) {
-                if (((HEMEETNAME *)obj)->tag == 0x66675073 &&
-                    ((HEMEETNAME *)obj)->bld == e->from)
+                if (obj->tag[0] == HE_MEET_MARK &&
+                    obj->tag[1] == e->from)
                     return;
                 m->meetSceneObj = -1;
             }
@@ -4615,8 +4606,8 @@ void he_RunMeetingScene(AIJOB *e)
             obj = evt_Load("LOCATIONS\\NEKROMANTENTURM\\NEBEL_DES_GRAUENS_KLEIN.esc");
         if (obj == 0)
             return;
-        ((HEMEETNAME *)obj)->tag = 0x66675073;
-        ((HEMEETNAME *)obj)->bld = e->from;
+        obj->tag[0] = HE_MEET_MARK;
+        obj->tag[1] = e->from;
         scene = d3_CurrentScene;
         d3if_SelectScene(0, 1);
         o = bld->object;
@@ -4629,8 +4620,8 @@ void he_RunMeetingScene(AIJOB *e)
         return;
     }
     obj = evt_FindById(m->meetSceneObj);
-    if (obj != 0 && ((HEMEETNAME *)obj)->tag == 0x66675073 &&
-        ((HEMEETNAME *)obj)->bld == e->from) {
+    if (obj != 0 && obj->tag[0] == HE_MEET_MARK &&
+        obj->tag[1] == e->from) {
         scene = d3_CurrentScene;
         d3if_SelectScene(0, 1);
         evt_Stop(obj);

@@ -2033,14 +2033,14 @@ int ai_SeanceWindow(AIBLD *unused, GVDETAILWIN *w, GVSEANCE *out)
 
 int sb_IsInit(); void d2_PlaceViewWindows(int view, unsigned char flags);
 
-/* 0x5859c0, the seance ritual of the seance kinds (ch unused, ev the seance window's result): rolls the eight
+/* 0x5859c0, the seance ritual of the seance kinds (rec unused, ev the seance window's result): rolls the eight
    formula texts (ai_SeanceRollFormulas from txt 0x40d7), opens "Locations\Friedhof\Seance2" and starts the script
    "LOCATIONS\KRYPTA\SEANCE_KRYPTA.esc" with the names of the player's character and of the dead person ("%s %s",
    each name record's own id, else the first of its sex). With the sound system: each formula is voiced
    ("_SEANCE_FORMEL_PART_%i_0%i", its pair and variant), and its text shown while it plays. Without: the texts
    appear one by one, the first after 0x47 ms, the rest 0xf8 ms apart, and the window closes after the last.
    Closes the form; returns the script */
-int ai_SeanceRitual(char *ch, GVSEANCE *ev)
+EVTSCRIPT *ai_SeanceRitual(AIBLD *rec, GVSEANCE *ev)
 {
     char buf[0x400];
     char text[0x100];
@@ -2048,7 +2048,7 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     int ids[8];
     GMHEAD *name1;
     GMHEAD *name2;
-    int script;
+    EVTSCRIPT *script;
     int win;
     int i;
     struct SBSAMPLE *h;
@@ -2060,7 +2060,7 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
     d2_SetPointerSprite(0, 0);
     d2_PlaceViewWindows(win, 1);
     d2_SetForm(win, 0);
-    script = (int)evt_Load("LOCATIONS\\KRYPTA\\SEANCE_KRYPTA.esc");
+    script = evt_Load("LOCATIONS\\KRYPTA\\SEANCE_KRYPTA.esc");
     if (script != 0) {
         GVGRAVE *g = &ev->grave;
         name1 = gm_NameRecord(ai_Chars[ai_PlayerId].sex, ai_Chars[ai_PlayerId].jobId);
@@ -2070,7 +2070,7 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
         if (name2 == 0)
             name2 = gm_NameRecord(g->sex, 0);
         sprintf(buf, "%s %s", name1->name, name2->name);
-        evt_RunCommand((EVTSCRIPT *)script, buf);
+        evt_RunCommand(script, buf);
     }
     i = 0;
     if (sb_IsInit() != 0) {
@@ -2115,7 +2115,7 @@ int ai_SeanceRitual(char *ch, GVSEANCE *ev)
                     i++;
                 }
             }
-        } while (sv_RunFrame(ai_SeanceRitual, 0x743c7) != 0);
+        } while (sv_RunFrame((void (*)())ai_SeanceRitual, 0x743c7) != 0);
     }
     d2_CloseView(win);
     return script;
@@ -2157,13 +2157,13 @@ void ai_SeanceGhost(AIBLD *rec, GVSEANCE *ev)
     int win;
     int voice;
     int mode;
-    int script;
+    EVTSCRIPT *script;
     int i;
     unsigned short r;
     int n;
 
     snd_VoiceVariant(ev->grave.id, ev->grave.sex);
-    script = ai_SeanceRitual((char *)rec, ev);
+    script = ai_SeanceRitual(rec, ev);
     accuser = gv_FindAccused(&ai_Chars[ai_PlayerId], 4, ids, &cnt);
     mode = accuser == 0;
     f = gv_SeanceChance(rec);
@@ -2199,7 +2199,7 @@ void ai_SeanceGhost(AIBLD *rec, GVSEANCE *ev)
     } while (sv_RunFrame(ai_SeanceGhost, 0x777c7) != 0);
     d2_CloseView(win);
     if (script != 0)
-        evt_Stop((EVTSCRIPT *)script);
+        evt_Stop(script);
 }
 /* 0x585f30, the seance kind 3, the sacrifice (rec = the graveyard, ev = the seance window's result): the dead
    person's voice and the ritual as in ai_SeanceGhost; when util_RandomF() + gv_SeanceChance (rec) - 0.4 < 1 the
@@ -2212,7 +2212,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
 {
     AIMSG msg;
     int voice;
-    int script;
+    EVTSCRIPT *script;
     float f;
     int win;
     int amount;
@@ -2221,7 +2221,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
     amount = 0;
     mode = 0;
     voice = snd_VoiceVariant(ev->grave.id, ev->grave.sex);
-    script = ai_SeanceRitual((char *)rec, ev);
+    script = ai_SeanceRitual(rec, ev);
     f = gv_SeanceChance(rec);
     if (util_RandomF() + f - 0.4f < 1.0f) {
         mode = 2;
@@ -2258,7 +2258,7 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev)
     } while (sv_RunFrame(ai_SeanceSacrifice, 0x777c7) != 0);
     d2_CloseView(win);
     if (script != 0)
-        evt_Stop((EVTSCRIPT *)script);
+        evt_Stop(script);
 }
 
 void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
@@ -2278,7 +2278,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
     float f;
     int win;
     int voice;
-    int script;
+    EVTSCRIPT *script;
     int item;
     int mode;
     int i;
@@ -2287,7 +2287,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
 
     item = 0;
     voice = snd_VoiceVariant(ev->grave.id, ev->grave.sex);
-    script = ai_SeanceRitual((char *)rec, ev);
+    script = ai_SeanceRitual(rec, ev);
     memset(gifts, 0, sizeof(gifts));
     gifts[0].item = 0x2b8;
     gifts[1].item = 0x2bb;
@@ -2345,7 +2345,7 @@ void ai_SeanceGift(AIBLD *rec, GVSEANCE *ev)
     } while (sv_RunFrame(ai_SeanceGift, 0x777c7) != 0);
     d2_CloseView(win);
     if (script != 0)
-        evt_Stop((EVTSCRIPT *)script);
+        evt_Stop(script);
 }
 /* 0x586560, the pick of the dead person for a seance in the graveyard detail window w (rec = the graveyard): each
    frame (pump 0x677c7) a right click closes it; a click on one of the eight items selects it (w->selected) and

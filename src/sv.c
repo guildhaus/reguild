@@ -4853,6 +4853,7 @@ void sv_HandleSelectionMouse(void)
     AIBLD *b;
     AICHAR *c;
     int cx, cy, i, j, ix, iy, size, t;
+    EVTSCRIPT *sc;
 
     cx = -1;
     cy = -1;
@@ -4895,8 +4896,8 @@ void sv_HandleSelectionMouse(void)
                         } while (ix < 0 || ix >= size || iy < 0 || iy >= size || cell == 0 || cell == 0xd);
                         if (ai_Chars[j].bld != 0)
                             sv_MoveToGroup(ai_Chars[j].bld, 0, ai_Chars[j].id, 0);
-                        if (ai_Chars[j].scene->scriptId != -1 && (t = (int)evt_FindById(ai_Chars[j].scene->scriptId)) != 0)
-                            evt_Stop((EVTSCRIPT *)t);
+                        if (ai_Chars[j].scene->scriptId != -1 && (sc = evt_FindById(ai_Chars[j].scene->scriptId)) != 0)
+                            evt_Stop(sc);
                         cm_SendChrWalkTo(ai_Chars[j].netId, ix, iy, d3_CurrentScene);
                     }
                 }

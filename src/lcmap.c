@@ -2104,7 +2104,7 @@ void ai_ShowEvidenceVoidNews(AICHAR *toldRec, AICHAR *culpritRec)
    or more with 0x41bc) and the closing text (0x41be for several, 0x41bd for one), and shown to the sender
    ("_NACHRICHTEN_ZIGEUNER_05") */
 
-void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
+void ai_GypsyDeliveryText(AICHAR *from, int n, AICHAR **to)
 {
     char line[128];
     int i;
@@ -2115,8 +2115,8 @@ void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
         return;
     txt_Format(ai_NewsText, 0x41bf, from->id);
     for (i = 0; i < n; i++) {
-        if (((AICHAR *)to[i])->kind == 6 || ((AICHAR *)to[i])->kind == 7)
-            he_ShowNews(((AICHAR *)to[i])->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_06");
+        if (to[i]->kind == 6 || to[i]->kind == 7)
+            he_ShowNews(to[i]->netId, -1, ai_NewsText, 1, 0x5fb, "_NACHRICHTEN_ZIGEUNER_06");
     }
     strcpy(ai_NewsText, txt_Ptrs[0x41ba]);
     if (n > 1) {
@@ -2124,14 +2124,14 @@ void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
         for (i = 0; i < 4; i++) {
             if (i >= last)
                 break;
-            txt_Format(line, 0x41bb, ((AICHAR *)to[i])->id);
+            txt_Format(line, 0x41bb, to[i]->id);
             strcat(ai_NewsText, line);
         }
         done = 0;
         for (; i < 4; i++) {
             if (done)
                 break;
-            txt_Format(line, 0x41bc, ((AICHAR *)to[i])->id);
+            txt_Format(line, 0x41bc, to[i]->id);
             strcat(ai_NewsText, line);
             done = 1;
         }
@@ -2140,7 +2140,7 @@ void ai_GypsyDeliveryText(AICHAR *from, int n, void **to)
         for (i = 0; i < 4; i++) {
             if (i >= 1)
                 break;
-            txt_Format(line, 0x41bb, ((AICHAR *)to[i])->id);
+            txt_Format(line, 0x41bb, to[i]->id);
             strcat(ai_NewsText, line);
         }
         strcat(ai_NewsText, txt_Ptrs[0x41bd]);

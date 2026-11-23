@@ -2507,7 +2507,8 @@ void ai_BloodRevengeWindow(AIBLD *building)
     char msg[0x800];
     LCAMOUNTROW rows[5];
     AMOUNTCFG cfg;                      /* the config of the amount menu */
-    int sel[9];                         /* 0 .. 4 the net id of the record in each row (-1 empty), 5 .. 8 the chosen records */
+    int sel[5];                         /* the net id of the record in each row (-1 empty) */
+    AICHAR *chosen[4];                  /* the chosen records */
     int ids[2];                         /* the two buttons the row of buttons creates */
     int tick, refresh, form, total;
     unsigned short *idp;
@@ -2516,7 +2517,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
 
     refresh = 1;
     memset(rows, 0, sizeof(rows));
-    memset(sel, 0xff, 5 * sizeof(int));
+    memset(sel, 0xff, sizeof(sel));
     total = 0;
     tick = 0;
     if (ai_Chars[ai_PlayerId].flags1cc & 8) {
@@ -2593,13 +2594,13 @@ void ai_BloodRevengeWindow(AIBLD *building)
                         if (rows[i].rec != 0) {
                             r = 0x32 - (int)(gm_Mix(&ai_Chars[ai_PlayerId], rows[i].rec, 4) * -50.0f);
                             cm_SendRelations(rows[0].rec->id, rows[i].rec->id, -r, 1);
-                            sel[5 + k] = (int)rows[i].rec;
+                            chosen[k] = rows[i].rec;
                             k++;
                         }
                     }
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -total);
                     cm_SendSetField(ai_Chars[ai_PlayerId].netId, 0x1cc, 4, 8, 0);
-                    ai_GypsyDeliveryText(av, k, (struct AICHAR **)&sel[5]);
+                    ai_GypsyDeliveryText(av, k, chosen);
                     txt_Format(msg, 0x41b9, 0x41b2);
                     sv_MessageBox((intptr_t)msg, 0);
                     sv_PopRequest = 1;

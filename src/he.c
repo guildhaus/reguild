@@ -46,13 +46,13 @@
    plague (the AI messages 0x56 / 0x6a / 0x78), AIJOB.protection* / AIJOB.audit* / AIJOB.gathering* /
    AIJOB.sim* / AIJOB.auction* / AIJOB.title* (the events 0x62 / 0x64 / 0x65 / 0x66, 0x68, 0x70 / 0x67 / 0x69), AIJOB.skillUp* /
    AIJOB.bard* / AIJOB.population* / AIJOB.lover* / AIJOB.darkCorner* (the events 0x6a / 0x6b / 0x6d / 0x6f / 0x74; the bard's script
-   mark HEBARDSCRIPT; the dark corner's proofs / year are AIOBJ.recs / cornerYear), HEINN (the inn
+   mark EVTSCRIPT.tag[0]; the dark corner's proofs / year are AIOBJ.recs / cornerYear), HEINN (the inn
    simulation's list), the tutorial / tip / routine / storm / new-worker / production / trade words in AIJOB.hint*,
    AIJOB.tip*, AIJOB.routine*, AIJOB.storm*, AIJOB.newWorker*, AIJOB.production*, AIJOB.trade*, the search 8 / 9 and
    new-occurrence 0xa words in AIJOB.search* / AIJOB.search9* / AIJOB.occurrence*, the research /
    building / training / plunder / meeting words in AIJOB.research* (event 0xc), AIJOB.build* (0xd), AIJOB.ahmResearch* (0x96 / 0x97),
    AIJOB.plunder* (0x8a), AIJOB.plunderDeal* (0x8b), AIJOB.masterwork* (0x8c), AIJOB.graveCare* (0x8d), AIJOB.deathDue* (0x8e),
-   AIJOB.graveTraining* (0x8f) and AIJOB.meeting* (0x90), AIJOB.meetScene* / HEMEETNAME (the meeting scene object 0x91), AIJOB.graveLease* (the grave
+   AIJOB.graveTraining* (0x8f) and AIJOB.meeting* (0x90), AIJOB.meetScene* / EVTSCRIPT.tag (the meeting scene object 0x91), AIJOB.graveLease* (the grave
     lease answer 0x92), AIJOB.gypsy* (the gypsy approach 0x9d), AIJOB.curse* (the curse 0x9e), AIJOB.trialCase* (the trial 0xa0) and AIJOB.circus* (the circus show 0xa1), and over AIOBJ
    the tavern's object 0x1b5 (AIOBJ.sermon: text1 / text2 / priest / enabled hold its hired helper); the hint table he_Hints (0x6fa260, HEHINT), the tip
    order he_TipOrder (0x6fa1e0) and the tip texts TXT_TIP_TEXTS (0x1442430) are typed (the scene, voice and activity
@@ -245,10 +245,7 @@ int he_RegisterEventTypeA2();
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 #define util_RandomInt ((int (*)(unsigned short))util_Random)  /* 0x42ec00 as tr.c defines it (the headers declare it unsigned short): @original he_RunInnSim reads the full int result (util_Random(4) + 3, no 16-bit mask); every other caller of this unit reads 16 bits */
 int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x509e30: he_AllocTheft pushes only the list */
-typedef struct HEBARDSCRIPT {           /* the bard's script as he_RunBard marks it: 'DrBh' over the first bytes of its name */
-    unsigned int mark;                  /* 0x00 */
-} HEBARDSCRIPT;
-#define HE_BARD_MARK 0x68427244         /* 'DrBh' */
+#define HE_BARD_MARK 0x68427244         /* 'DrBh': he_RunBard's mark of the bard's script (EVTSCRIPT.tag[0]) */
 #define HE_LOVER_FLAG 0x800000          /* AICHAR.flags1c8: has a keeper (he_StartLover sets it, he_RunLover clears it) */
 typedef struct HEAHMRECIPE {            /* the first word of ahm_RandomRecipe's AHMGRID entry (ahm.h, not included here) */
     int id;                             /* 0x00, RCPID: the recipe's object id */
@@ -258,18 +255,12 @@ typedef struct HECHILDLIST {            /* the children of a scene object, colle
     D3OBJECT *items[0x40];              /* 0x004 */
     int count;                          /* 0x104 */
 } HECHILDLIST;
-#pragma pack(push, 1)
 #define MEETING_KINDS_LO 0x807c4116    /* the building kinds 1, 2, 4, 8, 0xa, 0xe, 0x12 .. 0x16 and 0x1f whose people a
                                            meeting's disease reaches (he_Unk572310's 1 << kind mask, kinds below 0x20) */
 #define MEETING_KINDS_HI 1             /* the same for the kinds from 0x20 on: 0x20 */
 #define PLUNDER_PARTNER_FLAGS 0x700408  /* the partner-chain flags the plunder event's victim search passes
                                            ai_PickPartnerRandomWalk (an immediate, no address; the bits are not read) */
-typedef struct HEMEETNAME {             /* the scene object event 0x91 loads: its name's first two words are the marker
-                                           0x66675073 and the building id (the run handler 0x5726b0) */
-    int tag;                            /* 0x00, 0x66675073 */
-    int bld;                            /* 0x04, the id of the building the meeting is held in */
-} HEMEETNAME;
-#pragma pack(pop)
+#define HE_MEET_MARK 0x66675073         /* the meeting scene's mark (event 0x91: EVTSCRIPT.tag[0], the building id in tag[1]) */
 /* 0x53d430, the allocation handler of an event of an unknown type (debug text only) */
 
 void he_AllocNone(AIJOB *e)
@@ -7306,7 +7297,7 @@ void he_RunBard(AIJOB *e)
         gm_AddTime(&e->end, 0, 5, 0);
         sc = evt_FindById(b->bardScript);
         if (e->end.hour < 0x14) {
-            if (sc == 0 || ((HEBARDSCRIPT *)sc)->mark != HE_BARD_MARK) {
+            if (sc == 0 || sc->tag[0] != HE_BARD_MARK) {
                 b->bardScript = -1;
                 rec = hmt_GetRecord(b->bardRec);
                 sprintf(text, "%i", rec->textSet);
@@ -7314,7 +7305,7 @@ void he_RunBard(AIJOB *e)
                 d3if_SelectScene(0, 1);
                 sc = evt_Load("SpecialEvents\\barde\\barde_create.esc");
                 if (sc != 0) {
-                    ((HEBARDSCRIPT *)sc)->mark = HE_BARD_MARK;
+                    sc->tag[0] = HE_BARD_MARK;
                     b->bardScript = sc->id;
                     evt_RunScriptArgs(sc, 1, rec->textSet);
                     sc->group = 0;
@@ -7328,7 +7319,7 @@ void he_RunBard(AIJOB *e)
             }
             return;
         }
-        if (sc != 0 && ((HEBARDSCRIPT *)sc)->mark == HE_BARD_MARK)
+        if (sc != 0 && sc->tag[0] == HE_BARD_MARK)
             evt_Stop(sc);
         gm_AddTime(&e->end, 0, 5, 0);
         e->stage = 3;

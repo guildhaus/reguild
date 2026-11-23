@@ -117,7 +117,11 @@ typedef struct EVTFRAME {           /* 0xb0 bytes */
 struct CHARACTER;                   /* ch.h, the character a script was started for */
 
 typedef struct EVTSCRIPT {          /* 0xc98 bytes, 128 at evt_Scripts */
-    char name[0x100];
+    union {
+        char name[0x100];
+        int tag[2];                 /* 0x00, a mark a game event writes over the name's first words: he_RunBard's
+                                       HE_BARD_MARK, the meeting scene's HE_MEET_MARK and building id (he_b.c) */
+    };
     int id;                         /* 0x100, 0 = free */
     int group;                      /* 0x104, the group the script runs for; evt_NoGroup = none */
     EVTVAR *vars;                   /* 0x108 */
