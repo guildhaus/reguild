@@ -5371,28 +5371,31 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
    message 0x10 (10 seconds ahead); a full one without a running job 11 is unloaded against the market - the stall
    goods are sold to the market stalls (cm_SendExSellObject) and the buys collected into one message 11, sent
    unless the ai_TradeMsgOff gate is set.
-   @deep s52: the instructions are the original's except the frame; the original's 4-byte slots (esp
-   offsets): 0x14 = {f, lim (all three sites), the m-loop slot pointer (5543), the j-loop slot pointer
-   (5591)}, 0x18 market, 0x1c = {rec cursor 5492, &stA.amount[i] 5582}, 0x20 nsell, 0x24 = {v, sold}, 0x28
-   car, 0x2c s alone; ours packs {sold, f, v}, {lim, s}, {t5543, t5591} (c2frame --names P rows). Replaying
-   the packer (newest compatible slot, list by count then first reach) over the X conflict rows: the
-   original's packing needs list order lim, f, sold, v, then t5543 / t5591 before s (or sold, v, ..., lim
-   with lim below 4): with the ties as they fall that is sold -1, v -1 and s -1 (or sold -1, f +1, s -1; or
-   lim -1, v +1, s -1) - three counts at once while the listing is identical, so the counts differ before
-   the late passes (split-piece reloads: v / sold / s are bulk-split pieces, 247 blocks). Rounds:
-   blockscope every scalar (f, v, s, sold, nsell, nbuy, market, found, combos) = control except lim per
-   loop (258, the three lims then join the 5549 temp slot, worse); renaming v / the first loop's v to
-   another local = control or worse (v -> lim 238 ins but regs 70); s via break 326; it in the stA test
-   312; climb --rounds 3 (2432 mutants): best 163 only via t = market->objId (the sort tie, packing
-   unchanged). flip --want '_f$ = -1676' (f in the original's slot): 14 hits, all drop one sold = 1 / sold
-   = 0 or perturb the loops (m398 del sold = 0: 183 ins, regs 142). Next: find which split piece of sold /
-   v / s reloads in ours and not in the original (c2trace --split sold|v|s), the walk-order tie of s
-   against the 5543 pointer, and a source form with one sold reference fewer before the late passes. prior:
-   s51: the slots hunks (292 of 240 ins) are the frame sort (frame > 0x80, VC6's unstable sort of equal
-   densities: sold/f/v and the 0x5566/0x5656 temps both 4000): c2frame's replay gives the same order for
-   the variants below although dcp's slot hunks change, so the unstable sort's input count / order decides.
-   climb round 1 (694 mutants): best 163 via a new int local t = market->objId for the stall-goods sprintf
-   / cm_SendExSellObject pair (slots 166, code 65): an extra frame entry reorders the sort; not kept (no
+   @deep s52: now shape, slots only (128 ins / 64 bytes, size equal): the stA sell loop's n = min(lim,
+   stA.amount[i]) (the if (lim < n) form left the amount pointer reloaded: code 28 / size +7 gone) and
+   nsell = 0; nbuy = 0; before the msg memset (the order hunk). The same min form at the entries / slots /
+   rec sites is worse (146..613). Left: the frame. The original's 4-byte slots (esp offsets): 0x14 = {f,
+   lim at all three sites, the m-loop slot pointer (line of for (m = 0; !found && m < 128; m++)), the
+   j-loop ai_Slots pointer (for (j = 0; !found && j < ai_NSlots; j++))}, 0x18 market, 0x1c = {rec cursor,
+   &stA.amount[i]}, 0x20 nsell, 0x24 = {v of the emergency block, sold}, 0x28 car, 0x2c s alone. Ours
+   (c2frame --names): {sold, f, v}, {rec cursor, lim}, {&stA.amount[i], s}, {the two slot pointers}. Packer
+   replay (newest compatible slot, list by count then first reach, conflicts from the X rows): the
+   original's packing needs &stA.amount[i] >= lim (now 6 vs 7: the min macro reads lim twice), f >= sold (f
+   5, sold 6), v < sold, and both slot pointers listed before s (s 4 reaches its count first) - i.e. about
+   +1 for the amount pointer, +1 for f and -1 for s at layout time while the listing stays identical
+   (counts before the late passes: a statement in both arms, a split-piece reload). Rounds without the
+   frame: blockscope of every scalar = control (lim per loop worse); every continue -> if-block form (2^6)
+   = control; the lim of the entries / slots sites renamed to v: 88 ins (slots 134) but v then shares the
+   emergency v's slot, which the original keeps apart (X vs Z), so a local optimum; renaming to k / m /
+   found / sold 116+; s via break, it in the stA test, condition orders (!found last) worse; climb --rounds
+   6 (seed 7): 161 via t = market->objId only. flip --want '_f$ = -1676': hits only drop a sold = 1 / sold
+   = 0 / a lim assignment. Next: find the ordinary source with those three counts (c2frame --names per
+   variant; a statement written in both arms near f's margin test or the m loop). prior: s51: the slots
+   hunks (292 of 240 ins) are the frame sort (frame > 0x80, VC6's unstable sort of equal densities:
+   sold/f/v and the 0x5566/0x5656 temps both 4000): c2frame's replay gives the same order for the variants
+   below although dcp's slot hunks change, so the unstable sort's input count / order decides. climb round
+   1 (694 mutants): best 163 via a new int local t = market->objId for the stall-goods sprintf /
+   cm_SendExSellObject pair (slots 166, code 65): an extra frame entry reorders the sort; not kept (no
    source reason for that local; the original's slot of f is 0x14 with lim / s, ours f with sold / v). No
    lever: v inline in the first slot loop, float g dropped, g as the GoodsPrice / ItemPrice / k temp;
    worse: f in one statement (274), g = util_RandomF() * 1.25f (252). Open: which ordinary local the
