@@ -1436,18 +1436,14 @@ city:
             }
         }
         sel = 0;
-        bl = gm_BuildQuery(1, 6);
-        if (!bl)
-            goto umland;
-        do {
+        for (bl = gm_BuildQuery(1, 6); bl; bl = gm_BuildNext()) {
             if (bl->object && ord_GetGridCell(&bl->object->pos, &gx, &gy) && best == &ai_Grid[gx][gy]) {
                 if (!sel)
                     sel = bl;
                 else if (bl->owner != 0xffff && gm_Opinion(ch->id, bl->owner) > gm_Opinion(ch->id, sel->owner))
                     sel = bl;
             }
-            bl = gm_BuildNext();
-        } while (bl);
+        }
         if (!sel)
             goto umland;
         sprintf(buf, "ai_CalcMeisterWache(): Meister %s patroulliert bei '%s'", ch->name, sel->name);
@@ -1487,10 +1483,7 @@ city:
             }
         }
         sel = 0;
-        bl = gm_BuildQuery(1, 6);
-        if (!bl)
-            goto umland;
-        do {
+        for (bl = gm_BuildQuery(1, 6); bl; bl = gm_BuildNext()) {
             if (bl->object && ord_GetGridCell(&bl->object->pos, &gx, &gy) && best == &ai_Grid[gx][gy]) {
                 if (!sel)
                     sel = bl;
@@ -1498,8 +1491,7 @@ city:
                          && gm_Opinion(ch->id, bl->owner) < gm_Opinion(ch->id, sel->owner))
                     sel = bl;
             }
-            bl = gm_BuildNext();
-        } while (bl);
+        }
         if (!sel)
             goto umland;
         sprintf(buf, "ai_CalcMeisterWache(): Meister %s \xfc" "berpr\xfc" "ft '%s'", name, sel->name);
