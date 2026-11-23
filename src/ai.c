@@ -1425,20 +1425,18 @@ void ai_CalcMeisterWache(AICHAR *ch)
         if (!(util_RandomF() > 0.85) || idle < 3 || ai_Time.year < 7 - ai_Difficulty)
             r = util_Random(3);
         else
-            goto attack;
+            r = 4;
     } else {
         r = util_Random(3);
         if (r != 0 && ch->target != -1 && util_Random(2) != 0)
-            goto city;
+            r = 0;
     }
     if (r == 4) {
-attack:
         if (ai_CalcAngriff(ch, idle) != 0)
             goto umland;
-        goto city;
+        r = 0;
     }
     if (r == 0) {
-city:
         /* a patrol in the town: the best-rated grid cell, there the building of kind 6 whose owner he likes best */
         sprintf(buf, "ai_CalcMeisterWache(): Meister %s m\xf6" "chte in der Stadt patroullieren", ch->name);
         best = &ai_Grid[0][0];
