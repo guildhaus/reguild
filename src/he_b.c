@@ -702,7 +702,7 @@ wait:
                     he_FreeEvent(box);
                 p->productionLacking = 0;
                 if (ev->gfx != 0) {
-                    he_FreeGfxInfo((int *)ev->gfx);
+                    he_FreeGfxInfo(ev->gfx);
                     ev->gfx = 0;
                 }
                 ev->clock60 = ev->end;

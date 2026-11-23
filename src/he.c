@@ -1025,9 +1025,8 @@ void he_CreateGfxInfo(AIJOB *ev, char *name, D3OBJECT *parent)
 }
 /* 0x53e840, removes the gfx info `e` (frees its object, re-spreads the others on the same parent) */
 
-void he_FreeGfxInfo(int *e)
+void he_FreeGfxInfo(HEGFXINFO *g)
 {
-    HEGFXINFO *g = (HEGFXINFO *)e;
     int sv;
     D3OBJECT *par = g->parent;
 
@@ -1128,7 +1127,7 @@ void he_RemoveStaleGfxInfos(void)
 
     for (p = he_GfxInfos; (int)p < (int)(he_GfxInfos + 0x40); p++)
         if (p->ev != 0 && (p->ev->id != p->eventId || ai_GameSwitches.byte[3] == 0))
-            he_FreeGfxInfo((int *)p);
+            he_FreeGfxInfo(p);
 }
 /* 0x53ebe0, removes the gfx infos of the object `obj` */
 
@@ -1138,7 +1137,7 @@ void he_RemoveGfxInfos(int obj)
 
     do {
         if ((int)p->parent == obj)
-            he_FreeGfxInfo((int *)p);
+            he_FreeGfxInfo(p);
         p++;
     } while ((intptr_t)p < (intptr_t)&he_GfxInfos[0x40]);
 }
@@ -7314,7 +7313,7 @@ void he_RunBard(AIJOB *e)
             }
             e->stage = 2;
             if (e->gfx != 0 && (ai_Chars[ai_PlayerId].flags1c8 & 0x20000) != 0) {
-                he_FreeGfxInfo((int *)e->gfx);
+                he_FreeGfxInfo(e->gfx);
                 e->gfx = 0;
             }
             return;
@@ -7336,7 +7335,7 @@ void he_RunBard(AIJOB *e)
         e->end.hour = 6;
         e->end.min = 0;
         if (e->gfx != 0) {
-            he_FreeGfxInfo((int *)e->gfx);
+            he_FreeGfxInfo(e->gfx);
             e->gfx = 0;
         }
         if ((e->opts & 2) != 0)

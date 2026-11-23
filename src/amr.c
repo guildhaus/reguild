@@ -6022,7 +6022,7 @@ int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2)
     cm_SendMoveGoods(p->netId, a->id, ai_OwnPlayer, s2->ref);
     cm_SendLongMessage(&m);
     if (b != 0) {
-        cm_BeginFieldBlock((AICHAR *)b, b->id);
+        cm_BeginFieldBlock(b, b->id);
         cm_AddFieldValues(4, 1, (char *)&b->budget - cm_FieldObject, &v);
         cm_SendFieldDeltas();
     }

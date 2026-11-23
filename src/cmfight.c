@@ -134,7 +134,7 @@ int cm_FightPaused = 0;  /* 0x6f0ce4, fight paused */
 AICHAR *cm_FightDefender = 0;  /* 0x6f0ce8, the defending side's leader */
 AICHAR *cm_FightAttacker = 0;  /* 0x6f0cec, the attacking side's leader */
 D3OBJECT *cm_PickMarker = 0;  /* 0x6f0cf0 */
-int cm_FightWinner = 0;  /* 0x6f0cf4 */
+AICHAR *cm_FightWinner = 0;  /* 0x6f0cf4 */
 int cm_FightSettled = 0;  /* 0x6f0cf8 */
 int cm_FightLootValue = 0;  /* 0x6f0cfc */
 int cm_UnreadBss = 0;  /* 0x6f0d00, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
@@ -3182,7 +3182,7 @@ AICHAR *cm_CheckFightWinner(G28REC *rec)
     owned = 0;
     flags = 0;
     if (cm_FightWinner != 0)
-        return (AICHAR *)cm_FightWinner;
+        return cm_FightWinner;
     nDef = 0;
     for (i = 0; i < 16; i++) {
         if (rec->fight.defenders[i] != -1) {
@@ -3686,7 +3686,7 @@ void cm_FightEndDialog(G28REC *a)
         }
     }
     side = cm_FightWinner == 0 ? (nb > na ? cm_FightAttacker : cm_FightDefender)
-                               : (cm_FightWinner == (int)cm_FightAttacker ? cm_FightDefender : cm_FightAttacker);
+                               : (cm_FightWinner == cm_FightAttacker ? cm_FightDefender : cm_FightAttacker);
     win = d2_OpenForm(0, 0, "cutscenes\\combat_end");
     d2_PlaceMainWindow(win, 3);
     d2_SetForm(win, 2);
@@ -4443,7 +4443,7 @@ void cm_FightSlotWinner(CMCUTENTRY *f)
     AICHAR *c;
 
     c = gm_FindChar(f->charId);
-    cm_FightWinner = (int)c;
+    cm_FightWinner = c;
     txt_Format(buf, 0x11b7, c->id);
     sv_SetStatusText(buf);
 }

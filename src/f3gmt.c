@@ -5247,7 +5247,7 @@ void gm_InheritEstate(AICHAR *dead, AICHAR *heir)
     n = 0;
     taken = 0;
     if (gv_FindHeldEntry(dead, &s, &e) != 0) {
-        gv_OrderBury((int *)dead, s, e->size, gv_EntryIndex(s->yard, e));
+        gv_OrderBury(dead, s, e->size, gv_EntryIndex(s->yard, e));
         if (heir != 0 && heir != ai_PlayerChar && e->id == dead->netId)
             gv_OrderSetGraveHolder(heir, s, e->size, gv_EntryIndex(s->yard, e));
     }

@@ -2240,7 +2240,7 @@ AIBLD *gm_CharacterHome(AICHAR *c, int *out2, int *out3)
 }
 /* 0x4fddb0, creates a character: flags bit 0 = gm_CreateRandomChild(age), else gm_CreateCharacter(type, -1, -1, age, 0, job, title, 2); bit 1 (random child only): sets its jobId / title; bit 2: places it on the stage of the building bld at its gm_HomeObject. Returns the character or 0 */
 
-short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char job, unsigned char title, AIBLD *bld)
+AICHAR *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char job, unsigned char title, AIBLD *bld)
 {
     unsigned id;
     AICHAR *c;
@@ -2263,9 +2263,9 @@ short *gm_SpawnCharacter(unsigned char flags, int type, int age, unsigned char j
     if (flags & 4) {
         if (bld != 0 && (o = gm_HomeObject(bld)) != 0)
             gm_PlaceOnStage(c->netId, bld->id, o->objId, 0, 0);
-        return (short *)c;
+        return c;
     }
-    return (short *)c;
+    return c;
 }
 /* 0x4fde90, loads the icon names: counts the 0x80-byte records of "<root>Character_Names.dat" (0x6f1b90 of them), allocates 0x30 bytes per name (0x6f1b94) and copies each name; resets the three flag bytes at 0x6f0454 */
 

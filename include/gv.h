@@ -179,7 +179,7 @@ void * mem_Alloc(int size, char *tag);        /* 0x4223c0, allocates zeroed memo
 void mem_Free(void *p);                 /* 0x422620 */
 GVYARD *gv_GrowGraveyard(struct AIBLD *o);  /* 0x4eff50 */
 void gv_FreeGraveyard(int *g);             /* 0x4f0180 */
-int gv_OrderBury(int *g, struct AIBLD *o, int v, int b);  /* 0x4f01d0 */
+int gv_OrderBury(struct AICHAR *ch, struct AIBLD *o, int v, int b);  /* 0x4f01d0 */
 int gv_BuryCharacter(int *p);              /* 0x4f0240 */
 int gv_OrderReserveGrave(struct AICHAR *c, struct AIBLD *o, int size, short years, int price);  /* 0x4f0430 */
 int gv_ReserveGrave(GVORDER *m);          /* 0x4f0490 */

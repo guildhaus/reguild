@@ -2378,7 +2378,7 @@ int cm_CheckSellObject(G17MSG *m)
     AIBLD *b;
     AIOBJ *o;
     AICHAR *c;
-    char *p;
+    AIOBJ *p;
     AICHAR *r;
     AIOBJ **list;
     AIBLD *bb;                 /* the buyer's building: its own slot in the original, not b again */
@@ -2393,10 +2393,10 @@ int cm_CheckSellObject(G17MSG *m)
             list = &o->list;
         else
             list = &c->inventory;
-        p = (char *)gm_Query(*list, 1, 0, m->sell.item);
+        p = gm_Query(*list, 1, 0, m->sell.item);
         if (p == 0)
             return 1;
-        if (((AIOBJ *)p)->count < m->sell.count)
+        if (p->count < m->sell.count)
             return 1;
     }
     if (m->sell.buyer != -1) {
@@ -2807,7 +2807,7 @@ int cm_ExTakeOverCharacter(G17MSG *m, G17STAT *s)
 
             c = gm_FindChar(m->takeover.taken);
             if (gv_FindHeldEntry(c, &y, &x) != 0)     /* y the graveyard building, x the entry (gv.h GVENTRY, its size first) */
-                gv_OrderBury((int *)c, y, x->size, (unsigned char)gv_EntryIndex(y->yard, x));
+                gv_OrderBury(c, y, x->size, (unsigned char)gv_EntryIndex(y->yard, x));
             s->kind = 1;
             s->ref = &ai_Chars[k];
         } else {
@@ -5120,7 +5120,7 @@ int cm_ExHire(G17MSG *m, G17STAT *s)
     } else if (c != 0)
         home = c->bld2;
     if (c == 0 || c->bld != 0)
-        c = (AICHAR *)gm_SpawnCharacter(6, m->hire.kind, 0x12, m->hire.job, m->hire.title, home);
+        c = gm_SpawnCharacter(6, m->hire.kind, 0x12, m->hire.job, m->hire.title, home);
     if (c == 0) {
         if (s != 0) {
             s->state = 2;

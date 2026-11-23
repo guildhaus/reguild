@@ -141,7 +141,7 @@ struct AIFIN; struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                 
 unsigned gm_TakeOverCharacter(int a, int b);                                                  /* 0x5064d0 */
 int gv_FindHeldEntry(void *a, struct AIBLD **o, struct GVENTRY **e);                                    /* 0x4f2540 */
 struct GVYARD; struct GVENTRY; int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);                                       /* 0x4ef6b0 */
-int gv_OrderBury(int *g, struct AIBLD *o, int v, int b);                     /* 0x4f01d0 */
+int gv_OrderBury(struct AICHAR *ch, struct AIBLD *o, int v, int b);                     /* 0x4f01d0 */
 int gm_FreeBuilding(struct AIBLD *b);                                                       /* 0x5012e0 */
 void gm_KillSpieler(int c, int mode);                                     /* 0x503c60 */
 int gm_TakeObjekt(int id, int good, int n);                                       /* 0x500a40 */
@@ -403,7 +403,7 @@ extern char ai_DataPath[];  /* 0x75dca0 */
 void ai_ResetJob(struct AICHAR *c);  /* 0x47e940 */
 void gm_MoveIntoHome(struct AICHAR *c, struct AIBLD *b);  /* 0x4fda10 */
 struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
-short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
+struct AICHAR *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 struct AIOBJ *gm_QueryNext(void);  /* 0x4ffcc0 */
 struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);  /* 0x501b50 */
 void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
@@ -608,7 +608,7 @@ struct D3SM * d3sm_Create(struct D3FLMAP *t, int size, int mask);  /* 0x45eeb0, 
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
 int gm_BuildingSkill(struct AIBLD *b, unsigned k, int flag);  /* 0x5092e0, f3gm.h (not includable here, cm.c lead comment) */
 extern struct AICHAR *cm_FightDefender;  /* 0x6f0ce8, the defending side's leader */
-extern int cm_FightWinner;  /* 0x6f0cf4 */
+extern struct AICHAR *cm_FightWinner;  /* 0x6f0cf4 */
 extern struct SBBANK *cm_FightSounds;  /* 0x6f0d0c */
 extern struct SBBANK *cm_CrossbowSounds;  /* 0x6f0d10 */
 extern struct SBBANK *cm_DaggerSounds;  /* 0x6f0d18 */
