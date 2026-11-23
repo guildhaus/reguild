@@ -4945,20 +4945,28 @@ void ai_UnloadCarts(AICHAR *ch)
    sellAmount counts down) and the buys of the slots with a make plan are collected into one message 11 (up to
    three sells and three buys), sent unless the ai_TradeMsgOff gate is set (then ai_TradeMsgCount counts it).
    The gm_Query lists are walked to their end (the second loop drains the cursor).
-   @deep Read the whole function against the original (call / constant sequence now equal: every callee,
-   pushed constant and string in order). Fixed: the slots' goods reserve is set to 4 (mov eax,4 / cmp
-   [esi+0x1c],eax), the master kind compared as a byte, the margin test as f < ai_FloatOne && roll >= f
-   (float home slot, frame 0x74c now equal, the two log sprintfs tail-merge as the original), the first
-   loop's own index / amount variables. Left: register allocation - the original keeps ch in memory
-   ([ebp+8] reloads) where ours caches it in edi in the emergency-sale loop; the stA sell loop spills it /
-   the search pointer to [esp+0x20] / [esp+0x1c] with ebx=nsell, esi/edi=item/amount pointers where ours
-   keeps them in edx/ecx (hunks 0x48b2aa code 134, 0x48b3bd, 0x48b3ff); the first slot loop's induction
-   base (ai_Slots+0x28 amount in the original, +0x3c flags in ours, the M8 at +0x38, same accesses). Tried:
-   index/accumulator variable splits per loop (only the first loop's helped), inline stB item reads (no
-   change). (references: M8 at +0x38: ours refers to ai_Slots+0x3c (0xf86a7c), the original's field to
-   0xf86a68 (ai_Slots+0x28), explained: the M8 at +0x38 is the strength-reduced induction pointer's base:
-   both sides walk ai_Slots with the same field accesses (flags, item, amount, sellAmount), only the base
-   offset VC6 picked differs) */
+   @deep Session s(match-deep, lead from the sibling ai_MeisterTradeAllgemein byte): 713 -> 239 ins, size
+   6052 vs 6055, M8 gone. Kept: cart loop as car = gm_Query(..); while (car) {..} with car = gm_QueryNext()
+   before the continue and at the body end (713->681); nsell = 0; nbuy = 0; before the memset (ord) and the
+   slots sell loop with n and a separate stock limit (nS) (681->298; nE alone 304, nE+nS 339, n-forms in
+   the stA/stB loops worse); first slot loop reads ai_Slots[m].amount at every use, no local (the IV base
+   moves to +0x28 = the original's, 298->239; any separate local 249). Left: slot hunks (262) all through -
+   frame packing differs (dcp frame: original [ebp-0x748] = v, [ebp-0x73c..0x730] hold
+   s/f/lim/it/sold/nsell mixes), code hunks at the kind-6 entries loop f/g slots, 0x48b3e1, 0x48b608 (35),
+   0x48b966-0x48ba21 (the buy loop / sold). prior: Read the whole function against the original (call /
+   constant sequence now equal: every callee, pushed constant and string in order). Fixed: the slots' goods
+   reserve is set to 4 (mov eax,4 / cmp [esi+0x1c],eax), the master kind compared as a byte, the margin
+   test as f < ai_FloatOne && roll >= f (float home slot, frame 0x74c now equal, the two log sprintfs
+   tail-merge as the original), the first loop's own index / amount variables. Left: register allocation -
+   the original keeps ch in memory ([ebp+8] reloads) where ours caches it in edi in the emergency-sale
+   loop; the stA sell loop spills it / the search pointer to [esp+0x20] / [esp+0x1c] with ebx=nsell,
+   esi/edi=item/amount pointers where ours keeps them in edx/ecx (hunks 0x48b2aa code 134, 0x48b3bd,
+   0x48b3ff); the first slot loop's induction base (ai_Slots+0x28 amount in the original, +0x3c flags in
+   ours, the M8 at +0x38, same accesses). Tried: index/accumulator variable splits per loop (only the first
+   loop's helped), inline stB item reads (no change). (references: M8 at +0x38: ours refers to
+   ai_Slots+0x3c (0xf86a7c), the original's field to 0xf86a68 (ai_Slots+0x28), explained: the M8 at +0x38
+   is the strength-reduced induction pointer's base: both sides walk ai_Slots with the same field accesses
+   (flags, item, amount, sellAmount), only the base offset VC6 picked differs) */
 
 int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
 {
@@ -4971,18 +4979,17 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
     unsigned short it;
     unsigned char kind;
     float f, g;
-    int i, j, k, m, n, v, lim, found, nsell, nbuy, sold;
+    int i, j, k, m, n, v, lim, stock, found, nsell, nbuy, sold;
 
     if (b->type == 0x116)
         return ai_MeisterTradeAllgemein(ch, b);
     for (m = 0; m < ai_NSlots; m++) {
         if (!(ai_Slots[m].flags & 6) && (ai_Slots[m].flags & 8)) {
-            n = ai_Slots[m].amount;
-            if (n > gm_ListStock(b, ai_Slots[m].item) / 3) {
+            if (ai_Slots[m].amount > gm_ListStock(b, ai_Slots[m].item) / 3) {
                 if (ai_BTypes[ch->bld->type].kind == 22)
-                    ai_Slots[m].sellAmount = n / 2;
+                    ai_Slots[m].sellAmount = ai_Slots[m].amount / 2;
                 else
-                    ai_Slots[m].sellAmount = n;
+                    ai_Slots[m].sellAmount = ai_Slots[m].amount;
             }
         }
     }
@@ -5067,8 +5074,8 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
             }
         }
     }
-    for (car = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner); car;
-         car = gm_QueryNext()) {
+    car = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner);
+    while (car) {
         if (car->bldId == ch->bld->id) {
             if (car->fill < 0x21) {
                 memset(&msg, 0, sizeof(msg));
@@ -5083,6 +5090,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                 msg.u.s.cost = 0;
                 msg.n = 100 - car->fill;
                 cm_SendLongMessage(&msg);
+                car = gm_QueryNext();
                 continue;
             }
             for (job = he_FindEvent(2, 0, 11, 3, ch->bld->id); job; job = he_NextEvent()) {
@@ -5090,9 +5098,9 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                     break;
             }
             if (!job) {
-                memset(&msg, 0, sizeof(msg));
                 nsell = 0;
                 nbuy = 0;
+                memset(&msg, 0, sizeof(msg));
                 if (ai_WorkLoad() > ai_WorkLimit())
                     msg.deferTrade = 1;
                 for (k = 0; k < 3; k++) {
@@ -5297,18 +5305,18 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                                      (int)gm_GoodsPrice(ai_Slots[i].item, ai_OwnPlayer));
                         ai_Slots[i].sellAmount = 0;
                     } else {
-                        lim = gm_ListStock(market, ai_Slots[i].item);
+                        stock = gm_ListStock(market, ai_Slots[i].item);
                         for (j = 0; ai_Slots[i].sellAmount && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == ai_Slots[i].item) {
-                                v = ai_Slots[i].sellAmount;
-                                if (lim < v)
-                                    v = lim;
-                                sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Slots[i].item, v, ai_OwnPlayer, 0);
-                                cm_SendExSellObject(market->objId, b->objId, ai_Slots[i].item, v, ai_OwnPlayer, 0);
+                                n = ai_Slots[i].sellAmount;
+                                if (stock < n)
+                                    n = stock;
+                                sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
+                                cm_SendExSellObject(market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = ai_Slots[i].item;
                                 msg.dst[nsell] = ai_MarketBuilding->id;
                                 nsell++;
-                                ai_Slots[i].sellAmount -= v;
+                                ai_Slots[i].sellAmount -= n;
                                 sold = 1;
                                 rec.item[j] = ai_Slots[i].item;
                             }
@@ -5361,6 +5369,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
         for (o = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner); o != car;
              o = gm_QueryNext())
             ;
+        car = gm_QueryNext();
     }
     return 1;
 }
