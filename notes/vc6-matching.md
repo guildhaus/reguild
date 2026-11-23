@@ -7463,6 +7463,10 @@ Kept deliberately (each with `@original` in the source):
   ai_SeanceRitual as sv_RunFrame's frame key `(void (*)())`, and
   ai_GetDefaultEffectScale's call of ai_NormalizeEffectScale through an int K&R cast (returns the callee's st(0)
   without a return statement).
+- C4098 is gone: menu.c's ai_ResumeGameScreen (twice), ai_PauseGame, ai_ProductionContact and ai_CurseContact
+  returned 0 from void; no caller reads eax after the call (ai_OptionsMenu 0x5d7b27, sv_RunFrame 0x531224,
+  ai_EnterBuilding 0x59eb1c, ai_RunObjectRoom 0x59f6bd) and none of them sets eax before its ret, so the value
+  was dropped (dcp try: the same code, all four byte).
 - Two declarations under `#ifdef _MSC_VER` with the conforming form in the `#else`: d2.c's block-scope `void
   d2_MoveObj();` (short parameters) and d3s.c's unsigned char d3s_ShadowPoly prototype over an int old-style
   definition.
@@ -7476,8 +7480,7 @@ Kept deliberately (each with `@original` in the source):
   one (dcp try on d3d_Init / dd_DlgProc / dd_Init: references differ, M9). A fork keeps its incompatible-pointer
   patch for these four (or splits the text from the call in its own D3DCHECK).
 - Missing returns the original has: C4716 x16 / C4715 x3 (cm_SendPlayerId, cm_SendLongMessage, cm_WaitEvent .. in
-  cmscene, ord_PrivilegeDialog, cm_OrderAttack / cm_OrderEscape / cm_StopScript, ai_GetDefaultEffectScale), C4098 x5
-  (menu.c's void functions that return a call), C4700 x2 (ai.c's `found`, menu.c's `dflt`: the original reads the
+  cmscene, ord_PrivilegeDialog, cm_OrderAttack / cm_OrderEscape / cm_StopScript, ai_GetDefaultEffectScale), C4700 x2 (ai.c's `found`, menu.c's `dflt`: the original reads the
   uninitialised slot; see their @original). The other warnings: C4005 x13 (D3_COPY_AT / D3FL_COPY defined twice,
   differently, in d3_d3d.h / ts_texture.h / d3_io_fl), C4405 x2 (amt.c's parameter `out`), C4550 x1 (evt.c).
 - Inline asm: 790 `__asm` lines in 37 files (fixed-point helpers, D3_ZERO / copy macros, the span fillers, shp.c's

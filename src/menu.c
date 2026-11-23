@@ -1209,7 +1209,7 @@ void ai_ResumeGameScreen(void)
         d2_ClearScreen();
         d2_ReleaseFade(fade);
         ai_FrameWait = 3;
-        return 0;
+        return;
     }
     d2_DirtyRect.right = sv_ViewRectRight;
     d2_DirtyRect.left = sv_ViewRectLeft;
@@ -1221,7 +1221,6 @@ void ai_ResumeGameScreen(void)
     sv_DisableVisibleWidgets(0);
     d2_ReleaseFade(fade);
     d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x32, 10);
-    return 0;
 }
 /* 0x5d7160, the screenshot into the small screen image ai_ScreenImage (690 B): locks the screen
    surface (d2_ScreenSurf), samples its pixels (+0x1c, pitch +0x10) into a 0x25800 byte 16-bit buffer
@@ -2181,7 +2180,6 @@ void ai_PauseGame(void)
     sv_SetStatusText(ch_EmptyName);
     tb_Paused = 0;
     ai_GameState = 1;
-    return 0;
 }
 
 /* The message filter's row captions (the text system fills the 0x1441500 .. slots at run time) and
@@ -2397,7 +2395,6 @@ void ai_ProductionContact(AIBLD *building, AIOBJ *arg)
         pump = sv_RunFrame(ai_ProductionContact, 0x67fff);
     }
     sv_ReleaseNamePlates();
-    return 0;
 }
 
 /* ---- the contact listeners are defined above the stub bodies they open (out of address order:
@@ -2452,7 +2449,6 @@ void ai_CurseContact(AIBLD *buildingArg)
         if (clicked != 0 && clicked == fluch)
             ai_CurseWindow(building);
     }
-    return 0;
 }
 /* 0x5d9b90, the theatre / card game contact listener (127 B): building the building.
    contact_THEATERSTUECK 0x62dd20 (TXT_CONTACT_THEATRE 0x144a98c, 0x16) opens the curse target picker
