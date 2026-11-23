@@ -3095,7 +3095,7 @@ void ai_GraveyardFogContact(AIBLD *rec)
    prototypes 0x211 / 0x205 clears bit 0. When the building's owner is the character: 0x4461 set and, when one of
    the six job bytes at bldg + 0x223 is v (a 0 byte ends the scan), 0x2200; x of the prototype 0x21b -> 0x5000.
    gm_AllowAll set: -1 */
-int ai_PermissionBits1d(AICHAR *ch, AIBLD *b, char *x)
+int ai_PermissionBits1d(AICHAR *ch, AIBLD *b, AIOBJ *x)
 {
     AIBTYPE *bldg;
     int v;
@@ -3107,7 +3107,7 @@ int ai_PermissionBits1d(AICHAR *ch, AIBLD *b, char *x)
     f = 0x81;
     if (b->masterId == ch->id)
         f = 0x10bd;
-    if (x != 0 && (((AIOBJ *)x)->type == 0x211 || ((AIOBJ *)x)->type == 0x205))
+    if (x != 0 && (x->type == 0x211 || x->type == 0x205))
         f &= ~1;
     if (b->owner == ch->id) {
         f |= 0x4461;
@@ -3120,7 +3120,7 @@ int ai_PermissionBits1d(AICHAR *ch, AIBLD *b, char *x)
             }
         }
     }
-    if (x != 0 && ((AIOBJ *)x)->type == 0x21b)
+    if (x != 0 && x->type == 0x21b)
         f |= 0x5000;
     if (gm_AllowAll != 0)
         return -1;

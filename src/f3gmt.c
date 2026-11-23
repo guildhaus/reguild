@@ -3131,7 +3131,7 @@ unsigned gm_PermissionBits(unsigned p, AIBLD *bld, AIOBJ *o, AICHAR *c)
         btype = (unsigned char *)ai_BTypes + bld->type * 0x24d;
         job = gm_TitleJob(p, gm_BuildingJob(*btype));
         if (*btype == 0x1d)
-            return ai_PermissionBits1d(&ai_Chars[p], bld, (char *)obj);
+            return ai_PermissionBits1d(&ai_Chars[p], bld, obj);
         switch (*btype) {
         case 0x21:
             if (bld->masterId == p)
