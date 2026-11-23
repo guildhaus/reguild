@@ -18423,7 +18423,7 @@ struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i, unsigned char n);         
 void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2, struct AITIME *param_3);                 /* 0x5a9910 */
 void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);                 /* 0x5a9880 */
-int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
+int gv_OrderExtendGrave(struct AICHAR *c, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(struct AIJOB *ev);          /* 0x5728d0 */
 void he_ExamCancelled(struct AIJOB *ev);          /* 0x5729c0 */
 void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */

@@ -4644,7 +4644,7 @@ void he_AllocPlunderOfferLease(AIJOB *e)
 
 void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4, int param_5, int param_6);                 /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);                 /* 0x5a9880 */
-int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
+int gv_OrderExtendGrave(struct AICHAR *c, struct AIBLD *o, int v, int b, short s, int x);                 /* 0x4f0700 */
 void he_AnswerGraveLease(struct AIJOB *ev);          /* 0x5728d0 */
 void he_ExamCancelled(struct AIJOB *ev);          /* 0x5729c0 */
 
@@ -4665,7 +4665,7 @@ void he_AnswerGraveLease(AIJOB *e)
     per = gm_FindChar(e->netId);
     if (per == 0)
         return;
-    gv_OrderExtendGrave((int *)per, bld, l->graveSize, l->graveEntry, l->graveLeaseYears, l->graveLeasePrice);
+    gv_OrderExtendGrave(per, bld, l->graveSize, l->graveEntry, l->graveLeaseYears, l->graveLeasePrice);
     if (per == &ai_Chars[bld->owner])
         return;
     if (ai_Chars[bld->owner].kind != 6 && ai_Chars[bld->owner].kind != 7)

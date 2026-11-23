@@ -235,10 +235,9 @@ int gv_EntryIndex(GVYARD *g, GVENTRY *e)
 }
 /* 0x4ef710, 1 when the entry b is held by the character a (GVENTRY.w08 == AICHAR.w050) and the holder is not 0x7fff */
 
-int gv_EntryHeldBy(AICHAR *a, char *b)
+int gv_EntryHeldBy(AICHAR *a, GVENTRY *e)
 {
     AICHAR *ch = a;
-    GVENTRY *e = (GVENTRY *)b;
     unsigned short v;
 
     v = ch->w050;
@@ -773,12 +772,11 @@ int gv_ReserveGrave(GVORDER *m)
 }
 /* 0x4f0700, the message 0x4c60b0 type 2 (graveyard id +4 of g, object id +1 of o, value v, byte b, short s, int x); -1 when g or o is 0 or b is -1 */
 
-int gv_OrderExtendGrave(int *g, AIBLD *bld, int v, int b, short s, int x)
+int gv_OrderExtendGrave(AICHAR *ch, AIBLD *bld, int v, int b, short s, int x)
 {
-    AICHAR *ch = (AICHAR *)g;
     GVORDER m;
 
-    if (g != 0 && bld != 0 && b != -1) {
+    if (ch != 0 && bld != 0 && b != -1) {
         m.chr = ch->netId;
         m.bld = bld->id;
         m.size = v;
@@ -1018,9 +1016,8 @@ int gv_OrderNewDead(AIBLD *bld, int x)
 }
 /* 0x4f0dd0, graveyard order type 6 (p: +8 the object id, +0x13 the number): makes that many new dead (0x4ef9c0); 0 when some were made, else -4 */
 
-int gv_AddNewDead(unsigned char *p)
+int gv_AddNewDead(GVORDER *m)
 {
-    GVORDER *m = (GVORDER *)p;
     AIBLD *bld;
     int n;
 
@@ -1606,7 +1603,7 @@ void gv_GraveyardTurn(AIBLD *bld)
                 goto next;
             h = price = gv_LeasePrice(c, e->b0c, e->size, 0, &share);
             if (c == pl) {
-                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, 0);
+                h = gv_OrderExtendGrave(c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, 0);
             } else if (c->kind == 6 || c->kind == 7) {
                 memset(&m, 0, sizeof(m));
                 m.to = c->netId;
@@ -1621,7 +1618,7 @@ void gv_GraveyardTurn(AIBLD *bld)
                 m.lease.years = 10;
                 h = cm_SendLongMessage(&m);
             } else if ((int)(gm_CharCurrency(c, ai_OwnPlayer) * 0.44f) > price) {
-                h = gv_OrderExtendGrave((int *)c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, price);
+                h = gv_OrderExtendGrave(c, bld, e->size, gv_EntryIndex(bld->yard, e), 10, price);
                 rounds++;
                 paid++;
                 sum += share;

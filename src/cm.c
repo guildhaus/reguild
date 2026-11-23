@@ -6274,7 +6274,7 @@ int cm_ExGraveOrder(G17MSG *m, G17STAT *s)
         r = gv_AdjustEntry(&m->graveOrder);
         break;
     case 6:
-        r = gv_AddNewDead(m->data);
+        r = gv_AddNewDead(&m->graveOrder);
         break;
     default:
         return -1;

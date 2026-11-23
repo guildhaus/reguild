@@ -154,7 +154,7 @@ int gv_SizeOpen(struct GVYARD *r, int i);      /* 0x4ef4f0 */
 extern struct AIBTYPE *ai_BTypes;    /* 0x7e3f30, the building types */
 struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i, unsigned char n);  /* 0x4ef570 */
 int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);     /* 0x4ef6b0 */
-int gv_EntryHeldBy(struct AICHAR *a, char *b);    /* 0x4ef710 */
+int gv_EntryHeldBy(struct AICHAR *a, struct GVENTRY *b);    /* 0x4ef710 */
 int gv_EntrySameId(int *a, int *b);      /* 0x4ef740 */
 int gv_EntryIsFree(int *a, int *b);      /* 0x4ef760 */
 int gv_EntryIsUsed(int *a, int *b);      /* 0x4ef770 */
@@ -183,7 +183,7 @@ int gv_OrderBury(struct AICHAR *ch, struct AIBLD *o, int v, int b);  /* 0x4f01d0
 int gv_BuryCharacter(int *p);              /* 0x4f0240 */
 int gv_OrderReserveGrave(struct AICHAR *c, struct AIBLD *o, int size, short years, int price);  /* 0x4f0430 */
 int gv_ReserveGrave(GVORDER *m);          /* 0x4f0490 */
-int gv_OrderExtendGrave(int *g, struct AIBLD *o, int v, int b, short s, int x);  /* 0x4f0700 */
+int gv_OrderExtendGrave(struct AICHAR *c, struct AIBLD *o, int v, int b, short s, int x);  /* 0x4f0700 */
 int gv_ExtendGrave(GVORDER *m);           /* 0x4f0770 */
 int gv_OrderSetGraveHolder(struct AICHAR *c, struct AIBLD *o, int size, int entry);  /* 0x4f0900 */
 int gv_SetGraveHolder(GVORDER *m);         /* 0x4f0970 */
@@ -193,7 +193,7 @@ int gv_OpenSize(GVORDER *m);           /* 0x4f0af0 */
 int gv_OrderAdjustEntry(struct AIBLD *o, int v, int b, int x);  /* 0x4f0c20 */
 int gv_AdjustEntry(GVORDER *m);          /* 0x4f0c80 */
 int gv_OrderNewDead(struct AIBLD *o, int x);      /* 0x4f0d70 */
-int gv_AddNewDead(unsigned char *p);    /* 0x4f0dd0 */
+int gv_AddNewDead(struct GVORDER *m);    /* 0x4f0dd0 */
 int gv_OrderMoveGrave(struct AICHAR *c, int to, struct AIBLD *o, int from, int entry, int price);  /* 0x4f0e80 */
 int gv_MoveGrave(GVMOVE *m);           /* 0x4f0ed0 */
 int gv_OrderRaiseDead(struct AIBLD *o, int size, int entry, int grave, int kind);  /* 0x4f1170 */
