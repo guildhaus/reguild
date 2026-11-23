@@ -2184,7 +2184,7 @@ struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);
    in [ebp-0x14], w in edi: hunks +0x2bc / +0x2ea / +0x31a / +0x33c / +0x356), keeps 0 in ebx and re-zeroes
    it after the ai_Goods temp (ours zero in edi: +0x383, cmp eax,ebx vs edi), and the arrays sit at other
    frame slots (err/names swapped: +0x18b / +0x2d... */
-unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
+AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own)
 {
     AIBLD *b;
     char *base;
@@ -2364,7 +2364,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     gm_SetCapacities(b);
     gm_BuildingClass(b->type);
     gm_StockBuildingObjects(b);
-    return (unsigned char *)b;
+    return b;
 }
 /* 0x501b50, the main object of the building b, chosen by its building class (gm_BuildingClass): the classes 1 / 7 / 8 look by kind for the object 0x205 (kind 0x1d), 0x12e (0x16), 0x54 (4) or 0xfd (0x1f); class 4 takes the object 0xf7, a home (gm_IsHomeType) the 0xfd; otherwise (or when that object is missing) the first room of the kind's prototype list (an object of goods class 2 other than 0xfd). Returns the object, 0 when there is none */
 AIOBJ *gm_BuildingMainObject(AIBLD *b)

@@ -461,12 +461,12 @@ int ai_LedSelectBits(int idx, AICHAR *c)
 }
 /* 0x4ce1b0, the distance of the character c's model to the object o (x / z) */
 
-float cm_CharObjDistXZ(AICHAR *c, char *o)
+float cm_CharObjDistXZ(AICHAR *c, D3OBJECT *o)
 {
     D3VECTOR4 v, d;
 
-    v.x = ((D3OBJECT *)o)->pos.x;
-    v.z = ((D3OBJECT *)o)->pos.z;
+    v.x = o->pos.x;
+    v.z = o->pos.z;
     d.x = c->scene->obj->pos.x;
     d.z = c->scene->obj->pos.z;
     d.x = v.x - d.x;
@@ -744,9 +744,9 @@ int cm_UpdateGrenades()
 }
 /* 0x4ceb70, the game record the object c stands for (its owner) */
 
-int cm_ObjectOwner(char *c)
+void *cm_ObjectOwner(D3OBJECT *c)
 {
-    return (int)((D3OBJECT *)c)->owner;
+    return c->owner;
 }
 /* 0x4ceb80, waits for the event id to end, then stops it */
 
@@ -999,7 +999,7 @@ void cm_UpdateSceneChars()
                 for (j = 0; j < 32; j++) {
                     d = ai_SceneChars[j];
                     if (d != 0 && cm_OtherBuilding(c, d) != 0 && d->health != 0) {
-                        dist = cm_CharObjDistXZ(c, (char *)d->scene->obj);
+                        dist = cm_CharObjDistXZ(c, d->scene->obj);
                         if (dist < 100.0f) {
                             found = 1;
                             if (dist < best)
@@ -1686,7 +1686,7 @@ struct AICHAR *cm_AddFighter(int id, char *dummy)
     for (i = 0; i < 32; i++) {
         if (cm_Fighters[i].id == 0xffff) {
             memcpy(&cm_Fighters[i], c, sizeof(AICHAR));
-            cm_Fighters[i].v1ac = 0;
+            cm_Fighters[i].fightWare = 0;
             cm_Fighters[i].scene = 0;
             gm_CreateCharModel(&cm_Fighters[i], d3_CurrentScene, 0, 0, 0, dummy);
             cm_Fighters[i].scene->pathType = 4;
@@ -2241,7 +2241,7 @@ AICHAR *cm_NearestEnemy(AICHAR *c)
         for (i = 0; i < 32; i++) {
             if (ai_SceneChars[i] != 0 && cm_OtherBuilding(c, ai_SceneChars[i]) != 0 &&
                 ai_SceneChars[i]->health != 0) {
-                d = cm_CharObjDistXZ(c, (char *)ai_SceneChars[i]->scene->obj);
+                d = cm_CharObjDistXZ(c, ai_SceneChars[i]->scene->obj);
                 if (gm_HealthRatio(ai_SceneChars[i]) * d < best) {
                     res = ai_SceneChars[i];
                     best = d;
@@ -2252,7 +2252,7 @@ AICHAR *cm_NearestEnemy(AICHAR *c)
         for (i = 0; i < 32; i++) {
             if (ai_SceneChars[i] != 0 && cm_OtherBuilding(c, ai_SceneChars[i]) != 0 &&
                 ai_SceneChars[i]->health != 0) {
-                d = cm_CharObjDistXZ(c, (char *)ai_SceneChars[i]->scene->obj);
+                d = cm_CharObjDistXZ(c, ai_SceneChars[i]->scene->obj);
                 if (gm_HealthRatio(ai_SceneChars[i]) * d < best) {
                     res = ai_SceneChars[i];
                     best = d;
@@ -2992,12 +2992,12 @@ int cm_CheckDeath(AICHAR *c)
             c->v024 = (int)(10.0 - (int)c->f01c);
             txt_Format(buf, 0x1182, c->id);
         }
-        ware = (D3OBJECT *)c->v1ac;
+        ware = c->fightWare;
         if (ware != 0) {
             d3_SetWorldPosRot(ware, &c->scene->obj->pos, &c->scene->obj->matrix);
             d3if_Show(ware, 1);
-            c->v1ac = 0;
-            ((AIOBJ *)cm_ObjectOwner((char *)ware))->fightSide = cm_FightDefender->id;
+            c->fightWare = 0;
+            ((AIOBJ *)cm_ObjectOwner(ware))->fightSide = cm_FightDefender->id;
         }
         sv_SetStatusText(buf);
         return 1;
@@ -3039,7 +3039,7 @@ void cm_HitAction(CHACTION *a)
     vw = cm_CharWeapon(victim);
     hw = cm_CharWeapon(hitter);
     ch_GetHMap(victim->scene);
-    if (hw == 0 || cm_CharObjDistXZ(hitter, (char *)victim->scene->obj) > hw->range) {
+    if (hw == 0 || cm_CharObjDistXZ(hitter, victim->scene->obj) > hw->range) {
         damage = 0;
         ok = 0;
     }
@@ -3108,9 +3108,9 @@ void cm_HitAction(CHACTION *a)
 }
 /* 0x4d3980, an explosion event: the fuse sound "ZuendschnurBrennt_l_01", the attacker's worker count synced, 0x4ce290 */
 
-void cm_LayBombAction(char *ev)
+void cm_LayBombAction(CHACTION *ev)
 {
-    AICHAR *att = ((CHACTION *)ev)->pot.thrower;
+    AICHAR *att = ev->pot.thrower;
     AIWEAPON *k;
     AIOBJ *r;
 
@@ -3124,9 +3124,9 @@ void cm_LayBombAction(char *ev)
 /* 0x4d3a30, a bomb event: for the player's side the thrower's used weapon item is synced (its uses field -1),
    then a grenade (cm_ThrowGrenade, 0x4ce5d0) is thrown from the thrower's body to the cell aimed at */
 
-void cm_ThrowBombAction(char *ev)
+void cm_ThrowBombAction(CHACTION *ev)
 {
-    CHACTION *b = (CHACTION *)ev;
+    CHACTION *b = ev;
     AICHAR *att = b->bomb.thrower;
     AIOBJ *r;
 
@@ -3138,26 +3138,26 @@ void cm_ThrowBombAction(char *ev)
 /* 0x4d3ac0, a fighter's cheer (fight command 1, cm_FightSlotCheer with "gestik/jubeln"): the cheering character's
    model is hidden (ch_SetVisible, 0x402480) */
 
-void cm_CheerAction(char *ev)
+void cm_CheerAction(CHACTION *ev)
 {
-    CHACTION *b = (CHACTION *)ev;
+    CHACTION *b = ev;
 
     ch_SetVisible(b->cheer.fighter->scene, 0);
 }
 /* 0x4d3ae0, the end of a pick-up (fight command 4, cm_FightSlotPickUp): the object picked up gets the fight's
    attacker side as its owner (AIOBJ.fightSide), is carried by the fighter (AICHAR.v1ac) and hidden on the ground */
 
-void cm_PickUpAction(char *ev)
+void cm_PickUpAction(CHACTION *ev)
 {
-    CHACTION *b = (CHACTION *)ev;
+    CHACTION *b = ev;
     AICHAR *att = b->pickUp.fighter;
     D3OBJECT *o = b->pickUp.object;
     AIOBJ *p;
 
-    p = (AIOBJ *)cm_ObjectOwner((char *)o);
+    p = cm_ObjectOwner(o);
     if (p != 0) {
         p->fightSide = cm_FightAttacker->id;
-        att->v1ac = (int)o;
+        att->fightWare = o;
     }
     d3if_ShowTree(o, 0);
 }
@@ -4334,7 +4334,7 @@ void cm_FighterAct(CMCUTENTRY *f)
         }
     }
     if (k->id == 0x174 && f->kill != 0) {
-        ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_LayBombAction, 6, 0x2e, 1);
+        ev = ch_AddActionCB(c->scene, cm_LayBombAction, 6, 0x2e, 1);
         ev->pot.victim = tgt;
         ev->pot.thrower = c;
         ev->pot.x = f->x;
@@ -4350,7 +4350,7 @@ void cm_FighterAct(CMCUTENTRY *f)
         }
     }
     if (k->id == 0x176 && f->turn != 0) {
-        ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_ThrowBombAction, 5, 0x2e, 1);
+        ev = ch_AddActionCB(c->scene, cm_ThrowBombAction, 5, 0x2e, 1);
         ev->bomb.thrower = c;
         ev->bomb.x = f->x;
         ev->bomb.y = f->z;
@@ -4384,7 +4384,7 @@ void cm_FightSlotCheer(CMCUTENTRY *f)
 
     if (f->state != 0 && f->charId != -1) {
         c = cm_FindFighter(f->charId);
-        ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_CheerAction, 5, 0x2e, 1);
+        ev = ch_AddActionCB(c->scene, cm_CheerAction, 5, 0x2e, 1);
         ev->cheer.fighter = c;
         strcpy(ev->u.name, "gestik/jubeln");
     }
@@ -4405,7 +4405,7 @@ void cm_FightSlotPickUp(CMCUTENTRY *f)
         o = d3_FindObject(0, 0x40, 0, f->dummy);
         if (o != 0) {
             ((AIOBJ *)o->owner)->fightSide = side->id;
-            ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_PickUpAction, 5, 0x2e, 1);
+            ev = ch_AddActionCB(c->scene, cm_PickUpAction, 5, 0x2e, 1);
             ev->pickUp.fighter = c;
             ev->pickUp.object = o;
             strcpy(ev->u.name, "spezial/einhaendig_vom_boden_nehmen");
@@ -4424,12 +4424,12 @@ void cm_FightSlotPutDown(CMCUTENTRY *f)
         c = cm_FindFighter(f->charId);
         ch_StopActions(c->scene);
         d3_FindObject(0, 0x40, 0, f->dummy);
-        o = (D3OBJECT *)c->v1ac;
+        o = c->fightWare;
         if (o != 0) {
             body = c->scene->obj;
             d3_SetWorldPosRot(o, &body->pos, &body->matrix);
             d3if_Show(o, 1);
-            c->v1ac = 0;
+            c->fightWare = 0;
         }
         a = ch_AddAction(c->scene, 0x2e, 1);
         strcpy(a->u.name, "spezial/einhaendig_vom_boden_nehmen");
@@ -4536,7 +4536,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
     }
     if (!(k->id == 0x154 || k->id == 0x156 || k->id == 0x158 || k->id == 0x16e || k->id == 0x172 || k->id == 0 ||
           k->id == 0x176) ||
-        !(cm_CharObjDistXZ(c, (char *)g->scene->obj) > k->range)) {
+        !(cm_CharObjDistXZ(c, g->scene->obj) > k->range)) {
         if (c->scene->actions != 0)
             return -1;
         r = util_Random(0xff);

@@ -2698,7 +2698,7 @@ int cm_ExCreateBuilding(G17MSG *m, G17STAT *s)
         if (k >= 0x300)
             return 1;
     }
-    b = (AIBLD *)gm_CreateBuilding(m->build.kind, k);
+    b = gm_CreateBuilding(m->build.kind, k);
     if (b == 0)
         return 1;
     cm_LastBuildingId = b->id;
@@ -5543,7 +5543,7 @@ int cm_ExCreateGeb(G17MSG *m, G17STAT *s)
         return 1;
     if (net_Conn.s != -1)
         ai_NextObjectId = m->geb.objectId;
-    b = (AIBLD *)gm_CreateBuilding(m->geb.kind, c->id);
+    b = gm_CreateBuilding(m->geb.kind, c->id);
     if (b == 0)
         return 1;
     cm_LastBuildingId = b->id;

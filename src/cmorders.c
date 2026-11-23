@@ -263,9 +263,9 @@ void cm_RunCutOrders(CMCUTINFO *rec)
             if (k->id != 0x174) {
                 if (k->id == 0x176) {
                     if (x != 0) {
-                        if (cm_CharObjDistXZ(c, (char *)x->scene->obj) > k->range)
+                        if (cm_CharObjDistXZ(c, x->scene->obj) > k->range)
                             b = 0;
-                        if (p->b0c == 0 && cm_CharObjDistXZ(c, (char *)x->scene->obj) < k->range * 0.1)
+                        if (p->b0c == 0 && cm_CharObjDistXZ(c, x->scene->obj) < k->range * 0.1)
                             b = 0;
                     } else {
                         if (cm_CharCellDistXZ(c, p->x, p->z) > k->range)
@@ -274,7 +274,7 @@ void cm_RunCutOrders(CMCUTINFO *rec)
                             b = 0;
                     }
                 } else if (x != 0) {
-                    if (cm_CharObjDistXZ(c, (char *)x->scene->obj) > k->range)
+                    if (cm_CharObjDistXZ(c, x->scene->obj) > k->range)
                         b = 0;
                 } else if (cm_CharCellDistXZ(c, p->x, p->z) > k->range)
                     b = 0;

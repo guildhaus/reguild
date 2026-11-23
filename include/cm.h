@@ -135,7 +135,7 @@ int he_IsMessageKindFiltered(int id);                                           
 struct AIJOB *he_CreateEvent(struct AIMSG *msg);                                                   /* 0x53e040, AIMSG * */
 struct AIJOB *he_FindEvent(int n, ...);                                                  /* 0x53e400, ai.h: AIJOB * */
 extern int ai_NextObjectId;                /* 0x61a654 */
-unsigned char * gm_CreateBuilding(unsigned char kind, unsigned short owner);                    /* 0x501580 */
+struct AIBLD *gm_CreateBuilding(unsigned char kind, unsigned short owner);                    /* 0x501580 */
 struct AIBLD; unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, struct AIBLD *a5, unsigned a6, int a7, int a8); /* 0x507690 */
 struct AIFIN; struct AIFIN *gm_PlayerRecord(struct AICHAR *ch);                                       /* 0x506430 */
 unsigned gm_TakeOverCharacter(int a, int b);                                                  /* 0x5064d0 */
@@ -470,7 +470,7 @@ int cm_CellUsable(int x, int y);  /* 0x4cdfe0 */
 int cm_FindNearCell(int a, int b, int *ox, int *oy);  /* 0x4ce040 */
 struct AICHAR *cm_FindFighter(int id);  /* 0x4ce130 */
 int ai_LedSelectBits(int idx, struct AICHAR *c);  /* 0x4ce170 */
-float cm_CharObjDistXZ(struct AICHAR *c, char *o);  /* 0x4ce1b0 */
+float cm_CharObjDistXZ(struct AICHAR *c, struct D3OBJECT *o);  /* 0x4ce1b0 */
 float cm_CharCellDistXZ(struct AICHAR *c, int x, int y);  /* 0x4ce200 */
 int cm_OtherBuilding(struct AICHAR *a, struct AICHAR *b);  /* 0x4ce270 */
 struct CMBOMB *cm_LayBomb(struct D3VECTOR *p);  /* 0x4ce290 */
@@ -504,7 +504,7 @@ unsigned int cm_Random(unsigned int n);  /* 0x4e52f0, a random number below n */
 extern struct AICHAR *cm_FightAttacker;  /* 0x6f0cec, the attacking side's leader */
 extern struct SBBANK *cm_BombSounds;  /* 0x6f0d14 */
 
-int cm_ObjectOwner(char *c);  /* 0x4ceb70 */
+void *cm_ObjectOwner(struct D3OBJECT *c);  /* 0x4ceb70 */
 void cm_WaitEventStop(int id);  /* 0x4ceb80 */
 void cm_OpenCharInfoWin(struct CMCUTINFO *a, struct AICHAR *c);  /* 0x4cec30 */
 void cm_UpdateCharInfoWins(struct CMCUTINFO *a);  /* 0x4ced80 */
@@ -668,10 +668,10 @@ int cm_CheckDeath(struct AICHAR *c);  /* 0x4d3390 */
 struct CHACTION * ch_AddActionCB(struct CHARACTER *ch, void (*func2)(struct CHACTION *), unsigned char frame, unsigned int type, ...); /* 0x40b400, ch.h (CHACTFUNC func2; cm.c calls it through ch_AddActionCBK) */
 
 void cm_HitAction(struct CHACTION *a);  /* 0x4d3550 */
-void cm_LayBombAction(char *ev);  /* 0x4d3980 */
-void cm_ThrowBombAction(char *ev);  /* 0x4d3a30 */
-void cm_CheerAction(char *ev);  /* 0x4d3ac0 */
-void cm_PickUpAction(char *ev);  /* 0x4d3ae0 */
+void cm_LayBombAction(struct CHACTION *ev);  /* 0x4d3980 */
+void cm_ThrowBombAction(struct CHACTION *ev);  /* 0x4d3a30 */
+void cm_CheerAction(struct CHACTION *ev);  /* 0x4d3ac0 */
+void cm_PickUpAction(struct CHACTION *ev);  /* 0x4d3ae0 */
 struct AICHAR *cm_CheckFightWinner(G28REC *rec);  /* 0x4d3b30 */
 int cm_LootStock(AIBLD *a, AIBLD *b, struct AICHAR *d, struct AICHAR *t);  /* 0x4d3d10 */
 int cm_FightRole(struct AIBLD *b);  /* 0x4d4050 */

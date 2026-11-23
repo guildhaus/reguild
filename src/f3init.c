@@ -414,7 +414,7 @@ void init_AllocSceneBuilding(D3OBJECT *o)
                    kind is a register value (movsx ecx, byte ptr [ebp+0x4b] / cmp ecx,2), which a single
                    kind compare folds into cmp byte ptr [ebp+0x4b],2 */
                 if (kind == 2 && id == INIT_KONTOR_BUILDING) {
-                    b = (AIBLD *)gm_CreateBuilding(INIT_KONTOR_BUILDING, 0xffff);
+                    b = gm_CreateBuilding(INIT_KONTOR_BUILDING, 0xffff);
                     u = strrchr(o->name, '_') + 1;
                     strcpy(tail, u);
                     for (i = 1; i < 4; i++) {
@@ -427,7 +427,7 @@ void init_AllocSceneBuilding(D3OBJECT *o)
                         }
                     }
                 } else
-                    b = (AIBLD *)gm_CreateBuilding(id, 0xffff);
+                    b = gm_CreateBuilding(id, 0xffff);
                 if (b != 0) {
                     sprintf(buf, "f3_init:Geb\xe4ude des Typs %s allokiert", txt_Ptrs[TXT_BUILDING_NAMES + (id * 0xe - 2)]);
                     b->object = o;
@@ -2458,7 +2458,7 @@ void init_RecreateQuadTree(void)
 
 void init_NameBuildings(void)
 {
-    unsigned char *b;
+    AIBLD *b;
     char names[0xc][0x40];
     int cnt, i, j;
     char *u, *src;
@@ -2466,25 +2466,25 @@ void init_NameBuildings(void)
     char err[0x200];            /* the "Building name too long" text handed to err_Message */
     char text[0x200];           /* the same text of the first (dead) check: the original formats it and drops it */
     unsigned r;
-    char *bl;
+    AIBLD *bl;
 
-    b = (unsigned char *)gm_BuildQuery(1, 6);
+    b = gm_BuildQuery(1, 6);
     while (b != 0) {
-        if (ai_BTypes[*b].kind != 0x1c)
-            b[5] = ch_EmptyName[0];
-        b = (unsigned char *)gm_BuildNext();
+        if (ai_BTypes[b->type].kind != 0x1c)
+            b->name[0] = ch_EmptyName[0];
+        b = gm_BuildNext();
     }
-    for (b = (unsigned char *)gm_BuildQuery(1, 6); b != 0; b = (unsigned char *)gm_BuildNext()) {
-        if (ai_BTypes[*b].kind != 0x1c) {
+    for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
+        if (ai_BTypes[b->type].kind != 0x1c) {
             cnt = 0;
-            ((AIBLD *)b)->name[0] = ch_EmptyName[0];
+            b->name[0] = ch_EmptyName[0];
             for (i = 0; i < 0xc; i++) {
-                src = txt_Ptrs[TXT_BUILDING_NAMES + (i + *b * 0xe)];
+                src = txt_Ptrs[TXT_BUILDING_NAMES + (i + b->type * 0xe)];
                 if (*src != 0) {
                     strcpy(one, src);
-                    bl = (char *)ai_Blds;
-                    for (j = 0; j < 0x100; j++, bl += 0xa9) {
-                        if (*bl != 0 && strcmp(bl + 5, one) == 0)
+                    bl = ai_Blds;
+                    for (j = 0; j < 0x100; j++, bl++) {
+                        if (bl->type != 0 && strcmp(bl->name, one) == 0)
                             break;
                     }
                     if (j < 0x100)
@@ -2499,7 +2499,7 @@ void init_NameBuildings(void)
                 r = util_Random((unsigned char)cnt);
                 u = names[r & 0xffff];
                 if (strlen(u) < 0x20)
-                    strcpy(((AIBLD *)b)->name, u);
+                    strcpy(b->name, u);
                 else {
                     sprintf(err, "Building name too long: %s", u);
                     err_Message(err);

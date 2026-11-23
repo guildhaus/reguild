@@ -109,7 +109,7 @@ void gm_SetJob(int i, unsigned n);  /* 0x504790 */
 void gm_ShuffledBytes(unsigned char n, unsigned char *out);  /* 0x505be0 */
 int gm_FreeBuilding(struct AIBLD *b);  /* 0x5012e0 */
 int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);  /* 0x503480 */
-unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own);  /* 0x501580 */
+struct AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own);  /* 0x501580 */
 void gm_StockBuildingObjects(struct AIBLD *p);  /* 0x501400, stocks a new building p with the objects its building kind needs */
 void gm_SetCapacities(struct AIBLD *p);  /* 0x5014b0, sets the capacities of the objects of building p from its kind record */
 extern int gm_AllowAll;  /* 0x6f2448 */

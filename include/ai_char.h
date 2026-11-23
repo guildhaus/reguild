@@ -133,9 +133,10 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
         int donated;                    /* 0x1ac, the money the character gave the church: ai_IndulgenceWindow adds the
                                            price (cm_AddFieldValues 0x1ac) and shows it (text 0x1964), gm_DonationRank
                                            ranks the characters by it */
-        int v1ac;                       /* 0x1ac, as cmfight.c reads it: a scene object of the fighter (cm.c 0x4d1xxx puts
-                                           it at the body, shows it and clears it; the fighter copy cm_AddFighter starts
-                                           with 0) */
+        int v1ac;                       /* 0x1ac, the word ls_WriteCharacters saves */
+        struct D3OBJECT *fightWare;     /* 0x1ac, in a fight: the ware the fighter picked up and carries (cm_PickUpAction
+                                           sets it, a fallen fighter's is put at the body, shown and cleared; the fighter
+                                           copy cm_AddFighter starts with 0) */
     };
     unsigned char b1b0;                 /* 0x1b0, saved and loaded (ls_WriteCharacters); no reader read yet */
     unsigned char heldRounds;           /* 0x1b1, rounds the character is held: message 0x5b (cm.c 0x4ccb10) adds to it, each
