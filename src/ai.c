@@ -4067,6 +4067,8 @@ void ai_BuyUpgrade(AICHAR *ch)
         }
     }
     if (!ret) {
+        /* @original why: the second pass resets first to 0 and then tests first == 0xfd (the first pass tests
+           != 0xfd), so its gm_Query branch runs only after a type 2 / 6 slot good whose id is 0xfd */
         i = 0;
         first = 0;
         for (; i < bt->nslots; i++) {
@@ -4527,6 +4529,8 @@ int ai_CheckFreeStaff(AICHAR *ch)
     if (found && util_Random(0x80) < 0x60)
         return 0;
     if (!found) {
+        /* @original why: the original indexes with the search loop's counter here, which has run out to 768
+           (one past ai_Chars) when nothing was found; the master's own skills (c->sk81..) were likely meant */
         if (((float)ai_Chars[i].sk81 < 252.0f || (float)ai_Chars[i].sk82 < 252.0f ||
              (float)ai_Chars[i].sk84 < 252.0f) && util_Random(0x80) > 0x20)
             return 0;
