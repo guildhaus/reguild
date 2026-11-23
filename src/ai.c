@@ -5488,9 +5488,9 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
                     break;
             }
             if (!job) {
-                memset(&msg, 0, sizeof(msg));
                 nsell = 0;
                 nbuy = 0;
+                memset(&msg, 0, sizeof(msg));
                 if (ai_WorkLoad() > ai_WorkLimit())
                     msg.deferTrade = 1;
                 for (k = 0; k < 3; k++) {
@@ -5606,9 +5606,7 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
                         lim = gm_ListStock(market, it);
                         for (j = 0; stA.amount[i] && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == stA.item[i]) {
-                                n = stA.amount[i];
-                                if (lim < n)
-                                    n = lim;
+                                n = min(lim, stA.amount[i]);
                                 sprintf(buf, SELL_FMT, market->objId, b->objId, stA.item[i], n, ai_OwnPlayer, 0);
                                 cm_SendExSellObject(market->objId, b->objId, stA.item[i], n, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = stA.item[i];
