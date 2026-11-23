@@ -7286,9 +7286,58 @@ the bytes no portable form gives.
   CHACTCB, the callbacks taking `char *ev`): give the callbacks the slot's parameter and drop the casts.
 - Commit-message slips of the thirty-second pass: d4b27a1d names "ai_RentGraveSelect" for ai_GraveRentContact.
 
+- **One view over the records of several event kinds** (thirty-third pass, ahm.h's AHMRESEARCH: an int `amount` at +0xb4
+  where AIJOB's research member has the float ahmResearchProgress): read the original's loads per kind before calling a
+  type wrong. ahm_ResearchState fild's +0xb4 / +0xb8 for the event 0x95 (AIJOB.recipeLeft / recipeTotal) and +0xb8 /
+  +0xbc for 0x96 / 0x97 (ahmResearchAmount / Start); the float at +0xb4 is 0x96 / 0x97's own word, never read there.
+  Both types were right: the view goes for the kinds' AIJOB members, read by the case that has the kind.
+- **A handler whose parameter is `int *p` aliased `T *m = (T *)p`** (ahm.c's order handlers, he_FreeGfxInfo,
+  gv_OrderBury, gm_ClockToDate / gm_Season, gm_TitlePeriodServed, gm_CollectCarried): the parameter takes the record and
+  the alias goes; `p[2]` is the field at +8 (m->id). Same code everywhere (the alias was a copy VC6 folded).
+- **An int table of records with an initialiser** (f3gmt.c's `int gm_DefaultStock[0xaa0]`, 0x55 GMSTOCK records):
+  generate the record initialiser (p33/genstock2.py); an anonymous union whose initialised member is not the first
+  takes that member first (GMSTOCK lists groups before demandIsStock), and the union's braces hold the array's:
+  `{ { { 18, { 0 }, 12.0f }, .. } }` (one pair fewer is C2078). Trailing zero fields are left out.
+- **One record, several unit copies and a view** (GMCARRY / GMCARRYENTRY in f3gm.c and f3gmt.c, main.c's MAINCARRY):
+  the record goes into the shared header (f3gm_carry.h) with the view's member names where the view knew more
+  (goods[9] of {good, amount}); a prototype in another header names `struct T;` at file scope first (rmsg.h's
+  `struct GMDATE;`: a tag first seen inside a prototype has prototype scope, dcp check M6 "conflicting types").
+- **A local array of a record's size** (main.c / sv.c's `char date[12]`, sv.c's 12-byte struct, io_text.c's b / w
+  union, rmsg.c's `unsigned char d[10]`, he.c's `int cmd[3]` / `int arg[3]` requests): the record (GMDATE, 10 bytes;
+  G17TABLEMSG); the frames and code stayed the same.
+- **Index words kept in pointer slots while a record is saved or loaded** (ls.c: CHACTION.ch / prev / next, G17MSG.prev
+  / next, AICHAR.scene): an int member in an anonymous union over the pointer (chIdx, prevIdx, nextIdx, sceneId), as
+  GMCARRYREC.ref / refId; the save / load code reads and writes the index member, LS_R / LS_W name it. Port-side: those
+  are 4-byte ids in pointer words of saved records.
+- **A found record returned through a parameter's own slot** (gm_ObjectOwnerChar / gm_ObjectBuildingOwner:
+  `gm_FindById(&b, 0, (AICHAR **)&o, ..)`, `return (AICHAR *)o;`): a local `AICHAR *c` compiles the same (dcp try: =
+  control; VC6 packs it into the dead parameter slot). ai_ExecHandleGrave's AGARG reuse stays settled (measured there).
+- **A char-array datum read as a record table** (`char d3_ClipInfo[64][0x68]`, `(D3CLIPINFO *)d3_ClipInfo[k]`): the
+  record array, `&d3_ClipInfo[k]` (the `void *` stores that took the array's decay take the address too); a reader
+  that walks a longer record of the same head (D3MIRPLANES) keeps its own local of the table's type.
+- **A bitfield view whose split differs from the record's** (d3_mir.c's D3MIRBITS 6 / 1 / 1 over objectFlags, beside
+  D3OBJFLAGBITS' eight single bits): the store through the single bit compiles otherwise (d3_MirDrawObject byte ->
+  shape); the view's struct becomes a member of the record's union (mirBits) and the cast goes. Measure each.
+- **A function or datum that holds a record as `char *` / `short *` / int** (gm_ClassTreasury, gv_GetEffect,
+  gm_SpawnCharacter, gm_FindFreeBuilding, gv_AllocAvatar, the tutorial chain builders' `return (int)head;`,
+  cm_FightWinner): the record pointer; the callers' casts and the unused int copies of the prototypes in other units
+  go (a declaration-set shift, accepted).
+- **A base snapshot taken while the tree is dirty is the dirty build**: `dcp disasm --ours` after a `git stash pop`
+  compiles the current sources, so p33/rebase.sh only on a clean tree (after a commit).
+- **The proven-fall promote, as used in this pass**: when a sensitive function fell by a tie-break in an earlier commit
+  and the next group changes its unit (dcp check: `debt M1 .. its unit changed, uncommitted`), `git stash`, `dcp build
+  --force`, check, `dcp promote`, commit the ledger, `git stash pop`, rebuild; compare the function's code before /
+  after by hand (its ledger grade was byte, so ou.sh did not hold it).
+- Kept as (c) in this pass: d3fl_BlendC's `(D3FLWEIGHTS *)w` (a byte weight map read as 4-byte records with the byte
+  stride d3fl_SrcStep, through the D3FLBLEND slot the MMX twin shares), d3fl_MakeJitter's `(D3FLUV *)out` (d3fl_Jitter
+  is the float table D3FLPOLY.uv points into by six-float runs), the four `(G8SETTAIL *)slots` (a setting's slot table,
+  its first member, converted to the tail record), and as generic by kind: init_HookObject's `void *p` (a building
+  record or an object), cm_ObjectOwner's owner, CHACTION.args, the evt VM's token value and byte stack, the BGF parse
+  table's words and target record.
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the thirty-second portability pass (the passes since eb11a8b9). VC6 still compiles
+the thirty-third portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7364,15 +7413,29 @@ GMHEAD tables 17, EVTSCRIPT.tag and the script / gypsy holders 21, the vectors a
 init_NameBuildings / cmfight.c's holders 16); partial views 3 -> 1 (D2PICHDR11). VC6 warnings 175 -> 175, (int)&x 109 ->
 109, pun macros 3 -> 3. Debts 0 -> 0.
 
+Done in the thirty-third pass (scratchpad p33): (b) casts 123 -> 39 (casts 370 -> 303): ahm.c's AHMRESEARCH / AHMGOOD
+views and the AHMORDER handler aliases 11 (AHMRESEARCH was one view over the events 0x95 and 0x96 / 0x97: both types
+right), f3gmt.c 14 (GMDATE / AITIME / GMCARRY out parameters, gm_DefaultStock a GMSTOCK table, gm_FindFreeBuilding /
+gv_AllocAvatar, the owner lookups' local), ls.c's save indices 8 (union members chIdx / prevIdx / nextIdx / sceneId),
+d3_ClipInfo / D3FLTILE.bp / mirBits 8, the record-returning functions and views (gm_ClassTreasury, gv_GetEffect, the
+tutorial builders, LCMAPWIN parameters, G16CHARCLICK, G8TABLE = G17TABLEMSG) 20, gm_SpawnCharacter / cm_FightWinner /
+he_FreeGfxInfo / gv_OrderBury 6; 17 moved to (c) after reading them (the kept list below). (c) 247 -> 264. VC6 warnings
+175 -> 175, (int)&x 109 -> 109, pun macros 3 -> 3, partial views 1 -> 1 (D2PICHDR11: its one reader, d2.c's set17,
+reads only w / h; its leading bytes stay unnamed). Debts 0 -> 0. The cleanup is not finished: the 39 (b) casts below
+remain (no view and no record layout among them; each is a holder to type, d3s.c's three a view merge).
+
 Not done (none of it is a view; a further pass's work if wanted):
-- Casts of a variable to an upper-case pointer type at its use (p32/casts.py, 370 casts, classification in
-  p32/classification.txt): 247 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
-  data / user / owner / context slots 37, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40) and 123 (b),
-  holders still typed otherwise, all small: f3gmt.c 14 (AIBLD / GMSTOCK / GMDATE / AICHAR ..), ahm.c 11 (AHMRESEARCH:
-  its amount at +0xb4 is an int where AIJOB's research member reads the float ahmResearchProgress: read the original
-  before merging; AHMORDER aliases of an `int *p`), ls.c 8 (save ids), d3_fl.c 7, and singles of 1 .. 5 per unit
-  (p32/classification.txt lists every holder).
-- d2.h's D2PICHDR11 (a type 0x11 picture, w / h at 0xc) starts with unnamed bytes: name them when a reader shows them.
+- Casts of a variable to an upper-case pointer type at its use (p33/casts.py, 303 casts, classification in
+  p33/classification.txt): 264 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
+  data / user / owner / context slots 37, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40, the
+  generic-by-kind slots and first-member / stride / float-table reads of this pass 17) and 39 (b), holders still typed
+  otherwise, one to five per unit: d3s.c 4 (D3SVERT / D3SPOLY / D3SBUF, views of the shadow mesh's D3VERTEX / D3TRI /
+  D3SURF slots: a view merge), he_b.c 5, f3gm.c 3, grave.c 3, lcmap.c 3, svgrave.c 3 (ai_PermissionBits1d's `char *x`),
+  d3_engine.c 2 (D3UV over a float *uv), and singles in cm, d2 (d2_GetPic's void *), d3_anim (D3ANIMSLOT.attached an
+  int), d3_io_t (D3BASTREAM / D3ANIMDATA), d3_vtx, f3init (init_SceneObjectDestroyCB(int o) under a D3OBJECT * slot),
+  gs, he, lc, lcdom, main (MAINCHARNEW), menu, mission, rt (rt_PickedBuilding), sndc, sv.
+- d2.h's D2PICHDR11 (a type 0x11 picture, w / h at 0xc) starts with unnamed bytes: d2.c's set17 reads only w / h; name
+  them when a reader shows them.
 - d3_fl.h's D3FLPOLY (D3TRI as the floor code sees it) stays a view: its signed char flags are load-bearing (d3fl_Draw).
 - Message payloads copied as bytes into G17MSG.data / cm_LongMsg (memcpy of G17FIELDS, CRIME, CMCUTINFO, RTPOINT,
   CMLOBBYPLAYER) are wire bytes by design; sv.c's activity table addresses a job record by a byte offset
@@ -7381,6 +7444,8 @@ Not done (none of it is a view; a further pass's work if wanted):
 
 What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Byte-offset tables into records: sv_Activities[].valueOff (an AIJOB word per activity).
+- Index words in pointer slots of saved records: CHACTION.chIdx / prevIdx / nextIdx, G17MSG.prevIdx / nextIdx,
+  AICHAR.sceneId (ls.c parks the ids there while it saves or loads; a 64-bit port keeps 4-byte ids beside the pointer).
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
   AIJOB.offerAt is a pack(1) member at 0xc4), G17STAT.value and GMCARRYREC.ref (the id while saved, the pointer at
   run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only), AICHAR.fightWare (the carried
