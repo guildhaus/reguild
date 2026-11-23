@@ -1430,11 +1430,9 @@ city:
         gy = 8;
         best = &ai_Grid[0][0];
         for (j = 0; j < 8; j++) {
-            cell = &ai_Grid[0][j];
-            for (i = 8; i; i--) {
-                if (!best->used || (cell->used && (cell->a >> 3) + cell->b > (best->a >> 3) + best->b))
-                    best = cell;
-                cell += 8;
+            for (i = 0; i < 8; i++) {
+                if (!best->used || (ai_Grid[i][j].used && (ai_Grid[i][j].a >> 3) + ai_Grid[i][j].b > (best->a >> 3) + best->b))
+                    best = &ai_Grid[i][j];
             }
         }
         sel = 0;
@@ -1483,11 +1481,9 @@ city:
         gy = 8;
         best = &ai_Grid[0][0];
         for (j = 0; j < 8; j++) {
-            cell = &ai_Grid[0][j];
-            for (i = 8; i; i--) {
-                if (!best->used || (cell->used && (cell->a >> 3) + cell->b > (best->a >> 3) + best->b))
-                    best = cell;
-                cell += 8;
+            for (i = 0; i < 8; i++) {
+                if (!best->used || (ai_Grid[i][j].used && (ai_Grid[i][j].a >> 3) + ai_Grid[i][j].b > (best->a >> 3) + best->b))
+                    best = &ai_Grid[i][j];
             }
         }
         sel = 0;
