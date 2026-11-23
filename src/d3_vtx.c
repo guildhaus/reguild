@@ -406,14 +406,14 @@ void d3_FrameNormals(D3OBJECT *obj, D3SURF *info, D3ANIMFRAME *f)
    from the corners of the source (no animation) or of the union of the boxes of the key frames in use.
    Returns the corners (0 if the mesh has no vertices). info is a D3SURF (d3_anim.h) here. */
 
-D3VERTEX *d3_GetBoxVerts(D3OBJECT *obj, D3SURF *info, void *unk)
+D3VERTEX *d3_GetBoxVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *mat)
 {
 /* d = s * m for a point (row vector, w = 1); the parenthesised components give VC6's operand order */
 #define XFORM(d, s, m) ((d)->x = ((s)->x) * (m)->_11 + ((s)->y) * (m)->_21 + ((s)->z) * (m)->_31 + (m)->_41, \
                         (d)->y = ((s)->x) * (m)->_12 + ((s)->y) * (m)->_22 + ((s)->z) * (m)->_32 + (m)->_42, \
                         (d)->z = ((s)->x) * (m)->_13 + ((s)->y) * (m)->_23 + ((s)->z) * (m)->_33 + (m)->_43)
     D3SURF *ctl = info;
-    D3MATRIX *m = (D3MATRIX *)unk;
+    D3MATRIX *m = mat;
     D3VERTEX *v;
     D3VECTOR4 mn, mx;
     D3VECTOR4 c[8];

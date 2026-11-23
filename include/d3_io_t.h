@@ -72,7 +72,7 @@ struct D3OBJECT; struct D3SURF; void d3_TransformNormals(struct D3OBJECT *obj, s
 extern char d3_AnimDir[];                                                       /* 0x5fbf80, "animations/" */
 extern volatile unsigned long d3_Time;                                          /* 0x6333cc, milliseconds (tb.c) */
 
-struct D3BASTREAM *d3_LoadBinaryAnimStream(char *path, char *name, char relative);   /* 0x44f8c0, d3_io_b.c */
+struct D3ANIMDATA *d3_LoadBinaryAnimStream(char *path, char *name, char relative);   /* 0x44f8c0, d3_io_b.c */
 
 D3BGF *d3io_LoadObjectFile(char *name, char *file);                           /* 0x44df40 */
 D3BGF *d3io_LoadObject(char *a, char *b);                                     /* 0x44e080 */

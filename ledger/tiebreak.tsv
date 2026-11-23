@@ -1052,7 +1052,7 @@ exe	0x004591a0	d3_AnimBlendWeights	unk_4591a0	f1a14e930c55c886	no	byte	control=b
 exe	0x00459300	d3_TransformVerts	d3_vtx	09bc0972dca9c589	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004598d0	d3_TransformNormals	unk_4591a0	88aafe0ff71f0e6a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00459980	d3_FrameNormals	unk_4591a0	381362ab9094e1d9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00459ab0	d3_GetBoxVerts	d3_vtx	e5ebc874c9a6c4af	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	aa6832b82b10810e
+exe	0x00459ab0	d3_GetBoxVerts	d3_vtx	a0bb9f77e9822dd6	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	31a2f022621f937a
 exe	0x00459d80	d3s_RightEdge	d3s	8d0eca466d845dc6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00459e50	d3s_LeftEdgeColor	d3s	c0b8ce1ef3adb1f4	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00459f90	d3s_MarkSpan	d3s	d6dbdcc4b2d46806	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

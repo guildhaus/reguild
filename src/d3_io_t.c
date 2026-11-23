@@ -834,7 +834,7 @@ D3ANIMDATA *d3_LoadAnimStream(char *name, char *file, char unk)
         sprintf(buf, "d3_LoadAnimStream(): animation already in stock: %s", name);
         return a;
     }
-    a = (D3ANIMDATA *)d3_LoadBinaryAnimStream(buf, file, unk);
+    a = d3_LoadBinaryAnimStream(buf, file, unk);
     if (a != 0) {
         a->prev = d3anim_Tail.prev;
         d3anim_Tail.prev = a;

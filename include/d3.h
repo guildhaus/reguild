@@ -309,7 +309,7 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
     unsigned char fog;              /* 0x4f */
 } D3VERTEX;
 
-D3VERTEX *d3_GetBoxVerts(D3OBJECT *obj, struct D3SURF *info, void *unk);           /* 0x459ab0 */
+D3VERTEX *d3_GetBoxVerts(D3OBJECT *obj, struct D3SURF *info, D3MATRIX *m);           /* 0x459ab0 */
 
 typedef struct D3TRI {              /* 0x28 bytes, a triangle of a mesh (D3SURF.tris), a particle or a mirror copy */
     D3VERTEX *v[3];
@@ -475,7 +475,7 @@ typedef struct D3ANIMSLOT {         /* 0x7c bytes */
     D3VECTOR attachPos;             /* 0x20, the attached object's position when the attachment started
                                        (d3anim_StepObject adds it to the attachment point) */
     char pad2c[0x4];
-    int attached;                   /* 0x30, the object attached to the bone, 0: none */
+    struct D3OBJECT *attached;      /* 0x30, the object attached to the bone, 0: none */
     int fadeStart;                  /* 0x34, fade-in start time (ms) */
     int fadeEnd;                    /* 0x38, fade-in end time */
     int timeout;                    /* 0x3c, how long the animation may run (ms), -1: no limit */
@@ -595,7 +595,7 @@ struct D3BGF {                      /* 0x20c bytes, a loaded mesh ("d3_io:LoadAG
     void (*Release)(D3BGF *m);      /* 0x1e8, the stock object's callbacks (d3io_LoadObjectFile): d3iot_DeleteStockObject */
     void (*TransformNormals)(struct D3OBJECT *obj, struct D3SURF *info);                        /* 0x1ec, the normals of a mesh without key frames */
     void (*Transform)(struct D3OBJECT *obj, struct D3SURF *info, struct D3MATRIX *m);           /* 0x1f0 */
-    struct D3VERTEX *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, void *unk);       /* 0x1f4 */
+    struct D3VERTEX *(*GetBox)(struct D3OBJECT *obj, struct D3SURF *info, struct D3MATRIX *m);       /* 0x1f4 */
     float (*GetRadius)(struct D3OBJECT *obj, struct D3SURF *info);                                     /* 0x1f8 */
     D3BGF *next;                    /* 0x1fc, the stock object list: towards d3_StockListEnd */
     D3BGF *prev;                    /* 0x200, towards the head sentinel d3_StockListStart */

@@ -648,7 +648,7 @@ normalize:
                                 s->attachFirst = s->attachLast = s->attachBone = -1;
                             }
                         } else {
-                            D3OBJECT *att = (D3OBJECT *)s->attached;
+                            D3OBJECT *att = s->attached;
                             D3VECTOR4 v, w, out;
 
                             if (!(s->flags.b[8] & 0x40)) {
@@ -1481,7 +1481,8 @@ D3ANIMSLOT *d3anim_StartAnim(D3SURF *ctl, char *name, D3ANIMFLAGS f)
             if (f.b[0] == 1)
                 s->flags.b[1] |= 0x10;
             s->attachFirst = s->attachLast = s->attachBone = -1;
-            s->fadeStart = s->fadeEnd = s->attached = 0;
+            s->attached = 0;
+            s->fadeStart = s->fadeEnd = 0;
             s->weight = s->fadeFrom = s->fadeTo = 1.0f;
             s->lastSub = 0;
             if (data->relative)

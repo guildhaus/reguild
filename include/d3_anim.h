@@ -7,7 +7,7 @@ struct D3VECTOR4;
 
 typedef struct D3ANIMFRAME {        /* 0xc0 bytes, one key frame of a vertex animation */
     int time;                       /* 0x00, start time of the frame (ch_CheckAniMorph blends over half the gap) */
-    int count;                      /* 0x04 */
+    int count;                      /* 0x04, the time to the next frame (* 3 after loading) */
     D3VECTOR base;                  /* 0x08, packed positions: base + byte * scale */
     D3VECTOR scale;                 /* 0x14 */
     D3VECTOR move;                  /* 0x20, root motion of the whole segment (position) */
@@ -18,24 +18,31 @@ typedef struct D3ANIMFRAME {        /* 0xc0 bytes, one key frame of a vertex ani
     struct { D3VECTOR pos, rot; } bone[4];  /* 0x54, skeleton animations: bone transforms */
     unsigned char *packed;          /* 0xb4, 3 bytes per vertex */
     unsigned char *normals;         /* 0xb8, 3 bytes per vertex */
-    D3VECTOR *pos;                  /* 0xbc, 12 bytes per vertex */
+    D3VECTOR *pos;                  /* 0xbc, 12 bytes per vertex (the loader's points, freed after packing) */
 } D3ANIMFRAME;
 
 typedef struct D3ANIMDATA D3ANIMDATA;
-struct D3ANIMDATA {                 /* 0x16c bytes, cached animation (LRU list) */
-    char name[0x140];
+struct D3ANIMDATA {                 /* 0x16c bytes, cached animation (LRU list); d3_LoadBinaryAnimStream reads a
+                                       stream file ("tp_veranimstream") into it */
+    union {
+        char name[0x140];           /* the name in the first 0x40 bytes, the bone names after it (D3ANIM_BONENAME) */
+        struct {
+            char namePad[0x40];
+            char boneNames[4][0x40];    /* 0x040, the skeleton's bone names (the stream's link names, tag 0x38) */
+        };
+    };
     int nverts;                     /* 0x140 */
     int nbones;                     /* 0x144, skeleton animations: bone names follow the name */
     int nframes;                    /* 0x148 */
     int refs;                       /* 0x14c */
-    int first;                      /* 0x150, first frame of the animation range (D3BASTREAM.first) */
-    int last;                       /* 0x154, last frame, -1: nframes (D3BASTREAM.last) */
+    int first;                      /* 0x150, first frame of the animation range (the stream's chunks 0x29 / 0x2a, d3_LoadBinaryAnimStream) */
+    int last;                       /* 0x154, last frame, -1: nframes */
     unsigned int lastuse;           /* 0x158, d3_FrameCount at the last use */
     D3ANIMFRAME *frames;            /* 0x15c */
     D3ANIMDATA *next;               /* 0x160 */
     D3ANIMDATA *prev;               /* 0x164 */
     signed char normals;            /* 0x168, normals calculated */
-    signed char relative;           /* 0x169, points relative to the frame position (D3BASTREAM.relative) */
+    signed char relative;           /* 0x169, points relative to the frame position (d3_LoadBinaryAnimStream's relative) */
     char pad16a[0x2];
 };
 

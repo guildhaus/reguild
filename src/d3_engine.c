@@ -1052,8 +1052,12 @@ void d3_DrawSortedSW(void)
         p = t->v[0];
         if (!((p->flags | t->v[1]->flags | t->v[2]->flags) & 0x3f) && !clip->mirror) {
             if (wrap) {
-                ((D3UV *)uv)[0] = t->v[0]->uv;
-                ((D3UV *)uv)[1] = t->v[1]->uv;
+                p = t->v[0];
+                uv[0] = p->tu;
+                uv[1] = p->tv;
+                p = t->v[1];
+                uv[2] = p->tu;
+                uv[3] = p->tv;
                 p = t->v[2];
                 uv[4] = p->tu;
                 uv[5] = p->tv;
