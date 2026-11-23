@@ -1451,7 +1451,7 @@ exe	0x0047dd00	ai_WorkLimit	ai	byte	readable
 exe	0x0047dd30	ai_WorkLoad	ai	byte	readable		
 exe	0x0047dd70	ai_WorksForMaster	ai	byte	readable		
 exe	0x0047dd90	ai_IsLocalMaster	ai	byte	readable		
-exe	0x0047ddf0	ai_FindPartner	ai	draft	readable	deep	
+exe	0x0047ddf0	ai_FindPartner	ai	shape	readable	deep	
 exe	0x0047e360	ai_MasterUpdate	ai	byte	readable		
 exe	0x0047e560	ai_UpdateCharacters	ai	byte	readable		
 exe	0x0047e7f0	ai_CanAct	ai	byte	readable		
@@ -1461,19 +1461,19 @@ exe	0x0047e940	ai_ResetJob	ai	byte	readable
 exe	0x0047e990	ai_RunMasterEvaluation	ai	byte	readable		
 exe	0x0047ec20	ai_PlanSlots	ai	byte	readable		
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	byte	readable		
-exe	0x0047edb0	ai_EvaluateProduction	ai	draft	readable	deep	
+exe	0x0047edb0	ai_EvaluateProduction	ai	shape	readable	deep	
 exe	0x0047f700	ai_EvaluateProductionFlags	ai	byte	readable		
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep	
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
 exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
-exe	0x00482f00	ai_CalcMeisterRaeuber	ai	shape	readable		
+exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
 exe	0x00483ee0	ai_EndWorkerPose	ai	byte	readable		
 exe	0x00483fc0	ai_EvaluateProductionGraveyard	ai	byte	readable		
-exe	0x00484a60	ai_EvaluateProductionGypsies	ai	draft	readable	deep	
+exe	0x00484a60	ai_EvaluateProductionGypsies	ai	shape	readable	deep	
 exe	0x004854f0	ai_UpdateProduction	ai	byte	readable		
 exe	0x00486190	ai_FillSlotTable	ai	byte	readable		
 exe	0x004864b0	ai_BuildTradeOffers	ai	byte	readable		
