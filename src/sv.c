@@ -2752,7 +2752,7 @@ static const float sv_ZoomPixelsPerUnit = -666.6667f;  /* 0x5eeb78, .rdata: -1 /
 int sv_MouseCamera(void)
 {
     short my;
-    char *cam;
+    D3OBJECT *cam;
     AIFIN *rec;
     float z, f2, ang, lo, hi;
     double k;                       /* the drag scale: the scroll speed option / 16.5 */
@@ -2768,7 +2768,7 @@ int sv_MouseCamera(void)
     if (d3t_CamMoving != 0)
         return 0;
     my = dm_P.y;
-    cam = (char *)d3_Camera;
+    cam = d3_Camera;
     if (dm_L.rhold == 0) {
     chk:
         if (dm_L.ldown != 0 && dm_L.rhold != 0)
@@ -2795,10 +2795,10 @@ int sv_MouseCamera(void)
                 sv_ZoomStartX = dm_P.x;
                 sv_ZoomStartY = my;
                 sv_ZoomStartAngle = sv_CameraAngleFactor;
-                sv_ZoomBaseY = ((D3OBJECT *)cam)->pos.y - ((sv_CameraHeightFar - sv_CameraHeightNear) * sv_ZoomStartHeight + sv_CameraAngleNear);
+                sv_ZoomBaseY = cam->pos.y - ((sv_CameraHeightFar - sv_CameraHeightNear) * sv_ZoomStartHeight + sv_CameraAngleNear);
                 di_MaxY = sv_ZoomStartY - (int)((1.0 - sv_ZoomStartAngle) * sv_ZoomPixelsPerUnit);   /* the drag range of the angle 0 .. 1 at 0.0015 per pixel */
                 di_MinY = sv_ZoomStartY - (int)(-sv_ZoomStartAngle * sv_ZoomPixelsPerUnit);
-                sv_ZoomStartTurn = ((D3OBJECT *)cam)->rotation.y;
+                sv_ZoomStartTurn = cam->rotation.y;
             }
             goto chk;
         }
@@ -2827,22 +2827,22 @@ int sv_MouseCamera(void)
         return 0;
     }
 go:
-    cam = (char *)d3_Camera;
+    cam = d3_Camera;
     if (cam != 0) {
         if (dm_L.rhold != 0 && dm_L.ldown != 0 && sv_ZoomTurnOn != 0) {     /* both buttons: zoom and turn by the drag */
             f2 = ((dm_L.wup - dm_L.wdown) * 5.0f + my - sv_ZoomStartY) * 0.0015f;
             sv_CameraHeightFactor = sv_ZoomStartHeight + f2;
-            zpos.x = ((D3OBJECT *)cam)->pos.x;
-            zpos.y = ((D3OBJECT *)cam)->pos.y;
-            zpos.z = ((D3OBJECT *)cam)->pos.z;
+            zpos.x = cam->pos.x;
+            zpos.y = cam->pos.y;
+            zpos.z = cam->pos.z;
             zpos.y = (sv_CameraHeightFar - sv_CameraHeightNear) * sv_CameraHeightFactor + sv_ZoomBaseY;
             sv_CameraAngleFactor = f2 + sv_ZoomStartAngle;
-            zrot.x = ((D3OBJECT *)cam)->rotation.x;
-            zrot.y = ((D3OBJECT *)cam)->rotation.y;
-            zrot.z = ((D3OBJECT *)cam)->rotation.z;
+            zrot.x = cam->rotation.x;
+            zrot.y = cam->rotation.y;
+            zrot.z = cam->rotation.z;
             zrot.x = (sv_CameraAngleFar - sv_CameraAngleNear) * sv_CameraAngleFactor + sv_CameraAngleNear;
             zrot.y = sv_ZoomStartTurn - (dm_P.x - sv_ZoomStartX) * 0.0035f;
-            if (d3_VecEqual(&((D3OBJECT *)cam)->pos, &zpos.v, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
+            if (d3_VecEqual(&cam->pos, &zpos.v, 0.1f) == 0 || d3_VecEqual(&d3_Camera->rotation, &zrot, 0.001f) == 0) {
                 d3_SetObjectPos(d3_Camera, &zpos.v);
                 d3_SetObjectRot(d3_Camera, &zrot);
                 rec = gm_PlayerRecord(&ai_Chars[ai_PlayerId]);
@@ -2852,7 +2852,7 @@ go:
                 }
             }
         }
-        cam = (char *)d3_Camera;
+        cam = d3_Camera;
         if (cam != 0) {
             if (sv_ZoomTurnOn == 0 && dm_L.wup - dm_L.wdown != 0) {   /* the wheel: the zoom by 0.1 a notch */
                 z = sv_CameraHeightFactor = (dm_L.wup - dm_L.wdown) * 0.1f + sv_CameraHeightFactor;
@@ -2865,7 +2865,7 @@ go:
                     SV_CAMREC(rec);
                 }
             }
-            cam = (char *)d3_Camera;
+            cam = d3_Camera;
             if (cam != 0 && dm_L.rhold != 0 && dm_L.ldown == 0) {    /* the right button alone: drag the map */
                 d3_MatTranspose(&d3_Camera->matrix, &right);
                 k = ai_OptionScrollSpeed * (1.0 / 16.5);
