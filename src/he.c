@@ -12349,8 +12349,8 @@ void he_RunSabotage(AIJOB *e)
             int scene;
             D3COLOR col;
             /* @original the pad word is an int: its 0 stores use the cached zero register */
-            struct { float x, y, z; int w; } a = { -243.0f, -90.0f, 190.0f, 0 };
-            struct { float x, y, z; int w; } dir = { -50.0f, 0, 38.0f, 0 };
+            struct { union { struct { float x, y, z; }; D3VECTOR v; }; int w; } a = { -243.0f, -90.0f, 190.0f, 0 };
+            struct { union { struct { float x, y, z; }; D3VECTOR v; }; int w; } dir = { -50.0f, 0, 38.0f, 0 };
             float scale = 1.0f;
             char dummies[3][0x40] = { "dummy_TUER", "dummy_FAHNE", "dummy_RAUCH_0" };
 
@@ -12389,12 +12389,12 @@ void he_RunSabotage(AIJOB *e)
                 } else {
                     o = d3_FindObject(b->object, 0x100, 0, dummies[util_Random(3)]);
                     if (o != 0)
-                        d3_PointToWorld(o, &o->pos, (D3VECTOR *)&a);
+                        d3_PointToWorld(o, &o->pos, &a.v);
                     else
                         o = d3_FindObject(b->object, 0x100, 0, "dummy_TUER");
                 }
                 if (o != 0 && scene == 0) {
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)&a);
+                    d3_PointToWorld(o, &o->pos, &a.v);
                     a.x = util_Random(0x40) + a.x - 32.0f;
                     a.y = util_Random(0x40) + a.y;
                     a.z = util_Random(0x40) + a.z - 32.0f;
@@ -12402,9 +12402,9 @@ void he_RunSabotage(AIJOB *e)
                     col.r = 0xc0;
                     col.g = 0xc0;
                     col.b = 0xc0;
-                    d3t_CreateSmoke((void *)scene, (D3VECTOR *)&a, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, (D3VECTOR *)&dir, 0x190, 6, col);
-                    d3t_CreateEarth((void *)scene, (D3VECTOR *)&a, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
-                    d3t_CreateExplosion((void *)scene, (D3VECTOR *)&a, (int)(scale * 40.0f), scale * 140.0f, scale * 100.0f, 20.0f, 60.0f, 0x50);
+                    d3t_CreateSmoke((void *)scene, &a.v, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, &dir.v, 0x190, 6, col);
+                    d3t_CreateEarth((void *)scene, &a.v, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
+                    d3t_CreateExplosion((void *)scene, &a.v, (int)(scale * 40.0f), scale * 140.0f, scale * 100.0f, 20.0f, 60.0f, 0x50);
                 }
             }
             e->end = ai_Time;

@@ -7260,7 +7260,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
     D3MATRIX m;
     D3VECTOR4 above;                /* the engine's padded vectors */
     D3VECTOR4 pos;
-    struct { float x, y, z; int w; } pick;  /* the picked point (map_PickScreen fills x / y / z); @original the
+    struct { union { struct { float x, y, z; }; D3VECTOR v; }; int w; } pick;  /* the picked point (map_PickScreen fills x / y / z); @original the
                                                fourth word is cleared with the integer zero (esi), the three
                                                floats with the float zero (ebp): not a float as D3VECTOR4's w */
     D3TEXFLAGS tf;
@@ -7333,7 +7333,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
         }
     }
     do {
-        hit = map_PickScreen(d3_Terrain, dm_L.x, dm_L.y, 30.0f, (D3VECTOR *)&pick);
+        hit = map_PickScreen(d3_Terrain, dm_L.x, dm_L.y, 30.0f, &pick.v);
         if (hit != -1 && model != 0) {
             /* the picked point from the camera's space into the world */
             x = hit & 0xffff;

@@ -527,7 +527,7 @@ int cm_UpdateBombs()
     AICHAR *c;
     CHARACTER *ch;
     D3OBJECT *bo;
-    struct { float x, y, z; int w; } a, b;   /* @original the pad word is an int: its 0 stores use the cached zero register */
+    struct { union { struct { float x, y, z; }; D3VECTOR v; }; int w; } a, b;   /* @original the pad word is an int: its 0 stores use the cached zero register */
     D3COLOR col;
     float dist;
     int i, j, t, amt;
@@ -557,9 +557,9 @@ int cm_UpdateBombs()
         a.x = rec->obj->pos.x;
         a.y = rec->obj->pos.y;
         a.z = rec->obj->pos.z;
-        d3t_CreateSmoke(0, (D3VECTOR *)&a, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, (D3VECTOR *)&b, 0x190, 6, col);
-        d3t_CreateEarth(0, (D3VECTOR *)&a, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
-        d3t_CreateExplosion(0, (D3VECTOR *)&a, 0x1e, 120.0f, 80.0f, 20.0f, 60.0f, 0x3c);
+        d3t_CreateSmoke(0, &a.v, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, &b.v, 0x190, 6, col);
+        d3t_CreateEarth(0, &a.v, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
+        d3t_CreateExplosion(0, &a.v, 0x1e, 120.0f, 80.0f, 20.0f, 60.0f, 0x3c);
         for (j = 0; j < 32; j++) {
             if (ai_SceneChars[j] == 0)
                 continue;
@@ -671,7 +671,7 @@ int cm_UpdateGrenades()
     CMGRENADE *rec;
     AICHAR *c;
     CHARACTER *ch;
-    struct { float x, y, z; int w; } a, b;   /* @original the pad word is an int: its 0 stores use the cached zero register */
+    struct { union { struct { float x, y, z; }; D3VECTOR v; }; int w; } a, b;   /* @original the pad word is an int: its 0 stores use the cached zero register */
     D3COLOR col;
     float dist;
     int i, j, t, amt;
@@ -701,9 +701,9 @@ int cm_UpdateGrenades()
         a.x = rec->obj->pos.x;
         a.y = rec->obj->pos.y;
         a.z = rec->obj->pos.z;
-        d3t_CreateSmoke(0, (D3VECTOR *)&a, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, (D3VECTOR *)&b, 0x190, 6, col);
-        d3t_CreateEarth(0, (D3VECTOR *)&a, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
-        d3t_CreateExplosion(0, (D3VECTOR *)&a, 0x1e, 70.0f, 50.0f, 20.0f, 60.0f, 0x3c);
+        d3t_CreateSmoke(0, &a.v, 0x1e, 15.0f, 50.0f, 100.0f, 150.0f, 140.0f, 35.0f, &b.v, 0x190, 6, col);
+        d3t_CreateEarth(0, &a.v, 0x1e, 5.0f, 2.5f, 1.0f, 3.0f, -3.0f, 4.0f, 7.0f, 8.0f, col);
+        d3t_CreateExplosion(0, &a.v, 0x1e, 70.0f, 50.0f, 20.0f, 60.0f, 0x3c);
         /* @original the cell index reads x through the table and y through rec: written this way VC6 keeps the
            index as one value for both arrays */
         if (d3_Terrain->types[cm_Grenades[i].x + rec->y * d3_Terrain->size] != 0) {
@@ -720,7 +720,7 @@ int cm_UpdateGrenades()
             c = ai_SceneChars[j];
             if (c->health == 0)
                 continue;
-            d3sm_GetVertex(g, rec->x, rec->y, (D3VECTOR *)&a);
+            d3sm_GetVertex(g, rec->x, rec->y, &a.v);
             a.x -= ch->obj->pos.x;
             a.y -= ch->obj->pos.y;
             a.z -= ch->obj->pos.z;
