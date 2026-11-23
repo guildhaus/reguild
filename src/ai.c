@@ -2097,29 +2097,31 @@ void ai_CalcMeisterDiebe(AICHAR *ch) {
       for (job = he_FindEvent(2, 0, 0x40, 3, ch->bld->id); job;
            job = he_NextEvent())
         if (job->targetBld == best->id)
-          goto unfinished;
-      for (job = he_FindEvent(2, 0, 0x3f, 3, ch->bld->id); job;
-           job = he_NextEvent())
-        if (job->targetBld == best->id)
-          goto unfinished;
-      sprintf(buf, "ai_CalcMeisterDiebe(): Meister %s bricht bei '%s' ein",
-              name, best->name);
-      memset(&msg, 0, sizeof(msg));
-      msg.type = 0x3f;
-      msg.to = ai_Chars[ch->bld->owner].netId;
-      msg.fromId = ch->bld->id;
-      msg.time = ai_Time;
-      msg.flags = 1;
-      msg.arg[0] = best->id;
-      msg.arg[1] = ch->bld->id;
-      t = min(n, 8);
-      AI_FILL_IDS(t)
-      if (msg.ids[0] != -1) {
-        cm_SendLongMessage(&msg);
-        ch->target = -1;
+          break;
+      if (!job)
+        for (job = he_FindEvent(2, 0, 0x3f, 3, ch->bld->id); job;
+             job = he_NextEvent())
+          if (job->targetBld == best->id)
+            break;
+      if (!job) {
+        sprintf(buf, "ai_CalcMeisterDiebe(): Meister %s bricht bei '%s' ein",
+                name, best->name);
+        memset(&msg, 0, sizeof(msg));
+        msg.type = 0x3f;
+        msg.to = ai_Chars[ch->bld->owner].netId;
+        msg.fromId = ch->bld->id;
+        msg.time = ai_Time;
+        msg.flags = 1;
+        msg.arg[0] = best->id;
+        msg.arg[1] = ch->bld->id;
+        t = min(n, 8);
+        AI_FILL_IDS(t)
+        if (msg.ids[0] != -1) {
+          cm_SendLongMessage(&msg);
+          ch->target = -1;
+        }
+        return;
       }
-      return;
-    unfinished:
       sprintf(buf,
               "ai_CalcMeisterDiebe(): Meister %s hat aber noch eine Spionage "
               "bei '%s' nicht beendet",
@@ -2129,26 +2131,28 @@ void ai_CalcMeisterDiebe(AICHAR *ch) {
     for (job = he_FindEvent(2, 0, 0x40, 3, ch->bld->id); job;
          job = he_NextEvent())
       if (job->targetBld == best->id)
-        goto spying;
-    for (job = he_FindEvent(2, 0, 0x3f, 3, ch->bld->id); job;
-         job = he_NextEvent())
-      if (job->targetBld == best->id)
-        goto spying;
-    sprintf(buf, "ai_CalcMeisterDiebe(): Meister %s spioniert bei '%s'", name,
-            best->name);
-    memset(&msg, 0, sizeof(msg));
-    msg.type = 0x40;
-    msg.to = ai_Chars[ch->bld->owner].netId;
-    msg.fromId = ch->bld->id;
-    msg.time = ai_Time;
-    msg.flags = 1;
-    msg.arg[0] = best->id;
-    msg.arg[1] = ch->bld->id;
-    t = min(n, 8);
-    AI_FILL_IDS(t)
-    cm_SendLongMessage(&msg);
-    return;
-  spying:
+        break;
+    if (!job)
+      for (job = he_FindEvent(2, 0, 0x3f, 3, ch->bld->id); job;
+           job = he_NextEvent())
+        if (job->targetBld == best->id)
+          break;
+    if (!job) {
+      sprintf(buf, "ai_CalcMeisterDiebe(): Meister %s spioniert bei '%s'", name,
+              best->name);
+      memset(&msg, 0, sizeof(msg));
+      msg.type = 0x40;
+      msg.to = ai_Chars[ch->bld->owner].netId;
+      msg.fromId = ch->bld->id;
+      msg.time = ai_Time;
+      msg.flags = 1;
+      msg.arg[0] = best->id;
+      msg.arg[1] = ch->bld->id;
+      t = min(n, 8);
+      AI_FILL_IDS(t)
+      cm_SendLongMessage(&msg);
+      return;
+    }
     sprintf(buf,
             "ai_CalcMeisterDiebe(): Meister %s hat schon eine Spionage bei "
             "'%s' laufen",
