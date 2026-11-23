@@ -56,7 +56,7 @@ void main_Nothing(void);  /* unlinked, defined at the end of the unit (an empty 
 
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 extern int main_Inactive;       /* 0x6f2584, 1 while the app is deactivated */
-extern unsigned char ai_GfxResolution;  /* 0x6f2f94 (menu.c: OPTIONBYTES): @original main_OpenScreen reads it as a byte object (0x531d43 mov al, byte ptr [0x6f2f94]); through the 4-byte union VC6 loads the dword and masks it (and eax, 0xff: 264 instead of 226 differing instructions) */
+extern unsigned char ai_GfxResolution;  /* 0x6f2f94 (menu.c: OPTIONBYTES): @original main_OpenScreen reads it as a byte object (0x531d43 mov al, byte ptr [0x6f2f94]); through the 4-byte union VC6 loads the dword and masks it (.word & 0xff, and eax, 0xff) or, as .byte[0], keeps the stores in memory (mov byte [x], 1 where the original holds al): main_OpenScreen / WinMain fall to draft */
 extern int ai_ScreenModeH;
 extern int ai_ScreenModeW;
 extern struct SCREENMODE { int w, h; } ai_ScreenModes[];
@@ -163,7 +163,7 @@ extern char main_MoviePath[0x104];   /* 0x624798, the movie directory */
 extern int main_Movie;               /* 0x6f241c, the playing movie's id */
 extern int di_Disabled;
 extern unsigned char snd_AmbientOn;     /* 0x6f0b60, 1: ambient sounds on */
-extern unsigned char ai_GfxResolution;  /* 0x6f2f94 (menu.c: OPTIONBYTES): @original main_OpenScreen reads it as a byte object (0x531d43 mov al, byte ptr [0x6f2f94]); through the 4-byte union VC6 loads the dword and masks it (and eax, 0xff: 264 instead of 226 differing instructions) */
+extern unsigned char ai_GfxResolution;  /* 0x6f2f94 (menu.c: OPTIONBYTES): @original main_OpenScreen reads it as a byte object (0x531d43 mov al, byte ptr [0x6f2f94]); through the 4-byte union VC6 loads the dword and masks it (.word & 0xff, and eax, 0xff) or, as .byte[0], keeps the stores in memory (mov byte [x], 1 where the original holds al): main_OpenScreen / WinMain fall to draft */
 extern char ai_OptionsFile[288];
 extern int ai_ScreenModeH;
 extern int ai_ScreenModeW;

@@ -46,8 +46,7 @@ extern AISTORE gm_Offers[];            /* 0x7e4b20 */
 /* the player record view (ai.h's AIFIN, 0xac bytes, gm_PlayerRecords): the camera fields this unit reads */
 
 
-/* stdlib min / max (the body ai.h defines; f3init does not include ai.h yet: its cm_SendExSellObject with an int
-   third parameter, @original, supersedes ai.h's short) */
+/* stdlib min / max (the body ai.h defines; f3init does not include ai.h yet) */
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -168,7 +167,7 @@ struct G13MIS;
 struct G13MIS *ai_NewRandomMission(int owner, int kind, int x);  /* 0x4b3c10, mission.h */
 void ai_ShowMissions(int owner);                /* 0x4b5310, mission.c */
 void cm_SetSpeedLevel(unsigned int v);          /* 0x4c3ef0, cm.h */
-int cm_SendMessage0c(int a, int b, short c, unsigned char d, int e, unsigned char f, unsigned char g, const char *s1, const char *s2);  /* 0x4c46d0, cm.h */  /* @original: the callers store the returned slot, cm.c defines void */
+int cm_SendMessage0c(int a, int b, short c, unsigned char d, int e, unsigned char f, unsigned char g, const char *s1, const char *s2);  /* 0x4c46d0, cm.h */
 void main_GiveStartBuildings(int p);                     /* 0x534040, main.c range: gm_BuildQuery(1, 0, 6) makes the "Home-Sweet" house and hands it to character c (0x502b60) */
 struct D3FLMAP;
 int d3fl_ReplaceTexture(struct D3FLMAP *map, char *name, int idx);  /* 0x442210, d3_fl.c */

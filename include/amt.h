@@ -108,7 +108,7 @@ int amt_ClearOffices(struct AICHAR *c);             /* 0x4e6d80 */
 void amt_ClearOfficesIfAll(struct AICHAR *c, int all);   /* 0x4e6e20 */
 int amt_GetFirstOffice(unsigned int k, AMTREC *out);  /* 0x4e6ec0 */
 int amt_KindColumn(int k);                /* 0x4e6f10 */
-int amt_GetOffice(unsigned char i, AMTREC *out); /* 0x4e6f30, @original: cm.c 0x4dab50 passes its int index raw (push ebp, no zero-extension) where a caller compiled against this unsigned char parameter zero-extends; poker.c 0x4aad30 passes its unsigned char k as is */
+int amt_GetOffice(unsigned char i, AMTREC *out); /* 0x4e6f30 */
 int amt_GetKind(int k, struct AMTKIND *out);  /* 0x4e6f80 */
 int amt_GetColumnOffices(int col, int max, AMTREC *out);  /* 0x4e6fc0 */
 

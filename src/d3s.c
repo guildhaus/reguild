@@ -412,7 +412,7 @@ void d3s_FillRows(int n)
    levers (= control): product operand orders (8), compare side swap (worse), count via n/a/i/y local per
    arm, dd_Pitch * y operand order (tiebreak: not measured (dcp headers sample d3s_ShadowPoly)) prior: Read
    whole against the original; fixed bpp<=8 (setbe), the ternary with +0xffff in both arms, bpp as int
-   param (whole slot is the first top index; d3s_Project calls via @original char cast macro). Prover:
+   param (whole slot is the first top index; d3s_Project calls it through the unsigned char prototype). Prover:
    every store/call/branch equal, only eax at the void return differs. Left: allocation - original keeps
    lim in [esp+0x10] and the min y in ebp with lim-1 hoisted to edx before the bounds loop (ours lim in
    ebp, lea edx,[ebp-1] in the loop, reload of [esp+0x20] at +0x13e); shl of size scheduled first; imul

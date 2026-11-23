@@ -417,7 +417,7 @@ void d3if_Prerender(char map)
 /* 0x4478e0, makes scene `index` the current one: saves the engine's global state into the old scene and
    loads the new scene's; with `keep` the objects, sky and map of the old state stay as they are */
 
-char d3if_SelectScene(int index, char keep)  /* @original: the definition returns char and takes a char keep (byte-matched); the headers declare void (int, int) */
+char d3if_SelectScene(int index, char keep)
 {
     D3OBJECT *cam;
 

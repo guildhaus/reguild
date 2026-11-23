@@ -601,8 +601,7 @@ int ai_LoadGameWindow(void)
     io_PrintText(0x1c57);
     d2_SetForm(0, 0);
     sv_CreateScrollButtons(0x214, 0x168, d2_LastWindow, d2_GetViewWin(win, 1), 0x82, &down, &up, &bar);
-    ai_FillSaveSlots(win, 1, slots, list, "gamedata/saves", 0); /* @original: the original call pushes
-        a sixth argument 0 that 0x5d3ab0 never reads */
+    ai_FillSaveSlots(win, 1, slots, list, "gamedata/saves", 0);
     while (sv_RunFrame(ai_LoadGameWindow, mask) != 0) {
         if (dm_L.rup != 0)
             sv_PopRequest = 1;

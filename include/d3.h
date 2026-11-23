@@ -685,7 +685,7 @@ typedef struct D3ANIMKEY {          /* 0x58 bytes */
 D3PATH *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys);          /* 0x433d70 */
 void d3_UnwrapAngles(const struct D3VECTOR *a, const struct D3VECTOR *b, struct D3VECTOR *ra, struct D3VECTOR *rb);                            /* 0x453d60, angles mod 2pi */
 struct D3ANIMDATA *d3_FindAnim(char *name);                                            /* 0x433f40, anim loaded? */
-struct D3ANIMSLOT *d3anim_StartAnim(struct D3SURF *ctl, char *name, D3ANIMFLAGS f);                          /* 0x435550, @original: this typedef spelling (not struct D3ANIMFLAGS) keeps the /O2 operand order of the byte-matched d3_LoadScene44be60 (d3_int_io.c, 0x27f) */
+struct D3ANIMSLOT *d3anim_StartAnim(struct D3SURF *ctl, char *name, D3ANIMFLAGS f);                          /* 0x435550 */
 struct D3PATH *d3_LoadObjectAnim(char *file, struct D3OBJECT *obj, char reload);                                 /* 0x44e2e0 */
 extern struct VFSDIR *d3io_StockDir;          /* 0xfba940, the stock object directory (d3io_SetStockDir, d3_int_io.c) */
 char *util_BaseName(char *path);            /* 0x401040, strips the extension in place, returns the file name */
@@ -712,7 +712,7 @@ extern struct D3FLMAP *d3_Terrain;        /* 0x633738, d3_fl.c: the current terr
 
 struct TSTEXTURE; struct TSTEXTURE *tex_Load(char *name, D3TEXFLAGS flags, unsigned char opts, unsigned char fmt);  /* 0x4605c0, ts_texture.c (TSFLAGS is D3TEXFLAGS) */
 void d3_SetObjectAlpha(D3OBJECT *obj, struct D3SURF *info, D3TEXFLAGS f);           /* 0x43d430, f.b[0] = alpha */
-struct TSTEXTURE; void tex_Reload(struct TSTEXTURE *tex, char keep);                                               /* 0x460e50 */  /* @original: ts_texture.c defines (TSTEXTURE *, char); the d3 callers were compiled against this */
+struct TSTEXTURE; void tex_Reload(struct TSTEXTURE *tex, char keep);                                               /* 0x460e50 */
 struct TSTEXTURE; void tex_Release(struct TSTEXTURE *tex);                                                          /* 0x45fbc0 */
 struct TSTEXTURE; char tex_SetHiColor(struct TSTEXTURE *tex, unsigned char hicolor);                                            /* 0x4611b0 */
 struct TSTEXTURE; char tex_Unload(struct TSTEXTURE *tex);                                                     /* 0x461140 */

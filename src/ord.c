@@ -1981,10 +1981,6 @@ void ord_RebuildGridSums(void)
 float gm_IncomeRating();                       /* 0x4f9ec0 */
 void cm_SendMessage41(void *p);                         /* 0x4c5800 */
 
-/* ord_StatisticsRating as ord_ComputeStatistics calls it: @original the call pushes the record buffer (lea edx,
-   [esp+0x48]; push edx; call 0x4f9ce0; add esp, 8 together with ord_WeightedRecordSum's), which the callee does
-   not read */
-
 /* 0x4f8ae0, the statistics of the characters and buildings into the 10-dword record out (floats but for the ints
    out[4], out[7], out[8]): counts the characters of kind 0 / 1 and their two buildings (bld / bld2), adds 1.0 to
    the grid cell of each building object (but kinds 0xb .. 0xd and 0x10); sums the kind table values of the 0x100
@@ -2475,9 +2471,7 @@ void ord_AdvanceRatingBase(void)
     int k;
     double lim;
 
-    k = gm_MinutesBetween(&ord_StatisticsClock, &ai_Time);  /* @original: gv.h's shared K&R declaration (the call
-         pushes the two clock pointers, 0x4f9c01 push 0x770ae0 / 0x4f9c06 push 0x91b470); a prototype in ord.c
-         is a lint cross-TU conflict with he.c / sv.c / gv.c, which call it with an int address literal */
+    k = gm_MinutesBetween(&ord_StatisticsClock, &ai_Time);
     if (k == 0) {
         ord_StatisticsClock = ai_Time;
         return;

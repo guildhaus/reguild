@@ -3856,7 +3856,7 @@ int pic;
    early return 0, the window object (type 0x40, clip rectangle, data), the -1 / 0 / 1 initialisations,
    objs / text allocation and the scroll marker pictures all correspond. Fixed: h is a short (the
    original's movsx ecx, dx for contentHeight = h and the desc sizes); menu.c's caller keeps the original's
-   int pushes through a cast macro (@original, byte-matched ai_CreditsScreen). Left is allocation: the
+   int pushes through the K&R declaration (byte-matched ai_CreditsScreen). Left is allocation: the
    original keeps flags in ebx for the whole function (test bl / test bh, the final test bl, 8 without a
    reload) and materialises -1 per use (or eax,-1), ours caches -1 in ebx (or ebx,-1 at the found test, mov
    [esi+0x388], ebx ...) and holds flags in ecx, reloading its low byte at the end (mov bl, [esp+0x6c]);

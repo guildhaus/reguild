@@ -3657,8 +3657,8 @@ void ch_ActWalkCells(CHACTION *a)
         return;
     }
     if (!a->u.walk.started) {
-        /* @original tests ch->slot again after the f6d_20 test (`!slot || f6d_20 || !slot`, kept by VC6 only
-           with the flag) */
+        /* @original tests ch->slot again after the finished test (`slot && finished`, else `!slot`): the
+           single `!slot || finished` is other code */
         restart = 0;
         if (ch->slot && ch->slot->finished)
             restart = 1;
