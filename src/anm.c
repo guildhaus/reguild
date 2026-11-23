@@ -111,7 +111,7 @@ void anm_Update(void)
                 anm_Animals[anm_NextAnimal].remove = 1;
         }
         if (anm_Animals[anm_NextAnimal].remove
-            && (((((CHARACTER *)anm_Animals[anm_NextAnimal].obj)->obj)->material->flags & 0x40)
+            && (((anm_Animals[anm_NextAnimal].obj->obj)->material->flags & 0x40)
                 || s == 3 || anm_NAnimals > m))
             anm_RemoveAnimal(&anm_Animals[anm_NextAnimal]);
     }
@@ -191,13 +191,13 @@ void anm_CreateCat(ANMREC *a)
     a->obj = ch_Create("katze_KATZE", &pos.v);
     if (a->obj == 0)
         return;
-    ((CHARACTER *)a->obj)->walkSpeed = 1.0f;
+    a->obj->walkSpeed = 1.0f;
     a->pos.x = pos.x;
     a->pos.y = pos.y;
     a->pos.z = pos.z;
     a->kind = 1;
-    ((CHARACTER *)a->obj)->kind = 2;
-    ((CHARACTER *)a->obj)->obj->mask = 0;
+    a->obj->kind = 2;
+    a->obj->obj->mask = 0;
     ch_AddAction(a->obj, 0x38, 1);
 }
 /* 0x4bbd60, creates a dog (kind 0) at a free place (0x4bc2e0) */
@@ -211,13 +211,13 @@ void anm_CreateDog(ANMREC *a)
     a->obj = ch_Create("hund_HUND", &pos.v);
     if (a->obj == 0)
         return;
-    ((CHARACTER *)a->obj)->walkSpeed = 1.0f;
+    a->obj->walkSpeed = 1.0f;
     a->pos.x = pos.x;
     a->pos.y = pos.y;
     a->pos.z = pos.z;
     a->kind = 0;
-    ((CHARACTER *)a->obj)->kind = 2;
-    ((CHARACTER *)a->obj)->obj->mask = 0;
+    a->obj->kind = 2;
+    a->obj->obj->mask = 0;
     ch_AddAction(a->obj, 0x38, 1);
 }
 /* 0x4bbde0, creates a sheep (kind 4) at the dummy "dummy_SHEEP" */
@@ -234,13 +234,13 @@ void anm_CreateSheep(ANMREC *a)
     a->obj = ch_Create("schaf_SCHAF", &pos.v);
     if (a->obj == 0)
         return;
-    ((CHARACTER *)a->obj)->walkSpeed = 1.5f;
+    a->obj->walkSpeed = 1.5f;
     a->pos.x = pos.x;
     a->pos.y = pos.y;
     a->pos.z = pos.z;
     a->kind = 4;
-    ((CHARACTER *)a->obj)->kind = 2;
-    ((CHARACTER *)a->obj)->obj->mask = 0;
+    a->obj->kind = 2;
+    a->obj->obj->mask = 0;
     ch_AddAction(a->obj, 0x38, 1);
 }
 /* 0x4bbe70, creates a cow (kind 3) at the dummy "dummy_COW" */
@@ -257,13 +257,13 @@ void anm_CreateCow(ANMREC *a)
     a->obj = ch_Create("kuh_KUH", &pos.v);
     if (a->obj == 0)
         return;
-    ((CHARACTER *)a->obj)->walkSpeed = 1.5f;
+    a->obj->walkSpeed = 1.5f;
     a->pos.x = pos.x;
     a->pos.y = pos.y;
     a->pos.z = pos.z;
     a->kind = 3;
-    ((CHARACTER *)a->obj)->kind = 2;
-    ((CHARACTER *)a->obj)->obj->mask = 0;
+    a->obj->kind = 2;
+    a->obj->obj->mask = 0;
     ch_AddAction(a->obj, 0x38, 1);
 }
 /* 0x4bbf00, creates an animal of kind k at the dummy "dummy_<name of k>" (cows, pigs and horses with their own
@@ -289,13 +289,13 @@ void anm_CreateAnimal(ANMREC *a, int k)
     a->obj = ch_Create(buf, &pos.v);
     if (a->obj == 0)
         return;
-    ((CHARACTER *)a->obj)->walkSpeed = 1.0f;
+    a->obj->walkSpeed = 1.0f;
     a->pos.x = pos.x;
     a->pos.y = pos.y;
     a->pos.z = pos.z;
     a->kind = k;
-    ((CHARACTER *)a->obj)->kind = 2;
-    ((CHARACTER *)a->obj)->obj->mask = 0;
+    a->obj->kind = 2;
+    a->obj->obj->mask = 0;
     ch_AddAction(a->obj, 0x38, 1);
 }
 /* 0x4bc030, dogs and cats (kinds 0 / 1; name from the string it puts into its actions): mostly stand (dogs also
@@ -312,7 +312,7 @@ void anm_UpdateCat(ANMREC *a)
     D3VECTOR4 *p;
     CHACTION *act;
 
-    if (((CHARACTER *)a->obj)->anim != 0)
+    if (a->obj->anim != 0)
         return;
     if (util_Random(100) > 0x1e) {
         if (a->kind == 0) {
@@ -350,7 +350,7 @@ void anm_UpdateSheep(ANMREC *a)
     D3VECTOR4 *p;
     CHACTION *act;
 
-    if (((CHARACTER *)a->obj)->anim != 0)
+    if (a->obj->anim != 0)
         return;
     if (util_Random(100) > 0x14) {
         if (util_Random(100) > 0x32)
