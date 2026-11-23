@@ -1426,9 +1426,9 @@ attack:
 city:
         /* a patrol in the town: the best-rated grid cell, there the building of kind 6 whose owner he likes best */
         sprintf(buf, "ai_CalcMeisterWache(): Meister %s m\xf6" "chte in der Stadt patroullieren", ch->name);
-        gx = 8;
-        gy = 8;
         best = &ai_Grid[0][0];
+        gy = 8;
+        gx = 8;
         for (j = 0; j < 8; j++) {
             for (i = 0; i < 8; i++) {
                 if (!best->used || (ai_Grid[i][j].used && (ai_Grid[i][j].a >> 3) + ai_Grid[i][j].b > (best->a >> 3) + best->b))
