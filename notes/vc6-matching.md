@@ -6249,6 +6249,8 @@ the bytes no portable form gives.
   Kept by the thirty-first pass (not (c), each portable): d3d_LoadTexture's `(LPVOID *)surftext` inside D3DCHECK (the
   original's #call text), io_text.c's `unsigned char *rec` name reads (the 0xdf test of G30_ENDS_S zero-extends),
   d3anim_PoseBones' `(D3MATRIX *)m0` (a D3DMATRIX built from four D3VECTOR4 rows).
+  Kept by the thirty-second pass (not (c), portable): svgrave.c's `sv_RunFrame((void (*)())ai_SeanceRitual, ..)`, a
+  frame key that returns the script (an explicit function pointer cast in place of the C4047 / C4024 pair).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
   G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
@@ -6308,7 +6310,11 @@ the bytes no portable form gives.
   HESTORM / HEPUNISHMENT / HESIM / HEROUTEREFS / GMSKILLEV / ORDEVENT / CURSEEVENT / TUTHOST / AIJOBTAIL as AIJOB members,
   LCTREENODE as RTNODE gm_TreeNodes[64], G8SCENECHAR / CHWALKDEF / D3LFRAME / TSTEXSIZE / G8INVCHAR / G5STAMM / CMSPYREPORT,
   the menu units' D2SURFVIEW / D2INPUTVIEW / SAVEREQUEST, the poker records, D2BUF / D2CTRL as D2VIEW, D3FLPOINT as D3VERTEX,
-  CMNETGAME as UDPSERVER, d2_ScreenSurf / d2_BackSurf, CHACTION.u.walk.path, the office news callees).
+  CMNETGAME as UDPSERVER, d2_ScreenSurf / d2_BackSurf, CHACTION.u.walk.path, the office news callees) or the
+  thirty-second (the d2 drawing API's D2SURF * / D2BANK *, D2PICHDR / D2FRAME as D2BANK / D2SHP, the graveyard window
+  records GVWIN / GVDETAILWIN, the GMHEAD tables, EVTSCRIPT.tag for HEBARDSCRIPT / HEMEETNAME, the seance script, the
+  gypsy targets, the float-array vectors and vector fields, d3_TriNormal's D3VECTOR *, gm_CreateBuilding's AIBLD *, the
+  fight action callbacks, AICHAR.fightWare).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -7246,9 +7252,43 @@ the bytes no portable form gives.
   an effect of the change; the grade lists of 5d49900b .. 980c2ca5 come from incremental builds (c5d54fc2 promotes
   their net effect).
 
+- **A partial view whose offsets are another header's record** (thirty-second pass, d2.h's D2PICHDR: w / h at 0x2c,
+  bpp at 0x34 = shp.h's D2BANK w / h / kind; D2FRAME: w 0x06, h 0x0a, kern 0x16, adv 0x1a = D2SHP): compare the offsets
+  with the records of the units the data comes from (d2_GetFrame returns a bank's shape), take the record and its
+  signedness from the view the byte-matched readers need (D2BANK.kind unsigned char, as D2PICHDR.bpp; shp.c's
+  `(unsigned char)bank->kind` cast went), and put a second reading of the same words into an anonymous union of two
+  structs (a font glyph's kern / adv over the shape's marker points bx0 / bx1). Every reader the same code.
+- **A drawing API whose surface parameter is `void *`** (d2.c / shp.c / gfx.c's `void *surf`, cast `(D2SURF *)surf` at
+  each field read): retype the family at once (definitions, old-style `void *surf;` parameter lines, the header and unit
+  copies, the locals that hold the surface); an alias `T *bank = (T *)pic;` goes for a parameter named bank (= control).
+- **A window record kept as `int w[N]` and passed as `int *w`** (svgrave.c's GVWIN / GVDETAILWIN with `((GVWIN *)w)->`
+  casts and raw w[k] reads): name the slots from what the opener stores (each section's d2_LastWindow, by section
+  number), rewrite the raw reads as fields, then the parameter and the local take the record; move the typedefs above
+  their first user. A slot read at another width than its field (w[9] for the byte GVDETAILWIN.index) is settled by the
+  original's push: `mov al,[esi+0x24]` reads the byte, so the field read is the original's access (byte).
+- **A gap of 4 bytes after an initialised record table** (f3gm.c's head tables, 0x44-byte records): VC6 puts a table of
+  records at an 8-byte boundary; the zero dword the old `unsigned []` array carried is no datum (an `int x = 0;` for it
+  goes to .bss: dcp check D4). Where an array runs past the bound its readers use (gm_JobHeadsFemale's 175 "records"
+  against the 0x5f its loops test), decode the bytes behind it: two more tables of 40 records, each with one record
+  (gm_PatricianHeadsMale / Female, no reader).
+- **A mark written over a record's name** (he_RunBard's 'DrBh' over an EVTSCRIPT's name, the meeting scene's tag and
+  building id: HEBARDSCRIPT / HEMEETNAME): a union of the name with `int tag[2]` in the owner record and a #define for
+  the mark; the views and the #pragma pack pairs they opened go.
+- **An int array that holds ids in one part and pointers in the other** (ai_BloodRevengeWindow's `int sel[9]`: 0 .. 4 net
+  ids, 5 .. 8 the chosen characters, passed as `(struct AICHAR **)&sel[5]`): two arrays of the true types, in that order
+  (dcp try: = control).
+- **A 3-float out parameter typed as the padded vector** (d3_TriNormal(.., D3VECTOR4 *n)): `D3VECTOR *n`, the D3VECTOR4
+  callers pass `.v` (as d3_Normalize / d3_MatFromAngles).
+- **A union word that holds a pointer in one phase** (AICHAR 0x1ac: donated / v1ac, the carried ware of a fighter read
+  `(D3OBJECT *)c->v1ac`): a pointer member of the union (fightWare); the same layout under VC6, a port-side note (the
+  save writes the word).
+- **Callbacks registered with a cast to another slot type** (cmfight's `(CHACTFUNC)cm_LayBombAction` for ch_AddActionCB's
+  CHACTCB, the callbacks taking `char *ev`): give the callbacks the slot's parameter and drop the casts.
+- Commit-message slips of the thirty-second pass: d4b27a1d names "ai_RentGraveSelect" for ai_GraveRentContact.
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the thirty-first portability pass (the passes since eb11a8b9). VC6 still compiles
+the thirty-second portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7279,7 +7319,8 @@ Kept deliberately (each with `@original` in the source):
 - sv_RunFrame's record-returning frame keys: C4047 + C4024 at seven calls (lc 1, lcamt 5, lcdom 1); the key is
   compared, never called.
 - Function pointers passed through a cast as callbacks: d3_ForEachObject2's callbacks, qsort, ai_GraveWindow,
-  ai_VgFilter, sndc's evt_CurCall->fn test, cmscene's cm_Kinds[].check, main.c's GetProcAddress result, and
+  ai_VgFilter, sndc's evt_CurCall->fn test, cmscene's cm_Kinds[].check, main.c's GetProcAddress result, svgrave.c's
+  ai_SeanceRitual as sv_RunFrame's frame key `(void (*)())`, and
   ai_GetDefaultEffectScale's call of ai_NormalizeEffectScale through an int K&R cast (returns the callee's st(0)
   without a return statement).
 - Two declarations under `#ifdef _MSC_VER` with the conforming form in the `#else`: d2.c's block-scope `void
@@ -7317,17 +7358,21 @@ sv_MouseCamera's cam (9), grave.c's bt (8), d3_FindAnim (9), sv.c's hovered / cl
 (7), the float-array vector locals (51), the int-padded points (16), d3_MatFromAngles' const D3VECTOR * (11); 970 ->
 505 ((b) 256, (c) 249). VC6 warnings 175 -> 175. Debts 0 -> 0.
 
+Done in the thirty-second pass (scratchpad p32): (b) casts 256 -> 123 (casts 505 -> 370: the d2 drawing API's D2SURF * /
+D2BANK * with D2PICHDR / D2FRAME merged into D2BANK / D2SHP 29, svgrave.c's GVWIN / GVDETAILWIN window records 26, the
+GMHEAD tables 17, EVTSCRIPT.tag and the script / gypsy holders 21, the vectors and vector fields 27, gm_CreateBuilding /
+init_NameBuildings / cmfight.c's holders 16); partial views 3 -> 1 (D2PICHDR11). VC6 warnings 175 -> 175, (int)&x 109 ->
+109, pun macros 3 -> 3. Debts 0 -> 0.
+
 Not done (none of it is a view; a further pass's work if wanted):
-- Casts of a variable to an upper-case pointer type at its use (p31/casts.py, 505 casts, classification in
-  p31/classification.txt): 249 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
-  data / user / owner / context slots 39, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40) and 256 (b), holders still
-  typed otherwise, the largest: the d2 drawing API's `void *surf` / `void *pic` (shp.c, d2.c, gfx.c: 28), svgrave.c's
-  `int *w` window lists (GVWIN 16, GVDETAILWIN 7, GVENTRY 2: raw `w[k]` reads to rewrite as fields first; ai_GraveDetailButtons
-  reads GVDETAILWIN's index byte as a dword), f3gm.c's head tables (GMHEAD 17: byte-initialised unsigned arrays), he_b.c /
-  he.c's EVTSCRIPT views HEMEETNAME / HEBARDSCRIPT (9), lcmap.c's `void **to` (6), the remaining multi-name float vectors
-  (ai_FindBauplaetze's at, main_PlaceFamilyModel's loc / dir, rt_PutRouteMark's pos ..), and singles (p31/classification.txt
-  lists every holder).
-- d2.h's picture file records (D2PICHDR / D2FRAME / D2PICHDR11) start with unnamed bytes: name them when a reader shows them.
+- Casts of a variable to an upper-case pointer type at its use (p32/casts.py, 370 casts, classification in
+  p32/classification.txt): 247 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
+  data / user / owner / context slots 37, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40) and 123 (b),
+  holders still typed otherwise, all small: f3gmt.c 14 (AIBLD / GMSTOCK / GMDATE / AICHAR ..), ahm.c 11 (AHMRESEARCH:
+  its amount at +0xb4 is an int where AIJOB's research member reads the float ahmResearchProgress: read the original
+  before merging; AHMORDER aliases of an `int *p`), ls.c 8 (save ids), d3_fl.c 7, and singles of 1 .. 5 per unit
+  (p32/classification.txt lists every holder).
+- d2.h's D2PICHDR11 (a type 0x11 picture, w / h at 0xc) starts with unnamed bytes: name them when a reader shows them.
 - d3_fl.h's D3FLPOLY (D3TRI as the floor code sees it) stays a view: its signed char flags are load-bearing (d3fl_Draw).
 - Message payloads copied as bytes into G17MSG.data / cm_LongMsg (memcpy of G17FIELDS, CRIME, CMCUTINFO, RTPOINT,
   CMLOBBYPLAYER) are wire bytes by design; sv.c's activity table addresses a job record by a byte offset
@@ -7338,7 +7383,8 @@ What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Byte-offset tables into records: sv_Activities[].valueOff (an AIJOB word per activity).
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
   AIJOB.offerAt is a pack(1) member at 0xc4), G17STAT.value and GMCARRYREC.ref (the id while saved, the pointer at
-  run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only); ai_JudgeCatholic /
+  run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only), AICHAR.fightWare (the carried
+  ware of a fighter in the saved word 0x1ac); ai_JudgeCatholic /
   ai_JudgeProtestant are read from the save as 4-byte ids. The save and the network formats are the 32-bit layouts:
   a port writes them field by field (LSHDR already is) or keeps 4-byte ids.
 - Ints that hold pointers by design: the script VM's values (chc / ecmd / evtc `return (int)obj;`: the evt VM's
