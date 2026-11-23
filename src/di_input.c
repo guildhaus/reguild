@@ -468,7 +468,7 @@ void di_SwapButtons(void)
 
 void di_PollMouse(void)
 {
-    int count = 1;
+    DWORD count = 1;
     DIDEVICEOBJECTDATA od;
     POINT pt;
     int v;
@@ -591,7 +591,7 @@ void di_PollMouse(void)
 
 void di_PollKeyboard(void)
 {
-    int count;
+    DWORD count;
     DIDEVICEOBJECTDATA od;
     int hr;
 

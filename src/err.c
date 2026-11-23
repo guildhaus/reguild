@@ -128,7 +128,8 @@ LONG WINAPI err_ExceptionFilter(EXCEPTION_POINTERS *ep)
     ERRWALK w;
     HANDLE mapfile, log;
     ERRMAP *map;
-    unsigned int got, size, key, *p, *stack;
+    DWORD got;
+    unsigned int size, key, *p, *stack;
     int remaining, len;
     DWORD n;
     char *dot;
