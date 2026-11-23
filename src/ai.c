@@ -2703,11 +2703,27 @@ done:
    without the grave offer and the staff / spy / pose steps (ai_UpdateStaff instead): picks the good to make, skips
    the entries flagged 0x400 (job orders of type 0x8c when a slot flagged 0x400 | 0x10 marks them 0x10), the others
    get job orders of type 4 for flag 8
-   @deep Read whole against the original 0x484a60..0x485473 and rewritten as ai_EvaluateProductionGraveyard
-   (its twin, read the same way): the entry tests on ai_Entries[i] / [k] with the field on the left, the
-   0x400 / flag-8 loops each testing ai_NEntries, j >= ai_NEntries in the watch loop, health > 0, info.n2++
-   / info.n1++ in the struct, min(info.n1, info.n2), the job-order loop's 0x10 / 0x400 / 8 tests with type
-   before e and the watch copy from *info.e, info stored ch, b, c, z2, z1; the call list is the original's
+   @deep Session s(match-deep): kept the 8 / 13 o'clock arm as the else arm (found = 1 in the success,
+   break, if (found) goto done after its loop): 243 -> 241, the loop guard's cmp esi,ebp (found's zero live
+   through the arm) is now the original's. The layout lever is ch's priority: c2trace ch#3 (lines
+   2729-2936, 46 refs, prio -20) loses ebx to the job-order loop's j#2 (prio -13); the original keeps ch in
+   ebx through the job-order loop (j in [esp+0x10]) and splits it only around the first random loop (ebx as
+   goods temp, ch reloaded at 0x484f38 / 0x484fb4) and the watch loop (k in ebx, ch reloaded at 0x4852ab).
+   One more ch reference at loop depth 1 in the 8 / 13 arm (probe: ch->prod stored twice there) gives ch#3
+   ebx, the second random loop's success block out of line at the original's place (0x4851da) and 241 -> 85
+   ins (leaves an extra store, so it is not the source); dup StartProduction there 94, dup gm_Query(a) 99;
+   flip.py (want the obwohl block after the ai_NSlots loop, and want ch never loaded into a non-ebx
+   register) hits only such duplicates and meaning changes. The natural source of that reference (one that
+   leaves no code: an arm written twice and cross-jumped, a decided test) is not found. No lever (= control
+   or worse): Graveyard's single if (found) after the if / else (284, found to memory), e = &ai_Entries[i]
+   in either arm (263+), ch->prod / flags1b4 order, nested else / flipped flags1b4 arms, job loop index
+   j->i/k, the watch loop condition, e = &ai_Entries[k] in the second loop's success (161 but the original
+   re-reads info.perm[i] there). climb 4 rounds beam 6: 147 only via unnatural locals. prior: Read whole
+   against the original 0x484a60..0x485473 and rewritten as ai_EvaluateProductionGraveyard (its twin, read
+   the same way): the entry tests on ai_Entries[i] / [k] with the field on the left, the 0x400 / flag-8
+   loops each testing ai_NEntries, j >= ai_NEntries in the watch loop, health > 0, info.n2++ / info.n1++ in
+   the struct, min(info.n1, info.n2), the job-order loop's 0x10 / 0x400 / 8 tests with type before e and
+   the watch copy from *info.e, info stored ch, b, c, z2, z1; the call list is the original's
    (ai_UpdateStaff, no ai_StartBuildingWork). 569 -> 328 differing, every call, constant and field the
    same. Left is block layout and allocation: the original keeps the first random loop's success block
    inline (+0x4c7..+0x50b) and lays the second loop's success (StartProduction / 'obwohl Rohstoffe fehlen')
@@ -2749,11 +2765,13 @@ void ai_EvaluateProductionGypsies(AICHAR *ch)
                         ai_Entries[i].flags |= 8;
                         ai_StartProduction(ch, &ai_Entries[i]);
                         ch->prod = (unsigned short)ai_Entries[i].item;
-                        goto done;
+                        found = 1;
                     }
                     break;
                 }
             }
+            if (found)
+                goto done;
         }
     } else {
         for (i = 0; i < ai_NEntries; i++) {
