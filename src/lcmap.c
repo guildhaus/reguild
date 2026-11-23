@@ -1373,7 +1373,7 @@ void ai_FreeSettingChain(G8SETTING *rec)
 
 void ai_FillSettingWeights(AIBLD *bld, G8SETTING *rec)
 {
-    G7GRP *grp;
+    const G7GRP *grp;
     unsigned int sum;
     int count;
     int left;
@@ -1382,7 +1382,7 @@ void ai_FillSettingWeights(AIBLD *bld, G8SETTING *rec)
     int i;
     int j;
 
-    grp = (G7GRP *)ai_FindItemGroup((char *)bld);
+    grp = ai_FindItemGroup(bld);
     if (grp == 0)
         return;
     for (i = 0; i < 10; i++) {
@@ -1443,27 +1443,27 @@ G8SETTING *ai_FindSetting(int id)
     }
     return 0;
 }
-/* 0x5a84d0, the item group of a good (102 B): the good's first byte is looked up as the key of a group (a
+/* 0x5a84d0, the item group of a building (102 B): its type byte is looked up as the key of a group (a
    G7GRP: the key byte and ten good ids) in the three special groups gm_SpecialItemGroups (the kinds ' ', 0x1e
    and 0x1f) first, then in the 37 groups of gm_BuildingItemGroups; the group or 0 */
 
-unsigned char *ai_FindItemGroup(char *good)
+const G7GRP *ai_FindItemGroup(AIBLD *bld)
 {
     char c;
     unsigned char *q;
     int i;
 
-    c = *good;
+    c = bld->type;
     if (c == ' ' || c == 0x1e || c == 0x1f) {
         i = 0;
         for (q = (unsigned char *)&gm_SpecialItemGroups[0].key; (intptr_t)q < (intptr_t)&gm_SpecialItemGroups[3].key; q += 0x15, i++)
             if ((char)*q == c)
-                return (unsigned char *)&gm_SpecialItemGroups[i];
+                return &gm_SpecialItemGroups[i];
     }
     i = 0;
     for (q = (unsigned char *)&gm_BuildingItemGroups[0].key; (intptr_t)q < (intptr_t)&gm_BuildingItemGroups[37].key; q += 0x15, i++)
         if ((char)*q == c)
-            return (unsigned char *)&gm_BuildingItemGroups[i];
+            return &gm_BuildingItemGroups[i];
     return 0;
 }
 
@@ -1501,7 +1501,7 @@ void *ai_ProdSetting(AIBLD *bld)
     G8SLOT *slots;
 
     if (ai_Settings == 0) {
-        if (ai_FindItemGroup((char *)bld) == 0)
+        if (ai_FindItemGroup(bld) == 0)
             return 0;
         rec = (G8SETTING *)mem_Alloc(0x4c, "hp_AddProdSetting");
         if (rec != 0) {
@@ -1518,7 +1518,7 @@ void *ai_ProdSetting(AIBLD *bld)
     slots = ai_FindSettingSlots(bld->id);
     if (slots != 0)
         return slots;
-    if (ai_FindItemGroup((char *)bld) == 0)
+    if (ai_FindItemGroup(bld) == 0)
         return 0;
     rec = (G8SETTING *)mem_Alloc(0x4c, "hp_AddProdSetting");
     if (rec == 0)
@@ -2320,17 +2320,15 @@ int gm_Opinion(int a, int b);
    then the quick-jump message 0x5ec to its netId with its building's id (+0x16c, +1), the object's id (+2) and
    the sound "_NACHRICHTEN_DOMIZIL_03"; he_RunTrainShare sends it when the research event 0x97 hands the result over */
 
-void ai_DomizilMessageResearch(AICHAR *toRec, AICHAR *cRec, int objRec, int kind)
+void ai_DomizilMessageResearch(AICHAR *toRec, AICHAR *cRec, AIOBJ *obj, int kind)
 {
     AICHAR *to;
     AICHAR *c;
-    AIOBJ *obj;
 
     to = toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
     c = cRec;
-    obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4074, c->name, c->family, kind + 0x4172);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
                  "_NACHRICHTEN_DOMIZIL_03");
@@ -2339,17 +2337,15 @@ void ai_DomizilMessageResearch(AICHAR *toRec, AICHAR *cRec, int objRec, int kind
    and the kind text 0x9a8 + 2 * kind in place of the study name; he_LabIncident sends it when the research event
    0x98 sets the kind's place value */
 
-void ai_DomizilMessageResearchKind(AICHAR *toRec, AICHAR *cRec, int objRec, int kind)
+void ai_DomizilMessageResearchKind(AICHAR *toRec, AICHAR *cRec, AIOBJ *obj, int kind)
 {
     AICHAR *to;
     AICHAR *c;
-    AIOBJ *obj;
 
     to = toRec;
     if (to->kind != 6 && to->kind != 7)
         return;
     c = cRec;
-    obj = (AIOBJ *)objRec;
     txt_Format(ai_NewsText, 0x4075, c->name, c->family, kind * 2 + 0x9a8);
     he_MessageBoxQuickjump(to->netId, -1, ai_NewsText, 0, 0x5ec, c->bld->id, obj->objId, 0,
                  "_NACHRICHTEN_DOMIZIL_03");

@@ -2299,7 +2299,7 @@ void he_AllocResearchRecipe(AIJOB *e)
     he_FreeEvent(e);
 }
 
-void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
+void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, struct AIOBJ *param_3, int param_4);
 
 /* 0x56d730, the run handler of the alchemist research event 0x96 (alloc he_AllocResearchRecipe): without its character,
    the character's alchemist record or the record's place of the recipe (ahm_SlotOf) the event ends (stage -2, freed);
@@ -2314,7 +2314,7 @@ void he_RunResearchRecipe(AIJOB *e)
     AICHAR *c;
     AICHAR *to;
     AHMSLOT *p;
-    char *o;
+    struct AIOBJ *o;
     int season;
 
     season = gm_ClockSeason(&ai_Time);
@@ -2330,10 +2330,10 @@ void he_RunResearchRecipe(AIJOB *e)
                 return;
             }
             if (e->stage == 1) {
-                o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
+                o = gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
                 to = gm_FindChar(e->netId);
                 if (to != 0)
-                    ai_DomizilMessageResearchKind(to, c, (int)o, r->ahmResearchId);
+                    ai_DomizilMessageResearchKind(to, c, o, r->ahmResearchId);
                 ahm_SendSetPlaceValue(c, r->ahmResearchId, r->ahmResearchProgress + p->v);
                 sv_MoveToGroup(0, 0, c->id, 0);
                 he_FreeEvent(e);
@@ -2356,7 +2356,7 @@ void he_RunResearchRecipe(AIJOB *e)
     he_FreeEvent(e);
 }
 
-void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
+void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, struct AIOBJ *param_3, int param_4);
 
 /* 0x56d990, the alloc of the alchemist training event 0x97: the character (chr) and the share (id) are looked up
    (gm_FindChar, ahm_ShareProgress into progress, its minutes into start); when that progress is above ai_FloatZero
@@ -2396,7 +2396,7 @@ void he_RunTrainShare(AIJOB *e)
     AIJOB *r = e;
     AICHAR *c;
     AICHAR *to;
-    char *o;
+    struct AIOBJ *o;
     float share;
     int season;
 
@@ -2411,10 +2411,10 @@ void he_RunTrainShare(AIJOB *e)
     }
     if (!((float)ai_Time.hour >= gm_DayEndHours[season] || (float)ai_Time.hour < gm_DayStartHours[season])) {
         if (e->stage == 1) {
-            o = (char *)gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
+            o = gm_Query((void *)c->bld->objList, 2, 6, 0, 0x24b);
             to = gm_FindChar(e->netId);
             if (to != 0)
-                ai_DomizilMessageResearch(to, c, (int)o, r->ahmResearchId);
+                ai_DomizilMessageResearch(to, c, o, r->ahmResearchId);
             ahm_SendSetShare(c, r->ahmResearchId, share + r->ahmResearchProgress);
             sv_MoveToGroup(0, 0, c->id, 0);
             he_FreeEvent(e);

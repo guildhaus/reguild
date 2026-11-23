@@ -18374,8 +18374,8 @@ struct D3OBJECT *ai_FindNearestObject(float *ref, struct D3OBJECT **list);  /* 0
 void sv_CreateBanners(struct AIBLD *b);
 void snd_PlayFavourComment(void);
 void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj, int level);
-void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
-void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, int param_3, int param_4);
+void ai_DomizilMessageResearchKind(struct AICHAR *param_1, struct AICHAR *param_2, struct AIOBJ *param_3, int param_4);
+void ai_DomizilMessageResearch(struct AICHAR *param_1, struct AICHAR *param_2, struct AIOBJ *param_3, int param_4);
 void ai_DomizilMessageTask(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld, struct AIOBJ *obj);
 void ai_DomizilMessage04(struct AICHAR *to, struct AICHAR *c, struct AIBLD *bld);
 void ai_DomizilMessageAge(struct AICHAR *param_1, struct AICHAR *param_2, struct AIBLD *param_3);
