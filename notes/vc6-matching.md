@@ -7470,6 +7470,11 @@ Kept deliberately (each with `@original` in the source):
   d3_interface.c's dd_Clear, he.c's ai_PickActionBuilding, main.c's gm_CharacterIncomes, util_Random's 16-bit
   declaration in the game units): legal C in each unit, a cross-unit type difference a linker does not see.
 - Walks based at a field (`@original`): d3_InitSurf (nextFrame), d3sm_Build (the tiles' hmin).
+- QueryInterface out parameters passed as the holder's own interface pointer (`&d3d_D3D`, `&ddraw4`, `&d3d3`,
+  `&dd_DD`; LPVOID * wanted) at d3_d3d.c #line 228 and dd_vesa.c #line 939 / 944 / 1073: the holders already have
+  the interface type, and a `(void **)` cast changes the D3DCHECK `#call` text, which the original stores without
+  one (dcp try on d3d_Init / dd_DlgProc / dd_Init: references differ, M9). A fork keeps its incompatible-pointer
+  patch for these four (or splits the text from the call in its own D3DCHECK).
 - Missing returns the original has: C4716 x16 / C4715 x3 (cm_SendPlayerId, cm_SendLongMessage, cm_WaitEvent .. in
   cmscene, ord_PrivilegeDialog, cm_OrderAttack / cm_OrderEscape / cm_StopScript, ai_GetDefaultEffectScale), C4098 x5
   (menu.c's void functions that return a call), C4700 x2 (ai.c's `found`, menu.c's `dflt`: the original reads the

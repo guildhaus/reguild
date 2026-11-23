@@ -1217,6 +1217,9 @@ BOOL CALLBACK dd_DlgProc(HWND dlg, UINT msg, WPARAM wp, LPARAM lp)
             SendMessage(dd_DevCombo, CB_RESETCONTENT, 0, 0);
             d3d_NumDevices = 0;
             if (DirectDrawCreate(guid, &ddraw1, NULL) == DD_OK) {
+                /* @original why: QueryInterface's out parameter is LPVOID *; a (void **) cast (here and at 944)
+                   changes the D3DCHECK #call text the original stores without one (dcp try: references differ,
+                   M9), so &ddraw4 / &d3d3 stay as written */
 #line 939
                 D3DCHECK(ddraw1->lpVtbl->QueryInterface(ddraw1, &IID_IDirectDraw4, &ddraw4));
                 if (!d3d_hr) {
@@ -1384,6 +1387,8 @@ char dd_Init(int mode, int bpp, HWND parent, int unk)
         err_Message("Unable to create DirectDraw-Object");
         return 0;
     }
+    /* @original why: QueryInterface's out parameter is LPVOID *; a (void **) cast changes the D3DCHECK #call text
+       the original stores without one (dcp try: references differ, M9), so &dd_DD stays as written */
 #line 1073
     D3DCHECK(dd_DDBase->lpVtbl->QueryInterface(dd_DDBase, &IID_IDirectDraw4, &dd_DD));
     if (d3d_hr == 0)

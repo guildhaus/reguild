@@ -127,6 +127,8 @@ char d3d_Init(int bitplanes, HWND wnd, int unk)
     int i;
 
     if (dd_DD) {
+        /* @original why: QueryInterface's out parameter is LPVOID *; a (void **) cast changes the D3DCHECK #call
+           text the original stores without one (dcp try: references differ, M9), so &d3d_D3D stays as written */
 #line 228
         D3DCHECK(dd_DD->lpVtbl->QueryInterface(dd_DD, &IID_IDirect3D3, &d3d_D3D));
         if (!d3d_hr) {
