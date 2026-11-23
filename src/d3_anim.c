@@ -215,8 +215,8 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                     acc[n].pos.x = acc[n].pos.x + acc[n].base.x;
                                     acc[n].pos.y = acc[n].pos.y + acc[n].base.y;
                                     acc[n].pos.z = acc[n].pos.z + acc[n].base.z;
-                                    d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
-                                    d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
+                                    d3_MatFromAngles(&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
+                                    d3_MatFromAngles(&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
                                     for (r = 0; r < 3; r++)
                                         d3_Lerp3(&m0[r].v, &m1[r].v, t, &acc[n].m[r].v);
                                     acc[n].n = 1;
@@ -232,8 +232,8 @@ void d3anim_PoseBones(D3OBJECT *obj)
                                 acc[i].pos.x += (s->weight) * v.x;
                                 acc[i].pos.y += (s->weight) * v.y;
                                 acc[i].pos.z += (s->weight) * v.z;
-                                d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
-                                d3_MatFromAngles((D3VECTOR4 *)&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
+                                d3_MatFromAngles(&data->frames[s->frame].bone[bone].rot, (D3MATRIX *)m0);
+                                d3_MatFromAngles(&data->frames[s->nextFrame].bone[bone].rot, (D3MATRIX *)m1);
                                 for (r = 0; r < 3; r++) {
                                     d3_Lerp3(&m0[r].v, &m1[r].v, t, &v.v);
                                     acc[i].m[r].x += v.x;

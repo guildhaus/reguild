@@ -309,28 +309,28 @@ void d3_SetupFrustum(void)
     rot.x = nb = -tb;
     rot.y = na = -ta;
     d3_Planes[3].z = s;
-    d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
+    d3_MatFromAngles(&rot, &m);
     d3_Frustum[0].x = 0.0f * m._11 + 0.0f * m._21 + m._31;
     d3_Frustum[0].y = 0.0f * m._12 + 0.0f * m._22 + m._32;
     d3_Frustum[0].z = 0.0f * m._13 + 0.0f * m._23 + m._33;
     rot.x = nb;
     rot.y = a;
     rot.z = 0.0f;
-    d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
+    d3_MatFromAngles(&rot, &m);
     d3_Frustum[1].x = 0.0f * m._11 + 0.0f * m._21 + m._31;
     d3_Frustum[1].y = 0.0f * m._12 + 0.0f * m._22 + m._32;
     d3_Frustum[1].z = 0.0f * m._13 + 0.0f * m._23 + m._33;
     rot.x = b;
     rot.y = na;
     rot.z = 0.0f;
-    d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
+    d3_MatFromAngles(&rot, &m);
     d3_Frustum[2].x = 0.0f * m._11 + 0.0f * m._21 + m._31;
     d3_Frustum[2].y = 0.0f * m._12 + 0.0f * m._22 + m._32;
     d3_Frustum[2].z = 0.0f * m._13 + 0.0f * m._23 + m._33;
     rot.x = b;
     rot.y = a;
     rot.z = 0.0f;
-    d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
+    d3_MatFromAngles(&rot, &m);
     d3_Frustum[3].x = 0.0f * m._11 + 0.0f * m._21 + m._31;
     d3_Frustum[3].y = 0.0f * m._12 + 0.0f * m._22 + m._32;
     d3_Frustum[3].z = 0.0f * m._13 + 0.0f * m._23 + m._33;
@@ -1244,7 +1244,7 @@ void d3_SetObjectRot(D3OBJECT *obj, const D3VECTOR *rot)
     obj->rotation.y = rot->y;
     obj->rotation.z = rot->z;
     if (obj->type != 3) {
-        d3_MatFromAngles((D3VECTOR4 *)&obj->rotation, &obj->matrix);
+        d3_MatFromAngles(&obj->rotation, &obj->matrix);
         d3_ForEachObject2(d3_DefaultScene, obj, 0xc0, d3s_ResetShadows);
         return;
     }
@@ -1253,7 +1253,7 @@ void d3_SetObjectRot(D3OBJECT *obj, const D3VECTOR *rot)
     v.x = -obj->rotation.x;
     v.y = -obj->rotation.y;
     v.z = -obj->rotation.z;
-    d3_MatFromAngles(&v, &obj->matrix);
+    d3_MatFromAngles(&v.v, &obj->matrix);
 }
 /* 0x43b920, sets the object rotation from x / y / z through d3_SetObjectRot. */
 

@@ -385,7 +385,7 @@ void d3fl_MakeJitter(float *out)
         rot.z = (rand() * D3FL_2PI) / (float)RAND_MAX;
         rot.x = 0.0f;
         rot.y = 0.0f;
-        d3_MatFromAngles(&rot, &m);
+        d3_MatFromAngles(&rot.v, &m);
         r.x = c01.x * m._11 + c01.y * m._21 + c01.z * m._31;
         r.y = c01.x * m._12 + c01.y * m._22 + c01.z * m._32;
         t[0].u = r.x * s + ox;
@@ -403,7 +403,7 @@ void d3fl_MakeJitter(float *out)
         rot.z = (rand() * D3FL_2PI) / (float)RAND_MAX;
         rot.x = 0.0f;
         rot.y = 0.0f;
-        d3_MatFromAngles(&rot, &m);
+        d3_MatFromAngles(&rot.v, &m);
         r.x = c10.x * m._11 + c10.y * m._21 + c10.z * m._31;
         r.y = c10.x * m._12 + c10.y * m._22 + c10.z * m._32;
         t[3].u = r.x * s + ox;
@@ -423,7 +423,7 @@ void d3fl_MakeJitter(float *out)
         rot.z = (rand() * D3FL_2PI) / (float)RAND_MAX;
         rot.x = 0.0f;
         rot.y = 0.0f;
-        d3_MatFromAngles(&rot, &m);
+        d3_MatFromAngles(&rot.v, &m);
         t[6].u = ox;
         t[6].v = oy;
         r.x = c11.x * m._11 + c11.y * m._21 + c11.z * m._31;
@@ -441,7 +441,7 @@ void d3fl_MakeJitter(float *out)
         rot.z = (rand() * D3FL_2PI) / (float)RAND_MAX;
         rot.x = 0.0f;
         rot.y = 0.0f;
-        d3_MatFromAngles(&rot, &m);
+        d3_MatFromAngles(&rot.v, &m);
         t[9].u = ox;
         t[9].v = oy;
         r.x = c10.x * m._11 + c10.y * m._21 + c10.z * m._31;

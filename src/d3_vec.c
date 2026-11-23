@@ -243,7 +243,7 @@ void d3_Normalize(D3VECTOR *v)
 }
 /* 0x4545c0, angles to matrix */
 
-void d3_MatFromAngles(D3VECTOR4 *v, D3MATRIX *m)
+void d3_MatFromAngles(const D3VECTOR *v, D3MATRIX *m)
 {
     double sx = sin(v->x), sy = sin(v->y), sz = sin(v->z);
     float cx = (float)cos(v->x), cy = (float)cos(v->y), t;

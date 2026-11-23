@@ -2672,7 +2672,7 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out)
                 v.y = model->rotation.y;
                 v.z = model->rotation.z;
                 v.y += 3.14159274f;
-                d3_MatFromAngles((D3VECTOR4 *)&v, &mat);
+                d3_MatFromAngles(&v, &mat);
             }
             if (dm_L.lup != 0 && ok) {
                 type = ai_BTypes + kind;

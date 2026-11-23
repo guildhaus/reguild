@@ -1205,7 +1205,7 @@ void d3t_UpdateRain(D3TRAIN *rain, float dt)
     d.x = rain->campos.x - d3_Camera->rotation.x;
     d.y = rain->campos.y - d3_Camera->rotation.y;
     d.z = rain->campos.z - d3_Camera->rotation.z;
-    d3_MatFromAngles(&d, &m);
+    d3_MatFromAngles(&d.v, &m);
     rain->campos.x = d3_Camera->rotation.x;
     rain->campos.y = d3_Camera->rotation.y;
     rain->campos.z = d3_Camera->rotation.z;
@@ -1566,7 +1566,7 @@ void d3t_UpdateSnow(D3TSNOW *snow, float dt)
     d.x = snow->campos.x - d3_Camera->rotation.x;
     d.y = snow->campos.y - d3_Camera->rotation.y;
     d.z = snow->campos.z - d3_Camera->rotation.z;
-    d3_MatFromAngles(&d, &m);
+    d3_MatFromAngles(&d.v, &m);
     snow->campos.x = d3_Camera->rotation.x;
     snow->campos.y = d3_Camera->rotation.y;
     snow->campos.z = d3_Camera->rotation.z;

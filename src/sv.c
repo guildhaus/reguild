@@ -3197,7 +3197,7 @@ char sv_CreateBannerCB(D3OBJECT *part, AIBLD *b)
         rot.x = 0;
         rot.y = 3.1415927f;
         rot.z = 0;
-        d3_MatFromAngles((D3VECTOR4 *)&rot, &m);
+        d3_MatFromAngles(&rot, &m);
         d3_SetWorldPosRot(o, &pos.v, &m);
         if (b->owner != 0xffff) {
             d3if_SelectTextureSet(o, o->info, (unsigned char)((char)ai_Chars[b->owner].ref54 + 'f'), 1);
