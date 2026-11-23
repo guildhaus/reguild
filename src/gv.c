@@ -93,7 +93,7 @@ char *gv_AllocAvatar(void)
 }
 /* 0x4ed1e0, writes the avatar table to the file f: the count 0x20, then per record the id (+0) and the used byte (+0xf2); 1 when all was written */
 
-int gv_WriteAvatars(void *f)
+int gv_WriteAvatars(struct VFSFILE *f)
 {
     unsigned n, i;
 
@@ -114,7 +114,7 @@ int gv_WriteAvatars(void *f)
    are reported (0x5de652, "Avatar >%s< not found in savegame, initializing to >unused<") and the count must be 0x20 ("Inconsisten Avatar count"); 1 when all was read. The reports are only
    formatted into a local buffer, never shown. */
 
-int gv_ReadAvatars(void *f)
+int gv_ReadAvatars(struct VFSFILE *f)
 {
     unsigned n, i, j;
     unsigned id;
@@ -195,102 +195,102 @@ int gv_EffectNotifyOwner(GVEFFARG *a)
    gv_Cannon*, then per slot of gv_Effects its saved fields (id, the three floats, the three parts without their v3 / time,
    the tail); 1 when all was written */
 
-int gv_WriteEffects(void *f)
+int gv_WriteEffects(struct VFSFILE *f)
 {
     int i;
     GVEFFECT *e;
     SHOTREC *p;
 
-    if (vfs_fwrite(&gv_LastTime.year, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_LastTime.year, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_LastTime.hour, 2, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_LastTime.hour, 2, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_LastTime.min, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_LastTime.min, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_LastTime.sec, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_LastTime.sec, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.bld, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.bld, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.spare, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.spare, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.camTarget, 12, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.camTarget, 12, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.sliderA, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.sliderA, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.sliderB, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.sliderB, 4, 1, f) <= 0)
         return 0;
-    if (vfs_fwrite(&gv_Cannon.selected, 4, 1, (struct VFSFILE *)f) <= 0)
+    if (vfs_fwrite(&gv_Cannon.selected, 4, 1, f) <= 0)
         return 0;
     for (i = 0; i < 8; i++) {
         e = &gv_Effects[i];
-        if (vfs_fwrite(&e->id, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&e->id, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&e->f08, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&e->f08, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&e->f0c, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&e->f0c, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&e->f10, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&e->f10, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&e->f14, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&e->f14, 4, 1, f) <= 0)
             return 0;
         p = &e->parts[0];
-        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->state, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->steps, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->steps, 4, 1, f) <= 0)
             return 0;
         p = &e->parts[1];
-        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->state, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->steps, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->steps, 4, 1, f) <= 0)
             return 0;
         p = &e->parts[2];
-        if (vfs_fwrite(&p->velStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->velStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->vel, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->vel, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->posStart, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->posStart, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->wind, 16, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->wind, 16, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->area, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->area, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->mass, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->mass, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->energy, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->energy, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->state, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->state, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(&p->steps, 4, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(&p->steps, 4, 1, f) <= 0)
             return 0;
-        if (vfs_fwrite(e->tail, 12, 1, (struct VFSFILE *)f) <= 0)
+        if (vfs_fwrite(e->tail, 12, 1, f) <= 0)
             return 0;
     }
     return 1;
@@ -299,7 +299,7 @@ int gv_WriteEffects(void *f)
    f0c / f10, they are 1.0); sets each slot's callback to gv_EffectNotifyOwner with its gv_EffectArgs record and the
    parts' time to d3_Time; 1 when all was read */
 
-int gv_ReadEffects(void *f, int v)
+int gv_ReadEffects(struct VFSFILE *f, int v)
 {
     int i;
     GVEFFECT *e;

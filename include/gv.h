@@ -114,8 +114,8 @@ extern const struct D3VECTOR4 d3_Origin;     /* 0x5ebba4, (0, 0, 0), d3_vec.c */
 extern const struct D3VECTOR d3_ZeroRot;      /* 0x5ebbb4, (0, 0, 0), d3_vec.c */
 
 char *gv_AllocAvatar(void);              /* 0x4ed170 */
-int gv_WriteAvatars(void *f);             /* 0x4ed1e0 */
-int gv_ReadAvatars(void *f);             /* 0x4ed270 */
+int gv_WriteAvatars(struct VFSFILE *f);             /* 0x4ed1e0 */
+int gv_ReadAvatars(struct VFSFILE *f);             /* 0x4ed270 */
 typedef struct GVEFFREC {               /* 16 bytes, a record of an effect slot's argument */
     int bldId;                          /* 0x00, a building id (gm_BuildQuery(1, 1, id)), -1: none */
     float dist;                         /* 0x04, the building's distance from the explosion (gv_ExplodeShot) */
@@ -147,8 +147,8 @@ extern GVEFFECT gv_Effects[8];          /* 0x6f1008, the effect slots */
 typedef char gv_AssertGVEFFECT[sizeof(GVEFFECT) == 0x170 ? 1 : -1];
 extern GVEFFARG gv_EffectArgs[8];      /* 0x6f0e48, one per effect slot */
 int gv_EffectNotifyOwner(GVEFFARG *a);  /* 0x4ed3f0, the default effect slot callback: tells the owner of the current record's building */
-int gv_WriteEffects(void *f);             /* 0x4ed480 */
-int gv_ReadEffects(void *f, int v);      /* 0x4ed910 */
+int gv_WriteEffects(struct VFSFILE *f);             /* 0x4ed480 */
+int gv_ReadEffects(struct VFSFILE *f, int v);      /* 0x4ed910 */
 void unk_ResetEffectSlots(void);               /* 0x4eddf0 */
 void gv_FreeEffectObjects(void);               /* 0x4ede70 */
 GVEFFECT *gv_FindEffect(int id);        /* 0x4eded0 */
