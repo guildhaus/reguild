@@ -61,17 +61,17 @@ extern const float gv_GraveWear[];
 
 int gv_GraveCount(AIBLD *bld)
 {
-    char *bt;
+    AIBTYPE *bt;
     GVYARD *g;
     int n;
 
-    bt = (char *)ai_BTypes + bld->type + bld->type * 0x24c;
+    bt = &ai_BTypes[bld->type];
     g = bld->yard;
-    if (((AIBTYPE *)bt)->level == 1) {
+    if (bt->level == 1) {
         n = 8;
         if (g->open[1] == 1)
             return 0x10;
-    } else if (((AIBTYPE *)bt)->level == 2) {
+    } else if (bt->level == 2) {
         n = 0xc;
         if (g->open[1] == 1)
             n = 0x18;
@@ -116,17 +116,17 @@ int gv_GravesInUse(AIBLD *bld)
 
 int gv_EntryCount(AIBLD *bld)
 {
-    char *bt;
+    AIBTYPE *bt;
     GVYARD *g;
     int n;
 
-    bt = (char *)ai_BTypes + bld->type + bld->type * 0x24c;
+    bt = &ai_BTypes[bld->type];
     g = bld->yard;
-    if (((AIBTYPE *)bt)->level == 1) {
+    if (bt->level == 1) {
         n = 8;
         if (g->open[1] == 1)
             return 0xc;
-    } else if (((AIBTYPE *)bt)->level == 2) {
+    } else if (bt->level == 2) {
         n = 0xc;
         if (g->open[1] == 1)
             n = 0x12;
@@ -291,22 +291,22 @@ int gv_EntryHasId(int *a, int *b)
 
 GVENTRY *gv_FindEntry(void *a, AIBLD *bld, GVENTRY *after, int (*cb)(), int l)
 {
-    char *bt;
+    AIBTYPE *bt;
     GVYARD *g;
     GVENTRY *end;
 
-    bt = (char *)ai_BTypes + bld->type + bld->type * 0x24c;
+    bt = &ai_BTypes[bld->type];
     g = bld->yard;
     if (l != 0xff && gv_SizeOpen(g, l) == 0)
         return 0;
     if (l == 0)
-        end = g->lists[0] + gv_ListEntries0[((AIBTYPE *)bt)->cap247];
+        end = g->lists[0] + gv_ListEntries0[bt->cap247];
     else if (l == 1)
-        end = g->lists[1] + gv_ListEntries1[((AIBTYPE *)bt)->cap247];
+        end = g->lists[1] + gv_ListEntries1[bt->cap247];
     else if (l == 2)
-        end = g->lists[2] + gv_ListEntries2[((AIBTYPE *)bt)->cap247];
+        end = g->lists[2] + gv_ListEntries2[bt->cap247];
     else if (l == 3)
-        end = g->lists[3] + gv_ListEntries3[((AIBTYPE *)bt)->cap247];
+        end = g->lists[3] + gv_ListEntries3[bt->cap247];
     else if (l == 0xff)
         end = g->entries + gv_EntryCount(bld);
     else
@@ -347,7 +347,7 @@ GVGRAVE *gv_RandomGrave(AIBLD *bld)
     GVYARD *g;
     int n, k, i;
 
-    bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
+    bt = &ai_BTypes[bld->type];
     g = bld->yard;
     if (bt->kind == 0x1d && bt->cap247 >= 1 && bt->cap247 <= 3) {
         n = gv_GraveCount(bld);
@@ -375,7 +375,7 @@ int gv_BuryNewDead(AIBLD *bld, int n)
     GMHEAD *rec;
     int i, k, r;
 
-    bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
+    bt = &ai_BTypes[bld->type];
     if (bt->kind == 0x1d && bt->cap247 >= 1 && bt->cap247 <= 3) {
         for (i = 0; i < n; i++) {
             e = gv_FindEntry(0, bld, 0, gv_EntryIsFree, 0);
@@ -430,7 +430,7 @@ GVYARD *gv_AllocGraveyard(AIBLD *bld)
     GVGRAVE *gr;
     int i, ok;
 
-    bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
+    bt = &ai_BTypes[bld->type];
     if (bt->kind == 0x1d && bt->cap247 >= 1 && bt->cap247 <= 3) {
         g = (GVYARD *)mem_Alloc(sizeof(GVYARD), "gv_AllocGraveyardField");
         if (g == 0)
@@ -542,7 +542,7 @@ GVYARD *gv_GrowGraveyard(AIBLD *bld)
     int n[4], i;                            /* the entry count of each size (as lists[4]; [3] unused) */
 
     old = bld->yard;
-    bt = (AIBTYPE *)((char *)ai_BTypes + bld->type + bld->type * 0x24c);
+    bt = &ai_BTypes[bld->type];
     if (bt->kind == 0x1d && old != 0 && old->kind < 3 && bt->cap247 - old->kind == 1) {
         bld->yard = 0;
         nw = gv_AllocGraveyard(bld);
