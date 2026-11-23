@@ -2403,7 +2403,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                 poly += (nx - 1) * 2;
                             }
                         }
-                        if (x && map->tiles[y][x - 1].lodLevel > 0 && map->tiles[y][x - 1].lodLevel < s) {
+                        if (x > 0 && map->tiles[y][x - 1].lodLevel > 0 && map->tiles[y][x - 1].lodLevel < s) {
                             /* left edge */
                             ly = half + my;
                             v = T.points + T.npoints;
@@ -2479,7 +2479,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                 poly += (nx - 1) * 2;
                             }
                         }
-                        if (y && map->tiles[y - 1][x].lodLevel > 0 && map->tiles[y - 1][x].lodLevel < s) {
+                        if (y > 0 && map->tiles[y - 1][x].lodLevel > 0 && map->tiles[y - 1][x].lodLevel < s) {
                             /* top edge */
                             lx = half + mx;
                             v = T.points + T.npoints;
@@ -2639,17 +2639,17 @@ void d3fl_Draw(D3FLMAP *map, char water)
                     T.lod = T.lodLevel;
                 }
             /* clipping, projection and culling */
-            for (y = 0, t = map->tiles[0]; y < 8; y++)
-                for (x = 0; x < 8; x++, t++)
-                    if (t->lodLevel) {
-                        npts = t->npoints;
-                        npolys = t->npolys;
-                        d3_ClipMesh(t->clipCode, t->points, npts, (D3TRI *)t->polys, npolys);
+            for (y = 0; y < 8; y++)
+                for (x = 0; x < 8; x++)
+                    if (T.lodLevel) {
+                        npts = T.npoints;
+                        npolys = T.npolys;
+                        d3_ClipMesh(T.clipCode, T.points, npts, (D3TRI *)T.polys, npolys);
                         if (d3_FogOn) {
-                            for (i = 0, v = t->points; i < npts; i++, v++)
-                                if (v->flags < 0) {
+                            for (i = 0, v = T.points; i < npts; i++, v++)
+                                if (v->flags & 0x80) {
                                     k = 1.0f / v->z;
-                                    v->sx = k * v->x * d3_ScaleX + d3_CenterX;
+                                    v->sx = (k * v->x) * d3_ScaleX + d3_CenterX;
                                     v->sy = k * v->y * d3_ScaleY + d3_CenterY;
                                     v->rhw = k;
                                     d3_Dist2 = v->x * v->x + v->y * v->y + v->z * v->z;
@@ -2657,25 +2657,25 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                         ? 255.0 - min(255.0, (sqrt(d3_Dist2) - d3_FogStart) * d3_FogScale) : 255.0);
                                 }
                         } else {
-                            for (i = 0, v = t->points; i < npts; i++, v++)
-                                if (v->flags < 0) {
+                            for (i = 0, v = T.points; i < npts; i++, v++)
+                                if (v->flags & 0x80) {
                                     k = 1.0f / v->z;
-                                    v->sx = k * v->x * d3_ScaleX + d3_CenterX;
+                                    v->sx = (k * v->x) * d3_ScaleX + d3_CenterX;
                                     v->sy = k * v->y * d3_ScaleY + d3_CenterY;
                                     v->rhw = k;
                                 }
                         }
-                        for (i = 0, poly = t->polys; i < npolys; i++, poly++)
-                            if ((fl = poly->flags) < 0) {
+                        for (i = 0, poly = T.polys; i < npolys; i++, poly++)
+                            if ((fl = poly->flags) & 0x80) {
                                 v2 = poly->v[2];
                                 v1 = poly->v[1];
                                 v0 = poly->v[0];
                                 if ((v2->flags | v1->flags | v0->flags) & 0x10)
                                     fl |= 0x40;
-                                else if ((v0->sx - v1->sx) * (v0->sy - v2->sy) >= (v0->sx - v2->sx) * (v0->sy - v1->sy))
-                                    fl &= 0xbf;
-                                else
+                                else if ((v0->sx - v1->sx) * (v0->sy - v2->sy) < (v0->sx - v2->sx) * (v0->sy - v1->sy))
                                     fl &= 0x7f;
+                                else
+                                    fl &= 0xbf;
                                 poly->flags = fl;
                             }
                     }
@@ -2684,20 +2684,22 @@ void d3fl_Draw(D3FLMAP *map, char water)
         if (water)
             d3fl_UpdateWater(d3_Time, map->nregions, map->regions);
         /* queue the visible triangles */
-        for (y = 0, t = map->tiles[0]; y < 8; y++)
-            for (x = 0; x < 8; x++, t++)
-                if (t->lodLevel) {
-                    if (!(t->zmin > d3_MinZ))
-                        d3_MinZ = t->zmin;
-                    if (!(t->zmax < d3_MaxZ))
-                        d3_MaxZ = t->zmax;
-                    clip = &d3_ClipInfo[t->clip & 0x3f];
-                    d3_TriCount += t->npolys;
-                    d3_VertCount += t->npoints;
-                    d3_DrawnVerts += t->npoints;
-                    npolys = min((unsigned int)t->npolys, d3_Cfg.maxpolys - d3_SortCount);
-                    for (i = 0, poly = t->polys; i < npolys; i++, poly++)
-                        if (poly->flags < 0) {
+        for (y = 0; y < 8; y++)
+            for (x = 0; x < 8; x++)
+                if (T.lodLevel) {
+                    if (!(T.zmin > d3_MinZ))
+                        d3_MinZ = (T.zmin);
+                    if (!(T.zmax < d3_MaxZ))
+                        d3_MaxZ = (T.zmax);
+                    clip = &d3_ClipInfo[T.clip & 0x3f];
+                    npolys = T.npolys;
+                    npts = T.npoints;
+                    d3_TriCount += npolys;
+                    d3_VertCount += npts;
+                    d3_DrawnVerts += npts;
+                    j = min(npolys, d3_Cfg.maxpolys - d3_SortCount);
+                    for (i = 0, poly = T.polys; i < j; i++, poly++)
+                        if (poly->flags & 0x80) {
                             if ((tex = poly->tex) && tex->name[0] == '*' && !(c = tex->cache)->flag) {
                                 tex->reserved = 0;
                                 if (!tex->surf)
@@ -2720,7 +2722,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             d3_SortPtr++;
                             d3_SortCount++;
                         }
-                    d3fl_DrawWater(map, t);
+                    d3fl_DrawWater(map, &T);
                 }
     }
 }
