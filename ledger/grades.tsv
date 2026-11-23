@@ -4376,7 +4376,7 @@ exe	0x005aa4b0	ai_DomizilFreeRow	lcdom	byte	readable
 exe	0x005aa520	ai_FillVacantPersonnelRow	lcdom	byte	readable		
 exe	0x005aa700	ai_ShowBldCarts	lcdom	byte	readable		
 exe	0x005aa9a0	ai_UpdateBldCarts	lcdom	byte	readable		
-exe	0x005aab80	ai_PersonnelBook	lcdom	draft	readable	deep	
+exe	0x005aab80	ai_PersonnelBook	lcdom	byte	readable		
 exe	0x005ac110	ai_MercenaryBook	lcdom	shape	readable	deep	
 exe	0x005ad000	ai_AskHelperBonus	lcdom	byte	readable		
 exe	0x005ad150	ai_HelperBook	lcdom	byte	readable		
