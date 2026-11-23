@@ -4453,25 +4453,24 @@ void ai_SendJobOrders(AIINFO *info)
                 msg.arg[4] = info->c->objId;
             }
             cm_SendLongMessage(&msg);
-            info->z1++;
-            return;
-        }
-        n = info->n1;
-        k = info->type;
-        if (n <= 1 || info->z1 != 0)
-            total = info->n2 / n + info->z2;
-        else
-            total = info->z2 + info->n2 / n + info->n2 % n;
-        v = 0;
-        if (k == 8 || k == 3)
-            v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
-        else if (k == 4)
-            v = gm_BuildingMainObject(info->ch->bld);
-        for (i = 0; info->z2 < total && i < 768; i++) {
-            if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
-                && !ai_Chars[i].job) {
-                sv_MoveToGroup(info->ch->bld, v, ai_Chars[i].id, job);
-                info->z2++;
+        } else {
+            n = info->n1;
+            k = info->type;
+            if (n <= 1 || info->z1 != 0)
+                total = info->n2 / n + info->z2;
+            else
+                total = info->z2 + info->n2 / n + info->n2 % n;
+            v = 0;
+            if (k == 8 || k == 3)
+                v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
+            else if (k == 4)
+                v = gm_BuildingMainObject(info->ch->bld);
+            for (i = 0; info->z2 < total && i < 768; i++) {
+                if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
+                    && !ai_Chars[i].job) {
+                    sv_MoveToGroup(info->ch->bld, v, ai_Chars[i].id, job);
+                    info->z2++;
+                }
             }
         }
     }

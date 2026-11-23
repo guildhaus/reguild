@@ -1487,7 +1487,7 @@ exe	0x00487fb0	ai_BuyUpgrade	ai	afb73ed85f207cf2	no	shape	sweep control=shape be
 exe	0x004884b0	ai_BuySlots	ai	b6d31d9d52f21186	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00488740	ai_BuyCapacity	ai	3375510468877d3a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004888c0	ai_FreeJobCharacters	ai	51f8f1b6be4da09f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004889f0	ai_SendJobOrders	ai	6a2b87078c0d217f	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
+exe	0x004889f0	ai_SendJobOrders	ai	921c3df79de76be5	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	b187cc6db48d5a6c
 exe	0x00489300	ai_CheckFreeThieves	ai	d0d98b1bc6a71ba0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00489480	ai_CheckFreeStaff	ai	d164b372eb14594a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00489660	ai_SendFreeThieves	ai	4cf80947cc5cd5f1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
