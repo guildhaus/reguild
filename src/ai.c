@@ -198,32 +198,35 @@ int ai_IsLocalMaster(AICHAR *c) {
    original's); the partner part as a step variable k decided first, then if (k == 0) reset else if (k ==
    1) .. else if (k == 2) .. else step: VC6 threads k away and lays the blocks out as the original (the 64
    nested if / else / early-return forms all keep the reset last; other dispatch orders 24..64); p = 0
-   first in the k == 2 block (28 -> 18); f assigned inside the candidate test (RelationMemory * (f = ..) <
-   bestf; climb inexpr) rotates the step block's scratch registers to the original's (18 -> 2). Left (2
-   ins): the k == 2 block's xor edi,edi (p = 0) at the block's start where the original has it at its end.
-   With p = 0 written last (as the original orders it) the tail merges (12, tail): c2tail --tries on that
-   text: xjump moves the k == 1 / k == 2 xor edi onto the reset's p = 0, then the move merger (a label
-   nothing falls into) deletes the k == 2 copy of call / add esp / SendFieldDeltas into the k == 1 one; the
-   original keeps both. Tried: every position of p = 0 in the k == 1 and k == 2 blocks (49: only the k == 2
-   start avoids the merge), return p / return 0 in either block (19..56), the reset's p = 0 inside if (p)
-   (12), one shared p = 0; return p for reset / 1 / 2 / failed step with the step returning early (38), the
-   other dispatch orders; climb 2 rounds from the p-last text: only meaning changes. prior: Read whole
-   against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind / secondOffice, not
-   jobId / prevOffice), the feud relation sum computed before util_Random, the partner part as one exit
-   return p with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi tails). Every
-   call, constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp 2d+0x23 /
-   2d+0xf), field (0x210 / 0x214..0x218) and branch matches. Left: (1) allocation in the candidate loop:
-   the original keeps c->id in bx under the -1 constant ebx (or ebx,-1 at entry; the prover's
-   Ins16(0xffffffff, id) push), the kind basis in ebp, the RelationMemory row offset in the dead parameter
-   slot [esp+0x28] and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id and the row
-   offset in frame slots (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original places the
-   b216<=b215 block (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset block at
-   the end, each with its own epilogue, where ours lays them inline and cross-jumps their common a=1 /
-   AddFieldDelta(0x218) / SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13, cm_SendFieldDeltas
-   x4 vs x5). (size: 429 vs 445 instructions, explained: 16 instructions: the original's two separate b216
-   / relation>0 tails (an AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi epilogue copy, ~14
-   instructions) that ours cross-jumps into one, and its spill of gm_CharLevel(i) / row-offset reloads in
-   the loop) */
+   first in the k == 2 block (28 -> 18); f assigned inside the candidate test (climb inexpr) rotates the
+   step block's scratch registers to the original's (18 -> 2). Left (2 ins): the k == 2 block's xor edi,edi
+   (p = 0) at the block's start where the original has it at its end. With p = 0 written last (the
+   original's order) the tail merges (12): c2tail: xjump moves the k == 1 / k == 2 / failed-step xor edi
+   onto the reset's p = 0, then the move merger deletes the k == 2 copy of call / add esp / SendFieldDeltas
+   into the k == 1 one. flip.py (want the k == 2 block's own push 1 / call / add esp,40) on the p-last
+   text: the only near hit without a meaning change is none; dropping the failed step's else p = 0 (meaning
+   change) gives 0 ins with only the failed step's jle target off (the original jumps to the reset's xor
+   edi): so in the original the failed step reaches the reset's p = 0. Tried without effect: every position
+   of p = 0 in the k == 1 / k == 2 blocks, p = NULL, a = 0, p = 0, (unsigned char) casts, return p / return
+   0 in either block, the reset's p = 0 inside if (p), the step's fail as return 0 / show-and-return / else
+   goto to a label at the reset's p = 0 (12), one shared p = 0; return p after the chain (38..138), the k
+   == 2 block as its own if before / after the chain (88..169), switch (k) (163..184), climb 2 rounds (only
+   meaning changes). prior: Read whole against the original 0x47ddf0..0x47e356 and fixed: the candidate
+   filter (officeKind / secondOffice, not jobId / prevOffice), the feud relation sum computed before
+   util_Random, the partner part as one exit return p with p = 0 on the no-partner paths (the original's
+   xor edi,edi / mov eax,edi tails). Every call, constant (128.0, the level factor, 34.0, -0x32 -
+   rnd(0x20), the difficulty clamp 2d+0x23 / 2d+0xf), field (0x210 / 0x214..0x218) and branch matches.
+   Left: (1) allocation in the candidate loop: the original keeps c->id in bx under the -1 constant ebx (or
+   ebx,-1 at entry; the prover's Ins16(0xffffffff, id) push), the kind basis in ebp, the RelationMemory row
+   offset in the dead parameter slot [esp+0x28] and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in
+   ebp, o in ebx, id and the row offset in frame slots (frame 0x1c vs 0x14, the slots hunks); (2) block
+   layout: the original places the b216<=b215 block (AddFieldValues with ebx=1 pushes) and the relation>0
+   block after the reset block at the end, each with its own epilogue, where ours lays them inline and
+   cross-jumps their common a=1 / AddFieldDelta(0x218) / SendFieldDeltas tail (calls: cm_AddFieldDelta ours
+   x12 vs x13, cm_SendFieldDeltas x4 vs x5). (size: 429 vs 445 instructions, explained: 16 instructions:
+   the original's two separate b216 / relation>0 tails (an AddFieldDelta + SendFieldDeltas + xor edi / mov
+   eax,edi epilogue copy, ~14 instructions) that ours cross-jumps into one, and its spill of
+   gm_CharLevel(i) / row-offset reloads in the loop) */
 
 AICHAR *ai_FindPartner(AICHAR *c) {
   AICHAR *o, *p;
@@ -659,27 +662,29 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
    &ai_Entries[k] success block, info.n2++ / info.n1++ in the struct, min(), health > 0 (jbe: unsigned),
    ai_FreeJobCharacters in both arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins, shape (proved); the
    watch form was the big lever (148 -> 26); the 8/13 success as goto done 24 -> 22; found = 0 right before
-   the hour test with one if (found) goto done after the hour if / else: 22 -> 18 (the else arm's flags1b4
-   temp now the original's eax). No lever: chars outer if, end as || return, min as if, found as a block
-   local of the else arm (= control); worse: info init c/z2/z1 first (+2..4), found = 0 only in the else
-   arm (65), the hour block in its own scope with found (80). Left (18): the original has no zero register
-   at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test dx,dx; found's xor ebp,ebp right before
-   the hour test), ours shares found's ebp with the constant 0 over the top region: c2trace const#0 region
-   piece (lines a = gm_Query .. else loop) prio 0 sav 0 -> ebp, a borderline piece: one zero reference
-   fewer or one block more in that region should send it to memory. prior: B3 far draft (1608/2272 bytes,
-   702 instructions, 547 differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against 0x47edb0
-   (Ghidra + disassembly), every region compared (the two hourly branch chains, the 32-permuted entry
-   loops, the human-player block, the ai_Watch block, the job loop, the two AIINFO loops and the tail):
-   calls, arguments, constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06 fixed
-   by the if/else-if rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c /
-   47ef54 / 47efae / 47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form
-   (locals vs re-reads, arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move.
-   What is left is register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp -
-   match-deep's slotmap / listing / c2prio territory. Readability done (Q1..Q7 pass): callees
-   ai_UpdateProduction / ai_UpdateStaff / ai_BuySlots / ai_BuyCapacity / ai_BuyUpgrade / ai_HasMaterials /
-   ai_StartProduction / ai_FreeJobCharacters / ai_SendJobOrders / ai_DrawSettingGood / sv_MoveToGroup /
-   gm_FreeCapacity, fields AIENTRY.capacity / amount, AIGOOD.batch, AIBLD.objList, AICHAR.health / title /
-   model (AICHAR.scene), CHARACTER.group */
+   the hour test with one if (found) goto done after the hour if / else: 22 -> 18. Left (18): the original
+   has no zero register at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test dx,dx; found's xor
+   ebp,ebp right before the hour test); ours shares found's ebp with the constant 0 over the top region
+   (c2trace: const#0 region piece prio 0 sav 0 -> ebp, borderline). flip.py --want 'xor ebp, ebp\ncmp ax,
+   8': deleting the 8/13 arm's ch->prod = 0 (1 ins left, the store missing) or && -> || in the 8/13 loop
+   test (2) flips it: one zero reference / one block fewer in the region. = control: ch->prod = (unsigned
+   short)0 / = found, flags1b4 first, else { if (ch->prod != 0) }, nested capacity / HasMaterials ifs in
+   either arm, if (a) {..} else return, found as a block local of the else arm; worse: the flags1b4 arms
+   swapped (26), found = 1 in the 8/13 arm (58), info init c/z2/z1 first, found = 0 only in the else arm
+   (65), the hour block in its own scope (80). prior: B3 far draft (1608/2272 bytes, 702 instructions, 547
+   differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against 0x47edb0 (Ghidra + disassembly),
+   every region compared (the two hourly branch chains, the 32-permuted entry loops, the human-player
+   block, the ai_Watch block, the job loop, the two AIINFO loops and the tail): calls, arguments,
+   constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06 fixed by the if/else-if
+   rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c / 47ef54 / 47efae /
+   47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form (locals vs re-reads,
+   arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move. What is left is
+   register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp - match-deep's
+   slotmap / listing / c2prio territory. Readability done (Q1..Q7 pass): callees ai_UpdateProduction /
+   ai_UpdateStaff / ai_BuySlots / ai_BuyCapacity / ai_BuyUpgrade / ai_HasMaterials / ai_StartProduction /
+   ai_FreeJobCharacters / ai_SendJobOrders / ai_DrawSettingGood / sv_MoveToGroup / gm_FreeCapacity, fields
+   AIENTRY.capacity / amount, AIGOOD.batch, AIBLD.objList, AICHAR.health / title / model (AICHAR.scene),
+   CHARACTER.group */
 
 void ai_EvaluateProduction(AICHAR *ch) {
   AIOBJ *a, *b, *x;
