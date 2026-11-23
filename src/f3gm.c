@@ -474,7 +474,7 @@ void gm_CharacterUpkeep(void)
    that follows from it through the two sends. Tried (r + level) and (level + r), an int and an unsigned
    short temp, the one-expression form: no change. Allocation / scheduling of the kind-3 tail only. */
 
-int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the callers pass a 16-bit id and the original call site loads it without an extension (0x4f5a80: mov cx,[esi]) */
+int gm_CharacterWages(unsigned short id, int flag, ORDWAGES *out)  /* the callers pass a 16-bit id and the original call site loads it without an extension (0x4f5a80: mov cx,[esi]) */
 {
     int res;
     AMTKIND kind;
@@ -483,9 +483,7 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
     AIBLD *b;
     int f, k;
     unsigned short r;
-    ORDWAGES *out;
 
-    out = (ORDWAGES *)rec_;
     res = 0;
     out->job = ai_Chars[id].officeKind;
     out->job2 = ai_Chars[id].secondOffice;
@@ -546,12 +544,12 @@ int gm_CharacterWages(unsigned short id, int flag, unsigned char *rec_)  /* the 
 
 void gm_PayAllCharacterWages(void)
 {
-    unsigned char out[16];
+    ORDWAGES out;
     int i;
 
     gm_NetMsgCount = 0;
     for (i = 0; i < 0x300; i++) {
-        gm_CharacterWages(i, 1, out);
+        gm_CharacterWages(i, 1, &out);
         if (gm_NetMsgCount > 0x40) {
             sv_PumpNet();
             gm_NetMsgCount = 0;
@@ -713,11 +711,11 @@ int gm_FindRichest(short *id, int *worth)
    not the owner): each one with the chance b1b0 * 0.25 * (1 + 0.0125 * the building's skill 9), times 0.8 / 0.7 / 0.6
    when its b00c differs from the owner's (the decision 2's value 2 / equal to the owner's / else), gets
    (max(its worth / the richest worth * 160, 0) + 160) * that chance; its loyalty moves by +0.05 (same b00c) or -0.05
-   while inside 0.05 .. 0.95, and with a partner in out[2] the relation is sent too. out[0] = the number of characters
-   paid, out[1] = the sum (the caller takes it from the owner). Returns 1, or 0 when b has no owner.
-   out[2] is the partner: the tavern run handler he_RunTavern passes its hired helper there (0 for none). */
+   while inside 0.05 .. 0.95, and with a partner in out->partner the relation is sent too. out->count = the number of
+   characters paid, out->sum = the sum (the caller takes it from the owner). Returns 1, or 0 when b has no owner.
+   out->partner: the tavern run handler he_RunTavern passes its hired helper there (0 for none). */
 
-int gm_HandOutMoney(AIBLD *b, int *out)
+int gm_HandOutMoney(AIBLD *b, GMHANDOUT *out)
 {
     int n, sum, i, a, v, top;
     short id;
@@ -759,15 +757,15 @@ int gm_HandOutMoney(AIBLD *b, int *out)
                 n++;
                 if (c->loyalty < 0.95f && c->loyalty > 0.05f)
                     cm_SendFloatDelta(c->netId, 0x1d0, lo);
-                if (out[2] != 0) {
+                if (out->partner != 0) {
                     a = (int)(gm_Mix(u, c, 4) * 10.0f + 1.0f);
-                    cm_SendRelations(((AICHAR *)out[2])->netId, c->netId, a, 1);
+                    cm_SendRelations(out->partner->netId, c->netId, a, 1);
                 }
             }
         }
     }
-    out[0] = n;
-    out[1] = sum;
+    out->count = n;
+    out->sum = sum;
     return 1;
 }
 /* 0x4fb0e0, every fourth year (ai_Time.year % 4 == 0), over the characters in use of kind 1 .. 9 but not 6 / 7 / 8 and
@@ -1236,7 +1234,7 @@ CHARACTER *gm_PlaceOnStage(int id, int a, int b, D3VECTOR *p, D3VECTOR *ori)
     int saved;
     AICHAR *c;
     AIBLD *o;
-    unsigned short *o2;
+    struct AIOBJ *o2;
     int sc;
     D3OBJECT *d;
 
@@ -1247,14 +1245,14 @@ CHARACTER *gm_PlaceOnStage(int id, int a, int b, D3VECTOR *p, D3VECTOR *ori)
         o = gm_BuildQuery(1, 1, a);
         if (o != 0) {
             if (b != -1) {
-                o2 = (unsigned short *)gm_Query(o->objList, 1, 1, b);
+                o2 = gm_Query(o->objList, 1, 1, b);
                 if (o2 == 0)
                     return 0;
             }
             if (gm_IsHomeType(o))
                 sc = init_BuildingSceneUniverse(o);
             else if (o2 != 0)
-                sc = init_ObjectSceneUniverse((struct AIOBJ *)o2);
+                sc = init_ObjectSceneUniverse(o2);
             else
                 sc = 0;
             if (sc >= 0) {

@@ -8,6 +8,12 @@ typedef struct JOBTALENTS {             /* 6 bytes, one per job at 0x61a688 */
     unsigned char rank;                 /* 0x5, 1..4 in the table: a guess from the values and the rank byte +0xd */
 } JOBTALENTS;
 
+typedef struct GMHANDOUT {              /* 12 bytes, gm_HandOutMoney's out record (he_RunTavern's local) */
+    int count;                          /* 0x0, the number of characters paid */
+    int sum;                            /* 0x4, the sum paid (the caller takes it from the owner) */
+    struct AICHAR *partner;             /* 0x8, the partner the relation is sent to, 0: none (the tavern's hired helper) */
+} GMHANDOUT;
+
 typedef struct GMHEAD {                 /* 0x44 bytes, a head record (gm_CharNameRecord's tables 0x6118a8 .. 0x617398) */
     int key;                            /* 0x00, the job / title id the record belongs to, 0 = the end of a table */
     char name[0x30];                    /* 0x04, the model name, "<name>_<suffix>" (bergmann3_MANN) */

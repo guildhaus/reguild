@@ -2703,17 +2703,17 @@ void he_RunTavern(AIJOB *e)
         return;
     case 2:
         if (t != 0 && t->sermon.enabled != 0) {
-            int out[3];
+            GMHANDOUT out;
             unsigned char no, none;
             int noId;
 
             no = 0;
             none = 0xff;
             noId = -1;
-            out[2] = 0;
+            out.partner = 0;
             helper = gm_FindChar(t->sermon.priest);
             if (helper != 0) {
-                out[2] = (int)helper;
+                out.partner = helper;
                 ai_ShowTavernHelperNews(&ai_Chars[bld->owner], helper, (int)bld);
             }
             cm_BeginFieldBlock(t, t->objId);
@@ -2722,14 +2722,14 @@ void he_RunTavern(AIJOB *e)
             cm_AddFieldDelta(1, 1, 0x1d, &none);
             cm_AddFieldDelta(4, 1, 0x1e, &noId);
             cm_SendFieldDeltas();
-            if (gm_HandOutMoney(bld, out) != 0) {
+            if (gm_HandOutMoney(bld, &out) != 0) {
                 if (ai_Chars[bld->owner].kind == 6 || ai_Chars[bld->owner].kind == 7) {
-                    txt_Format(buf, 0x19a7, out[0], out[1]);
+                    txt_Format(buf, 0x19a7, out.count, out.sum);
                     he_ShowNews(ai_Chars[bld->owner].netId, -1, buf, 0, 0x5ff, ch_EmptyName);
                 }
-                cm_SendMoveGoods(ai_Chars[bld->owner].netId, -1, ai_OwnPlayer, out[1]);
+                cm_SendMoveGoods(ai_Chars[bld->owner].netId, -1, ai_OwnPlayer, out.sum);
                 cm_BeginFieldBlock(bld, bld->id);
-                cm_AddFieldDelta(4, 1, 0x69, &out[1]);
+                cm_AddFieldDelta(4, 1, 0x69, &out.sum);
                 cm_SendFieldDeltas();
             }
         }

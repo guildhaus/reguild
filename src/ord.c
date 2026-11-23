@@ -514,7 +514,7 @@ int ord_WageReportOrder(AICHAR *c, ORDMSG *m)
         char buf[0x400];
         int base;
 
-        gm_CharacterWages(c->id, 0, (unsigned char *)&o);
+        gm_CharacterWages(c->id, 0, &o);
         memset(buf, 0, sizeof buf);
         base = (c->sex != 0 ? 0x27b : 0x253);
         txt_Format(buf, (intptr_t)"$Z%s$N", 0x1d96);

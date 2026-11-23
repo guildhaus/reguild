@@ -374,7 +374,7 @@ int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);  /* 0x4f81c0 */
 
 int ord_DivorceOrder(struct AICHAR *c, ORDMSG *m);     /* 0x4f5800 */
 int ord_WageReportOrder(struct AICHAR *c, ORDMSG *m);     /* 0x4f5a80 */
-int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4fa700, the wage record (ORDWAGES) of the character id for the report */
+int gm_CharacterWages(unsigned short id, int flag, ORDWAGES *out);  /* 0x4fa700, the wage record (ORDWAGES) of the character id for the report */
 
 
 /* the tables 0x4f82a0 clears */

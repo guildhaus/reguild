@@ -92,7 +92,7 @@ void gm_CountCharacters(void);  /* 0x4fdfd0 */
 struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);  /* 0x5031b0 */
 int gm_BuildingGoodsList17(struct AIBLD *b, struct AIRECIPE *out, int kind);  /* 0x5099e0 */
 extern GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500 */
-int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4fa700 */
+struct ORDWAGES; int gm_CharacterWages(unsigned short id, int flag, struct ORDWAGES *out);  /* 0x4fa700 */
 int gm_TakeObjekt(int id, int proto, int n);  /* 0x500a40 */
 struct AIOBJ *gm_CreateObject(int id, int proto, int n);  /* 0x500190, the new object instance of the prototype proto with the amount n in the holder's list (gm_FindById); 0 on failure */
 void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
@@ -206,7 +206,7 @@ struct AIBLD *gm_CharacterHome(struct AICHAR *c, int *out2, int *out3);  /* 0x4f
 struct AICHAR; int gm_DropRank(struct AICHAR *c);  /* 0x504840 */
 struct AIBLD *gm_FindPlayerBuilding(int p);  /* 0x501000 */
 struct GMDISEASE; int gm_GetDisease(int n, struct GMDISEASE *out);  /* 0x5051d0 */
-struct AIBLD; int gm_HandOutMoney(struct AIBLD *b, int *out);  /* 0x4fae50 */
+struct AIBLD; int gm_HandOutMoney(struct AIBLD *b, GMHANDOUT *out);  /* 0x4fae50 */
 int gm_JobSlots(int job, int *a, int *b);  /* 0x504100 */
 int gm_LikingChance(int a, int b, int c, int d);  /* 0x50b290 */
 struct AICHAR; int gm_MayRemoveChar(struct AICHAR *c);  /* 0x5075c0 */

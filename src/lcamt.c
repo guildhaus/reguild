@@ -6866,7 +6866,7 @@ int ai_MisappropriationWindow(AICHAR *me, ORDMSG *m)
     } else {
         return 0x60;
     }
-    gm_CharacterWages(owner->id, 0, (unsigned char *)&wages);
+    gm_CharacterWages(owner->id, 0, &wages);
     sum = (int)(wages.amount * ((float)(util_Random(0xb0) + 0x19) * 0.005f));
     if (me->kind != 6) {
         if (me->money < 4)

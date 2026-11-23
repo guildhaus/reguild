@@ -3605,7 +3605,7 @@ void main_RoundReport(void)
         }
         /* the wages of the offices */
         if (ai_Chars[ai_PlayerId].officeKind != 0 || ai_Chars[ai_PlayerId].secondOffice != 0) {
-            gm_CharacterWages(ai_PlayerId, 0, (unsigned char *)&wages);
+            gm_CharacterWages(ai_PlayerId, 0, &wages);
             t = ai_Chars[ai_PlayerId].sex != 0 ? 0x27b : 0x253;
             if (ai_Chars[ai_PlayerId].officeKind != 0)
                 io_PrintText(0x2049, ai_Chars[ai_PlayerId].officeKind + t, wages.amount);
