@@ -1515,7 +1515,7 @@ exe	0x0048ef10	ai_ExecSecretRoom3	am	byte	readable
 exe	0x0048f010	ai_DecideCannonTower	am	byte	readable		
 exe	0x0048f1e0	ai_ExecCannonTower	am	byte	readable		
 exe	0x0048f250	ai_FindOwnBuilding	am	byte	readable		
-exe	0x0048f2b0	ai_DecideBuildSculpture	am	byte	readable		
+exe	0x0048f2b0	ai_DecideBuildSculpture	am	shape	readable		
 exe	0x0048f500	ai_ExecBuildSculpture	am	byte	readable		
 exe	0x0048f600	ai_DecideUseAlchemyItems	am	byte	readable		
 exe	0x0048f990	ai_ExecUseAlchemyItems	am	byte	readable		
@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	byte	readable
 exe	0x004be790	rt_OpenSlotControls	rt	byte	readable		
 exe	0x004be8e0	rt_RemoveControls	rt	byte	readable		
 exe	0x004be930	rt_InitControls	rt	byte	readable		
-exe	0x004be940	rt_EditPointDialog	rt	byte	readable		
+exe	0x004be940	rt_EditPointDialog	rt	shape	readable		
 exe	0x004bf080	rt_CartSettingsDialog	rt	byte	readable		
 exe	0x004bf360	rt_SetMarkPic	rt	byte	readable		
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	byte	readable		
@@ -2509,7 +2509,7 @@ exe	0x004d8b50	cm_DrawFightTime	cmscene	byte	readable
 exe	0x004d8c40	cm_DeleteSceneChars	cmscene	byte	readable		
 exe	0x004d8c70	cm_StackPicture	cmscene	byte	readable		
 exe	0x004d8cb0	cm_TallyStack	cmscene	byte	readable		
-exe	0x004d8e20	cm_RunCouncilSession	cmscene	draft	readable		
+exe	0x004d8e20	cm_RunCouncilSession	cmscene	byte	readable		
 exe	0x004da9e0	cm_AskDeposeVote	cmscene	byte	readable		
 exe	0x004dab50	cm_AskElectVote	cmscene	byte	readable		
 exe	0x004dada0	cm_SessionAskPlayer	cmscene	byte	readable		
@@ -2901,7 +2901,7 @@ exe	0x004f81c0	ord_DispatchOrder	ord	byte	readable
 exe	0x004f8200	ord_PrivilegeDialog	ord	byte	readable		
 exe	0x004f82a0	ord_ResetStatistics	ord	byte	readable		
 exe	0x004f8300	ord_GetGridCell	ord	byte	readable		
-exe	0x004f8360	ord_CountGridObjects	ord	draft	readable	deep	
+exe	0x004f8360	ord_CountGridObjects	ord	shape	readable	deep	
 exe	0x004f8460	ord_AddGridAmount	ord	byte	readable		
 exe	0x004f8590	ord_SubGridAmount	ord	byte	readable		
 exe	0x004f86a0	ord_RandomCellPoint	ord	byte	readable		
@@ -2978,7 +2978,7 @@ exe	0x004fe310	gm_AddTime2	f3gmt	byte	readable
 exe	0x004fe330	gm_Season	f3gmt	byte	readable		
 exe	0x004fe350	gm_ClockSeason	f3gmt	byte	readable		
 exe	0x004fe370	gm_InitBuildingTables	f3gmt	draft	readable	deep	
-exe	0x004fe570	gm_LoadTables	f3gmt	byte	readable		
+exe	0x004fe570	gm_LoadTables	f3gmt	shape	readable		
 exe	0x004fe7f0	gm_ClearBuildings	f3gmt	byte	readable		
 exe	0x004fe830	gm_ClearObjects	f3gmt	byte	readable		
 exe	0x004fe900	gm_FindObjectProto	f3gmt	byte	readable		
@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		
+exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		
+exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
