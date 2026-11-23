@@ -566,11 +566,11 @@ int ord_DismissOfficeOrder(AICHAR *c, ORDMSG *m)
     }
     return 1;
 }
-/* 0x4f5d50, an order handler (c, m; kinds 1 / 3 and the answers 2 / 4) like 0x4f5d50: the table record 1 of 0x4f2870 (the byte rec[0] goes to m[1] and, for a player, into the text at m + 0x14 through 0x4f2fe0), the flag 0x80000 of +0x1c8 of the character (and of m[0x87] for 2 / 4) blocks; kind 3 / 4 sets m[0x85] = 1 and runs the law window 0x5ca150; result | 2 (| 0xa for 4 / 2) */
+/* 0x4f5d50, an order handler (c, m; kinds 1 / 3 and the answers 2 / 4) like 0x4f5d50: the table record 1 of 0x4f2870 (the record's id byte goes to m[1] and, for a player, into the text at m + 0x14 through 0x4f2fe0), the flag 0x80000 of +0x1c8 of the character (and of m[0x87] for 2 / 4) blocks; kind 3 / 4 sets m[0x85] = 1 and runs the law window 0x5ca150; result | 2 (| 0xa for 4 / 2) */
 
 int ord_LawOrder(AICHAR *c, ORDMSG *m)
 {
-    int rec[9];
+    AIDEC rec;
     int r;
     AICHAR *t;
 
@@ -578,15 +578,15 @@ int ord_LawOrder(AICHAR *c, ORDMSG *m)
     if (m->kind == 3 || m->kind == 1) {
         if (c->officeKind == 0)
             return 1;
-        if (gv_FindTableRecord(c, 1, rec) == 0)
+        if (gv_FindTableRecord(c, 1, &rec) == 0)
             return 1;
         if (c->kind == 6)
-            gv_TableRecordText(m->text, rec[0] & 0xff);
+            gv_TableRecordText(m->text, rec.id);
         if ((c->flags1c8 & 0x200) != 0)
             return 9;
         if ((c->flags1c8 & 0x80000) != 0)
             return 1;
-        m->law = rec[0] & 0xff;
+        m->law = rec.id;
         if (m->kind == 3) {
             m->answerFlag = 1;
             r = ai_LawPrivilegeWindow(c, m);
@@ -600,23 +600,23 @@ int ord_LawOrder(AICHAR *c, ORDMSG *m)
             return 1;
         if ((t->flags1c8 & 0x80000) != 0)
             return 1;
-        if (gv_FindTableRecord(t, 1, rec) == 0)
+        if (gv_FindTableRecord(t, 1, &rec) == 0)
             return 1;
-        m->law = rec[0] & 0xff;
+        m->law = rec.id;
         if (m->kind == 4) {
             m->answerFlag = 1;
             r = ai_LawPrivilegeWindow(c, m);
         } else if (c->kind == 6)
-            gv_TableRecordText(m->text, rec[0] & 0xff);
+            gv_TableRecordText(m->text, rec.id);
         return r | 0xa;
     }
     return 1;
 }
-/* 0x4f5f00, an order handler (c, m; kinds 1 / 3 and the answers 2 / 4) like 0x4f5d50: the table record 2 of 0x4f2870 (the byte rec[0] goes to m[1] and, for a player, into the text at m + 0x14 through 0x4f2fe0), the flag 0x100000 of +0x1c8 of the character (and of m[0x87] for 2 / 4) blocks; kind 3 / 4 sets ORD_MSG(m)->answerFlag = 2 and runs 0x5ca150; result | 2 (| 0xa for 4 / 2) */
+/* 0x4f5f00, an order handler (c, m; kinds 1 / 3 and the answers 2 / 4) like 0x4f5d50: the table record 2 of 0x4f2870 (the record's id byte goes to m[1] and, for a player, into the text at m + 0x14 through 0x4f2fe0), the flag 0x100000 of +0x1c8 of the character (and of m[0x87] for 2 / 4) blocks; kind 3 / 4 sets ORD_MSG(m)->answerFlag = 2 and runs 0x5ca150; result | 2 (| 0xa for 4 / 2) */
 
 int ord_LawOrder2(AICHAR *c, ORDMSG *m)
 {
-    int rec[9];
+    AIDEC rec;
     int r;
     AICHAR *t;
 
@@ -624,15 +624,15 @@ int ord_LawOrder2(AICHAR *c, ORDMSG *m)
     if (m->kind == 3 || m->kind == 1) {
         if (c->officeKind == 0)
             return 1;
-        if (gv_FindTableRecord(c, 2, rec) == 0)
+        if (gv_FindTableRecord(c, 2, &rec) == 0)
             return 1;
         if (c->kind == 6)
-            gv_TableRecordText(m->text, rec[0] & 0xff);
+            gv_TableRecordText(m->text, rec.id);
         if ((c->flags1c8 & 0x200) != 0)
             return 9;
         if ((c->flags1c8 & 0x100000) != 0)
             return 1;
-        m->law = rec[0] & 0xff;
+        m->law = rec.id;
         if (m->kind == 3) {
             m->answerFlag = 2;
             r = ai_LawPrivilegeWindow(c, m);
@@ -646,14 +646,14 @@ int ord_LawOrder2(AICHAR *c, ORDMSG *m)
             return 1;
         if ((t->flags1c8 & 0x100000) != 0)
             return 1;
-        if (gv_FindTableRecord(t, 2, rec) == 0)
+        if (gv_FindTableRecord(t, 2, &rec) == 0)
             return 1;
-        m->law = rec[0] & 0xff;
+        m->law = rec.id;
         if (m->kind == 4) {
             m->answerFlag = 2;
             r = ai_LawPrivilegeWindow(c, m);
         } else if (c->kind == 6)
-            gv_TableRecordText(m->text, rec[0] & 0xff);
+            gv_TableRecordText(m->text, rec.id);
         return r | 0xa;
     }
     return 1;

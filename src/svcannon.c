@@ -607,7 +607,7 @@ void ai_CannonScene(AIBLD *rec)
         d3if_Show(sc.obj8c[m], 0);
     d3if_Show(sc.obj8c[sc.selected], 1);
     d3if_ShowTree(rec->object, 0);
-    he_ShowObjectInfos((int)rec->object, 0);
+    he_ShowObjectInfos(rec->object, 0);
     d2_ClickedId = -1;
     ai_CannonAxes(&sc);
     ai_ShotTable[2].id = -1;
@@ -663,7 +663,7 @@ void ai_CannonScene(AIBLD *rec)
     if (sc.obj98)
         d3if_Delete(sc.obj98);
     d3if_ShowTree(rec->object, 1);
-    he_ShowObjectInfos((int)rec->object, 1);
+    he_ShowObjectInfos(rec->object, 1);
     for (m = 0; m < n; m++)
         d2_Objs[list[m]].disabled = 0;
     d3_SetViewport((float)(sv_ViewRectRight - sv_ViewRectLeft), (float)(sv_ViewRectBottom - sv_ViewRectTop), (float)sv_ViewRectLeft, (float)sv_ViewRectTop, d3_ZNear, d3_ZFar, d3_ScaleX, d2_ScreenW, d2_ScreenH);

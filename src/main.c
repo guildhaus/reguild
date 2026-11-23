@@ -126,41 +126,6 @@ extern int sv_FrameMask;
 extern int sv_PopRequest;
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 (f3gm.c) */
-typedef struct MAINCHARNEW {        /* the AICHAR fields the character replacement writes (ai.h AICHAR: name is shorter than its 0x58 union) */
-    unsigned short id;              /* 0x00 */
-    unsigned char kind;             /* 0x02 */
-    char pad03;
-    unsigned int netId;             /* 0x04 */
-    unsigned char health;           /* 0x08 */
-    unsigned char flag9;            /* 0x09, 1: the female name table is used */
-    char pad0a[0x26];
-    union {
-        char name[0x20];            /* 0x30 */
-        struct {
-            char firstName[0x10];   /* 0x30 */
-            char familyName[0x10];  /* 0x40, the start couple's father gets the profile's family name (main_CreateStartCouple) */
-        };
-    };
-    short seq;                      /* 0x50, a running number (ai_NextCharNumber) */
-    char pad52[2];
-    int coat;                       /* 0x54, the coat of arms (AICHAR.ref54: the save adds the base 0x59a back, as INIT_PLAYER.coat's object ids); the start couple get the player's */
-    char pad58[4];
-    union {
-        int clear[8];               /* 0x5c, set to -1 */
-        struct {
-            int spouse;             /* 0x5c, the netId of the husband / wife (the start couple point at each other) */
-            int parent1;            /* 0x60, the netIds of the parents (the player gets the start couple) */
-            int parent2;            /* 0x64 */
-            int child;              /* 0x68, the netId of a child (the start couple get the player) */
-        } rel;
-    };
-    char pad7c[4];
-    unsigned char talents[5];       /* 0x80, the five talent values (from the profile, INIT_PLAYER.talents) */
-    char pad85[0x107];
-    int modelId;                    /* 0x18c, the model's id (INIT_PLAYER.modelId) */
-    char pad190[0x64];
-    char ownName[0x1c];             /* 0x1f4, the model name (AICHAR.ownName; from INIT_PLAYER.model) */
-} MAINCHARNEW;
 extern struct SBBANK *main_SoundBanks[0x80]; /* 0x75df20 */
 extern char cm_RequestedSaveName[0x40];
 extern int main_LastLoadProgress;  /* 0x6f2610 */
@@ -3391,7 +3356,7 @@ void main_ReplaceFigure(unsigned p)
 {
     int la[15] = { 0x5d, 0x11, 0x30, 0x35, 0x42, 0x60, 0x4b, 0x5b, 0x5c, 0x5a, 0x46, 0x2e, 0x2d, 0x41, 0 };
     int lb[3] = { 0x45, 0x47, 0 };
-    MAINCHARNEW *ch;
+    AICHAR *ch;
     AIJOB *e;
     G28REC *pt;
     int i, j, n;
@@ -3408,7 +3373,7 @@ void main_ReplaceFigure(unsigned p)
         return;
     }
     if (ai_Chars[p].kind == 6 && ai_Chars[p].health == 0) {
-        ch = (MAINCHARNEW *)&ai_Chars[p];
+        ch = &ai_Chars[p];
         e = he_Events;
         do {
             if (e->kind != 0 && e->chr == p) {
@@ -3428,13 +3393,13 @@ void main_ReplaceFigure(unsigned p)
             e++;
         } while ((int)e < (int)(he_Events + 0x400));
         ch->kind = 5;
-        if (ch->flag9 == 0) {
+        if (ch->sex == 0) {
             strcpy(ch->name, txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)]);
         } else {
             strcpy(ch->name, txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)]);
         }
-        ch->seq = (short)ai_NextCharNumber;
-        memset(ch->clear, 0xff, sizeof(ch->clear));
+        ch->w050 = (unsigned short)ai_NextCharNumber;
+        memset(ch->relatives, 0xff, sizeof(ch->relatives));
         ai_NextCharNumber = ai_NextCharNumber + 1;
         /* the original walks the records by their kind byte, 8 bytes into each */
         for (pt = cm_Parties; (intptr_t)&pt->kind < (intptr_t)&cm_Parties[96].kind; pt++) {
@@ -4303,7 +4268,7 @@ int main_CheckCD(void)
 
 void main_CreateStartCouple(void)
 {
-    MAINCHARNEW *a, *mother, *father;
+    AICHAR *a, *mother, *father;
     int h1, h2;
     char *d, *t;
     int k;
@@ -4316,44 +4281,44 @@ void main_CreateStartCouple(void)
         cm_EndSendGroup();
         while (cm_SendGroupState() == 0)
             sv_PumpNet();
-        a = (MAINCHARNEW *)cm_GetSlotValue(h1);
+        a = (AICHAR *)cm_GetSlotValue(h1);
         cm_BeginSendGroup();
         h1 = cm_SendCreateCharacter(9, -1, -1, util_Random(4) + 0x20, -1, init_PlayerProfile.tool2, 0, 1);
         h2 = cm_SendCreateCharacter(9, -1, -1, util_Random(4) + 0x20, -1, init_PlayerProfile.tool1, 0, 0);
         cm_EndSendGroup();
         while (cm_SendGroupState() == 0)
             sv_PumpNet();
-        mother = (MAINCHARNEW *)cm_GetSlotValue(h1);
-        father = (MAINCHARNEW *)cm_GetSlotValue(h2);
-        strncpy(father->familyName, init_PlayerProfile.familyName, 0x10);
-        mother->seq = a->seq;
-        mother->coat = a->coat;
-        mother->rel.child = a->netId;
+        mother = (AICHAR *)cm_GetSlotValue(h1);
+        father = (AICHAR *)cm_GetSlotValue(h2);
+        strncpy(father->family, init_PlayerProfile.familyName, 0x10);
+        mother->w050 = a->w050;
+        mother->ref54 = a->ref54;
+        mother->child = a->netId;
         t = txt_Ptrs[TXT_FEMALE_FIRST_NAMES + util_Random(0x70)];
-        d = mother->firstName;
+        d = mother->first;
         do {
             c = *t++;
             *d++ = c;
         } while (c != 0);
         gm_CharNameRecord(mother->id);
-        father->seq = a->seq;
-        father->coat = a->coat;
-        father->rel.child = a->netId;
+        father->w050 = a->w050;
+        father->ref54 = a->ref54;
+        father->child = a->netId;
         t = txt_Ptrs[TXT_MALE_FIRST_NAMES + util_Random(0xbf)];
-        d = father->firstName;
+        d = father->first;
         do {
             c = *t++;
             *d++ = c;
         } while (c != 0);
         gm_CharNameRecord(father->id);
-        mother->rel.spouse = father->netId;
-        father->rel.spouse = mother->netId;
-        a->rel.parent1 = father->netId;
-        a->rel.parent2 = mother->netId;
-        mother->rel.child = a->netId;
-        father->rel.child = a->netId;
+        mother->spouse = father->netId;
+        father->spouse = mother->netId;
+        a->parent1 = father->netId;
+        a->parent2 = mother->netId;
+        mother->child = a->netId;
+        father->child = a->netId;
         strcpy(a->ownName, init_PlayerProfile.model);
-        a->modelId = init_PlayerProfile.modelId;
+        a->picture = init_PlayerProfile.modelId;
         cm_SendRelations(a->netId, father->netId, 0x7f, 0);
         cm_SendRelations(father->netId, a->netId, 0x7f, 0);
         cm_SendRelations(a->netId, mother->netId, 0x7f, 0);
@@ -4365,7 +4330,7 @@ void main_CreateStartCouple(void)
         if (ai_MissionMode > -1)
             ai_NewMission(a->netId, init_PlayerProfile.mission, 0);
         for (k = 0; k < 5; k++)
-            a->talents[k] = init_PlayerProfile.talents[k];
+            a->skills[k] = init_PlayerProfile.talents[k];
     }
 }
 

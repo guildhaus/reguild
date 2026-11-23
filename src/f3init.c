@@ -301,11 +301,11 @@ int init_SceneNameToPrototype(D3OBJECT *o)
 /* 0x50d350, the destroy callback of a scene object: removes its gfx infos and it from the quad tree d3_QuadTree */
 
 
-void init_SceneObjectDestroyCB(int o)
+void init_SceneObjectDestroyCB(D3OBJECT *o)
 {
     he_RemoveGfxInfos(o);
     if (d3_QuadTree != 0)
-        d3q_RemoveObject((D3OBJECT *)o, d3_QuadTree);
+        d3q_RemoveObject(o, d3_QuadTree);
 }
 /* 0x50d380, names the scene object o after its prototype ("gb_NAME" for kind 2, p a building record; "ob_NAME" for
    kind 1, p an object instance), sets its kind (3 for a building, 0 with no mask for a building type of class 10,
@@ -339,7 +339,7 @@ void init_HookObject(D3OBJECT *o, void *p, int kind)
     init_SceneNameToPrototype(o);
     o->owner = p;
     if (o->material != 0)
-        o->material->freeCallback = (void (*)(struct D3OBJECT *))init_SceneObjectDestroyCB;
+        o->material->freeCallback = init_SceneObjectDestroyCB;
 }
 /* 0x50d460, marks every scene universe as not loaded; returns 0 */
 

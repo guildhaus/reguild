@@ -152,14 +152,14 @@ int gv_OnDecisionValue(GVDECMSG *p)
 }
 /* 0x4f2870, finds the AI decision record of the office held by the character c (AICHAR.officeKind, +0x166) with the number b and copies it to out; 0 when none */
 
-int gv_FindTableRecord(AICHAR *c, unsigned b, int *out)
+int gv_FindTableRecord(AICHAR *c, unsigned b, AIDEC *out)
 {
     AIDEC *rec;
     int i;
 
     for (i = 0; i < 0x1d; i++) {
         if (c->officeKind == gv_Decisions[i].office && b == gv_Decisions[i].officeNo) {
-            rec = (AIDEC *)out;
+            rec = out;
             *rec = gv_Decisions[i];
             return 1;
         }

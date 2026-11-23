@@ -3855,7 +3855,7 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
     AIJOB *job;
     AIGOOD *g;
     LCPRODCOL *col;
-    short *target;
+    struct AIOBJ *target;
     int win;
     int ncols;
     int any;
@@ -3941,10 +3941,10 @@ int ai_ProductionGoodsWindow(AIBLD *bld)
                             if (sv_MemberRows[i].chr == 0xffff)
                                 break;
                             if (sv_MemberRows[i].selected != 0) {
-                                target = (short *)sv_PanelShown;
+                                target = sv_PanelShown;
                                 if (target == 0)
-                                    target = (short *)gm_Query(bld->objList, 1, 0, 0xfd);
-                                sv_MoveToGroup(bld, (struct AIOBJ *)target, sv_MemberRows[i].chr, job);
+                                    target = gm_Query(bld->objList, 1, 0, 0xfd);
+                                sv_MoveToGroup(bld, target, sv_MemberRows[i].chr, job);
                                 ai_Chars[sv_MemberRows[i].chr].selected = 0;
                             }
                         }

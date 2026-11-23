@@ -3971,7 +3971,8 @@ void sv_UpdatePanel(void)
 {
     AIBLD *b, *sel;
     AIBTYPE *bt;
-    int cls, i, perms, room;
+    int cls, i, perms;
+    struct AIOBJ *room;
     AMOUNTCFG st;
 
     b = 0;
@@ -3990,8 +3991,8 @@ void sv_UpdatePanel(void)
             if (sv_PanelShown == 0)
                 perms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, 0, 0);
             else {
-                room = (int)gm_Query(ai_FallbackBuilding->objList, 1, 0, ai_FallbackBuilding->mainRoom);
-                perms = gm_PermissionBits(ai_PlayerId, 0, (struct AIOBJ *)room, 0);
+                room = gm_Query(ai_FallbackBuilding->objList, 1, 0, ai_FallbackBuilding->mainRoom);
+                perms = gm_PermissionBits(ai_PlayerId, 0, room, 0);
             }
         } else {
             if (sv_SelectedObject == 0)

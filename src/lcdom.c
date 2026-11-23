@@ -7269,7 +7269,7 @@ void ob_HandleBepflanzung(AIBLD *bld)
     D3OBJECT *model;
     D3OBJECT *obj;
     AIOBJ *item;
-    char *room;
+    AIOBJ *room;
     int ground;                     /* the PFLANZBAR ground type */
     int view;
     int radio;
@@ -7306,10 +7306,10 @@ void ob_HandleBepflanzung(AIBLD *bld)
         if (strstr(d3_Terrain->typenames[i], "PFLANZBAR"))
             ground = i;
     }
-    room = (char *)gm_Query(bld->objList, 1, 0, 0xff);
+    room = gm_Query(bld->objList, 1, 0, 0xff);
     if (room == 0)
         return;
-    for (item = gm_Query(((AIOBJ *)room)->list, 1, 4, 0x17); item != 0;
+    for (item = gm_Query(room->list, 1, 4, 0x17); item != 0;
          item = gm_QueryNext())
         types[count++] = item->type;
     view = d2_OpenForm(d2_ScreenW - 0x5f, 0x10a, "Misc\\PlantBar");

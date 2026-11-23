@@ -1128,24 +1128,24 @@ void he_RemoveStaleGfxInfos(void)
 }
 /* 0x53ebe0, removes the gfx infos of the object `obj` */
 
-void he_RemoveGfxInfos(int obj)
+void he_RemoveGfxInfos(D3OBJECT *obj)
 {
     HEGFXINFO *p = he_GfxInfos;
 
     do {
-        if ((int)p->parent == obj)
+        if (p->parent == obj)
             he_FreeGfxInfo(p);
         p++;
     } while ((intptr_t)p < (intptr_t)&he_GfxInfos[0x40]);
 }
 /* 0x53ec10, calls 0x4471b0 for the gfx infos of the object `obj` */
 
-void he_ShowObjectInfos(int obj, int a)
+void he_ShowObjectInfos(D3OBJECT *obj, int a)
 {
     HEGFXINFO *p = he_GfxInfos;
 
     do {
-        if ((int)p->parent == obj)
+        if (p->parent == obj)
             d3if_Show(p->obj, a);
         p++;
     } while ((intptr_t)&p->obj < (intptr_t)&he_GfxInfos[0x40].obj);
@@ -5947,7 +5947,10 @@ void he_RunGang(AIJOB *e)
     AIOBJ *room;
     AIFIN *fin;
     int dt, idx, i, k, n, r, lvl, loot, sum, v, amt, tries, kind, diff;
-    int pick[5];                        /* the building kinds to pick from, then the buildings of the kind */
+    union {
+        int kinds[5];                   /* the building kinds to pick from */
+        AIBLD *blds[5];                 /* then the buildings of the kind (the same slots) */
+    } pick;
     char text[0x400];
 
     dt = gm_MinutesBetween(&g->gangStart, &ai_Time);
@@ -5985,12 +5988,12 @@ void he_RunGang(AIJOB *e)
             return;
         b = gm_BuildQuery(1, 1, g->gangTargets[idx]);
         n = 0;
-        pick[0] = 10;
-        pick[1] = 5;
-        pick[2] = 7;
-        pick[3] = 0x16;
-        pick[4] = 0xf;
-        kind = pick[util_Random(5)];
+        pick.kinds[0] = 10;
+        pick.kinds[1] = 5;
+        pick.kinds[2] = 7;
+        pick.kinds[3] = 0x16;
+        pick.kinds[4] = 0xf;
+        kind = pick.kinds[util_Random(5)];
         if (b != 0) {
             lvl = (int)(member->skills[2] * (1.0f / 42.0f) + 1.0f);
             loot = (util_Random((lvl + 1) * lvl) + lvl * 2) * 2;
@@ -6027,7 +6030,7 @@ void he_RunGang(AIJOB *e)
             }
             bt = &ai_BTypes[b->type];
             do
-                kind = pick[util_Random(5)];
+                kind = pick.kinds[util_Random(5)];
             while ((unsigned char)bt->kind == kind);
         }
         o = gm_BuildQuery(1, 5, kind);
@@ -6037,9 +6040,9 @@ void he_RunGang(AIJOB *e)
             do {
                 if (n >= 4)
                     break;
-                pick[n++] = (int)o;
+                pick.blds[n++] = o;
             } while ((o = gm_BuildNext()) != 0);
-            o = (AIBLD *)pick[util_Random(n)];
+            o = pick.blds[util_Random(n)];
         }
         sv_MoveToGroup(o, 0, member->id, e);
         cm_SendChrStop(member->netId);

@@ -51,7 +51,9 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
         struct {
             char first[0x10];           /* 0x030, the first name (gv: copied to the grave, GVGRAVE.first) */
             char family[0x10];          /* 0x040, the family name (GVGRAVE.family) */
-            unsigned short w050;        /* 0x050, must equal the grave entry's GVENTRY.w08 to be buried there (gv_BuryCharacter) */
+            unsigned short w050;        /* 0x050, must equal the grave entry's GVENTRY.w08 to be buried there (gv_BuryCharacter);
+                                           a running number (ai_NextCharNumber: main_ReplaceFigure; the start couple get the
+                                           player's, main_CreateStartCouple) */
         };
         struct {
             char padname80[0x50];
@@ -77,6 +79,13 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
             int relatives[8];           /* 0x05c, the netIds of the character's relatives (gm_KillSpieler clears
                                            them when one dies, ai_DecideUseDynastyObject walks [3..7]); relatives[0] is never
                                            picked as a partner (ai_DecideOfficePartner) */
+        };
+        struct {
+            char padname5c2[0x2c];
+            int spouse;                 /* 0x05c, relatives[0]: the husband / wife (the start couple point at each other) */
+            int parent1;                /* 0x060, relatives[1] / [2]: the parents (the player gets the start couple) */
+            int parent2;                /* 0x064 */
+            int child;                  /* 0x068, relatives[3]: a child (the start couple get the player) */
         };
         struct {
             char padname7c[0x4c];
@@ -123,7 +132,8 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     };
     unsigned char selected;             /* 0x188, nonzero: the character is in the player's selection (sv_ClearSelection clears it, sv_HandleObjects sets it) */
     char pad189[3];
-    int picture;                        /* 0x18c, the portrait picture (sv.c: the person panel, the member list) */
+    int picture;                        /* 0x18c, the portrait picture (sv.c: the person panel, the member list; the player's
+                                           INIT_PLAYER.modelId, main_CreateStartCouple) */
     int v190;                         /* 0x190, a sum the round change prints on the player's balance page (text 0x1eff, main.c 0x5384e0) */
     int money;                          /* 0x194, the character's money (amt.c) */
     int spent198;                       /* 0x198, the money paid for goods bought (cm.c 0x4c70b0 adds count * price, unless the
