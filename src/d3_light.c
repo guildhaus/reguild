@@ -238,7 +238,7 @@ char d3_LightApply(D3OBJECT *obj, D3LCTX *set)
                 }
             } else {
                 for (k = 0, t = info->tris; k < info->ntris; k++, t++) {
-                    d3_TriNormal(&t->v[0]->pos, &t->v[1]->pos, &t->v[2]->pos, &nrm);
+                    d3_TriNormal(&t->v[0]->pos, &t->v[1]->pos, &t->v[2]->pos, &nrm.v);
                     acc.x = 0.0f;
                     acc.y = 0.0f;
                     acc.z = 0.0f;

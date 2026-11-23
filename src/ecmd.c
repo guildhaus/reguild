@@ -892,9 +892,9 @@ int ocmd_SetEmitterDirection(D3PARTSYS **e, int *x, int *y, int *z)
         fx = *x * 0.01f;
         fy = *y * 0.01f;
         fz = *z * 0.01f;
-        em->dir[0] = fx;
-        em->dir[1] = fy;
-        em->dir[2] = fz;
+        em->dir.x = fx;
+        em->dir.y = fy;
+        em->dir.z = fz;
     }
     return 0;
 }

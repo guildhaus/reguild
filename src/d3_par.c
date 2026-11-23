@@ -355,7 +355,7 @@ char par_EmitterCB0(D3PARTSYS *ps, unsigned long time)
     e = ps;
     if (ps->lasttime == time)
         return 1;
-    s = (float)sqrt(e->dir[0] * e->dir[0] + e->dir[1] * e->dir[1] + e->dir[2] * e->dir[2]);
+    s = (float)sqrt(e->dir.x * e->dir.x + e->dir.y * e->dir.y + e->dir.z * e->dir.z);
     speed = s;
     if (e->psize[0] > e->psize[1])
         speed = -speed;
@@ -506,7 +506,7 @@ char par_EmitterCB1(D3PARTSYS *ps, unsigned long time)
     e = ps;
     if (ps->lasttime == time)
         return 1;
-    s = (float)sqrt(e->dir[0] * e->dir[0] + e->dir[1] * e->dir[1] + e->dir[2] * e->dir[2]);
+    s = (float)sqrt(e->dir.x * e->dir.x + e->dir.y * e->dir.y + e->dir.z * e->dir.z);
     speed = s;
     if (e->istrigger)
         max = (int)(ps->count * e->maxtrigger);
@@ -815,7 +815,7 @@ D3PARTSYS *par_CreateEmitter(int parent, const D3VECTOR *pos, int count, char *t
     if (ps) {
         par_SetPos(ps, pos);
         D3_COPY(&ps->cfg, cfg, sizeof(D3EMITTERCFG));
-        par_SetDir(ps, (D3VECTOR *)ps->dir, 0.0f);
+        par_SetDir(ps, &ps->dir, 0.0f);
         if (ps->triggeronce) {
             ps->flags = 0;
             ps->trigger = 1;

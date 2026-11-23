@@ -1641,13 +1641,13 @@ CHARACTER *main_PlaceFamilyModel(char *dummy, char *model, int k)
     d3_PointToWorld(o, &o->pos, &pos.v);
     ch = ch_Create(model, &pos.v);
     if (ch != 0) {
-        float dir[3], loc[3];
-        dir[0] = 0;
-        dir[1] = 0.0f;
-        dir[2] = 0;
-        d3_DirToWorld(o, &d3_ZAxis.v, (D3VECTOR *)loc);
-        dir[1] = d3_VecAngle(&d3_ZAxis.v, (D3VECTOR *)loc);
-        d3_SetObjectRot(ch->obj, (D3VECTOR *)dir);
+        D3VECTOR dir, loc;
+        dir.x = 0;
+        dir.y = 0.0f;
+        dir.z = 0;
+        d3_DirToWorld(o, &d3_ZAxis.v, &loc);
+        dir.y = d3_VecAngle(&d3_ZAxis.v, &loc);
+        d3_SetObjectRot(ch->obj, &dir);
         ch_PlaceOnGround(ch, 0);
         ch->obj->owner = ch;
         d3_UpdateObject(ch->obj, 1);

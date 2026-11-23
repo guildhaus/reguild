@@ -1637,7 +1637,7 @@ typedef struct AIMSG {                  /* 0xf8 bytes, given to cm_SendLongMessa
         };
         struct {                        /* the build message 0xd (ai_ExecBuildBuilding 0x4a5320) */
             char padbuild58[0x28];
-            float buildPos[4];          /* 0x80, the plot's world position (ai_ObjectPosition, a 0x10-byte vector) */
+            D3VECTOR4 buildPos;         /* 0x80, the plot's world position (ai_ObjectPosition, a 0x10-byte vector) */
             float buildRot[3];          /* 0x90, the plot's angles (ai_ObjectAngle: [1] the turn) */
             char buildPath[0x5c];       /* 0x9c, the path of the building's model group ("...gebaeude/*gb_<NAME>.ogr");
                                            the size is reasoned: up to the record's end */

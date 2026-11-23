@@ -1529,7 +1529,8 @@ void init_OpenTown(void)
     int cnt[0x22];
     AICHAR *pl[8];
     AICHAR *ch2[16];
-    char vecA[16], vecB[12];
+    D3VECTOR4 vecA;                     /* the plot's position */
+    int vecB[3];                        /* its angles (ai_ObjectAngle), handed on as their bits */
     char buf260[96];
     D3OBJECT *list200[128];
     int ncl, i, j, k;
@@ -1594,9 +1595,9 @@ void init_OpenTown(void)
                         m++;
                     } while (m < n);
                 }
-                d3_PointToWorld(list200[m], &list200[m]->pos, (D3VECTOR *)vecA);
+                d3_PointToWorld(list200[m], &list200[m]->pos, &vecA.v);
                 ai_ObjectAngle(vecB, list200[m]);
-                h = cm_RequestCreateGeb(c->netId, proto, (D3VECTOR4 *)vecA, (int *)vecB);
+                h = cm_RequestCreateGeb(c->netId, proto, &vecA, vecB);
                 while (h != -1 && cm_GetSlotState(h) == 0)
                     sv_PumpNet();
                 geb = cm_GetSlotValue(h);

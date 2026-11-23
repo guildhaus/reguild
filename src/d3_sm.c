@@ -185,7 +185,7 @@ char d3sm_ShadowCB(D3OBJECT *obj, D3SM *h)
             a = tri->v[0];
             b = tri->v[1];
             c = tri->v[2];
-            d3_TriNormal(&a->pos, &b->pos, &c->pos, &nrm);
+            d3_TriNormal(&a->pos, &b->pos, &c->pos, &nrm.v);
             if (fabs(nrm.y) < 0.05f && !(obj->stateFlags & 0x40)) {
                 tri->hmSolid = 1;
                 tri->hmCast = 1;
@@ -384,7 +384,7 @@ void d3sm_Build(D3SM *h, D3FLMAP *t)
                     j = i;
                 }
             }
-            d3_TriNormal(&tri->v[0]->pos, &tri->v[1]->pos, &tri->v[2]->pos, &nrm);
+            d3_TriNormal(&tri->v[0]->pos, &tri->v[1]->pos, &tri->v[2]->pos, &nrm.v);
             if (fabs(tri->v[d3_TriEdge[j][1]]->y + tri->v[d3_TriEdge[j][0]]->y - (lo + lo))
                 < fabs(tri->v[d3_TriEdge[last][1]]->y + tri->v[d3_TriEdge[last][0]]->y - (hi + hi)))
                 j = last;

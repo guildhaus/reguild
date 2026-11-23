@@ -2075,7 +2075,7 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
     D3OBJECT *obj;
     D3OBJECT *o;
     AIBLD *b;
-    float at[4];            /* d3_PointToWorld writes the angles after the position */
+    D3VECTOR4 at;           /* d3_PointToWorld writes the angles after the position */
     D3VECTOR4 pos;
 
     ai_BauplatzCount = 0;
@@ -2085,12 +2085,12 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
         if ((obj = ai_BauplatzList[i]) == 0)
             goto next;
         if (obj->parent != 0) {
-            d3_PointToWorld(obj->parent, &obj->parent->pos, (D3VECTOR *)at);
+            d3_PointToWorld(obj->parent, &obj->parent->pos, &at.v);
             for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                 o = b->object;
                 if (o != 0) {
                     d3_PointToWorld(o, &o->pos, &pos.v);
-                    if (d3_VecEqual(&pos.v, (D3VECTOR *)at, 100.0f) != 0) {
+                    if (d3_VecEqual(&pos.v, &at.v, 100.0f) != 0) {
                         ai_BauplatzList[i] = 0;
                         break;
                     }
@@ -2099,12 +2099,12 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
         }
         for (obj = obj->child; obj != 0; obj = obj->next) {
             if (strncmp(obj->name, "bk_", 3) == 0) {
-                d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)at);
+                d3_PointToWorld(obj, &obj->pos, &at.v);
                 for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     o = b->object;
                     if (o != 0) {
                         d3_PointToWorld(o, &o->pos, &pos.v);
-                        if (d3_VecEqual(&pos.v, (D3VECTOR *)at, 100.0f) != 0) {
+                        if (d3_VecEqual(&pos.v, &at.v, 100.0f) != 0) {
                             ai_BauplatzList[i] = 0;
                             goto next;
                         }
@@ -2235,7 +2235,7 @@ char ai_FindBauplatz(D3OBJECT *obj, void *ctx)
     if (strnicmp(obj->name, "bk_", 3) != 0 && strnicmp(obj->name + 1, "bk_", 3) != 0)
         return 1;
     d3_PointToWorld(obj, &obj->pos, &pos.v);
-    if (d3_VecEqual((struct D3VECTOR *)site->pos, &pos.v, 100.0f) != 0) {
+    if (d3_VecEqual(&site->pos.v, &pos.v, 100.0f) != 0) {
         site->object = obj;
         s = strstr(obj->name, "bk_");
         if (s != 0)
@@ -2268,9 +2268,9 @@ int lc_GetGebaeudeBauplatz(AIBUILDSITE *out, AIBLD *b)
         return 0;
     }
     d3_PointToWorld(b->object, &b->object->pos,
-                    (struct D3VECTOR *)out->pos);
+                    &out->pos.v);
     sprintf(text, "lc_GetGebaeudeBauplatz(): FindPos->Pos:%f  %f  %f",
-            (double)out->pos[0], (double)out->pos[1], (double)out->pos[2]);
+            (double)out->pos.x, (double)out->pos.y, (double)out->pos.z);
     out->object = 0;
     d3_ForEachObject(d3_DefaultScene, 0, 0x180, ai_FindBauplatz, out);
     if (out->object == 0) {
@@ -2290,7 +2290,7 @@ extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0
 /* 0x58fd40, the world position of a plot record's origin, written to out (79 B): d3if_SelectScene (0, 1) brackets
    the work; the zeroed 0x10-byte vector goes through d3_LocalToWorld (the plot, the vector, out), which applies
    the record's matrix and its parent chain; d3_CurrentScene is selected again afterwards */
-void ai_ObjectPosition(void *out, D3OBJECT *plot)
+void ai_ObjectPosition(D3VECTOR *out, D3OBJECT *plot)
 {
     D3VECTOR4 v;
     int scene;
@@ -2300,7 +2300,7 @@ void ai_ObjectPosition(void *out, D3OBJECT *plot)
     v.x = 0;
     v.y = 0;
     v.z = 0;
-    d3_LocalToWorld(plot, &v.v, (struct D3VECTOR *)out);
+    d3_LocalToWorld(plot, &v.v, out);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fd90, the rotation angle of a plot record (123 B): d3if_SelectScene (0, 1) brackets the work; out[0..2] is
@@ -2866,7 +2866,7 @@ void ai_ConstructionWindow(void)
                         msg.arg[0] = msg.to;
                     msg.arg[1] = kind;
                     msg.arg[2] = gm_BuildingKindCost(&ai_Chars[ai_PlayerId], kind);
-                    d3_PointToWorld(site, &site->pos, (D3VECTOR *)msg.buildPos);
+                    d3_PointToWorld(site, &site->pos, &msg.buildPos.v);
                     ai_ObjectAngle(msg.buildRot, site);
                     strncpy(msg.buildPath, model, 0x3f);
                     cm_SendLongMessage(&msg);
@@ -7356,7 +7356,7 @@ D3OBJECT *ai_CreateCityPoint(char *city)
     if (obj == 0)
         return 0;
     d3_PointToWorld(obj, &obj->pos, &v.v);
-    obj = d3_CreateObject(0, &v.v, (D3VECTOR *)&d3_Origin, "sp_STADTPUNKT_K");
+    obj = d3_CreateObject(0, &v.v, &d3_Origin.v, "sp_STADTPUNKT_K");
     obj->kind = 4;
     obj->mask = 1;
     obj->objectFlags |= 4;

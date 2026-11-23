@@ -39,7 +39,7 @@ char d3_MirBoundaryEdges(unsigned int n, unsigned char *used, D3VERTEX **pts, un
         row = used + i;
             for (j = 0; j < n; j++, row += n) {
                 if (i != j && used[i * n + j] == 0) {
-                    d3_TriNormal(&d3_Origin.v, &pts[i]->pos, &pts[j]->pos, &nrm);
+                    d3_TriNormal(&d3_Origin.v, &pts[i]->pos, &pts[j]->pos, &nrm.v);
                     for (k = 0; k < n; k++) {
                         if (k != i && k != j) {
                             p = pts[k];
@@ -237,7 +237,7 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
             for (k = 0; k < np; k++) {
                 p = pts[k];
                 for (j = 0; j < np; j++)
-                    if (!uniq[j] || uniq[j] == p || d3_VecEqual((D3VECTOR *)uniq[j], (D3VECTOR *)p, 0.001f))
+                    if (!uniq[j] || uniq[j] == p || d3_VecEqual(&uniq[j]->pos, &p->pos, 0.001f))
                         break;
                 if (j < np && !uniq[j]) {
                     uniq[j] = p;
@@ -263,7 +263,7 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
                 planes->n = ci->n + ne;
                 planes->mirror = 1;
                 for (j = 0; j < ne; j++) {
-                    d3_TriNormal(&d3_Origin.v, &uniq[j * 2]->pos, &uniq[j * 2 + 1]->pos, &planes->p[j]);
+                    d3_TriNormal(&d3_Origin.v, &uniq[j * 2]->pos, &uniq[j * 2 + 1]->pos, &planes->p[j].v);
                     p = uniq[j * 2];
                     planes->p[j].w = -(p->x * (planes->p[j].x) + p->y * planes->p[j].y + (p->z) * planes->p[j].z);
                 }

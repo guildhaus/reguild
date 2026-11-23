@@ -1370,7 +1370,7 @@ void d3anim_CalculateAnimNormals(D3ANIMDATA *a, D3BGF *mesh)
         fr->radius = mesh->radius - d3anim_MaxRadius(points, mesh->nverts);
         for (i = 0; i < mesh->npolys; i++)
             d3_TriNormal(&points[mesh->polys[i].v[0]].v, &points[mesh->polys[i].v[1]].v,
-                         &points[mesh->polys[i].v[2]].v, &normals[i]);
+                         &points[mesh->polys[i].v[2]].v, &normals[i].v);
         mn.z = mn.y = mn.x = 1e10f;
         mx.z = mx.y = mx.x = -1e10f;
         for (i = 0; i < a->nverts; i++) {

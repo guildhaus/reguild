@@ -1392,7 +1392,7 @@ void ch_GetCamera(CHARACTER *ch, int view, D3VECTOR4 *pos, D3VECTOR *rot)
     }
     if (ch->flags.bytes.lo & 0x10)
         pos->y -= 15.0;
-    d3_LocalToWorld(ch->obj, (D3VECTOR *)pos, (D3VECTOR *)pos);
+    d3_LocalToWorld(ch->obj, &pos->v, &pos->v);
     rot->x += ch->obj->rotation.x;
     rot->y += ch->obj->rotation.y;
     rot->z += ch->obj->rotation.z;
@@ -2779,7 +2779,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others)
     if (a->type != '-')
         return -1;
     h = ch_GetHMap(ch);
-    ch_CopyVec((D3VECTOR *)ch_PathMap, (D3VECTOR *)h);
+    ch_CopyVec(&ch_PathMap->origin.v, &h->origin.v);
     steps = (int)(50.0f / h->cell.x + 0.5);
     if (steps > 10)
         steps = 10;

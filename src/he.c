@@ -953,7 +953,7 @@ D3OBJECT *he_CreateGfxObject(HEGFXINFO *e, char *name, D3OBJECT *obj)
     d3_PointToWorld(obj, &obj->pos, &pos.v);
     d3t_GetHeightRange(obj, &lo, &hi);
     pos.y = hi;
-    o = d3_CreateObject(0, &pos.v, (D3VECTOR *)&d3_Origin, name);
+    o = d3_CreateObject(0, &pos.v, &d3_Origin.v, name);
     e->obj = o;
     e->parent = obj;
     if (o != 0) {

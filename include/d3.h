@@ -779,7 +779,7 @@ struct D3PARTSYS {                  /* 0x31c bytes */
             float phase[3];         /* 0x50 */
             float phase3;           /* 0x5c */
             float psize[3];         /* 0x60, the particle sizes (ocmd_SetEmitterSize) */
-            float dir[3];           /* 0x6c */
+            D3VECTOR dir;           /* 0x6c */
             float vel[3];           /* 0x78 */
             float rnd[3];           /* 0x84 */
             float acc[3];           /* 0x90 */

@@ -1804,9 +1804,9 @@ void he_RunConstruction(AIJOB *e)
             if (&ai_Blds[i] != bld && ai_Blds[i].type != 0 && ai_Blds[i].object != 0) {
                 house = ai_Blds[i].object;
                 d3_PointToWorld(house, &house->pos, &v);
-                v.x -= site.pos[0];
-                v.y -= site.pos[1];
-                v.z -= site.pos[2];
+                v.x -= site.pos.x;
+                v.y -= site.pos.y;
+                v.z -= site.pos.z;
                 dist = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
                 if (dist < best && d3_FindObject(ai_Blds[i].object, 0x100, 0, "dummy_TUER") != 0) {
                     nearest = &ai_Blds[i];

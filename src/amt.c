@@ -2125,9 +2125,9 @@ void amt_CalcZuenfte(unsigned int kind)
             m.arg[0] = ai_PlayerChar->netId;
             m.arg[1] = bld;
             m.arg[2] = 0;
-            m.buildPos[0] = pos.x;
-            m.buildPos[1] = pos.y;
-            m.buildPos[2] = pos.z;
+            m.buildPos.x = pos.x;
+            m.buildPos.y = pos.y;
+            m.buildPos.z = pos.z;
             m.buildRot[0] = rot.x;
             m.buildRot[1] = rot.y;
             m.buildRot[2] = rot.z;
