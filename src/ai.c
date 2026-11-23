@@ -4234,20 +4234,23 @@ void ai_FreeJobCharacters(AICHAR *ch, int n)
    the trade kinds 3 / 4 / 8 name the carts' objects (info->b / info->c) and the building in the message.
    Side effects: info->z2 counts what was sent (also across calls), info->z1 is set as the round flag; the order
    message goes as one cm_SendLongMessage (0x28: one per free character, then the round ends).
-   @deep size queue s16: 87 -> 84 ins, raw 2305 (padded 2320 = the original's). Kept: the job-group
-   branch's found job ends with info->z1++; return; in the loop (as the other branches) instead of goto
-   done (the break + if (job) return form is the same code; a break with the message under if (job == 0) is
-   the control's code). Left as the prior note says: the 0x8c send site, the per-branch adds of the totals,
-   the zero register and the message store order. prior: Read whole against the original 0x4889f0..0x4892f4
-   and rewritten: every worker loop as for (i = 0; info->z2 < total && i < 768; i++) (the original's z2
-   test before the loop and at the bottom, i < 768 at the top), the harvest plant search as !found && k <
-   64 over the G15PLANT records with the plant id taken before the memset, msg.nIds / reserved14 stored
-   before the time, the 0x8c count with base = info->z2 loaded before the division, the trade kinds tested
-   on info->type itself (the original reloads it and does not thread the 4 / 8 / 3 tests), the goods
-   orders' count / item through the new AIMSG.goodsOrder view (was the *(unsigned char *) / *((unsigned
-   short *) + 1) casts on arg[0]), AIJOB.harvestPlant for unkb8. 327 -> 130 differing; every call, constant
-   and field the same. Left: the original keeps a third send site for 0x8c (ours cross-jumps it), the 0x14
-   / found-default total keeps its ... */
+   @deep draft, 71 ins (from 84). This session: 0x8c with no base local (z2 read in each arm, the test
+   before the loop if (info->z2 < total)): the original loads z2 into ebp in each arm; the job-group arm k
+   = info->type before the total (climb); msg.itemId before arg[1] in the type-4 fill (climb). Sums are
+   canonicalised: every operand order and parenthesisation of the 0x14 / 0x8c arm-else sums is one code (24
+   + 36 variants), three statements too. Left: 0x14 arm-else the original loads z2 first (mov ebp,[z2];
+   idiv; add ebp,eax; add ebp,edx), ours computes q + r (lea) and the + z2 tail is cross-jumped into the n
+   <= 1 arm (c2tail merge 1); the same in 0x8c arm-else (original (r + z2) + q, ours (q + z2) + r); the
+   time word store (mov word [esp+0x4c]) after the nIds / reserved14 zero stores in every fill; send sites:
+   the original keeps 0x15's send+z1++ copy (0x14 jumps to its je, the last branch to its call) and 0x8c's
+   own copy, ours merges all into the last branch which falls into the final z1++ (inc [mem] in the
+   original only on the fall paths); last branch msg.type through cl. 2^4 return/fall forms of the four
+   send sites: 13 = control. One function-scope AIMSG: worse (127). climb --rounds 3 from the start: 72 (it
+   also proposed t = info->n2 in the 0x28 arm, not kept). prior: size queue s16: 87 -> 84 ins, raw 2305
+   (padded 2320 = the original's). Kept: the job-group branch's found job ends with info->z1++; return; in
+   the loop (as the other branches) instead of goto done (the break + if (job) return form is the same
+   code; a break with the message under if (job == 0) is the control's code). Left as the prior note says:
+   the 0x8c send site, the per-branch adds of the totals, the zero register and the message store order. */
 
 void ai_SendJobOrders(AIINFO *info)
 {
@@ -4386,11 +4389,10 @@ void ai_SendJobOrders(AIINFO *info)
 
         gm_Query(info->ch->bld->objList, 1, 0, 0xfd);
         n = info->n1;
-        base = info->z2;
         if (n <= 1 || info->z1 != 0)
-            total = info->n2 / n + base;
+            total = info->n2 / n + info->z2;
         else
-            total = info->n2 % n + base + info->n2 / n;
+            total = info->n2 % n + info->z2 + info->n2 / n;
         memset(&msg, 0, sizeof(msg));
         msg.type = info->type;
         msg.to = ai_Chars[info->ch->bld->owner].netId;
@@ -4400,7 +4402,7 @@ void ai_SendJobOrders(AIINFO *info)
         msg.reserved14 = 0;
         msg.flags = 1;
         msg.itemId = info->e->item;
-        if (base < total) {
+        if (info->z2 < total) {
             for (i = 0; info->z2 < total && i < 768; i++) {
                 if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
                     && !ai_Chars[i].job && ai_Chars[i].scene && ai_Chars[i].scene->group == ai_Chars[i].bld->id) {
@@ -4423,11 +4425,11 @@ void ai_SendJobOrders(AIINFO *info)
                 (info->type == 8 && job->u.w.lo == (unsigned int)info->e->item) ||
                 (info->type == 3 && job->u.w.lo == (unsigned int)info->e->item)) {
                 n = info->n1;
+                k = info->type;
                 if (n <= 1 || info->z1 != 0)
                     total = info->n2 / n + info->z2;
                 else
                     total = info->z2 + info->n2 / n + info->n2 % n;
-                k = info->type;
                 v = 0;
                 if (k == 8 || k == 3)
                     v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
@@ -4453,8 +4455,8 @@ void ai_SendJobOrders(AIINFO *info)
         msg.reserved14 = 0;
         msg.flags = 1;
         if (info->type == 4) {
-            msg.arg[1] = -1;
             msg.itemId = info->e->item;
+            msg.arg[1] = -1;
             msg.arg[4] = info->ch->bld->id;
             msg.arg[5] = info->b->objId;
         }
