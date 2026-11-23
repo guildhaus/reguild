@@ -845,8 +845,8 @@ void d3fl_PrepareWater(D3FLMAP *map)
     D3FLWREG *r;
     D3FLPOLY *p;
     D3TEXFLAGS f;
-    int oldn, i, j, x, y, k, n, x0, x1, y1, np, npoly, first, left, off;
-    unsigned char found, in, v, h0, h1, q;
+    int oldn, i, j, x, y, k, x0, x1, y1, np, npoly, first, left, off;
+    unsigned char found, in, instrip, v, h0, h1, q;
     int tx, ty;
 
     oldn = map->nregions;
@@ -987,34 +987,34 @@ void d3fl_PrepareWater(D3FLMAP *map)
                         if (tex = tex_Load("EF_WASS_06A_2T_W_AN0", f, 0, 0))
                             tex_Reload(tex, 0);
                     }
-                    for (i = first; i < map->nregions; i++) {
-                        regs[i].tex = regs[i].tex2 = tex;
+                    for (j = first; j < map->nregions; j++) {
+                        regs[j].tex = regs[j].tex2 = tex;
                         if (tex) {
-                            regs[i].flags = tex->flags;
-                            /* @original the test reads first, not i (cmp of the first slot with nregions - 1 in
+                            regs[j].flags = tex->flags;
+                            /* @original the test reads first, not j (cmp of the first slot with nregions - 1 in
                                every pass): each new region adds a reference unless only the last one is new */
                             if (first < map->nregions - 1)
                                 tex_AddRef(tex, 1);
                         } else
-                            regs[i].flags.all = 0;
-                        regs[i].f14 = 63.0f;
-                        regs[i].speed[0] = 0.023f;
-                        regs[i].speed[1] = 0.02f;
-                        regs[i].speed[2] = 0.027f;
-                        regs[i].speed[3] = 0.03f;
-                        regs[i].amp[0] = 1.0f;
-                        regs[i].amp[1] = 1.0f;
-                        regs[i].amp[2] = 1.0f;
-                        regs[i].amp[3] = 31.0f;
-                        regs[i].scrollSpeedU = 0;
-                        regs[i].scrollSpeedV = 0;
-                        regs[i].time = d3_Time;
-                        regs[i].vOfs = 0;
-                        regs[i].uOfs = 0;
-                        regs[i].wavePhase[0] = 0;
-                        regs[i].wavePhase[1] = 0;
-                        regs[i].wavePhase[2] = 0;
-                        regs[i].wavePhase[3] = 0;
+                            regs[j].flags.all = 0;
+                        regs[j].f14 = 63.0f;
+                        regs[j].speed[0] = 0.023f;
+                        regs[j].speed[1] = 0.02f;
+                        regs[j].speed[2] = 0.027f;
+                        regs[j].speed[3] = 0.03f;
+                        regs[j].amp[0] = 1.0f;
+                        regs[j].amp[1] = 1.0f;
+                        regs[j].amp[2] = 1.0f;
+                        regs[j].amp[3] = 31.0f;
+                        regs[j].scrollSpeedU = 0;
+                        regs[j].scrollSpeedV = 0;
+                        regs[j].time = d3_Time;
+                        regs[j].vOfs = 0;
+                        regs[j].uOfs = 0;
+                        regs[j].wavePhase[0] = 0;
+                        regs[j].wavePhase[1] = 0;
+                        regs[j].wavePhase[2] = 0;
+                        regs[j].wavePhase[3] = 0;
                     }
                 }
                 if (map->regions) {
@@ -1035,35 +1035,33 @@ void d3fl_PrepareWater(D3FLMAP *map)
                         npoly = 0;
                         y1 = j == 7 ? map->size - 4 : (j + 1) * map->n;
                         for (y = map->n * j; y <= y1; y++) {
-                            in = 0;
+                            instrip = 0;
                             x1 = i == 7 ? map->size - 4 : (i + 1) * map->n;
-                            n = map->n;
-                            for (x = n * i; x <= x1; x++) {
+                            for (x = map->n * i; x <= x1; x++) {
                                 k = (y & map->mask) * map->size + (x & map->mask);
                                 v = map->water[k];
-                                if (!in) {
-                                    if (v > 0 && ((y < (j + 1) * n && x < (i + 1) * n && cmask[k] < 0xff)
-                                                  || (y > n * j && cmask[k - map->size] < 0xff)
-                                                  || (x > n * i && cmask[k - 1] < 0xff))) {
-                                        in = 1;
+                                if (!instrip) {
+                                    if (v > 0 && ((y < (j + 1) * map->n && x < (i + 1) * map->n && cmask[k] < 0xff)
+                                                  || (y > map->n * j && cmask[k - map->size] < 0xff)
+                                                  || (x > map->n * i && cmask[k - 1] < 0xff))) {
+                                        instrip = 1;
                                         r->y = y;
                                         r->x0 = x;
                                         r->idx = np;
                                         r->flag = 0xff;
                                     }
                                 } else if (!v) {
-                                    in = 0;
+                                    instrip = 0;
                                     r->x1 = x - 1;
                                     if (r->x0 < r->x1) {
                                         np += r->x1 - r->x0 + 1;
                                         r++;
                                     }
                                 }
-                                n = map->n;
-                                if (y < (j + 1) * n && x < (i + 1) * n && cmask[k] < 0xff)
+                                if (y < (j + 1) * map->n && x < (i + 1) * map->n && cmask[k] < 0xff)
                                     npoly += 2;
                             }
-                            if (in) {
+                            if (instrip) {
                                 r->x1 = (i + 1) * map->n;
                                 if (r->x0 < r->x1) {
                                     np += r->x1 - r->x0 + 1;
