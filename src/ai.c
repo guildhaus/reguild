@@ -5370,36 +5370,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
    the flags1b4 bit 0x200 gate, then handles the building's carts: a cart below a third full gets the reload
    message 0x10 (10 seconds ahead); a full one without a running job 11 is unloaded against the market - the stall
    goods are sold to the market stalls (cm_SendExSellObject) and the buys collected into one message 11, sent
-   unless the ai_TradeMsgOff gate is set.
-   @deep s52: now shape, slots only (128 ins / 64 bytes, size equal): the stA sell loop's n = min(lim,
-   stA.amount[i]) (the if (lim < n) form left the amount pointer reloaded: code 28 / size +7 gone) and
-   nsell = 0; nbuy = 0; before the msg memset (the order hunk). The same min form at the entries / slots /
-   rec sites is worse (146..613). Left: the frame. The original's 4-byte slots (esp offsets): 0x14 = {f,
-   lim at all three sites, the m-loop slot pointer (line of for (m = 0; !found && m < 128; m++)), the
-   j-loop ai_Slots pointer (for (j = 0; !found && j < ai_NSlots; j++))}, 0x18 market, 0x1c = {rec cursor,
-   &stA.amount[i]}, 0x20 nsell, 0x24 = {v of the emergency block, sold}, 0x28 car, 0x2c s alone. Ours
-   (c2frame --names): {sold, f, v}, {rec cursor, lim}, {&stA.amount[i], s}, {the two slot pointers}. Packer
-   replay (newest compatible slot, list by count then first reach, conflicts from the X rows): the
-   original's packing needs &stA.amount[i] >= lim (now 6 vs 7: the min macro reads lim twice), f >= sold (f
-   5, sold 6), v < sold, and both slot pointers listed before s (s 4 reaches its count first) - i.e. about
-   +1 for the amount pointer, +1 for f and -1 for s at layout time while the listing stays identical
-   (counts before the late passes: a statement in both arms, a split-piece reload). Rounds without the
-   frame: blockscope of every scalar = control (lim per loop worse); every continue -> if-block form (2^6)
-   = control; the lim of the entries / slots sites renamed to v: 88 ins (slots 134) but v then shares the
-   emergency v's slot, which the original keeps apart (X vs Z), so a local optimum; renaming to k / m /
-   found / sold 116+; s via break, it in the stA test, condition orders (!found last) worse; climb --rounds
-   6 (seed 7): 161 via t = market->objId only. flip --want '_f$ = -1676': hits only drop a sold = 1 / sold
-   = 0 / a lim assignment. Next: find the ordinary source with those three counts (c2frame --names per
-   variant; a statement written in both arms near f's margin test or the m loop). prior: s51: the slots
-   hunks (292 of 240 ins) are the frame sort (frame > 0x80, VC6's unstable sort of equal densities:
-   sold/f/v and the 0x5566/0x5656 temps both 4000): c2frame's replay gives the same order for the variants
-   below although dcp's slot hunks change, so the unstable sort's input count / order decides. climb round
-   1 (694 mutants): best 163 via a new int local t = market->objId for the stall-goods sprintf /
-   cm_SendExSellObject pair (slots 166, code 65): an extra frame entry reorders the sort; not kept (no
-   source reason for that local; the original's slot of f is 0x14 with lim / s, ours f with sold / v). No
-   lever: v inline in the first slot loop, float g dropped, g as the GoodsPrice / ItemPrice / k temp;
-   worse: f in one statement (274), g = util_RandomF() * 1.25f (252). Open: which ordinary local the
-   original had that gives the sort the original's order (a local per SELL macro site?). */
+   unless the ai_TradeMsgOff gate is set. */
 
 int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
 {
@@ -5411,7 +5382,7 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
     char buf[1024];
     unsigned short it;
     float f, g;
-    int i, j, k, m, n, v, lim, found, nsell, nbuy, sold;
+    int i, j, k, m, n, v, lim, stock, found, nsell, nbuy, sold;
 
     for (i = 0; i < ai_NSlots; i++) {
         if (!(ai_Slots[i].flags & 6) && (ai_Slots[i].flags & 8)) {
@@ -5425,8 +5396,8 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
             for (i = 0; i < ai_NEntries; i++) {
                 if (!(ai_Entries[i].flags & 6)
                     && (!(ai_Entries[i].flags & 8) || ai_Entries[i].amount > gm_ListStock(b, ai_Entries[i].item) / 3)) {
-                    f = gm_ItemPrice(ai_Entries[i].item, 100);
-                    f = f / gm_GoodsPrice(ai_Entries[i].item, ai_OwnPlayer);
+                    g = gm_ItemPrice(ai_Entries[i].item, 100);
+                    f = g / gm_GoodsPrice(ai_Entries[i].item, ai_OwnPlayer);
                     if (f < 1.0f && f <= util_RandomF() * 1.25f) {
                         ai_Entries[i].sellAmount = ai_Entries[i].amount;
                         if (ch == ai_LoggedMaster)
@@ -5468,8 +5439,8 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
         ch->flags1b4 &= ~0x200;
     }
     gm_BuildingGoodsList(ch->bld, &stA, 0);
-    for (car = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner); car;
-         car = gm_QueryNext()) {
+    car = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner);
+    while (car) {
         if (car->bldId == ch->bld->id) {
             if (car->fill < 0x21) {
                 memset(&msg, 0, sizeof(msg));
@@ -5484,6 +5455,7 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
                 msg.u.s.cost = 0;
                 msg.n = 100 - car->fill;
                 cm_SendLongMessage(&msg);
+                car = gm_QueryNext();
                 continue;
             }
             for (job = he_FindEvent(2, 0, 11, 3, ch->bld->id); job; job = he_NextEvent()) {
@@ -5629,12 +5601,12 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
                 for (i = 0; nsell < 3 && i < ai_NEntries; i++) {
                     if (!ai_Entries[i].sellAmount)
                         continue;
-                    lim = gm_ListStock(market, ai_Entries[i].item);
+                    stock = gm_ListStock(market, ai_Entries[i].item);
                     for (j = 0; ai_Entries[i].sellAmount && j < rec.n; j++) {
                         if (!rec.item[j] || rec.item[j] == ai_Entries[i].item) {
                             n = ai_Entries[i].sellAmount;
-                            if (lim < n)
-                                n = lim;
+                            if (stock < n)
+                                n = stock;
                             sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Entries[i].item, n, ai_OwnPlayer, 0);
                             cm_SendExSellObject(market->objId, b->objId, ai_Entries[i].item, n, ai_OwnPlayer, 0);
                             msg.u.item[nsell] = ai_Entries[i].item;
@@ -5658,12 +5630,12 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
                                      (int)gm_GoodsPrice(ai_Slots[i].item, ai_OwnPlayer));
                         ai_Slots[i].sellAmount = 0;
                     } else {
-                        lim = gm_ListStock(market, ai_Slots[i].item);
+                        stock = gm_ListStock(market, ai_Slots[i].item);
                         for (j = 0; ai_Slots[i].sellAmount && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == ai_Slots[i].item) {
                                 n = ai_Slots[i].sellAmount;
-                                if (lim < n)
-                                    n = lim;
+                                if (stock < n)
+                                    n = stock;
                                 sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
                                 cm_SendExSellObject(market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = ai_Slots[i].item;
@@ -5722,6 +5694,7 @@ int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
         for (o = gm_Query(ch->bld->objList, 3, 6, 4, 0x1d, 3, ch->bld->owner); o != car;
              o = gm_QueryNext())
             ;
+        car = gm_QueryNext();
     }
     return 1;
 }
