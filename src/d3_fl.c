@@ -804,32 +804,35 @@ void d3fl_Ramp(unsigned char *p, int a, int b, unsigned char v0, unsigned char v
 }
 /* 0x440360, finds the water tile type ("WASSER"), builds the water height map, its regions and the water
    strips, points and polygons of the tiles
-   @deep Session 2026-11-16: meaning fixed: regs[i].f14 = 63.0f (the original stores 0x427c0000;
-   d3_int_io's default is 63.0f too), and d3fl_Fill takes unsigned char map/from/to (the original pushes
-   0xfe as imm32; d3fl_Fill stays byte). Slot evidence read from the paired frames: the ramp and diagonal
-   loops run on j (row, [ebp-0x10], j's slot) and i (column, [ebp-0x14], i's slot), not y/x: kept (i then
-   conflicts with map, so it leaves map's arg slot as in the original, where map's slot holds tex/off/_zn
-   instead). The first ramp test reads map->water[k] == 0xff (the original re-tests v != 0xff in the
-   else-if when entered from the in-path: only this spelling gives cmp dl,0xff/je there; else-if swaps, two
-   ifs, v < 0xff, nested if(in): no). Now 889 ins (count rose from 879 by the right changes; the frame is
-   global). Original frame from ebp down: -4 {strcpy ptr, x0, k, D3_COPY/FILL temps}, -8 x/np, -0xc
-   {ty/x1/c/macro counts, tmp@892}, -0x10 j, -0x14 i, -0x15 byte in (kept in bl, spilled), -0x1c y (mask
-   and strip loops) + h1, -0x20 h0 + regs, -0x24 oldn + t, -0x28 a temp of the diagonal switch (921/928
-   edi=[ebp-0x28]), -0x2c cmask, -0x30 npoly, -0x34 mask. The byte slot ranks 6th, so five dword slots are
-   denser than in's byte (in count 8): their counts must be far above ours (c2frame --names). Code hunks
-   left (registers and slots ignored): mask-loop guard test vs cmp (844), the 8 neighbour writes (859-866:
-   x+-1 / y+-1 kept differently), cmask loops 935-942 (y in a register, xor), regs init loop 965-990 (jmp
-   into the body, i in memory), strips 1004-1043, the wpolys clear 1057-1061 (original: pointer walk add
-   0x4c with stores at [p-4],[p],[p-8]), 1073-1104. prior: read the whole function against the original
-   0x440360..0x441253 (water type search, mask and its 8 neighbours, the shore ramps, the diagonal switch
-   with its tables, regions, region records, strips/points/polys, the removed-region compaction, the frees)
-   and fixed: if (found) {...} else watertype = 0xff (the original lays the found branch first, 0x441149
-   after the cmask free), the strips test if (!in) {...} else if (!v) (the original tests in first,
-   0x440ce7), the corner bits built in the unsigned char q with byte adds (add bl,bl / or bl,dl, the last
-   bit and 0xff), the flag words cleared through D3TEXFLAGS.all. ours 1331 vs 1326 instructions, switch
-   tables equal. Left: allocation and scheduling: the 8 neighbour writes of the mask keep x+1 / x-1 in
-   [ebp-0x28] / [ebp-4] and y-1 / y+1 in other registers ('- mov ebx,[esi+0xc] / - mov edx,[esi]' vs '+ mov
-   ebx,ecx / + mov edx,[esi+0xc]', a 29/30... */
+   @deep Session 2026-11-23: meaning fixed: the regions' tex_AddRef test reads first (the loop-invariant
+   start, the original's [ebp-0x30] = first reloaded at the loop top, i is [ebp-0x10]), not i: 889 -> 817
+   ins, the regs init loop is now the original's shape (jmp into the body, i in memory) up to slot numbers.
+   Leads not kept: the wpoints init loop through a block-local D3VERTEX *v = t->wpoints (the original loads
+   t->wpoints once before the loop and walks it: add eax,0x4c / stores at [eax-4],[eax],[eax-8],[eax-0xc],
+   the bound t->nwpoints reloaded into edi each pass) gives that loop the original's shape but makes a 0
+   constant candidate in edi (mov [eax-4],edi; cmp eax,edi on t->wpolys) the original does not have: 905 vs
+   889 before the fix; the store orders = no lever. climb round 1 (before the fix): best a local s =
+   map->mask for the six row writes 889 -> 793, but the original reloads map->mask ([esi+0xc]) at every
+   write: not the original's form, a count mover only. Operand order of the mask index (size*y + term vs
+   term + size*y, y*size) = control. The frame is the open part: slot order follows the post-allocation
+   memory counts (c2frame --names), so it moves only with the allocation. prior: Session 2026-11-16:
+   meaning fixed: regs[i].f14 = 63.0f (the original stores 0x427c0000; d3_int_io's default is 63.0f too),
+   and d3fl_Fill takes unsigned char map/from/to (the original pushes 0xfe as imm32; d3fl_Fill stays byte).
+   Slot evidence read from the paired frames: the ramp and diagonal loops run on j (row, [ebp-0x10], j's
+   slot) and i (column, [ebp-0x14], i's slot), not y/x: kept (i then conflicts with map, so it leaves map's
+   arg slot as in the original, where map's slot holds tex/off/_zn instead). The first ramp test reads
+   map->water[k] == 0xff (the original re-tests v != 0xff in the else-if when entered from the in-path:
+   only this spelling gives cmp dl,0xff/je there; else-if swaps, two ifs, v < 0xff, nested if(in): no). Now
+   889 ins (count rose from 879 by the right changes; the frame is global). Original frame from ebp down:
+   -4 {strcpy ptr, x0, k, D3_COPY/FILL temps}, -8 x/np, -0xc {ty/x1/c/macro counts, tmp@892}, -0x10 j,
+   -0x14 i, -0x15 byte in (kept in bl, spilled), -0x1c y (mask and strip loops) + h1, -0x20 h0 + regs,
+   -0x24 oldn + t, -0x28 a temp of the diagonal switch (921/928 edi=[ebp-0x28]), -0x2c cmask, -0x30 npoly,
+   -0x34 mask. The byte slot ranks 6th, so five dword slots are denser than in's byte (in count 8): their
+   counts must be far above ours (c2frame --names). Code hunks left (registers and slots ignored):
+   mask-loop guard test vs cmp (844), the 8 neighbour writes (859-866: x+-1 / y+-1 kept differently), cmask
+   loops 935-942 (y in a register, xor), regs init loop 965-990 (jmp into the body, i in memory), strips
+   1004-1043, the wpolys clear 1057-1061 (original: pointer walk add 0x4c with stores at [p-4],[p],[p-8]),
+   1073-1104. */
 
 void d3fl_PrepareWater(D3FLMAP *map)
 {
@@ -988,7 +991,9 @@ void d3fl_PrepareWater(D3FLMAP *map)
                         regs[i].tex = regs[i].tex2 = tex;
                         if (tex) {
                             regs[i].flags = tex->flags;
-                            if (i < map->nregions - 1)
+                            /* @original the test reads first, not i (cmp of the first slot with nregions - 1 in
+                               every pass): each new region adds a reference unless only the last one is new */
+                            if (first < map->nregions - 1)
                                 tex_AddRef(tex, 1);
                         } else
                             regs[i].flags.all = 0;
