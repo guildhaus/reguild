@@ -1359,9 +1359,9 @@ check:
   if (info.n1 >= info.n2)
     info.n1 = info.n2;
   if (info.n2 && info.n1) {
+    info.ch = ch;
     info.b = b;
     info.c = c;
-    info.ch = ch;
     info.z2 = 0;
     info.z1 = 0;
     if (ai_BTypes[ch->bld->type].kind == 11) {
