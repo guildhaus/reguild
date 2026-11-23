@@ -346,7 +346,7 @@ void d3_SetupFrustum(void)
     d3_Planes[5].z = -1.0f;
     d3_Planes[5].w = -d3_ZFar;
     for (i = 0; i < 64; i++) {
-        info = (D3CLIPINFO *)d3_ClipInfo[i];
+        info = &d3_ClipInfo[i];
         n = 0;
         for (bits = i; bits; bits >>= 1)
             if (bits & 1)
@@ -735,7 +735,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                             tex->stamp = d3_FrameCount;
                         } else
                             d3_SortPtr->key = 0;
-                        t->clip = d3_ClipInfo[t->flags & 0x3f];
+                        t->clip = &d3_ClipInfo[t->flags & 0x3f];
                         d3_SortPtr++;
                         d3_SortCount++;
                     }
@@ -752,7 +752,7 @@ char d3_DrawObjectCB(D3OBJECT *obj)
                         d3_FtoI((int *)&d3_SortPtr->key, (d3_InvZFar * 16777216.0f) * z * 3.0f);
                         if (t->tex)
                             t->tex->stamp = d3_FrameCount;
-                        t->clip = d3_ClipInfo[t->flags & 0x3f];
+                        t->clip = &d3_ClipInfo[t->flags & 0x3f];
                         d3_SortPtr++;
                         d3_SortCount++;
                     }
@@ -2699,7 +2699,7 @@ int d3_ScreenW;  /* 0xfc2df4 */
 D3BGF d3_StockListStart;  /* 0xfc2e00, the head sentinel of the stock object list (D3BGF, d3_io_t.h; 0x20c bytes up to
                                    d3_FogStart): its next at 0xfc2ffc is the list's first stock object, its prev at 0xfc3000 */
 float d3_FogStart;  /* 0xfc300c */
-char d3_ClipInfo[64][0x68];  /* 0xfc3020 */
+D3CLIPINFO d3_ClipInfo[64];  /* 0xfc3020 */
 float d3_FovX;  /* 0xfc4a20 */
 D3BGF d3_StockListEnd;  /* 0xfc4a40, the end sentinel of the stock object list (D3BGF, d3_io_t.h): d3io_LoadObjectFile links new ones in before it */
 float d3_FovY;  /* 0xfc4c4c, half the vertical view angle (d3_FovX the horizontal one) */

@@ -31,11 +31,6 @@ typedef struct D3MIRROR {           /* d3_Mirror (0xfb9900), the mirror of the f
 } D3MIRROR;
 
 
-typedef struct D3MIRBITS {          /* view of D3OBJECT::objectFlags */
-    unsigned char b0 : 6;
-    unsigned char mirrored : 1;     /* 0x40, its mirror image is visible */
-    unsigned char b7 : 1;
-} D3MIRBITS;
 
 /* Inline-asm copy as D3_COPY3 (d3_d3d.h): size, src and dst through temps, declared in this order. */
 #define D3M_COPY(dst, src, size) {                              \

@@ -73,7 +73,7 @@ typedef struct D3FLTILE {           /* 0x64 bytes, 8 x 8 of them in D3FLMAP */
     void *split;                    /* 0x30 */
     D3FLWREG *wregions;             /* 0x34 */
     int nsplit;                     /* 0x38, D3FLSPLIT records in split (the extra edge vertices, d3fl_Draw) */
-    void *bp;                       /* 0x3c */
+    struct D3FLTRIUV *bp;           /* 0x3c, the uv triples of the split triangles */
     int nbpUsed;                    /* 0x40, uv triples of bp in use (the split triangles, d3fl_Draw) */
     int nbp;                        /* 0x44 */
     float lodDistBias;              /* 0x48, added to both lod distance thresholds (nothing writes it: 0) */

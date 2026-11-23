@@ -205,7 +205,8 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
     D3VERTEX **pts;
     D3VERTEX **uniq;
     D3VERTEX *p;
-    D3MIRPLANES *ci, *planes;
+    D3CLIPINFO *ci;
+    D3MIRPLANES *planes;
     unsigned int n, cnt, np, nu, ne, k, j;
     unsigned char clip;
 
@@ -258,7 +259,7 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
                 }
                 mem_Free(pts);
                 ne /= 2;
-                ci = (D3MIRPLANES *)d3_ClipInfo[clip & 0x3f];
+                ci = &d3_ClipInfo[clip & 0x3f];
                 planes = mem_Alloc((ci->n + ne) * 16 + 8, "d3_mir:CrClippingPlanesFinal");
                 planes->n = ci->n + ne;
                 planes->mirror = 1;
@@ -268,7 +269,7 @@ D3MIRPLANES *d3_MirCreatePlanes(D3OBJECT *obj, TSTEXTURE *tex)
                     planes->p[j].w = -(p->x * (planes->p[j].x) + p->y * planes->p[j].y + (p->z) * planes->p[j].z);
                 }
                 mem_Free(uniq);
-                D3M_COPY(&planes->p[ne], ci->p, ci->n * 16);
+                D3M_COPY(&planes->p[ne], ci->plane, ci->n * 16);
                 return planes;
             }
         }
@@ -341,7 +342,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
     D3TRI *t;
     TSTEXTURE *tex, *tt;
     D3VERTEX *a, *b, *c;
-    D3MIRBITS *bits;
+    struct D3MIRBITS *bits;
     char redo;
     int i, k, n;
 
@@ -350,7 +351,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
         return 1;
     if (obj == d3s_Object)
         return 1;
-    bits = (D3MIRBITS *)&obj->objectFlags;
+    bits = &obj->mirBits;
     bits->mirrored = d3_MirBoxInPlanes(obj, m);
     if (bits->mirrored) {
         if (m->flags.on || (obj->state & 8))

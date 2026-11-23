@@ -1959,7 +1959,7 @@ void d3fl_DrawWater(D3FLMAP *map, D3FLTILE *t)
             }
         }
         d3_ClipMesh(t->clipCode, t->wpoints, npoints, (D3TRI *)t->wpolys, npolys);
-        clip = (D3CLIPINFO *)d3_ClipInfo[t->clip & 0x3f];
+        clip = &d3_ClipInfo[t->clip & 0x3f];
         if (d3_FogOn) {
             for (i = npoints, v = t->wpoints; i > 0; i--, v++)
                 if (v->flags & 0x80) {
@@ -2325,7 +2325,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             ly = my + half;
                             v = T.points + T.npoints;
                             np = T.polys + T.npolys;
-                            uv = T.bp;
+                            uv = T.bp->uv;
                             poly = T.polys + (nx - 2) * 2;
                             D3FL_POS(p, lx, ly)
                             fs = (float)s;
@@ -2401,7 +2401,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             ly = half + my;
                             v = T.points + T.npoints;
                             np = T.polys + T.npolys;
-                            uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
+                            uv = T.bp[T.nbpUsed].uv;
                             poly = T.polys;
                             D3FL_POS(p, mx, ly)
                             fs = (float)s;
@@ -2477,7 +2477,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             lx = half + mx;
                             v = T.points + T.npoints;
                             np = T.polys + T.npolys;
-                            uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
+                            uv = T.bp[T.nbpUsed].uv;
                             poly = T.polys;
                             D3FL_POS(p, lx, my)
                             fs = (float)s;
@@ -2556,7 +2556,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             v = T.points + T.npoints;
                             np = T.polys + T.npolys;
                             D3FL_POS(p, lx, ly)
-                            uv = (float *)((D3FLTRIUV *)T.bp + T.nbpUsed);
+                            uv = T.bp[T.nbpUsed].uv;
                             fs = (float)s;
                             dx.x = d3fl_AxisX.x * fs;
                             dx.y = d3fl_AxisX.y * fs;
@@ -2684,7 +2684,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                         d3_MinZ = t->zmin;
                     if (!(t->zmax < d3_MaxZ))
                         d3_MaxZ = t->zmax;
-                    clip = (D3CLIPINFO *)d3_ClipInfo[t->clip & 0x3f];
+                    clip = &d3_ClipInfo[t->clip & 0x3f];
                     d3_TriCount += t->npolys;
                     d3_VertCount += t->npoints;
                     d3_DrawnVerts += t->npoints;

@@ -172,6 +172,12 @@ struct D3OBJECT {
             unsigned char mirrored : 1;     /* 0x40 */
             unsigned char alphaAlias : 1;   /* 0x80 */
         } flagBits;
+        struct D3MIRBITS {          /* the mirror bit as d3_MirDrawObject stores it: through flagBits' single-bit
+                                       fields its store compiles otherwise (shape) */
+            unsigned char b0 : 6;
+            unsigned char mirrored : 1;     /* 0x40, its mirror image is visible */
+            unsigned char b7 : 1;
+        } mirBits;
     };
     union {
     unsigned char stateFlags;       /* 0x212, object flags, read and written bit by bit: 2 = vertex colors set

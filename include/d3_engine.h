@@ -190,7 +190,6 @@ extern unsigned int d3_LightGeneration;     /* 0x633b10, lightmap generation, D3
 extern unsigned int d3_LightKeyBudgetCulled;  /* 0x5fcc6c, per-frame key budget for culled lights */
 extern unsigned int d3_LightKeyBudgetVisible; /* 0x5fcc70, per-frame key budget for visible lights */
 extern unsigned int d3s_Count;     /* 0x633dc0, d3s.c: the shadow triangles d3s_UpdateObject produced (unsigned: d3_DrawObjectCB tests it with ja) */
-extern char d3_ClipInfo[64][0x68];          /* 0xfc3020 */
 void d3s_UpdateObject(D3OBJECT *obj);       /* 0x45ca20, d3s.c */
 void d3s_UpdateObjectAt(D3OBJECT *obj);     /* 0x45ca60, d3s.c */
 struct D3OBJECT; struct D3SURF; struct D3MATRIX; void d3_TransformVerts(struct D3OBJECT *obj, struct D3SURF *info, struct D3MATRIX *m);                             /* 0x459300 */
@@ -216,6 +215,7 @@ typedef struct D3CLIPINFO {         /* 0x68 bytes, d3_ClipInfo[clip code]: the p
     char pad05[0x3];
     D3VECTOR4 plane[6];             /* 0x08, normal and distance */
 } D3CLIPINFO;
+extern D3CLIPINFO d3_ClipInfo[64];          /* 0xfc3020 */
 extern unsigned int d3_ClipOut;            /* 0x633454, vertices in the clipped polygon */
 extern unsigned int d3_ClipIn;              /* 0x633458, vertices in the polygon to clip */
 extern D3VERTEX *d3_ClipList[2][0x80];       /* 0xfc4c60, polygon vertex lists (ping-pong) */
