@@ -2200,6 +2200,15 @@ copied back into short predecessors only after all of this.
 
 ### Which arm is inline and which is out of line
 
+- **One arm of an `r == 1 / r == 0 / r == 3` chain split in two: its head (a random test, a sprintf, a grid loop's
+  first body up to a store) inline at its test, the loop latch and the rest laid out after a LATER arm's call**
+  (ours: the arm whole, inline; `goto burgle` / `goto other` into the arms): the job pick was r values, `r = 0` /
+  `r = 3` where the draft jumped, the downgrade a decided test before the chain (`if (r == 1 && util_RandomF() <
+  0.95) r = 2;`), and the split arm stood LATER in the chain (`if (r == 0) .. else if (r == 3) .. else if (r ==
+  1) ..`): the threaded tests keep the code order r == 1, 0, 3, the block order comes from the graph with the
+  decided tests (ai_CalcMeisterDiebe 741 -> 159). Its `for (..) if (job->x == id) goto found;` searches were
+  `break` loops with `if (!job) { send; return; }` before the found text (159 -> 91), the watch copy loop
+  `for (c = 0; nslots < 4 && c < ai_NSlots; c++)` without the inner `if (..) break;` (91 -> byte by tie-break).
 - **`if (A || .. || F) X else if (G || ..) Y` with X laid out last (near je to it, the G tests inline), the
   original falls into X and jumps to the G tests**: the X test was a value first, `int is24 = A || .. || F; if
   (is24) X else if (..) Y` (or separate `if (A) goto x;` tests): the `||` jumps go into X, so the block walk
