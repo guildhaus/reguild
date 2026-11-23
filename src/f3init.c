@@ -9,6 +9,7 @@
 struct VFSENTRY;
 struct D3OBJECT;
 struct D3SURF;
+struct D2SURF;                       /* d2_types.h (included below): the file-scope tag, so d2_ClearSurface's parameter is not a prototype-scope type of its own */
 struct VFSDIR;
 struct D3SM;
 #include "txt_views.h"
