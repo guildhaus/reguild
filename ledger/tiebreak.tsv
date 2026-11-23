@@ -1461,7 +1461,7 @@ exe	0x0047e940	ai_ResetJob	ai	bd3efb667a701b9a	no	byte	control=byte p1=byte p2=b
 exe	0x0047e990	ai_RunMasterEvaluation	ai	aefcf0f5c06b5069	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047ec20	ai_PlanSlots	ai	a854cc5cf1470c2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	b0f9db8d0c25e692	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0047edb0	ai_EvaluateProduction	ai	ce51c9c36036cfd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d9b267afaadc3585
+exe	0x0047edb0	ai_EvaluateProduction	ai	e510a684de1bb65f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7c63244ae660b550
 exe	0x0047f700	ai_EvaluateProductionFlags	ai	582c15af18f4d9ec	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	557836d9dae12699	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00480e70	ai_CalcMeisterWache	ai	e1ab6bc1a7430b4e	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
@@ -1473,7 +1473,7 @@ exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	3970287b34b39b1c	yes	byte	sweep con
 exe	0x00483d30	ai_StartBuildingWork	ai	fb4756fabe173208	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x00483ee0	ai_EndWorkerPose	ai	7830a709dbd548a9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00483fc0	ai_EvaluateProductionGraveyard	ai	473741e6369ab2bd	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	13a0010577c9a0bf
-exe	0x00484a60	ai_EvaluateProductionGypsies	ai	38cec24ae17f12f0	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	586fb3f4b7b28d3f
+exe	0x00484a60	ai_EvaluateProductionGypsies	ai	2571fd24ab5d60b3	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	2f60e8e583593fce
 exe	0x004854f0	ai_UpdateProduction	ai	971ddfb4cbfec75d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	9ae3229e4c037d19
 exe	0x00486190	ai_FillSlotTable	ai	34aebf3db62ccc91	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004864b0	ai_BuildTradeOffers	ai	b8d6f5fdc5ca21c5	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	f870e44a5d8c5118

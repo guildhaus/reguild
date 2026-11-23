@@ -653,24 +653,25 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
   }
 }
 /* 0x47edb0, evaluates the production of a master's workshop
-   @deep Session s2(match-deep): rewritten on the ai_EvaluateProductionFlags / Gypsies template (Flags-form
-   8/13 and else arms with found, the human-player block as if (!HasMaterials(1)) { if (HasMaterials(0)) ..
-   } else .., random loops k = info.perm[i]; e = &ai_Entries[k]; with the second loop's HasMaterials(0)
-   nested and its k / &ai_Entries[k] success block, info.n2++ / info.n1++ in the struct, min(), health > 0
-   (jbe: unsigned), ai_FreeJobCharacters in both arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins,
-   shape (proved). The watch-block form was the big lever (148 -> 26); 8/13 success as goto done (no found
-   = 1) 24 -> 22. No lever: chars outer if, end as || return, min as if, rnd k-block scope; worse: info
-   init c/z2/z1 before ch/b (+2..4), found = 0 after the calls (82), found = 0 only in the else arm (65).
-   Left: the original has no zero register at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test
-   dx,dx; found's xor ebp,ebp right before the hour test), ours shares found's ebp with the constant 0 over
-   the top region: c2trace const#0 region piece (lines a = gm_Query .. else loop) prio 0 sav 0 -> ebp, a
-   borderline piece: one zero reference fewer or one block more in that region should send it to memory.
-   Also the else arm's flags1b4 &= ~0x100 temp ecx vs eax (as Gypsies). prior: B3 far draft (1608/2272
-   bytes, 702 instructions, 547 differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against
-   0x47edb0 (Ghidra + disassembly), every region compared (the two hourly branch chains, the 32-permuted
-   entry loops, the human-player block, the ai_Watch block, the job loop, the two AIINFO loops and the
-   tail): calls, arguments, constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06
-   fixed by the if/else-if rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c /
+   @deep Session s2(match-deep): rewritten on the ai_EvaluateProductionFlags / Gypsies template (the
+   human-player block as if (!HasMaterials(1)) { if (HasMaterials(0)) .. } else .., random loops k =
+   info.perm[i]; e = &ai_Entries[k]; with the second loop's HasMaterials(0) nested and its k /
+   &ai_Entries[k] success block, info.n2++ / info.n1++ in the struct, min(), health > 0 (jbe: unsigned),
+   ai_FreeJobCharacters in both arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins, shape (proved); the
+   watch form was the big lever (148 -> 26); the 8/13 success as goto done 24 -> 22; found = 0 right before
+   the hour test with one if (found) goto done after the hour if / else: 22 -> 18 (the else arm's flags1b4
+   temp now the original's eax). No lever: chars outer if, end as || return, min as if, found as a block
+   local of the else arm (= control); worse: info init c/z2/z1 first (+2..4), found = 0 only in the else
+   arm (65), the hour block in its own scope with found (80). Left (18): the original has no zero register
+   at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test dx,dx; found's xor ebp,ebp right before
+   the hour test), ours shares found's ebp with the constant 0 over the top region: c2trace const#0 region
+   piece (lines a = gm_Query .. else loop) prio 0 sav 0 -> ebp, a borderline piece: one zero reference
+   fewer or one block more in that region should send it to memory. prior: B3 far draft (1608/2272 bytes,
+   702 instructions, 547 differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against 0x47edb0
+   (Ghidra + disassembly), every region compared (the two hourly branch chains, the 32-permuted entry
+   loops, the human-player block, the ai_Watch block, the job loop, the two AIINFO loops and the tail):
+   calls, arguments, constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06 fixed
+   by the if/else-if rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c /
    47ef54 / 47efae / 47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form
    (locals vs re-reads, arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move.
    What is left is register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp -
@@ -687,7 +688,6 @@ void ai_EvaluateProduction(AICHAR *ch) {
   char buf[256];
   int i, j, k, id, r, t, found;
 
-  found = 0;
   a = gm_Query(ch->bld->objList, 2, 6, 0, 0xff);
   if (!a)
     return;
@@ -699,6 +699,7 @@ void ai_EvaluateProduction(AICHAR *ch) {
   ai_BuySlots(b, ch, 0x4b);
   ai_BuyCapacity(b, ch, 0x19);
   ai_BuyUpgrade(ch);
+  found = 0;
   if (ai_Time.hour == 8 || ai_Time.hour == 0xd) {
     if (!(ch->flags1b4 & 0x100)) {
       ch->prod = 0;
@@ -731,9 +732,9 @@ void ai_EvaluateProduction(AICHAR *ch) {
       }
     }
     ch->flags1b4 &= ~0x100;
-    if (found)
-      goto done;
   }
+  if (found)
+    goto done;
   if (ai_Chars[ch->bld->owner].kind == 6 &&
       (id = ai_DrawSettingGood(ch->bld)) != 0) {
     for (i = 0; i < 32; i++) {
@@ -2930,32 +2931,35 @@ done:
    without the grave offer and the staff / spy / pose steps (ai_UpdateStaff instead): picks the good to make, skips
    the entries flagged 0x400 (job orders of type 0x8c when a slot flagged 0x400 | 0x10 marks them 0x10), the others
    get job orders of type 4 for flag 8
-   @deep Session s2(match-deep): the second random loop's success written as ai_EvaluateProductionFlags
+   @deep Session s2(match-deep): (1) the second random loop's success written as ai_EvaluateProductionFlags
    spells it (the HasMaterials(.., 0) test as its own nested if, then k = info.perm[i];
-   ai_StartProduction(ch, &ai_Entries[k]); e = &ai_Entries[k];): 241 -> 39 ins, shape (proved). Alone: the
-   k-block 221, the nested if = control. Combined with it no lever (= control): character loop's first
-   three tests as an outer if, info.n1 = min() as an if; worse: found tested once after the if / else (264,
-   found to memory: M8 shift), ai_FreeJobCharacters in both watch arms (216 / 210), if (found) goto done
-   out of the 8/13 inner else-if (41). Left: else arm ch->flags1b4 &= ~0x100 in ecx (and ch) where the
-   original (and byte Flags) uses eax (and ah); the setting-good loop's b->lvl1c / lvl1d tests (+0x275:
-   original mov edx,b / mov ecx,edx / xor eax,eax / mov al,[ecx+0x1d], ours b in eax), and the following
-   goods-record temps (ecx/edx swapped). = control: ch->flags1b4 = ch->flags1b4 & ~0x100, 0xfffffeff.
-   prior: Session s(match-deep): kept the 8 / 13 o'clock arm as the else arm (found = 1 in the success,
-   break, if (found) goto done after its loop): 243 -> 241, the loop guard's cmp esi,ebp (found's zero live
-   through the arm) is now the original's. The layout lever is ch's priority: c2trace ch#3 (lines
-   2729-2936, 46 refs, prio -20) loses ebx to the job-order loop's j#2 (prio -13); the original keeps ch in
-   ebx through the job-order loop (j in [esp+0x10]) and splits it only around the first random loop (ebx as
-   goods temp, ch reloaded at 0x484f38 / 0x484fb4) and the watch loop (k in ebx, ch reloaded at 0x4852ab).
-   One more ch reference at loop depth 1 in the 8 / 13 arm (probe: ch->prod stored twice there) gives ch#3
-   ebx, the second random loop's success block out of line at the original's place (0x4851da) and 241 -> 85
-   ins (leaves an extra store, so it is not the source); dup StartProduction there 94, dup gm_Query(a) 99;
-   flip.py (want the obwohl block after the ai_NSlots loop, and want ch never loaded into a non-ebx
-   register) hits only such duplicates and meaning changes. The natural source of that reference (one that
-   leaves no code: an arm written twice and cross-jumped, a decided test) is not found. No lever (= control
-   or worse): Graveyard's single if (found) after the if / else (284, found to memory), e = &ai_Entries[i]
-   in either arm (263+), ch->prod / flags1b4 order, nested else / flipped flags1b4 arms, job loop index
-   j->i/k, the watch loop condition, e = &ai_Entries[k] in the second loop's success (161 but the original
-   re-reads info.perm[i] there). climb 4 rounds beam 6: 147 only via unnatural locals. */
+   ai_StartProduction(ch, &ai_Entries[k]); e = &ai_Entries[k];): 241 -> 39. (2) found = 0 right before the
+   hour test (after ai_BuyUpgrade) and one if (found) goto done after the hour if / else (the else arm's
+   own test dropped; the 8 / 13 arm's inner test is = control either way): 39 -> 33, the else arm's
+   flags1b4 temp now eax as the original. found = 0 at the top with the single test: 264 (found to memory).
+   Left (33): the setting-good block (+0x275..+0x344): the original loads b into edx and copies it to ecx
+   for the lvl1d test (mov edx,b / mov ecx,edx / xor eax,eax / mov al,[ecx+0x1d]), then the goods-record
+   temps ecx/edx; ours b in eax. The text up to that block is now ai_EvaluateProductionFlags' (byte, which
+   has the original's form there), so the lever is in the later code (the 0x400 tests against Flags' 0x20 /
+   0x200 pair, the 0x400 slot loop) or the region split, not in the block. No lever (= control): character
+   loop outer if, min() as if, declaration orders (41 variants), the if-forms of the id / lvl tests; worse:
+   ai_FreeJobCharacters in both watch arms, lvl tests with e (228). prior: Session s(match-deep): kept the
+   8 / 13 o'clock arm as the else arm (found = 1 in the success, break, if (found) goto done after its
+   loop): 243 -> 241, the loop guard's cmp esi,ebp (found's zero live through the arm) is now the
+   original's. The layout lever is ch's priority: c2trace ch#3 (lines 2729-2936, 46 refs, prio -20) loses
+   ebx to the job-order loop's j#2 (prio -13); the original keeps ch in ebx through the job-order loop (j
+   in [esp+0x10]) and splits it only around the first random loop (ebx as goods temp, ch reloaded at
+   0x484f38 / 0x484fb4) and the watch loop (k in ebx, ch reloaded at 0x4852ab). One more ch reference at
+   loop depth 1 in the 8 / 13 arm (probe: ch->prod stored twice there) gives ch#3 ebx, the second random
+   loop's success block out of line at the original's place (0x4851da) and 241 -> 85 ins (leaves an extra
+   store, so it is not the source); dup StartProduction there 94, dup gm_Query(a) 99; flip.py (want the
+   obwohl block after the ai_NSlots loop, and want ch never loaded into a non-ebx register) hits only such
+   duplicates and meaning changes. The natural source of that reference (one that leaves no code: an arm
+   written twice and cross-jumped, a decided test) is not found. No lever (= control or worse): Graveyard's
+   single if (found) after the if / else (284, found to memory), e = &ai_Entries[i] in either arm (263+),
+   ch->prod / flags1b4 order, nested else / flipped flags1b4 arms, job loop index j->i/k, the watch loop
+   condition, e = &ai_Entries[k] in the second loop's success (161 but the original re-reads info.perm[i]
+   there). climb 4 rounds beam 6: 147 only via unnatural locals. */
 
 void ai_EvaluateProductionGypsies(AICHAR *ch) {
   AIOBJ *a, *b, *x;
@@ -2964,7 +2968,6 @@ void ai_EvaluateProductionGypsies(AICHAR *ch) {
   char buf[256];
   int i, j, k, id, r, t, found;
 
-  found = 0;
   a = gm_Query(ch->bld->objList, 2, 6, 0, 0xff);
   if (!a)
     return;
@@ -2976,6 +2979,7 @@ void ai_EvaluateProductionGypsies(AICHAR *ch) {
   ai_BuySlots(b, ch, 0x4b);
   ai_BuyCapacity(b, ch, 0x19);
   ai_BuyUpgrade(ch);
+  found = 0;
   if (ai_Time.hour == 8 || ai_Time.hour == 0xd) {
     if (!(ch->flags1b4 & 0x100)) {
       ch->prod = 0;
@@ -3010,9 +3014,9 @@ void ai_EvaluateProductionGypsies(AICHAR *ch) {
       }
     }
     ch->flags1b4 &= ~0x100;
-    if (found)
-      goto done;
   }
+  if (found)
+    goto done;
   if (ai_Chars[ch->bld->owner].kind == 6 &&
       (id = ai_DrawSettingGood(ch->bld)) != 0) {
     for (i = 0; i < 32; i++) {
