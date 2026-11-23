@@ -805,7 +805,41 @@ done:
     ai_MeisterCollectTrans(ch);
     ai_MeisterTrade(ch, b);
 }
-/* 0x47f700, evaluates the production of a master's workshop, the variant with the 0x20 / 0x200 entry flags @deep read the whole function against the original 0x47f700..0x4801f4 (the production setup calls, the 8 / 13 o'clock and other-hour entry search, the drawn-setting block, the permutation, both random-pick loops, the flag clean-up, the watch copy, the job characters, the counts and the job orders); fixed: the entry fields read through ai_Entries[i] / ai_Entries[k] (capacity, amount, need1c, need20, flags) where the original indexes the array ([esi + ai_Entries+0x40] etc.) and only the item and the call arguments through e, the job-order loop tests 0x10 first (if (flags & 0x10) {0x20: type 0x14, else 0x200: type 0x15} else if (flags & 8): type 4, the original's test al,0x10 / je). 542 -> 337 differing, ours 791 vs 808 instructions. Left: cross-jumping and layout: ours merges the three ai_SendJobOrders calls of the job-order loop into one tail (type stored, then a shared push / call / watch check, 0x48006b..0x4800f0) where the original keeps three call sites and joins only at the watch copy (0x480162 / 0x48017b); the success block of the second random loop goes out of line after the function body in ours ('- jne 0x480075' vs '+ je 0x47fdc5'); tried info.type before info.e: identical. The loops keep i in a slot / ebp and ch reloaded from [esp+0x1c0] in the original (ebx reused as a temporary). (size: 791 vs 808 instructions, explained: the 17 missing instructions are the two extra ai_SendJobOrders call sites of the original (lea / push / mov / call / reload of ai_Watch.bld and ch->bld / compare: about 8 each) that VC6 cross-jumped into one in ours) */
+/* 0x47f700, evaluates the production of a master's workshop, the variant with the 0x20 / 0x200 entry flags
+   @deep Session 2026-11-23: 262 -> 167 ins (size now +17: ours 2805 vs 2788). Kept: info.n2 / info.n1
+   counted in place (info.n2++, info.n1++, no n1 / n2 locals: VC6 enregisters the fields, n1 in esi, the
+   store sunk out of the loop), if (info.n1 >= info.n2) info.n1 = info.n2, info.ch / info.b set before the
+   zero inits, info.type before info.e in each job arm (the three ai_SendJobOrders call sites are back), if
+   (j >= ai_NEntries) break in the watch loop, health > 0 (jbe), and found: the 8 / 13 o'clock success sets
+   found = 1 and the one if (found) goto done stands after the hour if / else (the original's ebp is found
+   from the prologue, used as the zero of gm_Query and ch->prod = 0). Left: (1) the second random loop: the
+   original keeps i in ebp and spills ch (ebx reloaded from the parameter at the failure exits), the
+   success block inline (je latch); ours keeps i in [esp+0x10], ch in ebx, success out of line after the
+   job loop. c2trace: our i#7 is cut where ch#4 took ebx, after ai_GoodsT#2 (ai_Goods hoisted out of the
+   clean-up loop into edi: the original loads it per entry inside if (flags & 8) and keeps ai_NEntries in
+   edi there). flip.py --want on the inline HasMaterials(.., 0) test: closest hit duplicating the
+   clean-up's ai_Entries[i].flags &= ~8 (85 ins, size -1) - a reference count / region question in the
+   clean-up loop; spellings tried without that effect: flags = flags & ~8, an else arm, e pointer forms
+   (e->flags, worse), no if (0 < ai_NEntries) guard (= control), break after the clear (worse), j -> i in
+   the later loops (= control: webs). (2) the drawn-setting block: the original loads b into edx and copies
+   mov ecx,edx before the lvl1d byte read (ours b in eax). (3) the watch loop's head (jmp to the test, cmp
+   [j],edi with ai_NEntries in edi). climb.py 2 rounds: only an extra perm[i] local (160). prior: read the
+   whole function against the original 0x47f700..0x4801f4 (the production setup calls, the 8 / 13 o'clock
+   and other-hour entry search, the drawn-setting block, the permutation, both random-pick loops, the flag
+   clean-up, the watch copy, the job characters, the counts and the job orders); fixed: the entry fields
+   read through ai_Entries[i] / ai_Entries[k] (capacity, amount, need1c, need20, flags) where the original
+   indexes the array ([esi + ai_Entries+0x40] etc.) and only the item and the call arguments through e, the
+   job-order loop tests 0x10 first (if (flags & 0x10) {0x20: type 0x14, else 0x200: type 0x15} else if
+   (flags & 8): type 4, the original's test al,0x10 / je). 542 -> 337 differing, ours 791 vs 808
+   instructions. Left: cross-jumping and layout: ours merges the three ai_SendJobOrders calls of the
+   job-order loop into one tail (type stored, then a shared push / call / watch check, 0x48006b..0x4800f0)
+   where the original keeps three call sites and joins only at the watch copy (0x480162 / 0x48017b); the
+   success block of the second random loop goes out of line after the function body in ours ('- jne
+   0x480075' vs '+ je 0x47fdc5'); tried info.type before info.e: identical. The loops keep i in a slot /
+   ebp and ch reloaded from [esp+0x1c0] in the original (ebx reused as a temporary). (size: 791 vs 808
+   instructions, explained: the 17 missing instructions are the two extra ai_SendJobOrders call sites of
+   the original (lea / push / mov / call / reload of ai_Watch.bld and ch->bld / compare: about 8 each) that
+   VC6 cross-jumped into one in ours) */
 
 void ai_EvaluateProductionFlags(AICHAR *ch)
 {
@@ -813,7 +847,7 @@ void ai_EvaluateProductionFlags(AICHAR *ch)
     AIENTRY *e;
     AIINFOP info;
     char buf[256];
-    int i, j, k, id, r, t, n1, n2, found;
+    int i, j, k, id, r, t, found;
 
     found = 0;
     a = gm_Query(ch->bld->objList, 2, 6, 0, 0xff);
@@ -839,7 +873,7 @@ void ai_EvaluateProductionFlags(AICHAR *ch)
                         ai_Entries[i].flags |= 8;
                         ai_StartProduction(ch, &ai_Entries[i]);
                         ch->prod = (unsigned short)ai_Entries[i].item;
-                        goto done;
+                        found = 1;
                     }
                     break;
                 }
@@ -859,9 +893,9 @@ void ai_EvaluateProductionFlags(AICHAR *ch)
             }
         }
         ch->flags1b4 &= ~0x100;
-        if (found)
-            goto done;
     }
+    if (found)
+        goto done;
     if (ai_Chars[ch->bld->owner].kind == 6 && (id = ai_DrawSettingGood(ch->bld)) != 0) {
         for (i = 0; i < 32; i++) {
             if (ai_Entries[i].item == id) {
@@ -961,7 +995,7 @@ done:
     }
     if (ai_Watch.bld == ch->bld) {
         for (j = 0; ai_Watch.nslots < 4; j++) {
-            if (ai_NEntries <= j)
+            if (j >= ai_NEntries)
                 break;
             ai_Watch.ent[ai_Watch.nslots] = ai_Entries[j];
             for (k = 0; k < 4; k++) {
@@ -975,54 +1009,50 @@ done:
         }
     }
     ai_FreeJobCharacters(ch, 4);
-    n2 = 0;
     info.n2 = 0;
     for (j = 0; j < 768; j++) {
-        if (ai_Chars[j].health && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
+        if (ai_Chars[j].health > 0 && ai_Chars[j].id != 0xffff && ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld
             && ai_Chars[j].title && ai_Chars[j].scene && ai_Chars[j].scene->group == ai_Chars[j].bld->id
             && (!ai_Chars[j].job || (ai_Chars[j].job->kind != 0x14 && ai_Chars[j].job->kind != 0x15))) {
             sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
-            n2 = info.n2 + 1;
-            info.n2 = n2;
+            info.n2++;
         }
     }
     if (ai_Watch.bld == ch->bld)
-        ai_Watch.n = n2;
-    n1 = 0;
+        ai_Watch.n = info.n2;
     info.n1 = 0;
     for (i = 0; i < ai_NEntries; i++) {
         if (ai_Entries[i].flags & 8)
-            n1++;
+            info.n1++;
         if (ai_Entries[i].flags & 0x10)
-            n1++;
-        info.n1 = n1;
+            info.n1++;
     }
-    if (n2 <= info.n1)
-        info.n1 = n2;
-    if (n2 == 0 || info.n1 == 0) {
+    if (info.n1 >= info.n2)
+        info.n1 = info.n2;
+    if (info.n2 == 0 || info.n1 == 0) {
         ai_MeisterCollectTrans(ch);
         ai_MeisterTrade(ch, b);
         return;
     }
+    info.ch = ch;
+    info.b = b;
     info.c = 0;
     info.z2 = 0;
     info.z1 = 0;
-    info.ch = ch;
-    info.b = b;
     for (j = 0; j < ai_NEntries; j++) {
         e = &ai_Entries[j];
         if (e->flags & 0x10) {
             if (e->flags & 0x20) {
-                info.e = e;
                 info.type = 0x14;
+                info.e = e;
                 ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;
                 }
             } else if (e->flags & 0x200) {
-                info.e = e;
                 info.type = 0x15;
+                info.e = e;
                 ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
@@ -1030,8 +1060,8 @@ done:
                 }
             }
         } else if (e->flags & 8) {
-            info.e = e;
             info.type = 4;
+            info.e = e;
             ai_SendJobOrders(&info.head);
             if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                 ai_Watch.entries[ai_Watch.nentries] = *info.e;
