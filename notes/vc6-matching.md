@@ -7335,10 +7335,50 @@ the bytes no portable form gives.
   record or an object), cm_ObjectOwner's owner, CHACTION.args, the evt VM's token value and byte stack, the BGF parse
   table's words and target record.
 
+- **A unit's shadow records of a mesh it builds or rasterises** (thirty-fourth pass, d3s.c's D3SVERT / D3SPOLY / D3SBUF: the
+  shadow object's surf[0] and an object's own mesh->keys / mesh->tris): the D3VERTEX / D3TRI / D3SURF the engine reads.
+  Three of the view's names exist in the record at another offset (tu / tv at 0x10, D3VERTEX.tu at 0x20; flags at 0x26,
+  D3TRI.flags at 0x24; pos at 0x48, D3VERTEX.pos at 0): rename those first (shadowU / shadowV, drawFlags, srcPos), then
+  the type. A pointer word the unit reads as another type (srcPos, `float *` into d3s_Verts beside src's D3BGFVERT *)
+  is a union member, as D3BGF.verts / vtx. The drawFlags read-modify-writes through the union's unsigned char member
+  compiled the same (measured; see the single-bit-store caution).
+- **A loader's view of the record it returns** (d3_LoadBinaryAnimStream's D3BASTREAM / D3BAFRAME = D3ANIMDATA /
+  D3ANIMFRAME: d3_LoadAnimStream links the result into the cache): merge into the cache record; the loader's names
+  that say more go in as a union member (boneNames[4][0x40] over the name's tail, D3ANIM_BONENAME's bytes), its
+  float[3] fields become the record's D3VECTOR fields (`pos[k]` = `move.x ..`, `bio_rd_v3(f, &bone[i].pos)`). Rename
+  a field that collides first (the frame's points became pos only after its own pos[3] became move). Byte.
+- **A parameter alias can be load-bearing** (d3_GetBoxVerts' `D3MATRIX *m = (D3MATRIX *)unk;`: with the parameter typed
+  and the copy gone, byte -> draft, 26 ins; `D3MATRIX *m = mat;` without the cast is byte): unlike the handler aliases
+  of the thirty-third pass, measure each alias removal (dcp try) and keep the copy, typed, when it moves code.
+- **A chained clear over an int and a field that becomes a pointer** (d3anim_StartAnim's `fadeStart = fadeEnd = attached
+  = 0` with D3ANIMSLOT.attached a D3OBJECT *): split it in the store order VC6 emits (right to left: `attached = 0;`
+  first, then `fadeStart = fadeEnd = 0;`: = control; the other order is shape).
+- **A struct copy through a cast to a two-float record** (d3_DrawSortedSW's `((D3UV *)uv)[k] = t->v[k]->uv` into a
+  `float *uv`): the float pairs spelled as the neighbouring corner (`p = t->v[k]; uv[2k] = p->tu; uv[2k + 1] = p->tv;`:
+  = control; without the p reload draft).
+- **An int array that holds kinds and then pointers in the same slots** (he_RunGang's `int pick[5]`: the building kinds,
+  then the buildings of a kind): a union of the two arrays (`pick.kinds[k]`, `pick.blds[n]`), where pass 32's
+  ai_BloodRevengeWindow had two parts of one array live at once (two arrays). Byte.
+- **A function that returns another function's int status cast to a pointer** (sndc_PlaySampleHandle's `return (struct
+  SBSAMPLE *)sb_Play(..)`: sb_Play returns 0 / -1): the int return (a script command's value; dcp try: = control), and
+  its registration loses the function cast.
+- **A pointer kept in a wire record's int** (G17CHARCLEARMSG.room, which sv_MoveToGroup takes as the room; every
+  sender sends 0): the pointer type; a port-side note (a pointer in a sent record means nothing on another machine).
+- **A view macro that casts its own address result** (d3_tools.c's `D3T_VSET(v, ..)` ending `(D3VECTOR *)&(v)` for a
+  D3VECTOR4 pos): end with `&(v)` and pass the member (`D3T_VSET(pos.v, ..)`), as the d3_SetObjectPos call after it.
+- **A file list buffer walked in record strides** (ai_ListFiles' `char *records` with `out = records + 9`, `out +=
+  0x210`, the callers' `char list[0x4200]` / `recs[64][0x210]`): FILEREC * and `out = records->name`, `out +=
+  sizeof(FILEREC)`; the callers' arrays become the records (`recs[i].path` for `+ 0x109`). Byte.
+- Commit-message slips of the thirty-fourth pass: 07fbd00b names "gm_PlaceCharInBuilding" for gm_PlaceOnStage and lists
+  "ai_TradeSearchWindow-like shifts", which are no function of that commit (ai_TradeSearchWindow fell in 7ee28137);
+  a93c74a3 says "d2_LoadFonts' own assignment" for d2_DrawObjects'.
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the thirty-third portability pass (the passes since eb11a8b9). VC6 still compiles
-every unit to the same grades; nothing below changes a record layout.
+the thirty-fourth portability pass (the passes since eb11a8b9). VC6 still compiles
+every unit to the same grades; nothing below changes a record layout. The portability cleanup of the source is
+finished: what is left are the (c) casts (legitimate generic code, each kind with its reason below) and the kept
+cases, each documented here and with `@original` in the source.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
 - Type warnings: C4133, C4022, C4113, C4028, C4090 none (C4047 / C4024 seven each, below). Warnings in all: 175 (from
@@ -7353,6 +7393,19 @@ Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdif
   (ctype calls, switches on characters, digit tests, %c), zlib / minizip, or label / allocation noise
   (ai_DecideBuildSculpture's fidiv, he_SpawnFounders, d3_WriteObject ..).
 - Declarations are compatible in standard C within each unit, except the two `#ifdef _MSC_VER` ones below.
+- Record casts (scratchpad p34/casts.py, a probe build of every `(T *)x` with T upper case, p34/reprobe.sh fin at
+  e6c04aee; p34/classification.txt): 264, all (c), none (a) or (b): every holder of a record has the record's type.
+  The (c) kinds: allocator results 79 (void *), the send slot's value 47 (cm_GetSlotValue: a character, object,
+  building or event by the message kind), TUTEVENT.obj 29 (the tutorial hook's object by hook), generic data slots 20
+  (D2OBJ.data, the sound bank entries), the name compares through unsigned char * 12 (kept), ai_ExecHandleGrave's
+  AGARG reuse 6 (settled), hst.c's 4-byte tags of a char buffer 6, D2OBJ.user 6, callback contexts 5, Win32 / DirectX
+  11 (pixel dwords of a 16-bit surface, combo box item data, registry bytes, WPARAM, the D3DCHECK #call text), net.h's
+  NETPKT as G17MSG's head 4, init_HookObject's p by kind 4, a setting's slot table as its tail record 4, D3DMATRIX rows
+  4, G17STAT.ref 4, D3OBJECT.owner 4, the evt VM's token value and byte stack 3, AMTRANGEW 3 (kept), cm_ObjectOwner's
+  owner by kind 3, a matrix row as a vector 2 (settled), D3FLPOLY 2 (kept), the BGF parse table's word and target
+  record 2, the D3FLBLEND weight map 1, d3fl_Jitter's float table 1, he_DetectAttack's context 1, CHACTION.args 1.
+- View macros: D2WOP / PAR_AT (portable byte offsets, `index * sizeof(T)`) and PAR_VF / PAR_TF (kept, below); no
+  other macro casts a record.
 
 Kept deliberately (each with `@original` in the source):
 - The (c) cases (no declaration arrangement compiles the original's code): util_Random's int result in
@@ -7424,16 +7477,19 @@ he_FreeGfxInfo / gv_OrderBury 6; 17 moved to (c) after reading them (the kept li
 reads only w / h; its leading bytes stay unnamed). Debts 0 -> 0. The cleanup is not finished: the 39 (b) casts below
 remain (no view and no record layout among them; each is a holder to type, d3s.c's three a view merge).
 
-Not done (none of it is a view; a further pass's work if wanted):
-- Casts of a variable to an upper-case pointer type at its use (p33/casts.py, 303 casts, classification in
-  p33/classification.txt): 264 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
-  data / user / owner / context slots 37, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40, the
-  generic-by-kind slots and first-member / stride / float-table reads of this pass 17) and 39 (b), holders still typed
-  otherwise, one to five per unit: d3s.c 4 (D3SVERT / D3SPOLY / D3SBUF, views of the shadow mesh's D3VERTEX / D3TRI /
-  D3SURF slots: a view merge), he_b.c 5, f3gm.c 3, grave.c 3, lcmap.c 3, svgrave.c 3 (ai_PermissionBits1d's `char *x`),
-  d3_engine.c 2 (D3UV over a float *uv), and singles in cm, d2 (d2_GetPic's void *), d3_anim (D3ANIMSLOT.attached an
-  int), d3_io_t (D3BASTREAM / D3ANIMDATA), d3_vtx, f3init (init_SceneObjectDestroyCB(int o) under a D3OBJECT * slot),
-  gs, he, lc, lcdom, main (MAINCHARNEW), menu, mission, rt (rt_PickedBuilding), sndc, sv.
+Done in the thirty-fourth pass (scratchpad p34): (b) casts 39 -> 0 (casts 303 -> 264, all (c)): d3s.c's shadow views
+D3SVERT / D3SPOLY / D3SBUF merged into D3VERTEX / D3TRI / D3SURF 4, he_b.c 5 (the AICHAR walk, AHMGRID, gm_Query's
+groups), f3gm.c 3 (ORDWAGES *, the new GMHANDOUT, gm_PlaceOnStage's group), grave.c 3 (GVENTRY / AICHAR / GVORDER
+parameters), lcmap.c 3 (ai_FindItemGroup's AIBLD * / const G7GRP *, the Domizil messages' AIOBJ *),
+ai_PermissionBits1d's AIOBJ * 3, the d3 holders 5 (D3BASTREAM / D3BAFRAME merged into D3ANIMDATA / D3ANIMFRAME,
+D3ANIMSLOT.attached, GetBox's D3MATRIX *, d3_DrawSortedSW's uv pairs), the singles 13 (gm_Query rooms, he_RunGang's pick
+union, the destroy callback, gv_FindTableRecord's AIDEC, MAINCHARNEW merged into AICHAR, FILEREC lists, the timed
+conditions' G13MIS *, rt_PickedBuilding, sndc_PlaySampleHandle's int, G17CHARCLEARMSG.room, d2_SetFont's no-op cast);
+none moved to (c). D3T_VSET's vector cast went (view macros 5 -> 4). VC6 warnings 175 -> 175, (int)&x 109 -> 110
+(he_AllocProduktion's record walk ends at `(intptr_t)&ai_Chars[768]`, the signed compare form), pun macros 3 -> 3,
+partial views 1 -> 1. Debts 0 -> 0. The cleanup is finished.
+
+Left by design (nothing here is a holder typed otherwise):
 - d2.h's D2PICHDR11 (a type 0x11 picture, w / h at 0xc) starts with unnamed bytes: d2.c's set17 reads only w / h; name
   them when a reader shows them.
 - d3_fl.h's D3FLPOLY (D3TRI as the floor code sees it) stays a view: its signed char flags are load-bearing (d3fl_Draw).
@@ -7446,6 +7502,7 @@ What a 64-bit (or big-endian) port has to handle, beyond the above:
 - Byte-offset tables into records: sv_Activities[].valueOff (an AIJOB word per activity).
 - Index words in pointer slots of saved records: CHACTION.chIdx / prevIdx / nextIdx, G17MSG.prevIdx / nextIdx,
   AICHAR.sceneId (ls.c parks the ids there while it saves or loads; a 64-bit port keeps 4-byte ids beside the pointer).
+- Pointers in wire records that are always sent as 0: G17CHARCLEARMSG.room (cm_SendCharClear's room).
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
   AIJOB.offerAt is a pack(1) member at 0xc4), G17STAT.value and GMCARRYREC.ref (the id while saved, the pointer at
   run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only), AICHAR.fightWare (the carried
