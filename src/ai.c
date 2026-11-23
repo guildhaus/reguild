@@ -4630,25 +4630,32 @@ void ai_SendFreeThieves(AICHAR *ch)
    0x211 exists, each spare character (no job, its model in this building) loses the free mark, gets the used
    mark (flags1c8 bit 4) and one message 0x8f goes to the owner with the spy class in arg[1] (1: sk81 < sk82,
    else 2, 4 when sk82 >= sk84) and its netId in arg[0].
-   @deep s42 (38 -> 25 ins): the send and n-- written in each arm (the byte twin ai_SendFreeThieves' style)
-   and the class-4 case as if (sk82 < sk84) { send; n--; } else { arg[1] = 4; send; n--; }: the parameter /
-   n registers (ebx / ebp) and every slot are the original's now. Left (raw size 505 vs 503): the
-   original's three sends are ONE call: arm 1 ends push &msg / jmp into it, arm 2 computes &msg and pushes
-   it BEFORE the jb that skips the arg[1] = 4 store (mov [esp+0x70],edi after the push), and the first
-   compare loads sk82 (cl, reused by the second compare) before sk81 (dl). = control: n-- per arm alone, a
-   c alias of the parameter, arg[0] before arg[1] = 2; worse: the arms with sk82 >= sk84 first (30), class
-   4 as a ternary (43-48), the compares spelled sk82 > sk81 / sk84 > sk82 (27). Next: what puts the push
-   into the compare block (the call's argument evaluated before the if: an inline / macro form?). prior:
-   behaviour draft: 62 code hunks, 38 differing asm lines of 150 instructions; the body was read against
-   tools/asmdiff.py (every statement, constant, callee and field offset equals the original: the n = 1
-   count over the 0x8f-job characters, the kind 0x1d main-object 0x211 gate, the flags1b4 bit 0x10 free
-   mark, the sk81 / sk82 / sk84 classes 1 / 2 / 4, flags1c8 bit 4). What is left is the prologue register
-   pair (original: ebp = the parameter, ebx = n; ours: ebx = the parameter, ebp = n; spell.py 48987c
-   push-pop) and the reloads of [ch+0x16c] (spell.py 4898b5 / 489924 / 4899a5 reload, the original re-reads
-   ch->bld at each use while ours keeps it). Tried, byte-identical (kept where cleaner): dropping the
-   AICHAR *c alias for the parameter, swapping the i / n declaration order. Readability: Q1 cleared with
-   the evidenced name ai_SendFreeSpies (the job kind 0x8f is he.c's espionage event 0x571ac0, the same band
-   as ai_SendFreeThieves), Q6 description rewritten. */
+   @deep s50 (control 25 ins kept). The hunk left is the class-2 / class-4 send: the original computes
+   netId (ecx), lea edx,&msg, the arg[0] store and push edx in the compare block BEFORE the jb that skips
+   arg[1] = 4 (stored after the push, +0x70), one call for all three sends; arm 1 keeps its own lea eax /
+   push eax. Read: with cross-jumping off (c2pass --skip 0x1070a91d) ours schedules each arm as netId / lea
+   / push / stores, and xjump then merges arm 1's lea / push into arm 2b's (c2tail: merge 1 = 5
+   instructions). The original looks like one head-merge of two arms that both start netId ecx / lea edx /
+   arg0 / push edx (rd_DoorPos and cm_ExecutionAftermath have such hoisted pushes: there the pushed value
+   is a load both arms share). Ours never gives two sibling arms the same registers (scratch rotation
+   continues: arm2a ecx / edx, arm2b eax / ecx). Rounds (dcp try, ins): arm 2 as if (sk82 >= sk84) arg[1] =
+   4 + one send: 38 (arm 1 exact; ebx / ebp swapped since n has fewer references); class as ?: / if-else:
+   23 (sbb); netId / arg[0] inside each inner arm: 19 (o0-i0-leaf-inner: arm 2a is exactly the original's
+   compare block, arm 2b separate; climb 3 rounds from it: nothing); arms swapped (class 2 / 4 first in the
+   text): 32-33, VC6 hoists arg[0] = netId above the outer compare; n-- per outer arm / once: 39-53; a msg
+   pointer local: = control; static escape probe: 27; flip.py --want 'push e?x / jb' from the tree and from
+   two variants: no mutant. climb 3 rounds from the tree: nothing. Next: what lets VC6 merge the heads of
+   two sibling arms (allocation state at an arm's entry; read rd_DoorPos / cm_ExecutionAftermath with
+   c2pass to find the pass). prior: s42 (38 -> 25 ins): the send and n-- written in each arm (the byte twin
+   ai_SendFreeThieves' style) and the class-4 case as if (sk82 < sk84) { send; n--; } else { arg[1] = 4;
+   send; n--; }: the parameter / n registers (ebx / ebp) and every slot are the original's now. Left (raw
+   size 505 vs 503): the original's three sends are ONE call: arm 1 ends push &msg / jmp into it, arm 2
+   computes &msg and pushes it BEFORE the jb that skips the arg[1] = 4 store (mov [esp+0x70],edi after the
+   push), and the first compare loads sk82 (cl, reused by the second compare) before sk81 (dl). = control:
+   n-- per arm alone, a c alias of the parameter, arg[0] before arg[1] = 2; worse: the arms with sk82 >=
+   sk84 first (30), class 4 as a ternary (43-48), the compares spelled sk82 > sk81 / sk84 > sk82 (27).
+   Next: what puts the push into the compare block (the call's argument evaluated before the if: an inline
+   / macro form?). */
 
 void ai_SendFreeSpies(AICHAR *ch)
 {
