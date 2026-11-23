@@ -457,7 +457,7 @@ int ai_ChooseMissionFrom(int n)
     return r;
 }
 
-int ai_TimedCondition(int x, int ok, int y);                                          /* 0x4b5160 */
+int ai_TimedCondition(G13MIS *m, int ok, int min);                                          /* 0x4b5160 */
 
 /* 0x4b44e0, counts event ev (11, 19, 23, 28, 40) for the running mission of the character c when it is of that type */
 int ai_CountMissionEvent(AICHAR *c, int ev)
@@ -500,9 +500,9 @@ int ai_CondTitlesLeft(AICHAR *c, G13TYPE *t)
 /* 0x4b45c0, mission condition (types 3 / 10 / 24): the character's rank (AICHAR.level) reaches
    t->goal, held for t->threshold minutes */
 
-int ai_CondRankTimed(AICHAR *c, int x, G13TYPE *t)
+int ai_CondRankTimed(AICHAR *c, G13MIS *m, G13TYPE *t)
 {
-    return ai_TimedCondition(x, c->level >= t->goal, t->threshold);
+    return ai_TimedCondition(m, c->level >= t->goal, t->threshold);
 }
 /* 0x4b45f0, mission condition (types 5 / 13 / 21 / 30): the worth of the character (gm_GetWorth, its objects
    and buildings in player money) reaches t->goal */
@@ -533,9 +533,9 @@ int ai_CondSkills(AICHAR *c, G13TYPE *t)
 }
 /* 0x4b46c0, mission condition (types 15 .. 18 / 34 / 35): the character's office kind (AICHAR.officeKind) equals t->goal, held for t->threshold minutes */
 
-int ai_CondOfficeTimed(AICHAR *c, int x, G13TYPE *t)
+int ai_CondOfficeTimed(AICHAR *c, G13MIS *m, G13TYPE *t)
 {
-    return ai_TimedCondition(x, c->officeKind == t->goal, t->threshold);
+    return ai_TimedCondition(m, c->officeKind == t->goal, t->threshold);
 }
 
 int gm_BuildingTypeOfJob(int k);                                                         /* 0x503fa0, defined elsewhere */
@@ -682,12 +682,12 @@ int ai_CondCharHoldsThreeOfEach(AICHAR *c, G13TYPE *t)
 /* 0x4b4aa0, mission condition (type 33): the rank condition of ai_CondRankTimed holds and the character owns at
    least three buildings of the type 7 (the owner criterion +0x27 and the type criterion of the building query) */
 
-int ai_CondRankTimedThreeBuildings(AICHAR *c, int x, G13TYPE *t)
+int ai_CondRankTimedThreeBuildings(AICHAR *c, G13MIS *m, G13TYPE *t)
 {
     AIBLD *b;
     int n;
 
-    if (!ai_CondRankTimed(c, x, t))
+    if (!ai_CondRankTimed(c, m, t))
         return 0;
     n = 0;
     for (b = gm_BuildQuery(2, 4, c->id, 0, 7); b != 0; b = gm_BuildNext())
@@ -732,20 +732,20 @@ int ai_PlayerHeldBuildings(AICHAR *c, G13TYPE *t)
 /* 0x4b4c50, mission condition (type 44): the players (kinds 6 / 7) hold every building of the kinds 0x0b, 0x0c
    and 0x0d (where such buildings exist) and t->goal <= 3, held for t->threshold minutes (ai_TimedCondition) */
 
-int ai_CondPlayerHeldKindsTimed(AICHAR *c, int x, G13TYPE *t)
+int ai_CondPlayerHeldKindsTimed(AICHAR *c, G13MIS *m, G13TYPE *t)
 {
     G13STAT s;
 
     ai_PlayerShare(0x0b, &s);
     if (s.n > 0 && s.v < 1.0f)
-        return ai_TimedCondition(x, 0, t->threshold);
+        return ai_TimedCondition(m, 0, t->threshold);
     ai_PlayerShare(0x0c, &s);
     if (s.n > 0 && s.v < 1.0f)
-        return ai_TimedCondition(x, 0, t->threshold);
+        return ai_TimedCondition(m, 0, t->threshold);
     ai_PlayerShare(0x0d, &s);
     if (s.n > 0 && s.v < 1.0f)
-        return ai_TimedCondition(x, 0, t->threshold);
-    return ai_TimedCondition(x, t->goal <= 3, t->threshold);
+        return ai_TimedCondition(m, 0, t->threshold);
+    return ai_TimedCondition(m, t->goal <= 3, t->threshold);
 }
 /* 0x4b4d50, mission condition: value 0 of 0x4b5270 reaches t->goal percent */
 
@@ -774,7 +774,7 @@ struct VFSFILE; struct ORDSTATS; float ord_GetStatistics(struct ORDSTATS *o);   
 
 /* 0x4b4dc0, mission condition (type 46, from year 10): the order statistics' rating base (ai_RatingBase,
    ORDSTATS.base) is at or above t->goal, held for t->threshold minutes (ai_TimedCondition) */
-int ai_CondRatingBaseTimed(AICHAR *c, int x, G13TYPE *t)
+int ai_CondRatingBaseTimed(AICHAR *c, G13MIS *m, G13TYPE *t)
 {
     ORDSTATS e;
 
@@ -782,8 +782,8 @@ int ai_CondRatingBaseTimed(AICHAR *c, int x, G13TYPE *t)
         return 0;
     ord_GetStatistics(&e);
     if (t->goal < e.base)
-        return ai_TimedCondition(x, 0, t->threshold);
-    return ai_TimedCondition(x, 1, t->threshold);
+        return ai_TimedCondition(m, 0, t->threshold);
+    return ai_TimedCondition(m, 1, t->threshold);
 }
 /* 0x4b4e30, mission condition (type 45): the order statistics' overall score at most 0.1 (the town at its
    worst) and the shares of the kind 0 / 1 characters without a first / second building (out[1] / out[3]) and the
@@ -850,7 +850,7 @@ int ai_IsMissionFulfilled(G13MIS *m)
     case 3:
     case 10:
     case 24:
-        return ai_CondRankTimed(c, (int)m, t);
+        return ai_CondRankTimed(c, m, t);
     case 5:
     case 13:
     case 21:
@@ -868,7 +868,7 @@ int ai_IsMissionFulfilled(G13MIS *m)
     case 18:
     case 34:
     case 35:
-        return ai_CondOfficeTimed(c, (int)m, t);
+        return ai_CondOfficeTimed(c, m, t);
     case 11:
     case 19:
     case 23:
@@ -895,15 +895,15 @@ int ai_IsMissionFulfilled(G13MIS *m)
     case 38:
         return ai_CondCharHoldsThreeOfEach(c, t);
     case 33:
-        return ai_CondRankTimedThreeBuildings(c, (int)m, t);
+        return ai_CondRankTimedThreeBuildings(c, m, t);
     case 43:
         return ai_PlayerHeldBuildings(c, t);
     case 44:
-        return ai_CondPlayerHeldKindsTimed(c, (int)m, t);
+        return ai_CondPlayerHeldKindsTimed(c, m, t);
     case 45:
         return ai_CondTownDecline(c, t);
     case 46:
-        return ai_CondRatingBaseTimed(c, (int)m, t);
+        return ai_CondRatingBaseTimed(c, m, t);
     case 47:
         return ai_CondPlayerShare(c, t);
     case 48:
@@ -916,9 +916,8 @@ int ai_IsMissionFulfilled(G13MIS *m)
 
 /* 0x4b5160, timed condition of mission x: not ok resets its time; ok starts it (once) and holds after min
    minutes */
-int ai_TimedCondition(int x, int ok, int min)
+int ai_TimedCondition(G13MIS *m, int ok, int min)
 {
-    G13MIS *m = (G13MIS *)x;
 
     if (ok) {
         if (m->time.year == 0 && m->time.hour == 0 && m->time.min == 0 && m->time.sec == 0) {

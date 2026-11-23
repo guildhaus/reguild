@@ -103,7 +103,7 @@ int sprintf(char *buf, const char *fmt, ...); /* 0x5de652, the CRT's sprintf (no
    caller's slot header). vfs_FindDir (dirPath, vfs_Root) gives the directory; each name is copied and
    formatted with "%s/%s" (0x62d7d8). Returns the number of entries written. */
 
-int ai_ListFiles(char *dirPath, const char *ext, char *records)
+int ai_ListFiles(char *dirPath, const char *ext, FILEREC *records)
 {
     VFSDIR *dir;
     VFSENTRY *entry;
@@ -119,7 +119,7 @@ int ai_ListFiles(char *dirPath, const char *ext, char *records)
     count = 0;
     i = 0;
     if (i < dir->nentries) {
-        out = records + 9;
+        out = records->name;
         do {
             entry = &dir->entries[i];
             dot = strrchr(entry->name, '.');
@@ -132,7 +132,7 @@ int ai_ListFiles(char *dirPath, const char *ext, char *records)
                 if (dot != 0)
                     *dot = '\0';
                 count++;
-                out += 0x210;
+                out += sizeof(FILEREC);
             }
             i++;
         } while (i < dir->nentries);
@@ -193,7 +193,7 @@ int ai_FilePickWindow(unsigned mask, int flags, char *caption, char *dir, char *
     d2_SetForm(win, 0);
     sv_CreateScrollButtons(0x140, 0x100, d2_LastWindow, d2_GetViewWin(win, 1), 0x18, &slidA, &slidB, &count);
     memset(recs, 0, sizeof(recs));
-    n = ai_ListFiles(dir, ext, (char *)recs);
+    n = ai_ListFiles(dir, ext, recs);
     direct = flags & 1;
     if (direct == 0) {
         d2_SetForm(win, 3);
@@ -465,7 +465,7 @@ char *itoa(int value, char *buf, int base); /* 0x5e56c4, the library's integer t
    money and difficulty (the texts 0x1cc5 / 0x1cc6, the difficulty name 0x14413f0). A second pass over
    the 16 records gives every still free slot an empty-slot caption ("Slot %i" 0x14414e0), the screen
    image 0x766320 and the text 0x1cc7. Returns nothing. */
-void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char *dir, int reserved)
+void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, FILEREC *files, char *dir, int reserved)
 {
     LSHDR hdr;
     char timebuf[0x40];
@@ -487,7 +487,7 @@ void ai_FillSaveSlots(int view, int form, SAVESLOTVIEW *slots, char *files, char
     if (n > 0x10)
         n = 0x10;
     for (k = 0; k < n; k++) {
-        rec = (FILEREC *)files + k;
+        rec = files + k;
         file = vfs_Tfopen(rec->path, "rb", vfs_Root);
         if (file == 0)
             continue;
@@ -586,7 +586,7 @@ int ai_LoadGameWindow(void)
     int up, bar, down;
     char path[0x104];
     SAVESLOTVIEW slots[0x10];
-    char list[0x4200];
+    FILEREC list[32];
     int i;
 
     ret = 0;
@@ -644,7 +644,7 @@ int ai_JoinGameWindow(void)
     int win;
     int up, bar, down;
     SAVESLOTVIEW slots[0x10];
-    char list[0x4200];
+    FILEREC list[32];
     int i;
 
     ret = 0;
@@ -1625,7 +1625,7 @@ int ai_SaveOptionWindow(int *image)
     char path[0x104];
     char name[0x104];
     SAVESLOTVIEW slots[0x10];
-    char list[0x4200];
+    FILEREC list[32];
     int view;
 
     mask = sv_FrameMask;
@@ -1700,7 +1700,7 @@ int ai_SaveNameWindow(int *image)
     char path[0x104];
     CMQUICKSAVE rec;
     SAVESLOTVIEW slots[0x10];
-    char list[0x4200];
+    FILEREC list[32];
 
     (void)image;
     mask = sv_FrameMask;

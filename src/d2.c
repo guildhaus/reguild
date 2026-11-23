@@ -5517,7 +5517,7 @@ void *d2_SetFont(int font)
 {
     if (d2_Pics[font].type != 7)
         return 0;
-    d2_FontPic = (D2BANK *)d2_GetPic(font);
+    d2_FontPic = d2_GetPic(font);
     d2_CurrentFont = font;
     d2_FontHeight = d2_FontPic->h;
     if (font == d2_DefaultFont || font == d2_DefaultFont + 2)

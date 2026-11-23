@@ -596,7 +596,8 @@ typedef struct G17CHARIDMSG {           /* 4 bytes, the data of the messages tha
 typedef struct G17CHARCLEARMSG {        /* 12 bytes, the data of message 0x47 (cm_SendCharClear, its handler
                                            0x4cb940 "cm_ExChangePlayerHe" moves the character out of its group) */
     int charId;                         /* 0x00, the character's netId */
-    int room;                           /* 0x04, the room sv_MoveToGroup gets (a short *), 0: none */
+    struct AIOBJ *room;                 /* 0x04, the room sv_MoveToGroup gets, 0: none (every sender sends 0: a pointer
+                                           in a wire record, meaningful only on the sending machine) */
     int spare;                          /* 0x08, not read; every caller sends 0 */
 } G17CHARCLEARMSG;
 

@@ -1931,13 +1931,13 @@ int cm_SendDecisionValue(GVDECMSG *p)
 }
 /* 0x4c5970, sends message 0x47 (character a, b, c); the event handlers send (a, 0, 0) before they walk a character away (reasoned: clears what it is doing) */
 
-void cm_SendCharClear(int a, int b, int c)
+void cm_SendCharClear(int a, struct AIOBJ *room, int c)
 {
     G17MSG m;
 
     m.clear.charId = a;
     m.type = 0x47;
-    m.clear.room = b;
+    m.clear.room = room;
     m.clear.spare = c;
     cm_QueueSend(&m);
 }
@@ -5386,7 +5386,7 @@ int cm_ExChangePlayerHe(G17MSG *m, G17STAT *s)
     if (c == 0)
         err_Message("cm_ExChangePlayerHe(): invalid sp->id");
     if (c->id != 0xffff)
-        sv_MoveToGroup(c->bld, (struct AIOBJ *)m->clear.room, c->id, 0);
+        sv_MoveToGroup(c->bld, m->clear.room, c->id, 0);
     if (s != 0) {
         s->state = 1;
         s->kind = 0;

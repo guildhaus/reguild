@@ -261,7 +261,7 @@ void cm_SendSkillsChanged(int a);                                               
 int cm_SendApplication(AMTAPP *p);                                                     /* 0x4c58a0 */
 int cm_SendOfficeRecord(AMTMSG *p);                                                    /* 0x4c58e0 */
 int cm_SendDecisionValue(GVDECMSG *p);                                                   /* 0x4c5930 */
-void cm_SendCharClear(int a, int b, int c);                                          /* 0x4c5970 */
+void cm_SendCharClear(int a, struct AIOBJ *room, int c);                                          /* 0x4c5970 */
 void cm_SendSetJob(int id, int job);                                       /* 0x4c59b0 */
 int cm_SendSpawnCharacter(unsigned char a, int b, int c, unsigned char d, unsigned char e, int f, const char *s); /* 0x4c59f0 */
 void cm_SendFreeObject(int a);                                                        /* 0x4c5a70 */

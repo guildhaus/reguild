@@ -32,7 +32,7 @@ int rt_MarkGroup = -1;                  /* 0x602a90 */
 extern RTMARK rt_Marks[8];
 struct D2SURF *rt_MapSaved = 0;  /* 0x6f074c, rt_EditCartRoute's copy of rt_MapSurface, blitted back at its end */
 int rt_MarkCount = 0;  /* 0x6f0750, the marks used */
-int rt_PickedBuilding = 0;  /* 0x6f0754, the building shown */
+AIBLD *rt_PickedBuilding = 0;  /* 0x6f0754, the building shown */
 RTPOINT * rt_EditRoute = 0;  /* 0x6f0758, the route being edited */
 RTMARK rt_Marks[8];  /* 0xf812a0 */
 
@@ -860,7 +860,7 @@ void rt_HighlightRoute(RTPOINT *p, LCMAPWIN *m)
     for (i = 0; i < m->nMarks; i++) {
         mk = &m->marks[i];
         if (mk->bld != 0) {
-            if ((int)mk->bld != rt_PickedBuilding) {
+            if (mk->bld != rt_PickedBuilding) {
                 d2_Objs[mk->ctrl].style |= 1;
                 d2_Objs[mk->ctrl].highlighted = 0;
             } else {
@@ -956,7 +956,7 @@ void rt_EditCartRoute(AIOBJ *c)
                     rt_EditPointDialog(rt_Marks[d2_Radios[rt_MarkGroup].sel].p, &m);
             } else if (d2_PointerObj == add && rt_PickedBuilding != 0) {
                 q = rt_AddPoint(rt_EditRoute);
-                q->buildingId = ((AIBLD *)rt_PickedBuilding)->id;
+                q->buildingId = rt_PickedBuilding->id;
                 q->cartId = c->objId;
                 rt_PutRouteMark(&m, (int)c, rt_EditRoute, q);
                 d2_RadioSelect(rt_MarkGroup, rt_MarkCount - 1);
@@ -967,10 +967,10 @@ void rt_EditCartRoute(AIOBJ *c)
         if (dm_L.lclick != 0 && d2_PointerObj != -1) {
             for (i = 0; i < m.nMarks; i++) {
                 if (m.marks[i].ctrl == d2_PointerObj) {
-                    rt_PickedBuilding = (int)m.marks[i].bld;
+                    rt_PickedBuilding = m.marks[i].bld;
                     for (k = 0; k < 8; k++) {
                         if (rt_Marks[k].p != 0 && (id = rt_Marks[k].p->buildingId) != -1
-                            && rt_PickedBuilding == (int)gm_FindBuildingById(id)) {
+                            && rt_PickedBuilding == gm_FindBuildingById(id)) {
                             d2_RadioSelect(rt_MarkGroup, k);
                             rt_PickedBuilding = 0;
                         }

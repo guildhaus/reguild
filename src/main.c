@@ -2476,7 +2476,8 @@ int main_ChooseCity(int unused, int host)
     D3OBJECT *tower, *last, *sel, *h;
     D3OBJECT *cityobj[64];
     int diff[64];
-    char recs[64][0x210], name[0x40], objName[0x100];
+    FILEREC recs[64];
+    char name[0x40], objName[0x100];
     LSHDR hdr;
     char *s, *d;
     char c;
@@ -2492,11 +2493,11 @@ int main_ChooseCity(int unused, int host)
     d3_SetObjectRot(d3_Camera, &d3_Camera->savedRot);
     d3_SetLightSet(0, 0.0f, 1.0f, 0);
     if (host == 0)
-        n = ai_ListFiles(main_CitiesDir, ".CTY", (char *)recs);
+        n = ai_ListFiles(main_CitiesDir, ".CTY", recs);
     else
-        n = ai_ListFiles(main_CitiesDir, ".NET", (char *)recs);
+        n = ai_ListFiles(main_CitiesDir, ".NET", recs);
     for (i = 0; i < n; i++) {
-        f = vfs_Tfopen(recs[i] + 0x109, "rb", vfs_Root);
+        f = vfs_Tfopen(recs[i].path, "rb", vfs_Root);
         if (f == 0)
             return 0;
         if (ls_ReadSaveHeader(f, &hdr) == 0) {

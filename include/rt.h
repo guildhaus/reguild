@@ -36,7 +36,7 @@ extern RTPOINT *rt_EditRoute;           /* 0x6f0758, the route being edited */
 
 
 
-extern int rt_PickedBuilding;                /* 0x6f0754, the building shown */
+extern struct AIBLD *rt_PickedBuilding;      /* 0x6f0754, the building shown */
 
 
 
