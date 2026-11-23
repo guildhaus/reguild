@@ -1479,7 +1479,7 @@ exe	0x00486190	ai_FillSlotTable	ai	byte	readable
 exe	0x004864b0	ai_BuildTradeOffers	ai	byte	readable		
 exe	0x00487040	ai_CalcEntryCost	ai	byte	readable		
 exe	0x00487180	ai_HasMaterials	ai	byte	readable		
-exe	0x00487410	ai_StartProduction	ai	draft	readable	deep	
+exe	0x00487410	ai_StartProduction	ai	byte	readable		
 exe	0x00487780	ai_AddEquipmentNeeds	ai	byte	readable		
 exe	0x00487b40	ai_UpdateStaff	ai	byte	readable		
 exe	0x00487ea0	ai_OfferGrave	ai	byte	readable		
@@ -1496,7 +1496,7 @@ exe	0x00489a70	ai_MeisterBewaffnen	ai	byte	readable
 exe	0x00489cb0	ai_MeisterCollectTrans	ai	draft	readable	deep	
 exe	0x0048a380	ai_UnloadCarts	ai	byte	readable		
 exe	0x0048a4d0	ai_MeisterTrade	ai	draft	readable	deep	
-exe	0x0048bc80	ai_MeisterTradeAllgemein	ai	draft	readable	deep	
+exe	0x0048bc80	ai_MeisterTradeAllgemein	ai	shape	readable	deep	
 exe	0x0048d010	ai_MeisterTradeFernEinkauf	ai	byte	readable		
 exe	0x0048d810	ai_MeisterTradeFernEinkauf2	ai	byte	readable		
 exe	0x0048e070	ai_FindMasterBuilding	am	byte	readable		
