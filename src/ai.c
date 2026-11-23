@@ -1433,8 +1433,9 @@ void ai_CalcMeisterWache(AICHAR *ch)
     }
     if (r == 4) {
         if (ai_CalcAngriff(ch, idle) != 0)
-            goto umland;
-        r = 0;
+            r = 2;
+        else
+            r = 0;
     }
     if (r == 0) {
         /* a patrol in the town: the best-rated grid cell, there the building of kind 6 whose owner he likes best */
@@ -1457,30 +1458,31 @@ void ai_CalcMeisterWache(AICHAR *ch)
                     sel = bl;
             }
         }
-        if (!sel)
-            goto umland;
-        sprintf(buf, "ai_CalcMeisterWache(): Meister %s patroulliert bei '%s'", ch->name, sel->name);
-        memset(&msg, 0, sizeof(msg));
-        msg.type = 0x43;
-        msg.to = ai_Chars[ch->bld->owner].netId;
-        msg.fromId = ch->bld->id;
-        msg.time = ai_Time;
-        msg.flags = 2;
-        msg.arg[0] = sel->id;
-        msg.arg[1] = ch->bld->id;
-        msg.patrolRoll = util_Random(4) + 2;
-        n = min(idle, 4);
-        for (k = 0, c = 0; k < n && c < 768; c++) {
-            if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
-                msg.arg[6 + k++] = ai_Chars[c].netId;
-        }
-        for (; k < 4; k++)
-            msg.arg[6 + k] = -1;
-        if (msg.arg[6] == -1)
+        if (sel) {
+            sprintf(buf, "ai_CalcMeisterWache(): Meister %s patroulliert bei '%s'", ch->name, sel->name);
+            memset(&msg, 0, sizeof(msg));
+            msg.type = 0x43;
+            msg.to = ai_Chars[ch->bld->owner].netId;
+            msg.fromId = ch->bld->id;
+            msg.time = ai_Time;
+            msg.flags = 2;
+            msg.arg[0] = sel->id;
+            msg.arg[1] = ch->bld->id;
+            msg.patrolRoll = util_Random(4) + 2;
+            n = min(idle, 4);
+            for (k = 0, c = 0; k < n && c < 768; c++) {
+                if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
+                    && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id)
+                    msg.arg[6 + k++] = ai_Chars[c].netId;
+            }
+            for (; k < 4; k++)
+                msg.arg[6 + k] = -1;
+            if (msg.arg[6] == -1)
+                return;
+            cm_SendLongMessage(&msg);
             return;
-        cm_SendLongMessage(&msg);
-        return;
+        }
+        r = 2;
     }
     if (r == 1) {
         /* a check of a workshop: as the town patrol, but the building he likes least (one not flagged 1) */
@@ -1505,41 +1507,41 @@ void ai_CalcMeisterWache(AICHAR *ch)
                     sel = bl;
             }
         }
-        if (!sel)
-            goto umland;
-        sprintf(buf, "ai_CalcMeisterWache(): Meister %s \xfc" "berpr\xfc" "ft '%s'", name, sel->name);
-        memset(&msg, 0, sizeof(msg));
-        msg.type = 100;
-        msg.to = ai_Chars[ch->bld->owner].netId;
-        msg.fromId = ch->bld->id;
-        msg.time = ai_Time;
-        msg.flags = 1;
-        msg.arg[1] = sel->id;
-        msg.arg[2] = ch->bld->id;
-        o = gm_GetGebaeudeHauptraum(ch->bld);
-        if (!o) {
-            sprintf(buf, "ai_CalcMeisterWache() : gm_GetGebaeudeHauptraum() failed !!!");
-            return;
-        }
-        msg.arg[3] = o->objId;
-        guard = -1;
-        msg.arg[0] = guard;
-        /* @original found is never set before the search: the original reads the stack slot it shares with name
-           (nonzero), so the search never runs and the check is never sent */
-        for (c = 0; !found && c < 768; c++) {
-            if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
-                && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
-                guard = ai_Chars[c].netId;
-                found++;
-                msg.arg[0] = guard;
+        if (sel) {
+            sprintf(buf, "ai_CalcMeisterWache(): Meister %s \xfc" "berpr\xfc" "ft '%s'", name, sel->name);
+            memset(&msg, 0, sizeof(msg));
+            msg.type = 100;
+            msg.to = ai_Chars[ch->bld->owner].netId;
+            msg.fromId = ch->bld->id;
+            msg.time = ai_Time;
+            msg.flags = 1;
+            msg.arg[1] = sel->id;
+            msg.arg[2] = ch->bld->id;
+            o = gm_GetGebaeudeHauptraum(ch->bld);
+            if (!o) {
+                sprintf(buf, "ai_CalcMeisterWache() : gm_GetGebaeudeHauptraum() failed !!!");
+                return;
             }
-        }
-        if (guard != -1)
-            cm_SendLongMessage(&msg);
+            msg.arg[3] = o->objId;
+            guard = -1;
+            msg.arg[0] = guard;
+            /* @original found is never set before the search: the original reads the stack slot it shares with name
+               (nonzero), so the search never runs and the check is never sent */
+            for (c = 0; !found && c < 768; c++) {
+                if (ai_Chars[c].id != 0xffff && ai_Chars[c].bld == ch->bld && ai_Chars[c].title
+                    && !ai_Chars[c].job && ai_Chars[c].scene && ai_Chars[c].scene->group == ai_Chars[c].bld->id) {
+                    guard = ai_Chars[c].netId;
+                    found++;
+                    msg.arg[0] = guard;
+                }
+            }
+            if (guard != -1)
+                cm_SendLongMessage(&msg);
+        } else
+            r = 2;
     }
     if (r < 2)
         return;
-umland:
     /* a patrol of the surroundings: one of the eight ambush spots, up to six guards (at least two) */
     sprintf(buf, "ai_CalcMeisterWache(): Meister %s patroulliert im Umland", ch->name);
     memset(&msg, 0, sizeof(msg));
