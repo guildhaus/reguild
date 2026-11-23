@@ -6246,6 +6246,9 @@ the bytes no portable form gives.
   overlapping dwords at +0 and +2, `mov esi,[esp+0xc]; mov edx,[esp+0xe]`; no field of one record lies at both).
   Not (c) but kept for the code (portable): D2WOP in d2_CreateScrollButtons and PAR_AT in par_Create, byte-offset
   views over `win * sizeof(D2WIN)` / `j += sizeof(D3PARTICLE)` (see "byte-offset view macros" below).
+  Kept by the thirty-first pass (not (c), each portable): d3d_LoadTexture's `(LPVOID *)surftext` inside D3DCHECK (the
+  original's #call text), io_text.c's `unsigned char *rec` name reads (the 0xdf test of G30_ENDS_S zero-extends),
+  d3anim_PoseBones' `(D3MATRIX *)m0` (a D3DMATRIX built from four D3VECTOR4 rows).
   main_PlayerIdInt is resolved (header drift, see "a unit-local prototype" below), not (c). The fifth data pass
   (handler and query types, he_Jobs) and the sixth (the record views ORDBLD / ORDOBJ / INIT_BLD / INIT_OBJ /
   G8BLD / G8OBJ / AMTBLDVIEW / G15BLD, the building and object callees, sv_RunFrame's callback) added no (c) case,
@@ -7208,9 +7211,44 @@ the bytes no portable form gives.
 - Commit-message slips of the thirtieth pass: f78e9c52 names "the shadow point list" for D3FLSPLIT.p (the edge split
   vertices); 1403a2bb says "the five `(CHPATHPT *)` casts" (six went).
 
+- **No-op casts found by a probe build** (thirty-first pass, scratchpad p31/casts.py, classify.py): write every `(T *)x`
+  as `(T *)(*(T **)0 = (x) + 0)` (x's extent by C precedence: `&`, a primary, then `.f` `->f` `[..]` `(..)`), build,
+  restore: a line without a new diagnostic casts a value that already is a T * (176 casts: `((D2OBJ *)d2_Objs)[i]`,
+  `(struct AITIME *)&t`, `((CMCUTINFO *)rec)->playerId` ..), C4133 / C4047 name the operand's type, C2036 a void *
+  (the `+ 0`). Two blind spots: VC6 converts char * to unsigned char * (BYTE *) without a /W1 warning (reg.c's `(BYTE
+  *)` casts are no no-ops), and a cast inside D3DCHECK's argument is the original's `#call` text (removing it is M9:
+  d3d_LoadTexture). dcp reports some #line files' diagnostics as `..; or src/X.c(N)`: take that line.
+- **A no-op cast can move a tie-break** (sv_t's tutorial chapters, sv_LoadGroundplan): the `struct T` in a cast's type
+  name seems to count in VC6's declaration set; accepted as they fall.
+- **Two views of one wire record** (CMFIGHTSLOT / CMCUTENTRY, 0x2c bytes: a cutscene entry sent as the fight command's
+  slot): merge into the record that holds the data (CMCUTENTRY), rename the other view's fields by VC6's C2039 lines
+  (id = charId, active = state, target = stateArg, y = z, hit = turn), and when one view's member runs further (the
+  fight slot's 0x1c-byte dummy name against the entry's 0xc) make it the member of an outer union over the whole
+  range: the entry's own strcpy of "dummy_sp_ESCAPE" ran past its 0xc-byte member.
+- **A record that begins with another record's fields** (AIINFOP = AIINFO's nine words + perm[32]; the int-padded
+  points `struct { float x, y, z; int w; }`): put the leading fields in an anonymous struct inside a union with the
+  named record (`AIINFO head`, `D3VECTOR v`) and pass `&info.head` / `&a.v`; initialisers `{ x, y, z, 0 }` still fill
+  the union's first member. The int pad (its 0 stores share the zero register) stays.
+- **A float-array local handed to a vector callee** (`float pos[4]` with `(D3VECTOR *)pos`): D3VECTOR4 / D3VECTOR and
+  `v[k]` -> `.x .. .w` (scratchpad p31/vec.py: single-name declarations whose every use is the cast or an index; a
+  name that is also a field, `&obj->pos`, must not count as a use).
+- **A callee that reads three floats of a padded-vector parameter** (d3_MatFromAngles(D3VECTOR4 *)): `const D3VECTOR *`
+  and `&x.v` at the D3VECTOR4 callers (as d3_Normalize in the twenty-first pass).
+- **A byte-offset record address that compiles as the index** (grave.c's `(char *)ai_BTypes + t + t * 0x24c`): measure
+  `&ai_BTypes[t]` with dcp try per function before keeping the byte form (= control in all seven grave.c functions;
+  the earlier note that the sum is load-bearing holds elsewhere, not here).
+- **Grades of the sensitive functions differ between an incremental `dcp build` and `dcp build --force` of the same
+  sources** (ai_DecideBuildSculpture byte / shape, ord_CountGridObjects, main_RoundReport): measure a change with
+  `--force` builds on both sides (scratchpad p31/v.sh) and compare with the promoted ledger, not with a snapshot
+  taken after an incremental build. ai_DecideBuildSculpture's grade also flips between two forced builds.
+- Commit-message slips of the thirty-first pass: a181e8c4 names "anm_Update and the anm_Create* functions" (also
+  anm_UpdateCat / anm_UpdateSheep); 980c2ca5's "ai_DecideBuildSculpture byte -> shape" is that function's flip, not
+  an effect of the change; the grade lists of 5d49900b .. 980c2ca5 come from incremental builds (c5d54fc2 promotes
+  their net effect).
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the thirtieth portability pass (the passes since eb11a8b9). VC6 still compiles
+the thirty-first portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7270,12 +7308,25 @@ amt_SendOfficeNews / Lost, ai_InventoryHas, gv_SchoolLevelFactor, he_ActivateSlo
 field-based walk an index loop; casts of a variable to a record pointer (p30/reccasts_*.txt) 1066 -> 918. VC6 warnings
 175 -> 175, (int)&x 110 -> 109. Debts 2 -> 0.
 
+Done in the thirty-first pass (scratchpad p31): the casts of a variable to an upper-case pointer type classified by a
+probe build (970 at 198195f8: (a) 176, (b) 547, (c) 247) and 465 of them removed (472 casts with the return, macro
+and alias casts outside the list): the 176 no-ops, gv.c's save steps'
+`struct VFSFILE *f` (43), the G17MSG payload members (26), ANMREC.obj (18), CMFIGHTSLOT merged into CMCUTENTRY (17),
+the d3if cameras (20), the object creators' AIOBJ * (16), G15PLANT for ls.c's AIMAPENT (17), AIINFOP.head (8),
+sv_MouseCamera's cam (9), grave.c's bt (8), d3_FindAnim (9), sv.c's hovered / clicked objects (20), the lobby lookups
+(7), the float-array vector locals (51), the int-padded points (16), d3_MatFromAngles' const D3VECTOR * (11); 970 ->
+505 ((b) 256, (c) 249). VC6 warnings 175 -> 175. Debts 0 -> 0.
+
 Not done (none of it is a view; a further pass's work if wanted):
-- Casts of a variable to a record pointer at its use: 918 (p30/reccasts_after.txt; most-cast types D3VECTOR, AIOBJ,
-  AICHAR, AIBLD, TUTRUN, D2OBJ, VFSFILE, D3OBJECT). Many are legitimate (void * callback contexts, mem_Alloc results,
-  DirectX interfaces); the rest are locals / parameters / globals still typed otherwise (ai.c's `(AIINFO *)&info`,
-  cmorders.c's `(CMFIGHTSLOT *)&m`, cmfight.c's `((CMCUTINFO *)rec)->playerId`, ch.c's `(D3ANIMSLOT *)s`): check each for
-  a no-op first, then type the holder.
+- Casts of a variable to an upper-case pointer type at its use (p31/casts.py, 505 casts, classification in
+  p31/classification.txt): 249 (c) (allocator results 79, the send slot's void * value 47, TUTEVENT.obj 29, generic
+  data / user / owner / context slots 39, Win32 / DirectX 15, the kept and settled casts and G17STAT.ref 40) and 256 (b), holders still
+  typed otherwise, the largest: the d2 drawing API's `void *surf` / `void *pic` (shp.c, d2.c, gfx.c: 28), svgrave.c's
+  `int *w` window lists (GVWIN 16, GVDETAILWIN 7, GVENTRY 2: raw `w[k]` reads to rewrite as fields first; ai_GraveDetailButtons
+  reads GVDETAILWIN's index byte as a dword), f3gm.c's head tables (GMHEAD 17: byte-initialised unsigned arrays), he_b.c /
+  he.c's EVTSCRIPT views HEMEETNAME / HEBARDSCRIPT (9), lcmap.c's `void **to` (6), the remaining multi-name float vectors
+  (ai_FindBauplaetze's at, main_PlaceFamilyModel's loc / dir, rt_PutRouteMark's pos ..), and singles (p31/classification.txt
+  lists every holder).
 - d2.h's picture file records (D2PICHDR / D2FRAME / D2PICHDR11) start with unnamed bytes: name them when a reader shows them.
 - d3_fl.h's D3FLPOLY (D3TRI as the floor code sees it) stays a view: its signed char flags are load-bearing (d3fl_Draw).
 - Message payloads copied as bytes into G17MSG.data / cm_LongMsg (memcpy of G17FIELDS, CRIME, CMCUTINFO, RTPOINT,
