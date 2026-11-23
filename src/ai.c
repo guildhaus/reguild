@@ -4777,32 +4777,18 @@ void ai_MeisterBewaffnen(AICHAR *ch, AIOBJ *b)
    a cart that belongs to another building gets the move message 0xf to that building. Then, for a kind-9 master,
    it buys a transporter (0x134 / 0x135 / 0x136) when the counts, the cap247 limit, the budget (twice the item
    price), the 1-in-0x2ee roll and the flags1c8 bit 8 allow it, and sets flags1c8 bit 8; on an even hour the
-   flag 0x80 is cleared only.
-   @deep Read whole against the original 0x489cb0..0x48a372 and rewritten: the odd-hour body as one if with
-   the flag-0x80 clear as its else, the cart walk over the 0x5008 objects (type, goods kind 0x1d,
-   AIOBJ.bldId of the cart, the n / n136 counts, the two job searches 11 / 15, the owner chain as the
-   original's do { if (v == -1) ... } while (!own)), the move message 0xf (to, time, car, fromId -1, n =
-   own->id, ch, AIMSG.jobId -1, was unka0), the kind-9 purchases in the original's order (n == n136:
-   0x134; no 0x136 yet: 0x136; else 0x135 / 0x136 by util_Random(8) < 4) and the other kinds' 0x134 / 0x135
-   with the owner-kind 6 / 7 flag 4 test; the misplaced braces of the old text are gone. Every call,
-   constant, string and field matches. Left is allocation and cross-jumping: the original keeps n in edi
-   (spilled to [esp+0x1c] around the owner chain) and compares against 0 with test, ours keeps n in a slot
-   and 0 in ebp (cmp cx,bp / push ebp at +0x8e .. +0x142); the original keeps four cm_SendExSellObject
-   sites (the 0x136 block owns the shared push / call / 'Um %li:%li' tail that the 0x135 and random blocks
-   jump into), ours cross-jumps one more (calls: ours x3, the original x4; 472 vs 483 instructions), and
-   the record stores of the move message are scheduled otherwise (+0x1d0). */
+   flag 0x80 is cleared only. */
 
 
 void ai_MeisterCollectTrans(AICHAR *ch)
 {
-    AIMSG msg;
     AIOBJ *t;
     AIJOB *job;
     AIBLD *own;
     AIOBJ *q;
     AIBTYPE *bt;
     char buf[1024];
-    int i, n, n136, v, item;
+    int i, n, n136, v, item, price;
 
     if (ai_Time.hour % 2) {
         if (ch->flags1b4 & 0x80)
@@ -4830,25 +4816,22 @@ void ai_MeisterCollectTrans(AICHAR *ch)
                 /* the building the cart stands in: up its owner chain */
                 v = t->ownerId;
                 own = NULL;
-                do {
-                    if (v == -1) {
-                        if (!own)
-                            goto next;
-                        break;
-                    }
+                while (!own && v != -1) {
                     if (!gm_FindById(&own, &q, 0, v))
                         v = -1;
                     else if (q)
                         v = q->ownerId;
-                } while (!own);
-                if (own != ch->bld) {
+                }
+                if (own && own != ch->bld) {
+                    AIMSG msg;
+
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0xf;
-                    msg.flags = 2;
                     msg.to = ai_Chars[ch->bld->owner].netId;
+                    msg.flags = 2;
+                    msg.fromId = -1;
                     msg.time = ai_Time;
                     msg.car = t->objId;
-                    msg.fromId = -1;
                     msg.n = own->id;
                     msg.ch = ch->bld->id;
                     msg.jobId = -1;
@@ -4862,7 +4845,7 @@ void ai_MeisterCollectTrans(AICHAR *ch)
         } while (--i);
         bt = &ai_BTypes[ch->bld->type];
         if (bt->kind == 9) {
-            if (n == n136) {
+            if (n - n136 == 0) {
                 cm_SendMoveGoods(-1, ai_Chars[ch->bld->owner].netId, ai_OwnPlayer, (int)gm_ItemPrice(0x134, 100));
                 cm_SendExSellObject(ch->bld->id, -1, 0x134, 1, ai_OwnPlayer, 0);
                 sprintf(buf, "ai_MeisterCollectTrans(): Transporter f\xfcr %s gekauft", ch->bld->name);
@@ -4875,10 +4858,15 @@ void ai_MeisterCollectTrans(AICHAR *ch)
                     return;
                 if (util_Random(0x2ee) >= 2)
                     return;
-                if (ch->budget <= (int)gm_ItemPrice(0x136, 100) * 2)
+                price = (int)gm_ItemPrice(0x136, 100);
+                if (ch->budget <= price * 2)
                     return;
                 cm_SendMoveGoods(-1, ai_Chars[ch->bld->owner].netId, ai_OwnPlayer, (int)gm_ItemPrice(0x136, 100));
                 cm_SendExSellObject(ch->bld->id, -1, 0x136, 1, ai_OwnPlayer, 0);
+                sprintf(buf, "ai_MeisterCollectTrans(): Um %li:%li Uhr zus\xe4tzlichen Transporter f\xfcr %s gekauft",
+                        ai_Time.hour, ai_Time.min, ch->bld->name);
+                ch->flags1c8 |= 8;
+                return;
             } else {
                 if (ch->flags1c8 & 8)
                     return;
@@ -4886,11 +4874,16 @@ void ai_MeisterCollectTrans(AICHAR *ch)
                     return;
                 if (util_Random(0x2ee) >= 2)
                     return;
-                item = 0x136 - (util_Random(8) < 4);
-                if (ch->budget <= (int)gm_ItemPrice(item, 100) * 2)
+                item = util_Random(8) < 4 ? 0x135 : 0x136;
+                price = (int)gm_ItemPrice(item, 100);
+                if (ch->budget <= price * 2)
                     return;
                 cm_SendMoveGoods(-1, ai_Chars[ch->bld->owner].netId, ai_OwnPlayer, (int)gm_ItemPrice(item, 100));
                 cm_SendExSellObject(ch->bld->id, -1, item, 1, ai_OwnPlayer, 0);
+                sprintf(buf, "ai_MeisterCollectTrans(): Um %li:%li Uhr zus\xe4tzlichen Transporter f\xfcr %s gekauft",
+                        ai_Time.hour, ai_Time.min, ch->bld->name);
+                ch->flags1c8 |= 8;
+                return;
             }
         } else {
             if (n == 0) {
@@ -4909,14 +4902,15 @@ void ai_MeisterCollectTrans(AICHAR *ch)
                 return;
             if (util_Random(0x2ee) >= 2)
                 return;
-            if (ch->budget <= (int)gm_ItemPrice(0x135, 100) * 2)
+            price = (int)gm_ItemPrice(0x135, 100);
+            if (ch->budget <= price * 2)
                 return;
             cm_SendMoveGoods(-1, ai_Chars[ch->bld->owner].netId, ai_OwnPlayer, (int)gm_ItemPrice(0x135, 100));
             cm_SendExSellObject(ch->bld->id, -1, 0x135, 1, ai_OwnPlayer, 0);
+            sprintf(buf, "ai_MeisterCollectTrans(): Um %li:%li Uhr zus\xe4tzlichen Transporter f\xfcr %s gekauft",
+                    ai_Time.hour, ai_Time.min, ch->bld->name);
+            ch->flags1c8 |= 8;
         }
-        sprintf(buf, "ai_MeisterCollectTrans(): Um %li:%li Uhr zus\xe4tzlichen Transporter f\xfcr %s gekauft",
-                ai_Time.hour, ai_Time.min, ch->bld->name);
-        ch->flags1c8 |= 8;
     } else {
         ch->flags1b4 &= ~0x80;
     }
