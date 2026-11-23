@@ -3887,6 +3887,12 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
 
 ### Shared slots
 
+- **One arm loads another local's slot into the register a later test reads (`mov esi, [a]` in the else of an
+  `if`, then `test esi, esi`), and every spelling `o = a` there gives `a` a register piece that moves the whole
+  function**: the variable was never set on that path. VC6 packs the uninitialised `o` into `a`'s slot, so the read
+  gets `a` by accident; delete the assignment and say so in an `@original` comment. Probe it with `o = (T *)0` in
+  the arm: when the rest of the function goes to byte, only the reference to `a` was wrong
+  (ai_EvaluateProductionCategory2 360 -> byte, flip.py hit `del o = a`).
 - **A frame one slot bigger with an out-parameter local (`vfs_FindFile(.., &dir)`) in its own slot**: the
   local declared in the blocks that use it packs with the scalars (he_RunHarvest frame 0x254 -> 0x250, s12).
 - **A loop counter stored to its slot after the loop although nothing reads it (ours), frame one slot bigger**:
