@@ -1529,10 +1529,8 @@ city:
                 msg.arg[0] = guard;
             }
         }
-        if (guard == -1)
-            return;
-        cm_SendLongMessage(&msg);
-        return;
+        if (guard != -1)
+            cm_SendLongMessage(&msg);
     }
     if (r < 2)
         return;
