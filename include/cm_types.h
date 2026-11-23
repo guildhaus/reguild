@@ -8,6 +8,7 @@
 #include "amt_types.h"               /* AMTAPP, AMTMSG, for messages 0x44 / 0x45 */
 #include "gv_types.h"                /* GVDECMSG, GVMOVE, GVSHOTMSG, for messages 0x46 / 0x61 / 0x67 */
 #include "cm_bomb.h"                 /* CMBOMB, cm_Bombs */
+#include "ahm_types.h"               /* AHMORDER, AHMCREATEMSG, for messages 100 / 99 */
 #include "udp_types.h"               /* UDPSERVER: cm_NetGame (outside the pack(1) region below) */
 
 #pragma pack(push, 1)
@@ -701,6 +702,26 @@ typedef struct G17EFFECTMSG {           /* 8 bytes, the data of message 0x66: 'n
     int effectId;                       /* 0x04, the effect (gv_RequestEffectLoad sends the building's id) */
 } G17EFFECTMSG;
 
+typedef struct CMNEWPARTYMSG {      /* 8 bytes, the data of message 0x27 (its handler cm_ExNewParty) */
+    int partyId;                    /* 0x00, the id the new scene party gets (ai_NextPartyId) */
+    int seed;                       /* 0x04, the party's random seed (G28REC.seed) */
+} CMNEWPARTYMSG;
+typedef struct CMJOINPARTYMSG {     /* 8 bytes, the data of message 0x29 (its handler cm_ExAddPartyMember) */
+    int partyId;                    /* 0x00, the scene party record (cm_PartyById) */
+    int member;                     /* 0x04, the member's netId (cm_AddPartyMember) */
+} CMJOINPARTYMSG;
+typedef struct CMWALKPATHMSG {      /* 0x24 bytes, the data of message 0x4f (its handler cm_ExWalkPath; no sender in
+                                       the sources, the path cells of a walk) */
+    char name[0x18];                /* 0x00, the character's object name ("sp_<id>") */
+    int from;                       /* 0x18, the first cell written */
+    int to;                         /* 0x1c, the cell past the path (the action's new path length) */
+    unsigned char cells[4];         /* 0x20, up to two cells, x and z bytes each */
+} CMWALKPATHMSG;
+typedef struct CMPOSMSG {           /* 0x10 bytes read, the data of message 0x32 (its handler cm_ExChrSetPos) */
+    int charId;                     /* 0x00, the character */
+    D3VECTOR pos;                   /* 0x04, its new position (ch_SetPos) */
+} CMPOSMSG;
+
 typedef struct G17MSG {                 /* 0x99 bytes, a game message (its head is net.h's NETPKT) */
     unsigned char type;                 /* 0x00 */
     unsigned short size;                /* 0x01, cm_MessageSize */
@@ -794,6 +815,14 @@ typedef struct G17MSG {                 /* 0x99 bytes, a game message (its head 
         G17FIGHTMSG fight;              /* 0x10, message 0x55 */
         G17ROUTEMSG route;              /* 0x10, messages 0x68 / 0x69 */
         G17LOBBYMSG lobby;              /* 0x10, message 0x5f */
+        CMNEWPARTYMSG newParty;         /* 0x10, message 0x27 */
+        CMJOINPARTYMSG joinParty;       /* 0x10, message 0x29 */
+        CMPOSMSG chrPos;                /* 0x10, message 0x32 */
+        CMWALKPATHMSG walkPath;         /* 0x10, message 0x4f */
+        GVORDER graveOrder;             /* 0x10, message 0x60 (cm_SendGraveOrder) */
+        GVRAISE raiseDead;              /* 0x10, message 0x62 (cm_SendRaiseDead) */
+        AHMCREATEMSG ahmCreate;         /* 0x10, message 99 (ahm_CreateAlchemist) */
+        AHMORDER ahmOrder;              /* 0x10, message 100 (the alchemist commands) */
     };
     struct G17MSG *prev;                /* 0x91 */
     struct G17MSG *next;                /* 0x95 */

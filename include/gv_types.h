@@ -135,4 +135,27 @@ typedef struct GVSHOTMSG {              /* 0x80 bytes, the data of message 0x67 
     int pad74[3];
 } GVSHOTMSG;
 
+#pragma pack(push, 1)
+typedef struct GVORDER {                /* 0x1f bytes, a graveyard order: the data of message 0x60 (cm_SendGraveOrder), executed by type in cm.c's handler 0x4cce10 */
+    int type;                           /* 0x00, 0 .. 6 (0 gv_BuryCharacter, 1 a grave reserved for a living character 0x4f0490, ..) */
+    int chr;                            /* 0x04, the character's netId (AICHAR.netId), -1 for none */
+    int bld;                            /* 0x08, the graveyard building's id (AIBLD.id) */
+    int size;                           /* 0x0c, the grave size (GVYARD.lists index) */
+    unsigned char entry;                /* 0x10, the entry of that list, 0xff for none */
+    short years;                        /* 0x11, type 1: years added to ai_Time.year for the entry's GVENTRY.until */
+    int price;                          /* 0x13, type 1: the price (> 0: the owner's money changes) */
+    int objId;                          /* 0x17, ai_NextObjectId, filled by the handler when the game is networked */
+    int seed;                           /* 0x1b, a rand() the handler fills otherwise */
+} GVORDER;
+typedef struct GVRAISE {                /* 0x19 bytes, a raising of a dead person: the data of message 0x62 (cm_SendRaiseDead), run by gv_RaiseDead */
+    int seed;                           /* 0x00, a rand() the handler 0x4ccf10 fills (util_Seed) */
+    int objId;                          /* 0x04, ai_NextObjectId when the game is networked */
+    int bld;                            /* 0x08, the graveyard building's id (AIBLD.id) */
+    int size;                           /* 0x0c, the grave size (GVYARD.lists index) */
+    unsigned char entry;                /* 0x10, the entry of that list */
+    int grave;                          /* 0x11, the dead person's GVGRAVE.id */
+    int kind;                           /* 0x15, 0x1b or 0x1c (the handler refuses others) */
+} GVRAISE;
+#pragma pack(pop)
+
 #endif

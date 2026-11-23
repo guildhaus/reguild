@@ -24,7 +24,7 @@
    cm_WaitEventOrClick, cm_ClearParty, cm_ResetCutInfos, cm_ShowPartyTexts, cm_AllocParty, cm_AddPartyMember,
    cm_WaitEventFull and cm_CreateChar; cm.h's declaration changes still flip the register tie-breaks of
    ai_TutorialInitChapter2 / ai_TutorialInitChapter3 in sv_t and of ord_CountGridObjects. Types only
-   cm.c uses (CMCUTTYPEMSG, CMFIELD, CMWALKPATHMSG) stay in its head for that reason. cm.h still
+   cm.c uses (CMCUTTYPEMSG, CMFIELD) stay in its head for that reason. cm.h still
    repeats ord_AddGridAmount, gm_RemoveOwned, gm_BuildingSkill, gm_HealthRatio, rt_FreePoints and rt_CopyPoints
    (the owner headers' prototypes: gv.h, f3gm.h, rt.h; RTPOINT from rt_types.h).
    Open: head: message 0x3f has no record type in cm_types.h (a struct typedef there flips
@@ -115,25 +115,6 @@ typedef struct CMFIELD {            /* the head of one field of a field block (G
     unsigned short offset;          /* 0x02, the field's offset in the record */
     int values[1];                  /* 0x04, the values */
 } CMFIELD;
-typedef struct CMNEWPARTYMSG {      /* 8 bytes, the data of message 0x27 (its handler cm_ExNewParty) */
-    int partyId;                    /* 0x00, the id the new scene party gets (ai_NextPartyId) */
-    int seed;                       /* 0x04, the party's random seed (G28REC.seed) */
-} CMNEWPARTYMSG;
-typedef struct CMJOINPARTYMSG {     /* 8 bytes, the data of message 0x29 (its handler cm_ExAddPartyMember) */
-    int partyId;                    /* 0x00, the scene party record (cm_PartyById) */
-    int member;                     /* 0x04, the member's netId (cm_AddPartyMember) */
-} CMJOINPARTYMSG;
-typedef struct CMWALKPATHMSG {      /* 0x24 bytes, the data of message 0x4f (its handler cm_ExWalkPath; no sender in
-                                       the sources, the path cells of a walk) */
-    char name[0x18];                /* 0x00, the character's object name ("sp_<id>") */
-    int from;                       /* 0x18, the first cell written */
-    int to;                         /* 0x1c, the cell past the path (the action's new path length) */
-    unsigned char cells[4];         /* 0x20, up to two cells, x and z bytes each */
-} CMWALKPATHMSG;
-typedef struct CMPOSMSG {           /* 0x10 bytes read, the data of message 0x32 (its handler cm_ExChrSetPos) */
-    int charId;                     /* 0x00, the character */
-    D3VECTOR pos;                   /* 0x04, its new position (ch_SetPos) */
-} CMPOSMSG;
 typedef struct CMGRENADE {          /* 0x10 bytes, one of the 32 thrown bombs of cm_Grenades */
     D3OBJECT *obj;                  /* the object "ob_BOMBE", 0 = a free slot */
     D3PATH *anim;                   /* 0x04, its flight path (d3anim_CreatePath) */
@@ -4093,7 +4074,7 @@ int cm_ExNewParty(G17MSG *m, G17STAT *s)
     int ret = 0;
 
     memcpy(buf, cm_LongMsg, 0x114);
-    d = (CMNEWPARTYMSG *)m->data;
+    d = &m->newParty;
     if (net_Conn.s != -1)
         ai_NextPartyId = d->partyId;
     o = cm_AllocParty(buf);
@@ -4145,7 +4126,7 @@ int cm_ExAddPartyMember(G17MSG *m, G17STAT *s)
 {
     CMJOINPARTYMSG *d;
 
-    d = (CMJOINPARTYMSG *)m->data;
+    d = &m->joinParty;
     if (cm_PartyById(d->partyId) == 0)
         return 1;
     if (cm_AddPartyMember(d->partyId, d->member) == 0)
@@ -4474,7 +4455,7 @@ int cm_ExChrSetPos(G17MSG *m, G17STAT *s)
     CHARACTER *p;
     CMPOSMSG *d;
 
-    d = (CMPOSMSG *)m->data;
+    d = &m->chrPos;
     sprintf(buf, "sp_%i", d->charId);
     p = ch_FindByName(buf);
     if (p == 0)
@@ -5684,7 +5665,7 @@ int cm_ExWalkPath(G17MSG *m, G17STAT *s)
     CHACTION *a;
     int idx, i;
 
-    p = ch_FindByName(((CMWALKPATHMSG *)m->data)->name);
+    p = ch_FindByName(m->walkPath.name);
     if (p == 0)
         return 1;
     a = p->actions;
@@ -5692,11 +5673,11 @@ int cm_ExWalkPath(G17MSG *m, G17STAT *s)
         return 2;
     i = 0;
     if (a->u.walk.path != 0) {
-        a->u.walk.pathLen = ((CMWALKPATHMSG *)m->data)->to;
-        idx = ((CMWALKPATHMSG *)m->data)->from;
+        a->u.walk.pathLen = m->walkPath.to;
+        idx = m->walkPath.from;
         for (; i < 2 && idx < a->u.walk.pathLen; i++, idx++) {
-            a->u.walk.path[idx].x = ((CMWALKPATHMSG *)m->data)->cells[i * 2];
-            a->u.walk.path[idx].z = ((CMWALKPATHMSG *)m->data)->cells[i * 2 + 1];
+            a->u.walk.path[idx].x = m->walkPath.cells[i * 2];
+            a->u.walk.path[idx].z = m->walkPath.cells[i * 2 + 1];
         }
     }
     if (s != 0) {
@@ -6271,27 +6252,27 @@ int cm_ExGraveOrder(G17MSG *m, G17STAT *s)
         s->ref = 0;
     }
     if (net_Conn.s != -1)
-        ai_NextObjectId = ((GVORDER *)m->data)->objId;
+        ai_NextObjectId = m->graveOrder.objId;
     else
-        ((GVORDER *)m->data)->seed = rand();
-    switch (((GVORDER *)m->data)->type) {
+        m->graveOrder.seed = rand();
+    switch (m->graveOrder.type) {
     case 0:
         r = gv_BuryCharacter((int *)m->data);
         break;
     case 1:
-        r = gv_ReserveGrave((GVORDER *)m->data);
+        r = gv_ReserveGrave(&m->graveOrder);
         break;
     case 2:
-        r = gv_ExtendGrave((GVORDER *)m->data);
+        r = gv_ExtendGrave(&m->graveOrder);
         break;
     case 3:
-        r = gv_SetGraveHolder((GVORDER *)m->data);
+        r = gv_SetGraveHolder(&m->graveOrder);
         break;
     case 4:
-        r = gv_OpenSize((GVORDER *)m->data);
+        r = gv_OpenSize(&m->graveOrder);
         break;
     case 5:
-        r = gv_AdjustEntry((GVORDER *)m->data);
+        r = gv_AdjustEntry(&m->graveOrder);
         break;
     case 6:
         r = gv_AddNewDead(m->data);
@@ -6335,11 +6316,11 @@ int cm_ExRaiseDead(G17MSG *m, G17STAT *s)
         s->ref = 0;
     }
     if (net_Conn.s != -1)
-        ai_NextObjectId = ((GVRAISE *)m->data)->objId;
+        ai_NextObjectId = m->raiseDead.objId;
     else
-        ((GVRAISE *)m->data)->seed = rand();
-    util_Seed(((GVRAISE *)m->data)->seed);
-    id = gv_RaiseDead((GVRAISE *)m->data);
+        m->raiseDead.seed = rand();
+    util_Seed(m->raiseDead.seed);
+    id = gv_RaiseDead(&m->raiseDead);
     if (id == 0xffff)
         return -1;
     if (s != 0) {
@@ -6364,11 +6345,11 @@ int cm_ExCreateAlchemist(G17MSG *m, G17STAT *s)
         s->ref = 0;
     }
     if (net_Conn.s != -1)
-        ai_NextObjectId = ((AHMCREATEMSG *)m->data)->charId;
+        ai_NextObjectId = m->ahmCreate.charId;
     else
-        ((AHMCREATEMSG *)m->data)->seed = rand();
-    util_Seed(((AHMCREATEMSG *)m->data)->seed);
-    id = ahm_CreateAlchemist((AHMCREATEMSG *)m->data);
+        m->ahmCreate.seed = rand();
+    util_Seed(m->ahmCreate.seed);
+    id = ahm_CreateAlchemist(&m->ahmCreate);
     if (id == 0xffff)
         return -1;
     if (s != 0) {
@@ -6395,12 +6376,12 @@ int cm_ExAlchemistOrder(G17MSG *m, G17STAT *s)
         s->kind = 0;
         s->ref = 0;
     }
-    c = gm_FindChar(((AHMORDER *)m->data)->charId);
+    c = gm_FindChar(m->ahmOrder.charId);
     if (c == 0)
         return -1;
     if (ahm_HasRecord(c) == 0)
         return -2;
-    o = (AHMORDER *)m->data;
+    o = &m->ahmOrder;
     switch ((unsigned int)o->tag) {
     case AHM_CMD_ADD_VALUE:
         r = ahm_AddValue((int *)o, c->bld->ahm);
