@@ -4635,27 +4635,27 @@ void ai_SendFreeThieves(AICHAR *ch)
    arg[1] = 4 (stored after the push, +0x70), one call for all three sends; arm 1 keeps its own lea eax /
    push eax. Read: with cross-jumping off (c2pass --skip 0x1070a91d) ours schedules each arm as netId / lea
    / push / stores, and xjump then merges arm 1's lea / push into arm 2b's (c2tail: merge 1 = 5
-   instructions). The original looks like one head-merge of two arms that both start netId ecx / lea edx /
-   arg0 / push edx (rd_DoorPos and cm_ExecutionAftermath have such hoisted pushes: there the pushed value
-   is a load both arms share). Ours never gives two sibling arms the same registers (scratch rotation
-   continues: arm2a ecx / edx, arm2b eax / ecx). Rounds (dcp try, ins): arm 2 as if (sk82 >= sk84) arg[1] =
-   4 + one send: 38 (arm 1 exact; ebx / ebp swapped since n has fewer references); class as ?: / if-else:
-   23 (sbb); netId / arg[0] inside each inner arm: 19 (o0-i0-leaf-inner: arm 2a is exactly the original's
+   instructions). The original looks like a head-merge of two sibling arms that both start with the same
+   push: rd_DoorPos (byte) has such a hoisted push (mov edx,[pos] / test / push edx / je) and it survives
+   every c2pass --skip (block order, add-esp merge, pair / move / xjump, 0x1070a928), so that hoist is
+   IR-level, before allocation: it needs both arms' FIRST IR to be the same push, which arm 2b's arg[1] = 4
+   store prevents in every C spelling tried. Rounds (dcp try, ins): arm 2 as if (sk82 >= sk84) arg[1] = 4 +
+   one send: 38 (arm 1 exact; ebx / ebp swapped since n has fewer references); class as ?: / if-else: 23
+   (sbb); netId / arg[0] inside each inner arm: 19 (o0-i0-leaf-inner: arm 2a is exactly the original's
    compare block, arm 2b separate; climb 3 rounds from it: nothing); arms swapped (class 2 / 4 first in the
    text): 32-33, VC6 hoists arg[0] = netId above the outer compare; n-- per outer arm / once: 39-53; a msg
-   pointer local: = control; static escape probe: 27; flip.py --want 'push e?x / jb' from the tree and from
-   two variants: no mutant. climb 3 rounds from the tree: nothing. Next: what lets VC6 merge the heads of
-   two sibling arms (allocation state at an arm's entry; read rd_DoorPos / cm_ExecutionAftermath with
-   c2pass to find the pass). prior: s42 (38 -> 25 ins): the send and n-- written in each arm (the byte twin
-   ai_SendFreeThieves' style) and the class-4 case as if (sk82 < sk84) { send; n--; } else { arg[1] = 4;
-   send; n--; }: the parameter / n registers (ebx / ebp) and every slot are the original's now. Left (raw
-   size 505 vs 503): the original's three sends are ONE call: arm 1 ends push &msg / jmp into it, arm 2
-   computes &msg and pushes it BEFORE the jb that skips the arg[1] = 4 store (mov [esp+0x70],edi after the
-   push), and the first compare loads sk82 (cl, reused by the second compare) before sk81 (dl). = control:
-   n-- per arm alone, a c alias of the parameter, arg[0] before arg[1] = 2; worse: the arms with sk82 >=
-   sk84 first (30), class 4 as a ternary (43-48), the compares spelled sk82 > sk81 / sk84 > sk82 (27).
-   Next: what puts the push into the compare block (the call's argument evaluated before the if: an inline
-   / macro form?). */
+   pointer local and (arg[1] = 4, f)(&msg): = control; static escape probe: 27; flip.py --want 'push e?x /
+   jb' from the tree and from two variants: no mutant; climb 3 rounds from the tree: nothing. Same open
+   mechanism as ai_BlackmailContact / he_PatrolStep (stores after the push). prior: s42 (38 -> 25 ins): the
+   send and n-- written in each arm (the byte twin ai_SendFreeThieves' style) and the class-4 case as if
+   (sk82 < sk84) { send; n--; } else { arg[1] = 4; send; n--; }: the parameter / n registers (ebx / ebp)
+   and every slot are the original's now. Left (raw size 505 vs 503): the original's three sends are ONE
+   call: arm 1 ends push &msg / jmp into it, arm 2 computes &msg and pushes it BEFORE the jb that skips the
+   arg[1] = 4 store (mov [esp+0x70],edi after the push), and the first compare loads sk82 (cl, reused by
+   the second compare) before sk81 (dl). = control: n-- per arm alone, a c alias of the parameter, arg[0]
+   before arg[1] = 2; worse: the arms with sk82 >= sk84 first (30), class 4 as a ternary (43-48), the
+   compares spelled sk82 > sk81 / sk84 > sk82 (27). Next: what puts the push into the compare block (the
+   call's argument evaluated before the if: an inline / macro form?). */
 
 void ai_SendFreeSpies(AICHAR *ch)
 {
