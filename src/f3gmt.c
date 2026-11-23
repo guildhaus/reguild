@@ -97,7 +97,6 @@ int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 #include "f3gmt.h"
 void *ai_ProdSetting(AIBLD *bld);    /* 0x5a8560 */
 extern struct D2COLKEY d2_TransparentColour;  /* 0x6f0454, shp.c (the type in shp.h) */
-#define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: unk_LoadIconNames stores the key byte by byte (mov byte [0x6f0455], 0xff; [0x6f0454] and [0x6f0456] = bl), not through the D2COLKEY word gb */
 
 /* dcp unit split: the declarations of f3gm before the moved functions */
 struct AMTKIND; int amt_GetKind(int k, struct AMTKIND *out);                   /* 0x4e6f80 */

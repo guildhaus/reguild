@@ -4,8 +4,8 @@
    (0x623564) and ends before the language getter 0x519010 (its global 0x62364c opens the "ls" unit).
    Open: the 0x21c character record is untyped; the name builders read it as unsigned char at raw offsets
    (0x9, 0xd, 0x164.., 0x166; 0x1cc through gv.h's AICHAR).
-   Open: not included yet (dcp headers conflicts io_text HEADER): d2.h; held by own declarations that differ
-   from the owner's: d2_Objs.
+   Open: not included yet (dcp headers conflicts io_text HEADER): d2.h; held by an own copy of the owner's
+   declaration: d2_Objs.
    unit of rea 8cef7d5b (src/game/io_text.c); boundaries in decl/text.dcl */
 #include "d2_types.h"
 extern D2WIN d2_Wins[];
@@ -432,8 +432,7 @@ int io_CharacterNameMarkup(int id, unsigned char c, unsigned char kind, char *ou
 
 extern int txt_Loaded;
 extern int d2_LastWindow;                /* 0x6ed938, the current text window */
-extern char *d2_Objs;  /* 0xf8f080, 0x2ec bytes each; @original: d2.h declares D2OBJ *; the units add byte offsets to it and do not include d2.h yet (their own char * declarations of d2_Objs / d2_LastWindowPtr supersede d2.h's) */
-#define D2_OBJS ((D2OBJ *)d2_Objs)     /* d2_Objs as d2.h types it */
+extern D2OBJ *d2_Objs;  /* 0xf8f080, d2.c (d2.h) */
 /* ---- the text engine (0x515960 .. 0x519010) ---- */
 extern int txt_Loaded;
 extern int txt_Random[0x4800];
@@ -1021,7 +1020,7 @@ int io_PrintText(intptr_t fmt, ...)
     if (redraw && !drawall) {
         saved = d2_LayoutMode;
         d2_LayoutMode = 1;
-        ctrl = D2_OBJS[d2_Wins[d2_LastWindow].parent].buf;
+        ctrl = d2_Objs[d2_Wins[d2_LastWindow].parent].buf;
         if (ctrl != 0) {
             if (ctrl->loaded != 0)
                 d2_RedrawView(ctrl->id);

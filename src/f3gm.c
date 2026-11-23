@@ -103,7 +103,7 @@ int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 #include "f3gm.h"
 void *ai_ProdSetting(AIBLD *bld);    /* 0x5a8560 */
 extern struct D2COLKEY d2_TransparentColour;  /* 0x6f0454, shp.c (the type in shp.h) */
-#define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: unk_LoadIconNames stores the key byte by byte (mov byte [0x6f0455], 0xff; [0x6f0454] and [0x6f0456] = bl), not through the D2COLKEY word gb */
+#define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, the key's bytes r, g, b (shp.h's D2COLKEY .r / .g / .b; shp.h is not included here): unk_LoadIconNames stores them one by one */
 /* 0x4f9e30, the statistics screen: opens the form "misc\statistics_taxes", prints one line per round
    ("Runde %i:   %T$N": the game time - 0x10 + i and the round's value of the income history, 17 of them),
    then waits in the sv_RunFrame loop until a mouse event pops the request */

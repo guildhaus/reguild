@@ -33,7 +33,7 @@ extern int d3_NoTextures;  /* 0x63345d, @original why: ocmd_SetNoTextures stores
 #include "mem.h"
 #include "d3_pose.h"
 
-extern const D3VECTOR d3_YAxis;         /* 0x5ebb94, @original why: ocmd_CreateEmitter (byte-matched) copies the axis as a 3-float vector; d3_vec.c defines it as a D3VECTOR4 (4 floats) */
+extern const D3VECTOR4 d3_YAxis;         /* 0x5ebb94, d3_vec.c */
 
 #define OCMD_DEG 0.017453292f       /* degrees to radians */
 
@@ -795,7 +795,7 @@ int ocmd_CreateEmitter(int *a, int *count, int *parent, int *size, char **tex, i
     d3_EmitterCfg.f34 = 10.0f;
     d3_EmitterCfg.f38 = 50.0f;
     d3_EmitterCfg.f3c = 30.0f;
-    d3_EmitterCfg.dir = d3_YAxis;
+    d3_EmitterCfg.dir = d3_YAxis.v;
     d3_EmitterCfg.f80 = 1.0f;
     d3_EmitterCfg.f8c = 255.0f;
     d3_EmitterCfg.i90 = 20;

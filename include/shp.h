@@ -61,7 +61,13 @@ typedef struct D2COLKEY {           /* a colour key: the 3 compared bytes r, g, 
                                        when the object is no 4-byte container; with a pad byte it loads r + g as
                                        one dword and b as a byte) */
     unsigned char r;
-    unsigned short gb;              /* 0x01, g in the low byte, b in the high one */
+    union {
+        unsigned short gb;          /* 0x01, g in the low byte, b in the high one */
+        struct {
+            unsigned char g;        /* 0x01 */
+            unsigned char b;        /* 0x02 */
+        };
+    };
 } D2COLKEY;                         /* 0x03 */
 #pragma pack(pop)
 

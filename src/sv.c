@@ -87,7 +87,6 @@ extern unsigned char kb_Last;  /* 0x1468410 */
 
 extern struct D2SHP *sv_ViewShape;  /* 0x6f22c0 */
 extern struct D2SURF *sv_GroundplanSurf, *sv_GroundplanView;  /* 0x6f22c4, 0x6f22c8 */
-#define d2_TransparentBytes ((unsigned char *)&d2_TransparentColour)  /* 0x6f0454, @original: sv_BuildScreenLayout clears the key byte by byte (mov byte [0x6f0454] / [0x6f0455] / [0x6f0456], bl), not through the D2COLKEY word gb */
 /* the object / character record fields sv.c reads (AIBLD / AICHAR in ai.h; ai.h cannot be included here: its
    declarations of ai_Time / ai_Chars / ai_BTypes / ai_Blds clash with gv.h's char views). Views, as gv.h's ORDCHAR was */
 #pragma pack(push, 1)
@@ -667,9 +666,9 @@ void sv_BuildScreenLayout(int s)
     if (d2_LockSurface(d2_BackSurf) != 0) {
         d2_ClearSurface(d2_BackSurf);
         d2_DrawShape(0, 0, d2_BackSurf, t, 0);
-        d2_TransparentBytes[0] = 0;
-        d2_TransparentBytes[1] = 0;
-        d2_TransparentBytes[2] = 0;
+        d2_TransparentColour.r = 0;
+        d2_TransparentColour.g = 0;
+        d2_TransparentColour.b = 0;
         sv_ViewShape = d2_GrabShape(sv_ViewRectLeft, sv_ViewRectTop, (sv_ViewRectRight - sv_ViewRectLeft) + 1, sv_ViewRectBottom - sv_ViewRectTop, d2_BackSurf, 0, 1);
         d2_ClearSurface(d2_BackSurf);
         d2_UnlockSurface(d2_BackSurf);
