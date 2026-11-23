@@ -891,10 +891,10 @@ void d3fl_PrepareWater(D3FLMAP *map)
             }
         if (found) {
             if (map->water) {
-                for (i = 0; i < map->size * map->size; i++) {
-                    map->water[i] &= mask[i];
-                    if (mask[i] == 0xff && !map->water[i])
-                        map->water[i] = 0xff;
+                for (k = 0; k < map->size * map->size; k++) {
+                    map->water[k] &= mask[k];
+                    if (mask[k] == 0xff && !map->water[k])
+                        map->water[k] = 0xff;
                 }
             } else {
                 map->water = mem_Alloc(map->size * map->size, "d3_fl:Water(height)");
@@ -1034,9 +1034,8 @@ void d3fl_PrepareWater(D3FLMAP *map)
                             x1 = i == 7 ? map->size - 4 : (i + 1) * map->n;
                             for (x = map->n * i; x <= x1; x++) {
                                 k = (y & map->mask) * map->size + (x & map->mask);
-                                v = map->water[k];
                                 if (!instrip) {
-                                    if (v > 0 && ((y < (j + 1) * map->n && x < (i + 1) * map->n && cmask[k] < 0xff)
+                                    if (map->water[k] > 0 && ((y < (j + 1) * map->n && x < (i + 1) * map->n && cmask[k] < 0xff)
                                                   || (y > map->n * j && cmask[k - map->size] < 0xff)
                                                   || (x > map->n * i && cmask[k - 1] < 0xff))) {
                                         instrip = 1;
@@ -1045,7 +1044,7 @@ void d3fl_PrepareWater(D3FLMAP *map)
                                         r->idx = np;
                                         r->flag = 0xff;
                                     }
-                                } else if (!v) {
+                                } else if (!map->water[k]) {
                                     instrip = 0;
                                     r->x1 = x - 1;
                                     if (r->x0 < r->x1) {
