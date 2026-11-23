@@ -4792,6 +4792,20 @@ the stack at every instruction.
   climb.py's `commute` op; `if (o1->kind)`, `!(.. == 0)`, the sum's operand order, parentheses: = control).
   A zero compared constant-first changes the ranks of later integer temporaries: run climb round 1 before
   generating spellings of the hunk's own statement.
+- **Three `z2 + n2 / n + n2 % n` arm sums in one function, each in its own operand order** (one arm's tail
+  cross-jumped into the other arm when the order is wrong): every spelling of each sum is one code; the ranks
+  moved with three code-neutral levers at once: the divisor read as `info->n1` directly in four branches and
+  through a local `n` in one, `8 == info->type` / `3 == info->type` in a later condition, and a join
+  `total += base;` written in both arms of an earlier if. No single lever got there: a 3000-variant random
+  sample over the product of the levers did (ai_SendJobOrders 11 -> byte). Find the levers with
+  `flip.py --want` on the wanted add pair, then sample their product instead of greedy rounds.
+- **A record field read twice through a pointer local (`bt->kind == 4 ... bt->kind == 0x13`)** gives the
+  original's `lea eax,[esi+eax*4]; mov al,[eax]` (address formed, then the load); one read into a char local
+  folds it into `mov al,[esi+eax*4]` (ai_SendFreeThieves, without the old volatile view). The same form for a
+  goods record: `g = &ai_Goods[x & 0x7fff]; if (g->type == 2 || g->type == 6)` (ai_BuyUpgrade).
+- **A roll compared inline (`if (f(bld) < util_Random(0x14) + 0x4b)`) where ours had `lim = rv + 0x4b;`**:
+  the named limit outranked the building pointer and took its register; inline, the zero of `ret = 0` stays in
+  ebp from the prologue into the next loop (ai_BuyUpgrade 22 -> byte).
 
 - **`fld a; fadd b` / `fmul` in the other order, no textual swap moves it**: order is an internal rank and follows
   the stack layout (fix layout first). Ranks move with parentheses (`(p->x)` is not neutral), a dead store, a named
