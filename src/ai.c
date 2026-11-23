@@ -4966,33 +4966,35 @@ void ai_UnloadCarts(AICHAR *ch)
    @deep Session s(match-deep, lead from the byte sibling ai_MeisterTradeAllgemein): draft 713 -> shape 68
    ins (slots only, size equal). Kept: cart loop as car = gm_Query(..); while (car) {..} with car =
    gm_QueryNext() before the continue and at the body end; nsell = 0; nbuy = 0; before the memset; the four
-   sell clamps as v = min(lim, X) (one lim for all four loops; a separate stock local, n-forms or the
-   if-clamp are worse); the first slot loop reads ai_Slots[m].amount at every use, no local (IV base +0x28
-   = the original's). Left: frame packing only (dcp frame / c2frame --names). The original's small slots
-   (by the hunks): -0x73c = {tmp@m-loop IV (5165), stB slot-search IV, stA search IVs (5208, 5213), g},
-   -0x738 = {s, it, tmp@5238}, -0x734 = {sold, f}, -0x730 = {lim (all four loops), nsell}, -0x72c = {car},
-   -0x728 = the two (double) temps, -0x724 = nbuy. Ours: lim/it/tmp5165/tmp5247 | tmp5238/s/tmp5208/tmp5213
-   | sold/f | car/g | dbl | nsell | nbuy. A packer replay (counts + X conflicts) says the original needs
-   nsell placed before tmp@5165 (count >= 4-5 against our 2: its spill store + reload around the rec loop)
-   and g after it (count <= 3), s ahead of nsell; no single or double conflict change does it. No lever (=
-   control or worse): stock masks for the four limits (16), continue against if-blocks in all 7 loops (127,
-   all = control), f/g inline or swapped in both price arms, nsell / nbuy init positions and chains,
-   nsell++ positions, found = 0 positions, it removed. flip.py (--want '_lim$ = -1840', '_car$ = -1836',
-   lim+nsell one slot) only hits meaning changes (found = 0 deleted, duplicated sprintf /
-   cm_SendExSellObject calls in the sell loops). climb round 1: nothing better. prior: Read the whole
-   function against the original (call / constant sequence now equal: every callee, pushed constant and
-   string in order). Fixed: the slots' goods reserve is set to 4 (mov eax,4 / cmp [esi+0x1c],eax), the
-   master kind compared as a byte, the margin test as f < ai_FloatOne && roll >= f (float home slot, frame
-   0x74c now equal, the two log sprintfs tail-merge as the original), the first loop's own index / amount
-   variables. Left: register allocation - the original keeps ch in memory ([ebp+8] reloads) where ours
-   caches it in edi in the emergency-sale loop; the stA sell loop spills it / the search pointer to
-   [esp+0x20] / [esp+0x1c] with ebx=nsell, esi/edi=item/amount pointers where ours keeps them in edx/ecx
-   (hunks 0x48b2aa code 134, 0x48b3bd, 0x48b3ff); the first slot loop's induction base (ai_Slots+0x28
-   amount in the original, +0x3c flags in ours, the M8 at +0x38, same accesses). Tried: index/accumulator
-   variable splits per loop (only the first loop's helped), inline stB item reads (no change). (references:
-   M8 at +0x38: ours refers to ai_Slots+0x3c (0xf86a7c), the original's field to 0xf86a68 (ai_Slots+0x28),
-   explained: the M8 at +0x38 is the strength-reduced induction pointer's base: both sides walk ai_Slots
-   with the same field accesses (flags, item, amount, sellAmount), only the base offset VC6 picked differs) */
+   sell clamps as v = min(lim, X) (the limit symbol is per name: one name for all four loops = control
+   whichever name, split stA/stB against entries/slots = 160); the first slot loop reads ai_Slots[m].amount
+   at every use (IV base +0x28). Left: frame packing only. The original's small slots (from the hunks):
+   -0x73c = {m-loop IV tmp, the stA/stB search IV tmps, g}, -0x738 = {s, it, the stB tmp}, -0x734 = {sold,
+   f}, -0x730 = {lim (all four loops), nsell}, -0x72c = {car}, -0x728 = the double temps, -0x724 = nbuy. A
+   packer replay (c2frame N counts + X conflicts) needs nsell's memory piece (store after the rep stosd,
+   reload ebx at the rec loop exit, final count 2) processed before the m-loop IV tmp (count 4): nsell >= 4
+   references before the late passes, i.e. 2+ nsell spill / reload references the late peephole or
+   cross-jumping removes; only nsell's slot can push the m-loop tmp out of lim's slot (no lim / tmp
+   conflict), and g must come after that tmp. No lever (= control or worse): continue vs if-blocks in all 7
+   loops (127), job search as while / for-condition, drain loop as while, if (job) / bldId guards with
+   continue (car +1 only), msg.dst[nsell++], nsell / nbuy as the msg-init counter, nsell / nbuy init
+   positions and chains, nsell++ positions, nsell < 3 in the rec loop (changes code), f / g / a third float
+   in both price arms (any combination), the rec loop's n as lim / k / m / v, found = 0 positions, it
+   removed, stock masks. climb: round 1 and 3 rounds beam 8: nothing closer. flip.py (lim / car / lim+nsell
+   frame wants) only hits meaning changes or duplicated calls. prior: Read the whole function against the
+   original (call / constant sequence now equal: every callee, pushed constant and string in order). Fixed:
+   the slots' goods reserve is set to 4 (mov eax,4 / cmp [esi+0x1c],eax), the master kind compared as a
+   byte, the margin test as f < ai_FloatOne && roll >= f (float home slot, frame 0x74c now equal, the two
+   log sprintfs tail-merge as the original), the first loop's own index / amount variables. Left: register
+   allocation - the original keeps ch in memory ([ebp+8] reloads) where ours caches it in edi in the
+   emergency-sale loop; the stA sell loop spills it / the search pointer to [esp+0x20] / [esp+0x1c] with
+   ebx=nsell, esi/edi=item/amount pointers where ours keeps them in edx/ecx (hunks 0x48b2aa code 134,
+   0x48b3bd, 0x48b3ff); the first slot loop's induction base (ai_Slots+0x28 amount in the original, +0x3c
+   flags in ours, the M8 at +0x38, same accesses). Tried: index/accumulator variable splits per loop (only
+   the first loop's helped), inline stB item reads (no change). (references: M8 at +0x38: ours refers to
+   ai_Slots+0x3c (0xf86a7c), the original's field to 0xf86a68 (ai_Slots+0x28), explained: the M8 at +0x38
+   is the strength-reduced induction pointer's base: both sides walk ai_Slots with the same field accesses
+   (flags, item, amount, sellAmount), only the base offset VC6 picked differs) */
 
 int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
 {
