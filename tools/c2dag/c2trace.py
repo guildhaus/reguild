@@ -119,6 +119,8 @@ def function_span(lines, func):
         # the definition's parameter list may wrap over several lines before the "{"
         j = i
         while j < len(lines) and not code(lines[j]).endswith(")"):
+            if code(lines[j]).endswith(") {"):  # clang-format: the "{" on the definition's last line
+                return True
             if code(lines[j]).endswith((";", "{", "}")):
                 return False
             j += 1

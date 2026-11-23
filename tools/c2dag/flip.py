@@ -81,7 +81,7 @@ def main():
     text = open(a.src, encoding="latin-1", newline="").read().replace("\r\n", "\n")
     lines = text.split("\n")
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from c2trace import function_span  # the definition (its parameter list may wrap), not a prototype or a use
+    from c2trace import function_span, code  # the definition (its parameter list may wrap), not a prototype or a use
     cs, s, e = function_span(lines, a.func)  # cs: the address comment above the definition belongs to the text
     if a.base:
         vt = open(a.base[0], encoding="utf-8").read().replace("\r\n", "\n")
@@ -91,7 +91,7 @@ def main():
         s = next(i for i in range(cs, len(lines)) if re.match(r"\w[\w \*]*\b%s\(" % re.escape(a.func), lines[i]))
         e = next(i for i in range(s, len(lines)) if lines[i] == "}")
     muts = []
-    body = next(i for i in range(s, e) if lines[i].startswith("{")) + 1  # the first line after the "{"
+    body = next(i for i in range(s, e) if lines[i].startswith("{") or code(lines[i]).endswith(") {")) + 1  # the first line after the "{"
     rng = range(body, e) if a.scope == "func" else [i for i in range(len(lines)) if not (cs <= i <= e)]
     for i in rng:
         l = lines[i]
