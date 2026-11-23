@@ -1203,9 +1203,9 @@ void init_CreateOpeningObjects(void)
             o1 = gm_Query(b->objList, 1, 0, 0xff);
             o2 = gm_Query(b->objList, 1, 0, 0xfe);
             if (o1 == 0)
-                o1 = (AIOBJ *)gm_CreateObject(b->id, 0xff, 1);
+                o1 = gm_CreateObject(b->id, 0xff, 1);
             if (o2 == 0)
-                o2 = (AIOBJ *)gm_CreateObject(b->id, 0xfe, 1);
+                o2 = gm_CreateObject(b->id, 0xfe, 1);
             for (i = 0; i < 8; i++)
                 goods[i] = 0;
             switch (t) {

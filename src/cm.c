@@ -3059,11 +3059,11 @@ int cm_ExSellObjekt(G17MSG *m, G17STAT *s)
             o2->count += m->sell.count;
         } else if (ai_Goods[m->sell.item].type == 2 || ai_Goods[m->sell.item].type == 6) {
             if (x2 != 0)
-                o2 = (AIOBJ *)gm_AllocRaum(x2, m->sell.item);
+                o2 = gm_AllocRaum(x2, m->sell.item);
             if (o2 == 0)
                 return 1;
         } else {
-            o2 = (AIOBJ *)gm_CreateObject(m->sell.buyer, m->sell.item, m->sell.count);
+            o2 = gm_CreateObject(m->sell.buyer, m->sell.item, m->sell.count);
             if (o2 == 0)
                 return 1;
             if (y2 != 0) {
@@ -3176,7 +3176,7 @@ int cm_ExMakeGoods(G17MSG *m, G17STAT *s)
     if (o != 0) {
         o->count += g->batch * n;
     } else {
-        o = (AIOBJ *)gm_CreateObject(y->objId, m->make.item, g->batch * n);
+        o = gm_CreateObject(y->objId, m->make.item, g->batch * n);
         if (o == 0) {
             if (s != 0)
                 s->kind = 6;
@@ -3291,7 +3291,7 @@ int cm_ExCreateObject(G17MSG *m, G17STAT *s)
     if (net_Conn.s != INVALID_SOCKET)
         ai_NextObjectId = m->createObj.objectId;
     m->createObj.holder = cm_ResolveId((int)m, m->createObj.holder);
-    o = (AIOBJ *)gm_CreateObject(m->createObj.holder, m->createObj.item, 1);
+    o = gm_CreateObject(m->createObj.holder, m->createObj.item, 1);
     if (o == 0)
         return 1;
     cm_LastObjectId = o->objId;
@@ -4264,7 +4264,7 @@ int cm_ExCreateSermon(G17MSG *m, G17STAT *s)
         ai_NextObjectId = m->obj.objectId;
     k = cm_ResolveId((int)m, m->obj.owner);
     m->obj.owner = k;
-    o = (AIOBJ *)gm_CreateObject(k, 0x1b5, 1);
+    o = gm_CreateObject(k, 0x1b5, 1);
     if (o == 0)
         return 1;
     cm_LastObjectId = o->objId;
@@ -6210,7 +6210,7 @@ int cm_ExSpyReport(G17MSG *m, G17STAT *s)
             goto found;
         q = gm_QueryNext();
     }
-    q = (AIOBJ *)gm_CreateObject(b->id, 0xca, 1);
+    q = gm_CreateObject(b->id, 0xca, 1);
     if (q == 0)
         return 1;
     cm_LastObjectId = q->objId;

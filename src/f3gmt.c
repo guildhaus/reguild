@@ -1324,7 +1324,7 @@ void rt_FreePoints(struct RTPOINT *p);                     /* 0x4bd9e0 */
 
 /* 0x4fffc0, the first free record (prototype 0) of the object instance table ai_Objects (0x5008 records of 0x43 bytes), 0 when it is full */
 
-short *gm_FindFreeObject(void)
+AIOBJ *gm_FindFreeObject(void)
 {
     int i;
     AIOBJ *p, *res;
@@ -1339,7 +1339,7 @@ short *gm_FindFreeObject(void)
         } else
             res = p;
     }
-    return (short *)res;
+    return res;
 }
 /* 0x4ffff0, removes the object instance with the prototype id from the singly linked list whose head pointer is *list (the next pointer sits at +0x3f of each node): frees its extra part (0x500140 of the pointer at +0x14), the node itself (0x500080), relinks, marks the record free and decrements the count 0x6f1bdc. Returns 0, -1 for an empty list, -2 when not found */
 
@@ -1464,7 +1464,7 @@ int gm_FreeList(AIOBJ **list)
    group by the home building). Tried: a switch vs an if chain for the random model (the if chain matches
    block for block), the home tail as if/else-if (matches block for block), set as char / unsigned char / a
    cast sum, the dummy ternary with the cast outside. L... */
-unsigned short *gm_CreateObject(int id, int proto, int n)
+AIOBJ *gm_CreateObject(int id, int proto, int n)
 {
     AIBLD *b;
     AIOBJ *o;
@@ -1519,12 +1519,12 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
                 last = it;
                 it = it->next;
             } while (it != 0);
-            r = (AIOBJ *)gm_FindFreeObject();
+            r = gm_FindFreeObject();
             if (r == 0)
                 return 0;
             last->next = r;
         } else {
-            r = (AIOBJ *)gm_FindFreeObject();
+            r = gm_FindFreeObject();
             if (r == 0)
                 return 0;
             *list = r;
@@ -1587,7 +1587,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
             r->bldId = b->id;
         else
             r->bldId = -1;
-        load = (AIOBJ *)gm_CreateObject(r->objId, 0x1dd, 1);
+        load = gm_CreateObject(r->objId, 0x1dd, 1);
         load->count = r->type - 0x133;
         load->lvl1c = (unsigned char)r->type - 0x33;
         home = gm_BuildQuery(1, 1, id);
@@ -1680,7 +1680,7 @@ unsigned short *gm_CreateObject(int id, int proto, int n)
     }
     if (*pr == 0x17 || *pr == ' ' || *pr == '%')
         r->reserve = 0;
-    return (unsigned short *)r;
+    return r;
 }
 /* 0x500970, adds the amount n of the object prototype proto to the owner id (a building / object / character found by 0x4fea50): an existing instance gets +n (+0xe), else 0x500190 creates one; an unknown owner writes the message "gm_AddObjekt(): Parent not found. ObjProt:%i Menge:%i" (the buffer is not shown). Returns the instance or 0 */
 
@@ -1763,7 +1763,7 @@ int gm_AddNegative(int id, int proto, int n)
         return 0;
     r = gm_Query(*list, 1, 0, proto);
     if (r == 0) {
-        r = (AIOBJ *)gm_CreateObject(id, proto, 1);
+        r = gm_CreateObject(id, proto, 1);
         r->count = 0;
     }
     r->count -= n;
@@ -2135,7 +2135,7 @@ void gm_StockBuildingObjects(AIBLD *b)
     for (i = 0; i < 37; i++) {
         if (b->type == gm_BuildingItemGroups[i].key) {
             o = gm_Query(b->objList, 2, 6, 0, 0xff);
-            if (o != 0 || (o = (AIOBJ *)gm_CreateObject(b->id, 0xff, 1)) != 0) {
+            if (o != 0 || (o = gm_CreateObject(b->id, 0xff, 1)) != 0) {
                 for (k = 0; k < 10; k++) {
                     if (gm_BuildingItemGroups[i].items[k] != 0 && gm_Query(o->list, 1, 0, gm_BuildingItemGroups[i].items[k]) == 0)
                         gm_CreateObject(o->objId, gm_BuildingItemGroups[i].items[k], 2);
@@ -2169,7 +2169,7 @@ void gm_SetCapacities(AIBLD *b)
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
-unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
+struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);
 
 /* 0x501580, creates a building of the kind k for the owner own (a character slot, 0xffff none) in the next free instance (gm_FindFreeBuilding): a new id (ai_NextObjectId), the owner and master words, the start values (budget 0x7d00, wage rate 100, level 100, price factor 1.0, no smoke effect), a player's production setting (ai_ProdSetting), a name picked at random from the up to 12 names of its kind that no building has yet (the kind's own name when none is free; "Building name too long: %s" is the unused error text), the objects of its prototype (the rooms of the kinds 2 / 6 by gm_AllocRaum, the others while no room came before), its main room and the per-kind extras: the creation time and the owner's netId for the kinds 4 .. 7, -1 for 0xb .. 0xd, 10 / 3 / 5 for 0xe .. 0x10, the object 0x1b5 for 0x14 .. 0x16, the "f3_gm:PlantMap" of 0x1e, the price factor 0.8 of 0x1e .. 0x20, the graveyard of 0x48 .. 0x4a, the "AHM_INFO" block of 0x4b .. 0x4d; then the capacities and the kind's stock (gm_SetCapacities, gm_StockBuildingObjects). Returns the building, 0 when there are no tables or no free instance
    @deep 145 -> 103 ins (bytes 1147 -> 552): bt = (AIBTYPE *)base + k computed BEFORE b->type = k (the
@@ -2313,7 +2313,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
     case 0x14:
     case 0x15:
     case 0x16:
-        o = (AIOBJ *)gm_CreateObject(b->id, 0x1b5, 1);
+        o = gm_CreateObject(b->id, 0x1b5, 1);
         if (o != 0) {
             o->sermon.enabled = 0;
             o->sermon.text1 = -1;
@@ -3017,10 +3017,10 @@ void gm_SellBuilding(int id, int buyer, int price, AIJOB *job, int boss)
     cm_EndGroup("buy_building");
 }
 /* 0x5031b0, "gm_AllocRaum": creates the room object n of the building b with its sub-objects: the object list of the building kind (the words at +0x23, 0x40 of them) after n, up to the next room (goods kind 2 / 6) or the 0 end, the words with the top bit set; the room's first object 0x2a gets the count 2, the building as owner and the capacities +0x23d / +0x23e of the kind (at least 2; the kind's +0x23f alone when only it is set), its object 0x116 (kind 6) the same with the room as owner and at least 6; a market stall (0x92 .. 0x97, 0x2db) also makes its store room ob_LAGERFLAECHE_ALLGEMEIN (capacity 0xc, count 3) and an object 0xff holding up to 0x10 goods of the template gm_DefaultStock that the own player's stock records give to this stall kind. Returns the room, 0 without tables or room for 0x40 more objects */
-unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
+AIOBJ *gm_AllocRaum(AIBLD *b, unsigned n)
 {
     AIOBJ *o, *g;
-    unsigned short *bi;
+    AIOBJ *bi;
     AIBTYPE *bp;
     unsigned short *q;
     char *k;
@@ -3030,7 +3030,7 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
 
     if (ai_Goods == 0 || ai_BTypes == 0 || f3gm_ObjectCount + 0x40 >= 0x5008)
         return 0;
-    o = (AIOBJ *)gm_CreateObject(b->id, n, 1);
+    o = gm_CreateObject(b->id, n, 1);
     bp = &ai_BTypes[b->type];
     i = 0;
     for (q = bp->objs; (*q & 0x7fff) != n; q++)
@@ -3083,12 +3083,12 @@ unsigned short *gm_AllocRaum(AIBLD *b, unsigned n)
         t = (GMSTOCK *)gm_DefaultStock;
         for (j = 0; j < 0x55; j++) {
             if (s[j].marketKind == o->type && s[j].amount != 0 && cnt < 0x10) {
-                gm_CreateObject(((AIOBJ *)bi)->objId, t[j].item, 1);
+                gm_CreateObject(bi->objId, t[j].item, 1);
                 cnt++;
             }
         }
     }
-    return (unsigned short *)o;
+    return o;
 }
 /* 0x503480, removes the object instance with the id from the list of the building b (0x4ffff0): 0 when it was there, -3 otherwise */
 

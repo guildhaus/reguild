@@ -152,7 +152,7 @@ int gm_ListAmount(struct AIOBJ *l, struct AIOBJ *o);                            
 int gm_ListStock(struct AIOBJ *l, int item);                                             /* 0x50ab50 */
 int gm_RemoveObject(struct AIOBJ **list, unsigned item);                                          /* 0x4ffff0 */
 int gm_RemoveObjectFromBuilding(struct AIBLD *b, int id);                                            /* 0x503480 */
-unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);                                           /* 0x5031b0 */
+struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);                                              /* 0x5031b0 */
 /* 0x500190 */
 void txt_Format(char *buf, intptr_t id, ...);                                       /* 0x5176d0 */
 struct SBSAMPLE *sb_PlaySample(struct SBBANK *bank, char *name, int loops, int pan, int volume, int fade, int delay); /* 0x426fa0, sblib.c */

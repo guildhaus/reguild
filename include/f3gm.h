@@ -88,12 +88,12 @@ struct AICHAR; struct AIBLD; struct AICHAR *gm_FindApplicant(struct AIBLD *o, un
 struct AIOBJ *gm_HomeObject(struct AIBLD *b);  /* 0x4fdc10 */
 short *gm_SpawnCharacter(unsigned char flags, int p2, int p3, unsigned char p4, unsigned char p5, struct AIBLD *p6);  /* 0x4fddb0 */
 void gm_CountCharacters(void);  /* 0x4fdfd0 */
-unsigned short *gm_AllocRaum(struct AIBLD *b, unsigned n);  /* 0x5031b0 */
+struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);  /* 0x5031b0 */
 int gm_BuildingGoodsList17(struct AIBLD *b, struct AIRECIPE *out, int kind);  /* 0x5099e0 */
 extern GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500 */
 int gm_CharacterWages(unsigned short id, int flag, unsigned char *out);  /* 0x4fa700 */
 int gm_TakeObjekt(int id, int proto, int n);  /* 0x500a40 */
-unsigned short *gm_CreateObject(int id, int proto, int n);  /* 0x500190, the new object instance of the prototype proto with the amount n in the holder's list (gm_FindById); 0 on failure */
+struct AIOBJ *gm_CreateObject(int id, int proto, int n);  /* 0x500190, the new object instance of the prototype proto with the amount n in the holder's list (gm_FindById); 0 on failure */
 void gm_FreeObject(struct AIOBJ *obj);  /* 0x5034b0 */
 int gm_SkillPoints(struct AICHAR *c, int skill);  /* 0x504e00 */
 int gm_HasAdultRelative(struct AICHAR *c, int *n);  /* 0x506480 */

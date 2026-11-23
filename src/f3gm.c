@@ -2441,7 +2441,7 @@ int gm_BuildingClass(int kind);
 struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);                     /* 0x501ce0 */
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
-unsigned short * gm_AllocRaum(struct AIBLD *b, unsigned n);
+struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);
 int gm_BuildingJob(int t);                   /* 0x5048e0 */
 extern int gm_AllowAll;
 int gm_JobBuildingType(int x);
