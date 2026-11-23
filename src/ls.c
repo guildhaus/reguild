@@ -19,7 +19,6 @@ struct D3SM;
 
 /* full rebuild: the symbols whose original addresses the code above spells literally */
 extern int gm_TreeNodeCount;
-extern unsigned gm_OwnNameHeads[136];
 #include "cm_types.h"
 extern void main_LoadProgressCallback(int kind, int cur, int total);
 extern int gm_TreeNodeCount;

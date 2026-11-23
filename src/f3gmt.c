@@ -131,7 +131,6 @@ void ai_SendNeedBlock(void);                     /* 0x4c4a20 */
 void gm_ShiftLoyalty();                   /* 0x4fb0e0 */
 int gm_FindRichest(short *id, int *rate);
 extern char * cm_FieldObject;                /* 0xa68d2c */
-extern unsigned gm_BoyHead[], gm_GirlHead[], gm_TitleHeadsMale[], gm_TitleHeadsFemale[], gm_JobHeadsMale[], gm_JobHeadsFemale[], gm_SpyHeads[], gm_OwnNameHeads[];  /* 0x6118a8, 0x6118f0, 0x611938, 0x612288, 0x612bd8, 0x614518, 0x617398, 0x91ac40 */
 void gm_ResolveHeadIcons(GMHEAD *rec);
 char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf, unsigned char set, char reload);                     /* 0x446f30 */
 extern struct AIBLD *ai_PlayerBuilding;  /* 0x6f2308 */
@@ -175,7 +174,6 @@ void mem_Free(void *p);                    /* 0x422620 */
 extern int gm_ClassBuilding[32];
 extern int gm_GoodBuilding[732];
 extern struct AIGOOD *ai_Goods;
-extern unsigned gm_OwnNameHeads[136];
 extern struct AIOBJ *ai_Objects;
 extern int gm_DefaultStock[];
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
@@ -1272,13 +1270,6 @@ struct AIOBJ *gm_Query(void *list, int n, ...)
 
 extern struct AIBLD *ai_MarketBuilding;                /* 0x6f1bc8, the market building (group 1, 5, 10) */
 int cm_AddFieldValues(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d00 */
-extern unsigned gm_BoyHead[];
-extern unsigned gm_GirlHead[];
-extern unsigned gm_TitleHeadsMale[];
-extern unsigned gm_TitleHeadsFemale[];
-extern unsigned gm_JobHeadsMale[];
-extern unsigned gm_JobHeadsFemale[];
-extern unsigned gm_SpyHeads[];
 extern int gm_RichestYear;
 extern int gm_RichestWorth;
 extern float gm_BirthChance[6];
@@ -8060,7 +8051,6 @@ extern int gm_TreeRanks;
 extern struct AIBLD *ai_Blds;
 extern int gm_GoodBuilding[732];
 extern struct AIGOOD *ai_Goods;
-extern unsigned gm_OwnNameHeads[136];
 extern GMCHARSTATS gm_CharacterStatistics;
 extern char d2_GfxDir[256];
 /* 0x50c550, how much the character a likes the character b, 0 .. 100 (100 for the same character, 50 when one of them is

@@ -15,6 +15,7 @@
 #include "data_views.h"
 #include "d3_types.h"
 #include "ahm.h"
+#include "f3gm_types.h"
 #include "ai.h"
 #include "anm.h"
 #include "cm.h"
@@ -123,7 +124,7 @@ char ord_RatingBytes[16];  /* 0x91b460, 5 + 1 bytes */
 AITIME ord_StatisticsClock; /* 0x91b470, the clock of the last rating step (ord_AdvanceRatingBase) */
 ORDMSGREC ord_MessageRecord;  /* 0x91b480, the record the messages carry */
 ORDSTATS ord_Statistics; /* 0x91b4c0, the last statistics (ord_UpdateStatistics) */
-unsigned gm_OwnNameHeads[136];  /* 0x91ac40 */
+GMHEAD gm_OwnNameHeads[8];  /* 0x91ac40, the ring of the heads of characters with their own name (gm_CharNameRecord) */
 AIGRID ai_Grid[8][8]; /* 0x91ae60 */
 GMCHARSTATS gm_CharacterStatistics;  /* 0x91b500, the character statistics (gm_CountCharacters fills them) */
 

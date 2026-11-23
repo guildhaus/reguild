@@ -582,7 +582,6 @@ extern int d2_LastWindow;
 extern struct D2OBJ *d2_Objs;
 extern int sv_FrameMask;
 extern unsigned char ai_OwnPlayer;
-extern unsigned gm_OwnNameHeads[136];
 #include "gv_types.h"
 #include "ai_bld.h"                /* AIBLD, AIBTYPE */
 extern GAPDATA full_data_5fe7d0[];
