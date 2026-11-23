@@ -1515,7 +1515,7 @@ exe	0x0048ef10	ai_ExecSecretRoom3	am	byte	readable
 exe	0x0048f010	ai_DecideCannonTower	am	byte	readable		
 exe	0x0048f1e0	ai_ExecCannonTower	am	byte	readable		
 exe	0x0048f250	ai_FindOwnBuilding	am	byte	readable		
-exe	0x0048f2b0	ai_DecideBuildSculpture	am	shape	readable		
+exe	0x0048f2b0	ai_DecideBuildSculpture	am	byte	readable		
 exe	0x0048f500	ai_ExecBuildSculpture	am	byte	readable		
 exe	0x0048f600	ai_DecideUseAlchemyItems	am	byte	readable		
 exe	0x0048f990	ai_ExecUseAlchemyItems	am	byte	readable		
@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	byte	readable
 exe	0x004be790	rt_OpenSlotControls	rt	byte	readable		
 exe	0x004be8e0	rt_RemoveControls	rt	byte	readable		
 exe	0x004be930	rt_InitControls	rt	byte	readable		
-exe	0x004be940	rt_EditPointDialog	rt	shape	readable		
+exe	0x004be940	rt_EditPointDialog	rt	byte	readable		
 exe	0x004bf080	rt_CartSettingsDialog	rt	byte	readable		
 exe	0x004bf360	rt_SetMarkPic	rt	byte	readable		
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	byte	readable		
@@ -3270,7 +3270,7 @@ exe	0x0051c560	ls_WriteMessageQueues	ls	byte	readable
 exe	0x0051c870	ls_WriteEnvironment	ls	byte	readable		
 exe	0x0051c920	ls_Read	ls	byte	readable		
 exe	0x0051c950	ls_LoadGame	ls	byte	readable		
-exe	0x0051cee0	ls_ReadSaveHeader	ls	shape	readable		
+exe	0x0051cee0	ls_ReadSaveHeader	ls	byte	readable		
 exe	0x0051d2d0	ls_LoadScene	ls	byte	readable		
 exe	0x0051d3d0	ls_ReadObjects	ls	byte	readable		
 exe	0x0051d4f0	ls_HookBuildingCB	ls	byte	readable		
@@ -4003,8 +4003,8 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	byte	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		
@@ -4120,7 +4120,7 @@ exe	0x0058af50	lobby_ChoosePlayer	lobby	byte	readable
 exe	0x0058b880	lobby_ChooseProfession	lobby	byte	readable		
 exe	0x0058ba70	lobby_ShowChat	lobby	byte	readable		
 exe	0x0058bbd0	ai_InitProductionTables	lc	byte	readable		
-exe	0x0058bd60	ai_ProductionWindow	lc	shape	readable		
+exe	0x0058bd60	ai_ProductionWindow	lc	byte	readable		
 exe	0x0058c680	ai_UpdateResourceColumns	lc	byte	readable		
 exe	0x0058cc10	ai_UpdateProdColumns	lc	byte	readable		
 exe	0x0058d720	ai_UpdateProdGoodsList	lc	byte	readable		
@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
+exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
