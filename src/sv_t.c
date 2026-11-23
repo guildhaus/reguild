@@ -32,9 +32,6 @@
    declaration set is not the original's yet.
    Open: the alchemist windows ai_AlchemistWindow / ai_AlchemistResearchWindow are @deep (allocation); their buttons call
    ai_AlchemistFundWindow / ai_AlchemistRescheduleWindow with (obj, record), the record parameter unread.
-   Open: type debt - the graveyard detail window record GVDETAILWIN is typed in the seance and contact functions
-   (ai_SeanceWindow .. ai_UpgradeWorkerWindow); ai_GraveDetailOpen / ai_RentGraveDetail / ai_GraveDetailButtons
-   still take int *w (the callers cast), the graveyard contacts before ai_GraveHauntContact take char *rec.
    Open: data: ai_TurnTable (0x6f5f60, 0x4000 bytes) is cleared once at engine open and no other code refers to
    it: what it holds, and so its true name and element type, is unknown (the name is ai_ClearTurnTable's).
    unit of rea 8cef7d5b (src/game/unk_575860.c); boundaries in decl/text.dcl */
@@ -4977,45 +4974,6 @@ TUTSTATE ai_TutorialState;  /* 0x6fa060, the tutorial state record ai_Tutorial p
 void ai_GraveDeadName(GVGRAVE *e, char *out);
 /* dcp unit split: the declarations that moved to svgrave (copies: drop what sv_t does not use) */
 struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after, int (*cb)(), int l); int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
-typedef struct GVROW {
-    int btn;                    /* 0x00, its button object, -1: an unused row */
-    GVENTRY *entry;             /* 0x04, the grave entry, 0: unused */
-    int size;                   /* 0x08, the entry's size (list), 0xff: unused */
-    unsigned char index;        /* 0x0c, the entry's index in its list (gv_EntryIndex), 0xff: unused */
-} GVROW;
-typedef struct GVITEM {
-    int btn;                    /* 0x00, its picture object, -1: none */
-    GVGRAVE *grave;             /* 0x04, the dead person, 0: an unused item */
-    int id;                     /* 0x08, the grave's id, -1: unused */
-} GVITEM;
-typedef struct GVWIN {                  /* 0x1a0 bytes, the graveyard contact window's list (ai_GraveWindow's w[0x68]) */
-    int head[0xc];                      /* 0x00, its windows: 0 the window, 2 the list's window, 3 the detail list's window,
-                                           5 / 6 their fonts, 8 .. 11 the size buttons (ai_GraveSizeButtons) */
-    int size;                           /* 0x30 (w[0xc]), the selected grave size */
-    GVROW rows[0x10];                   /* 0x34 (w[0xd]), the grave list's rows (ai_GraveList) */
-    int sel;                            /* 0x134 (w[0x4d]), the selected row */
-    int slider;                         /* 0x138 (w[0x4e]), the detail's slider */
-    GVITEM items[8];                    /* 0x13c (w[0x4f]), the detail's dead persons (ai_GraveDetail) */
-    int item;                           /* 0x19c (w[0x67]), the item last clicked */
-} GVWIN;
-typedef struct GVDETAILWIN {
-    int win;                    /* 0x00, the form */
-    int sections[6];            /* 0x04, the d2_LastWindow of its sections */
-    GVENTRY *entry;             /* 0x1c, the grave entry shown */
-    int size;                   /* 0x20, its size (list) */
-    unsigned char index;        /* 0x24, its index in that list (gv_EntryIndex) */
-    char pad25[3];
-    GVITEM items[8];            /* 0x28, the dead persons of the grave */
-    int selected;               /* 0x88, the item clicked (ai_SeancePick) */
-} GVDETAILWIN;
-void ai_GraveDeadName(GVGRAVE *e, char *out);
-typedef struct GVPICK {
-    GVENTRY *entry;             /* 0x00, the selected grave entry */
-    int size;                   /* 0x04, its size (list) */
-    unsigned char index;        /* 0x08, its index in that list (gv_EntryIndex) */
-    GVGRAVE *grave;             /* 0x0c, the dead person picked in it, 0: the grave itself (the slider) */
-    int id;                     /* 0x10, that dead person's id, -1: none */
-} GVPICK;
 int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags); void sv_OpenPlayerBar(struct AIBLD *a, char k); void sv_ClosePlayerBar(void);
 int gv_RoomForRaised(struct AIBLD *o, int *n); void *cm_GetSlotValue(int h); int sprintf(char *buf, const char *fmt, ...);
 int sv_CheckCharacterFlag(struct AIBLD *id); struct AIJOB *he_FindEvent(int n, ...); struct AIJOB *he_NextEvent(void); void sv_OpenWindowFrame(int f, int b, int c);
