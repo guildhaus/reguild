@@ -4234,23 +4234,27 @@ void ai_FreeJobCharacters(AICHAR *ch, int n)
    the trade kinds 3 / 4 / 8 name the carts' objects (info->b / info->c) and the building in the message.
    Side effects: info->z2 counts what was sent (also across calls), info->z1 is set as the round flag; the order
    message goes as one cm_SendLongMessage (0x28: one per free character, then the round ends).
-   @deep draft, 71 ins (from 84). This session: 0x8c with no base local (z2 read in each arm, the test
-   before the loop if (info->z2 < total)): the original loads z2 into ebp in each arm; the job-group arm k
-   = info->type before the total (climb); msg.itemId before arg[1] in the type-4 fill (climb). Sums are
-   canonicalised: every operand order and parenthesisation of the 0x14 / 0x8c arm-else sums is one code (24
-   + 36 variants), three statements too. Left: 0x14 arm-else the original loads z2 first (mov ebp,[z2];
-   idiv; add ebp,eax; add ebp,edx), ours computes q + r (lea) and the + z2 tail is cross-jumped into the n
-   <= 1 arm (c2tail merge 1); the same in 0x8c arm-else (original (r + z2) + q, ours (q + z2) + r); the
-   time word store (mov word [esp+0x4c]) after the nIds / reserved14 zero stores in every fill; send sites:
-   the original keeps 0x15's send+z1++ copy (0x14 jumps to its je, the last branch to its call) and 0x8c's
-   own copy, ours merges all into the last branch which falls into the final z1++ (inc [mem] in the
-   original only on the fall paths); last branch msg.type through cl. 2^4 return/fall forms of the four
-   send sites: 13 = control. One function-scope AIMSG: worse (127). climb --rounds 3 from the start: 72 (it
-   also proposed t = info->n2 in the 0x28 arm, not kept). prior: size queue s16: 87 -> 84 ins, raw 2305
-   (padded 2320 = the original's). Kept: the job-group branch's found job ends with info->z1++; return; in
-   the loop (as the other branches) instead of goto done (the break + if (job) return form is the same
-   code; a break with the message under if (job == 0) is the control's code). Left as the prior note says:
-   the 0x8c send site, the per-branch adds of the totals, the zero register and the message store order. */
+   @deep draft, 11 ins: only the two arm-else sums left. Kept this session (84 -> 11): 0x8c with no base
+   local (z2 read per arm, if (info->z2 < total)); fills nIds before time (as 0x15); the job group as a
+   search loop with break and if (job == 0) { message; send } else { found work } falling into the final
+   info->z1++ (this gave the original's three send copies: 0x15 and 0x8c keep theirs, 0x14 and the
+   not-found message jump into 0x15's); k = info->type after the total; msg.itemId before arg[1] (type 4).
+   Left: 0x14 arm-else the original is mov ebp,[z2]; idiv; add ebp,eax; add ebp,edx (z2 + q + r), ours lea
+   ebp,[edx+eax] and the + z2 tail cross-jumped into the n <= 1 arm; 0x8c arm-else original (r + z2) + q,
+   ours (q + z2) + r. Mechanism: VC6 canonicalises the sums (every operand order / parenthesisation / split
+   statement of both sums is one code; 24 + 36 + 24 variants), and the canonical order follows something
+   global: flip.py --want 'add ebp, eax / add ebp, edx' hits deleting or changing msg field stores in the
+   0x28 fill, &&->|| in the character tests of every branch, deleting the last branch's n = info->n1,
+   moving its k: a value-numbering / hash order, not the declaration set (dcp: no set makes it byte; int
+   declaration order 720 variants = control; raw arg[0] stores for goodsOrder / itemId, casts removed =
+   control). A join form arm1 { total = q; base = z2; } else { total = z2 + q; base = r; } total += base
+   fixes both sums but leaves mov eax,edx (2 ins): the original has no join add. Next: find the
+   code-neutral IR difference (flip hits), e.g. the character-test conditions per branch, the 0x28 fill.
+   prior: size queue s16: 87 -> 84 ins, raw 2305 (padded 2320 = the original's). Kept: the job-group
+   branch's found job ends with info->z1++; return; in the loop (as the other branches) instead of goto
+   done (the break + if (job) return form is the same code; a break with the message under if (job == 0) is
+   the control's code). Left as the prior note says: the 0x8c send site, the per-branch adds of the totals,
+   the zero register and the message store order. */
 
 void ai_SendJobOrders(AIINFO *info)
 {
