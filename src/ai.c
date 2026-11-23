@@ -2881,7 +2881,17 @@ done:
    without the grave offer and the staff / spy / pose steps (ai_UpdateStaff instead): picks the good to make, skips
    the entries flagged 0x400 (job orders of type 0x8c when a slot flagged 0x400 | 0x10 marks them 0x10), the others
    get job orders of type 4 for flag 8
-   @deep Session s(match-deep): kept the 8 / 13 o'clock arm as the else arm (found = 1 in the success,
+   @deep Session s2(match-deep): the second random loop's success written as ai_EvaluateProductionFlags
+   spells it (the HasMaterials(.., 0) test as its own nested if, then k = info.perm[i];
+   ai_StartProduction(ch, &ai_Entries[k]); e = &ai_Entries[k];): 241 -> 39 ins, shape (proved). Alone: the
+   k-block 221, the nested if = control. Combined with it no lever (= control): character loop's first
+   three tests as an outer if, info.n1 = min() as an if; worse: found tested once after the if / else (264,
+   found to memory: M8 shift), ai_FreeJobCharacters in both watch arms (216 / 210), if (found) goto done
+   out of the 8/13 inner else-if (41). Left: else arm ch->flags1b4 &= ~0x100 in ecx (and ch) where the
+   original (and byte Flags) uses eax (and ah); the setting-good loop's b->lvl1c / lvl1d tests (+0x275:
+   original mov edx,b / mov ecx,edx / xor eax,eax / mov al,[ecx+0x1d], ours b in eax), and the following
+   goods-record temps (ecx/edx swapped). = control: ch->flags1b4 = ch->flags1b4 & ~0x100, 0xfffffeff.
+   prior: Session s(match-deep): kept the 8 / 13 o'clock arm as the else arm (found = 1 in the success,
    break, if (found) goto done after its loop): 243 -> 241, the loop guard's cmp esi,ebp (found's zero live
    through the arm) is now the original's. The layout lever is ch's priority: c2trace ch#3 (lines
    2729-2936, 46 refs, prio -20) loses ebx to the job-order loop's j#2 (prio -13); the original keeps ch in
@@ -2896,20 +2906,7 @@ done:
    or worse): Graveyard's single if (found) after the if / else (284, found to memory), e = &ai_Entries[i]
    in either arm (263+), ch->prod / flags1b4 order, nested else / flipped flags1b4 arms, job loop index
    j->i/k, the watch loop condition, e = &ai_Entries[k] in the second loop's success (161 but the original
-   re-reads info.perm[i] there). climb 4 rounds beam 6: 147 only via unnatural locals. prior: Read whole
-   against the original 0x484a60..0x485473 and rewritten as ai_EvaluateProductionGraveyard (its twin, read
-   the same way): the entry tests on ai_Entries[i] / [k] with the field on the left, the 0x400 / flag-8
-   loops each testing ai_NEntries, j >= ai_NEntries in the watch loop, health > 0, info.n2++ / info.n1++ in
-   the struct, min(info.n1, info.n2), the job-order loop's 0x10 / 0x400 / 8 tests with type before e and
-   the watch copy from *info.e, info stored ch, b, c, z2, z1; the call list is the original's
-   (ai_UpdateStaff, no ai_StartBuildingWork). 569 -> 328 differing, every call, constant and field the
-   same. Left is block layout and allocation: the original keeps the first random loop's success block
-   inline (+0x4c7..+0x50b) and lays the second loop's success (StartProduction / 'obwohl Rohstoffe fehlen')
-   out of line inside the watch loop (+0x77a, jmp back to done at +0x679), ours the other way round (the
-   code hunks at +0x4c7 and +0x602); ch lives in ebx in the original and is reloaded from [esp+0x1c0] by
-   ours in the job-order loop where ours keeps j in ebx (+0x999 / +0x9ce / +0xa0e), the goods-record
-   address of the random loops (+0x43a: add ecx,edx / lea edx,[eax+ecx] vs ours add eax,edx / mov edx,eax),
-   the zero register compare at +0x1d6. Same layout quirk as ai_EvaluateProductionFlags 0x47f700. */
+   re-reads info.perm[i] there). climb 4 rounds beam 6: 147 only via unnatural locals. */
 
 void ai_EvaluateProductionGypsies(AICHAR *ch) {
   AIOBJ *a, *b, *x;
@@ -3047,14 +3044,16 @@ void ai_EvaluateProductionGypsies(AICHAR *ch) {
           ai_Entries[k].capacity >= ai_Goods[e->item].batch &&
           (x = gm_FindMarketObject(e->item)) != 0 &&
           gm_FreeCapacity(x, e->item, 1000000) >=
-              ai_Goods[e->item].batch + ai_Entries[k].amount &&
-          ai_HasMaterials(ch, e, 0)) {
-        e = &ai_Entries[info.perm[i]];
-        ai_StartProduction(ch, e);
-        ch->prod = (unsigned short)e->item;
-        sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen",
-                ai_Goods[e->item].name);
-        goto done;
+              ai_Goods[e->item].batch + ai_Entries[k].amount) {
+        if (ai_HasMaterials(ch, e, 0)) {
+          k = info.perm[i];
+          ai_StartProduction(ch, &ai_Entries[k]);
+          e = &ai_Entries[k];
+          ch->prod = (unsigned short)e->item;
+          sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen",
+                  ai_Goods[e->item].name);
+          goto done;
+        }
       }
     }
   }
