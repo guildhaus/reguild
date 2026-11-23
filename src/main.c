@@ -126,17 +126,6 @@ extern int sv_FrameMask;
 extern int sv_PopRequest;
 extern struct D3RECT d2_DirtyRect;         /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern float gm_DayStartHours[], gm_DayEndHours[];  /* 0x617830 / 0x617840 (f3gm.c) */
-#pragma pack(push, 1)
-typedef struct MAINCARRY {          /* 0x21d bytes (+0x219 the entry count), what gm_CollectCarried collects for a character (f3gm.c: +0x31 the free capacity) */
-    int units;                      /* 0x00, counts the 0xe-byte units */
-    struct {
-        unsigned char good;         /* a good (its name is the text 0x253 + good), 0 ends the list */
-        int amount;
-    } goods[9];                     /* 0x04, what the round change lists on the balance page (main.c 0x5384e0) */
-    int capacity;                   /* 0x31, the free capacity (unaligned) */
-    char rest[0x1e8];
-} MAINCARRY;
-#pragma pack(pop)
 typedef struct MAINCHARNEW {        /* the AICHAR fields the character replacement writes (ai.h AICHAR: name is shorter than its 0x58 union) */
     unsigned short id;              /* 0x00 */
     unsigned char kind;             /* 0x02 */
@@ -2987,7 +2976,7 @@ void main_EndGame(void)
 
 void main_RundenBeginn(void)
 {
-    MAINCARRY carry;
+    GMCARRY carry;
     char b5[0x200], b6[0x200], b4[0x200];
     char b1[0x100], b2[0x100], b3[0x100], b0[0x100];
     char hdr[0x100] = "";
@@ -3050,7 +3039,7 @@ void main_RundenBeginn(void)
                 }
                 cm_SendSetField(ch->netId, 0x1cc, 4, 0, 0x200000);
             }
-            gm_CollectCarried(ch->id, (int *)&carry);
+            gm_CollectCarried(ch->id, &carry);
             if (ch->bld2 != 0 && (k = gm_BuildingSkill(ch->bld2, 3, 1)) != 0) {
                 txt_Format(b5, 0x2053, ch->bld2);
                 e = (char *)he_AddApEvent(ch->id, b5, k, 0);
@@ -3088,7 +3077,7 @@ extern unsigned char main_GameEnded;  /* 0x6f25ad, sv.c */
    buildings of the masters this machine runs (kind 0x1c message "renovieren") and spreads each character's goods value over its buildings as their work load (AIBLD.budget), then beams the figures of the characters home ("Beamed home") */
 void main_EndRound(void)
 {
-    MAINCARRY carry;   /* what gm_CollectCarried collects (the original's buffer sits at +0x1a8 of a 0x3b8 frame) */
+    GMCARRY carry;   /* what gm_CollectCarried collects (the original's buffer sits at +0x1a8 of a 0x3b8 frame) */
     struct {
         int clock0;
         int tick;
@@ -3135,7 +3124,7 @@ void main_EndRound(void)
     }
     if ((ai_GameFlags & 4) != 0)
         sv_NetworkSyncWait(0x24087);
-    gm_CollectCarried(ai_PlayerId, (int *)&carry);
+    gm_CollectCarried(ai_PlayerId, &carry);
     sv_FillDayPhases(&clk);
     sv_Season = sv_ClockSeason(&clk);
     gm_FindRichest(&rid, &k);
@@ -3509,7 +3498,7 @@ void main_RoundReport(void)
         d2_StartFade(0, 0, d2_ScreenW, d2_ScreenH, "BLACK", 0x1e, 10);
         d2_SetForm(win, 2);
         io_PrintText(0x7d);
-        gm_ClockToDate(&ai_Time, (unsigned char *)&date);
+        gm_ClockToDate(&ai_Time, &date);
         d2_SetForm(win, 1);
         io_PrintText(0x2007);
         /* the character's own money: wage in, goods bought out */
@@ -3727,7 +3716,7 @@ void main_RoundReport(void)
     }
 }
 
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 
 /* 0x53a250, the daily update of the figure i by its kind: kinds 6 / 7 get the field delta 0x174 (AICHAR.jobDays, the
    days in the job) = 1 sent; kinds 0 .. 9 otherwise the same delta when the character has a building or is of the
@@ -3760,7 +3749,7 @@ void main_UpdateFigure(int i)
             left = gm_TitlesLeft(ai_Chars[i].jobId);
             ev = he_FindEvent(2, 2, c->id, 0, 0x24);
             c->jobDays++;
-            f = gm_TitlePeriodServed(i, (int *)&when);
+            f = gm_TitlePeriodServed(i, &when);
             c->jobDays--;
             if (ev == 0 && left != 0 && left < 6 && f >= 1.0 && ai_Chars[i].money >= 0) {
                 memset(&msg, 0, sizeof(msg));
@@ -4151,7 +4140,7 @@ void main_BeginPlayerRound(void)
     int i, w;
     AIBLD *b;
     AIBTYPE *bt;
-    char date[12];
+    GMDATE date;
     ORDMSGREC rec;
     char buf[256];
 
@@ -4198,7 +4187,7 @@ void main_BeginPlayerRound(void)
         d2_PlaceMainWindow(w, 3);
         d2_SetForm(w, 1);
         io_PrintText(0x7d);
-        gm_ClockToDate(&ai_Time, date);
+        gm_ClockToDate(&ai_Time, &date);
         d2_SetForm(w, 0);
         d2_CloseView(w);
     }

@@ -60,28 +60,7 @@ extern struct AICHAR *gm_RichestChar;
    bytes): the rows start 0x44 apart, so these aliases sit at the end of each row. They are views, not
    separate globals - a separate definition would reserve its own memory here and the 0x154-byte
    ord_ResetStatistics memset would zero whatever the COMMON linker put inside it (it hit ai_BTypes). */
-#include "f3gm_carry.h"            /* GMCARRYSPEC, GMCARRYREC, gm_CarryRecs */
-#pragma pack(push, 1)
-/* an entry of gm_CollectCarried's list (0x1e bytes) */
-typedef struct GMCARRYENTRY {
-    struct AIJOB *ref;                  /* 0x00, the record's event */
-    GMCARRYREC *rec;                    /* 0x04, the record */
-    char *data;                         /* 0x08, the record's data */
-    int value;                          /* 0x0c, the record's value when it has one */
-    GMCARRYSPEC spec;                   /* 0x10 */
-} GMCARRYENTRY;
-
-/* what gm_CollectCarried collects for a person (0x21d bytes; main.c MAINCARRY reads the head of it) */
-typedef struct GMCARRY {
-    int units;                          /* 0x000, the 0xe-byte units */
-    char goods[0x2d];                   /* 0x004, main.c: the goods list of the balance page */
-    int capacity;                       /* 0x031, the free capacity */
-    GMCARRYENTRY entries[16];           /* 0x035 */
-    int valueSum;                       /* 0x215, minus the values of the records with one */
-    int count;                          /* 0x219, the entries used */
-} GMCARRY;
-#pragma pack(pop)
-typedef char gm_AssertGMCARRY[sizeof(GMCARRY) == 0x21d ? 1 : -1];
+#include "f3gm_carry.h"            /* GMCARRYSPEC, GMCARRYREC, GMCARRY, gm_CarryRecs */
 
 int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 
@@ -175,7 +154,7 @@ extern int gm_ClassBuilding[32];
 extern int gm_GoodBuilding[732];
 extern struct AIGOOD *ai_Goods;
 extern struct AIOBJ *ai_Objects;
-extern int gm_DefaultStock[];
+extern GMSTOCK gm_DefaultStock[0x55];
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 void util_Randomize();                     /* 0x42ec80 */
 
@@ -238,12 +217,11 @@ int gm_MinutesBetween(AITIME *a, AITIME *b)
 {
     return ((((b->year - a->year) * 0x18 - a->hour) + b->hour) * 0x3c - a->min) + b->min;
 }
-/* 0x4fe2c0, converts the clock c into the calendar record out: the season's first month (the day % 4 * 3 + 1),
+/* 0x4fe2c0, converts the clock c into the calendar record d: the season's first month (the day % 4 * 3 + 1),
    the year (day + 0x578), the hour, the minute and the seconds */
 
-void gm_ClockToDate(AITIME *c, unsigned char *out)
+void gm_ClockToDate(AITIME *c, GMDATE *d)
 {
-    GMDATE *d = (GMDATE *)out;
     int r;
 
     d->year = (short)c->year + 0x578;
@@ -262,11 +240,9 @@ void gm_AddTime2(AITIME *c, int unused, int hours, int mins, int secs)
 }
 /* 0x4fe330, the season (word at +2 modulo 4) of a calendar record */
 
-int gm_Season(char *d)
+int gm_Season(GMDATE *d)
 {
-    GMDATE *date = (GMDATE *)d;
-
-    return date->year % 4;
+    return d->year % 4;
 }
 /* 0x4fe350, the season of the clock c (day % 4) */
 
@@ -613,7 +589,7 @@ void gm_InitPlayerRecord(int p)
 
     for (i = 0; i < 0x55; i++) {
         g = &gm_StockBlocks[p].goods[i];
-        t = &((GMSTOCK *)gm_DefaultStock)[i];
+        t = &gm_DefaultStock[i];
         pc = (char *)ai_Goods + g->item * 0x41;
         g->v00c = t->v00c;
         g->baseStock = t->baseStock;
@@ -635,7 +611,7 @@ void cm_BeginSendGroup(void);                     /* 0x4c3b30 */
 void cm_EndSendGroup(void);                     /* 0x4c3b40 */
 int cm_SendGroupState();                     /* 0x4c3b50 */
 struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
 
 /* the goods record n (0x80 bytes) of the player p */
 
@@ -890,7 +866,7 @@ void gm_UpdatePrices(unsigned p, void *t)
     int i;
     AIGOOD *g;
 
-    gm_ClockToDate(t, (unsigned char *)&d);
+    gm_ClockToDate(t, &d);
     year = d.year;
     for (n = 0; n < 9; n++)
         if (GM_TABLE_A(p)[n].year >= GM_TABLE_A(p)[n + 1].year)
@@ -1276,7 +1252,6 @@ extern float gm_BirthChance[6];
 extern float gm_DayStartHours[];
 extern float gm_DayEndHours[];
 extern GMDISEASE gm_Diseases[10];
-extern int gm_DefaultStock[0xaa0];
 extern G7GRP gm_BuildingItemGroups[37];
 extern int ai_NextObjectId;
 extern unsigned char gm_BQType;
@@ -2045,7 +2020,7 @@ struct AIBLD *gm_BuildQuery(int n, ...)
 }
 /* 0x5012b0, the first free record of the building table (0x100 records of 0xa9 bytes), 0 when it is full */
 
-char *gm_FindFreeBuilding(void)
+AIBLD *gm_FindFreeBuilding(void)
 {
     AIBLD *end, *b;
 
@@ -2056,7 +2031,7 @@ char *gm_FindFreeBuilding(void)
     }
     if (b >= end)
         return 0;
-    return (char *)b;
+    return b;
 }
 /* 0x5012e0, frees the building b: a player's building (its owner a character of kind 6) frees its production setting (ai_FreeProdSetting); by type, 0x1e frees its plant records, 0x48 .. 0x4a its graveyard record, 0x4b .. 0x4d its heap block; every character living or working in it loses it, its object list is freed and the type set to 0 (free). Returns 0, -1 for no building, -2 for one already free */
 
@@ -2163,7 +2138,7 @@ void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);
 
 /* 0x501580, creates a building of the kind k for the owner own (a character slot, 0xffff none) in the next free instance (gm_FindFreeBuilding): a new id (ai_NextObjectId), the owner and master words, the start values (budget 0x7d00, wage rate 100, level 100, price factor 1.0, no smoke effect), a player's production setting (ai_ProdSetting), a name picked at random from the up to 12 names of its kind that no building has yet (the kind's own name when none is free; "Building name too long: %s" is the unused error text), the objects of its prototype (the rooms of the kinds 2 / 6 by gm_AllocRaum, the others while no room came before), its main room and the per-kind extras: the creation time and the owner's netId for the kinds 4 .. 7, -1 for 0xb .. 0xd, 10 / 3 / 5 for 0xe .. 0x10, the object 0x1b5 for 0x14 .. 0x16, the "f3_gm:PlantMap" of 0x1e, the price factor 0.8 of 0x1e .. 0x20, the graveyard of 0x48 .. 0x4a, the "AHM_INFO" block of 0x4b .. 0x4d; then the capacities and the kind's stock (gm_SetCapacities, gm_StockBuildingObjects). Returns the building, 0 when there are no tables or no free instance
-   @deep 145 -> 103 ins (bytes 1147 -> 552): bt = (AIBTYPE *)base + k computed BEFORE b->type = k (the
+   @deep 145 -> 103 ins (bytes 1147 -> 552): bt = base + k computed BEFORE b->type = k (the
    move-line round: base now in edi, k in edx, the whole prologue and early returns equal), g = (&ai_Goods[id])
    read at both type tests (the materialized address), u = bt->objs[i] index loop. Left: (1) the objs loop:
    the original keeps any in edi (loaded from its top slot before the loop) and the objs[i] IV in the slot
@@ -2187,10 +2162,10 @@ struct AIOBJ *gm_AllocRaum(struct AIBLD *b, unsigned n);
 AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own)
 {
     AIBLD *b;
-    char *base;
+    AIBTYPE *base;
     AIBTYPE *bt;
     char *name;
-    int *info;
+    AHMREC *info;
     char dbg[0x100];
     char names[12][0x40];
     int i, j, n, any, id;
@@ -2199,14 +2174,14 @@ AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own)
     AIOBJ *s;
     AIOBJ *o;
 
-    base = (char *)ai_BTypes;
+    base = ai_BTypes;
     if (base == 0)
         return 0;
     any = 0;
-    b = (AIBLD *)gm_FindFreeBuilding();
+    b = gm_FindFreeBuilding();
     if (b == 0)
         return 0;
-    bt = (AIBTYPE *)base + k;
+    bt = base + k;
     b->type = k;
     sprintf(dbg, "----->GebID= %i GebProt= %i", ai_NextObjectId, k);
     b->id = ai_NextObjectId;
@@ -2355,9 +2330,9 @@ AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own)
     case 0x4b:
     case 0x4c:
     case 0x4d:
-        info = (int *)mem_Alloc(0x3c, "AHM_INFO");
-        b->ahm = (struct AHMREC *)info;
-        *info = -1;
+        info = mem_Alloc(0x3c, "AHM_INFO");
+        b->ahm = info;
+        info->id = -1;
     }
     if (b->type == 0x26)
         b->mainRoom = 0x10e;
@@ -2544,13 +2519,13 @@ AIBLD *gm_NearestFreeBuilding(AIBLD *p, unsigned kind)
 struct AIBLD *gm_FindBuildingById(int id)
 {
     int i;
-    char *p;
+    AIBLD *p;
 
     i = 0;
-    p = (char *)ai_Blds;
-    while (((AIBLD *)p)->type == 0 || ((AIBLD *)p)->id != id) {
+    p = ai_Blds;
+    while (p->type == 0 || p->id != id) {
         i++;
-        p += 0xa9;
+        p++;
         if (i >= 0x100)
             return 0;
     }
@@ -3071,7 +3046,7 @@ AIOBJ *gm_AllocRaum(AIBLD *b, unsigned n)
             err_Message("gm_AllocRaum(): ob_LAGERFLAECHE_ALLGEMEIN is missing in ob_MARKTSTAND!");
         bi = gm_CreateObject(o->objId, 0xff, 1);
         cnt = 0;
-        t = (GMSTOCK *)gm_DefaultStock;
+        t = gm_DefaultStock;
         for (j = 0; j < 0x55; j++) {
             if (s[j].marketKind == o->type && s[j].amount != 0 && cnt < 0x10) {
                 gm_CreateObject(bi->objId, t[j].item, 1);
@@ -3835,13 +3810,12 @@ int gm_TitleJob(int i, int p)
    left (gm_TitlesLeft, 1 .. 5) + 72) hours over (1 + the skill of its job group, at least 0.25: group 11 -> skill 2,
    12 / 10 -> 3, 8 -> 0, 9 -> 4, else 1), its hour of day moved into 7 .. 21; the time served is the job's days
    (+0x174, cleared by a job change) at the clock's hour. Served less than the period: returns served / period in
-   minutes and writes to *out (an AITIME; the callers declare int *) the date the period completes (now + period -
+   minutes and writes to *out the date the period completes (now + period -
    served); else returns 1.0; 0.0 when the character has no title left in 1 .. 5 */
 
-float gm_TitlePeriodServed(int n, int *out)
+float gm_TitlePeriodServed(int n, AITIME *out)
 {
     AITIME period, served, zero;
-    AITIME *when;
     int k, group, hours, days;
     unsigned short hour;
     float f, share;
@@ -3882,8 +3856,7 @@ float gm_TitlePeriodServed(int n, int *out)
         share = (double)gm_MinutesBetween(&zero, &served) / (double)gm_MinutesBetween(&zero, &period);
         gm_AddTime(&period, hour + ai_Time.year * 24, 0, 0);
         gm_AddTime(&period, -hour - days * 24, 0, 0);
-        when = (AITIME *)out;
-        *when = period;
+        *out = period;
         return share;
     }
     return 1.0f;
@@ -4261,7 +4234,7 @@ float gm_Mix2(float u, float v)
 
 int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
 
 int ai_InventoryHas(struct AICHAR *ch, int id);                     /* 0x5ba6b0 */
 
@@ -4974,7 +4947,7 @@ void gm_BirthDate(AICHAR *c, GMDATE *out)
     if (c->health == 0)
         clk.year = c->w028;
     clk.year -= c->age;
-    gm_ClockToDate(&clk, (unsigned char *)&d);
+    gm_ClockToDate(&clk, &d);
     x = c->nameKey ^ d.year;
     d.month = (char)(((x >> 3) % 13 + clk.year % 11) % 12) + 1;
     d.day = (unsigned char)((x >> 5) % 28) + 1;
@@ -4995,7 +4968,7 @@ int gm_DeathDate(AICHAR *c, GMDATE *out)
         return 0;
     clk.year = c->w028;
     year = clk.year;
-    gm_ClockToDate(&clk, (unsigned char *)&d);
+    gm_ClockToDate(&clk, &d);
     x = c->nameKey ^ d.year;
     d.month = (char)(((x >> 3) % 7 + year % 19) % 12) + 1;
     d.day = (unsigned char)((x >> 5) % 28) + 1;
@@ -5724,7 +5697,7 @@ unsigned short gm_CreateCharacter(int type, int a2, int a3, unsigned short a4, s
         c->level = 2;
     }
     if (c->kind == 0x10) {
-        av = (GVAVATAR *)gv_AllocAvatar();
+        av = gv_AllocAvatar();
         c->kind = 3;
         if (av != 0) {
             r = util_Random(8);
@@ -6928,34 +6901,35 @@ int gm_StallValue(AIBLD *b)
     return v;
 }
 /* 0x509ff0, the character that owns the object o: the character of its holderId (+0x0a), else the master
-   (+0x25) of the building holding it, else 0. The found character goes back through o's own argument slot
-   (the original passes its address as gm_FindById's character out) */
+   (+0x25) of the building holding it, else 0 (VC6 packs the found character c into o's dead argument slot) */
 
 AICHAR *gm_ObjectOwnerChar(AIOBJ *o)
 {
     AIBLD *b;
+    AICHAR *c;
 
-    gm_FindById(&b, 0, (AICHAR **)&o, o->holderId);
-    if (o == 0) {
+    gm_FindById(&b, 0, &c, o->holderId);
+    if (c == 0) {
         if (b != 0 && b->masterId != 0xffff)
             return &ai_Chars[b->masterId];
-        o = 0;
+        c = 0;
     }
-    return (AICHAR *)o;
+    return c;
 }
 /* 0x50a050, the same with the owner word (+0x27) */
 
 AICHAR *gm_ObjectBuildingOwner(AIOBJ *o)
 {
     AIBLD *b;
+    AICHAR *c;
 
-    gm_FindById(&b, 0, (AICHAR **)&o, o->holderId);
-    if (o == 0) {
+    gm_FindById(&b, 0, &c, o->holderId);
+    if (c == 0) {
         if (b != 0 && b->owner != 0xffff)
             return &ai_Chars[b->owner];
-        o = 0;
+        c = 0;
     }
-    return (AICHAR *)o;
+    return c;
 }
 /* 0x50a0b0, the character number of the owner of the object o: the id (+0x00) of the character holding
    it (holderId +0x0a), else the owner word (+0x27) of the building holding it, else 0xffff */
@@ -7456,16 +7430,14 @@ extern int gm_TechTreeView;
 void d2_PlotLine(int x0, int y0, int x1, int y1, unsigned char r, unsigned char g, unsigned char b);  /* 0x4764f0 */
 void cm_SendBuildingDestroyed(int a);                     /* 0x4c5510 */
 
-/* 0x50af00, collects what the person id carries into out (a GMCARRY, cleared first): 0xe units and capacity when the person is the special worker (gm_ListWorkers' last slot) of a building of key 4 = id, then an entry for each used carried-goods record of gm_CarryRecs it owns (count, valueSum minus the values). Returns 0 */
-int gm_CollectCarried(int id, int *out)
+/* 0x50af00, collects what the person id carries into cr (cleared first): 0xe units and capacity when the person is the special worker (gm_ListWorkers' last slot) of a building of key 4 = id, then an entry for each used carried-goods record of gm_CarryRecs it owns (count, valueSum minus the values). Returns 0 */
+int gm_CollectCarried(int id, GMCARRY *cr)
 {
-    GMCARRY *cr;
     GMCARRYREC *r;
     AIBLD *b;
     int workers[0x26];
     int w, i, j;
 
-    cr = (GMCARRY *)out;
     memset(cr, 0, sizeof(GMCARRY));
     b = gm_BuildQuery(1, 4, id);
     while (b != 0) {
@@ -8446,7 +8418,93 @@ int gm_CurseTargetCount(AIBLD *bld)
 float gm_DayStartHours[] = { 8.0f, 7.0f, 8.0f, 9.0f };  /* 0x617830 / */
 float gm_DayEndHours[] = { 20.0f, 21.0f, 20.0f, 19.0f };  /* 0x617840 */
 GMDISEASE gm_Diseases[10] = { { 0, 0.0f, 1 }, { 1, 40.0f, 16 }, { 2, 15.0f, 16 }, { 3, 20.0f, 16 }, { 4, 10.0f, 4 }, { 5, 0.0f, 8 }, { 6, 8.0f, 8 }, { 7, 5.0f, 8 }, { 8, 3.0f, 4 }, { 9, 12.0f, 16 } };  /* 0x617850, the disease kinds */
-int gm_DefaultStock[0xaa0] = { 468, 0, 1084227584, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 146, 18, 1094713344, 21, 1094713344, 7, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 341, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 342, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 343, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 344, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 345, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 346, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 469, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 146, 21, 0, 14, 1086324736, 8, 1094713344, 22, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 347, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 348, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 349, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 351, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 352, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 470, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 147, 18, 1086324736, 21, 1086324736, 20, 1086324736, 7, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 353, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 354, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 355, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 356, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 357, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 358, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 471, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 148, 18, 1086324736, 21, 1086324736, 20, 1086324736, 7, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 365, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 366, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 367, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 368, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 369, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 370, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 472, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 148, 18, 1088421888, 20, 1086324736, 7, 1084227584, 14, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 371, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 372, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 373, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 374, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 375, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 376, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 473, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 147, 14, 1088421888, 8, 1088421888, 22, 1088421888, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 377, 0, 1094713344, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 378, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 379, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 380, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 381, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 382, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 464, 0, 1112014848, -1, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 149, 18, 1104150528, 21, 1090519040, 14, 1082130432, 8, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 465, 0, 1106247680, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 149, 18, 1092616192, 21, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 466, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 149, 18, 1073741824, 21, 1073741824, 20, 1090519040, 7, 1082130432, 0, 0, 0, 0, 0, 0, 0, 0, 467, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 149, 18, 1073741824, 20, 1073741824, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 458, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 21, 1104150528, 7, 1108869120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 459, 0, 1097859072, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 21, 1105199104, 7, 1104150528, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 460, 0, 1101004800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 18, 1090519040, 21, 1101004800, 20, 1082130432, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 461, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 20, 1099956224, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 462, 0, 1109393408, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 20, 1105199104, 8, 1073741824, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 463, 0, 1103626240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 149, 20, 1090519040, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 474, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 151, 7, 1094713344, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 359, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 360, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 361, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 362, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 363, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 364, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 455, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 150, 14, 1095761920, 8, 1095761920, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 456, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 150, 22, 1110966272, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 457, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 150, 22, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 686, 0, 1092616192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 150, 32, 1114636288, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1103626240, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1090519040, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 552, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 731, 29, 1094713344, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 553, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 554, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 555, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 556, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 557, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 558, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 689, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 150, 32, 1094713344, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 690, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 691, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 692, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 693, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 694, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 695, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 662, 0, 1112014848, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 731, 32, 1094713344, 31, 1094713344, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 663, 0, 1086324736, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 664, 0, 1077936128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 665, 0, 1073741824, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 666, 0, 1069547520, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 667, 0, 1067030938, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 668, 0, 1065353216, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 731, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };  /* 0x6178c8, the template of the 0x55 GMSTOCK goods records (0x80 bytes each) */
+GMSTOCK gm_DefaultStock[0x55] = {  /* 0x6178c8, the template of the 0x55 goods records (gm_InitPlayerRecord, gm_AllocRaum) */
+    { 468, { 0 }, 0, 5.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 146, { 0 }, { { { 18, { 0 }, 12.0f }, { 21, { 0 }, 12.0f }, { 7, { 0 }, 6.0f } } } },
+    { 341, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 342, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 343, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 344, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 345, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 346, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 469, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 146, { 0 }, { { { 21, { 0 }, 0.0f }, { 14, { 0 }, 6.0f }, { 8, { 0 }, 12.0f }, { 22, { 0 }, 6.0f } } } },
+    { 347, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 348, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 349, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 350, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 351, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 352, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 146 },
+    { 470, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 147, { 0 }, { { { 18, { 0 }, 6.0f }, { 21, { 0 }, 6.0f }, { 20, { 0 }, 6.0f }, { 7, { 0 }, 6.0f } } } },
+    { 353, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 354, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 355, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 356, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 357, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 358, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 471, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 148, { 0 }, { { { 18, { 0 }, 6.0f }, { 21, { 0 }, 6.0f }, { 20, { 0 }, 6.0f }, { 7, { 0 }, 6.0f } } } },
+    { 365, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 366, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 367, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 368, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 369, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 370, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 472, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 148, { 0 }, { { { 18, { 0 }, 7.0f }, { 20, { 0 }, 6.0f }, { 7, { 0 }, 5.0f }, { 14, { 0 }, 6.0f } } } },
+    { 371, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 372, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 373, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 374, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 375, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 376, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 148 },
+    { 473, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 147, { 0 }, { { { 14, { 0 }, 7.0f }, { 8, { 0 }, 7.0f }, { 22, { 0 }, 7.0f } } } },
+    { 377, { 0 }, 0, 12.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 378, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 379, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 380, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 381, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 382, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 147 },
+    { 464, { 0 }, 0, 50.0f, -1, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 149, { 0 }, { { { 18, { 0 }, 26.0f }, { 21, { 0 }, 8.0f }, { 14, { 0 }, 4.0f }, { 8, { 0 }, 6.0f } } } },
+    { 465, { 0 }, 0, 30.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 10, 0, 0.0f, 149, { 0 }, { { { 18, { 0 }, 10.0f }, { 21, { 0 }, 10.0f } } } },
+    { 466, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 10, 0, 0.0f, 149, { 0 }, { { { 18, { 0 }, 2.0f }, { 21, { 0 }, 2.0f }, { 20, { 0 }, 8.0f }, { 7, { 0 }, 4.0f } } } },
+    { 467, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 10, 0, 0.0f, 149, { 0 }, { { { 18, { 0 }, 2.0f }, { 20, { 0 }, 2.0f } } } },
+    { 458, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 21, { 0 }, 26.0f }, { 7, { 0 }, 38.0f } } } },
+    { 459, { 0 }, 0, 15.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 21, { 0 }, 28.0f }, { 7, { 0 }, 26.0f } } } },
+    { 460, { 0 }, 0, 20.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 18, { 0 }, 8.0f }, { 21, { 0 }, 20.0f }, { 20, { 0 }, 4.0f } } } },
+    { 461, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 20, { 0 }, 18.0f } } } },
+    { 462, { 0 }, 0, 40.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 20, { 0 }, 28.0f }, { 8, { 0 }, 2.0f } } } },
+    { 463, { 0 }, 0, 25.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 149, { 0 }, { { { 20, { 0 }, 8.0f } } } },
+    { 474, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 151, { 0 }, { { { 7, { 0 }, 12.0f } } } },
+    { 359, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 360, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 361, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 362, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 363, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 364, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 151 },
+    { 455, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 40, 0, 0.0f, 150, { 0 }, { { { 14, { 0 }, 13.0f }, { 8, { 0 }, 13.0f } } } },
+    { 456, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 30, 0, 0.0f, 150, { 0 }, { { { 22, { 0 }, 46.0f } } } },
+    { 457, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 30, 0, 0.0f, 150, { 0 }, { { { 22, { 0 }, 50.0f } } } },
+    { 686, { 0 }, 0, 10.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 30, 0, 0.0f, 150, { 0 }, { { { 32, { 0 }, 60.0f } } } },
+    { 0, { 0 }, 0, 25.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 20, 0, 0.0f, 0, { 0 }, { { { 0, { 0 }, 8.0f } } } },
+    { 552, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 731, { 0 }, { { { 29, { 0 }, 12.0f } } } },
+    { 553, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 554, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 555, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 556, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 557, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 558, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 689, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 150, { 0 }, { { { 32, { 0 }, 12.0f } } } },
+    { 690, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 691, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 692, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 693, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 694, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 695, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 150 },
+    { 662, { 0 }, 0, 50.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 15, 0, 0.0f, 731, { 0 }, { { { 32, { 0 }, 12.0f }, { 31, { 0 }, 12.0f } } } },
+    { 663, { 0 }, 0, 6.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 664, { 0 }, 0, 3.0f, 0, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 665, { 0 }, 0, 2.0f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 666, { 0 }, 0, 1.5f, 40, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 667, { 0 }, 0, 1.2f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 },
+    { 668, { 0 }, 0, 1.0f, 80, { 0, 0, 0, 0 }, 0.0f, 0.0f, 0, { 0 }, 0.0f, 0, 0, 0.0f, 731 }
+};
 G7GRP gm_BuildingItemGroups[37] = { { 41, { 0, 0, 468, 341, 342, 0, 0, 0, 0, 0 } }, { 42, { 0, 0, 468, 341, 342, 344, 343, 0, 0, 0 } }, { 43, { 0, 0, 468, 0, 341, 342, 344, 343, 345, 346 } }, { 50, { 469, 0, 0, 347, 348, 0, 0, 0, 0, 0 } }, { 51, { 469, 0, 347, 348, 349, 350, 0, 0, 0, 0 } }, { 52, { 469, 0, 347, 348, 349, 350, 352, 351, 0, 0 } }, { 33, { 471, 0, 0, 0, 365, 366, 0, 0, 0, 0 } }, { 34, { 471, 0, 0, 0, 365, 366, 367, 368, 0, 0 } }, { 35, { 471, 0, 0, 0, 365, 366, 367, 368, 369, 370 } }, { 23, { 472, 0, 0, 371, 372, 0, 0, 0, 0, 0 } }, { 24, { 472, 0, 0, 371, 372, 373, 375, 0, 0, 0 } }, { 25, { 472, 0, 0, 371, 372, 373, 375, 376, 374, 0 } }, { 47, { 470, 0, 0, 353, 354, 0, 0, 0, 0, 0 } }, { 48, { 470, 0, 0, 353, 354, 355, 356, 0, 0, 0 } }, { 49, { 470, 0, 0, 353, 354, 355, 356, 357, 358, 0 } }, { 53, { 0, 0, 0, 0, 473, 377, 378, 0, 0, 0 } }, { 54, { 0, 0, 0, 473, 377, 378, 379, 380, 0, 0 } }, { 55, { 0, 0, 0, 473, 377, 378, 379, 380, 381, 382 } }, { 20, { 474, 0, 0, 0, 359, 360, 0, 0, 0, 0 } }, { 21, { 474, 0, 0, 0, 359, 360, 361, 362, 0, 0 } }, { 22, { 474, 0, 0, 0, 359, 360, 361, 362, 363, 364 } }, { 72, { 552, 0, 0, 0, 553, 554, 0, 0, 0, 0 } }, { 73, { 552, 0, 0, 0, 553, 554, 555, 556, 0, 0 } }, { 74, { 552, 0, 0, 0, 553, 554, 555, 556, 557, 558 } }, { 31, { 463, 461, 462, 0, 0, 0, 0, 0, 0, 0 } }, { 75, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { 76, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { 77, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } }, { 81, { 689, 0, 0, 0, 690, 691, 0, 0, 0, 0 } }, { 82, { 689, 0, 0, 0, 690, 691, 692, 693, 0, 0 } }, { 83, { 689, 0, 0, 0, 690, 691, 692, 693, 694, 695 } }, { 78, { 662, 663, 664, 0, 0, 0, 0, 0, 0, 0 } }, { 79, { 662, 663, 664, 665, 666, 0, 0, 0, 0, 0 } }, { 80, { 662, 663, 664, 665, 666, 667, 668, 0, 0, 0 } }, { 32, { 464, 465, 466, 467, 0, 0, 0, 0, 0, 0 } }, { 30, { 458, 459, 460, 0, 0, 0, 0, 0, 0, 0 } }, { 0, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } } };  /* 0x61a348, 37 item groups: a building kind and up to ten object prototypes */
 int ai_NextObjectId = 1;  /* 0x61a654, the next object id */
 int ai_NextPartyId = 1;  /* 0x61a658, the next party id (ls.c saves and loads it): in this unit's .data block right after ai_NextObjectId */

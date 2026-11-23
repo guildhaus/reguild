@@ -1809,7 +1809,7 @@ int ai_MsgSeasonAilingType3d(G14MSG *m)
 {
     AICHAR *c;
     AITIME t;
-    unsigned char d[10];                /* the calendar record gm_ClockToDate fills (f3gm.c's d[10]) */
+    GMDATE d;                           /* the calendar record gm_ClockToDate fills */
     char buf[0x100];
 
     c = gm_FindChar(m->id);
@@ -1818,8 +1818,8 @@ int ai_MsgSeasonAilingType3d(G14MSG *m)
     if (c->ailments == 0)
         return 0x400;
     t = ai_Time;
-    gm_ClockToDate(&t, d);
-    txt_Format(buf, m->type + 0x12e7, gm_Season(d) + 0x4c);
+    gm_ClockToDate(&t, &d);
+    txt_Format(buf, m->type + 0x12e7, gm_Season(&d) + 0x4c);
     he_ShowNews(c->netId, c->netId, buf, strlen(buf) > 0x100, 0x603, 0);
     return 0;
 }

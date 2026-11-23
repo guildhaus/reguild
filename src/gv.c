@@ -71,7 +71,7 @@ extern const float gv_GraveWear[];
 /* 0x4ed170, picks a free avatar record (byte +0xf2 = 0) starting at a random one of the 32 (cyclic), marks it used (+0xf2 = 1) after setting the 14 floats at +0x30, +0x3c .. to the floats before them (+0x2c ..)
    times 0.001, and returns it; 0 when all are in use */
 
-char *gv_AllocAvatar(void)
+GVAVATAR *gv_AllocAvatar(void)
 {
     unsigned i;
     int n;
@@ -84,7 +84,7 @@ char *gv_AllocAvatar(void)
             for (j = 0; j < 0xe; j++)
                 gv_Avatars[i].mood[j][1] = (float)(gv_Avatars[i].mood[j][0] * 0.001);
             gv_Avatars[i].used = 1;
-            return (char *)&gv_Avatars[i];
+            return &gv_Avatars[i];
         }
         n--;
         i = (i + 1) & 0x1f;

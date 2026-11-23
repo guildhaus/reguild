@@ -663,7 +663,7 @@ void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b);
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 float gm_AddHealth(unsigned short id, int d); int ai_TutorialOff(); void ai_EvidenceBookWindow(struct AIBLD *bld);
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();
@@ -5654,7 +5654,7 @@ void ai_DrawStatisticsCharts(unsigned short flags, ORDSTATS stats, int win)
         d2_Objs[obj].rightAligned = 1;
     }
     clock = ai_Time;
-    gm_ClockToDate(&clock, (unsigned char *)&date);
+    gm_ClockToDate(&clock, &date);
     if (date.month == 1) {
         txt_Format(buf, (intptr_t)"%i", date.year);
         textW = d2_TextWidth(buf, 0x55);
@@ -5662,7 +5662,7 @@ void ai_DrawStatisticsCharts(unsigned short flags, ORDSTATS stats, int win)
         d2_Objs[obj].w = textW;
     }
     clock.year--;
-    gm_ClockToDate(&clock, (unsigned char *)&date);
+    gm_ClockToDate(&clock, &date);
     for (round = 15; round > 0; round--) {
         x = 0x2d + round * scale;
         d2_PlotLine(x, height - 0x13, x, height - 0x10, 0x10, 0x10, 0x10);
@@ -5674,7 +5674,7 @@ void ai_DrawStatisticsCharts(unsigned short flags, ORDSTATS stats, int win)
             d2_PlotLine(x, height - 0x13, x, height - 0xd, 0x10, 0x10, 0x10);
         }
         clock.year--;
-        gm_ClockToDate(&clock, (unsigned char *)&date);
+        gm_ClockToDate(&clock, &date);
     }
     if (date.month == 1) {
         txt_Format(buf, (intptr_t)"%i", date.year);

@@ -5852,7 +5852,7 @@ void ai_MistressContact(AIBLD *building, AIOBJ *room)
     }
 }
 
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 
 /* 0x596ff0, the master-exam window "locations\wohnsitz\meisterpruefung" (the MEISTERPRUEFUNG plate of the
@@ -5882,7 +5882,7 @@ void ai_MasterExamWindow(AIBLD *bld)
     d2_SetForm(win, 0);
     sv_FitForm(d2_LastWindow);
     sv_ResetScreenClip();
-    served = gm_TitlePeriodServed(ai_PlayerId, (int *)&left);
+    served = gm_TitlePeriodServed(ai_PlayerId, &left);
     exam = he_FindEvent(2, 2, ai_PlayerId, 0, 0x26);
     if (exam == 0 && served >= 1.0 && next <= 6) {
         title = ch->sex != 0 ? 0x18f : 0x130;   /* the job titles' texts: 0x130.., female 0x18f.. */

@@ -2990,7 +2990,7 @@ exe	0x004feb60	gm_InitPlayerRecord	f3gm	9fae68b98adba9d5	no	byte	control=byte p1
 exe	0x004fec10	gm_SyncMarket	f3gmt	10d6a4d7a44a4209	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	67971f23bb41af6a
 exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	f36632c965848504	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=316	9face4bea92fc9a5
 exe	0x004ff450	gm_RandomMarketShake	f3gm	6404493593e4e5da	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
-exe	0x004ff550	gm_UpdatePrices	f3gmt	2b3abc3e13588fc0	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	9d735134a35596f3
+exe	0x004ff550	gm_UpdatePrices	f3gmt	bb64e8d0fba62053	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	79339d26d6139306
 exe	0x004ff8c0	gm_GoodsDemand	f3gm	747d1674d7782fc0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ff950	gm_GoodsStock	f3gm	a3d1bd1cdfdb2f2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffa10	gm_StockPrice	f3gmt	be20570edc969d8d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	9d735134a35596f3
@@ -3475,7 +3475,7 @@ exe	0x00537f40	main_EndGame	main	68671b89ac5fb237	no	byte	control=byte p1=byte p
 exe	0x00538140	main_RundenBeginn	main	503e9d8c2106fe24	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005384e0	main_EndRound	main	466d32884e828536	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=379	62e27ee2a94e9159
 exe	0x00539620	main_ReplaceFigure	main	c35457202d9f562a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	af22ce15de209ae0
-exe	0x00539870	main_RoundReport	main	8b39274e31f6ebdb	yes	byte	sweep control=shape best=byte by 9 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	20ba67f538754e9b
+exe	0x00539870	main_RoundReport	main	1bf6d916615328d1	yes	byte	sweep control=shape best=byte by 4 unused typedefs at the unit's start; codegens=2 compiled=12 (stopped at the goal)	6c7c198e8a72e6d1
 exe	0x0053a250	main_UpdateFigure	main	ac7764d6864b4bd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4a8bed7379a4ae73
 exe	0x0053a450	main_UpdateFigures	main	0adcc8f2a3d2c65f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0053a520	main_SettleRound	main	3a13bbd7e2c68953	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

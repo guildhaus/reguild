@@ -268,7 +268,7 @@ struct G15PLANT * veg_FindPlantId(struct G15PLANT *p, int id);
 float gm_StockPrice(int p, int n);  /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
 int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 
 /* dcp unit split: the definitions of he the functions of he_b use */
 void he_AllocDueIsStart(AIJOB *ev);

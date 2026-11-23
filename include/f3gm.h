@@ -38,7 +38,8 @@ void gm_ResetCharacters(void);                                        /* 0x503e8
 void gm_FreeIconNames(void);                                          /* 0x4fdfb0 */
 void gm_Free(void);                                                   /* 0x4fe9c0 */
 int gm_TitlesLeft(int n);                                             /* 0x504ce0 */
-int gm_CollectCarried(int id, int *out);                                   /* 0x50af00 */
+struct GMCARRY;
+int gm_CollectCarried(int id, struct GMCARRY *out);                                   /* 0x50af00 */
 int gm_IsBankrupt(struct AICHAR *p, int n);                                  /* 0x50a6c0, p: an AICHAR */
 
 /* declared in other units' headers before (moved to the owner) */
@@ -48,7 +49,7 @@ struct AICHAR; int gm_CureDisease(struct AICHAR *c);  /* 0x505840, cures one dis
 struct AICHAR; int gm_CureMinorDisease(struct AICHAR *c);  /* 0x5059d0, cures one of the minor diseases 2 .. 5 of the character; the kind or 0 */
 struct AICHAR; int gm_CureUpperDisease(struct AICHAR *c);  /* 0x505ad0, cures one of the diseases 6, 7, 8, 3 of the character; the kind or 0 */
 int gm_CurseTargetCount(struct AIBLD *b);  /* 0x50d0b0 */
-int gm_Season(char *d);  /* 0x4fe330 */
+int gm_Season(struct GMDATE *d);  /* 0x4fe330 */
 struct AICHAR; int gm_CatchMinorDisease(struct AICHAR *c);  /* 0x5054f0, the character catches one of the minor diseases 2 .. 5; the kind or 0 */
 int gm_HeadIconNumber(char *name);  /* 0x4fb770 */
 int gm_FindRichest(short *id, int *rate);  /* 0x4fad60 */
@@ -211,7 +212,7 @@ int gm_LikingChance(int a, int b, int c, int d);  /* 0x50b290 */
 struct AICHAR; int gm_MayRemoveChar(struct AICHAR *c);  /* 0x5075c0 */
 int gm_TrialBuildingKind(struct AIBLD *b);  /* 0x50d060 */
 void gm_StatisticsScreen(void);  /* 0x4f9e30, the city statistics screen */
-struct AITIME; void gm_ClockToDate(struct AITIME *c, unsigned char *out);  /* 0x4fe2c0, the calendar record of a clock */
+struct AITIME; void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);  /* 0x4fe2c0, the calendar record of a clock */
 char *gm_ClassTreasury(struct AIBLD *b);  /* 0x5049e0, the treasury text of a building */
 int gm_CurrencyFactor(int a, int i);  /* 0x508620 */
 int gm_CurrencyDivide(int a, int i);  /* 0x508640 */

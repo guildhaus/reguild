@@ -656,7 +656,7 @@ void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b);
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 float gm_AddHealth(unsigned short id, int d); int ai_TutorialOff(); void ai_EvidenceBookWindow(struct AIBLD *bld);
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();

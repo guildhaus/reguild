@@ -17776,7 +17776,7 @@ void he_AllocTitleDue(AIJOB *ev)
     gm_AddTime(&ev->end, 0, 0x14, 0);
 }
 
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 
 /* 0x567660, the run handler of the title-period event 0x7c (alloc handler he_AllocTitleDue): stages -1 / -2 free the record;
    stage 0: a character already told (flags1c8 bit 31) is asked again in 4 hours; one whose title period is not
@@ -17794,7 +17794,7 @@ void he_RunTitleDue(AIJOB *ev)
             gm_AddTime(&ev->end, 4, 0, 0);
             return;
         }
-        if (gm_TitlePeriodServed(ev->chr, (int *)&due) >= 1.0) {
+        if (gm_TitlePeriodServed(ev->chr, &due) >= 1.0) {
             memset(&m, 0, sizeof(m));
             m.type = 0x25;
             m.fromId = -1;

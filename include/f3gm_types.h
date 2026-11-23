@@ -73,9 +73,9 @@ typedef struct GMSTOCK {
     float price;                        /* 0x38, the stored price (gm_ItemPrice of the item, 100) */
     unsigned short marketKind;          /* 0x3c, the kind of the market object (0x92 .. 0x97, 0x2db) that holds the good (gm_SyncMarket) */
     char pad3e[2];
-    union {
-        unsigned char demandIsStock;    /* 0x40, set: gm_UpdatePrices takes the stock as the demand */
+    union {                             /* groups first: gm_DefaultStock's initialiser fills them */
         GMSTOCKGROUP groups[4];         /* 0x40, the four production groups (gm_GoodsStock) */
+        unsigned char demandIsStock;    /* 0x40, set: gm_UpdatePrices takes the stock as the demand */
     };
     char pad60[0x20];
 } GMSTOCK;

@@ -1195,12 +1195,7 @@ int gm_SumListMoney(void *list);  /* f3gmt.c, folded into gm_SumListAmounts 0x50
    of the player), re-opens the shield when its picture changed and moves the side panel by 0x625718 */
 void sv_UpdateCityPanel(unsigned char a, int b)
 {
-    struct {                            /* the calendar record gm_ClockToDate fills */
-        unsigned char day, season;
-        short year;
-        unsigned char hour, min;
-        char sec[4], pad[2];
-    } t;
+    GMDATE t;                           /* the calendar record gm_ClockToDate fills */
     char buf[0x100], name[0x100], arms[0x100];
     void *shape;
     int pic;
@@ -1276,12 +1271,12 @@ void sv_UpdateCityPanel(unsigned char a, int b)
         }
         sv_UpdateGroundplan(b);
         d2_SetFont(0x55);
-        gm_ClockToDate(&ai_Time, (unsigned char *)&t);
+        gm_ClockToDate(&ai_Time, &t);
         if (ls_GetLanguage() == 2) {
-            sprintf(buf, "%s A.D.%i", txt_Ptrs[0x4c + gm_Season((char *)&t)], t.year);
+            sprintf(buf, "%s A.D.%i", txt_Ptrs[0x4c + gm_Season(&t)], t.year);
             d2_DrawText(d2_Wins[sv_BarWindow].x + 0x181, 0x17, d2_ScreenSurf, buf, 0);
         } else {
-            sprintf(buf, "%s A.D.%i", txt_Ptrs[0x4c + gm_Season((char *)&t)], t.year);
+            sprintf(buf, "%s A.D.%i", txt_Ptrs[0x4c + gm_Season(&t)], t.year);
             d2_DrawText(d2_Wins[sv_BarWindow].x + 0x195, 0x17, d2_ScreenSurf, buf, 0);
         }
         h = (int)((ai_Time.min % 0x3c) * 0.8);
@@ -1962,7 +1957,7 @@ const int sv_PhaseMinutes[24] = { 390, 510, 630, 1050, 1170, 1290, 300, 420, 540
 void d2_SetViewEnabled(int view, int on);  /* 0x475590 */
 void d2_ClearPointerItems(void);                     /* 0x476c70 */
 void sv_UpdatePanel(void);                     /* 0x52a050 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
 void ai_InitWind(int type, int id, float *from, float *to);                     /* 0x5dbc30 */
 struct D3TRAIN; void d3t_SetRain(struct D3TRAIN *rain, int n, ...);                     /* 0x413d30 */
 struct D3TSNOW; void d3t_SetSnow(struct D3TSNOW *snow, int n, ...);                     /* 0x414c60 */
@@ -2080,9 +2075,9 @@ void sv_SetupWeather(struct AITIME *t, int reroll)
     float ang, step;
     int scene;
     D3TEXFLAGS flags;
-    char date[12];
+    GMDATE date;
 
-    gm_ClockToDate(t, date);
+    gm_ClockToDate(t, &date);
     season = sv_ClockSeason(t);
     sv_CloudChance = ai_PlayerSlots[ai_OwnPlayer].rainChance[season];
     sv_SeasonClimate = ai_PlayerSlots[ai_OwnPlayer].snowChance[season];
@@ -3952,8 +3947,8 @@ void d2_DrawTextBox(int x, int y, int w, int h, struct D2SURF *surf, char *text,
 void d2_SetClipRect(int x0, int y0, int x1, int y1);                     /* 0x47cb40 */
 void * d2_SetFont(int font);                     /* 0x476030 */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
-int gm_Season(char *d);                     /* 0x4fe330, f3gm.h */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
+int gm_Season(struct GMDATE *d);                     /* 0x4fe330, f3gm.h */
 int gm_ClockSeason(AITIME *c);         /* 0x4fe350, f3gm.c */                     /* 0x4fe350 */
 int ls_GetLanguage();                     /* 0x5190a0 */
 struct AIOBJ *gm_PlayerSeat(int p);                     /* 0x504a80 */

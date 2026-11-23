@@ -30,8 +30,8 @@ extern D2WIN d2_Wins[];
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 
 struct AITIME;
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);  /* 0x4fe2c0, f3gm.c: the calendar record of a clock */
-int gm_Season(char *d);                 /* 0x4fe330, f3gm.c: the season of a calendar record */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);  /* 0x4fe2c0, f3gm.c: the calendar record of a clock */
+int gm_Season(struct GMDATE *d);                 /* 0x4fe330, f3gm.c: the season of a calendar record */
 
 /* 0x5142e0, the display name of the town called name (the player's town, "General"/"Stadt" of the game INI): the first text of the town's "_STADTAUSWAHL_<NAME>_INFO" group of the text table (txt_FindKey finds its number), else the given name itself; copied to out. Returns 1. */
 int io_TownDisplayName(char *name, char *out)
@@ -481,10 +481,7 @@ int io_PrintText(intptr_t fmt, ...)
     char tmp[0x17d0];                   /* the substitution */
     char fmtbuf[0x20];                  /* a sprintf format built at run time, or the plain digits of "%i" */
     char num[0x14];                     /* _itoa digits */
-    union {
-        unsigned char b[0xc];
-        short w[6];                     /* w[1]: the year */
-    } date;                             /* gm_ClockToDate's calendar record */
+    GMDATE date;                        /* gm_ClockToDate's calendar record */
     char rnum[0x20];                    /* the count of a "{r}" token */
     char goodname[0x100];
     char digits1[0x40], digits2[0x40], digits3[0x40];
@@ -943,8 +940,8 @@ int io_PrintText(intptr_t fmt, ...)
                 }
                 break;
             case 'D':
-                gm_ClockToDate(va_arg(ap, struct AITIME *), date.b);
-                sprintf(tmp, "%s %i", txt_Ptrs[0x4c + gm_Season((char *)date.b)], date.w[1]);
+                gm_ClockToDate(va_arg(ap, struct AITIME *), &date);
+                sprintf(tmp, "%s %i", txt_Ptrs[0x4c + gm_Season(&date)], date.year);
                 memmove(&buf[pos + strlen(tmp) - 2], &buf[pos], strlen(buf) + 2 - pos);
                 memcpy(&buf[pos - 1], tmp, strlen(tmp));
                 break;
@@ -1065,10 +1062,7 @@ void txt_Format(char *out, intptr_t id0, ...)
     char tmp[0x17d0];                   /* the substitution */
     char fmtbuf[0x20];                  /* a sprintf format built at run time, or the plain digits of "%I" */
     char num[0x20];                     /* _itoa digits */
-    union {
-        unsigned char b[0xc];
-        short w[6];                     /* w[1]: the year */
-    } date;                             /* gm_ClockToDate's calendar record */
+    GMDATE date;                        /* gm_ClockToDate's calendar record */
     char rnum[0x20];                    /* the count of a "{r}" token */
     char goodname[0x80];
     char digits1[0x40], digits2[0x40], digits3[0x40];   /* "%s": the number before the token */
@@ -1403,8 +1397,8 @@ void txt_Format(char *out, intptr_t id0, ...)
                 }
                 break;
             case 'D':
-                gm_ClockToDate(va_arg(ap, struct AITIME *), date.b);
-                sprintf(tmp, "%s %i", txt_Ptrs[0x4c + gm_Season((char *)date.b)], date.w[1]);
+                gm_ClockToDate(va_arg(ap, struct AITIME *), &date);
+                sprintf(tmp, "%s %i", txt_Ptrs[0x4c + gm_Season(&date)], date.year);
                 memmove(&buf[pos + strlen(tmp) - 2], &buf[pos], strlen(buf) + 2 - pos);
                 memcpy(&buf[pos - 1], tmp, strlen(tmp));
                 break;

@@ -91,7 +91,7 @@ extern struct AICHAR *ai_PlayerChar;    /* 0x6f1bf8, the player's character */
 extern const struct D3VECTOR4 d3_Origin;     /* 0x5ebba4, (0, 0, 0), d3_vec.c */
 extern const struct D3VECTOR d3_ZeroRot;      /* 0x5ebbb4, (0, 0, 0), d3_vec.c */
 
-char *gv_AllocAvatar(void);              /* 0x4ed170 */
+GVAVATAR *gv_AllocAvatar(void);              /* 0x4ed170 */
 int gv_WriteAvatars(struct VFSFILE *f);             /* 0x4ed1e0 */
 int gv_ReadAvatars(struct VFSFILE *f);             /* 0x4ed270 */
 typedef struct GVEFFREC {               /* 16 bytes, a record of an effect slot's argument */

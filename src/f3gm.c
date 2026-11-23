@@ -20,8 +20,6 @@
    gfx.h hmt.h hst.h rt.h d3_pose.h mission.h; held by own declarations that differ from the owner's:
    gm_MinutesBetween, gm_ClockSeason, gm_CompareTime; calls whose argument count differs from the
    definition (read the original's pushes): gm_Liking.
-   Open: gm_TitlePeriodServed writes an AITIME through its int *out (he.c, main.c, lc.c declare it so in
-   their own prototypes); the typed parameter waits for those units to include f3gm.h.
    unit of rea 8cef7d5b (src/game/f3gm.c); boundaries in decl/text.dcl */
 struct CHARACTER;
 struct CHTRANSPORT;
@@ -69,28 +67,7 @@ extern struct AICHAR *gm_RichestChar;
    bytes): the rows start 0x44 apart, so these aliases sit at the end of each row. They are views, not
    separate globals - a separate definition would reserve its own memory here and the 0x154-byte
    ord_ResetStatistics memset would zero whatever the COMMON linker put inside it (it hit ai_BTypes). */
-#include "f3gm_carry.h"            /* GMCARRYSPEC, GMCARRYREC, gm_CarryRecs */
-#pragma pack(push, 1)
-/* an entry of gm_CollectCarried's list (0x1e bytes) */
-typedef struct GMCARRYENTRY {
-    struct AIJOB *ref;                  /* 0x00, the record's event */
-    GMCARRYREC *rec;                    /* 0x04, the record */
-    char *data;                         /* 0x08, the record's data */
-    int value;                          /* 0x0c, the record's value when it has one */
-    GMCARRYSPEC spec;                   /* 0x10 */
-} GMCARRYENTRY;
-
-/* what gm_CollectCarried collects for a person (0x21d bytes; main.c MAINCARRY reads the head of it) */
-typedef struct GMCARRY {
-    int units;                          /* 0x000, the 0xe-byte units */
-    char goods[0x2d];                   /* 0x004, main.c: the goods list of the balance page */
-    int capacity;                       /* 0x031, the free capacity */
-    GMCARRYENTRY entries[16];           /* 0x035 */
-    int valueSum;                       /* 0x215, minus the values of the records with one */
-    int count;                          /* 0x219, the entries used */
-} GMCARRY;
-#pragma pack(pop)
-typedef char gm_AssertGMCARRY[sizeof(GMCARRY) == 0x21d ? 1 : -1];
+#include "f3gm_carry.h"            /* GMCARRYSPEC, GMCARRYREC, GMCARRY, gm_CarryRecs */
 
 int gm_IsUnderAge(unsigned short id);         /* 0x4fd7e0 */
 
@@ -2375,7 +2352,6 @@ extern int gm_ClassBuilding[32];
 extern int gm_GoodBuilding[732];
 extern struct AIGOOD *ai_Goods;
 extern struct AIOBJ *ai_Objects;
-extern int gm_DefaultStock[];
 void * mem_Alloc(int size, char *tag);                   /* 0x4223c0 */
 void util_Randomize();                     /* 0x42ec80 */
 
@@ -2402,7 +2378,7 @@ void cm_BeginSendGroup(void);                     /* 0x4c3b30 */
 void cm_EndSendGroup(void);                     /* 0x4c3b40 */
 int cm_SendGroupState();                     /* 0x4c3b50 */
 struct AIBLD *gm_FindPlayerBuilding(int p);                   /* 0x501000 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
 void gm_SyncMarket(unsigned p);
 int gm_GoodsDemand(int p, int i);
 int gm_GoodsStock(int p, int i);
@@ -2480,7 +2456,7 @@ struct AIFIN *gm_PlayerRecord(struct AICHAR *c);                     /* 0x506430
 int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field, void *v);                     /* 0x4c3d90 */
 int amt_GetKind(int k, struct AMTKIND *out);                     /* 0x4e6f80 */
 float gm_AddHealth(unsigned short id, int d);                   /* 0x4fca40 */
-void gm_ClockToDate(struct AITIME *c, unsigned char *out);                     /* 0x4fe2c0 */
+void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);                     /* 0x4fe2c0 */
 int ai_InventoryHas(struct AICHAR *ch, int id);                     /* 0x5ba6b0 */
 void ai_RestartMission(struct AICHAR *c);                     /* 0x4b3a90 */
 int gm_EquipmentValue(struct AIBLD *b, int level);                     /* 0x509b10 */

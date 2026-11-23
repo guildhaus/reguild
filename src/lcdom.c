@@ -651,7 +651,7 @@ void ai_PamphletWindow(struct AIBLD *bld);
 void ai_FeastWindow(AIBLD *bld, AIOBJ *table); void ai_DenounceWindow(AIBLD *bld);
 struct AICHAR *gm_FindChar(int id);
 int cm_SendRelations(int a, int b, int c, int d); void cm_SendMoneyDelta(int a, int b);
-float gm_TitlePeriodServed(int n, int *out);
+float gm_TitlePeriodServed(int n, struct AITIME *out);
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);
 float gm_AddHealth(unsigned short id, int d); int ai_TutorialOff(); void ai_EvidenceBookWindow(struct AIBLD *bld);
 void d2_CreateScrollButtons(); int d2_RemoveWindowObjects();
@@ -3905,7 +3905,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             if (n != 0) {
                 due = ai_Time;
                 gm_AddTime(&due, 0, maxEmpty * 4, 0);
-                gm_ClockToDate(&due, (unsigned char *)&date);
+                gm_ClockToDate(&due, &date);
                 txt_Format(text3, 0xdd, cost, n, date.day, date.month, date.year);
                 if (sv_MessageBox((intptr_t)text3, 0x101) != 0
                     && sv_CheckGoodAmount(&ai_Chars[ai_PlayerId], cost, ai_OwnPlayer) != 0) {
