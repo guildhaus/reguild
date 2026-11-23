@@ -1477,9 +1477,9 @@ city:
         /* a check of a workshop: as the town patrol, but the building he likes least (one not flagged 1) */
         name = ch->name;
         sprintf(buf, "ai_CalcMeisterWache(): Meister %s m\xf6" "chte Betrieb pr\xfc" "fen", name);
+        best = &ai_Grid[0][0];
         gx = 8;
         gy = 8;
-        best = &ai_Grid[0][0];
         for (j = 0; j < 8; j++) {
             for (i = 0; i < 8; i++) {
                 if (!best->used || (ai_Grid[i][j].used && (ai_Grid[i][j].a >> 3) + ai_Grid[i][j].b > (best->a >> 3) + best->b))
