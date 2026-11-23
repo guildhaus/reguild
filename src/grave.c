@@ -51,8 +51,6 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 extern const float gv_SaleShares[];
 extern const float gv_GraveWear[];
 
-#define gv_FindEntryCb(cb) ((int (*)(void *, void *))(cb))  /* @original: gv_FindEntry's callback is int (*)() (gv.h, its callbacks take differing pointer types); the call pushes two pointers (0x4ef8df push esi, 0x4ef8e0 push ebx) and reads an int (0x4ef8e6 test eax) */
-
 /* dcp unit split: the declarations of gv before the moved functions */
 
 /* 0x4ef3c0, the number of small (0x44-byte) graves of the graveyard building o by its type's level (AIBTYPE +0x247) and the
@@ -324,7 +322,7 @@ GVENTRY *gv_FindEntry(void *a, AIBLD *bld, GVENTRY *after, int (*cb)(), int l)
     } else
         after++;
     for (; after < end; after++) {
-        if (cb == 0 || gv_FindEntryCb(cb)(a, after) != 0)
+        if (cb == 0 || cb(a, after) != 0)
             return after;
     }
     return 0;

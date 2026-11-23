@@ -1357,10 +1357,7 @@ void ai_Quicksave(void)
         memset(&rec, 0, sizeof(rec));
         rec.slot = 1;
         strcpy(rec.name, "QUICKSAVE");
-        /* @original cm.h declares cm_SendExSysMessage void, but the original caller reads the call's
-           eax as the message handle (0x4c4db0 returns 0x4c39c0's int); the call goes through a
-           prototype that returns int and the handle is passed to cm_GetSlotState */
-        msg = ((int (__cdecl *)(unsigned char, void *))cm_SendExSysMessage)(0xf, &rec);
+        msg = cm_SendExSysMessage(0xf, &rec);
         r = cm_GetSlotState(msg);
         if (r == 0) {
             do {
