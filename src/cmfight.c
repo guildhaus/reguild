@@ -2327,11 +2327,21 @@ float cm_ThreatAt(AICHAR *c, int a, int b, float limit) {
 /* 0x4d2170, the safest cell around (cx, cy) for the fighter c: walks the diamond rings 0 .. r - 1 around it inside the
    height map, rates every cell whose ground type is not 0 / 0xd (the border) with cm_ThreatAt (limit r cells: r * the
    cell size * 2) and puts the least rated one into (*ox, *oy); returns 0 when no cell was rated
-   @deep s40: min-ternary hi / hic (sc->size - 1 < cy + k ? sc->size - 1 : cy + k, as cm_FindNearCell) and
-   k = 0 before best (the k / best stores in the original order) took 41 -> 2 ins, size 348 -> 352 right.
-   Left: the two reloads of the k-loop latch's reload block (the row loop's exit, its own 2-instruction
-   block) in another order: the original loads cy into ebp before the strength-reduced cy - k (edx); ours
-   the IV first (split pieces, pass 2 ids k#154#2 before cy#2; the block keeps list order). Same hunk as
+   @deep s(this) match-deep: the reload order of the k latch is piece-id order: pass 1 (hic#1 takes ebp)
+   splits const#0, oy, ox, r, cy, cx, c, k, hi, k#136, k#154 one by one and the pass-2 pieces take ids from
+   the free list (k#154#2 id b, cy#2 id 0x18), so the original's cy piece got the lower id: the number of
+   pieces the earlier splits made, or float candidates sharing the id space, decide it. flip --want 'mov
+   ebp, _cy; mov edx' hits only meaning changes on best / f (best init deleted, best = f deleted, f
+   duplicated, the if / f swaps). = control: k + cy, rows with >= 0 / 0 > forms, lo local, type inline,
+   type && form, k = 0 placement, while k loop, return forms (if / ! / else), best = 1e9 / 1000000000 /
+   1e9f, f block-local or declared first, r * cell * 2.0f / cell * r, unused int / float / pointer locals
+   before or after the declarations; worse: the store order of best / *ox / *oy (10), f double (6), k /
+   best init swapped (4), row ternary > (4), abs(row - cy) (8), climb 3 rounds nothing. prior: s40:
+   min-ternary hi / hic (sc->size - 1 < cy + k ? sc->size - 1 : cy + k, as cm_FindNearCell) and k = 0
+   before best (the k / best stores in the original order) took 41 -> 2 ins, size 348 -> 352 right. Left:
+   the two reloads of the k-loop latch's reload block (the row loop's exit, its own 2-instruction block) in
+   another order: the original loads cy into ebp before the strength-reduced cy - k (edx); ours the IV
+   first (split pieces, pass 2 ids k#154#2 before cy#2; the block keeps list order). Same hunk as
    cm_MostThreatenedCellNear; flip.py finds no single change that flips it here. (declaration set: no
    declaration set makes this text byte (every symbol-count shift 0..63 at the unit's start and before the
    function) */
