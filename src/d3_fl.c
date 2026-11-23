@@ -1105,11 +1105,11 @@ void d3fl_PrepareWater(D3FLMAP *map)
                                     p->v[2] = d3fl_WaterPoint(t, x, y + 1, p->region);
                                     p->uv = d3fl_UV[0];
                                     p++;
+                                    p->region = cmask[k];
                                     p->tex = 0;
                                     p->vOfs = 0;
                                     p->uOfs = 0;
                                     p->flags = 0;
-                                    p->region = cmask[k];
                                     p->zOfs = 16.0f;
                                     p->v[0] = d3fl_WaterPoint(t, x, y, p->region);
                                     p->v[1] = d3fl_WaterPoint(t, x + 1, y, p->region);
