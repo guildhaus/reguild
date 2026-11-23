@@ -791,7 +791,7 @@ done:
             if (ai_Entries[j].flags & 8) {
                 info.type = 4;
                 info.e = &ai_Entries[j];
-                ai_SendJobOrders((AIINFO *)&info);
+                ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;
@@ -1015,7 +1015,7 @@ done:
             if (e->flags & 0x20) {
                 info.e = e;
                 info.type = 0x14;
-                ai_SendJobOrders((AIINFO *)&info);
+                ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;
@@ -1023,7 +1023,7 @@ done:
             } else if (e->flags & 0x200) {
                 info.e = e;
                 info.type = 0x15;
-                ai_SendJobOrders((AIINFO *)&info);
+                ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;
@@ -1032,7 +1032,7 @@ done:
         } else if (e->flags & 8) {
             info.e = e;
             info.type = 4;
-            ai_SendJobOrders((AIINFO *)&info);
+            ai_SendJobOrders(&info.head);
             if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                 ai_Watch.entries[ai_Watch.nentries] = *info.e;
                 ai_Watch.nentries++;
@@ -2671,7 +2671,7 @@ done:
                 if (ai_Entries[j].flags & 0x400) {
                     info.type = 0x8c;
                     info.e = &ai_Entries[j];
-                    ai_SendJobOrders((AIINFO *)&info);
+                    ai_SendJobOrders(&info.head);
                     if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                         ai_Watch.entries[ai_Watch.nentries] = *info.e;
                         ai_Watch.nentries++;
@@ -2680,7 +2680,7 @@ done:
             } else if (ai_Entries[j].flags & 8) {
                 info.type = 4;
                 info.e = &ai_Entries[j];
-                ai_SendJobOrders((AIINFO *)&info);
+                ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;
@@ -2907,7 +2907,7 @@ done:
                 if (ai_Entries[j].flags & 0x400) {
                     info.type = 0x8c;
                     info.e = &ai_Entries[j];
-                    ai_SendJobOrders((AIINFO *)&info);
+                    ai_SendJobOrders(&info.head);
                     if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                         ai_Watch.entries[ai_Watch.nentries] = *info.e;
                         ai_Watch.nentries++;
@@ -2916,7 +2916,7 @@ done:
             } else if (ai_Entries[j].flags & 8) {
                 info.type = 4;
                 info.e = &ai_Entries[j];
-                ai_SendJobOrders((AIINFO *)&info);
+                ai_SendJobOrders(&info.head);
                 if (ai_Watch.bld == ch->bld && ai_Watch.nentries < 4) {
                     ai_Watch.entries[ai_Watch.nentries] = *info.e;
                     ai_Watch.nentries++;

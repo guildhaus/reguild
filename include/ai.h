@@ -98,15 +98,20 @@ typedef struct AIINFO {                 /* given to ai_SendJobOrders */
 } AIINFO;
 
 typedef struct AIINFOP {                /* an AIINFO with the shuffled entry indices behind it (one local) */
-    int type;                           /* 0x00 */
-    AICHAR *ch;                         /* 0x04 */
-    AIENTRY *e;                         /* 0x08 */
-    AIOBJ *b;                           /* 0x0c */
-    AIOBJ *c;                           /* 0x10 */
-    int n1;                             /* 0x14 */
-    int n2;                             /* 0x18 */
-    int z1;                             /* 0x1c */
-    int z2;                             /* 0x20 */
+    union {
+        struct {
+            int type;                   /* 0x00 */
+            AICHAR *ch;                 /* 0x04 */
+            AIENTRY *e;                 /* 0x08 */
+            AIOBJ *b;                   /* 0x0c */
+            AIOBJ *c;                   /* 0x10 */
+            int n1;                     /* 0x14 */
+            int n2;                     /* 0x18 */
+            int z1;                     /* 0x1c */
+            int z2;                     /* 0x20 */
+        };
+        AIINFO head;                    /* 0x00, the AIINFO ai_SendJobOrders takes */
+    };
     int perm[32];                       /* 0x24 */
 } AIINFOP;
 
