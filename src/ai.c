@@ -617,15 +617,28 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
       cm_SendRemoveGoods(stall->objId, ai_Entries[i].item);
   }
 }
-/* 0x47edb0, evaluates the production of a master's workshop @deep B3 far draft (1608/2272 bytes, 702
-   instructions, 547 differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against 0x47edb0 (Ghidra
-   + disassembly), every region compared (the two hourly branch chains, the 32-permuted entry loops, the
-   human-player block, the ai_Watch block, the job loop, the two AIINFO loops and the tail): calls,
-   arguments, constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06 fixed by the
-   if/else-if rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c / 47ef54 /
-   47efae / 47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form (locals vs
-   re-reads, arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move. What is
-   left is register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp -
+/* 0x47edb0, evaluates the production of a master's workshop
+   @deep Session s2(match-deep): rewritten on the ai_EvaluateProductionFlags / Gypsies template (Flags-form
+   8/13 and else arms with found, the human-player block as if (!HasMaterials(1)) { if (HasMaterials(0)) ..
+   } else .., random loops k = info.perm[i]; e = &ai_Entries[k]; with the second loop's HasMaterials(0)
+   nested and its k / &ai_Entries[k] success block, info.n2++ / info.n1++ in the struct, min(), health > 0
+   (jbe: unsigned), ai_FreeJobCharacters in both arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins,
+   shape (proved). The watch-block form was the big lever (148 -> 26); 8/13 success as goto done (no found
+   = 1) 24 -> 22. No lever: chars outer if, end as || return, min as if, rnd k-block scope; worse: info
+   init c/z2/z1 before ch/b (+2..4), found = 0 after the calls (82), found = 0 only in the else arm (65).
+   Left: the original has no zero register at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test
+   dx,dx; found's xor ebp,ebp right before the hour test), ours shares found's ebp with the constant 0 over
+   the top region: c2trace const#0 region piece (lines a = gm_Query .. else loop) prio 0 sav 0 -> ebp, a
+   borderline piece: one zero reference fewer or one block more in that region should send it to memory.
+   Also the else arm's flags1b4 &= ~0x100 temp ecx vs eax (as Gypsies). prior: B3 far draft (1608/2272
+   bytes, 702 instructions, 547 differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against
+   0x47edb0 (Ghidra + disassembly), every region compared (the two hourly branch chains, the 32-permuted
+   entry loops, the human-player block, the ai_Watch block, the job loop, the two AIINFO loops and the
+   tail): calls, arguments, constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06
+   fixed by the if/else-if rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c /
+   47ef54 / 47efae / 47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form
+   (locals vs re-reads, arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move.
+   What is left is register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp -
    match-deep's slotmap / listing / c2prio territory. Readability done (Q1..Q7 pass): callees
    ai_UpdateProduction / ai_UpdateStaff / ai_BuySlots / ai_BuyCapacity / ai_BuyUpgrade / ai_HasMaterials /
    ai_StartProduction / ai_FreeJobCharacters / ai_SendJobOrders / ai_DrawSettingGood / sv_MoveToGroup /
@@ -637,8 +650,9 @@ void ai_EvaluateProduction(AICHAR *ch) {
   AIENTRY *e;
   AIINFOP info;
   char buf[256];
-  int i, j, k, id, r, t, n1, n2, found;
+  int i, j, k, id, r, t, found;
 
+  found = 0;
   a = gm_Query(ch->bld->objList, 2, 6, 0, 0xff);
   if (!a)
     return;
@@ -650,7 +664,6 @@ void ai_EvaluateProduction(AICHAR *ch) {
   ai_BuySlots(b, ch, 0x4b);
   ai_BuyCapacity(b, ch, 0x19);
   ai_BuyUpgrade(ch);
-  found = 0;
   if (ai_Time.hour == 8 || ai_Time.hour == 0xd) {
     if (!(ch->flags1b4 & 0x100)) {
       ch->prod = 0;
@@ -658,12 +671,11 @@ void ai_EvaluateProduction(AICHAR *ch) {
     } else if (ch->prod != 0) {
       for (i = 0; i < ai_NEntries; i++) {
         if (ai_Entries[i].item == ch->prod) {
-          e = &ai_Entries[i];
-          if (e->capacity >= ai_Goods[e->item].batch &&
-              ai_HasMaterials(ch, e, 1)) {
+          if (ai_Entries[i].capacity >= ai_Goods[ai_Entries[i].item].batch &&
+              ai_HasMaterials(ch, &ai_Entries[i], 1)) {
             ai_Entries[i].flags |= 8;
-            ai_StartProduction(ch, e);
-            ch->prod = (unsigned short)e->item;
+            ai_StartProduction(ch, &ai_Entries[i]);
+            ch->prod = (unsigned short)ai_Entries[i].item;
             goto done;
           }
           break;
@@ -673,12 +685,11 @@ void ai_EvaluateProduction(AICHAR *ch) {
   } else {
     for (i = 0; i < ai_NEntries; i++) {
       if (ai_Entries[i].item == ch->prod) {
-        e = &ai_Entries[i];
-        if (e->capacity >= ai_Goods[e->item].batch &&
-            ai_HasMaterials(ch, e, 1)) {
+        if (ai_Entries[i].capacity >= ai_Goods[ai_Entries[i].item].batch &&
+            ai_HasMaterials(ch, &ai_Entries[i], 1)) {
           ai_Entries[i].flags |= 8;
-          ai_StartProduction(ch, e);
-          ch->prod = (unsigned short)e->item;
+          ai_StartProduction(ch, &ai_Entries[i]);
+          ch->prod = (unsigned short)ai_Entries[i].item;
           found = 1;
         }
         break;
@@ -695,24 +706,26 @@ void ai_EvaluateProduction(AICHAR *ch) {
         if (b->lvl1c >= ai_Entries[i].need1c &&
             b->lvl1d >= ai_Entries[i].need20) {
           e = &ai_Entries[i];
-          if (e->capacity >= ai_Goods[e->item].batch &&
+          if (ai_Entries[i].capacity >= ai_Goods[e->item].batch &&
               (x = gm_FindMarketObject(e->item)) != 0 &&
               gm_FreeCapacity(x, e->item, 1000000) >=
-                  ai_Goods[e->item].batch + e->amount) {
-            if (ai_HasMaterials(ch, e, 1)) {
+                  ai_Goods[e->item].batch + ai_Entries[i].amount) {
+            if (!ai_HasMaterials(ch, e, 1)) {
+              if (ai_HasMaterials(ch, e, 0)) {
+                ai_StartProduction(ch, e);
+                ch->prod = (unsigned short)e->item;
+                sprintf(buf,
+                        "Produktion von %s starten obwohl Rohstoffe fehlen, da "
+                        "der spieler es so will",
+                        ai_Goods[e->item].name);
+                goto done;
+              }
+            } else {
               ai_Entries[i].flags |= 8;
               ai_StartProduction(ch, e);
               ch->prod = (unsigned short)e->item;
               sprintf(buf,
                       "Produktion von %s starten, da Humanplayer es so will.",
-                      ai_Goods[e->item].name);
-              goto done;
-            } else if (ai_HasMaterials(ch, e, 0)) {
-              ai_StartProduction(ch, e);
-              ch->prod = (unsigned short)e->item;
-              sprintf(buf,
-                      "Produktion von %s starten obwohl Rohstoffe fehlen, da "
-                      "der spieler es so will",
                       ai_Goods[e->item].name);
               goto done;
             }
@@ -733,14 +746,15 @@ void ai_EvaluateProduction(AICHAR *ch) {
     info.perm[r] = t;
   } while (i < 32);
   for (i = 0; i < ai_NEntries; i++) {
-    e = &ai_Entries[info.perm[i]];
+    k = info.perm[i];
+    e = &ai_Entries[k];
     if (((ai_Goods[e->item].type != 0x17 && ai_Goods[e->item].type != '%') ||
-         e->amount < 5) &&
-        b->lvl1c >= e->need1c && b->lvl1d >= e->need20 &&
-        e->capacity >= ai_Goods[e->item].batch &&
+         ai_Entries[k].amount < 5) &&
+        b->lvl1c >= ai_Entries[k].need1c && b->lvl1d >= ai_Entries[k].need20 &&
+        ai_Entries[k].capacity >= ai_Goods[e->item].batch &&
         (x = gm_FindMarketObject(e->item)) != 0 &&
         gm_FreeCapacity(x, e->item, 1000000) >=
-            ai_Goods[e->item].batch + e->amount &&
+            ai_Goods[e->item].batch + ai_Entries[k].amount &&
         ai_HasMaterials(ch, e, 1)) {
       k = info.perm[i];
       ai_Entries[k].flags |= 8;
@@ -752,30 +766,35 @@ void ai_EvaluateProduction(AICHAR *ch) {
     }
   }
   for (i = 0; i < ai_NEntries; i++) {
-    e = &ai_Entries[info.perm[i]];
+    k = info.perm[i];
+    e = &ai_Entries[k];
     if (((ai_Goods[e->item].type != 0x17 && ai_Goods[e->item].type != '%') ||
-         e->amount < 5) &&
-        b->lvl1c >= e->need1c && b->lvl1d >= e->need20 &&
-        e->capacity >= ai_Goods[e->item].batch &&
+         ai_Entries[k].amount < 5) &&
+        b->lvl1c >= ai_Entries[k].need1c && b->lvl1d >= ai_Entries[k].need20 &&
+        ai_Entries[k].capacity >= ai_Goods[e->item].batch &&
         (x = gm_FindMarketObject(e->item)) != 0 &&
         gm_FreeCapacity(x, e->item, 1000000) >=
-            ai_Goods[e->item].batch + e->amount &&
-        ai_HasMaterials(ch, e, 0)) {
-      e = &ai_Entries[info.perm[i]];
-      ai_StartProduction(ch, e);
-      ch->prod = (unsigned short)e->item;
-      sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen",
-              ai_Goods[e->item].name);
-      goto done;
+            ai_Goods[e->item].batch + ai_Entries[k].amount) {
+      if (ai_HasMaterials(ch, e, 0)) {
+        k = info.perm[i];
+        ai_StartProduction(ch, &ai_Entries[k]);
+        e = &ai_Entries[k];
+        ch->prod = (unsigned short)e->item;
+        sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen",
+                ai_Goods[e->item].name);
+        goto done;
+      }
     }
   }
   ch->prod = 0;
 done:
   ai_SendRemoveEmptyGoods(b);
   ai_PlanSlots(ch, b);
-  if (ai_Watch.bld == ch->bld) {
+  if (ai_Watch.bld != ch->bld) {
+    ai_FreeJobCharacters(ch, 4);
+  } else {
     for (j = 0; ai_Watch.nslots < 4; j++) {
-      if (ai_NEntries <= j)
+      if (j >= ai_NEntries)
         break;
       ai_Watch.ent[ai_Watch.nslots] = ai_Entries[j];
       for (k = 0; k < 4; k++) {
@@ -787,39 +806,34 @@ done:
       }
       ai_Watch.nslots++;
     }
+    ai_FreeJobCharacters(ch, 4);
   }
-  ai_FreeJobCharacters(ch, 4);
-  n2 = 0;
   info.n2 = 0;
   for (j = 0; j < 768; j++) {
-    if (ai_Chars[j].health && ai_Chars[j].id != 0xffff &&
+    if (ai_Chars[j].health > 0 && ai_Chars[j].id != 0xffff &&
         ai_Chars[j].kind != 10 && ai_Chars[j].bld == ch->bld &&
         ai_Chars[j].title && ai_Chars[j].scene &&
         ai_Chars[j].scene->group == ai_Chars[j].bld->id) {
       sv_MoveToGroup(ch->bld, 0, ai_Chars[j].id, 0);
-      n2 = info.n2 + 1;
-      info.n2 = n2;
+      info.n2++;
     }
   }
   if (ai_Watch.bld == ch->bld)
-    ai_Watch.n = n2;
-  n1 = 0;
+    ai_Watch.n = info.n2;
   info.n1 = 0;
   for (i = 0; i < ai_NEntries; i++) {
     if (ai_Entries[i].flags & 8)
-      n1++;
+      info.n1++;
     if (ai_Entries[i].flags & 0x10)
-      n1++;
-    info.n1 = n1;
+      info.n1++;
   }
-  if (n2 <= info.n1)
-    info.n1 = n2;
-  if (n2 != 0 && info.n1 != 0) {
+  info.n1 = min(info.n1, info.n2);
+  if (info.n2 != 0 && info.n1 != 0) {
+    info.ch = ch;
+    info.b = b;
     info.c = 0;
     info.z2 = 0;
     info.z1 = 0;
-    info.ch = ch;
-    info.b = b;
     for (j = 0; j < ai_NEntries; j++) {
       if (ai_Entries[j].flags & 8) {
         info.type = 4;

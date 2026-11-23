@@ -1461,7 +1461,7 @@ exe	0x0047e940	ai_ResetJob	ai	bd3efb667a701b9a	no	byte	control=byte p1=byte p2=b
 exe	0x0047e990	ai_RunMasterEvaluation	ai	aefcf0f5c06b5069	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047ec20	ai_PlanSlots	ai	a854cc5cf1470c2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	b0f9db8d0c25e692	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0047edb0	ai_EvaluateProduction	ai	a2494508b5d91f0e	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
+exe	0x0047edb0	ai_EvaluateProduction	ai	ce51c9c36036cfd6	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d9b267afaadc3585
 exe	0x0047f700	ai_EvaluateProductionFlags	ai	582c15af18f4d9ec	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	557836d9dae12699	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00480e70	ai_CalcMeisterWache	ai	e1ab6bc1a7430b4e	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
