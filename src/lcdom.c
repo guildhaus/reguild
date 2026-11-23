@@ -1185,25 +1185,7 @@ void d2_RadioSelect(int g, int sel);
    message 0x32 after the question 0x1a28 / 0x1a29 with the two wages (refused with 0x42c4 for a character
    working elsewhere, 0x1a27 below four years of service). The worker rows are refilled every frame from
    gm_ListWorkers (both title lists; a row whose character or title changed is freed first). At the end the
-   work rate (field 0x41) and the wage (0x3d) are sent, the book closed and the camera follows again
-   @deep frame sweep s21: 748 -> 606 ins: wage (escaped: the slider value compared and sent) a local of the
-   page-0 block. Left: code 342, slots 282, regs 216 (an ebp frame: dcp frame names nothing); msg as a
-   block local = control. prior: Written whole from the original (was a stub): the four-page book, the wage
-   slider / work list, the bonus button and its pay_worker / pay_meister groups, the master row, the 12
-   worker rows in one radio group, the per-frame refill from gm_ListWorkers with the old-row compare, the
-   click handling (hire 6 / 7 with the new AIMSG hire members, fire 0x31, promote 0x32 with the two wages),
-   the exit field deltas 0x41 / 0x3d. 1579 vs 1567 instructions, every call the same number of times (no
-   calls: line), no branch target differences. Left is allocation and layout: the scalar frame has one slot
-   more than the original's (masterRow at frame 0x158 vs 0x154, msg at 0x60 vs 0x5c; the original packs
-   halfH / master / the list counter in 0x2c and pg / n in 0x30), so the prover stops at the first fill
-   ('ours fill4 [(args + 0x14c)] the original fill4 [(args + 0x148)]'); the message bodies' stores are
-   scheduled otherwise (the three M8 lines are the AITIME copy msg.time = ai_Time stored in another word
-   order, '+0xaa3 ai_Time | ai_Time+0x8'), and the slots / regs hunks follow the frame. Tried: the
-   declarations in the original's address order (frame start now matches but for the one slot), a local for
-   the owner's AICHAR (the wage calls), the row column / row split (r = j / 2). (references: M8 at +0xaa3:
-   ours refers to ai_Time (0x770ae0), the original's field to 0x770ae8 (ai_Time+0x8) (and 2 more),
-   explained: the M8 refs are the words of one struct copy (msg.time = ai_Time) stored in another order, no
-   other object) */
+   work rate (field 0x41) and the wage (0x3d) are sent, the book closed and the camera follows again */
 
 void ai_PersonnelBook(AIBLD *bld, char *model)
 {
@@ -1251,12 +1233,12 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     int amount;
     int cost;
     int v;
+    int id;
     AICHAR *c;
     AICHAR *owner;
     AIJOB *job;
 
     nWorkers = 0;
-    bt = &ai_BTypes[bld->type];
     fireMasterButton = -1;
     hireMasterButton = -1;
     hireButton = -1;
@@ -1266,6 +1248,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     sel = -1;
     radio = -1;
     slot = -1;
+    bt = &ai_BTypes[bld->type];
     if (bt->kind != 4 && bt->kind != 0x13 && bt->kind != 0x10)
         book = sv_OpenBook(model, "Buch", 4, "Buch\\Personalbuch_1", "Buch\\Personalbuch_2", "Buch\\Personalbuch_3",
                            "Buch\\Personalbuch_4");
@@ -1296,9 +1279,9 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
     if (bt->kind != 5 && bt->kind != 9) {
         d2_SetForm(book->views[0], 3);
         ai_CreatePersonnelRow(d2_LastWindowPtr->w / 2 - 0x18, 0x20, &masterRow);
-        v = d2_CreateWinText(masterRow.x - 0x38, masterRow.y - 0x20, txt_Ptrs[0x1a2d], d2_LastWindow);
-        d2_Objs[v].centred = 1;
-        d2_Objs[v].w = 0xa0;
+        i = d2_CreateWinText(masterRow.x - 0x38, masterRow.y - 0x20, txt_Ptrs[0x1a2d], d2_LastWindow);
+        d2_Objs[i].centred = 1;
+        d2_Objs[i].w = 0xa0;
     }
     for (i = 0; i < 4; i++) {
         d2_SetForm(book->views[i], 1);
@@ -1317,16 +1300,18 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         workList = -1;
     }
     d2_SetForm(book->views[2], 3);
-    halfW = d2_Wins[d2_LastWindow].w / 2;
-    halfH = d2_Wins[d2_LastWindow].h / 2;
+    {
+        D2WIN *w = &d2_Wins[d2_LastWindow];
+        halfW = w->w / 2;
+        halfH = w->h / 2;
+    }
     for (i = 0; i < 12; i++) {
         rows[i].ch = 0;
         rows[i].pic = -1;
     }
     j = 0;
-    pg = 1;
     vp = &book->views[1];
-    for (i = 0; i < 12; i++) {
+    for (i = 0, pg = 1; i < 12; i++) {
         if (i >= bt->k232 + bt->k231)
             break;
         r = j / 2;
@@ -1366,12 +1351,10 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         if (kb_Last == 0xcb)
             sv_BookBack(book);
         if (book->page == 0) {
-            int wage;
-
-            if (wageSlider != -1 && (wage = d2_GetObjValue(wageSlider)) != bld->wageRate &&
+            if (wageSlider != -1 && (v = d2_GetObjValue(wageSlider)) != bld->wageRate &&
                 (slot == -1 || cm_GetSlotState(slot) != 0)) {
                 cm_BeginFieldBlock(bld, bld->id);
-                cm_AddFieldDelta(4, 1, 0x3d, &wage);
+                cm_AddFieldDelta(4, 1, 0x3d, &v);
                 slot = cm_SendFieldDeltas();
             }
             d2_SetForm(book->views[0], 4);
@@ -1397,7 +1380,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     promoteButton = -1;
                     sel = i;
                     if (masterRow.ch == 0 && masterRow.state != 2) {
-                        cost = (int)gm_JobCost(&ai_Chars[bld->owner], bld->type, 0, -1);
+                        owner = &ai_Chars[bld->owner];
+                        cost = (int)gm_JobCost(owner, bld->type, 0, -1);
                         d2_SetForm(masterRow.view, 2);
                         hireMasterButton = d2_GetWinObj(masterRow.view, 2, io_PrintText(0x1a22, cost, bt->jobs[0] + 0x130));
                     } else if (masterRow.state == 1) {
@@ -1442,8 +1426,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                                     msg.type = 7;
                                     msg.flags = 1;
                                     msg.hireMaster = 1;
-                                    msg.fromId = bld->id;
                                     msg.to = ai_Chars[ai_PlayerId].netId;
+                                    msg.fromId = bld->id;
                                     msg.time = ai_Time;
                                     if (gm_IsHomeType(bld) != 0)
                                         msg.hireMasterRoom = -1;
@@ -1458,11 +1442,11 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                                     d2_SetForm(book->views[k], 2);
                                     io_PrintText((intptr_t)"$C");
                                 }
-                                masterRow.state = 2;
                                 hireButton = -1;
                                 fireButton = -1;
                                 promoteButton = -1;
                                 fireMasterButton = -1;
+                                masterRow.state = 2;
                             }
                         } else if (d2_PointerObj == fireMasterButton && masterRow.ch != 0 &&
                                    sv_MessageBox((intptr_t)txt_Ptrs[0x1a36], 1) != 0) {
@@ -1498,15 +1482,15 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
         nWorkers = gm_ListWorkers(bld, workers);
         for (a = 0; a < 2; a++) {
             for (b = 0; b < 12; b++) {
-                v = workers[1 + a * 12 + b];
-                if (v != 0xffff) {
+                id = workers[1 + a * 12 + b];
+                if (id != 0xffff) {
                     for (k = 0; k < n; k++)
-                        if (rows[k].ch == &ai_Chars[v])
+                        if (rows[k].ch == &ai_Chars[id])
                             break;
                     if (k >= n) {
                         for (k = 0; k < n; k++) {
                             if (rows[k].ch == 0) {
-                                c = &ai_Chars[v];
+                                c = &ai_Chars[id];
                                 rows[k].ch = c;
                                 rows[k].title = c->title;
                                 break;
@@ -1521,9 +1505,10 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 ai_DomizilFreeRow(&rows[k]);
         he_FindEvent(2, 0, 6, 3, bld->id);
         for (i = 0; i < n; i++) {
-            if (rows[i].ch != 0) {
+            c = rows[i].ch;
+            if (c != 0) {
                 if (rows[i].icon == -1)
-                    ai_FillPersonnelRow(rows[i].ch, &rows[i], 0);
+                    ai_FillPersonnelRow(c, &rows[i], 0);
             } else {
                 ai_FillVacantPersonnelRow(bld, &rows[i], 6, i);
             }
@@ -1554,7 +1539,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 fireMasterButton = -1;
                 sel = i;
                 if (rows[i].ch == 0) {
-                    cost = (int)gm_JobCost(&ai_Chars[bld->owner], bld->type, -1, 1);
+                    owner = &ai_Chars[bld->owner];
+                    cost = (int)gm_JobCost(owner, bld->type, -1, 1);
                     d2_SetForm(rows[i].view, 2);
                     hireButton = d2_GetWinObj(rows[i].view, 2, io_PrintText(0x1a22, cost, bt->title2 + 0x20d));
                 } else if (rows[i].state == 1) {
@@ -1574,8 +1560,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                 memset(&msg, 0, sizeof(msg));
                 msg.type = 6;
                 msg.flags = 1;
-                msg.fromId = bld->id;
                 msg.to = ai_Chars[ai_PlayerId].netId;
+                msg.fromId = bld->id;
                 msg.time = ai_Time;
                 msg.hireRows[sel] = 1;
                 if (gm_IsHomeType(bld) != 0)
@@ -1628,8 +1614,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     memset(&msg, 0, sizeof(msg));
                     msg.type = 0x32;
                     msg.flags = 2;
-                    msg.fromId = bld->id;
                     msg.to = ai_Chars[ai_PlayerId].netId;
+                    msg.fromId = bld->id;
                     msg.time = ai_Time;
                     msg.arg[0] = c->netId;
                     cm_SendLongMessage(&msg);

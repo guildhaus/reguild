@@ -3939,6 +3939,12 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
 - **An address-taken local (`gm_FindById(.., &o, ..)`) packed with function-scope locals in the original, ours in its
   own slot**: a function-scope `&o` conflicts with every local (c2frame `X o: ..all..`); declared in the block that
   uses it (`case 1: { AIOBJ *o; .. }`) it shares the slot of locals of other cases (he_RunTransport 36 -> 8 ins).
+- **Two address-taken sends in one original slot (a block-local `wage` in the frame loop and the exit deltas'
+  `v`), its reference count the sum of both**: they were ONE function-scope variable (`v = d2_GetObjValue(..)`
+  .. `&v` in both places), not a block local plus another; and a value read in a loop through the same name
+  (`v = workers[..]`, held in edx by the original) was a separate local (ai_PersonnelBook 555 -> 457, slots 202 ->
+  0). Find which locals the original packs by counting each slot's operands with the push depth followed over the
+  flow graph (a linear scan goes wrong at every join); `dcp frame`'s pairing names only one of the sharers.
 
 ### Other findings filed here
 
