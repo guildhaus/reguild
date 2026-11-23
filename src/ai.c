@@ -4979,7 +4979,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
     unsigned short it;
     unsigned char kind;
     float f, g;
-    int i, j, k, m, n, v, lim, stock, found, nsell, nbuy, sold;
+    int i, j, k, m, n, v, lim, found, nsell, nbuy, sold;
 
     if (b->type == 0x116)
         return ai_MeisterTradeAllgemein(ch, b);
@@ -5218,9 +5218,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                         lim = gm_ListStock(market, it);
                         for (j = 0; stA.amount[i] && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == stA.item[i]) {
-                                v = stA.amount[i];
-                                if (lim < v)
-                                    v = lim;
+                                v = min(lim, stA.amount[i]);
                                 sprintf(buf, SELL_FMT, market->objId, b->objId, stA.item[i], v, ai_OwnPlayer, 0);
                                 cm_SendExSellObject(market->objId, b->objId, stA.item[i], v, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = stA.item[i];
@@ -5254,9 +5252,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                         lim = gm_ListStock(market, it);
                         for (j = 0; stB.amount[i] && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == stB.item[i]) {
-                                v = stB.amount[i];
-                                if (lim < v)
-                                    v = lim;
+                                v = min(lim, stB.amount[i]);
                                 sprintf(buf, SELL_FMT, market->objId, b->objId, stB.item[i], v, ai_OwnPlayer, 0);
                                 cm_SendExSellObject(market->objId, b->objId, stB.item[i], v, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = stB.item[i];
@@ -5279,9 +5275,7 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                     lim = gm_ListStock(market, ai_Entries[i].item);
                     for (j = 0; ai_Entries[i].sellAmount && j < rec.n; j++) {
                         if (!rec.item[j] || rec.item[j] == ai_Entries[i].item) {
-                            v = ai_Entries[i].sellAmount;
-                            if (lim < v)
-                                v = lim;
+                            v = min(lim, ai_Entries[i].sellAmount);
                             sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Entries[i].item, v, ai_OwnPlayer, 0);
                             cm_SendExSellObject(market->objId, b->objId, ai_Entries[i].item, v, ai_OwnPlayer, 0);
                             msg.u.item[nsell] = ai_Entries[i].item;
@@ -5305,18 +5299,16 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
                                      (int)gm_GoodsPrice(ai_Slots[i].item, ai_OwnPlayer));
                         ai_Slots[i].sellAmount = 0;
                     } else {
-                        stock = gm_ListStock(market, ai_Slots[i].item);
+                        lim = gm_ListStock(market, ai_Slots[i].item);
                         for (j = 0; ai_Slots[i].sellAmount && j < rec.n; j++) {
                             if (!rec.item[j] || rec.item[j] == ai_Slots[i].item) {
-                                n = ai_Slots[i].sellAmount;
-                                if (stock < n)
-                                    n = stock;
-                                sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
-                                cm_SendExSellObject(market->objId, b->objId, ai_Slots[i].item, n, ai_OwnPlayer, 0);
+                                v = min(lim, ai_Slots[i].sellAmount);
+                                sprintf(buf, SELL_FMT, market->objId, b->objId, ai_Slots[i].item, v, ai_OwnPlayer, 0);
+                                cm_SendExSellObject(market->objId, b->objId, ai_Slots[i].item, v, ai_OwnPlayer, 0);
                                 msg.u.item[nsell] = ai_Slots[i].item;
                                 msg.dst[nsell] = ai_MarketBuilding->id;
                                 nsell++;
-                                ai_Slots[i].sellAmount -= n;
+                                ai_Slots[i].sellAmount -= v;
                                 sold = 1;
                                 rec.item[j] = ai_Slots[i].item;
                             }
