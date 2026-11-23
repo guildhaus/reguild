@@ -200,28 +200,30 @@ int ai_IsLocalMaster(AICHAR *c) {
    nested if / else / early-return forms all keep the reset last; other dispatch orders 24..64); p = 0
    first in the k == 2 block (28 -> 18); f assigned inside the candidate test (RelationMemory * (f = ..) <
    bestf; climb inexpr) rotates the step block's scratch registers to the original's (18 -> 2). Left (2
-   ins): the k == 2 block's xor edi,edi (p = 0) at the block's start where the original has it at its end;
-   with p = 0 written last (as in the original) VC6 cross-jumps the block's call / add esp /
-   SendFieldDeltas / epilogue into the k == 1 block's (12, tail), which the original keeps apart. Tried:
-   every position of p = 0 in the k == 1 and k == 2 blocks (49: only the k == 2 start avoids the merge),
-   return p / return 0 in either block (19..56), one shared p = 0; return p for the reset / 1 / 2 / failed
-   step with the step returning early (38), the other dispatch orders with p at the start (no better).
-   prior: Read whole against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind /
-   secondOffice, not jobId / prevOffice), the feud relation sum computed before util_Random, the partner
-   part as one exit return p with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi
-   tails). Every call, constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp
-   2d+0x23 / 2d+0xf), field (0x210 / 0x214..0x218) and branch matches. Left: (1) allocation in the
-   candidate loop: the original keeps c->id in bx under the -1 constant ebx (or ebx,-1 at entry; the
-   prover's Ins16(0xffffffff, id) push), the kind basis in ebp, the RelationMemory row offset in the dead
-   parameter slot [esp+0x28] and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id
-   and the row offset in frame slots (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original
-   places the b216<=b215 block (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset
-   block at the end, each with its own epilogue, where ours lays them inline and cross-jumps their common
-   a=1 / AddFieldDelta(0x218) / SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13,
-   cm_SendFieldDeltas x4 vs x5). (size: 429 vs 445 instructions, explained: 16 instructions: the original's
-   two separate b216 / relation>0 tails (an AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi
-   epilogue copy, ~14 instructions) that ours cross-jumps into one, and its spill of gm_CharLevel(i) /
-   row-offset reloads in the loop) */
+   ins): the k == 2 block's xor edi,edi (p = 0) at the block's start where the original has it at its end.
+   With p = 0 written last (as the original orders it) the tail merges (12, tail): c2tail --tries on that
+   text: xjump moves the k == 1 / k == 2 xor edi onto the reset's p = 0, then the move merger (a label
+   nothing falls into) deletes the k == 2 copy of call / add esp / SendFieldDeltas into the k == 1 one; the
+   original keeps both. Tried: every position of p = 0 in the k == 1 and k == 2 blocks (49: only the k == 2
+   start avoids the merge), return p / return 0 in either block (19..56), the reset's p = 0 inside if (p)
+   (12), one shared p = 0; return p for reset / 1 / 2 / failed step with the step returning early (38), the
+   other dispatch orders; climb 2 rounds from the p-last text: only meaning changes. prior: Read whole
+   against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind / secondOffice, not
+   jobId / prevOffice), the feud relation sum computed before util_Random, the partner part as one exit
+   return p with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi tails). Every
+   call, constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp 2d+0x23 /
+   2d+0xf), field (0x210 / 0x214..0x218) and branch matches. Left: (1) allocation in the candidate loop:
+   the original keeps c->id in bx under the -1 constant ebx (or ebx,-1 at entry; the prover's
+   Ins16(0xffffffff, id) push), the kind basis in ebp, the RelationMemory row offset in the dead parameter
+   slot [esp+0x28] and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id and the row
+   offset in frame slots (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original places the
+   b216<=b215 block (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset block at
+   the end, each with its own epilogue, where ours lays them inline and cross-jumps their common a=1 /
+   AddFieldDelta(0x218) / SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13, cm_SendFieldDeltas
+   x4 vs x5). (size: 429 vs 445 instructions, explained: 16 instructions: the original's two separate b216
+   / relation>0 tails (an AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi epilogue copy, ~14
+   instructions) that ours cross-jumps into one, and its spill of gm_CharLevel(i) / row-offset reloads in
+   the loop) */
 
 AICHAR *ai_FindPartner(AICHAR *c) {
   AICHAR *o, *p;
