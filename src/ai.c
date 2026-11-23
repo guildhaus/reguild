@@ -1597,24 +1597,31 @@ void ai_CalcMeisterWache(AICHAR *ch)
    else, with at least three, to attack it (message 0x49, the target cleared) - both only when none of his spy /
    break-in / attack events (0x40 / 0x3f / 0x49) runs on it. Returns 1 when he acted (or one runs), 0 when there is
    no target or too few guards
-   @deep size queue s19 (raw 1906 vs 1861): the text tails do not cross-jump because ours schedules the
-   buffer address before the format push (mov edx,[name]; lea ecx,[ebp+5]..; lea eax,[esp+0x130]; push fmt;
-   push eax), the original after it (push ebp; push ecx; push fmt; lea edx,[esp+0x134]; push edx: from the
-   fmt push on the two tails are equal and merge); best (ebp) is dead after both tails in both. Rounds: the
-   structured forms (break + if (!o || know < rnd) {spy} attack, the arms swapped, if/else, each search's
-   text + return 1 inline instead of goto) 388-392 ins, raw 1974 (the text returns copied per search); the
-   spying / unfinished labels swapped 264 ins (raw 1906), the report block first and an attack: label =
-   control. climb.py round 1: best 213 ins by a bld-id local set before spy: (not taken: the goto spy from
-   the report test skips it, and the original reloads ch->bld->id for every he_FindEvent). prior: Read
-   whole against the original 0x4817a0..0x481ee5 and rewritten: the target keep / drop, the grid maximum (i
-   = j = 8 stored first, !(max > v)), the 256-building countdown scan with its filters and the worth *
-   random * (8 - rank) * guard weight, the report search (o->reportBld, reportKnow < rnd(0x32) + 0x32 spies
-   again), the three event searches 0x40 / 0x3f / 0x49 on targetBld, both messages (0x40 / 0x49, flags 1,
-   arg[0] / arg[1], up to min(n, 8) ids, -1 fill) and the four texts all match; the prover follows both
-   sides through the target choice up to the spy message. Left is block layout: the original lays out [spy
-   searches][spy message][report test][attack][return 0 inline after the kind test at +0x2d8][unfinished /
-   spying sharing one sprintf tail at +0x725]; ours moves the spy message block (+0x634) and the return 0
-   (+0x765) to the end and keeps the two text tails apart (sprintf x5 vs ... */
+   @deep Session 2026-11-23: 270 -> 258 ins. Kept: the target check as a flag on best (if (best) { bt =
+   &ai_BTypes[best->type]; if (bt->kind != 0x13 && != 4 && != 0x10) best = 0; } if (!best) return 0;): the
+   original's lea of the type record and its return-0 block inline after the third kind test (je to the
+   query, n < 3 jumps back into it) now match. Left: (1) the spy message block: the original lays it right
+   after the third spy search (the loop falls into it), ours jmps to a copy at the end; (2) every scratch
+   register of the spy searches one step off from the query loop on (ours mov ecx,[ebx+0x16c] / edx, the
+   original eax / ecx); (3) the unfinished / spying text tails: the original schedules lea buf after push
+   fmt and mov eax,1 between the pops, so unfinished cross-jumps into spying and the attack's ids[0] == -1
+   path jumps into spying's epilogue; ours keeps three separate sprintf tails. Rounds that compile to the
+   control's code (VC6 builds one flow graph for all of them): break + if (!o || know < rnd) {spy} / if (o
+   && know >= rnd) {attack}, the whole rest inside if (best && kind ok) { } return 0, n >= 3 nesting, while
+   / do-while / for-condition (job && job->targetBld != id) forms of all six searches and the report query,
+   the tails swapped / moved after the spy message, r = 0 / 1 + goto done for every subset of the six
+   returns. switch on the kind and the plain bt-pointer test are worse. climb.py round 1 on this text: only
+   a best->id local (212, not the original: it reloads [ebp+1] per test). flip.py (avoid the jmp in front
+   of report:): only mutants that return early. prior: size queue s19 (raw 1906 vs 1861): the text tails do
+   not cross-jump because ours schedules the buffer address before the format push (mov edx,[name]; lea
+   ecx,[ebp+5]..; lea eax,[esp+0x130]; push fmt; push eax), the original after it (push ebp; push ecx; push
+   fmt; lea edx,[esp+0x134]; push edx: from the fmt push on the two tails are equal and merge); best (ebp)
+   is dead after both tails in both. Rounds: the structured forms (break + if (!o || know < rnd) {spy}
+   attack, the arms swapped, if/else, each search's text + return 1 inline instead of goto) 388-392 ins,
+   raw 1974 (the text returns copied per search); the spying / unfinished labels swapped 264 ins (raw
+   1906), the report block first and an attack: label = control. climb.py round 1: best 213 ins by a bld-id
+   local set before spy: (not taken: the goto spy from the report test skips it, and the original reloads
+   ch->bld->id for every he_FindEvent). */
 int ai_CalcAngriff(AICHAR *ch, int n)
 {
     AIOBJ *o;
@@ -1677,8 +1684,12 @@ int ai_CalcAngriff(AICHAR *ch, int n)
         }
         ch->target = best->id;
     }
-    if (!best || (ai_BTypes[best->type].kind != 0x13 && ai_BTypes[best->type].kind != 4
-                  && ai_BTypes[best->type].kind != 0x10))
+    if (best) {
+        bt = &ai_BTypes[best->type];
+        if (bt->kind != 0x13 && bt->kind != 4 && bt->kind != 0x10)
+            best = 0;
+    }
+    if (!best)
         return 0;
     for (o = gm_Query(ch->bld->objList, 1, 0, 0xca); o; o = gm_QueryNext())
         if (o->reportBld == best->id)
