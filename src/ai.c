@@ -192,40 +192,44 @@ int ai_IsLocalMaster(AICHAR *c) {
 }
 /* 0x47ddf0, looks for a partner (a character that suits this one) and sends the messages about it; returns
    the partner when the two have met enough, else 0
-   @deep Session s2(match-deep): (1) the level difference as one expression d = abs(gm_CharLevel(i, 0) -
-   gm_CharLevel(id, 0)) (the first level spilled across the second call, i in edi, o in ebp, id in bx): 306
-   -> 262, the candidate loop byte. (2) the byte a as a block local of each block that sends it (feud, the
-   three partner steps, the reset with its z / m1): every slot the original's (a in the dead parameter
-   slot, z at +0x13): -> 142. (3) the partner steps as nested if / else in test order (b215 < b216, then
-   relation + bias <= 0, then b215 <= 3 inside; the original's jae / jg jump forward): 216 -> 176 before
-   (2). Left (142, code 130 + B3 regs): block layout only: the original lays out B3 (random step), then the
-   reset block with the shared xor edi,edi / mov eax,edi return, then the b215 >= b216 block, then the
-   relation > 0 block (each with its own epilogue copy); ours B3, relation block, b215 block, reset (text
-   order). Every 64 combination of the three levels as if/else, inverted if/else, early-return-alt and
-   early-return-main keeps the reset last (an order scan applied each and read the call order); goto ended
-   / jumped targets after the final return (as if (X) goto or as else goto) get laid inline at the jump
-   (276 / 211). The B3 hunks (regs eax/ecx/edx rotated) follow from the layout. prior: Read whole against
-   the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind / secondOffice, not jobId /
-   prevOffice), the feud relation sum computed before util_Random, the partner part as one exit return p
-   with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi tails). Every call,
-   constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp 2d+0x23 / 2d+0xf),
-   field (0x210 / 0x214..0x218) and branch matches. Left: (1) allocation in the candidate loop: the
-   original keeps c->id in bx under the -1 constant ebx (or ebx,-1 at entry; the prover's Ins16(0xffffffff,
-   id) push), the kind basis in ebp, the RelationMemory row offset in the dead parameter slot [esp+0x28]
-   and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id and the row offset in frame
-   slots (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original places the b216<=b215 block
-   (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset block at the end, each with
-   its own epilogue, where ours lays them inline and cross-jumps their common a=1 / AddFieldDelta(0x218) /
-   SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13, cm_SendFieldDeltas x4 vs x5). (size: 429
-   vs 445 instructions, explained: 16 instructions: the original's two separate b216 / relation>0 tails (an
-   AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi epilogue copy, ~14 instructions) that ours
-   cross-jumps into one, and its spill of gm_CharLevel(i) / row-offset reloads in the loop) */
+   @deep Session s2(match-deep): 306 -> 18 ins, shape (proved). Levers, in order: the level difference as
+   one expression d = abs(gm_CharLevel(i, 0) - gm_CharLevel(id, 0)) (306 -> 262, the candidate loop byte);
+   the byte a as a block local of each block that sends it, z / m1 local to the reset (every slot the
+   original's); the partner part as a step variable k (0 start over, 1 end, 2 jump to the last step, 3 one
+   or two steps) decided first, then if (k == 0) reset else if (k == 1) .. else if (k == 2) .. else step:
+   VC6 threads k away and lays the blocks out as the original (the 64 nested if / else / early-return forms
+   all keep the reset last; dispatch orders other than 0,1,2,else: 40..64+); in the k == 2 block p = 0
+   first (so its tail does not cross-jump into the k == 1 block's call: 28 -> 18). Left: (1) the step
+   block's two c->b215 + a > 3 tests add into a's register (mov eax,[a]; xor ecx,ecx; mov cl,b215; and
+   eax,0xff) where the original adds into b215's (mov ecx,[a]; xor eax,eax; mov al,b215; and ecx,0xff): a
+   declared at function scope instead of in the block gives the original's operand order but its own frame
+   slot (22, frame 0x18); = control: (int) casts, a + c->b215, 3 < .., the else-arm forms; worse: >= 4, 3u,
+   short / int a. (2) the k == 2 block's xor edi,edi (p = 0) scheduled at the block's start, the original's
+   at its end (written at the end, the block's tail cross-jumps into the k == 1 block: 28). prior: Read
+   whole against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind /
+   secondOffice, not jobId / prevOffice), the feud relation sum computed before util_Random, the partner
+   part as one exit return p with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi
+   tails). Every call, constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp
+   2d+0x23 / 2d+0xf), field (0x210 / 0x214..0x218) and branch matches. Left: (1) allocation in the
+   candidate loop: the original keeps c->id in bx under the -1 constant ebx (or ebx,-1 at entry; the
+   prover's Ins16(0xffffffff, id) push), the kind basis in ebp, the RelationMemory row offset in the dead
+   parameter slot [esp+0x28] and spills gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id
+   and the row offset in frame slots (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original
+   places the b216<=b215 block (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset
+   block at the end, each with its own epilogue, where ours lays them inline and cross-jumps their common
+   a=1 / AddFieldDelta(0x218) / SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13,
+   cm_SendFieldDeltas x4 vs x5). (size: 429 vs 445 instructions, explained: 16 instructions: the original's
+   two separate b216 / relation>0 tails (an AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi
+   epilogue copy, ~14 instructions) that ours cross-jumps into one, and its spill of gm_CharLevel(i) /
+   row-offset reloads in the loop) */
 
 AICHAR *ai_FindPartner(AICHAR *c) {
   AICHAR *o, *p;
   int i, best, d;
   float f, bestf;
   unsigned short id;
+  int k; /* the search's next step: 0 start over, 1 end, 2 jump to the last
+            step, 3 one or two steps further */
 
   if (c->partner == -1) {
     best = -1;
@@ -268,53 +272,19 @@ AICHAR *ai_FindPartner(AICHAR *c) {
     return 0;
   }
   p = gm_FindChar(c->partner);
+  k = 0;
   if ((c->officeKind || c->secondOffice || c->kind == 5) && p &&
       (p->secondOffice || p->officeKind || p->kind == 6 || p->kind == 7 ||
        p->kind == 5) &&
       c->b215 <= c->b216 + 5) {
-    if (c->b215 < c->b216) {
-      if (ai_RelationMemory[p->id][c->id] + c->relationBias <= 0) {
-        if (c->b215 <= 3) {
-          /* one or two steps further; past the third the two have met */
-          unsigned char a;
-
-          a = util_Random(2) + 1;
-          cm_BeginFieldBlock(c, c->netId);
-          cm_AddFieldValues(1, 1, 0x215, &a);
-          if (c->b215 + a > 3)
-            cm_AddFieldDelta(1, 1, 0x218, &c->b217);
-          cm_SendFieldDeltas();
-          if (c->b215 + a > 3)
-            ai_ShowPartnerNews(c, p);
-          else
-            p = 0;
-        }
-      } else {
-        /* the partner remembers the character well: the search jumps to its
-           last step */
-        unsigned char a;
-
-        a = c->b216 + 1;
-        cm_BeginFieldBlock(c, c->netId);
-        cm_AddFieldDelta(1, 1, 0x215, &a);
-        a = 1;
-        cm_AddFieldDelta(1, 1, 0x218, &a);
-        cm_SendFieldDeltas();
-        p = 0;
-      }
-    } else {
-      /* the search has run its steps: it ends without a partner */
-      unsigned char a;
-
-      a = 1;
-      cm_BeginFieldBlock(c, c->netId);
-      cm_AddFieldValues(1, 1, 0x215, &a);
-      a = 1;
-      cm_AddFieldDelta(1, 1, 0x218, &a);
-      cm_SendFieldDeltas();
-      p = 0;
-    }
-  } else {
+    if (c->b215 >= c->b216)
+      k = 1;
+    else if (ai_RelationMemory[p->id][c->id] + c->relationBias > 0)
+      k = 2;
+    else
+      k = 3;
+  }
+  if (k == 0) {
     /* no partner (any more): the search starts over */
     unsigned char a, z;
     int m1;
@@ -335,6 +305,45 @@ AICHAR *ai_FindPartner(AICHAR *c) {
       ai_ShowPartingNews(c, p);
     }
     p = 0;
+  } else if (k == 1) {
+    /* the search has run its steps: it ends without a partner */
+    unsigned char a;
+
+    a = 1;
+    cm_BeginFieldBlock(c, c->netId);
+    cm_AddFieldValues(1, 1, 0x215, &a);
+    a = 1;
+    cm_AddFieldDelta(1, 1, 0x218, &a);
+    cm_SendFieldDeltas();
+    p = 0;
+  } else if (k == 2) {
+    /* the partner remembers the character well: the search jumps to its last
+       step */
+    unsigned char a;
+
+    p = 0;
+    a = c->b216 + 1;
+    cm_BeginFieldBlock(c, c->netId);
+    cm_AddFieldDelta(1, 1, 0x215, &a);
+    a = 1;
+    cm_AddFieldDelta(1, 1, 0x218, &a);
+    cm_SendFieldDeltas();
+  } else {
+    /* one or two steps further; past the third the two have met */
+    if (c->b215 <= 3) {
+      unsigned char a;
+
+      a = util_Random(2) + 1;
+      cm_BeginFieldBlock(c, c->netId);
+      cm_AddFieldValues(1, 1, 0x215, &a);
+      if (c->b215 + a > 3)
+        cm_AddFieldDelta(1, 1, 0x218, &c->b217);
+      cm_SendFieldDeltas();
+      if (c->b215 + a > 3)
+        ai_ShowPartnerNews(c, p);
+      else
+        p = 0;
+    }
   }
   return p;
 }
