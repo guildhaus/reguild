@@ -945,7 +945,8 @@ typedef struct AIJOB {                  /* 0x14c bytes, a job / event record (he
             int titleSent;                  /* 0xb4, 1 once the title was sent as the character's field 0xd, 0 at the start */
         };
         struct {                        /* of the alchemist research event 0x96 (he_AllocResearchRecipe
-                                           and its run handler he_RunResearchRecipe); ahm.h's AHMRESEARCH names the same words from ahm.c */
+                                           and its run handler he_RunResearchRecipe) and the training event 0x97; ahm_ResearchState reads
+                                           Start / Amount, the event 0x95's words at 0xb4 / 0xb8 are recipeLeft / recipeTotal */
             int ahmResearchChr;             /* 0xac, the id of the character researching (gm_FindChar) */
             int ahmResearchId;              /* 0xb0, the recipe / share researched (ahm_FindRecipe) */
             float ahmResearchProgress;      /* 0xb4, the progress of this round (ahm_ResearchProgress; the run handler adds it to the share) */

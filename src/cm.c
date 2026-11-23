@@ -6383,25 +6383,25 @@ int cm_ExAlchemistOrder(G17MSG *m, G17STAT *s)
     o = &m->ahmOrder;
     switch ((unsigned int)o->tag) {
     case AHM_CMD_ADD_VALUE:
-        r = ahm_AddValue((int *)o, c->bld->ahm);
+        r = ahm_AddValue(o, c->bld->ahm);
         break;
     case AHM_CMD_DELETE:
         g = c->bld;
-        r = ahm_DeleteAlchemist((int)o, (int *)g->ahm, g);
+        r = ahm_DeleteAlchemist(o, g->ahm, g);
         break;
     case AHM_CMD_SET_SHARE:
-        r = ahm_SetShare((int *)o, c->bld->ahm);
+        r = ahm_SetShare(o, c->bld->ahm);
         break;
     case AHM_CMD_SET_PLACE:
-        r = ahm_SetPlaceValue((int *)o, c->bld->ahm);
+        r = ahm_SetPlaceValue(o, c->bld->ahm);
         break;
     case AHM_CMD_ADD_PLACE:
         g = c->bld;
-        r = ahm_AddPlace((int *)o, g->ahm, g);
+        r = ahm_AddPlace(o, g->ahm, g);
         break;
     case AHM_CMD_REMOVE_PLACE:
         g = c->bld;
-        r = ahm_RemovePlace((int *)o, g->ahm, g);
+        r = ahm_RemovePlace(o, g->ahm, g);
         break;
     default:
         return -3;

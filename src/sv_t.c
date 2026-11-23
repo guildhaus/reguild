@@ -4105,7 +4105,7 @@ void ai_AlchemistCandidates(AIBLD *obj)
         step = ahm_WalkStep(i);
         if (step->on != 0) {
             steps[n] = step;
-            values[n] = ahm_StepValue((char *)step);
+            values[n] = ahm_StepValue(step);
             n++;
         }
     }
@@ -4164,7 +4164,7 @@ void ai_AlchemistCandidates(AIBLD *obj)
         txt_Format(line, 0x403f, step->grid.plr.attr[4]);
         t = d2_CreateWinText(0xfa, y - 0x1b, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0xfa;
-        txt_Format(line, 0x4040, ahm_StepValue((char *)step));
+        txt_Format(line, 0x4040, ahm_StepValue(step));
         t = d2_CreateWinText(0xfa, y - 0xe, line, win2);
         d2_Objs[t].w = d2_Wins[win2].w - 0xfa;
         txt_Format(line, 0x4041, step->grid.plr.id * 2 + 0x9a8);

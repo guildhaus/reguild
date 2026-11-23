@@ -9,21 +9,6 @@ struct AICHAR;
 
 #include "ahm_types.h"               /* AHMSLOT */
 #pragma pack(push, 1)
-typedef struct AHMGOOD {                /* an object of a building's object list as ahm.c reads it (AIOBJ, ai.h; what gm_Query finds) */
-    unsigned short type;                /* +0x0 */
-    int objId;                          /* +0x2, the object's own id (AIOBJ.objId) */
-    char pad06[0x3d];
-} AHMGOOD;
-typedef struct AHMRESEARCH {            /* the fields ahm.c reads of a research event record (ai.h AIJOB: the kind at +0, unkb0 .. unkb8) */
-    unsigned char kind;                 /* +0x0, the event type (0x95 .. 0x97) */
-    char pad01[0x51];
-    AITIME due;                         /* +0x52, when the event is due (0x4eb410 copies the game clock ai_Time over it) */
-    char pad60[0x50];
-    int id;                             /* +0xb0, the recipe / share the research is about */
-    int amount;                         /* +0xb4, the research amount left (the event counts it down by the elapsed minutes) */
-    int total;                          /* +0xb8, the amount it started with */
-    int start;                          /* +0xbc, the amount the event 0x96 / 0x97 was planned with */
-} AHMRESEARCH;
 #define AHM_CMD_SET_SHARE 0x61437353    /* 'SsCa', sets the share at +8 of the record (0x4eca00) */
 #define AHM_CMD_ADD_PLACE 0x61616452    /* 'Rdaa', adds a place from the recipe table (0x4ecb30) */
 #define AHM_CMD_SET_PLACE 0x61535263    /* 'cRSa', sets the value of a place (0x4ecd10) */
@@ -109,22 +94,22 @@ int ahm_LoadWalk(void *f);             /* 0x4ec140 */
 int ahm_SendCreateAlchemist(struct AIBLD *o, AHMSTEP *s);  /* 0x4ec490, posts the type 99 message that creates the alchemist's owner character from the step */
 int cm_SendCreateAlchemist(void *p);                     /* 0x4c6170 */
 
-int ahm_StepValue(char *p);             /* 0x4ec320 */
+int ahm_StepValue(AHMSTEP *s);             /* 0x4ec320 */
 int ahm_ObjectValue(struct AIBLD *p);    /* 0x4ec3d0 */
 int ahm_CreateAlchemist(AHMCREATEMSG *m);   /* 0x4ec500, the alchemist character of the creation message m; its id or 0xffff */
 int ahm_SendSetShare(struct AICHAR *c, int id, float v);  /* 0x4ec940 */
-int ahm_SetShare(int *p, struct AHMREC *rec);   /* 0x4eca00 */
+int ahm_SetShare(AHMORDER *m, struct AHMREC *rec);   /* 0x4eca00 */
 int ahm_SendAddPlace(struct AICHAR *c, int id);     /* 0x4ecaa0 */
-int ahm_AddPlace(int *p, struct AHMREC *rec, struct AIBLD *o);  /* 0x4ecb30 */
-int ahm_RemovePlace(int *p, struct AHMREC *rec, struct AIBLD *o);  /* 0x4ecbc0 */
+int ahm_AddPlace(AHMORDER *m, struct AHMREC *rec, struct AIBLD *o);  /* 0x4ecb30 */
+int ahm_RemovePlace(AHMORDER *m, struct AHMREC *rec, struct AIBLD *o);  /* 0x4ecbc0 */
 int ahm_SendSetPlaceValue(struct AICHAR *c, int id, float v);  /* 0x4ecc30 */
-int ahm_SetPlaceValue(int *p, struct AHMREC *rec);   /* 0x4ecd10 */
+int ahm_SetPlaceValue(AHMORDER *m, struct AHMREC *rec);   /* 0x4ecd10 */
 int ahm_SendAddValue(struct AICHAR *c, float v);      /* 0x4ecd50 */
-int ahm_AddValue(int *p, struct AHMREC *rec);   /* 0x4ecdb0 */
+int ahm_AddValue(AHMORDER *m, struct AHMREC *rec);   /* 0x4ecdb0 */
 int ahm_SendDelete(struct AICHAR *c);             /* 0x4ece10 */
 int ahm_WriteRecord(void *f, struct AIBLD *o);  /* 0x4ecf10 */
 int ahm_ReadRecord(void *f, struct AIBLD *o);  /* 0x4ed040, reads the alchemist record of o (+0x65) from the file f */
-int ahm_DeleteAlchemist(int unused, int *rec, struct AIBLD *o);  /* 0x4ece60 */
+int ahm_DeleteAlchemist(AHMORDER *m, struct AHMREC *rec, struct AIBLD *o);  /* 0x4ece60 */
 
 /* declared in other units' headers before (moved to the owner) */
 extern unsigned short ai_PlayerId;  /* 0x6f25b8 */
