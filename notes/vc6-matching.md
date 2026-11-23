@@ -3291,6 +3291,12 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **A flag kept in a callee-saved register and tested in several arms swapped with a width CSE (`test edi,edi`
+  in the original, ours `test esi,esi` and the width in edi)**: the flag was no local, `(src->dwFlags &
+  DDPF_PALETTEINDEXED8)` written in the condition and at each test; the CSE temp it becomes ranks below the
+  width temp, where a local assigned inside the condition (`(pal8 = ..) ||`) got +30 in a crowded block
+  (surf_ScaleBlit byte; the byte sibling surf_Blit writes the same tests inline).
+
 - **A named sum (`role = f(..) + 0x1125`) takes a callee-saved register and pushes two record pointers into
   slots; the original keeps the sum in a slot and the pointers in esi / ebp**: the constant added at each use
   (`role = f(..); g(role + 0x1125); h(role + 0x1125)`): the CSE temp is no candidate like the named local
