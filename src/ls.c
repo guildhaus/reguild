@@ -777,9 +777,9 @@ int ls_WriteSceneRecords(VFSFILE *f)
     for (i = 0; i < CH_QUEUE; i++) {
         a = &ch_Queue[i];
         if (a->type != 0) {
-            a->ch = (CHARACTER *)a->ch->id;
-            a->prev = (CHACTION *)ls_ActionIndex(a->prev);
-            a->next = (CHACTION *)ls_ActionIndex(a->next);
+            a->chIdx = a->ch->id;
+            a->prevIdx = ls_ActionIndex(a->prev);
+            a->nextIdx = ls_ActionIndex(a->next);
         } else {
             memset(a, 0, sizeof(CHACTION));
         }
@@ -788,7 +788,7 @@ int ls_WriteSceneRecords(VFSFILE *f)
         flag = 0;
         memset(&rec, 0, sizeof(rec));
         a = &ch_Queue[i];
-        n = (int)a->ch;
+        n = a->chIdx;
         if (n >= 0 && n < CH_MAX) {
             c = ch_List[n];
             if (mem_IsValid(c) == 0)
@@ -806,16 +806,16 @@ int ls_WriteSceneRecords(VFSFILE *f)
             LS_W(&rec.args[8], 0x20)
             LS_W(rec.u.name, 0xa0)
             LS_W(&rec.stop, 1)
-            LS_W(&rec.prev, 4)
-            LS_W(&rec.next, 4)
+            LS_W(&rec.prevIdx, 4)
+            LS_W(&rec.nextIdx, 4)
         }
     }
     for (i = 0; i < CH_QUEUE; i++) {
         a = &ch_Queue[i];
         if (a->type != 0) {
-            a->ch = ch_List[(int)a->ch];
-            a->prev = ls_ActionAt((int)a->prev);
-            a->next = ls_ActionAt((int)a->next);
+            a->ch = ch_List[a->chIdx];
+            a->prev = ls_ActionAt(a->prevIdx);
+            a->next = ls_ActionAt(a->nextIdx);
         }
     }
     return 1;
@@ -1148,9 +1148,9 @@ int ls_WriteMessageQueues(VFSFILE *f)
     for (i = 0; i < 0x2000; i++) {
         m = cm_RecvPool[i];
         idx = LS_MSG_INDEX(cm_RecvPool[i].prev, cm_RecvPool);
-        m.prev = (G17MSG *)idx;
+        m.prevIdx = idx;
         idx = LS_MSG_INDEX(cm_RecvPool[i].next, cm_RecvPool);
-        m.next = (G17MSG *)idx;
+        m.nextIdx = idx;
         LS_W(&m, sizeof(G17MSG))
     }
     idx = LS_MSG_INDEX(cm_RecvQueue, cm_RecvPool);
@@ -1160,9 +1160,9 @@ int ls_WriteMessageQueues(VFSFILE *f)
     for (i = 0; i < 0x8000; i++) {
         m = cm_SendRing[i];
         idx = LS_MSG_INDEX(cm_SendRing[i].prev, cm_SendRing);
-        m.prev = (G17MSG *)idx;
+        m.prevIdx = idx;
         idx = LS_MSG_INDEX(cm_SendRing[i].next, cm_SendRing);
-        m.next = (G17MSG *)idx;
+        m.nextIdx = idx;
         LS_W(&m, sizeof(G17MSG))
     }
     idx = LS_MSG_INDEX(cm_SendQueue, cm_SendRing);
@@ -1720,7 +1720,7 @@ int ls_ReadCharacters(VFSFILE *f)
         if (ls_Version >= 0x10021)
             LS_R(&c->b1c5, 1)
         LS_R(&model, 4)
-        c->scene = (CHARACTER *)model;
+        c->sceneId = model;
         if (ls_Version >= 0x10021)
             LS_R(c->ownName, 0x18)
         if (ls_Version >= 0x10036) {
@@ -1928,26 +1928,26 @@ int ls_ReadSceneRecords(VFSFILE *f)
         LS_R(&type, 1)
         a->type = type;
         LS_R(&a->count, 4)
-        LS_R(&a->ch, 4)
+        LS_R(&a->chIdx, 4)
         LS_R(&a->args[0], 0x20)
         LS_R(&a->args[8], 0x20)
         LS_R(&a->u, 0xa0)
         LS_R(&a->stop, 1)
-        LS_R(&a->prev, 4)
-        LS_R(&a->next, 4)
+        LS_R(&a->prevIdx, 4)
+        LS_R(&a->nextIdx, 4)
         i++;
     } while (i < n);
     for (i = 0; i < CH_QUEUE; i++) {
         a = &ch_Queue[i];
         kind = a->type;
         if (kind != 0) {
-            a->ch = ch_List[(int)a->ch];
+            a->ch = ch_List[a->chIdx];
             if (a->ch == 0) {
                 memset(a, 0, sizeof(CHACTION));
                 continue;
             }
-            a->prev = ls_ActionAt((int)a->prev);
-            a->next = ls_ActionAt((int)a->next);
+            a->prev = ls_ActionAt(a->prevIdx);
+            a->next = ls_ActionAt(a->nextIdx);
             a->func = ch_ActDefs[kind].func;
             a->count = 0;
             if (a->prev == 0) {
@@ -1976,7 +1976,7 @@ int ls_ReadSceneRecords(VFSFILE *f)
                 a->u.walk.path = 0;
             }
         }
-        if ((int)a->prev == -1 || (int)a->next == -1) {
+        if (a->prevIdx == -1 || a->nextIdx == -1) {
             sprintf(file, "ls_LoadCharacter(): invalid next or prev-action pointer for action-type:%i", a->type);
             a->prev = 0;
             a->next = 0;
@@ -2336,8 +2336,8 @@ int ls_ReadMessageQueues(VFSFILE *f)
 
     for (i = 0; i < 0x2000; i++) {
         LS_R(&cm_RecvPool[i], sizeof(G17MSG))
-        LS_MSG_SET(cm_RecvPool[i].prev, cm_RecvPool[i].prev, cm_RecvPool)
-        LS_MSG_SET(cm_RecvPool[i].next, cm_RecvPool[i].next, cm_RecvPool)
+        LS_MSG_SET(cm_RecvPool[i].prev, cm_RecvPool[i].prevIdx, cm_RecvPool)
+        LS_MSG_SET(cm_RecvPool[i].next, cm_RecvPool[i].nextIdx, cm_RecvPool)
     }
     LS_R(&n, 4)
     LS_MSG_SET(cm_RecvQueue, n, cm_RecvPool)
@@ -2351,8 +2351,8 @@ int ls_ReadMessageQueues(VFSFILE *f)
     }
     for (i = 0; i < n; i++) {
         LS_R(&cm_SendRing[i], sizeof(G17MSG))
-        LS_MSG_SET(cm_SendRing[i].prev, cm_SendRing[i].prev, cm_SendRing)
-        LS_MSG_SET(cm_SendRing[i].next, cm_SendRing[i].next, cm_SendRing)
+        LS_MSG_SET(cm_SendRing[i].prev, cm_SendRing[i].prevIdx, cm_SendRing)
+        LS_MSG_SET(cm_SendRing[i].next, cm_SendRing[i].nextIdx, cm_SendRing)
     }
     LS_R(&n, 4)
     LS_MSG_SET(cm_SendQueue, n, cm_SendRing)

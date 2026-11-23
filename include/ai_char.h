@@ -115,8 +115,12 @@ typedef struct AICHAR {                 /* 0x21c bytes, ai_Chars[768] */
     AIJOB *job;                       /* 0x17c */
     unsigned char jobKind;              /* 0x180, the kind (first byte) of job, refreshed on load */
     char pad181[3];
-    struct CHARACTER *scene;            /* 0x184, the scene character (ch.h): its group is the building the character
+    union {
+        struct CHARACTER *scene;        /* 0x184, the scene character (ch.h): its group is the building the character
                                            was sent to (f3gm.c 0x4fbd10), its obj the body */
+        int sceneId;                    /* 0x184, the scene character's id as loaded (ls_ReadCharacters), until the
+                                           fix-up sets the pointer */
+    };
     unsigned char selected;             /* 0x188, nonzero: the character is in the player's selection (sv_ClearSelection clears it, sv_HandleObjects sets it) */
     char pad189[3];
     int picture;                        /* 0x18c, the portrait picture (sv.c: the person panel, the member list) */

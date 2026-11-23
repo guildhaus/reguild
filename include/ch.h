@@ -241,10 +241,19 @@ struct CHACTION {                   /* 0x194 bytes, 2000 of them in ch_Queue; fu
     unsigned char started;          /* 0x10, set once the action's initial wait for a free slot is over
                                        (ch_ActStandUp); ch_ActAnim returns it while its animation runs */
     char pad11[0x3];
-    CHARACTER *ch;                  /* 0x14 */
+    union {
+        CHARACTER *ch;              /* 0x14 */
+        int chIdx;                  /* 0x14, its ch_List index while saved (ls_WriteCharacters / ls_LoadCharacter) */
+    };
     D3VECTOR rot;                   /* 0x18, turn actions: final angles (worker ch4) */
-    CHACTION *prev;                 /* 0x24, the character's queue */
-    CHACTION *next;                 /* 0x28 */
+    union {
+        CHACTION *prev;             /* 0x24, the character's queue */
+        int prevIdx;                /* 0x24, its ch_Queue index while saved (ls_ActionIndex; -1: none) */
+    };
+    union {
+        CHACTION *next;             /* 0x28 */
+        int nextIdx;                /* 0x28, the same */
+    };
     char pad2c[0x4];
     union {                         /* 0x30 */
         int args[0x30];             /* from ch_InsertAction's varargs */

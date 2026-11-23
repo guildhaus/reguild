@@ -811,8 +811,14 @@ typedef struct G17MSG {                 /* 0x99 bytes, a game message (its head 
         AHMCREATEMSG ahmCreate;         /* 0x10, message 99 (ahm_CreateAlchemist) */
         AHMORDER ahmOrder;              /* 0x10, message 100 (the alchemist commands) */
     };
-    struct G17MSG *prev;                /* 0x91 */
-    struct G17MSG *next;                /* 0x95 */
+    union {
+        struct G17MSG *prev;            /* 0x91 */
+        int prevIdx;                    /* 0x91, its record index while saved (ls_WriteMessageQueues; -1: none) */
+    };
+    union {
+        struct G17MSG *next;            /* 0x95 */
+        int nextIdx;                    /* 0x95, the same */
+    };
 } G17MSG;
 
 typedef struct G17STAT {                /* 10 bytes, cm_SendStates[]: the state of a sent message */
