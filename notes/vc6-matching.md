@@ -6301,7 +6301,11 @@ the bytes no portable form gives.
   only PAR_VF / PAR_TF above) or the twenty-ninth (the byte-offset view macros D3S_SLOTS as D3MESH.sub, D2VOP /
   most of D2WOP, FRAME_AT, G13_B / HMT_B, G7_MASK, CH_HAND, D3_TEXB, AMT_BITS with amt_TabA / amt_TabB as row records,
   ORD_KIND / ORD_KINDS with ORDKIND, the AIMSG / D2WIN / D2FORMH / NETSTAT / AMTKIND / bit views, bio_wr_f, the
-  field offsets of the cm_AddField* calls; only AMTRANGEW above).
+  field offsets of the cm_AddField* calls; only AMTRANGEW above) or the thirtieth (the partial record views: HEJOBTABLE /
+  HESTORM / HEPUNISHMENT / HESIM / HEROUTEREFS / GMSKILLEV / ORDEVENT / CURSEEVENT / TUTHOST / AIJOBTAIL as AIJOB members,
+  LCTREENODE as RTNODE gm_TreeNodes[64], G8SCENECHAR / CHWALKDEF / D3LFRAME / TSTEXSIZE / G8INVCHAR / G5STAMM / CMSPYREPORT,
+  the menu units' D2SURFVIEW / D2INPUTVIEW / SAVEREQUEST, the poker records, D2BUF / D2CTRL as D2VIEW, D3FLPOINT as D3VERTEX,
+  CMNETGAME as UDPSERVER, d2_ScreenSurf / d2_BackSurf, CHACTION.u.walk.path, the office news callees).
 - **A data view macro `#define NAME (*(T *)&datum)` is our type, not the original's** (the second cast-macro pass,
   data): the object was declared with a placeholder type (`char *`, `char [n][size]`, `int [n]`, `unsigned short *`
   for a record pointer) and the units that read records viewed it. Give the definition and every declaration the
@@ -7176,9 +7180,37 @@ the bytes no portable form gives.
 - Commit-message slips of the twenty-ninth pass: 617fa84e counts G13_B as 6 uses (7); e4e2671d names
   ai_DecideBuildSculpture shape -> byte, which did not hold at that commit (it stayed shape).
 
+- **Partial record views found by a multi-line scan** (thirtieth pass, scratchpad p30/pv.py: a typedef whose first
+  member is a `char pad..[n]`; p29's list missed multi-line and nested typedefs: HEPUNISHMENT / HESIM / HEROUTEREFS,
+  CMSPYREPORT, CHWALKDEF, CMNETGAME): read each pad's end offset against the owner records; the view is usually an
+  AIJOB event kind (a prefixed struct in AIJOB's outer union: storm*, punish*, sim*, order*, skillBonus*), an AIOBJ
+  member (cornerYear / recs, seats, report), a field of a record the unit could see (AICHAR, CHARACTER, D2VIEW,
+  D3VERTEX, D3SM.cell.x, TSTEXTURE) or a whole record described twice (FILEREC, UDPSERVER, G10GAME). A view field
+  can name a second reading of a member (CURSEEVENT.victim = the trial event's trialCaseLevel; G10NPC.variant = the
+  title level POKERWHO read): name both in the member's comment, not a second member. Every reader stayed the same
+  code; the header moves shifted declaration-set tie-breaks only.
+- **A whole-block copy through a 4-byte member's address** (`memcpy(&ev->u, buf, 0xa0)`, `LS_W(&job->u, 0xa0)`: past the
+  member's end): give the record a member over the whole block (AIJOB.tail[0xa0]) and copy through it.
+- **A data placeholder viewed by a macro over a unit's anonymous typedef** (`char gm_TreeNodes[3328]` with `#define NODES
+  ((RTNODE *)gm_TreeNodes)` and an unused copy in another unit): move the record into the types header, define the
+  datum as the record array, drop the macro (175 uses) and the copies.
+- **A field that held a pointer as int** (D2VIEW.viewSurf / texSurf with `(int)d2_MakeSurface(..)` and `(void *)v->x`
+  at every use, D2BUF's view of them as D2SURF *): the pointer type; a `void *` global with casts at its readers
+  (d2_ScreenSurf / d2_BackSurf, main.c's SCREEN / BACK) likewise.
+- **A types header included inside another header's pack region** (cm.h includes cm_types.h under pack(1)): a record
+  that needs natural alignment and is shared with an unpacked unit (UDPSERVER: flags at 0x7c, not 0x7a) sets its own
+  `#pragma pack(push, 8)` in its header (udp_types.h); dcp check's M8 / D8 named the shifted field and the short datum.
+- **Byte pairs read through a `void *` path** (CHACTION.u.walk.path, `((unsigned char *)p)[k * 2 + 1]`): the cell
+  record pointer (CHPATHPT *) and `p[k].z`; `[n * 2 - 2]` / `[n * 2 - 1]` / `[n * 2 - 4]` / `[n * 2 - 3]` are
+  `[n - 1].x / .z`, `[n - 2].x / .z` (the same code in ch.c / cm.c).
+- **No-op casts after a retype**: once a field or a query returns the record (D3SCENE.hmap, ch_GetHMap), grep its casts
+  (`(D3SM *)` x46) and drop them; no-op casts are no declarations, nothing moved.
+- Commit-message slips of the thirtieth pass: f78e9c52 names "the shadow point list" for D3FLSPLIT.p (the edge split
+  vertices); 1403a2bb says "the five `(CHPATHPT *)` casts" (six went).
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the twenty-ninth portability pass (the passes since eb11a8b9). VC6 still compiles
+the thirtieth portability pass (the passes since eb11a8b9). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout.
 
 Clean (measured: scratchpad pt/count.py, a VC6 /W1 sweep of every unit, p21/jdiff.sh):
@@ -7227,27 +7259,32 @@ Kept deliberately (each with `@original` in the source):
 - Inline asm: 790 `__asm` lines in 37 files (fixed-point helpers, D3_ZERO / copy macros, the span fillers, shp.c's
   drawers), `__int64`, `__cdecl` / `__stdcall` on Win32 / DirectX callbacks, 118 `#pragma pack` lines.
 
-Done in the twenty-ninth pass (counted by hand, scratchpad p29): the byte-offset view macros 105 uses -> 18 (the
-kept D2WOP 7 and PAR_AT 11), the record view macros 31 -> 30 (ORD_KIND went; PAR_VF 28 / PAR_TF 2 kept), the inline
-cast view lines of p28/views1.txt 31 -> 1 (AMTRANGEW, kept; ecmd.c's two had gone in pass 28), the cm_AddField* byte
-offsets 37 -> 0 (all `(char *)&p->field - cm_FieldObject`), and 33 more raw reads (AICHAR bytes in am / amr / amt / rmsg,
-D2SURF w / h, D3SKY.color, AIJOB.constructPlacing, ord_ComputeStatistics' three int views). VC6 warnings 175 -> 175.
+Done in the twenty-ninth pass: the byte-offset view macros 105 uses -> 18 (D2WOP / PAR_AT kept), the record view macros
+31 -> 30 (PAR_VF / PAR_TF kept), the inline views 31 -> 1 (AMTRANGEW kept), the cm_AddField* byte offsets 37 -> 0.
 
-Not done (the next pass's work, if any; none of it is a view count.py or the earlier inventories counted):
-- Unit-local partial record views reached through a pointer cast (about 40 typedefs that start with a pad, listed in
-  scratchpad p29/partialviews.txt, a heuristic list: he.c's HEJOBTABLE / HESTORM over AIOBJ / AIJOB, the D2INPUTVIEW /
-  D2SURFVIEW / AIBLDVIEW / SAVEREQUEST copies in menu.c / pokerwin.c / shot.c, the lc units' LCTREENODE / G8SCENECHAR,
-  the cm units' AIJOBTAIL, TSTEXSIZE, G8INVCHAR, POKERWHO ..): each is a reading of an owner record's bytes; merge it
-  into the owner as the earlier passes
-  did (HEJOBTABLE's note says an AIOBJ member flipped 8 matches: tie-breaks, accepted now).
-- Raw byte reads left on purpose or for later: amt_SendOfficeNews / amt_SendOfficeLost read a character through
-  `unsigned short *p` (`((char *)p)[2]` / `[9]`: the callee's parameter is the debt, AICHAR *); amt_ExecuteOfficeMessage's
-  walk based at AMTREC.owner (`((unsigned char *)r)[4]` = kind, a walk based at a field); the walk paths of ch.c / cm.c
-  read as byte pairs through the void * CHACTION.u.walk.path (CHPATHPT x / z: portable bytes, the type is the debt);
-  d3t_SetColorCB's `void *rgb` context and vfs_fread's gzip magic test (byte buffers by design).
-- d2_ScreenSurf is `void *` (sv_DrawBorderArrows casts it to D2SURF * at the read).
+Done in the thirtieth pass (scratchpad p30): partial record views (p30/pv.py, typedefs that start with a pad) 56 -> 3
+(the picture file records D2PICHDR / D2FRAME / D2PICHDR11 in d2.h: no owner record describes their leading bytes),
+besides the non-pad copies merged with them (D2CTRL, POKERGAME / POKERSEAT, SAVESLOTVIEW's view, the unused copies in
+pokerwin.c / shot.c); d2_ScreenSurf / d2_BackSurf and D2VIEW's surfaces typed; CHACTION.u.walk.path CHPATHPT *;
+amt_SendOfficeNews / Lost, ai_InventoryHas, gv_SchoolLevelFactor, he_ActivateSlot, ch_ThinPath typed; amt_ExecuteOfficeMessage's
+field-based walk an index loop; casts of a variable to a record pointer (p30/reccasts_*.txt) 1066 -> 918. VC6 warnings
+175 -> 175, (int)&x 110 -> 109. Debts 2 -> 0.
+
+Not done (none of it is a view; a further pass's work if wanted):
+- Casts of a variable to a record pointer at its use: 918 (p30/reccasts_after.txt; most-cast types D3VECTOR, AIOBJ,
+  AICHAR, AIBLD, TUTRUN, D2OBJ, VFSFILE, D3OBJECT). Many are legitimate (void * callback contexts, mem_Alloc results,
+  DirectX interfaces); the rest are locals / parameters / globals still typed otherwise (ai.c's `(AIINFO *)&info`,
+  cmorders.c's `(CMFIGHTSLOT *)&m`, cmfight.c's `((CMCUTINFO *)rec)->playerId`, ch.c's `(D3ANIMSLOT *)s`): check each for
+  a no-op first, then type the holder.
+- d2.h's picture file records (D2PICHDR / D2FRAME / D2PICHDR11) start with unnamed bytes: name them when a reader shows them.
+- d3_fl.h's D3FLPOLY (D3TRI as the floor code sees it) stays a view: its signed char flags are load-bearing (d3fl_Draw).
+- Message payloads copied as bytes into G17MSG.data / cm_LongMsg (memcpy of G17FIELDS, CRIME, CMCUTINFO, RTPOINT,
+  CMLOBBYPLAYER) are wire bytes by design; sv.c's activity table addresses a job record by a byte offset
+  (sv_Activities[i].valueOff): a port that changes AIJOB's layout must remap it.
+- d3t_SetColorCB's `void *rgb` context and vfs_fread's gzip magic test (byte buffers by design).
 
 What a 64-bit (or big-endian) port has to handle, beyond the above:
+- Byte-offset tables into records: sv_Activities[].valueOff (an AIJOB word per activity).
 - Records saved or sent whole that hold pointers: AIJOB (slot / gfx / text / effectObj; HEMSGBOX's voice pointer;
   AIJOB.offerAt is a pack(1) member at 0xc4), G17STAT.value and GMCARRYREC.ref (the id while saved, the pointer at
   run time: ls_RefsToIds / ls_IdsToRefs), AIRECIPE.stall (never saved, in memory only); ai_JudgeCatholic /
