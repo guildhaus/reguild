@@ -6534,21 +6534,21 @@ int cm_ExClearRoute(G17MSG *m, G17STAT *s)
 }
 /* 0x4cd350, a free slot of the eight CMLOBBYPLAYER records of cm_LobbyPlayers (id 0), 0: none */
 
-char *cm_LobbyFreeRecord()
+CMLOBBYPLAYER *cm_LobbyFreeRecord()
 {
     int i = 0;
     CMLOBBYPLAYER *p;
 
     for (p = cm_LobbyPlayers; (int)p < (int)(cm_LobbyPlayers + 8); p++) {
         if (p->id == 0)
-            return (char *)&cm_LobbyPlayers[i];
+            return &cm_LobbyPlayers[i];
         i++;
     }
     return 0;
 }
 /* 0x4cd380, the lobby record (CMLOBBYPLAYER) with the id, else a free one (cm_LobbyFreeRecord); 0 for id 0 */
 
-char *cm_LobbyRecord(int id)
+CMLOBBYPLAYER *cm_LobbyRecord(int id)
 {
     int i;
     CMLOBBYPLAYER *p;
@@ -6558,7 +6558,7 @@ char *cm_LobbyRecord(int id)
     i = 0;
     for (p = cm_LobbyPlayers; (int)p < (int)(cm_LobbyPlayers + 8); p++) {
         if (p->id == id)
-            return (char *)&cm_LobbyPlayers[i];
+            return &cm_LobbyPlayers[i];
         i++;
     }
     return cm_LobbyFreeRecord();
@@ -6677,13 +6677,13 @@ unsigned int *cm_LobbyPlayerList(void)
 
 CMLOBBYPLAYER *cm_LobbyFindPlayer(int id)
 {
-    return (CMLOBBYPLAYER *)cm_LobbyRecord(id);
+    return cm_LobbyRecord(id);
 }
 /* 0x4cd5f0, this player's lobby record (the one of the id cm_LobbyPlayerId) */
 
 CMLOBBYPLAYER *cm_LobbyMyPlayer(void)
 {
-    return (CMLOBBYPLAYER *)cm_LobbyRecord(cm_LobbyPlayerId);
+    return cm_LobbyRecord(cm_LobbyPlayerId);
 }
 /* 0x4cd600, the lobby state: [0] the lobby is open (cm_LobbyStart), [1] a lobby message came in (cm_ExLobby) */
 
@@ -6801,19 +6801,19 @@ int cm_ExLobby(G17MSG *m, G17STAT *s)
         memcpy(cm_LobbyList, m->lobby.list, sizeof(m->lobby.list));
         break;
     case 1:
-        p = (CMLOBBYPLAYER *)cm_LobbyRecord(m->lobby.state.id);
+        p = cm_LobbyRecord(m->lobby.state.id);
         if (p == 0)
             return -2;
         memcpy(p, &m->lobby.state, sizeof(m->lobby.state));
         break;
     case 2:
-        p = (CMLOBBYPLAYER *)cm_LobbyFreeRecord();
+        p = cm_LobbyFreeRecord();
         if (p == 0)
             return -1;
         memcpy(p, &m->lobby.player, sizeof(CMLOBBYPLAYER));
         break;
     case 3:
-        p = (CMLOBBYPLAYER *)cm_LobbyRecord(m->lobby.state.id);
+        p = cm_LobbyRecord(m->lobby.state.id);
         if (p == 0)
             return -2;
         if (m->lobby.state.value == 1)
@@ -6821,13 +6821,13 @@ int cm_ExLobby(G17MSG *m, G17STAT *s)
         memset(p, 0, sizeof(CMLOBBYPLAYER));
         break;
     case 4:
-        p = (CMLOBBYPLAYER *)cm_LobbyRecord(m->lobby.player.id);
+        p = cm_LobbyRecord(m->lobby.player.id);
         if (p == 0)
             return -2;
         memcpy(p, &m->lobby.player, sizeof(CMLOBBYPLAYER));
         break;
     case 5:
-        p = (CMLOBBYPLAYER *)cm_LobbyRecord(m->lobby.player.id);
+        p = cm_LobbyRecord(m->lobby.player.id);
         if (p == 0)
             return -2;
         memcpy(p, &m->lobby.player, sizeof(CMLOBBYPLAYER));

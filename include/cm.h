@@ -436,7 +436,7 @@ unsigned gv_RaiseDead(struct GVRAISE *m);  /* 0x4f1200 */
 void rt_FreePoints(RTPOINT *p);  /* 0x4bd9e0, rt.h */
 RTPOINT *rt_CopyPoints(RTPOINT *p);  /* 0x4bda00, rt.h */
 
-char *cm_LobbyRecord(int id);  /* 0x4cd380 */
+CMLOBBYPLAYER *cm_LobbyRecord(int id);  /* 0x4cd380 */
 void cm_LobbyAddChat(int id, int to, char *text);  /* 0x4cd3c0 */
 G18LOG *cm_LobbyChatFirst(void);  /* 0x4cd480 */
 G18LOG *cm_LobbyChatNextLine(void);  /* 0x4cd4c0 */
