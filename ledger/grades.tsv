@@ -1483,11 +1483,11 @@ exe	0x00487410	ai_StartProduction	ai	draft	readable	deep
 exe	0x00487780	ai_AddEquipmentNeeds	ai	byte	readable		
 exe	0x00487b40	ai_UpdateStaff	ai	byte	readable		
 exe	0x00487ea0	ai_OfferGrave	ai	byte	readable		
-exe	0x00487fb0	ai_BuyUpgrade	ai	draft	readable	deep	
+exe	0x00487fb0	ai_BuyUpgrade	ai	byte	readable		
 exe	0x004884b0	ai_BuySlots	ai	byte	readable		
 exe	0x00488740	ai_BuyCapacity	ai	byte	readable		
 exe	0x004888c0	ai_FreeJobCharacters	ai	byte	readable		
-exe	0x004889f0	ai_SendJobOrders	ai	draft	readable	deep	
+exe	0x004889f0	ai_SendJobOrders	ai	byte	readable		
 exe	0x00489300	ai_CheckFreeThieves	ai	byte	readable		
 exe	0x00489480	ai_CheckFreeStaff	ai	byte	readable		
 exe	0x00489660	ai_SendFreeThieves	ai	byte	readable		
