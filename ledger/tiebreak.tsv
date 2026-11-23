@@ -2954,7 +2954,7 @@ exe	0x004fc890	gm_CharacterBaseHealth	f3gm	ecffbcb8de9e693b	no	byte	control=byte
 exe	0x004fc8e0	gm_HealthRatio	f3gm	e20280b6c6d1961a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fc920	gm_DailyCharacters	f3gm	9b5746d1a8f99b6f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fca40	gm_AddHealth	f3gm	1091ca2ebefa4488	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x004fccc0	gm_PartnerStep	f3gm	0679afffc699733b	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	da025f02dac7efbf
+exe	0x004fccc0	gm_PartnerStep	f3gm	2af1033c4a9eb449	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	1964f913843f86f2
 exe	0x004fd090	gm_IsNoPlayerKin	f3gm	3ed47f420dcb686d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004fd120	gm_PopulationStep	f3gm	2c0eccd071c10c86	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	291ac9aa57e40bb8
 exe	0x004fd5c0	gm_CreateRandomChild	f3gm	2ad17e6a777d8d8f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3012,7 +3012,7 @@ exe	0x00500b90	gm_BuildKindObjects	f3gm	d36629f377827a2b	no	draft	control=draft 
 exe	0x00500c20	gm_CollectOffers	f3gm	29c2b4137d91eb34	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00500ec0	gm_FindMarketObject	f3gmt	806c613841f3b994	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x00501000	gm_FindPlayerBuilding	f3gm	e85ce06fb90c9859	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00501030	gm_BuildNext	f3gmt	8758152a4421e1eb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	9face4bea92fc9a5
+exe	0x00501030	gm_BuildNext	f3gmt	9591c0670809dd3f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	c28d993625446e2b
 exe	0x00501190	gm_BuildQuery	f3gmt	6321c625c18f0bb2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=568	4a81fc9e68993bc8
 exe	0x005012b0	gm_FindFreeBuilding	f3gm	946257dcb23a7901	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005012e0	gm_FreeBuilding	f3gm	85f5f7b665318d0f	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3391,8 +3391,8 @@ exe	0x0052e170	sv_ClearNamePlates	sv	5f820273789fcd34	no	byte	control=byte p1=by
 exe	0x0052e190	sv_ReleaseNamePlates	sv	ef7cd46572a61cfc	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0052e1c0	sv_RegisterNamePlate	sv	ac9dbe717dbd5e77	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0052e330	sv_SetStatusText	sv	d50a9cc11bfbe044	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0052e350	sv_ButtonRow	sv	802779b9aa05a574	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x0052e4b0	sv_TabButtonRow	sv	74f8d6a9c511eaf8	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
+exe	0x0052e350	sv_ButtonRow	sv	e59fb2f311199f26	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	75c36e70536f1bc9
+exe	0x0052e4b0	sv_TabButtonRow	sv	e6cbc10b19aef5c1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	75c36e70536f1bc9
 exe	0x0052e600	sv_DisableVisibleWidgets	sv	ba753d0ee9e10263	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x0052e6d0	sv_OpenWindowFrame	sv	2aae4a6ba10b087d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0052e860	sv_CreateScrollButtons	sv	5e41e432fdd08104	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
