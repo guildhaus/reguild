@@ -192,21 +192,21 @@ int ai_IsLocalMaster(AICHAR *c) {
 }
 /* 0x47ddf0, looks for a partner (a character that suits this one) and sends the messages about it; returns
    the partner when the two have met enough, else 0
-   @deep Session s2(match-deep): 306 -> 18 ins, shape (proved). Levers, in order: the level difference as
+   @deep Session s2(match-deep): 306 -> 2 ins, shape (proved). Levers, in order: the level difference as
    one expression d = abs(gm_CharLevel(i, 0) - gm_CharLevel(id, 0)) (306 -> 262, the candidate loop byte);
    the byte a as a block local of each block that sends it, z / m1 local to the reset (every slot the
-   original's); the partner part as a step variable k (0 start over, 1 end, 2 jump to the last step, 3 one
-   or two steps) decided first, then if (k == 0) reset else if (k == 1) .. else if (k == 2) .. else step:
-   VC6 threads k away and lays the blocks out as the original (the 64 nested if / else / early-return forms
-   all keep the reset last; dispatch orders other than 0,1,2,else: 40..64+); in the k == 2 block p = 0
-   first (so its tail does not cross-jump into the k == 1 block's call: 28 -> 18). Left: (1) the step
-   block's two c->b215 + a > 3 tests add into a's register (mov eax,[a]; xor ecx,ecx; mov cl,b215; and
-   eax,0xff) where the original adds into b215's (mov ecx,[a]; xor eax,eax; mov al,b215; and ecx,0xff): a
-   declared at function scope instead of in the block gives the original's operand order but its own frame
-   slot (22, frame 0x18); = control: (int) casts, a + c->b215, 3 < .., the else-arm forms; worse: >= 4, 3u,
-   short / int a. (2) the k == 2 block's xor edi,edi (p = 0) scheduled at the block's start, the original's
-   at its end (written at the end, the block's tail cross-jumps into the k == 1 block: 28). prior: Read
-   whole against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind /
+   original's); the partner part as a step variable k decided first, then if (k == 0) reset else if (k ==
+   1) .. else if (k == 2) .. else step: VC6 threads k away and lays the blocks out as the original (the 64
+   nested if / else / early-return forms all keep the reset last; other dispatch orders 24..64); p = 0
+   first in the k == 2 block (28 -> 18); f assigned inside the candidate test (RelationMemory * (f = ..) <
+   bestf; climb inexpr) rotates the step block's scratch registers to the original's (18 -> 2). Left (2
+   ins): the k == 2 block's xor edi,edi (p = 0) at the block's start where the original has it at its end;
+   with p = 0 written last (as in the original) VC6 cross-jumps the block's call / add esp /
+   SendFieldDeltas / epilogue into the k == 1 block's (12, tail), which the original keeps apart. Tried:
+   every position of p = 0 in the k == 1 and k == 2 blocks (49: only the k == 2 start avoids the merge),
+   return p / return 0 in either block (19..56), one shared p = 0; return p for the reset / 1 / 2 / failed
+   step with the step returning early (38), the other dispatch orders with p at the start (no better).
+   prior: Read whole against the original 0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind /
    secondOffice, not jobId / prevOffice), the feud relation sum computed before util_Random, the partner
    part as one exit return p with p = 0 on the no-partner paths (the original's xor edi,edi / mov eax,edi
    tails). Every call, constant (128.0, the level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp
@@ -242,8 +242,8 @@ AICHAR *ai_FindPartner(AICHAR *c) {
       if (i != id && o->kind == 6 || o->kind == 7 ||
           ai_WorksForMaster(o) && (o->officeKind || o->secondOffice)) {
         d = abs(gm_CharLevel(i, 0) - gm_CharLevel(id, 0));
-        f = (10.0f - (float)d * 0.5f) * 0.1f;
-        if (ai_RelationMemory[i][c->id] * f < bestf &&
+        if (ai_RelationMemory[i][c->id] * (f = (10.0f - (float)d * 0.5f) * 0.1f) <
+                bestf &&
             gm_Liking(i, c->id, 1) < 34.0f) {
           bestf = ai_RelationMemory[i][c->id] * f;
           best = i;
