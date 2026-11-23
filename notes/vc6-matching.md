@@ -3634,7 +3634,7 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   count can be lower. A dead store to a used local still counts (ai_HandleItemDrag, c2frame.py); dead or folded
   uses (`if (0)`, `* 1.0f`) do not.
 - **Listing, packing, sorting**: the locals are listed by size ascending, then count descending (tie: who reached
-  the count first in the walk); each joins the first lifetime-compatible slot or opens one; frames above 0x80
+  the count first in the walk); each joins the newest lifetime-compatible slot (searched from the last one opened backward) or opens one; frames above 0x80
   bytes are sorted by weight * 1000 / size, descending, with an unstable quicksort; the densest slot is nearest
   esp. Declaration order, type, scope and names never enter (main_ChooseCity: 5 such variants = one code;
   init_CreateStartCharacters; deep-tools frameorder.py).

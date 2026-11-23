@@ -95,8 +95,9 @@ temporaries are no candidates: they get what is left.
 
 **Stack frame.** After allocation every local in memory is listed by size ascending, then reference count
 descending (one per operand naming it, all blocks, no loop weight, counted BEFORE the late passes: a statement in
-both arms counts twice). Each joins the first lifetime-compatible slot or opens one; frames above 0x80 bytes are
-sorted by count * 1000 / size with an unstable sort, the densest slot nearest esp.
+both arms counts twice). Each joins the NEWEST lifetime-compatible slot (searched from the last slot opened
+backward; lc_GebaeudeAusrichten: pz could share best's or sel's slot and joins sel's, the newer) or opens one;
+frames above 0x80 bytes are sorted by count * 1000 / size with an unstable sort, the densest slot nearest esp.
 - Declaration order, names and types never enter. A slot-order hunk is a count question (which local needs one
   reference more or fewer) or a table-position question.
 - Block locals with disjoint scopes share a slot even when their addresses go to calls; function-scope arrays
