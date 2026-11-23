@@ -411,7 +411,7 @@ exe	0x0041f220	surf_Up8	surf	byte	readable
 exe	0x0041f2b0	surf_Up16	surf	byte	readable		
 exe	0x0041f800	surf_Up24	surf	byte	readable		
 exe	0x0041fc00	surf_Up32	surf	byte	readable		
-exe	0x00420140	surf_ScaleBlit	surf	shape	readable	deep	
+exe	0x00420140	surf_ScaleBlit	surf	byte	readable		
 exe	0x004202d0	surf_Pal8To16	surf	byte	readable		
 exe	0x00420450	surf_24To16	surf	byte	readable		
 exe	0x004205c0	surf_Blit	surf	byte	readable		
@@ -1463,10 +1463,10 @@ exe	0x0047ec20	ai_PlanSlots	ai	byte	readable
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	byte	readable		
 exe	0x0047edb0	ai_EvaluateProduction	ai	shape	readable	deep	
 exe	0x0047f700	ai_EvaluateProductionFlags	ai	byte	readable		
-exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep	
+exe	0x004801f0	ai_EvaluateProductionCategory2	ai	byte	readable		
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
-exe	0x00481ef0	ai_CalcMeisterDiebe	ai	draft	readable	deep	
+exe	0x00481ef0	ai_CalcMeisterDiebe	ai	shape	readable	deep	
 exe	0x00482f00	ai_CalcMeisterRaeuber	ai	byte	readable		
 exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable		
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		

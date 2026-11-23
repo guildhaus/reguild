@@ -88,6 +88,7 @@ exe	0x004c0040	rt_LoadRoutes	1
 exe	0x004c38e0	cm_JoinSplit	1
 exe	0x004c70b0	cm_ExSellObjekt	1
 exe	0x004c9dc0	cm_ExChrGotoBuilding	1
+exe	0x004d2170	cm_BestCellNear	1
 exe	0x004d6970	cm_FightFrame	1
 exe	0x004d76a0	cm_RunCutOrders	1
 exe	0x004db700	cm_RunTrial	1
