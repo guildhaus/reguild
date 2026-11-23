@@ -1154,23 +1154,25 @@ done:
    0x47e990 comes here when gm_BuildingClass(type) == 2): buys slots / capacity / upgrades, starts the entries'
    production, sends the job orders and finishes with the trade (ai_MeisterCollectTrans / ai_MeisterTrade);
    the same production steps as ai_EvaluateProduction for this category's AIENTRY flags
-   @deep size queue s6: the r = util_Random(ai_NEntries) site of the PFLANZBAR walk: the original keeps r
-   in edx inside the loop (mov dx, ax / and edx, 0xffff, the loop-skip path reads its home [esp+0x18]);
-   ours stores it to [esp+0x1c] after and eax, 0xffff. r is already an int local: no 16-bit spelling lever,
-   it is the same allocation race as the c/ch swap. prior: B3 far draft (970/975 instructions, 447
-   differing; diffclass 708 code / 42 regs / 38 slots / 5 fill): every hunk read against
-   build/ghidra/4801f0.c and tools/asmdiff - no missing / extra statement, constant, callee or field
-   offset; the whole diff is the c/ch register swap (ours c=ebp ch=ebx, original c=ebx ch=ebp) with the
-   [esp+0x10]/[0x1c]/[0x20]/[0x24] slot rotation and the reloads it causes, i.e. allocation / scheduling.
-   spell.py: the reload (19x) and dup-tail (6x) entries all describe that same allocation; no meaning-class
-   lead (wrong type / signedness / offset / width) exists to try one edit on, so the last-bytes pass leaves
-   nothing to measure. Q1 named by role (0x47e990 dispatches here on gm_BuildingClass(type) == 2). Q2 gap:
-   AIMSG.unk14 is only ever written 0 by the ai.c senders (hst.c -1) and has no reader that names it. */
+   @deep s(this) match-deep: structure fixed: o = a only in the else arm of the flags1c8 / kind != 11 test
+   (the original duplicates the or-0x10 block and loads esi = a in the else), and no AIGOOD *g local
+   (ai_Goods[ai_Entries[i].item].x at each use; the original forms g with lea ecx,[eax+ebx] and keeps the
+   item in eax): 433 -> 360, M8 gone. Left: ch / a register race at the top (original a ebx, ch ebp from
+   ai_UpdateStaff to the third loop; ours a ebp, ch ebx): probes show a must NOT get a register piece
+   (c2trace a#2 sav 2 -> ebp; deleting o = a or writing o = b gives a sav 0 and the original's top, 156
+   ins) - so the original has one reference of a fewer or a cost more, yet its else does load a from a's
+   slot. flip --want 'mov ebp, _ch; push ebp; call ai_UpdateStaff' hits only meaning changes (o = a
+   deleted, msg.arg[1] deleted, sv_MoveToGroup duplicated, ai_UpdateProduction deleted). = control: char
+   loop first tests as outer if, min(), info.n2 != 0 &&, inverted flags test with o = a in the then-arm,
+   for -> while for the message loop. climb 3 rounds: only the g move (now gone). prior: size queue s6: the
+   r = util_Random(ai_NEntries) site of the PFLANZBAR walk: the original keeps r in edx inside the loop
+   (mov dx, ax / and edx, 0xffff, the loop-skip path reads its home [esp+0x18]); ours stores it to
+   [esp+0x1c] after and eax, 0xffff. r is already an int local: no 16-bit spelling lever, it is the same
+   allocation race as the c/ch swap. */
 
 void ai_EvaluateProductionCategory2(AICHAR *ch) {
   AIOBJ *a, *b, *c, *o, *o2;
   AIJOB *job;
-  AIGOOD *g;
   D3FLMAP *map;
   G15TREE *plant;
   void *x;
@@ -1206,7 +1208,6 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
   ai_BuySlots(b, ch, 10);
   ai_BuyCapacity(b, ch, 0x19);
   ai_BuyUpgrade(ch);
-  o = a;
   if (!(ch->flags1c8 & 0x10) && ai_BTypes[ch->bld->type].kind != 11) {
     for (o = gm_Query(a->list, 1, 4, 0x17); o; o = gm_QueryNext()) {
       if (o->count == 1) {
@@ -1228,6 +1229,8 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
       }
     }
     ch->flags1c8 |= 0x10;
+  } else {
+    o = a;
   }
   found = 0;
   job = he_FindEvent(2, 0, 9, 3, ch->bld->id);
@@ -1250,10 +1253,9 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
           if (!x)
             break;
           r = gm_FreeCapacity(x, ai_Entries[i].item, 1000000);
-          g = &ai_Goods[ai_Entries[i].item];
-          if (r < g->batch + ai_Entries[i].amount)
+          if (r < ai_Goods[ai_Entries[i].item].batch + ai_Entries[i].amount)
             break;
-          if (g->type == 0x17) {
+          if (ai_Goods[ai_Entries[i].item].type == 0x17) {
             o2 = gm_Query(c->list, 1, 0, ai_Entries[i].item);
             if (!o2 || o2->count < ai_Goods[ai_Entries[i].item].batch)
               break;
@@ -1277,9 +1279,8 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
         ai_Entries[i].capacity >= ai_Goods[ai_Entries[i].item].batch &&
         (x = gm_FindMarketObject(ai_Entries[i].item)) != 0) {
       r = gm_FreeCapacity(x, ai_Entries[i].item, 1000000);
-      g = &ai_Goods[ai_Entries[i].item];
-      if (r >= g->batch + ai_Entries[i].amount) {
-        if (g->type == 0x17) {
+      if (r >= ai_Goods[ai_Entries[i].item].batch + ai_Entries[i].amount) {
+        if (ai_Goods[ai_Entries[i].item].type == 0x17) {
           o2 = gm_Query(c->list, 1, 0, ai_Entries[i].item);
           if (!o2 || o2->count < ai_Goods[ai_Entries[i].item].batch)
             continue;
@@ -1300,9 +1301,8 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
         ai_Entries[i].capacity >= ai_Goods[ai_Entries[i].item].batch &&
         (x = gm_FindMarketObject(ai_Entries[i].item)) != 0) {
       r = gm_FreeCapacity(x, ai_Entries[i].item, 1000000);
-      g = &ai_Goods[ai_Entries[i].item];
-      if (r >= g->batch + ai_Entries[i].amount) {
-        if (g->type == 0x17) {
+      if (r >= ai_Goods[ai_Entries[i].item].batch + ai_Entries[i].amount) {
+        if (ai_Goods[ai_Entries[i].item].type == 0x17) {
           ai_Entries[i].flags |= 0x10;
           break;
         }
@@ -1316,8 +1316,7 @@ void ai_EvaluateProductionCategory2(AICHAR *ch) {
 check:
   for (i = 0; i < ai_NEntries; i++) {
     if (ai_Entries[i].flags & 8) {
-      g = &ai_Goods[ai_Entries[i].item];
-      if (g->type == 0x17) {
+      if (ai_Goods[ai_Entries[i].item].type == 0x17) {
         if (ai_BTypes[ch->bld->type].kind == 11) {
           ai_Entries[i].flags |= 0x10;
         } else {
@@ -1327,7 +1326,7 @@ check:
         }
       } else {
         for (k = 0; k < 4; k++) {
-          if (ai_Slots[ai_Entries[i].slot[k]].amount < g->need[k])
+          if (ai_Slots[ai_Entries[i].slot[k]].amount < ai_Goods[ai_Entries[i].item].need[k])
             ai_Entries[i].flags &= ~8;
         }
       }
