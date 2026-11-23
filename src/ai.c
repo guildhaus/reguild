@@ -4455,11 +4455,11 @@ void ai_SendJobOrders(AIINFO *info)
             cm_SendLongMessage(&msg);
         } else {
             n = info->n1;
-            k = info->type;
             if (n <= 1 || info->z1 != 0)
                 total = info->n2 / n + info->z2;
             else
                 total = info->z2 + info->n2 / n + info->n2 % n;
+            k = info->type;
             v = 0;
             if (k == 8 || k == 3)
                 v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
