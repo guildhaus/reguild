@@ -165,9 +165,6 @@ int he_RegisterEventTypeA2();
 #include "rmsg.h"
 #define HE_BARD_MARK 0x68427244         /* 'DrBh': he_RunBard's mark of the bard's script (EVTSCRIPT.tag[0]) */
 #define HE_LOVER_FLAG 0x800000          /* AICHAR.flags1c8: has a keeper (he_StartLover sets it, he_RunLover clears it) */
-typedef struct HEAHMRECIPE {            /* the first word of ahm_RandomRecipe's AHMGRID entry (ahm.h, not included here) */
-    int id;                             /* 0x00, RCPID: the recipe's object id */
-} HEAHMRECIPE;
 typedef struct HECHILDLIST {            /* the children of a scene object, collected by he_CollectChild */
     D3OBJECT *root;                     /* 0x000, the object walked */
     D3OBJECT *items[0x40];              /* 0x004 */
@@ -446,7 +443,8 @@ void he_AllocProduktion(AIJOB *ev)
     char buf[0x200];
     AIBLD *b;
     AIGOOD *g;
-    int o, id, rec;
+    int o, id;
+    AICHAR *rec;
     float v;
 
     if (ev->chr == 0xffff) {
@@ -465,9 +463,9 @@ void he_AllocProduktion(AIJOB *ev)
     gm_AddTime(&ev->end, 0, 0, 1);
     p->productionSlot = -1;
     p->productionLacking = 0;
-    for (rec = (int)ai_Chars; rec < (int)ai_Chars + 0x65400; rec += 0x21c) {
-        if (((AICHAR *)rec)->job == ev)
-            sv_MoveToGroup(b, 0, ((AICHAR *)rec)->id, ev);
+    for (rec = ai_Chars; (intptr_t)rec < (intptr_t)&ai_Chars[768]; rec++) {
+        if (rec->job == ev)
+            sv_MoveToGroup(b, 0, rec->id, ev);
     }
     p->productionRate = (gm_MeanLiking(ev->chr, 8, ev->ids) - 0.5) * 0.25;
     p->productionStaff = 1.0f;
@@ -2190,15 +2188,15 @@ void he_AllocRecipeResearch(AIJOB *e)
 {
     AIJOB *r = e;
     AICHAR *c;
-    HEAHMRECIPE *p;
+    AHMGRID *p;
     int v;
 
     c = gm_FindChar(r->recipeAlchemist);
     if (c != 0) {
-        p = (HEAHMRECIPE *)ahm_RandomRecipe(c);
+        p = ahm_RandomRecipe(c);
         if (p != 0) {
-            r->recipeRecipe = p->id;
-            v = ahm_ResearchMinutes(c, (union AHMGRID *)p);
+            r->recipeRecipe = p->rcp.id;
+            v = ahm_ResearchMinutes(c, p);
             r->recipeLeft = v;
             r->recipeTotal = v;
             r->recipeWorked = ai_Time;
@@ -3903,14 +3901,14 @@ void he_AllocMasterWork(AIJOB *e)
     int i, n = 0;
     AIJOB *p = e;
     AIBLD *bld = gm_BuildQuery(1, 1, e->from);
-    short *grp = (short *)gm_Query(bld->objList, 2, 0, 0xfd, 6);
+    struct AIOBJ *grp = gm_Query(bld->objList, 2, 0, 0xfd, 6);
     AICHAR *w;
 
     for (i = 0; i < 4; i++) {
         w = gm_FindChar(e->ids[i]);
         if (w != 0) {
             n++;
-            sv_MoveToGroup(bld, (struct AIOBJ *)grp, w->id, e);
+            sv_MoveToGroup(bld, grp, w->id, e);
         }
     }
     if (n == 0) {
@@ -4220,18 +4218,18 @@ void he_RunDeathDue(AIJOB *e)
 void he_AllocGraveTraining(AIJOB *e)
 {
     AIJOB *p = e;
-    short *grp = 0;
+    struct AIOBJ *grp = 0;
     AICHAR *per = gm_FindChar(p->graveTrainingTrainee);
     AIBLD *bld;
 
     if (per != 0 && (per->job == 0 || (unsigned char)per->job->kind != 0x8f)
         && (bld = gm_BuildQuery(1, 1, e->from)) != 0) {
         if (p->graveTrainingObjId != -1)
-            grp = (short *)gm_Query(bld->objList, 2, 6, 1, p->graveTrainingObjId);
+            grp = gm_Query(bld->objList, 2, 6, 1, p->graveTrainingObjId);
         e->end = ai_Time;
         e->start = ai_Time;
         if (grp != 0)
-            sv_MoveToGroup(bld, (struct AIOBJ *)grp, per->id, e);
+            sv_MoveToGroup(bld, grp, per->id, e);
         else
             sv_MoveToGroup(bld, 0, per->id, e);
         e->clock60 = ai_Time;
