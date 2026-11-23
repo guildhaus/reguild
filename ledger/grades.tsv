@@ -1496,7 +1496,7 @@ exe	0x00489a70	ai_MeisterBewaffnen	ai	byte	readable
 exe	0x00489cb0	ai_MeisterCollectTrans	ai	draft	readable	deep	
 exe	0x0048a380	ai_UnloadCarts	ai	byte	readable		
 exe	0x0048a4d0	ai_MeisterTrade	ai	draft	readable	deep	
-exe	0x0048bc80	ai_MeisterTradeAllgemein	ai	shape	readable	deep	
+exe	0x0048bc80	ai_MeisterTradeAllgemein	ai	byte	readable		
 exe	0x0048d010	ai_MeisterTradeFernEinkauf	ai	byte	readable		
 exe	0x0048d810	ai_MeisterTradeFernEinkauf2	ai	byte	readable		
 exe	0x0048e070	ai_FindMasterBuilding	am	byte	readable		
