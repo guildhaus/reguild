@@ -1462,7 +1462,7 @@ exe	0x0047e990	ai_RunMasterEvaluation	ai	byte	readable
 exe	0x0047ec20	ai_PlanSlots	ai	byte	readable		
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	byte	readable		
 exe	0x0047edb0	ai_EvaluateProduction	ai	draft	readable	deep	
-exe	0x0047f700	ai_EvaluateProductionFlags	ai	draft	readable	deep	
+exe	0x0047f700	ai_EvaluateProductionFlags	ai	byte	readable		
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	draft	readable	deep	
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
 exe	0x004817a0	ai_CalcAngriff	ai	draft	readable	deep	
@@ -1472,7 +1472,7 @@ exe	0x004836a0	ai_CalcMeisterBank	ai	byte	readable
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable		
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
 exe	0x00483ee0	ai_EndWorkerPose	ai	byte	readable		
-exe	0x00483fc0	ai_EvaluateProductionGraveyard	ai	shape	readable	deep	
+exe	0x00483fc0	ai_EvaluateProductionGraveyard	ai	byte	readable		
 exe	0x00484a60	ai_EvaluateProductionGypsies	ai	draft	readable	deep	
 exe	0x004854f0	ai_UpdateProduction	ai	byte	readable		
 exe	0x00486190	ai_FillSlotTable	ai	byte	readable		
@@ -1493,7 +1493,7 @@ exe	0x00489480	ai_CheckFreeStaff	ai	byte	readable
 exe	0x00489660	ai_SendFreeThieves	ai	byte	readable		
 exe	0x00489870	ai_SendFreeSpies	ai	draft	readable	deep	
 exe	0x00489a70	ai_MeisterBewaffnen	ai	byte	readable		
-exe	0x00489cb0	ai_MeisterCollectTrans	ai	draft	readable	deep	
+exe	0x00489cb0	ai_MeisterCollectTrans	ai	byte	readable		
 exe	0x0048a380	ai_UnloadCarts	ai	byte	readable		
 exe	0x0048a4d0	ai_MeisterTrade	ai	shape	readable	deep	
 exe	0x0048bc80	ai_MeisterTradeAllgemein	ai	byte	readable		
