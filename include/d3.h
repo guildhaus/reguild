@@ -248,6 +248,10 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
         struct {
             float gx, gz;           /* 0x10, a height map point (d3_sm.c): the position in map cells */
         };
+        struct {
+            float shadowU, shadowV; /* 0x10, the point's position in its shadow texture (d3s.c, texels):
+                                       d3s_ProjectShadow writes it, d3s_ShadowPoly rasterises the triangles */
+        };
     };
     float sz;                       /* 0x18 */
     float rhw;                      /* 0x1c */
@@ -286,7 +290,11 @@ typedef struct D3VERTEX {           /* 0x50 bytes, a point of a mesh (D3SURF.key
         D3COLOR s;
         D3COLOR base;               /* the colour from the static lights (d3_light.c) */
     };
-    struct D3BGFVERT *src;          /* 0x48, the stock object's point (D3BGF.vtx) */
+    union {
+        struct D3BGFVERT *src;      /* 0x48, the stock object's point (D3BGF.vtx) */
+        float *srcPos;              /* the same as its six floats (d3s.c: a shadow mesh point's position in
+                                       d3s_Verts, as D3BGF.verts) */
+    };
     union {
         signed char flags;          /* 0x4c, bit 7 = visible (d3_light.c: reached by the light being processed;
                                        the stock attach: used by a triangle) */
@@ -327,7 +335,7 @@ typedef struct D3TRI {              /* 0x28 bytes, a triangle of a mesh (D3SURF.
     unsigned char unk25;
     union {
         unsigned char drawFlags;    /* 0x26, bit 2 (4) = no culling, bit 3 (8) = wrap; a height map triangle:
-                                       2 = skip, 4 = always casts */
+                                       2 = skip, 4 = always casts; a terrain shadow triangle (d3s.c): 2 = steep */
         D3TRIBITS bits;
     };
     char pad27[0x1];

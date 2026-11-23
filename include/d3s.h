@@ -12,36 +12,6 @@ typedef struct D3SCENT {            /* 0x14 bytes, one cached shadow texture (d3
     char pad11[3];
 } D3SCENT;
 
-typedef struct D3SVERT {            /* 0x50 bytes, like D3VERTEX */
-    float x, y, z;                  /* 0x00 */
-    float w;                        /* 0x0c */
-    float tu, tv;                   /* 0x10, position in the shadow texture (texels) */
-    char pad18[0x28];
-    unsigned long c0;               /* 0x40 */
-    unsigned long c1;               /* 0x44 */
-    float *pos;                     /* 0x48 */
-    char pad4c[0x4];
-} D3SVERT;
-
-typedef struct D3SPOLY {            /* 0x28 bytes */
-    D3SVERT *v[3];                  /* 0x00 */
-    int pad0c;
-    float *uv;                      /* 0x10 */
-    struct TSTEXTURE *tex;               /* 0x14 */
-    float z;                        /* 0x18 */
-    char pad1c[0xa];
-    unsigned char flags;            /* 0x26, 2 = steep, 4 = both sides */
-    char pad27;
-} D3SPOLY;
-
-typedef struct D3SBUF {             /* the shadow mesh being built: the shadow object's surf[0].info (D3MESH,
-                                       material + 0xf4) with the shadow's vertex and polygon types */
-    D3SVERT *verts;                 /* 0x00 (0xf4) */
-    D3SPOLY *polys;                 /* 0x04 (0xf8) */
-    int nverts;                     /* 0x08 (0xfc) */
-    int npolys;                     /* 0x0c (0x100) */
-} D3SBUF;
-
 /* declared in other units' headers before (moved to the owner) */
 void d3_ExitShadows(void);  /* 0x45aee0 */
 void d3_InitShadows(unsigned int size, unsigned int maxsize, int ncache, int age, char mips, int polys, int mapsize);  /* 0x45ad80 */

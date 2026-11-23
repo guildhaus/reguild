@@ -420,7 +420,7 @@ void d3s_FillRows(int n)
    esp,4 where ours merges add esp,0xc. */
 
 void d3s_ShadowPoly(poly, bpp, size)
-D3SPOLY *poly;
+D3TRI *poly;
 int bpp;
 int size;
 {
@@ -430,13 +430,13 @@ int size;
 
     size <<= 16;
     ymin = size;
-    if ((poly->v[0]->tu - poly->v[1]->tu) * (poly->v[0]->tv - poly->v[2]->tv) < (poly->v[0]->tu - poly->v[2]->tu) * (poly->v[0]->tv - poly->v[1]->tv)) {
-        if (!(poly->flags & 4))
+    if ((poly->v[0]->shadowU - poly->v[1]->shadowU) * (poly->v[0]->shadowV - poly->v[2]->shadowV) < (poly->v[0]->shadowU - poly->v[2]->shadowU) * (poly->v[0]->shadowV - poly->v[1]->shadowV)) {
+        if (!(poly->drawFlags & 4))
             return;
         top = bpp;
         for (i = 0; i < 3; i++) {
-            d3s_EdgeX[i] = (int)(poly->v[2 - i]->tu * 65536.0f);
-            d3s_EdgeY[i] = (int)(poly->v[2 - i]->tv * 65536.0f);
+            d3s_EdgeX[i] = (int)(poly->v[2 - i]->shadowU * 65536.0f);
+            d3s_EdgeY[i] = (int)(poly->v[2 - i]->shadowV * 65536.0f);
             if (d3s_EdgeY[i] <= ymin) {
                 ymin = d3s_EdgeY[i];
                 top = i;
@@ -445,8 +445,8 @@ int size;
     } else {
         top = bpp;
         for (i = 0; i < 3; i++) {
-            d3s_EdgeX[i] = (int)(poly->v[i]->tu * 65536.0f);
-            d3s_EdgeY[i] = (int)(poly->v[i]->tv * 65536.0f);
+            d3s_EdgeX[i] = (int)(poly->v[i]->shadowU * 65536.0f);
+            d3s_EdgeY[i] = (int)(poly->v[i]->shadowV * 65536.0f);
             if (d3s_EdgeY[i] <= ymin) {
                 ymin = d3s_EdgeY[i];
                 top = i;
@@ -646,7 +646,7 @@ void d3_ExitShadows(void)
    or call found in the hunks read; the original's slot map (rect in ebp, buf in ebx, uv reloaded from
    memory, the hoisted products in float slots) is what a deep round needs */
 
-char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct TSTEXTURE *tex, unsigned long color)
+char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SURF *buf, struct TSTEXTURE *tex, unsigned long color)
 {
     D3VECTOR4 o, p;
     float d[4];
@@ -657,8 +657,8 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
     int bz, bz1, bx, bx0, bx1, nz;
     float vcur, ucur, fstep, cxs, czs, fxc, vtop, vbot, ul, ur;
     float *pos, *uvp;
-    D3SVERT *vert, *vp, *tr, *bl, *br, *trow, *brow;
-    D3SPOLY *poly;
+    D3VERTEX *vert, *vp, *tr, *bl, *br, *trow, *brow;
+    D3TRI *poly;
     char drew;
     unsigned char lod;
 
@@ -699,10 +699,10 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
                 else
                     xend = (bx + 1) * g->n;
                 p.x = (float)x * cx + o.x;
-                poly = buf->polys + buf->npolys;
+                poly = buf->tris + buf->ntris;
                 pos = d3s_Verts + d3s_NumVerts * 6;
                 p.y = o.y + 1.0f;
-                vert = buf->verts + buf->nverts;
+                vert = buf->keys + buf->nkeys;
                 uvp = d3s_UVs + d3s_NumUVs * 6;
                 p.z = (float)z * cz + o.z;
                 vp = vert;
@@ -711,12 +711,12 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
                         pos[0] = fxc;
                         pos[1] = (float)heights[zi * stride + xi] * cy + p.y;
                         pos[2] = p.z;
-                        vp->c1 = color;
-                        vp->pos = pos;
+                        vp->specular = color;
+                        vp->srcPos = pos;
                         pos += 6;
                         vp++;
                         d3s_NumVerts++;
-                        buf->nverts++;
+                        buf->nkeys++;
                         fxc += cxs;
                     }
                     p.z += czs;
@@ -754,11 +754,11 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
                             uvp[6] = ul;
                             uvp[10] = ur;
                         }
-                        poly[1].flags &= 0xfd;
-                        poly->flags &= 0xfd;
+                        poly[1].drawFlags &= 0xfd;
+                        poly->drawFlags &= 0xfd;
                         poly[1].uv = uvp + 6;
-                        poly[1].z = -1.0f;
-                        poly->z = -1.0f;
+                        poly[1].zofs = -1.0f;
+                        poly->zofs = -1.0f;
                         poly->v[0] = tr - 1;
                         poly->uv = uvp;
                         poly[1].tex = tex;
@@ -776,7 +776,7 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
                         uvp[11] = vbot;
                         d3s_NumUVs += 2;
                         uvp += 12;
-                        buf->npolys += 2;
+                        buf->ntris += 2;
                         ul = ur;
                     }
                     mp += rowskip;
@@ -797,9 +797,9 @@ char d3s_TerrainShadowMesh(D3FLMAP *g, int *rect, float *uv, D3SBUF *buf, struct
 
 
 #ifdef _MSC_VER
-void d3s_ShadowPoly(D3SPOLY *poly, unsigned char bpp, int size);  /* 0x45a880, @original: defined above old style with int bpp (it reads the whole slot as its first top index, the low byte for d3s_Byte); d3s_Project calls it through this prototype, pushing the byte unwidened (mov al,[tex+0x7c]; push eax). VC6 takes both without a warning; not standard C (a prototype must match the definition's promoted types), and no conforming spelling keeps the bytes: an int prototype makes d3s_Project widen the byte (127 -> 146 ins; an argument cast or mask changes nothing), an unsigned char definition reads the slot with movzx (d3s_ShadowPoly shape -> draft, 141 -> 205 ins) */
+void d3s_ShadowPoly(D3TRI *poly, unsigned char bpp, int size);  /* 0x45a880, @original: defined above old style with int bpp (it reads the whole slot as its first top index, the low byte for d3s_Byte); d3s_Project calls it through this prototype, pushing the byte unwidened (mov al,[tex+0x7c]; push eax). VC6 takes both without a warning; not standard C (a prototype must match the definition's promoted types), and no conforming spelling keeps the bytes: an int prototype makes d3s_Project widen the byte (127 -> 146 ins; an argument cast or mask changes nothing), an unsigned char definition reads the slot with movzx (d3s_ShadowPoly shape -> draft, 141 -> 205 ins) */
 #else
-void d3s_ShadowPoly(D3SPOLY *poly, int bpp, int size);
+void d3s_ShadowPoly(D3TRI *poly, int bpp, int size);
 #endif
 
 void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in, struct D3VECTOR *out);                          /* 0x458810 */
@@ -838,7 +838,7 @@ extern int d3s_Fill;
 
 /* 0x45b510, a shadow mesh over the map cells in rect
    @deep 328 -> 167 ins this session, plus a meaning fix (first polygon's a read row[i + nx + 1], the
-   original row[i]; committed on its own): p = &buf->polys[buf->npolys] first (the original computes it
+   original row[i]; committed on its own): p = &buf->tris[buf->ntris] first (the original computes it
    into esi at the top), 1.0f of the add ternary is ai_FloatOne (M10), the uv pointer advanced per polygon
    (p++; t += 6 after each; second polygon writes t[0..5]) instead of t + 6 / t += 12, and the second
    polygon's a read between v[1] and v[2] (permute.py over its 7 lines, 5040 orders). headers sample:
@@ -860,10 +860,10 @@ extern int d3s_Fill;
    0x45b519..0x45b86e), and a few reloads of rect / cell / origin through the stack (the 66 / 61 / 169 / 87
    / 48 'code' hunks are the same statements with these registers) */
 char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, float *cell, float *uv,
-                     D3SBUF *buf, struct TSTEXTURE *tex, unsigned long color)
+                     D3SURF *buf, struct TSTEXTURE *tex, unsigned long color)
 {
-    D3SVERT *v, *row;
-    D3SPOLY *p;
+    D3VERTEX *v, *row;
+    D3TRI *p;
     float *pos, *t;
     float add, xs, ys, x, z, u, w, a, b, c;
     int nx, nz, i, k, n, x0, z0;
@@ -873,8 +873,8 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
     nx = rect[1] - x0;
     z0 = rect[2];
     nz = rect[3] - z0;
-    p = &buf->polys[buf->npolys];
-    row = &buf->verts[buf->nverts];
+    p = &buf->tris[buf->ntris];
+    row = &buf->keys[buf->nkeys];
     pos = &d3s_Verts[d3s_NumVerts * 6];
     t = &d3s_UVs[d3s_NumUVs * 6];
     add = d3d_ZEnabled ? 2.0f : 1.0f;
@@ -888,11 +888,11 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
             pos[1] = (map[i] + add) * cell[1] + ys;
             pos[0] = x;
             pos[2] = z;
-            v->c1 = color;
-            v->pos = pos;
+            v->specular = color;
+            v->srcPos = pos;
             pos += 6;
             d3s_NumVerts++;
-            buf->nverts++;
+            buf->nkeys++;
             x += cell[0];
         }
         z += cell[2];
@@ -902,16 +902,16 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
         u = uv[0];
         for (i = 0; i < nx; i++) {
             p->v[0] = &row[i];
-            a = row[i].pos[1];
+            a = row[i].srcPos[1];
             p->v[1] = &row[i + 1];
-            b = row[i + 1].pos[1];
+            b = row[i + 1].srcPos[1];
             p->v[2] = &row[i + nx + 1];
-            c = row[i + nx + 1].pos[1];
+            c = row[i + nx + 1].srcPos[1];
             p->uv = t;
             p->tex = tex;
-            p->z = -1.0f;
+            p->zofs = -1.0f;
             steep = fabs(a - b) > 25.0f || fabs(a - c) > 25.0f ? 1 : 0;
-            p->flags = (steep << 1 ^ p->flags) & 2 ^ p->flags;
+            p->drawFlags = (steep << 1 ^ p->drawFlags) & 2 ^ p->drawFlags;
             t[0] = u;
             t[1] = w;
             t[2] = u + uv[1];
@@ -919,18 +919,18 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
             t[4] = u;
             t[5] = w + uv[3];
             d3s_NumUVs++;
-            buf->npolys++;
+            buf->ntris++;
             p++;
             t += 6;
             p->v[0] = &row[i + 1];
             p->v[1] = &row[i + nx + 2];
-            a = row[i + nx + 2].pos[1];
+            a = row[i + nx + 2].srcPos[1];
             p->v[2] = &row[i + nx + 1];
             p->uv = t;
             p->tex = tex;
-            p->z = -1.0f;
+            p->zofs = -1.0f;
             steep = fabs(a - b) > 25.0f || fabs(a - c) > 25.0f ? 1 : 0;
-            p->flags = (steep << 1 ^ p->flags) & 2 ^ p->flags;
+            p->drawFlags = (steep << 1 ^ p->drawFlags) & 2 ^ p->drawFlags;
             t[0] = u + uv[1];
             t[1] = w;
             t[2] = u + uv[1];
@@ -938,7 +938,7 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
             t[4] = u;
             t[5] = w + uv[3];
             d3s_NumUVs++;
-            buf->npolys++;
+            buf->ntris++;
             p++;
             t += 6;
             u += uv[1];
@@ -954,9 +954,9 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin, f
 
 char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
 {
-    D3SBUF *buf;
-    D3SPOLY *p;
-    D3SVERT *v;
+    D3SURF *buf;
+    D3TRI *p;
+    D3VERTEX *v;
     float *pos;
     float u0, v0, du, dv, fw, fh;
     float uv[4];
@@ -966,7 +966,7 @@ char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
     char ok = 0;
     struct TSTEXTURE *tex;
 
-    buf = (D3SBUF *)&d3s_Object->material->surf[0];
+    buf = &d3s_Object->material->surf[0];
     tex = (slot->tex);
     col.c.r = (unsigned char)slot->light->lightColor.x;
     col.c.g = (unsigned char)slot->light->lightColor.y;
@@ -998,9 +998,9 @@ char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
             z1 = slot->size - 1;
         w = x1 - x0;
         h = z1 - z0;
-        if ((h << 1) * w + buf->npolys < d3s_MaxPolys * 2) {
+        if ((h << 1) * w + buf->ntris < d3s_MaxPolys * 2) {
             n = (h + 1) * (w + 1);
-            if (buf->nverts + n < (d3s_MaxPolys >> 4) * 25) {
+            if (buf->nkeys + n < (d3s_MaxPolys >> 4) * 25) {
                 uv[0] = u0;
                 uv[1] = du;
                 uv[2] = v0;
@@ -1010,7 +1010,7 @@ char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
                 rect[2] = z0;
                 rect[3] = z1;
                 if (grid) {
-                    if (buf->nverts + (w / grid->n + 1) * h + (h / grid->n + 1) * w + n
+                    if (buf->nkeys + (w / grid->n + 1) * h + (h / grid->n + 1) * w + n
                         < (d3s_MaxPolys >> 4) * 25)
                         ok = d3s_TerrainShadowMesh(grid, rect, uv, buf, tex, col.d);
                 } else
@@ -1019,9 +1019,9 @@ char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
             }
         }
         return ok;
-    } else if (buf->npolys < d3s_MaxPolys * 2 - 2) {
-        p = &buf->polys[buf->npolys];
-        v = &buf->verts[buf->nverts];
+    } else if (buf->ntris < d3s_MaxPolys * 2 - 2) {
+        p = &buf->tris[buf->ntris];
+        v = &buf->keys[buf->nkeys];
         pos = &d3s_Verts[d3s_NumVerts * 6];
         p->v[0] = v;
         p->uv = d3s_QuadUV;
@@ -1034,38 +1034,38 @@ char d3s_AddShadow(D3MESHSUB *slot, D3FLMAP *grid)
         p->v[0] = v + 1;
         p->uv = d3s_QuadUV2;
         p->tex = tex;
-        buf->npolys += 2;
-        v->pos = pos;
+        buf->ntris += 2;
+        v->srcPos = pos;
         pos[0] = (slot->x0);
         pos[1] = (slot->y);
         pos[2] = (slot->z1);
-        v->c0 = col.d;
-        v->c1 = col.d;
+        v->color = col.d;
+        v->specular = col.d;
         pos += 6;
         v++;
-        v->pos = pos;
+        v->srcPos = pos;
         pos[0] = (slot->x1);
         pos[1] = (slot->y);
         pos[2] = (slot->z1);
-        v->c0 = col.d;
-        v->c1 = col.d;
+        v->color = col.d;
+        v->specular = col.d;
         pos += 6;
         v++;
-        v->pos = pos;
+        v->srcPos = pos;
         pos[0] = (slot->x0);
         pos[1] = (slot->y);
         pos[2] = (slot->z0);
-        v->c0 = col.d;
-        v->c1 = col.d;
+        v->color = col.d;
+        v->specular = col.d;
         pos += 6;
         v++;
-        v->pos = pos;
+        v->srcPos = pos;
         pos[0] = (slot->x1);
         pos[1] = (slot->y);
         pos[2] = (slot->z0);
-        v->c0 = col.d;
-        v->c1 = col.d;
-        buf->nverts += 4;
+        v->color = col.d;
+        v->specular = col.d;
+        buf->nkeys += 4;
         ok = 1;
         d3s_NumVerts += 4;
     }
@@ -1133,7 +1133,7 @@ float d3s_GetGround(D3OBJECT *obj, D3SURF *info, D3OBJECT *light)
    hoisted via inv = -ldir->y, one D3VECTOR for the position and the light vector (stored like the
    original), clamped cells into locals before the divisions by the new D3FLMAP.n, iz0 from z1 and iz1
    from z0 as the original does, sx/sz scale hoisted, mesh->mesh->Transform, typed d3sm_Shadow (D3SM) and
-   D3SVERT tu/tv. ours=609 original=609 instructions. Left: allocation - the original keeps obj in ebp,
+   D3VERTEX shadowU/shadowV. ours=609 original=609 instructions. Left: allocation - the original keeps obj in ebp,
    mesh in ebx, ldir in edi and 0 in ebp for the compares (cmp edi, ebp at +0x27c), y at [esp+0x10] in its
    own frame (frame 0x1c vs ours 0x18, ours puts it in a param slot), so the five slot->x0..y stores at
    +0x6d3 load in another order; mh in ebp at +0x3f6 where ours keeps [esp+0x4c]; the head schedule
@@ -1144,8 +1144,8 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
 {
     struct TSTEXTURE *tex = slot->tex;
     D3VECTOR pos;                   /* the object's position, then the light-to-vertex vector */
-    D3SVERT *v;
-    D3SPOLY *p;
+    D3VERTEX *v;
+    D3TRI *p;
     float y, f, inv, x0, x1, z0, z1, sx, sz;
     int i, k, size, mh, m;
     int cx0, cx1, cz0, cz1;
@@ -1169,7 +1169,7 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
     } else {
         mesh->mesh->Transform(obj, mesh, &obj->material->worldMatrix);
         obj->state |= 0x10;
-        v = (D3SVERT *)mesh->keys;
+        v = mesh->keys;
         if (light->objectFlags & 0x10) {
             inv = -ldir->y;
             for (i = 0; i < mesh->nkeys; i++, v++) {
@@ -1276,17 +1276,17 @@ void d3s_Project(D3OBJECT *obj, D3SURF *info, D3SURF *mesh, D3FLMAP *t, D3VECTOR
     if (!slot->simple) {
         sx = (float)tex->size / (x1 - x0);
         sz = (float)tex->size / (z1 - z0);
-        v = (D3SVERT *)mesh->keys;
+        v = mesh->keys;
         for (i = 0; i < mesh->nkeys; i++, v++) {
-            v->tu = (v->x - x0) * sx;
-            v->tv = (v->z - z0) * sz;
+            v->shadowU = (v->x - x0) * sx;
+            v->shadowV = (v->z - z0) * sz;
         }
         if (!tex->surf && d3_Hardware)
             ts_CacheFetch(tex, 2, d3s_Palette);
         if (tex->surf) {
             dd_FillSurface(tex->surf, 0, 0);
             dd_Surface = dd_LockSurfaceFlags(tex->surf, 0x20);
-            for (i = 0, p = (D3SPOLY *)mesh->tris; i < mesh->ntris; i++, p++)
+            for (i = 0, p = mesh->tris; i < mesh->ntris; i++, p++)
                 d3s_ShadowPoly(p, tex->bpp, tex->size);
             dd_UnlockSurface(tex->surf);
             dd_Surface = 0;
