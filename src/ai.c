@@ -1154,21 +1154,29 @@ done:
    0x47e990 comes here when gm_BuildingClass(type) == 2): buys slots / capacity / upgrades, starts the entries'
    production, sends the job orders and finishes with the trade (ai_MeisterCollectTrans / ai_MeisterTrade);
    the same production steps as ai_EvaluateProduction for this category's AIENTRY flags
-   @deep s(this) match-deep: structure fixed: o = a only in the else arm of the flags1c8 / kind != 11 test
-   (the original duplicates the or-0x10 block and loads esi = a in the else), and no AIGOOD *g local
-   (ai_Goods[ai_Entries[i].item].x at each use; the original forms g with lea ecx,[eax+ebx] and keeps the
-   item in eax): 433 -> 360, M8 gone. Left: ch / a register race at the top (original a ebx, ch ebp from
-   ai_UpdateStaff to the third loop; ours a ebp, ch ebx): probes show a must NOT get a register piece
-   (c2trace a#2 sav 2 -> ebp; deleting o = a or writing o = b gives a sav 0 and the original's top, 156
-   ins) - so the original has one reference of a fewer or a cost more, yet its else does load a from a's
-   slot. flip --want 'mov ebp, _ch; push ebp; call ai_UpdateStaff' hits only meaning changes (o = a
-   deleted, msg.arg[1] deleted, sv_MoveToGroup duplicated, ai_UpdateProduction deleted). = control: char
-   loop first tests as outer if, min(), info.n2 != 0 &&, inverted flags test with o = a in the then-arm,
-   for -> while for the message loop. climb 3 rounds: only the g move (now gone). prior: size queue s6: the
-   r = util_Random(ai_NEntries) site of the PFLANZBAR walk: the original keeps r in edx inside the loop
-   (mov dx, ax / and edx, 0xffff, the loop-skip path reads its home [esp+0x18]); ours stores it to
-   [esp+0x1c] after and eax, 0xffff. r is already an int local: no 16-bit spelling lever, it is the same
-   allocation race as the c/ch swap. */
+   @deep s(this) match-deep: o = a only in the else arm of the flags1c8 / kind != 11 test, no AIGOOD *g
+   local, info fill ch, b, c, z2, z1: 433 -> 360. ONE thing left: the else's o = a. Probe: with o = (AIOBJ
+   *)0 in the else the function is 2 instructions from byte (only that else load, xor esi,esi vs mov
+   esi,[esp+0x24]) - every other hunk is a consequence of a's allocation. Mechanism (c2trace --seq): pass 4
+   queues a#2 (whole range, refs 6, prio -30, sav 2 = def 2 + push 2 - 8 for the reload after the first
+   loop's j-loop (ebp temps) + a->list 2 + a->objId 2 + else copy 2) and gives it ebp before k#144#1
+   (info.n2, prio -55) can take ebx and pressure-cut ch#5; without the else reference a#2 has sav 0 ->
+   unprofitable, n2 takes ebx, ch gets ebp from ai_UpdateStaff on = the original. So the original's IL has
+   one a-reference (2 savings) fewer, or an extra penalty, or n2 above -30, while its code still loads a in
+   the else. = control (VC6 canonicalises them, same code): for -> while / && loop / if (o) after the loop,
+   msg block after the loop, o = a in the then-arm via a copy (o2 = a; o2->list), gate var renamed (o2), a
+   = o after the loop (a-gate: other code), if (o && a), else if (a), job block as two tests / found set by
+   a second if (job), nested / && guards for a, b, c, nested ifs for the && chains of loops 2 / 3, the
+   first loop guarded / labelled / do-while(0) behind it, early-return form of the n2 && n1 test, min(),
+   ++info.n2, 1..63 block-scope extern declarations. Worse / other code: msg as function local, found = 0
+   at the top, o = a before the if, a = o = gm_Query (frame +4), named locals in the first loop (frame -4),
+   the setting-good block as nested positive ifs (394), loop 2's success written in both arms (355). flip
+   --want 'mov esi, DWORD PTR _a' hits only meaning changes (o = a deleted / unconditional, msg.arg[1]
+   deleted, ai_UpdateProduction deleted, && -> || in loops 2 / 3, sv_MoveToGroup duplicated / before its
+   test). climb 3 rounds beam 6: nothing. prior: size queue s6: the r = util_Random(ai_NEntries) site of
+   the PFLANZBAR walk: the original keeps r in edx inside the loop (mov dx, ax / and edx, 0xffff, the
+   loop-skip path reads its home [esp+0x18]); ours stores it to [esp+0x1c] after and eax, 0xffff. r is
+   already an int local: no 16-bit spelling lever, it is the same allocation race as the c/ch swap. */
 
 void ai_EvaluateProductionCategory2(AICHAR *ch) {
   AIOBJ *a, *b, *c, *o, *o2;
