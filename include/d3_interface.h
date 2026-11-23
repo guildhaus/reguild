@@ -13,9 +13,9 @@ extern float d3if_Gray;             /* 0x5fcc74, 0.3 r + 0.59 g + 0.11 b of the 
 extern D3VECTOR d3_AmbientColor;    /* 0x5fcc78, the ambient colour (r, g, b) */
 extern D3FOGSET d3if_Fog[6];        /* 0xfba960, the fog sets of the current light set */
 extern D3LIGHTSET d3if_Levels[7];   /* 0xfba9c0, the day-time light sets */
-extern int d3if_CamOben;              /* 0x6338b8 */
-extern int d3if_CamVorne;              /* 0x6338bc */
-extern int d3if_CamSeite;              /* 0x6338c0 */
+extern D3OBJECT *d3if_CamOben;              /* 0x6338b8 */
+extern D3OBJECT *d3if_CamVorne;              /* 0x6338bc */
+extern D3OBJECT *d3if_CamSeite;              /* 0x6338c0 */
 #ifndef DATA_VIEWS_H
 extern int d3if_SceneState0;              /* 0x5fb5c0 */
 #endif
@@ -24,7 +24,7 @@ extern int d3s_ShadowMapSize;          /* 0x633dcc */
 #ifndef DATA_VIEWS_H
 extern unsigned int d3if_SceneSwitches;     /* 0x6339dc, counts the scene switches */
 #endif
-extern int d3if_LastMegaCam;          /* 0xfba944 */
+extern D3OBJECT *d3if_LastMegaCam;          /* 0xfba944 */
 
 void d3_AddChild(D3OBJECT *parent, D3OBJECT *obj);                                      /* 0x43cb80, d3_engine.c */
 struct D3BGF *d3io_FindStock(char *name);                                                           /* 0x44c5d0 */

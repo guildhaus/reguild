@@ -459,7 +459,7 @@ char d3if_SelectScene(int index, char keep)  /* @original: the definition return
         d3_Scenes[d3_CurrentScene].state0 = d3if_SceneState0;
         d3_Scenes[d3_CurrentScene].state1 = d3if_SceneState1;
         d3_Scenes[d3_CurrentScene].hardware = d3_Hardware;
-        cam = (D3OBJECT *)d3if_MegaCam;
+        cam = d3if_MegaCam;
         d3_Scenes[d3_CurrentScene].cam = cam;
         if (cam) {
             d3_Scenes[d3_CurrentScene].campos.x = cam->pos.x;
@@ -493,12 +493,12 @@ char d3if_SelectScene(int index, char keep)  /* @original: the definition return
         d3_CurrentScene = index;
         d3_DefaultScene = &d3_Scenes[index];
         if (d3if_LastMegaCam == d3if_MegaCam)
-            d3if_LastMegaCam = (int)d3_Scenes[index].cam;
-        d3if_MegaCam = (int)d3_Scenes[index].cam;
+            d3if_LastMegaCam = d3_Scenes[index].cam;
+        d3if_MegaCam = d3_Scenes[index].cam;
         if (d3if_MegaCam) {
-            d3_SetObjectPos((D3OBJECT *)d3if_MegaCam, &d3_Scenes[index].campos);
-            d3_SetObjectRot((D3OBJECT *)d3if_MegaCam, &d3_Scenes[index].camrot);
-            d3_SetCamera((D3OBJECT *)d3if_MegaCam);
+            d3_SetObjectPos(d3if_MegaCam, &d3_Scenes[index].campos);
+            d3_SetObjectRot(d3if_MegaCam, &d3_Scenes[index].camrot);
+            d3_SetCamera(d3if_MegaCam);
         }
         if (!keep) {
             if (!d3_Terrain) {
@@ -844,26 +844,26 @@ char d3if_ScreenBox(D3OBJECT *obj, D3RECT *r)
 
 void d3if_CreateCameras(void)
 {
-    d3if_MegaCam = (int)d3_SpawnObject(3, "MegaCam");
-    d3_SetObjectPosXYZ((D3OBJECT *)d3if_MegaCam, 0, 0, -256.0f);
-    d3_SetObjectRotXYZ((D3OBJECT *)d3if_MegaCam, 0, 0, 0);
-    d3_LinkTop((D3OBJECT *)d3if_MegaCam);
+    d3if_MegaCam = d3_SpawnObject(3, "MegaCam");
+    d3_SetObjectPosXYZ(d3if_MegaCam, 0, 0, -256.0f);
+    d3_SetObjectRotXYZ(d3if_MegaCam, 0, 0, 0);
+    d3_LinkTop(d3if_MegaCam);
     if (d3_EditorMode) {
-        d3if_CamOben = (int)d3_SpawnObject(3, "Oben");
-        d3_SetObjectPosXYZ((D3OBJECT *)d3if_CamOben, 0, 256.0f, 0);
-        d3_SetObjectRotXYZ((D3OBJECT *)d3if_CamOben, -1.57079637f, 0, 0);
-        d3_LinkTop((D3OBJECT *)d3if_CamOben);
-        ((D3OBJECT *)d3if_CamOben)->objectFlags &= 0xfd;
-        d3if_CamVorne = (int)d3_SpawnObject(3, "Vorne");
-        d3_SetObjectPosXYZ((D3OBJECT *)d3if_CamVorne, 0, 0, -256.0f);
-        d3_SetObjectRotXYZ((D3OBJECT *)d3if_CamVorne, 0, 0, 0);
-        d3_LinkTop((D3OBJECT *)d3if_CamVorne);
-        ((D3OBJECT *)d3if_CamVorne)->objectFlags &= 0xfd;
-        d3if_CamSeite = (int)d3_SpawnObject(3, "Seite");
-        d3_SetObjectPosXYZ((D3OBJECT *)d3if_CamSeite, 256.0f, 0, 0);
-        d3_SetObjectRotXYZ((D3OBJECT *)d3if_CamSeite, 0, 1.57079637f, 0);
-        d3_LinkTop((D3OBJECT *)d3if_CamSeite);
-        ((D3OBJECT *)d3if_CamSeite)->objectFlags &= 0xfd;
+        d3if_CamOben = d3_SpawnObject(3, "Oben");
+        d3_SetObjectPosXYZ(d3if_CamOben, 0, 256.0f, 0);
+        d3_SetObjectRotXYZ(d3if_CamOben, -1.57079637f, 0, 0);
+        d3_LinkTop(d3if_CamOben);
+        d3if_CamOben->objectFlags &= 0xfd;
+        d3if_CamVorne = d3_SpawnObject(3, "Vorne");
+        d3_SetObjectPosXYZ(d3if_CamVorne, 0, 0, -256.0f);
+        d3_SetObjectRotXYZ(d3if_CamVorne, 0, 0, 0);
+        d3_LinkTop(d3if_CamVorne);
+        d3if_CamVorne->objectFlags &= 0xfd;
+        d3if_CamSeite = d3_SpawnObject(3, "Seite");
+        d3_SetObjectPosXYZ(d3if_CamSeite, 256.0f, 0, 0);
+        d3_SetObjectRotXYZ(d3if_CamSeite, 0, 1.57079637f, 0);
+        d3_LinkTop(d3if_CamSeite);
+        d3if_CamSeite->objectFlags &= 0xfd;
     }
 }
 /* 0x448a50, clears the viewport (and refreshes the screen) when the scene wants it: with the fog colour
@@ -1627,7 +1627,7 @@ void d3_SaveScene(char *name, VFSFILE *f)
     out = f;
     if (f || (out = vfs_Tfopen(name, "wb", vfs_Root))) {
         bio_wr_i(out, 0x3a6c00bb);
-        bio_wr_s(out, (char *)d3if_MegaCam);
+        bio_wr_s(out, d3if_MegaCam->name);
         bio_wr_f(out, d3if_Gray);
         bio_wr_v3(out, &d3_AmbientColor);
         bio_wr_v3(out, &d3_SunColor);
@@ -1668,17 +1668,17 @@ unsigned char d3if_UnreadHead[352] = {0};  /* 0x633758, the start of d3_interfac
                                               0x633751) up to d3if_CamOben: no surviving instruction or pointer reads it,
                                               so it is data of d3_interface functions the linker removed (a unit's .bss
                                               outlives /OPT:REF; layout, extent and type unknown: one unread byte block) */
-int d3if_CamOben = 0;  /* 0x6338b8 */
-int d3if_CamVorne = 0;  /* 0x6338bc */
-int d3if_CamSeite = 0;  /* 0x6338c0 */
-int d3if_MegaCam = 0;  /* 0x6338c4 */
+D3OBJECT *d3if_CamOben = 0;  /* 0x6338b8 */
+D3OBJECT *d3if_CamVorne = 0;  /* 0x6338bc */
+D3OBJECT *d3if_CamSeite = 0;  /* 0x6338c0 */
+D3OBJECT *d3if_MegaCam = 0;  /* 0x6338c4 */
 unsigned char d3if_UnreadMid[275] = {0};  /* 0x6338c8, the unread bytes between d3if_MegaCam and d3if_TexturesEvicted (same
                                               reasoning as d3if_UnreadHead; 8-aligned, the byte after it ends it) */
 unsigned char d3if_TexturesEvicted = 0;  /* 0x6339db */
 unsigned int d3if_SceneSwitches = 0;  /* 0x6339dc, counts the scene switches (an object of its own: 4-aligned after the byte d3if_TexturesEvicted) */
 int d3if_UnreadTail = 0;  /* 0x6339e0, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 D3PARTSYS d3if_ParList;  /* 0xfb95e0, the default scene's particle list head node (d3_ParHead is its next field) */
-int d3if_LastMegaCam;  /* 0xfba944 (own object: d3io_StockDir is a 4-byte pointer) */
+D3OBJECT *d3if_LastMegaCam;  /* 0xfba944 (own object: d3io_StockDir is a 4-byte pointer) */
 D3FOGSET d3if_Fog[6]; /* 0xfba960 */
 D3LIGHTSET d3if_Levels[7]; /* 0xfba9c0 */
 D3MIRROR d3_Mirror;  /* 0xfb9900 (d3_Unkfb9900.. in d3_engine.h) */

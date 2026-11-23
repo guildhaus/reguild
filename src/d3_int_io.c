@@ -564,7 +564,7 @@ char d3_LoadScene(char *name, void *f, D3IOPROGRESS progress)
                     }
                 }
                 if (d3if_MegaCam)
-                    d3_DisposeObject((D3OBJECT *)d3if_MegaCam);
+                    d3_DisposeObject(d3if_MegaCam);
                 bio_rd_i(in, &n);
                 for (x = 0; x < n; x++) {
                     rd_object(in, 0, version, 0);
@@ -576,7 +576,7 @@ char d3_LoadScene(char *name, void *f, D3IOPROGRESS progress)
                     d3_Terrain = d3io_ReadFloor(in, version);
                 for (o = d3_TopFirst; o != &d3_ObjEnd; o = o->next)
                     if (o->type == 3 && !strcmpi(cam, o->name)) {
-                        d3if_MegaCam = (int)o;
+                        d3if_MegaCam = o;
                         if (o->objectFlags & 1) {
                             d3_SetObjectPos(o, &o->savedPos);
                             d3_SetObjectRot(o, &o->savedRot);

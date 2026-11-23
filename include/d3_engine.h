@@ -152,7 +152,7 @@ void d3_UnlinkTop(D3OBJECT *obj);                                               
 
 #define D3_SCENE3C8(s) ((s)->events)   /* D3SCENE.events (d3.h); the typed view is the field itself */
 extern unsigned int d3s_MaxPolys;           /* 0x633dc4 */
-extern int d3if_MegaCam;                    /* 0x6338c4 */
+extern struct D3OBJECT *d3if_MegaCam;      /* 0x6338c4 */
 extern struct D3BGF d3_StockListStart;     /* 0xfc2e00, the head sentinel of the stock object (mesh driver, D3BGF in d3_io_t.h) list: its next is the first one, walked with ->Release */
 extern struct D3BGF d3_StockListEnd;       /* 0xfc4a40, its end sentinel */
 extern struct D3ANIMDATA d3anim_Head;      /* 0xfc2580, the animation cache list (D3ANIMDATA, d3_anim.h): its head sentinel */
