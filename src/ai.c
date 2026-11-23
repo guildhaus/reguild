@@ -3655,66 +3655,51 @@ int ai_HasMaterials(AICHAR *ch, AIENTRY *e, int f)
    supplies at least the need becomes the slot's bld, an own one fills the slot's make to the capacity, the else
    buy amount - half the entry capacity at least 1, at least half the slot capacity minus the pending, below the
    capacity - pending - 1, at most the budget / price and the offer's count - goes into make when it covers the
-   need
-   @deep size queue s18 (raw 914 vs 870, ins 268 = 268: the 44 bytes are the layout's near jumps and the
-   slot choice). The original's layout: [chain][special block, falling into the loop latch at 0x48751e + an
-   inline epilogue][entry != -1 block 0x487550][offer block 0x4875e7], every other path jumping back to the
-   latch; so its last chain compare is jne to the entry block (the jump edge), ours je to the special
-   block. No lever (one code for all 8): the chain positive (== / ||, special as then) or negative x the
-   pending / amount operand order in the entry and special tests (the M8 pair at +0x12f is that operand
-   order: = control). climb --rounds 1: best 120 ins via v = min(.., (v = max(..))) in the offer arm, no
-   layout change. Next: what makes the entry branch the jump edge (c2tail --il on the chain; a flag or a
-   separate function for the item test). prior: behaviour draft, 2 code hunks only, both the block layout
-   of the item chain: the original keeps the special-item block inline after the 15 je (0x4874cb..0x48751b)
-   and puts the entry!=-1 and the offer-scan blocks OUT of line after the loop epilogue/ret (0x48754a,
-   0x4875e7), ours emits the entry block inline and the special block at $L4532 before the loop tail; 8
-   slots hunks are the k / j / row slot choice (k 0x18 vs 0x10, j 0x10 vs 0x18, row 0x14 vs 0x1c). Read
-   whole against tools/disasm.py 0x487410 0x370, Ghidra build/ghidra/487410.c and the VC6 listing;
-   statements, constants, callees, field offsets and the item list order all match. Last-bytes pass, one
-   edit one build each, all measured byte-identical (183 asm diff lines, 129 code / 68 slots hunks
-   unchanged): (1) positive == || chain with the special block as then-branch and the entry/offer blocks as
-   else-if, (2) nested else (if (specia... */
+   need (the special-item test sets a flag first: the original lays the special block inline, the rest out of line) */
 
 int ai_StartProduction(AICHAR *ch, AIENTRY *e)
 {
     AISLOT *s;
-    AIENTRY *e2;
     AISTORE *row;
-    int k, j, cnt, v, m;
+    int k, j, cnt, v, m, special;
 
     for (k = 0; k < 4; k++) {
         if (e->slot[k] >= 0) {
             s = &ai_Slots[e->slot[k]];
             s->rank = s->rank < e->rank ? s->rank : e->rank;
             s->flags |= 2;
-            if (s->item != 0x1c7 && s->item != 0x1c4 && s->item != 0x1c5 && s->item != 0x1c6 &&
-                s->item != 0x2af && s->item != 0x2b0 && s->item != 0x1c1 && s->item != 0x1c2 &&
-                s->item != 0x1c3 && s->item != 0x225 && s->item != 0x226 && s->item != 0x227 &&
-                s->item != 0x293 && s->item != 0x294 && s->item != 0x295) {
-                if (s->entry != -1) {
-                    ai_Entries[s->entry].rank = ai_Entries[s->entry].rank < e->rank ? ai_Entries[s->entry].rank : e->rank;
-                    ai_Entries[s->entry].flags |= 2;
-                    if ((ai_Entries[s->entry].pending + ai_Entries[s->entry].amount) * 4 < ai_Entries[s->entry].capacity) {
-                        if (ai_Entries[s->entry].capacity > ai_Goods[ai_Entries[s->entry].item].batch)
-                            ai_Entries[s->entry].flags |= 8;
-                        ai_StartProduction(ch, &ai_Entries[s->entry]);
-                    }
-                } else if (s->pending + s->amount < ai_Goods[e->item].need[k] * 4) {
-                    gm_CollectOffers(s->item);
-                    j = 0;
-                    while (1) {
-                        if (j >= gm_NOffers)
-                            break;
-                        row = &gm_Offers[j];
-                        if (row->bld != ch->bld && gm_BuildingClass(row->bld->type) != 2 && row->goodsObj != 0) {
-                            cnt = row->count;
-                            if (cnt >= ai_Goods[e->item].need[k]) {
-                                s->bld = row->bld;
-                                if (row->bld->owner == ch->bld->owner) {
-                                    s->make = s->capacity;
-                                    j++;
-                                    continue;
-                                }
+            special = 0;
+            if (s->item == 0x1c7 || s->item == 0x1c4 || s->item == 0x1c5 || s->item == 0x1c6 ||
+                s->item == 0x2af || s->item == 0x2b0 || s->item == 0x1c1 || s->item == 0x1c2 ||
+                s->item == 0x1c3 || s->item == 0x225 || s->item == 0x226 || s->item == 0x227 ||
+                s->item == 0x293 || s->item == 0x294 || s->item == 0x295)
+                special = 1;
+            if (special) {
+                if ((ai_Entries[s->entry].amount + ai_Entries[s->entry].pending) * 4 < ai_Entries[s->entry].capacity &&
+                    s->amount + s->pending < ai_Goods[e->item].need[k] * 4)
+                    s->flags |= 0x10;
+            } else if (s->entry != -1) {
+                ai_Entries[s->entry].rank = ai_Entries[s->entry].rank < e->rank ? ai_Entries[s->entry].rank : e->rank;
+                ai_Entries[s->entry].flags |= 2;
+                if ((ai_Entries[s->entry].amount + ai_Entries[s->entry].pending) * 4 < ai_Entries[s->entry].capacity) {
+                    if (ai_Entries[s->entry].capacity > ai_Goods[ai_Entries[s->entry].item].batch)
+                        ai_Entries[s->entry].flags |= 8;
+                    ai_StartProduction(ch, &ai_Entries[s->entry]);
+                }
+            } else if (s->pending + s->amount < ai_Goods[e->item].need[k] * 4) {
+                gm_CollectOffers(s->item);
+                j = 0;
+                while (1) {
+                    if (j >= gm_NOffers)
+                        break;
+                    row = &gm_Offers[j];
+                    if (row->bld != ch->bld && gm_BuildingClass(row->bld->type) != 2 && row->goodsObj != 0) {
+                        cnt = row->count;
+                        if (cnt >= ai_Goods[e->item].need[k]) {
+                            s->bld = row->bld;
+                            if (row->bld->owner == ch->bld->owner) {
+                                s->make = s->capacity;
+                            } else {
                                 m = e->capacity >> 1;
                                 if (m < 1)
                                     m = 1;
@@ -3727,13 +3712,9 @@ int ai_StartProduction(AICHAR *ch, AIENTRY *e)
                                     s->make = max(s->make, v);
                             }
                         }
-                        j++;
                     }
+                    j++;
                 }
-            } else {
-                if ((ai_Entries[s->entry].pending + ai_Entries[s->entry].amount) * 4 < ai_Entries[s->entry].capacity &&
-                    s->amount + s->pending < ai_Goods[e->item].need[k] * 4)
-                    s->flags |= 0x10;
             }
         }
     }
