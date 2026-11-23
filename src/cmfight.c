@@ -1731,15 +1731,15 @@ void cm_CollectSceneChars(void)
 char cm_CreateDummyFlag(D3OBJECT *obj, void *ctx)
 {
     D3OBJECT *r;
-    float pos[4];
-    float rot[3];
+    D3VECTOR4 pos;
+    D3VECTOR rot;
 
     if (strstr(obj->name, "dummy_sp_ESCAPE") != 0) {
-        rot[0] = 0;
-        rot[1] = 0;
-        rot[2] = 0;
-        d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)pos);
-        r = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ub_FLUCHTFLAGGE");
+        rot.x = 0;
+        rot.y = 0;
+        rot.z = 0;
+        d3_PointToWorld(obj, &obj->pos, &pos.v);
+        r = d3_CreateObject(0, &pos.v, &rot, "ub_FLUCHTFLAGGE");
         cm_FlagObjects[cm_FlagObjectCount] = r;
         strcpy(r->name, "sp_ESCAPE");
         cm_FlagObjects[cm_FlagObjectCount]->kind = 4;
@@ -1751,11 +1751,11 @@ char cm_CreateDummyFlag(D3OBJECT *obj, void *ctx)
         return 1;
     }
     if (strstr(obj->name, "dummy_CONQUER") != 0) {
-        rot[0] = 0;
-        rot[1] = 0;
-        rot[2] = 0;
-        d3_PointToWorld(obj, &obj->pos, (D3VECTOR *)pos);
-        r = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ub_CONQUER");
+        rot.x = 0;
+        rot.y = 0;
+        rot.z = 0;
+        d3_PointToWorld(obj, &obj->pos, &pos.v);
+        r = d3_CreateObject(0, &pos.v, &rot, "ub_CONQUER");
         cm_FlagObjects[cm_FlagObjectCount] = r;
         d3if_SelectTextureSet(r, r->info, 1, 1);
         sprintf(cm_FlagObjects[cm_FlagObjectCount]->name, "sp_CONQUER_%i", cm_FlagObjectCount);

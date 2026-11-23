@@ -3318,7 +3318,7 @@ void cm_RunAuction(G28REC *m)
     AIOBJ *q;
     GMHEAD *rec;
     CMAUCTION req;
-    float pos[4];
+    D3VECTOR4 pos;
     int i, k, speaker;
     struct SBBANK *bankIntro, *bankBids, *bankRemarks;
     int behavior, enter, form;
@@ -3326,10 +3326,10 @@ void cm_RunAuction(G28REC *m)
 
     b = gm_BuildQuery(1, 1, m->auction.building);
     best = -1;
-    pos[0] = 0;
-    pos[1] = 0;
-    pos[2] = 0;
-    pos[3] = 0;
+    pos.x = 0;
+    pos.y = 0;
+    pos.z = 0;
+    pos.w = 0;
     speaker = cm_Random(3);  /* which auctioneer, then his speaker id */
     cm_PlaySpecialTrack(0);
     if (b == 0)
@@ -3386,8 +3386,8 @@ void cm_RunAuction(G28REC *m)
     }
     o = d3_FindObject(0, 0x100, 0, "dummy_AUKTIONATOR");
     if (o != 0)
-        d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
-    auct = cm_CreateChar(model, (D3VECTOR *)pos);
+        d3_PointToWorld(o, &o->pos, &pos.v);
+    auct = cm_CreateChar(model, &pos.v);
     if (auct != 0) {
         ch_PlaceAtObject(auct, o);
         strcpy(auct->name, "Auktionator");
@@ -3398,7 +3398,7 @@ void cm_RunAuction(G28REC *m)
         sprintf(buf, "dummy_RP_%02i", i);
         o = d3_FindObject(0, 0x100, 0, buf);
         if (o != 0)
-            d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
+            d3_PointToWorld(o, &o->pos, &pos.v);
         w = chars[i];
         if (w != 0 && (rec = gm_CharNameRecord(w->id)) != 0)
             sprintf(buf, "%s", rec->name);
@@ -3412,7 +3412,7 @@ void cm_RunAuction(G28REC *m)
                 strcpy(buf, "handwerker3_MANN");
         }
         if (w != 0) {
-            persons[i] = cm_CreateChar(buf, (D3VECTOR *)pos);
+            persons[i] = cm_CreateChar(buf, &pos.v);
             ch_PlaceAtObject(persons[i], o);
         } else
             persons[i] = 0;

@@ -1474,8 +1474,8 @@ AIOBJ *gm_CreateObject(int id, int proto, int n)
     AIOBJ **list;
     char *pr;
     char buf[1024];
-    float pos[4];
-    float rot[3];
+    D3VECTOR4 pos;
+    D3VECTOR rot;
     AIOBJ *it;
     AIOBJ *load;
     AIBLD *home;
@@ -1495,13 +1495,13 @@ AIOBJ *gm_CreateObject(int id, int proto, int n)
     c = 0;
     last = 0;
     r = 0;
-    pos[0] = 0;
-    pos[1] = 0;
-    pos[2] = 0;
-    pos[3] = 0;
-    rot[0] = 0;
-    rot[1] = 0;
-    rot[2] = 0;
+    pos.x = 0;
+    pos.y = 0;
+    pos.z = 0;
+    pos.w = 0;
+    rot.x = 0;
+    rot.y = 0;
+    rot.z = 0;
     if (ai_Goods == 0 || id == -1 || gm_FindById(&b, &o, &c, id) == 0)
         return 0;
     if (b != 0)
@@ -1598,36 +1598,36 @@ AIOBJ *gm_CreateObject(int id, int proto, int n)
         d3if_SelectScene(scene, 1);
         dummy = d3_FindObject(gm_IsHomeType(home) != 0 ? 0 : home->object, 0x100, 0, "dummy_TRANSPORTER");
         if (dummy != 0)
-            d3_PointToWorld(dummy, &dummy->pos, (D3VECTOR *)pos);
+            d3_PointToWorld(dummy, &dummy->pos, &pos.v);
         else if (home->object != 0) {
-            pos[0] = home->object->pos.x;
-            pos[1] = home->object->pos.y;
-            pos[2] = home->object->pos.z;
+            pos.x = home->object->pos.x;
+            pos.y = home->object->pos.y;
+            pos.z = home->object->pos.z;
         } else {
-            pos[0] = 0;
-            pos[1] = 0;
-            pos[2] = 0;
+            pos.x = 0;
+            pos.y = 0;
+            pos.z = 0;
         }
         if (proto != 0x136) {
             pick = util_Random(3);
             if (pick == 0)
-                model = ch_Create("arbeiter_KARREN", (D3VECTOR *)pos);
+                model = ch_Create("arbeiter_KARREN", &pos.v);
             else if (pick == 1)
-                model = ch_Create("holzfaeller_KARREN", (D3VECTOR *)pos);
+                model = ch_Create("holzfaeller_KARREN", &pos.v);
             else
-                model = ch_Create("handwerker_KARREN", (D3VECTOR *)pos);
+                model = ch_Create("handwerker_KARREN", &pos.v);
         } else
-            model = ch_Create("pferd_PFERD", (D3VECTOR *)pos);
+            model = ch_Create("pferd_PFERD", &pos.v);
         r->sceneObj = model;
         ch_PreloadAnims(model, 1, "bewegung/karren_ziehen");
         init_HookObject(model->obj, r, 1);
         sprintf(model->obj->name, "sp_%i", r->objId);
         if (proto == 0x134)
-            cart = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ob_KARREN_klein");
+            cart = d3_CreateObject(0, &pos.v, &rot, "ob_KARREN_klein");
         else if (proto == 0x135)
-            cart = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ob_KARREN_mittel");
+            cart = d3_CreateObject(0, &pos.v, &rot, "ob_KARREN_mittel");
         else if (proto == 0x136)
-            cart = d3_CreateObject(0, (D3VECTOR *)pos, (D3VECTOR *)rot, "ob_KARREN_GROSS");
+            cart = d3_CreateObject(0, &pos.v, &rot, "ob_KARREN_GROSS");
         else
             cart = 0;
         if (cart != 0) {

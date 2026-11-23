@@ -503,7 +503,7 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name)
     char buf[64];
     D3OBJECT *list[256];
     float o[4];                         /* the positions d3_PointToWorld writes: 16-byte slots in the original's frame */
-    float q[4];
+    D3VECTOR4 q;
     float dx, dy, dz, d, best;
     struct D3OBJECT *obj;
     int n, i;
@@ -522,10 +522,10 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name)
                 best = 1e21f;
                 for (i = 0; i < n; i++) {
                     if (list[i] != 0) {
-                        d3_PointToWorld(list[i], &list[i]->pos, (D3VECTOR *)q);
-                        dx = q[0] - o[0];
-                        dy = q[1] - o[1];
-                        dz = q[2] - o[2];
+                        d3_PointToWorld(list[i], &list[i]->pos, &q.v);
+                        dx = q.x - o[0];
+                        dy = q.y - o[1];
+                        dz = q.z - o[2];
                         d = (float)sqrt(dx * dx + dy * dy + dz * dz) * (util_RandomF() * 0.5f + 0.75f);
                         if (d < best) {
                             best = d;
@@ -542,10 +542,10 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name)
                 best = 1e21f;
                 for (i = 0; i < n; i++) {
                     if (list[i] != 0) {
-                        d3_PointToWorld(list[i], &list[i]->pos, (D3VECTOR *)q);
-                        dx = q[0] - o[0];
-                        dy = q[1] - o[1];
-                        dz = q[2] - o[2];
+                        d3_PointToWorld(list[i], &list[i]->pos, &q.v);
+                        dx = q.x - o[0];
+                        dy = q.y - o[1];
+                        dz = q.z - o[2];
                         d = (float)sqrt(dx * dx + dy * dy + dz * dz) * (util_RandomF() * 0.5f + 0.75f);
                         if (d < best) {
                             best = d;

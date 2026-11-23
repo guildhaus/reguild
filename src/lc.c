@@ -2039,8 +2039,8 @@ char ai_BauplatzFilter(D3OBJECT *obj, void *ctx)
     char *prefix = ctx;
     AIBLD *b;
     D3OBJECT *c;
-    float pos[4];
-    float q[4];
+    D3VECTOR4 pos;
+    D3VECTOR4 q;
 
     if (prefix == 0) {
         if (strnicmp(obj->name, "bk_", 3) != 0 && strnicmp(obj->name + 1, "bk_", 3) != 0)
@@ -2050,12 +2050,12 @@ char ai_BauplatzFilter(D3OBJECT *obj, void *ctx)
             strnicmp(obj->name + 1, prefix, strlen(prefix)) != 0)
             return 1;
     }
-    d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)pos);
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
     for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
         c = b->object;
         if (c != 0) {
-            d3_PointToWorld(c, &c->pos, (struct D3VECTOR *)q);
-            if (d3_VecEqual((struct D3VECTOR *)q, (struct D3VECTOR *)pos, 100.0f) != 0)
+            d3_PointToWorld(c, &c->pos, &q.v);
+            if (d3_VecEqual(&q.v, &pos.v, 100.0f) != 0)
                 return 1;
         }
     }
@@ -2077,7 +2077,7 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
     D3OBJECT *o;
     AIBLD *b;
     float at[4];            /* d3_PointToWorld writes the angles after the position */
-    float pos[4];
+    D3VECTOR4 pos;
 
     ai_BauplatzCount = 0;
     ai_BauplatzList = list;
@@ -2090,8 +2090,8 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
             for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                 o = b->object;
                 if (o != 0) {
-                    d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
-                    if (d3_VecEqual((D3VECTOR *)pos, (D3VECTOR *)at, 100.0f) != 0) {
+                    d3_PointToWorld(o, &o->pos, &pos.v);
+                    if (d3_VecEqual(&pos.v, (D3VECTOR *)at, 100.0f) != 0) {
                         ai_BauplatzList[i] = 0;
                         break;
                     }
@@ -2104,8 +2104,8 @@ int ai_FindBauplaetze(char *prefix, D3OBJECT **list)
                 for (b = gm_BuildQuery(1, 6); b != 0; b = gm_BuildNext()) {
                     o = b->object;
                     if (o != 0) {
-                        d3_PointToWorld(o, &o->pos, (D3VECTOR *)pos);
-                        if (d3_VecEqual((D3VECTOR *)pos, (D3VECTOR *)at, 100.0f) != 0) {
+                        d3_PointToWorld(o, &o->pos, &pos.v);
+                        if (d3_VecEqual(&pos.v, (D3VECTOR *)at, 100.0f) != 0) {
                             ai_BauplatzList[i] = 0;
                             goto next;
                         }
@@ -2170,19 +2170,19 @@ void ai_CheckBuildable(D3OBJECT *obj)
     D3OBJECT *owner;
     D3OBJECT *site;
     AIBLD *bld;
-    float here[4];
-    float there[4];
+    D3VECTOR4 here;
+    D3VECTOR4 there;
     int buildable;
 
     buildable = 1;
     owner = obj->parent;
     if (owner != 0) {
-        d3_PointToWorld(owner, &owner->pos, (struct D3VECTOR *)here);
+        d3_PointToWorld(owner, &owner->pos, &here.v);
         for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
             site = bld->object;
             if (site != 0) {
-                d3_PointToWorld(site, &site->pos, (struct D3VECTOR *)there);
-                if (d3_VecEqual((struct D3VECTOR *)there, (struct D3VECTOR *)here, 100.0f) != 0) {
+                d3_PointToWorld(site, &site->pos, &there.v);
+                if (d3_VecEqual(&there.v, &here.v, 100.0f) != 0) {
                     buildable = 0;
                     break;
                 }
@@ -2191,12 +2191,12 @@ void ai_CheckBuildable(D3OBJECT *obj)
     }
     for (view = obj->child; view != 0; view = view->next) {
         if (strncmp(view->name, "bk_", 3) == 0 || strncmp(view->name, "!bk_", 4) == 0) {
-            d3_PointToWorld(view, &view->pos, (struct D3VECTOR *)here);
+            d3_PointToWorld(view, &view->pos, &here.v);
             for (bld = gm_BuildQuery(1, 6); bld != 0; bld = gm_BuildNext()) {
                 site = bld->object;
                 if (site != 0) {
-                    d3_PointToWorld(site, &site->pos, (struct D3VECTOR *)there);
-                    if (d3_VecEqual((struct D3VECTOR *)there, (struct D3VECTOR *)here, 100.0f) != 0) {
+                    d3_PointToWorld(site, &site->pos, &there.v);
+                    if (d3_VecEqual(&there.v, &here.v, 100.0f) != 0) {
                         buildable = 0;
                         goto done;
                     }
@@ -2230,13 +2230,13 @@ void ai_CheckBuildSites(void)
 char ai_FindBauplatz(D3OBJECT *obj, void *ctx)
 {
     AIBUILDSITE *site = ctx;
-    float pos[4];
+    D3VECTOR4 pos;
     char *s;
 
     if (strnicmp(obj->name, "bk_", 3) != 0 && strnicmp(obj->name + 1, "bk_", 3) != 0)
         return 1;
-    d3_PointToWorld(obj, &obj->pos, (struct D3VECTOR *)pos);
-    if (d3_VecEqual((struct D3VECTOR *)site->pos, (struct D3VECTOR *)pos, 100.0f) != 0) {
+    d3_PointToWorld(obj, &obj->pos, &pos.v);
+    if (d3_VecEqual((struct D3VECTOR *)site->pos, &pos.v, 100.0f) != 0) {
         site->object = obj;
         s = strstr(obj->name, "bk_");
         if (s != 0)
@@ -2293,15 +2293,15 @@ extern const struct D3VECTOR4 d3_ZAxis;                          /* 0x5ebb74, (0
    the record's matrix and its parent chain; d3_CurrentScene is selected again afterwards */
 void ai_ObjectPosition(void *out, D3OBJECT *plot)
 {
-    float v[4];
+    D3VECTOR4 v;
     int scene;
 
     scene = d3_CurrentScene;
     d3if_SelectScene(0, 1);
-    v[0] = 0;
-    v[1] = 0;
-    v[2] = 0;
-    d3_LocalToWorld(plot, (struct D3VECTOR *)v, (struct D3VECTOR *)out);
+    v.x = 0;
+    v.y = 0;
+    v.z = 0;
+    d3_LocalToWorld(plot, &v.v, (struct D3VECTOR *)out);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fd90, the rotation angle of a plot record (123 B): d3if_SelectScene (0, 1) brackets the work; out[0..2] is
@@ -2310,20 +2310,20 @@ void ai_ObjectPosition(void *out, D3OBJECT *plot)
 
 void ai_ObjectAngle(void *out_, D3OBJECT *plot)
 {
-    float v[3];
+    D3VECTOR v;
     float *out = (float *)out_;
     int scene;
 
     scene = d3_CurrentScene;
     d3if_SelectScene(0, 1);
-    v[0] = 0;
-    v[1] = 0;
-    v[2] = 0;
+    v.x = 0;
+    v.y = 0;
+    v.z = 0;
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
-    d3_DirToWorld(plot, &d3_ZAxis.v, (struct D3VECTOR *)v);
-    out[1] = d3_VecAngle(&d3_ZAxis.v, (struct D3VECTOR *)v);
+    d3_DirToWorld(plot, &d3_ZAxis.v, &v);
+    out[1] = d3_VecAngle(&d3_ZAxis.v, &v);
     d3if_SelectScene(scene, 1);
 }
 /* 0x58fe10, the nearest object of a 0x100-entry list within 100.0 (157 B): the horizontal distance of the
@@ -2334,7 +2334,7 @@ D3OBJECT *ai_FindNearestObject(float *ref, D3OBJECT **list)
     int i;
     D3OBJECT *obj;
     float best;
-    float p[4];
+    D3VECTOR4 p;
     float pos[4];
     float d, dx, dz;
 
@@ -2344,10 +2344,10 @@ D3OBJECT *ai_FindNearestObject(float *ref, D3OBJECT **list)
     pos[2] = ref[2];
     for (i = 0; i < 0x100; i++) {
         if (list[i] != 0) {
-            d3_PointToWorld(list[i], &list[i]->pos, (struct D3VECTOR *)p);
-            p[1] = 0.0f;
-            dx = p[0] - pos[0];
-            dz = p[2] - pos[2];
+            d3_PointToWorld(list[i], &list[i]->pos, &p.v);
+            p.y = 0.0f;
+            dx = p.x - pos[0];
+            dz = p.z - pos[2];
             d = (float)sqrt(dx * dx + dz * dz);
             if (d < best && d < 100.0) {
                 best = d;
