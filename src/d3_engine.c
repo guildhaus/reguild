@@ -1098,17 +1098,17 @@ void d3_DrawSortedSW(void)
                 }
                 D3_COPY(&tri, t, sizeof(tri));
                 p = v[0];
-                tri.v[0] = (D3VERTEX *)p;
+                tri.v[0] = p;
                 tri.uv = tuv;
                 tuv[0] = p->u;
                 tuv[1] = p->v;
                 for (k = 0; k < d3_ClipOut - 2; k++) {
                     p = v[k + 1];
-                    tri.v[1] = (D3VERTEX *)p;
+                    tri.v[1] = p;
                     tuv[2] = p->u;
                     tuv[3] = p->v;
                     p = v[k + 2];
-                    tri.v[2] = (D3VERTEX *)p;
+                    tri.v[2] = p;
                     tuv[4] = p->u;
                     tuv[5] = p->v;
                     d3_TriFuncs[mode](&tri);

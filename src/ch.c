@@ -1875,7 +1875,7 @@ void ch_ActUsingGate(CHACTION *a)
     if (obj) {
         h = d3_Scenes[scene].hmap;
         d3_PointToWorld(obj, &obj->pos, &pos.v);
-        if (d3_GetHeightAt((D3SM *)h, &pos.v, &x, &z, &y))
+        if (d3_GetHeightAt(h, &pos.v, &x, &z, &y))
             ch_InsertAction(ch, a, 0x2d, x, z, scene);
         else
             sprintf(buf, "UsingGate: d3sm_3D2SuperMap() failed... scene:%s   object:%s", ch->scene, obj);
@@ -3207,7 +3207,7 @@ int ch_StartWalkAnim(CHACTION *a, D3SM *h)
         s = ch_AttachAni(ch, "bewegung/karren_ziehen", 1);
     else
         s = ch_AttachAni(ch, "bewegung/gehen", 1);
-    if (!(ch->slot = (D3ANIMSLOT *)s)) {
+    if (!(ch->slot = s)) {
         if (ch_MarkWalkErrors)
             a->ch->flags.bytes.lo |= 8;
         if (a->u.walk.path) {
@@ -3679,7 +3679,7 @@ void ch_ActWalkCells(CHACTION *a)
                 s = ch_AttachAni(ch, "bewegung/karren_ziehen", 1);
             else
                 s = ch_AttachAni(ch, "bewegung/gehen", 1);
-            if (!(ch->slot = (D3ANIMSLOT *)s)) {
+            if (!(ch->slot = s)) {
                 if (ch_MarkWalkErrors)
                     a->ch->flags.bytes.lo |= 8;
                 if (a->u.walk.path) {
@@ -3949,7 +3949,7 @@ CHACTION *ch_WalkToObject(CHARACTER *ch, D3OBJECT *obj)
     h = obj->scene->hmap;
     if (!h)
         h = ch_GetSceneHMap(obj->scene);
-    if (d3_GetHeightAt((D3SM *)h, &pos.v, &x, &z, &y)) {
+    if (d3_GetHeightAt(h, &pos.v, &x, &z, &y)) {
         a = ch_AddAction(ch, 0x2d, x, z, d3t_SceneIndex(obj->scene));
         if (a) {
             a->u.walk.flags |= CH_WALK_DEST;
@@ -3984,7 +3984,7 @@ void ch_ActWalk2RndDummy(CHACTION *a)
         obj = ch_FindDummy();
         if (obj && h) {
             d3_PointToWorld(obj, &obj->pos, &pos.v);
-            if (d3_GetHeightAt((D3SM *)h, &pos.v, &x, &z, &y)) {
+            if (d3_GetHeightAt(h, &pos.v, &x, &z, &y)) {
                 w = ch_InsertAction(a->ch, a, 0x2d, x, z, scene);
                 w->u.walk.flags |= CH_WALK_DEST;
                 w->u.walk.dest.x = pos.x;
@@ -4011,7 +4011,7 @@ void ch_WalkToObjectTurn(CHARACTER *ch, D3OBJECT *obj)
     d3_PointToWorld(obj, &obj->pos, &pos.v);
     d3_DirToWorld(obj, &d3_ZAxis.v, &dir.v);
     ang = d3_VecAngle(&d3_ZAxis.v, &dir.v);
-    if (d3_GetHeightAt((D3SM *)h, &pos.v, &x, &z, &y)) {
+    if (d3_GetHeightAt(h, &pos.v, &x, &z, &y)) {
         a = ch_AddAction(ch, 0x2d, x, z, d3t_SceneIndex(obj->scene));
         a->u.walk.flags |= CH_WALK_DEST;
         a->u.walk.dest.x = pos.x;

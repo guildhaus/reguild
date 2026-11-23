@@ -1214,7 +1214,7 @@ int ai_LoadActionTable(void)
 
 int am_RegisterMethod(AIACT *a, int ini)
 {
-    AIACT *act = (AIACT *)a;
+    AIACT *act = a;
     char key[64];
     char val[128];
     int i, found;

@@ -988,7 +988,7 @@ int ai_ShowLoanRows(AICHAR *ch, int max, CREDITLISTROW *rows, int win, int form)
         rows[i].loan = loans[i];
         d2_Wins[rows[i].child].font = 0x56;
         d2_Wins[rows[i].child].ml = 0x10;
-        bank = (int)gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
+        bank = (int)gm_FindBuildingById(rows[i].loan->bldId);
         if (bank != 0)
             io_PrintText(0x1f41, bank, rows[i].loan->loanAmount, rows[i].loan->loanInterest, &rows[i].loan->loanDue);
     }
@@ -2048,7 +2048,7 @@ unsigned int ai_FillWeddingTab(AICHAR *me, unsigned int max, LCAMOUNTROW *rows, 
             if (guests[j] != 0) {
                 rows[k].rec = guests[j];
                 rows[k].x2c = roles[j];
-                rows[k].x34 = ((AIJOB *)ev)->id;
+                rows[k].x34 = ev->id;
                 ai_AmountRowStatus(&rows[k]);
                 rows[k].pickable = ai_PassesPartnerFilter(me->id, rows[k].rec->id, filter, 0);
                 k++;

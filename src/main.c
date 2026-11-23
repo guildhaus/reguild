@@ -3274,7 +3274,7 @@ void main_EndRound(void)
         b = gm_BuildQuery(1, 0, 0x44);
         obj = gm_Query(b->objList, 1, 4, 0x1d);
         while (obj != 0) {
-            scene = (CHARACTER *)obj->sceneObj;
+            scene = obj->sceneObj;
             b = gm_BuildQuery(1, 1, obj->bldId);
             if (b != 0 && (ch = &ai_Chars[b->owner]) != 0 && ai_CanAct(ch) != 0)
                 ch_SetVisible(scene, 1);
@@ -4059,7 +4059,7 @@ void main_SettleRound(unsigned short pl)
                                         msg4.time = ai_Time;
                                         msg4.flags = 1;
                                         msg4.arg[0] = q->netId;
-                                        gm_AddTime((struct AITIME *)&msg4.time, util_Random(6) + 4, 0, 0);
+                                        gm_AddTime(&msg4.time, util_Random(6) + 4, 0, 0);
                                         cm_SendLongMessage(&msg4);
                                     } else {
                                         AIMSG msg1;     /* 0x1b to the master; 0x34 */
@@ -4071,7 +4071,7 @@ void main_SettleRound(unsigned short pl)
                                         msg1.time = ai_Time;
                                         msg1.flags = 1;
                                         msg1.arg[0] = q->netId;
-                                        gm_AddTime((struct AITIME *)&msg1.time, util_Random(6) + 4, 0, 0);
+                                        gm_AddTime(&msg1.time, util_Random(6) + 4, 0, 0);
                                         cm_SendLongMessage(&msg1);
                                     }
                                     cnt++;
@@ -4198,7 +4198,7 @@ void main_BeginPlayerRound(void)
         d2_PlaceMainWindow(w, 3);
         d2_SetForm(w, 1);
         io_PrintText(0x7d);
-        gm_ClockToDate((struct AITIME *)&ai_Time, date);
+        gm_ClockToDate(&ai_Time, date);
         d2_SetForm(w, 0);
         d2_CloseView(w);
     }

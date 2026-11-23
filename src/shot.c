@@ -378,7 +378,7 @@ void ai_UpdateWind(void)
     last.hour = (unsigned short)ai_EffectState.hour;
     last.min = ai_EffectState.min;
     last.sec = 0;
-    hours = gm_MinutesBetween((struct AITIME *)&last, (struct AITIME *)&ai_Time) * (1.0f / 60.0f);
+    hours = gm_MinutesBetween(&last, &ai_Time) * (1.0f / 60.0f);
     if (!(hours < 0.0f)) {
         hour = now->hour;
         ai_DefaultEffect.pos.y = 0;

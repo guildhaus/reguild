@@ -4536,7 +4536,7 @@ void ai_TalentWindow(struct AIBLD *bld, AIOBJ *room, int talent)
             AITIME due;
 
             due = ev->start;
-            gm_AddTime((struct AITIME *)&due, 5, 0, 0);
+            gm_AddTime(&due, 5, 0, 0);
             total = (float)gm_MinutesBetween(&ev->start, &ev->end);
             d2_Objs[bar].fillFraction = (float)gm_MinutesBetween(&ev->start, &ai_Time) / total;
         }
@@ -6971,7 +6971,7 @@ void ai_BuildingWindow(AIBLD *bld)
             if (gm_GetGoodsValue(&ai_Chars[ai_PlayerId]) > price) {
                 txt_Format(buyText, 0x17db, bld->masterId, bld, price);
                 if (sv_MessageBox((intptr_t)buyText, 1) != 0)
-                    gm_SellBuilding(bld->id, ai_Chars[ai_PlayerId].netId, saleEv->salePrice, (struct AIJOB *)saleEv, 0);
+                    gm_SellBuilding(bld->id, ai_Chars[ai_PlayerId].netId, saleEv->salePrice, saleEv, 0);
             }
             d2_SetViewEnabled(win, 1);
             redraw = 1;
@@ -8660,7 +8660,7 @@ int ai_OpenMoneyInfoPage(void)
         rows[i].loan = loans[i];
         d2_Wins[rows[i].child].font = 0x56;
         d2_Wins[rows[i].child].ml = 0x10;
-        bank = (char *)gm_FindBuildingById(((AIJOB *)rows[i].loan)->bldId);
+        bank = (char *)gm_FindBuildingById(rows[i].loan->bldId);
         if (bank != 0)
             io_PrintText(0x1f41, bank, rows[i].loan->loanAmount, rows[i].loan->loanInterest, &rows[i].loan->loanDue);
     }

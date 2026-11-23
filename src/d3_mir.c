@@ -406,7 +406,7 @@ char d3_MirDrawObject(D3OBJECT *obj, D3MIRROR *m)
                 d3_SortPtr->item = t;
                 if (tt) {
                     d3_SortPtr->key = (tt - d3_Textures) + 1;
-                    ((TSTEXTURE *)tt)->stamp = d3_FrameCount;
+                    tt->stamp = d3_FrameCount;
                 } else
                     d3_SortPtr->key = 0;
                 t->clip = m->planes;

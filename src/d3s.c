@@ -1447,7 +1447,7 @@ void d3s_UpdateObjectAt(D3OBJECT *obj)
         d3_PointToWorld(light, &light->pos, &lpos.v);
         d3_DirToWorld(light, &d3_ZAxis.v, &ldir.v);
         y = d3s_GetGround(obj, info, light);
-        verts = (D3VERTEX *)info->mesh->GetBox(obj, info, &obj->material->worldMatrix);
+        verts = info->mesh->GetBox(obj, info, &obj->material->worldMatrix);
         for (k = 8, box = verts; k; k--, box++) {
             if (light->objectFlags & 0x10) {
                 f = -((box->y - y) / ldir.y);

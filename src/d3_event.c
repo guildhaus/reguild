@@ -125,15 +125,15 @@ char d3e_RegisterEvent(D3OBJECT *obj, int id, D3EVHANDLER fn, char *name)
         if (fn) {
             if (!obj->events)
                 obj->events = mem_Alloc(D3E_NEVENTS * sizeof(D3EVENT), "d3e:RegisterEvent(eventtable)");
-            ((D3EVENT *)obj->events)[id].name[0x7f] = 0;
-            strncpy(((D3EVENT *)obj->events)[id].name, name, 0x7f);
-            ((D3EVENT *)obj->events)[id].fn = fn;
+            obj->events[id].name[0x7f] = 0;
+            strncpy(obj->events[id].name, name, 0x7f);
+            obj->events[id].fn = fn;
             return 1;
         }
-        if (obj->events && ((D3EVENT *)obj->events)[id].fn) {
-            ((D3EVENT *)obj->events)[id].fn = 0;
+        if (obj->events && obj->events[id].fn) {
+            obj->events[id].fn = 0;
             for (i = 0; i < D3E_NEVENTS; i++)
-                if (((D3EVENT *)obj->events)[i].fn)
+                if (obj->events[i].fn)
                     break;
             if (i == D3E_NEVENTS) {
                 mem_Free(obj->events);
@@ -155,15 +155,15 @@ char d3e_RegisterSceneEvent(D3SCENE *scene, int id, D3EVHANDLER fn, char *name)
         if (fn) {
             if (!scene->events)
                 scene->events = mem_Alloc(D3E_NEVENTS * sizeof(D3EVENT), "d3e:RegisterSceneEvent(eventtable)");
-            ((D3EVENT *)scene->events)[id].name[0x7f] = 0;
-            strncpy(((D3EVENT *)scene->events)[id].name, name, 0x7f);
-            ((D3EVENT *)scene->events)[id].fn = fn;
+            scene->events[id].name[0x7f] = 0;
+            strncpy(scene->events[id].name, name, 0x7f);
+            scene->events[id].fn = fn;
             return 1;
         }
-        if (scene->events && ((D3EVENT *)scene->events)[id].fn) {
-            ((D3EVENT *)scene->events)[id].fn = 0;
+        if (scene->events && scene->events[id].fn) {
+            scene->events[id].fn = 0;
             for (i = 0; i < D3E_NEVENTS; i++)
-                if (((D3EVENT *)scene->events)[i].fn)
+                if (scene->events[i].fn)
                     break;
             if (i == D3E_NEVENTS) {
                 mem_Free(scene->events);

@@ -543,7 +543,7 @@ void ai_CannonScene(AIBLD *rec)
             vw = &d2_Views[v];
             if (vw->active != 0 && vw->enabled != 0) {
                 for (i = 0; i < 0x300; i++) {
-                    if (d2_Objs[i].type != 0 && (D2VIEW *)d2_Objs[i].buf == vw && d2_Objs[i].disabled == 0) {
+                    if (d2_Objs[i].type != 0 && d2_Objs[i].buf == vw && d2_Objs[i].disabled == 0) {
                         list[n++] = i;
                         d2_Objs[i].disabled = 1;
                     }
@@ -591,7 +591,7 @@ void ai_CannonScene(AIBLD *rec)
     sc.selected = gv_Cannon.selected;
     sc.zoom = 0.0f;
     d3_SetObjectPos(sc.obj98, &sc.pos);
-    d3_SetObjectRot(sc.obj98, (D3VECTOR *)&sc.rot);
+    d3_SetObjectRot(sc.obj98, &sc.rot);
     sc.obj9c = d3_CreateObject(sc.obj98, &ai_WimpelPos.v, &d3_ZeroRot, "AO_KANONE_WIMPEL_Aa");
     d3t_PlayAnim(sc.obj9c, "_ADDON\\AO_KANONE_WIMPEL_Aa.baf", 1);
     sc.obj9c->stateFlags = (sc.obj9c->stateFlags & 0xf7) | 4;

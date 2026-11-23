@@ -2599,7 +2599,7 @@ void ai_BloodRevengeWindow(AIBLD *building)
                     }
                     gm_SendMoneyDelta(ai_Chars[ai_PlayerId].netId, -total);
                     cm_SendSetField(ai_Chars[ai_PlayerId].netId, 0x1cc, 4, 8, 0);
-                    ai_GypsyDeliveryText((struct AICHAR *)av, k, (struct AICHAR **)&sel[5]);
+                    ai_GypsyDeliveryText(av, k, (struct AICHAR **)&sel[5]);
                     txt_Format(msg, 0x41b9, 0x41b2);
                     sv_MessageBox((intptr_t)msg, 0);
                     sv_PopRequest = 1;

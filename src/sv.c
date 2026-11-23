@@ -689,7 +689,7 @@ void sv_BuildScreenLayout(int s)
     sv_GroundplanView = d2_MakeSurface(&desc, 3);
     d2_ClearSurface(sv_GroundplanView);
     sv_BarToggle = d2_CreatePicObj(0x286, 0x23c, 0x544);
-    ((D2OBJ *)d2_Objs)[sv_BarToggle].interactive = 1;
+    d2_Objs[sv_BarToggle].interactive = 1;
     d2_EnableObject(sv_BarToggle, 0);
 }
 /* 0x522040, the image number of the panel for the player's group (0x6f3668, or when 0: the kind number 0x504ad0 of the first player character): 0x534 (1, 2, 10), 0x538 (3, 4), 0x53c (0xb, 0xc, 6), 0x540 (5, 7, 8, 9); 0x534 else */
@@ -1993,13 +1993,13 @@ void sv_OpenPlayerBar(AIBLD *a, char k)
     s = d2_LastWindow;
     d2_SetForm(sv_PlayerBarForm, 2);
     f = d2_GetWinObj(sv_PlayerBarForm, 2, 0);
-    ((D2OBJ *)d2_Objs)[f].style = 3;
+    d2_Objs[f].style = 3;
     d2_Wins[d2_LastWindow].btnup = f;
-    ((D2OBJ *)d2_Objs)[f].winIndex = s;
+    d2_Objs[f].winIndex = s;
     f = d2_GetWinObj(sv_PlayerBarForm, 2, 1);
-    ((D2OBJ *)d2_Objs)[f].style = 3;
+    d2_Objs[f].style = 3;
     d2_Wins[d2_LastWindow].btndown = f;
-    ((D2OBJ *)d2_Objs)[f].winIndex = s;
+    d2_Objs[f].winIndex = s;
     d2_Wins[s].visible = 0x4e;
     if (sv_PlayerBarForm != -1) {
         if (sv_PanelForm != -1)
@@ -2016,8 +2016,8 @@ void sv_OpenPlayerBar(AIBLD *a, char k)
         }
         d2_SetForm(sv_PlayerBarForm, 2);
         f = d2_WinOpenPicStyled(0x11, 4, 0x51d, d2_LastWindow, -2);
-        ((D2OBJ *)d2_Objs)[f].interactive = 1;
-        ((D2OBJ *)d2_Objs)[f].style = 3;
+        d2_Objs[f].interactive = 1;
+        d2_Objs[f].style = 3;
         for (i = 0; i < 768; i++)
             if (ai_Chars[i].selected != 0 && ai_Chars[i].jobId != 0)
                 ai_Chars[i].selected = 0;
@@ -2176,7 +2176,7 @@ void sv_SetupWeather(struct AITIME *t, int reroll)
     d3if_SelectScene(scene, 1);
     sv_SkyPhase = -100;
     sv_LampSwitches = 0;
-    sv_UpdateSkyPhase((AITIME *)t);
+    sv_UpdateSkyPhase(t);
 }
 typedef struct SVLEVELCOLOR {           /* 0x10 bytes, the ambient colour of a light level in the sky tables */
     D3VECTOR amb;
@@ -3268,7 +3268,7 @@ void sv_ColourBanners(int c)
             d3_ForEachObject(d3_DefaultScene, b->object, 0x340, sv_ColourBannerCB, b);
     }
     for (o = gm_Query(0, 3, 7, 3, c, 4, 0x1d); o != 0; o = gm_QueryNext()) {
-        m = (CHARACTER *)o->sceneObj;
+        m = o->sceneObj;
         if (m != 0) {
             d3if_SelectScene(d3t_SceneIndex(m->scene), 1);
             if (ch != 0 && ch->ref54 != 0 && (ch->kind == 5 || ch->kind == 6 || ch->kind == 7)) {
@@ -3413,7 +3413,7 @@ int sv_AddPanelButton(int x, int y, char *text)
 
     w = d2_WinCreateSlider(x + 3, y, 0xc5, text, d2_LastWindow);
     d2_SetObjFont(w, 0x54);
-    ((D2OBJ *)d2_Objs)[w].centred = 1;
+    d2_Objs[w].centred = 1;
     d2_SetObjWidth(w, 0x60);
     return w;
 }
@@ -3448,9 +3448,9 @@ void sv_OpenBuildingPanel(AIBLD *b)
     }
     d2_SetForm(sv_PanelForm, 0);
     sv_PanelBldPic = d2_WinOpenPic((d2_Wins[d2_LastWindow].w - 0x30) >> 1, 0x48, b->type + 0x427, d2_LastWindow);
-    ((D2OBJ *)d2_Objs)[sv_PanelBldPic].interactive = 1;
+    d2_Objs[sv_PanelBldPic].interactive = 1;
     if (b->owner != 0xffff && b->owner != ai_PlayerChar->id)
-        ((D2OBJ *)d2_Objs)[sv_PanelBldPic].user = &ai_Chars[b->owner];
+        d2_Objs[sv_PanelBldPic].user = &ai_Chars[b->owner];
     if (b->type == 0x47 || b->type == 0x1d || b->type == 0x57)
         sv_PanelHealthBar = -1;
     else {
@@ -3506,7 +3506,7 @@ void sv_OpenItemPanel(AIOBJ *p)
         } else
             io_PrintText((intptr_t)"$Z%s", p->type * 2 + 0x9a8);
         d2_SetForm(sv_PanelForm, 0);
-        ((D2OBJ *)d2_Objs)[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, p->type + 0xdf, d2_LastWindow)].interactive = 1;
+        d2_Objs[d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1, 0x48, p->type + 0xdf, d2_LastWindow)].interactive = 1;
         g = &ai_Goods[p->type];
         if (b != 0 && (g->type == 2 || g->type == 6)) {
             owner = gm_ObjectBuildingOwner(p);
@@ -3540,7 +3540,7 @@ void sv_OpenCartPanel(AIOBJ *c)
     io_PrintText((intptr_t)"$Z%2N1$A%s", owner->id, c->id * 2 + 0x9a8);
     d2_SetForm(sv_PanelForm, 0);
     x = ((d2_Wins[d2_LastWindow].w - 0x30) >> 1) - 1;
-    ((D2OBJ *)d2_Objs)[d2_WinOpenPic(x, 0x30, c->id + 0xdf, d2_LastWindow)].interactive = 1;
+    d2_Objs[d2_WinOpenPic(x, 0x30, c->id + 0xdf, d2_LastWindow)].interactive = 1;
     if (owner->id == ai_PlayerId)
         sv_PanelCartBtn = sv_AddPanelButton(x, 0xac, txt_Ptrs[TXT_PANEL_BTN_CART]);
     sv_PanelHealthBar = d2_WinOpenSlider(0x18, 0x66, 0x30, 0, 100, 0x75, 0x442, d2_LastWindow);
@@ -3656,8 +3656,8 @@ void sv_OpenPersonPanel(AICHAR *c)
     x = (d2_Wins[d2_LastWindow].w - 0x30) >> 1;
     if (c != 0) {
         sv_PanelPortrait = d2_WinOpenPic(x, 0x38, c->picture, d2_LastWindow);
-        ((D2OBJ *)d2_Objs)[sv_PanelPortrait].user = c;
-        ((D2OBJ *)d2_Objs)[sv_PanelPortrait].interactive = 1;
+        d2_Objs[sv_PanelPortrait].user = c;
+        d2_Objs[sv_PanelPortrait].interactive = 1;
         return;
     }
     d2_WinOpenPic(x, 0x38, 0x521, d2_LastWindow);
@@ -3724,7 +3724,7 @@ void sv_RefreshPanel(void)
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end8f);
-            ((D2OBJ *)d2_Objs)[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
+            d2_Objs[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
             if (sv_PanelWidgets[0] == -1) {
                 d2_SetForm(sv_PanelForm, 0);
                 sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
@@ -3741,13 +3741,13 @@ void sv_RefreshPanel(void)
                     sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
                 }
             }
-            ((D2OBJ *)d2_Objs)[sv_PanelBldPic].fillFraction = prog;
+            d2_Objs[sv_PanelBldPic].fillFraction = prog;
         } else if ((fl & 0x40) != 0) {
             j = he_FindEvent(2, 0, 0x1e, 3, sv_SelectedObject->id);
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end);
-            ((D2OBJ *)d2_Objs)[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
+            d2_Objs[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
             if (sv_PanelWidgets[0] == -1) {
                 d2_SetForm(sv_PanelForm, 0);
                 sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
@@ -3757,7 +3757,7 @@ void sv_RefreshPanel(void)
             if (j == 0)
                 return;
             total = (float)gm_MinutesBetween(&j->start, &j->end);
-            ((D2OBJ *)d2_Objs)[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
+            d2_Objs[sv_PanelBldPic].fillFraction = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
             if (sv_PanelWidgets[0] == -1) {
                 d2_SetForm(sv_PanelForm, 0);
                 sv_PanelWidgets[0] = d2_WinOpenPic(((d2_Wins[d2_LastWindow].w - 0x30) >> 1) + 0x2f, 0x4c, 0x4ff, d2_LastWindow);
@@ -3817,14 +3817,14 @@ void sv_RefreshPanel(void)
         } else if (kind == 0x61) {
             from = &j->start61;
             t = *from;
-            gm_AddTime((struct AITIME *)&t, 8, 0, 0);
+            gm_AddTime(&t, 8, 0, 0);
             total = (float)gm_MinutesBetween(from, &t);
             if (total != 0.0f)
                 prog = (float)gm_MinutesBetween(from, &ai_Time) / total;
         } else if (kind == 0x43) {
             from = &j->start;
             t = *from;
-            gm_AddTime((struct AITIME *)&t, 0x18, 0, 0);
+            gm_AddTime(&t, 0x18, 0, 0);
             total = (float)gm_MinutesBetween(from, &t);
             if (total != 0.0f)
                 prog = (float)gm_MinutesBetween(from, &ai_Time) / total;
@@ -3834,7 +3834,7 @@ void sv_RefreshPanel(void)
             else if (j->stage == 4) {
                 from = &j->start;
                 t = *from;
-                gm_AddTime((struct AITIME *)&t, 0x60, 0, 0);
+                gm_AddTime(&t, 0x60, 0, 0);
                 total = (float)gm_MinutesBetween(from, &t);
                 if (total != 0.0f)
                     prog = (float)gm_MinutesBetween(from, &ai_Time) / total;
@@ -3845,7 +3845,7 @@ void sv_RefreshPanel(void)
             else {
                 from = &j->start;
                 t = *from;
-                gm_AddTime((struct AITIME *)&t, 0x18, 0, 0);
+                gm_AddTime(&t, 0x18, 0, 0);
                 total = (float)gm_MinutesBetween(from, &t);
                 if (total != 0.0f)
                     prog = (float)gm_MinutesBetween(from, &ai_Time) / total;
@@ -3863,9 +3863,9 @@ void sv_RefreshPanel(void)
             if (total != 0.0f)
                 prog = (float)gm_MinutesBetween(&j->start, &ai_Time) / total;
         }
-            ((D2OBJ *)d2_Objs)[sv_PanelPortrait].fillFraction = prog;
+            d2_Objs[sv_PanelPortrait].fillFraction = prog;
         } else if (sv_PanelPortrait != -1)
-            ((D2OBJ *)d2_Objs)[sv_PanelPortrait].fillFraction = 0;
+            d2_Objs[sv_PanelPortrait].fillFraction = 0;
         return;
     }
     if (sv_PanelCartWin == -1 || sv_SelectedItem == 0) {
@@ -3898,9 +3898,9 @@ void sv_RefreshPanel(void)
         *q = d2_WinOpenPicStyled(x, 0x28, goods->id + 0xdf, d2_LastWindow, -2);
         sprintf(amount, "%i", gm_ListAmount(load, goods));
         o = d2_CreateWinText(x - 2, 0x1c, amount, d2_LastWindow);
-        ((D2OBJ *)d2_Objs)[o].interactive = 1;
-        ((D2OBJ *)d2_Objs)[o].centred = 1;
-        ((D2OBJ *)d2_Objs)[o].w = 0x20;
+        d2_Objs[o].interactive = 1;
+        d2_Objs[o].centred = 1;
+        d2_Objs[o].w = 0x20;
         goods = gm_QueryNext();
         x += 0x20;
         q++;
@@ -4152,7 +4152,7 @@ void sv_HoverPick(void)
             ai_PickedObject = d3if_Pick((float)dm_L.x, (float)dm_L.y, 0x40, 1);
     }
     if (ai_PickedObject == 0) {
-        if (d2_PointerObj == -1 || (((D2OBJ *)d2_Objs)[d2_PointerObj].style & 0x40) == 0)
+        if (d2_PointerObj == -1 || (d2_Objs[d2_PointerObj].style & 0x40) == 0)
             d2_CaptionCopy[0] = 0;
         if (d2_PointerSprite != -1) {
             d2_FreeAnim(d2_PointerSprite);
@@ -5017,7 +5017,7 @@ void sv_ShowBubble(CHARACTER *ch, int text, char *name)
     if (ch == 0 || ch->scene != d3_DefaultScene)
         return;
     for (i = 0; i < 0x40; i++) {
-        if (sv_Bubbles[i].ch == (struct CHARACTER *)ch)
+        if (sv_Bubbles[i].ch == ch)
             return;
     }
     for (i = 0; i < 0x40; i++) {
@@ -5037,7 +5037,7 @@ void sv_ShowBubble(CHARACTER *ch, int text, char *name)
     }
     b = &sv_Bubbles[i];
     b->time = d3_Time;
-    b->ch = (struct CHARACTER *)ch;
+    b->ch = ch;
     b->text = text;
     ch->onDelete = (void (*)(struct CHARACTER *))sv_ReleaseBubble;
     if (name != 0)
@@ -5272,11 +5272,11 @@ void sv_DrawBubbles(void)
     }
     d2_SetFont(0x54);
     for (i = 0; i < 0x40; i++) {
-        ch = (CHARACTER *)sv_Bubbles[i].ch;
-        if (ch == 0 || ((CHARACTER *)sv_Bubbles[i].ch)->obj->scene != d3_DefaultScene)
+        ch = sv_Bubbles[i].ch;
+        if (ch == 0 || sv_Bubbles[i].ch->obj->scene != d3_DefaultScene)
             continue;
-        if (((CHARACTER *)sv_Bubbles[i].ch)->obj->type != 1) {
-            if (d3if_ScreenBox(((CHARACTER *)sv_Bubbles[i].ch)->obj, &box) == 0)
+        if (sv_Bubbles[i].ch->obj->type != 1) {
+            if (d3if_ScreenBox(sv_Bubbles[i].ch->obj, &box) == 0)
                 continue;
         } else {
             low = ch->lowPolyBody;
@@ -5588,7 +5588,7 @@ void sv_HandleRightClick(unsigned fl)
             /* @original the slot's address is tested for null (a test VC6 keeps only when s
                is not the expression the other operands use) */
             s = &he_EventSlots[i];
-            if (he_EventSlots[i].obj != -1 && s != 0 && d2_PointerObj == ((D2OBJ *)d2_Objs)[he_EventSlots[i].obj].id) {
+            if (he_EventSlots[i].obj != -1 && s != 0 && d2_PointerObj == d2_Objs[he_EventSlots[i].obj].id) {
                 he_EventSlots[i].ev->stage = -1;
                 he_SlotConfirmed = 0;
                 di_ClearButtons();
@@ -5895,7 +5895,7 @@ void sv_ButtonRow(int f, int y, int *out, int n, ...)
     for (i = 0; i < n; i++) {
         id = d2_WinCreateSlider(x - wmax / 2, y, 0xbf, labels[i], f);
         out[i] = id;
-        ((D2OBJ *)d2_Objs)[id].font = 0x53;
+        d2_Objs[id].font = 0x53;
         d2_SetObjWidth(id, bw);
         x += step;
     }
@@ -5953,7 +5953,7 @@ void sv_TabButtonRow(int f, int y, int *out, int n, ...)
     for (i = 0; i < n; i++) {
         id = d2_WinCreateSlider(x - wmax / 2, y, 0xc5, labels[i], f);
         out[i] = id;
-        ((D2OBJ *)d2_Objs)[id].font = 0x54;
+        d2_Objs[id].font = 0x54;
         d2_SetObjWidth(id, wmax);
         x += step;
     }
@@ -5975,7 +5975,7 @@ void sv_DisableVisibleWidgets(int on)
             if (d2_Views[k].active != 0 && d2_Views[k].enabled != 0) {
                 v = &d2_Views[k];
                 for (i = 0; i < 0x300; i++) {
-                    o = &((D2OBJ *)d2_Objs)[i];
+                    o = &d2_Objs[i];
                     if (o->type != 0 && o->buf == v && o->disabled == 0) {
                         sv_DisabledWidgets[sv_DisabledCount++] = i;
                         o->disabled = 1;
@@ -5986,7 +5986,7 @@ void sv_DisableVisibleWidgets(int on)
         return;
     }
     for (i = 0; i < sv_DisabledCount; i++)
-        ((D2OBJ *)d2_Objs)[sv_DisabledWidgets[i]].disabled = 0;
+        d2_Objs[sv_DisabledWidgets[i]].disabled = 0;
 }
 /* 0x52e6d0, puts the frame pictures into the building window f (ai_ProductionWindow, ai_TradeSearchWindow, ..): the
    title c at (0xb, 9) (0: the current building's kind picture 0x427 + type, 0x520 without a building), the kind
@@ -6043,21 +6043,21 @@ int sv_CreateScrollButtons(int x, int y, int f, int g, int step, int *down, int 
     id = d2_WinOpenPic(x, y, 3, f);
     *up = id;
     d2_Wins[f].btnup = id;
-    ((D2OBJ *)d2_Objs)[*up].interactive = 1;
-    ((D2OBJ *)d2_Objs)[*up].style = 3;
+    d2_Objs[*up].interactive = 1;
+    d2_Objs[*up].style = 3;
     id = d2_WinOpenPic(x, y + 0x2a, 4, f);
     *down = id;
     d2_Wins[f].btndown = id;
-    ((D2OBJ *)d2_Objs)[*down].interactive = 1;
-    ((D2OBJ *)d2_Objs)[*down].style = 3;
-    ((D2OBJ *)d2_Objs)[*down].winIndex = g;
-    ((D2OBJ *)d2_Objs)[*up].winIndex = g;
+    d2_Objs[*down].interactive = 1;
+    d2_Objs[*down].style = 3;
+    d2_Objs[*down].winIndex = g;
+    d2_Objs[*up].winIndex = g;
     id = d2_CreateWinText(x - 0x13, y + 0x19, ch_EmptyName, f);
     *bar = id;
     d2_Wins[f].bar = id;
-    ((D2OBJ *)d2_Objs)[*bar].font = 0x54;
-    ((D2OBJ *)d2_Objs)[*bar].centred = 1;
-    ((D2OBJ *)d2_Objs)[*bar].w = 0x30;
+    d2_Objs[*bar].font = 0x54;
+    d2_Objs[*bar].centred = 1;
+    d2_Objs[*bar].w = 0x30;
     w->scrollY = 0;
     w->visible = step;
     return 1;
@@ -6554,8 +6554,8 @@ void sv_ScrollFormAnimate(void)
         f = ((d2_LastWindowPtr->scrollY) / 6) % 0xc;
         if (f < 0)
             f = 0;
-        ((D2OBJ *)d2_Objs)[sv_ScrollEndTop].input = f;
-        ((D2OBJ *)d2_Objs)[sv_ScrollEndBottom].input = f;
+        d2_Objs[sv_ScrollEndTop].input = f;
+        d2_Objs[sv_ScrollEndBottom].input = f;
     }
 }
 /* 0x52fb50, requests popping the frame stack down to the frame whose callback is cb: sets sv_PopRequest to its distance from the top sv_FrameDepth (nothing when cb is not on the stack) */
@@ -6697,8 +6697,8 @@ void sv_ChatConsole(void)
         if (ai_Chars[k].kind == 7) {
             w = d2_WinOpenPic(i * 0x30 + 100, 4, ai_Chars[k].ref54, d2_LastWindow);
             ids[i] = w;
-            ((D2OBJ *)d2_Objs)[w].checkable = 1;
-            ((D2OBJ *)d2_Objs)[w].user = &ai_Chars[k];
+            d2_Objs[w].checkable = 1;
+            d2_Objs[w].user = &ai_Chars[k];
             d2_SetObjValue(w, sv_ChatRecipients[i]);
             i++;
         }
@@ -6718,7 +6718,7 @@ void sv_ChatConsole(void)
         if ((d2_ClickedId != -1 || kb_Last == 0x1c) && (d2_PointerObj == w || kb_Last == 0x1c)) {
             for (i = 0; i < 8; i++) {
                 if (ids[i] != -1 && d2_GetObjValue(ids[i]) != 0)
-                    msg.to[i] = ((AICHAR *)((D2OBJ *)d2_Objs)[ids[i]].user)->netId;
+                    msg.to[i] = ((AICHAR *)d2_Objs[ids[i]].user)->netId;
             }
             sprintf(msg.text, "$%iFF ", ai_Chars[ai_PlayerId].ref54 - 0x59a);
             strcat(msg.text, (char *)d2_GetObjValue(ed));
@@ -7092,7 +7092,7 @@ l64:
         if ((mask & 0x10) == 0) {
             if (dm_L.rhold != 0)
                 goto l2;
-            if (d2_PointerObj == -1 || (((D2OBJ *)d2_Objs)[d2_PointerObj].style & 0x40) == 0)
+            if (d2_PointerObj == -1 || (d2_Objs[d2_PointerObj].style & 0x40) == 0)
                 d2_CopyCaption(ch_EmptyName);
             ai_PickedObject = 0;
             sv_HoverItem = 0;

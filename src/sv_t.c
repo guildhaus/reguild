@@ -572,7 +572,7 @@ int ai_TutorialTick(void)
                     sb_Stop(ai_Tutorial->voice, 0);
                 ai_Tutorial->voice = 0;
             }
-            ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->voice, -1);
+            ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->voice, -1);
         }
         ai_Tutorial->statusShown = 1;
         ai_TutorialShowRunText();
@@ -601,7 +601,7 @@ int ai_TutorialTick(void)
                     sb_Stop(ai_Tutorial->voice, 0);
                 ai_Tutorial->voice = 0;
             }
-            ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->voice, -1);
+            ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->voice, -1);
         }
         ai_Tutorial->statusShown = 1;
         ai_TutorialShowRunText();
@@ -1673,7 +1673,7 @@ int ai_TutorialCloseIntro(void)
         return -4;
     if (!host->slot)
         return -4;
-    he_ReleaseSlot((struct AIJOB *)host);
+    he_ReleaseSlot(host);
     return 0;
 }
 /* 0x577850, clears the run window's two text controls: -4 without a host / with no open event slot, else sets the
@@ -1723,7 +1723,7 @@ int ai_TutorialShowRunText(void)
                 sb_Stop(ai_Tutorial->voice, 0);
             ai_Tutorial->voice = 0;
         }
-        ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->mainVoice, -1);
+        ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->mainVoice, -1);
     }
     return 0;
 }
@@ -1782,7 +1782,7 @@ void ai_TutorialShowText(void)
             sb_Stop(ai_Tutorial->voice, 0);
         ai_Tutorial->voice = 0;
     }
-    ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->text1Voice, -1);
+    ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->text1Voice, -1);
 }
 /* 0x577b60, clears the first text window text1Win: control 0 turned off (0x475f70), the text cleared to "$C"
    (0x602568, 0x515960) and the window disabled (0x475590); no return value */
@@ -1815,7 +1815,7 @@ void ai_TutorialShowText2(void)
             sb_Stop(ai_Tutorial->voice, 0);
         ai_Tutorial->voice = 0;
     }
-    ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->text2Voice, -1);
+    ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->text2Voice, -1);
 }
 /* 0x577c60, clears the second text window text2Win: control 0 turned off (0x475f70), the text cleared to "$C"
    (0x602568, 0x515960) and the window disabled (0x475590); then the playing voice is stopped (0x426f20 /
@@ -1939,7 +1939,7 @@ int ai_TutorialStepForm(void)
                 sb_Stop(ai_Tutorial->voice, 0);
             ai_Tutorial->voice = 0;
         }
-        ai_Tutorial->voice = (struct SBSAMPLE *)snd_PlayVoice(-7, 0, ai_Tutorial->run->steps[ai_Tutorial->step].voice, -1);
+        ai_Tutorial->voice = snd_PlayVoice(-7, 0, ai_Tutorial->run->steps[ai_Tutorial->step].voice, -1);
     }
     if (ai_Tutorial->run->stepShown)
         ai_Tutorial->run->stepShown();

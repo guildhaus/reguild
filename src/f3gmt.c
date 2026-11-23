@@ -444,8 +444,8 @@ void gm_ClearObjects(void)
     AICHAR *c;
 
     for (i = 0; i < 0x5008; i++) {
-        if (((AIOBJ *)ai_Objects)[i].type != 0) {
-            gm_FindById(&b, &o, &c, ((AIOBJ *)ai_Objects)[i].ownerId);
+        if (ai_Objects[i].type != 0) {
+            gm_FindById(&b, &o, &c, ai_Objects[i].ownerId);
             if (b != 0)
                 list = &b->objList;
             else if (o != 0)
@@ -455,10 +455,10 @@ void gm_ClearObjects(void)
             else
                 list = 0;
             if (list != 0) {
-                gm_RemoveObject(list, ((AIOBJ *)ai_Objects)[i].type);
+                gm_RemoveObject(list, ai_Objects[i].type);
             } else {
-                gm_FreeObjectExtra(&((AIOBJ *)ai_Objects)[i]);
-                ((AIOBJ *)ai_Objects)[i].type = 0;
+                gm_FreeObjectExtra(&ai_Objects[i]);
+                ai_Objects[i].type = 0;
                 f3gm_ObjectCount--;
             }
         }
@@ -1938,7 +1938,7 @@ struct AIBLD *gm_BuildNext(void)
     AIBLD *end;
 
     m = 0;
-    end = (AIBLD *)ai_Blds + 0x100;
+    end = ai_Blds + 0x100;
     if (ai_BTypes == 0)
         return 0;
     if (gm_BQTested > 0x100)
@@ -2058,7 +2058,7 @@ char *gm_FindFreeBuilding(void)
 {
     AIBLD *end, *b;
 
-    end = (AIBLD *)ai_Blds + 0x100;
+    end = ai_Blds + 0x100;
     for (b = ai_Blds; b < end; b++) {
         if (b->type == 0)
             break;
@@ -2255,7 +2255,7 @@ unsigned char *gm_CreateBuilding(unsigned char k, unsigned short own)
 
             strcpy(cand, txt_Ptrs[TXT_BUILDING_NAMES + (k * 0xe + i)]);
             for (j = 0; j < 0x100; j++) {
-                if (((AIBLD *)ai_Blds)[j].type != 0 && strcmp(((AIBLD *)ai_Blds)[j].name, cand) == 0)
+                if (ai_Blds[j].type != 0 && strcmp(ai_Blds[j].name, cand) == 0)
                     break;
             }
             if (j < 0x100)
@@ -5162,7 +5162,7 @@ unsigned gm_TakeOverCharacter(int a, int b)
         return -1;
     ai_RestartMission(ca);
     for (j = 0; j < 0x100; j++) {
-        bl = &((AIBLD *)ai_Blds)[j];
+        bl = &ai_Blds[j];
         if (bl->type != 0 && gm_BuildingClass(bl->type) == 2 && bl->owner == ca->id)
             gm_AssignBuilding(bl, ai_PlayerChar->id, ai_PlayerChar->id);
     }

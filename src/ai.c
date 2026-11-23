@@ -3578,7 +3578,7 @@ void ai_BuildTradeOffers(AICHAR *ch, AIOBJ *store, int f)
 
 void ai_CalcEntryCost(AIENTRY *e0)
 {
-    AIENTRY *e = (AIENTRY *)e0;
+    AIENTRY *e = e0;
     AISLOT *s;
     int k;
 

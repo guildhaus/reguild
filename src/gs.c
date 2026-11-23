@@ -1232,7 +1232,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.type = 0x5c;
         m.flags = 1;
         m.time = ai_Time;
-        gm_AddTime((struct AITIME *)&m.time, 1, 0, 0);
+        gm_AddTime(&m.time, 1, 0, 0);
         m.to = c->netId;
         m.fromId = -1;
         m.arg[0] = 3;
@@ -1243,7 +1243,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.type = 0x5b;
         m.flags = 1;
         m.time = ai_Time;
-        gm_AddTime((struct AITIME *)&m.time, 1, 0, 0);
+        gm_AddTime(&m.time, 1, 0, 0);
         m.to = c->netId;
         m.fromId = -1;
         m.arg[0] = (int)(worth * 0.03f);
@@ -1254,7 +1254,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.type = 0x5c;
         m.flags = 1;
         m.time = ai_Time;
-        gm_AddTime((struct AITIME *)&m.time, 1, 0, 0);
+        gm_AddTime(&m.time, 1, 0, 0);
         m.to = c->netId;
         m.fromId = -1;
         m.arg[0] = 3;
@@ -1265,7 +1265,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         m.type = 0x5b;
         m.flags = 1;
         m.time = ai_Time;
-        gm_AddTime((struct AITIME *)&m.time, 1, 0, 0);
+        gm_AddTime(&m.time, 1, 0, 0);
         m.to = c->netId;
         m.fromId = -1;
         m.arg[0] = (int)(worth * 0.03f);
@@ -1305,7 +1305,7 @@ void gv_PassSentence(AICHAR *c, int a, AICHAR *judge, AICHAR *assessor1, AICHAR 
         party.host = ai_Chars[ai_PlayerId].netId;
         party.thing = -1;
         party.time = ai_Time;
-        gm_AddTime((struct AITIME *)&party.time, 0x18, 0, 0);
+        gm_AddTime(&party.time, 0x18, 0, 0);
         party.time.hour = 10;
         party.time.min = 0;
         party.kind = 5;
@@ -1412,7 +1412,7 @@ void gv_CheckRankUp(unsigned i)
                 m.time.hour = 7;
                 m.time.min = 0;
                 if (c->kind == 5)
-                    gm_AddTime((struct AITIME *)&m.time, util_Random(4), util_Random(8) * 7, 0);
+                    gm_AddTime(&m.time, util_Random(4), util_Random(8) * 7, 0);
                 m.rankUp.rank = nb;
                 m.rankUp.ch = c->netId;
                 cm_SendLongMessage(&m);

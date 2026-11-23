@@ -1136,7 +1136,7 @@ void he_RemoveStaleGfxInfos(void)
     HEGFXINFO *p;
 
     for (p = he_GfxInfos; (int)p < (int)(he_GfxInfos + 0x40); p++)
-        if (p->ev != 0 && (((AIJOB *)p->ev)->id != p->eventId || ai_GameSwitches.byte[3] == 0))
+        if (p->ev != 0 && (p->ev->id != p->eventId || ai_GameSwitches.byte[3] == 0))
             he_FreeGfxInfo((int *)p);
 }
 /* 0x53ebe0, removes the gfx infos of the object `obj` */
@@ -15726,7 +15726,7 @@ void he_RunBurglary(AIJOB *ev)
             ev->stage = -1;
             return;
         }
-        guard = &ai_Chars[((AIJOB *)w)->chr];
+        guard = &ai_Chars[w->chr];
         cr = (CRIME *)cm_GetSlotValue(x->burglarySlot);
         if (guard != 0 && cr != 0)
             cm_SendProofExecuted(cr->id, guard->netId);
@@ -15747,7 +15747,7 @@ void he_RunBurglary(AIJOB *ev)
                 g = gm_BuildQuery(1, 1, x->burglaryGuild);
                 if (g != 0)
                     master = gm_FindChar(ai_Chars[g->owner].netId);
-                guard = &ai_Chars[((AIJOB *)w)->chr];
+                guard = &ai_Chars[w->chr];
                 if (guard != 0 && master != 0) {
                     reward = gm_PlayerFactor(util_Random(200) + 0x226, ai_OwnPlayer);
                     txt_Format(text, 0x19ea, b, reward, guard->id);
@@ -17637,7 +17637,7 @@ void he_RunRobbery(AIJOB *ev)
             int reward;
 
             master = gm_FindChar(ai_Chars[ev->chr].netId);
-            guard = &ai_Chars[((AIJOB *)w)->chr];
+            guard = &ai_Chars[w->chr];
             if (guard != 0 && master != 0) {
                 reward = gm_PlayerFactor(util_Random(200) + 0x226, ai_OwnPlayer);
                 txt_Format(text, 0x19ea, b, reward, guard->id);

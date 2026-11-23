@@ -247,7 +247,7 @@ void par_Draw(D3PARTSYS *ps)
                 if (p->frame > 0)
                     tex = tex_GetFrame(ps->texindex, p->frame);
                 else
-                    tex = (TSTEXTURE *)ps->tex;
+                    tex = ps->tex;
                 t[0].v[0] = v;
                 t[0].v[1] = v1;
                 t[0].v[2] = v2;

@@ -7577,7 +7577,7 @@ void ai_MarketStandListener(AIBLD *market)
     }
     if (c != fleck1 && c != fleck2 && c != fleck3)
         return;
-    bld = (AIBLD *)((D3OBJECT *)c)->parent->owner;
+    bld = (AIBLD *)c->parent->owner;
     if (bld == 0)
         return;
     ai_MarketStandWindow(bld, 0x95);

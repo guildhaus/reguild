@@ -3779,7 +3779,7 @@ int cm_ExSysMessage(G17MSG *m, G17STAT *s)
             memset(&t, 0, sizeof(t));
             t.year = msg.sys.arg[0];
             util_Seed(msg.sys.arg[1]);
-            sv_SetupWeather((struct AITIME *)&t, 1);
+            sv_SetupWeather(&t, 1);
             break;
         }
         case 2:
@@ -4240,7 +4240,7 @@ int cm_ExSetPlant(G17MSG *m, G17STAT *s)
             o = veg_FindPlantAt(b->plants, m->plant.x, m->plant.z);
             if (o != 0 && o->fallId == m->plant.fallId) {
                 d3if_SelectScene(init_BuildingUniverse[(unsigned char)ai_BTypes[b->type].kind], 1);
-                d3if_Delete((struct D3OBJECT *)o->obj);
+                d3if_Delete(o->obj);
                 o->obj = 0;
                 veg_LoadModel(o, 0);
                 o->fallId = -1;

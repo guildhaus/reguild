@@ -1441,7 +1441,7 @@ int cm_OrderAttack(CMCUTINFO *rec, AICHAR *c, AICHAR *tgt, int x, int z)
     }
     if (ch->formation == 1 || ch->formation == 2 || ch->formation == 3)
         order.held = 1;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+    cm_SendCutEntry(rec->playerId, &order);
 }
 /* 0x4d0200, orders the character c of the cutscene record rec (CMCUTINFO) to flee to the escape object tgt
    ("sp_ESCAPE"): its entry (cm_CutEntrySlot, b0c cleared there) is copied with state 3 and the ground cell of tgt's
@@ -1471,7 +1471,7 @@ int cm_OrderEscape(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
     order.stateArg = x;
     order.state = 3;
     order.x = z;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+    cm_SendCutEntry(rec->playerId, &order);
 }
 /* 0x4d02d0, an order kind 4 (the walk to a named dummy) for the character c with the name of the object tgt
    (CMCUTENTRY.dummy) and its ground cell (cellX, cellZ); returns 1, 0 when the point is not on the ground. */
@@ -1523,7 +1523,7 @@ int cm_OrderWare(CMCUTINFO *rec, AICHAR *c, D3OBJECT *tgt)
     strcpy(order.dummy, tgt->name);
     order.storeX = (unsigned char)x;
     order.storeZ = (unsigned char)z;
-    return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+    return cm_SendCutEntry(rec->playerId, &order);
 }
 /* 0x4d0460, orders the character c of the cutscene record rec (CMCUTINFO) to the best ground cell within 8 rings of
    its own (cm_BestCellNear, formation type 4): its entry (cm_CutEntrySlot, b0c cleared there) is copied with state 7 and
@@ -1547,7 +1547,7 @@ int cm_OrderToBestCell(CMCUTINFO *rec, AICHAR *c)
         order.stateArg = x;
         order.state = 7;
         order.x = z;
-        return cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+        return cm_SendCutEntry(rec->playerId, &order);
     }
     return -1;
 }
@@ -1565,7 +1565,7 @@ void cm_OrderWait(CMCUTINFO *rec, AICHAR *c)
     memcpy(&order, q, sizeof(order));
     order.charId = c->netId;
     order.state = 8;
-    cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+    cm_SendCutEntry(rec->playerId, &order);
 }
 
 /* 0x4d0570, the order of a mouse click (dm_L.lup) for the character c of the cutscene record rec (CMCUTINFO): on a
@@ -1612,7 +1612,7 @@ char cm_OrderClick(CMCUTINFO *rec, AICHAR *c)
                 order.stateArg = x;
                 order.state = 1;
                 order.x = z;
-                cm_SendCutEntry(((CMCUTINFO *)rec)->playerId, &order);
+                cm_SendCutEntry(rec->playerId, &order);
                 ret = 1;
             } else
                 sv_SetStatusText(txt_Ptrs[TXT_CLICK_NO_GROUND]);
@@ -4250,7 +4250,7 @@ void cm_FightFrame(CMCUTINFO *r)
             memcpy(&sl, q, sizeof(CMCUTENTRY));
             sl.charId = cm_CutChar->netId;
             sl.state = 5;
-            cm_SendCutEntry(((CMCUTINFO *)r)->playerId, &sl);
+            cm_SendCutEntry(r->playerId, &sl);
         }
     } else
         sv_PopRequest = 1;
@@ -4360,7 +4360,7 @@ void cm_FighterAct(CMFIGHTSLOT *f)
         ev->pot.y = f->y;
         strcpy(ev->u.name, "spezial/einhaendig_vom_boden_nehmen");
         if (cm_CutChar->netId == cm_FightOwner) {
-            if (!d3_GetHeightAt((struct D3SM *)h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
+            if (!d3_GetHeightAt(h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
                 return;
             cm_BestCellNear(c, cm_PickCellX, cm_PickCellZ, 8, &ox, &oy);
             cm_SendObjCell(c->scene->obj->name, ox, oy, 0);
@@ -4601,7 +4601,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
 
         if (c->scene->actions != 0 || s.held != 0)
             return -1;
-        if (!d3_GetHeightAt((struct D3SM *)h, &g->scene->obj->pos, &ix, &iz, &py))
+        if (!d3_GetHeightAt(h, &g->scene->obj->pos, &ix, &iz, &py))
             return -1;
         if (cm_FindNearCell(ix, iz, &ix, &iz) == 0)
             return -1;

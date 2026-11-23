@@ -133,12 +133,12 @@ char d3if_SelectTextureSet(D3OBJECT *obj, D3SURF *surf, unsigned char set, char 
                     t = surf->tris;
                     for (j = 0; j < surf->ntris; j++, t++)
                         if (t->src->mat == i) {
-                            t->tex = (TSTEXTURE *)tex;
+                            t->tex = tex;
                             replaced++;
                         }
                     if (!replaced)
                         sprintf(buf2, "SelectTextureSet: no polys w/ %s found to replace w/ %s in %s", old->name, name, obj->name);
-                    tex_Release((struct TSTEXTURE *)old);
+                    tex_Release(old);
                 } else {
                     sprintf(buf1, "SelectTextureSet: cannot replace %s with %s (new not found) in %s", old->name, name, obj->name);
                     ok = 0;
@@ -339,7 +339,7 @@ char d3if_InitScene(D3SCENE *s)
         s->camrot.x = 0;
         s->camrot.z = 0;
         d3_SetObjectRot(cam, &s->camrot);
-        cam->scene = (D3SCENE *)s;
+        cam->scene = s;
         cam->next = &d3_ObjEnd;
         cam->prev = &d3_TopHead;
         cam->state |= 3;
@@ -573,8 +573,8 @@ char d3if_MoveCB(D3OBJECT *obj, D3IFMOVE *m)
 {
     D3PARTSYS *p, *next;
 
-    d3_ForEachObject((D3SCENE *)m->from, 0, 7, (D3OBJECTCB)d3_LightRemoveRecords, obj);
-    obj->scene = (D3SCENE *)m->to;
+    d3_ForEachObject(m->from, 0, 7, (D3OBJECTCB)d3_LightRemoveRecords, obj);
+    obj->scene = m->to;
     for (p = m->from->parHead; p != &d3_ParEnd; p = next) {
         next = p->next;
         if (p->obj.parent == obj)
@@ -620,7 +620,7 @@ char d3if_MoveObject(D3OBJECT *obj, D3SCENE *from, D3SCENE *to)
     }
     m.from = from;
     m.to = to;
-    d3_ForEachObject((D3SCENE *)from, obj, 0x3ff, (D3OBJECTCB)d3if_MoveCB, &m);
+    d3_ForEachObject(from, obj, 0x3ff, (D3OBJECTCB)d3if_MoveCB, &m);
     if (to == d3_DefaultScene) {
         to->first = d3_TopFirst;
         to->last = d3_TopLast;
@@ -1552,7 +1552,7 @@ void d3_WriteObject(VFSFILE *f, D3OBJECT *obj)
     bio_wr_c(f, c != 0);
     if (c)
         d3_WriteObject(f, c);
-    d3e_SaveEvents(f, (D3EVENT *)obj->events);
+    d3e_SaveEvents(f, obj->events);
 }
 /* 0x44a770, writes the terrain map of the scene */
 

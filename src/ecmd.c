@@ -444,7 +444,7 @@ char ocmd_AttachAnimCB(D3OBJECT *obj, OCMDANIM *a)
             f.u.c.b0 = a->n;
             f.b = 0;
             f.a = 1;
-            s = (D3ANIMSLOT *)d3anim_StartAnim(obj->info, name, f.anim);
+            s = d3anim_StartAnim(obj->info, name, f.anim);
             if (s && a->rnd) {
                 s->frame = rand() % (s->data->nframes - 1);
                 s->nextFrame = s->frame + 1;

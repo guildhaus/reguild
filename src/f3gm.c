@@ -689,9 +689,9 @@ void gm_EndDayIncomes(unsigned flags)
         }
     }
     for (i = 0; i < 0x100; i++) {
-        ((AIBLD *)ai_Blds)[i].roundSums[0] = 0;
-        if (((AIBLD *)ai_Blds)[i].type >= 11 && ((AIBLD *)ai_Blds)[i].type <= 13)
-            ((AIBLD *)ai_Blds)[i].daySum = 0;
+        ai_Blds[i].roundSums[0] = 0;
+        if (ai_Blds[i].type >= 11 && ai_Blds[i].type <= 13)
+            ai_Blds[i].daySum = 0;
     }
 }
 /* 0x4fad60, finds the richest character (the highest gm_GetWorth of the used records of kind < 10 that are alive),
@@ -1803,7 +1803,7 @@ void gm_PartnerStep(AICHAR *c)
             return;
         clk = ai_Time;
         arg = 2;
-        gm_AddTime((struct AITIME *)&clk, 8, 0, 0);
+        gm_AddTime(&clk, 8, 0, 0);
         clk.hour = util_Random(4) + 8;
         clk.min = 0;
         t = c->bld2 != 0 ? c->bld2->id : -1;

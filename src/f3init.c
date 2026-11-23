@@ -579,7 +579,7 @@ void init_LoadObjectScene(int n)
                         }
                     } else {
                         ch_SetPos(o, &o->pos, 1);
-                        ch_PlaceOnGround((struct CHARACTER *)o, 1);
+                        ch_PlaceOnGround(o, 1);
                     }
                 }
             }

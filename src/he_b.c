@@ -464,7 +464,7 @@ void he_AllocProduktion(AIJOB *ev)
             txt_Format(buf, (intptr_t)"he_AllocProduktion(): geb:%G", o);
     }
     b = gm_FindBuildingById(p->productionBld);
-    g = (AIGOOD *)ai_Goods;
+    g = ai_Goods;
     id = p->productionGood;
     v = (float)g[id].workTime;
     ev->end = ev->start;
@@ -2894,7 +2894,7 @@ void he_RunSecretRoom(AIJOB *e)
             e->exSlot = cm_SendExSetHE(-1, e);
             return;
         }
-        if ((spy = (AIJOB *)he_FindNearestSpying(per, agent, s->secretRoomSpyEvent)) != 0) {
+        if ((spy = he_FindNearestSpying(per, agent, s->secretRoomSpyEvent)) != 0) {
             s->secretRoomTarget = spy->spyingAt;
             s->secretRoomSpyEvent = spy->id;
             s->secretRoomHunting = 1;
