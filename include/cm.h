@@ -273,7 +273,7 @@ int cm_SendCutEntryUpdate(int a, struct CMCUTENTRY *p);                         
 void cm_SendDamage(int a, int b, int c);                                          /* 0x4c5d00 */
 void cm_SendScriptMessage(void *p);                                                      /* 0x4c5d40 */
 int cm_SendTableRequest(G17TABLEMSG *p);                                               /* 0x4c5d80 */
-int cm_SendFightCommand(struct AICHAR *c, int cmd, CMFIGHTSLOT *f);                             /* 0x4c5dc0 */
+int cm_SendFightCommand(struct AICHAR *c, int cmd, CMCUTENTRY *f);                             /* 0x4c5dc0 */
 struct ORDINITMSG; void cm_SendMessage56(struct ORDINITMSG *p);                                                      /* 0x4c5e80 */
 void cm_SendChrDelete(int a);                                                        /* 0x4c5ec0 */
 void cm_SendCancelParty(int a);                                                        /* 0x4c5ef0 */
@@ -419,15 +419,15 @@ extern char cm_ChatLog[];  /* 0x75fba0 */
 void cm_PlaceFighter(struct AICHAR *c, struct D3VECTOR *pos, struct D3VECTOR *rot, int v);                              /* 0x4cc720 */
 void ai_ShowPurchaseNews(struct AICHAR *buyer, struct AICHAR *ownerRec, struct AIBLD *bld, int value);  /* 0x5a8c50 */
 
-void cm_FighterAct(CMFIGHTSLOT *f);  /* 0x4d6ba0, the action of one fighter (message 0x55) */
-void cm_FightSlotStop(CMFIGHTSLOT *f);  /* 0x4d6f60 */
-void cm_FightSlotCheer(CMFIGHTSLOT *f);  /* 0x4d6f90 */
-void cm_FightSlotPickUp(CMFIGHTSLOT *f);  /* 0x4d7000 */
-void cm_FightSlotPutDown(CMFIGHTSLOT *f);  /* 0x4d70a0 */
-void cm_FightSlotWinner(CMFIGHTSLOT *f);  /* 0x4d7150 */
+void cm_FighterAct(CMCUTENTRY *f);  /* 0x4d6ba0, the action of one fighter (message 0x55) */
+void cm_FightSlotStop(CMCUTENTRY *f);  /* 0x4d6f60 */
+void cm_FightSlotCheer(CMCUTENTRY *f);  /* 0x4d6f90 */
+void cm_FightSlotPickUp(CMCUTENTRY *f);  /* 0x4d7000 */
+void cm_FightSlotPutDown(CMCUTENTRY *f);  /* 0x4d70a0 */
+void cm_FightSlotWinner(CMCUTENTRY *f);  /* 0x4d7150 */
 int cm_Attack(CMCUTINFO *rec, struct AICHAR *c, struct AICHAR *g);  /* 0x4d7360 */
 int ai_InventoryHas(struct AICHAR *ch, int id);  /* 0x5ba6b0 */
-void cm_PlantEscapeFlag(CMFIGHTSLOT *f);  /* 0x4d7190 */
+void cm_PlantEscapeFlag(CMCUTENTRY *f);  /* 0x4d7190 */
 void cm_ClearParty(int id);  /* 0x4e5180 */
 void ai_GameFrame(void);  /* 0x591520 */
 

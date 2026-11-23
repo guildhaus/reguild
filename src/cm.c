@@ -32,8 +32,7 @@
    read the player / item head of the goods record through G17GOODSMSG.goods.
    The fight scene (cm_SetupFightScene .. cm_MostThreatenedCellNear) reads its fight record as a G28REC party
    (G28REC.fight, cm_types.h; cm_FightRecord points to it).
-   Open: types: CMFIGHTSLOT and CMCUTENTRY (cm_types.h) are one 0x2c-byte record in two views (a cutscene entry is sent
-   as the fight command's slot, cm_RunCutOrders casts between them); one type for both is unsettled.
+   A fight command's fighter slot (message 0x55) is a cutscene entry CMCUTENTRY (cm_types.h; cm_RunCutOrders sends one).
    unit of rea 8cef7d5b (src/game/cm.c); boundaries in decl/text.dcl */
 #include "d2_types.h"
 #include "txt_views.h"
@@ -2104,7 +2103,7 @@ int cm_SendTableRequest(G17TABLEMSG *p)
 /* 0x4c5dc0, message 0x55: the command cmd of the fighter slot f of the current fight, with the position and rotation
    of the fighter c's body and its health; for an attack (2) also the target's current health */
 
-int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
+int cm_SendFightCommand(AICHAR *c, int cmd, CMCUTENTRY *f)
 {
     G17MSG m;
     D3OBJECT *b;
@@ -2124,7 +2123,7 @@ int cm_SendFightCommand(AICHAR *c, int cmd, CMFIGHTSLOT *f)
         m.fight.rot.z = b->rotation.z;
         m.fight.health = c->v024;
         if (cmd == 2) {
-            t = cm_FindFighter(m.fight.slot.target);
+            t = cm_FindFighter(m.fight.slot.stateArg);
             if (t != 0)
                 m.fight.slot.health = t->v024;
         }
@@ -5936,7 +5935,7 @@ int cm_ExFightCommand(G17MSG *m, G17STAT *s)
 
     if (cm_CurrentFight == 0 || cm_CurrentFight->id != m->fight.fight)
         return 1;
-    c = cm_FindFighter(m->fight.slot.id);
+    c = cm_FindFighter(m->fight.slot.charId);
     switch (m->fight.cmd) {
     case 2:                                         /* attack */
         if (c->health != 0) {

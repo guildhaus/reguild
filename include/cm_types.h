@@ -126,25 +126,55 @@ typedef struct G17GEBMSG {              /* 0x25 bytes, the data of message 0x4c 
     } rot;
 } G17GEBMSG;
 
-typedef struct CMFIGHTSLOT {            /* 0x2c bytes, a fighter slot of a fight record (16 at its +0x94, cm_RunCutOrders) */
-    int id;                             /* 0x00, the fighter's id (AICHAR.netId), -1: free */
-    int active;                         /* 0x04 */
-    char pad08[8];
+typedef struct CMCUTENTRY {             /* 0x2c bytes, a character's entry of a cutscene record (messages 0x50 / 0x51
+                                           copy one whole); also the fighter slot of a fight command (message 0x55,
+                                           G17FIGHTMSG.slot, cm_FighterAct: charId the fighter, state the command's
+                                           activity, stateArg the target, x / z the attacked place, turn a blow struck) */
+    int charId;                         /* 0x00, the character's netId, -1 when free */
+    int state;                          /* 0x04, 0 frees the slot (cm_ExCutEntry); message 0x51 updates only an entry
+                                           in the same state */
+    int orderSlot;                      /* 0x08, the send slot of the order message for the entry (cm_OrderAttack's
+                                           result), -1: none; cm_GetSlotState tells whether it is still pending */
+    unsigned char b0c;                  /* 0x0c, cleared in the record itself before an order copies it (cm_OrderAttack) */
+    char pad0d[3];
     union {
         struct {
-            int target;                 /* 0x10, the target's id */
-            int x, y;                   /* 0x14, the attacked place (where a pot or a bomb is thrown) */
-            unsigned char held;         /* 0x1c, as CMCUTENTRY.held: the formation types 1 .. 3, such a fighter does not
-                                           walk to its target (cm_Attack) */
-            unsigned char hit;          /* 0x1d, a blow is struck (a bomb thrown) */
+            int stateArg;               /* 0x10, in state 2 message 0x51 also has to match it; in state 2 the netId of
+                                           the partner the fighter turns towards (cm_UpdateSceneChars), 0 for an
+                                           attack on a ground cell (cm_OrderAttack); in states 1 / 3 / 7 with x the
+                                           cell walked to (cm_RunCutOrders); a fight command's target */
+            int x;                      /* 0x14, in state 2 the ground cell attacked (cm_OrderAttack: weapon kinds
+                                           0x15e .. 0x176; where a pot or a bomb is thrown) */
+            int z;                      /* 0x18 */
+            unsigned char held;         /* 0x1c, cm_OrderAttack sets it for the formation types 1 .. 3 (AICHAR.formation);
+                                           reasoned name: the fighter holds its place (it does not walk to its target,
+                                           cm_Attack) */
+            unsigned char turn;         /* 0x1d, in state 2: nonzero, the fighter turns towards stateArg (cm_UpdateSceneChars);
+                                           the target is in reach (cm_RunCutOrders); in a fight command a blow is
+                                           struck (a bomb thrown) */
             char pad1e[2];
-            int kill;                   /* 0x20, the blow lands (the pot is laid) */
-            int damage;                 /* 0x24 */
-            int health;                 /* 0x28, the target's new health (its AICHAR.v024) */
+            union {
+                struct {                /* state 2 and the fight command */
+                    int kill;           /* 0x20, the blow lands (the pot is laid) */
+                    int damage;         /* 0x24 */
+                    int health;         /* 0x28, the target's new health (its AICHAR.v024) */
+                };
+                struct {                /* state 4 */
+                    int cellX;          /* 0x20, the cell walked to near the dummy */
+                    int cellZ;          /* 0x24 */
+                };
+                struct {                /* state 6 */
+                    unsigned char storeX;   /* 0x20, the cell of the goods store walked to */
+                    unsigned char storeZ;   /* 0x21 */
+                    unsigned char storeStep; /* 0x22, 0 to the dummy, 1 to the store, 2 back */
+                };
+            };
         };
-        char dummy[0x1c];               /* 0x10, the object name of the escape dummy (cm_PlantEscapeFlag) */
+        char dummy[0x1c];               /* 0x10, in states 4 / 6 the name of the dummy object gone to (cm_RunCutOrders; its
+                                           text runs over held .. pad1e, cellX follows at 0x20), in a fight command the
+                                           escape dummy's name (cm_PlantEscapeFlag) */
     };
-} CMFIGHTSLOT;
+} CMCUTENTRY;
 
 typedef struct G17FIGHTMSG {            /* 0x51 bytes, the data of message 0x55 (cm_SendFightAction, its handler 0x4cc7b0
                                            runs the command for the fighter slot) */
@@ -154,7 +184,7 @@ typedef struct G17FIGHTMSG {            /* 0x51 bytes, the data of message 0x55 
     char pad11[4];
     D3VECTOR rot;                       /* 0x15, its rotation */
     int health;                         /* 0x21, the fighter's AICHAR.v024 */
-    CMFIGHTSLOT slot;                   /* 0x25 */
+    CMCUTENTRY slot;                    /* 0x25 */
 } G17FIGHTMSG;
 
 typedef struct G17CHARMSG {             /* 0x1a bytes, the data of message 0xb (cm_SendCreateCharacter, its handler 0x4c6bf0
@@ -340,49 +370,6 @@ typedef struct G17SPYMSG {              /* 0x24 bytes, the data of message 0x5e 
     int bldId;                          /* 0x04, the building the report is about (AIBLD.id) */
     HESPYREPORT rep;                    /* 0x08, the report */
 } G17SPYMSG;
-
-typedef struct CMCUTENTRY {             /* 0x2c bytes, a character's entry of a cutscene record (messages 0x50 / 0x51
-                                           copy one whole) */
-    int charId;                         /* 0x00, the character's netId, -1 when free */
-    int state;                          /* 0x04, 0 frees the slot (cm_ExCutEntry); message 0x51 updates only an entry
-                                           in the same state */
-    int orderSlot;                      /* 0x08, the send slot of the order message for the entry (cm_OrderAttack's
-                                           result), -1: none; cm_GetSlotState tells whether it is still pending */
-    unsigned char b0c;                  /* 0x0c, cleared in the record itself before an order copies it (cm_OrderAttack) */
-    char pad0d[3];
-    union {
-        struct {
-            int stateArg;               /* 0x10, in state 2 message 0x51 also has to match it; in state 2 the netId of
-                                           the partner the fighter turns towards (cm_UpdateSceneChars), 0 for an
-                                           attack on a ground cell (cm_OrderAttack); in states 1 / 3 / 7 with x the
-                                           cell walked to (cm_RunCutOrders) */
-            int x;                      /* 0x14, in state 2 the ground cell attacked (cm_OrderAttack: weapon kinds 0x15e .. 0x176) */
-            int z;                      /* 0x18 */
-        };
-        char dummy[0xc];                /* 0x10, in states 4 / 6 the name of the dummy object gone to (cm_RunCutOrders) */
-    };
-    unsigned char held;                 /* 0x1c, cm_OrderAttack sets it for the formation types 1 .. 3 (AICHAR.formation);
-                                           reasoned name: the fighter holds its place */
-    unsigned char turn;                 /* 0x1d, in state 2: nonzero, the fighter turns towards stateArg (cm_UpdateSceneChars);
-                                           the target is in reach (cm_RunCutOrders) */
-    char pad1e[2];
-    union {
-        struct {                        /* state 2, as CMFIGHTSLOT (the entry is sent as the fight command's slot) */
-            int kill;                   /* 0x20, the blow lands */
-            int damage;                 /* 0x24 */
-            int health;                 /* 0x28 */
-        };
-        struct {                        /* state 4 */
-            int cellX;                  /* 0x20, the cell walked to near the dummy */
-            int cellZ;                  /* 0x24 */
-        };
-        struct {                        /* state 6 */
-            unsigned char storeX;       /* 0x20, the cell of the goods store walked to */
-            unsigned char storeZ;       /* 0x21 */
-            unsigned char storeStep;    /* 0x22, 0 to the dummy, 1 to the store, 2 back */
-        };
-    };
-} CMCUTENTRY;
 
 typedef struct G17CUTENTRYMSG {         /* 0x34 bytes, the data of messages 0x50 / 0x51 (cm_SendCutEntry / cm_SendCutEntryUpdate
                                            send, the handlers 0x4cc1b0 / 0x4cc270 store the entry) */

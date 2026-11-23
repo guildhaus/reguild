@@ -4276,7 +4276,7 @@ void cm_CloseFightUI(void)
    The pot queues cm_LayBombAction (the thrower's own fight places it at the free cell near him, cm_SendObjCell), the
    bomb cm_ThrowBombAction with the throw sound; both end the action. */
 
-void cm_FighterAct(CMFIGHTSLOT *f)
+void cm_FighterAct(CMCUTENTRY *f)
 {
     struct D3SM *h = d3_DefaultScene->hmap;
     AICHAR *c, *tgt, *side;
@@ -4286,16 +4286,16 @@ void cm_FighterAct(CMFIGHTSLOT *f)
     int dmg, lands, ox, oy;
     float py;
 
-    if (f->active == 0 || f->id == -1)
+    if (f->state == 0 || f->charId == -1)
         return;
-    c = cm_FindFighter(f->id);
+    c = cm_FindFighter(f->charId);
     k = cm_CharWeapon(c);
     side = c->side;  /* in a fight: the leader of the fighter's side */
-    tgt = cm_FindFighter(f->target);
+    tgt = cm_FindFighter(f->stateArg);
     if (tgt != 0)
         tgt->v024 = f->health;
     if (!(k != 0 && (k->id == 0x174 || k->id == 0x176))) {
-        if (f->hit != 0 && ((x = c->scene->actions) == 0 || x->type == 0x2d || x->type == 0x3a)) {
+        if (f->turn != 0 && ((x = c->scene->actions) == 0 || x->type == 0x2d || x->type == 0x3a)) {
             if (util_Random(10) > 8) {
                 if (side->netId == cm_FightAttacker->netId)
                     snd_QueueVoice(c->id, cm_AttackerAttackVoices, "_K_C2C_ANGRIFF", -1, 500);
@@ -4326,8 +4326,8 @@ void cm_FighterAct(CMFIGHTSLOT *f)
                 for (s = k->anim, d = ev->u.name; (*d++ = *s++) != 0;)
                     ;
                 if ((k->id == 0x16e || k->id == 0x172) && lands != 0) {
-                    f->id = -1;
-                    f->active = 0;
+                    f->charId = -1;
+                    f->state = 0;
                 }
             }
             ch_AddAction(c->scene, 0x3b, cm_Random(0x1e) + 0x8c);
@@ -4338,52 +4338,52 @@ void cm_FighterAct(CMFIGHTSLOT *f)
         ev->pot.victim = tgt;
         ev->pot.thrower = c;
         ev->pot.x = f->x;
-        ev->pot.y = f->y;
+        ev->pot.y = f->z;
         strcpy(ev->u.name, "spezial/einhaendig_vom_boden_nehmen");
         if (cm_CutChar->netId == cm_FightOwner) {
             if (!d3_GetHeightAt(h, &c->scene->obj->pos, &cm_PickCellX, &cm_PickCellZ, &py))
                 return;
             cm_BestCellNear(c, cm_PickCellX, cm_PickCellZ, 8, &ox, &oy);
             cm_SendObjCell(c->scene->obj->name, ox, oy, 0);
-            f->id = -1;
-            f->active = 0;
+            f->charId = -1;
+            f->state = 0;
         }
     }
-    if (k->id == 0x176 && f->hit != 0) {
+    if (k->id == 0x176 && f->turn != 0) {
         ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_ThrowBombAction, 5, 0x2e, 1);
         ev->bomb.thrower = c;
         ev->bomb.x = f->x;
-        ev->bomb.y = f->y;
+        ev->bomb.y = f->z;
         ev->bomb.sideId = side->netId;
         for (s = k->anim, d = ev->u.name; (*d++ = *s++) != 0;)
             ;
         ch_AddAction(c->scene, 0x3b, cm_Random(0x1e) + 0x8c);
         sb_PlaySample(cm_BombSounds, "topfwerfen_s", 1, 0x3f, 0x7f, 0, 0);
-        f->id = -1;
-        f->active = 0;
+        f->charId = -1;
+        f->state = 0;
     }
 }
 /* 0x4d6f60, stops the actions of the fighter in the fight slot f (id, active): 0x405610 on its scene character */
 
-void cm_FightSlotStop(CMFIGHTSLOT *f)
+void cm_FightSlotStop(CMCUTENTRY *f)
 {
     AICHAR *c;
 
-    if (f->active != 0 && f->id != -1) {
-        c = cm_FindFighter(f->id);
+    if (f->state != 0 && f->charId != -1) {
+        c = cm_FindFighter(f->charId);
         if (c != 0)
             ch_StopActions(c->scene);
     }
 }
 /* 0x4d6f90, the cheer of the winner in the fight slot f: event 0x4d3ac0 with the animation "gestik/jubeln" */
 
-void cm_FightSlotCheer(CMFIGHTSLOT *f)
+void cm_FightSlotCheer(CMCUTENTRY *f)
 {
     AICHAR *c;
     CHACTION *ev;
 
-    if (f->active != 0 && f->id != -1) {
-        c = cm_FindFighter(f->id);
+    if (f->state != 0 && f->charId != -1) {
+        c = cm_FindFighter(f->charId);
         ev = ch_AddActionCB(c->scene, (CHACTFUNC)cm_CheerAction, 5, 0x2e, 1);
         ev->cheer.fighter = c;
         strcpy(ev->u.name, "gestik/jubeln");
@@ -4392,14 +4392,14 @@ void cm_FightSlotCheer(CMFIGHTSLOT *f)
 /* 0x4d7000, the fighter slot f picks up the object lying at its place (dummy): the object (0x449690) is marked as
    owned by the character's side (AIOBJ.fightSide), event 0x4d3ae0 */
 
-void cm_FightSlotPickUp(CMFIGHTSLOT *f)
+void cm_FightSlotPickUp(CMCUTENTRY *f)
 {
     AICHAR *c, *side;
     D3OBJECT *o;
     CHACTION *ev;
 
-    if (f->active != 0 && f->id != -1) {
-        c = cm_FindFighter(f->id);
+    if (f->state != 0 && f->charId != -1) {
+        c = cm_FindFighter(f->charId);
         side = c->side;
         ch_StopActions(c->scene);
         o = d3_FindObject(0, 0x40, 0, f->dummy);
@@ -4414,14 +4414,14 @@ void cm_FightSlotPickUp(CMFIGHTSLOT *f)
 }
 /* 0x4d70a0, the fighter slot f puts down the object it carries (AICHAR.v1ac) at its place */
 
-void cm_FightSlotPutDown(CMFIGHTSLOT *f)
+void cm_FightSlotPutDown(CMCUTENTRY *f)
 {
     AICHAR *c;
     D3OBJECT *o, *body;
     CHACTION *a;
 
-    if (f->active != 0 && f->id != -1) {
-        c = cm_FindFighter(f->id);
+    if (f->state != 0 && f->charId != -1) {
+        c = cm_FindFighter(f->charId);
         ch_StopActions(c->scene);
         d3_FindObject(0, 0x40, 0, f->dummy);
         o = (D3OBJECT *)c->v1ac;
@@ -4437,12 +4437,12 @@ void cm_FightSlotPutDown(CMFIGHTSLOT *f)
 }
 /* 0x4d7150, the character in the fight slot f is the winner so far (cm_FightWinner): text 0x11b7 */
 
-void cm_FightSlotWinner(CMFIGHTSLOT *f)
+void cm_FightSlotWinner(CMCUTENTRY *f)
 {
     char buf[0x100];
     AICHAR *c;
 
-    c = gm_FindChar(f->id);
+    c = gm_FindChar(f->charId);
     cm_FightWinner = (int)c;
     txt_Format(buf, 0x11b7, c->id);
     sv_SetStatusText(buf);
@@ -4452,7 +4452,7 @@ void cm_FightSlotWinner(CMFIGHTSLOT *f)
    (animated, the texture set 'g' + ref54 of the side leader of the kinds 5 .. 7, named "CONQUER_FLAG") is put at the
    dummy's place (the name of the fled bit is a reasoned guess from the flag). */
 
-void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
+void cm_PlantEscapeFlag(CMCUTENTRY *f)
 {
     AICHAR *c = 0;
     D3OBJECT *o, *r;
@@ -4462,10 +4462,10 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
     D3VECTOR rot;
     char k;
 
-    if (f->active != 0) {
+    if (f->state != 0) {
         o = d3_FindObject(0, 0x40, 0, f->dummy);
-        if (f->id != -1) {
-            c = cm_FindFighter(f->id);
+        if (f->charId != -1) {
+            c = cm_FindFighter(f->charId);
             c->scene->flags.fled = 1;
             txt_Format(buf, 0x11b8, c->id);
             sv_SetStatusText(buf);
@@ -4513,7 +4513,7 @@ void cm_PlantEscapeFlag(CMFIGHTSLOT *f)
 int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
 {
     struct D3SM *h = d3_DefaultScene->hmap;
-    CMFIGHTSLOT s;
+    CMCUTENTRY s;
     AIWEAPON *k;
     AIOBJ *item;
     AICHAR *side;
@@ -4523,9 +4523,9 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
     int r;
 
     memset(&s, 0, sizeof(s));
-    s.id = c->netId;
-    s.active = 2;
-    s.target = g->netId;
+    s.charId = c->netId;
+    s.state = 2;
+    s.stateArg = g->netId;
     if (c->formation == 1 || c->formation == 2 || c->formation == 3)
         s.held = 1;
     k = cm_CharWeapon(c);
@@ -4551,7 +4551,7 @@ int cm_Attack(CMCUTINFO *rec, AICHAR *c, AICHAR *g)
             s.damage = 0;
         if (side != 0 && ai_InventoryHas(side, 0x2b9) != 0)
             s.damage = (int)(s.damage * 1.25f);
-        s.hit = 1;
+        s.turn = 1;
         s.kill = hit;
         if (cm_CutChar->netId == cm_FightOwner && k->kind == 0) {
             other = 0;
