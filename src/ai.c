@@ -3579,25 +3579,7 @@ void ai_CalcEntryCost(AIENTRY *e0)
    0x2af / 0x2b0) it re-collects the offers of the good (gm_CollectOffers) and takes the first foreign offer (the
    master's own building, the kind-2 warehouses and offers without a goods object skipped) whose supply covers the
    need and whose buy amount - half the entry capacity, at least 1, above half the slot capacity minus the pending
-   pieces, below the slot capacity - pending - 1 and the budget / price - is at least the need
-   @deep s36: now 25 ins (draft by two branch targets). Mechanism read: the offer loop's break (j >=
-   gm_NOffers) jumps in the original to the shared test eax,eax of if (!found) return 0 (eax = found:
-   zeroed by xor eax,eax and stored to found and j, reloaded at the loop bottom), ours to the return 0
-   directly: VC6 knows found == 0 at our loop top (both edges into it carry found == 0: the init and the
-   while (!found) back edge); in the original found was not known there and the 0 was one eax constant for
-   found and j. Tried: found = j = 0 / separate inits in both orders / found = 0 before gm_CollectOffers /
-   found = 0 above the entry test (all 25, other codes); for (j = 0; !found; j++) with the break, while
-   (!found) {..}: 93; for (..; j < n; j++) {..; if (found) break;}: 122; for (..; j < n && !found; ..) /
-   !found && j < n: 114 / 93. prior: B3 behaviour draft: 43 code hunks + 9 fill, all after instruction 88 -
-   a stack-slot / block-order difference (the original keeps the row pointer of gm_Offers[j] in a slot and
-   initializes the loop counter with a constant 0 store, ours zeroes through eax and keeps the row base in
-   ebp: [esp+0x14]/[esp+0x18] roles swapped at instruction 179), no meaning-class lead left: statements,
-   constants (the special item list 0x1c1 .. 0x1c7 / 0x2af / 0x2b0), callees and field offsets all match
-   and the Q rules are clean after this session's work. Q2 done: gm_CollectOffers -> gm_CollectOffers
-   (unified with the f3gm.c definition), gm_Offers -> gm_Offers, gm_NOffers -> gm_NOffers (the f3gm.c
-   evidence: the offer table of 6-int rows and its count), AISTORE.unk08 -> goodsObj (the goods object of
-   an offer), AISLOT.unk28 -> the amount member (the union alias removed). Q6 done (description above the
-   definition). */
+   pieces, below the slot capacity - pending - 1 and the budget / price - is at least the need */
 
 int ai_HasMaterials(AICHAR *ch, AIENTRY *e, int f)
 {
@@ -3615,11 +3597,12 @@ int ai_HasMaterials(AICHAR *ch, AIENTRY *e, int f)
                     s->item != 0x2af && s->item != 0x2b0 && s->item != 0x1c1 && s->item != 0x1c2 &&
                     s->item != 0x1c3) {
                     if (s->entry != -1) {
-                        found = ai_HasMaterials(ch, &ai_Entries[s->entry], 0);
+                        if (!ai_HasMaterials(ch, &ai_Entries[s->entry], 0))
+                            return 0;
                     } else {
                         gm_CollectOffers(s->item);
                         j = found = 0;
-                        do {
+                        while (1) {
                             if (j >= gm_NOffers)
                                 break;
                             row = &gm_Offers[j];
@@ -3630,6 +3613,8 @@ int ai_HasMaterials(AICHAR *ch, AIENTRY *e, int f)
                                         m = e->capacity >> 1;
                                         if (m < 1)
                                             m = 1;
+                                        /* @original need[j], not need[k]: the original indexes the need by
+                                           the offer counter here and below (its 0x26 + 2 * j offset) */
                                         v = ai_Goods[e->item].need[j] * m - s->amount - s->pending;
                                         v = max(v, (s->capacity >> 1) - s->pending);
                                         v = min(s->capacity - s->pending - 1, v);
@@ -3643,10 +3628,12 @@ int ai_HasMaterials(AICHAR *ch, AIENTRY *e, int f)
                                 }
                             }
                             j++;
-                        } while (!found);
+                            if (found)
+                                break;
+                        }
+                        if (!found)
+                            return 0;
                     }
-                    if (!found)
-                        return 0;
                 }
             }
         }
