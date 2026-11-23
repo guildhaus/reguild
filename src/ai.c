@@ -1336,33 +1336,37 @@ check:
    town (message 0x43 to the best-rated grid cell's building of kind 6 he likes best, up to four guards), a check of
    a workshop there (message 100, one guard) or a patrol of the surroundings (message 0x65 to one of the eight
    ai_AmbushSpots, up to six guards, at least two)
-   @deep draft, 36 ins (from 86). This session: the grid search as an index loop for (j) for (i) over
-   ai_Grid[i][j] with the compare written cell-first ((ai_Grid[i][j].a >> 3) + .. > (best->a >> 3) +
-   best->b; the hand-walked cell pointer gave the other load order); best = &ai_Grid[0][0] before gx / gy
-   (town: best, gy, gx; check: best, gx, gy); the check's send falls out of its block into the 'if (r < 2)
-   return;' (no return after the send: this alone moved the shared send tail to the original's, the town
-   patrol now jumps into the check's copy, -24); the building searches as for (bl = gm_BuildQuery(1, 6);
-   bl; bl = gm_BuildNext()) (same code: the !sel test is decided). Left: (1) town patrol after the search:
-   the original keeps ch in ebx (mov ebx,[esp+0x520] at the sprintf, ch->bld via ebx in the member loop)
-   and 0xffff in ebp (mov ebp,0xffff before the member loop, cmp word [eax-0x165],bp); ours ch in esi then
-   spilled (reloaded in the loop) and the immediate; c2trace: 157 blocks, bulk split in regions, ch#3
-   (lines sprintf / msg.to) gets esi, the member loop's ch reference is in no piece; (2) the check: ch in
-   edi and guard in ebx in the original, ours swapped (guard#1 prio -4 > ch#5 -15); no lever: guard init /
-   store spellings (7), name vs ch->name (2); (3) gx / gy stores one slot late in both branches (scheduling
-   tie with mov edx,ebx). climb --rounds 2 from here: nothing. Next: c2trace --split on ch / guard, the
-   member loops' form (k < n && c < 768, msg.arg[6 + k++]), block-local msg per branch. prior: Read whole
-   against the original 0x480e70..0x481794 and rewritten statement for statement (702 vs 702 instructions):
-   the dispatch, the four branches, every call, constant, string, message field (types 0x43 / 100 / 0x65,
-   flags, arg[] / ids[] slots, patrolRoll), the member searches and the -1 fills (rep stosd) match. Left,
-   all allocation / layout: (1) the town-patrol member loop: the original keeps ch in ebx and 0xffff in ebp
-   (cmp word [eax-0x165], bp), ours reloads ch from the parameter and compares the immediate
-   (+0x4d2..+0x4ba, 15 + 3 lines); the workshop check holds ch in edi and guard in ebx where ours swaps
-   them (+0x64e, +0x6f8); (2) the shared send tail: the original's town patrol (cmp [msg.arg+0x18], -1)
-   jumps into the workshop check's je / cm_SendLongMessage / epilogue at +0x767, ours keeps it inline at
-   +0x4da and cross-jumps the check into it (tail 38, the 7 branch-target lines); (3) the grid best-cell
-   compare computes the cell's value before the best's (ours mov si,[eax] vs the original mov si,[ebx],
-   +0x2a7 / +0x52c) and the gx / gy slot pair of ord_GetGridCell is swapped (+0x2ff, +0x5a1); (4) the gx =
-   gy = 8 store order (order hunks). */
+   @deep draft, 36 ins (from 86); no gotos left (same code). Kept this session: the grid search as for (j)
+   for (i) over ai_Grid[i][j], cell-first compare; best before gy / gx (town) and gx / gy (check); the
+   check's send falls out of its block into 'if (r < 2) return;' (moved the shared send tail to the
+   original's: town jumps into the check's copy, -24); the building searches as for loops; the dispatch
+   through r (r = 4 attack, r = 0 city, r = 2 surroundings; the town / check fallbacks set r = 2): one code
+   with the goto form. Left, all register allocation in a 157-block function with region splitting: (1)
+   town patrol after the search: the original reloads ch into ebx (ours esi) and keeps it through the
+   member loop, and holds 0xffff in ebp there (ours: ch reloaded from the parameter each pass, the
+   immediate). c2trace --split: the member-loop test blocks from 'ai_Chars[c].bld == ch->bld' on (they use
+   esi) open their own region because the town region r2 (bl-search: ebx best, ebp sel, edi bl) has no
+   register free with them, so ch#3 covers only the sprintf / msg.to; the original must have the loop in
+   the fill's region. (2) check: ch in edi, guard in ebx in the original; ours guard#1 prio -4 > ch#5 -15
+   (c2trace --prio guard: +24 from the loop's msg.arg[0] = guard). (3) gx / gy stores: one slot store late
+   (tie with mov edx,ebx). No lever (all = control or worse): guard init / store spellings, name vs
+   ch->name, sel tests (|| / nested / two ifs: worse), member loop forms (k init, k++, min vs clamp, fill
+   while), msg block-local per branch, int types, alias local for ch, else-if / nested r dispatch, guard =
+   -1 at every position (move-line), 2500-variant sample of the order / form toggles, climb --rounds 4
+   --beam 6. Next: find what puts the town member loop into the fill's region (c2trace --split '^ch$' on
+   candidate texts), e.g. the bl-search's inner form. prior: Read whole against the original
+   0x480e70..0x481794 and rewritten statement for statement (702 vs 702 instructions): the dispatch, the
+   four branches, every call, constant, string, message field (types 0x43 / 100 / 0x65, flags, arg[] /
+   ids[] slots, patrolRoll), the member searches and the -1 fills (rep stosd) match. Left, all allocation /
+   layout: (1) the town-patrol member loop: the original keeps ch in ebx and 0xffff in ebp (cmp word
+   [eax-0x165], bp), ours reloads ch from the parameter and compares the immediate (+0x4d2..+0x4ba, 15 + 3
+   lines); the workshop check holds ch in edi and guard in ebx where ours swaps them (+0x64e, +0x6f8); (2)
+   the shared send tail: the original's town patrol (cmp [msg.arg+0x18], -1) jumps into the workshop
+   check's je / cm_SendLongMessage / epilogue at +0x767, ours keeps it inline at +0x4da and cross-jumps the
+   check into it (tail 38, the 7 branch-target lines); (3) the grid best-cell compare computes the cell's
+   value before the best's (ours mov si,[eax] vs the original mov si,[ebx], +0x2a7 / +0x52c) and the gx /
+   gy slot pair of ord_GetGridCell is swapped (+0x2ff, +0x5a1); (4) the gx = gy = 8 store order (order
+   hunks). */
 
 void ai_CalcMeisterWache(AICHAR *ch)
 {
