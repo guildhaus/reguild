@@ -1466,7 +1466,7 @@ exe	0x0047f700	ai_EvaluateProductionFlags	ai	582c15af18f4d9ec	no	draft	control=d
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	557836d9dae12699	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x00480e70	ai_CalcMeisterWache	ai	e1ab6bc1a7430b4e	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
 exe	0x004817a0	ai_CalcAngriff	ai	9fc938ae6fdda478	yes	draft	control=draft p1=draft* p2=draft* p3=draft* p4=draft*	
-exe	0x00481ef0	ai_CalcMeisterDiebe	ai	92a89df299574205	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
+exe	0x00481ef0	ai_CalcMeisterDiebe	ai	5ea079a1e5ef582a	yes	byte	sweep control=shape best=byte by 16 unused typedefs at the unit's start; codegens=4 compiled=36 (stopped at the goal)	8e527e2adbba2de5
 exe	0x00482f00	ai_CalcMeisterRaeuber	ai	156bdad1daf92994	yes	byte	sweep control=shape best=byte by 1 unused typedef at the unit's start; codegens=2 compiled=190	5dcd66a4083c3997
 exe	0x004836a0	ai_CalcMeisterBank	ai	6c8e69d5968668ad	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	3970287b34b39b1c	yes	byte	sweep control=shape best=byte by 17 unused typedefs at the unit's start; codegens=2 compiled=36 (stopped at the goal)	63fd104250288054

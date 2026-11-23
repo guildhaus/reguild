@@ -1924,27 +1924,32 @@ spying:
    of his thieves idle picks a job by random: a kidnapping (message 0x3c, the richest owner by worth and the grid's
    guard weight, only while the guild holds no hostage), a break-in on his target building (message 0x3f, once a report
    knows enough, else a spying job 0x40), an attack (ai_CalcAngriff) or, by default, pickpocketing (message 0x61)
-   @deep Read whole against the original 0x481ef0..0x482ef3 and fixed: the burgle scan as the original's
-   countdown with bt = &ai_BTypes[type] taken before the owner tests (1195 -> 1181 instructions, equal to
-   the original's 1181), the report search as a break-search followed by the report test (the found body
-   now right after the loop as in the original), the report test as !(know < rnd(20) + guard * 2) (and
-   eax,0x4100 / je as the original), target = best ? best->id : -1 with the goto pick threaded (the target
-   = -1 block after the report loop as in the original), min() for the thief counts (the kidnap count
-   min(n, rnd(3) + 1) calls util_Random twice as the original), the hostage test named (AIBLD.hostage).
-   Statements, constants, callees, strings and field offsets all match; both sides make the same calls
-   block for block. Left is block layout and allocation: the original lays the kidnap branch (r == 1) out
-   split - its 0.95 test, sprintf and the first grid iteration up to the max store inline at +0x32f, the
-   rest (the grid loop latch, the 256-building class scan, the kidnap message) after the r == 3 call to
-   ai_CalcAngriff at +0xacf..+0xead; ours keeps the whole branch inline (the code hunks at +0x3af / +0x519
-   / +0xe9a, 548 lines). Tried: goto pick for the 0.95 test (identical code), a switch on r (worse, 890
-   code lines), the goto report / if (o) / nested-if forms of the report test (identical code). Further:
-   obj in edi vs ebp (the jne / jge at +0xc9 / +0xd6 reach the original's reload of obj at +0x10f), edi = 8
-   hoisted at +0x18b in the original. (references: M8 at +0xbba: ours refers to ai_Time (0x770ae0), the
-   original's field to 0x770ae4 (ai_TimeHourW) (and 1 more), explained: the two M8 lines are the msg.time =
-   ai_Time copy of the break-in message: both sides load ai_Time, ai_TimeHourW, 0x770ae8 and the word
-   0x770aec in that order and store them to msg.time (+0x28 .. +0x34); the copy is scheduled one load
-   earlier in the original (mov eax, [ai_Time] before the fromId store), so the alignment pairs each load
-   with its neighbour (crossed: both sides refer to both)) */
+   @deep s(this) match-deep: proven byte under a declaration set (16 unused typedefs at the unit's start,
+   ledger/tiebreak.tsv). Levers: the job pick as r values (r = 0 / r = 3 instead of goto burgle / goto
+   other; a 95% kidnap becomes r = 2 before the r chain), the kidnap arm after the attack arm in the chain
+   (the original lays the kidnap's grid loop latch and the rest after ai_CalcAngriff), the running-job
+   searches as break loops tested by if (!job) (no goto unfinished / spying), the watch copy loop as for (c
+   = 0; nslots < 4 && c < ai_NSlots; c++). prior: Read whole against the original 0x481ef0..0x482ef3 and
+   fixed: the burgle scan as the original's countdown with bt = &ai_BTypes[type] taken before the owner
+   tests (1195 -> 1181 instructions, equal to the original's 1181), the report search as a break-search
+   followed by the report test (the found body now right after the loop as in the original), the report
+   test as !(know < rnd(20) + guard * 2) (and eax,0x4100 / je as the original), target = best ? best->id :
+   -1 with the goto pick threaded (the target = -1 block after the report loop as in the original), min()
+   for the thief counts (the kidnap count min(n, rnd(3) + 1) calls util_Random twice as the original), the
+   hostage test named (AIBLD.hostage). Statements, constants, callees, strings and field offsets all match;
+   both sides make the same calls block for block. Left is block layout and allocation: the original lays
+   the kidnap branch (r == 1) out split - its 0.95 test, sprintf and the first grid iteration up to the max
+   store inline at +0x32f, the rest (the grid loop latch, the 256-building class scan, the kidnap message)
+   after the r == 3 call to ai_CalcAngriff at +0xacf..+0xead; ours keeps the whole branch inline (the code
+   hunks at +0x3af / +0x519 / +0xe9a, 548 lines). Tried: goto pick for the 0.95 test (identical code), a
+   switch on r (worse, 890 code lines), the goto report / if (o) / nested-if forms of the report test
+   (identical code). Further: obj in edi vs ebp (the jne / jge at +0xc9 / +0xd6 reach the original's reload
+   of obj at +0x10f), edi = 8 hoisted at +0x18b in the original. (references: M8 at +0xbba: ours refers to
+   ai_Time (0x770ae0), the original's field to 0x770ae4 (ai_TimeHourW) (and 1 more), explained: the two M8
+   lines are the msg.time = ai_Time copy of the break-in message: both sides load ai_Time, ai_TimeHourW,
+   0x770ae8 and the word 0x770aec in that order and store them to msg.time (+0x28 .. +0x34); the copy is
+   scheduled one load earlier in the original (mov eax, [ai_Time] before the fromId store), so the
+   alignment pairs each load with its neighbour (crossed: both sides refer to both)) */
 void ai_CalcMeisterDiebe(AICHAR *ch) {
   AIOBJ *o, *obj;
   AIBLD *bb, *best;
@@ -1970,9 +1975,7 @@ void ai_CalcMeisterDiebe(AICHAR *ch) {
     ai_AddEquipmentNeeds(ch, obj, ch->bld->budget);
     ai_MeisterBewaffnen(ch, obj);
     if (ai_Watch.bld == ch->bld) {
-      for (c = 0; ai_Watch.nslots < 4; c++) {
-        if (c >= ai_NSlots)
-          break;
+      for (c = 0; ai_Watch.nslots < 4 && c < ai_NSlots; c++) {
         ai_Watch.slots[ai_Watch.nslots] = ai_Slots[c];
         ai_Watch.nslots++;
       }
