@@ -588,7 +588,7 @@ void ai_HandleItemDrag(void)
         di_SetMousePos(d2_MouseX, d2_MouseY);
     }
     if (ai_PickedObject != 0 && ai_DragPicked != ai_PickedObject && dm_L.rhold != 0) {
-        item = sv_HoverItem != 0 ? ((AIOBJ *)sv_HoverItem)->id : 0;  /* reasoned: the hovered object record, its goods item first */
+        item = sv_HoverItem != 0 ? sv_HoverItem->id : 0;  /* reasoned: the hovered object record, its goods item first */
         if (item == 0)
             sel = ai_PickedObject;
         ai_DragPicked = ai_PickedObject;

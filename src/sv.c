@@ -3557,7 +3557,7 @@ extern int ai_SelectedCount;  /* 0x6f2334 */
 extern unsigned char ai_GameState;  /* 0x6f25ac */
 extern int d2_PointerObj;  /* 0x5fe710 */
 extern char *ai_Unk7662c0p;
-extern unsigned short * sv_SelectedItem;
+extern struct AIOBJ *sv_SelectedItem;
 extern int ai_BuildingPerms;  /* 0x6f231c */
 int gm_Opinion(int a, int b);                     /* 0x50c520 */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs);                     /* 0x4fe140 */
@@ -3669,7 +3669,6 @@ void sv_OpenPersonPanel(AICHAR *c)
             d2_RemoveObj(sv_PanelWidgets[i]); \
             sv_PanelWidgets[i] = -1; \
         }
-#define SV_SELCART ((AIOBJ *)sv_SelectedItem)  /* the selected cart, re-read at every use */
 
 /* 0x529380, the per-frame refresh of the open info panel (sv_PanelForm). For the selected building
    (sv_SelectedObject with its health bar and picture): the title as sv_OpenBuildingPanel writes it, the level
@@ -3873,18 +3872,18 @@ void sv_RefreshPanel(void)
         return;
     }
     SV_CLEAR_PANEL_WIDGETS(i)
-    if (sv_SelectedItem == 0 || ai_Goods[*sv_SelectedItem].type != 0x1d)
+    if (sv_SelectedItem == 0 || ai_Goods[sv_SelectedItem->id].type != 0x1d)
         return;
     if (sv_PanelCartBtn != -1 && d2_ClickedId != -1 && d2_PointerObj == sv_PanelCartBtn && (sv_FrameMask & 0x2000) != 0)
-        rt_EditCartRoute((AIOBJ *)sv_SelectedItem);
+        rt_EditCartRoute(sv_SelectedItem);
     if (sv_PanelHealthBar != -1)
-        d2_SetObjValue(sv_PanelHealthBar, 0, 100, SV_SELCART->fill);
+        d2_SetObjValue(sv_PanelHealthBar, 0, 100, sv_SelectedItem->fill);
     d2_SetForm(sv_PanelForm, 2);
     SV_CLEAR_PANEL_WIDGETS(i)
     d2_RemoveWindowObjects(d2_LastWindow, 1);
-    if (SV_SELCART->job24 != 0 && (bld = gm_BuildQuery(1, 1, SV_SELCART->job24->cartBld)) != 0)
+    if (sv_SelectedItem->job24 != 0 && (bld = gm_BuildQuery(1, 1, sv_SelectedItem->job24->cartBld)) != 0)
         io_PrintText((intptr_t)"$Y$Z%s", bld->type * 0xe + 0x48e);
-    load = gm_Query(SV_SELCART->list, 1, 0, 0x1dd);
+    load = gm_Query(sv_SelectedItem->list, 1, 0, 0x1dd);
     if (load == 0)
         return;
     goods = gm_Query(load->list, 1, 5);
@@ -4047,13 +4046,13 @@ void sv_UpdatePanel(void)
 refresh:
     sv_RefreshPanel();
     if (sv_SelectedObject == sv_ShownObject && ai_FallbackBuilding == sv_ShownFallback && ai_PlayerBuilding == sv_ShownBuilding
-        && (int)sv_PanelShown == sv_ShownRoom && (int)sv_SelectedItem == sv_ShownItem && sv_SelectedChar == sv_ShownChar
+        && (int)sv_PanelShown == sv_ShownRoom && sv_SelectedItem == sv_ShownItem && sv_SelectedChar == sv_ShownChar
         && sv_OtherSelected == sv_ShownOther && ai_SelectedCount == sv_ShownCount && sv_PanelRebuild == 0)
         return;
     sv_PanelRebuild = 0;
     sv_ClosePanel();
-    if (sv_SelectedItem != 0 && ai_Goods[*sv_SelectedItem].type == 0x1d && ai_SelectedCount == 0 && sv_SelectedChar == 0)
-        sv_OpenCartPanel((AIOBJ *)sv_SelectedItem);
+    if (sv_SelectedItem != 0 && ai_Goods[sv_SelectedItem->id].type == 0x1d && ai_SelectedCount == 0 && sv_SelectedChar == 0)
+        sv_OpenCartPanel(sv_SelectedItem);
     else if (sv_SelectedModel == 0 && sv_OtherSelected == 0 && ai_SelectedCount == 0) {
         if (sv_PanelShown == 0 && sv_SelectedChar == 0)
             sv_OpenDefaultPanel();
@@ -4071,7 +4070,7 @@ refresh:
     sv_ShownOther = sv_OtherSelected;
     sv_ShownCount = ai_SelectedCount;
     if (sv_SelectedModel == 0 && ai_FallbackBuilding == 0 && ai_PlayerBuilding == 0) {
-        sv_ShownItem = (int)sv_SelectedItem;
+        sv_ShownItem = sv_SelectedItem;
         sv_ShownFallback = 0;
         sv_ShownBuilding = 0;
         sv_ShownModel = 0;
@@ -4084,7 +4083,7 @@ refresh:
     sv_ShownBuilding = ai_PlayerBuilding;
     sv_ShownRoom = (int)sv_PanelShown;
     sv_ShownChar = sv_SelectedChar;
-    sv_ShownItem = (int)sv_SelectedItem;
+    sv_ShownItem = sv_SelectedItem;
     sv_ShownObject = sv_SelectedObject;
     if ((sv_SelectedItem != 0 || sv_PanelShown != 0) && sv_PanelForm == -1) {
         sv_ShownFallback = ai_FallbackBuilding;
@@ -4093,8 +4092,8 @@ refresh:
         sv_ShownRoom = (int)sv_PanelShown;
         if (sv_SelectedItem != 0) {
             sv_ShownModel = sv_SelectedModel;
-            sv_ShownItem = (int)sv_SelectedItem;
-            sv_OpenItemPanel((AIOBJ *)sv_SelectedItem);
+            sv_ShownItem = sv_SelectedItem;
+            sv_OpenItemPanel(sv_SelectedItem);
             sv_RefreshPanel();
         } else if (sv_PanelShown != 0) {
             sv_ShownRoom = (int)sv_PanelShown;
@@ -4180,13 +4179,13 @@ void sv_HoverPick(void)
         sv_HoverContact = 0;
         switch (ai_PickedObject->pickBytes[3]) {   /* the top byte of D3OBJECT.pickId: the record kind the object stands for */
         case 1:
-            sv_HoverItem = (int)ai_PickedObject->owner;
+            sv_HoverItem = ai_PickedObject->owner;
             if (ai_FallbackBuilding != 0)
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)sv_HoverItem, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, sv_HoverItem, 0);
         else
-            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, (struct AIOBJ *)sv_HoverItem, 0);
+            sv_PanelPerms = gm_PermissionBits(ai_PlayerId, 0, sv_HoverItem, 0);
             if (sv_HoverItem != 0) {
-                n = ((AIOBJ *)sv_HoverItem)->id;
+                n = sv_HoverItem->id;
                 g = &ai_Goods[n];
                 if ((g->type == 6 || g->type == 2) && (sv_PanelPerms & 0x4000) != 0) {
                     sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + n * 2], txt_Ptrs[0x83]);
@@ -4242,20 +4241,20 @@ void sv_HoverPick(void)
                     break;
             }
             if (it != 0)
-                sv_HoverContact = (int)it;
+                sv_HoverContact = it;
             else if (ai_FallbackBuilding != 0)
-                sv_HoverContact = (int)gm_Query(b->objList, 1, 0, 0xfd);
+                sv_HoverContact = gm_Query(b->objList, 1, 0, 0xfd);
             if (sv_HoverContact != 0) {
-                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, (struct AIOBJ *)sv_HoverContact, 0);
+                sv_PanelPerms = gm_PermissionBits(ai_PlayerId, b, sv_HoverContact, 0);
                 if ((sv_PanelPerms & 1) != 0) {
                     d2_PointerLook = 0xb;
-                    if (((AIOBJ *)sv_HoverContact)->id == 0xfd) {
+                    if (sv_HoverContact->id == 0xfd) {
                         if (sv_PanelShown != 0)
                             sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + sv_PanelShown->type * 2], txt_Ptrs[0x84]);
                         else
                             sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x48e + b->type * 14], txt_Ptrs[0x84]);
                     } else
-                        sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + ((AIOBJ *)sv_HoverContact)->id * 2], txt_Ptrs[0x83]);
+                        sprintf(d2_CaptionCopy, "%s %s", txt_Ptrs[0x9a8 + sv_HoverContact->id * 2], txt_Ptrs[0x83]);
                 } else
                     sv_HoverContact = 0;
             }
@@ -4394,7 +4393,7 @@ void sv_HandleObjects(void)
             sv_ClickedChar = ai_PickedChar;
             sv_ClickedContact = sv_HoverContact;
             if (sv_HoverItem != 0)
-                cls = &ai_Goods[((AIOBJ *)sv_HoverItem)->id];
+                cls = &ai_Goods[sv_HoverItem->id];
             if (strcmp(ai_PickedObject->name, "tp_TUER") == 0 || (cls != 0 && cls->type == 6) || sv_HoverContact != 0)
                 door = 1;
             if ((ai_PickedObject->objectFlags & 1) != 0 && door == 0) {
@@ -4420,11 +4419,11 @@ void sv_HandleObjects(void)
             if (ai_SelectedCount == 0 && sv_OtherSelected == 0 && sv_HoverBuilding != 0 && sv_SelectedItem == 0)
                 sv_SelectedModel = ai_PickedObject;
             sv_SelectedObject = sv_HoverBuilding;
-            sv_SelectedItem = (unsigned short *)sv_HoverItem;
+            sv_SelectedItem = sv_HoverItem;
             if (sv_HoverBuilding != 0)
                 sv_SelectedModel = ai_PickedObject;
             if (sv_HoverItem != 0) {
-                cls = &ai_Goods[((AIOBJ *)sv_HoverItem)->id];
+                cls = &ai_Goods[sv_HoverItem->id];
                 sv_SelectedModel = ai_PickedObject;
                 if (cls->type == 0x1d)
                     sv_ClearSelection();
@@ -4917,8 +4916,8 @@ void sv_HandleSelectionMouse(void)
                     cm_SendChrStop(c->netId);
                     if (c->bld != 0)
                         sv_MoveToGroup(c->bld, 0, c->id, 0);
-                    if (((AIOBJ *)sv_ClickedContact)->id != 0xfd) {
-                        t = init_ObjectSceneUniverse((struct AIOBJ *)sv_ClickedContact);
+                    if (sv_ClickedContact->id != 0xfd) {
+                        t = init_ObjectSceneUniverse(sv_ClickedContact);
                         if (ai_FallbackBuilding != 0)
                             b = ai_FallbackBuilding;
                         else if (ai_PlayerBuilding != 0)
@@ -4939,7 +4938,7 @@ void sv_HandleSelectionMouse(void)
                         }
                     }
                     if (t >= 0)
-                        cm_SendChrUseGates(c->netId, b->id, ((AIOBJ *)sv_ClickedContact)->objId);
+                        cm_SendChrUseGates(c->netId, b->id, sv_ClickedContact->objId);
                 }
             }
             sv_ClearSelection();
@@ -5606,7 +5605,7 @@ void sv_HandleRightClick(unsigned fl)
         if (ai_PlayerBuilding != 0) {
             if (sv_ClickedContact != 0 && ai_SelectedCount == 0 && sv_OtherSelected == 0) {
                 sb_PlaySample(snd_RoomBank, "RaumWechseln_s", 1, 0x3f, 0x7f, 0, 0);
-                ai_PlayerBuilding->mainRoom = ((AIOBJ *)sv_ClickedContact)->id;
+                ai_PlayerBuilding->mainRoom = sv_ClickedContact->id;
                 sv_PopRequest = sv_FrameDepth - sv_FrameBase + 1;
                 d3_SetObjectPos(d3_Camera, &sv_ViewPos.v);
                 d3_SetObjectRot(d3_Camera, &sv_ViewRot.v);
@@ -5620,7 +5619,7 @@ void sv_HandleRightClick(unsigned fl)
             sv_BorderViewX = 0;
             sv_BorderViewY = 0;
         }
-        if (dm_L.rup != 0 && (sv_OtherSelected != 0 || (sv_SelectedItem != 0 && ai_Goods[*sv_SelectedItem].type == 0x1d))) {
+        if (dm_L.rup != 0 && (sv_OtherSelected != 0 || (sv_SelectedItem != 0 && ai_Goods[sv_SelectedItem->id].type == 0x1d))) {
             sv_ResetSelection();
             di_ClearEvents(0x10);
         }
@@ -7422,11 +7421,11 @@ int sv_UnreadBss4 = 0;  /* 0x6f22e0, no surviving instruction or pointer refers 
 D3OBJECT *ai_ClickedObject = 0;  /* 0x6f22e4: the object clicked in the scene (cm.h declares it for the units that include cm.h) */
 D3OBJECT *ai_PickedObject = 0;  /* 0x6f22e8 */
 D3OBJECT *sv_FocusObject = 0;  /* 0x6f22ec, the clicked object the camera was placed at (d3t_PlaceAtObject): its handler (+0x1d4) gets message 2 at the focus (+0x108) and 3 at the release (+0x18c) */
-int sv_HoverItem = 0;  /* 0x6f22f0, the item (AIOBJ) under the pointer, from the picked object's +0x200 (kind 1) */
+AIOBJ *sv_HoverItem = 0;  /* 0x6f22f0, the item (AIOBJ) under the pointer, from the picked object's +0x200 (kind 1) */
 struct AIBLD *sv_HoverBuilding = 0;  /* 0x6f22f4, the building (AIBLD) under the pointer (kind 2) */
 struct AICHAR *ai_PickedChar = 0;  /* 0x6f22f8 */
-int sv_ClickedContact = 0;  /* 0x6f22fc, sv_HoverContact at the last click (sv_HandleObjects) */
-int sv_HoverContact = 0;  /* 0x6f2300, the goods item a contact gate under the pointer resolves to */
+AIOBJ *sv_ClickedContact = 0;  /* 0x6f22fc, sv_HoverContact at the last click (sv_HandleObjects) */
+AIOBJ *sv_HoverContact = 0;  /* 0x6f2300, the goods item a contact gate under the pointer resolves to */
 D3OBJECT *sv_SelectedModel = 0;  /* 0x6f2304 */
 AIBLD *ai_PlayerBuilding = 0;  /* 0x6f2308 */
 AIBLD *ai_FallbackBuilding = 0;  /* 0x6f230c */
@@ -7475,7 +7474,7 @@ struct AIBLD *sv_ShownBuilding = 0;  /* 0x6f23bc, ai_PlayerBuilding when sv_Upda
 struct AIBLD *sv_ShownFallback = 0;  /* 0x6f23c0, ai_FallbackBuilding when sv_UpdatePanel last built the panel */
 struct AIBLD *sv_ShownObject = 0;  /* 0x6f23c4, sv_SelectedObject when sv_UpdatePanel last built the panel */
 int sv_ShownRoom = 0;  /* 0x6f23c8, sv_PanelShown when sv_UpdatePanel last built the panel */
-int sv_ShownItem = 0;  /* 0x6f23cc, sv_SelectedItem when sv_UpdatePanel last built the panel */
+AIOBJ *sv_ShownItem = 0;  /* 0x6f23cc, sv_SelectedItem when sv_UpdatePanel last built the panel */
 struct AICHAR *sv_ShownChar = 0;  /* 0x6f23d0, sv_SelectedChar when sv_UpdatePanel last built the panel */
 int sv_ShownOther = 0;  /* 0x6f23d4, sv_OtherSelected when sv_UpdatePanel last built the panel */
 int sv_ShownCount = 0;  /* 0x6f23d8, ai_SelectedCount when sv_UpdatePanel last built the panel */
@@ -7491,7 +7490,7 @@ SVQUICKJUMP sv_QuickJump;  /* 0x75e8c0, the info panel's flag (sv_QuickJump.pane
 unsigned char sv_SelectionFlags[0x300];  /* 0x75e920, the mirror of the character selection flags (byte i per character of ai_Chars) */
 int sv_SkyScene;  /* 0x75ec20 */
 MSG sv_Message;  /* 0x75ec40, the window message sv_PumpMessages reads (PeekMessageA / GetMessageA) */
-unsigned short * sv_SelectedItem;  /* 0x75ec5c */
+AIOBJ *sv_SelectedItem;  /* 0x75ec5c */
 SVACTIVITY sv_Activities[0x30];  /* 0x75ec80, the character activities the he.c scripts register (sv_RegisterActivity) */
 SVMEMBERROW sv_MemberRows[0x20];  /* 0x75f280, the member panel: the member list rows */
 SVFRAME sv_Frames[0x80];  /* 0x75f780, the frame stack, indexed by sv_FrameDepth (sv_RunFrame pushes and pops it) */
@@ -7501,7 +7500,7 @@ float sv_SkyScale;  /* 0x760420 */
 SVBAND sv_Band;  /* 0x760440, the rubber band: sv_BandActive and its corners */
 int sv_Season;  /* 0x760454, the season of the game clock (sv_ClockSeason's result), stored by main_EndRound / main_GameLoop (sv.c itself never reads it) */
 struct AIBLD *sv_ClickedBuilding;  /* 0x760458, sv_HoverBuilding at the last click (sv_HandleObjects) */
-int sv_ClickedItem;  /* 0x76045c, sv_HoverItem at the last click */
+AIOBJ *sv_ClickedItem;  /* 0x76045c, sv_HoverItem at the last click */
 struct AICHAR *sv_ClickedChar;  /* 0x760460, ai_PickedChar at the last click */
 int sv_SkyPhase;  /* 0x760464 */
 SVCLIMATE sv_Climate;  /* 0x760480, sv_CloudChance, sv_SeasonClimate (0x760484) and sv_Weather (0x760488) */

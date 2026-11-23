@@ -2956,20 +2956,20 @@ void ai_HandleMapKey(void)
 
 void ai_TradeContactChecks(void)
 {
-    unsigned short *item;           /* the clicked object record: its first word is its goods id */
+    AIOBJ *item;                    /* the clicked object record: its first word is its goods id */
     AIOBJ *room;
     AIBLD *b;
     AIBTYPE *type;
     AIGOOD *g;
 
-    item = (unsigned short *)sv_ClickedItem;
+    item = sv_ClickedItem;
     if (item != 0) {
-        g = ai_Goods + *item;
+        g = ai_Goods + item->id;
         if ((g->type == 6 || g->type == 2) &&
-            (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, (struct AIOBJ *)item, 0) &
+            (gm_PermissionBits(ai_PlayerId, ai_FallbackBuilding, item, 0) &
              0x4000) != 0) {
             room = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
-            ai_RunObjectRoom((AIOBJ *)sv_ClickedItem);
+            ai_RunObjectRoom(sv_ClickedItem);
             init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
             init_FinishBuildingScene(ai_FallbackBuilding, room);
             sv_FrameBase = sv_FrameDepth;
@@ -2989,7 +2989,7 @@ void ai_TradeContactChecks(void)
     }
     if (sv_ClickedContact != 0 && ai_SelectedCount == 0) {
         room = gm_Query(ai_FallbackBuilding->objList, 2, 6, 0, 0xfd);
-        ai_RunObjectRoom((AIOBJ *)sv_ClickedContact);
+        ai_RunObjectRoom(sv_ClickedContact);
         init_ShowBuildingScene(ai_FallbackBuilding, 0xfd);
         init_FinishBuildingScene(ai_FallbackBuilding, room);
     }
