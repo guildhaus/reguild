@@ -4981,20 +4981,24 @@ void ai_UnloadCarts(AICHAR *ch)
    positions and chains, nsell++ positions, nsell < 3 in the rec loop (changes code), f / g / a third float
    in both price arms (any combination), the rec loop's n as lim / k / m / v, found = 0 positions, it
    removed, stock masks. climb: round 1 and 3 rounds beam 8: nothing closer. flip.py (lim / car / lim+nsell
-   frame wants) only hits meaning changes or duplicated calls. prior: Read the whole function against the
-   original (call / constant sequence now equal: every callee, pushed constant and string in order). Fixed:
-   the slots' goods reserve is set to 4 (mov eax,4 / cmp [esi+0x1c],eax), the master kind compared as a
-   byte, the margin test as f < ai_FloatOne && roll >= f (float home slot, frame 0x74c now equal, the two
-   log sprintfs tail-merge as the original), the first loop's own index / amount variables. Left: register
-   allocation - the original keeps ch in memory ([ebp+8] reloads) where ours caches it in edi in the
-   emergency-sale loop; the stA sell loop spills it / the search pointer to [esp+0x20] / [esp+0x1c] with
-   ebx=nsell, esi/edi=item/amount pointers where ours keeps them in edx/ecx (hunks 0x48b2aa code 134,
-   0x48b3bd, 0x48b3ff); the first slot loop's induction base (ai_Slots+0x28 amount in the original, +0x3c
-   flags in ours, the M8 at +0x38, same accesses). Tried: index/accumulator variable splits per loop (only
-   the first loop's helped), inline stB item reads (no change). (references: M8 at +0x38: ours refers to
-   ai_Slots+0x3c (0xf86a7c), the original's field to 0xf86a68 (ai_Slots+0x28), explained: the M8 at +0x38
-   is the strength-reduced induction pointer's base: both sides walk ai_Slots with the same field accesses
-   (flags, item, amount, sellAmount), only the base offset VC6 picked differs) */
+   frame wants) only hits meaning changes or duplicated calls. Further nsell spellings (no lever): a dead
+   first nsell = 0 before the job test (= control), before the rec loop / the stA loop / after the memset
+   (397-569, code changes), if (nsell >= 0 && ..) (413), if (nsell < 3) around the stA loop (= control),
+   nsell += 1, msg.dst[nsell++], k = nsell copies (= control), sold || nsell (170), nsell = nbuy (70).
+   prior: Read the whole function against the original (call / constant sequence now equal: every callee,
+   pushed constant and string in order). Fixed: the slots' goods reserve is set to 4 (mov eax,4 / cmp
+   [esi+0x1c],eax), the master kind compared as a byte, the margin test as f < ai_FloatOne && roll >= f
+   (float home slot, frame 0x74c now equal, the two log sprintfs tail-merge as the original), the first
+   loop's own index / amount variables. Left: register allocation - the original keeps ch in memory
+   ([ebp+8] reloads) where ours caches it in edi in the emergency-sale loop; the stA sell loop spills it /
+   the search pointer to [esp+0x20] / [esp+0x1c] with ebx=nsell, esi/edi=item/amount pointers where ours
+   keeps them in edx/ecx (hunks 0x48b2aa code 134, 0x48b3bd, 0x48b3ff); the first slot loop's induction
+   base (ai_Slots+0x28 amount in the original, +0x3c flags in ours, the M8 at +0x38, same accesses). Tried:
+   index/accumulator variable splits per loop (only the first loop's helped), inline stB item reads (no
+   change). (references: M8 at +0x38: ours refers to ai_Slots+0x3c (0xf86a7c), the original's field to
+   0xf86a68 (ai_Slots+0x28), explained: the M8 at +0x38 is the strength-reduced induction pointer's base:
+   both sides walk ai_Slots with the same field accesses (flags, item, amount, sellAmount), only the base
+   offset VC6 picked differs) */
 
 int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
 {
