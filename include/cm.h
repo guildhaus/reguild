@@ -17,6 +17,7 @@ struct AITIME;
 struct D2FADE;
 struct AMTREC;
 struct D2SURF;
+struct D2BANK;
 struct AMTKIND;
 struct D3SKY;
 struct D3SKYLAYER;
@@ -529,7 +530,7 @@ extern int cm_FightOwner;  /* 0x60cb5c */
 extern struct AICHAR *cm_CutChar;  /* 0x6f0d74, the character the player commands in the running cut scene */
 
 void cm_DrawScrollArrows(void);  /* 0x4cf370 */
-int d2_DrawShape(int x, int y, void *surf, void *pic, unsigned char i);  /* 0x47c6f0 */
+int d2_DrawShape(int x, int y, D2SURF *surf, struct D2BANK *pic, unsigned char i);  /* 0x47c6f0 */
 void d2_SetClipRect(int x0, int y0, int x1, int y1);  /* 0x47cb40 */
 extern const struct D3VECTOR4 d3_Origin;  /* 0x5ebba4, (0, 0, 0), d3_vec.c */
 extern float d2_ScreenScale;  /* 0x5fe708 */
@@ -733,7 +734,7 @@ void cm_FightMember(struct CMCUTINFO *a, int ctx);  /* 0x4d8b10, the cm_Kinds[].
 extern struct CHARACTER *cm_SceneChars[16];  /* 0x92ca80 */
 extern unsigned int cm_FightStart;  /* 0x6f0da4, fight start (d3_Time) */
 void * d2_SetFont(int font);  /* 0x476030 */
-void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned int flags);  /* 0x46f1a0 */
+void d2_DrawTextBox(int x, int y, int w, int h, D2SURF *surf, char *text, unsigned int flags);  /* 0x46f1a0 */
 void d2_AddDirty(int x, int y, int w, int h);  /* 0x468eb0 */
 extern int d2_TextDrawnW;  /* 0x6ed968 */
 extern int d2_TextDrawnH;  /* 0x6ed96c */

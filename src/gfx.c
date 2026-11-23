@@ -105,7 +105,7 @@ int d2_CountPointerItems(void)
    one is set, moved to x, y) and the item list drawn next to it, amounts under the pictures; locks the surface
    while it draws and unlocks it again unless the caller held it locked; no effect during a cutscene */
 
-void d2_DrawPointer(void *surf, int x, int y, int a, int b)
+void d2_DrawPointer(D2SURF *surf, int x, int y, int a, int b)
 {
     int n, px, py, saved, hold, i;
     int c0, c1, c2, c3;
@@ -115,12 +115,12 @@ void d2_DrawPointer(void *surf, int x, int y, int a, int b)
     char buf[0x40];
     char *s, *d;
 
-    if (d2_CutsceneActive == 0 && ((hold = ((D2SURF *)surf)->locked) != 0 || d2_LockSurface(surf) != 0)) {
+    if (d2_CutsceneActive == 0 && ((hold = surf->locked) != 0 || d2_LockSurface(surf) != 0)) {
         c0 = d2_ClipLeft;
         c1 = d2_ClipTop;
         c2 = d2_ClipRight;
         c3 = d2_ClipBottom;
-        d2_SetClipRect(0, 0, ((D2SURF *)surf)->w, ((D2SURF *)surf)->h);
+        d2_SetClipRect(0, 0, surf->w, surf->h);
         if (d2_PointerSprite == -1) {
             d2_DrawShape(x, y, surf, d2_PointerPic, (unsigned char)d2_PointerLook);
         } else {
@@ -535,7 +535,7 @@ void d2_SliderInput(void)
     D2OBJ *o;
     /* @original f6's initializer emits no code; it moves f6's first reference, after which VC6 computes
        the vertical drag test as the original (f6->h + o->y in eax, the code 10 hunk of the plain form) */
-    D2FRAME *f0, *f6 = 0;
+    struct D2SHP *f0, *f6 = 0;
     void *h;
     int px, py, v, mn, mx, len, v2, d, a, bottom;
     unsigned int fl;

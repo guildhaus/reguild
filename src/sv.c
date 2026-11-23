@@ -3947,8 +3947,8 @@ int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x
 int d2_CreateWinText(short x, short y, char *text, int win);                     /* 0x473650 */
 int d2_CreateScreenText(short x, short y, char *text);                     /* 0x473860 */
 void d2_MoveObj(short x, short y, int obj);                     /* 0x46cda0 */
-void d2_DrawText(int x, int y, void *surf, char *text, unsigned char flags);                     /* 0x46f000 */
-void d2_DrawTextBox(int x, int y, int w, int h, void *surf, char *text, unsigned int flags);                     /* 0x46f1a0 */
+void d2_DrawText(int x, int y, struct D2SURF *surf, char *text, unsigned char flags);                     /* 0x46f000 */
+void d2_DrawTextBox(int x, int y, int w, int h, struct D2SURF *surf, char *text, unsigned int flags);                     /* 0x46f1a0 */
 void d2_SetClipRect(int x0, int y0, int x1, int y1);                     /* 0x47cb40 */
 void * d2_SetFont(int font);                     /* 0x476030 */
 int d2_SetForm(int view, int n);                     /* 0x475f70 */

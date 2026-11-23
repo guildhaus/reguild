@@ -439,7 +439,7 @@ extern int txt_Loaded;
 extern int txt_Random[0x4800];
 int d2_SetForm(int view, int n);                    /* 0x475f70 */
 void d2_DrawAll(void);                    /* 0x46e150 */
-void d2_DrawWindow(int win, void *surf);                    /* 0x471a90, draws a window (d2.h) */
+void d2_DrawWindow(int win, struct D2SURF *surf);                    /* 0x471a90, draws a window (d2.h) */
 int d2_RemoveWindowObjects(int win, int all);         /* 0x472d20, removes the objects of a window (d2.h) */
 void d2_RedrawView(int view);                    /* 0x474e80 */
 extern struct D2SURF *d2_ScreenSurf;              /* 0x6ed924, the screen surface (d2.c) */

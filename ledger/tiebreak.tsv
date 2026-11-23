@@ -1249,14 +1249,14 @@ exe	0x0046a110	d2_OpenInput	d2	cc5183068fef1c4c	no	byte	control=byte p1=byte p2=
 exe	0x0046a360	d2_WinOpenInput	d2	e855dcc6d6a7ae34	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046a4c0	d2_OpenSlider	d2	0234a1d04464f975	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046a960	d2_WinOpenSlider	d2	aea43408a5a23615	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0046aa00	d2_DrawSlider	d2	ea78438564be489f	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	171aa4cb8ed75fcf
+exe	0x0046aa00	d2_DrawSlider	d2	7e65cb9fe56c844b	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=253	87faad2a46aa6020
 exe	0x0046bc70	d2_SetLabel	d2	16b23309f9f2d4f6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046bca0	d2_SetList	d2	c656088f8083caf8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046bd30	d2_ListCopyItem	d2	58ab62cad756b1bc	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046bdd0	d2_SetSliderFlags	d2	c18d1afc06551822	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046be00	d2_CreateSlider	d2	a739073be51b40b2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046bf10	d2_WinCreateSlider	d2	78fc6ad647bc0449	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0046bf60	d2_DrawButton	d2	309893a2d18de110	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d918c6ec89c5a8a6
+exe	0x0046bf60	d2_DrawButton	d2	4148b4dca6a58223	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	87faad2a46aa6020
 exe	0x0046c1d0	d2_CenterObj	d2	c0482a2f50c0d5d9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	55c8d17ed8e94d6e
 exe	0x0046c260	d2_SetObjWidth	d2	1eda778e0b017f59	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046c290	d2_OpenRaw	d2	74350c855413f805	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1276,7 +1276,7 @@ exe	0x0046cb20	d2_OpenPic	d2	f0b3b60d5d30bf50	no	byte	control=byte p1=byte p2=by
 exe	0x0046cd80	d2_CreatePicObj	d2	fb519b177027d632	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0046cda0	d2_MoveObj	d2	1234a48d512e1c89	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	8cb656f7bdbc4778
 exe	0x0046cfd0	d2_ShowPicture	d2	019209af24b8c27e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0046d040	d2_DrawPic	d2	f64b2b1a308b8f3a	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	a43ce6e87b58e9a9
+exe	0x0046d040	d2_DrawPic	d2	7f85ef7a5bba6a32	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=253	87faad2a46aa6020
 exe	0x0046d220	d2_DrawObjCaption	d2	49a5c3a6244cd76c	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x0046d3d0	d2_DrawObjects	d2	26ed54f859912e57	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x0046e150	d2_DrawAll	d2	ddf3aa353f890cef	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -1371,7 +1371,7 @@ exe	0x004774a0	d2_DragInputValue	gfx	329e543cc366e2d3	no	byte	control=byte p1=by
 exe	0x00477530	d2_EndInputEdit	gfx	fae021bdbcb6698d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00477590	d2_InputKey	gfx	afab0ad5615a53eb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00477a70	d2_DragInput	gfx	09f1f57ee80ca0ed	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00477ba0	d2_SliderInput	gfx	e4ceb3f1f9c4323d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	52e3ca107a389048
+exe	0x00477ba0	d2_SliderInput	gfx	5a1d5e45bb5bb354	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	1707256915d20e7b
 exe	0x00477ed0	d2_UpdateInput	gfx	691b7792c55e8d8d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00478320	d2_FocusInput	gfx	c8fd9a6abf41bd48	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004784c0	d2_MouseUpdate	gfx	716ae476aa6b3859	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3e57dcfd2b757386
@@ -1421,7 +1421,7 @@ exe	0x0047bd70	d2_ShpBlit	shp	3d7588554c125407	no	byte	control=byte p1=byte p2=b
 exe	0x0047bec0	d2_ShpConvert8To16	shp	3707c6939089225e	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x0047c0e0	d2_ShpConvert24To16	shp	e1fce5697d76ce02	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x0047c3d0	d2_ShpConvertTo16	shp	a284448a5bf48d1e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0047c410	d2_BankConvertTo16	shp	90f0a6ac1e0393cf	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	416a20644b82d7f2
+exe	0x0047c410	d2_BankConvertTo16	shp	b3f1beae516d9ea1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	88473a7bc1470abf
 exe	0x0047c5e0	d2_BankSetPalette	shp	ac31b2d0bc80dc7a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047c610	d2_BankAppendShape	shp	c8f0383f40acf84d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0047c6f0	d2_DrawShape	shp	c5a8a1905208efd1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
