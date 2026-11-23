@@ -3993,37 +3993,7 @@ void ai_OfferGrave(AICHAR *ch)
         ch->flags1b4 &= ~0x40;
     }
 }
-/* 0x487fb0, buys a renovation of the building or an upgrade of the workshop
-   @deep shape, 22 ins (regs 24, code 14). This session: record pointer g = &ai_Goods[bt->slot[i] & 0x7fff]
-   tested twice (the original forms the address, mov ecx,eax; add ecx,edx; mov cl,[ecx]: the
-   ai_LiquidateAssets form) and no n local; no outer if (nslots > 0) around loop 1 and no 'if (nslots <= 0)
-   return' before loop 2 (the original has one guard per loop); loop 2 as i = 0; first = 0; for (; ..)
-   (first stored from the zeroed i register); msg fill to before fromId (720-order permute), msg2.arg[1]
-   before itemId (climb swap). 42 -> 22. Left: the original holds 0 in ebp from the prologue (xor ebp,ebp;
-   mov [ret],ebp; cmp edi,ebp for if (fin)) and loop 1 starts with no xor ebp (i is that register); bld in
-   edi, lim in ebx. Ours: bld ebp, lim edi, ret = 0 as an immediate, test edi,edi, xor ebp,ebp before loop
-   1. Tried: for (; i < ..) on loop 1 with i = 0 at the top (every top spelling: ret = i = 0, i = ret = 0,
-   ret = i, order): i is spilled (frame 0x200), 37 ins; for (i = 0; ..) with every top spelling: = 32 ins
-   code (top i = 0 is dead). prior: behaviour draft, now near: 52 code / 10 regs / 6 order / 6 fill hunks =
-   48 differing instructions of 361 (baseline 99). This session's fix: the two slot loops were a do-while
-   over a hand-walked p with a separate i - VC6 spilled BOTH (frame 0x200 vs 0x1fc) and the loop counter
-   went to the frame; rewritten as for (i = 0; i < bt->nslots; i++) with bt->slot[i] (index only) the frame
-   matched and 99 -> 48 differing instructions in one edit (code 151 -> 52, every slots hunk gone). Tried
-   and reverted / identical, one edit one build each: all-c->bld (81 code hunks, worse), all-bld (377,
-   worse), int n (identical), dropping the redundant AICHAR *c = ch alias (identical, the cleaner ch form
-   kept). What is left, all read against tools/disasm.py 0x487fb0 0x4c0 and build/ghidra/487fb0.c: the
-   register pair of the building pointer (original edi, ours ebp; knock-on hunks at 0x487fc0 zero register,
-   0x488060 the lim registers, 0x4881c3 test vs cmp against the zero register, 0x488217 the re-zero,
-   0x48824c / 0x4882e3 the ai_Goods[n] address form), the store order at 0x488101 and the 3-instruction
-   dup-tail at 0x4884aa; every statement, constant, callee, field offset and the float block (0.005 *
-   0.005, max 128, budget * 0.75) match Ghidra. Readability done this session: Q2 gm_PlayerRecord ->
-   gm_PlayerRecord (unified with the f3gm.c definition), gm_BuildingLevel -> gm_BuildingLevel (f3gm.c
-   definition renamed too; it returns the building's level byte +0x5c), gm_EquipmentValue ->
-   gm_EquipmentValue (the f3gm.c gm_EquipmentValue definition and every ai_ alias), AIBLD.unk25 -> masterId
-   (am.c 0x497cf0 looks the AI's buildings up by it, the upgrade message goes to that character),
-   AIBLD.level -> level (0..100, renovation threshold, 100 - level in the renovation message), AIFIN.unk40
-   / unk44 -> upgradeSpent / renovationSpent; Q4 *(unsigned short *)&msg2.arg[0] = ret -> the new
-   AIMSG.itemId union view; Q6 already there */
+/* 0x487fb0, buys a renovation of the building or an upgrade of the workshop */
 
 void ai_BuyUpgrade(AICHAR *ch)
 {
@@ -4036,11 +4006,8 @@ void ai_BuyUpgrade(AICHAR *ch)
     float f;
     unsigned int flags;
     int i, cost, ret;
-    unsigned short rv;
-    int lim;
     int first;
 
-    i = 0;
     ret = 0;
     first = 0xfd;
     if (ch->flags1c8 & 8)
@@ -4059,9 +4026,7 @@ void ai_BuyUpgrade(AICHAR *ch)
         return;
     if (!(flags & 8))
         return;
-    rv = util_Random(0x14);
-    lim = rv + 0x4b;
-    if (gm_BuildingLevel(bld) < lim) {
+    if (gm_BuildingLevel(bld) < util_Random(0x14) + 0x4b) {
         f = (float)gm_EquipmentValue(ch->bld, 100) * 0.005f;
         f = f * 0.005f;
         if (128.0f > f)
@@ -4087,7 +4052,7 @@ void ai_BuyUpgrade(AICHAR *ch)
     bt = &ai_BTypes[ch->bld->type];
     for (i = 0; i < bt->nslots; i++) {
         if (ret)
-            goto found;
+            break;
         if ((bt->slot[i] & 0x7fff) != 0) {
             g = &ai_Goods[bt->slot[i] & 0x7fff];
             if (g->type == 2 || g->type == 6)
@@ -4096,24 +4061,23 @@ void ai_BuyUpgrade(AICHAR *ch)
                 ret = bt->slot[i] & 0x7fff;
         }
     }
-    if (ret)
-        goto found;
-    i = 0;
-    first = 0;
-    for (; i < bt->nslots; i++) {
-        if (ret)
-            goto found;
-        if ((bt->slot[i] & 0x7fff) != 0) {
-            g = &ai_Goods[bt->slot[i] & 0x7fff];
-            if (g->type == 2 || g->type == 6)
-                first = bt->slot[i] & 0x7fff;
-            else if (first == 0xfd && !gm_Query(ch->bld->objList, 2, 6, 0, bt->slot[i] & 0x7fff))
-                ret = bt->slot[i] & 0x7fff;
+    if (!ret) {
+        i = 0;
+        first = 0;
+        for (; i < bt->nslots; i++) {
+            if (ret)
+                break;
+            if ((bt->slot[i] & 0x7fff) != 0) {
+                g = &ai_Goods[bt->slot[i] & 0x7fff];
+                if (g->type == 2 || g->type == 6)
+                    first = bt->slot[i] & 0x7fff;
+                else if (first == 0xfd && !gm_Query(ch->bld->objList, 2, 6, 0, bt->slot[i] & 0x7fff))
+                    ret = bt->slot[i] & 0x7fff;
+            }
         }
+        if (!ret)
+            return;
     }
-    if (!ret)
-        return;
-found:
     o = gm_Query(ch->bld->objList, 1, 0, first);
     if (o) {
         cost = (int)gm_ItemPrice(ret, 100);
