@@ -4567,7 +4567,6 @@ void ai_SendFreeThieves(AICHAR *ch)
     AIOBJ *o;
     AIMSG msg;
     int i, n;
-    char k;
     AIBTYPE *bt;
 
     n = 2;
@@ -4577,10 +4576,9 @@ void ai_SendFreeThieves(AICHAR *ch)
     }
     if (0 < n) {
         bt = &ai_BTypes[c->bld->type];
-        k = ((volatile AIBTYPE *)bt)->kind;
-        if (k == 4)
+        if (bt->kind == 4)
             o = gm_Query(c->bld->objList, 2, 6, 0, 0x60);
-        else if (k == 0x13)
+        else if (bt->kind == 0x13)
             o = gm_Query(c->bld->objList, 2, 6, 0, 0x145);
         else
             o = 0;
