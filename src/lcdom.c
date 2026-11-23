@@ -1378,6 +1378,8 @@ void ai_PersonnelBook(AIBLD *bld, char *model)
                     hireButton = -1;
                     fireButton = -1;
                     promoteButton = -1;
+                    /* @original the master row selects i, the index the setup loop left (the row count n), not a row of its own:
+                       the original stores the same register (byte); sel is not read again in this function */
                     sel = i;
                     if (masterRow.ch == 0 && masterRow.state != 2) {
                         owner = &ai_Chars[bld->owner];
@@ -2271,6 +2273,8 @@ void ai_HelperBook(AIBLD *bld, char *model)
                         io_PrintText((intptr_t)"$C");
                     }
                     dismissButton = -1;
+                    /* @original the master row selects i, the index an earlier loop left (the row count n or the bonus loop's
+                       end), not a row of its own: the original stores the same register (byte) */
                     sel = i;
                     if (masterRow.ch == 0 && masterRow.state != 2) {
                         owner = &ai_Chars[bld->owner];
@@ -3645,6 +3649,8 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         sv_SetStatusText(txt_Ptrs[0xf0]);
                     } else {
                         rows[i].selected = 1;
+                        /* @original the cart was tested and dereferenced (c->flags20) above; the original tests
+                           rows[i].cart again here (test ecx,ecx in the bytes), always true */
                         if (rows[i].cart != 0) {
                             if (canTrade == 0 && own == 0) {
                                 txt_Format(text4, 0xee, b);
