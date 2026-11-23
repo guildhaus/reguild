@@ -1,8 +1,8 @@
 /* ts_texture -- the texture manager (original path D:\develop\Units\d3\ts_texture.c, the #line below; bounded by
    the d3_sm.c and d2.c tags): the texture slot table, the hardware surface cache and the 16-bit colour tables of
    the software renderer, 0x45f610..0x4616d0.
-   Open: not included yet (dcp headers conflicts ts_texture HEADER): bio.h; held by own declarations that differ
-   from the owner's: file_Exists.
+   Open: not included yet (dcp headers conflicts ts_texture HEADER): bio.h; held by an own copy of the owner's
+   prototype: file_Exists.
    Open: typing: TSTEXTURE.reserved (0x58) is only ever cleared (slot created / evicted / re-rendered / unloaded),
    no reader - role unknown; the views of the slot (d3.h D3TEXTURE, d3_fl.h D3FLTEX) are gone.
    unit of rea 8cef7d5b (src/game/ts_texture.c); boundaries in decl/text.dcl */
@@ -65,7 +65,7 @@ const unsigned int d3_AnimDiv[11] = { 15, 13, 11, 9, 8, 7, 5, 3, 2, 1, 0 };  /* 
 
 void d3d_CreateTexture(DWORD size, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, LPDIRECT3DTEXTURE2 *surftext, DWORD n, const BYTE *pal, unsigned char mips);           /* 0x4383d0 */
 void d3d_SetSurfacePalette(DDSURFACEDESC2 *desc, LPDIRECTDRAWSURFACE4 surf, DWORD n, const BYTE *pal);                        /* 0x438180 */
-char file_Exists(char *path);                                                               /* 0x401090, @original: the callers here read the result as a char (byte-matched ts_LoadAnim: test al, al), against bio.h's int view */
+char file_Exists(char *path);                                                               /* 0x401090, bio.c */
 unsigned int util_Hash(unsigned char *buf, unsigned int len);                                                /* 0x401000 */
 
 void d3d_LoadTexture(char *name, DDPIXELFORMAT *pf, LPDIRECTDRAWSURFACE4 *surf, LPDIRECT3DTEXTURE2 *surftext, unsigned char mips, DWORD w, DWORD h, int bpp);                  /* 0x437390 */

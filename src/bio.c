@@ -43,9 +43,9 @@ char *util_BaseName(char *path)
         *p = 0;
     return name;
 }
-/* 0x401090, 1 if the file exists in the vfs */
+/* 0x401090, 1 if the file exists in the vfs (char: its one caller, ts_LoadAnim, tests al) */
 
-int file_Exists(char *path)
+char file_Exists(char *path)
 {
     VFSDIR *d;
 

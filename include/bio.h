@@ -11,7 +11,7 @@ extern const unsigned int bio_CrcTable[256];  /* 0x5eb380, the zlib crc32 table 
 
 unsigned int util_Hash(unsigned char *buf, unsigned int len);                           /* 0x401000 */
 char *util_BaseName(char *path);                                                         /* 0x401040 */
-int file_Exists(char *path);                                                             /* 0x401090 */
+char file_Exists(char *path);                                                            /* 0x401090 */
 char *util_ReadLine(VFSFILE *f);                                                         /* 0x4010b0 */
 void bio_rd_c(VFSFILE *f, char *c);                                                     /* 0x401180 */
 void bio_rd_s(struct VFSFILE *f, char *s);                                                     /* 0x4011a0 */
