@@ -804,44 +804,38 @@ void d3fl_Ramp(unsigned char *p, int a, int b, unsigned char v0, unsigned char v
 }
 /* 0x440360, finds the water tile type ("WASSER"), builds the water height map, its regions and the water
    strips, points and polygons of the tiles
-   @deep Session 2026-11-23 (889 -> 401 ins): meaning fixed: the regions' tex_AddRef test reads first, not
-   the counter (commit c9a67954). Then, each read from the original's slots: the strips loop has its own
-   flag instrip (the original keeps it at [ebp+0xb], byte 3 of the dead map argument, apart from the ramps'
-   in at [ebp-0x15]); no n local in the strips (the original's [ebp-0x20] is the CSE of map->n, reloaded
-   after the strip stores: ours with n = map->n kept (j+1)*n as a loop-carried CSE); the regions' init loop
-   counts with j (the original's counter is in j's slot); the wpoints init reads t->wpoints once (pt =
-   t->wpoints; pt[k].field: the original's add eax,0x4c walk); the removed-row compaction counts rows (left
-   = n*n/2, pos = 0, memmove size (left - pos - 1) * sizeof: the original's two byte IVs ebx / [ebp+8] are
-   initialised after the r->y != -1 guard, i.e. strength-reduced). The frame's slot set now equals the
-   original's; left: h1 packs with cmask where the original packs it with y (cmask allocated earlier =
-   worse, 484..824), y1 / y / cmask order. Code hunks left: the mask loop's 8 neighbour writes (the
-   original evaluates ((x-1)&mask) + mask before size*y; operand order of the index = no lever; a local for
-   map->mask = count mover, the original reloads [esi+0xc] each write), the diagonal switch (0x4407d2), the
-   cmask loops (0x440910), the polys loop's bound tests (0x440f3e: the original computes (i+1) once into
-   ecx: lea ecx,[edx+1]) and the register rotation from there to the end. climb round 1 at 430: best 0 < x
-   (commute, 8 ins), nothing structural. prior: Session 2026-11-16: meaning fixed: regs[i].f14 = 63.0f (the
-   original stores 0x427c0000; d3_int_io's default is 63.0f too), and d3fl_Fill takes unsigned char
-   map/from/to (the original pushes 0xfe as imm32; d3fl_Fill stays byte). Slot evidence read from the
-   paired frames: the ramp and diagonal loops run on j (row, [ebp-0x10], j's slot) and i (column,
-   [ebp-0x14], i's slot), not y/x: kept (i then conflicts with map, so it leaves map's arg slot as in the
-   original, where map's slot holds tex/off/_zn instead). The first ramp test reads map->water[k] == 0xff
-   (the original re-tests v != 0xff in the else-if when entered from the in-path: only this spelling gives
-   cmp dl,0xff/je there; else-if swaps, two ifs, v < 0xff, nested if(in): no). Now 889 ins (count rose from
-   879 by the right changes; the frame is global). Original frame from ebp down: -4 {strcpy ptr, x0, k,
-   D3_COPY/FILL temps}, -8 x/np, -0xc {ty/x1/c/macro counts, tmp@892}, -0x10 j, -0x14 i, -0x15 byte in
-   (kept in bl, spilled), -0x1c y (mask and strip loops) + h1, -0x20 h0 + regs, -0x24 oldn + t, -0x28 a
-   temp of the diagonal switch (921/928 edi=[ebp-0x28]), -0x2c cmask, -0x30 npoly, -0x34 mask. The byte
-   slot ranks 6th, so five dword slots are denser than in's byte (in count 8): their counts must be far
-   above ours (c2frame --names). Code hunks left (registers and slots ignored): mask-loop guard test vs cmp
-   (844), the 8 neighbour writes (859-866: x+-1 / y+-1 kept differently), cmask loops 935-942 (y in a
-   register, xor), regs init loop 965-990 (jmp into the body, i in memory), strips 1004-1043, the wpolys
-   clear 1057-1061 (original: pointer walk add 0x4c with stores at [p-4],[p],[p-8]), 1073-1104. */
+   @deep Session 2026-11-23b (401 -> 324 ins): the first regions loop has no c / w / w2 pointer locals: the
+   test and the 0xfe store index cmask / map->water inline (VC6's CSEs then put c and w in slots [ebp-4] /
+   [ebp-0xc], y in ebx, x in edx, size in ecx: that loop is now equal but for cmask's slot). Inline-nested
+   = inline-all; dropping only c = control-like (401), only w = 364. Frame: y now count 12 (its loop-1 refs
+   are register refs), tied with cmask (12); the original packs h1 with y and leaves cmask alone, i.e.
+   under the packer's newest-compatible rule y must be created after x, t and cmask (count(y) < 12) and
+   before h1 (8). Size: ours 12 bytes short: mask loop -11 (the original recomputes x+1 from x at write 6
+   (mov edi,[x]; inc edi) and reloads y at write 7, keeping x-1 in [ebp-4], x+1 in [ebp-0x28], y-1 in eax,
+   y+1 in [ebp-0xc]), diagonal +2, polys head -6 (the original: lea ecx,[edx+1] = i+1 first, then x = n *
+   [i] from memory, then (i+1) * n). Polys bounds spelled n*(j+1) / j*n / i*n: all = control. climb round 1
+   at 401: best 0 < y commute (8 ins), nothing structural. prior: Session 2026-11-23 (889 -> 401 ins):
+   meaning fixed: the regions' tex_AddRef test reads first, not the counter (commit c9a67954). Then, each
+   read from the original's slots: the strips loop has its own flag instrip (the original keeps it at
+   [ebp+0xb], byte 3 of the dead map argument, apart from the ramps' in at [ebp-0x15]); no n local in the
+   strips (the original's [ebp-0x20] is the CSE of map->n, reloaded after the strip stores: ours with n =
+   map->n kept (j+1)*n as a loop-carried CSE); the regions' init loop counts with j (the original's counter
+   is in j's slot); the wpoints init reads t->wpoints once (pt = t->wpoints; pt[k].field: the original's
+   add eax,0x4c walk); the removed-row compaction counts rows (left = n*n/2, pos = 0, memmove size (left -
+   pos - 1) * sizeof: the original's two byte IVs ebx / [ebp+8] are initialised after the r->y != -1 guard,
+   i.e. strength-reduced). The frame's slot set now equals the original's; left: h1 packs with cmask where
+   the original packs it with y (cmask allocated earlier = worse, 484..824), y1 / y / cmask order. Code
+   hunks left: the mask loop's 8 neighbour writes (the original evaluates ((x-1)&mask) + mask before
+   size*y; operand order of the index = no lever; a local for map->mask = count mover, the original reloads
+   [esi+0xc] each write), the diagonal switch (0x4407d2), the cmask loops (0x440910), the polys loop's
+   bound tests (0x440f3e: the original computes (i+1) once into ecx: lea ecx,[edx+1]) and the register
+   rotation from there to the end. climb round 1 at 430: best 0 < x (commute, 8 ins), nothing structural. */
 
 void d3fl_PrepareWater(D3FLMAP *map)
 {
     char msg[256];
     char buf[64];
-    unsigned char *mask, *cmask, *c, *w, *w2;
+    unsigned char *mask, *cmask;
     D3FLREGION *regs;
     TSTEXTURE *tex;
     D3FLTILE *t;
@@ -963,13 +957,10 @@ void d3fl_PrepareWater(D3FLMAP *map)
             D3FL_FILL(cmask, 0xff, map->size * map->size);
             for (y = 0; y < map->size - 1; y++)
                 for (x = 0; x < map->size - 1; x++) {
-                    c = &cmask[map->size * y + x];
-                    if (*c == 0xff) {
-                        w = &map->water[map->size * y + x];
-                        w2 = &map->water[(y + 1) * map->size + x];
-                        if (*w > 0 && *w2 > 0 && w[1] > 0 && w2[1] > 0)
-                            *c = 0xfe;
-                    }
+                    if (cmask[map->size * y + x] == 0xff
+                        && map->water[map->size * y + x] > 0 && map->water[(y + 1) * map->size + x] > 0
+                        && map->water[map->size * y + x + 1] > 0 && map->water[(y + 1) * map->size + x + 1] > 0)
+                        cmask[map->size * y + x] = 0xfe;
                 }
             for (y = 0; y < map->size - 1; y++)
                 for (x = 0; x < map->size - 1; x++)
