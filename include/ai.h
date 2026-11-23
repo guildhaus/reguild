@@ -140,20 +140,6 @@ typedef struct AIGRID {                 /* 24 bytes, a cell of the statistics gr
 
 extern AIFIN gm_PlayerRecords[16];     /* 0x7d5f80, the player records (gm_PlayerRecord finds a character's) */
 
-typedef struct AIMAPENT {               /* 24 bytes, the AI's view of the vegetation records at AIBLD.plants (rd.h
-                                           G15PLANT, the same 0x18-byte layout; ai.c includes rd.h now, so the readers
-                                           can take G15PLANT) */
-    int id;                             /* 0x00, G15PLANT.id */
-    int bldId;                          /* 0x04, G15PLANT.bldId, the building whose map holds it */
-    unsigned char x;                    /* 0x08, cell */
-    unsigned char z;                    /* 0x09 */
-    unsigned short type;                /* 0x0a, G15PLANT.type, the plant type (0 removes it) */
-    signed char size;                   /* 0x0c, size in cells */
-    signed char state;                       /* 0x0d, growth state; -1 free (veg_FindPlantId skips those) */
-    char pad0e[2];
-    int fallId;                         /* 0x10, G15PLANT.fallId, -1 for a plain plant (veg_SetPlant) */
-    int obj;                            /* 0x14, its 3D object */
-} AIMAPENT;
 
 
 extern AITIME ai_Time;                   /* 0x770ae0, the game clock */

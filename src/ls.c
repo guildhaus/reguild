@@ -449,14 +449,14 @@ int ls_WriteBuildings(VFSFILE *f)
             c = b->type;
             if (c == 0x1e) {
                 for (j = 0; j < 0x40; j++) {
-                    LS_W(&((AIMAPENT *)b->plants)[j].id, 4)
-                    LS_W(&((AIMAPENT *)b->plants)[j].bldId, 4)
-                    LS_W(&((AIMAPENT *)b->plants)[j].x, 1)
-                    LS_W(&((AIMAPENT *)b->plants)[j].z, 1)
-                    LS_W(&((AIMAPENT *)b->plants)[j].type, 2)
-                    LS_W(&((AIMAPENT *)b->plants)[j].fallId, 4)
-                    LS_W(&((AIMAPENT *)b->plants)[j].size, 1)
-                    LS_W(&((AIMAPENT *)b->plants)[j].state, 1)
+                    LS_W(&b->plants[j].id, 4)
+                    LS_W(&b->plants[j].bldId, 4)
+                    LS_W(&b->plants[j].x, 1)
+                    LS_W(&b->plants[j].z, 1)
+                    LS_W(&b->plants[j].type, 2)
+                    LS_W(&b->plants[j].fallId, 4)
+                    LS_W(&b->plants[j].size, 1)
+                    LS_W(&b->plants[j].state, 1)
                 }
             } else if (c == 'H' || c == 'I' || c == 'J') {
                 if (gv_WriteGraveyard(f, b) == 0)
@@ -1513,15 +1513,15 @@ int ls_ReadBuildings(VFSFILE *f)
         if (c == 0x1e) {
             b->plants = mem_Alloc(0x600, "f3g:PlantMap");
             for (j = 0; j < 0x40; j++) {
-                LS_R(&((AIMAPENT *)b->plants)[j].id, 4)
-                LS_R(&((AIMAPENT *)b->plants)[j].bldId, 4)
-                LS_R(&((AIMAPENT *)b->plants)[j].x, 1)
-                LS_R(&((AIMAPENT *)b->plants)[j].z, 1)
-                LS_R(&((AIMAPENT *)b->plants)[j].type, 2)
-                LS_R(&((AIMAPENT *)b->plants)[j].fallId, 4)
-                LS_R(&((AIMAPENT *)b->plants)[j].size, 1)
-                LS_R(&((AIMAPENT *)b->plants)[j].state, 1)
-                ((AIMAPENT *)b->plants)[j].obj = 0;
+                LS_R(&b->plants[j].id, 4)
+                LS_R(&b->plants[j].bldId, 4)
+                LS_R(&b->plants[j].x, 1)
+                LS_R(&b->plants[j].z, 1)
+                LS_R(&b->plants[j].type, 2)
+                LS_R(&b->plants[j].fallId, 4)
+                LS_R(&b->plants[j].size, 1)
+                LS_R(&b->plants[j].state, 1)
+                b->plants[j].obj = 0;
             }
         } else if (c == 'H' || c == 'I' || c == 'J') {
             if (ls_Version >= 0x10047) {

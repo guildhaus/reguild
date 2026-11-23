@@ -25,19 +25,7 @@ typedef struct G15TREE {                /* 0x46 bytes, the vegetation types veg_
     char pad45;
 } G15TREE;
 
-typedef struct G15PLANT {               /* 0x18 bytes, 64 per vegetation map */
-    int id;                             /* 0x00, from veg_NextId */
-    int bldId;                          /* 0x04, the building whose map holds it (cm's handler of message 0x2c sets it) */
-    unsigned char x;                    /* 0x08, cell */
-    unsigned char z;                    /* 0x09 */
-    unsigned short type;                /* 0x0a, G15TREE.id; 0 removes it */
-    signed char size;                  /* 0x0c, size in cells */
-    signed char state;                       /* 0x0d, growth state; -1: free */
-    char pad0e[2];
-    int fallId;                         /* 0x10, the id message 0x2c set the fall model with (veg_SetPlant: -1 for a plain
-                                           plant); a later 0x2c without fall and that id puts the plant back */
-    struct D3OBJECT *obj;               /* 0x14, its 3D object */
-} G15PLANT;
+#include "rd_types.h"                 /* G15BK, G15PLANT */
 
 
 
@@ -54,7 +42,6 @@ typedef struct G15ROAD {                /* 0x1020 bytes, rd_Road */
     PATHOUT out;                        /* 0x1014, path_Find's out: count, max, cells (path) */
 } G15ROAD;
 
-#include "rd_types.h"                 /* G15BK */
 #include "d3_types.h"                 /* D3VECTOR4 */
 
 typedef struct G15BKFIND {              /* context of rd_FindSiteCB */
