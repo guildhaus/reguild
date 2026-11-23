@@ -2111,19 +2111,43 @@ char d3fl_UpdateTiles(D3FLMAP *map)
    (vertices, lit from the light map, and triangles; extra vertices on edges next to finer tiles), projects them and
    culls the triangles; then animates the water (water != 0) and queues the visible triangles of all tiles,
    rendering their cache textures on first use
-   @deep read the function against the original: the same call set (no dcp diffclass call difference) and
-   the same global store set (no differs line); 2791 vs 2816 instructions (the 25 fewer are merged tails:
-   VC6 shares the repeated tile-corner blocks' copies in ours), 10122 vs 10143 bytes. Q4 settled: the UV
-   copy is a memcpy(uv, poly->uv, sizeof(D3FLTRIUV)) instead of the raw struct cast, the 1.0f numerators
-   are ai_FloatOne (the datum the original loads) and the MinZ/MaxZ clamps are the negated comparisons
-   (2509 -> 2503 differing, code 1769 -> 1746). What is left is allocation: the frame 0x14c against 0x150
-   (the local slot permutation, e.g. ebp-0x14 vs ebp-8, ebp-0x64 vs ebp-0x20), 1276 slots, 272 regs, 153
-   fpu and 212 frame hunks, plus one branch-target pairing; the six ref lines are crossed pairs (ours'
-   d3fl_Origin+0x4 load against the original's d3fl_AxisX+0x8 multiply - d3fl_Origin's declared extent
-   covers d3fl_AxisX, so 0xfc0d58 resolves as Origin+0x5028 - and ours' d3_SortPtr store against the
-   original's d3_FrameCount load in the mipmap block, both sequences storing the same values). Tried: the
-   Q4 field typing then the header-free memcpy, ai_FloatOne, the negated clamps, the tile-corner copy
-   spellings; none moves the frame or the slot assignment. (references: M8 at +0x11f8: ours refers to
+   @deep s(this): 2503 -> 2308 ins by structure read from the original, region by region (regions cut at
+   UpdateTiles / GetTexture / the four edge loop heads 'cmp [reg],0' / ClipMesh / _ftol / UpdateWater;
+   count the register-normalised diff per region, the global ins count is dominated by the allocation
+   cascade). Settled: the clip and queue loops index map->tiles[y][x] (T) so VC6 strength-reduces to the
+   original's bases &T.npoints (+0xf0) and &T.zmin (+0x130); every sign test is & 0x80 (jns, not jge);
+   d3_MinZ/MaxZ = (T.zmin) parenthesised (fld/fstp copy); the queue loop reads npolys/npts once and loops
+   to a separate bound j = min(npolys, ..) (the original's min result is a fresh temp, jae); x > 0 / y > 0
+   edge guards (test; jbe); cull test written '<' with the 0x7f arm first (and 0x4100; jne); (k * v->x) *
+   d3_ScaleX parenthesised in both projection loops; pp = poly + 1 in the right edge (block head) and top
+   edge (flip arm): the original's edge IV is &poly[1].uv ([iv-0x12] = flip). After these the clip / fog /
+   cull / queue regions differ only in registers and slots (8 / 4 / 8 normalised lines). No lever (=
+   control): operand order of a float product or sum (a.y = fx * AxisX.y, v->x = p.x + a.x, the cull
+   factors) - VC6 canonicalises; types/height load order th-swap moves only registers. Left: (1) frame
+   0x14c vs 0x150 (one 4-byte local more in the original); (2) the x87 form at every vector-times-scalar
+   triple: the original's .y line is 'fld st(1); fmul [Axis.y]', ours 'fld [Axis.y]; fmul st,st(2)', and in
+   the edge preludes the original's .z line consumes the conversion ('fxch; fmul [Axis.z]') - removing the
+   fx local gives the .y form but the .z form then dies early (nofx: 2308 at the time, a.z wrong), so the
+   original's conversion is a candidate that lives past .z: run c2fpu.py on lines 2210-2224; (3) the right
+   edge pp: the original computes pp once at the block head into a slot (add -0x10; mov [ebp-0x34]) and
+   uses it as the copy source in both arms, ours rematerialises lea [iv-0x10] per arm; a separate stepped
+   pp IV (ppiv2) gives the wrong IV; (4) the edge preludes: the original interleaves the
+   T.points/T.polys/T.bp loads into the D3FL_POS float code; move-one-statement rounds over each prelude
+   (genmove: 64/49/49/64 variants) move the count by 10-50 ins with the size off by +-30, none verified as
+   the original's order; climb.py round 1 is too slow for this function (killed after several minutes
+   without output). prior: read the function against the original: the same call set (no dcp diffclass call
+   difference) and the same global store set (no differs line); 2791 vs 2816 instructions (the 25 fewer are
+   merged tails: VC6 shares the repeated tile-corner blocks' copies in ours), 10122 vs 10143 bytes. Q4
+   settled: the UV copy is a memcpy(uv, poly->uv, sizeof(D3FLTRIUV)) instead of the raw struct cast, the
+   1.0f numerators are ai_FloatOne (the datum the original loads) and the MinZ/MaxZ clamps are the negated
+   comparisons (2509 -> 2503 differing, code 1769 -> 1746). What is left is allocation: the frame 0x14c
+   against 0x150 (the local slot permutation, e.g. ebp-0x14 vs ebp-8, ebp-0x64 vs ebp-0x20), 1276 slots,
+   272 regs, 153 fpu and 212 frame hunks, plus one branch-target pairing; the six ref lines are crossed
+   pairs (ours' d3fl_Origin+0x4 load against the original's d3fl_AxisX+0x8 multiply - d3fl_Origin's
+   declared extent covers d3fl_AxisX, so 0xfc0d58 resolves as Origin+0x5028 - and ours' d3_SortPtr store
+   against the original's d3_FrameCount load in the mipmap block, both sequences storing the same values).
+   Tried: the Q4 field typing then the header-free memcpy, ai_FloatOne, the negated clamps, the tile-corner
+   copy spellings; none moves the frame or the slot assignment. (references: M8 at +0x11f8: ours refers to
    d3fl_Origin+0x4 (0xfbbd34), the original's field to 0xfc0d58 (d3fl_Origin+0x5028) (and 5 more),
    explained: the six ref lines are crossed pairings of the same accesses: our three d3fl_Origin.x/y/z adds
    are emitted as three fadd [d3fl_Origin+n] where the original keeps the x in an FPU register (fld
@@ -2342,6 +2366,7 @@ void d3fl_Draw(D3FLMAP *map, char water)
                             idx = (ly * size + mx + n) & mask;
                             for (j = 0; j < ny - 1; j++) {
                                 if (poly->v[0]) {
+                                    pp = poly + 1;
                                     h = height[idx];
                                     a.x = d3fl_AxisY.x * h;
                                     a.y = d3fl_AxisY.y * h;
@@ -2353,15 +2378,15 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                     sp->x = lx;
                                     sp->y = ly;
                                     D3FL_LIGHT(v, light[idx])
-                                    D3FL_COPY_TO(uv, poly[1].uv, 0x18)
+                                    D3FL_COPY_TO(uv, pp->uv, 0x18)
                                     if (poly->flip & 1) {
                                         u = (uv[2] + uv[4]) * 0.5f;
                                         w = (uv[3] + uv[5]) * 0.5f;
                                         uv[4] = u;
                                         uv[5] = w;
-                                        D3FL_COPY_TO(np, &poly[1], 0x28)
-                                        poly[1].v[2] = v;
-                                        poly[1].uv = uv;
+                                        D3FL_COPY_TO(np, pp, 0x28)
+                                        pp->v[2] = v;
+                                        pp->uv = uv;
                                         T.nbpUsed++;
                                         uv += 6;
                                         D3FL_COPY_TO(uv, np->uv, 0x18)
@@ -2374,9 +2399,9 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                         w = (uv[3] + uv[1]) * 0.5f;
                                         uv[0] = u;
                                         uv[1] = w;
-                                        D3FL_COPY_TO(np, &poly[1], 0x28)
-                                        poly[1].v[0] = v;
-                                        poly[1].uv = uv;
+                                        D3FL_COPY_TO(np, pp, 0x28)
+                                        pp->v[0] = v;
+                                        pp->uv = uv;
                                         T.nbpUsed++;
                                         uv += 6;
                                         D3FL_COPY_TO(uv, np->uv, 0x18)
@@ -2506,14 +2531,15 @@ void d3fl_Draw(D3FLMAP *map, char water)
                                     sp->y = my;
                                     D3FL_LIGHT(v, light[idx])
                                     if (poly->flip & 1) {
-                                        D3FL_COPY_TO(uv, poly[1].uv, 0x18)
+                                        pp = poly + 1;
+                                        D3FL_COPY_TO(uv, pp->uv, 0x18)
                                         u = (uv[2] + uv[0]) * 0.5f;
                                         w = (uv[3] + uv[1]) * 0.5f;
                                         uv[0] = u;
                                         uv[1] = w;
-                                        D3FL_COPY_TO(np, &poly[1], 0x28)
-                                        poly[1].uv = uv;
-                                        poly[1].v[0] = v;
+                                        D3FL_COPY_TO(np, pp, 0x28)
+                                        pp->uv = uv;
+                                        pp->v[0] = v;
                                         T.nbpUsed++;
                                         uv += 6;
                                         D3FL_COPY_TO(uv, np->uv, 0x18)
