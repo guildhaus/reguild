@@ -5371,22 +5371,32 @@ int ai_MeisterTrade(AICHAR *ch, AIOBJ *b)
    message 0x10 (10 seconds ahead); a full one without a running job 11 is unloaded against the market - the stall
    goods are sold to the market stalls (cm_SendExSellObject) and the buys collected into one message 11, sent
    unless the ai_TradeMsgOff gate is set.
-   @deep s51: the slots hunks (292 of 240 ins) are the frame sort (frame > 0x80, VC6's unstable sort of
-   equal densities: sold/f/v and the 0x5566/0x5656 temps both 4000): c2frame's replay gives the same order
-   for the variants below although dcp's slot hunks change, so the unstable sort's input count / order
-   decides. climb round 1 (694 mutants): best 163 via a new int local t = market->objId for the stall-goods
-   sprintf / cm_SendExSellObject pair (slots 166, code 65): an extra frame entry reorders the sort; not
-   kept (no source reason for that local; the original's slot of f is 0x14 with lim / s, ours f with sold /
-   v). No lever: v inline in the first slot loop, float g dropped, g as the GoodsPrice / ItemPrice / k
-   temp; worse: f in one statement (274), g = util_RandomF() * 1.25f (252). Open: which ordinary local the
-   original had that gives the sort the original's order (a local per SELL macro site?). prior: Read
-   against the original: every call, constant and branch agrees (hunks: slots 332, regs 16, order 4, code
-   28). Fixed: the margin test reads ai_FloatOne as the original (M10 open closed), the cart's building id
-   as AIOBJ.bldId. Left: allocation - the float f's home ([esp+0x1c] ours vs [esp+0x14]), the spilled
-   search pointer / store-amount pointer in the stB sell loop (ours keeps the amount pointer at [esp+0x18]
-   and reloads it, the original keeps it in edx: code hunks 0x48c94f 'mov dword ptr [esp + 0x2c], eax / mov
-   eax, dword ptr [esp + 0x20]' vs 'mov edx, dword ptr [esp + 0x24] / mov dword ptr [esp + 0x1c], eax',
-   0x48c98d, 0x48ca27, 0x48ca51 the same pushes in another register order). */
+   @deep s52: the instructions are the original's except the frame; the original's 4-byte slots (esp
+   offsets): 0x14 = {f, lim (all three sites), the m-loop slot pointer (5543), the j-loop slot pointer
+   (5591)}, 0x18 market, 0x1c = {rec cursor 5492, &stA.amount[i] 5582}, 0x20 nsell, 0x24 = {v, sold}, 0x28
+   car, 0x2c s alone; ours packs {sold, f, v}, {lim, s}, {t5543, t5591} (c2frame --names P rows). Replaying
+   the packer (newest compatible slot, list by count then first reach) over the X conflict rows: the
+   original's packing needs list order lim, f, sold, v, then t5543 / t5591 before s (or sold, v, ..., lim
+   with lim below 4): with the ties as they fall that is sold -1, v -1 and s -1 (or sold -1, f +1, s -1; or
+   lim -1, v +1, s -1) - three counts at once while the listing is identical, so the counts differ before
+   the late passes (split-piece reloads: v / sold / s are bulk-split pieces, 247 blocks). Rounds:
+   blockscope every scalar (f, v, s, sold, nsell, nbuy, market, found, combos) = control except lim per
+   loop (258, the three lims then join the 5549 temp slot, worse); renaming v / the first loop's v to
+   another local = control or worse (v -> lim 238 ins but regs 70); s via break 326; it in the stA test
+   312; climb --rounds 3 (2432 mutants): best 163 only via t = market->objId (the sort tie, packing
+   unchanged). flip --want '_f$ = -1676' (f in the original's slot): 14 hits, all drop one sold = 1 / sold
+   = 0 or perturb the loops (m398 del sold = 0: 183 ins, regs 142). Next: find which split piece of sold /
+   v / s reloads in ours and not in the original (c2trace --split sold|v|s), the walk-order tie of s
+   against the 5543 pointer, and a source form with one sold reference fewer before the late passes. prior:
+   s51: the slots hunks (292 of 240 ins) are the frame sort (frame > 0x80, VC6's unstable sort of equal
+   densities: sold/f/v and the 0x5566/0x5656 temps both 4000): c2frame's replay gives the same order for
+   the variants below although dcp's slot hunks change, so the unstable sort's input count / order decides.
+   climb round 1 (694 mutants): best 163 via a new int local t = market->objId for the stall-goods sprintf
+   / cm_SendExSellObject pair (slots 166, code 65): an extra frame entry reorders the sort; not kept (no
+   source reason for that local; the original's slot of f is 0x14 with lim / s, ours f with sold / v). No
+   lever: v inline in the first slot loop, float g dropped, g as the GoodsPrice / ItemPrice / k temp;
+   worse: f in one statement (274), g = util_RandomF() * 1.25f (252). Open: which ordinary local the
+   original had that gives the sort the original's order (a local per SELL macro site?). */
 
 int ai_MeisterTradeAllgemein(AICHAR *ch, AIOBJ *b)
 {
