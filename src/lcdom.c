@@ -2945,26 +2945,48 @@ typedef struct LCCARTROW {              /* 0xf0 bytes, a cart row of the transpo
    ai_SendTransportOrder; their escort fees summed in the text 0xe3), the repair button refills the selected
    carts (gm_ItemPrice of the cart * 0.008 per missing percent, the message 0x10), the others buy or sell
    carts; 0x527 empties the goods back. sv_PendingMoney follows the goods total (ai_TransportGoodsTotal).
-   @deep Reconstructed whole from the stub against the original (3426 instructions read end to end): the
-   mode 8 info panel, the store queries per mode, the 16 cart rows (LCCARTROW), the row cleanup / add /
-   goods-control sync, the transport events, the inventory child window (ai_InvSlots, ai_InvChar), the
-   button enabling, the right-button reset, the click / drop branches (ai_TransportFromLager,
-   cm_SendExSellObject, gm_FreeCapacity / gm_TakeableCount), the 0x527 clear, send (ai_MapPick 0x11,
-   ai_SendTransportOrder), repair (message 0x10), buy / sell carts, the goods total and the close. 3417 vs
-   3426 instructions, frame equal (0x1848). Fixed on the way: the own branches inverted (je to own=1),
-   btns[8], two drop prices, the row y in an int (32-bit as the original), the goods slider x / y / stock
-   as statements. Left: block layout and allocation: VC6 keeps ebp = -1 and the cart cursor in a slot in
-   the original (ours ebx), the row walk pointer based at the row start in the original vs a field inside
-   the row in ours ([esi] vs [esi-0xc], [ebx] vs [ebx-8]), selected tested as 'mov eax,[ebx+8]; test' vs
-   'cmp [ebx],0', the escort / message field stores scheduled in another order (0x5b0161, 0x5b0197,
-   0x5b1d55), the click branch's C block placed after A in the original (0x5b0b1c) vs after the drop
-   branches in ours, and the merged sv_SetStatusText tail of the two 0xee status texts (references: M8 at
-   +0xad8: ours refers to d2_RemoveObj (0x46e710), the original's field to 0x46c9e0 (d2_DeleteObject) (and
-   1 more), explained: the two ref lines (d2_RemoveObj | d2_DeleteObject at +0xad8, ai_Time+8 | +0xc at
-   +0x2be3) are alignment artifacts: the cleanup calls d2_RemoveObj / d2_DeleteObject in the original's
-   order (goods icon, goods slider, row slider, escort picture, label) and the message copies all of
-   ai_Time; the call count sv_SetStatusText 8 vs 7 is the original's cross-jumped tail of the two
-   'txt_Format(buffer, 0xee, b); sv_SetStatusText(buffer)' paths) */
+   @deep match-deep s36: 1303 -> 1086 ins. Kept (each a dcp try row): the list-click block's cart loop with
+   its body inside (`if (cart && pic == ptr) { ..; break; }`, the not-found exit `jl; jmp join` as the
+   original) and its second test spelled `rows[i].cart != 0` (the original keeps that test: `test ecx,ecx;
+   je` after the selected store; `c != 0` is folded) 1303 -> 1291; rowH = d2_Pics[0x5e2].h + 0x16 as a
+   local for the new row's y and its slider (the original keeps h + 0x16 in edi across the four calls) plus
+   `rows[i].job = 0` first in the cleanup's pic block 1291 -> 1124 (the job store moves the row walk's base
+   to the row start and gives ebp = -1 as in the original; BUT the original stores job after the
+   d2_RemoveObj call: the job-first order is a stepping stone, the lever behind it is a reference count,
+   find the plain form); rows[freeRow].cart = cart before rowH, and the repair message 0x10 with to before
+   fromId 1124 -> 1086 (climb). No lever (= control): the list-click block written first (`if (clicked !=
+   -1 && changed == 0 && listShown != 0) { C } else if ..`), its canTrade test inverted, a found flag as in
+   the cart-drop block, i / k swapped in the add-row loops, the mode8 initializer moved (noise +-10). Left:
+   the scalar frame (ours: cart / i / total share [esp+0x14], k alone at 0x34, j at 0x30; the original:
+   cart + j's uses at 0x14, freeRow + the row loop's k at 0x20, c / cost at 0x24, the row loop's i + the
+   add-row counter at 0x28, owner 0x2c before win 0x34, canTrade before priced, marketObj / changed / own
+   in that order, src 4 refs); the two 0xee status texts (text4 / text5) are cross-jumped in the original
+   because the list-click block's text4 path is laid directly in front of the join (the TransportFromLager
+   else-part out of line after the store-drop block's first part): ours still lays the else-part inline
+   (sv_SetStatusText 8 vs 7); the 0x93 initializer constant is loaded first in ours (eax, its two stores
+   hoisted), mode & 8 first in the original (edx = 0x93). A per-slot operand count of the original (push
+   depth followed over the flow graph) is the quickest way to see which locals the original packs. climb (5
+   rounds, beam 3) from 1086 reached only 1036 through a label local, two swaps and an amount local: not
+   kept (no plain form behind them). prior: Reconstructed whole from the stub against the original (3426
+   instructions read end to end): the mode 8 info panel, the store queries per mode, the 16 cart rows
+   (LCCARTROW), the row cleanup / add / goods-control sync, the transport events, the inventory child
+   window (ai_InvSlots, ai_InvChar), the button enabling, the right-button reset, the click / drop branches
+   (ai_TransportFromLager, cm_SendExSellObject, gm_FreeCapacity / gm_TakeableCount), the 0x527 clear, send
+   (ai_MapPick 0x11, ai_SendTransportOrder), repair (message 0x10), buy / sell carts, the goods total and
+   the close. 3417 vs 3426 instructions, frame equal (0x1848). Fixed on the way: the own branches inverted
+   (je to own=1), btns[8], two drop prices, the row y in an int (32-bit as the original), the goods slider
+   x / y / stock as statements. Left: block layout and allocation: VC6 keeps ebp = -1 and the cart cursor
+   in a slot in the original (ours ebx), the row walk pointer based at the row start in the original vs a
+   field inside the row in ours ([esi] vs [esi-0xc], [ebx] vs [ebx-8]), selected tested as 'mov
+   eax,[ebx+8]; test' vs 'cmp [ebx],0', the escort / message field stores scheduled in another order
+   (0x5b0161, 0x5b0197, 0x5b1d55), the click branch's C block placed after A in the original (0x5b0b1c) vs
+   after the drop branches in ours, and the merged sv_SetStatusText tail of the two 0xee status texts
+   (references: M8 at +0xad8: ours refers to d2_RemoveObj (0x46e710), the original's field to 0x46c9e0
+   (d2_DeleteObject) (and 1 more), explained: the two ref lines (d2_RemoveObj | d2_DeleteObject at +0xad8,
+   ai_Time+8 | +0xc at +0x2be3) are alignment artifacts: the cleanup calls d2_RemoveObj / d2_DeleteObject
+   in the original's order (goods icon, goods slider, row slider, escort picture, label) and the message
+   copies all of ai_Time; the call count sv_SetStatusText 8 vs 7 is the original's cross-jumped tail of the
+   two 'txt_Format(buffer, 0xee, b); sv_SetStatusText(buffer)' paths) */
 
 int ai_TransportWindow(AIBLD *bld, unsigned int mode)
 {
@@ -3014,7 +3036,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
     int pic;
     int i, j, k, n, v, ok;
     int changed;
-    int x, y, stock;
+    int x, y, stock, rowH;
     int match, freeRow, notFull, item, ctl, max, price, fee, cost, empty, maxEmpty, limit;
     float applied, total, sellPrice, loadPrice, unit;
     char esc;
@@ -3218,10 +3240,10 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                 && (gm_IsType10(bld) == 0 || ai_CartAtBuilding(bld, c) != 0))
                 continue;
             if (rows[i].pic != -1) {
+                rows[i].job = 0;
                 rows[i].cart = 0;
                 d2_RemoveObj(rows[i].pic);
                 rows[i].pic = -1;
-                rows[i].job = 0;
             }
             for (j = 0; j < 3; j++) {
                 if (rows[i].goodsCtl[j] != -1) {
@@ -3259,8 +3281,9 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                             break;
                     ev = he_FindEvent(3, 0, 0xf, 2, ai_PlayerId, 3, cart->objId);
                     if (freeRow < 16 && ev == 0) {
-                        y = (d2_Pics[0x5e2].h + 0x16) * freeRow;
                         rows[freeRow].cart = cart;
+                        rowH = d2_Pics[0x5e2].h + 0x16;
+                        y = rowH * freeRow;
                         rows[freeRow].pic = d2_WinOpenPic(0x10, y + 0x16, cart->id + 0x4ae, d2_LastWindow);
                         rows[freeRow].escortPic = d2_WinOpenPic(0x18, y + 0x54, 0x5e8, d2_LastWindow);
                         rows[freeRow].label = d2_WinOpenPic(0xac, y + 0x54, 0x5eb, d2_LastWindow);
@@ -3271,7 +3294,7 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         d2_Objs[rows[freeRow].label].style = 0x43;
                         strcpy(d2_Objs[rows[freeRow].label].caption, txt_Ptrs[TXT_PANEL_BTN_CART]);
                         d2_SetObjFont(rows[freeRow].label, 0x54);
-                        rows[freeRow].slider = d2_WinOpenSlider(0x4b, (d2_Pics[0x5e2].h + 0x16) * freeRow + 0x59, 0x50, 0,
+                        rows[freeRow].slider = d2_WinOpenSlider(0x4b, rowH * freeRow + 0x59, 0x50, 0,
                                                                 0x64, 0x65, 0x2a, d2_LastWindow);
                         rows[freeRow].win = d2_CreateChildWindow(0x10, y + 0x26, 0xc8,
                                                                  0x40, 0x10, d2_LastWindow);
@@ -3615,28 +3638,28 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
             }
         } else {
             /* a click on a cart moves the goods picked in the list into it */
-            for (i = 0; i < 16; i++)
-                if (rows[i].cart != 0 && rows[i].pic == d2_PointerObj)
-                    break;
-            if (i < 16) {
-                c = rows[i].cart;
-                if (c->flags20 & 1) {
-                    sv_SetStatusText(txt_Ptrs[0xf0]);
-                } else {
-                    rows[i].selected = 1;
-                    if (c != 0) {
-                        if (canTrade == 0 && own == 0) {
-                            txt_Format(text4, 0xee, b);
-                            sv_SetStatusText(text4);
-                        } else {
-                            sobj = gm_Query(c->list, 1, 0, 0x1dd);
-                            d2_EndInputEdit();
-                            if (util_RandomF() < 0.25f)
-                                ai_TransportFromLager(sobj->objId, stall, b, canTrade, 0, factor, owner, mode);
-                            else
-                                ai_TransportFromLager(sobj->objId, stall, b, canTrade, 0, 1.0f, owner, mode);
+            for (i = 0; i < 16; i++) {
+                if (rows[i].cart != 0 && rows[i].pic == d2_PointerObj) {
+                    c = rows[i].cart;
+                    if (c->flags20 & 1) {
+                        sv_SetStatusText(txt_Ptrs[0xf0]);
+                    } else {
+                        rows[i].selected = 1;
+                        if (rows[i].cart != 0) {
+                            if (canTrade == 0 && own == 0) {
+                                txt_Format(text4, 0xee, b);
+                                sv_SetStatusText(text4);
+                            } else {
+                                sobj = gm_Query(c->list, 1, 0, 0x1dd);
+                                d2_EndInputEdit();
+                                if (util_RandomF() < 0.25f)
+                                    ai_TransportFromLager(sobj->objId, stall, b, canTrade, 0, factor, owner, mode);
+                                else
+                                    ai_TransportFromLager(sobj->objId, stall, b, canTrade, 0, 1.0f, owner, mode);
+                            }
                         }
                     }
+                    break;
                 }
             }
         }
@@ -3903,8 +3926,8 @@ int ai_TransportWindow(AIBLD *bld, unsigned int mode)
                         memset(&msg, 0, sizeof(msg));
                         msg.type = 0x10;
                         msg.flags = 1;
-                        msg.fromId = bld->id;
                         msg.to = ai_Chars[ai_PlayerId].netId;
+                        msg.fromId = bld->id;
                         msg.time = ai_Time;
                         gm_AddTime(&msg.time, 0, 0, 10);
                         msg.car = c->objId;
