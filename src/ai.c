@@ -806,40 +806,41 @@ done:
     ai_MeisterTrade(ch, b);
 }
 /* 0x47f700, evaluates the production of a master's workshop, the variant with the 0x20 / 0x200 entry flags
-   @deep Session 2026-11-23: 262 -> 167 ins (size now +17: ours 2805 vs 2788). Kept: info.n2 / info.n1
-   counted in place (info.n2++, info.n1++, no n1 / n2 locals: VC6 enregisters the fields, n1 in esi, the
-   store sunk out of the loop), if (info.n1 >= info.n2) info.n1 = info.n2, info.ch / info.b set before the
-   zero inits, info.type before info.e in each job arm (the three ai_SendJobOrders call sites are back), if
-   (j >= ai_NEntries) break in the watch loop, health > 0 (jbe), and found: the 8 / 13 o'clock success sets
-   found = 1 and the one if (found) goto done stands after the hour if / else (the original's ebp is found
-   from the prologue, used as the zero of gm_Query and ch->prod = 0). Left: (1) the second random loop: the
-   original keeps i in ebp and spills ch (ebx reloaded from the parameter at the failure exits), the
-   success block inline (je latch); ours keeps i in [esp+0x10], ch in ebx, success out of line after the
-   job loop. c2trace: our i#7 is cut where ch#4 took ebx, after ai_GoodsT#2 (ai_Goods hoisted out of the
-   clean-up loop into edi: the original loads it per entry inside if (flags & 8) and keeps ai_NEntries in
-   edi there). flip.py --want on the inline HasMaterials(.., 0) test: closest hit duplicating the
-   clean-up's ai_Entries[i].flags &= ~8 (85 ins, size -1) - a reference count / region question in the
-   clean-up loop; spellings tried without that effect: flags = flags & ~8, an else arm, e pointer forms
-   (e->flags, worse), no if (0 < ai_NEntries) guard (= control), break after the clear (worse), j -> i in
-   the later loops (= control: webs). (2) the drawn-setting block: the original loads b into edx and copies
-   mov ecx,edx before the lvl1d byte read (ours b in eax). (3) the watch loop's head (jmp to the test, cmp
-   [j],edi with ai_NEntries in edi). climb.py 2 rounds: only an extra perm[i] local (160). prior: read the
-   whole function against the original 0x47f700..0x4801f4 (the production setup calls, the 8 / 13 o'clock
-   and other-hour entry search, the drawn-setting block, the permutation, both random-pick loops, the flag
-   clean-up, the watch copy, the job characters, the counts and the job orders); fixed: the entry fields
-   read through ai_Entries[i] / ai_Entries[k] (capacity, amount, need1c, need20, flags) where the original
-   indexes the array ([esi + ai_Entries+0x40] etc.) and only the item and the call arguments through e, the
-   job-order loop tests 0x10 first (if (flags & 0x10) {0x20: type 0x14, else 0x200: type 0x15} else if
-   (flags & 8): type 4, the original's test al,0x10 / je). 542 -> 337 differing, ours 791 vs 808
-   instructions. Left: cross-jumping and layout: ours merges the three ai_SendJobOrders calls of the
-   job-order loop into one tail (type stored, then a shared push / call / watch check, 0x48006b..0x4800f0)
-   where the original keeps three call sites and joins only at the watch copy (0x480162 / 0x48017b); the
-   success block of the second random loop goes out of line after the function body in ours ('- jne
-   0x480075' vs '+ je 0x47fdc5'); tried info.type before info.e: identical. The loops keep i in a slot /
-   ebp and ch reloaded from [esp+0x1c0] in the original (ebx reused as a temporary). (size: 791 vs 808
-   instructions, explained: the 17 missing instructions are the two extra ai_SendJobOrders call sites of
-   the original (lea / push / mov / call / reload of ai_Watch.bld and ch->bld / compare: about 8 each) that
-   VC6 cross-jumped into one in ours) */
+   @deep Session 2026-11-23: 262 -> 133 ins, size 2785 vs 2788. Kept: info.n2 / info.n1 counted in place
+   (info.n2++, info.n1++, no n1 / n2 locals: VC6 enregisters the fields, n1 in esi, the store sunk out of
+   the loop), if (info.n1 >= info.n2) info.n1 = info.n2, info.ch / info.b set before the zero inits,
+   info.type before info.e in each job arm (the three ai_SendJobOrders call sites are back), if (j >=
+   ai_NEntries) break in the watch loop, health > 0 (jbe), found set by the 8 / 13 o'clock success too with
+   one if (found) goto done after the hour if / else, and the second random loop's ai_HasMaterials(ch, e,
+   0) as its own nested if (the success block is inline again, i in ebp; all other splits of the && chain
+   give the control's code). Left: allocation only, decided by the bulk split regions (186 blocks): (1)
+   found should be in ebp from the prologue (its register doubles as the 0 of the gm_Query pushes and
+   ch->prod = 0), ours spills found and keeps a 0 in edi, b in ebp (c2trace: found#1 cut where b#5 took
+   ebp); (2) the drawn-setting block's b in edx + mov ecx,edx; (3) the second loop's success block one
+   scratch step off (as in ai_EvaluateProductionGraveyard); (4) ai_NEntries in edi through the clean-up
+   loops to the watch loop's j test (ours: ai_Goods hoisted into edi, c2trace ai_Goods#2). flip.py --want
+   'push edi / xor ebp, ebp / push 255' (found in ebp): the closest hit (56 ins, all of (1) and (2) right)
+   moves ai_FreeJobCharacters(ch, 4) into the watch if - not the meaning, but the region split depends on
+   the blocks there; respellings of the watch loop (no braces, && in the for, while, negated if) give the
+   control's code. Earlier: duplicating the clean-up's flags &= ~8 fixes (3)'s loop (ai_Goods#2 prio -18 ->
+   -26). Not levers: e / &ai_Entries[j] in the job loop, Graveyard's min() / if (n2 && n1) {..} tail form,
+   the if (0 < ai_NEntries) guard, continue forms of the random loops, j -> i, the watch slots index
+   spellings. prior: read the whole function against the original 0x47f700..0x4801f4 (the production setup
+   calls, the 8 / 13 o'clock and other-hour entry search, the drawn-setting block, the permutation, both
+   random-pick loops, the flag clean-up, the watch copy, the job characters, the counts and the job
+   orders); fixed: the entry fields read through ai_Entries[i] / ai_Entries[k] (capacity, amount, need1c,
+   need20, flags) where the original indexes the array ([esi + ai_Entries+0x40] etc.) and only the item and
+   the call arguments through e, the job-order loop tests 0x10 first (if (flags & 0x10) {0x20: type 0x14,
+   else 0x200: type 0x15} else if (flags & 8): type 4, the original's test al,0x10 / je). 542 -> 337
+   differing, ours 791 vs 808 instructions. Left: cross-jumping and layout: ours merges the three
+   ai_SendJobOrders calls of the job-order loop into one tail (type stored, then a shared push / call /
+   watch check, 0x48006b..0x4800f0) where the original keeps three call sites and joins only at the watch
+   copy (0x480162 / 0x48017b); the success block of the second random loop goes out of line after the
+   function body in ours ('- jne 0x480075' vs '+ je 0x47fdc5'); tried info.type before info.e: identical.
+   The loops keep i in a slot / ebp and ch reloaded from [esp+0x1c0] in the original (ebx reused as a
+   temporary). (size: 791 vs 808 instructions, explained: the 17 missing instructions are the two extra
+   ai_SendJobOrders call sites of the original (lea / push / mov / call / reload of ai_Watch.bld and
+   ch->bld / compare: about 8 each) that VC6 cross-jumped into one in ours) */
 
 void ai_EvaluateProductionFlags(AICHAR *ch)
 {
@@ -960,13 +961,14 @@ void ai_EvaluateProductionFlags(AICHAR *ch)
             if (((ai_Goods[e->item].type != 0x17 && ai_Goods[e->item].type != '%') || ai_Entries[k].amount < 5)
                 && b->lvl1c >= ai_Entries[k].need1c && b->lvl1d >= ai_Entries[k].need20
                 && ai_Entries[k].capacity >= ai_Goods[e->item].batch && (x = gm_FindMarketObject(e->item)) != 0
-                && gm_FreeCapacity(x, e->item, 1000000) >= ai_Goods[e->item].batch + ai_Entries[k].amount
-                && ai_HasMaterials(ch, e, 0)) {
-                e = &ai_Entries[info.perm[i]];
-                ai_StartProduction(ch, e);
-                ch->prod = (unsigned short)e->item;
-                sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen", ai_Goods[e->item].name);
-                goto done;
+                && gm_FreeCapacity(x, e->item, 1000000) >= ai_Goods[e->item].batch + ai_Entries[k].amount) {
+                if (ai_HasMaterials(ch, e, 0)) {
+                    e = &ai_Entries[info.perm[i]];
+                    ai_StartProduction(ch, e);
+                    ch->prod = (unsigned short)e->item;
+                    sprintf(buf, "Produktion von %s starten obwohl Rohstoffe fehlen", ai_Goods[e->item].name);
+                    goto done;
+                }
             }
         }
     }
