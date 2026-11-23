@@ -856,7 +856,7 @@ int gv_FireShots(AIBLD *bld, AICHAR *ch, SHOTREC *a, SHOTREC *b, SHOTREC *d, flo
     int first;
     int r;
     int mode;
-    char *e;
+    GVEFFECT *e;
     GVSHOTMSG m;
 
     v2 = v;
@@ -865,7 +865,7 @@ int gv_FireShots(AIBLD *bld, AICHAR *ch, SHOTREC *a, SHOTREC *b, SHOTREC *d, flo
     mode = 0;
     if (bld != 0) {
         e = gv_GetEffect(bld->id);
-        if (e != 0 && (((GVEFFECT *)e)->flags & 2) == 0) {
+        if (e != 0 && (e->flags & 2) == 0) {
             if (d != 0)
                 mode = 2;
             else if (b != 0)
@@ -914,17 +914,17 @@ int gv_FireShots(AIBLD *bld, AICHAR *ch, SHOTREC *a, SHOTREC *b, SHOTREC *d, flo
 }
 /* 0x4eedd0, the effect slot of the id or 0 */
 
-char *gv_GetEffect(int id)
+GVEFFECT *gv_GetEffect(int id)
 {
-    int *p;
+    GVEFFECT *p;
     int i;
 
     i = 0;
-    p = (int *)gv_Effects;
+    p = gv_Effects;
     do {
-        if (*p == id)
-            return (char *)&gv_Effects[i];
-        p += 0x5c;
+        if (p->id == id)
+            return &gv_Effects[i];
+        p++;
         i++;
     } while ((intptr_t)p < (intptr_t)&gv_Effects[8]);
     return 0;
@@ -943,7 +943,7 @@ int gv_StartShot(GVSHOTMSG *m, G17STAT *st)
     v = m->v;
     mode = m->mode;
     part = m->shot;
-    e = (GVEFFECT *)gv_GetEffect(m->id);
+    e = gv_GetEffect(m->id);
     if (e == 0)
         return 0;
     for (j = 0; j < 3; j++) {
@@ -971,7 +971,7 @@ void gv_SetEffectCallback(int id, void *cb, void *arg)
     GVEFFECT *e;
 
     if (id != -1) {
-        e = (GVEFFECT *)gv_GetEffect(id);
+        e = gv_GetEffect(id);
         if (e != 0) {
             if (cb != 0) {
                 e->cb = (int (*)(GVEFFARG *))cb;

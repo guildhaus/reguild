@@ -4112,7 +4112,7 @@ void *ai_MapPick(unsigned int flags, AMOUNTCFG *req, char *name, void (*cb)(), i
         }
     }
     ai_CampaignStep(0xd, picked, 1, 0);
-    ai_CloseMapWindow((int *)&map);
+    ai_CloseMapWindow(&map);
     return picked;
 }
 /* 0x5b2530, the new storage slot window "Handel\Handel_Lager_Neuer_Slot" of the store obj in the building bld
@@ -6103,7 +6103,7 @@ void ai_RenovationWindow(AIBLD *bld)
                     cost = costAll;
                 }
                 if (bld->owner == ai_PlayerChar->id) {
-                    treasury = (AIOBJ *)gm_ClassTreasury(bld);
+                    treasury = gm_ClassTreasury(bld);
                     if (treasury == 0 || sv_CheckStock((short *)treasury, treasury->list, cost, ai_OwnPlayer) == 0)
                         continue;
                     msg.arg[1] = points;
@@ -6437,7 +6437,7 @@ void ai_UpgradeBuilding(AIBLD *bld)
             cm_EndGroup("building_upgrade");
         }
     } else {
-        treasury = (AIOBJ *)gm_ClassTreasury(bld);
+        treasury = gm_ClassTreasury(bld);
         if (sv_MessageBox((intptr_t)text, 0x11) == 0 || treasury == 0)
             return;
         if (sv_CheckStock((short *)treasury, treasury->list, price, ai_OwnPlayer) != 0) {

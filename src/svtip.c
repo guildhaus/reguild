@@ -301,7 +301,6 @@ typedef struct SHOTRESULT {     /* 0x38 bytes, three of them in ai_ShotTable: th
     SHOTENTRY e[3];          /* +0x8 */
 } SHOTRESULT;
 extern int ai_TutorialChapterOn[5];
-extern int (*ai_TutorialChapterInit[5])(void);
 extern unsigned int ai_GraveChatterAt;
 extern int ai_DragObj;
 extern int ai_DragViewWin;
@@ -364,8 +363,6 @@ extern const float ai_CannonSwitchDist;
 #include "gfx.h"
 
 /* dcp unit split: the declarations of sv_t before the moved functions */
-int ai_TutorialInitMainIntro();
-int ai_TutorialInitMainOutro();
 void ai_TutorialStop();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);

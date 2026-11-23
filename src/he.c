@@ -1455,13 +1455,13 @@ void he_InnStaffLeave(void)
             p = r->seats;
             for (k = 4; k != 0; k--) {
                 if (*p != -1 && ((o = gm_FindChar(*p)) == 0 || o->health == 0 || o->kind == 0xf)) {
-                    int arg[3];
+                    G17TABLEMSG arg;
 
-                    arg[0] = 0x6c656176;
-                    arg[2] = f->id;
-                    arg[1] = *p;
+                    arg.op = 0x6c656176;
+                    arg.bldId = f->id;
+                    arg.charId = *p;
                     cm_BeginGroup("stammtisch supervisor");
-                    cm_SendTableRequest((G17TABLEMSG *)arg);
+                    cm_SendTableRequest(&arg);
                     cm_EndGroup("stammtisch supervisor");
                 }
                 p++;
@@ -2542,7 +2542,7 @@ void he_RunStammtisch(AIJOB *e)
     AIBLD *bld;
     AIOBJ *table;
     AICHAR *boss;
-    int cmd[3];
+    G17TABLEMSG cmd;
 
     if (e->stage == -1 || e->stage == -2) {
         he_FreeEvent(e);
@@ -2592,11 +2592,11 @@ void he_RunStammtisch(AIJOB *e)
         return;
     }
     if (m->innState == 0) {
-        cmd[0] = 'cler';
-        cmd[1] = -1;
-        cmd[2] = bld->id;
+        cmd.op = 'cler';
+        cmd.charId = -1;
+        cmd.bldId = bld->id;
         cm_BeginGroup("stammtisch clear HE");
-        cm_SendTableRequest((G17TABLEMSG *)cmd);
+        cm_SendTableRequest(&cmd);
         cm_EndGroup("stammtisch clear HE");
         m->innState++;
     }

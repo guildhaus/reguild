@@ -3952,10 +3952,10 @@ int gm_HasBuilding(int p)
 }
 /* 0x5049e0, the treasury object of the building b's class: class 5 the object 0x142 (the treasury) of the building 2 .. 5 chosen by the player's job2 (0x1e .. 0x21), class 3 the object 0x115 of the building 1; 0 else */
 
-char *gm_ClassTreasury(AIBLD *b)
+AIOBJ *gm_ClassTreasury(AIBLD *b)
 {
     int cls;
-    char *r;
+    AIOBJ *r;
     AIBLD *h;
 
     r = 0;
@@ -3972,10 +3972,10 @@ char *gm_ClassTreasury(AIBLD *b)
         else
             h = 0;
         if (h != 0)
-            r = (char *)gm_Query(h->objList, 2, 6, 0, 0x142);
+            r = gm_Query(h->objList, 2, 6, 0, 0x142);
     } else if (cls == 3) {
         h = gm_FirstBuilding(1);
-        r = (char *)gm_Query(h->objList, 2, 6, 0, 0x115);
+        r = gm_Query(h->objList, 2, 6, 0, 0x115);
     }
     return r;
 }

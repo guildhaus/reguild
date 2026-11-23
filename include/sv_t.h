@@ -112,7 +112,7 @@ typedef struct AIBOOKMARK {             /* 0xc bytes, a building bookmark on a f
 
 void ai_GypsyHelperWindow(struct AIBLD *rec); /* 0x584d70, the helpers window of a building (HANDEL_SUCHEN form), opened by the gypsy production contact */
 extern int ai_TutorialChapterOn[5];     /* 0x62918c, per chapter 1 = played */
-extern int (*ai_TutorialChapterInit[5])(void);  /* 0x6291a0, the chapter chain builders */
+extern TUTRUN *(*ai_TutorialChapterInit[5])(void);  /* 0x6291a0, the chapter chain builders */
 extern int ai_DragObj;  /* 0x62a8d0, the right-held d2 object whose tooltip ai_DragWindow shows */
 extern int ai_DragViewWin;  /* 0x62a8d4, the first window of the tooltip view */
 extern struct D3OBJECT *ai_DragPicked;  /* 0x6f266c, the picked object the tooltip was last opened for */
@@ -196,13 +196,13 @@ int ai_TutorialOff(void);                 /* 0x578170, 1 while the tutorial does
 int ai_TutorialStart(void);                 /* 0x578180, the tutorial start / record reset */
 void ai_TutorialStop(void);                /* 0x578370, the tutorial stop (handle + chain reset) */
 void ai_TutorialFreeRuns(TUTRUN *rec);         /* 0x578440, frees the tutorial record chain */
-int ai_TutorialInitMainIntro(void);                 /* 0x5784a0, allocates the main-intro record */
-int ai_TutorialInitChapter1(void);      /* 0x578570, the chapter 1 chain */
-int ai_TutorialInitChapter2(void);      /* 0x578e40, the chapter 2 chain */
-int ai_TutorialInitChapter3(void);                 /* 0x579570, the chapter 3 chain */
-int ai_TutorialInitChapter4(void);                 /* 0x57aa80, the chapter 4 chain */
-int ai_TutorialInitChapter5(void);                 /* 0x57aeb0, the chapter 5 chain */
-int ai_TutorialInitMainOutro(void);                 /* 0x57b750, the main-outro record */
+TUTRUN *ai_TutorialInitMainIntro(void);                 /* 0x5784a0, allocates the main-intro record */
+TUTRUN *ai_TutorialInitChapter1(void);      /* 0x578570, the chapter 1 chain */
+TUTRUN *ai_TutorialInitChapter2(void);      /* 0x578e40, the chapter 2 chain */
+TUTRUN *ai_TutorialInitChapter3(void);                 /* 0x579570, the chapter 3 chain */
+TUTRUN *ai_TutorialInitChapter4(void);                 /* 0x57aa80, the chapter 4 chain */
+TUTRUN *ai_TutorialInitChapter5(void);                 /* 0x57aeb0, the chapter 5 chain */
+TUTRUN *ai_TutorialInitMainOutro(void);                 /* 0x57b750, the main-outro record */
 void ai_TutorialBezier(float *a, float *b, float *c, float *d, float t, float *out);  /* 0x57b810, the Bezier */
 void ai_AlchemistCandidates(struct AIBLD *obj);  /* 0x57bf00, the alchemist's candidates window: hires one of the walk steps */
 int ai_AlchemistHire(struct AIBLD *obj, struct AHMSTEP *step, int value);  /* 0x57c560, hires the candidate step (ROUGH) */

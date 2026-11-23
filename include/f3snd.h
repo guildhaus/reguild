@@ -49,10 +49,6 @@ typedef struct G16TRACKS {              /* 0x24c bytes, snd_BuildingTracks[]: tr
 
 #include "f3snd_types.h"               /* G16TRACKHANDLES */
 
-typedef struct G16CHARCLICK {           /* the click-comment view of the start of a character record (0x770b80) */
-    unsigned short id;                  /* 0x00, the character id */
-    unsigned char kind;                 /* 0x02, the building kind (0x14: none) */
-} G16CHARCLICK;
 
 extern G16SEASON snd_Gusts[];           /* 0x602ba8, by season */
 extern float snd_VoiceVolume;           /* 0x602b08, voice volume (1.0, scaled by 127) */
@@ -158,7 +154,8 @@ struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text, int var
 struct SBBANK *snd_LoadVoiceBank(char *name, int a);
 void snd_LoadBuildingVoices(struct AIBLD *b);
 void snd_UnloadBuildingVoices(void);
-void snd_PlayWorkerClick(G16CHARCLICK *c);
+struct AICHAR;
+void snd_PlayWorkerClick(struct AICHAR *c);
 void snd_PlaySelectedClick(void);
 void snd_PlayFavourComment(void);
 void snd_StartMarketAmbience(void);

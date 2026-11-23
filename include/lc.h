@@ -375,7 +375,7 @@ void ai_MapCellToScreen(LCMAPMARK *m, int originX, int originY);  /* 0x5a6b70, t
 void ai_BuildTownMap(LCMAPWIN *m);  /* 0x5a6cb0, places the marks of the town map window */
 int ai_OpenTownMap(LCMAPWIN *m);  /* 0x5a78a0, opens the town map window */
 void ai_UpdateTownMap(LCMAPWIN *m);  /* 0x5a7cd0, the town map window's per-frame update */
-void ai_CloseMapWindow(int *m_);  /* 0x5a82f0 */
+void ai_CloseMapWindow(LCMAPWIN *m);  /* 0x5a82f0 */
 unsigned char *ai_FindItemGroup(char *good);  /* 0x5a84d0, the item group (am_types.h G7GRP) of a building's kind byte, 0 when none */
 void ai_GypsyDeliveryText(struct AICHAR *from, int n, struct AICHAR **to);  /* 0x5a9470, the gypsys' delivery news of the sender from (a character) about its n targets to */
 struct AICHAR; struct ORDMSG; int ai_BlackmailBuildingListener(struct AICHAR *me, struct ORDMSG *m);  /* 0x5c9550 */

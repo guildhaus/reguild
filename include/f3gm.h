@@ -213,7 +213,7 @@ struct AICHAR; int gm_MayRemoveChar(struct AICHAR *c);  /* 0x5075c0 */
 int gm_TrialBuildingKind(struct AIBLD *b);  /* 0x50d060 */
 void gm_StatisticsScreen(void);  /* 0x4f9e30, the city statistics screen */
 struct AITIME; void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);  /* 0x4fe2c0, the calendar record of a clock */
-char *gm_ClassTreasury(struct AIBLD *b);  /* 0x5049e0, the treasury text of a building */
+struct AIOBJ *gm_ClassTreasury(struct AIBLD *b);  /* 0x5049e0, the treasury object of a building's class */
 int gm_CurrencyFactor(int a, int i);  /* 0x508620 */
 int gm_CurrencyDivide(int a, int i);  /* 0x508640 */
 int gm_BuildingCarts(struct AIBLD *b, struct AIOBJ **out);  /* 0x509060 */

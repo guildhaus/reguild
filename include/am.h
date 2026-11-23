@@ -465,12 +465,6 @@ typedef struct AISTUDYOFFER {           /* 12 bytes, a university's study offer 
     int level;                          /* 0x8, the second subject index */
 } AISTUDYOFFER;
 
-typedef struct G8TABLE {                /* 12 bytes, a regulars' table request (0x4c5d80) */
-    unsigned int tag;                   /* 0x0, 'join' / 'leav' */
-    unsigned int ch;                    /* 0x4 */
-    int bld;                            /* 0x8 */
-} G8TABLE;
-
 typedef struct G8REQ {                  /* 20 bytes, the request of amt_ExecutePriceMessage / ShareMessage / MayorPowerMessage */
     int kind;                           /* 0x00 */
     int a;                              /* 0x04, the job number, building, target or district */

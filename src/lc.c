@@ -3335,7 +3335,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                                     ok = 1;
                                 txt_Format(text, 0x1a, cost, bld, i * 2 + 0x9a8);
                             } else {
-                                treasury = (AIOBJ *)gm_ClassTreasury(b);
+                                treasury = gm_ClassTreasury(b);
                                 if (sv_CheckStock((short *)treasury, treasury->list, cost, ai_OwnPlayer) != 0)
                                     ok = 1;
                                 txt_Format(text, 0x1c, cost, bld, i * 2 + 0x9a8);
@@ -3350,7 +3350,7 @@ void ai_TechTreeWindow(AIBLD *bld, int room)
                                 if (prec != 0)
                                     prec->upgradeSpent += cost;
                             } else {
-                                treasury = (AIOBJ *)gm_ClassTreasury(b);
+                                treasury = gm_ClassTreasury(b);
                                 if (treasury != 0)
                                     cm_SendMoveGoodsUnchecked(-1, treasury->objId, ai_OwnPlayer, cost);
                             }

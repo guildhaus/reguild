@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	ebc2e91f70e75ed8	no	shape	sweep control=shape
 exe	0x004be790	rt_Unk4be790	rt	c8bd5cb0a485e1fd	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x004be8e0	rt_RemoveControls	rt	8ea0d8e150852615	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004be930	rt_InitControls	rt	555f76e1152b87b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004be940	rt_EditPointDialog	rt	ec1822173adf0b4c	yes	byte	sweep control=shape best=byte by 7 unused typedefs at the unit's start; codegens=2 compiled=190	417a46bc6b87ec3f
+exe	0x004be940	rt_EditPointDialog	rt	c5046eb81a523821	yes	byte	sweep control=shape best=byte by 8 unused typedefs at the unit's start; codegens=2 compiled=24 (stopped at the goal)	3e920c491c3d6a13
 exe	0x004bf080	rt_CartSettingsDialog	rt	24a704aa4cb8c6c2	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	e60787fccaf24ae2
 exe	0x004bf360	rt_SetMarkPic	rt	a82a9d6be6e6b746	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	6bc939f147bce261	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -2739,7 +2739,7 @@ exe	0x004ee360	gv_ExplodeShot	gv	79bc5442031a88cd	no	draft	sample n=32 seed=1 co
 exe	0x004eea70	gv_RequestEffectLoad	gv	6e66638cac19071b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004eeaa0	gv_ReserveEffect	gv	2fe62119414e7659	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004eeb00	gv_StopEffect	gv	bb098511d0e34a24	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004eeb70	gv_FireShots	gv	37b45e9d3a8eef72	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	b5de196b2aa58a97
+exe	0x004eeb70	gv_FireShots	gv	392e7294acb4bd9d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	ca5dbd9f186dece8
 exe	0x004eedd0	gv_GetEffect	gv	6dc15e5e0cd57676	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004eee00	gv_StartShot	gv	6f0dbfa4c249a1f5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004eeee0	gv_SetEffectCallback	gv	072432e313629431	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -3550,7 +3550,7 @@ exe	0x005417d0	he_CharIllness	he	f223ffa0c85a6791	no	shape	sweep control=shape b
 exe	0x00541a50	he_RunDueNow	he	cce1edd382adeffc	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00541a80	he_AllocStammtisch	he	b2749e16fe5e41e9	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00541b40	he_StammtischCommand	he	9b26f0897f3c50ea	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
-exe	0x00542100	he_RunStammtisch	he	f9ca200a17f127c8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=379	703346ee5afa2578
+exe	0x00542100	he_RunStammtisch	he	ceac5e783eb0e040	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	1ef2d7337650ce88
 exe	0x00542490	he_AllocTavern	he	8a564051c1b47092	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00542590	he_RunTavern	he	15c9a04c1f4eca12	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	a57a3c77c79ba088
 exe	0x00542960	he_AllocOffer	he	149a4316ce4125e1	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
@@ -4003,7 +4003,7 @@ exe	0x00578440	ai_TutorialFreeRuns	sv_t	7db4c5d18c22886f	no	byte	control=byte p1
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	798c8d26cb8bedf5	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	1104bf614d4657fb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00578e40	ai_TutorialInitChapter2	sv_t	1997337a7073c8ff	yes	byte	sweep control=shape best=byte by 1 unused typedef at the unit's start; codegens=2 compiled=12 (stopped at the goal)	b170cc6a33257fbf
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	7a7c849570dd38d6	yes	shape	sweep control=draft best=shape by 1 unused typedef before ai_TutorialInitChapter3; codegens=10 compiled=12 (stopped at the goal)	995ac3739a8313db
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	0f4634dda7eaa174	yes	byte	sweep control=shape best=byte by 22 unused typedefs before ai_TutorialInitChapter3; codegens=25 compiled=48 (stopped at the goal)	e1f0a35da45739fd
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	6084c4a654a21837	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	8774329fa9d901d6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	fa030cb776dbd933	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

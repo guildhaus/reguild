@@ -1334,9 +1334,8 @@ void ai_UpdateTownMap(LCMAPWIN *m)
    d2_BackgroundTile, d2_CloseView closes the window, the 0x300 control objects of +0x18dc are removed
    (d2_RemoveObj) and set to -1, and the window is set to -1 */
 
-void ai_CloseMapWindow(int *m_)
+void ai_CloseMapWindow(LCMAPWIN *m)
 {
-    LCMAPWIN *m = (LCMAPWIN *)m_;
     int i;
 
     d2_BackgroundTile = m->tile;

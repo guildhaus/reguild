@@ -6255,24 +6255,24 @@ noop:
 
 int ai_ExecuteStammtisch(AICHAR *p, AIARG *s1, AIARG *s2)
 {
-    G8TABLE r;
+    G17TABLEMSG r;
 
     if (s1->arg == 'join') {
-        r.tag = s1->arg;
-        r.ch = p->netId;
-        r.bld = s1->ref;
+        r.op = s1->arg;
+        r.charId = p->netId;
+        r.bldId = s1->ref;
         cm_BeginGroup("stammtisch join AI-Plr");
-        cm_SendTableRequest((G17TABLEMSG *)&r);
+        cm_SendTableRequest(&r);
         cm_SendSetField(p->netId, 0x1c8, 4, AI_CHF_STAMMTISCH, 0);
         cm_EndGroup("stammtisch join AI-Plr");
         return 0x35;
     }
     if (s1->arg == 'leav') {
-        r.tag = s1->arg;
-        r.ch = p->netId;
-        r.bld = s1->ref;
+        r.op = s1->arg;
+        r.charId = p->netId;
+        r.bldId = s1->ref;
         cm_BeginGroup("stammtisch leave AI-Plr");
-        cm_SendTableRequest((G17TABLEMSG *)&r);
+        cm_SendTableRequest(&r);
         cm_SendSetField(p->netId, 0x1c8, 4, AI_CHF_STAMMTISCH, 0);
         cm_EndGroup("stammtisch leave AI-Plr");
         return 0x35;

@@ -137,7 +137,7 @@ int gv_RequestEffectLoad(struct AIBLD *bld);            /* 0x4eea70 */
 int gv_ReserveEffect(int id);              /* 0x4eeaa0 */
 int gv_StopEffect(int id);              /* 0x4eeb00 */
 int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a, struct SHOTREC *b, struct SHOTREC *d, float v, int cost, int x);  /* 0x4eeb70 */
-char *gv_GetEffect(int id);            /* 0x4eedd0 */
+GVEFFECT *gv_GetEffect(int id);            /* 0x4eedd0 */
 int gv_StartShot(struct GVSHOTMSG *m, G17STAT *st);       /* 0x4eee00 */
 void gv_SetEffectCallback(int id, void *cb, void *arg);  /* 0x4eeee0 */
 float gv_SalvoCharge(int a, int b, int c);  /* 0x4eef50 */

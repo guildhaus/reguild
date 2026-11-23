@@ -331,7 +331,7 @@ typedef struct SHOTRESULT {     /* 0x38 bytes, three of them in ai_ShotTable: th
     SHOTENTRY e[3];          /* +0x8 */
 } SHOTRESULT;
 int ai_TutorialChapterOn[5] = { 1, 1, 1, 1, 1 };  /* 0x62918c, per chapter 1 = played (the start window's check boxes, ai_TutorialWindow) */
-int (*ai_TutorialChapterInit[5])(void) = { ai_TutorialInitChapter1, ai_TutorialInitChapter2, ai_TutorialInitChapter3, ai_TutorialInitChapter4, ai_TutorialInitChapter5 };  /* 0x6291a0, the chapter chain builders the start appends for every chapter played */
+TUTRUN *(*ai_TutorialChapterInit[5])(void) = { ai_TutorialInitChapter1, ai_TutorialInitChapter2, ai_TutorialInitChapter3, ai_TutorialInitChapter4, ai_TutorialInitChapter5 };  /* 0x6291a0, the chapter chain builders the start appends for every chapter played */
 char *ai_TutorialStateNames[18] = {  /* 0x6291b4, the names of the tutorial's 18 states (the FT* strings 0x6291fc.. in reverse order); no reader in the image (its users were removed); the name is ours */
     "FTDisabled", "FTStart", "FTViewing", "FTReviewing", "FTIdle", "FTBeginScript", "FTIdleScript", "FTEndScript",
     "FTRemind", "FTPartialSuccsess", "FTBeginSuccsess", "FTSuccsess", "FTEndSuccsess", "FTNoBezierAnim",
@@ -1979,8 +1979,8 @@ int ai_TutorialOff(void)
     return !ai_TutorialOn;
 }
 
-int ai_TutorialInitMainIntro();
-int ai_TutorialInitMainOutro();
+TUTRUN *ai_TutorialInitMainIntro(void);
+TUTRUN *ai_TutorialInitMainOutro(void);
 void ai_TutorialStop();
 void * mem_Alloc(int size, char *tag);
 void ai_TutorialFreeRuns(TUTRUN *rec);
@@ -2008,14 +2008,14 @@ int ai_TutorialStart(void)
     }
     if (!cnt)
         return -2;
-    ai_TutorialRuns = (TUTRUN *)ai_TutorialInitMainIntro();
+    ai_TutorialRuns = ai_TutorialInitMainIntro();
     if (!ai_TutorialRuns)
         goto fail;
     for (tail = ai_TutorialRuns; tail->next; tail = tail->next)
         ;
     for (i = 0; i < 5; i++) {
         if (ai_TutorialChapterOn[i] == 1) {
-            r = (TUTRUN *)ai_TutorialChapterInit[i]();
+            r = ai_TutorialChapterInit[i]();
             tail->next = r;
             if (!r)
                 goto fail;
@@ -2023,7 +2023,7 @@ int ai_TutorialStart(void)
                 tail = tail->next;
         }
     }
-    r = (TUTRUN *)ai_TutorialInitMainOutro();
+    r = ai_TutorialInitMainOutro();
     tail->next = r;
     if (!r)
         goto fail;
@@ -2117,7 +2117,7 @@ void ai_TutorialFreeRuns(TUTRUN *rec)
    voice "TUTORIAL_MAIN_INTRO", no text windows, the tail of 0x8e ms and the goal state 0xb; its voice bank
    "TUTORIAL_INTRO_OUTRO.sbf" is loaded into ai_TutorialBanks[0]; the record */
 
-int ai_TutorialInitMainIntro(void)
+TUTRUN *ai_TutorialInitMainIntro(void)
 {
     TUTRUN *rec;
 
@@ -2147,7 +2147,7 @@ int ai_TutorialInitMainIntro(void)
     rec->allowMask2 = 0;
     rec->next = 0;
     ai_TutorialBanks[0] = snd_LoadVoiceBank("TUTORIAL_INTRO_OUTRO.sbf", 0);
-    return (int)rec;
+    return rec;
 }
 /* 0x578570, builds the run chain of the tutorial's chapter 1 (ai_TutorialChapterInit[0]): eleven run records
    (the intro 'ntr1', the steps 'c1sA' .. 'c1sJ', the outro 'utr1'), each allocated under its "FTInitChapter1*"
@@ -2155,7 +2155,7 @@ int ai_TutorialInitMainIntro(void)
    linked through next; the voice bank "TUTORIAL_CHAPTER_1.sbf" is loaded into ai_TutorialBanks[1]. The first
    record, or 0 after a failed allocation (the records built so far freed) */
 
-int ai_TutorialInitChapter1(void)
+TUTRUN *ai_TutorialInitChapter1(void)
 {
     TUTRUN *head;
     TUTRUN *r;
@@ -2459,7 +2459,7 @@ int ai_TutorialInitChapter1(void)
     r->allowMask2 = 0;
     r->next = 0;
     ai_TutorialBanks[1] = snd_LoadVoiceBank("TUTORIAL_CHAPTER_1.sbf", 0);
-    return (int)head;
+    return head;
 fail:
     ai_TutorialFreeRuns(head);
     return 0;
@@ -2470,7 +2470,7 @@ fail:
    callbacks, goal and allow masks, and linked through next; the voice bank "TUTORIAL_CHAPTER_2.sbf" is loaded
    into ai_TutorialBanks[2]. The first record, or 0 after a failed allocation (the records built so far freed) */
 
-int ai_TutorialInitChapter2(void)
+TUTRUN *ai_TutorialInitChapter2(void)
 {
     TUTRUN *head;
     TUTRUN *r;
@@ -2713,7 +2713,7 @@ int ai_TutorialInitChapter2(void)
     r->allowMask2 = 0x1e00;
     r->next = 0;
     ai_TutorialBanks[2] = snd_LoadVoiceBank("TUTORIAL_CHAPTER_2.sbf", 0);
-    return (int)head;
+    return head;
 fail:
     ai_TutorialFreeRuns(head);
     return 0;
@@ -2728,7 +2728,7 @@ fail:
    "TUTORIAL_CHAPTER_3.sbf" is loaded into ai_TutorialBanks[3]. The first record, or 0 after a failed allocation
    (the records built so far freed) */
 
-int ai_TutorialInitChapter3(void)
+TUTRUN *ai_TutorialInitChapter3(void)
 {
     TUTRUN *head;
     TUTRUN *r;
@@ -3366,7 +3366,7 @@ int ai_TutorialInitChapter3(void)
     r->allowMask2 = 0x1f70;
     r->next = 0;
     ai_TutorialBanks[3] = snd_LoadVoiceBank("TUTORIAL_CHAPTER_3.sbf", 0);
-    return (int)head;
+    return head;
 fail:
     ai_TutorialFreeRuns(head);
     return 0;
@@ -3379,7 +3379,7 @@ fail:
    steps 1, the outro 4). The voice bank "TUTORIAL_CHAPTER_4.sbf" is loaded into ai_TutorialBanks[4]. The first
    record, or 0 after a failed allocation (the records built so far freed) */
 
-int ai_TutorialInitChapter4(void)
+TUTRUN *ai_TutorialInitChapter4(void)
 {
     TUTRUN *head;
     TUTRUN *r;
@@ -3515,7 +3515,7 @@ int ai_TutorialInitChapter4(void)
     r->allowMask2 = 0x1f70;
     r->next = 0;
     ai_TutorialBanks[4] = snd_LoadVoiceBank("TUTORIAL_CHAPTER_4.sbf", 0);
-    return (int)head;
+    return head;
 fail:
     ai_TutorialFreeRuns(head);
     return 0;
@@ -3529,7 +3529,7 @@ fail:
    (800, 1024, else). The voice bank "TUTORIAL_CHAPTER_5.sbf" is loaded into ai_TutorialBanks[5]. The first
    record, or 0 after a failed allocation (the records built so far freed) */
 
-int ai_TutorialInitChapter5(void)
+TUTRUN *ai_TutorialInitChapter5(void)
 {
     TUTRUN *head;
     TUTRUN *r;
@@ -3811,7 +3811,7 @@ int ai_TutorialInitChapter5(void)
     r->allowMask2 = 0xbf78;
     r->next = 0;
     ai_TutorialBanks[5] = snd_LoadVoiceBank("TUTORIAL_CHAPTER_5.sbf", 0);
-    return (int)head;
+    return head;
 fail:
     ai_TutorialFreeRuns(head);
     return 0;
@@ -3821,7 +3821,7 @@ fail:
    voice "TUTORIAL_MAIN_OUTRO", no text windows, no tail, the goal state 0xb and every action but the bit 3
    allowed; the record (its voices are in the main intro's bank) */
 
-int ai_TutorialInitMainOutro(void)
+TUTRUN *ai_TutorialInitMainOutro(void)
 {
     TUTRUN *rec;
 
@@ -3849,7 +3849,7 @@ int ai_TutorialInitMainOutro(void)
     rec->goalState = 0xb;
     rec->allowMask = ~8;
     rec->next = 0;
-    return (int)rec;
+    return rec;
 }
 /* 0x57b810, a cubic Bezier of two floats (134 B): u = 1.0f (0x5eb780) - t, out[0] / out[1] =
    u^3 * a + 3 * u * t * (u * b + t * c) + t^3 * d for the components +0 / +4 of the float vectors a, b, c, d;

@@ -78,7 +78,6 @@ extern int d2_HitUnderPointer;
 extern int main_Inactive;
 
 
-struct G16CHARCLICK;  /* file-scope tag for the prototypes below */
 struct AITIME;        /* f3gm.c typedef; file-scope tag for the gm_AddTime / gm_SetTime prototypes */
 struct D3SURF;        /* d3_engine.h typedef; file-scope tag for the d3if_SelectTextureSet prototype */
 
@@ -1741,7 +1740,7 @@ extern struct AICHAR *sv_SelectedChar;
 extern char sv_PlayerBarKind;
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags, int win);                     /* 0x472aa0 */
 int d2_CreateWinText(short x, short y, char *text, int win);                     /* 0x473650 */
-void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c70 */
+void snd_PlayWorkerClick(struct AICHAR *c);                     /* 0x4c2c70 */
 void d2_AddPointerItem(int id, int amount);                     /* 0x476b90 */
 int d2_WinOpenPic(short x, short y, int pic, int win);                     /* 0x4731d0 */
 
@@ -1848,7 +1847,7 @@ void sv_UpdateMemberList(AIBLD *g)
         if (d2_ClickedId != -1 && r->chr != 0xffff && d2_PointerObj == r->check) {
             if (sv_D2Objs[r->check].checked != 0) {
                 ai_Chars[r->chr].selected = 1;
-                snd_PlayWorkerClick((struct G16CHARCLICK *)&ai_Chars[r->chr]);
+                snd_PlayWorkerClick(&ai_Chars[r->chr]);
             } else
                 ai_Chars[r->chr].selected = 0;
         }
@@ -4407,7 +4406,7 @@ void sv_HandleObjects(void)
                     sv_SelectedChar = ai_PickedChar;
                     sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].scene;
                     ai_SelectedCount = 1;
-                    snd_PlayWorkerClick((struct G16CHARCLICK *)ai_PickedChar);
+                    snd_PlayWorkerClick(ai_PickedChar);
                 }
                 sv_PanelCartChar = (int)ai_Chars[ai_PickedChar->id].scene;
             }
@@ -4522,7 +4521,7 @@ void ai_CampaignStep(int a, void *b, int c, int d);                     /* 0x576
 int gm_BuildingClass(int kind);                /* 0x501d80, f3gm.c, the class of a building kind */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);                     /* 0x591bf0 */
 void d2_FreeAnim(int n);                     /* 0x47ce30 */
-void snd_PlayWorkerClick(struct G16CHARCLICK *c);                     /* 0x4c2c70 */
+void snd_PlayWorkerClick(struct AICHAR *c);                     /* 0x4c2c70 */
 
 
 struct D3OBJECT * d3if_Pick(float x, float y, int flags, int mask);   /* 0x448630 */

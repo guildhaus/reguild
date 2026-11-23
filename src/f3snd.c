@@ -1022,7 +1022,7 @@ void snd_UnloadBuildingVoices(void)
 /* 0x4c2c70, a click comment of the character c (half the time a click noise; never for the building kind
    0x14): plays one of the worker banks loaded by snd_LoadBuildingVoices */
 
-void snd_PlayWorkerClick(G16CHARCLICK *c)
+void snd_PlayWorkerClick(AICHAR *c)
 {
     int r;
 
@@ -1046,7 +1046,7 @@ void snd_PlaySelectedClick(void)
 
     for (i = 0, p = &ai_Chars[0].selected; (intptr_t)p < (intptr_t)&ai_Chars[0x300].selected; p += 0x21c, i++) {
         if (*p != 0) {
-            snd_PlayWorkerClick((G16CHARCLICK *)&ai_Chars[i]);
+            snd_PlayWorkerClick(&ai_Chars[i]);
             return;
         }
     }
