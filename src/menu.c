@@ -57,7 +57,7 @@
 #include "d3_fl.h"
 #include "dd_vesa.h"
 #include "ch.h"
-int util_Random(unsigned short n);  /* 0x42ec00, tr.c (its two calls here store the result into a byte: the 16-bit declaration of the other units compiles the same) */
+int util_Random(unsigned short n);  /* 0x42ec00, tr.c (its two calls here store the result into AITIME.hour, a 16-bit field: the 16-bit declaration of the other units compiles the same) */
 
 extern OPTIONBYTES ai_GfxResolution;
 /* full rebuild: the symbols whose original addresses the code above spells literally */

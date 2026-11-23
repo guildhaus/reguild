@@ -7373,9 +7373,41 @@ the bytes no portable form gives.
   "ai_TradeSearchWindow-like shifts", which are no function of that commit (ai_TradeSearchWindow fell in 7ee28137);
   a93c74a3 says "d2_LoadFonts' own assignment" for d2_DrawObjects'.
 
+- **Re-checking `@original` claims (thirty-fifth pass, 191 markers at 0f26f2ee; verdicts in scratchpad
+  orig/verdicts.tsv)**: 169 held, 14 were stale, 8 wrong (191 -> 169). What turned out wrong or stale:
+  - *The other side was fixed in a later pass, the comment stayed*: "the headers declare void (int, int)"
+    (d3if_SelectScene), "cm.c defines void" (cm_SendMessage0c), "ai.h's short" (cm_SendExSellObject), "gv.h's
+    K&R declaration" (gm_MinutesBetween), "cm.c passes its int raw" (amt_GetOffice), "a sixth argument it never
+    reads" (ai_FillSaveSlots, whose definition took `reserved` long ago), and casts that stayed after the
+    prototype became right (ai_Quicksave's int cast of cm_SendExSysMessage: cm.h says int now). Read the claim's
+    other side (`grep` the header / definition it names) before keeping it.
+  - *Our type was wrong, not the caller's view*: a function with one caller that reads a char declares char
+    (file_Exists: the int definition and the char one compile the same); a view of a record the owner types
+    (ecmd's D3VECTOR d3_YAxis is the D3VECTOR4's `.v`; io_text's char * d2_Objs is D2OBJ *; sv.c's byte view of
+    the colour key is D2COLKEY's .r / .g / .b in a union with the word gb).
+  - *A cast or view that changes nothing*: gv_FindEntryCb cast the int (*)() callback for a call the
+    unprototyped pointer makes the same; unit splits had left unused copies of view macros in gs.c / gv.c /
+    f3gmt.c. A claim about a spelling VC6 is not sensitive to (d3anim_StartAnim's "typedef, not struct
+    D3ANIMFLAGS": measured, no grade moves).
+  - *A per-unit claim copied to every unit*: util_Random's 16-bit declaration is load-bearing in 36 of 37 units
+    (an int declaration moves each, measured one build per unit), not in menu.c (both calls store into a 16-bit
+    field), which declares tr.c's int now.
+  What held: every code-shape claim tried (55 dcp try runs of the plain form: the repeated test, the two equal
+  arms, the initializer with no code, the parenthesized member copy, the int pad word, the dead store, the
+  break against return, the (double) operand, the call through a pointer) gave other code, none = control; the
+  descriptions of the original's own bugs (an unset local read, a never-true test, an off-by-one); the kept /
+  (c) cases of the Portability status; the data views measured again (ai_GfxResolution through OPTIONBYTES
+  .byte[0] keeps the stores in memory: main_OpenScreen / WinMain draft; dd_RBits unsigned, d3_NoTextures a
+  byte, holdHour unsigned: each a fall). Not re-tried: 30 goto / frame / asm claims whose comment names the
+  measured alternatives. A code-shape `@original` is rarely wrong; a declaration `@original` is wrong or stale
+  about one time in three.
+- Commit-message slip of the thirty-fifth pass: d71db5ef says menu.c's util_Random results go "into AITIME.hour,
+  a byte"; hour is an unsigned short (the source comment says so).
+
 ### Portability status
 Where the source stands for a reader who builds it with another compiler or for 64-bit (the reguildx fork), after
-the thirty-fourth portability pass (the passes since eb11a8b9). VC6 still compiles
+the thirty-fourth portability pass (the passes since eb11a8b9) and the thirty-fifth's re-check of the `@original`
+claims (191 -> 169 markers). VC6 still compiles
 every unit to the same grades; nothing below changes a record layout. The portability cleanup of the source is
 finished: what is left are the (c) casts (legitimate generic code, each kind with its reason below) and the kept
 cases, each documented here and with `@original` in the source.
