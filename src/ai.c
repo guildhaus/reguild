@@ -4423,55 +4423,57 @@ void ai_SendJobOrders(AIINFO *info)
         for (job = he_FindEvent(2, 0, type, 3, info->ch->bld->id); job; job = he_NextEvent()) {
             if ((info->type == 4 && job->u.w.lo == (unsigned int)info->e->item) ||
                 (info->type == 8 && job->u.w.lo == (unsigned int)info->e->item) ||
-                (info->type == 3 && job->u.w.lo == (unsigned int)info->e->item)) {
-                n = info->n1;
-                k = info->type;
-                if (n <= 1 || info->z1 != 0)
-                    total = info->n2 / n + info->z2;
-                else
-                    total = info->z2 + info->n2 / n + info->n2 % n;
-                v = 0;
-                if (k == 8 || k == 3)
-                    v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
-                else if (k == 4)
-                    v = gm_BuildingMainObject(info->ch->bld);
-                for (i = 0; info->z2 < total && i < 768; i++) {
-                    if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
-                        && !ai_Chars[i].job) {
-                        sv_MoveToGroup(info->ch->bld, v, ai_Chars[i].id, job);
-                        info->z2++;
-                    }
-                }
-                info->z1++;
-                return;
+                (info->type == 3 && job->u.w.lo == (unsigned int)info->e->item))
+                break;
+        }
+        if (job == 0) {
+            memset(&msg, 0, sizeof(msg));
+            msg.type = info->type;
+            msg.to = ai_Chars[info->ch->bld->owner].netId;
+            msg.fromId = info->ch->bld->id;
+            msg.nIds = 0;
+            msg.reserved14 = 0;
+            msg.time = ai_Time;
+            msg.flags = 1;
+            if (info->type == 4) {
+                msg.itemId = info->e->item;
+                msg.arg[1] = -1;
+                msg.arg[4] = info->ch->bld->id;
+                msg.arg[5] = info->b->objId;
+            }
+            if (info->type == 8) {
+                msg.itemId = info->e->item;
+                msg.arg[1] = info->ch->bld->id;
+                msg.arg[2] = info->c->objId;
+            }
+            if (info->type == 3) {
+                msg.itemId = info->e->item;
+                msg.arg[3] = info->ch->bld->id;
+                msg.arg[5] = info->b->objId;
+                msg.arg[4] = info->c->objId;
+            }
+            cm_SendLongMessage(&msg);
+            info->z1++;
+            return;
+        }
+        n = info->n1;
+        k = info->type;
+        if (n <= 1 || info->z1 != 0)
+            total = info->n2 / n + info->z2;
+        else
+            total = info->z2 + info->n2 / n + info->n2 % n;
+        v = 0;
+        if (k == 8 || k == 3)
+            v = gm_Query(info->ch->bld->objList, 1, 0, 0x37);
+        else if (k == 4)
+            v = gm_BuildingMainObject(info->ch->bld);
+        for (i = 0; info->z2 < total && i < 768; i++) {
+            if (ai_Chars[i].id != 0xffff && ai_Chars[i].bld == info->ch->bld && ai_Chars[i].title
+                && !ai_Chars[i].job) {
+                sv_MoveToGroup(info->ch->bld, v, ai_Chars[i].id, job);
+                info->z2++;
             }
         }
-        memset(&msg, 0, sizeof(msg));
-        msg.type = info->type;
-        msg.to = ai_Chars[info->ch->bld->owner].netId;
-        msg.fromId = info->ch->bld->id;
-        msg.nIds = 0;
-        msg.reserved14 = 0;
-        msg.time = ai_Time;
-        msg.flags = 1;
-        if (info->type == 4) {
-            msg.itemId = info->e->item;
-            msg.arg[1] = -1;
-            msg.arg[4] = info->ch->bld->id;
-            msg.arg[5] = info->b->objId;
-        }
-        if (info->type == 8) {
-            msg.itemId = info->e->item;
-            msg.arg[1] = info->ch->bld->id;
-            msg.arg[2] = info->c->objId;
-        }
-        if (info->type == 3) {
-            msg.itemId = info->e->item;
-            msg.arg[3] = info->ch->bld->id;
-            msg.arg[5] = info->b->objId;
-            msg.arg[4] = info->c->objId;
-        }
-        cm_SendLongMessage(&msg);
     }
     info->z1++;
 }
