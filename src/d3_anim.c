@@ -1039,13 +1039,13 @@ D3PATH *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *ke
 }
 /* 0x433f40, the cached animation with this name, 0 if not loaded. */
 
-int d3_FindAnim(char *name)
+D3ANIMDATA *d3_FindAnim(char *name)
 {
     D3ANIMDATA *a;
 
     for (a = d3anim_Head.next; a != &d3anim_Tail; a = a->next)
         if (!strcmpi(name, a->name))
-            return (int)a;
+            return a;
     return 0;
 }
 /* 0x433f80, creates a two-frame morph animation from frame (of mesh) to dframe, or to the shape of dmesh;
@@ -1455,7 +1455,7 @@ D3ANIMSLOT *d3anim_StartAnim(D3SURF *ctl, char *name, D3ANIMFLAGS f)
     int i;
 
     if (ctl) {
-        data = (D3ANIMDATA *)d3_FindAnim(name);
+        data = d3_FindAnim(name);
         for (i = 0; i < 3; i++)
             if (!ctl->slots[i].data)
                 break;

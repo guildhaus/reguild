@@ -829,7 +829,7 @@ D3ANIMDATA *d3_LoadAnimStream(char *name, char *file, char unk)
 
     strcpy(buf, d3_AnimDir);
     strcat(buf, name);
-    a = (D3ANIMDATA *)d3_FindAnim(file);
+    a = d3_FindAnim(file);
     if (a != 0) {
         sprintf(buf, "d3_LoadAnimStream(): animation already in stock: %s", name);
         return a;

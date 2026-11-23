@@ -838,7 +838,7 @@ D3ANIMDATA *ch_SetNextAnim(CHARACTER *ch, char *anim, char loops)
     sprintf(path, "character/%s/%s_%s.baf", ch->body, anim, ch->body);
     sprintf(name, "%s_%s", anim, ch->body);
     vfs_ToSlashes(name);
-    a = (D3ANIMDATA *)d3_FindAnim(name);
+    a = d3_FindAnim(name);
     if (!strcmpi(anim, "bewegung/gehen") || !strcmpi(anim, "bewegung/karren_ziehen"))
         walk = 1;
     if (!a)
@@ -897,7 +897,7 @@ void ch_ReleaseMorph(CHARACTER *ch)
     if (ch->morph) {
         sprintf(name, "morph_%i", ch);
         d3_ReleaseTexture(&ch->obj->material->surf[0], name);
-        a = (D3ANIMDATA *)d3_FindAnim(name);
+        a = d3_FindAnim(name);
         d3anim_Release(a, 1);
         ch->morph = 0;
     }
@@ -929,7 +929,7 @@ void ch_CheckAniMorph(CHARACTER *ch)
             return;
         sprintf(name, "morph_%i", ch);
         d3_ReleaseTexture(&obj->material->surf[0], name);
-        a = (D3ANIMDATA *)d3_FindAnim(name);
+        a = d3_FindAnim(name);
         d3anim_Release(a, 1);
         ch->morph = 0;
         released = 1;
@@ -1053,7 +1053,8 @@ void ch_LoadLowAnims(CHARACTER *ch, int n, ...)
         int words[3];
     } f;
     char *name;
-    int i, r;
+    int i;
+    D3ANIMDATA *r;
     va_list args;
 
     va_start(args, n);
@@ -1071,7 +1072,7 @@ void ch_LoadLowAnims(CHARACTER *ch, int n, ...)
             f.words[1] &= ~3;
             f.anim.b[0] = 0;
             if (!r)
-                r = (int)d3_LoadAnimStream(file, buf, 1);
+                r = d3_LoadAnimStream(file, buf, 1);
             if (r) {
                 d3anim_StartAnim(&ch->lowPolyBody->material->surf[0], buf, f.anim);
                 d3_ReleaseTexture(&ch->lowPolyBody->material->surf[0], buf);
@@ -3058,7 +3059,7 @@ int ch_InitWalk(CHACTION *a, D3SM *h)
     if (ch->morph) {
         sprintf(name, "morph_%i", ch);
         d3_ReleaseTexture(&ch->obj->material->surf[0], name);
-        ad = (D3ANIMDATA *)d3_FindAnim(name);
+        ad = d3_FindAnim(name);
         d3anim_Release(ad, 1);
         ch->morph = 0;
     }
@@ -3196,7 +3197,7 @@ int ch_StartWalkAnim(CHACTION *a, D3SM *h)
     if (ch->morph) {
         sprintf(name, "morph_%i", ch);
         d3_ReleaseTexture(&ch->obj->material->surf[0], name);
-        ad = (D3ANIMDATA *)d3_FindAnim(name);
+        ad = d3_FindAnim(name);
         d3anim_Release(ad, 1);
         ch->morph = 0;
     }
@@ -3622,7 +3623,7 @@ void ch_ActWalkCells(CHACTION *a)
         if (ch->morph) {
             sprintf(name, "morph_%i", ch);
             d3_ReleaseTexture(&ch->obj->material->surf[0], name);
-            ad = (D3ANIMDATA *)d3_FindAnim(name);
+            ad = d3_FindAnim(name);
             d3anim_Release(ad, 1);
             ch->morph = 0;
         }
@@ -3668,7 +3669,7 @@ void ch_ActWalkCells(CHACTION *a)
             if (ch->morph) {
                 sprintf(name, "morph_%i", ch);
                 d3_ReleaseTexture(&ch->obj->material->surf[0], name);
-                ad = (D3ANIMDATA *)d3_FindAnim(name);
+                ad = d3_FindAnim(name);
                 d3anim_Release(ad, 1);
                 ch->morph = 0;
             }

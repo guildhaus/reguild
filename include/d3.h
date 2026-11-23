@@ -670,7 +670,7 @@ typedef struct D3ANIMKEY {          /* 0x58 bytes */
 
 D3PATH *d3anim_CreatePath(D3OBJECT *obj, D3ANIMFLAGS f, int nkeys, D3ANIMKEY *keys);          /* 0x433d70 */
 void d3_UnwrapAngles(const struct D3VECTOR *a, const struct D3VECTOR *b, struct D3VECTOR *ra, struct D3VECTOR *rb);                            /* 0x453d60, angles mod 2pi */
-int d3_FindAnim(char *name);                                                           /* 0x433f40, anim loaded? */
+struct D3ANIMDATA *d3_FindAnim(char *name);                                            /* 0x433f40, anim loaded? */
 struct D3ANIMSLOT *d3anim_StartAnim(struct D3SURF *ctl, char *name, D3ANIMFLAGS f);                          /* 0x435550, @original: this typedef spelling (not struct D3ANIMFLAGS) keeps the /O2 operand order of the byte-matched d3_LoadScene44be60 (d3_int_io.c, 0x27f) */
 struct D3PATH *d3_LoadObjectAnim(char *file, struct D3OBJECT *obj, char reload);                                 /* 0x44e2e0 */
 extern struct VFSDIR *d3io_StockDir;          /* 0xfba940, the stock object directory (d3io_SetStockDir, d3_int_io.c) */
