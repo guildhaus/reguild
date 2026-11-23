@@ -4318,9 +4318,9 @@ void ai_SendJobOrders(AIINFO *info)
         msg.type = info->type;
         msg.to = ai_Chars[info->ch->bld->owner].netId;
         msg.fromId = info->ch->bld->id;
-        msg.time = ai_Time;
         msg.nIds = 0;
         msg.reserved14 = 0;
+        msg.time = ai_Time;
         msg.flags = 1;
         msg.goodsOrder.item = info->e->item;
         o = gm_BuildingMainObject(info->ch->bld);
@@ -4397,9 +4397,9 @@ void ai_SendJobOrders(AIINFO *info)
         msg.type = info->type;
         msg.to = ai_Chars[info->ch->bld->owner].netId;
         msg.fromId = info->ch->bld->id;
-        msg.time = ai_Time;
         msg.nIds = 0;
         msg.reserved14 = 0;
+        msg.time = ai_Time;
         msg.flags = 1;
         msg.itemId = info->e->item;
         if (info->z2 < total) {
@@ -4450,9 +4450,9 @@ void ai_SendJobOrders(AIINFO *info)
         msg.type = info->type;
         msg.to = ai_Chars[info->ch->bld->owner].netId;
         msg.fromId = info->ch->bld->id;
-        msg.time = ai_Time;
         msg.nIds = 0;
         msg.reserved14 = 0;
+        msg.time = ai_Time;
         msg.flags = 1;
         if (info->type == 4) {
             msg.itemId = info->e->item;
