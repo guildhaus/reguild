@@ -4234,27 +4234,26 @@ void ai_FreeJobCharacters(AICHAR *ch, int n)
    the trade kinds 3 / 4 / 8 name the carts' objects (info->b / info->c) and the building in the message.
    Side effects: info->z2 counts what was sent (also across calls), info->z1 is set as the round flag; the order
    message goes as one cm_SendLongMessage (0x28: one per free character, then the round ends).
-   @deep draft, 11 ins: only the two arm-else sums left. Kept this session (84 -> 11): 0x8c with no base
-   local (z2 read per arm, if (info->z2 < total)); fills nIds before time (as 0x15); the job group as a
-   search loop with break and if (job == 0) { message; send } else { found work } falling into the final
-   info->z1++ (this gave the original's three send copies: 0x15 and 0x8c keep theirs, 0x14 and the
-   not-found message jump into 0x15's); k = info->type after the total; msg.itemId before arg[1] (type 4).
-   Left: 0x14 arm-else the original is mov ebp,[z2]; idiv; add ebp,eax; add ebp,edx (z2 + q + r), ours lea
-   ebp,[edx+eax] and the + z2 tail cross-jumped into the n <= 1 arm; 0x8c arm-else original (r + z2) + q,
-   ours (q + z2) + r. Mechanism: VC6 canonicalises the sums (every operand order / parenthesisation / split
-   statement of both sums is one code; 24 + 36 + 24 variants), and the canonical order follows something
-   global: flip.py --want 'add ebp, eax / add ebp, edx' hits deleting or changing msg field stores in the
-   0x28 fill, &&->|| in the character tests of every branch, deleting the last branch's n = info->n1,
-   moving its k: a value-numbering / hash order, not the declaration set (dcp: no set makes it byte; int
-   declaration order 720 variants = control; raw arg[0] stores for goodsOrder / itemId, casts removed =
-   control). A join form arm1 { total = q; base = z2; } else { total = z2 + q; base = r; } total += base
-   fixes both sums but leaves mov eax,edx (2 ins): the original has no join add. Next: find the
-   code-neutral IR difference (flip hits), e.g. the character-test conditions per branch, the 0x28 fill.
-   prior: size queue s16: 87 -> 84 ins, raw 2305 (padded 2320 = the original's). Kept: the job-group
-   branch's found job ends with info->z1++; return; in the loop (as the other branches) instead of goto
-   done (the break + if (job) return form is the same code; a break with the message under if (job == 0) is
-   the control's code). Left as the prior note says: the 0x8c send site, the per-branch adds of the totals,
-   the zero register and the message store order. */
+   @deep draft, 1 ins: only the 0x14 arm-else sum. Original: mov ebp,[z2]; idiv; add ebp,eax; add ebp,edx
+   (z2 + q + r, its own last add, no tail shared with the n <= 1 arm); ours z2 + r, then the + q add
+   cross-jumped into the n <= 1 arm's add (jmp to +0x23b). Kept this session: 0x8c without base (z2 read
+   per arm, if (info->z2 < total)), fills nIds before time, the job group as search loop + break and if
+   (job == 0) { message; send } else { found work } into the final info->z1++, k = info->type after the
+   total, msg.itemId before arg[1], the job condition's 8 / 3 compares constant-first (8 == info->type: the
+   ai_DecideBuildBusiness rank lever, fixed the 0x8c sum), the 0x28 total += base written in both arms (VC6
+   merges them; fixed the last branch / 0x8c sums at once). Mechanism: VC6 canonicalises each sum (every
+   spelling of the statement = one code) by internal ranks that move with distant code-neutral changes:
+   constant-first compares, per-arm statements, the n local (info->n1 direct in every branch fixed 0x14 but
+   broke the last branch; the per-branch n mask 32 x arm swaps 16 x constant-first 8 x k/v 2, 3000 sampled:
+   best 6). Probed, no lever for the 0x14 q / r order now: const-first pairs over all 41 constant compares,
+   zero compares (21 sites, pairs), total renamed per branch, 0x28 / 0x15 arm statement orders, 0x28 fill
+   orders, plant id variable, decl order, raw goodsOrder / itemId stores, casts. Next: flip.py --want
+   'add\s+ebp, eax\s*\n\s*add\s+ebp, edx' on this text; the 0x15 total += base in both arms (j10 / j11
+   broke other sums), climb --rounds 2. prior: size queue s16: 87 -> 84 ins, raw 2305 (padded 2320 = the
+   original's). Kept: the job-group branch's found job ends with info->z1++; return; in the loop (as the
+   other branches) instead of goto done (the break + if (job) return form is the same code; a break with
+   the message under if (job == 0) is the control's code). Left as the prior note says: the 0x8c send site,
+   the per-branch adds of the totals, the zero register and the message store order. */
 
 void ai_SendJobOrders(AIINFO *info)
 {
@@ -4271,11 +4270,12 @@ void ai_SendJobOrders(AIINFO *info)
         if (n <= 1 || info->z1 != 0) {
             total = info->n2 / n;
             base = info->z2;
+            total += base;
         } else {
             base = info->n2 / n;
             total = info->z2 + info->n2 % n;
+            total += base;
         }
-        total += base;
         for (job = he_FindEvent(2, 0, 0x28, 3, info->ch->bld->id); job; job = he_NextEvent()) {
             pl = veg_FindPlantId(map, job->harvestPlant);
             if (pl && pl->type == info->e->item)
@@ -4426,8 +4426,8 @@ void ai_SendJobOrders(AIINFO *info)
 
         for (job = he_FindEvent(2, 0, type, 3, info->ch->bld->id); job; job = he_NextEvent()) {
             if ((info->type == 4 && job->u.w.lo == (unsigned int)info->e->item) ||
-                (info->type == 8 && job->u.w.lo == (unsigned int)info->e->item) ||
-                (info->type == 3 && job->u.w.lo == (unsigned int)info->e->item))
+                (8 == info->type && job->u.w.lo == (unsigned int)info->e->item) ||
+                (3 == info->type && job->u.w.lo == (unsigned int)info->e->item))
                 break;
         }
         if (job == 0) {
