@@ -8527,18 +8527,7 @@ int he_CreateReaper(AIJOB *e) {
    reaperTo's object: closer than 45 (horizontally) the flight ends (reaperPlaced = 0, returns 2); otherwise the
    object moves along the direction by the time since reaperClock times a speed of 0.5 + 0.25 per cm_SpeedLevel,
    rising (0.978 per time unit, with a tenth of the step) while it is less than 80 above the ground there, and its
-   position and angles are cached; 1 = flying, 0 = the object or the building missing
-   @deep deep s48: all 64 operand orders of the three dir *= step and target = dir + at lines are one code
-   (VC6 orders the operands itself); (dir.y) / (at.y) parentheses, a (float) cast: = control; the
-   assignment inside the sum (target.y = (dir.y = step * dir.y) + at.y: fpu 23, all three: 19), the scale
-   and sum interleaved (20), dir.y scaled first (12); dist as sqrt(x*x + z*z) with dir.y = 0.0f anywhere: =
-   control (same code, plainer). Left: target.y's fld at.y / fadd dir.y at 0x5505bf. prior: deep s24: dist
-   written as the full length sqrt(x*x + y*y + z*z) with dir.y = 0.0f (VC6 folds the zero term: every term
-   order = control; kept, it gives the dir.y = 0 store its use). flip.py --want the original's fld dir.y /
-   fadd at.y for target.y: 5 hits, the only non-local one deletes dir.y = 0.0f (then the order is right but
-   the original's zero store is missing: draft 1); dir.y = 0.0f at each position of the first dir block: =
-   control or worse (5..19). Left: target.y = dir.y + at.y emitted as fld at.y / fadd dir.y (the original
-   dir.y first, as x and z). */
+   position and angles are cached; 1 = flying, 0 = the object or the building missing */
 int he_MoveReaper(AIJOB *e) {
   int scene = d3_CurrentScene;
   AIBLD *bld;
@@ -8559,6 +8548,10 @@ int he_MoveReaper(AIJOB *e) {
       d3_PointToWorld(bld->object, &bld->object->pos, &target.v);
       d3_PointToWorld(e->reaper, &e->reaper->pos, &at.v);
       dir.x = target.x - at.x;
+      /* @original: the full difference, then flattened; the dead y difference
+         reads at.y before dir.y's first store, which sets the fld order of
+         target.y = dir.y + at.y below */
+      dir.y = target.y - at.y;
       dir.y = 0.0f;
       dir.z = target.z - at.z;
       dist = (float)sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);

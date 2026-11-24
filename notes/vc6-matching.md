@@ -4943,6 +4943,12 @@ the stack at every instruction.
   local, a `(float)` cast of a subterm. Of two named locals the one first appearing later (assigned last before
   the loop) loads first: `fld k; fmul r` needs k new after r. No lever: `+=` vs `a = b + a`, declaration order,
   swaps. (ai_ShotHitsGround: `p = from` after `d = to - from`, `t = 0` after `step = ..`, 12 ins -> byte)
+- **`fld at.y; fadd dir.y` where the original has dir.y first (x and z right), dir.y set to a constant early**
+  (`dir.y = 0.0f;` after `dir.x = target.x - at.x;`): the original computed the full difference and flattened it,
+  `dir.y = target.y - at.y; dir.y = 0.0f;`: the dead store reads at.y before dir.y's first definition, so dir.y
+  ranks as the later field in `target.y = dir.y + at.y` 30 lines below (he_MoveReaper byte; every operand order,
+  paren, cast and the zero store's position had been one code). A field whose first appearance is a constant store:
+  try the dead full-expression store in front of it.
 - **Order no spelling changes**: copy one operand to another local (`t = z; ... (t * s)`); the original often
   reuses one float local for two roles; rename block locals to the other locals (`ren` in uv run vargen).
   (d3_LightAddObject)
