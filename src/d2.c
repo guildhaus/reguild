@@ -4708,32 +4708,32 @@ void d2_RaiseViewWindows(int v) {
 /* 0x4741f0, loads the form file x (forms\x.form) as a view: one window per record, the items (pictures, texts,
    inputs, sliders) become objects; the view is moved to (x, y) unless one of them is 0 and kept inside the screen;
    returns the number of the view, or -1
-   @deep s67: kept (618 -> 410 ins, frame 0x248 = the original's): strcmp(r->name[k], ch_EmptyName) (the
-   original's general inline strcmp against the pooled "" at 0x631090; a literal gives repe cmpsb); the
-   view scan on i (now byte: one -1 exit, view stored once); the text test as one && condition (type read
-   from memory as the original); ww->x + ww->w > d2_ScreenW; a D2FORM2 *f2 = &d2_Forms2[i] record pointer
-   for the version-2 parent / bg / alpha reads (gives the original's F2 IV base on .parent: with
-   d2_Forms2[i].x spellings the forwarded r->x..flags creation reads pulled it to +6/+8); version 0 split:
-   the parent lookup (pw / pww) in the if (ver == 0) .. else if (ver == 2) chain, the creation in a second
-   if (ver == 0) block after it, its parent test spelled differently from the first (r cast): the
-   original's layout (version-0 creation laid after the version-2 block, the parent re-tested, not
-   threaded; same spelling = VC6 threads it). Left: (1) the F0 IV base: ours +8 (flags), the original +0.
-   Probes: creation fields via r give +6/+8, via d2_Forms0[i].h / a f0 pointer give parent (+0xe94); none
-   gave 0 (f0 pointers, f0++ loops, unions, casts, volatile r all tried). (2) k loop: the original's IV on
-   kind (+0xd90, type at -0xcc0), ours on type; switch / slider-arm-first / no slider kind read give kind
-   but change the layout; the original lays the post-loop key block between the latch and the 0x41/0x45
-   tests. (3) r: the original spills r (slot [esp+0x18], stored at both defs, reloaded into edi for the k
-   loop; the name IV in ebx); ours keeps r in ebx. climb --rounds 1 (s67, at 607): only meaning changes or
-   int t = r->type[k]. prior: s66 fix: the original reads every record field after the window creation
-   through r (r's slot [esp+0x18] reloaded into edi/ebx): the version-2 font / pic / m / frame (ebx = r),
-   the slider length slen[k] ([k + r + 0xf1c], so a version-0 form reads it from the Forms0 record, we read
-   d2_Forms2[i]: meaning fix), the version-0 margins / font / bgpic ([edi+0xe9c..] with edi = r), and
-   d2_Objs[d2_Wins[wins[i]].parent] re-read through wins[i] (not ww). Kept: those through r (D2FORM2 *r2 /
-   D2FORM0 *r0 block copies, the slen cast) and the version-0 parent tests both as d2_Forms0[i].parent (no
-   parent local): the original does NOT thread its second parent test (jmp from the pw/pww block to a
-   re-test, pw/pww spilled to [esp+0x4c]/[esp+0x40] and reloaded on the parent==0 path); with the local,
-   VC6 threads it. Rows (dcp try): control 635; slen alone 622 (M8s gone); all-r 661; all-r +
-   parent-cse-cse 618 (code 669 -> 538, frame 0x244 -> 0x24c, now 4 bytes LARGER than the original's
+   @deep s67: kept (618 -> 391 ins, frame 0x248 = the original's): strcmp(r->name[k], ch_EmptyName) (the
+   original's general inline strcmp against the pooled ""; a literal gives repe cmpsb); the view scan on i
+   (byte: one -1 exit, view stored once); the text test as one && condition (type read from memory, as the
+   original); ww->x + ww->w > d2_ScreenW; D2FORM2 *f2 = &d2_Forms2[i] for the version-2 parent / bg / alpha
+   (gives the original's F2 IV base on .parent; with d2_Forms2[i].f the forwarded creation reads pull it to
+   +6/+8); version 0 split: the parent lookup in the ver chain, the creation in a second if (ver == 0)
+   after it with the parent test spelled differently (r cast; the same spelling = VC6 threads it): the
+   original's layout; the font lookup as FindPic in both arms of an if/else; margins stored ml, mr, mt, mb.
+   Left: (1) F0 IV base: ours +8 (flags), the original +0; fields via r give +6/+8, via d2_Forms0[i].h / a
+   f0 pointer give parent; f0 pointers / f0++ loops / union / casts / volatile r: never 0. (2) the k loop:
+   the original's IV on kind (+0xd90), the post-loop key block laid between the latch and the 0x41/0x45
+   tests, r spilled (slot [esp+0x18], reloaded into edi; name IV in ebx); ours: type IV, tests before the
+   latch, r in ebx all through, name IV in [esp+0x10]. A type local (t = r->type[k] before the 0x43 test,
+   used for 0x43/0x41/0x45) gives kind + the layout (climb best 332) but compares 0x43 from a register (the
+   original: from memory) - no spelling found that keeps the memory compare (t before 0x40 / after 0x43 /
+   switch / per-arm stores / nested 0x43 if: no). climb --rounds 4 --beam 6 (s67): only the t local,
+   nwins++ before win =, end-store moves. prior: s66 fix: the original reads every record field after the
+   window creation through r (r's slot [esp+0x18] reloaded into edi/ebx): the version-2 font / pic / m /
+   frame (ebx = r), the slider length slen[k] ([k + r + 0xf1c], so a version-0 form reads it from the
+   Forms0 record, we read d2_Forms2[i]: meaning fix), the version-0 margins / font / bgpic ([edi+0xe9c..]
+   with edi = r), and d2_Objs[d2_Wins[wins[i]].parent] re-read through wins[i] (not ww). Kept: those
+   through r (D2FORM2 *r2 / D2FORM0 *r0 block copies, the slen cast) and the version-0 parent tests both as
+   d2_Forms0[i].parent (no parent local): the original does NOT thread its second parent test (jmp from the
+   pw/pww block to a re-test, pw/pww spilled to [esp+0x4c]/[esp+0x40] and reloaded on the parent==0 path);
+   with the local, VC6 threads it. Rows (dcp try): control 635; slen alone 622 (M8s gone); all-r 661; all-r
+   + parent-cse-cse 618 (code 669 -> 538, frame 0x244 -> 0x24c, now 4 bytes LARGER than the original's
    0x248); parent spellings via r ((D2FORM0 *)r)->parent 630-667. Left: (1) frame 0x24c vs 0x248; (2) the
    IV bases: the original steps d2_Forms0 at +0 ([esp+0x34]) and d2_Forms2 at +0xed0 (&.parent, [esp+0x28],
    r = lea [esi-0xed0]) and &d2_Views[view].wins[i] ([esp+0x10]); ours bases both form arrays at +6 (h.h) -
