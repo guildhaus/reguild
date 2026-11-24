@@ -2003,6 +2003,35 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s58 (4 items, all byte: d3fl_TileBox, ai_FavourComment, cm_FindNearCell, ai_SolveCannonAim)**:
+  - **A long straight float block whose 81-node scheduling regions are cut one statement off** (corner 3's tail
+    not interleaved with the next statement's address math, the epilogue pops not hoisted into the last
+    stores): parenthesised products in the macro the block expands (`p.x = (d3fl_AxisX.x * (X0)) + ..`): each
+    is one op=263 node, so the cuts move. A 2^9 mask over the macro's nine lines found it in one `dcp try`
+    (d3fl_TileBox; every mask with the three p lines parenthesised was byte). `#define` lines inside a
+    variant's body work for macro rounds.
+  - **A `volatile int x` flag the original "reloads in each arm"** (stored 1 on the empty-list path, re-read in
+    each of three level arms): the call that sets it written in both arms of the kind test, each arm with its
+    own nested `if (list(..)) { if (out.count == 0) x = 1; }`: two separate def blocks, and neither def's split
+    piece grows into the join (c2trace --split: the piece of the FIRST seeded def block grows into the join and
+    the arms; the arm order decides which one is seeded first) (ai_FavourComment, volatile removed).
+  - **An expression temp in the next scratch register where the original reuses eax for a load chain
+    (`mov eax,[G]; mov eax,[eax+0xb0]; mov eax,[eax+0x20]`)**: the chain's end value was not a named local
+    (`int w = G->hmap->size` at the top) but read at each use through a pointer local (`hmap->size - 1` in
+    both clamps): VC6 hoists the size load out of the loop after the loop counter's and the IV's inits, so
+    ecx / edx are busy and the temp falls back to eax (cm_FindNearCell; any w-local position = other code).
+  - **x87 operand order local-first where the original loads the global first (`fld [G+4]; fmul [c]`), and the
+    later-defined of two locals (s / c) flips with their order**: the rank is the order of the locals' first
+    occurrences, and a struct local filled field by field counts once PER FIELD: `hdir.v.e[0] = ..; e[1] = ..;
+    e[2] = ..` (one array object) instead of `hdir.x = ..; hdir.y = ..; hdir.z = ..` lowered c's rank below the
+    globals (ai_SolveCannonAim). flip.py showed it: only DELETIONS of earlier local defs flipped (any one: a
+    count threshold), not swaps or duplicates; ints count (the loop counter), parameters and globals do not.
+    A small probe script (flip.listing over c2trace.variant_text per variant) answers "is the wanted
+    instruction there" for a whole variants file without a flip run.
+  - **A store scheduled before an fstp where the original has it later, no statement order moves it**: one
+    more parenthesised node in the block's first float chain (`float speedStep = ((range[1] - range[0]) *
+    0.5f);`) shifts the latencies; generate paren / cast / `/ 2` forms of each initializer of the block.
+
 - **Deep s57 (4 items, all byte: io_CharacterName, d3path_Init, ai_PlayerStatsPanel, ai_NewStorageSlotWindow)**:
   - **A commutative sum's destination in one arm only (`add eax,ecx` into the field's register where every
     other arm adds into the ternary's)** (io_CharacterName case 4: `txt_Ptrs[(rec[9] ? 0x18f : 0x130) +
