@@ -1363,40 +1363,20 @@ void *d2_ShpConvertTo16(D2SHP *s, int p) {
     return d2_ShpConvert8To16(s);
   return 0;
 }
-/* 0x47c410, converts a bank of shapes to 16 bit (a = 1); b = 0 frees the old bank
-   @deep deep s55: hunk (1) solved: no size local, the test reads bank->size and each arm names the new
-   size (n = bank->size - total; n = total + bank->size): bank->size is a CSE temp that outranks the offs
-   pointer (34 -> 12). Arm 2 needs the named n (inline arm 2: 16, arm 1 inline: 34). Left (12 ins): the
-   second arm's loop temp ecx / n reload edx where the original has eax / ecx as in the first arm (mov
-   eax,[edi]; add eax,ebp; push eax .. xor ecx,ecx; mov cx,[ebp+0x2a]; cmp eax,ecx). flip on this base:
-   only the first arm's const-0 uses (b == 0 deleted, nb->size / nb->n / i = 0 -> 1) and memcpy deletions
-   flip it. = control: bank renamed to the parameter, else-if for the second arm, n unsigned, total += /
-   total = in the arms, n = bank->size + total, a size local only for the test, j for the second arm's
-   loop, sh / nb block locals. Worse: nested kind / a ifs (29), switch (67), size test inside || (47).
-   prior: deep s39: two separate hunks. (1) size (orig ecx) against the strength-reduced offs pointer k
-   (orig edx): c2trace --prio: total 58, k 48, size 44; size needs +5. flip.py: 'size == 1' or 'total = 1'
-   gives size ecx (block 0's P 4 -> 5: one more distinct value referenced in the first block, +4 for size,
-   and block 6's P 4 -> 3); an unsigned size with 'size < 1' leaves 16 ins (cmp ecx,1 / jae plus hunk 2).
-   (2) with (1) forced, the second arm's loop temp is ecx / n temp edx where the original has eax / ecx as
-   in the first arm: the scratch rotation at the second arm's start; flip on that base: only changes of the
-   FIRST arm's const-0 uses (nb->size / nb->n = 1, b == 1, deleting them) flip it. = control (no lever):
-   size -= total / total += size / size + total, nb = bank default with return nb, return total, i = 0 or
-   nb = 0 before the test, unsigned size / total, a named sh in the sum loop, an __inline helper for the
-   two arms, the arms as two 'if (..) { ..; if (b == 0) mem_Free(bank); return nb; }' blocks (kept:
-   plainer, same code). Worse: hand pointer / countdown sum loops (46), total = 0 after the size test (57),
-   a == 1 tested first (40). climb round 1: nothing. */
+/* 0x47c410, converts a bank of shapes to 16 bit (a = 1); b = 0 frees the old bank */
 
-void *d2_BankConvertTo16(D2BANK *pic, int a, int b) {
-  D2BANK *bank, *nb;
+void *d2_BankConvertTo16(D2BANK *bank, int a, int b) {
+  D2BANK *nb;
   int i, total, n;
-  D2SHP *sh;
+  D2SHP *sh, *s;
 
-  bank = pic;
   total = 0;
   if (bank->size == 0)
     return 0;
-  for (i = 0; i < bank->n; i++)
-    total += ((D2SHP *)((char *)bank + bank->offs[i]))->npix;
+  for (i = 0; i < bank->n; i++) {
+    s = (D2SHP *)((char *)bank + bank->offs[i]);
+    total += s->npix;
+  }
   if (bank->kind == 2 && a == 1) {
     n = bank->size - total;
     nb = mem_Alloc(n, "d2:shp:NewBank");
@@ -1405,7 +1385,8 @@ void *d2_BankConvertTo16(D2BANK *pic, int a, int b) {
     nb->kind = 1;
     nb->n = 0;
     for (i = 0; i < bank->n; i++) {
-      sh = d2_ShpConvertTo16((D2SHP *)((char *)bank + bank->offs[i]), 1);
+      s = (D2SHP *)((char *)bank + bank->offs[i]);
+      sh = d2_ShpConvertTo16(s, 1);
       d2_BankAppendShape(sh, nb);
       if (sh != 0)
         mem_Free(sh);
@@ -1426,7 +1407,8 @@ void *d2_BankConvertTo16(D2BANK *pic, int a, int b) {
     nb->kind = 1;
     nb->n = 0;
     for (i = 0; i < bank->n; i++) {
-      sh = d2_ShpConvertTo16((D2SHP *)((char *)bank + bank->offs[i]), 1);
+      s = (D2SHP *)((char *)bank + bank->offs[i]);
+      sh = d2_ShpConvertTo16(s, 1);
       d2_BankAppendShape(sh, nb);
       if (sh != 0)
         mem_Free(sh);
