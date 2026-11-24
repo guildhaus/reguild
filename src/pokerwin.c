@@ -58,221 +58,72 @@ extern OPTIONBYTES ai_GfxResolution;
 extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
 extern struct D2WIN *
     d2_LastWindowPtr; /* 0x6ed980, d2.h: the window a screen works in (created last) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern struct D2WIN *
-    d2_LastWindowPtr; /* 0x6ed980, d2.h: the window a screen works in (created last) */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern struct D2WIN *
-    d2_LastWindowPtr; /* 0x6ed980, d2.h: the window a screen works in (created last) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2WIN *
-    d2_LastWindowPtr; /* 0x6ed980, d2.h: the window a screen works in (created last) */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_FrameMask; /* 0x760638, the pump mask of the current frame (sv_RunFrame) */
-extern struct D2OBJ *d2_Objs; /* 0xf8f080, d2.h: D2OBJ * */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
-extern int
-    sv_PopRequest; /* 0x6f22a0, nonzero: MASTER (sv_RunFrame) pops this screen */
 
 int sprintf(char *buf, const char *fmt,
             ...); /* 0x5de652, the CRT's sprintf (no CRT symbol available) */
 
 /* dcp unit split: the declarations of menu before the moved functions */
-void d2_CentreViewWindows(int view);
-void d2_SetPointerSprite(int a, int pic);
-int d2_SetForm(int view, int n);
-void d2_CloseView(int view);
-int io_PrintText(intptr_t fmt, ...);
 int d2_GetWinObj(int view, int idx, int k);
-int sv_CreateScrollButtons(int x, int y, int f, int g, int p5, int *b, int *a,
-                           int *c); /* 0x52e860, sv.c:
-the slider of the form f at (x, y) */
 int d2_GetViewWin(
     int view,
     int i); /* 0x475ff0, d2.h: window i of a view, -1 if out of range */
-int gm_BuildingSkill(struct AIBLD *b, unsigned k,
-                     int flag); /* 0x5092e0, f3gm.c: the building skill (ai.h's
-                  prototype; f3snd.h's building view is unsigned char *) */
-struct AICHAR *
-gv_FindAccused(struct AICHAR *c, int max, int *ids,
-               int *cnt); /* 0x4f41b0, gv.c: the character with the
-most records of its table not yet paired with c */
 void cm_SendProofExecuted(
     int record,
     int character); /* 0x4c4ed0, cm.c: message 0x24, the pair (character,
              record) into the executed table 0x91b6e0 */
-void cm_SendMoneyDelta(
-    int character,
-    int delta); /* 0x4c5f60, cm.c: message 0x5a, adds delta to the
-             character's money (+0x194), clamped 0 .. 0x32 */
-int he_ShowNews(int pid, int fl, char *text, int unused, int ev,
-                char *text2); /* 0x53dda0, he.c */
-void d2_SetObjValue(int obj, ...);
 int d2_GetObjValue(int obj);
 int d2_CreateWinText(short x, short y, char *text, int win);
 void d2_SetObjText(int obj, char *text);
-char *itoa(int, char *, int);
-void d2_SetObjFont(int obj, int font);
-int sv_RunFrame(void (*cb)(), unsigned mask);
-int d2_CreateRadioGroup(int n, ...);
+char *itoa(int, char *, int); /* 0x5e56c4, the library's integer to text (base 10 here) */
+void d2_SetObjFont(int obj, int font); /* 0x4760b0 */
 void d2_RadioAdd(int g, int obj);
-void d2_MenuNavigate(int g);
 void d2_RaiseViewWindows(int view);
-void d2_RadioClear(int g);
 extern int d2_FontHeight;               /* 0xf8f084, d2.h */
 extern struct D2INPUT *d2_FocusedInput; /* 0x6ed9dc, d2.h: D2INPUT * */
-extern unsigned char kb_Last;           /* 0x1468410, d2.h */
 int d2_WinCreateSlider(int x, int y, int pic, char *caption,
                        int win);       /* 0x46bf10, d2.h: D2OBJ *d2_Objs */
-void d2_CloseView(int view);           /* 0x4758f0, d2.h */
 void d2_SetObjWidth(int obj, short w); /* 0x46c260, d2.h */
 int d2_OpenInput(int x, int y, int w, int h,
                  unsigned char flags); /* 0x46a110 */
 void d2_RemoveObj(int obj);            /* 0x46e710 */
-void d2_SetObjFont(int obj, int font); /* 0x4760b0 */
-void d2_SetObjValue(
-    int obj,
-    ...); /* 0x475cb0, d2.c (varargs: the call sites pass 1, 3 or 4 values) */
 void d2_SetObjMax(int obj, int v); /* 0x475f40 */
 extern D2WIN d2_Wins[];            /* 0xf8f120, d2.h: D2WIN d2_Wins[0x61] */
-extern float
-    sv_FramesPerTick; /* 0x62378c, sv.c: the frames drawn since the last timer tick
-                         (the frame loop counts them in 0x623790, the tick callback
-                         0x520ec0 copies the count as a float and clears it) */
 void d2_PlaceWindowScaled(int win, int flags); /* 0x475730, d2.c */
 int d2_RemoveWindow(int win);                  /* 0x472ce0, d2.c */
-int io_PrintText(
-    intptr_t fmt,
-    ...); /* 0x515960, io_text.c: prints a text (id or literal) with its
-       tokens into the current window and redraws it */
 extern short d2_ScreenW; /* 0xfb9072, d2.h */
 extern short d2_ScreenH; /* 0xfb9070, d2.h */
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur,
                      unsigned int flags); /* 0x4767d0, d2.h */
 void d2_ReleaseFade(D2FADE *f);           /* 0x476860, d2.h */
 void d2_ClearScreen(void);                /* 0x46e990, d2.h */
 void d2_ShowPicture(int pic);             /* 0x46cfd0, d2.h */
-void sv_SetPanelEnabled(
-    int on); /* 0x522100, sv.c: disables the panel widgets when on is 0 */
-void sv_DisableVisibleWidgets(
-    int on); /* 0x52e600, sv.c: flags the widgets of the visible forms */
-void sv_RedrawScreen(void); /* 0x524010, sv.c */
-extern int
-    ai_GameOver; /* 0x6f259c, cm.h: nonzero when the game is over / left */
-extern int
-    ai_FrameWait; /* 0x6f22bc, sv.c: frames still to wait (sv_RunFrame counts it down) */
-extern int sv_PopRequest; /* 0x6f22a0, cm.h / gv.h: the dialog close request */
-extern int d2_CutsceneActive; /* 0x6ed9d4, cm.h / gfx.h */
-extern unsigned char kb_Last; /* 0x1468410, d2.h: the last key (di_input.c) */
 void d2_FocusInput(int obj);  /* 0x478320 */
-extern int ls_Version; /* 0x623650, ls.c: the version of the save read last */
-int ls_ReadSaveHeader(
-    struct VFSFILE *f,
-    LSHDR
-        *h); /* 0x51cee0, ls.c: reads a save header into h (no header there) */
 int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags,
                          int win); /* 0x472aa0, d2.h */
 int d2_WinOpenRaw(int x, int y, int w, int h, void *src,
                   int win); /* 0x46c390, d2.h */
 int d2_WinOpenPic(short x, short y, int pic,
                   int win); /* 0x4731d0, d2.h: creates a picture object */
-extern int
-    d2_HitWindow; /* 0xf8aad0, the window the pointer hit (gfx.c sets it from
-                     d2_PointerWin; also the "double click" id of the slots) */
-extern int
-    ai_GameFlags; /* 0x6f23f8, the game flags: the load window writes the load mode 10 whole */
 void d2_EnableObject(
     int obj,
     int on); /* 0x475aa0, d2.h: enables / disables an object and its items */
-int sv_OpenMessageBox(
-    intptr_t text,
-    unsigned char flags); /* 0x521900, sv.c: opens the waiting box with text */
 extern int ai_Opponents[7];
 extern char ai_OptionsFile[288];
 typedef struct SCREENMODE { /* 8 bytes, a screen mode of the table 0x62d7b8 */
   int w;                    /* +0x0, the width */
   int h;                    /* +0x4, the height */
 } SCREENMODE;
-char *
-itoa(int value, char *buf,
-     int base); /* 0x5e56c4, the library's integer to text (base 10 here) */
 extern unsigned int d3s_TexSize;    /* 0xfb9260, d3s.c */
 extern unsigned int d3s_MaxTexSize; /* 0xfb91dc, d3s.c */
-extern float d3o_FogScale;          /* 0x5fbd04, d3_interface.h */
-extern float sv_CameraAngleFactor;  /* 0x6f22d8, sv.c */
-extern unsigned char ai_GameState;  /* 0x6f25ac */
-extern int d3_CurrentScene;         /* 0x633444 */
-extern D3SCENE *d3_DefaultScene;    /* 0x5fb5b0 */
 extern D3SCENE d3_Scenes[];         /* 0xfd7ba0 */
-extern char d3fl_Mips;              /* 0x63373c, d3_fl.h */
-extern char
-    ch_ShadowEnabled; /* 0x5f122c, the shadow flag ch.c copies into the bodies' +0x211 bit 3 */
-extern float sv_CameraLimits
-    [12]; /* 0x6237d0, the camera limit table (height / angle pairs, sv.c) */
-extern float
-    sv_CameraHeightNear; /* 0x623800, the camera height at the near / far blend (sv.c) */
-extern float
-    sv_CameraAngleNear; /* 0x623804, the camera angle at the near / far blend */
-extern float sv_CameraHeightFar;             /* 0x623808 */
-extern float sv_CameraAngleFar;              /* 0x62380c */
-void d3s_ResetShadows(struct D3OBJECT *obj); /* 0x45ce00, d3s.c */
-void d3s_FreeShadows(struct D3OBJECT *obj);  /* 0x45ccd0, d3s.c */
-void d3_UpdateAll(unsigned char full);       /* 0x43b6e0, d3_engine.c */
-char d3if_SelectScene(int index, char keep); /* 0x4478e0, d3_interface.c */
 void d3_ReloadMeshes(unsigned int mask, int type,
                      void (*progress)(int a, int i,
                                       int n)); /* 0x43e090, d3_engine.c */
 void d3_ApplyGraphicsOptions(unsigned char a, unsigned char b, unsigned char c,
                              unsigned char mode,
                              void (*progress)(int, int, int)); /* 0x43c4e0 */
-void ch_SetLowPoly(unsigned char mode); /* 0x402af0, ch.c */
-void d3fl_SetMips(char a);              /* 0x43f930, d3_fl.c */
-void ai_CheckBuildSites(void);          /* 0x58fb60, lc.c */
 void d3_SetRLights(unsigned char on);   /* 0x43e180, d3_engine.c */
 struct D3FLMAP;
-void init_SetDetailLevel(struct D3FLMAP *s, char f); /* 0x513590, f3init.c */
-void sv_PlaceCamera(float f);                        /* 0x525dd0, sv.c */
-char d3_ForEachObject2(
-    struct D3SCENE *scene, struct D3OBJECT *obj, unsigned int mask,
-    void (*cb)(struct D3OBJECT *obj)); /* 0x438e60, d3_engine.h */
 typedef union INIT_LOD {
   unsigned int
       all; /* the whole dword, which is what the original compares and stores */
@@ -282,32 +133,7 @@ typedef union INIT_LOD {
   } bits;
 } INIT_LOD;
 extern INIT_LOD d3io_Lod;             /* 0x5fbf78 */
-void *mem_Alloc(int size, char *tag); /* 0x4223c0, d3.h */
-void mem_Free(void *p);               /* 0x422620, d3.h */
-extern unsigned int
-    dd_RMask; /* 0x1464fa4, dd_vesa.h: the red channel mask of the display */
-extern unsigned int dd_GMask; /* 0x1464fb0, dd_vesa.h */
-extern unsigned int dd_BMask; /* 0x146359c, dd_vesa.h */
-int ls_Read(void *buf, int size, int count,
-            struct VFSFILE *f); /* 0x51c920, ls.c: vfs_fread items */
-void sv_SetStatusText(char *s); /* 0x52e330, sv.c */
 int cm_SendExSysMessage(unsigned char id, void *msg); /* 0x4c4db0, as in cm.h */
-DWORD dd_RGB(unsigned char r, unsigned char g,
-             unsigned char b); /* 0x41e670, as in dd_vesa.h */
-unsigned int util_Hash(unsigned char *buf,
-                       unsigned int len); /* 0x401000, as in bio.h */
-void sv_PumpNet(void);                    /* 0x52fe00, sv.c */
-void sv_BroadcastText(
-    unsigned fl,
-    char *t); /* 0x52fcf0, sv.c: sends t as the network message 0xe and
-                 shows it until the answer, then clears the status line */
-int ls_WriteSaveHeader(
-    struct VFSFILE *f,
-    unsigned
-        flags); /* 0x5194c0, ls.c: writes the save header (the flag word) */
-int ls_ReadSaveHeader(
-    struct VFSFILE *f,
-    LSHDR *h); /* 0x51cee0, ls.c: reads the save header into h */
 extern int
     cm_RequestedSaveSlot; /* 0x6f25c8, cm.h: the save slot the request asked for */
 extern char cm_RequestedSaveName
@@ -316,35 +142,14 @@ extern int cm_SaveAcks
     []
     [2]; /* 0x76fa20, cm.h: 8 slots; [0] = the player's netId, [1] = the
             save name hash, -1 when empty (message 0x10 fills the first free) */
-extern unsigned char
-    ai_NumPlayers; /* 0x62489c, the player count (ai.c / cm.c / main.c) */
-extern unsigned short
-    ai_PlayerId; /* 0x6f25b8, the local player (cm.h / am.h / gv.h) */
 struct AIBLD;
-int ai_ProductionWindow(
-    struct AIBLD *bld); /* 0x58bd60, lc.c: "Handel\Handel_PRODUKTION" */
-int ai_OpenTransport(struct AIBLD *rec); /* 0x5af1a0, lc.c */
 struct AIOBJ;
 void ai_TradeSearchWindow(
     struct AIBLD *bld,
     struct AIOBJ *room); /* 0x595480, lc.c: "HANDEL\HANDEL_SUCHEN" */
-void ai_MasterLetterWindow(
-    struct AIBLD *bld); /* 0x5c3200, lc.c: "ob_MEISTERBRIEF" */
-void ai_MarketContact(struct AIBLD *rec); /* 0x58f510, lc.c */
-int sv_CheckMoney(struct AICHAR *o,
-                  int n); /* 0x520f90, sv.c: 1 when the object's money (+0x194)
-                    covers n, else a message box with the text 0x74 */
-int sv_MessageBox(intptr_t text,
-                  unsigned flags); /* 0x521150, sv.c: the modal message box */
-void sv_CameraFollow(void); /* 0x52d7a0, sv.c: the per-frame camera follow */
 int d2_RemoveWindow();
-int io_PrintText(intptr_t fmt, ...);
-int he_IsMessageKindFiltered(
-    int kind); /* 0x575640, he.c: nonzero when the kind is filtered */
 void he_SetMessageKindFiltered(
     int kind, int filtered); /* 0x575710, he.c: sets / clears the kind's bit */
-int cm_SendSetField(int a, int b, int c, int d,
-                    int e); /* 0x4c4a60, cm.c: message 0x19 (the field block) */
 void d2_SetCaption(
     int obj, char *text); /* 0x473540, d2.h: sets the caption and its width */
 typedef struct AIREQ {
@@ -362,11 +167,7 @@ typedef struct CONTACTREQ {
   char pad14[0x3c];
 } CONTACTREQ;
 extern struct D2PIC *d2_Pics; /* 0x6ed918, d2.h: D2PIC * */
-void sv_ButtonRow(int f, int y, int *out, int n, ...);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
 struct AITIME;
-int gm_ConvertMoney(int a, unsigned char k);
-int gm_PlayerFactor(int a, unsigned char k);
 unsigned short ai_PokerStep();
 float ai_NormalizeEffectScale(float x);
 

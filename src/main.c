@@ -65,7 +65,6 @@ extern int ai_ScreenModeW;
 extern struct SCREENMODE {
   int w, h;
 } ai_ScreenModes[];
-extern char d3_AnimDir[];
 extern int di_MaxX;
 extern char main_GamePath[];
 extern int main_TextureDivider;
@@ -79,40 +78,11 @@ extern char main_AppDir[];
 extern GAPDATA full_data_5f1084[];
 extern char ai_OptionsFile[288];
 
-extern char ai_OptionsFile[288];
-extern CMLOBBYPLAYER cm_LobbyPlayers[8];
-
-extern GAPDATA full_data_5f1084[];
-extern int sv_PopRequest;
-
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-
-extern GAPDATA full_data_5f320c[];
-extern INIT_PLAYER init_PlayerProfile;
-extern int sv_PopRequest;
-
-extern INIT_PLAYER init_PlayerProfile;
-extern int sv_PopRequest;
 extern GAPDATA full_data_602568[];
-extern char ai_OptionsFile[288];
-
-extern INIT_PLAYER init_PlayerProfile;
-extern int sv_PopRequest;
 
 extern unsigned char hst_TextsOn;
-extern INIT_PLAYER init_PlayerProfile;
-extern int sv_PopRequest;
 extern int ai_Opponents[7];
 
-extern int sv_PopRequest;
-
-extern GAPDATA full_data_5f1084[];
-extern GAPDATA full_data_602568[];
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern float gm_DayStartHours[],
     gm_DayEndHours[];                        /* 0x617830 / 0x617840 (f3gm.c) */
 extern struct SBBANK *main_SoundBanks[0x80]; /* 0x75df20 */
@@ -126,57 +96,21 @@ extern int
 extern unsigned char
     main_GameEnded; /* 0x6f25ad, sv.c: nonzero when the player reached the game's goal */
 extern struct SBBANK *main_WindBank; /* 0x75e630, the wind sound bank */
-extern int sv_FrameMask;
-extern signed char ai_MissionMode;
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-extern int sv_PopRequest;
 
 extern int ai_NextCharNumber;
 extern AIJOB he_Events
     [0x400]; /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 extern GAPDATA full_data_6024e4[];
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern signed char ai_MissionMode;
 
-extern INIT_PLAYER init_PlayerProfile;
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-
-extern int cm_NetFlags;
-
-extern int init_StatusForm;
-extern int sv_FrameMask;
 extern char main_MoviePath[0x104]; /* 0x624798, the movie directory */
 extern int main_Movie;             /* 0x6f241c, the playing movie's id */
 extern int di_Disabled;
-extern unsigned char snd_AmbientOn; /* 0x6f0b60, 1: ambient sounds on */
 /* clang-format off */
 extern unsigned char ai_GfxResolution;  /* 0x6f2f94 (menu.c: OPTIONBYTES): @original main_OpenScreen reads it as a byte object (0x531d43 mov al, byte ptr [0x6f2f94]); through the 4-byte union VC6 loads the dword and masks it (.word & 0xff, and eax, 0xff) or, as .byte[0], keeps the stores in memory (mov byte [x], 1 where the original holds al): main_OpenScreen / WinMain fall to draft */
 /* clang-format on */
-extern char ai_OptionsFile[288];
-extern int ai_ScreenModeH;
-extern int ai_ScreenModeW;
 extern struct SCREENMODE ai_ScreenModes[];
 
-extern GAPDATA full_data_5f320c[];
-extern GAPDATA full_data_602568[];
 extern unsigned char main_GfxPath[];
-extern char main_GamePath[];
-extern int main_TextureDivider;
-extern int main_Inactive; /* 0x6f2584, 1 while the app is deactivated */
-extern char main_AppDir[];
-extern INIT_PLAYER init_PlayerProfile;
-extern int main_MoneyCheat;
-extern int sv_FrameDepth;
-extern int sv_PopRequest;
-
-extern HWND main_Window;
 
 void main_EndGame(void);
 void main_CloseLoadingScreen(void);
@@ -586,9 +520,6 @@ int main_OpenScreen(int m) {
   10000000 /* sb_Init's buffer size in bytes (a constant of the original) */
 #define ANIM_CACHE_BYTES 0x400000 /* 4 MB: d3anim_CacheMax is set again here */
 
-int sv_PumpMessages();
-int sv_RunFrame(void (*cb)(), unsigned mask);
-
 /* 0x532160, main_OpenEngine: loads the text definitions ("<GamePath>die_gilde_add_on_text.def": txt_LoadIncludes, or txt_OpenText when main_TextReopen is set), shows the loading screen form
    "Misc\Loading_main" (window 1 above the bottom edge, window 0 at the top of the screen) while the history lists, the net states, the data tables, the effect slots, the icon names and the item
    prices are initialised, starts the sound (sound bank, 3D sound, "system.sbf", the "include_sfx.ini" of the program directory) and the music, then the game modules (sv's tick callback,
@@ -771,8 +702,6 @@ void main_StartCityGame(char *name, int net) {
   d3_LoadScene("scenes/*ChooseCity_Europa.ed3", 0, 0);
 }
 
-int sv_RunFrame(void (*cb)(), unsigned mask);
-
 /* 0x5327e0, the player count dialog (the form "Menu\CHOOSE_PLAYERCOUNT"): a count slider (at least 2, started from ai_NumPlayers), the heading text 0x1ab5 and the "%s$A%s" texts 0x7d / 0x7e; runs the
    frame loop 0x5309a0 until a button is pressed (button 0 = ok: stores the slider value in ai_NumPlayers and returns 1, right mouse button / button 1 = cancel); returns 1 for ok, 0 for cancel */
 int main_PlayerCountDialog(void) {
@@ -944,13 +873,7 @@ int main_EnterHostAddress(void) {
    "Host" option) and its record into cm_NetGame and, for a saved game, the city, the save name and the joined
    character cm_JoinChar from the save's header (as main_JoinNetworkGame); btn[2] opens main_EnterHostAddress.
    Returns 1 when a game was chosen. */
-void sv_ButtonRow(int f, int y, int *out, int n, ...);
 int d2_RemoveWindowObjects();
-void d2_RadioAdd(int g, int obj);
-int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags,
-                         int win);
-int sv_OpenMessageBox(intptr_t text, unsigned char flags);
-int ls_ReadSaveHeader(struct VFSFILE *f, LSHDR *h);
 
 /* 0x532da0, the network game search window "Menu\SEARCH_NETWORK": every 1.5 s (the clock d3_Time) or on the
    refresh button (btn[1]) it scans the LAN (udp_FindServers, port 12345, 3 s, up to 8 hosts) under the message
@@ -1248,8 +1171,6 @@ int main_MenuButton(int n, char *text, int form) {
   d2_SetObjWidth(b, 300);
   return b;
 }
-
-D3OBJECT *sv_RegisterNamePlate(char *name, char *text, int look);
 
 /* 0x533850, "main_Menue": the main menu ("MENU\MAIN_MENU"): fades to black, loads the city scene
    ("scenes/*ChooseCity.ed3", "..._Europa.ed3" for language 1 and up) and the player selection scene
@@ -2829,8 +2750,6 @@ void main_CloseLoadingScreen(void) {
   d2_ReleaseFade(fade);
 }
 
-void sv_UpdateClock(void);
-
 /* 0x537c70, "main_PreloadSound": reads the sound definition file f (lines "#include "<bank>"", comments "//") and loads each named sound bank (0x426950, or the language bank 0x4c2830 when the path starts with
    "sprache\") into the table 0x75df20 (0x80 slots); returns 1 when done, 0 on errors (a message box "main_PreloadSound(): Could not open sound-definition!") */
 int main_PreloadSound(char *f) {
@@ -3114,7 +3033,6 @@ int gm_CharacterIncomes(unsigned short id, GMINCOME *out, unsigned char flags); 
    defines `unsigned id` (it masks the id itself); main_RoundReport pushes ai_PlayerId as an unmasked dword (byte-matched), the
    code of a call through an unsigned short parameter (an unsigned / int one gives movzx); no header declares it */
 /* clang-format on */
-extern unsigned char main_GameEnded; /* 0x6f25ad, sv.c */
 /* the announcement message of the kind `kind` to the player's own character (fromId -1), stamped with the game clock */
 #define MAIN_NOTE(m, kind)                                                     \
   do {                                                                         \
@@ -3887,8 +3805,6 @@ void main_UpdateFigures(void) {
     }
   }
 }
-void ord_InitMessageRecord(int a, float b, float c, float d);
-int sv_MessageBox(intptr_t text, unsigned flags);
 
 #define MAIN_ME                                                                \
   ai_PlayerChar /* the player's character (ai_PlayerChar: unsigned short *) */
@@ -4237,9 +4153,6 @@ void main_SettleRound(unsigned short pl) {
     }
   }
 }
-
-void d3_SetViewport(float w, float h, float x, float y, float zn, float zf,
-                    float scale, int a, int b);
 
 /* 0x53b2e0, starts the player's round: dumps every character and clears its round flags, takes the kind 6 one as the player, a random CD check loop (main_CheckCD, text 0x79), the parties, the round intro page, the alchemists' plants and the kind 7 buildings, then the daily steps of the world (each followed by sv_PumpNet / Sleep(100), main_SettleRound for every living character) or only the income histories when this machine is not the master; the goal fanfare and the outro, the yearly history */
 void main_BeginPlayerRound(void) {
@@ -5211,8 +5124,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE prev, char *cmd, int show) {
   return 1;
 }
 
-extern void *main_Instance;
-
 /* ---- full-link gap data (tools/full_addrs.py) ---- */
 #define GAPDATA __declspec(align(1)) unsigned char
 int main_GfxOn =
@@ -5433,7 +5344,6 @@ AIBLD *he_PatrolBuilding =
     0; /* 0x6f2638, he.h; owner he or main (an open question of he.c) */
 int he_MessageFilterMask =
     0; /* 0x6f263c, he.h; owner he or main (an open question of he.c) */
-extern int ai_MapHeight;
 char he_OptionsPath
     [256]; /* 0x6fa0e0, the options INI path he_LoadMessageFilter copies from ai_OptionsFile for its
                       GetPrivateProfileIntA / WritePrivateProfileStringA calls (he_SaveMessageFilter) */

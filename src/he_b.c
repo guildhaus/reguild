@@ -46,36 +46,21 @@ extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_5ff710[];
 
 extern GAPDATA full_data_5f320c[];
-extern int d2_ClickedForm;
-extern unsigned char ai_GameState;
 extern GAPDATA full_data_5fe7d0[];
-extern const int sv_PhaseMinutes[24];
 extern GAPDATA full_data_60d0d4[];
 extern struct G16TRACKHANDLES snd_TrackHandles;
 extern struct D3TRAIN *d3t_Rain;
 extern GAPDATA full_data_5f1890[];
 extern int ai_PermsDirty;
 
-extern unsigned char ai_GameState;
-extern struct SBBANK *snd_SystemBank;
-extern const int sv_PhaseMinutes[24];
 #include "sv_types.h"
 extern float gm_DayStartHours[];
 extern char main_GamePath[]; /* 0x624690, main.c: the game directory */
 extern float gm_DayEndHours[];
 
-extern unsigned char ai_GameState;
 #include "cm_types.h"
-extern int d2_ClickedForm;
 #include "mission_types.h"
 #include "ahm_types.h" /* AHMSLOT */
-extern float gm_DayStartHours[];
-extern float gm_DayEndHours[];
-extern int d2_ClickedForm;
-extern GAPDATA full_data_602568[];
-extern const int sv_PhaseMinutes[24];
-extern float gm_DayStartHours[];
-extern float gm_DayEndHours[];
 extern const float gm_MoodRanges[476];
 extern const float gv_SaleShares[];
 
@@ -191,37 +176,28 @@ typedef struct
   0x66675073 /* the meeting scene's mark (event 0x91: EVTSCRIPT.tag[0], the building id in tag[1]) */
 
 /* dcp unit split: the declarations of he before the moved functions */
-void err_Message(char *text);
 #include <stdarg.h>
 #include <math.h>
 /* clang-format off */
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 /* clang-format on */
 void he_AllocDueIsStart(AIJOB *ev);
-void he_SetLifeByAge(AICHAR *c, unsigned short num);
-void d3t_SetColor(D3OBJECT *obj, unsigned char r, unsigned char g,
-                  unsigned char b);
 struct D3OBJECT;
-char d3if_Delete(struct D3OBJECT *obj); /* 0x447190, d3_interface.h */
 void sv_PumpNet();
 int sprintf(char *buf, const char *fmt, ...);
-void mem_Free(void *p);
-void err_Message(char *text);
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 void ai_ShowTributeDelayedNews(struct AICHAR *param_1);
 void ai_ShowTributeCollectNews(struct AICHAR *param_1);
 void ai_ShowTributeClaimNews(struct AICHAR *param_1, struct AICHAR *param_2);
 void ai_ShowTavernHelperNews(struct AICHAR *param_1, struct AICHAR *param_2,
                              int param_3);
 unsigned int ai_MarriageTest(int param_1, int param_2);
-int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
 void gm_ChangeRelationToJobs(unsigned short a, int b);
 void ai_PlagueNews(void);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo,
-                          float hi, int *out);
+                          float hi, int *out); /* 0x4a63f0 (amt_ai.h) */
 void ai_PlagueMessage(struct AICHAR *c, void *bld);
 float util_RandomF2();
-int ls_GetLanguage();
+int ls_GetLanguage(); /* 0x5190a0 */
 typedef struct
     HEINN { /* he_RunInnSim's list of the inns (he_FindGuestInn walks it, 12 bytes each) */
   AIBLD
@@ -234,11 +210,7 @@ unsigned short hmt_RandomRecord(short k);
 unsigned short hmt_RandomTextOffset(unsigned short k);
 const struct G11REC *hmt_GetRecord(unsigned short k);
 struct ORDSTATS;
-float ord_GetStatistics(struct ORDSTATS *o);
-int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos,
-                     struct D3VECTOR *dir, int unk, char flags);
 void ai_PlagueMessageAll(void);
-void udp_Send(char *buf, int len);
 #pragma pack(push, 1)
 typedef struct
     HERANKHEAD { /* 0xcf bytes, the head packet of the ranking he_RunRanking sends (udp_Send) */
@@ -275,32 +247,13 @@ typedef struct
 } HERANKLINE;
 #pragma pack(pop)
 int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
-int amt_InitApplicant(struct AICHAR *c, int k);
-int amt_GetOpenOffice(int k);
-int amt_CreateApplicant(int k);
 int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
-void ai_TutorialClearHost(void);
-void sv_PopTo(void (*v)());
-void he_FreeEventNow(AIJOB *r);
-void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6,
-                            int a7, char *jump, char *text2);
+void he_FreeEventNow(AIJOB *r); /* 0x56f040 */
 int gm_LevelPayout(int v, int kind);
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
-void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
-int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
-struct G15PLANT *veg_FindPlantId(struct G15PLANT *p, int id);
-float gm_StockPrice(int p,
-                    int n); /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 float gm_TitlePeriodServed(int n, struct AITIME *out);
-
-/* dcp unit split: the definitions of he the functions of he_b use */
-void he_AllocDueIsStart(AIJOB *ev);
-int he_PickNearBuilding(AICHAR *c, int n, AIBLD **blds, int *bldId, int *objId);
 
 /* 0x568aa0, ends every started loan event 0x23 (he_EndEventNow) whose partner (AIJOB.loanPartner, the other party's
    netId) is the character c: gm_ReleaseCharacter calls it before the character is released */
@@ -501,7 +454,6 @@ void he_AllocProduktion(AIJOB *ev) {
   p->productionStaff = 1.0f;
 }
 
-void sv_CountGroupMembers(struct AIJOB *g);
 int he_HasEvent9f(AICHAR *a);
 
 /* 0x569210, the run handler of the production event (he_AllocProduktion; "he_RunProduktion()"): without a character
@@ -1315,8 +1267,6 @@ void he_AllocResearch(AIJOB *ev) {
   r->researchRounds = 0;
 }
 
-void init_HookObject(struct D3OBJECT *o, void *p, int kind);
-
 /* 0x56b3f0, the run handler of the research event 0xc (AIJOB.research*): stage 0, once due, orders the good it
    researches (cm_SendExSellObject: the building +0xac as buyer, the good +0xb4, one piece) and keeps the send
    slot (+0xc8); stage 1 waits for that slot (cm_GetSlotState): an error (2) frees the event, else the objId of
@@ -1671,7 +1621,6 @@ D3OBJECT *he_CreateConstruction(D3VECTOR *rot, D3VECTOR *pos,
 
 /* the construction event's run handler stores gm_AddToTreasury's result (the send slot of its goods message) as
    the payment's slot (0x56bf1a .. 0x56bf22) */
-void sv_CreateBanners(struct AIBLD *b);
 
 /* 0x56be30, the run handler of the building construction event 0xd, by its stage: 0 pays the price when due (the
    player's own money to the treasury, else moved from the payer), 1 waits for the payment, 2 sends the building
@@ -2753,10 +2702,6 @@ taken:
   he_FreeEvent(e);
 }
 
-int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo,
-                          float hi, int *out); /* 0x4a63f0 (amt_ai.h) */
-void he_FreeEventNow(AIJOB *r);                /* 0x56f040 */
-
 /* 0x56e5b0, the run handler of the secret room event 0x99 (alloc he_AllocSecretRoom): the stages -1 / -2 remove the
    agent (opts & 2) and, at -1, tell the event's character (text 0x3ff9, the news "_NACHRICHTEN_DOMIZIL_08") and free
    the event; a paused event or one whose cm slot is still busy waits. Stage 0 takes the spawned agent from its cm
@@ -3717,9 +3662,6 @@ void he_RunDecay(AIJOB *e) {
   }
 }
 
-int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo,
-                           float hi, unsigned char n, int *out); /* 0x4a6570 */
-
 /* 0x5706e0, the alloc of the plunder event 0x8a: paused -> nothing; the buildings the character (chr) can plunder are
    picked (ai_PickActionBuildings, mask 4, at most 5, into bld) -> none -> free; the picked slot of the found index
    (when below 5) is cleared, at = 0, the due clock is now + 1 hour and the event is scheduled (cm_SendExSetHE) */
@@ -3746,9 +3688,6 @@ void he_AllocPlunder(AIJOB *e) {
   e->exSlot = cm_SendExSetHE(0, e);
 }
 
-int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n,
-                             unsigned short *ids, float lo, float hi,
-                             unsigned short *id); /* 0x4a5d30 */
 void he_PlunderTakePrice(int *a, AICHAR *c);      /* 0x570bf0 */
 void he_PlunderFailNews(int *a, AICHAR *c);       /* 0x570c70 */
 
@@ -3953,17 +3892,6 @@ void he_RunPlunderOffer(AIJOB *e) {
     return;
   }
 }
-
-int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n,
-                             unsigned short *ids, float lo, float hi,
-                             unsigned short *id); /* 0x4a5d30 */
-void he_PlunderTakePrice(int *a, AICHAR *c);      /* 0x570bf0 */
-void he_PlunderFailNews(int *a, AICHAR *c);       /* 0x570c70 */
-int sv_UsedGroupSlots(struct AIJOB *g);           /* 0x5241b0 */
-struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i,
-                             unsigned char n); /* 0x4ef570 */
-void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2,
-                     struct AITIME *param_3); /* 0x5a9910 */
 
 /* 0x570ea0, 1 when no running haunting event 0x88 has b's netId as its character (+8) and a's netId as its victim
    (+0xb0); 0 when one does */
@@ -4710,8 +4638,6 @@ void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2,
                                int param_6); /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2,
                                 int param_3, int param_4); /* 0x5a9880 */
-int gv_OrderExtendGrave(struct AICHAR *c, struct AIBLD *o, int v, int b,
-                        short s, int x);    /* 0x4f0700 */
 void he_AnswerGraveLease(struct AIJOB *ev); /* 0x5728d0 */
 void he_ExamCancelled(struct AIJOB *ev);    /* 0x5729c0 */
 
@@ -4828,9 +4754,6 @@ void he_AllocGraveyardWorkers(AIJOB *e) {
   gm_SetTime(&e->end, 6, 0, 0);
   e->clock60 = e->end;
 }
-
-void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */
-int ls_GetLanguage();                          /* 0x5190a0 */
 
 /* 0x572bf0, the run handler of the graveyard workers' event 0x93 (alloc 0x572b90, first due at 6:00), a four-stage
    cycle over every graveyard building (gm_BuildQuery (1, 5, 0x1d)): -2 / -1 free the event. Stage 0, for each owned
@@ -5798,8 +5721,6 @@ void he_CircusShowPayout(AIJOB *e) {
   he_ShowNews(per->netId, -1, text2, 0, 0x5ff, 0);
 }
 
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c,
-                    struct AIJOB *g); /* 0x524260, the group register */
 void he_CircusShowIncome(struct AIJOB *ev, int n); /* 0x575030 */
 
 /* 0x5748d0, the run of the event 0xa1, a circus show of up to four figures (AIJOB.ids, the ones gm_FindChar finds):

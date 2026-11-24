@@ -124,38 +124,23 @@ extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_5ff710[];
 
 extern GAPDATA full_data_5f320c[];
-extern int d2_ClickedForm;
-extern unsigned char ai_GameState;
 extern GAPDATA full_data_5fe7d0[];
-extern const int sv_PhaseMinutes[24];
 extern GAPDATA full_data_60d0d4[];
 extern G16TRACKHANDLES snd_TrackHandles;
 extern struct D3TRAIN *d3t_Rain;
 extern GAPDATA full_data_5f1890[];
 extern int ai_PermsDirty;
 
-extern unsigned char ai_GameState;
-extern struct SBBANK *snd_SystemBank;
-extern const int sv_PhaseMinutes[24];
 #include "sv_types.h"
 extern float gm_DayStartHours[];
 extern char main_GamePath[]; /* 0x624690, main.c: the game directory */
 extern float gm_DayEndHours[];
 
-extern unsigned char ai_GameState;
 #include "cm_types.h"
-extern int d2_ClickedForm;
 #include "mission_types.h"
 #include "ahm_types.h" /* AHMSLOT */
-extern float gm_DayStartHours[];
-extern float gm_DayEndHours[];
 extern AIJOB he_Events
     [0x400]; /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
-extern int d2_ClickedForm;
-extern GAPDATA full_data_602568[];
-extern const int sv_PhaseMinutes[24];
-extern float gm_DayStartHours[];
-extern float gm_DayEndHours[];
 extern const float gm_MoodRanges[476];
 extern const float gv_SaleShares[];
 
@@ -611,8 +596,6 @@ void he_ActivateSlot(HEEVSLOT *sl) {
   }
 }
 
-void err_Message(char *text);
-
 /* 0x53dda0, sends the news message 0x11 (message flags 9) to the character `pid`, which must be of kind 6 / 7 (else -1):
    from `from`, the news id `news` (arg[0]), the text flags `tflags` (| 0x10 when `text2` follows the text behind its NUL);
    cm_SendLongMessageText's result */
@@ -690,16 +673,10 @@ void he_MessageBoxQuickjump(int pid, int from, char *text, int tflags, int news,
 #include <stdarg.h>
 #include <math.h>
 void he_AllocDueIsStart(AIJOB *ev);
-void he_SetLifeByAge(AICHAR *c, unsigned short num);
 
-void d3t_SetColor(D3OBJECT *obj, unsigned char r, unsigned char g,
-                  unsigned char b);
 struct D3OBJECT;
-char d3if_Delete(struct D3OBJECT *obj); /* 0x447190, d3_interface.h */
 void sv_PumpNet();
 int sprintf(char *buf, const char *fmt, ...);
-void mem_Free(void *p);
-void err_Message(char *text);
 
 /* HE_SET_CLOCK: the game clock (0x770ae0 ..) into a message at +0x28 .. +0x34, flag byte 2 at +0x36 */
 
@@ -2331,8 +2308,6 @@ void he_SetEventChar(AIJOB *e, int pl) {
   }
   e->netId = -1;
 }
-
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 
 /* 0x541280, the idle behaviour of the event's characters (ids[], 8 of them) in the default scene: each one whose scene
    character has no queued action either walks to 1 .. 3 points near pos (rd_PointsNear, actions 0x2d tagged
@@ -4412,8 +4387,6 @@ void he_RunRaid(AIJOB *e) {
   }
 }
 
-int gv_HeldCrimeIdsOf(int culprit, int *out, unsigned short t);
-
 /* 0x546c40, a Ghidra miss (disassembled): the alloc handler of the fight event 0x45 between partner1 (a) and
    partner2 (b), its run handler 0x546ef0 the end: the event is due from now, stage 2. Unless it is started (opts 2)
    nothing more; with a or b gone, a already fighting (flags1c8 0x100) or b already fought (0x200) it ends in two
@@ -4569,9 +4542,6 @@ void he_DuelAccepted(AIJOB *e, AICHAR *p2, AICHAR *p3) {
   }
   cm_SendExSetHE(2, e);
 }
-
-void amt_ChangeDistrictOpinion(struct AICHAR *c, int d,
-                               int v); /* 0x4ea550, amt.c */
 
 /* 0x5472d0, a Ghidra miss (disassembled): the challenge of the insult event ("Special\Beleidigung") is declined
    (the second choice, or no choice in time) by q, challenged by p (the characters partner1 / partner2 of the
@@ -6248,7 +6218,7 @@ void he_RunGang(AIJOB *e) {
   }
 }
 
-int ls_GetLanguage();
+int ls_GetLanguage(); /* 0x5190a0 */
 
 /* 0x54ae20, the alloc handler of the protection-ask event 0x63 (he_RunProtectionAsk): the due clock +0x52 is the
    clock now, two minutes on */
@@ -7520,7 +7490,6 @@ void he_RunBard(AIJOB *e) {
 }
 
 struct ORDSTATS;
-float ord_GetStatistics(struct ORDSTATS *o);
 
 /* 0x54de60, a Ghidra miss: the init of the population event 0x6d (its run handler he_RunPopulation): the due clock
    is the clock now, the round's count and the newcomer chance are cleared and the event is posted in state 0; it
@@ -8248,8 +8217,6 @@ void he_RunDarkCorner(AIJOB *e) {
   }
 }
 
-int mem_IsValid(void *p);
-
 /* 0x54fb50, a Ghidra miss: the init of the effect event: the object +0xac (0x4fea50) must have a scene record (+0x61) and the effect word +0xc2 a table record (0x5ba620) with a duration (+4): +0xb4 = now + that duration (0x4fe140), +0xb0 = 0, state 0; else the event is freed */
 void he_StartEffectEvent(AIJOB *e) {
   AIBLD *bld;
@@ -8607,8 +8574,6 @@ int he_AimReaper(AIJOB *e) {
   d3if_SelectScene(scene, 1);
   return 0;
 }
-int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos,
-                     struct D3VECTOR *dir, int unk, char flags);
 
 /* 0x550850, turns the reaper around towards the building reaperTo once it arrived: both objects need a mesh driver;
    the angle between the object's forward axis (its z axis in the world) and the direction to the point above
@@ -8807,8 +8772,6 @@ void he_StartRanking(AIJOB *e) {
   e->end.hour = 7;
   e->end.min = 0;
 }
-
-void udp_Send(char *buf, int len);
 
 #pragma pack(push, 1)
 typedef struct
@@ -9608,10 +9571,6 @@ void he_StartApplicants(AIJOB *e) {
   }
 }
 
-int amt_InitApplicant(struct AICHAR *c, int k);
-int amt_GetOpenOffice(int k);
-int amt_CreateApplicant(int k);
-
 /* 0x552920, the run handler of the applicants event 0x86 (its alloc handler he_StartApplicants): stage -1 / -2 free it,
    flag 4 of opts or a pending post (exSlot) holds it. Stage 0 asks for the highest office kind up to maxKind that is
    open for one more applicant (amt_GetOpenOffice) and creates two applicants for it (amt_CreateApplicant; the second
@@ -9709,8 +9668,6 @@ void he_RunApplicants(AIJOB *e) {
 int ai_TutorialOpenIntro();
 int ai_TutorialTick();
 int ai_TutorialCloseIntro();
-void ai_TutorialClearHost(void);
-void sv_PopTo(void (*v)());
 
 /* 0x552b90, the alloc handler of the tutorial intro event 0x87: makes the record the tutorial's host (0x578120);
    when the tutorial is not running the record is freed, else it starts in stage 0 */
@@ -9882,7 +9839,7 @@ void he_RunOfficeAward(AIJOB *e) {
   }
 }
 
-void he_FreeEventNow(AIJOB *r);
+void he_FreeEventNow(AIJOB *r); /* 0x56f040 */
 
 /* 0x553060, registers the alloc / run handler pairs of the event types 0x22 .. 0xa5 (he_SetEventHandlers; the pair of a type is (alloc, run); 1 = a registration failed; 0x52b350 (type, 0, 0, 0x507 / 0x50e, -1) registers the message type of a few of them). The handlers above 0x553060 are the ones of this file; 0x56f040 is a forwarder to the free (0x53e1f0); the rest lives in the stretch 0x553880 .. 0x575700 (drafts to come) */
 int he_RegisterEventTypes22(void) {
@@ -10255,9 +10212,6 @@ void he_AllocSale(AIJOB *e) {
   else
     gm_AddTime(&e->end, 0, good->workTime, 0);
 }
-
-void he_MessageBoxQuickjump(int a1, int a2, char *text, int fl, int a5, int a6,
-                            int a7, char *jump, char *text2);
 
 /* 0x553e90, the run handler of the sale event 2 (AIJOB.sale*; its init he_AllocSale sets it due after the good's
    production time): stage 0 goes to 1; stage 1, once due, sells the object obj of the building AIJOB.from
@@ -10812,8 +10766,6 @@ void he_SetCartSpeed(AIJOB *ev, AIOBJ *cart) {
   if (t->transportWeatherStage == 2)
     ch->walkSpeed = (float)(ch->walkSpeed * 0.8);
 }
-
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 
 /* 0x555350, the leg of the transport event 15 (AIJOB.transport*) of mode 2 (only the start a home), called by its run
    handler 0x556600 each round: the cart (gm_FindObjectInst; none: nothing) gets its speed (he_SetCartSpeed). The
@@ -11510,8 +11462,6 @@ void he_AllocMessageBox(AIJOB *ev) {
     he_FreeEvent(ev);
 }
 
-void sv_SelectPanelObject(struct AIBLD *o, int b, char *c);
-
 /* 0x557190, the run handler of the message box event 17 (AIJOB.msgBox*; allocated by he_AllocMessageBox), only for the player's
    own character while a game runs. Stage 0 opens the event window by the flavour flags: 2 a quick jump
    ("misc\EventMessagebox_QJ", with 1 "_QJ_BIG"; the news 0x1ba2 when the player stands at that building and its
@@ -11710,8 +11660,6 @@ void he_RunMessageBox(AIJOB *e) {
     return;
   }
 }
-
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c, struct AIJOB *g);
 
 /* 0x5578a0, the run handler of the slot order event 18 (AIJOB.slotOrder*, the type 0x12 message ai_BuySlots posts;
    allocated by he_AllocSlotOrderStore). Stage 0 goes on to 1. Stage 1, once due: with the workshop object (gm_FindById) and
@@ -12339,8 +12287,6 @@ void he_AllocSabotage(AIJOB *e) {
   s->sabotageSlot =
       cm_SendSpawnCharacter(0, e->from, -1, 0, 1, 0x174, "SABOTAGE");
 }
-
-int ord_DispatchOrder(int id, struct AICHAR *c, ORDMSG *m);
 
 /* 0x558f10, the run handler of the sabotage event 25 (AIJOB.sabotage*; allocated by he_AllocSabotage, which asks for the
    saboteur, "SABOTAGE"). Every stage waits while a cm request is pending (AIJOB.sabotageSlot). Stage 0: the spawned
@@ -14118,8 +14064,6 @@ void he_RunMasterExamPassed(AIJOB *e) {
   }
 }
 
-struct G15PLANT *veg_FindPlantId(struct G15PLANT *p, int id);
-
 /* 0x55d310, the allocation handler of the event type 0x27: the building +0xac (none: the record is freed) is asked for its
    skill 0x10 / 1, the due clock is now + 0x18 hours with its minute field cleared */
 void he_AllocEvent27(AIJOB *e) {
@@ -15139,8 +15083,6 @@ void he_AllocMarket(AIJOB *ev) {
 }
 #define HE_SUPERVISOR_MONEY                                                    \
   5120000 /* the market supervisor tops the player's money up to it */
-float gm_StockPrice(int p,
-                    int n); /* 0x4ffa10 (f3gm.c; f3gm.h does not declare it) */
 
 /* 0x55fa90, the run handler "he_RunMarktSupervisor" of the market event 0x3b (its alloc handler he_AllocMarket):
    without a market building, or past 20:00, the record is freed; it runs once per new minute count since its last
@@ -15663,7 +15605,6 @@ void he_AllocRansom(AIJOB *ev) {
 }
 
 struct AIBLD *gm_NearestBuilding(struct AIBLD *b, unsigned kind);
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b, float eps);
 
 /* 0x561190, the run handler of the ransom event 0x3d (AIJOB.ransom*, its alloc handler he_AllocRansom): stage 0 (no guild or
    victim: cancelled) makes the victim the guild's hostage when it holds none. A victim no longer held
@@ -18644,74 +18585,69 @@ void he_RunAlchemistDay(struct AIJOB *ev);
 void he_AllocSecretRoom(AIJOB *e);
 void he_RunSecretRoom(struct AIJOB *ev);
 void he_AllocEvent9a(struct AIJOB *ev);
-void he_FreeEventNow(AIJOB *r);
 void he_AllocDomizilEvent(AIJOB *e);
 void he_RunDomizilEvent(struct AIJOB *ev);
-void he_AllocHaunting(struct AIJOB *ev);
-void he_RunHaunting(struct AIJOB *ev);
-void he_AllocDecay(struct AIJOB *ev);
-void he_RunDecay(struct AIJOB *ev);
-void he_AllocPlunder(struct AIJOB *ev);
-void he_RunPlunder(struct AIJOB *ev);
-void he_PlunderTakePrice(int *a, AICHAR *c);
-void he_PlunderFailNews(int *a, AICHAR *c);
-void he_RunPlunderOffer(struct AIJOB *ev);
-void he_AllocMasterWork(struct AIJOB *ev);
-void he_RunMasterWork(struct AIJOB *ev);
-void he_AllocGraveCare(struct AIJOB *ev);
-void he_RunGraveCare(struct AIJOB *ev);
-void he_AllocDeathDue(struct AIJOB *ev);
-void he_RunDeathDue(struct AIJOB *ev);
-void he_AllocGraveTraining(struct AIJOB *ev);
-void he_RunGraveTraining(struct AIJOB *ev);
-void he_AllocMeeting(struct AIJOB *ev);
-void he_RunMeeting(struct AIJOB *ev);
-void he_AllocMeetingScene(struct AIJOB *ev);
-void he_RunMeetingScene(struct AIJOB *ev);
-void he_AllocPlunderOfferLease(struct AIJOB *ev);
-void he_AnswerGraveLease(struct AIJOB *ev);
-void he_ExamCancelled(struct AIJOB *ev);
-void he_RunGraveLease(struct AIJOB *ev);
-void he_AllocGraveyardWorkers(struct AIJOB *ev);
-void he_RunGraveyardWorkers(struct AIJOB *ev);
-void he_RunGraveyardTheft(struct AIJOB *ev);
-void he_AllocCouncil(struct AIJOB *ev);
-void he_RunCouncil(struct AIJOB *ev);
-void he_AllocGypsyApproach(struct AIJOB *ev);
-void he_RunGypsyApproach(struct AIJOB *ev);
-void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a);
-void he_GypsyDisease(AICHAR *pl, AICHAR *per);
-void he_GypsyRumour(AICHAR *pl, AICHAR *per);
-void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per);
-void he_GypsySwapSkills(AICHAR *pl, AICHAR *per);
-void he_GypsyCurse(AICHAR *pl, AICHAR *per);
-void he_GypsySlowdown(AICHAR *pl, AICHAR *per);
-void he_GypsyFee(AICHAR *pl, int a);
-void he_AllocGypsyCurse(struct AIJOB *ev);
-void he_RunGypsyCurse(struct AIJOB *ev);
-void he_AllocGypsySlowdown(struct AIJOB *ev);
-void he_RunGypsySlowdown(struct AIJOB *ev);
+void he_AllocHaunting(struct AIJOB *ev); /* 0x56fc50 */
+void he_RunHaunting(struct AIJOB *ev); /* 0x56fda0 */
+void he_AllocDecay(struct AIJOB *ev); /* 0x570130 */
+void he_RunDecay(struct AIJOB *ev); /* 0x5702e0 */
+void he_AllocPlunder(struct AIJOB *ev); /* 0x5706e0 */
+void he_RunPlunder(struct AIJOB *ev); /* 0x5707a0 */
+void he_PlunderTakePrice(int *a, AICHAR *c); /* 0x570bf0 */
+void he_PlunderFailNews(int *a, AICHAR *c); /* 0x570c70 */
+void he_RunPlunderOffer(struct AIJOB *ev); /* 0x570cc0 */
+void he_AllocMasterWork(struct AIJOB *ev); /* 0x570ef0 */
+void he_RunMasterWork(struct AIJOB *ev); /* 0x571000 */
+void he_AllocGraveCare(struct AIJOB *ev); /* 0x571550 */
+void he_RunGraveCare(struct AIJOB *ev); /* 0x571640 */
+void he_AllocDeathDue(struct AIJOB *ev); /* 0x571990 */
+void he_RunDeathDue(struct AIJOB *ev); /* 0x5719e0 */
+void he_AllocGraveTraining(struct AIJOB *ev); /* 0x571ac0 */
+void he_RunGraveTraining(struct AIJOB *ev); /* 0x571c30 */
+void he_AllocMeeting(struct AIJOB *ev); /* 0x571f60 */
+void he_RunMeeting(struct AIJOB *ev); /* 0x5725b0 */
+void he_AllocMeetingScene(struct AIJOB *ev); /* 0x5726a0 */
+void he_RunMeetingScene(struct AIJOB *ev); /* 0x5726b0 */
+void he_AllocPlunderOfferLease(struct AIJOB *ev); /* 0x572860 */
+void he_AnswerGraveLease(struct AIJOB *ev); /* 0x5728d0 */
+void he_ExamCancelled(struct AIJOB *ev); /* 0x5729c0 */
+void he_RunGraveLease(struct AIJOB *ev); /* 0x572a50 */
+void he_AllocGraveyardWorkers(struct AIJOB *ev); /* 0x572b90 */
+void he_RunGraveyardWorkers(struct AIJOB *ev); /* 0x572bf0 */
+void he_RunGraveyardTheft(struct AIJOB *ev); /* 0x572fd0 */
+void he_AllocCouncil(struct AIJOB *ev); /* 0x573280 */
+void he_RunCouncil(struct AIJOB *ev); /* 0x5732d0 */
+void he_AllocGypsyApproach(struct AIJOB *ev); /* 0x5734b0 */
+void he_RunGypsyApproach(struct AIJOB *ev); /* 0x573580 */
+void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per, int a); /* 0x5736d0 */
+void he_GypsyDisease(AICHAR *pl, AICHAR *per); /* 0x573760 */
+void he_GypsyRumour(AICHAR *pl, AICHAR *per); /* 0x573820 */
+void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per); /* 0x573970 */
+void he_GypsySwapSkills(AICHAR *pl, AICHAR *per); /* 0x573ae0 */
+void he_GypsyCurse(AICHAR *pl, AICHAR *per); /* 0x573c20 */
+void he_GypsySlowdown(AICHAR *pl, AICHAR *per); /* 0x573d30 */
+void he_GypsyFee(AICHAR *pl, int a); /* 0x573e30 */
+void he_AllocGypsyCurse(struct AIJOB *ev); /* 0x573f20 */
+void he_RunGypsyCurse(struct AIJOB *ev); /* 0x573fb0 */
+void he_AllocGypsySlowdown(struct AIJOB *ev); /* 0x574060 */
+void he_RunGypsySlowdown(struct AIJOB *ev); /* 0x5740d0 */
 int he_HasEvent9f(AICHAR *a);
-void he_AllocTrialScene(struct AIJOB *ev);
-void he_RunTrialScene(struct AIJOB *ev);
-void he_AllocMeeting4(struct AIJOB *ev);
-void he_RunCircusShow(struct AIJOB *ev);
-void he_CircusShowIncome(struct AIJOB *ev, int n);
-void he_AllocPettyLoss(struct AIJOB *ev);
-void he_RunPettyLoss(struct AIJOB *ev);
-void he_AllocEventGood(struct AIJOB *ev);
-void he_RunEventGood(struct AIJOB *ev);
-void he_GiveDomizilGood(AICHAR *per);
-void he_EventGoodMoney(AICHAR *per);
-void he_EventGoodRefund(AICHAR *per);
+void he_AllocTrialScene(struct AIJOB *ev); /* 0x574120 */
+void he_RunTrialScene(struct AIJOB *ev); /* 0x5743c0 */
+void he_AllocMeeting4(struct AIJOB *ev); /* 0x574550 */
+void he_RunCircusShow(struct AIJOB *ev); /* 0x5748d0 */
+void he_CircusShowIncome(struct AIJOB *ev, int n); /* 0x575030 */
+void he_AllocPettyLoss(struct AIJOB *ev); /* 0x575150 */
+void he_RunPettyLoss(struct AIJOB *ev); /* 0x5751e0 */
+void he_AllocEventGood(struct AIJOB *ev); /* 0x575320 */
+void he_RunEventGood(struct AIJOB *ev); /* 0x5753a0 */
+void he_GiveDomizilGood(AICHAR *per); /* 0x575430 */
+void he_EventGoodMoney(AICHAR *per); /* 0x575540 */
+void he_EventGoodRefund(AICHAR *per); /* 0x575570 */
 /* dcp unit split: the declarations that moved to he_b (copies: drop what he does not use) */
 float gm_MeanLiking(int c, int n, int *ids);
-void sv_CountGroupMembers(struct AIJOB *g);
-int he_HasEvent9f(AICHAR *a);
-void init_HookObject(struct D3OBJECT *o, void *p, int kind);
 struct D3OBJECT *
 ai_FindNearestObject(float *ref, struct D3OBJECT **list); /* 0x58fe10 (lc.c) */
-void sv_CreateBanners(struct AIBLD *b);
 void snd_PlayFavourComment(void);
 void ai_DomizilMessage(struct AICHAR *to, struct AICHAR *c, struct AIOBJ *obj,
                        int level);
@@ -18731,31 +18667,6 @@ void ai_DomizilMessagePlace(struct AICHAR *to, struct AICHAR *c,
 /* clang-format off */
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, int lo, float hi, int *out);   /* 0x4a63f0, @original: lo an int, as this unit declares it above */
 /* clang-format on */
-void he_FreeEventNow(AIJOB *r);                   /* 0x56f040 */
-void he_AllocHaunting(struct AIJOB *ev);          /* 0x56fc50 */
-void he_RunHaunting(struct AIJOB *ev);            /* 0x56fda0 */
-void he_AllocDecay(struct AIJOB *ev);             /* 0x570130 */
-void he_RunDecay(struct AIJOB *ev);               /* 0x5702e0 */
-void he_AllocMasterWork(struct AIJOB *ev);        /* 0x570ef0 */
-void he_RunMasterWork(struct AIJOB *ev);          /* 0x571000 */
-void he_AllocGraveCare(struct AIJOB *ev);         /* 0x571550 */
-void he_RunGraveCare(struct AIJOB *ev);           /* 0x571640 */
-void he_AllocPlunder(struct AIJOB *ev);           /* 0x5706e0 */
-void he_RunPlunder(struct AIJOB *ev);             /* 0x5707a0 */
-void he_AllocPlunderOfferLease(struct AIJOB *ev); /* 0x572860 */
-void he_RunPlunderOffer(struct AIJOB *ev);        /* 0x570cc0 */
-void he_AllocDeathDue(struct AIJOB *ev);          /* 0x571990 */
-void he_RunDeathDue(struct AIJOB *ev);            /* 0x5719e0 */
-void he_AllocGraveTraining(struct AIJOB *ev);     /* 0x571ac0 */
-void he_RunGraveTraining(struct AIJOB *ev);       /* 0x571c30 */
-void he_AllocMeeting(struct AIJOB *ev);           /* 0x571f60 */
-void he_RunMeeting(struct AIJOB *ev);             /* 0x5725b0 */
-void he_AllocMeetingScene(struct AIJOB *ev);      /* 0x5726a0 */
-void he_RunMeetingScene(struct AIJOB *ev);        /* 0x5726b0 */
-void he_AllocGraveyardWorkers(struct AIJOB *ev);  /* 0x572b90 */
-void he_RunGraveyardWorkers(struct AIJOB *ev);    /* 0x572bf0 */
-void he_RunGraveyardTheft(struct AIJOB *ev);      /* 0x572fd0 */
-void he_RunGraveLease(struct AIJOB *ev);          /* 0x572a50 */
 void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2,
                      struct AITIME *param_3);         /* 0x5a9910 */
 void ai_TellGraveWorkSuccess(struct AICHAR *param_1); /* 0x5a9990 */
@@ -18764,72 +18675,18 @@ void ai_GraveyardMessage(struct AICHAR *to, struct AICHAR *worker,
                          struct AICHAR *other, int detail); /* 0x5a9a30 */
 void ai_GraveyardMessagePlain(struct AICHAR *param_1, struct AICHAR *param_2,
                               struct AICHAR *param_3); /* 0x5a9af0 */
-int ai_PickActionBuildings(struct AICHAR *p, int a, __int64 mask, float lo,
-                           float hi, unsigned char n, int *out); /* 0x4a6570 */
-int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n,
-                             unsigned short *ids, float lo, float hi,
-                             unsigned short *id); /* 0x4a5d30 */
-void he_PlunderTakePrice(int *a, AICHAR *c);      /* 0x570bf0 */
-void he_PlunderFailNews(int *a, AICHAR *c);       /* 0x570c70 */
-int ai_PickPartnerRandomWalk(struct AICHAR *p, unsigned int fl, int n,
-                             unsigned short *ids, float lo, float hi,
-                             unsigned short *id); /* 0x4a5d30 */
-void he_PlunderTakePrice(int *a, AICHAR *c);      /* 0x570bf0 */
-void he_PlunderFailNews(int *a, AICHAR *c);       /* 0x570c70 */
-int sv_UsedGroupSlots(struct AIJOB *g);           /* 0x5241b0 */
-struct GVENTRY *gv_ListEntry(struct GVYARD *r, int i,
-                             unsigned char n); /* 0x4ef570 */
-void ai_HauntingText(struct AICHAR *param_1, struct AICHAR *param_2,
-                     struct AITIME *param_3); /* 0x5a9910 */
 void ai_ShowGraveOrderExtended(struct AICHAR *param_1, struct AICHAR *param_2,
                                int param_3, int param_4, int param_5,
                                int param_6); /* 0x5a97e0 */
 void ai_ShowGraveOrderCancelled(struct AICHAR *param_1, struct AICHAR *param_2,
                                 int param_3, int param_4); /* 0x5a9880 */
-int gv_OrderExtendGrave(struct AICHAR *c, struct AIBLD *o, int v, int b,
-                        short s, int x);       /* 0x4f0700 */
-void he_AnswerGraveLease(struct AIJOB *ev);    /* 0x5728d0 */
-void he_ExamCancelled(struct AIJOB *ev);       /* 0x5729c0 */
-void ai_EndCharExtra(struct AICHAR *o, int f); /* 0x587c40 */
-int ls_GetLanguage();                          /* 0x5190a0 */
-void he_AllocCouncil(struct AIJOB *ev);        /* 0x573280 */
-void he_RunCouncil(struct AIJOB *ev);          /* 0x5732d0 */
 void hmt_Update();                             /* 0x4ace40, hmt_Update */
 void hmt_Begin();                              /* 0x4ad0a0, hmt_Begin */
 void hmt_Election();                           /* 0x4ad1c0, hmt_Election */
 void hmt_ClearOffices(void);                   /* 0x4ad510 */
 void hmt_DecideElection();                     /* 0x4ad580 */
-void he_AllocGypsyApproach(struct AIJOB *ev);  /* 0x5734b0 */
-void he_RunGypsyApproach(struct AIJOB *ev);    /* 0x573580 */
-void he_AllocGypsyCurse(struct AIJOB *ev);     /* 0x573f20 */
-void he_RunGypsyCurse(struct AIJOB *ev);       /* 0x573fb0 */
-void he_AllocGypsySlowdown(struct AIJOB *ev);  /* 0x574060 */
-void he_RunGypsySlowdown(struct AIJOB *ev);    /* 0x5740d0 */
-void he_AllocTrialScene(struct AIJOB *ev);     /* 0x574120 */
-void he_RunTrialScene(struct AIJOB *ev);       /* 0x5743c0 */
-void he_AllocMeeting4(struct AIJOB *ev);       /* 0x574550 */
-void he_RunCircusShow(struct AIJOB *ev);       /* 0x5748d0 */
-void he_AllocPettyLoss(struct AIJOB *ev);      /* 0x575150 */
-void he_RunPettyLoss(struct AIJOB *ev);        /* 0x5751e0 */
-void he_AllocEventGood(struct AIJOB *ev);      /* 0x575320 */
-void he_RunEventGood(struct AIJOB *ev);        /* 0x5753a0 */
-void he_GypsyApproach(struct AICHAR *pl, struct AICHAR *per,
-                      int a);                      /* 0x5736d0 */
-void he_GypsyFee(AICHAR *pl, int a);               /* 0x573e30 */
-void he_GypsyDisease(AICHAR *pl, AICHAR *per);     /* 0x573760 */
-void he_GypsyRumour(AICHAR *pl, AICHAR *per);      /* 0x573820 */
-void he_GypsyWorkerQuits(AICHAR *pl, AICHAR *per); /* 0x573970 */
-void he_GypsySwapSkills(AICHAR *pl, AICHAR *per);  /* 0x573ae0 */
-void he_GypsyCurse(AICHAR *pl, AICHAR *per);       /* 0x573c20 */
-void he_GypsySlowdown(AICHAR *pl, AICHAR *per);    /* 0x573d30 */
-void sv_MoveToGroup(struct AIBLD *o, struct AIOBJ *it, int c,
-                    struct AIJOB *g); /* 0x524260, the group register */
-void he_CircusShowIncome(struct AIJOB *ev, int n); /* 0x575030 */
 unsigned short
 ai_RandomDomizilGoodNotIn(int param_1, unsigned short *param_2); /* 0x5a9e90 */
-void he_GiveDomizilGood(AICHAR *per);                            /* 0x575430 */
-void he_EventGoodMoney(AICHAR *per);                             /* 0x575540 */
-void he_EventGoodRefund(AICHAR *per);                            /* 0x575570 */
 /* unlinked: the empty alloc / run handler of the event types without one; LINK folds it (/OPT:ICF) into
    d3io_NoopCallback, 0x44ee40, where the original's registrations (he_SetEventHandlers) point */
 void he_NoHandler(AIJOB *ev) {}
