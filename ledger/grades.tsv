@@ -2536,7 +2536,7 @@ exe	0x004e0040	cm_ExecutionAftermath	cmscene	byte	readable
 exe	0x004e01e0	cm_RunExecution	cmscene	byte	readable		
 exe	0x004e0580	cm_CheckWedding	cmscene	byte	readable		
 exe	0x004e06d0	cm_EndWedding	cmscene	byte	readable		
-exe	0x004e0770	cm_RunWedding	cmscene	shape	readable	deep	
+exe	0x004e0770	cm_RunWedding	cmscene	byte	readable		
 exe	0x004e0e90	cm_CheckBirth	cmscene	byte	readable		
 exe	0x004e0f70	cm_RunBirth	cmscene	byte	readable		
 exe	0x004e1220	cm_DeathSceneCheck	cmscene	byte	readable		
@@ -4496,7 +4496,7 @@ exe	0x005c2490	ai_ShowWorkSettingsPage	lcamt	shape	readable	deep
 exe	0x005c26a0	ai_MasterLetterNoticeWindow	lcamt	byte	readable		
 exe	0x005c2730	ai_MasterLetterKindWindow	lcamt	byte	readable		
 exe	0x005c27b0	ai_MasterHireWindow	lcamt	byte	readable		
-exe	0x005c2a10	ai_ShowSettingGoods	lcamt	shape	readable	deep	
+exe	0x005c2a10	ai_ShowSettingGoods	lcamt	byte	readable		
 exe	0x005c2b90	ai_MasterLetterSettings	lcamt	byte	readable		
 exe	0x005c3200	ai_MasterLetterWindow	lcamt	byte	readable		
 exe	0x005c33c0	ai_PassesPartnerFilter	lcamt	byte	readable		
@@ -4527,9 +4527,9 @@ exe	0x005c8ef0	ai_DivorceDialog	lcamt	byte	readable
 exe	0x005c9290	ai_BlackmailWindow	lcamt	byte	readable		
 exe	0x005c9550	ai_BlackmailBuildingListener	lcamt	byte	readable		
 exe	0x005c9990	ai_BlackmailContactWindow	lcamt	byte	readable		
-exe	0x005c9c50	ai_BlackmailContact	lcamt	shape	readable	deep	
+exe	0x005c9c50	ai_BlackmailContact	lcamt	byte	readable		
 exe	0x005c9df0	ai_IntimidateWindow	lcamt	byte	readable		
-exe	0x005c9ff0	ai_IntimidateContact	lcamt	shape	readable	deep	
+exe	0x005c9ff0	ai_IntimidateContact	lcamt	byte	readable		
 exe	0x005ca150	ai_LawPrivilegeWindow	lcamt	byte	readable		
 exe	0x005ca560	ai_DismissOfficeAsk	lcamt	byte	readable		
 exe	0x005ca860	ai_MisappropriationWindow	lcamt	byte	readable		
