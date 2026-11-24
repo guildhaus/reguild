@@ -4673,7 +4673,10 @@ void gm_Shuffle(unsigned n, int *out) {
 char gm_RandomAge(unsigned char n) {
   char r;
   /* @original: the float compare reads the parameter's slot (mov eax,[n]; and eax,0xff)
-     while n itself is held as a byte in bl; read through a pointer it does the same */
+     while n itself is held as a byte in bl; read through a pointer it does the same.
+     Plain forms tried (all compile to mov eax,ebx): K&R `unsigned char n;` / `char n;`,
+     an int parameter, a float local, `n >= 42.0f`, a byte copy of n in a local
+     (copy-propagated), if/else and a lim local (worse) */
   unsigned char *p = &n;
 
   if (n == 0) {
