@@ -821,21 +821,29 @@ int ai_DecideAcquittal(AICHAR *ch, AIPLAN *q) {
 }
 /* 0x4945c0, the rank (0..7) of the plan's score rounded minus one: 4..5 -> 1, 6..7 -> 2 .. 14..16 -> 6, more -> 7; one less
    for a character with flag 0x22e
-   @deep deep s34: two hunks. (1) regs: the original pops n (or r) before q: n / r esi, q edi. c2trace: q#1
-   18 (block 0, P 3, three refs), r#1 17 (seven case stores at P 1, -1 through the ai_InventoryHas block,
-   r-- and return), n#1 16 (def +6, n++ +2, switch +8); tie keys n 1c > q 1b, r 3f > q 1b, so n +2 or r +1
-   or q -2 decides it. flip.py --want 'mov edi, _q': only constant changes keep the count (0x22e -> 7, r =
-   1 -> 0, the clamp's 0 -> 1: a constant used twice becomes a candidate and raises P of r's blocks) - no
-   ordinary form found yet. A float local t = q->score gives the registers (q 2 refs) but the x87 code
-   differs (fpu 14: the original reads q->score twice). = control: n reused as the rank, the clamp into a
-   named r / k, n = n < 0 ? 0 : n, n >= 0 ? n : 0, n = n + 1, r = r - 1, a break after default; worse: if
-   (n < 0) n = 0 (17 / 98 bytes), n > 0 ? n : 0, return r - 1 / ?: forms (22), c first or between (M8), fl
-   first, fl double (M10), (float)floor. (2) order: fstp fl after push edx in the original (both before
-   gm_FindChar); unchanged by the t local. climb round 1: only the int t (meaning change). prior: read
-   against the original: same statements, same switch (tables equal), same calls and constants; renamed
-   AIPLAN.unk04 to score. Left is allocation: esi/edi swapped (original q in edi, n in esi; ours q in esi,
-   n in edi) which moves 'mov reg,[esp+arg]' after 'push edi' in the original, plus the fstp [esp+0x20]
-   scheduled after 'push edx' (0x4945f3..0x4945f7). Same instruction count. */
+   @deep s53: fl = q->score - floor(q->score) without the (float) cast: the fstp fl after push edx as the
+   original (18 -> 16 ins, kept). Left: q esi / n edi swapped (original q edi, n and r esi). c2trace
+   --prio: q 18 (3 refs in block 0, P 3 = q, n, c), r 17, n 16 (def 6 in block 0, n++ 2 in block 1 P 1, the
+   switch dispatch 8 in block 2 P 2); n must reach 18 (it wins the tie against q) so that n takes esi first
+   and q goes to edi (r alone first does not help: q then joins esi too). Proof of mechanism: switch (n < 0
+   ? (n = 0) : n) gives the registers (branchy clamp, 12 ins). flip --want 'mov edi, DWORD PTR _q' on the
+   kept text: only shared constants (clamp 0 -> 1, r = 1 -> 0, 0x22e -> 7: a constant used twice is a
+   candidate and raises P of the switch / case blocks), all code 2 off. = control: r = 0 / 1 / 7 dead
+   stores at the declaration, the top, before the if or the switch (eliminated), n = n + 1, n += 1, r -= 1,
+   != 0 on the InventoryHas test, n >= 0 ? n : 0, switch (n = clamp), switch (r = clamp), cases 0..3 as r =
+   0; return r. Worse: n += fl >= 0.5f ? 1 : 0, !(fl < 0.5f), c after the if (code), double fl (M10), the
+   (float) cast on floor. prior: deep s34: two hunks. (1) regs: the original pops n (or r) before q: n / r
+   esi, q edi. c2trace: q#1 18 (block 0, P 3, three refs), r#1 17 (seven case stores at P 1, -1 through the
+   ai_InventoryHas block, r-- and return), n#1 16 (def +6, n++ +2, switch +8); tie keys n 1c > q 1b, r 3f >
+   q 1b, so n +2 or r +1 or q -2 decides it. flip.py --want 'mov edi, _q': only constant changes keep the
+   count (0x22e -> 7, r = 1 -> 0, the clamp's 0 -> 1: a constant used twice becomes a candidate and raises
+   P of r's blocks) - no ordinary form found yet. A float local t = q->score gives the registers (q 2 refs)
+   but the x87 code differs (fpu 14: the original reads q->score twice). = control: n reused as the rank,
+   the clamp into a named r / k, n = n < 0 ? 0 : n, n >= 0 ? n : 0, n = n + 1, r = r - 1, a break after
+   default; worse: if (n < 0) n = 0 (17 / 98 bytes), n > 0 ? n : 0, return r - 1 / ?: forms (22), c first
+   or between (M8), fl first, fl double (M10), (float)floor. (2) order: fstp fl after push edx in the
+   original (both before gm_FindChar); unchanged by the t local. climb round 1: only the int t (meaning
+   change). */
 
 int ai_PlanRank(AIPLAN *q) {
   int n, r;
@@ -843,7 +851,7 @@ int ai_PlanRank(AIPLAN *q) {
   AICHAR *c;
 
   n = (int)(q->score - 1.0f);
-  fl = (float)(q->score - floor(q->score));
+  fl = q->score - floor(q->score);
   c = gm_FindChar(q->c18);
   if (fl >= 0.5f)
     n++;
