@@ -738,22 +738,16 @@ void hmt_FillCouncils(void) {
     }
   }
 }
-/* 0x4ada80, loads the hmt state from the savegame f; on failure it is reset; 1 or 0
-   @deep deep s26: every exit form is one code (19 variants): and / or conditions, the reset in the then /
-   else arm, return in either arm or after, nested ifs, goto fail, a ret variable assigned in both arms, a
-   ret chain (if (ret) ret = ls_Read(..)), a static __inline reset helper; only the ok-flag forms differ
-   (14 / 18). c2tail --il: ours has the success return (mov eax,1; jmp exit) first and the reset block
-   falling into the exit label, VC6 then copies the exit into the success arm; the original's IL had the
-   success block in front of the exit label (last test jne over the inline reset block). Left: that block
-   order (tail 5, code 3). prior: code hunks 8: the original's success return is out of line (jne over the
-   success block), ours returns inline (je); if / else with an empty then tried before, no change
-   (match-deep) */
+/* 0x4ada80, loads the hmt state from the savegame f; on failure it is reset; 1 or 0 */
 
 int hmt_Load(void *f, int version) {
+  int ok = 0;
+
   if (ls_Read(&hmt_CurrentPerson, 4, 1, f) && ls_Read(&hmt_Person, 4, 1, f) &&
       ls_Read(&hmt_CurrentEvent, 4, 1, f) && ls_Read(&hmt_Event, 4, 1, f) &&
-      ls_Read(&hmt_PendingElection, 4, 1, f)) {
-  } else {
+      ls_Read(&hmt_PendingElection, 4, 1, f))
+    ok = 1;
+  if (!ok) {
     hmt_CurrentPerson = -1;
     hmt_CurrentEvent = -1;
     hmt_Person = -1;
