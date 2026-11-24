@@ -4178,7 +4178,7 @@ exe	0x00594e50	ai_CriminalContact	lc	byte	readable
 exe	0x005950e0	ai_FarTradeContact	lc	byte	readable		
 exe	0x00595170	ai_SmithyContact	lc	byte	readable		
 exe	0x00595330	ai_CarpenterContact	lc	byte	readable		
-exe	0x00595480	ai_TradeSearchWindow	lc	shape	readable		
+exe	0x00595480	ai_TradeSearchWindow	lc	byte	readable		
 exe	0x00595a00	ai_AquariumSearchWindow	lc	byte	readable		
 exe	0x00595ed0	ai_PerfumeryContact	lc	byte	readable		
 exe	0x00596060	ai_IdleContact	lc	byte	readable		
@@ -4464,7 +4464,7 @@ exe	0x005bea00	ai_SpecialAmountList	lcamt	byte	readable
 exe	0x005bea50	ai_SpecialAmountListWindow	lcamt	byte	readable		
 exe	0x005bf0d0	ai_FillFamilyTab	lcamt	byte	readable		
 exe	0x005bf300	ai_FillFriendsTab	lcamt	byte	readable		
-exe	0x005bf4f0	ai_FillEnemiesTab	lcamt	shape	readable		
+exe	0x005bf4f0	ai_FillEnemiesTab	lcamt	byte	readable		
 exe	0x005bf6f0	ai_FillLoversTab	lcamt	byte	readable		
 exe	0x005bf7c0	ai_FillWeddingTab	lcamt	byte	readable		
 exe	0x005bfa90	ai_FillQuarrelTab	lcamt	byte	readable		
