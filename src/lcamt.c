@@ -8290,15 +8290,7 @@ void cm_SendSetJob(int id, int job); /* 0x4c59b0 (cm.h, not included) */
    blocks it (he_FindEvent) a click only tells 0x15bd; else a click on another profession asks 0x1d37 for its price
    (4 for one me holds a title in, else 8; sv_CheckMoney) and on yes sets me's job to its title (or the group's first,
    gm_TitleNumber) and pays (cm_SendSetJob, cm_SendMoneyDelta). The campaign step 9 brackets the window. Returns 0x10
-   once me changed, else 0 (and 0 for any other kind)
-   @deep deep s35: the caption copy is strcpy (the hand while ((*d++ = *s++)) loop scheduled inc ecx after
-   the store; strcpy gives the original's order): 21 -> 19 ins, s / d dropped. Left: the 0x15bd arm's
-   ternary: the original computes (sex ? 0x18f : 0x130) into edx, copies it to esi and loads jobId into edx
-   (index in ecx); ours keeps the index in esi and the ternary in ecx. = (same code): the operand orders
-   (lc.c ai_MasterExamWindow's jobId - 1 + (..) form, + .. - 1, (.. - 1) + ..), != 0, a block / function
-   int t, job / w / h / dx / i / obj / cost / group for the ternary (all fold); base = the ternary gives
-   the original's registers but stores base and moves two slots (17 ins, draft); win for it: 1 ins (its
-   store), but win is read after the loop. ai_MasterExamWindow (lc.c) has the same arm left with a note. */
+   once me changed, else 0 (and 0 for any other kind) */
 
 int ai_ChangeProfessionWindow(AICHAR *me, ORDMSG *m) {
   int win;
@@ -8361,9 +8353,14 @@ int ai_ChangeProfessionWindow(AICHAR *me, ORDMSG *m) {
         sv_PopRequest = 1;
       if (dm_L.lclick && d2_PointerObj != -1) {
         if (he_FindEvent(2, 2, ai_PlayerId, 0, 0x26) != 0) {
+          int titles;
+
+          if (ai_Chars[ai_PlayerId].sex)
+            titles = 0x18f;
+          else
+            titles = 0x130;
           txt_Format(caption, 0x15bd, ai_PlayerId,
-                     (ai_Chars[ai_PlayerId].sex ? 0x18f : 0x130) +
-                         ai_Chars[ai_PlayerId].jobId - 1);
+                     titles + ai_Chars[ai_PlayerId].jobId - 1);
           sv_MessageBox((intptr_t)caption, 4);
         } else {
           d2_EnableViewObjects(win, 0);
