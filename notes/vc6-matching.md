@@ -2012,6 +2012,12 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     local taken before the fill AND at least one use still spelled `ai_Chars[i]` (any of 13 of 15 masks) keeps
     the offset CSE ahead of the fill: byte. c2trace showed the const 0 piece (fill .. first return) losing eax to
     the chain temps placed after the fill.
+  - **The add's destination of a call result plus a field, decided by a product local** (gm_CharacterWages 16 ->
+    byte, the s33 "add's destination" note): `r = util_Random(..); f(netId, .., (r + level) * 0x1900)` adds into
+    level's register (every operand order, product spelling and initializer = one code); the call inline in the
+    sum adds into eax but rotates the products and the netId load; the amount as an int local computed in the
+    statement before the call, `extra = (util_Random(level + 2) + level) * 0x1900; f(netId, -1, 0, extra);`, is
+    byte (the netId load hoisted into edx before the add). The reverse of the s61 `factor * 25` lever: try both.
 
 - **Deep s61 (4 byte: ai_UseGoodCharmPartner, ai_ChangeProfessionWindow, ai_UseGoodRaiseRelation, cm_WaitTicks)**:
   - **A constant race decided by where a flag is set and the fill order** (ai_UseGoodCharmPartner 8 -> byte): the
