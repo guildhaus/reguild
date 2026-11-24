@@ -3811,7 +3811,7 @@ exe	0x00568aa0	he_EndKind23Events	he_b	byte	readable
 exe	0x00568ae0	he_AllocIncomeEvent	he_b	byte	readable		
 exe	0x00568be0	he_RunIncomeEvent	he_b	byte	readable		
 exe	0x005690c0	he_AllocProduktion	he_b	byte	readable		
-exe	0x00569210	he_RunProduktion	he_b	shape	readable	deep	
+exe	0x00569210	he_RunProduktion	he_b	byte	readable		
 exe	0x0056a100	he_AllocSearchEvent	he_b	byte	readable		
 exe	0x0056a170	he_RunSearchEvent	he_b	byte	readable		
 exe	0x0056a360	he_AllocSearch9	he_b	byte	readable		
@@ -3879,7 +3879,7 @@ exe	0x005719e0	he_RunDeathDue	he_b	byte	readable
 exe	0x00571ac0	he_AllocGraveTraining	he_b	byte	readable		
 exe	0x00571c30	he_RunGraveTraining	he_b	byte	readable		
 exe	0x00571f60	he_AllocMeeting	he_b	byte	readable		
-exe	0x005720f0	he_CatchMeetingDisease	he_b	shape	readable	deep	
+exe	0x005720f0	he_CatchMeetingDisease	he_b	byte	readable		
 exe	0x00572310	he_SpreadMeetingDisease	he_b	byte	readable		
 exe	0x005725b0	he_RunMeeting	he_b	byte	readable		
 exe	0x005726a0	he_AllocMeetingScene	he_b	byte	readable		
@@ -4092,7 +4092,7 @@ exe	0x00587de0	ai_ClearTurnTable	svgrave	byte	readable
 exe	0x00587e00	ai_HandleItemDrag	svtip	byte	readable		
 exe	0x00588160	ai_OpenBuildingTooltip	svtip	byte	readable		
 exe	0x00588310	ai_OpenItemTooltip	svtip	draft	readable	deep	
-exe	0x00588950	ai_OpenUpgradeTooltip	svtip	shape	readable	deep	
+exe	0x00588950	ai_OpenUpgradeTooltip	svtip	byte	readable		
 exe	0x00588bb0	ai_OpenHelpTooltip	svtip	byte	readable		
 exe	0x00588c60	ai_OpenCharTooltip	svtip	byte	readable		
 exe	0x005890c0	ai_CharInfoWindow	svtip	byte	readable		
@@ -4101,7 +4101,7 @@ exe	0x00589410	ai_InitBookmarks	svtip	byte	readable
 exe	0x00589450	ai_ValidateBookmarks	svtip	byte	readable		
 exe	0x005894d0	ai_SelectBookmark	svtip	byte	readable		
 exe	0x00589570	ai_SetBookmark	svtip	byte	readable		
-exe	0x00589670	ai_BookmarkWindow	svtip	shape	readable	deep	
+exe	0x00589670	ai_BookmarkWindow	svtip	byte	readable		
 exe	0x00589aa0	ai_SaveBookmarks	svtip	byte	readable		
 exe	0x00589b30	ai_LoadBookmarks	svtip	byte	readable		
 exe	0x00589bc0	ai_SaveScreenshot	svtip	byte	readable		
