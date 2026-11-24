@@ -4710,21 +4710,22 @@ void d2_RaiseViewWindows(int v) {
    returns the number of the view, or -1
    @deep s67: kept (618 -> 391 ins, frame 0x248 = the original's): strcmp(r->name[k], ch_EmptyName) (the
    original's general inline strcmp against the pooled ""; a literal gives repe cmpsb); the view scan on i
-   (byte: one -1 exit, view stored once); the text test as one && condition (type read from memory, as the
+   (byte: one -1 exit, view stored once); the text test as one && condition (type from memory, as the
    original); ww->x + ww->w > d2_ScreenW; D2FORM2 *f2 = &d2_Forms2[i] for the version-2 parent / bg / alpha
-   (gives the original's F2 IV base on .parent; with d2_Forms2[i].f the forwarded creation reads pull it to
-   +6/+8); version 0 split: the parent lookup in the ver chain, the creation in a second if (ver == 0)
-   after it with the parent test spelled differently (r cast; the same spelling = VC6 threads it): the
-   original's layout; the font lookup as FindPic in both arms of an if/else; margins stored ml, mr, mt, mb.
-   Left: (1) F0 IV base: ours +8 (flags), the original +0; fields via r give +6/+8, via d2_Forms0[i].h / a
-   f0 pointer give parent; f0 pointers / f0++ loops / union / casts / volatile r: never 0. (2) the k loop:
-   the original's IV on kind (+0xd90), the post-loop key block laid between the latch and the 0x41/0x45
-   tests, r spilled (slot [esp+0x18], reloaded into edi; name IV in ebx); ours: type IV, tests before the
-   latch, r in ebx all through, name IV in [esp+0x10]. A type local (t = r->type[k] before the 0x43 test,
-   used for 0x43/0x41/0x45) gives kind + the layout (climb best 332) but compares 0x43 from a register (the
-   original: from memory) - no spelling found that keeps the memory compare (t before 0x40 / after 0x43 /
-   switch / per-arm stores / nested 0x43 if: no). climb --rounds 4 --beam 6 (s67): only the t local,
-   nwins++ before win =, end-store moves. prior: s66 fix: the original reads every record field after the
+   (the original's F2 IV base on .parent; d2_Forms2[i].f spellings let the forwarded creation reads pull it
+   to +6/+8); version 0 split: the parent lookup in the ver chain, the creation in a second if (ver == 0)
+   after it, its parent test spelled differently (r cast; the same spelling = VC6 threads it): the
+   original's layout; the font lookup as FindPic in both arms; margins ml, mr, mt, mb. Left: (1) F0 IV
+   base: ours +8, the original +0 (fields via r: +6/+8; via d2_Forms0[i].h or an f0 pointer: parent; f0++
+   loops, union, casts, volatile r, r position: never 0; flip: no single change). (2) k loop: the
+   original's IV on kind (+0xd90), key block laid between the latch and the 0x41/0x45 tests, r split (slot
+   [esp+0x18], reloaded into edi; ix esi, name ebx, kind ebp); ours: type IV, tests before the latch, r in
+   ebx all through, name IV in [esp+0x10]. Everything that moves it is a meaning change or a probe: a type
+   local used for 0x43/0x41/0x45 (kind + layout, climb best 332, but 0x43 from a register), no slider fl =
+   kind (kind + layout), one more name reference in the text block (r spilled, registers permuted), switch
+   / per-arm stores (kind, other layout); flip for 'lea ebp,[edi+0xd90]': no single change. Neutral: t
+   before 0x40 / 0x41 only, a name pointer local, block-scoped r / f2 / pww, the 4-statement order before
+   the k loop, do/while, nested 0x43 test. prior: s66 fix: the original reads every record field after the
    window creation through r (r's slot [esp+0x18] reloaded into edi/ebx): the version-2 font / pic / m /
    frame (ebx = r), the slider length slen[k] ([k + r + 0xf1c], so a version-0 form reads it from the
    Forms0 record, we read d2_Forms2[i]: meaning fix), the version-0 margins / font / bgpic ([edi+0xe9c..]
