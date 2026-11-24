@@ -2130,11 +2130,11 @@ D3PARTSYS *d3t_CreateSmoke(void *parent, D3VECTOR *pos, int count, float size,
   return ps;
 }
 /* 0x416550, callback of d3t_CreateEarth.
-Clods are thrown up once, bounce on the ground at v00.w and fade out. @deep deep s48: c2dag of the c-copy block: c.a's load (h 6) outranks the tex load (h 5) because its and ebx,0xff has a flags edge into the tex cmp; the original issues the tex load first. Rounds: frames as ?: of the tex test with c / mask before or after (5 / 13), unsigned char mask (80), c / c, mask, frames as block locals of the flag block (= control), mask = ps->color24.a (74), mask = c.a & 0xff (= control), tex != 0 && frames != 0 (4), frames >= 1 (6), initgen (= 0 initializers on every local): all = control; the p walks as index loops with p = &ps->particles[i] (frame +4, 11..37). Left: the 2-ins load order at 0x41657c. prior: deep s29: the fade value is no local: p->start.x -= dt * ps->v00.z; if (p->start.x > 0.0) p->a = (unsigned char)p->start.x; - VC6's CSE temp of the stored field sits in memory (fst / fld / fld, packed with s, dead in the ps slot): slots 22 -> byte there (the volatile float a was the old stand-in; a plain float a at function or block scope lifts it onto the x87 stack, draft 9). Left (2 ins, order): the original loads ps->tex (mov eax,[edi+0xd4]) before c.a (mov ebx,[esp+0x1f]; and ebx,0xff) in the block after the c copy; ours c.a first. Tried: all 12 orders of flags / frames / c / mask (c before mask): = or draft; mask = c.a after the frames if (the load moves to the join block, 4 ins); if / else for frames (5); a tex local (=), tex local first (draft 14); != 0 / != NULL spellings; unsigned mask (=); climb 1 round from the field form: nothing. */
+Clods are thrown up once, bounce on the ground at v00.w and fade out. */
 
 int d3t_EarthCB(D3PARTSYS *ps, unsigned long time) {
   D3PARTICLE *p;
-  D3COLOR c;
+  D3COLORU c;
   unsigned int frames;
   int mask, i, dead;
   float len, s, k, dt;
@@ -2142,15 +2142,15 @@ int d3t_EarthCB(D3PARTSYS *ps, unsigned long time) {
   if (ps->flags & 1) {
     ps->flags &= ~1;
     frames = 1;
-    c = ps->color24;
-    mask = c.a;
+    c.col = ps->color24.col;
+    mask = c.c.a;
     if (ps->tex && ps->tex->frames > 0)
       frames = ps->tex->frames;
     for (i = 0, p = ps->particles; i < ps->count; i++, p++) {
       if (!(p->flags & 1)) {
-        p->r = (rand() & mask) + c.r;
-        p->g = (rand() & mask) + c.g;
-        p->b = (rand() & mask) + c.b;
+        p->r = (rand() & mask) + c.c.r;
+        p->g = (rand() & mask) + c.c.g;
+        p->b = (rand() & mask) + c.c.b;
         p->frame = i % frames;
         p->pos.x = (float)((float)rand() / RAND_MAX * 4.0) - 2.0f;
         p->pos.y = (float)((float)rand() / RAND_MAX) * 1.5f;
@@ -2230,7 +2230,7 @@ D3PARTSYS *d3t_CreateEarth(void *parent, D3VECTOR *pos, int count, float size,
     ps->v10.y = f;
     ps->v10.z = g;
     ps->flags = 1;
-    ps->color24 = color;
+    ps->color24.c = color;
   }
   return ps;
 }

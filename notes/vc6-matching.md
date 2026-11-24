@@ -3973,6 +3973,12 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   below x / z (ch_InitWalk 30 ins -> byte; s38's `int t[3]` + `(float *)&t[2]` matched the frame but
   escaped the aggregate through the external d3_GetHeightAt, which ordered the pointer load after its
   stores). A slot an original call reads as value AND passes by address = try one local per role first.
+- **(Order) a byte field's `mov ebx,[c+3]; and ebx,0xff` issued before an unrelated pointer load, right after
+  a 4-byte colour struct copy `c = ps->color24; mask = c.a;`**: the copy was the dword member of a union
+  (`D3COLORU c; c.col = ps->color24.col; mask = c.c.a;`, the field typed D3COLORU in the struct): a dword
+  store into the union leaves the byte load's height below the other load's (d3t_EarthCB 2 ins -> byte; s29
+  and s48 had tried 30+ spellings of mask / frames / the tex test). A struct copy and a dword copy are other
+  IL even where the code is the same instruction.
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).
