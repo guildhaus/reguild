@@ -4708,34 +4708,43 @@ void d2_RaiseViewWindows(int v) {
 /* 0x4741f0, loads the form file x (forms\x.form) as a view: one window per record, the items (pictures, texts,
    inputs, sliders) become objects; the view is moved to (x, y) unless one of them is 0 and kept inside the screen;
    returns the number of the view, or -1
-   @deep tie-break sensitive per dcp headers sample (3 codegens in 32 samples, none closer than the
-   build), 630 ins. Kept: the view scan as the plain for (view = 1; d2_Views[view].nwins != 0; view++) if
-   (view >= 0x30) return -1; plus the re-test after it (same distance as the hand pointer walk, which it
-   replaces; the original's signed jge against the array end is VC6's strength-reduced form of this loop).
-   Tried: a found-index scan (j = -1 / break: 619 ins but the original's loop shape is lost: its first test
-   loads d2_Views[1].nwins directly and the exhausted loop returns from inside), break + one test (632),
-   while forms (628-630), dropping the dead k = 0 (= one code). Left: the frame is 4 bytes short (0x244 vs
-   0x248: buf at [esp+0x58] in the original), our VC6 caches the constant 1 in edi (push edi at every
-   vfs_fread, mov eax,edi for view = 1) where the original pushes 1 and loads mov eax,1 in the scan; the
-   record strength reduction (the original steps d2_Forms0 / d2_Forms2 entries in stack slots) and the
-   version-0 parent test (see prior). Next: find the missing dword first (dcp frame, c2frame.py), then the
-   constant-1 web with c2trace.py. (tiebreak: not measured (dcp headers sample d2_OpenForm)) prior: read
-   whole against the original: fixed the view-scan bound (the signed jge against &d2_Views[0x30].nwins =
-   0xfb91e4, the array end, not a d3s_Lights address), r = &d2_Forms2[i].h first and &d2_Forms0[i].h for
-   version 0 (the original's default for other versions), the child-window branches first (parent != 0),
-   the alpha test as (flags & 1) && alpha == 0.0f -> 0x3f266666; the k loop (pictures, 0x43 texts, 0x41
-   inputs, 0x45 sliders), the key text, the version-0 margins / font / picture, the view flags and the move
-   to (x, y) were compared and match. Left: allocation and placement - our VC6 caches the constant 1 in edi
-   ('- push edi' against '+ push 1' at every vfs_fread), the original strength-reduces the records to
-   stepped slots (d2_Forms0 entry [esp+0x34], d2_Forms2 entry + 0xed0 [esp+0x28], wins pointer [esp+0x10])
-   where ours steps d2_Forms0 + 6 in ebp; the original does not thread its sec... */
+   @deep s66 fix: the original reads every record field after the window creation through r (r's slot
+   [esp+0x18] reloaded into edi/ebx): the version-2 font / pic / m / frame (ebx = r), the slider length
+   slen[k] ([k + r + 0xf1c], so a version-0 form reads it from the Forms0 record, we read d2_Forms2[i]:
+   meaning fix), the version-0 margins / font / bgpic ([edi+0xe9c..] with edi = r), and
+   d2_Objs[d2_Wins[wins[i]].parent] re-read through wins[i] (not ww). Kept: those through r (D2FORM2 *r2 /
+   D2FORM0 *r0 block copies, the slen cast) and the version-0 parent tests both as d2_Forms0[i].parent (no
+   parent local): the original does NOT thread its second parent test (jmp from the pw/pww block to a
+   re-test, pw/pww spilled to [esp+0x4c]/[esp+0x40] and reloaded on the parent==0 path); with the local,
+   VC6 threads it. Rows (dcp try): control 635; slen alone 622 (M8s gone); all-r 661; all-r +
+   parent-cse-cse 618 (code 669 -> 538, frame 0x244 -> 0x24c, now 4 bytes LARGER than the original's
+   0x248); parent spellings via r ((D2FORM0 *)r)->parent 630-667. Left: (1) frame 0x24c vs 0x248; (2) the
+   IV bases: the original steps d2_Forms0 at +0 ([esp+0x34]) and d2_Forms2 at +0xed0 (&.parent, [esp+0x28],
+   r = lea [esi-0xed0]) and &d2_Views[view].wins[i] ([esp+0x10]); ours bases both form arrays at +6 (h.h) -
+   find what picks the displacement; (3) ours lays the version-0 child call inline, the original jumps to
+   the re-test block placed after the version-2 block; (4) the constant 1 in a register (push 1 immediates
+   in the original), ebp = 0 from the prologue in the original; (5) the view scan: the original keeps view
+   in eax (no slot store in the loop, one -1 exit block). climb --rounds 1 (s66): nothing (best a float
+   temp for r->type[k], frame-wrong). prior: tie-break sensitive per dcp headers sample (3 codegens in 32
+   samples, none closer than the build), 630 ins. Kept: the view scan as the plain for (view = 1;
+   d2_Views[view].nwins != 0; view++) if (view >= 0x30) return -1; plus the re-test after it (same distance
+   as the hand pointer walk, which it replaces; the original's signed jge against the array end is VC6's
+   strength-reduced form of this loop). Tried: a found-index scan (j = -1 / break: 619 ins but the
+   original's loop shape is lost: its first test loads d2_Views[1].nwins directly and the exhausted loop
+   returns from inside), break + one test (632), while forms (628-630), dropping the dead k = 0 (= one
+   code). Left: the frame is 4 bytes short (0x244 vs 0x248: buf at [esp+0x58] in the original), our VC6
+   caches the constant 1 in edi (push edi at every vfs_fread, mov eax,edi for view = 1) where the original
+   pushes 1 and loads mov eax,1 in the scan; the record strength reduction (the original steps d2_Forms0 /
+   d2_Forms2 entries in stack slots) and the version-0 parent test (see prior). Next: find the missing
+   dword first (dcp frame, c2frame.py), then the constant-1 web with c2trace.py. (tiebreak: not measured
+   (dcp headers sample d2_OpenForm)) */
 int d2_OpenForm(short x, short y, char *name) {
   char buf[0x100] = "";
   char msg[0x100];
   char hdr[5];
   unsigned char fl;
   void *f;
-  int n, ver, view, i, k, win, pw, o, pic, idx, parent;
+  int n, ver, view, i, k, win, pw, o, pic, idx;
   D2WIN *ww, *pww;
   D2FORMH *r;
 
@@ -4773,12 +4782,11 @@ int d2_OpenForm(short x, short y, char *name) {
     r = &d2_Forms2[i].h;
     if (ver == 0) {
       r = &d2_Forms0[i].h;
-      parent = d2_Forms0[i].parent;
-      if (parent != 0) {
-        pw = d2_Views[view].wins[parent - 1];
+      if (d2_Forms0[i].parent != 0) {
+        pw = d2_Views[view].wins[d2_Forms0[i].parent - 1];
         pww = &d2_Wins[pw];
       }
-      if (parent != 0)
+      if (d2_Forms0[i].parent != 0)
         win = d2_CreateChildWindow(r->x - pww->x, r->y - pww->y, r->w, r->h,
                                    r->flags, pw);
       else
@@ -4802,28 +4810,29 @@ int d2_OpenForm(short x, short y, char *name) {
     }
     ww = &d2_Wins[d2_Views[view].wins[i]];
     if (ver == 2) {
-      char *fn = d2_Forms2[i].font;
+      D2FORM2 *r2 = (D2FORM2 *)r;
+      char *fn = r2->font;
 
       if (fn[0] == 0)
         fn = "_FONT";
       ww->font = d2_FindPic(fn);
-      if (d2_Forms2[i].pic[0] != 0) {
-        ww->bgpic = d2_FindPic(d2_Forms2[i].pic);
+      if (r2->pic[0] != 0) {
+        ww->bgpic = d2_FindPic(r2->pic);
         d2_AddRefcount(ww->bgpic);
       }
-      ww->ml = d2_Forms2[i].m[0];
-      ww->mr = d2_Forms2[i].m[1];
-      ww->mb = d2_Forms2[i].m[3];
-      ww->mt = d2_Forms2[i].m[2];
+      ww->ml = r2->m[0];
+      ww->mr = r2->m[1];
+      ww->mb = r2->m[3];
+      ww->mt = r2->m[2];
       if (ww->flags & 4) {
-        idx = d2_FindPic(d2_Forms2[i].frame);
+        idx = d2_FindPic(r2->frame);
         ww->frame = idx;
         if (idx == -1)
           ww->frame = d2_WinBorderPic;
       }
     }
     k = 0;
-    d2_Objs[ww->parent].buf = &d2_Views[view];
+    d2_Objs[d2_Wins[d2_Views[view].wins[i]].parent].buf = &d2_Views[view];
     win = d2_Views[view].wins[i];
     d2_Views[view].nwins++;
     for (k = 0; k < r->n; k++) {
@@ -4856,8 +4865,8 @@ int d2_OpenForm(short x, short y, char *name) {
                             fl, win);
       } else if (r->type[k] == 0x45) {
         fl = (unsigned char)r->kind[k];
-        o = d2_WinOpenSlider(r->ix[k], r->iy[k], d2_Forms2[i].slen[k], 0, 100,
-                             d2_FindPic(r->name[k]), fl, win);
+        o = d2_WinOpenSlider(r->ix[k], r->iy[k], ((D2FORM2 *)r)->slen[k], 0,
+                             100, d2_FindPic(r->name[k]), fl, win);
       } else
         continue;
       d2_Objs[o].buf = &d2_Views[view];
@@ -4871,18 +4880,19 @@ int d2_OpenForm(short x, short y, char *name) {
       ww->keyidx = idx;
     }
     if (ver == 0) {
+      D2FORM0 *r0 = (D2FORM0 *)r;
       short fnt;
 
-      ww->mr = d2_Forms0[i].m[1];
-      ww->ml = d2_Forms0[i].m[0];
-      ww->mt = d2_Forms0[i].m[2];
-      fnt = (short)d2_Forms0[i].font;
-      ww->mb = d2_Forms0[i].m[3];
+      ww->mr = r0->m[1];
+      ww->ml = r0->m[0];
+      ww->mt = r0->m[2];
+      fnt = (short)r0->font;
+      ww->mb = r0->m[3];
       if (fnt == 0)
         fnt = d2_FindPic("_FONT");
       ww->font = fnt;
-      if (d2_Forms0[i].bgpic > 0)
-        ww->bgpic = d2_Forms0[i].bgpic;
+      if (r0->bgpic > 0)
+        ww->bgpic = r0->bgpic;
     }
   }
   d2_Views[view].active = 1;
