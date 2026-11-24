@@ -6316,35 +6316,29 @@ int gm_BuildingCarts(AIBLD *b, AIOBJ **out) {
   return n;
 }
 /* 0x5090b0, the rank byte (+0x247) of the building b's kind record. The original switches on the kind's class
-   (the record's first byte) into three groups, 2 / 5 / 7, 4 / 0xb .. 0xd / 0x10 / 0x13 and the rest, that all
-   return the same byte (its jump table: two bodies, the second shared by the last group and the default)
-   @deep deep s43: the original's table is [0] = 2/5/7 -> body ecx (0x5090e9), [1] = the 4 group and [2] =
-   default -> body edx (0x5090f4, cross-jumped): A ecx, B edx, default edx. Ours: A ecx, B edx, default ecx
-   (merged with A), so only the default body's scratch register is one rotation step off. All 6 orders of
-   the three groups, break + one return r, ai_BTypes[*b].kind / .level, an AIBTYPE *bt, an int i = *b: all
-   = control (VC6 builds the arms in its own order). Open: what gives the default body one temp step more
-   (or the B body one fewer). prior: near-byte sweep s22: left the two return bodies' registers (the
-   original's first body uses ecx, the second edx). = control: the case groups swapped, the default return
-   after the switch; one body for the last group and default: 26. */
+   (the record's first byte) into case bodies listed by their first class, 2, 4 / 0xb .. 0xd / 0x10 / 0x13, 5 / 7
+   and the default, that all return the same byte (VC6 cross-jumps the equal bodies into two: 2 / 5 / 7 and the
+   rest) */
 
 int gm_BuildingRank(AIBLD *b) {
-  unsigned char *p;
+  AIBTYPE *bt;
 
-  p = (unsigned char *)ai_BTypes + (unsigned)b->type * 0x24d;
-  switch (*p) {
+  bt = &ai_BTypes[b->type];
+  switch (bt->kind) {
   case 2:
-  case 5:
-  case 7:
-    return p[0x247];
+    return bt->level;
   case 4:
   case 0xb:
   case 0xc:
   case 0xd:
   case 0x10:
   case 0x13:
-    return p[0x247];
+    return bt->level;
+  case 5:
+  case 7:
+    return bt->level;
   default:
-    return p[0x247];
+    return bt->level;
   }
 }
 /* 0x509120, 1 when the rank of the building c (gm_BuildingRank) fits the limit that the kind rank of the
