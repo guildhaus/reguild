@@ -4955,6 +4955,13 @@ the stack at every instruction.
   the named limit outranked the building pointer and took its register; inline, the zero of `ret = 0` stays in
   ebp from the prologue into the next loop (ai_BuyUpgrade 22 -> byte).
 
+- **`[esi+edi+0x80]` against the original's `[edi+esi+0x80]` (index first) for a field read through a named
+  index, while the same loop's other field index (a CSE temp) has base first**: the strength-reduced record
+  pointer, the FPU order of a sum and the address order were coupled (ai_DecideStudy, two s43 rounds stuck):
+  the index local feeds only the max line (`sk = rec[n].level; vb = max((float)x.skills[sk], 1.0f);`), the sum
+  reads the field again (`best->skills[rec[n].level] / vb`, a CSE: index first) and its first term carries a
+  redundant `(float)( .. )` (b term first on the FPU, the IV still based on the first field). Generate the
+  product of "which uses read the local / the field" x the cast's place in one `dcp try` (23 rows, byte).
 - **`fld a; fadd b` / `fmul` in the other order, no textual swap moves it**: order is an internal rank and follows
   the stack layout (fix layout first). Ranks move with parentheses (`(p->x)` is not neutral), a dead store, a named
   local, a `(float)` cast of a subterm. Of two named locals the one first appearing later (assigned last before
