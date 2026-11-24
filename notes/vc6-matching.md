@@ -255,6 +255,11 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
 
 ### Where a return block is laid out
 
+- **A do-while's exit arm (`r = 2` + return r copy) laid after the earlier guards' return 3 / return 4 copies,
+  the original has it right behind its test's out-of-line block**: `r = 2; continue;` instead of `r = 2;
+  break;`. `break` makes the arm a loop exit block, laid after every other out-of-line block; `continue` keeps it
+  a loop block that jumps to `while (r == 0 || r == 6)`, which VC6 decides for r == 2 and threads to the exit
+  (hst_NextEvent 10 -> byte; two sessions of guard / chain / loop forms had not moved it).
 - **A float range test whose `fstp st(0); return 0` (lower bound failed) lies between the upper bound's
   reject and the accept**: `if (!(x < min)) { if (x > max) goto reject; } else return 0;` (ai_PassesPartnerFilter
   byte, s12).
