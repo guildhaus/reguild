@@ -2052,6 +2052,17 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     (`n = count; if (count == 0) return 0; while (n != 0) { ..; n--; i = (i + 1) % count; }`), written with this
     function's found-flag inner loop was byte at once: the guard on the GLOBAL (not n) and n-- first together.
     twin.py (0.50 threshold) did not list it; read the neighbours in the unit for the loop shape.
+  - **Two sums' operand order (`w->w - r->w - l->w`, `w->w - r->w + w->x`) that no spelling of the sums moves,
+    decided by stores to ANOTHER field far above** (d2_DrawButton 16 -> byte; s33 had 36 regroupings and 12
+    declaration orders = control): meaning-changing probes showed both hunks flip together when the color test
+    `if (w->highlighted)` or any ONE of the three `w->highlighted = ..` stores named another field (or the color
+    block stood after the sums); flip.py over both hunks at once found only "color made constant". The plain
+    form: the two stores of the hover block written through the table, `d2_Objs[id].highlighted = 1;` /
+    `= 0;` (the block compares `&d2_Objs[d2_PointerObj] == w`); same instructions (the address is the CSE of
+    w), but the stores no longer count as the w->highlighted location the color test reads. Lever for an
+    operand-order hunk of loads through a pointer: probe each field's stores / tests above with another field;
+    a hit names the access to spell through the array (`T[i].f`) instead of the pointer. d2_DrawSlider has the
+    same hunk class (`spr0->w + w->x` order): try this first there.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
