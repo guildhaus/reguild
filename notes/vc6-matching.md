@@ -2003,6 +2003,16 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s62**:
+  - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
+    11 -> byte): the original computes the index chain (`mov eax,ebx; and; lea x3/x5/x9; shl esi,2`) before `xor
+    eax,eax; rep stosd`, so the fill's 0 stays in eax for the first guard's return (no second `xor eax,eax`), and
+    the fields are read `[esi+X]`. Ours with only `ai_Chars[i]` formed the CSE at the first test, after the fill;
+    an all-pointer `c = &ai_Chars[i]` before the fill folds X into the pointer (`lea ebp,[eax*4+X]`). A pointer
+    local taken before the fill AND at least one use still spelled `ai_Chars[i]` (any of 13 of 15 masks) keeps
+    the offset CSE ahead of the fill: byte. c2trace showed the const 0 piece (fill .. first return) losing eax to
+    the chain temps placed after the fill.
+
 - **Deep s61 (4 byte: ai_UseGoodCharmPartner, ai_ChangeProfessionWindow, ai_UseGoodRaiseRelation, cm_WaitTicks)**:
   - **A constant race decided by where a flag is set and the fill order** (ai_UseGoodCharmPartner 8 -> byte): the
     constant 6 (prio 7, byte-flagged, ebx for the whole function) beat 1 (prio 6) so the relations push and

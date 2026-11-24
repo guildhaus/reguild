@@ -366,29 +366,23 @@ int gm_IncomeKind5(unsigned id, GMINCOME *out, unsigned char flags) {
 }
 /* 0x4fa4b0, collects the incomes of the character id into the record out (cleared first): none (0) for a free
    record, one not in use (health 0) or one under age (gm_IsUnderAge); else the kind 1 or 2 (2 when the title group
-   of the character's job has a town object, amt_HasTownObject), 5, 3 (only when v1a8 is positive) and 4. Returns 1
-   @deep deep s43: the original computes the whole index chain (mov eax,ebx / and 0xffff / lea x3 / x5 / x9
-   / shl 2 -> esi) in eax before xor eax,eax / rep stosd; ours takes edx for the masked id, so the lea
-   chain waits behind the stosd. = control: i = id & 0xffff, k = 0 before i, memset(out, 0, 0x38) / sizeof;
-   worse: unsigned short i (36), a AICHAR *c (26), the three guards as one || (40), the fill counting down
-   (20), an unsigned short id parameter (46, the header prototype unchanged), climb 2 rounds (nothing).
-   prior: near-byte sweep s22: the zero fill before i (loop / memset), id &= 0xffff: 36-45 ins (the frame
-   of the prologue moves the wrong way); memset after i = control. Callees IncomeKind1/2/5 now byte: no
-   change here. */
+   of the character's job has a town object, amt_HasTownObject), 5, 3 (only when v1a8 is positive) and 4. Returns 1 */
 
 int gm_CharacterIncomes(unsigned id, GMINCOME *out, unsigned char flags) {
   int i, k;
+  AICHAR *c;
 
   i = (unsigned short)id;
+  c = &ai_Chars[i];
   for (k = 0; k < 0xe; k++)
     ((int *)out)[k] = 0;
-  if (ai_Chars[i].id == 0xffff)
+  if (c->id == 0xffff)
     return 0;
-  if (ai_Chars[i].health == 0)
+  if (c->health == 0)
     return 0;
   if (gm_IsUnderAge(id) != 0)
     return 0;
-  if (amt_HasTownObject(gm_TitleGroup(ai_Chars[i].jobId)) != 0)
+  if (amt_HasTownObject(gm_TitleGroup(c->jobId)) != 0)
     gm_IncomeKind2(id, out, flags);
   else
     gm_IncomeKind1(id, out, flags);
