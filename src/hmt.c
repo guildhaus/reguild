@@ -64,35 +64,26 @@ unsigned short hmt_RandomTextOffset(unsigned short k) {
   }
   return ret;
 }
-/* 0x4ac1a0, the text id of line n (at most 9) of record k: 0x1e2b + n, or 0x1e35 + n if textSet is set
-   @deep deep s28: the mechanism: ours copy-propagates m = n into the clamp compare (cmp di,9 on n, then
-   mov esi,edi), so n has 3 references (c2trace n#1 prio 10 sav 4 -> edi); the original compares m (mov
-   esi,[n]; cmp si,9) and keeps n in memory for the null return (mov ax,[esp+0xc]). Tried this session: m >
-   8 (19), (m = n) >= 9 / n < 9 ? n : 9 / min(n, 9) (= control), n >= 9 ? 9 : n and if/else (draft 15), m
-   int / unsigned int (draft 14..16); flip.py --want 'mov ax, WORD PTR _n' over every single statement
-   mutation: 0 hits; climb round 1: nothing. Left: code 21 / slots 2, the edi push and the n register.
-   prior: size queue s7: tried (no lever): n declared int in the prototype and the definition (= control,
-   same code); roles swapped (m = n; clamp n itself; return m): 9 ins, the copy m then takes edi instead of
-   n (the same push/pop edi); n assigned in the arms and returned once (if/else, ?:) = control, with the
-   test flipped 19. Read: the original never holds the unclamped n in a register (mov esi,dword [n] for the
-   clamp, mov ax,word [n] for the null return), so n must not be a candidate with savings >= 1; the twin
-   hmt_RandomTextOffset's dead e->textSet load says both come from one shape where the textSet test's arms
-   merge. */
+/* 0x4ac1a0, the text id of line n (at most 9) of record k: 0x1e2b + n, or 0x1e35 + n if textSet is set;
+   for an unknown record the result is undefined (in the binary: the caller's n, see below) */
 
 unsigned short hmt_RecordTextId(unsigned short k, unsigned short n) {
-  unsigned short m;
+  unsigned short ret;
   const G11REC *e;
 
-  m = n;
-  if (m >= 9)
-    m = 9;
+  if (n >= 9)
+    n = 9;
   e = hmt_GetRecord(k);
+  /* @original ret is not set when there is no record k: VC6 packs ret into n's parameter slot, dead
+     once n is clamped in a register, so the binary returns the caller's unclamped n there (mov
+     ax,word [n]) */
   if (e != 0) {
     if (e->textSet == 0)
-      return m + 0x1e2b;
-    return m + 0x1e35;
+      ret = n + 0x1e2b;
+    else
+      ret = n + 0x1e35;
   }
-  return n;
+  return ret;
 }
 /* 0x4ac1e0, record k, 0 if out of range */
 
