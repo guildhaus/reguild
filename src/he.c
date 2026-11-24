@@ -16238,45 +16238,14 @@ void he_RunBurglary(AIJOB *ev) {
    stall goods, its skill 7 and the knowledge: n * the mean skill 2 points (at least 42) / 4 by the target's rank,
    + a random -2 .. 1, within 2 .. 100; a player master (kind 6 / 7) without a character of the building with the
    flag 1 (+0x1b4) gets the message box 0x19f8 ("_NACHRICHTEN_HS_78", a quick jump to the main object). The record is
-   freed. Stages -2 / -1 send the spies back and free it
-   @deep s52: shape, only frame slots differ (dcp asmdiff: the stores / loads of two slots). Done this
-   session, each read from the original with the pushes pending: the stall amount as a float local (a
-   meaning fix: fild / fstp dword before the price call), all = 1 before case 1's building query, case 2
-   with its own exits (if (n == 0) { he_FreeEvent(ev); return; } and he_FreeEvent(ev); return; at its end
-   instead of break: ev's split pieces then keep edi, owner / master stay in memory / ebx as the original),
-   the main object fetched into a local before the message box (obj = gm_BuildingMainObject(g): the call
-   ahead of every push, master->netId loaded late into ecx), sum = 0 before n = 0 in cases 1 and 2 (the 0
-   register in ebx through cases 1 / 2; with it the knowledge product is fild n; fimul sum as written).
-   Left: the original's +0x10 holds n with case 1's two loop countdowns, case 2's countdown and the v temp,
-   +0x14 room / all / worth / goods; ours has the two case 1 countdowns with room / goods / worth at +0x10
-   and n / all / case 2's countdown / the v temp at +0x14 (everything else agrees: +0x18 b / owner / case
-   -1's countdown, +0x1c sum, +0x24 mean / master, +0x2c spy). The packer replayed (c2frame --names counts
-   and conflicts, each local joins the newest compatible slot, equal counts in the order of their last
-   reference): the original's slots need room packed before n, i.e. n counted 4 or less (ours 6: the n = 0
-   store, the store behind the loop and the use, per case), or room 7 (ours 5), or goods 7, or both case 1
-   countdowns counted 5 (a doubled latch). = control: continue forms of case 1's loops, n = sum = 0 chains,
-   declaration order (reversed: the packing order does not follow it), n / sum inits at the declaration,
-   room / spy inits as statements, the main object in room or it instead of obj, spy as the loop character
-   of the other cases. Worse: separate n / sum variables for case 2, cases -2 / -1 as two written-out
-   bodies (not merged: the table differs), the message box per p == 0 / flag arm or per kind. flip --want
-   '_n. = -1084': only meaning changes. prior: s51: the exits: the message-box arm's own he_FreeEvent +
-   return dropped (the arm falls into the break -> free), case 2's no-spy exit as break (246 -> 178); the
-   spying time as (rank * 120.0) * (252.0f / (int)mean) / n (the original's fmul 120.0 right after the rank
-   fild, s49's parenthesised product) and all = 1 set after the b == 0 guard, right before the door loop
-   (178 -> 170). Size 1934 -> 1883 (orig 1910): the original keeps its own he_FreeEvent copy for case 2's n
-   == 0 exit (written out with return: 234, the other copies then do not merge as now). Left: 0 in ebx
-   through the whole function in the original (cmp reg,ebx / push ebx; ours test / push 0 in cases 1 / 2:
-   one 0 reference more in the original makes 0 a candidate), case 1's loop: the original has &ids[k] in
-   ebp and the countdown in [esp+0x10], ours ebx / ebp; the frame slots of spy / room / all. No lever: spy
-   = 0 right before case 2's loop (worse). */
+   freed. Stages -2 / -1 send the spies back and free it */
 void he_RunBuildingSpying(AIJOB *ev) {
   AIJOB *x = ev;
   AIBLD *b, *g;
-  AICHAR *c, *owner, *master, *spy = 0, *p;
   AIOBJ *room = 0, *stall, *it, *obj;
-  HESPYREPORT rec;
+  AICHAR *c, *owner, *master, *spy = 0, *p;
   char text[0x400];
-  int k, n, sum, all, worth, goods, know;
+  int k, n, sum, all, worth, know;
   double mean;
   float t, v, amt;
 
@@ -16375,32 +16344,36 @@ void he_RunBuildingSpying(AIJOB *ev) {
       ev->stage = -1;
       return;
     }
-    owner = &ai_Chars[b->owner];
-    stall = gm_Query(b->objList, 2, 6, 0, 0x2a);
-    worth = gm_GetWorth(owner->id);
-    if (worth >= 1600000)
-      worth = 1600000;
-    rec.worth = (int)(worth * 0.1);
-    goods = 0;
-    if (stall != 0) {
-      for (it = gm_Query(stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
-        amt = (float)gm_ListAmount(stall, it);
-        goods += amt * gm_GoodsPrice(it->id, ai_OwnPlayer);
+    {
+      HESPYREPORT rec;
+
+      owner = &ai_Chars[b->owner];
+      stall = gm_Query(b->objList, 2, 6, 0, 0x2a);
+      worth = gm_GetWorth(owner->id);
+      if (worth >= 1600000)
+        worth = 1600000;
+      rec.worth = (int)(worth * 0.1);
+      worth = 0;
+      if (stall != 0) {
+        for (it = gm_Query(stall->list, 1, 5); it != 0; it = gm_QueryNext()) {
+          amt = (float)gm_ListAmount(stall, it);
+          worth += (float)(amt * gm_GoodsPrice(it->id, ai_OwnPlayer));
+        }
       }
+      v = (float)n * sum * 0.25f;
+      know = (int)(v / gm_BuildingRank(b));
+      know += util_Random(4) - 2;
+      if (know > 100)
+        know = 100;
+      else if (know < 2)
+        know = 2;
+      rec.when = ai_Time;
+      rec.bld = b->id;
+      rec.goods = worth;
+      rec.skill = gm_BuildingSkill(b, 7, 1);
+      rec.know = know;
+      cm_SendSpyReport(g, &rec);
     }
-    v = (float)n * sum * 0.25f;
-    know = (int)(v / gm_BuildingRank(b));
-    know += util_Random(4) - 2;
-    if (know > 100)
-      know = 100;
-    else if (know < 2)
-      know = 2;
-    rec.when = ai_Time;
-    rec.bld = b->id;
-    rec.goods = goods;
-    rec.skill = gm_BuildingSkill(b, 7, 1);
-    rec.know = know;
-    cm_SendSpyReport(g, &rec);
     if (master->kind == 6 || master->kind == 7) {
       p = gm_FindCharacterByMaster(g);
       if (spy != 0 && (p == 0 || (p->flags1b4 & 1) == 0)) {

@@ -3742,6 +3742,16 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   (before an overwrite, at the end, before a return) is removed before counting, one before a call is kept as
   code. No lever: dead stores, re-tests, `(void)x`, `x = x`, the asm macros' temp declaration order or names
   (d3d_LoadTexture: texture / loadt 34 / 34, open).
+- **Two shared 4-byte slots with their members crossed (loop countdowns packed with the wrong group) and no count
+  change in reach that keeps the code**: two of our locals of disjoint phases were ONE variable in the original.
+  The merged local's summed count lists it early, it opens its slot before the counter that conflicts with it,
+  and every later member lands as the original has it. he_RunBuildingSpying: the owner's worth and the stall
+  goods' value in one `worth` (`rec.worth = (int)(worth * 0.1); worth = 0; ..loop.. rec.goods = worth;`): 50 ->
+  8, where room / n counts, latch copies and case bodies had all failed. Replay the packer with merged counts
+  (sum the counts and conflicts of two locals) before searching for invisible references. Then the record as a
+  block local from its first fill to its send (8 -> 4, the store / pointer-load order of the fill), the
+  declaration order of two zero-initialised pointers for the entry stores' order, and a redundant
+  `(float)(amt * price)` inside `worth +=` for `fiadd` before the call's `add esp` (byte).
 - **Two equal records (AIARG s1 / s2) swapped, equal counts, the walk ending in `*o1 = s1; *o2 = s2;`**: a
   function-scope pair always puts the first-copied record nearest esp (it reaches the count first). The original
   had one block-scoped pair per path (`{ AIARG s1, s2; ... }` in the sub-action-2 arm and in the usable-good
