@@ -3948,6 +3948,13 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   byte; the K&R quicksort replay of c2frame's B rows predicted it). There also: a call nested as an argument
   (`d2_RadioAdd(group, d2_WinOpenPic(..))`) as `t = d2_WinOpenPic(..); d2_RadioAdd(group, t);` swapped i /
   o between ebp / ebx (28 -> 8 ins).
+- **A pick result as its own variable (`n = a; if (..) n = b;`), not the first candidate overwritten**
+  (`if (..) a = b;`): he_CatchMeetingDisease zeroes a / b before util_RandomF (`xor ebx,ebx` at the
+  top); with one variable a that zero costs a#1 the call block and every bits-update arm and send block it
+  lives through to the final `return a`, a falls below cost / ch and loses ebx. With `n = a;` + the pick
+  into n, a's web ends at the pick, n (GetDisease, the chain, the returns) is its own candidate, both get
+  ebx and the copy vanishes: byte (s48/s49 had 127 + ~150 variants on one a). A copy `n = a;` AFTER a
+  complete pick folds away; the copy must be a definition the pick overwrites on some paths.
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).
