@@ -32,8 +32,6 @@
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 /* clang-format on */
 
-/* full rebuild: the symbols whose original addresses the code above spells literally */
-
 #define ORD_FLAG_BLOCKED                                                       \
   0x400000 /* the privilege flag that blocks the misappropriation order (0x4f6b40) */
 
@@ -2008,7 +2006,6 @@ void ord_RebuildGridSums(void) {
 }
 
 float gm_IncomeRating();        /* 0x4f9ec0 */
-void cm_SendMessage41(void *p); /* 0x4c5800 */
 
 /* 0x4f8ae0, the statistics of the characters and buildings into the 10-dword record out (floats but for the ints
    out[4], out[7], out[8]): counts the characters of kind 0 / 1 and their two buildings (bld / bld2), adds 1.0 to
@@ -2243,9 +2240,6 @@ void ord_InitMessageRecord(int a, float b, float c, float d) {
   m.record.stage = 0;
   cm_SendMessage56(&m);
 }
-
-int he_ShowNews(int pid, int fl, char *text, int unused, int ev,
-                char *text2); /* 0x53dda0 */
 
 /* 0x4f9220, advances the message event record 0x91b480 (ORDMSGREC): disabled it does nothing; idle (phase 0) it
    adds random * scale + base to the accumulator and, above the limit, counts the message, timestamps the record,

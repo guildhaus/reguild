@@ -31,19 +31,14 @@
 #include "hst.h"
 #include "poker.h"
 #include "mission.h"
-extern int ai_PlayerCountYear;
 G6CURSOR ai_NearRingCursorState = {
     ai_NearRing,
     1}; /* 0x60034c, the next entry of ai_NearRing and the stride */
-extern int ai_NumPlayerChars;
-extern AICHAR ai_DuelOpponent;
 G9SHOT ai_CannonShot = {0}; /* 0x6f0698 */
 int ai_NearRingCount = 0;   /* 0x6f070c, the number of entries */
-extern int ai_WriteActionTable;
 extern char ai_DataPath[608];
 G6RING ai_NearRing[32]; /* 0xf83c20 */
 extern char ai_ActionIniPath[260];
-extern int ai_EvalDepth;
 extern AIACT ai_Actions[0x49];
 extern int ai_EvalStack[73];
 

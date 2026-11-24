@@ -106,42 +106,10 @@ typedef struct
 
 /* dcp unit split: the declarations of cm before the moved functions */
 
-extern float cm_DefenseFactor;
-extern int cm_FightOwner;
-extern int cm_FightView;
-extern int cm_FightTimeBar;
-extern int cm_FightButton;
 extern struct D3OBJECT *cm_PointList[32];
-extern CMPORTRAIT cm_Portraits[6];
-extern G18POP cm_DamagePops[16];
 extern AICHAR cm_Fighters[32];
-extern struct D3OBJECT *cm_FlagObjects[32];
-extern float cm_FightCellScale;
 extern int cm_CharInfoWins[32];
-extern D3OBJECT *cm_HoverObject;
-extern int cm_FightPaused;
-extern struct AICHAR *cm_FightDefender;
-extern struct AICHAR *cm_FightAttacker;
-extern struct D3OBJECT *cm_PickMarker;
-extern struct AICHAR *cm_FightWinner;
-extern int cm_FightSettled;
-extern int cm_FightLootValue;
 extern int cm_UnreadBss;
-extern G28REC *cm_FightRecord;
-extern int cm_SelectedCount;
-extern struct SBBANK *cm_FightSounds;
-extern struct SBBANK *cm_CrossbowSounds;
-extern struct SBBANK *cm_BombSounds;
-extern struct SBBANK *cm_DaggerSounds;
-extern struct SBBANK *cm_PistolSounds;
-extern struct SBBANK *cm_SwordSounds;
-extern struct MSXTRACK *cm_FightAmbient;
-extern int cm_AttackerRole;
-extern int cm_DefenderRole;
-extern int cm_FlagObjectCount;
-extern struct D3BGF *cm_BootsObject;
-extern int cm_PointCount;
-extern int cm_FightForm;
 
 /* declarations of cmfight between its functions that the moved functions read */
 

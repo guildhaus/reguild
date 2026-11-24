@@ -24,7 +24,6 @@
 #include "mem.h"
 #include "ts_texture.h"
 #include "d3_pose.h"
-extern unsigned char d3_MipSkip;
 
 struct TSTEXTURE;
 struct TSTEXTURE *tex_Create(char *name, int size, char hicol, D3TEXFLAGS flags,
@@ -49,9 +48,6 @@ extern char d3s_Byte;
 extern unsigned short *d3s_Dst16;
 extern int d3s_SpanLen;
 extern int d3s_Fill;
-extern int dd_PitchPixels;       /* 0x14661a0 */
-extern int dd_Pitch;             /* 0x1463588 */
-extern void *dd_Surface;         /* 0x1463590 */
 unsigned int d3s_CacheCount = 0; /* 0x633db8 */
 unsigned int d3s_CacheAge = 0;   /* 0x633dbc */
 extern D3SCENT *d3s_Cache;
@@ -81,7 +77,6 @@ int d3s_NumVerts;     /* 0xfb9220 */
 float d3s_QuadUV2[6]; /* 0xfb9240 */
 extern D3OBJECT *d3s_Lights[4];    /* 0xfb91e0 */
 extern unsigned int d3s_NumLights; /* 0xfb9264 */
-void d3sm_Destroy(struct D3SM *h); /* 0x45ef60 */
 
 /* float to int with fistp (current rounding mode) */
 __inline void d3s_FtoI(int *dst, float f) {
@@ -827,16 +822,6 @@ void d3s_ShadowPoly(D3TRI *poly, unsigned char bpp, int size);  /* 0x45a880, @or
 void d3s_ShadowPoly(D3TRI *poly, int bpp, int size);
 #endif
 
-void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in,
-                   struct D3VECTOR *out);                      /* 0x458810 */
-unsigned char d3_ClipBox(void *box, float *zmin, float *zmax); /* 0x439650 */
-char dd_FillSurface(LPDIRECTDRAWSURFACE4 surf, RECT *rect,
-                    DWORD color); /* 0x41e0a0 */
-void *dd_LockSurfaceFlags(LPDIRECTDRAWSURFACE4 surf,
-                          DWORD flags);           /* 0x41de30 */
-void dd_UnlockSurface(LPDIRECTDRAWSURFACE4 surf); /* 0x41e740 */
-void d3d_BuildMipmaps(LPDIRECTDRAWSURFACE4 tex,
-                      DDSURFACEDESC2 *ddsd); /* 0x4371d0 */
 struct TSTEXTURE;
 void ts_CacheFetch(struct TSTEXTURE *tex, int npal,
                    const unsigned char *pal); /* 0x45f8d0 */
@@ -844,9 +829,6 @@ void ts_CacheFetch(struct TSTEXTURE *tex, int npal,
 const float d3s_Dist[2] = {60.0f, 200.0f}; /* 0x5ebbd8 */
 const unsigned char d3s_Palette[] = {0,    0,    0, 0xff,
                                      0xff, 0xff, 0, 0}; /* 0x5ebbe0, palette */
-extern int d3_FrameCount;                               /* 0x63343c */
-extern unsigned char d3_Hardware;                       /* 0x633450 */
-extern const D3VECTOR4 d3_ZAxis;                        /* 0x5ebb74 */
 
 float *d3s_Verts;           /* 0xfb9258, 6 floats each */
 int d3s_NumUVs;             /* 0xfb925c */
@@ -855,18 +837,6 @@ unsigned int d3s_NumLights; /* 0xfb9264 */
 char d3s_Byte;              /* 0xfb9268 */
 int d3s_ShadowRadius; /* 0xfb926c, rows / pixels the marked span widens around the shadow */
 D3SMENTRY *d3s_SpanRow; /* 0xfb9270, current row of the span buffer */
-extern unsigned char *d3s_Dst;
-extern int d3s_EdgeC[3];
-extern int d3s_SlopeC;
-extern int d3s_SlopeL;
-extern int d3s_CL;
-extern int d3s_SlopeR;
-extern int d3s_XL;
-extern int d3s_XR;
-extern int d3s_SpanLen;
-extern unsigned short *d3s_Dst16;
-extern int d3s_Area;
-extern int d3s_Fill;
 
 /* 0x45b510, a shadow mesh over the map cells in rect
    @deep 328 -> 167 ins this session, plus a meaning fix (first polygon's a read row[i + nx + 1], the

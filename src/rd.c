@@ -657,7 +657,6 @@ void rd_FillQuad(G15ROAD *r, float *c, unsigned char v, int t) {
   }
 }
 
-extern G15ROAD rd_Road;
 G15TREE veg_Types[] = {{439, "TANNE", 3, 1, 4, 0},
                        {440, "BUCHE", 5, 1, 4, 0},
                        {441, "EICHE", 5, 2, 8, 0},

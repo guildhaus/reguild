@@ -66,8 +66,6 @@ void d3snd_Exit(void) {
   d3snd_List = NULL;
 }
 
-D3SOUND *d3snd_Alloc(void); /* 0x417800 */
-
 /* 0x417710, attaches an opened sound to obj */
 D3SOUND *d3snd_Attach(SBSAMPLE *snd, D3OBJECT *obj, int volume, float range) {
   D3SOUND *s = NULL;

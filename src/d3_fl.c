@@ -3137,7 +3137,6 @@ D3FLCACHE *d3fl_Cache = 0;          /* 0x63374c */
 unsigned char d3fl_DetailShift = 0; /* 0x633750, 6 - log2(detail scale): */
 unsigned char d3fl_DetailSizeShift =
     0; /* 0x633751, the byte right after d3fl_DetailShift (f3init.c's detail shift) */
-extern float d3fl_Shade[1024];
 unsigned long
     d3fl_ColorTab[3][256]; /* 0xfbac60, 8-bit channel -> 16-bit pixel bits */
 D3VECTOR4 d3fl_LightCol;   /* 0xfbb860, color per light-map unit */

@@ -159,10 +159,6 @@ unsigned char d2_UnreadBss[10836] = {
             pointer reads any of it; a unit's .bss outlives /OPT:REF, so these are data
             of d2 functions the linker removed (layout, extent and type unknown: one
             unread byte block, not a padding) */
-extern int d2_PaletteDepth;
-extern int d2_ClickedId;
-extern short d2_MouseX;
-extern short d2_MouseY;
 D2FRCT
 d2_PointerItems[6]; /* 0xf8ab80, the item list drawn next to the pointer */
 D2DISSOLVE *d2_CurrentDissolve; /* 0xf8abc8 */

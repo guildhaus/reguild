@@ -32,8 +32,6 @@
 #include "hst.h"
 #include "poker.h"
 #include "mission.h"
-extern int ai_PlayerCountYear;
-extern int ai_NumPlayerChars;
 AICHAR ai_DuelOpponent = {0}; /* 0x6f0478 */
 extern char ai_DataPath[608];
 char ai_ActionIniPath[260]; /* 0xf83da0, the ini file of the actions */

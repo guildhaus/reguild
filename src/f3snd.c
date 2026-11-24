@@ -1286,7 +1286,6 @@ void snd_StopMarketAmbience(void) {
   }
 }
 
-extern struct D3TRAIN *d3t_Rain;
 float snd_VoiceVolume = 1.0f; /* 0x602b08, voice volume (1.0, scaled by 127) */
 char snd_GustNames[3][0x32] = {
     "Boehe_Leicht_s", "Boehe_Mittel_s",
@@ -1550,7 +1549,6 @@ struct SBBANK *snd_VoiceBankNoise = 0; /* 0x6f0cc4, voice bank: click noises */
 int snd_UnreadBss =
     0; /* 0x6f0cc8, no surviving instruction or pointer refers to it: data of functions /OPT:REF removed; size from the neighbours' addresses */
 struct SBBANK *snd_VoiceBankGreeting = 0; /* 0x6f0ccc, voice bank: greeting */
-extern struct D3TRAIN *d3t_Rain;
 /* ai_Selected (0x770d08): ai_Chars[0].selected, read as the AICHAR field (data_views.h has no view of it) */
 SNDRAIN
 snd_Rain; /* 0xf81240, the rain sounds' state: one common of 72 bytes (tools/exe/commongaps.py: the copy of

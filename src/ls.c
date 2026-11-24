@@ -21,7 +21,6 @@ struct D3SM;
 extern int gm_TreeNodeCount;
 #include "cm_types.h"
 extern void main_LoadProgressCallback(int kind, int cur, int total);
-extern int gm_TreeNodeCount;
 extern int gm_QueryDepth;
 
 #include "cm.h"
@@ -81,7 +80,6 @@ extern char hst_Key
 /* he_EventTop: view of ai_NextEventId (tools/data_views.py) */
 extern AIJOB he_Events
     [0x400]; /* 0x6fab40, the 0x400 event records (ls.h cannot see AIJOB) */
-extern int he_EventCount;
 
 void he_FreeEvents(); /* 0x53d590 */
 
@@ -1180,12 +1178,10 @@ int ls_Read(void *buf, int size, int count, VFSFILE *f) {
   return got > 0;
 }
 
-extern LSSAVE ls_SavePath;
 unsigned short ai_ScreenImage[19200]; /* 0x766320, the */
 LSHDR
 ls_LoadedHeader; /* 0x76f920, the 0x100-byte header of the loaded save game (id, flag byte, name, ..; ls_ReadSaveHeader fills it up to +0xfc) */
 int cm_SaveAcks[8][2];   /* 0x76fa20 */
-extern char *cm_LoadBuf; /* 0xf31140 */
 #define LS_RD(p, sz) ls_Read((p), (sz), 1, h)
 #define LS_CLOSEFAIL                                                           \
   {                                                                            \
@@ -2602,6 +2598,3 @@ int ls_ReceiveGame(void) {
   return 1;
 }
 
-extern unsigned cm_LoadSize;
-extern int cm_LastSeq;
-extern unsigned cm_LoadReceived;

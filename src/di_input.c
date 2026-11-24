@@ -11,13 +11,6 @@ int kb_Base = 0x200; /* 0x5f3234 */
 int di_MaxX = 790;   /* 0x5f3238 mouse limits (as in the exe image) */
 int di_MaxY = 599;   /* 0x5f323c */
 int di_Absolute = 1; /* 0x5f3240 mouse position from GetCursorPos */
-extern unsigned short kb_Map[512];
-extern unsigned char kb_Down[512];
-extern unsigned char kb_Pressed[512];
-extern DIMOUSEST dm_L;
-extern DIMOUSEST dm_S;
-extern DIMOUSEST dm_P;
-extern DIMOUSEST dm_Q[32];
 extern LPDIRECTINPUT di_Main;
 extern LPDIRECTINPUTDEVICE di_Mouse;
 extern LPDIRECTINPUTDEVICE di_Keyboard;

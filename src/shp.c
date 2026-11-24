@@ -41,7 +41,6 @@ D2COLKEY d2_TransparentColour = {
     0};              /* 0x6f0454, the colour key of the transparent pixels */
 int d2_ClipLeft = 0; /* 0x6f0458, clip left */
 int d2_ClipTop = 0;  /* 0x6f045c, clip top */
-extern unsigned int d2_HighBitMask32;
 
 /* 0x479d00, makes the light table: every 16 bit colour brightened by add
    @deep deep s34: c2trace --prio: temp#a3 (0xff - add) 25 = +20 in the loop-init block (P 5) + 3 compares

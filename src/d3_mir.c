@@ -491,4 +491,3 @@ void d3_MirBeginFrame(D3OBJECT *obj, D3MIRROR *m) {
   }
 }
 
-extern D3MIRROR d3_Mirror;

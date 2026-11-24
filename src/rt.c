@@ -29,7 +29,6 @@
 #include "d3.h"
 
 int rt_MarkGroup = -1; /* 0x602a90 */
-extern RTMARK rt_Marks[8];
 struct D2SURF *rt_MapSaved =
     0; /* 0x6f074c, rt_EditCartRoute's copy of rt_MapSurface, blitted back at its end */
 int rt_MarkCount = 0;         /* 0x6f0750, the marks used */

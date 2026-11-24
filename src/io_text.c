@@ -32,11 +32,6 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 /* clang-format on */
 
 struct AITIME;
-void gm_ClockToDate(
-    struct AITIME *c,
-    struct GMDATE *out); /* 0x4fe2c0, f3gm.c: the calendar record of a clock */
-int gm_Season(
-    struct GMDATE *d); /* 0x4fe330, f3gm.c: the season of a calendar record */
 
 /* 0x5142e0, the display name of the town called name (the player's town, "General"/"Stadt" of the game INI): the first text of the town's "_STADTAUSWAHL_<NAME>_INFO" group of the text table (txt_FindKey finds its number), else the given name itself; copied to out. Returns 1. */
 int io_TownDisplayName(char *name, char *out) {
@@ -444,13 +439,9 @@ int io_CharacterNameMarkup(int id, unsigned char c, unsigned char kind,
   return 1;
 }
 
-extern int txt_Loaded;
 extern int d2_LastWindow; /* 0x6ed938, the current text window */
 extern D2OBJ *d2_Objs;    /* 0xf8f080, d2.c (d2.h) */
 /* ---- the text engine (0x515960 .. 0x519010) ---- */
-extern int txt_Loaded;
-extern int txt_Random[0x4800];
-int d2_SetForm(int view, int n); /* 0x475f70 */
 void d2_DrawAll(void);           /* 0x46e150 */
 void d2_DrawWindow(int win,
                    struct D2SURF *surf); /* 0x471a90, draws a window (d2.h) */
@@ -458,7 +449,6 @@ int d2_RemoveWindowObjects(
     int win, int all); /* 0x472d20, removes the objects of a window (d2.h) */
 void d2_RedrawView(int view);        /* 0x474e80 */
 extern struct D2SURF *d2_ScreenSurf; /* 0x6ed924, the screen surface (d2.c) */
-void err_Message(char *text);        /* 0x4222b0 */
 void gm_FormatAmount(int v, unsigned char k, char *out); /* 0x508a80 */
 int ls_GetLanguage(); /* 0x5190a0, the language number */
 

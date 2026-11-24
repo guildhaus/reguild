@@ -368,7 +368,6 @@ void pool_Destroy(MPOOL **pool) {
   }
 }
 
-extern MEMGROUP mem_Main;
 int mem_Max = 0;         /* 0x632384, entries in mem_Table */
 int mem_Bytes = 0;       /* 0x632388 */
 int mem_Blocks = 0;      /* 0x63238c */

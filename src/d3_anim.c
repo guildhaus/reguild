@@ -22,9 +22,7 @@
 
 extern D3ANIMDATA
     d3anim_Head; /* 0xfc2580, list head; d3anim_Head.next at 0xfc26e0 */
-extern D3ANIMDATA d3anim_Tail;          /* 0xfe7440, list end */
 unsigned int d3anim_CacheMax = 4194304; /* 0x5f927c, bytes */
-extern int d3_Busy;                     /* 0x633b04 */
 
 /* 0x4315c0, applies the root motion between two key frames: adds the frames' move delta (flags bit 0), in
    object space, to the object position, and the turn delta (flags bit 1) to its rotation. No return value */
@@ -467,16 +465,11 @@ void d3path_Tangents(D3PATHKEY *k0, D3PATHKEY *k1, D3PATHKEY *k2) {
   k0->rotout.z = f * a.z;
 }
 
-float d3_Hermite(float p0, float p1, float m0, float m1,
-                 float t); /* 0x453e20 */
-void d3_DirToWorld(struct D3OBJECT *obj, const struct D3VECTOR *in,
-                   struct D3VECTOR *out);           /* 0x458810 */
 char tex_Animate(D3OBJECT *obj, unsigned int time); /* 0x460b90 */
 void d3_RelightObjectFrame(
     D3OBJECT *obj,
     D3ANIMFRAME *
         f); /* 0x4535b0, d3_light.h's canonical prototype; d3_anim.c keeps this local copy, the include is WORSE for d3anim_CreatePath / d3anim_CreateMorphAnim (+2 instructions each) */
-struct D3ANIMSLOT *d3anim_GetMainSlot(struct D3SURF *ctl); /* 0x435900 */
 
 /* the shared 1.0f both paths' key fractions are subtracted from (the original loads it from memory) */
 

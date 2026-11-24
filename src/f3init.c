@@ -118,12 +118,7 @@ void d2_ShowPicture(int pic);                          /* 0x46cfd0, d2.c */
 int d2_ClearSurface(struct D2SURF *surf);              /* 0x4796c0, gfx.c */
 void gm_RandomMarketShake(int unk);
 /* 0x4ff450, f3gm.c */ /* the original pushes the player at both call sites; the function does not use it */
-extern short d2_ScreenW;     /* 0xfb9072, d2.h */
-extern short d2_ScreenH;     /* 0xfb9070 */
 extern char *cm_FieldObject; /* 0xa68d2c */
-extern struct AICHAR *
-    ai_JudgeCatholic; /* 0x6f1bfc, the two judges (0x6f1bfc Katholisch, 0x6f1c00 Evangelisch) */
-extern struct AICHAR *ai_JudgeProtestant; /* 0x6f1c00 */
 extern int ai_Opponents
     []; /* 0x75e160, the difficulty level 0 .. 4 of each opponent (the seven globals ai_Opponents .. opponent_g of the options 0x5d4c70 / 0x5d5640 and of the selection menu 0x537040) */
 void cm_BeginSendGroup(void); /* 0x4c3b30 */
@@ -136,8 +131,6 @@ int cm_FlushSendQueue();                     /* 0x4c3680 */
 int cm_ReceiveMessages();                    /* 0x4c3fd0 */
 int cm_ExecCommands();                       /* 0x4c4190 */
 void *cm_GetSlotValue(int h);                /* 0x4c3b10 */
-int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field,
-                     void *v); /* 0x4c3c00 */
 int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e,
                         int f);                             /* 0x4c4880 */
 int cm_SendMoveGoods(int a, int b, unsigned char c, int d); /* 0x4c47e0 */
@@ -163,10 +156,6 @@ void gm_AgeCharacter(
     unsigned short age); /* 0x4fc6f0, f3gm.c: ages the character c to the age */
 int ai_WorksForMaster(struct AICHAR *c); /* 0x47dd70, ai.c */
 void hmt_Begin(void);                    /* 0x4ad0a0, hmt.c */
-void ai_ObjectAngle(
-    void *out,
-    struct D3OBJECT
-        *plot); /* 0x58fd90, lc.c: the angle of the object plot to out */
 int cm_SendOwnership(
     int a, int b,
     int c); /* 0x4c54a0, cm.c: message 0x38, the building a changes its person from b to c */
@@ -182,14 +171,9 @@ void main_SetLoadProgress(
     int unused, int pct); /* 0x537af0, main.c: the loading progress bar */
 int cm_SendMessage3d(struct AIBLD *p, unsigned char b, int c,
                      int d);       /* 0x4c55d0 */
-int gv_SendGrave(struct AIBLD *o); /* 0x4f15e0 */
 void cm_RequestChrMoveToUniverse(int a, int b, int c,
                                  const char *s); /* 0x4c51b0 */
 void d2_DrawAll(void);                           /* 0x46e150, d2.c */
-int d2_SetForm(int view, int n);                 /* 0x475f70 */
-struct AIOBJ *gm_QueryNext(void);                /* 0x4ffcc0 */
-float gm_ItemPrice(int item, unsigned char n);
-int gm_ListStock(struct AIOBJ *l, int id); /* 0x50ab50, f3gm.c */
 struct AICHAR *ai_JudgeCatholic = 0;       /* 0x6f1bfc / */
 struct AICHAR *ai_JudgeProtestant = 0;     /* 0x6f1c00 */
 AICHAR *ai_KindBChars[8] = {0}; /* 0x6f1c04, the characters of the kind 0xb */
@@ -203,10 +187,7 @@ int init_UnreadBss =
 int init_TownSoundCount = 0; /* 0x6f1c34 */
 extern char ai_Unk7e3f40_[];
 
-void ai_CheckBuildSites(void);             /* 0x58fb60 */
-void gm_UpdatePlayers(void);               /* 0x4feb30, f3gm.c */
 void gm_InitPlayerRecord(int p);           /* 0x4feb60, f3gm.c */
-int cm_SendOwnership(int a, int b, int c); /* 0x4c54a0 */
 struct G13MIS;
 struct G13MIS *ai_NewRandomMission(int owner, int kind,
                                    int x); /* 0x4b3c10, mission.h */
@@ -230,10 +211,7 @@ typedef struct INIT_ANIMSET {
 extern INIT_ANIMSET init_ClassAnims[19];
 #include "anm.h"
 #include "rd.h"
-extern int ai_MapSize;
 void d3if_Prerender(char map); /* 0x447860, d3_interface.c */
-void d3fl_SetShift(struct D3FLMAP *map, unsigned char shift,
-                   char light); /* 0x446dc0, d3_fl.c */
 #include "menu_types.h"
 #include "ch.h"
 #include "f3gm.h"
@@ -243,14 +221,11 @@ unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defi
 extern int snd_SfxEnabled; /* 0x6f257c, sound on */
 struct SBSAMPLE;
 struct SBBANK;
-extern int init_StatusForm;
 /* 0x75e5a0, the player profile of the character creation: main_ChoosePlayer reads it from game.INI ([Network]
    Name, Familienname, Wappen, Geschlecht, Glauben) and writes the result of its stage 5, main_CreateStartCouple
    takes it for the start couple, 0x57bc30 is the default profile of the demo. Layout from those writers and
    from the registration message 0xc (0x4c46d0: short + 0xc, byte + 0xe, int + 0xf, sex + 0x13, faith + 0x14) */
 #include "f3init_types.h"
-extern INIT_PLAYER init_PlayerProfile;
-extern struct AICHAR *ai_SceneChars[32];
 #include "rd_types.h" /* G15BK, the building sites ai_Bauplaetze (rd.h cannot be included here) */
 #include "ls.h"
 #include "f3init.h"
@@ -285,11 +260,8 @@ signed char init_ObjectUniverse
 struct SBSAMPLE *init_TownSounds
     [16]; /* 0x76fd80, the handles of the town's sounds (16 at most), stopped by */
 AIBLD *ai_SceneBuilding; /* 0x76fdc0 */
-extern int ai_NBauplaetze;
-extern G15BK *ai_Bauplaetze;
 /* 0x50a810, f3gm.c: the first kind 6 / 7 / 1 / 2 character with a job whose master is m */
 void amt_InitTable(void);  /* 0x4e5cd0, amt.h */
-void gv_ClearCrimes(void); /* 0x4f4350, gv.c */
 int cm_SendMessage10(unsigned char n, int b, void *p,
                      short d);     /* 0x4c45c0, cm.h */
 void gm_SyncMarket(unsigned p);    /* 0x4fec10, f3gm.c */
@@ -311,7 +283,6 @@ void ai_FavourComment(CHARACTER *a);
 
 /* ---- the town scene loading 0x5124f0 .. 0x5128d0, 0x510770, 0x510ad0, 0x513050 (ROUGH drafts) ---- */
 
-extern unsigned char d3fl_DetailSizeShift; /* 0x633751 */
 /* 0x50d100, maps the name of the scene object o (copied: "ob_NAME_X" / "gb_NAME") to a prototype: a variant suffix "_A" .. "_H" is cut off, "ob" looks the name up in the object prototypes (the result 0x1000000 | number at D3OBJECT.pickId), "gb" in the building prototypes (0x2000000 | number), a name containing "KONTOR" is the building 0x47 (0x2000047). Returns 1 when found. */
 
 int init_SceneNameToPrototype(D3OBJECT *o) {
@@ -1561,8 +1532,6 @@ void init_OpenBuilding(AIBLD *b) {
   init_Betrieb(b);
 }
 
-extern struct AIBLD
-    *ai_Blds; /* 0x889f74, the buildings (0xa9 bytes each, 0x100) */
 unsigned char init_Detail =
     2; /* 0x61adf8, the detail level of the scene (4 = high / 2 / 1 = low, a byte) */
 float init_SoundVolume =
@@ -2856,9 +2825,7 @@ void init_ShowStatus(intptr_t t) {
 
 /* 0x510e50, the start of a network game for the joining or hosting player (strings "%s/AUGSBURG.NET", "scenes/*network.ed3", "\\game.INI", section "Network"): waits for the flags in 0x6f2594 (1 = host, 4 = ready), loads the city file `name` (default "gamedata/cities/AUGSBURG.NET"), writes the player names to game.INI, registers the player profile (0x4c46d0), sets up the network scene, gives each player slot its start objects (0x4fec10 / 0x4ff450). Returns 1 when the city could not be loaded, 2 when 0x520b80 fails, else 0.
    The remaining difference is the frame (0x310 against the original's 0x384): 0x74 bytes of locals are missing, every local below ini is shifted. @deep frame job */
-extern void *main_Instance;          /* 0x75e140 */
 extern unsigned ai_MissionSeed;      /* 0x75e120 */
-extern signed char ai_MissionMode;   /* 0x624580 */
 extern struct D2SURF *d2_ScreenSurf; /* 0x6ed924 */
 
 /* 0x510e50, starts a network game: waits for the session flags (cm_NetFlags), the host sends the city file
@@ -3442,14 +3409,6 @@ int init_BuildingSceneUniverse(AIBLD *b) {
   return init_BuildingUniverse[k];
 }
 
-char d3t_GetBoundingSphere(
-    struct D3OBJECT *obj, struct D3OBJECT *camera, struct D3VECTOR *center,
-    float *
-        radius); /* 0x411eb0, d3_tools.c: the center and radius of the mesh's 8-corner box */
-int gm_IsBuildingKind(
-    int n); /* 0x4fe940, f3gm.c: 1 when the object prototype n is a building part */
-int gm_FindObjectProto(
-    char *name); /* 0x4fe900, f3gm.c: the object prototype of the name */
 extern unsigned char init_TextureSet; /* 0x6f1c24 */
 /* 0x511f20, a scene callback of the object o (a function start Ghidra missed, registered with 0x438e60 (0x1e0) by
    0x513050; base is the object list of the scene: the scene object's +0x14, else the scene building's list): links an

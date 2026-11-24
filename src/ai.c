@@ -44,8 +44,6 @@ typedef unsigned int SOCKET;
 unsigned short util_Random(unsigned short n);  /* 0x42ec00, @original: tr.c defines it returning int; this unit's callers read the 16-bit result (mov si,ax / movzx): the original's units saw a 16-bit declaration */
 /* clang-format on */
 
-/* full rebuild: the symbols whose original addresses the code above spells literally */
-
 /* 0x47d9e0, the AI module's init at the start of a game: resets the character update cycle (start index, last
    update time at day 0 06:00, count carry), loads the action table (returns 0 when that fails) and seeds the two
    weapon lists */
@@ -6482,7 +6480,6 @@ int ai_MeisterTradeFernEinkauf2(AICHAR *ch, AIOBJ *b) {
 AICHAR *ai_Partner = 0; /* 0x6f0468 */
 int ai_TradeMsgCount =
     0; /* 0x6f046c, the trade messages sent since the last reset */
-extern AIGRID ai_Grid[8][8];
 int ai_TradeMsgOff; /* 0xf86a24, read-only in every source: nonzero suppresses the trade
                                           message and its count (never set in this build) */
 int ai_NSlots;          /* 0xf86a28 */
@@ -6499,6 +6496,5 @@ int ai_WeaponList
     [10]; /* 0xf8a0e0, goods ids of the first weapon list (0-terminated) */
 AIWATCH
 ai_Watch; /* 0xf895a0, what the watched building's masters did (0xb00 bytes) */
-extern int ai_NetPlayer;
 float ai_DifficultyValue = 1.0f; /* 0x5fef04 */
 float ai_DifficultyScale = 0.5f; /* 0x5fef08 */

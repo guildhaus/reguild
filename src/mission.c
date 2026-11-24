@@ -227,19 +227,6 @@ G13MIS *ai_NewMission(int owner, int type, int x) {
   return 0;
 }
 
-int d2_OpenForm(short x, short y, char *name); /* 0x4741f0 */
-void d2_CentreViewWindows(int view);           /* 0x475600 */
-void d2_CloseView(int view);                   /* 0x4758f0 */
-int d2_SetForm(int view, int n);               /* 0x475f70 */
-extern int d2_ClickedId;                       /* 0xf8a668 */
-int io_PrintText(intptr_t fmt, ...);           /* 0x515960, defined elsewhere */
-int sv_RunFrame(void (*cb)(), unsigned mask);  /* 0x5309a0, defined elsewhere */
-struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text,
-                               int var); /* 0x4c2760, plays a speech sample */
-int sb_IsPlaying(struct SBSAMPLE *s);    /* 0x426f20 */
-void sb_Stop(struct SBSAMPLE *s, int fade); /* 0x427290 */
-extern int sv_PopRequest;                   /* 0x6f22a0 */
-
 /* 0x4b3d50, the mission offer dialog of the type: shows the mission form and its texts, plays the offer speech
    "_AUFTRAEGE_VERGABE_HS_nn", 1 when the player accepts */
 int ai_MissionOfferDialog(int type, int id) {
@@ -282,19 +269,9 @@ typedef struct G13RADIO { /* 0x8c bytes, d2.h's D2RADIO */
   int objs[0x20]; /* 0x0c */
 } G13RADIO;
 
-extern struct D2OBJ *d2_Objs; /* 0xf8f080 */
 extern G13RADIO d2_Radios[8]; /* 0xfa5aa0 */
-extern int d2_PointerObj;     /* 0x5fe710, focused object */
-extern int d2_LastWindow;     /* 0x6ed938 */
-extern unsigned char kb_Last; /* 0x1468410 */
-extern int sv_FrameMask;
 void d2_CreateScrollButtons(int x, int y, int win, int obj,
                             int pic);       /* 0x472270 */
-int d2_GetWinObj(int view, int idx, int k); /* 0x475b80 */
-int d2_CreateRadioGroup(int n, ...);        /* 0x46c490 */
-void d2_RadioAdd(int g, int obj);           /* 0x46c560 */
-void d2_RadioClear(int g);                  /* 0x46c600 */
-void d2_MenuNavigate(int g);                /* 0x46c6c0 */
 
 /* 0x4b3e70, the dialog "special\CHOOSE_MISSION": lists the mission types of kind, offers the one picked
    (0x4b3d50); returns its type (0xff: none) */
@@ -336,8 +313,6 @@ int ai_ChooseMissionType(int kind) {
   d2_CloseView(view);
   return chosen;
 }
-
-void d2_RadioSelect(int g, int sel); /* 0x46c630 */
 
 /* 0x4b4040, the dialog "Menu\CHOOSEHISTORY": picks the mission kind ai_MissionMode (0..5, the first button:
    none) and then a mission (0x4b3e70); returns its type (0xff: cancelled) */
@@ -398,8 +373,6 @@ int ai_ChooseMission(void) {
   d2_CloseView(view);
   return r;
 }
-
-void d2_SetObjEnabled(int obj, int on); /* 0x475e40 */
 
 /* 0x4b4280, 0x4b4040 with the first n kinds disabled (0x475e40) and a cancel button (returns 0xff); passes
    0x4b4040 to 0x5309a0 (sic) */
@@ -772,7 +745,6 @@ int ai_CondDecisionSumZero(AICHAR *c, G13TYPE *t) {
 
 struct VFSFILE;
 struct ORDSTATS;
-float ord_GetStatistics(struct ORDSTATS *o); /* 0x4f9e00, defined elsewhere */
 
 /* 0x4b4dc0, mission condition (type 46, from year 10): the order statistics' rating base (ai_RatingBase,
    ORDSTATS.base) is at or above t->goal, held for t->threshold minutes (ai_TimedCondition) */
@@ -816,7 +788,6 @@ int ai_CondPlayerHoldsNoBuilding(AICHAR *c, G13TYPE *t) {
   return 1;
 }
 
-extern unsigned char ai_GameState; /* 0x6f25ac, missions on */
 int ai_MissionForceDone =
     0; /* 0x6f0728, 1: the next fulfilled test passes once (no writer in the build) */
 
@@ -1020,10 +991,6 @@ void ai_MissionInfoDialog(int type, int id) {
     sb_Stop(snd, 0x19);
 }
 
-extern volatile unsigned long d3_Time; /* 0x6333cc, milliseconds */
-int sb_IsInit(void);                   /* 0x4273c0, sound on */
-void snd_ClearQueue(void);             /* 0x4c01b0, defined elsewhere */
-
 /* G13_PLAY: plays snd until it ends or button ok is pressed; without sound waits 250 ms (or the button) */
 #define G13_PLAY(snd, ok, id)                                                  \
   {                                                                            \
@@ -1118,22 +1085,12 @@ void ai_MissionEndDialog(int id) {
   d2_CloseView(view);
 }
 
-extern int ai_GameOver;
-void sv_PopTo(void (*v)());  /* 0x52fb50, defined elsewhere */
-void main_GameLoop(int ctl); /* 0x53bb20, defined elsewhere */
-
 /* 0x4b5950, sets ai_GameOver and runs 0x53bb20 through 0x52fb50 */
 void ai_QuitGame(int x) {
   ai_GameOver = 1;
   sv_PopTo(main_GameLoop);
 }
 
-int cm_SendExSysMessage(
-    unsigned char id,
-    void *msg);             /* 0x4c4db0, defined elsewhere (hmt.h: void) */
-int cm_GetSlotState(int h); /* 0x4c3ae0, defined elsewhere */
-void sv_PumpNet(void);      /* 0x52fe00, defined elsewhere */
-int sb_UnloadSampleBank(struct SBBANK *bank); /* 0x426ba0 */
 void *ai_MissionSampleBank = 0;               /* 0x6f072c, a sample bank */
 
 /* 0x4b5970, the mission complete dialog (after 0x4b5460): a new mission of the same kind (message 0x0a, then
@@ -1425,9 +1382,6 @@ void ai_MissionCompleteSequence(int id) {
     ai_MissionCompleteSingle(id);
 }
 
-unsigned vfs_fwrite(void *buf, int size, int n,
-                    struct VFSFILE *f); /* 0x430e30 */
-
 /* 0x4b62e0, saves the mission kind and the running missions to f */
 int ai_SaveMissions(void *f) {
   int i;
@@ -1452,11 +1406,6 @@ int ai_SaveMissions(void *f) {
   }
   return 1;
 }
-
-int ls_Read(
-    void *buf, int size, int n,
-    struct VFSFILE
-        *f); /* 0x51c920, ls.c: true when the fread returned a positive count */
 
 /* 0x4b63b0, loads the mission kind and the running missions from f (cf. 0x4b62e0) */
 int ai_LoadMissions(void *f) {
@@ -1483,5 +1432,4 @@ int ai_LoadMissions(void *f) {
   return 1;
 }
 
-extern int sv_FrameMask;
 G13MIS ai_Missions[0x80]; /* 0xf82320 */

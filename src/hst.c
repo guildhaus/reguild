@@ -1402,10 +1402,6 @@ int ai_CommandPrison(G12ROW *row, int k, char *fmt) {
   return 0;
 }
 
-int gm_FindObjectProto(char *s); /* 0x4fe900 */
-int cm_SendExSellObject(int a, int b, int c, int d, unsigned char e,
-                        int f); /* 0x4c4880 */
-
 /* 0x4b0950, the AMTSTRAEGER_INVENTAR_PLUS text command (callback 0x601b50[12], name 0x601070[12]) "-xxxNAME":
    0x4c4880 from every titled character (byte 0x166 or 0x169) with the value of 0x4fe900(fmt + 4) */
 int ai_CommandOfficeInventoryPlus(G12ROW *row, int slot, char *fmt) {
@@ -1621,12 +1617,6 @@ int ai_CommandRiot(G12ROW *row, int slot, char *fmt) {
   return 1;
 }
 
-int amt_GetFirstOffice(unsigned int k,
-                       struct AMTREC *out); /* 0x4e6ec0, defined elsewhere */
-int amt_SendOfficeMessage(unsigned char a, struct AICHAR *b, struct AICHAR *c,
-                          int d,
-                          unsigned char e); /* 0x4e6680, defined elsewhere */
-
 /* 0x4b1060, the GILDENSITZE_BRACH text command (callback 0x601b50[17]): frees the holders of the offices
    0x1e..0x21 (0x4e6680) and sends message 0x80 (arg 4), today 8:00 */
 int ai_CommandBreakGuildSeats(G12ROW *row, int slot, char *fmt) {
@@ -1656,9 +1646,6 @@ int ai_CommandBreakGuildSeats(G12ROW *row, int slot, char *fmt) {
   cm_SendLongMessage(&msg);
   return 1;
 }
-
-void cm_SendGoodsRecord(void *p,
-                        unsigned char k); /* 0x4c56d0, defined elsewhere */
 
 /* 0x4b11e0, text command "-PLUS_<kind>_n" / "-MINUS_<kind>_n" (kind WAFFEN / BUECHER / ENDPRODUKTE): scales
    the prices of the player's stock of that kind by 1 +- n% (0x4c56d0). Open: cm_SendGoodsRecord (0x4c56d0, message
@@ -2082,9 +2069,6 @@ void hst_ResetLists(void) {
 /* 0x4b1f90, switches the history texts on / off */
 
 void hst_SetTextsOn(unsigned char on) { hst_TextsOn = on; }
-
-extern int txt_Loaded;         /* 0xfe7c20 */
-extern char *txt_Ptrs[0x4800]; /* 0x143a1c0 */
 
 /* 0x4b1fa0, leaked name: copies text k (a text number, or a string above 0x4800) to out with every label
    "[name#text]" replaced by its text; the error messages are written to a local buffer only */
@@ -2812,19 +2796,6 @@ int hst_NextEvent(char *name, char *out) {
 }
 
 extern D2WIN d2_Wins[];                   /* 0xf8f120 */
-extern int d2_LastWindow;                 /* 0x6ed938 */
-extern struct D2WIN *d2_LastWindowPtr;    /* 0x6ed980 */
-extern int d2_ClickedId;                  /* 0xf8a668 */
-void d2_SetPointerSprite(int a, int pic); /* 0x476f80 */
-int d2_SetForm(int view, int n);          /* 0x475f70 */
-void d2_CreateScrollButtons(int x, int y, int win, int obj,
-                            int pic);         /* 0x472270 */
-int sv_CreateScrollForm(void);                /* 0x52fa10, defined elsewhere */
-void sv_ScrollFormAnimate(void);              /* 0x52fad0, defined elsewhere */
-void sv_DestroyScrollForm(void);              /* 0x52fa90, defined elsewhere */
-int io_PrintText(intptr_t fmt, ...);          /* 0x515960, defined elsewhere */
-int sv_RunFrame(void (*cb)(), unsigned mask); /* 0x5309a0, defined elsewhere */
-extern int sv_PopRequest;                     /* 0x6f22a0 */
 
 /* 0x4b3350, the history dialog: shows the events of last year (0x4b3280) one after the other */
 void hst_LastYearDialog(void) {
@@ -2956,12 +2927,6 @@ void hst_LastYearCmdDialog(int cmd) {
   } while (sv_RunFrame(hst_LastYearCmdDialog, 0x66087));
   sv_DestroyScrollForm();
 }
-
-extern int cm_NetFlags; /* 0x6f2594, game flags (8: network game) */
-extern int hst_SeedPending;
-int cm_SendExSysMessage(unsigned char id,
-                        void *msg); /* 0x4c4db0, defined elsewhere */
-void sv_PumpNet(void);              /* 0x52fe00, defined elsewhere */
 
 /* 0x4b3960, the yearly history: tells the others (message 5 with the tick count) in a network game, waits
    while hst_SeedPending, then shows the history dialog of hst_TextsOn (1: texts, 2: texts and commands) */

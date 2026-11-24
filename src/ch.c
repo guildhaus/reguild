@@ -61,9 +61,6 @@ int ch_DirtyX0 = 256;     /* 0x5f12a8, changed ground rectangle */
 int ch_DirtyZ0 = 256;     /* 0x5f12ac */
 
 extern unsigned char ch_PathBuf[1024];
-extern CHARACTER *ch_List[CH_MAX];
-extern PATHOUT ch_Path;
-extern CHACTDEF ch_ActDefs[64];
 extern int ch_Ground0[65536];
 extern int ch_Ground1[65536];
 extern CHFADE ch_Fades[16];
@@ -85,7 +82,6 @@ struct D3SCENE *ch_Saved0 = 0; /* 0x631084 */
 D3SCENE *ch_Saved1 = 0;        /* 0x631088, the same for ch_Ground1 */
 D3SM *ch_PathMap = 0;          /* 0x63108c */
 char ch_EmptyName[1] = {0};    /* 0x631090, "" */
-extern D3SCENE d3_Scenes[D3_MAX_SCENES];
 unsigned char
     ch_PathBuf[1024]; /* 0x14686e0, the cells path_Find writes for ch_Path */
 CHARACTER *ch_List[CH_MAX]; /* 0x1468ae0, the characters by id (CHARACTER.id) */

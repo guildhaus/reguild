@@ -9,8 +9,6 @@
 #include "amt.h"
 #include "data_views.h"
 
-/* full rebuild: the symbols whose original addresses the code above spells literally */
-
 #define AMT_MONEY_UNIT                                                         \
   64 /* money in the character messages counts in multiples of this: the amounts of the 0x4c4830 sites are built as n * 0x40 */
 
@@ -1239,7 +1237,6 @@ AMTKIND amt_Kinds[40] = {{0, 0, 0, "", 0, 0, 5.0f},
                          {38, 8, 12, "", 50000, 0, 5.0f},
                          {39, 8, 12, "", 50000, 0, 5.0f}}; /* 0x60ed58 */
 int amt_Flip = 2;                                          /* 0x60f118 */
-extern AMTREC amt_Table[42];
 const AMTRATEROW amt_TabA[15] = {
     {11, {0.0f, -3.0f, -5.0f, -3.0f, -8.0f, -8.0f, -12.0f, 0.0f, -15.0f}},
     {12, {0.0f, -3.0f, -5.0f, -3.0f, -8.0f, -8.0f, -12.0f, 0.0f, -15.0f}},

@@ -55,8 +55,6 @@ extern GAPDATA full_data_629188[];
 #include "mission.h"
 #include "menu.h"
 #include "ch.h"
-extern int sv_PopRequest;
-extern INIT_PLAYER init_PlayerProfile;
 extern int main_ChoosePlayer(int mask, int flag);
 
 int sprintf(char *buf, const char *fmt, ...);

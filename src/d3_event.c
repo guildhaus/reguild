@@ -65,8 +65,6 @@
 /* The stock list head lives inside its 0xfc2e00 head sentinel (the original's +0x1fc relationship). As a
    separate COMMON pointer the linker would not keep it adjacent, so the loader would link the first object
    into one address while the readers start from another. */
-extern D3INITCFG d3_Cfg;
-extern D3PARTSYS d3_ParEnd;
 void d3fl_FreeMap(struct D3FLMAP *map); /* 0x43ff90, d3_fl.c */
 
 int d3e_NoHandler(

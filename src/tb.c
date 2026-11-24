@@ -117,9 +117,6 @@ int tb_IsFunctionOff(TBPROC proc) {
   return 0;
 }
 
-extern TIMECAPS tb_Caps;
-extern UINT tb_Delay;
-extern TBFUNC tb_Funcs[32];
 MMRESULT tb_Timer = {0}; /* 0x6333c8 */
 volatile unsigned long d3_Time =
     0; /* 0x6333cc, the millisecond counter tb_TimerProc advances */

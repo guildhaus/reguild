@@ -1913,4 +1913,3 @@ GVEFFECT gv_Effects[8] = {0}; /* 0x6f1008, 8 slots of */
 int gm_IncomeHistory
     [5]
     [17]; /* 0x91b580, the 17-round history of the five income sums (five rows of 17 ints; [row][16] is the current sum) */
-extern GVCANNON gv_Cannon;

@@ -6704,64 +6704,17 @@ int cm_ExLobby(G17MSG *m, G17STAT *s) {
 
 /* dcp unit split: the declarations that moved to cmfight (copies: drop what cm does not use) */
 
-extern unsigned int ai_MissionSeed;
-extern struct AIBLD *sv_SelectedObject;
 extern char cm_ChatLog[2048];
 extern int cm_SaveAcks[8][2];
-extern int ai_Evidence[0x800][2];
-extern int cm_SavedScene;
-extern struct AICHAR *cm_DuelRight;
-extern struct AICHAR *cm_DuelLeft;
 extern int cm_DuelVariants[128];
-extern int cm_OrderTicks;
 extern unsigned short cm_DisabledObjs[768];
-extern unsigned int cut_RandState;
 extern CMKIND cm_Kinds[12];
 extern char cm_SceneState[1152];
-extern struct CHARACTER *cm_SceneChars[16];
-extern int cm_SavedNoGroup;
-extern float cm_OrderChances[0xb4];
 extern struct D3OBJECT *cm_PointList[32];
-extern CMPORTRAIT cm_Portraits[6];
-extern G18POP cm_DamagePops[16];
 extern AICHAR cm_Fighters[32];
-extern struct D3OBJECT *cm_FlagObjects[32];
-extern float cm_FightCellScale;
 extern int cm_CharInfoWins[32];
-extern G18LOG cm_LobbyChat[15];
-extern int cm_LobbyChatNext;
 extern unsigned int cm_LobbyList[9];
-extern UDPSERVER cm_NetGame;
-extern CMLOBBYPLAYER cm_LobbyPlayers[8];
-extern int cm_LobbyPlayerId;
-extern int cm_LobbyHelloValue;
-extern G17MSG cm_RecvPool[0x2000];
-extern int cm_LastSyncCount;
-extern int cm_NextNetStep;
-extern CMSPLITBUF cm_SplitMsg;
-extern G17MSG *cm_RecvFree;
-extern unsigned int cm_GroupEndSeq;
-extern int cm_FieldBlockLen;
-extern G17FIELDS cm_FieldBlock;
-extern G17FIELDS ai_NeedBlock;
-extern unsigned int cm_LastRequCount;
-extern int ai_NeedBlockLen;
-extern G17MSG *cm_RecvQueue;
-extern char *cm_FieldObject;
-extern int cm_SplitMsgLen;
-extern struct AICHAR *ai_NeedBlockChar;
 extern unsigned char cm_LongMsg[1024];
-extern G17MSG cm_SendRing[0x8000];
-extern char *cm_LoadBuf;
-extern int cm_DayEndRequest;
-extern G17STAT cm_SendStates[0x8000];
-extern G17MSG *cm_SendQueue;
-extern unsigned int cm_LongMsgLen;
-extern G17MSG cm_RecvMsg;
-extern unsigned int cm_GroupFirstSeq;
-extern char d2_CaptionCopy[0x80];
-extern int cm_PickCellX;
-extern int cm_PickCellZ;
 const int cm_SpeedTicks[] = {1155, 937, 770, 577, 385, 0}; /* 0x5edc10 */
 int cm_SpeedTick = 770;                                    /* 0x60bd80 */
 unsigned int cm_SpeedLevel = 2; /* 0x60bd84, = 2 (0..4) */
@@ -6924,10 +6877,6 @@ int cm_NoticeCount = 0;    /* 0x6f0cd4 */
 int cm_LobbyChatCount = 0; /* 0x6f0cd8, the lines in the ring (at most 15) */
 int cm_LobbyChatPos =
     0; /* 0x6f0cdc, the index of the line the chat window reads next (cm_LobbyChatFirst / 0x4cd4c0) */
-extern unsigned int ai_MissionSeed;
-extern struct AIBLD *sv_SelectedObject;
-extern char cm_ChatLog[2048];
-extern int cm_SaveAcks[8][2];
 /* ai_Unk770d8c (0x770d8c): inside ai_Chars[0] (+0x20c), no reader left (data_views.h has no view of it) */
 G18LOG cm_LobbyChat[15]; /* 0x935da0 */
 int cm_LobbyChatNext;    /* 0x9363f4 */
@@ -6974,10 +6923,6 @@ unsigned
     cm_LoadSize; /* 0xa68d28, the received bytes and the expected length (compared unsigned */
 int cm_LastSeq;           /* 0xf81168 .. */
 unsigned cm_LoadReceived; /* 0xf81220 / */
-extern AIWATCH ai_Watch;
-extern char d2_CaptionCopy[0x80];
-extern int cm_PickCellX;
-extern int cm_PickCellZ;
 
 /* unlinked: the handler of message type 2, which returns 1; LINK folds it (/OPT:ICF) into
    ai_AlwaysTrue, 0x4a8c10, where the original's cm_Handlers[2] points */
