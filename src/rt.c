@@ -208,31 +208,34 @@ void rt_ReadMarkValues(void) {
    its object 0xff holds more than one of (with their names); then "none" (picture 0x527, the entry 0). Runs the
    frame loop until a pick or a right click; returns the goods picked (0: none), def when nothing was picked.
    x is not read
-   @deep deep s60: the hunks are one race: ours const 1 (const#0#4, prio 23) is served in pass 1 and takes
-   ebp (0x525 const#0#7 prio 30 took ebx first: choice tie -> ebx), w's pass-2 piece ebx; the original has
-   0x525 in ebp, 0xf (k#0#2) in edi, 0x23 (k#0#1) as an immediate and 1 in ebx loaded per branch after n =
-   0 (mov ebx,1 x3: the 10 bytes of the size gap), i.e. 1 lost pass 1 and was split. FOUND: a byte-flagged
-   constant web gives the original's registers everywhere (5 ins: only the probe and the per-branch loads
-   left): a probe byte store { extern char cprobe; cprobe = K; } at almost any statement with K = 0, 1, 3
-   or 4 (not 2/5/6/7/9/0xf/0x1c/0x23/0x40/0xdf/0x525; a short store only with 1): the waiting byte constant
-   makes 0x525 avoid ebx. The original has no byte/short op with those constants (only mov cl,[b->type],
-   mov al,[t->kind], cmp al,0x1c / 9, cmp word [gm_KindObjCount],si), so look for the source construct that
-   flags 0/1/3/4 (a char/short typed callee parameter or field taking one of them; d2_WinOpenPic's short
-   x/y; d2_OpenForm's short 0,0 = no). The per-branch split needs 1's priority lower too: flip from the
-   probe base hits only meaning changes (branch 1's interactive = 1 removed). No lever (= control): (char)1
-   casts at every 1 site, a char/int local set to 1 per branch and used for every 1 (propagated away),
-   redundant item/store null tests or breaks in the item loops, labels / global-copy probes at every
-   position, short casts of the loop bounds, while loops, k for the final loop, store/item block locals,
-   ret/PopRequest order. Worse: n = 0 once at the top / before the query, kind in a local, t inline or
-   after w, def as the result, i <= count, tail store orders, (unsigned short)(count + 1). climb 3 rounds
-   with short/char types: nothing. prior: s45: c2trace again: ours serves const 1 (const#0#4, lines
-   282-342, prio 23) in pass 1 and it takes ebp, not ebx, from avail{ebx ebp esi edi}; the original has 1
-   in ebx (mov ebx,1 after each branch's n = 0, live into the tail's interactive / sv_PopRequest stores)
-   and w's top piece in ebp. So two things differ: const 1 is cut in pass 1 in the original (per-branch
-   pieces), and ours avoids ebx for it (a byte-flagged candidate live across a call ranks above it in
-   ours). initgen (= 0 for each local): all = control. Next: find the byte candidate (t->kind's cmp al,0x1c
-   / 9 CSE?) and a form where the kind is compared once (switch was draft 278 in s11; try the kind in a
-   local char / int), then c2trace --prio 'const#0#4|w'. */
+   @deep deep s60: one race behind all hunks. Ours: const 1 (const#0#4, prio 23) is served in pass 1 after
+   0x525 (const#0#7, prio 30, choice tie -> ebx) and takes ebp whole (load at the head), w's pass-2 piece
+   ebx. Original: 0x525 in ebp, 0xf (k#0#2) edi, 0x23 (k#0#1) immediate, 1 in ebx loaded per branch after n
+   = 0 (mov ebx,1 x3 = the 10-byte size gap), i.e. 1 lost pass 1 and was split. TWO effects needed. (a)
+   0x525 -> ebp: any waiting byte-flagged candidate does it (then 1 -> ebx whole, 5 ins: only the
+   per-branch loads and the probe left): a probe byte store or byte compare of 0/1/3/4 at almost any
+   statement ({ extern char cprobe; cprobe = 1; }), a short store of 1, or ret declared char (24 ins, ret's
+   own loads change); a char parameter of a callee taking the constant (casted d2_OpenForm / d2_SetForm /
+   d2_GetWinObj / gm_Query) does not. The original has no visible byte/short op with those values. (b) the
+   split: only meaning changes give it (one 1 reference less in branch 1: interactive = 0/2/deleted; a
+   duplicated captionX = 4 in branch 3; gm_BuildKindObjects moved), also on the byte-flag base (flip). No
+   lever (= control): (char)1 casts, a char/int local set to 1 per branch used for all 1s (propagated),
+   dead char stores / compares, redundant item/store null tests / breaks, continue forms of the three item
+   loops (7 masks), objs[n] = o = .. forms (45), block-local o / k / store / item, kind as an unsigned char
+   / char local at the test, decided kind re-tests, labels / global probes at every position, short casts
+   of the loop bounds, types of locals (ret / w / o / i / n / x / objs: none = control or worse). Worse:
+   switch on kind (278), n = 0 at the top, kind local at the top, the tail written in each branch (not
+   merged), i <= count, tail store orders. climb 4 rounds (types incl. short / char): nothing. Next: find
+   the plain construct that both byte-flags one of 0/1/3/4 and lowers 1's pass-1 priority (a byte field /
+   char flag of the original's D2OBJ / AIOBJ / gm_ globals used here; a field type outside the function,
+   guide 7.10). prior: s45: c2trace again: ours serves const 1 (const#0#4, lines 282-342, prio 23) in pass
+   1 and it takes ebp, not ebx, from avail{ebx ebp esi edi}; the original has 1 in ebx (mov ebx,1 after
+   each branch's n = 0, live into the tail's interactive / sv_PopRequest stores) and w's top piece in ebp.
+   So two things differ: const 1 is cut in pass 1 in the original (per-branch pieces), and ours avoids ebx
+   for it (a byte-flagged candidate live across a call ranks above it in ours). initgen (= 0 for each
+   local): all = control. Next: find the byte candidate (t->kind's cmp al,0x1c / 9 CSE?) and a form where
+   the kind is compared once (switch was draft 278 in s11; try the kind in a local char / int), then
+   c2trace --prio 'const#0#4|w'. */
 int rt_ChooseGoodsDialog(AIBLD *b, int x, int def) {
   int ret;
   AIOBJ *store;
