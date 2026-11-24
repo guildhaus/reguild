@@ -3966,6 +3966,13 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   order hunk (`cmp eax,1` before `mov esi,eax` after ftol): the clamp as `if ((int)x > 1) n = (int)x; else
   n = 1;`, not `n = (int)x; if (n <= 1) n = 1;` (ternary / assignment-in-test = control) (he_RunMasterWork
   byte).
+- **An in-value and an out-parameter of one call in ONE slot (`f(.., t[0], t[1], &t[1], &t[0])`, the slot
+  order "needs" a 12-byte aggregate)**: they were four locals, `f(.., gx, gz, &ox, &oz)` as the sibling
+  ch_PathToTarget has it: gx dies at the call where ox's life starts (the callee is defined above, so the
+  addresses do not escape), the packer puts gx with oz and gz with ox, and the counts drop from 7 to 3 / 4,
+  below x / z (ch_InitWalk 30 ins -> byte; s38's `int t[3]` + `(float *)&t[2]` matched the frame but
+  escaped the aggregate through the external d3_GetHeightAt, which ordered the pointer load after its
+  stores). A slot an original call reads as value AND passes by address = try one local per role first.
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).
