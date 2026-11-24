@@ -2044,6 +2044,21 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s66**:
+  - **A CSE temp in eax where the original has edx, the accumulator built through a new register (`lea
+    edx,[eax+esi]; lea esi,[edx+eax*4]`) where the original adds in place (`add esi,edx; lea
+    esi,[esi+edx*4]`), the next loop's `xor eax,eax` scheduled between them: the loop counter's init stands
+    before the update** (ord_LoadStatistics 8 -> byte): `n++; w += l * 5; for (i = 0; i < 5; i++) ..` ->
+    `n++; i = 0; w += l * 5; for (; i < 5; i++) ..` (also `for (i = 0, w += ..; ..)` or a do / while: one
+    code). c2trace showed the level temp (3 refs) taking eax after i#1; with i live across the update the
+    temp cannot share eax. Earlier rounds (w forms, level locals, the six orders of n++ / w / the loop, climb
+    4 rounds) never moved it: a loop counter's init position is its own lever.
+  - **A record field read through the record pointer, not the array (d2_OpenForm, meaning)**: the original
+    reloads the record pointer r from its slot (`mov edi,[esp+0x18]`) for the slider length and the
+    version-0 tail, so `((D2FORM2 *)r)->slen[k]` (version-0 forms read their own record), not
+    `d2_Forms2[i].slen[k]`. A field read through `[reg + slot-loaded pointer]` after a join is the local
+    pointer, whatever the array it came from.
+
 - **Deep s65**:
   - **Loop counters' registers at a tile-loop head (n in esi where the original keeps it in memory and tx in
     esi up to `cmp esi,7`): a value set by if / else instead of a default plus an in-place update**
