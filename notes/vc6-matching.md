@@ -3959,6 +3959,13 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   call result was a named float (`skill = gm_GetSkill(w, 1); fv = (skill + 0.5) * fv;`), not the call
   inside the parenthesised sum; the same code otherwise (he_RunProduktion 4 ins -> byte; a double local or
   `skill = call + 0.5` are other code).
+- **Two spilled pointers (a building, a master) one count short in a frame > 0x80, slot groups off all down
+  the frame**: the closing test + message box written in both arms of the outer `if (n != 0) { .. } else
+  { if (kind) .. else .. }` (VC6 cross-jumps the copies; the reloads of bld / master count twice): count 3
+  each, the c2frame replay's groups, 58 -> 2 ins. Written in all three arms is other code (draft). The last
+  order hunk (`cmp eax,1` before `mov esi,eax` after ftol): the clamp as `if ((int)x > 1) n = (int)x; else
+  n = 1;`, not `n = (int)x; if (n <= 1) n = 1;` (ternary / assignment-in-test = control) (he_RunMasterWork
+  byte).
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).

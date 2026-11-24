@@ -4018,19 +4018,7 @@ void he_AllocMasterWork(AIJOB *e) {
    0x412c / 0x412d / 0x412e else; a full store 0x4225 / 0x412f; the voices "_NACHRICHTEN_ZIGEUNER_03" /
    "_NACHRICHTEN_FRIEDHOF_01"); then the workers leave the group and the event is freed. The 1.0f is a literal
    (VC6's pooled 1.0f, 0x5eb780): spelled as an object VC6 loads it first and keeps the rate on
-   the FPU stack (fld / fadd st, st(1)), which the original's fadd [0x5eb780] does not.
-   @deep 58 ins, stack slots only (plus 6 regs / 4 order that follow them). The original's slot groups
-   (read from its pushes): {loop count of the ids loop, busy, master} 0x10, {bt} 0x14, {hour, bld} 0x18,
-   {the two gm_BuildingSkill int temps} 0x1c, {minutes, step} 0x20, {store} 0x24, {season} 0x28; ours {tmp,
-   busy}, {minutes, step, master}, {hour, both temps}, {bt}, {store}, {season}, {bld}. c2frame replay: the
-   original's groups come out exactly when master and bld each have one more counted reference (count 3:
-   they are then packed before the count-2 locals: master joins busy's slot, bld opens one that hour then
-   joins, the temps conflict with bld and open their own). Their counts are spill / reload IL ops (bld: the
-   store after gm_BuildQuery and the reload for bld->id at the end; master: the store after
-   gm_FindCharacterByMaster and one reload). s41 no lever: all 720 declaration orders (one code), removing
-   hour / bt = 0 / store = 0 (draft), climb 2 rounds (958 mutants, nothing), the kind / master tests as one
-   && or master outer, master read after gm_FreeCapacity. Next: a source where bld and master are reloaded
-   once more before the late passes (a second use in another block, e.g. bld in the store-full arms) */
+   the FPU stack (fld / fadd st, st(1)), which the original's fadd [0x5eb780] does not. */
 void he_RunMasterWork(AIJOB *e) {
   AIJOB *p = e;
   char voice[0x98];
@@ -4100,8 +4088,9 @@ void he_RunMasterWork(AIJOB *e) {
   }
   if (e->stage != -2 && e->stage != -1)
     return;
-  n = (int)p->masterworkMade;
-  if (n <= 1)
+  if ((int)p->masterworkMade > 1)
+    n = (int)p->masterworkMade;
+  else
     n = 1;
   if (e->stage == -1 && sv_UsedGroupSlots(e) <= 0)
     n = -1;
@@ -4127,17 +4116,24 @@ void he_RunMasterWork(AIJOB *e) {
           txt_Format(what, 0x412e, n, p->masterworkGood * 2 + 0x9a8);
       }
       strcat(text, what);
-    } else if (bt->kind == 0x1f) {
-      txt_Format(text, 0x4225, 0x421e, 0x22c, bld);
-      strcpy(voice, "_NACHRICHTEN_ZIGEUNER_03");
+      if (ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) {
+        if (master == 0 || !(master->flags1b4 & 1))
+          he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec,
+                                 bld->id, -1, 0, voice);
+      }
     } else {
-      txt_Format(text, 0x412f, 0x4128, 0x228, bld);
-      strcpy(voice, "_NACHRICHTEN_FRIEDHOF_01");
-    }
-    if (ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) {
-      if (master == 0 || !(master->flags1b4 & 1))
-        he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec,
-                               bld->id, -1, 0, voice);
+      if (bt->kind == 0x1f) {
+        txt_Format(text, 0x4225, 0x421e, 0x22c, bld);
+        strcpy(voice, "_NACHRICHTEN_ZIGEUNER_03");
+      } else {
+        txt_Format(text, 0x412f, 0x4128, 0x228, bld);
+        strcpy(voice, "_NACHRICHTEN_FRIEDHOF_01");
+      }
+      if (ai_Chars[e->chr].kind == 6 || ai_Chars[e->chr].kind == 7) {
+        if (master == 0 || !(master->flags1b4 & 1))
+          he_MessageBoxQuickjump(ai_Chars[e->chr].netId, -1, text, 0, 0x5ec,
+                                 bld->id, -1, 0, voice);
+      }
     }
   }
   for (i = 0; i < 4; i++) {
