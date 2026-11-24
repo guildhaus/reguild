@@ -1953,6 +1953,31 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     line that is only `{`): fixed. Its `inline` operator inlines a side-effect read (`*p.b++`) into a loop test
     (meaning change; check its leads).
 
+- **Deep s55 (4 items, all byte: d2_BankConvertTo16, d3_InitObject, d3_SetObjectAlpha, sv_TabButtonRow)**:
+  - gv_FireShots' volatile replaced: `memcpy(&v2, &v, sizeof(v2))` (or `*(int *)&v2 = *(int *)&v`) is byte
+    too: a copy through v2's address keeps it in memory. Still @original; `*&v2 = v`, `*(float *)&v2 = v`, a
+    float pointer, v2 block-local, the copy after the memset or in each mode arm, v modified later: forwarded.
+  - **A loop temp one rotation step off in the second of two equal arms** (d2_BankConvertTo16: arm 2's `mov
+    ecx,[edi]` where both arms have eax): a probe read `{ extern int probe, probe2; probe2 = probe; }` placed
+    at each statement found it at the top of arm 2's loop body; the original named the shape pointer
+    (`s = (D2SHP *)((char *)bank + bank->offs[i]); sh = d2_ShpConvertTo16(s, 1);`): a body piece replaces the
+    temp. Probe a rotation hunk by position before any spelling round.
+  - **A register race decided by a CSE temp against a named local** (d2_BankConvertTo16: `size = bank->size`
+    lost to the offs pointer by 4 points): no size local, `bank->size` at each use (the test, `n = bank->size -
+    total`, `n = total + bank->size`): the CSE temp outranks the IV (34 -> 12). Arm 2 needs its named n.
+  - **Byte flag masks as bitfield writes** (d3_InitObject: `stateFlags &= 0xc1` as four `stateBits.x = 0;`
+    statements fixed a loop's SIB order elsewhere, a value-numbering tie); VC6 merges consecutive bitfield
+    writes into one RMW placed at the LAST statement (splitting them across other statements moves the load
+    too). Its store order then came from a block permutation of the units (pointer clears, flag group,
+    objectFlags, state, flags: 120 orders, one byte): `meshMode .. sound` first.
+  - **SIB base / index order = which loops share the index variable, again** (d3_SetObjectAlpha, 4 swaps, three
+    sessions): the two arms' inner search loops with different counters (j in one, k in the other), the outer
+    i shared: a 36-row assignment round found it.
+  - **An IV tie (109 / 109) decided by the IL order of the loop step** (sv_TabButtonRow: the whole function
+    ebx <-> edi): `x += step` in the for header after `i++` (`for (i = 0; i < n; i++, x += step)`), not as the
+    body's last statement; the original's latch `inc esi; add edi,0x40; add ebx,ebp` names it (the x step
+    last). Single-use locals for the call arguments fold (= control). The twin sv_ButtonRow is likely the same.
+
 - **Which late passes delete instructions in a function: the call-skip map (d3t_MoveObjectPath, not byte)**:
   `tools/c2dag/c2fuzz.py` with the unit itself as probe (`C2FUZZ_PROBE`, the function in its probe form) switches
   off each of c2.dll's 15353 calls in turn (12 minutes); the sites where the function only GAINS instructions are
