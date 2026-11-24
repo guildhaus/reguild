@@ -1560,21 +1560,18 @@ void d3t_SetSnow(D3TSNOW *snow, int n, ...) {
   }
   va_end(ap);
 }
-/* 0x414ea0, moves the snow flakes with the camera, the wind and the fall, and projects them. The locals x and y
-keep the x update on the FPU stack and fix the sy2 operand order. Initializing fall at the top puts it below wind on the stack. @deep deep s48: c2dag: the head block is cut at 81 nodes right after move.z's fmul; the fstp move.z is the first node of the second region (h 161 against the cam04c copies' 169..171), so its place there is a height question in region 2 (flip.py's wx / wz deletions lowered it). Rounds: one parenthesised term (or the first two grouped) in each of o.x, o.y, move.x/y/z (17: best = control 4, others 10..29), each term of the wind / fall lines parenthesised (18: 6..8+), wx / wz written inline (= control), the cam04c copies after the wind lines, move.N = move.N * 0.0025f (= control), initgen: = control. Left: the move.z fstp at 0x415000. prior: deep s23: wz = snow->windz without the parentheses: 8 -> 4 ins (the viewport loads now at the original's place). Left: the move.z store (fstp) one load later than the original (after mov ecx,[eax+0x50] instead of before). All 720 orders of the move scaling / cam04c copies: no lever; climb round 1 nothing; flip.py: deleting wx = / wz = (a load fewer) or dup of a cam04c copy flips it. The fall / wind transforms through vector temporaries (fall in place via x / y, the wind source as d): worse. */
+/* 0x414ea0, moves the snow flakes with the camera, the wind and the fall, and projects them, as d3t_UpdateRain
+does (the vel vector per flake). fall's initializer (0, -1, 0) puts it below wind on the stack. @deep deep s50: now 2 ins: move.z = (move.z * 0.0025f) (the parenthesised product is an IL node, op 263, ahead of the fstp in region 2) and the loop as d3t_UpdateRain's (vel per flake, no x / y temporaries; the same code), fall's initializer instead of the top stores (same code). Left: the fstp move.z one step LATE now: mov edx; store cam04c.x; reload d3_Camera; mov ecx,[eax+0x50]; fstp (the original: fstp before mov ecx). c2dag: the 263 node (h 162, prio 162*8192, no bonus) is only issued in the reload's latency slot, then mov ecx (1417216) beats the fstp (1384449). Without the 263 (s49 text): the fstp (161*8192+65537) beats the store (169*8192) by one unit and comes one step EARLY. Both chains meet at wind.x's first fmul [eax+0x18c]: fstp -> fld windx -> fld windz -> fld st(1) -> fmul is 8 heights, the store's reload chain 16, fixed by the code; so a third form is needed (the fstp ready after the store but losing to it, or ready only in the reload's slot). No lever this session: move scaling inline per subset, every placement of the three copies among the move / scale lines (83, x2 with the paren form), (m * k) / (m) * k / m * k forms for x, y, z (63: 6 codes), a whole-RHS paren on each head statement and every pair (190: 12 codes, none closer), wx / wz / gy at every position, cam04c as a struct copy, e / w / g as vectors, viewport statements in all 119 orders, fall before wind, mz as its own float, climb 3 rounds (838) and 6 rounds --unsafe seed 7 (1362) on the 4-ins text: nothing. flip.py on the 2-ins text: only deleting a cam04c copy or a loop statement. prior: deep s48: c2dag: the head block is cut at 81 nodes right after move.z's fmul; the fstp move.z is the first node of the second region (h 161 against the cam04c copies' 169..171), so its place there is a height question in region 2 (flip.py's wx / wz deletions lowered it). Rounds: one parenthesised term (or the first two grouped) in each of o.x, o.y, move.x/y/z (17: best = control 4, others 10..29), each term of the wind / fall lines parenthesised (18: 6..8+), wx / wz written inline (= control), the cam04c copies after the wind lines, move.N = move.N * 0.0025f (= control), initgen: = control. Left: the move.z fstp at 0x415000. */
 
 void d3t_UpdateSnow(D3TSNOW *snow, float dt) {
-  D3VECTOR4 d, o, move, wind, fall;
+  D3VECTOR4 d, o, move, wind, fall = {0.0f, -1.0f, 0.0f}, vel;
   D3MATRIX m;
   float ex, ey, ez, wx, wz;
-  float hw, hh, size, cx, cy, f, s, x, y;
+  float hw, hh, size, cx, cy, f, s;
   float gy; /* -1.0f: a literal -1.0f * x is folded, the original multiplies */
   D3TSNOWFLAKE *flake;
   int i;
 
-  fall.x = 0.0f;
-  fall.y = -1.0f;
-  fall.z = 0.0f;
   d.x = snow->campos.x - d3_Camera->rotation.x;
   d.y = snow->campos.y - d3_Camera->rotation.y;
   d.z = snow->campos.z - d3_Camera->rotation.z;
@@ -1596,7 +1593,7 @@ void d3t_UpdateSnow(D3TSNOW *snow, float dt) {
            ez * d3_Camera->matrix._33;
   move.x *= 0.0025f;
   move.y *= 0.0025f;
-  move.z *= 0.0025f;
+  move.z = (move.z * 0.0025f);
   snow->cam04c.x = d3_Camera->pos.x;
   snow->cam04c.y = d3_Camera->pos.y;
   snow->cam04c.z = d3_Camera->pos.z;
@@ -1625,25 +1622,22 @@ void d3t_UpdateSnow(D3TSNOW *snow, float dt) {
 
   flake = snow->flakes;
   for (i = 0; i < snow->count; flake++, i++) {
-    x = flake->pos.x =
-        (wind.x * flake->windScale + fall.x * flake->fallScale) * dt +
-        flake->pos.x + move.x + o.x;
-    while (x < -1.0)
-      flake->pos.x = x += 2.0;
+    vel.x = wind.x * flake->windScale + fall.x * flake->fallScale;
+    flake->pos.x = vel.x * dt + flake->pos.x + move.x + o.x;
+    while (flake->pos.x < -1.0)
+      flake->pos.x += 2.0;
     while (flake->pos.x >= 1.0)
       flake->pos.x -= 2.0;
 
-    flake->pos.y =
-        (wind.y * flake->windScale + fall.y * flake->fallScale) * dt +
-        flake->pos.y + move.y + o.y;
+    vel.y = wind.y * flake->windScale + fall.y * flake->fallScale;
+    flake->pos.y = vel.y * dt + flake->pos.y + move.y + o.y;
     while (flake->pos.y < -1.0)
       flake->pos.y += 2.0;
     while (flake->pos.y >= 1.0)
       flake->pos.y -= 2.0;
 
-    flake->pos.z +=
-        (wind.z * flake->windScale + fall.z * flake->fallScale) * dt +
-        move.z * 2.0f;
+    vel.z = wind.z * flake->windScale + fall.z * flake->fallScale;
+    flake->pos.z += vel.z * dt + move.z * 2.0f;
     while (flake->pos.z < -1.0f)
       flake->pos.z += 2.0f;
     while (flake->pos.z >= 1.0f)
@@ -1651,10 +1645,10 @@ void d3t_UpdateSnow(D3TSNOW *snow, float dt) {
 
     f = size * 3.0f / (flake->pos.z * 2.0f + 3.0f);
     flake->sx1 = flake->pos.x * f + cx;
-    flake->sy1 = y = cy - flake->pos.y * f;
+    flake->sy1 = cy - flake->pos.y * f;
     s = ((1.0f - flake->pos.z) * 13.5f + 1.0f) * flake->pos.w;
     flake->sx2 = flake->sx1 + s;
-    flake->sy2 = y + s;
+    flake->sy2 = flake->sy1 + s;
   }
 }
 /* 0x415380, per frame: eases count and wind toward their targets over time60..time64 / time68..time6c,
