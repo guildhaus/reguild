@@ -689,7 +689,7 @@ exe	0x004324e0	d3anim_NextFrame	d3_anim	byte	readable
 exe	0x00432530	d3path_Tangents	d3_anim	byte	readable		
 exe	0x00432750	d3anim_StepObject	d3_anim	draft	readable	deep	
 exe	0x00433b10	d3anim_FreePath	d3_anim	byte	readable		
-exe	0x00433b50	d3path_Init	d3_anim	shape	readable	deep	
+exe	0x00433b50	d3path_Init	d3_anim	byte	readable		
 exe	0x00433d70	d3anim_CreatePath	d3_anim	byte	readable		
 exe	0x00433f40	d3_FindAnim	d3_anim	byte	readable		
 exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	shape	readable	deep	
@@ -3240,7 +3240,7 @@ exe	0x00513970	init_ParseNumberList	f3init	byte	readable
 exe	0x00513a20	init_LoadCityINI	f3init	byte	readable		
 exe	0x005142e0	io_TownDisplayName	io_text	byte	readable		
 exe	0x00514360	io_TrailingDigits	io_text	byte	readable		
-exe	0x005143d0	io_CharacterName	io_text	shape	readable	deep	
+exe	0x005143d0	io_CharacterName	io_text	byte	readable		
 exe	0x00514e90	io_CharacterNameMarkup	io_text	byte	readable		
 exe	0x00515960	io_PrintText	io_text	draft	readable	deep	
 exe	0x005176d0	txt_Format	io_text	draft	readable	deep	
@@ -4393,7 +4393,7 @@ exe	0x005af1c0	ai_OpenTransportBuy	lcdom	byte	readable
 exe	0x005af1d0	ai_TransportWindow	lcdom	draft	readable	deep	
 exe	0x005b2090	ai_LoadTownMap	lcdom	byte	readable		
 exe	0x005b2180	ai_MapPick	lcdom	byte	readable		
-exe	0x005b2530	ai_NewStorageSlotWindow	lcdom	shape	readable	deep	
+exe	0x005b2530	ai_NewStorageSlotWindow	lcdom	byte	readable		
 exe	0x005b26b0	ai_StorageWindow	lcdom	byte	readable		
 exe	0x005b3130	ai_TalentWindow	lcdom	byte	readable		
 exe	0x005b3630	ai_SabotageCallback	lcdom	byte	readable		
@@ -4447,7 +4447,7 @@ exe	0x005bc420	ai_OpenMoneyInfoPage	lcdom	byte	readable
 exe	0x005bc6d0	ai_OpenBuildingListPage	lcdom	byte	readable		
 exe	0x005bc790	ai_BuildingDetailWindow	lcdom	byte	readable		
 exe	0x005bc9c0	ai_OpenMasterListPage	lcdom	byte	readable		
-exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	shape	readable	deep	
+exe	0x005bcc70	ai_PlayerStatsPanel	lcdom	byte	readable		
 exe	0x005bd060	ai_AmountLimit	lcamt	byte	readable		
 exe	0x005bd0c0	ai_CentredText	lcamt	byte	readable		
 exe	0x005bd190	ai_RightAlignedText	lcamt	byte	readable		
