@@ -259,22 +259,7 @@ void ai_Top5Window(void);
 /* 0x5a9e90, a free entry of the Domizil table (127 B, he_CircusShowIncome): util_Random (ai_DomizilCount,
    0x62cb58) picks an index into the 0x42 entries of 0x1c bytes at 0x62c420; each try returns the entry's id
    when it is not among the nObjs words of objs, else the index advances modulo the count; 0 when every id is
-   taken
-   @deep s25: the hunk is n's decrement scheduled before the modulo (orig mov ecx,[n]; dec ecx; inc eax;
-   cdq; idiv; test ecx,ecx). Every form that puts n-- before i = .. in the list (while + n--; for (..; n--,
-   i = ..); do { n--; i = ..} while (n != 0); for (;;) + if (n == 0) break; i++ / n-- / i %=) gets the
-   order right but gives n a register (30 ins): c2trace --prio n: the loop block then references n three
-   times (u d u, P 4: +32, prio 12) and n outranks entry (10), which loses edi to nObjs. In the original n
-   stays at -8 (control: block 8 u d only, the test reuses the dec). = control: unsigned n, --n in the for,
-   do { .. } while (--n != 0), while (n != 0) + i = .. + n--. Product exits (found flag / k >= nObjs / k ==
-   nObjs / flag without break) x loops: none closer. flip.py --want dec..inc eax: no flips; climb 3 rounds
-   from the n-first base: back to control. Left: one candidate ranking (n under entry with n-- first), code
-   11. prior: size fixed s4 (125 bytes, padded 128 = original), shape 5 ins: a found flag set at the break
-   (the original's decided test: the break goes straight to the advance, no cmp k,nObjs) and the count loop
-   as for (n = count; n != 0; n--) (one code with the guard + while form). Left: the original schedules n's
-   load and dec before the modulo's inc / idiv and tests it again (mov ecx,[n]; dec ecx; inc eax; cdq;
-   idiv; test ecx,ecx), ours decrements after the idiv. No lever: n-- before the modulo (30 ins, n into a
-   register), do-while forms, while (n--), i++ / i %= split (30). */
+   taken */
 
 unsigned short ai_RandomDomizilGoodNotIn(int nObjs, unsigned short *objs) {
   int n;
@@ -284,7 +269,10 @@ unsigned short ai_RandomDomizilGoodNotIn(int nObjs, unsigned short *objs) {
   G9DOMIZIL *entry;
 
   i = util_Random((unsigned short)ai_DomizilCount);
-  for (n = ai_DomizilCount; n != 0; n--) {
+  n = ai_DomizilCount;
+  if (ai_DomizilCount == 0)
+    return 0;
+  while (n != 0) {
     entry = &ai_DomizilTable[i];
     found = 0;
     for (k = 0; k < nObjs; k++) {
@@ -295,6 +283,7 @@ unsigned short ai_RandomDomizilGoodNotIn(int nObjs, unsigned short *objs) {
     }
     if (!found)
       return entry->id;
+    n--;
     i = (i + 1) % ai_DomizilCount;
   }
   return 0;

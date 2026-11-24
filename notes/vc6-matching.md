@@ -2041,6 +2041,17 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     `unsigned char *p = &n; .. (float)*p >= 42.0f ..`, takes the use off the candidate (byte, @original). The
     s22 note's 9 forms and 60 more (if / else, limit locals, return forms, conversions) were control or worse.
     `grep_orig 'mov bl,byte ptr \[esp'` lists the byte functions with a byte-only parameter.
+    s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
+    and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
+
+- **Deep s64**:
+  - **A counter's decrement scheduled before a modulo (`mov ecx,[n]; dec ecx; inc eax; cdq; idiv; test
+    ecx,ecx`) with n in memory: the byte sibling's loop form** (ai_RandomDomizilGoodNotIn 5 -> byte): two
+    sessions had n-- first in a `for` / `while` (n then outranked the entry pointer and took a register) and the
+    guard + while form with n-- last (= the for). The byte twin of the same unit, ai_DomizilGoodInRange
+    (`n = count; if (count == 0) return 0; while (n != 0) { ..; n--; i = (i + 1) % count; }`), written with this
+    function's found-flag inner loop was byte at once: the guard on the GLOBAL (not n) and n-- first together.
+    twin.py (0.50 threshold) did not list it; read the neighbours in the unit for the loop shape.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
