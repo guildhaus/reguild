@@ -2678,15 +2678,7 @@ void he_StammtischCommand(unsigned cmd, AIBLD *inn, AIOBJ *table, int figId) {
    who is alive, not the player and not of kind 0xf: in state 1 the meeting is announced ('new ', the state counted
    down), else when the meeting time has come it is held ('exec') (before that it waits an hour); either way the next
    meeting is planned a day ahead at a random hour 0x13 .. 0x16. Without such an owner the table is cleared once
-   ('cler' request, the state raised) and the meeting planned again
-   @deep deep s35: two hunks, both in the boss / state == 1 arm. (1) the original decrements m->innState in
-   edi (mov edi,[esi+0xc0]; dec edi; store; edi held the -1 constant until the 'new ' call), ours in eax: a
-   candidate, not a temp; m->innState = m->innState - 1, --m->innState, a named st local (function or block scope)
-   are all = control (single-use locals fold); the dec after e->end = ai_Time is worse (M8). (2) the shared
-   tail at the meeting gm_AddTime call: the original merges add esp to one 0x3c after cm_SendExSetHE with
-   push 4 before the min store, ours add esp,0x30 after the call. min / hour swapped in the arm: worse
-   (21/245), both copies 23. The e->end / meeting code once after the if / else: 193. climb round 1 and
-   initgen (bld, table, boss): nothing. */
+   ('cler' request, the state raised) and the meeting planned again */
 void he_RunStammtisch(AIJOB *e) {
   AIJOB *m = e;
   AIBLD *bld;
@@ -2724,6 +2716,10 @@ void he_RunStammtisch(AIJOB *e) {
       gm_AddTime(&e->end, 1, 0, 0);
       m->innMeeting = ai_Time;
       gm_AddTime(&m->innMeeting, 0x18, 0, 0);
+      m->innMeeting.min = 0;
+      m->innMeeting.hour = util_Random(4) + 0x13;
+      cm_SendExSetHE(0, e);
+      return;
     } else {
       if (gm_MinutesBetween(&ai_Time, &m->innMeeting) > 0) {
         gm_AddTime(&e->end, 1, 0, 0);
@@ -2735,11 +2731,11 @@ void he_RunStammtisch(AIJOB *e) {
       gm_AddTime(&e->end, 1, 0, 0);
       m->innMeeting = ai_Time;
       gm_AddTime(&m->innMeeting, 0x18, 0, 0);
+      m->innMeeting.min = 0;
+      m->innMeeting.hour = util_Random(4) + 0x13;
+      cm_SendExSetHE(0, e);
+      return;
     }
-    m->innMeeting.min = 0;
-    m->innMeeting.hour = util_Random(4) + 0x13;
-    cm_SendExSetHE(0, e);
-    return;
   }
   if (m->innState == 0) {
     cmd.op = 'cler';
