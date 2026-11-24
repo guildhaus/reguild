@@ -1813,7 +1813,23 @@ __inline char dd_CpuHasMMX(void) {
 #define DD_RMASK888 0xff0000u
 
 /* 0x41d2e0, sets up the display: mode DD_GDI..DD_FULLMEM, xres x yres at bpp bits
-   @deep s66 (dcp kept handing out the fixed d2_OpenForm; taken as the queue's next): every new spelling =
+   @deep s68: mechanism located, codeless form still open. Making ONLY the R*100 product opaque to VC6's
+   linear canonicalizer gives the original's whole PixelFormat sequence (G*-10 as mov/neg/shl 2/sub/add,
+   R*100 as lea/lea/shl 2, sub B, add 0x378 last, the pushes / dd_Pitch stores in the original's places):
+   (R*100) & 0x7fffffff, & 0xffffff, & 0xffff, (unsigned)R*100 % 0x10000u are 13 ins, every remaining hunk
+   being the extra 'and ecx,K' and the dd_Pitch / dd_PitchPixels store pair one slot off behind it. So the
+   original's R*100 was a term the canonicalizer could not factor with G*10 ((R*10 + G)*10 in ours). Every
+   codeless barrier tried folds back to the control: 300 sign / term-order / constant-position forms
+   (G*-10, -G*10, -(G*10), -10*G, R*-100 ..), shifts ((R*25)<<2, (G*5)<<1), int t = 10 / h = 100 / e = 888
+   locals, static const int multipliers (R: control, G: other code), statement splits through i or the
+   global with a label / do-while(0) / while(0) / if(i){} / goto between (all forward-substituted), union /
+   one-element array temps, (int)(char *) / (void *) / pointer-add / &((char(*)[100])0)[R] casts, & -1, ^
+   0, << 0, | 0, / 1, >> 0, (int)(long) / (int)(__int64), & 0xffffffffu, block-scope extern redeclarations
+   in every order, volatile reads (other code, still factored), a second use of R*100 (no CSE: VC6
+   recomputes it), ternaries (other code). climb --rounds 1 (475 mutants): nothing below 28. Open: a plain
+   operation on the R*100 term that is non-linear for the canonicalizer and emits nothing (VC6 dropped
+   every identity before the factoring); probes that change meaning (& 0xffff) are the reference shape.
+   prior: s66 (dcp kept handing out the fixed d2_OpenForm; taken as the queue's next): every new spelling =
    control again: -(G*10) first, 888 - (R*100 + (G*10 + B)), 888 - (G*10 + R*100 + B), (8-G)*10 + (8-R)*100
    + (8-B) both orders, i = G * -10 then i - R*100 - B + 888, an __inline helper dd_FormatCode(r, g, b)
    (whole-function variant with the helper in front: compiles, = control). The Loss values as block locals
@@ -1823,23 +1839,7 @@ __inline char dd_CpuHasMMX(void) {
    swapped in case 24/32, case 16 or at the bottom move only those stores (M8 x2); a dead (void)dd_GLoss at
    the top and the mask terms reordered = control. So no source order or type of these three reads reaches
    the merge; what the original did is still open (an operand that is not a plain byte global read, or a
-   separate compile-time constant path). prior: deep s39: nothing kept. The whole distance is still the
-   dd_PixelFormat expression: the original loads GLoss, RLoss, BLoss in that order and computes ((G * -10 -
-   R * 100) - B) + 888 (mov esi,edi / neg / shl 2 / sub / add esi,esi; lea / lea / shl 2; sub; sub; add
-   esi,0x378 last), ours 888 - (R * 10 + G) * 10 - B. Toy sweeps (VC6 /O2, the mask expression behind it as
-   in the function): 400 random forms (term order, association, -G * 10 / G * -10 / (8 - G) * 10 / (G - 8)
-   * -10, constants split 800 / 80 / 8, casts int / unsigned / long / short / char on the operands), 576
-   forms with L / U / UL constants, RLoss read as a byte of an int / unsigned / short / char global
-   ((unsigned char)R, R & 0xff, *(unsigned char *)&R), the value built through compound statements on the
-   global or on a local (F = -G * 10; F -= R * 100; F -= B; F += 888 and five more): every one compiles to
-   the merged form (mov 888 first, no neg). VC6 forward-substitutes and re-associates across statements, so
-   no plain int expression of these three bytes keeps R * 100 apart; what does (s2) costs code. Open: a
-   construct that makes the R * 100 product opaque without code.
-
-
-
-
-
+   separate compile-time constant path).
 
 
 
