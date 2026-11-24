@@ -662,7 +662,7 @@ exe	0x0042f600	vfs_CmpEntryI	vfs	byte	readable
 exe	0x0042f620	vfs_FinishedFiles	vfs	byte	readable		
 exe	0x0042f7e0	vfs_FindDir	vfs	byte	readable		
 exe	0x0042f8f0	vfs_FindFile	vfs	byte	readable		
-exe	0x0042fa10	vfs_EntryPath	vfs	shape	readable	deep	
+exe	0x0042fa10	vfs_EntryPath	vfs	byte	readable		
 exe	0x0042fbf0	vfs_DirPath	vfs	byte	readable		
 exe	0x0042fca0	vfs_GetPath	vfs	byte	readable		
 exe	0x0042fce0	vfs_AddDir	vfs	byte	readable		
@@ -1917,7 +1917,7 @@ exe	0x004b2ce0	hst_ParseText_Real	hst	byte	readable
 exe	0x004b2ed0	hst_ParseDate	hst	byte	readable		
 exe	0x004b3280	hst_NextEvent	hst	byte	readable		
 exe	0x004b3350	hst_LastYearDialog	hst	byte	readable		
-exe	0x004b35e0	hst_NextEventCmd	hst	shape	readable	deep	
+exe	0x004b35e0	hst_NextEventCmd	hst	byte	readable		
 exe	0x004b36d0	hst_LastYearCmdDialog	hst	byte	readable		
 exe	0x004b3960	hst_YearlyHistory	hst	byte	readable		
 exe	0x004b39f0	ai_ClearMissions	mission	byte	readable		
@@ -1934,7 +1934,7 @@ exe	0x004b3c40	ai_RandomMissionType	mission	byte	readable
 exe	0x004b3ca0	ai_NewMission	mission	byte	readable		
 exe	0x004b3d50	ai_MissionOfferDialog	mission	byte	readable		
 exe	0x004b3e70	ai_ChooseMissionType	mission	byte	readable		
-exe	0x004b4040	ai_ChooseMission	mission	shape	readable	deep	
+exe	0x004b4040	ai_ChooseMission	mission	byte	readable		
 exe	0x004b4280	ai_ChooseMissionFrom	mission	byte	readable		
 exe	0x004b44e0	ai_CountMissionEvent	mission	byte	readable		
 exe	0x004b4550	ai_CondMissionMoney3	mission	byte	readable		
@@ -4310,7 +4310,7 @@ exe	0x005a6b70	ai_MapCellToScreen	lcmap	byte	readable
 exe	0x005a6c40	ai_PlaceMapControls	lcmap	byte	readable		
 exe	0x005a6cb0	ai_BuildTownMap	lcmap	byte	readable		
 exe	0x005a78a0	ai_OpenTownMap	lcmap	byte	readable		
-exe	0x005a79e0	ai_DragTownMap	lcmap	shape	readable	deep	
+exe	0x005a79e0	ai_DragTownMap	lcmap	byte	readable		
 exe	0x005a7bc0	ai_ScrollTownMap	lcmap	byte	readable		
 exe	0x005a7cd0	ai_UpdateTownMap	lcmap	byte	readable		
 exe	0x005a82f0	ai_CloseMapWindow	lcmap	byte	readable		
