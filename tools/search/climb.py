@@ -84,7 +84,8 @@ def is_decl(l):
 def body_start(lines):
     """index of the first line after the function's opening brace and its top declarations"""
     k = 0
-    while k < len(lines) and lines[k].strip() != "{":
+    # the opening brace on its own line, or (clang-format LLVM style) at the end of the signature's last line
+    while k < len(lines) and lines[k].strip() != "{" and not (not lines[k].startswith((" ", "\t")) and lines[k].rstrip().endswith("{")):
         k += 1
     k += 1
     first = k
