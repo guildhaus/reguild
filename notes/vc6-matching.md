@@ -3060,6 +3060,13 @@ Which value gets which callee-saved register, the eax / ecx / edx rotation, cons
   [msg.to],edx`): every `AIMSG msg` declared in the block that builds it (nine blocks), not once at function
   scope; the frame stays the same (disjoint block locals share the slot). Sweep the block-scope lever
   (blockscope) whenever a store / load order resists (main_EndRound).
+- **What the escape edge covers (c2dag on he_PatrolStep, edge type 0x20 store -> load)**: only loads through a
+  pointer that is not a parameter (memory operand `k6 .80`: call results, pointers read from globals; a
+  parameter's fields are `.0` and never wait). A function-scope local whose address goes to any call is
+  escaped in every block, before its first send too (deleting the other branch's sends changes nothing); a
+  block local is fresh up to its own call, so none of its stores orders a load. A store without an outgoing
+  edge (height 4) is scheduled after the argument push (5): `mov [m.x],reg` behind `push ecx` = that store
+  had no later pointer load to wait for.
 - **Byte field values sent with `&v` in several arms of a dialog loop (ai_SermonWindow, 42 ins -> byte)**:
   each arm's value is its own local in the innermost block that sends it (`if (sv_CheckMoney(..)) { char
   enabled; enabled = 1; ..; &enabled }`, the clear arm's `noText1` / `noText2` / `noPriest`): two such locals
