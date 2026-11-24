@@ -2003,6 +2003,23 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s61 (4 byte: ai_UseGoodCharmPartner, ai_ChangeProfessionWindow, ai_UseGoodRaiseRelation, cm_WaitTicks)**:
+  - **A constant race decided by where a flag is set and the fill order** (ai_UseGoodCharmPartner 8 -> byte): the
+    constant 6 (prio 7, byte-flagged, ebx for the whole function) beat 1 (prio 6) so the relations push and
+    `use->handled = 1` took immediates where the original uses edi (ret's register). The sibling's text gave it:
+    in the menu arm `if (target != 0) ret = 1;` (no `ret = 1;` before the fill, no `return 0`) and the fill
+    `flags, mode, kind` (cfg.kind = 6 after the mode computation): 1 then outranks 6, 6 keeps ebx only for the
+    first test / cfg.kind. flip.py `--want 'cmp BYTE PTR [ebp+2], 6'` named the race (any extra 1 reference flipped
+    it). Read the byte / near siblings of a family (the AMOUNTCFG use callbacks) before generating spellings.
+  - **A ternary in a call argument copied into a callee-saved register** (`sbb; and; add K; mov esi,edx`,
+    ai_ChangeProfessionWindow 19 -> byte): an int local set by if / else right before the call (`if (sex) titles =
+    0x18f; else titles = 0x130; txt_Format(.., titles + jobId - 1)`); the same ternary assigned to a local is
+    forwarded and changes nothing (the cm_ExCreateNamedCharacter rule again).
+  - **A product of a ternary local** (ai_UseGoodRaiseRelation 24 -> byte): `factor = has ? 2 : 1; f(.., factor *
+    25, ..)`, not `amount = (has ? 2 : 1) * 25; f(.., amount, ..)`: the argument loads come in the original's order.
+  - **A wait loop's end tick** (cm_WaitTicks 11 -> byte): `start = ticks; .. if (ticks >= start + a)`, not `end
+    += a` before the loop: VC6 forms the invariant sum itself (a loaded into a register first, `add esi,ecx`).
+
 - **Deep s60 (2 byte: he_RunStammtisch, he_EndPersonEvents; rt_ChooseGoodsDialog left at a constant race)**:
   - **A shared tail after an if / else flushes the deferred `add esp`** (he_RunStammtisch, 21 -> byte): the
     original keeps one `add esp,0x3c` after the last call with `push 4` scheduled before the next store; ours
