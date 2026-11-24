@@ -112,7 +112,7 @@ exe	0x00407740	ch_CellToCell	ch	byte	readable
 exe	0x00407790	ch_GetWaypoints	ch	draft	readable	deep	
 exe	0x004079b0	ch_GetNewPath	ch	draft	readable	deep	
 exe	0x00408490	ch_PathToTarget	ch	byte	readable		
-exe	0x00408690	ch_InitWalk	ch	shape	readable	deep	
+exe	0x00408690	ch_InitWalk	ch	byte	readable		
 exe	0x00408ab0	ch_WalkSound	ch	byte	readable		
 exe	0x00408cb0	ch_StartWalkAnim	ch	byte	readable		
 exe	0x00408e60	ch_NextWaypoint	ch	byte	readable		
@@ -339,7 +339,7 @@ exe	0x00415f30	d3t_ExplosionCB	d3_tools	byte	readable
 exe	0x00416040	d3t_CreateExplosion	d3_tools	byte	readable		
 exe	0x00416240	d3t_SmokeCB	d3_tools	byte	readable		
 exe	0x00416340	d3t_CreateSmoke	d3_tools	byte	readable		
-exe	0x00416550	d3t_EarthCB	d3_tools	shape	readable	deep	
+exe	0x00416550	d3t_EarthCB	d3_tools	byte	readable		
 exe	0x004168e0	d3t_CreateEarth	d3_tools	byte	readable		
 exe	0x00416980	d3t_CreateSnowMipmaps	d3_tools	draft	readable	deep	
 exe	0x00417150	d3t_FadeOutSunRays	d3_tools	byte	readable		
@@ -3871,7 +3871,7 @@ exe	0x00570c70	he_PlunderFailNews	he_b	byte	readable
 exe	0x00570cc0	he_RunPlunderOffer	he_b	byte	readable		
 exe	0x00570ea0	he_NoEvent88Pair	he_b	byte	readable		
 exe	0x00570ef0	he_AllocMasterWork	he_b	byte	readable		
-exe	0x00571000	he_RunMasterWork	he_b	shape	readable	deep	
+exe	0x00571000	he_RunMasterWork	he_b	byte	readable		
 exe	0x00571550	he_AllocGraveCare	he_b	byte	readable		
 exe	0x00571640	he_RunGraveCare	he_b	byte	readable		
 exe	0x00571990	he_AllocDeathDue	he_b	byte	readable		
