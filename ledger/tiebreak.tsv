@@ -3239,7 +3239,7 @@ exe	0x00513970	init_ParseNumberList	f3init	fceee1088a45f08b	no	byte	control=byte
 exe	0x00513a20	init_LoadCityINI	f3init	e5112d1e7e1ffeb6	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
 exe	0x005142e0	io_TownDisplayName	io_text	d9b4c6e352fbd146	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00514360	io_TrailingDigits	io_text	ba71417bdfec03f7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005143d0	io_CharacterName	io_text	3cfd3ea695d208d4	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	96b0266062da9053
+exe	0x005143d0	io_CharacterName	io_text	cc73ceb1b16e5815	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	7f5fa2a29c895028
 exe	0x00514e90	io_CharacterNameMarkup	io_text	8d21aea58f6a8244	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	09375d01d5cbd6dd
 exe	0x00515960	io_PrintText	io_text	fac42e805cd16f08	no	draft	sample n=32 seed=1 compiled=31 codegens=1 best=draft	
 exe	0x005176d0	txt_Format	io_text	38065f94fa412b96	no	draft	sample n=32 seed=1 compiled=31 codegens=1 best=draft	
