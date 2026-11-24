@@ -113,6 +113,11 @@ def code(l):
     return re.sub(r"/\*.*?\*/|//.*$", "", l).rstrip()
 
 
+# a K&R definition line after clang-format: the parameter list's `)`, then the first parameter declaration joined on
+# (`void f(a, b) int a;`, `local void g(s) deflate_state *s;`); a prototype ends `);` and never matches
+KR_JOINED = re.compile(r"\)\s+[A-Za-z_][\w \*,\[\]]*;$")
+
+
 def function_span(lines, func):
     """(the first line of the address comment above the definition, the definition's first line, its closing `}`)"""
     def opens_body(i):
@@ -121,6 +126,8 @@ def function_span(lines, func):
         while j < len(lines) and not code(lines[j]).endswith(")"):
             if code(lines[j]).endswith(") {"):  # clang-format: the "{" on the definition's last line
                 return True
+            if KR_JOINED.search(code(lines[j])):  # clang-format: `f(a, b) int a;`, the first declaration joined on
+                break
             if code(lines[j]).endswith((";", "{", "}")):
                 return False
             j += 1
@@ -129,10 +136,13 @@ def function_span(lines, func):
         while k < len(lines) and re.match(r"[A-Za-z_][\w \*,\[\]]*;$", code(lines[k])):
             k += 1
         return k < len(lines) and lines[k].startswith("{")
-    s = next(i for i, l in enumerate(lines) if re.match(r"\w[\w \*]*\b%s\(" % re.escape(func), l) and not code(l).endswith(";")
-             and opens_body(i))
+    s = next(i for i, l in enumerate(lines) if re.match(r"\w[\w \*]*\b%s\(" % re.escape(func), l)
+             and (not code(l).endswith(";") or KR_JOINED.search(code(l))) and opens_body(i))
     e = next(i for i in range(s, len(lines)) if lines[i].rstrip() == "}")
     cs = s
+    # clang-format: a blank line may stand between the address comment and the definition
+    if cs > 1 and not lines[cs - 1].strip() and lines[cs - 2].rstrip().endswith("*/"):
+        cs -= 1
     while cs > 0 and not lines[cs - 1].startswith(("}", "#", ";")) and lines[cs - 1].strip():
         cs -= 1
     return cs, s, e
