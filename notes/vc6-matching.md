@@ -3778,6 +3778,12 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   block local from its first fill to its send (8 -> 4, the store / pointer-load order of the fill), the
   declaration order of two zero-initialised pointers for the entry stores' order, and a redundant
   `(float)(amt * price)` inside `worth +=` for `fiadd` before the call's `add esp` (byte).
+- **An AIMSG fill whose constant header stores (type / to / fromId / flags) come after the push of &msg and a
+  pointer load in the original, ours before them**: the message's scope began before an earlier call in the
+  same arm (`cm_SendMoneyDelta(..)` between the arm's start and the memset). Its own `{ AIMSG msg; memset ..;
+  send; }` block after that call: byte. Every order of the seven fill statements (5040) and climb had not moved
+  it (ai_IntimidateContact 8 ins -> byte). A block local in the arm is not enough: the block must start after
+  the last call before the fill.
 - **Two equal records (AIARG s1 / s2) swapped, equal counts, the walk ending in `*o1 = s1; *o2 = s2;`**: a
   function-scope pair always puts the first-copied record nearest esp (it reaches the count first). The original
   had one block-scoped pair per path (`{ AIARG s1, s2; ... }` in the sub-action-2 arm and in the usable-good

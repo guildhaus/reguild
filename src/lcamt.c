@@ -6784,17 +6784,7 @@ int ai_IntimidateWindow(AICHAR *ch, int n) {
 /* 0x5c9ff0, the intimidation order's ask (ord_IntimidateOrder, kind 3) for the character me with the order message
    m. Of another kind than 6 / 7 (the AI): no character m->target: 0x60; else me pays 2 and sends the message 0x4b
    to it as ai_IntimidateWindow does: 0x10. A player picks the victim in the amount menu (mode 0x400, kind 6, the
-   gypsy filter, the caption 0x1d61) with ai_IntimidateWindow as its pick callback: 1 when one was picked, else 0
-   @deep deep s43: climb --ops move,swap 4 rounds ends at the s23 best (to, time, arg[1], type, fromId,
-   flags, arg[0]: 4 ins), where only msg.to and msg.arg[1] are stored before the push of &msg (the original
-   stores type / to / fromId / flags, then arg[1], arg[0] after the push). Chained stores: every order of
-   the 3-chains of to / fromId / arg[0] (720, best 20) and of the 2-chains starting with to (1440, best 6):
-   no lever. Open: what makes the push of &msg rank above the constant stores (an escape of &msg before the
-   fill, another block extent). prior: deep s23: left four AIMSG stores (type 0x4b, to, fromId, flags 2)
-   that the original schedules after the arg[1] load and the push of &msg, ours before the last time-copy
-   store. All 5040 orders of the seven fill statements (best 4 ins / 39 bytes), climb 2 rounds (8 ins / 29
-   bytes), msg at function scope (= control), the money call after the fill and arg[0] before arg[1] (far
-   worse): no lever found. he_AllocMeeting's fill is scheduled the original's way with the same statements. */
+   gypsy filter, the caption 0x1d61) with ai_IntimidateWindow as its pick callback: 1 when one was picked, else 0 */
 
 int ai_IntimidateContact(AICHAR *me, ORDMSG *m) {
   int ret;
@@ -6802,21 +6792,23 @@ int ai_IntimidateContact(AICHAR *me, ORDMSG *m) {
 
   ret = 0;
   if (me->kind != 6 && me->kind != 7) {
-    AIMSG msg;
-
     victim = gm_FindChar(m->target);
     if (victim == 0)
       return 0x60;
     cm_SendMoneyDelta(me->netId, -2);
-    memset(&msg, 0, sizeof(msg));
-    msg.type = 0x4b;
-    msg.to = me->netId;
-    msg.fromId = me->netId;
-    msg.flags = 2;
-    msg.time = ai_Time;
-    msg.arg[1] = victim->netId;
-    msg.arg[0] = me->netId;
-    cm_SendLongMessage(&msg);
+    {
+      AIMSG msg;
+
+      memset(&msg, 0, sizeof(msg));
+      msg.type = 0x4b;
+      msg.to = me->netId;
+      msg.fromId = me->netId;
+      msg.flags = 2;
+      msg.time = ai_Time;
+      msg.arg[1] = victim->netId;
+      msg.arg[0] = me->netId;
+      cm_SendLongMessage(&msg);
+    }
     return 0x10;
   } else {
     AMOUNTCFG cfg;
