@@ -1915,7 +1915,7 @@ exe	0x004b28d0	hst_ParseText_Fake_2nd_Pass	hst	byte	readable
 exe	0x004b2c90	hst_ParseEventText	hst	byte	readable		
 exe	0x004b2ce0	hst_ParseText_Real	hst	byte	readable		
 exe	0x004b2ed0	hst_ParseDate	hst	byte	readable		
-exe	0x004b3280	hst_NextEvent	hst	shape	readable	deep	
+exe	0x004b3280	hst_NextEvent	hst	byte	readable		
 exe	0x004b3350	hst_LastYearDialog	hst	byte	readable		
 exe	0x004b35e0	hst_NextEventCmd	hst	shape	readable	deep	
 exe	0x004b36d0	hst_LastYearCmdDialog	hst	byte	readable		
@@ -2425,11 +2425,11 @@ exe	0x004cec00	cm_CloseCharInfoWins	cmfight	byte	readable
 exe	0x004cec30	cm_OpenCharInfoWin	cmfight	byte	readable		
 exe	0x004ced80	cm_UpdateCharInfoWins	cmfight	byte	readable		
 exe	0x004cedc0	cm_ShowDamage	cmfight	byte	readable		
-exe	0x004cee20	cm_UpdateDamagePops	cmfight	shape	readable	deep	
+exe	0x004cee20	cm_UpdateDamagePops	cmfight	byte	readable		
 exe	0x004cef80	cm_InitDamagePops	cmfight	byte	readable		
 exe	0x004cefa0	cm_ClearDamagePops	cmfight	byte	readable		
 exe	0x004cefe0	cm_CloseFightView	cmfight	byte	readable		
-exe	0x004cf000	cm_UpdateSceneChars	cmfight	shape	readable	deep	
+exe	0x004cf000	cm_UpdateSceneChars	cmfight	byte	readable		
 exe	0x004cf370	cm_DrawScrollArrows	cmfight	byte	readable		
 exe	0x004cf670	cm_UpdatePointer	cmfight	byte	readable		
 exe	0x004cf9c0	cm_UpdatePortraits	cmfight	byte	readable		
@@ -2459,8 +2459,8 @@ exe	0x004d1e00	cm_FightIntro	cmfight	byte	readable
 exe	0x004d1eb0	cm_FightOutro	cmfight	byte	readable		
 exe	0x004d1f10	cm_NearestEnemy	cmfight	byte	readable		
 exe	0x004d2010	cm_ThreatAt	cmfight	byte	readable		
-exe	0x004d2170	cm_BestCellNear	cmfight	shape	readable	deep	
-exe	0x004d22d0	cm_MostThreatenedCellNear	cmfight	shape	readable	deep	
+exe	0x004d2170	cm_BestCellNear	cmfight	byte	readable		
+exe	0x004d22d0	cm_MostThreatenedCellNear	cmfight	byte	readable		
 exe	0x004d2450	cm_CollectEscapeObject	cmfight	byte	readable		
 exe	0x004d2490	cm_NearestEscapeObject	cmfight	byte	readable		
 exe	0x004d2550	cm_CollectWareObject	cmfight	byte	readable		
