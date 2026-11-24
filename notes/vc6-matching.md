@@ -82,6 +82,10 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
   decides ebx / ebp / edi).
 - **An early `je` straight to the final `pop esi; ret`, ours its own epilogue copy**: one final return; the loop
   under `if (first != end)`, the in-loop `return 0` as `ret = 0; break;` (cm_SendGroupState).
+- **The reverse, pushes at entry in both but two callee-saved values swapped, a `r = 0` / `r = out` result**:
+  the result local made out a reference in every return-edge block (out 23 > the loop pointer 18 in
+  vfs_EntryPath). `if (!p) return 0;` + one `return out;` inside an arm + the final `return out;` (the inner
+  return keeps the pushes at entry): byte. A 2^n round over "return in this arm" finds the one.
 - **Pushes at entry in ours, after a guard in the original**: count the `return`s first. Guards (`if (!p) return
   1;`, early `return 0`, `if (!a || !b || !c) return 1;`, an if/else-if strcmp chain) plus ONE final return
   shrink-wrap the pushes; any `return` inside a branch puts them back at entry. Each return beyond "guards + one
