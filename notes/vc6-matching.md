@@ -3060,6 +3060,14 @@ Which value gets which callee-saved register, the eax / ecx / edx rotation, cons
   [msg.to],edx`): every `AIMSG msg` declared in the block that builds it (nine blocks), not once at function
   scope; the frame stays the same (disjoint block locals share the slot). Sweep the block-scope lever
   (blockscope) whenever a store / load order resists (main_EndRound).
+- **Byte field values sent with `&v` in several arms of a dialog loop (ai_SermonWindow, 42 ins -> byte)**:
+  each arm's value is its own local in the innermost block that sends it (`if (sv_CheckMoney(..)) { char
+  enabled; enabled = 1; ..; &enabled }`, the clear arm's `noText1` / `noText2` / `noPriest`): two such locals
+  in the arm blocks of the loop share a slot only when one sits in an inner block (the arm's top is not fresh
+  enough), and only then is the clear arm's first store free to move behind the `sermon->objId` load. A
+  function-scope byte local reused across arms reproduced the slot but kept that store first. The init stores
+  and the AIMSG fill were permute.py rounds (`pickBtn = 0; clearBtn = 0; cancelBtn = 0; payBtn = 0;`,
+  `msg.type` before `msg.time`).
 - **Inside a loop the loop body is not fresh enough**: the escape survives the back edge, so `D3VECTOR rot`
   declared at the top of the loop body kept `fstp [rot.y]` before the next call's pointer loads (the same code
   as function scope); a `{ D3VECTOR rot; rot.x = ..; ..; d3_SetObjectRot(.., &rot); }` block around just the
