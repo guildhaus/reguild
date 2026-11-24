@@ -2034,6 +2034,13 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     top, fr sharing the variable of the scene counter / flags / mask). The s25 note's 23 statement orders could
     not reach it: order sets both the live range and the rank. Lever: when a statement order fixes the live
     range but flips a commutative destination, give the variable an earlier occurrence.
+  - **A char parameter loaded as a byte (`mov bl, byte ptr [esp+8]`) while its int conversion reloads the
+    slot (`mov eax,[esp+8]; and eax,0xff`), the sum formed in bl** (gm_RandomAge 7 -> byte): ours loads the
+    dword into ebx because `(float)n` is a 32-bit use of the candidate. Copies (`age = n`, an int / float local,
+    casts, `*&n`, `*(unsigned char *)&n`) all fold back; only the compare read through a pointer local,
+    `unsigned char *p = &n; .. (float)*p >= 42.0f ..`, takes the use off the candidate (byte, @original). The
+    s22 note's 9 forms and 60 more (if / else, limit locals, return forms, conversions) were control or worse.
+    `grep_orig 'mov bl,byte ptr \[esp'` lists the byte functions with a byte-only parameter.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
