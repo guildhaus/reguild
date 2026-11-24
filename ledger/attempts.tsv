@@ -102,6 +102,7 @@ exe	0x004e8dc0	amt_CalcZuenfte	1
 exe	0x004e9ce0	amt_ExecuteMayorPowerMessage	1
 exe	0x004ee360	gv_ExplodeShot	1
 exe	0x004eff50	gv_GrowGraveyard	1
+exe	0x004f4f20	ord_LevelOrder	1
 exe	0x004f8360	ord_CountGridObjects	1
 exe	0x004f9020	ord_LoadStatistics	1
 exe	0x004f9d40	ord_WeightedRecordSum	1

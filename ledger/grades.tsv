@@ -1826,7 +1826,7 @@ exe	0x004abed0	ai_RegisterSocialActions	aip	byte	readable
 exe	0x004ac140	hmt_RecordCount	hmt	byte	readable		
 exe	0x004ac150	hmt_RandomRecord	hmt	byte	readable		
 exe	0x004ac170	hmt_RandomTextOffset	hmt	byte	readable		
-exe	0x004ac1a0	hmt_RecordTextId	hmt	shape	readable	deep	
+exe	0x004ac1a0	hmt_RecordTextId	hmt	byte	readable		
 exe	0x004ac1e0	hmt_GetRecord	hmt	byte	readable		
 exe	0x004ac200	hmt_GetPrice	hmt	byte	readable		
 exe	0x004ac2f0	hmt_ApplyRecord	hmt	byte	readable		
@@ -1847,7 +1847,7 @@ exe	0x004ad3e0	hmt_Score	hmt	byte	readable
 exe	0x004ad510	hmt_ClearOffices	hmt	byte	readable		
 exe	0x004ad580	hmt_DecideElection	hmt	byte	readable		
 exe	0x004ad7a0	hmt_FillCouncils	hmt	byte	readable		
-exe	0x004ada80	hmt_Load	hmt	shape	readable	deep	
+exe	0x004ada80	hmt_Load	hmt	byte	readable		
 exe	0x004adb20	hmt_Save	hmt	byte	readable		
 exe	0x004adbb0	hmt_Create	hmt	byte	readable		
 exe	0x004ade60	hmt_NextEvent	hmt	byte	readable		
@@ -2839,7 +2839,7 @@ exe	0x004f48f0	gv_SentenceText	gs	byte	readable
 exe	0x004f4970	gv_CheckRankUp	gs	byte	readable		
 exe	0x004f4d10	gv_CheckRankUps	gs	byte	readable		
 exe	0x004f4d30	gv_EvidencePrice	gs	byte	readable		
-exe	0x004f4e20	ord_ApplyForOffice	ord	shape	readable	deep	
+exe	0x004f4e20	ord_ApplyForOffice	ord	byte	readable		
 exe	0x004f4f20	ord_LevelOrder	ord	shape	readable	deep	
 exe	0x004f4ff0	ord_ChangeProfessionOrder	ord	byte	readable		
 exe	0x004f5070	ord_MedicusOrder	ord	byte	readable		

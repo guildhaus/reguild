@@ -2839,7 +2839,7 @@ exe	0x004f4970	gv_CheckRankUp	gs	f361d400f4e23504	no	shape	sweep control=shape b
 exe	0x004f4d10	gv_CheckRankUps	gv	e4ae1be51466e2bf	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4d30	gv_EvidencePrice	gv	d52f98d9c87d00de	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f4e20	ord_ApplyForOffice	ord	75541cd8da2d06fe	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	dbfa9307d10196a1
-exe	0x004f4f20	ord_LevelOrder	ord	f5a8f66ef76cd123	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	dbc21a2c23b4ffa7
+exe	0x004f4f20	ord_LevelOrder	ord	fdaa5eba4315db4e	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	13ffb09540f03c5a
 exe	0x004f4ff0	ord_ChangeProfessionOrder	ord	6cdc923adcfdcb8c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f5070	ord_MedicusOrder	ord	2b1a93d4f2cdf521	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004f50f0	ord_AccusationOrder	ord	b1da89bb4c93236b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
