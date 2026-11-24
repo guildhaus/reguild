@@ -4153,21 +4153,16 @@ int cm_StopSceneRain(void) {
     cm_SceneRain = 0;
   }
 }
-/* 0x4e3420, runs the scene for a ticks (frame wait with the flag 0x8000): the end sets the stop flag 0x6f22a0
-   @deep deep s23: left one temp more in the original: a is loaded into ecx (mov ecx,[esp+8]; add esi,ecx),
-   the later temps rotate edx / eax. end = a + end / end + a / unsigned a: = control; end = cm_SceneTicks +
-   a worse. flip.py: only end += a written twice (a with two references) gives the original's load, so the
-   original references a once more somewhere that leaves no code; not found. */
+/* 0x4e3420, runs the scene for a ticks (frame wait with the flag 0x8000): the end sets the stop flag 0x6f22a0 */
 
 int cm_WaitTicks(int a) {
-  int end;
+  int start;
 
-  end = cm_SceneTicks;
+  start = cm_SceneTicks;
   if (cm_SkipEvents == 0) {
     if (sv_RunFrame(cm_WaitTicks, cm_DialogFrameFlags | 0x8000) != 0) {
-      end += a;
       do {
-        if (cm_SceneTicks >= end)
+        if (cm_SceneTicks >= start + a)
           sv_PopRequest = 1;
         cm_UpdateDamagePops();
         cm_ShowPartyTexts(cm_CurrentFight);
