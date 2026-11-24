@@ -4879,36 +4879,31 @@ void he_AllocGeselle(AIJOB *e) {
 /* 0x547f90, a Ghidra miss (disassembled): the run handler of the "RndGeselle" event 0x4a (a random journeyman):
    pushes the end four units ahead, frees the event at stage -2 or when its building is gone; at stage 0, once the
    cm slot is answered, sends the new character it holds to the building ("RndGeselle"), shows the news newsId
-   (the character, its title text 0x20d / 0x230 by sex + title, the receiver) in a quick-jump message box and frees
-   the event
-   @deep near-byte sweep s22: left only bld / chr in each other's slot (frame 0x200 > 0x80: unstable
-   density sort of two count-3 locals, c2frame L bld, chr -> A chr, bld; the original needs bld one
-   reference more or chr one fewer). Declaration order / init order / init statements late / text as a
-   block local: = control or order hunks only. */
+   (the character, its title text 0x20d / 0x230 by sex + title, the building) to the receiver in a quick-jump
+   message box and frees the event; the receiver's record (chr) is looked up but never used */
 
 void he_RunGeselle(AIJOB *e) {
-  AIJOB *g = e;
   char text[0x200];
-  AIBLD *bld = 0;
   AICHAR *chr = 0;
+  AIBLD *bld = 0;
   AICHAR *c;
   int title;
 
   e->end = ai_Time;
   gm_AddTime(&e->end, 0, 4, 0);
-  gm_FindById(&bld, 0, 0, g->geselleBldId);
-  gm_FindById(0, 0, &chr, g->geselleChrId);
+  gm_FindById(&bld, 0, 0, e->geselleBldId);
+  gm_FindById(0, 0, &chr, e->geselleChrId);
   if (e->stage == -2 || bld == 0)
     he_FreeEvent(e);
-  if (e->stage == 0 && cm_GetSlotState(g->geselleSlot) != 0) {
-    c = (AICHAR *)cm_GetSlotValue(g->geselleSlot);
+  if (e->stage == 0 && cm_GetSlotState(e->geselleSlot) != 0) {
+    c = (AICHAR *)cm_GetSlotValue(e->geselleSlot);
     if (c != 0) {
       title = (c->sex ? 0x230 : 0x20d) + (unsigned char)c->title;
-      cm_SendChrGotoBuilding(c->netId, g->geselleBldId, g->geselleBldArg, 0, 0,
+      cm_SendChrGotoBuilding(c->netId, e->geselleBldId, e->geselleBldArg, 0, 0,
                              "RndGeselle");
-      txt_Format(text, g->geselleNewsId, c->id, title, chr);
-      he_MessageBoxQuickjump(g->geselleChrId, g->geselleChrId, text, 0, 0x5ec,
-                             g->geselleBldId, g->geselleBldArg, 0,
+      txt_Format(text, e->geselleNewsId, c->id, title, bld);
+      he_MessageBoxQuickjump(e->geselleChrId, e->geselleChrId, text, 0, 0x5ec,
+                             e->geselleBldId, e->geselleBldArg, 0,
                              "_NACHRICHTEN_HS_00");
     }
     he_FreeEvent(e);
