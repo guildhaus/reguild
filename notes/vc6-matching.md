@@ -3935,6 +3935,12 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
 - **A pointer parameter reloaded and stored back (`mov edx,[ebp+8] .. mov [ebp+8],edx`)**: a copy `s = src;`
   after `p = buf;` (hst_ParseText_Fake_2nd_Pass 120 -> 10, byte with `dashes++;` before `*w++ = '-'`;
   hst_ParseContext).
+- **A float local in the dead parameter slot, the returned handle in the own slot; ours the other way round**:
+  the frame list is ordered by reference count BEFORE return blocks are duplicated, so five `return view;`
+  in the branches give view count 6 and the parameter slot. One `return view;` at the end (the guards as
+  nested `if (bld != 0) { if (type != 2 && type != 6) { loop .. break; } }`) leaves view at count 2, tied
+  with f, which reached 2 first and takes the slot; VC6 duplicates the return block back, the code is the
+  same (ai_OpenUpgradeTooltip 14 ins -> byte; s28 had tried only the loop's returns as break).
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).

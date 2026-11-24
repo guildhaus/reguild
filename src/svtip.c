@@ -923,16 +923,7 @@ int ai_OpenItemTooltip(int idx) {
    0x23) and the work time (text 0x20). In a building (ai_PlayerBuilding, ai_FallbackBuilding, sv_SelectedObject)
    and for an item type other than 2 / 6: when the building's type lists the item among its objects, the
    object's effect (text 0x24) by its class: 3 "+%a" (text 0xf9e), 0x24 "+%i" (text 0xfe0), else "%i%%" (text
-   class * 2 + 0xf98), with the object's value; returns the view
-   @deep deep s28: only slots differ: the original keeps view in the local slot [esp+8] and puts f into
-   idx's dead argument slot; ours packs view into the argument slot and f into the local. c2frame --names:
-   view count 6 opens slot 0, f (2) opens 1, idx (param, count 1, only its first load) joins slot 0 (it
-   passed slot 1 for a reason the tool does not show). Tried: f a block local of the price else, f folded
-   into the call argument (draft 18: the call moves before the fild), f = .. * f / f *= .. / f assigned
-   inside the argument (= control), view declared after item, view = -1 before the type guard (folded, =
-   control), the loop's returns as break / one guarded print / the type test as an if around the loop (=
-   control); climb 3 rounds (47 / 284 / 92 mutants): nothing. Left: slots 16 (view / f / the returns' view
-   reloads). */
+   class * 2 + 0xf98), with the object's value; returns the view */
 int ai_OpenUpgradeTooltip(int idx) {
   int view;
   AIGOOD *item;
@@ -968,29 +959,28 @@ int ai_OpenUpgradeTooltip(int idx) {
   bld = ai_PlayerBuilding;
   if (bld == 0) {
     bld = ai_FallbackBuilding;
-    if (bld == 0) {
+    if (bld == 0)
       bld = sv_SelectedObject;
-      if (bld == 0)
-        return view;
-    }
   }
-  if (item->type == 2 || item->type == 6)
-    return view;
-  bt = ai_BTypes + bld->type;
-  for (i = 0; i < 0x40; i++) {
-    if ((bt->objs[i] & 0x7fff) == idx) {
-      cls = bt->objClass[i];
-      value = bt->objValue[i];
-      if (cls == 0 || cls == -1 || cls == 0xff)
-        return view;
-      io_PrintText(0x24);
-      if (cls == 3)
-        io_PrintText((intptr_t)"+%a %s$N", value, 0xf9e);
-      else if (cls == 0x24)
-        io_PrintText((intptr_t)"+%i %s$N", value, 0xfe0);
-      else
-        io_PrintText((intptr_t)"%i%% %s$N", value, cls * 2 + 0xf98);
-      return view;
+  if (bld != 0) {
+    if (item->type != 2 && item->type != 6) {
+      bt = ai_BTypes + bld->type;
+      for (i = 0; i < 0x40; i++) {
+        if ((bt->objs[i] & 0x7fff) == idx) {
+          cls = bt->objClass[i];
+          value = bt->objValue[i];
+          if (cls != 0 && cls != -1 && cls != 0xff) {
+            io_PrintText(0x24);
+            if (cls == 3)
+              io_PrintText((intptr_t)"+%a %s$N", value, 0xf9e);
+            else if (cls == 0x24)
+              io_PrintText((intptr_t)"+%i %s$N", value, 0xfe0);
+            else
+              io_PrintText((intptr_t)"%i%% %s$N", value, cls * 2 + 0xf98);
+          }
+          break;
+        }
+      }
     }
   }
   return view;
