@@ -690,7 +690,7 @@ exe	0x00432530	d3path_Tangents	d3_anim	byte	readable
 exe	0x00432750	d3anim_StepObject	d3_anim	draft	readable	deep	
 exe	0x00433b10	d3anim_FreePath	d3_anim	byte	readable		
 exe	0x00433b50	d3path_Init	d3_anim	byte	readable		
-exe	0x00433d70	d3anim_CreatePath	d3_anim	byte	readable		
+exe	0x00433d70	d3anim_CreatePath	d3_anim	shape	readable		
 exe	0x00433f40	d3_FindAnim	d3_anim	byte	readable		
 exe	0x00433f80	d3anim_CreateMorphAnim	d3_anim	shape	readable	deep	
 exe	0x00434a80	d3anim_GetSize	d3_anim	byte	readable		
@@ -2099,7 +2099,7 @@ exe	0x004be3b0	rt_ChooseTabGood	rt	byte	readable
 exe	0x004be790	rt_OpenSlotControls	rt	byte	readable		
 exe	0x004be8e0	rt_RemoveControls	rt	byte	readable		
 exe	0x004be930	rt_InitControls	rt	byte	readable		
-exe	0x004be940	rt_EditPointDialog	rt	byte	readable		
+exe	0x004be940	rt_EditPointDialog	rt	shape	readable		
 exe	0x004bf080	rt_CartSettingsDialog	rt	byte	readable		
 exe	0x004bf360	rt_SetMarkPic	rt	byte	readable		
 exe	0x004bf3b0	rt_UpdateMarkPics	rt	byte	readable		
@@ -2989,7 +2989,7 @@ exe	0x004fea50	gm_FindById	f3gmt	byte	readable
 exe	0x004feb30	gm_UpdatePlayers	f3gmt	byte	readable		
 exe	0x004feb60	gm_InitPlayerRecord	f3gmt	byte	readable		
 exe	0x004fec10	gm_SyncMarket	f3gmt	byte	readable		
-exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	shape	readable		
+exe	0x004ff190	gm_RefreshGoodsLists	f3gmt	byte	readable		
 exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable		
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		
@@ -3771,7 +3771,7 @@ exe	0x00561190	he_RunRansom	he	byte	readable
 exe	0x00561470	he_AllocEvent39_3e	he	byte	readable		
 exe	0x005614c0	he_RunRansomDemand	he	byte	readable		
 exe	0x005619a0	he_AllocBurglary	he	byte	readable		
-exe	0x00561a20	he_RunBurglary	he	shape	readable		
+exe	0x00561a20	he_RunBurglary	he	byte	readable		
 exe	0x005628e0	he_RunBuildingSpying	he	byte	readable		
 exe	0x00563070	he_AllocAmbush	he	byte	readable		
 exe	0x005630f0	he_RunAmbush	he	byte	readable		
@@ -4003,8 +4003,8 @@ exe	0x00578370	ai_TutorialStop	sv_t	byte	readable
 exe	0x00578440	ai_TutorialFreeRuns	sv_t	byte	readable		
 exe	0x005784a0	ai_TutorialInitMainIntro	sv_t	byte	readable		
 exe	0x00578570	ai_TutorialInitChapter1	sv_t	byte	readable		
-exe	0x00578e40	ai_TutorialInitChapter2	sv_t	byte	readable		
-exe	0x00579570	ai_TutorialInitChapter3	sv_t	draft	readable		
+exe	0x00578e40	ai_TutorialInitChapter2	sv_t	shape	readable		
+exe	0x00579570	ai_TutorialInitChapter3	sv_t	shape	readable		
 exe	0x0057aa80	ai_TutorialInitChapter4	sv_t	byte	readable		
 exe	0x0057aeb0	ai_TutorialInitChapter5	sv_t	byte	readable		
 exe	0x0057b750	ai_TutorialInitMainOutro	sv_t	byte	readable		
@@ -4505,7 +4505,7 @@ exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
 exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
-exe	0x005c5310	ai_CharInfoPanel	lcamt	shape	readable		
+exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
 exe	0x005c6530	ai_MarriageTest	lcamt	byte	readable		
