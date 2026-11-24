@@ -2000,6 +2000,31 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     cnt` in the count loop or right after it flipped both): the original reads each counted object's goods record
     and drops it (`g = &ai_Goods[o->type];` in the loop, gm_FreeCapacity's group count without its tests, no code
     left, @original). Every plain form (loop forms, cap local, return forms, if / else, cnt placement) = control.
+    s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
+    loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
+
+- **Deep s57 (4 items, all byte: io_CharacterName, d3path_Init, ai_PlayerStatsPanel, ai_NewStorageSlotWindow)**:
+  - **A commutative sum's destination in one arm only (`add eax,ecx` into the field's register where every
+    other arm adds into the ternary's)** (io_CharacterName case 4: `txt_Ptrs[(rec[9] ? 0x18f : 0x130) +
+    rec[0x164]]`): the sum into a named int first, `v = (rec[9] ? 0x18f : 0x130) + rec[0x164];
+    txt_Field(txt_Ptrs[v], ..)`; every spelling inside the index (swap, casts, parens, ternary of sums) and
+    climb were = control, flip.py hit only constant changes. Its two inline strcpy stores `[edx+eax]` against
+    `[eax+edx]` came from the type of an unrelated local: `unsigned v` instead of `int v` (flip.py's type token
+    hit).
+  - **SIB order of a strength-reduced loop's stores (`[ecx+edi+0x20]` against ours `[edi+ecx+0x20]`), a local
+    candidate created before the index lead in the note** (d3path_Init): the flags read through a pointer to
+    them, `if (p == 0) return; f = &p->flags; if (f->b[1] & 4) ..` with `f->b[8] & 1` in the loops: byte. VC6
+    folds f into `[esi+0x2d]` addressing, so no register and no code, but the candidate exists.
+  - **Split-piece reload / slot order after a loop decided by candidate ids** (ai_PlayerStatsPanel: win and the
+    d2_Radios offset temp both count 2 in the frame list; c2trace --seq showed the pass-3 pieces queued and
+    reloaded in id order, and removing any 2-use constant web between them in the id list flipped it): the s29
+    initializer sweep (`= 0` / `= -1` per local and per pair, 55 + 62 variants) found `int bldPage = -1;` +
+    `int radio = -1;` (both needed, no code): byte, @original. Every named copy, loop form, cast and nesting was
+    = control. Run that sweep first on any reload-order or equal-count slot hunk.
+  - **A register tie at equal priority (bt 24 = win 24) broken by one more value in an arm block**
+    (ai_NewStorageSlotWindow): flip.py hit a changed `0` argument of one d2_GetWinObj (P of that block + 1); the
+    plain form is a named int for the text object in the 0x116 arm, `txt = io_PrintText(0x10e, 0x1f40); first =
+    d2_GetWinObj(win, 0, txt);`: byte. The same local in the other arms was worse; generate the 2^n subset.
 
 - **Which late passes delete instructions in a function: the call-skip map (d3t_MoveObjectPath, not byte)**:
   `tools/c2dag/c2fuzz.py` with the unit itself as probe (`C2FUZZ_PROBE`, the function in its probe form) switches
