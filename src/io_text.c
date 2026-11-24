@@ -81,24 +81,7 @@ int io_TrailingDigits(char *s, int n, char *out) {
    (else the first) name, 7 first + family name, 8 / 9 the profession (9: the privilege's office from flags1cc)
    or level title + first name; c 2 makes it a genitive ("'" after s / z / ss / x, else "s"), c is also the
    case txt_Field picks for 8 / 9. The player's own character is the player slot's name. Returns 0 for no
-   character (the text TXT_NO_CHARACTER)
-   @deep deep s57: case 6's two strcpy stores fixed by v as unsigned (flip.py --want on 'lea eax,[esi+64]
-   .. mov [edx+eax],cl' hit int v -> unsigned; 8 -> 4 ins, kept). Left: case 4 first arm's index sum,
-   original add eax,ecx (eax = rec[0x164] loaded for the test, ecx = the 0x130/0x18f ternary: the sum lands
-   in the rec register), ours add ecx,eax (every other arm, ours and original, adds into the ternary's
-   register). Round s57: spellings of the index (operand swap, (int)/(unsigned) casts, unsigned constants,
-   paren, - -x, ptr arithmetic, ternary of sums / of txt_Ptrs reads, v local for rec[0x164], both arms
-   alike): = control or far worse; climb round 1 from the unsigned-v text: nothing. flip.py --want 'add
-   ecx, 304[\s\S]{0,60}add eax, ecx' on the tree and on the unsigned-v text: 0 single-mutation flips; a
-   looser regex hits only constant changes (0x130 -> 7 in this arm, 0x20d -> 7 in the second arm) and
-   deletions: a commutative rank tie (notes 'Commutative operands are ordered by rank'), function-wide.
-   Next: products of code-neutral rank levers (constant-first compares, = 0 declaration inits, c == 2
-   sides) sampled, as ai_SendJobOrders. prior: deep s23: left case 4's first txt_Ptrs index sum (original
-   add eax,ecx: rec[0x164] + sel; its second arm and every other case have add ecx,eax as ours) and case
-   6's two inline strcpy stores [edx+eax] (ours [eax+edx], as lines 213/245 have). Index operand swap,
-   (char *) casts, &rec[0x40], the test reversed, a ternary: = control or worse; climb round 1 nothing;
-   flip.py on the whole function: only far mutations (case 5's + -> -, a deleted case) flip the add, i.e. a
-   value-numbering tie, no spelling of the hunk's own statement. */
+   character (the text TXT_NO_CHARACTER) */
 int io_CharacterName(int id, unsigned char c, unsigned char kind, char *out) {
   char A[0x100], B[0x100], C[0x100];
   char tmp[0x21c];
@@ -177,11 +160,10 @@ int io_CharacterName(int id, unsigned char c, unsigned char kind, char *out) {
     }
     break;
   case 4:
-    if (rec[0x164])
-      sprintf(out, "%s %s",
-              txt_Field(txt_Ptrs[(rec[9] ? 0x18f : 0x130) + rec[0x164]], 1, 4),
-              CH_NAME(rec));
-    else if (rec[0x165])
+    if (rec[0x164]) {
+      v = (rec[9] ? 0x18f : 0x130) + rec[0x164];
+      sprintf(out, "%s %s", txt_Field(txt_Ptrs[v], 1, 4), CH_NAME(rec));
+    } else if (rec[0x165])
       sprintf(out, "%s %s",
               txt_Field(txt_Ptrs[(rec[9] ? 0x230 : 0x20d) + rec[0x165]], 1, 4),
               CH_NAME(rec));
