@@ -6370,42 +6370,16 @@ void he_StartProtection(AIJOB *e) {
    1 (pays) for an owner whose sel is 0xb or when a roll stays below 0.001 * its mood[11][2], else a coin toss.
    Stage 3 reports: paid, the building gets the flag 0x100, the owner pays the collector, the home building
    counts it, the news 0x1a8d, stage 4 in 48 hours; refused (0x1a8e) or else (0x1a8f), stage 4 in five minutes.
-   Stage 4 shows the news 0x1a90 to both when paid and sends the collector home
-   @deep s49: draft 148 -> shape 8. Fixed: the 0x63 question's wait is gm_AddTime(&e->end, 3, 0, 0) (3
-   hours; the original pushes 0, 0, 3). Levers: the owner as an int index local read at each use (owner =
-   b->owner; ai_Chars[owner].kind / .netId) instead of an AICHAR pointer: the original's byte-offset CSE
-   (lea edx,[eax+eax*8]; shl edx,2) kept across the memset (148 -> 28); the fill order fromId, to, type,
-   flags, arg[0], time (719 orders: shape 8). Left: the original loads b->id (mov ecx,[ebp+1]) before the
-   netId (mov eax,[edx+ai_CharInts]); ours the other way, so the to / fromId stores swap ecx / eax. No
-   lever: unsigned short owner (10), to re-read through b->owner (208), owner read before the amount (65),
-   msg as a block local, memset(.., sizeof(AIMSG)), every fill order (p1-0-.. = 8 with order 20), climb
-   round 1 (155 mutants: nothing). prior: Read all of it against the original and rewrote it typed (AIJOB /
-   AIJOB.protection* / AIMSG / AIBLD / AICHAR): fixed the meaning errors - stage 3 goes to stage 4 with
-   cm_SendExSetHE(4) (the original's ebx = 4, not 1), the AIMSG fields (to +8, fromId +0xc, time, flags
-   +0x36, arg[0]; no store at +0x34), the owner's sel / mood[11][2] at stride 0x21c (was 0x14), the roll's
-   direction (!(mood * 0.001f > util_RandomF()): test ah,5 / jnp), the refused / other branches as two full
-   copies, text[0x200] (frame 0x2fc equal). 580 = 580 instructions, the frame and switch table equal. Left,
-   scheduling and allocation only: the owner record addressed as a byte offset kept in edx (lea
-   edx,[eax+eax*8]; shl edx,2; mov al,[edx+ai_Chars+2], reused for [edx+ai_CharInts] after the memset)
-   where ours forms the pointer (lea edx,[eax*4+ai_Chars]); the AIMSG stores and the ai_Time copies in
-   another order / with ecx<->edx swapped (tried 8 field orders, the best kept); the cm_SendSetField /
-   amount load order in the paid branch and the 0x1a8d txt_Format argument loads. The M8 at +0x20a is the
-   aligner pairing ours' mov edx,[ai_Time+8] with the original's mov edx,[ai_TimeHourW] inside the same
-   14-byte ai_Time copy, both copying in the same order (registers swapped) (references: M8 at +0x20a: ours
-   refers to ai_Time+0x8 (0x770ae8), the original's field to 0x770ae4 (ai_TimeHourW), explained: the ref:
-   line is the ai_Time struct copy into e->end, the same four loads in the same order on both sides with
-   ecx/edx/eax renamed; the aligner pairs different loads, no other object is referenced) */
+   Stage 4 shows the news 0x1a90 to both when paid and sends the collector home */
 
 void he_RunProtection(AIJOB *e) {
-  AIJOB *q = e;
   AIBLD *b, *home;
   AICHAR *c;
   int owner;
-  AIMSG msg;
   char text[0x200];
 
-  b = gm_BuildQuery(1, 1, q->protectionVictim);
-  c = gm_FindChar(q->protectionCollector);
+  b = gm_BuildQuery(1, 1, e->protectionVictim);
+  c = gm_FindChar(e->protectionCollector);
   if (e->stage == -1 || e->stage == -2) {
     if (b != 0 && (e->opts & 2) != 0)
       cm_SendSetField(b->id, 0x5a, 2, 0, 0x100);
@@ -6442,13 +6416,15 @@ void he_RunProtection(AIJOB *e) {
       e->exSlot = cm_SendExSetHE(2, e);
       return;
     }
-    q->protectionAmount = (int)((float)gm_EquipmentValue(b, 100) * 0.065f);
+    e->protectionAmount = (int)((float)gm_EquipmentValue(b, 100) * 0.065f);
     owner = b->owner;
     if (ai_Chars[owner].kind == 6 || ai_Chars[owner].kind == 7) {
+      AIMSG msg;
+
       memset(&msg, 0, sizeof(msg));
-      msg.fromId = b->id;
-      msg.to = ai_Chars[owner].netId;
       msg.type = 0x63;
+      msg.to = ai_Chars[owner].netId;
+      msg.fromId = b->id;
       msg.flags = 9;
       msg.arg[0] = e->id;
       msg.time = ai_Time;
@@ -6456,7 +6432,7 @@ void he_RunProtection(AIJOB *e) {
       e->end = ai_Time;
       gm_AddTime(&e->end, 3, 0, 0);
       e->stage = 3;
-      q->protectionAnswer = 2;
+      e->protectionAnswer = 2;
       e->exSlot = cm_SendExSetHE(3, e);
       return;
     }
@@ -6464,35 +6440,35 @@ void he_RunProtection(AIJOB *e) {
     gm_AddTime(&e->end, 0, util_Random(0x10) + 2, 0);
     e->stage = 3;
     if ((b->flags5aw & 0x100) != 0)
-      q->protectionAnswer = 2;
+      e->protectionAnswer = 2;
     else if (ai_Chars[b->owner].sel != 0xb &&
              !(ai_Chars[b->owner].mood[11][2] * 0.001f > util_RandomF()))
-      q->protectionAnswer = util_Random(2);
+      e->protectionAnswer = util_Random(2);
     else
-      q->protectionAnswer = 1;
+      e->protectionAnswer = 1;
     e->exSlot = cm_SendExSetHE(3, e);
     return;
   case 3:
-    if (q->protectionAnswer == 1) {
+    if (e->protectionAnswer == 1) {
       cm_SendSetField(b->id, 0x5a, 2, 0x100, 0);
       cm_SendMoveGoodsUnchecked(ai_Chars[e->chr].netId,
                                 ai_Chars[b->owner].netId, 0,
-                                q->protectionAmount);
-      if (q->protectionHome != -1) {
-        home = gm_BuildQuery(1, 1, q->protectionHome);
-        home->roundSums[0] += q->protectionAmount;
+                                e->protectionAmount);
+      if (e->protectionHome != -1) {
+        home = gm_BuildQuery(1, 1, e->protectionHome);
+        home->roundSums[0] += e->protectionAmount;
       }
       e->end = ai_Time;
       e->start = ai_Time;
       gm_AddTime(&e->end, 0x30, 0, 0);
       e->stage = 4;
       e->exSlot = cm_SendExSetHE(4, e);
-      txt_Format(text, 0x1a8d, b->owner, b, q->protectionAmount);
+      txt_Format(text, 0x1a8d, b->owner, b, e->protectionAmount);
       he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0,
                   0x5f3, "_NACHRICHTEN_HS_84");
       return;
     }
-    if (q->protectionAnswer == 0) {
+    if (e->protectionAnswer == 0) {
       e->end = ai_Time;
       gm_AddTime(&e->end, 0, 5, 0);
       e->stage = 4;
@@ -6511,7 +6487,7 @@ void he_RunProtection(AIJOB *e) {
                 "_NACHRICHTEN_HS_85");
     return;
   case 4:
-    if (q->protectionAnswer == 1) {
+    if (e->protectionAnswer == 1) {
       txt_Format(text, 0x1a90, b);
       he_ShowNews(ai_Chars[e->chr].netId, ai_Chars[e->chr].netId, text, 0,
                   0x5f3, (char *)0);
@@ -6520,7 +6496,7 @@ void he_RunProtection(AIJOB *e) {
     }
     sv_MoveToGroup(b, 0, c->id, 0);
     cm_SendChrStop(c->netId);
-    cm_SendChrGotoBuilding(c->netId, q->protectionHome, q->protectionHomeRoom,
+    cm_SendChrGotoBuilding(c->netId, e->protectionHome, e->protectionHomeRoom,
                            0, 0, "Schutzgeld");
     e->end = ai_Time;
     gm_AddTime(&e->end, 0, 2, 0);

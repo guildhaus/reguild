@@ -4943,6 +4943,13 @@ the stack at every instruction.
   local, a `(float)` cast of a subterm. Of two named locals the one first appearing later (assigned last before
   the loop) loads first: `fld k; fmul r` needs k new after r. No lever: `+=` vs `a = b + a`, declaration order,
   swaps. (ai_ShotHitsGround: `p = from` after `d = to - from`, `t = 0` after `step = ..`, 12 ins -> byte)
+- **A message fill's first two loads swapped (`mov ecx,[ebp+1]` b->id before `mov eax,[edx+ai_Chars+4]` the
+  netId, ours the other way) and the stores of to / fromId with ecx / eax exchanged**: two levers that only work
+  together, each one alone = control or worse: the AIMSG as a block local of the sending block (the b->id load
+  through a pointer is no longer ordered after the to store) and `to` filled before `fromId` (the scratch picks
+  go to = eax, fromId = ecx; the ecx chain then runs through the `lea ecx,[msg]` push and is scheduled first).
+  720 orders x block / function scope in one `dcp try` (he_RunProtection 8 -> byte; c2dag of the to-first
+  variant showed the store -> load edge `7/0:20`).
 - **`fld at.y; fadd dir.y` where the original has dir.y first (x and z right), dir.y set to a constant early**
   (`dir.y = 0.0f;` after `dir.x = target.x - at.x;`): the original computed the full difference and flattened it,
   `dir.y = target.y - at.y; dir.y = 0.0f;`: the dead store reads at.y before dir.y's first definition, so dir.y
