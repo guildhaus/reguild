@@ -4465,18 +4465,25 @@ void he_AllocMeeting(AIJOB *e) {
    gives its severity util_Random(range); a severity above 0 is written into the disease's bit field (a field
    delta of v02c) and costs severity * the record's cost health (gm_AddHealth), the health left stored in *health
    when given. Returns the disease kind, 0 when none was caught.
-   @deep deep s48: a = 0; b = 0; at the top with delta (the field-delta int) as a block local of the
-   lottery block gives the original's frame 0x10 (function-scope delta: 0x14), but a still in memory
-   (c2trace: a#1 prio -8 split alone where ch#1 prio 0 took ebp; the original never keeps ch in a register:
-   [esp+0x24] reloaded in every arm). 127 variants (a / b init orders and the < form x delta / d / res /
-   bits as block locals x cost after the sev test): best with the original frame 76 ins; climb round 1 from
-   that base: nothing. Left: the 2-ins xor ebx,ebx place (the tree's text). prior: deep s24: the severity
-   as its own local sev (not the reused b) = the same code, kept (one register either way, esi). a = 0
-   before the call again with the pick written as (a == 0 || (b != 0 && rnd == 0)) { if (b == 0) return 0;
-   a = b; } (or: 3 ins with a = 0 inside, 79 with a = 0 at the top), if / else-if + one if (a == 0) return
-   0 (7 / 79), the zero test first (23 / 97): a = 0 at the top always lets ch#1 (prio -1) take ebp before
-   a#1 (-12, c2trace), frame 0x14. Left: the original's xor ebx,ebx before the util_RandomF call (ours
-   after the chance test). */
+   @deep deep s49: the mechanism of the xor ebx,ebx hunk (c2trace --seq): with a = 0 before the
+   util_RandomF call (where the original zeroes ebx) a#1 pays -16 for the call / kind-test block it lives
+   through (P 16) instead of the +36 its def there earns in the tree, so a#1 falls to -15 below cost#1 (10,
+   +42 from its u/d/u neg in the send block) and ch#1 (0, +42 from its 3 send-block refs): cost takes ebx,
+   ch ebp, a is split. The original needs a > cost (a ebx, cost ebp, ch memory): +26 on a. flip from the
+   a-top base (blk-stmt-ab: a = 0; b = 0; at the top, delta a block local of the send block, frame right) :
+   deleting the final return a (a dead after the chain: its 8 bits-update arms cost -24 and the send block
+   -8) gives a prio 14 and the original's registers - so the original's a either pays less in the arms /
+   send block or earns more elsewhere. No effect (= control or folded): a = 0 at top and again inside (dead
+   store removed), return a for the chance failure (folded to 0), int a = 0 initializers, a == 0 tests
+   added to the kind test (folded), a copy n = a for the GetDisease / chain / returns (folded), the res =
+   util_RandomF() statement forms, the health exit as if / else with two returns. a-top forms: 78 (fn
+   delta, frame 0x14) / 86 (block delta) ins; climb 3 rounds from blk-stmt-ab: nothing. prior: deep s48: a
+   = 0; b = 0; at the top with delta (the field-delta int) as a block local of the lottery block gives the
+   original's frame 0x10 (function-scope delta: 0x14), but a still in memory (c2trace: a#1 prio -8 split
+   alone where ch#1 prio 0 took ebp; the original never keeps ch in a register: [esp+0x24] reloaded in
+   every arm). 127 variants (a / b init orders and the < form x delta / d / res / bits as block locals x
+   cost after the sev test): best with the original frame 76 ins; climb round 1 from that base: nothing.
+   Left: the 2-ins xor ebx,ebx place (the tree's text). */
 int he_CatchMeetingDisease(AICHAR *ch, float chance, int kind, float *health) {
   unsigned int bits, delta;
   GMDISEASE d;
