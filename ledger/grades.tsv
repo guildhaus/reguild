@@ -840,7 +840,7 @@ exe	0x00442ed0	d3fl_UpdateWater	d3_fl	byte	readable
 exe	0x004430c0	d3fl_DrawWater	d3_fl	draft	readable	deep	
 exe	0x004437f0	d3fl_UpdateTiles	d3_fl	byte	readable		
 exe	0x004439e0	d3fl_Draw	d3_fl	draft	readable	deep	
-exe	0x00446180	d3fl_Prerender	d3_fl	shape	readable	deep	
+exe	0x00446180	d3fl_Prerender	d3_fl	byte	readable		
 exe	0x004463b0	map_Pick	d3_fl	byte	readable		
 exe	0x00446750	map_PickScreen	d3_fl	byte	readable		
 exe	0x00446910	map_Region	d3_fl	byte	readable		
