@@ -4933,31 +4933,32 @@ void sv_SendSelectedToBuilding(void) {
    contact's room); with a clicked building through sv_SendSelectedToBuilding. Then it rebuilds the selection
    state: the grey look of the characters whose flag changed, sv_SelectedChar, ai_SelectedCount and the pointer
    items of those in their own building; a right release drops the selection
-   @deep s49 (no change kept, 159): the send's fields through c (c->bld / c->id / c->model->scriptId /
-   c->netId, the test as is) give the original's strength-reduced base (the record itself, end 0x7d5f80:
-   both M8 gone) but 177 ins: map then lives in a register (mov edi,[eax+0xb0]) where the original keeps it
-   in [esp+0x14] and the -1 / 1 constants stay swapped; all fields through c (with c->selected in the test)
-   201. climb 2 rounds: only a local for c->selected in the rebuild loop (char sel = c->selected: 135, int
-   137) which leaves the -1 (ebp vs edi) / 1 swap and the base untouched, so not kept. Original detail
-   read: in the 0xfd arm the original threads into one shared building chain (else-if Player jumps to the
-   test eax,eax of ai_PlayerBuilding in the non-0xfd copy); the -1 / 0 / 1 constants are rematerialised
-   after each send (or edi,-1; xor ebx,ebx; mov ebp,1). Next: sendc plus a lever that keeps map in memory
-   (the c2trace priorities of map vs the -1 constant). prior: match-deep 54: draft 305 -> 159 ins (frame
-   now 0x94 as the original). Kept: cell as an initialized block local of the per-character send (int cell
-   = 0 next to off[]: 305 -> 212, the original zeroes ebx per character and shares it with the constant 0),
-   the send's character fields read through ai_Chars[j] except health / model / (int)c in the test
-   (subsets m505 of 9 uses: 212 -> 170; a second 1023-subset run over c / ai_Chars[j] / (int)c found
-   nothing better), the contact's 0xfd case as the else arm (170 -> 159). No lever (= control): (AICHAR
-   *)ai_Chars[j] row cast, c / sc and b / gb split for the contact loop, b = 0 inside the if (219, worse),
-   declaration initializers for cx / cy, cx = cy = -1, if (c->selected) spelling; worse: pointer loop for
-   (c = ai_Chars; ..) 229, the t chain as one if / else-if t = .. plus one building chain 198 / 218,
-   SetGrey arms swapped 161. Left (tiebreak insensitive, 32 samples): the constants -1 / 1 in ebp / edi
-   where the original has edi / ebp (every off[] store, the d2_HitWindow compares, the rematerialization
-   after each send), the first loop's strength-reduced pointer biased to +0x184 (model; the original's base
-   is the record itself, end 0x7d5f80), in the contact loop pointer / character / building in ebx / edi /
-   esi against the original's edi / esi / ebx (b = 0 shares the zero register there), d3_FindObject's push
-   0 vs push ebx, the AddPointerItem / SetGrey 1 as immediates, the else-if PlayerBuilding test of the
-   non-0xfd building chain laid out of line (tiebreak: insensitive) */
+   @deep deep s65 (no change kept, 159): the -1 / 1 swap is decided in c2trace pass 2: the -1 piece (lines
+   4969-5027, prio -2) is assigned from {ebp edi} after the first loop's IV took esi, and map#2 (avail {esi
+   edi}, sav 16) is then an only-edi neighbour, so -1 takes ebp; 1 ends in edi (pass 5) and its
+   rebuild-loop piece (SetGrey / AddPointerItem) goes to memory (push 1). In the original -1 is edi, 1 ebp
+   through the rebuild loop and map memory. Probes: t = -1 moved to the top (or to the else-if head) gives
+   exactly the original's constants (or edi,-1 / mov ebp,1, rematerialised after each send and the contact
+   loop) and with sendc (send fields through c: the record base, M8 gone) 98 ins, but t then gets a slot
+   (frame 0x98 vs 0x94; climb 2 rounds from there: every mutant keeps the slot, best 101). = control: !=0 /
+   ==0 spellings everywhere (incl. the & 0x800 test), cx/ix/iy/size/sc/t block scopes, ai_SelectedCount +=
+   1, ++i split, t init in the for / after sprintf (sendc base). Worse: the 0xfd arms with one shared
+   building chain after the if (198 / 218, again), SetGrey(.., c->selected != 0 ? 1 : 0) 182, c->selected
+   == 1 164. Meaning-breaking probes: every single -1 -> -2 or 1 -> 2 site, cx = cy = 1, all HitWindow ==
+   1, an extra 1 store in the rebuild loop: the swap stays (1 -> edi, -1 -> ebp) unless t's -1 lives before
+   the contact block. climb 2 rounds from sendc: 154 (a local for c->selected, cy moved: not kept). Next: a
+   form where t's value -1 is known before the contact block without t living in memory (the original
+   copies mov ebp,edi at the block head), or the first loop's IV served after the -1 piece (c2trace --seq
+   around pass 2). prior: s49 (no change kept, 159): the send's fields through c (c->bld / c->id /
+   c->model->scriptId / c->netId, the test as is) give the original's strength-reduced base (the record
+   itself, end 0x7d5f80: both M8 gone) but 177 ins: map then lives in a register (mov edi,[eax+0xb0]) where
+   the original keeps it in [esp+0x14] and the -1 / 1 constants stay swapped; all fields through c (with
+   c->selected in the test) 201. climb 2 rounds: only a local for c->selected in the rebuild loop (char sel
+   = c->selected: 135, int 137) which leaves the -1 (ebp vs edi) / 1 swap and the base untouched, so not
+   kept. Original detail read: in the 0xfd arm the original threads into one shared building chain (else-if
+   Player jumps to the test eax,eax of ai_PlayerBuilding in the non-0xfd copy); the -1 / 0 / 1 constants
+   are rematerialised after each send (or edi,-1; xor ebx,ebx; mov ebp,1). Next: sendc plus a lever that
+   keeps map in memory (the c2trace priorities of map vs the -1 constant). */
 void sv_HandleSelectionMouse(void) {
   D3SM *map;
   AIBLD *b;
