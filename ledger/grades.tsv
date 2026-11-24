@@ -1738,7 +1738,7 @@ exe	0x004a49a0	ai_EvalMoodWeights	amt_ai	byte	readable
 exe	0x004a4ae0	ai_EvalCurrentNeed	amt_ai	byte	readable		
 exe	0x004a4c10	ai_EvalGuiltWeights	amt_ai	byte	readable		
 exe	0x004a4e30	ai_RepairCost	amt_ai	byte	readable		
-exe	0x004a4e70	ai_PickBuildSite	amt_ai	shape	readable	deep	
+exe	0x004a4e70	ai_PickBuildSite	amt_ai	byte	readable		
 exe	0x004a5140	ai_CanBuildType	amt_ai	byte	readable		
 exe	0x004a5320	ai_ExecBuildBuilding	amt_ai	byte	readable		
 exe	0x004a5540	ai_FindGoodToMake	amt_ai	byte	readable		
@@ -2930,9 +2930,9 @@ exe	0x004fa060	gm_IncomeKind2	f3gm	byte	readable
 exe	0x004fa160	gm_IncomeKind3	f3gm	byte	readable		
 exe	0x004fa2a0	gm_IncomeKind4	f3gm	byte	readable		
 exe	0x004fa3d0	gm_IncomeKind5	f3gm	byte	readable		
-exe	0x004fa4b0	gm_CharacterIncomes	f3gm	shape	readable	deep	
+exe	0x004fa4b0	gm_CharacterIncomes	f3gm	byte	readable		
 exe	0x004fa580	gm_CharacterUpkeep	f3gm	byte	readable		
-exe	0x004fa700	gm_CharacterWages	f3gm	shape	readable	deep	
+exe	0x004fa700	gm_CharacterWages	f3gm	byte	readable		
 exe	0x004fa9b0	gm_PayAllCharacterWages	f3gm	byte	readable		
 exe	0x004faa00	gm_UpdateWorthMood	f3gm	byte	readable		
 exe	0x004fabe0	gm_EndDayIncomes	f3gm	byte	readable		
