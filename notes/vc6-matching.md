@@ -3322,6 +3322,14 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **A call before an if / else whose result one arm moves to another register (`mov ecx,eax; mov eax,[p]`
+  at the top of the second arm, the first arm using eax), with the dead-parameter slots of both arms' inline-asm
+  temps packed differently**: the call was written in BOTH arms (`if (!(hw->bits & dd_BppToDDBD(ctx)))` /
+  `if (!(hel->bits & dd_BppToDDBD(ctx)))`); VC6 hoists the identical call above the branch, and each arm keeps
+  its own value, so no named local spans both arms. This one change fixed the register hunks and every D3_COPY
+  slot hunk of d3d_EnumDeviceCallback (37 ins -> byte) after a session of macro-form and declaration-scope
+  rounds that only moved the slots. flip.py's only hit for the wanted register was deleting the first arm's use.
+
 - **A flag kept in a callee-saved register and tested in several arms swapped with a width CSE (`test edi,edi`
   in the original, ours `test esi,esi` and the width in edi)**: the flag was no local, `(src->dwFlags &
   DDPF_PALETTEINDEXED8)` written in the condition and at each test; the CSE temp it becomes ranks below the
