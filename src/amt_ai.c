@@ -515,22 +515,7 @@ int ai_RepairCost(AIBLD *b, int k) {
   return v;
 }
 /* 0x4a4e70, picks one of the build-site objects (ai_FindBauplaetze) of building kind name: the nearest (with noise) to the character's
-   house (2 of 3 times) or to the market building, else a random one; 0 when none
-   @deep deep s38: the original's frame (0x478) has two 4-byte slots more than ours, at [esp+0x20] (no
-   instruction touches it) and [esp+0x24] (the fst of the (float)sqrt value before fmulp, in both loops);
-   ours packs that spill into dx's slot (c2frame: tmp@538 / tmp@558 join dx, whose life ends in the sum).
-   So in the original the spill conflicts with dx / dy / dz / best and a fifth small local exists that has
-   a slot but no code left (references removed by a late pass?). Tried: a named dist = (float)sqrt(..)
-   inside the product (= control), dx / dy / dz as block locals of the loop bodies (56 ins, frame
-   unchanged), the double sqrt without the (float) cast (6 ins / 362 bytes: the frame stays 0x470, fpu
-   hunks). Open: which local the empty slot is. prior: read in full against the original and reconciled
-   (both nearest-site loops, the random fallback, the scene save/restore); the vectors are 16-byte float[4]
-   slots as in the original's frame (q at 0x28, o at 0x38, buf at 0x48). Left is the frame and allocation:
-   the original gives the (float)sqrt spill its own slot (fst [esp+0x24]) where ours reuses dz's [esp+0x10]
-   and swaps best/dz (slots 0x10<->0x14), so the frame is 0x478 vs ours 0x470 and every list[] access
-   shifts by 8 (code hunks at 0x4a4f37, 0x4a4fc0, 0x4a502a, 0x4a50b3, 0x4a50f3, 0x4a5129: [esp+esi*4+0x88]
-   vs ours +0x80); the fallback counter is ebx in the original, ecx in ours (0x4a50e0: + mov ebx,edi before
-   the call / - mov ecx,edi after it) */
+   house (2 of 3 times) or to the market building, else a random one; 0 when none */
 
 D3OBJECT *ai_PickBuildSite(AICHAR *p, int name) {
   int scene = d3_CurrentScene;
@@ -539,7 +524,8 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name) {
   D3VECTOR4
   o; /* the positions d3_PointToWorld writes: 16-byte slots in the original's frame */
   D3VECTOR4 q;
-  float dx, dy, dz, d, best;
+  D3VECTOR4 v; /* q - o; a 16-byte slot in the original's frame */
+  float d, best;
   struct D3OBJECT *obj;
   int n, i;
   D3OBJECT *r;
@@ -558,10 +544,10 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name) {
         for (i = 0; i < n; i++) {
           if (list[i] != 0) {
             d3_PointToWorld(list[i], &list[i]->pos, &q.v);
-            dx = q.x - o.x;
-            dy = q.y - o.y;
-            dz = q.z - o.z;
-            d = (float)sqrt(dx * dx + dy * dy + dz * dz) *
+            v.x = q.x - o.x;
+            v.y = q.y - o.y;
+            v.z = q.z - o.z;
+            d = (float)sqrt(v.x * v.x + v.y * v.y + v.z * v.z) *
                 (util_RandomF() * 0.5f + 0.75f);
             if (d < best) {
               best = d;
@@ -579,10 +565,10 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name) {
         for (i = 0; i < n; i++) {
           if (list[i] != 0) {
             d3_PointToWorld(list[i], &list[i]->pos, &q.v);
-            dx = q.x - o.x;
-            dy = q.y - o.y;
-            dz = q.z - o.z;
-            d = (float)sqrt(dx * dx + dy * dy + dz * dz) *
+            v.x = q.x - o.x;
+            v.y = q.y - o.y;
+            v.z = q.z - o.z;
+            d = (float)sqrt(v.x * v.x + v.y * v.y + v.z * v.z) *
                 (util_RandomF() * 0.5f + 0.75f);
             if (d < best) {
               best = d;
@@ -593,8 +579,7 @@ D3OBJECT *ai_PickBuildSite(AICHAR *p, int name) {
         d3if_SelectScene(scene, 1);
         return r;
       }
-      k = util_Random(n);
-      for (i = n; i != 0; i--) {
+      for (i = n, k = util_Random(n); i != 0; i--) {
         if (list[k] != 0) {
           d3if_SelectScene(scene, 1);
           return list[k];

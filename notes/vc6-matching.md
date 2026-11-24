@@ -2018,6 +2018,11 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     sum adds into eax but rotates the products and the netId load; the amount as an int local computed in the
     statement before the call, `extra = (util_Random(level + 2) + level) * 0x1900; f(netId, -1, 0, extra);`, is
     byte (the netId load hoisted into edx before the add). The reverse of the s61 `factor * 25` lever: try both.
+  - **Three float differences at +4/+8/+0xc with an empty 4-byte slot and a spill slot behind them = one
+    D3VECTOR4** (ai_PickBuildSite 32 -> byte, frame 0x470 -> 0x478): `v.x = q.x - o.x; ..; sqrt(v.x * v.x ..)`
+    instead of float dx / dy / dz: the (float)sqrt spill no longer packs into dx's slot (a D3VECTOR or float[3]
+    gives 0x474). The rest: the fallback counter set before the random start, `for (i = n, k = util_Random(n);
+    i != 0; i--)` (`mov ebx,edi` before the call).
 
 - **Deep s61 (4 byte: ai_UseGoodCharmPartner, ai_ChangeProfessionWindow, ai_UseGoodRaiseRelation, cm_WaitTicks)**:
   - **A constant race decided by where a flag is set and the fill order** (ai_UseGoodCharmPartner 8 -> byte): the
