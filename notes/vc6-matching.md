@@ -3337,6 +3337,14 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **A parameter and a switch's rank variable in each other's callee-saved registers, the early `return 0` cases
+  of the switch going straight to the epilogue**: those cases set the result too (`case 0: .. case 3: r = 0;
+  break;`) and the closing test guards on it (`if (r > 0 && ai_InventoryHas(c, 0x22e)) r--;`): VC6 threads the
+  decided `r > 0` per predecessor (cases 0..3 return 0 at once, the others reach the call untested), and r's
+  extra definition raises the switch blocks' P so the clamped index n wins esi before q (ai_PlanRank byte; the
+  dead-store and constant-sharing probes before it only showed the count). `fl = q->score - floor(q->score)`
+  without a `(float)` cast put the float store behind the next argument push.
+
 - **A local loaded through a dying parameter register takes that register (`mov esi,[esi+0x10]`), the original
   a scratch (`mov eax,[esi+0x10]`), the statements after an if/else**: the closing block (`n = s1->arg2; if (..)
   ..; return 0x2f;`) was written in the first arm too, with its own return; VC6 merges the copies, but the
