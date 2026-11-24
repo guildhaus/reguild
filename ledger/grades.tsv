@@ -1800,7 +1800,7 @@ exe	0x004a9700	ai_DecideColumn4Officer	aip	byte	readable
 exe	0x004a9880	ai_DecideColumn5Officer	aip	byte	readable		
 exe	0x004a9a00	ai_DecideLeisureAction	aip	byte	readable		
 exe	0x004a9fa0	ai_CheckLeisureAction	aip	byte	readable		
-exe	0x004aa120	ai_DecideVisitAction	aip	draft	readable	deep	
+exe	0x004aa120	ai_DecideVisitAction	aip	byte	readable		
 exe	0x004aa430	ai_CheckVisitAction	aip	byte	readable		
 exe	0x004aa580	ai_PickPamphletTarget	aip	byte	readable		
 exe	0x004aa6a0	ai_DecideLittleKnownChar	aip	byte	readable		
@@ -2110,7 +2110,7 @@ exe	0x004bf5b0	rt_EditCartRoute	rt	byte	readable
 exe	0x004bfa40	rt_UnloadAtPoint	rt	byte	readable		
 exe	0x004bfc60	rt_LoadAtPoint	rt	byte	readable		
 exe	0x004bff40	rt_SaveRoutes	rt	byte	readable		
-exe	0x004c0040	rt_LoadRoutes	rt	draft	readable	deep	
+exe	0x004c0040	rt_LoadRoutes	rt	byte	readable		
 exe	0x004c01b0	snd_ClearQueue	f3snd	byte	readable		
 exe	0x004c0210	snd_QueueTail	f3snd	byte	readable		
 exe	0x004c0230	snd_AddToQueue	f3snd	byte	readable		
@@ -2911,7 +2911,7 @@ exe	0x004f88c0	ord_AppendStatisticsRound	ord	byte	readable
 exe	0x004f8920	ord_RebuildGridSums	ord	byte	readable		
 exe	0x004f8ae0	ord_ComputeStatistics	ord	byte	readable		
 exe	0x004f8ed0	ord_UpdateStatistics	ord	byte	readable		
-exe	0x004f9020	ord_LoadStatistics	ord	draft	readable	deep	
+exe	0x004f9020	ord_LoadStatistics	ord	byte	readable		
 exe	0x004f9170	ord_GetMessageRecord	ord	byte	readable		
 exe	0x004f9190	ord_InitMessageRecord	ord	byte	readable		
 exe	0x004f9220	ord_UpdateMessageEvent	ord	byte	readable		
