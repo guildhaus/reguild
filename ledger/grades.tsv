@@ -2571,7 +2571,7 @@ exe	0x004e32f0	cm_CreateSceneSky	cmscene	byte	readable
 exe	0x004e3390	cm_DestroySceneSky	cmscene	byte	readable		
 exe	0x004e33d0	cm_StartSceneRain	cmscene	byte	readable		
 exe	0x004e33f0	cm_StopSceneRain	cmscene	byte	readable		
-exe	0x004e3420	cm_WaitTicks	cmscene	shape	readable	deep	
+exe	0x004e3420	cm_WaitTicks	cmscene	byte	readable		
 exe	0x004e3490	cm_RunSceneTicksOrClick	cmscene	byte	readable		
 exe	0x004e3570	cm_RunSceneTicks	cmscene	byte	readable		
 exe	0x004e3620	cm_PlaySpecialTrack	cmscene	byte	readable		
@@ -4546,7 +4546,7 @@ exe	0x005cc700	ai_ConvertWindow	lcamt	byte	readable
 exe	0x005cca40	ai_PenanceWindow	lcamt	byte	readable		
 exe	0x005ccc10	ai_Miracle	lcamt	draft	readable	deep	
 exe	0x005cd2e0	ai_MiracleWindow	lcamt	byte	readable		
-exe	0x005cd400	ai_ChangeProfessionWindow	lcamt	shape	readable	deep	
+exe	0x005cd400	ai_ChangeProfessionWindow	lcamt	byte	readable		
 exe	0x005cd8c0	ai_OpenTrial	lcamt	byte	readable		
 exe	0x005cdb90	ai_AccuseWindow	lcamt	byte	readable		
 exe	0x005cde90	ai_AccusationWindow	lcamt	byte	readable		
@@ -4574,7 +4574,7 @@ exe	0x005d08c0	ai_ApplyTrialStep	lcamt	byte	readable
 exe	0x005d09d0	ai_TrialStep1	lcamt	byte	readable		
 exe	0x005d0a40	ai_TrialStep3	lcamt	byte	readable		
 exe	0x005d0ab0	ai_TrialStep4	lcamt	byte	readable		
-exe	0x005d0b20	ai_UseGoodRaiseRelation	lcamt	shape	readable	deep	
+exe	0x005d0b20	ai_UseGoodRaiseRelation	lcamt	byte	readable		
 exe	0x005d0c70	ai_QuarrelCallback	lcamt	byte	readable		
 exe	0x005d0e60	ai_UseGoodTrialStep	lcamt	byte	readable		
 exe	0x005d0f20	ai_UseGoodLowerOfficialRelations	lcamt	byte	readable		
@@ -4590,7 +4590,7 @@ exe	0x005d1fb0	ai_UseGoodCharmOfficials	lcamt	byte	readable
 exe	0x005d22e0	ai_UsePayGood	lcamt	byte	readable		
 exe	0x005d2320	ai_UseGoodDrainActionPoints8	lcamt	byte	readable		
 exe	0x005d2440	ai_UseGoodHoldRound	lcamt	byte	readable		
-exe	0x005d2580	ai_UseGoodCharmPartner	lcamt	shape	readable	deep	
+exe	0x005d2580	ai_UseGoodCharmPartner	lcamt	byte	readable		
 exe	0x005d2720	ai_UseGoodWeakenSkills3	lcamt	byte	readable		
 exe	0x005d2960	ai_UseGoodFrameChar	lcamt	byte	readable		
 exe	0x005d2bc0	ai_UseGoodFrameChar2	lcamt	byte	readable		
