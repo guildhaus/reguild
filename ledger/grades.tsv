@@ -844,7 +844,7 @@ exe	0x00446180	d3fl_Prerender	d3_fl	shape	readable	deep
 exe	0x004463b0	map_Pick	d3_fl	byte	readable		
 exe	0x00446750	map_PickScreen	d3_fl	byte	readable		
 exe	0x00446910	map_Region	d3_fl	byte	readable		
-exe	0x00446990	d3fl_FarDist	d3_fl	shape	readable	deep	
+exe	0x00446990	d3fl_FarDist	d3_fl	byte	readable		
 exe	0x00446dc0	d3fl_SetShift	d3_fl	byte	readable		
 exe	0x00446e10	d3_CreateObject	d3_interface	byte	readable		
 exe	0x00446f30	d3if_SelectTextureSet	d3_interface	byte	readable		
@@ -1256,8 +1256,8 @@ exe	0x0046bd30	d2_ListCopyItem	d2	byte	readable
 exe	0x0046bdd0	d2_SetSliderFlags	d2	byte	readable		
 exe	0x0046be00	d2_CreateSlider	d2	byte	readable		
 exe	0x0046bf10	d2_WinCreateSlider	d2	byte	readable		
-exe	0x0046bf60	d2_DrawButton	d2	shape	readable	deep	
-exe	0x0046c1d0	d2_CenterObj	d2	shape	readable	deep	
+exe	0x0046bf60	d2_DrawButton	d2	byte	readable		
+exe	0x0046c1d0	d2_CenterObj	d2	byte	readable		
 exe	0x0046c260	d2_SetObjWidth	d2	byte	readable		
 exe	0x0046c290	d2_OpenRaw	d2	byte	readable		
 exe	0x0046c390	d2_WinOpenRaw	d2	byte	readable		
@@ -4367,7 +4367,7 @@ exe	0x005a9d00	ai_DomizilMessageAge	lcmap	byte	readable
 exe	0x005a9d60	ai_DomizilMessageTask	lcmap	byte	readable		
 exe	0x005a9dd0	ai_DomizilMessagePlace	lcmap	byte	readable		
 exe	0x005a9e40	ai_DomizilMessage12	lcmap	byte	readable		
-exe	0x005a9e90	ai_RandomDomizilGoodNotIn	lcdom	shape	readable	deep	
+exe	0x005a9e90	ai_RandomDomizilGoodNotIn	lcdom	byte	readable		
 exe	0x005a9f10	ai_DomizilGoodInRange	lcdom	byte	readable		
 exe	0x005a9f80	ai_AskBonusAmount	lcdom	byte	readable		
 exe	0x005aa0d0	ai_CreatePersonnelRow	lcdom	byte	readable		
