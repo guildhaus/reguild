@@ -54,7 +54,7 @@ exe	0x0046f1a0	d2_DrawTextBox	1
 exe	0x0046fba0	d2_DrawWindowText	1
 exe	0x00472390	d2_CreateWindow	1
 exe	0x00472fd0	d2_RaiseWindow	1
-exe	0x004741f0	d2_OpenForm	1
+exe	0x004741f0	d2_OpenForm	2
 exe	0x00477ba0	d2_SliderInput	1
 exe	0x00478a00	d2_ReadBmpPixels	1
 exe	0x00479150	d2_BlitPartMode	1
