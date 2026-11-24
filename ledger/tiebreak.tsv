@@ -4661,6 +4661,6 @@ exe	0x005dc4a0	ai_StepShot	shot	a0970735dc7b1f2a	no	draft	sweep control=draft be
 exe	0x005dc9d0	ai_StepShotSlow	shot	f80f4370fca5e90f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=316	ca4fdfaecd1a8133
 exe	0x005dcf00	ai_ShotHitsGround	menu	d5ee153d3ba42fac	no	shape	sample n=32 seed=1 compiled=32 codegens=1 best=shape	
 exe	0x005dd090	ai_NormalizeEffectScale	unk_5d33b0	f4fb3ee3506f24fa	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x005dd100	ai_SolveCannonAim	shot	69aaec0365df14b9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	d438851f61b22e30
+exe	0x005dd100	ai_SolveCannonAim	shot	8930e184118329bb	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	696159226777dbd9
 exe	0x005de460	MSS_auto_cleanup	mss32lib	c42d3dca4fab99e2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005de470	mss_AutoCleanupExit	mss32lib	47db3aa67c7b30ae	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
