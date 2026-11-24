@@ -3955,6 +3955,10 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   into n, a's web ends at the pick, n (GetDisease, the chain, the returns) is its own candidate, both get
   ebx and the copy vanishes: byte (s48/s49 had 127 + ~150 variants on one a). A copy `n = a;` AFTER a
   complete pick folds away; the copy must be a definition the pick overwrites on some paths.
+- **(Order) a flag load and the call's `add esp` scheduled before `fadd K; fmul v` of a call result**: the
+  call result was a named float (`skill = gm_GetSkill(w, 1); fv = (skill + 0.5) * fv;`), not the call
+  inside the parenthesised sum; the same code otherwise (he_RunProduktion 4 ins -> byte; a double local or
+  `skill = call + 0.5` are other code).
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).
