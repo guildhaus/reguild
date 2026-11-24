@@ -2072,14 +2072,13 @@ D3OBJECT *d3_CloneObject(D3OBJECT *src) {
   }
   return obj;
 }
-/* 0x43d430, sets the alpha of a surface: textures are swapped for alpha aliases (or back). @deep deep s26: climb round 1 (87 mutants): nothing. Toy compiles (scratch, 10 spellings of the tris[i].tex load / store: index, &tris[i]->, i * sizeof byte offsets, raw +0x14 int arithmetic, unsigned / short i, != 0 test, continue): VC6 always emits [tris + off] (the reloaded pointer first, the strength-reduced offset second) as ours; the original's [off + tris] comes from none of them. Same class as ai_AlchemistWindow's function-wide SIB order (s25). Left: the 4 base / index swaps. prior: B3 draft: after the reading fixes (the three raw *(int*)((char*)s->mesh+0x1e0) are now s->mesh->ntex, the function is readable) only the address encoding of the two tris[i].tex accesses per loop remains, 4 hunks / 4 of 512 B: ours [edx+ecx+0x14] and [eax+ecx+0x14], original [ecx+edx+0x14] and [ecx+eax+0x14] - the same instructions with base and index swapped. Tried in this state: the store through the local tris[i].tex (469/528 B, reverted); earlier attempts: tris[i] directly, (tris + i)->, i[tris], 0x28 byte offsets, integer arithmetic i*0x28+(int)tris, unsigned i, a pointer IV. */
+/* 0x43d430, sets the alpha of a surface: textures are swapped for alpha aliases (or back). */
 
 void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f) {
   D3SURF *s = info;
   D3TEXMAP *map;
-  D3TRI *tris;
   TSTEXTURE *t;
-  int i, j, n;
+  int i, j, k, n;
 
   if (obj && s && s->mesh->ntex >= 0) {
     if (f.b[0] >= 0xff && !(f.b[2] & 1)) {
@@ -2090,8 +2089,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f) {
       s->flags.f.b[0] = 0xff;
       n = 0;
       for (i = 0; i < s->ntris; i++) {
-        tris = s->tris;
-        if (t = tris[i].tex) {
+        if (t = s->tris[i].tex) {
           for (j = 0; j < n; j++)
             if (map[j].from == t)
               break;
@@ -2100,7 +2098,7 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f) {
             map[j].to = tex_ReleaseAlias(t, 1);
             n++;
           }
-          (s->tris)[i].tex = map[j].to;
+          s->tris[i].tex = map[j].to;
         }
       }
       mem_Free(map);
@@ -2112,17 +2110,16 @@ void d3_SetObjectAlpha(D3OBJECT *obj, D3SURF *info, D3TEXFLAGS f) {
       map = mem_Alloc(s->mesh->ntex << 3, "!d3:ChangeObjectTransparency()");
       n = 0;
       for (i = 0; i < s->ntris; i++) {
-        tris = s->tris;
-        if (t = tris[i].tex) {
-          for (j = 0; j < n; j++)
-            if (map[j].from == t)
+        if (t = s->tris[i].tex) {
+          for (k = 0; k < n; k++)
+            if (map[k].from == t)
               break;
-          if (j == n) {
-            map[j].from = t;
-            map[j].to = tex_AliasForFlags(t, f, 1);
+          if (k == n) {
+            map[k].from = t;
+            map[k].to = tex_AliasForFlags(t, f, 1);
             n++;
           }
-          (s->tris)[i].tex = map[j].to;
+          s->tris[i].tex = map[k].to;
         }
       }
       mem_Free(map);
