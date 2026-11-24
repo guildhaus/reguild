@@ -3337,6 +3337,12 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **A local loaded through a dying parameter register takes that register (`mov esi,[esi+0x10]`), the original
+  a scratch (`mov eax,[esi+0x10]`), the statements after an if/else**: the closing block (`n = s1->arg2; if (..)
+  ..; return 0x2f;`) was written in the first arm too, with its own return; VC6 merges the copies, but the
+  counted references and the join change the allocation (ai_ExecuteMasterBuilder byte; climb, flip, the local's
+  spellings and the AIMSG scope / fill order were all = control).
+
 - **Two scratch registers swapped in a loop body (a table load `mov edx,[kinds+i*4]` and a later list store's
   temp, eax / edx exchanged)**: the table value was a named local assigned before the reset of the inner
   counter (`kind = kinds[idx]; k = 0; o = gm_BuildQuery(1, 5, kind);`): the local folds into the push but
