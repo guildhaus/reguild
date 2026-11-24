@@ -2129,6 +2129,12 @@ Which arm is inline, jumps into another arm, threaded and redundant tests, `&&` 
   (ours: to the last step's), `0 ins / N bytes`: the function ended `LS_W(&x, 4) return 1;`, not `return
   write(&x, ..) > 0;`. Same `sbb / neg` code, but the last step's return is then a test whose `return 0` copy
   changes the pair merger's list (ls_WriteMessageQueues, ls_ReadMessageQueues byte).
+- **A block laid between an inner arm and the code after it, reachable only from the entry test** (an else
+  arm that the RPO walk cannot reach from the then-subtree): the then-part was split in two by a second,
+  decided test of the same condition. ai_DragTownMap (48 ins -> byte): `if (rhold) { if (!dragging) init; }
+  else if (dragging) { release; return 0; } if (rhold) { drag } return changed;` - the walk reaches the second
+  test from the release arm first, so the release lands behind the init block and before the drag code; the
+  second test is threaded away. Then a 5040-order round of the release stores.
 - **Each arm of a switch case ending in its own `return 0`** where the original's skip tests jump to another
   case's `return 0` block: one more `return` per arm (main_WindowProc WM_ACTIVATEAPP byte).
 
