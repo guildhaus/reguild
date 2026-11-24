@@ -85,6 +85,7 @@ exe	0x004b0640	ai_CommandExecution	1
 exe	0x004bc940	veg_LoadModel	1
 exe	0x004bcc20	rd_BuildRoad	1
 exe	0x004bd340	rd_PathToRoad	1
+exe	0x004bdcd0	rt_ChooseGoodsDialog	1
 exe	0x004be940	rt_EditPointDialog	1
 exe	0x004c0040	rt_LoadRoutes	1
 exe	0x004c38e0	cm_JoinSplit	1

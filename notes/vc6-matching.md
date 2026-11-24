@@ -2003,6 +2003,26 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s60 (2 byte: he_RunStammtisch, he_EndPersonEvents; rt_ChooseGoodsDialog left at a constant race)**:
+  - **A shared tail after an if / else flushes the deferred `add esp`** (he_RunStammtisch, 21 -> byte): the
+    original keeps one `add esp,0x3c` after the last call with `push 4` scheduled before the next store; ours
+    flushed `add esp,0x30` at the join and moved a decrement to eax. The tail (`min = 0; hour = ..; send; return;`)
+    written in BOTH arms: VC6 cross-jumps it from the shared call on, and no join stops the pop merging.
+  - **A mask test VC6 merges keeps its constant out of the register race** (he_EndPersonEvents): seven
+    `(e->opts & 3) == 0` tests made 3 a byte-flagged constant candidate in bl (push / pop ebx); written as
+    `(e->opts & 1) == 0 && (e->opts & 2) == 0` VC6 emits the same `test byte ptr [m],3` but has no constant 3
+    (25 -> 6). Every other spelling of the mask (!x, casts, int / short / char views, a bitfield view, `| ` of the
+    bits) keeps the candidate; one `& 3` anywhere brings it back.
+  - **Identical loops written alike** (he_EndPersonEvents 6 -> byte): the 0x41 / 0x6f / 0x45 pair loops were the
+    same text (`if (e->partner1 == n) { f(e->partner2); end(e); } else if (e->partner2 == n) { f(e->partner1);
+    end(e); }`); VC6 still emits three different shapes (lazy load, coalesced b, early load). Our a / b locals in
+    two of them left the scratch rotation one step off at a later call (probe reads at five positions fixed it,
+    no spelling of the call did).
+  - **A byte-flagged waiting candidate decides a constant's choice tie** (rt_ChooseGoodsDialog, open): two
+    constants (0x525 prio 30, 1 prio 23) both free for ebx / ebp; the first served takes ebx on a tie. A probe
+    byte store / byte compare of 0, 1, 3 or 4 anywhere (or `char ret`) turns 0x525 to ebp. The original has no
+    visible byte op; the per-branch reloads of 1 (split in pass 1) still need another cause (function note).
+
 - **Deep s59 (3 byte: hmt_Load, hmt_RecordTextId, ord_ApplyForOffice; ord_LevelOrder left at a pure esi / edi
   swap)**:
   - **The success return out of line at the end (`jne` over an inline reset block that falls into its own

@@ -3551,7 +3551,7 @@ exe	0x005417d0	he_CharIllness	he	byte	readable
 exe	0x00541a50	he_RunDueNow	he	byte	readable		
 exe	0x00541a80	he_AllocStammtisch	he	byte	readable		
 exe	0x00541b40	he_StammtischCommand	he	byte	readable		
-exe	0x00542100	he_RunStammtisch	he	shape	readable	deep	
+exe	0x00542100	he_RunStammtisch	he	byte	readable		
 exe	0x00542490	he_AllocTavern	he	byte	readable		
 exe	0x00542590	he_RunTavern	he	byte	readable		
 exe	0x00542960	he_AllocOffer	he	byte	readable		
@@ -3684,7 +3684,7 @@ exe	0x00552bc0	he_RunTutorialIntro	he	byte	readable
 exe	0x00552c30	he_StartOfficeAward	he	byte	readable		
 exe	0x00552ca0	he_RunOfficeAward	he	byte	readable		
 exe	0x00553060	he_RegisterEventTypes22	he	byte	readable		
-exe	0x005538b0	he_EndPersonEvents	he	shape	readable	deep	
+exe	0x005538b0	he_EndPersonEvents	he	byte	readable		
 exe	0x00553ae0	he_DetectAttack	he	byte	readable		
 exe	0x00553cc0	he_NoProtectionEvent	he	byte	readable		
 exe	0x00553d10	he_NoEvent2ePair	he	byte	readable		
