@@ -4822,19 +4822,19 @@ int d2_OpenForm(short x, short y, char *name) {
     ww = &d2_Wins[d2_Views[view].wins[i]];
     if (ver == 2) {
       D2FORM2 *r2 = (D2FORM2 *)r;
-      char *fn = r2->font;
 
-      if (fn[0] == 0)
-        fn = "_FONT";
-      ww->font = d2_FindPic(fn);
+      if (r2->font[0] != 0)
+        ww->font = d2_FindPic(r2->font);
+      else
+        ww->font = d2_FindPic("_FONT");
       if (r2->pic[0] != 0) {
         ww->bgpic = d2_FindPic(r2->pic);
         d2_AddRefcount(ww->bgpic);
       }
       ww->ml = r2->m[0];
       ww->mr = r2->m[1];
-      ww->mb = r2->m[3];
       ww->mt = r2->m[2];
+      ww->mb = r2->m[3];
       if (ww->flags & 4) {
         idx = d2_FindPic(r2->frame);
         ww->frame = idx;
