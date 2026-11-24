@@ -475,27 +475,27 @@ int ai_OpenBuildingTooltip(int idx) {
    then the list: the goods it is made of with their amounts (section 4, text 0x25), the guild-house buildings
    that make it (gm_BuildingItemGroups, section 3, text 0x26), for the item types 0x17 / 0x25 the buildings that use the
    item idx and the extra slot 0x444 (text 0x624); "$C" when the list stayed empty; returns the view
-   @deep size queue s19: the size gap (raw 1620 vs 1596, padded 1632 vs 1600) is all in the type 0x17/0x25
-   chain (ours 0x58869f..0x58885b = 444 bytes, the original 420). The original's jump threading is weaker
-   than ours: outer 0x225 / 0x226 -> A, but 0x227 / 0x293 / 0x294 / 0x295 -> a re-test 'cmp 0x226; je A;
-   cmp 0x227; jne B-chain' (the inner 0x225 test gone), and its four n = 1 arms share ONE n store (0x1e
-   arm, 0x20 arm, second 0x1e arm jmp to the 0x1f arm's 'mov [n],1'), the two 0x1e arms NOT merged with
-   each other; ours threads 0x227 straight to A and 0x293.. into the inner test, merges the two 0x1e arms
-   whole and keeps own n = 1 stores in the first two arms. So the original's arms were not identical blocks
-   at merge time. No lever (rows): list[n++] = K in the n = 1 arms or everywhere (= control); n = 1 / n = 3
-   / n = 2 before the list stores (55 / 53 / 55 ins, raw 1620 each); all 719 orders of the outer
-   six-compare (best o9 53 ins / 574 bytes, nothing moves the layout). Next: a form where the arms differ
-   before cross-jumping (a value per arm through a local, the list written by a helper), or the 0x225 chain
-   as a macro shared with the 0x1c1 test at the end. prior: 273 -> 53 ins: d2_WinOpenPicStyled called with
-   a short y (its true short x, short y prototype; the row y is recomputed per call, loop counters in
-   memory: -101), the staff loop as an index loop over ai_Chars (countdown edx 0x300: -117),
-   (float)(c->sk81 * (1.0 / 1008)) + factor (the fxch pair). Left: only the type 0x17/0x25 chain layout
-   (all 49 code ins, 0x58869f..0x588843): the original puts each arm inline after an inverted last compare,
-   A/B/1c1 with their own n store and the n = 1 arms cross-jumped into one tail; ours places A, B, 1c1
-   after the chain (switch-like) and threads 0x293.. into the inner test at 0x227. Tried: inner order (6
-   perms, all worse), flat chain without the outer test (162), else-B, B first, sequential ifs, idx <=
-   0x227 range, n = 0 inside, outer test negated with swapped arms, 1c1 condition spellings: none moved the
-   layout (tiebreak: not measured (dcp headers s... */
+   @deep s66 reading (no variant round): the original's threading of the outer six-compare into the inner
+   0x225/0x226/0x227 test fits one rule - an edge is threaded through at most ONE decided-false compare and
+   then a decided-true jump: 0x225 -> A (true at once), 0x226 -> A (0x225 false, 0x226 true), 0x227 and
+   0x293..0x295 and the fall-through -> 'cmp 0x226' (one false step, stops). Ours threads 0x293.. past
+   three false compares (0x225/0x226/0x227) and stops before the true one, and 0x227 straight to A: so
+   ours' blocks at threading time are not the original's (likely ours' inner then-part A and the B else-if
+   are separate blocks laid after the chain, the original's lay inline behind the inverted last compare).
+   Not tried yet: the list fill of each arm as one statement block per arm with the n store first (n = 3;
+   list[0] = ..), and the outer six-compare as a flag (in = idx == 0x225 || ..; if (in) ..) so the inner
+   test is not threaded from the outer compares. prior: size queue s19: the size gap (raw 1620 vs 1596,
+   padded 1632 vs 1600) is all in the type 0x17/0x25 chain (ours 0x58869f..0x58885b = 444 bytes, the
+   original 420). The original's jump threading is weaker than ours: outer 0x225 / 0x226 -> A, but 0x227 /
+   0x293 / 0x294 / 0x295 -> a re-test 'cmp 0x226; je A; cmp 0x227; jne B-chain' (the inner 0x225 test
+   gone), and its four n = 1 arms share ONE n store (0x1e arm, 0x20 arm, second 0x1e arm jmp to the 0x1f
+   arm's 'mov [n],1'), the two 0x1e arms NOT merged with each other; ours threads 0x227 straight to A and
+   0x293.. into the inner test, merges the two 0x1e arms whole and keeps own n = 1 stores in the first two
+   arms. So the original's arms were not identical blocks at merge time. No lever (rows): list[n++] = K in
+   the n = 1 arms or everywhere (= control); n = 1 / n = 3 / n = 2 before the list stores (55 / 53 / 55
+   ins, raw 1620 each); all 719 orders of the outer six-compare (best o9 53 ins / 574 bytes, nothing moves
+   the layout). Next: a form where the arms differ before cross-jumping (a value per arm through a local,
+   the list written by a helper), or the 0x225 chain as a macro shared with the 0x1c1 test at the end. */
 int ai_OpenItemTooltip(int idx) {
   int n;
   int slot;
