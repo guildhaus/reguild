@@ -1403,7 +1403,7 @@ void d2_DrawButton(int id, D2SURF *surf) {
   d2_DrawTextBox(w->x, (l->h >> 1) - d2_FontHeight / 2 + 1 + w->y, w->w, w->h,
                  surf, w->u.text, color);
 }
-/* 0x46c1d0, centres an object (flag centred) horizontally on its window or on the screen @deep draft (59/144 bytes; 67 instructions both sides): after the dup-tail pass only register allocation and epilogue placement differ - ours keeps obj in edi and win in ebx where the original has obj in ebx and win in edi (one bijective swap), the entry pushes are esi,edi vs ebx,esi,edi, and our two arms share pop edi/pop esi/ret where the original duplicates the whole tail; semantics read equal against 0x46c1d0 and its Ghidra pseudocode. spell.py dup-tail tried: statements in both arms (116 bytes differ, worse prologue), pull after the branch (best, 59), swap branch polarity (86); also tried d2_Objs[obj] subscripts instead of the local pointer, a named D2WIN *win local, the early-return !centred form and an a?b:c argument (all the same 59). Readability passes Q1..Q7. Left: VC6 register allocation and the tail merge - listing/c2prio/siblings. */
+/* 0x46c1d0, centres an object (flag centred) horizontally on its window or on the screen */
 
 void d2_CenterObj(int obj) {
 #ifdef _MSC_VER
@@ -1418,14 +1418,17 @@ void d2_CenterObj(int obj) {
   void d2_MoveObj(short x, short y, int obj);
 #endif
   D2OBJ *o = &d2_Objs[obj];
-  int x;
+  int x, y;
 
   if (o->centred) {
-    if (o->win)
+    if (o->win) {
       x = o->win->w / 2 - o->w / 2 + o->win->x;
-    else
+      y = o->y;
+    } else {
       x = d2_ScreenW / 2 - o->w / 2;
-    d2_MoveObj(x, o->y, obj);
+      y = o->y;
+    }
+    d2_MoveObj(x, y, obj);
   }
 }
 /* 0x46c260, sets the width of an object and centres it again */

@@ -2063,6 +2063,16 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     operand-order hunk of loads through a pointer: probe each field's stores / tests above with another field;
     a hit names the access to spell through the array (`T[i].f`) instead of the pointer. d2_DrawSlider has the
     same hunk class (`spr0->w + w->x` order): try this first there.
+  - **A parameter and a CSE pointer in each other's callee-saved registers plus a call argument loaded early
+    into a free scratch register: the argument was a named local set in EACH arm** (d2_CenterObj 44 -> byte):
+    c2dag --alloc had obj 28 against the o->win temp 24 (tie obj f < win 12); a probe that added one distinct
+    value to the window arm (P 3 -> 4) gave the original's ebx / edi. The plain form: `x = ..; y = o->y;` in
+    both arms of `if (o->win)` and `d2_MoveObj(x, y, obj)` after: y is a value of each arm (the arms' P rise,
+    the window temp outranks obj) and its load is the arm's last statement, so it takes eax after the x
+    temps (the original's late `movsx eax,[esi+0x12]; push eax`). y before x in either arm, or y in one arm
+    only: other code. Twelve folds that changed nothing (named win, helper locals in an arm, labels,
+    o-in-the-if, ternaries) are in git history of the note. Lever: when c2dag shows a candidate a few points
+    short, add a value to the blocks it is referenced in by a local that the call after the join reads.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
