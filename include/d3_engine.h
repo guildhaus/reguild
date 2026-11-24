@@ -469,8 +469,6 @@ extern int d3_Busy; /* 0x633b04, nesting guard of d3_Render/d3_Animate */
 extern unsigned char d3_FogByDistance; /* 0x6334a5 */
 extern int
     d3_MirrorObject; /* 0x63344c, the object the frame's mirror was built for (0 none) */
-extern int d3_TextureSwitches;      /* 0xfe75b4 */
-extern int d3_TextureBytes;         /* 0xfc2dc0 */
 extern int d3_StatPolys;            /* 0x633470, frame statistics */
 extern int d3_StatTris;             /* 0x633474 */
 extern int d3_StatShadowTris;       /* 0x633478 */

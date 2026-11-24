@@ -315,11 +315,8 @@ void ai_DuelNextPhase(AGDUEL *d);                        /* 0x493a40 */
 int ai_ChooseObjectTarget(AICHAR *p, AIOBJ *o);          /* 0x493be0 */
 AICHAR *ai_FindSuccessor(AICHAR *p);                     /* 0x493ea0 */
 
-int gm_CharCurrency(struct AICHAR *c, signed char p);           /* 0x509ee0 */
-int gm_GetWorth(unsigned short id);                             /* 0x50a640 */
 int gm_ConvertMoney(int a, unsigned char k);                    /* 0x5085b0 */
 int gm_PlayerFactor(int a, unsigned char k);                    /* 0x5085f0 */
-float gm_GetSkill(struct AICHAR *c, int skill);                 /* 0x504ec0 */
 int amt_GetKind(int k, struct AMTKIND *out);                    /* 0x4e6f80 */
 int amt_GetColumnOffices(int col, int max, struct AMTREC *out); /* 0x4e6fc0 */
 
@@ -395,18 +392,10 @@ int ai_DecideGraveyardOwner(int a, AICHAR *p, int b, AIARG *o1,
                             AIARG *o2); /* 0x490690 */
 
 /* callees outside this file */
-int ai_CanBuildType(int a, struct AICHAR *p, int b, struct AIARG *s1,
-                    struct AIARG *s2, int f); /* 0x4a5140 */
-int ai_ExecBuildBuilding(struct AICHAR *p, struct AIARG *s1,
-                         struct AIARG *s2); /* 0x4a5320 */
 void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec,
                         int *st); /* 0x4a5760 */
 /* am.h declares 0x4a63f0 with an __int64 mask; 0x48ff50..0x490350 pass it as two ints */
 /* am.h: id is an int; 0x490690 passes an unsigned short */
-int ai_DecideTakeCredit(int a, struct AICHAR *p, int f, struct AIARG *o1,
-                        struct AIARG *o2);           /* 0x49eec0 */
-int gm_BuildingKindValue(int a);                     /* 0x509d30 */
-int gm_BuildingKindCost(struct AICHAR *c, int kind); /* 0x509dc0 */
 struct G9DOMIZIL *ai_FindUsableGood(int id);         /* 0x5ba620 */
 
 /* ---- 0x494020..0x494e70 (was unk_494020.h) ---- */
@@ -433,12 +422,7 @@ extern const AIREC10 ai_TortureInstruments[7]; /* 0x5ecfd8 */
 double cm_RandomFloat(void);                      /* 0x4e5360, a random value */
 unsigned int cm_Random(unsigned int n);           /* 0x4e52f0, a random test */
 float gm_MapDistance(int a, int b, int c, int d); /* 0x4ffc90 */
-float gm_Mix(struct AICHAR *a, struct AICHAR *b, int c); /* 0x504e20 */
-int gm_ConvertMoney(int a, unsigned char b);             /* 0x5085b0 */
-int gm_GetWorth(unsigned short id);                      /* 0x50a640 */
 struct ORDMSG;
-int ord_DispatchOrder(int id, struct AICHAR *c,
-                      struct ORDMSG *m); /* 0x4f81c0 */
 
 int ai_PlanWorth(AIPLAN *q);                     /* 0x494020 */
 int ai_DecideTorture(AIPLAN *q);                 /* 0x4941b0 */
@@ -488,7 +472,6 @@ int gm_ExpectedDeathAge(struct AICHAR *c); /* 0x4fc7a0 */
 int amt_GetOfficeCandidates(struct AICHAR *c, int n,
                             struct AMTCAND *out); /* 0x4e7150 */
 extern void *main_Instance;            /* 0x75e140, the module handle */
-int ai_RegisterBuildingActions(int a); /* 0x48fb70 */
 int ai_RegisterBaseActions(int a);     /* 0x4a16f0 */
 
 /* ---- small functions 0x4984d0..0x4a3af0 (was unk_4984d0.h) ---- */
@@ -516,21 +499,12 @@ int ai_PickDislikedColumn(AICHAR *p);                      /* 0x4a0410 */
 int ai_DecidePriceManipulation(int a, AICHAR *p, int f, AIARG *o1,
                                AIARG *o2); /* 0x49fc90 */
 int amt_MayorBonusStep(struct AICHAR *c);  /* 0x4e94a0 */
-int ai_DecideBuildResidence(int a, struct AICHAR *p, int f, struct AIARG *o1,
-                            struct AIARG *o2); /* 0x4984d0 */
-int ai_CanBuildType(int a, struct AICHAR *p, int b, struct AIARG *s1,
-                    struct AIARG *s2, int f);        /* 0x4a5140 */
-int gm_BuildingKindCost(struct AICHAR *c, int kind); /* 0x509dc0 */
-int gm_BuildingKindValue(int k);                     /* 0x509d30 */
-int ai_DecideTakeCredit(int a, struct AICHAR *p, int f, struct AIARG *o1,
-                        struct AIARG *o2);                     /* 0x49eec0 */
 int ai_ExecuteBuildResidence(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x498a80 */
 int ai_DecideUpgradeResidence(int a, AICHAR *p, int f, AIARG *o1,
                               AIARG *o2); /* 0x498b80 */
 int amt_GetColumnOfficesOwned(int col, int max,
                               struct AMTREC *out); /* 0x4e7040 */
 
-int amt_GetKind(int k, struct AMTKIND *out); /* 0x4e6f80 */
 int amt_FindOffice(struct AICHAR *c, struct AMTKIND *kind,
                    struct AMTREC *office); /* 0x4e6030 */
 
@@ -565,8 +539,6 @@ int ai_DecideSaveAps(int a, AICHAR *p, int f, AIARG *o1,
 int ai_ExecuteSaveAps(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x49a380 */
 int ai_DecideUseMilitaryObject(int a, AICHAR *p, int f, AIARG *o1,
                                AIARG *o2); /* 0x49a390 */
-void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec,
-                        int *st);                                 /* 0x4a5760 */
 int ai_ExecuteUseMilitaryObject(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x49a5b0 */
 /* 0x5ba620 with an int id (the callers here zero-extend; unk_48e070.h: unsigned short) */
 int ai_DecideUseReputationObject(int a, AICHAR *p, int f, AIARG *o1,
@@ -668,8 +640,6 @@ extern const int ai_RandomStrides[16]; /* 0x5ed140, random steps */
 struct ORDCREDIT;
 int gm_GetCreditOffers(struct AIBLD *b, struct AICHAR *p, unsigned cnt,
                        struct ORDCREDIT *out); /* 0x50a250 */
-int ai_DecideTakeCredit(int a, struct AICHAR *p, int f, struct AIARG *o1,
-                        struct AIARG *o2);                 /* 0x49eec0 */
 int ai_ExecuteTakeCredit(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x49f370 */
 int ai_EvalChangeProfession(float *a, float *b, int i, AICHAR *p, int f,
                             AIARG *o1, AIARG *o2); /* 0x49f4f0 */
@@ -677,7 +647,6 @@ int gm_TitleNumber(int r, int n);                  /* 0x5043d0 */
 int ai_DecideChangeProfession(int a, AICHAR *p, int f, AIARG *o1,
                               AIARG *o2); /* 0x49f5c0 */
 void cm_SendSetJob(int id, int job);      /* 0x4c59b0 */
-void gm_SendMoneyDelta(int a, int b);     /* 0x50cc50, unk_48e070.h: int id */
 int ai_ExecuteChangeProfession(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x49f7f0 */
 int ai_DecideStammtisch(int a, AICHAR *p, int f, AIARG *o1,
                         AIARG *o2);                               /* 0x49f850 */
@@ -706,9 +675,6 @@ int ai_EvalApprenticeship(float *a, float *b, int i, AICHAR *p, int f,
 int ai_DecideApprenticeship(int a, AICHAR *p, int f, AIARG *o1,
                             AIARG *o2);                        /* 0x4a1170 */
 int ai_ExecuteApprenticeship(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x4a1360 */
-void ai_RollStudyOffers(
-    struct AICHAR *ch,
-    struct AISTUDYOFFER *out); /* 0x4948f0, unk_494020.h: AICHAR * */
 int ai_DecideStudy(int a, AICHAR *p, int f, AIARG *o1,
                    AIARG *o2);                        /* 0x4a13e0 */
 int ai_ExecuteStudy(AICHAR *p, AIARG *s1, AIARG *s2); /* 0x4a1640 */
@@ -742,7 +708,6 @@ int ai_UpgradeBusinessExec(
 int ai_MayorUpgradeExec(
     AICHAR *p, AIARG *s1,
     AIARG *s2); /* unlinked: LINK folds it (/OPT:ICF) into sv_ReturnZero */
-int ai_RegisterBaseActions(int a); /* 0x4a16f0 */
 /* 0x4c4830 with an int c (unk_48e070.h: unsigned char) */
 
 /* ---- 0x4a3af0..0x4a7140 (was unk_4a3af0.h) ---- */
@@ -763,7 +728,6 @@ typedef struct G7MKT { /* 0xb4 bytes, the prices of an item group (0x4a4680) */
 extern G7GRP gm_BuildingItemGroups[]; /* 0x61a348 */
 
 int ai_GroupPrices(G7MKT *m);
-int ai_RepairCost(struct AIBLD *b, int k);              /* 0x4a4e30 */
 struct D3OBJECT *ai_PickBuildSite(AICHAR *p, int name); /* 0x4a4e70 */
 extern int d3_CurrentScene;                             /* 0x633444 */
 char d3if_SelectScene(int index, char keep);            /* 0x4478e0 */
@@ -771,11 +735,8 @@ void d3_PointToWorld(struct D3OBJECT *obj, struct D3VECTOR *in,
                      struct D3VECTOR *out);
 /* 0x458a20 */ /* 0x4a4680 */
 
-int amt_GetKindLevel(int k); /* 0x4e7c40 */
 extern const int
     ai_RingStrides[11]; /* 0x5ed180, the strides of the near ring cursor */
-int ai_EvalCurrentNeed(float *a, float *b, int i, AICHAR *p, int f, void *x,
-                       void *y); /* 0x4a4ae0 */
 
 int gm_MayTakeJob(int k, int c); /* 0x5020e0 */
 /* 0x4a5140 ai_CanBuildType is declared in am.h */
@@ -788,8 +749,6 @@ typedef struct
   int entryId;         /* 0x8, the inventory entry's objId, -1 none */
   struct AIOBJ *entry; /* 0xc, the inventory entry itself, 0 none */
 } G9REC;
-void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec,
-                        int *st); /* 0x4a5760, declared int elsewhere */
 /* 0x4a58d0 ai_PickPartnerChain is declared in am.h */
 int ai_PickPartnerInRange(AICHAR *p, unsigned int fl, int n,
                           unsigned short *ids, float lo, float hi,
@@ -807,7 +766,6 @@ unsigned int ai_FindCandidates(AICHAR *p, unsigned int n, unsigned int fl,
 unsigned int ai_PickPartnerChainLevel(AICHAR *p, unsigned int a,
                                       unsigned int fl, float lo, float hi,
                                       int d, unsigned short *id); /* 0x4a61d0 */
-extern const int ai_RandomStrides[16]; /* 0x5ed140, random steps */
 /* 0x4a63f0 ai_PickActionBuilding is declared in am.h */
 int ai_PickActionBuildings(AICHAR *p, int a, __int64 mask, float lo, float hi,
                            unsigned char n, int *out); /* 0x4a6570 */
@@ -856,15 +814,12 @@ int ai_SolveCannonAim(const struct D3VECTOR *a, const struct D3VECTOR *b,
                       float *rng, float *x, float *y, float *ang,
                       struct D3VECTOR *vb, struct D3VECTOR *vc,
                       struct D3VECTOR *vd); /* 0x5dd100 */
-int ai_AimCannon(struct AICHAR *p, struct AIBLD *b,
-                 struct AIBLD *t); /* 0x4a67a0 */
 int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos,
                 struct D3VECTOR *dir, float charge, float size,
                 float density); /* 0x5dc240 */
 int ai_ScatterShot(struct SHOTREC *shot, float sideSpread,
                    struct D3VECTOR *side, float otherSpread,
                    struct D3VECTOR *other, float speedSpread); /* 0x5dc3a0 */
-int ai_FireCannon(struct AICHAR *p, struct AIBLD *b);          /* 0x4a6ae0 */
 #undef amt_GetKindLevel
 
 /* declared in other units' headers before (moved to the owner) */

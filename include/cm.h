@@ -961,7 +961,6 @@ struct SBBANK *cm_LoadVoiceBank(char *name, int a);             /* 0x4e3270 */
 void cm_PlaySpecialTrack(char *a);                              /* 0x4e3620 */
 int amt_GetColumnOffices(int col, int max, struct AMTREC *out); /* 0x4e6fc0 */
 void d2_SetViewEnabled(int view, int on);                       /* 0x475590 */
-void d2_CloseView(int view);                                    /* 0x4758f0 */
 struct SBSAMPLE *cm_QueueVoice(int id, struct SBBANK *bank, char *text, int var,
                                unsigned int delay); /* 0x4e32d0 */
 int cm_RunSceneTicks(int a);                        /* 0x4e3570 */
@@ -978,7 +977,6 @@ void ai_CampaignStep(int a, void *b, int c, int d); /* 0x576040 */
 void cm_RunCouncilSession(G28REC *a);               /* 0x4d8e20 */
 extern int
     cm_DialogFrameFlags; /* 0x60d360, the frame wait of the dialogs (0x5309a0) */
-extern int d2_ClickedId;                   /* 0xf8a668 */
 int cm_DialogTimer(int dlg, int a, int c); /* 0x4e53e0 */
 struct AICHAR;
 int ai_TrustedOfFour(unsigned char k, struct AICHAR *p, int *ids,
@@ -1089,7 +1087,6 @@ struct D3SKY;
 struct D3SKYLAYER;
 void d3sky_DeleteLayer(struct D3SKY *s, struct D3SKYLAYER *l); /* 0x45d800 */
 int cm_ShowPartyTexts(G28REC *party);                          /* 0x4e37a0 */
-int cm_WaitTicks(int a);                                       /* 0x4e3420 */
 int cm_PartyAnswered(G28REC *party);                           /* 0x4e3750 */
 int cm_PrevPartyMember(G28REC *party, int n);                  /* 0x4e3800 */
 struct D3SKY;
@@ -1100,7 +1097,6 @@ void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l,
                          float speed); /* 0x45d960 */
 void d3sky_FadeLayer(struct D3SKY *s, struct D3SKYLAYER *l, unsigned char alpha,
                      float time);   /* 0x45d9a0 */
-void cm_CreateSceneSky(char *tex);  /* 0x4e32f0 */
 extern struct D2FADE *cm_SceneFade; /* 0x6f0da0, the fade 0x4e3060 started */
 extern int cm_SceneDepth;           /* 0x6f0d9c, the scene nesting depth */
 extern int
@@ -1119,7 +1115,6 @@ void msx_StopAmbient(struct MSXTRACK *t);        /* 0x4244b0 */
 
 int gm_ConvertMoney(int a, unsigned char k);      /* 0x5085b0 */
 int gm_PlayerFactor(int a, unsigned char k);      /* 0x5085f0 */
-void d2_SetObjValue(int obj, ...);                /* 0x475cb0 */
 void cm_ShowObjectScene(struct AIBLD *o, int id); /* 0x4e2910 */
 
 int d2_ClearSurface(struct D2SURF *surf); /* 0x4796c0 */
@@ -1170,7 +1165,6 @@ void d2_RadioAdd(int g, int obj);    /* 0x46c560 */
 void d2_RadioSelect(int g, int sel); /* 0x46c630 */
 void d2_MenuNavigate(int g);         /* 0x46c6c0 */
 void d2_RaiseViewWindows(int view);  /* 0x4741a0 */
-void d2_CentreViewWindows(int view); /* 0x475600 */
 void d2_RadioClear(int g);           /* 0x46c600 */
 extern char cm_MessageBoxOpen;       /* 0x6f0dc4 */
 

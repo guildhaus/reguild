@@ -23,8 +23,6 @@
 #include "d3_vtx.h"
 #include "ts_texture.h"
 
-/* full rebuild: the symbols whose original addresses the code above spells literally */
-
 /* 0x451e80, callback: resets the colours of every vertex the light touches */
 
 void d3_LightResetVertexColors(D3OBJECT *obj) {

@@ -326,11 +326,8 @@ extern unsigned char
 int gm_GetWorth(unsigned short id);                     /* 0x50a640 */
 int cm_SendSetField(int a, int b, int c, int d, int e); /* 0x4c4a60 */
 struct AIMSG;
-int cm_SendLongMessage(struct AIMSG *msg); /* 0x4c4b70 */
-void cm_BeginFieldBlock(void *o, int id);  /* 0x4c3ba0 */
 int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field,
                      void *v); /* 0x4c3c00 */
-int cm_SendFieldDeltas(void);  /* 0x4c49a0 */
 struct
     AITIME; /* f3gm.h typedef (gm_AddTime); file-scope so the gm_AddTime prototype below is stable */
 void gm_AddTime(struct AITIME *c, int hours, int mins, int secs); /* 0x4fe140 */
@@ -364,7 +361,6 @@ int gv_SetTableRecord(struct AICHAR *c, int i, int v); /* 0x4f2750 */
 int gv_OnDecisionValue(GVDECMSG *p);                   /* 0x4f27d0 */
 
 int gv_Accuse(int i, int v, int a, int b, int obj); /* 0x4f2e30 */
-float util_RandomF(void);                           /* 0x42ec20 */
 
 void gv_GraveyardTurn(struct AIBLD *o); /* 0x4f1de0 */
 int gv_LeasePrice(struct AICHAR *c, unsigned char care, int kind, int flag,
@@ -521,7 +517,6 @@ void ord_GetMessageRecord(ORDMSGREC *out);                    /* 0x4f9170 */
 void ord_InitMessageRecord(int a, float b, float c, float d); /* 0x4f9190 */
 
 extern char ord_RatingBytes[];              /* 0x91b460, 5 + 1 bytes */
-extern struct AIBLD *ai_Blds;               /* 0x889f74 */
 void ord_ComputeStatistics(ORDSTATS *out);  /* 0x4f8ae0 */
 void ord_UpdateStatistics(void);            /* 0x4f8ed0 */
 void ord_LoadStatistics(void *p);           /* 0x4f9020 */

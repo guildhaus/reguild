@@ -463,7 +463,6 @@ typedef struct CHACTDEF { /* 0x4c bytes, 64 of them in ch_ActDefs */
 
 extern CHACTION *ch_Queue;      /* 0x631050 */
 extern CHACTDEF ch_ActDefs[64]; /* 0x1469700 */
-extern int ch_MotionTimeout;    /* 0x5f12a0 */
 extern int ch_Ground0[];        /* 0x146aa00, ground types of d3_Scenes[0] */
 extern int ch_Ground1[];  /* 0x14aaa20, ground types of the default scene */
 extern int ch_DirtyX0;    /* 0x5f12a8, changed ground rectangle */
@@ -480,7 +479,6 @@ char map_Pick(struct D3FLMAP *map, struct D3VECTOR *pos, char lod, int *x,
               int *y, float *h); /* 0x4463b0 */
 int d3t_PlaceObjectV(struct D3OBJECT *camera, struct D3VECTOR *pos,
                      struct D3VECTOR *dir, int unk, char flags); /* 0x411860 */
-void vfs_ToSlashes(char *path);                                  /* 0x42ed10 */
 
 void ch_LoadLowAnims(CHARACTER *ch, int n, ...); /* 0x404360 */
 struct D3ANIMSLOT *ch_AttachAni(CHARACTER *ch, char *name,
