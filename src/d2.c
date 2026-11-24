@@ -4708,36 +4708,41 @@ void d2_RaiseViewWindows(int v) {
 /* 0x4741f0, loads the form file x (forms\x.form) as a view: one window per record, the items (pictures, texts,
    inputs, sliders) become objects; the view is moved to (x, y) unless one of them is 0 and kept inside the screen;
    returns the number of the view, or -1
-   @deep s66 fix: the original reads every record field after the window creation through r (r's slot
-   [esp+0x18] reloaded into edi/ebx): the version-2 font / pic / m / frame (ebx = r), the slider length
-   slen[k] ([k + r + 0xf1c], so a version-0 form reads it from the Forms0 record, we read d2_Forms2[i]:
-   meaning fix), the version-0 margins / font / bgpic ([edi+0xe9c..] with edi = r), and
-   d2_Objs[d2_Wins[wins[i]].parent] re-read through wins[i] (not ww). Kept: those through r (D2FORM2 *r2 /
-   D2FORM0 *r0 block copies, the slen cast) and the version-0 parent tests both as d2_Forms0[i].parent (no
-   parent local): the original does NOT thread its second parent test (jmp from the pw/pww block to a
-   re-test, pw/pww spilled to [esp+0x4c]/[esp+0x40] and reloaded on the parent==0 path); with the local,
-   VC6 threads it. Rows (dcp try): control 635; slen alone 622 (M8s gone); all-r 661; all-r +
-   parent-cse-cse 618 (code 669 -> 538, frame 0x244 -> 0x24c, now 4 bytes LARGER than the original's
-   0x248); parent spellings via r ((D2FORM0 *)r)->parent 630-667. Left: (1) frame 0x24c vs 0x248; (2) the
-   IV bases: the original steps d2_Forms0 at +0 ([esp+0x34]) and d2_Forms2 at +0xed0 (&.parent, [esp+0x28],
-   r = lea [esi-0xed0]) and &d2_Views[view].wins[i] ([esp+0x10]); ours bases both form arrays at +6 (h.h) -
-   find what picks the displacement; (3) ours lays the version-0 child call inline, the original jumps to
-   the re-test block placed after the version-2 block; (4) the constant 1 in a register (push 1 immediates
-   in the original), ebp = 0 from the prologue in the original; (5) the view scan: the original keeps view
-   in eax (no slot store in the loop, one -1 exit block). climb --rounds 1 (s66): nothing (best a float
-   temp for r->type[k], frame-wrong). prior: tie-break sensitive per dcp headers sample (3 codegens in 32
-   samples, none closer than the build), 630 ins. Kept: the view scan as the plain for (view = 1;
-   d2_Views[view].nwins != 0; view++) if (view >= 0x30) return -1; plus the re-test after it (same distance
-   as the hand pointer walk, which it replaces; the original's signed jge against the array end is VC6's
-   strength-reduced form of this loop). Tried: a found-index scan (j = -1 / break: 619 ins but the
-   original's loop shape is lost: its first test loads d2_Views[1].nwins directly and the exhausted loop
-   returns from inside), break + one test (632), while forms (628-630), dropping the dead k = 0 (= one
-   code). Left: the frame is 4 bytes short (0x244 vs 0x248: buf at [esp+0x58] in the original), our VC6
-   caches the constant 1 in edi (push edi at every vfs_fread, mov eax,edi for view = 1) where the original
-   pushes 1 and loads mov eax,1 in the scan; the record strength reduction (the original steps d2_Forms0 /
-   d2_Forms2 entries in stack slots) and the version-0 parent test (see prior). Next: find the missing
-   dword first (dcp frame, c2frame.py), then the constant-1 web with c2trace.py. (tiebreak: not measured
-   (dcp headers sample d2_OpenForm)) */
+   @deep s67: kept (618 -> 547 ins, frame now 0x248 = the original's): strcmp(r->name[k], ch_EmptyName)
+   (the original's general inline strcmp loop against the pooled "" at 0x631090; a literal gives repe
+   cmpsb); the view scan on i (for (i = 1; d2_Views[i].nwins != 0; i++) if (i >= 0x30) return -1; if (i >=
+   0x30) return -1; view = i;): the scan is now byte (one -1 exit, view in eax, stored once); the text test
+   as one && condition (type == 0x43 && strcmp(..) != 0) (type read from memory, as the original); ScreenW
+   test as ww->x + ww->w > d2_ScreenW; the version-2 parent test written twice like version 0. Left: (1) IV
+   bases: ours F2 and F0 both at +6 (h), the original F2 at parent (+0xed0) and F0 at +0. Probes (tools:
+   scratchpad base.sh greps the lea r,[iv-N] lines): with ONLY parent x2 + bg + alpha refs in the v2 block
+   the F2 base is parent; every r->x..flags read of the creation calls (forwarded r = &F2[i].h) pulls it to
+   0..8; D2FORMH *volatile r gives F2 = parent (and F0 = parent, the original 0): in the original the
+   creation reads were NOT IV refs at strength-reduction time. No lever: union r, casts, ternary r, r
+   assigned in a separate if, direct d2_Forms2[i].h.x (base +8), parent via r cast. (2) k loop: the
+   original's IV on kind (+0xd90, type at -0xcc0), ours on type; the switch / slider-arm-first / no slider
+   kind read give kind but change the layout; the original lays the post-loop key block between the latch
+   and the 0x41/0x45 tests (ours: tests before the latch). (3) r: the original spills r (slot [esp+0x18],
+   stored at both defs, reloaded into edi for the k loop; the name IV in ebx); ours keeps r in ebx all
+   through (c2trace r#1 prio 74, k#641 name IV cut). climb --rounds 1 (s67): best rows only meaning changes
+   or a named int t = r->type[k] (521, base type). prior: s66 fix: the original reads every record field
+   after the window creation through r (r's slot [esp+0x18] reloaded into edi/ebx): the version-2 font /
+   pic / m / frame (ebx = r), the slider length slen[k] ([k + r + 0xf1c], so a version-0 form reads it from
+   the Forms0 record, we read d2_Forms2[i]: meaning fix), the version-0 margins / font / bgpic
+   ([edi+0xe9c..] with edi = r), and d2_Objs[d2_Wins[wins[i]].parent] re-read through wins[i] (not ww).
+   Kept: those through r (D2FORM2 *r2 / D2FORM0 *r0 block copies, the slen cast) and the version-0 parent
+   tests both as d2_Forms0[i].parent (no parent local): the original does NOT thread its second parent test
+   (jmp from the pw/pww block to a re-test, pw/pww spilled to [esp+0x4c]/[esp+0x40] and reloaded on the
+   parent==0 path); with the local, VC6 threads it. Rows (dcp try): control 635; slen alone 622 (M8s gone);
+   all-r 661; all-r + parent-cse-cse 618 (code 669 -> 538, frame 0x244 -> 0x24c, now 4 bytes LARGER than
+   the original's 0x248); parent spellings via r ((D2FORM0 *)r)->parent 630-667. Left: (1) frame 0x24c vs
+   0x248; (2) the IV bases: the original steps d2_Forms0 at +0 ([esp+0x34]) and d2_Forms2 at +0xed0
+   (&.parent, [esp+0x28], r = lea [esi-0xed0]) and &d2_Views[view].wins[i] ([esp+0x10]); ours bases both
+   form arrays at +6 (h.h) - find what picks the displacement; (3) ours lays the version-0 child call
+   inline, the original jumps to the re-test block placed after the version-2 block; (4) the constant 1 in
+   a register (push 1 immediates in the original), ebp = 0 from the prologue in the original; (5) the view
+   scan: the original keeps view in eax (no slot store in the loop, one -1 exit block). climb --rounds 1
+   (s66): nothing (best a float temp for r->type[k], frame-wrong). */
 int d2_OpenForm(short x, short y, char *name) {
   char buf[0x100] = "";
   char msg[0x100];
@@ -4772,11 +4777,12 @@ int d2_OpenForm(short x, short y, char *name) {
     vfs_fread(d2_Forms0, 0xed4, n, f);
   }
   vfs_fclose(f);
-  for (view = 1; d2_Views[view].nwins != 0; view++)
-    if (view >= 0x30)
+  for (i = 1; d2_Views[i].nwins != 0; i++)
+    if (i >= 0x30)
       return -1;
-  if (view >= 0x30)
+  if (i >= 0x30)
     return -1;
+  view = i;
   d2_Views[view].firstObj = d2_HighestObj - 1;
   for (i = 0; i < n; i++) {
     r = &d2_Forms2[i].h;
@@ -4796,9 +4802,11 @@ int d2_OpenForm(short x, short y, char *name) {
       if (d2_Forms2[i].parent != 0) {
         pw = d2_Views[view].wins[d2_Forms2[i].parent - 1];
         pww = &d2_Wins[pw];
+      }
+      if (d2_Forms2[i].parent != 0)
         win = d2_CreateChildWindow(r->x - pww->x, r->y - pww->y, r->w, r->h,
                                    r->flags, pw);
-      } else
+      else
         win = d2_CreateWindow(r->x, r->y, r->w, r->h, r->flags);
       d2_Views[view].wins[i] = win;
       if (d2_Forms2[i].bg[0] != 0)
@@ -4848,16 +4856,14 @@ int d2_OpenForm(short x, short y, char *name) {
         }
         d2_Objs[o].buf = &d2_Views[view];
       }
-      if (r->type[k] == 0x43) {
-        if (strcmp(r->name[k], "") != 0) {
-          idx = txt_FindKey(r->name[k]);
-          if (idx != -1) {
-            o = d2_CreateWinText(r->ix[k], r->iy[k], txt_Ptrs[idx], win);
-            d2_Objs[o].pic = txt_FindKey(r->name[k]);
-            d2_Objs[o].buf = &d2_Views[view];
-          }
-          continue;
+      if (r->type[k] == 0x43 && strcmp(r->name[k], ch_EmptyName) != 0) {
+        idx = txt_FindKey(r->name[k]);
+        if (idx != -1) {
+          o = d2_CreateWinText(r->ix[k], r->iy[k], txt_Ptrs[idx], win);
+          d2_Objs[o].pic = txt_FindKey(r->name[k]);
+          d2_Objs[o].buf = &d2_Views[view];
         }
+        continue;
       }
       if (r->type[k] == 0x41) {
         fl = (unsigned char)r->kind[k];
@@ -4905,7 +4911,7 @@ int d2_OpenForm(short x, short y, char *name) {
   ww = &d2_Wins[d2_Views[view].wins[0]];
   if (x != 0 && y != 0)
     d2_MoveObj(x, y, ww->parent);
-  if (d2_ScreenW < ww->x + ww->w)
+  if (ww->x + ww->w > d2_ScreenW)
     d2_MoveObj(d2_ScreenW - ww->w, ww->y, ww->parent);
   return view;
 }
