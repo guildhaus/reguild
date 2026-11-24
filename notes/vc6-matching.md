@@ -2003,6 +2003,20 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s63**:
+  - **A compare's two sides evaluated in the other order, every spelling canonical: a pointer to the record**
+    (d3_CornerCB 71 -> byte, 16 bytes short): the 4th of four corner tests `L < R` (L = H - y - x + W - 2 from
+    locals, R the same from `c->pt[3].y / .x`) was computed L first in ours (x kept in eax from the 3rd test, the
+    operands folded into `sub reg,[m]`, dd_Width CSE'd), R first in the original (H in eax copied to ecx, each
+    operand loaded into edx). 143 spellings of the two sides, flips, single-use locals, declaration orders =
+    control: VC6 canonicalises the arithmetic. flip.py on `mov edx, DWORD PTR _dd_Width` hit only meaning changes
+    in R's fields; an 8 x 8 grid of R's two fields showed R first exactly when the two fields fell in different
+    "groups" (the groups follow which fields earlier tests read and how the address was formed), so the address
+    form was the lever: `p = &c->pt[3]; if (.. < dd_Height - p->y - p->x + ..) { p->x = x; p->y = y; ..}` (and
+    the same for corner 0, which fixed the 1st test's load order) is byte; 45 of 255 pointer-use masks were byte.
+    Lever when a hunk changes with the FIELD a read names but no spelling of the expression moves it: a record
+    pointer local taken right before the test (`p = &arr[k]`), per site, as a mask round.
+
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
     11 -> byte): the original computes the index chain (`mov eax,ebx; and; lea x3/x5/x9; shl esi,2`) before `xor

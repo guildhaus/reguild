@@ -929,7 +929,7 @@ float d3_YawTo(D3OBJECT *obj, const D3VECTOR *p) {
 }
 /* 0x448c20, callback of d3_Unk448e60: of all polygons textured with ctx->tex it remembers the vertex nearest
    to each of the four screen corners (by the sum / difference of x and y), with its uv
-@deep deep s46: the triangle walk as a plain index loop (t = &tris[k], with / without the np > 0 guard, bound np or s->ntris, a tris local): all worse (84 .. 178 ins, frame 0x10 / 0x14 vs 0xc): the countdown walk is the original's. The 4th compare in the original loads every operand into edx (mov edx,[esi+0x80]; sub ecx,edx), dd_Width once per side: the shape of operands that are register / CSE candidates spilled under pressure, not of a different expression tree. Open as before (what ends x's piece at the 3rd then-block). prior: size queue: 557 vs 573 raw (padded 560 vs 576); the whole 16-byte gap is the 4th compare (pt[3]): the original computes R first with dd_Height in eax (copied to ecx), every operand loaded into edx and subtracted (mov edx,[m]; sub ecx,edx), dd_Width reloaded per side and x, y reloaded from their slots (54 bytes); ours keeps x in eax from the 3rd compare (c2trace: piece x#3 lines 974,975,983 -> eax, the split cut x at the if lines 956/966/974 but not before 983), so no scratch register is left and the operands fold into sub reg,[m] with dd_Width CSE'd (38 bytes). The same cause is the scratch rotation of the 3rd then-block (orig eax,ecx; ours ecx,edx). s3 tried (no size change, all 557): 10 x 10 spellings of the two sides x R>L flip (canonical: only the flip changes code), x/y as a D3CORNERPT local, x/y block-local in the loop body (= control), the 16 x/y store orders of the then-blocks (= control or same distance), climb round 1 (paren only, 69 ins). Next: what ends x's piece at the 3rd then-block in the original (c2trace --split x), e.g. one more reference of x / y elsewhere (the x/y slot order is also swapped: x has more references in the original). */
+   */
 
 char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c) {
   D3SURF *s = obj->info;
@@ -938,6 +938,7 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c) {
   void *want;
   char fl;
   int i, n, np, x, y;
+  D3CORNERPT *p;
 
   if (s) {
     n = s->mesh->ntex;
@@ -956,9 +957,10 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c) {
             for (i = 0; i < 3; i++) {
               x = (int)t->v[i]->sx;
               y = (int)t->v[i]->sy;
-              if (y + x < c->pt[0].y + c->pt[0].x) {
-                c->pt[0].x = x;
-                c->pt[0].y = y;
+              p = &c->pt[0];
+              if (y + x < p->y + p->x) {
+                p->x = x;
+                p->y = y;
                 c->uv[0][0] = t->src->uv[i][0];
                 c->uv[0][1] = t->src->uv[i][1];
                 c->v[0].x = t->v[i]->x;
@@ -985,10 +987,11 @@ char d3_CornerCB(D3OBJECT *obj, D3CORNERCTX *c) {
                 c->v[2].y = t->v[i]->y;
                 c->v[2].z = t->v[i]->z;
               }
+              p = &c->pt[3];
               if (dd_Height - y - x + dd_Width - 2 <
-                  dd_Height - c->pt[3].y - c->pt[3].x + dd_Width - 2) {
-                c->pt[3].x = x;
-                c->pt[3].y = y;
+                  dd_Height - p->y - p->x + dd_Width - 2) {
+                p->x = x;
+                p->y = y;
                 c->uv[3][0] = t->src->uv[i][0];
                 c->uv[3][1] = t->src->uv[i][1];
                 c->v[3].x = t->v[i]->x;
