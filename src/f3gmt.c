@@ -7274,7 +7274,9 @@ int gm_FreeStallCapacity(AIOBJ *s, int id, int n) {
   cnt = 0;
   for (o = gm_Query(s->list, 1, 5); o != 0; o = gm_QueryNext()) {
     /* @original: an unused goods record per object (gm_FreeCapacity's group count without its tests); the
-       dead g leaves no code but makes cnt outrank stock for the callee-saved registers */
+       dead g leaves no code but makes cnt outrank stock for the callee-saved registers; no plain spelling
+       found (for-init / while / else-block like gm_FreeCapacity's: shape 32; cap <= cnt, cap - cnt <= 0,
+       an early return in the loop, a ternary tail, held in cnt or stock -= count: all further) */
     g = &ai_Goods[o->type];
     cnt++;
   }
