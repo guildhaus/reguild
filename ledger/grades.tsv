@@ -3582,7 +3582,7 @@ exe	0x00547430	he_RunDuelChallenge	he	byte	readable
 exe	0x00547750	he_AllocInsult	he	byte	readable		
 exe	0x00547ba0	he_RunInsult	he	byte	readable		
 exe	0x00547ee0	he_AllocGeselle	he	byte	readable		
-exe	0x00547f90	he_RunGeselle	he	shape	readable	deep	
+exe	0x00547f90	he_RunGeselle	he	byte	readable		
 exe	0x00548110	he_AllocInsultNews	he	byte	readable		
 exe	0x00548230	he_RunInsultNews	he	byte	readable		
 exe	0x005482c0	he_AllocNextDay	he	byte	readable		
@@ -3619,7 +3619,7 @@ exe	0x0054a7b0	he_RunGang	he	byte	readable
 exe	0x0054ae20	he_AllocProtectionAsk	he	byte	readable		
 exe	0x0054ae60	he_RunProtectionAsk	he	byte	readable		
 exe	0x0054b170	he_StartProtection	he	byte	readable		
-exe	0x0054b1e0	he_RunProtection	he	shape	readable	deep	
+exe	0x0054b1e0	he_RunProtection	he	byte	readable		
 exe	0x0054b9b0	he_StartAudit	he	byte	readable		
 exe	0x0054ba20	he_RunAudit	he	byte	readable		
 exe	0x0054be20	he_StartGathering	he	byte	readable		
@@ -3653,7 +3653,7 @@ exe	0x0054fce0	he_RunEffectEvent	he	byte	readable
 exe	0x0054fe80	he_StartSendHomeEvent	he	byte	readable		
 exe	0x0054ff20	he_RunSendHomeEvent	he	byte	readable		
 exe	0x00550070	he_CreateReaper	he	byte	readable		
-exe	0x00550370	he_MoveReaper	he	shape	readable	deep	
+exe	0x00550370	he_MoveReaper	he	byte	readable		
 exe	0x005506c0	he_AimReaper	he	byte	readable		
 exe	0x00550850	he_TurnReaper	he	byte	readable		
 exe	0x005509f0	he_StartReaper	he	byte	readable		
