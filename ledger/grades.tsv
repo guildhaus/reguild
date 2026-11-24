@@ -735,7 +735,7 @@ exe	0x00439650	d3_ClipBox	d3_engine	byte	readable
 exe	0x00439870	d3_UpdateWorldMatrix	d3_engine	byte	readable		
 exe	0x004399e0	d3_ClipObject	d3_engine	byte	readable		
 exe	0x00439a60	d3_ClipMesh	d3_engine	byte	readable		
-exe	0x00439c90	d3_ClipPoly	d3_engine	shape	readable	deep	
+exe	0x00439c90	d3_ClipPoly	d3_engine	byte	readable		
 exe	0x0043a000	d3_SelectSurf	d3_engine	byte	readable		
 exe	0x0043a160	d3_DrawObjectCB	d3_engine	byte	readable		
 exe	0x0043a610	d3_SetFogRange	d3_engine	byte	readable		
@@ -790,7 +790,7 @@ exe	0x0043e110	d3_ToggleRLightCB	d3_engine	byte	readable
 exe	0x0043e180	d3_SetRLights	d3_engine	byte	readable		
 exe	0x0043e1b0	d3_EndFrame	d3_engine	byte	readable		
 exe	0x0043e200	d3_Render	d3_engine	byte	readable		
-exe	0x0043e4d0	d3_Animate	d3_engine	shape	readable	deep	
+exe	0x0043e4d0	d3_Animate	d3_engine	byte	readable		
 exe	0x0043e680	d3_Frame	d3_engine	byte	readable		
 exe	0x0043e6b0	d3e_DefaultResolve	d3_event	byte	readable		
 exe	0x0043e6c0	d3e_EventId	d3_event	byte	readable		
@@ -870,7 +870,7 @@ exe	0x004486e0	d3if_ScreenBox	d3_interface	byte	readable
 exe	0x00448910	d3if_CreateCameras	d3_interface	byte	readable		
 exe	0x00448a50	d3if_ClearView	d3_interface	byte	readable		
 exe	0x00448ac0	d3_YawTo	d3_interface	byte	readable		
-exe	0x00448c20	d3_CornerCB	d3_interface	shape	readable	deep	
+exe	0x00448c20	d3_CornerCB	d3_interface	byte	readable		
 exe	0x00448e60	d3_ScreenToUV	d3_interface	draft	readable	deep	
 exe	0x004495f0	d3_FindObjectCB	d3_interface	byte	readable		
 exe	0x00449690	d3_FindObject	d3_interface	byte	readable		
@@ -3080,7 +3080,7 @@ exe	0x00505ad0	gm_CureUpperDisease	f3gmt	byte	readable
 exe	0x00505be0	gm_ShuffledBytes	f3gmt	byte	readable		
 exe	0x00505ca0	gm_Shuffled	f3gmt	byte	readable		
 exe	0x00505d30	gm_Shuffle	f3gmt	byte	readable		
-exe	0x00505da0	gm_RandomAge	f3gmt	shape	readable	deep	
+exe	0x00505da0	gm_RandomAge	f3gmt	byte	readable		
 exe	0x00505df0	gm_FindChar	f3gmt	byte	readable		
 exe	0x00505e30	gm_CharAge	f3gmt	byte	readable		
 exe	0x00505e60	gm_CharLevel	f3gmt	byte	readable		
