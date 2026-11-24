@@ -553,11 +553,12 @@ __inline void d3_FtoI2(float f, int *dst){
 }
 
 /* 0x439c90, clips the polygon in d3_ClipList[0] (d3_ClipIn vertices) at the planes of info
-(Sutherland-Hodgman); returns the vertex list of the result, d3_ClipOut vertices. @deep deep s44: 12 -> 6 ins. The fog / &c order hunk was the 81-instruction region cut of the intersection block (c2dag block 163 ended at the col[3] delta): parenthesised products in the four pool stores, pool->x = (d.x * t) + a->x .. pool->u (m15 of the 127 subsets of the pool / t / d1 parens), move the cut so the lea &c and the fild of the fog delta fall as in the original. Left: (1) one fstp [esp+0x44] (d.w) one instruction later than the original (parens on the FtoI2 arguments / df / pool->v on top: = this); (2) the d1 sum: the original computes plane.x * b->x first and then loads b->z (fld [edx+8]; fmul [ebx+4]); ours computes the parenthesised (b->z * plane.z) first with plane.z loaded first. 144 spellings of d1 (product order x operand order x grouping) give 7 codes, none the original's; operand order inside a product never changes the code; (px*bx + bz*pz) + by*py moves the strength-reduced plane pointer's base from .y to .x (the s43 last-field finding). Also tried: (float) casts on the deltas (= control), d3_FtoI(&c, f) (slot swap), the 120 orders of the delta lines, colour deltas in their own vector / array, df / c block-scoped; climb 3 rounds before the parens: nothing. prior: deep s23: left the d1 plane sum's first product (the original multiplies plane.z by b->z after the x product: fld [edx+8]; fmul [ebx+4]) and the fild of b->fog - a->fog scheduled before the byte loads. climb round 1 (241 mutants): nothing. */
+(Sutherland-Hodgman); returns the vertex list of the result, d3_ClipOut vertices. */
 D3VERTEX **d3_ClipPoly(D3CLIPINFO *info) {
   D3VERTEX **in, **out;
   D3VERTEX *a, *b;
   D3VERTEX *pool;
+  D3VECTOR4 *p;
   unsigned int i, j;
   int ins, ins1;
   float d0, d1, t;
@@ -571,27 +572,26 @@ D3VERTEX **d3_ClipPoly(D3CLIPINFO *info) {
   pool = d3_ClipPool;
   for (j = 0; j < info->n; j++) {
     d3_ClipOut = 0;
+    p = &info->plane[j];
     in = d3_ClipList[j & 1];
     a = in[0];
-    d0 = a->z * info->plane[j].z + a->y * info->plane[j].y +
-         a->x * info->plane[j].x;
+    d0 = a->z * p->z + a->y * p->y + a->x * p->x;
     in[d3_ClipIn] = a;
     out = d3_ClipList[(j - 1) & 1];
     ins = 1;
-    if (!(d0 >= info->plane[j].w))
+    if (!(d0 >= p->w))
       ins = 0;
     for (i = 0; i < d3_ClipIn; i++, in++) {
       a = in[0];
       b = in[1];
-      d1 = info->plane[j].x * b->x + (b->z * info->plane[j].z) +
-           b->y * info->plane[j].y;
-      ins1 = d1 >= info->plane[j].w;
+      d1 = (b->x * p->x) + b->y * p->y + b->z * p->z;
+      ins1 = d1 >= p->w;
       if (ins) {
         *out++ = a;
         d3_ClipOut++;
       }
       if (ins != ins1) {
-        t = (info->plane[j].w - d0) / (d1 - d0);
+        t = (p->w - d0) / (d1 - d0);
         d.x = b->x - a->x;
         d.y = b->y - a->y;
         d.z = b->z - a->z;
@@ -600,7 +600,7 @@ D3VERTEX **d3_ClipPoly(D3CLIPINFO *info) {
         pool->y = (d.y * t) + a->y;
         pool->z = (d.z * t) + a->z;
         pool->u = (d.w * t) + a->u;
-        pool->v = (b->v - a->v) * t + a->v;
+        pool->v = ((b->v - a->v) * t) + a->v;
         d.x = (float)(b->col[0] - a->col[0]);
         d.y = (float)(b->col[1] - a->col[1]);
         d.z = (float)(b->col[2] - a->col[2]);

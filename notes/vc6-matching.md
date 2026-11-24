@@ -2016,6 +2016,15 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     the same for corner 0, which fixed the 1st test's load order) is byte; 45 of 255 pointer-use masks were byte.
     Lever when a hunk changes with the FIELD a read names but no spelling of the expression moves it: a record
     pointer local taken right before the test (`p = &arr[k]`), per site, as a mask round.
+  - **A float dot product in a term order no spelling gives, read through `info->plane[j]`** (d3_ClipPoly 6 ->
+    byte): 144 spellings of `d1` (product order x operand order x grouping) gave 7 codes, none the original's
+    (x product first, then z, then y). With a plane pointer local `p = &info->plane[j];` at the top of the j loop
+    (`d0 = a->z * p->z + ..`, `d1 = (b->x * p->x) + b->y * p->y + b->z * p->z`, `t = (p->w - d0) / ..`) the
+    parenthesised product goes first and the plain rest follows the d0 order: the original's. The last order
+    hunk (an fstp one instruction late, an 81-node region cut) then fell to the paren-subset round again:
+    `pool->v = ((b->v - a->v) * t) + a->v` like the four pool stores above it (1023 masks, 32 byte).
+    Same lever as d3_CornerCB: a record pointer local changes the operand ranks where the spellings of the
+    expression are all one code.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
