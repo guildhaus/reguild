@@ -193,24 +193,26 @@ unsigned ord_ApplyForOffice(AICHAR *c, ORDMSG *m) {
   }
   return 1;
 }
-/* 0x4f4f20, an order handler (c the character, m the message, kind 1 or 3): characters of level 3 or more: 4; a player (+2 = 6) with kind 3 gets the text 0x1d34 (level + 0x114, + 10 with +9) shown through 0x4f8200; kind 1 writes text 0x1d33 into m + 0x14; 1 for other kinds, else 2 @deep deep s59: layout found: if (c->level < 3) { r = 2; if (m->kind == 3 && c->kind == 6) { ..; return r; } } else r = 4; if (r == 2 && m->kind == 1 && c->kind == 6) ..; return r; (scratch lo4 k1-r-0, 23 ins) gives the original's block order (jae to the r = 4 block behind the kind-3 body, mov reg,4 / mov eax,reg) and the original's pushes; left only m / r swapped (ours m edi / r esi): c2trace m#1 prio -6 (2 refs, lives unreferenced through the level and kind-3 test blocks) < r#1 prio 7 (r = 2 in the crowded kind-3 test block, P 5). r = 2 at the top (top-chain, 21) gives m esi / r edi but mov edi,2 at entry and r = 4 inline. No lever yet that raises m above r with r = 2 in the kind-3 test block. Tried: guard as if (kind 3 || 1) {..} return 1 (= same), k = m->kind local (draft), else-if chains, r = 4 first (r4pre 29), goto done (t6, 32), decided second tests on c->level (draft 64). prior kept. prior: s42: original layout (dcp disasm): guard; lvl test jae -> r=4 block; r=2 (edi) + kind-3 test (jne -> kind-1 test at the end); kind-3 body + return copy; THEN the r = 4 block (mov edi,4 / mov eax,edi / own epilogue copy); then kind-1 test + body, whose failures jne into its own return copy. One shared return r (r unfolded in edi), m in esi. Rounds (scratch lo1..lo6, ~120 whole-function forms): lt-else (if lvl < 3 {..} else r = 4) gives jae but r=4 at the very end (32, m/r swapped); r = 4 default + if (lvl < 3) {r = 2; ..} (29, same); chain-r2guard (r = 2 before the guard) gives the original's registers m esi / r edi (r lives longer -> prio below m) but r=4 inline (21); returns per arm (D: 22) fold r into constants (no edi); switch (m[0]) inner, guard as if (m[0]==3 || m[0]==1) {..} return 1 / r = 1 default, kind-1 as a separate if after the if/else with r == 2 / lvl < 3 re-tests: all worse. climb 3 rounds: only the r = 2 move (24, meaning kept). Left: a source whose IL puts the r = 4 block between the kind-3 and the kind-1 code with one shared return (c2tail --il merge shows IL = source order), and r's priority below m's. */
+/* 0x4f4f20, an order handler (c the character, m the message, kind 1 or 3): characters of level 3 or more: 4; a player (+2 = 6) with kind 3 gets the text 0x1d34 (level + 0x114, + 10 with +9) shown through 0x4f8200; kind 1 writes text 0x1d33 into m + 0x14; 1 for other kinds, else 2 @deep deep s59: kept (36 -> 30 ins): ok flag for the kind-1 text (ok = 0; if (level < 3) { r = 2; if (kind 3 && player) {..} else ok = 1; } else r = 4; if (ok && kind 1 && player) ..; return r;): every instruction is the original's, only esi / edi swapped (m edi / r esi; the original m esi / r edi; asmdiff --regs auto: 0 differing). c2trace --seq: r#1 prio 3 is served before m#1 prio -5 and takes esi. Only r = 2 before the guard (r live through the guard blocks: r -3, m -2) serves m first (lo13 r2top, 7 ins) but puts mov edi,2 / push edi at the entry. No lever found to lower r or raise m with r = 2 in the kind-3 test block: labels / do-while / blocks around r = 2, decided tests (r == 2, ok, c->level, m != 0, c == 0, as conditions or statements with returns), r types, dead initializers r = 0/1/2/4/-1, r = 1 at the top with return r in the guard, an uninitialised path (r goes to memory), copies of c / m, block-local buf, declaration orders: all the same code. climb 3 rounds from it: nothing. Next idea: what extends r's live range above the level test without a def there (the m/r gap is about 8 priority points). prior: s42: original layout (dcp disasm): guard; lvl test jae -> r=4 block; r=2 (edi) + kind-3 test (jne -> kind-1 test at the end); kind-3 body + return copy; THEN the r = 4 block (mov edi,4 / mov eax,edi / own epilogue copy); then kind-1 test + body, whose failures jne into its own return copy. One shared return r (r unfolded in edi), m in esi. Rounds (scratch lo1..lo6, ~120 whole-function forms): lt-else (if lvl < 3 {..} else r = 4) gives jae but r=4 at the very end (32, m/r swapped); r = 4 default + if (lvl < 3) {r = 2; ..} (29, same); chain-r2guard (r = 2 before the guard) gives the original's registers m esi / r edi (r lives longer -> prio below m) but r=4 inline (21); returns per arm (D: 22) fold r into constants (no edi); switch (m[0]) inner, guard as if (m[0]==3 || m[0]==1) {..} return 1 / r = 1 default, kind-1 as a separate if after the if/else with r == 2 / lvl < 3 re-tests: all worse. climb 3 rounds: only the r = 2 move (24, meaning kept). Left: a source whose IL puts the r = 4 block between the kind-3 and the kind-1 code with one shared return (c2tail --il merge shows IL = source order), and r's priority below m's. */
 
 int ord_LevelOrder(AICHAR *c, ORDMSG *m) {
   char buf[0x100];
-  int r;
+  int r, ok;
 
   if (m->kind != 3 && m->kind != 1)
     return 1;
-  if (c->level >= 3) {
-    r = 4;
-  } else {
+  ok = 0;
+  if (c->level < 3) {
     r = 2;
     if (m->kind == 3 && c->kind == 6) {
       txt_Format(buf, 0x1d34, (c->sex != 0 ? 0x11e : 0x114) + c->level);
       ord_PrivilegeDialog(buf, 0, 0x657c7);
-    } else if (m->kind == 1 && c->kind == 6)
-      txt_Format(m->text, (intptr_t)"%s", 0x1d33);
-  }
+    } else
+      ok = 1;
+  } else
+    r = 4;
+  if (ok && m->kind == 1 && c->kind == 6)
+    txt_Format(m->text, (intptr_t)"%s", 0x1d33);
   return r;
 }
 /* 0x4f4ff0, an order handler for a player (+2 = 6) or a kind 5 character; kind 3 of a player goes to ai_ChangeProfessionWindow (| 2), kind 1 of a player writes text 0x1d35 into m + 0x14; 1 when not handled, else 2 */
