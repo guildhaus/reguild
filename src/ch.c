@@ -2620,21 +2620,20 @@ int ch_CellToCell(D3SM *h, int x, int z, D3SM *to, int *px, int *pz) {
 }
 /* 0x407790, the character's cells in ch_PathMap (transport, body, the next path cells), then a corner
    cell for each diagonal step
-   @deep deep s48: the n hunk (original setne cl; inc ecx; mov ebp,ecx; add ebp,edi) reproduced by none of:
-   n and i as block locals of the walk if (= control), the count as its own local k (int / char / unsigned
-   char / unsigned; k = t ? 2 : 1, k = (t != 0) + 1, k = t != 0; k++; at the top or in the block; n = i + k
-   / k + i / before the for / n = cur + k): = control or 5..72 (char k: code 9, 5 ins); if / else k = 2 / 1
-   (72); unsigned n (6: jae / jb), short n (36), n = t ? 2 : 1; n += i (= control), a count-down loop n > 0
-   .. n-- (36). Left: the 2-ins n computation at 0x40783c. prior: deep s27: a = CH_ACTIONS(ch) assigned as
-   the first statement instead of the declaration's initializer (climb round 1, init@2): the x / z slot
-   swaps are gone, 10 -> 2 ins. Left: the n hunk at 0x40783c, the original setne cl; inc ecx; mov ebp,ecx;
-   add ebp,edi (the 1/2 count copied into n, then i added: as if the count were a value still live after
-   the add), ours add ecx,edi; mov ebp,ecx. = control: n = k; n += i in every placement (before the for, in
-   its init, n = n + i, n += cur), (k) + i operand orders, n = cur + k before the loop, a while loop,
-   transport == 0 ? 1 : 2, ch->transport ?. Worse: (transport != 0) + 1 / i + 1 + (t ? 1 : 0) (8: lea
-   ebp,[ecx+edi+1]), t ? i + 2 : i + 1 (32), the bound i < cur + n in the loop test (91), if / else n = 2 /
-   1 (41), n = 1; if (t) n = 2 (72). flip.py --want 'mov ebp, ecx / add ebp, edi': 279 mutants, no hit;
-   climb 3 rounds: nothing. */
+   @deep s66 (short look): the count assigned apart from the add, n = t ? 2 : 1 after the first out++ or at
+   the top of the walk block with for (i = cur, n += i; ..): = control (VC6 sinks the ternary and folds n =
+   k + i into the same add; no block boundary keeps it apart); n = t ? 2 : 1 at the very top 53 ins, n = 1;
+   if (t) n = 2 merged into the transport test 40. Reading of the hunk: 'mov ebp,ecx; add ebp,edi' is
+   target-directed code for an add whose left operand (the 1/2 count in ecx) VC6 treats as a value still
+   live (a candidate or a CSE), not a dying temp: look for a second use of the count / ch->transport ? 2 :
+   1 in the original's flow (a loop bound or out advance), or a flow-graph change near the walk block (s66
+   rt_LoadRoutes / ai_DecideVisitAction: flip.py --want on the two instructions with --base, then read the
+   hit's flow graph). prior: deep s48: the n hunk (original setne cl; inc ecx; mov ebp,ecx; add ebp,edi)
+   reproduced by none of: n and i as block locals of the walk if (= control), the count as its own local k
+   (int / char / unsigned char / unsigned; k = t ? 2 : 1, k = (t != 0) + 1, k = t != 0; k++; at the top or
+   in the block; n = i + k / k + i / before the for / n = cur + k): = control or 5..72 (char k: code 9, 5
+   ins); if / else k = 2 / 1 (72); unsigned n (6: jae / jb), short n (36), n = t ? 2 : 1; n += i (=
+   control), a count-down loop n > 0 .. n-- (36). Left: the 2-ins n computation at 0x40783c. */
 
 int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
   CHACTION *a;
