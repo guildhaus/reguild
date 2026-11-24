@@ -1027,21 +1027,23 @@ int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic,
   return -1;
 }
 /* 0x46aa00, draws a slider (flags 2: horizontal, 1: vertical): track, filled part, thumb, arrows, value
-   @deep deep s26: climb round 1 (674 mutants, 397 codes): nothing below 8. The other w->w / w->x sums (the
-   hihi range test both halves, the hihi DrawShapeMode3 x, the hilo bound) in every combination of operand
-   orders (19 variants): = control, so the x / w load order at the max label is not set by a canonical
-   order taken from an earlier sum. Left: the same code 12 / order 4 (w->w loaded before w->x in both
-   max-label sums). prior: 8 ins, headers sample insensitive. The only hunks: the max-label lines
-   (d2_DrawText / d2_AddDirty of w->x + w->w + 4) load w->w before w->x where the original loads w->x first
-   (lea [ecx+edx+4] operands). Every spelling of the sum is one code (64 operand orders / groupings, casts,
-   (int) / (short) views, parenthesised fields), so is every single respelling of the function's other w->x
-   / (spr3->h - spr1->h) / spr0->w + w->x sums (23 variants), the pooled-constant objects ai_FloatZero /
-   ai_FloatOne / cm_DoubleOne / cm_DoubleHalf at the M10 sites (15 combinations: = or worse) and the t *
-   0.0f / t * 0.0 spellings (30). flip.py (want w->x first, 1197 mutants): the only hits change a (spr3->h
-   - spr1->h) to + at another call or a float constant elsewhere (t * 0.0f -> 1.0f): the canonical operand
-   order of x / w follows some global state of C1 (value numbering), not this statement. Same open hunk as
-   d2_DrawInput's o->x / o->w. The M10s stay open (literals there give the same code) (tiebreak:
-   insensitive) */
+   @deep deep s65: the d2_DrawButton lever (store / test of another field, spelled through the table) does
+   not carry: probes naming another field at every w->w / w->x / hilo / hihi / dirty site (54, by w->h) and
+   at every font / dirty / scale / id / hilo / hihi / h / y read (72, by w->icon) leave the max-label x / w
+   order as it is, except the two w->y reads of the PutPixel clip test (if (w->h + w->y <= surf->bottom &&
+   w->y >= surf->top)): replacing either one (breaking the y CSE: lea edx,[eax+ecx] becomes mov / add)
+   flips both max-label sums to the original's x first, as do the compare-reversed spellings (surf->bottom
+   >= .., surf->top <= w->y: hunk fixed, but cmp [ebx+0x30],edx there, 12-14 ins). = control: y1 = w->y
+   local, (y1 = w->y) inline, w->y + w->h, !(.. > .. || .. < ..), the sum / bottom / top in a local, (int)
+   casts; nested ifs with a flag 37, a ternary 53 (hunk stays). Table spellings d2_Objs[id].y / .h / .x /
+   .w (also with w = &d2_Objs[id] first) do not CSE with w here: id * 0x2ec recomputed, frame +4 (100+
+   ins). Other neutral changes (range from the fields, mx test commuted): = control. So the x / w rank at
+   1209 follows that test's value numbers; the spelling that keeps the y CSE and the lea form and flips the
+   rank is not found. prior: deep s26: climb round 1 (674 mutants, 397 codes): nothing below 8. The other
+   w->w / w->x sums (the hihi range test both halves, the hihi DrawShapeMode3 x, the hilo bound) in every
+   combination of operand orders (19 variants): = control, so the x / w load order at the max label is not
+   set by a canonical order taken from an earlier sum. Left: the same code 12 / order 4 (w->w loaded before
+   w->x in both max-label sums). */
 
 void d2_DrawSlider(int id, D2SURF *surf) {
   D2OBJ *w;
