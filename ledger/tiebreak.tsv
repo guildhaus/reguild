@@ -1917,7 +1917,7 @@ exe	0x004b2ce0	hst_ParseText_Real	hst	9e0d519b71e5d524	no	byte	control=byte p1=b
 exe	0x004b2ed0	hst_ParseDate	hst	56ac655355335203	no	draft	sample n=32 seed=1 compiled=32 codegens=1 best=draft	
 exe	0x004b3280	hst_NextEvent	hst	109f064c379494fe	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	a09ba22725e40823
 exe	0x004b3350	hst_LastYearDialog	hst	260fd5f7d5b9bf20	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004b35e0	hst_NextEventCmd	hst	a3b50b216341e9c0	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	a6e4ed494db9e584
+exe	0x004b35e0	hst_NextEventCmd	hst	fe392a5592af04de	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	eef036e80e6672eb
 exe	0x004b36d0	hst_LastYearCmdDialog	hst	6af6332922572667	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004b3960	hst_YearlyHistory	hst	2a6892cb6cc6deeb	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004b39f0	ai_ClearMissions	unk_4b39f0	c3c697d94f7f21f7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

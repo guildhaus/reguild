@@ -2874,7 +2874,7 @@ void hst_LastYearDialog(void) {
   } while (sv_RunFrame(hst_LastYearDialog, 0x66087));
   sv_DestroyScrollForm();
 }
-/* 0x4b35e0, 0x4b3280 with both passes (0x4b2c90, commands if cmd): 5 when they fail @deep s36: the empty-text check as if (r == 1 && *out == 0) r = 6; after the d chain (VC6 decides r == 1 on each path, so the *out test sits behind the d != 1 block as in the original): 24 -> 18 ins, kept. Left: (1) the return blocks: the original orders r = 2 / return 3 / return 4 behind the main return, ours return 3 / return 4 / r = 2 (same as the twin hst_NextEvent); (2) name and cmd swapped between ebx and ebp (c2trace --prio: name -46 (ParseDate block P=3), cmd -40 (ParseEventText block P=4); the original serves name first). No lever: r = 1 for r = d, r = hst_ParseDate(..) (= control), d == 1 in the check (25), the d chain as d <= 1 / d < 1 first / d > 1 first (18 / 22 / 26), TextsOn == 0. */
+/* 0x4b35e0, 0x4b3280 with both passes (0x4b2c90, commands if cmd): 5 when they fail */
 
 int hst_NextEventCmd(char *name, char *out, int cmd) {
   int year[4];
@@ -2883,8 +2883,9 @@ int hst_NextEventCmd(char *name, char *out, int cmd) {
   do {
     if (!hst_TextsOn)
       return 3;
-    if (!hst_ParseDate(hst_TextCurrent, 3, year, name)) {
-      hst_TextsOn = 0;
+    r = hst_ParseDate(hst_TextCurrent, 3, year, name);
+    if (!r) {
+      hst_TextsOn = r; /* 0: the texts end at an entry without a date */
       return 4;
     }
     d = ai_Time.year - year[0];
@@ -2896,7 +2897,7 @@ int hst_NextEventCmd(char *name, char *out, int cmd) {
       r = 0;
     else {
       r = 2;
-      break;
+      continue; /* the loop test ends it: r == 2 */
     }
     if (r == 1 && *out == 0)
       r = 6;

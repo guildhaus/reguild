@@ -3001,7 +3001,10 @@ Which value gets which callee-saved register, the eax / ecx / edx rotation, cons
   locals. VC6 canonicalises the loop shape before allocation.
 - **Code-neutral candidates**: a local passed as a call argument (`n = f(); g(n);`), and a local with a second
   use that C2 folds from the test it sits behind (`n = f(); if (n == 1 && ..) g(x / n);`: n stays in the test
-  block's P).
+  block's P). hst_NextEventCmd (byte): two parameters swapped in ebx / ebp, each used once in its own call
+  block (name - cmd = 3w(P2 - P4), P2 = 3 < P4 = 4); `r = hst_ParseDate(..); if (!r) { hst_TextsOn = r;
+  return 4; }` (the 0 store folded from the test) put r into the ParseDate block's P, the tie went to the
+  later-created name: byte. A single-use `r = f(); if (!r)` is forwarded (= control); the second use is needed.
 - **The scratch rotation**: eax, ecx, edx are handed out round-robin in IR order; a local in eax from the global
   allocator does not advance the pointer. A candidate that replaces a scratch temp (`size = n * 4; f(size)`)
   rotates every later scratch register of the block, so add candidates that fold away or sit in a callee-saved
