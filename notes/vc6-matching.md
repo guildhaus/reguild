@@ -2003,6 +2003,29 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s57 again: for-init / while / else-block like the sibling, cap <= cnt, cap - cnt <= 0, an early return in the
     loop, a ternary tail, the held count in cnt, `stock -= count`: all shape or worse; the dead read stays.
 
+- **Deep s59 (3 byte: hmt_Load, hmt_RecordTextId, ord_ApplyForOffice; ord_LevelOrder left at a pure esi / edi
+  swap)**:
+  - **The success return out of line at the end (`jne` over an inline reset block that falls into its own
+    `ret`), every and / or / goto / ret-chain form one code**: the reads set a flag, `int ok = 0; if (a && b &&
+    ..) ok = 1; if (!ok) { reset; return 0; } return 1;` (hmt_Load). The plain goto chain (`if (!a) goto fail;
+    .. return 1; fail: reset; return 0;`) is byte too: C1's `jncc skip; jmp fail` makes the walk finish the
+    success return first. The same ok flag put ord_ApplyForOffice's return-1 block in front of the exit.
+  - **A parameter read from its home slot at a null return (`mov ax,word [esp+0xc]`) while the clamped copy
+    lives in a register loaded straight from the slot (`mov esi,[n]; cmp si,9`)**: the parameter is clamped in
+    place and the result goes through a local that the original never sets on the null path: VC6 packs that
+    local into the parameter's dead home slot, so the binary returns the caller's value (hmt_RecordTextId,
+    @original). No copy / type / K&R / ternary spelling gave the slot read.
+  - **Callee-saved pushes in the prologue where every form wraps one register's push / pop around the work
+    block (single exit) and two registers come out swapped**: a null test of the loop variable inside its own
+    `while (ev != 0)` body, `if (ev == 0) return 1;` (ord_ApplyForOffice, @original): VC6 decides it after
+    allocation, so it emits nothing, but its return inside the loop stops the region push and changes the
+    priorities (m ebx / c edi). Constant flags, `m != 0` after a dereference and re-tests of a compared value
+    are folded BEFORE allocation and change nothing; this loop-condition null test is the one that is not.
+    flip.py --want on the prologue pushes hit only statements duplicated inside the loop, which pointed there.
+  - **Two callee-saved registers swapped through a whole function, everything else equal** (ord_LevelOrder,
+    open): c2trace --seq names the serve order (higher prio first takes esi, then edi, then ebx); probes show
+    what would flip it (a def of r before the guard; a volatile reread of m->kind in the block of `mov edi,2`):
+    the original has a reference of m in that block, or r live above it, that leaves no code. Not found yet.
 - **Deep s58 (4 items, all byte: d3fl_TileBox, ai_FavourComment, cm_FindNearCell, ai_SolveCannonAim)**:
   - **A long straight float block whose 81-node scheduling regions are cut one statement off** (corner 3's tail
     not interleaved with the next statement's address math, the epilogue pops not hoisted into the last
