@@ -835,7 +835,7 @@ exe	0x00442080	d3fl_LoadTexture	d3_fl	byte	readable
 exe	0x00442210	d3fl_ReplaceTexture	d3_fl	byte	readable		
 exe	0x00442280	d3fl_ReloadTextures	d3_fl	byte	readable		
 exe	0x00442390	d3fl_LoadMap	d3_fl	byte	readable		
-exe	0x00442ac0	d3fl_TileBox	d3_fl	shape	readable	deep	
+exe	0x00442ac0	d3fl_TileBox	d3_fl	byte	readable		
 exe	0x00442ed0	d3fl_UpdateWater	d3_fl	byte	readable		
 exe	0x004430c0	d3fl_DrawWater	d3_fl	draft	readable	deep	
 exe	0x004437f0	d3fl_UpdateTiles	d3_fl	byte	readable		
@@ -2135,7 +2135,7 @@ exe	0x004c2c00	snd_UnloadBuildingVoices	f3snd	byte	readable
 exe	0x004c2c70	snd_PlayWorkerClick	f3snd	byte	readable		
 exe	0x004c2ce0	snd_PlaySelectedClick	f3snd	byte	readable		
 exe	0x004c2d20	snd_PlayFavourComment	f3snd	byte	readable		
-exe	0x004c2f30	ai_FavourComment	f3snd	shape	readable	deep	
+exe	0x004c2f30	ai_FavourComment	f3snd	byte	readable		
 exe	0x004c30e0	snd_StartMarketAmbience	f3snd	byte	readable		
 exe	0x004c3140	snd_StopMarketAmbience	f3snd	byte	readable		
 exe	0x004c3180	cm_MessageSize	cm	byte	readable		
@@ -2409,7 +2409,7 @@ exe	0x004cde20	cm_UpdateHandObject	cmfight	byte	readable
 exe	0x004cdf00	cm_CutEntrySlot	cmfight	byte	readable		
 exe	0x004cdf80	cm_FightCutEntry	cmfight	byte	readable		
 exe	0x004cdfe0	cm_CellUsable	cmfight	byte	readable		
-exe	0x004ce040	cm_FindNearCell	cmfight	shape	readable	deep	
+exe	0x004ce040	cm_FindNearCell	cmfight	byte	readable		
 exe	0x004ce130	cm_FindFighter	cmfight	byte	readable		
 exe	0x004ce170	ai_LedSelectBits	cmfight	byte	readable		
 exe	0x004ce1b0	cm_CharObjDistXZ	cmfight	byte	readable		
@@ -4662,6 +4662,6 @@ exe	0x005dc4a0	ai_StepShot	shot	byte	readable
 exe	0x005dc9d0	ai_StepShotSlow	shot	byte	readable		
 exe	0x005dcf00	ai_ShotHitsGround	shot	byte	readable		
 exe	0x005dd090	ai_NormalizeEffectScale	shot	byte	readable		
-exe	0x005dd100	ai_SolveCannonAim	shot	shape	readable	deep	
+exe	0x005dd100	ai_SolveCannonAim	shot	byte	readable		
 exe	0x005de460	MSS_auto_cleanup	mss32lib	byte	readable		
 exe	0x005de470	mss_AutoCleanupExit	mss32lib	byte	readable		
