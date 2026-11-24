@@ -82,6 +82,12 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
   decides ebx / ebp / edi).
 - **An early `je` straight to the final `pop esi; ret`, ours its own epilogue copy**: one final return; the loop
   under `if (first != end)`, the in-loop `return 0` as `ret = 0; break;` (cm_SendGroupState).
+- **A guard `test esi,esi; je <main exit>` with NO `xor eax,eax` anywhere (eax is the call result the guard
+  tested, copied to esi), ours `jne; pop..; ret` (an epilogue copy, its xor removed late)**: the guard was a bare
+  `return;` in an int function. A `return 0` (any spelling: `(int)a`, `r = 0`, assignment in the test) leaves
+  `xor eax,eax; jmp exit` in the IL, and that non-empty block gets the epilogue copy; with no value the block is
+  empty and the jcc goes straight to the exit. Unique in the binary: a scan of every `test X,X; je` into a
+  value-free epilogue of an int function found only this one (cm_RunWedding 12 ins -> byte; four sessions).
 - **The reverse, pushes at entry in both but two callee-saved values swapped, a `r = 0` / `r = out` result**:
   the result local made out a reference in every return-edge block (out 23 > the loop pointer 18 in
   vfs_EntryPath). `if (!p) return 0;` + one `return out;` inside an arm + the final `return out;` (the inner
