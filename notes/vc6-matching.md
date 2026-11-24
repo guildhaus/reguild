@@ -3096,6 +3096,15 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
   an instruction where only one byte-capable register is left, `avail &= { ebp esi edi }` (the register set at
   0x107c9624). `RESTRICT` in --split shows the instruction and its source line (ai_FillNearRing: the constants
   and a piece of g restricted at `side[0] = (kind.col == 4) + 4`, the sete cl).
+- **Reload order at a block = pass-2 piece ids; float candidates share the id space**: the reloads of split
+  pieces into a block come out in ascending piece id, and the re-queued pieces take the free ids (those of float
+  candidates and folded temps) in an order that follows the pass-1 ids. So a float constant candidate more or
+  fewer reorders the reloads with identical code otherwise. cm_MostThreatenedCellNear / cm_BestCellNear (2 ins ->
+  byte): the k-loop latch reloaded the strength-reduced cy - k before cy; the threat limit
+  `r * sc->cell.x * 2.0` (double literal, same `fadd st,st`) instead of `* 2` (a 2.0f constant candidate) gave the
+  original's order. ~60 integer-side variants (loop forms, locals, operand orders, return forms) were = control.
+  Lever when a reload / spill order is the only hunk: the float constants' spelling (2 / 2.0f / 2.0, 0 / 0.0f),
+  `flip.py` hits on float constants point there.
 - **Rematerialisation (FUN_107705ea, read, not verified)**: a spilled candidate whose single definition has at
   most one unassigned register operand is recomputed at its uses (the definition copied) instead of reloaded.
 - **x87 keep vs spill**: its own allocator (Floating point, "How c2.dll allocates the x87 stack"); ai_FireCannon's
