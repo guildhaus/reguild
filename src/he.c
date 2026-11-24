@@ -10039,7 +10039,16 @@ int he_RegisterEventTypes22(void) {
    gm_FindChar first), the offer events 0x2c (as the suitor or a guest (who[0], who[2], who[5]) the offer's
    crimes are handed over first, cm_SendHandOverCrimes (who[0], who[1], the event's id, 0); as the partner who[1]
    only ended), the events 0x47 (either partner), the trials 0x5e and the trial steps 0x5f (as the teacher)
-   @deep deep s38: the 0x45 loop with gm_FindChar + he_EndEventNow written in each arm (as the 0x41 loop):
+   @deep deep s60: the opts test written as two bit tests ((e->opts & 1) == 0 && (e->opts & 2) == 0; VC6
+   merges them into test byte [m],3 and the 3 is no IL constant): the bl constant gone (25 -> 6 ins). Every
+   spelling of the 3 mask (!x, casts, int/short/char views, local bitfield struct, % 4, | of the bits) =
+   control. Left: the 0x2c loop's cm_SendHandOverCrimes args, e->id edx / who[1] eax in ours, eax / edx in
+   the original (scratch rotation one step ahead in ours; the original has one temp more). A probe read
+   placed before the 0x6f if, before gm_FindChar(b), between a= and b= of 0x45, in the 0x45 else arm, or
+   before the 0x2c if gives exactly the original's registers (only the probe's own 2 ins differ); before a=
+   or elsewhere not. No lever: b/id named locals for the args, no a, who[2]/who[5] reordered, else-arm as a
+   separate if, == operand flips (all 16 for 0x2c, 6f, 45: worse), 6f written as the 0x45 form (worse).
+   prior: deep s38: the 0x45 loop with gm_FindChar + he_EndEventNow written in each arm (as the 0x41 loop):
    one gm_FindChar call with the push per arm and add esp,8 merged as the original (28 -> 25 ins). Left:
    (1) the constant 3 of the seven (e->opts & 3) tests gets bl in ours (const#0#3, c2trace: prio -134 but
    sav 13 -> ebx; push/pop ebx), the original tests with the immediate and never touches ebx; changing k of
@@ -10056,7 +10065,7 @@ void he_EndPersonEvents(AICHAR *p) {
   if (c == 0 || c->id == 0xffff)
     return;
   for (e = he_FindEvent(1, 0, 0x41); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) == 0)
+    if ((e->opts & 1) == 0 && (e->opts & 2) == 0)
       continue;
     if (e->partner1 == c->netId) {
       gm_FindChar(e->partner2);
@@ -10067,7 +10076,7 @@ void he_EndPersonEvents(AICHAR *p) {
     }
   }
   for (e = he_FindEvent(1, 0, 0x6f); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) == 0)
+    if ((e->opts & 1) == 0 && (e->opts & 2) == 0)
       continue;
     a = e->partner1;
     if (a == c->netId)
@@ -10080,7 +10089,7 @@ void he_EndPersonEvents(AICHAR *p) {
     he_EndEventNow(e);
   }
   for (e = he_FindEvent(1, 0, 0x45); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) == 0)
+    if ((e->opts & 1) == 0 && (e->opts & 2) == 0)
       continue;
     a = e->partner1;
     b = e->partner2;
@@ -10093,7 +10102,7 @@ void he_EndPersonEvents(AICHAR *p) {
     }
   }
   for (e = he_FindEvent(1, 0, 0x2c); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) == 0)
+    if ((e->opts & 1) == 0 && (e->opts & 2) == 0)
       continue;
     a = e->offerWho[0];
     if (a == c->netId || e->offerWho[2] == c->netId ||
@@ -10105,17 +10114,17 @@ void he_EndPersonEvents(AICHAR *p) {
     }
   }
   for (e = he_FindEvent(1, 0, 0x47); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) == 0)
+    if ((e->opts & 1) == 0 && (e->opts & 2) == 0)
       continue;
     if (e->partner1 == c->netId || e->partner2 == c->netId)
       he_EndEventNow(e);
   }
   for (e = he_FindEvent(1, 0, 0x5e); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) != 0 && e->trialTeacher == c->netId)
+    if (((e->opts & 1) != 0 || (e->opts & 2) != 0) && e->trialTeacher == c->netId)
       he_EndEventNow(e);
   }
   for (e = he_FindEvent(1, 0, 0x5f); e != 0; e = he_NextEvent()) {
-    if ((e->opts & 3) != 0 && e->trialStepTeacher == c->netId)
+    if (((e->opts & 1) != 0 || (e->opts & 2) != 0) && e->trialStepTeacher == c->netId)
       he_EndEventNow(e);
   }
 }

@@ -3683,7 +3683,7 @@ exe	0x00552bc0	he_RunTutorialIntro	he	fd9e42b888537363	no	byte	control=byte p1=b
 exe	0x00552c30	he_StartOfficeAward	he	a5023e63b8e320f2	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00552ca0	he_RunOfficeAward	he	dfeb4a6ec0d6a161	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	93801fe06fac7281
 exe	0x00553060	he_RegisterEventTypes22	he	f415292a6f10c132	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x005538b0	he_EndPersonEvents	he	4058189948a2e8d9	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	09f1734d5c4f840f
+exe	0x005538b0	he_EndPersonEvents	he	5888507ddbfb3d4d	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	6bc1fee31f9d82ed
 exe	0x00553ae0	he_DetectAttack	he	35d5d1def96829c7	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00553cc0	he_NoProtectionEvent	he	8869eee571d09d82	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00553d10	he_NoEvent2ePair	he	09ca4163312ba31a	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
