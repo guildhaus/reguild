@@ -3182,6 +3182,14 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
   util_Random(cnt); n = cnt;`): the block of `i = ..` then holds one candidate more (P 4 instead of 3), i's
   priority rises 6 and it outranks q; the copy before the test or `n = f(); cnt = n;` left i one point short
   (c2dag --alloc on a scratch copy of the unit: per-block P compared). (ai_ChooseObjectTarget, byte)
+- **A scan counter one race short of a parameter (n ebp / max ebx where the original has n ebx / max ebp; n 9
+  against max 14), every spelling of the store, the loop head, the min and the guard = control**: the scan's
+  advance written in the hit arm too, `while (ev != 0 && n < 4) { if (..) { c = f(..); if (c != 0) { lovers[n++]
+  = c; ev = he_NextEvent(); continue; } } ev = he_NextEvent(); }`: the store block then runs into its own call
+  block (P 2 -> 3 around n's references, n 9 -> 15), and VC6 cross-jumps the two NextEvent copies after
+  allocation. Margin probe: a script running `c2trace --prio '^n$|^max$'` per variant shows the race without
+  compiling the code twice; an extra `if (n >= 4) break;` after the store flipped it too (code 2), which named
+  the block (ai_FillLoversTab 20 -> byte).
 - **Callee-saved registers swapped (ebx <-> edi / esi) and no respelling reaches it**: count P (c2prio) and add
   references where they are short. A join statement written in both arms (`s->layers = l;` after the if and in
   the else, tail-merged into the same code) adds references in P=2 blocks (d3sky_CreateLayer: s 10 -> 14, ties
