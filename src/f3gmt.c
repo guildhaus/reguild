@@ -7257,15 +7257,11 @@ int gm_FreeCapacity(AIOBJ *s, int id, int n) {
 }
 /* 0x50acf0, how many of the goods id the stall object l can still take, at most n, as gm_FreeCapacity without the
    goods groups: the room left on its stock (gm_ListStock less the held object's count) when it holds the goods
-   already; else none when its goods fill cap[0], else the stock
-   @deep deep s38: stock (prio 18) and cnt (16) take edi / ebx, the original ebx / edi: cnt must outrank
-   stock (a probe with one more cnt reference flips both). Loop forms, clamp forms, cnt init placement,
-   declaration order: = control or worse (details in the session note text: for / while / do-while, cnt in
-   for init / increment, ternary / >= / n = stock, nested cap test). (declaration set: no declaration set
-   makes this text byte (every symbol-count shift 0..63 at the unit's start and before the function) */
+   already; else none when its goods fill cap[0], else the stock */
 
 int gm_FreeStallCapacity(AIOBJ *s, int id, int n) {
   AIOBJ *o;
+  AIGOOD *g;
   int stock, cnt;
 
   stock = gm_ListStock(s, id);
@@ -7276,8 +7272,12 @@ int gm_FreeStallCapacity(AIOBJ *s, int id, int n) {
     return stock - o->count;
   }
   cnt = 0;
-  for (o = gm_Query(s->list, 1, 5); o != 0; o = gm_QueryNext())
+  for (o = gm_Query(s->list, 1, 5); o != 0; o = gm_QueryNext()) {
+    /* @original: an unused goods record per object (gm_FreeCapacity's group count without its tests); the
+       dead g leaves no code but makes cnt outrank stock for the callee-saved registers */
+    g = &ai_Goods[o->type];
     cnt++;
+  }
   if (cnt >= s->cap[0])
     return 0;
   if (stock < n)
