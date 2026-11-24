@@ -3035,30 +3035,21 @@ int map_Region(D3FLMAP *map, int x, int y) {
    d3_interface.c, starts at 0x446e10 (its first string, the SelectTextureSet message at 0x5fbd08, follows
    the 1.0f constant of this TU). ---- */
 
-/* 0x446990, distance along the view rays to the edge of the map volume (4 planes through the corners)
-   @deep near-byte sweep s22: the frustum row walk r as an index or per-row pointer: 197-205 ins (keep the
-   walk). prior: size fixed s4 (1067 = original): the four plane normals as m * d with a direction vector d
-   set per plane ((0,0,-1), (1,0,0), (-1,0,0), (0,0,1)): VC6 folds x * 1.0f and x * -1.0f literals (ours
-   had fsub without the multiply) but a -1 propagated from a local keeps fmul [1.0f] + fsubr (the
-   original's 6 multiplies by the pooled 1.0f); every term / operand order of the m * d and dot formulas
-   gives one code. Left (10 ins): the r and pl walk pointers in ecx / edx swapped in the ray loop's dot
-   product, push edi one instruction later. climb round 1: only (pl[j].x) parenthesised reaches 2 ins (a
-   VC6 perturbation, not kept); no lever: index loop (197), r = &d3_Frustum[i] (205), p walk, operand
-   orders (48 variants: one code), nested ifs (= code, kept for reading). */
+/* 0x446990, distance along the view rays to the edge of the map volume (4 planes through the corners) */
 float d3fl_FarDist(D3FLMAP *map, D3VECTOR *pos, D3MATRIX *m) {
   D3VECTOR4 pl[4];
   D3VECTOR4 u, v;
-  float dx, dy, dz, f, best, zmin, t;
+  float f, best, zmin, t;
   int i, j;
   D3VECTOR d;
   D3VECTOR4 *r;
 
-  dx = map->orgx - pos->x;
-  dy = map->orgy - pos->y;
-  dz = map->orgz - pos->z;
-  u.x = dx * m->_11 + dy * m->_21 + dz * m->_31;
-  u.y = dx * m->_12 + dy * m->_22 + dz * m->_32;
-  u.z = dx * m->_13 + dy * m->_23 + dz * m->_33;
+  v.x = map->orgx - pos->x;
+  v.y = map->orgy - pos->y;
+  v.z = map->orgz - pos->z;
+  u.x = v.x * m->_11 + v.y * m->_21 + v.z * m->_31;
+  u.y = v.x * m->_12 + v.y * m->_22 + v.z * m->_32;
+  u.z = v.x * m->_13 + v.y * m->_23 + v.z * m->_33;
   d.x = 0.0f;
   d.y = 0.0f;
   d.z = -1.0f;
@@ -3100,7 +3091,7 @@ float d3fl_FarDist(D3FLMAP *map, D3VECTOR *pos, D3MATRIX *m) {
   best = 1e10f;
   for (r = d3_Frustum, i = 0; i < 5; i++, r++)
     for (j = 0; j < 4; j++) {
-      t = pl[j].x * r->x + pl[j].y * r->y + pl[j].z * r->z;
+      t = (pl[j].x) * r->x + pl[j].y * (r->y) + (pl[j].z) * (r->z);
       if (t < -1e-07f || t > 1e-07f) {
         t = pl[j].w / t;
         if (t > 0.0f && t > zmin && t < best)

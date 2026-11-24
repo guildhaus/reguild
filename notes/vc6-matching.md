@@ -2073,6 +2073,13 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     only: other code. Twelve folds that changed nothing (named win, helper locals in an arm, labels,
     o-in-the-if, ternaries) are in git history of the note. Lever: when c2dag shows a candidate a few points
     short, add a value to the blocks it is referenced in by a local that the call after the join reads.
+  - **A callee-saved push one x87 instruction late in the first block, and a dot product's operand orders:
+    the first difference vector was the later vector local** (d3fl_FarDist 10 -> byte): flip.py on `fsub ..
+    push edi` hit only "delete `dx = ..`". `dx / dy / dz` were `v.x / v.y / v.z` (the D3VECTOR4 the function
+    fills again for the far corner): the push and the z term were right at once (4 ins). The x term then fell
+    to the paren-subset round (with a `p = &pl[j]` use mask, 1024 variants, 28 byte): kept
+    `t = (pl[j].x) * r->x + pl[j].y * (r->y) + (pl[j].z) * (r->z);`. Same lever as "two of our locals may be
+    one variable", for float scalars against a vector's fields.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
