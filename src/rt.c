@@ -208,22 +208,25 @@ void rt_ReadMarkValues(void) {
    its object 0xff holds more than one of (with their names); then "none" (picture 0x527, the entry 0). Runs the
    frame loop until a pick or a right click; returns the goods picked (0: none), def when nothing was picked.
    x is not read
-   @deep s45: c2trace again: ours serves const 1 (const#0#4, lines 282-342, prio 23) in pass 1 and it takes
-   ebp, not ebx, from avail{ebx ebp esi edi}; the original has 1 in ebx (mov ebx,1 after each branch's n =
-   0, live into the tail's interactive / sv_PopRequest stores) and w's top piece in ebp. So two things
-   differ: const 1 is cut in pass 1 in the original (per-branch pieces), and ours avoids ebx for it (a
-   byte-flagged candidate live across a call ranks above it in ours). initgen (= 0 for each local): all =
-   control. Next: find the byte candidate (t->kind's cmp al,0x1c / 9 CSE?) and a form where the kind is
-   compared once (switch was draft 278 in s11; try the kind in a local char / int), then c2trace --prio
-   'const#0#4|w'. prior: s15: c2trace --prio: const 1 (const#0#4, lines 275-334) wins pass 1 with prio 23
-   against w#1 -51 (w is referenced only in the first block and at d2_CloseView, and pays every block
-   between); the call-argument 1s (gm_Query(.., 1, 5), branch 3's gm_Query(.., 1, 0, ..)) count no
-   reference to it, the count tests and interactive = 1 per branch (+4/+18/+28) and the two sv_PopRequest =
-   1 carry it. The original serves it per branch (mov ebx,1 after each n = 0, i.e. cut in pass 1 and split)
-   with w's top piece in ebp and 0x525 in ebp inside the loops. So 74 priority points separate them: no
-   single reference does it; look for a candidate that outranks const 1 in pass 1 and takes ebp (0x525
-   hoisted per loop in the original) or a form where the 1s are not one value (e.g. the tail's interactive
-   / PopRequest stores from another constant expression). */
+   @deep deep s60: the hunks are one race: ours const 1 (const#0#4, prio 23) is served in pass 1 and takes
+   ebp (0x525 const#0#7 prio 30 took ebx first), w's pass-2 piece ebx; the original has 0x525 in ebp, 0xf
+   (k#0#2) in edi, 0x23 (k#0#1) as an immediate and 1 cut in pass 1, its split pieces in ebx from each
+   branch's n = 0 on (mov ebx,1 x3: the 10 bytes of the size gap). c2trace --prio: 1's +18/+18/+28 come
+   from the crowded record-fill blocks (P 9/9/14), +10 the tail. flip (meaning changes) shows the
+   direction: one 1 reference less in branch 1 (interactive = 0/2 or deleted) gives 1 prio -5 and the
+   per-branch mov ebx,1 pieces (but 0x525 then still ebx, 0x23 ebp); one more 1 in the tail (gm_KindObjs[n]
+   = 1) gives a whole-function 1 in ebx and 0x525 in ebp (6 ins). No lever (= control): a probe global copy
+   at each of 63 statement positions (wantprobe, neither pattern), a label at each position, while form of
+   the item loops, k for the final loop, store/item block locals, ret/PopRequest order. Worse: n = 0 once
+   at the top / before the query, kind in a local, t inline or after w, ret = def after t, def as the
+   result, i <= count, tail store orders. climb round 1: nothing. prior: s45: c2trace again: ours serves
+   const 1 (const#0#4, lines 282-342, prio 23) in pass 1 and it takes ebp, not ebx, from avail{ebx ebp esi
+   edi}; the original has 1 in ebx (mov ebx,1 after each branch's n = 0, live into the tail's interactive /
+   sv_PopRequest stores) and w's top piece in ebp. So two things differ: const 1 is cut in pass 1 in the
+   original (per-branch pieces), and ours avoids ebx for it (a byte-flagged candidate live across a call
+   ranks above it in ours). initgen (= 0 for each local): all = control. Next: find the byte candidate
+   (t->kind's cmp al,0x1c / 9 CSE?) and a form where the kind is compared once (switch was draft 278 in
+   s11; try the kind in a local char / int), then c2trace --prio 'const#0#4|w'. */
 int rt_ChooseGoodsDialog(AIBLD *b, int x, int def) {
   int ret;
   AIOBJ *store;
