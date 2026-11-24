@@ -654,35 +654,35 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
   }
 }
 /* 0x47edb0, evaluates the production of a master's workshop
-   @deep Session s2(match-deep): rewritten on the ai_EvaluateProductionFlags / Gypsies template (the
-   human-player block as if (!HasMaterials(1)) { if (HasMaterials(0)) .. } else .., random loops k =
-   info.perm[i]; e = &ai_Entries[k]; with the second loop's HasMaterials(0) nested and its k /
-   &ai_Entries[k] success block, info.n2++ / info.n1++ in the struct, min(), health > 0 (jbe: unsigned),
-   ai_FreeJobCharacters in both arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins, shape (proved); the
-   watch form was the big lever (148 -> 26); the 8/13 success as goto done 24 -> 22; found = 0 right before
-   the hour test with one if (found) goto done after the hour if / else: 22 -> 18. Left (18): the original
-   has no zero register at the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test dx,dx; found's xor
-   ebp,ebp right before the hour test); ours shares found's ebp with the constant 0 over the top region
-   (c2trace: const#0 region piece prio 0 sav 0 -> ebp, borderline). flip.py --want 'xor ebp, ebp\ncmp ax,
-   8': deleting the 8/13 arm's ch->prod = 0 (1 ins left, the store missing) or && -> || in the 8/13 loop
-   test (2) flips it: one zero reference / one block fewer in the region. = control: ch->prod = (unsigned
-   short)0 / = found, flags1b4 first, else { if (ch->prod != 0) }, nested capacity / HasMaterials ifs in
-   either arm, if (a) {..} else return, found as a block local of the else arm; worse: the flags1b4 arms
-   swapped (26), found = 1 in the 8/13 arm (58), info init c/z2/z1 first, found = 0 only in the else arm
-   (65), the hour block in its own scope (80). prior: B3 far draft (1608/2272 bytes, 702 instructions, 547
-   differing; code 720 / regs 76 / slots 42 / fill 9 hunks). Read against 0x47edb0 (Ghidra + disassembly),
-   every region compared (the two hourly branch chains, the 32-permuted entry loops, the human-player
-   block, the ai_Watch block, the job loop, the two AIINFO loops and the tail): calls, arguments,
-   constants, offsets and conditions equal. spell.py leads tried: dup-tail 47ee06 fixed by the if/else-if
-   rewrite of the human-player block (1618 -> 1608, kept); reload 47edb7 / 47ee6c / 47ef54 / 47efae /
-   47f4bc and dup-tail 47f09a / 47f1a8 / 47f39d / 47f53f name no concrete source form (locals vs re-reads,
-   arm duplication of long tails); push-pop 47f120 is mid-function, no guard to move. What is left is
-   register allocation: the original keeps ch in ebx and reloads it, ours keeps it in ebp - match-deep's
-   slotmap / listing / c2prio territory. Readability done (Q1..Q7 pass): callees ai_UpdateProduction /
-   ai_UpdateStaff / ai_BuySlots / ai_BuyCapacity / ai_BuyUpgrade / ai_HasMaterials / ai_StartProduction /
-   ai_FreeJobCharacters / ai_SendJobOrders / ai_DrawSettingGood / sv_MoveToGroup / gm_FreeCapacity, fields
-   AIENTRY.capacity / amount, AIGOOD.batch, AIBLD.objList, AICHAR.health / title / model (AICHAR.scene),
-   CHARACTER.group */
+   @deep deep s62: the top's zero register (xor ebp,ebp / push ebp / cmp esi,ebp) is const#0#56 (lines
+   695-726, 11 refs), UNPROFITABLE at sav 0 and then assigned at sav 1 by its ebp preference (found = 0
+   copies it): the original has none. Every found placement (top, before the hour test, each arm, else arm
+   only, the test inside the else arm), found as id / r / t / j / k, a switch on the hour, the arms
+   swapped, the human-player block's gotos as a found flag or break, the watch block forms (if == / != /
+   plain + one Free, the && loop) and the tail forms (min / if, early return): = control. found = 1 + break
+   in the 8/13 arm (Flags's form) fixes the whole top region (58 ins, left: the tail: info.n2 loses ebp to
+   an ai_NEntries piece (863/864/877) of pass 6: c2trace k#11 'cut by pressure where ai_NEntries#11 took
+   ebp'; the original keeps n2 in ebp, reloads it after sv_MoveToGroup and reloads ai_NEntries before the
+   job loop). On that base t = info.perm[i] before util_Random fixes the tail but puts t in edi (24 ins:
+   the shuffle and the first random loop's scratch registers). flip.py on the s1 base (--want 'inc ebp' +
+   store to _info): the 0 -> 1 constant flips all over the tail (a second zero race there) and deletes of
+   the redundant k = info.perm[i] (worse as variants: 76 / 230). Next: climb --base e1:top0-s1-t0 --rounds
+   3+, c2trace of the s1 tail's const#0 piece. prior: Session s2(match-deep): rewritten on the
+   ai_EvaluateProductionFlags / Gypsies template (the human-player block as if (!HasMaterials(1)) { if
+   (HasMaterials(0)) .. } else .., random loops k = info.perm[i]; e = &ai_Entries[k]; with the second
+   loop's HasMaterials(0) nested and its k / &ai_Entries[k] success block, info.n2++ / info.n1++ in the
+   struct, min(), health > 0 (jbe: unsigned), ai_FreeJobCharacters in both arms of if (ai_Watch.bld !=
+   ch->bld)): 512 -> 22 ins, shape (proved); the watch form was the big lever (148 -> 26); the 8/13 success
+   as goto done 24 -> 22; found = 0 right before the hour test with one if (found) goto done after the hour
+   if / else: 22 -> 18. Left (18): the original has no zero register at the top (push 0, test esi,esi, mov
+   word [ebx+0x1bc],0, test dx,dx; found's xor ebp,ebp right before the hour test); ours shares found's ebp
+   with the constant 0 over the top region (c2trace: const#0 region piece prio 0 sav 0 -> ebp, borderline).
+   flip.py --want 'xor ebp, ebp\ncmp ax, 8': deleting the 8/13 arm's ch->prod = 0 (1 ins left, the store
+   missing) or && -> || in the 8/13 loop test (2) flips it: one zero reference / one block fewer in the
+   region. = control: ch->prod = (unsigned short)0 / = found, flags1b4 first, else { if (ch->prod != 0) },
+   nested capacity / HasMaterials ifs in either arm, if (a) {..} else return, found as a block local of the
+   else arm; worse: the flags1b4 arms swapped (26), found = 1 in the 8/13 arm (58), info init c/z2/z1
+   first, found = 0 only in the else arm (65), the hour block in its own scope (80). */
 
 void ai_EvaluateProduction(AICHAR *ch) {
   AIOBJ *a, *b, *x;
