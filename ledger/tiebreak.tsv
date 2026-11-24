@@ -4100,7 +4100,7 @@ exe	0x00589410	ai_InitBookmarks	sv_t	d48649a6d87bb2e6	no	byte	control=byte p1=by
 exe	0x00589450	ai_ValidateBookmarks	sv_t	a4b6aa53989c3ca4	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005894d0	ai_SelectBookmark	sv_t	fd232a79fca7c5c8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00589570	ai_SetBookmark	sv_t	9eb07ea913f62b63	no	draft	control=draft p1=draft p2=draft p3=draft p4=draft	
-exe	0x00589670	ai_BookmarkWindow	svtip	3f2868e334749f49	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	808e4ca1a9532bab
+exe	0x00589670	ai_BookmarkWindow	svtip	8d9c828cefc31ba5	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	658bfc50634ab9ff
 exe	0x00589aa0	ai_SaveBookmarks	sv_t	5929c070332e518c	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00589b30	ai_LoadBookmarks	sv_t	d135b398226e3565	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00589bc0	ai_SaveScreenshot	sv_t	5b82f4e83f70481b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	

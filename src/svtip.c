@@ -1341,27 +1341,13 @@ void d2_RadioClear(int g);
    each bookmark's building (its picture 0x427 + type, "%2N8~ %1G" with its owner) or the text 0x205d, and its
    room (picture 0xdf + id, its name) unless none or 0xfd. The right button, F12 (0x58) or escape close it; the
    set button stores the current building in the selected bookmark (ai_SetBookmark), the clear button clears it;
-   the bookmark keys work while it is open (ai_SelectBookmark)
-   @deep deep s39: the i / o register swap is gone: d2_WinOpenPic's result as t before d2_RadioAdd (t =
-   d2_WinOpenPic(..); d2_RadioAdd(group, t);) gives i ebp / o ebx (28 -> 8 ins). Left: slots 10, view and
-   the group * 20 CSE temp (tmp@1394, the d2_Radios[group] offset) swapped: both count 2, dens 500 in the
-   0x128 frame; c2frame B lists tmp before view (tmp reaches count 2 first: both second refs are the
-   reloads after d2_RadioSelect, tmp's (edi) before view's (esi)); a K&R quicksort replay gives the
-   original's A order exactly when view stands before tmp in B (or view count 3 listed before sel). No
-   effect (= control): every declaration moved (view / group / sel), = 0 / = -1 initializers on every
-   local; climb round 1 (66 mutants): nothing. prior: deep s38: left i in ebx / o in ebp where the original
-   has i in ebp (it shares ebp with rebuild) and o in ebx, plus the view slot [esp+0x28] against the
-   group*20 temp's [esp+0x24] (two count-2 slots of a 0x128 frame: the unstable density sort). c2trace: o#1
-   prio 148 (its block-16 use o->id * 2 + 0x9a8, P 13) outranks i#1 132 (i is only referenced at the loop
-   top and latch; the bookmark walk is an IV in [esp+0x10]), so o is served first and takes ebp. climb
-   round 1 (96 mutants): nothing; o = 0 / b = 0 placed elsewhere or as else arms: far worse (M8). flip
-   --want 'inc ebp' flips on kb_Last == 1 -> 0 / 2 (the const 1 web: rebuild = 1 in ebp is also
-   d2_GetViewWin's 1 at the top) and on b = 0 / o = 0 -> 1: the constant 0 / 1 webs decide it, not i's
-   references. */
+   the bookmark keys work while it is open (ai_SelectBookmark) */
 void ai_BookmarkWindow(void) {
   char line[0x100];
   int buttons[2];
-  int scroll[3];
+  int down;
+  int up;
+  int bar;
   int view;
   int group;
   int sel;
@@ -1384,7 +1370,7 @@ void ai_BookmarkWindow(void) {
   io_PrintText(0x205b);
   d2_SetForm(view, 0);
   sv_CreateScrollButtons(0x214, 0x168, d2_LastWindow, d2_GetViewWin(view, 1),
-                         0x38, &scroll[0], &scroll[1], &scroll[2]);
+                         0x38, &down, &up, &bar);
   d2_SetForm(view, 3);
   sv_ButtonRow(d2_LastWindow, 0, buttons, 2, txt_Ptrs[0x206b],
                txt_Ptrs[0x206a]);

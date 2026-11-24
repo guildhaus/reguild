@@ -3941,6 +3941,13 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   nested `if (bld != 0) { if (type != 2 && type != 6) { loop .. break; } }`) leaves view at count 2, tied
   with f, which reached 2 first and takes the slot; VC6 duplicates the return block back, the code is the
   same (ai_OpenUpgradeTooltip 14 ins -> byte; s28 had tried only the loop's returns as break).
+- **Two equal-density 4-byte slots swapped in a frame > 0x80 next to an out-parameter array (`int scroll[3]`
+  for `&scroll[0], &scroll[1], &scroll[2]`)**: the outputs were three scalars (`int down, up, bar;` as
+  the lc / svtip siblings pass them to sv_CreateScrollButtons): three count-1 entries in the unstable
+  density sort move the quicksort's pivots, and the array's place is the same (ai_BookmarkWindow 8 ins ->
+  byte; the K&R quicksort replay of c2frame's B rows predicted it). There also: a call nested as an argument
+  (`d2_RadioAdd(group, d2_WinOpenPic(..))`) as `t = d2_WinOpenPic(..); d2_RadioAdd(group, t);` swapped i /
+  o between ebp / ebx (28 -> 8 ins).
 - **Who gets the dead slot**: one narrow local per branch for a K&R int (d2_Unk475730); `for (i = 0, p =
   ps->particles; ...)` (d3t_SmokeCB); `in->mult * in->value` repeated; `long` out locals, not `&wp`/`&lp`
   (mov_WndProc); a late parameter not copied at the top (d2_Unk46fba0).
