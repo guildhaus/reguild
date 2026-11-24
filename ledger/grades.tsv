@@ -2293,7 +2293,7 @@ exe	0x004c78c0	cm_ExMakeGoods	cm	byte	readable
 exe	0x004c7c30	cm_ExMoveObject	cm	byte	readable		
 exe	0x004c7d80	cm_ExRemoveGoods	cm	byte	readable		
 exe	0x004c7e20	cm_ExCreateObject	cm	byte	readable		
-exe	0x004c7e90	cm_ExFieldDeltas	cm	shape	readable		
+exe	0x004c7e90	cm_ExFieldDeltas	cm	byte	readable		
 exe	0x004c7f70	cm_ExFieldValues	cm	byte	readable		
 exe	0x004c8050	cm_ExMoodDeltas	cm	byte	readable		
 exe	0x004c8110	cm_ExSetField	cm	byte	readable		
@@ -2740,7 +2740,7 @@ exe	0x004ee360	gv_ExplodeShot	gv	draft	readable	deep
 exe	0x004eea70	gv_RequestEffectLoad	gv	byte	readable		
 exe	0x004eeaa0	gv_ReserveEffect	gv	byte	readable		
 exe	0x004eeb00	gv_StopEffect	gv	byte	readable		
-exe	0x004eeb70	gv_FireShots	gv	shape	readable	deep	
+exe	0x004eeb70	gv_FireShots	gv	byte	readable		
 exe	0x004eedd0	gv_GetEffect	gv	byte	readable		
 exe	0x004eee00	gv_StartShot	gv	byte	readable		
 exe	0x004eeee0	gv_SetEffectCallback	gv	byte	readable		
@@ -2955,7 +2955,7 @@ exe	0x004fc890	gm_CharacterBaseHealth	f3gm	byte	readable
 exe	0x004fc8e0	gm_HealthRatio	f3gm	byte	readable		
 exe	0x004fc920	gm_DailyCharacters	f3gm	byte	readable		
 exe	0x004fca40	gm_AddHealth	f3gm	byte	readable		
-exe	0x004fccc0	gm_PartnerStep	f3gm	shape	readable	deep	
+exe	0x004fccc0	gm_PartnerStep	f3gm	byte	readable		
 exe	0x004fd090	gm_IsNoPlayerKin	f3gm	byte	readable		
 exe	0x004fd120	gm_PopulationStep	f3gm	byte	readable		
 exe	0x004fd5c0	gm_CreateRandomChild	f3gm	byte	readable		
@@ -3220,7 +3220,7 @@ exe	0x00511e60	init_BuildingSceneUniverse	f3init	byte	readable
 exe	0x00511f20	init_SyncSceneObjects	f3init	draft	readable	deep	
 exe	0x005124d0	init_LoadTypeBScene	f3init	byte	readable		
 exe	0x005124f0	init_LoadShopScript	f3init	byte	readable		
-exe	0x005126a0	init_SoundObjectHook	f3init	shape	readable	deep	
+exe	0x005126a0	init_SoundObjectHook	f3init	byte	readable		
 exe	0x00512780	init_GateObjectHook	f3init	byte	readable		
 exe	0x005127c0	init_SoundObjectFreeHook	f3init	byte	readable		
 exe	0x005127f0	init_PlayTownSound	f3init	byte	readable		
