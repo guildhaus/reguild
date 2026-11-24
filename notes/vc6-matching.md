@@ -1927,6 +1927,32 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     index order of `d2_Objs[row[k].ctrl]` stores (the original keeps c1's `[d2_Objs + idx]` at two boxes, swaps at
     the others): no spelling, declaration, counter-sharing or order round moves either (function note).
 
+- **Deep s54 (4 items, all byte: gm_PartnerStep, gv_FireShots, cm_ExFieldDeltas, init_SoundObjectHook)**:
+  - **Two callee-saved registers swapped through the whole function where the race is decided by the choice
+    score, not the priority** (`c2trace --raw`: the `scores` line under the ASSIGN; ebx=100 = a waiting
+    byte-flagged constant whose only register is ebx, savings 1): find what that constant is (c2trace names
+    every constant `const#0`; the reference lines tell: here the 2 of `arg = 2`, `== 2`, `party.used = 2`,
+    `cm_AddFieldDelta(.., 2, ..)`, byte-flagged by the byte store). gm_PartnerStep: the create argument and the
+    field-delta value 0x12 were two variables (the delta value a block local of the party block); the create
+    argument then is no address-taken local, `arg = 2` no memory store of the constant, its savings drop and
+    mate takes ebx. The o / c race that followed (-21 / -20) went to o with `mate = o` written in both arms of
+    the partner's building test (VC6 merges the copies; @original). A margin probe (`c2trace --seq` per
+    variant, grepping the ASSIGN lines and the constant's QUEUE savings) sorted 185 climb mutants in seconds.
+  - **One value more in a block decides a 2-point priority race** (cm_ExFieldDeltas: d 318 against p 316,
+    the head block P = 7; init_SoundObjectHook: loop 17 against s 16): an int local for a value read inside
+    the block (`off = *p.w++; d.b = base + off;`, `radius = (int)o->soundRange; .. (float)(radius + 0x32)`).
+    Find the block with a probe first: `{ extern int probe; probe = x; }` at a few places; the position
+    where a probe gives the original's registers is the block that needs a value more.
+  - **A float copy the original does not forward** (gv_FireShots: `v2 = v` at the entry, the first ball reads
+    v2's slot, ours the parameter; +3 bytes, the slot sort flips): no ordinary form found (init / declaration
+    orders, guard and mode-chain forms, `if (first)` in ball a, dead stores, an `__inline` helper by value or by
+    pointer, a one-element array, 0 / 0.0 spellings, climb 3 rounds). `volatile float v2` (or a volatile
+    parameter: the same code) is byte, kept with @original. With it the three balls fill in one order (id, v,
+    mode, shot). Open: the plain source.
+  - Tooling: climb.py made no local / inline / paren / init mutants after the reformat (body_start looked for a
+    line that is only `{`): fixed. Its `inline` operator inlines a side-effect read (`*p.b++`) into a loop test
+    (meaning change; check its leads).
+
 - **Which late passes delete instructions in a function: the call-skip map (d3t_MoveObjectPath, not byte)**:
   `tools/c2dag/c2fuzz.py` with the unit itself as probe (`C2FUZZ_PROBE`, the function in its probe form) switches
   off each of c2.dll's 15353 calls in turn (12 minutes); the sites where the function only GAINS instructions are
