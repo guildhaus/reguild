@@ -829,27 +829,7 @@ int ai_CheckLeisureAction(AICHAR *p, AIARG *in, AIARG *out) {
 }
 /* 0x4aa120, decide callback of the visit actions: as 0x4a9a00 with the actions of the table 0x600e5c that p (ctx 1)
    or p with its partner (ctx 2, from the job list 0x45) may do, unless in already names one (kind 0x10), and asks
-   that action's callback
-   @deep (2nd pass, after ai_DecideLeisureAction reached byte with the same text: the case results through r with r
-   = 0 before the switch, else-if kind 0x10 with a trailing return 0; here 116 -> 115 ins, n2 still in ebx and in
-   reloaded; 'r = 0' at the top in place of 'n2 = 0' (n2 then unset without a partner) spills n2 into the shared slot
-   but moves n1/n2 registers, not kept) side choice rewritten as the original's branches (if n1 { side = n2 ?
-   RandomU(2) : 0 } else { if !n2 return 0; side = 1 }): the switch default now joins the shared return-0 tail
-   (tables equal), and n1 = 0 moved into the kind==0 block puts n1 in ebp as the original (138 -> 116 ins). Left is
-   one allocation: n2 takes ebx where the original spills it to [esp+0x10] (frame 0x238 vs 0x23c) and keeps in in ebx
-   (ours reloads in from the arg slot; the original's switch default eax = n2-slot / xor is VC6 reusing the
-   known-zero n2). Tried (dcp try): headers sample insensitive (32, one codegen); 104 of the 720 decl orders of
-   n1..side and j first: = control; n1=n2=0 chains, n2=0 position sweep (--move-line over the body: only
-   meaning-changing spots spill n2); in->ref read at each dispatch with k = in->ref after (79 ins but rereads
-   in->ref, not the original's single esi load: not kept); switch(in->ref), else-if kind 0x10, return r / return n2,
-   six other side-choice spellings (x2 n1==0&&n2==0 first spills side, not n2): worse or = control (tiebreak:
-   insensitive, 32 samples one codegen) prior: read whole against the original, rewritten as ai_DecideLeisureAction
-   (in->kind==0 first, index loops with jl, int side for the coin, direct returns per case); instruction count 247 vs
-   249. Left is allocation: the original keeps in in ebx (+ mov ebx, dword ptr [esp + 0x25c]) and n1 in ebp, n2 in
-   [esp+0x10]; ours n1 in ebx, n2 in ebp and in reloaded (- mov eax, dword ptr [esp + 0x25c] / mov byte ptr [eax],
-   0x10); our side is stored in the slot (- mov dword ptr [esp + 0x10], eax); the default return value is eax set
-   before the switch jump (+ xor eax, eax / + mov eax, dword ptr [esp + 0x10]) where ours has a separate return 0
-   (table entries +0x4/+0x8/+0x14). Tried: r variable over the switch (213 ins, worse) */
+   that action's callback */
 
 int ai_DecideVisitAction(int a, AICHAR *p, int c, AIARG *in, AIARG *m) {
   ORDMSG ctx;
@@ -906,6 +886,7 @@ int ai_DecideVisitAction(int a, AICHAR *p, int c, AIARG *in, AIARG *m) {
       if ((ord_DispatchOrder(k, p, &ctx) & 2) == 0)
         return 0;
     }
+    r = 0;
     in->kind = 0x10;
     in->ref = k;
     in->arg = kind;
@@ -923,7 +904,9 @@ int ai_DecideVisitAction(int a, AICHAR *p, int c, AIARG *in, AIARG *m) {
   } else {
     return 0;
   }
-  r = 0;
+  /* @original r is not set on the in->kind == 0x10 path, so an unknown k returns
+     whatever r's stack slot holds there: VC6 packs r with n2, whose 0 from the top
+     it is (the original's reload of that slot before the switch) */
   switch (k) {
   case 0:
     r = ai_DecideSuitor(a, p, &ctx, in, m);

@@ -2058,6 +2058,13 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     version-0 tail, so `((D2FORM2 *)r)->slen[k]` (version-0 forms read their own record), not
     `d2_Forms2[i].slen[k]`. A field read through `[reg + slot-loaded pointer]` after a join is the local
     pointer, whatever the array it came from.
+  - **A switch default that returns `mov eax,[slot]` on one path and `xor eax,eax` on the other (the slot a
+    counter's, n2's), the frame one slot short in ours: the result variable is NOT set on the first path**
+    (ai_DecideVisitAction 115 -> byte): `r = 0;` stood only in the kind == 0 arm (before its in-> stores), none
+    in the 0x10 arm and none before the switch: r is read uninitialised there, VC6 packs r into n2's slot and
+    the original returns n2's 0 by luck (@original comment). Found by `flip.py --base .. --want 'mov eax,
+    DWORD PTR _\w+\$\[esp\+\d+\]\s*\n[^\n]*cmp esi, 8'` (the hit: deleting the arm's `r = 0`). Any defined
+    value there is a known constant and merges into one `xor` at the join.
 
 - **Deep s65**:
   - **Loop counters' registers at a tile-loop head (n in esi where the original keeps it in memory and tx in
