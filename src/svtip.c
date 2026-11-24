@@ -26,181 +26,24 @@ struct D3SKY;
 extern GAPDATA full_data_5f1890[];
 extern GAPDATA full_data_624204[];
 extern GAPDATA full_data_602568[];
-extern unsigned char kb_Last;
 
 #include "f3init_types.h"
 extern GAPDATA full_data_6024f8[];
-extern GAPDATA full_data_624204[];
 
-extern const int sv_PhaseMinutes[24];
 extern float d3s_QuadUV[6];
 extern GAPDATA full_data_5fea38[];
 
-extern GAPDATA full_data_602568[];
-
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_5f36e0[];
 
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern GAPDATA full_data_602568[];
 
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-
-extern int sv_PopRequest;
-extern const int sv_PhaseMinutes[24];
-extern struct D2OBJ *d2_Objs;
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_60c7b8[];
 extern GAPDATA full_data_623594[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern const int sv_PhaseMinutes[24];
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int sv_FrameMask;
-
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
 
 extern GAPDATA full_data_62a634[];
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
 
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern volatile unsigned long d3_Time;
-extern GAPDATA full_data_60c7b8[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int d2_PointerObj;
-extern const int sv_PhaseMinutes[24];
-
-extern unsigned short ai_PlayerId;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern unsigned char kb_Last;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-
-extern unsigned short ai_PlayerId;
-
-extern const int sv_PhaseMinutes[24];
-
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern GAPDATA full_data_62a464[];
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int gm_AllowAll;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern int gm_AllowAll;
-extern volatile unsigned long d3_Time;
-extern int d2_PointerObj;
-extern struct D2OBJ *d2_Objs;
-extern int di_Absolute;
-extern unsigned short ai_PlayerId;
-extern int d2_LastWindow;
-extern unsigned char ai_OwnPlayer;
 extern const float gm_MoodRanges[476];
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned char kb_Last;
-
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-
-extern int sv_FrameMask;
-extern unsigned char kb_Last;
-
-extern unsigned char kb_Last;
-extern int sv_FrameMask;
 
 void ai_TutorialHideText2();
 void ai_TutorialProgressSlider();
@@ -234,19 +77,7 @@ typedef struct
   int unk4;       /* +0x4 */
   SHOTENTRY e[3]; /* +0x8 */
 } SHOTRESULT;
-extern int ai_TutorialChapterOn[5];
-extern unsigned int ai_GraveChatterAt;
-extern int ai_DragObj;
-extern int ai_DragViewWin;
-extern TUTRUN *ai_TutorialRuns;
-extern int ai_TutorialOn;
-extern int ai_TutorialRunning;
 extern int ai_ShotDirty;
-extern struct D3OBJECT *ai_DragPicked;
-extern int ai_DragCutscene;
-extern int ai_ScreenshotCount;
-extern AIBOOKMARK ai_Bookmarks[11];
-extern unsigned char ai_TurnTable[0x4000];
 extern SHOTRESULT ai_ShotTable[3];
 
 #include "ls.h"
@@ -278,16 +109,6 @@ extern SHOTRESULT ai_ShotTable[3];
 #include "d3_tools.h"
 #include "d3_vec.h"
 #include "d3s.h"
-/* the cannon scene's limits (const data, not literals: the original loads them, computes (x - min) / (max - min)
-   at run time and keeps two copies of 45 degrees) */
-extern const float ai_CannonPitchMax;
-extern const float ai_CannonPitchMin;
-extern const float ai_CameraPitchMin;
-extern const float ai_CameraPitchMax;
-extern const float ai_CameraPitchZero;
-extern const struct D3VECTOR4 ai_WimpelPos;
-extern const float ai_CannonSwitchMs;
-extern const float ai_CannonSwitchDist;
 #include "d3_pose.h"
 #include "dd_vesa.h"
 #include "menu.h"
@@ -298,17 +119,9 @@ extern const float ai_CannonSwitchDist;
 
 /* dcp unit split: the declarations of sv_t before the moved functions */
 void ai_TutorialStop();
-void *mem_Alloc(int size, char *tag);
-void ai_TutorialFreeRuns(TUTRUN *rec);
 struct AICHAR;
 struct G9REC;
 struct VFSFILE;
-int sv_RunFrame(void (*cb)(), unsigned mask);
-void sv_ButtonRow(int f, int y, int *out, int n, ...);
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void txt_Format(char *out, intptr_t id0, ...);
 typedef struct
     CANNONSCENE { /* 0x104 bytes (0xe4 cleared), the scene struct of ai_CannonScene (the other cannon functions still address it by byte offset) */
   D3VECTOR
@@ -378,16 +191,7 @@ typedef struct
       pad100; /* +0x100, bmin's fourth float: the original's frame keeps 4 bytes behind it */
 } CANNONSCENE;
 struct GVEFFECT *gv_FindEffect(int id);
-int gv_RequestEffectLoad(struct AIBLD *bld);
-struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur,
-                            unsigned int flags); /* 0x4767d0, d2.h */
-void d3_SetViewport(float w, float h, float x, float y, float zn, float zf,
-                    float scale, int a, int b);
-void d3sky_Init(struct D3SKY *s, char build);
-char d3if_ShowTree(struct D3OBJECT *obj, char show);
 struct D3OBJECT;
-char d3if_Delete(struct D3OBJECT *obj);          /* 0x447190, d3_interface.h */
-char d3if_Show(struct D3OBJECT *obj, char show); /* 0x4471b0, d3_interface.h */
 void ai_CannonAxes(CANNONSCENE *sc);
 void ai_CannonAim(CANNONSCENE *sc, float dt);
 void ai_CannonShotResults(CANNONSCENE *sc);
@@ -395,9 +199,7 @@ void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
                          int sel, int mask);
 int ai_CannonFireCheck(CANNONSCENE *sc);
 void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
-void sv_SetStatusText(char *s);
 void sv_RedrawScreen();
-void d3if_Prerender(char map);
 double _CIfmod();
 #include <math.h>
 struct EFFECTREC *ai_GetDefaultEffect(void);
@@ -406,65 +208,23 @@ typedef struct
   float x, y, z;
   int w;
 } CANNONROT;
-void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b);
 float ai_GetDefaultEffectScale();
 int _ftol();
 float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, intptr_t id0, ...);
-int gm_CharCurrency(struct AICHAR *c, signed char p);
-void gv_CannonScatter(struct AIBLD *o, float *a, float *b);
 void ai_ShotTableReset();
-int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos,
-                struct D3VECTOR *dir, float charge, float size, float density);
-int ai_ScatterShot(struct SHOTREC *shot, float sideSpread,
-                   struct D3VECTOR *side, float otherSpread,
-                   struct D3VECTOR *other, float speedSpread);
-int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a,
-                 struct SHOTREC *b, struct SHOTREC *d, float v, int cost,
-                 int x);
 struct SBBANK;
-struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx,
-                                  int loops, int pan, int volume, int fade);
-int sv_MessageBox(intptr_t text, unsigned flags);
-int gm_GetWorth(unsigned short id);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo,
                           float hi, int *out);
-struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text,
-                               int var);
-void sv_CameraFollow();
-int amt_GetKindLevel(int k);
-void cm_SendMoneyDelta(int a, int b);
-void txt_Format(char *out, intptr_t id0, ...);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void sv_ReleaseNamePlates(void);
-void cm_BeginFieldBlock(void *o, int id);
-int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field,
-                     void *v);
-int cm_SendFieldDeltas(void);
 
 /* dcp unit split: the definitions of sv_t the functions of svgrave use */
 void ai_AlchemistResearchWindow(struct AIBLD *obj);
 void ai_AlchemistWindow(struct AIBLD *obj);
-void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonAxes(CANNONSCENE *sc);
-int ai_CannonFireCheck(CANNONSCENE *sc);
-void ai_CannonShotResults(CANNONSCENE *sc);
-float ai_CannonPitchRatio(CANNONSCENE *sc);
-void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
-                         int sel, int mask);
-void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void ai_ShotTableReset(void);
 extern const int ai_GravePics[4];
 extern const int ai_GravePicsAlt[4];
 extern const int ai_GraveGoods[4];
 
 /* dcp unit split: the declarations of svgrave before the moved functions */
-struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after,
-                             int (*cb)(), int l);
-int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
 typedef struct GVROW {
   int btn;        /* 0x00, its button object, -1: an unused row */
   GVENTRY *entry; /* 0x04, the grave entry, 0: unused */
@@ -509,21 +269,9 @@ typedef struct GVPICK {
       grave; /* 0x0c, the dead person picked in it, 0: the grave itself (the slider) */
   int id; /* 0x10, that dead person's id, -1: none */
 } GVPICK;
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
-void sv_OpenPlayerBar(struct AIBLD *a, char k);
-void sv_ClosePlayerBar(void);
-int gv_RoomForRaised(struct AIBLD *o, int *n);
-void *cm_GetSlotValue(int h);
 int sprintf(char *buf, const char *fmt, ...);
-int sv_CheckCharacterFlag(struct AIBLD *id);
-struct AIJOB *he_FindEvent(int n, ...);
-struct AIJOB *he_NextEvent(void);
-void sv_OpenWindowFrame(int f, int b, int c);
-void ai_InitProductionTables(void);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3,
                             struct AIBLD *param_4);
-struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text,
-                                int var, unsigned int delay);
 typedef struct GVSEANCE {
   int kind;            /* 0x00, the seance chosen: 1 .. 3, 0 none */
   int cost;            /* 0x04, its price: 4 / 6 / 8 */
@@ -534,23 +282,7 @@ typedef struct GVSEANCE {
   GVGRAVE grave; /* 0x14, a copy of the dead person */
 } GVSEANCE;
 int sb_IsInit();
-void d2_PlaceViewWindows(int view, unsigned char flags);
-struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);
 float util_RandomF();
-void cm_SendProofExecuted(int a, int b);
-void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
-void gm_SendMoneyDelta(int a, int b);
-void ai_EndCharExtra(struct AICHAR *ch, int f);
-int cm_SendRelations(int a, int b, int c, int d);
-struct EVTSCRIPT *sv_StartPoseScript(struct AICHAR *a, char *name);
-void sv_ReleaseNamePlates(void);
-void ai_TradeContactChecks(void);
-float gm_GetSkill(struct AICHAR *c, int skill);
-struct AIJOB *he_FindEvent(int n, ...);
-
-/* dcp unit split: the definitions of svgrave the functions of svtip use */
-void ai_GraveDeadName(GVGRAVE *e, char *out);
-void ai_EndCharExtra(struct AICHAR *ch, int f);
 
 int ai_DragWindow =
     -1; /* 0x62a8cc, the tooltip view the right-button tooltip handler 0x587e00 opens (-1 = none; sv.c reads it): the first of the .data block before ai_DragObj */
@@ -701,9 +433,7 @@ tail:
   }
 }
 
-int gm_BuildingKindCost(struct AICHAR *c, int kind);
 char *strupr(char *);
-int sprintf(char *buf, const char *fmt, ...);
 
 /* 0x588160, opens the tooltip view of the building type idx (ai_BTypes): the form "ToolTip\ToolTip_Gebaeude",
    centred; section 1 the type's name (text idx * 0xe + 0x48e), for a kind other than 0xa through the text 0x27
@@ -734,8 +464,6 @@ int ai_OpenBuildingTooltip(int idx) {
   }
   return view;
 }
-
-float gm_GoodsPrice(unsigned id, unsigned char p);
 
 /* 0x588310, opens the item tooltip view of the goods item idx: the form "ToolTip\ToolTip_Objekte_Waffen" when
    the item has a weapon record (ai_FindWeaponRecord) with a nonzero id, else "ToolTip\ToolTip_Objekte_Handelsgut",
@@ -986,8 +714,6 @@ int ai_OpenUpgradeTooltip(int idx) {
   return view;
 }
 
-struct AICHAR *gm_FindChar(int id);
-
 /* 0x588bb0, opens the help tooltip of the record named s: the key "_HILFE_<S>+0" (the name upper-cased) is
    looked up in the texts; without it -1 (no window). Else the form "ToolTip\ToolTip_Contact", centred, its
    section 1 the text's title line and section 2 the text after it; returns the window */
@@ -1235,8 +961,6 @@ void ai_InitBookmarks(void) {
   }
 }
 
-struct AIBLD *gm_FindBuildingById(int id);
-struct AIOBJ *gm_FindObjectInst(int id);
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o,
                            struct AICHAR *c);
 
@@ -1332,8 +1056,6 @@ void ai_SetBookmark(int idx) {
     txt_Format(buf, (intptr_t)"%s = %G", idx + 0x205e, a);
   sv_SetStatusText(buf);
 }
-
-void d2_RadioClear(int g);
 
 /* 0x589670, the bookmark window (1066 B): the form "special\geb_hotkeys" (ai_ValidateBookmarks first), the title
    text 0x205b, the scroll buttons of section 1 and the button row of section 3 (texts 0x206b / 0x206a: set,
@@ -1444,8 +1166,6 @@ void ai_BookmarkWindow(void) {
   d2_CloseView(view);
 }
 
-unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
-
 /* 0x589aa0, the save game's bookmarks step (142 B): writes the count 0xb, then each bookmark's key (1 byte),
    building and object (4 bytes each); 0 on a failed write, 1 */
 int ai_SaveBookmarks(VFSFILE *fh) {
@@ -1486,11 +1206,7 @@ int ai_LoadBookmarks(VFSFILE *fh) {
   return 1;
 }
 
-void *mem_Alloc(int size, char *tag);
-char dd_Lock(void);
 void dd_Unlock();
-unsigned char bmp_Save24(char *path, int w, int h, unsigned char *data);
-void mem_Free(void *p);
 
 /* 0x589bc0, takes a screenshot (198 B): clears the status line and draws a frame (sv_RunFrame with no handler),
    then copies the screen surface (dd_Lock, d2_Convert16ToRgb) into a 24-bit image and saves it as
@@ -1534,8 +1250,6 @@ void ai_SlotKeys(void) {
 
 void ai_Quicksave(void);
 void ai_ApplyOptions();
-void cm_RaiseSpeedLevel(void);
-void cm_LowerSpeedLevel(void);
 
 /* 0x589cf0, the speed keys each frame (264 B): the game speed ai_OptionSpeed in steps of 40, v = (int)(speed / 40 +
    0.5f); kb_Last 0 = none and the panel flag sv_QuickJump.panelFlag == 1 return at once; the key 0x1f takes a screenshot
@@ -1597,9 +1311,6 @@ void ai_SpeedKeys(void) {
   }
 }
 
-struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);
-struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);
-
 /* 0x589e00, fills bookmark slot i from the building b (79 B): the slot's building = b->id, and its object = the id
    (AIOBJ.objId) of the building's main object (gm_BuildingMainObject, else gm_GetGebaeudeHauptraum; none for the
    kind 0x1d), -1 without an object */
@@ -1618,9 +1329,6 @@ void ai_BookmarkSetBuilding(int i, AIBLD *b) {
   else
     ai_Bookmarks[i].object = -1;
 }
-
-struct AIBLD *gm_BuildNext(void);
-struct AIBLD *gm_BuildQuery(int n, ...);
 
 /* 0x589e50, presets the function-key bookmarks: F1 the market, F2 the town hall (gm_BuildQuery (1, 5, 0xf), the
    building type 0xf) when there is one, the next key the home (AICHAR.bld2) of the first character of the kind 6,

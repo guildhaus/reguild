@@ -55,181 +55,24 @@ struct D3SKY;
 extern GAPDATA full_data_5f1890[];
 extern GAPDATA full_data_624204[];
 extern GAPDATA full_data_602568[];
-extern unsigned char kb_Last;
 
 #include "f3init_types.h"
 extern GAPDATA full_data_6024f8[];
-extern GAPDATA full_data_624204[];
 
-extern const int sv_PhaseMinutes[24];
 extern float d3s_QuadUV[6];
 extern GAPDATA full_data_5fea38[];
 
-extern GAPDATA full_data_602568[];
-
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_5f36e0[];
 
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern GAPDATA full_data_602568[];
 
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-
-extern int sv_PopRequest;
-extern const int sv_PhaseMinutes[24];
-extern struct D2OBJ *d2_Objs;
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_60c7b8[];
 extern GAPDATA full_data_623594[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern const int sv_PhaseMinutes[24];
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int sv_FrameMask;
-
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
 
 extern GAPDATA full_data_62a634[];
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
 
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern volatile unsigned long d3_Time;
-extern GAPDATA full_data_60c7b8[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int d2_PointerObj;
-extern const int sv_PhaseMinutes[24];
-
-extern unsigned short ai_PlayerId;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern unsigned char kb_Last;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-
-extern unsigned short ai_PlayerId;
-
-extern const int sv_PhaseMinutes[24];
-
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern GAPDATA full_data_62a464[];
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int gm_AllowAll;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern int gm_AllowAll;
-extern volatile unsigned long d3_Time;
-extern int d2_PointerObj;
-extern struct D2OBJ *d2_Objs;
-extern int di_Absolute;
-extern unsigned short ai_PlayerId;
-extern int d2_LastWindow;
-extern unsigned char ai_OwnPlayer;
 extern const float gm_MoodRanges[476];
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned char kb_Last;
-
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-
-extern int sv_FrameMask;
-extern unsigned char kb_Last;
-
-extern unsigned char kb_Last;
-extern int sv_FrameMask;
 
 void ai_TutorialHideText2();
 void ai_TutorialProgressSlider();
@@ -1868,11 +1711,7 @@ void ai_TutorialClearHost(void) {
 
 int ai_TutorialOff(void) { return !ai_TutorialOn; }
 
-TUTRUN *ai_TutorialInitMainIntro(void);
-TUTRUN *ai_TutorialInitMainOutro(void);
 void ai_TutorialStop();
-void *mem_Alloc(int size, char *tag);
-void ai_TutorialFreeRuns(TUTRUN *rec);
 
 /* 0x578180, starts the tutorial (called from 0x53bb20): -3 while it runs, -2 when no chapter is played; the run
    chain ai_TutorialRuns is built from the main intro, the chain of every chapter played (ai_TutorialChapterOn /
@@ -3871,8 +3710,6 @@ void ai_SetupTutorialPlayer(void) {
   memcpy(init_PlayerProfile.talents, t.skills, 5);
 }
 
-int sv_RunFrame(void (*cb)(), unsigned mask);
-
 /* 0x57bce0, the tutorial's chapter chooser: opens the form "tutorial\CHOOSE_tutorial" centred, writes its title
    (text 0x3f1a) into control 1 and into control 2 five checkboxes for the chapters (texts 0x3f1b ..), each
    checked as ai_TutorialChapterOn says, then the buttons start (0x3f20) and back (0x3f21). The frame pump runs
@@ -3940,9 +3777,6 @@ int ai_TutorialWindow(void) {
   d2_CloseView(id);
   return result;
 }
-
-void sv_ButtonRow(int f, int y, int *out, int n, ...);
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
 
 /* 0x57bf00, the alchemist's candidates window of the alchemist object obj ("Locations\Domizil\Alchemistry1"):
    the walk steps in use (ahm_WalkStep 0 .. 2) are the candidates; none: the green message box (title text
@@ -4088,10 +3922,6 @@ void ai_AlchemistCandidates(AIBLD *obj) {
   d2_CloseView(form);
   sv_CameraFollow();
 }
-
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void txt_Format(char *out, intptr_t id0, ...);
 
 /* 0x57c560, hires the alchemist candidate step for the alchemist object obj at the price value: 0 when the
    player cannot pay it (sv_CheckGoodAmount), when the object already has an owner (the message text 0x4048)
@@ -4849,26 +4679,8 @@ void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
 void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void ai_ShotTableReset(void);
 struct GVEFFECT *gv_FindEffect(int id);
-int gv_RequestEffectLoad(struct AIBLD *bld);
-struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur,
-                            unsigned int flags); /* 0x4767d0, d2.h */
-void d3_SetViewport(float w, float h, float x, float y, float zn, float zf,
-                    float scale, int a, int b);
-void d3sky_Init(struct D3SKY *s, char build);
-char d3if_ShowTree(struct D3OBJECT *obj, char show);
 struct D3OBJECT;
-char d3if_Delete(struct D3OBJECT *obj);          /* 0x447190, d3_interface.h */
-char d3if_Show(struct D3OBJECT *obj, char show); /* 0x4471b0, d3_interface.h */
-void ai_CannonAxes(CANNONSCENE *sc);
-void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonShotResults(CANNONSCENE *sc);
-void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
-                         int sel, int mask);
-int ai_CannonFireCheck(CANNONSCENE *sc);
-void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
-void sv_SetStatusText(char *s);
 void sv_RedrawScreen();
-void d3if_Prerender(char map);
 double _CIfmod();
 #include <math.h>
 struct EFFECTREC *ai_GetDefaultEffect(void);
@@ -4877,44 +4689,12 @@ typedef struct
   float x, y, z;
   int w;
 } CANNONROT;
-void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b);
 float ai_GetDefaultEffectScale();
 int _ftol();
-float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, intptr_t id0, ...);
-int gm_CharCurrency(struct AICHAR *c, signed char p);
-void gv_CannonScatter(struct AIBLD *o, float *a, float *b);
 void ai_ShotTableReset();
-int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos,
-                struct D3VECTOR *dir, float charge, float size, float density);
-int ai_ScatterShot(struct SHOTREC *shot, float sideSpread,
-                   struct D3VECTOR *side, float otherSpread,
-                   struct D3VECTOR *other, float speedSpread);
-int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a,
-                 struct SHOTREC *b, struct SHOTREC *d, float v, int cost,
-                 int x);
 struct SBBANK;
-struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx,
-                                  int loops, int pan, int volume, int fade);
-int sv_MessageBox(intptr_t text, unsigned flags);
-int gm_GetWorth(unsigned short id);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo,
                           float hi, int *out);
-struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text,
-                               int var);
-void sv_CameraFollow();
-int amt_GetKindLevel(int k);
-void cm_SendMoneyDelta(int a, int b);
-void txt_Format(char *out, intptr_t id0, ...);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void sv_ReleaseNamePlates(void);
-void cm_BeginFieldBlock(void *o, int id);
-int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field,
-                     void *v);
-int cm_SendFieldDeltas(void);
 char ai_ShotCallbackArg
     [0x40]; /* 0x6fa020, the argument gv_SetEffectCallback stores with the shot callback ai_ShotTableStore (ai_CannonScene); never read by the code, its type is unknown; it runs to the tutorial state record at 0x6fa060 */
 TUTSTATE
@@ -4923,24 +4703,9 @@ ai_TutorialState; /* 0x6fa060, the tutorial state record ai_Tutorial points to (
 /* dcp unit split: the functions of svgrave the rest of sv_t uses */
 void ai_GraveDeadName(GVGRAVE *e, char *out);
 /* dcp unit split: the declarations that moved to svgrave (copies: drop what sv_t does not use) */
-struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after,
-                             int (*cb)(), int l);
-int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
-void sv_OpenPlayerBar(struct AIBLD *a, char k);
-void sv_ClosePlayerBar(void);
-int gv_RoomForRaised(struct AIBLD *o, int *n);
-void *cm_GetSlotValue(int h);
 int sprintf(char *buf, const char *fmt, ...);
-int sv_CheckCharacterFlag(struct AIBLD *id);
-struct AIJOB *he_FindEvent(int n, ...);
-struct AIJOB *he_NextEvent(void);
-void sv_OpenWindowFrame(int f, int b, int c);
-void ai_InitProductionTables(void);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3,
                             struct AIBLD *param_4);
-struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text,
-                                int var, unsigned int delay);
 typedef struct GVSEANCE {
   int kind;            /* 0x00, the seance chosen: 1 .. 3, 0 none */
   int cost;            /* 0x04, its price: 4 / 6 / 8 */
@@ -4951,40 +4716,10 @@ typedef struct GVSEANCE {
   GVGRAVE grave; /* 0x14, a copy of the dead person */
 } GVSEANCE;
 int sb_IsInit();
-void d2_PlaceViewWindows(int view, unsigned char flags);
-struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);
 float util_RandomF();
-void cm_SendProofExecuted(int a, int b);
-void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
-void gm_SendMoneyDelta(int a, int b);
-void ai_EndCharExtra(struct AICHAR *ch, int f);
-int cm_SendRelations(int a, int b, int c, int d);
-struct EVTSCRIPT *sv_StartPoseScript(struct AICHAR *a, char *name);
-void sv_ReleaseNamePlates(void);
-void ai_TradeContactChecks(void);
-float gm_GetSkill(struct AICHAR *c, int skill);
-struct AIJOB *he_FindEvent(int n, ...);
-int gm_BuildingKindCost(struct AICHAR *c, int kind);
 char *strupr(char *);
-int sprintf(char *buf, const char *fmt, ...);
-float gm_GoodsPrice(unsigned id, unsigned char p);
-struct AICHAR *gm_FindChar(int id);
-struct AIBLD *gm_FindBuildingById(int id);
-struct AIOBJ *gm_FindObjectInst(int id);
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o,
                            struct AICHAR *c);
-void d2_RadioClear(int g);
-unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
-void *mem_Alloc(int size, char *tag);
-char dd_Lock(void);
 void dd_Unlock();
-unsigned char bmp_Save24(char *path, int w, int h, unsigned char *data);
-void mem_Free(void *p);
 void ai_Quicksave(void);
 void ai_ApplyOptions();
-void cm_RaiseSpeedLevel(void);
-void cm_LowerSpeedLevel(void);
-struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);
-struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);
-struct AIBLD *gm_BuildNext(void);
-struct AIBLD *gm_BuildQuery(int n, ...);

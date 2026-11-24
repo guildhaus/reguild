@@ -33,181 +33,24 @@ struct D3SKY;
 extern GAPDATA full_data_5f1890[];
 extern GAPDATA full_data_624204[];
 extern GAPDATA full_data_602568[];
-extern unsigned char kb_Last;
 
 #include "f3init_types.h"
 extern GAPDATA full_data_6024f8[];
-extern GAPDATA full_data_624204[];
 
-extern const int sv_PhaseMinutes[24];
 extern float d3s_QuadUV[6];
 extern GAPDATA full_data_5fea38[];
 
-extern GAPDATA full_data_602568[];
-
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_5f36e0[];
 
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-
 extern GAPDATA full_data_62a450[];
 extern GAPDATA full_data_62a464[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern GAPDATA full_data_602568[];
 
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-
-extern int sv_PopRequest;
-extern const int sv_PhaseMinutes[24];
-extern struct D2OBJ *d2_Objs;
-extern GAPDATA full_data_602568[];
 extern GAPDATA full_data_60c7b8[];
 extern GAPDATA full_data_623594[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern const int sv_PhaseMinutes[24];
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int sv_FrameMask;
-
-extern int sv_PopRequest;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern struct D2OBJ *d2_Objs;
 
 extern GAPDATA full_data_62a634[];
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
 
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern volatile unsigned long d3_Time;
-extern GAPDATA full_data_60c7b8[];
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-extern int d2_PointerObj;
-extern const int sv_PhaseMinutes[24];
-
-extern unsigned short ai_PlayerId;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern unsigned char kb_Last;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_FrameMask;
-extern int sv_PopRequest;
-
-extern unsigned short ai_PlayerId;
-
-extern const int sv_PhaseMinutes[24];
-
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern GAPDATA full_data_62a450[];
-extern GAPDATA full_data_62a464[];
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern unsigned short ai_PlayerId;
-extern AITIME ai_Time; /* 0x770ae0, the game clock */
-extern int d2_PointerObj;
-extern int gm_AllowAll;
-extern int d2_ClickedId;
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-extern int ai_BuildingPerms;
-extern struct D3OBJECT *ai_ClickedObject;
-
-extern int gm_AllowAll;
-extern volatile unsigned long d3_Time;
-extern int d2_PointerObj;
-extern struct D2OBJ *d2_Objs;
-extern int di_Absolute;
-extern unsigned short ai_PlayerId;
-extern int d2_LastWindow;
-extern unsigned char ai_OwnPlayer;
 extern const float gm_MoodRanges[476];
-extern GAPDATA full_data_602568[];
-extern int sv_PopRequest;
-extern unsigned char kb_Last;
-
-extern int d2_LastWindow;
-
-extern int sv_PopRequest;
-
-extern int sv_FrameMask;
-extern unsigned char kb_Last;
-
-extern unsigned char kb_Last;
-extern int sv_FrameMask;
 
 void ai_TutorialHideText2();
 void ai_TutorialProgressSlider();
@@ -241,13 +84,7 @@ typedef struct
   int unk4;       /* +0x4 */
   SHOTENTRY e[3]; /* +0x8 */
 } SHOTRESULT;
-extern int ai_TutorialChapterOn[5];
-extern unsigned int ai_GraveChatterAt;
-extern TUTRUN *ai_TutorialRuns;
-extern int ai_TutorialOn;
-extern int ai_TutorialRunning;
 extern int ai_ShotDirty;
-extern unsigned char ai_TurnTable[0x4000];
 extern SHOTRESULT ai_ShotTable[3];
 
 #include "ls.h"
@@ -279,16 +116,6 @@ extern SHOTRESULT ai_ShotTable[3];
 #include "d3_tools.h"
 #include "d3_vec.h"
 #include "d3s.h"
-/* the cannon scene's limits (const data, not literals: the original loads them, computes (x - min) / (max - min)
-   at run time and keeps two copies of 45 degrees) */
-extern const float ai_CannonPitchMax;
-extern const float ai_CannonPitchMin;
-extern const float ai_CameraPitchMin;
-extern const float ai_CameraPitchMax;
-extern const float ai_CameraPitchZero;
-extern const struct D3VECTOR4 ai_WimpelPos;
-extern const float ai_CannonSwitchMs;
-extern const float ai_CannonSwitchDist;
 #include "d3_pose.h"
 #include "dd_vesa.h"
 #include "menu.h"
@@ -298,17 +125,9 @@ extern const float ai_CannonSwitchDist;
 
 /* dcp unit split: the declarations of sv_t before the moved functions */
 void ai_TutorialStop();
-void *mem_Alloc(int size, char *tag);
-void ai_TutorialFreeRuns(TUTRUN *rec);
 struct AICHAR;
 struct G9REC;
 struct VFSFILE;
-int sv_RunFrame(void (*cb)(), unsigned mask);
-void sv_ButtonRow(int f, int y, int *out, int n, ...);
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void txt_Format(char *out, intptr_t id0, ...);
 typedef struct
     CANNONSCENE { /* 0x104 bytes (0xe4 cleared), the scene struct of ai_CannonScene (the other cannon functions still address it by byte offset) */
   D3VECTOR
@@ -378,16 +197,7 @@ typedef struct
       pad100; /* +0x100, bmin's fourth float: the original's frame keeps 4 bytes behind it */
 } CANNONSCENE;
 struct GVEFFECT *gv_FindEffect(int id);
-int gv_RequestEffectLoad(struct AIBLD *bld);
-struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur,
-                            unsigned int flags); /* 0x4767d0, d2.h */
-void d3_SetViewport(float w, float h, float x, float y, float zn, float zf,
-                    float scale, int a, int b);
-void d3sky_Init(struct D3SKY *s, char build);
-char d3if_ShowTree(struct D3OBJECT *obj, char show);
 struct D3OBJECT;
-char d3if_Delete(struct D3OBJECT *obj);          /* 0x447190, d3_interface.h */
-char d3if_Show(struct D3OBJECT *obj, char show); /* 0x4471b0, d3_interface.h */
 void ai_CannonAxes(CANNONSCENE *sc);
 void ai_CannonAim(CANNONSCENE *sc, float dt);
 void ai_CannonShotResults(CANNONSCENE *sc);
@@ -395,9 +205,7 @@ void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
                          int sel, int mask);
 int ai_CannonFireCheck(CANNONSCENE *sc);
 void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
-void sv_SetStatusText(char *s);
 void sv_RedrawScreen();
-void d3if_Prerender(char map);
 double _CIfmod();
 #include <math.h>
 /* clang-format off */
@@ -409,56 +217,17 @@ typedef struct
   float x, y, z;
   int w;
 } CANNONROT;
-void gv_BuildingCannon(struct AIBLD *o, unsigned *a, unsigned *b);
 float ai_GetDefaultEffectScale();
 int _ftol();
 float ai_CannonPitchRatio(CANNONSCENE *sc);
-void txt_Format(char *out, intptr_t id0, ...);
-int gm_CharCurrency(struct AICHAR *c, signed char p);
-void gv_CannonScatter(struct AIBLD *o, float *a, float *b);
 void ai_ShotTableReset();
-int ai_InitShot(struct SHOTREC *shot, struct D3VECTOR *pos,
-                struct D3VECTOR *dir, float charge, float size, float density);
-int ai_ScatterShot(struct SHOTREC *shot, float sideSpread,
-                   struct D3VECTOR *side, float otherSpread,
-                   struct D3VECTOR *other, float speedSpread);
-int gv_FireShots(struct AIBLD *bld, struct AICHAR *ch, struct SHOTREC *a,
-                 struct SHOTREC *b, struct SHOTREC *d, float v, int cost,
-                 int x);
 struct SBBANK;
-struct SBSAMPLE *sb_PlayVariation(struct SBBANK *bank, char *name, int idx,
-                                  int loops, int pan, int volume, int fade);
-int sv_MessageBox(intptr_t text, unsigned flags);
-int gm_GetWorth(unsigned short id);
-int sv_CheckGoodAmount(struct AICHAR *o, int n, unsigned char t);
-struct AIFIN *gm_PlayerRecord(struct AICHAR *c);
-int cm_SendMoveGoodsUnchecked(int a, int b, unsigned char c, int d);
 int ai_PickActionBuilding(struct AICHAR *p, int a, __int64 mask, float lo,
                           float hi, int *out);
-struct SBSAMPLE *snd_PlayVoice(int id, struct SBBANK *bank, char *text,
-                               int var);
-void sv_CameraFollow();
-int amt_GetKindLevel(int k);
-void cm_SendMoneyDelta(int a, int b);
-void txt_Format(char *out, intptr_t id0, ...);
-int sv_MessageBox(intptr_t text, unsigned flags);
-void sv_ReleaseNamePlates(void);
-void cm_BeginFieldBlock(void *o, int id);
-int cm_AddFieldDelta(unsigned char size, unsigned char n, unsigned short field,
-                     void *v);
-int cm_SendFieldDeltas(void);
 
 /* dcp unit split: the definitions of sv_t the functions of svgrave use */
 void ai_AlchemistResearchWindow(struct AIBLD *obj);
 void ai_AlchemistWindow(struct AIBLD *obj);
-void ai_CannonAim(CANNONSCENE *sc, float dt);
-void ai_CannonAxes(CANNONSCENE *sc);
-int ai_CannonFireCheck(CANNONSCENE *sc);
-void ai_CannonShotResults(CANNONSCENE *sc);
-float ai_CannonPitchRatio(CANNONSCENE *sc);
-void ai_CannonSwitchAnim(struct AIBLD *rec, CANNONSCENE *sc, GVEFFECT *run,
-                         int sel, int mask);
-void ai_CannonExplosion(CANNONSCENE *sc, struct AIBLD *rec);
 void ai_ShotTableReset(void);
 extern const int ai_GravePics[4];
 extern const int ai_GravePicsAlt[4];
@@ -550,10 +319,6 @@ void ai_GraveSizeButtons(AIBLD *rec, GVWIN *w) {
   }
   d2_Objs[w->sizeBtns[w->size]].checked = 1;
 }
-
-struct GVENTRY *gv_FindEntry(void *a, struct AIBLD *bld, struct GVENTRY *after,
-                             int (*cb)(), int l);
-int gv_EntryIndex(struct GVYARD *g, struct GVENTRY *e);
 
 /* 0x5828c0, the grave list of the graveyard contact window: rec = the graveyard building, w = the window (its list and
    listScroll sections, the selected size, the rows (GVROW), the selected row), sel = the size just clicked (-1: none; the list keeps its scroll position only when it is the selected
@@ -1512,10 +1277,6 @@ void ai_RentGraveSelect(AIBLD *rec) {
   }
 }
 
-int sv_MessageBoxGreen(intptr_t a, intptr_t b, unsigned flags);
-void sv_OpenPlayerBar(struct AIBLD *a, char k);
-void sv_ClosePlayerBar(void);
-
 /* 0x584900, the "GRAEBER_PFLEGEN" callback of the graveyard window (ai_GraveWindow, a function pointer only):
    sends a selected character to tend the picked grave. When a work is already pending on the grave
    (he_HasGraveWork) the green message txt 0x411e / 0x411f and 0. Else, with the player bar open, the form
@@ -1594,8 +1355,6 @@ int ai_GraveCare(AIBLD *rec, GVPICK *pick) {
   return r;
 }
 
-int gv_RoomForRaised(struct AIBLD *o, int *n);
-void *cm_GetSlotValue(int h);
 int sprintf(char *buf, const char *fmt, ...);
 
 /* 0x584b70, the "GEHILFEN_ERSCHAFFEN" callback of the graveyard window (ai_GraveWindow, a function pointer
@@ -1671,11 +1430,6 @@ int ai_GraveRaiseHelper(AIBLD *rec, GVPICK *pick) {
   return r;
 }
 
-int sv_CheckCharacterFlag(struct AIBLD *id);
-struct AIJOB *he_FindEvent(int n, ...);
-struct AIJOB *he_NextEvent(void);
-void sv_OpenWindowFrame(int f, int b, int c);
-void ai_InitProductionTables(void);
 void ai_LayoutProdGoodsList(int param_1, int param_2, int param_3,
                             struct AIBLD *param_4);
 
@@ -1851,9 +1605,6 @@ void ai_GypsyHelperWindow(AIBLD *rec) {
   d2_CloseView(win);
   sv_CameraFollow();
 }
-
-struct SBSAMPLE *snd_QueueVoice(int id, struct SBBANK *bank, char *text,
-                                int var, unsigned int delay);
 
 /* 0x585380, the graveyard's fog window (the Graveyard Owner's action 0x90, am.c ai_DecideGraveyardOwner1): rec =
    the graveyard. A fog of this graveyard still pending (he_FindEvent 0x90) -> the voice "_NACHRICHTEN_FRIEDHOF_14"
@@ -2032,7 +1783,6 @@ int ai_SeanceWindow(AIBLD *unused, GVDETAILWIN *w, GVSEANCE *out) {
 }
 
 int sb_IsInit();
-void d2_PlaceViewWindows(int view, unsigned char flags);
 
 /* 0x5859c0, the seance ritual of the seance kinds (rec unused, ev the seance window's result): rolls the eight
    formula texts (ai_SeanceRollFormulas from txt 0x40d7), opens "Locations\Friedhof\Seance2" and starts the script
@@ -2140,9 +1890,7 @@ void ai_SeanceRollFormulas(int n, int *ids, int *variants, int base) {
   }
 }
 
-struct AICHAR *gv_FindAccused(struct AICHAR *c, int max, int *ids, int *cnt);
 float util_RandomF();
-void cm_SendProofExecuted(int a, int b);
 
 /* 0x585cb0, the seance kind 1, the ghost of the dead person (rec = the graveyard, ev = the seance window's
    result): the dead person's voice (snd_VoiceVariant), the ritual (ai_SeanceRitual), then the outcome: the ghost
@@ -2263,8 +2011,6 @@ void ai_SeanceSacrifice(AIBLD *rec, GVSEANCE *ev) {
     evt_Stop(script);
 }
 
-void ai_FindWantedItems(struct AICHAR *p, int n, struct G9REC *rec, int *st);
-
 /* 0x586200, the seance kind 2, the ghost's gift (rec = the graveyard, ev = the seance window's result): the dead
    person's voice and the ritual as in ai_SeanceGhost. The fifteen gifts 0x2b8 .. 0x2c6 are looked up in the
    player's inventory (ai_FindWantedItems); when six are found and none usable, or all fifteen are unusable, the
@@ -2381,8 +2127,6 @@ int ai_SeancePick(AIBLD *rec, GVDETAILWIN *w, GVSEANCE *out) {
   return r;
 }
 
-void gm_SendMoneyDelta(int a, int b);
-
 #define SEANCE_HELD                                                            \
   0x800000 /* the bit of AICHAR flags1cc a seance sets (cm_SendSetField(id, 0x1cc, 4, bit, 0)); the name is a reasoned guess */
 /* 0x586610, the graveyard seance (the contact ai_GraveyardSeanceContact): rec = the graveyard. The player's character's grave
@@ -2434,10 +2178,6 @@ void ai_GraveSeance(AIBLD *rec) {
   }
 }
 
-void ai_EndCharExtra(struct AICHAR *ch, int f);
-int cm_SendRelations(int a, int b, int c, int d);
-struct EVTSCRIPT *sv_StartPoseScript(struct AICHAR *a, char *name);
-
 /* 0x5867c0, the graveyard "Schlag" action (114 B): when the character under the pointer (ai_PickedChar) exists
    with the at-work flag bit 0 of +0x1b4 and the left button (dm_L.lup) is latched: ends its extra (ai_EndCharExtra,
    0), sends the player character's relation change towards it (-5, 0), then starts its role pose
@@ -2457,9 +2197,6 @@ void ai_GraveyardSchlag(AIBLD *unused) {
       script->ownScene = 1;
   }
 }
-
-void sv_ReleaseNamePlates(void);
-void ai_TradeContactChecks(void);
 
 /* 0x586840, the graveyard contact dispatcher: rec = the graveyard. Each frame (pump 0x67fff) the idle chatter
    (ai_GraveyardChatter); with the building permission 0x200 the contacts ALTERN_LASSEN, HEIMSUCHUNG,
@@ -2981,9 +2718,6 @@ int ai_UpgradeWorkerSend(AIBLD *rec, AICHAR *ch, int sel) {
   return 0;
 }
 
-float gm_GetSkill(struct AICHAR *c, int skill);
-struct AIJOB *he_FindEvent(int n, ...);
-
 /* 0x587810, the graveyard's worker upgrade window for the graveyard rec (the contact of ai_GraveyardFogContact): nothing
    while sv_CheckCharacterFlag (rec) holds. Outside the season 2 of the game clock (gm_ClockSeason) and without
    gm_AllowAll the message box txt 0x413b; with an upgrade already running (an event 0x8f of the building,
@@ -3225,30 +2959,12 @@ void ai_GraveyardChatter(AIBLD *unused) {
 void ai_ClearTurnTable(void) { memset(ai_TurnTable, 0, sizeof ai_TurnTable); }
 
 /* dcp unit split: the declarations that moved to svtip (copies: drop what svgrave does not use) */
-int gm_BuildingKindCost(struct AICHAR *c, int kind);
 char *strupr(char *);
-int sprintf(char *buf, const char *fmt, ...);
-float gm_GoodsPrice(unsigned id, unsigned char p);
-struct AICHAR *gm_FindChar(int id);
-struct AIBLD *gm_FindBuildingById(int id);
-struct AIOBJ *gm_FindObjectInst(int id);
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o,
                            struct AICHAR *c);
-void d2_RadioClear(int g);
-unsigned vfs_fwrite(void *buf, int size, int n, struct VFSFILE *f);
-void *mem_Alloc(int size, char *tag);
-char dd_Lock(void);
 void dd_Unlock();
-unsigned char bmp_Save24(char *path, int w, int h, unsigned char *data);
-void mem_Free(void *p);
 void ai_Quicksave(void);
 void ai_ApplyOptions();
-void cm_RaiseSpeedLevel(void);
-void cm_LowerSpeedLevel(void);
-struct AIOBJ *gm_BuildingMainObject(struct AIBLD *b);
-struct AIOBJ *gm_GetGebaeudeHauptraum(struct AIBLD *b);
-struct AIBLD *gm_BuildNext(void);
-struct AIBLD *gm_BuildQuery(int n, ...);
 
 /* the unit's data in the original's order: .rdata the grave tables 0x5eecb0 .. 0x5eecf0 (named constants after the cannon
    literals, before lc.c's); .data ai_GraveChatterAt 0x62a538 (the plain block after sv_t.c's strings); the

@@ -49,25 +49,15 @@ struct VFSDIR;
 #include "ai_types.h"
 
 #include "cm_bomb.h" /* cm_Bombs (sv_InitTick clears them) */
-extern int d2_HitUnderPointer;
 
-extern D3OBJECT *ai_PickedObject;
-extern struct AICHAR *ai_PickedChar;
-extern int d2_HitUnderPointer;
-extern struct AICHAR *ai_SceneChars[32];
 extern int hst_KeyNext;
 
 extern GAPDATA full_data_623240[];
 extern int ai_PermsDirty;
 extern float d3s_QuadUV[6];
-extern struct AICHAR *ai_SceneChars[32];
 
 extern GAPDATA full_data_602568[];
 extern char cm_ChatLog[2048];
-
-extern D3OBJECT *ai_PickedObject;
-extern int d2_CutsceneActive;
-extern int d2_HitUnderPointer;
 
 extern int main_Inactive;
 
@@ -78,12 +68,10 @@ struct
 
 extern int di_Absolute, di_MinX, di_MinY, di_MaxX,
     di_MaxY; /* 0x5f3240, 0x6310b0, 0x6310b4, 0x5f3238, 0x5f323c (di_input.c) */
-extern unsigned char kb_Last; /* 0x1468410 */
 /* clang-format off */
 #define sv_D2Objs d2_Objs  /* 0xf8f080, the typed view d2.h gives it (D2OBJ *) */
 /* clang-format on */
 
-extern struct D2SHP *sv_ViewShape; /* 0x6f22c0 */
 extern struct D2SURF *sv_GroundplanSurf,
     *sv_GroundplanView; /* 0x6f22c4, 0x6f22c8 */
 /* the object / character record fields sv.c reads (AIBLD / AICHAR in ai.h; ai.h cannot be included here: its
@@ -866,37 +854,14 @@ void sv_DestroyScreen(void) {
   sv_PanelRebuild = 1;
 }
 
-extern struct AIGOOD *ai_Goods; /* 0x91aaf0 */
 /* 0x479150, with d2.h's prototype (the 9 pushes of 0x522b38 agree: push 1, d2_ScreenSurf, 0x5b, d2_ScreenW - 0x6e, view, h, w, 0, 0) */
 extern int sv_ResearchClass, sv_ScreenDirty; /* 0x6f233c, 0x6f2358 */
-extern struct AIBLD *sv_GroundplanBuilding;  /* 0x6f235c */
-extern struct AIOBJ *sv_GroundplanRoom;      /* 0x6f2360 */
-extern int sv_GroundplanScene;               /* 0x623e8c */
-extern int
-    sv_ResearchClass; /* 0x6f233c, the class number of the research list the panel shows (gm_BuildingClass) */
-extern char d2_GfxDir[]; /* 0xf8ef80, the data directory */
-extern char sv_GroundplanColours[];
-extern int d3_CurrentScene;                   /* 0x633444 */
 int sprintf(char *buf, const char *fmt, ...); /* 0x5de652 */
-struct D2SURF *d2_LoadBmpSurface(char *name); /* 0x478b50 */
-void d2_GetPixelColour(int x, int y, struct D2SURF *surf,
-                       unsigned char *rgb); /* 0x4798f0 */
 struct D2SURF;
-int d2_PutPixelRGB(int x, int y, unsigned char r, unsigned char g,
-                   unsigned char b, struct D2SURF *surf); /* 0x4799e0 */
 void ai_SwitchRoom(int index, unsigned room);             /* 0x59e0a0 */
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o,
                            struct AICHAR *c); /* 0x503530 */
-int d2_FindPic(char *name);                   /* 0x468890 */
 char *strupr(char *);                         /* 0x5ea986 */
-extern int d2_PicShift; /* 0x6ed98c, d2.h (not includable here) */
-int d2_CompareColour(char *a, char *b); /* 0x478930 */
-int gm_BuildingClass(
-    int kind); /* 0x501d80, f3gm.c, the class of a building kind */
-struct AIOBJ *gm_QueryNext(void); /* 0x4ffcc0 */
-int gm_ResearchClass(
-    int k,
-    int *out); /* 0x50b090, f3gm.c, the research class of a building kind */
 
 /* 0x5224a0, loads the groundplan of the selected building (ai_PlayerBuilding, else ai_FallbackBuilding):
    bmp\groundplans\riss_<type name>.bmp, else one by the building class (gm_BuildingClass 1: wirtshaus /
@@ -1198,17 +1163,10 @@ void sv_SetResearchClass(AIBLD *o) {
 
 /* 0x46d040 */
 struct D2FADE;
-struct D2FADE *d2_StartFade(int x, int y, int w, int h, char *name, int dur,
-                            unsigned int flags);
 /* 0x4767d0, d2.h */                                        /* 0x4767d0 */
-void d2_ReleaseFade(struct D2FADE *f); /* 0x476860, d2.h */ /* 0x476860 */
-void d2_PlaceWindow(int win, unsigned char flags);          /* 0x4756b0 */
 struct D3SKY;
 struct D3SKYLAYER;
 struct D3VECTOR;
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b,
-                float eps);                /* 0x453e80 */
-AIWEAPON *cm_CharWeapon(struct AICHAR *c); /* 0x4cda50 */
 
 int gm_SumListMoney(
     void *
@@ -1592,12 +1550,7 @@ void sv_CountGroupMembers(AIJOB *g) {
 }
 
 extern float gm_DayStartHours[], gm_DayEndHours[];    /* 0x617830 / 0x617840 */
-int gm_ClockSeason(AITIME *c); /* 0x4fe350, f3gm.c */ /* 0x4fe350 */
 char *strstr(); /* 0x5de6b0, strstr (LIBC; as ls.c) */
-int cm_SendExSetHE(int k, struct AIJOB *p); /* 0x4c4c60 */
-int cm_AddFieldValue(unsigned char size, unsigned char n, unsigned short field,
-                     void *v); /* 0x4c3d90 */
-int cm_SendFieldValues(void);  /* 0x4c49e0 */
 
 /* 0x524260, moves the character c (index) from his current job (the group record AICHAR.job) to the job g;
    o is the building and it the room the character goes to (o defaults to his building): when the room is in
@@ -1824,15 +1777,7 @@ int sv_CharStateIcons(AICHAR *c, int *out) {
   return n;
 }
 
-extern int d2_PointerObj; /* 0x5fe710 */
-extern struct AICHAR *sv_SelectedChar;
-extern char sv_PlayerBarKind;
-int d2_CreateChildWindow(short x, short y, short w, short h, unsigned int flags,
-                         int win);                           /* 0x472aa0 */
-int d2_CreateWinText(short x, short y, char *text, int win); /* 0x473650 */
 void snd_PlayWorkerClick(struct AICHAR *c);                  /* 0x4c2c70 */
-void d2_AddPointerItem(int id, int amount);                  /* 0x476b90 */
-int d2_WinOpenPic(short x, short y, int pic, int win);       /* 0x4731d0 */
 
 /* 0x524990, rebuilds the member list of the player bar for the building g: rows of characters that are gone
    (no model, dead) are freed; every living character in g (by sv_PlayerBarKind: 0 those of the building type's two
@@ -2042,53 +1987,23 @@ void sv_UpdateMemberList(AIBLD *g) {
 }
 
 extern OPTIONBYTES ai_GfxResolution; /* 0x6f2f94, the player bar variant */
-extern int sv_WinterWeather;         /* 0x760610 */
-extern int sv_WeatherHour;           /* 0x760614 */
-extern struct D3TRAIN *d3t_Rain;     /* 0x760618 */
-extern struct D3TSNOW *d3t_Snow;     /* 0x76061c */
-extern int sv_SkyPhase;              /* 0x760464 */
-extern int sv_ThunderFog;            /* 0x6f2370 */
-extern struct D3SKYLAYER *d3_SkyLayers[6]; /* 0x760620 */
-extern int sv_SkyScene;                    /* 0x75ec20 */
-extern struct D3PATH *d3t_CamMove;         /* 0x6310e8 */
-extern int sv_LampPhase;                   /* 0x623e80 */
-extern int sv_DayPhase;                    /* 0x6f236c */
-extern char sv_LampSwitches;
-extern float sv_SkyScale;     /* 0x760420 */
-extern float sv_DayPhaseFrac; /* 0x623e94 */
 /* ai_MapRefs: view of d3_Scenes (tools/data_views.py) */
 const int sv_PhaseMinutes[24] = {
     390, 510, 630,  1050, 1170, 1290, 300, 420, 540, 1140, 1260, 1380, 420,
     540, 660, 1020, 1140, 1260, 480,  600, 690, 960, 1020, 1140}; /* 0x5eeab8 */
 
-void d2_SetViewEnabled(int view, int on);                   /* 0x475590 */
-void d2_ClearPointerItems(void);                            /* 0x476c70 */
-void sv_UpdatePanel(void);                                  /* 0x52a050 */
-void gm_ClockToDate(struct AITIME *c, struct GMDATE *out);  /* 0x4fe2c0 */
 void ai_InitWind(int type, int id, float *from, float *to); /* 0x5dbc30 */
 struct D3TRAIN;
-void d3t_SetRain(struct D3TRAIN *rain, int n, ...); /* 0x413d30 */
 struct D3TSNOW;
-void d3t_SetSnow(struct D3TSNOW *snow, int n, ...); /* 0x414c60 */
 struct D3SKY;
-struct D3SKY *d3sky_Create(float horizon, float fogstart,
-                           float fogscale); /* 0x45da30 */
 struct D3SKY;
 struct D3SKYLAYER;
-void d3sky_DeleteLayer(struct D3SKY *s, struct D3SKYLAYER *l); /* 0x45d800 */
 struct D3SKYLAYER;
 struct D3SKY;
 struct D3SKYLAYER *d3sky_CreateLayer(struct D3SKY *s, int first, char *tex,
                                      D3TEXFLAGS flags, float scale,
                                      float offset, float vscale,
                                      float voffset); /* 0x45d880 */
-void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l,
-                         float speed);                      /* 0x45d960 */
-char d3_SetFogSet(unsigned int a, unsigned int b, float t); /* 0x44a170 */
-char d3_SetLightSet(unsigned int set, float t, float scale,
-                    char calc); /* 0x449de0 */
-void sv_UpdateSkyColors(void);
-void sv_UpdateSkyPhase(AITIME *t);
 
 /* 0x525220, opens the player bar ("Misc\\PlayerBar", or "Misc\\PlayerBar_1" at the other resolution) of the kind k at the right screen edge: its two scroll
    buttons (style 3) go to the window, the panel form is disabled, the 0x20 member rows are cleared, the button picture 0x51d is created and every character's
@@ -2446,15 +2361,6 @@ extern float sv_CameraHeightFactor, sv_CameraAngleFactor, sv_CameraHeightStep,
 extern float sv_CameraHeightNear, sv_CameraAngleNear, sv_CameraHeightFar,
     sv_CameraAngleFar,
     sv_ScrollSpeed; /* 0x623800, 0x623804, 0x623808, 0x62380c, 0x623818 */
-extern int sv_BorderMoved;         /* 0x6f2378 */
-extern int sv_BorderViewX;         /* 0x6f22cc */
-extern int sv_BorderViewY;         /* 0x6f22d0 */
-extern int d3t_CamMoving;          /* 0x6310e4 */
-extern struct D3PATH *d3t_CamMove; /* 0x6310e8 */
-extern int sv_ScrollTime;          /* 0x6f2394 */
-extern D3VECTOR4 sv_ScrollLastMove;
-int d3_VecEqual(const struct D3VECTOR *a, const struct D3VECTOR *b,
-                float eps); /* 0x453e80 */
 
 /* 0x525dd0, in scene 0 sets both camera blend factors to f and places the camera: its height is the near / far height blended by
    f over the terrain's mean height under it, its x angle the near / far angle blended by f; stores the camera's rotation and
@@ -2835,20 +2741,6 @@ extern int sv_MouseDragOn, sv_ZoomTurnOn, sv_MouseCamActive, sv_DragStartX,
     sv_ZoomStartY; /* 0x6f23b8, 0x6f23a0, 0x6f23a4, 0x6f2398, 0x6f239c, 0x6f1c88, 0x6f1c48, 0x6f1c50, 0x6f1c40, 0x6f1c84, 0x6f2298, 0x6f2290, 0x6f1c8c */
 extern float sv_ZoomStartHeight, sv_ZoomStartAngle, sv_ZoomStartTurn,
     sv_ZoomBaseY;                /* 0x6f23a8, 0x6f23ac, 0x6f23b0, 0x6f23b4 */
-extern D3VECTOR4 sv_DragLastPos; /* 0x6f1c64 */
-extern int tb_Paused;            /* 0x6333e0 */
-extern int ai_DragWindow;        /* 0x62a8cc */
-extern int sv_CameraScrolled;    /* 0x6f22b4 */
-extern int sv_FrameDepth;        /* 0x6f229c */
-extern int sv_FrameBase;         /* 0x6f22a4 */
-extern struct AIBLD *sv_SelectedObject; /* 0x75ec60 */
-extern D3OBJECT *sv_SelectedModel;      /* 0x6f2304 */
-extern char sv_CameraEaseOn;
-struct AIFIN *gm_PlayerRecord(struct AICHAR *ch); /* 0x506430 */
-void sv_PlaceCamera(float f);
-void sv_EaseCameraHeight(void);
-int sv_ScrollCamera(void);
-int sv_MouseCamera(void);
 
 /* the player's camera record gets the camera's position and rotation */
 #define SV_CAMREC(r)                                                           \
@@ -3214,14 +3106,7 @@ void sv_FlyCameraToObject(AIBLD *b) {
   sv_SelectedModel = b->object;
 }
 
-int d3t_PlaceObject(struct D3OBJECT *camera, float px, float py, float pz,
-                    float dx, float dy, float dz, int unk,
-                    char flags); /* 0x411680 */
 int stricmp();                   /* 0x5eaa30 (_strcmpi) */
-char d3if_SelectTextureSet(struct D3OBJECT *obj, struct D3SURF *surf,
-                           unsigned char set, char reload); /* 0x446f30 */
-struct AIBLD *gm_BuildQuery(int n, ...);                    /* 0x501190 */
-struct AIBLD *gm_BuildNext(void);                           /* 0x501030 */
 
 /* 0x527bb0, puts the camera directly 600 units back along its view from the building b's 3D object (its centre,
    the terrain's mean height plus the zoom height, pulled in by the object's height range): the stored view
@@ -3531,11 +3416,6 @@ char sv_CollectBannerCB(D3OBJECT *o, void *ctx) {
 extern int sv_PanelBldPic, sv_PanelHealthBar, sv_PanelCartWin, sv_PanelItemBtn,
     sv_PanelTransportBtn, sv_PanelCartBtn, sv_PanelActionBtn,
     sv_PanelCartChar; /* 0x623864, 0x623868, 0x62387c, 0x623888, 0x62388c, 0x623890, 0x623894, 0x631078 */
-extern int sv_PanelWidgets[4]; /* 0x62386c */
-
-int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic,
-                     unsigned int flags, int win); /* 0x46a960 */
-int sv_AddPanelButton(int x, int y, char *text);
 
 /* 0x5286a0, tints the banners of the building b: its model's parts named "sp_WIMPEL" (0x438d40, 0x40, the collector 0x528660; the model's +0x1f0 cleared when its flag +0x210 & 1 is not set) are recoloured
    (0x458780 with the colour 0x6f1c28, when set) and updated (0x447190) */
@@ -3754,28 +3634,12 @@ void sv_OpenCartPanel(AIOBJ *c) {
   sv_PanelCartChar = (int)c->sceneObj;
 }
 
-extern int sv_PanelBuildBtn;       /* 0x623884 */
-extern int sv_PanelPlantBtn;       /* 0x623898 */
-extern int sv_PanelPortrait;       /* 0x623880 */
-extern int ai_SelectedCount;       /* 0x6f2334 */
-extern unsigned char ai_GameState; /* 0x6f25ac */
-extern int d2_PointerObj;          /* 0x5fe710 */
 extern char *ai_Unk7662c0p;
-extern struct AIOBJ *sv_SelectedItem;
-extern int ai_BuildingPerms;                                      /* 0x6f231c */
-int gm_Opinion(int a, int b);                                     /* 0x50c520 */
-void gm_AddTime(struct AITIME *c, int hours, int mins, int secs); /* 0x4fe140 */
 int d2_RemoveWindowObjects();                                     /* 0x472d20 */
-void ai_CampaignStep(int a, void *b, int c, int d);               /* 0x576040 */
 void ai_TechTreeWindow(struct AIBLD *param_1, int param_2);       /* 0x591bf0 */
-int sv_ReturnZero(void);
 int sv_PickNothing(
     AICHAR *c,
     int n); /* the unlinked pick callback at the end (sv_ReturnZero in the exe) */
-void sv_OpenDefaultPanel(void);
-void sv_OpenPersonPanel(AICHAR *c);
-void sv_RefreshPanel(void);
-void sv_OpenItemPanel(struct AIOBJ *p);
 
 /* 0x528ee0, opens the default info panel when no panel is open (sv_PanelForm): without a selected building the
    "standard" panel with the construction button 0x8c (sv_PanelBuildBtn) and the item button 0xa6; for the player's
@@ -4174,28 +4038,7 @@ int sv_ReturnZero(void) { return 0; }
 
 /* ---- layout 2026-10-23 (session 5): drafts of the functions after 0x52a050 (ROUGH: absolute-address macros for the globals not declared above) ---- */
 
-int d2_WinOpenPic(short x, short y, int pic, int win);       /* 0x4731d0 */
-int d2_CreateWinText(short x, short y, char *text, int win); /* 0x473650 */
-int d2_CreateScreenText(short x, short y, char *text);       /* 0x473860 */
-void d2_MoveObj(short x, short y, int obj);                  /* 0x46cda0 */
-void d2_DrawText(int x, int y, struct D2SURF *surf, char *text,
-                 unsigned char flags); /* 0x46f000 */
-void d2_DrawTextBox(int x, int y, int w, int h, struct D2SURF *surf, char *text,
-                    unsigned int flags);                   /* 0x46f1a0 */
-void d2_SetClipRect(int x0, int y0, int x1, int y1);       /* 0x47cb40 */
-void *d2_SetFont(int font);                                /* 0x476030 */
-int d2_SetForm(int view, int n);                           /* 0x475f70 */
-void gm_ClockToDate(struct AITIME *c, struct GMDATE *out); /* 0x4fe2c0 */
-int gm_Season(struct GMDATE *d);                      /* 0x4fe330, f3gm.h */
-int gm_ClockSeason(AITIME *c); /* 0x4fe350, f3gm.c */ /* 0x4fe350 */
 int ls_GetLanguage();                                 /* 0x5190a0 */
-struct AIOBJ *gm_PlayerSeat(int p);                   /* 0x504a80 */
-int gm_SumListAmounts(void *list, unsigned char p);   /* 0x509e30 */
-int gm_ConvertMoney(int a, unsigned char k);          /* 0x5085b0 */
-void txt_Format(char *out, intptr_t id0, ...);        /* 0x5176d0 */
-
-struct AIBLD *gm_BuildQuery(int n, ...); /* 0x501190 */
-struct AIOBJ *gm_QueryNext(void);        /* 0x4ffcc0 */
 
 /* 0x52a050, the per-frame update of the info panel (not while the player bar is open or before the game runs):
    enables the transport button unless the selected building holds the objects 0x2a / 0x116; with the 0x2000 frame
@@ -4793,18 +4636,6 @@ EVTSCRIPT *sv_StartPoseScript(AICHAR *a, char *name) {
   }
   return script;
 }
-
-void ai_CampaignStep(int a, void *b, int c, int d); /* 0x576040 */
-int gm_BuildingClass(
-    int kind); /* 0x501d80, f3gm.c, the class of a building kind */
-void ai_TechTreeWindow(struct AIBLD *param_1, int param_2); /* 0x591bf0 */
-void d2_FreeAnim(int n);                                    /* 0x47ce30 */
-void snd_PlayWorkerClick(struct AICHAR *c);                 /* 0x4c2c70 */
-
-struct D3OBJECT *d3if_Pick(float x, float y, int flags,
-                           int mask); /* 0x448630 */
-
-int sv_RunFrame(void (*cb)(), unsigned mask); /* 0x5309a0 */
 
 /* 0x52b500, runs the location scripts of the characters in ai_SceneChars that stand in the building a (their scene
    character's group is a's id, alive, in the default scene): a character gets the script of its activity
@@ -6049,12 +5880,8 @@ done:
 #include <stdarg.h>
 #include "cm_types.h"
 #include "net.h"
-extern unsigned char ai_GameState;
 extern unsigned char sv_MenuOpen;
-extern unsigned char d3_MipSkip;
 extern char d3d_ZEnabled;
-
-struct D3OBJECT *d3t_FindObject(char *name, char flags); /* 0x411900 */
 
 /* 0x52e050, draws the hint text (d2_CaptionCopy) at the mouse position when it is not empty and the option
    ai_GameSwitches byte 2 (show_cursor_txt) is set */
@@ -6233,11 +6060,6 @@ void sv_TabButtonRow(int f, int y, int *out, int n, ...) {
     d2_SetObjWidth(id, wmax);
   }
 }
-
-int ai_LedSelectBits(
-    int idx,
-    struct AICHAR *
-        c); /* 0x4ce170, cm.h (not included: its d2_Objs / d2_LastWindowPtr clash) */
 
 /* 0x52e600, on != 0: disables (D2OBJ.disabled) every used d2 object that draws into an active, enabled view (d2_Views)
    and is not disabled yet, remembering it in sv_DisabledWidgets; on == 0: enables the remembered objects again */
@@ -6560,15 +6382,6 @@ void sv_UpdateBandLed(void) {
   }
 }
 
-void *mem_Alloc(int size, char *tag);                       /* 0x4223c0 */
-void mem_Free(void *p);                                     /* 0x422620 */
-char d3if_Show(struct D3OBJECT *obj, char show);            /* 0x4471b0 */
-void d2_FillViewTextures(int view, char *tex1, char *tex2); /* 0x474d90 */
-void d2_RedrawView(int view);                               /* 0x474e80 */
-int d2_SetViewTextures(int view, char *tex1, char *tex2);   /* 0x474ca0 */
-void d2_ClearViewTextures(int view);                        /* 0x474d10 */
-void d3d_SetWBuffer(char w);                                /* 0x437060 */
-
 /* 0x52f2c0, draws the rubber band rectangle (four dd_Line in colour -1) between the corners of sv_Band while
    sv_BandActive is set */
 void sv_DrawRubberBand(void) {
@@ -6847,18 +6660,9 @@ int sv_PumpMessages(void) {
   return 1;
 }
 
-extern unsigned sv_ChatTime;                          /* 0x623ec4 */
-extern int sv_QuickChatForm;                          /* 0x623ec8 */
-extern int cm_DialogFrameFlags;                       /* 0x60d360 */
-int cm_SendExSysMessage(unsigned char id, void *msg); /* 0x4c4db0 */
-void d2_SetViewEnabled(int view, int on);             /* 0x475590 */
 int cm_FlushSendQueue();                              /* 0x4c3680 */
 int cm_ReceiveMessages();                             /* 0x4c3fd0 */
 int cm_ExecCommands();                                /* 0x4c4190 */
-void d2_SetObjValue(int obj, ...);                    /* 0x475cb0 */
-int io_PrintText(intptr_t fmt, ...);                  /* 0x515960 */
-void cm_SendChat(void *p);                            /* 0x4c5aa0 */
-void sv_ChatConsole(void);
 
 /* 0x52fc10, the network sync wait screen: sends the "sv_NetworkSync" message (0x4c4db0 (0xe, text)) and runs the message loop (0x5309a0 (0, fl | 0x300000)) until the answer arrives (0x4c3ae0); after 1.5 s
    (0x5dc ms) it shows the waiting dialog (0x521900 (0x143a3a8 = the text)); fl is the key mask kept in 0x760638 */
@@ -7012,18 +6816,10 @@ void sv_UpdateQuickChat(void) {
 }
 
 struct D3TSNOW;
-void d3t_SetSnow(struct D3TSNOW *snow, int n, ...); /* 0x414c60 */
 struct D3TRAIN;
-void d3t_SetRain(struct D3TRAIN *rain, int n, ...); /* 0x413d30 */
 struct D3SKYLAYER;
 void d3sky_SetLayerTex(struct D3SKYLAYER *l, char *name); /* 0x45d9f0 */
-void d3sky_FadeLayer(struct D3SKY *s, struct D3SKYLAYER *l, unsigned char alpha,
-                     float time); /* 0x45d9a0 */
-void d3sky_SetLayerSpeed(struct D3SKY *s, struct D3SKYLAYER *l,
-                         float speed);              /* 0x45d960 */
 struct D3OBJECT *d3t_CreateSunRays();               /* 0x417190 */
-void ai_CampaignStep(int a, void *b, int c, int d); /* 0x576040 */
-extern int sv_SunRaysHour;                          /* 0x623ecc */
 
 /* 0x5301a0, applies the weather of the clock's hour (sv_WeatherHour) from sv_Weather: the snow / rain emitters get the hour's clouds (rain under snow only on odd
    clouds, a fifth), the strongest clouds c of the hour and its two neighbours drive the emitters' drift against the wind and, with the wind strength, the sky:
@@ -7211,9 +7007,6 @@ void sv_SetScreenCenter(unsigned fl) {
   d2_HalfScreenW = d2_ScreenW >> 1;
   d2_HalfScreenH = d2_ScreenH >> 1;
 }
-
-void main_GameLoop(int ctl); /* 0x53bb20 */
-void sv_UpdateClock(void);
 
 /* 0x5309a0, "MASTER": one frame of the game screen loop, called by every screen with its own callback (the top of the callback stack 0x75f780, 8 bytes per entry, depth 0x6f229c; 0 = nothing to register) and the
    mask of the parts to run (param_2: 1 input, 4 resize, 0x10 objects, 0x20 speech, 0x40 world, 0x100 left click, 0x1000 names, 0x2000 main buttons, 0x4000 weather, 0x10000 paused, 0x100000 modal, ..); returns 1
@@ -7566,16 +7359,6 @@ void sv_UpdateClock(void) {
   gm_AddTime(&ai_TimeCopy, h, m, t - (m + h * 60) * 60);
 }
 
-extern int sv_SkyScene;
-extern float sv_SkyScale;
-extern int sv_SkyPhase;
-extern int sv_WinterWeather;
-extern int sv_WeatherHour;
-extern struct D3TSNOW *d3t_Snow;
-extern struct D3SKYLAYER *d3_SkyLayers[6];
-extern int d2_HitWindow;
-extern struct D3RECT
-    d2_DirtyRect; /* 0xfb9060, the rectangle d2_AddDirty tests against: left, top, right, bottom (one object: one memset clears it) */
 int sv_UnreadData[3] = {
     10, 124,
     190}; /* 0x623780, sv's first plain datum (after ls's last string "rbn"): no
@@ -7923,8 +7706,6 @@ struct AICHAR *ai_SceneChars
 struct D3TRAIN *
     d3t_Rain; /* 0x760618, the rain system (d3t_CreateRain; its count is the rain level) */
 int sv_FrameMask; /* 0x760638 */
-extern int d2_HitWindow;
-extern struct D3RECT d2_DirtyRect;
 /* unlinked: the item button's amount-menu pick callback (sv_UpdatePanel), which picks nothing (returns 0); LINK
    folds it (/OPT:ICF) into sv_ReturnZero, 0x52a040, where the original's reference in sv_UpdatePanel points */
 int sv_PickNothing(AICHAR *c, int n) { return 0; }
