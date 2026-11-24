@@ -46,6 +46,7 @@ exe	0x0045e210	d3sm_ShadowCB	1
 exe	0x0045e620	d3sm_Build	1
 exe	0x004694c0	d2_DrawInput	1
 exe	0x0046aa00	d2_DrawSlider	1
+exe	0x0046d040	d2_DrawPic	1
 exe	0x0046d220	d2_DrawObjCaption	1
 exe	0x0046d3d0	d2_DrawObjects	1
 exe	0x0046ead0	d2_DrawTextLine	1
