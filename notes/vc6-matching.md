@@ -2783,6 +2783,12 @@ Rotation, test position, countdown, induction variables and strength reduction, 
 - **Pointer step in the for-update vs the body**: `for (p = list; n > 0; n--, p++)` keeps the update after the
   body (`continue` jumps forward); `p++` in the body rotates (update before the body, an entry `jmp`, p / count in
   memory), 90 bytes on this alone (amt_CheckOffices).
+- **A memory induction variable compared in the loop test (`add eax,0x30; cmp eax,0x15c; mov [slot],eax`) next to
+  a counter in a register, ours a named `y` stepped in the for**: there was no y. `for (i = 0; i < 7; i++)` with
+  `i * 0x30 + 0xc` written at its use: VC6 strength-reduces the expression into its own temporary (init after
+  the other SR inits, update right after i++, which decides the entry / latch store order and the slot ties) and
+  replaces the `i < 7` test by it. A named y gave the right code only up to those orders (4 - 6 ins, three
+  sessions); y in win's slot came from that temporary packing there (ai_ShowSettingGoods byte).
 - **Loop-entry `jmp`**: `x0 = x1; x1 = ...` at the top of the body, not the bottom (surf_Shrink16). The init order
   of a group of globals decides which one is enregistered in a later loop.
 - **Unrotated search**: `for (it = first; it; prev = it, it = it->next) if (it->obj == obj) break; if (!it) return

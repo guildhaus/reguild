@@ -3660,13 +3660,7 @@ void ai_MasterHireWindow(AIBLD *bld, int mode) {
 /* 0x5c2a10, fills the master letter window's goods page (400 B): the title text 0x1949, then one row per slot of
    the production setting (seven, 0x30 pixels apart): the good's picture (d2 style 3, its AIGOOD record as the
    object's user data, interactive, checked while the slot is not locked) into locks[i] and the weight slider
-   (0 .. 100, the slot's weight, disabled while locked) into sliders[i]; an empty slot gives -1 in both
-   @deep deep s38: the empty-slot arm as the else and y, i stepped in the for's increment (y += 0x30 first)
-   put y into win's dead parameter slot as in the original (32 -> 6 ins). Left: the latch's inc edi comes
-   before add eax,0x30 in the original, and at the loop entry the slider cursor is stored to sliders' slot
-   before y = 0xc. i++ written before y += 0x30 (in the increment or in the body) makes the cursor temp
-   reach its count 4 before y in the walk and y loses win's slot (24 ins); 36 init x increment orders: 3
-   codegens; i < 7 as the bound: 8 ins; climb 2 rounds (341 mutants): nothing. */
+   (0 .. 100, the slot's weight, disabled while locked) into sliders[i]; an empty slot gives -1 in both */
 
 void ai_ShowSettingGoods(int win, G8SLOT *slots, int *sliders, int *locks) {
   int i;
@@ -3678,7 +3672,7 @@ void ai_ShowSettingGoods(int win, G8SLOT *slots, int *sliders, int *locks) {
   io_PrintText(0x1949);
   d2_SetForm(win, 2);
   io_PrintText((intptr_t)"$C");
-  for (i = 0, y = 0xc; y < 0x15c; y += 0x30, i++) {
+  for (i = 0; i < 7; i++) {
     if (slots[i].good != 0) {
       pic = d2_WinOpenPic(0xf, i * 0x30, slots[i].good + 0xdf, d2_LastWindow);
       d2_Objs[pic].style = 3;
@@ -3688,7 +3682,7 @@ void ai_ShowSettingGoods(int win, G8SLOT *slots, int *sliders, int *locks) {
       d2_Objs[pic].checked = slots[i].lock == 0;
       locks[i] = pic;
       sliders[i] =
-          d2_WinOpenSlider(100, y, 200, 0, 0x64, 0x7b, 0x802, d2_LastWindow);
+          d2_WinOpenSlider(100, i * 0x30 + 0xc, 200, 0, 0x64, 0x7b, 0x802, d2_LastWindow);
       d2_SetObjValue(sliders[i], 0, 0x64, slots[i].weight);
       d2_SetObjEnabled(sliders[i], slots[i].lock == 0);
     } else {
