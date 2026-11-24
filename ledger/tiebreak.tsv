@@ -3391,7 +3391,7 @@ exe	0x0052e170	sv_ClearNamePlates	sv	5f820273789fcd34	no	byte	control=byte p1=by
 exe	0x0052e190	sv_ReleaseNamePlates	sv	ef7cd46572a61cfc	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0052e1c0	sv_RegisterNamePlate	sv	ac9dbe717dbd5e77	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x0052e330	sv_SetStatusText	sv	d50a9cc11bfbe044	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x0052e350	sv_ButtonRow	sv	e59fb2f311199f26	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	75c36e70536f1bc9
+exe	0x0052e350	sv_ButtonRow	sv	4c584b9285a32813	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	4b833155728d512f
 exe	0x0052e4b0	sv_TabButtonRow	sv	e6cbc10b19aef5c1	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	75c36e70536f1bc9
 exe	0x0052e600	sv_DisableVisibleWidgets	sv	ba753d0ee9e10263	no	shape	control=shape p1=shape p2=shape p3=shape p4=shape	
 exe	0x0052e6d0	sv_OpenWindowFrame	sv	2aae4a6ba10b087d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
