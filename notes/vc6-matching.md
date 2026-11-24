@@ -3782,7 +3782,8 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   pointer load in the original, ours before them**: the message's scope began before an earlier call in the
   same arm (`cm_SendMoneyDelta(..)` between the arm's start and the memset). Its own `{ AIMSG msg; memset ..;
   send; }` block after that call: byte. Every order of the seven fill statements (5040) and climb had not moved
-  it (ai_IntimidateContact 8 ins -> byte). A block local in the arm is not enough: the block must start after
+  it (ai_IntimidateContact 8 ins -> byte; ai_BlackmailContact 14 -> byte, its block after the two util_Random
+  calls). A block local in the arm is not enough: the block must start after
   the last call before the fill.
 - **Two equal records (AIARG s1 / s2) swapped, equal counts, the walk ending in `*o1 = s1; *o2 = s2;`**: a
   function-scope pair always puts the first-copied record nearest esp (it reaches the count first). The original
