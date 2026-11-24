@@ -2025,6 +2025,15 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     `pool->v = ((b->v - a->v) * t) + a->v` like the four pool stores above it (1023 masks, 32 byte).
     Same lever as d3_CornerCB: a record pointer local changes the operand ranks where the spellings of the
     expression are all one code.
+  - **A late-defined local whose product must still form in the other operand's register** (d3_Animate 6 ->
+    byte): the original loads `fr = tb_Delay` after the `dt = now - d3_Fps60Time` sub (the Time temp in esi,
+    then fr in esi), and `dt * fr` forms in dt's register. Defined late, fr ranked after dt and the rate-2
+    product went to fr's register (fr 5 refs, ecx); defined early, the Time temp lost esi. The rank is the
+    first occurrence: `unsigned int .., fr = 0;` (an initializer that emits no code, @original) plus the late
+    `fr = tb_Delay;` after `n = ++..; dt = ..;` is byte; so is any earlier occurrence (a dead `fr = 0;` at the
+    top, fr sharing the variable of the scene counter / flags / mask). The s25 note's 23 statement orders could
+    not reach it: order sets both the live range and the rank. Lever: when a statement order fixes the live
+    range but flips a commutative destination, give the variable an earlier occurrence.
 
 - **Deep s62**:
   - **A record offset formed before a rep stosd fill, its 0 reused for the first `return 0`** (gm_CharacterIncomes
