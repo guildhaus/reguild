@@ -376,7 +376,7 @@ exe	0x0041be00	dd_Exit	dd_vesa	byte	readable
 exe	0x0041bf80	dd_EnumDriverCallback	dd_vesa	byte	readable		
 exe	0x0041c080	d3d_GetDeviceInfo	dd_vesa	byte	readable		
 exe	0x0041c420	dd_BppToDDBD	dd_vesa	byte	readable		
-exe	0x0041c460	d3d_EnumDeviceCallback	dd_vesa	shape	readable	deep	
+exe	0x0041c460	d3d_EnumDeviceCallback	dd_vesa	byte	readable		
 exe	0x0041c6f0	dd_GuidToString	dd_vesa	byte	readable		
 exe	0x0041c760	dd_StringToGuid	dd_vesa	byte	readable		
 exe	0x0041c830	dd_DlgProc	dd_vesa	byte	readable		
@@ -2905,7 +2905,7 @@ exe	0x004f8360	ord_CountGridObjects	ord	shape	readable	deep
 exe	0x004f8460	ord_AddGridAmount	ord	byte	readable		
 exe	0x004f8590	ord_SubGridAmount	ord	byte	readable		
 exe	0x004f86a0	ord_RandomCellPoint	ord	byte	readable		
-exe	0x004f8700	ord_RandomObjectId	ord	shape	readable	deep	
+exe	0x004f8700	ord_RandomObjectId	ord	byte	readable		
 exe	0x004f8890	ord_GetKindRecord	ord	byte	readable		
 exe	0x004f88c0	ord_AppendStatisticsRound	ord	byte	readable		
 exe	0x004f8920	ord_RebuildGridSums	ord	byte	readable		
@@ -4251,7 +4251,7 @@ exe	0x0059fe40	ai_CitizenRightWindow	lc	byte	readable
 exe	0x005a0220	ai_OfficeApplicantsWindow	lc	byte	readable		
 exe	0x005a0590	ai_OfficeApplicationWindow	lc	byte	readable		
 exe	0x005a07d0	ai_LawBookContact	lc	byte	readable		
-exe	0x005a0950	ai_GuildCashPayWindow	lc	shape	readable	deep	
+exe	0x005a0950	ai_GuildCashPayWindow	lc	byte	readable		
 exe	0x005a0ca0	ai_GuildGiftCallback	lc	byte	readable		
 exe	0x005a0f10	ai_GuildGiftEntry	lc	byte	readable		
 exe	0x005a1000	ai_GuildLevel1Window	lc	byte	readable		
@@ -4268,7 +4268,7 @@ exe	0x005a23a0	ai_BaptismWindow	lc	byte	readable
 exe	0x005a28f0	ai_Top5Window	lc	byte	readable		
 exe	0x005a2b60	ai_ConfessionWindow	lc	byte	readable		
 exe	0x005a2de0	ai_ConfessionListener	lc	byte	readable		
-exe	0x005a2e60	ai_SermonWindow	lc	shape	readable	deep	
+exe	0x005a2e60	ai_SermonWindow	lc	byte	readable		
 exe	0x005a36c0	ai_ProductionWriteContact	lc	byte	readable		
 exe	0x005a3810	ai_ChurchListener	lc	byte	readable		
 exe	0x005a39b0	ai_ChurchContact	lc	byte	readable		
