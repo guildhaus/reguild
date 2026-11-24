@@ -3330,6 +3330,11 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **Two scratch registers swapped in a loop body (a table load `mov edx,[kinds+i*4]` and a later list store's
+  temp, eax / edx exchanged)**: the table value was a named local assigned before the reset of the inner
+  counter (`kind = kinds[idx]; k = 0; o = gm_BuildQuery(1, 5, kind);`): the local folds into the push but
+  shifts the scratch rotation (ord_RandomObjectId byte; assigned after `k = 0` it moves an instruction instead).
+
 - **Two button locals in the wrong frame order because one local has one reference too many (count 4 against
   3, the packer list by count)**: that local was two variables. ai_GuildCashPayWindow used `amount` for the box
   total it prints AND as the out parameter of ai_AmountLimit (which only writes *out); the original had the
