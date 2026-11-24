@@ -1978,6 +1978,29 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     body's last statement; the original's latch `inc esi; add edi,0x40; add ebx,ebp` names it (the x step
     last). Single-use locals for the call arguments fold (= control). The twin sv_ButtonRow is likely the same.
 
+- **Deep s56 (4 items, all byte: sv_ButtonRow, gm_RankPlayers, gm_BuildingRank, gm_FreeStallCapacity)**:
+  - **Two locals of ours holding the same value in a register and a slot were ONE variable** (sv_ButtonRow: wmax
+    in ebx for the step / centring, bw in [esp+0x10] for d2_SetObjWidth, `mov [slot],eax; mov ebx,eax` at the
+    update): one `wmax` everywhere; VC6 splits it into a register piece (label loop, centring) and a memory piece
+    (the button loop, where the IVs take the registers) and stores both at each def. Our two-variable text was
+    46 ins with every order / chain / type of the pair = control; flip.py's hit on deleting `bw = w;` named it.
+    The loop step in the for header (sv_TabButtonRow's lever) was needed too (58 -> 46).
+  - **A zero register shared by the wrong inits** (gm_RankPlayers: best = 0 stored from n's zero edx in the
+    original, from i's edi in ours): `i = 0;` as a statement among the inits (`best = 0; i = 0; n = 0; r = out;
+    for (; i < 0x300 && n < 8; i++)`): the const-0 piece then spans best / i and n's zero comes in edx. A 24-row
+    order round of best / n / r / i found it; `for (i = 0, n = 0; ..)` is other code.
+  - **A switch whose bodies' scratch registers skip a rotation step, the jump table equal** (gm_BuildingRank, three
+    entries, two bodies left): a group split into two case bodies that VC6 cross-jumps back into one: `case 2:
+    return x; case 4: .. 0x13: return x; case 5: case 7: return x; default: return x;`. VC6 numbers the table
+    entries by the bodies left AFTER cross-jumping, so splitting a group never shows in the table when the split
+    bodies merge: a round of every split of each group x every body order (204 variants) lists the byte ones
+    (the gm_JobSlots rule, without extra case values). Probe first: `{ extern int probe, probe2; probe2 = probe;
+    }` in the default arm gave the original's register there.
+  - **A 2-point register race won by a dead read** (gm_FreeStallCapacity: stock 18 vs cnt 16; a probe `probe =
+    cnt` in the count loop or right after it flipped both): the original reads each counted object's goods record
+    and drops it (`g = &ai_Goods[o->type];` in the loop, gm_FreeCapacity's group count without its tests, no code
+    left, @original). Every plain form (loop forms, cap local, return forms, if / else, cnt placement) = control.
+
 - **Which late passes delete instructions in a function: the call-skip map (d3t_MoveObjectPath, not byte)**:
   `tools/c2dag/c2fuzz.py` with the unit itself as probe (`C2FUZZ_PROBE`, the function in its probe form) switches
   off each of c2.dll's 15353 calls in turn (12 minutes); the sites where the function only GAINS instructions are
