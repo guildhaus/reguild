@@ -3087,7 +3087,7 @@ exe	0x00505e60	gm_CharLevel	f3gmt	byte	readable
 exe	0x00505f30	gm_CharPrevLevel	f3gmt	byte	readable		
 exe	0x00506000	gm_BirthDate	f3gmt	byte	readable		
 exe	0x005060d0	gm_DeathDate	f3gmt	byte	readable		
-exe	0x00506180	gm_RankPlayers	f3gmt	shape	readable	deep	
+exe	0x00506180	gm_RankPlayers	f3gmt	byte	readable		
 exe	0x00506430	gm_PlayerRecord	f3gmt	byte	readable		
 exe	0x00506480	gm_HasAdultRelative	f3gmt	byte	readable		
 exe	0x005064d0	gm_TakeOverCharacter	f3gmt	byte	readable		
@@ -3110,7 +3110,7 @@ exe	0x00508cc0	gm_ListObjectsAfter	f3gmt	byte	readable
 exe	0x00508d70	gm_BuildingLevel	f3gmt	byte	readable		
 exe	0x00508d80	gm_BuildingBalance	f3gmt	byte	readable		
 exe	0x00509060	gm_BuildingCarts	f3gmt	byte	readable		
-exe	0x005090b0	gm_BuildingRank	f3gmt	shape	readable	deep	
+exe	0x005090b0	gm_BuildingRank	f3gmt	byte	readable		
 exe	0x00509120	gm_BuildingRankGate	f3gmt	byte	readable		
 exe	0x005091a0	gm_BuildingValues	f3gmt	byte	readable		
 exe	0x005092e0	gm_BuildingSkill	f3gmt	byte	readable		
@@ -3146,7 +3146,7 @@ exe	0x0050aaf0	gm_ListAmount	f3gmt	byte	readable
 exe	0x0050ab20	gm_ListAmountById	f3gmt	byte	readable		
 exe	0x0050ab50	gm_ListStock	f3gmt	byte	readable		
 exe	0x0050ab80	gm_FreeCapacity	f3gmt	byte	readable		
-exe	0x0050acf0	gm_FreeStallCapacity	f3gmt	shape	readable	deep	
+exe	0x0050acf0	gm_FreeStallCapacity	f3gmt	byte	readable		
 exe	0x0050ad70	gm_TakeableCount	f3gmt	byte	readable		
 exe	0x0050af00	gm_CollectCarried	f3gmt	byte	readable		
 exe	0x0050b010	gm_FirstBuilding	f3gmt	byte	readable		
@@ -3392,7 +3392,7 @@ exe	0x0052e170	sv_ClearNamePlates	sv	byte	readable
 exe	0x0052e190	sv_ReleaseNamePlates	sv	byte	readable		
 exe	0x0052e1c0	sv_RegisterNamePlate	sv	byte	readable		
 exe	0x0052e330	sv_SetStatusText	sv	byte	readable		
-exe	0x0052e350	sv_ButtonRow	sv	shape	readable	deep	
+exe	0x0052e350	sv_ButtonRow	sv	byte	readable		
 exe	0x0052e4b0	sv_TabButtonRow	sv	byte	readable		
 exe	0x0052e600	sv_DisableVisibleWidgets	sv	byte	readable		
 exe	0x0052e6d0	sv_OpenWindowFrame	sv	byte	readable		
