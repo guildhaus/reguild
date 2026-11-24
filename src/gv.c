@@ -831,21 +831,23 @@ found:
 
 int gv_FireShots(AIBLD *bld, AICHAR *ch, SHOTREC *a, SHOTREC *b, SHOTREC *d,
                  float v, int cost, int x) {
-  /* @original volatile: the first ball reads the charge back from v2's slot;
-     VC6 would forward v2 = v into it (the parameter read, 3 bytes longer, and
-     the slot sort flips). No ordinary form found: init / declaration orders,
-     guard and mode-chain forms, if (first) in ball a, dead stores in ball d,
-     an __inline send helper (by value or by pointer), an array, 0 / 0.0
-     spellings and climb (3 rounds) all keep the forwarding; volatile on the
-     parameter instead gives the same code */
-  volatile float v2;
+  /* @original memcpy: the first ball reads the charge back from v2's slot;
+     a plain v2 = v is forwarded into it by VC6 (the parameter read, 3 bytes
+     longer, and the slot sort flips). The copy through v2's address keeps v2
+     in memory (as did a volatile v2, or *(int *)&v2 = *(int *)&v). No plain
+     assignment found: init / declaration orders, guard and mode-chain forms,
+     if (first) in ball a, dead stores in ball d, an __inline send helper, an
+     array, 0 / 0.0 spellings, climb (3 rounds), v2 block-local, the copy
+     after the memset or in each mode arm, v modified later, *&v / *&v2,
+     *(float *)& casts and a float pointer all keep the forwarding */
+  float v2;
   int first;
   int r;
   int mode;
   GVEFFECT *e;
   GVSHOTMSG m;
 
-  v2 = v;
+  memcpy(&v2, &v, sizeof(v2));
   first = 1;
   r = -1;
   mode = 0;
