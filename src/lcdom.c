@@ -9085,18 +9085,18 @@ int ai_PassesPartnerFilter(unsigned short me, unsigned short id, AMOUNTCFG *cfg,
    without masters) in a radio group that starts on the page picked last (ai_StatsPage). Per frame: shows the
    picked page, refills the money rows, opens the building detail window for a clicked building row, scrolls the
    master list by its buttons and sends a changed master budget input to the building (AIBLD.budget, in the
-   player's money: gm_PlayerFactor) and the change to its master (AICHAR.budget)
-   @deep near-byte sweep s22: left win in the slot above the one the original gives it ([esp+0xc] vs
-   [esp+0x8]) and two reloads after the master loop in swapped registers. value as a local of the if / the
-   loop body = control (frame sweep lever does not reach it). */
+   player's money: gm_PlayerFactor) and the change to its master (AICHAR.budget) */
 void ai_PlayerStatsPanel(void) {
   int out[3];
   int value;
   int win;
   int moneyPage;
-  int bldPage;
+  /* @original: the dead -1 defaults of bldPage and radio emit no code; they move VC6's first-reference
+     keys so that win's split piece is reloaded (and packed) before the d2_Radios offset after the master
+     loop, as in the original */
+  int bldPage = -1;
   int masterPage;
-  int radio;
+  int radio = -1;
   int i;
   int down;
   int list;
