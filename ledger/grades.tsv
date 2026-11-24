@@ -4465,7 +4465,7 @@ exe	0x005bea50	ai_SpecialAmountListWindow	lcamt	byte	readable
 exe	0x005bf0d0	ai_FillFamilyTab	lcamt	byte	readable		
 exe	0x005bf300	ai_FillFriendsTab	lcamt	byte	readable		
 exe	0x005bf4f0	ai_FillEnemiesTab	lcamt	shape	readable		
-exe	0x005bf6f0	ai_FillLoversTab	lcamt	shape	readable	deep	
+exe	0x005bf6f0	ai_FillLoversTab	lcamt	byte	readable		
 exe	0x005bf7c0	ai_FillWeddingTab	lcamt	byte	readable		
 exe	0x005bfa90	ai_FillQuarrelTab	lcamt	byte	readable		
 exe	0x005bfc40	ai_FillCandidacyTab	lcamt	byte	readable		
