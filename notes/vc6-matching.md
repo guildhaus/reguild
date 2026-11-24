@@ -2044,6 +2044,21 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s65**:
+  - **Loop counters' registers at a tile-loop head (n in esi where the original keeps it in memory and tx in
+    esi up to `cmp esi,7`): a value set by if / else instead of a default plus an in-place update**
+    (d3fl_Prerender 70 -> byte): `nx = ny; if (tx == 7) nx -= 4 / s;` -> `if (tx == 7) nx = ny - 4 / s; else
+    nx = ny;` (the same instructions there; the ternary is the same code). c2trace showed tx's register
+    piece ending before the `tx == 7` test (n held esi only, so tx took ecx, which ny overwrites); with the
+    if / else the piece reaches the test and tx takes esi. s41 / this session's other rounds (load orders,
+    scopes, guard form, types, loop forms, s-forms, my in the outer loop, climb 2 rounds) were control or
+    worse; flip.py `--want "cmp esi, 7"` hit only meaning changes. Same lever as "a value set by if/else
+    instead of a ternary": try the assignment form of every value computed in the block after the hunk.
+  - **The clip test's y CSE decides an operand order 100 lines below** (d2_DrawSlider, still open): breaking
+    the `w->y` CSE in `if (w->h + w->y <= surf->bottom && w->y >= surf->top)` (another field at either read)
+    flips both max-label `w->x + w->w + 4` sums to the original's x-first; no plain spelling found (see its
+    note). The d2_DrawButton table-store lever does not carry (d2_Objs[id] does not CSE with w there).
+
 - **Deep s64**:
   - **A counter's decrement scheduled before a modulo (`mov ecx,[n]; dec ecx; inc eax; cdq; idiv; test
     ecx,ecx`) with n in memory: the byte sibling's loop form** (ai_RandomDomizilGoodNotIn 5 -> byte): two
