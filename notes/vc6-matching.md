@@ -3322,6 +3322,13 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 
 ### Named local or expression: a candidate too many or too few
 
+- **Two button locals in the wrong frame order because one local has one reference too many (count 4 against
+  3, the packer list by count)**: that local was two variables. ai_GuildCashPayWindow used `amount` for the box
+  total it prints AND as the out parameter of ai_AmountLimit (which only writes *out); the original had the
+  total (def + print) and a `limit` declared in the master block (& + use), which share one slot, so the button
+  with 3 references sorts first (slots 14 -> byte). Read whether an out parameter's callee reads it before
+  merging two values into one local; a function-scope `&limit` would not share (frame +4).
+
 - **A call before an if / else whose result one arm moves to another register (`mov ecx,eax; mov eax,[p]`
   at the top of the second arm, the first arm using eax), with the dead-parameter slots of both arms' inline-asm
   temps packed differently**: the call was written in BOTH arms (`if (!(hw->bits & dd_BppToDDBD(ctx)))` /
