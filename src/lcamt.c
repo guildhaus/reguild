@@ -3473,13 +3473,31 @@ void ai_LawBookInfoWindow(int textId, int lawText) {
    0x1957 / 0x195a, bits 1 .. 3; else those controls are -1), the budget counter (text 0x1953, 1000 .. 9000, the
    converted budget *budget) and, for a class other than 5 with a production setting, the weight factor slider
    (text 0x42c2, 50 .. 150, the setting's factor in percent) into *factorCtrl (else -1)
-   @deep deep s38: left set.flags (the field web k#b, 8 refs, prio 186) in edi and checks (prio 198) in esi
-   where the original has them the other way round (checks is served first and takes esi). flags as a named
-   local (at the top or at the first use), checks[0] as *checks, the -1 stores first / reversed, (flags &
-   4) != 0 spellings, every subset of the four on values inlined into their two uses (15 variants): =
-   control or worse; climb round 1 (49 mutants): nothing. Open: a set.flags reference more in the first
-   block (P 15, +30 each) or one checks reference fewer would flip them; the original's parameter may have
-   been the four words of AIWORKSET as scalars (flags a parameter candidate). */
+   @deep deep s39: race checks#1 198 over the flags field web k#b 186 (served first, checks takes esi).
+   Exact form: flags - checks = 6 (P1 - P0), P0 = 15 candidates in the entry block (ai_BTypes, charId,
+   checks, ctrl#1, on#1, type, win, the constants 1 / 2 / 0 / -1 / 5, flags, two type-index CSE temps), P1
+   = 13 in the option arm (charId, checks, ctrl x3, on x3, win, 1, 2, 0, flags); equal priority goes to k#b
+   (probe: -1 and 5 uses added to the arm tie at 238 and give flags esi / checks edi, the original's). So
+   the original has P1 >= P0, or the entry block split by a branch that leaves no code. flip.py --want 'mov
+   esi, DWORD PTR _set$': every mutant that drops one checks reference flips it. Canonicalised to the
+   control's IR (= control, margin 12): checks[k] = d2_GetWinObj(..); d2_SetObjValue(checks[k], ..) (the
+   sibling ai_ShowSettingGoods' style, all subsets, on kept or inlined), on spellings (!= 0, ?:, % 2, !!,
+   if-else), a named flags local (shifted in place for the last box too, or set.flags itself), -1 stores as
+   a chain / through opt = checks + 1 / under if (checks != 0), do { } while (0) around any part, type
+   spellings, kind casts, local types / scopes / order, *factorCtrl = -1 as else. Worse: -1 stores as any
+   loop or memset (61..128), the -1 stores in both arms (52), type != 0 (34), no type local (80), kind
+   local (81). The budget block in both arms (je target 0x5c25d8 is exactly where a cross-jumped copy would
+   start) gives P1 14 (ctrl#5; single-use params / byte globals do not count), margin 6, but the copies are
+   not merged under our allocation (92); flip on that base: nothing natural. The scalar-parameter idea is
+   dead (the byte caller ai_MasterLetterSettings copies a 16-byte struct). climb 3 rounds: nothing. Open:
+   which candidate(s) the original's arm has more, or what splits the entry block. prior: deep s38: left
+   set.flags (the field web k#b, 8 refs, prio 186) in edi and checks (prio 198) in esi where the original
+   has them the other way round (checks is served first and takes esi). flags as a named local (at the top
+   or at the first use), checks[0] as *checks, the -1 stores first / reversed, (flags & 4) != 0 spellings,
+   every subset of the four on values inlined into their two uses (15 variants): = control or worse; climb
+   round 1 (49 mutants): nothing. Open: a set.flags reference more in the first block (P 15, +30 each) or
+   one checks reference fewer would flip them; the original's parameter may have been the four words of
+   AIWORKSET as scalars (flags a parameter candidate). */
 
 void ai_ShowWorkSettingsPage(int win, int *budgetCtrl, int *budget, int *checks,
                              AIBLD *bld, int charId, AIWORKSET set,
