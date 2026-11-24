@@ -4069,6 +4069,13 @@ Store order in a fill, hoisted loads and sunk stores, statement order effects, `
 
 ### Store or push placement around calls and `add esp`
 
+- **A later argument's load and push after an earlier argument's `call _ftol` (`call _ftol; xor edx,edx; mov
+  dl,[esi+8]; push edx; push eax`), ours loads and pushes it before the fild**: VC6 sinks a single-use `(int)`
+  conversion into the call wherever it is written (a `dmg` local, a label, `do {} while (0)`, a reused variable,
+  dead second uses: all = control), so the right-to-left argument order puts the load first. The conversion was
+  in another block: the work under a second test of the same value, `if (b == 1) c->health = 100; else { w = ..;
+  n = ..; dmg = (int)(..); } if (b != 1) cm_SendDamage(c->netId, dmg, c->health);` (VC6 threads the decided
+  test; cm_UpdateSceneChars 8 -> byte). Probe that found it: a second real use of dmg gave the order at once.
 - **A call before an if with no `add esp` of its own, its cleanup added to each arm's last one (`add esp,0x28` /
   `0xc`), ours `add esp,8` before the test**: the call was written at the head of both arms (VC6 hoists the equal
   code but the merged adjusts stay per arm): `if (partner) { d2_SetForm(win, 1); ..} else { d2_SetForm(win, 1);

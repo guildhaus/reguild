@@ -922,23 +922,7 @@ void cm_CloseFightView() {
    ticks, a character whose health is 2..4 loses one point and the damage of weapon 0x16e (the poison, reasoned) is
    sent for it (health 1 is reset to 100); a character holding weapon 0x172 is shown to the others only near them
    (faded by the distance to the nearest one in another building, rest 255) or half-transparent when cm_CutChar
-   sees it (0x800); a fighter in cutscene state 2 turns towards its partner; ends with the damage numbers
-   @deep deep s44: 41 -> 8 ins, size right. Kept: n = cm_Random(..) + w->dmgMin as one statement (the add
-   into eax, 41 -> 33); ang *= 0.25; as its own statement before body = g->obj (fld ang / fmul / fadd
-   rotation.y, the fpu hunk); no goto turn: the stateFlags |= 2 written in each arm, the found part under
-   if (found != 0) (the scratch rotation from 1095 on). Left (8 ins): the original pushes c->health (xor
-   edx / mov dl,[esi+8] / push edx) after the _ftol of the damage, ours before the fild (c2dag: the IL has
-   the push before the _ftol call node and the scheduler keeps it; with dmg as its own statement the
-   scheduler still hoists it). Tried: dmg local, (int)c->health, ai_SceneChars[i]->health, b, the product
-   spellings (/ 100.0, c->f01c * n, (float)n: same code; (double), 0.01f, 0.01 * n: fpu hunks), cm_Random
-   inline in the call (worse, health loaded before the call); climb 3 rounds from this text: nothing.
-   prior: Read whole against 0x4cf000..0x4cf370: the same calls with the same arguments (VecEqual c then o,
-   SetObjectAlpha with the info pointer and the D3TEXFLAGS by value, SetObjectRotXYZ with the float angles,
-   fabs(ang) > 0.08), constants (255 - 255 * (best * 0.01f)) and stores. Left: the hunk at +0x77..+0xa1, a
-   scheduling difference: the original loads c->health (xor edx,edx; mov dl,[esi+8]; push edx) after the
-   _ftol of the damage, ours before the fild (xor ecx,ecx; mov cl,[esi+8]; push ecx), with the qword temp
-   at [esp+0x20] vs [esp+0x24] by that push; tried v as a separate statement and inline, n int / unsigned:
-   the same code. Besides: regs hunks and an fpu hunk (fld rotation.y before / fadd after the fmul 0.25). */
+   sees it (0x800); a fighter in cutscene state 2 turns towards its partner; ends with the damage numbers */
 
 void cm_UpdateSceneChars() {
   AICHAR *c, *d, *o;
@@ -947,7 +931,7 @@ void cm_UpdateSceneChars() {
   CHARACTER *g;
   D3OBJECT *body;
   D3TEXFLAGS col;
-  int i, j, fl, found;
+  int i, j, fl, found, dmg;
   unsigned int n;
   float best, dist, ang;
   unsigned char b;
@@ -962,13 +946,15 @@ void cm_UpdateSceneChars() {
         continue;
       b--;
       c->health = b;
-      if (b == 1) {
+      if (b == 1)
         c->health = 100;
-        continue;
+      else {
+        w = ai_FindWeaponRecord(0x16e);
+        n = cm_Random(w->dmgMax - w->dmgMin) + w->dmgMin;
+        dmg = (int)(n * c->f01c * 0.01);
       }
-      w = ai_FindWeaponRecord(0x16e);
-      n = cm_Random(w->dmgMax - w->dmgMin) + w->dmgMin;
-      cm_SendDamage(c->netId, (int)(n * c->f01c * 0.01), c->health);
+      if (b != 1)
+        cm_SendDamage(c->netId, dmg, c->health);
     }
   }
   for (i = 0; i < 32; i++) {
