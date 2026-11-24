@@ -9923,33 +9923,14 @@ int ai_TrialStep4(AICHAR *ch, G8USE *use) {
    character, for a player (kind 6) with the special-amount menu (the gypsy filter, mode 0x400 with the partner
    bit 1 for a player whose sex byte is set, else 2; the prompt 0x9c), else the character use->target
    (gm_FindChar); none -> 0. The target's relation to the user rises by 25, 50 when the user holds the good 0x2c5
-   (cm_SendRelations); a player target (kind 6 / 7) gets the news 0xfe9 naming the user (key 0x5ec). Returns 1.
-   @deep deep s38: ret = 1 set in each arm after its null test (path 1 after if (target == 0) return 0;,
-   path 2 as if (target != 0) ret = 1; in the else): the original's mov edi,1 positions (path 1 before the
-   menu call with cfg.flags stored from edi, path 2 right after its test) and cm_SendRelations' last
-   argument an immediate 1 (ret = 1 in the common block makes VC6 push edi): 31 -> 24 ins, draft -> shape.
-   Left (regs / order): after ai_InventoryHas the original loads target->netId into ecx, then ch->netId
-   into edx, and pushes both; ours hoists ch->netId into ecx and loads target->netId late into eax; the
-   news block's scratch registers rotate behind it. Tried: amount inline in the call (pushes the 1 before
-   the inventory call, pops split; climb's best at 12 ins / 198 bytes), (has != 0) + 1, ? 50 : 25, ret =
-   target != 0, ret types: no better. climb 2 rounds from this text: nothing else. prior: Read whole
-   against the original and rewritten typed (AMOUNTCFG, AICHAR user / target); fixed two meaning errors
-   of the draft: the partner bit is 1 for a set sex byte and 2 otherwise (neg / sbb / add 2 / or dh,4), and
-   he_ShowNews gets (netId, -1, text, 0, 0x5ec, 0). The structure follows the original: ret 0 in edi, path
-   2 joins at if (target != 0) { ret = 1; .. }, the amount in a local (the pops merge, add esp,0x18 as the
-   original). Left: where VC6 materialises the constant 1 in edi: the original sets mov edi,1 in path 1
-   before the menu call and stores cfg.flags from it (+0x53 mov [esp+0x1c],edi), path 2 sets it after the
-   null check; ours stores cfg.flags as an immediate, sets edi after the 0x2c5 pushes and pushes edi for
-   cm_SendRelations' last argument where the original pushes 1; the rest is register renaming and argument
-   load order (regs 32, order 6). Tried: the inventory call inside the argument list (12 ins but its pops
-   split, the original's merge), ret = 1 after the send. */
+   (cm_SendRelations); a player target (kind 6 / 7) gets the news 0xfe9 naming the user (key 0x5ec). Returns 1. */
 
 int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use) {
   AMOUNTCFG cfg;
   char text[0x100];
   char news[0x400];
   AICHAR *target;
-  int amount;
+  int factor;
   int ret;
 
   ret = 0;
@@ -9972,8 +9953,8 @@ int ai_UseGoodRaiseRelation(AICHAR *ch, G8USE *use) {
       ret = 1;
   }
   if (target != 0) {
-    amount = (ai_InventoryHas(ch, 0x2c5) != 0 ? 2 : 1) * 25;
-    cm_SendRelations(ch->netId, target->netId, amount, 1);
+    factor = ai_InventoryHas(ch, 0x2c5) != 0 ? 2 : 1;
+    cm_SendRelations(ch->netId, target->netId, factor * 25, 1);
     if (target->kind == 6 || target->kind == 7) {
       txt_Format(news, 0xfe9, ch->id);
       he_ShowNews(target->netId, -1, news, 0, 0x5ec, 0);
