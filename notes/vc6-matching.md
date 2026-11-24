@@ -2044,6 +2044,18 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s68 (no item finished: dd_SetMode, ai_OpenItemTooltip, ch_GetWaypoints notes only)**:
+  - **VC6 factors a linear int sum across statements, labels, locals and casts** (dd_SetMode): `888 - R*100
+    - G*10 - B` becomes `888 - (R*10 + G)*10 - B` whatever the spelling: 300 sign / order / constant forms,
+    shifts, `int t = 10` locals, temps split by a label / do-while(0) / if / goto, unions, one-element arrays,
+    pointer casts, `^ 0`, `<< 0`, `& -1`, `(int)(__int64)`, block-scope externs: one code. Only a real
+    non-linear op on ONE product (`& 0xffff`, `& 0x7fffffff`, `% 0x10000u`) stops it, and then the rest is
+    the original's sequence (`G*-10` as mov/neg/shl 2/sub/add, constant added last) plus the extra `and`.
+    A sum the original evaluates term by term had a product the canonicalizer could not see as linear.
+  - **A then-block of a 3-compare `||` test laid behind the chain in ours, inline in the original, also where
+    no threading touches the test** (ai_OpenItemTooltip's 0x1c1 arm): the layout cause is not the threading
+    depth alone; the multi-store arms (n = 2 / 3) move, the n = 1 arms stay.
+
 - **Deep s66**:
   - **A CSE temp in eax where the original has edx, the accumulator built through a new register (`lea
     edx,[eax+esi]; lea esi,[edx+eax*4]`) where the original adds in place (`add esi,edx; lea
