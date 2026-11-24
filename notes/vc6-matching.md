@@ -2065,6 +2065,15 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     the original returns n2's 0 by luck (@original comment). Found by `flip.py --base .. --want 'mov eax,
     DWORD PTR _\w+\$\[esp\+\d+\]\s*\n[^\n]*cmp esi, 8'` (the hit: deleting the arm's `r = 0`). Any defined
     value there is a known constant and merges into one `xor` at the join.
+  - **An outer loop test kept after an inner do / while (`cmp ebp,eax; jl top` reached from the inner
+    condition's false exits) where ours jumps straight to the outer top, the counter then in a slot: the
+    inner exit was not a `break` on the complement of the outer test** (rt_LoadRoutes 86 -> byte): `i++; if (i
+    >= n) break; r = &buf[i]; } while (r != 0 && ..)` lets VC6 know `i < n` on the condition's exits and drop
+    the outer test (one block fewer, other priorities); the original's `test ebx,ebx` (r != 0 on a pointer
+    that is never 0) was the tell: `i++; r = i < n ? &buf[i] : 0; } while (r != 0 && c->objId ==
+    r->cartId);` (the null path threads to the exit, the join forgets i < n). A test VC6 cannot relate
+    (`n <= i`, `i > n`) gave the right allocation with the wrong compare: such a 2-4 ins row says "the flow
+    graph is the lever", look for the construct with that graph.
 
 - **Deep s65**:
   - **Loop counters' registers at a tile-loop head (n in esi where the original keeps it in memory and tx in
