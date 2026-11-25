@@ -842,36 +842,39 @@ int d3s_ShadowRadius; /* 0xfb926c, rows / pixels the marked span widens around t
 D3SMENTRY *d3s_SpanRow; /* 0xfb9270, current row of the span buffer */
 
 /* 0x45b510, a shadow mesh over the map cells in rect
-   @deep 328 -> 167 ins this session, plus a meaning fix (first polygon's a read row[i + nx + 1], the
-   original row[i]; committed on its own): p = &buf->tris[buf->ntris] first (the original computes it
-   into esi at the top), 1.0f of the add ternary is ai_FloatOne (M10), the uv pointer advanced per polygon
-   (p++; t += 6 after each; second polygon writes t[0..5]) instead of t + 6 / t += 12, and the second
-   polygon's a read between v[1] and v[2] (permute.py over its 7 lines, 5040 orders). headers sample:
-   insensitive. Left: (1) frame 0x18 vs 0x24: the original's own frame holds k/z0 [0x10], row [0x14], nz
-   [0x18], nx [0x1c], x0 [0x20], xs [0x24], ys [0x28] and two dwords [0x2c] [0x30] no instruction
-   references; ours keeps row in buf's slot and has no k slot (the first loop's k = z0 shares [0x10] in the
-   original, the map row pointer lives in origin's dead slot [0x44], the second loop's count in color's
-   slot [0x58]); (2) the second loop's IV pointers point at .pos of row[i + 1] / row[i + nx + 2] (lea
-   [eax-0x98]) where ours point at row[i + 1] (lea [eax-0x50]); (3) the head loads d3s_Verts before
-   NumVerts and d3s_UVs after NumUVs (M8 crossed). Head-line orders (x0/nx/z0/nz/p/row, 120) gave nothing
-   better than the kept order (tiebreak: not measured (dcp headers sample d3s_MeshFromMap)) prior: whole
-   function compared against the original and reconciled: corrected here were the height reads of the
-   second loop (now row[i] / row[i + 1] / row[i + nx + 1] / row[i + nx + 2] .pos[1], through the vertex's pos pointer, instead of the never-set .y
-   field: 4 reads), the hoisted loop invariants xs = x0 * cell[0] + origin[0] and ys = add + origin[1]
-   (stored to [esp+0x24] / [esp+0x28] in the original, reloaded per row), and steep as an int (xor eax,eax
-   / mov eax,1 instead of the byte forms); instruction count 289 vs 297. Remaining: allocation only - the
-   original keeps the polygon pointer in esi and the uv pointer in ecx (ours the reverse), x0 / z0 / nx /
-   nz in slots [0x10] [0x18] [0x1c] [0x20] against ours [0x14] [0x1c] [0x18] [0x10] (slots hunks
-   0x45b519..0x45b86e), and a few reloads of rect / cell / origin through the stack (the 66 / 61 / 169 / 87
-   / 48 'code' hunks are the same statements with these registers) */
+   @deep s86 167 -> 19 ins (no meaning bug: the 30-byte size gap was the source form): D3VECTOR4 o for xs /
+   ys / z (the original 16-byte hole is o; o.z stays on the FPU), map indexed map[z0 * stride + i] with z0
+   itself the row counter (k = z0 or k = rect[2] give k a register, worse), v = row = &buf->keys[..]
+   chained, v++ in the body after pos += 6, the second loop for (k = 0; k < nz; k++) with m = nx + 1 and n
+   = k * m, row[n + i], row[n + i + 1], row[n + i + m], row[n + i + m + 1] (every other index spelling of
+   the next row is one code; m is what gives the outer IVs A = &row[1].srcPos and B = A + m * 80 of the
+   original). Left (19 ins): (1) the head order: the original loads d3s_Verts into ebx before computing row
+   (v stored [0x50] before row [0x14]), then NumVerts, NumUVs, UVs; 96 orders of p / row / pos / t x v-row
+   chain forms: best p-pos-r-t with row = v (M8 x1, code 31, more bytes) - a scheduler tie; (2) the first
+   loop guard stores z0 back after the compare (mov ebx,[0x10]; cmp ebx,edi; mov [0x10],ebx) - a copy into
+   a variable sharing the z0 slot; k = z0 / z0 = rect[2] / z0 = z0 forms are worse or control. prior: 328
+   -> 167 ins this session, plus a meaning fix (first polygon's a read row[i + nx + 1], the original
+   row[i]; committed on its own): p = &buf->tris[buf->ntris] first (the original computes it into esi at
+   the top), 1.0f of the add ternary is ai_FloatOne (M10), the uv pointer advanced per polygon (p++; t += 6
+   after each; second polygon writes t[0..5]) instead of t + 6 / t += 12, and the second polygon's a read
+   between v[1] and v[2] (permute.py over its 7 lines, 5040 orders). headers sample: insensitive. Left: (1)
+   frame 0x18 vs 0x24: the original's own frame holds k/z0 [0x10], row [0x14], nz [0x18], nx [0x1c], x0
+   [0x20], xs [0x24], ys [0x28] and two dwords [0x2c] [0x30] no instruction references; ours keeps row in
+   buf's slot and has no k slot (the first loop's k = z0 shares [0x10] in the original, the map row pointer
+   lives in origin's dead slot [0x44], the second loop's count in color's slot [0x58]); (2) the second
+   loop's IV pointers point at .pos of row[i + 1] / row[i + nx + 2] (lea [eax-0x98]) where ours point at
+   row[i + 1] (lea [eax-0x50]); (3) the head loads d3s_Verts before NumVerts and d3s_UVs after NumUVs (M8
+   crossed). Head-line orders (x0/nx/z0/nz/p/row, 120) gave nothing better than the kept order (tiebreak:
+   not measured (dcp headers sample d3s_MeshFromMap)) */
 char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin,
                      float *cell, float *uv, D3SURF *buf, struct TSTEXTURE *tex,
                      unsigned long color) {
   D3VERTEX *v, *row;
   D3TRI *p;
   float *pos, *t;
-  float add, xs, ys, x, z, u, w, a, b, c;
-  int nx, nz, i, k, n, x0, z0;
+  D3VECTOR4 o;
+  float add, x, u, w, a, b, c;
+  int nx, nz, i, k, n, m, x0, z0;
   int steep;
 
   x0 = rect[0];
@@ -879,39 +882,41 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin,
   z0 = rect[2];
   nz = rect[3] - z0;
   p = &buf->tris[buf->ntris];
-  row = &buf->keys[buf->nkeys];
+  v = row = &buf->keys[buf->nkeys];
   pos = &d3s_Verts[d3s_NumVerts * 6];
   t = &d3s_UVs[d3s_NumUVs * 6];
   add = d3d_ZEnabled ? 2.0f : 1.0f;
-  xs = x0 * cell[0] + origin[0];
-  ys = add + origin[1];
-  z = z0 * cell[2] + origin[2];
-  v = row;
-  for (k = z0, map += z0 * stride; k <= rect[3]; k++, map += stride) {
-    x = xs;
-    for (i = rect[0]; i <= rect[1]; i++, v++) {
-      pos[1] = (map[i] + add) * cell[1] + ys;
+  o.x = x0 * cell[0] + origin[0];
+  o.y = add + origin[1];
+  o.z = z0 * cell[2] + origin[2];
+  for (; z0 <= rect[3]; z0++) {
+    x = o.x;
+    for (i = rect[0]; i <= rect[1]; i++) {
+      pos[1] = (map[z0 * stride + i] + add) * cell[1] + o.y;
       pos[0] = x;
-      pos[2] = z;
+      pos[2] = o.z;
       v->specular = color;
       v->srcPos = pos;
       pos += 6;
+      v++;
       d3s_NumVerts++;
       buf->nkeys++;
       x += cell[0];
     }
-    z += cell[2];
+    o.z += cell[2];
   }
   w = uv[2];
-  for (k = nz; k > 0; k--, row += nx + 1) {
+  m = nx + 1;
+  for (k = 0; k < nz; k++) {
+    n = k * m;
     u = uv[0];
     for (i = 0; i < nx; i++) {
-      p->v[0] = &row[i];
-      a = row[i].srcPos[1];
-      p->v[1] = &row[i + 1];
-      b = row[i + 1].srcPos[1];
-      p->v[2] = &row[i + nx + 1];
-      c = row[i + nx + 1].srcPos[1];
+      p->v[0] = &row[n + i];
+      a = row[n + i].srcPos[1];
+      p->v[1] = &row[n + i + 1];
+      b = row[n + i + 1].srcPos[1];
+      p->v[2] = &row[n + i + m];
+      c = row[n + i + m].srcPos[1];
       p->uv = t;
       p->tex = tex;
       p->zofs = -1.0f;
@@ -927,10 +932,10 @@ char d3s_MeshFromMap(int *rect, int stride, unsigned char *map, float *origin,
       buf->ntris++;
       p++;
       t += 6;
-      p->v[0] = &row[i + 1];
-      p->v[1] = &row[i + nx + 2];
-      a = row[i + nx + 2].srcPos[1];
-      p->v[2] = &row[i + nx + 1];
+      p->v[0] = &row[n + i + 1];
+      p->v[1] = &row[n + i + m + 1];
+      a = row[n + i + m + 1].srcPos[1];
+      p->v[2] = &row[n + i + m];
       p->uv = t;
       p->tex = tex;
       p->zofs = -1.0f;
