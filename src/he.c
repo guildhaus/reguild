@@ -783,26 +783,34 @@ void he_FreeEvent(AIJOB *ev) {
 /* 0x53e300, the next event record after he_Cursor that passes he_FindEvent's filter (he_FindKind, he_FindId, he_FindChr,
    he_FindFrom; a record whose first filters matched stays matched through the free records after it), up to the last
    used record he_EventTop (an error when that is out of range); 0 at the end
-   @deep s52: the mechanism, by probe: the cursor must be restricted to callee-saved registers while ranked
-   below temp#aa (28): only a range across a call does that (k#24 prefers eax from the return copy; with
-   the pref gone, ret local, it takes ecx, so VC6 takes scratch first). Probe P (p = he_Cursor before the
-   he_EventTop check, so p spans err_Message) matches everything but the load's place and temp#aa /
-   he_FindKind (al / cl swapped, because p, prio 42, is served before temp#aa): 12 ins. = control or worse:
-   a cursor local p (folds; 128 p / he_Cursor read mixes, best 37), p = 0 initialised / returned on the
-   guard path, volatile stores, an extern / block-static / file-static global instead of the he_QuickList
-   view, the filters (or he_FindKind) as locals, the error test spellings (>= 0 && <, nested, he_Events +
-   top), guard splits, he_FindFirst spellings, returns in the loop, a ret local, a goto loop; flip --want
-   on mov eax,esi / mov esi,[he_Cursor] after the call: no mutant. climb 3 rounds (tree and from P):
-   nothing. Next: what else puts a call into the cursor's range (a decided test with a call, a macro around
-   err_Message), or a candidate between 28 and 23 holding eax over the cursor's range. prior: s45: the
-   three gotos replaced by a match flag (match = 1; each filter sets ok or clears match; if (!match) ok =
-   0;): the same code (VC6 decides the flag per path). c2trace: the cursor is the global candidate
-   he_Cursor (k#24, prio 23, 14 refs), served before the hoisted filters (prio -42 each) and takes eax; the
-   original has the cursor in esi and he_FindKind in al (mov al,[he_FindFirst] also in eax), so in the
-   original the cursor is not served first or eax is closed to it. No change: the cursor as a local p
-   (he_Cursor = ++p), the filters copied into locals before the loop (182 bytes), both. Next: what makes
-   the cursor rank below the filters or keeps eax from it (a call / return use in its range? the
-   err_Message branch?). */
+   @deep s69 (no kept change): the mechanism, by c2trace --raw: the cursor (he_Cursor#1, prio 23, served
+   right after temp#aa 28 / ecx and he_EventTop 26 / eax, whose range does not overlap) takes eax by its
+   return-copy preference; the original's esi comes from the AF7 drop (RESTRICT 'byte pressure': at an
+   instruction where a byte value is live and only one byte register is left, avail &= {ebp esi edi}).
+   flip.py --want 'mov esi, DWORD PTR _he_Cursor' hit 3 meaning changes; the best, m97 (the FindId filter
+   moved inside the FindKind filter's block, 18 ins), keeps the match flag alive as a byte candidate (prio
+   32, ecx), temp#aa then takes edx and he_EventTop eax, the cursor (19) is restricted at the kind compare
+   and takes esi, last#2 edi, FindKind al, FindChr di, FindFrom ebp: the original's registers. So in the
+   original, when the cursor is served, three of eax / ecx / edx / ebx are held over a byte-live
+   instruction of its range by higher candidates (or the cursor ranks below the -42 filter temps, which
+   then fill al / edx / di / ebp first). No lever (= control): match as int, the kind as an unsigned char /
+   char local, the FindKind filter as 'if (fk != 0xff && kind != fk) match = 0; else if (fk != 0xff) ok =
+   1;', the filters copied into locals right before the loop (58 ins, same allocation: the locals -38
+   against the cursor 23), the advance as if / else, the ok test as if (!ok) { .. } else break, returns in
+   the loop (63). Next: a byte candidate of the original that lives over the kind compare and threads away
+   (a second flag, a byte constant 1 used before the compare in the loop body), or what lowers the cursor
+   below the filters. prior: s52: the mechanism, by probe: the cursor must be restricted to callee-saved
+   registers while ranked below temp#aa (28): only a range across a call does that (k#24 prefers eax from
+   the return copy; with the pref gone, ret local, it takes ecx, so VC6 takes scratch first). Probe P (p =
+   he_Cursor before the he_EventTop check, so p spans err_Message) matches everything but the load's place
+   and temp#aa / he_FindKind (al / cl swapped, because p, prio 42, is served before temp#aa): 12 ins. =
+   control or worse: a cursor local p (folds; 128 p / he_Cursor read mixes, best 37), p = 0 initialised /
+   returned on the guard path, volatile stores, an extern / block-static / file-static global instead of
+   the he_QuickList view, the filters (or he_FindKind) as locals, the error test spellings (>= 0 && <,
+   nested, he_Events + top), guard splits, he_FindFirst spellings, returns in the loop, a ret local, a goto
+   loop; flip --want on mov eax,esi / mov esi,[he_Cursor] after the call: no mutant. climb 3 rounds (tree
+   and from P): nothing. Next: what else puts a call into the cursor's range (a decided test with a call, a
+   macro around err_Message), or a candidate between 28 and 23 holding eax over the cursor's range. */
 AIJOB *he_NextEvent(void) {
   char ok = 0;
   AIJOB *last = 0;
