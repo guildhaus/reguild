@@ -105,21 +105,23 @@ void err_Write(char *text, unsigned int flags, int channel) {
   }
 }
 /* 0x4215c0, unhandled exception filter: writes <exe>.dbg-symbolized crash info to _crashdump.log
-   @deep tie-break sensitive (dcp headers sample: 2 codegens in 32 samples, none better than built): 317
-   ins / 1084 bytes left, frame now equal (0x280, text as the code window). Left: register rotation
-   ebx/esi/ebp/edi across the whole function, handled at +0x12 vs +0x16 and the crlf/sp slots, the crlf
-   init order (byte NUL first vs word first), the ERR_EXC crlf WriteFile tail merged elsewhere (je at
-   +0x184, jmp at +0x421 targets), err_CheckCall jbe vs seta/and/test. Park for the unit's declaration
-   pass. (tiebreak: sensitive) prior: read the whole function against the original: 532 vs 539
-   instructions, 1653 vs 1652 bytes, the same call set and store set. Fixed the real meaning difference:
-   err_CheckCall returns unsigned char and the stack walk tests it in the positive form (w.addr == ctx->Eip
-   || err_CheckCall(...) > 0), which took the diff from 419 to 313 instructions. The stack walk reads its
-   7-byte code window into text (the original has no separate window buffer: lea ebx,[text] /
-   err_CheckCall(text + 7)), which made the frame 0x280 as in the original. What is left is allocation and
-   schedule (dcp headers sample: tie-break sensitive): the registers rotate (ebx/esi/ebp/edi), the CRLF
-   init copies the NUL before the word where the original copies the word first, the ERR_EXC WriteFile(log,
-   crlf, 2, &n, NULL) tail is merged at another place, and err_CheckCall folds to jbe where the original
-   materializes it (test/seta/and... */
+   @deep s87 317 -> 250 ins, size now equal (1652): the original does not test w.addr == ctx->Eip again
+   after the read loop (je straight to err_WriteSymbol on the Eip path, err_CheckCall only behind the
+   loop): a found flag set in both arms (found = err_CheckCall(..) > 0 / else found = 1; if (found) ..), no
+   goto next; with the address read once into a block local (addr = w.addr, the loop reads addr - len) the
+   callee-saved registers of the first half are the original (esi CreateFileA, ebp mapfile, edi ReadFile,
+   ebx map). Left: regs / code in the second half (stack not in ebx from ctx->Esp; the walk loop keeps len
+   in esi / pointer in edi where the original has edi / ebx and reloads w.addr and proc per pass; ours
+   strength-reduces addr - len into ebx), the crlf init (original word copy first, then the NUL byte),
+   slots. The original materializes the check as test al,al / seta al / and al,1 / test al,al: `found =
+   (err_CheckCall(..) > 0) & 1` gives exactly that (249, not kept: odd spelling, same count). climb from
+   here (4 rounds) only found meaning-changing or renaming tricks (t = ctx->Eip reused for the test: 233;
+   an assignment in the else test). prior: tie-break sensitive (dcp headers sample: 2 codegens in 32
+   samples, none better than built): 317 ins / 1084 bytes left, frame now equal (0x280, text as the code
+   window). Left: register rotation ebx/esi/ebp/edi across the whole function, handled at +0x12 vs +0x16
+   and the crlf/sp slots, the crlf init order (byte NUL first vs word first), the ERR_EXC crlf WriteFile
+   tail merged elsewhere (je at +0x184, jmp at +0x421 targets), err_CheckCall jbe vs seta/and/test. Park
+   for the unit's declaration pass. (tiebreak: sensitive) */
 
 LONG WINAPI err_ExceptionFilter(EXCEPTION_POINTERS *ep) {
   char handled = 0;
@@ -240,20 +242,24 @@ LONG WINAPI err_ExceptionFilter(EXCEPTION_POINTERS *ep) {
                 VirtualQuery((void *)w.addr, &mbi, sizeof(mbi));
                 if (err_IsCodeProtect((unsigned char)mbi.Protect) &&
                     mbi.State == MEM_COMMIT) {
-                  if (w.addr != ctx->Eip) {
+                  char found;
+                  unsigned int addr;
+
+                  addr = w.addr;
+                  if (addr != ctx->Eip) {
                     for (len = 7; len > 0; len--)
-                      if (ReadProcessMemory(proc, (void *)(w.addr - len),
+                      if (ReadProcessMemory(proc, (void *)(addr - len),
                                             text + 7 - len, len, NULL))
                         break;
-                  }
-                  if (w.addr == ctx->Eip || err_CheckCall(text + 7, len, w.addr,
-                                                          (int *)&w.prev) > 0) {
+                    found = err_CheckCall(text + 7, len, w.addr,
+                                          (int *)&w.prev) > 0;
+                  } else
+                    found = 1;
+                  if (found) {
                     if (err_WriteSymbol(&w))
                       remaining--;
-                  } else
-                    goto next;
+                  }
                 }
-              next:
                 stack++;
               } while (remaining > 0 &&
                        ReadProcessMemory(proc, stack, &w.addr, 4, NULL));
