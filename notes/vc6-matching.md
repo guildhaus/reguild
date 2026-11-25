@@ -2044,6 +2044,41 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s84 (4 byte: rd_PathToRoad, d2_DrawTextLine, path_Search1, path_Search2; d3sm_Sample, path_Expand
+  notes only)**:
+  - **An outer loop that hoists nothing (`neg` of a parameter and a field load + row offset recomputed per
+    row) where ours keeps them in slots: the loop bounds read the field, `i < g->size` / `j < g->size`, and
+    the cell is indexed in the inner body, `c = &g->entries[i * g->size + j]`** (rd_PathToRoad 135 -> 6 ->
+    byte; the last: `r->out.count = 0` stored first). A local `n = g->size` in the conditions or a row
+    offset / row pointer local (every spelling) lets VC6 hoist the inner preheader's values out of the
+    outer loop; with the field in the conditions it does not. (The reverse of the d3sm_Sample bounds: there
+    `t->size` in the conditions is much worse, so it is a per-function round, not a rule.)
+  - **The parameter x copied to a register before a justification chain (`mov ecx,[x]; mov esi,ecx`), the
+    arms using ecx and defining esi, gap kept in its slot: the pen position was its own local** (d2_DrawTextLine
+    104 -> 4): `pos = x;` before the chain, the arms assign pos from x, the loop draws with pos. 24 operand /
+    association spellings of the arms were one code. Then the case order of the switch (the case text order
+    is the layout: 'T' first), '[' and ']' written out each (two `gfont = ..; glyph = 0` blocks in the
+    original), `extra = k % ..` before `gap = k / ..`, `skip = 0` before `glyph = -1`.
+  - **`movsx eax,bl; and eax,8; shr eax,3` (the 0/1 of a byte flag from a register, full sign extension)**:
+    `if ((signed char)saved & 8) start = 1; else start = 0;` (as d2_ScrollWindow / d2_MakeSurface). Every
+    expression form (`((char)x & 8) != 0`, `>> 3`, `? 1 : 0`, unsigned casts) gives the partial load
+    `mov al,bl` / `mov cl,byte ptr [..]`, never the movsx (`grep_orig.py --multi` on movsx-from-a-byte-reg
+    followed by `and` with 8 finds the byte twins).
+  - **An unsigned short index the original keeps in memory (word store into a dead parameter slot, read
+    back `mov edx,[slot]; and edx,ebp`), the start == goal path returning eax untouched, the failure `mov
+    ax,bp`** (path_Search1 150 -> byte, path_Search2 226 -> byte the same way): `unsigned short a` (the Expand
+    result needs no `and` then), `path_Start = ..; a = path_Start;` (the read-back), `if (path_Start ==
+    path_Goal) return a;` before the rest and `return 0xffff;` at the end (no `a = 0xffff; return a`); then
+    `path_Mask` before `path_Shift` and `path_Costs` between the two Tab selections (a dcp try product round).
+    The callee path_Reverse took its node as `unsigned int` with `last &= 0xffff` inside: it was `unsigned
+    short` (the callers push the 16-bit register unmasked; path_Reverse stays byte).
+  - **Order / register ties that move with one more float IL node, not with any spelling** (d3sm_Sample,
+    open): flip.py's only hits on the init loop's load order were `1.0f -> 0.0f / 2.0f` in `inv = 1.0f /
+    h->cell.y` (c2trace: every temp number after that line +1). `(float)(1.0f / ..)` (one more node) plus
+    one float paren in the step == 0 sum gives both early loops byte (160 -> 142); int parens and casts
+    create no node, float parens / casts on a field do. Probe spellings, not kept; the plain source of
+    the extra node is open.
+
 - **Deep s83 (1 byte: rd_BuildRoad; cm_ExSellObjekt, d3s_ShadowTriangle, gm_CreateObject notes only)**:
   - **`mov ecx,K` hoisted above a `jl` that jumps into a sibling block just behind its own `mov ecx,K`**
     (rd_BuildRoad 8 -> byte with the item below): the two blocks were the same statements written twice:
