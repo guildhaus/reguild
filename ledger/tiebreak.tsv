@@ -3195,7 +3195,7 @@ exe	0x0050f0b0	init_CreateOpeningObjects	f3init	91c7cb5cfc37c4c6	no	byte	control
 exe	0x0050f340	init_StockMarketStalls	f3init	4300f931b43b6466	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3371284ff47bad88
 exe	0x0050f570	init_Betrieb	f3init	8f18fa02cca1e16a	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3ae33f0b0e52adb5
 exe	0x0050f750	init_OpenBuilding	f3init	35b1554abb743765	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	3371284ff47bad88
-exe	0x0050f910	init_OpenTown	f3init	d8c6401449b9705c	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	037abdb375919988
+exe	0x0050f910	init_OpenTown	f3init	d220b00a2bbce636	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	977e25b65538f183
 exe	0x00510730	init_CollectSiteObject	f3init	85f1adfd854ea640	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00510770	init_LoadSiteScene	f3init	019c94648f9f1412	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=190	a8a5c40d0e203575
 exe	0x00510ad0	init_InitTown	f3init	664abb58f18e7411	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	ff2d07fb4a2e0c30
