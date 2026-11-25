@@ -61,31 +61,7 @@ char d3_MirBoundaryEdges(unsigned int n, unsigned char *used, D3VERTEX **pts,
 /* 0x454890, d3_mir:CreateOutline: turns the boundary edges of the mirror polygon (d3_MirBoundaryEdges: pairs of
    vertices in edges[], nedge of them) into the outline segments: connected edges that are collinear are
    merged, *out gets the (start, end) vertex pairs, *nout their count (2 per segment). Returns 0 only for n < 3.
-   used[0..nedge) = edge taken by the current chain, used[nedge..2*nedge) (mark) = edge taken by any chain
-   @deep deep s49: the IL creates the loads in evaluation order and hands out the scratch registers then
-   (c2dag): mark[head] creates head's load first (edx), mark (eax), address [edx+eax] (head base); the
-   used[nedge + head] form creates the CSE mark load first (edx), head (eax), address [edx+eax] (mark
-   base). The original creates mark first (edx) and head (eax) but has head as the base ([eax+edx]), like
-   the tail arm's mark[tail] (tail first, base). Every spelling of the store gives one of the two codes (40
-   tried: casts to int / unsigned, &used[nedge], &mark[0], (head + mark)[0], mark + nedge - nedge, the RHS
-   as used[i], chains with used[i] either way, a comma); types of head / nedge (int / unsigned, 72), local
-   declaration order (16), head / tail / mark = 0 at the declaration / the top / before or after mark =
-   used + i (96), head = tail = 0 at every place of the init block x mark[0] as mark[tail] / mark[head]
-   (52), init and restart assignment spellings and positions (116), restart test / store forms x tail arm
-   form x initializers (128); climb 4 rounds --unsafe (seed 11): nothing. flip.py: only deleting head's
-   restart definition (tail = head = i -> tail = i) or the init gives mark-first in this block, with the
-   slots of head / tail swapped (a meaning change). Next: why head's restart definition decides the
-   creation order (c2dag of the two texts per block; whether head's web or its slot number orders the
-   commutative operands), then an ordinary form with that effect. prior: deep s48: the address operand
-   order follows the evaluation order of the two loads at every site: mark[x] loads x first and addresses
-   [x+mark], used[nedge + x] loads the mark temp first and addresses [mark+x]; the original's head block
-   loads mark first (edx) and addresses [head+mark] ([eax+edx]), which no spelling gives. Rounds (dcp try):
-   head + nedge, (used + head)[nedge], *(used + nedge + head), *(head + used + nedge), (nedge +
-   head)[used], (int) casts: = control; *(head + mark) / mark[(int)head] = mark[head] (6, order 10); 63
-   masks of {arm 1 mark[tail] / used[nedge + tail], arm 2 mark[head], restart test and store as used[nedge
-   + i], head = 0 initializer, mark = 0 initializer dropped}: best = control (2), every other 4..12; nres =
-   0 inside the if / before res / at the top (4..15), head = tail = 0 right before the do (10 / 14): no
-   lever. Left: the regs-2 hunk at 0x454acf ([edx+eax] for [eax+edx]). */
+   used[0..nedge) = edge taken by the current chain, used[nedge..2*nedge) (mark) = edge taken by any chain */
 
 char d3_MirCreateOutline(D3VERTEX **pts, unsigned int n, unsigned int *nout,
                          D3VERTEX ***out) {
@@ -103,7 +79,7 @@ char d3_MirCreateOutline(D3VERTEX **pts, unsigned int n, unsigned int *nout,
   used = mem_Alloc((n + 8) * n, "d3_mir:track_connections");
   d3_MirBoundaryEdges(n, used, pts, &nedge, edges);
   i = nedge;
-  res = mem_Alloc(i * 4, "d3_mir:CreateOutlineOutput");
+  res = mem_Alloc(i << 2, "d3_mir:CreateOutlineOutput");
   nres = 0;
   if (i > 0) {
     mark = used + i;
@@ -149,8 +125,7 @@ char d3_MirCreateOutline(D3VERTEX **pts, unsigned int n, unsigned int *nout,
           if (d3_VecEqual(&dir.v, &d.v, 0.001f) ||
               d3_VecEqual(&dir.v, &nd.v, 0.001f)) {
             used[i] = 1;
-            /* used[nedge + head], not mark[head]: the form that gives VC6's operand order */
-            used[nedge + head] = 1;
+            mark[head] = 1;
             head = i;
             start = edges[i];
             break;
