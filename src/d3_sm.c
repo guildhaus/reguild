@@ -273,24 +273,28 @@ void d3sm_Replace(D3SM *h, int from, int to) {
   }
 }
 /* 0x45e620, (re)builds the map from the terrain and the objects of the default scene
-   @deep frame sweep s21: ours 0xf8 vs the original's 0x108 (16 bytes short). D3VECTOR4 subsets of pos /
-   rot / mn / mx (15 variants): code and fpu hunks unchanged or worse, only the slot table moves (pos+mn:
-   124 ins, frame 0xfc; all four: 284, 0x100), none reaches the frame: the missing 16 bytes are not (only)
-   padded vectors. Not kept. Lead: which locals the original keeps in memory that ours keeps in registers
-   (the shared ebp slots in dcp frame). prior: re-read the frame with dcp frame / framemap: the code
-   matches apart from slots (both keep mx.z on the FPU and store only mx.x/y, both pack bot or the outer
-   block counter into t's dead slot [ebp+0xc] but swapped: the original bot, ours the counter i; the
-   original packs i with ax at [ebp-4], ours gives ax its own slot at -0x60). Array order from ebp, the
-   original: mx/nrm -0x20 (shared), uv -0x38, j -0x3c, box -0x5c, mn -0x6c, rot -0x78, pos -0x88, corner
-   -0x108; ours: uv -0x30, mn -0x3c, box -0x5c, ax -0x60, nrm/mx -0x70, pos -0x7c, rot -0x88, corner.
-   Tried: top -= bot right after the block loop (= control: the early sub is not a source lever), D3VECTOR
-   rot, pos order (= control), every subset of hoisting the t-block locals (corner, mn/mx, ax..z0) and the
-   sort-loop locals (nrm, dx/dz/lim) to function scope (31 variants: all = control except nrm hoisted:
-   frame 0x114, worse). Next: the mn/mx reference counts (the original packs mx with nrm densest, mn below
-   box: something references mx more or mn less than our min/max macros do) (tiebreak: insensitive) */
+   @deep s87 176 -> 124 ins: pos and mn as D3VECTOR4 (the original slots pos -0x88..-0x78 and mn
+   -0x6c..-0x5c are 16 bytes; frame now 0xfc vs 0x108). New reading of the original frame: the 16-byte slot
+   at -0x20 holds FOUR vectors of disjoint life: the bottom corner (x0 kept on the FPU, y0 -> -0x1c, z0 ->
+   -0x18), the corner-loop step (f * yAxisX / hscale / yAxisZ computed before the loop into -0x20 / -0x1c,
+   z on the FPU), mx (x / y stored, z on the FPU) and nrm; ax / ay / az are scalars at -0x4 / -0xc / -0x10;
+   mn alone, uv alone at -0x38, j alone at -0x3c. Round: x0 / y0 / z0 as one vector o and the step as a
+   vector d (`d.x = f * t->yAxisX; ..; corner[i + 4].x = d.x + corner[i].x`): with D3VECTOR4 o / d code 21
+   / fpu 9 (control 27 / 13) but 126 ins, frame 0xf8 (c2frame: mn opens the 16-byte slot first and o / d /
+   nrm join it, uv joins mx); D3VECTOR o / d 218. Packer replay: mn (13 refs) opens the first 16-byte slot
+   and uv (24 bytes) joins the newest compatible slot, which is mn unless mn conflicts with the sort loop;
+   the original keeps mn and uv apart, mx with nrm. Open: what keeps uv out of mn (and nrm with mx) in the
+   original. Left besides the frame: h->origin stores (the original fstp origin.y before the x / z movs),
+   `if (t)` tests edi before the top = 0 zero (ours xor edx first). prior: frame sweep s21: ours 0xf8 vs
+   the original's 0x108 (16 bytes short). D3VECTOR4 subsets of pos / rot / mn / mx (15 variants): code and
+   fpu hunks unchanged or worse, only the slot table moves (pos+mn: 124 ins, frame 0xfc; all four: 284,
+   0x100), none reaches the frame: the missing 16 bytes are not (only) padded vectors. Not kept. Lead:
+   which locals the original keeps in memory that ours keeps in registers (the shared ebp slots in dcp
+   frame). */
 
 void d3sm_Build(D3SM *h, D3FLMAP *t) {
-  D3VECTOR pos, rot;
+  D3VECTOR4 pos;
+  D3VECTOR rot;
   D3VECTOR4 box[2];
   float f, lo, hi;
   int top, bot;
@@ -329,7 +333,8 @@ void d3sm_Build(D3SM *h, D3FLMAP *t) {
   }
   if (t) {
     D3VECTOR4 corner[8];
-    D3VECTOR mn, mx;
+    D3VECTOR4 mn;
+    D3VECTOR mx;
     float ax, ay, az, x0, y0, z0;
 
     top = 0;
@@ -470,7 +475,7 @@ void d3sm_Build(D3SM *h, D3FLMAP *t) {
       h->entries[h->size * (i + 1) - 1].type = 0xd;
     }
   }
-  d3_SetObjectPos(d3_Camera, &pos);
+  d3_SetObjectPos(d3_Camera, &pos.v);
   d3_SetObjectRot(d3_Camera, &rot);
   d3_Busy--;
 }
