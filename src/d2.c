@@ -1824,35 +1824,34 @@ void d2_ShowPicture(int pic) {
               d2_ScreenSurf);
 }
 /* 0x46d040, draws a picture (or a frame of one) at x, y on a surface
-   @deep deep s58: still only the x / y pair (original x esi, y edi, surf ebp). c2trace: x#1 / y#1 both
-   prio 51 with refs in the same five blocks, tie keys x 5b / y 5c (larger pops first), y pops first and
-   takes esi by the choice-order tie (scores all 0); x must pop first, and y before surf (49). Probe matrix
-   (meaning probes, 81 variants: x or y dropped at case 1 / 0x11 / 5-8 then / 5-8 else): the key goes by
-   the FIRST call site in the order 5-8 then-arm, case 1, case 0x11 where only one of the two is passed
-   (that one gets 5b and pops later); the 5-8 else-arm never counts; with both present everywhere x gets 5b
-   whatever the argument order inside the calls (all 31 swap subsets), the names (21 renames), K&R / ANSI,
-   declaration order, register / const / unsigned / long, header prototype names. So any text with x and y
-   at the same call sites gives y esi. All = control: x = x / x += 0 / (void)x / x; / if (x) {} at every
-   statement, named int / short copies (folded), short / int p[2] copies, 100 no-code spellings of (short)x
-   per site, d2_DrawNothing through cast pointers (short / char / int params), case splits, default: break,
-   labels, do { } while (0) wrappers, nested lock / guard forms, 162 initializer combinations, a dead
-   trailing parameter, type as ternary. A head temp t = (short)y; used by both 5-8 arms gives x esi and the
-   head's movsx edx (the original's) but y drops to prio 28 below surf (ebp: 32 ins); flip.py from that
-   base wanting y in edi: only a duplicated d2_AddDirty. Worse: ternary 5th argument forms (25-141), case
-   orders, fall-through / goto sharing of the 0-frame call (the original has its own case-1 block), short
-   params (39), d2_DrawNothing above the function (VC6 drops the call). flip.py on the control (ANSI tree
-   copy): 0 of 142; climb 4 rounds: nothing. Open: which plain text puts y alone at the 5-8 then-arm (or x
-   1 prio above y) with this code. Tooling: flip.py / c2trace function_span miss this K&R definition
-   (clang-format joined 'int x;' to the definition line); for flip.py put an ANSI copy in the tree (blank
-   lines keep the line count). prior: deep s34: the only hunk class is the x / y register pair (original x
-   esi, y edi; ours y esi, x edi; every other hunk follows from it). c2trace (on the ANSI form: c2trace /
-   initgen do not parse the K&R definition): x#1 and y#1 tie at prio 51 with identical block terms (both
-   referenced in the same five call blocks), tie keys x 5b / y 5c: y is popped first and takes esi. So the
-   original popped x first: either x was created after y or x has one more weighted reference. = control:
-   the K&R parameter list in the other order (int y; int x;), the ANSI definition (kept K&R), sel / type /
-   t = 0 initializers; worse: sel = -1 as initializer (34), data = 0 after the guard (42). The
-   declaration-set sweep (0..63) finds no byte, so the key is not period-64 here (or other ties move with
-   it). Open: which ordinary form gives x a reference y lacks, or creates y first. */
+   @deep deep s78: new-angle round on the s58 tie (y created later = pops first): if (0) d2_AddDirty(..)
+   with y alone / x alone / both at the top or before the switch, 16 dead loads (the IL-volume lever of
+   ai_MercenaryBook), an unprototyped call of d2_DrawNothing through a cast (the original calls the folded
+   d3io_NoopCallback), a named short sy for AddDirty: all = control (dead code and copies make no
+   candidate). The 5-8 if / else arms swapped: 24 ins, registers unchanged. Reading: candidate creation
+   follows the first block (in the allocator's walk) that references only one of x / y; a head temp t =
+   (short)y is the only form that puts y first, and it takes y's refs away. Open: a real code-free
+   reference to y in an early block. prior: deep s58: still only the x / y pair (original x esi, y edi,
+   surf ebp). c2trace: x#1 / y#1 both prio 51 with refs in the same five blocks, tie keys x 5b / y 5c
+   (larger pops first), y pops first and takes esi by the choice-order tie (scores all 0); x must pop
+   first, and y before surf (49). Probe matrix (meaning probes, 81 variants: x or y dropped at case 1 /
+   0x11 / 5-8 then / 5-8 else): the key goes by the FIRST call site in the order 5-8 then-arm, case 1, case
+   0x11 where only one of the two is passed (that one gets 5b and pops later); the 5-8 else-arm never
+   counts; with both present everywhere x gets 5b whatever the argument order inside the calls (all 31 swap
+   subsets), the names (21 renames), K&R / ANSI, declaration order, register / const / unsigned / long,
+   header prototype names. So any text with x and y at the same call sites gives y esi. All = control: x =
+   x / x += 0 / (void)x / x; / if (x) {} at every statement, named int / short copies (folded), short / int
+   p[2] copies, 100 no-code spellings of (short)x per site, d2_DrawNothing through cast pointers (short /
+   char / int params), case splits, default: break, labels, do { } while (0) wrappers, nested lock / guard
+   forms, 162 initializer combinations, a dead trailing parameter, type as ternary. A head temp t =
+   (short)y; used by both 5-8 arms gives x esi and the head's movsx edx (the original's) but y drops to
+   prio 28 below surf (ebp: 32 ins); flip.py from that base wanting y in edi: only a duplicated
+   d2_AddDirty. Worse: ternary 5th argument forms (25-141), case orders, fall-through / goto sharing of the
+   0-frame call (the original has its own case-1 block), short params (39), d2_DrawNothing above the
+   function (VC6 drops the call). flip.py on the control (ANSI tree copy): 0 of 142; climb 4 rounds:
+   nothing. Open: which plain text puts y alone at the 5-8 then-arm (or x 1 prio above y) with this code.
+   Tooling: flip.py / c2trace function_span miss this K&R definition (clang-format joined 'int x;' to the
+   definition line); for flip.py put an ANSI copy in the tree (blank lines keep the line count). */
 
 void d2_DrawPic(x, y, pic, surf) int x;
 int y;
