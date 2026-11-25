@@ -183,26 +183,12 @@ int txt_ParseLine(char *line, int group) {
   return 1;
 }
 /* 0x42c950, reads a "{rN}" random-text escape from p: the chosen variant (N + 9) is queued in
-   txt_Random; on a syntax error it reports and queues the pointer itself.
-   @deep deep s27: c2trace: our p#1 has 4 refs (strncmp, p[2], both stores) -> esi; the original's esi
-   covers only the strncmp block (2 refs) and both stores reload the argument slot, as if the stored value
-   were another object than the tested pointer (or p lived in memory with a CSE copy across strncmp). =
-   control: an int copy v = (int)p for the stores, *(int *)&p / memcpy(&txt_Random[..], &p, 4) stores (VC6
-   folds the address), a char *s = p copy for the tests, the n < 0 || n > 9 arm first, *(p + 2), the else
-   as return. Worse: a block-scoped s copy / one shared store after the if (8 ins / 33 B, the third
-   epilogue goes), the inverted test with early return (16). flip.py --want 'err_Message[\\s\\S]*DWORD PTR
-   _p\$': 40 mutants, no hit. Next: the caller's view (txt.c 0x42c... passes &line[i]): a two-parameter or
-   variadic original would need the header to change. prior: meaning matches (four stores, both branches,
-   the err path). Left: the original keeps p in esi only for strncmp / p[2] and stores (int)p from the
-   argument slot ([esp+8] / [esp+0xc] after the err push) in both p-store paths; ours stores esi. Tried
-   (dcp try): headers sample insensitive; a char *s copy for the tests (function scope, block scope, s = p
-   inside the call): = control; *(int *)&p stores: = control; strncmp == 0, n = p[2]; n -= '1', if/else in
-   place of return, the n<0||n>9 error arm first: = control; one shared store after the if (8 ins / 33 B
-   but ours still stores esi and drops the third epilogue, not kept); the test inverted with early return
-   (16 ins); n spelled out (21 ins) (tiebreak: insensitive) */
+   txt_Random; on a syntax error it reports and queues the pointer itself. */
 
 void txt_ParseRandomText(char *p) {
   int n;
+  char *s; /* @original: never assigned; VC6 packs s into p's dead argument slot, so the stores below
+              read p back from it (the original's [esp+8] reloads) */
 
   if (!strncmp(p, "{r", 2)) {
     n = p[2] - '1';
@@ -211,9 +197,9 @@ void txt_ParseRandomText(char *p) {
       return;
     }
     err_Message("txt_ParseRandomText(): Syntax error...");
-    txt_Random[txt_Count] = (int)p;
+    txt_Random[txt_Count] = (int)s;
   } else
-    txt_Random[txt_Count] = (int)p;
+    txt_Random[txt_Count] = (int)s;
 }
 /* 0x42c9c0, reads the #include lines of a text definition file and loads each included file. */
 
