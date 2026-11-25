@@ -2564,23 +2564,7 @@ int d2_TextWidth(char *text, int font) {
 /* 0x46ead0, draws the pieces of text collected in d2_TextSegs in one line at y of window win, starting at x and
    ending at right: justified by the window's flags (0x80: spread, 0x40: right, 0x100: centered), pieces move
    right past the objects of the window; "$T" jumps to a position, "$H" draws with a second pass, "$[" "$]" draw
-   glyph 0
-   @deep draft 436 -> 133 ins with plain code: the two hand pointer walks (pobj++, n-- do-while) as for (k
-   = start; k < w->nobjs; k++) over w->objs[k] (-33); the justification as one else-if chain (0x80 / 0x40 /
-   0x100) using gap, as the original's imul with the gap slot shows; hl an int, hl = 0 after both glyph
-   loops; i < strlen(..) unsigned (the original's jb; (int)strlen gave +10); the glyph != -1 block first
-   (the original lays it inline); x > right; the object-push loop as while (1) { if (!(..)) break; x = ..;
-   } (the original's loop is unrotated: -150 together with the glyph order); d2_TextSegs[j].w + x > o->x
-   and d2_FontHeight + y > o->y operand orders; the SetTextColour arm first; init order total, extra, hl,
-   w, gap (360 orders: 13 codes, all 133-137). Not levers: a sw local for the segment width (= one code),
-   (char) spellings of start ((char)x & 8, unsigned, & 8u, / 8, != 0: VC6 narrows to mov al,bl / sar / and
-   1 or and/shr, never the original's movsx eax,bl; and eax,8; shr eax,3, and every char form costs 80 ins
-   of allocation), so start stays (w->flags & 8) >> 3. Left: gap holds esi in the head (mov
-   esi,[d2_SpaceWidth]; imul ebp,esi) where the original keeps gap in its slot and x in esi from the
-   justification on (mov ecx,[x]; mov esi,ecx); the frame slots of hl / gfont / the object pointer and c
-   (the original puts c in x's dead slot [esp+0x5c] and the segment offset in win's [esp+0x50], ours the
-   other way round); the start movsx; the SetTextColour byte loads (crossed M8). (tiebreak: not measured
-   (dcp headers sample d2_DrawTextLine)) */
+   glyph 0 */
 void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
                      int flags, int x, int right) {
   D2WIN *w;
@@ -2588,7 +2572,7 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
   D2SHP *g;
   D2BANK *gfont;
   int (*draw)(int, int, void *, void *, unsigned char);
-  int sw, gap, extra, saved, total, start, glyph, i, j, k, hl, savedflags;
+  int pos, sw, gap, extra, saved, total, start, glyph, i, j, k, hl, savedflags;
   char skip;
   unsigned char
       c; /* a glyph byte: the original zero-extends it into d2_GetFrame's index */
@@ -2605,37 +2589,47 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
     for (i = 0; i < d2_TextSegCount; i++)
       total += d2_TextSegs[i].w;
     saved = w->flags;
-    start = (w->flags & 8) >> 3;
+    if ((signed char)saved & 8)
+      start = 1;
+    else
+      start = 0;
     for (k = start; k < w->nobjs; k++) {
       o = &d2_Objs[w->objs[k]];
       if (o->hidden == 0 && d2_FontHeight + y > o->y && y < o->y + o->h &&
           flags != 0x40)
         total += 6 + o->w + d2_LetterGap;
     }
+    pos = x;
     if ((saved & 0x80) && d2_TextSegCount > 1 && nojustify == 0) {
       k = right - total - x;
-      gap = k / (d2_TextSegCount - 1);
       extra = k % (d2_TextSegCount - 1);
+      gap = k / (d2_TextSegCount - 1);
     } else if (saved & 0x40)
-      x = right - (d2_TextSegCount - 1) * gap - total;
+      pos = right - (d2_TextSegCount - 1) * gap - total;
     else if (saved & 0x100)
-      x += (right - (d2_TextSegCount - 1) * gap - total - x) / 2;
+      pos = x + (right - (d2_TextSegCount - 1) * gap - total - x) / 2;
     for (j = 0; j < d2_TextSegCount; j++) {
-      glyph = -1;
       skip = 0;
-      start = (w->flags & 8) >> 3;
+      glyph = -1;
+      if ((signed char)w->flags & 8)
+        start = 1;
+      else
+        start = 0;
       if (d2_TextSegs[j].text[0] == '$') {
         switch (d2_TextSegs[j].text[1]) {
+        case 'T':
+          pos = d2_TextSegs[j].w;
+          skip = 1;
+          break;
         case 'H':
           hl = 1;
         case 'M':
           skip = 1;
           break;
-        case 'T':
-          x = d2_TextSegs[j].w;
-          skip = 1;
-          break;
         case '[':
+          gfont = d2_FontPic;
+          glyph = 0;
+          break;
         case ']':
           gfont = d2_FontPic;
           glyph = 0;
@@ -2651,18 +2645,18 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
           o = &d2_Objs[w->objs[k]];
           if (o->hidden == 0) {
             while (1) {
-              if (!(d2_TextSegs[j].w + x > o->x && x < o->x + o->w + 6 &&
+              if (!(d2_TextSegs[j].w + pos > o->x && pos < o->x + o->w + 6 &&
                     d2_FontHeight + y > o->y && y < o->y + o->h &&
                     flags != 0x40))
                 break;
-              x = o->x + o->w + 6;
+              pos = o->x + o->w + 6;
             }
           }
         }
         if (glyph != -1) {
           g = d2_GetFrame(gfont, glyph);
-          if (d2_DrawShape(x, y, surf, gfont, glyph))
-            x += g->adv + d2_LetterGap;
+          if (d2_DrawShape(pos, y, surf, gfont, glyph))
+            pos += g->adv + d2_LetterGap;
         } else {
           if (hl) {
             for (i = 0; i < strlen(d2_TextSegs[j].text); i++) {
@@ -2670,13 +2664,13 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
               if (c != '~') {
                 g = d2_GetFrame(d2_FontPic, c);
                 if (i != 0)
-                  x -= g->kern;
-                if (d2_DrawShape(x, y, surf, d2_FontPic, c)) {
-                  d2_DrawShapeMode3(x, y, surf, d2_FontPic, c);
-                  x += g->adv + d2_LetterGap;
+                  pos -= g->kern;
+                if (d2_DrawShape(pos, y, surf, d2_FontPic, c)) {
+                  d2_DrawShapeMode3(pos, y, surf, d2_FontPic, c);
+                  pos += g->adv + d2_LetterGap;
                 }
               }
-              if (x > right)
+              if (pos > right)
                 break;
             }
           } else {
@@ -2685,11 +2679,11 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
               if (c != '~') {
                 g = d2_GetFrame(d2_FontPic, c);
                 if (i != 0)
-                  x -= g->kern;
-                if (draw(x, y, surf, d2_FontPic, c))
-                  x += g->adv + d2_LetterGap;
+                  pos -= g->kern;
+                if (draw(pos, y, surf, d2_FontPic, c))
+                  pos += g->adv + d2_LetterGap;
               }
-              if (x > right)
+              if (pos > right)
                 break;
             }
           }
@@ -2697,9 +2691,9 @@ void d2_DrawTextLine(int a, int y, D2SURF *surf, int win, char nojustify,
         }
       }
       if (c != '~' && !skip) {
-        x += gap;
+        pos += gap;
         if (extra != 0) {
-          x++;
+          pos++;
           extra--;
         }
       }
