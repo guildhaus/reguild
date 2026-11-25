@@ -143,34 +143,16 @@ unsigned short path_Search2(D3SM *map, int sx, int sy, short ex, int ey,
   return a;
 }
 /* 0x425470, one-directional A*: expands from the start node alone until it reaches the goal;
-   the start node index, or 0xffff when no path exists. Sets the path_ globals like path_Search2.
-   @deep s50: b = path_Goal moved inside the start != goal test (path_Search2's form): 176 -> 150, the M8s
-   gone, size 780 vs 779 (padded equal). Reading of the original: the start cell is a WORD local in memory
-   (mov word [esp+0x14],ax into map's dead parameter slot, read back mov edx,[esp+0x14]; and edx,ebp),
-   pushed as a dword to the first path_Expand; the loop value is in edi and stored as a DWORD to the same
-   slot after each path_Expand (a split piece or a second variable sharing it); b is a word in sy's dead
-   slot (mov word [esp+0x1c],dx, read once and with ebp) and node b's offset stays in edx for the type
-   test. Registers there: edi = 0 from the prologue (path_DY / Count / g / h stores), ebx = ex (mov
-   ebx,[esp+0x20] early) then bx = Stamp, ebp = 0xffff, esi = map. Ours: ebx = 0, ebp = ex, edi = the start
-   cell, b in [esp+0x14]. Rounds (s50): a as unsigned int / unsigned short / int x casts kept / dropped x
-   loop test (short)a != -1 / a != 0xffff x b before / after the test (24): after = 150 (unsigned short a
-   188-192, dropped casts 167); a separate start local s (unsigned short / short / int) for the first
-   INITNODE, the type test and the first path_Expand, the loop value a (3 types), b unsigned short / int,
-   two declaration orders (72): 153 at best (M8). Open: which candidate set leaves the start cell without a
-   register while ex gets ebx. prior: size queue (s2): raw 766 vs 779 (padded needs >= 769). Hunk sizes:
-   the gap is the prologue/init block (+0x75..+0xa5: the original's a = start cell computed and stored as a
-   WORD into map's dead parameter slot [esp+0x14] early, between the path_DY stores, with the b / Goal
-   stores interleaved: +29 bytes there, -17 in ours' later block) and the 0xffff / Stamp registers. Same
-   open point as the earlier note: what keeps a (unsigned short) in memory. */
+   the start node index, or 0xffff when no path exists. Sets the path_ globals like path_Search2. */
 
 unsigned short path_Search1(D3SM *map, int sx, int sy, short ex, int ey,
                             int type) {
   int k;
-  unsigned int a;
+  unsigned short a;
   unsigned short b;
 
-  path_Shift = 0;
   path_Mask = map->size - 1;
+  path_Shift = 0;
   for (k = map->size; k >>= 1;)
     path_Shift++;
   path_DY[0] = 0;
@@ -182,48 +164,47 @@ unsigned short path_Search1(D3SM *map, int sx, int sy, short ex, int ey,
   path_DY[6] = map->size;
   path_DY[7] = map->size;
   path_Count = 0;
-  a = (sy << path_Shift) + sx;
-  path_Start = a;
+  path_Start = (sy << path_Shift) + sx;
+  a = path_Start;
   path_Goal = (short)(ey << path_Shift) + ex;
   path_Stamp++;
-  PATH_INITNODE(&map->entries[(unsigned short)a], 5);
-  if (path_Start != path_Goal) {
-    b = path_Goal;
-    PATH_INITNODE(&map->entries[b], 9);
-    path_Tab1Sel = path_Tab1[type];
-    path_Tab2Sel = path_Tab2[type];
-    path_Costs = path_Terrain[type];
-    if (!(path_Costs[map->entries[(unsigned short)a].type] < 0.0) &&
-        !(path_Costs[map->entries[b].type] < 0.0)) {
-      path_Weight = 0.0f;
-      for (k = 1; k < 15; k++)
-        if (path_Costs[k] > 0.0)
-          path_Weight += path_Costs[k];
-      path_Weight = 7.0f;
+  PATH_INITNODE(&map->entries[a], 5);
+  if (path_Start == path_Goal)
+    return a;
+  b = path_Goal;
+  PATH_INITNODE(&map->entries[b], 9);
+  path_Tab1Sel = path_Tab1[type];
+  path_Costs = path_Terrain[type];
+  path_Tab2Sel = path_Tab2[type];
+  if (!(path_Costs[map->entries[a].type] < 0.0) &&
+      !(path_Costs[map->entries[b].type] < 0.0)) {
+    path_Weight = 0.0f;
+    for (k = 1; k < 15; k++)
+      if (path_Costs[k] > 0.0)
+        path_Weight += path_Costs[k];
+    path_Weight = 7.0f;
+    path_Target = path_Goal;
+    path_SetFlag = 4;
+    path_TestFlag = 8;
+    a = path_Expand(map, a);
+    while (a != 0xffff) {
+      if (a == path_Goal) {
+        path_Reverse(map, a);
+        return path_Start;
+      }
+      if ((map->entries[a].flags & 0xc) == 0xc) {
+        path_Reverse(map, a);
+        map->entries[a].parent = path_Meet;
+        return path_Start;
+      }
+      path_Count++;
       path_Target = path_Goal;
       path_SetFlag = 4;
       path_TestFlag = 8;
       a = path_Expand(map, a);
-      while ((short)a != -1) {
-        if ((unsigned short)a == path_Goal) {
-          path_Reverse(map, a);
-          return path_Start;
-        }
-        if ((map->entries[(unsigned short)a].flags & 0xc) == 0xc) {
-          path_Reverse(map, a);
-          map->entries[(unsigned short)a].parent = path_Meet;
-          return path_Start;
-        }
-        path_Count++;
-        path_Target = path_Goal;
-        path_SetFlag = 4;
-        path_TestFlag = 8;
-        a = path_Expand(map, a);
-      }
     }
-    a = 0xffff;
   }
-  return a;
+  return 0xffff;
 }
 /* 0x425780, expands node n (the parameter, kept as self while the parameter becomes the head) of map: flags it closed, tests its 8 neighbours against the other
    search (path_TestFlag), relaxes their g/f and keeps the open list sorted by f; returns the open
@@ -330,10 +311,9 @@ unsigned short path_Expand(D3SM *map, unsigned short head) {
 /* 0x425af0, turns the parent chain that ends at node `last` into a forward next chain: the chain
    nodes get parent = next from `last` back to the root. */
 
-void path_Reverse(D3SM *map, unsigned int last) {
+void path_Reverse(D3SM *map, unsigned short last) {
   unsigned int cur, head, n;
 
-  last &= 0xffff;
   if (map->entries[last].parent != 0xffff) {
     map->entries[last].next = 0xffff;
     cur = last;

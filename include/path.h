@@ -44,6 +44,6 @@ unsigned short path_Search2(D3SM *map, int sx, int sy, short ex, int ey,
 unsigned short path_Search1(D3SM *map, int sx, int sy, short ex, int ey,
                             int type);                   /* 0x425470 */
 unsigned short path_Expand(D3SM *map, unsigned short n); /* 0x425780 */
-void path_Reverse(D3SM *map, unsigned int n);            /* 0x425af0 */
+void path_Reverse(D3SM *map, unsigned short n);            /* 0x425af0 */
 
 #endif
