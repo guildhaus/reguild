@@ -2146,7 +2146,7 @@ exe	0x004c3630	cm_WaitHello	cm	byte	readable
 exe	0x004c3680	cm_FlushSendQueue	cm	byte	readable		
 exe	0x004c3720	cm_QueueSplit	cm	byte	readable		
 exe	0x004c3850	cm_SplitComplete	cm	byte	readable		
-exe	0x004c38e0	cm_JoinSplit	cm	shape	readable	deep	
+exe	0x004c38e0	cm_JoinSplit	cm	byte	readable		
 exe	0x004c39c0	cm_QueueSend	cm	byte	readable		
 exe	0x004c3ae0	cm_GetSlotState	cm	byte	readable		
 exe	0x004c3b10	cm_GetSlotValue	cm	byte	readable		
@@ -2901,7 +2901,7 @@ exe	0x004f81c0	ord_DispatchOrder	ord	byte	readable
 exe	0x004f8200	ord_PrivilegeDialog	ord	byte	readable		
 exe	0x004f82a0	ord_ResetStatistics	ord	byte	readable		
 exe	0x004f8300	ord_GetGridCell	ord	byte	readable		
-exe	0x004f8360	ord_CountGridObjects	ord	shape	readable	deep	
+exe	0x004f8360	ord_CountGridObjects	ord	byte	readable		
 exe	0x004f8460	ord_AddGridAmount	ord	byte	readable		
 exe	0x004f8590	ord_SubGridAmount	ord	byte	readable		
 exe	0x004f86a0	ord_RandomCellPoint	ord	byte	readable		
@@ -3135,7 +3135,7 @@ exe	0x0050a0b0	gm_ObjectOwnerNo	f3gmt	byte	readable
 exe	0x0050a0f0	gm_ObjectBuilding	f3gmt	byte	readable		
 exe	0x0050a150	gm_CreditEvents	f3gmt	byte	readable		
 exe	0x0050a1c0	gm_BuildingEvents	f3gmt	byte	readable		
-exe	0x0050a250	gm_GetCreditOffers	f3gmt	shape	readable	deep	
+exe	0x0050a250	gm_GetCreditOffers	f3gmt	byte	readable		
 exe	0x0050a640	gm_GetWorth	f3gmt	byte	readable		
 exe	0x0050a6c0	gm_IsBankrupt	f3gmt	byte	readable		
 exe	0x0050a810	gm_FindCharacterByMaster	f3gmt	byte	readable		
@@ -4440,7 +4440,7 @@ exe	0x005bae50	ai_UpdateEquipRows	lcdom	byte	readable
 exe	0x005bb2d0	ai_GoodFitsBuilding	lcdom	byte	readable		
 exe	0x005bb350	ai_EquipWindow	lcdom	byte	readable		
 exe	0x005bb950	ai_OpenTrainingRow	lcdom	byte	readable		
-exe	0x005bba00	ai_TrainingWindow	lcdom	draft	readable	deep	
+exe	0x005bba00	ai_TrainingWindow	lcdom	byte	readable		
 exe	0x005bc0f0	ai_FreePicture	lcdom	byte	readable		
 exe	0x005bc110	ai_ChooseCoatOfArms	lcdom	byte	readable		
 exe	0x005bc420	ai_OpenMoneyInfoPage	lcdom	byte	readable		
