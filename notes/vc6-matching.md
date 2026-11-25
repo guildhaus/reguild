@@ -2044,6 +2044,31 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s82 (1 byte: sv_SendSelectedToBuilding; rd_BuildRoad 70 -> 8; lc_UpdateGoodsReserves,
+  gm_CreateBuilding, d3_InflateObject notes only; sv_LoadGroundplan restored by declaration order)**:
+  - **A building pointer kept in ebx and reloaded from the global after every store through another pointer
+    (`job->members[k] = -1` .. `mov ebx,[sv_ClickedBuilding]`), ours a `cur` local with hand-written
+    `cur = sv_ClickedBuilding;` re-assignments: the source read the global at each use** (sv_SendSelectedToBuilding
+    91 -> 26 at one step, then byte): a scalar global is its own candidate between kills, and a pointer store
+    kills it, which is exactly the original's reload pattern. A local copy re-assigned after stores is the
+    tell. The rest: `if (c->job->kind == 'C')` (the CSE temp, not job: `mov dl,[eax]; cmp dl,0x43`), and the
+    second member's id as `*out = c->netId; n++; out++;` (climb found the statement moves, a 7-form round the
+    split increment).
+  - **Every failure exit written out where the source had `goto fail` / an ok flag** (rd_BuildRoad 70 -> 8):
+    with the gotos the fail block is entered only by jumps, so the pair merger folds the inline blocks'
+    `call; add; xor` into it (no size limit); written out, each copy is entered by fall-through and only
+    merges at an equal run of 22 bytes, which the original's scratch rotation (edx edx edx / tail ecx) never
+    reaches. Of the 16 inline / goto mixes only all-inline was close, and only together with the
+    parenthesised `v.y = (bk->y0)` copies (fld / fstp). c2tail --tries + C2DAG_TRYDUMP=1 show it directly.
+  - **A tie-break flip restored without a hack**: `dcp headers sweep NAME --table --dry-run` lists which
+    symbol-count shifts before the function are byte (sv_LoadGroundplan: 2..25); moving one existing extern
+    (two names) from later in the unit into the declaration block in front of it did it, the earlier
+    function (sv_MessageBox) untouched.
+  - Open: lc_UpdateGoodsReserves' entry block computes from i where the original computes from the cursor
+    (loop forms, guards, probe and label sweeps all fold to one code); gm_CreateBuilding's `any` needs a loop
+    register piece across gm_AllocRaum (98 blocks, no bulk split); d3_InflateObject's colour block is the
+    byte twin d3io_AttachStock's plain text, so its hunks are register context.
+
 - **Deep s81 (1 byte: sv_MessageBox; d2_DrawObjects 65 -> 54; gm_InitBuildingTables, cm_RunSceneParty,
   sv_MoveToGroup notes only)**:
   - **A result kept in ebp where the original keeps it in a slot and never pushes ebp, zero pushes from the
