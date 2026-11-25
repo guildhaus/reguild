@@ -921,23 +921,9 @@ int d2_ShpBlit16ScaledLit(int x, int y, D2SURF *surf, D2SHP *s,
   }
   return 1;
 }
-/* @original the grey is written out for each of dd_RGB's three arguments (a macro in the original, VC6 CSEs the
-   three copies into one _ftol): a named unsigned char grey goes through a stack slot, an int one reallocates the
-   whole function */
-#define D2_HALFDARK_GREY(r, g, b)                                              \
-  ((unsigned char)(((float)r + b) * 0.2f + g * 0.59f))
 
 /* 0x47b900, draws a 16 bit run-length shape half dark: every pixel of the literal runs is replaced by its grey
-   (r + b) * 0.2f + g * 0.59f through dd_RGB, the skip runs are stepped over.
-   @deep deep s48: the three reloads at the i loop latch (original surf, s, line; ours s, line, surf;
-   c2trace: s#3 ecx, surf#3 edx, line#3 edi, all pass-3 pieces). Rounds: d = line + surf->pitch * i / d =
-   surf->bits + (surf->pitch * (y + i) + x) (no line +=: 95 / 69), the m loop over px[m] / d[m] with d +=
-   run->n (114), r / g / b as block locals (= control), line += pitch after cp / run (24), all 6 orders of
-   the run / cp / line inits (4..64): no lever. Left: the 2-ins reload order at 0x47ba1b. prior: deep s24:
-   climb --rounds 2 (264 mutants): nothing below 2 ins. The hunk is the same class as d3anim_MapBones
-   (split pieces reloaded in ascending piece id at a loop exit edge; the ids come from freed values, so the
-   lever would be a value created or removed elsewhere, not the reload site). Left: the three reloads at
-   the k loop's exit, ours ecx=s, edi=line, edx=surf, the original edx=surf, ecx=s, edi=line. */
+   (r + b) * 0.2f + g * 0.59f through dd_RGB, the skip runs are stepped over. */
 
 void d2_ShpBlit16HalfDark(unsigned int x, unsigned int y, D2SURF *surf,
                           D2SHP *s) {
@@ -948,6 +934,7 @@ void d2_ShpBlit16HalfDark(unsigned int x, unsigned int y, D2SURF *surf,
   unsigned short *line, *d;
   unsigned short *px;
   unsigned char r, g, b;
+  float grey;
 
 #ifdef REA_FRAME_DUMP
   if (s->w > 300)
@@ -966,9 +953,9 @@ void d2_ShpBlit16HalfDark(unsigned int x, unsigned int y, D2SURF *surf,
       d += run->skip >> 1;
       for (m = 0; m < run->n; m++) {
         dd_SplitRGB(*px, &r, &g, &b);
-        *d = (unsigned short)dd_RGB(D2_HALFDARK_GREY(r, g, b),
-                                    D2_HALFDARK_GREY(r, g, b),
-                                    D2_HALFDARK_GREY(r, g, b));
+        grey = ((float)r + b) * 0.2f + g * 0.59f;
+        *d = (unsigned short)dd_RGB((unsigned char)grey, (unsigned char)grey,
+                                    (unsigned char)grey);
         px++;
         d++;
       }
