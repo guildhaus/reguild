@@ -2044,6 +2044,25 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s69 (no item finished: ai_OpenItemTooltip, he_NextEvent, ai_Miracle, ch_GetWaypoints notes only)**:
+  - **Then-blocks of 3-compare `||` tests laid behind a long else-if chain, inline in the original: the tests
+    were FLAG values** (ai_OpenItemTooltip): `fo = A || .. || F; if (fo) { fa = A || B || C; if (fa) .. else if
+    (..) .. } else { fc = G || H || I; if (fc) .. else if .. }` gives the original's chain instruction for
+    instruction (the s68 "layout rounds" were all the plain `||` form). The flag's spelling is no lever (value,
+    `f = 0; if (..) f = 1`, if / else, `?:`, `(..) != 0`, char: one code); where the flag is computed is (at the
+    block's top the compares are hoisted). It moved a register race elsewhere (idx +8 by c2trace --prio).
+  - **A pointer in a callee-saved register where ours has eax with no call in its range: AF7 byte pressure**
+    (he_NextEvent): c2trace --raw `RESTRICT .. byte pressure` names it: where a byte value is live and only one
+    byte register is left, avail &= {ebp esi edi}. A probe that kept one more byte flag alive (flip.py) gave the
+    original's registers; look for the byte value the original has over the hunk's range.
+  - **`mov ebp,ecx; add ebp,edi` (n = count; n += i) where ours has `add ecx,edi; mov ebp,ecx`** (ch_GetWaypoints):
+    every int spelling of the sum compiles to the sum's own temp plus a copy; a count of a narrower type
+    (`(short)`, char) gives the two-step form (`movsx ebp,cx; add ebp,edi`): the original had a conversion or a
+    move between the count and the add. Open.
+  - **A scratch rotation one step off at a case's first `lea`** (ai_Miracle): a probe temp at the END of the
+    previous case fixes the next case: measure such hunks with `{ static char *pm; pm = buf; }` at the end of each
+    preceding block before any spelling round.
+
 - **Deep s68 (no item finished: dd_SetMode, ai_OpenItemTooltip, ch_GetWaypoints notes only)**:
   - **VC6 factors a linear int sum across statements, labels, locals and casts** (dd_SetMode): `888 - R*100
     - G*10 - B` becomes `888 - (R*10 + G)*10 - B` whatever the spelling: 300 sign / order / constant forms,
