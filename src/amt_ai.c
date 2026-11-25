@@ -1288,26 +1288,29 @@ int ai_AimCannon(AICHAR *p, AIBLD *b, AIBLD *t) {
    ball from 50 units along the barrel b; two from 40 units, 5 to either side along d; three from 40 units, one 5
    along c, two 3 back along c and 5 to either side along d. Each ball: ai_InitShot, ai_ScatterShot by the
    cannon's spread (gv_CannonScatter); then gv_FireShots with the charge, 1 when fired
-   @deep x87 research: cases 2/3 copied the sum as a CSE, not as a copy of the stored vector: case 2 v3[i]
-   = v1[i] + a[i]; then v2[i] = v1[i] + a[i]; case 3 v4[i] = v1[i] + a[i]; v3[i] = ..; v1[i] = ..; (301 ->
-   206, frame 0x190 = the original's). The [L50] slot is the z CSE temp: c2fpu.py shows temp#.. x / y OK on
-   the FPU stack, z NO (its live range does not nest with the v1 / v4 pieces), so it lives in memory (fst
-   [L50], copied with mov). Left: (1) operand order of the y / z sums (original case 2: fld a1; fadd [v1y]
-   but fld [v1z]; fadd a2; case 3: v1 first for both; ours a first everywhere): no lever in 30 parenthesis
-   / (float) cast spellings or 40 textual swaps (internal rank); (2) slots: v1 / v2 counts 32 / 31
-   (c2frame) sort them before u / v (dens 2000 / 1937 > 1750); the original has u / v at 0x10 / 0x14, so v1
-   / v2 have <= 27 references there; case 1 as one expression per component (v1[i] = a[i] + b[i] * 50)
-   halves the slot hunks (106 -> 62) but adds fpu (224 ins). Next: which spelling has 5 fewer v1 and 4
-   fewer v2 references with case 1's code. prior: this session (no variant kept, tree as found, 301 ins):
-   the gv_FireShots argument order (x, cost) is right: the original pushes +0x6c (cost) as the 8th argument
-   and +0x70 (x) as the 7th; the M8 at +0x52/+0x58 is only the load order (cost into edi, spilled to
-   [esp+0x54]; x in ebp). Case 1 matches but for slots. Cases 2/3 (original, locals after the 4 pushes): v1
-   = b*40 keeps x on the FPU (never stored), stores y right after its fmul (fstp [L1c]) before z is loaded,
-   then x + a.x as fadd [a] on that product (ours fld a; fadd st(2), keeping it); the z sum is also stored
-   to an extra 4-byte slot [L50] (fst) and copied as an integer into v3.z (case 2) / v1.z (case 3): that
-   slot is the original's 4 extra frame bytes (0x190 vs 0x18c); in case 2 the d*-5 products x/y stay on the
-   FPU (only z stored), i.e. case 2's product vector is not address-taken there (dead stores dropped) while
-   cases 1/3 pass ... */
+   @deep s86 206 -> 48 ins: the vectors were per-case block locals, packed by VC6 into the original 4
+   slots: case 1 { D3VECTOR4 v1; }, case 2 { D3VECTOR4 w, v2; } (w the b*40 / d*5 / d*-5 temp: not
+   address-taken, so its dead x / y stores vanish as in the original), case 3 { D3VECTOR4 v1, t; } (v1 the
+   b*40 temp and the third ball, t the c / d offsets), v3 and v4 at function scope (c2frame P:
+   last-slot-first packing gives A = v1 / w / v1, B = t / v2, C = v3, D = v4 only with v3 / v4 not block
+   locals); case 2 sums v2 then v3 (cse23); x = ai_CannonShot.x read before cost (x in ebp, cost spilled:
+   the old M8). Left (48): (1) f / c / z-temp slots: the original f [0x48] c [0x4c] temp [0x50], ours c,
+   temp, f - all three weight 4, dens 1000, the unstable quicksort order depends on the whole table
+   (flip.py --want _f$ = -344: only meaning changes, e.g. the two calls swapped); declaration orders,
+   names, f in two statements, g folded into f: = control; (2) case 2 x87 order: z sum of b*40 (orig fld
+   [w.z]; fadd a.z, ours a.z first) and the d*5 / d*-5 sums (orig fld [w.y]; fadd [v2.y], ours v2 first; an
+   fxch): 119 operand-order spellings = one code, 11 chain / copy / in-place forms all worse, flip.py
+   --want for the z order: no hit. prior: x87 research: cases 2/3 copied the sum as a CSE, not as a copy of
+   the stored vector: case 2 v3[i] = v1[i] + a[i]; then v2[i] = v1[i] + a[i]; case 3 v4[i] = v1[i] + a[i];
+   v3[i] = ..; v1[i] = ..; (301 -> 206, frame 0x190 = the original's). The [L50] slot is the z CSE temp:
+   c2fpu.py shows temp#.. x / y OK on the FPU stack, z NO (its live range does not nest with the v1 / v4
+   pieces), so it lives in memory (fst [L50], copied with mov). Left: (1) operand order of the y / z sums
+   (original case 2: fld a1; fadd [v1y] but fld [v1z]; fadd a2; case 3: v1 first for both; ours a first
+   everywhere): no lever in 30 parenthesis / (float) cast spellings or 40 textual swaps (internal rank);
+   (2) slots: v1 / v2 counts 32 / 31 (c2frame) sort them before u / v (dens 2000 / 1937 > 1750); the
+   original has u / v at 0x10 / 0x14, so v1 / v2 have <= 27 references there; case 1 as one expression per
+   component (v1[i] = a[i] + b[i] * 50) halves the slot hunks (106 -> 62) but adds fpu (224 ins). Next:
+   which spelling has 5 fewer v1 and 4 fewer v2 references with case 1's code. */
 
 int ai_FireCannon(AICHAR *p, AIBLD *b) {
   float u, v;
@@ -1321,8 +1324,8 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
   if (ai_CannonShot.who == p->netId && ai_CannonShot.bld == b->id) {
     gv_CannonScatter(b, &u, &v);
     g = gv_CannonItemFactor(b);
-    cost = ai_CannonShot.cost;
     x = ai_CannonShot.x;
+    cost = ai_CannonShot.cost;
     bl = &ai_CannonBalls[ai_CannonShot.kind];
     c = bl->c;
     f = (g * bl->b - bl->a) * (ai_CannonShot.k * 0.01f) + bl->a;
