@@ -487,8 +487,8 @@ exe	0x00424c30	net_Close	net	byte	readable
 exe	0x00424c80	net_Recv	net	byte	readable		
 exe	0x00424e70	net_Send	net	byte	readable		
 exe	0x00424f30	path_Find	path	byte	readable		
-exe	0x004250a0	path_Search2	path	draft	readable	deep	
-exe	0x00425470	path_Search1	path	draft	readable	deep	
+exe	0x004250a0	path_Search2	path	byte	readable		
+exe	0x00425470	path_Search1	path	byte	readable		
 exe	0x00425780	path_Expand	path	draft	readable	deep	
 exe	0x00425af0	path_Reverse	path	byte	readable		
 exe	0x00425bc0	sb_Init	sblib	byte	readable		
@@ -1286,7 +1286,7 @@ exe	0x0046e460	d2_HitTest	d2	byte	readable
 exe	0x0046e710	d2_RemoveObj	d2	byte	readable		
 exe	0x0046e990	d2_ClearScreen	d2	byte	readable		
 exe	0x0046ea10	d2_TextWidth	d2	byte	readable		
-exe	0x0046ead0	d2_DrawTextLine	d2	draft	readable	deep	
+exe	0x0046ead0	d2_DrawTextLine	d2	byte	readable		
 exe	0x0046f000	d2_DrawText	d2	byte	readable		
 exe	0x0046f180	d2_SetTextColour	d2	byte	readable		
 exe	0x0046f1a0	d2_DrawTextBox	d2	draft	readable	deep	
@@ -2074,7 +2074,7 @@ exe	0x004bc940	veg_LoadModel	rd	draft	readable	deep
 exe	0x004bcb90	veg_ShowPlants	rd	byte	readable		
 exe	0x004bcbe0	veg_HidePlants	rd	byte	readable		
 exe	0x004bcc20	rd_BuildRoad	rd	byte	readable		
-exe	0x004bd340	rd_PathToRoad	rd	draft	readable	deep	
+exe	0x004bd340	rd_PathToRoad	rd	byte	readable		
 exe	0x004bd4a0	rd_AddBauplaetze	rd	byte	readable		
 exe	0x004bd500	rd_AllBauplatzToSupermap	rd	byte	readable		
 exe	0x004bd610	rd_FindSiteCB	rd	byte	readable		
