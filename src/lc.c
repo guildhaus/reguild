@@ -2014,31 +2014,33 @@ struct D3OBJECT;
    ai_ObjectAngle; green 0x40c040 on a site, red 0xc04040 off it), and a left release on a site asks the
    confirmation (text 0x17ef: the cost, the name, AIBTYPE.v243); returns the chosen site object and copies the
    picked model name names[idx] to out (out = "" and 0 when none was chosen)
-   @deep s(this) match-deep: 275 -> 16 ins (shape). Frame: the name loop's letter and the shown model's
-   fade are ONE float (f), px / pz block locals of the height-map block, flagPath MAX_PATH bytes; the
-   banners a D3OBJECT *flags[] array used directly (flags[i]->objectFlags, no obj copy: the flag store then
-   may alias the info load, as in the original); the banner loop a for; cur = sel = flags[i]; ok = 1 / ok =
-   0 before each arm's sv_SetStatusText; model->stateFlags |= 2 written in both colour arms (VC6 hoists it
-   back above the ok test; the IL refs drop ok's priority below const#0#9, so ok is assigned after color#2
-   took esi: ok edi, color / hmap esi). Left (16): result and count slots swapped (frame 0x30 / 0x2c in the
-   original). Mechanism: both weigh 4 (dens 1000); the packer list puts the local that reaches its final
-   count first in the ref walk (layout order) ahead: result (last ref: the 'if (result == 0)' load) before
-   count (last ref: the final cleanup's bound); c2.dll's density sort is the K&R quicksort at 0x1076fc94
-   (mid to lo, last++ for dens > pivot; reproduced in Python from c2frame's B rows: exact), and only count
-   ahead of result in the list gives the original's A order (probe: the final cleanup loop above the result
-   test flips it but moves code). The listing counts per slot are equal in both binaries, so the original's
-   walk differs by a ref that a late pass creates or removes. No lever: declaration order, init order (90
-   moves), dead count = 0, loop forms of the banner loop (for / ++i / while / if + do), result test /
-   confirm arm swaps, climb 3 rounds (nothing below 16). prior: Reconstructed in full from the original
-   0x58ff00..0x590995 (the name loop, the banner loop, the interactive placement loop, the confirm and the
-   cleanup), every call, store and string read against it; refs_differ=0, ours 786 vs 787 instructions,
-   frame equal. Left: 14 code lines of allocation/scheduling only: +0x311 the original copies the banner to
-   eax before storing sel and cur (mov eax, esi; mov [sel], eax; mov [cur], eax) where ours stores esi
-   twice (tried sel = cur = obj, cur = sel, D3OBJECT * sel, sel = flags[i]: no change); +0x7ba fld v.y;
-   fadd cm_Pi in the original vs fld cm_Pi; fadd v.y in ours (v.y += cm_Pi, v.y = v.y + cm_Pi and cm_Pi +
-   v.y all give ours); +0x97f the original pushes the known-zero esi for sv_MessageBox(txt_Ptrs[0x17f0], 0)
-   where ours pushes 0 (the original keeps esi as the zero register through the banner loop). The rest is
-   slots / order / regs. A variant round. */
+   @deep deep s77: c2frame --refs walk: result reaches its 4th ref at the 'if (result == 0)' load, count at
+   the final cleanup's bound (the error-path cleanup in the loop and the result stores of the confirm arms
+   come before both); the A table puts them in one 1000-density pair between pos (1187) and rot (916), so a
+   third / fifth ref on either moves them into another density group (no single-count fix). flip.py --want
+   '_count$ = -16612' (the original's slot for count; 1144 mutants, 887 compiled): 20 hits, every one
+   reshuffles the whole frame (best m689, deleting 'model->rotation = rot', 82 ins): the unstable quicksort
+   makes any change to the list order move other slots too, so the lever is only the walk order of the two
+   last refs. Tried (= control or worse): 'if (result == 0) return 0; return result;' (= control), the
+   cleanup loop in both arms of the result test (76), 'if (result != 0 && model != 0)' (88). Still open:
+   what puts count's last counted ref before result's in the original's walk without a code change (a late
+   pass that moves the result test block in front of the cleanup, or a result ref after the cleanup that a
+   late pass removes). prior: s(this) match-deep: 275 -> 16 ins (shape). Frame: the name loop's letter and
+   the shown model's fade are ONE float (f), px / pz block locals of the height-map block, flagPath
+   MAX_PATH bytes; the banners a D3OBJECT *flags[] array used directly (flags[i]->objectFlags, no obj copy:
+   the flag store then may alias the info load, as in the original); the banner loop a for; cur = sel =
+   flags[i]; ok = 1 / ok = 0 before each arm's sv_SetStatusText; model->stateFlags |= 2 written in both
+   colour arms (VC6 hoists it back above the ok test; the IL refs drop ok's priority below const#0#9, so ok
+   is assigned after color#2 took esi: ok edi, color / hmap esi). Left (16): result and count slots swapped
+   (frame 0x30 / 0x2c in the original). Mechanism: both weigh 4 (dens 1000); the packer list puts the local
+   that reaches its final count first in the ref walk (layout order) ahead: result (last ref: the 'if
+   (result == 0)' load) before count (last ref: the final cleanup's bound); c2.dll's density sort is the
+   K&R quicksort at 0x1076fc94 (mid to lo, last++ for dens > pivot; reproduced in Python from c2frame's B
+   rows: exact), and only count ahead of result in the list gives the original's A order (probe: the final
+   cleanup loop above the result test flips it but moves code). The listing counts per slot are equal in
+   both binaries, so the original's walk differs by a ref that a late pass creates or removes. No lever:
+   declaration order, init order (90 moves), dead count = 0, loop forms of the banner loop (for / ++i /
+   while / if + do), result test / confirm arm swaps, climb 3 rounds (nothing below 16). */
 D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   char names[128][0x60];  /* the model files of the kind found in the vfs */
   char text[0x400];       /* the confirmation text */
