@@ -2044,6 +2044,30 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s79 (2 byte: ai_EvaluateProductionGypsies, d3_MirCreateOutline; ai_SendFreeSpies, ord_LevelOrder,
+  ai_ShowWorkSettingsPage, he_RunConstruction notes only)**:
+  - **A record pointer loaded into one scratch register and copied into another for its second field test
+    (`mov edx,[b]; mov cl,[edx+0x1c] .. mov ecx,edx; xor eax,eax; mov al,[ecx+0x1d]`), ours one register for
+    both: an unused label where a block's exits join** (ai_EvaluateProductionGypsies 33 -> byte, @original):
+    the sibling's s78 label position (before the else arm's last statement) was wrong here (it took the
+    zero register off the top); a label sweep (`plab:;` before every statement, probe2 capturing the three
+    instructions before the `[e?x+29]` load) had exactly one hit: before the perm init loop that follows the
+    setting-good block. Run the label sweep first on any "same code as a byte sibling, one copy / register
+    off" item: it is cheap (150 positions in 20 s) and it found both siblings.
+  - **A SIB order ([eax+edx] against [edx+eax]) with the two loads in the right order only in the other
+    spelling: an allocation size spelled as a shift** (d3_MirCreateOutline 2 -> byte, open since s48): `res =
+    mem_Alloc(i << 2, ..)` (as the function's own `n << 5`) for `i * 4`, with the head arm's store as
+    `mark[head] = 1` like the tail arm's: the s77 lever (constants far above renumber the IL) found by a
+    product round of constant spellings (3^5 = 242 variants, probe3 regex count) x the store's three forms.
+  - **A push hoisted above the jcc that picks a conditional store (`push edx; jb call; mov [esp+0x70],edi;
+    call`)**: the shape of an if / else whose arms are calls with the same last argument (rd_DoorPos,
+    sv_IsAtDoor: `push pos` hoisted, the differing argument after it); no byte function stores to a frame
+    slot between such a push and its call (grep_orig --multi), and no C order of a one-argument call puts
+    the push first (ai_SendFreeSpies, open).
+  - **A store to an extern int as a probe also kills a CSE of a field load** (ord_LevelOrder: m->kind is
+    reloaded behind it): a probe that "fixes" the registers at +2 ins may only show that the reload adds a
+    reference; read the probe variant's diff before taking its position as the lever's place.
+
 - **Deep s78 (3 byte: d2_MakeLightTable, init_Betrieb, ai_EvaluateProduction; d2_DrawPic, ai_GraveDetail,
   he_PatrolStep notes only)**:
   - **A loop counter one priority short of a hoisted invariant temp (c2trace --prio: i 19 against the 0xff -
