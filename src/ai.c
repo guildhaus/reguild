@@ -621,32 +621,7 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
       cm_SendRemoveGoods(stall->objId, ai_Entries[i].item);
   }
 }
-/* 0x47edb0, evaluates the production of a master's workshop
-   @deep deep s78: probe round (a store of 0 to an extern global before every statement, probe3 on xor
-   ebp,ebp / cmp ax,8, push 0 at the first query, test esi,esi): ONE position gives the original's whole
-   top: inside the non-8/13 loop's found-item arm, after the capacity / HasMaterials if, before its break
-   (dcp try: 1 ins, the probe store itself). info.n2 = 0 there does the same (any memory store of 0);
-   register / dead stores there (found = found, |= 0, a dead local, k / j / t / r / id / x / e = 0, if (0),
-   do-while (0)) and explicit != 0 / == 0 tests anywhere = control; found = 0 there or after the loop also
-   flips the top but kills found = 1 (meaning). So the original's IL has one more zero reference in that
-   block (weight of a loop block) than ours, with no code of its own. An IL-volume sweep (2..32 dead loads
-   after the queries) = control. Open: which no-code construct of that arm carries a constant 0. prior:
-   deep s62: the top's zero register (xor ebp,ebp / push ebp / cmp esi,ebp) is const#0#56 (lines 695-726,
-   11 refs), UNPROFITABLE at sav 0 and assigned at sav 1 by its ebp preference (found's copy): the original
-   has none. With the goto in the 8/13 arm every found placement, found as id/r/t/j/k, a switch on the
-   hour, swapped arms, the human block's gotos as a flag or break, the watch block forms and the tail forms
-   = control. found = 1 (+ break) in the 8/13 arm (s1, Flags's form) makes the whole top the original's (58
-   ins, all in the tail): info.n2 (c2trace k#11#1, prio -32) loses ebp to an ai_NEntries piece (#11, lines
-   863/864/877) because the tail's const 0 piece (#58, prio -12) takes edi earlier and splits ai_NEntries#5
-   (in the goto text that piece comes after k#11's assignment). On s1: t = info.perm[i] before util_Random
-   fixes the tail (t in edi, 24 ins: the shuffle and the first random loop's scratch registers) - the
-   original reads t after the call into ecx; climb from s1 (3 rounds) and from s1+t-first (2 rounds) find
-   nothing else; flip on s1 hits only 0->1 constant changes in the tail (one zero reference fewer), meaning
-   changes and deletes of the redundant k = info.perm[i] (76 / 230 as variants). = s1 on top of s1: the
-   human / watch / tail / shuffle forms of the goto rounds, int types of i/j/k/id/r/t/found, min / if /
-   ternary clamps (min(n2,n1) and if (n2 < n1): 60), found = 0 at every position (dcp try --move-line).
-   Open: the source form that leaves the tail's const 0 piece queued after info.n2 (or one zero reference
-   fewer there) with t after the call. */
+/* 0x47edb0, evaluates the production of a master's workshop */
 
 void ai_EvaluateProduction(AICHAR *ch) {
   AIOBJ *a, *b, *x;
@@ -698,6 +673,8 @@ void ai_EvaluateProduction(AICHAR *ch) {
         break;
       }
     }
+  out: /* @original: an unused label (a block boundary in VC6's IL: the loop's exits join here, which gives the
+          constant 0 the original's register pieces at the top) */
     ch->flags1b4 &= ~0x100;
   }
   if (found)
