@@ -1630,30 +1630,28 @@ D3OBJECT *he_CreateConstruction(D3VECTOR *rot, D3VECTOR *pos,
    script SpecialEvents\\Hausbau_2.esc from stage 2 on) and at the last one shows the building, builds its road,
    sends the news and moves the owner in; -1 / -2 tear the construction down; every stage but the waiting ones goes
    on through the cm slot cm_SendExSetHE gives
-   @deep s47: 70 -> 32 ins, frame 0x38c = the original's. Read from the original's leas (pending pushes
-   subtracted): 0x10 bld, 0x14 best/i/radius, 0x18 dist/nearest, 0x1c scene, 0x20 v/center (16 bytes), 0x30
-   at/now, 0x40 minutes, 0x44 site, 0x98 list, 0x11c u, 0x19c text. Kept: v a block local of each search
-   (case 5 block, the stage-7 search block with at), now in its type block, the completion as if (c->constructStage
-   > c->constructStages) { D3VECTOR4 center; float radius; ..} break; (center is 16 bytes: the slot 0x20..0x30; it
-   must conflict with now, so its block encloses now's), door = 0 before the sprintf (order), nearest =
-   &ai_Blds[i] before best = dist in stage 5 (regs). Left: only the slot order of scene (ours 0x18) and
-   dist/nearest (ours 0x1c): equal densities 2250, VC6's unstable qsort. c2frame counts: scene 9, dist 6 +
-   nearest 3. A model of VC6's qsort (cutoff 8, ascending, table reversed) fitted to 4 compiles says the
-   original has scene 8 OR dist+nearest 10 (one counted reference: counts are taken after allocation and
-   before tail merging / the store-load peephole, so the final code can be identical). Probes that flip it
-   (all change meaning): deleting one SelectScene(scene) (2917 / 2952 / 2967 / -1 case), the -1 case's
-   memset (its rep stosd forces the scene reload into edi), moving if (scene != 0). = control: nearest /
-   best init order, if (!nearest), nested dist test, (float)sqrt, best in the for init, door / best order
-   in stage 7, stage-5 failure via one shared exit (worse). prior: size queue s16: 202 -> 70 ins, raw 4000
-   = the original's padded size. Kept: stage 0's two exits (payer gone, the success send) end with break
-   (retgen sites 0+1: the original's stage 0 jumps into stage 3's copies), stage 3's bld test written
-   positive (if (bld != 0) { ..; send(stage + 1); return; } send(-1); return;: its failure send cross-jumps
-   into stage 1's copy as in the original), the bounding sphere into its own center / radius locals (the
-   original's lea [esp+0x20] / [esp+0x14]; &v / &best kept best address-taken and moved every slot). Left:
-   only frame slots (frame 0x3a4 vs 0x38c): the original shares [0x14] best / i / radius, [0x18] dist /
-   nearest, [0x30] v / now, center at [0x20]. Block-scoping center+radius, now, at, v (31 subsets) gives
-   frame 0x388 at best (sphere+now+at 67 ins, but raw 4004, padded too big); a sphere with &at / &v (any
-   radius) brings back 2400 bytes of slot hunks. Next: c2frame on sphere+now+at for the 4 missing bytes. */
+   @deep s79 (control 32 kept): c2frame --names: scene counts 9 memory references (lines 1683 def, 1805,
+   1828, 1840, 1855, 1903, 1927, 2008, 2030; the stage-4 exits 1758 / 1782 do not count), dist 6 + nearest
+   3 = 9; the qsort tie needs scene 8 or dist + nearest 10. c2tail: only the stage 0..4 exits are
+   tail-merged (merge 6: 1782 into 1758), none of the counted scene reads sits in a merged copy, so a
+   merged-away copy is not where the original lost a scene reference. Stage 5 nested into one failure exit
+   (if (bld != 0 && site) { search; if (nearest != 0) {..; return;} } send(-1); scene; return;): 266; only
+   the nearest failure folded into the end (or5): 96. prior: s47: 70 -> 32 ins, frame 0x38c = the
+   original's. Read from the original's leas (pending pushes subtracted): 0x10 bld, 0x14 best/i/radius,
+   0x18 dist/nearest, 0x1c scene, 0x20 v/center (16 bytes), 0x30 at/now, 0x40 minutes, 0x44 site, 0x98
+   list, 0x11c u, 0x19c text. Kept: v a block local of each search (case 5 block, the stage-7 search block
+   with at), now in its type block, the completion as if (c->constructStage > c->constructStages) {
+   D3VECTOR4 center; float radius; ..} break; (center is 16 bytes: the slot 0x20..0x30; it must conflict
+   with now, so its block encloses now's), door = 0 before the sprintf (order), nearest = &ai_Blds[i]
+   before best = dist in stage 5 (regs). Left: only the slot order of scene (ours 0x18) and dist/nearest
+   (ours 0x1c): equal densities 2250, VC6's unstable qsort. c2frame counts: scene 9, dist 6 + nearest 3. A
+   model of VC6's qsort (cutoff 8, ascending, table reversed) fitted to 4 compiles says the original has
+   scene 8 OR dist+nearest 10 (one counted reference: counts are taken after allocation and before tail
+   merging / the store-load peephole, so the final code can be identical). Probes that flip it (all change
+   meaning): deleting one SelectScene(scene) (2917 / 2952 / 2967 / -1 case), the -1 case's memset (its rep
+   stosd forces the scene reload into edi), moving if (scene != 0). = control: nearest / best init order,
+   if (!nearest), nested dist test, (float)sqrt, best in the for init, door / best order in stage 7,
+   stage-5 failure via one shared exit (worse). */
 void he_RunConstruction(AIJOB *e) {
   AIJOB *c = e;
   AIBLD *bld;
