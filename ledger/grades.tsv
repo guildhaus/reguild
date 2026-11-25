@@ -101,7 +101,7 @@ exe	0x00406a70	ch_FollowGround	ch	byte	readable
 exe	0x00406bc0	ch_ThinPath	ch	byte	readable		
 exe	0x00406c60	ch_SetHandObject	ch	byte	readable		
 exe	0x00406e40	ch_ActAnimOnce	ch	byte	readable		
-exe	0x00406e60	ch_ActTurn	ch	shape	readable	deep	
+exe	0x00406e60	ch_ActTurn	ch	byte	readable		
 exe	0x00407200	ch_FindNear300	ch	byte	readable		
 exe	0x004072a0	ch_FindFreeCell	ch	shape	readable	deep	
 exe	0x00407690	ch_MapAlloc	ch	byte	readable		
@@ -3013,7 +3013,7 @@ exe	0x00500b90	gm_BuildKindObjects	f3gmt	byte	readable
 exe	0x00500c20	gm_CollectOffers	f3gmt	byte	readable		
 exe	0x00500ec0	gm_FindMarketObject	f3gmt	byte	readable		
 exe	0x00501000	gm_FindPlayerBuilding	f3gmt	byte	readable		
-exe	0x00501030	gm_BuildNext	f3gmt	shape	readable	deep	
+exe	0x00501030	gm_BuildNext	f3gmt	byte	readable		
 exe	0x00501190	gm_BuildQuery	f3gmt	byte	readable		
 exe	0x005012b0	gm_FindFreeBuilding	f3gmt	byte	readable		
 exe	0x005012e0	gm_FreeBuilding	f3gmt	byte	readable		
