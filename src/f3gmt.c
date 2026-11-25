@@ -964,27 +964,25 @@ float gm_StockPrice(int p, int n) {
   if (mk == 0 && p != ai_OwnPlayer && (b = gm_FindPlayerBuilding(p)) != 0)
     mk = gm_Query(b->objList, 2, 0, 0x1db, 6);
   count = 0.0f;
-  if (mk == 0)
-    return gm_ItemPrice(id, 100);
-  o = gm_Query(mk->list, 1, 0, id);
-  if (o != 0)
-    count = (float)o->count;
-  ratio = gm_StockBlocks[p].goods[n].mean / gm_StockBlocks[p].goods[n].demand;
-  cur = gm_StockBlocks[p].goods[n].price;
-  t = ratio * (count > gm_StockBlocks[p].goods[n].demand && *good != 0x17
-                   ? (float)(gm_StockBlocks[p].goods[n].demand /
-                             (count < 1.0 ? 1.0 : count))
-                   : 1.0f);
-  t = t > 0.25 ? t : 0.25;
-  f = t < 5.0 ? t : 5.0;
-  r = ((float)f * gm_ItemPrice(id, 100) - cur) * 0.4f +
-      gm_StockBlocks[p].goods[n].price;
-  if (gm_StockBlocks[p].goods[n].price <= 0.0f) {
-    if (gm_ItemPrice(id, 100) < 512.0f)
-      return 512.0f;
-    return gm_ItemPrice(id, 100);
+  if (mk != 0) {
+    o = gm_Query(mk->list, 1, 0, id);
+    if (o != 0)
+      count = (float)o->count;
+    ratio = gm_StockBlocks[p].goods[n].mean / gm_StockBlocks[p].goods[n].demand;
+    cur = gm_StockBlocks[p].goods[n].price;
+    t = ratio * (count > gm_StockBlocks[p].goods[n].demand && *good != 0x17
+                     ? (float)(gm_StockBlocks[p].goods[n].demand /
+                               (count < 1.0 ? 1.0 : count))
+                     : 1.0f);
+    t = t > 0.25 ? t : 0.25;
+    f = t < 5.0 ? t : 5.0;
+    r = ((float)f * gm_ItemPrice(id, 100) - cur) * 0.4f +
+        gm_StockBlocks[p].goods[n].price;
+    if (gm_StockBlocks[p].goods[n].price <= 0.0f)
+      return max(512.0f, gm_ItemPrice(id, 100));
+    return r;
   }
-  return r;
+  return gm_ItemPrice(id, 100);
 }
 /* 0x4ffbf0, the 0x4ffa10 value of the goods record of the player p with the word at +0 equal to id (0x55 records of 0x80 bytes), -1 when there is none */
 float gm_GoodsValue(int p, unsigned id) {
