@@ -2859,36 +2859,7 @@ done:
 /* 0x484a60, evaluates the production of a gypsy camp (building kind 0x1f): as ai_EvaluateProductionGraveyard
    without the grave offer and the staff / spy / pose steps (ai_UpdateStaff instead): picks the good to make, skips
    the entries flagged 0x400 (job orders of type 0x8c when a slot flagged 0x400 | 0x10 marks them 0x10), the others
-   get job orders of type 4 for flag 8
-   @deep Session s2(match-deep): (1) the second random loop's success written as ai_EvaluateProductionFlags
-   spells it (the HasMaterials(.., 0) test as its own nested if, then k = info.perm[i];
-   ai_StartProduction(ch, &ai_Entries[k]); e = &ai_Entries[k];): 241 -> 39. (2) found = 0 right before the
-   hour test (after ai_BuyUpgrade) and one if (found) goto done after the hour if / else (the else arm's
-   own test dropped; the 8 / 13 arm's inner test is = control either way): 39 -> 33, the else arm's
-   flags1b4 temp now eax as the original. found = 0 at the top with the single test: 264 (found to memory).
-   Left (33): the setting-good block (+0x275..+0x344): the original loads b into edx and copies it to ecx
-   for the lvl1d test (mov edx,b / mov ecx,edx / xor eax,eax / mov al,[ecx+0x1d]), then the goods-record
-   temps ecx/edx; ours b in eax. The text up to that block is now ai_EvaluateProductionFlags' (byte, which
-   has the original's form there), so the lever is in the later code (the 0x400 tests against Flags' 0x20 /
-   0x200 pair, the 0x400 slot loop) or the region split, not in the block. No lever (= control): character
-   loop outer if, min() as if, declaration orders (41 variants), the if-forms of the id / lvl tests; worse:
-   ai_FreeJobCharacters in both watch arms, lvl tests with e (228). prior: Session s(match-deep): kept the
-   8 / 13 o'clock arm as the else arm (found = 1 in the success, break, if (found) goto done after its
-   loop): 243 -> 241, the loop guard's cmp esi,ebp (found's zero live through the arm) is now the
-   original's. The layout lever is ch's priority: c2trace ch#3 (lines 2729-2936, 46 refs, prio -20) loses
-   ebx to the job-order loop's j#2 (prio -13); the original keeps ch in ebx through the job-order loop (j
-   in [esp+0x10]) and splits it only around the first random loop (ebx as goods temp, ch reloaded at
-   0x484f38 / 0x484fb4) and the watch loop (k in ebx, ch reloaded at 0x4852ab). One more ch reference at
-   loop depth 1 in the 8 / 13 arm (probe: ch->prod stored twice there) gives ch#3 ebx, the second random
-   loop's success block out of line at the original's place (0x4851da) and 241 -> 85 ins (leaves an extra
-   store, so it is not the source); dup StartProduction there 94, dup gm_Query(a) 99; flip.py (want the
-   obwohl block after the ai_NSlots loop, and want ch never loaded into a non-ebx register) hits only such
-   duplicates and meaning changes. The natural source of that reference (one that leaves no code: an arm
-   written twice and cross-jumped, a decided test) is not found. No lever (= control or worse): Graveyard's
-   single if (found) after the if / else (284, found to memory), e = &ai_Entries[i] in either arm (263+),
-   ch->prod / flags1b4 order, nested else / flipped flags1b4 arms, job loop index j->i/k, the watch loop
-   condition, e = &ai_Entries[k] in the second loop's success (161 but the original re-reads info.perm[i]
-   there). climb 4 rounds beam 6: 147 only via unnatural locals. */
+   get job orders of type 4 for flag 8 */
 
 void ai_EvaluateProductionGypsies(AICHAR *ch) {
   AIOBJ *a, *b, *x;
@@ -2982,6 +2953,8 @@ void ai_EvaluateProductionGypsies(AICHAR *ch) {
       }
     }
   }
+random: /* @original: an unused label (a block boundary in VC6's IL where the setting-good block's exits join;
+           it gives b's reload in the lvl1c / lvl1d tests the original's edx / ecx copy) */
   for (i = 0; i < 32; i++)
     info.perm[i] = i;
   i = 0;
