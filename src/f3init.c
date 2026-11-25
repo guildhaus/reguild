@@ -2272,6 +2272,7 @@ extern signed char ai_MissionMode;           /* 0x624580 */
    the entry and ok at the bottom (k < 0xa900 && !ok keeps the entry ok test but reloads k: 89 ins; ok = 0
    / k = 0 in the for-init, a while wit... */
 void init_OpenTown(void) {
+  int ncl = 0;
   char cls[0x22] = {0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 1, 0, 2,
                     1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 1, 0, 1, 1, 0};
   int cnt[0x22];
@@ -2281,7 +2282,7 @@ void init_OpenTown(void) {
   int vecB[3];    /* its angles (ai_ObjectAngle), handed on as their bits */
   char buf260[96];
   D3OBJECT *list200[128];
-  int ncl, i, j, k;
+  int i, j, k;
   AIBLD *r, *q;
   int h, n, nch, m, ok;
   AIBLD *geb;
@@ -2291,7 +2292,6 @@ void init_OpenTown(void) {
   AIBTYPE *cl; /* the type record of the building b */
   int bk;      /* the class of the type (cl->kind) */
 
-  ncl = 0;
   memset(cnt, 0, sizeof(cnt));
   memset(pl, 0, sizeof(pl));
   memset(ch2, 0, sizeof(ch2));
