@@ -532,20 +532,7 @@ GVYARD *gv_AllocGraveyard(AIBLD *bld) {
 /* 0x4eff50, moves the graveyard building o to the record of its new level (the type's level one above GVYARD.kind, which
    is below 3): allocates the larger record (gv_AllocGraveyard), copies the graves of the old sizes and the entries' state
    (all but their grave pointers) over, takes the open flags and frees the old record (gv_FreeGraveyard); returns the new
-   record, or 0 (the old one stays) when o does not qualify or there is no memory
-   @deep deep s26: climb round 1: nothing. Reading: the original's loop 0 stores are [base + iv + d] for d
-   != 0 while its loads and every access of loops 1 / 2 are [iv + base + d] (the d = 0 store [iv + base]
-   too), so loop 0's store address had another IL form in the original, not another register; a toy compile
-   of the plain loop (no reloads) gives exactly that split (stores base first for d != 0, loads iv first),
-   so the form follows from what VC6 knows about the list pointers (ours reloads nw->lists[0] /
-   old->lists[0] per statement like the original). Left: the 4 store SIB swaps of loop 0. prior: this pass:
-   the counts as one int n[4] (the original's 0x10-byte frame with n[2] at +8; VC6 keeps n[0], n[1] in
-   registers) and set in index order n[0], n[1], n[2] before the memcpys (60 -> 8 ins, shape). Left (sib
-   26): the four disp stores of the first copy loop address [base + esi + d] in the original ('+ mov dword
-   ptr [edx+esi+4],ecx'), ours [esi + base + d]; the loops over lists[1] / lists[2] agree. Tried for loop 0
-   only: (p + i)->f, (*nw->lists)[i], &p[i], i[p], *(p + i), a (GVENTRY *) cast, char * arithmetic, on nw,
-   old or both; old->lists[0] without != 0, n[0] > i, ++i, a block-local bound: all = control; n[3] as the
-   index (45 ins), unsigned i (14 ins); every declaration order (= control). (tiebreak: insensitive) */
+   record, or 0 (the old one stays) when o does not qualify or there is no memory */
 
 GVYARD *gv_GrowGraveyard(AIBLD *bld) {
   AIBTYPE *bt;
@@ -566,18 +553,18 @@ GVYARD *gv_GrowGraveyard(AIBLD *bld) {
       n[0] = 8;
       n[1] = 4;
       n[2] = 0;
-      memcpy(nw->lists[0]->grave, old->lists[0]->grave, 8 * sizeof(GVGRAVE));
+      memcpy(nw->lists[0]->grave, old->lists[0]->grave, n[0] * sizeof(GVGRAVE));
       memcpy(nw->lists[1]->grave, old->lists[1]->grave,
-             4 * 2 * sizeof(GVGRAVE));
+             n[1] * 2 * sizeof(GVGRAVE));
     } else { /* from level 2: 12 / 6 / 2 graves of the sizes 0 .. 2 */
       n[0] = 12;
       n[1] = 6;
       n[2] = 2;
-      memcpy(nw->lists[0]->grave, old->lists[0]->grave, 12 * sizeof(GVGRAVE));
+      memcpy(nw->lists[0]->grave, old->lists[0]->grave, n[0] * sizeof(GVGRAVE));
       memcpy(nw->lists[1]->grave, old->lists[1]->grave,
-             6 * 2 * sizeof(GVGRAVE));
+             n[1] * 2 * sizeof(GVGRAVE));
       memcpy(nw->lists[2]->grave, old->lists[2]->grave,
-             2 * 4 * sizeof(GVGRAVE));
+             n[2] * 4 * sizeof(GVGRAVE));
     }
     if (old->lists[0] != 0) {
       for (i = 0; i < n[0]; i++) {
