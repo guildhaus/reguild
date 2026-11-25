@@ -4605,11 +4605,20 @@ int ai_BribeAmountCB(AICHAR *ch, int n);
    to the player rises by amount * (6 with the flag 0x800 of the player's flags1cc, else 4) * 500 / the two worths
    (cm_SendRelations, the slot waited for), a player character ch (kind 6 / 7) gets the news 0x1751, and the
    bribe is a crime (gv_Accuse law 0x10). Returns 1 once the bribe was given, else 0
-   @deep s52 (ended inside the item, 50 ins unchanged): the player's call is second at BOTH sums when
-   written plainly; the first sum (max, +0x81) is byte only through the worth temp. Rule measured (toy file
-   with the same cl, and tools/c2dag/vlist.py on variants): of g(A) + g(B) VC6 calls the operand with the
-   more complex argument first, whatever the source order or the callee's declaration (prototype / K&R /
-   stdcall / two callees / inline wrappers all the same): [reg] field > global > local, byte (movzx) >
+   @deep match-deep s80 (source unchanged, 50 ins). New lever for the second sum's call order, from the
+   other side: a user local for ch's id ranks last, so the player's call goes first with the CSE'd cx:
+   unsigned short cid = ch->id; .. gm_GetWorth(ai_PlayerId) + gm_GetWorth(cid) gives the original's order
+   and cx push (49 ins), but cid is then loaded before the ternary into bp and kept in ebp across the first
+   call (mov bp,[esi] .. push ebp; the sum then goes through [esp+0x18]), where the original loads mov
+   ax,[esi] right before the second push. Same code: cid in a block around the statement, short cid; cid =
+   ch->id inside the call (49, other code); int cid / the n parameter / value reused 77; cid set at the top
+   36 ins but frame 0x434; cid for both sums 96. Next: a ch-side argument that ranks below the global at
+   call ordering but is read after the first call (a local whose load VC6 sinks, or a field of a record
+   copy). prior: s52 (ended inside the item, 50 ins unchanged): the player's call is second at BOTH sums
+   when written plainly; the first sum (max, +0x81) is byte only through the worth temp. Rule measured (toy
+   file with the same cl, and tools/c2dag/vlist.py on variants): of g(A) + g(B) VC6 calls the operand with
+   the more complex argument first, whatever the source order or the callee's declaration (prototype / K&R
+   / stdcall / two callees / inline wrappers all the same): [reg] field > global > local, byte (movzx) >
    word, record[idx].id > ch->id; volatile, dllimport and TLS globals rank above ch->id; two calls as
    ARGUMENTS of a call go right to left. Second sum, what comes close: gm_GetWorth(((AICHAR
    *)ai_Chars)[ai_PlayerId].id) 13 ins (order right, the id read from the record); the argument as a
@@ -4620,20 +4629,10 @@ int ai_BribeAmountCB(AICHAR *ch, int n);
    call first (me spilled). So the original's argument is an anonymous 16-bit value of ai_PlayerId computed
    before the flags1cc index and its call comes first; a user local for it always ranks last. = control /
    ch first: every view, qualifier, identity and cast of ai_PlayerId or ch->id, the address taken,
-   AICHAR.id signed, 64 declaration counts, cl /Oa /Ow /Ox /O1, flip.py (0 hits). Statement forms sink
-   the product behind the calls (32, frame 0x434). Not tried: ai_PlayerId's real width / owner struct in
-   this unit's headers (a tree edit, not an in-function cast: *(int *)&ai_PlayerId disturbs the whole
-   function), an __inline helper taking both worths. prior: s45: the original's ai_PlayerId is one global
-   CSE (mov cx,[ai_PlayerId]) from the flags1cc index across the 6 / 4 ternary into the first gm_GetWorth
-   push, so the player's call must come first in the sum. VC6 orders the two calls by the operands' trees,
-   not their source order: = control for the sum swapped, (short) / (int) / (unsigned short) casts on
-   either argument, ai_PlayerId + 0, *&ai_PlayerId, ch[0].id, (float) of the sum, extra parentheses,
-   (float)amount, worth = (sum) inside the expression. gm_GetWorth(ai_Chars[ai_PlayerId].id)
-   puts the player's call first (13 ins: the arg then comes from the record, mov dx,[eax+X], no CSE) = the
-   deeper argument is evaluated first. (worth = gm_GetWorth(ai_PlayerId)) + .. inside: 32 ins but frame
-   0x434. int arithmetic, 500.0 double: worse. climb 2 rounds: 38 ins via rec written out (no). Next: an
-   argument tree for the player's call as deep as ch->id's that still loads ai_PlayerId (a macro / helper
-   of the original?), or the sum's operands as a CSE'd index (c2dag of the sum). */
+   AICHAR.id signed, 64 declaration counts, cl /Oa /Ow /Ox /O1, flip.py (0 hits). Statement forms sink the
+   product behind the calls (32, frame 0x434). Not tried: ai_PlayerId's real width / owner struct in this
+   unit's headers (a tree edit, not an in-function cast: *(int *)&ai_PlayerId disturbs the whole function),
+   an __inline helper taking both worths. */
 
 int ai_BribeAmountCB(AICHAR *ch, int n) {
   int given;
