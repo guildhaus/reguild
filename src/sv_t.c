@@ -3966,20 +3966,19 @@ int ai_AlchemistHire(AIBLD *obj, AHMSTEP *step, int value) {
    ai_AlchemistSendRecipeResearch when ahm_RandomRecipe gives the owner a recipe, else the message 0x41b0. The second is enabled
    while no research runs and calls ai_AlchemistSendResearchStart. The right mouse button closes the window; the camera follows
    again at the end
-   @deep frame sweep s21: frame 0x264 vs 0x25c. dcp frame pairs msg with line in one of the original's
-   slots, but one buffer for both gives frame 0x164 (235 ins): the two are separate 0x100 arrays; line per
-   slot loop / msg in the state block = control (199). The 8 bytes are among the scalars (the original
-   packs pid / t / slot / group / pic / slider into three slots). Lead: c2frame --names on the scalars.
-   prior: match-deep 2026-11-14 (199 ins kept). Tried: the slot loops as index loops (rec->slots[k],
-   pics[n]): 343..359 ins (the original's [edx] store through a reloaded pic pointer is a hand pointer,
-   *pic = pid; pic++); *pic++ = pid: 237..247; slot index + pic pointer: 197 (frame hunk unchanged). row[2]
-   declared in a block around sv_ButtonRow: frame 0x25c = the original's (sel then shares row's slot as
-   there) and the entry registers come out as the original's (owner edi, rec ebp, form esi), but 223 ins:
-   start / other get registers (the original copies row[0] / row[1] to the slots 0x44 / 0x48) and win2
-   (c2trace prio 1187, 11 refs) keeps ebx where the original stores it to 0x40 right after the
-   SetForm(form, 2) and reloads it in the loops. Next: from the row-block form, make win2 / start / other
-   lose priority (fewer references or a split) - c2trace.py with the arw2 variant sep_ptr_row1 in the
-   session notes' generator. (tiebreak: insensitive under the four probes only, best draft) */
+   @deep deep s85: the first slot loop formats into msg (the original: lea ecx,[esp+0x84] there against
+   [esp+0x184] in the rebuild loop, msg at 0x6c / line at 0x16c: the first loop shares the state text
+   buffer, the rebuild loop uses line); kept, 199 ins (its own code, the first loop now addresses the
+   original buffer). Left, the main hunk: in the original BOTH slot loops push the d2_RadioAdd arguments
+   (pid in eax, group) right after *pic = pid, before the two d2_Objs stores; ours does so in the rebuild
+   loop only, the first loop spills pid to a slot and pushes after the stores. climb.py (5 rounds): only a
+   local for slot->id read once at the first loop top moves the count (155 ins, = any name, both loops 222)
+   but the original reloads slot->id from the slot pointer at each use (mov edx,[slot]; mov edx,[edx]), so
+   not kept; its later rounds are frame-size moves (0x25c reached only at 300+ ins). prior: frame sweep
+   s21: frame 0x264 vs 0x25c. dcp frame pairs msg with line in one of the original's slots, but one buffer
+   for both gives frame 0x164 (235 ins): the two are separate 0x100 arrays; line per slot loop / msg in the
+   state block = control (199). The 8 bytes are among the scalars (the original packs pid / t / slot /
+   group / pic / slider into three slots). Lead: c2frame --names on the scalars. */
 void ai_AlchemistResearchWindow(AIBLD *obj) {
   char msg[0x100];
   char line[0x100];
@@ -4054,8 +4053,8 @@ void ai_AlchemistResearchWindow(AIBLD *obj) {
     d2_Objs[pid].interactive = 1;
     d2_Objs[pid].user = &ai_Goods[slot->id];
     d2_RadioAdd(group, pid);
-    txt_Format(line, (intptr_t)"%s", slot->id * 2 + 0x9a8);
-    t = d2_CreateWinText(x + 0x3c, y + 5, line, win2);
+    txt_Format(msg, (intptr_t)"%s", slot->id * 2 + 0x9a8);
+    t = d2_CreateWinText(x + 0x3c, y + 5, msg, win2);
     d2_Objs[t].w = d2_Wins[win2].w / 2 - 10;
     d2_SetObjFont(t, 0x54);
     sv_ValueBar(x + 0x3c, y + 0x19, (int)(slot->v * 252.0f), 0x4df);
