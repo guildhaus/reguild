@@ -750,32 +750,27 @@ void ai_GraveWindow(GVPICK *out, AIBLD *rec, char *title, int flag,
    picture 0x6c7 with the dead person's icon (interactive), the name and second line centred in font 0x54 and the
    five traits with their value bars. Section 5: the player's character as the holder, the year "AD %i" (until +
    1400) and the care in percent (txt 0x4101 .. 0x4103); the scroll position is kept
-   @deep deep s39: nothing kept (31). What the original has: n in esi and e in ebx (ours e esi / n ebx), no
-   home store of n = 0 at entry and ONE store behind the collect loop's join (cmp esi,8 / mov
-   [esp+0x18],esi; the count <= 0 jle lands on the cmp). c2trace: pass 2 serves e#2 (prio 76) before n#2
-   (74) and the first served takes esi; --prio: block 0 (P 7) gives e +28 / n +14, the test block (P 4, w
-   2) e +16 / n -8, the fill guard and preheader n +4 / +30, the pre-show block (P 13) n +26 / e -13: n
-   needs +3. flip.py --want 'cmp esi, 8': 30 hits, the count-keeping ones all change a const-0 reference
-   (items[i].grave = 1, sv_CreateScrollButtons(1, 0 ..), show loop i = 1, n++ doubled,
+   @deep deep s72: no change (31). c2trace (tree): pass 2 serves e#2 prio 76 before n#2 74 (e takes esi, n
+   ebx; the original n esi / e ebx); in the pass-1 terms e gains +16 in the id-test block (line of 'if
+   (e->grave[i].id != -1)', P 4 w 2) where n pays -8, and +28 in block 0 (e = .. / count =
+   gv_EntryCounts[e->size]) against n's +14. = control this session: the collect loop as while (count-- >
+   0) with i++ at the end; n = 0 after count; e->grave + i; -1 != id; grave = NULL; count read through
+   w->entry->size before / after e = w->entry (copy-propagated, 3 orders); an items = w->items pointer
+   local as the sibling ai_GraveDetail has it (collect loop only, or before e: = control; collect + fill
+   loops: 33). saved read after the first d2_SetForm: 49 (the original reads it before). Still open: a
+   reference that moves 3 priority points from e to n in the collect region (the flip hits of s39 are all
+   const-0 reference changes). prior: deep s39: nothing kept (31). What the original has: n in esi and e in
+   ebx (ours e esi / n ebx), no home store of n = 0 at entry and ONE store behind the collect loop's join
+   (cmp esi,8 / mov [esp+0x18],esi; the count <= 0 jle lands on the cmp). c2trace: pass 2 serves e#2 (prio
+   76) before n#2 (74) and the first served takes esi; --prio: block 0 (P 7) gives e +28 / n +14, the test
+   block (P 4, w 2) e +16 / n -8, the fill guard and preheader n +4 / +30, the pre-show block (P 13) n +26
+   / e -13: n needs +3. flip.py --want 'cmp esi, 8': 30 hits, the count-keeping ones all change a const-0
+   reference (items[i].grave = 1, sv_CreateScrollButtons(1, 0 ..), show loop i = 1, n++ doubled,
    sv_CreateScrollButtons doubled): one more or one fewer zero reference flips the pair, as in
    ai_GraveDetail. = control (no lever): for (i = n = 0 ..), for (i = n ..), n = 0 in the for-init, e
    before n / count before n, dead inits (saved / item / x / y / k / i / count = 0), a second variable for
    the count behind the collect loop (used = n, count = n, the fill loop on n itself); a GVGRAVE *g block
-   pointer in the collect loop: 62. climb round 1: nothing (184 mutants). prior: draft 70 -> 31 ins. Kept:
-   the collect and fill loops as plain index loops on ((GVDETAILWIN *)w)->items[n] / [i] (the item++ walk
-   and the int-pointer fill walk gone: 70 -> 33, the e / n stores and the IV base on the id field now as
-   the original), the labels "%s:" / "%1N3" (literals since s11), the trait loop's y += 0xd in the for
-   increment (the original's inc before add esp: order 16 -> 12). Left: e and n swap registers (ours e esi
-   / n ebx, the original n esi / e ebx: c2trace has the e piece at prio 76 vs n 74, so e is served first),
-   plus the n = 0 home store at entry (mov [esp+0x18],esi before the loop; the original stores n once after
-   it). flip.py --want 'mov ebx, [edi+28]' found 27 hits, all removing a const 0 reference
-   (sv_CreateScrollButtons 0,0 -> 1: 7 ins; the fill's grave = 0 -> 1: 7; the show loop's i = 0: 11) or an
-   e reference (e->grave read through w->entry in the loop: 8; count from w->size: 7, a meaning change) -
-   the same const#0 web as the sibling ai_GraveDetail. No lever: init order n / e / count (3 orders,
-   for-init n = 0, entry field spelling, declaration order: = control), continue / n++ in the index / while
-   fill (= control), a GVGRAVE *g walk (50), id through items[n].grave (55), btn before id (66), the item
-   pointer for-walk in the show loop (45). Open: M10 100.0f vs ai_FloatHundred (no view in sv_t) (tiebreak:
-   not measured (dcp headers sample ai_RentGraveDetail)) */
+   pointer in the collect loop: 62. climb round 1: nothing (184 mutants). */
 void ai_RentGraveDetail(GVDETAILWIN *w) {
   GVENTRY *e;
   GVITEM *item;
