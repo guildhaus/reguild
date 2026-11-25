@@ -2724,23 +2724,35 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
 /* 0x4079b0, walk actions: checks the next path cells against the nearby characters others[0..n-1] and,
    if one blocks the way, marks them in the ground map and searches a new path around them ("ch:GetNewPath"
    is the mem_Alloc tag). Returns the new path length, 0 nothing to do, -1 failed, -2 no way around.
-   @deep size fixed s4 (2770 vs 2774, padded 2784 = original): the transport arms as e = max(1,
-   oa->u.walk.cur - 2) / max(1, oa->u.walk.cur): the max macro reads cur twice per arm, so the arms no
-   longer start with one equal load and VC6 stops hoisting it (the original's mov eax,[cur]; lea
+   @deep s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes name the counts: a dead probe
+   'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives the original's table exactly
+   (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92 ins), cz -1 (a compare
+   against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py --want '_scene\$ =
+   -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes: deleting gx = cz / sx = cz,
+   swapping the dz line with the sqrt in either distance arm, y as double, the goto linked / goto next
+   deletions. So the original has one more counted reference of scene and of cx (a statement in both arms
+   merged late, or a reload the peephole removes); not found. Declaration orders (5) = control. m (the
+   FindFreeCell ternary): inlined in either / both calls, if / else, m = steps * (..), m * steps, r / e / k
+   / i reused, unsigned: all = control (c2trace: m#1 / m#2 both eax; the original has m#2 in ebx and both
+   products in a fresh register after the flags push); unsigned char m spills m (130), short 98, flags | 1
+   in a local 175. Compares: 'cx == wp[j].x' in the flags & 2 arm loads cx first as the original but
+   compares eax,ecx (92 ins, not kept); 'cz == wp[j].z' in the flags & 1 arm = other code, same count. Rest
+   copy as rest[nrest * 2] index form 206, q += 2 before nrest++ 121. mem_Alloc: (nrest + cnt) * 2 / cnt *
+   2 + nrest * 2 = control; no cnt local ((ch_Path.count + nrest) * 2) gives the original's lea / add
+   ecx,ecx form but loads the global after mem_Free (100 ins, slots 60); cnt read after the free 98; cnt =
+   count + nrest 98. The original loads count into edi before the path test and still forms the sum with
+   lea (cnt not modified in place although dead): the cnt candidate is something VC6 treats as not dying
+   there. climb --rounds 1 (447 mutants): best 89 only via an int copy of ch->speedScale (meaning change).
+   Left: the frame ties, the two FindFreeCell m / product registers, the flags & 2 cx compare order, the
+   flags & 1 cz compare form, the rest-copy loop's lea / add ecx placement, the memset argument load order,
+   mem_Alloc's lea. prior: size fixed s4 (2770 vs 2774, padded 2784 = original): the transport arms as e =
+   max(1, oa->u.walk.cur - 2) / max(1, oa->u.walk.cur): the max macro reads cur twice per arm, so the arms
+   no longer start with one equal load and VC6 stops hoisting it (the original's mov eax,[cur]; lea
    edi,[eax-2]; jmp; mov edi,[cur]); 102 -> 96 ins. Tried same round: clamp written in each arm (2764
    bytes), max of the ternary (145 ins), k/e roles swapped, e -= 2 statement, r clamp moved (= control or
    worse). Left: the slot ties (cz/scene, tz/bz, see prior), the first FindFreeCell's steps * m after the
    flags push (mov ebx,[steps]; imul ebx,eax), the second's m in ebx with or al,1, the rest-copy loop's lea
-   ecx placement. prior: size queue: 2758 vs 2774 (16 short, padded needs >= 2769). s2 kept (184 -> 102
-   ins): k = walk.cur read before the scene-map test, p after it (the original's load order, that hunk now
-   equal); the ground-mark range as if/else into e + for (k = e; k < e + 2 ..) (oa back in esi); the frame:
-   sx and fz (the FindFreeCell second output, was i) block locals of if (res & 1), the ThinPath result in
-   its own block local len: frame 0x9b8 as the original, i no longer escapes (the original never stores i
-   after the ground loops), slots i+fz / tmp+sx / tz+len shared as the original's; nrest++ before q += 2.
-   Frame left: two equal-density ties come out of the K&R sort the other way (ours cz before scene, tz
-   before bz; a K&R simulation says cz one reference fewer, or scene before cz and bz before tz in the
-   table, fixes both). Size left: (1) the transport ternary: the original loads walk.cur in BOTH arms
-   (mov... */
+   ecx placement. */
 
 int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
   int res = 0;
