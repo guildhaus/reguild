@@ -2044,6 +2044,33 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s76 (3 byte: d2_ShpBlit16HalfDark, d3_EnvMapCoords, ai_FindPartner; d3t_UpdateSnow, ai_AlchemistWindow notes only)**:
+  - **Split pieces reloaded in the wrong order at a loop exit (surf / s / line): the value written three times
+    was ONE float local** (d2_ShpBlit16HalfDark 2 -> byte, open since s24): `grey = ((float)r + b) * 0.2f + g *
+    0.59f; dd_RGB((unsigned char)grey, (unsigned char)grey, (unsigned char)grey)` instead of a macro copy per
+    argument (VC6 CSEs both into one _ftol, but the named float is one candidate more, which renumbers the
+    pieces). Measured first with a probe round: `{ extern int probe; probe = 5; }` at the top gave the order
+    (an extra candidate), the float-expression spellings did not; then the obvious named intermediate.
+  - **A reload left behind a region cut (81 nodes): add no-code paren nodes, several, not one** (d3_EnvMapCoords
+    2 -> byte, open since s24): a parenthesised product is an op-263 node with no code; ONE paren moved the
+    cut one node and changed other code (the s48 masks: best 6), TWO or THREE in the right places move it
+    past the call so the reload joins the call's region: `nv.x = (m._11 * b.x) + (m._21 * b.y) + (m._31 *
+    b.z); b.x = (d * nv.x) + v->x;` (27 x 8 paren masks, a probe-listing filter on the five instructions after
+    the call, then dcp try on the 194 hits: 9 byte, one code). Note the paren count also moves VC6's float
+    sum ordering in the NEXT loop (whole-RHS parens in the first loop broke the second loop's sums).
+  - **A tail cross-jumped into a sibling arm's equal tail (the k == 2 block's p = 0 written last): an unused
+    label at the arm's end** (ai_FindPartner 2 -> byte, @original): `p = 0; done:;`: a user label survives as a
+    block boundary and stops the merger; empty do-while, `while (0);`, `for (;;) break;`, `switch (0) {}`, an
+    empty if, a self-assignment and `return p` there do not (one code: the merged tail). Use when the s75
+    no-code recompute has no value to recompute.
+  - **The scheduler's priorities in d3t_UpdateSnow's head (open)**: every fstp (op 63) gets prio h * 8192 +
+    65537, a mov store h * 8192, so an fstp whose chain is 8 shorter than a store's still beats it by 1; the
+    gap between two chains that meet at one node is fixed by the instructions, no paren / cast / order
+    spelling after them changes it (406 + 216 + 2501 probe variants).
+  - Tool: a parallel probe (flip.listing over c2trace.variant_text, 8 threads, a regex count or a captured
+    group per variant) filters 200-2500 variants in 15 s - 3 min without the daemon; dcp try then grades
+    only the hits (whole-function variants work in both).
+
 - **Deep s75 (2 byte: ch_ActTurn, gm_BuildNext; init_OpenTown 6 -> 4; d2_SliderInput, ai_MercenaryBook notes only)**:
   - **An x87 op issued after an integer RMW where the original issues it before: a scheduler height TIE broken
     by IL order** (ch_ActTurn 4 -> byte): c2dag showed the fchs of `v.z = -v.z` and the `or dl,8` of `f.b[1] |=
