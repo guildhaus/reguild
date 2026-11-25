@@ -91,7 +91,7 @@ int mov_Open(char *file, HWND hwnd, HINSTANCE hinst, int x, int y, int w, int h,
   WCHAR wfile[MAX_PATH];
   FILE *f;
   MOVIE *m;
-  int id = 0;
+  int id;
 
   f = fopen(file, "rb");
   if (f) {
@@ -209,6 +209,7 @@ int mov_Open(char *file, HWND hwnd, HINSTANCE hinst, int x, int y, int w, int h,
                                             WM_GRAPHNOTIFY, id);
         m->window->lpVtbl->SetWindowForeground(m->window, -1);
         m->window->lpVtbl->put_BackgroundPalette(m->window, 0);
+        return id;
       }
     } else
       sprintf(buf,
@@ -216,7 +217,7 @@ int mov_Open(char *file, HWND hwnd, HINSTANCE hinst, int x, int y, int w, int h,
               "ltig !\nfilename: %s\nHWND:%d",
               file, hwnd);
   }
-  return id;
+  return 0;
 fail:
   mov_Release(m);
   mov_Free(m);
