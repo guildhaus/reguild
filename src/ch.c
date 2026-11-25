@@ -2342,14 +2342,7 @@ void ch_ActAnimOnce(CHACTION *a) {
   if (ch_ActAnim(a) == -1)
     ch_RemoveAction(a);
 }
-/* 0x406e60, turn action: args[0] degrees (args[1]: relative to the z axis), plays "dreh_90_*" and turns
-   @deep deep s48: c2dag: the slot block is one 63-node region (no 81 cut); fchs (h 12) / fstp v.z (h 10)
-   rank below or dl,8 and the push of &f (lea eax h 26), so ours issues them after the push; the original
-   before. initgen (= 0 initializers): = control. Left: the 4-ins fchs / fstp v.z place at 0x40700f. prior:
-   deep s24: flip.py --want the original's fchs / fstp v.z before or dl,8: one hit only, deleting v.y =
-   angle - v.y (a meaning change, draft 82); keys[1].rot.y = angle - v.y without the v.y store in 4
-   positions: draft 54..102 (frame 0xc4 / 0xd4); v.z = -v.z moved to every line of the slot block: 18..110.
-   Left: the 4-ins position of fchs / fstp v.z (the original before or dl,8 / push eax, ours after). */
+/* 0x406e60, turn action: args[0] degrees (args[1]: relative to the z axis), plays "dreh_90_*" and turns */
 
 void ch_ActTurn(CHACTION *a) {
   CHARACTER *ch = a->ch;
@@ -2397,7 +2390,6 @@ void ch_ActTurn(CHACTION *a) {
       memset(&f, 0, sizeof(f));
       f.b[1] |= 0x14;
       f.b[8] |= 2;
-      f.b[1] |= 8;
       keys[0].time = s->data->frames[s->data->nframes - 1].time - 30;
       keys[0].rot.x = 0.0f;
       keys[0].rot.y = 0.0f;
@@ -2410,6 +2402,7 @@ void ch_ActTurn(CHACTION *a) {
       keys[1].pos.z = 0.0f;
       v.y = angle - v.y;
       v.z = -v.z;
+      f.b[1] |= 8;
       keys[1].rot.x = v.x;
       keys[1].rot.y = v.y;
       keys[1].rot.z = v.z;
