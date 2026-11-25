@@ -218,28 +218,30 @@ int amt_GetOfficeRate(AICHAR *c, int x, float *out) {
    strength-reduces it to the original's pointer walk, 0x18 apart); the two-person kinds then repeat it for the second
    office (f1: the first office took it, f2/f1 together: an office was open) and send the second office's index as m.o2. The final checks
    repeat the open test of the plain kind.
-   @deep deep s29: both searches rewritten as plain for loops (+ break, the open test after the second one
-   with i < 30) - the same code as the do-while pointer walk, kept for reading. The hunks left (14 ins):
-   the f1 site's lea eax (original edx), and the plain path, which the original emits as eax=c; push str;
-   edx=[eax+4]; al=idx; store id; store o1 (ours: the !f2 arm's code, edx=c, cl=idx, o1 first). Plain path
-   id-first + !f2 arm o1-first (or-id-f2o1) gets the plain path's code AND the f1 site's lea right (14 ins
-   / 95 bytes), but then the !f2 arm's lea is ecx like the plain path's, so its push str; call Begin; lea;
-   push tail cross-jumps into the plain path and neither site hoists the push str above the m stores (code
-   10, order 10, branch 1). id-first in both = 32 ins (the arms merge), o1-first in both = 16. The || / &&
-   / separate-if spellings of the plain checks = control; climb 2 rounds from the tree and from or-id-f2o1:
-   nothing. Left: why the original's !f2 lea gets edx while the plain path gets ecx (a scratch rotation two
-   sites apart). prior: 51 -> 14 ins: the three send sites are written out in full (Begin; Send; End;
-   return) instead of goto send - the original has three cm_BeginGroup calls and VC6 cross-jumps only from
-   the cm_SendApplication call (the lea of &m differs in register per site); if (f2) o2 else send arm; m.id
-   before m.o1 in the first-office block and the !f2 arm. Left: the plain path (owner/state/cnt checks then
-   the send) stores o1 then id (ours: mov edx,c; mov cl,idx; push; o1; eax=[edx+4]; id) where the original
-   loads c into eax, push, edx=[eax+4], al=idx, stores id then o1; and the f1 send's lea eax vs the
-   original's lea edx. Writing the plain path id- first (any spelling: AMT_NETID, *(int*)(c+4), (int) cast,
-   (unsigned char) idx, && form, || early return) makes VC6 merge the !f2 arm into it (32 ins) or, with the
-   !f2 arm o1-first, cross-jump the !f2 arm into the plain path's Begin (14 ins, branch 1). Tried: all 24
-   orders of the first-office block x both !f2 orders (control best), goto send on each site (worse, 32-66
-   ins), result variable f1/f2 per site (= control), (AMTAPP *)&m.id argument (= control). headers sample:
-   insensitive (32 samples, one codegen). (tiebreak: insensitive, 32 samples) */
+   @deep deep s71: the plain path's order (eax=c, edx=netId, al=idx, id stored first) is not a store-order
+   question: it follows from the registers (c in eax forces the netId load before the al load), so only the
+   scratch rotation is wrong. Sites' leas in the original: f1 edx, !f2 edx, plain ecx (the plain lea must
+   differ from both or the plain tail and the !f2 arm cross-jump). Rounds (dcp try, whole function): plain
+   order x !f2 order x arm order (if (f2) / if (!f2)) x result variable (i / f1 / f2): the arm swap gives
+   shape 24 ins (layout off: the f2 arm inline, the f1 site after it), else the s29 rows; flag forms (f1 =
+   f2, f1 = f2 = 1, f2 = f1, f1 = f2 = 0 inits) x 4 order pairs: = control or worse; the result variable
+   per site (kind, f1, f2, a new rv) at each of the three sites: one code per order pair. flip.py from the
+   tree wanting the f1 site's lea edx: hits only the !f2 arm's store order, deleting m.o2 / m.o1 / a send
+   (meaning), all 16-53 ins; flip from or-id-f2o1 wanting edx/edx/ecx: only f1 made constant. c2trace: c is
+   split and lives in memory at both plain reads (c#2 unprofitable); the lea temps are no candidates. Left
+   (control, 14 ins): f1 site lea eax (original edx) and the plain path's c in edx (original eax). Next:
+   something between the !f2 arm and the f1 site that hands out one scratch temp more (the !f2 arm's text
+   after its lea), read with c2dag per block. prior: deep s29: both searches rewritten as plain for loops
+   (+ break, the open test after the second one with i < 30) - the same code as the do-while pointer walk,
+   kept for reading. The hunks left (14 ins): the f1 site's lea eax (original edx), and the plain path,
+   which the original emits as eax=c; push str; edx=[eax+4]; al=idx; store id; store o1 (ours: the !f2
+   arm's code, edx=c, cl=idx, o1 first). Plain path id-first + !f2 arm o1-first (or-id-f2o1) gets the plain
+   path's code AND the f1 site's lea right (14 ins / 95 bytes), but then the !f2 arm's lea is ecx like the
+   plain path's, so its push str; call Begin; lea; push tail cross-jumps into the plain path and neither
+   site hoists the push str above the m stores (code 10, order 10, branch 1). id-first in both = 32 ins
+   (the arms merge), o1-first in both = 16. The || / && / separate-if spellings of the plain checks =
+   control; climb 2 rounds from the tree and from or-id-f2o1: nothing. Left: why the original's !f2 lea
+   gets edx while the plain path gets ecx (a scratch rotation two sites apart). */
 
 int amt_ApplyForOffice(AICHAR *c, unsigned int kind) {
   int i, f1, f2;
