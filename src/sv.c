@@ -840,6 +840,7 @@ void ai_SwitchRoom(int index, unsigned room);             /* 0x59e0a0 */
 unsigned gm_PermissionBits(unsigned p1, struct AIBLD *b, struct AIOBJ *o,
                            struct AICHAR *c); /* 0x503530 */
 char *strupr(char *);                         /* 0x5ea986 */
+extern float gm_DayStartHours[], gm_DayEndHours[];    /* 0x617830 / 0x617840 */
 
 /* 0x5224a0, loads the groundplan of the selected building (ai_PlayerBuilding, else ai_FallbackBuilding):
    bmp\groundplans\riss_<type name>.bmp, else one by the building class (gm_BuildingClass 1: wirtshaus /
@@ -1527,7 +1528,6 @@ void sv_CountGroupMembers(AIJOB *g) {
   } while (i != 0);
 }
 
-extern float gm_DayStartHours[], gm_DayEndHours[];    /* 0x617830 / 0x617840 */
 char *strstr(); /* 0x5de6b0, strstr (LIBC; as ls.c) */
 
 /* 0x524260, moves the character c (index) from his current job (the group record AICHAR.job) to the job g;
