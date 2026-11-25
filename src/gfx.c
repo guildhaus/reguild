@@ -514,25 +514,25 @@ void d2_DragInput(void) {
   }
 }
 /* 0x477ba0, mouse and keys on the focused slider object
-   @deep deep s48: goto wheel replaced by a drag flag (drag = 1; .. else drag = 0; if (drag) { clamp; store
-   }): the identical code, kept. With the flag text: initgen (14 = 0 initializers) best = control (mn 8, v2
-   39, fl 47), f6 without its initializer 10, bottom = o->h + o->y = control. Left: regs 4 at 0x477d5c
-   (o->h into edi, o->y into eax in the original). prior: deep s29: f6 declared with an initializer (no
-   code; the first-reference tie key): the vertical test's o->y / f6->h / py loads come out as the
-   original's, draft 10 -> shape 4 (kept with @original). Left (regs 4): the bottom sum loads o->y into eax
-   and o->h into edi where the original loads o->h (+0x16) into edi first, then o->y (+0x12) into eax;
-   bottom = o->h + o->y = the same code; a second initializer on any other local: = or worse (f0 =, mn 8,
-   v2 39, fl 47).
-
-
-
-
-
-
-
-
-
-
+   @deep deep s75: mechanism of the regs 4 at 0x477d5c read from c2trace --raw: o->y is a CSE temp
+   (temp#194, made in the first vertical test f6->h + o->y, edi there in both); in the bottom block our IL
+   is bottom = movsx o->h; bottom += temp#194 (temp#194 a neighbour of bottom, so its reload piece gets
+   edi), the original's is bottom = temp#194 + o->h with the piece coalesced into eax (o->h into a temp
+   edi, loaded first, the piece reloaded into eax, add eax,edi): the commutative operand order of the sum,
+   canonical before allocation. No lever (all = control): both operand orders, casts on either operand /
+   the first test, the first test's operand / compare orders (24 forms), the a = .. line in 7 forms,
+   d2_Objs[d2_PointerObj].h for o->h (copy-propagated; .y for o->y kills the CSE: 8), each declaration line
+   moved, each of px .. bottom unsigned alone (6..164), fl int / drag unsigned / char. flip.py --want
+   'movsx eax, WORD PTR \[esi\+18\]': only meaning changes (+ -> -, deleting / moving a = ..) and all of px
+   .. bottom unsigned at once (unsigned compares); climb 2 rounds: none closer. prior: deep s48: goto wheel
+   replaced by a drag flag (drag = 1; .. else drag = 0; if (drag) { clamp; store }): the identical code,
+   kept. With the flag text: initgen (14 = 0 initializers) best = control (mn 8, v2 39, fl 47), f6 without
+   its initializer 10, bottom = o->h + o->y = control. Left: regs 4 at 0x477d5c (o->h into edi, o->y into
+   eax in the original). prior: deep s29: f6 declared with an initializer (no code; the first-reference tie
+   key): the vertical test's o->y / f6->h / py loads come out as the original's, draft 10 -> shape 4 (kept
+   with @original). Left (regs 4): the bottom sum loads o->y into eax and o->h into edi where the original
+   loads o->h (+0x16) into edi first, then o->y (+0x12) into eax; bottom = o->h + o->y = the same code; a
+   second initializer on any other local: = or worse (f0 =, mn 8, v2 39, fl 47).
    */
 
 void d2_SliderInput(void) {
