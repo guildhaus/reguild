@@ -7318,32 +7318,34 @@ int ai_BuildingHasItem(AIBLD *bld, int id) {
    news 0x1bc9 (_NACHRICHTEN_HS_37, the good's name text), the good 0x178 clears the flag 0x20 of its building's
    word 0x5a, and a character that can act (ai_CanAct) and is not of kind 7 sells it (one, cm_SendExSellObject);
    a good without a duration is set inactive. Stamps lc_Settings.reserveTime and moves the cursor on
-   @deep s48: KEPT the inner loop as 'o = gm_Query(..); if (o != 0) do { .. } while ((o = gm_QueryNext())
-   != 0);' (continue goes to the QueryNext test as in the for): the original's block layout, frame and size
-   (554 = 554), no branch hunk left; 90 ins / 241 bytes (was 89 / 341, the je to the latch's cursor
-   reload). Mechanism: the extra block behind the inner loop lets the cursor global's web (k#25: init,
-   entry test, latch test) get a register (sav 2), so the id-skip path keeps it and the reload sits only
-   after the inner loop (do { } while (0) around the for = the same code; an if-for = control). Left: one
-   scratch rotation through the whole body: the cursor K takes ecx (the original eax) and every temp after
-   it is one step behind (K+0x20 eax / orig ecx, inventory ecx / edx, o->id edx / eax, the AITIME copies,
-   the tail). c2trace --seq: K is served last (prio -2) and eax is taken in block 2 by temp#164 / temp#169
-   (block-2 CSE temps of the gm_MinutesBetween line, prio 24); the original also computes the ebp IV init
-   and the entry compare from K (lea ecx,[eax+eax*2]; cmp eax,ecx), ours from i (edi): with K referenced in
-   that block K would outrank those temps. flip.py --want on that IV init form hits only 'int i' as short /
-   char. Tried, = control: separate globals lc_ReserveTime / lc_ReserveCursor for the LCSETTINGS fields,
-   prototypes (K&R / char * / AITIME *) of gm_MinutesBetween and ai_CanAct, a named start local, (int)
-   casts, nested guard, return at the end; two increments (while / for(;;) with 'i++; continue;'): the
-   original's latch too but a second IV &ai_Chars[i] (frame 0x408). Open: what references K in the IV-init
-   block (the cursor read once more there, or i's init as a copy VC6 propagates). prior: s47: the whole
-   body is one scratch rotation behind: the original loads the cursor into a temp (mov eax,[cursor]; mov
-   edi,eax; lea ecx,[eax+0x20]; cmp eax,ecx; the i*0x21c lea chain from eax), ours loads i straight into
-   edi (c2trace: k#25, the first-pass cursor value, shares edi with i#3). The draft M8 lines are only the
-   two AITIME copies in the rotated register order (crossed). Rounds: i init outside the for / for(;..) /
-   i<0x20+cursor / call in the init comma: = control; i-cursor<0x20 91, commuted compare 93; outer id test
-   as if instead of continue and a while form with i++ at the end: = control. A while whose continue skips
-   i++ (meaning differs) gave the original's mov edi,ecx copy shape (one register off): the cursor temp
-   appears when the loop head is a merge point. climb 3 rounds: only meaning-changing mutants
-   (ai_FindUsableGood called twice, 68). Open: which loop/guard form makes the cursor a temp copied into i. */
+   @deep match-deep s82 (no gain, the s48 text kept as the best): c2trace: the cursor K (k#25, prio -2,
+   refs only in the latch block) is served after the two entry-block temps of the i * 0x21c IV init
+   (temp#164 / temp#169, prio 24, eax), so K takes ecx and every scratch register behind it is one step
+   off; the original computes the entry compare and the IV init from K (cmp eax,ecx; lea ecx,[eax+eax*2]),
+   ours from i (edi). Loop forms that all compile to the control: if (i < G + 0x20) do { if (i >= 0x300)
+   break; .. } while (++i < G + 0x20); a guard if before the for; the 0x300 test as a break in the body. i
+   < 0x300 first in the condition: 84 ins but the entry test becomes cmp edi,0x300 (wrong layout); the id
+   test folded into the gm_Query condition 89; both conditions in the do-while 110. Probe sweeps before
+   each statement (unused label, a 0 store to an extern, a store of the cursor to an extern): none gives
+   mov eax,[cursor] / cmp eax,ecx. Open as before: which spelling makes VC6 forward i = K into the entry
+   block. prior: s48: KEPT the inner loop as 'o = gm_Query(..); if (o != 0) do { .. } while ((o =
+   gm_QueryNext()) != 0);' (continue goes to the QueryNext test as in the for): the original's block
+   layout, frame and size (554 = 554), no branch hunk left; 90 ins / 241 bytes (was 89 / 341, the je to the
+   latch's cursor reload). Mechanism: the extra block behind the inner loop lets the cursor global's web
+   (k#25: init, entry test, latch test) get a register (sav 2), so the id-skip path keeps it and the reload
+   sits only after the inner loop (do { } while (0) around the for = the same code; an if-for = control).
+   Left: one scratch rotation through the whole body: the cursor K takes ecx (the original eax) and every
+   temp after it is one step behind (K+0x20 eax / orig ecx, inventory ecx / edx, o->id edx / eax, the
+   AITIME copies, the tail). c2trace --seq: K is served last (prio -2) and eax is taken in block 2 by
+   temp#164 / temp#169 (block-2 CSE temps of the gm_MinutesBetween line, prio 24); the original also
+   computes the ebp IV init and the entry compare from K (lea ecx,[eax+eax*2]; cmp eax,ecx), ours from i
+   (edi): with K referenced in that block K would outrank those temps. flip.py --want on that IV init form
+   hits only 'int i' as short / char. Tried, = control: separate globals lc_ReserveTime / lc_ReserveCursor
+   for the LCSETTINGS fields, prototypes (K&R / char * / AITIME *) of gm_MinutesBetween and ai_CanAct, a
+   named start local, (int) casts, nested guard, return at the end; two increments (while / for(;;) with
+   'i++; continue;'): the original's latch too but a second IV &ai_Chars[i] (frame 0x408). Open: what
+   references K in the IV-init block (the cursor read once more there, or i's init as a copy VC6
+   propagates). */
 
 void lc_UpdateGoodsReserves(void) {
   char text[0x400];
