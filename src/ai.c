@@ -622,38 +622,31 @@ void ai_SendRemoveEmptyGoods(AIOBJ *stall) {
   }
 }
 /* 0x47edb0, evaluates the production of a master's workshop
-   @deep deep s62: the top's zero register (xor ebp,ebp / push ebp / cmp esi,ebp) is const#0#56 (lines
-   695-726, 11 refs), UNPROFITABLE at sav 0 and assigned at sav 1 by its ebp preference (found's copy): the
-   original has none. With the goto in the 8/13 arm every found placement, found as id/r/t/j/k, a switch on
-   the hour, swapped arms, the human block's gotos as a flag or break, the watch block forms and the tail
-   forms = control. found = 1 (+ break) in the 8/13 arm (s1, Flags's form) makes the whole top the
-   original's (58 ins, all in the tail): info.n2 (c2trace k#11#1, prio -32) loses ebp to an ai_NEntries
-   piece (#11, lines 863/864/877) because the tail's const 0 piece (#58, prio -12) takes edi earlier and
-   splits ai_NEntries#5 (in the goto text that piece comes after k#11's assignment). On s1: t =
-   info.perm[i] before util_Random fixes the tail (t in edi, 24 ins: the shuffle and the first random
-   loop's scratch registers) - the original reads t after the call into ecx; climb from s1 (3 rounds) and
-   from s1+t-first (2 rounds) find nothing else; flip on s1 hits only 0->1 constant changes in the tail
-   (one zero reference fewer), meaning changes and deletes of the redundant k = info.perm[i] (76 / 230 as
-   variants). = s1 on top of s1: the human / watch / tail / shuffle forms of the goto rounds, int types of
-   i/j/k/id/r/t/found, min / if / ternary clamps (min(n2,n1) and if (n2 < n1): 60), found = 0 at every
-   position (dcp try --move-line). Open: the source form that leaves the tail's const 0 piece queued after
-   info.n2 (or one zero reference fewer there) with t after the call. prior: Session s2(match-deep):
-   rewritten on the ai_EvaluateProductionFlags / Gypsies template (the human-player block as if
-   (!HasMaterials(1)) { if (HasMaterials(0)) .. } else .., random loops k = info.perm[i]; e =
-   &ai_Entries[k]; with the second loop's HasMaterials(0) nested and its k / &ai_Entries[k] success block,
-   info.n2++ / info.n1++ in the struct, min(), health > 0 (jbe: unsigned), ai_FreeJobCharacters in both
-   arms of if (ai_Watch.bld != ch->bld)): 512 -> 22 ins, shape (proved); the watch form was the big lever
-   (148 -> 26); the 8/13 success as goto done 24 -> 22; found = 0 right before the hour test with one if
-   (found) goto done after the hour if / else: 22 -> 18. Left (18): the original has no zero register at
-   the top (push 0, test esi,esi, mov word [ebx+0x1bc],0, test dx,dx; found's xor ebp,ebp right before the
-   hour test); ours shares found's ebp with the constant 0 over the top region (c2trace: const#0 region
-   piece prio 0 sav 0 -> ebp, borderline). flip.py --want 'xor ebp, ebp\ncmp ax, 8': deleting the 8/13
-   arm's ch->prod = 0 (1 ins left, the store missing) or && -> || in the 8/13 loop test (2) flips it: one
-   zero reference / one block fewer in the region. = control: ch->prod = (unsigned short)0 / = found,
-   flags1b4 first, else { if (ch->prod != 0) }, nested capacity / HasMaterials ifs in either arm, if (a)
-   {..} else return, found as a block local of the else arm; worse: the flags1b4 arms swapped (26), found =
-   1 in the 8/13 arm (58), info init c/z2/z1 first, found = 0 only in the else arm (65), the hour block in
-   its own scope (80). */
+   @deep deep s78: probe round (a store of 0 to an extern global before every statement, probe3 on xor
+   ebp,ebp / cmp ax,8, push 0 at the first query, test esi,esi): ONE position gives the original's whole
+   top: inside the non-8/13 loop's found-item arm, after the capacity / HasMaterials if, before its break
+   (dcp try: 1 ins, the probe store itself). info.n2 = 0 there does the same (any memory store of 0);
+   register / dead stores there (found = found, |= 0, a dead local, k / j / t / r / id / x / e = 0, if (0),
+   do-while (0)) and explicit != 0 / == 0 tests anywhere = control; found = 0 there or after the loop also
+   flips the top but kills found = 1 (meaning). So the original's IL has one more zero reference in that
+   block (weight of a loop block) than ours, with no code of its own. An IL-volume sweep (2..32 dead loads
+   after the queries) = control. Open: which no-code construct of that arm carries a constant 0. prior:
+   deep s62: the top's zero register (xor ebp,ebp / push ebp / cmp esi,ebp) is const#0#56 (lines 695-726,
+   11 refs), UNPROFITABLE at sav 0 and assigned at sav 1 by its ebp preference (found's copy): the original
+   has none. With the goto in the 8/13 arm every found placement, found as id/r/t/j/k, a switch on the
+   hour, swapped arms, the human block's gotos as a flag or break, the watch block forms and the tail forms
+   = control. found = 1 (+ break) in the 8/13 arm (s1, Flags's form) makes the whole top the original's (58
+   ins, all in the tail): info.n2 (c2trace k#11#1, prio -32) loses ebp to an ai_NEntries piece (#11, lines
+   863/864/877) because the tail's const 0 piece (#58, prio -12) takes edi earlier and splits ai_NEntries#5
+   (in the goto text that piece comes after k#11's assignment). On s1: t = info.perm[i] before util_Random
+   fixes the tail (t in edi, 24 ins: the shuffle and the first random loop's scratch registers) - the
+   original reads t after the call into ecx; climb from s1 (3 rounds) and from s1+t-first (2 rounds) find
+   nothing else; flip on s1 hits only 0->1 constant changes in the tail (one zero reference fewer), meaning
+   changes and deletes of the redundant k = info.perm[i] (76 / 230 as variants). = s1 on top of s1: the
+   human / watch / tail / shuffle forms of the goto rounds, int types of i/j/k/id/r/t/found, min / if /
+   ternary clamps (min(n2,n1) and if (n2 < n1): 60), found = 0 at every position (dcp try --move-line).
+   Open: the source form that leaves the tail's const 0 piece queued after info.n2 (or one zero reference
+   fewer there) with t after the call. */
 
 void ai_EvaluateProduction(AICHAR *ch) {
   AIOBJ *a, *b, *x;
