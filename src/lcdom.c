@@ -1147,33 +1147,31 @@ void ai_PersonnelBook(AIBLD *bld, char *model) {
    (the job's cost, the text 0x220), the fire button 0x1a21 and the promotion 0x1a25; hire sends the request 6,
    fire the message 0x31 after the question 0x1a36, promotion the message 0x32 (refused with 0x1a27 below
    four years of service). At the end the radio group is cleared, the book closed and the camera follows
-   @deep s23: the row setup in ai_HelperBook's (byte) form (D2WIN *w block, j = 0; r = 0; first, y read
-   back from rows[i].y, the texts at px - 0x36 inline, j++ at the end; bt after the -1 inits: 355 -> 104),
-   the hire cost through a named owner = ai_Chars[bld->owner] as the helper book's master hire (104 -> 32:
-   bld then held in esi over the hire block, -1 in ebp), the hire request filled type, flags, to, fromId,
-   time, hireRows[sel] (a 720-order round: 32 -> 4, shape). Left: the two inline strcpy's of the refill
-   loop (hireText 0x5ac9db / emptyText 0x5aca8c) store through [edx+eax] where the original has [eax+edx]
-   (the operand order of the copy's address add, same registers); ai_HelperBook's identical refill text
-   compiles to [eax+edx]. flip.py (want [eax+edx], 1240 mutants): only int i / int k -> unsigned (or short
-   / char) flip it, and those make every i / k loop test jb (12 ins): so the order follows something
-   global, not a statement. No lever: the buffers' declaration order, i / k declarations moved to every
-   position, unused probe locals (symbol counts), the bonus loop over i (as the helper book), the page test
-   nested as the helper's. prior: Written whole from the original (was a stub): the four-page mercenary
-   book, the bonus split (pay_worker), the inline row creation (picture 0x5db, the two texts, the first six
-   entry controls), the per-frame refill from gm_ListWorkers' third list (jobless characters), the inline
-   fill (portrait, name, opinion slider; the hire text 0x1a24 for a running request 6 of title 0x13; 'no
-   character' with the controls freed), the clicks (hire request 6 with hireTitle 0x13, fire 0x31,
-   promotion 0x32 or the refusal 0x1a27). 1075 vs 1077 instructions, every call the same number of times.
-   Left is allocation / scheduling: in the row setup ours keeps the picture x (px) in ebx and y in a slot,
-   the original y in ebx and px in a slot ('+ add ebx, 0x44' against '- mov eax, [esp + 0x24] / add eax,
-   0x44'), which moves the d2_Objs / rows[i].name stores (the two M8 lines at +0x368 / +0x384 are those
-   crossed stores) and the msg.time = ai_Time copy is stored in another word order (M8 at +0xc31 / +0xc3b).
-   The prover stops at gm_PlayerFactor's byte argument (ai_OwnPlayer pushed through dl with other upper
-   bits). Tried: the declaration order of y / px; the opinion's (v + 128.0) * 100.0 kept in a double (that
-   settled the M10 fold of 100 / 255). (references: M8 at +0x368: ours refers to d2_LastWindow (0x6ed938),
-   the original's field to 0xf8f080 (d2_Objs, d2_ObjsC) (and 3 more), explained: the M8 refs are crossed
-   stores of the same objects (rows[i].name / d2_Objs) and the words of one struct copy (msg.time =
-   ai_Time) in another order) */
+   @deep deep s75: the [edx+eax] / [eax+edx] order of the two refill strcpy stores follows the function's
+   whole IL volume, not a statement: probes (a dead block of loads anywhere in the function, top, frame
+   loop or after the loop; tools: a listing probe over flip.listing) flip them by count: { int dl; dl =
+   book->views[k]; } x18 fixes the emptyText copy, x31..x120 and x160..x240 both (x140 also flips the
+   masterText copy, x260..x360 none again: a wrap), { extern int pz; extern int *pzp[4]; pz = pzp[a][b]; }
+   x12 one, x16..x40 both, x44+ all three; 13 / 20 x if (0) d2_SetForm(book->views[0], 2); = one / BYTE
+   (dead code, not kept). Adding the same blocks to a function above in the unit does nothing (per
+   function). So the original's text carries more IL than ours (about 30 or more loads' worth) that
+   compiles away: candidates not found yet; = control respellings that add loads but too few (no flip
+   together): c inlined as rows[i].ch in the refill, c in the promotion, v = workers[0x19 + i] inlined, per
+   / f inlined; unsigned sel / radio / the button ints (255 subsets): one code, no flip; = 0 / = -1
+   initialisers on every scalar: no flip. Look for an eliminated region of the original (a constant-false
+   debug branch, unreachable code, a redundant test VC6 folds) or a larger spelling of the message fills /
+   row setup. prior: s23: the row setup in ai_HelperBook's (byte) form (D2WIN *w block, j = 0; r = 0;
+   first, y read back from rows[i].y, the texts at px - 0x36 inline, j++ at the end; bt after the -1 inits:
+   355 -> 104), the hire cost through a named owner = ai_Chars[bld->owner] as the helper book's master hire
+   (104 -> 32: bld then held in esi over the hire block, -1 in ebp), the hire request filled type, flags,
+   to, fromId, time, hireRows[sel] (a 720-order round: 32 -> 4, shape). Left: the two inline strcpy's of
+   the refill loop (hireText 0x5ac9db / emptyText 0x5aca8c) store through [edx+eax] where the original has
+   [eax+edx] (the operand order of the copy's address add, same registers); ai_HelperBook's identical
+   refill text compiles to [eax+edx]. flip.py (want [eax+edx], 1240 mutants): only int i / int k ->
+   unsigned (or short / char) flip it, and those make every i / k loop test jb (12 ins): so the order
+   follows something global, not a statement. No lever: the buffers' declaration order, i / k declarations
+   moved to every position, unused probe locals (symbol counts), the bonus loop over i (as the helper
+   book), the page test nested as the helper's. */
 
 void ai_MercenaryBook(AIBLD *bld, char *model) {
   int *vp;
