@@ -2521,25 +2521,25 @@ float ord_StatisticsRating(int *rec) {
   return (float)(4 - ra.cur) * 0.25f * 0.75 + (1 - rb.cur) * 0.25;
 }
 /* 0x4f9d40, the weighted sum of the +0x18 ints (rec[6]) of the twelve table records 0x11 .. 0x1c of gv_GetTableRecord (0x4f2720) with the weights 0.06 0.05 0.08 0.04 0.13 0.1 0.13 0.12 0.14 0.15 and two zeros (the array is twelve long like the record range); the ints themselves are stored to out[0 .. 11]
-   @deep deep s33: rec is the AIDEC record gv_GetTableRecord fills (rec.cur = +0x18; same code). Mechanism
-   (c2trace --seq): i and the w pointer IV (k#e4) tie at prio 64 (both referenced in the same three blocks
-   with equal costs: i push / cmp / inc, the IV fmul / out store / add); the tie key gives i 25 and the IV
-   24 (always i's key minus one: probe statements at the top / in the loop / after it move both), so i
-   takes esi first. The original's IV in esi needs it above i by priority: one more IV reference in the
-   loop body or one fewer of i, without a code change. Tried: int i = 0 / ++i (= control), i initialized at
-   the declaration / as its own statement / while form (= control), i = 0x11 first in the function (16 ins,
-   same loop), w before sum (18). climb --rounds 2: best = start. prior: headers sample: insensitive (32
-   samples, one codegen). Kept: fv = (float)rec[6] before the out store (fild right after the call as in
-   the original): draft 18 ins/45 B -> shape 16 ins/11 B. Left: i in esi and the w pointer IV in edi where
-   the original has i in edi and the pointer in esi, and inc i scheduled before the fmul (original: fmul
-   [esi]; add esi,4; inc edi; cmp edi,0x1d). Tried (dcp try): w[]*rec / no cast / sum = sum + .. / sum = ..
-   + sum / (float)(..) / parenthesized rec / int local v / do-while / while / idx j = i - 0x11 / *(rec + 6)
-   / separate counter j (i++,j++ and j++,i++ and j++ in body) / fv block-scoped or declared first / fv *=
-   w; sum += fv / w*fv / (out - 0x11)[i] / (w - 0x11)[i]: = control. double cast: draft 21 B (fimul).
-   unsigned i: same + jb. i <= 0x1c, i != 0x1d, j from 0 with i + 0x11, pointer walks *out++ / *pw++,
-   swapped statements, double fv: worse. (tiebreak: not measured (dcp headers sample
-   ord_WeightedRecordSum))
-   */
+   @deep deep s77: c2trace --raw: i and the w pointer IV k#e4 queue at prio 64 sav 14 refs 5 each; the tie
+   field is i 25 against the IV 24 (a probe before the loop raises both by one, one after the loop neither,
+   one inside the loop adds 11 prio to both: the tie is no lever reachable by placing statements). --prio:
+   the same three blocks for both (block 0 def +6, the empty preheader -2, the loop body +60). flip.py
+   --want 'mov edi, 17': only meaning changes hit (the out store duplicated = one more IV reference, i as
+   short / char); probe3 sweeps without a hit: the s75 IL-volume round (if (0) calls, dead loads, extern
+   probe stores; 1-40 copies at five places: only 7+ probe stores IN the loop flip it, by pressure, and
+   they emit code), and 32 whole-function variants (rec / fv declared in the loop body, long i, i < 0x11 +
+   12, sum declared after w). sum += out[i - 0x11] * w[..] (reading the stored int back) loads rec.cur
+   again (18 ins). Untried idea: something that adds an IV reference without code (a second use of &w[i -
+   0x11] or of out[i - 0x11] that VC6 folds). prior: deep s33: rec is the AIDEC record gv_GetTableRecord
+   fills (rec.cur = +0x18; same code). Mechanism (c2trace --seq): i and the w pointer IV (k#e4) tie at prio
+   64 (both referenced in the same three blocks with equal costs: i push / cmp / inc, the IV fmul / out
+   store / add); the tie key gives i 25 and the IV 24 (always i's key minus one: probe statements at the
+   top / in the loop / after it move both), so i takes esi first. The original's IV in esi needs it above i
+   by priority: one more IV reference in the loop body or one fewer of i, without a code change. Tried: int
+   i = 0 / ++i (= control), i initialized at the declaration / as its own statement / while form (=
+   control), i = 0x11 first in the function (16 ins, same loop), w before sum (18). climb --rounds 2: best
+   = start. */
 
 float ord_WeightedRecordSum(int *out) {
   float sum = 0;
