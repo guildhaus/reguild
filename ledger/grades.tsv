@@ -3312,7 +3312,7 @@ exe	0x00522040	sv_PanelImage	sv	byte	readable
 exe	0x00522100	sv_SetPanelEnabled	sv	byte	readable		
 exe	0x00522280	sv_ClosePanelWidgets	sv	byte	readable		
 exe	0x005223c0	sv_DestroyScreen	sv	byte	readable		
-exe	0x005224a0	sv_LoadGroundplan	sv	shape	readable		
+exe	0x005224a0	sv_LoadGroundplan	sv	byte	readable		
 exe	0x005229b0	sv_UpdateGroundplan	sv	byte	readable		
 exe	0x00522ec0	sv_SetResearchClass	sv	byte	readable		
 exe	0x00522f10	sv_UpdateCityPanel	sv	byte	readable		
@@ -3373,7 +3373,7 @@ exe	0x0052b3c0	sv_ActivityName	sv	byte	readable
 exe	0x0052b490	sv_StartPoseScript	sv	byte	readable		
 exe	0x0052b500	sv_RunLocationScripts	sv	byte	readable		
 exe	0x0052bb70	sv_RunFramesUntilStopped	sv	byte	readable		
-exe	0x0052bbc0	sv_SendSelectedToBuilding	sv	draft	readable	deep	
+exe	0x0052bbc0	sv_SendSelectedToBuilding	sv	byte	readable		
 exe	0x0052bec0	sv_HandleSelectionMouse	sv	draft	readable	deep	
 exe	0x0052c420	sv_MarkMasterCarts	sv	byte	readable		
 exe	0x0052c4a0	sv_ReleaseBubble	sv	byte	readable		
