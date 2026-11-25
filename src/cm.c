@@ -2776,31 +2776,42 @@ int cm_ExMoveGoodsUnchecked(G17MSG *m, G17STAT *s) {
    an object's or a character's list, gm_FindById) to the buyer; with a price, the buyer pays count * price in the
    money good of the player slot to the seller (gm_TakeObjekt / gm_AddObjekt) and both book it. A store (an object of
    kind 0x2a / 0x116) of the own player character gives the status text of its building and a sound
-   @deep s(this): the whole rest of the function (gm_AllocRaum push copy at 0x4c77a3, the goods-record regs
-   at 0x4c7737, cm_LastObjectId 0x4c7663, the gm_TakeObjekt argument order 0x4c767f, the y2/ys copies at
-   0x4c76b8 / 0x4c7807, txt_Format at 0x4c7847) is ONE allocation cascade: the bulk split (142 blocks,
-   regions) queues its candidates in another order. Probe that matches all of it: a fresh candidate for
-   m->sell.buyer at the second buyer block, 'short t; .. if ((t = m->sell.buyer) != -1) { ..
-   gm_CreateObject(t, ..)' = 5 ins (only its own mov dx / cmp dx / movsx left; climb --rounds 3 found it,
-   nothing better). c2trace: control's m->sell.buyer at 0x4c7640 is a piece (temp#2, edx, prio 13) of the
-   CSE web first created at 'if (m->sell.buyer != -1)' of the FIRST buyer block (3062); the short local is
-   a new candidate with the same prio 13 created later (ties: later-created first), which reorders the
-   split queue. So the original's value at the second buyer test is a candidate created there, not a piece
-   of the first block's web. No lever (= control): an int / long / unsigned local for it (folded), assigned
-   in the test or before, the third use at the s block (160), gm_AllocRaum forms (nested if / else return 1
-   = same ins, early x2 == 0 return 112, || 143, ternary / else o2 = 0 = control), a block local or a
-   separate local / x2 for the status building (128/129), switch or locals for gd->type (= control or
-   worse), (char)m in cm_ResolveId (386+). Next: what kills or splits the m->sell.buyer CSE between 3063
-   and 3139 in the original (a call taking m, a store through m, the field read through another view), or a
-   prototype of gm_CreateObject with a short id (f3gmt; 22 callers). prior: size queue s17 (127 -> 103 ins,
-   raw 2089 -> 2059 vs 2061: padded size): the two gotos gone, each its plain form: the room check as 'if
-   (store kinds) y2 = y; if ((y2 != 0 || y->type == 0x1dd) && gm_FreeCapacity(..) < count) return 1;' (121;
-   two FreeCapacity calls 144 / 145), the money goto as if (ys != 0 && r2 != 0) (= control); the buyer's
-   room 'if (x2 != 0) o2 = gm_AllocRaum(..); if (o2 == 0) return 1;' (112, 2071) and the seller's 'else if
-   (x1 != 0) RemoveFromBuilding else return 1' (103, 2059: its failure jumps to a shared return-1 copy as
-   the original). Left: register rotation from the gm_TakeObjekt call on (0x4c768b: the original pushes
-   count * price first), the ys type test's mov ecx,eax copy, the goods-record address add order
-   (0x4c774f). */
+   @deep match-deep s83: the whole cascade (cm_LastObjectId edx at 0x4c7663, the gm_TakeObjekt push order,
+   the gd block, the AllocRaum x2 push, txt_Format) depends on ONE thing in arm C (the gm_CreateObject arm
+   of the second buyer block): the original has one more reference to the value o2->objId there, with no
+   code of its own. Probes (dcp try): a real read of o2->objId right after the `if (o2 == 0) return 1;` of
+   arm C = 2-3 ins left, only the probe's own code (ai_NextObjectId = o2->objId; / cm_LastObjectId =
+   o2->objId; written there and after the chain: 2 ins; sprintf(buf, "%i", o2->objId) 9; in the y2 block
+   after o2->count++ 12; at the end of arm C 16). A reference to o2 without objId does nothing (o2->reserve
+   = 0: 104; cm_LastObjectId = 0: 104); a bare `o2->objId;`, `(void)o2->objId;`, a dead block-local int id
+   = o2->objId, decided tests `if (y2 != 0 && o2 != 0)` / `o2 != 0 &&` in the reserve test / a second `if
+   (o2 == 0) return 1;` all = control (dropped before allocation). cm_LastObjectId in arm A / B / C subsets
+   without the shared store: 75-105. flip.py --want on the cm_LastObjectId edx store and on the AllocRaum
+   `push eax / push ecx` hit the same: dup of the store (19) and dup of gm_AllocRaum (21); c2trace: the
+   extra objId reference raises o2#2 30 -> 38 and sends x2#5 to memory. A float local for gd->type (t =
+   gd->type; climb round 1) also clears everything but the gd block (33 ins, the float code itself): gd as
+   a candidate costs the P term. = control / worse: gd->type locals of every int type, gd forms (after the
+   inc, none, switch), the TakeableCount condition orders (24), moving o2 = 0 (147 positions). Next: what
+   statement of 2001 reads o2->objId in arm C and leaves no code (a debug macro whose argument is
+   evaluated, a call through a macro that VC6 folds, a test of objId against a constant VC6 decides), or
+   arm C written so that the shared store's objId read is created there first. prior: s(this): the whole
+   rest of the function (gm_AllocRaum push copy at 0x4c77a3, the goods-record regs at 0x4c7737,
+   cm_LastObjectId 0x4c7663, the gm_TakeObjekt argument order 0x4c767f, the y2/ys copies at 0x4c76b8 /
+   0x4c7807, txt_Format at 0x4c7847) is ONE allocation cascade: the bulk split (142 blocks, regions) queues
+   its candidates in another order. Probe that matches all of it: a fresh candidate for m->sell.buyer at
+   the second buyer block, 'short t; .. if ((t = m->sell.buyer) != -1) { .. gm_CreateObject(t, ..)' = 5 ins
+   (only its own mov dx / cmp dx / movsx left; climb --rounds 3 found it, nothing better). c2trace:
+   control's m->sell.buyer at 0x4c7640 is a piece (temp#2, edx, prio 13) of the CSE web first created at
+   'if (m->sell.buyer != -1)' of the FIRST buyer block (3062); the short local is a new candidate with the
+   same prio 13 created later (ties: later-created first), which reorders the split queue. So the
+   original's value at the second buyer test is a candidate created there, not a piece of the first block's
+   web. No lever (= control): an int / long / unsigned local for it (folded), assigned in the test or
+   before, the third use at the s block (160), gm_AllocRaum forms (nested if / else return 1 = same ins,
+   early x2 == 0 return 112, || 143, ternary / else o2 = 0 = control), a block local or a separate local /
+   x2 for the status building (128/129), switch or locals for gd->type (= control or worse), (char)m in
+   cm_ResolveId (386+). Next: what kills or splits the m->sell.buyer CSE between 3063 and 3139 in the
+   original (a call taking m, a store through m, the field read through another view), or a prototype of
+   gm_CreateObject with a short id (f3gmt; 22 callers). */
 
 int cm_ExSellObjekt(G17MSG *m, G17STAT *s) {
   AICHAR *r1;
