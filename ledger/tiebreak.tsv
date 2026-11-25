@@ -3040,7 +3040,7 @@ exe	0x00502fd0	gm_SellBuilding	f3gm	a8b9e7fc79d1f965	no	byte	control=byte p1=byt
 exe	0x005031b0	gm_AllocRaum	f3gm	3b901f4a4526d55e	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503480	gm_RemoveObjectFromBuilding	f3gm	4907533e25a8f849	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x005034b0	gm_FreeObject	f3gm	d57befa7d1ff8081	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x00503530	gm_PermissionBits	f3gmt	3bf5a024178e411f	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	f5a9dc84a4f93d92
+exe	0x00503530	gm_PermissionBits	f3gmt	a7b8bff288219593	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	63fffc5783ffcb45
 exe	0x00503c20	gm_ReleaseCharacter	f3gm	68f6992261634f9d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00503c60	gm_KillSpieler	f3gmt	05b77931c03cdff7	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	835fb17aeffaabb4
 exe	0x00503e80	gm_ResetCharacters	f3gm	d21a0804f78a3dc8	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
