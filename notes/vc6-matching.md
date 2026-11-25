@@ -2044,6 +2044,40 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s74 (4 byte: cm_JoinSplit, ord_CountGridObjects, ai_TrainingWindow, gm_GetCreditOffers; gm_Query, ai_CommandExecution notes only)**:
+  - **A loop guard jumping to the wrong return-0 copy, and two candidates tied for a register after the plain
+    for / break fixed the jump: the store that follows the search sat INSIDE the found arm** (cm_JoinSplit 1 byte
+    -> byte): `for (r = q0; r; r = r->next) if (match) { m->next7 = 0; break; } if (r == 0) return 0;` (the
+    plain search the second loop of the function already had; the store in the found arm moves m's reference
+    out of the crowded block after the loop: m 8 -> lower, the CSE temp takes ecx first). A probe round over
+    block 0 (`r = q0` first: 2 ins, registers right) showed which block's P decides the tie.
+  - **A memset of a local table where the original clears it element by element in another loop** (ord_
+    CountGridObjects 4 -> byte): the 8 x 8 clear `for (i..) for (j..) { f[i * 8 + j] = 0; grid[i][j].used = 0; }`
+    (VC6 still emits `rep stosd` for the table outside the loop, but the row IV init is then defined before
+    it, overlaps eax and takes edx: the original's `mov edx,K` above the pushes, `mov eax,edx` / `mov edx,eax`
+    around the inner loop). A two-IV nested loop (an outer pointer copied into the inner one) where ours
+    coalesces them = the outer IV's def overlapped another use of the inner's register.
+  - **A loop's array index strength-reduced into a frame-slot pointer in ours, indexed from the counter in
+    the original: an `x = (row != 0) + 2` use of the counter inside the loop** (ai_TrainingWindow 6 -> byte):
+    as `if (row != 0) t = 3; else t = 2;` the loop optimizer leaves `rows[row]` alone and the `row != 0 &&
+    row != 1` dispatch (the original's test / cmp 1) is byte; flip.py with --avoid on the indexed pattern
+    showed the select loop and the inner `if (count >= 3) break` both move the decision, i.e. it is a
+    whole-function cost decision, not the dispatch's spelling. `goto select` + `continue` = the plain search
+    with the body in the found arm and `break` (same code).
+  - **A zero in a callee-saved register from the prologue (`xor esi,esi` before the first guard) that only
+    swaps esi / edi when written at the top: one more reference block for the flag** (gm_GetCreditOffers 4 ->
+    byte): c2trace --prio showed all -10 against a loop pointer temp's -8 once all lives over the guards;
+    `else if (amt == -1) { all = -1; offers[i].amount = -1; } else offers[i].amount = -1;` instead of `else {
+    if (amt == -1) all = -1; offers[i].amount = -1; }` gives the flag its own block (P*w) and the top form is
+    byte. Lever: when moving an init to its original place costs the register, read `--prio` for the 2-3
+    points and respell the arm the flag is set in (else-if against nested if).
+  - **A scratch temp one rotation step off, located by probes** (gm_Query, open): a clean probe `{ extern int
+    probe, probe2; probe2 = probe; }` before every line; only one placed inside `if (scan)` before the kids
+    test gives the original's eax for the later load: the original had a no-code temp there. Store-order
+    hunks of a record fill (ai_CommandExecution, open): c2dag shows the stores' alias edges to later indexed
+    loads and a register anti-dependence (the table load given ecx, which holds the -1 constant) that holds
+    the load behind the -1 stores: such an order hunk is a register question first.
+
 - **Deep s73 (3 byte: gm_StockPrice, init_SetDetailLevel, gm_CollectOffers; d3_SetupFrustum 24 -> 22)**:
   - **A clamp's constant path run through the next compare (`fstp st(0); fld 0.25; fcom 5.0`, ours threads
     it past the 5.0 test): the clamped value was a FLOAT local** (gm_StockPrice): `float t; double f; .. t =
