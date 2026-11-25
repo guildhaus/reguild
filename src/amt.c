@@ -1848,23 +1848,7 @@ void amt_SendOfficeLost(AICHAR *p, int v) {
    with the rank 1 .. 6 and of the buildings of type 0x10 with the rank 0x28 .. 0x2d, each character once, found through the build query 0x501190; when
    at least 3 were seen, the richest (gm_GetWorth 0x50a640) replaces the holder of the 0x1c office (its rank 1 .. 6) or, when the rank distance to the
    holder is above 5, gets the 0x1d office; a free office of the two is filled directly. The old holder gets the lost-office news (amt_SendOfficeLost)
-   and the new one the office news (amt_SendOfficeNews). No return value, messages only.
-   @deep Read whole again: meaning equal; 183 -> 51 ins (left: one register swap and two scratch picks).
-   Kept: the send arms in the original's order (abs(cur rank - pick rank) < 6 first with Lost/News then the
-   1..6 test; else the 1..6 test b-pick/a-0 0x1c first; the M8 crossed calls are gone), the rank distance
-   as abs() of the two rank bytes with no rank local (VC6 keeps pick's rank in cl across the jge; a byte
-   local went to a stack slot), best = 0 in both else arms of a nested if (one shared xor block like the
-   original). Left: ebx and ebp swapped for the whole function (original: -1 then best in ebx, 0 then j in
-   ebp; ours the reverse; push order ebp, ebx vs ebx, ebp), plus mov ecx,eax / mov dx,[ecx] / push edx
-   before the first gm_GetWorth (ours mov cx,[eax] / push ecx) and mov ax vs mov dx in the best loop (an
-   extra scratch temp in the original's IR). Tried, = control or worse: declaration orders of the int list
-   (6), j = 0 removed or moved (4), all 59 orders of the -1 / j / n / total inits (12 codegens, swap
-   stays), a.owner = b.owner = -1 chains, v reused as best / j, left as j, for / while forms of the best
-   loop, it-tests without != 0, an id local for gm_GetWorth (worse), (ushort *) cast, ch = cur copy,
-   assignment in the condition. Headers sample: insensitive. (tiebreak: insensitive) prior: the whole original was read against the source
-   and the statement sequence matched (the two build queries with the owner / 0xffff / player / flags5a
-   guard, total and the 16-candidate dedupe, the rank ranges, the 36..0 scan with the rep movs into a / b,
-   the best loop, the send arms); readability done (the building record AIBLD). */
+   and the new one the office news (amt_SendOfficeNews). No return value, messages only. */
 
 void amt_ElectDeputies(void) {
   AMTREC a, b;
@@ -1939,16 +1923,15 @@ void amt_ElectDeputies(void) {
       i--;
     } while (i >= 0);
     cur = 0;
-    v = b.owner;
-    if (v == -1)
+    if (b.owner != -1)
+      v = b.owner;
+    else
       v = a.owner;
-    if (v != -1) {
+    if (v != -1)
       cur = gm_FindChar(v);
-      if (cur != 0)
-        best = gm_GetWorth(cur->id);
-      else
-        best = 0;
-    } else
+    if (cur != 0)
+      best = gm_GetWorth(cur->id);
+    else
       best = 0;
     pick = 0;
     for (j = 0; j < n; j++) {
