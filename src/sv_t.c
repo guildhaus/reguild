@@ -4189,28 +4189,24 @@ int ai_AlchemistSendResearchStart(AIBLD *obj, AHMREC *rec) {
    bars opens the skill window ai_AlchemistTrainShareWindow (obj, record, the bar), the extra button ai_AlchemistFundWindow and the button
    with the text 0x4049 ai_AlchemistRescheduleWindow (whose answer closes the window); the form is disabled meanwhile. The right
    mouse button closes the window; the camera follows again at the end
-   @deep s25: the original's in-loop copy of the character panel has the same [index+base] order as ours
-   ([ecx+edx+0x5c] at the name text), only its FIRST panel has [base+index] at the name text's centred
-   store and both 0x4040 stores: the order is not in those statements' text. climb.py round 1 (528 mutants,
-   404 compiled, 110 codes): nothing. flip.py --want '[edx+ecx+92], 1|[ecx+eax+92], 1' (958 mutants): one
-   flip, swapping d2_Objs[t].centred = 1 with d2_SetObjFont(t, 0x54) in the research-state block (line
-   ~4659, 1014 ins): a later block's statement order decides the first panel's SIB order, so it is a
-   function-wide rank / numbering effect (the operand order of d2_Objs + t*0x5c), not the panel's spelling.
-   Next: read what that swap changes (the d2_Objs / t temps' numbering or counts) and look for the ordinary
-   form with that effect in the state block or the loop. prior: draft 88 -> shape 6 ins (frame 0x240 = the
-   original's). Kept: the nine -1 ids as ONE record (form, win2, slider, back, extra, bars[4]; the
-   original's rep stosd covers exactly those slots, base +0x18..+0x38, and spills win2 / slider / extra
-   into them as they are set: 84 -> 12), cleared with memset (the loop over the record = one code);
-   d2_SetForm(form, 2) written in both arms of the owner test (the first io_PrintText cleanup before it: 88
-   -> 84); the research slider as its own block local prog (the original's extra slot, frame 0x23c ->
-   0x240: 12 -> 8); d2_ClickedId = -1 before the clear (or eax,-1 before mov ecx,9: 8 -> 6). Left: sib 8 +
-   regs 2 in the FIRST character panel only - the original's d2_Objs[t].centred store of the name text and
-   both stores of the 0x4040 text are [base+index] ([edx+ecx+0x5c], [ecx+eax+0x5c], [edx+eax+0x14]) where
-   ours has [index+base]; the in-loop copy of the same text is identical in both. No lever: t renamed to k
-   / j per text block (127 subsets: = control but one worse), (d2_Objs + t)->, (t + d2_Objs)->, t[d2_Objs]
-   (= control), centred before w in the name block (200), index click loop (117), flip.py --want
-   '[ecx+eax+92], 1' (one hit, 76 ins); headers sample insensitive. Open: M10 100.0f vs ai_FloatHundred
-   (tiebreak: not measured (dcp headers sample ai_AlchemistWindow)) */
+   @deep deep s76 (spare): the SIB order is not an IL-volume effect here: 1..80 dead-load blocks at the top
+   ({ int dl; dl = obj->ahm != 0; } and d2_Objs[0].centred reads) leave all three first-panel stores as
+   they are (probe listings). The s25 flip (the research block's centred / SetObjFont swap) measured with
+   dcp try: it flips one of the three stores at most (which one follows the first name block's statement
+   order), but changes the research block's code (frame 0x244, 76..237 ins): a lever that shows the rank
+   effect, not the source. 215 orders of the (w, centred, font) statements of the research block x first
+   name block x loop name block: only r021 moves any store. = control: the name / value texts' t as a fresh
+   block local, ahm_ObjectValue into a local first, paren / cast forms of each first-panel d2_Objs[t] (42:
+   (d2_Objs)[t], d2_Objs[(t)], (&d2_Objs[t])->, *(d2_Objs + t), t * 1, (int)t). prior: s25: the original's
+   in-loop copy of the character panel has the same [index+base] order as ours ([ecx+edx+0x5c] at the name
+   text), only its FIRST panel has [base+index] at the name text's centred store and both 0x4040 stores:
+   the order is not in those statements' text. climb.py round 1 (528 mutants, 404 compiled, 110 codes):
+   nothing. flip.py --want '[edx+ecx+92], 1|[ecx+eax+92], 1' (958 mutants): one flip, swapping
+   d2_Objs[t].centred = 1 with d2_SetObjFont(t, 0x54) in the research-state block (line ~4659, 1014 ins): a
+   later block's statement order decides the first panel's SIB order, so it is a function-wide rank /
+   numbering effect (the operand order of d2_Objs + t*0x5c), not the panel's spelling. Next: read what that
+   swap changes (the d2_Objs / t temps' numbering or counts) and look for the ordinary form with that
+   effect in the state block or the loop. */
 void ai_AlchemistWindow(AIBLD *obj) {
   char msg[0x100];
   char line[0x100];
