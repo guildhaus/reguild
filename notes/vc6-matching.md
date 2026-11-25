@@ -2044,6 +2044,29 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s85 (no item finished: d2_GrabShape8Runs 161 -> 113, d2_GrabShape24Runs 307 -> 174, init_SyncSceneObjects
+  205 -> 148, ai_AlchemistResearchWindow notes only)**:
+  - **A byte local stored and read back as a masked dword (`mov [esp+X],dl; mov ecx,[esp+X]; and ecx,0xff; shl
+    ecx,2`) where ours keeps it in a register: the table was indexed by the value, `d2_Palette[c][0..2]`** (not
+    `t = c * 4; d2_Palette[0][t + k]`): the size gap of d2_GrabShape8Runs (34 bytes) was this, no meaning bug.
+  - **A register permutation across a whole function that follows one variable's reference count**: in
+    d2_GrabShape8Runs the run loop written with `(y + i) * pitch` for the first row and the literal test and
+    j only in the skip-run gave the original's w / h registers at the top (154 -> 115); in d2_GrabShape24Runs
+    `s->lineoff = s->size; s->size = s->lineoff + s->h * 4;` (instead of `s->size += ..`) adds one s
+    reference to the last block and lifts s above run (s ebp, 307 -> 206). c2trace --prio shows the block
+    terms: a block where only the wanted candidate is referenced is the place to add (or keep) a reference.
+  - **Slot packing of the bounding-box variables follows the store order of the box fields, not the
+    declaration order** (d2_GrabShape24Runs: bx0, by0, bx1, by1 packs minx with col and miny with i as the
+    original; 264 declaration orders were one code).
+  - **A recomputed `j * pitch` with only the pitch mask hoisted (its own slot) means VC6 treats j as killed
+    by the stores through a pointer** (d2_GrabShape8Runs, open): every spelling of the row expression folds
+    to the existing row (VC6 drops the reassignment); an address-taken j (probe) gives exactly the original's
+    recompute. The plain source of that aliasing is not found.
+  - **climb.py finds two-step combinations rounds of single changes miss** (init_SyncSceneObjects 205 -> 148):
+    the part loop's n / v locals removed (bound and masked value read at each use) AND rec->type read once into
+    a local in two branches; each alone was control or worse. Run it bounded (5-6 rounds, beam 4, width 80)
+    and translate its float / reused locals into a plain local of the field's width (here unsigned).
+
 - **Deep s84 (4 byte: rd_PathToRoad, d2_DrawTextLine, path_Search1, path_Search2; d3sm_Sample, path_Expand
   notes only)**:
   - **An outer loop that hoists nothing (`neg` of a parameter and a field load + row offset recomputed per
