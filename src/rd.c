@@ -286,37 +286,9 @@ void veg_HidePlants(G15PLANT *p) {
   }
 }
 /* 0x4bcc20, lays a road from the building site of object obj (name: 0x58f640) to the next road (marks its cells
-   as ground type "EINFACHER_WEG" on the town map, around each cell before 0x780)
-   @deep match-deep s82: 70 -> 8 ins (size 1784 -> 1809 = the original). Lever: every failure site written
-   out (d3sm_Destroy(rd_Road.grid); return 0; at found == 0, after the second PathToRoad, after GetHeightAt
-   and as the final if (!rd_PathToRoad(..)) block; no goto, no ok flag) together with the parenthesized v.y
-   = (bk->y0) copies (fld / fstp). Mechanism (c2tail --tries, C2DAG_TRYDUMP=1): with a goto / flag the
-   final fail block is entered only by jumps, so the pair merger folds the call / add / xor of the inline
-   blocks into it; written out, each block is entered by fall-through and the pair merges only when the
-   equal run reaches 22 (same scratch register): the original scratch rotation (edx edx edx, tail ecx)
-   keeps all five destroy calls. Of the 16 inline / goto mixes of found / second path / GetHeightAt (x
-   paren) only all-inline is close (paren 8, without paren 97). Left (order only): (1) first WorldToCell:
-   the original stores v.z (fstp) before push eax (&ax), ours after; (2) second WorldToCell: the original
-   forms lea eax,&bz / lea ecx,&bx right before their pushes, ours hoists lea ecx,&bx above the v.x fstp;
-   (3) the n2 < 5 memcpy: the original hoists mov ecx,0x200 above the jl of the n2 >= 5 test (jl into the
-   else-if body behind its mov ecx), ours lea edi before mov ecx (c2dag: our IL already has lea first).
-   Tried, = control: memcpy dest as &path2[n2] / path2 + n2 / (char *) + n2 * 2 / a pointer local / casts,
-   size 0x800 / sizeof path2, a block-local struct copy, n2 via a local; nested if / swapped && conditions
-   (15). All 35 orders of the v.x / v.y / v.z stores of both corners: worse (12+). flip.py (662 mutants
-   each): hunk 3 and 2 no flip; hunk 1 only by a duplicated v.z store or the second v.x moved above the
-   first call (meaning-changing, 13 / 101). prior: match-deep (dcp try): kept the success flag for the last
-   two tests (ok = 0; if (GetHeightAt) { if (PathToRoad) ok = 1; } if (!ok) { fail: destroy; return 0; }):
-   97 -> 68 ins, it gives the ai_BuildingName and bk == 0 failure blocks their own epilogues and places the
-   fail tail before the success part as the original does; float v[4] on top fixes the frame (0xc4 -> 0xc8,
-   70 ins, kept). Not moved (= control): a second copy of the success return (in the >= 0x780 arm, the else
-   arm, or the flags test; with and without the flag), the fail blocks as do-while(0) / comma / result
-   local / nested block / else {}, return spelled NULL / 0L / 0u / -0 / !1, nested ifs with the flag over
-   found and the second PathToRoad (= control or 113-165 ins), the first PathToRoad as == 0 / via ok / with
-   an else. All 63 inline-or-goto mixes of the five failure sites were worse. Left: the first rd_PathToRoad
-   failure block is still merged whole into the fail tail (ours je to it, the original its own destroy +
-   epilogue at 0x4bce8f), the v[1] = bk->y0 copies by mov (parenthesized: 78 / 100 / 128 ins), the
-   WorldToCell argument push order and the lea edi / mov ecx,0x200 order in the n2 < 5 branch. (tiebreak:
-   insensitive) */
+   as ground type "EINFACHER_WEG" on the town map, around each cell before 0x780). The parenthesized corner
+   values are what VC6 needs to keep the original's store order around the rd_WorldToCell pushes, as in
+   rd_AllBauplatzToSupermap (likely a macro's expansion). */
 
 int rd_BuildRoad(struct D3OBJECT *obj, int name) {
   G15BKFIND f;
@@ -370,13 +342,13 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name) {
     d3sm_Destroy(rd_Road.grid);
     return 0;
   }
-  v.x = rd_Road.map->scale + bk->x0;
+  v.x = (rd_Road.map->scale + bk->x0);
   v.y = (bk->y0);
-  v.z = rd_Road.map->negScale + bk->z0;
+  v.z = (rd_Road.map->negScale + bk->z0);
   rd_WorldToCell(&ax, &az, &v.v, f.found, &rd_Road);
-  v.x = bk->x1 - rd_Road.map->scale;
+  v.x = (bk->x1 - rd_Road.map->scale);
   v.y = (bk->y0);
-  v.z = rd_Road.map->negScale + bk->z0;
+  v.z = (rd_Road.map->negScale + bk->z0);
   rd_WorldToCell(&bx, &bz, &v.v, f.found, &rd_Road);
   if (!rd_PathToRoad(&rd_Road, (int)ax, (int)az, -1, -1)) {
     d3sm_Destroy(rd_Road.grid);
@@ -388,9 +360,14 @@ int rd_BuildRoad(struct D3OBJECT *obj, int name) {
     d3sm_Destroy(rd_Road.grid);
     return 0;
   }
-  if (rd_Road.n2 > rd_Road.out.count && rd_Road.n2 >= 5) {
-    memcpy(rd_Road.path2, rd_Road.path, sizeof(rd_Road.path));
-    rd_Road.n2 = rd_Road.out.count;
+  if (rd_Road.n2 > rd_Road.out.count) {
+    if (rd_Road.n2 >= 5) {
+      memcpy(rd_Road.path2, rd_Road.path, sizeof(rd_Road.path));
+      rd_Road.n2 = rd_Road.out.count;
+    } else {
+      memcpy(rd_Road.path2[rd_Road.n2], rd_Road.path, sizeof(rd_Road.path));
+      rd_Road.n2 += rd_Road.out.count;
+    }
   } else if (rd_Road.n2 < 5) {
     memcpy(rd_Road.path2[rd_Road.n2], rd_Road.path, sizeof(rd_Road.path));
     rd_Road.n2 += rd_Road.out.count;
