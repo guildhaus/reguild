@@ -247,26 +247,28 @@ void d3s_DrawSpans(int rows, int w, unsigned char flags, char top, int y0) {
   }
 }
 /* 0x45a2e0, a shadow triangle: edges from the three points p (x, y pairs), colours c, radius pixels / rows around
-   @deep s47: the two edge loops as plain for (i = 0; i < 3; i++) loops (no i = 0 at the top, minY and t
-   still initialised first): the first 101 instructions now equal, size 905 = 905, 133 -> 120 ins; kept (t
-   = -1 before minY = the same code; i = 0 at the top in any order 133-139; i = 0 before each do 126).
-   Left: the edge-choice webs as before. c2trace now: y#1 prio 130 takes esi first, e#1 123 ebx, minY#1 102
-   ebp, then b#1 98 finds no register (split; b#3 gets ebp only after minY dies), d#1 52 esi, l#1 52 ecx.
-   The original has b in ebx, e in esi, d in the slot, l in ecx, and y computed in minY's ebp in place (add
-   ebp,0xffff; sar ebp,16): so y does not outrank minY there. Open: what makes y share minY's register (y
-   as minY was = control in s46). prior: area == ai_FloatZero now (M10 fixed: the original compares against
-   the pooled cm.c datum). headers sample: insensitive (one codegen). Left: the edge-choice webs - original
-   b ebx / e esi / d spilled to p's dead slot [esp+0x1c] / l ecx, ours b spilled / d esi / e ebx (VC6 then
-   reloads b into ebp once minY dies); y reuses minY's ebp in the original (add ebp,0xffff; sar) and y+n is
-   an add ebp,edi before the if (left). Tried (dcp try, all draft): arm statement orders 20 combos (b/d/e/l
-   order, d = l = t, l = d = t) = control; t reused as d like d3s_ShadowPoly (b; l = t; t = e; e =
-   TriEdge[t][0]) 148 ins; y as minY = control; y += n before/after 133-141 ins; n ternary forms (+0xffff
-   in both arms, n -= y) 139; second pass DrawSpans inline per arm 153+ (frame 0xc); block scope for
-   b/d/e/l/y/n/left and 24 declaration orders = control; reference-count probes (if (left) as the compare
-   141, > vs - > 0 forms 130-132, != operands swapped 131, left before ShadowRadius store 127, all combined
-   121 ins but these respell the original's sub/test shapes, not the spill). Next: find why VC6 ranks d
-   over b (region-based spill?), e.g. with toyasm.py on a reduced edge-choice + two-call tail (tiebreak:
-   insensitive) */
+   @deep match-deep s83: kept `y += n;` inside the EdgeY[b] != EdgeY[e] test before if (left) and `y` as
+   the last DrawSpans argument (the original's add ebp,edi before the left test and push ebp): 120 ins, the
+   order and branch hunks gone, only regs / code (the register web) left. The n ternary with +0xffff in
+   each arm (the original's lea edi,[eax+0xffff] / add edi,0xffff arms) is the original's shape too but
+   costs 128 now (try it again once the registers are right). Mechanism (c2trace --prio): the original has
+   e esi, b ebx, minY ebp, y in minY's ebp, d spilled, l ecx; ours y#1 (prio 138) is served before e#1
+   (121), minY#1 (102) and b#1 (96) and takes esi, so e gets ebx and b finds no register. y earns 104 of
+   its 138 in ONE block (lines 337-343: RightEdge call, the y def counted d/u/d, Dst / SpanRow /
+   ShadowRadius / left, P = 13 distinct values). So the lever is that block: y must lose ~45 (fewer values
+   or refs there, the block cut elsewhere) or b / e gain. Tried this session (= control or worse):
+   DrawSpans written in both left / right arms (inline count or i, with y += n or y + n: 277-297, frame
+   grows), n = .. >> 16 with DrawSpans(n - y, ..) and n / y = n for the second call (132), y += n right
+   after the first DrawSpans (120 = same, t1: 128); climb --rounds 2: 112 ins via left = .. moved above
+   d3s_ShadowRadius = radius plus != operands swapped (scheduling only, not kept). prior: s47: the two edge
+   loops as plain for (i = 0; i < 3; i++) loops (no i = 0 at the top, minY and t still initialised first):
+   the first 101 instructions now equal, size 905 = 905, 133 -> 120 ins; kept (t = -1 before minY = the
+   same code; i = 0 at the top in any order 133-139; i = 0 before each do 126). Left: the edge-choice webs
+   as before. c2trace now: y#1 prio 130 takes esi first, e#1 123 ebx, minY#1 102 ebp, then b#1 98 finds no
+   register (split; b#3 gets ebp only after minY dies), d#1 52 esi, l#1 52 ecx. The original has b in ebx,
+   e in esi, d in the slot, l in ecx, and y computed in minY's ebp in place (add ebp,0xffff; sar ebp,16):
+   so y does not outrank minY there. Open: what makes y share minY's register (y as minY was = control in
+   s46). */
 
 void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst,
                         int pitch, unsigned char flags, D3SMENTRY *base,
@@ -344,6 +346,7 @@ void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst,
           n = ((left ? d3s_EdgeY[b] : d3s_EdgeY[e]) + 0xffff >> 16) - y;
           d3s_DrawSpans(n, pitch, flags, 1, y);
           if (d3s_EdgeY[b] != d3s_EdgeY[e]) {
+            y += n;
             if (left) {
               d3s_LeftEdgeColor(b, e);
               i = (d3s_EdgeY[e] + 0xffff >> 16) - (d3s_EdgeY[b] + 0xffff >> 16);
@@ -351,7 +354,7 @@ void d3s_ShadowTriangle(float *p, unsigned char *c, unsigned char *dst,
               d3s_RightEdge(e, b);
               i = (d3s_EdgeY[b] + 0xffff >> 16) - (d3s_EdgeY[e] + 0xffff >> 16);
             }
-            d3s_DrawSpans(i, pitch, flags, 0, y + n);
+            d3s_DrawSpans(i, pitch, flags, 0, y);
           }
         }
       }
