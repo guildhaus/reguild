@@ -4836,7 +4836,8 @@ void ai_SendFreeThieves(AICHAR *ch) {
    f(obj, &obj->pos, pos): push pos hoisted above the jcc, the differing argument after it, one call). So
    in the original both inner arms began with push &msg and the arg1=4 store came after that push in the 2b
    arm's IR, which no C order of a one-argument call gives (args are pushed after their side effects; a
-   callee expression or is folded before the args = arm2one, 38). c2dag of the control: the arm pushes are
+   callee expression (c ? f : (msg.arg[1] = 4, f))(&msg) or (c && (..), f)(&msg) is folded before the
+   args = arm2one, 38). c2dag of the control: the arm pushes are
    already their own blocks (lea / push / jmp) when the scheduler runs. Rounds this session (all no hit on
    'push e.x / jb'): a 0-store probe, a load probe and a label before every statement (probe3); 60 arm-2
    layouts (arg0 outer / inner, arg1 = 2 outer-first / outer-last / in 2a / in both, 2b orders, < against
