@@ -1050,14 +1050,29 @@ struct SBBANK;
    gv_SalvoCharge) and its slot awaited (pump 0x20007). Then one LOCATIONS\DOMIZIL\KANONE1.esc script per ball
    runs at the barrel's object (sc->obj8c[sel]) with its offset (x, y, z) and the "Explosion" sound plays (the
    variation 3 for one ball, 2 for two, 1 for three)
-   @deep 476 -> 460 ins: the six vectors fwd / side / up / p1 / p2 / p3 as D3VECTOR4 (the original's frame
-   0x1cc with a 4-byte hole behind each; the frame now equal), copy order fwd x,z,y / up z,x,y (2591 copy
-   orders: best 460). Left (code 276, fpu 166): the x87 stack allocation of the t / p chains (the original
-   keeps a base component with fld st(0) / fst and int-copies one per case), and the ball index a * 12 the
-   original computes after gv_CannonItemFactor (ours before the call into edi). Tried: ball pointer local
-   (500 / 488), size first, 8 spellings of the charge expression (one code), any D3VECTOR4 subset (64; all
-   six best for the frame) (tiebreak: not measured (dcp headers sample ai_CannonExplosion)) prior: x87
-   stack allocation and the a * 12 ball index (the original computes it after gv_CannonItemFactor) are left */
+   @deep s87 460 -> 370 ins: the ai_FireCannon form - per-case block vectors (case 0 {v1}, case 1 {w, v2},
+   case 2 {v1, t}; v3 / v4 at function scope; v2 = w + pos then v3 = w + pos, the sums as CSEs) and the
+   ball read through g = gv_CannonItemFactor(rec); bl = &ai_CannonBalls[a] (the original forms the a * 12
+   index after the call). Left: slots 464 (all offsets), fpu 54, code 28. The frame is the whole rest: the
+   original packs S1 = fwd + case-1 v2 + case-2 t at 0x1c, S2 = case-0 v1 + w + case-2 v1 at 0x30, up alone
+   at 0x94; ours puts up, v2 and the case-0 v1 in one slot. c2frame: up (9 refs: 3 copies, 6 reads) is
+   listed before v2 (8) and case-0 v1 (6), opens its slot, and both join it (newest compatible: up is dead
+   in cases 0 / 1). Probe: up.x/y/z * -3 read from sc->up (up 6 refs) gives exactly the original frame and
+   94 ins (fpu 48, regs 46 from the sc reads), so the frame is a count / liveness question on up vs v2 /
+   case-0 v1. Tried: vectors shared across cases in a block around the chain (v1 c0+c2 and v2 c1v2+c2t:
+   frame order right but t becomes address-taken, fpu 108-125), fn-scope merges (FFFFF, frame right, fwd.x
+   then in memory), D3VECTOR types for fwd / side / up (8), struct copies `X.v = sc->Y` (8, counts
+   unchanged), climb round 1 from the block form (best moves v1.x = fwd.x * 50 below y / z: other code).
+   Next: an ordinary form in which v2 has >= 9 and the case-0 v1 >= 9 counted refs (ties go to the earlier
+   one) or up is live in cases 0 / 1, with the case-2 t not address-taken. prior: 476 -> 460 ins: the six
+   vectors fwd / side / up / p1 / p2 / p3 as D3VECTOR4 (the original's frame 0x1cc with a 4-byte hole
+   behind each; the frame now equal), copy order fwd x,z,y / up z,x,y (2591 copy orders: best 460). Left
+   (code 276, fpu 166): the x87 stack allocation of the t / p chains (the original keeps a base component
+   with fld st(0) / fst and int-copies one per case), and the ball index a * 12 the original computes after
+   gv_CannonItemFactor (ours before the call into edi). Tried: ball pointer local (500 / 488), size first,
+   8 spellings of the charge expression (one code), any D3VECTOR4 subset (64; all six best for the frame)
+   (tiebreak: not measured (dcp headers sample ai_CannonExplosion)) prior: x87 stack allocation and the a *
+   12 ball index (the original computes it after gv_CannonItemFactor) are left */
 void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
   SHOTREC shotA;
   SHOTREC shotB;
@@ -1065,9 +1080,8 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
   D3VECTOR4 fwd;
   D3VECTOR4 side;
   D3VECTOR4 up;
-  D3VECTOR4 p1;
-  D3VECTOR4 p2;
-  D3VECTOR4 p3;
+  D3VECTOR4 v3;
+  D3VECTOR4 v4;
   int a;
   int b;
   int cost;
@@ -1078,6 +1092,8 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
   float speedSpread;
   float charge;
   float size;
+  const G9BALL *bl;
+  float g;
   EVTSCRIPT *e1;
   EVTSCRIPT *e2;
   EVTSCRIPT *e3;
@@ -1091,11 +1107,10 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
                     &x) == 0)
     return;
   gv_CannonScatter(rec, &spread, &speedSpread);
-  charge =
-      (gv_CannonItemFactor(rec) * ai_CannonBalls[a].b - ai_CannonBalls[a].a) *
-          ((float)b * 0.01f) +
-      ai_CannonBalls[a].a;
-  size = ai_CannonBalls[a].c;
+  g = gv_CannonItemFactor(rec);
+  bl = &ai_CannonBalls[a];
+  charge = (g * bl->b - bl->a) * ((float)b * 0.01f) + bl->a;
+  size = bl->c;
   ai_ShotTableReset();
   fwd.x = sc->dir.x;
   fwd.z = sc->dir.z;
@@ -1107,15 +1122,15 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
   up.x = sc->up.x;
   up.y = sc->up.y;
   if (sc->selected == 0) {
-    D3VECTOR t;
+    D3VECTOR4 v1;
 
-    t.x = fwd.x * 50.0f;
-    t.y = fwd.y * 50.0f;
-    t.z = fwd.z * 50.0f;
-    p1.x = t.x + sc->pos.x;
-    p1.y = t.y + sc->pos.y;
-    p1.z = t.z + sc->pos.z;
-    ai_InitShot(&shotA, &p1.v, &sc->dir, charge, size, ai_IronDensity);
+    v1.x = fwd.x * 50.0f;
+    v1.y = fwd.y * 50.0f;
+    v1.z = fwd.z * 50.0f;
+    v1.x = v1.x + sc->pos.x;
+    v1.y = v1.y + sc->pos.y;
+    v1.z = v1.z + sc->pos.z;
+    ai_InitShot(&shotA, &v1.v, &sc->dir, charge, size, ai_IronDensity);
     ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
     h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotA, 0, 0,
                      gv_SalvoCharge(a, b, 1), cost, x);
@@ -1124,28 +1139,32 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
     z1 = 50;
     n = 1;
   } else if (sc->selected == 1) {
-    D3VECTOR t;
+    D3VECTOR4 w;
+    D3VECTOR4 v2;
 
-    t.x = fwd.x * 40.0f;
-    t.y = fwd.y * 40.0f;
-    t.z = fwd.z * 40.0f;
-    p1.x = p2.x = t.x + sc->pos.x;
-    p1.y = p2.y = t.y + sc->pos.y;
-    p1.z = p2.z = t.z + sc->pos.z;
-    t.x = side.x * 5.0f;
-    t.y = side.y * 5.0f;
-    t.z = side.z * 5.0f;
-    p1.x = t.x + p1.x;
-    p1.y = t.y + p1.y;
-    p1.z = t.z + p1.z;
-    t.x = side.x * -5.0f;
-    t.y = side.y * -5.0f;
-    t.z = side.z * -5.0f;
-    p2.x = t.x + p2.x;
-    p2.y = t.y + p2.y;
-    p2.z = t.z + p2.z;
-    ai_InitShot(&shotB, &p1.v, &sc->dir, charge, size, ai_IronDensity);
-    ai_InitShot(&shotA, &p2.v, &sc->dir, charge, size, ai_IronDensity);
+    w.x = fwd.x * 40.0f;
+    w.y = fwd.y * 40.0f;
+    w.z = fwd.z * 40.0f;
+    v2.x = w.x + sc->pos.x;
+    v2.y = w.y + sc->pos.y;
+    v2.z = w.z + sc->pos.z;
+    v3.x = w.x + sc->pos.x;
+    v3.y = w.y + sc->pos.y;
+    v3.z = w.z + sc->pos.z;
+    w.x = side.x * 5.0f;
+    w.y = side.y * 5.0f;
+    w.z = side.z * 5.0f;
+    v2.x = w.x + v2.x;
+    v2.y = w.y + v2.y;
+    v2.z = w.z + v2.z;
+    w.x = side.x * -5.0f;
+    w.y = side.y * -5.0f;
+    w.z = side.z * -5.0f;
+    v3.x = w.x + v3.x;
+    v3.y = w.y + v3.y;
+    v3.z = w.z + v3.z;
+    ai_InitShot(&shotB, &v2.v, &sc->dir, charge, size, ai_IronDensity);
+    ai_InitShot(&shotA, &v3.v, &sc->dir, charge, size, ai_IronDensity);
     ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
     ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
     h = gv_FireShots(rec, &ai_Chars[ai_PlayerId], &shotB, &shotA, 0,
@@ -1158,44 +1177,51 @@ void ai_CannonExplosion(CANNONSCENE *sc, AIBLD *rec) {
     z2 = 40;
     n = 2;
   } else if (sc->selected == 2) {
-    D3VECTOR t;
+    D3VECTOR4 v1;
+    D3VECTOR4 t;
 
-    t.x = fwd.x * 40.0f;
-    t.y = fwd.y * 40.0f;
-    t.z = fwd.z * 40.0f;
-    p1.x = p2.x = p3.x = t.x + sc->pos.x;
-    p1.y = p2.y = p3.y = t.y + sc->pos.y;
-    p1.z = p2.z = p3.z = t.z + sc->pos.z;
+    v1.x = fwd.x * 40.0f;
+    v1.y = fwd.y * 40.0f;
+    v1.z = fwd.z * 40.0f;
+    v4.x = v1.x + sc->pos.x;
+    v4.y = v1.y + sc->pos.y;
+    v4.z = v1.z + sc->pos.z;
+    v3.x = v1.x + sc->pos.x;
+    v3.y = v1.y + sc->pos.y;
+    v3.z = v1.z + sc->pos.z;
+    v1.x = v1.x + sc->pos.x;
+    v1.y = v1.y + sc->pos.y;
+    v1.z = v1.z + sc->pos.z;
     t.x = up.x * 5.0f;
     t.y = up.y * 5.0f;
     t.z = up.z * 5.0f;
-    p3.x = t.x + p3.x;
-    p3.y = t.y + p3.y;
-    p3.z = t.z + p3.z;
+    v1.x = t.x + v1.x;
+    v1.y = t.y + v1.y;
+    v1.z = t.z + v1.z;
     t.x = up.x * -3.0f;
     t.y = up.y * -3.0f;
     t.z = up.z * -3.0f;
-    p1.x = t.x + p1.x;
-    p1.y = t.y + p1.y;
-    p1.z = t.z + p1.z;
-    p2.x = t.x + p2.x;
-    p2.y = t.y + p2.y;
-    p2.z = t.z + p2.z;
+    v4.x = t.x + v4.x;
+    v4.y = t.y + v4.y;
+    v4.z = t.z + v4.z;
+    v3.x = t.x + v3.x;
+    v3.y = t.y + v3.y;
+    v3.z = t.z + v3.z;
     t.x = side.x * 5.0f;
     t.y = side.y * 5.0f;
     t.z = side.z * 5.0f;
-    p1.x = t.x + p1.x;
-    p1.y = t.y + p1.y;
-    p1.z = t.z + p1.z;
+    v4.x = t.x + v4.x;
+    v4.y = t.y + v4.y;
+    v4.z = t.z + v4.z;
     t.x = side.x * -5.0f;
     t.y = side.y * -5.0f;
     t.z = side.z * -5.0f;
-    p2.x = t.x + p2.x;
-    p2.y = t.y + p2.y;
-    p2.z = t.z + p2.z;
-    ai_InitShot(&shotC, &p1.v, &sc->dir, charge, size, ai_IronDensity);
-    ai_InitShot(&shotA, &p2.v, &sc->dir, charge, size, ai_IronDensity);
-    ai_InitShot(&shotB, &p3.v, &sc->dir, charge, size, ai_IronDensity);
+    v3.x = t.x + v3.x;
+    v3.y = t.y + v3.y;
+    v3.z = t.z + v3.z;
+    ai_InitShot(&shotC, &v4.v, &sc->dir, charge, size, ai_IronDensity);
+    ai_InitShot(&shotA, &v3.v, &sc->dir, charge, size, ai_IronDensity);
+    ai_InitShot(&shotB, &v1.v, &sc->dir, charge, size, ai_IronDensity);
     ai_ScatterShot(&shotC, spread, &sc->side, spread, &sc->up, speedSpread);
     ai_ScatterShot(&shotA, spread, &sc->side, spread, &sc->up, speedSpread);
     ai_ScatterShot(&shotB, spread, &sc->side, spread, &sc->up, speedSpread);
