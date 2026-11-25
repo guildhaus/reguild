@@ -4830,32 +4830,37 @@ void ai_SendFreeThieves(AICHAR *ch) {
    0x211 exists, each spare character (no job, its model in this building) loses the free mark, gets the used
    mark (flags1c8 bit 4) and one message 0x8f goes to the owner with the spy class in arg[1] (1: sk81 < sk82,
    else 2, 4 when sk82 >= sk84) and its netId in arg[0].
-   @deep s50 (control 25 ins kept). The hunk left is the class-2 / class-4 send: the original computes
-   netId (ecx), lea edx,&msg, the arg[0] store and push edx in the compare block BEFORE the jb that skips
-   arg[1] = 4 (stored after the push, +0x70), one call for all three sends; arm 1 keeps its own lea eax /
-   push eax. Read: with cross-jumping off (c2pass --skip 0x1070a91d) ours schedules each arm as netId / lea
-   / push / stores, and xjump then merges arm 1's lea / push into arm 2b's (c2tail: merge 1 = 5
-   instructions). The original looks like a head-merge of two sibling arms that both start with the same
-   push: rd_DoorPos (byte) has such a hoisted push (mov edx,[pos] / test / push edx / je) and it survives
-   every c2pass --skip (block order, add-esp merge, pair / move / xjump, 0x1070a928), so that hoist is
-   IR-level, before allocation: it needs both arms' FIRST IR to be the same push, which arm 2b's arg[1] = 4
-   store prevents in every C spelling tried. Rounds (dcp try, ins): arm 2 as if (sk82 >= sk84) arg[1] = 4 +
-   one send: 38 (arm 1 exact; ebx / ebp swapped since n has fewer references); class as ?: / if-else: 23
-   (sbb); netId / arg[0] inside each inner arm: 19 (o0-i0-leaf-inner: arm 2a is exactly the original's
-   compare block, arm 2b separate; climb 3 rounds from it: nothing); arms swapped (class 2 / 4 first in the
-   text): 32-33, VC6 hoists arg[0] = netId above the outer compare; n-- per outer arm / once: 39-53; a msg
-   pointer local and (arg[1] = 4, f)(&msg): = control; static escape probe: 27; flip.py --want 'push e?x /
-   jb' from the tree and from two variants: no mutant; climb 3 rounds from the tree: nothing. Same open
-   mechanism as ai_BlackmailContact / he_PatrolStep (stores after the push). prior: s42 (38 -> 25 ins): the
-   send and n-- written in each arm (the byte twin ai_SendFreeThieves' style) and the class-4 case as if
-   (sk82 < sk84) { send; n--; } else { arg[1] = 4; send; n--; }: the parameter / n registers (ebx / ebp)
-   and every slot are the original's now. Left (raw size 505 vs 503): the original's three sends are ONE
-   call: arm 1 ends push &msg / jmp into it, arm 2 computes &msg and pushes it BEFORE the jb that skips the
-   arg[1] = 4 store (mov [esp+0x70],edi after the push), and the first compare loads sk82 (cl, reused by
-   the second compare) before sk81 (dl). = control: n-- per arm alone, a c alias of the parameter, arg[0]
-   before arg[1] = 2; worse: the arms with sk82 >= sk84 first (30), class 4 as a ternary (43-48), the
-   compares spelled sk82 > sk81 / sk84 > sk82 (27). Next: what puts the push into the compare block (the
-   call's argument evaluated before the if: an inline / macro form?). */
+   @deep s79 (control 25 kept). The original's arm-2 head [arg1=2, cmp sk82/sk84, netId, lea, arg0, push
+   &msg, jb call; arg1=4 after the push] is the shape VC6 gives an if / else whose two arms start with the
+   SAME push (rd_DoorPos, sv_IsAtDoor, he_TransportStadtStadt: if (door) f(door, &door->pos, pos); else
+   f(obj, &obj->pos, pos): push pos hoisted above the jcc, the differing argument after it, one call). So
+   in the original both inner arms began with push &msg and the arg1=4 store came after that push in the 2b
+   arm's IR, which no C order of a one-argument call gives (args are pushed after their side effects; a
+   callee expression or is folded before the args = arm2one, 38). c2dag of the control: the arm pushes are
+   already their own blocks (lea / push / jmp) when the scheduler runs. Rounds this session (all no hit on
+   'push e.x / jb'): a 0-store probe, a load probe and a label before every statement (probe3); 60 arm-2
+   layouts (arg0 outer / inner, arg1 = 2 outer-first / outer-last / in 2a / in both, 2b orders, < against
+   >=, n-- per arm / after); one send after the class chain (onesend 42: the push sinks into the join); a
+   whole-image grep (grep_orig --multi 'push e?x / jcc / mov'): no byte function stores to a frame slot
+   between a hoisted push and its call. Open: which C makes the 2b arm's first IR the push (a second
+   argument of the call? the class as an argument of another function?). prior: s50 (control 25 ins kept).
+   The hunk left is the class-2 / class-4 send: the original computes netId (ecx), lea edx,&msg, the arg[0]
+   store and push edx in the compare block BEFORE the jb that skips arg[1] = 4 (stored after the push,
+   +0x70), one call for all three sends; arm 1 keeps its own lea eax / push eax. Read: with cross-jumping
+   off (c2pass --skip 0x1070a91d) ours schedules each arm as netId / lea / push / stores, and xjump then
+   merges arm 1's lea / push into arm 2b's (c2tail: merge 1 = 5 instructions). The original looks like a
+   head-merge of two sibling arms that both start with the same push: rd_DoorPos (byte) has such a hoisted
+   push (mov edx,[pos] / test / push edx / je) and it survives every c2pass --skip (block order, add-esp
+   merge, pair / move / xjump, 0x1070a928), so that hoist is IR-level, before allocation: it needs both
+   arms' FIRST IR to be the same push, which arm 2b's arg[1] = 4 store prevents in every C spelling tried.
+   Rounds (dcp try, ins): arm 2 as if (sk82 >= sk84) arg[1] = 4 + one send: 38 (arm 1 exact; ebx / ebp
+   swapped since n has fewer references); class as ?: / if-else: 23 (sbb); netId / arg[0] inside each inner
+   arm: 19 (o0-i0-leaf-inner: arm 2a is exactly the original's compare block, arm 2b separate; climb 3
+   rounds from it: nothing); arms swapped (class 2 / 4 first in the text): 32-33, VC6 hoists arg[0] = netId
+   above the outer compare; n-- per outer arm / once: 39-53; a msg pointer local and (arg[1] = 4, f)(&msg):
+   = control; static escape probe: 27; flip.py --want 'push e?x / jb' from the tree and from two variants:
+   no mutant; climb 3 rounds from the tree: nothing. Same open mechanism as ai_BlackmailContact /
+   he_PatrolStep (stores after the push). */
 
 void ai_SendFreeSpies(AICHAR *ch) {
   AIOBJ *o;
