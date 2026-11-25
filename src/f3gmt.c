@@ -2023,27 +2023,30 @@ void gm_SetCapacities(AIBLD *b) {
 }
 
 /* 0x501580, creates a building of the kind k for the owner own (a character slot, 0xffff none) in the next free instance (gm_FindFreeBuilding): a new id (ai_NextObjectId), the owner and master words, the start values (budget 0x7d00, wage rate 100, level 100, price factor 1.0, no smoke effect), a player's production setting (ai_ProdSetting), a name picked at random from the up to 12 names of its kind that no building has yet (the kind's own name when none is free; "Building name too long: %s" is the unused error text), the objects of its prototype (the rooms of the kinds 2 / 6 by gm_AllocRaum, the others while no room came before), its main room and the per-kind extras: the creation time and the owner's netId for the kinds 4 .. 7, -1 for 0xb .. 0xd, 10 / 3 / 5 for 0xe .. 0x10, the object 0x1b5 for 0x14 .. 0x16, the "f3_gm:PlantMap" of 0x1e, the price factor 0.8 of 0x1e .. 0x20, the graveyard of 0x48 .. 0x4a, the "AHM_INFO" block of 0x4b .. 0x4d; then the capacities and the kind's stock (gm_SetCapacities, gm_StockBuildingObjects). Returns the building, 0 when there are no tables or no free instance
-   @deep 145 -> 103 ins (bytes 1147 -> 552): bt = base + k computed BEFORE b->type = k (the
-   move-line round: base now in edi, k in edx, the whole prologue and early returns equal), g = (&ai_Goods[id])
-   read at both type tests (the materialized address), u = bt->objs[i] index loop. Left: (1) the objs loop:
-   the original keeps any in edi (loaded from its top slot before the loop) and the objs[i] IV in the slot
-   [ebp-4] shared with n, with the zero constant in ebx (cmp dx,bx, re-zeroed at the latch); ours gives the
-   IV edi and leaves any in memory (c2trace: the IV piece temp#1a2 prio 168, any's loop piece prio 6 sav 0
-   UNPROFITABLE; any's whole range crosses the AI_ZERO asm block and has only esi, which b takes). Moving
-   any = 0 to just before the loop gives 38 ins with the loop right but drops the original's top store
-   (frame 0x718), so it is not the original's text; every other position of the init, continue /
-   for-condition / nested-else forms: same code. (2) frame order dbg / names swapped (c2frame: dbg count 3
-   dens 11, names 2 dens 2; err / cand at function scope: no lever). Insensitive to the declaration set.
-   (tiebreak: not measured (dcp headers sample gm_CreateBuilding)) prior: Read whole against the original
-   0x501580..0x501b4e and rewritten on typed AIBLD / AIOBJ fields (statements, constants, callees, the
-   AI_ZERO asm clear of +0x65, the case order with the 4..7 else -1, the 0x1b5 object bytes, the word
-   stores of 0x35..0x37 all match; switch tables equal). What is left is allocation: the original keeps
-   base (ai_BTypes) in edi from the prologue (push edi first, so both early returns pop edi; ours keeps it
-   in edx and pushes edi only before the asm block, popping it before the 0x26 test: hunks +0x9 / +0x2d /
-   +0x35 / +0x102 / +0x516 / +0x53e), it holds any in edi and w in the slot [ebp-4] shared with n (ours any
-   in [ebp-0x14], w in edi: hunks +0x2bc / +0x2ea / +0x31a / +0x33c / +0x356), keeps 0 in ebx and re-zeroes
-   it after the ai_Goods temp (ours zero in edi: +0x383, cmp eax,ebx vs edi), and the arrays sit at other
-   frame slots (err/names swapped: +0x18b / +0x2d... */
+   @deep match-deep s82 (no gain): read of the frame order against c2frame: the original orders the 4-byte
+   slots n (-4), zp, j, the k temp, the names IV, bt, any (-0x1c) and the arrays cand, names, dbg, err, so
+   in the original any has only 2 memory references (the top store and the load into edi before the objs
+   loop: its loop piece is a register) and n at least 5; ours any 4 (all memory), n 4, and dbg counts 3 (a
+   sprintf argument at function scope; err, a block local of the same sprintf, counts 1). c2trace: any#1 is
+   split alone (only esi free, b takes it); its loop piece any#2 holds only the lines of any = 1 (first
+   test) and any == 0 (prio 6 sav 0), the any = 1 before gm_AllocRaum is cut off by the call; 98 basic
+   blocks, so no bulk split (100+). Rounds: an unused label before every statement (109) and a second label
+   with the first before the objs loop (108): no position gives the any load (mov edi,[any]); the label
+   inside if (n != 0) that gives cmp dx,bx changes the meaning (82). Three repeated b->type == 0x26 tests
+   (to reach 100 blocks) fold away: = control. Open: what gives any a loop register piece across the
+   gm_AllocRaum call (a 100+ block count with regions, or one more loop reference), and why dbg ranks below
+   names. prior: 145 -> 103 ins (bytes 1147 -> 552): bt = base + k computed BEFORE b->type = k (the
+   move-line round: base now in edi, k in edx, the whole prologue and early returns equal), g =
+   (&ai_Goods[id]) read at both type tests (the materialized address), u = bt->objs[i] index loop. Left:
+   (1) the objs loop: the original keeps any in edi (loaded from its top slot before the loop) and the
+   objs[i] IV in the slot [ebp-4] shared with n, with the zero constant in ebx (cmp dx,bx, re-zeroed at the
+   latch); ours gives the IV edi and leaves any in memory (c2trace: the IV piece temp#1a2 prio 168, any's
+   loop piece prio 6 sav 0 UNPROFITABLE; any's whole range crosses the AI_ZERO asm block and has only esi,
+   which b takes). Moving any = 0 to just before the loop gives 38 ins with the loop right but drops the
+   original's top store (frame 0x718), so it is not the original's text; every other position of the init,
+   continue / for-condition / nested-else forms: same code. (2) frame order dbg / names swapped (c2frame:
+   dbg count 3 dens 11, names 2 dens 2; err / cand at function scope: no lever). Insensitive to the
+   declaration set. (tiebreak: not measured (dcp headers sample gm_CreateBuilding)) */
 AIBLD *gm_CreateBuilding(unsigned char k, unsigned short own) {
   AIBLD *b;
   AIBTYPE *base;
