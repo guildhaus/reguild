@@ -2044,6 +2044,45 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s73 (3 byte: gm_StockPrice, init_SetDetailLevel, gm_CollectOffers; d3_SetupFrustum 24 -> 22)**:
+  - **A clamp's constant path run through the next compare (`fstp st(0); fld 0.25; fcom 5.0`, ours threads
+    it past the 5.0 test): the clamped value was a FLOAT local** (gm_StockPrice): `float t; double f; .. t =
+    max(t, 0.25); f = min(t, 5.0);` keeps the qword constants and the FPU-held value, but VC6 no longer
+    knows t == 0.25 on that path (the double constant goes through the float type) and does not decide the
+    5.0 test. Every double spelling (144 compare / operand / statement forms, f suffixes, __inline helpers)
+    threads; the shared double object was the earlier stand-in. Lever for any "constant path not threaded":
+    try a narrower type for the variable that holds the constant.
+  - **The early `if (mk == 0) return f(..);` with its own call block last in the original, ours cross-jumped
+    into a later `return f(..)`**: the body under `if (mk != 0) { .. }` with the return after it, plus the
+    floor as `return max(512.0f, gm_ItemPrice(id, 100));` (the macro calls twice, as the original); each
+    change alone = control, together 12 -> 2 (gm_StockPrice).
+  - **A forced case threaded straight into the last arm of a value chain (`cmp [esi],0x40; je low; cmp
+    MapSize; jge low; mov cl,[setting]; test cl,cl ..`), ours a second copy of that arm**: the forced case
+    sets the tested value, `if (s->size == 0x40 || ai_MapSize >= 0x780) set = 2; else set = ai_GfxFloorLod;
+    if (set == 0) .. else if (set == 1) .. else if (set == 2) ..` with a CHAR local (int: 22 ins, the
+    threading and byte compares differ) (init_SetDetailLevel 15 -> byte). The duplicate arm's
+    `init_Detail = 1` byte stores made the constant 1 a byte candidate (only ebx, savings 1) that pushed
+    size off ebx (c2trace --seq: the ASSIGN avail and the neighbours' prefs).
+  - **The zero register re-made in a block of its own at the end of a loop body (`xor esi,esi` that the
+    `continue` skips), ours at the loop head behind an entry jmp**: an empty `do { } while (0);` as the last
+    statement of the body (@original: a compiled-out statement macro) gives the join block; 47 -> 2, and
+    `f = 1` after the two row stores (VC6 then stores the immediate, not f's register) -> byte
+    (gm_CollectOffers). Plain trailing statements (`f = 0;`, `if (f)` split from the else-if: 5..7 ins), the
+    body under `if (b->type)`, a do-while around the stall branch (2, order) did not reach it. The same
+    round before each of ai_CalcMeisterWache's 106 statements gave one other code only.
+  - **`cmp edi,esi; jbe` at a bit-count loop's test (ours `je`)**: `for (bits = i; bits > 0; bits >>= 1)` on
+    the unsigned bits (d3_SetupFrustum).
+  - **`mov eax,ecx; mov ecx,8; mov eax,[eax]` (a copy, the counter, then the deref of the copy)**: unique in
+    the image (sv_UpdateBand / Led only; a scan of every original function for `mov X,Y` followed by `mov
+    X,[X]`); value-flow, loop, counter-type, __inline and the s72 flat-code rounds all = control. Open.
+  - **A tail duplicated into an if-arm before allocation depends on the tail's size**: a scratch compile of
+    d3_SetFog with only the tail varied copies it into the then-arm for 1-2 distinct stores, never for 3-4;
+    the original copies its 4-store tail, so something else made it cheap. Open.
+  - Tool: a scratch harness that inserts a helper (an `__inline` function, a renamed definition with another
+    parameter type) before the function and greps the listing (flip.listing) answers "does any text emit
+    this instruction pattern" without the daemon; grep build/orig-asm for an odd pattern across the whole
+    image before spending rounds: a pattern no byte function has is a construct nobody has found.
+
 - **Deep s72**:
   - **Two callee-saved registers swapped through a whole function (a -1 constant then `best` in one, 0 then `j`
     in the other), a call result copied `mov ecx,eax` before its deref: the selection was flat code, not a
