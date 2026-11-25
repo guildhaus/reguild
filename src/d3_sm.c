@@ -54,24 +54,41 @@ int d3sm_GetGround(unsigned int x, unsigned int z, D3FLMAP *t) {
   return d3sm_Ground[t->types[idx]];
 }
 /* 0x45dc00, samples the heights and ground types of the terrain into the map
-   @deep draft 340 ins -> 160 this session. Read against the original: the midpoint fill re-reads h->data
-   for the second average after the first store (the source had no a/b/c/d locals: the four corner bytes
-   are read in place, VC6 CSEs them into the sum and the first average and reloads data[A] / data[C] for
-   the second), the average is int (cdq/sar) and the /5 unsigned (mul 0xcccccccd): kept in the unsigned
-   sum; the halving loop is for (; step > 1; step >>= 1) (step = half was 34 ins worse). The step == 0
-   branch now matches. Left: the init loop's heights / data address order (order 6 + regs 18 at 0x45de8a:
-   ours loads t->height before the index, the original after) and the midpoint loop's strength-reduction
-   temps (slots and the IV update order at its end, code 61 at 0x45df90, 54 at 0x45e10d). Tried: 19
-   spellings of the init loop's heights / data index (t->height[x + z * ts], pointer forms, step * (..)):
-   all = control; half = step / 2, while forms (= control or = the for form), (x + 1) * step instead of x *
-   step + step (= control), all 720 orders of the three data stores and three type copies (the current
-   order is best; p012354 166 ins) (tiebreak: insensitive, 32 samples) prior (its "allocation only" was wrong for the a/b/c/d locals):
-   behaviour: 544 code hunks, but all of them are the same operations with other register / stack-slot
-   names or in another order (a full read of the asmdiff: 170 ours vs 181 original instructions, no
-   statement missing); the instruction multiset differs only by 2 add / 2 xor / 4 mov / 2 lea, the same
-   x*step+step masks and xor-zeroing strength-reduced differently, plus 5 fill nops; the C's loops (heights
-   by __ftol, count[15] ground-type vote, step-halving midpoint fill) are the same as the Ghidra
-   pseudocode, readability already readable; restoring the original's allocation is byte work */
+   @deep s84: the hunks left are IL-node tie-breaks, not spellings. flip.py on the init loop (want height
+   index row+x before the t->height base load) hit only inv = 0.0f / 2.0f / double: the 1.0f is no lever by
+   value, an extra float IL node is (c2trace: every temp number after the inv line +1). Probes: inv =
+   (float)(1.0f / h->cell.y) alone fixes the init loop (height / data / GetGround loads) but flips the step
+   == 0 store ([esi+0x28] first) the wrong way (156); a float paren in the step == 0 sum, e.g. (t->hscale)
+   or (h->origin.y), alone breaks that store too (174), and both together give the step == 0 branch AND the
+   init loop byte: 142 ins, code 162 + slots 34 left, all in the midpoint loop (preheader: the original
+   creates the step*28 entries x-stride IV first, ours after step*n .. (n+1)*half*28; its slot table
+   follows). No plain spelling found for either extra node: 64 paren masks of both height expressions
+   (macro-like, same mask in both) with / without the inv cast: only the cast + one sum paren matter, the
+   mask is free; int parens / casts, index orders, (int) / unsigned types of x z xx zz ts n, loop bounds
+   from t->size / h->size (all much worse), statement / declaration moves, ternary / else forms of the step
+   == 0 tail, the & n - 1 operand order and the entries index spellings in the midpoint loop: = control.
+   climb from the 142 base: nothing; flip.py from it (want lea eax,[ebx*8] after the n/step jbe) hits only
+   meaning changes (x = 1 starts, + -> -, deleted statements). Not kept (probe spellings). Next: what extra
+   float node the original had (a macro for the height-to-map conversion used in both loops, with the 1.0f
+   / cell.y inside it?), then the midpoint IV order. prior: draft 340 ins -> 160 this session. Read against
+   the original: the midpoint fill re-reads h->data for the second average after the first store (the
+   source had no a/b/c/d locals: the four corner bytes are read in place, VC6 CSEs them into the sum and
+   the first average and reloads data[A] / data[C] for the second), the average is int (cdq/sar) and the /5
+   unsigned (mul 0xcccccccd): kept in the unsigned sum; the halving loop is for (; step > 1; step >>= 1)
+   (step = half was 34 ins worse). The step == 0 branch now matches. Left: the init loop's heights / data
+   address order (order 6 + regs 18 at 0x45de8a: ours loads t->height before the index, the original after)
+   and the midpoint loop's strength-reduction temps (slots and the IV update order at its end, code 61 at
+   0x45df90, 54 at 0x45e10d). Tried: 19 spellings of the init loop's heights / data index (t->height[x + z
+   * ts], pointer forms, step * (..)): all = control; half = step / 2, while forms (= control or = the for
+   form), (x + 1) * step instead of x * step + step (= control), all 720 orders of the three data stores
+   and three type copies (the current order is best; p012354 166 ins) (tiebreak: insensitive, 32 samples)
+   prior (its "allocation only" was wrong for the a/b/c/d locals): behaviour: 544 code hunks, but all of
+   them are the same operations with other register / stack-slot names or in another order (a full read of
+   the asmdiff: 170 ours vs 181 original instructions, no statement missing); the instruction multiset
+   differs only by 2 add / 2 xor / 4 mov / 2 lea, the same x*step+step masks and xor-zeroing
+   strength-reduced differently, plus 5 fill nops; the C's loops (heights by __ftol, count[15] ground-type
+   vote, step-halving midpoint fill) are the same as the Ghidra pseudocode, readability already readable;
+   restoring the original's allocation is byte work */
 
 void d3sm_Sample(D3FLMAP *t, D3SM *h) {
   unsigned int count[15];
