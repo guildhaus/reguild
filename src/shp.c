@@ -112,11 +112,23 @@ void d2_SetLineTable(int *rows, D2SHP *shp) {
    transparent colour and takes the box from those, stores every row as skip runs of the transparent colour
    alternating with literal runs, builds the table of row offsets, and returns an exactly sized copy of the
    shape (allocated with mem_Alloc; the scratch shape is freed).
-   @deep 488 -> 307 ins (draft): rewritten in the siblings'
-   form - d2_GrabShape24NoRuns' scans (p = pix + ((i + y) * (pitch & 0xffff) + x + j) * 3 inside the inner
-   loop) and d2_GrabShape16Runs' run loop (lines[] / line / run / col / t, the skip loop as while (col <
-   s->w && d2_CompareColour(pix + (col + t + x) * 3, ..) == 0), the literal loop with the unsigned entry
-   test, col += run[1] - 1 unconditional as the original's lea eax,[eax+ecx-1]). Now the code shape is the
+   @deep deep s85: 307 -> 174 ins. (1) s / run priority (run 1086 popped before s 1081 took ebp): the tail
+   written s->lineoff = s->size; s->size = s->lineoff + s->h * 4; (not s->size += ..) lifts s (one more s
+   reference in the last block) - s ebp, run ebx, h ebx at entry as the original (206). (2) s->nruns = cnt
+   before s->mode = flag (202; mode first 206, both before the call 204). (3) the box stores after the
+   marker scan in the order bx0, by0, bx1, by1 (174): the slot packing follows - minx shares its slot with
+   col, miny with i as in the original (declaration order of the box / int locals: 264 variants, one code).
+   Left: (a) the bounding-box stores before the marker scan: the original loads minx / maxx / maxy / miny
+   up front into edx / eax / ecx / edi (ours reloads edx for miny); casts / (x + 1) spellings of the 8
+   stores are one code. (b) the run loop: col (col#2, avail eax edx) takes edx, the original eax, and line
+   takes esi where the original keeps it in edx: every scratch register of the run loop follows. (c) the
+   tail: the original adds s->h << 2 with shl / add into esi (ours lea edx,[eax+ecx*4]); 8 spellings of the
+   size (<< 2, 4 * h, casts, sizeof, a t temp) are one code; then mem_Alloc args edx / al / ecx against
+   ours eax / cl / edx. prior: 488 -> 307 ins (draft): rewritten in the siblings' form -
+   d2_GrabShape24NoRuns' scans (p = pix + ((i + y) * (pitch & 0xffff) + x + j) * 3 inside the inner loop)
+   and d2_GrabShape16Runs' run loop (lines[] / line / run / col / t, the skip loop as while (col < s->w &&
+   d2_CompareColour(pix + (col + t + x) * 3, ..) == 0), the literal loop with the unsigned entry test, col
+   += run[1] - 1 unconditional as the original's lea eax,[eax+ecx-1]). Now the code shape is the
    original's; left is a whole-function register permutation: run (prio 1086, c2trace) is popped before s
    (1081) and takes ebp, s gets ebx (the original: s ebp, run ebx, h ebx at entry), and every slot /
    scratch register behind it. Tried: the skip loop with a p pointer (+15), for / while / if-break forms of
@@ -124,7 +136,8 @@ void d2_SetLineTable(int *rows, D2SHP *shp) {
    spellings of the row-start block (run = line + 1 ..): none moves s above run. run computed inside the w
    guard gives s ebp (216 ins) but VC6 then folds run into [eax+ebp] addressing - not the original's
    pointer. flip.py (want s in ebp): only meaning-changing hits (an extra s reference in the inner loop:
-   dup of s->npix += / s->size +=; one run reference fewer: run[2] = 0). (tiebreak: not measured (dcp headers sample d2_GrabShape24Runs)) */
+   dup of s->npix += / s->size +=; one run reference fewer: run[2] = 0). (tiebreak: not measured (dcp
+   headers sample d2_GrabShape24Runs)) */
 
 D2SHP *d2_GrabShape24Runs(int x, int y, int w, int h, unsigned char *pix,
                           unsigned char flag, unsigned short pitch) {
@@ -201,8 +214,8 @@ D2SHP *d2_GrabShape24Runs(int x, int y, int w, int h, unsigned char *pix,
       }
     }
   }
-  s->by0 = (unsigned short)miny;
   s->bx0 = (unsigned short)minx;
+  s->by0 = (unsigned short)miny;
   s->bx1 = (unsigned short)maxx;
   s->by1 = (unsigned short)maxy;
   s->size = 0x32;
@@ -247,10 +260,10 @@ D2SHP *d2_GrabShape24Runs(int x, int y, int w, int h, unsigned char *pix,
     } while (i < s->h);
   }
   s->lineoff = s->size;
-  s->size += s->h * 4;
+  s->size = s->lineoff + s->h * 4;
   d2_SetLineTable(lines, s);
-  s->mode = flag;
   s->nruns = cnt;
+  s->mode = flag;
   r = mem_Alloc(s->size, "shp_t:ShapeHeader");
   memcpy(r, s, s->size);
   mem_Free(s);
