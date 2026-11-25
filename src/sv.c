@@ -6265,25 +6265,28 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    (gm_PermissionBits 0x800) whose body stands in d3_DefaultScene and has mesh data; its screen position is the
    centre of the body's first 8 transformed vertices (the bounding box corners, camera space) projected with
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
-   @deep deep s26: declaration set measured (dcp headers sample: 32 samples, one codegen, not sensitive).
-   climb round 1: nothing (82 mutants). = control: v = *(D3VERTEX **)info, v from the whole chain, n = 8
-   before v, do/while(--n), index loop through info->keys[n], block-scoped walker + counter (for and
-   do/while), info via an int local, info assigned through v in its own if, the body nested in if (..) {..}
-   instead of continue (one or both tests). Worse: pointer-compare loop v < keys + 8 (18), v[n] index (16),
-   probe keeping info live after the loop (28), selected = condition (30). flip.py --want 'mov
-   ecx,[eax+460]': only deleting v's def, != -> ==, deleting the final selection test or swapping selected
-   = 0 with the test give info ecx (all far). Left: the same 2-instruction copy (original mov eax,ecx; mov
-   ecx,8; mov eax,[eax]). prior: one copy left: the original loads info into ecx ('mov ecx,[eax+0x1cc];
-   test ecx,ecx') and at the loop entry 'mov eax,ecx; mov ecx,8; mov eax,[eax]'; ours loads info into eax
-   and 'mov eax,[eax]; mov ecx,8' (code 5, regs 4). Declaration set insensitive (32 samples, one codegen).
-   Applied ai_FloatZero / cm_DoubleOne for the M10 literals (same ins). Every one = control: info tested in
-   its own if / nested block / not a local (field read twice), v = info then v = *v, v reused for info,
-   for-init with v, do / while(n--) / n > 0 / n up-count walk, n as bits / iz, index loop through
-   info->keys[n] and &keys[n], every declaration position of c / v / info. Worse: v[n] index loop (16 ins),
-   v set before the p inits (9), n = 8 before the inits (9), 1.0f (11), selected = 0 in both arms (11), p
-   inits before the info test (49). Open: what in the original's IR made info a separate value from v (a
-   second use of info, or a different loop the strength reduction turned into this one) (tiebreak: not
-   measured (dcp headers sample sv_UpdateBand)) */
+   @deep deep s73: the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE in the image (a scan of
+   all 4666 original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds only sv_UpdateBand /
+   Led): no byte function shows the construct. c2trace: v#1 (112) eax, then temp#47 (the counter, 40,
+   created later) ecx, then info#1 (40) eax; for the original info must lose eax (interfere with v, or an
+   unprocessed eax-preferring neighbour), which no tried text gives. = control (one code each round): pk =
+   &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys; block-scope walker; index loops
+   info->keys[n], v = &info->keys[n], info->keys + n; n = 8 / v at every position among the p inits (v
+   before the inits: 9); keys + 0, info[0].keys, (&info->keys)[0], *(int *)info, *(unsigned *)info; info as
+   default-then-overwrite flat code / if-else / ternary / nested ifs (s72 lever); info re-read after the
+   chain (CSE) at three positions; v / n / iz / bits holding info (webs renamed); a redundant (bits &
+   0x800) test at four places; static __inline helpers (keys getter, whole centre, sum only: listings equal
+   to the control); counter types uchar / char / short / ushort / unsigned / long x 4 loop forms (28 rows).
+   flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the copy needs an IR the
+   canonicaliser keeps; no spelling of the value flow found. prior: deep s26: declaration set measured (dcp
+   headers sample: 32 samples, one codegen, not sensitive). climb round 1: nothing (82 mutants). = control:
+   v = *(D3VERTEX **)info, v from the whole chain, n = 8 before v, do/while(--n), index loop through
+   info->keys[n], block-scoped walker + counter (for and do/while), info via an int local, info assigned
+   through v in its own if, the body nested in if (..) {..} instead of continue (one or both tests). Worse:
+   pointer-compare loop v < keys + 8 (18), v[n] index (16), probe keeping info live after the loop (28),
+   selected = condition (30). flip.py --want 'mov ecx,[eax+460]': only deleting v's def, != -> ==, deleting
+   the final selection test or swapping selected = 0 with the test give info ecx (all far). Left: the same
+   2-instruction copy (original mov eax,ecx; mov ecx,8; mov eax,[eax]). */
 
 void sv_UpdateBand(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
@@ -6331,12 +6334,17 @@ void sv_UpdateBand(void) {
 }
 /* 0x52f0d0, sv_UpdateBand for the 0x8000 mode of sv_RunFrame: the same band and projection, but a character is
    selectable when ai_LedSelectBits gives 0x800 (led by the player's character) instead of gm_PermissionBits.
-   @deep deep s26: shares sv_UpdateBand's hunk; every s26 round run there (see its note) was = control or
-   worse there; not repeated here. prior: s10: c2trace: info#1 (prio 40) and v#1 (prio 112) both get eax
-   (no conflict: info dies at v's def); the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' needs info
-   in ecx, i.e. live where v is born or a copy the coalescer keeps. = control: info dropped (the chain
-   c->model->body->info written at both uses, in the for init too), for-init / index loop forms; v defined
-   in the condition chain (9). climb.py 2 rounds: nothing. Padded size needs only the 2-byte copy. */
+   @deep deep s73: the same hunk as sv_UpdateBand (see its s73 note: the original's copy-then-deref is
+   unique to these two functions in the whole image). Re-run here: info as flat default-then-overwrite /
+   if-else / ternary / nested (6 rows), v / n / iz / bits holding info (4), n = 8 and v at every position
+   among the p inits: all = control except v before the inits (9). Open with sv_UpdateBand: whatever fixes
+   one fixes both. prior: deep s26: shares sv_UpdateBand's hunk; every s26 round run there (see its note)
+   was = control or worse there; not repeated here. prior: s10: c2trace: info#1 (prio 40) and v#1 (prio
+   112) both get eax (no conflict: info dies at v's def); the original's 'mov eax,ecx; mov ecx,8; mov
+   eax,[eax]' needs info in ecx, i.e. live where v is born or a copy the coalescer keeps. = control: info
+   dropped (the chain c->model->body->info written at both uses, in the for init too), for-init / index
+   loop forms; v defined in the condition chain (9). climb.py 2 rounds: nothing. Padded size needs only the
+   2-byte copy. */
 
 void sv_UpdateBandLed(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
