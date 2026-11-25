@@ -18315,38 +18315,32 @@ void he_AllocPatrolEvent(AIJOB *ev) {
    (12, 8, 4, 2, 0); once at that building's door (and the building is no town market, or the cart belongs to the
    patrol building) it moves on to the next point of the route (wrapping to 0; the field send's cm slot goes to
    ev->exSlot), else, in a building, it sends the message 0xf (the cart, the building it is in, the point's building)
-   @deep deep s50 (the message 0xf fill, the last block). Mechanism (c2dag): a store to an escaped local
-   gets an edge (0x20) to every later load through a non-parameter pointer (owner / bld / at are k6 .80;
-   c->objId, a parameter, is .0 and free; a pointer read from a global is .80 too). Escape: a
-   function-scope m is escaped everywhere (even with the first branch's sends deleted); a block local is
-   fresh until its own call (a block-local m in the last block has no 0x20 edges at all, and bld->id then
-   fills the lea edi -> rep stosd latency slot). A store with no outgoing edge (h4) is scheduled after the
-   push (h5); that is why flag9e always follows the push. The original: nothing between lea edi and rep
-   stosd (bld->id is ordered after the memset: an edge), type / fromId / flags after the time / to / car
-   loads and before bld->id, then bld->id, at->id, lea, push, and BOTH n and ch stores after the push
-   (neither has an edge to the other's load). With two plain statements m.n = bld->id; m.ch = at->id;
-   (either order) one store always precedes the other load, so the original's text there is something else.
-   Rounds, best rows: block-local m in each branch x 720 orders of the first six fills: 8 ins draft
-   (bld->id above rep stosd, the constants after the push); 4000 sampled 9-statement orders block-local:
-   10; zero-initialised block-local AIMSG m = {0} x 720: 13; n / ch as arg[1] / arg[2]: = the named fields;
-   decided if (bld != 0) / ternary / nested fill: = block-local code (decided tests vanish before
-   scheduling); function-scope x 216 grouped orders: 14 (OMCTFLNHE); int locals from = bld->id, to = at->id
-   read before the two stores (4 tail forms x 720, function scope): 14, their tail is the original's shape
-   but the lea takes eax; climb 4 rounds from the tree: 8 ins draft (fromId, to, time, car, n, flags, ch,
-   flag9e, type: ch then has no edge and follows the push, n still before it); climb 3 rounds from the
-   block-local best: nothing; flip.py on the tree / OMCTFLNHE for the original tail: no single mutation.
-   Not kept (every 8-ins row grades draft). prior: deep s32: the hunk is the order of the message 0xf fill
-   (the last block): the original stores the ai_Time words, to and car first, then type / fromId / flags
-   just before the time's last word, loads bld->id and at->id after those (m has escaped through the first
-   branch's cm_SendLongMessage: pointer loads wait for the stores), pushes &m, and only then stores n and
-   ch (and flag9e). Ours stores n / ch before the push in every order: 720 orders of
-   type/fromId/to/flags/time/car (best p160 = fromId, to, time, car, type, flags: 8 ins but draft, code
-   20), x the 6 orders of n/ch/flag9e on the six best (no gain), 4000 sampled orders of all nine (10 ins at
-   best), climb --ops move,swap 4 rounds from the tree and from p160 (8). A fresh block-local m in each
-   branch puts the n / ch stores after the push as the original but also the type / fromId / flags stores,
-   and hoists bld->id above the memset (8 ins / 71 bytes, draft): the escape is right, the store/push order
-   is not. Not kept (every 8-ins row grades draft). (declaration set: not byte under the declaration sets
-   tried (best shape)) */
+   @deep deep s78: the loads-then-stores tail through named ints (k = bld->id; count / j = at->id; m.n = k;
+   m.ch = ..; 10 forms of order and flag9e place, block scope as function scope): 24 ins draft, one code
+   for all orders: the loads come out in the original order (bld, at) but the n / ch stores stay BEFORE the
+   push and type / fromId still precede the time loads; reusing n costs its home store (n's address escapes
+   to cm_AddFieldValue). An IL-volume sweep (2..40 dead loads before the last block) moves nothing (probe3
+   on the original's tail and head patterns: 0 hits). prior: deep s50 (the message 0xf fill, the last
+   block). Mechanism (c2dag): a store to an escaped local gets an edge (0x20) to every later load through a
+   non-parameter pointer (owner / bld / at are k6 .80; c->objId, a parameter, is .0 and free; a pointer
+   read from a global is .80 too). Escape: a function-scope m is escaped everywhere (even with the first
+   branch's sends deleted); a block local is fresh until its own call (a block-local m in the last block
+   has no 0x20 edges at all, and bld->id then fills the lea edi -> rep stosd latency slot). A store with no
+   outgoing edge (h4) is scheduled after the push (h5); that is why flag9e always follows the push. The
+   original: nothing between lea edi and rep stosd (bld->id is ordered after the memset: an edge), type /
+   fromId / flags after the time / to / car loads and before bld->id, then bld->id, at->id, lea, push, and
+   BOTH n and ch stores after the push (neither has an edge to the other's load). With two plain statements
+   m.n = bld->id; m.ch = at->id; (either order) one store always precedes the other load, so the original's
+   text there is something else. Rounds, best rows: block-local m in each branch x 720 orders of the first
+   six fills: 8 ins draft (bld->id above rep stosd, the constants after the push); 4000 sampled 9-statement
+   orders block-local: 10; zero-initialised block-local AIMSG m = {0} x 720: 13; n / ch as arg[1] / arg[2]:
+   = the named fields; decided if (bld != 0) / ternary / nested fill: = block-local code (decided tests
+   vanish before scheduling); function-scope x 216 grouped orders: 14 (OMCTFLNHE); int locals from =
+   bld->id, to = at->id read before the two stores (4 tail forms x 720, function scope): 14, their tail is
+   the original's shape but the lea takes eax; climb 4 rounds from the tree: 8 ins draft (fromId, to, time,
+   car, n, flags, ch, flag9e, type: ch then has no edge and follows the push, n still before it); climb 3
+   rounds from the block-local best: nothing; flip.py on the tree / OMCTFLNHE for the original tail: no
+   single mutation. Not kept (every 8-ins row grades draft). */
 void he_PatrolStep(AIJOB *ev, AIOBJ *c) {
   AICHAR *owner;
   RTPOINT *p;
