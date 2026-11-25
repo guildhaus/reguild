@@ -7919,26 +7919,7 @@ int ai_OpenTrainingRow(int n, int pic, LCTRAINROW *row, int win) {
    the classes 2 / 3 (the thief message 0x16, enabled by the rooms 0x35 / 0x34), the row 2 the characters of the
    event 0x6c (the class 4 needs the room 0x5d, the class 0x10 the room 0x5e); each row shows its count. A row
    clicked with characters selected sends them (sv_MoveToGroup, cm_SendLongMessage) up to three thieves in all
-   (text 0x1a4a past it, 0x1a49 when none went); clicked without, it selects the row's characters
-   @deep s22: 132 -> 6 ins, frame equal. Kept: goto sent as break (= control); the init order type, en2,
-   n2, row (permute: the top's order hunk); the row branch as if (row == 2) { 0x6c } else { thieves } (no
-   strength reduction then). Left (6 ins): the original dispatches with test edi,edi / je T / cmp edi,1 /
-   je T and the 0x6c arm falling through (the || form's exact code) yet indexes rows[row].pic from row each
-   pass; every || / && spelling (row == 0 || row == 1, !row || .., constants left, swapped arms, a flag set
-   by if / else, a sel = row copy, other for headers, block-local loop variable, the T / E loops without
-   continue, probes deleting the -1 test, the thiefClass use, the PanelShown ifs, the count > 3 box)
-   strength-reduces &rows[row].pic into a frame-slot pointer (frame 0x93c, 132 ins); a switch (case 0: case
-   1: / case 2:) indexes but compares range-wise (jl / jle / cmp 2). flip.py on the || form hits only that
-   condition's tokens. Next: what besides the dispatch keeps VC6's loop optimizer from reducing rows[row]
-   in the original (a callee prototype in the loop, the rows element type, a use of row the optimizer
-   cannot rewrite). prior: size queue s20: the frame's extra slot (ours 0x93c, the original 0x938) is a
-   strength-reduced pointer temp of the row click loop (c2frame: tmp@8845 = &rows[row], stored at
-   [esp+0x18] and reloaded per pass); the original indexes rows[row].pic from row each pass (lea
-   edx,[edi+edi*2]; mov eax,[esp+edx*4+0x24]). = control: count = n2 + n3 / count = n3; count += n2 / count
-   = 0; count += ..; separate en0 / en1 enable flags instead of row / n2 reuse (136, slots +4); the click
-   search as a break loop + if (row < 3) (a meaning change, not kept). climb.py round 1: nothing (every
-   mutant changes the frame). The M8s at +0x3e6 / +0x4e9 are the ai_Time struct copy scheduled in another
-   order (all four parts are read on both sides). */
+   (text 0x1a4a past it, 0x1a49 when none went); clicked without, it selects the row's characters */
 
 void ai_TrainingWindow(AIBLD *bld) {
   int row; /* first the row 0's enable flag, then the row clicked */
@@ -8046,7 +8027,7 @@ void ai_TrainingWindow(AIBLD *bld) {
         if (rows[row].pic == -1 || d2_PointerObj != rows[row].pic)
           continue;
         count = n3 + n2;
-        if (row == 2) {
+        if (row != 0 && row != 1) {
           for (i = 0; i < 0x300; i++) {
             if (count >= 3)
               break;
@@ -8087,7 +8068,10 @@ void ai_TrainingWindow(AIBLD *bld) {
             else
               msg.arg[2] = -1;
             msg.arg[1] = ai_Chars[i].netId;
-            msg.thiefClass = (row != 0) + 2;
+            if (row != 0)
+              msg.thiefClass = 3;
+            else
+              msg.thiefClass = 2;
             sv_MoveToGroup(bld, 0, ai_Chars[i].id, 0);
             cm_SendLongMessage(&msg);
             count++;
@@ -8106,25 +8090,23 @@ void ai_TrainingWindow(AIBLD *bld) {
       }
     } else if (d2_ClickedId != -1 && d2_CountPointerItems() == 0) {
       /* a row clicked without a selection: select its characters */
-      for (row = 0; row < 3; row++)
-        if (rows[row].pic != -1 && d2_PointerObj == rows[row].pic)
-          goto select;
-      continue;
-    select:
-      {
-        if (row != 2) {
-          cls = (row != 0) + 2;
-          for (ev = he_FindEvent(2, 0, 0x16, 3, bld->id); ev != 0;
-               ev = he_NextEvent()) {
-            if (ev->thiefClass == cls && (ch = gm_FindChar(ev->thief)) != 0)
-              ch->selected = 1;
+      for (row = 0; row < 3; row++) {
+        if (rows[row].pic != -1 && d2_PointerObj == rows[row].pic) {
+          if (row != 2) {
+            cls = (row != 0) + 2;
+            for (ev = he_FindEvent(2, 0, 0x16, 3, bld->id); ev != 0;
+                 ev = he_NextEvent()) {
+              if (ev->thiefClass == cls && (ch = gm_FindChar(ev->thief)) != 0)
+                ch->selected = 1;
+            }
+          } else {
+            for (ev = he_FindEvent(2, 0, 0x6c, 3, bld->id); ev != 0;
+                 ev = he_NextEvent()) {
+              if ((ch = gm_FindChar(ev->ownerCh)) != 0)
+                ch->selected = 1;
+            }
           }
-        } else {
-          for (ev = he_FindEvent(2, 0, 0x6c, 3, bld->id); ev != 0;
-               ev = he_NextEvent()) {
-            if ((ch = gm_FindChar(ev->ownerCh)) != 0)
-              ch->selected = 1;
-          }
+          break;
         }
       }
     }
