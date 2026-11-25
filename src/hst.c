@@ -1309,17 +1309,17 @@ int ai_CommandKillPlayer(G12ROW *row, int k, char *fmt) {
    variant / quiet (quiet: cm_ExecutionAftermath skips its notes when set); the name table in the original's
    slot order (name[0] = SHAUFEN .. name[3] = KANONE; kinds 3, 0, 2, 4 go with that order); the -1 fill as the
    loop VC6 turns into 'mov ecx,0x10 / sub ecx,edx / rep stosd' (memset gave the shl/shr/and-3 tail).
-   @deep s25: the original's setup block: xor eax,eax; mov dl,kinds[i] (first, before the ai_PlayerId
-   load); party stores thing, list[1], kind, flags, variant (dl), quiet, host last. Every text with the
-   variant store after flags (the original's store order) also moves the kinds[i] load behind the
-   ai_PlayerId load into cl (draft 18, then the judges' registers rotate): the load's priority falls with
-   its store's list position. A variant temp (int / unsigned char / char, assigned at 3 places or as the
-   initializer) is substituted: = the variant-after-flags code. Host at each of 10 positions with the
-   original's store order: 18 .. 99. climb.py 2 rounds (754 mutants): nothing. Left: order 14 (the variant
-   store's place against its load's). prior: shape, 6 ins / 28 bytes, order 14 only (from draft 59 ins).
-   Moved code: the netId read at each of its three uses (loop base to netId, the original's
-   ai_CharInts/0x7d5f84 refs: 59 -> 54); memcmp(fmt + 1, ..) instead of fmt++ (the original's lea
-ebx,[eax+1]: 26 -> 8); flags = 0x22 before the time copy (8 -> 6); party.variant = kinds[i] directly, no variant local (the name-table M9 crossing went: draft -> shape); the setup stores' order by tryclimb. Left: the setup block's scheduling, '- mov byte ptr [esp+0xe4],dl' right after the -1 store where the original stores list[1]=-1, loads ai_JudgeCatholic, stores kind/flags and only then the variant (dl). No lever: 1500 random orders and all 2602 two-line moves of the 10 setup stores (none below 6 ins); the variant store after flags gives the original's store order but loads kinds[i] late into cl and c early (draft 18 ins); a variant local before or inside the block (draft 18-34); thing = list[1] = -1 chains (draft 34-36). Declaration set insensitive. (tiebreak: insensitive) */
+   @deep deep s74: mechanism of the order hunk (c2dag on block 436): every store to party / list has an
+   alias edge to the later indexed loads, so the kinds[i] load (k6 = [esp+edx*4+0x58]) can only go first
+   while it precedes the -1 stores in the list AND its register is free: with the variant store after flags
+   (uc-5, the original's store order) the load gets ecx, which carries the -1 constant (or ecx,-1), so the
+   anti-dependence edge 1 -> 13 puts the load behind the -1 stores (draft 18). The original loads it into
+   dl (edx free) and its c load is eax, Judge load ecx: in the original's IR the kinds temp met another
+   rotation step. Rounds: the variant cast (none / char / uchar) x its 8 positions: only position 2 (the
+   control) is shape; list[0] / list[2] / list[3] inserted at every position and order around the
+   original's store order (720): best draft 16 (p210-689), none shape; list as function scope = control;
+   kinds = {3, 0, 2, 4} initializer (54). Next: find the temp that moves the rotation one step so kinds[i]
+lands in edx with the variant store after flags (probe temps before the setup block, the strlen / memcmp loop's temps). prior: s25: the original's setup block: xor eax,eax; mov dl,kinds[i] (first, before the ai_PlayerId load); party stores thing, list[1], kind, flags, variant (dl), quiet, host last. Every text with the variant store after flags (the original's store order) also moves the kinds[i] load behind the ai_PlayerId load into cl (draft 18, then the judges' registers rotate): the load's priority falls with its store's list position. A variant temp (int / unsigned char / char, assigned at 3 places or as the initializer) is substituted: = the variant-after-flags code. Host at each of 10 positions with the original's store order: 18 .. 99. climb.py 2 rounds (754 mutants): nothing. Left: order 14 (the variant store's place against its load's). */
 int ai_CommandExecution(G12ROW *row, int k, char *fmt) {
   G28REC party;
   AICHAR *c;
