@@ -4120,30 +4120,11 @@ void init_FinishBuildingScene(AIBLD *b, AIOBJ *o) {
   d3if_Prerender(0);
   sv_UpdateSkyColors();
 }
-/* 0x513590, sets the detail level of the scene s (its D3FLMAP.lod bitfield: 4 = high, 2 = middle, 1 = low) from the setting byte 0x6f35c8 + 2 and the frame limits, and tells the renderer (0x43f8a0 the size 0x80 / 0x40, 0x446dc0 the level); the flag f forces the update
-   @deep deep s33: mechanism read with c2trace --prio: s (esi), lvl (edi) are served first; then size (prio
-   7: three refs in the top block, P=7) takes ebp, f (4) ebx, oldlvl (-27: two refs, lives 3 blocks longer
-   than size) gets nothing. The original's assignment (oldlvl ebp, size ebx, f bl after size dies) follows
-   if oldlvl is served before size: the free-register order here is esi, edi, ebp, ebx (size picks ebp even
-   without f: probe noF), so ebx goes to size only when ebp is gone. Need: oldlvl above size (or size below
-   -27). No lever found this session: register keyword (= control), size computed before the s test (19, no
-   sinking), size in two statements (= control), f tested twice (= control, f is not the cause), initgen =
-   0 on each local (= control), climb round 1 (68 mutants, best = start). Left: as before (oldlvl spilled
-   to [esp+0x14], size in ebp). prior: oldlvl spilled: ours keeps size in ebp and spills oldlvl to
-   [esp+0x14] (f in bl); the original keeps size in ebx (dead at 'cmp edx, ebx', then 'mov bl, f' reuses
-   it) and oldlvl in ebp - in ours the f load is scheduled above the size compare, so size and f interfere.
-   60 -> 15 ins (code 15, order 6, regs 2) by writing the level choice as one if / else-if chain per branch
-   (s->size == 0x40 || ai_MapSize >= 0x780 -> low; set 0 high / 1 mid / 2 low; scene: set 2 low / else mid)
-   with ai_GfxFloorLod read at each test (no set local, the original reloads it). Tried (all = control or
-   worse): oldlvl / size order (swap 17 ins), size unsigned, oldlvl unsigned, declaration order, int a = 0
-   initializers, lvl = 0 / a = 0 order (17), init after the s test (19), size written into the test (18),
-   size != a / s->lod != oldlvl operand orders (same ins, other code), f copied into a char / int local, ||
-   -> nested return / empty-then forms, if (s != 0) { } wrapper, lvl >>= 1 before the call (17), the 24
-   orders of the high block's four stores (best = control). (tiebreak: not measured (dcp headers sample
-   init_SetDetailLevel)) */
+/* 0x513590, sets the detail level of the scene s (its D3FLMAP.lod bitfield: 4 = high, 2 = middle, 1 = low) from the setting byte 0x6f35c8 + 2 and the frame limits, and tells the renderer (0x43f8a0 the size 0x80 / 0x40, 0x446dc0 the level); the flag f forces the update */
 
 void init_SetDetailLevel(D3FLMAP *s, char f) {
   int a, lvl, size, oldlvl;
+  char set;
 
   a = 0;
   lvl = 0;
@@ -4152,22 +4133,21 @@ void init_SetDetailLevel(D3FLMAP *s, char f) {
   oldlvl = s->lod;
   size = d3fl_DetailScale << d3fl_DetailSizeShift;
   if (d3_CurrentScene == 0) {
-    if (s->size == 0x40 || ai_MapSize >= 0x780) {
-      lvl = 1;
-      a = 0x40;
-      s->lod = 1;
-      init_Detail = 1;
-    } else if (ai_GfxFloorLod == 0) {
+    if (s->size == 0x40 || ai_MapSize >= 0x780)
+      set = 2;
+    else
+      set = ai_GfxFloorLod;
+    if (set == 0) {
       lvl = 4;
       a = 0x80;
       s->lod = 4;
       init_Detail = 4;
-    } else if (ai_GfxFloorLod == 1) {
+    } else if (set == 1) {
       lvl = 2;
       a = 0x40;
       s->lod = 2;
       init_Detail = 2;
-    } else if (ai_GfxFloorLod == 2) {
+    } else if (set == 2) {
       lvl = 1;
       a = 0x40;
       s->lod = 1;
