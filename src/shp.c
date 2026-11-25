@@ -42,25 +42,10 @@ D2COLKEY d2_TransparentColour = {
 int d2_ClipLeft = 0; /* 0x6f0458, clip left */
 int d2_ClipTop = 0;  /* 0x6f045c, clip top */
 
-/* 0x479d00, makes the light table: every 16 bit colour brightened by add
-   @deep deep s34: c2trace --prio: temp#a3 (0xff - add) 25 = +20 in the loop-init block (P 5) + 3 compares
-   (+12 / +8 / +8) - the arm blocks; i 19 = +10 init, +12 the dd_SplitRGB block (P 3), +24 the store /
-   increment block (P 2), -1/-2/-4 through the eight arm blocks. i needs +7 (or the temp -7): one more
-   value in the store block (P 2 -> 3 gives i +12) would do it; the table load is not a candidate (one use
-   per iteration). No variant this session beyond reading the terms (the 216-variant compare round and the
-   loop forms of the earlier note stand). prior: match-deep 2026-11-14: draft 34 -> shape 20 by two levers:
-   unsigned char r = 0, g = 0, b = 0 at the declaration (gives the original's store order) and no lim
-   local, 0xff - add written at each of the three compares (lim's priority 35 had pushed the zero constant
-   (prio 6, byte-flagged, ebx only) out of ebx; with the CSE temp at 25 the zero gets ebx: xor ebx,ebx at
-   entry, cmp eax,ebx, the bl stores). Left: only i / the 0xff - add temp swapped (ours temp esi, i edi;
-   c2trace: temp#a3 prio 25 vs i 19, the first popped gets esi). Tried with no gain: any mix of lim local /
-   spellings of 0xff - add per compare (216 variants, 2 codegens), all 125 per-channel compare directions
-   (<, >=, >, <=, !<), ternaries, while / do / post-increment loops, i initialised early, unsigned i, <=
-   0xffff, pointer temp for the alloc, early return 0, return-flag. flip.py (want inc esi): deleting the r
-   compare gives the right registers (2 ins), i.e. the temp has one block reference too many or i one too
-   few; no meaning-keeping spelling found (tiebreak: not measured (dcp headers sample d2_MakeLightTable)) */
+/* 0x479d00, makes the light table: every 16 bit colour brightened by add */
 int d2_MakeLightTable(signed char add) {
   int i;
+  unsigned short c;
   unsigned char r = 0, g = 0, b = 0;
 
   d2_ShpLightTable = mem_Alloc(0x20000, "d2:shp:shp_LightTable");
@@ -79,7 +64,8 @@ int d2_MakeLightTable(signed char add) {
         r += add;
       else
         r = 0xff;
-      d2_ShpLightTable[i] = (unsigned short)dd_RGB(r, g, b);
+      c = (unsigned short)dd_RGB(r, g, b);
+      d2_ShpLightTable[i] = c;
     }
     return 1;
   }
