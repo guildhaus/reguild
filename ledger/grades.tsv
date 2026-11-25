@@ -2766,7 +2766,7 @@ exe	0x004ef900	gv_LoadGraveyard	grave	byte	readable
 exe	0x004ef930	gv_RandomGrave	grave	byte	readable		
 exe	0x004ef9c0	gv_BuryNewDead	grave	byte	readable		
 exe	0x004efc10	gv_AllocGraveyard	grave	byte	readable		
-exe	0x004eff50	gv_GrowGraveyard	grave	shape	readable	deep	
+exe	0x004eff50	gv_GrowGraveyard	grave	byte	readable		
 exe	0x004f0180	gv_FreeGraveyard	grave	byte	readable		
 exe	0x004f01d0	gv_OrderBury	grave	byte	readable		
 exe	0x004f0240	gv_BuryCharacter	grave	byte	readable		
