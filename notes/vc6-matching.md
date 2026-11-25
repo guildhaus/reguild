@@ -2044,6 +2044,28 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s81 (1 byte: sv_MessageBox; d2_DrawObjects 65 -> 54; gm_InitBuildingTables, cm_RunSceneParty,
+  sv_MoveToGroup notes only)**:
+  - **A result kept in ebp where the original keeps it in a slot and never pushes ebp, zero pushes from the
+    loop counter's register (`push esi`) in the original, `push 0` in ours** (sv_MessageBox 65 -> byte): the
+    counter's `i = 0;` moved from the function top to right before its loop: the const#0 web then takes ebp
+    and never materialises (the s-notes' "a callee-saved register the original never pushes"), the result
+    goes to memory; the last hunks (the zero const outranking bar for esi in the frame loop) went with the
+    two `ret = 0` cancel arms joined into one condition (`if (clicked == 0 && hit == scene) {..} else if
+    ((clicked == 1 && hit == scene) || key == 1) {..}`, the same meaning: one const#0 reference less).
+  - **A count kept in memory inside its own counting loop (`mov ebx,[len]; inc ebx; mov [len],ebx`)**: it
+    lost its register race against an IV of a later loop. c2trace --prio shows the terms: its definition
+    block's P counts every candidate referenced there (run, cur, kind, i, j and the constants 0 / 0x58: 8),
+    so a `len = 0;` beside other resets ranks it high. Moving the other stores behind the loop or computing
+    the next loop's value before its test flips it, but moves code (gm_InitBuildingTables, open).
+  - **A field loaded into a register right after a call and before two if / else diamonds, pushed only at
+    the call after them (`movsx edx,[esi+0x14]` .. `push edx`)**: a local assigned there (`w = o->w;`); a
+    fresh int local works (two blocks apart, it is not forward-substituted). Its priority then decides the
+    neighbours' registers (d2_DrawObjects: w 20 against the caption temps 44 / 36 and mode 28).
+  - **A `continue`-loop pointer IV split over head / tests / latch** (cm_RunSceneParty): replacing `c->netId`
+    by the equal `party->members[i]` in the body makes the IV a full-loop register (too strong); the
+    original's one extra head reference stays open.
+
 - **Deep s80 (2 byte: gm_ForfeitEstate, d2_CreateWindow; gm_PermissionBits 38 -> 34; d3t_MoveObjectPath,
   gm_UpdatePrices, init_NameBuildings, ai_BribeAmountCB notes only)**:
   - **An `||` test's then-arm laid far away (`test [m1],edx; jne A; test [m2],eax; jne A` with A after the
