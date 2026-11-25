@@ -2044,6 +2044,33 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s75 (2 byte: ch_ActTurn, gm_BuildNext; init_OpenTown 6 -> 4; d2_SliderInput, ai_MercenaryBook notes only)**:
+  - **An x87 op issued after an integer RMW where the original issues it before: a scheduler height TIE broken
+    by IL order** (ch_ActTurn 4 -> byte): c2dag showed the fchs of `v.z = -v.z` and the `or dl,8` of `f.b[1] |=
+    8` both at h 25 (prio 204800); the earlier IL node wins. `f.b[1] |= 8;` moved after `v.z = -v.z;` (a
+    move-line round of the flag statements, `dcp try --move-line N --to A..B`) is byte. Read the two nodes'
+    `prio` in c2dag before spelling either statement: equal prio = move the other statement.
+  - **A loop's bottom exit threaded into a return-0 copy where the original jumps to the shared end check, and
+    the store the original keeps before the loop**: the IL held a no-code statement between the walk and the
+    check; `end = ai_Blds + 0x100;` computed again after the if / else of the two walks (VC6 reuses the value,
+    no code) with `gm_BQFirstCall = 0;` before the first-call walk is byte (gm_BuildNext, @original). An empty
+    block, label, dead local, self-assignment or `+= 0` there is threaded through (4 ins); `m = 0` emits code.
+  - **A home store of a register local (`mov [slot],esi` of a 0) after an array initializer's byte stores where
+    the original has it before them**: the local's `= 0` as the FIRST declaration (`int ncl = 0;` ahead of `char
+    cls[] = {..}`); the statement `ncl = 0;` before / between / after the memsets cannot place it (init_OpenTown).
+  - **The SIB order of the inline strcpy stores (`[edx+eax]` against `[eax+edx]`) followed the function's whole
+    IL volume** (ai_MercenaryBook, open): a block of dead loads anywhere in the function (top, loop, after the
+    loop; a function above in the unit does nothing) flips the copies one by one as the count grows (18 / 31
+    `{ int dl; dl = book->views[k]; }`, then all three, then none again: a wrap); 20 `if (0) f(book->views[0],
+    2);` made it byte (not kept). So the original carries more IL that compiles away; a listing probe
+    (flip.listing over c2trace.variant_text per variant, a regex count) measures such a sweep in seconds. The
+    same sweep moved nothing in init_OpenTown's `[edx+ebx]`, d2_SliderInput's bottom sum or
+    d3_MirCreateOutline's `[eax+edx]`: those orders follow something else.
+  - d2_SliderInput's left hunk, read from c2trace --raw: `bottom = o->y + o->h` becomes `bottom = movsx o->h;
+    bottom += t` with t the o->y CSE of the earlier test, so t's reload piece conflicts with bottom (edi); the
+    original's IL has t first (the piece coalesced into eax, o->h in a temp). Every operand / cast / compare
+    spelling is one code.
+
 - **Deep s74 (4 byte: cm_JoinSplit, ord_CountGridObjects, ai_TrainingWindow, gm_GetCreditOffers; gm_Query, ai_CommandExecution notes only)**:
   - **A loop guard jumping to the wrong return-0 copy, and two candidates tied for a register after the plain
     for / break fixed the jump: the store that follows the search sat INSIDE the found arm** (cm_JoinSplit 1 byte
