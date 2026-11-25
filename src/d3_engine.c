@@ -822,22 +822,22 @@ void d3_SetFogRange(float start, float end) {
 }
 /* 0x43a6f0, turns the fog on (start < end: sets the range through d3_SetFogRange) or off (start >= end:
    restores the viewport when the fog was on), then stores the fog range, the on flag and the colour
-   @deep deep s35: no new lever found; read again: the M8 lines of the d3_SetViewport call and the tail
-   stores are the register rotation behind the missing tail duplicate (the original's pushes and stores
-   name the same globals in the same order). Rounds of the s13 note not repeated. prior: s13 (size queue):
-   the then-arm copy of the tail is NOT a post-allocation duplicate: its registers differ from the shared
-   tail's (copy: eax=end, edx=start, eax=color; tail: ecx=start, edx=end, eax=color) and it keeps on in bl,
-   so VC6 duplicated the 4-store tail into the start<end arm BEFORE allocation (as the single-return tail
-   rule of main_ChooseHistory) and scheduled it with the add esp,8. Tried s13 (dcp try): on = 0 at the top
-   (30 ins), on = 0; if (start < end) on = 1; if (on) .. else if (FogOn) .. (24), on = start < end + if
-   (on) / else if, an empty if (!FogOn) {} else, guards as two early returns, the outer && as nested ifs:
-   all = control. flip.py --want two pop ebx (every single delete / duplicate / swap / constant): no mutant
-   duplicates the tail. Open: what makes the original's tail cheap enough for the pre-allocation duplicator
-   (its IL size or predecessor count).
-
-
-
-
+   @deep deep s73: meaning checked: the d3_SetViewport pushes and the tail stores name the original's
+   globals in its order (the M8s are crossed: a register rotation). The then-arm tail copy (on still in bl,
+   so made after constant propagation and before allocation) depends on the tail's size: a scratch compile
+   with only the tail varied (the definition renamed) duplicates it into the start < end arm with 1 or 2
+   distinct stores (on + start, on + color, start + end, three equal color stores), never with 3 or 4 (s +
+   e + c, on + s + e, the full tail); int views of the float / colour stores (*(long *)&..., .col =
+   *(unsigned long *)&color), a D3COLORU or unsigned long colour parameter: no copy either. So the
+   original's 4-store tail was cheaper to VC6 than ours, or was reached otherwise. = control or worse (dcp
+   try): the 24 store orders x .c / .col colour (best 18 ins: FogOn, FogEnd2, color, FogStart1 order, not
+   kept: no copy), the tail written in both arms (on folds to immediates, 31), a return after the then-arm
+   stores (31), on set after the calls / before the if / at the top, an else-if with on = 0, a do { } while
+   (0) join, the test inverted (36). flip.py --want two 'd3_FogOn, bl' stores: 0 of 34. Open: what makes
+   the 4-store tail small enough for the pre-allocation duplicator. prior: deep s35: no new lever found;
+   read again: the M8 lines of the d3_SetViewport call and the tail stores are the register rotation behind
+   the missing tail duplicate (the original's pushes and stores name the same globals in the same order).
+   Rounds of the s13 note not repeated.
 
 
 
