@@ -2937,24 +2937,29 @@ void gm_FreeObject(AIOBJ *obj) {
 }
 
 /* 0x503530, the permission bits of the character p in the building b (or, without a building, for the object o or the character c): what he may do there, by the class byte of the building's type record (a case per class: the master (+0x25) and the owner (+0x27) compared with p, the six job bytes at +0x223 of the type record searched for the job of p in the type (gm_TitleJob); class 0x1d is ai_PermissionBits1d). Bits seen: 0x1 enter, 0x800 led by p (c's building is owned by p), 0x4000 / 0x5000 / 0x2200 granted per object and job; the exact meaning of each bit is open. With gm_AllowAll everything is allowed (-1, -2 for the classes 3 / 0x21); a building without owner (0xffff) allows nothing
-   @deep match-deep 2026-11-14: draft 42 -> shape 38 ins. Fixed: no goto fin (the obj == 0 exits of the
-   cases 0xb.., 1/3/f, 7 and the no-building branch written as obj != 0 conditions; VC6 threads the known
-   obj test, shape, all four needed), the job scans as plain for loops (= the do-while code). Left: the
-   same two placements as before: the split reload of b (mov ebx,[esp+0x1c] + the object test) laid out
-   after case 0x17 (the original: after case 10), and the cross-jumped or ebp,0x2200 tail kept in case 7
-   (the original: case 0x13). Tried: for loops with the zero test in the condition = control, case 0x1c as
-   its own v = 1 body (no fall-through) = control; flip.py (want case 10 falling into the b reload): 0 of
-   804 mutants. headers sample not run (the tie-break line says four probes insensitive). (tiebreak: not
-   measured (dcp headers sample gm_PermissionBits)) prior: Read whole against the original
-   0x503530..0x503bbf and rewritten (AIBLD / AIOBJ / AICHAR typed; switch on *btype in the original's
-   case order 0x21, 2/0x1e, 9, 4, 5.., 0x17.., 0xb.., 0x10, 1/3/f, 0x13, 6, 0x1c->10, 0x1b/0x1d, 7; the job
-   scans as index loops btype[0x223 + i] (the original's lea ecx,[edx+esi] test is VC6's replacement of i);
-   job2 (+0x169) for the 0x17 .. 0x1a classes; the char pointer ch for 1/3/f, 6, 0x1c). Tables equal,
-   ours=491=original's, every instruction matched: the 2 remaining hunks are two blocks placed elsewhere,
-   nothing else. (1) the join block 'mov ebx,[esp+0x1c]' + the object test (0x5039ee..0x503a2f, 17 ins) is
-   the allocator's reload of b (ebx is the switch index): VC6 places it after the 0x17 case (ours +0x289)
-   where the original has it after case 10 (+0x4be). (2) the cross-jumped tail 'or ebp,0x2200; jmp' shared
-   by the cases 9/4/0x13/7: the original keeps... */
+   @deep match-deep s80: 38 -> 34 ins (climb round 1): the no-building branch last arm as if / else (else
+   if (ot == 0xfd) v = 0x4001; else v = 0xffffffff;) instead of the ternary: fixes the second hunk (the or
+   ebp,0x2200 tail now kept in case 0x13 as in the original). Left: one placement only, the reload of b +
+   the obj test block J (mov ebx,[esp+0x1c] .. or ebp,0x4000; jmp) laid after case 0x17 (ours) where the
+   original lays it after case 10 (0x1c falls into 10, 10 falls into J). Mechanism read: in every IL stage
+   (c2tail --il pre/merge/post) J is the LAST block (after the no-building arms); it is xjump
+   (cross-jumping) that relocates it: c2pass --skip 0x1070a91d leaves J at the end; skipping 0x1070a928 /
+   move / pair does not change it. xjump merges the reload copies mov ebx,[b] (ends of 0x17, 1/3/f,
+   0x1c/10) against the copy falling into J; the first one taken wins the placement (ours 0x17, the
+   original case 10). Rounds: the empty case 0x1b/0x1d group (and a default: label) at every position of
+   the switch = control (42 variants); each case group moved first / last: the switch layout follows the
+   source case order (all other orders far worse, first-1b / last-1b / last-7 = control), so the case order
+   is right. climb round 1 from the 34 text: nothing better. Next idea: what decides which reload copy
+   xjump processes first (the label ref list order? the jump creation order?), probed with c2tail --tries
+   on toy switches. prior: match-deep 2026-11-14: draft 42 -> shape 38 ins. Fixed: no goto fin (the obj ==
+   0 exits of the cases 0xb.., 1/3/f, 7 and the no-building branch written as obj != 0 conditions; VC6
+   threads the known obj test, shape, all four needed), the job scans as plain for loops (= the do-while
+   code). Left: the same two placements as before: the split reload of b (mov ebx,[esp+0x1c] + the object
+   test) laid out after case 0x17 (the original: after case 10), and the cross-jumped or ebp,0x2200 tail
+   kept in case 7 (the original: case 0x13). Tried: for loops with the zero test in the condition =
+   control, case 0x1c as its own v = 1 body (no fall-through) = control; flip.py (want case 10 falling into
+   the b reload): 0 of 804 mutants. headers sample not run (the tie-break line says four probes
+   insensitive). (tiebreak: not measured (dcp headers sample gm_PermissionBits)) */
 unsigned gm_PermissionBits(unsigned p, AIBLD *bld, AIOBJ *o, AICHAR *c) {
   AIOBJ *obj = o;
   unsigned char *btype;
@@ -3169,8 +3174,10 @@ unsigned gm_PermissionBits(unsigned p, AIBLD *bld, AIOBJ *o, AICHAR *c) {
       v |= 0x4000;
     } else if (ot >= 0x91 && ot <= 0x97)
       v = 1;
+    else if (ot == 0xfd)
+      v = 0x4001;
     else
-      v = ot == 0xfd ? 0x4001 : 0xffffffff;
+      v = 0xffffffff;
   }
   if (obj != 0) {
     ot = obj->type;
