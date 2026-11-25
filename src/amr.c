@@ -6664,26 +6664,30 @@ int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1,
    (ai_FindGoodToMake, sub-action 0x39), else build the next type of its line; when the treasury (object 0x142)
    cannot pay, a credit to it (o1 kind 1, o2 kind 0x12) from the character's money above 80000 (a quarter, half
    for the new type)
-   @deep 108 ins (register research). The priority is not linear in savings: prio = sum over blocks of
-   refcost*P*w where referenced, -P*w per block lived through unreferenced, P = distinct values referenced
-   in the block (c2trace --prio '^_(o1|money|o|lvl)$'). Tree (goto): o1 43 < money 49 (o1 +36 credit block
-   P6, +56 new-type block P7, +30 end credit P5, -65 over blocks 2..27 as a live parameter). Two copies
-   (build/c2dag/trace/am_two_fs_cse_c2.c): the second credit copy adds +30, o1 69 > o 60 > lvl 48 > money
-   47; the original needs o1 below all four (bl esi, o ebp, money edi, ebx lvl): 23 points less, i.e. o1's
-   three credit stores in blocks with fewer distinct values, or o1 living through more referencing-free
-   blocks. Tried this round, = control: an empty statement or label before credit:, a label after the good
-   path's goto, do..while (0) around the credit tests (block shape levers that fixed ai_FillNearRing do not
-   move this layout). Next: --prio on each two-copy spelling, look for one whose copies have P <= 4 in the
-   o1 store blocks. prior: Session 2 kept (108 ins, frame 0x64): literal 1 for o1->arg2 (no c), 'amt +
-   0x20' written twice in both credit blocks (the 0.5 credit: amt in [esp+0x10], amt+0x20 in esi = a CSE;
-   drops the money / n spill slots, money gets edi). Left: block layout + the allocation it implies. By the
-   DFS block order (jump edge first, RPO) the original's 0.25 credit inline right after the repair test,
-   with the good path's 'jl' back to its first instruction, needs the good path to have NO edge to the
-   credit at block-order time: two full credit copies, cross-jumped after allocation (a goto from the good
-   path, the credit text in the good path, goto good, if/else spellings, a goto into the stores after a
-   partial copy (cut1..3, with block or function-scope AIARGs): all place the credit after the good path or
-   break the frame). But every two-copy spelling (two_fs/two_blk x inc/cse, a __inline helper, a c=1
-   variab... */
+   @deep s70 (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53 block by block: equal
+   (the impossible 'k < 0x1e && k > 0x21' test is the original's: cmp 0x1e / jae, cmp 0x21 / ja; the goods
+   path's 'amt < money' goes to the 0.25 credit as in the original's jl 0x4a0be8; record fills, the 0.4 /
+   0.5 new-type tail, the credit stores and o1->arg2 = 1 all match). The size gap (964 vs 996) is layout
+   only: the original keeps the 0.25 credit inline behind the repair test and the goods path jumps into it
+   after 'mov esi,eax; mov ebx,1' (the credit's o1->arg2 store reads ebx = 1 in both copies, so the two
+   copies were equal at cross-jump time: the constant 1 had a register in both credit copies). Two full
+   copies this session: block-scope records 219 ins with frame 0x34 (the four AIARGs then share slots: the
+   original's 0x64 frame needs their lifetimes to overlap, i.e. function-scope records or the goto); with
+   function-scope records (all four / b1 b2 / s1 s2) 205-207 ins, frame right, size +40: the copies do not
+   cross-jump (money ebx vs edi, a spill of the RepairCost result, the 1 not in ebx). One copy +
+   function-scope b1 b2: 108 ins / 321 bytes (other code, = count). Next: the two-copy text with the
+   allocation the note above asks for (o1 below o / lvl / money) and the 1 as a register in each credit
+   copy. prior: 108 ins (register research). The priority is not linear in savings: prio = sum over blocks
+   of refcost*P*w where referenced, -P*w per block lived through unreferenced, P = distinct values
+   referenced in the block (c2trace --prio '^_(o1|money|o|lvl)$'). Tree (goto): o1 43 < money 49 (o1 +36
+   credit block P6, +56 new-type block P7, +30 end credit P5, -65 over blocks 2..27 as a live parameter).
+   Two copies (build/c2dag/trace/am_two_fs_cse_c2.c): the second credit copy adds +30, o1 69 > o 60 > lvl
+   48 > money 47; the original needs o1 below all four (bl esi, o ebp, money edi, ebx lvl): 23 points less,
+   i.e. o1's three credit stores in blocks with fewer distinct values, or o1 living through more
+   referencing-free blocks. Tried this round, = control: an empty statement or label before credit:, a
+   label after the good path's goto, do..while (0) around the credit tests (block shape levers that fixed
+   ai_FillNearRing do not move this layout). Next: --prio on each two-copy spelling, look for one whose
+   copies have P <= 4 in the o1 store blocks. */
 
 int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   AIBLD *bl;
