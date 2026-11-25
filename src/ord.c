@@ -1728,28 +1728,28 @@ int ord_GetGridCell(struct D3VECTOR *p, int *x, int *y) {
 
 /* 0x4f8360, fills the 8 x 8 grid ai_Grid (cells of 0x18 bytes: +4 the number of objects, +8 the average):
    counts the objects of kind 6 (0x501190 / 0x501030 iteration; +0x61 a pointer, its +0x4c the position through
-   0x4f8300 -> x, y) per cell with the value 0x509b10 (o, o[0x5c]) summed up in a local float table, then cell +8
-   = sum / count (0 for empty cells). No result.
-   @deep draft -> shape: the cell index written at both uses (f[y + x * 8], ORD_CELLS[y + x * 8]) instead
-   of i = y + x * 8 swaps the x/y frame slots to the original's (x at esp+0x14). Left: 4 code instructions
-   of the used-clear loop (the original hoists mov edx,0x91ae64 above the prologue pushes, copies it to the
-   cursor with mov eax,edx per row and back with mov edx,eax after the inner loop; ours folds both into one
-   IV: mov eax,ai_Grid+4). Tried on this base (dcp try): block-scoped a/c counters, row = ai_Grid[i] with
-   c++, ORD_CELLS[j + i * 8] / [i * 8 + j], j-outer naming, extra braces = control; row pointer with row +=
-   8 (14 ins), row pointer plus i counter (9), cell pointer (50), clear before memset (18), unsigned
-   counters (9), x or y (address-taken) as a counter (17 / 15, stores 8 into the slots), while (j--) (7).
-   The two-IV loop is VC6 failing to merge row and cursor: maybe a different ai_Grid declaration in the
-   original unit (flat or unsized) - not tried. (tiebreak: insensitive, sampled)
-   prior: behaviour draft, allocation only: the count-clear
-   loop's induction variable. The original keeps the row base in edx and copies it to the cursor (mov
-   edx,0x91ae64 hoisted above the prologue pushes, mov eax,edx in the loop head, mov edx,eax after the
-   inner loop, cmp eax,0x91b464); ours lets VC6 collapse the nested 8x8 clear into one pointer induction
-   variable (mov eax,0x91ae64 in the preheader after the rep stos, cmp eax,0x604, jl). Everything else
-   matches: the object loop, the average loop (ebx counter, esi cursor, cmp 0x91b608), the frame 0x10c and
-   the three callee-saved pushes; the remaining hunks are 4 code (those 3 instructions) + slots + fill.
-   Read against tools/disasm.py 0x4f8360 0x100: same statements, constants and callees. Tried and reverted
-   (each built, obj checked): for(i=0;i<8;i++)for(j=0;j<8;j++) grid[i][j].used=0 flat and 2D-typed (extern
-   AIGRID grid[8][8], also via a flat (... */
+   0x4f8300 -> x, y) per cell with the value 0x509b10 (o, o[0x5c]) stored in a local float table (stored, not summed:
+   the last object of a cell wins, as the original), then cell +8 = value / count (0 for empty cells). No result.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   */
 void ord_CountGridObjects(void) {
   float f[64];
   AIBLD *b;
@@ -1757,10 +1757,11 @@ void ord_CountGridObjects(void) {
   int x;
   int i;
   int j;
-  memset(f, 0, sizeof f);
   for (i = 0; i < 8; i++)
-    for (j = 0; j < 8; j++)
+    for (j = 0; j < 8; j++) {
+      f[i * 8 + j] = 0;
       ai_Grid[i][j].used = 0;
+    }
   b = gm_BuildQuery(1, 6);
   while (b != 0) {
     if (b->object != 0 && ord_GetGridCell(&b->object->pos, &x, &y) != 0) {
