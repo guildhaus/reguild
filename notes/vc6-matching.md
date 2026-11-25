@@ -2044,6 +2044,29 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s70 (no item finished: ch_GetNewPath, d3_TransformVerts, ai_DecideBuyBuilding, ai_DecideUpgradeGuild notes only)**:
+  - **A frame tie (two equal-density slots in the other order, frame > 0x80) is measured with dead probes in
+    c2frame, not by guessing**: `{ extern int probe; probe = a + b; }` at a place where the locals are live
+    adds one count to each named local; `c2frame.py SRC FUNC --names --variants FILE --label L` prints the
+    sorted table (A rows) in seconds without the daemon. A loop over single and paired probes named the
+    counts ch_GetNewPath's original has (scene +1 and cx +1 together); the K&R-quicksort result is chaotic,
+    so a hand simulation of the packer was wrong where the real list order of equal counts differed.
+    flip.py takes frame symbols as --want (`'_scene\$ = -2460[\s\S]*_bz\$ = -2452'`).
+  - **A float copy `fld [m]; fstp [g]` where ours copies with an integer mov: the source is parenthesised**
+    (`d3_MaxZ = (v->z);`, as d3_engine's `d3_MaxZ = (m->zMax);`): it replaces a volatile pointer re-read.
+    With `v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z < d3_MaxZ)) d3_MaxZ = (v->z);` the
+    original's MinZ / MaxZ code comes out exactly (d3_TransformVerts), but it moves VC6's function-wide
+    float product ranking: unparenthesised sums elsewhere change term order (5832 spellings of one loop's
+    sums = 39 codes: not a spelling question).
+  - **Which return block falls into the exit label decides a cross-jump of two equal tails**
+    (ai_DecideBuyBuilding's credit tails): flip.py `--want 'call\s+_F' --avoid 'call\s+_F[\s\S]*call\s+_F'`
+    (one call left) hit `return 0` -> `return 1` at the not-found exit and at each credit-fail exit: the
+    return-0 blocks merged into one copy (c2tail: all xjumped into the not-found xor) take the exit slot
+    the kept tail needs.
+  - **Two equal tails cross-jumped in the original with a callee-saved constant (`mov ebx,1` before the
+    shared part)**: both copies held the constant in the same register at cross-jump time
+    (ai_DecideUpgradeGuild); a two-copy text with block-scope records shrinks the frame (the copies' records
+    share slots), so the original's records were function-scope or their lifetimes otherwise overlapped.
 - **Deep s69 (no item finished: ai_OpenItemTooltip, he_NextEvent, ai_Miracle, ch_GetWaypoints notes only)**:
   - **Then-blocks of 3-compare `||` tests laid behind a long else-if chain, inline in the original: the tests
     were FLAG values** (ai_OpenItemTooltip): `fo = A || .. || F; if (fo) { fa = A || B || C; if (fa) .. else if
