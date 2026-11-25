@@ -2661,7 +2661,7 @@ exe	0x004e85d0	amt_UpdateOffices	amt	byte	readable
 exe	0x004e86e0	amt_HasColumn7Holder	amt	byte	readable		
 exe	0x004e8730	amt_SendOfficeNews	amt	byte	readable		
 exe	0x004e87e0	amt_SendOfficeLost	amt	byte	readable		
-exe	0x004e88a0	amt_ElectDeputies	amt	draft	readable	deep	
+exe	0x004e88a0	amt_ElectDeputies	amt	byte	readable		
 exe	0x004e8c20	amt_ElectKind22	amt	byte	readable		
 exe	0x004e8dc0	amt_CalcZuenfte	amt	byte	readable		
 exe	0x004e9260	amt_CheckOffices	amt	byte	readable		
