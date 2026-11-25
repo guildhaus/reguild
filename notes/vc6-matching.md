@@ -2067,6 +2067,7 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     shared part)**: both copies held the constant in the same register at cross-jump time
     (ai_DecideUpgradeGuild); a two-copy text with block-scope records shrinks the frame (the copies' records
     share slots), so the original's records were function-scope or their lifetimes otherwise overlapped.
+
 - **Deep s69 (no item finished: ai_OpenItemTooltip, he_NextEvent, ai_Miracle, ch_GetWaypoints notes only)**:
   - **Then-blocks of 3-compare `||` tests laid behind a long else-if chain, inline in the original: the tests
     were FLAG values** (ai_OpenItemTooltip): `fo = A || .. || F; if (fo) { fa = A || B || C; if (fa) .. else if
