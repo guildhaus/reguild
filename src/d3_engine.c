@@ -2306,26 +2306,26 @@ char d3_DeflateScene(unsigned int flags) {
 }
 /* 0x43dbc0, d3_ForEachObject2 callback: builds the drawable points and triangles of all surfaces
    from the loaded mesh data.
-   @deep s47: the triangle loop as a plain index loop (t = &(s->tris)[k] per pass, j = 0 in
-   the for-init / before the loop / at the surface top, and p = &src->polys[k] named first): all worse,
-   131-177 ins and frame 0x24 against 0x20 (the hand t++ walk is the original's: VC6 does not
+   @deep match-deep s82 (spare, nothing kept): the colour block (mov dl,0xff; mov cl,[tex+0x6c]; cmp cl,dl;
+   test byte [tex+0x6e],3; mov bl,[tex+0x6e]; test bl,1) is the plain text of the byte twin
+   d3io_AttachStock (d3_io_t.c, 0x44c610: if (tex->flags.b[0] < 0xff || (tex->flags.b[2] & 3)) .. with no
+   locals), so it is register context, not spelling. climb (2 rounds) reaches 47 by int locals for
+   flags.b[2] / b[0]; a cleaner round of those locals: unsigned fl = b[2], alpha = b[0] read before the
+   test and used for a / b / g (not r) 43, all four uses 67, unsigned char locals 61 (= the original colour
+   block, the zero / mat registers still off), alpha alone or fl read inside the if = control. Not kept:
+   forcing locals, while the twin needs none. Struct colour stores (v->c = col.c; v->s = col.c as the twin)
+   = control. The open hunk is still the zero constant (ours ebx for the whole triangle loop, the original
+   a loop-head xor ecx,ecx). prior: s47: the triangle loop as a plain index loop (t = &(s->tris)[k] per
+   pass, j = 0 in the for-init / before the loop / at the surface top, and p = &src->polys[k] named first):
+   all worse, 131-177 ins and frame 0x24 against 0x20 (the hand t++ walk is the original's: VC6 does not
    strength-reduce t back). What the original's zero is: k, j and the poly offset are stored 0 from ecx
    before the loop, the loop head re-zeroes ecx (the entry jmp skips that xor) and only vofs / uofs / zofs
    take it; flags = 0 is an immediate after the inner loop. c2trace: const#0 is cut into 45 pieces in pass
    1 (s#1 takes esi), const#0#16 (lines of the surface head, 14 refs) and #18 (the triangle loop, 13 refs)
-   survive to ebx. Open as before: the reference that keeps #18 alive past the inner vertex loop. prior:
-   headers sample: insensitive (32 samples, one codegen). Read again: the original's zero is a loop-local
-   candidate in ecx (xor ecx,ecx at the loop head, skipped by a jmp on entry where k = 0 already left ecx
-   zero; vofs/uofs/zofs stored from ecx, flags = 0 and tex = 0 as immediates, the mat tests as test
-   reg,reg), and ebx is a plain temp (bl for the b0 and rawFlags byte updates, the blend test, mat[] base);
-   ours gives the zero ebx for the whole triangle loop (cmp reg,ebx, byte stores from bl, xor ebx,ebx after
-   each inner loop). Same meaning. dcp try (this session): p->mat for the t->src casts 123; m split into a
-   mat-index local and/or a second inner-loop counter = control; flags = 0 moved to each of 9 positions
-   110-160; b0 = 0 first = control, last 106 (no structural gain, not kept); vofs/uofs/zofs chained 108
-   (regs 30, order 10); int 0 for the floats = control; mat test as (m = ..) < 0 = control; j = 0 before
-   the loop = control; t->src = p dropped = control; int made 114; col.l = ~0 at 9 positions or first
-   110-131. Next: what makes const#0 a whole-loop candidate in ours (c2prio-style count of its references
-   per block). (tiebreak: insensitive)
+   survive to ebx. Open as before: the reference that keeps #18 alive past the inner vertex loop.
+
+
+
 
 
    */
