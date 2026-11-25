@@ -1403,7 +1403,7 @@ exe	0x00479b60	d2_PutPixel	gfx	byte	readable
 exe	0x00479b90	d2_PutPixelClipped	gfx	byte	readable		
 exe	0x00479bf0	d2_DrawRectOutline	gfx	byte	readable		
 exe	0x00479cd0	d2_SetSurfaceClip	gfx	byte	readable		
-exe	0x00479d00	d2_MakeLightTable	shp	shape	readable	deep	
+exe	0x00479d00	d2_MakeLightTable	shp	byte	readable		
 exe	0x00479df0	d2_SetColourFormat	shp	byte	readable		
 exe	0x00479ee0	d2_FreeLightTable	shp	byte	readable		
 exe	0x00479f10	d2_SetLineTable	shp	byte	readable		
@@ -1461,7 +1461,7 @@ exe	0x0047e940	ai_ResetJob	ai	byte	readable
 exe	0x0047e990	ai_RunMasterEvaluation	ai	byte	readable		
 exe	0x0047ec20	ai_PlanSlots	ai	byte	readable		
 exe	0x0047ed60	ai_SendRemoveEmptyGoods	ai	byte	readable		
-exe	0x0047edb0	ai_EvaluateProduction	ai	shape	readable	deep	
+exe	0x0047edb0	ai_EvaluateProduction	ai	byte	readable		
 exe	0x0047f700	ai_EvaluateProductionFlags	ai	byte	readable		
 exe	0x004801f0	ai_EvaluateProductionCategory2	ai	byte	readable		
 exe	0x00480e70	ai_CalcMeisterWache	ai	draft	readable	deep	
@@ -3194,7 +3194,7 @@ exe	0x0050e5a0	init_PlaceOffices	f3init	byte	readable
 exe	0x0050e690	init_CreateStartCharacters	f3init	draft	readable	deep	
 exe	0x0050f0b0	init_CreateOpeningObjects	f3init	byte	readable		
 exe	0x0050f340	init_StockMarketStalls	f3init	byte	readable		
-exe	0x0050f570	init_Betrieb	f3init	shape	readable	deep	
+exe	0x0050f570	init_Betrieb	f3init	byte	readable		
 exe	0x0050f750	init_OpenBuilding	f3init	byte	readable		
 exe	0x0050f910	init_OpenTown	f3init	shape	readable	deep	
 exe	0x00510730	init_CollectSiteObject	f3init	byte	readable		
