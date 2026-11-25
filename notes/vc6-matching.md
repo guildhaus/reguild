@@ -2044,6 +2044,34 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s78 (3 byte: d2_MakeLightTable, init_Betrieb, ai_EvaluateProduction; d2_DrawPic, ai_GraveDetail,
+  he_PatrolStep notes only)**:
+  - **A loop counter one priority short of a hoisted invariant temp (c2trace --prio: i 19 against the 0xff -
+    add temp 25, i needs one more value in the store block): the stored call result was a named local**
+    (d2_MakeLightTable 20 -> byte, open since s34): `c = (unsigned short)dd_RGB(r, g, b); table[i] = c;`
+    (same instructions; the named value raises the block's P, i's term grows more than the temp's).
+  - **A base address kept as `add ecx,edx; lea edi,[ecx+0x2e]` where ours folds `lea edi,[ecx+edx+0x2e]`,
+    plus two loop values in each other's registers: the loops indexed the record, not a walked pointer**
+    (init_Betrieb 21 -> byte, open since s35): `g = &ai_Goods[st->type]; for (i..) { if (g->in[i] == 0) ..
+    g->need[i] ..}` in BOTH loops (VC6 strength-reduces both into the original's pointers; the
+    rw[-4] / rw0++ walks fold the add). Indexing only the first loop fixed the lea (18), the second loop
+    gave the registers. A walked pointer whose base is a struct address: try `p->field[i]` first.
+  - **A constant-0 register at a function's top that the original lacks (zero pieces at sav 0 / 1): an
+    unused label at the join of a loop's exits** (ai_EvaluateProduction 18 -> byte, @original): found by
+    a probe round, a 0 store to an extern global before every statement (whole-function variants,
+    probe3 counting the top's push 0 / test / xor-before-compare): exactly one position (the loop's
+    found-item arm before its break) gave the original's whole top with 1 ins left (the probe); register
+    and dead stores there, `!= 0` spellings and IL volume were control; then a label sweep: `out:` before
+    the statement after the loop is byte. Same probe on ai_GraveDetail (the 0 / -1 webs): the 0 probe
+    hands ebp to -1 instead, a label sweep has no hit.
+  - **IL volume (the s75 / s77 lead) checked on four more items** (d2_DrawPic, ai_GraveDetail,
+    he_PatrolStep, ai_EvaluateProduction: 2..40 dead loads of a global into a block local, `if (0) call`):
+    control everywhere; the lever stays specific to ai_MercenaryBook / d3anim_CreateMorphAnim (dead loads
+    through a pointer there); none of these items showed the IL-volume class, so no macro search was run.
+  - Tools: gen_probe-style whole-function variants (a probe text before each statement line) with probe3
+    filter 70-120 positions in under a minute; `{ extern int probe; probe = K; }` measures a constant's
+    reference weight per block, `lbl:;` the block boundaries.
+
 - **Deep s77 (1 byte: gv_GrowGraveyard; ai_RegisterSaveSlot, ord_WeightedRecordSum, lc_GebaeudeAusrichten,
   d3anim_CreateMorphAnim notes only)**:
   - **A copy loop's store SIB order ([base+iv+d] against [iv+base+d]) that no spelling of the loop moves: the
