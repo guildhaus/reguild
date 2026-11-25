@@ -2251,26 +2251,31 @@ extern signed char ai_MissionMode;           /* 0x624580 */
    persons, 2 / 3 = special), the start characters (0x50e690) and the opening goods (0x4f8ed0) are made, a message
    0x1b goes to every building (types E / D / F skipped) and the mission-mode message 0x4c out, and finally the
    characters of the kinds 2 .. 7 greet each other (0x4c4b00 both ways).
-   @deep data pass 9: the building walks as index loops (b = &ai_Blds[k], k < 0x100; the byte offset k += 0xa9 was
-   ours) and the house loop as k = 0; do { if (ok) break; ..; k++; } while (k < 0x100), ncl = 0 before the
-   memsets: 63 -> 6 ins, shape. Left: the third walk's type record address, ours [ebx+edx] against the
-   original's [edx+ebx] (&ai_BTypes[b->type], ai_BTypes + b->type, the swapped sum: one code), regs 4.
-   Earlier rounds (byte-offset loops): s12: the house loop as k = 0; while (!ok) { ..; k += 0xa9; if (k >= 0xa900) break; }:
-   raw 3617 -> 3611 vs 3610, padded size equal (57 -> 63 ins, code 27 -> 9, slots 38 -> 84: the scalar slot
-   pair swap now shows on more lines). The original's loop is top-tested: xor edi,edi / xor ebp,ebp / [k
-   slot] / test edi,edi / jne out at the top, k += 0xa9 / cmp / jl top at the bottom (no second ok test):
-   for (k = 0; k < 0xa900; k += 0xa9) { if (ok) break; .. } gives exactly that shape but k leaves ebp (89
-   ins, b = k + ai_Blds via lea ebp,[edx+ecx]); kept the while form. Left as before: the [esp+0x10] /
-   [esp+0x14] scalar slot swap, ncl in esi for the second loop. prior: 115 -> 57 ins, frame now 0x404 like
-   the original and every array at the original's offset. Levers that worked: the address-taken &n of the
-   0x65/0x69 field deltas as its own block-scoped int v (n kept its spill slot, frame 0x408 -> 0x404); the
-   greeting loops as index loops (outer c = ai_Chars[i], inner ai_Chars[j]: pointer IVs with the original's
-   signed ends, i in [esp+0x10]); !ok && k < 0xa900 (kb3: 89 -> 57). Left: (1) the two packed scalar slots
-   are swapped - ours [esp+0x10] = ncl/m/v and [esp+0x14] = i/nch, the original the other way round (all
-   120 declaration orders of ncl/i/k/nch/m = one code); (2) the house loop: the original tests ok at the
-   entry and k < 0xa900 at the bottom with k reloaded into ebp (b = k + ai_Blds in place), ours tests k at
-   the entry and ok at the bottom (k < 0xa900 && !ok keeps the entry ok test but reloads k: 89 ins; ok = 0
-   / k = 0 in the for-init, a while wit... */
+   @deep deep s75: int ncl = 0; as the FIRST declaration (ahead of cls) puts ncl's home store [esp+0x14]
+   right after the memsets, before the cls byte stores, as the original (ncl = 0 as a statement before /
+   between / after the memsets: the store stays behind the cls stores, 8 ins): 6 -> 4, kept. Left (regs 4):
+   the last walk's (cm_BeginSendGroup loop) type read / record address, ours mov cl,[ebx+edx] / lea
+   esi,[ebx+edx] (iv first), the original [edx+ebx] (base ai_Blds first); the AiTown walk has [iv+base] in
+   both. c2dag: the lea's IL operands are (iv ebx, base edx). No lever, all = control: the address as
+   ai_Blds + k, k + ai_Blds, (char *)ai_Blds + k byte offset loop, (int) sums either order,
+   &ai_Blds[(unsigned)k], direct ai_Blds[k].type / .owner reads, b replaced by q / r / geb / a new pointer
+   in that loop, a block-local copy; the counter of the three walks over {k,i,j,n,m,new} (119 assignments);
+   k declared first / last / moved over the declaration list (and b, cl, bk); do-while / while / ++k forms
+   (k != 0x100 6, k <= 0xff 34); = 0 initialisers on every scalar local and every pair (136: only j's costs
+   2). flip.py --want 'mov cl, BYTE PTR \[edx\+ebx\]' 1418 mutants: no hit; climb round 1 (412 mutants):
+   none closer. The operand rank follows something outside the single statements (as ai_MercenaryBook's
+   strcpy [edx+eax], ai_AlchemistWindow): untried: flip --scope file (the unit is long), header types.
+   prior: data pass 9: the building walks as index loops (b = &ai_Blds[k], k < 0x100; the byte offset k +=
+   0xa9 was ours) and the house loop as k = 0; do { if (ok) break; ..; k++; } while (k < 0x100), ncl = 0
+   before the memsets: 63 -> 6 ins, shape. Left: the third walk's type record address, ours [ebx+edx]
+   against the original's [edx+ebx] (&ai_BTypes[b->type], ai_BTypes + b->type, the swapped sum: one code),
+   regs 4. Earlier rounds (byte-offset loops): s12: the house loop as k = 0; while (!ok) { ..; k += 0xa9;
+   if (k >= 0xa900) break; }: raw 3617 -> 3611 vs 3610, padded size equal (57 -> 63 ins, code 27 -> 9,
+   slots 38 -> 84: the scalar slot pair swap now shows on more lines). The original's loop is top-tested:
+   xor edi,edi / xor ebp,ebp / [k slot] / test edi,edi / jne out at the top, k += 0xa9 / cmp / jl top at
+   the bottom (no second ok test): for (k = 0; k < 0xa900; k += 0xa9) { if (ok) break; .. } gives exactly
+   that shape but k leaves ebp (89 ins, b = k + ai_Blds via lea ebp,[edx+ecx]); kept the while form. Left
+   as before: the [esp+0x10] / [esp+0x14] scalar slot swap, ncl in esi for the second loop. */
 void init_OpenTown(void) {
   int ncl = 0;
   char cls[0x22] = {0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 1, 0, 2,
