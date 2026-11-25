@@ -2023,19 +2023,17 @@ int gm_IsUnderAge(unsigned short id) {
    nearest to o when o and the building both have a scene object, else the least full one (people / capacity);
    none: a random one of the first 16 of the query (1, 5, 0x16) with the flag clear. The first parameter is
    not read
-   @deep size queue s16: the escape lever (kind / v1 / v2 / d declared in the blocks that use them, all 7
-   subsets) is the control's code; a k = kind[0] scalar gives the original's candidate set (o loses its
-   register and is reread from the argument as in the original) but the rotation pick edi / cap ebp / k ebx
-   against the original's ebp / ebx / edi (88 ins); unsigned short k = control. prior: draft 90 -> 67 ins.
-   Read: the original keeps the pick's capacity in ebx (loaded from the first record after the query test)
-   and kind[0] in edi across the d3_PointToWorld calls, stores only the record's second int at a pick, and
-   shares the int-to-float temp with the first record's first int (frame 0x74, the 8-byte record slot
-   shared with a 4-byte temp, which no variant reproduces: c2frame gives the temps their own 4-byte slot).
-   Kept: a scalar cap for the pick's capacity (cap = pickKind[0] after the query; cap = kind[0] at each
-   pick): 90 -> 67. Tried: a def[2] copied into a scalarized pickKind (75, the [1] stores vanish), struct /
-   unsigned short[4] records and struct copies (= control), cap scalars for kind[0] too (82-99), the init
-   in the if / before the query, all 24 orders of the pick block (best 88 with the kind scalar). Left: the
-   rotation pick edi / cap ebp / kind[0] ebx against the or... */
+   @deep deep s72 (spare, one round): with the k = kind.pair[0] scalar (88 ins) c2trace serves b (104) esi,
+   pick (54), n, cap (24), k (prio 8, only 2 refs counted: lines of the test and the first cap = k) and the
+   2nd / 3rd / 4th served callee-saved candidates take edi / ebp / ebx in that order; the original's k edi
+   / pick ebp / cap ebx means k is served right after b, above pick: k needs about +50 (or pick less). dcp
+   frame: the original's [esp+0x14] holds pickKind[0] (read once into cap) and the int-to-float temp,
+   [esp+0x18] w2 is pickKind[1] (the dead pick stores), so pickKind's first field is dead after the cap
+   load in the original's frame packing. prior: size queue s16: the escape lever (kind / v1 / v2 / d
+   declared in the blocks that use them, all 7 subsets) is the control's code; a k = kind[0] scalar gives
+   the original's candidate set (o loses its register and is reread from the argument as in the original)
+   but the rotation pick edi / cap ebp / k ebx against the original's ebp / ebx / edi (88 ins); unsigned
+   short k = control. */
 
 AIBLD *gm_FindHome(int unused, AIBLD *o) {
   float best, d;

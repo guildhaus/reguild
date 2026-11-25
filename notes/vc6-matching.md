@@ -2044,6 +2044,31 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s72**:
+  - **Two callee-saved registers swapped through a whole function (a -1 constant then `best` in one, 0 then `j`
+    in the other), a call result copied `mov ecx,eax` before its deref: the selection was flat code, not a
+    nested if with the default in both else arms** (amt_ElectDeputies 51 -> byte): `cur = 0; if (b.owner !=
+    -1) v = b.owner; else v = a.owner; if (v != -1) cur = gm_FindChar(v); if (cur != 0) best = ..; else best =
+    0;`. The steps: `best = 0` once fixed the swap and the copy but laid the xor first (43); `if (v != -1 &&
+    cur != 0)` gave the layout (14) with v kept across the call (VC6 threads a test only on a CONSTANT known
+    per path: v == -1 on one edge, nothing on the call edge); flat with `v = b.owner; if (v == -1) v =
+    a.owner;` gave cur a register (77, cur prio 33 against best 32); the if / else form of the v choice
+    (or the ternary) was byte. A default-then-overwrite local and its if / else form are different flow
+    graphs and different priorities: try both for every value chosen just before the hunk.
+  - **Two loads of a compare in the other order (`mov eax,[a0]; mov ecx,[a1]; cmp ecx,eax; jge`) where ours
+    loads a1 first: the first test is spelled `a0 > a1`, the second `a1 > a0`** (ai_PokerShowdown's 8-case tie
+    breaks): `a1 < a0` loads a1 first, `a0 > a1` alone compares the other way; the mixed pair gives both
+    (195 -> 177).
+  - **Switch case bodies cross-jumped into the wrong copies (case 6 into case 2's tail, case 1 into case 8 in
+    the original): the case ORDER in the source is a lever** (ai_PokerShowdown 177 -> 158): a 5040-order round
+    of the seven case groups made the switch the original's instruction for instruction; every order that
+    did it had case 4 (the one with calls) last. Separate bodies for equal cases (3, 5, 7 each) are no lever:
+    VC6 merges them anyway.
+  - **A byte CSE that must outrank a table pointer** (ai_PokerPickStrategies, open): flip.py's only hits
+    delete a store through the table (one table reference less, ~20 priority points); every flow-graph
+    spelling of the strategy chain (found flag, j = 0 else arm, two ifs, ?:, continue) folds to the same
+    code, a named copy of the table pointer is copy-propagated.
+
 - **Deep s71**:
   - **A parameter held in a callee-saved register for its first uses but stored at the exits from its own
     argument slot (`mov ecx,[esp+8]` where ours stores esi): the stored value was an UNINITIALISED local**
