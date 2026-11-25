@@ -66,21 +66,22 @@ void mov_Exit(void) {
   CoUninitialize();
 }
 /* 0x422dc0
-   @deep size queue (s2): padded size now the original's (raw 1488 vs 1481, padded 1488 = 1488; 248 -> 242
-   ins). Lever: the centered aspect arm stores r.left, r.top, r.bottom, r.right (the original's store
-   order), so its tail no longer cross-jumps with the not-centered arm's four stores: the original keeps
-   both copies (+22 bytes). Of 23 store-order variants of the two arms, all that break the merge give 1488.
-   Left (raw 7 bytes long): the register map of the earlier note (the zero and id in esi, file ebx, m ebp,
-   hwnd edi; ours swaps file/m, spills id) and the window rect's h in ebx vs ebp. prior: the zero constant
-   and id: in the original id = 0 and every literal 0 (fopen/hwnd/m tests, the NULL pushes) share esi
-   (return paths mov eax, esi; later id = mov_NextId++ lands in esi), file is ebx, m ebp, hwnd edi; ours
-   keeps the zero in ebx/ebp, spills id to [esp+0x28] (the extra slot pushes wc and the later slots 4 down)
-   and swaps file/m (asmdiff --regs ebp=ebx,ebx=ebp leaves the zero/id hunks, the wc slot shift and a store
-   schedule around strcpy). headers sample: insensitive (32, one codegen). dcp try: int id; id = 0; first,
-   long id, the id declaration at every position, id = m->id = mov_NextId++, separate id = mov_NextId;
-   mov_NextId++: = control; id = 0 after fopen: 1244 B; early return 0 for fopen/IsWindow/mov_Alloc with
-   return id at the end: 1232-1257 B (no zero register at all then); id = 0 at each of 60 statement
-   positions (changes meaning on the early paths): best 999 B, none byt... */
+   @deep s86 242 -> 231 ins: the success path returns its id inside the block (return id; after
+   put_BackgroundPalette) and the end returns 0 (int id; without an initializer): the success epilogue is
+   its own copy as in the original and id no longer lives through the whole function (no [esp+0x28] spill;
+   = with id = 0 kept and return id at the end, one code). Left (231): the original keeps the const#0 web
+   in esi from before fopen (cmp eax,esi / push esi for every NULL until the m test, return paths mov
+   eax,esi), file ebx, m ebp, hwnd edi; ours keeps the zero as push 0 / test (c2trace: const#0#1 prio -104,
+   cut by pressure where m took ebx), m ebx, file ebp; and &m->window (lea edi,[ebp+0x130]) is one CSE
+   spilled to a slot in ours (tmp@150, count 3: the extra 4-byte slot, wc and the later slots +4) where the
+   original recomputes lea ebx,[ebp+0x130] at SetWindowPosition. flip.py --want two leas of +304: only
+   meaning changes (a goto fail deleted: 158 ins, a block swap). climb 5 x 4 x 80: nothing. prior: size
+   queue (s2): padded size now the original's (raw 1488 vs 1481, padded 1488 = 1488; 248 -> 242 ins).
+   Lever: the centered aspect arm stores r.left, r.top, r.bottom, r.right (the original's store order), so
+   its tail no longer cross-jumps with the not-centered arm's four stores: the original keeps both copies
+   (+22 bytes). Of 23 store-order variants of the two arms, all that break the merge give 1488. Left (raw 7
+   bytes long): the register map of the earlier note (the zero and id in esi, file ebx, m ebp, hwnd edi;
+   ours swaps file/m, spills id) and the window rect's h in ebx vs ebp. */
 
 int mov_Open(char *file, HWND hwnd, HINSTANCE hinst, int x, int y, int w, int h,
              unsigned int flags) {
