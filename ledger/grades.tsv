@@ -1068,7 +1068,7 @@ exe	0x0045ac60	d3s_CacheTexture	d3s	byte	readable
 exe	0x0045ad80	d3_InitShadows	d3s	byte	readable		
 exe	0x0045aee0	d3_ExitShadows	d3s	byte	readable		
 exe	0x0045af50	d3s_TerrainShadowMesh	d3s	draft	readable	deep	
-exe	0x0045b510	d3s_MeshFromMap	d3s	draft	readable	deep	
+exe	0x0045b510	d3s_MeshFromMap	d3s	shape	readable	deep	
 exe	0x0045b8d0	d3s_AddShadow	d3s	byte	readable		
 exe	0x0045bcd0	d3s_GetGround	d3s	byte	readable		
 exe	0x0045be10	d3s_Project	d3s	draft	readable	deep	
