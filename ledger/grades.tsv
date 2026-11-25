@@ -3300,7 +3300,7 @@ exe	0x00520f90	sv_CheckMoney	sv	byte	readable
 exe	0x00520fe0	sv_CheckCharacterFlag	sv	byte	readable		
 exe	0x00521040	sv_CheckGoodAmount	sv	byte	readable		
 exe	0x005210a0	sv_CheckStock	sv	byte	readable		
-exe	0x00521150	sv_MessageBox	sv	shape	readable	deep	
+exe	0x00521150	sv_MessageBox	sv	byte	readable		
 exe	0x00521410	sv_MessageBoxGreen	sv	byte	readable		
 exe	0x005216a0	sv_MessageBoxYesNo	sv	byte	readable		
 exe	0x00521900	sv_OpenMessageBox	sv	byte	readable		
@@ -3312,7 +3312,7 @@ exe	0x00522040	sv_PanelImage	sv	byte	readable
 exe	0x00522100	sv_SetPanelEnabled	sv	byte	readable		
 exe	0x00522280	sv_ClosePanelWidgets	sv	byte	readable		
 exe	0x005223c0	sv_DestroyScreen	sv	byte	readable		
-exe	0x005224a0	sv_LoadGroundplan	sv	byte	readable		
+exe	0x005224a0	sv_LoadGroundplan	sv	shape	readable		
 exe	0x005229b0	sv_UpdateGroundplan	sv	byte	readable		
 exe	0x00522ec0	sv_SetResearchClass	sv	byte	readable		
 exe	0x00522f10	sv_UpdateCityPanel	sv	byte	readable		
