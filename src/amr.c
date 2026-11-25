@@ -2371,19 +2371,25 @@ int ai_ExecuteRepairBuilding(AICHAR *p, AIARG *s1, AIARG *s2) {
   return 15;
 }
 /* 0x497fa0, decide of action 16: buy an offered building (event 0x1b, kinds 4..7 as its orders allow, o1 kind 0 or kind 5 naming the kind) when two thirds of the money cover the price (o1 kind 4, 16), else a credit for the difference (ai_DecideTakeCredit) when the price is low against the equipment value
-   @deep size queue s19: the return tails' polarity (if (o1->kind == 0) return 0; return 16; and the kind 5
-   twin, its return 0 falling to the final one; 5 combinations) = control, raw 1309 each: the unmerged
-   credit tail (the original's kind 5 copy jmps into the kind 0 copy's fmul) is the whole gap, as the prior
-   note explains. prior: Kept: bt = &ai_BTypes[..] between lo = 0 and hi = 0 (climb swap@27: 109 -> 63 ins
-   / 401 bytes). Main hunk: the original's kind 5 credit tail jumps into the kind 0 copy at its fmul -0.5
-   (jmp 0x4982c7), ours keeps two copies (432 vs 409 ins). Tail merge research (python
-   tools/c2dag/c2tail.py src/am.c ai_DecideBuyBuilding --tries --il merge; notes/vc6-matching.md 'How VC6
-   merges tails'): the two credit tails ARE compared by the pair merger (FUN_1074633c, both jmps to the
-   exit label) and are equal for 20 instructions back to fidiv [r] (C2DAG_TRYDUMP=1: 'pair equal 20'), but
-   both copies are entered by fall-through, so the merge needs a size above 22 and this x87 / call run
-   measures 20 ('pair bytes 20'): no pair merge with this tail, in ours or the original. The original's
-   shape (kind 5 jumps INTO the kind 0 copy, the kept copy has the epilogue) is cross-jumping (xjump, no
-   size limit; its reg... */
+   @deep s70 (63 ins, source unchanged): meaning re-read against 0x497fa0..0x49846f: same (the size gap
+   1309 vs 1232 is the unmerged kind 5 credit tail only: fmul -0.5 .. ret, 23 instructions; both of our
+   copies are instruction-equal from fmul on, the jne to the shared return 0 included). flip.py --want one
+   ai_DecideTakeCredit call (610 mutants, 48 hits) names the lever: the return-0 identity of the exit
+   blocks. Hits that keep the code otherwise: the search loop's not-found 'return 0' as 'return 1' (466
+   ins: the credit tails merge but that exit is now its own block), the kind 0 credit-fail 'return 0' as
+   'return 1' (432), the kind 5 one (432); the rest delete / reorder the credit stores or change the float
+   types. So the original's block falling into the exit label at cross-jump time is not the not-found
+   return 0 (c2tail: ours keeps the xor at 'found:' and xjumps every other return 0 into it), and the kind
+   0 credit tail is. Block-order forms this session (= +77 size each): kind 5 block first (253 ins), kind 0
+   last behind 'if (o1->kind != 0) { if (o1->kind == 5) {..} return 0; }' (253), the same with a guard 'if
+   (o1->kind != 0) return 0;' (= k5-first), kind 5 as else-if (= control). Not-found exit forms (=
+   +76..+89, unmerged): break + the rest wrapped in if (i < 0x100) {..} with one final return 0 (65), the
+   same with != (72), a found flag + wrapped rest (= control), break + if (i >= 0x100) return 0 (65). Next:
+   the credit-fail return of each kind as a fall-through to the loop exit or another block shape around the
+   kind 0 credit test. prior: size queue s19: the return tails' polarity (if (o1->kind == 0) return 0;
+   return 16; and the kind 5 twin, its return 0 falling to the final one; 5 combinations) = control, raw
+   1309 each: the unmerged credit tail (the original's kind 5 copy jmps into the kind 0 copy's fmul) is the
+   whole gap, as the prior note explains. */
 
 int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2) {
   ORDMSG buf;
