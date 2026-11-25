@@ -54,27 +54,15 @@ unsigned short path_Find(PATHOUT *out, D3SM *map, int sx, int sy, int ex,
 
 /* 0x4250a0, bidirectional A*: grows the search alternately from the start and the goal node until
    one search reaches the other (path_Meet) and returns the chain to the caller; the start node
-   index, or 0xffff when no path exists. Sets the path_ globals for the running search.
-   @deep kept: top tests !(c < 0.0), weight loop c > 0.0 (the original's test ah,5/jnp and and
-   eax,0x4100), b-step stores Target, SetFlag, TestFlag: 262 -> 250 ins, size 962 = original. Left (the
-   same as path_Search1): the original gives a and b no register outside the Expand loop: a is word-stored
-   to map's dead slot [esp+0x14] and read back at once (and ecx,ebp), pushed from there for the first call,
-   then lives in edi with a store to the home after every call; b likewise in sy's slot [esp+0x1c] and bx.
-   edi holds the zero constant and then path_Costs, ebp 0xffff, ebx Stamp; ours gives a edi for the whole
-   function, the zero edx, 0xffff ebx, Stamp bp. Tried: b = path_Goal before the Start test (+1), Goal
-   stored before Start (no gain). headers sample insensitive. Next: find what makes a lose the outer region
-   to the zero/Costs candidates (a reference count or web question), then apply it to path_Search1 too
-   (tiebreak: insensitive, dcp headers sample path_Search2: 32 samples, one codegen) prior: behaviour only: size 976 = original,
-   instruction multiset differs only by register allocation (zero reg ebx vs edi, ebp/edx/ecx choices) and
-   the double-compare idiom (and eax,0x100 vs test ah,0x5/jnp, loop and eax,0x4100); readable met */
+   index, or 0xffff when no path exists. Sets the path_ globals for the running search. */
 unsigned short path_Search2(D3SM *map, int sx, int sy, short ex, int ey,
                             int type) {
   int k;
-  unsigned int a;
+  unsigned short a;
   unsigned short b;
 
-  path_Shift = 0;
   path_Mask = map->size - 1;
+  path_Shift = 0;
   for (k = map->size; k >>= 1;)
     path_Shift++;
   path_DY[0] = 0;
@@ -86,61 +74,60 @@ unsigned short path_Search2(D3SM *map, int sx, int sy, short ex, int ey,
   path_DY[6] = map->size;
   path_DY[7] = map->size;
   path_Count = 0;
-  a = (sy << path_Shift) + sx;
-  path_Start = a;
+  path_Start = (sy << path_Shift) + sx;
+  a = path_Start;
   path_Goal = (short)(ey << path_Shift) + ex;
   path_Stamp++;
-  PATH_INITNODE(&map->entries[(unsigned short)a], 5);
-  if (path_Start != path_Goal) {
-    b = path_Goal;
-    PATH_INITNODE(&map->entries[b], 9);
-    path_Tab1Sel = path_Tab1[type];
-    path_Tab2Sel = path_Tab2[type];
-    path_Costs = path_Terrain[type];
-    if (!(path_Costs[map->entries[(unsigned short)a].type] < 0.0) &&
-        !(path_Costs[map->entries[b].type] < 0.0)) {
-      path_Weight = 0.0f;
-      for (k = 1; k < 15; k++)
-        if (path_Costs[k] > 0.0)
-          path_Weight += path_Costs[k];
-      path_Weight = 7.0f;
+  PATH_INITNODE(&map->entries[a], 5);
+  if (path_Start == path_Goal)
+    return a;
+  b = path_Goal;
+  PATH_INITNODE(&map->entries[b], 9);
+  path_Tab1Sel = path_Tab1[type];
+  path_Costs = path_Terrain[type];
+  path_Tab2Sel = path_Tab2[type];
+  if (!(path_Costs[map->entries[a].type] < 0.0) &&
+      !(path_Costs[map->entries[b].type] < 0.0)) {
+    path_Weight = 0.0f;
+    for (k = 1; k < 15; k++)
+      if (path_Costs[k] > 0.0)
+        path_Weight += path_Costs[k];
+    path_Weight = 7.0f;
+    path_Target = path_Goal;
+    path_SetFlag = 4;
+    path_TestFlag = 8;
+    a = path_Expand(map, a);
+    while (a != 0xffff) {
+      if (a == path_Goal) {
+        path_Reverse(map, a);
+        return path_Start;
+      }
+      if ((map->entries[a].flags & 0xc) == 0xc) {
+        path_Reverse(map, a);
+        map->entries[a].parent = path_Meet;
+        return path_Start;
+      }
+      path_Target = path_Start;
+      path_SetFlag = 8;
+      path_TestFlag = 4;
+      b = path_Expand(map, b);
+      if (b == 0xffff)
+        break;
+      if (b == path_Start)
+        return path_Start;
+      if ((map->entries[b].flags & 0xc) == 0xc) {
+        path_Reverse(map, path_Meet);
+        map->entries[path_Meet].parent = b;
+        return path_Start;
+      }
+      path_Count++;
       path_Target = path_Goal;
       path_SetFlag = 4;
       path_TestFlag = 8;
       a = path_Expand(map, a);
-      while ((short)a != -1) {
-        if ((unsigned short)a == path_Goal) {
-          path_Reverse(map, a);
-          return path_Start;
-        }
-        if ((map->entries[(unsigned short)a].flags & 0xc) == 0xc) {
-          path_Reverse(map, a);
-          map->entries[(unsigned short)a].parent = path_Meet;
-          return path_Start;
-        }
-        path_Target = path_Start;
-        path_SetFlag = 8;
-        path_TestFlag = 4;
-        b = path_Expand(map, b);
-        if (b == 0xffff)
-          break;
-        if (b == path_Start)
-          return path_Start;
-        if ((map->entries[b].flags & 0xc) == 0xc) {
-          path_Reverse(map, path_Meet);
-          map->entries[path_Meet].parent = b;
-          return path_Start;
-        }
-        path_Count++;
-        path_Target = path_Goal;
-        path_SetFlag = 4;
-        path_TestFlag = 8;
-        a = path_Expand(map, a);
-      }
     }
-    a = 0xffff;
   }
-  return a;
+  return 0xffff;
 }
 /* 0x425470, one-directional A*: expands from the start node alone until it reaches the goal;
    the start node index, or 0xffff when no path exists. Sets the path_ globals like path_Search2. */
