@@ -2044,6 +2044,20 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s71**:
+  - **A parameter held in a callee-saved register for its first uses but stored at the exits from its own
+    argument slot (`mov ecx,[esp+8]` where ours stores esi): the stored value was an UNINITIALISED local**
+    (txt_ParseRandomText 10 -> byte): VC6 packs a never-assigned local into the parameter's dead argument
+    slot, so the original's `txt_Random[..] = (int)s;` reads p back by luck (@original). Every alias of p
+    (address taken, `*(int *)&p`, union / int copies, varargs + va_start, K&R) folds to the control; the
+    same reload is how sv_SetResearchClass reads an out-parameter local packed into a dead parameter slot.
+    A reload `[esp+N]` of a parameter slot with no store in the function = a local living in that slot.
+  - **Callee-saved roles of a whole function off (a counter spilled, the frame a slot larger) because of one
+    long-lived uchar value at the end**: the byte candidate restricts the others (byte pressure: maxr kept off
+    ebx); reading the field in the first tests and taking an int local only in the arm that needs it over the
+    loop gave every role back (ai_PokerPickStrategies 79 -> 13, open: the original still keeps the BYTE in dl
+    to a final `cmp dl,5`; `(unsigned char)d == 5` gives it, 11 ins, not kept). climb round 2 found the form.
+
 - **Deep s70 (no item finished: ch_GetNewPath, d3_TransformVerts, ai_DecideBuyBuilding, ai_DecideUpgradeGuild notes only)**:
   - **A frame tie (two equal-density slots in the other order, frame > 0x80) is measured with dead probes in
     c2frame, not by guessing**: `{ extern int probe; probe = a + b; }` at a place where the locals are live
