@@ -1297,7 +1297,7 @@ exe	0x004713c0	d2_DrawWindowBackground	d2	byte	readable
 exe	0x00471a90	d2_DrawWindow	d2	byte	readable		
 exe	0x004721e0	d2_SetBackgroundTexture	d2	byte	readable		
 exe	0x00472270	d2_CreateScrollButtons	d2	byte	readable		
-exe	0x00472390	d2_CreateWindow	d2	draft	readable	deep	
+exe	0x00472390	d2_CreateWindow	d2	byte	readable		
 exe	0x00472760	d2_ScrollWindowBy	d2	byte	readable		
 exe	0x00472800	d2_ResizeWindow	d2	byte	readable		
 exe	0x00472a60	d2_FinishFades	d2	byte	readable		
@@ -3092,7 +3092,7 @@ exe	0x00506430	gm_PlayerRecord	f3gmt	byte	readable
 exe	0x00506480	gm_HasAdultRelative	f3gmt	byte	readable		
 exe	0x005064d0	gm_TakeOverCharacter	f3gmt	byte	readable		
 exe	0x00506890	gm_InheritEstate	f3gmt	byte	readable		
-exe	0x00506e70	gm_ForfeitEstate	f3gmt	draft	readable	deep	
+exe	0x00506e70	gm_ForfeitEstate	f3gmt	byte	readable		
 exe	0x005075c0	gm_MayRemoveChar	f3gmt	byte	readable		
 exe	0x00507690	gm_CreateCharacter	f3gmt	draft	readable	deep	
 exe	0x005085b0	gm_ConvertMoney	f3gmt	byte	readable		
