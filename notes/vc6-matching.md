@@ -2044,6 +2044,32 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s80 (2 byte: gm_ForfeitEstate, d2_CreateWindow; gm_PermissionBits 38 -> 34; d3t_MoveObjectPath,
+  gm_UpdatePrices, init_NameBuildings, ai_BribeAmountCB notes only)**:
+  - **An `||` test's then-arm laid far away (`test [m1],edx; jne A; test [m2],eax; jne A` with A after the
+    function's last loop) where the original lays it inline (`.. je ELSE; A:`): the test was a named flag**
+    (gm_ForfeitEstate 38 -> byte, open since s15): `house = (lo & M[2]) || (hi & M[3]); if (house) {..} else
+    if (..) {..}`. Same tests, but the flag's single test makes the else arm the jump edge, so the block walk
+    reaches A by fall-through. `k = 0; if (A || B) k = 1; if (k)` and the if / else-if flag are the same code.
+    Nested / inverted / `!= 0` / operand-order spellings of the condition and label sweeps were control.
+  - **A scan index in eax copied to ebp after the -1 test (`cmp eax,-1; mov ebp,eax`), the zero constant in
+    edi, ours one variable in ebp throughout: the loop counter was ANOTHER variable with a later life**
+    (d2_CreateWindow 46 -> byte): `for (ob = 0; ob < 0x60; ob++) if (!d2_Wins[ob].active) { j = ob; break; }
+    i = j; if (j == -1) return j; win = &d2_Wins[j];` (ob is later the object index). Renaming the loop
+    variable to a fresh k, `j` used throughout, `i = j` after the test: all one code (VC6 coalesces the
+    copies); only a counter that is a live variable elsewhere stays its own candidate. The last 5: a dword
+    load of a K&R `short` parameter (`mov edx,[esp+N]` then `movsx ecx,dx`) = the parameter was `int`, the
+    later uses read the stored field back (`win->h`), and the store order `scrollY = -win->h;` before
+    `contentHeight = win->h;` gave the copy `mov eax,ecx`.
+  - **A block placed behind the wrong predecessor in a switch (gm_PermissionBits, open)**: J (the code after
+    the switch) is the last block in every IL stage; xjump merges the predecessors' reload copies into the one
+    in front of J and J lands behind the first merged predecessor. Case text order IS the layout order of a
+    switch here (moving a case group first / last moves its code), an empty `case K: break;` group or a
+    `default:` anywhere is control.
+  - **Call order of `g(global) + g(ch->id)` (ai_BribeAmountCB)**: a user local for the field side
+    (`cid = ch->id; .. g(ai_PlayerId) + g(cid)`) ranks it below the global, so the global's call goes first
+    (the s52 rule from the other side); the local then lives in a callee-saved register across the call.
+
 - **Deep s79 (2 byte: ai_EvaluateProductionGypsies, d3_MirCreateOutline; ai_SendFreeSpies, ord_LevelOrder,
   ai_ShowWorkSettingsPage, he_RunConstruction notes only)**:
   - **A record pointer loaded into one scratch register and copied into another for its second field test
