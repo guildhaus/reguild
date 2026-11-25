@@ -3396,27 +3396,25 @@ extern unsigned char init_TextureSet; /* 0x6f1c24 */
    An instance flagged 0xa0 (+0x13) gets the effect "Effekte/upgrade2.esc" at its bounding sphere once (the flags are
    cleared). The objects named "no_*" are hidden when the prototype after the prefix has an instance, "pfl_*" /
    "vg_*" select the texture set init_TextureSet.
-   @deep s50: the part loop of the original compares 16-bit (a in ebx loaded with mov bx,[eax] and kept in
-   [esp+0x18], reloaded into ebx on the loop's back edge only; v from mov cx,[edi]; and cx,0x7fff; cmp
-   bx,cx; b compared from [esp+0x1c]; ia in esi); ours keeps a / b in memory slots and v in eax (and
-   eax,0x7fff; test ax,ax). Round (s50): the 64 type products of a / b / v over unsigned short / short /
-   int / unsigned: int / int / int 193 (frame equal, but ints lose the original's 16-bit compares: not
-   kept), the others 191-195 with frame 0x20 (the slot of a / b gone: rejected) or = control. Next: a
-   register for a in the part loop (a candidate rank question: a's references against rec / s / ia;
-   c2trace). prior: match-deep 48: headers sample insensitive (32 samples, one codegen). Allocation-heavy:
-   the original keeps rec in a register copy (mov esi,eax after the [esp+0x10] store) through the parent
-   branch up to the part loop, where esi becomes ia; ours keeps rec in edi / reloads. Part loop: the
-   original reloads a into ebx from [esp+0x18] on the back edge (jmp into the loop body), and cx,0x7fff
-   16-bit and; ours and eax/test ax. Tried (dcp try rows): no_ query written in both arms (if ==2
-   Query(SceneBuilding list) else Query(base)): code 127->110 but 205->218 ins, the original's base arm
-   sits out of line after the first ret and ours inline (also !=2 order: tail 27, 218); flags block moved
-   out of kind==1: = control; v = ... inline in the if: = control; v == a order: 218, code 112; ia/ib init
-   order / chained: = control; v replaced by the masked expression at each use: 205 ins, code 99, bytes
-   1047; n inlined in the loop test: 214; b before a: 214; (a = ..) != (b = ..): = control; a register copy
-   r of rec for branch A: = control; r assigned in the condition and rec = r: frame 0x28 vs 0x24, 255 ins.
-   Left: regs 104 / code 127 / slots 28 (rec esi vs edi, s at [esp+0x20] vs [esp+0x24], base at [esp+0x34]
-   vs [esp+0x30], push ebx before cmp eax,1 and pop ebx at the end in the original (ebx = rec in the flags
-   section, ours eax reloads)) (tiebreak: insensitive) */
+   @deep deep s85: 205 -> 148 ins (climb.py found both steps). (1) the part loop without the n / v locals:
+   for (i = 0; i < bt->nslots; i++) with (bt->objs[i] & 0x7fff) at each use (186): the loop is now the
+   original 16-bit form (mov bx,[eax]; and cx,0x7fff; cmp bx,cx; a reloaded into ebx from its slot on the
+   back edge). Each change alone was control / worse in s50. (2) rec->type read once into an unsigned local
+   type in the parent branch (before o->mask = 0, used by gm_IsBuildingKind and as b) and in the no-parent
+   branch (before gm_IsBuildingKind, used in the e->type > type compare) (148; int = same code but 150,
+   unsigned short 196; one name or two = one code). Either one alone is 180-184. Left: rec keeps no
+   register copy after the gm_Query store (the original: mov esi,eax; base in edi in the parent branch,
+   ours base esi); push ebx before cmp eax,1 in the original (ebx kept to the end); the part loop compares
+   b from a register in ours (the original reloads rec->type from rec each pass: b = rec->type with the
+   local only for the call is 174); the no_ gm_Query (the original pushes i, 0, 1 before the ternary, base
+   arm out of line after the ret). prior: s50: the part loop of the original compares 16-bit (a in ebx
+   loaded with mov bx,[eax] and kept in [esp+0x18], reloaded into ebx on the loop's back edge only; v from
+   mov cx,[edi]; and cx,0x7fff; cmp bx,cx; b compared from [esp+0x1c]; ia in esi); ours keeps a / b in
+   memory slots and v in eax (and eax,0x7fff; test ax,ax). Round (s50): the 64 type products of a / b / v
+   over unsigned short / short / int / unsigned: int / int / int 193 (frame equal, but ints lose the
+   original's 16-bit compares: not kept), the others 191-195 with frame 0x20 (the slot of a / b gone:
+   rejected) or = control. Next: a register for a in the part loop (a candidate rank question: a's
+   references against rec / s / ia; c2trace). */
 void init_SyncSceneObjects(D3OBJECT *o) {
   AIOBJ *base; /* the object list of the scene */
   char *
@@ -3428,8 +3426,9 @@ void init_SyncSceneObjects(D3OBJECT *o) {
   D3VECTOR center;
   float radius;
   unsigned id;
-  unsigned short a, b, v;
-  int kind, fx, i, n, ia, ib;
+  unsigned short a, b;
+  int kind, fx, i, ia, ib;
+  unsigned type;
 
   rec = 0;
   id = o->pickId & INIT_PROTO_MASK;
@@ -3451,24 +3450,23 @@ void init_SyncSceneObjects(D3OBJECT *o) {
 
             d3if_ShowTree(o, 1);
             o->owner = rec;
+            type = rec->type;
             o->mask = 0;
             rec->obj = o;
-            if (gm_IsBuildingKind(rec->type) != 0) {
+            if (gm_IsBuildingKind(type) != 0) {
               for (e = gm_Query(base, 1, 4, (unsigned char)g[0]); e != 0;
                    e = gm_QueryNext()) {
                 a = e->type;
-                b = rec->type;
+                b = type;
                 if (a != b) {
                   ia = -1;
                   ib = -1;
                   bt = &ai_BTypes[ai_SceneBuilding->type];
-                  n = bt->nslots;
-                  for (i = 0; i < n; i++) {
-                    v = bt->objs[i] & 0x7fff;
-                    if (v != 0) {
-                      if (a == v)
+                  for (i = 0; i < bt->nslots; i++) {
+                    if ((bt->objs[i] & 0x7fff) != 0) {
+                      if (a == (bt->objs[i] & 0x7fff))
                         ia = i;
-                      else if (b == v)
+                      else if (b == (bt->objs[i] & 0x7fff))
                         ib = i;
                     }
                   }
@@ -3509,10 +3507,11 @@ void init_SyncSceneObjects(D3OBJECT *o) {
         if (g[0] != 0x1d)
           o->mask = 0;
         rec->obj = o;
-        if (gm_IsBuildingKind(rec->type) != 0) {
+        type = rec->type;
+        if (gm_IsBuildingKind(type) != 0) {
           for (e = gm_Query(base, 1, 4, (unsigned char)g[0]); e != 0;
                e = gm_QueryNext()) {
-            if (e->type > rec->type)
+            if (e->type > type)
               d3if_ShowTree(o, 0);
           }
         }
