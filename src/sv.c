@@ -1538,22 +1538,21 @@ char *strstr(); /* 0x5de6b0, strstr (LIBC; as ls.c) */
    the time an emptied job was left, he_FreeEvent, the pause script, cm_SendExSetHE for an empty job); without
    an old job a running "Pause" / "pause" script of the model is stopped. Then he joins g (sv_AddGroupMember)
    and the new job kind (field 0x180) is sent and the job set when it changed
-   @deep match-deep s53: 88 -> 74 ins (draft -> shape): sv_RemoveGroupMember's id re-read from the record
-   (ai_Chars[c]->id, one of 19 ch uses; a 190-variant subset run, singles and pairs). Left:
-   ch and old in swapped registers through the whole function (ours ch esi / old ebx, the original ch ebx /
-   old esi: push ebx before push esi, mov ecx vs mov eax for o = ch->bld). Tried, no gain: a second pass
-   over the 18 remaining ch uses (singles and pairs, 171 variants: none closer), old's uses re-read as
-   ch->group (singles and pairs, 120 variants: none closer), ch / old declaration moved to every position
-   (= control), old read before ch, the final ch->group test as old, ch->group = g in both arms of the last
-   if, newkind's else dropped, ev split / block-scoped / reusing old (= control). (tiebreak: insensitive)
-   prior: read against the original and fixed: room (*it != 0xfd) polarity, w >= 0, the action arguments
-   o->id / it->objId, old != 0 first, the case bodies in the original's order (0x28 before 0x14; tables now
-   equal), <= 0 slot tests, 'pause' before 'Pause', g != 0 first, newkind = 0 at entry, the job time as an
-   AITIME struct copy (memcpy took esi/edi), cm_SendExSetHE(-1) as an int push; typed AICHAR / AIJOB /
-   CHARACTER. Instruction count equal (287). Left is allocation only: with --regs ebp=esi,esi=ebx,ebx=ebp 16
-   lines differ, the callee-save push order (ours push ebp first / ebx later, the original push ebx first /
-   ebp later), and ev taking ebp where the original reuses old's esi in the no-old path; ch / old / it
-   rotate over ebx / esi / ebp */
+   @deep match-deep s81 (read, no variant kept): c2trace --seq: ch is no named candidate but the CSE temp
+   of &ai_Chars[c] (temp#142, 14 refs, prio 56), served first of the callee-saved candidates with avail
+   {ebx ebp esi edi} and no waiting preferences, so it takes esi by the tie order (esi, edi, ebx, ebp);
+   then w (47) edi, old (29) gets ebx, it ebp, ev#2 ebx. For the original (ch ebx, old / ev esi) old must
+   be served before ch while edi is already taken (w), i.e. ch below 29, or a waiting candidate must weigh
+   esi and edi for ch. = control: ch = ai_Chars + c, ch = ai_Chars; ch += c; old read through
+   ai_Chars[c].job before ch (109 / 121). prior: match-deep s53: 88 -> 74 ins (draft -> shape):
+   sv_RemoveGroupMember's id re-read from the record (ai_Chars[c]->id, one of 19 ch uses; a 190-variant
+   subset run, singles and pairs). Left: ch and old in swapped registers through the whole function (ours
+   ch esi / old ebx, the original ch ebx / old esi: push ebx before push esi, mov ecx vs mov eax for o =
+   ch->bld). Tried, no gain: a second pass over the 18 remaining ch uses (singles and pairs, 171 variants:
+   none closer), old's uses re-read as ch->group (singles and pairs, 120 variants: none closer), ch / old
+   declaration moved to every position (= control), old read before ch, the final ch->group test as old,
+   ch->group = g in both arms of the last if, newkind's else dropped, ev split / block-scoped / reusing old
+   (= control). (tiebreak: insensitive) */
 void sv_MoveToGroup(AIBLD *o, AIOBJ *it, int c, AIJOB *g) {
   AICHAR *ch;
   AIJOB *old;
