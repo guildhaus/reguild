@@ -411,32 +411,37 @@ void ai_PokerPayStakes(void) {
 }
 /* 0x4a7ac0, picks each NPC's strategy (seat->strategy) from its hand: 3 nothing yet, 2 go for the rank, 1 pairs,
    0 random
-   @deep orchestrator s18: dealt is back to unsigned char (the original's byte compares prove a char; a wider
-   type only for the size is not kept, as for d3t_MoveObjectPath); the init order stays. size queue s18: dealt
-   as unsigned short with the inits pairs / maxn / maxr / g (pk round: 4
-   dealt types x 24 init orders): 79 -> 24 ins, raw 380 -> 349, padded size (352). Left: only the table /
-   dealt registers swapped (ours table edx, dealt esi via movzx si; the original table esi, dealt dl, byte
-   compares): the original allocates dealt before the table (prio: c2trace --prio gives the table 6, the
-   uchar dealt -38: dealt pays the j loop's blocks (-42) and its compares at 474 / 477 go through the
-   zero-extension CSE temp, so they do not count for it). Tried s18, no lever: dealt not a local
-   (ai_PokerTable->dealt at each use) x 24 init orders: 70 ins, frame 0x2c. Next: something that ranks the
-   char dealt above the table (more direct references to dealt in the chain, or fewer table references),
-   then the uchar back. prior: byte-register class of dealt. Meaning re-read against the original (loops,
-   deck[k+i] / deck[i+j] owner at +8, shown at +0xc, seat[s].strategy at +0x30 + s*0x34, the strategy
-   chain): equal. The original keeps the unsigned char dealt in dl (cmp dl,5 / mov eax,edx; and eax,0xff)
-   and ai_PokerTable in esi, s in ebp, maxr ebx, maxn edi in the first loop (stored to [esp+0x18] after
-   it), pairs at [esp+0x14] (inc dword ptr), frame 0x28. Ours puts the table in edx, so dealt takes bl and
-   evicts s (spilled to [esp+0x18], dealt to [esp+0x24], frame 0x30). Levers (dcp try, uchar unless said):
-   init order of pairs/maxn/maxr/g, 23 orders: 79 ins each, four codegens (pairs, maxn, maxr, g gives the
-   original's first-loop roles only with a wider dealt); dealt as int: 33-37 ins, unsigned short + that
-   init order: 24 ins (frame 0x28 and the loops equal, dealt in esi via movzx si and the table in edx: the
-   table/... */
+   @deep deep s71: meaning re-read against the original (both count loops, the strategy chain, the shown /
+   owner loop with first, the continue path): equal. 79 -> 13 ins (size 347 vs 345): the first two tests
+   read ai_PokerTable->dealt directly and an int dealt is taken only in the else arm (climb round 2 found
+   it; the plain form of 'inline:dealt > local'). Every first-loop / second-loop role is now the original's
+   (s ebp, maxr ebx, maxn edi in the k loop, pairs in memory, the table esi, 2 in edi, frame 0x28).
+   Mechanism: a long-lived BYTE candidate (the uchar dealt or the field's byte CSE) puts byte pressure on
+   maxr (ebx forbidden -> ebp, s spilled, frame 0x30); an int candidate does not. Left (regs 10, code 3):
+   the original loads the byte into dl and keeps it to the final cmp dl,5, widening into eax for == maxr /
+   - maxr (sub eax,ebx in place); ours loads al, widens into edx (the int dealt), copies mov eax,edx for
+   the sub, compares cmp edx,5. Rounds: dealt int / unsigned int / short / unsigned short / uchar x where
+   it is assigned (top, else arm, in the == maxr test, nested after a continue) x which uses read the
+   field: best the tree (13); uchar anywhere 70-83 (byte pressure); the final test through the field 70;
+   (unsigned char)dealt == 5 (or & 0xff, (char)) with the int local: 11 ins, the original's cmp dl,5, not
+   kept (a cast only for the byte compare). continue-free forms (j as flag, a done flag) = control. flip.py
+   from the tree wanting mov dl, BYTE PTR: no hit. prior: orchestrator s18: dealt is back to unsigned char
+   (the original's byte compares prove a char; a wider type only for the size is not kept, as for
+   d3t_MoveObjectPath); the init order stays. size queue s18: dealt as unsigned short with the inits pairs
+   / maxn / maxr / g (pk round: 4 dealt types x 24 init orders): 79 -> 24 ins, raw 380 -> 349, padded size
+   (352). Left: only the table / dealt registers swapped (ours table edx, dealt esi via movzx si; the
+   original table esi, dealt dl, byte compares): the original allocates dealt before the table (prio:
+   c2trace --prio gives the table 6, the uchar dealt -38: dealt pays the j loop's blocks (-42) and its
+   compares at 474 / 477 go through the zero-extension CSE temp, so they do not count for it). Tried s18,
+   no lever: dealt not a local (ai_PokerTable->dealt at each use) x 24 init orders: 70 ins, frame 0x2c.
+   Next: something that ranks the char dealt above the table (more direct references to dealt in the chain,
+   or fewer table references), then the uchar back. */
 
 void ai_PokerPickStrategies(void) {
   int cnt[6];
   int s, g, j, i, k, pairs, first;
   int n, maxn, maxr;
-  unsigned char dealt;
+  int dealt;
 
   first = 0;
   for (s = 1; s < 3; s++) {
@@ -468,12 +473,12 @@ void ai_PokerPickStrategies(void) {
       }
       cnt[j] = n;
     }
-    dealt = ai_PokerTable->dealt;
-    if (dealt < 5 && pairs <= 1 && maxn < 2) {
+    if (ai_PokerTable->dealt < 5 && pairs <= 1 && maxn < 2) {
       ai_PokerTable->seat[s].strategy = 3;
-    } else if (dealt == maxr) {
+    } else if (ai_PokerTable->dealt == maxr) {
       ai_PokerTable->seat[s].strategy = 2;
     } else {
+      dealt = ai_PokerTable->dealt;
       if (ai_PokerTable->phase < 6 && dealt - maxr <= 1) {
         for (j = 0; j < 6; j++)
           if (ai_PokerDeck[j * 4 + first].owner != s &&
