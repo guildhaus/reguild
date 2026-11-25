@@ -189,42 +189,7 @@ int ai_IsLocalMaster(AICHAR *c) {
   return 1;
 }
 /* 0x47ddf0, looks for a partner (a character that suits this one) and sends the messages about it; returns
-   the partner when the two have met enough, else 0
-   @deep Session s2(match-deep): 306 -> 2 ins, shape (proved). Levers, in order: the level difference as
-   one expression d = abs(gm_CharLevel(i, 0) - gm_CharLevel(id, 0)) (306 -> 262, the candidate loop byte);
-   the byte a as a block local of each block that sends it, z / m1 local to the reset (every slot the
-   original's); the partner part as a step variable k decided first, then if (k == 0) reset else if (k ==
-   1) .. else if (k == 2) .. else step: VC6 threads k away and lays the blocks out as the original (the 64
-   nested if / else / early-return forms all keep the reset last; other dispatch orders 24..64); p = 0
-   first in the k == 2 block (28 -> 18); f assigned inside the candidate test (climb inexpr) rotates the
-   step block's scratch registers to the original's (18 -> 2). Left (2 ins): the k == 2 block's xor edi,edi
-   (p = 0) at the block's start where the original has it at its end. With p = 0 written last the tail
-   merges (12): c2tail: xjump moves the k == 1 / k == 2 / failed-step xor edi onto the reset's p = 0, then
-   the move merger deletes the k == 2 copy of call / add esp / SendFieldDeltas into the k == 1 one. flip.py
-   on the p-last text: dropping the failed step's else p = 0 (a meaning change) gives 0 ins with only the
-   failed step's jle target off: the original's failed step jumps into the reset's p = 0. The failed step
-   cannot decide k before the chain (its sends depend on the draw), so only the shared p = 0 is common.
-   Tried: goto to a label on the reset's p = 0 (p first: = control; p last: 12); reset block and a none: p
-   = 0; return p; after the final return, reached by goto from k == 0 and the failed step (p first 5: the
-   reset's return folds to xor eax,eax; p last 15); every position of p = 0 in the k == 1 / k == 2 blocks,
-   p = NULL, a = 0, p = 0, casts, return p / return 0 in either block, the reset's p = 0 inside if (p), one
-   shared p = 0; return p after the chain (38..138), the k == 2 block as its own if (88..169), switch (k)
-   (163..184), climb 2 rounds (only meaning changes). prior: Read whole against the original
-   0x47ddf0..0x47e356 and fixed: the candidate filter (officeKind / secondOffice, not jobId / prevOffice),
-   the feud relation sum computed before util_Random, the partner part as one exit return p with p = 0 on
-   the no-partner paths (the original's xor edi,edi / mov eax,edi tails). Every call, constant (128.0, the
-   level factor, 34.0, -0x32 - rnd(0x20), the difficulty clamp 2d+0x23 / 2d+0xf), field (0x210 /
-   0x214..0x218) and branch matches. Left: (1) allocation in the candidate loop: the original keeps c->id
-   in bx under the -1 constant ebx (or ebx,-1 at entry; the prover's Ins16(0xffffffff, id) push), the kind
-   basis in ebp, the RelationMemory row offset in the dead parameter slot [esp+0x28] and spills
-   gm_CharLevel(i) to [esp+0x1c]; ours keeps i in ebp, o in ebx, id and the row offset in frame slots
-   (frame 0x1c vs 0x14, the slots hunks); (2) block layout: the original places the b216<=b215 block
-   (AddFieldValues with ebx=1 pushes) and the relation>0 block after the reset block at the end, each with
-   its own epilogue, where ours lays them inline and cross-jumps their common a=1 / AddFieldDelta(0x218) /
-   SendFieldDeltas tail (calls: cm_AddFieldDelta ours x12 vs x13, cm_SendFieldDeltas x4 vs x5). (size: 429
-   vs 445 instructions, explained: 16 instructions: the original's two separate b216 / relation>0 tails (an
-   AddFieldDelta + SendFieldDeltas + xor edi / mov eax,edi epilogue copy, ~14 instructions) that ours
-   cross-jumps into one, and its spill of gm_CharLevel(i) / row-offset reloads in the loop) */
+   the partner when the two have met enough, else 0 */
 
 AICHAR *ai_FindPartner(AICHAR *c) {
   AICHAR *o, *p;
@@ -324,13 +289,16 @@ AICHAR *ai_FindPartner(AICHAR *c) {
        step */
     unsigned char a;
 
-    p = 0;
     a = c->b216 + 1;
     cm_BeginFieldBlock(c, c->netId);
     cm_AddFieldDelta(1, 1, 0x215, &a);
     a = 1;
     cm_AddFieldDelta(1, 1, 0x218, &a);
     cm_SendFieldDeltas();
+    p = 0;
+  /* @original a label (no goto reaches it) closes the block: without it VC6 cross-jumps this tail into the
+     k == 1 one (the original keeps both, with this p = 0 last) */
+  done:;
   } else {
     /* one or two steps further; past the third the two have met */
     if (c->b215 <= 3) {
