@@ -411,31 +411,34 @@ void ai_PokerPayStakes(void) {
 }
 /* 0x4a7ac0, picks each NPC's strategy (seat->strategy) from its hand: 3 nothing yet, 2 go for the rank, 1 pairs,
    0 random
-   @deep deep s71: meaning re-read against the original (both count loops, the strategy chain, the shown /
-   owner loop with first, the continue path): equal. 79 -> 13 ins (size 347 vs 345): the first two tests
-   read ai_PokerTable->dealt directly and an int dealt is taken only in the else arm (climb round 2 found
-   it; the plain form of 'inline:dealt > local'). Every first-loop / second-loop role is now the original's
-   (s ebp, maxr ebx, maxn edi in the k loop, pairs in memory, the table esi, 2 in edi, frame 0x28).
-   Mechanism: a long-lived BYTE candidate (the uchar dealt or the field's byte CSE) puts byte pressure on
-   maxr (ebx forbidden -> ebp, s spilled, frame 0x30); an int candidate does not. Left (regs 10, code 3):
-   the original loads the byte into dl and keeps it to the final cmp dl,5, widening into eax for == maxr /
-   - maxr (sub eax,ebx in place); ours loads al, widens into edx (the int dealt), copies mov eax,edx for
-   the sub, compares cmp edx,5. Rounds: dealt int / unsigned int / short / unsigned short / uchar x where
-   it is assigned (top, else arm, in the == maxr test, nested after a continue) x which uses read the
-   field: best the tree (13); uchar anywhere 70-83 (byte pressure); the final test through the field 70;
-   (unsigned char)dealt == 5 (or & 0xff, (char)) with the int local: 11 ins, the original's cmp dl,5, not
-   kept (a cast only for the byte compare). continue-free forms (j as flag, a done flag) = control. flip.py
-   from the tree wanting mov dl, BYTE PTR: no hit. prior: orchestrator s18: dealt is back to unsigned char
-   (the original's byte compares prove a char; a wider type only for the size is not kept, as for
-   d3t_MoveObjectPath); the init order stays. size queue s18: dealt as unsigned short with the inits pairs
-   / maxn / maxr / g (pk round: 4 dealt types x 24 init orders): 79 -> 24 ins, raw 380 -> 349, padded size
-   (352). Left: only the table / dealt registers swapped (ours table edx, dealt esi via movzx si; the
-   original table esi, dealt dl, byte compares): the original allocates dealt before the table (prio:
-   c2trace --prio gives the table 6, the uchar dealt -38: dealt pays the j loop's blocks (-42) and its
-   compares at 474 / 477 go through the zero-extension CSE temp, so they do not count for it). Tried s18,
-   no lever: dealt not a local (ai_PokerTable->dealt at each use) x 24 init orders: 70 ins, frame 0x2c.
-   Next: something that ranks the char dealt above the table (more direct references to dealt in the chain,
-   or fewer table references), then the uchar back. */
+   @deep deep s72: the original's long-lived value is the BYTE (dl, loaded once, cmp dl,5 twice, widened
+   into eax only for == maxr / - maxr), so its candidate (the field's byte CSE or a uchar local) must be
+   served before the table pointer (c2trace field-all: table prio 4 takes edx first, the byte CSE -16 gets
+   ebx -> maxr ebp, s spilled: 70 ins). In the tree the int dealt's widened temp (prio 18) is the one
+   served first. flip.py --base (field-all whole text) --want 'mov\s+dl, BYTE PTR': the only hits that keep
+   the rest are meaning changes that drop a TABLE store (del / swap of the strategy = 3, = 2, = 1 stores:
+   m218 12 ins with every register of the original, m159 9): the table needs about 20 priority points less,
+   or the byte as much more. Plain forms that fold to the field-all / uc code (no lever): the final test as
+   if/else-if, two ifs, nested, ?: or continue+store; the j == 6 arm as a found flag, j = 0 in the else
+   arm, j = 0 before (C1-C3); a named G10GAME *t for any subset of the reads (copy-propagated); decided
+   re-tests of dealt == 5 inside the arm (P1-P5). climb 2 rounds from field-all goes back to the tree (13).
+   Open: something that lowers the table pointer's references or raises the byte's in the chain without a
+   store less; the meaning is equal (s71). prior: deep s71: meaning re-read against the original (both
+   count loops, the strategy chain, the shown / owner loop with first, the continue path): equal. 79 -> 13
+   ins (size 347 vs 345): the first two tests read ai_PokerTable->dealt directly and an int dealt is taken
+   only in the else arm (climb round 2 found it; the plain form of 'inline:dealt > local'). Every
+   first-loop / second-loop role is now the original's (s ebp, maxr ebx, maxn edi in the k loop, pairs in
+   memory, the table esi, 2 in edi, frame 0x28). Mechanism: a long-lived BYTE candidate (the uchar dealt or
+   the field's byte CSE) puts byte pressure on maxr (ebx forbidden -> ebp, s spilled, frame 0x30); an int
+   candidate does not. Left (regs 10, code 3): the original loads the byte into dl and keeps it to the
+   final cmp dl,5, widening into eax for == maxr / - maxr (sub eax,ebx in place); ours loads al, widens
+   into edx (the int dealt), copies mov eax,edx for the sub, compares cmp edx,5. Rounds: dealt int /
+   unsigned int / short / unsigned short / uchar x where it is assigned (top, else arm, in the == maxr
+   test, nested after a continue) x which uses read the field: best the tree (13); uchar anywhere 70-83
+   (byte pressure); the final test through the field 70; (unsigned char)dealt == 5 (or & 0xff, (char)) with
+   the int local: 11 ins, the original's cmp dl,5, not kept (a cast only for the byte compare).
+   continue-free forms (j as flag, a done flag) = control. flip.py from the tree wanting mov dl, BYTE PTR:
+   no hit. */
 
 void ai_PokerPickStrategies(void) {
   int cnt[6];
