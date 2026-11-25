@@ -20,19 +20,7 @@
 #include "d3_vec.h"
 #include "cm.h"
 
-/* 0x458e70, environment map coordinates of the vertices of a part that has a reflecting texture
-   @deep deep s48: c2dag: the first loop's body block has 83 nodes, so the 81-node region cut falls just
-   before v->u's fmul; the original's fr reload (mov eax,[esp+0x7c]) sits before the d3_Normalize add esp,
-   in the call's region. Rounds: 127 masks of parenthesised first products in the first loop's nv.x / nv.y
-   / nv.z, b.x / b.y / b.z and d lines (each paren adds a node: best 6 ins, p0011110 / p0101110 / p1001110
-   = order 14), the (float) casts of the three normals dropped (= control: no node), the v walks as index
-   loops with v = &part->keys[i] (frame +4, 85 / 98). Left: the 2-ins reload placement at 0x459065; a node
-   fewer before the cut is what flip.py's deletions did. prior: deep s24: the volatile d is gone: d is a
-   plain float local of each if (v->used) block (= the volatile's code exactly; two function-scope locals d
-   / d2 also = control; one plain function-scope d: 20 ins, the second loop's nv sums reorder). nv as block
-   locals = control; b as block locals: draft (slots). nv sum orders with a plain function d: 14..24 ins.
-   climb round 1 on the block-local text: nothing. Left: the same order hunk as before (fr reloaded from
-   part's slot after the fmul of v->u where the original loads it before the call's add esp,4). */
+/* 0x458e70, environment map coordinates of the vertices of a part that has a reflecting texture */
 void d3_EnvMapCoords(D3OBJECT *obj, D3SURF *part) {
   D3MATRIX m;
   D3VECTOR4 b;
@@ -59,11 +47,11 @@ void d3_EnvMapCoords(D3OBJECT *obj, D3SURF *part) {
             b.x = ((float)fr->normals[i * 3] - 128.0f) * 0.007843138f;
             b.y = ((float)fr->normals[i * 3 + 1] - 128.0f) * 0.007843138f;
             b.z = ((float)fr->normals[i * 3 + 2] - 128.0f) * 0.007843138f;
-            nv.x = m._11 * b.x + m._21 * b.y + m._31 * b.z;
+            nv.x = (m._11 * b.x) + (m._21 * b.y) + (m._31 * b.z);
             nv.y = m._12 * b.x + m._22 * b.y + m._32 * b.z;
             nv.z = m._13 * b.x + m._23 * b.y + m._33 * b.z;
             d = (nv.x * v->x + nv.y * v->y + nv.z * v->z) * -2.0f;
-            b.x = d * nv.x + v->x;
+            b.x = (d * nv.x) + v->x;
             b.y = d * nv.y + v->y;
             b.z = nv.z * d + v->z;
             d3_Normalize(&b.v);
