@@ -475,26 +475,40 @@ int ai_OpenBuildingTooltip(int idx) {
    then the list: the goods it is made of with their amounts (section 4, text 0x25), the guild-house buildings
    that make it (gm_BuildingItemGroups, section 3, text 0x26), for the item types 0x17 / 0x25 the buildings that use the
    item idx and the extra slot 0x444 (text 0x624); "$C" when the list stayed empty; returns the view
-   @deep s68 (taken by name after dd_SetMode stayed open; no kept change): the layout difference is wider
-   than the threading. Ours lays out of line (behind the chain) every then-block of a 3-compare || test:
-   the inner A (0x48..), the inner B (0x4e..) and also the 0x1c1 arm (0x18/0x19, n = 2), whose test the
-   six-compare threading never touches (ours 'cmp 0x1c3; je arm' falling into the 0x1c7 test, the original
-   'jne next' falling into the arm). The n = 1 arms (0x1c4 chain, the ranges) are inline in both. So the
-   cause is not only the inner test's threading depth: look for what the three multi-store arms share (two
-   or three list stores, n = 2 / 3) against the n = 1 arms. Rounds (all no lever): inner as else-if / two
-   ifs / if-else / B first / !(B), outer with or without inner parentheses (12 variants: control, 53 ins,
-   or 147-168 ins); the 6 x 2 orders of the inner A and B compares (only the control order stays at 53);
-   climb --rounds 1 (141 mutants): best 50 ins by n = 1 before list[0] = 0x1e in the second 0x1e arm (swap,
-   not kept: it does not touch the layout). prior: s66 reading (no variant round): the original's threading
-   of the outer six-compare into the inner 0x225/0x226/0x227 test fits one rule - an edge is threaded
-   through at most ONE decided-false compare and then a decided-true jump: 0x225 -> A (true at once), 0x226
-   -> A (0x225 false, 0x226 true), 0x227 and 0x293..0x295 and the fall-through -> 'cmp 0x226' (one false
-   step, stops). Ours threads 0x293.. past three false compares (0x225/0x226/0x227) and stops before the
-   true one, and 0x227 straight to A: so ours' blocks at threading time are not the original's (likely
-   ours' inner then-part A and the B else-if are separate blocks laid after the chain, the original's lay
-   inline behind the inverted last compare). Not tried yet: the list fill of each arm as one statement
-   block per arm with the n store first (n = 3; list[0] = ..), and the outer six-compare as a flag (in =
-   idx == 0x225 || ..; if (in) ..) so the inner test is not threaded from the outer compares. */
+   @deep s69 (no kept change; best layout found, one priority race left): the layout lever is FLAGS.
+   Written as values tested after (int fo, fa, fc): 'fo = idx == 0x225 || .. || idx == 0x295; if (fo) { fa
+   = idx == 0x225 || idx == 0x226 || idx == 0x227; if (fa) {A} else if (idx == 0x293 || ..) {B} } else { fc
+   = idx == 0x1c1 || idx == 0x1c2 || idx == 0x1c3; if (fc) {0x18 arm} else if .. rest of the chain .. }'
+   gives the original's whole chain region instruction for instruction (A / B / 0x1c1 arms inline, the
+   outer 0x227.. edges to the inner cmp 0x226, the n = 1 stores cross-jumped into the 0x1f arm). The flag
+   spelling does not matter (val / f = 0; if (..) f = 1 / if-else / ?: / (..) != 0 / char: one code), nor
+   list[n++] = X for the constant stores. It is 92 ins only because of ONE race: idx#1 (prio 48) now beats
+   the in[k] loop's strength-reduced pointer k#39b (prio 44, item + 0x26, ebp in the original) for ebp, so
+   idx is not split (original: idx#2 esi for lines 516-536, idx#3 ebp from the gm_BuildingItemGroups loop
+   on) and every register / slot of the first half differs. c2trace --prio: the flags add +8 to idx (inner
+   A keeps 2 compare blocks, +4, which the original has too; the second outer compare block P 6 against 5,
+   +4); idx must reach <= 44 (a tie goes to k#39b). Probes that DO flip it (meaning changes): flip.py
+   --want 'mov esi, DWORD PTR _idx' on the flag text: delete list[0] = 0x1f (1 ins), a constant changed at
+   one site (d2_SetForm(0, 2) -> 3, io_PrintText(0x1f -> 7: 2 ins; repeated constants are candidates and
+   count in P), amount = item->need[k] moved inside if (id != 0) (14 ins, only the amount load late), if
+   (item->in[k] != 0) (23). No lever (= flag text or worse): the 72 orders of the inner A / B / fc
+   compares, flag types, the in[k] loop as while / do / k != 4 / slot in the for-init / slot moved, id > 0,
+   a / b flags computed up front (40-42 ins, the outer test then materialises), fo / fa at the type block's
+   top (20 ins: the regs right, the compare chain hoisted), fc at the type block's top (19: same), climb
+   --rounds 1 on the flag text (best 36 by a float local). Next: what lowers idx by 4 or raises the in[k]
+   pointer by 4 in the flag text: a value more in the loop's test block (P 4 -> 5 gives k +8), an
+   unreferenced block more in idx's range, a repeated constant (1, 2, 3, 0x1f) the original does not have
+   twice. prior: s68 (taken by name after dd_SetMode stayed open; no kept change): the layout difference is
+   wider than the threading. Ours lays out of line (behind the chain) every then-block of a 3-compare ||
+   test: the inner A (0x48..), the inner B (0x4e..) and also the 0x1c1 arm (0x18/0x19, n = 2), whose test
+   the six-compare threading never touches (ours 'cmp 0x1c3; je arm' falling into the 0x1c7 test, the
+   original 'jne next' falling into the arm). The n = 1 arms (0x1c4 chain, the ranges) are inline in both.
+   So the cause is not only the inner test's threading depth: look for what the three multi-store arms
+   share (two or three list stores, n = 2 / 3) against the n = 1 arms. Rounds (all no lever): inner as
+   else-if / two ifs / if-else / B first / !(B), outer with or without inner parentheses (12 variants:
+   control, 53 ins, or 147-168 ins); the 6 x 2 orders of the inner A and B compares (only the control order
+   stays at 53); climb --rounds 1 (141 mutants): best 50 ins by n = 1 before list[0] = 0x1e in the second
+   0x1e arm (swap, not kept: it does not touch the layout). */
 int ai_OpenItemTooltip(int idx) {
   int n;
   int slot;
