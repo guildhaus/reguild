@@ -2994,7 +2994,7 @@ exe	0x004ff450	gm_RandomMarketShake	f3gmt	byte	readable
 exe	0x004ff550	gm_UpdatePrices	f3gmt	shape	readable	deep	
 exe	0x004ff8c0	gm_GoodsDemand	f3gmt	byte	readable		
 exe	0x004ff950	gm_GoodsStock	f3gmt	byte	readable		
-exe	0x004ffa10	gm_StockPrice	f3gmt	draft	readable	deep	
+exe	0x004ffa10	gm_StockPrice	f3gmt	byte	readable		
 exe	0x004ffbf0	gm_GoodsValue	f3gmt	byte	readable		
 exe	0x004ffc40	gm_FindGoods	f3gmt	byte	readable		
 exe	0x004ffc90	gm_MapDistance	f3gmt	byte	readable		
@@ -3010,7 +3010,7 @@ exe	0x00500970	gm_AddObjekt	f3gmt	byte	readable
 exe	0x00500a40	gm_TakeObjekt	f3gmt	byte	readable		
 exe	0x00500ae0	gm_AddNegative	f3gmt	byte	readable		
 exe	0x00500b90	gm_BuildKindObjects	f3gmt	byte	readable		
-exe	0x00500c20	gm_CollectOffers	f3gmt	draft	readable	deep	
+exe	0x00500c20	gm_CollectOffers	f3gmt	byte	readable		
 exe	0x00500ec0	gm_FindMarketObject	f3gmt	byte	readable		
 exe	0x00501000	gm_FindPlayerBuilding	f3gmt	byte	readable		
 exe	0x00501030	gm_BuildNext	f3gmt	shape	readable	deep	
@@ -3233,7 +3233,7 @@ exe	0x00512e80	init_BuildingTextureSetHook	f3init	byte	readable
 exe	0x00512f30	init_SetCharacterAnimations	f3init	byte	readable		
 exe	0x00513050	init_ShowBuildingScene	f3init	byte	readable		
 exe	0x00513400	init_FinishBuildingScene	f3init	byte	readable		
-exe	0x00513590	init_SetDetailLevel	f3init	draft	readable	deep	
+exe	0x00513590	init_SetDetailLevel	f3init	byte	readable		
 exe	0x005136b0	init_LeaveTownScene	f3init	byte	readable		
 exe	0x00513740	init_AfterTownLoad	f3init	byte	readable		
 exe	0x00513970	init_ParseNumberList	f3init	byte	readable		
