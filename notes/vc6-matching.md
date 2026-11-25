@@ -2044,6 +2044,23 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s83 (1 byte: rd_BuildRoad; cm_ExSellObjekt, d3s_ShadowTriangle, gm_CreateObject notes only)**:
+  - **`mov ecx,K` hoisted above a `jl` that jumps into a sibling block just behind its own `mov ecx,K`**
+    (rd_BuildRoad 8 -> byte with the item below): the two blocks were the same statements written twice:
+    `if (n2 > count) { if (n2 >= 5) A; else B; } else if (n2 < 5) B;` instead of `if (n2 > count && n2 >=
+    5) A; else if (n2 < 5) B;`. VC6 hoists the equal first instruction of both successors and cross-jumps
+    the second B into the first; with one B the copy's lea / mov order is ours and nothing is hoisted.
+  - **A computed float store (`v.z = s + z0`) sunk past the call's pushes, or a `lea` of an out-param
+    hoisted above it**: the whole right side parenthesised (`v.z = (s + z0);`), as the copies `v.y =
+    (bk->y0)` already were; 32 of 256 paren / operand-order masks were byte, all with the computed values
+    of both calls in parentheses (likely one macro).
+  - **A cascade through a 142-block handler that a probe READ clears** (cm_ExSellObjekt, open): `x =
+    o2->objId;` written once more in one arm leaves only the probe's own two instructions; a reference to o2
+    alone does nothing, and bare / void / dead-local reads and decided tests are dropped before allocation.
+    flip.py's DUPLICATED-statement hits (the store, the call) point at the same block.
+  - **A local the original keeps in memory with no address taken** (gm_CreateObject, open): `volatile` as
+    a probe gives the original's frame and the whole top part; the plain reason is still unknown.
+
 - **Deep s82 (1 byte: sv_SendSelectedToBuilding; rd_BuildRoad 70 -> 8; lc_UpdateGoodsReserves,
   gm_CreateBuilding, d3_InflateObject notes only; sv_LoadGroundplan restored by declaration order)**:
   - **A building pointer kept in ebx and reloaded from the global after every store through another pointer
