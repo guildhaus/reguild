@@ -2044,6 +2044,24 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     s64: K&R definitions (`unsigned char n;` / `char n;`), an int parameter, a float local, a byte copy of n
     and `n >= 42.0f` all compile to `mov eax,ebx`: the pointer form stays.
 
+- **Deep s77 (1 byte: gv_GrowGraveyard; ai_RegisterSaveSlot, ord_WeightedRecordSum, lc_GebaeudeAusrichten,
+  d3anim_CreateMorphAnim notes only)**:
+  - **A copy loop's store SIB order ([base+iv+d] against [iv+base+d]) that no spelling of the loop moves: the
+    sizes of the memcpys ABOVE it were the counts, constant-propagated** (gv_GrowGraveyard 8 -> byte, open since
+    s26): `memcpy(.., n[0] * sizeof(GVGRAVE))` after `n[0] = 8;` instead of `8 * sizeof(GVGRAVE)`; same code,
+    other IL numbering. Found with flip.py --want on the store form: its hits were in the memcpy lines
+    (lists[1] -> lists[0], [2] -> [3]), not in the loop. A SIB hunk whose flip hits sit in unrelated statements:
+    respell those statements' constants as the values they come from.
+  - **A compare tail merged into the wrong arm's copy (pair merger, both copies entered by fall-through): the
+    pair merges only above 22 bytes of equal run** (ai_RegisterSaveSlot, open): `pair bytes 20` in
+    C2DAG_TRYDUMP=1 output (build/c2dag/UNIT.dag, `ttry` lines). The move merger (no size limit, deletes the
+    LATER arm's copy) runs when the label the arms jump to has nothing falling into it; `if (x == -1) {fill}
+    else return -1;` gave that (the merge right) but put the fill before the return -1.
+  - **IL volume again (d3anim_CreateMorphAnim 16 -> 2 with probes, not kept)**: 14+ dead loads anywhere, or 8+
+    `if (0) strcpy(..)`, flip six SIB stores and two reload edges; constant stores and unused locals do not
+    count (it takes loads). A monotonic threshold here, not a wrap. ord_WeightedRecordSum's i / IV register
+    tie and d2_BlitPartMode's reassociation do not react to IL volume.
+
 - **Deep s76 (3 byte: d2_ShpBlit16HalfDark, d3_EnvMapCoords, ai_FindPartner; d3t_UpdateSnow, ai_AlchemistWindow notes only)**:
   - **Split pieces reloaded in the wrong order at a loop exit (surf / s / line): the value written three times
     was ONE float local** (d2_ShpBlit16HalfDark 2 -> byte, open since s24): `grey = ((float)r + b) * 0.2f + g *
