@@ -1949,26 +1949,31 @@ void d2_DrawObjCaption(D2OBJ *o) {
                  flags);
 }
 /* 0x46d3d0, draws all objects in drawing order, each clipped to its windows
-   @deep dcp headers sample: insensitive. The hunks are one register race in the case 5/8 text arm (lines
-   2080-2114): the original gives mode ebp and spills x for the arm (mov ebp,[x slot] after
-   d2_DrawTextBox), ours keeps x's web (c2trace prio 50, ebp) and gives mode (prio 26) edi; the AddDirty /
-   0x40 hunks after it are the same permutation. Tried: mode / tx / ty as block locals (= control), mode as
-   else-0 chain / ternary (86 ins), nested (65, other code), greyed-then-highlighted (70), mode computed
-   after GetObjPicSize or just before the call (83 / 71), the pooled ai_FloatZero / ai_FloatOne /
-   cm_DoubleOne objects at the three M10 sites (7 combinations: same instructions). flip.py (want the
-   original's lea edi,[esi+0x7c]): 20 of 849 mutants flip it, all in the window clip walk (x0/x1/y0/y1
-   clamps deleted / swapped / duplicated) or deleting a mode = 0, none closer than 74 ins. Lead: the clip
-   walk's four clamps as the original wrote them (the flips cluster there) - a form that keeps their own
-   code and changes x's weight. (tiebreak: insensitive) prior: Read the whole 0x46d3d0..0x46e0d2 against
-   the C (the clip walk over the windows with the frame insets, the pending caption, all twelve switch
-   arms; switch tables equal): the statements correspond. Left is allocation: in the text arm of case 1 the
-   original keeps mode in ebp and reloads x from its slot after d2_DrawTextBox (mov ebp,[esp+0x30]) where
-   ours keeps x in ebp and mode in edi, so o->w is loaded early into edx and [esi+0x1d0] goes to edi (hunk
-   at +0x80d, 24 lines); the caption test loads d2_Objs after the index arithmetic (+0x83d, 16 lines); the
-   AddDirty(x, y, d2_ShpW(+8), d2_ShpH(+8)) of case 1 uses edx=W / ecx=H / eax=y in the original, edx=H /
-   eax=W / ecx=y in ours (+0x886, 30 lines). Tried the caption coordinates as inline ternaries (worse) and
-   as if/else (same). (references: M8 at +0x88a: ours refers to d2_ShpH (0x6f044e), the original's field to
-   0x6f044c (d2_ShpW), explained:... */
+   @deep match-deep s81: 65 -> 54 ins (978 -> 142 bytes, size now equal). Found: the original loads o->w
+   (movsx edx,[esi+0x14]) right after d2_GetObjPicSize, before the captionX test, and pushes that register:
+   a local w = o->w ahead of the tx / ty tests (a fresh int w; the same as reusing font / yy). At the
+   original place (after GetObjPicSize, w4) the load matches but c2trace gives the captionX temp 44 (eax),
+   the captionY temp 36 (edx), mode 28 (edi), w 20 (ebp); the original needs w between 36 and 44 so it
+   takes edx, the captionY temp then edi and mode ebp (x then spilled, mov ebp,[x] after DrawTextBox): 64
+   ins. Kept: w = o->w between the tx and the ty test (w5): mode in ebp and x reloaded as the original, w
+   in edi; left: the o->w load placed after tx (2 lines), and the scratch rotation of the caption test
+   (d2_Objs loaded early into edx, the original into ecx after the index math), the case-5 AddDirty (the
+   crossed d2_ShpW / d2_ShpH M8) and the case-0x40 SetSurfaceClip / DrawWindow pushes (ecx / edx). The mode
+   block after the tx test (w4-m4) gives everything after the text arm equal (no M8) but moves mode code
+   (68). No lever: the w spellings (o->w + 0, short w: 65), cx / cy locals (folded), tx / ty arms swapped
+   (68-76), the caption test as o == &d2_Objs[..] / d2_Objs + d2_PointerObj (= w5). flip.py on w4 (want or
+   ebp, 16): 5 of 1200 flips, all meaning changes. Open: a plain form that gives w at its original place 17
+   more priority (or the captionY temp 17 less). prior: dcp headers sample: insensitive. The hunks are one
+   register race in the case 5/8 text arm (lines 2080-2114): the original gives mode ebp and spills x for
+   the arm (mov ebp,[x slot] after d2_DrawTextBox), ours keeps x's web (c2trace prio 50, ebp) and gives
+   mode (prio 26) edi; the AddDirty / 0x40 hunks after it are the same permutation. Tried: mode / tx / ty
+   as block locals (= control), mode as else-0 chain / ternary (86 ins), nested (65, other code),
+   greyed-then-highlighted (70), mode computed after GetObjPicSize or just before the call (83 / 71), the
+   pooled ai_FloatZero / ai_FloatOne / cm_DoubleOne objects at the three M10 sites (7 combinations: same
+   instructions). flip.py (want the original's lea edi,[esi+0x7c]): 20 of 849 mutants flip it, all in the
+   window clip walk (x0/x1/y0/y1 clamps deleted / swapped / duplicated) or deleting a mode = 0, none closer
+   than 74 ins. Lead: the clip walk's four clamps as the original wrote them (the flips cluster there) - a
+   form that keeps their own code and changes x's weight. (tiebreak: insensitive) */
 
 void d2_DrawObjects(void) {
   D2OBJ *o, *p;
@@ -2135,6 +2140,8 @@ void d2_DrawObjects(void) {
           }
         }
         if (o->u.text[0]) {
+          int w;
+
           if (o->font)
             d2_SetFont(o->font);
           if (p)
@@ -2155,11 +2162,12 @@ void d2_DrawObjects(void) {
             tx = o->x + o->captionX;
           else
             tx = o->x + tw + 6;
+          w = o->w;
           if (o->captionY != -1)
             ty = o->y + o->captionY;
           else
             ty = o->y - 1;
-          d2_DrawTextBox(tx, ty, o->w, o->h, d2_ScreenSurf, o->u.text, mode);
+          d2_DrawTextBox(tx, ty, w, o->h, d2_ScreenSurf, o->u.text, mode);
         }
         if (o->caption[0] && &d2_Objs[d2_PointerObj] == o && !d2_FocusedInput &&
             !(o->style & 0x40)) {
