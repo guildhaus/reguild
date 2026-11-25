@@ -361,7 +361,7 @@ void d2_SetBackgroundTexture(char *name, int win); /* 0x4721e0 */
 void d2_CreateScrollButtons(int x, int y, int win, int obj,
                             int pic); /* 0x472270, creates the scroll buttons */
 /* clang-format off */
-int d2_CreateWindow();  /* 0x472390, creates a window, its index; -1 none free, 0 no surface. @original why: d2.c defines it K&R style (short x, y, w, h; unsigned int flags); every caller, d2.c's own after the definition too, pushes promoted ints (movsx; byte-matched d2_CreateChildWindow) */
+int d2_CreateWindow();  /* 0x472390, creates a window, its index; -1 none free, 0 no surface. @original why: d2.c defines it K&R style (short x, y, w; int h; unsigned int flags); every caller, d2.c's own after the definition too, pushes promoted ints (movsx; byte-matched d2_CreateChildWindow) */
 /* clang-format on */
 void d2_ScrollWindowBy(int a, int b, int win); /* 0x472760, scrolls a window */
 void d2_ResizeWindow(short w, short h,

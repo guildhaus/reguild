@@ -3898,38 +3898,15 @@ int pic;
   D2WOP(o)->scrollY = 0;
   d2_Wins[obj].visible = 0x30;
 }
-/* 0x472390, creates a window; returns its index, -1 if there is no free one, 0 if a surface could not be made
-   @deep 119 -> 46 ins. The hand pointer walk (p += 0xf1, (int)p bound) became the plain index scan j =
-   -1; for (i ..) if (!d2_Wins[i].active) { j = i; break; } if (j == -1) return j; (VC6 threads the
-   exhausted loop to its own or eax,-1 return as the original); the five parameter stores x, y, w, h, flags
-   (1 of 120 orders, -10). Tried: return in the loop / goto found / while / jm1 (j >= 0x60 -> -1) forms
-   (worse or equal), win = &d2_Wins[j] vs i = j placement (= one code, VC6 coalesces i and j), an __inline
-   d2_FreeWindow() helper (= the same code), the contentHeight / scrollY spellings (h1..h5, all one code),
-   clipx1 x + w (= control), flip.py on 'mov ebp, eax' (0 hits) and 'xor edi, edi' (hits only by changing
-   the -1 constants: none closer). Left (all at the head): the original keeps the constant 0 in edi from
-   the scan to the first stores (cmp [ecx], edi; spr / visible = edi) and runs the scan index in eax,
-   copied to ebp after the -1 test (cmp eax,-1; mov ebp,eax; the -1 return as or eax,eax); ours has the
-   zero in ecx and the index in ebp throughout; h is loaded as a dword into edx in the original (mov
-   edx,[esp+0x60]; movsx ecx,dx; mov eax,ecx for contentHeight / -h), ours mov dx, word and movsx eax,dx.
-   These are one allocator decision (the index split around the zero's edi); c2trace shows _i (prio 102)
-   taking ebp before the zero constant is served. (tiebreak: not measured (dcp headers sample
-   d2_CreateWindow)) prior: Read the whole 0x472390..0x472757 against the C: the free-slot scan over
-   d2_Wins (j, -1 when none), the fields, the three surfaces (0x1000, 1 && 0x1000, 0x10000) with their
-   early return 0, the window object (type 0x40, clip rectangle, data), the -1 / 0 / 1 initialisations,
-   objs / text allocation and the scroll marker pictures all correspond. Fixed: h is a short (the
-   original's movsx ecx, dx for contentHeight = h and the desc sizes); menu.c's caller keeps the original's
-   int pushes through the K&R declaration (byte-matched ai_CreditsScreen). Left is allocation: the
-   original keeps flags in ebx for the whole function (test bl / test bh, the final test bl, 8 without a
-   reload) and materialises -1 per use (or eax,-1), ours caches -1 in ebx (or ebx,-1 at the found test, mov
-   [esi+0x388], ebx ...) and holds flags in ecx, reloading its low byte at the end (mov bl, [esp+0x6c]);
-   the found test re... */
+/* 0x472390, creates a window; returns its index, -1 if there is no free one, 0 if a surface could not be made */
 
 int d2_CreateWindow(x, y, w, h, flags)
-short x, y, w, h;
+short x, y, w;
+int h; /* an int, unlike x, y, w: the window keeps it as win->h, which the code reads back */
 unsigned int flags;
 {
   D2SURF desc;
-  int i, j, ob;
+  int i, j, ob; /* ob doubles as the index of the free-slot scan */
   D2WIN *win;
   D2SURF *surf;
 
@@ -3937,16 +3914,16 @@ unsigned int flags;
   if (d2_WindowsOpen > 0x60)
     d2_WindowsOpen = 1;
   j = -1;
-  for (i = 0; i < 0x60; i++) {
-    if (!d2_Wins[i].active) {
-      j = i;
+  for (ob = 0; ob < 0x60; ob++) {
+    if (!d2_Wins[ob].active) {
+      j = ob;
       break;
     }
   }
+  i = j;
   if (j == -1)
     return j;
-  i = j;
-  win = &d2_Wins[i];
+  win = &d2_Wins[j];
   win->x = x;
   win->y = y;
   win->w = w;
@@ -3962,16 +3939,16 @@ unsigned int flags;
   if (flags & 4)
     win->frame = d2_WinBorderPic;
   if (flags & 0x200) {
-    win->contentHeight = h;
-    win->scrollY = -h;
-    win->appliedScrollY = -h;
+    win->scrollY = -win->h;
+    win->contentHeight = win->h;
+    win->appliedScrollY = -win->h;
   }
   if (flags & 1)
     win->alpha = 0.65f;
   if (flags & 0x1000) {
     memset(&desc, 0, sizeof desc);
     desc.w = w;
-    desc.h = h;
+    desc.h = win->h;
     win->surf0 = d2_MakeSurface(&desc, 0xb);
     if (!win->surf0)
       return 0;
