@@ -7416,28 +7416,34 @@ int ai_PenanceWindow(AICHAR *me, ORDMSG *m) {
       names the skill 0x16b7 + it).
    5: the poorest of the first 8 players (kinds 5 .. 7) gets 3 .. 7 % of his worth for a building found by
       ai_PickActionBuilding (the kinds 0x1b07d43b4; the text 0x1dff).
-   @deep s48: kept (133 -> 76 ins / 72 bytes): bld one function-scope local shared by the cases 0 / 2 / 5
-   and out one shared by 0 / 2 (case 5 keeps its own block-local out): c2frame then packs the case locals
-   into the original's slots (0x10 n / worth0 / id3 / id4 / the case-5 fild temp, 0x14 the case-0 fild temp
-   / v / flags3 / flags4 / worth5, 0x18 bld, 0x1c out, 0x20 case-5 out, 0x24 kind / chars, 0x44 office);
-   case 4's skill search as j = 5; while (j != 0) { if (..) { skill = i; break; } j--; i = (i + 1) % 5; }
-   (the original's dec ecx; test ecx,ecx). Left: the scratch rotation: the original starts the cases 1 and
-   3 at eax (lea eax text / lea eax &id) where ours continues the previous case's rotation (ecx / edx), and
-   case 5's two GetWorth id pushes are one step off; cases 2 and 4 agree. flip.py: case 1 flips only by
-   deleting case 0's tail or swapping its two last calls (meaning); case 3 flips by deleting / duplicating
-   case 2 statements or case 4 ones (del gain = util_Random, del cm_AddFieldValues) - the rotation is not
-   simply sequential in source order. Also left: the common tail's xor eax,eax (strcat inline) is the join
-   label's first instruction in the original. No lever: the tail written in each case (not cross-jumped,
-   121+), a switch (jump table), kinds as __int64 / QuadPart / literal / function scope, worth function
-   scope, the &ai_PlayerSlots argument spellings, climb 2 rounds. prior: s47: read the diff again. Two
-   independent things are left. (1) The frame packing (frame > 0x80: count * 1000 / size order) puts the
-   case locals into other slots of the shared dead-parameter area: case 0 bld at +0x14 / the rand fild temp
-   at +0x30 where the original has +0x18 / +0x2c, case 1 v at +0x10 against +0x14, case 2 out at +0x10
-   against +0x1c (dcp frame: the original packs me / worth / v / out / flags and which / bld / n across
-   arg+0..0xc in another order); c2frame --names would give the counts each needs. (2) From case 1 on, the
-   scratch registers are one step behind (ours lea ecx / edx for the first txt_Format / sprintf arguments,
-   the original eax / ecx), so one temporary more is handed out in ours before case 1 (case 0's tail or the
-   0x1df7 title). No variant round this session. */
+   @deep s69 (no kept change): the rotation is sequential in source order across the cases here: a probe
+   temp at the END of case 2 ('{ static char *pm; pm = line; }' after its txt_Format) puts case 3's first
+   lea into eax, the original's (the rest of case 3 then the original's too): so the original hands out ONE
+   more scratch temp between case 2's last txt_Format argument and case 3's first lea, with case 2's code
+   identical (a silent temp: a statement whose code was merged or removed after allocation, a second copy
+   of something that cross-jumped, or a CSE temp that folded). Case 1 needs the same: ours starts at ecx
+   after case 0's last 'lea eax,[text]', the original at eax again (two more temps, or the shift comes from
+   elsewhere). A probe temp at the start of case 2 shifts case 2 (other code); one at the start of case 1
+   gives other code (60). flip.py --want 'lea eax, _text .. push 7673' (case 1's first lea): 713 mutants,
+   one hit, a duplicated 'return;' in case 0 (kills case 0's tail; meaning). Also open: case 5's chars[n++]
+   = c ('lea edx,[ecx-2]' where the original has eax, then the GetWorth id pushes ax/cx one step off) and
+   the tail's 'xor eax,eax' scheduled first in the original (ours after 'or ecx,-1'). Next: per case, find
+   the silent temp at the case's end (case 0 and case 2 end in txt_Format(text, id, c->id, bld, ..): c /
+   bld read from another variable, the c->id reads as a local, a value written twice), measured by the next
+   case's first lea. prior: s48: kept (133 -> 76 ins / 72 bytes): bld one function-scope local shared by
+   the cases 0 / 2 / 5 and out one shared by 0 / 2 (case 5 keeps its own block-local out): c2frame then
+   packs the case locals into the original's slots (0x10 n / worth0 / id3 / id4 / the case-5 fild temp,
+   0x14 the case-0 fild temp / v / flags3 / flags4 / worth5, 0x18 bld, 0x1c out, 0x20 case-5 out, 0x24 kind
+   / chars, 0x44 office); case 4's skill search as j = 5; while (j != 0) { if (..) { skill = i; break; }
+   j--; i = (i + 1) % 5; } (the original's dec ecx; test ecx,ecx). Left: the scratch rotation: the original
+   starts the cases 1 and 3 at eax (lea eax text / lea eax &id) where ours continues the previous case's
+   rotation (ecx / edx), and case 5's two GetWorth id pushes are one step off; cases 2 and 4 agree.
+   flip.py: case 1 flips only by deleting case 0's tail or swapping its two last calls (meaning); case 3
+   flips by deleting / duplicating case 2 statements or case 4 ones (del gain = util_Random, del
+   cm_AddFieldValues) - the rotation is not simply sequential in source order. Also left: the common tail's
+   xor eax,eax (strcat inline) is the join label's first instruction in the original. No lever: the tail
+   written in each case (not cross-jumped, 121+), a switch (jump table), kinds as __int64 / QuadPart /
+   literal / function scope, worth function scope, the &ai_PlayerSlots argument spellings, climb 2 rounds. */
 
 void ai_Miracle(AICHAR *me, int which) {
   char text[0x400];
