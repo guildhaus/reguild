@@ -4783,31 +4783,11 @@ void sv_RunFramesUntilStopped(int id) {
    (sv_ClickedBuilding): a member already belonging to it is moved in at once (sv_MoveToGroup, its actions stopped and
    a goto message to the building's room object 0x146), the others (up to four) are collected into one 'C' message to
    the player with the clicked and the owning building's ids; each leaves the job's member slots and the selection.
-   The job is announced (cm_SendExSetHE) afterwards
-   @deep match-deep s53: tried, none closer (91 ins): job's uses re-read as c->job (every subset of up to
-   three of ten uses, 129 variants: best 91 ins / 595 bytes), kind = 'C' after job = c->job (= control),
-   job->kind into a temp before the kind store (595 bytes), c->bld tested before c->job (87 ins but the
-   original tests c->job first: wrong order), cur / job initialisation moved to every position (= control
-   or 589 bytes), the done test in the for condition (= control), a netId local in the second-member branch
-   (= control), the -1 fill indexed msg.arg[6 + k] (worse), owner != cur (worse). Read: the original keeps
-   cur in ebx although it never lives across a call (reloaded from sv_ClickedBuilding after each), so edx
-   is free for netId in both branches (ours: cur edx, netId ebp / edi); out lives in its slot and is cached
-   in edi, reloaded at the iteration join (mov edi,[esp+0x14] at 0x52be66), as sv_MessageBox's bar: the
-   original's loop or out spelling that gives this memory-variable-in-register caching is the open lead.
-   (tiebreak: insensitive) prior: read the whole function against 0x52bbc0..0x52beb5 (218 vs 217 ins): the
-   selected-character loop (signed i < 768, the done test first), the first member fixing the group job and
-   its kind 'C', the not-in-the-building branch first (the 'C' AIMSG: type, flags 2, to = the player's
-   netId, arg[0] / arg[1] the building ids, the ids from arg[6] with the -1 fill as rep stosd), the
-   in-the-building branch (gm_Query room 0x146, member slot cleared, sv_MoveToGroup, cm_SendChrStop,
-   cm_SendChrGotoBuilding, cur reloaded), the second-member branch with done after four, the selected flag
-   cleared, cm_SendExSetHE / cm_SendLongMessage: all equal. Left, allocation only (asmdiff --regs
-   ebx=ebp,edx=ebx,ebp=edx leaves only these): the original keeps cur in ebx and the job in ebp (ours edx /
-   ebx, so ours zeroes ebx for msg.type), keeps out in edi across the loop (ours reloads [esp+0x14] in the
-   second-member branc... */
+   The job is announced (cm_SendExSetHE) afterwards */
 void sv_SendSelectedToBuilding(void) {
   AIJOB *job;
   AICHAR *c;
-  AIBLD *owner, *cur;
+  AIBLD *owner;
   AIOBJ *room;
   int *out, *p;
   int n, done, kind, i, k;
@@ -4818,7 +4798,6 @@ void sv_SendSelectedToBuilding(void) {
   kind = 0;
   job = 0;
   owner = 0;
-  cur = sv_ClickedBuilding;
   msg.type = 0;
   out = &msg.arg[6];
   for (i = 0; i < 768; i++) {
@@ -4831,13 +4810,13 @@ void sv_SendSelectedToBuilding(void) {
       if (c->job != 0 && c->bld != 0) {
         kind = 'C';
         job = c->job;
-        if (job->kind == 'C') {
-          if (c->bld != cur) {
+        if (c->job->kind == 'C') {
+          if (c->bld != sv_ClickedBuilding) {
             msg.type = 'C';
             msg.flags = 2;
-            owner = c->bld;
             msg.to = ai_Chars[ai_PlayerId].netId;
-            msg.arg[0] = cur->id;
+            owner = c->bld;
+            msg.arg[0] = sv_ClickedBuilding->id;
             msg.arg[1] = owner->id;
             *out++ = c->netId;
             n++;
@@ -4846,12 +4825,11 @@ void sv_SendSelectedToBuilding(void) {
             for (k = 0; k < 4; k++) {
               if (job->members[k] == c->netId) {
                 job->members[k] = -1;
-                cur = sv_ClickedBuilding;
                 break;
               }
             }
           } else {
-            room = gm_Query(cur->objList, 1, 0, 0x146);
+            room = gm_Query(sv_ClickedBuilding->objList, 1, 0, 0x146);
             for (k = 0; k < 4; k++) {
               if (job->members[k] == c->netId) {
                 job->members[k] = -1;
@@ -4862,25 +4840,24 @@ void sv_SendSelectedToBuilding(void) {
             cm_SendChrStop(c->netId);
             cm_SendChrGotoBuilding(c->netId, sv_ClickedBuilding->id,
                                    room->objId, 0, 0, 0);
-            cur = sv_ClickedBuilding;
           }
         }
       }
     } else if (kind == 'C' && c->bld == owner && c->job == job) {
-      if (c->bld != cur) {
-        *out++ = c->netId;
+      if (c->bld != sv_ClickedBuilding) {
+        *out = c->netId;
         n++;
+        out++;
         for (k = 0; k < 4; k++) {
           if (job->members[k] == c->netId) {
             job->members[k] = -1;
-            cur = sv_ClickedBuilding;
             break;
           }
         }
         if (n > 3)
           done = 1;
       } else {
-        room = gm_Query(cur->objList, 1, 0, 0x146);
+        room = gm_Query(sv_ClickedBuilding->objList, 1, 0, 0x146);
         for (k = 0; k < 4; k++) {
           if (job->members[k] == c->netId) {
             job->members[k] = -1;
@@ -4891,7 +4868,6 @@ void sv_SendSelectedToBuilding(void) {
         cm_SendChrStop(c->netId);
         cm_SendChrGotoBuilding(c->netId, sv_ClickedBuilding->id, room->objId, 0,
                                0, 0);
-        cur = sv_ClickedBuilding;
       }
     }
     c->selected = 0;
