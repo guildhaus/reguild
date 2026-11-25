@@ -865,25 +865,32 @@ GMHEAD *gm_NameRecord(int kind, int id) {
    head numbers = the picture - 0x639); a spy (kind 0x11) one of the three spy heads; else the record of its job,
    or of its title, in the table of its sex (resolving its head icons), the table's first record when the title is
    not listed.
-   @deep size queue s18 (raw 576 vs 518; int k 481, ushort k 501: both too short for the padded 528).
-   c2trace corrects the earlier reading: p (prio -7, 15 refs, live over the whole body) loses ebp to v (the
-   picture, prio 14) and then esi to k; the TitleHeadsMale constant is no cause (probe: the fallback with
-   another table: same count). The original: v in edi, p in ebp, k in bl, the boy path returning gm_BoyHead
-   in eax through the final epilogue (je behind mov eax,ebp). No lever this round: child arm as two returns
-   (c1/c2/c3) x k uchar/int x p/i init order (12 variants: 103-135), v not a local (picture read in the
-   condition and again in the stores: = same count), climb --rounds 1 (best 125 via an
+   @deep deep s71: meaning re-read against the original block by block (child test jp = age >= f020 goes to
+   the adult path, own-name ring copy, spy util_Random & 0xffff, job do-loop with &p[i] fallthrough, title
+   loop with the i < 0x23 test, the title fallback keeping p when sex is neither 0 nor 1): equal; the
+   58-byte gap is the frame (sub esp 8 / add esp 8 at every exit), the spilled p / k and the merged
+   found-path copies. What the original has: k ONE byte candidate in ebx (test bl,bl at both tests, mov
+   ecx,ebx / and 0xff at each compare, the title key then in esi with the walker in edi), p split: the
+   child piece in eax (p = gm_BoyHead scheduled as mov eax,X before the je into the final epilogue) and the
+   main piece in ebp. Ours (uchar k): k's tests use a separate CSE web k#4 (ebx / eax), k itself only the
+   two loop compares (k#1 / k#2, prio -2), p prio -7 loses to v and ends in memory. Rounds: int k = 76 ins
+   / size -11 (p in ebp, structure right, but k via xor/mov al/mov esi and p = Boy in ebp, not split); char
+   98; unsigned int = control-like; no k local (field at each use) 92-99; k assigned in the condition, two
+   locals for job / title k, (int) / (unsigned) / swapped compare, inverted child test (!k && ..), child
+   arm as two returns / p = Girl / return p in the arm, title fallback returning Male directly, do-while
+   loops (gm_NameRecord's form): = control or worse. climb 2 rounds (beam 3): 125 via an
+   assignment-in-expression only. Next: what makes the uchar k one web (the tests not CSE'd apart from k):
+   c2trace --raw on the k#4 temp's creation; then p's split (needs pressure: p must lose the first
+   assignment). prior: size queue s18 (raw 576 vs 518; int k 481, ushort k 501: both too short for the
+   padded 528). c2trace corrects the earlier reading: p (prio -7, 15 refs, live over the whole body) loses
+   ebp to v (the picture, prio 14) and then esi to k; the TitleHeadsMale constant is no cause (probe: the
+   fallback with another table: same count). The original: v in edi, p in ebp, k in bl, the boy path
+   returning gm_BoyHead in eax through the final epilogue (je behind mov eax,ebp). No lever this round:
+   child arm as two returns (c1/c2/c3) x k uchar/int x p/i init order (12 variants: 103-135), v not a local
+   (picture read in the condition and again in the stores: = same count), climb --rounds 1 (best 125 via an
    assignment-in-expression for gm_OwnNameHeadLast, not applied). Next: what gives p a priority above v
    (fewer blocks where p lives unreferenced: p assigned only in the job / title / fallback paths, the
-   own-name and spy paths returning before p is set). prior: 129 ins, unchanged; the q walks are plain p[i]
-   index loops now (same code). headers sample: insensitive. Read: the original has no frame: p in ebp (0
-   at entry), i in edx (0 at entry, shared by both loops), k in bl (unsigned char: test bl,bl and the
-   per-compare mov ecx,ebx / and ecx,0xff), the ownName address in esi and the picture in edi (add
-   edi,-0x639), the child path returns gm_BoyHead in eax through the final epilogue. Ours spills p and k
-   (frame 8) because the gm_TitleHeadsMale address, used twice, takes ebx as a constant candidate (c2trace:
-   k's two webs prio -2, refs 1, the compares go through hoisted temps). Tried: k as int / unsigned / char
-   / unsigned short (int: no frame, p in ebp, 103 ins, but the original's byte loads and test bl,bl say
-   unsigned char), p = 0 / i = 0 / k orders (one code), the child arm returning both heads directly
-   (108-135), the fallback returning the tables d... */
+   own-name and spy paths returning before p is set). */
 
 GMHEAD *gm_CharNameRecord(int id) {
   GMHEAD *p;
