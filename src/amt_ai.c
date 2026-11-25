@@ -1312,7 +1312,6 @@ int ai_AimCannon(AICHAR *p, AIBLD *b, AIBLD *t) {
 int ai_FireCannon(AICHAR *p, AIBLD *b) {
   float u, v;
   D3VECTOR4 v1;
-  D3VECTOR4 v2;
   D3VECTOR4 v3;
   D3VECTOR4 v4;
   float f, c, g;
@@ -1343,15 +1342,17 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
       return 1;
     }
     if (ai_CannonShot.charge == 2) {
+      D3VECTOR4 v2;
+
       v1.x = ai_CannonShot.b.x * 40.0f;
       v1.y = ai_CannonShot.b.y * 40.0f;
       v1.z = ai_CannonShot.b.z * 40.0f;
-      v3.x = v1.x + ai_CannonShot.a.x;
-      v3.y = v1.y + ai_CannonShot.a.y;
-      v3.z = v1.z + ai_CannonShot.a.z;
       v2.x = v1.x + ai_CannonShot.a.x;
       v2.y = v1.y + ai_CannonShot.a.y;
       v2.z = v1.z + ai_CannonShot.a.z;
+      v3.x = v1.x + ai_CannonShot.a.x;
+      v3.y = v1.y + ai_CannonShot.a.y;
+      v3.z = v1.z + ai_CannonShot.a.z;
       v1.x = ai_CannonShot.d.x * 5.0f;
       v1.y = ai_CannonShot.d.y * 5.0f;
       v1.z = ai_CannonShot.d.z * 5.0f;
@@ -1374,6 +1375,8 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
       return 1;
     }
     if (ai_CannonShot.charge == 3) {
+      D3VECTOR4 t;
+
       v1.x = ai_CannonShot.b.x * 40.0f;
       v1.y = ai_CannonShot.b.y * 40.0f;
       v1.z = ai_CannonShot.b.z * 40.0f;
@@ -1386,33 +1389,33 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
       v1.x = v1.x + ai_CannonShot.a.x;
       v1.y = v1.y + ai_CannonShot.a.y;
       v1.z = v1.z + ai_CannonShot.a.z;
-      v2.x = ai_CannonShot.c.x * 5.0f;
-      v2.y = ai_CannonShot.c.y * 5.0f;
-      v2.z = ai_CannonShot.c.z * 5.0f;
-      v1.x = v2.x + v1.x;
-      v1.y = v2.y + v1.y;
-      v1.z = v2.z + v1.z;
-      v2.x = ai_CannonShot.c.x * -3.0f;
-      v2.y = ai_CannonShot.c.y * -3.0f;
-      v2.z = ai_CannonShot.c.z * -3.0f;
-      v4.x = v2.x + v4.x;
-      v4.y = v2.y + v4.y;
-      v4.z = v2.z + v4.z;
-      v3.x = v2.x + v3.x;
-      v3.y = v2.y + v3.y;
-      v3.z = v2.z + v3.z;
-      v2.x = ai_CannonShot.d.x * 5.0f;
-      v2.y = ai_CannonShot.d.y * 5.0f;
-      v2.z = ai_CannonShot.d.z * 5.0f;
-      v4.x = v2.x + v4.x;
-      v4.y = v2.y + v4.y;
-      v4.z = v2.z + v4.z;
-      v2.x = ai_CannonShot.d.x * -5.0f;
-      v2.y = ai_CannonShot.d.y * -5.0f;
-      v2.z = ai_CannonShot.d.z * -5.0f;
-      v3.x = v2.x + v3.x;
-      v3.y = v2.y + v3.y;
-      v3.z = v2.z + v3.z;
+      t.x = ai_CannonShot.c.x * 5.0f;
+      t.y = ai_CannonShot.c.y * 5.0f;
+      t.z = ai_CannonShot.c.z * 5.0f;
+      v1.x = t.x + v1.x;
+      v1.y = t.y + v1.y;
+      v1.z = t.z + v1.z;
+      t.x = ai_CannonShot.c.x * -3.0f;
+      t.y = ai_CannonShot.c.y * -3.0f;
+      t.z = ai_CannonShot.c.z * -3.0f;
+      v4.x = t.x + v4.x;
+      v4.y = t.y + v4.y;
+      v4.z = t.z + v4.z;
+      v3.x = t.x + v3.x;
+      v3.y = t.y + v3.y;
+      v3.z = t.z + v3.z;
+      t.x = ai_CannonShot.d.x * 5.0f;
+      t.y = ai_CannonShot.d.y * 5.0f;
+      t.z = ai_CannonShot.d.z * 5.0f;
+      v4.x = t.x + v4.x;
+      v4.y = t.y + v4.y;
+      v4.z = t.z + v4.z;
+      t.x = ai_CannonShot.d.x * -5.0f;
+      t.y = ai_CannonShot.d.y * -5.0f;
+      t.z = ai_CannonShot.d.z * -5.0f;
+      v3.x = t.x + v3.x;
+      v3.y = t.y + v3.y;
+      v3.z = t.z + v3.z;
       ai_InitShot(&s3, &v4.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_InitShot(&s1, &v3.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_InitShot(&s2, &v1.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
