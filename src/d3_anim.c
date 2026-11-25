@@ -1102,28 +1102,26 @@ D3ANIMDATA *d3_FindAnim(char *name) {
    bone transforms are matched by name. For a target mesh the packed (byte) positions are rebuilt: the per-vertex
    differences go to a temporary array, their bounding box (mn / mx, D3VECTOR4 as in the original's frame) gives
    base and scale, and each difference is quantised as (v * 255) / extent.
-   @deep deep s34: climb round 1 (526 mutants): best 16 ins / 14 bytes via a float local t = d.x used for
+   @deep deep s77: the (B) SIB stores and two of the three (A) edges follow the function's IL VOLUME (the
+   s75 lever): flip.py --want 'PTR \[ecx\+eax\+276\], edi' hit only on strcpy(a->name, name) duplicated /
+   deleted; probe3 sweeps: 14 or more dead loads '{ int dl; dl = a->nverts; }' anywhere (top, before
+   frames[1].time, in the dmesh arm; monotonic from 14 to 79, no wrap) or 8+ 'if (0) strcpy(a->name,
+   name);' or 20+ 'if (0) mem_Alloc(0, 0);' give all six stores [ecx+eax+..] and the mem_Alloc edges
+   dmesh-first: 2 ins / 6 bytes left (code 9cb63849: only the third edge at 0x434319, mov edi,[ebp+8] three
+   bytes early). Constant stores (z = 0, { int s; s = 0; }, 39 unused int locals) never count: it takes IL
+   with memory loads. The dead w components of the D3VECTOR4 locals (mn.w / mx.w = +-1e10, d.w = mx.w -
+   mn.w, v.w = tmp[i].w - mn.w) count as about 3 loads (threshold then 11 dead loads); without the loads no
+   flip. No-code spellings tried that move nothing: the bone-name address as D3ANIM_BONENAME / boneNames[i]
+   / &name[0x40 * (i + 1)] / name + 0x40 + 0x40 * i at all three sites x a->name / namePad / &name[0] (191
+   combos), the quantise with (tmp[i].x - mn.x) instead of v, scale from (mx.x - mn.x), min / max of
+   tmp[i].z instead of z (32 combos). So the original carries roughly 14 loads' worth of IL more that
+   compiles away (CSE'd or dead reads); look for redundant reads in its likely source (a macro that reads
+   its operands twice, a copy that re-reads a->frames / a->nverts per statement), then the third edge.
+   prior: deep s34: climb round 1 (526 mutants): best 16 ins / 14 bytes via a float local t = d.x used for
    scale.x and the x quantise divisor (a candidate more): the two mem_Alloc edges then reload dmesh first
    as the original, the third edge (0x434319) turns wrong, the six SIB stores (B) and the 0x43498c esi /
    eax order unchanged - the same partial result as the s-earlier block-scope extern probes, not kept (an
-   artificial copy, still 16). Nothing else in round 1 below 18. prior: orchestrator + research pass
-   2026-11-14, 16 ins left in two hunks, both read from the compiler. (A) reload order of the register
-   parameters mesh (edi) / dmesh (ebx) at three block edges behind the D3ANIM_COPY3 asm blocks: the
-   original has dmesh first at all three (0x434127, 0x43421c, 0x434319), ours mesh first at the two
-   mem_Alloc edges and dmesh first at the third. Cause: the edge loads are emitted in ascending candidate
-   id of the split pieces, ids are recycled from a LIFO free list, so two split generations come out in
-   opposite orders; the initial ids depend on (unit symbol ordinal & 0x3f) of the function's seven string
-   literals and d3anim_Tail. Sweep of all 64 x 64 states plus 1500 random ones through a proxy hook: every
-   state gives mesh-mesh-dmesh or dmesh-dmesh-mesh, never the original's - so no declaration set fixes it
-   for this source; the original's source differs in candidate structure (two candidates fewer in the first
-   split, or another set in the second). Nine block-scope externs (probe only) give the two mem_Alloc sites
-   right and the third wrong. (B) six stores a->frames[1].bone[i].x: ours [eax+ecx+0x114], the original
-   [ecx+eax+0x114]; base / index are the first / second operand of the IL add, fixed before strength
-   reduction; not hash state (0 flips in 2500 states); flips with unsigned i (all compares wrong) or when
-   the dmesh loop and its twin use different index variables (one instruction more: the shared i = 0
-   splits). No code-neutral lever in 2916 index-variable assignments, 15 spellings of the bone address, 31
-   block-scope placements, struct assignment. Tools: scratch morphanim\\c2x.py (candidate ids, free list,
-   edge loads). (tiebreak: sensitive) */
+   artificial copy, still 16). Nothing else in round 1 below 18. */
 
 D3ANIMDATA *d3anim_CreateMorphAnim(D3BGF *mesh, D3ANIMDATA *src,
                                    D3ANIMFRAME *frame, D3ANIMDATA *dst,
