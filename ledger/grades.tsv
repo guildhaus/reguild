@@ -1010,7 +1010,7 @@ exe	0x004545c0	d3_MatFromAngles	d3_vec	byte	readable
 exe	0x00454690	d3_MatToAngles	d3_vec	byte	readable		
 exe	0x00454700	d3_TriNormal	d3_vec	byte	readable		
 exe	0x00454780	d3_MirBoundaryEdges	d3_mir	byte	readable		
-exe	0x00454890	d3_MirCreateOutline	d3_mir	shape	readable	deep	
+exe	0x00454890	d3_MirCreateOutline	d3_mir	byte	readable		
 exe	0x00454be0	d3_MirCreatePlanes	d3_mir	byte	readable		
 exe	0x00454ec0	d3_MirTransform	d3_mir	byte	readable		
 exe	0x00454f70	d3_MirBoxInPlanes	d3_mir	byte	readable		
@@ -1473,7 +1473,7 @@ exe	0x00483a60	ai_CalcMeisterFernhaendler	ai	byte	readable
 exe	0x00483d30	ai_StartBuildingWork	ai	byte	readable		
 exe	0x00483ee0	ai_EndWorkerPose	ai	byte	readable		
 exe	0x00483fc0	ai_EvaluateProductionGraveyard	ai	byte	readable		
-exe	0x00484a60	ai_EvaluateProductionGypsies	ai	shape	readable	deep	
+exe	0x00484a60	ai_EvaluateProductionGypsies	ai	byte	readable		
 exe	0x004854f0	ai_UpdateProduction	ai	byte	readable		
 exe	0x00486190	ai_FillSlotTable	ai	byte	readable		
 exe	0x004864b0	ai_BuildTradeOffers	ai	byte	readable		
