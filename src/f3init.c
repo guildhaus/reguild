@@ -989,30 +989,27 @@ void init_PlaceOffices(int n, int *out, int *ids) {
    gm_PlayerFactor), the office flags (field 0x1cc) and the first office of the kinds 0x23 .. 0x25, then the
    spouses of the unmarried (cm_SendRelations both ways, a child of kind 8 when the age gap is above 5), and
    eight extra pairs of the kind 3 characters. Sends the field blocks / characters over the network; returns 1.
-   @deep match-deep 48: kept: ai_FloatOne for the 1.0f of fl (resolves the open M10: the original refers
-   to the pooled datum) and the age table t[30] split from lv[10] / money[10] (the frame now puts ids at
-   the original's 0x138; 219 -> 191 ins). headers sample insensitive. Tried with no change (= control):
-   msg0 with (unsigned short) / & 0xffff on util_Random(2), (float) cast in the msg4 product, (unsigned
-   char) level index; frameorder.py probes: local names never move the frame (ties of references per byte
-   are not broken by name), one ids reference fewer moves ids above all office structs. t stores grouped by
-   value: 213 vs 219 (before the split). Left: frame order of kind / ob1 / ob3 / ob2 / rec (original 0xf0
-   kind, 0x108 ob1, 0x120 ob3, 0x1b0 ob2, 0x1c8 rec; ours ob1 0xf0, ob2 0x108, ob3 0x120, rec 0x1b0, kind
-   0x1c8: the original's reference density differs), the t[] init constant registers (original eax=0x12
-   first, ebp=0 late), the t add loop i*4 vs the original's byte offset (add esi,4 / cmp 0x78), msg0 = 2 in
-   ebx across the office loop (push ebx for util_Random(2)) where ours stores the immediate, the level
-   reloaded from kind+8 after util_Random(2) (ours keeps it in esi from the msg5 expression), the money
-   product order ((r+1)*fl)*(msg3*0.01) vs ours (r+1)*(msg3*0.01)*fl, the spouse loop's u/v/k registers
-   (ebx/edx/ecx vs ebx/ecx/edx) (tiebreak: not measured (dcp headers sample init_CreateStartCharacters))
-   prior: read against the whole original 0x50e690..0x50f0a1 and corrected: signed level /3 and int money
-   (msg3), loop bounds n>=30/n>=12 and the signed table end, wait loops as while (j != -1 &&
-   cm_GetSlotState(j) == 0) (the byte-matched amt_CheckOffices shape), one shared SetField wait (else j =
-   -1), the spouse loop as do .. while (u && v) with the job ternary u-first, the 8-pair loop's create
-   arguments inline (util_Random(4) + 0xf unmasked), gm_PlayerFactor's first argument inline, the true
-   parameter types of amt_SendOfficeOwner (char, char *, unsigned char) and gm_AgeCharacter (unsigned
-   short); 458 -> 217 differing, 758 vs 761 instructions, frame equal. Left: allocation and scheduling -
-   the constants of the t[] init in other registers (ours ebp=0x10/ecx=0x18/edx=0x19, original ebx/edx/ecx)
-   and cnt in ebx vs ebp; the t[] add loop indexed i*4 (inc esi, [esp+esi*4]) where the original keeps a
-   byt... */
+   @deep s87 no change (189). The t[] add loop: the original strength-reduces the index to a byte offset
+   (mov edx,[esp+esi+0x2c] / add esi,4 / cmp esi,0x78), ours keeps i * 4; every loop variable (j, k, h, w,
+   n), do / while, t[i] = t[i] + .., *(t + i), a temp for util_Random (c: 235, h: = control), i <= 29
+   (231), i != 30 / sizeof bound (191) leave it at i * 4. Byte functions with the byte-offset form
+   (grep_orig `[esp+esi+0x..]`, e.g. ai_DecideChangeProfession own[k] = gm_TitlesLeft(..) for k = 1 .. 15)
+   have a call result stored into the element, not an add. Open: what makes VC6 drop the i * 4 here
+   (another use of t in the loop? the element read before the call?). prior: match-deep 48: kept:
+   ai_FloatOne for the 1.0f of fl (resolves the open M10: the original refers to the pooled datum) and the
+   age table t[30] split from lv[10] / money[10] (the frame now puts ids at the original's 0x138; 219 ->
+   191 ins). headers sample insensitive. Tried with no change (= control): msg0 with (unsigned short) / &
+   0xffff on util_Random(2), (float) cast in the msg4 product, (unsigned char) level index; frameorder.py
+   probes: local names never move the frame (ties of references per byte are not broken by name), one ids
+   reference fewer moves ids above all office structs. t stores grouped by value: 213 vs 219 (before the
+   split). Left: frame order of kind / ob1 / ob3 / ob2 / rec (original 0xf0 kind, 0x108 ob1, 0x120 ob3,
+   0x1b0 ob2, 0x1c8 rec; ours ob1 0xf0, ob2 0x108, ob3 0x120, rec 0x1b0, kind 0x1c8: the original's
+   reference density differs), the t[] init constant registers (original eax=0x12 first, ebp=0 late), the t
+   add loop i*4 vs the original's byte offset (add esi,4 / cmp 0x78), msg0 = 2 in ebx across the office
+   loop (push ebx for util_Random(2)) where ours stores the immediate, the level reloaded from kind+8 after
+   util_Random(2) (ours keeps it in esi from the msg5 expression), the money product order
+   ((r+1)*fl)*(msg3*0.01) vs ours (r+1)*(msg3*0.01)*fl, the spouse loop's u/v/k registers (ebx/edx/ecx vs
+   ebx/ecx/edx) (tiebreak: not measured (dcp headers sample init_CreateStartCharacters)) */
 
 int init_CreateStartCharacters(int unused) {
   int t[30] = {
