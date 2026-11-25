@@ -196,20 +196,30 @@ unsigned short path_Search1(D3SM *map, int sx, int sy, short ex, int ey,
 /* 0x425780, expands node n (the parameter, kept as self while the parameter becomes the head) of map: flags it closed, tests its 8 neighbours against the other
    search (path_TestFlag), relaxes their g/f and keeps the open list sorted by f; returns the open
    list head, or (unsigned short)n when it met the other search (path_Meet is set).
-   @deep kept (222 -> 64 ins, frame now 0x10 = original): the parameter is reused as the open-list head
-   (the original keeps head in n's slot, returns it with mov ax,[slot]: unsigned short return, header
-   changed) with a copy self = head made first, k and q unsigned short, the stamp tests split into
-   'stamp == Stamp && !(g < nb->g) continue' and 'stamp == Stamp && (flags & 1)' (the original re-compares
-   cx,bx), the unlink written prev != 0xffff first. Left: path_Target loaded as and ebx,0xffff (original
-   xor ebx,ebx; mov bx), nb->parent through ax (original cx), and the insert loop: the original compares
-   p->next in memory, keeps &p->next in ecx (lea ecx,[edi+0x16]) and reloads q = [ecx] after the f test,
-   with p in edi and q in edx; ours CSEs p->next into cx and swaps edi/edx. Tried = control: q = head
+   @deep s84 (159 ins at start): climb 2 rounds best 127 via cur->flags RMW before head = cur->next plus an
+   int local t = nb->stamp for the three stamp tests; but the original keeps the 16-bit compares (cmp
+   cx,[Stamp], then mov bx,[Stamp]; cmp cx,bx twice) that the control already has (only dx vs bx), so the
+   int local only reshuffles allocation (short / unsigned short locals 153-202; the swap alone 176, its RMW
+   then runs before the next load, the original interleaves them: head = cur->next stays first). Register
+   reading: original self in ebx at the top and reloaded into ebx per pass (mov ebx,[esp+0x18]),
+   map->entries in edx; ours self edx, entries ebx (c2trace: temp#184 = the nb->stamp/flags CSE and
+   temp#1d8 = path_Target take ebx first; self#5 only gets edx in pass 6). Insert loop: the original tests
+   p->next in memory and CSEs only the address (lea ecx,[edi+0x16]; q = mov dx,[ecx] after the f test),
+   with q = head in edx before the head test; flip.py (want lea e..,[e..+22]) 0 hits of 235; = control: q =
+   head before the head test, for-form, (int) / (unsigned short) casts; (short)p->next != -1 (165) and the
+   tail test via p (211) worse. Open: the candidate that pushes self out of ebx in the head, and the
+   &p->next address CSE. prior: kept (222 -> 64 ins, frame now 0x10 = original): the parameter is reused as
+   the open-list head (the original keeps head in n's slot, returns it with mov ax,[slot]: unsigned short
+   return, header changed) with a copy self = head made first, k and q unsigned short, the stamp tests
+   split into 'stamp == Stamp && !(g < nb->g) continue' and 'stamp == Stamp && (flags & 1)' (the original
+   re-compares cx,bx), the unlink written prev != 0xffff first. Left: path_Target loaded as and ebx,0xffff
+   (original xor ebx,ebx; mov bx), nb->parent through ax (original cx), and the insert loop: the original
+   compares p->next in memory, keeps &p->next in ecx (lea ecx,[edi+0x16]) and reloads q = [ecx] after the f
+   test, with p in edi and q in edx; ours CSEs p->next into cx and swaps edi/edx. Tried = control: q = head
    before the head test, for(;;) with break, (unsigned short) shift, abs() splits/inline h, tail test
-   through q without casts; worse: loop over map->entries[q].next (+114), p->f > f (+6), tail test through p
-   (+115), q = map->entries[q].next (+114). (tiebreak: insensitive, dcp headers
-   sample path_Expand: 32 samples, one codegen) prior: behaviour only: after the double 0.0 and counting-for fixes the remaining
-   hunks are register allocation and stack slot layout (our frame sub esp,0x14 vs original sub esp,0x10,
-   slots 16); readable met */
+   through q without casts; worse: loop over map->entries[q].next (+114), p->f > f (+6), tail test through
+   p (+115), q = map->entries[q].next (+114). (tiebreak: insensitive, dcp headers sample path_Expand: 32
+   samples, one codegen) */
 
 unsigned short path_Expand(D3SM *map, unsigned short head) {
   D3SMENTRY *cur, *nb, *p;
