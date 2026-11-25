@@ -2993,7 +2993,7 @@ exe	0x004ff450	gm_RandomMarketShake	f3gm	6404493593e4e5da	no	shape	sweep control
 exe	0x004ff550	gm_UpdatePrices	f3gmt	bb64e8d0fba62053	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	79339d26d6139306
 exe	0x004ff8c0	gm_GoodsDemand	f3gm	747d1674d7782fc0	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ff950	gm_GoodsStock	f3gm	a3d1bd1cdfdb2f2b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
-exe	0x004ffa10	gm_StockPrice	f3gmt	be20570edc969d8d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	9d735134a35596f3
+exe	0x004ffa10	gm_StockPrice	f3gmt	835c2cfc9b0a3633	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=127	b307ad00c0fb38ea
 exe	0x004ffbf0	gm_GoodsValue	f3gm	3836209e5c5f8f3d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc40	gm_FindGoods	f3gm	ef3306d28a47d032	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x004ffc90	gm_MapDistance	f3gm	cda55d663378db8b	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
