@@ -398,25 +398,23 @@ void ai_GraveDeadName(GVGRAVE *e, char *out);
    Section 7: a free grave shows its size's name (txt 0x4100), else the holder (the character's name, or the
    item of that id), the year "AD %i" (until + 1400) and the state in percent (txt 0x4101 .. 0x4103); with flag 1
    a slider (0xbf, txt 0x42f1) 0xb4 wide is added at the bottom. The scroll position is restored
-   @deep s36: the trait loop as for (k = 0; k < 5; k++, y += 0xd) (the original increments k before y: inc
-   ebx / add esi,0xd): 22 -> 20 ins, kept. Left: the constant 0 web only (c2trace: const#0#28 lines 717-795
-   takes ebp in pass 7 at savings 0; the original's 0 piece ends at the fill loop, push 0 / test after it)
-   and the n=0 slot store before the first loop. No lever (= control): items local dropped for ((GVWIN
-   *)w)->items (24), the fill through items[] (24, other code), loop 1 through w->items, NULL, !flag, c !=
-   0, item = items + i, separate obj locals for the text objects / trait labels, saved = 0 moved after the
-   fill (22, other bytes). climb round 1: nothing. prior: draft 30 -> shape 22 ins. Kept: the labels "%s:"
-   / "%1N3" (literals of this unit's run since s11); the item fill as the plain index loop ((GVWIN
-   *)w)->items[i].grave / id / btn (gives the original's lea [n*3+0x51] form; the int-pointer walk is
-   gone); the collect loop as items[n].f with n++ (the item++ walk: 24, a count-free bound in the for: 34).
-   Left: the constant 0 web: the original zeroes ebp at entry, re-zeroes it only on the collect loop's path
-   (xor ebp,ebp before the join) and later pushes immediates / test; ours keeps const#0 in ebp after the
-   main loop (push ebp x2 for sv_CreateScrollButtons, cmp esi,ebp / mov [esp+0x10],ebp, cmp eax,ebp, an
-   extra xor ebp,ebp after the main loop, the n spill before the collect loop moving the jle target).
-   Tried: 6 fill store orders (all worse), saved = 0 in an else (25), n = 0 in the for-init / while fill /
-   init order (= one code), flip.py --want two push 0 (25 mutants, only meaning-changing ones closer: the
-   fill's grave = 0 constant is the reference that decides). Open: M10 100.0f vs ai_FloatHundred (no view
-   of full_rdata_5ebb40 in sv_t). Next: c2trace.py on the const#0 pieces (ids 1/2/3 of 6 webs) to see which
-   web takes ebp. (tiebreak: not measured (dcp headers sample ai_GraveDetail)) */
+   @deep deep s78: the 0 / -1 constant webs are at the margin. c2trace --split: const#0#28 (pass 7, 13
+   refs, lines 437-517, sav 0) keeps ebp from the entry to the else-branch loop; the original's ebp-0 piece
+   ends at the fill loop (push 0 / test / mov [i],0 after it). Probe rounds (whole-function variants, a
+   probe store before every statement, probe3 counts of push 0 / xor ebp / test esi / mov [i],0): one more
+   0 store anywhere = control except inside the loop-1 found arm (the 0 web then gives way, but -1 takes
+   ebp: 46 ins); one more -1 store almost anywhere makes ebp the -1 constant (or ebp,-1, every later 0 an
+   immediate: the original's later code, the fill's -1 stores then wrong). So the original has the 0 web
+   lighter (or -1 heavier by less than one store) than ours; flip.py --want 'mov [i],0': only meaning
+   changes (grave = 1: 17 ins, all later hunks gone), fill store orders (30 / 41), chained saved = n = 0
+   (22), fill through an item pointer (22), while fill (= control). Open: which reference of 0 after the
+   fill the original lacks. prior: s36: the trait loop as for (k = 0; k < 5; k++, y += 0xd) (the original
+   increments k before y: inc ebx / add esi,0xd): 22 -> 20 ins, kept. Left: the constant 0 web only
+   (c2trace: const#0#28 lines 717-795 takes ebp in pass 7 at savings 0; the original's 0 piece ends at the
+   fill loop, push 0 / test after it) and the n=0 slot store before the first loop. No lever (= control):
+   items local dropped for ((GVWIN *)w)->items (24), the fill through items[] (24, other code), loop 1
+   through w->items, NULL, !flag, c != 0, item = items + i, separate obj locals for the text objects /
+   trait labels, saved = 0 moved after the fill (22, other bytes). climb round 1: nothing. */
 void ai_GraveDetail(AIBLD *rec, GVWIN *w, int clicked, int flag) {
   int i;
   GVENTRY *e;
