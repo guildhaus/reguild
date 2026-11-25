@@ -184,25 +184,26 @@ void veg_GrowPlants(G15PLANT *p) {
 }
 /* 0x4bc940, loads plant q's model ("%svegetation/*pfl_<type>_0<n>[_FALL].ogr"), names it "_ID<id>" and places it
    on the height map (origin + x * axisx + z * axisz + height * axisy).
-   @deep s42: the original's three height statements load tr->heights into ecx / ebp / edi (registers freed
-   as q and z die: allocator choices, not the scratch rotation), add it to z * size first and index [edx +
-   x(esi)], so ecx is free for the byte; ours adds x first and indexes [edx + heights] with the byte in bl
-   (o spilled). = control: *(heights + x + z * size), (heights + x)[z * size], (heights + z * size)[x],
-   (heights + size * z)[x], heights[x + size * z], int casts on x / z, both pointer-sum orders: VC6
-   canonicalises the address, the spelling is no lever. int / unsigned / unsigned char x local (x = q->x
-   before the placement): 69-73 ins but the height part then has the original's order ((size * z + heights)
-   + x) with eax / esi / edi registers. Next: what makes the heights load a register candidate (one CSE web
-   per statement?) and x the index register; c2trace on the height lines. prior:
-   match-deep 2026-11-10: headers sample insensitive (32 samples, one codegen). Kept: q->x / q->z read at
-   their uses instead of int locals x, z (40 -> 36 ins; x's fild temp now shares [esp+0x10] as in the
-   original). Left: the height address - the original forms (z*size + heights) and indexes [edx + x] so ecx
-   is free for the zero-extended byte (heights reloaded into ecx, ebp, edi), ours forms z*size + x and
-   indexes [edx + heights], needs bl and spills o (ebx) to [esp+0x20], which also sinks pos[2]'s
-   fmul/fadd/fstp past the call's pushes (hunks 0x4bcb02, 0x4bcb21, 0x4bcb46, 0x4bcb61). All = control:
-   (heights + z*size)[x], *(heights + z*size + x), x first, (int)/(unsigned char *) integer address
-   arithmetic, (unsigned) index or size, int/float casts on the height, axisy first / explicit pos = pos +
-   .. forms, a row pointer or index local assigned per component, pos as D3VECTOR; unsigned/uchar/ushort x,
-   z locals and D3VECTOR4 pos are worse. */
+   @deep deep s71 (spare): the original has int locals x = q->x (esi) and z = q->z (edi) taken after the
+   three org stores (each fild from the one temp [esp+0x10], the (float)x kept on the FPU for its three
+   products). Round x / z local x placement (before the if, top of the block, after the org stores) x type
+   (int, uchar) x 7 height spellings (height[z*size+x], [size*z+x], [x+z*size], (height+z*size)[x],
+   *(height+z*size+x), (z*size+height)[x], *(z*size+height+x)): the spellings are one code each
+   (canonicalised); best int locals after the org stores, 40 ins (control 36): the x / z / fild part is
+   then the original's, left the height address (ours z*size + x, [edx + heights], byte in bl with o
+   spilled to [esp+0x20]; the original z*size + heights, [edx + x], byte in cl, heights loaded into ecx /
+   ebp / edi) and the last statement's fmul sunk past the call pushes. grep_orig finds no byte function
+   with the imul / add heights / [edx+esi] form. Next: what makes heights the add operand and x the index
+   (c2trace on the height lines with the int-locals text). prior: s42: the original's three height
+   statements load tr->heights into ecx / ebp / edi (registers freed as q and z die: allocator choices, not
+   the scratch rotation), add it to z * size first and index [edx + x(esi)], so ecx is free for the byte;
+   ours adds x first and indexes [edx + heights] with the byte in bl (o spilled). = control: *(heights + x
+   + z * size), (heights + x)[z * size], (heights + z * size)[x], (heights + size * z)[x], heights[x + size
+   * z], int casts on x / z, both pointer-sum orders: VC6 canonicalises the address, the spelling is no
+   lever. int / unsigned / unsigned char x local (x = q->x before the placement): 69-73 ins but the height
+   part then has the original's order ((size * z + heights) + x) with eax / esi / edi registers. Next: what
+   makes the heights load a register candidate (one CSE web per statement?) and x the index register;
+   c2trace on the height lines. */
 
 void veg_LoadModel(G15PLANT *q, int fall) {
   G15TREE *t;
