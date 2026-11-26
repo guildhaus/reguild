@@ -690,10 +690,15 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    5040 orders of the seven first-switch case groups 118. Natural table forms tried: a local 't =
    ai_PokerTable' through the whole function / the first loop / after the loop (155-158: no reload after
    RateHand, the original reloads), the loop counter as a block local i (154, frame 0x4c, same swap), while
-   (= control), the bound as sizeof(seat) / sizeof(seat[0]) (160). G10GAME has no seat count. Next: the
-   shared 'cmp; setle; mov esi' tail suggests the original wrote the g1 / r1 cases with one comparison
-   statement (a shared local pair, e.g. 'a = g1[0]; b = g1[1];' then one 'w = a <= b;' after the switch),
-   which would also add blocks and references that move the IV / table priorities. prior: deep s72: meaning
+   (= control), the bound as sizeof(seat) / sizeof(seat[0]) (160). G10GAME has no seat count. s76: the
+   shared-compare form (the g1 / r1 cases set 'x = g1[0]; y = g1[1]; cmp = 1;', one 'if (cmp != 0) w = x <=
+   y;' after the switch or inside its else, cmp = 0 at the top or before the switch): 192-207, the table
+   drops to prio 0 (ebp), the IV stays 76 (edi): no lever, and so the init / case-order rounds were not
+   rerun on it. The original's one shared 'cmp; setle; mov esi' tail is VC6's cross-jumping of the separate
+   'w = g1[0] <= g1[1]' / 'w = r1[0] <= r1[1]' cases, which needs equal scratch registers in every copy: it
+   follows from the allocation, not from the text. Next: the table / IV order remains the key (with it the
+   init zeros and the HighCard setle register are next); look for a plain statement in the init block or
+   first loop that reads the table (worth +19 / +12..28 each, about +65 needed). prior: deep s72: meaning
    re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc entry by entry, every
    winHand store / return, the call orders): equal; the size gap (903 vs 842) was layout, now 834 vs 842.
    195 -> 158 ins: (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if (g1[0] > g1[1]) w = 0; else
