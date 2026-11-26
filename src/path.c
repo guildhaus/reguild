@@ -195,37 +195,7 @@ unsigned short path_Search1(D3SM *map, int sx, int sy, short ex, int ey,
 }
 /* 0x425780, expands node n (the parameter, kept as self while the parameter becomes the head) of map: flags it closed, tests its 8 neighbours against the other
    search (path_TestFlag), relaxes their g/f and keeps the open list sorted by f; returns the open
-   list head, or (unsigned short)n when it met the other search (path_Meet is set).
-   @deep s(this) 159 ins at start. Mechanism of the head hunk (self ebx / entries edx in the original, ours
-   swapped): temp#184#1 (map->entries CSE of the loop head, pass 3, avail{edx ebx}) takes ebx because its
-   scores are edx=200 (path_Target's waiting piece has only edx, sav 2 x 100) against ebx=0 (c2trace --raw:
-   'scores' line after ASSIGN temp#184). The original needs ebx scored higher: the waiting pieces
-   head/self/dir/cur/map (avail{edx ebx} in ours) must have only ebx, i.e. something holds edx over the
-   block of 'if (head == 0xffff)' (line of the insert block) by pass 2. In the original that is head
-   itself: mov edx,[head] at 0x425995 inside the flags RMW, cmp dx,ax, and edx stays q's first value into
-   the insert loop (nb->next = q from dx on the first pass; p = &entries[head] reloads head from the slot).
-   Ours puts head#8 there in edi (pass 6) and q in edi, p in edx. Shown with the climb's meaning-wrong c2
-   text (f inlined + unsigned short t = nb->f before that test: the ftol call blocks edx there): 81 ins,
-   the whole loop head byte-equal up to the f store. Rounds: climb 6 rounds from the tree (int t =
-   nb->stamp, int v = nb->type, (path_Costs[v]), f inlined): 80 but movsx compares, not the original's cmp
-   cx,[Stamp]; without t / v 139-165. f inlined alone 151, but the original keeps f (fstp [esp+0x1c]; mov
-   eax,[esp+0x1c]; mov [esi+8],eax). climb 4 rounds without the local / inline operators: 149 (path_Meet =
-   k first, nb->f = f before parent), head unchanged. = control: dy first, h inline, path_Target == k, head
-   = self; return head. Worse: nb == &entries[path_Target] (168), head reorders (177-187), short dx,dy
-   (143, movsx). Left: the head swap above, then the insert loop (&p->next address CSE in ecx, q in edx, p
-   in edi). prior: s84 (159 ins at start): climb 2 rounds best 127 via cur->flags RMW before head =
-   cur->next plus an int local t = nb->stamp for the three stamp tests; but the original keeps the 16-bit
-   compares (cmp cx,[Stamp], then mov bx,[Stamp]; cmp cx,bx twice) that the control already has (only dx vs
-   bx), so the int local only reshuffles allocation (short / unsigned short locals 153-202; the swap alone
-   176, its RMW then runs before the next load, the original interleaves them: head = cur->next stays
-   first). Register reading: original self in ebx at the top and reloaded into ebx per pass (mov
-   ebx,[esp+0x18]), map->entries in edx; ours self edx, entries ebx (c2trace: temp#184 = the
-   nb->stamp/flags CSE and temp#1d8 = path_Target take ebx first; self#5 only gets edx in pass 6). Insert
-   loop: the original tests p->next in memory and CSEs only the address (lea ecx,[edi+0x16]; q = mov
-   dx,[ecx] after the f test), with q = head in edx before the head test; flip.py (want lea e..,[e..+22]) 0
-   hits of 235; = control: q = head before the head test, for-form, (int) / (unsigned short) casts;
-   (short)p->next != -1 (165) and the tail test via p (211) worse. Open: the candidate that pushes self out
-   of ebx in the head, and the &p->next address CSE. */
+   list head, or (unsigned short)n when it met the other search (path_Meet is set). */
 
 unsigned short path_Expand(D3SM *map, unsigned short head) {
   D3SMENTRY *cur, *nb, *p;
@@ -265,7 +235,7 @@ unsigned short path_Expand(D3SM *map, unsigned short head) {
       } else {
         dx = (path_Target >> path_Shift) - (k >> path_Shift);
         dy = (path_Target & path_Mask) - (k & path_Mask);
-        h = (float)(abs(dx) + abs(dy)) * path_Weight;
+        h = (double)(abs(dx) + abs(dy)) * path_Weight;
       }
       f = h + g;
       nb->g = g;
