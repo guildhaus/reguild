@@ -6644,25 +6644,16 @@ int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1,
    (ai_FindGoodToMake, sub-action 0x39), else build the next type of its line; when the treasury (object 0x142)
    cannot pay, a credit to it (o1 kind 1, o2 kind 0x12) from the character's money above 80000 (a quarter, half
    for the new type)
-   @deep s71 (108 -> 99 ins, size 999 vs 996): kept 'n = ai_RepairCost(bl, need); if (n > money) { amt = n;
-   credit: ..}': the credit's entry moves 'mov esi,eax; mov ebx,1' are now the original's (amt esi, the
-   constant 1 in ebx through goods + credit); = with m / need as the temp. What is left: the 0.25 credit
-   block lies behind the goods test in ours, behind the repair test (jle goods) in the original, plus the
-   goods fill order that follows from it. Block order is the RPO of a DFS taking each test's jump edge
-   first; the goods block is always visited before the repair test's fall edge, so with any goto to the
-   repair credit the credit lands in the goods subtree (G2 label in goods + goto from repair: 132, frame
-   0x34; G4 'if (amt >= money) {..} goto credit': 116; G5 'if (amt <= money) goto good;': = control).
-   c2pass --skip 0x10703443 (C1's block order) on the kept text lays the credit behind the repair test as
-   the original does: so either two credit copies cross-jumped after allocation, or the original's text has
-   a flow graph the DFS model does not cover. Two copies, every form 192-329 (records blk / function scope
-   x repair amt / n-copy x goods 'if (amt < money) {copy}' / 'if (amt >= money) {..} copy' x guard split /
-   '||' credit tests / '&&' credit block / k switch): function-scope records keep the frame (blk: 0x34),
-   but o1 then ranks 69 (+30 repair copy P5, +36 goods copy P6, +56 new-type P7, +30 end credit) and takes
-   edi before o 60 / lvl 48 / money 47; the original keeps o1 in memory, so o1 <= 46 or o / lvl / money
-   above it. climb --base (two copies) 2 rounds: nonsense mutants only. Next: find a flow graph where goods
-   cannot reach the repair credit without a second copy's references (a flag set in both arms and one
-   credit test behind them, decided per path), or the two-copy spelling that drops o1 by 23. prior: s70
-   (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53 block by block: equal (the
+   @deep s71 (108 -> 54 ins, size 997 vs 996): the credit is one block behind both arms, reached by a flag:
+   'credit = 0;' after lvl, the repair arm 'if (n > money) { amt = n; credit = 1; }', the goods arm under
+   'if (credit == 0 && ai_FindGoodToMake(..))' with 'if (amt < money) credit = 1; else { ChooseSubAction ..
+   return n; }', then 'if (credit != 0) { 0.25 credit }': VC6 threads the decided flag (the repair arm
+   falls into the credit, goods jl's into it) and the layout is the original's; the four AIARG records at
+   function scope (block scope: frame 0x34). Before: goto forms 99-132 (with a goto the credit always lands
+   in the goods subtree of the jump-first DFS), two copies 192-329 (o1 then ranks 69 and takes edi). Left:
+   the scratch registers one step off from the credit's ai_OwnPlayer load (mov al / mov dl) through the
+   goods fill, and s1.kind = 4 stored before the 'lvl < 0x21' compare (the original compares first). prior:
+   s70 (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53 block by block: equal (the
    impossible 'k < 0x1e && k > 0x21' test is the original's: cmp 0x1e / jae, cmp 0x21 / ja; the goods
    path's 'amt < money' goes to the 0.25 credit as in the original's jl 0x4a0be8; record fills, the 0.4 /
    0.5 new-type tail, the credit stores and o1->arg2 = 1 all match). The size gap (964 vs 996) is layout
@@ -6683,7 +6674,8 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   AIOBJ *o;
   unsigned char k;
   signed char lvl;
-  int money, need, amt, n, m;
+  int money, need, amt, n, m, credit;
+  AIARG s1, s2, b1, b2;
 
   if (f != 0 || o1->kind != 0 || a != 0)
     return 0;
@@ -6703,10 +6695,8 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   o = gm_Query(bl->objList, 2, 6, 0, 0x142);
   money = gm_SumListAmounts(o->list, ai_OwnPlayer);
   lvl = bl->level;
+  credit = 0;
   if (lvl < util_Random(0x10) + 0x32 && !(bl->flags5a & 4)) {
-    AIARG s1;
-    AIARG s2;
-
     s1.kind = 4;
     s1.ref = bl->id;
     s1.arg = 1;
@@ -6728,24 +6718,10 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
     n = ai_RepairCost(bl, need);
     if (n > money) {
       amt = n;
-    credit:
-      m = gm_CharCurrency(p, ai_OwnPlayer);
-      if (m < 80000)
-        return 0;
-      if ((int)((m - 80000) * 0.25f) < amt + 0x20)
-        return 0;
-      o1->kind = 1;
-      o1->ref = o->objId;
-      o1->arg2 = 1;
-      o2->arg = amt + 0x20;
-      o2->kind = 0x12;
-      return 0x39;
+      credit = 1;
     }
   }
-  if (ai_FindGoodToMake(&f, &a, bl, 0) != 0) {
-    AIARG b1;
-    AIARG b2;
-
+  if (credit == 0 && ai_FindGoodToMake(&f, &a, bl, 0) != 0) {
     b1.kind = 2;
     b1.ref = f;
     b1.arg = 1;
@@ -6763,13 +6739,28 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
     b2.fvalue = 0.0f;
     amt = (int)gm_GoodsPrice(f, ai_OwnPlayer);
     if (amt < money)
-      goto credit;
-    n = ai_ChooseSubAction(0x39, p->id, 1, &b1, &b2);
-    if (n == 0)
+      credit = 1;
+    else {
+      n = ai_ChooseSubAction(0x39, p->id, 1, &b1, &b2);
+      if (n == 0)
+        return 0;
+      *o1 = b1;
+      *o2 = b2;
+      return n;
+    }
+  }
+  if (credit != 0) {
+    m = gm_CharCurrency(p, ai_OwnPlayer);
+    if (m < 80000)
       return 0;
-    *o1 = b1;
-    *o2 = b2;
-    return n;
+    if ((int)((m - 80000) * 0.25f) < amt + 0x20)
+      return 0;
+    o1->kind = 1;
+    o1->ref = o->objId;
+    o1->arg2 = 1;
+    o2->arg = amt + 0x20;
+    o2->kind = 0x12;
+    return 0x39;
   }
   t = &ai_BTypes[bl->type];
   if (bl->flags5a & 0x45)
