@@ -109,7 +109,7 @@ exe	0x004076b0	ch_MapFree	ch	byte	readable
 exe	0x004076c0	ch_CopyVec	ch	byte	readable		
 exe	0x004076e0	ch_PosToCell	ch	byte	readable		
 exe	0x00407740	ch_CellToCell	ch	byte	readable		
-exe	0x00407790	ch_GetWaypoints	ch	draft	readable	deep	
+exe	0x00407790	ch_GetWaypoints	ch	byte	readable		
 exe	0x004079b0	ch_GetNewPath	ch	draft	readable	deep	
 exe	0x00408490	ch_PathToTarget	ch	byte	readable		
 exe	0x00408690	ch_InitWalk	ch	byte	readable		
@@ -3506,7 +3506,7 @@ exe	0x0053dda0	he_ShowNews	he	byte	readable
 exe	0x0053dee0	he_MessageBoxQuickjump	he	byte	readable		
 exe	0x0053e040	he_CreateEvent	he	byte	readable		
 exe	0x0053e1f0	he_FreeEvent	he	byte	readable		
-exe	0x0053e300	he_NextEvent	he	draft	readable	deep	
+exe	0x0053e300	he_NextEvent	he	byte	readable		
 exe	0x0053e400	he_FindEvent	he	byte	readable		
 exe	0x0053e4e0	he_SpreadGfxInfos	he	byte	readable		
 exe	0x0053e5f0	he_CreateGfxObject	he	byte	readable		
@@ -4504,7 +4504,7 @@ exe	0x005c37a0	ai_PassesBuildingFilter	lcamt	byte	readable
 exe	0x005c39a0	ai_PassesMapPickFilter	lcamt	byte	readable		
 exe	0x005c3bb0	ai_PickBuildingChar	lcamt	byte	readable		
 exe	0x005c4100	ai_LawSelectionEntry	lcamt	byte	readable		
-exe	0x005c4150	ai_FamilyTreeWindow	lcamt	draft	readable	deep	
+exe	0x005c4150	ai_FamilyTreeWindow	lcamt	byte	readable		
 exe	0x005c5310	ai_CharInfoPanel	lcamt	byte	readable		
 exe	0x005c6050	ai_GiftWindow	lcamt	byte	readable		
 exe	0x005c64c0	ai_FindCandidateIds	lcamt	byte	readable		
@@ -4544,7 +4544,7 @@ exe	0x005cbe00	ai_ExpelWorkerWindow	lcamt	byte	readable
 exe	0x005cc2b0	ai_PeaceWindow	lcamt	byte	readable		
 exe	0x005cc700	ai_ConvertWindow	lcamt	byte	readable		
 exe	0x005cca40	ai_PenanceWindow	lcamt	byte	readable		
-exe	0x005ccc10	ai_Miracle	lcamt	draft	readable	deep	
+exe	0x005ccc10	ai_Miracle	lcamt	byte	readable		
 exe	0x005cd2e0	ai_MiracleWindow	lcamt	byte	readable		
 exe	0x005cd400	ai_ChangeProfessionWindow	lcamt	byte	readable		
 exe	0x005cd8c0	ai_OpenTrial	lcamt	byte	readable		
