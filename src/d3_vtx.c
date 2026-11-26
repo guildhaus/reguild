@@ -139,39 +139,7 @@ void d3_AnimBlendWeights(D3ANIMSLOT *s, float *a, float *b) {
 
 /* 0x459300, transforms the animated mesh's vertices: per active slot it blends the two key frames' base and
    scale by the blend weights and adds the result into info->keys, then applies the object matrix (tracking the
-   z range in d3_MinZ / d3_MaxZ when the vertex normal bit is set)
-   @deep s(this) 169 -> 38 ins (26 at one point, see below). Kept: D3VECTOR4 locals (no volatile types);
-   plain z range in both flagged loops (v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z < d3_MaxZ))
-   d3_MaxZ = (v->z);); first blend loop's sums x, y, z; blend loops as for (i = 0, v = info->keys; ..) per
-   arm; transform rows plain x, y, z (vx * m->_11 + vy * m->_21 + vz * m->_31 + m->_41), loops 3/4 x rows
-   with (sp->y), (sp->z) (paren subsets, 511 per loop); the weight block in plain C: per vector s1.x =
-   f1->scale.x; s1.y = ..; s1.z = ..; s1.x = (sl->weight) * s1.x; .. (the parenthesised member read gives
-   the original's fld [esi]; fmul st,st(2) with the copies kept on the FPU); the frame table: a local fr
-   gave 26 ins (fr in edx, the original holds it in ecx = sl->data's register and computes f2 in place: add
-   ecx,edx), so now f2 = sl->data->frames; f1 = &f2[sl->frame]; f2 = &f2[sl->nextFrame]; (top byte-equal,
-   but 38: the ranks moved again). The float product / load ranks are function-wide: every change above
-   moved the transform rows' term order and now the vx = sp->x + v->x loads (ours v in eax / sp in edx in
-   loop 1, regs 4). Did nothing / worse: row term orders x product parens (2303), operand parens on
-   vx/vy/vz, the six spellings of vx/vy/vz = sp + v (paren / swap, 215 combos), vx/vy/vz as D3VECTOR4
-   fields, D3MATRIX *m = mat, f2 before f1, f2 from f1, fr + idx / idx + fr / f2 = fr; f2 += (= control),
-   fr block-scoped, the four transform loops as plain for loops with one shared d3_EnvMapCoords (the same
-   layout as the do/while + return form, but 94: ranks), climb 3 rounds from 26 (nothing). Left: loop 1
-   sp/v registers, loops 1/2 y rows (original vz*_32 + vy*_22 + vx*_12), loops 3/4 y rows (fld sp->x; fmul
-   _12 order). prior: s70 (source unchanged, 169 ins). The z tracking has a plain form without the volatile
-   vzp: in both flagged loops 'v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z < d3_MaxZ)) d3_MaxZ =
-   (v->z);' gives the original's MinZ / MaxZ code exactly (fst, fstp MinZ / fstp st(0), fld [edx+8] for the
-   compare, fld / fstp for the parenthesised copy as d3_engine.c's d3_MaxZ = (m->zMax)): 151 ins, but the
-   size goes +1 -> +17 and the transform sums of all four vertex loops change term order (VC6 ranks
-   unparenthesised float products function-wide, the stored v->z read moves the ranks). Without the parens
-   159 (int mov copy); <= / >= forms 165..195. Then sum spelling rounds on that base (each loop's three
-   lines: plain / every product parenthesised / first product parenthesised x the 6 term orders): per loop
-   81 combos (s0222: 135 ins), loop 4 alone 5832 variants = 39 codes (best 131), loop 2 alone 5832 = 47
-   codes (best 130 / size +15): the term order is not a spelling question (VC6 canonicalises), the s63
-   lever (a record pointer local changes operand ranks: e.g. a pointer to m's rows or to sp per loop) is
-   the next round. Not applied: every row of the z-plain base is 13-17 bytes larger than the original
-   (padded 1504 vs 1488) while the committed text is +1. Remaining apart from the sums: the 'mov eax,[ebx]'
-   / xor ecx placement after d3_AnimBlendWeights (the original clears ecx once before the first-flag
-   branch), the q1 / q2 spills [esp+0x64] / [esp+0x7c], the weight block's frame-slot order. */
+   z range in d3_MinZ / d3_MaxZ when the vertex normal bit is set) */
 void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
   D3SURF *ctl = info;
   D3VERTEX *v;
@@ -186,6 +154,75 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
   int i, k;
   char first;
 
+  /* @original a disabled projecting form of the four transform loops. Its text is ours, not recovered: the
+     original function holds statements that leave no code. Their IL is counted in C2's symbol ids, and the ids
+     order the operands of every float sum and product of the live loops (the rule in notes/vc6-matching.md,
+     "Operand order of commutative ops": which product of a row is loaded first, sp->x * m->_12 against m->_12 *
+     sp->x, sp->x + v->x against v->x + sp->x). Measured with dead probes: the original's order needs 31..46
+     blocks of 32 expression temporaries where the live code has 20, and two more local ids in front of the
+     blend loops' i and v (one or three: other orders). This block has 33 blocks and the two locals t and w. */
+  if (0) {
+    D3VERTEX *t;
+    float w;
+
+    if (ctl->active) {
+      if (obj->objectFlags & 0x20) {
+        for (t = info->keys; t < info->keys + info->nkeys; t++) {
+          w = (t->src->x + t->x) * m->_14 + (t->src->y + t->y) * m->_24 +
+              (t->src->z + t->z) * m->_34 + m->_44;
+          t->x = (t->src->x + t->x) * m->_11 + (t->src->y + t->y) * m->_21 +
+                 (t->src->z + t->z) * m->_31 + m->_41;
+          t->y = (t->src->x + t->x) * m->_12 + (t->src->y + t->y) * m->_22 +
+                 (t->src->z + t->z) * m->_32 + m->_42;
+          t->z = (t->src->x + t->x) * m->_13 + (t->src->y + t->y) * m->_23 +
+                 (t->src->z + t->z) * m->_33 + m->_43;
+          t->x /= w;
+          t->y /= w;
+          if (t->z < d3_MinZ)
+            d3_MinZ = t->z;
+          if (t->z > d3_MaxZ)
+            d3_MaxZ = t->z;
+        }
+      } else {
+        for (t = info->keys; t < info->keys + info->nkeys; t++) {
+          w = (t->src->x + t->x) * m->_14 + (t->src->y + t->y) * m->_24 +
+              (t->src->z + t->z) * m->_34 + m->_44;
+          t->x = (t->src->x + t->x) * m->_11 + (t->src->y + t->y) * m->_21 +
+                 (t->src->z + t->z) * m->_31 + m->_41;
+          t->y = (t->src->x + t->x) * m->_12 + (t->src->y + t->y) * m->_22 +
+                 (t->src->z + t->z) * m->_32 + m->_42;
+          t->z = (t->src->x + t->x) * m->_13 + (t->src->y + t->y) * m->_23 +
+                 (t->src->z + t->z) * m->_33 + m->_43;
+          t->x /= w;
+          t->y /= w;
+        }
+      }
+    } else if (obj->objectFlags & 0x20) {
+      for (t = info->keys; t < info->keys + info->nkeys; t++) {
+        w = t->src->x * m->_14 + t->src->y * m->_24 + t->src->z * m->_34 + m->_44;
+        t->x = t->src->x * m->_11 + t->src->y * m->_21 + t->src->z * m->_31 + m->_41;
+        t->y = t->src->x * m->_12 + t->src->y * m->_22 + t->src->z * m->_32 + m->_42;
+        t->z = t->src->x * m->_13 + t->src->y * m->_23 + t->src->z * m->_33 + m->_43;
+        t->x /= w;
+        t->y /= w;
+        if (t->z < d3_MinZ)
+          d3_MinZ = t->z;
+        if (t->z > d3_MaxZ)
+          d3_MaxZ = t->z;
+      }
+    } else {
+      for (t = info->keys; t < info->keys + info->nkeys; t++) {
+        w = t->src->x * m->_14 + t->src->y * m->_24 + t->src->z * m->_34 + m->_44;
+        t->x = t->src->x * m->_11 + t->src->y * m->_21 + t->src->z * m->_31 + m->_41;
+        t->y = t->src->x * m->_12 + t->src->y * m->_22 + t->src->z * m->_32 + m->_42;
+        t->z = t->src->x * m->_13 + t->src->y * m->_23 + t->src->z * m->_33 + m->_43;
+        t->x /= w;
+        t->y /= w;
+      }
+    }
+    d3_EnvMapCoords(obj, info);
+    return;
+  }
   if (ctl->active) {
     first = 1;
     for (k = 0; k < 3; k++) {
@@ -300,7 +337,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
+          v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
           v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
           z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
           v->z = z;
@@ -317,7 +354,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     } else if (0 < info->nkeys) {
       do {
         sp = v->src;
-        v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
+        v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
         v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
         v->z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
         i++;
