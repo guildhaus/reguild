@@ -981,39 +981,39 @@ int d3t_MoveCameraPath(int time, int n, ...) {
   return 1;
 }
 /* 0x413960, moves obj along the n objects in path (null entries are skipped) within time
-   @deep match-deep s81 (source unchanged, 49 ins). The long c2.dll analysis of the sessions before s80
-   (the priority numbers i 45 / k 31, the step piece splitter, the last-copy forms, the temporary-register
-   picker, the branch-flip search) was dropped from the tree by dcp note's 900-character prior limit: read
-   it with git show c6b1aaf2:src/d3_tools.c. Rounds of s81 with no lever, all = control unless named: an
-   inline helper for the key fill (static __inline, four forms: key pointer, keys + k, returning k + 1, int
-   *k): = control, the parameter copies are folded before allocation; k as unsigned / long / register int:
-   = control (short 84, unsigned char 95, i short 72); o as a block local of the loop body, with or without
-   a block-local key pointer: = control; no step local (time / n at both stores, or only in the loop):
-   another code at 49 ins (+1 byte), the CSE temp behaves as step; post-increment folded into the last
-   statement or into the time store at the body end: = control; k counting from 0 (keys[k + 1] in the body
-   and at the exit): 47 ins but k = 0 in the entry (xor ecx,ecx), i / k still swapped; k = 1 as a statement
-   with keys[k - 1] / keys[k] in the entry stores (k-indexed keys[0] fill, k++ before the loop): 49 ins,
-   constants swapped (edx 1, ecx 0) but i still ecx / k edx in the loop (the entry k references are
-   folded); i = 0; k = 1; above the fill: 61; k = 1 above the division: 51. climb.py --rounds 4 (1,790
-   mutants): best 45 ins by the time store in front of the call (the original stores step behind the call),
-   no further step. The original read again from the top: nothing new exists (i [ebp-4] / edx, step [ebp-8]
-   / eax behind the call, k in time's slot / ecx, n ebx reloaded in the body because ebx carries
-   &keys[k].pos, esi the induction pointer at keys[k].rot); the frame is the original's slot for slot.
-   Still open: one ordinary construct that ranks k above i. prior: match-deep s80 (short look, source
-   unchanged, 49 ins): new angles from this session, all = control: if (!(o = path[i])) continue; and o =
-   path[i]; if (o == 0) continue; (the continue edge does not move the i / k ranking); path[i] read twice
-   instead of o; the call count n + 1 through step or i after the loop; k as the time parameter itself
-   (#define probe: same code, VC6 already packs k into time's slot [ebp+0xc]); an unused label (plab:;)
-   before each of the 25 statements (probe2 on the three instructions behind idiv: every one xor ecx,ecx /
-   mov edx,1, i.e. ours). The original keeps k in ecx and i in edx across the whole loop (reloaded only
-   behind the call) and the exit uses ecx as k on every path. Open as before: one ordinary construct that
-   raises k above i.
-
-
-
-
-
-
+   @deep match-deep s81 (source unchanged, 49 ins). Key facts of the s52..s80 analysis (full text: git show
+   c6b1aaf2:src/d3_tools.c; dcp note dropped it): c2trace pass 2: i#2 43 (entry +16 at P 8, head +16 at P 4
+   w 2, latch +16 at P 2 w 2) takes ecx before k#2 29 (entry +16, head -8, latch -4, exit +24 = three uses
+   from the k*11 lea expansion at P 4), which gets edx; the body piece k#3 (k++) stays in memory. k needs
+   about +15 (one more ref in entry or head, two in the exit). Dead or duplicate k forms fold before
+   allocation; only a COPY whose sides share a register or slot, or a statement duplicated in two arms and
+   cross-jumped after allocation, leaves no instruction. Best known forms: a second index last (last = 1 in
+   the for-init, ..; k++; last = k; in the body, keys[last].time = 0) plus else step = time / n: 9 ins (the
+   k temporary behind the call takes eax; it starts after the step store, so eax is free), and with the
+   time store behind k++ (keys[k - 2]): 4 ins, every register right, the store at the body end. Branch-flip
+   search: no single c2.dll decision gives the original. s81 rounds, no lever (= control unless named): a
+   static __inline key-fill helper (4 forms); k unsigned / long / register (short 84, uchar 95, i short
+   72); o / a key pointer as body-block locals; no step local (49, other code); post-increment folded; k
+   from 0 with keys[k + 1] (47); k = 1 or i = 0 as a statement at each of 14 positions of the entry
+   (49-149, swap stays); an unused label between k = 1 and the for; probes on the 0 constant; i++ inside
+   path[i++] (74); an early n <= 0 return duplicating the exit, with for or do-while (69-80: the copies do
+   not cross-jump, keys[1] is folded in the early one); exit copies (last = k; keys[last], a key pointer,
+   n++): all = control; exit spellings of the k*88 address (char offset, int index k * 22, keys + k): =
+   control, the multiply is normalised before the expansion; last copied in the for-increment (61; with
+   else step 43; k = last at the body top 38 with other code); a product round k-init position x step form
+   x k from 0/1 x k++ / ++k / k += 1 (72: best 43, swap stays); on the last + else base every order of the
+   time store, k++ and last = k (504: best the known 4 and 9) and keys[last - 1] (78-110); climb.py
+   --rounds 4 on the tree (best 45: the time store in front of the call), --rounds 3 from the 9-ins form,
+   --rounds 6 --beam 8 from the 43-ins form: no step. flip.py --want 'inc edx / cmp edx, ebx': the only hit
+   is that same swap. Still open: one ordinary construct that ranks k above i. prior: match-deep s80 (short
+   look, source unchanged, 49 ins): new angles from this session, all = control: if (!(o = path[i]))
+   continue; and o = path[i]; if (o == 0) continue; (the continue edge does not move the i / k ranking);
+   path[i] read twice instead of o; the call count n + 1 through step or i after the loop; k as the time
+   parameter itself (#define probe: same code, VC6 already packs k into time's slot [ebp+0xc]); an unused
+   label (plab:;) before each of the 25 statements (probe2 on the three instructions behind idiv: every one
+   xor ecx,ecx / mov edx,1, i.e. ours). The original keeps k in ecx and i in edx across the whole loop
+   (reloaded only behind the call) and the exit uses ecx as k on every path. Open as before: one ordinary
+   construct that raises k above i.
 
 
 
