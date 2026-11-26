@@ -2706,19 +2706,24 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
    ecx,[cz]; 'if (!(..)) continue;' and if / else continue = the same code; with 'wp[j].x == cx' 58 ins,
    wp.x loaded first). No lever: goto linked / goto next as found flags + re-test (not threaded, +21
    bytes); the flags & 1 arm's continue as a nested if / && (= control); r = min(..) forms; FindFreeCell
-   outputs in a new block local fx (96). Left (shape): flags & 2's x compare 'cmp ecx(wp.x),eax(cx)' after
-   loading cx first (ours cmp eax,ecx); the memset block loads others before n (original n first; it was
-   right before the continue, so it follows the rotation); frame ties cz / scene (0x2c / 0x30) and tz-len /
-   bz (0x34 / 0x38) swapped. c2frame probes: a 'probe = scene' fixes the table only after 'return -2;' or
-   on the return-0 paths (scene must reach 9 references after cx's last one, the '-2' test, in the walk);
-   'probe = steps + cx + scene' anywhere in the res & 1 block also gives it (steps, cx 10). A packer replay
-   (N / X rows, K&R quicksort) agrees. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame
-   probes name the counts: a dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1)
-   gives the original's table exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before
-   cx (92 ins), cz -1 (a compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped.
-   flip.py --want '_scene\$ = -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes:
-   deleting gx = cz / sx = cz, swapping the dz line with the sqrt in either distance arm, y as double, the
-   goto linked / goto next deletions. So the original has one more counted reference of scene and of cx (a
+   outputs in a new block local fx (96); a CHWAYPT *w per pass (74); climb (3 runs, 2-3 rounds) only finds
+   an int copy of speedScale (meaning change). Left (shape): (1) flags & 2's x compare: the original loads
+   cx first and compares ecx(wp.x),eax(cx); ours cmp eax,ecx (flip --want 'mov ecx, DWORD PTR \[edx\]\ncmp
+   ecx, eax': 0 single mutations). (2) the memset block loads others before n (original n first): flip
+   finds 83 single mutations, nearly all constant changes (-1, 2, 0x200, 0xffff, the memset 0): a rotation
+   / constant-candidate tie, no plain spelling among them. (3) frame ties cz / scene (0x2c / 0x30) and
+   tz-len / bz (0x34 / 0x38) swapped. The code is identical, so the original's extra counts are invisible
+   references (cross-jumped duplicates or peephole-removed reloads). c2frame probes: 'probe = scene' fixes
+   the table only after 'return -2;' or on the return-0 paths (scene must reach 9 after cx's last
+   reference, the -2 test, in the walk); 'probe = steps + cx + scene' anywhere in the res & 1 block also
+   gives it (steps, cx 10). A packer replay (N / X rows, K&R quicksort) agrees; cz -1 would also do, but
+   every cz reference has code. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes
+   name the counts: a dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives
+   the original's table exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92
+   ins), cz -1 (a compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py
+   --want '_scene\$ = -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes: deleting
+   gx = cz / sx = cz, swapping the dz line with the sqrt in either distance arm, y as double, the goto
+   linked / goto next deletions. So the original has one more counted reference of scene and of cx (a
    statement in both arms merged late, or a reload the peephole removes); not found. Declaration orders (5)
    = control. m (the FindFreeCell ternary): inlined in either / both calls, if / else, m = steps * (..), m
    * steps, r / e / k / i reused, unsigned: all = control (c2trace: m#1 / m#2 both eax; the original has
