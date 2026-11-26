@@ -981,44 +981,44 @@ int d3t_MoveCameraPath(int time, int n, ...) {
   return 1;
 }
 /* 0x413960, moves obj along the n objects in path (null entries are skipped) within time
-   @deep match-deep s80 (short look, source unchanged, 49 ins): new angles from this session, all =
-   control: if (!(o = path[i])) continue; and o = path[i]; if (o == 0) continue; (the continue edge does
-   not move the i / k ranking); path[i] read twice instead of o; the call count n + 1 through step or i
-   after the loop; k as the time parameter itself (#define probe: same code, VC6 already packs k into
-   time's slot [ebp+0xc]); an unused label (plab:;) before each of the 25 statements (probe2 on the three
-   instructions behind idiv: every one xor ecx,ecx / mov edx,1, i.e. ours). The original keeps k in ecx and
-   i in edx across the whole loop (reloaded only behind the call) and the exit uses ecx as k on every path.
-   Open as before: one ordinary construct that raises k above i. prior: fresh look after s52 (source
-   unchanged, 49 ins / 132 bytes, raw 418 vs 416). State: lever (II) is understood down to the splitter and
-   has code-free source forms; lever (I) (k above i) is the only thing left. (II), read from FUN_10745670
-   with the new instruction dump (C2TRACE_IL=1 on c2trace --raw): the splitter walks a block's
-   instructions; at a reference of the candidate with no register left it cuts in front of that reference
-   and restarts. step's first piece grows entry -> head -> (body fails: the call) -> latch through the
-   head's null edge, so the part behind the call is a block of its own with ONE reference (the time store):
-   savings < 1, no piece, the load is a scratch temp and takes edx by the rotation. The piece behind the
-   call needs a second reference. `step = time / n;` written again anywhere behind the time store gives it
-   without an instruction (the copy `step = CSE temp` stays in the IL, both live in the one slot [ebp-8],
-   the self copy is deleted late): behind the time store, at the end of the if arm, in an else arm, at the
-   end of the loop body, in the for-increment: all the same code, step#3 (2 refs, sav 8, prio 88) takes
-   eax, the i reload and the exit block follow, and only the i / k swap is left (tv distance 45 of 50). In
-   front of the time store (loop top, body start, behind the call) it does nothing. Candidate flag 0x08
-   (byte +5, set in the reference scan at 0x1070806c): the candidate's definition reads a fixed register or
-   its definitions differ; step defined straight from idiv's eax has it, step defined twice by the copy of
-   the CSE temp has not (the splitter itself does not test it). (I) numbers, second pass, on the base with
-   the step line: i#2 45 = entry +18 (P 9), head +12 (P 3: i, o, const#0; path is dropped), latch +16 (P 2:
-   i, n); k#2 31 = entry +18, head -6, latch -4, exit +24 (P 4: k, n, const#0, obj; three uses). k needs
-   +15: one more k reference in the entry block (+18) or in the head (+18), two more uses in the exit block
-   (+16), or three more distinct candidates there (+18). Branch-flip search (every conditional jump of
-   c2.dll forced each way, 58,000 compiles of the unchanged unit): no single decision gives the original.
-   Closest: 0x1072a1ef never taken (the multiply-by-constant expansion; it miscompiles k*11 as `lea
-   eax,[k+k*4]; add k,eax`, which is two more k references in the exit block: k#2 45 > i#2 43, i edx / k
-   ecx; 15 lines left = the wrong multiply and step). 0x10709c3f / 0x10709c6d (FUN_10709bb6), 0x10743c04 /
-   0x10743c2a (FUN_10743bda: the one-by-one split of the pressure set is skipped or stops after step) and
-   0x10745708 all give the original's i / k with step still wrong: i and k not put through the piece
-   splitter at all (they are then only cut at the call) rank k 62 above i 46. No pair of flips fixes step:
-   (II) is not one decision but the savings sum above. Ruled out this round (on the step base unless
-   named): `time / n` written twice in front of the loop, step taken from keys[0].time, time reused (step
-is merged with the temp, flag 0x08 stays or no piece); int or int bit-field flags (dword `or ah`); no-op spellings of a k reference in every loop position (`k = k`, `k += 0`, `k = +k`, `k = k + i - i`, `(void)keys[k]`, `if (k);`, `time = k`, ..: all folded before allocation); `k = 1` as a statement in front of the division (k takes esi in the entry block) or behind it (control); declaration orders, for-init orders, `++i`; while / do / goto loops (the weight 2 comes from the flow graph, not from the keyword); `keys[0].time = step` inside the loop (i edx / k ecx but step lives in eax through the head and the store stays). Earlier facts that still hold: the frame rules out i++ in both arms; preferences cannot give i edx or k ecx (no copy with ecx, none with an assigned candidate); k references that work as probes: one in the head or the entry block, two in the exit block, one in an else arm (`else { step = time / n; p1 = k; }` is the original but for the one probe store); identical return arms double the exit references (exact but for their compare); 21 callee prototypes, 9 D3ANIMKEY layouts, 8 ways to pass the flags: no lever. Open: one ordinary construct that leaves a k reference in the entry block, the head or an else arm (or two in the exit block) without an instruction; every dead or duplicate k form is removed before allocation, and k (a constant and ++) has no recomputable value as step has. Later the same session: (1) compiler options are not it (50 variations of /O2 on the unit, with and without the step line: none closer; /Op and /G6 move other code). (2) 2,900 single assignments (9 targets x 36 values, 9 positions, on the step base): none flips i / k without an instruction; the ones that flip are the known probes (a store of k's value in the head or in front of the call, 1 ins). (3) New closest form without a probe, 10 listing lines = ONE instruction: a second index `last` that copies k behind the increment and is used after the loop (`for (i = 0, k = 1, last = 1; ..)`, body `..; k++; step = time / n; last = k;`, exit `keys[last].time = 0;`). last is defined behind the call, so it is not live across it: it takes ecx in the first pass (prio 67, all six registers), i then takes edx, the entry store, the head, the latch and the whole exit block are the original's. Left: the k temporary behind the call (load, inc, store, copy; a piece of prio 88 chosen before last) takes eax, so `mov eax,[k]; inc eax; mov [k],eax; mov ecx,eax` stands for `mov ecx,[k]; inc ecx; mov [k],ecx`. It becomes exact (but for the probe store) with one more reference of last in the head, i.e. when last is chosen before the temporary and the temporary follows the copy. Needed: last >= 88, now 67 (two more uses or two more distinct candidates in the exit block, or one in the head), or step chosen before the temporary while both are live (equal priority 88, the temporary goes first). No lever on this base: statement orders of the body (90), the time store behind the increment (the temporary and step swap: k eax, step ecx), 24 declaration orders, k / last defined in front of the division, `last = k + 1` in front of the increment (the optimizer makes its own induction value, entry store of 2), the copy outside the if (reload in the latch), a previous-key index in the time store (108 forms), the callee declared with a result, eleven exit spellings, the time parameter itself as the stored counter (the index loses its induction pointer). On the last form, continued: the k temporary (k#2: load, inc, store, copy; 2 counted uses at the body's second-pass P 11 = 88) is chosen before last (first-pass terms: entry +22, body copy +32 at P 8, exit +24 = 59) and takes eax, the first free register; last then prefers eax, cannot have it (o) and takes ecx. A candidate's own preference counts (score -1), so the temporary would follow last if last were chosen first. (a) With the step line in an else arm step's tie value (the position of its last definition) is above k's and step is chosen first among the two 88s; if the time store then stands behind the increment (`..; k++; keys[k - 2].time = step; last = k; } else step = time / n;`) step holds eax while the temporary is live, the temporary takes ecx, the copy is deleted and EVERY register is the original's: 5 listing lines left, all of them the time store standing at the end of the body instead of behind the call. With the time store in its place the two ranges do not overlap. (b) A definition of last at the loop top (`last = 0;` / `last = i;` as probes) also gives the original but for that one instruction. Needed, one of: step still in use behind the increment; k loaded in front of the time store; last >= 88 (+29: a second reference of last in the body block is +32); the body's second-pass P <= 6. No lever: the step line also behind the time store, in the for-increment or at the loop end (52: last loses ecx); `last = k + 1` in front of the time store with `k++` or `k = last` at the end (the optimizer builds its own induction value); the increment right behind the call (another allocation altogether, 106); 1,700 single assignments at nine positions on this base (redundant definitions of last from k are removed before allocation). Deletion log (new: C2TRACE_DEL=1 on c2trace --raw logs every instruction the back end unlinks, FUN_10702ae5, with the caller): once allocation has started the only real instructions deleted in this function are self copies (`mov eax,eax` behind idiv and in front of ret, from 0xafd3); everything else deleted there is a load / store pseudo-op of a piece that ends in memory (ops 0x264 / 0x265) or a split mark (0x2b4). The 300 deletions before allocation are the optimizer's. So a reference that leaves no instruction can only be a COPY whose two sides end in one register or one slot (step = CSE temp is that); k, a constant and ++, has no copy unless the text has a second variable: the `last` forms are the only kind that can work, not one guess among many. Also: an int constant used three times as a copy source becomes a candidate of its own (shown as a second const#0). Key pointer form (readable, no step line, same instruction count as the original): `D3ANIMKEY *key = &keys[1]`, body `d3_PointToWorld(o, &o->pos, &key->pos.v); key[-1].time = step; key->rot.x -= ..; last = k + 1; k = last; key++;`, exit `keys[last].time = 0`. Here last has prio 93 and takes ecx first, i edx, k lives in memory with NO piece behind the call: its load is a scratch temporary. 15 listing lines left = the scratch rotation behind the call (order eax -> ecx -> edx, the lea in front of the call took ecx, so the next is edx): the step load takes edx and the k load eax (`mov eax,[k]; lea ecx,[eax+1]`) where the original has step eax, k ecx (`mov ecx,[k]; inc ecx`). With `last = k + 1; k = last;` in front of the time store: k edx, step eax (11 lines). Exact would be: the time store first and ONE more scratch step (or edx busy = i live in its register) between the call and the step load. No lever there: the step line in any position (in front of the time store it also switches off every later one), the callee with a result (used or not), i++ written in both arms (the copies do not merge), 504 statement orders. The temporary-register picker, read in c2.dll (FUN_1070c32b(temp operand, instruction); found by a branch-flip run on the key pointer form: 0x1070c536 / 0x1070c54d / 0x1070d3d3 shift every temporary by one step): a temporary first takes its HINT register (descriptor + 0x2c) when that is free: the source register of a copy (ops 1, 0x11f, 0x1dd, 0x17f, 0x181) it is defined by, or the base of the lea that defines it; a hinted temporary does not move the rotation. Without a hint it takes the next register of a cyclic list from one global pointer per type (0x107b1418, read by 0x1070c62e, advanced by 0x1070c64b), skipping a register that holds another temporary (0x107b12e8[reg]) or whose occupancy set (0x107b11c0[reg]) meets the temporary's range. A load from memory has no hint. So on the key pointer form the lea in front of the call takes ecx and the pointer stands at edx: the step load takes edx, the k load eax. Confirmed by probes: one more unhinted temporary behind the call (`p2 = p3`) or i read there (`p2 = i`: edx occupied) gives the original's code but for the probe's own instructions. Nothing ordinary found that does it: memory-to-memory copies between slot-sharing variables (`time = k`, the parameter as the stored counter) are removed before code generation; `last = k; last++; k = last;` is folded to `last = k + 1` (a temporary load and a lea). Also ruled out on the key pointer form: a second loop index copying i (11 spellings: the copy is removed or adds code); i++ in both arms with the if arm's copy behind the call (the two increments do not cross-jump, one is not at the arm's end); 1,860 single statements at five positions around the call (assignments among i, k, n, step, time, last, o, key, path, obj and block-local copies): none exact, every one that moves the rotation leaves an instruction. */
+   @deep match-deep s81 (source unchanged, 49 ins). The long c2.dll analysis of the sessions before s80
+   (the priority numbers i 45 / k 31, the step piece splitter, the last-copy forms, the temporary-register
+   picker, the branch-flip search) was dropped from the tree by dcp note's 900-character prior limit: read
+   it with git show c6b1aaf2:src/d3_tools.c. Rounds of s81 with no lever, all = control unless named: an
+   inline helper for the key fill (static __inline, four forms: key pointer, keys + k, returning k + 1, int
+   *k): = control, the parameter copies are folded before allocation; k as unsigned / long / register int:
+   = control (short 84, unsigned char 95, i short 72); o as a block local of the loop body, with or without
+   a block-local key pointer: = control; no step local (time / n at both stores, or only in the loop):
+   another code at 49 ins (+1 byte), the CSE temp behaves as step; post-increment folded into the last
+   statement or into the time store at the body end: = control; k counting from 0 (keys[k + 1] in the body
+   and at the exit): 47 ins but k = 0 in the entry (xor ecx,ecx), i / k still swapped. climb.py --rounds 4
+   (1,790 mutants): best 45 ins by the time store in front of the call (the original stores step behind the
+   call), no further step. The original read again from the top: nothing new exists (i [ebp-4] / edx, step
+   [ebp-8] / eax behind the call, k in time's slot / ecx, n ebx reloaded in the body because ebx carries
+   &keys[k].pos, esi the induction pointer at keys[k].rot); the frame is the original's slot for slot.
+   Still open: one ordinary construct that ranks k above i. prior: match-deep s80 (short look, source
+   unchanged, 49 ins): new angles from this session, all = control: if (!(o = path[i])) continue; and o =
+   path[i]; if (o == 0) continue; (the continue edge does not move the i / k ranking); path[i] read twice
+   instead of o; the call count n + 1 through step or i after the loop; k as the time parameter itself
+   (#define probe: same code, VC6 already packs k into time's slot [ebp+0xc]); an unused label (plab:;)
+   before each of the 25 statements (probe2 on the three instructions behind idiv: every one xor ecx,ecx /
+   mov edx,1, i.e. ours). The original keeps k in ecx and i in edx across the whole loop (reloaded only
+   behind the call) and the exit uses ecx as k on every path. Open as before: one ordinary construct that
+   raises k above i.
+
+
+
+
+
+
+
+
+
+
+
+
+
+   */
 
 D3PATH *d3t_MoveObjectPath(D3OBJECT *obj, int time, int n, D3OBJECT **path) {
   D3ANIMKEY keys[64];
