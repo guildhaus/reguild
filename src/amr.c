@@ -6644,33 +6644,38 @@ int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1,
    (ai_FindGoodToMake, sub-action 0x39), else build the next type of its line; when the treasury (object 0x142)
    cannot pay, a credit to it (o1 kind 1, o2 kind 0x12) from the character's money above 80000 (a quarter, half
    for the new type)
-   @deep s71 (108 ins, source unchanged): the layout PROVES two copies of the 0.25 credit at flow-graph
-   time: block order is the RPO of a DFS that takes each test's jump edge first, so a block lands behind
-   its test only when reached last from it; the original lays the credit behind the repair test (jle
-   goods), which needs goods NOT to reach that credit block (G2/G4/G5 goto forms: credit always lands
-   behind goods; G4 'if (amt >= money) {..} goto credit' 116 ins). The goods copy is cross-jumped into the
-   repair copy after allocation. The repair-side moves 'mov esi,eax; mov ebx,1' at the copy's entry come
-   from 'n = ai_RepairCost(bl, need); if (n > money) { amt = n; credit: ..}' (goto form: 99 ins, size +3;
-   registers esi = amt, ebx = 1 right, only the credit's layout and the goods fill order left; = with m or
-   need as the temp). Two copies (gen: records blk / fs4 x repair amt / n-copy x goods 'if (amt < money)
-   {copy}' / 'if (amt >= money) {..} copy'): blk 204-219 (frame 0x34), fs4 192-207 (frame right); best
-   fs4_n_ge 192. c2trace fs4_n_if: o1 prio 69 (+30 repair copy P5, +36 goods copy P6, +56 new-type P7, +30
-   end credit) takes edi before o 60 / lvl 48 / money 47; the original needs o1 below all three (<= 46,
-   memory). climb --base fs4_n_if 2 rounds: 175 (nonsense mutants only). Next: a two-copy spelling that
-   lowers o1 by 23 or raises o / lvl / money above it. prior: s70 (108 ins, source unchanged): meaning
-   re-read against 0x4a0a70..0x4a0e53 block by block: equal (the impossible 'k < 0x1e && k > 0x21' test is
-   the original's: cmp 0x1e / jae, cmp 0x21 / ja; the goods path's 'amt < money' goes to the 0.25 credit as
-   in the original's jl 0x4a0be8; record fills, the 0.4 / 0.5 new-type tail, the credit stores and o1->arg2
-   = 1 all match). The size gap (964 vs 996) is layout only: the original keeps the 0.25 credit inline
-   behind the repair test and the goods path jumps into it after 'mov esi,eax; mov ebx,1' (the credit's
-   o1->arg2 store reads ebx = 1 in both copies, so the two copies were equal at cross-jump time: the
-   constant 1 had a register in both credit copies). Two full copies this session: block-scope records 219
-   ins with frame 0x34 (the four AIARGs then share slots: the original's 0x64 frame needs their lifetimes
-   to overlap, i.e. function-scope records or the goto); with function-scope records (all four / b1 b2 / s1
-   s2) 205-207 ins, frame right, size +40: the copies do not cross-jump (money ebx vs edi, a spill of the
-   RepairCost result, the 1 not in ebx). One copy + function-scope b1 b2: 108 ins / 321 bytes (other code,
-   = count). Next: the two-copy text with the allocation the note above asks for (o1 below o / lvl / money)
-   and the 1 as a register in each credit copy. */
+   @deep s71 (108 -> 99 ins, size 999 vs 996): kept 'n = ai_RepairCost(bl, need); if (n > money) { amt = n;
+   credit: ..}': the credit's entry moves 'mov esi,eax; mov ebx,1' are now the original's (amt esi, the
+   constant 1 in ebx through goods + credit); = with m / need as the temp. What is left: the 0.25 credit
+   block lies behind the goods test in ours, behind the repair test (jle goods) in the original, plus the
+   goods fill order that follows from it. Block order is the RPO of a DFS taking each test's jump edge
+   first; the goods block is always visited before the repair test's fall edge, so with any goto to the
+   repair credit the credit lands in the goods subtree (G2 label in goods + goto from repair: 132, frame
+   0x34; G4 'if (amt >= money) {..} goto credit': 116; G5 'if (amt <= money) goto good;': = control).
+   c2pass --skip 0x10703443 (C1's block order) on the kept text lays the credit behind the repair test as
+   the original does: so either two credit copies cross-jumped after allocation, or the original's text has
+   a flow graph the DFS model does not cover. Two copies, every form 192-329 (records blk / function scope
+   x repair amt / n-copy x goods 'if (amt < money) {copy}' / 'if (amt >= money) {..} copy' x guard split /
+   '||' credit tests / '&&' credit block / k switch): function-scope records keep the frame (blk: 0x34),
+   but o1 then ranks 69 (+30 repair copy P5, +36 goods copy P6, +56 new-type P7, +30 end credit) and takes
+   edi before o 60 / lvl 48 / money 47; the original keeps o1 in memory, so o1 <= 46 or o / lvl / money
+   above it. climb --base (two copies) 2 rounds: nonsense mutants only. Next: find a flow graph where goods
+   cannot reach the repair credit without a second copy's references (a flag set in both arms and one
+   credit test behind them, decided per path), or the two-copy spelling that drops o1 by 23. prior: s70
+   (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53 block by block: equal (the
+   impossible 'k < 0x1e && k > 0x21' test is the original's: cmp 0x1e / jae, cmp 0x21 / ja; the goods
+   path's 'amt < money' goes to the 0.25 credit as in the original's jl 0x4a0be8; record fills, the 0.4 /
+   0.5 new-type tail, the credit stores and o1->arg2 = 1 all match). The size gap (964 vs 996) is layout
+   only: the original keeps the 0.25 credit inline behind the repair test and the goods path jumps into it
+   after 'mov esi,eax; mov ebx,1' (the credit's o1->arg2 store reads ebx = 1 in both copies, so the two
+   copies were equal at cross-jump time: the constant 1 had a register in both credit copies). Two full
+   copies this session: block-scope records 219 ins with frame 0x34 (the four AIARGs then share slots: the
+   original's 0x64 frame needs their lifetimes to overlap, i.e. function-scope records or the goto); with
+   function-scope records (all four / b1 b2 / s1 s2) 205-207 ins, frame right, size +40: the copies do not
+   cross-jump (money ebx vs edi, a spill of the RepairCost result, the 1 not in ebx). One copy +
+   function-scope b1 b2: 108 ins / 321 bytes (other code, = count). Next: the two-copy text with the
+   allocation the note above asks for (o1 below o / lvl / money) and the 1 as a register in each credit
+   copy. */
 
 int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   AIBLD *bl;
