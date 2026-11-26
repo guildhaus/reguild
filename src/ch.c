@@ -2694,43 +2694,46 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
 /* 0x4079b0, walk actions: checks the next path cells against the nearby characters others[0..n-1] and,
    if one blocks the way, marks them in the ground map and searches a new path around them ("ch:GetNewPath"
    is the mem_Alloc tag). Returns the new path length, 0 nothing to do, -1 failed, -2 no way around.
-   @deep s71: 96 -> 54 ins, size now equal (2774). Kept: rest as CHPATHPT rest[0x400] filled by rest[k -
-   last - 1].x/.z (VC6 strength-reduces it from k: the lea ecx,[rest+1] after the loop guard; rest[nrest] =
-   206, the q pointer walk = 96); flags & 2 compare as 'cx == wp[j].x && wp[j].z == cz' (92 -> 88); the
-   path count read into k (k = ch_Path.count; mem_Alloc((k + nrest) * 2)): any int local with other webs (k
-   i j r e last steps) gives the original's lea ecx,[edi+ebp] and the memset load order, a own cnt / m /
-   len = control (declaration order of cnt / m = control); the FindFreeCell multiplier in the parameter n
-   (n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2; steps * n): only n gives the original's mov
-   ebx,[steps]; imul ebx,eax (and m in ebx in the second call); r e k i j last tx tz bx bz = control; if /
-   else and default-first forms of the ternary worse. No lever: the goto linked / goto next as found flags
-   + re-test (k < 16 && contacts[k].ch: not threaded, +21 bytes). Left: frame ties (cz / scene at 0x2c /
-   0x30 swapped, tz-len / bz at 0x34 / 0x38 swapped); a packer + K&R quicksort replay of c2frame --names (N
-   / X rows) says scene +1 or cz -1 gives the original's table, but a probe 'probe = scene' only works
-   after 'return -2;' (the list tie: scene must reach 9 after steps and cx in the walk). Code: flags & 2's
-   x compare loads cx first and compares ecx(wp.x),eax(cx); flags & 1's cx-arm z compare is mov
-   ecx,[edx+4]; cmp ecx,[cz] (ours mov ecx,[cz]; cmp [edx+4],ecx); c2trace: cx#3 (2770,2779) memory, cz#1
-   bulk split. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes name the counts: a
-   dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives the original's table
-   exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92 ins), cz -1 (a
-   compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py --want '_scene\$ =
-   -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes: deleting gx = cz / sx = cz,
-   swapping the dz line with the sqrt in either distance arm, y as double, the goto linked / goto next
-   deletions. So the original has one more counted reference of scene and of cx (a statement in both arms
-   merged late, or a reload the peephole removes); not found. Declaration orders (5) = control. m (the
-   FindFreeCell ternary): inlined in either / both calls, if / else, m = steps * (..), m * steps, r / e / k
-   / i reused, unsigned: all = control (c2trace: m#1 / m#2 both eax; the original has m#2 in ebx and both
-   products in a fresh register after the flags push); unsigned char m spills m (130), short 98, flags | 1
-   in a local 175. Compares: 'cx == wp[j].x' in the flags & 2 arm loads cx first as the original but
-   compares eax,ecx (92 ins, not kept); 'cz == wp[j].z' in the flags & 1 arm = other code, same count. Rest
-   copy as rest[nrest * 2] index form 206, q += 2 before nrest++ 121. mem_Alloc: (nrest + cnt) * 2 / cnt *
-   2 + nrest * 2 = control; no cnt local ((ch_Path.count + nrest) * 2) gives the original's lea / add
-   ecx,ecx form but loads the global after mem_Free (100 ins, slots 60); cnt read after the free 98; cnt =
-   count + nrest 98. The original loads count into edi before the path test and still forms the sum with
-   lea (cnt not modified in place although dead): the cnt candidate is something VC6 treats as not dying
-   there. climb --rounds 1 (447 mutants): best 89 only via an int copy of ch->speedScale (meaning change).
-   Left: the frame ties, the two FindFreeCell m / product registers, the flags & 2 cx compare order, the
-   flags & 1 cz compare form, the rest-copy loop's lea / add ecx placement, the memset argument load order,
-   mem_Alloc's lea. */
+   @deep s71: 96 -> 54 ins shape (size equal 2774). Kept: rest as CHPATHPT rest[0x400] filled by rest[k -
+   last - 1].x/.z (VC6 strength-reduces it from k: lea ecx,[rest+1] after the loop guard; rest[nrest] =
+   206, the q pointer walk = 96); the path count read into k (k = ch_Path.count; mem_Alloc((k + nrest) *
+   2)): any int local with other webs (k i j r e last steps) gives the original's lea ecx,[edi+ebp], an own
+   cnt / m / len = control, declaration order of cnt / m = control; the FindFreeCell multiplier in the
+   parameter n (n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2; steps * n): only n gives mov ebx,[steps];
+   imul ebx,eax (and n in ebx in the second call), r e k i j last tx tz bx bz = control, if / else and
+   default-first forms worse; the flags & 2 arm ends in 'continue;' after its 'if (cx == wp[j].x && wp[j].z
+   == cz) { res = 1; break; }' (draft -> shape: the flags & 1 arm's z compare becomes mov ecx,[edx+4]; cmp
+   ecx,[cz]; 'if (!(..)) continue;' and if / else continue = the same code; with 'wp[j].x == cx' 58 ins,
+   wp.x loaded first). No lever: goto linked / goto next as found flags + re-test (not threaded, +21
+   bytes); the flags & 1 arm's continue as a nested if / && (= control); r = min(..) forms; FindFreeCell
+   outputs in a new block local fx (96). Left (shape): flags & 2's x compare 'cmp ecx(wp.x),eax(cx)' after
+   loading cx first (ours cmp eax,ecx); the memset block loads others before n (original n first; it was
+   right before the continue, so it follows the rotation); frame ties cz / scene (0x2c / 0x30) and tz-len /
+   bz (0x34 / 0x38) swapped. c2frame probes: a 'probe = scene' fixes the table only after 'return -2;' or
+   on the return-0 paths (scene must reach 9 references after cx's last one, the '-2' test, in the walk);
+   'probe = steps + cx + scene' anywhere in the res & 1 block also gives it (steps, cx 10). A packer replay
+   (N / X rows, K&R quicksort) agrees. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame
+   probes name the counts: a dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1)
+   gives the original's table exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before
+   cx (92 ins), cz -1 (a compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped.
+   flip.py --want '_scene\$ = -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes:
+   deleting gx = cz / sx = cz, swapping the dz line with the sqrt in either distance arm, y as double, the
+   goto linked / goto next deletions. So the original has one more counted reference of scene and of cx (a
+   statement in both arms merged late, or a reload the peephole removes); not found. Declaration orders (5)
+   = control. m (the FindFreeCell ternary): inlined in either / both calls, if / else, m = steps * (..), m
+   * steps, r / e / k / i reused, unsigned: all = control (c2trace: m#1 / m#2 both eax; the original has
+   m#2 in ebx and both products in a fresh register after the flags push); unsigned char m spills m (130),
+   short 98, flags | 1 in a local 175. Compares: 'cx == wp[j].x' in the flags & 2 arm loads cx first as the
+   original but compares eax,ecx (92 ins, not kept); 'cz == wp[j].z' in the flags & 1 arm = other code,
+   same count. Rest copy as rest[nrest * 2] index form 206, q += 2 before nrest++ 121. mem_Alloc: (nrest +
+   cnt) * 2 / cnt * 2 + nrest * 2 = control; no cnt local ((ch_Path.count + nrest) * 2) gives the
+   original's lea / add ecx,ecx form but loads the global after mem_Free (100 ins, slots 60); cnt read
+   after the free 98; cnt = count + nrest 98. The original loads count into edi before the path test and
+   still forms the sum with lea (cnt not modified in place although dead): the cnt candidate is something
+   VC6 treats as not dying there. climb --rounds 1 (447 mutants): best 89 only via an int copy of
+   ch->speedScale (meaning change). Left: the frame ties, the two FindFreeCell m / product registers, the
+   flags & 2 cx compare order, the flags & 1 cz compare form, the rest-copy loop's lea / add ecx placement,
+   the memset argument load order, mem_Alloc's lea. */
 
 int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
   int res = 0;
@@ -2778,6 +2781,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
           res = 1;
           break;
         }
+        continue;
       } else if (wp[j].flags & 1) {
         if (wp[j].x == bx && wp[j].z == bz) {
           res = 5;
