@@ -356,6 +356,15 @@ Section names are those of `notes/vc6-matching.md`.
   the first operand = the SIB base, the destination of `add a,b`); `--acct`: the function's id blocks and optimizer
   temporaries. Use it on a base / index or `add` operand swap before any spelling round: when both operands are
   leaves the order is a function of two ids, and only a change of the function's IL volume moves it.
+- `python tools/c2dag/idmeter.py SRC FUNC --stmt "TEXT" [--nth N] --variants FILE [LABEL ..]`: per variant the ids
+  and keys of that statement's sum in C2's order, and `code: same` when nothing but the ids moved. Aims a
+  code-neutral change of the IL volume at the id window before `dcp try` confirms the bytes.
+- `python tools/c2dag/c2sched.py trace SRC FUNC` / `hack SRC FUNC SPEC.. [--show N] [--want FILE]` / `wall SPEC
+  [UNIT..]` (proxy c2sched.c): the cycle scheduler's picks of one function, and the function compiled with patched
+  decisions: `81,5` region lengths, `hR:I:D` a node's priority, `lR:I:J:D` an edge's latency, `gN` the processor
+  model, `f` the x87 pre-pass off; `wall` a weight of the Pentium table over all units, with the grades of the
+  functions it changes. For an order hunk no variant moves: patch until the listing is the original's, then look
+  for the text with that effect (d3t_UpdateSnow). All proxies build on first use into build/c2dag/.
   `python tools/c2dag/c2dag.py SRC FUNC [--alloc]`: the scheduler's graph per block; the candidates with
   priority and final register. `python tools/c2dag/c2frame.py SRC FUNC [--refs]`: the frame packer's counts and
   slot table. `--names` names every temporary by the first source line that uses it (`tmp@8208`), lists each
