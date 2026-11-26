@@ -110,7 +110,7 @@ exe	0x004076c0	ch_CopyVec	ch	ee54c896b801bb76	no	byte	control=byte p1=byte p2=by
 exe	0x004076e0	ch_PosToCell	ch	c1e37bfa1dff80e6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00407740	ch_CellToCell	ch	c3d32bb49966197d	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
 exe	0x00407790	ch_GetWaypoints	ch	1877c53f3070b30d	no	draft	sweep control=draft best=draft by the build's declarations; codegens=1 compiled=190	7cf82cf5adf927f2
-exe	0x004079b0	ch_GetNewPath	ch	5bb9f6e2b915efac	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	eb3a0e0536a97b77
+exe	0x004079b0	ch_GetNewPath	ch	79ae67c638065f3b	yes	shape	sweep control=shape best=shape by the build's declarations; codegens=2 compiled=127	40e96ae964d16c94
 exe	0x00408490	ch_PathToTarget	ch	b69a76b6f5c10af8	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	8b2394f43e5fbd12
 exe	0x00408690	ch_InitWalk	ch	cf9bac5a8a2fa243	no	shape	sweep control=shape best=shape by the build's declarations; codegens=1 compiled=127	0ac3082a3c98960e
 exe	0x00408ab0	ch_WalkSound	ch	1d2c5fd3dee4d9b6	no	byte	control=byte p1=byte p2=byte p3=byte p4=byte	
