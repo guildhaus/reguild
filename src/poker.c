@@ -661,28 +661,29 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    with the registers swapped), so no id window is involved. (2) Forwarding: no sum with a block-dead local
    in the race. (3) The allocation queue (c2trace --raw): w 345 takes esi, the IV k#21a 76 (tie 2b) takes
    edi, the table 12 (tie 11) ebx, kind[2] ebp; 76 against 12 is no tie, so neither the tie field nor the
-   declaration set reaches it. Two ways give the original (table edi, IV ebx), the second new: (A) the
-   table above the IV (about +65: s74 proved it with four table reads in the init block, 118 ins left); (B)
-   the IV still served first but with a score on edi: the choice takes the lowest score, ties esi, edi,
-   ebx, ebp, and a waiting candidate that interferes and PREFERS edi adds one, so the IV would take ebx and
-   the table edi. The table has prefs[ ] here; a preference comes only from a copy with a physical register
-   or an assigned candidate (edi: the destination of an inline rep stos / movs, or a copy with a candidate
-   already in edi), and the original function has no string instruction, so (B) needs a copy that leaves no
-   code: not found. What the original's init block shows and ours lacks (under either way): xor ebp
-   (kind[2]); xor ebx (the IV, in front of the stores); xor eax (kind[0]); mov ecx,ebp (kind[1] copied from
-   kind[2]'s register, not a fresh xor); xor edx for out[2] and out[1]; out[0] stored from the IV's ebx;
-   the table load last. Ours: one eax for kind[0] and all three out stores, xor ecx for kind[1], the IV's
-   xor behind the stores. So the zero constant's pieces are spread by preferences the original's text gives
-   (kind[1] from kind[2], out[0] from the IV) and ours does not. Kept facts of s72..s76: the first switch
-   is the original's instruction for instruction with cases 1 / 2 as 'if (g1[0] > g1[1]) w = 0; else if
-   (g1[1] > g1[0]) w = 1;' and the case order 1, 2, 3/7, 6, 8, 5, 4; = control or worse: seat pointer, hand
-   store chained, arms swapped, loop over k or a block local i (154, frame 0x4c), while, w = 0 positions,
-   out[0] = w, zero-init chains / loop / memset / = {0}, a local t = ai_PokerTable (155-158), 720 init
-   orders and 5040 case orders under the probes (118), shared-compare forms (192-207), climb 4 rounds.
-   Next: a text for the init block whose zero stores carry the original's copies (kind[1] <- kind[2],
-   out[0] <- the seat offset), then the table / IV order again on that base. prior: s73 (158 ins, source
-   unchanged): the register swap is an order-of-service question. c2trace: w#1 (345) takes esi, the
-   seat-offset IV k#21a (76: +18 def in the init block P9, +12 foldedAt, +28 the hand store in the
+   declaration set reaches it. Measured: 23 probe counts (16..1072 dead 'if (0) ai_PokerHighCard(..);'
+   lines in front of the inits) = control, one code. Two ways give the original (table edi, IV ebx), the
+   second new: (A) the table above the IV (about +65: s74 proved it with four table reads in the init
+   block, 118 ins left); (B) the IV still served first but with a score on edi: the choice takes the lowest
+   score, ties esi, edi, ebx, ebp, and a waiting candidate that interferes and PREFERS edi adds one, so the
+   IV would take ebx and the table edi. The table has prefs[ ] here; a preference comes only from a copy
+   with a physical register or an assigned candidate (edi: the destination of an inline rep stos / movs, or
+   a copy with a candidate already in edi), and the original function has no string instruction, so (B)
+   needs a copy that leaves no code: not found. What the original's init block shows and ours lacks (under
+   either way): xor ebp (kind[2]); xor ebx (the IV, in front of the stores); xor eax (kind[0]); mov ecx,ebp
+   (kind[1] copied from kind[2]'s register, not a fresh xor); xor edx for out[2] and out[1]; out[0] stored
+   from the IV's ebx; the table load last. Ours: one eax for kind[0] and all three out stores, xor ecx for
+   kind[1], the IV's xor behind the stores. So the zero constant's pieces are spread by preferences the
+   original's text gives (kind[1] from kind[2], out[0] from the IV) and ours does not. Kept facts of
+   s72..s76: the first switch is the original's instruction for instruction with cases 1 / 2 as 'if (g1[0]
+   > g1[1]) w = 0; else if (g1[1] > g1[0]) w = 1;' and the case order 1, 2, 3/7, 6, 8, 5, 4; = control or
+   worse: seat pointer, hand store chained, arms swapped, loop over k or a block local i (154, frame 0x4c),
+   while, w = 0 positions, out[0] = w, zero-init chains / loop / memset / = {0}, a local t = ai_PokerTable
+   (155-158), 720 init orders and 5040 case orders under the probes (118), shared-compare forms (192-207),
+   climb 4 rounds. Next: a text for the init block whose zero stores carry the original's copies (kind[1]
+   <- kind[2], out[0] <- the seat offset), then the table / IV order again on that base. prior: s73 (158
+   ins, source unchanged): the register swap is an order-of-service question. c2trace: w#1 (345) takes esi,
+   the seat-offset IV k#21a (76: +18 def in the init block P9, +12 foldedAt, +28 the hand store in the
    post-call block P7, +32 latch) takes edi, the table ai_PokerTable#1 (12) takes ebx, kind[2] ebp; the
    choice order is esi, edi, ebx, ebp (probe: five '{ static G10GAME *pm; pm = ai_PokerTable; }' in the
    first loop lift the table to 61, it is served before the IV and takes edi). The table is at +40 after
