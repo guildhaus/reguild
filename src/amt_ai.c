@@ -1287,33 +1287,7 @@ int ai_AimCannon(AICHAR *p, AIBLD *b, AIBLD *t) {
 /* 0x4a6ae0, execute callback of the cannon shot: fires the 1..3 balls ai_AimCannon planned into ai_CannonShot: one
    ball from 50 units along the barrel b; two from 40 units, 5 to either side along d; three from 40 units, one 5
    along c, two 3 back along c and 5 to either side along d. Each ball: ai_InitShot, ai_ScatterShot by the
-   cannon's spread (gv_CannonScatter); then gv_FireShots with the charge, 1 when fired
-   @deep deep s87: 48 -> shape 4 ins. The lever was variable identity: every scaled offset its own
-   block-local vector (case 2: b40 = b*40, d5, dm5; case 3: b40 apart from the third ball v1, c5, cm3, d5,
-   dm5). A mem + mem float sum loads the operand whose IL symbol number is higher first (c2dag m:#N: case 2
-   b40 #12 < ai_CannonShot #20 -> fld a; case 3 b40 #b1 > #20 -> fld b40); numbers go by first reference
-   (struct locals about 6 apart, the first four vectors v1 / w / v2 / v3 below the global, later ones from
-   #a0 up), and the split also fixed the f / c / tmp slot order (K&R-quicksort replay of c2frame B rows: f
-   / c needed weight against tmp). Left: case 2 b40 z sum: the original fld [b40.z]; fadd a.z but its y sum
-   fld a.y; fadd [b40.y], so in the original the y and z products have symbol numbers on both sides of
-   ai_CannonShot's: one vector cannot do that. = control or worse: all 192 dependency-valid orders of the
-   b40 block (x / y / z kept), 719 orders of the six sums, operand flips (canonical), probes and a.z /
-   b40.z reads at every position, scalar / union-path / plain-struct / array w, v2 or v3 as the product, a
-   dead third destination, renames and declaration orders (no effect). Next: which IL symbol could sit at
-   A.z with a number above #20 while A.y stays below (c2dag numbers per variant: scratchpad nums.py idea:
-   map m:#N to first source line). prior: s86 206 -> 48 ins: the vectors were per-case block locals, packed
-   by VC6 into the original 4 slots: case 1 { D3VECTOR4 v1; }, case 2 { D3VECTOR4 w, v2; } (w the b*40 /
-   d*5 / d*-5 temp: not address-taken, so its dead x / y stores vanish as in the original), case 3 {
-   D3VECTOR4 v1, t; } (v1 the b*40 temp and the third ball, t the c / d offsets), v3 and v4 at function
-   scope (c2frame P: last-slot-first packing gives A = v1 / w / v1, B = t / v2, C = v3, D = v4 only with v3
-   / v4 not block locals); case 2 sums v2 then v3 (cse23); x = ai_CannonShot.x read before cost (x in ebp,
-   cost spilled: the old M8). Left (48): (1) f / c / z-temp slots: the original f [0x48] c [0x4c] temp
-   [0x50], ours c, temp, f - all three weight 4, dens 1000, the unstable quicksort order depends on the
-   whole table (flip.py --want _f$ = -344: only meaning changes, e.g. the two calls swapped); declaration
-   orders, names, f in two statements, g folded into f: = control; (2) case 2 x87 order: z sum of b*40
-   (orig fld [w.z]; fadd a.z, ours a.z first) and the d*5 / d*-5 sums (orig fld [w.y]; fadd [v2.y], ours v2
-   first; an fxch): 119 operand-order spellings = one code, 11 chain / copy / in-place forms all worse,
-   flip.py --want for the z order: no hit. */
+   cannon's spread (gv_CannonScatter); then gv_FireShots with the charge, 1 when fired */
 
 int ai_FireCannon(AICHAR *p, AIBLD *b) {
   float u, v;
@@ -1352,6 +1326,26 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
       D3VECTOR4 v2;
       D3VECTOR4 b40, d5, dm5; /* the scaled offsets, one vector each */
 
+      /* @original a disabled loop form of the two balls. Its text is ours, not recovered: the original function
+         holds statements that leave no code. Their locals are counted in C2's symbol ids, 32 to a block, and the
+         id orders the operands of a float sum (the rule in notes/vc6-matching.md, "Operand order of commutative
+         ops"). The original loads ai_CannonShot.a.y and adds b40.y, but loads b40.z and adds
+         ai_CannonShot.a.z: b40.y is the last local id of the first block and b40.z the first of the next, which
+         takes 9 or 10 more local ids in front of them than the live code has (8 or 11: both sums one way). This
+         block has 9. */
+      if (0) {
+        D3VECTOR4 at;
+        float side;
+        int i;
+
+        for (i = 0; i < 2; i++) {
+          side = i ? -5.0f : 5.0f;
+          at.x = ai_CannonShot.b.x * 40.0f + ai_CannonShot.d.x * side + ai_CannonShot.a.x;
+          at.y = ai_CannonShot.b.y * 40.0f + ai_CannonShot.d.y * side + ai_CannonShot.a.y;
+          at.z = ai_CannonShot.b.z * 40.0f + ai_CannonShot.d.z * side + ai_CannonShot.a.z;
+          ai_InitShot(i ? &s1 : &s2, &at.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
+        }
+      }
       b40.x = ai_CannonShot.b.x * 40.0f;
       b40.y = ai_CannonShot.b.y * 40.0f;
       b40.z = ai_CannonShot.b.z * 40.0f;

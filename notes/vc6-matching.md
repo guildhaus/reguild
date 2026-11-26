@@ -5778,6 +5778,16 @@ the stack at every instruction.
   element, written-out `T[x].f` reads and sprintf arguments about 5 each), under an `@original` comment saying its
   text is ours and which id it sets, sized with c2ids.py / idmeter.py, together with the code-neutral natural
   forms that fit (the MissionMode search as an index loop). Only where the id-hash wrap is proven this way.
+  The same sort orders a float `mem + mem` sum (which operand is the `fld`, which the `fadd`): ai_FireCannon case 2
+  `v2.y = b40.y + a.y` is `fld a.y; fadd b40.y` but the z sum `fld b40.z; fadd a.z`. Both operands are leaves of
+  the non-temporary kind (`id << 5`): a field of a global has its own id in the globals' block (0x35 / 0x37 /
+  0x39), a field of a local struct one in the locals' blocks, by first reference in the text: 2 ids per float
+  field, 1 per scalar local, an unreferenced declaration none, a dead initialiser or a local of an `if (0)` body
+  counts. The first locals' block is 0x00..0x1f, the next lies behind the globals (0xa0..): the original's y / z
+  split means b40.y is the last id of the first block and b40.z the first of the next. Dead int locals in front:
+  +8 = control, +9 / +10 byte, +11 the y sum flips too (`idmeter.py --stmt`). Byte with one disabled block of 9
+  local ids (the two balls as a loop) under an `@original` comment; no ordinary text had been found in 2 sessions
+  of operand-order rounds (one code each).
 - **`add edx,eax` against `add eax,edx` for `n % 2 + n / 2` (one idiv), no spelling of that statement moves it**:
   the constant-first compare `if (0 != o1->kind) return 0;` 50 lines above did (ai_DecideBuildBusiness, found by
   climb.py's `commute` op; `if (o1->kind)`, `!(.. == 0)`, the sum's operand order, parentheses: = control).
