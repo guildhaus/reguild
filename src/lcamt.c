@@ -3833,48 +3833,43 @@ typedef struct LCFAMILYBOX { /* 0x10 bytes, one box of the family tree window */
    click opens the info panel of the picked character (ai_CharInfoPanel: without its take-over button with 0x10
    or for the character itself, with it under 8), a click on no box redraws; the right button closes the window
    unless flags has 8. callId is the frame pump's call id; the campaign step 6 brackets the window.
-   @deep s(this): hunk (1) is the operand order of a sum of two CSE temps against a variable: with half a
-   VARIABLE the w / 2 CSE sorts first; with half a CSE temp (the variable is replaced by the width / 2 temp
-   as soon as the expression width / 2 appears) the older temp sorts first, the original's (half - w) + w /
-   2. 'row[2].x = width / 2;' in the no-partner arm (alone among the 24 half sites; the sites 6..9, 14..17,
-   22..24 add nothing on top, the others break code) gives the original's order: shape 104 ins, all one ebx
-   / ebp swap: the width / 2 temp (pass 5 prio 190; the variable half#3 had 242: 3 references in the init
-   block against the temp's 2) loses ebx to the box temps temp#73b / #74c / #75d (the ai_Chars offset of
-   each box, prio 200). What lifts it over 200 (+12, both 14 ins, only the SIB + the probe's own slot
-   left): ONE candidate fewer living from the init block to the boxes, e.g. the partner box tested on
-   row[2].id or parents[1].id instead of row[3].id (k#15 then is no candidate; a new one, row[4].id, does
-   not help). Not it (= 104 or worse): 5040 orders of the init run, the partner / row[3].id store order,
-   row[2 + partner].id, spellings of the row[3] test (7), the sibling store through (row + k) / casts, a
-   D2PIC pointer for w / h, the partner arms swapped, dead row[2].x stores in the init block, climb 2
-   rounds + 2 rounds (2405 mutants) from this base, flip --want 'lea ebp, DWORD PTR [eax+104]' (60 hits,
-   all meaning changes; best the row[2].id test). SIB hunk (2) is IL volume: 25..29 dead 'if (0)
-   strcpy(rowText, "");' probes anywhere give the original's [d2_Objs + idx] at the row[2] / row[3] sites,
-   with or without the width / 2 change; 9-13 / 30-35 / 57+ give other codes; dead stores, argument-less
-   calls, unused locals, memset spellings, local int types, if / else forms of the interactive flags, mid /
-   x written out: no effect. Next: which candidate of ours (living init -> boxes: row[2].id, row[3].id,
-   parents[0/1].id, partner, nSiblings, k, w, h, constants) the original does not have, and what extra IL
-   it has. prior: s(this): the box loops read their x as a short local t (mov bx,word [..]; add ebx,2; push
-   ebx) in the first sibling loop and both child loops (not the second sibling loop: a pointer walk over
-   siblingX in the original) 277 -> 145; the father's relatives walk has its own counter j (hi's slot in
-   the original) 145 -> 71; the children-row midpoint written out at each use instead of mid 71 -> 43; oddX
-   / evenX filled in index order 43 -> 30; the zero inits k / nChildren / nSiblings / partner first, then
-   half / w / h, then the three memsets (840 orders) 30 -> 20, size equal. Left (20 ins, two operand-order
-   hunks, everything else identical): (1) +0x403 parents[0].x: original (half - w) + w/2 (mov ecx,ebx; sub
-   ecx,edx; lea eax,[ecx+ebp]), ours (w/2 - w) + half; no lever: 33 spellings of the sum, 127 commuted w/2
-   sums over the function, a named hw local (still w/2 first), a named x for the CSE half - w + w/2, all
-   5040 orders of the init run, dead initialisers at every declaration, declaration moves: one code.
-   flip.py finds it only with mutants that rewrite the allocation (w as char, deleting row[i].x = w / 2 +
-   t, ..): it follows the ranks of half against the w/2 CSE temp. (2) SIB base/index of the d2_Objs
-   style/user stores of the row[2] / row[3] boxes (+0x637 +0x710 +0x7f4): original [d2_Objs + idx] (c1's
-   own order), ours [idx + d2_Objs] as in the parents' boxes, where the original also swaps. No lever:
-   (d2_Objs + c)->, &d2_Objs[c], c[d2_Objs], a named ctrl local, a box pointer b = &row[2], a constant
-   index variable, declaration moves of row / parents / t, block-scoped t / j / x, a block-scope extern of
-   d2_Objs, the partner arms swapped (layout breaks), dead stores of row[2].ctrl; flip.py over every single
-   mutation: only i as short / char flips it (all sites change). c2trace names the box fields k#1c
-   (parents[0].ctrl), k#101 (parents[1].ctrl), k#104 (row[2].ctrl): the order may follow these field
-   symbols' ranks against d2_Objs; untested how to move them. climb 6 rounds (seed 7) from here: nothing.
-   Loop counters: every single loop and every pair of loops on j instead of i (120 variants): neither hunk
-   moves (only slots break). */
+   @deep s(this): KEPT 'row[2].x = half - w / 2 + w / 2;' in the no-partner arm (the box's left edge plus
+   half its width, as every other box writes its x): 20 -> 12 ins, shape; it fixes hunk (1) and the
+   register picture at once. Mechanism: the expression half - w / 2 makes the half variable a CSE temp of
+   width / 2 (VC6 replaces the variable by the temp once the expression shares it), and an older temp sorts
+   before the w / 2 CSE in the reassociated sum (half - w) + w / 2; 'row[2].x = width / 2;' gave the same
+   order but one candidate too many (ebx / ebp swap, 104 ins). Left: the SIB base / index of the d2_Objs
+   style / user stores of the row[2] / row[3] boxes (+0x637 +0x648 +0x710 +0x721 +0x7f4 +0x805; original
+   [d2_Objs + idx]). It is IL volume: 22..27 dead 'if (0) strcpy(rowText, "");' probes anywhere in THIS
+   function give byte (probes in the unit's previous function do nothing); 6 / 28 / 49 probes give other
+   codes. Code-neutral spellings that add little IL do not reach the band: inner box positions as left + 2
+   / y + 2 (511 subsets: only 2 codes), found == -1 in the first click loop, found = i in the children
+   loop, memset spellings, unused locals, int types, if / else forms of the interactive flags, mid / x
+   written out. So the original has a larger amount of code VC6 removes (about 22 strcpy probes; one
+   d2_SetForm(win, 1) call in if (0) counts about half of that), or the same text otherwise spelled. Next:
+   find that code (dead / decided blocks, a debug macro, a longer form of a whole block). prior: s(this):
+   the box loops read their x as a short local t (mov bx,word [..]; add ebx,2; push ebx) in the first
+   sibling loop and both child loops (not the second sibling loop: a pointer walk over siblingX in the
+   original) 277 -> 145; the father's relatives walk has its own counter j (hi's slot in the original) 145
+   -> 71; the children-row midpoint written out at each use instead of mid 71 -> 43; oddX / evenX filled in
+   index order 43 -> 30; the zero inits k / nChildren / nSiblings / partner first, then half / w / h, then
+   the three memsets (840 orders) 30 -> 20, size equal. Left (20 ins, two operand-order hunks, everything
+   else identical): (1) +0x403 parents[0].x: original (half - w) + w/2 (mov ecx,ebx; sub ecx,edx; lea
+   eax,[ecx+ebp]), ours (w/2 - w) + half; no lever: 33 spellings of the sum, 127 commuted w/2 sums over the
+   function, a named hw local (still w/2 first), a named x for the CSE half - w + w/2, all 5040 orders of
+   the init run, dead initialisers at every declaration, declaration moves: one code. flip.py finds it only
+   with mutants that rewrite the allocation (w as char, deleting row[i].x = w / 2 + t, ..): it follows the
+   ranks of half against the w/2 CSE temp. (2) SIB base/index of the d2_Objs style/user stores of the
+   row[2] / row[3] boxes (+0x637 +0x710 +0x7f4): original [d2_Objs + idx] (c1's own order), ours [idx +
+   d2_Objs] as in the parents' boxes, where the original also swaps. No lever: (d2_Objs + c)->,
+   &d2_Objs[c], c[d2_Objs], a named ctrl local, a box pointer b = &row[2], a constant index variable,
+   declaration moves of row / parents / t, block-scoped t / j / x, a block-scope extern of d2_Objs, the
+   partner arms swapped (layout breaks), dead stores of row[2].ctrl; flip.py over every single mutation:
+   only i as short / char flips it (all sites change). c2trace names the box fields k#1c (parents[0].ctrl),
+   k#101 (parents[1].ctrl), k#104 (row[2].ctrl): the order may follow these field symbols' ranks against
+   d2_Objs; untested how to move them. climb 6 rounds (seed 7) from here: nothing. Loop counters: every
+   single loop and every pair of loops on j instead of i (120 variants): neither hunk moves (only slots
+   break). */
 void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
                          int callId) {
   AICHAR *ch;
@@ -4035,7 +4030,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
         }
       } else {
         row[2].ctrl = d2_WinOpenPic(half - w / 2, 0x96, 0x5db, d2_LastWindow);
-        row[2].x = half;
+        row[2].x = half - w / 2 + w / 2;
         row[2].y = 0x96;
         if (row[2].id != 0xffff) {
           d2_WinOpenPic(half - w / 2 + 2, 0x98, ai_Chars[row[2].id].picture,
