@@ -201,8 +201,8 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
         s1.y = f1->scale.y;
         s1.x = *wp * s1.x;
         s1.z = f1->scale.z;
-        s1.y = *wp * s1.y;
         s2.z = f2->scale.z;
+        s1.y = *wp * s1.y;
         b2.z = f2->base.z;
         s1.z = *wp * s1.z;
         b1.x = f1->base.x;
@@ -217,10 +217,10 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
         s2.y = *wp * s2.y;
         s2.z = *wp * s2.z;
         b2.x = f2->base.x;
-        b2.y = f2->base.y;
-        b2.x = *wp * b2.x;
-        b2.y = *wp * b2.y;
         b2.z = *wp * b2.z;
+        b2.x = *wp * b2.x;
+        b2.y = f2->base.y;
+        b2.y = *wp * b2.y;
         d3_AnimBlendWeights(sl, &a, &b);
         i = 0;
         v = info->keys;
