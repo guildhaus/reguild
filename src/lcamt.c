@@ -3844,7 +3844,9 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
   int half;
   int w;
   int h;
+  int x;   /* x and mid are unused: the declaration set of ai_CharInfoPanel below counts them */
   short t;
+  int mid;
   int lo;
   int hi;
   int i;
