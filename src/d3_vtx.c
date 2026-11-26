@@ -140,33 +140,37 @@ void d3_AnimBlendWeights(D3ANIMSLOT *s, float *a, float *b) {
 /* 0x459300, transforms the animated mesh's vertices: per active slot it blends the two key frames' base and
    scale by the blend weights and adds the result into info->keys, then applies the object matrix (tracking the
    z range in d3_MinZ / d3_MaxZ when the vertex normal bit is set)
-   @deep s(this) 169 -> 88 ins. Kept: i = 0; before v = info->keys (the original's xor ecx,ecx above the
-   first test) with the blend loops as for (; i < ..); the first blend loop's sums in x, y, z order (q2.x
-   stays on the FPU, frame now 0x74 = the original's slot for slot); D3VECTOR4 s1, b1, s2, b2, q1, q2 (the
-   volatile D3MVEC types gone) and the plain z range (v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z
-   < d3_MaxZ)) d3_MaxZ = (v->z);) in both flagged loops; the four transform loops as plain rows 'v->x = vx
-   * m->_11 + vy * m->_21 + vz * m->_31 + m->_41' (x, y, z; loops 2-4 canonicalise, only loop 1's spelling
-   moved the code: 130 -> 88). Paren around the operands of loops 3/4 = other code (100). Weight block
-   plain (s1.x = f1->scale.x .. s1.x = sl->weight * s1.x, all four vectors, p1/p2 before): structure the
-   original's but VC6 consumes the copy (fxch; fmul [esi]) where the original keeps x, y on the FPU (fld
-   [esi]; fmul st,st(2)) and pops both after the y store; comma forms = the same code; direct sl->weight *
-   f1->scale.x, a float w local, all copies first: worse. Left: the weight block (still the hill-climbed
-   *wp volatile spelling), then loop 1's y/z rows (same FPU instructions, other stack order), loops 3/4
-   rows (order 14 each). prior: s70 (source unchanged, 169 ins). The z tracking has a plain form without
-   the volatile vzp: in both flagged loops 'v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z <
-   d3_MaxZ)) d3_MaxZ = (v->z);' gives the original's MinZ / MaxZ code exactly (fst, fstp MinZ / fstp st(0),
-   fld [edx+8] for the compare, fld / fstp for the parenthesised copy as d3_engine.c's d3_MaxZ =
-   (m->zMax)): 151 ins, but the size goes +1 -> +17 and the transform sums of all four vertex loops change
-   term order (VC6 ranks unparenthesised float products function-wide, the stored v->z read moves the
-   ranks). Without the parens 159 (int mov copy); <= / >= forms 165..195. Then sum spelling rounds on that
-   base (each loop's three lines: plain / every product parenthesised / first product parenthesised x the 6
-   term orders): per loop 81 combos (s0222: 135 ins), loop 4 alone 5832 variants = 39 codes (best 131),
-   loop 2 alone 5832 = 47 codes (best 130 / size +15): the term order is not a spelling question (VC6
-   canonicalises), the s63 lever (a record pointer local changes operand ranks: e.g. a pointer to m's rows
-   or to sp per loop) is the next round. Not applied: every row of the z-plain base is 13-17 bytes larger
-   than the original (padded 1504 vs 1488) while the committed text is +1. Remaining apart from the sums:
-   the 'mov eax,[ebx]' / xor ecx placement after d3_AnimBlendWeights (the original clears ecx once before
-   the first-flag branch), the q1 / q2 spills [esp+0x64] / [esp+0x7c], the weight block's frame-slot order. */
+   @deep s(this) 169 -> 74 ins. Kept: i = 0; before v = info->keys (the original's xor ecx,ecx above the
+   first test), blend loops as for (; i < ..); the first blend loop's sums x, y, z (frame now 0x74 = the
+   original's slot for slot); D3VECTOR4 s1, b1, s2, b2, q1, q2 (no volatile struct types); the plain z
+   range in both flagged loops (v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z < d3_MaxZ)) d3_MaxZ =
+   (v->z);); all four transform loops as plain rows 'v->x = vx * m->_11 + vy * m->_21 + vz * m->_31 +
+   m->_41' (x, y, z); then b1.z copied before b1.y is scaled (climb swap: 88 -> 74, it fixed the y rows of
+   loops 1/2: the float product ranks are function-wide and set by the weight block's text). Spelling
+   rounds that did nothing: loop 1 y/z rows 2303 term orders x product parens (best = control), y rows
+   operand-paren subsets x orders (worse), vx/vy/vz as fields of q1/q2/s1/a new D3VECTOR4 (= control), a
+   local D3MATRIX *m = mat (142). Weight block plain (s1.x = f1->scale.x .. s1.x = sl->weight * s1.x per
+   vector, p1/p2 first): VC6 consumes the copy (fxch; fmul [esi]) where the original keeps x, y on the FPU
+   (fld [esi]; fmul st,st(2)) and pops both after the y store; comma forms, direct sl->weight *
+   f1->scale.x, a float w local, all copies first: worse (175-279). climb round 3 also found an int t =
+   sl->data->frames local (62, meaningless). Left: the weight block (still the hill-climbed *wp volatile
+   spelling; s2.z / b2.z are FPU copies in ours, integer movs in the original), loops 3/4 x rows (original
+   sp->z*_31 + sp->y*_21 + sp->x*_11 order), the a/b/first block after d3_AnimBlendWeights. prior: s70
+   (source unchanged, 169 ins). The z tracking has a plain form without the volatile vzp: in both flagged
+   loops 'v->z = z; if (!(d3_MinZ < z)) d3_MinZ = z; if (!(v->z < d3_MaxZ)) d3_MaxZ = (v->z);' gives the
+   original's MinZ / MaxZ code exactly (fst, fstp MinZ / fstp st(0), fld [edx+8] for the compare, fld /
+   fstp for the parenthesised copy as d3_engine.c's d3_MaxZ = (m->zMax)): 151 ins, but the size goes +1 ->
+   +17 and the transform sums of all four vertex loops change term order (VC6 ranks unparenthesised float
+   products function-wide, the stored v->z read moves the ranks). Without the parens 159 (int mov copy); <=
+   / >= forms 165..195. Then sum spelling rounds on that base (each loop's three lines: plain / every
+   product parenthesised / first product parenthesised x the 6 term orders): per loop 81 combos (s0222: 135
+   ins), loop 4 alone 5832 variants = 39 codes (best 131), loop 2 alone 5832 = 47 codes (best 130 / size
+   +15): the term order is not a spelling question (VC6 canonicalises), the s63 lever (a record pointer
+   local changes operand ranks: e.g. a pointer to m's rows or to sp per loop) is the next round. Not
+   applied: every row of the z-plain base is 13-17 bytes larger than the original (padded 1504 vs 1488)
+   while the committed text is +1. Remaining apart from the sums: the 'mov eax,[ebx]' / xor ecx placement
+   after d3_AnimBlendWeights (the original clears ecx once before the first-flag branch), the q1 / q2
+   spills [esp+0x64] / [esp+0x7c], the weight block's frame-slot order. */
 void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
   D3SURF *ctl = info;
   D3VERTEX *v;
