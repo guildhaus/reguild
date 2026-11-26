@@ -3832,44 +3832,7 @@ typedef struct LCFAMILYBOX { /* 0x10 bytes, one box of the family tree window */
    without 0xc, or with 0x10; the parents without 0xc; a child also with 2 and 8 when it is older than 10. A
    click opens the info panel of the picked character (ai_CharInfoPanel: without its take-over button with 0x10
    or for the character itself, with it under 8), a click on no box redraws; the right button closes the window
-   unless flags has 8. callId is the frame pump's call id; the campaign step 6 brackets the window.
-   @deep s(this): KEPT 'row[2].x = half - w / 2 + w / 2;' in the no-partner arm (the box's left edge plus
-   half its width, as every other box writes its x): 20 -> 12 ins, shape; it fixes hunk (1) and the
-   register picture at once. Mechanism: the expression half - w / 2 makes the half variable a CSE temp of
-   width / 2 (VC6 replaces the variable by the temp once the expression shares it), and an older temp sorts
-   before the w / 2 CSE in the reassociated sum (half - w) + w / 2; 'row[2].x = width / 2;' gave the same
-   order but one candidate too many (ebx / ebp swap, 104 ins). Left: the SIB base / index of the d2_Objs
-   style / user stores of the row[2] / row[3] boxes (+0x637 +0x648 +0x710 +0x721 +0x7f4 +0x805; original
-   [d2_Objs + idx]). It is IL volume: 22..27 dead 'if (0) strcpy(rowText, "");' probes anywhere in THIS
-   function give byte (probes in the unit's previous function do nothing); 6 / 28 / 49 probes give other
-   codes. Code-neutral spellings that add little IL do not reach the band: inner box positions as left + 2
-   / y + 2 (511 subsets: only 2 codes), found == -1 in the first click loop, found = i in the children
-   loop, memset spellings, unused locals, int types, if / else forms of the interactive flags, mid / x
-   written out. So the original has a larger amount of code VC6 removes (about 22 strcpy probes; one
-   d2_SetForm(win, 1) call in if (0) counts about half of that), or the same text otherwise spelled. Next:
-   find that code (dead / decided blocks, a debug macro, a longer form of a whole block). prior: s(this):
-   the box loops read their x as a short local t (mov bx,word [..]; add ebx,2; push ebx) in the first
-   sibling loop and both child loops (not the second sibling loop: a pointer walk over siblingX in the
-   original) 277 -> 145; the father's relatives walk has its own counter j (hi's slot in the original) 145
-   -> 71; the children-row midpoint written out at each use instead of mid 71 -> 43; oddX / evenX filled in
-   index order 43 -> 30; the zero inits k / nChildren / nSiblings / partner first, then half / w / h, then
-   the three memsets (840 orders) 30 -> 20, size equal. Left (20 ins, two operand-order hunks, everything
-   else identical): (1) +0x403 parents[0].x: original (half - w) + w/2 (mov ecx,ebx; sub ecx,edx; lea
-   eax,[ecx+ebp]), ours (w/2 - w) + half; no lever: 33 spellings of the sum, 127 commuted w/2 sums over the
-   function, a named hw local (still w/2 first), a named x for the CSE half - w + w/2, all 5040 orders of
-   the init run, dead initialisers at every declaration, declaration moves: one code. flip.py finds it only
-   with mutants that rewrite the allocation (w as char, deleting row[i].x = w / 2 + t, ..): it follows the
-   ranks of half against the w/2 CSE temp. (2) SIB base/index of the d2_Objs style/user stores of the
-   row[2] / row[3] boxes (+0x637 +0x710 +0x7f4): original [d2_Objs + idx] (c1's own order), ours [idx +
-   d2_Objs] as in the parents' boxes, where the original also swaps. No lever: (d2_Objs + c)->,
-   &d2_Objs[c], c[d2_Objs], a named ctrl local, a box pointer b = &row[2], a constant index variable,
-   declaration moves of row / parents / t, block-scoped t / j / x, a block-scope extern of d2_Objs, the
-   partner arms swapped (layout breaks), dead stores of row[2].ctrl; flip.py over every single mutation:
-   only i as short / char flips it (all sites change). c2trace names the box fields k#1c (parents[0].ctrl),
-   k#101 (parents[1].ctrl), k#104 (row[2].ctrl): the order may follow these field symbols' ranks against
-   d2_Objs; untested how to move them. climb 6 rounds (seed 7) from here: nothing. Loop counters: every
-   single loop and every pair of loops on j instead of i (120 variants): neither hunk moves (only slots
-   break). */
+   unless flags has 8. callId is the frame pump's call id; the campaign step 6 brackets the window. */
 void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
                          int callId) {
   AICHAR *ch;
@@ -3881,9 +3844,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
   int half;
   int w;
   int h;
-  int x;
   short t;
-  int mid;
   int lo;
   int hi;
   int i;
@@ -4054,7 +4015,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
           row[i].ctrl = d2_WinOpenPic(t, 0x96, 0x5db, d2_LastWindow);
           row[i].x = w / 2 + t;
           row[i].y = 0x96;
-          d2_WinOpenPic(t + 2, 0x98, ai_Chars[row[i].id].picture,
+          d2_WinOpenPic(t + 2, row[i].y + 2, ai_Chars[row[i].id].picture,
                         d2_LastWindow);
           d2_Objs[row[i].ctrl].style = 3;
           d2_Objs[row[i].ctrl].user = &ai_Chars[row[i].id];
@@ -4068,7 +4029,8 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
               d2_WinOpenPic(siblingX[i - 4], 0x96, 0x5db, d2_LastWindow);
           row[i].x = siblingX[i - 4] + w / 2;
           row[i].y = 0x96;
-          d2_WinOpenPic(siblingX[i - 4] + 2, 0x98, ai_Chars[row[i].id].picture,
+          d2_WinOpenPic(siblingX[i - 4] + 2, row[i].y + 2,
+                        ai_Chars[row[i].id].picture,
                         d2_LastWindow);
           d2_Objs[row[i].ctrl].style = 3;
           d2_Objs[row[i].ctrl].user = &ai_Chars[row[i].id];
@@ -4076,23 +4038,27 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
       }
 
       /* the lines from the parents down to the middle row */
-      mid = (row[2].y - h - 10) / 2 + h + 10;
       for (i = 0; i < 2; i++)
-        d2_PlotLine(parents[i].x, parents[i].y + h + 5, parents[i].x, mid, 0x10,
-                    0x10, 0x10);
+        d2_PlotLine(parents[i].x, parents[i].y + h + 5, parents[i].x,
+                    (row[2].y - parents[0].y - h) / 2 + parents[0].y + h, 0x10, 0x10,
+                    0x10);
       lo = parents[0].x;
       hi = parents[1].x;
       for (i = 0; i < 6; i++) {
         if (row[i].id != 0xffff && i != 3) {
-          x = row[i].x;
-          d2_PlotLine(x, row[i].y, x, mid, 0x10, 0x10, 0x10);
-          if (x < lo)
-            lo = x;
-          if (x > hi)
-            hi = x;
+          d2_PlotLine(row[i].x, row[i].y, row[i].x,
+                      (row[2].y - parents[0].y - h) / 2 + parents[0].y + h, 0x10,
+                      0x10, 0x10);
+          if (row[i].x < lo)
+            lo = row[i].x;
+          if (row[i].x > hi)
+            hi = row[i].x;
         }
       }
-      d2_PlotLine(lo, mid, lo != hi ? hi + 1 : hi, mid, 0x10, 0x10, 0x10);
+      d2_PlotLine(lo, (row[2].y - parents[0].y - h) / 2 + parents[0].y + h,
+                  lo != hi ? hi + 1 : hi,
+                  (row[2].y - parents[0].y - h) / 2 + parents[0].y + h, 0x10, 0x10,
+                  0x10);
 
       /* the children: five places for an odd count, four for an even one */
       children[0].y = 0x122;
@@ -4110,7 +4076,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
             children[i].ctrl = d2_WinOpenPic(t, 0x122, 0x5db, d2_LastWindow);
             children[i].x = w / 2 + t;
             children[i].y = 0x122;
-            d2_WinOpenPic(t + 2, 0x124, ai_Chars[children[i].id].picture,
+            d2_WinOpenPic(t + 2, children[i].y + 2, ai_Chars[children[i].id].picture,
                           d2_LastWindow);
             d2_Objs[children[i].ctrl].style = 3;
             d2_Objs[children[i].ctrl].user = &ai_Chars[children[i].id];
@@ -4127,7 +4093,7 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
             children[i].ctrl = d2_WinOpenPic(t, 0x122, 0x5db, d2_LastWindow);
             children[i].x = w / 2 + t;
             children[i].y = 0x122;
-            d2_WinOpenPic(t + 2, 0x124, ai_Chars[children[i].id].picture,
+            d2_WinOpenPic(t + 2, children[i].y + 2, ai_Chars[children[i].id].picture,
                           d2_LastWindow);
             d2_Objs[children[i].ctrl].style = 3;
             d2_Objs[children[i].ctrl].user = &ai_Chars[children[i].id];
@@ -4150,14 +4116,13 @@ void ai_FamilyTreeWindow(int netId, unsigned char flags, intptr_t caption,
       }
       for (i = 0; i < 5; i++) {
         if (children[i].id != 0xffff) {
-          x = children[i].x;
-          d2_PlotLine(x, children[i].y, x,
+          d2_PlotLine(children[i].x, children[i].y, children[i].x,
                       (children[0].y - row[2].y - h) / 2 + row[2].y + h, 0x10,
                       0x10, 0x10);
-          if (x < lo)
-            lo = x;
-          if (x > hi)
-            hi = x;
+          if (children[i].x < lo)
+            lo = children[i].x;
+          if (children[i].x > hi)
+            hi = children[i].x;
         }
       }
       if (nChildren != 0) {
