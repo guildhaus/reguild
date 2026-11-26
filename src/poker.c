@@ -681,7 +681,19 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    loop head is not credited to ai_PokerTable#1 (it pays -8 there). = control / no swap this session:
    'out[w] = foldedAt >= 0' in the else arm, foldedAt into k first (= control); case 6 / 8 grouped (195,
    table 13); hand stored first (170: IV 99). Next: an ordinary statement before the first loop (or in it)
-   that reads the table, or a loop form whose IV has no def in the init block. prior: deep s72: meaning
+   that reads the table, or a loop form whose IV has no def in the init block. s75: the swap is not the
+   only difference: with the init-block probes (table edi, IV ebx) 118 ins remain (besides the probes' four
+   stores): the zero sources of the inits (original: kind[1] = mov ecx,ebp, out[0] from the IV's xor ebx,
+   out[2] / out[1] from a fresh edx; ours all from eax), the both-zero HighCard path's setle cl (ours dl),
+   and the first switch's 'w = g1[0] <= g1[1]' / 'r1' cases loading and jumping into ONE shared 'xor edx;
+   cmp eax,ecx; setle dl; mov esi,edx' tail. Under the probes: all 720 init orders 118 (none better), all
+   5040 orders of the seven first-switch case groups 118. Natural table forms tried: a local 't =
+   ai_PokerTable' through the whole function / the first loop / after the loop (155-158: no reload after
+   RateHand, the original reloads), the loop counter as a block local i (154, frame 0x4c, same swap), while
+   (= control), the bound as sizeof(seat) / sizeof(seat[0]) (160). G10GAME has no seat count. Next: the
+   shared 'cmp; setle; mov esi' tail suggests the original wrote the g1 / r1 cases with one comparison
+   statement (a shared local pair, e.g. 'a = g1[0]; b = g1[1];' then one 'w = a <= b;' after the switch),
+   which would also add blocks and references that move the IV / table priorities. prior: deep s72: meaning
    re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc entry by entry, every
    winHand store / return, the call orders): equal; the size gap (903 vs 842) was layout, now 834 vs 842.
    195 -> 158 ins: (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if (g1[0] > g1[1]) w = 0; else
