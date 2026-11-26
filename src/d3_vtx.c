@@ -137,21 +137,6 @@ void d3_AnimBlendWeights(D3ANIMSLOT *s, float *a, float *b) {
   }
 }
 
-/* 0x459300, transforms the vertices of a mesh into camera space with the matrix m. An animated mesh (3 slots, each
-   with two key frames) first blends the packed positions of the frames in use; the vertices then also add the
-   source point. With D3OBJECT::objectFlags bit 5 the nearest and farthest z are tracked. */
-typedef struct D3MVEC { /* a 16-byte vector local; only z goes through memory */
-  float x, y;
-  volatile float z;
-  float w;
-} D3MVEC;
-
-typedef struct D3MVEC2 {
-  float x;
-  volatile float y, z;
-  float w;
-} D3MVEC2;
-
 /* 0x459300, transforms the animated mesh's vertices: per active slot it blends the two key frames' base and
    scale by the blend weights and adds the result into info->keys, then applies the object matrix (tracking the
    z range in d3_MinZ / d3_MaxZ when the vertex normal bit is set)
@@ -192,13 +177,11 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
   D3ANIMFRAME *f1, *f2;
   unsigned char *p1, *p2;
   float a, b;
-  D3MVEC s1, b1, s2, b2, q1;
-  D3MVEC2 q2;
+  D3VECTOR4 s1, b1, s2, b2, q1, q2;
   float z;
   float vx, vy, vz;
   int i, k;
   char first;
-  volatile float *vzp;
 
   if (ctl->active) {
     first = 1;
@@ -276,7 +259,6 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          vzp = &v->z;
           vx = sp->x + v->x;
           vy = sp->y + v->y;
           vz = sp->z + v->z;
@@ -286,9 +268,8 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
           v->z = z;
           if (!(d3_MinZ < z))
             d3_MinZ = z;
-          if (!(z < d3_MaxZ))
-            d3_MaxZ =
-                *vzp; /* matching: re-read of the stored z (cuts 12 differing lines; the original copies it through the FPU) */
+          if (!(v->z < d3_MaxZ))
+            d3_MaxZ = (v->z);
           i++;
           v++;
         } while (i < info->nkeys);
@@ -320,16 +301,14 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          vzp = &v->z;
           v->x = sp->z * m->_31 + sp->y * m->_21 + sp->x * m->_11 + m->_41;
           v->y = sp->x * m->_12 + m->_22 * sp->y + sp->z * m->_32 + m->_42;
           z = m->_33 * sp->z + m->_23 * sp->y + sp->x * m->_13 + m->_43;
           v->z = z;
           if (!(d3_MinZ < z))
             d3_MinZ = z;
-          if (!(z < d3_MaxZ))
-            d3_MaxZ =
-                *vzp; /* matching: re-read of the stored z (cuts 12 differing lines; the original copies it through the FPU) */
+          if (!(v->z < d3_MaxZ))
+            d3_MaxZ = (v->z);
           i++;
           v++;
         } while (i < info->nkeys);
