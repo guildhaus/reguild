@@ -268,9 +268,9 @@ unsigned short path_Expand(D3SM *map, unsigned short head) {
         h = (float)(abs(dx) + abs(dy)) * path_Weight;
       }
       f = h + g;
-      nb->parent = self;
       nb->g = g;
       nb->f = f;
+      nb->parent = self;
       nb->h = h;
       if (nb->stamp != path_Stamp || !(nb->flags & 2)) {
         nb->stamp = path_Stamp;
@@ -286,8 +286,8 @@ unsigned short path_Expand(D3SM *map, unsigned short head) {
           while (map->entries[q].next != 0xffff) {
             p = &map->entries[q];
             if (f < p->f) {
-              nb->next = q;
               nb->prev = p->prev;
+              nb->next = q;
               if (p->prev != 0xffff)
                 map->entries[p->prev].next = k;
               else
