@@ -991,10 +991,13 @@ int d3t_MoveCameraPath(int time, int n, ...) {
    a block-local key pointer: = control; no step local (time / n at both stores, or only in the loop):
    another code at 49 ins (+1 byte), the CSE temp behaves as step; post-increment folded into the last
    statement or into the time store at the body end: = control; k counting from 0 (keys[k + 1] in the body
-   and at the exit): 47 ins but k = 0 in the entry (xor ecx,ecx), i / k still swapped. climb.py --rounds 4
-   (1,790 mutants): best 45 ins by the time store in front of the call (the original stores step behind the
-   call), no further step. The original read again from the top: nothing new exists (i [ebp-4] / edx, step
-   [ebp-8] / eax behind the call, k in time's slot / ecx, n ebx reloaded in the body because ebx carries
+   and at the exit): 47 ins but k = 0 in the entry (xor ecx,ecx), i / k still swapped; k = 1 as a statement
+   with keys[k - 1] / keys[k] in the entry stores (k-indexed keys[0] fill, k++ before the loop): 49 ins,
+   constants swapped (edx 1, ecx 0) but i still ecx / k edx in the loop (the entry k references are
+   folded); i = 0; k = 1; above the fill: 61; k = 1 above the division: 51. climb.py --rounds 4 (1,790
+   mutants): best 45 ins by the time store in front of the call (the original stores step behind the call),
+   no further step. The original read again from the top: nothing new exists (i [ebp-4] / edx, step [ebp-8]
+   / eax behind the call, k in time's slot / ecx, n ebx reloaded in the body because ebx carries
    &keys[k].pos, esi the induction pointer at keys[k].rot); the frame is the original's slot for slot.
    Still open: one ordinary construct that ranks k above i. prior: match-deep s80 (short look, source
    unchanged, 49 ins): new angles from this session, all = control: if (!(o = path[i])) continue; and o =
@@ -1005,9 +1008,6 @@ int d3t_MoveCameraPath(int time, int n, ...) {
    mov edx,1, i.e. ours). The original keeps k in ecx and i in edx across the whole loop (reloaded only
    behind the call) and the exit uses ecx as k on every path. Open as before: one ordinary construct that
    raises k above i.
-
-
-
 
 
 
