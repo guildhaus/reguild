@@ -2693,55 +2693,14 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
 }
 /* 0x4079b0, walk actions: checks the next path cells against the nearby characters others[0..n-1] and,
    if one blocks the way, marks them in the ground map and searches a new path around them ("ch:GetNewPath"
-   is the mem_Alloc tag). Returns the new path length, 0 nothing to do, -1 failed, -2 no way around.
-   @deep s71: 96 -> 54 ins shape (size equal 2774). Kept: rest as CHPATHPT rest[0x400] filled by rest[k -
-   last - 1].x/.z (VC6 strength-reduces it from k: lea ecx,[rest+1] after the loop guard; rest[nrest] =
-   206, the q pointer walk = 96); the path count read into k (k = ch_Path.count; mem_Alloc((k + nrest) *
-   2)): any int local with other webs (k i j r e last steps) gives the original's lea ecx,[edi+ebp], an own
-   cnt / m / len = control, declaration order of cnt / m = control; the FindFreeCell multiplier in the
-   parameter n (n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2; steps * n): only n gives mov ebx,[steps];
-   imul ebx,eax (and n in ebx in the second call), r e k i j last tx tz bx bz = control, if / else and
-   default-first forms worse; the flags & 2 arm ends in 'continue;' after its 'if (cx == wp[j].x && wp[j].z
-   == cz) { res = 1; break; }' (draft -> shape: the flags & 1 arm's z compare becomes mov ecx,[edx+4]; cmp
-   ecx,[cz]; 'if (!(..)) continue;' and if / else continue = the same code; with 'wp[j].x == cx' 58 ins,
-   wp.x loaded first). No lever: goto linked / goto next as found flags + re-test (not threaded, +21
-   bytes); the flags & 1 arm's continue as a nested if / && (= control); r = min(..) forms; FindFreeCell
-   outputs in a new block local fx (96); a CHWAYPT *w per pass (74); climb (3 runs, 2-3 rounds) only finds
-   an int copy of speedScale (meaning change). Left (shape): (1) flags & 2's x compare: the original loads
-   cx first and compares ecx(wp.x),eax(cx); ours cmp eax,ecx (flip --want 'mov ecx, DWORD PTR \[edx\]\ncmp
-   ecx, eax': 0 single mutations). (2) the memset block loads others before n (original n first): flip
-   finds 83 single mutations, nearly all constant changes (-1, 2, 0x200, 0xffff, the memset 0): a rotation
-   / constant-candidate tie, no plain spelling among them. (3) frame ties cz / scene (0x2c / 0x30) and
-   tz-len / bz (0x34 / 0x38) swapped. The code is identical, so the original's extra counts are invisible
-   references (cross-jumped duplicates or peephole-removed reloads). c2frame probes: 'probe = scene' fixes
-   the table only after 'return -2;' or on the return-0 paths (scene must reach 9 after cx's last
-   reference, the -2 test, in the walk); 'probe = steps + cx + scene' anywhere in the res & 1 block also
-   gives it (steps, cx 10). A packer replay (N / X rows, K&R quicksort) agrees; cz -1 would also do, but
-   every cz reference has code. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes
-   name the counts: a dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives
-   the original's table exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92
-   ins), cz -1 (a compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py
-   --want '_scene\$ = -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes: deleting
-   gx = cz / sx = cz, swapping the dz line with the sqrt in either distance arm, y as double, the goto
-   linked / goto next deletions. So the original has one more counted reference of scene and of cx (a
-   statement in both arms merged late, or a reload the peephole removes); not found. Declaration orders (5)
-   = control. m (the FindFreeCell ternary): inlined in either / both calls, if / else, m = steps * (..), m
-   * steps, r / e / k / i reused, unsigned: all = control (c2trace: m#1 / m#2 both eax; the original has
-   m#2 in ebx and both products in a fresh register after the flags push); unsigned char m spills m (130),
-   short 98, flags | 1 in a local 175. Compares: 'cx == wp[j].x' in the flags & 2 arm loads cx first as the
-   original but compares eax,ecx (92 ins, not kept); 'cz == wp[j].z' in the flags & 1 arm = other code,
-   same count. Rest copy as rest[nrest * 2] index form 206, q += 2 before nrest++ 121. mem_Alloc: (nrest +
-   cnt) * 2 / cnt * 2 + nrest * 2 = control; no cnt local ((ch_Path.count + nrest) * 2) gives the
-   original's lea / add ecx,ecx form but loads the global after mem_Free (100 ins, slots 60); cnt read
-   after the free 98; cnt = count + nrest 98. The original loads count into edi before the path test and
-   still forms the sum with lea (cnt not modified in place although dead): the cnt candidate is something
-   VC6 treats as not dying there. climb --rounds 1 (447 mutants): best 89 only via an int copy of
-   ch->speedScale (meaning change). Left: the frame ties, the two FindFreeCell m / product registers, the
-   flags & 2 cx compare order, the flags & 1 cz compare form, the rest-copy loop's lea / add ecx placement,
-   the memset argument load order, mem_Alloc's lea. */
+   is the mem_Alloc tag). Returns the new path length, 0 nothing to do, -1 failed, -2 no way around. */
 
 int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
-  int res = 0;
+  /* @original m, the free cell search range in steps, has an initialiser that leaves no code: both uses set it
+     first. The declaration is the local's first reference, in front of steps, and C2 orders the operands of
+     steps * m by that (notes/vc6-matching.md, "Operand order of commutative ops"): mov ebx,[steps]; imul
+     ebx,eax. Without it the product is formed in m's register. */
+  int res = 0, m = 2;
   CHACTION *a = CH_ACTIONS(ch);
   int scene = d3t_SceneIndex(ch->scene);
   D3SM *h;
@@ -2782,7 +2741,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
       if (!wp[j].flags)
         break;
       if (wp[j].flags & 2) {
-        if (cx == wp[j].x && wp[j].z == cz) {
+        if (wp[j].x == cx && wp[j].z == cz) {
           res = 1;
           break;
         }
@@ -2853,7 +2812,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
       ch->contacts[i].flags = res;
     }
     if (res & 1) {
-      int sx, fz, len;
+      int sx, sz, fx, fz, len; /* the start cell, a free cell, the thinned path's length */
 
       if (ch->speedScale < 0.5)
         ch->speedScale = 0.5f;
@@ -2901,7 +2860,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
         }
       }
       a = CH_ACTIONS(ch);
-      if (d3_GetHeightAt(h, &a->ch->obj->pos, &sx, &cx, &y)) {
+      if (d3_GetHeightAt(h, &a->ch->obj->pos, &sx, &sz, &y)) {
         last = min(a->u.walk.cur + 16, a->u.walk.pathLen - 1);
         nrest = 0;
         for (k = last + 1; k < a->u.walk.pathLen; k++) {
@@ -2911,25 +2870,25 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
         }
         gx = a->u.walk.path[last].x;
         gz = a->u.walk.path[last].z;
-        n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
-        if (!ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, gx, gz, &cz,
-                             &fz, steps * n, a->u.walk.flags | 1)) {
+        m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
+        if (!ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, gx, gz, &fx,
+                             &fz, steps * m, a->u.walk.flags | 1)) {
           ch_RestoreGround(h);
           return -1;
         }
-        gx = cz;
+        gx = fx;
         gz = fz;
         ch_Path.xy = ch_PathBuf;
         ch_Path.max = 0x200;
-        if (h->entries[h->size * cx + sx].type == 0xd) {
-          n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
-          if (ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, sx, cx, &cz,
-                              &fz, steps * n, a->u.walk.flags | 1)) {
-            sx = cz;
-            cx = fz;
+        if (h->entries[h->size * sz + sx].type == 0xd) {
+          m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
+          if (ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, sx, sz, &fx,
+                              &fz, steps * m, a->u.walk.flags | 1)) {
+            sx = fx;
+            sz = fz;
           }
         }
-        if (path_Find(&ch_Path, h, sx, cx, gx, gz, ch->pathType) == 0xffff) {
+        if (path_Find(&ch_Path, h, sx, sz, gx, gz, ch->pathType) == 0xffff) {
           ch_RestoreGround(h);
           return -1;
         }
@@ -2961,7 +2920,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
           a->u.walk.pathLen--;
         ch_RestoreGround(h);
         ch->contactSteps = 4;
-        if (sx == gx && cx == gz)
+        if (sx == gx && sz == gz)
           return -2;
         return len;
       }
