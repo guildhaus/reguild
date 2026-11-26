@@ -410,47 +410,17 @@ void ai_PokerPayStakes(void) {
   }
 }
 /* 0x4a7ac0, picks each NPC's strategy (seat->strategy) from its hand: 3 nothing yet, 2 go for the rank, 1 pairs,
-   0 random
-   @deep s73 (13 ins, source unchanged): mechanism made concrete with c2trace. The original's edx candidate
-   is BYTE-typed (cmp dl,5 twice; the int value only as 'mov eax,edx; and eax,0xff', reused for the sub): a
-   uchar local or the field's byte CSE, never an int local. It gets edx only if it is served before the
-   table pointer (ai_PokerTable#1, a global candidate between kills: lines of the chain only), which
-   otherwise takes edx (free in its range) and pushes the byte to ebx (-> maxr ebp, s spilled, frame
-   0x2c/0x30). Priorities: field-all byte CSE -16 vs table 4; uchar local at the top of the chain (uc-top,
-   79 ins) -38 vs 6; both pay the same j-loop penalty (-46, w=4); the table's lead is its five strategy
-   stores (+12 each, three behind the loop). The original loads the table once, right before the chain
-   ('mov esi,[ai_PokerTable]'): consistent with the table being a split piece of a longer range (then the
-   byte is served first in pass 1 and the piece takes esi later). = control / worse this session: the s
-   loop as do-while (= control) or 's <= 2' (17); field-all with the final test negated, a dealt = 0 init,
-   phase in the local (= fa 70); one shared 'strategy = 2' store for == maxr and j == 6 (flag j = 6 / '||'
-   forms: 23-76, the two stores merge, the original keeps both); (unsigned char)dealt == 5 with the int
-   local (11: the final cmp dl,5 right, the first load al / the widened edx swapped). climb 2 rounds from
-   uc-top returns to the tree. flip --base fa --want 'mov esi,[ai_PokerTable] .. mov dl': only store
-   deletions / meaning changes, and 's < 3' -> 's < 2' (the loop count). Next: what makes the table's range
-   longer than the chain (a reference before the counting loops, or the strategy stores not killing the
-   global), or a decl / type outside the function (flip --scope file). prior: deep s72: the original's
-   long-lived value is the BYTE (dl, loaded once, cmp dl,5 twice, widened into eax only for == maxr / -
-   maxr), so its candidate (the field's byte CSE or a uchar local) must be served before the table pointer
-   (c2trace field-all: table prio 4 takes edx first, the byte CSE -16 gets ebx -> maxr ebp, s spilled: 70
-   ins). In the tree the int dealt's widened temp (prio 18) is the one served first. flip.py --base
-   (field-all whole text) --want 'mov\s+dl, BYTE PTR': the only hits that keep the rest are meaning changes
-   that drop a TABLE store (del / swap of the strategy = 3, = 2, = 1 stores: m218 12 ins with every
-   register of the original, m159 9): the table needs about 20 priority points less, or the byte as much
-   more. Plain forms that fold to the field-all / uc code (no lever): the final test as if/else-if, two
-   ifs, nested, ?: or continue+store; the j == 6 arm as a found flag, j = 0 in the else arm, j = 0 before
-   (C1-C3); a named G10GAME *t for any subset of the reads (copy-propagated); decided re-tests of dealt ==
-   5 inside the arm (P1-P5). climb 2 rounds from field-all goes back to the tree (13). Open: something that
-   lowers the table pointer's references or raises the byte's in the chain without a store less; the
-   meaning is equal (s71). */
+   0 random */
 
 void ai_PokerPickStrategies(void) {
+  G10SEAT *st;
   int cnt[6];
   int s, g, j, i, k, pairs, first;
   int n, maxn, maxr;
-  int dealt;
 
   first = 0;
   for (s = 1; s < 3; s++) {
+    st = &ai_PokerTable->seat[s];
     pairs = 0;
     maxn = 0;
     maxr = 0;
@@ -480,25 +450,24 @@ void ai_PokerPickStrategies(void) {
       cnt[j] = n;
     }
     if (ai_PokerTable->dealt < 5 && pairs <= 1 && maxn < 2) {
-      ai_PokerTable->seat[s].strategy = 3;
+      st->strategy = 3;
     } else if (ai_PokerTable->dealt == maxr) {
-      ai_PokerTable->seat[s].strategy = 2;
+      st->strategy = 2;
     } else {
-      dealt = ai_PokerTable->dealt;
-      if (ai_PokerTable->phase < 6 && dealt - maxr <= 1) {
+      if (ai_PokerTable->phase < 6 && ai_PokerTable->dealt - maxr <= 1) {
         for (j = 0; j < 6; j++)
           if (ai_PokerDeck[j * 4 + first].owner != s &&
               ai_PokerDeck[j * 4 + first].shown == 0)
             break;
         if (j == 6) {
-          ai_PokerTable->seat[s].strategy = 2;
+          st->strategy = 2;
           continue;
         }
       }
-      if (dealt == 5 && maxn < 2)
-        ai_PokerTable->seat[s].strategy = 0;
+      if (ai_PokerTable->dealt == 5 && maxn < 2)
+        st->strategy = 0;
       else
-        ai_PokerTable->seat[s].strategy = 1;
+        st->strategy = 1;
     }
   }
 }
