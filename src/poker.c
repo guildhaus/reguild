@@ -655,7 +655,20 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
 }
 /* 0x4a8190, the showdown: the winning seat (seat 0 against 1, the better of them against 2), its hand into winHand;
    two empty hands against an empty seat 2 compare the high card of the winner with seat 1's (as the original does)
-   @deep deep s72: meaning re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc
+   @deep s73 (158 ins, source unchanged): the register swap is an order-of-service question. c2trace: w#1
+   (prio 345) takes esi, then the seat-offset IV k#21a (76: +18 from its def in the init block, P9) takes
+   edi, then the table ai_PokerTable#1 (12: 22 refs, the winHand stores at every return in P1-3 blocks,
+   lives through the whole function) takes ebx, kind[2] ebp. The original's edi = table / ebx = IV is the
+   same rule with the table served before the IV: probe '{ static G10GAME *pm; pm = ai_PokerTable; }' x5 in
+   the first loop lifts the table to 61 and it takes edi (246 ins, probes only). So the table needs to
+   outrank the IV (or the IV to drop below the table). = control: a seat pointer st =
+   &ai_PokerTable->seat[w] at the loop top / in the folded arm / for the hand store (it folds into the IV).
+   flip.py --want 'mov edi, DWORD PTR _ai_PokerTable' (713 mutants): only meaning changes (a second
+   RateHand call; the 'winHand = kind[w]' store moved above 'if (out[2] != 0)'; 'winHand = kind[2]' moved
+   above 'if (k == 0)'): a winHand store earlier in the chain is what lifts the table. Next: a plain form
+   with one more table reference before / in the first switch (the winHand store of a shared exit, the
+   chain's out / kind tests through the table), or fewer distinct values in the init block (the IV's +18).
+   prior: deep s72: meaning re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc
    entry by entry, every winHand store / return, the call orders): equal; the size gap (903 vs 842) was
    layout, now 834 vs 842. 195 -> 158 ins: (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if
    (g1[0] > g1[1]) w = 0; else if (g1[1] > g1[0]) w = 1;' (the original loads [0] first and compares cmp
@@ -673,19 +686,7 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    control or worse); the top chain's both-zero test as && / inverted / the high-card compare reversed
    (worse); the second switch's 720 case orders (= control or worse); climb 1 round: best 146 via a FLOAT
    copy of kind[w] (nonsense; the int form k = kind[w] before the both-zero test: 174-196, regs 38 but the
-   layout breaks). prior: meaning re-read against 0x4a8190..0x4a84da (both switches case by case, the
-   both-empty high-card path, every winHand store / return): no difference. The merged 'winHand = kind[2];
-   return 2' tail: VC6 cross-jumps every copy of that statement pair into one block (also with break-form
-   cases, = control); writing four of the nine sites as 'w = 2; winHand = kind[w]; return w' (a 511-mask
-   sweep, m14a: kind[2]>k, case 1 r1, case 2 r1, case 6/8) keeps separate epilogue copies as the original:
-   230 -> 195 ins, but those copies reload kind[2] from [esp+0x30] where the original stores ebp (the
-   register-cached kind[2]); 'w = 2; winHand = kind[2]; return w' folds back (= control). Left: the table
-   pointer in ebx and the seat offset in edi (the original: edi / ebx, loaded after the pushes, out[0]
-   stored from the zero offset register), the store-before-pop order that follows from it, and the case 6/8
-   + 3/5/7 r1 / g1 compares the original shares (jle into one return-2 copy). Tried: headers sample
-   insensitive (32, one codegen); the 720 orders of the six zero inits (two codegens, 230/232, never the
-   register swap); the rating branch inverted (worse), hand store chained / through k, w = 0 hoisted, the
-   seat field through (&seat[w])->: = control (tiebreak: insensitive, 32 samples one codegen) */
+   layout breaks). */
 
 int ai_PokerShowdown(void) {
   int g1[3], r1[3], kind[3], out[3], g2[3];
