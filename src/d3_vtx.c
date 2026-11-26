@@ -262,9 +262,9 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
           vx = sp->x + v->x;
           vy = sp->y + v->y;
           vz = sp->z + v->z;
-          v->x = m->_11 * vx + vy * m->_21 + m->_31 * vz + m->_41;
-          v->y = (vz * m->_32) + vy * m->_22 + vx * m->_12 + m->_42;
-          z = (vz * m->_33) + vy * m->_23 + vx * m->_13 + m->_43;
+          v->x = vx * m->_11 + vy * m->_21 + vz * m->_31 + m->_41;
+          v->y = vx * m->_12 + vy * m->_22 + vz * m->_32 + m->_42;
+          z = vx * m->_13 + vy * m->_23 + vz * m->_33 + m->_43;
           v->z = z;
           if (!(d3_MinZ < z))
             d3_MinZ = z;
@@ -284,9 +284,9 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
           vx = sp->x + v->x;
           vy = sp->y + v->y;
           vz = sp->z + v->z;
-          v->x = vx * m->_11 + vz * m->_31 + vy * m->_21 + m->_41;
-          v->y = vz * m->_32 + vy * m->_22 + vx * m->_12 + m->_42;
-          v->z = vz * m->_33 + vy * m->_23 + vx * m->_13 + m->_43;
+          v->x = vx * m->_11 + vy * m->_21 + vz * m->_31 + m->_41;
+          v->y = vx * m->_12 + vy * m->_22 + vz * m->_32 + m->_42;
+          v->z = vx * m->_13 + vy * m->_23 + vz * m->_33 + m->_43;
           i++;
           v++;
         } while (i < info->nkeys);
@@ -301,9 +301,9 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          v->x = sp->z * m->_31 + sp->y * m->_21 + sp->x * m->_11 + m->_41;
-          v->y = sp->x * m->_12 + m->_22 * sp->y + sp->z * m->_32 + m->_42;
-          z = m->_33 * sp->z + m->_23 * sp->y + sp->x * m->_13 + m->_43;
+          v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
+          v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
+          z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
           v->z = z;
           if (!(d3_MinZ < z))
             d3_MinZ = z;
@@ -318,9 +318,9 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     } else if (0 < info->nkeys) {
       do {
         sp = v->src;
-        v->x = sp->z * m->_31 + sp->y * m->_21 + sp->x * m->_11 + m->_41;
-        v->y = sp->x * m->_12 + m->_22 * sp->y + sp->z * m->_32 + m->_42;
-        v->z = m->_33 * sp->z + m->_23 * sp->y + sp->x * m->_13 + m->_43;
+        v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
+        v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
+        v->z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
         i++;
         v++;
       } while (i < info->nkeys);
