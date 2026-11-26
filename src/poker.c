@@ -672,25 +672,34 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    PTR _ai_PokerTable': only meaning changes (a second RateHand call, a winHand store moved above 'if
    (out[2] != 0)' or 'if (k == 0)'); flip --want 'add ebx, 52': no hit. climb 4 rounds (move, swap, arms,
    ifelse, init): no move. Next: what lowers the IV by ~65 (its def / hand-store / latch blocks) or what
-   plain text gives the table more weight in the first loop. prior: deep s72: meaning re-read against
-   0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc entry by entry, every winHand store /
-   return, the call orders): equal; the size gap (903 vs 842) was layout, now 834 vs 842. 195 -> 158 ins:
-   (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if (g1[0] > g1[1]) w = 0; else if (g1[1] >
-   g1[0]) w = 1;' (the original loads [0] first and compares cmp [1],[0]; jge: only the mixed spelling
-   gives both; 195 -> 177); (2) the first switch's case order 1, 2, 3/7, 6, 8, 5, 4 (a 5040-order round of
-   the seven case groups: every order at 158 has case 4 last with 5 or 3/7 right before it; natural 1..8,
-   every case on its own body, 3/5/7 grouped: 162-194): now the first switch is the original's instruction
-   for instruction (case 6 cross-jumped into case 2's r1 tail, case 1 into case 8, the both-zero high-card
-   path into case 4's second call). Left (regs 72, code 122): the table pointer in ebx and the seat offset
-   IV in edi through the whole function (the original: table edi, IV ebx, and the IV's 0 stored as out[0];
-   c2trace: the IV k#21a prio 76 is served before the table (12) and takes edi); the zero inits (original:
-   ebp = 0 for kind[2], ecx = ebp for kind[1], edx = 0 for out[2] / out[1]); in the second switch the case
-   3/5/7 return-2 keeps its own epilogue copy where the original jle's into the 0x4a8460 copy, and case 1's
-   r1 compare is not shared. Tried this session (no lever): the zero inits as chains (kind[1] = kind[2] =
-   0, out[...] chains, a loop, memset, = {0} initializers: control or worse); the top chain's both-zero
-   test as && / inverted / the high-card compare reversed (worse); the second switch's 720 case orders (=
-   control or worse); climb 1 round: best 146 via a FLOAT copy of kind[w] (nonsense; the int form k =
-   kind[w] before the both-zero test: 174-196, regs 38 but the layout breaks). */
+   plain text gives the table more weight in the first loop. s74: the service order is now PROVEN: four '{
+   static G10GAME *pm; pm = ai_PokerTable; }' in the init block lift the table to 89 against the IV's 79,
+   and the table takes edi, the IV ebx, as the original (158 -> 118, the probes' own code left; probes are
+   no final form). Each table reference in the init block is worth about +19 (P9), one in the loop +12 /
+   +28; the original needs about +65 for the table or as much less for the IV (def +18 in the init block,
+   foldedAt +12, hand store +28 in the post-call block P7, latch +32). The table's foldedAt read in the
+   loop head is not credited to ai_PokerTable#1 (it pays -8 there). = control / no swap this session:
+   'out[w] = foldedAt >= 0' in the else arm, foldedAt into k first (= control); case 6 / 8 grouped (195,
+   table 13); hand stored first (170: IV 99). Next: an ordinary statement before the first loop (or in it)
+   that reads the table, or a loop form whose IV has no def in the init block. prior: deep s72: meaning
+   re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc entry by entry, every
+   winHand store / return, the call orders): equal; the size gap (903 vs 842) was layout, now 834 vs 842.
+   195 -> 158 ins: (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if (g1[0] > g1[1]) w = 0; else
+   if (g1[1] > g1[0]) w = 1;' (the original loads [0] first and compares cmp [1],[0]; jge: only the mixed
+   spelling gives both; 195 -> 177); (2) the first switch's case order 1, 2, 3/7, 6, 8, 5, 4 (a 5040-order
+   round of the seven case groups: every order at 158 has case 4 last with 5 or 3/7 right before it;
+   natural 1..8, every case on its own body, 3/5/7 grouped: 162-194): now the first switch is the
+   original's instruction for instruction (case 6 cross-jumped into case 2's r1 tail, case 1 into case 8,
+   the both-zero high-card path into case 4's second call). Left (regs 72, code 122): the table pointer in
+   ebx and the seat offset IV in edi through the whole function (the original: table edi, IV ebx, and the
+   IV's 0 stored as out[0]; c2trace: the IV k#21a prio 76 is served before the table (12) and takes edi);
+   the zero inits (original: ebp = 0 for kind[2], ecx = ebp for kind[1], edx = 0 for out[2] / out[1]); in
+   the second switch the case 3/5/7 return-2 keeps its own epilogue copy where the original jle's into the
+   0x4a8460 copy, and case 1's r1 compare is not shared. Tried this session (no lever): the zero inits as
+   chains (kind[1] = kind[2] = 0, out[...] chains, a loop, memset, = {0} initializers: control or worse);
+   the top chain's both-zero test as && / inverted / the high-card compare reversed (worse); the second
+   switch's 720 case orders (= control or worse); climb 1 round: best 146 via a FLOAT copy of kind[w]
+   (nonsense; the int form k = kind[w] before the both-zero test: 174-196, regs 38 but the layout breaks). */
 
 int ai_PokerShowdown(void) {
   int g1[3], r1[3], kind[3], out[3], g2[3];
