@@ -123,6 +123,16 @@ when something later in the SAME block depends on it.
   force a multiply order lengthens the region, and what the original hoisted (argument pushes) falls into the
   next one. Unparenthesised float products are ordered by VC6 itself (two globals: the one met later in the
   function first), so the first product of the function decides the rest (ai_StepShot, vc6-matching "Deep s39").
+- The priority is `(height << 13) + (memory use << 16) + (x87 store << 16) + (out-degree >> 5)`: an `fstp` carries the bonus of
+  a load (8 heights) and 1 more from 32 x87 nodes behind it, an integer store carries nothing, a tie goes to the earlier node. Two
+  instructions are issued per cycle when they pair (an x87 op only with fxch; a node without code, 263 or a label, never: it takes
+  slot 0 of the first cycle that has no ready instruction above it, and a low load waiting for that cycle sinks behind it).
+- A parenthesised member load (`wz = (snow->windz);`) puts a 263 behind the `fld` and takes the latency off the edge from that
+  `fld` to the next push: every x87 node in front of it in the region loses one height (an fstp one priority unit above a store
+  then follows it). A user label is a node without code and without edges (it counts for the 81). A region ends only at a branch,
+  the label of a jump, a switch or the 81 count: tests VC6 decides, equal arms, `do { } while (0)`, one-pass loops and inline
+  bodies leave none (d3t_UpdateSnow's note: what an order hunk needs can be proved by patching priorities, latencies and the cut
+  in a c2 proxy before any variant round).
 - One statement at the wrong place in a long store block rotates the scratch registers of everything behind it:
   run a move-one-statement round (n^2 variants) before judging spellings (main_OpenScreen 66 -> 6).
 
@@ -299,6 +309,7 @@ Section names are those of `notes/vc6-matching.md`.
 | a shared block (a credit / failure tail) laid behind the FIRST arm's test, a later arm jumping back into it, ours lays it behind the later arm (with a `goto` it always lands in the later arm's subtree of the jump-first DFS); two literal copies wreck the allocation | one block behind both arms reached by a flag VC6 decides per path: `credit = 0; if (..) { ..; if (n > money) { amt = n; credit = 1; } } if (credit == 0 && f(..)) { ..; if (amt < money) credit = 1; else {..; return n;} } if (credit != 0) { tail }` (ai_DecideUpgradeGuild 108 -> byte) | Branch layout |
 | a global pointer's candidate takes a scratch register (edx) that the original gives a byte value, the pointer in esi and loaded once right before its uses | the pointer's range starts earlier in the original: a seat pointer taken at the top of the loop body (`st = &T->seat[s];`, the stores through it), which makes the global live across the counting loops and serves the byte first (ai_PokerPickStrategies) | Register allocation |
 | two parameters (address-taken out-params) in swapped scratch registers after the call that fills them, equal priorities | the tie is broken by the blocks' weights: a statement written in both arms of the if that tests one of them (`b2.arg = 1;` in both arms of `if (a != -1)`, VC6 merges it back) raises that one (ai_DecideUpgradeGuild: a eax, f ecx) | Register allocation |
+| one `fstp` and the integer store / load of a float copy swapped at the start of a block cut at 81, nothing else | c2dag: the two priorities differ by 1 (the fstp's x87 store bonus against 8 heights of the copy chain); one latency unit decides it: a parenthesised member load behind the fstp (`x = (p->f);`) lowers it by one height, but its 263 node costs a cycle: check where it is issued (d3t_UpdateSnow: head right, two loads sink; still open) | Order |
 | nothing in the function's text moves it | callees above; a struct or extern in a shared header (put views in the unit); a macro body or type the function uses; `climb.py` with more rounds | Declaration set |
 
 ## 5. Tools
