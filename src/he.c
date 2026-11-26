@@ -15082,33 +15082,7 @@ void he_AllocMarket(AIJOB *ev) {
    with the game flag 0x80) or buy 1 .. 3 a quarter of the time; the other players' buildings (1 .. 3, up to the first empty slot) sell from
    their object 0x1db and buy into 0x1dc. Each mean is kept between a quarter (at least 1) and three times the
    demand and reset by a random roll when it strays beyond 1.5 / 2.5 times or below 0.4 / 0.8 times of it; the
-   price is refreshed (gm_StockPrice) on most rolls. From 22:00 the record is freed, else it is due in an hour
-   @deep s50: 122 -> 2 ins (shape, size equal). Levers that moved it: amount = min(k, n) for pass 2's sold
-   amount (amount = n after if (k < n) n = k was copy-propagated into n: the original keeps amount's own
-   home); the hourly share in pass 1's form at all sites; one g for the passes; f one local for pass 1 and
-   pass 4 with the free capacity read back into it (f memory-live in pass 4 conflicts with g, so the packer
-   puts f with amount and pass 3's have, g alone: the original's frame); have per pass (block locals), n
-   one local; pass 3's mean as mean + (g - have) * 0.4. Left (order 4): pass 4's s2.mean = (float)(g * 0.5
-   + s2.mean) right after cm_SendExSellObject: the original has call; fld g; fmul 0.5; fadd [s2.mean]; add
-   esp,0x18; fstp, ours call; fld g; fmul; add esp,0x18; fadd; fstp. c2dag's graph of ours: add esp prio
-   32768 (h=4), fadd 229376 after fmul with latency 3 (17/3:7): with latencies the add fills the stall, so
-   the original's add must be ready later or its fadd not wait. No lever (= control): every spelling of the
-   sum (operand order, (float) placement, 0.5 / .5 / 2.0 / (double), += forms, min(), the clamp after it as
-   min / if), (int)f through k first, s2 as pl-block / initialised local, a label before the call or the
-   statement (no region effect); 0.5f or g / 2 give fmul dword (fpu 6); the statement before the call: M10.
-   c2pass: no tail / adjust pass moves it (the scheduler or the x87 stackifier). flip --want on the three
-   lines: no single mutation. climb: 3 rounds, beam 8 (1700 mutants): nothing below 2. prior: s49: 156 -> 122 ins, 964 = 964 instructions,
-   size 3479 -> 3463 (the original 3459, padded equal). Levers: the end as if (ai_Time.hour < 22) { next
-   run } else he_FreeEvent(ev) (VC6 then cross-jumps the free into the first guard's block as the original:
-   the tail hunk and one he_FreeEvent copy gone, 156 -> 137); the rolls' bound as (s.demand * 1.5f) /
-   s.mean (without the parentheses VC6 reassociates it into 1.5f / mean * demand: 137 -> 125); the hourly
-   share as (minutes * (1.0 / 60)) * (demand * (1.0f / 14)) at the three sites (the fild / fmul 1/60 / fld
-   / fmul / fmulp order: 125 -> 122, but the slot hunks grow 106 -> 160). No lever: if / else at the first
-   guard, minutes / 60.0, no (float) cast, the bound as < from the other side (167). Left: the frame
-   packing only (dcp frame: the original's [esp+0xc] is shared by five of our slots, its [esp+0x20] by two;
-   ours minutes at [esp+0x30], the original [esp+0x28]; pass 2's n has a stack home written at each
-   definition in ours, the original keeps it in edi and stores only amount = n into [esp+0x10]). Next:
-   c2frame --names on the variable sets of the passes (one s / n / k per pass?). */
+   price is refreshed (gm_StockPrice) on most rolls. From 22:00 the record is freed, else it is due in an hour */
 void he_RunMarketSupervisor(AIJOB *ev) {
   GMSTOCK *rec;
   GMSTOCK s;
@@ -15336,7 +15310,7 @@ void he_RunMarketSupervisor(AIJOB *ev) {
       have = gm_ListAmount(st, q);
       if (have < s2.demand * 0.5) {
         cm_SendExSellObject(st->objId, -1, s2.item, (int)f, ai_OwnPlayer, 0);
-        s2.mean = (float)(g * 0.5 + s2.mean);
+        s2.mean += (g * 0.5);
         s2.mean =
             (float)(s2.mean < s2.demand * 3.0 ? s2.mean : s2.demand * 3.0);
       } else {
