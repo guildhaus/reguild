@@ -3,7 +3,7 @@ exe	0x00405fb0	ch_ActDroppingObject	1
 exe	0x00406e60	ch_ActTurn	1
 exe	0x004072a0	ch_FindFreeCell	1
 exe	0x00407790	ch_GetWaypoints	1
-exe	0x004079b0	ch_GetNewPath	1
+exe	0x004079b0	ch_GetNewPath	2
 exe	0x00413960	d3t_MoveObjectPath	1
 exe	0x00414ea0	d3t_UpdateSnow	1
 exe	0x00416980	d3t_CreateSnowMipmaps	1
