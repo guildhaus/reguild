@@ -2370,26 +2370,7 @@ int ai_ExecuteRepairBuilding(AICHAR *p, AIARG *s1, AIARG *s2) {
     fin->renovationSpent = (int)(fin->renovationSpent + s1->fvalue);
   return 15;
 }
-/* 0x497fa0, decide of action 16: buy an offered building (event 0x1b, kinds 4..7 as its orders allow, o1 kind 0 or kind 5 naming the kind) when two thirds of the money cover the price (o1 kind 4, 16), else a credit for the difference (ai_DecideTakeCredit) when the price is low against the equipment value
-   @deep s70 (63 ins, source unchanged): meaning re-read against 0x497fa0..0x49846f: same (the size gap
-   1309 vs 1232 is the unmerged kind 5 credit tail only: fmul -0.5 .. ret, 23 instructions; both of our
-   copies are instruction-equal from fmul on, the jne to the shared return 0 included). flip.py --want one
-   ai_DecideTakeCredit call (610 mutants, 48 hits) names the lever: the return-0 identity of the exit
-   blocks. Hits that keep the code otherwise: the search loop's not-found 'return 0' as 'return 1' (466
-   ins: the credit tails merge but that exit is now its own block), the kind 0 credit-fail 'return 0' as
-   'return 1' (432), the kind 5 one (432); the rest delete / reorder the credit stores or change the float
-   types. So the original's block falling into the exit label at cross-jump time is not the not-found
-   return 0 (c2tail: ours keeps the xor at 'found:' and xjumps every other return 0 into it), and the kind
-   0 credit tail is. Block-order forms this session (= +77 size each): kind 5 block first (253 ins), kind 0
-   last behind 'if (o1->kind != 0) { if (o1->kind == 5) {..} return 0; }' (253), the same with a guard 'if
-   (o1->kind != 0) return 0;' (= k5-first), kind 5 as else-if (= control). Not-found exit forms (=
-   +76..+89, unmerged): break + the rest wrapped in if (i < 0x100) {..} with one final return 0 (65), the
-   same with != (72), a found flag + wrapped rest (= control), break + if (i >= 0x100) return 0 (65). Next:
-   the credit-fail return of each kind as a fall-through to the loop exit or another block shape around the
-   kind 0 credit test. prior: size queue s19: the return tails' polarity (if (o1->kind == 0) return 0;
-   return 16; and the kind 5 twin, its return 0 falling to the final one; 5 combinations) = control, raw
-   1309 each: the unmerged credit tail (the original's kind 5 copy jmps into the kind 0 copy's fmul) is the
-   whole gap, as the prior note explains. */
+/* 0x497fa0, decide of action 16: buy an offered building (event 0x1b, kinds 4..7 as its orders allow, o1 kind 0 or kind 5 naming the kind) when two thirds of the money cover the price (o1 kind 4, 16), else a credit for the difference (ai_DecideTakeCredit) when the price is low against the equipment value */
 
 int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2) {
   ORDMSG buf;
@@ -2398,7 +2379,7 @@ int ai_DecideBuyBuilding(int a, AICHAR *p, int b, AIARG *o1, AIARG *o2) {
   AIJOB *j;
   AIBTYPE *bt;
   unsigned int lo, hi;
-  int i, n, lim, v, r;
+  int i, n, lim, r;
 
   if (p->kind == 3)
     return 0;
@@ -2463,13 +2444,13 @@ found:
            (bl->type == 6 && ok[2]) || (bl->type == 7 && ok[3]))) {
         for (j = he_FindEvent(1, 0, 0x1b); j; j = he_NextEvent()) {
           if (j->u.id == bl->id) {
-            v = j->salePrice;
-            if (lim < v) {
-              r = gm_EquipmentValue(bl, bl->level);
-              if ((float)(v - lim) / v <
-                  (float)((float)(v - r) / r * -0.5f) + 0.25f) {
+            int price = j->salePrice;
+            if (lim < price) {
+              int worth = gm_EquipmentValue(bl, bl->level);
+              if ((float)(price - lim) / price <
+                  (float)((float)(price - worth) / worth * -0.5f) + 0.25f) {
                 o1->kind = 0x12;
-                o1->arg = v - lim;
+                o1->arg = price - lim;
                 return ai_DecideTakeCredit(0x10, p, b, o1, o2);
               }
               return 0;
@@ -2482,11 +2463,11 @@ found:
         }
       }
     }
-    if (o1->kind != 0)
-      return 16;
-    return 0;
-  }
-  if (o1->kind == 5) {
+    if (o1->kind == 0)
+      return 0;
+  } else {
+    if (o1->kind != 5)
+      return 0;
     if (o1->ref == 4 && !ok[0])
       return 0;
     if (o1->ref == 5 && !ok[1])
@@ -2499,13 +2480,13 @@ found:
       if ((unsigned char)ai_BTypes[bl->type].kind == o1->ref) {
         for (j = he_FindEvent(1, 0, 0x1b); j; j = he_NextEvent()) {
           if (j->u.id == bl->id) {
-            v = j->salePrice;
-            if (lim < v) {
-              r = gm_EquipmentValue(bl, bl->level);
-              if ((float)(v - lim) / v <
-                  (float)((float)(v - r) / r * -0.5f) + 0.25f) {
+            int price = j->salePrice;
+            if (lim < price) {
+              int worth = gm_EquipmentValue(bl, bl->level);
+              if ((float)(price - lim) / price <
+                  (float)((float)(price - worth) / worth * -0.5f) + 0.25f) {
                 o1->kind = 0x12;
-                o1->arg = v - lim;
+                o1->arg = price - lim;
                 return ai_DecideTakeCredit(0x10, p, b, o1, o2);
               }
               return 0;
@@ -2518,11 +2499,10 @@ found:
         }
       }
     }
-    if (o1->kind != 5)
-      return 16;
-    return 0;
+    if (o1->kind == 5)
+      return 0;
   }
-  return 0;
+  return 16;
 }
 /* 0x498470, execute of action 16 (ai_DecideBuyBuilding): buys the building s1->ref at the price of its offer (event 0x1b) through gm_SellBuilding, 16; 0 without an offer */
 
