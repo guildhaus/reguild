@@ -2276,6 +2276,11 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     b.z); b.x = (d * nv.x) + v->x;` (27 x 8 paren masks, a probe-listing filter on the five instructions after
     the call, then dcp try on the 194 hits: 9 byte, one code). Note the paren count also moves VC6's float
     sum ordering in the NEXT loop (whole-RHS parens in the first loop broke the second loop's sums).
+  - **The same in a straight `+=` run before a call**: veg_LoadModel (36 -> byte, two sessions on the height
+    address's add order) had every `pos.c += (a * b);` parenthesised; the height-address / byte-register hunks
+    and the fmul sunk past the call pushes were the region, not the address spelling. With it the frame lever
+    (pos a `D3VECTOR4`: the original's 4-byte hole behind pos, ours an o spill there). climb found the first
+    paren (13 ins); the group product (plain / `+= (..)` / `= p + (..)` per statement run) the rest.
   - **A tail cross-jumped into a sibling arm's equal tail (the k == 2 block's p = 0 written last): an unused
     label at the arm's end** (ai_FindPartner 2 -> byte, @original): `p = 0; done:;`: a user label survives as a
     block boundary and stops the merger; empty do-while, `while (0);`, `for (;;) break;`, `switch (0) {}`, an

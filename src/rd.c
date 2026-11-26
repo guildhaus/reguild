@@ -183,34 +183,14 @@ void veg_GrowPlants(G15PLANT *p) {
   veg_ShowPlants(p);
 }
 /* 0x4bc940, loads plant q's model ("%svegetation/*pfl_<type>_0<n>[_FALL].ogr"), names it "_ID<id>" and places it
-   on the height map (origin + x * axisx + z * axisz + height * axisy).
-   @deep deep s71 (spare): the original has int locals x = q->x (esi) and z = q->z (edi) taken after the
-   three org stores (each fild from the one temp [esp+0x10], the (float)x kept on the FPU for its three
-   products). Round x / z local x placement (before the if, top of the block, after the org stores) x type
-   (int, uchar) x 7 height spellings (height[z*size+x], [size*z+x], [x+z*size], (height+z*size)[x],
-   *(height+z*size+x), (z*size+height)[x], *(z*size+height+x)): the spellings are one code each
-   (canonicalised); best int locals after the org stores, 40 ins (control 36): the x / z / fild part is
-   then the original's, left the height address (ours z*size + x, [edx + heights], byte in bl with o
-   spilled to [esp+0x20]; the original z*size + heights, [edx + x], byte in cl, heights loaded into ecx /
-   ebp / edi) and the last statement's fmul sunk past the call pushes. grep_orig finds no byte function
-   with the imul / add heights / [edx+esi] form. Next: what makes heights the add operand and x the index
-   (c2trace on the height lines with the int-locals text). prior: s42: the original's three height
-   statements load tr->heights into ecx / ebp / edi (registers freed as q and z die: allocator choices, not
-   the scratch rotation), add it to z * size first and index [edx + x(esi)], so ecx is free for the byte;
-   ours adds x first and indexes [edx + heights] with the byte in bl (o spilled). = control: *(heights + x
-   + z * size), (heights + x)[z * size], (heights + z * size)[x], (heights + size * z)[x], heights[x + size
-   * z], int casts on x / z, both pointer-sum orders: VC6 canonicalises the address, the spelling is no
-   lever. int / unsigned / unsigned char x local (x = q->x before the placement): 69-73 ins but the height
-   part then has the original's order ((size * z + heights) + x) with eax / esi / edi registers. Next: what
-   makes the heights load a register candidate (one CSE web per statement?) and x the index register;
-   c2trace on the height lines. */
+   on the height map (origin + x * axisx + z * axisz + height * axisy). */
 
 void veg_LoadModel(G15PLANT *q, int fall) {
   G15TREE *t;
   int n;
   D3OBJECT *o;
   D3FLMAP *tr;
-  D3VECTOR pos;
+  D3VECTOR4 pos;
   char path[0x100];
   char buf[0x100];
 
@@ -242,16 +222,18 @@ void veg_LoadModel(G15PLANT *q, int fall) {
     pos.x = tr->orgx;
     pos.y = tr->orgy;
     pos.z = tr->orgz;
-    pos.x += q->x * tr->scale;
-    pos.y += q->x * tr->xAxisY;
-    pos.z += q->x * tr->xAxisZ;
-    pos.x += q->z * tr->zAxisX;
-    pos.y += q->z * tr->zAxisY;
-    pos.z += q->z * tr->negScale;
-    pos.x += tr->height[q->z * tr->size + q->x] * tr->yAxisX;
-    pos.y += tr->height[q->z * tr->size + q->x] * tr->hscale;
-    pos.z += tr->height[q->z * tr->size + q->x] * tr->yAxisZ;
-    d3_SetObjectPos(o, &pos);
+    /* @original each product parenthesised (as a vector-add macro writes it): one more node per product
+       for VC6's block scheduler, which keeps the last statement ahead of the call's pushes */
+    pos.x += (q->x * tr->scale);
+    pos.y += (q->x * tr->xAxisY);
+    pos.z += (q->x * tr->xAxisZ);
+    pos.x += (q->z * tr->zAxisX);
+    pos.y += (q->z * tr->zAxisY);
+    pos.z += (q->z * tr->negScale);
+    pos.x += (tr->height[q->z * tr->size + q->x] * tr->yAxisX);
+    pos.y += (tr->height[q->z * tr->size + q->x] * tr->hscale);
+    pos.z += (tr->height[q->z * tr->size + q->x] * tr->yAxisZ);
+    d3_SetObjectPos(o, &pos.v);
   }
   d3_RelightObjects(o);
 }
