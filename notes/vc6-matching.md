@@ -40,7 +40,7 @@ measure` marks two observations that disagree: try both. Some notes name scripts
   Parameter width: what the caller's push shows; Return types of callees; Argument count different from the
   definition (K&R victims, Q7); Evaluation order, nested calls, stack cleanup; Float, 64-bit and struct arguments;
   Varargs, inline, intrinsics, asm; Other call-site shapes
-- **Floating point** (82 rules): How c2.dll allocates the x87 stack; Operand order of commutative ops (ranks);
+- **Floating point** (83 rules): How c2.dll allocates the x87 stack; Operand order of commutative ops (ranks);
   Product and sum chains: association, factoring, folding; Values kept on the FPU vs stored and reloaded; Float
   copies: fld / fstp vs integer moves; Compare idioms and flag tests; min / max macros and clamps; Constants: float
   vs double, pooled literals, reciprocals; Int / float conversions, division, _ftol
@@ -5753,6 +5753,26 @@ the stack at every instruction.
 
 ### Operand order of commutative ops (ranks)
 
+- **The rule, read from c2.dll (optimize.c) and proven on init_OpenTown**: the operands of a commutative tuple
+  (add 26e, mul 270, and / or / xor 273..275) are merge-sorted, stable, by DESCENDING key (FUN_1071f5e8 ->
+  FUN_10725527, comparator FUN_10724175), in each simplification pass (FUN_1071d3dd: after C1, and again after
+  strength reduction). An expression's key is `height << 24 | nodes << 16 | hash` (the deeper subtree first: `k *
+  size` before the global, so the first pass always gives index first); a non-constant leaf's `0x10000 | hash`, a
+  constant's the hash alone (last). Hash of a temporary without a defining tuple (an IV, a CSE temp):
+  `(id << 6) & 0xffff`; of any other symbol: `((id & 0x7ff) << 5) ^ (id >> 11)` (FUN_1071f7f0). After strength
+  reduction `base + iv` is two leaves: the larger hash is the first operand (the SIB base). The ids are the
+  symbol records' numbers, per function, 32 per block (FUN_1071c6fb), one current block per class: locals and
+  pieces, data globals (0x20 + rank of first use), C1's expression temporaries (recycled; `if (0)` bodies, code
+  behind a `break` and `do { } while (0)` count, `1 ? (void)0 : f()` / `0 && f()` / sizeof do not), optimizer
+  temporaries (FUN_10722a72: one per distinct value-numbered expression of the whole function, then the
+  strength-reduction temps in loop order). This is the "temp number straddling 0x800" of ai_FamilyTreeWindow and the
+  "IL volume wrap" of ai_MercenaryBook: the hash has period 0x400 in the id. `tools/c2dag/c2ids.py` prints the ids,
+  keys and counts. What moves an id: nothing C1 folds (casts, NULL, `++` forms, parentheses, `(*p).`, `= 0`
+  initialisers, C++ instead of C, /Zi /GX /G5; 143 code-neutral climb mutants: 138 with no shift, the rest 1..4);
+  another statement structure does (a plain index loop for a hand pointer walk +7..38).
+  init_OpenTown's last walk needs its IV temp at id 0x800..0x810 (ours 0x6f9; ai_Blds = 0x21): 26 live probe calls
+  give 0x80f and `[base+iv]`, 27 give 0x811 and `[iv+base]`; 52 dead `if (0) strcpy(..)` plus an index loop are
+  byte in `dcp try`. Not kept: the original's extra IL leaves no code and cannot be read from the bytes (open).
 - **`add edx,eax` against `add eax,edx` for `n % 2 + n / 2` (one idiv), no spelling of that statement moves it**:
   the constant-first compare `if (0 != o1->kind) return 0;` 50 lines above did (ai_DecideBuildBusiness, found by
   climb.py's `commute` op; `if (o1->kind)`, `!(.. == 0)`, the sum's operand order, parentheses: = control).

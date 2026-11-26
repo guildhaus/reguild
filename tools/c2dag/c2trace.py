@@ -269,19 +269,31 @@ def variant_text(text, func, vfile, label, src=None):
     return "\n".join(lines[:cs] + [fn] + lines[e + 1:]), label
 
 
+def line_base(lines, s):
+    """the index of C2's line 0 for the definition starting at lines[s]: C2 counts a function's lines from the line
+    of its body's `{` (line 1), wherever the header starts (measured: a wrapped header, `{` on the header's line or
+    on its own). One line above the `{`."""
+    i = s
+    while i < len(lines) - 1 and "{" not in code(lines[i]):
+        i += 1
+    return i - 1
+
+
 def src_lines(c, func):
-    """{trace line: source text}: C2's line numbers count from the function's definition line"""
+    """{trace line: source text}: C2's line numbers count from the line of the body's `{` (line 1)"""
     lines = open(c, encoding="latin-1").read().split("\n")
-    _, d, e = function_span(lines, func)
-    return {i - d: lines[i].strip() for i in range(d, e + 1)}
+    _, s, e = function_span(lines, func)
+    d = line_base(lines, s)
+    return {i - d: lines[i].strip() for i in range(max(d, 0), e + 1)}
 
 
 class Src:
-    """the traced text: C2 counts a line from the function's definition line (0); printed as the text's file line"""
+    """the traced text: C2 counts a line from the line of the body's `{` (1); printed as the text's file line"""
     def __init__(self, c, func):
         lines = open(c, encoding="latin-1").read().split("\n")
-        _, self.d, e = function_span(lines, func)
-        self.text = {i - self.d: lines[i].strip() for i in range(self.d, e + 1)}
+        _, s, e = function_span(lines, func)
+        self.d = line_base(lines, s)
+        self.text = {i - self.d: lines[i].strip() for i in range(max(self.d, 0), e + 1)}
 
     def ln(self, rel):
         return self.d + rel + 1

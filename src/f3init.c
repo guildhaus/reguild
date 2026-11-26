@@ -2223,34 +2223,44 @@ extern signed char ai_MissionMode;           /* 0x624580 */
    persons, 2 / 3 = special), the start characters (0x50e690) and the opening goods (0x4f8ed0) are made, a message
    0x1b goes to every building (types E / D / F skipped) and the mission-mode message 0x4c out, and finally the
    characters of the kinds 2 .. 7 greet each other (0x4c4b00 both ways).
-   @deep deep s78: left regs 4 at 0x510313: the last walk (cm_BeginSendGroup loop) reads the type byte /
-   forms b as [ebx+edx] (IV first, c2dag: the lea's IL operands iv ebx, base ai_Blds edx), the original
-   [edx+ebx] (base first); the AiTown walk is [iv+base] in both. This session: dead `if (0) strcpy(buf260,
-   "x");` probes x1..64 before the walk and x1..32 at the top: dropped by the front end (= control). CSE
-   temp numbers here run 0x457..0x76a (temp#6a2 / #699 at o = b->owner) and are counted per function: a
-   40-statement function inserted in front of init_OpenTown leaves them unchanged, so a 0x800-straddle rank
-   (ai_FamilyTreeWindow) would need about 350 more temps in this function: unlikely. Key facts from before:
-   int ncl = 0 as the first declaration (6 -> 4, kept); no lever (= control): the address as ai_Blds + k /
-   k + ai_Blds / byte offset / (int) sums / (unsigned)k, direct ai_Blds[k].type / .owner reads, b replaced
-   by other pointers or a block-local copy, the walk counter over {k,i,j,n,m,new} (119), k's declaration
-   position, do-while / while / ++k forms, = 0 initialisers on every scalar and pair (136); flip --want
-   'mov cl, BYTE PTR \[edx\+ebx\]' (1418 mutants): no hit; climb round 1 (412): none closer. Next: read
-   which key c2 sorts a commutative lea's operands by (c2trace --raw of the lea tuple: the raw words 24b /
-   20040001 at +0x28 / +0x2c look like operand ranks), then find the text that changes the IV's or the
-   base's rank. prior: deep s75: int ncl = 0; as the FIRST declaration (ahead of cls) puts ncl's home store
-   [esp+0x14] right after the memsets, before the cls byte stores, as the original (ncl = 0 as a statement
-   before / between / after the memsets: the store stays behind the cls stores, 8 ins): 6 -> 4, kept. Left
-   (regs 4): the last walk's (cm_BeginSendGroup loop) type read / record address, ours mov cl,[ebx+edx] /
-   lea esi,[ebx+edx] (iv first), the original [edx+ebx] (base ai_Blds first); the AiTown walk has [iv+base]
-   in both. c2dag: the lea's IL operands are (iv ebx, base edx). No lever, all = control: the address as
-   ai_Blds + k, k + ai_Blds, (char *)ai_Blds + k byte offset loop, (int) sums either order,
-   &ai_Blds[(unsigned)k], direct ai_Blds[k].type / .owner reads, b replaced by q / r / geb / a new pointer
-   in that loop, a block-local copy; the counter of the three walks over {k,i,j,n,m,new} (119 assignments);
-   k declared first / last / moved over the declaration list (and b, cl, bk); do-while / while / ++k forms
-   (k != 0x100 6, k <= 0xff 34); = 0 initialisers on every scalar local and every pair (136: only j's costs
-   2). flip.py --want 'mov cl, BYTE PTR \[edx\+ebx\]' 1418 mutants: no hit; climb round 1 (412 mutants):
-   none closer. The operand rank follows something outside the single statements (as ai_MercenaryBook's
-   strcpy [edx+eax], ai_AlchemistWindow): untried: flip --scope file (the unit is long), header types. */
+   @deep deep s79: the key is found, no source yet. Left regs 4 at 0x510313: the last walk's `[ebx+edx]`
+   (iv first), the original `[edx+ebx]` (ai_Blds first). C2 sorts a commutative tuple's operands by
+   descending key (optimize.c FUN_1071f5e8, comparator FUN_10724175), again after strength reduction;
+   `ai_Blds + iv` is then two leaves: hash(IV temp) = (id << 6) & 0xffff, hash(global) = id << 5, the
+   larger first. ai_Blds is id 0x21 (0x420), the walk's IV temp id 0x6f9 (0xbe40): iv first. Base first
+   needs the temp at id 0x800..0x810 (+263..279 ids): `python tools/c2dag/c2ids.py src/f3init.c
+   init_OpenTown --line N` on the walk's `b = &ai_Blds[k];` line (ids, keys), `--acct` (counts). Proven: 26
+   live probe calls before the walk give id 0x80f and [base+iv], 27 give 0x811 and [iv+base]; `dcp try` of
+   52 x `if (0) strcpy(buf260, "x");` behind the memsets plus the MissionMode search as `for (i = 0; i <
+   0x300; i++) { if (ai_Chars[i].kind == 6) break; }` is BYTE (id 0x800; not kept: invented dead code). So
+   the id is all that is left. Ids are per function, 32 per block: C1's expression temps (31 blocks; `if
+   (0)` bodies, code behind a break, do { } while (0), unused initialised block locals count; 1 ? (void)0 :
+   f(), 0 && f(), sizeof do not), 551 value-number temps (one per distinct expression), SR temps in loop
+   order. No id moves with: C++ (/TP), /Zi /GX /G5 and 30 more flags, declarations or functions in front,
+   NULL, casts, ++ forms, (*p)., parentheses, = 0 initialisers; of 143 code-neutral climb mutants 138 shift
+   nothing, the rest 1..4. Code-neutral structure that does: the first loop as `for (i = 0; i < 0x300 &&
+   ncl < 8; i++) { c = &ai_Chars[i]; .. }` +30 (ai_Chars[i] read directly +38), the MissionMode search as
+   that index loop +7, the list200 search as a for +2, m2.time = ai_Time without clock -9, walk 1 as `k =
+   0; while (k < 0x100 && !ok) { .. k++; }` 0: about +47 together. The original therefore holds about 8 id
+   blocks (some 220 expression operators) of IL that leaves no code: a block under a constant-false
+   condition or unreachable statements, about the size of one walk's body; the bytes do not show it. Kept
+   from before: int ncl = 0 as the first declaration (6 -> 4); no lever: address spellings, counters,
+   declaration moves, loop forms of the walks, flip 1418, climb 412. Next: only a source for that disabled
+   block (a twin function, the original's history) gives byte; ordinary text cannot. prior: deep s75: int
+   ncl = 0; as the FIRST declaration (ahead of cls) puts ncl's home store [esp+0x14] right after the
+   memsets, before the cls byte stores, as the original (ncl = 0 as a statement before / between / after
+   the memsets: the store stays behind the cls stores, 8 ins): 6 -> 4, kept. Left (regs 4): the last walk's
+   (cm_BeginSendGroup loop) type read / record address, ours mov cl,[ebx+edx] / lea esi,[ebx+edx] (iv
+   first), the original [edx+ebx] (base ai_Blds first); the AiTown walk has [iv+base] in both. c2dag: the
+   lea's IL operands are (iv ebx, base edx). No lever, all = control: the address as ai_Blds + k, k +
+   ai_Blds, (char *)ai_Blds + k byte offset loop, (int) sums either order, &ai_Blds[(unsigned)k], direct
+   ai_Blds[k].type / .owner reads, b replaced by q / r / geb / a new pointer in that loop, a block-local
+   copy; the counter of the three walks over {k,i,j,n,m,new} (119 assignments); k declared first / last /
+   moved over the declaration list (and b, cl, bk); do-while / while / ++k forms (k != 0x100 6, k <= 0xff
+   34); = 0 initialisers on every scalar local and every pair (136: only j's costs 2). flip.py --want 'mov
+   cl, BYTE PTR \[edx\+ebx\]' 1418 mutants: no hit; climb round 1 (412 mutants): none closer. The operand
+   rank follows something outside the single statements (as ai_MercenaryBook's strcpy [edx+eax],
+   ai_AlchemistWindow): untried: flip --scope file (the unit is long), header types. */
 void init_OpenTown(void) {
   int ncl = 0;
   char cls[0x22] = {0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 1, 0, 2,
