@@ -179,7 +179,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
   D3VERTEX *v;
   D3BGFVERT *sp;
   D3ANIMSLOT *sl;
-  D3ANIMFRAME *f1, *f2;
+  D3ANIMFRAME *f1, *f2, *fr;
   unsigned char *p1, *p2;
   float a, b;
   D3VECTOR4 s1, b1, s2, b2, q1, q2;
@@ -193,8 +193,9 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     for (k = 0; k < 3; k++) {
       sl = &ctl->slots[k];
       if (sl->data && sl->weight != 0.0f) {
-        f1 = &sl->data->frames[sl->frame];
-        f2 = &sl->data->frames[sl->nextFrame];
+        fr = sl->data->frames;
+        f1 = &fr[sl->frame];
+        f2 = &fr[sl->nextFrame];
         p1 = f1->packed;
         p2 = f2->packed;
         s1.x = f1->scale.x;
