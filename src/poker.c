@@ -655,14 +655,40 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
 }
 /* 0x4a8190, the showdown: the winning seat (seat 0 against 1, the better of them against 2), its hand into winHand;
    two empty hands against an empty seat 2 compare the high card of the winner with seat 1's (as the original does)
-   @deep s73 (158 ins, source unchanged): the register swap is an order-of-service question. c2trace: w#1
-   (345) takes esi, the seat-offset IV k#21a (76: +18 def in the init block P9, +12 foldedAt, +28 the hand
-   store in the post-call block P7, +32 latch) takes edi, the table ai_PokerTable#1 (12) takes ebx, kind[2]
-   ebp; the choice order is esi, edi, ebx, ebp (probe: five '{ static G10GAME *pm; pm = ai_PokerTable; }'
-   in the first loop lift the table to 61, it is served before the IV and takes edi). The table is at +40
-   after the first loop and loses about 58 over the ~27 unreferenced blocks of the first switch (-1..-3
-   each); the original pays the same (one table load before the loop, one reload after RateHand, none after
-   the HighCard calls: same-unit callee known not to write it). So in the original the IV ranks below the
+   @deep targeted check of the new C2 findings (source unchanged, 158 ins): none applies to the swap. (1)
+   Id sort: the seat access is already the original's operand order, IV first, table second (c2ids:
+   temp#21a key 18680 over ai_PokerTable#20 key 10400; ours [edi+ebx+0x2c], the original [ebx+edi+0x2c]
+   with the registers swapped), so no id window is involved. (2) Forwarding: no sum with a block-dead local
+   in the race. (3) The allocation queue (c2trace --raw): w 345 takes esi, the IV k#21a 76 (tie 2b) takes
+   edi, the table 12 (tie 11) ebx, kind[2] ebp; 76 against 12 is no tie, so neither the tie field nor the
+   declaration set reaches it. Two ways give the original (table edi, IV ebx), the second new: (A) the
+   table above the IV (about +65: s74 proved it with four table reads in the init block, 118 ins left); (B)
+   the IV still served first but with a score on edi: the choice takes the lowest score, ties esi, edi,
+   ebx, ebp, and a waiting candidate that interferes and PREFERS edi adds one, so the IV would take ebx and
+   the table edi. The table has prefs[ ] here; a preference comes only from a copy with a physical register
+   or an assigned candidate (edi: the destination of an inline rep stos / movs, or a copy with a candidate
+   already in edi), and the original function has no string instruction, so (B) needs a copy that leaves no
+   code: not found. What the original's init block shows and ours lacks (under either way): xor ebp
+   (kind[2]); xor ebx (the IV, in front of the stores); xor eax (kind[0]); mov ecx,ebp (kind[1] copied from
+   kind[2]'s register, not a fresh xor); xor edx for out[2] and out[1]; out[0] stored from the IV's ebx;
+   the table load last. Ours: one eax for kind[0] and all three out stores, xor ecx for kind[1], the IV's
+   xor behind the stores. So the zero constant's pieces are spread by preferences the original's text gives
+   (kind[1] from kind[2], out[0] from the IV) and ours does not. Kept facts of s72..s76: the first switch
+   is the original's instruction for instruction with cases 1 / 2 as 'if (g1[0] > g1[1]) w = 0; else if
+   (g1[1] > g1[0]) w = 1;' and the case order 1, 2, 3/7, 6, 8, 5, 4; = control or worse: seat pointer, hand
+   store chained, arms swapped, loop over k or a block local i (154, frame 0x4c), while, w = 0 positions,
+   out[0] = w, zero-init chains / loop / memset / = {0}, a local t = ai_PokerTable (155-158), 720 init
+   orders and 5040 case orders under the probes (118), shared-compare forms (192-207), climb 4 rounds.
+   Next: a text for the init block whose zero stores carry the original's copies (kind[1] <- kind[2],
+   out[0] <- the seat offset), then the table / IV order again on that base. prior: s73 (158 ins, source
+   unchanged): the register swap is an order-of-service question. c2trace: w#1 (345) takes esi, the
+   seat-offset IV k#21a (76: +18 def in the init block P9, +12 foldedAt, +28 the hand store in the
+   post-call block P7, +32 latch) takes edi, the table ai_PokerTable#1 (12) takes ebx, kind[2] ebp; the
+   choice order is esi, edi, ebx, ebp (probe: five '{ static G10GAME *pm; pm = ai_PokerTable; }' in the
+   first loop lift the table to 61, it is served before the IV and takes edi). The table is at +40 after
+   the first loop and loses about 58 over the ~27 unreferenced blocks of the first switch (-1..-3 each);
+   the original pays the same (one table load before the loop, one reload after RateHand, none after the
+   HighCard calls: same-unit callee known not to write it). So in the original the IV ranks below the
    table, or the table has references the text here lacks. = control / worse this session: a seat pointer
    st (top / folded arm / hand store: folds into the IV), the hand store chained either way or via k (=
    control / 170), the arms swapped (164), the folded arm as 'else if (foldedAt >= 0)' (= control), two ifs
@@ -698,25 +724,7 @@ int ai_PokerRateHand(int owner, int *g1, int *g2, int *r1, int *r2) {
    'w = g1[0] <= g1[1]' / 'w = r1[0] <= r1[1]' cases, which needs equal scratch registers in every copy: it
    follows from the allocation, not from the text. Next: the table / IV order remains the key (with it the
    init zeros and the HighCard setle register are next); look for a plain statement in the init block or
-   first loop that reads the table (worth +19 / +12..28 each, about +65 needed). prior: deep s72: meaning
-   re-read against 0x4a8190..0x4a84da again (both jump tables 0x4a84dc / 0x4a84fc entry by entry, every
-   winHand store / return, the call orders): equal; the size gap (903 vs 842) was layout, now 834 vs 842.
-   195 -> 158 ins: (1) the first switch's g1 / g2 tests of cases 1 and 2 as 'if (g1[0] > g1[1]) w = 0; else
-   if (g1[1] > g1[0]) w = 1;' (the original loads [0] first and compares cmp [1],[0]; jge: only the mixed
-   spelling gives both; 195 -> 177); (2) the first switch's case order 1, 2, 3/7, 6, 8, 5, 4 (a 5040-order
-   round of the seven case groups: every order at 158 has case 4 last with 5 or 3/7 right before it;
-   natural 1..8, every case on its own body, 3/5/7 grouped: 162-194): now the first switch is the
-   original's instruction for instruction (case 6 cross-jumped into case 2's r1 tail, case 1 into case 8,
-   the both-zero high-card path into case 4's second call). Left (regs 72, code 122): the table pointer in
-   ebx and the seat offset IV in edi through the whole function (the original: table edi, IV ebx, and the
-   IV's 0 stored as out[0]; c2trace: the IV k#21a prio 76 is served before the table (12) and takes edi);
-   the zero inits (original: ebp = 0 for kind[2], ecx = ebp for kind[1], edx = 0 for out[2] / out[1]); in
-   the second switch the case 3/5/7 return-2 keeps its own epilogue copy where the original jle's into the
-   0x4a8460 copy, and case 1's r1 compare is not shared. Tried this session (no lever): the zero inits as
-   chains (kind[1] = kind[2] = 0, out[...] chains, a loop, memset, = {0} initializers: control or worse);
-   the top chain's both-zero test as && / inverted / the high-card compare reversed (worse); the second
-   switch's 720 case orders (= control or worse); climb 1 round: best 146 via a FLOAT copy of kind[w]
-   (nonsense; the int form k = kind[w] before the both-zero test: 174-196, regs 38 but the layout breaks). */
+   first loop that reads the table (worth +19 / +12..28 each, about +65 needed). */
 
 int ai_PokerShowdown(void) {
   int g1[3], r1[3], kind[3], out[3], g2[3];
