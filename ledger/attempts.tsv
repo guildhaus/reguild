@@ -5,7 +5,7 @@ exe	0x004072a0	ch_FindFreeCell	1
 exe	0x00407790	ch_GetWaypoints	1
 exe	0x004079b0	ch_GetNewPath	2
 exe	0x00413960	d3t_MoveObjectPath	2
-exe	0x00414ea0	d3t_UpdateSnow	1
+exe	0x00414ea0	d3t_UpdateSnow	2
 exe	0x00416980	d3t_CreateSnowMipmaps	1
 exe	0x0041d2e0	dd_SetMode	2
 exe	0x004215c0	err_ExceptionFilter	1
