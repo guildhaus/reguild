@@ -513,33 +513,10 @@ void d2_DragInput(void) {
     }
   }
 }
-/* 0x477ba0, mouse and keys on the focused slider object
-   @deep deep s78: left regs 4 at 0x477d5c: the original loads o->h into edi, then reloads o->y (the CSE
-   temp's piece) into eax = bottom and adds edi; ours loads o->h into bottom (eax) and the piece into edi
-   (IL bottom = movsx o->h; bottom += temp#194, the piece then a neighbour of bottom). Rounds this session,
-   all = control: parens on either operand / the whole sum / the first test's operands (10); the sum as (b
-   = o->y, b += o->h), (b = o->h, b += o->y), b = b + .., o->y - -o->h (6); y / hh named locals for o->y /
-   o->h (copy-propagated); dead reads o->h; / if (o->h) {} at 3 places (dropped by the front end); if (0)
-   probes 1..128 (dropped); the vertical test as a nested if with bottom set in its body (4 forms, also int
-   bottom as a block local: the same code, a readable alternative to the assignment inside the condition;
-   short bottom 11, unsigned 6). Written-out forms of both uses (test and a) in 36 orders: one code, draft
-   64. d2_Objs[d2_PointerObj].y in the sum gives the original's sum registers but the first test loses the
-   CSE (8). fl / mx read through d2_Objs: = control (only the temp numbers move). Key facts from before:
-   f6's initializer (no code) fixes the first test's loads (kept with @original); goto wheel replaced by
-   the drag flag (identical code); all of px .. bottom unsigned at once gives the regs (flip), each alone
-   does not; climb 2 rounds: none closer. Next: what makes the commutative add take the temp piece as its
-   destination (c2's swap rule at allocation), e.g. c2trace --raw of the unsigned-all mutant against ours.
-   prior: deep s75: mechanism of the regs 4 at 0x477d5c read from c2trace --raw: o->y is a CSE temp
-   (temp#194, made in the first vertical test f6->h + o->y, edi there in both); in the bottom block our IL
-   is bottom = movsx o->h; bottom += temp#194 (temp#194 a neighbour of bottom, so its reload piece gets
-   edi), the original's is bottom = temp#194 + o->h with the piece coalesced into eax (o->h into a temp
-edi, loaded first, the piece reloaded into eax, add eax,edi): the commutative operand order of the sum, canonical before allocation. No lever (all = control): both operand orders, casts on either operand / the first test, the first test's operand / compare orders (24 forms), the a = .. line in 7 forms, d2_Objs[d2_PointerObj].h for o->h (copy-propagated; .y for o->y kills the CSE: 8), each declaration line moved, each of px .. bottom unsigned alone (6..164), fl int / drag unsigned / char. flip.py --want 'movsx eax, WORD PTR \[esi\+18\]': only meaning changes (+ -> -, deleting / moving a = ..) and all of px .. bottom unsigned at once (unsigned compares); climb 2 rounds: none closer. */
-
+/* 0x477ba0, mouse and keys on the focused slider object */
 void d2_SliderInput(void) {
   D2OBJ *o;
-  /* @original f6's initializer emits no code; it moves f6's first reference, after which VC6 computes
-     the vertical drag test as the original (f6->h + o->y in eax, the code 10 hunk of the plain form) */
-  struct D2SHP *f0, *f6 = 0;
+  struct D2SHP *f0, *f6;
   void *h;
   int px, py, v, mn, mx, len, v2, d, a, bottom;
   unsigned int fl;
@@ -577,21 +554,23 @@ void d2_SliderInput(void) {
     v2 = o->u.s.value2;
     d = mx - mn;
     d2_DragSlider = d2_PointerObj;
-    drag = 1;
+    drag = 0;
     if ((fl & 0x48) == 0) {
       if ((fl & 2) && px > f6->w + o->x && px < o->w - f6->w + o->x) {
         a = px - f0->w - o->x;
         v = (int)(a * ((double)d / len) + mn + 0.5);
-      } else if (
-          (fl & 1) &&
-          py > f6->h + o->y
-          /* @original: the bottom edge o->y + o->h is summed once inside the test and reused for a
-             (written out at both uses VC6 reassociates the test to o->h - f6->h + o->y) */
-          && py < (bottom = o->y + o->h) - f6->h) {
-        a = bottom - f0->h - py;
-        v = (int)(a * ((double)d / len) + mn + 0.5);
-      } else {
-        drag = 0;
+        drag = 1;
+      } else if (fl & 1) {
+        v = o->y;
+        if (py > f6->h + v) {
+          v = o->h;
+          bottom = o->y + v;
+          if (py < bottom - f6->h) {
+            a = bottom - f0->h - py;
+            v = (int)(a * ((double)d / len) + mn + 0.5);
+            drag = 1;
+          }
+        }
       }
       if (drag) {
         if (v < mn)
