@@ -2694,10 +2694,25 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
 /* 0x4079b0, walk actions: checks the next path cells against the nearby characters others[0..n-1] and,
    if one blocks the way, marks them in the ground map and searches a new path around them ("ch:GetNewPath"
    is the mem_Alloc tag). Returns the new path length, 0 nothing to do, -1 failed, -2 no way around.
-   @deep s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes name the counts: a dead probe
-   'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives the original's table exactly
-   (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92 ins), cz -1 (a compare
-   against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py --want '_scene\$ =
+   @deep s71: 96 -> 54 ins, size now equal (2774). Kept: rest as CHPATHPT rest[0x400] filled by rest[k -
+   last - 1].x/.z (VC6 strength-reduces it from k: the lea ecx,[rest+1] after the loop guard; rest[nrest] =
+   206, the q pointer walk = 96); flags & 2 compare as 'cx == wp[j].x && wp[j].z == cz' (92 -> 88); the
+   path count read into k (k = ch_Path.count; mem_Alloc((k + nrest) * 2)): any int local with other webs (k
+   i j r e last steps) gives the original's lea ecx,[edi+ebp] and the memset load order, a own cnt / m /
+   len = control (declaration order of cnt / m = control); the FindFreeCell multiplier in the parameter n
+   (n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2; steps * n): only n gives the original's mov
+   ebx,[steps]; imul ebx,eax (and m in ebx in the second call); r e k i j last tx tz bx bz = control; if /
+   else and default-first forms of the ternary worse. No lever: the goto linked / goto next as found flags
+   + re-test (k < 16 && contacts[k].ch: not threaded, +21 bytes). Left: frame ties (cz / scene at 0x2c /
+   0x30 swapped, tz-len / bz at 0x34 / 0x38 swapped); a packer + K&R quicksort replay of c2frame --names (N
+   / X rows) says scene +1 or cz -1 gives the original's table, but a probe 'probe = scene' only works
+   after 'return -2;' (the list tie: scene must reach 9 after steps and cx in the walk). Code: flags & 2's
+   x compare loads cx first and compares ecx(wp.x),eax(cx); flags & 1's cx-arm z compare is mov
+   ecx,[edx+4]; cmp ecx,[cz] (ours mov ecx,[cz]; cmp [edx+4],ecx); c2trace: cx#3 (2770,2779) memory, cz#1
+   bulk split. prior: s70 (96 ins, source unchanged). Frame (slots 68): c2frame probes name the counts: a
+   dead probe 'probe = scene + cx' behind ch_RestoreGround (scene +1 AND cx +1) gives the original's table
+   exactly (steps, cx, scene, cz, bz, tz/len); scene +1 alone puts scene before cx (92 ins), cz -1 (a
+   compare against a probe) gives scene/cz and bz/tz right but steps/cx swapped. flip.py --want '_scene\$ =
    -2460[\s\S]*_bz\$ = -2452' (963 mutants, 27 hits) hits only meaning changes: deleting gx = cz / sx = cz,
    swapping the dz line with the sqrt in either distance arm, y as double, the goto linked / goto next
    deletions. So the original has one more counted reference of scene and of cx (a statement in both arms
@@ -2715,14 +2730,7 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
    there. climb --rounds 1 (447 mutants): best 89 only via an int copy of ch->speedScale (meaning change).
    Left: the frame ties, the two FindFreeCell m / product registers, the flags & 2 cx compare order, the
    flags & 1 cz compare form, the rest-copy loop's lea / add ecx placement, the memset argument load order,
-   mem_Alloc's lea. prior: size fixed s4 (2770 vs 2774, padded 2784 = original): the transport arms as e =
-   max(1, oa->u.walk.cur - 2) / max(1, oa->u.walk.cur): the max macro reads cur twice per arm, so the arms
-   no longer start with one equal load and VC6 stops hoisting it (the original's mov eax,[cur]; lea
-   edi,[eax-2]; jmp; mov edi,[cur]); 102 -> 96 ins. Tried same round: clamp written in each arm (2764
-   bytes), max of the ternary (145 ins), k/e roles swapped, e -= 2 statement, r clamp moved (= control or
-   worse). Left: the slot ties (cz/scene, tz/bz, see prior), the first FindFreeCell's steps * m after the
-   flags push (mov ebx,[steps]; imul ebx,eax), the second's m in ebx with or al,1, the rest-copy loop's lea
-   ecx placement. */
+   mem_Alloc's lea. */
 
 int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
   int res = 0;
@@ -2730,13 +2738,12 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
   int scene = d3t_SceneIndex(ch->scene);
   D3SM *h;
   int steps, cx, cz, tx, tz, bx, bz, gx, gz;
-  int i, j, k, r, e, last, nrest, cnt, m;
+  int i, j, k, r, e, last, nrest;
   float y, d, dx, dy, dz;
   CHACTION *oa;
   CHWAYPT wp[32];
   CHPATHPT *p;
-  unsigned char *q;
-  unsigned char rest[0x800];
+  CHPATHPT rest[0x400];
 
   if (a->type != '-')
     return -1;
@@ -2767,7 +2774,7 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
       if (!wp[j].flags)
         break;
       if (wp[j].flags & 2) {
-        if (wp[j].x == cx && wp[j].z == cz) {
+        if (cx == wp[j].x && wp[j].z == cz) {
           res = 1;
           break;
         }
@@ -2888,18 +2895,16 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
       if (d3_GetHeightAt(h, &a->ch->obj->pos, &sx, &cx, &y)) {
         last = min(a->u.walk.cur + 16, a->u.walk.pathLen - 1);
         nrest = 0;
-        q = rest + 1;
         for (k = last + 1; k < a->u.walk.pathLen; k++) {
-          q[-1] = a->u.walk.path[k].x;
-          q[0] = a->u.walk.path[k].z;
+          rest[k - last - 1].x = a->u.walk.path[k].x;
+          rest[k - last - 1].z = a->u.walk.path[k].z;
           nrest++;
-          q += 2;
         }
         gx = a->u.walk.path[last].x;
         gz = a->u.walk.path[last].z;
-        m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
+        n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
         if (!ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, gx, gz, &cz,
-                             &fz, steps * m, a->u.walk.flags | 1)) {
+                             &fz, steps * n, a->u.walk.flags | 1)) {
           ch_RestoreGround(h);
           return -1;
         }
@@ -2908,9 +2913,9 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
         ch_Path.xy = ch_PathBuf;
         ch_Path.max = 0x200;
         if (h->entries[h->size * cx + sx].type == 0xd) {
-          m = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
+          n = ch->scene == d3_Scenes || d3_Terrain ? 5 : 2;
           if (ch_FindFreeCell(h, &ch->obj->pos, &a->u.walk.dest, sx, cx, &cz,
-                              &fz, steps * m, a->u.walk.flags | 1)) {
+                              &fz, steps * n, a->u.walk.flags | 1)) {
             sx = cz;
             cx = fz;
           }
@@ -2919,16 +2924,16 @@ int ch_GetNewPath(CHARACTER *ch, int n, CHARACTER **others) {
           ch_RestoreGround(h);
           return -1;
         }
-        cnt = ch_Path.count;
+        k = ch_Path.count;
         if (a->u.walk.path) {
           mem_Free(a->u.walk.path);
           a->u.walk.path = 0;
         }
-        a->u.walk.path = mem_Alloc((cnt + nrest) * 2, "ch:GetNewPath");
+        a->u.walk.path = mem_Alloc((k + nrest) * 2, "ch:GetNewPath");
         len = ch_ThinPath(ch, &ch_Path, a->u.walk.path, h);
         for (k = 0; k < nrest; k++) {
-          a->u.walk.path[len + k].x = rest[k * 2];
-          a->u.walk.path[len + k].z = rest[k * 2 + 1];
+          a->u.walk.path[len + k].x = rest[k].x;
+          a->u.walk.path[len + k].z = rest[k].z;
         }
         a->u.walk.pathLen = len + nrest;
         a->u.walk.cur = 0;
