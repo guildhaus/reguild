@@ -1288,29 +1288,32 @@ int ai_AimCannon(AICHAR *p, AIBLD *b, AIBLD *t) {
    ball from 50 units along the barrel b; two from 40 units, 5 to either side along d; three from 40 units, one 5
    along c, two 3 back along c and 5 to either side along d. Each ball: ai_InitShot, ai_ScatterShot by the
    cannon's spread (gv_CannonScatter); then gv_FireShots with the charge, 1 when fired
-   @deep s86 206 -> 48 ins: the vectors were per-case block locals, packed by VC6 into the original 4
-   slots: case 1 { D3VECTOR4 v1; }, case 2 { D3VECTOR4 w, v2; } (w the b*40 / d*5 / d*-5 temp: not
-   address-taken, so its dead x / y stores vanish as in the original), case 3 { D3VECTOR4 v1, t; } (v1 the
-   b*40 temp and the third ball, t the c / d offsets), v3 and v4 at function scope (c2frame P:
-   last-slot-first packing gives A = v1 / w / v1, B = t / v2, C = v3, D = v4 only with v3 / v4 not block
-   locals); case 2 sums v2 then v3 (cse23); x = ai_CannonShot.x read before cost (x in ebp, cost spilled:
-   the old M8). Left (48): (1) f / c / z-temp slots: the original f [0x48] c [0x4c] temp [0x50], ours c,
-   temp, f - all three weight 4, dens 1000, the unstable quicksort order depends on the whole table
-   (flip.py --want _f$ = -344: only meaning changes, e.g. the two calls swapped); declaration orders,
-   names, f in two statements, g folded into f: = control; (2) case 2 x87 order: z sum of b*40 (orig fld
-   [w.z]; fadd a.z, ours a.z first) and the d*5 / d*-5 sums (orig fld [w.y]; fadd [v2.y], ours v2 first; an
-   fxch): 119 operand-order spellings = one code, 11 chain / copy / in-place forms all worse, flip.py
-   --want for the z order: no hit. prior: x87 research: cases 2/3 copied the sum as a CSE, not as a copy of
-   the stored vector: case 2 v3[i] = v1[i] + a[i]; then v2[i] = v1[i] + a[i]; case 3 v4[i] = v1[i] + a[i];
-   v3[i] = ..; v1[i] = ..; (301 -> 206, frame 0x190 = the original's). The [L50] slot is the z CSE temp:
-   c2fpu.py shows temp#.. x / y OK on the FPU stack, z NO (its live range does not nest with the v1 / v4
-   pieces), so it lives in memory (fst [L50], copied with mov). Left: (1) operand order of the y / z sums
-   (original case 2: fld a1; fadd [v1y] but fld [v1z]; fadd a2; case 3: v1 first for both; ours a first
-   everywhere): no lever in 30 parenthesis / (float) cast spellings or 40 textual swaps (internal rank);
-   (2) slots: v1 / v2 counts 32 / 31 (c2frame) sort them before u / v (dens 2000 / 1937 > 1750); the
-   original has u / v at 0x10 / 0x14, so v1 / v2 have <= 27 references there; case 1 as one expression per
-   component (v1[i] = a[i] + b[i] * 50) halves the slot hunks (106 -> 62) but adds fpu (224 ins). Next:
-   which spelling has 5 fewer v1 and 4 fewer v2 references with case 1's code. */
+   @deep deep s87: 48 -> shape 4 ins. The lever was variable identity: every scaled offset its own
+   block-local vector (case 2: b40 = b*40, d5, dm5; case 3: b40 apart from the third ball v1, c5, cm3, d5,
+   dm5). A mem + mem float sum loads the operand whose IL symbol number is higher first (c2dag m:#N: case 2
+   b40 #12 < ai_CannonShot #20 -> fld a; case 3 b40 #b1 > #20 -> fld b40); numbers go by first reference
+   (struct locals about 6 apart, the first four vectors v1 / w / v2 / v3 below the global, later ones from
+   #a0 up), and the split also fixed the f / c / tmp slot order (K&R-quicksort replay of c2frame B rows: f
+   / c needed weight against tmp). Left: case 2 b40 z sum: the original fld [b40.z]; fadd a.z but its y sum
+   fld a.y; fadd [b40.y], so in the original the y and z products have symbol numbers on both sides of
+   ai_CannonShot's: one vector cannot do that. = control or worse: all 192 dependency-valid orders of the
+   b40 block (x / y / z kept), 719 orders of the six sums, operand flips (canonical), probes and a.z /
+   b40.z reads at every position, scalar / union-path / plain-struct / array w, v2 or v3 as the product, a
+   dead third destination, renames and declaration orders (no effect). Next: which IL symbol could sit at
+   A.z with a number above #20 while A.y stays below (c2dag numbers per variant: scratchpad nums.py idea:
+   map m:#N to first source line). prior: s86 206 -> 48 ins: the vectors were per-case block locals, packed
+   by VC6 into the original 4 slots: case 1 { D3VECTOR4 v1; }, case 2 { D3VECTOR4 w, v2; } (w the b*40 /
+   d*5 / d*-5 temp: not address-taken, so its dead x / y stores vanish as in the original), case 3 {
+   D3VECTOR4 v1, t; } (v1 the b*40 temp and the third ball, t the c / d offsets), v3 and v4 at function
+   scope (c2frame P: last-slot-first packing gives A = v1 / w / v1, B = t / v2, C = v3, D = v4 only with v3
+   / v4 not block locals); case 2 sums v2 then v3 (cse23); x = ai_CannonShot.x read before cost (x in ebp,
+   cost spilled: the old M8). Left (48): (1) f / c / z-temp slots: the original f [0x48] c [0x4c] temp
+   [0x50], ours c, temp, f - all three weight 4, dens 1000, the unstable quicksort order depends on the
+   whole table (flip.py --want _f$ = -344: only meaning changes, e.g. the two calls swapped); declaration
+   orders, names, f in two statements, g folded into f: = control; (2) case 2 x87 order: z sum of b*40
+   (orig fld [w.z]; fadd a.z, ours a.z first) and the d*5 / d*-5 sums (orig fld [w.y]; fadd [v2.y], ours v2
+   first; an fxch): 119 operand-order spellings = one code, 11 chain / copy / in-place forms all worse,
+   flip.py --want for the z order: no hit. */
 
 int ai_FireCannon(AICHAR *p, AIBLD *b) {
   float u, v;
@@ -1346,30 +1349,30 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
       return 1;
     }
     if (ai_CannonShot.charge == 2) {
-      D3VECTOR4 w;
       D3VECTOR4 v2;
+      D3VECTOR4 b40, d5, dm5; /* the scaled offsets, one vector each */
 
-      w.x = ai_CannonShot.b.x * 40.0f;
-      w.y = ai_CannonShot.b.y * 40.0f;
-      w.z = ai_CannonShot.b.z * 40.0f;
-      v2.x = w.x + ai_CannonShot.a.x;
-      v2.y = w.y + ai_CannonShot.a.y;
-      v2.z = w.z + ai_CannonShot.a.z;
-      v3.x = w.x + ai_CannonShot.a.x;
-      v3.y = w.y + ai_CannonShot.a.y;
-      v3.z = w.z + ai_CannonShot.a.z;
-      w.x = ai_CannonShot.d.x * 5.0f;
-      w.y = ai_CannonShot.d.y * 5.0f;
-      w.z = ai_CannonShot.d.z * 5.0f;
-      v2.x = w.x + v2.x;
-      v2.y = w.y + v2.y;
-      v2.z = w.z + v2.z;
-      w.x = ai_CannonShot.d.x * -5.0f;
-      w.y = ai_CannonShot.d.y * -5.0f;
-      w.z = ai_CannonShot.d.z * -5.0f;
-      v3.x = w.x + v3.x;
-      v3.y = w.y + v3.y;
-      v3.z = w.z + v3.z;
+      b40.x = ai_CannonShot.b.x * 40.0f;
+      b40.y = ai_CannonShot.b.y * 40.0f;
+      b40.z = ai_CannonShot.b.z * 40.0f;
+      v2.x = b40.x + ai_CannonShot.a.x;
+      v2.y = b40.y + ai_CannonShot.a.y;
+      v2.z = b40.z + ai_CannonShot.a.z;
+      v3.x = b40.x + ai_CannonShot.a.x;
+      v3.y = b40.y + ai_CannonShot.a.y;
+      v3.z = b40.z + ai_CannonShot.a.z;
+      d5.x = ai_CannonShot.d.x * 5.0f;
+      d5.y = ai_CannonShot.d.y * 5.0f;
+      d5.z = ai_CannonShot.d.z * 5.0f;
+      v2.x = d5.x + v2.x;
+      v2.y = d5.y + v2.y;
+      v2.z = d5.z + v2.z;
+      dm5.x = ai_CannonShot.d.x * -5.0f;
+      dm5.y = ai_CannonShot.d.y * -5.0f;
+      dm5.z = ai_CannonShot.d.z * -5.0f;
+      v3.x = dm5.x + v3.x;
+      v3.y = dm5.y + v3.y;
+      v3.z = dm5.z + v3.z;
       ai_InitShot(&s2, &v2.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_InitShot(&s1, &v3.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_ScatterShot(&s2, u, &ai_CannonShot.d.v, u, &ai_CannonShot.c.v, v);
@@ -1381,47 +1384,47 @@ int ai_FireCannon(AICHAR *p, AIBLD *b) {
     }
     if (ai_CannonShot.charge == 3) {
       D3VECTOR4 v1;
-      D3VECTOR4 t;
+      D3VECTOR4 b40, c5, cm3, d5, dm5; /* the scaled offsets, one vector each */
 
-      v1.x = ai_CannonShot.b.x * 40.0f;
-      v1.y = ai_CannonShot.b.y * 40.0f;
-      v1.z = ai_CannonShot.b.z * 40.0f;
-      v4.x = v1.x + ai_CannonShot.a.x;
-      v4.y = v1.y + ai_CannonShot.a.y;
-      v4.z = v1.z + ai_CannonShot.a.z;
-      v3.x = v1.x + ai_CannonShot.a.x;
-      v3.y = v1.y + ai_CannonShot.a.y;
-      v3.z = v1.z + ai_CannonShot.a.z;
-      v1.x = v1.x + ai_CannonShot.a.x;
-      v1.y = v1.y + ai_CannonShot.a.y;
-      v1.z = v1.z + ai_CannonShot.a.z;
-      t.x = ai_CannonShot.c.x * 5.0f;
-      t.y = ai_CannonShot.c.y * 5.0f;
-      t.z = ai_CannonShot.c.z * 5.0f;
-      v1.x = t.x + v1.x;
-      v1.y = t.y + v1.y;
-      v1.z = t.z + v1.z;
-      t.x = ai_CannonShot.c.x * -3.0f;
-      t.y = ai_CannonShot.c.y * -3.0f;
-      t.z = ai_CannonShot.c.z * -3.0f;
-      v4.x = t.x + v4.x;
-      v4.y = t.y + v4.y;
-      v4.z = t.z + v4.z;
-      v3.x = t.x + v3.x;
-      v3.y = t.y + v3.y;
-      v3.z = t.z + v3.z;
-      t.x = ai_CannonShot.d.x * 5.0f;
-      t.y = ai_CannonShot.d.y * 5.0f;
-      t.z = ai_CannonShot.d.z * 5.0f;
-      v4.x = t.x + v4.x;
-      v4.y = t.y + v4.y;
-      v4.z = t.z + v4.z;
-      t.x = ai_CannonShot.d.x * -5.0f;
-      t.y = ai_CannonShot.d.y * -5.0f;
-      t.z = ai_CannonShot.d.z * -5.0f;
-      v3.x = t.x + v3.x;
-      v3.y = t.y + v3.y;
-      v3.z = t.z + v3.z;
+      b40.x = ai_CannonShot.b.x * 40.0f;
+      b40.y = ai_CannonShot.b.y * 40.0f;
+      b40.z = ai_CannonShot.b.z * 40.0f;
+      v4.x = b40.x + ai_CannonShot.a.x;
+      v4.y = b40.y + ai_CannonShot.a.y;
+      v4.z = b40.z + ai_CannonShot.a.z;
+      v3.x = b40.x + ai_CannonShot.a.x;
+      v3.y = b40.y + ai_CannonShot.a.y;
+      v3.z = b40.z + ai_CannonShot.a.z;
+      v1.x = b40.x + ai_CannonShot.a.x;
+      v1.y = b40.y + ai_CannonShot.a.y;
+      v1.z = b40.z + ai_CannonShot.a.z;
+      c5.x = ai_CannonShot.c.x * 5.0f;
+      c5.y = ai_CannonShot.c.y * 5.0f;
+      c5.z = ai_CannonShot.c.z * 5.0f;
+      v1.x = c5.x + v1.x;
+      v1.y = c5.y + v1.y;
+      v1.z = c5.z + v1.z;
+      cm3.x = ai_CannonShot.c.x * -3.0f;
+      cm3.y = ai_CannonShot.c.y * -3.0f;
+      cm3.z = ai_CannonShot.c.z * -3.0f;
+      v4.x = cm3.x + v4.x;
+      v4.y = cm3.y + v4.y;
+      v4.z = cm3.z + v4.z;
+      v3.x = cm3.x + v3.x;
+      v3.y = cm3.y + v3.y;
+      v3.z = cm3.z + v3.z;
+      d5.x = ai_CannonShot.d.x * 5.0f;
+      d5.y = ai_CannonShot.d.y * 5.0f;
+      d5.z = ai_CannonShot.d.z * 5.0f;
+      v4.x = d5.x + v4.x;
+      v4.y = d5.y + v4.y;
+      v4.z = d5.z + v4.z;
+      dm5.x = ai_CannonShot.d.x * -5.0f;
+      dm5.y = ai_CannonShot.d.y * -5.0f;
+      dm5.z = ai_CannonShot.d.z * -5.0f;
+      v3.x = dm5.x + v3.x;
+      v3.y = dm5.y + v3.y;
+      v3.z = dm5.z + v3.z;
       ai_InitShot(&s3, &v4.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_InitShot(&s1, &v3.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
       ai_InitShot(&s2, &v1.v, &ai_CannonShot.b.v, f, c, ai_IronDensity);
