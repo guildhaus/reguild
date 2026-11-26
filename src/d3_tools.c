@@ -985,39 +985,39 @@ int d3t_MoveCameraPath(int time, int n, ...) {
    c6b1aaf2:src/d3_tools.c; dcp note dropped it): c2trace pass 2: i#2 43 (entry +16 at P 8, head +16 at P 4
    w 2, latch +16 at P 2 w 2) takes ecx before k#2 29 (entry +16, head -8, latch -4, exit +24 = three uses
    from the k*11 lea expansion at P 4), which gets edx; the body piece k#3 (k++) stays in memory. k needs
-   about +15 (one more ref in entry or head, two in the exit). Dead or duplicate k forms fold before
-   allocation; only a COPY whose sides share a register or slot, or a statement duplicated in two arms and
-   cross-jumped after allocation, leaves no instruction. Best known forms: a second index last (last = 1 in
-   the for-init, ..; k++; last = k; in the body, keys[last].time = 0) plus else step = time / n: 9 ins (the
-   k temporary behind the call takes eax; it starts after the step store, so eax is free), and with the
-   time store behind k++ (keys[k - 2]): 4 ins, every register right, the store at the body end. Branch-flip
-   search: no single c2.dll decision gives the original. s81 rounds, no lever (= control unless named): a
-   static __inline key-fill helper (4 forms); k unsigned / long / register (short 84, uchar 95, i short
-   72); o / a key pointer as body-block locals; no step local (49, other code); post-increment folded; k
-   from 0 with keys[k + 1] (47); k = 1 or i = 0 as a statement at each of 14 positions of the entry
-   (49-149, swap stays); an unused label between k = 1 and the for; probes on the 0 constant; i++ inside
-   path[i++] (74); an early n <= 0 return duplicating the exit, with for or do-while (69-80: the copies do
-   not cross-jump, keys[1] is folded in the early one); exit copies (last = k; keys[last], a key pointer,
-   n++): all = control; exit spellings of the k*88 address (char offset, int index k * 22, keys + k): =
-   control, the multiply is normalised before the expansion; last copied in the for-increment (61; with
-   else step 43; k = last at the body top 38 with other code); a product round k-init position x step form
-   x k from 0/1 x k++ / ++k / k += 1 (72: best 43, swap stays); on the last + else base every order of the
-   time store, k++ and last = k (504: best the known 4 and 9) and keys[last - 1] (78-110); climb.py
-   --rounds 4 on the tree (best 45: the time store in front of the call), --rounds 3 from the 9-ins form,
-   --rounds 6 --beam 8 from the 43-ins form: no step. flip.py --want 'inc edx / cmp edx, ebx': the only hit
-   is that same swap. Still open: one ordinary construct that ranks k above i. prior: match-deep s80 (short
-   look, source unchanged, 49 ins): new angles from this session, all = control: if (!(o = path[i]))
-   continue; and o = path[i]; if (o == 0) continue; (the continue edge does not move the i / k ranking);
-   path[i] read twice instead of o; the call count n + 1 through step or i after the loop; k as the time
-   parameter itself (#define probe: same code, VC6 already packs k into time's slot [ebp+0xc]); an unused
-   label (plab:;) before each of the 25 statements (probe2 on the three instructions behind idiv: every one
-   xor ecx,ecx / mov edx,1, i.e. ours). The original keeps k in ecx and i in edx across the whole loop
-   (reloaded only behind the call) and the exit uses ecx as k on every path. Open as before: one ordinary
-   construct that raises k above i.
-
-
-
-
+   about +15. Dead or duplicate k forms fold before allocation; only a COPY whose sides share a register or
+   slot, or a statement duplicated in two arms and cross-jumped after allocation, leaves no instruction.
+   Best known forms (whole texts: for-init i = 0, k = 1, last = 1; exit keys[last].time = 0): body call;
+   subs; k++; keys[k - 2].time = step; last = k; } else step = time / n; = 4 ins: every register right,
+   only the time store stands after add esi at the body end ([esi-0xc4]) where the original has it behind
+   the call ([esi-0x6c], between inc ecx and the k store). With the time store anywhere in front of k++
+   (all 7 positions give one code) = 9 ins: in the IL the k load then follows the step store, eax is free
+   again and the k temporary (prio 88, chosen before last) takes eax, the original ecx. A step = time / n
+   line anywhere behind the time store (else arm, end of the if arm, no else) gives the same 9. So the
+   original's IL has the k load and inc in front of the time store and the k store behind it. s81 rounds,
+   no lever (= control unless named): static __inline key-fill helper (4 forms); k unsigned / long /
+   register (short 84, uchar 95, i short 72); o / a key pointer as block locals; no step local (49);
+   post-increment folded; k from 0 (47); k = 1 / i = 0 at each of 14 entry positions (49-149); unused
+   label; probes on the 0 constant; path[i++] (74); early n <= 0 return (69-80, not cross-jumped); exit
+   copies and k*88 spellings (= control); last in the for-increment (43-61); product k-init x step form x k
+   base x increment (72, best 43); on the last base every order of the time store, k++, last = k (504),
+   keys[last - 1] (78-110), a prev / key pointer taken before the call with the store behind the call or at
+   the end (9-59), the store through a local t (9), keys[k++ - 1].time (9), nk = k + 1 in front of the
+   store with k = nk at the end (9: copy-propagated), k++ in front of the call or in its argument (91-105);
+   callee cast to K&R int / void, pointer result, varargs (= control; d3_PointToWorld is in another unit,
+   so VC6 knows only the prototype); climb.py from the tree (45: store in front of the call), the 9 form,
+   the 43 form, the 4 form (ops move,swap,local,inexpr, 4 rounds): no step; flip.py --want i in edx: only
+   that swap. Not tried because the original's instructions rule them out: i counting down (inc edx / cmp
+   edx,ebx), a pointer walk over path ([eax+edx*4] with path reloaded), other key layouts (displacements
+   fixed: time 0, pos 4, rot 0x14, size 0x58). Still open: a natural form with the k load in front of the
+   time store and the k store behind it. prior: match-deep s80 (short look, source unchanged, 49 ins): new
+   angles from this session, all = control: if (!(o = path[i])) continue; and o = path[i]; if (o == 0)
+   continue; (the continue edge does not move the i / k ranking); path[i] read twice instead of o; the call
+   count n + 1 through step or i after the loop; k as the time parameter itself (#define probe: same code,
+   VC6 already packs k into time's slot [ebp+0xc]); an unused label (plab:;) before each of the 25
+   statements (probe2 on the three instructions behind idiv: every one xor ecx,ecx / mov edx,1, i.e. ours).
+   The original keeps k in ecx and i in edx across the whole loop (reloaded only behind the call) and the
+   exit uses ecx as k on every path. Open as before: one ordinary construct that raises k above i.
    */
 
 D3PATH *d3t_MoveObjectPath(D3OBJECT *obj, int time, int n, D3OBJECT **path) {
