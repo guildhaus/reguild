@@ -222,10 +222,8 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
         b2.y = f2->base.y;
         b2.y = *wp * b2.y;
         d3_AnimBlendWeights(sl, &a, &b);
-        i = 0;
-        v = info->keys;
         if (first) {
-          for (; i < info->nkeys; i++, p1 += 3, p2 += 3, v++) {
+          for (i = 0, v = info->keys; i < info->nkeys; i++, p1 += 3, p2 += 3, v++) {
             q1.x = ((float)p1[0] * s1.x + b1.x) * b;
             q1.y = ((float)p1[1] * s1.y + b1.y) * b;
             q1.z = ((float)p1[2] * s1.z + b1.z) * b;
@@ -238,7 +236,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
           }
           first = 0;
         } else {
-          for (; i < info->nkeys; i++, p1 += 3, p2 += 3, v++) {
+          for (i = 0, v = info->keys; i < info->nkeys; i++, p1 += 3, p2 += 3, v++) {
             q1.x = ((float)p1[0] * s1.x + b1.x) * b;
             q1.y = ((float)p1[1] * s1.y + b1.y) * b;
             q1.z = ((float)p1[2] * s1.z + b1.z) * b;
