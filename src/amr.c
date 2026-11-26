@@ -6697,8 +6697,8 @@ int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   lvl = bl->level;
   credit = 0;
   if (lvl < util_Random(0x10) + 0x32 && !(bl->flags5a & 4)) {
-    s1.kind = 4;
     s1.ref = bl->id;
+    s1.kind = 4;
     s1.arg = 1;
     if (lvl < 0x21)
       need = 0x32;
