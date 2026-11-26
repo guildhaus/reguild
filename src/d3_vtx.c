@@ -204,8 +204,8 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
         b1.x = f1->base.x;
         b1.y = f1->base.y;
         b1.x = *wp * b1.x;
-        b1.y = *wp * b1.y;
         b1.z = f1->base.z;
+        b1.y = *wp * b1.y;
         b1.z = *wp * b1.z;
         s2.x = f2->scale.x;
         s2.y = f2->scale.y;
