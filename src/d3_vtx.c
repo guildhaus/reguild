@@ -301,7 +301,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
+          v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
           v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
           z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
           v->z = z;
@@ -318,7 +318,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     } else if (0 < info->nkeys) {
       do {
         sp = v->src;
-        v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
+        v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
         v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
         v->z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
         i++;
