@@ -193,37 +193,34 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     for (k = 0; k < 3; k++) {
       sl = &ctl->slots[k];
       if (sl->data && sl->weight != 0.0f) {
-        volatile float *wp = &sl->weight;
         f1 = &sl->data->frames[sl->frame];
         f2 = &sl->data->frames[sl->nextFrame];
         p1 = f1->packed;
         p2 = f2->packed;
-        /* scale / base of the two frames, pre-multiplied by the slot weight; the statement order (z copies
-           are volatile stores, x / y pairs share the FPU loads) is what the bytes need (hill climb) */
         s1.x = f1->scale.x;
         s1.y = f1->scale.y;
-        s1.x = *wp * s1.x;
         s1.z = f1->scale.z;
-        s2.z = f2->scale.z;
-        s1.y = *wp * s1.y;
-        b2.z = f2->base.z;
-        s1.z = *wp * s1.z;
+        s1.x = (sl->weight) * s1.x;
+        s1.y = (sl->weight) * s1.y;
+        s1.z = (sl->weight) * s1.z;
         b1.x = f1->base.x;
         b1.y = f1->base.y;
-        b1.x = *wp * b1.x;
         b1.z = f1->base.z;
-        b1.y = *wp * b1.y;
-        b1.z = *wp * b1.z;
+        b1.x = (sl->weight) * b1.x;
+        b1.y = (sl->weight) * b1.y;
+        b1.z = (sl->weight) * b1.z;
         s2.x = f2->scale.x;
         s2.y = f2->scale.y;
-        s2.x = *wp * s2.x;
-        s2.y = *wp * s2.y;
-        s2.z = *wp * s2.z;
+        s2.z = f2->scale.z;
+        s2.x = (sl->weight) * s2.x;
+        s2.y = (sl->weight) * s2.y;
+        s2.z = (sl->weight) * s2.z;
         b2.x = f2->base.x;
-        b2.z = *wp * b2.z;
-        b2.x = *wp * b2.x;
         b2.y = f2->base.y;
-        b2.y = *wp * b2.y;
+        b2.z = f2->base.z;
+        b2.x = (sl->weight) * b2.x;
+        b2.y = (sl->weight) * b2.y;
+        b2.z = (sl->weight) * b2.z;
         d3_AnimBlendWeights(sl, &a, &b);
         if (first) {
           for (i = 0, v = info->keys; i < info->nkeys; i++, p1 += 3, p2 += 3, v++) {
@@ -304,7 +301,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
       if (0 < info->nkeys) {
         do {
           sp = v->src;
-          v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
+          v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
           v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
           z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
           v->z = z;
@@ -321,7 +318,7 @@ void d3_TransformVerts(D3OBJECT *obj, D3SURF *info, D3MATRIX *m) {
     } else if (0 < info->nkeys) {
       do {
         sp = v->src;
-        v->x = sp->x * m->_11 + (sp->y) * m->_21 + (sp->z) * m->_31 + m->_41;
+        v->x = sp->x * m->_11 + sp->y * m->_21 + sp->z * m->_31 + m->_41;
         v->y = sp->x * m->_12 + sp->y * m->_22 + sp->z * m->_32 + m->_42;
         v->z = sp->x * m->_13 + sp->y * m->_23 + sp->z * m->_33 + m->_43;
         i++;
