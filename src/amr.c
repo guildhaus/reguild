@@ -6650,30 +6650,31 @@ int ai_EvalUpgradeGuild(float *a, float *b, int i, AICHAR *p, int f, AIARG *o1,
    money) credit = 1; else { ChooseSubAction .. return n; }', then 'if (credit != 0) { 0.25 credit }'. VC6
    threads the decided flag: the repair arm falls into the credit, goods jl's into it, the layout is the
    original's. The four AIARG records at function scope (block scope: frame 0x34); s1.ref stored before
-   s1.kind (climb). Rounds before it: goto forms 99-132 (with a goto the credit always lands in the goods
-   subtree of the jump-first DFS), two literal copies 192-329 (o1 ranks 69 and takes edi). = control this
-   session: the flag's init position (top / before lvl / after lvl), 'if (credit)' against '!= 0', the
-   goods arm as 'if (amt >= money) {..} credit = 1;', 'amt = n' against 'amt = ai_RepairCost' (worse),
-   '!credit && f(..)' / nested if / the FindGood result in n or m. Left (all scratch rotation, one step):
-   the goods fill starts with f in eax where the original has ecx (after FindGood's lea ecx / lea edx),
-   i.e. the original has one more eax temporary between the FindGood call and the goods fill, or the
-   credit's code before the goods in IL order; the credit then reads ai_OwnPlayer into al (orig dl), and
-   the new-type t computation is one step off too. Next: find that temporary (flip.py --want 'mov\s+ecx,
-   DWORD PTR _f$'), or a source order that puts the credit block's text before the goods arm. prior: s70
-   (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53 block by block: equal (the
-   impossible 'k < 0x1e && k > 0x21' test is the original's: cmp 0x1e / jae, cmp 0x21 / ja; the goods
-   path's 'amt < money' goes to the 0.25 credit as in the original's jl 0x4a0be8; record fills, the 0.4 /
-   0.5 new-type tail, the credit stores and o1->arg2 = 1 all match). The size gap (964 vs 996) is layout
-   only: the original keeps the 0.25 credit inline behind the repair test and the goods path jumps into it
-   after 'mov esi,eax; mov ebx,1' (the credit's o1->arg2 store reads ebx = 1 in both copies, so the two
-   copies were equal at cross-jump time: the constant 1 had a register in both credit copies). Two full
-   copies this session: block-scope records 219 ins with frame 0x34 (the four AIARGs then share slots: the
-   original's 0x64 frame needs their lifetimes to overlap, i.e. function-scope records or the goto); with
-   function-scope records (all four / b1 b2 / s1 s2) 205-207 ins, frame right, size +40: the copies do not
-   cross-jump (money ebx vs edi, a spill of the RepairCost result, the 1 not in ebx). One copy +
-   function-scope b1 b2: 108 ins / 321 bytes (other code, = count). Next: the two-copy text with the
-   allocation the note above asks for (o1 below o / lvl / money) and the 1 as a register in each credit
-   copy. */
+   s1.kind (climb). Before: goto forms 99-132 (with a goto the credit always lands in the goods subtree of
+   the jump-first DFS), two literal copies 192-329 (o1 ranks 69 and takes edi). = control: the flag's init
+   position, 'if (credit)', the goods arm as 'if (amt >= money) {..} credit = 1;', '!credit && f(..)' /
+   nested if / the FindGood result in n or m, the credit's value in a block local / n / need, its two tests
+   as one '||', its stores under one '&&'; 'amt = ai_RepairCost' direct: worse. Left (scratch rotation one
+   step off): the goods fill reads f into eax where the original has ecx, the credit reads ai_OwnPlayer
+   into al (orig dl), the new-type t computation one step off. flip.py --want 'mov ecx, DWORD PTR _f$' (11
+   hits): orders in the b2 fill ('b2.arg2 = money' behind the if: 188; first: 52) and the credit block's
+   tests: deleting 'if (m < 80000)', swapping it with the CharCurrency line, a DUPLICATED dead 'return 0;'
+   behind it: the rotation follows the credit block's block / exit shape. Next: the credit's exits (a
+   result variable and one return, the 0.25 and 0.5 credits sharing their tail, the credit test merged with
+   the new-type part). prior: s70 (108 ins, source unchanged): meaning re-read against 0x4a0a70..0x4a0e53
+   block by block: equal (the impossible 'k < 0x1e && k > 0x21' test is the original's: cmp 0x1e / jae, cmp
+   0x21 / ja; the goods path's 'amt < money' goes to the 0.25 credit as in the original's jl 0x4a0be8;
+   record fills, the 0.4 / 0.5 new-type tail, the credit stores and o1->arg2 = 1 all match). The size gap
+   (964 vs 996) is layout only: the original keeps the 0.25 credit inline behind the repair test and the
+   goods path jumps into it after 'mov esi,eax; mov ebx,1' (the credit's o1->arg2 store reads ebx = 1 in
+   both copies, so the two copies were equal at cross-jump time: the constant 1 had a register in both
+   credit copies). Two full copies this session: block-scope records 219 ins with frame 0x34 (the four
+   AIARGs then share slots: the original's 0x64 frame needs their lifetimes to overlap, i.e. function-scope
+   records or the goto); with function-scope records (all four / b1 b2 / s1 s2) 205-207 ins, frame right,
+   size +40: the copies do not cross-jump (money ebx vs edi, a spill of the RepairCost result, the 1 not in
+   ebx). One copy + function-scope b1 b2: 108 ins / 321 bytes (other code, = count). Next: the two-copy
+   text with the allocation the note above asks for (o1 below o / lvl / money) and the 1 as a register in
+   each credit copy. */
 
 int ai_DecideUpgradeGuild(int a, AICHAR *p, int f, AIARG *o1, AIARG *o2) {
   AIBLD *bl;
