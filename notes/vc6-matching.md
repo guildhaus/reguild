@@ -5772,7 +5772,12 @@ the stack at every instruction.
   another statement structure does (a plain index loop for a hand pointer walk +7..38).
   init_OpenTown's last walk needs its IV temp at id 0x800..0x810 (ours 0x6f9; ai_Blds = 0x21): 26 live probe calls
   give 0x80f and `[base+iv]`, 27 give 0x811 and `[iv+base]`; 52 dead `if (0) strcpy(..)` plus an index loop are
-  byte in `dcp try`. Not kept: the original's extra IL leaves no code and cannot be read from the bytes (open).
+  byte in `dcp try`. The original's extra IL leaves no code and cannot be read from the bytes. Accepted form
+  (the user's decision, init_OpenTown byte): ONE compact `if (0) { .. }` block of plausible disabled code over
+  the function's own data (a class-count check with an older table: block-local initialised arrays cost 2 ids per
+  element, written-out `T[x].f` reads and sprintf arguments about 5 each), under an `@original` comment saying its
+  text is ours and which id it sets, sized with c2ids.py / idmeter.py, together with the code-neutral natural
+  forms that fit (the MissionMode search as an index loop). Only where the id-hash wrap is proven this way.
 - **`add edx,eax` against `add eax,edx` for `n % 2 + n / 2` (one idiv), no spelling of that statement moves it**:
   the constant-first compare `if (0 != o1->kind) return 0;` 50 lines above did (ai_DecideBuildBusiness, found by
   climb.py's `commute` op; `if (o1->kind)`, `!(.. == 0)`, the sum's operand order, parentheses: = control).

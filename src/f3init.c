@@ -2222,45 +2222,7 @@ extern signed char ai_MissionMode;           /* 0x624580 */
    other free buildings whose class is marked 1 in the table below are stocked (cls[]: 0 = nothing, 1 = one or two
    persons, 2 / 3 = special), the start characters (0x50e690) and the opening goods (0x4f8ed0) are made, a message
    0x1b goes to every building (types E / D / F skipped) and the mission-mode message 0x4c out, and finally the
-   characters of the kinds 2 .. 7 greet each other (0x4c4b00 both ways).
-   @deep deep s79: the key is found, no source yet. Left regs 4 at 0x510313: the last walk's `[ebx+edx]`
-   (iv first), the original `[edx+ebx]` (ai_Blds first). C2 sorts a commutative tuple's operands by
-   descending key (optimize.c FUN_1071f5e8, comparator FUN_10724175), again after strength reduction;
-   `ai_Blds + iv` is then two leaves: hash(IV temp) = (id << 6) & 0xffff, hash(global) = id << 5, the
-   larger first. ai_Blds is id 0x21 (0x420), the walk's IV temp id 0x6f9 (0xbe40): iv first. Base first
-   needs the temp at id 0x800..0x810 (+263..279 ids): `python tools/c2dag/c2ids.py src/f3init.c
-   init_OpenTown --line N` on the walk's `b = &ai_Blds[k];` line (ids, keys), `--acct` (counts). Proven: 26
-   live probe calls before the walk give id 0x80f and [base+iv], 27 give 0x811 and [iv+base]; `dcp try` of
-   52 x `if (0) strcpy(buf260, "x");` behind the memsets plus the MissionMode search as `for (i = 0; i <
-   0x300; i++) { if (ai_Chars[i].kind == 6) break; }` is BYTE (id 0x800; not kept: invented dead code). So
-   the id is all that is left. Ids are per function, 32 per block: C1's expression temps (31 blocks; `if
-   (0)` bodies, code behind a break, do { } while (0), unused initialised block locals count; 1 ? (void)0 :
-   f(), 0 && f(), sizeof do not), 551 value-number temps (one per distinct expression), SR temps in loop
-   order. No id moves with: C++ (/TP), /Zi /GX /G5 and 30 more flags, declarations or functions in front,
-   NULL, casts, ++ forms, (*p)., parentheses, = 0 initialisers; of 143 code-neutral climb mutants 138 shift
-   nothing, the rest 1..4. Code-neutral structure that does: the first loop as `for (i = 0; i < 0x300 &&
-   ncl < 8; i++) { c = &ai_Chars[i]; .. }` +30 (ai_Chars[i] read directly +38), the MissionMode search as
-   that index loop +7, the list200 search as a for +2, m2.time = ai_Time without clock -9, walk 1 as `k =
-   0; while (k < 0x100 && !ok) { .. k++; }` 0: about +47 together. The original therefore holds about 8 id
-   blocks (some 220 expression operators) of IL that leaves no code: a block under a constant-false
-   condition or unreachable statements, about the size of one walk's body; the bytes do not show it. Kept
-   from before: int ncl = 0 as the first declaration (6 -> 4); no lever: address spellings, counters,
-   declaration moves, loop forms of the walks, flip 1418, climb 412. Next: only a source for that disabled
-   block (a twin function, the original's history) gives byte; ordinary text cannot. prior: deep s75: int
-   ncl = 0; as the FIRST declaration (ahead of cls) puts ncl's home store [esp+0x14] right after the
-   memsets, before the cls byte stores, as the original (ncl = 0 as a statement before / between / after
-   the memsets: the store stays behind the cls stores, 8 ins): 6 -> 4, kept. Left (regs 4): the last walk's
-   (cm_BeginSendGroup loop) type read / record address, ours mov cl,[ebx+edx] / lea esi,[ebx+edx] (iv
-   first), the original [edx+ebx] (base ai_Blds first); the AiTown walk has [iv+base] in both. c2dag: the
-   lea's IL operands are (iv ebx, base edx). No lever, all = control: the address as ai_Blds + k, k +
-   ai_Blds, (char *)ai_Blds + k byte offset loop, (int) sums either order, &ai_Blds[(unsigned)k], direct
-   ai_Blds[k].type / .owner reads, b replaced by q / r / geb / a new pointer in that loop, a block-local
-   copy; the counter of the three walks over {k,i,j,n,m,new} (119 assignments); k declared first / last /
-   moved over the declaration list (and b, cl, bk); do-while / while / ++k forms (k != 0x100 6, k <= 0xff
-   34); = 0 initialisers on every scalar local and every pair (136: only j's costs 2). flip.py --want 'mov
-   cl, BYTE PTR \[edx\+ebx\]' 1418 mutants: no hit; climb round 1 (412 mutants): none closer. The operand
-   rank follows something outside the single statements (as ai_MercenaryBook's strcpy [edx+eax],
-   ai_AlchemistWindow): untried: flip --scope file (the unit is long), header types. */
+   characters of the kinds 2 .. 7 greet each other (0x4c4b00 both ways). */
 void init_OpenTown(void) {
   int ncl = 0;
   char cls[0x22] = {0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 1, 0, 2,
@@ -2524,6 +2486,49 @@ void init_OpenTown(void) {
     cm_ReceiveMessages();
     cm_ExecCommands();
   }
+  /* @original a disabled check of the opened buildings. Its text is ours, not recovered: the original function
+     holds statements that leave no code. Their IL is counted in C2's symbol ids, and the id of the induction
+     temporary of the building walk above orders the base and index of its ai_Blds access (the rule in
+     notes/vc6-matching.md, "Operand order of commutative ops"). Without about this much disabled text that walk
+     compiles to [iv + ai_Blds]; the original has [ai_Blds + iv]. */
+  if (0) {
+    char old[0x22] = {0, 0, 3, 0, 1, 1, 0, 1, 1, 1, 0, 2, 2, 2, 1, 0, 2,
+                      1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 3, 1, 0, 1, 1, 0};
+
+    for (i = 0; i < 0x22; i++) {
+      n = 0;
+      m = 0;
+      for (k = 0; k < 0x100; k++) {
+        b = &ai_Blds[k];
+        if (b->type == 0 || ai_BTypes[b->type].kind != i)
+          continue;
+        if (b->masterId != 0xffff && ai_Blds[b->masterId].type == 0)
+          sprintf(buf260, "building %d: master %d is gone", b->id, b->masterId);
+        if (b->owner == 0xffff)
+          m++;
+        else if (ai_Chars[b->owner].kind == 5 ||
+                 ai_Chars[b->owner].kind == 4 ||
+                 ai_Chars[b->owner].kind == 6 ||
+                 ai_Chars[b->owner].kind == 7)
+          n++;
+        for (j = 0; j < 6; j++) {
+          if (ai_BTypes[b->type].jobs[j] != 0 && b->owner != 0xffff &&
+              ai_BTypes[b->type].jobs[j] == ai_Chars[b->owner].jobId)
+            break;
+        }
+        if (j == 6 && b->owner != 0xffff)
+          sprintf(buf260, "building %d (type %d): owner %d has job %d", b->id, b->type,
+                  ai_Chars[b->owner].netId, ai_Chars[b->owner].jobId);
+      }
+      if ((old[i] != cls[i]) || (cls[i] == 0 && n != 0) ||
+          (cls[i] == 1 && n > 2) ||
+          (cls[i] == 2 && n != cnt[i]) ||
+          (cls[i] == 3 && n > cnt[i] + 1))
+        sprintf(buf260, "class %d (%d): %d buildings owned, %d free, %d opened", i, cls[i], n, m, cnt[i]);
+      if (cls[i] != 0 && n + m == 0 && cnt[i] != 0)
+        sprintf(buf260, "class %d: %d opened, none left", i, cnt[i]);
+    }
+  }
   init_CreateStartCharacters(
       0); /* the original call pushes one argument (0x510494), which the callee does not read */
   ord_UpdateStatistics();
@@ -2548,14 +2553,10 @@ void init_OpenTown(void) {
     AIMSG m2;
     AITIME *clock = &ai_Time;
 
-    i = 0;
-    c = ai_Chars;
-    do {
-      if (c->kind == 6)
+    for (i = 0; i < 0x300; i++) {
+      if (ai_Chars[i].kind == 6)
         break;
-      c++;
-      i++;
-    } while ((intptr_t)&c->kind < (intptr_t)&ai_Chars[0x300].kind);
+    }
     memset(&m2, 0, sizeof(m2));
     m2.type = 0x4c;
     m2.to = ai_Chars[i].netId;
