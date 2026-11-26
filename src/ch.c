@@ -2612,35 +2612,7 @@ int ch_CellToCell(D3SM *h, int x, int z, D3SM *to, int *px, int *pz) {
   return 0;
 }
 /* 0x407790, the character's cells in ch_PathMap (transport, body, the next path cells), then a corner
-   cell for each diagonal step
-   @deep s69 (no kept change): c2trace: n#1 has 3 refs (def + the entry test in block 6, the latch in block
-   10, prio 46, ebp: right); the count (setne / inc) is no candidate, and the post-allocation IL (c2dag)
-   has 'add ecx,edi' (the sum's own temp in the count's register) and then a copy 'mov ebp,ecx' into n: in
-   every int spelling the sum is a separate value copied into n, the original computes n = count, n += i.
-   What gives the original's two-step form: a count of a narrower type, so that a conversion op stands
-   between the count and the add: '(short)(ch->transport ? 2 : 1)' or a short local k gives 'movsx ebp,cx;
-   add ebp,edi' (4 ins: the movsx, and xor ecx,ecx scheduled before the cur load), a char gives 'inc cl;
-   movsx ebp,cl; add ebp,edi' (5); unsigned short zero-extends in place (and ecx,0xffff; add ecx,edi; mov
-   ebp,ecx: 7). So the original's IL had a 32-bit value moved into n before the add (a conversion that is a
-   plain mov, or a count that is a candidate whose register is not reused in place, vc6-quick 285). No
-   lever (= control): int / unsigned / long / unsigned long count locals in three forms (n = i + k, k + i,
-   n = k, n += i), (unsigned) / (long) casts, the ternary as == 0 ? 1 : 2, != NULL, a void * transport
-   local, n = t; i = cur; n += i as separate statements, n = (t) + (i = cur), for (n = t, i = cur, n += i;
-   ..), a while loop; worse: if / else 2 : 1 (41), n = i + 1; if (t) n++ (83), i + 1 + (t ? 1 : 0) (8,
-   lea), i - (t ? -2 : -1) (13), k-loops with LFTR hopes (42-79: VC6 does not replace the k test by i < cur
-   + k). flip.py --want 'mov e.., ecx / add e.., e..': 268 mutants, no hit. Next: a 32-bit conversion op of
-   the count that VC6 keeps (a pointer / handle typed value, an enum or BOOL typedef from a header, a
-   function-like macro), or a second use of a named count that keeps it a candidate in ecx. prior: s68
-   (taken by name; no kept change): reading of the 2-ins hunk: the original computes the sum straight into
-   n's register (mov ebp,ecx; add ebp,edi: target-directed, n = ADD(count, i) is n's own definition), ours
-   computes a temp in ecx and copies it (add ecx,edi; mov ebp,ecx): in ours the sum is a separate value at
-   codegen (a CSE temp or a copy VC6 propagated into the loop's first test), not n's definition. All =
-   control (folded to the same code): the count assigned in i first (i = t ? 2 : 1; n = i + cur; i = cur),
-   through c, n computed from a->u.walk.cur before i, n = k + i with the operands either way, n = i = cur;
-   n += k, the assignment inside the for-init expression, a break test for the pathLen bound. Other code:
-   the two loop conditions swapped (16 ins), (t != 0) + 1 forms (8), t ? i + 2 : i + 1 (32), a count-down n
-   (36). Next: what keeps the sum from being propagated into the loop's entry test (n defined in a block of
-   its own before the loop guard, the loop's first test written apart), read with a listing of both. */
+   cell for each diagonal step */
 
 int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
   CHACTION *a;
@@ -2661,8 +2633,13 @@ int ch_GetWaypoints(D3SM *h, CHARACTER *ch, CHWAYPT *out) {
   out->flags = 1;
   out++;
   if (a && a->type == '-' && a->u.walk.path && a->u.walk.retryAt == -1) {
-    for (i = a->u.walk.cur, n = i + (ch->transport ? 2 : 1);
-         i < n && i < a->u.walk.pathLen; i++) {
+    i = a->u.walk.cur;
+    if (ch->transport)
+      n = 2;
+    else
+      n = 1;
+    n += i;
+    for (; i < n && i < a->u.walk.pathLen; i++) {
       c = &a->u.walk.path[i];
       ch_CellToCell(h, c->x, c->z, ch_PathMap, &out->x, &out->z);
       out->flags = 2;
