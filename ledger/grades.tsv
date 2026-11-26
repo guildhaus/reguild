@@ -1753,7 +1753,7 @@ exe	0x004a63f0	ai_PickActionBuilding	amt_ai	byte	readable
 exe	0x004a6570	ai_PickActionBuildings	amt_ai	byte	readable		
 exe	0x004a66f0	ai_BuildingAimPoints	amt_ai	byte	readable		
 exe	0x004a67a0	ai_AimCannon	amt_ai	byte	readable		
-exe	0x004a6ae0	ai_FireCannon	amt_ai	draft	readable	deep	
+exe	0x004a6ae0	ai_FireCannon	amt_ai	shape	readable	deep	
 exe	0x004a7140	ai_PokerStart	poker	byte	readable		
 exe	0x004a7430	ai_PokerDealRound	poker	byte	readable		
 exe	0x004a74e0	ai_PokerStep	poker	byte	readable		
@@ -2070,7 +2070,7 @@ exe	0x004bc6a0	veg_FindPlantArea	rd	byte	readable
 exe	0x004bc710	veg_Fits	rd	byte	readable		
 exe	0x004bc7c0	veg_SetPlant	rd	byte	readable		
 exe	0x004bc8d0	veg_GrowPlants	rd	byte	readable		
-exe	0x004bc940	veg_LoadModel	rd	draft	readable	deep	
+exe	0x004bc940	veg_LoadModel	rd	byte	readable		
 exe	0x004bcb90	veg_ShowPlants	rd	byte	readable		
 exe	0x004bcbe0	veg_HidePlants	rd	byte	readable		
 exe	0x004bcc20	rd_BuildRoad	rd	byte	readable		
