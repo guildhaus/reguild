@@ -26,8 +26,8 @@ measure` marks two observations that disagree: try both. Some notes name scripts
 - **Register allocation** (99 rules): How the allocator decides; Live range splitting, regions and the priority
   terms (c2.dll); Callee-saved registers swapped: a priority race
   lost by a point or two; A constant or zero kept in a register; Named local or expression: a candidate too many or
-  too few; Pointer locals and addresses; How the scratch registers are picked (c2.dll lowering); Register-to-register
-  copies VC6 keeps; The eax / ecx / edx rotation out of step; Loops: counters, running values,
+  too few; Pointer locals and addresses; How the scratch registers are picked (c2.dll lowering); The hash in a commutative operand's
+  sort key; Register-to-register copies VC6 keeps; The eax / ecx / edx rotation out of step; Loops: counters, running values,
   loop pointers; Frames and stack slots
 - **Stack frame and slots** (71 rules): How the frame is laid out; Frame bigger or smaller: vectors and padded
   arrays; Frame bigger or smaller: buffers, records, temps; Frame temps of AI_ZERO / D3_ZERO / inline-asm macros;
@@ -4452,6 +4452,26 @@ scheduler (dag.c), so no scheduler hack (c2sched) can change a scratch register.
   (`i = 0;`) had bought the store order at the price of the rover step (v is then an allocated local): a trick
   that fixes one of two facts is the sign that a third thing (here the scope) is wrong. "Block local" includes a
   block that runs to the function's end; try it before any order round on a record that is filled and sent.
+
+### The hash in a commutative operand's sort key (c2.dll FUN_1071f7f0)
+
+The key of an operand is `height << 24 | nodes << 16 | hash` (FUN_1071f734; a leaf: `0x10000 | hash`, a constant:
+hash only), sorted descending (FUN_10724175). The hash is purely structural - no value numbers:
+- a tuple (an expression node): `(sum over its operands, in their sorted order, of (operand key & 0xffff) << (i &
+  7)) + (opcode - 0x247)`, low 16 bits;
+- an operand that is a temp WITH a defining tuple: the hash of that tuple (recursion); a temp without one:
+  `id << 6`; any other symbol: `v = lo16(id) ^ hi16(id); ((v << 5) >> 16) ^ ((v & 0x7ff) << 5)`;
+- a memory operand `[base + disp]`: `(lo16(disp) ^ hi16(disp)) - 0x247 + word(operand + 4) + hash(base) * 0x100`;
+- a constant: a hash of its value.
+So two loads through the same base (`w->x + w->w`: two movsx temps) have hashes that differ only by their
+displacements - except for the 16-bit wrap: `disp - 0x247 + k` is negative for small displacements, and it wraps
+to 0xffxx exactly when `hash(base) * 0x100` adds nothing, i.e. the low byte of the base's hash is 0 (a named
+symbol: id & 7 == 0; a CSE / SR temp without def: id & 3 == 0). When the sign boundary lies between the two
+displacements, the pair's order flips with the base symbol's id modulo 8 (or 4). The lever for such a pair is
+therefore the id of the BASE (which value is the base: a named pointer local, the parameter, a CSE temp of
+`win->obj`, created in which order), not dead-code volume in general (that moves ids by 32 per block of C1
+temporaries and leaves id & 7) and not the spelling of the sum. d2_DrawSlider (open): the max-label pair follows
+the base's id; check with c2ids `--acct` which symbol the base of the two loads is and what its id is in ours.
 
 ### Register-to-register copies VC6 keeps
 
