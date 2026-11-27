@@ -1308,20 +1308,8 @@ int ai_CommandKillPlayer(G12ROW *row, int k, char *fmt) {
    The record is cm's G28REC (0x114 bytes): kind 5 / thing -1 / host / flags 0 then 0x22 before gm_AddTime /
    variant / quiet (quiet: cm_ExecutionAftermath skips its notes when set); the name table in the original's
    slot order (name[0] = SHAUFEN .. name[3] = KANONE; kinds 3, 0, 2, 4 go with that order); the -1 fill as the
-   loop VC6 turns into 'mov ecx,0x10 / sub ecx,edx / rep stosd' (memset gave the shl/shr/and-3 tail).
-   @deep deep s77: the variant store after flags needs kinds[i] in a CANDIDATE: unsigned char v = kinds[i]
-   first, i = 0; before party.variant = v (loop for (; i < 0x300; i++)) stops the forward substitution and
-   gives the original's store run (thing, list[1], kind, flags, variant dl, quiet; c2sched: = l7:10:11:4 in
-   region-index numbering). Left: the scratch rotation (cyclic eax ecx edx, busy skipped; decided before
-   scheduling, so c2sched hacks cannot show it) of the list[0]/[2]/[3] loads is one step short: V's own
-   scratch step (edx while ecx holds -1) is gone. Control: H eax, V edx, c eax, J ecx/edx, P eax/ecx (=
-   original); candidate form best DTHILKFVQ302 draft 6 (M8 J/P swapped). No lever on top of the candidate
-   form: self-assignments (host, thing, list[1]), a host temp read back, empty-body compares, a dead
-   pointer copy of c, an early dead variant store, party.variant = v = kinds[i] / v = party.variant = ..
-   splits (235, 10-20 codes: all fold); dead kills (substituted again); for (i = 0) after the kill;
-H,I,0,2,3 into T L K F V Q (39600); 5040 plain orders; v types; dups (713); __inline helper; flip --want the original tail, function and file scope (10845): 0 hits; climb 3 rounds. prior: deep s74: mechanism of the order hunk (c2dag on block 436): every store to party / list has an alias edge to the later indexed loads, so the kinds[i] load (k6 = [esp+edx*4+0x58]) can only go first while it precedes the -1 stores in the list AND its register is free: with the variant store after flags (uc-5, the original's store order) the load gets ecx, which carries the -1 constant (or ecx,-1), so the anti-dependence edge 1 -> 13 puts the load behind the -1 stores (draft 18). The original loads it into dl (edx free) and its c load is eax, Judge load ecx: in the original's IR the kinds temp met another rotation step. Rounds: the variant cast (none / char / uchar) x its 8 positions: only position 2 (the control) is shape; list[0] / list[2] / list[3] inserted at every position and order around the original's store order (720): best draft 16 (p210-689), none shape; list as function scope = control; kinds = {3, 0, 2, 4} initializer (54). Next: find the temp that moves the rotation one step so kinds[i] lands in edx with the variant store after flags (probe temps before the setup block, the strlen / memcmp loop's temps). */
+   loop VC6 turns into 'mov ecx,0x10 / sub ecx,edx / rep stosd' (memset gave the shl/shr/and-3 tail). */
 int ai_CommandExecution(G12ROW *row, int k, char *fmt) {
-  G28REC party;
   AICHAR *c;
   int kinds[4];
   int i, n;
@@ -1347,16 +1335,17 @@ int ai_CommandExecution(G12ROW *row, int k, char *fmt) {
       return 0;
   }
   {
+    G28REC party;
     int list[16];
 
+    party.kind = 5;
     party.thing = -1;
     party.host = ai_Chars[ai_PlayerId].netId;
-    party.variant = (unsigned char)kinds[i];
-    list[1] = -1;
-    party.kind = 5;
     party.flags = 0;
+    party.variant = (unsigned char)kinds[i];
     party.quiet = 1;
     list[0] = c->netId;
+    list[1] = -1;
     list[2] = ai_JudgeCatholic->netId;
     list[3] = ai_JudgeProtestant->netId;
     for (i = 0; i < 0x300; i++) {
@@ -1372,16 +1361,16 @@ int ai_CommandExecution(G12ROW *row, int k, char *fmt) {
       list[1] = list[n-- - 1];
     if (n > 0)
       memcpy(party.members, list, n * 4);
+    for (i = n; i < 16; i++)
+      party.members[i] = -1;
+    party.used = (unsigned char)n;
+    party.flags = 0x22;
+    party.time = ai_Time;
+    gm_AddTime(&party.time, 0x18, 0, 0);
+    party.time.hour = 10;
+    cm_SendNewParty(&party);
+    return 1;
   }
-  for (i = n; i < 16; i++)
-    party.members[i] = -1;
-  party.used = (unsigned char)n;
-  party.flags = 0x22;
-  party.time = ai_Time;
-  gm_AddTime(&party.time, 0x18, 0, 0);
-  party.time.hour = 10;
-  cm_SendNewParty(&party);
-  return 1;
 }
 /* 0x4b08e0, the STRAFE_KERKER text command (callback 0x601b50[11], name 0x601070[11]) "-n": sets the byte field
    0x1b1 of the character row->e[k] to n (message 0x4c3ba0) */
