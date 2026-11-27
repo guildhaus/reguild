@@ -4571,6 +4571,12 @@ eax,[eax]`, open; ours `mov eax,[eax+0x1cc]; .. mov eax,[eax]; mov ecx,8`). What
 
 ### The eax / ecx / edx rotation out of step
 
+- **A send site's `lea` one rover step off after an arm that sends by itself** (amt_ApplyForOffice: the f1 site's
+  `lea eax` where the original has `lea edx`, the plain path's picks c / netId / idx out of step): the arm did not
+  send; it filled the record and set the flag (`else { m.id = c->netId; m.o1 = ..; f1 = 1; }`) and fell into the
+  shared `if (f1) { Begin; send; End; return; }`, which VC6 duplicates back into the arm. With it the plain path's
+  `m.id = c->netId;` before `m.o1 = ..` (byte; two sessions of order / flag / result-variable rounds had not).
+
 - **A switch whose case blocks' scratch registers skip a step of the rotation** (each block loads two pointer
   parameters `mov ecx,[a]; mov edx,[b]`): at each skip the source had an extra case body that VC6 cross-jumped
   away after allocation (groups 0xe .. 0x10 and 1 / 3 with the default's `*a = 1; *b = 0;`, own bodies in
