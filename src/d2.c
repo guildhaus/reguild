@@ -1026,30 +1026,7 @@ int d2_WinOpenSlider(int x, int y, int len, int p4, int p5, int pic,
   }
   return -1;
 }
-/* 0x46aa00, draws a slider (flags 2: horizontal, 1: vertical): track, filled part, thumb, arrows, value
-   @deep Expression hash read from c2.dll (FUN_1071f7f0; notes/vc6-matching.md 'The hash in a commutative
-   operand's sort key'): structural, no value numbers. A tuple: sum of (operand key & 0xffff) << (i & 7) +
-   opcode - 0x247; a temp with a defining tuple: that tuple's hash; a memory operand [base + disp]: disp -
-   0x247 + word(op+4) + hash(base) * 0x100 (16 bits); a named symbol's hash from its id (low byte 0 when id
-   & 7 == 0), a temp without def id << 6. So the w->x / w->w pair (two movsx loads through one base)
-   differs only by the displacements, and flips by the 16-bit wrap when the low byte of the BASE's hash is
-   0 and disp - 0x247 + k changes sign between the two fields: the lever is the base symbol's id & 7 (id &
-   3 for a CSE temp), i.e. which value is the base of the two loads and when it is created, not dead-code
-   volume (moves ids by 32) and not the sum's spelling. Not yet done: c2ids printing the keys (the base's
-   id in ours against the id the original's order needs); nothing tried on the source this pass. prior:
-   deep s65: the d2_DrawButton lever (store / test of another field, spelled through the table) does not
-   carry: probes naming another field at every w->w / w->x / hilo / hihi / dirty site (54, by w->h) and at
-   every font / dirty / scale / id / hilo / hihi / h / y read (72, by w->icon) leave the max-label x / w
-   order as it is, except the two w->y reads of the PutPixel clip test (if (w->h + w->y <= surf->bottom &&
-   w->y >= surf->top)): replacing either one (breaking the y CSE: lea edx,[eax+ecx] becomes mov / add)
-   flips both max-label sums to the original's x first, as do the compare-reversed spellings (surf->bottom
-   >= .., surf->top <= w->y: hunk fixed, but cmp [ebx+0x30],edx there, 12-14 ins). = control: y1 = w->y
-   local, (y1 = w->y) inline, w->y + w->h, !(.. > .. || .. < ..), the sum / bottom / top in a local, (int)
-   casts; nested ifs with a flag 37, a ternary 53 (hunk stays). Table spellings d2_Objs[id].y / .h / .x /
-   .w (also with w = &d2_Objs[id] first) do not CSE with w here: id * 0x2ec recomputed, frame +4 (100+
-   ins). Other neutral changes (range from the fields, mx test commuted): = control. So the x / w rank at
-   1209 follows that test's value numbers; the spelling that keeps the y CSE and the lea form and flips the
-   rank is not found. */
+/* 0x46aa00, draws a slider (flags 2: horizontal, 1: vertical): track, filled part, thumb, arrows, value */
 
 void d2_DrawSlider(int id, D2SURF *surf) {
   D2OBJ *w;
@@ -1107,7 +1084,7 @@ void d2_DrawSlider(int id, D2SURF *surf) {
       }
     } else {
       dd_RGB(0xff, 0x80, 0);
-      t = pos1 / flen * 2.0f;
+      t = (float)(pos1 / flen * 2.0);
       if (t < 1.0) {
         rgb[0] = 0xc4 - (int)(-24.0f * t);
         rgb[1] = (int)(220.0f * t);
