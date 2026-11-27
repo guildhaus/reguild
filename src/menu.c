@@ -304,67 +304,73 @@ typedef struct SAVESLOTVIEW { /* 0x220, one slot of the save / load window */
    takes the slot 1 and "AUTOSAVE" the slot 0 whatever slot says, and the slots 0 / 1 take no other name (a
    case-insensitive compare); a free slot (win -1) gets the kind byte and a copy of the request. Returns the
    slot, -1 when it is taken, the name does not fit it or slot is -1. count (0x10) is not read.
-   @deep deep s77: the mechanism read with c2tail (--tries, --il merge, C2DAG_TRYDUMP=1). The original's
-   layout is the plain flag form 'if (slot == 0) { if (strcmpi(name, AUTOSAVE) != 0) slot = -1; } else if
-   (slot == 1) { if (strcmpi(name, QUICKSAVE) != 0) slot = -1; } if (slot != -1) { if (slots[slot].win !=
-   -1) return -1; slots[slot].kind = slot; slots[slot].req = *req; } return slot;' (no goto, no s local):
-   its pre-merge IL is the original's block for block (arm 0's compare + or ebx,-1 falls after push
-   AUTOSAVE, arm 1's after the slot == 1 test, both jmp to the return block), and slots[slot] indexed fixes
-   the regs hunk (ecx for slots, as the original). Left there (13 ins, code 2961e7c3, graded draft: tail
-   12): arm 1's compare copy is not merged into arm 0's. Both copies are entered by fall-through, so only
-   the pair merger can take them, and it needs an equal run over 22 bytes: push edi / call / add / test /
-   je / or ebx,-1 measure 20 (pair equal 6, stop at the string pushes). The move merger (no size limit,
-   deletes the later arm's copy, the original's direction) runs when the jumps' label has nothing falling
-   into it: 'if (slots[slot].win == -1) { fill } else return -1;' (h1) merges exactly as the original, but
-   then the fill body is laid out before the return -1 (code cdc896e1, 14 ins, code 26), where the original
-   has 'cmp; je F; or eax,-1 ret; F: fill' falling into the shared return. So the original's IL had the
-   arms' return label not fallen into at merge time yet the fill falling into the return in the end:
-   unresolved. Measured without result: fail spellings per arm (return slot = -1, {slot = -1; return
-   slot;}, return -1, goto done, goto fail with a shared fail label after the returns: constant-folded to
-   or eax,-1 or one fail block), fill forms (if / else either way, goto fill at the end, a second return
-   slot, && forms, switch, ?:), the || condition (M9 crossed strings), an unused label in either arm (=
-   control), climb 5 rounds from the flag form (only a meaning change). The tree keeps the goto form (shape
-   14) because every flag form grades draft. prior: deep s29: c2tail --tries on the goto form: the xjump
-   merger deletes the copy before the jmp at the end of the slot == 0 arm (} else if (slot == 1)) and keeps
-   the slot == 1 arm's compare, which falls into the join; the original keeps the slot == 0 copy, so in its
-   flow graph the slot == 1 compare is the one ending in a jmp. Goto-free forms measured (slot = -1 in the
-   failing arm, one if (slot != -1) fill, one return slot): if / else-if arms 17 (flag-inl, slots[slot]
-   inline: 13 ins, every block right except that the QUICKSAVE compare stays a second full copy, no
-   cross-jump: the return block is duplicated into both arms so neither ends in a jmp); (slot == 0 || slot
-   == 1) + strcmpi(name, slot == 1 ? QUICKSAVE : AUTOSAVE): 14 ins with the original's layout but the
-   string as a mov eax / push eax value (the original pushes per arm: two calls); || / && conditions 13-14;
-   ?: condition 10 (neg / sbb setcc); if (slot != 0) {..} else {AUTOSAVE} nesting 24-41. slots[slot]
-   instead of s in the goto form: 10 ins but draft (M9), not kept. */
+   @deep deep s78: kept 'if (slot != 0) { if (slot == 1) { if (strcmpi(name, QUICKSAVE) != 0) { fail: slot
+   = -1; } } } else if (strcmpi(name, AUTOSAVE) != 0) goto fail;' + the flag tail (7 ins, shape, code
+   6e3ab020; was 14): every block and the arm merge are the original's (c2tail: xjump deletes arm1's
+   compare copy, the kept copy falls into the shared fail block, whose jmp to the return the fill falls
+   into is duplicated, so G's je and the fill share RET2 as in the original). Left: only the place of the
+   'mov ebx,[slot]; test ebx,ebx' block: ours 'xor ebx,ebx' falls into D (push AUTOSAVE) and the test reads
+   'je D' after RET1; the original 'xor ebx,ebx; jmp D; C: test; jne E; D:'. Mechanism (c2tail --il
+   merge/post): the merge-time layout is jump-first RPO; the shared fail block lies in the region of the
+   arm reached first, and xjump keeps the copy falling into it, so arm0 must be the slot test's jump child
+   ('if (slot != 0) .. else arm0'); then D is not fallen into after the merge and the emission chains it
+   behind its first jmp (the xor block). With 'if (slot == 0) arm0 else if (slot == 1) arm1' (C falls into
+   D, as the original) the fail block is reached through arm1 first and arm1's copy is kept (M9, 10-14).
+   Proved no lever: pair needs a run >= 22 (flag copies 'or ebx,-1; jmp R' measure 20, 'jne fail; jmp fill'
+   22 but then the fail block follows arm1 and the arms' jcc invert); move on the return (h1) gets the
+   front byte but G's je then lands on RET1 and the fill duplicates the return; a return for the arms alone
+   constant-folds to or eax,-1. Measured: ~250 variants: structure (==0 / else-if, !=0 nest, ==1 first, !=1
+   nest, separate ifs) x arm forms (flag, goto fail, goto fill + goto fail, the fail label in either arm,
+   goto fill + own slot = -1) x tail (flag, h1, goto, labels, own returns) x first-part forms; || / ?:
+   conditions; switch; flip.py for the original's C block: no single mutation. c2.dll's emission chaining
+   (not the three mergers, c2pass --skip 0x1070a928 = control) is the open piece. prior: deep s77: the
+   mechanism read with c2tail (--tries, --il merge, C2DAG_TRYDUMP=1). The original's layout is the plain
+   flag form 'if (slot == 0) { if (strcmpi(name, AUTOSAVE) != 0) slot = -1; } else if (slot == 1) { if
+   (strcmpi(name, QUICKSAVE) != 0) slot = -1; } if (slot != -1) { if (slots[slot].win != -1) return -1;
+   slots[slot].kind = slot; slots[slot].req = *req; } return slot;' (no goto, no s local): its pre-merge IL
+   is the original's block for block (arm 0's compare + or ebx,-1 falls after push AUTOSAVE, arm 1's after
+   the slot == 1 test, both jmp to the return block), and slots[slot] indexed fixes the regs hunk (ecx for
+   slots, as the original). Left there (13 ins, code 2961e7c3, graded draft: tail 12): arm 1's compare copy
+   is not merged into arm 0's. Both copies are entered by fall-through, so only the pair merger can take
+   them, and it needs an equal run over 22 bytes: push edi / call / add / test / je / or ebx,-1 measure 20
+   (pair equal 6, stop at the string pushes). The move merger (no size limit, deletes the later arm's copy,
+   the original's direction) runs when the jumps' label has nothing falling into it: 'if (slots[slot].win
+   == -1) { fill } else return -1;' (h1) merges exactly as the original, but then the fill body is laid out
+   before the return -1 (code cdc896e1, 14 ins, code 26), where the original has 'cmp; je F; or eax,-1 ret;
+   F: fill' falling into the shared return. So the original's IL had the arms' return label not fallen into
+   at merge time yet the fill falling into the return in the end: unresolved. Measured without result: fail
+   spellings per arm (return slot = -1, {slot = -1; return slot;}, return -1, goto done, goto fail with a
+   shared fail label after the returns: constant-folded to or eax,-1 or one fail block), fill forms (if /
+   else either way, goto fill at the end, a second return slot, && forms, switch, ?:), the || condition (M9
+   crossed strings), an unused label in either arm (= control), climb 5 rounds from the flag form (only a
+   meaning change). The tree keeps the goto form (shape 14) because every flag form grades draft. */
 
 int ai_RegisterSaveSlot(int count, SAVESLOTVIEW *slots, int slot,
                         FILEREC *req) {
   char *name;
-  SAVESLOTVIEW *s;
 
   name = req->name;
   if (strcmpi(name, "QUICKSAVE") == 0)
     slot = 1;
   else if (strcmpi(name, "AUTOSAVE") == 0)
     slot = 0;
-  if (slot == 0) {
-    if (strcmpi(name, "AUTOSAVE") == 0)
-      goto fill;
-  } else if (slot == 1) {
-    if (strcmpi(name, "QUICKSAVE") == 0)
-      goto fill;
-  } else if (slot == -1)
-    goto done;
-  else
-    goto fill;
-  slot = -1;
-  goto done;
-fill:
-  s = &slots[slot];
-  if (s->win != -1)
-    return -1;
-  s->kind = slot;
-  s->req = *req;
-done:
+  if (slot != 0) {
+    if (slot == 1) {
+      if (strcmpi(name, "QUICKSAVE") != 0) {
+      fail:
+        slot = -1;
+      }
+    }
+  } else {
+    if (strcmpi(name, "AUTOSAVE") != 0)
+      goto fail;
+  }
+  if (slot != -1) {
+    if (slots[slot].win != -1)
+      return -1;
+    slots[slot].kind = slot;
+    slots[slot].req = *req;
+  }
   return slot;
 }
 
