@@ -82,7 +82,7 @@ exe	0x004a8190	ai_PokerShowdown	2
 exe	0x004aa120	ai_DecideVisitAction	1
 exe	0x004aef10	ai_TokenRichestInhabitant	1
 exe	0x004af6c0	ai_TokenRandomRich	1
-exe	0x004b0640	ai_CommandExecution	1
+exe	0x004b0640	ai_CommandExecution	2
 exe	0x004bc940	veg_LoadModel	1
 exe	0x004bcc20	rd_BuildRoad	1
 exe	0x004bd340	rd_PathToRoad	1
