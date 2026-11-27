@@ -1146,32 +1146,7 @@ void ai_PersonnelBook(AIBLD *bld, char *model) {
    title 0x13) the text 0x1a24, an empty row "no character". A click on a row offers the hire button 0x1a22
    (the job's cost, the text 0x220), the fire button 0x1a21 and the promotion 0x1a25; hire sends the request 6,
    fire the message 0x31 after the question 0x1a36, promotion the message 0x32 (refused with 0x1a27 below
-   four years of service). At the end the radio group is cleared, the book closed and the camera follows
-   @deep deep s75: the [edx+eax] / [eax+edx] order of the two refill strcpy stores follows the function's
-   whole IL volume, not a statement: probes (a dead block of loads anywhere in the function, top, frame
-   loop or after the loop; tools: a listing probe over flip.listing) flip them by count: { int dl; dl =
-   book->views[k]; } x18 fixes the emptyText copy, x31..x120 and x160..x240 both (x140 also flips the
-   masterText copy, x260..x360 none again: a wrap), { extern int pz; extern int *pzp[4]; pz = pzp[a][b]; }
-   x12 one, x16..x40 both, x44+ all three; 13 / 20 x if (0) d2_SetForm(book->views[0], 2); = one / BYTE
-   (dead code, not kept). Adding the same blocks to a function above in the unit does nothing (per
-   function). So the original's text carries more IL than ours (about 30 or more loads' worth) that
-   compiles away: candidates not found yet; = control respellings that add loads but too few (no flip
-   together): c inlined as rows[i].ch in the refill, c in the promotion, v = workers[0x19 + i] inlined, per
-   / f inlined; unsigned sel / radio / the button ints (255 subsets): one code, no flip; = 0 / = -1
-   initialisers on every scalar: no flip. Look for an eliminated region of the original (a constant-false
-   debug branch, unreachable code, a redundant test VC6 folds) or a larger spelling of the message fills /
-   row setup. prior: s23: the row setup in ai_HelperBook's (byte) form (D2WIN *w block, j = 0; r = 0;
-   first, y read back from rows[i].y, the texts at px - 0x36 inline, j++ at the end; bt after the -1 inits:
-   355 -> 104), the hire cost through a named owner = ai_Chars[bld->owner] as the helper book's master hire
-   (104 -> 32: bld then held in esi over the hire block, -1 in ebp), the hire request filled type, flags,
-   to, fromId, time, hireRows[sel] (a 720-order round: 32 -> 4, shape). Left: the two inline strcpy's of
-   the refill loop (hireText 0x5ac9db / emptyText 0x5aca8c) store through [edx+eax] where the original has
-   [eax+edx] (the operand order of the copy's address add, same registers); ai_HelperBook's identical
-   refill text compiles to [eax+edx]. flip.py (want [eax+edx], 1240 mutants): only int i / int k ->
-   unsigned (or short / char) flip it, and those make every i / k loop test jb (12 ins): so the order
-   follows something global, not a statement. No lever: the buffers' declaration order, i / k declarations
-   moved to every position, unused probe locals (symbol counts), the bonus loop over i (as the helper
-   book), the page test nested as the helper's. */
+   four years of service). At the end the radio group is cleared, the book closed and the camera follows */
 
 void ai_MercenaryBook(AIBLD *bld, char *model) {
   int *vp;
@@ -1357,6 +1332,22 @@ void ai_MercenaryBook(AIBLD *bld, char *model) {
             }
           }
         }
+      }
+    }
+    /* @original a disabled trace of the rows the refill below changes. Its text is ours, not recovered: the
+       original function holds statements that leave no code. Their IL is counted in C2's symbol ids, and the
+       ids of the refill's strcpy temporaries order the base and index of the two inline copies (the rule in
+       notes/vc6-matching.md, "Operand order of commutative ops"). Without about this much disabled text
+       both copies store through [dst-src + src]; the original has [src + dst-src]. */
+    if (0) {
+      for (k = 0; k < n; k++) {
+        if (rows[k].ch != oldRows[k].ch || rows[k].state != oldRows[k].state ||
+            rows[k].title != oldRows[k].title || rows[k].icon != oldRows[k].icon ||
+            rows[k].slider != oldRows[k].slider)
+          sprintf(text, "row %d: %d -> %d, state %d -> %d, title %d -> %d, icon %d, slider %d", k,
+                  oldRows[k].ch != 0 ? oldRows[k].ch->id : -1,
+                  rows[k].ch != 0 ? rows[k].ch->id : -1, oldRows[k].state,
+                  rows[k].state, oldRows[k].title, rows[k].title, rows[k].icon, rows[k].slider);
       }
     }
     for (k = 0; k < n; k++) {
