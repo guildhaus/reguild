@@ -6220,31 +6220,29 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
    @deep deep s74: VC6's codegen of v = info->keys is always ONE load (probes that force info into ecx give
    'mov eax,[ecx]; mov ecx,8', into edx 'mov eax,[edx]'), so the original's 'mov eax,ecx; mov ecx,8; mov
-   eax,[eax]' is an IR copy X = info (X in eax, then [X]) that our IR never has: every spelling is
-   forwarded before allocation. The copies VC6 keeps are join copies (probe: a second def of the
-   dereferenced pointer on another path gives 'mov eax,esi' into the join variable), so the original's
-   deref base had a second definition reaching it that vanished after forwarding, or a pass the original
-   ran differently. c2fuzz with the function alone (build/c2dag/fzband/fz.c, each of c2.dll's 15353 calls
-   skipped): no skipped call gives the copy (2 put info in ecx with far other changes; all 127 sites of
-   +1..+3 ins checked). climb.py 2 rounds beam 6 width 60 (368 mutants, 158 codes): nothing closer. =
-   control this session (one code each): CSE re-reads of the chain (test on c->scene->obj->info, info / v
-   re-read from it, at 3 places), if (info) / ternaries on info, comma and for-init forms, v = info in or
-   after the chain then v = keys (5 forms), info as D3SURF *[1] / [2] / struct {s} / struct {s, k} / union
-   {s, k} / register / void * / int / D3VERTEX **, volatile reads of keys / surf / info, pk = &info->keys
-   with (*pk)[n] / walk / down loops, info->keys[n] index loops (3), while (n--), float * / D3VECTOR * /
-   char * walkers, static __inline helpers (centre by pointer, by struct return, keys getter, sum only),
-   info = 0 defaults at 4 places and if-set / ternary forms (threaded), re-tests of info / the chain
-   (R3-R7), tests decided only after CSE (info == chain, v != info), identity ops on info (& -1, | 0, + 0,
-   * 1, << 0 ..), a zero index known only to C2 (info[iz] with iz = 0, info[n] with n = 0), one variable
-   for info and the counter or info redefined between the copy and the deref. Worse: equal arms keep the
-   compare (cmp eax,esi: size equal, 8 ins), other arm tests (17..39), extra pressure candidates (25..63),
-   v[n] (16), bits test last (23). Open: what second definition (or join) the original had on the
-   dereferenced pointer. prior: deep s73: the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE
-   in the image (a scan of all 4666 original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds
-   only sv_UpdateBand / Led): no byte function shows the construct. c2trace: v#1 (112) eax, then temp#47
-   (the counter, 40, created later) ecx, then info#1 (40) eax; for the original info must lose eax
-   (interfere with v, or an unprocessed eax-preferring neighbour), which no tried text gives. = control
-   (one code each round): pk = &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys;
+   eax,[eax]' (unique in the image: no other function has 'mov A,B; mov B,..; mov A,[A..]') is an IR copy X
+   = info (X in eax, then [X]) that our IR never has: every spelling is forwarded before allocation. The
+   copies VC6 keeps are join copies (probe: a second def of the dereferenced pointer on another path gives
+   'mov eax,esi' into the join variable). For info to lose eax, eax must be held by a value live at info's
+   def (v or the deref base), which the original's eax uses there (c->scene, obj) exclude unless that value
+   was obj itself. Ruled out: c2fuzz with the function alone (build/c2dag/fzband/fz.c, each of c2.dll's
+   15353 calls skipped, all 557 changed listings checked): no skipped pass gives the copy; flags /G3../G6
+   /GB /Oa /Ow /Op /Ox /O1 /Ob0 /Ob2 /Oi- /Gr /Gz /Zp1 /Zi /GX on the same probe: none; climb.py 2 rounds
+   beam 6 width 60 (368 mutants): nothing closer. = control (one code each): CSE re-reads of the chain
+   (test on c->scene->obj->info, info / v re-read from it, 5 places), if (info) / ternaries on info, comma
+   and for-init forms, v = info in or after the chain then v = keys (5 forms), info or v as T *[1] / [2] /
+   struct {p} / union / register / void * / int / D3VERTEX **, volatile reads, pk = &info->keys loops,
+   info->keys[n] index loops, while (n--), float * / D3VECTOR * / char * walkers, static __inline helpers
+   (4 forms), info = 0 defaults and if-set / ternary forms (threaded), re-tests of info / the chain, tests
+   decided only after CSE, identity ops on info, zero indexes known only to C2, one variable for info and
+   the counter, block-scoped info / v (3). Worse: equal arms keep the compare (8 ins, size equal), struct
+   {v, n} (10), v[n] (16), bits test last (23), extra live candidates (25..63). Open: which source gives
+   the deref base a second definition or join. prior: deep s73: the original's 'mov eax,ecx; mov ecx,8; mov
+   eax,[eax]' is UNIQUE in the image (a scan of all 4666 original functions for 'mov X,Y' followed within 2
+   by 'mov X,[X]' finds only sv_UpdateBand / Led): no byte function shows the construct. c2trace: v#1 (112)
+   eax, then temp#47 (the counter, 40, created later) ecx, then info#1 (40) eax; for the original info must
+   lose eax (interfere with v, or an unprocessed eax-preferring neighbour), which no tried text gives. =
+   control (one code each round): pk = &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys;
    block-scope walker; index loops info->keys[n], v = &info->keys[n], info->keys + n; n = 8 / v at every
    position among the p inits (v before the inits: 9); keys + 0, info[0].keys, (&info->keys)[0], *(int
    *)info, *(unsigned *)info; info as default-then-overwrite flat code / if-else / ternary / nested ifs
