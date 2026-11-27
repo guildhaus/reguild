@@ -6293,27 +6293,29 @@ void sv_UpdateBand(void) {
 }
 /* 0x52f0d0, sv_UpdateBand for the 0x8000 mode of sv_RunFrame: the same band and projection, but a character is
    selectable when ai_LedSelectBits gives 0x800 (led by the player's character) instead of gm_PermissionBits.
-   @deep deep s75 (with sv_UpdateBand's eviction note): the lowering order in ours is v = [info] (line of
-   v's init) BEFORE the counter init temp = 8 (the loop optimizer puts the counter's init at the
-   preheader's end), so a copy temp of info would have to live from before the counter init to a load after
-   it: the load must sit behind the counter init in tuple order. = control, no E line (c2scr): the deref
-   base with an embedded (n = 8) (info + (n = 8) * 0, (&info->keys)[(n = 8) - 8], info[(n = 8) - 8], info[n
-   - 8] after n = 8, info + ((n = 8) & 0)), the index loop info->keys[n] (its invariant load is still
-   placed before the counter init). Scan of the tree's E lines (c2scr '*' over src, build/c2dag/escan): the
-   op-1 evictions of a pref-picked temp are two-address sums kept while a split piece / reload defines the
-   register (d2_DrawSlider 'mx < spr6->w + w->x': mov edx,ecx; mov ecx,[mx]; cmp ecx,edx) or eax / edx
-   needs (divisions, call results); none is a pure copy of a pointer that is dereferenced. Candidate left:
-   a lea-without-index tuple (&info->keys as an address, pref = the base register) that survives to
-   lowering with the load in a later tuple; and an allocated value materialised in ecx (a split piece or a
-   constant candidate 8) between the copy and the load. prior: The same hunk as sv_UpdateBand: see its note
-   of this session (the copy is a lowering eviction: a copy temp of info in ecx evicted by the counter's
-   mov ecx,8; info itself allocated in ecx across the je; tool tools/c2dag/c2scr.py, notes/vc6-matching.md
-   'Register-to-register copies VC6 keeps'). Whatever fixes one fixes both; nothing run here apart. prior:
-   deep s73: the same hunk as sv_UpdateBand (see its s73 note: the original's copy-then-deref is unique to
-   these two functions in the whole image). Re-run here: info as flat default-then-overwrite / if-else /
-   ternary / nested (6 rows), v / n / iz / bits holding info (4), n = 8 and v at every position among the p
-   inits: all = control except v before the inits (9). Open with sv_UpdateBand: whatever fixes one fixes
-   both. */
+   @deep deep s75 (with sv_UpdateBand's eviction note): in our lowering the load v = [info] always comes
+   BEFORE the counter's init temp = 8, which the loop optimizer appends at the end of the preheader
+   whatever the source order (c2scr: the counter t47 is defined after the load in every form). So a copy
+   temp of info would have to live from before the counter init to a load after it, and the load would have
+   to sit behind the counter init in tuple order. = control, no E line (c2scr --uses): pk = &info->keys as
+   a local with v = *pk after n = 8 (before the p inits, between, in the for-init, n = 8 first or last: 5
+   forms); do { } while (--n) / (--n != 0); while (n--); for (n = 8, v = ..; n; ..); a named k8 = 8 for the
+   counter's init; the deref base with an embedded (n = 8) (5 forms); the index loop info->keys[n] (its
+   hoisted load is placed before the counter init too). Worse: k8 reused as the divisor (13 ins, the float
+   code changes). Scan of the tree's E lines (c2scr '*' over src, build/c2dag/escan): the op-1 evictions of
+   a temp picked by preference are two-address sums kept while a reload redefines the register
+   (d2_DrawSlider 'mx < spr6->w + w->x': mov edx,ecx; mov ecx,[mx]; cmp ecx,edx) or eax / edx needs; none
+   is a pure copy of a dereferenced pointer. Open: a source whose load of keys the optimizer places after
+   the counter's init (an init the loop optimizer itself inserts behind the counter, e.g. of a second
+   induction variable), or a value other than the counter that defines ecx there. prior: The same hunk as
+   sv_UpdateBand: see its note of this session (the copy is a lowering eviction: a copy temp of info in ecx
+   evicted by the counter's mov ecx,8; info itself allocated in ecx across the je; tool
+   tools/c2dag/c2scr.py, notes/vc6-matching.md 'Register-to-register copies VC6 keeps'). Whatever fixes one
+   fixes both; nothing run here apart. prior: deep s73: the same hunk as sv_UpdateBand (see its s73 note:
+   the original's copy-then-deref is unique to these two functions in the whole image). Re-run here: info
+   as flat default-then-overwrite / if-else / ternary / nested (6 rows), v / n / iz / bits holding info
+   (4), n = 8 and v at every position among the p inits: all = control except v before the inits (9). Open
+   with sv_UpdateBand: whatever fixes one fixes both. */
 
 void sv_UpdateBandLed(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
