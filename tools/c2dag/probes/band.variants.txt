@@ -1,0 +1,584 @@
+### ctl
+<<<
+    v = info->keys;
+===
+    v = info->keys;
+>>>
+
+### chain_o
+<<<
+  S *info;
+===
+  S *info;
+  SC *s;
+>>>
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || (s = c->scene) == 0 ||
+        s->scene != defscene || (info = s->obj->info) == 0)
+      continue;
+>>>
+
+### chain_v
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || (v = (V *)c->scene) == 0 ||
+        ((SC *)v)->scene != defscene || (info = ((SC *)v)->obj->info) == 0)
+      continue;
+>>>
+
+### chain_v2
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || (v = (V *)c->scene) == 0 ||
+        ((SC *)v)->scene != defscene)
+      continue;
+    v = (V *)((SC *)v)->obj;
+    info = ((O *)v)->info;
+    if (info == 0)
+      continue;
+>>>
+
+### chain_v3
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || (v = (V *)c->scene) == 0 ||
+        ((SC *)v)->scene != defscene)
+      continue;
+    v = (V *)((SC *)v)->obj;
+    info = ((O *)v)->info;
+    if (info == 0)
+      continue;
+    v = (V *)info;
+>>>
+<<<
+    v = info->keys;
+===
+    v = *(V **)v;
+>>>
+
+### void_p
+<<<
+  S *info;
+===
+  S *info;
+  void *p;
+>>>
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || (p = c->scene) == 0 ||
+        ((SC *)p)->scene != defscene || (p = ((SC *)p)->obj) == 0 || (info = ((O *)p)->info) == 0)
+      continue;
+>>>
+
+### n_first
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    n = 8;
+    v = info->keys;
+    do {
+>>>
+<<<
+      pz += v->z;
+    }
+===
+      pz += v->z;
+      v++;
+    } while (--n);
+>>>
+
+### idx
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+      px += v->x;
+      py += v->y;
+      pz += v->z;
+    }
+===
+    for (n = 0; n < 8; n++) {
+      px += info->keys[n].x;
+      py += info->keys[n].y;
+      pz += info->keys[n].z;
+    }
+>>>
+### nuse
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    n = 8;
+    v = info->keys;
+    for (; n != 0; n--, v++) {
+>>>
+<<<
+    iz = (int)(1.0 / pz);
+===
+    iz = (int)(1.0 / pz) + n;
+>>>
+
+### nuseB
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (info + (n = 8) * 0)->keys;
+    for (; n != 0; n--, v++) {
+>>>
+<<<
+    iz = (int)(1.0 / pz);
+===
+    iz = (int)(1.0 / pz) + n;
+>>>
+
+### nuseC
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = info[(n = 8) - 8].keys;
+    for (; n != 0; n--, v++) {
+>>>
+<<<
+    iz = (int)(1.0 / pz);
+===
+    iz = (int)(1.0 / pz) + n;
+>>>
+
+### up
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = info->keys;
+    for (n = 0; n < 8; n++, v++) {
+>>>
+
+### upuse
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = info->keys;
+    for (n = 0; n < 8; n++, v++) {
+>>>
+<<<
+    iz = (int)(1.0 / pz);
+===
+    iz = (int)(1.0 / pz) + n;
+>>>
+
+### glob
+<<<
+void f(int left, int right) {
+===
+extern int gn;
+void f(int left, int right) {
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    gn = 8;
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+>>>
+
+### vglob
+<<<
+void f(int left, int right) {
+===
+extern V *gv;
+void f(int left, int right) {
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    for (n = 8, gv = info->keys; n != 0; n--, gv++) {
+      v = gv;
+>>>
+
+### chr
+<<<
+  int i, n, iz, sx;
+===
+  int i, iz, sx;
+  char n;
+>>>
+### same1
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = ((S *)n)->keys;
+    for (n = 8; n != 0; n--, v++) {
+>>>
+
+### same2
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### same3
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = ((S *)n)->keys;
+    n = 8;
+    do {
+>>>
+<<<
+      pz += v->z;
+    }
+===
+      pz += v->z;
+      v++;
+    } while (--n != 0);
+>>>
+
+### same4
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = ((S *)n)->keys;
+    for (n = 0; n < 8; n++, v++) {
+>>>
+
+### same5
+<<<
+  int i, n, iz, sx;
+===
+  int i, iz, sx;
+  unsigned n;
+>>>
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (n = (unsigned)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    for (v = *(V **)n, n = 8; n-- != 0; v++) {
+>>>
+
+### vsame
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+        c->scene->scene != defscene || (v = (V *)c->scene->obj->info) == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    for (v = *(V **)v, n = 8; n != 0; n--, v++) {
+>>>
+### dflt_n
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    n = 0;
+    if ((bits & 0x800) != 0 && c->scene != 0 && c->scene->scene == defscene)
+      n = (int)c->scene->obj->info;
+    if (n == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### nodflt_n
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) != 0 && c->scene != 0 && c->scene->scene == defscene)
+      n = (int)c->scene->obj->info;
+    if (n == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### nodflt_n2
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) != 0 && c->scene != 0 && c->scene->scene == defscene)
+      n = (int)c->scene->obj->info;
+    if (n == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = ((S *)n)->keys;
+    for (n = 8; n != 0; n--, v++) {
+>>>
+
+### while_n
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene)
+      continue;
+    n = (int)c->scene->obj->info;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+      px += v->x;
+      py += v->y;
+      pz += v->z;
+    }
+===
+    if (n != 0) {
+      v = (V *)n;
+      n = 8;
+      v = *(V **)v;
+    }
+    for (; n != 0; n--, v++) {
+      px += v->x;
+      py += v->y;
+      pz += v->z;
+    }
+>>>
+
+### loop_n
+<<<
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+      continue;
+===
+    if ((bits & 0x800) == 0 || c->scene == 0 ||
+        c->scene->scene != defscene)
+      continue;
+    n = (int)c->scene->obj->info;
+    if (n == 0)
+      continue;
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    for (v = *(V **)n, n = 8; n != 0; n--, v++) {
+>>>
+### vol1
+<<<
+    v = info->keys;
+===
+    v = ((volatile S *)info)->keys;
+>>>
+
+### vol2
+<<<
+    v = info->keys;
+===
+    v = *(V *volatile *)info;
+>>>
+
+### vol3
+<<<
+  S *info;
+===
+  volatile S *info;
+>>>
+
+### vol4
+<<<
+  V *v;
+===
+  V *volatile *pk;
+  V *v;
+>>>
+<<<
+    v = info->keys;
+===
+    pk = &info->keys;
+    v = *pk;
+>>>
+### ka
+<<<
+void f(int left, int right) {
+===
+extern int gs, *gp;
+void f(int left, int right) {
+>>>
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    gs = 1;
+    n = 8;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### kb
+<<<
+void f(int left, int right) {
+===
+extern int gs, *gp;
+void f(int left, int right) {
+>>>
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    gs = 1;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### kd
+<<<
+void f(int left, int right) {
+===
+extern int gs, *gp;
+void f(int left, int right) {
+>>>
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    *gp = 1;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### ke
+<<<
+        c->scene->scene != defscene || (info = c->scene->obj->info) == 0)
+===
+        c->scene->scene != defscene || (n = (int)c->scene->obj->info) == 0)
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)n;
+    n = 8;
+    c->scene->obj = 0;
+    v = *(V **)v;
+    for (; n != 0; n--, v++) {
+>>>
+
+### kf
+<<<
+void f(int left, int right) {
+===
+extern int gs, *gp;
+void f(int left, int right) {
+>>>
+<<<
+    v = info->keys;
+    for (n = 8; n != 0; n--, v++) {
+===
+    v = (V *)info;
+    info = 0;
+    *gp = 1;
+    v = *(V **)v;
+    for (n = 8; n != 0; n--, v++) {
+>>>

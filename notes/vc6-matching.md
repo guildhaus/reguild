@@ -4538,21 +4538,36 @@ copies are:
 - **An allocator split** (color.c): two pieces of one value in two registers, the copy at the cut.
 
 sv_UpdateBand / sv_UpdateBandLed (`mov ecx,[eax+0x1cc]; test ecx,ecx; je; .. mov eax,ecx; mov ecx,8; mov
-eax,[eax]`, open): the copy has the eviction's shape (`mov eax,ecx; mov ecx,8` = ai_DecideBuildResidence's `mov
-eax,esi; mov esi,1`): in the block behind the `je` a scratch temp holds info's value in ecx, the counter's `mov
-ecx,8` evicts it into eax, and v is loaded through it. info itself is an allocated value in ecx across the `je`
-(a scratch temp cannot cross the label), so the temp is a COPY temp `t = info` taken by preference (the source
-register, no rover step), and the conflict with the counter's register was not seen (as for the constant in
-ai_DecideBuildResidence: the register of a value defined later in the block). What the source must give: info
-in ecx (ours: eax), and an expression temp that starts as a copy of info and is still alive when `n = 8` is
-lowered: a two-address computation on info whose operation leaves no code, with the counter's init in tuple
-order between it and the `->keys` load (`n = 8` before the load). Ruled out on a minimal probe (50 forms, none
-gives a `mov r,r`): one-pass loops over info (`while (info) { ..; break; }`, `for (info = ..; info; info = 0)`,
-do / while (0)), joins with a decided second def, one variable for info and v or for info and n, a kill of info
-between the copy and the load (with and without an aliasing store), post-increment, `__inline` helpers with a
-reassigned parameter, end-pointer loops (`v < info->keys + 8`), index and three-sum loop forms, int handles.
-Next: `c2scr.py src/sv.c sv_UpdateBand --variants F --label L --uses` on each idea: the goal is a `P .. pref
-ecx -> ecx (pref)` line for a temp defined from info behind the `je`, then the `E` line at `n = 8`.
+eax,[eax]`, open; ours `mov eax,[eax+0x1cc]; .. mov eax,[eax]; mov ecx,8`). What is measured:
+- **The tuple order is copy, load, counter**: the loop optimizer makes its own count-down temporary for every loop
+  form and appends its init at the end of the preheader (also with `n` used after the loop, an up-count, a char
+  counter, one variable for the handle and the counter, `n` joined across the outer loop: n then lives in edi with
+  `xor edi,edi` behind the loop and the counter is still a fresh ecx). So the eviction reading (a scratch temp alive
+  across `n = 8`) is out, and the original's `mov ecx,8` between the copy and the load is the scheduler: it fills
+  the slot between `mov eax,ecx` and `mov eax,[eax]` (eax written, then used as a base) with the independent
+  counter init (inferred from the fixed tuple order; no compiled case shows it yet). The IL to find is `v = info`
+  kept as a copy, `v = [v]`, with info in ecx.
+- **Where the copy goes**: C1 writes `v = (T *)info; v = *(T **)v;` as two tuples (`c2ids.py --line N --raw`: `op 25d
+  U: info D: v` before FUN_1071cd72); it is gone before FUN_1071ce7b, i.e. inside the value-numbering phase
+  FUN_1073e1a3, which rewrites the load to `[info]`. With a kill between (`v = (T *)n; n = 8; v = *(T **)v;`, one
+  variable for handle and counter) the load is rewritten to `[n]` and moved up in front of the kill. An aliasing
+  store or a store through a pointer between copy, kill and load does not keep it either (5 forms).
+- **No single decision of C2 gives the shape**: c2fuzz over all 15353 call sites on a 45-line probe of the hunk,
+  with `v = info->keys` (449 changed listings) and with the two-statement copy (450): none has info in ecx with a
+  copy, none keeps a `mov r,r` in front of the load. The cause is in the IL C1 hands over, not in a tie.
+- **info in ecx**: happens as soon as the pointer the chain was read through (eax) is still needed behind info's
+  load (probe: a store through `c->scene` after it gives `mov ecx,[edx+0x1cc]; .. mov eax,[ecx]; mov ecx,8`). In the
+  original eax is free again only at `mov eax,ecx`: the walker's candidate holds eax from the chain on, i.e. the
+  value read through and the walker are ONE allocation candidate there (webs of one variable that the optimizer
+  could not separate), and info / the counter take ecx one after the other.
+- = control on the probe (40 forms this pass): a typed or `void *` chain variable, v as the chain variable (casts),
+  the obj load as its own statement, `n = 8` first / do-while / up-count / n read behind the loop, volatile views
+  of the keys field (4), the handle and the counter in one int variable (6 loop forms), default-0 and
+  no-default joins of that variable, side stores between copy and load. All in `tools/c2dag/probes/band.variants.txt`
+  (run with `pv.py`).
+- Next: a join that makes the walker and the chain pointer one candidate (a use of v reached by both definitions:
+  v set in the chain and read on a path that skips the reassignment), then why value numbering cannot forward
+  `v = info` there (FUN_1073e1a3: the copy stays only when info's value is not available at the load).
 
 ### The eax / ecx / edx rotation out of step
 
@@ -7069,6 +7084,10 @@ How to work: variant rounds, the c2 tools, sweeps, what the tools' output means,
   L]`**: the tails VC6 merged (by xjump / pair / move, deleted and kept copy with source lines), what it
   compared, and the IL around the merging pass (which block falls into the exit label). Rules: "How VC6 orders
   blocks and merges tails". `c2pass.py --list` names the call sites that switch block order and each merger off.
+- **`python tools/c2dag/pv.py PROBE.c VARIANTS [--from RE --skip N --until RE]`**: variants of a small stand-alone
+  probe of one hunk, one listing stretch per row, `COPY` when it holds a register-to-register mov; seconds per
+  round, no daemon. `tools/c2dag/probes/band.c` + `band.variants.txt`: sv_UpdateBand's info test and vertex loop
+  with the 40 forms tried. Cut a probe down only while the listing still shows the tree's instructions at the hunk.
 - **`python tools/c2dag/c2ids.py SRC FUNC --line N [--keys] | --vn | --acct`**: the ids and keys that order a
   commutative operation's operands: `--line N` the sums of a line per phase, `--keys` with C2's own key / hash per
   operand (a temp's defining tuple, a load's base), `--vn` the expression table in creation order (the optimizer
@@ -8822,7 +8841,7 @@ Unsolved hunks and what was tried on them. Read before repeating a round on the 
   Solved for d2_DrawSlider (= d2_Unk46aa00, byte): the order is `id & 3` of the field addresses' CSE temporaries,
   i.e. the count of distinct expressions between the fields' first uses ("The hash in a commutative operand's
   sort key"; `c2ids.py --keys` / `--vn`). Apply the same method to the others.
-- **`mov ecx,[eax+0x1cc]; ..; mov ecx,8; mov eax,[eax]`** (sv_UpdateBand, sv_UpdateBandLed) and `mov ecx,eax; add
+- **`mov ecx,[eax+0x1cc]; ..; mov eax,ecx; mov ecx,8; mov eax,[eax]`** (sv_UpdateBand, sv_UpdateBandLed; the state of the search: "Register-to-register copies VC6 keeps") and `mov ecx,eax; add
   ecx,ebp; mov cl,[ecx]` for `ai_GoodsT[id].type` (sv_UpdateGroundplan, sv_LoadGroundplan): spellings no lever;
   lead from sv_HandleObjects: the pointer assigned before an unrelated store (`cls = &ai_GoodsT[id];
   sv_SelectedModel = ..;`).

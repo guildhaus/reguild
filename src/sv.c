@@ -6218,7 +6218,24 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    (gm_PermissionBits 0x800) whose body stands in d3_DefaultScene and has mesh data; its screen position is the
    centre of the body's first 8 transformed vertices (the bounding box corners, camera space) projected with
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
-   @deep c2.dll lowering read (notes/vc6-matching.md 'How the scratch registers are picked',
+   @deep Fable pass (notes/vc6-matching.md 'Register-to-register copies VC6 keeps'): the eviction reading
+   is OUT. The loop optimizer appends its own counter temp = 8 at the end of the preheader in every form,
+   so the tuple order is copy, load, counter and the original's 'mov ecx,8' between 'mov eax,ecx' and 'mov
+   eax,[eax]' is the scheduler filling the address-generation gap (inferred from the fixed tuple order, no
+   compiled case yet). The IL to find: a KEPT copy v = info, then v = [v], info in ecx. Measured: (1) C1
+   writes v = (T *)info; v = *(T **)v as two tuples; value numbering (FUN_1073e1a3) forwards it, also
+   across a kill of the source (the load is moved up) and across stores; (2) c2fuzz, all 15353 call sites,
+   on a probe of the hunk with v = info->keys and with the written copy: no skipped C2 decision gives info
+   in ecx plus a copy, so the cause is the IL; (3) info takes ecx as soon as the pointer the chain was read
+   through (eax) is still needed behind info's load (probe: a store through c->scene there): in the
+   original the walker's candidate holds eax from the chain on, i.e. walker and chain pointer are ONE
+   candidate. = control (40 probe forms): typed / void * chain variable, v as chain variable, n = 8 first,
+   do-while, up-count, n read behind the loop, volatile key views, handle and counter in one int (6 loop
+   forms, with default-0 and no-default joins), side stores between copy and load. Next: a join that makes
+   v and the chain pointer one candidate (a use of v reached by both definitions), then why value numbering
+   leaves v = info there. Probe: python tools/c2dag/pv.py tools/c2dag/probes/band.c VARIANTS --from
+   _defscene --skip 2 --until 'fxch|fadd' (the 40 forms: probes/band.variants.txt); confirm a COPY row with
+   dcp try. prior: c2.dll lowering read (notes/vc6-matching.md 'How the scratch registers are picked',
    'Register-to-register copies VC6 keeps'; tool tools/c2dag/c2scr.py): the original's 'mov eax,ecx; mov
    ecx,8; mov eax,[eax]' has the shape of a lowering EVICTION (FUN_107701e7; the same as
    ai_DecideBuildResidence's byte 'mov eax,esi; mov esi,1' from if (o1->ref - t != 1)): behind the je a
@@ -6231,21 +6248,7 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    info behind the je, then an 'E' line at n = 8. Ruled out on a minimal probe (50 forms, no mov r,r):
    one-pass loops over info, joins with a decided second def, one variable for info and v / info and n, a
    kill of info between copy and load (with / without an aliasing store), post-increment, __inline helpers
-   with a reassigned parameter, end-pointer loops, index / three-sum loops, int handles. prior: deep s73:
-   the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE in the image (a scan of all 4666
-   original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds only sv_UpdateBand / Led): no
-   byte function shows the construct. c2trace: v#1 (112) eax, then temp#47 (the counter, 40, created later)
-   ecx, then info#1 (40) eax; for the original info must lose eax (interfere with v, or an unprocessed
-   eax-preferring neighbour), which no tried text gives. = control (one code each round): pk = &info->keys;
-   v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys; block-scope walker; index loops info->keys[n], v =
-   &info->keys[n], info->keys + n; n = 8 / v at every position among the p inits (v before the inits: 9);
-   keys + 0, info[0].keys, (&info->keys)[0], *(int *)info, *(unsigned *)info; info as
-   default-then-overwrite flat code / if-else / ternary / nested ifs (s72 lever); info re-read after the
-   chain (CSE) at three positions; v / n / iz / bits holding info (webs renamed); a redundant (bits &
-   0x800) test at four places; static __inline helpers (keys getter, whole centre, sum only: listings equal
-   to the control); counter types uchar / char / short / ushort / unsigned / long x 4 loop forms (28 rows).
-   flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the copy needs an IR the
-   canonicaliser keeps; no spelling of the value flow found. */
+   with a reassigned parameter, end-pointer loops, index / three-sum loops, int handles. */
 
 void sv_UpdateBand(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
@@ -6293,29 +6296,39 @@ void sv_UpdateBand(void) {
 }
 /* 0x52f0d0, sv_UpdateBand for the 0x8000 mode of sv_RunFrame: the same band and projection, but a character is
    selectable when ai_LedSelectBits gives 0x800 (led by the player's character) instead of gm_PermissionBits.
-   @deep deep s75 (with sv_UpdateBand's eviction note): in our lowering the load v = [info] always comes
-   BEFORE the counter's init temp = 8, which the loop optimizer appends at the end of the preheader
-   whatever the source order (c2scr: the counter t47 is defined after the load in every form). So a copy
-   temp of info would have to live from before the counter init to a load after it, and the load would have
-   to sit behind the counter init in tuple order. = control, no E line (c2scr --uses): pk = &info->keys as
-   a local with v = *pk after n = 8 (before the p inits, between, in the for-init, n = 8 first or last: 5
-   forms); do { } while (--n) / (--n != 0); while (n--); for (n = 8, v = ..; n; ..); a named k8 = 8 for the
-   counter's init; the deref base with an embedded (n = 8) (5 forms); the index loop info->keys[n] (its
-   hoisted load is placed before the counter init too). Worse: k8 reused as the divisor (13 ins, the float
-   code changes). Scan of the tree's E lines (c2scr '*' over src, build/c2dag/escan): the op-1 evictions of
-   a temp picked by preference are two-address sums kept while a reload redefines the register
-   (d2_DrawSlider 'mx < spr6->w + w->x': mov edx,ecx; mov ecx,[mx]; cmp ecx,edx) or eax / edx needs; none
-   is a pure copy of a dereferenced pointer. Open: a source whose load of keys the optimizer places after
-   the counter's init (an init the loop optimizer itself inserts behind the counter, e.g. of a second
-   induction variable), or a value other than the counter that defines ecx there. prior: The same hunk as
-   sv_UpdateBand: see its note of this session (the copy is a lowering eviction: a copy temp of info in ecx
-   evicted by the counter's mov ecx,8; info itself allocated in ecx across the je; tool
-   tools/c2dag/c2scr.py, notes/vc6-matching.md 'Register-to-register copies VC6 keeps'). Whatever fixes one
-   fixes both; nothing run here apart. prior: deep s73: the same hunk as sv_UpdateBand (see its s73 note:
-   the original's copy-then-deref is unique to these two functions in the whole image). Re-run here: info
-   as flat default-then-overwrite / if-else / ternary / nested (6 rows), v / n / iz / bits holding info
-   (4), n = 8 and v at every position among the p inits: all = control except v before the inits (9). Open
-   with sv_UpdateBand: whatever fixes one fixes both. */
+   @deep The same hunk as sv_UpdateBand; whatever fixes one fixes both. Fable pass (notes/vc6-matching.md
+   'Register-to-register copies VC6 keeps'): the eviction reading is OUT. The loop optimizer appends its
+   own counter temp = 8 at the end of the preheader in every form, so the tuple order is copy, load,
+   counter and the original's 'mov ecx,8' between 'mov eax,ecx' and 'mov eax,[eax]' is the scheduler
+   filling the address-generation gap (inferred from the fixed tuple order, no compiled case yet). The IL
+   to find: a KEPT copy v = info, then v = [v], info in ecx. Measured: (1) C1 writes v = (T *)info; v = *(T
+   **)v as two tuples; value numbering (FUN_1073e1a3) forwards it, also across a kill of the source (the
+   load is moved up) and across stores; (2) c2fuzz, all 15353 call sites, on a probe of the hunk with v =
+   info->keys and with the written copy: no skipped C2 decision gives info in ecx plus a copy, so the cause
+   is the IL; (3) info takes ecx as soon as the pointer the chain was read through (eax) is still needed
+   behind info's load (probe: a store through c->scene there): in the original the walker's candidate holds
+   eax from the chain on, i.e. walker and chain pointer are ONE candidate. = control (40 probe forms):
+   typed / void * chain variable, v as chain variable, n = 8 first, do-while, up-count, n read behind the
+   loop, volatile key views, handle and counter in one int (6 loop forms, with default-0 and no-default
+   joins), side stores between copy and load. Next: a join that makes v and the chain pointer one candidate
+   (a use of v reached by both definitions), then why value numbering leaves v = info there. Probe: python
+   tools/c2dag/pv.py tools/c2dag/probes/band.c VARIANTS --from _defscene --skip 2 --until 'fxch|fadd' (the
+   40 forms: probes/band.variants.txt); confirm a COPY row with dcp try. prior: deep s75 (with
+   sv_UpdateBand's eviction note): in our lowering the load v = [info] always comes BEFORE the counter's
+   init temp = 8, which the loop optimizer appends at the end of the preheader whatever the source order
+   (c2scr: the counter t47 is defined after the load in every form). So a copy temp of info would have to
+   live from before the counter init to a load after it, and the load would have to sit behind the counter
+   init in tuple order. = control, no E line (c2scr --uses): pk = &info->keys as a local with v = *pk after
+   n = 8 (before the p inits, between, in the for-init, n = 8 first or last: 5 forms); do { } while (--n) /
+   (--n != 0); while (n--); for (n = 8, v = ..; n; ..); a named k8 = 8 for the counter's init; the deref
+   base with an embedded (n = 8) (5 forms); the index loop info->keys[n] (its hoisted load is placed before
+   the counter init too). Worse: k8 reused as the divisor (13 ins, the float code changes). Scan of the
+   tree's E lines (c2scr '*' over src, build/c2dag/escan): the op-1 evictions of a temp picked by
+   preference are two-address sums kept while a reload redefines the register (d2_DrawSlider 'mx < spr6->w
+   + w->x': mov edx,ecx; mov ecx,[mx]; cmp ecx,edx) or eax / edx needs; none is a pure copy of a
+   dereferenced pointer. Open: a source whose load of keys the optimizer places after the counter's init
+   (an init the loop optimizer itself inserts behind the counter, e.g. of a second induction variable), or
+   a value other than the counter that defines ecx there. */
 
 void sv_UpdateBandLed(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
