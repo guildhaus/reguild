@@ -1249,7 +1249,7 @@ exe	0x0046a110	d2_OpenInput	d2	byte	readable
 exe	0x0046a360	d2_WinOpenInput	d2	byte	readable		
 exe	0x0046a4c0	d2_OpenSlider	d2	byte	readable		
 exe	0x0046a960	d2_WinOpenSlider	d2	byte	readable		
-exe	0x0046aa00	d2_DrawSlider	d2	draft	readable	deep	
+exe	0x0046aa00	d2_DrawSlider	d2	byte	readable		
 exe	0x0046bc70	d2_SetLabel	d2	byte	readable		
 exe	0x0046bca0	d2_SetList	d2	byte	readable		
 exe	0x0046bd30	d2_ListCopyItem	d2	byte	readable		
@@ -1885,7 +1885,7 @@ exe	0x004b02a0	ai_CommandWealthTax	hst	byte	readable
 exe	0x004b0360	ai_CommandWealth	hst	byte	readable		
 exe	0x004b04a0	ai_CommandOfficeStanding	hst	byte	readable		
 exe	0x004b05e0	ai_CommandKillPlayer	hst	byte	readable		
-exe	0x004b0640	ai_CommandExecution	hst	shape	readable	deep	
+exe	0x004b0640	ai_CommandExecution	hst	byte	readable		
 exe	0x004b08e0	ai_CommandPrison	hst	byte	readable		
 exe	0x004b0950	ai_CommandOfficeInventoryPlus	hst	byte	readable		
 exe	0x004b09f0	ai_CommandLaw	hst	byte	readable		
@@ -2619,7 +2619,7 @@ exe	0x004e5cd0	amt_InitTable	amt	byte	readable
 exe	0x004e5e50	amt_Rating	amt	byte	readable		
 exe	0x004e6030	amt_FindOffice	amt	byte	readable		
 exe	0x004e60b0	amt_GetOfficeRate	amt	byte	readable		
-exe	0x004e6180	amt_ApplyForOffice	amt	draft	readable	deep	
+exe	0x004e6180	amt_ApplyForOffice	amt	byte	readable		
 exe	0x004e6360	amt_CheckApplication	amt	byte	readable		
 exe	0x004e6430	amt_AcceptApplication	amt	byte	readable		
 exe	0x004e65e0	amt_SendOfficeFree	amt	byte	readable		
@@ -2999,7 +2999,7 @@ exe	0x004ffbf0	gm_GoodsValue	f3gmt	byte	readable
 exe	0x004ffc40	gm_FindGoods	f3gmt	byte	readable		
 exe	0x004ffc90	gm_MapDistance	f3gmt	byte	readable		
 exe	0x004ffcc0	gm_QueryNext	f3gmt	draft	readable	deep	
-exe	0x004ffe90	gm_Query	f3gmt	shape	readable	deep	
+exe	0x004ffe90	gm_Query	f3gmt	byte	readable		
 exe	0x004fffc0	gm_FindFreeObject	f3gmt	byte	readable		
 exe	0x004ffff0	gm_RemoveObject	f3gmt	byte	readable		
 exe	0x00500080	gm_FreeObjectExtra	f3gmt	byte	readable		
@@ -4017,7 +4017,7 @@ exe	0x0057c560	ai_AlchemistHire	sv_t	byte	readable
 exe	0x0057c690	ai_AlchemistResearchWindow	sv_t	draft	readable	deep	
 exe	0x0057cde0	ai_AlchemistSendRecipeResearch	sv_t	byte	readable		
 exe	0x0057ced0	ai_AlchemistSendResearchStart	sv_t	byte	readable		
-exe	0x0057cf90	ai_AlchemistWindow	sv_t	shape	readable	deep	
+exe	0x0057cf90	ai_AlchemistWindow	sv_t	byte	readable		
 exe	0x0057dc50	ai_AlchemistTrainShareWindow	sv_t	byte	readable		
 exe	0x0057de60	ai_AlchemistFundWindow	sv_t	byte	readable		
 exe	0x0057e0e0	ai_AlchemistRescheduleWindow	sv_t	byte	readable		
@@ -4145,7 +4145,7 @@ exe	0x0058fd40	ai_ObjectPosition	lc	byte	readable
 exe	0x0058fd90	ai_ObjectAngle	lc	byte	readable		
 exe	0x0058fe10	ai_FindNearestObject	lc	byte	readable		
 exe	0x0058feb0	ai_DropObjectAt	lc	byte	readable		
-exe	0x0058ff00	lc_GebaeudeAusrichten	lc	shape	readable	deep	
+exe	0x0058ff00	lc_GebaeudeAusrichten	lc	byte	readable		
 exe	0x005909a0	ai_ConstructionWindow	lc	byte	readable		
 exe	0x00591170	ai_HandleMapKey	lc	byte	readable		
 exe	0x005912c0	ai_TradeContactChecks	lc	byte	readable		
@@ -4603,7 +4603,7 @@ exe	0x005d3270	ai_UseGoodDistrust	lcamt	byte	readable
 exe	0x005d33b0	ai_ListFiles	menu	byte	readable		
 exe	0x005d34b0	ai_FilePickWindow	menu	byte	readable		
 exe	0x005d3810	ai_MessageBox	menu	byte	readable		
-exe	0x005d3a00	ai_RegisterSaveSlot	menu	shape	readable	deep	
+exe	0x005d3a00	ai_RegisterSaveSlot	menu	byte	readable		
 exe	0x005d3ab0	ai_FillSaveSlots	menu	byte	readable		
 exe	0x005d4080	ai_LoadGameWindow	menu	byte	readable		
 exe	0x005d42b0	ai_JoinGameWindow	menu	byte	readable		
