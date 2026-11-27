@@ -2015,32 +2015,31 @@ struct D3OBJECT;
    confirmation (text 0x17ef: the cost, the name, AIBTYPE.v243); returns the chosen site object and copies the
    picked model name names[idx] to out (out = "" and 0 when none was chosen)
    @deep deep s79: confirmed the tie rule with c2frame variants (cleanup loop above the result test: L list
-   count first, A count/result as the original, code moved; result = 0 moved into the sel block: result
-   joins best's slot). Replayed the K&R slot sort (scratch qs.py): no permutation of the other tie groups
-   (the 750 group, the count-3 group with best/sel, bmax/bmin) gives the original's A order; only count
-   ahead of result in B does, and both must weigh exactly 4 (5 = dens 1250 lands before pos, 3 = 750 lands
-   after rot). So in the original's IL at count time both had 4 refs and count's last ref (the final
-   cleanup's bound, final 0x59093f) came before result's last. In the final layout result's last ref is the
-   result test (0x5908f8), which is the only way into the arms and the cleanup (RPO jump-first puts T
-   before the cleanup in every graph where T dominates it), and the four refs of each are the listing's
-   own, so the original's count-time IL had either a result ref placed after the cleanup (no ref of result
-   follows the cleanup in the final code: the return uses ebx) or a block order that a post-count pass
-   (move merger, emission chaining) changed. No source form found that does either without changing the
-   code. Untested idea: the top 0 store into slot 0x40 belongs to a second variable that shares result's
-   slot (result then 3 refs, the other 1: weight 4, and count's 4 > result's 3 opens count's slot first);
-   needs a local that is stored 0 at the top and has no later ref that survives, which VC6's dead-store
-   pass should remove. prior: deep s77: c2frame --refs walk: result reaches its 4th ref at the 'if (result
-   == 0)' load, count at the final cleanup's bound (the error-path cleanup in the loop and the result
-   stores of the confirm arms come before both); the A table puts them in one 1000-density pair between pos
-   (1187) and rot (916), so a third / fifth ref on either moves them into another density group (no
-   single-count fix). flip.py --want '_count$ = -16612' (the original's slot for count; 1144 mutants, 887
-   compiled): 20 hits, every one reshuffles the whole frame (best m689, deleting 'model->rotation = rot',
-   82 ins): the unstable quicksort makes any change to the list order move other slots too, so the lever is
-   only the walk order of the two last refs. Tried (= control or worse): 'if (result == 0) return 0; return
-   result;' (= control), the cleanup loop in both arms of the result test (76), 'if (result != 0 && model
-   != 0)' (88). Still open: what puts count's last counted ref before result's in the original's walk
-   without a code change (a late pass that moves the result test block in front of the cleanup, or a result
-   ref after the cleanup that a late pass removes). */
+   count first, A count/result as the original, code moved). Replayed the K&R slot sort (scratch qs.py,
+   reproduces ours exactly): no permutation of the other tie groups and no +-1/+-2 weight change of any one
+   or two other slots gives the original's A order; only count ahead of result in B does, and both must
+   weigh exactly 4 (5 = dens 1250 lands before pos, 3 = 750 lands after rot). So at count time both had 4
+   refs and count's last (the final cleanup's bound, 0x59093f) came before result's last (the result test,
+   0x5908f8), which the final layout's graph cannot give (the test is the only way into the arms and the
+   cleanup). Measured without result: a separate local stored 0 at the top in place of result = 0 (VC6
+   drops the dead store: = no-init, draft 111); the error path as result = 0; goto cleanup (VC6 does not
+   duplicate the loop: draft 218); the result test as goto forms, two decided ifs, else-if, a flag i =
+   result != 0, 'if (result != 0) return result; return 0;' after the cleanup (all = control, counts
+   unchanged); for (;;) + break latch, error cleanup as a for loop (= control); if (result != 0) first (40,
+   layout); c2pass skips of block order, xjump, pair, move, 0x1070a928 (slots unchanged). Open: an IL edge
+   or block present at count time and gone later (a decided test whose dead edge enters the cleanup before
+   the walk reaches the result test), or a post-count pass that reorders blocks. prior: deep s77: c2frame
+   --refs walk: result reaches its 4th ref at the 'if (result == 0)' load, count at the final cleanup's
+   bound (the error-path cleanup in the loop and the result stores of the confirm arms come before both);
+   the A table puts them in one 1000-density pair between pos (1187) and rot (916), so a third / fifth ref
+   on either moves them into another density group (no single-count fix). flip.py --want '_count$ = -16612'
+   (the original's slot for count; 1144 mutants, 887 compiled): 20 hits, every one reshuffles the whole
+   frame (best m689, deleting 'model->rotation = rot', 82 ins): the unstable quicksort makes any change to
+   the list order move other slots too, so the lever is only the walk order of the two last refs. Tried (=
+   control or worse): 'if (result == 0) return 0; return result;' (= control), the cleanup loop in both
+   arms of the result test (76), 'if (result != 0 && model != 0)' (88). Still open: what puts count's last
+   counted ref before result's in the original's walk without a code change (a late pass that moves the
+   result test block in front of the cleanup, or a result ref after the cleanup that a late pass removes). */
 D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   char names[128][0x60];  /* the model files of the kind found in the vfs */
   char text[0x400];       /* the confirmation text */
