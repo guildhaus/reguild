@@ -2013,63 +2013,7 @@ struct D3OBJECT;
    (kb_Last '2', the building icon or the compass), snaps to the nearest site (ai_FindNearestObject, turned by
    ai_ObjectAngle; green 0x40c040 on a site, red 0xc04040 off it), and a left release on a site asks the
    confirmation (text 0x17ef: the cost, the name, AIBTYPE.v243); returns the chosen site object and copies the
-   picked model name names[idx] to out (out = "" and 0 when none was chosen)
-   @deep Fable pass (frame-time against final counts, measured; notes/vc6-matching.md 'How the frame is
-   laid out', probe tools/c2dag/probes/framerefs.c): n's two frame-time stores are EXIT-EDGE stores of the
-   name loop (c2frame --refs: one block per exit edge, each 'mov [n],edi', both attributed to the n++ line;
-   merged after the frame into the one store at the join in front of 'if (n == 0)'). So n+1 = a third exit
-   edge of that loop, n+2 = a fourth: the break written in both sprintf arms gives n=6 (but the arms are
-   not merged back: 182 ins). Not counted (n stays 5): a second n = 0 before the loop or in the for init
-   (dead store, removed before the frame), goto instead of break (the same edge), continue + if (f) break,
-   more util_Random(n) loads (n sits in a register there), a folded test (n < 0), a jump from the break arm
-   into the n == 0 block. best: a real extra test counts (best=4, frame 'other', code changes); best =
-   best, a second init at the site loop, min() spellings: 3. The other kind of late-removed reference,
-   measured on the probe: x++ on a memory local is load + store at frame time (2) and one 'inc [x]' in the
-   listing. The s79 replay (n & best pairs) could not be confirmed with real references: no code-neutral or
-   code-changing variant here raised n and best together. Next: the pairs with px (n+2 & px+1 / px+2) need
-   two more exit edges of the name loop; look for the loop form with four exits that merges back (the break
-   duplicated per arm AND per sprintf arm), and re-run the replay with pz moved together with px. deep s79:
-   the slots of result and count are a count tie (both 4, density 1000, between pos and rot); the original
-   has count ahead in the frame list. c2.dll (Ghidra): the frame is laid out in FUN_1070cdb9 (after the
-   lowering FUN_1070a291) before FUN_1070ea02 (FUN_1070ea47 loop-exit jump swaps, FUN_10702af9, flow pass
-   FUN_1070a5c3 merging off), FUN_1070eb58 (add esp), FUN_1070ec03 / FUN_1070ec81 (a5c3 with merging on:
-   xjump / pair / move) and the emission. FUN_1070ddc4 walks the block list (= the IL order, c2frame --refs
-   T rows) and calls FUN_10713312(sym, 1) per operand; the list is size, then count, a tie kept in the
-   order the count was REACHED. Why the swap cannot come from the walk order: the blocks are laid out
-   before allocation in reverse postorder (FUN_1073cc0d), a topological order of the forward edges, and the
-   test (T) reaches the cleanup (C) only through its arms, so T always precedes C; no post-frame pass adds
-   a memory reference of a local here (return-block duplication copies only epilogues), so the frame-time
-   refs are the final ones (result: init, both confirm-arm stores, T; count: store, site-loop bound,
-   error-path cleanup, C) and result always reaches 4 first. Every tail-shape variant gives the control's
-   code and frame: forexit / doexit (exit inside a for(;;) / do..while(1)), i = 0 in both arms, for / while
-   / for(;;)+break cleanup, labels before the test or cleanup, do {} while (0) after the loop, the test as
-   do { if (result) { strcpy; break; } .. } while (0); measured without result: a separate 0 store (draft
-   111), goto cleanup (218), decided tests (= control), if (result != 0) first (40). So the original
-   differs in the frame-time count of OTHER locals (refs merged away after the frame: duplicates removed by
-   xjump / pair / move, or the late store-to-load peephole; ours already counts n at 5 with 4 final refs: a
-   split store at each exit of the name loop, merged later). Full L -> B -> A replay (scratch lc/qs5.py,
-   qs9.py: K&R quicksort, packing best+px, sel+pz, flags+ask, every tie position): no single count change
-   gives the original's A order; with frame-time refs only ADDED the pairs that do are n+1 & best+1 (best
-   ahead of count), n+2 & best+1 (n ahead of cur), n+2 & px+1, n+2 & px+2 (n ahead of cur); every +1 triple
-   contains n & best. Tried for n / best / px (fr.py: c2frame per variant): the name loop as if (!GetPath)
-   { if (f) break; } else .., names[n] then n++, continue forms, while, the sprintf arms swapped, else { if
-   (f) break; }; best = d after cur = sel, best > d; the px test nested or != 0: all n=5 best=3 px=2, frame
-   = ours. climb.py round 1 (356 mutants, 201 codes): nothing closer; its 39 slots-only mutants only
-   renumber the temp t32ec; 2 mutants put count before result (434 / 173 ins). Open: an ordinary spelling
-   whose frame-time IL holds one more n reference (a third exit store of the name loop or a reload the
-   peephole removes) and one more best reference, both gone in the final code; or a flaw in the replay
-   (re-check it on a function whose frame-time and final refs differ). prior: deep s77: c2frame --refs
-   walk: result reaches its 4th ref at the 'if (result == 0)' load, count at the final cleanup's bound (the
-   error-path cleanup in the loop and the result stores of the confirm arms come before both); the A table
-   puts them in one 1000-density pair between pos (1187) and rot (916), so a third / fifth ref on either
-   moves them into another density group (no single-count fix). flip.py --want '_count$ = -16612' (the
-   original's slot for count; 1144 mutants, 887 compiled): 20 hits, every one reshuffles the whole frame
-   (best m689, deleting 'model->rotation = rot', 82 ins): the unstable quicksort makes any change to the
-   list order move other slots too, so the lever is only the walk order of the two last refs. Tried (=
-   control or worse): 'if (result == 0) return 0; return result;' (= control), the cleanup loop in both
-   arms of the result test (76), 'if (result != 0 && model != 0)' (88). Still open: what puts count's last
-   counted ref before result's in the original's walk without a code change (a late pass that moves the
-   result test block in front of the cleanup, or a result ref after the cleanup that a late pass removes). */
+   picked model name names[idx] to out (out = "" and 0 when none was chosen) */
 D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   char names[128][0x60];  /* the model files of the kind found in the vfs */
   char text[0x400];       /* the confirmation text */
@@ -2087,7 +2031,6 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   D3VECTOR v;
   D3VECTOR rot;
   D3VECTOR4 pos; /* the engine's padded vector */
-  D3TEXFLAGS tf;
   struct D3SM *hmap;
   D3OBJECT *model;
   AIBTYPE *type;
@@ -2171,6 +2114,8 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   ai_PlacementSites = sites;
   for (i = 0; i < count; i++) {
     if (sites[i] != 0) {
+      D3TEXFLAGS tf;
+
       d3_PointToWorld(sites[i], &sites[i]->pos, &pos.v);
       sprintf(flagPath, "%s*sp_BAU_WIMPEL.ogr", ai_DataPath);
       flags[i] = d3_LoadGroup(flagPath, 0, 0);
@@ -2300,7 +2245,8 @@ D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
       if (dm_L.rup != 0)
         sv_PopRequest = 1;
       if (model != 0 && f < 90.0f) {
-        /* the model half transparent, once per model */
+        D3TEXFLAGS tf; /* the model half transparent, once per model */
+
         model->stateFlags &= ~2;
         tf.all = 0;
         tf.b[2] = 1;

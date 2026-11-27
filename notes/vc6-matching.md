@@ -4738,6 +4738,14 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   call argument from memory counts and stays in the code. So "one reference more that leaves no code" means: one
   loop exit edge more for a register-resident counter, or a compound update where the listing has a
   memory-operand instruction; nothing else was found.
+- **A slot's table position is its OPENING member's list position** (lc_GebaeudeAusrichten byte, after four sessions
+  of count hunting): result / count (both 4, density 1000) swapped, every instruction the original's; the fix was
+  `D3TEXFLAGS tf` (8 references: 4 in the site loop, 4 in the fade block) as a block local of each of the two
+  blocks. The two halves (4 + 4) list behind n, ahead of result and count, the second joins the first's slot
+  (weight 8 again), and the slot enters the B table there instead of at 8 between f and cur: the quicksort then
+  resolves the result / count tie the other way. A replay that only changes counts misses this; move each B slot
+  to every position (scratch qs6.py pattern: `move tf from 2 to 4` was in its output) and read each move as
+  "split this local per block" (later) or "merge two locals" (earlier).
 - **Listing, packing, sorting**: the locals are listed by size ascending, then count descending (tie: who reached
   the count first in the walk); each joins the newest lifetime-compatible slot (searched from the last one opened backward) or opens one; frames above 0x80
   bytes are sorted by weight * 1000 / size, descending, with an unstable quicksort; the densest slot is nearest
