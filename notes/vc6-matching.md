@@ -4436,12 +4436,22 @@ scheduler (dag.c), so no scheduler hack (c2sched) can change a scratch register.
   the short tail into both arms, and no test of ai_Objects appears because the join is behind the test. A clean
   probe (`probe2 = probe;`) "fixing" such a spot only shows that the rover is one step short there; the cause can
   be a temp too few before it OR this load being a temp at all. Look for a variable that both arms could share.
-- **A store run in the wrong order with all registers right** (ai_CommandExecution, open): the scratch picks need
-  the table load `kinds[i]` defined while ecx still holds the -1 constant (thing < host < the kinds load <
-  list[1]) and the scheduler's store order needs the variant STORE behind `flags` (thing, list[1], kind, flags,
-  variant, quiet). One statement cannot give both (its load and store are adjacent tuples); a named `v` with a
-  kill in between (`i = 0;`) gives the order, but v is then an allocated local: no rover step, c and the judges
-  one step off.
+- **A store run in the wrong order with all registers right, or right only with a rotation step lost**
+  (ai_CommandExecution byte, three sessions on orders and candidate forms): read the two facts apart. (1) The
+  picks (`c2scr.py`): the host chain eax / eax, the `kinds[i]` byte load edx, c eax, the judges ecx / edx / eax /
+  ecx need the kinds load picked while ecx still holds the -1 constant: thing < host < variant < list[1] in the
+  source, and `list[0] = c->netId` behind every party store (a party store behind it kills the CSE of c->netId:
+  a second load, c in ebx, 81 ins). (2) The scheduler graph (`c2dag.py`): with party at function scope every
+  party store has an alias edge (kind 20) to the three later pointer loads and so the same height as the two -1
+  stores; ties are issued in tuple order, which contradicts (1) whatever the order. The original's stores had NO
+  such edges: `G28REC party;` was declared in the block that fills and sends it (with `int list[16];`, the block
+  running to the function's end). Then only the -1 stores are high (ecx is reused by the judge load), and kind /
+  flags / variant / quiet are low-priority fillers issued in source order in the stalls of the lea chain: byte
+  with the plain field order `kind, thing, host, flags, variant, quiet, list[0], list[1], list[2], list[3]`
+  (and with every other order that keeps thing < host < variant < list[1]). A named `v = kinds[i]` with a kill
+  (`i = 0;`) had bought the store order at the price of the rover step (v is then an allocated local): a trick
+  that fixes one of two facts is the sign that a third thing (here the scope) is wrong. "Block local" includes a
+  block that runs to the function's end; try it before any order round on a record that is filled and sent.
 
 ### Register-to-register copies VC6 keeps
 
@@ -4460,17 +4470,33 @@ copies are:
 - **A value needed twice around an update in one expression**: zlib's `put_short` (`s->pending_buf[s->pending++]
   = ..` twice): `inc edx; mov [esi+0x14],edx; mov ecx,edx` - the incremented index is an allocated CSE value
   copied for the second byte.
-- **An eviction by the lowering pass** (FUN_107701e7: a tuple defines a register that holds a live scratch temp;
-  the temp gets a new pick). In the code, but not met on any traced function (`c2scr.py` prints an `E` line).
+- **An eviction by the lowering pass** (FUN_107701e7; `c2scr.py` prints `E line L op X: R defined while it
+  holds tN`; 85 in the tree, 23 by a plain `mov`): a scratch temp sits in a register that the tuple at hand
+  defines, gets a new pick and a kept `mov new,old`. ai_DecideBuildResidence byte: `if (o1->ref - t != 1)` gives
+  `mov esi,ecx; sub esi,eax; mov eax,esi; mov esi,1; cmp eax,esi`: the difference temp took esi as the last
+  resort (the third pick loop does not look at the conflict set), then the constant candidate 1 materialises
+  in esi. The other cases: a temp of a two-address chain picked by preference (`t = a; t -= b; ..`) while eax is
+  needed for a cdq / idiv / abs (d3sm_FindGround `r - abs(z - zz)`, ai_EvalFest `lv - lv / 3 - lv / 4`,
+  path_Expand `abs(dx) + abs(dy)`), a byte temp, a shift count. All evictions stay inside one block. This is
+  the only mechanism that emits `mov A,B; mov B,<constant or new value>` with B's old value used through A.
 - **An allocator split** (color.c): two pieces of one value in two registers, the copy at the cut.
 
 sv_UpdateBand / sv_UpdateBandLed (`mov ecx,[eax+0x1cc]; test ecx,ecx; je; .. mov eax,ecx; mov ecx,8; mov
-eax,[eax]`, open): info is in ecx across the `je`, so it is an allocated value there (a scratch temp cannot cross
-the label), although the rover stands at ecx where it is loaded (the pick before it is the obj load in eax).
-Ruled out on a minimal probe (36 forms, none gives a `mov r,r`): one-pass loops over info (`while (info) { ..;
-break; }`, `for (info = ..; info; info = 0)`, do / while (0)), joins with a decided second def, one variable for
-info and v or for info and n, a kill of info between the copy and the load (with and without an aliasing store),
-post-increment, `__inline` helpers with a reassigned parameter, index and three-sum loop forms.
+eax,[eax]`, open): the copy has the eviction's shape (`mov eax,ecx; mov ecx,8` = ai_DecideBuildResidence's `mov
+eax,esi; mov esi,1`): in the block behind the `je` a scratch temp holds info's value in ecx, the counter's `mov
+ecx,8` evicts it into eax, and v is loaded through it. info itself is an allocated value in ecx across the `je`
+(a scratch temp cannot cross the label), so the temp is a COPY temp `t = info` taken by preference (the source
+register, no rover step), and the conflict with the counter's register was not seen (as for the constant in
+ai_DecideBuildResidence: the register of a value defined later in the block). What the source must give: info
+in ecx (ours: eax), and an expression temp that starts as a copy of info and is still alive when `n = 8` is
+lowered: a two-address computation on info whose operation leaves no code, with the counter's init in tuple
+order between it and the `->keys` load (`n = 8` before the load). Ruled out on a minimal probe (50 forms, none
+gives a `mov r,r`): one-pass loops over info (`while (info) { ..; break; }`, `for (info = ..; info; info = 0)`,
+do / while (0)), joins with a decided second def, one variable for info and v or for info and n, a kill of info
+between the copy and the load (with and without an aliasing store), post-increment, `__inline` helpers with a
+reassigned parameter, end-pointer loops (`v < info->keys + 8`), index and three-sum loop forms, int handles.
+Next: `c2scr.py src/sv.c sv_UpdateBand --variants F --label L --uses` on each idea: the goal is a `P .. pref
+ecx -> ecx (pref)` line for a temp defined from info behind the `je`, then the `E` line at `n = 8`.
 
 ### The eax / ecx / edx rotation out of step
 

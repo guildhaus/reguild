@@ -6218,39 +6218,34 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    (gm_PermissionBits 0x800) whose body stands in d3_DefaultScene and has mesh data; its screen position is the
    centre of the body's first 8 transformed vertices (the bounding box corners, camera space) projected with
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
-   @deep deep s74: VC6's codegen of v = info->keys is always ONE load (probes that force info into ecx give
-   'mov eax,[ecx]; mov ecx,8', into edx 'mov eax,[edx]'), so the original's 'mov eax,ecx; mov ecx,8; mov
-   eax,[eax]' (unique in the image: no other function has 'mov A,B; mov B,..; mov A,[A..]') is an IR copy X
-   = info (X in eax, then [X]) that our IR never has: every spelling is forwarded before allocation. The
-   copies VC6 keeps are join copies (probe: a second def of the dereferenced pointer on another path gives
-   'mov eax,esi' into the join variable). For info to lose eax, eax must be held by a value live at info's
-   def (v or the deref base), which the original's eax uses there (c->scene, obj) exclude unless that value
-   was obj itself. Ruled out: c2fuzz with the function alone (build/c2dag/fzband/fz.c, each of c2.dll's
-   15353 calls skipped, all 557 changed listings checked): no skipped pass gives the copy; flags /G3../G6
-   /GB /Oa /Ow /Op /Ox /O1 /Ob0 /Ob2 /Oi- /Gr /Gz /Zp1 /Zi /GX on the same probe: none; climb.py 2 rounds
-   beam 6 width 60 (368 mutants): nothing closer. = control (one code each): CSE re-reads of the chain
-   (test on c->scene->obj->info, info / v re-read from it, 5 places), if (info) / ternaries on info, comma
-   and for-init forms, v = info in or after the chain then v = keys (5 forms), info or v as T *[1] / [2] /
-   struct {p} / union / register / void * / int / D3VERTEX **, volatile reads, pk = &info->keys loops,
-   info->keys[n] index loops, while (n--), float * / D3VECTOR * / char * walkers, static __inline helpers
-   (4 forms), info = 0 defaults and if-set / ternary forms (threaded), re-tests of info / the chain, tests
-   decided only after CSE, identity ops on info, zero indexes known only to C2, one variable for info and
-   the counter, block-scoped info / v (3). Worse: equal arms keep the compare (8 ins, size equal), struct
-   {v, n} (10), v[n] (16), bits test last (23), extra live candidates (25..63). Open: which source gives
-   the deref base a second definition or join. prior: deep s73: the original's 'mov eax,ecx; mov ecx,8; mov
-   eax,[eax]' is UNIQUE in the image (a scan of all 4666 original functions for 'mov X,Y' followed within 2
-   by 'mov X,[X]' finds only sv_UpdateBand / Led): no byte function shows the construct. c2trace: v#1 (112)
-   eax, then temp#47 (the counter, 40, created later) ecx, then info#1 (40) eax; for the original info must
-   lose eax (interfere with v, or an unprocessed eax-preferring neighbour), which no tried text gives. =
-   control (one code each round): pk = &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys;
-   block-scope walker; index loops info->keys[n], v = &info->keys[n], info->keys + n; n = 8 / v at every
-   position among the p inits (v before the inits: 9); keys + 0, info[0].keys, (&info->keys)[0], *(int
-   *)info, *(unsigned *)info; info as default-then-overwrite flat code / if-else / ternary / nested ifs
-   (s72 lever); info re-read after the chain (CSE) at three positions; v / n / iz / bits holding info (webs
-   renamed); a redundant (bits & 0x800) test at four places; static __inline helpers (keys getter, whole
-   centre, sum only: listings equal to the control); counter types uchar / char / short / ushort / unsigned
-   / long x 4 loop forms (28 rows). flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the
-   copy needs an IR the canonicaliser keeps; no spelling of the value flow found. */
+   @deep c2.dll lowering read (notes/vc6-matching.md 'How the scratch registers are picked',
+   'Register-to-register copies VC6 keeps'; tool tools/c2dag/c2scr.py): the original's 'mov eax,ecx; mov
+   ecx,8; mov eax,[eax]' has the shape of a lowering EVICTION (FUN_107701e7; the same as
+   ai_DecideBuildResidence's byte 'mov eax,esi; mov esi,1' from if (o1->ref - t != 1)): behind the je a
+   scratch temp holds info's value in ecx (a copy temp t = info taken by preference, no rover step), the
+   counter's mov ecx,8 evicts it into eax, v is loaded through it. info itself is an ALLOCATED value in ecx
+   across the je (a scratch temp cannot cross a label; ours: eax). Needed: info in ecx, plus an expression
+   temp that starts as a copy of info and is alive when n = 8 is lowered (n = 8 in tuple order before the
+   ->keys load), i.e. a two-address computation on info whose operation leaves no code. Check each idea
+   with c2scr.py --variants F --label L --uses: goal a 'P .. pref ecx -> ecx (pref)' line for a temp from
+   info behind the je, then an 'E' line at n = 8. Ruled out on a minimal probe (50 forms, no mov r,r):
+   one-pass loops over info, joins with a decided second def, one variable for info and v / info and n, a
+   kill of info between copy and load (with / without an aliasing store), post-increment, __inline helpers
+   with a reassigned parameter, end-pointer loops, index / three-sum loops, int handles. prior: deep s73:
+   the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE in the image (a scan of all 4666
+   original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds only sv_UpdateBand / Led): no
+   byte function shows the construct. c2trace: v#1 (112) eax, then temp#47 (the counter, 40, created later)
+   ecx, then info#1 (40) eax; for the original info must lose eax (interfere with v, or an unprocessed
+   eax-preferring neighbour), which no tried text gives. = control (one code each round): pk = &info->keys;
+   v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys; block-scope walker; index loops info->keys[n], v =
+   &info->keys[n], info->keys + n; n = 8 / v at every position among the p inits (v before the inits: 9);
+   keys + 0, info[0].keys, (&info->keys)[0], *(int *)info, *(unsigned *)info; info as
+   default-then-overwrite flat code / if-else / ternary / nested ifs (s72 lever); info re-read after the
+   chain (CSE) at three positions; v / n / iz / bits holding info (webs renamed); a redundant (bits &
+   0x800) test at four places; static __inline helpers (keys getter, whole centre, sum only: listings equal
+   to the control); counter types uchar / char / short / ushort / unsigned / long x 4 loop forms (28 rows).
+   flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the copy needs an IR the
+   canonicaliser keeps; no spelling of the value flow found. */
 
 void sv_UpdateBand(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
@@ -6298,17 +6293,16 @@ void sv_UpdateBand(void) {
 }
 /* 0x52f0d0, sv_UpdateBand for the 0x8000 mode of sv_RunFrame: the same band and projection, but a character is
    selectable when ai_LedSelectBits gives 0x800 (led by the player's character) instead of gm_PermissionBits.
-   @deep deep s73: the same hunk as sv_UpdateBand (see its s73 note: the original's copy-then-deref is
-   unique to these two functions in the whole image). Re-run here: info as flat default-then-overwrite /
-   if-else / ternary / nested (6 rows), v / n / iz / bits holding info (4), n = 8 and v at every position
-   among the p inits: all = control except v before the inits (9). Open with sv_UpdateBand: whatever fixes
-   one fixes both. prior: deep s26: shares sv_UpdateBand's hunk; every s26 round run there (see its note)
-   was = control or worse there; not repeated here. prior: s10: c2trace: info#1 (prio 40) and v#1 (prio
-   112) both get eax (no conflict: info dies at v's def); the original's 'mov eax,ecx; mov ecx,8; mov
-   eax,[eax]' needs info in ecx, i.e. live where v is born or a copy the coalescer keeps. = control: info
-   dropped (the chain c->model->body->info written at both uses, in the for init too), for-init / index
-   loop forms; v defined in the condition chain (9). climb.py 2 rounds: nothing. Padded size needs only the
-   2-byte copy. */
+   @deep The same hunk as sv_UpdateBand: see its note of this session (the copy is a lowering eviction: a
+   copy temp of info in ecx evicted by the counter's mov ecx,8; info itself allocated in ecx across the je;
+   tool tools/c2dag/c2scr.py, notes/vc6-matching.md 'Register-to-register copies VC6 keeps'). Whatever
+   fixes one fixes both; nothing run here apart. prior: deep s73: the same hunk as sv_UpdateBand (see its
+   s73 note: the original's copy-then-deref is unique to these two functions in the whole image). Re-run
+   here: info as flat default-then-overwrite / if-else / ternary / nested (6 rows), v / n / iz / bits
+   holding info (4), n = 8 and v at every position among the p inits: all = control except v before the
+   inits (9). Open with sv_UpdateBand: whatever fixes one fixes both. prior: deep s26: shares
+   sv_UpdateBand's hunk; every s26 round run there (see its note) was = control or worse there; not
+   repeated here. */
 
 void sv_UpdateBandLed(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;

@@ -110,7 +110,12 @@ static void __cdecl hLabel(unsigned long *r)
 {
     void *t = (void *)r[7];
     if (!on() || IsBadReadPtr(t, 0x18)) return;
-    fprintf(out, "L line %d%s\n", (int)*(short *)((char *)t + 0x10), PTR(t, 0x14) ? "" : " (no block)");
+    fprintf(out, "L line %d%s", (int)*(short *)((char *)t + 0x10), PTR(t, 0x14) ? "" : " (no block)");
+    if (!getenv("C2SCR_FUNC")) {   /* every function traced: name it at its labels */
+        char *cur = *(char **)((char *)real + 0xad730), *nm = IsBadReadPtr(cur, 0x1c) ? 0 : *(char **)(cur + 0x18);
+        if (nm && !IsBadStringPtrA(nm, 128)) fprintf(out, " %s", nm);
+    }
+    fputc(10, out);
 }
 /* FUN_1070a404(ecx = a tuple): its uses are resolved; print the tuple and what its last uses free */
 static void __cdecl hUses(unsigned long *r)

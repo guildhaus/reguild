@@ -5,6 +5,7 @@ the order VC6 decides them, and why (its preferred register, the rover, the list
     python tools/c2dag/c2scr.py src/hst.c FUNC --variants FILE [--label L]    # one dcp try variant
     python tools/c2dag/c2scr.py probe.c probe --uses                          # every tuple with its operands too
     python tools/c2dag/c2scr.py src/hst.c FUNC --lines 1350-1362              # only these file lines
+    python tools/c2dag/c2scr.py src/am.c "*" --uses                           # every function (labels carry the name)
 
 The rule (FUN_1070a291 -> FUN_1070a404 / FUN_1070a4ab -> FUN_1070c32b; lowering, after the global allocator and
 before the scheduler, so no scheduler hack can change it):
@@ -27,7 +28,9 @@ before the scheduler, so no scheduler hack can change it):
   but is busy for the rover (it is skipped). --uses shows the `busy{}` set at each tuple.
 
 Output: `P line L op X tID [pref R] busy{ reg=holder .. } rover R -> R (rover | pref | list)`; `L line` = a label
-(content table reset). With --uses: `U line L op X U: sym@where! .. D: ..` per tuple (`!` = last use: the register
+(content table reset). `E line L op X: R defined while it holds tN` = an eviction (FUN_107701e7): the tuple
+defines a register that holds a live scratch temp; the temp's new pick follows and a `mov new,old` stays in the
+code (`mov eax,esi; mov esi,1`). With --uses: `U line L op X U: sym@where! .. D: ..` per tuple (`!` = last use: the register
 is freed), before its picks. Line numbers are those of the traced text (with --variants the copy under
 build/c2dag/scr).
 """
@@ -78,7 +81,8 @@ def picks(src, func, variants=None, label=None, uses=False, flags=("/O2", "/Gy")
         os.remove(outf)
     e = c2trace.env()
     e["C2SCR_OUT"] = outf
-    e["C2SCR_FUNC"] = func
+    if func != "*":      # "*": every function of the unit
+        e["C2SCR_FUNC"] = func
     if uses:
         e["C2SCR_USES"] = "1"
     r = subprocess.run([os.path.join(BIN, "CL.EXE"), "/nologo", "/c"] + list(flags) +
