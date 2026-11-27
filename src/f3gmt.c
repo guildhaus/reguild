@@ -1114,25 +1114,35 @@ struct AIOBJ *gm_QueryNext(void) {
   return res;
 }
 /* 0x4ffe90, starts an object query over the list (or, with the flag 7, over the whole instance table) and returns the first match (gm_QueryNext): n criteria follow as (kind, value) pairs: kind 0 = prototype, 1 = owner id, 3 = the owner's character number (gm_ObjectOwnerNo), 4 = the prototype kind (each with a value), 5 = stop at the first match, 6 = descend into the children, 7 = scan the whole table (without value). Not set criteria match everything; 0 without the goods table or a list, and for 6 together with 7. Used as gm_Query (list, 2, 6, 0, 0x115) .. all over the exe
-   @deep deep s74: still 4 ins (the scan tail's ai_Objects load in edx, the original eax). Located by
-   probes: a clean temp probe ({ extern int probe, probe2; probe2 = probe; }) inserted before each line;
-   only one placed INSIDE if (scan != 0), before the if (kids != 0) test, takes edx and leaves the
-   ai_Objects load in eax (the rest equal); probes after va_end / before the scan test step the rotation
-   two (ecx), probes in the cases or after the kids test none. So the original had one more scratch temp in
-   the scan block ahead of the kids test, with no code of its own. Tried = control: va_end inside the scan
-   block, kids test as (int)kids / !kids-else / the global gm_QueryChildren (forwarded), scan && kids form,
-   the elseif restructure (scan tests after the n > 0 block, list test as else-if), inverted kids test, a
-   named o local / list = ai_Objects / casts for the cursor, va_arg(ap, unsigned char/short) for selector
-   and values, label / do-while(0) before the kids test, the flag assignments inside the conditions (one
-   form 6 ins), chain scan = gm_.. = 0 at the top; kids == 1 (8, the tail still edx), int flags (29).
-   flip.py --want 'mov eax, DWORD PTR _ai_Objects' (238 mutants): only meaning changes (return 1 at either
-   return 0, loop/switch swaps, i as short / char). Next: find what plain statement makes a no-code temp at
-   the head of the scan block (a value read and folded there). prior: deep s24: the criteria loop as for (i
-   = 0; i < n; i++) 6 ins, while (n--) / while (n-- > 0) 38-40, do { } while (--i) 22 (the countdown for
-   stays); va_start at the top / before the if, va_end after the block: = control; the scan / kids tests
-   after the if (n > 0) block (VC6 threads the known zeros: = control) or with the flag stores outside too
-   (8); climb --rounds 2 (370 mutants): nothing. Left: the scan tail's ai_Objects load in edx (the original
-   eax), a scratch-rotation step. */
+   @deep deep s80: still 4 ins (and +2 bytes): the scan tail's ai_Objects load in edx (mov edx,[abs], 6
+   bytes), the original eax (a1, 5 bytes); edx is scan's dl, free after its test, eax is the va pointer's
+   register (k#ed), dead there too: a scratch-rotation step, not a candidate (the load is an expression
+   temp). Rounds this session, all = control: scan / kids as unsigned / signed char; the tests through the
+   globals gm_QueryScanAll / gm_QueryChildren; &ai_Objects[0]; kids test nested (if (kids == 0) { ..;
+   return gm_QueryNext(); } return 0;); decided extra terms (kids != 0 || n <= 0, n > 0 && kids, || i != 0,
+   kids && scan, scan && kids); list = ai_Objects in the block; the list tail as if (list == 0) return 0; /
+   else-return / return (struct AIOBJ *)list; every order of va_end and the two flag stores (6: = control
+   or regs 6), va_end inside the scan block. Worse: (kids & 1) 6, a repeated gm_QueryScanAll store 5, the
+   flag store inside the condition 6. The extern probe (probe2 = probe) inside the scan block before the
+   kids test still gives the original's eax (code 4 of its own). Key facts from before: the criteria loop
+   as for (i = n; i > 0; i--) (6 -> 4), va_start / va_end positions, kids == 1 (8), int flags (29), flip
+   --want 'mov eax, DWORD PTR _ai_Objects' (238): only meaning changes; climb 2 rounds (370): nothing.
+   Next: c2sched.py / c2trace --seq on the scratch rotation at the scan block (which temp the original
+   allocates there: a value read and folded before the kids test). prior: deep s74: still 4 ins (the scan
+   tail's ai_Objects load in edx, the original eax). Located by probes: a clean temp probe ({ extern int
+   probe, probe2; probe2 = probe; }) inserted before each line; only one placed INSIDE if (scan != 0),
+   before the if (kids != 0) test, takes edx and leaves the ai_Objects load in eax (the rest equal); probes
+   after va_end / before the scan test step the rotation two (ecx), probes in the cases or after the kids
+   test none. So the original had one more scratch temp in the scan block ahead of the kids test, with no
+   code of its own. Tried = control: va_end inside the scan block, kids test as (int)kids / !kids-else /
+   the global gm_QueryChildren (forwarded), scan && kids form, the elseif restructure (scan tests after the
+   n > 0 block, list test as else-if), inverted kids test, a named o local / list = ai_Objects / casts for
+   the cursor, va_arg(ap, unsigned char/short) for selector and values, label / do-while(0) before the kids
+   test, the flag assignments inside the conditions (one form 6 ins), chain scan = gm_.. = 0 at the top;
+   kids == 1 (8, the tail still edx), int flags (29). flip.py --want 'mov eax, DWORD PTR _ai_Objects' (238
+   mutants): only meaning changes (return 1 at either return 0, loop/switch swaps, i as short / char).
+   Next: find what plain statement makes a no-code temp at the head of the scan block (a value read and
+   folded there). */
 struct AIOBJ *gm_Query(void *list, int n, ...) {
   va_list ap;
   char scan, kids;
