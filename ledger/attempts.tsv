@@ -146,7 +146,7 @@ exe	0x005263a0	sv_ScrollCamera	1
 exe	0x00526cf0	sv_MouseCamera	1
 exe	0x0052bbc0	sv_SendSelectedToBuilding	1
 exe	0x0052bec0	sv_HandleSelectionMouse	2
-exe	0x0052eee0	sv_UpdateBand	1
+exe	0x0052eee0	sv_UpdateBand	2
 exe	0x0052f0d0	sv_UpdateBandLed	1
 exe	0x0053e300	he_NextEvent	1
 exe	0x0055fa90	he_RunMarketSupervisor	1
