@@ -1311,15 +1311,15 @@ int ai_CommandKillPlayer(G12ROW *row, int k, char *fmt) {
    loop VC6 turns into 'mov ecx,0x10 / sub ecx,edx / rep stosd' (memset gave the shl/shr/and-3 tail).
    @deep deep s77: the variant store after flags needs kinds[i] in a CANDIDATE: unsigned char v = kinds[i]
    first, i = 0; before party.variant = v (loop for (; i < 0x300; i++)) stops the forward substitution and
-   gives the original's store run (thing, list[1], kind, flags, variant dl, quiet; c2sched: = l7:10:11:4,
-   the only hack that gives it; no priority hack does). Left then: the scratch rotation (cyclic eax ecx
-   edx, busy skipped) of the list[0]/[2]/[3] loads is one step short, because V's own scratch step (edx
-   while ecx holds -1) is gone: control H eax, V edx, c eax, J ecx/edx, P eax/ecx (= original); with v a
-   candidate best DTHILKFVQ302 draft 6 (M8 J/P swapped). So: v a candidate AND one scratch step without
-   code between host and c. No lever (rounds): H,I,0,2,3 into T L K F V Q (39600); 5040 orders of the plain
-   7; v types (336); dups of every statement / of the variant store (713); host spellings; chained /
-   read-back -1 stores (150); k / i as v; casts, & 0xff; an __inline helper for the stores (49:
-substituted); loop compare against list[0] (worse). flip (bases 230/203): only deleting / swapping a judge line or duplicating c = gm_FindChar; climb 3 rounds: nothing. prior: deep s74: mechanism of the order hunk (c2dag on block 436): every store to party / list has an alias edge to the later indexed loads, so the kinds[i] load (k6 = [esp+edx*4+0x58]) can only go first while it precedes the -1 stores in the list AND its register is free: with the variant store after flags (uc-5, the original's store order) the load gets ecx, which carries the -1 constant (or ecx,-1), so the anti-dependence edge 1 -> 13 puts the load behind the -1 stores (draft 18). The original loads it into dl (edx free) and its c load is eax, Judge load ecx: in the original's IR the kinds temp met another rotation step. Rounds: the variant cast (none / char / uchar) x its 8 positions: only position 2 (the control) is shape; list[0] / list[2] / list[3] inserted at every position and order around the original's store order (720): best draft 16 (p210-689), none shape; list as function scope = control; kinds = {3, 0, 2, 4} initializer (54). Next: find the temp that moves the rotation one step so kinds[i] lands in edx with the variant store after flags (probe temps before the setup block, the strlen / memcmp loop's temps). */
+   gives the original's store run (thing, list[1], kind, flags, variant dl, quiet; c2sched: = l7:10:11:4 in
+   region-index numbering, the only hack that gives it). Left: the scratch rotation (cyclic eax ecx edx,
+   busy skipped) of the list[0]/[2]/[3] loads is one step short, because V's own scratch step (edx while
+   ecx holds -1) is gone: control H eax, V edx, c eax, J ecx/edx, P eax/ecx (= original); with v a
+   candidate best DTHILKFVQ302 draft 6 (M8 J/P swapped). c placed before list[1] (ecx and edx busy) makes c
+   a register candidate function-wide (81). No lever: H,I,0,2,3 into T L K F V Q (39600); 5040 plain
+   orders; v types (336); dups of every statement / variant store (713); for (i = 0) after the kill, v = 0
+   initializer (480); dead kills i = 0/4/n/k/-1/c->id (117: substituted again); host spellings; chained -1
+stores (150); __inline helper (49, substituted); flip --want the original tail on the candidate bases, function and file scope (10845 mutants): 0 hits; climb 3 rounds: nothing. prior: deep s74: mechanism of the order hunk (c2dag on block 436): every store to party / list has an alias edge to the later indexed loads, so the kinds[i] load (k6 = [esp+edx*4+0x58]) can only go first while it precedes the -1 stores in the list AND its register is free: with the variant store after flags (uc-5, the original's store order) the load gets ecx, which carries the -1 constant (or ecx,-1), so the anti-dependence edge 1 -> 13 puts the load behind the -1 stores (draft 18). The original loads it into dl (edx free) and its c load is eax, Judge load ecx: in the original's IR the kinds temp met another rotation step. Rounds: the variant cast (none / char / uchar) x its 8 positions: only position 2 (the control) is shape; list[0] / list[2] / list[3] inserted at every position and order around the original's store order (720): best draft 16 (p210-689), none shape; list as function scope = control; kinds = {3, 0, 2, 4} initializer (54). Next: find the temp that moves the rotation one step so kinds[i] lands in edx with the variant store after flags (probe temps before the setup block, the strlen / memcmp loop's temps). */
 int ai_CommandExecution(G12ROW *row, int k, char *fmt) {
   G28REC party;
   AICHAR *c;
