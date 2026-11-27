@@ -116,7 +116,7 @@ exe	0x004fe370	gm_InitBuildingTables	1
 exe	0x004ff550	gm_UpdatePrices	1
 exe	0x004ffa10	gm_StockPrice	1
 exe	0x004ffcc0	gm_QueryNext	1
-exe	0x004ffe90	gm_Query	1
+exe	0x004ffe90	gm_Query	2
 exe	0x00500190	gm_CreateObject	1
 exe	0x00500c20	gm_CollectOffers	1
 exe	0x00501030	gm_BuildNext	1
