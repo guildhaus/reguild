@@ -4,6 +4,8 @@ symbol ids C2 sorts by, for one source line of one function (C2 13.00.9044).
     python tools/c2dag/c2ids.py src/f3init.c init_OpenTown --line 2488          # the sums of that file line
     python tools/c2dag/c2ids.py src/f3init.c init_OpenTown --line 2488 --variants FILE --label L
     python tools/c2dag/c2ids.py src/f3init.c init_OpenTown --acct               # where the function's ids go
+    python tools/c2dag/c2ids.py src/d2.c d2_DrawSlider --line 1217 --keys      # C2's own keys and hashes
+    python tools/c2dag/c2ids.py src/d2.c d2_DrawSlider --vn                    # the expression table in order
 
 The rule (optimize.c, FUN_1071f5e8 -> FUN_10725527 with the comparator FUN_10724175): the operands of a
 commutative tuple (add 26e, mul 270, and / or / xor 273..275, 27f, 280) are merge-sorted, stable, by DESCENDING key:
@@ -25,6 +27,17 @@ needed: about one per 32 expression operators, dead `if (0)` code included) + it
 (casts, NULL, ++ / += 1, parentheses, -> against (*p)., a for loop's shape with the same statements) change no
 id; another statement structure does (a plain index loop for a hand pointer walk, code under a constant-false
 condition). --acct prints the three counts.
+
+--keys: per phase the tuples of the line, and under each commutative one its operands as C2 keys them: the cached
+key (operand + 0xc; 0 before the phase's sort), `h` = the hash FUN_1071f7f0 returns in the real back end, a
+temporary's defining tuple (`def op ..(..)`), a load's `mem disp`, word +4 and base. Two loads through one pointer
+(`w->x + w->w`) end as `[temp + 0]` with a CSE temporary of each field address: the hash keeps only (id & 3) << 14
+of that temporary, the larger first, a tie keeps the earlier order (the larger offset first).
+--vn: every entry of the expression table (hash.c, FUN_107229dc) in the order of its creation = the optimizer
+temporaries' ids: `VN id=701 op=26e : k2:6 #10` is `sym#6 + 0x10` (k2:ID a symbol or temporary by id, #N a constant,
+k6:ID the dereference of an address entry). One entry per textually distinct expression (after the canonical
+forms), in IL order; dead code, empty ifs and sum spellings add none, a float / double detour or another loop
+variable do. The rank of a field address's first occurrence, mod 4, is what orders the pair above.
 """
 import argparse, os, re, shutil, subprocess, sys
 
@@ -60,7 +73,7 @@ def setup():
     shutil.copy2(os.path.join(WORK, "c2.dll"), dll)
 
 
-def run(c, func, lo, hi, acct=False):
+def run(c, func, lo, hi, acct=False, keys=False, vn=False):
     """compile c with the proxy; the proxy's output"""
     setup()
     out = os.path.splitext(c)[0] + ".ids"
@@ -70,6 +83,10 @@ def run(c, func, lo, hi, acct=False):
     e.update(C2IDS_OUT=out, C2IDS_FUNC=func, C2IDS_LO=str(lo), C2IDS_HI=str(hi))
     if acct:
         e["C2IDS_ACCT"] = "1"
+    if keys:
+        e["C2IDS_KEYS"] = "1"
+    if vn:
+        e["C2IDS_VN"] = "1"
     r = subprocess.run([os.path.join(BIN, "CL.EXE"), "/nologo", "/c", "/O2", "/Gy", "/I" + os.path.join(ROOT, "include"),
                         "/I" + os.path.join(ROOT, "src"), "/I" + DX, "/Fa" + os.path.splitext(c)[0] + ".asm",
                         "/Fo" + os.path.splitext(c)[0] + ".obj", c], env=e, cwd=ROOT, capture_output=True, text=True)
@@ -152,10 +169,15 @@ def main():
     ap.add_argument("--line", type=int, help="a file line of the traced text (the tree's, or the variant's copy)")
     ap.add_argument("--variants", help="a dcp try variants file: one of its variants instead of the tree's text")
     ap.add_argument("--label", help="the variant (default: the first)")
+    ap.add_argument("--keys", action="store_true", help="the proxy's raw tuples per phase, each commutative "
+                    "tuple's operands with C2's own key and hash, a temporary's defining tuple, a load's base")
+    ap.add_argument("--vn", action="store_true", help="every optimizer temporary in the order of its creation: id, "
+                    "opcode, the operands numbered (a symbol's name and id, #constant)")
+    ap.add_argument("--raw", action="store_true", help="the proxy's raw tuples per phase")
     ap.add_argument("--acct", action="store_true", help="where the function's ids go")
     a = ap.parse_args()
-    if a.line is None and not a.acct:
-        raise SystemExit("give --line N or --acct")
+    if a.line is None and not a.acct and not a.vn:
+        raise SystemExit("give --line N, --acct or --vn")
     os.makedirs(WORK, exist_ok=True)
     text = open(a.src, encoding="latin-1", newline="").read().replace("\r\n", "\n")
     tag = os.path.splitext(os.path.basename(a.src))[0]
@@ -166,12 +188,18 @@ def main():
     with open(c, "w", encoding="latin-1", newline="\n") as f:
         f.write(text)
     src = c2trace.Src(c, a.func)
+    if a.vn:
+        print("\n".join(l for l in run(c, a.func, -1, -1, vn=True).split("\n") if l.startswith("VN ")))
     if a.acct:
         acct(run(c, a.func, -1, -1, acct=True))
     if a.line is not None:
         rel = a.line - 1 - src.d
         print("line %d of %s: %s" % (a.line, os.path.relpath(c, ROOT), src.txt(rel, 100)))
-        sums(run(c, a.func, rel, rel), src)
+        out = run(c, a.func, rel, rel, keys=a.keys)
+        if a.raw or a.keys:
+            print(out)
+        else:
+            sums(out, src)
 
 
 if __name__ == "__main__":

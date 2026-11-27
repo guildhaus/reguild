@@ -2530,7 +2530,7 @@ Where the pushes and pops sit, how many epilogue copies there are, shared agains
     scopes, guard form, types, loop forms, s-forms, my in the outer loop, climb 2 rounds) were control or
     worse; flip.py `--want "cmp esi, 7"` hit only meaning changes. Same lever as "a value set by if/else
     instead of a ternary": try the assignment form of every value computed in the block after the hunk.
-  - **The clip test's y CSE decides an operand order 100 lines below** (d2_DrawSlider, still open): breaking
+  - **The clip test's y CSE decides an operand order 100 lines below** (d2_DrawSlider; superseded: byte, the cause is the expression count, see "The hash in a commutative operand's sort key"): breaking
     the `w->y` CSE in `if (w->h + w->y <= surf->bottom && w->y >= surf->top)` (another field at either read)
     flips both max-label `w->x + w->w + 4` sums to the original's x-first; no plain spelling found (see its
     note). The d2_DrawButton table-store lever does not carry (d2_Objs[id] does not CSE with w there).
@@ -4456,22 +4456,58 @@ scheduler (dag.c), so no scheduler hack (c2sched) can change a scratch register.
 ### The hash in a commutative operand's sort key (c2.dll FUN_1071f7f0)
 
 The key of an operand is `height << 24 | nodes << 16 | hash` (FUN_1071f734; a leaf: `0x10000 | hash`, a constant:
-hash only), sorted descending (FUN_10724175). The hash is purely structural - no value numbers:
+hash only), sorted descending, stable (FUN_10724175). The hash is purely structural:
 - a tuple (an expression node): `(sum over its operands, in their sorted order, of (operand key & 0xffff) << (i &
   7)) + (opcode - 0x247)`, low 16 bits;
-- an operand that is a temp WITH a defining tuple: the hash of that tuple (recursion); a temp without one:
-  `id << 6`; any other symbol: `v = lo16(id) ^ hi16(id); ((v << 5) >> 16) ^ ((v & 0x7ff) << 5)`;
-- a memory operand `[base + disp]`: `(lo16(disp) ^ hi16(disp)) - 0x247 + word(operand + 4) + hash(base) * 0x100`;
-- a constant: a hash of its value.
-So two loads through the same base (`w->x + w->w`: two movsx temps) have hashes that differ only by their
-displacements - except for the 16-bit wrap: `disp - 0x247 + k` is negative for small displacements, and it wraps
-to 0xffxx exactly when `hash(base) * 0x100` adds nothing, i.e. the low byte of the base's hash is 0 (a named
-symbol: id & 7 == 0; a CSE / SR temp without def: id & 3 == 0). When the sign boundary lies between the two
-displacements, the pair's order flips with the base symbol's id modulo 8 (or 4). The lever for such a pair is
-therefore the id of the BASE (which value is the base: a named pointer local, the parameter, a CSE temp of
-`win->obj`, created in which order), not dead-code volume in general (that moves ids by 32 per block of C1
-temporaries and leaves id & 7) and not the spelling of the sum. d2_DrawSlider (open): the max-label pair follows
-the base's id; check with c2ids `--acct` which symbol the base of the two loads is and what its id is in ours.
+- an operand that is a temp WITH a defining tuple: the hash of that tuple (recursion); a temp without one (an
+  optimizer temporary: CSE, strength reduction): `id << 6`; any other symbol: `v = lo16(id) ^ hi16(id); ((v << 5)
+  >> 16) ^ ((v & 0x7ff) << 5)`;
+- a memory operand `[base + disp]`: `(lo16(disp) ^ hi16(disp)) - 0x247 + word(operand + 4) + hash(base) * 0x100`
+  (the word is 0x24e for a load: 7 + disp + ..); a constant: its value.
+`c2ids.py SRC FUNC --line N --keys` prints, per phase, every commutative tuple's operands with C2's own key (the
+cached one, operand + 0xc) and hash (FUN_1071f7f0 called in the real back end), a temp's defining tuple and a
+load's displacement and base, so the keys need not be worked out by hand.
+
+**Two field loads through one pointer in a sum (`w->x + w->w`), measured on d2_DrawSlider (byte):**
+- First simplification (before CSE): each load is `movsx [T + 0]` with T = `w + off` (an add tuple: hash = h(w) +
+  (off << 1) + 0x27), so the keys differ by the offsets alone: the LARGER offset is the first operand (0x128
+  against 0x120 for +0x14 / +0x10). The id of `w` cannot change that.
+- After value numbering a field address that occurs more than once is an optimizer temporary without a defining
+  tuple; the load is `[temp + 0]` and its hash `7 + ((id << 6) * 0x100 & 0xffff)` = `7 + ((id & 3) << 14)`: of the
+  whole expression only **id & 3 of the address temporary** is left. The second simplification sorts again: the
+  load whose address temporary has the larger `id & 3` comes first; equal: the order stays (the larger offset
+  first).
+- The address temporary's id is the optimizer's first id (c2ids `--acct`) plus the rank of the expression
+  `w + off` in the expression table (hash.c: FUN_10725fb2 / FUN_10726b3f / FUN_107224d5 look an expression up by
+  opcode, type and operands and FUN_107229dc adds it with a new temporary when it is not there). The table is
+  filled in ONE walk over the function in IL order: statements in source order, a call's arguments right to left,
+  a sum's operands in their sorted order. One entry per textually distinct expression after C1's and the first
+  simplification's canonical forms, whether or not a CSE comes of it; assignments (`op 25d`) are numbered after
+  all expressions. `c2ids.py SRC FUNC --vn` lists every entry in order: `VN id=701 op=26e : k2:6 #10` is `w + 0x10`
+  (symbol id 6, constant 0x10); `24e` / `25e` are the address-with-alias-class and the dereference, `260` a
+  conversion, `26e` / `26f` / `270` / `276` add / sub / mul / div, `27f` / `280` != / ==, `281` .. `284` >= / <= /
+  > / <, `273` and.
+- **So the pair's order is the number of distinct expressions between the first `w->x` and the first `w->w` of the
+  function, modulo 4** (with the first one's rank mod 4): x first needs `(id_x & 3) > (id_w & 3)`. d2_DrawSlider:
+  0x701 / 0x775, both 1: a tie, w first; every flip.py hit (14) had the difference 115 or 119.
+- **What does not enter the table** (all = control): dead code and `if (0)` blocks (they only move the first id by
+  32), an `if` with an empty body, a dead store or dead expression, any spelling / grouping / order of a sum or
+  of constants in it (`a + (b + c)`, `a + 4 + b`: one canonical n-ary sum), reversed compares change the entry's
+  opcode but not the count (and change the cmp).
+- **What does, with the same code**: (1) a float / double detour: `t = (float)(pos1 / flen * 2.0);` against
+  `t = pos1 / flen * 2.0f;` is +3 (conversion to double, the double product, the cast back) and still `fdiv;
+  fadd st,st` (without the cast the store is not rounded and the code changes); (2) which variable a loop
+  counts with: a second loop on the same `i` shares `i + 1` (-1; but it moves the frame slots: the counts of the
+  shared slots change); (3) an expression first met in the stretch instead of before or after it (statement
+  order where it is free); (4) an access through the table instead of the pointer (`d2_Objs[id].f`) where it
+  CSEs with the pointer (d2_DrawButton; not in d2_DrawSlider: the product is recomputed there).
+- Method: `c2ids --line N --keys` on the sum (which temps are the bases, their ids), `c2ids --vn` for the two
+  ranks, `flip.py --want` on the wanted load order to see that every hit is a count change in the stretch, then
+  look in the stretch for the spelling whose count differs by the needed amount: mixed float / double constants
+  in one block (`t < 1.0`, `t -= 1.0`, `194.0 * t` beside `2.0f`) are the first place to look.
+d2_DrawSlider (8 ins -> byte): the max-label pair `w->x + w->w + 4` at the function's end, decided by `* 2.0f` in
+the colour ramp 100 lines above. Three sessions on the sums' spelling, dead-code volume and the clip test were
+no lever because none of them changes the count.
 
 ### Register-to-register copies VC6 keeps
 
@@ -7033,6 +7069,11 @@ How to work: variant rounds, the c2 tools, sweeps, what the tools' output means,
   L]`**: the tails VC6 merged (by xjump / pair / move, deleted and kept copy with source lines), what it
   compared, and the IL around the merging pass (which block falls into the exit label). Rules: "How VC6 orders
   blocks and merges tails". `c2pass.py --list` names the call sites that switch block order and each merger off.
+- **`python tools/c2dag/c2ids.py SRC FUNC --line N [--keys] | --vn | --acct`**: the ids and keys that order a
+  commutative operation's operands: `--line N` the sums of a line per phase, `--keys` with C2's own key / hash per
+  operand (a temp's defining tuple, a load's base), `--vn` the expression table in creation order (the optimizer
+  temporaries' ids: where a field address is first met), `--acct` the id blocks. `idmeter.py` runs `--line` over
+  a variants file. Rules: "The hash in a commutative operand's sort key".
 - **`uv run --with capstone python tools/c2dag/vdiff.py SRC FUNC [VARIANTS LABEL]`**: one dcp try variant's
   instruction diff against the original, tree untouched.
 - **flip.py** names each hit by FILE:LINE and the changed source line.
@@ -8778,6 +8819,9 @@ Unsolved hunks and what was tried on them. Read before repeating a round on the 
 
 - **`w->x + w->w` / `o->x - p1->w + o->w` / `o->w - p0->w` load order** (d2_DrawInput, d2_DrawSlider,
   d2_Unk46aa00, d2_Unk46bf60): ~60 spellings, `headers sample`: no lever; flip.py hits elsewhere (C1 value numbers).
+  Solved for d2_DrawSlider (= d2_Unk46aa00, byte): the order is `id & 3` of the field addresses' CSE temporaries,
+  i.e. the count of distinct expressions between the fields' first uses ("The hash in a commutative operand's
+  sort key"; `c2ids.py --keys` / `--vn`). Apply the same method to the others.
 - **`mov ecx,[eax+0x1cc]; ..; mov ecx,8; mov eax,[eax]`** (sv_UpdateBand, sv_UpdateBandLed) and `mov ecx,eax; add
   ecx,ebp; mov cl,[ecx]` for `ai_GoodsT[id].type` (sv_UpdateGroundplan, sv_LoadGroundplan): spellings no lever;
   lead from sv_HandleObjects: the pointer assigned before an unrelated store (`cls = &ai_GoodsT[id];

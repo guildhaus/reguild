@@ -32,7 +32,7 @@ static struct { unsigned long rva, tgt; } sites[] = {
     { 0x3e109, 0x1ce7b }, { 0x3e11a, 0x1d3dd }, { 0x3e135, 0x27dc5 }, { 0x3e148, 0x28079 }, { 0x3e15b, 0x2812f },
     { 0x3e16e, 0x283f7 }, { 0x3e181, 0x28d53 }, { 0x3e194, 0x28eed }, { 0x28f76, 0x29001 }, { 0x28f89, 0x29243 },
 };
-static char prev[1 << 16], cur[1 << 16];
+static char prev[1 << 21], cur[1 << 21];
 static int curN;
 static void emit(const char *fmt, ...)
 {
@@ -56,7 +56,16 @@ static int on(void)
     n = strlen(want);
     return !strncmp(nm, want, n) && (nm[n] == 0 || nm[n] == '@');
 }
-static int isname(const char *nm) { return nm && !IsBadStringPtrA(nm, 64) && (nm[0] == '_' || (nm[0] >= 'A' && nm[0] <= 'z')); }
+static int isname(const char *nm)
+{
+    int i;
+    if (!nm || IsBadStringPtrA(nm, 64) || !(nm[0] == '_' || (nm[0] >= 'A' && nm[0] <= 'z')))
+        return 0;
+    for (i = 1; nm[i]; i++)
+        if (nm[i] < '$' || nm[i] > 'z')
+            return 0;
+    return 1;
+}
 /* an operand: kind (+8; 1 / 2 a symbol through +0x18 / +0x14, 7 an immediate); the symbol's name, id (+0x1c),
    type byte (+4; 3 = a temporary) and `d` when it has a defining tuple (+0x14: its sort key is that tree's) */
 static void opnd(void *o)
@@ -75,6 +84,41 @@ static void opnd(void *o)
         }
     }
     emit("]");
+}
+/* C2IDS_KEYS: the sort key of an operand as C2 computes it (FUN_1071f734: height << 24 | nodes << 16 | hash) and
+   what the hash is made of (FUN_1071f7f0, called in the real back end): a temporary's defining tuple with its
+   operands, a memory operand's displacement (+0x2c), word +4 and base operand (+0x30) */
+typedef unsigned __int64 (__fastcall *HASHFN)(void *);
+static int keys;
+static void keyof(void *o, int depth)
+{
+    int k = U8(o, 8), cls = U8((char *)real + 0x26f57, k);
+    void *sy, *def, *u;
+    int h;
+    emit("{k%x h=%04lx", k, (unsigned long)((HASHFN)((char *)real + 0x1f7f0))(o) & 0xffff);
+    if (cls == 2) {
+        emit(" mem disp=%lx w4=%x", U32(o, 0x2c), U16(o, 4));
+        if (PTR(o, 0x30) && !IsBadReadPtr(PTR(o, 0x30), 0x34) && depth < 6) {
+            emit(" base=");
+            keyof(PTR(o, 0x30), depth + 1);
+        }
+    } else if (cls == 0 && (k == 1 || k == 2)) {
+        sy = PTR(o, 0x14);
+        if (sy && !IsBadReadPtr(sy, 0x20)) {
+            const char *nm = PTR(sy, 0x18);
+            def = PTR(sy, 0x14);
+            emit(" %s id=%lx t=%x", isname(nm) ? nm : "#", U32(sy, 0x1c), U8(sy, 4));
+            if (def && !IsBadReadPtr(def, 0x24) && depth < 6) {
+                emit(" def op %lx(", U32(def, 4));
+                for (h = 0, u = PTR(def, 0x1c); u && !IsBadReadPtr(u, 0x34) && h < 6; u = PTR(u, 0), h++) {
+                    emit(h ? ", key=%08lx " : "key=%08lx ", U32(u, 0xc));
+                    keyof(u, depth + 1);
+                }
+                emit(")");
+            }
+        }
+    }
+    emit("}");
 }
 static void dump(int id)
 {
@@ -103,6 +147,12 @@ static void dump(int id)
                 opnd(o);
         }
         emit("\n");
+        if (keys && U32(t, 4) >= 0x26e && U32(t, 4) <= 0x280)
+            for (h = 0, o = PTR(t, 0x1c); o && !IsBadReadPtr(o, 0x34) && h < 12; o = PTR(o, 0), h++) {
+                emit("    K key=%08lx ", U32(o, 0xc));
+                keyof(o, 0);
+                emit("\n");
+            }
     }
     if (strcmp(cur, prev)) {
         fprintf(out, "== before %lx\n%s", sites[id].tgt, cur);
@@ -129,6 +179,36 @@ static void __cdecl hTemp(int ecx)
         if (v > 0x1000 && v < 0xb0000) { ret2 = v; break; }
     }
     fprintf(out, "TEMP %s\n", ret2 == 0x26b6c || ret2 == 0x25ffb ? "vn" : "later");
+}
+/* C2IDS_VN: every new entry of the expression table (hash.c, FUN_107229dc; hooked behind its call of
+   FUN_10722a72: eax = the new temporary, ebx = the opcode) with the operands being numbered (the array
+   0x107ad9a0 FUN_10722757 fills): the order in which the optimizer's temporaries get their ids */
+static void __cdecl hVn(int ecx)
+{
+    unsigned long *sp = (unsigned long *)&ecx;
+    void *sy = (void *)sp[9], **ops = (void **)((char *)real + 0xad9a0);
+    int i;
+    if (!on() || IsBadReadPtr(sy, 0x20))
+        return;
+    fprintf(out, "VN id=%lx op=%lx :", U32(sy, 0x1c), sp[6]);
+    for (i = 0; i < 4 && ops[i] && !IsBadReadPtr(ops[i], 0x20); i++) {
+        void *o = ops[i], *q;
+        int k = U8(o, 8);
+        if (k == 7)
+            fprintf(out, " #%lx", U32(o, 0x18));
+        else if (k == 5 || k == 6) {
+            q = PTR(o, 0x1c);
+            fprintf(out, " k%x:%lx", k, q && !IsBadReadPtr(q, 0x20) ? U32(q, 0x1c) : 0);
+        } else {
+            q = PTR(o, 0x14);
+            if (q && !IsBadReadPtr(q, 0x2c)) {
+                const char *nm = PTR(q, 0x18);
+                fprintf(out, " k%x:%s%lx", k, k != 4 && isname(nm) ? nm : "", U32(q, k == 4 ? 0x28 : 0x1c));
+            } else
+                fprintf(out, " k%x", k);
+        }
+    }
+    fprintf(out, "\n");
 }
 static void stubhook(unsigned char *fn, int len, void *h, int arg, int isCall)
 {
@@ -173,6 +253,9 @@ static void install(void)
     b = (unsigned char *)real;
     if (memcmp(b + 0x1701, e1, sizeof(e1)) || memcmp(b + 0x1c6fb, e2, sizeof(e2)) || memcmp(b + 0x22a72, e3, sizeof(e3)))
         return;     /* not the build this was written for: run unhooked */
+    keys = getenv("C2IDS_KEYS") != 0;
+    if (getenv("C2IDS_VN") && b[0x22a0c] == 0x8b && b[0x22a0e] == 0x66)
+        stubhook(b + 0x22a0c, 7, hVn, 0, 0);
     if (getenv("C2IDS_ACCT")) {
         stubhook(b + 0x1701, 11, hKind, 0, 0);
         stubhook(b + 0x1c6fb, 8, hBlock, 0, 0);
