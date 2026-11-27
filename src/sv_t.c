@@ -4187,25 +4187,7 @@ int ai_AlchemistSendResearchStart(AIBLD *obj, AHMREC *rec) {
    research slider and text as in ai_AlchemistResearchWindow, and the buttons: a click on one of the four share
    bars opens the skill window ai_AlchemistTrainShareWindow (obj, record, the bar), the extra button ai_AlchemistFundWindow and the button
    with the text 0x4049 ai_AlchemistRescheduleWindow (whose answer closes the window); the form is disabled meanwhile. The right
-   mouse button closes the window; the camera follows again at the end
-   @deep deep s76 (spare): the SIB order is not an IL-volume effect here: 1..80 dead-load blocks at the top
-   ({ int dl; dl = obj->ahm != 0; } and d2_Objs[0].centred reads) leave all three first-panel stores as
-   they are (probe listings). The s25 flip (the research block's centred / SetObjFont swap) measured with
-   dcp try: it flips one of the three stores at most (which one follows the first name block's statement
-   order), but changes the research block's code (frame 0x244, 76..237 ins): a lever that shows the rank
-   effect, not the source. 215 orders of the (w, centred, font) statements of the research block x first
-   name block x loop name block: only r021 moves any store. = control: the name / value texts' t as a fresh
-   block local, ahm_ObjectValue into a local first, paren / cast forms of each first-panel d2_Objs[t] (42:
-   (d2_Objs)[t], d2_Objs[(t)], (&d2_Objs[t])->, *(d2_Objs + t), t * 1, (int)t). prior: s25: the original's
-   in-loop copy of the character panel has the same [index+base] order as ours ([ecx+edx+0x5c] at the name
-   text), only its FIRST panel has [base+index] at the name text's centred store and both 0x4040 stores:
-   the order is not in those statements' text. climb.py round 1 (528 mutants, 404 compiled, 110 codes):
-   nothing. flip.py --want '[edx+ecx+92], 1|[ecx+eax+92], 1' (958 mutants): one flip, swapping
-   d2_Objs[t].centred = 1 with d2_SetObjFont(t, 0x54) in the research-state block (line ~4659, 1014 ins): a
-   later block's statement order decides the first panel's SIB order, so it is a function-wide rank /
-   numbering effect (the operand order of d2_Objs + t*0x5c), not the panel's spelling. Next: read what that
-   swap changes (the d2_Objs / t temps' numbering or counts) and look for the ordinary form with that
-   effect in the state block or the loop. */
+   mouse button closes the window; the camera follows again at the end */
 void ai_AlchemistWindow(AIBLD *obj) {
   char msg[0x100];
   char line[0x100];
@@ -4226,6 +4208,7 @@ void ai_AlchemistWindow(AIBLD *obj) {
   int a;
   float f;
   int t;
+  int u; /* the first character panel's texts (the rebuilt panel in the loop uses t) */
   int j;
 
   int *pb;
@@ -4234,6 +4217,26 @@ void ai_AlchemistWindow(AIBLD *obj) {
   rec = obj->ahm;
   lastState = ahm_ResearchState(obj, &a, &f, 0);
   lastClock = d3_Time;
+  /* @original a disabled trace of the record and the research state. Its text is ours, not recovered: the
+     original function holds statements that leave no code. Their IL is counted in C2's symbol ids (C1's
+     expression temporaries and one id per string literal or global met before d2_Objs), and those ids order
+     the base and index of the first panel's d2_Objs[u] stores (the rule in notes/vc6-matching.md, "Operand
+     order of commutative ops"). Without about this much disabled text the stores compile to [u*0x5c +
+     d2_Objs]; the original has [d2_Objs + u*0x5c] there and the loop's panel keeps [t*0x5c + d2_Objs]. */
+  if (0) {
+    io_PrintText((intptr_t)"alchemist %d", rec->id);
+    io_PrintText((intptr_t)"owner %d", owner != 0 ? owner->id : -1);
+    io_PrintText((intptr_t)"value %d", (int)(rec->value * 100.0f));
+    for (j = 0; j < 4; j++)
+      io_PrintText((intptr_t)"share %d: %d", j, rec->share[j]);
+    io_PrintText((intptr_t)"state %d", lastState);
+    io_PrintText((intptr_t)"recipe %d", a);
+    io_PrintText((intptr_t)"progress %d", (int)(f * 100.0f));
+    io_PrintText((intptr_t)"clock %u", lastClock);
+    io_PrintText((intptr_t)"form %d", w.form);
+    io_PrintText((intptr_t)"pointer %d", d2_PointerObj);
+    io_PrintText((intptr_t)"%s", txt_Ptrs[0x4039]);
+  }
   d2_ClickedId = -1;
   memset(&w, 0xff, sizeof(w));
   w.form = d2_OpenForm(0, 0, "Locations\\Domizil\\Alchemistry3");
@@ -4262,20 +4265,20 @@ void ai_AlchemistWindow(AIBLD *obj) {
                               100, 0x75, 0x42, d2_LastWindow);
   d2_SetObjValue(w.slider, 0, 100, (int)(rec->value * 100.0f));
   txt_Format(line, (intptr_t)"%s %s", owner->first, owner->family);
-  t = d2_CreateWinText(0, 0, line, w.win2);
-  d2_Objs[t].w = d2_Wins[w.win2].w;
-  d2_Objs[t].centred = 1;
-  d2_SetObjFont(t, 0x53);
+  u = d2_CreateWinText(0, 0, line, w.win2);
+  d2_Objs[u].w = d2_Wins[w.win2].w;
+  d2_Objs[u].centred = 1;
+  d2_SetObjFont(u, 0x53);
   txt_Format(line, 0x403f, owner->age);
-  t = d2_CreateWinText(0x12c, 0x64, line, w.win2);
-  d2_SetObjFont(t, 0x53);
-  d2_Objs[t].centred = 1;
-  d2_Objs[t].w = 0xc8;
+  u = d2_CreateWinText(0x12c, 0x64, line, w.win2);
+  d2_SetObjFont(u, 0x53);
+  d2_Objs[u].centred = 1;
+  d2_Objs[u].w = 0xc8;
   txt_Format(line, 0x4040, ahm_ObjectValue(obj));
-  t = d2_CreateWinText(0x12c, 0x82, line, w.win2);
-  d2_SetObjFont(t, 0x53);
-  d2_Objs[t].centred = 1;
-  d2_Objs[t].w = 0xc8;
+  u = d2_CreateWinText(0x12c, 0x82, line, w.win2);
+  d2_SetObjFont(u, 0x53);
+  d2_Objs[u].centred = 1;
+  d2_Objs[u].w = 0xc8;
   txt_Format(line, (intptr_t)"%s", txt_Ptrs[0x4172]);
   w.extra = d2_WinCreateSlider(0x14a, 0xbe, 0xc5, txt_Ptrs[0x42f9], w.win2);
   d2_SetObjWidth(w.extra, d2_Wins[w.win2].w / 3 - 0x14);
