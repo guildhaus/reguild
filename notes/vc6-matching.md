@@ -4726,6 +4726,18 @@ Frame size, slot order, holes, shared slots, dead parameter slots, block-scoped 
   both arms of an if (tail-merged later) counts twice, a reload the late peephole removes counts, so the listing's
   count can be lower. A dead store to a used local still counts (ai_HandleItemDrag, c2frame.py); dead or folded
   uses (`if (0)`, `* 1.0f`) do not.
+- **References counted at layout and gone from the listing** (measured with `c2frame.py --refs` against the
+  listing; probe `tools/c2dag/probes/framerefs.c`): (1) a value that lives in a register inside a loop and in
+  memory behind it gets one store per EXIT EDGE of the loop (the edge blocks are split, each holds `mov [x],reg`);
+  the copies are merged after the frame into one store at the join. Every `break` more is one count more
+  (lc_GebaeudeAusrichten: n 5 at layout, 4 in the listing; the break written in two arms: 6); `goto` to the join
+  instead of `break` is the same edge. (2) `x++` / `x += k` on a local that lives in memory is a load and a store
+  at layout (2) and one `inc [x]` / `add [x],k` in the listing. Not counted, because removed before layout: a
+  second initialisation (`n = 0` again, in a for init), `x = x`, a test the optimizer folds, further uses in a
+  block where the value already sits in a register (three `f(n)` calls in a row: one load). A real extra test or
+  call argument from memory counts and stays in the code. So "one reference more that leaves no code" means: one
+  loop exit edge more for a register-resident counter, or a compound update where the listing has a
+  memory-operand instruction; nothing else was found.
 - **Listing, packing, sorting**: the locals are listed by size ascending, then count descending (tie: who reached
   the count first in the walk); each joins the newest lifetime-compatible slot (searched from the last one opened backward) or opens one; frames above 0x80
   bytes are sorted by weight * 1000 / size, descending, with an unstable quicksort; the densest slot is nearest
