@@ -2957,6 +2957,18 @@ copied back into short predecessors only after all of this.
     unless that copy is entered by fall-through and the other is a whole block behind a jmp / ret. Both
     entered by fall-through: merged only when the equal run measures more than 22 (FUN_10710628: a 7-ins mov /
     call tail 23, a 20-ins x87 / call tail 20 -> never merged).
+  - `pair` in detail (read 2026-11-27 from FUN_10711fe6 / FUN_1074633c, checked with patched c2.dll copies): the
+    driver walks the function's jmp list newest first (a jmp retargeted by threading moves to the front, so
+    the fail jumps that threading sent past a decided test come in reverse layout order, in front of the C1
+    `goto` / `return` jmps that needed no retargeting); each anchor is tried against every later jmp of its
+    label. The size test is `run + max(counter A, counter B) > 20` (the run is summed to 20: push edi / call /
+    add esp / test / jcc (6) / or reg,-1 = exactly 20, no merge). The counter (word +0x12 of the jmp, zeroed per
+    pass) is set to 20 on the anchor by a successful merge, so after ONE long merge every later jmp of that
+    anchor merges whatever its run (also with a different string push in front). ai_RegisterSaveSlot byte:
+    the A-hit branch compares with "AUTOSAVE" a second time (the original does), that copy merges into the
+    slot 0 check (run with the push, 25), and the QUICKSAVE check then merges into it too, kept copy the slot
+    0 one; the QUICKSAVE fail had to be the oldest jmp (`if (slot == 1 && strcmpi(..)) slot = -1; else if
+    (slot != -1) {fill}`: its jmp goes to the return without threading).
   - `move` (FUN_107120b9 -> FUN_107711fb, skip 0x1070a6e9): the same for a label nothing falls into (behind a
     jmp / ret), no size limit; the first reference's copy is deleted and the kept copy moved in front of L.
   - What `pair` compares (C2.DLL FUN_10712300 / FUN_10712797, read 2026-11-21): opcode, class, the low 12 flag
