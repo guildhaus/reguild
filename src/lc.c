@@ -2014,40 +2014,48 @@ struct D3OBJECT;
    ai_ObjectAngle; green 0x40c040 on a site, red 0xc04040 off it), and a left release on a site asks the
    confirmation (text 0x17ef: the cost, the name, AIBTYPE.v243); returns the chosen site object and copies the
    picked model name names[idx] to out (out = "" and 0 when none was chosen)
-   @deep deep s79: the slots of result and count are a count tie. c2.dll (read with Ghidra): the frame is
-   laid out in FUN_1070cdb9 (called from the driver FUN_1076e010) after the lowering FUN_1070a291 and
-   before FUN_1070ea02 (FUN_1070ea47 loop-jump swaps, FUN_10702af9, the flow pass FUN_1070a5c3 with merging
-   off), FUN_1070eb58 (add esp), FUN_1070ec81 (tail merging) and the emission (FUN_10713cbe / FUN_10716e01,
-   chaining FUN_1070ebe2). FUN_1070dafa -> FUN_1070ddc4 walks the block list in its current order and calls
-   FUN_10713312(sym, 1) per memory / lea operand of a local; FUN_10713312 keeps the list by size, then
-   count, moving a local only past locals with a SMALLER count, so of two equal counts the one that reached
-   it first stays ahead (packer FUN_1074764f). Replayed the K&R slot sort (scratch qs.py): only count ahead
-   of result gives the original's A order, both weighing exactly 4 (no tie permutation or +-1/2 weight
-   change of other slots does). So at FUN_1070cdb9 the original's block list had count's 4th ref (the final
-   cleanup's bound, 0x59093f) before result's 4th (the result test, 0x5908f8), which the final graph cannot
-   give (the test is the only entry of the arms and the cleanup). c2fuzz over the 775 call sites only
-   reachable after the frame (lc.c, scratch lc/fuzz.tsv): for this function only scheduler reorders
-   (0x1074631d, 0x10731f81), no block moves, so in our compile the count-time order is the final order.
-   Measured without result: a separate 0 store in place of result = 0 (dead store dropped, draft 111);
-   error path result = 0; goto cleanup (no loop duplication, draft 218); result test as goto forms, two
-   decided ifs, else-if, flag, 'if (result != 0) return result; return 0;' (= control); a decided test
-   whose dead edge enters the cleanup (= control, folded before the count); for (;;) + break latch, error
-   cleanup as a for loop (= control); if (result != 0) first (40, layout); c2pass skips of block order,
-   xjump, pair, move, 0x1070a928 (slots unchanged). Open: a source whose block list at FUN_1070cdb9 holds a
-   block that a post-frame pass (FUN_1070a5c3 with merging off: FUN_10706dee, FUN_10711621, FUN_10706a2d,
-   FUN_10711775, label merging FUN_1070384f; FUN_1070ea47) later moves or deletes, giving the final layout.
-   prior: deep s77: c2frame --refs walk: result reaches its 4th ref at the 'if (result == 0)' load, count
-   at the final cleanup's bound (the error-path cleanup in the loop and the result stores of the confirm
-   arms come before both); the A table puts them in one 1000-density pair between pos (1187) and rot (916),
-   so a third / fifth ref on either moves them into another density group (no single-count fix). flip.py
-   --want '_count$ = -16612' (the original's slot for count; 1144 mutants, 887 compiled): 20 hits, every
-   one reshuffles the whole frame (best m689, deleting 'model->rotation = rot', 82 ins): the unstable
-   quicksort makes any change to the list order move other slots too, so the lever is only the walk order
-   of the two last refs. Tried (= control or worse): 'if (result == 0) return 0; return result;' (=
-   control), the cleanup loop in both arms of the result test (76), 'if (result != 0 && model != 0)' (88).
-   Still open: what puts count's last counted ref before result's in the original's walk without a code
-   change (a late pass that moves the result test block in front of the cleanup, or a result ref after the
-   cleanup that a late pass removes). */
+   @deep deep s79: the slots of result and count are a count tie (both 4, density 1000, between pos and
+   rot); the original has count ahead in the frame list. c2.dll (Ghidra): the frame is laid out in
+   FUN_1070cdb9 (after the lowering FUN_1070a291) before FUN_1070ea02 (FUN_1070ea47 loop-exit jump swaps,
+   FUN_10702af9, flow pass FUN_1070a5c3 merging off), FUN_1070eb58 (add esp), FUN_1070ec03 / FUN_1070ec81
+   (a5c3 with merging on: xjump / pair / move) and the emission. FUN_1070ddc4 walks the block list (= the
+   IL order, c2frame --refs T rows) and calls FUN_10713312(sym, 1) per operand; the list is size, then
+   count, a tie kept in the order the count was REACHED. Why the swap cannot come from the walk order: the
+   blocks are laid out before allocation in reverse postorder (FUN_1073cc0d), a topological order of the
+   forward edges, and the test (T) reaches the cleanup (C) only through its arms, so T always precedes C;
+   no post-frame pass adds a memory reference of a local here (return-block duplication copies only
+   epilogues), so the frame-time refs are the final ones (result: init, both confirm-arm stores, T; count:
+   store, site-loop bound, error-path cleanup, C) and result always reaches 4 first. Every tail-shape
+   variant gives the control's code and frame: forexit / doexit (exit inside a for(;;) / do..while(1)), i =
+   0 in both arms, for / while / for(;;)+break cleanup, labels before the test or cleanup, do {} while (0)
+   after the loop, the test as do { if (result) { strcpy; break; } .. } while (0); measured without result:
+   a separate 0 store (draft 111), goto cleanup (218), decided tests (= control), if (result != 0) first
+   (40). So the original differs in the frame-time count of OTHER locals (refs merged away after the frame:
+   duplicates removed by xjump / pair / move, or the late store-to-load peephole; ours already counts n at
+   5 with 4 final refs: a split store at each exit of the name loop, merged later). Full L -> B -> A replay
+   (scratch lc/qs5.py, qs9.py: K&R quicksort, packing best+px, sel+pz, flags+ask, every tie position): no
+   single count change gives the original's A order; with frame-time refs only ADDED the pairs that do are
+   n+1 & best+1 (best ahead of count), n+2 & best+1 (n ahead of cur), n+2 & px+1, n+2 & px+2 (n ahead of
+   cur); every +1 triple contains n & best. Tried for n / best / px (fr.py: c2frame per variant): the name
+   loop as if (!GetPath) { if (f) break; } else .., names[n] then n++, continue forms, while, the sprintf
+   arms swapped, else { if (f) break; }; best = d after cur = sel, best > d; the px test nested or != 0:
+   all n=5 best=3 px=2, frame = ours. climb.py round 1 (356 mutants, 201 codes): nothing closer; its 39
+   slots-only mutants only renumber the temp t32ec; 2 mutants put count before result (434 / 173 ins).
+   Open: an ordinary spelling whose frame-time IL holds one more n reference (a third exit store of the
+   name loop or a reload the peephole removes) and one more best reference, both gone in the final code; or
+   a flaw in the replay (re-check it on a function whose frame-time and final refs differ). prior: deep
+   s77: c2frame --refs walk: result reaches its 4th ref at the 'if (result == 0)' load, count at the final
+   cleanup's bound (the error-path cleanup in the loop and the result stores of the confirm arms come
+   before both); the A table puts them in one 1000-density pair between pos (1187) and rot (916), so a
+   third / fifth ref on either moves them into another density group (no single-count fix). flip.py --want
+   '_count$ = -16612' (the original's slot for count; 1144 mutants, 887 compiled): 20 hits, every one
+   reshuffles the whole frame (best m689, deleting 'model->rotation = rot', 82 ins): the unstable quicksort
+   makes any change to the list order move other slots too, so the lever is only the walk order of the two
+   last refs. Tried (= control or worse): 'if (result == 0) return 0; return result;' (= control), the
+   cleanup loop in both arms of the result test (76), 'if (result != 0 && model != 0)' (88). Still open:
+   what puts count's last counted ref before result's in the original's walk without a code change (a late
+   pass that moves the result test block in front of the cleanup, or a result ref after the cleanup that a
+   late pass removes). */
 D3OBJECT *lc_GebaeudeAusrichten(int kind, char *out) {
   char names[128][0x60];  /* the model files of the kind found in the vfs */
   char text[0x400];       /* the confirmation text */
