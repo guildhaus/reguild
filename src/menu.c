@@ -311,19 +311,25 @@ typedef struct SAVESLOTVIEW { /* 0x220, one slot of the save / load window */
    into is duplicated, so G's je and the fill share RET2 as in the original). Left: only the place of the
    'mov ebx,[slot]; test ebx,ebx' block: ours 'xor ebx,ebx' falls into D (push AUTOSAVE) and the test reads
    'je D' after RET1; the original 'xor ebx,ebx; jmp D; C: test; jne E; D:'. Mechanism (c2tail --il
-   merge/post): the merge-time layout is jump-first RPO; the shared fail block lies in the region of the
-   arm reached first, and xjump keeps the copy falling into it, so arm0 must be the slot test's jump child
-   ('if (slot != 0) .. else arm0'); then D is not fallen into after the merge and the emission chains it
-   behind its first jmp (the xor block). With 'if (slot == 0) arm0 else if (slot == 1) arm1' (C falls into
-   D, as the original) the fail block is reached through arm1 first and arm1's copy is kept (M9, 10-14).
-   Proved no lever: pair needs a run >= 22 (flag copies 'or ebx,-1; jmp R' measure 20, 'jne fail; jmp fill'
-   22 but then the fail block follows arm1 and the arms' jcc invert); move on the return (h1) gets the
-   front byte but G's je then lands on RET1 and the fill duplicates the return; a return for the arms alone
-   constant-folds to or eax,-1. Measured: ~250 variants: structure (==0 / else-if, !=0 nest, ==1 first, !=1
-   nest, separate ifs) x arm forms (flag, goto fail, goto fill + goto fail, the fail label in either arm,
-   goto fill + own slot = -1) x tail (flag, h1, goto, labels, own returns) x first-part forms; || / ?:
-   conditions; switch; flip.py for the original's C block: no single mutation. c2.dll's emission chaining
-   (not the three mergers, c2pass --skip 0x1070a928 = control) is the open piece. prior: deep s77: the
+   merge/post): the layout is jump-first RPO (apparently of the graph before the decided tests are
+   threaded: f-nest puts the slot != -1 test right behind arm 0's or-block); the shared fail block lies in
+   the region of the arm the walk reaches first, and xjump keeps the copy falling into it, so arm 0 must be
+   the slot test's jump child ('if (slot != 0) .. else arm0'); then D is not fallen into after the merge
+   and the emission chains it behind its first jmp (the xor block; emission keeps the IL's branch senses,
+   fp2). With 'if (slot == 0) arm0 else if (slot == 1) arm1' (C falls into D, as the original) the walk
+   reaches the fail block through arm 1 first and arm 1's copy is kept (M9, 10-14); the same with a result
+   local ('differ = strcmpi(..)' per arm, 'if (differ != 0) slot = -1;': 10, M9). Proved no lever: pair
+   needs a run >= 22 (flag copies 'or ebx,-1; jmp R' measure 20 = the six instructions' bytes with a near
+   jcc; 'jne fail; jmp fill' 22 but then the fail block follows arm 1 and the arms' jcc invert); move on
+   the return (h1) gets the front byte but G's je then lands on RET1 and the fill duplicates the return; a
+   return for the arms alone constant-folds to or eax,-1 (also through G's slot == -1 test); C1
+   canonicalizes goto-to-fill / empty-then spellings to the flag form. Measured ~270 variants: structure
+   (==0 / else-if, !=0 nest, ==1 first, !=1 nest, separate ifs) x arm forms (flag, goto fail, goto fill +
+   goto fail, fail label in either arm, goto fill + own slot = -1, result local) x tail (flag, h1, goto,
+   labels, own returns) x first-part forms; || / ?: conditions; switch; req->name direct / _stricmp (=
+   flag); climb 2 rounds from the kept text (no move); flip.py for the original's C block: no single
+   mutation. Open: c2.dll's emission chaining (c2pass --skip 0x1070a928 = control) and whether the
+   original's first part or slot test leave the xor block without the first jmp to D. prior: deep s77: the
    mechanism read with c2tail (--tries, --il merge, C2DAG_TRYDUMP=1). The original's layout is the plain
    flag form 'if (slot == 0) { if (strcmpi(name, AUTOSAVE) != 0) slot = -1; } else if (slot == 1) { if
    (strcmpi(name, QUICKSAVE) != 0) slot = -1; } if (slot != -1) { if (slots[slot].win != -1) return -1;
