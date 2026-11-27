@@ -6218,28 +6218,41 @@ void sv_EndBand(void) { sv_BandActive = 0; }
    (gm_PermissionBits 0x800) whose body stands in d3_DefaultScene and has mesh data; its screen position is the
    centre of the body's first 8 transformed vertices (the bounding box corners, camera space) projected with
    d3_ScaleX / d3_ScaleY around d3_CenterX / d3_CenterY (the 1 / z truncated to an int, as the original does).
-   @deep deep s73: the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE in the image (a scan of
-   all 4666 original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds only sv_UpdateBand /
-   Led): no byte function shows the construct. c2trace: v#1 (112) eax, then temp#47 (the counter, 40,
-   created later) ecx, then info#1 (40) eax; for the original info must lose eax (interfere with v, or an
-   unprocessed eax-preferring neighbour), which no tried text gives. = control (one code each round): pk =
-   &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys; block-scope walker; index loops
-   info->keys[n], v = &info->keys[n], info->keys + n; n = 8 / v at every position among the p inits (v
-   before the inits: 9); keys + 0, info[0].keys, (&info->keys)[0], *(int *)info, *(unsigned *)info; info as
-   default-then-overwrite flat code / if-else / ternary / nested ifs (s72 lever); info re-read after the
-   chain (CSE) at three positions; v / n / iz / bits holding info (webs renamed); a redundant (bits &
-   0x800) test at four places; static __inline helpers (keys getter, whole centre, sum only: listings equal
-   to the control); counter types uchar / char / short / ushort / unsigned / long x 4 loop forms (28 rows).
-   flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the copy needs an IR the
-   canonicaliser keeps; no spelling of the value flow found. prior: deep s26: declaration set measured (dcp
-   headers sample: 32 samples, one codegen, not sensitive). climb round 1: nothing (82 mutants). = control:
-   v = *(D3VERTEX **)info, v from the whole chain, n = 8 before v, do/while(--n), index loop through
-   info->keys[n], block-scoped walker + counter (for and do/while), info via an int local, info assigned
-   through v in its own if, the body nested in if (..) {..} instead of continue (one or both tests). Worse:
-   pointer-compare loop v < keys + 8 (18), v[n] index (16), probe keeping info live after the loop (28),
-   selected = condition (30). flip.py --want 'mov ecx,[eax+460]': only deleting v's def, != -> ==, deleting
-   the final selection test or swapping selected = 0 with the test give info ecx (all far). Left: the same
-   2-instruction copy (original mov eax,ecx; mov ecx,8; mov eax,[eax]). */
+   @deep deep s74: VC6's codegen of v = info->keys is always ONE load (probes that force info into ecx give
+   'mov eax,[ecx]; mov ecx,8', into edx 'mov eax,[edx]'), so the original's 'mov eax,ecx; mov ecx,8; mov
+   eax,[eax]' is an IR copy X = info (X in eax, then [X]) that our IR never has: every spelling is
+   forwarded before allocation. The copies VC6 keeps are join copies (probe: a second def of the
+   dereferenced pointer on another path gives 'mov eax,esi' into the join variable), so the original's
+   deref base had a second definition reaching it that vanished after forwarding, or a pass the original
+   ran differently. c2fuzz with the function alone (build/c2dag/fzband/fz.c, each of c2.dll's 15353 calls
+   skipped): no skipped call gives the copy (2 put info in ecx with far other changes; all 127 sites of
+   +1..+3 ins checked). climb.py 2 rounds beam 6 width 60 (368 mutants, 158 codes): nothing closer. =
+   control this session (one code each): CSE re-reads of the chain (test on c->scene->obj->info, info / v
+   re-read from it, at 3 places), if (info) / ternaries on info, comma and for-init forms, v = info in or
+   after the chain then v = keys (5 forms), info as D3SURF *[1] / [2] / struct {s} / struct {s, k} / union
+   {s, k} / register / void * / int / D3VERTEX **, volatile reads of keys / surf / info, pk = &info->keys
+   with (*pk)[n] / walk / down loops, info->keys[n] index loops (3), while (n--), float * / D3VECTOR * /
+   char * walkers, static __inline helpers (centre by pointer, by struct return, keys getter, sum only),
+   info = 0 defaults at 4 places and if-set / ternary forms (threaded), re-tests of info / the chain
+   (R3-R7), tests decided only after CSE (info == chain, v != info), identity ops on info (& -1, | 0, + 0,
+   * 1, << 0 ..), a zero index known only to C2 (info[iz] with iz = 0, info[n] with n = 0), one variable
+   for info and the counter or info redefined between the copy and the deref. Worse: equal arms keep the
+   compare (cmp eax,esi: size equal, 8 ins), other arm tests (17..39), extra pressure candidates (25..63),
+   v[n] (16), bits test last (23). Open: what second definition (or join) the original had on the
+   dereferenced pointer. prior: deep s73: the original's 'mov eax,ecx; mov ecx,8; mov eax,[eax]' is UNIQUE
+   in the image (a scan of all 4666 original functions for 'mov X,Y' followed within 2 by 'mov X,[X]' finds
+   only sv_UpdateBand / Led): no byte function shows the construct. c2trace: v#1 (112) eax, then temp#47
+   (the counter, 40, created later) ecx, then info#1 (40) eax; for the original info must lose eax
+   (interfere with v, or an unprocessed eax-preferring neighbour), which no tried text gives. = control
+   (one code each round): pk = &info->keys; v = (D3VERTEX *)info, n = 8, v = ((D3SURF *)v)->keys;
+   block-scope walker; index loops info->keys[n], v = &info->keys[n], info->keys + n; n = 8 / v at every
+   position among the p inits (v before the inits: 9); keys + 0, info[0].keys, (&info->keys)[0], *(int
+   *)info, *(unsigned *)info; info as default-then-overwrite flat code / if-else / ternary / nested ifs
+   (s72 lever); info re-read after the chain (CSE) at three positions; v / n / iz / bits holding info (webs
+   renamed); a redundant (bits & 0x800) test at four places; static __inline helpers (keys getter, whole
+   centre, sum only: listings equal to the control); counter types uchar / char / short / ushort / unsigned
+   / long x 4 loop forms (28 rows). flip.py --want 'mov eax, ecx\nmov ecx, 8': 0 of 157 mutants. Open: the
+   copy needs an IR the canonicaliser keeps; no spelling of the value flow found. */
 
 void sv_UpdateBand(void) {
   int left, right, top, bottom, i, n, iz, sx, sy;
