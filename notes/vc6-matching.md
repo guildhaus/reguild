@@ -26,7 +26,8 @@ measure` marks two observations that disagree: try both. Some notes name scripts
 - **Register allocation** (99 rules): How the allocator decides; Live range splitting, regions and the priority
   terms (c2.dll); Callee-saved registers swapped: a priority race
   lost by a point or two; A constant or zero kept in a register; Named local or expression: a candidate too many or
-  too few; Pointer locals and addresses; The eax / ecx / edx rotation out of step; Loops: counters, running values,
+  too few; Pointer locals and addresses; How the scratch registers are picked (c2.dll lowering); Register-to-register
+  copies VC6 keeps; The eax / ecx / edx rotation out of step; Loops: counters, running values,
   loop pointers; Frames and stack slots
 - **Stack frame and slots** (71 rules): How the frame is laid out; Frame bigger or smaller: vectors and padded
   arrays; Frame bigger or smaller: buffers, records, temps; Frame temps of AI_ZERO / D3_ZERO / inline-asm macros;
@@ -3808,8 +3809,9 @@ Which value gets which callee-saved register, the eax / ecx / edx rotation, cons
   block tried) matched with `text = io_PrintText(0x7e); d2_RadioAdd(g, d2_GetWinObj(view, 0, text));` (one
   candidate more in a block view is referenced in: P 10 -> 11, +2). Look at every block the losing value is
   referenced in, not only the one the note names.
-- **The scratch rotation**: eax, ecx, edx are handed out round-robin in IR order; a local in eax from the global
-  allocator does not advance the pointer. A candidate that replaces a scratch temp (`size = n * 4; f(size)`)
+- **The scratch rotation**: eax, ecx, edx are handed out round-robin in IR order (the exact rule: "How the
+  scratch registers are picked" below: a preferred pick and an allocated value make no step); a local in eax from
+  the global allocator does not advance the pointer. A candidate that replaces a scratch temp (`size = n * 4; f(size)`)
   rotates every later scratch register of the block, so add candidates that fold away or sit in a callee-saved
   register. One temp more moves the rotation for the whole rest of the function: the distance is not monotone
   while the rotation is out of step; judge a block's spelling (and an order round's best) only after the blocks
@@ -4385,6 +4387,90 @@ a stack slot is a split piece, and the piece's extent is decided by the rules be
 - **Pointer CSE in edi / ebx**: plain `m->_31` member access; pointer locals made it worse. An index form
   `bytes[i * 3]` / `f->normals[i*3+k]` reproduced loop registers that a separate counter or a hoisted `p =
   normals + i*3` did not. Indexing `b[i].x` bases the pointer at the middle field; walking `b++` at the last.
+
+### How the scratch registers are picked (c2.dll lowering, FUN_1070a291)
+
+Read from c2.dll 13.00.9044 and traced with `tools/c2dag/c2scr.py` (proxy c2scr.c); found by a memory watch on
+the register table (`tools/c2dag/c2watch.py`). The pass runs after the global allocator (color.c) and BEFORE the
+scheduler (dag.c), so no scheduler hack (c2sched) can change a scratch register.
+
+- **The pass**: FUN_1070cdb9 -> FUN_1070a291 walks the tuples once in layout order. Per tuple FUN_1070a404
+  resolves the uses, then FUN_1070a4ab the defs. State: the content table `0x107b12e8[reg]` (what each register
+  holds), the conflict sets `0x107b11c0[reg]` (bit = temp id, built by the backward walk FUN_1070ce7a per block)
+  and ONE rover per register class (`0x107b1418` for the integer class), set to the list start (eax) in
+  FUN_1070a291 once per function and never reset at a block. The class list is eax ecx edx esi edi ebx ebp
+  (`0x107c49d4`).
+- **What is a scratch temp**: an operand whose symbol is kind 3 WITH a defining tuple (sym+0x14): an expression
+  temporary of one block. Everything the allocator saw (named locals, CSE / strength-reduction temporaries,
+  constants, split pieces) already carries its register and is never picked here; it only makes its register
+  busy (content table) from its def to its last use.
+- **Freeing**: a register is freed at the last use of what it holds (operand flag +0x11 & 0x10), and uses are
+  resolved before defs: a value dying in a tuple frees its register for that tuple's own result (`mov eax,[eax]`).
+  At every label tuple (kind 0x19, FUN_1070d51a; every block starts with one, the fall-through of a jcc too) the
+  table is reset to the block's live-in registers: a scratch temp never lives across a block boundary.
+- **The pick (FUN_1070c32b), in this order**:
+  1. The temp's PREFERRED register (sym+0x2c), when it is free, a byte register if the temp needs one, and not
+     in conflict. Set by FUN_1070ce7a / at the pick: the source register of the mov that defines the temp (`t =
+     f();` eax, traced; `t = local`), the destination register of the mov that uses it (`local = t`, a return
+     value, a register argument), the base register of a `lea` without index. **A preferred pick does not move
+     the rover.**
+  2. Else from the rover: the first of eax, ecx, edx in cyclic order from the rover's position that is free,
+     allowed and not in conflict; the rover is then set BEHIND the register taken (after edx: eax). So the next
+     temp starts one register on, whatever was skipped.
+  3. Else the first free of the whole list (esi, edi ..), else an eviction / spill (FUN_107701e7).
+  A conflict is a register the allocator's values or a physical requirement (a call's kills, ecx of a shift, eax /
+  edx of a division, a `rep`) use between the temp's def and its last use.
+- **So one rotation step = one temp picked by the rover.** No step: a preferred pick; a value that is no temp
+  (the load IS the definition of an allocated local: `x = glob;` with x used in another block); a memory operand
+  (`cmp [mem],K`). A busy register is skipped without a step of its own (the pick lands one further and the rover
+  follows it). `c2scr.py SRC FUNC [--variants F --label L] [--uses] [--lines A-B]` prints every pick with `busy{}`,
+  the rover before it and why (`rover` / `pref`; `list` = the rover wrapped onto the same position).
+- **Layout order at lowering is not the final order**: blocks are lowered in the flow graph's list order; a
+  `return 0` block lies where the source has it and is moved / merged later (cross-jumping and tail merging run
+  after lowering). A tail copy that is merged away later HAS taken its rover steps (the gm_JobSlots rule below).
+- **A load one step off (edx, the original eax) with nothing in front of it that could step**: the original's
+  load was no temp. gm_Query byte: `gm_QueryCursor = ai_Objects; return gm_QueryNext();` in the scan arm made
+  the load a rover temp (edx); the original set the parameter (`list = ai_Objects;`) and fell into ONE shared
+  `gm_QueryCursor = list; return gm_QueryNext();` behind an `else if (list == 0) return 0;`. list is then an
+  allocated local defined in one block and used in the next (eax, where the other arm has it), VC6 duplicates
+  the short tail into both arms, and no test of ai_Objects appears because the join is behind the test. A clean
+  probe (`probe2 = probe;`) "fixing" such a spot only shows that the rover is one step short there; the cause can
+  be a temp too few before it OR this load being a temp at all. Look for a variable that both arms could share.
+- **A store run in the wrong order with all registers right** (ai_CommandExecution, open): the scratch picks need
+  the table load `kinds[i]` defined while ecx still holds the -1 constant (thing < host < the kinds load <
+  list[1]) and the scheduler's store order needs the variant STORE behind `flags` (thing, list[1], kind, flags,
+  variant, quiet). One statement cannot give both (its load and store are adjacent tuples); a named `v` with a
+  kill in between (`i = 0;`) gives the order, but v is then an allocated local: no rover step, c and the judges
+  one step off.
+
+### Register-to-register copies VC6 keeps
+
+A `mov A,B` between scratch registers where B is dead afterwards (`mov A,B; mov B,<new>`) is never an unforwarded
+`x = y;` of the source (copy propagation and forward substitution remove those before allocation, kills
+included: the dependent load is hoisted above the kill). In the image (a scan of all 4666 functions) the kept
+copies are:
+- **A join**: the variable has two definitions on two paths and one of them is another register value
+  (`if (..) limit = money < limit ? money : limit; else limit = from;` ai_AmountLimit: `mov eax,ecx` / `mov
+  eax,edx` in the two arms; list walks `prev = cur; cur = cur->next` snd_QueueTail, sb_LastBank, cm_QueueSend).
+- **Two-address lowering**: `d = a op b` with a still needed or d in another register: `mov ecx,edx; mov
+  edx,0x18; sub ecx,eax` (ai_InitWind: the pointer difference of two strength-reduced arrays; the counter takes
+  the dead register).
+- **A physical register requirement**: the dividend into eax, a shift count into ecx, a byte value into a byte
+  register (`mov eax,ecx; mov ecx,3; .. div ecx`, ai_DecideHandleGrave).
+- **A value needed twice around an update in one expression**: zlib's `put_short` (`s->pending_buf[s->pending++]
+  = ..` twice): `inc edx; mov [esi+0x14],edx; mov ecx,edx` - the incremented index is an allocated CSE value
+  copied for the second byte.
+- **An eviction by the lowering pass** (FUN_107701e7: a tuple defines a register that holds a live scratch temp;
+  the temp gets a new pick). In the code, but not met on any traced function (`c2scr.py` prints an `E` line).
+- **An allocator split** (color.c): two pieces of one value in two registers, the copy at the cut.
+
+sv_UpdateBand / sv_UpdateBandLed (`mov ecx,[eax+0x1cc]; test ecx,ecx; je; .. mov eax,ecx; mov ecx,8; mov
+eax,[eax]`, open): info is in ecx across the `je`, so it is an allocated value there (a scratch temp cannot cross
+the label), although the rover stands at ecx where it is loaded (the pick before it is the obj load in eax).
+Ruled out on a minimal probe (36 forms, none gives a `mov r,r`): one-pass loops over info (`while (info) { ..;
+break; }`, `for (info = ..; info; info = 0)`, do / while (0)), joins with a decided second def, one variable for
+info and v or for info and n, a kill of info between the copy and the load (with and without an aliasing store),
+post-increment, `__inline` helpers with a reassigned parameter, index and three-sum loop forms.
 
 ### The eax / ecx / edx rotation out of step
 

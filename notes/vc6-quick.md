@@ -74,6 +74,12 @@ temporaries are no candidates: they get what is left.
 - Scratch registers (eax, ecx, edx) for temporaries are handed out round-robin in code order through the whole
   function. One temporary more or fewer rotates every scratch register behind it. A local that got a register
   does not advance the rotation; a direct global read does.
+  The exact rule (lowering pass FUN_1070a291, after the allocator, before the scheduler; `c2scr.py`): a temp
+  takes its PREFERRED register when free (the source register of the mov that defines it: `t = f()` eax; the
+  destination of the mov that uses it; a lea's base) and the rover stays; else the next free, conflict-free one
+  of eax / ecx / edx from the rover, which is left behind the register taken. One step = one rover pick; the
+  rover is per function, the busy table is reset at every label (a temp never crosses a block). A value that
+  lives in two blocks is an allocated local, never a temp: it makes no step.
 - So a register hunk is never "which spelling" but "which candidate exists, and which must rank above which":
   - a value the original keeps in one callee-saved register through several statements and updates in place was
     a NAMED local; a value in a leftover register for one expression across one call was written inline
@@ -197,6 +203,9 @@ Section names are those of `notes/vc6-matching.md`.
 | a field load / argument push sunk after a struct copy or the stores of a record whose address went to a call in another arm or an earlier pass | the other arm's (or the loop body's) records as block locals of that block, then permute the fill (ai_DecideUseMilitaryObject, ai_DungeonBribeWindow) | Order |
 | copy temps in esi with the pops at the end, ours copies through ecx and pops early | the statement stored before the copies stands after them (its load is hoisted and keeps a scratch register busy): move it, one round of positions (cm_SendFightCommand) | Register allocation |
 | a ternary argument (`neg; sbb; add eax,K`) computed before the call's other argument loads | an int local set by if / else right before the call (`if (s) type = 6; else type = 7;`); `type = s ? 6 : 7` is forwarded (cm_ExCreateNamedCharacter) | Calls |
+| a load in the next rotation register (edx, the original eax) in one arm of two that end in the same store + call; a probe temp in front of it "fixes" it | the load was no temp: the arm assigns the variable the other arm uses (`list = ai_Objects;`) and both fall into ONE shared tail (`else if (list == 0) return 0; cursor = list; return next();`), which VC6 duplicates (gm_Query) | Register allocation (How the scratch registers are picked) |
+| every scratch register right, or all one step off from one point: which temp stepped | `c2scr.py SRC FUNC --uses`: each pick with busy{}, the rover and `rover` / `pref`; compare the pick sequence the original's registers need (a preferred pick and an allocated local make no step) before any spelling round | Register allocation (How the scratch registers are picked) |
+| a kept `mov A,B` with B redefined right behind | never an unforwarded `x = y;`: a join of two definitions, a two-address op (`d = a - b`), a physical register (div, shift, byte), a value kept across its own update (`buf[n++]` twice) or an allocator split | Register allocation (Register-to-register copies VC6 keeps) |
 | a chained `a = b = c = x;` message fill that no order round moves | the chain as separate stores, then the order round (in a loop: the record block-scoped first) (ai_DenounceWindow) | Order |
 | two calls of the same cleanup where the jump table sends two cases into one call block | the case falls through into the next case's code (`/* fall through */`) (he_RunTutorialBuildingTour) | Branch layout |
 | a stored float reloaded from a spill slot where ours keeps a named float on the FPU | no named float: `x *= k; if (..) x += y;` on the element itself (cm_InitOrderChances) | Floating point |
@@ -355,6 +364,14 @@ Section names are those of `notes/vc6-matching.md`.
   with its predecessors in list order. REGEX takes `map`, `^_map$`, `t|npoints|map`, `map#2` (whole names first,
   then a search; no match: an error listing the names). `--seq`: the events in order; `--raw`: the proxy's lines.
   Line numbers are file lines of the traced text.
+- `python tools/c2dag/c2scr.py SRC FUNC [--variants FILE --label L] [--uses] [--lines A-B]` (proxy c2scr.c): the
+  scratch-register picks of the lowering pass in the order VC6 makes them: `P line L op X tID [pref R] busy{..}
+  rover R -> R (rover | pref | list)`, `L` at each label (table reset); `--uses` adds every tuple with its
+  operands (`sym@register`, `!` = last use). Line numbers count from the function's first line. Use it on a
+  rotation hunk before any round: write down the pick sequence the original's registers need, then look for
+  the pick that differs. `python tools/c2dag/c2watch.py FILE.c [FUNC] [--lo RVA --hi RVA] [--seq]` (proxy
+  c2watch.c): which code of c2.dll reads / writes a data range while a probe compiles (a PAGE_NOACCESS watch;
+  default the eax / ecx / edx register table entries): how the lowering pass was found, for the next unknown table.
 - `python tools/c2dag/c2ids.py SRC FUNC --line N [--variants FILE --label L] [--acct]`: the commutative tuples of
   file line N before and after each simplification, each operand with its symbol id and sort key (the larger key is
   the first operand = the SIB base, the destination of `add a,b`); `--acct`: the function's id blocks and optimizer
